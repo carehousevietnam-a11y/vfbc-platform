@@ -44,11 +44,47 @@ function ConsultationForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
 
   useEffect(() => {
-    setContact(getLeadContact());
-    setCheckedStorage(true);
+    async function loadContact() {
+      // 1순위: 같은 세션 내 방금 남긴 정보(sessionStorage)
+      const stored = getLeadContact();
+      if (stored) {
+        setContact(stored);
+        setCheckedStorage(true);
+        return;
+      }
+
+      // 2순위: 로그인된 계정이면 프로필에서 자동으로 가져오기
+      // (이메일 링크로 비밀번호 설정 후 들어온 경우 등, sessionStorage가 비어있는 상황 대응)
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData.session?.user;
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("users")
+          .select("name, phone, address, kakao_id, zalo_id")
+          .eq("id", user.id)
+          .single();
+
+        if (profile && profile.name && profile.phone) {
+          setContact({
+            name: profile.name,
+            phone: profile.phone,
+            address: profile.address || "",
+            kakao_id: profile.kakao_id || null,
+            zalo_id: profile.zalo_id || null,
+          });
+          setLoggedInUserId(user.id);
+        }
+      }
+
+      setCheckedStorage(true);
+    }
+
+    loadContact();
   }, []);
 
   async function insertConsultation(data: LeadContact) {
@@ -66,6 +102,7 @@ function ConsultationForm() {
       service_type: "consultation",
       result: caseKey || null,
       source_page: "/consultation",
+      user_id: loggedInUserId,
     });
 
     if (err) {
@@ -131,12 +168,14 @@ function ConsultationForm() {
         </p>
 
         <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-          {/* 이미 남겨주신 정보가 있는 경우 - 바로 확인만 */}
+          {/* 이미 남겨주신 정보(또는 로그인된 계정 정보)가 있는 경우 - 바로 확인만 */}
           {showQuickConfirm && contact && (
             <>
               <MessageSquare className="text-blue-900" size={28} />
               <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-                조금 전 남겨주신 정보로 바로 상담 신청할까요?
+                {loggedInUserId
+                  ? "가입하신 계정 정보로 바로 상담 신청할까요?"
+                  : "조금 전 남겨주신 정보로 바로 상담 신청할까요?"}
               </p>
               <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-700 space-y-1">
                 <p>{contact.name}</p>
@@ -170,6 +209,7 @@ function ConsultationForm() {
                   name="name"
                   required
                   placeholder="이름"
+                  defaultValue={contact?.name || ""}
                   className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                 />
                 <input
@@ -177,6 +217,7 @@ function ConsultationForm() {
                   name="phone"
                   required
                   placeholder="전화번호"
+                  defaultValue={contact?.phone || ""}
                   className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                 />
                 <input
@@ -184,6 +225,7 @@ function ConsultationForm() {
                   name="address"
                   required
                   placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
+                  defaultValue={contact?.address || ""}
                   className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                 />
                 <textarea
@@ -197,12 +239,14 @@ function ConsultationForm() {
                     type="text"
                     name="kakao_id"
                     placeholder={`${messengers.primary.label} ID (선택)`}
+                    defaultValue={contact?.kakao_id || ""}
                     className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                   />
                   <input
                     type="text"
                     name="zalo_id"
                     placeholder={`${messengers.secondary.label} ID (선택)`}
+                    defaultValue={contact?.zalo_id || ""}
                     className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                   />
                 </div>

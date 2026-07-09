@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, AlertTriangle, XCircle, Lock, ShieldAlert } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 type Status = "loading" | "invalid" | "expired" | "needsPassword" | "showResult";
 
@@ -93,6 +94,21 @@ function ResultContent() {
         setSubmitting(false);
         return;
       }
+
+      // 비밀번호 설정 성공 → 브라우저에 실제 로그인 세션 생성
+      // (이걸 안 하면 "가입 완료" 화면은 뜨지만 실제로는 비로그인 상태로 남아
+      //  이후 상담 신청 등에서 이름/연락처 자동입력이 동작하지 않음)
+      if (data.authEmail) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: data.authEmail,
+          password,
+        });
+        if (signInError) {
+          console.error("auto sign-in failed:", signInError);
+          // 로그인이 실패해도 결과 화면은 그대로 보여줌 (비밀번호 자체는 정상 설정됨)
+        }
+      }
+
       setStatus("showResult");
     } catch (err) {
       console.error("set-password fetch failed:", err);
