@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, AlertTriangle, XCircle, Lock, ShieldAlert } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 type Status = "loading" | "invalid" | "expired" | "needsPassword" | "showResult";
 
@@ -29,6 +28,8 @@ const RESULT_LABELS: Record<string, { label: string; tone: "emerald" | "amber" |
 function ResultContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  // al=1 이면 이미 자동로그인 리다이렉트를 거쳐서 돌아온 상태 (다시 리다이렉트하지 않도록 방지)
+  const alreadyLoggedInPass = searchParams.get("al") === "1";
 
   const [status, setStatus] = useState<Status>("loading");
   const [info, setInfo] = useState<ResultInfo | null>(null);
@@ -65,12 +66,18 @@ function ResultContent() {
       });
   }, [token]);
 
-  // "가입 완료 / 결과 확인" 화면에 도달하는 모든 경로(방금 비밀번호를 설정했든,
-  // 예전에 이미 설정해서 곧장 넘어왔든)에서 공통으로 자동 로그인을 시도한다.
-  // 이걸 안 하면 화면은 "가입 완료"로 보여도 실제로는 로그인 세션이 없어서
-  // 이후 상담 신청 등에서 이름/연락처 자동입력이 동작하지 않는다.
+  // "가입 완료 / 결과 확인" 화면에 도달하면 자동 로그인을 시도한다.
+  // 이미 자동로그인 리다이렉트를 한 번 거쳐서 돌아온 경우(al=1)는 다시 하지 않는다
+  // (Supabase 세션은 이미 URL 처리 과정에서 설정되어 있음).
   useEffect(() => {
-    if (status !== "showResult" || !token || loginAttempted) return;
+    if (
+      status !== "showResult" ||
+      !token ||
+      loginAttempted ||
+      alreadyLoggedInPass
+    ) {
+      return;
+    }
     setLoginAttempted(true);
 
     (async () => {
@@ -81,23 +88,18 @@ function ResultContent() {
           body: JSON.stringify({ token }),
         });
         const data = await res.json();
-        if (!res.ok || !data.email || !data.hashedToken) {
+        if (!res.ok || !data.actionLink) {
           console.error("auto-login failed:", data);
           return;
         }
-        const { error: verifyError } = await supabase.auth.verifyOtp({
-          email: data.email,
-          token: data.hashedToken,
-          type: "magiclink",
-        });
-        if (verifyError) {
-          console.error("auto-login verifyOtp failed:", verifyError);
-        }
+        // 이 링크로 이동하면 Supabase 서버가 로그인 세션을 만들고
+        // 다시 이 페이지(al=1 붙은 채로)로 돌려보낸다.
+        window.location.href = data.actionLink;
       } catch (err) {
         console.error("auto-login request failed:", err);
       }
     })();
-  }, [status, token, loginAttempted]);
+  }, [status, token, loginAttempted, alreadyLoggedInPass]);
 
   async function handleSetPassword(e: React.FormEvent) {
     e.preventDefault();

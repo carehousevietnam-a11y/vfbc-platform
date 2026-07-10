@@ -7,10 +7,10 @@ const supabaseAdmin = createClient(
 );
 
 // result_tokens의 token(결과확인 링크 토큰)만으로, 비밀번호 없이도
-// 브라우저에 실제 로그인 세션을 만들 수 있게 해주는 매직링크 발급 API.
-// - 비밀번호를 방금 설정한 경우
-// - 이미 예전에 비밀번호를 설정해서 /r 링크가 곧장 결과화면으로 가는 경우
-// 두 케이스 모두 이 API 하나로 처리한다.
+// 브라우저에 실제 로그인 세션을 만들 수 있게 해주는 API.
+// verifyOtp 방식 대신, Supabase가 공식적으로 지원하는 "action_link로 직접
+// 리다이렉트" 방식을 사용한다 (브라우저가 이 링크로 이동하면 Supabase 서버가
+// 세션을 만들고 다시 우리 사이트로 돌려보낸다).
 export async function POST(req: NextRequest) {
   try {
     const { token } = (await req.json()) as { token?: string };
@@ -45,14 +45,17 @@ export async function POST(req: NextRequest) {
     }
 
     const email = authUserData.user.email;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+    const redirectTo = `${siteUrl}/r?token=${encodeURIComponent(token)}&al=1`;
 
     const { data: linkData, error: linkError } =
       await supabaseAdmin.auth.admin.generateLink({
         type: "magiclink",
         email,
+        options: { redirectTo },
       });
 
-    if (linkError || !linkData?.properties?.hashed_token) {
+    if (linkError || !linkData?.properties?.action_link) {
       console.error("auto-login generateLink error:", linkError);
       return NextResponse.json(
         { error: "로그인 링크 발급에 실패했습니다." },
@@ -61,8 +64,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({
-      email,
-      hashedToken: linkData.properties.hashed_token,
+      actionLink: linkData.properties.action_link,
     });
   } catch (err) {
     console.error("auto-login route error:", err);
