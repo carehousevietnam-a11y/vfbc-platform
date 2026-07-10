@@ -53,22 +53,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: authError.message }, { status: 500 });
     }
 
-    // 클라이언트가 자동 로그인(signInWithPassword)에 쓸 auth 내부 식별자(이메일) 조회
-    // 이 값은 public.users.email(사용자가 입력한 실제 연락처 이메일)과 다를 수 있음
-    // (이메일 미입력 시 auth.users.email은 {phone}@vfbc.local 형태로 자동 생성되어 있음)
-    const { data: authUserData, error: getUserError } =
-      await supabaseAdmin.auth.admin.getUserById(tokenRow.user_id);
-
-    if (getUserError || !authUserData?.user?.email) {
-      console.error("set-password getUserError:", getUserError);
-      return NextResponse.json(
-        { error: "로그인 정보를 불러오지 못했습니다." },
-        { status: 500 }
-      );
-    }
-
-    const authEmail = authUserData.user.email;
-
     const { data: currentUser, error: fetchError } = await supabaseAdmin
       .from("users")
       .select("lead_score")
@@ -96,9 +80,12 @@ export async function POST(req: NextRequest) {
       .update({ used_at: new Date().toISOString() })
       .eq("token", token);
 
-    return NextResponse.json({ success: true, authEmail });
+    return NextResponse.json({ success: true });
   } catch (err) {
     console.error("set-password route error:", err);
-    return NextResponse.json({ error: "서버 오류가 발생했습니다." }, { status: 500 });
+    return NextResponse.json(
+      { error: "서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
   }
 }

@@ -37,6 +37,7 @@ function ResultContent() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [loginAttempted, setLoginAttempted] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -63,6 +64,40 @@ function ResultContent() {
         setStatus("invalid");
       });
   }, [token]);
+
+  // "가입 완료 / 결과 확인" 화면에 도달하는 모든 경로(방금 비밀번호를 설정했든,
+  // 예전에 이미 설정해서 곧장 넘어왔든)에서 공통으로 자동 로그인을 시도한다.
+  // 이걸 안 하면 화면은 "가입 완료"로 보여도 실제로는 로그인 세션이 없어서
+  // 이후 상담 신청 등에서 이름/연락처 자동입력이 동작하지 않는다.
+  useEffect(() => {
+    if (status !== "showResult" || !token || loginAttempted) return;
+    setLoginAttempted(true);
+
+    (async () => {
+      try {
+        const res = await fetch("/api/auto-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.email || !data.hashedToken) {
+          console.error("auto-login failed:", data);
+          return;
+        }
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          email: data.email,
+          token: data.hashedToken,
+          type: "magiclink",
+        });
+        if (verifyError) {
+          console.error("auto-login verifyOtp failed:", verifyError);
+        }
+      } catch (err) {
+        console.error("auto-login request failed:", err);
+      }
+    })();
+  }, [status, token, loginAttempted]);
 
   async function handleSetPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -94,21 +129,6 @@ function ResultContent() {
         setSubmitting(false);
         return;
       }
-
-      // 비밀번호 설정 성공 → 브라우저에 실제 로그인 세션 생성
-      // (이걸 안 하면 "가입 완료" 화면은 뜨지만 실제로는 비로그인 상태로 남아
-      //  이후 상담 신청 등에서 이름/연락처 자동입력이 동작하지 않음)
-      if (data.authEmail) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: data.authEmail,
-          password,
-        });
-        if (signInError) {
-          console.error("auto sign-in failed:", signInError);
-          // 로그인이 실패해도 결과 화면은 그대로 보여줌 (비밀번호 자체는 정상 설정됨)
-        }
-      }
-
       setStatus("showResult");
     } catch (err) {
       console.error("set-password fetch failed:", err);
