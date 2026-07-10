@@ -46,39 +46,72 @@ const EMPTY_FORM: FormState = {
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
 
-function ConsentDetails() {
+function ConsentDetails({
+  open,
+  onToggle,
+  highlight,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  highlight?: boolean;
+}) {
   return (
-    <details className="mt-1 rounded-lg bg-gray-50 p-3 text-[11px] text-gray-600 leading-relaxed">
-      <summary className="cursor-pointer font-medium text-gray-700">
-        자세히 보기 (베트남 · 대한민국 법령 근거)
-      </summary>
-      <div className="mt-2 space-y-2">
-        <div>
-          <p className="font-semibold text-gray-700">🇻🇳 베트남</p>
-          <p>
-            개인정보보호법(Luật Bảo vệ dữ liệu cá nhân, 법률 제91/2025/QH15호,
-            2026년 1월 1일 시행) 및 시행령 제356/2025/NĐ-CP호에 근거하여
-            이용자의 사전 동의를 받아 아래와 같이 개인정보를 수집·처리합니다.
-          </p>
+    <div
+      className={`mt-1 rounded-lg p-3 text-[11px] leading-relaxed transition-colors ${
+        highlight ? "bg-red-50 ring-1 ring-red-200" : "bg-gray-50"
+      }`}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full text-left font-medium text-gray-700"
+      >
+        {open ? "▾" : "▸"} 자세히 보기 (베트남 · 대한민국 법령 근거)
+      </button>
+
+      {highlight && (
+        <p className="mt-2 font-semibold text-red-700">
+          베트남·한국 개인정보보호법에 따라 동의하지 않으면 계정 생성 및
+          서비스 이용(신고 사이트 안내, 결과 확인 등)을 진행할 수 없습니다.
+        </p>
+      )}
+
+      {open && (
+        <div className="mt-2 space-y-3 text-gray-600">
+          <div>
+            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam</p>
+            <p>
+              Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
+              lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
+              thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn
+              sau khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại,
+              địa chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích
+              tư vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ
+              liệu được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục
+              đích xử lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ
+              chối có thể khiến bạn không thể sử dụng một số dịch vụ (hướng
+              dẫn khai báo, xem kết quả, v.v.).
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-700">🇰🇷 대한민국</p>
+            <p>
+              개인정보보호법에 근거하여 아래와 같이 개인정보 수집·이용에
+              대해 안내드리며, 동의를 받습니다.
+            </p>
+            <ul className="mt-1 list-disc pl-4 space-y-0.5">
+              <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID</li>
+              <li>수집 목적: 상담·등록 안내 및 서비스 이용을 위한 계정 자동 생성</li>
+              <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
+              <li>
+                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 신고
+                사이트 안내·결과 확인 등 서비스 이용이 제한될 수 있습니다.
+              </li>
+            </ul>
+          </div>
         </div>
-        <div>
-          <p className="font-semibold text-gray-700">🇰🇷 대한민국</p>
-          <p>
-            개인정보보호법에 근거하여 아래와 같이 개인정보 수집·이용에 대해
-            안내드리며, 동의를 받습니다.
-          </p>
-        </div>
-        <ul className="list-disc pl-4 space-y-0.5">
-          <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID</li>
-          <li>수집 목적: 상담·등록 안내 및 서비스 이용을 위한 계정 자동 생성</li>
-          <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
-          <li>
-            동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 신고
-            사이트 안내·결과 확인 등 서비스 이용이 제한될 수 있습니다.
-          </li>
-        </ul>
-      </div>
-    </details>
+      )}
+    </div>
   );
 }
 
@@ -98,6 +131,10 @@ export default function TamTruCheckPage() {
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [selfConsentOpen, setSelfConsentOpen] = useState(false);
+  const [selfConsentHighlight, setSelfConsentHighlight] = useState(false);
+  const [agencyConsentOpen, setAgencyConsentOpen] = useState(false);
+  const [agencyConsentHighlight, setAgencyConsentHighlight] = useState(false);
   const [emailProvided, setEmailProvided] = useState(false);
 
   const messengers = MESSENGERS_KO;
@@ -119,6 +156,10 @@ export default function TamTruCheckPage() {
     setSaveError(null);
     setEmailProvided(false);
     setPendingAction(null);
+    setSelfConsentOpen(false);
+    setSelfConsentHighlight(false);
+    setAgencyConsentOpen(false);
+    setAgencyConsentHighlight(false);
   }
 
   async function insertLead(form: FormState, action: string, tag: string) {
@@ -184,9 +225,11 @@ export default function TamTruCheckPage() {
   async function handleSelfLeadSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selfForm.agreeTerms) {
-      setSaveError("계정 자동생성 및 이용약관 동의가 필요합니다.");
+      setSelfConsentOpen(true);
+      setSelfConsentHighlight(true);
       return;
     }
+    setSelfConsentHighlight(false);
     setSaving(true);
     setSaveError(null);
     try {
@@ -225,9 +268,11 @@ export default function TamTruCheckPage() {
   async function handleAgencyLeadSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agencyForm.agreeTerms) {
-      setSaveError("계정 자동생성 및 이용약관 동의가 필요합니다.");
+      setAgencyConsentOpen(true);
+      setAgencyConsentHighlight(true);
       return;
     }
+    setAgencyConsentHighlight(false);
     setSaving(true);
     setSaveError(null);
     try {
@@ -505,19 +550,24 @@ export default function TamTruCheckPage() {
                       <input
                         type="checkbox"
                         checked={selfForm.agreeTerms}
-                        onChange={(e) =>
-                          setSelfForm({ ...selfForm, agreeTerms: e.target.checked })
-                        }
+                        onChange={(e) => {
+                          setSelfForm({ ...selfForm, agreeTerms: e.target.checked });
+                          if (e.target.checked) setSelfConsentHighlight(false);
+                        }}
                         className="mt-0.5"
                       />
                       <span>(필수) {CONSENT_SUMMARY}</span>
                     </label>
-                    <ConsentDetails />
+                    <ConsentDetails
+                      open={selfConsentOpen}
+                      onToggle={() => setSelfConsentOpen((v) => !v)}
+                      highlight={selfConsentHighlight}
+                    />
                   </div>
                   {saveError && <p className="text-xs text-red-600">{saveError}</p>}
                   <button
                     type="submit"
-                    disabled={saving || !selfForm.agreeTerms}
+                    disabled={saving}
                     className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors disabled:opacity-60"
                   >
                     {saving ? "저장 중..." : "30초 안에 내 지역 사이트 받기"}
@@ -759,19 +809,24 @@ export default function TamTruCheckPage() {
                       <input
                         type="checkbox"
                         checked={agencyForm.agreeTerms}
-                        onChange={(e) =>
-                          setAgencyForm({ ...agencyForm, agreeTerms: e.target.checked })
-                        }
+                        onChange={(e) => {
+                          setAgencyForm({ ...agencyForm, agreeTerms: e.target.checked });
+                          if (e.target.checked) setAgencyConsentHighlight(false);
+                        }}
                         className="mt-0.5"
                       />
                       <span>(필수) {CONSENT_SUMMARY}</span>
                     </label>
-                    <ConsentDetails />
+                    <ConsentDetails
+                      open={agencyConsentOpen}
+                      onToggle={() => setAgencyConsentOpen((v) => !v)}
+                      highlight={agencyConsentHighlight}
+                    />
                   </div>
                   {saveError && <p className="text-xs text-red-600">{saveError}</p>}
                   <button
                     type="submit"
-                    disabled={saving || !agencyForm.agreeTerms}
+                    disabled={saving}
                     className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors disabled:opacity-60"
                   >
                     {saving ? "저장 중..." : "대행 신청하기"}
