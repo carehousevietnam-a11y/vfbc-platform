@@ -7,12 +7,15 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  FileText,
   MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
+
+// TODO: 정확한 관할 발급기관 페이지로 교체 확인 필요 (거주증은 지역별 출입국관리국/공안청을 통해 접수되는 경우가 많아, 땀주처럼 단일 온라인 포털이 아닐 수 있습니다)
+const TRC_OFFICIAL_URL = "https://xuatnhapcanh.gov.vn/";
 
 type Nationality = "korea" | "china" | "japan" | "other" | null;
 type Visa = "invest" | "work" | "tourist" | "other" | null;
@@ -113,11 +116,15 @@ export default function TrcCheckPage() {
   const [role, setRole] = useState<Role>(null);
   const [company, setCompany] = useState<Company>(null);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
+  const [agencyRequested, setAgencyRequested] = useState(false);
+  const [agencySaving, setAgencySaving] = useState(false);
+  const [agencyError, setAgencyError] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
 
   const result = computeResult(visa, role, company);
@@ -129,10 +136,33 @@ export default function TrcCheckPage() {
     setRole(null);
     setCompany(null);
     setLeadSubmitted(false);
+    setLeadId(null);
     setLeadError(null);
     setEmailProvided(false);
     setConsentOpen(false);
     setConsentHighlight(false);
+    setAgencyRequested(false);
+    setAgencySaving(false);
+    setAgencyError(null);
+  }
+
+  async function handleAgencyRequest() {
+    if (!leadId) return;
+    setAgencySaving(true);
+    setAgencyError(null);
+    try {
+      const { error } = await supabase.from("crm_activities").insert({
+        lead_id: leadId,
+        action: "agency_upgrade_request",
+        tag: "TRC",
+      });
+      if (error) throw error;
+      setAgencyRequested(true);
+    } catch {
+      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setAgencySaving(false);
+    }
   }
 
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -201,6 +231,7 @@ export default function TrcCheckPage() {
 
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setEmailProvided(!!email);
+    setLeadId(leadId);
     setSubmitting(false);
     setLeadSubmitted(true);
   }
@@ -336,6 +367,11 @@ export default function TrcCheckPage() {
               현재 비자·직책·회사 형태 기준으로 거주증(TRC) 신청 요건을
               충족합니다.
             </p>
+            <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+              * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다.
+              정확한 발급 가능 여부는 서류 검토 후 전문가 상담을 통해
+              확정됩니다.
+            </p>
             <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
               정확한 필요서류와 처리절차는 회사 형태·직책에 따라 달라져요.
               이름·연락처·주소만 남기면 맞춤 서류 체크리스트를 무료로
@@ -425,23 +461,17 @@ export default function TrcCheckPage() {
           </div>
         )}
 
-        {/* 결과: 가능 — 접수 완료, 카톡/잘로로 안내서류+신청링크 발송 */}
-        {showResult && result === "possible" && leadSubmitted && (
+        {/* 결과: 가능 — 필요서류 안내 + 관할기관 링크 + 대행 유도 (셀프가이드 단계) */}
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
-              접수 완료 — {messengers.primary.label} 또는{" "}
-              {messengers.secondary.label}로 곧 보내드립니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              입력하신 주소·상황을 기준으로 정리한 상세 안내와 필요서류
-              체크리스트를 잠시 후 메시지로 보내드립니다. 신청을 원하시면
-              그 메시지 안의 링크로 바로 진행하실 수 있어요.
+              필요서류부터 확인하세요
             </p>
 
             <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
-                미리 준비해두시면 좋은 서류
+                거주증(TRC) 신청에 필요한 서류
               </p>
               <ul className="mt-2 space-y-1">
                 <li className="text-xs text-gray-600 pl-1">
@@ -457,19 +487,71 @@ export default function TrcCheckPage() {
                   · 회사 사업자등록증 사본
                 </li>
               </ul>
+            </div>
+
+            <a
+              href={TRC_OFFICIAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
+            >
+              관할 발급기관 사이트 바로가기 <ExternalLink size={14} />
+            </a>
+            <p className="mt-2 text-[11px] text-gray-400">
+              거주증은 지역(성/시)별 출입국관리사무소를 통해 접수되는 경우가
+              많아, 정확한 접수처는 관할 지역에 따라 다를 수 있습니다.
+            </p>
+
+            <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
+              ⏱ 직접 신청하시는 경우, 서류 준비 실수로 인한 반려·재제출이
+              잦아 완료까지 평균 2~3주 이상 걸릴 수 있습니다. VFBC가
+              대행하면 서류 검토부터 접수까지 평균 5~7일 안에
+              완료됩니다.
+            </div>
+
+            {agencyError && (
+              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
+            )}
+            <button
+              onClick={handleAgencyRequest}
+              disabled={agencySaving}
+              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+            >
+              {agencySaving ? "접수 중..." : "지금 VFBC 대행 신청하기 →"}
+            </button>
+            <p className="mt-2 text-[11px] text-gray-400">
+              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+            </p>
+
+            <button
+              onClick={reset}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {/* 결과: 가능 — 대행 접수 완료 */}
+        {showResult && result === "possible" && agencyRequested && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              대행 신청이 접수되었습니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
+              {messengers.primary.label}/{messengers.secondary.label}로
+              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
+            </p>
+
+            {emailProvided && (
               <p className="mt-2 text-[11px] text-gray-400">
-                미리 준비해두시면 접수가 더 빨리 진행됩니다.
+                메시지가 오지 않으면 이메일도 함께 확인해주세요.
               </p>
-            </div>
+            )}
 
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <MessageCircle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              {emailProvided
-                ? "메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요."
-                : "메시지가 오지 않으면 알려주세요 — 담당자가 직접 확인 후 연락드립니다."}
-            </div>
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
               입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
               자동 생성되며, 마이페이지에서 언제든 변경하실 수
@@ -477,15 +559,9 @@ export default function TrcCheckPage() {
               함께 이용하실 수 있습니다.
             </div>
 
-            <Link
-              href="/consultation?case=trc-application"
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-blue-900 px-5 py-2.5 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-            >
-              <FileText size={15} /> 메시지 기다리지 않고 지금 상담하기
-            </Link>
             <button
               onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
             >
               처음부터 다시 확인하기
             </button>
