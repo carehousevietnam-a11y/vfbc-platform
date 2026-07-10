@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, MessageSquare, CheckCircle2, Pencil } from "lucide-react";
+import { ArrowLeft, MessageSquare, CheckCircle2, Pencil, Loader2 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { getLeadContact, saveLeadContact, LeadContact } from "@/lib/leadContact";
@@ -19,6 +19,8 @@ const CASE_LABELS: Record<string, string> = {
   "driving-license": "운전면허 전환",
   "driving-license-new": "운전면허 신규 취득",
 };
+
+const AUTO_SUBMIT_DELAY_MS = 1500;
 
 function maskPhone(phone: string) {
   if (phone.length <= 4) return phone;
@@ -45,6 +47,9 @@ function ConsultationForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
+  const [autoCountdown, setAutoCountdown] = useState(false);
+  const autoTriggeredRef = useRef(false);
+  const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messengers = MESSENGERS_KO;
 
   useEffect(() => {
@@ -58,7 +63,6 @@ function ConsultationForm() {
       }
 
       // 2순위: 로그인된 계정이면 프로필에서 자동으로 가져오기
-      // (이메일 링크로 비밀번호 설정 후 들어온 경우 등, sessionStorage가 비어있는 상황 대응)
       const { data: sessionData } = await supabase.auth.getSession();
       const user = sessionData.session?.user;
 
@@ -109,6 +113,8 @@ function ConsultationForm() {
       console.error(err);
       setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
       setSubmitting(false);
+      setAutoCountdown(false);
+      autoTriggeredRef.current = false;
       return;
     }
 
@@ -123,9 +129,38 @@ function ConsultationForm() {
     setSubmitted(true);
   }
 
-  function handleQuickConfirm() {
-    if (!contact) return;
-    insertConsultation(contact);
+  // 저장된 정보(또는 로그인 프로필)가 확인되면, 짧은 유예시간 후 자동으로 접수한다.
+  // 그 사이 "다른 정보로 입력할게요"를 누르면 취소된다.
+  useEffect(() => {
+    if (
+      !checkedStorage ||
+      !contact ||
+      useManualForm ||
+      submitted ||
+      submitting ||
+      autoTriggeredRef.current
+    ) {
+      return;
+    }
+
+    autoTriggeredRef.current = true;
+    setAutoCountdown(true);
+    autoTimerRef.current = setTimeout(() => {
+      setAutoCountdown(false);
+      insertConsultation(contact);
+    }, AUTO_SUBMIT_DELAY_MS);
+
+    return () => {
+      if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkedStorage, contact, useManualForm, submitted]);
+
+  function cancelAutoSubmit() {
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
+    autoTriggeredRef.current = false;
+    setAutoCountdown(false);
+    setUseManualForm(true);
   }
 
   async function handleManualSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -141,7 +176,7 @@ function ConsultationForm() {
     insertConsultation(data);
   }
 
-  const showQuickConfirm = checkedStorage && contact && !useManualForm && !submitted;
+  const showAutoPanel = checkedStorage && contact && !useManualForm && !submitted;
   const showManualForm = checkedStorage && (!contact || useManualForm) && !submitted;
 
   return (
@@ -164,18 +199,20 @@ function ConsultationForm() {
         <p className="mt-1 text-sm text-gray-500">
           {caseLabel
             ? `${caseLabel} 관련해서 담당자가 직접 확인해드립니다.`
+            : loggedInUserId
+            ? "등록하신 정보로 담당자가 직접 연락드립니다."
             : "이름·연락처만 남기면 담당자가 직접 연락드립니다."}
         </p>
 
         <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-          {/* 이미 남겨주신 정보(또는 로그인된 계정 정보)가 있는 경우 - 바로 확인만 */}
-          {showQuickConfirm && contact && (
+          {/* 저장된 정보(또는 로그인 계정 정보)가 있으면 자동 접수 */}
+          {showAutoPanel && contact && (
             <>
               <MessageSquare className="text-blue-900" size={28} />
               <p className="mt-4 text-sm text-gray-600 leading-relaxed">
                 {loggedInUserId
-                  ? "가입하신 계정 정보로 바로 상담 신청할까요?"
-                  : "조금 전 남겨주신 정보로 바로 상담 신청할까요?"}
+                  ? "가입하신 계정 정보로 자동 접수됩니다."
+                  : "조금 전 남겨주신 정보로 자동 접수됩니다."}
               </p>
               <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-700 space-y-1">
                 <p>{contact.name}</p>
@@ -183,19 +220,20 @@ function ConsultationForm() {
                 <p className="text-gray-500">{contact.address}</p>
               </div>
               {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
-              <button
-                onClick={handleQuickConfirm}
-                disabled={submitting}
-                className="mt-5 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
-              >
-                {submitting ? "접수 중..." : "네, 이 정보로 신청하기"}
-              </button>
-              <button
-                onClick={() => setUseManualForm(true)}
-                className="mt-3 flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600"
-              >
-                <Pencil size={12} /> 다른 정보로 입력할게요
-              </button>
+
+              <div className="mt-5 flex items-center gap-2 text-sm text-gray-500">
+                <Loader2 size={16} className="animate-spin text-blue-900" />
+                {autoCountdown ? "잠시 후 자동으로 접수됩니다..." : "접수 중..."}
+              </div>
+
+              {autoCountdown && (
+                <button
+                  onClick={cancelAutoSubmit}
+                  className="mt-3 flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600"
+                >
+                  <Pencil size={12} /> 다른 정보로 입력할게요
+                </button>
+              )}
             </>
           )}
 
