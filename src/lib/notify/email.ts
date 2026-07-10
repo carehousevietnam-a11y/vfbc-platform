@@ -40,13 +40,20 @@ export async function sendResultEmail(
 
   const serviceLabel = SERVICE_LABEL[serviceType] ?? "진단";
   const resultLabel = result ? RESULT_LABEL[result] ?? null : null;
+  const isSelfRegistration = !resultLabel;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc.vercel.app";
   const resultUrl = `${siteUrl}/r?token=${token}`;
 
   const subject = resultLabel
     ? `[VFBC] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
-    : `[VFBC] ${name}님의 ${serviceLabel} 접수가 완료되었습니다`;
+    : `[VFBC] ${name}님의 ${serviceLabel} 자가등록을 축하드립니다`;
+
+  const headline = isSelfRegistration
+    ? `${name}님, ${serviceLabel} 자가등록을 축하드립니다`
+    : `${name}님, ${serviceLabel} 진단이 완료되었습니다`;
+
+  const buttonLabel = isSelfRegistration ? "도움 요청하기" : "상세 결과 확인하기";
 
   const html = `
   <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #fafafa;">
@@ -55,7 +62,7 @@ export async function sendResultEmail(
       VFBC · 베트남 외국인 비즈니스센터청
     </p>
     <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 16px; line-height: 1.4;">
-      ${name}님, ${serviceLabel} 진단이 완료되었습니다
+      ${headline}
     </h1>
     ${
       resultLabel
@@ -64,10 +71,11 @@ export async function sendResultEmail(
              <p style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">${resultLabel}</p>
              <p style="font-size: 13px; color: #9ca3af; margin: 12px 0 0;">정확한 필요서류와 절차는 아래 버튼을 눌러 확인하세요.</p>
            </div>`
-        : `<p style="font-size: 15px; color: #374151; margin: 0 0 24px;">담당자가 확인 후 곧 연락드립니다.</p>`
+        : `<p style="font-size: 15px; color: #374151; margin: 0 0 8px;">스스로 잘 진행하고 계세요. 응원합니다! 🎉</p>
+           <p style="font-size: 15px; color: #374151; margin: 0 0 24px;">만일 진행 중 막히는 부분이 있으시면, 아래 버튼을 눌러 도움을 요청해주세요.</p>`
     }
     <a href="${resultUrl}" style="display: inline-block; background: #1e3a8a; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 9999px; text-decoration: none;">
-      상세 결과 확인하기
+      ${buttonLabel}
     </a>
     <p style="font-size: 12px; color: #9ca3af; margin-top: 28px; line-height: 1.6;">
       본 메일은 VFBC 서비스 이용 중 남기신 연락처로 발송되었습니다.<br/>
