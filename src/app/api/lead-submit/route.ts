@@ -50,9 +50,6 @@ export async function POST(req: NextRequest) {
     const authEmail = email && email.trim() ? email.trim() : `${phone}@vfbc.local`;
 
     // 1. 이 전화번호 "또는" 이메일로 이미 가입된 회원인지 확인
-    // .single()/.maybeSingle() 대신 배열로 받는다 — 테스트 반복 등으로 동일 이메일/전화번호를
-    // 가진 행이 여러 개 쌓여 있어도(원래는 없어야 하지만) 에러 없이 처리하기 위함.
-    // 여러 개가 나오면 가장 먼저 생성된 계정(오래된 것)을 정본으로 사용한다.
     const { data: existingUsers, error: findError } = await supabaseAdmin
       .from("users")
       .select("id, password_set")
@@ -75,6 +72,10 @@ export async function POST(req: NextRequest) {
       userId = existingUser.id;
     } else {
       // 2. 신규 회원 — auth 계정 생성 시도
+      // 비밀번호는 사용자가 절대 알 필요 없는 랜덤 값으로 즉시 설정하고,
+      // 이 시점에 이미 "완전히 가입된" 상태로 처리한다 (password_set: true).
+      // 사용자에게는 회원가입 절차 자체를 노출하지 않으며,
+      // 원하면 나중에 마이페이지에서 비밀번호를 직접 설정/변경할 수 있다.
       const { data: authData, error: authError } =
         await supabaseAdmin.auth.admin.createUser({
           email: authEmail,
@@ -114,7 +115,7 @@ export async function POST(req: NextRequest) {
                 email: email && email.trim() ? email.trim() : null,
                 name,
                 address: address ?? null,
-                password_set: false,
+                password_set: true,
               });
             if (profileError) {
               console.error("users insert error (orphan recovery):", profileError);
@@ -135,14 +136,14 @@ export async function POST(req: NextRequest) {
         userId = authData.user.id;
         isNewUser = true;
 
-        // 3. public.users 프로필 insert
+        // 3. public.users 프로필 insert — 즉시 완전 가입 상태로 생성
         const { error: profileError } = await supabaseAdmin.from("users").insert({
           id: userId,
           phone,
           email: email && email.trim() ? email.trim() : null,
           name,
           address: address ?? null,
-          password_set: false,
+          password_set: true,
         });
 
         if (profileError) {

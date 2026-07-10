@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  UserPlus,
   ShieldAlert,
   FileText,
   MessageSquare,
@@ -15,13 +14,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-type Status =
-  | "loading"
-  | "invalid"
-  | "expired"
-  | "needsConsent"
-  | "joining"
-  | "ready";
+type Status = "loading" | "invalid" | "expired" | "preparing" | "ready";
 
 type HelpState = "idle" | "asking" | "submitting" | "submitted";
 
@@ -75,7 +68,7 @@ function ResultContent() {
   const [status, setStatus] = useState<Status>("loading");
   const [info, setInfo] = useState<ResultInfo | null>(null);
   const [loginAttempted, setLoginAttempted] = useState(false);
-  const [consentError, setConsentError] = useState<string | null>(null);
+  const prepareTriggeredRef = useRef(false);
 
   const [helpState, setHelpState] = useState<HelpState>("idle");
   const [helpError, setHelpError] = useState<string | null>(null);
@@ -104,13 +97,38 @@ function ResultContent() {
           serviceType: data.serviceType,
           result: data.result,
         });
-        setStatus(data.passwordSet ? "ready" : "needsConsent");
+        // password_set은 리드 제출 시점에 이미 조용히 완료 처리된다.
+        // 혹시 아닌 레거시 케이스만 사용자 노출 없이 여기서 자동으로 마무리한다.
+        setStatus(data.passwordSet ? "ready" : "preparing");
       })
       .catch((err) => {
         console.error("result-status fetch failed:", err);
         setStatus("invalid");
       });
   }, [token]);
+
+  // (레거시 대비) 계정이 아직 완전히 준비되지 않은 경우, 사용자에게 묻지 않고 조용히 마무리
+  useEffect(() => {
+    if (status !== "preparing" || !token || prepareTriggeredRef.current) return;
+    prepareTriggeredRef.current = true;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/auto-join", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        if (!res.ok) {
+          console.error("auto-join(silent) failed");
+        }
+      } catch (err) {
+        console.error("auto-join(silent) request failed:", err);
+      } finally {
+        setStatus("ready");
+      }
+    })();
+  }, [status, token]);
 
   // "ready" 상태에 도달하면 자동 로그인을 시도한다 (al=1로 이미 처리된 경우 제외)
   useEffect(() => {
@@ -137,30 +155,6 @@ function ResultContent() {
       }
     })();
   }, [status, token, loginAttempted, alreadyLoggedInPass]);
-
-  async function handleAutoJoin() {
-    if (!token) return;
-    setStatus("joining");
-    setConsentError(null);
-    try {
-      const res = await fetch("/api/auto-join", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setConsentError(data.error || "가입 처리 중 문제가 발생했습니다.");
-        setStatus("needsConsent");
-        return;
-      }
-      setStatus("ready");
-    } catch (err) {
-      console.error("auto-join fetch failed:", err);
-      setConsentError("서버와 통신 중 문제가 발생했습니다.");
-      setStatus("needsConsent");
-    }
-  }
 
   async function handleHelpRequest() {
     if (!info || helpTriggeredRef.current) return;
@@ -219,7 +213,7 @@ function ResultContent() {
           VFBC · 결과 확인
         </p>
 
-        {status === "loading" && (
+        {(status === "loading" || status === "preparing") && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-sm text-gray-500">결과를 불러오는 중입니다...</p>
           </div>
@@ -260,54 +254,6 @@ function ResultContent() {
             >
               홈으로 이동
             </Link>
-          </div>
-        )}
-
-        {(status === "needsConsent" || status === "joining") && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <UserPlus className="text-blue-900" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              {info?.name ? `${info.name}님, ` : ""}결과를 보시려면 자동
-              회원가입이 필요합니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              이름·연락처는 이미 등록되어 있어 추가 입력 없이 자동으로
-              가입됩니다. 비밀번호도 자동 생성되며, 필요하시면 마이페이지에서
-              언제든 변경하실 수 있습니다.
-            </p>
-
-            <div className="mt-4 rounded-xl bg-blue-50 px-4 py-3 text-xs text-blue-900 leading-relaxed space-y-1">
-              <p className="font-semibold">회원가입 시 이런 혜택이 있어요</p>
-              <p>· 비자·노동허가·거주증 만료 임박 알림</p>
-              <p>· 베트남 법률 개정 및 최신 뉴스 소식 수신</p>
-              <p>· 마이페이지에서 언제든 비밀번호 변경 가능</p>
-            </div>
-
-            {consentError && (
-              <p className="mt-3 text-xs text-red-600">{consentError}</p>
-            )}
-
-            <div className="mt-5 flex gap-3">
-              <button
-                onClick={handleAutoJoin}
-                disabled={status === "joining"}
-                className="flex-1 h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors inline-flex items-center justify-center gap-2"
-              >
-                {status === "joining" ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" /> 처리 중...
-                  </>
-                ) : (
-                  "네, 가입하고 결과 볼게요"
-                )}
-              </button>
-              <button
-                disabled={status === "joining"}
-                className="h-12 px-5 rounded-full border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-60 transition-colors"
-              >
-                다음에 할게요
-              </button>
-            </div>
           </div>
         )}
 
@@ -363,7 +309,7 @@ function ResultContent() {
               </p>
             </div>
 
-            {/* 도움 요청 Y/N — 인라인 처리, 페이지 이동 없음 */}
+            {/* 도움 요청 — 강한 후킹 + 혜택, 인라인 Y/N, 페이지 이동 없음 */}
             {helpState === "idle" && (
               <button
                 onClick={() => setHelpState("asking")}
@@ -375,8 +321,13 @@ function ResultContent() {
 
             {helpState === "asking" && (
               <div className="mt-5 rounded-xl border border-gray-100 p-4">
-                <p className="text-sm text-gray-700">
-                  담당자에게 바로 도움을 요청할까요?
+                <p className="text-sm font-semibold text-gray-900">
+                  놓치면 벌금·불이익이 생길 수 있어요
+                </p>
+                <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
+                  지금 요청하시면 담당자가 서류 준비부터 접수까지 무료로
+                  검토해드리고, 만료 임박 알림·법률 뉴스도 함께 받아보실 수
+                  있어요. 이름·연락처 재입력 없이 바로 접수됩니다.
                 </p>
                 {helpError && (
                   <p className="mt-2 text-xs text-red-600">{helpError}</p>
@@ -418,7 +369,7 @@ function ResultContent() {
 
             <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              마이페이지에서 비밀번호 변경 및 만료 알림·법률 뉴스 수신 설정을
+              마이페이지에서 비밀번호 설정, 만료 알림·법률 뉴스 수신 설정을
               하실 수 있습니다.
             </div>
           </div>

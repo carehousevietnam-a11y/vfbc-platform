@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -18,6 +19,7 @@ import { saveLeadContact } from "@/lib/leadContact";
 type Housing = "hotel" | "personal" | null;
 type Choice = "self" | "agency" | null;
 type Timing = "within12" | "within24" | "over24" | null;
+type LinkGate = "ask" | "revealed" | "declined";
 
 const TAMTRU_OFFICIAL_URL = "https://evisa.xuatnhapcanh.gov.vn/en_US/web/guest/home";
 
@@ -48,6 +50,7 @@ export default function TamTruCheckPage() {
   const [selfLeadSubmitted, setSelfLeadSubmitted] = useState(false);
   const [selfLeadId, setSelfLeadId] = useState<string | null>(null);
   const [selfForm, setSelfForm] = useState<FormState>(EMPTY_FORM);
+  const [linkGate, setLinkGate] = useState<LinkGate>("ask");
 
   const [agencyLeadSubmitted, setAgencyLeadSubmitted] = useState(false);
   const [agencyForm, setAgencyForm] = useState<FormState>(EMPTY_FORM);
@@ -74,6 +77,7 @@ export default function TamTruCheckPage() {
     setAgencyForm(EMPTY_FORM);
     setSaveError(null);
     setEmailProvided(false);
+    setLinkGate("ask");
   }
 
   async function insertLead(form: FormState, action: string, tag: string) {
@@ -103,7 +107,7 @@ export default function TamTruCheckPage() {
     });
     if (crmError) console.error("crm_activities insert error:", crmError);
 
-    // 계정 자동생성 + result_token 발급 (실패해도 리드 접수 자체는 이미 완료된 상태이므로 화면은 정상 진행)
+    // 계정은 이 호출 안에서 조용히, 완전히 생성/가입 완료된다 (사용자에게 노출 안 됨)
     try {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
@@ -143,6 +147,7 @@ export default function TamTruCheckPage() {
       const leadId = await insertLead(selfForm, "self_guide_request", "TAMTRU");
       setSelfLeadId(leadId);
       setEmailProvided(!!selfForm.email);
+      setLinkGate("ask");
       setSelfLeadSubmitted(true);
     } catch {
       setSaveError("저장 중 문제가 발생했습니다. 다시 시도해주세요.");
@@ -152,7 +157,6 @@ export default function TamTruCheckPage() {
   }
 
   // 이미 셀프 등록 정보가 있는 경우: 재입력 없이 기존 lead에 대행전환 활동만 기록
-  // (계정/토큰은 셀프 제출 시 이미 생성되었으므로 lead-submit 재호출 불필요)
   async function handleAgencyQuickConfirm() {
     if (!selfLeadId) return;
     setSaving(true);
@@ -459,8 +463,54 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 셀프 등록: 정보 제출 후 가이드 + 링크 노출 */}
-            {choice === "self" && timing && selfLeadSubmitted && (
+            {/* 셀프 등록: 정보 제출 완료 — 사이트 이동 전 후킹 Y/N */}
+            {choice === "self" && timing && selfLeadSubmitted && linkGate !== "revealed" && (
+              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                <Sparkles className="text-blue-900" size={28} />
+                <p className="mt-4 text-lg font-bold text-gray-900">
+                  {timing === "over24"
+                    ? "지금 이동하지 않으면 신고 기한을 놓칠 수 있어요"
+                    : "관할 사이트로 바로 이동해서 등록을 시작할까요?"}
+                </p>
+                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                  이동 후에도 입력하신 정보는 자동으로 저장되어 언제든 다시
+                  확인하실 수 있어요. 지금 이용하시면 비자·노동허가·거주증
+                  만료 임박 알림과 베트남 법률 최신 뉴스까지 무료로
+                  받아보실 수 있습니다.
+                </p>
+
+                {linkGate === "declined" && (
+                  <p className="mt-3 text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
+                    준비되시면 아래 버튼을 다시 눌러 이동하실 수 있어요.
+                  </p>
+                )}
+
+                <div className="mt-5 flex gap-3">
+                  <button
+                    onClick={() => setLinkGate("revealed")}
+                    className="flex-1 h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+                  >
+                    네, 사이트로 이동할게요
+                  </button>
+                  <button
+                    onClick={() => setLinkGate("declined")}
+                    className="h-12 px-5 rounded-full border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                  >
+                    나중에 할게요
+                  </button>
+                </div>
+
+                <button
+                  onClick={reset}
+                  className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+                >
+                  처음부터 다시 확인하기
+                </button>
+              </div>
+            )}
+
+            {/* 셀프 등록: 이동 확정 후 가이드 + 링크 노출 */}
+            {choice === "self" && timing && selfLeadSubmitted && linkGate === "revealed" && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <CheckCircle2 className="text-emerald-600" size={28} />
                 <p className="mt-4 text-lg font-bold text-gray-900">
