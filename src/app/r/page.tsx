@@ -369,8 +369,10 @@ function ResultContent() {
 
             <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              마이페이지에서 비밀번호 설정, 만료 알림·법률 뉴스 수신 설정을
-              하실 수 있습니다.
+              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는 자동
+              생성되며, 마이페이지에서 언제든 변경하실 수 있습니다.
+              거주증·노동허가·비자 등 만료 알림 서비스도 함께 이용하실 수
+              있습니다.
             </div>
           </div>
         )}
