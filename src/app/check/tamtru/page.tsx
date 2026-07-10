@@ -11,6 +11,7 @@ import {
   Clock,
   ExternalLink,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -283,8 +284,9 @@ export default function TamTruCheckPage() {
     }
   }
 
-  function confirmAgencySwitch() {
+  async function confirmAgencySwitch() {
     setChoice("agency");
+    await handleAgencyQuickConfirm();
   }
 
   return (
@@ -647,42 +649,25 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 대행: 이미 셀프 정보가 있는 경우 → 재입력 없이 원클릭 전환 */}
+            {/* 대행: 이미 셀프 정보가 있는 경우 → 클릭 즉시 접수, 로딩만 잠깐 표시 */}
             {choice === "agency" && timing && hasExistingContact && !agencyLeadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                {timing === "over24" && (
-                  <div className="mb-5 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-xs text-red-700">
-                    <Clock size={16} className="mt-0.5 shrink-0" />
-                    신고 기한이 이미 지났을 가능성이 높습니다. 지금 접수하면
-                    가장 빠르게 처리해드릴 수 있어요.
+                {saveError ? (
+                  <>
+                    <p className="text-sm text-red-600">{saveError}</p>
+                    <button
+                      onClick={handleAgencyQuickConfirm}
+                      className="mt-4 h-11 px-5 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+                    >
+                      다시 시도하기
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Loader2 size={16} className="animate-spin text-blue-900" />
+                    대행 접수 중입니다...
                   </div>
                 )}
-                <p className="text-lg font-bold text-gray-900">
-                  정보 다시 입력하지 않아도 됩니다
-                </p>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  방금 남겨주신 이름·연락처·주소 그대로 대행 접수가
-                  진행됩니다. 셀프로 계속 진행하다 시간만 흘러 벌금 위험이
-                  커지는 것보다, 지금 바로 전문가에게 맡기는 게 가장
-                  안전합니다.
-                </p>
-                <div className="mt-4 rounded-xl bg-blue-50 px-4 py-3 text-xs text-blue-900">
-                  {selfForm.name} · {selfForm.phone}
-                </div>
-                {saveError && <p className="mt-3 text-xs text-red-600">{saveError}</p>}
-                <button
-                  onClick={handleAgencyQuickConfirm}
-                  disabled={saving}
-                  className="mt-5 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors disabled:opacity-60"
-                >
-                  {saving ? "접수 중..." : "대행 신청하기"}
-                </button>
-                <button
-                  onClick={() => setChoice("self")}
-                  className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-                >
-                  셀프 등록으로 돌아가기
-                </button>
               </div>
             )}
 
@@ -807,6 +792,24 @@ export default function TamTruCheckPage() {
                   {messengers.secondary.label}로 예상 비용과 진행 절차를
                   안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
                 </p>
+
+                <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+                  <p className="text-xs font-semibold text-gray-700">
+                    미리 준비해두시면 좋은 서류
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    <li className="text-xs text-gray-600 pl-1">· 여권 사본</li>
+                    <li className="text-xs text-gray-600 pl-1">
+                      · 임대차 계약서 (또는 집주인 확인서)
+                    </li>
+                    <li className="text-xs text-gray-600 pl-1">· 숙소 주소지 증빙</li>
+                  </ul>
+                  <p className="mt-2 text-[11px] text-gray-400">
+                    미리 준비해두시면 접수가 더 빨리 진행됩니다. 곧
+                    연락드리겠습니다.
+                  </p>
+                </div>
+
                 {emailProvided && (
                   <p className="mt-2 text-[11px] text-gray-400">
                     메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요.
