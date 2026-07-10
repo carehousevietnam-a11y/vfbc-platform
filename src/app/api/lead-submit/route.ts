@@ -50,16 +50,22 @@ export async function POST(req: NextRequest) {
     const authEmail = email && email.trim() ? email.trim() : `${phone}@vfbc.local`;
 
     // 1. 이 전화번호 "또는" 이메일로 이미 가입된 회원인지 확인
-    const { data: existingUser, error: findError } = await supabaseAdmin
+    // .single()/.maybeSingle() 대신 배열로 받는다 — 테스트 반복 등으로 동일 이메일/전화번호를
+    // 가진 행이 여러 개 쌓여 있어도(원래는 없어야 하지만) 에러 없이 처리하기 위함.
+    // 여러 개가 나오면 가장 먼저 생성된 계정(오래된 것)을 정본으로 사용한다.
+    const { data: existingUsers, error: findError } = await supabaseAdmin
       .from("users")
       .select("id, password_set")
       .or(`phone.eq.${phone},email.eq.${authEmail}`)
-      .maybeSingle();
+      .order("created_at", { ascending: true });
 
     if (findError) {
       console.error("existingUser lookup error:", findError);
       return NextResponse.json({ error: findError.message }, { status: 500 });
     }
+
+    const existingUser =
+      existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
 
     let userId: string;
     let isNewUser = false;
