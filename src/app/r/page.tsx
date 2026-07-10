@@ -279,8 +279,8 @@ function ResultContent() {
             <Link
               href="/consultation"
               className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-     막히면 도움 신청하기       >
-              
+            >
+              막히면 도움 신청하기
             </Link>
           </div>
         )}
