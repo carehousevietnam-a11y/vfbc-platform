@@ -30,6 +30,7 @@ type FormState = {
   email: string;
   kakaoId: string;
   zaloId: string;
+  agreeTerms: boolean;
 };
 
 const EMPTY_FORM: FormState = {
@@ -39,7 +40,47 @@ const EMPTY_FORM: FormState = {
   email: "",
   kakaoId: "",
   zaloId: "",
+  agreeTerms: false,
 };
+
+const CONSENT_SUMMARY =
+  "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
+
+function ConsentDetails() {
+  return (
+    <details className="mt-1 rounded-lg bg-gray-50 p-3 text-[11px] text-gray-600 leading-relaxed">
+      <summary className="cursor-pointer font-medium text-gray-700">
+        자세히 보기 (베트남 · 대한민국 법령 근거)
+      </summary>
+      <div className="mt-2 space-y-2">
+        <div>
+          <p className="font-semibold text-gray-700">🇻🇳 베트남</p>
+          <p>
+            개인정보보호법(Luật Bảo vệ dữ liệu cá nhân, 법률 제91/2025/QH15호,
+            2026년 1월 1일 시행) 및 시행령 제356/2025/NĐ-CP호에 근거하여
+            이용자의 사전 동의를 받아 아래와 같이 개인정보를 수집·처리합니다.
+          </p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-700">🇰🇷 대한민국</p>
+          <p>
+            개인정보보호법에 근거하여 아래와 같이 개인정보 수집·이용에 대해
+            안내드리며, 동의를 받습니다.
+          </p>
+        </div>
+        <ul className="list-disc pl-4 space-y-0.5">
+          <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID</li>
+          <li>수집 목적: 상담·등록 안내 및 서비스 이용을 위한 계정 자동 생성</li>
+          <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
+          <li>
+            동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 신고
+            사이트 안내·결과 확인 등 서비스 이용이 제한될 수 있습니다.
+          </li>
+        </ul>
+      </div>
+    </details>
+  );
+}
 
 export default function TamTruCheckPage() {
   const [housing, setHousing] = useState<Housing>(null);
@@ -107,7 +148,8 @@ export default function TamTruCheckPage() {
     });
     if (crmError) console.error("crm_activities insert error:", crmError);
 
-    // 계정은 이 호출 안에서 조용히, 완전히 생성/가입 완료된다 (사용자에게 노출 안 됨)
+    // 계정은 이 호출 안에서 조용히, 완전히 생성/가입 완료된다.
+    // (동의는 위 폼에서 이미 필수 체크박스로 받았음)
     try {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
@@ -141,6 +183,10 @@ export default function TamTruCheckPage() {
 
   async function handleSelfLeadSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!selfForm.agreeTerms) {
+      setSaveError("계정 자동생성 및 이용약관 동의가 필요합니다.");
+      return;
+    }
     setSaving(true);
     setSaveError(null);
     try {
@@ -178,6 +224,10 @@ export default function TamTruCheckPage() {
   // 처음부터 대행을 선택한 경우 (셀프 정보 없음): 신규 리드 생성
   async function handleAgencyLeadSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!agencyForm.agreeTerms) {
+      setSaveError("계정 자동생성 및 이용약관 동의가 필요합니다.");
+      return;
+    }
     setSaving(true);
     setSaveError(null);
     try {
@@ -450,10 +500,24 @@ export default function TamTruCheckPage() {
                       className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                     />
                   </div>
+                  <div>
+                    <label className="flex items-start gap-2 text-xs text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={selfForm.agreeTerms}
+                        onChange={(e) =>
+                          setSelfForm({ ...selfForm, agreeTerms: e.target.checked })
+                        }
+                        className="mt-0.5"
+                      />
+                      <span>(필수) {CONSENT_SUMMARY}</span>
+                    </label>
+                    <ConsentDetails />
+                  </div>
                   {saveError && <p className="text-xs text-red-600">{saveError}</p>}
                   <button
                     type="submit"
-                    disabled={saving}
+                    disabled={saving || !selfForm.agreeTerms}
                     className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors disabled:opacity-60"
                   >
                     {saving ? "저장 중..." : "30초 안에 내 지역 사이트 받기"}
@@ -690,10 +754,24 @@ export default function TamTruCheckPage() {
                       className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                     />
                   </div>
+                  <div>
+                    <label className="flex items-start gap-2 text-xs text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={agencyForm.agreeTerms}
+                        onChange={(e) =>
+                          setAgencyForm({ ...agencyForm, agreeTerms: e.target.checked })
+                        }
+                        className="mt-0.5"
+                      />
+                      <span>(필수) {CONSENT_SUMMARY}</span>
+                    </label>
+                    <ConsentDetails />
+                  </div>
                   {saveError && <p className="text-xs text-red-600">{saveError}</p>}
                   <button
                     type="submit"
-                    disabled={saving}
+                    disabled={saving || !agencyForm.agreeTerms}
                     className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors disabled:opacity-60"
                   >
                     {saving ? "저장 중..." : "대행 신청하기"}
