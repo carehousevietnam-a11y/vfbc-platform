@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
   const { data: userRow, error: userError } = await supabaseAdmin
     .from("users")
-    .select("id, name, phone, password_set")
+    .select("id, name, phone, address, password_set")
     .eq("id", tokenRow.user_id)
     .maybeSingle();
 
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
 
   const { data: leadRow, error: leadError } = await supabaseAdmin
     .from("leads")
-    .select("id, name, service_type, result")
+    .select("id, name, phone, address, kakao_id, zalo_id, service_type, result")
     .eq("id", tokenRow.lead_id)
     .maybeSingle();
 
@@ -57,7 +57,12 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     valid: true,
     passwordSet: userRow?.password_set ?? false,
+    leadId: tokenRow.lead_id,
     name: userRow?.name ?? leadRow?.name ?? "",
+    phone: userRow?.phone ?? leadRow?.phone ?? "",
+    address: userRow?.address ?? leadRow?.address ?? "",
+    kakaoId: leadRow?.kakao_id ?? null,
+    zaloId: leadRow?.zalo_id ?? null,
     serviceType: leadRow?.service_type ?? null,
     result: leadRow?.result ?? null,
   });
