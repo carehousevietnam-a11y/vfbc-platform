@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
         </Link>
 
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC · 개인정보처리방침
+          VFBC · 개인정보처리방침 · Chính sách bảo mật
         </p>
         <div className="mt-2 flex items-center gap-2">
           <ShieldCheck className="text-blue-900" size={22} />
@@ -26,16 +26,63 @@ export default function PrivacyPolicyPage() {
         </div>
         <p className="mt-2 text-sm text-gray-500 leading-relaxed">
           VFBC(베트남 외국인 비즈니스센터)는 이용자의 개인정보를 소중히
-          다루며, 대한민국 개인정보보호법 및 베트남 개인정보보호법(Luật số
-          91/2025/QH15) · 시행령(Nghị định số 356/2025/NĐ-CP)에 따라 아래와
+          다루며, 베트남 개인정보보호법(Luật số 91/2025/QH15) · 시행령(Nghị
+          định số 356/2025/NĐ-CP) 및 대한민국 개인정보보호법에 따라 아래와
           같이 개인정보를 처리합니다.
         </p>
         <p className="mt-3 text-[11px] text-gray-400">
           시행일: 2026년 7월 10일 · 최종 수정일: 2026년 7월 10일
         </p>
 
-        {/* 제1조 */}
-        <section className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+        {/* ===== PART I. 베트남 ===== */}
+        <p className="mt-8 text-[11px] font-semibold uppercase tracking-widest text-blue-900">
+          I. Việt Nam · 베트남
+        </p>
+
+        <section className="mt-3 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Thông báo dành cho người dùng tại Việt Nam
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
+            lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
+            thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn sau
+            khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại, địa
+            chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích tư
+            vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ liệu
+            được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục đích xử
+            lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ chối có thể
+            khiến bạn không thể sử dụng một số dịch vụ (hướng dẫn khai báo,
+            xem kết quả, v.v.).
+          </p>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            (한국어 참고 번역) 베트남 거주 이용자를 위한 안내
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            베트남 개인정보보호법(법률 제91/2025/QH15호, 2026년 1월 1일
+            시행) 및 시행령(제356/2025/NĐ-CP호)에 따라, VFBC는 명확한 동의를
+            받은 후 이름, 전화번호, 주소, 이메일(선택), 카카오톡/잘로
+            ID(선택)를 상담·등록 안내 및 서비스 계정 자동 생성 목적으로
+            수집·처리합니다. 데이터는 계정 해지 시 또는 처리 목적 달성 시까지
+            보관됩니다. 동의를 거부할 권리가 있으나, 거부 시 신고 안내·결과
+            확인 등 일부 서비스 이용이 제한될 수 있습니다.
+          </p>
+          <p className="mt-2 text-[11px] text-gray-400">
+            ※ 위 한국어 문단은 베트남어 원문의 이해를 돕기 위한 참고
+            번역이며, 법적 효력은 베트남어 원문 및 대한민국 개인정보보호법
+            조항(아래 II)에 근거합니다.
+          </p>
+        </section>
+
+        {/* ===== PART II. 대한민국 ===== */}
+        <p className="mt-10 text-[11px] font-semibold uppercase tracking-widest text-blue-900">
+          II. 대한민국
+        </p>
+
+        <section className="mt-3 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제1조 (수집하는 개인정보 항목 및 방법)
           </h2>
@@ -67,7 +114,6 @@ export default function PrivacyPolicyPage() {
           </ul>
         </section>
 
-        {/* 제2조 */}
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제2조 (개인정보의 수집 및 이용 목적)
@@ -91,7 +137,6 @@ export default function PrivacyPolicyPage() {
           </ul>
         </section>
 
-        {/* 제3조 */}
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제3조 (개인정보의 보유 및 이용 기간)
@@ -103,7 +148,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        {/* 제4조 */}
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제4조 (개인정보의 제3자 제공)
@@ -127,7 +171,6 @@ export default function PrivacyPolicyPage() {
           </ul>
         </section>
 
-        {/* 제5조 */}
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제5조 (개인정보 처리의 위탁)
@@ -157,7 +200,6 @@ export default function PrivacyPolicyPage() {
           </ul>
         </section>
 
-        {/* 제6조 */}
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제6조 (정보주체의 권리·의무 및 행사 방법)
@@ -171,7 +213,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        {/* 제7조 */}
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제7조 (개인정보의 파기)
@@ -182,7 +223,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        {/* 제8조 */}
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제8조 (개인정보의 안전성 확보 조치)
@@ -200,7 +240,6 @@ export default function PrivacyPolicyPage() {
           </ul>
         </section>
 
-        {/* 제9조 - 담당자 정보 (플레이스홀더) */}
         <section className="mt-4 rounded-3xl bg-white border border-amber-200 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
             제9조 (개인정보 보호책임자)
@@ -216,26 +255,6 @@ export default function PrivacyPolicyPage() {
           </div>
           <p className="mt-2 text-[11px] text-gray-400">
             ⚠️ 이 항목은 배포 전 실제 담당자 정보로 반드시 교체해야 합니다.
-          </p>
-        </section>
-
-        {/* 베트남 안내 */}
-        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-          <h2 className="text-sm font-bold text-gray-900">
-            제10조 (베트남 거주 이용자를 위한 안내 · Thông báo dành cho
-            người dùng tại Việt Nam)
-          </h2>
-          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
-            lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
-            thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn sau
-            khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại, địa
-            chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích tư
-            vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ liệu
-            được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục đích xử
-            lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ chối có thể
-            khiến bạn không thể sử dụng một số dịch vụ (hướng dẫn khai báo,
-            xem kết quả, v.v.).
           </p>
         </section>
 
