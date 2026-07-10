@@ -34,48 +34,223 @@ export default function PrivacyPolicyPage() {
           시행일: 2026년 7월 10일 · 최종 수정일: 2026년 7월 10일
         </p>
 
-        {/* ===== PART I. 베트남 ===== */}
+        {/* ===== PART I. 베트남 (본문, 한국어와 동일한 9개 조항 구조) ===== */}
         <p className="mt-8 text-[11px] font-semibold uppercase tracking-widest text-blue-900">
           I. Việt Nam · 베트남
         </p>
 
         <section className="mt-3 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
-            Thông báo dành cho người dùng tại Việt Nam
+            Điều 1 (Các loại thông tin cá nhân thu thập và phương thức)
           </h2>
           <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
-            lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
-            thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn sau
-            khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại, địa
-            chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích tư
-            vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ liệu
-            được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục đích xử
-            lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ chối có thể
-            khiến bạn không thể sử dụng một số dịch vụ (hướng dẫn khai báo,
-            xem kết quả, v.v.).
+            VFBC thu thập thông tin dưới đây do người dùng trực tiếp nhập
+            trong quá trình đăng ký dịch vụ (chẩn đoán, tư vấn, đăng ký hộ
+            khẩu tạm trú/thẻ tạm trú, xin giấy phép lao động, v.v.).
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-sm text-gray-600">
+              · <span className="font-medium text-gray-800">
+                Mục bắt buộc
+              </span>{" "}
+              — Họ tên, số điện thoại, địa chỉ cư trú hiện tại
+            </li>
+            <li className="text-sm text-gray-600">
+              · <span className="font-medium text-gray-800">
+                Mục tùy chọn
+              </span>{" "}
+              — Email, ID Kakao Talk, ID Zalo
+            </li>
+            <li className="text-sm text-gray-600">
+              · <span className="font-medium text-gray-800">
+                Tự động phát sinh khi sử dụng dịch vụ
+              </span>{" "}
+              — Lịch sử sử dụng dịch vụ, nhật ký truy cập, lịch sử tư
+              vấn/chẩn đoán
+            </li>
+            <li className="text-sm text-gray-600">
+              · <span className="font-medium text-gray-800">
+                Thu thập bổ sung khi yêu cầu dịch vụ đại lý
+              </span>{" "}
+              — Bản sao hộ chiếu, hợp đồng thuê nhà và các giấy tờ cần thiết
+              khác
+            </li>
+          </ul>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều 2 (Mục đích thu thập và sử dụng thông tin cá nhân)
+          </h2>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-sm text-gray-600">
+              · Thông báo kết quả chẩn đoán/xác nhận và tư vấn liên quan
+            </li>
+            <li className="text-sm text-gray-600">
+              · Tự động tạo tài khoản và xác thực đăng nhập để sử dụng dịch
+              vụ
+            </li>
+            <li className="text-sm text-gray-600">
+              · Thực hiện dịch vụ đại lý đăng ký, khai báo hành chính
+            </li>
+            <li className="text-sm text-gray-600">
+              · Cung cấp dịch vụ bổ sung như nhắc hạn thẻ tạm trú, giấy phép
+              lao động, thị thực
+            </li>
+            <li className="text-sm text-gray-600">
+              · Thông báo dịch vụ và kết quả qua email, Kakao Talk, Zalo
+            </li>
+          </ul>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều 3 (Thời gian lưu trữ và sử dụng thông tin cá nhân)
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            Thông tin cá nhân của người dùng được lưu trữ đến khi đạt được
+            mục đích thu thập/sử dụng hoặc đến khi hủy tài khoản, sau đó sẽ
+            được hủy không chậm trễ. Tuy nhiên, trường hợp pháp luật liên
+            quan yêu cầu lưu trữ thì sẽ được bảo quản trong thời hạn do pháp
+            luật đó quy định.
           </p>
         </section>
 
         <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <h2 className="text-sm font-bold text-gray-900">
-            (한국어 참고 번역) 베트남 거주 이용자를 위한 안내
+            Điều 4 (Cung cấp thông tin cá nhân cho bên thứ ba)
           </h2>
           <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            베트남 개인정보보호법(법률 제91/2025/QH15호, 2026년 1월 1일
-            시행) 및 시행령(제356/2025/NĐ-CP호)에 따라, VFBC는 명확한 동의를
-            받은 후 이름, 전화번호, 주소, 이메일(선택), 카카오톡/잘로
-            ID(선택)를 상담·등록 안내 및 서비스 계정 자동 생성 목적으로
-            수집·처리합니다. 데이터는 계정 해지 시 또는 처리 목적 달성 시까지
-            보관됩니다. 동의를 거부할 권리가 있으나, 거부 시 신고 안내·결과
-            확인 등 일부 서비스 이용이 제한될 수 있습니다.
+            VFBC về nguyên tắc không cung cấp thông tin cá nhân của người
+            dùng cho bên ngoài. Tuy nhiên, các trường hợp sau là ngoại lệ.
           </p>
-          <p className="mt-2 text-[11px] text-gray-400">
-            ※ 위 한국어 문단은 베트남어 원문의 이해를 돕기 위한 참고
-            번역이며, 법적 효력은 베트남어 원문 및 대한민국 개인정보보호법
-            조항(아래 II)에 근거합니다.
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-sm text-gray-600">
+              · Trường hợp người dùng đã đồng ý trước một cách riêng biệt
+            </li>
+            <li className="text-sm text-gray-600">
+              · Trường hợp cần nộp cho cơ quan hành chính có thẩm quyền tại
+              Việt Nam (công an, cục quản lý xuất nhập cảnh, v.v.) để thực
+              hiện dịch vụ đại lý đăng ký
+            </li>
+            <li className="text-sm text-gray-600">
+              · Trường hợp có yêu cầu của cơ quan điều tra theo trình tự và
+              phương thức pháp luật quy định
+            </li>
+          </ul>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều 5 (Ủy thác xử lý thông tin cá nhân)
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            VFBC ủy thác một số công việc xử lý thông tin cá nhân như dưới
+            đây để cung cấp dịch vụ thuận lợi, và quy định các nội dung cần
+            thiết trong hợp đồng ủy thác để đảm bảo thông tin cá nhân được
+            quản lý an toàn.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-sm text-gray-600">
+              · <span className="font-medium text-gray-800">
+                Supabase (khu vực Singapore)
+              </span>{" "}
+              — Lưu trữ, quản lý thông tin thành viên và dữ liệu sử dụng
+              dịch vụ
+            </li>
+            <li className="text-sm text-gray-600">
+              · <span className="font-medium text-gray-800">Resend</span> —
+              Gửi email thông báo kết quả và nhắc nhở
+            </li>
+            <li className="text-sm text-gray-600">
+              · <span className="font-medium text-gray-800">
+                Vercel
+              </span>{" "}
+              — Lưu trữ và vận hành website
+            </li>
+          </ul>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều 6 (Quyền, nghĩa vụ của chủ thể dữ liệu và cách thức thực
+            hiện)
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            Người dùng có thể yêu cầu xem, sửa đổi, xóa hoặc tạm ngừng xử lý
+            thông tin cá nhân của mình bất cứ lúc nào, thông qua trang cá
+            nhân hoặc thông tin liên hệ bên dưới. Người dùng có quyền từ
+            chối đồng ý; tuy nhiên, việc từ chối đối với các mục bắt buộc có
+            thể làm hạn chế việc sử dụng dịch vụ (xem kết quả chẩn đoán,
+            hướng dẫn đăng ký, tạo tài khoản, v.v.).
           </p>
         </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều 7 (Hủy thông tin cá nhân)
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            Khi thời hạn lưu trữ thông tin cá nhân kết thúc hoặc mục đích xử
+            lý đã đạt được, thông tin dưới dạng tệp điện tử sẽ được xóa vĩnh
+            viễn bằng phương pháp không thể khôi phục.
+          </p>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều 8 (Biện pháp bảo đảm an toàn thông tin cá nhân)
+          </h2>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-sm text-gray-600">
+              · Giới hạn quyền truy cập thông tin cá nhân chỉ cho nhân viên
+              phụ trách tối thiểu cần thiết
+            </li>
+            <li className="text-sm text-gray-600">
+              · Kiểm soát truy cập cơ sở dữ liệu và mã hóa lưu trữ (mật khẩu,
+              v.v.)
+            </li>
+            <li className="text-sm text-gray-600">
+              · Lưu giữ nhật ký truy cập hệ thống xử lý thông tin cá nhân
+            </li>
+          </ul>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-amber-200 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều 9 (Người phụ trách bảo vệ thông tin cá nhân)
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            VFBC chỉ định người phụ trách bảo vệ thông tin cá nhân dưới đây
+            để phụ trách chung công việc xử lý thông tin cá nhân và giải
+            quyết khiếu nại, bồi thường thiệt hại cho người dùng.
+          </p>
+          <div className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            Họ tên: [nhập tên phụ trách] · Email: [nhập email phụ trách] ·
+            Điện thoại: [nhập số điện thoại]
+          </div>
+          <p className="mt-2 text-[11px] text-gray-400">
+            ⚠️ 배포 전 실제 담당자 정보로 반드시 교체해야 합니다 (베트남어
+            섹션도 동일한 담당자 정보 사용).
+          </p>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <h2 className="text-sm font-bold text-gray-900">
+            Điều khoản thi hành
+          </h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+            Chính sách bảo mật này có hiệu lực từ ngày 10 tháng 7 năm 2026.
+            Trường hợp có thay đổi nội dung, chúng tôi sẽ thông báo trước
+            trên website ít nhất 7 ngày trước ngày có hiệu lực.
+          </p>
+        </section>
+
+        <p className="mt-3 text-[11px] text-gray-400 leading-relaxed">
+          Tài liệu này được soạn thảo cho mục đích vận hành dịch vụ và không
+          thay thế tư vấn pháp lý chính thức. Khuyến nghị luật sư rà soát
+          trước khi công bố chính thức.
+        </p>
 
         {/* ===== PART II. 대한민국 ===== */}
         <p className="mt-10 text-[11px] font-semibold uppercase tracking-widest text-blue-900">
