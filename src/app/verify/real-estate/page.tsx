@@ -7,19 +7,108 @@ import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 
+const CONSENT_SUMMARY =
+  "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
+
+function ConsentDetails({
+  open,
+  onToggle,
+  highlight,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`mt-1 rounded-lg p-3 text-[11px] leading-relaxed transition-colors ${
+        highlight ? "bg-red-50 ring-1 ring-red-200" : "bg-gray-50"
+      }`}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full text-left font-medium text-gray-700"
+      >
+        {open ? "▾" : "▸"} 자세히 보기 (베트남 · 대한민국 법령 근거)
+      </button>
+
+      {highlight && (
+        <p className="mt-2 font-semibold text-red-700">
+          베트남·한국 개인정보보호법에 따라 동의하지 않으면 계정 생성 및
+          서비스 이용(검토 결과 확인, 상담 등)을 진행할 수 없습니다.
+        </p>
+      )}
+
+      {open && (
+        <div className="mt-2 space-y-3 text-gray-600">
+          <div>
+            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam</p>
+            <p>
+              Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
+              lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
+              thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn
+              sau khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại,
+              địa chỉ, email (nếu có), ID Kakao/Zalo (nếu có), tài liệu đính
+              kèm (nếu có), nhằm mục đích tư vấn, kiểm tra tài liệu và tạo tài
+              khoản dịch vụ tự động. Dữ liệu được lưu trữ đến khi bạn hủy tài
+              khoản hoặc đạt được mục đích xử lý. Bạn có quyền từ chối đồng
+              ý; tuy nhiên, việc từ chối có thể khiến bạn không thể sử dụng
+              một số dịch vụ (xem kết quả kiểm tra, tư vấn, v.v.).
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-700">🇰🇷 대한민국</p>
+            <p>
+              개인정보보호법에 근거하여 아래와 같이 개인정보 수집·이용에
+              대해 안내드리며, 동의를 받습니다.
+            </p>
+            <ul className="mt-1 list-disc pl-4 space-y-0.5">
+              <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID, (선택) 첨부 서류</li>
+              <li>수집 목적: 서류 검토·상담 안내 및 서비스 이용을 위한 계정 자동 생성</li>
+              <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
+              <li>
+                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 검토
+                결과 확인·상담 등 서비스 이용이 제한될 수 있습니다.
+              </li>
+            </ul>
+          </div>
+          <Link
+            href="/privacy"
+            target="_blank"
+            className="inline-block font-semibold text-blue-900 hover:underline"
+          >
+            개인정보처리방침 전문 보기 →
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function VerifyRealEstatePage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [consentHighlight, setConsentHighlight] = useState(false);
   const messengers = MESSENGERS_KO;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+
+    if (fd.get("agreeTerms") !== "on") {
+      setConsentOpen(true);
+      setConsentHighlight(true);
+      return;
+    }
+    setConsentHighlight(false);
+
     setSubmitting(true);
     setError(null);
-    const fd = new FormData(e.currentTarget);
     const file = fd.get("document") as File | null;
     const leadId = crypto.randomUUID();
 
@@ -52,8 +141,6 @@ export default function VerifyRealEstatePage() {
 
     let fileUrl: string | null = null;
     if (file && file.size > 0) {
-      // Storage 키는 영문/숫자만 허용 — 한글·공백·특수문자 파일명은 400 에러 발생
-      // 확장자만 추출해서 안전한 키로 저장, 원본 파일명은 CRM meta에 별도 기록
       const rawExt = file.name.split(".").pop() || "";
       const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
       const path = `verify-real-estate/${leadId}.${safeExt}`;
@@ -76,7 +163,6 @@ export default function VerifyRealEstatePage() {
       meta: fileUrl ? { file_url: fileUrl, file_name: file?.name } : null,
     });
 
-    // 계정 자동생성 + result_token 발급 (실패해도 리드 접수 자체는 이미 완료된 상태이므로 화면은 정상 진행)
     try {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
@@ -114,14 +200,16 @@ export default function VerifyRealEstatePage() {
         <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
           <Home className="text-gray-900" size={28} />
           <span className="mt-3 inline-block rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold text-gray-700">
-            계약 전 확인이 가장 쌈
+            보증금 미반환 주의
           </span>
 
           {!submitted ? (
             <>
               <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-                서류 사진이나 PDF·워드 파일을 첨부해주세요. 이름·연락처만
-                남기면 AI가 무료로 1차 검토해드립니다.
+                임대·매매 계약서에는 보증금 미반환 조항이나 불리한 특약이
+                생각보다 자주 숨어 있습니다. 계약서에 서명하기 전, 지금
+                확인해보세요. 서류 사진이나 PDF·워드 파일을 첨부하고
+                이름·연락처만 남기면 무료로 1차 검토해드립니다.
               </p>
               <form onSubmit={handleSubmit} className="mt-5 space-y-3">
                 <label className="flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
@@ -151,6 +239,24 @@ export default function VerifyRealEstatePage() {
                   <input type="text" name="zalo_id" placeholder={`${messengers.secondary.label} ID (선택)`}
                     className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
                 </div>
+                <div>
+                  <label className="flex items-start gap-2 text-xs text-gray-600">
+                    <input
+                      type="checkbox"
+                      name="agreeTerms"
+                      onChange={(e) => {
+                        if (e.target.checked) setConsentHighlight(false);
+                      }}
+                      className="mt-0.5"
+                    />
+                    <span>(필수) {CONSENT_SUMMARY}</span>
+                  </label>
+                  <ConsentDetails
+                    open={consentOpen}
+                    onToggle={() => setConsentOpen((v) => !v)}
+                    highlight={consentHighlight}
+                  />
+                </div>
                 {error && <p className="text-xs text-red-600">{error}</p>}
                 <button type="submit" disabled={submitting}
                   className="w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors">
@@ -177,6 +283,11 @@ export default function VerifyRealEstatePage() {
                   메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요.
                 </p>
               )}
+              <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+                입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
+                자동 생성되며, 마이페이지에서 언제든 변경하실 수
+                있습니다.
+              </div>
               <Link href="/consultation?case=verify-real-estate"
                 className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-gray-900 px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
                 메시지 기다리지 않고 지금 상담하기
