@@ -7,11 +7,15 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
+
+// 운전면허 발급·전환 전국 통합 포털 (2025년 개편 이후 공안부 산하로 이관).
+// 신청 과정에서 거주 지역(성/시)을 선택하면 관할 경찰서(CSGT)로 자동 연결됨.
+const LICENSE_OFFICIAL_URL = "https://dvc-gplx.csgt.bocongan.gov.vn/";
 
 type HasTrc = "yes" | "no" | null;
 type HasLicense = "yes" | "no" | null;
@@ -107,10 +111,15 @@ export default function DrivingLicenseCheckPage() {
   const [trc, setTrc] = useState<HasTrc>(null);
   const [license, setLicense] = useState<HasLicense>(null);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
+  const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
+  const [agencyRequested, setAgencyRequested] = useState(false);
+  const [agencySaving, setAgencySaving] = useState(false);
+  const [agencyError, setAgencyError] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
 
   const result = computeResult(trc, license);
@@ -120,9 +129,32 @@ export default function DrivingLicenseCheckPage() {
     setTrc(null);
     setLicense(null);
     setLeadSubmitted(false);
+    setLeadId(null);
     setLeadError(null);
     setConsentOpen(false);
     setConsentHighlight(false);
+    setAgencyRequested(false);
+    setAgencySaving(false);
+    setAgencyError(null);
+  }
+
+  async function handleAgencyRequest() {
+    if (!leadId) return;
+    setAgencySaving(true);
+    setAgencyError(null);
+    try {
+      const { error } = await supabase.from("crm_activities").insert({
+        lead_id: leadId,
+        action: "agency_upgrade_request",
+        tag: "DRIVING_LICENSE",
+      });
+      if (error) throw error;
+      setAgencyRequested(true);
+    } catch {
+      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setAgencySaving(false);
+    }
   }
 
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -143,6 +175,7 @@ export default function DrivingLicenseCheckPage() {
     const name = String(fd.get("name") || "");
     const phone = String(fd.get("phone") || "");
     const address = String(fd.get("address") || "");
+    const email = (fd.get("email") as string) || "";
     const kakaoId = (fd.get("kakao_id") as string) || null;
     const zaloId = (fd.get("zalo_id") as string) || null;
 
@@ -151,6 +184,7 @@ export default function DrivingLicenseCheckPage() {
       name,
       phone,
       address,
+      email: email || null,
       kakao_id: kakaoId,
       zalo_id: zaloId,
       service_type: "driving-license",
@@ -177,7 +211,7 @@ export default function DrivingLicenseCheckPage() {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, name, phone, address }),
+        body: JSON.stringify({ leadId, name, phone, email, address }),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
@@ -188,6 +222,8 @@ export default function DrivingLicenseCheckPage() {
     }
 
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
+    setEmailProvided(!!email);
+    setLeadId(leadId);
     setSubmitting(false);
     setLeadSubmitted(true);
   }
@@ -331,6 +367,12 @@ export default function DrivingLicenseCheckPage() {
                 placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
                 className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
               />
+              <input
+                type="email"
+                name="email"
+                placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+              />
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
@@ -384,20 +426,17 @@ export default function DrivingLicenseCheckPage() {
           </div>
         )}
 
-        {trc === "yes" && result === "possible" && leadSubmitted && (
+        {/* 결과: 가능 — 필요서류 안내 + 관할기관 링크 + 대행 유도 (셀프가이드 단계) */}
+        {trc === "yes" && result === "possible" && leadSubmitted && !agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
-              접수 완료 — {messengers.primary.label} 또는{" "}
-              {messengers.secondary.label}로 곧 보내드립니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              필요서류 체크리스트와 전환 절차를 메시지로 보내드립니다.
+              필요서류부터 확인하세요
             </p>
 
             <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
-                미리 준비해두시면 좋은 서류
+                운전면허 전환에 필요한 서류
               </p>
               <ul className="mt-2 space-y-1">
                 <li className="text-xs text-gray-600 pl-1">
@@ -413,18 +452,70 @@ export default function DrivingLicenseCheckPage() {
                   · 면허 베트남어 공증 번역본 (국적에 따라 상이)
                 </li>
               </ul>
+            </div>
+
+            <a
+              href={LICENSE_OFFICIAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
+            >
+              운전면허 전국 통합 포털 바로가기 <ExternalLink size={14} />
+            </a>
+            <p className="mt-2 text-[11px] text-gray-400">
+              성/시별 정확한 관할 경찰서(CSGT)를 찾기 위해 국가가 운영하는
+              통합 시스템으로 연결됩니다. 지역만 선택하면 바로 연결됩니다.
+            </p>
+
+            <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
+              ⏱ 직접 신청하시는 경우, 공증 번역본 준비 실수로 반려·재제출이
+              잦아 완료까지 평균 2~3주 이상 걸릴 수 있습니다. VFBC가
+              대행하면 서류 검토부터 접수까지 평균 5~7일 안에 완료됩니다.
+            </div>
+
+            {agencyError && (
+              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
+            )}
+            <button
+              onClick={handleAgencyRequest}
+              disabled={agencySaving}
+              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+            >
+              {agencySaving ? "접수 중..." : "지금 VFBC 대행 신청하기 →"}
+            </button>
+            <p className="mt-2 text-[11px] text-gray-400">
+              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+            </p>
+
+            <button
+              onClick={reset}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {/* 결과: 가능 — 대행 접수 완료 */}
+        {trc === "yes" && result === "possible" && agencyRequested && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              대행 신청이 접수되었습니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
+              {messengers.primary.label}/{messengers.secondary.label}로
+              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
+            </p>
+
+            {emailProvided && (
               <p className="mt-2 text-[11px] text-gray-400">
-                미리 준비해두시면 접수가 더 빨리 진행됩니다.
+                메시지가 오지 않으면 이메일도 함께 확인해주세요.
               </p>
-            </div>
+            )}
 
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <MessageCircle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              메시지가 오지 않으면 알려주세요 — 담당자가 직접 확인 후
-              연락드립니다.
-            </div>
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
               입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
               자동 생성되며, 마이페이지에서 언제든 변경하실 수
@@ -432,15 +523,9 @@ export default function DrivingLicenseCheckPage() {
               함께 이용하실 수 있습니다.
             </div>
 
-            <Link
-              href="/consultation?case=driving-license"
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-blue-900 px-5 py-2.5 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-            >
-              메시지 기다리지 않고 지금 상담하기
-            </Link>
             <button
               onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
             >
               처음부터 다시 확인하기
             </button>

@@ -8,10 +8,15 @@ import {
   AlertTriangle,
   XCircle,
   MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
+
+// 외국인노동자 관리 전용 국가포털 (Cổng DVC quản lý người lao động nước ngoài).
+// 신청 과정에서 근무지 성/시를 선택하면 관할 기관(Sở Nội vụ 등)으로 자동 연결됨.
+const WP_OFFICIAL_URL = "http://dvc.vieclamvietnam.gov.vn";
 
 type Education = "university" | "college" | "highschool" | null;
 type Experience = "over3" | "one-to-three" | "under1" | null;
@@ -112,11 +117,15 @@ export default function WpCheckPage() {
   const [experience, setExperience] = useState<Experience>(null);
   const [job, setJob] = useState<Job>(null);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
+  const [agencyRequested, setAgencyRequested] = useState(false);
+  const [agencySaving, setAgencySaving] = useState(false);
+  const [agencyError, setAgencyError] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
 
   const result = computeResult(education, experience, job);
@@ -127,10 +136,33 @@ export default function WpCheckPage() {
     setExperience(null);
     setJob(null);
     setLeadSubmitted(false);
+    setLeadId(null);
     setLeadError(null);
     setEmailProvided(false);
     setConsentOpen(false);
     setConsentHighlight(false);
+    setAgencyRequested(false);
+    setAgencySaving(false);
+    setAgencyError(null);
+  }
+
+  async function handleAgencyRequest() {
+    if (!leadId) return;
+    setAgencySaving(true);
+    setAgencyError(null);
+    try {
+      const { error } = await supabase.from("crm_activities").insert({
+        lead_id: leadId,
+        action: "agency_upgrade_request",
+        tag: "WORK_PERMIT",
+      });
+      if (error) throw error;
+      setAgencyRequested(true);
+    } catch {
+      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setAgencySaving(false);
+    }
   }
 
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -199,6 +231,7 @@ export default function WpCheckPage() {
 
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setEmailProvided(!!email);
+    setLeadId(leadId);
     setSubmitting(false);
     setLeadSubmitted(true);
   }
@@ -403,22 +436,17 @@ export default function WpCheckPage() {
           </div>
         )}
 
-        {/* 결과: 가능 — 접수 완료 */}
-        {showResult && result === "possible" && leadSubmitted && (
+        {/* 결과: 가능 — 필요서류 안내 + 관할기관 링크 + 대행 유도 (셀프가이드 단계) */}
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
-              접수 완료 — {messengers.primary.label} 또는{" "}
-              {messengers.secondary.label}로 곧 보내드립니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              입력하신 상황을 기준으로 정리한 상세 안내와 필요서류
-              체크리스트를 잠시 후 메시지로 보내드립니다.
+              필요서류부터 확인하세요
             </p>
 
             <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
-                미리 준비해두시면 좋은 서류
+                노동허가(WP) 신청에 필요한 서류
               </p>
               <ul className="mt-2 space-y-1">
                 <li className="text-xs text-gray-600 pl-1">
@@ -434,19 +462,71 @@ export default function WpCheckPage() {
                   · 건강진단서 (베트남 지정병원 발급)
                 </li>
               </ul>
+            </div>
+
+            <a
+              href={WP_OFFICIAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
+            >
+              외국인노동자 관리 전용 포털 바로가기 <ExternalLink size={14} />
+            </a>
+            <p className="mt-2 text-[11px] text-gray-400">
+              성/시별 정확한 관할 기관을 찾기 위해 국가가 운영하는 통합
+              시스템으로 연결됩니다. 지역만 선택하면 바로 연결됩니다.
+            </p>
+
+            <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
+              ⏱ 직접 신청하시는 경우, 공증·영사확인 서류 준비 실수로
+              반려·재제출이 잦아 완료까지 평균 3~4주 이상 걸릴 수 있습니다.
+              VFBC가 대행하면 서류 검토부터 접수까지 평균 1~2주 안에
+              완료됩니다.
+            </div>
+
+            {agencyError && (
+              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
+            )}
+            <button
+              onClick={handleAgencyRequest}
+              disabled={agencySaving}
+              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+            >
+              {agencySaving ? "접수 중..." : "지금 VFBC 대행 신청하기 →"}
+            </button>
+            <p className="mt-2 text-[11px] text-gray-400">
+              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+            </p>
+
+            <button
+              onClick={reset}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {/* 결과: 가능 — 대행 접수 완료 */}
+        {showResult && result === "possible" && agencyRequested && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              대행 신청이 접수되었습니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
+              {messengers.primary.label}/{messengers.secondary.label}로
+              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
+            </p>
+
+            {emailProvided && (
               <p className="mt-2 text-[11px] text-gray-400">
-                미리 준비해두시면 접수가 더 빨리 진행됩니다.
+                메시지가 오지 않으면 이메일도 함께 확인해주세요.
               </p>
-            </div>
+            )}
 
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <MessageCircle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              {emailProvided
-                ? "메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요."
-                : "메시지가 오지 않으면 알려주세요 — 담당자가 직접 확인 후 연락드립니다."}
-            </div>
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
               입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
               자동 생성되며, 마이페이지에서 언제든 변경하실 수
@@ -454,15 +534,9 @@ export default function WpCheckPage() {
               함께 이용하실 수 있습니다.
             </div>
 
-            <Link
-              href="/consultation?case=wp-application"
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-blue-900 px-5 py-2.5 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-            >
-              메시지 기다리지 않고 지금 상담하기
-            </Link>
             <button
               onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
             >
               처음부터 다시 확인하기
             </button>
