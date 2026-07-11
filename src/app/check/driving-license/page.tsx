@@ -468,22 +468,20 @@ export default function DrivingLicenseCheckPage() {
             </p>
 
             <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-              ⏱ 직접 신청하시는 경우, 공증 번역본 준비 실수로 반려·재제출이
-              잦아 완료까지 많은 어려움을 겪으실 수 있습니다. VFBC가
-              대행하면 서류 검토부터 접수까지 안전하고 빠르게 완료됩니다.
+              ⏱ 직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
+              달라 정확한 정보를 찾기 어렵고, 공증 번역본 준비 실수로
+              반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
+              혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
+              요청하세요.
             </div>
 
-            <p className="mt-5 text-xs text-gray-500">
-              혼자 진행하기 어렵거나 서류 준비가 막막하시면, 언제든 도움을
-              요청하실 수 있습니다.
-            </p>
             {agencyError && (
               <p className="mt-3 text-xs text-red-600">{agencyError}</p>
             )}
             <button
               onClick={handleAgencyRequest}
               disabled={agencySaving}
-              className="mt-3 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
             >
               {agencySaving ? "접수 중..." : "도움 요청하기 →"}
             </button>
