@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
+  MessageCircle,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -23,12 +24,93 @@ function computeResult(trc: HasTrc, license: HasLicense): Result {
   return null;
 }
 
+const CONSENT_SUMMARY =
+  "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
+
+function ConsentDetails({
+  open,
+  onToggle,
+  highlight,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`mt-1 rounded-lg p-3 text-[11px] leading-relaxed transition-colors ${
+        highlight ? "bg-red-50 ring-1 ring-red-200" : "bg-gray-50"
+      }`}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full text-left font-medium text-gray-700"
+      >
+        {open ? "▾" : "▸"} 자세히 보기 (베트남 · 대한민국 법령 근거)
+      </button>
+
+      {highlight && (
+        <p className="mt-2 font-semibold text-red-700">
+          베트남·한국 개인정보보호법에 따라 동의하지 않으면 계정 생성 및
+          서비스 이용(진단 결과 확인, 상담 등)을 진행할 수 없습니다.
+        </p>
+      )}
+
+      {open && (
+        <div className="mt-2 space-y-3 text-gray-600">
+          <div>
+            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam</p>
+            <p>
+              Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
+              lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
+              thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn
+              sau khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại,
+              địa chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích
+              tư vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ
+              liệu được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục
+              đích xử lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ
+              chối có thể khiến bạn không thể sử dụng một số dịch vụ (xem kết
+              quả chẩn đoán, tư vấn, v.v.).
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-700">🇰🇷 대한민국</p>
+            <p>
+              개인정보보호법에 근거하여 아래와 같이 개인정보 수집·이용에
+              대해 안내드리며, 동의를 받습니다.
+            </p>
+            <ul className="mt-1 list-disc pl-4 space-y-0.5">
+              <li>수집 항목: 이름, 전화번호, 주소, (선택) 카카오톡/잘로 ID</li>
+              <li>수집 목적: 상담·진단 안내 및 서비스 이용을 위한 계정 자동 생성</li>
+              <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
+              <li>
+                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 진단
+                결과 확인·상담 등 서비스 이용이 제한될 수 있습니다.
+              </li>
+            </ul>
+          </div>
+          <Link
+            href="/privacy"
+            target="_blank"
+            className="inline-block font-semibold text-blue-900 hover:underline"
+          >
+            개인정보처리방침 전문 보기 →
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DrivingLicenseCheckPage() {
   const [trc, setTrc] = useState<HasTrc>(null);
   const [license, setLicense] = useState<HasLicense>(null);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [consentHighlight, setConsentHighlight] = useState(false);
   const messengers = MESSENGERS_KO;
 
   const result = computeResult(trc, license);
@@ -39,14 +121,24 @@ export default function DrivingLicenseCheckPage() {
     setLicense(null);
     setLeadSubmitted(false);
     setLeadError(null);
+    setConsentOpen(false);
+    setConsentHighlight(false);
   }
 
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+
+    if (fd.get("agreeTerms") !== "on") {
+      setConsentOpen(true);
+      setConsentHighlight(true);
+      return;
+    }
+    setConsentHighlight(false);
+
     setSubmitting(true);
     setLeadError(null);
 
-    const fd = new FormData(e.currentTarget);
     const leadId = crypto.randomUUID();
     const name = String(fd.get("name") || "");
     const phone = String(fd.get("phone") || "");
@@ -78,6 +170,22 @@ export default function DrivingLicenseCheckPage() {
       action: "driving_license_diagnosis_lead",
       tag: "DRIVING_LICENSE",
     });
+
+    // 계정은 이 호출 안에서 조용히, 완전히 생성/가입 완료된다.
+    // (동의는 위 폼에서 이미 필수 체크박스로 받았음)
+    try {
+      const res = await fetch("/api/lead-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId, name, phone, address }),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => null);
+        console.error("lead-submit API error:", errBody);
+      }
+    } catch (apiErr) {
+      console.error("lead-submit fetch failed:", apiErr);
+    }
 
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setSubmitting(false);
@@ -191,6 +299,11 @@ export default function DrivingLicenseCheckPage() {
               거주증과 본국 면허를 보유하고 있어 베트남 운전면허로 전환
               신청이 가능합니다.
             </p>
+            <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+              * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다.
+              정확한 전환 가능 여부는 서류 검토 후 전문가 상담을 통해
+              확정됩니다.
+            </p>
             <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
               필요서류(면허 공증·번역본 등)는 국적에 따라 달라져요.
               이름·연락처·주소만 남기면 맞춤 안내를 보내드립니다.
@@ -232,6 +345,24 @@ export default function DrivingLicenseCheckPage() {
                   className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                 />
               </div>
+              <div>
+                <label className="flex items-start gap-2 text-xs text-gray-600">
+                  <input
+                    type="checkbox"
+                    name="agreeTerms"
+                    onChange={(e) => {
+                      if (e.target.checked) setConsentHighlight(false);
+                    }}
+                    className="mt-0.5"
+                  />
+                  <span>(필수) {CONSENT_SUMMARY}</span>
+                </label>
+                <ConsentDetails
+                  open={consentOpen}
+                  onToggle={() => setConsentOpen((v) => !v)}
+                  highlight={consentHighlight}
+                />
+              </div>
               {leadError && <p className="text-xs text-red-600">{leadError}</p>}
               <button
                 type="submit"
@@ -241,6 +372,9 @@ export default function DrivingLicenseCheckPage() {
                 {submitting ? "접수 중..." : "맞춤 안내 무료로 받기"}
               </button>
             </form>
+            <p className="mt-3 text-[11px] text-gray-400">
+              입력하신 정보는 상담 안내 목적으로만 사용됩니다.
+            </p>
             <button
               onClick={reset}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
@@ -260,6 +394,44 @@ export default function DrivingLicenseCheckPage() {
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
               필요서류 체크리스트와 전환 절차를 메시지로 보내드립니다.
             </p>
+
+            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+              <p className="text-xs font-semibold text-gray-700">
+                미리 준비해두시면 좋은 서류
+              </p>
+              <ul className="mt-2 space-y-1">
+                <li className="text-xs text-gray-600 pl-1">
+                  · 여권 사본 (인적사항 페이지)
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 거주증(TRC) 사본
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 본국 운전면허 원본
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 면허 베트남어 공증 번역본 (국적에 따라 상이)
+                </li>
+              </ul>
+              <p className="mt-2 text-[11px] text-gray-400">
+                미리 준비해두시면 접수가 더 빨리 진행됩니다.
+              </p>
+            </div>
+
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+              <MessageCircle size={16} className="mt-0.5 shrink-0 text-blue-900" />
+              메시지가 오지 않으면 알려주세요 — 담당자가 직접 확인 후
+              연락드립니다.
+            </div>
+
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
+              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
+              자동 생성되며, 마이페이지에서 언제든 변경하실 수
+              있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
+              함께 이용하실 수 있습니다.
+            </div>
+
             <Link
               href="/consultation?case=driving-license"
               className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-blue-900 px-5 py-2.5 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
