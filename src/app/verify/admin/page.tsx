@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, FileText, CheckCircle2, Paperclip } from "lucide-react";
+import { ArrowLeft, FileText, CheckCircle2, Paperclip, AlertTriangle, Info } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
+import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
+
+const CATEGORY = "admin" as const;
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -86,14 +89,25 @@ function ConsentDetails({
   );
 }
 
+function levelIcon(level: "info" | "warning" | "critical") {
+  if (level === "critical") return <AlertTriangle size={14} className="mt-0.5 shrink-0 text-red-600" />;
+  if (level === "warning") return <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600" />;
+  return <Info size={14} className="mt-0.5 shrink-0 text-gray-400" />;
+}
+
 export default function VerifyAdminPage() {
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<"form" | "diagnosis" | "completed">("form");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
+  const [diagnosing, setDiagnosing] = useState(false);
+  const [expertRequesting, setExpertRequesting] = useState(false);
+  const [expertError, setExpertError] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -110,7 +124,7 @@ export default function VerifyAdminPage() {
     setSubmitting(true);
     setError(null);
     const file = fd.get("document") as File | null;
-    const leadId = crypto.randomUUID();
+    const newLeadId = crypto.randomUUID();
 
     const name = String(fd.get("name") || "");
     const phone = String(fd.get("phone") || "");
@@ -120,7 +134,7 @@ export default function VerifyAdminPage() {
     const zaloId = (fd.get("zalo_id") as string) || null;
 
     const { error: err } = await supabase.from("leads").insert({
-      id: leadId,
+      id: newLeadId,
       name,
       phone,
       address,
@@ -143,7 +157,7 @@ export default function VerifyAdminPage() {
     if (file && file.size > 0) {
       const rawExt = file.name.split(".").pop() || "";
       const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-      const path = `verify-admin/${leadId}.${safeExt}`;
+      const path = `verify-admin/${newLeadId}.${safeExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("documents")
@@ -157,7 +171,7 @@ export default function VerifyAdminPage() {
     }
 
     await supabase.from("crm_activities").insert({
-      lead_id: leadId,
+      lead_id: newLeadId,
       action: "verify_lead",
       tag: "VERIFY_ADMIN",
       meta: fileUrl ? { file_url: fileUrl, file_name: file?.name } : null,
@@ -167,7 +181,7 @@ export default function VerifyAdminPage() {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, name, phone, email, address }),
+        body: JSON.stringify({ leadId: newLeadId, name, phone, email, address }),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
@@ -179,8 +193,35 @@ export default function VerifyAdminPage() {
 
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setEmailProvided(!!email);
+    setLeadId(newLeadId);
+    setFileName(file?.name || null);
     setSubmitting(false);
-    setSubmitted(true);
+
+    setDiagnosing(true);
+    const diag = await getDiagnosis(CATEGORY, { fileUrl, fileName: file?.name || null });
+    setDiagnosis(diag);
+    setDiagnosing(false);
+    setStep("diagnosis");
+  }
+
+  async function handleExpertRequest() {
+    if (!leadId) return;
+    setExpertRequesting(true);
+    setExpertError(null);
+    try {
+      const { error } = await supabase.from("crm_activities").insert({
+        lead_id: leadId,
+        action: "expert_review_request",
+        tag: "VERIFY_ADMIN",
+        meta: diagnosis ? { expert_brief: diagnosis.expertBrief } : null,
+      });
+      if (error) throw error;
+      setStep("completed");
+    } catch {
+      setExpertError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setExpertRequesting(false);
+    }
   }
 
   return (
@@ -197,105 +238,145 @@ export default function VerifyAdminPage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
         <p className="mt-1 text-sm text-gray-500">비자·거주증·노동허가 등 행정서류 사전 검토</p>
 
-        <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-          <FileText className="text-gray-900" size={28} />
-          <span className="mt-3 inline-block rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold text-gray-700">
-            잘못 제출하면 반려·재접수
-          </span>
+        {step === "form" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <FileText className="text-gray-900" size={28} />
+            <span className="mt-3 inline-block rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold text-gray-700">
+              잘못 제출하면 반려·재접수
+            </span>
 
-          {!submitted ? (
-            <>
-              <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-                관공서 공문서는 문구 하나만 잘못 해석해도 반려되거나 처리
-                기한을 놓쳐 불이익으로 이어질 수 있습니다. 서명하거나
-                제출하기 전에 AI가 먼저 확인해드립니다. 서류 사진이나 PDF·
-                워드 파일을 첨부하고 이름·연락처만 남기면 무료로 1차
-                검토해드립니다.
-              </p>
-              <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-                <label className="flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
-                  <Paperclip size={16} className="shrink-0" />
-                  <span className="truncate">
-                    {fileName || "서류 첨부 (사진 · PDF · Word)"}
-                  </span>
-                  <input
-                    type="file"
-                    name="document"
-                    accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                    className="hidden"
-                    onChange={(e) => setFileName(e.target.files?.[0]?.name || null)}
-                  />
-                </label>
-                <input type="text" name="name" required placeholder="이름"
-                  className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
-                <input type="tel" name="phone" required placeholder="전화번호"
-                  className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
-                <input type="text" name="address" required placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                  className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
-                <input type="email" name="email" placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                  className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input type="text" name="kakao_id" placeholder={`${messengers.primary.label} ID (선택)`}
-                    className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
-                  <input type="text" name="zalo_id" placeholder={`${messengers.secondary.label} ID (선택)`}
-                    className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
-                </div>
-                <div>
-                  <label className="flex items-start gap-2 text-xs text-gray-600">
-                    <input
-                      type="checkbox"
-                      name="agreeTerms"
-                      onChange={(e) => {
-                        if (e.target.checked) setConsentHighlight(false);
-                      }}
-                      className="mt-0.5"
-                    />
-                    <span>(필수) {CONSENT_SUMMARY}</span>
-                  </label>
-                  <ConsentDetails
-                    open={consentOpen}
-                    onToggle={() => setConsentOpen((v) => !v)}
-                    highlight={consentHighlight}
-                  />
-                </div>
-                {error && <p className="text-xs text-red-600">{error}</p>}
-                <button type="submit" disabled={submitting}
-                  className="w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors">
-                  {submitting ? "접수 중..." : "무료로 검토받기"}
-                </button>
-              </form>
-              <p className="mt-3 text-[11px] text-gray-400">
-                서류가 없어도 접수 가능하며, 나중에 카카오톡/잘로로 보내주셔도 됩니다.
-              </p>
-            </>
-          ) : (
-            <div className="mt-5">
-              <CheckCircle2 className="text-emerald-600" size={24} />
-              <p className="mt-3 text-base font-bold text-gray-900">
-                접수 완료 — {messengers.primary.label} 또는 {messengers.secondary.label}로 곧 보내드립니다
-              </p>
-              <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                {fileName
-                  ? "첨부하신 서류를 AI가 검토 중입니다. 결과가 정리되는 대로 메시지로 보내드립니다."
-                  : "서류를 아직 못 보내셨다면, 곧 안내드릴 메시지에 사진으로 보내주셔도 됩니다."}
-              </p>
-              {emailProvided && (
-                <p className="mt-2 text-[11px] text-gray-400">
-                  메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요.
-                </p>
-              )}
-              <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-                입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-                자동 생성되며, 마이페이지에서 언제든 변경하실 수
-                있습니다.
+            <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+              관공서 공문서는 문구 하나만 잘못 해석해도 반려되거나 처리
+              기한을 놓쳐 불이익으로 이어질 수 있습니다. 서명하거나
+              제출하기 전에 AI가 먼저 확인해드립니다. 서류 사진이나 PDF·
+              워드 파일을 첨부하고 이름·연락처만 남기면 무료로 1차
+              검토해드립니다.
+            </p>
+            <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+              <label className="flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
+                <Paperclip size={16} className="shrink-0" />
+                <span className="truncate">
+                  {fileName || "서류 첨부 (사진 · PDF · Word)"}
+                </span>
+                <input
+                  type="file"
+                  name="document"
+                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                  className="hidden"
+                  onChange={(e) => setFileName(e.target.files?.[0]?.name || null)}
+                />
+              </label>
+              <input type="text" name="name" required placeholder="이름"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+              <input type="tel" name="phone" required placeholder="전화번호"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+              <input type="text" name="address" required placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+              <input type="email" name="email" placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+              <div className="grid grid-cols-2 gap-3">
+                <input type="text" name="kakao_id" placeholder={`${messengers.primary.label} ID (선택)`}
+                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+                <input type="text" name="zalo_id" placeholder={`${messengers.secondary.label} ID (선택)`}
+                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
               </div>
-              <Link href="/consultation?case=verify-admin"
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-gray-900 px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
-                메시지 기다리지 않고 지금 상담하기
-              </Link>
+              <div>
+                <label className="flex items-start gap-2 text-xs text-gray-600">
+                  <input
+                    type="checkbox"
+                    name="agreeTerms"
+                    onChange={(e) => {
+                      if (e.target.checked) setConsentHighlight(false);
+                    }}
+                    className="mt-0.5"
+                  />
+                  <span>(필수) {CONSENT_SUMMARY}</span>
+                </label>
+                <ConsentDetails
+                  open={consentOpen}
+                  onToggle={() => setConsentOpen((v) => !v)}
+                  highlight={consentHighlight}
+                />
+              </div>
+              {error && <p className="text-xs text-red-600">{error}</p>}
+              <button type="submit" disabled={submitting || diagnosing}
+                className="w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors">
+                {submitting || diagnosing ? "AI가 확인하는 중..." : "무료로 검토받기"}
+              </button>
+            </form>
+            <p className="mt-3 text-[11px] text-gray-400">
+              서류가 없어도 접수 가능하며, 나중에 카카오톡/잘로로 보내주셔도 됩니다.
+            </p>
+          </div>
+        )}
+
+        {step === "diagnosis" && diagnosis && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
+              VFBC AI 사전진단
+            </span>
+            <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
+            <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+              입력하신 정보와 등록된 법령·행정자료를 기준으로 첨부하신 서류를
+              1차 분석한 결과입니다.
+            </p>
+
+            <ul className="mt-4 space-y-2.5">
+              {diagnosis.checklist.map((item) => (
+                <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
+                  {levelIcon(item.level)}
+                  <span>{item.label}</span>
+                </li>
+              ))}
+            </ul>
+
+            <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">
+              {diagnosis.note}
+            </p>
+
+            <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
+              간단한 내용은 무료 1차 상담으로도 확인 가능합니다. 위 항목
+              중 우려되는 부분이 있거나 서류가 복잡하다면, 전문가가 직접
+              서류를 검토해드립니다.
             </div>
-          )}
-        </div>
+
+            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
+            <button
+              onClick={handleExpertRequest}
+              disabled={expertRequesting}
+              className="mt-4 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
+            >
+              {expertRequesting ? "접수 중..." : "전문가 검토 요청하기 →"}
+            </button>
+            <p className="mt-2 text-[11px] text-gray-400">
+              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+            </p>
+          </div>
+        )}
+
+        {step === "completed" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={24} />
+            <p className="mt-3 text-base font-bold text-gray-900">
+              전문가 검토 요청이 접수되었습니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              전문가가 첨부하신 서류와 AI 사전진단 내용을 함께 확인한 뒤,
+              가입하신 이메일 또는 {messengers.primary.label}/{messengers.secondary.label}로
+              결과를 안내드립니다.
+            </p>
+            {emailProvided && (
+              <p className="mt-2 text-[11px] text-gray-400">
+                메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요.
+              </p>
+            )}
+            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
+              자동 생성되며, 마이페이지에서 언제든 변경하실 수
+              있습니다.
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
