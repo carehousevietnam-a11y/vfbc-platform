@@ -60,11 +60,11 @@ export async function sendResultEmail(
   // 진단 케이스: 결과 확인 후 서류 준비의 번거로움을 짚어 대행 신청으로 유도한다.
   const bodyHtml = isSelfRegistration
     ? `<p style="font-size: 15px; color: #374151; margin: 0 0 8px;">스스로 잘 진행하고 계세요. 응원합니다! 🎉</p>
-       <p style="font-size: 15px; font-weight: 700; color: #b45309; margin: 20px 0 8px;">놓치면 벌금·불이익이 생길 수 있어요</p>
+       <p style="font-size: 15px; font-weight: 700; color: #b45309; margin: 20px 0 8px;">기한을 놓치면 반려·재제출로 시간이 두 배로 걸릴 수 있어요</p>
        <p style="font-size: 14px; color: #6b7280; margin: 0 0 24px; line-height: 1.6;">
-         혼자 진행하다 막히는 부분이 있으시면, 담당자가 서류 준비부터 접수까지
-         무료로 검토해드리고 만료 임박 알림·법률 뉴스도 함께 받아보실 수
-         있어요. 이름·연락처 재입력 없이 바로 접수됩니다.
+         담당자가 서류부터 먼저 확인해드리고, 필요하시면 서류접수까지 대행
+         처리해드립니다. 담당자가 진행 상황을 끝까지 챙겨드리며, 이름·연락처
+         재입력 없이 바로 신청됩니다.
        </p>`
     : `<div style="background: #ffffff; border-radius: 16px; padding: 20px; margin: 0 0 20px; border: 1px solid #f3f4f6;">
          <p style="font-size: 13px; color: #6b7280; margin: 0 0 4px;">진단 결과</p>
