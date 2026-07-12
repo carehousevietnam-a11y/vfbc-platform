@@ -33,46 +33,48 @@ function ConsentDetails({
         onClick={onToggle}
         className="w-full text-left font-medium text-gray-700"
       >
-        {open ? "▾" : "▸"} 자세히 보기 (베트남 · 대한민국 법령 근거)
+        {open ? "▾" : "▸"} 자세히 보기 (베트남 법령 원문 · 한국어 번역)
       </button>
 
       {highlight && (
         <p className="mt-2 font-semibold text-red-700">
-          베트남·한국 개인정보보호법에 따라 동의하지 않으면 계정 생성 및
-          서비스 이용(검토 결과 확인, 상담 등)을 진행할 수 없습니다.
+          베트남 개인정보보호법에 따라 동의하지 않으면 계정 생성 및 서비스
+          이용(결과 확인, 상담 등)을 진행할 수 없습니다.
         </p>
       )}
 
       {open && (
         <div className="mt-2 space-y-3 text-gray-600">
           <div>
-            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam</p>
+            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam (nguyên văn)</p>
             <p>
               Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
               lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
               thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn
               sau khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại,
-              địa chỉ, email (nếu có), ID Kakao/Zalo (nếu có), tài liệu đính
-              kèm (nếu có), nhằm mục đích tư vấn, kiểm tra tài liệu và tạo tài
-              khoản dịch vụ tự động. Dữ liệu được lưu trữ đến khi bạn hủy tài
-              khoản hoặc đạt được mục đích xử lý. Bạn có quyền từ chối đồng
-              ý; tuy nhiên, việc từ chối có thể khiến bạn không thể sử dụng
-              một số dịch vụ (xem kết quả kiểm tra, tư vấn, v.v.).
+              địa chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích
+              tư vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ
+              liệu được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục
+              đích xử lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ
+              chối có thể khiến bạn không thể sử dụng một số dịch vụ (xem kết
+              quả chẩn đoán, tư vấn, v.v.).
             </p>
           </div>
           <div>
-            <p className="font-semibold text-gray-700">🇰🇷 대한민국</p>
+            <p className="font-semibold text-gray-700">한국어 번역 (이용자 편의 제공용)</p>
             <p>
-              개인정보보호법에 근거하여 아래와 같이 개인정보 수집·이용에
-              대해 안내드리며, 동의를 받습니다.
+              본 서비스는 베트남에서 운영되며, 이용자의 개인정보는 베트남
+              개인정보보호법(91/2025/QH15호, 2026년 1월 1일 시행) 및 시행령
+              (356/2025/NĐ-CP호)에 따라 처리됩니다. 원문과 번역본이 다를
+              경우 베트남어 원문이 우선합니다.
             </p>
             <ul className="mt-1 list-disc pl-4 space-y-0.5">
-              <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID, (선택) 첨부 서류</li>
-              <li>수집 목적: 서류 검토·상담 안내 및 서비스 이용을 위한 계정 자동 생성</li>
+              <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID</li>
+              <li>수집 목적: 상담·안내 및 서비스 이용을 위한 계정 자동 생성</li>
               <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
               <li>
-                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 검토
-                결과 확인·상담 등 서비스 이용이 제한될 수 있습니다.
+                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 결과
+                확인·상담 등 서비스 이용이 제한될 수 있습니다.
               </li>
             </ul>
           </div>
