@@ -66,20 +66,20 @@ function ConsentDetails({
         onClick={onToggle}
         className="w-full text-left font-medium text-gray-700"
       >
-        {open ? "▾" : "▸"} 자세히 보기 (베트남 · 대한민국 법령 근거)
+        {open ? "▾" : "▸"} 자세히 보기 (베트남 법령 원문 · 한국어 번역)
       </button>
 
       {highlight && (
         <p className="mt-2 font-semibold text-red-700">
-          베트남·한국 개인정보보호법에 따라 동의하지 않으면 계정 생성 및
-          서비스 이용(신고 사이트 안내, 결과 확인 등)을 진행할 수 없습니다.
+          베트남 개인정보보호법에 따라 동의하지 않으면 계정 생성 및 서비스
+          이용(결과 확인, 상담 등)을 진행할 수 없습니다.
         </p>
       )}
 
       {open && (
         <div className="mt-2 space-y-3 text-gray-600">
           <div>
-            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam</p>
+            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam (nguyên văn)</p>
             <p>
               Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
               lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
@@ -89,26 +89,35 @@ function ConsentDetails({
               tư vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ
               liệu được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục
               đích xử lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ
-              chối có thể khiến bạn không thể sử dụng một số dịch vụ (hướng
-              dẫn khai báo, xem kết quả, v.v.).
+              chối có thể khiến bạn không thể sử dụng một số dịch vụ (xem kết
+              quả chẩn đoán, tư vấn, v.v.).
             </p>
           </div>
           <div>
-            <p className="font-semibold text-gray-700">🇰🇷 대한민국</p>
+            <p className="font-semibold text-gray-700">한국어 번역 (이용자 편의 제공용)</p>
             <p>
-              개인정보보호법에 근거하여 아래와 같이 개인정보 수집·이용에
-              대해 안내드리며, 동의를 받습니다.
+              본 서비스는 베트남에서 운영되며, 이용자의 개인정보는 베트남
+              개인정보보호법(91/2025/QH15호, 2026년 1월 1일 시행) 및 시행령
+              (356/2025/NĐ-CP호)에 따라 처리됩니다. 원문과 번역본이 다를
+              경우 베트남어 원문이 우선합니다.
             </p>
             <ul className="mt-1 list-disc pl-4 space-y-0.5">
               <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID</li>
-              <li>수집 목적: 상담·등록 안내 및 서비스 이용을 위한 계정 자동 생성</li>
+              <li>수집 목적: 상담·안내 및 서비스 이용을 위한 계정 자동 생성</li>
               <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
               <li>
-                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 신고
-                사이트 안내·결과 확인 등 서비스 이용이 제한될 수 있습니다.
+                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 결과
+                확인·상담 등 서비스 이용이 제한될 수 있습니다.
               </li>
             </ul>
           </div>
+          <Link
+            href="/privacy"
+            target="_blank"
+            className="inline-block font-semibold text-blue-900 hover:underline"
+          >
+            개인정보처리방침 전문 보기 →
+          </Link>
         </div>
       )}
     </div>
@@ -187,8 +196,6 @@ export default function TamTruCheckPage() {
     });
     if (crmError) console.error("crm_activities insert error:", crmError);
 
-    // 계정은 이 호출 안에서 조용히, 완전히 생성/가입 완료된다.
-    // (동의는 위 폼에서 이미 필수 체크박스로 받았음)
     try {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
@@ -242,7 +249,6 @@ export default function TamTruCheckPage() {
     }
   }
 
-  // 이미 셀프 등록 정보가 있는 경우: 재입력 없이 기존 lead에 대행전환 활동만 기록
   async function handleAgencyQuickConfirm() {
     if (!selfLeadId) return;
     setSaving(true);
@@ -262,7 +268,6 @@ export default function TamTruCheckPage() {
     }
   }
 
-  // 처음부터 대행을 선택한 경우 (셀프 정보 없음): 신규 리드 생성
   async function handleAgencyLeadSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agencyForm.agreeTerms) {
@@ -469,7 +474,6 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 셀프 등록: 링크 노출 전 리드 정보 수집 */}
             {choice === "self" && timing && !selfLeadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 {timing === "over24" && (
@@ -579,7 +583,6 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 셀프 등록: 제출 직후 바로 가이드 노출. 클릭 즉시 이동/전환 (별도 확인화면 없음) */}
             {choice === "self" && timing && selfLeadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <CheckCircle2 className="text-emerald-600" size={28} />
@@ -649,7 +652,6 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 대행: 이미 셀프 정보가 있는 경우 → 클릭 즉시 접수, 로딩만 잠깐 표시 */}
             {choice === "agency" && timing && hasExistingContact && !agencyLeadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 {saveError ? (
@@ -671,7 +673,6 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 대행: 셀프 정보 없이 바로 선택한 경우 → 신규 입력 */}
             {choice === "agency" && timing && !hasExistingContact && !agencyLeadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 {timing === "over24" && (
@@ -780,7 +781,6 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 대행: 접수 완료 (양쪽 경로 공통, 상담 중간단계 없이 바로 종료) */}
             {choice === "agency" && timing && agencyLeadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <CheckCircle2 className="text-emerald-600" size={28} />
