@@ -55,6 +55,27 @@ export async function sendResultEmail(
 
   const buttonLabel = isSelfRegistration ? "도움 요청하기" : "상세 결과 확인하기";
 
+  // 자가등록 케이스: 응원 문구 + 놓치면 불이익이 생길 수 있다는 후킹 문구를
+  // 버튼 위에 배치해 이메일 단계에서부터 클릭을 유도한다.
+  // 진단 케이스: 결과 확인 후 서류 준비의 번거로움을 짚어 대행 신청으로 유도한다.
+  const bodyHtml = isSelfRegistration
+    ? `<p style="font-size: 15px; color: #374151; margin: 0 0 8px;">스스로 잘 진행하고 계세요. 응원합니다! 🎉</p>
+       <p style="font-size: 15px; font-weight: 700; color: #b45309; margin: 20px 0 8px;">놓치면 벌금·불이익이 생길 수 있어요</p>
+       <p style="font-size: 14px; color: #6b7280; margin: 0 0 24px; line-height: 1.6;">
+         혼자 진행하다 막히는 부분이 있으시면, 담당자가 서류 준비부터 접수까지
+         무료로 검토해드리고 만료 임박 알림·법률 뉴스도 함께 받아보실 수
+         있어요. 이름·연락처 재입력 없이 바로 접수됩니다.
+       </p>`
+    : `<div style="background: #ffffff; border-radius: 16px; padding: 20px; margin: 0 0 20px; border: 1px solid #f3f4f6;">
+         <p style="font-size: 13px; color: #6b7280; margin: 0 0 4px;">진단 결과</p>
+         <p style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">${resultLabel}</p>
+       </div>
+       <p style="font-size: 14px; color: #6b7280; margin: 0 0 24px; line-height: 1.6;">
+         정확한 필요서류와 절차는 지역·상황에 따라 달라져 직접 준비하시면
+         반려·재제출이 잦을 수 있어요. 지금 신청하시면 담당자가 서류 준비부터
+         접수까지 대신 처리해드립니다.
+       </p>`;
+
   const html = `
   <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #fafafa;">
     <div style="height: 3px; background: #1e3a8a; margin-bottom: 24px; border-radius: 2px;"></div>
@@ -64,16 +85,7 @@ export async function sendResultEmail(
     <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 16px; line-height: 1.4;">
       ${headline}
     </h1>
-    ${
-      resultLabel
-        ? `<div style="background: #ffffff; border-radius: 16px; padding: 20px; margin: 0 0 24px; border: 1px solid #f3f4f6;">
-             <p style="font-size: 13px; color: #6b7280; margin: 0 0 4px;">진단 결과</p>
-             <p style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">${resultLabel}</p>
-             <p style="font-size: 13px; color: #9ca3af; margin: 12px 0 0;">정확한 필요서류와 절차는 아래 버튼을 눌러 확인하세요.</p>
-           </div>`
-        : `<p style="font-size: 15px; color: #374151; margin: 0 0 8px;">스스로 잘 진행하고 계세요. 응원합니다! 🎉</p>
-           <p style="font-size: 15px; color: #374151; margin: 0 0 24px;">만일 진행 중 막히는 부분이 있으시면, 아래 버튼을 눌러 도움을 요청해주세요.</p>`
-    }
+    ${bodyHtml}
     <a href="${resultUrl}" style="display: inline-block; background: #1e3a8a; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 9999px; text-decoration: none;">
       ${buttonLabel}
     </a>

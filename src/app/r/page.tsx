@@ -16,7 +16,7 @@ import { supabase } from "@/lib/supabase";
 
 type Status = "loading" | "invalid" | "expired" | "preparing" | "ready";
 
-type HelpState = "idle" | "asking" | "submitting" | "submitted";
+type HelpState = "idle" | "submitting" | "submitted";
 
 type ResultInfo = {
   leadId: string;
@@ -97,8 +97,6 @@ function ResultContent() {
           serviceType: data.serviceType,
           result: data.result,
         });
-        // password_set은 리드 제출 시점에 이미 조용히 완료 처리된다.
-        // 혹시 아닌 레거시 케이스만 사용자 노출 없이 여기서 자동으로 마무리한다.
         setStatus(data.passwordSet ? "ready" : "preparing");
       })
       .catch((err) => {
@@ -107,7 +105,6 @@ function ResultContent() {
       });
   }, [token]);
 
-  // (레거시 대비) 계정이 아직 완전히 준비되지 않은 경우, 사용자에게 묻지 않고 조용히 마무리
   useEffect(() => {
     if (status !== "preparing" || !token || prepareTriggeredRef.current) return;
     prepareTriggeredRef.current = true;
@@ -130,7 +127,6 @@ function ResultContent() {
     })();
   }, [status, token]);
 
-  // "ready" 상태에 도달하면 자동 로그인을 시도한다 (al=1로 이미 처리된 경우 제외)
   useEffect(() => {
     if (status !== "ready" || !token || loginAttempted || alreadyLoggedInPass) {
       return;
@@ -156,6 +152,7 @@ function ResultContent() {
     })();
   }, [status, token, loginAttempted, alreadyLoggedInPass]);
 
+  // 클릭 즉시 접수 — 중간 확인 화면 없이 한 번의 클릭으로 완료
   async function handleHelpRequest() {
     if (!info || helpTriggeredRef.current) return;
     helpTriggeredRef.current = true;
@@ -183,7 +180,7 @@ function ResultContent() {
       if (insertError) {
         console.error(insertError);
         setHelpError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
-        setHelpState("asking");
+        setHelpState("idle");
         helpTriggeredRef.current = false;
         return;
       }
@@ -198,7 +195,7 @@ function ResultContent() {
     } catch (err) {
       console.error("help request failed:", err);
       setHelpError("서버와 통신 중 문제가 발생했습니다.");
-      setHelpState("asking");
+      setHelpState("idle");
       helpTriggeredRef.current = false;
     }
   }
@@ -309,44 +306,22 @@ function ResultContent() {
               </p>
             </div>
 
-            {/* 도움 요청 — 강한 후킹 + 혜택, 인라인 Y/N, 페이지 이동 없음 */}
+            {/* 대행 신청 — 클릭 1번으로 바로 접수, 중간 확인 없음 */}
             {helpState === "idle" && (
-              <button
-                onClick={() => setHelpState("asking")}
-                className="mt-5 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <MessageSquare size={16} /> 막히면 도움 신청하기
-              </button>
-            )}
-
-            {helpState === "asking" && (
-              <div className="mt-5 rounded-xl border border-gray-100 p-4">
-                <p className="text-sm font-semibold text-gray-900">
-                  놓치면 벌금·불이익이 생길 수 있어요
-                </p>
-                <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
-                  지금 요청하시면 담당자가 서류 준비부터 접수까지 무료로
-                  검토해드리고, 만료 임박 알림·법률 뉴스도 함께 받아보실 수
-                  있어요. 이름·연락처 재입력 없이 바로 접수됩니다.
-                </p>
+              <>
+                <button
+                  onClick={handleHelpRequest}
+                  className="mt-5 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors inline-flex items-center justify-center gap-2"
+                >
+                  <MessageSquare size={16} /> 대행 신청하기
+                </button>
                 {helpError && (
                   <p className="mt-2 text-xs text-red-600">{helpError}</p>
                 )}
-                <div className="mt-3 flex gap-3">
-                  <button
-                    onClick={handleHelpRequest}
-                    className="flex-1 h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-                  >
-                    네, 요청할게요
-                  </button>
-                  <button
-                    onClick={() => setHelpState("idle")}
-                    className="h-11 px-5 rounded-full border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-                  >
-                    괜찮아요
-                  </button>
-                </div>
-              </div>
+                <p className="mt-2 text-[11px] text-gray-400">
+                  이름·연락처 재입력 없이 바로 접수됩니다.
+                </p>
+              </>
             )}
 
             {helpState === "submitting" && (
