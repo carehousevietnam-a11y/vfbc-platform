@@ -21,7 +21,7 @@ type Housing = "hotel" | "personal" | null;
 type Choice = "self" | "agency" | null;
 type Timing = "within12" | "within24" | "over24" | null;
 
-const TAMTRU_OFFICIAL_URL = "https://evisa.xuatnhapcanh.gov.vn/en_US/web/guest/home";
+const TAMTRU_OFFICIAL_URL = "https://evisa.gov.vn/khai-bao-tam-tru";
 
 type FormState = {
   name: string;
@@ -603,9 +603,9 @@ export default function TamTruCheckPage() {
                   관할 지역 신고 사이트 바로가기 <ExternalLink size={14} />
                 </a>
                 <p className="mt-2 text-[11px] text-gray-400">
-                  베트남 출입국관리국 공식 사이트로 이동합니다. 상단 언어를
-                  영어로 전환 후 &quot;Declare temporary residence for
-                  foreigners&quot; 항목을 이용하세요.
+                  베트남 출입국관리국 전자포털(임시거주 신고 페이지)로
+                  바로 이동합니다. 화면 안내에 따라 신고 내용을 확인하고
+                  진행하시면 됩니다.
                 </p>
                 {emailProvided && (
                   <p className="mt-2 text-[11px] text-gray-400">

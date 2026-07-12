@@ -14,8 +14,10 @@ import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 
-// TODO: 정확한 관할 발급기관 페이지로 교체 확인 필요 (거주증은 지역별 출입국관리국/공안청을 통해 접수되는 경우가 많아, 땀주처럼 단일 온라인 포털이 아닐 수 있습니다)
-const TRC_OFFICIAL_URL = "https://xuatnhapcanh.gov.vn/";
+// 거주증(TRC)은 출입국 전자비자 포털(evisa) 소관이 아니라
+// 공안부 공공서비스포털을 통해 접수됩니다. (2026-07 확인 완료)
+const TRC_OFFICIAL_URL =
+  "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26285";
 
 type Nationality = "korea" | "china" | "japan" | "other" | null;
 type Visa = "invest" | "work" | "tourist" | "other" | null;
@@ -496,8 +498,9 @@ export default function TrcCheckPage() {
               관할 발급기관 사이트 바로가기 <ExternalLink size={14} />
             </a>
             <p className="mt-2 text-[11px] text-gray-400">
-              거주증은 지역(성/시)별 출입국관리사무소를 통해 접수되는 경우가
-              많아, 정확한 접수처는 관할 지역에 따라 다를 수 있습니다.
+              공안부 공공서비스포털의 거주증(TRC) 발급 절차 안내
+              페이지로 이동합니다. 구비서류·수수료·처리기간을 확인하실
+              수 있습니다.
             </p>
 
             <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
