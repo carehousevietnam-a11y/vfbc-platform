@@ -21,6 +21,27 @@ const RESULT_LABEL: Record<string, string> = {
   impossible: "불가 ❌",
 };
 
+// 서비스 유형별 1차 필요서류 체크리스트
+// (src/app/r/page.tsx의 REQUIRED_DOCS와 동일 목록 — 화면과 이메일 내용을
+//  일치시키기 위해 유지. 한쪽을 수정하면 반드시 다른 쪽도 함께 수정할 것)
+const REQUIRED_DOCS: Record<string, string[]> = {
+  tamtru: ["여권 사본", "임대차 계약서 (또는 집주인 확인서)", "숙소 주소지 증빙"],
+  trc: ["여권 사본", "비자 사본", "재직증명서 또는 사업자등록증", "임대차 계약서"],
+  wp: [
+    "여권 사본",
+    "최종학력 증명서 (아포스티유)",
+    "범죄경력증명서 (아포스티유)",
+    "건강진단서",
+  ],
+};
+const DEFAULT_DOCS = ["여권 사본", "관련 증빙서류"];
+
+function getDocs(serviceType: string): string[] {
+  if (REQUIRED_DOCS[serviceType]) return REQUIRED_DOCS[serviceType];
+  if (serviceType?.startsWith("verify-")) return ["검토 대상 서류 사본"];
+  return DEFAULT_DOCS;
+}
+
 type SendResultEmailParams = {
   to: string;
   name: string;
@@ -47,19 +68,18 @@ export async function sendResultEmail(
   // - self: 아직 스스로 진행 중인 상태 (땀주 셀프등록 등)
   const isAgencyRequest = result === "agency";
   const isDiagnosis = !!resultLabel;
-  const isSelfRegistration = !isAgencyRequest && !isDiagnosis;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc.vercel.app";
   const resultUrl = `${siteUrl}/r?token=${token}`;
 
   const subject = isAgencyRequest
-    ? `[VFBC] ${name}님의 대행 신청이 접수되었습니다`
+    ? `[VFBC] ${name}님의 ${serviceLabel} 대행 신청이 접수되었습니다`
     : isDiagnosis
     ? `[VFBC] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
     : `[VFBC] ${name}님의 ${serviceLabel} 자가등록을 축하드립니다`;
 
   const headline = isAgencyRequest
-    ? `${name}님, 대행 신청이 정상 접수되었습니다`
+    ? `${name}님, ${serviceLabel} 대행 신청이 완료되었습니다`
     : isDiagnosis
     ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
     : `${name}님, ${serviceLabel} 자가등록을 축하드립니다`;
@@ -70,12 +90,27 @@ export async function sendResultEmail(
   const HOOK_TEXT =
     "혼자 시도하다가 기한을 놓치거나 잘못된 서류기입으로 반려·재제출로 시간이 두 배로 걸리거나 접수 자체가 안될 수도 있어요.";
 
+  const docsHtml = (docs: string[]) => `
+       <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin: 0 0 20px;">
+         <p style="font-size: 12px; font-weight: 600; color: #374151; margin: 0 0 8px;">미리 준비해두시면 좋은 서류</p>
+         <ul style="margin: 0; padding: 0; list-style: none;">
+           ${docs
+             .map(
+               (d) =>
+                 `<li style="font-size: 12px; color: #6b7280; margin: 2px 0;">· ${d}</li>`
+             )
+             .join("")}
+         </ul>
+         <p style="font-size: 11px; color: #9ca3af; margin: 8px 0 0;">정확한 요건은 상황에 따라 다를 수 있어 담당자 확인이 필요합니다.</p>
+       </div>`;
+
   let bodyHtml: string;
 
   if (isAgencyRequest) {
-    bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 24px; line-height: 1.6;">
-      신청하신 내용은 안전하게 접수되었습니다. 다음 연락은 담당자가 먼저 드립니다.
-    </p>`;
+    bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+        담당자가 서류를 확인한 뒤 카카오톡 또는 잘로(Zalo)로 예상 비용과 진행 절차를 안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
+      </p>
+      ${docsHtml(getDocs(serviceType))}`;
   } else if (isDiagnosis) {
     bodyHtml = `<div style="background: #ffffff; border-radius: 16px; padding: 20px; margin: 0 0 20px; border: 1px solid #f3f4f6;">
          <p style="font-size: 13px; color: #6b7280; margin: 0 0 4px;">진단 결과</p>

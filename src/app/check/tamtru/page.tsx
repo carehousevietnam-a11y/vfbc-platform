@@ -260,6 +260,18 @@ export default function TamTruCheckPage() {
         tag: "TAMTRU",
       });
       if (error) throw error;
+
+      // 대행 신청 완료 이메일 발송 (실패해도 화면 흐름은 그대로 진행)
+      try {
+        await fetch("/api/agency-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId: selfLeadId }),
+        });
+      } catch (emailErr) {
+        console.error("agency-confirm email trigger failed:", emailErr);
+      }
+
       setAgencyLeadSubmitted(true);
     } catch {
       setSaveError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
