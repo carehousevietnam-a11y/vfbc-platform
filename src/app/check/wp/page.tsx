@@ -159,6 +159,18 @@ export default function WpCheckPage() {
         tag: "WORK_PERMIT",
       });
       if (error) throw error;
+
+      // 대행 신청 완료 이메일 발송 (실패해도 화면 흐름은 그대로 진행)
+      try {
+        await fetch("/api/agency-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId }),
+        });
+      } catch (emailErr) {
+        console.error("agency-confirm email trigger failed:", emailErr);
+      }
+
       setAgencyRequested(true);
     } catch {
       setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
@@ -251,7 +263,7 @@ export default function WpCheckPage() {
           직접확인하기 · 베트남 행정전문 AI
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          노동허가 (WP) 가능성 진단
+          노동허가 (WP) 신청
         </h1>
         <p className="mt-1 text-sm text-gray-500">
           학력·경력·직무 형태에 따라 노동허가 발급 가능 여부가 달라집니다.
@@ -468,7 +480,7 @@ export default function WpCheckPage() {
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
             >
-              외국인노동자 관리 전용 포털 바로가기 <ExternalLink size={14} />
+              외국인 노동허가 전용 포털 바로가기 <ExternalLink size={14} />
             </a>
             <p className="mt-2 text-[11px] text-gray-400">
               성/시별 정확한 관할 기관을 찾기 위해 국가가 운영하는 통합
