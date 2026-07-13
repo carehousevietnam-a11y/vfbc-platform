@@ -16,7 +16,7 @@ import { saveLeadContact } from "@/lib/leadContact";
 
 // 외국인노동자 관리 전용 국가포털 (Cổng DVC quản lý người lao động nước ngoài).
 // 신청 과정에서 근무지 성/시를 선택하면 관할 기관(Sở Nội vụ 등)으로 자동 연결됨.
-const WP_OFFICIAL_URL = "https://dvc.vieclamvietnam.gov.vn/";
+const WP_OFFICIAL_URL = "https://dichvucong.gov.vn/";
 
 type Education = "university" | "college" | "highschool" | null;
 type Experience = "over3" | "one-to-three" | "under1" | null;
@@ -499,8 +499,9 @@ export default function WpCheckPage() {
               외국인 노동허가 전용 포털 바로가기 <ExternalLink size={14} />
             </a>
             <p className="mt-2 text-[11px] text-gray-400">
-              성/시별 정확한 관할 기관을 찾기 위해 국가가 운영하는 통합
-              시스템으로 연결됩니다. 지역만 선택하면 바로 연결됩니다.
+              국가공공서비스포털(Cổng Dịch vụ công quốc gia)로 이동합니다.
+              접속 후 검색창에 &quot;노동허가&quot; 또는 사업장 소재지로
+              검색하시면 신청 메뉴를 찾으실 수 있습니다.
             </p>
 
             <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
