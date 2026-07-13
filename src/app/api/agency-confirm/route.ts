@@ -16,19 +16,20 @@ const supabaseAdmin = createClient(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { token, leadId: leadIdParam, type } = body as {
+    const { token: tokenParam, leadId: leadIdParam, type } = body as {
       token?: string;
       leadId?: string;
       type?: "agency" | "self";
     };
 
     let leadId: string | null = null;
+    let resolvedToken = tokenParam ?? "";
 
-    if (token) {
+    if (tokenParam) {
       const { data: tokenRow, error: tokenError } = await supabaseAdmin
         .from("result_tokens")
         .select("lead_id")
-        .eq("token", token)
+        .eq("token", tokenParam)
         .maybeSingle();
 
       if (tokenError || !tokenRow) {
@@ -41,6 +42,21 @@ export async function POST(req: NextRequest) {
       leadId = tokenRow.lead_id;
     } else if (leadIdParam) {
       leadId = leadIdParam;
+
+      // token 없이 leadId로 호출된 경우 — 이메일 버튼 링크가 깨지지 않도록
+      // 이 리드에 이미 발급된 result_token이 있는지 먼저 찾아서 재사용한다.
+      // (땀주 셀프등록·TRC/WP 진단 시점에 lead-submit이 이미 토큰을 만들어둔 상태)
+      const { data: existingTokenRow } = await supabaseAdmin
+        .from("result_tokens")
+        .select("token")
+        .eq("lead_id", leadId)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingTokenRow?.token) {
+        resolvedToken = existingTokenRow.token;
+      }
     } else {
       return NextResponse.json(
         { error: "token 또는 leadId 중 하나는 필수입니다." },
@@ -70,14 +86,12 @@ export async function POST(req: NextRequest) {
 
     const resultValue = type === "self" ? "self" : "agency";
 
-    // 이메일 본문에 들어갈 result_token이 없어도(leadId 경로) 문제 없다 —
-    // 대행/직접신청 이메일에는 버튼(링크)이 렌더링되지 않는 케이스가 있기 때문이다.
     const emailResult = await sendResultEmail({
       to: recipientEmail,
       name: leadRow.name ?? "",
       serviceType: leadRow.service_type ?? "unknown",
       result: resultValue,
-      token: token ?? "",
+      token: resolvedToken,
     });
 
     const { error: notifError } = await supabaseAdmin.from("notifications").insert({
