@@ -65,7 +65,8 @@ export async function sendResultEmail(
   // 이메일 발송 시점의 상태를 3가지로 구분한다.
   // - agency: 이미 대행을 신청 완료한 상태 (더 이상 유도할 필요 없음)
   // - diagnosis: TRC/WP처럼 가능·조건부·불가 진단 결과가 나온 상태
-  // - self: 아직 스스로 진행 중인 상태 (땀주 셀프등록 등)
+  // - self: 아직 스스로 진행 중인 상태 (땀주 셀프등록 등) — 나중에 막히면
+  //   이 이메일의 버튼을 통해 도움을 요청할 수 있는 "안전망" 역할
   const isAgencyRequest = result === "agency";
   const isDiagnosis = !!resultLabel;
 
@@ -76,13 +77,13 @@ export async function sendResultEmail(
     ? `[VFBC] ${name}님의 ${serviceLabel} 대행 신청이 접수되었습니다`
     : isDiagnosis
     ? `[VFBC] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
-    : `[VFBC] ${name}님의 ${serviceLabel} 자가등록을 축하드립니다`;
+    : `[VFBC] ${name}님의 ${serviceLabel} 자가등록 진행을 응원합니다`;
 
   const headline = isAgencyRequest
     ? `${name}님, ${serviceLabel} 대행 신청이 완료되었습니다`
     : isDiagnosis
     ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
-    : `${name}님, ${serviceLabel} 자가등록을 축하드립니다`;
+    : `${name}님, 자가등록 진행을 응원합니다`;
 
   // 대행을 이미 신청한 사람에게 또 신청을 유도하는 버튼은 필요 없으므로 null 처리
   const buttonLabel = isAgencyRequest ? null : "막히면 빨리 도움신청하기";
@@ -118,8 +119,10 @@ export async function sendResultEmail(
        </div>
        <p style="font-size: 15px; font-weight: 700; color: #b45309; margin: 0 0 24px; line-height: 1.6;">${HOOK_TEXT}</p>`;
   } else {
-    bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 8px;">스스로 잘 진행하고 계세요. 응원합니다! 🎉</p>
-       <p style="font-size: 15px; font-weight: 700; color: #b45309; margin: 20px 0 24px; line-height: 1.6;">${HOOK_TEXT}</p>`;
+    bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+        베트남어로 된 서류와 낯선 행정 절차, 혼자 진행하시기 쉽지 않으셨을 텐데 여기까지 잘 오셨습니다. 앞으로도 끝까지 응원할게요! 🎉
+       </p>
+       <p style="font-size: 15px; font-weight: 700; color: #b45309; margin: 0 0 24px; line-height: 1.6;">${HOOK_TEXT}</p>`;
   }
 
   const buttonHtml = buttonLabel
