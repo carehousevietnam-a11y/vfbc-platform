@@ -8,6 +8,15 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// "정보만 입력한 시점"에는 이메일을 보내지 않는다. 실제로 사용자가 행동
+// (포털 클릭=직접신청 선택, 대행신청 확정)을 취했을 때만 /api/agency-confirm에서
+// 이메일(추후 SNS도 함께)을 보낸다.
+// - possible/conditional/impossible: TRC/WP 진단 결과 (아직 아무 행동 안 함)
+// - self: 땀주 등 "셀프로 진행하겠다"고 선택만 한 상태 (아직 포털 클릭 전)
+// "agency"는 여기 포함하지 않는다 — 대행 폼 제출 자체가 이미 확정 행동이라
+// 즉시 발송이 맞다.
+const DEFERRED_RESULTS = ["possible", "conditional", "impossible", "self"];
+
 function randomPassword() {
   return crypto.randomUUID() + crypto.randomUUID();
 }
@@ -184,9 +193,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 6. 이메일이 있으면 결과 안내 메일 자동 발송 (실패해도 응답 자체는 정상 처리)
+    // 6. 이메일 발송 여부 결정
+    //    - 진단 결과 단계, 셀프 선택만 한 단계는 아직 실제 행동이 아니므로
+    //      이메일을 보내지 않는다 (피로도 방지). 실제 포털 클릭·대행 확정 시점에
+    //      /api/agency-confirm이 대신 발송한다 (추후 SNS 채널도 여기서 함께 처리).
+    //    - "agency"(대행 폼 직접 제출)는 그 자체가 확정 행동이므로 즉시 발송한다.
     const recipientEmail = email && email.trim() ? email.trim() : null;
-    if (recipientEmail) {
+    const isDeferred = DEFERRED_RESULTS.includes(leadRow?.result ?? "");
+
+    if (recipientEmail && !isDeferred) {
       const emailResult = await sendResultEmail({
         to: recipientEmail,
         name,

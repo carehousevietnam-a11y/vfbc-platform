@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -147,6 +147,21 @@ export default function TamTruCheckPage() {
 
   const messengers = MESSENGERS_KO;
   const showLegalEscalation = landlordIssue === true;
+  const selfNotifySentRef = useRef(false);
+
+  // 관할 포털 링크(직접 신청)를 실제로 클릭한 시점에 응원 이메일을 한 번만 보낸다.
+  // 링크는 target="_blank"라 기본 이동은 그대로 두고, 이메일 발송만 별도로 실행한다.
+  function handleSelfPortalClick() {
+    if (!selfLeadId || selfNotifySentRef.current) return;
+    selfNotifySentRef.current = true;
+    fetch("/api/agency-confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId: selfLeadId, type: "self" }),
+    }).catch((err) => {
+      console.error("self-notify email trigger failed:", err);
+    });
+  }
 
   // 셀프 등록 정보를 이미 입력했다면, 대행 전환 시 재입력 없이 그대로 재사용
   const hasExistingContact = selfLeadSubmitted && !!selfLeadId;
@@ -610,6 +625,7 @@ export default function TamTruCheckPage() {
                   href={TAMTRU_OFFICIAL_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleSelfPortalClick}
                   className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
                 >
                   관할 지역 신고 사이트 바로가기 <ExternalLink size={14} />
@@ -621,7 +637,7 @@ export default function TamTruCheckPage() {
                 </p>
                 {emailProvided && (
                   <p className="mt-2 text-[11px] text-gray-400">
-                    입력하신 이메일로도 안내 링크를 보내드렸어요.
+                    위 링크를 클릭하시면 입력하신 이메일로도 안내를 보내드려요.
                   </p>
                 )}
 
