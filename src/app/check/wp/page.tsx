@@ -638,25 +638,28 @@ export default function WpCheckPage() {
         {showResult && result === "possible" && agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <div className="flex justify-center">
-              <svg
-                width="110"
-                height="110"
-                viewBox="0 0 120 120"
-                style={{ transform: "rotate(-8deg)" }}
-              >
-                <circle cx="60" cy="60" r="55" fill="none" stroke="#b91c1c" strokeWidth="3" />
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#b91c1c" strokeWidth="1.5" />
-                <text x="60" y="42" textAnchor="middle" fontSize="11" fontWeight="700" fill="#b91c1c" fontFamily="sans-serif">
-                  VFBC · AI
+              <svg width="128" height="128" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="94" fill="none" stroke="#d4af37" strokeWidth="1" />
+                <circle cx="100" cy="100" r="90" fill="#7a1d2e" stroke="#d4af37" strokeWidth="2" />
+                <circle cx="100" cy="100" r="78" fill="none" stroke="#d4af37" strokeWidth="1" />
+                <circle cx="100" cy="78" r="2.5" fill="#d4af37" />
+                <circle cx="122" cy="100" r="2.5" fill="#d4af37" />
+                <circle cx="100" cy="122" r="2.5" fill="#d4af37" />
+                <circle cx="78" cy="100" r="2.5" fill="#d4af37" />
+                <text x="100" y="90" textAnchor="middle" fontSize="24" fontWeight="800" fill="#d4af37" fontFamily="Georgia, serif">
+                  VFBC
                 </text>
-                <text x="60" y="66" textAnchor="middle" fontSize="18" fontWeight="800" fill="#b91c1c" fontFamily="sans-serif">
-                  접수완료
+                <text x="100" y="110" textAnchor="middle" fontSize="12" fontWeight="600" fill="#f3e2b3" fontFamily="sans-serif">
+                  AI 검증완료
                 </text>
-                <text x="60" y="84" textAnchor="middle" fontSize="9" fill="#b91c1c" letterSpacing="1" fontFamily="sans-serif">
+                <text x="100" y="126" textAnchor="middle" fontSize="8" fill="#d4af37" letterSpacing="2" fontFamily="sans-serif">
                   CONFIRMED
                 </text>
               </svg>
             </div>
+            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
+              Vietnam Foreign Business Verification &amp; Compliance AI Center
+            </p>
             <p className="mt-2 text-lg font-bold text-gray-900 text-center">
               대행 신청이 접수되었습니다
             </p>

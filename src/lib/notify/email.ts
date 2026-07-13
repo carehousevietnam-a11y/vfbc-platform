@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // 대행 신청 "완료" 이메일에만 넣는 신뢰도용 확인 도장. 실제 SVG를 base64로
 // 인코딩해 <img>로 삽입한다 (이메일 클라이언트는 인라인 <svg> 태그를
 // 지원하지 않는 경우가 많아 img 방식을 사용).
-const SEAL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="55" fill="none" stroke="#b91c1c" stroke-width="3"/><circle cx="60" cy="60" r="46" fill="none" stroke="#b91c1c" stroke-width="1.5"/><text x="60" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#b91c1c" font-family="sans-serif">VFBC &#183; AI</text><text x="60" y="66" text-anchor="middle" font-size="18" font-weight="800" fill="#b91c1c" font-family="sans-serif">접수완료</text><text x="60" y="84" text-anchor="middle" font-size="9" fill="#b91c1c" letter-spacing="1" font-family="sans-serif">CONFIRMED</text></svg>`;
+const SEAL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="94" fill="none" stroke="#d4af37" stroke-width="1"/><circle cx="100" cy="100" r="90" fill="#7a1d2e" stroke="#d4af37" stroke-width="2"/><circle cx="100" cy="100" r="78" fill="none" stroke="#d4af37" stroke-width="1"/><circle cx="100" cy="78" r="2.5" fill="#d4af37"/><circle cx="122" cy="100" r="2.5" fill="#d4af37"/><circle cx="100" cy="122" r="2.5" fill="#d4af37"/><circle cx="78" cy="100" r="2.5" fill="#d4af37"/><text x="100" y="90" text-anchor="middle" font-size="24" font-weight="800" fill="#d4af37" font-family="Georgia, serif">VFBC</text><text x="100" y="110" text-anchor="middle" font-size="12" font-weight="600" fill="#f3e2b3" font-family="sans-serif">AI 검증완료</text><text x="100" y="126" text-anchor="middle" font-size="8" fill="#d4af37" letter-spacing="2" font-family="sans-serif">CONFIRMED</text></svg>`;
 const SEAL_DATA_URI = `data:image/svg+xml;base64,${Buffer.from(SEAL_SVG).toString(
   "base64"
 )}`;
@@ -149,9 +149,12 @@ export async function sendResultEmail(
   if (isAgencyRequest) {
     const docsSection =
       serviceType === "wp" ? WP_DETAILED_GUIDE_HTML : docsHtmlSimple(getDocs(serviceType));
-    bodyHtml = `<div style="text-align: center; margin: 0 0 16px;">
-        <img src="${SEAL_DATA_URI}" width="96" height="96" style="transform: rotate(-8deg);" alt="VFBC AI 접수완료" />
+    bodyHtml = `<div style="text-align: center; margin: 0 0 4px;">
+        <img src="${SEAL_DATA_URI}" width="108" height="108" alt="VFBC AI 접수완료" />
       </div>
+      <p style="font-size: 10px; color: #9ca3af; font-style: italic; text-align: center; margin: 0 0 20px;">
+        Vietnam Foreign Business Verification &amp; Compliance AI Center
+      </p>
       <p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
         담당자가 서류를 확인한 뒤 카카오톡 또는 잘로(Zalo)로 예상 비용과 진행 절차를 안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
       </p>
