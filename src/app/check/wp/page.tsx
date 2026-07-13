@@ -532,7 +532,7 @@ export default function WpCheckPage() {
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
-              서류 준비 상세 가이드
+              노동허가(WP) 진행 서류 및 절차
             </p>
 
             <div className="mt-4 space-y-3">
@@ -637,8 +637,27 @@ export default function WpCheckPage() {
 
         {showResult && result === "possible" && agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
+            <div className="flex justify-center">
+              <svg
+                width="110"
+                height="110"
+                viewBox="0 0 120 120"
+                style={{ transform: "rotate(-8deg)" }}
+              >
+                <circle cx="60" cy="60" r="55" fill="none" stroke="#b91c1c" strokeWidth="3" />
+                <circle cx="60" cy="60" r="46" fill="none" stroke="#b91c1c" strokeWidth="1.5" />
+                <text x="60" y="42" textAnchor="middle" fontSize="11" fontWeight="700" fill="#b91c1c" fontFamily="sans-serif">
+                  VFBC · AI
+                </text>
+                <text x="60" y="66" textAnchor="middle" fontSize="18" fontWeight="800" fill="#b91c1c" fontFamily="sans-serif">
+                  접수완료
+                </text>
+                <text x="60" y="84" textAnchor="middle" fontSize="9" fill="#b91c1c" letterSpacing="1" fontFamily="sans-serif">
+                  CONFIRMED
+                </text>
+              </svg>
+            </div>
+            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
               대행 신청이 접수되었습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">

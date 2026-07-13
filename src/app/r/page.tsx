@@ -277,12 +277,14 @@ function ResultContent() {
                 ? `${info.name}님, ${
                     (info.serviceType && SERVICE_LABELS[info.serviceType]) || "자가등록"
                   }을 축하드립니다`
+                : info.serviceType === "wp"
+                ? "노동허가(WP) 진행 서류 및 절차"
                 : `${
                     (info.serviceType && SERVICE_LABELS[info.serviceType]) || "진단"
                   } 결과입니다`}
             </p>
 
-            {info.result && RESULT_LABELS[info.result] && (
+            {info.serviceType !== "wp" && info.result && RESULT_LABELS[info.result] && (
               <div
                 className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${
                   RESULT_LABELS[info.result].tone === "emerald"
@@ -427,10 +429,30 @@ function ResultContent() {
 
             {helpState === "submitted" && (
               <div className="mt-5 rounded-xl bg-emerald-50 px-4 py-3">
-                <p className="text-sm font-semibold text-emerald-800">
+                <div className="flex justify-center">
+                  <svg
+                    width="96"
+                    height="96"
+                    viewBox="0 0 120 120"
+                    style={{ transform: "rotate(-8deg)" }}
+                  >
+                    <circle cx="60" cy="60" r="55" fill="none" stroke="#b91c1c" strokeWidth="3" />
+                    <circle cx="60" cy="60" r="46" fill="none" stroke="#b91c1c" strokeWidth="1.5" />
+                    <text x="60" y="42" textAnchor="middle" fontSize="11" fontWeight="700" fill="#b91c1c" fontFamily="sans-serif">
+                      VFBC · AI
+                    </text>
+                    <text x="60" y="66" textAnchor="middle" fontSize="18" fontWeight="800" fill="#b91c1c" fontFamily="sans-serif">
+                      접수완료
+                    </text>
+                    <text x="60" y="84" textAnchor="middle" fontSize="9" fill="#b91c1c" letterSpacing="1" fontFamily="sans-serif">
+                      CONFIRMED
+                    </text>
+                  </svg>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-emerald-800 text-center">
                   상담 신청이 접수되었습니다
                 </p>
-                <p className="mt-1 text-xs text-emerald-700 leading-relaxed">
+                <p className="mt-1 text-xs text-emerald-700 leading-relaxed text-center">
                   담당자가 카카오톡 또는 잘로(Zalo)로 곧 연락드립니다.
                 </p>
               </div>
