@@ -539,6 +539,11 @@ export default function TrcCheckPage() {
               요청하세요.
             </div>
 
+            <p className="mt-4 text-sm font-bold text-gray-900">
+              정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
+              상의하세요.
+            </p>
+
             {agencyError && (
               <p className="mt-3 text-xs text-red-600">{agencyError}</p>
             )}
