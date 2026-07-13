@@ -8,17 +8,18 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// 대행 신청이 확정되는 시점에 호출된다. 호출 지점이 두 군데라 파라미터를 다르게 받는다.
-// 1) /r 결과확인 페이지의 "대행 신청하기" 버튼 → 이미 발급된 result_token(token)을 넘김
-// 2) 땀주 셀프등록 화면의 "대신 VFBC 대행 신청하기" 업그레이드 버튼
-//    → 아직 result_token이 없는 시점이라 leadId를 직접 넘김
-// 둘 중 하나만 있으면 되고, 최종적으로는 leads 테이블의 email로 이메일을 재사용 발송한다.
+// 대행 신청이 확정되거나(agency), 직접(셀프) 진행을 선택한(self) 시점에 호출된다.
+// 호출 지점 예시:
+// 1) /r 결과확인 페이지의 "대행 신청하기" 버튼 → type 없음(기본값 agency), token 사용
+// 2) 땀주 셀프등록의 "대신 VFBC 대행 신청하기" 업그레이드 버튼 → type: "agency", leadId 사용
+// 3) TRC/WP의 관할기관 포털 링크 클릭(직접 신청 선택) → type: "self", leadId 사용
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { token, leadId: leadIdParam } = body as {
+    const { token, leadId: leadIdParam, type } = body as {
       token?: string;
       leadId?: string;
+      type?: "agency" | "self";
     };
 
     let leadId: string | null = null;
@@ -67,13 +68,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, skipped: "no_email" });
     }
 
+    const resultValue = type === "self" ? "self" : "agency";
+
     // 이메일 본문에 들어갈 result_token이 없어도(leadId 경로) 문제 없다 —
-    // 대행 신청 완료 이메일에는 버튼(링크)이 렌더링되지 않기 때문이다.
+    // 대행/직접신청 이메일에는 버튼(링크)이 렌더링되지 않는 케이스가 있기 때문이다.
     const emailResult = await sendResultEmail({
       to: recipientEmail,
       name: leadRow.name ?? "",
       serviceType: leadRow.service_type ?? "unknown",
-      result: "agency",
+      result: resultValue,
       token: token ?? "",
     });
 
@@ -81,7 +84,7 @@ export async function POST(req: NextRequest) {
       lead_id: leadId,
       user_id: leadRow.user_id ?? null,
       channel: "email",
-      template: "agency_confirm_v1",
+      template: resultValue === "self" ? "self_notify_v1" : "agency_confirm_v1",
       status: emailResult.success ? "sent" : "failed",
       sent_at: emailResult.success ? new Date().toISOString() : null,
       payload: {

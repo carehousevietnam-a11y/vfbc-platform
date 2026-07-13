@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -16,7 +16,7 @@ import { saveLeadContact } from "@/lib/leadContact";
 
 // 외국인노동자 관리 전용 국가포털 (Cổng DVC quản lý người lao động nước ngoài).
 // 신청 과정에서 근무지 성/시를 선택하면 관할 기관(Sở Nội vụ 등)으로 자동 연결됨.
-const WP_OFFICIAL_URL = "http://dvc.vieclamvietnam.gov.vn";
+const WP_OFFICIAL_URL = "https://dvc.vieclamvietnam.gov.vn/";
 
 type Education = "university" | "college" | "highschool" | null;
 type Experience = "over3" | "one-to-three" | "under1" | null;
@@ -129,9 +129,24 @@ export default function WpCheckPage() {
   const [agencySaving, setAgencySaving] = useState(false);
   const [agencyError, setAgencyError] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
+  const selfNotifySentRef = useRef(false);
 
   const result = computeResult(education, experience, job);
   const showResult = education && experience && job;
+
+  // 관할 포털 링크(직접 신청)를 클릭한 시점에 응원 이메일을 한 번만 보낸다.
+  // 링크는 target="_blank"라 기본 이동은 그대로 두고, 이메일 발송만 별도로 실행한다.
+  function handleSelfPortalClick() {
+    if (!leadId || selfNotifySentRef.current) return;
+    selfNotifySentRef.current = true;
+    fetch("/api/agency-confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId, type: "self" }),
+    }).catch((err) => {
+      console.error("self-notify email trigger failed:", err);
+    });
+  }
 
   function reset() {
     setEducation(null);
@@ -478,6 +493,7 @@ export default function WpCheckPage() {
               href={WP_OFFICIAL_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleSelfPortalClick}
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
             >
               외국인 노동허가 전용 포털 바로가기 <ExternalLink size={14} />
@@ -503,7 +519,7 @@ export default function WpCheckPage() {
               disabled={agencySaving}
               className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
             >
-              {agencySaving ? "접수 중..." : "도움 요청하기 →"}
+              {agencySaving ? "접수 중..." : "대행 신청하기 →"}
             </button>
             <p className="mt-2 text-[11px] text-gray-400">
               이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.

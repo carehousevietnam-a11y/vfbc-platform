@@ -65,10 +65,14 @@ export async function sendResultEmail(
   // 이메일 발송 시점의 상태를 3가지로 구분한다.
   // - agency: 이미 대행을 신청 완료한 상태 (더 이상 유도할 필요 없음)
   // - diagnosis: TRC/WP처럼 가능·조건부·불가 진단 결과가 나온 상태
-  // - self: 아직 스스로 진행 중인 상태 (땀주 셀프등록 등) — 나중에 막히면
-  //   이 이메일의 버튼을 통해 도움을 요청할 수 있는 "안전망" 역할
+  // - self: 직접(셀프) 진행을 선택한 상태 — 나중에 막히면 이 이메일의
+  //   버튼을 통해 도움을 요청할 수 있는 "안전망" 역할
   const isAgencyRequest = result === "agency";
   const isDiagnosis = !!resultLabel;
+
+  // "땀주"는 관공서에 본인이 직접 등록하는 절차라 "자가등록"이 자연스럽고,
+  // TRC/WP는 서류를 접수·심사받는 "신청" 절차라 "직접신청"이 더 자연스럽다.
+  const selfActionLabel = serviceType === "tamtru" ? "자가등록" : "직접신청";
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc.vercel.app";
   const resultUrl = `${siteUrl}/r?token=${token}`;
@@ -77,13 +81,13 @@ export async function sendResultEmail(
     ? `[VFBC] ${name}님의 ${serviceLabel} 대행 신청이 접수되었습니다`
     : isDiagnosis
     ? `[VFBC] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
-    : `[VFBC] ${name}님의 ${serviceLabel} 자가등록 진행을 응원합니다`;
+    : `[VFBC] ${name}님의 ${serviceLabel} ${selfActionLabel} 진행을 응원합니다`;
 
   const headline = isAgencyRequest
     ? `${name}님, ${serviceLabel} 대행 신청이 완료되었습니다`
     : isDiagnosis
     ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
-    : `${name}님, 자가등록 진행을 응원합니다`;
+    : `${name}님, ${selfActionLabel} 진행을 응원합니다`;
 
   // 대행을 이미 신청한 사람에게 또 신청을 유도하는 버튼은 필요 없으므로 null 처리
   const buttonLabel = isAgencyRequest ? null : "막히면 빨리 도움신청하기";
