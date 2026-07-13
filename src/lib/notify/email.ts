@@ -21,26 +21,56 @@ const RESULT_LABEL: Record<string, string> = {
   impossible: "불가 ❌",
 };
 
-// 서비스 유형별 1차 필요서류 체크리스트
-// (src/app/r/page.tsx의 REQUIRED_DOCS와 동일 목록 — 화면과 이메일 내용을
-//  일치시키기 위해 유지. 한쪽을 수정하면 반드시 다른 쪽도 함께 수정할 것)
-const REQUIRED_DOCS: Record<string, string[]> = {
-  tamtru: ["여권 사본", "임대차 계약서 (또는 집주인 확인서)", "숙소 주소지 증빙"],
-  trc: ["여권 사본", "비자 사본", "재직증명서 또는 사업자등록증", "임대차 계약서"],
-  wp: [
-    "여권 사본",
-    "최종학력 증명서 (아포스티유)",
-    "범죄경력증명서 (아포스티유)",
-    "건강진단서",
+type DocItem = { label: string; tip?: string };
+
+// 서비스 유형별 1차 필요서류 체크리스트 (대행신청 완료 이메일 전용, WP 이외)
+// 화면(src/app/r/page.tsx, check/*/page.tsx)의 단순 목록과 동일하게 유지할 것
+const REQUIRED_DOCS: Record<string, DocItem[]> = {
+  tamtru: [
+    { label: "여권 사본" },
+    { label: "임대차 계약서 (또는 집주인 확인서)" },
+    { label: "숙소 주소지 증빙" },
+  ],
+  trc: [
+    { label: "여권 사본" },
+    { label: "비자 사본" },
+    { label: "재직증명서 또는 사업자등록증" },
+    { label: "임대차 계약서" },
   ],
 };
-const DEFAULT_DOCS = ["여권 사본", "관련 증빙서류"];
+const DEFAULT_DOCS: DocItem[] = [{ label: "여권 사본" }, { label: "관련 증빙서류" }];
 
-function getDocs(serviceType: string): string[] {
+function getDocs(serviceType: string): DocItem[] {
   if (REQUIRED_DOCS[serviceType]) return REQUIRED_DOCS[serviceType];
-  if (serviceType?.startsWith("verify-")) return ["검토 대상 서류 사본"];
+  if (serviceType?.startsWith("verify-")) return [{ label: "검토 대상 서류 사본" }];
   return DEFAULT_DOCS;
 }
+
+// WP 전용 3단계 상세 가이드 — src/app/check/wp/page.tsx의 detailStage 화면,
+// src/app/r/page.tsx의 wp 분기와 동일한 내용으로 유지할 것 (한쪽 수정 시 세 곳 다 반영)
+const WP_DETAILED_GUIDE_HTML = `
+  <div style="background:#f9fafb;border-radius:12px;padding:14px 16px;margin:0 0 12px;">
+    <p style="font-size:12px;font-weight:600;color:#374151;margin:0 0 8px;">① 한국에서 준비 (번역공증·영사인증 필요)</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 범죄경력증명서 — 발급 6개월 이내, 공증사무소 → 외교부 영사확인 → 주한 베트남대사관 인증 순으로 진행</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 학위증명서(졸업증명서) — 신청 직책과 전공이 일치할수록 승인율이 높습니다</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0;line-height:1.6;">· 경력증명서 — 관련 분야 3년 이상(기술직 5년 이상), 전 직장 직인·업무·근무기간 명시 필수</p>
+    <p style="font-size:11px;color:#9ca3af;margin:8px 0 0;">베트남은 아포스티유 협약국이 아니라, 아포스티유 대신 외교부 영사확인 절차를 거쳐야 합니다.</p>
+  </div>
+  <div style="background:#f9fafb;border-radius:12px;padding:14px 16px;margin:0 0 12px;">
+    <p style="font-size:12px;font-weight:600;color:#374151;margin:0 0 8px;">② 베트남 현지에서 준비 (번역공증 불필요)</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 여권 원본 및 공증 사본 — 유효기간 6개월 이상(2년 이상 권장), 현지 공증사무소에서 전 페이지 사본 공증</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 건강진단서 — 지정병원 발급 시 번역공증 불필요 (유효기간 6개월)</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 증명사진 2~4매 — 4×6cm, 흰 배경, 최근 6개월 이내 촬영본</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0;line-height:1.6;">· 임시거주지 확인서 — 집주인·호텔을 통해 관할 공안에 신고된 거주 확인서</p>
+  </div>
+  <div style="background:#f9fafb;border-radius:12px;padding:14px 16px;margin:0 0 20px;">
+    <p style="font-size:12px;font-weight:600;color:#374151;margin:0 0 8px;">③ 초청 법인(회사)에서 준비</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 사업자등록증(ERC) 사본 공증</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 외국인 채용수요 승인서 — 신청 최소 30일 전 인민위원회 또는 노동부 승인 필요 (가장 까다로운 단계)</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0 0 4px;line-height:1.6;">· 노동허가 신청서(Form 11/PLI) — 회사 직인 날인</p>
+    <p style="font-size:11.5px;color:#6b7280;margin:0;line-height:1.6;">· 근로계약서 초안 또는 파견명령서 — 주재원은 한국 본사 파견명령서(영사인증)가 요구될 수 있음</p>
+  </div>
+`;
 
 type SendResultEmailParams = {
   to: string;
@@ -62,16 +92,9 @@ export async function sendResultEmail(
   const serviceLabel = SERVICE_LABEL[serviceType] ?? "진단";
   const resultLabel = result ? RESULT_LABEL[result] ?? null : null;
 
-  // 이메일 발송 시점의 상태를 3가지로 구분한다.
-  // - agency: 이미 대행을 신청 완료한 상태 (더 이상 유도할 필요 없음)
-  // - diagnosis: TRC/WP처럼 가능·조건부·불가 진단 결과가 나온 상태
-  // - self: 직접(셀프) 진행을 선택한 상태 — 나중에 막히면 이 이메일의
-  //   버튼을 통해 도움을 요청할 수 있는 "안전망" 역할
   const isAgencyRequest = result === "agency";
   const isDiagnosis = !!resultLabel;
 
-  // "땀주"는 관공서에 본인이 직접 등록하는 절차라 "자가등록"이 자연스럽고,
-  // TRC/WP는 서류를 접수·심사받는 "신청" 절차라 "직접신청"이 더 자연스럽다.
   const selfActionLabel = serviceType === "tamtru" ? "자가등록" : "직접신청";
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc.vercel.app";
@@ -89,33 +112,39 @@ export async function sendResultEmail(
     ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
     : `${name}님, ${selfActionLabel} 진행을 응원합니다`;
 
-  // 대행을 이미 신청한 사람에게 또 신청을 유도하는 버튼은 필요 없으므로 null 처리
   const buttonLabel = isAgencyRequest ? null : "막히면 빨리 도움신청하기";
 
   const HOOK_TEXT =
     "혼자 시도하다가 기한을 놓치거나 잘못된 서류기입으로 반려·재제출로 시간이 두 배로 걸리거나 접수 자체가 안될 수도 있어요.";
 
-  const docsHtml = (docs: string[]) => `
+  const docsHtmlSimple = (docs: DocItem[]) => `
        <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin: 0 0 20px;">
-         <p style="font-size: 12px; font-weight: 600; color: #374151; margin: 0 0 8px;">미리 준비해두시면 좋은 서류</p>
-         <ul style="margin: 0; padding: 0; list-style: none;">
-           ${docs
-             .map(
-               (d) =>
-                 `<li style="font-size: 12px; color: #6b7280; margin: 2px 0;">· ${d}</li>`
-             )
-             .join("")}
-         </ul>
+         <p style="font-size: 12px; font-weight: 600; color: #374151; margin: 0 0 10px;">미리 준비해두시면 좋은 서류</p>
+         ${docs
+           .map(
+             (d) => `
+           <div style="margin: 0 0 10px;">
+             <p style="font-size: 12px; font-weight: 600; color: #374151; margin: 0;">· ${d.label}</p>
+             ${
+               d.tip
+                 ? `<p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 12px; line-height: 1.5;">${d.tip}</p>`
+                 : ""
+             }
+           </div>`
+           )
+           .join("")}
          <p style="font-size: 11px; color: #9ca3af; margin: 8px 0 0;">정확한 요건은 상황에 따라 다를 수 있어 담당자 확인이 필요합니다.</p>
        </div>`;
 
   let bodyHtml: string;
 
   if (isAgencyRequest) {
+    const docsSection =
+      serviceType === "wp" ? WP_DETAILED_GUIDE_HTML : docsHtmlSimple(getDocs(serviceType));
     bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
         담당자가 서류를 확인한 뒤 카카오톡 또는 잘로(Zalo)로 예상 비용과 진행 절차를 안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
       </p>
-      ${docsHtml(getDocs(serviceType))}`;
+      ${docsSection}`;
   } else if (isDiagnosis) {
     bodyHtml = `<div style="background: #ffffff; border-radius: 16px; padding: 20px; margin: 0 0 20px; border: 1px solid #f3f4f6;">
          <p style="font-size: 13px; color: #6b7280; margin: 0 0 4px;">진단 결과</p>

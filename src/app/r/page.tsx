@@ -302,23 +302,103 @@ function ResultContent() {
               </p>
             )}
 
-            {/* 필요서류 1차 안내 */}
-            <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3">
-              <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                <FileText size={14} className="text-blue-900" />
-                미리 준비하면 좋은 서류
+            {/* 필요서류 안내 — WP는 상세 3단계 가이드, 그 외 서비스는 간단 목록 */}
+            {info.serviceType === "wp" ? (
+              <>
+                <div className="mt-5 space-y-3">
+                  <div className="rounded-xl bg-gray-50 px-4 py-3">
+                    <p className="text-xs font-semibold text-gray-700">
+                      ① 한국에서 준비 (번역공증·영사인증 필요)
+                    </p>
+                    <ul className="mt-2 space-y-2">
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 범죄경력증명서 — 발급 6개월 이내, 공증사무소 → 외교부
+                        영사확인 → 주한 베트남대사관 인증 순으로 진행
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 학위증명서(졸업증명서) — 신청 직책과 전공이
+                        일치할수록 승인율이 높습니다
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 경력증명서 — 관련 분야 3년 이상(기술직 5년 이상),
+                        전 직장 직인·업무·근무기간 명시 필수
+                      </li>
+                    </ul>
+                    <p className="mt-2 text-[11px] text-gray-400">
+                      베트남은 아포스티유 협약국이 아니라, 아포스티유 대신
+                      외교부 영사확인 절차를 거쳐야 합니다.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-gray-50 px-4 py-3">
+                    <p className="text-xs font-semibold text-gray-700">
+                      ② 베트남 현지에서 준비 (번역공증 불필요)
+                    </p>
+                    <ul className="mt-2 space-y-2">
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 여권 원본 및 공증 사본 — 유효기간 6개월 이상(2년
+                        이상 권장), 현지 공증사무소에서 전 페이지 사본 공증
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 건강진단서 — 지정병원 발급 시 번역공증 불필요
+                        (유효기간 6개월)
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 증명사진 2~4매 — 4×6cm, 흰 배경, 최근 6개월 이내
+                        촬영본
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 임시거주지 확인서 — 집주인·호텔을 통해 관할 공안에
+                        신고된 거주 확인서
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="rounded-xl bg-gray-50 px-4 py-3">
+                    <p className="text-xs font-semibold text-gray-700">
+                      ③ 초청 법인(회사)에서 준비
+                    </p>
+                    <ul className="mt-2 space-y-2">
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 사업자등록증(ERC) 사본 공증
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 외국인 채용수요 승인서 — 신청 최소 30일 전
+                        인민위원회 또는 노동부 승인 필요 (가장 까다로운 단계)
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 노동허가 신청서(Form 11/PLI) — 회사 직인 날인
+                      </li>
+                      <li className="text-xs text-gray-600 pl-1">
+                        · 근로계약서 초안 또는 파견명령서 — 주재원은 한국
+                        본사 파견명령서(영사인증)가 요구될 수 있음
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm font-bold text-gray-900">
+                  정확하고 문제없이 빠르게 진행하시길 원한다면 반드시
+                  전문가와 상의하세요.
+                </p>
+              </>
+            ) : (
+              <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3">
+                <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                  <FileText size={14} className="text-blue-900" />
+                  미리 준비하면 좋은 서류
+                </div>
+                <ul className="mt-2 space-y-1">
+                  {getDocs(info.serviceType).map((doc) => (
+                    <li key={doc} className="text-xs text-gray-600 pl-1">
+                      · {doc}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-[11px] text-gray-400">
+                  정확한 요건은 상황에 따라 다를 수 있어 담당자 확인이 필요합니다.
+                </p>
               </div>
-              <ul className="mt-2 space-y-1">
-                {getDocs(info.serviceType).map((doc) => (
-                  <li key={doc} className="text-xs text-gray-600 pl-1">
-                    · {doc}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-2 text-[11px] text-gray-400">
-                정확한 요건은 상황에 따라 다를 수 있어 담당자 확인이 필요합니다.
-              </p>
-            </div>
+            )}
 
             {/* 대행 신청 — 클릭 1번으로 바로 접수, 중간 확인 없음 */}
             {helpState === "idle" && (

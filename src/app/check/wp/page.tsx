@@ -128,6 +128,7 @@ export default function WpCheckPage() {
   const [agencyRequested, setAgencyRequested] = useState(false);
   const [agencySaving, setAgencySaving] = useState(false);
   const [agencyError, setAgencyError] = useState<string | null>(null);
+  const [detailStage, setDetailStage] = useState(false);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
@@ -161,6 +162,7 @@ export default function WpCheckPage() {
     setAgencyRequested(false);
     setAgencySaving(false);
     setAgencyError(null);
+    setDetailStage(false);
   }
 
   async function handleAgencyRequest() {
@@ -462,11 +464,75 @@ export default function WpCheckPage() {
           </div>
         )}
 
-        {showResult && result === "possible" && leadSubmitted && !agencyRequested && (
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
               필요서류부터 확인하세요
+            </p>
+
+            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+              <p className="text-xs font-semibold text-gray-700">
+                노동허가(WP) 신청에 필요한 서류
+              </p>
+              <ul className="mt-2 space-y-1">
+                <li className="text-xs text-gray-600 pl-1">
+                  · 여권 사본 (인적사항 페이지)
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 최종학력 증명서 (아포스티유)
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 범죄경력증명서 (아포스티유)
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 건강진단서
+                </li>
+              </ul>
+              <p className="mt-2 text-[11px] text-gray-400">
+                정확한 요건은 상황에 따라 다를 수 있어 담당자 확인이 필요합니다.
+              </p>
+            </div>
+
+            <a
+              href={WP_OFFICIAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleSelfPortalClick}
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
+            >
+              외국인 노동허가 전용 포털 바로가기 <ExternalLink size={14} />
+            </a>
+            <p className="mt-2 text-[11px] text-gray-400">
+              국가공공서비스포털(Cổng Dịch vụ công quốc gia)로 이동합니다.
+              접속 후 검색창에 &quot;노동허가&quot; 또는 사업장 소재지로
+              검색하시면 신청 메뉴를 찾으실 수 있습니다.
+            </p>
+
+            <button
+              onClick={() => setDetailStage(true)}
+              className="mt-5 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+            >
+              대행 신청하기 →
+            </button>
+            <p className="mt-2 text-[11px] text-gray-400">
+              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+            </p>
+
+            <button
+              onClick={reset}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && detailStage && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              서류 준비 상세 가이드
             </p>
 
             <div className="mt-4 space-y-3">
@@ -541,29 +607,6 @@ export default function WpCheckPage() {
               </div>
             </div>
 
-            <a
-              href={WP_OFFICIAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleSelfPortalClick}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
-            >
-              외국인 노동허가 전용 포털 바로가기 <ExternalLink size={14} />
-            </a>
-            <p className="mt-2 text-[11px] text-gray-400">
-              국가공공서비스포털(Cổng Dịch vụ công quốc gia)로 이동합니다.
-              접속 후 검색창에 &quot;노동허가&quot; 또는 사업장 소재지로
-              검색하시면 신청 메뉴를 찾으실 수 있습니다.
-            </p>
-
-            <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-              ⏱ 직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
-              달라 정확한 정보를 찾기 어렵고, 공증·영사확인 서류 준비
-              실수로 반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수
-              있습니다. 혹시 걱정되시거나 자신이 없으시다면, 언제든
-              편하게 도움을 요청하세요.
-            </div>
-
             <p className="mt-4 text-sm font-bold text-gray-900">
               정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
               상의하세요.
@@ -584,10 +627,10 @@ export default function WpCheckPage() {
             </p>
 
             <button
-              onClick={reset}
+              onClick={() => setDetailStage(false)}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
             >
-              처음부터 다시 확인하기
+              ← 간단 목록으로 돌아가기
             </button>
           </div>
         )}
@@ -596,7 +639,7 @@ export default function WpCheckPage() {
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
-              도움 요청이 접수되었습니다
+              대행 신청이 접수되었습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
               담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
