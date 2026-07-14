@@ -336,12 +336,111 @@ function getTamtruDiagnosis(timing: TamtruTiming): DiagnosisResult | null {
   };
 }
 
+// ── 운전면허 (전환) ────────────────────────────────────────────
+
+export type LicenseTrc = "yes" | "no" | null;
+export type LicenseHasLicense = "yes" | "no" | null;
+
+export function computeLicenseResultTone(
+  trc: LicenseTrc,
+  license: LicenseHasLicense
+): ResultTone | null {
+  if (trc === "no") return "conditional";
+  if (trc === "yes" && license === "yes") return "possible";
+  if (trc === "yes" && license === "no") return "impossible";
+  return null;
+}
+
+function getLicenseDiagnosis(
+  trc: LicenseTrc,
+  license: LicenseHasLicense
+): DiagnosisResult | null {
+  const tone = computeLicenseResultTone(trc, license);
+  if (!tone) return null;
+
+  const trcOk = trc === "yes";
+  const licenseOk = license === "yes";
+
+  let feasibilityScore: number;
+  let estimatedDays: { min: number; max: number } | null;
+  let riskLevel: "low" | "medium" | "high";
+
+  if (tone === "possible") {
+    feasibilityScore = 85;
+    estimatedDays = { min: 7, max: 15 };
+    riskLevel = "low";
+  } else if (tone === "conditional") {
+    feasibilityScore = 20;
+    estimatedDays = null;
+    riskLevel = "medium";
+  } else {
+    feasibilityScore = 10;
+    estimatedDays = null;
+    riskLevel = "high";
+  }
+
+  const items: ExpertChecklistItem[] = [
+    { label: "여권 확인", passed: true, reason: "제출 서류 기준 여권 유효성은 별도 확인 필요 없음" },
+    {
+      label: "거주증(TRC) 보유 확인",
+      passed: trcOk,
+      reason: trcOk
+        ? "거주증을 보유하고 있어 운전면허 전환 신청 자격 요건 충족"
+        : "거주증 미보유로 운전면허 전환 신청 자체가 불가능, TRC 발급이 선행되어야 함",
+    },
+    {
+      label: "본국 운전면허 보유 확인",
+      passed: licenseOk,
+      reason: licenseOk
+        ? "본국 발급 운전면허 보유로 전환 절차 진행 가능"
+        : "본국 면허가 없어 전환이 아닌 신규 취득 절차가 필요 (기간·난이도 대폭 증가)",
+    },
+    {
+      label: "면허 베트남어 공증 번역본 준비",
+      passed: false,
+      reason: "국적별로 요구 서식이 달라 공증 번역본은 전원 별도 확인 필요",
+    },
+  ];
+
+  const rejectionRisks: { rank: number; reason: string }[] = [];
+  if (!trcOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "거주증 미보유로 신청 자격 미충족" });
+  if (!licenseOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "본국 면허 미보유로 전환 절차 진행 불가" });
+  rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "공증 번역본 서식 오류로 인한 반려 가능성" });
+
+  return {
+    customerView: {
+      feasibilityScore,
+      resultTone: tone,
+      estimatedDays,
+      checklist: items.map(({ label, passed }) => ({ label, passed })),
+      note:
+        tone === "possible"
+          ? "공증 번역본 등 준비 서류에 따라 처리기간이 달라질 수 있습니다."
+          : tone === "conditional"
+          ? "거주증(TRC) 발급이 먼저 필요합니다. TRC 가능성부터 확인해보세요."
+          : "본국 면허가 없어 전환이 아닌 신규 취득 절차를 전문가와 상의해보세요.",
+    },
+    expertBrief: {
+      riskLevel,
+      checkedItems: items,
+      rejectionRisks,
+      similarCases: [], // TODO: 실제 사례 DB 연동 후 채울 것 (허위 데이터 금지)
+      recommendedSteps: [
+        "여권 사본 및 거주증(TRC) 사본 확보",
+        "본국 운전면허 원본 확보",
+        "면허 베트남어 공증 번역본 준비 (국적별 서식 확인 필요)",
+      ],
+    },
+  };
+}
+
 // ── 공용 진입점 ────────────────────────────────────────────────
 
 export type CheckDiagnosisInput =
   | { service: "wp"; education: WpEducation; experience: WpExperience; job: WpJob }
   | { service: "trc"; visa: TrcVisa; role: TrcRole; company: TrcCompany }
-  | { service: "tamtru"; timing: TamtruTiming };
+  | { service: "tamtru"; timing: TamtruTiming }
+  | { service: "license"; trc: LicenseTrc; license: LicenseHasLicense };
 
 export async function getCheckDiagnosis(
   input: CheckDiagnosisInput
@@ -353,6 +452,8 @@ export async function getCheckDiagnosis(
       return getTrcDiagnosis(input.visa, input.role, input.company);
     case "tamtru":
       return getTamtruDiagnosis(input.timing);
+    case "license":
+      return getLicenseDiagnosis(input.trc, input.license);
     default:
       return null;
   }

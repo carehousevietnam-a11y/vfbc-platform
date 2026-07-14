@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -12,21 +12,21 @@ import {
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
+import {
+  getCheckDiagnosis,
+  computeLicenseResultTone,
+  type DiagnosisResult,
+  type LicenseTrc,
+  type LicenseHasLicense,
+} from "@/lib/checkDiagnosis";
 
 // 운전면허 발급·전환 전국 통합 포털 (2025년 개편 이후 공안부 산하로 이관).
 // 신청 과정에서 거주 지역(성/시)을 선택하면 관할 경찰서(CSGT)로 자동 연결됨.
 const LICENSE_OFFICIAL_URL = "https://dvc-gplx.csgt.bocongan.gov.vn/";
 
-type HasTrc = "yes" | "no" | null;
-type HasLicense = "yes" | "no" | null;
+type HasTrc = LicenseTrc;
+type HasLicense = LicenseHasLicense;
 type Result = "possible" | "conditional" | "impossible" | null;
-
-function computeResult(trc: HasTrc, license: HasLicense): Result {
-  if (trc === "no") return "conditional";
-  if (trc === "yes" && license === "yes") return "possible";
-  if (trc === "yes" && license === "no") return "impossible";
-  return null;
-}
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -109,6 +109,105 @@ function ConsentDetails({
   );
 }
 
+// AI 진단 게이지 — 원형 진행률로 feasibilityScore를 표시
+function ScoreGauge({
+  score,
+  tone,
+}: {
+  score: number;
+  tone: "possible" | "conditional" | "impossible";
+}) {
+  const r = 28;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - score / 100);
+  const color =
+    tone === "possible" ? "#059669" : tone === "conditional" ? "#d97706" : "#dc2626";
+
+  return (
+    <div className="relative w-16 h-16 shrink-0">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#f3f4f6" strokeWidth="6" />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          transform="rotate(-90 32 32)"
+        />
+      </svg>
+      <div
+        className="absolute inset-0 flex items-center justify-center text-[15px] font-bold"
+        style={{ color }}
+      >
+        {score}%
+      </div>
+    </div>
+  );
+}
+
+// AI 진단 리포트 카드 — 가입 직후(2번째 화면)에만 노출. customerView만 사용, expertBrief는 여기서 절대 렌더링 안 함.
+function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { feasibilityScore, resultTone, estimatedDays, checklist, note } =
+    diagnosis.customerView;
+  const toneLabel =
+    resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
+  const issueCount = checklist.filter((c) => !c.passed).length;
+  const boxBg = resultTone === "possible" ? "bg-emerald-50" : "bg-amber-50";
+  const boxText = resultTone === "possible" ? "text-emerald-800" : "text-amber-800";
+  const badgeBg = resultTone === "possible" ? "bg-emerald-100" : "bg-amber-100";
+  const badgeText = resultTone === "possible" ? "text-emerald-700" : "text-amber-700";
+
+  return (
+    <div className="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+      <div className="flex items-center gap-3.5">
+        <ScoreGauge score={feasibilityScore} tone={resultTone} />
+        <div>
+          <p className="text-sm font-bold text-gray-900">{toneLabel}</p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {issueCount > 0 ? `발견된 문제 ${issueCount}건` : "확인된 문제 없음"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {checklist.map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 text-xs ${
+              item.passed ? "text-gray-700" : boxText
+            }`}
+          >
+            <span
+              className={`w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                item.passed ? "bg-emerald-100 text-emerald-700" : `${badgeBg} ${badgeText}`
+              }`}
+            >
+              {item.passed ? "✓" : "!"}
+            </span>
+            {item.label}
+          </div>
+        ))}
+      </div>
+
+      {estimatedDays && (
+        <div className="mt-4 rounded-xl bg-white px-4 py-2.5 text-xs text-gray-600">
+          예상 처리기간{" "}
+          <span className="font-bold text-gray-900">
+            {estimatedDays.min}~{estimatedDays.max}일
+          </span>
+        </div>
+      )}
+
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
+    </div>
+  );
+}
+
 export default function DrivingLicenseCheckPage() {
   const [trc, setTrc] = useState<HasTrc>(null);
   const [license, setLicense] = useState<HasLicense>(null);
@@ -122,10 +221,41 @@ export default function DrivingLicenseCheckPage() {
   const [agencyRequested, setAgencyRequested] = useState(false);
   const [agencySaving, setAgencySaving] = useState(false);
   const [agencyError, setAgencyError] = useState<string | null>(null);
+  const [detailStage, setDetailStage] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const messengers = MESSENGERS_KO;
+  const selfNotifySentRef = useRef(false);
 
-  const result = computeResult(trc, license);
-  const showResult = trc && license;
+  const result: Result = computeLicenseResultTone(trc, license);
+  const showResult = trc === "yes" && !!license;
+
+  // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
+  useEffect(() => {
+    let cancelled = false;
+    if (showResult) {
+      getCheckDiagnosis({ service: "license", trc, license }).then((res) => {
+        if (!cancelled) setDiagnosis(res);
+      });
+    } else {
+      setDiagnosis(null);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [trc, license, showResult]);
+
+  // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
+  function handleSelfPortalClick() {
+    if (!leadId || selfNotifySentRef.current) return;
+    selfNotifySentRef.current = true;
+    fetch("/api/agency-confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId, type: "self" }),
+    }).catch((err) => {
+      console.error("self-notify email trigger failed:", err);
+    });
+  }
 
   function reset() {
     setTrc(null);
@@ -133,11 +263,14 @@ export default function DrivingLicenseCheckPage() {
     setLeadSubmitted(false);
     setLeadId(null);
     setLeadError(null);
+    setEmailProvided(false);
     setConsentOpen(false);
     setConsentHighlight(false);
     setAgencyRequested(false);
     setAgencySaving(false);
     setAgencyError(null);
+    setDetailStage(false);
+    setDiagnosis(null);
   }
 
   async function handleAgencyRequest() {
@@ -151,6 +284,17 @@ export default function DrivingLicenseCheckPage() {
         tag: "DRIVING_LICENSE",
       });
       if (error) throw error;
+
+      try {
+        await fetch("/api/agency-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId }),
+        });
+      } catch (emailErr) {
+        console.error("agency-confirm email trigger failed:", emailErr);
+      }
+
       setAgencyRequested(true);
     } catch {
       setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
@@ -201,10 +345,17 @@ export default function DrivingLicenseCheckPage() {
       return;
     }
 
+    // expertBrief(전문가용 상세 진단)를 meta에 저장 — 향후 어드민 화면에서 활용
     await supabase.from("crm_activities").insert({
       lead_id: leadId,
       action: "driving_license_diagnosis_lead",
       tag: "DRIVING_LICENSE",
+      meta: diagnosis
+        ? {
+            feasibilityScore: diagnosis.customerView.feasibilityScore,
+            expertBrief: diagnosis.expertBrief,
+          }
+        : null,
     });
 
     try {
@@ -250,52 +401,48 @@ export default function DrivingLicenseCheckPage() {
           여부가 달라집니다.
         </p>
 
-        {!showResult && (
-          <>
-            {!trc && (
-              <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  1. 현재 거주증(TRC)을 보유하고 계신가요?
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => setTrc("yes")}
-                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                  >
-                    네, 있습니다
-                  </button>
-                  <button
-                    onClick={() => setTrc("no")}
-                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                  >
-                    아니요, 없습니다
-                  </button>
-                </div>
-              </div>
-            )}
+        {!trc && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              1. 현재 거주증(TRC)을 보유하고 계신가요?
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setTrc("yes")}
+                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              >
+                네, 있습니다
+              </button>
+              <button
+                onClick={() => setTrc("no")}
+                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              >
+                아니요, 없습니다
+              </button>
+            </div>
+          </div>
+        )}
 
-            {trc === "yes" && !license && (
-              <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  2. 본국(자국)에서 발급된 운전면허를 보유하고 계신가요?
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => setLicense("yes")}
-                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                  >
-                    네, 있습니다
-                  </button>
-                  <button
-                    onClick={() => setLicense("no")}
-                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                  >
-                    아니요, 없습니다
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
+        {trc === "yes" && !license && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              2. 본국(자국)에서 발급된 운전면허를 보유하고 계신가요?
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setLicense("yes")}
+                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              >
+                네, 있습니다
+              </button>
+              <button
+                onClick={() => setLicense("no")}
+                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              >
+                아니요, 없습니다
+              </button>
+            </div>
+          </div>
         )}
 
         {trc === "no" && (
@@ -323,7 +470,8 @@ export default function DrivingLicenseCheckPage() {
           </div>
         )}
 
-        {trc === "yes" && result === "possible" && !leadSubmitted && (
+        {/* 1번째 화면 (가입 전) — 리포트 없이 간단하게, 가입 장벽을 낮게 유지 */}
+        {showResult && result === "possible" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
@@ -339,8 +487,8 @@ export default function DrivingLicenseCheckPage() {
               확정됩니다.
             </p>
             <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
-              필요서류(면허 공증·번역본 등)는 국적에 따라 달라져요.
-              이름·연락처·주소만 남기면 맞춤 안내를 보내드립니다.
+              이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
+              바로 보여드립니다.
             </div>
 
             <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
@@ -409,7 +557,7 @@ export default function DrivingLicenseCheckPage() {
                 disabled={submitting}
                 className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
               >
-                {submitting ? "접수 중..." : "맞춤 안내 무료로 받기"}
+                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
             <p className="mt-3 text-[11px] text-gray-400">
@@ -424,12 +572,18 @@ export default function DrivingLicenseCheckPage() {
           </div>
         )}
 
-        {trc === "yes" && result === "possible" && leadSubmitted && !agencyRequested && (
+        {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/대행신청 선택 */}
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              필요서류부터 확인하세요
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              운전면허 전환 · AI 분석 리포트
             </p>
+
+            {diagnosis && (
+              <div className="mt-3">
+                <DiagnosisReportCard diagnosis={diagnosis} />
+              </div>
+            )}
 
             <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
@@ -439,51 +593,44 @@ export default function DrivingLicenseCheckPage() {
                 <li className="text-xs text-gray-600 pl-1">
                   · 여권 사본 (인적사항 페이지)
                 </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 거주증(TRC) 사본
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 본국 운전면허 원본
-                </li>
+                <li className="text-xs text-gray-600 pl-1">· 거주증(TRC) 사본</li>
+                <li className="text-xs text-gray-600 pl-1">· 본국 운전면허 원본</li>
                 <li className="text-xs text-gray-600 pl-1">
                   · 면허 베트남어 공증 번역본 (국적에 따라 상이)
                 </li>
               </ul>
+              <p className="mt-2 text-[11px] text-gray-400">
+                정확한 요건은 국적·지역에 따라 다를 수 있어 담당자 확인이
+                필요합니다.
+              </p>
             </div>
 
-            <a
-              href={LICENSE_OFFICIAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
-            >
-              운전면허 전국 통합 포털 바로가기 <ExternalLink size={14} />
-            </a>
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              위 내용, 어떻게 진행하시겠어요?
+            </p>
+            <div className="mt-3 flex flex-col gap-3">
+              <a
+                href={LICENSE_OFFICIAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleSelfPortalClick}
+                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+              >
+                내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
+              </a>
+              <button
+                onClick={() => setDetailStage(true)}
+                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+              >
+                전문가에게 맡길게요 (대행 신청)
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-400 text-center">
+              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
+            </p>
             <p className="mt-2 text-[11px] text-gray-400">
               성/시별 정확한 관할 경찰서(CSGT)를 찾기 위해 국가가 운영하는
               통합 시스템으로 연결됩니다. 지역만 선택하면 바로 연결됩니다.
-            </p>
-
-            <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-              ⏱ 직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
-              달라 정확한 정보를 찾기 어렵고, 공증 번역본 준비 실수로
-              반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
-              혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
-              요청하세요.
-            </div>
-
-            {agencyError && (
-              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
-            )}
-            <button
-              onClick={handleAgencyRequest}
-              disabled={agencySaving}
-              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
-            >
-              {agencySaving ? "접수 중..." : "도움 요청하기 →"}
-            </button>
-            <p className="mt-2 text-[11px] text-gray-400">
-              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
             </p>
 
             <button
@@ -495,11 +642,80 @@ export default function DrivingLicenseCheckPage() {
           </div>
         )}
 
-        {trc === "yes" && result === "possible" && agencyRequested && (
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
-              도움 요청이 접수되었습니다
+              운전면허 전환 진행 서류 및 절차
+            </p>
+
+            <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
+              ⏱ 직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
+              달라 정확한 정보를 찾기 어렵고, 공증 번역본 준비 실수로
+              반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
+              혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
+              요청하세요.
+            </div>
+
+            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+              <p className="text-xs font-semibold text-gray-700">
+                운전면허 전환에 필요한 서류
+              </p>
+              <ul className="mt-2 space-y-1">
+                <li className="text-xs text-gray-600 pl-1">
+                  · 여권 사본 (인적사항 페이지)
+                </li>
+                <li className="text-xs text-gray-600 pl-1">· 거주증(TRC) 사본</li>
+                <li className="text-xs text-gray-600 pl-1">· 본국 운전면허 원본</li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 면허 베트남어 공증 번역본 (국적에 따라 상이)
+                </li>
+              </ul>
+            </div>
+
+            <p className="mt-4 text-sm font-bold text-gray-900">
+              정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
+              상의하세요.
+            </p>
+
+            {agencyError && (
+              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
+            )}
+            <button
+              onClick={handleAgencyRequest}
+              disabled={agencySaving}
+              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+            >
+              {agencySaving ? "접수 중..." : "대행 신청하기 →"}
+            </button>
+            <p className="mt-2 text-[11px] text-gray-400">
+              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+            </p>
+
+            <button
+              onClick={() => setDetailStage(false)}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 간단 목록으로 돌아가기
+            </button>
+          </div>
+        )}
+
+        {showResult && result === "possible" && agencyRequested && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <div className="flex justify-center">
+              <img
+                src="/vfbc-seal.png"
+                alt="VFBC AI 접수완료 확인 도장"
+                width={160}
+                height={160}
+              />
+            </div>
+            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
+              Vietnam Foreign Business Verification &amp; Compliance AI Center
+            </p>
+            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
+              대행 신청이 접수되었습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
               담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
