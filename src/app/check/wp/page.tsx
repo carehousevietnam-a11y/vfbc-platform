@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -13,25 +13,23 @@ import {
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
+import {
+  getCheckDiagnosis,
+  computeWpResultTone,
+  type DiagnosisResult,
+  type WpEducation,
+  type WpExperience,
+  type WpJob,
+} from "@/lib/checkDiagnosis";
 
 // 외국인노동자 관리 전용 국가포털 (Cổng DVC quản lý người lao động nước ngoài).
 // 신청 과정에서 근무지 성/시를 선택하면 관할 기관(Sở Nội vụ 등)으로 자동 연결됨.
 const WP_OFFICIAL_URL = "https://dichvucong.gov.vn/";
 
-type Education = "university" | "college" | "highschool" | null;
-type Experience = "over3" | "one-to-three" | "under1" | null;
-type Job = "expert" | "technical" | "unskilled" | null;
+type Education = WpEducation;
+type Experience = WpExperience;
+type Job = WpJob;
 type Result = "possible" | "conditional" | "impossible" | null;
-
-function computeResult(edu: Education, exp: Experience, job: Job): Result {
-  if (job === "unskilled") return "impossible";
-  if (edu === "university") return "possible";
-  if (edu === "college" && exp === "over3") return "possible";
-  if (job === "technical" && exp === "over3") return "conditional";
-  if (edu === "college") return "conditional";
-  if (exp === "over3") return "conditional";
-  return "impossible";
-}
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -114,6 +112,105 @@ function ConsentDetails({
   );
 }
 
+// AI 진단 게이지 — 원형 진행률로 feasibilityScore를 표시
+function ScoreGauge({
+  score,
+  tone,
+}: {
+  score: number;
+  tone: "possible" | "conditional" | "impossible";
+}) {
+  const r = 28;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - score / 100);
+  const color =
+    tone === "possible" ? "#059669" : tone === "conditional" ? "#d97706" : "#dc2626";
+
+  return (
+    <div className="relative w-16 h-16 shrink-0">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#f3f4f6" strokeWidth="6" />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          transform="rotate(-90 32 32)"
+        />
+      </svg>
+      <div
+        className="absolute inset-0 flex items-center justify-center text-[15px] font-bold"
+        style={{ color }}
+      >
+        {score}%
+      </div>
+    </div>
+  );
+}
+
+// AI 진단 리포트 카드 — 가입 직후(2번째 화면)에만 노출. customerView만 사용, expertBrief는 여기서 절대 렌더링 안 함.
+function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { feasibilityScore, resultTone, estimatedDays, checklist, note } =
+    diagnosis.customerView;
+  const toneLabel =
+    resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
+  const issueCount = checklist.filter((c) => !c.passed).length;
+  const boxBg = resultTone === "possible" ? "bg-emerald-50" : "bg-amber-50";
+  const boxText = resultTone === "possible" ? "text-emerald-800" : "text-amber-800";
+  const badgeBg = resultTone === "possible" ? "bg-emerald-100" : "bg-amber-100";
+  const badgeText = resultTone === "possible" ? "text-emerald-700" : "text-amber-700";
+
+  return (
+    <div className="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+      <div className="flex items-center gap-3.5">
+        <ScoreGauge score={feasibilityScore} tone={resultTone} />
+        <div>
+          <p className="text-sm font-bold text-gray-900">{toneLabel}</p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {issueCount > 0 ? `발견된 문제 ${issueCount}건` : "확인된 문제 없음"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {checklist.map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 text-xs ${
+              item.passed ? "text-gray-700" : boxText
+            }`}
+          >
+            <span
+              className={`w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                item.passed ? "bg-emerald-100 text-emerald-700" : `${badgeBg} ${badgeText}`
+              }`}
+            >
+              {item.passed ? "✓" : "!"}
+            </span>
+            {item.label}
+          </div>
+        ))}
+      </div>
+
+      {estimatedDays && (
+        <div className="mt-4 rounded-xl bg-white px-4 py-2.5 text-xs text-gray-600">
+          예상 처리기간{" "}
+          <span className="font-bold text-gray-900">
+            {estimatedDays.min}~{estimatedDays.max}일
+          </span>
+        </div>
+      )}
+
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
+    </div>
+  );
+}
+
 export default function WpCheckPage() {
   const [education, setEducation] = useState<Education>(null);
   const [experience, setExperience] = useState<Experience>(null);
@@ -129,13 +226,30 @@ export default function WpCheckPage() {
   const [agencySaving, setAgencySaving] = useState(false);
   const [agencyError, setAgencyError] = useState<string | null>(null);
   const [detailStage, setDetailStage] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
-  const result = computeResult(education, experience, job);
+  const result: Result = computeWpResultTone(education, experience, job);
   const showResult = education && experience && job;
 
-  // 관할 포털 링크(직접 신청)를 클릭한 시점에 응원 이메일을 한 번만 보낸다.
+  // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
+  // 화면에는 가입 직후(2번째 화면)부터 노출하지만, 계산 자체는 미리 해둔다.
+  useEffect(() => {
+    let cancelled = false;
+    if (showResult) {
+      getCheckDiagnosis({ service: "wp", education, experience, job }).then((res) => {
+        if (!cancelled) setDiagnosis(res);
+      });
+    } else {
+      setDiagnosis(null);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [education, experience, job, showResult]);
+
+  // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
   // 링크는 target="_blank"라 기본 이동은 그대로 두고, 이메일 발송만 별도로 실행한다.
   function handleSelfPortalClick() {
     if (!leadId || selfNotifySentRef.current) return;
@@ -163,6 +277,7 @@ export default function WpCheckPage() {
     setAgencySaving(false);
     setAgencyError(null);
     setDetailStage(false);
+    setDiagnosis(null);
   }
 
   async function handleAgencyRequest() {
@@ -238,10 +353,17 @@ export default function WpCheckPage() {
       return;
     }
 
+    // expertBrief(전문가용 상세 진단)를 meta에 저장 — 향후 어드민 화면에서 활용
     await supabase.from("crm_activities").insert({
       lead_id: leadId,
       action: "wp_diagnosis_lead",
       tag: "WORK_PERMIT",
+      meta: diagnosis
+        ? {
+            feasibilityScore: diagnosis.customerView.feasibilityScore,
+            expertBrief: diagnosis.expertBrief,
+          }
+        : null,
     });
 
     try {
@@ -360,6 +482,7 @@ export default function WpCheckPage() {
           </>
         )}
 
+        {/* 1번째 화면 (가입 전) — 리포트 없이 간단하게, 가입 장벽을 낮게 유지 */}
         {showResult && result === "possible" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
@@ -376,9 +499,8 @@ export default function WpCheckPage() {
               확정됩니다.
             </p>
             <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
-              정확한 필요서류와 처리절차는 직무·회사 형태에 따라 달라져요.
-              이름·연락처·주소만 남기면 맞춤 서류 체크리스트를 무료로
-              보내드립니다.
+              이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
+              바로 보여드립니다.
             </div>
 
             <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
@@ -449,7 +571,7 @@ export default function WpCheckPage() {
                 disabled={submitting}
                 className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
               >
-                {submitting ? "접수 중..." : "맞춤 서류 체크리스트 무료로 받기"}
+                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
             <p className="mt-3 text-[11px] text-gray-400">
@@ -464,12 +586,18 @@ export default function WpCheckPage() {
           </div>
         )}
 
+        {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/대행신청 선택 */}
         {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              필요서류부터 확인하세요
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              노동허가(WP) · AI 분석 리포트
             </p>
+
+            {diagnosis && (
+              <div className="mt-3">
+                <DiagnosisReportCard diagnosis={diagnosis} />
+              </div>
+            )}
 
             <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
@@ -494,29 +622,33 @@ export default function WpCheckPage() {
               </p>
             </div>
 
-            <a
-              href={WP_OFFICIAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleSelfPortalClick}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
-            >
-              외국인 노동허가 전용 포털 바로가기 <ExternalLink size={14} />
-            </a>
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              위 내용, 어떻게 진행하시겠어요?
+            </p>
+            <div className="mt-3 flex flex-col gap-3">
+              <a
+                href={WP_OFFICIAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleSelfPortalClick}
+                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+              >
+                내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
+              </a>
+              <button
+                onClick={() => setDetailStage(true)}
+                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+              >
+                전문가에게 맡길게요 (대행 신청)
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-400 text-center">
+              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
+            </p>
             <p className="mt-2 text-[11px] text-gray-400">
               국가공공서비스포털(Cổng Dịch vụ công quốc gia)로 이동합니다.
               접속 후 검색창에 &quot;노동허가&quot; 또는 사업장 소재지로
               검색하시면 신청 메뉴를 찾으실 수 있습니다.
-            </p>
-
-            <button
-              onClick={() => setDetailStage(true)}
-              className="mt-5 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-            >
-              대행 신청하기 →
-            </button>
-            <p className="mt-2 text-[11px] text-gray-400">
-              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
             </p>
 
             <button
@@ -680,6 +812,7 @@ export default function WpCheckPage() {
           </div>
         )}
 
+        {/* 조건부 가능 — 1번째 화면 (가입 전, 리포트 없이 간단하게) */}
         {showResult && result === "conditional" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <AlertTriangle className="text-amber-600" size={28} />
@@ -692,8 +825,8 @@ export default function WpCheckPage() {
               수 있는 경우가 많습니다.
             </p>
             <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800">
-              보완 가능 여부와 정확한 조건은 상황마다 다릅니다.
-              이름·연락처·주소만 남기면 전문가가 직접 확인해드려요.
+              이름·연락처·주소만 남기시면 AI가 어떤 부분이 문제인지
+              분석한 리포트를 바로 보여드립니다.
             </div>
 
             <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
@@ -764,7 +897,7 @@ export default function WpCheckPage() {
                 disabled={submitting}
                 className="w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60 transition-colors"
               >
-                {submitting ? "접수 중..." : "전문가 확인 요청하기"}
+                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
             <p className="mt-3 text-[11px] text-gray-400">
@@ -779,38 +912,27 @@ export default function WpCheckPage() {
           </div>
         )}
 
+        {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 노출) */}
         {showResult && result === "conditional" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <AlertTriangle className="text-amber-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              접수 완료 — {messengers.primary.label} 또는{" "}
-              {messengers.secondary.label}로 곧 보내드립니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              입력하신 상황을 전문가가 검토한 뒤, 보완 가능 여부와
-              필요서류를 메시지로 정리해드립니다.
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              노동허가(WP) · AI 분석 리포트
             </p>
 
-            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
-              <p className="text-xs font-semibold text-gray-700">
-                미리 준비해두시면 좋은 서류
-              </p>
-              <ul className="mt-2 space-y-1">
-                <li className="text-xs text-gray-600 pl-1">
-                  · 여권 사본 (인적사항 페이지)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 최종학력 졸업증명서 (있는 경우)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 경력증명서 (있는 경우)
-                </li>
-              </ul>
-              <p className="mt-2 text-[11px] text-gray-400">
-                서류가 아직 없어도 괜찮습니다. 전문가 검토 후 필요한 서류를
-                다시 안내드립니다.
-              </p>
-            </div>
+            {diagnosis && (
+              <div className="mt-3">
+                <DiagnosisReportCard diagnosis={diagnosis} />
+              </div>
+            )}
+
+            <p className="mt-4 text-sm font-bold text-gray-900">
+              {messengers.primary.label} 또는 {messengers.secondary.label}로
+              곧 상세 안내를 보내드립니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              위 리포트를 바탕으로 전문가가 검토한 뒤, 보완 가능 여부와
+              필요서류를 메시지로 정리해드립니다.
+            </p>
 
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <MessageCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />
