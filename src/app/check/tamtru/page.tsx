@@ -26,7 +26,7 @@ const TAMTRU_OFFICIAL_URL = "https://evisa.gov.vn/khai-bao-tam-tru";
 
 type Housing = "hotel" | "personal" | null;
 type Timing = TamtruTiming;
-type Result = "possible" | "conditional" | null;
+type Result = "possible" | "conditional" | "impossible" | null;
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -340,7 +340,7 @@ export default function TamTruCheckPage() {
       kakao_id: kakaoId,
       zalo_id: zaloId,
       service_type: "tamtru",
-      result: timing,
+      result: result,
       source_page: "/check/tamtru",
     });
 
