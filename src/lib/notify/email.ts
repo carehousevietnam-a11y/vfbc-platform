@@ -3,15 +3,18 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // 대행 신청 "완료" 이메일에만 넣는 신뢰도용 확인 도장.
-// Gmail 등 대부분의 이메일 클라이언트는 base64 인라인 이미지(data URI)를
-// 보안상 차단하기 때문에, base64 대신 public 폴더에 올린 실제 정적 파일을
-// 호스팅 URL로 참조한다. 이 파일은 반드시 프로젝트의
-// `public/vfbc-seal.svg` 경로에 존재해야 하며(별도로 전달드린 파일),
-// 화면에 쓰이는 인라인 <svg> 버전(check/*/page.tsx, r/page.tsx)과
-// 시각적으로 동일하게 유지할 것.
+// 이메일 클라이언트(Gmail, Outlook, 네이버메일 등) 대부분은 <img>로 삽입된
+// SVG 파일 자체를 렌더링하지 않거나(빈 박스) 내부 필터(feTurbulence 등)가
+// 깨져서 텍스트가 안 보이는 문제가 있다. 그래서 이메일 전용으로는
+// 래스터 이미지(PNG)를 별도로 사용한다.
+// 이 파일은 반드시 프로젝트의 `public/vfbc-seal.png` 경로에 존재해야 하며
+// (별도로 전달드린 파일, 원본 1000x1000 고해상도 → 이메일에서는 176px로 축소 표시되므로
+// 레티나 화면에서도 선명함), 플랫폼 화면에 쓰이는 인라인 <svg> 버전
+// (check/*/page.tsx, r/page.tsx)과 디자인 컨셉만 동일하게 유지하면 된다.
+// (플랫폼용 SVG도 같은 문제가 생기면 동일하게 이 PNG로 교체 권장)
 function getSealUrl(): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc.vercel.app";
-  return `${siteUrl}/vfbc-seal.svg`;
+  return `${siteUrl}/vfbc-seal.png`;
 }
 
 // 서비스 유형 코드 → 한국어 라벨
@@ -154,7 +157,7 @@ export async function sendResultEmail(
     const docsSection =
       serviceType === "wp" ? WP_DETAILED_GUIDE_HTML : docsHtmlSimple(getDocs(serviceType));
     bodyHtml = `<div style="text-align: center; margin: 0 0 4px;">
-        <img src="${getSealUrl()}" width="108" height="108" alt="VFBC AI 접수완료" />
+        <img src="${getSealUrl()}" width="176" height="176" alt="VFBC AI 접수완료 확인 도장" style="display:inline-block;" />
       </div>
       <p style="font-size: 10px; color: #9ca3af; font-style: italic; text-align: center; margin: 0 0 20px;">
         Vietnam Foreign Business Verification &amp; Compliance AI Center

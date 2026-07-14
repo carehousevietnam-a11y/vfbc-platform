@@ -638,54 +638,12 @@ export default function WpCheckPage() {
         {showResult && result === "possible" && agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <div className="flex justify-center">
-              <svg width="150" height="150" viewBox="0 0 300 300">
-                <defs>
-                  <path id="topSealText" d="M 68,150 A 82,82 0 0,1 232,150" />
-                  <path id="botSealText" d="M 232,150 A 82,82 0 0,1 68,150" />
-                  <filter id="sealInkTexture" x="-20%" y="-20%" width="140%" height="140%">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="11" result="noise" />
-                    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.55 0.55 0.55 0 0.3" result="noiseAlpha" />
-                    <feComposite in="SourceGraphic" in2="noiseAlpha" operator="in" result="textured" />
-                    <feGaussianBlur in="textured" stdDeviation="0.3" result="textured" />
-                    <feMerge><feMergeNode in="textured" /></feMerge>
-                  </filter>
-                  <filter id="sealBleed" x="-40%" y="-40%" width="180%" height="180%">
-                    <feGaussianBlur stdDeviation="2.4" />
-                  </filter>
-                </defs>
-                <g transform="translate(150,150) rotate(-2) translate(-150,-150)">
-                  <g opacity={0.2} filter="url(#sealBleed)">
-                    <circle cx="150" cy="150" r="98" fill="none" stroke="#c81e1e" strokeWidth="4" />
-                    <circle cx="150" cy="150" r="66" fill="none" stroke="#c81e1e" strokeWidth="3" />
-                  </g>
-                  <g filter="url(#sealInkTexture)">
-                    <circle cx="150" cy="150" r="98" fill="none" stroke="#c81e1e" strokeWidth="2" />
-                    <circle cx="150" cy="150" r="93" fill="none" stroke="#c81e1e" strokeWidth="1.3" />
-                    <circle cx="150" cy="150" r="66" fill="none" stroke="#c81e1e" strokeWidth="1.6" />
-                    <text fontSize="6.4" letterSpacing="0.4" fill="#c81e1e" fontFamily="Arial, sans-serif" fontWeight="700">
-                      <textPath href="#topSealText" startOffset="50%" textAnchor="middle">
-                        VIETNAM FOREIGN BUSINESS VERIFICATION &amp; COMPLIANCE AI
-                      </textPath>
-                    </text>
-                    <text fontSize="6.4" letterSpacing="0.3" fill="#c81e1e" fontFamily="Arial, sans-serif" fontWeight="700">
-                      <textPath href="#botSealText" startOffset="50%" textAnchor="middle">
-                        TRUNG TÂM XÁC MINH &amp; TUÂN THỦ DOANH NGHIỆP NƯỚC NGOÀI
-                      </textPath>
-                    </text>
-                    <text x="68" y="153" fontSize="10" fill="#c81e1e" textAnchor="middle">★</text>
-                    <text x="232" y="153" fontSize="10" fill="#c81e1e" textAnchor="middle">★</text>
-                    <text x="150" y="134" textAnchor="middle" fontSize="7" fontStyle="italic" fill="#c81e1e" fontFamily="Georgia, serif" letterSpacing="0.2">
-                      sự tiếp nhận đã hoàn tất
-                    </text>
-                    <text x="150" y="156" textAnchor="middle" fontSize="17" fontStyle="italic" fontWeight="800" fill="#c81e1e" fontFamily="Georgia, serif">
-                      접수완료
-                    </text>
-                    <text x="150" y="173" textAnchor="middle" fontSize="6.5" fill="#c81e1e" letterSpacing="1.8" fontFamily="Arial, sans-serif" fontWeight="700">
-                      VFBC AI · CONFIRMED
-                    </text>
-                  </g>
-                </g>
-              </svg>
+              <img
+                src="/vfbc-seal.png"
+                alt="VFBC AI 접수완료 확인 도장"
+                width={160}
+                height={160}
+              />
             </div>
             <p className="mt-1 text-[10px] text-gray-400 text-center italic">
               Vietnam Foreign Business Verification &amp; Compliance AI Center
