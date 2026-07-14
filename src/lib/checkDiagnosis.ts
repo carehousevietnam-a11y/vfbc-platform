@@ -5,8 +5,7 @@
 // 지금은 정적 규칙 기반이지만, 나중에 규칙엔진+법령DB로 내부만 교체해도
 // 페이지 코드는 손댈 필요 없도록 인터페이스를 고정해둔다.
 //
-// 현재 구현 범위: WP(노동허가)만 완성. TRC/땀주는 인터페이스만 잡아두고
-// 다음 세션에서 동일 패턴으로 채운다 (아래 TODO 참고).
+// 구현 범위: WP(노동허가) / TRC(거주증) / 땀주(임시거주등록) 모두 완성.
 
 export type ResultTone = "possible" | "conditional" | "impossible";
 
@@ -151,15 +150,198 @@ function getWpDiagnosis(
   };
 }
 
-// ── TRC (거주증) — TODO: 다음 세션에서 WP와 동일 패턴으로 구현 ──
-// export function getTrcDiagnosis(...) { ... }
+// ── TRC (거주증) ──────────────────────────────────────────────
 
-// ── 땀주 — TODO: 다음 세션에서 WP와 동일 패턴으로 구현 ──
-// export function getTamtruDiagnosis(...) { ... }
+export type TrcNationality = "korea" | "china" | "japan" | "other" | null;
+export type TrcVisa = "invest" | "work" | "tourist" | "other" | null;
+export type TrcRole = "legal-rep" | "manager" | "staff" | null;
+export type TrcCompany = "fdi" | "local" | "unregistered" | null;
+
+export function computeTrcResultTone(
+  visa: TrcVisa,
+  role: TrcRole,
+  company: TrcCompany
+): ResultTone | null {
+  if (!visa || !role || !company) return null;
+  if (company === "unregistered") return "impossible";
+  if (visa === "tourist" && role !== "legal-rep") return "conditional";
+  if (visa === "invest" || visa === "work") return "possible";
+  if (visa === "other") return "conditional";
+  return null;
+}
+
+function getTrcDiagnosis(
+  visa: TrcVisa,
+  role: TrcRole,
+  company: TrcCompany
+): DiagnosisResult | null {
+  const tone = computeTrcResultTone(visa, role, company);
+  if (!tone) return null;
+
+  const visaOk = visa === "invest" || visa === "work";
+  const roleOk = role === "legal-rep" || role === "manager";
+  const companyOk = company !== "unregistered";
+
+  let feasibilityScore: number;
+  let estimatedDays: { min: number; max: number } | null;
+  let riskLevel: "low" | "medium" | "high";
+
+  if (tone === "possible") {
+    feasibilityScore = role === "legal-rep" ? 92 : visa === "invest" ? 85 : 80;
+    estimatedDays = { min: 15, max: 25 };
+    riskLevel = "low";
+  } else if (tone === "conditional") {
+    feasibilityScore = visa === "other" ? 55 : 45;
+    estimatedDays = { min: 30, max: 45 };
+    riskLevel = "medium";
+  } else {
+    feasibilityScore = 8;
+    estimatedDays = null;
+    riskLevel = "high";
+  }
+
+  const items: ExpertChecklistItem[] = [
+    { label: "여권 확인", passed: true, reason: "제출 서류 기준 여권 유효성은 별도 확인 필요 없음" },
+    {
+      label: "비자 요건 확인",
+      passed: visaOk,
+      reason: visaOk
+        ? "투자비자(DT) 또는 노동허가부 비자(LD)로 거주증 신청 요건 충족"
+        : "관광·단기비자 등은 거주증 발급 요건상 비자 전환이 선행되어야 함",
+    },
+    {
+      label: "직책·재직 요건 확인",
+      passed: roleOk,
+      reason: roleOk
+        ? "법정대표자·관리직으로 재직 요건 충족"
+        : "일반 직원은 재직증명서·노동계약서로 별도 소명이 필요할 수 있음",
+    },
+    {
+      label: "법인 등록 상태 확인",
+      passed: companyOk,
+      reason: companyOk
+        ? "법인이 등록되어 있어 초청 주체 요건 충족"
+        : "법인이 아직 미등록 상태로 거주증 신청 자체가 불가능",
+    },
+  ];
+
+  const rejectionRisks: { rank: number; reason: string }[] = [];
+  if (!companyOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "법인 미등록으로 초청 주체 요건 미충족" });
+  if (!visaOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "비자 유형이 거주증 신청 요건에 부합하지 않음" });
+  if (!roleOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "직책상 재직 요건 소명 서류 미비 가능성" });
+
+  return {
+    customerView: {
+      feasibilityScore,
+      resultTone: tone,
+      estimatedDays,
+      checklist: items.map(({ label, passed }) => ({ label, passed })),
+      note:
+        tone === "possible"
+          ? "재직증명서·사업자등록증 등 준비 서류에 따라 처리기간이 달라질 수 있습니다."
+          : tone === "conditional"
+          ? "비자 전환 여부에 따라 결과가 달라질 수 있습니다. 정확한 판단은 전문가 검토가 필요합니다."
+          : "법인 등록이 선행되어야 합니다. 법인설립 절차를 먼저 진행해보세요.",
+    },
+    expertBrief: {
+      riskLevel,
+      checkedItems: items,
+      rejectionRisks,
+      similarCases: [], // TODO: 실제 사례 DB 연동 후 채울 것 (허위 데이터 금지)
+      recommendedSteps: [
+        "여권 사본 및 현재 비자 사본 확보",
+        "재직증명서 또는 노동계약서 준비",
+        "회사 사업자등록증(ERC) 사본 확보",
+        !visaOk ? "비자 전환(관광→투자/노동) 가능 여부 우선 확인" : "",
+      ].filter(Boolean),
+    },
+  };
+}
+
+// ── 땀주 (임시거주등록) ──────────────────────────────────────
+
+export type TamtruTiming = "within12" | "within24" | "over24" | null;
+
+export function computeTamtruResultTone(timing: TamtruTiming): ResultTone | null {
+  if (!timing) return null;
+  return timing === "over24" ? "conditional" : "possible";
+}
+
+function getTamtruDiagnosis(timing: TamtruTiming): DiagnosisResult | null {
+  const tone = computeTamtruResultTone(timing);
+  if (!tone) return null;
+
+  const timingOk = timing !== "over24";
+
+  let feasibilityScore: number;
+  let estimatedDays: { min: number; max: number };
+  let riskLevel: "low" | "medium" | "high";
+
+  if (tone === "possible") {
+    feasibilityScore = timing === "within12" ? 95 : 85;
+    estimatedDays = { min: 0, max: 1 };
+    riskLevel = "low";
+  } else {
+    feasibilityScore = 50;
+    estimatedDays = { min: 1, max: 3 };
+    riskLevel = "medium";
+  }
+
+  const items: ExpertChecklistItem[] = [
+    {
+      label: "신고 기한 준수 여부",
+      passed: timingOk,
+      reason: timingOk
+        ? "12~24시간 이내 신고로 기한 요건 충족"
+        : "신고 기한(12~24시간)을 초과하여 과태료 부과 대상이 될 수 있음",
+    },
+    {
+      label: "집주인 협조 여부",
+      passed: true,
+      reason: "집주인의 등록 거부·금전 요구가 확인되지 않음",
+    },
+    {
+      label: "임대차 계약서·거주확인서 준비",
+      passed: false,
+      reason: "신고 시 임대차 계약서 또는 집주인 확인서 원본 제출이 필요 — 사전 준비 여부는 별도 확인 필요",
+    },
+  ];
+
+  const rejectionRisks: { rank: number; reason: string }[] = [];
+  if (!timingOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "신고기한 초과로 인한 과태료 부과 위험" });
+  rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "임대차 계약서·거주확인서 미비 시 신고 반려 가능성" });
+
+  return {
+    customerView: {
+      feasibilityScore,
+      resultTone: tone,
+      estimatedDays,
+      checklist: items.map(({ label, passed }) => ({ label, passed })),
+      note: timingOk
+        ? "임대차 계약서 등 준비 서류에 따라 신고 소요시간이 달라질 수 있습니다."
+        : "기한 초과 시 과태료가 부과될 수 있어, 신고와 함께 소명 준비가 필요합니다.",
+    },
+    expertBrief: {
+      riskLevel,
+      checkedItems: items,
+      rejectionRisks,
+      similarCases: [], // TODO: 실제 사례 DB 연동 후 채울 것 (허위 데이터 금지)
+      recommendedSteps: [
+        "여권 원본 및 사본 지참",
+        "임대차 계약서 또는 집주인 확인서 준비",
+        "관할 phường(동) 공안 온라인 신고 사이트에서 신고 진행",
+        !timingOk ? "기한 초과 사유 소명서 준비 (과태료 대응)" : "",
+      ].filter(Boolean),
+    },
+  };
+}
+
+// ── 공용 진입점 ────────────────────────────────────────────────
 
 export type CheckDiagnosisInput =
-  | { service: "wp"; education: WpEducation; experience: WpExperience; job: WpJob };
-// TODO: | { service: "trc"; ... } | { service: "tamtru"; ... }
+  | { service: "wp"; education: WpEducation; experience: WpExperience; job: WpJob }
+  | { service: "trc"; visa: TrcVisa; role: TrcRole; company: TrcCompany }
+  | { service: "tamtru"; timing: TamtruTiming };
 
 export async function getCheckDiagnosis(
   input: CheckDiagnosisInput
@@ -167,6 +349,10 @@ export async function getCheckDiagnosis(
   switch (input.service) {
     case "wp":
       return getWpDiagnosis(input.education, input.experience, input.job);
+    case "trc":
+      return getTrcDiagnosis(input.visa, input.role, input.company);
+    case "tamtru":
+      return getTamtruDiagnosis(input.timing);
     default:
       return null;
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -13,25 +13,26 @@ import {
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
+import {
+  getCheckDiagnosis,
+  computeTrcResultTone,
+  type DiagnosisResult,
+  type TrcNationality,
+  type TrcVisa,
+  type TrcRole,
+  type TrcCompany,
+} from "@/lib/checkDiagnosis";
 
 // 거주증(TRC)은 출입국 전자비자 포털(evisa) 소관이 아니라
 // 공안부 공공서비스포털을 통해 접수됩니다. (2026-07 확인 완료)
 const TRC_OFFICIAL_URL =
   "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26285";
 
-type Nationality = "korea" | "china" | "japan" | "other" | null;
-type Visa = "invest" | "work" | "tourist" | "other" | null;
-type Role = "legal-rep" | "manager" | "staff" | null;
-type Company = "fdi" | "local" | "unregistered" | null;
+type Nationality = TrcNationality;
+type Visa = TrcVisa;
+type Role = TrcRole;
+type Company = TrcCompany;
 type Result = "possible" | "conditional" | "impossible" | null;
-
-function computeResult(visa: Visa, role: Role, company: Company): Result {
-  if (company === "unregistered") return "impossible";
-  if (visa === "tourist" && role !== "legal-rep") return "conditional";
-  if (visa === "invest" || visa === "work") return "possible";
-  if (visa === "other") return "conditional";
-  return null;
-}
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -114,6 +115,105 @@ function ConsentDetails({
   );
 }
 
+// AI 진단 게이지 — 원형 진행률로 feasibilityScore를 표시
+function ScoreGauge({
+  score,
+  tone,
+}: {
+  score: number;
+  tone: "possible" | "conditional" | "impossible";
+}) {
+  const r = 28;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - score / 100);
+  const color =
+    tone === "possible" ? "#059669" : tone === "conditional" ? "#d97706" : "#dc2626";
+
+  return (
+    <div className="relative w-16 h-16 shrink-0">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#f3f4f6" strokeWidth="6" />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          transform="rotate(-90 32 32)"
+        />
+      </svg>
+      <div
+        className="absolute inset-0 flex items-center justify-center text-[15px] font-bold"
+        style={{ color }}
+      >
+        {score}%
+      </div>
+    </div>
+  );
+}
+
+// AI 진단 리포트 카드 — 가입 직후(2번째 화면)에만 노출. customerView만 사용, expertBrief는 여기서 절대 렌더링 안 함.
+function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { feasibilityScore, resultTone, estimatedDays, checklist, note } =
+    diagnosis.customerView;
+  const toneLabel =
+    resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
+  const issueCount = checklist.filter((c) => !c.passed).length;
+  const boxBg = resultTone === "possible" ? "bg-emerald-50" : "bg-amber-50";
+  const boxText = resultTone === "possible" ? "text-emerald-800" : "text-amber-800";
+  const badgeBg = resultTone === "possible" ? "bg-emerald-100" : "bg-amber-100";
+  const badgeText = resultTone === "possible" ? "text-emerald-700" : "text-amber-700";
+
+  return (
+    <div className="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+      <div className="flex items-center gap-3.5">
+        <ScoreGauge score={feasibilityScore} tone={resultTone} />
+        <div>
+          <p className="text-sm font-bold text-gray-900">{toneLabel}</p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {issueCount > 0 ? `발견된 문제 ${issueCount}건` : "확인된 문제 없음"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {checklist.map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 text-xs ${
+              item.passed ? "text-gray-700" : boxText
+            }`}
+          >
+            <span
+              className={`w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                item.passed ? "bg-emerald-100 text-emerald-700" : `${badgeBg} ${badgeText}`
+              }`}
+            >
+              {item.passed ? "✓" : "!"}
+            </span>
+            {item.label}
+          </div>
+        ))}
+      </div>
+
+      {estimatedDays && (
+        <div className="mt-4 rounded-xl bg-white px-4 py-2.5 text-xs text-gray-600">
+          예상 처리기간{" "}
+          <span className="font-bold text-gray-900">
+            {estimatedDays.min}~{estimatedDays.max}일
+          </span>
+        </div>
+      )}
+
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
+    </div>
+  );
+}
+
 export default function TrcCheckPage() {
   const [nationality, setNationality] = useState<Nationality>(null);
   const [visa, setVisa] = useState<Visa>(null);
@@ -129,14 +229,31 @@ export default function TrcCheckPage() {
   const [agencyRequested, setAgencyRequested] = useState(false);
   const [agencySaving, setAgencySaving] = useState(false);
   const [agencyError, setAgencyError] = useState<string | null>(null);
+  const [detailStage, setDetailStage] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
-  const result = computeResult(visa, role, company);
+  const result: Result = computeTrcResultTone(visa, role, company);
   const showResult = nationality && visa && role && company;
 
-  // 관할 포털 링크(직접 신청)를 클릭한 시점에 응원 이메일을 한 번만 보낸다.
-  // 링크는 target="_blank"라 기본 이동은 그대로 두고, 이메일 발송만 별도로 실행한다.
+  // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
+  // 화면에는 가입 직후(2번째 화면)부터 노출하지만, 계산 자체는 미리 해둔다.
+  useEffect(() => {
+    let cancelled = false;
+    if (showResult) {
+      getCheckDiagnosis({ service: "trc", visa, role, company }).then((res) => {
+        if (!cancelled) setDiagnosis(res);
+      });
+    } else {
+      setDiagnosis(null);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [visa, role, company, showResult]);
+
+  // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
   function handleSelfPortalClick() {
     if (!leadId || selfNotifySentRef.current) return;
     selfNotifySentRef.current = true;
@@ -163,6 +280,8 @@ export default function TrcCheckPage() {
     setAgencyRequested(false);
     setAgencySaving(false);
     setAgencyError(null);
+    setDetailStage(false);
+    setDiagnosis(null);
   }
 
   async function handleAgencyRequest() {
@@ -177,7 +296,6 @@ export default function TrcCheckPage() {
       });
       if (error) throw error;
 
-      // 대행 신청 완료 이메일 발송 (실패해도 화면 흐름은 그대로 진행)
       try {
         await fetch("/api/agency-confirm", {
           method: "POST",
@@ -238,10 +356,17 @@ export default function TrcCheckPage() {
       return;
     }
 
+    // expertBrief(전문가용 상세 진단)를 meta에 저장 — 향후 어드민 화면에서 활용
     await supabase.from("crm_activities").insert({
       lead_id: leadId,
       action: "trc_diagnosis_lead",
       tag: "TRC",
+      meta: diagnosis
+        ? {
+            feasibilityScore: diagnosis.customerView.feasibilityScore,
+            expertBrief: diagnosis.expertBrief,
+          }
+        : null,
     });
 
     try {
@@ -385,6 +510,7 @@ export default function TrcCheckPage() {
           </>
         )}
 
+        {/* 1번째 화면 (가입 전) — 리포트 없이 간단하게, 가입 장벽을 낮게 유지 */}
         {showResult && result === "possible" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
@@ -401,9 +527,8 @@ export default function TrcCheckPage() {
               확정됩니다.
             </p>
             <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
-              정확한 필요서류와 처리절차는 회사 형태·직책에 따라 달라져요.
-              이름·연락처·주소만 남기면 맞춤 서류 체크리스트를 무료로
-              보내드립니다.
+              이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
+              바로 보여드립니다.
             </div>
 
             <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
@@ -474,7 +599,7 @@ export default function TrcCheckPage() {
                 disabled={submitting}
                 className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
               >
-                {submitting ? "접수 중..." : "맞춤 서류 체크리스트 무료로 받기"}
+                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
             <p className="mt-3 text-[11px] text-gray-400">
@@ -489,12 +614,18 @@ export default function TrcCheckPage() {
           </div>
         )}
 
-        {showResult && result === "possible" && leadSubmitted && !agencyRequested && (
+        {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/대행신청 선택 */}
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              필요서류부터 확인하세요
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              거주증(TRC) · AI 분석 리포트
             </p>
+
+            {diagnosis && (
+              <div className="mt-3">
+                <DiagnosisReportCard diagnosis={diagnosis} />
+              </div>
+            )}
 
             <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
@@ -514,29 +645,79 @@ export default function TrcCheckPage() {
                   · 회사 사업자등록증 사본
                 </li>
               </ul>
+              <p className="mt-2 text-[11px] text-gray-400">
+                정확한 요건은 상황에 따라 다를 수 있어 담당자 확인이 필요합니다.
+              </p>
             </div>
 
-            <a
-              href={TRC_OFFICIAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleSelfPortalClick}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
-            >
-              관할 발급기관 사이트 바로가기 <ExternalLink size={14} />
-            </a>
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              위 내용, 어떻게 진행하시겠어요?
+            </p>
+            <div className="mt-3 flex flex-col gap-3">
+              <a
+                href={TRC_OFFICIAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleSelfPortalClick}
+                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+              >
+                내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
+              </a>
+              <button
+                onClick={() => setDetailStage(true)}
+                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+              >
+                전문가에게 맡길게요 (대행 신청)
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-400 text-center">
+              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
+            </p>
             <p className="mt-2 text-[11px] text-gray-400">
-              공안부 공공서비스포털의 거주증(TRC) 발급 절차 안내
-              페이지로 이동합니다. 구비서류·수수료·처리기간을 확인하실
-              수 있습니다.
+              공안부 공공서비스포털의 거주증(TRC) 발급 절차 안내 페이지로
+              이동합니다. 구비서류·수수료·처리기간을 확인하실 수 있습니다.
             </p>
 
-            <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
+            <button
+              onClick={reset}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && detailStage && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              거주증(TRC) 진행 서류 및 절차
+            </p>
+
+            <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
               ⏱ 직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
               달라 정확한 정보를 찾기 어렵고, 서류 준비 실수로
               반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
               혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
               요청하세요.
+            </div>
+
+            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+              <p className="text-xs font-semibold text-gray-700">
+                거주증(TRC) 신청에 필요한 서류
+              </p>
+              <ul className="mt-2 space-y-1">
+                <li className="text-xs text-gray-600 pl-1">
+                  · 여권 사본 (인적사항 페이지)
+                </li>
+                <li className="text-xs text-gray-600 pl-1">· 현재 비자 사본</li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 재직증명서 또는 노동계약서
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 회사 사업자등록증 사본
+                </li>
+              </ul>
             </div>
 
             <p className="mt-4 text-sm font-bold text-gray-900">
@@ -559,10 +740,10 @@ export default function TrcCheckPage() {
             </p>
 
             <button
-              onClick={reset}
+              onClick={() => setDetailStage(false)}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
             >
-              처음부터 다시 확인하기
+              ← 간단 목록으로 돌아가기
             </button>
           </div>
         )}
@@ -612,6 +793,7 @@ export default function TrcCheckPage() {
           </div>
         )}
 
+        {/* 조건부 가능 — 1번째 화면 (가입 전, 리포트 없이 간단하게) */}
         {showResult && result === "conditional" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <AlertTriangle className="text-amber-600" size={28} />
@@ -623,8 +805,8 @@ export default function TrcCheckPage() {
               보장되지 않습니다.
             </p>
             <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800">
-              비자 전환 가능 여부와 정확한 조건은 상황마다 다릅니다.
-              이름·연락처·주소만 남기면 전문가가 직접 확인해드려요.
+              이름·연락처·주소만 남기시면 AI가 어떤 부분이 문제인지
+              분석한 리포트를 바로 보여드립니다.
             </div>
 
             <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
@@ -695,7 +877,7 @@ export default function TrcCheckPage() {
                 disabled={submitting}
                 className="w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60 transition-colors"
               >
-                {submitting ? "접수 중..." : "전문가 확인 요청하기"}
+                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
             <p className="mt-3 text-[11px] text-gray-400">
@@ -710,41 +892,27 @@ export default function TrcCheckPage() {
           </div>
         )}
 
+        {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 노출) */}
         {showResult && result === "conditional" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <AlertTriangle className="text-amber-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              접수 완료 — {messengers.primary.label} 또는{" "}
-              {messengers.secondary.label}로 곧 보내드립니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              입력하신 상황을 전문가가 검토한 뒤, 비자 전환·거주증 발급
-              가능 여부와 필요서류를 메시지로 정리해드립니다.
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              거주증(TRC) · AI 분석 리포트
             </p>
 
-            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
-              <p className="text-xs font-semibold text-gray-700">
-                미리 준비해두시면 좋은 서류
-              </p>
-              <ul className="mt-2 space-y-1">
-                <li className="text-xs text-gray-600 pl-1">
-                  · 여권 사본 (인적사항 페이지)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 현재 비자 사본
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 재직증명서 또는 노동계약서 (있는 경우)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 회사 사업자등록증 사본 (있는 경우)
-                </li>
-              </ul>
-              <p className="mt-2 text-[11px] text-gray-400">
-                서류가 아직 없어도 괜찮습니다. 전문가 검토 후 필요한 서류를
-                다시 안내드립니다.
-              </p>
-            </div>
+            {diagnosis && (
+              <div className="mt-3">
+                <DiagnosisReportCard diagnosis={diagnosis} />
+              </div>
+            )}
+
+            <p className="mt-4 text-sm font-bold text-gray-900">
+              {messengers.primary.label} 또는 {messengers.secondary.label}로
+              곧 상세 안내를 보내드립니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              위 리포트를 바탕으로 전문가가 검토한 뒤, 비자 전환·거주증
+              발급 가능 여부와 필요서류를 메시지로 정리해드립니다.
+            </p>
 
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <MessageCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />

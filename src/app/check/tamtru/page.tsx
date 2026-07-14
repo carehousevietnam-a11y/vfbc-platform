@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -9,39 +9,24 @@ import {
   ShieldAlert,
   CheckCircle2,
   Clock,
-  ExternalLink,
   AlertTriangle,
-  Loader2,
+  ExternalLink,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
-
-type Housing = "hotel" | "personal" | null;
-type Choice = "self" | "agency" | null;
-type Timing = "within12" | "within24" | "over24" | null;
+import {
+  getCheckDiagnosis,
+  computeTamtruResultTone,
+  type DiagnosisResult,
+  type TamtruTiming,
+} from "@/lib/checkDiagnosis";
 
 const TAMTRU_OFFICIAL_URL = "https://evisa.gov.vn/khai-bao-tam-tru";
 
-type FormState = {
-  name: string;
-  phone: string;
-  address: string;
-  email: string;
-  kakaoId: string;
-  zaloId: string;
-  agreeTerms: boolean;
-};
-
-const EMPTY_FORM: FormState = {
-  name: "",
-  phone: "",
-  address: "",
-  email: "",
-  kakaoId: "",
-  zaloId: "",
-  agreeTerms: false,
-};
+type Housing = "hotel" | "personal" | null;
+type Timing = TamtruTiming;
+type Result = "possible" | "conditional" | null;
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -124,104 +109,266 @@ function ConsentDetails({
   );
 }
 
+// AI 진단 게이지 — 원형 진행률로 feasibilityScore를 표시
+function ScoreGauge({
+  score,
+  tone,
+}: {
+  score: number;
+  tone: "possible" | "conditional" | "impossible";
+}) {
+  const r = 28;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - score / 100);
+  const color =
+    tone === "possible" ? "#059669" : tone === "conditional" ? "#d97706" : "#dc2626";
+
+  return (
+    <div className="relative w-16 h-16 shrink-0">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#f3f4f6" strokeWidth="6" />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          transform="rotate(-90 32 32)"
+        />
+      </svg>
+      <div
+        className="absolute inset-0 flex items-center justify-center text-[15px] font-bold"
+        style={{ color }}
+      >
+        {score}%
+      </div>
+    </div>
+  );
+}
+
+// AI 진단 리포트 카드 — 가입 직후(2번째 화면)에만 노출. customerView만 사용, expertBrief는 여기서 절대 렌더링 안 함.
+function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { feasibilityScore, resultTone, estimatedDays, checklist, note } =
+    diagnosis.customerView;
+  const toneLabel =
+    resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
+  const issueCount = checklist.filter((c) => !c.passed).length;
+  const boxBg = resultTone === "possible" ? "bg-emerald-50" : "bg-amber-50";
+  const boxText = resultTone === "possible" ? "text-emerald-800" : "text-amber-800";
+  const badgeBg = resultTone === "possible" ? "bg-emerald-100" : "bg-amber-100";
+  const badgeText = resultTone === "possible" ? "text-emerald-700" : "text-amber-700";
+
+  return (
+    <div className="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+      <div className="flex items-center gap-3.5">
+        <ScoreGauge score={feasibilityScore} tone={resultTone} />
+        <div>
+          <p className="text-sm font-bold text-gray-900">{toneLabel}</p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {issueCount > 0 ? `발견된 문제 ${issueCount}건` : "확인된 문제 없음"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {checklist.map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 text-xs ${
+              item.passed ? "text-gray-700" : boxText
+            }`}
+          >
+            <span
+              className={`w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                item.passed ? "bg-emerald-100 text-emerald-700" : `${badgeBg} ${badgeText}`
+              }`}
+            >
+              {item.passed ? "✓" : "!"}
+            </span>
+            {item.label}
+          </div>
+        ))}
+      </div>
+
+      {estimatedDays && (
+        <div className="mt-4 rounded-xl bg-white px-4 py-2.5 text-xs text-gray-600">
+          예상 처리기간{" "}
+          <span className="font-bold text-gray-900">
+            {estimatedDays.min}~{estimatedDays.max}일
+          </span>
+        </div>
+      )}
+
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
+    </div>
+  );
+}
+
 export default function TamTruCheckPage() {
   const [housing, setHousing] = useState<Housing>(null);
   const [landlordIssue, setLandlordIssue] = useState<boolean | null>(null);
-  const [choice, setChoice] = useState<Choice>(null);
   const [timing, setTiming] = useState<Timing>(null);
 
-  const [selfLeadSubmitted, setSelfLeadSubmitted] = useState(false);
-  const [selfLeadId, setSelfLeadId] = useState<string | null>(null);
-  const [selfForm, setSelfForm] = useState<FormState>(EMPTY_FORM);
-
-  const [agencyLeadSubmitted, setAgencyLeadSubmitted] = useState(false);
-  const [agencyForm, setAgencyForm] = useState<FormState>(EMPTY_FORM);
-
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [selfConsentOpen, setSelfConsentOpen] = useState(false);
-  const [selfConsentHighlight, setSelfConsentHighlight] = useState(false);
-  const [agencyConsentOpen, setAgencyConsentOpen] = useState(false);
-  const [agencyConsentHighlight, setAgencyConsentHighlight] = useState(false);
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [leadError, setLeadError] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [consentHighlight, setConsentHighlight] = useState(false);
+  const [agencyRequested, setAgencyRequested] = useState(false);
+  const [agencySaving, setAgencySaving] = useState(false);
+  const [agencyError, setAgencyError] = useState<string | null>(null);
+  const [detailStage, setDetailStage] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
 
   const messengers = MESSENGERS_KO;
   const showLegalEscalation = landlordIssue === true;
   const selfNotifySentRef = useRef(false);
 
-  // 관할 포털 링크(직접 신청)를 실제로 클릭한 시점에 응원 이메일을 한 번만 보낸다.
-  // 링크는 target="_blank"라 기본 이동은 그대로 두고, 이메일 발송만 별도로 실행한다.
+  const result: Result = computeTamtruResultTone(timing);
+  const showResult = housing === "personal" && landlordIssue === false && !!timing;
+
+  // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
+  useEffect(() => {
+    let cancelled = false;
+    if (showResult) {
+      getCheckDiagnosis({ service: "tamtru", timing }).then((res) => {
+        if (!cancelled) setDiagnosis(res);
+      });
+    } else {
+      setDiagnosis(null);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [timing, showResult]);
+
+  // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
   function handleSelfPortalClick() {
-    if (!selfLeadId || selfNotifySentRef.current) return;
+    if (!leadId || selfNotifySentRef.current) return;
     selfNotifySentRef.current = true;
     fetch("/api/agency-confirm", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ leadId: selfLeadId, type: "self" }),
+      body: JSON.stringify({ leadId, type: "self" }),
     }).catch((err) => {
       console.error("self-notify email trigger failed:", err);
     });
   }
 
-  // 셀프 등록 정보를 이미 입력했다면, 대행 전환 시 재입력 없이 그대로 재사용
-  const hasExistingContact = selfLeadSubmitted && !!selfLeadId;
-
   function reset() {
     setHousing(null);
     setLandlordIssue(null);
-    setChoice(null);
     setTiming(null);
-    setSelfLeadSubmitted(false);
-    setSelfLeadId(null);
-    setAgencyLeadSubmitted(false);
-    setSelfForm(EMPTY_FORM);
-    setAgencyForm(EMPTY_FORM);
-    setSaveError(null);
+    setLeadSubmitted(false);
+    setLeadId(null);
+    setSubmitting(false);
+    setLeadError(null);
     setEmailProvided(false);
-    setSelfConsentOpen(false);
-    setSelfConsentHighlight(false);
-    setAgencyConsentOpen(false);
-    setAgencyConsentHighlight(false);
+    setConsentOpen(false);
+    setConsentHighlight(false);
+    setAgencyRequested(false);
+    setAgencySaving(false);
+    setAgencyError(null);
+    setDetailStage(false);
+    setDiagnosis(null);
   }
 
-  async function insertLead(form: FormState, action: string, tag: string) {
+  async function handleAgencyRequest() {
+    if (!leadId) return;
+    setAgencySaving(true);
+    setAgencyError(null);
+    try {
+      const { error } = await supabase.from("crm_activities").insert({
+        lead_id: leadId,
+        action: "agency_upgrade_request",
+        tag: "TAMTRU",
+      });
+      if (error) throw error;
+
+      try {
+        await fetch("/api/agency-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId }),
+        });
+      } catch (emailErr) {
+        console.error("agency-confirm email trigger failed:", emailErr);
+      }
+
+      setAgencyRequested(true);
+    } catch {
+      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setAgencySaving(false);
+    }
+  }
+
+  async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+
+    if (fd.get("agreeTerms") !== "on") {
+      setConsentOpen(true);
+      setConsentHighlight(true);
+      return;
+    }
+    setConsentHighlight(false);
+
+    setSubmitting(true);
+    setLeadError(null);
+
     const leadId = crypto.randomUUID();
-    const { error: leadError } = await supabase.from("leads").insert({
+    const name = String(fd.get("name") || "");
+    const phone = String(fd.get("phone") || "");
+    const address = String(fd.get("address") || "");
+    const email = (fd.get("email") as string) || "";
+    const kakaoId = (fd.get("kakao_id") as string) || null;
+    const zaloId = (fd.get("zalo_id") as string) || null;
+
+    const { error } = await supabase.from("leads").insert({
       id: leadId,
-      name: form.name,
-      phone: form.phone,
-      address: form.address,
-      email: form.email || null,
-      kakao_id: form.kakaoId || null,
-      zalo_id: form.zaloId || null,
+      name,
+      phone,
+      address,
+      email: email || null,
+      kakao_id: kakaoId,
+      zalo_id: zaloId,
       service_type: "tamtru",
-      result: choice,
+      result: timing,
       source_page: "/check/tamtru",
     });
 
-    if (leadError) {
-      console.error("leads insert error:", leadError);
-      throw leadError;
+    if (error) {
+      console.error(error);
+      setLeadError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitting(false);
+      return;
     }
 
-    const { error: crmError } = await supabase.from("crm_activities").insert({
+    // expertBrief(전문가용 상세 진단)를 meta에 저장 — 향후 어드민 화면에서 활용
+    await supabase.from("crm_activities").insert({
       lead_id: leadId,
-      action,
-      tag,
+      action: "tamtru_diagnosis_lead",
+      tag: "TAMTRU",
+      meta: diagnosis
+        ? {
+            feasibilityScore: diagnosis.customerView.feasibilityScore,
+            expertBrief: diagnosis.expertBrief,
+          }
+        : null,
     });
-    if (crmError) console.error("crm_activities insert error:", crmError);
 
     try {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          leadId,
-          name: form.name,
-          phone: form.phone,
-          email: form.email,
-          address: form.address,
-        }),
+        body: JSON.stringify({ leadId, name, phone, email, address }),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
@@ -231,94 +378,11 @@ export default function TamTruCheckPage() {
       console.error("lead-submit fetch failed:", apiErr);
     }
 
-    saveLeadContact({
-      name: form.name,
-      phone: form.phone,
-      address: form.address,
-      kakao_id: form.kakaoId,
-      zalo_id: form.zaloId,
-    });
-
-    return leadId;
-  }
-
-  async function handleSelfLeadSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!selfForm.agreeTerms) {
-      setSelfConsentOpen(true);
-      setSelfConsentHighlight(true);
-      return;
-    }
-    setSelfConsentHighlight(false);
-    setSaving(true);
-    setSaveError(null);
-    try {
-      const leadId = await insertLead(selfForm, "self_guide_request", "TAMTRU");
-      setSelfLeadId(leadId);
-      setEmailProvided(!!selfForm.email);
-      setSelfLeadSubmitted(true);
-    } catch {
-      setSaveError("저장 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleAgencyQuickConfirm() {
-    if (!selfLeadId) return;
-    setSaving(true);
-    setSaveError(null);
-    try {
-      const { error } = await supabase.from("crm_activities").insert({
-        lead_id: selfLeadId,
-        action: "agency_upgrade_request",
-        tag: "TAMTRU",
-      });
-      if (error) throw error;
-
-      // 대행 신청 완료 이메일 발송 (실패해도 화면 흐름은 그대로 진행)
-      try {
-        await fetch("/api/agency-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId: selfLeadId }),
-        });
-      } catch (emailErr) {
-        console.error("agency-confirm email trigger failed:", emailErr);
-      }
-
-      setAgencyLeadSubmitted(true);
-    } catch {
-      setSaveError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleAgencyLeadSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!agencyForm.agreeTerms) {
-      setAgencyConsentOpen(true);
-      setAgencyConsentHighlight(true);
-      return;
-    }
-    setAgencyConsentHighlight(false);
-    setSaving(true);
-    setSaveError(null);
-    try {
-      await insertLead(agencyForm, "agency_request", "TAMTRU");
-      setEmailProvided(!!agencyForm.email);
-      setAgencyLeadSubmitted(true);
-    } catch {
-      setSaveError("저장 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function confirmAgencySwitch() {
-    setChoice("agency");
-    await handleAgencyQuickConfirm();
+    saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
+    setEmailProvided(!!email);
+    setLeadId(leadId);
+    setSubmitting(false);
+    setLeadSubmitted(true);
   }
 
   return (
@@ -342,6 +406,7 @@ export default function TamTruCheckPage() {
           숙소 형태에 따라 등록 방법이 다릅니다. 몇 가지만 확인할게요.
         </p>
 
+        {/* 법률 긴급 에스컬레이션 (최우선 처리) */}
         {showLegalEscalation ? (
           <div className="mt-8 rounded-3xl bg-white border border-red-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <ShieldAlert className="text-red-600" size={28} />
@@ -368,6 +433,7 @@ export default function TamTruCheckPage() {
           </div>
         ) : (
           <>
+            {/* STEP 1: 숙소 형태 */}
             {!housing && (
               <div className="mt-8">
                 <p className="text-sm font-semibold text-gray-900">
@@ -402,6 +468,7 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
+            {/* 호텔인 경우: 바로 결과 */}
             {housing === "hotel" && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <CheckCircle2 className="text-emerald-600" size={28} />
@@ -426,7 +493,8 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {housing === "personal" && !choice && landlordIssue === null && (
+            {/* STEP 2: 개인주택인 경우 - 집주인 이슈 확인 */}
+            {housing === "personal" && landlordIssue === null && (
               <div className="mt-8">
                 <p className="text-sm font-semibold text-gray-900">
                   2. 집주인이 등록을 거부하거나 금전을 요구하시나요?
@@ -448,40 +516,11 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {housing === "personal" && landlordIssue === false && !choice && (
+            {/* STEP 3: 경과일 */}
+            {housing === "personal" && landlordIssue === false && !timing && (
               <div className="mt-8">
                 <p className="text-sm font-semibold text-gray-900">
-                  3. 어떻게 진행하시겠어요?
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <button
-                    onClick={() => setChoice("self")}
-                    className="rounded-2xl bg-white border border-gray-100 p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all"
-                  >
-                    <p className="text-sm font-bold text-gray-900">
-                      셀프로 직접 등록
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      관할 사이트 링크와 가이드를 무료로 안내해드립니다
-                    </p>
-                  </button>
-                  <button
-                    onClick={() => setChoice("agency")}
-                    className="rounded-2xl bg-blue-900 p-5 text-left text-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:bg-blue-950 hover:-translate-y-0.5 transition-all"
-                  >
-                    <p className="text-sm font-bold">VFBC가 대행</p>
-                    <p className="mt-1 text-xs text-blue-100">
-                      서류 준비부터 접수까지 전문가가 처리 ($20~50)
-                    </p>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {choice && !timing && (
-              <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  4. 베트남에 도착(또는 숙소 이동)하신 지 얼마나 되셨나요?
+                  3. 베트남에 도착(또는 숙소 이동)하신 지 얼마나 되셨나요?
                 </p>
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
                   {[
@@ -501,7 +540,8 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {choice === "self" && timing && !selfLeadSubmitted && (
+            {/* 1번째 화면 (가입 전) — 리포트 없이 간단하게, 가입 장벽을 낮게 유지 */}
+            {showResult && !leadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 {timing === "over24" && (
                   <div className="mb-5 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-xs text-red-700">
@@ -510,62 +550,58 @@ export default function TamTruCheckPage() {
                     등록을 진행하세요.
                   </div>
                 )}
-                <p className="text-lg font-bold text-gray-900">
-                  관할 신고 사이트 안내받기
+                <CheckCircle2 className="text-emerald-600" size={28} />
+                <p className="mt-4 text-lg font-bold text-gray-900">
+                  임시거주(땀주) 신고를 진행할 수 있습니다
                 </p>
                 <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  이름·연락처만 남기면 30초 안에 내 지역 신고 사이트를
-                  보내드려요. 등록 중 막히면 바로 대행 전환도 가능합니다.
+                  이름·연락처·주소만 남기시면 AI가 신고 조건을 분석한
+                  리포트와 관할 사이트를 바로 보여드립니다.
                 </p>
 
-                <form onSubmit={handleSelfLeadSubmit} className="mt-5 space-y-3">
+                <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
                   <input
                     type="text"
+                    name="name"
                     required
                     placeholder="이름"
-                    value={selfForm.name}
-                    onChange={(e) => setSelfForm({ ...selfForm, name: e.target.value })}
                     className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                   />
                   <input
                     type="tel"
+                    name="phone"
                     required
                     placeholder="전화번호"
-                    value={selfForm.phone}
-                    onChange={(e) => setSelfForm({ ...selfForm, phone: e.target.value })}
                     className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                   />
                   <input
                     type="text"
+                    name="address"
                     required
                     placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                    value={selfForm.address}
-                    onChange={(e) => setSelfForm({ ...selfForm, address: e.target.value })}
                     className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                   />
                   <p className="text-[11px] text-gray-400 -mt-1">
-                    주소가 있어야 관할 phường(동) 사이트를 정확히 찾아드릴 수 있어요.
+                    주소가 있어야 관할 phường(동) 사이트를 정확히 찾아드릴
+                    수 있어요.
                   </p>
                   <input
                     type="email"
+                    name="email"
                     placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                    value={selfForm.email}
-                    onChange={(e) => setSelfForm({ ...selfForm, email: e.target.value })}
                     className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <input
                       type="text"
+                      name="kakao_id"
                       placeholder={`${messengers.primary.label} ID (선택)`}
-                      value={selfForm.kakaoId}
-                      onChange={(e) => setSelfForm({ ...selfForm, kakaoId: e.target.value })}
                       className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                     />
                     <input
                       type="text"
+                      name="zalo_id"
                       placeholder={`${messengers.secondary.label} ID (선택)`}
-                      value={selfForm.zaloId}
-                      onChange={(e) => setSelfForm({ ...selfForm, zaloId: e.target.value })}
                       className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                     />
                   </div>
@@ -573,228 +609,29 @@ export default function TamTruCheckPage() {
                     <label className="flex items-start gap-2 text-xs text-gray-600">
                       <input
                         type="checkbox"
-                        checked={selfForm.agreeTerms}
+                        name="agreeTerms"
                         onChange={(e) => {
-                          setSelfForm({ ...selfForm, agreeTerms: e.target.checked });
-                          if (e.target.checked) setSelfConsentHighlight(false);
+                          if (e.target.checked) setConsentHighlight(false);
                         }}
                         className="mt-0.5"
                       />
                       <span>(필수) {CONSENT_SUMMARY}</span>
                     </label>
                     <ConsentDetails
-                      open={selfConsentOpen}
-                      onToggle={() => setSelfConsentOpen((v) => !v)}
-                      highlight={selfConsentHighlight}
+                      open={consentOpen}
+                      onToggle={() => setConsentOpen((v) => !v)}
+                      highlight={consentHighlight}
                     />
                   </div>
-                  {saveError && <p className="text-xs text-red-600">{saveError}</p>}
+                  {leadError && (
+                    <p className="text-xs text-red-600">{leadError}</p>
+                  )}
                   <button
                     type="submit"
-                    disabled={saving}
-                    className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors disabled:opacity-60"
+                    disabled={submitting}
+                    className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
                   >
-                    {saving ? "저장 중..." : "30초 안에 내 지역 사이트 받기"}
-                  </button>
-                </form>
-                <p className="mt-3 text-[11px] text-gray-400">
-                  입력하신 정보는 상담 안내 목적으로만 사용되며, 등록 진행에
-                  문제가 생기면 담당자가 먼저 연락드릴 수 있습니다.
-                </p>
-                <button
-                  onClick={reset}
-                  className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-                >
-                  처음부터 다시 확인하기
-                </button>
-              </div>
-            )}
-
-            {choice === "self" && timing && selfLeadSubmitted && (
-              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                <CheckCircle2 className="text-emerald-600" size={28} />
-                <p className="mt-4 text-lg font-bold text-gray-900">
-                  셀프 등록 가이드
-                </p>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  관할 phường(동) 공안 온라인 신고 사이트에서 무료로 직접
-                  등록하실 수 있습니다. 여권 정보, 임대계약서, 집주인 정보가
-                  필요합니다.
-                </p>
-                <a
-                  href={TAMTRU_OFFICIAL_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleSelfPortalClick}
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900 hover:underline"
-                >
-                  관할 지역 신고 사이트 바로가기 <ExternalLink size={14} />
-                </a>
-                <p className="mt-2 text-[11px] text-gray-400">
-                  베트남 출입국관리국 전자포털(임시거주 신고 페이지)로
-                  바로 이동합니다. 화면 안내에 따라 신고 내용을 확인하고
-                  진행하시면 됩니다.
-                </p>
-                {emailProvided && (
-                  <p className="mt-2 text-[11px] text-gray-400">
-                    위 링크를 클릭하시면 입력하신 이메일로도 안내를 보내드려요.
-                  </p>
-                )}
-
-                <div className="mt-4 rounded-xl bg-blue-50 px-4 py-3 text-xs text-blue-900 leading-relaxed">
-                  {timing === "over24"
-                    ? "⏰ 신고 기한이 이미 지났을 수 있어요. "
-                    : ""}
-                  이동 후에도 입력하신 정보는 자동으로 저장되어 언제든 다시
-                  확인하실 수 있고, 비자·노동허가·거주증 만료 임박 알림과
-                  베트남 법률 최신 뉴스까지 무료로 받아보실 수 있습니다.
-                </div>
-
-                <div className="mt-5 border-t border-gray-100 pt-5">
-                  <p className="text-xs text-gray-500">
-                    혼자 진행하기 어렵거나 진행 중 막히면 언제든 대행으로
-                    전환할 수 있습니다.
-                  </p>
-                  <button
-                    onClick={confirmAgencySwitch}
-                    className="mt-3 text-xs font-semibold text-blue-900 hover:underline"
-                  >
-                    대신 VFBC 대행 신청하기 →
-                  </button>
-                </div>
-
-                <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-                  입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-                  자동 생성되며, 마이페이지에서 언제든 변경하실 수
-                  있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-                  함께 이용하실 수 있습니다.
-                </div>
-
-                <button
-                  onClick={reset}
-                  className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-                >
-                  처음부터 다시 확인하기
-                </button>
-              </div>
-            )}
-
-            {choice === "agency" && timing && hasExistingContact && !agencyLeadSubmitted && (
-              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                {saveError ? (
-                  <>
-                    <p className="text-sm text-red-600">{saveError}</p>
-                    <button
-                      onClick={handleAgencyQuickConfirm}
-                      className="mt-4 h-11 px-5 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-                    >
-                      다시 시도하기
-                    </button>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Loader2 size={16} className="animate-spin text-blue-900" />
-                    대행 접수 중입니다...
-                  </div>
-                )}
-              </div>
-            )}
-
-            {choice === "agency" && timing && !hasExistingContact && !agencyLeadSubmitted && (
-              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                {timing === "over24" && (
-                  <div className="mb-5 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-xs text-red-700">
-                    <Clock size={16} className="mt-0.5 shrink-0" />
-                    신고 기한이 지났을 가능성이 높습니다. 빠른 처리가
-                    필요합니다.
-                  </div>
-                )}
-                <p className="text-lg font-bold text-gray-900">
-                  VFBC 땀주 등록 대행
-                </p>
-                <p className="mt-1 text-sm font-semibold text-blue-900">
-                  예상 비용은 문자로 보내드리겠습니다
-                </p>
-                <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-                  여권, 임대계약서만 보내주시면 관할 사이트 신고부터 완료
-                  확인까지 대신 처리해드립니다.
-                </p>
-
-                <form onSubmit={handleAgencyLeadSubmit} className="mt-5 space-y-3">
-                  <input
-                    type="text"
-                    required
-                    placeholder="이름"
-                    value={agencyForm.name}
-                    onChange={(e) => setAgencyForm({ ...agencyForm, name: e.target.value })}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                  />
-                  <input
-                    type="tel"
-                    required
-                    placeholder="전화번호"
-                    value={agencyForm.phone}
-                    onChange={(e) => setAgencyForm({ ...agencyForm, phone: e.target.value })}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                  />
-                  <input
-                    type="text"
-                    required
-                    placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                    value={agencyForm.address}
-                    onChange={(e) => setAgencyForm({ ...agencyForm, address: e.target.value })}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                  />
-                  <input
-                    type="email"
-                    placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                    value={agencyForm.email}
-                    onChange={(e) => setAgencyForm({ ...agencyForm, email: e.target.value })}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      placeholder={`${messengers.primary.label} ID (선택)`}
-                      value={agencyForm.kakaoId}
-                      onChange={(e) => setAgencyForm({ ...agencyForm, kakaoId: e.target.value })}
-                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder={`${messengers.secondary.label} ID (선택)`}
-                      value={agencyForm.zaloId}
-                      onChange={(e) => setAgencyForm({ ...agencyForm, zaloId: e.target.value })}
-                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="flex items-start gap-2 text-xs text-gray-600">
-                      <input
-                        type="checkbox"
-                        checked={agencyForm.agreeTerms}
-                        onChange={(e) => {
-                          setAgencyForm({ ...agencyForm, agreeTerms: e.target.checked });
-                          if (e.target.checked) setAgencyConsentHighlight(false);
-                        }}
-                        className="mt-0.5"
-                      />
-                      <span>(필수) {CONSENT_SUMMARY}</span>
-                    </label>
-                    <ConsentDetails
-                      open={agencyConsentOpen}
-                      onToggle={() => setAgencyConsentOpen((v) => !v)}
-                      highlight={agencyConsentHighlight}
-                    />
-                  </div>
-                  {saveError && <p className="text-xs text-red-600">{saveError}</p>}
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors disabled:opacity-60"
-                  >
-                    {saving ? "저장 중..." : "대행 신청하기"}
+                    {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
                   </button>
                 </form>
                 <p className="mt-3 text-[11px] text-gray-400">
@@ -809,7 +646,122 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {choice === "agency" && timing && agencyLeadSubmitted && (
+            {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/대행신청 선택 */}
+            {showResult && leadSubmitted && !agencyRequested && !detailStage && (
+              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+                  땀주(임시거주등록) · AI 분석 리포트
+                </p>
+
+                {diagnosis && (
+                  <div className="mt-3">
+                    <DiagnosisReportCard diagnosis={diagnosis} />
+                  </div>
+                )}
+
+                <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+                  <p className="text-xs font-semibold text-gray-700">
+                    땀주 신고에 필요한 서류
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    <li className="text-xs text-gray-600 pl-1">· 여권 원본 및 사본</li>
+                    <li className="text-xs text-gray-600 pl-1">
+                      · 임대차 계약서 (또는 집주인 확인서)
+                    </li>
+                    <li className="text-xs text-gray-600 pl-1">· 숙소 주소지 증빙</li>
+                  </ul>
+                  <p className="mt-2 text-[11px] text-gray-400">
+                    정확한 요건은 관할 지역에 따라 다를 수 있어 담당자 확인이
+                    필요합니다.
+                  </p>
+                </div>
+
+                <p className="mt-5 text-xs font-semibold text-gray-700">
+                  위 내용, 어떻게 진행하시겠어요?
+                </p>
+                <div className="mt-3 flex flex-col gap-3">
+                  <a
+                    href={TAMTRU_OFFICIAL_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleSelfPortalClick}
+                    className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+                  >
+                    내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
+                  </a>
+                  <button
+                    onClick={() => setDetailStage(true)}
+                    className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+                  >
+                    전문가에게 맡길게요 (대행 신청)
+                  </button>
+                </div>
+                <p className="mt-2 text-[11px] text-gray-400 text-center">
+                  어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
+                </p>
+                <p className="mt-2 text-[11px] text-gray-400">
+                  베트남 출입국관리국 전자포털(임시거주 신고 페이지)로
+                  이동합니다. 화면 안내에 따라 신고 내용을 확인하고
+                  진행하시면 됩니다.
+                </p>
+
+                <button
+                  onClick={reset}
+                  className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+                >
+                  처음부터 다시 확인하기
+                </button>
+              </div>
+            )}
+
+            {/* 대행 상세 단계 */}
+            {showResult && leadSubmitted && !agencyRequested && detailStage && (
+              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                <p className="text-lg font-bold text-gray-900">
+                  VFBC 땀주 등록 대행
+                </p>
+                <p className="mt-1 text-sm font-semibold text-blue-900">
+                  예상 비용은 문자로 보내드리겠습니다
+                </p>
+                <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+                  여권, 임대계약서만 보내주시면 관할 사이트 신고부터 완료
+                  확인까지 대신 처리해드립니다.
+                </p>
+
+                {timing === "over24" && (
+                  <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-xs text-red-700">
+                    <Clock size={16} className="mt-0.5 shrink-0" />
+                    신고 기한이 지났을 가능성이 높습니다. 빠른 처리가
+                    필요합니다.
+                  </div>
+                )}
+
+                {agencyError && (
+                  <p className="mt-3 text-xs text-red-600">{agencyError}</p>
+                )}
+                <button
+                  onClick={handleAgencyRequest}
+                  disabled={agencySaving}
+                  className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+                >
+                  {agencySaving ? "접수 중..." : "대행 신청하기 →"}
+                </button>
+                <p className="mt-2 text-[11px] text-gray-400">
+                  이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요
+                  없습니다.
+                </p>
+
+                <button
+                  onClick={() => setDetailStage(false)}
+                  className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+                >
+                  ← 간단 목록으로 돌아가기
+                </button>
+              </div>
+            )}
+
+            {/* 대행 완료 */}
+            {showResult && agencyRequested && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <div className="flex justify-center">
                   <img
@@ -823,34 +775,17 @@ export default function TamTruCheckPage() {
                   Vietnam Foreign Business Verification &amp; Compliance AI Center
                 </p>
                 <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-                  대행 신청이 완료되었습니다
+                  대행 신청이 접수되었습니다
                 </p>
                 <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  담당자가 서류를 확인한 뒤 {messengers.primary.label} 또는{" "}
-                  {messengers.secondary.label}로 예상 비용과 진행 절차를
+                  담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
+                  {messengers.primary.label}/{messengers.secondary.label}로
                   안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
                 </p>
 
-                <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
-                  <p className="text-xs font-semibold text-gray-700">
-                    미리 준비해두시면 좋은 서류
-                  </p>
-                  <ul className="mt-2 space-y-1">
-                    <li className="text-xs text-gray-600 pl-1">· 여권 사본</li>
-                    <li className="text-xs text-gray-600 pl-1">
-                      · 임대차 계약서 (또는 집주인 확인서)
-                    </li>
-                    <li className="text-xs text-gray-600 pl-1">· 숙소 주소지 증빙</li>
-                  </ul>
-                  <p className="mt-2 text-[11px] text-gray-400">
-                    미리 준비해두시면 접수가 더 빨리 진행됩니다. 곧
-                    연락드리겠습니다.
-                  </p>
-                </div>
-
                 {emailProvided && (
                   <p className="mt-2 text-[11px] text-gray-400">
-                    메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요.
+                    메시지가 오지 않으면 이메일도 함께 확인해주세요.
                   </p>
                 )}
 
