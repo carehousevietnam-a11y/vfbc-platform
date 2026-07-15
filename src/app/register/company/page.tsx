@@ -16,6 +16,7 @@ import {
   getCheckDiagnosis,
   computePermitCompanyResultTone,
   type DiagnosisResult,
+  type ResultTone,
   type PermitInvestorType,
   type PermitCapital,
   type PermitOffice,
@@ -30,7 +31,7 @@ type InvestorChoice = PermitInvestorType | "local_nominee";
 type Capital = PermitCapital;
 type Office = PermitOffice;
 type ResidentRep = PermitResidentRep;
-type Result = "possible" | "conditional" | null;
+type Result = ResultTone | null;
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";

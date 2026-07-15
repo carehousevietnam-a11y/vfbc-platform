@@ -1,11 +1,14 @@
 // src/lib/checkDiagnosis.ts
 //
-// "직접확인하기" (TRC / WP / 땀주) 공용 AI 진단 엔진.
+// "직접확인하기" (TRC / WP / 땀주 / 운전면허) + "직접허가받기"(PERMIT) 공용 AI 진단 엔진.
 // verifyDiagnosis.ts와 동일한 원칙: 이 파일의 함수를 통해서만 진단 결과를 만든다.
 // 지금은 정적 규칙 기반이지만, 나중에 규칙엔진+법령DB로 내부만 교체해도
 // 페이지 코드는 손댈 필요 없도록 인터페이스를 고정해둔다.
 //
-// 구현 범위: WP(노동허가) / TRC(거주증) / 땀주(임시거주등록) 모두 완성.
+// 구현 범위: WP(노동허가) / TRC(거주증) / 땀주(임시거주등록) / 운전면허 완성.
+// PERMIT(직접허가받기)은 법인설립(company) 1개 파일럿 구현.
+//   나머지 6개(식당/소방/위생/환경/화장품/의료기기) 업종허가는
+//   "법인(ERC) 보유 여부" 공통 게이트만 우선 적용, 세부 로직은 추후 확장 예정.
 
 export type ResultTone = "possible" | "conditional" | "impossible";
 
@@ -434,13 +437,179 @@ function getLicenseDiagnosis(
   };
 }
 
+// ── PERMIT · 법인설립 (직접허가받기 파일럿) ─────────────────────
+//
+// 실제 필요서류 기준(투자자 유형별 분기)으로 구성.
+// 나머지 6개 업종허가(식당/소방/위생/환경/화장품/의료기기)는
+// "법인(ERC) 보유 여부" 공통 게이트만 이 함수의 companyOk 판단 로직을
+// 재사용해서 그대로 붙이면 된다. 세부 업종 요건은 추후 Linda 대표 확인 후 확장.
+
+export type PermitInvestorType = "corporate" | "individual" | null; // 법인(한국 본사) 투자 / 개인 투자
+export type PermitCapital = "confirmed" | "unconfirmed" | null;
+export type PermitOffice = "secured" | "unsecured" | null;
+export type PermitResidentRep = "yes" | "no" | null; // 대표자(법인장)가 베트남에 상주하며 근무할 예정인지
+
+export function computePermitCompanyResultTone(
+  capital: PermitCapital,
+  office: PermitOffice
+): ResultTone | null {
+  if (!capital || !office) return null;
+  if (capital === "unconfirmed" || office === "unsecured") return "conditional";
+  return "possible";
+}
+
+function getPermitCompanyDiagnosis(
+  investorType: PermitInvestorType,
+  capital: PermitCapital,
+  office: PermitOffice,
+  residentRep: PermitResidentRep
+): DiagnosisResult | null {
+  const tone = computePermitCompanyResultTone(capital, office);
+  if (!tone || !investorType || !residentRep) return null;
+
+  const isCorporate = investorType === "corporate";
+  const capitalOk = capital === "confirmed";
+  const officeOk = office === "secured";
+  const willReside = residentRep === "yes";
+
+  let feasibilityScore: number;
+  let estimatedDays: { min: number; max: number };
+  let riskLevel: "low" | "medium" | "high";
+
+  if (tone === "possible") {
+    feasibilityScore = 90;
+    estimatedDays = { min: 20, max: 35 };
+    riskLevel = "low";
+  } else {
+    feasibilityScore = capitalOk || officeOk ? 55 : 35;
+    estimatedDays = { min: 35, max: 55 };
+    riskLevel = "medium";
+  }
+
+  // 투자자 유형에 따라 체크리스트 자체가 완전히 갈라짐 (실제 필요서류 기준)
+  const items: ExpertChecklistItem[] = isCorporate
+    ? [
+        {
+          label: "사업자등록증명원 · 법인등기부등본",
+          passed: true,
+          reason: "국세청 발급(최근 3개월 이내) — 신청 즉시 발급 가능한 서류",
+        },
+        {
+          label: "본사 정관 · 이사회결의서 · 위임장(POA)",
+          passed: false,
+          reason: "베트남 법인 설립·투자금액·대표자 임명 관련 이사회결의서는 별도 작성 필요",
+        },
+        {
+          label: "재무 증빙 (감사보고서 또는 은행 잔고증명서)",
+          passed: capitalOk,
+          reason: capitalOk
+            ? "최근 2개년 감사보고서 또는 은행 잔고증명서로 자본금 요건 소명 가능"
+            : "설립 2년 미만 법인은 은행 잔고증명서로 대체 가능 — 현재 미확정 상태",
+        },
+        {
+          label: "사무실 임대차 계약서(현지)",
+          passed: officeOk,
+          reason: officeOk
+            ? "임대차 계약이 체결되어 있어 ERC 등록 주소 요건 충족"
+            : "법인 등록 주소로 사용할 사무실 임대차 계약이 아직 체결되지 않음",
+        },
+      ]
+    : [
+        {
+          label: "투자자 여권 공증본",
+          passed: true,
+          reason: "여권 공증(유효기간 2년 6개월 이상 권장)은 즉시 진행 가능한 서류",
+        },
+        {
+          label: "위임장(POA)",
+          passed: false,
+          reason: "베트남 현지 설립 대행을 위한 위임장은 별도 작성 필요",
+        },
+        {
+          label: "개인 은행 잔고증명서",
+          passed: capitalOk,
+          reason: capitalOk
+            ? "투자할 자본금 이상의 영문 잔고증명서 확보"
+            : "최근 1~2주 이내 발급본 기준 자본금 증빙이 아직 준비되지 않음",
+        },
+        {
+          label: "사무실 임대차 계약서(현지)",
+          passed: officeOk,
+          reason: officeOk
+            ? "임대차 계약이 체결되어 있어 ERC 등록 주소 요건 충족"
+            : "법인 등록 주소로 사용할 사무실 임대차 계약이 아직 체결되지 않음",
+        },
+      ];
+
+  if (willReside) {
+    items.push({
+      label: "대표자 상주 근무 사전서류 (학위 · 경력 · 범죄경력증명서)",
+      passed: false,
+      reason:
+        "법인장이 베트남에 상주하며 근무할 예정이라 법인 설립 후 노동허가(WP)·거주증(TRC) 발급이 필요 — 학위증명서·경력증명서·범죄경력회보서(3개월 이내)를 미리 아포스티유 공증받아야 일정 지연을 피할 수 있음",
+    });
+  }
+
+  const rejectionRisks: { rank: number; reason: string }[] = [];
+  if (!capitalOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "자본금 증빙 미비로 IRC(투자등록증) 심사 지연 위험" });
+  if (!officeOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "사무실 임대차 계약 미체결로 ERC 등록 주소 확보 지연" });
+  rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "번역·공증·아포스티유(영사확인) 절차 누락 시 서류 반려 위험" });
+  if (willReside) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "대표자 노동허가·거주증 사전서류 미비 시 법인 설립 후 상주 일정 지연" });
+
+  return {
+    customerView: {
+      feasibilityScore,
+      resultTone: tone,
+      estimatedDays,
+      checklist: items.map(({ label, passed }) => ({ label, passed })),
+      note:
+        tone === "possible"
+          ? "번역·공증·아포스티유 등 준비 서류에 따라 처리기간이 달라질 수 있습니다."
+          : "자본금·사무실 등 준비 상태에 따라 결과가 달라질 수 있습니다. 정확한 판단은 전문가 검토가 필요합니다.",
+    },
+    expertBrief: {
+      riskLevel,
+      checkedItems: items,
+      rejectionRisks,
+      similarCases: [], // TODO: 실제 사례 DB 연동 후 채울 것 (허위 데이터 금지)
+      recommendedSteps: isCorporate
+        ? [
+            "사업자등록증명원 · 법인등기부등본(3개월 이내) 발급",
+            "본사 정관 · 이사회결의서 · 위임장(POA) 준비",
+            !capitalOk ? "감사보고서 또는 은행 잔고증명서 확보 (설립 2년 미만 시 잔고증명서로 대체 가능)" : "",
+            !officeOk ? "사무실/공장 임대차 계약 체결 및 임대인 법적 권리 증빙(Red Book 등) 확인" : "",
+            "한국 서류는 번역·공증·외교부 아포스티유(영사확인)·베트남 현지 번역공증까지 완료",
+            willReside
+              ? "대표자 학위증명서 · 경력증명서 · 범죄경력회보서(3개월 이내) 아포스티유 공증 준비 — 노동허가·거주증 발급용"
+              : "",
+          ].filter(Boolean)
+        : [
+            "여권 공증본(유효기간 2년 6개월 이상) 준비",
+            !capitalOk ? "개인 은행 잔고증명서(최근 1~2주 이내 발급본) 확보" : "",
+            "위임장(POA) 작성",
+            !officeOk ? "사무실/공장 임대차 계약 체결 및 임대인 법적 권리 증빙(Red Book 등) 확인" : "",
+            willReside
+              ? "대표자 학위증명서 · 경력증명서 · 범죄경력회보서(3개월 이내) 아포스티유 공증 준비 — 노동허가·거주증 발급용"
+              : "",
+          ].filter(Boolean),
+    },
+  };
+}
+
 // ── 공용 진입점 ────────────────────────────────────────────────
 
 export type CheckDiagnosisInput =
   | { service: "wp"; education: WpEducation; experience: WpExperience; job: WpJob }
   | { service: "trc"; visa: TrcVisa; role: TrcRole; company: TrcCompany }
   | { service: "tamtru"; timing: TamtruTiming }
-  | { service: "license"; trc: LicenseTrc; license: LicenseHasLicense };
+  | { service: "license"; trc: LicenseTrc; license: LicenseHasLicense }
+  | {
+      service: "permit_company";
+      investorType: PermitInvestorType;
+      capital: PermitCapital;
+      office: PermitOffice;
+      residentRep: PermitResidentRep;
+    };
 
 export async function getCheckDiagnosis(
   input: CheckDiagnosisInput
@@ -454,6 +623,13 @@ export async function getCheckDiagnosis(
       return getTamtruDiagnosis(input.timing);
     case "license":
       return getLicenseDiagnosis(input.trc, input.license);
+    case "permit_company":
+      return getPermitCompanyDiagnosis(
+        input.investorType,
+        input.capital,
+        input.office,
+        input.residentRep
+      );
     default:
       return null;
   }
