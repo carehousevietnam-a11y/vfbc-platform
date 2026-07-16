@@ -423,7 +423,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto max-w-3xl px-6 py-10">
         <div className="flex items-center justify-between">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-            VFBC 관리자
+            VFBCAI 관리자
           </p>
           <AdminLogoutButton />
         </div>

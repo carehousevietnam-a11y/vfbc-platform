@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
         </Link>
 
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC · 개인정보처리방침 · Chính sách bảo mật
+          VFBCAI · 개인정보처리방침 · Chính sách bảo mật
         </p>
         <div className="mt-2 flex items-center gap-2">
           <ShieldCheck className="text-blue-900" size={22} />
@@ -25,12 +25,12 @@ export default function PrivacyPolicyPage() {
           </h1>
         </div>
         <p className="mt-2 text-sm text-gray-500 leading-relaxed">
-          VFBC(베트남 외국인 비즈니스센터)는 베트남에서 설립·운영되는
-          서비스로서, 이용자의 개인정보를 베트남 개인정보보호법(Luật số
-          91/2025/QH15) 및 시행령(Nghị định số 356/2025/NĐ-CP)에 따라
-          처리합니다. 본 방침은 베트남어 원문을 기준으로 하며, 한국어는
-          이용자 편의를 위한 번역본입니다. 원문과 번역본의 내용이 다를 경우
-          베트남어 원문이 우선합니다.
+          VFBCAI(베트남 외국인 비즈니스 검증·등록 AI 센터)는 베트남에서
+          설립·운영되는 서비스로서, 이용자의 개인정보를 베트남
+          개인정보보호법(Luật số 91/2025/QH15) 및 시행령(Nghị định số
+          356/2025/NĐ-CP)에 따라 처리합니다. 본 방침은 베트남어 원문을
+          기준으로 하며, 한국어는 이용자 편의를 위한 번역본입니다. 원문과
+          번역본의 내용이 다를 경우 베트남어 원문이 우선합니다.
         </p>
         <p className="mt-3 text-[11px] text-gray-400">
           시행일: 2026년 7월 10일 · 최종 수정일: 2026년 7월 12일
@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
             Điều 1 (Các loại thông tin cá nhân thu thập và phương thức)
           </h2>
           <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            VFBC thu thập thông tin dưới đây do người dùng trực tiếp nhập
+            VFBCAI thu thập thông tin dưới đây do người dùng trực tiếp nhập
             trong quá trình đăng ký dịch vụ (chẩn đoán, tư vấn, đăng ký hộ
             khẩu tạm trú/thẻ tạm trú, xin giấy phép lao động, v.v.).
           </p>
@@ -76,8 +76,8 @@ export default function PrivacyPolicyPage() {
               한국어 번역 — 제1조 (수집하는 개인정보 항목 및 방법)
             </h3>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              VFBC는 서비스 신청(진단, 상담, 등록 대행 등) 과정에서 이용자가
-              직접 입력하는 방식으로 아래 정보를 수집합니다.
+              VFBCAI는 서비스 신청(진단, 상담, 등록 대행 등) 과정에서
+              이용자가 직접 입력하는 방식으로 아래 정보를 수집합니다.
             </p>
             <ul className="mt-3 space-y-1.5">
               <li className="text-sm text-gray-600">
@@ -184,7 +184,7 @@ export default function PrivacyPolicyPage() {
             Điều 4 (Cung cấp thông tin cá nhân cho bên thứ ba)
           </h2>
           <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            VFBC về nguyên tắc không cung cấp thông tin cá nhân của người
+            VFBCAI về nguyên tắc không cung cấp thông tin cá nhân của người
             dùng cho bên ngoài. Tuy nhiên, các trường hợp sau là ngoại lệ.
           </p>
           <ul className="mt-3 space-y-1.5">
@@ -207,8 +207,8 @@ export default function PrivacyPolicyPage() {
               한국어 번역 — 제4조 (개인정보의 제3자 제공)
             </h3>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              VFBC는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다.
-              다만 아래의 경우는 예외로 합니다.
+              VFBCAI는 이용자의 개인정보를 원칙적으로 외부에 제공하지
+              않습니다. 다만 아래의 경우는 예외로 합니다.
             </p>
             <ul className="mt-3 space-y-1.5">
               <li className="text-sm text-gray-600">
@@ -232,7 +232,7 @@ export default function PrivacyPolicyPage() {
             Điều 5 (Ủy thác xử lý thông tin cá nhân)
           </h2>
           <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            VFBC ủy thác một số công việc xử lý thông tin cá nhân như dưới
+            VFBCAI ủy thác một số công việc xử lý thông tin cá nhân như dưới
             đây để cung cấp dịch vụ thuận lợi, và quy định các nội dung cần
             thiết trong hợp đồng ủy thác để đảm bảo thông tin cá nhân được
             quản lý an toàn.
@@ -260,7 +260,7 @@ export default function PrivacyPolicyPage() {
               한국어 번역 — 제5조 (개인정보 처리의 위탁)
             </h3>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              VFBC는 원활한 서비스 제공을 위해 아래와 같이 개인정보 처리
+              VFBCAI는 원활한 서비스 제공을 위해 아래와 같이 개인정보 처리
               업무를 위탁하고 있으며, 위탁 계약 시 개인정보가 안전하게 관리될
               수 있도록 필요한 사항을 규정하고 있습니다.
             </p>
@@ -377,9 +377,9 @@ export default function PrivacyPolicyPage() {
             Điều 9 (Người phụ trách bảo vệ thông tin cá nhân)
           </h2>
           <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            VFBC chỉ định người phụ trách bảo vệ thông tin cá nhân dưới đây
-            để phụ trách chung công việc xử lý thông tin cá nhân và giải
-            quyết khiếu nại, bồi thường thiệt hại cho người dùng.
+            VFBCAI chỉ định người phụ trách bảo vệ thông tin cá nhân dưới
+            đây để phụ trách chung công việc xử lý thông tin cá nhân và
+            giải quyết khiếu nại, bồi thường thiệt hại cho người dùng.
           </p>
           <div className="mt-3 rounded-xl bg-blue-50 px-4 py-3 text-sm text-blue-900">
             Họ tên: DO HAI YEN · Email: vnkhanoi@gmail.com · Điện thoại:
@@ -391,9 +391,9 @@ export default function PrivacyPolicyPage() {
               한국어 번역 — 제9조 (개인정보 보호책임자)
             </h3>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              VFBC는 개인정보 처리에 관한 업무를 총괄하고 이용자의 불만처리
-              및 피해구제를 위하여 아래와 같이 개인정보 보호책임자를 지정하고
-              있습니다.
+              VFBCAI는 개인정보 처리에 관한 업무를 총괄하고 이용자의
+              불만처리 및 피해구제를 위하여 아래와 같이 개인정보
+              보호책임자를 지정하고 있습니다.
             </p>
             <div className="mt-3 rounded-xl bg-blue-50 px-4 py-3 text-sm text-blue-900">
               성명: DO HAI YEN · 이메일: vnkhanoi@gmail.com · 연락처:

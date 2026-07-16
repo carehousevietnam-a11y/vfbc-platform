@@ -718,7 +718,7 @@ export default function TamTruCheckPage() {
             {showResult && leadSubmitted && !agencyRequested && detailStage && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-lg font-bold text-gray-900">
-                  VFBC 땀주 등록 대행
+                  VFBCAI 땀주 등록 대행
                 </p>
                 <p className="mt-1 text-sm font-semibold text-blue-900">
                   예상 비용은 문자로 보내드리겠습니다
@@ -766,7 +766,7 @@ export default function TamTruCheckPage() {
                 <div className="flex justify-center">
                   <img
                     src="/vfbc-seal.png"
-                    alt="VFBC AI 접수완료 확인 도장"
+                    alt="VFBCAI 접수완료 확인 도장"
                     width={160}
                     height={160}
                   />

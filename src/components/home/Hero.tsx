@@ -28,13 +28,13 @@ export default function Hero() {
 
       <div className="mx-auto max-w-2xl px-6 pt-16 pb-8 text-center">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC · 베트남 외국인 비즈니스센터청
+          VFBCAI · 베트남 외국인 비즈니스 검증·등록 AI 센터
         </p>
         <h1 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight text-gray-900">
           베트남 체류와 사업,<br />안전하게
         </h1>
         <p className="mt-4 text-base text-gray-500 leading-relaxed">
-          체류부터 사업까지, VFBC가 외국인의 모든 순간을 함께합니다
+          체류부터 사업까지, VFBCAI가 외국인의 모든 순간을 함께합니다
         </p>
 
         <form onSubmit={handleSearch} className="mt-8 mx-auto flex max-w-lg gap-2">

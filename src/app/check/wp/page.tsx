@@ -804,7 +804,7 @@ export default function WpCheckPage() {
             <div className="flex justify-center">
               <img
                 src="/vfbc-seal.png"
-                alt="VFBC AI 접수완료 확인 도장"
+                alt="VFBCAI 접수완료 확인 도장"
                 width={160}
                 height={160}
               />
