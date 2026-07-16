@@ -109,62 +109,6 @@ function ConsentDetails({
   );
 }
 
-// 타 기관/타 대행사 거절 이력 입력 필드 — 선택 항목.
-// 답변은 crm_activities.meta.previousRejection에 저장되어 어드민에서 "재검토" 배지로 노출됨.
-function PreviousRejectionField({
-  value,
-  onChange,
-  reason,
-  onReasonChange,
-}: {
-  value: boolean | null;
-  onChange: (v: boolean) => void;
-  reason: string;
-  onReasonChange: (v: string) => void;
-}) {
-  return (
-    <div className="rounded-lg bg-gray-50 p-3">
-      <p className="text-xs font-medium text-gray-700">
-        (선택) 이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가
-        거절·반려되신 적이 있나요?
-      </p>
-      <div className="mt-2 grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => onChange(true)}
-          className={`h-9 rounded-lg border text-xs font-semibold transition-colors ${
-            value === true
-              ? "border-blue-900 bg-blue-50 text-blue-900"
-              : "border-gray-200 text-gray-500 hover:border-gray-300"
-          }`}
-        >
-          네, 있습니다
-        </button>
-        <button
-          type="button"
-          onClick={() => onChange(false)}
-          className={`h-9 rounded-lg border text-xs font-semibold transition-colors ${
-            value === false
-              ? "border-blue-900 bg-blue-50 text-blue-900"
-              : "border-gray-200 text-gray-500 hover:border-gray-300"
-          }`}
-        >
-          아니요
-        </button>
-      </div>
-      {value === true && (
-        <textarea
-          value={reason}
-          onChange={(e) => onReasonChange(e.target.value)}
-          placeholder="어떤 이유로 거절되셨는지 알려주세요 (아시는 만큼만 적어주셔도 됩니다)"
-          rows={3}
-          className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-xs focus:border-blue-900 focus:outline-none resize-none"
-        />
-      )}
-    </div>
-  );
-}
-
 // AI 진단 게이지 — 원형 진행률로 feasibilityScore를 표시
 function ScoreGauge({
   score,
@@ -281,6 +225,7 @@ export default function DrivingLicenseCheckPage() {
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionStepDone, setRejectionStepDone] = useState(false);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
@@ -331,6 +276,7 @@ export default function DrivingLicenseCheckPage() {
     setDiagnosis(null);
     setPreviousRejection(null);
     setRejectionReason("");
+    setRejectionStepDone(false);
   }
 
   async function handleAgencyRequest() {
@@ -467,10 +413,57 @@ export default function DrivingLicenseCheckPage() {
           여부가 달라집니다.
         </p>
 
-        {!trc && (
+        {!rejectionStepDone && (
           <div className="mt-8">
             <p className="text-sm font-semibold text-gray-900">
-              1. 현재 거주증(TRC)을 보유하고 계신가요?
+              1. 이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가
+              거절·반려되신 적이 있나요?
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setPreviousRejection(true)}
+                className={`rounded-2xl border p-4 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${
+                  previousRejection === true
+                    ? "border-blue-900 bg-blue-50 text-blue-900"
+                    : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5"
+                }`}
+              >
+                네, 있습니다
+              </button>
+              <button
+                onClick={() => {
+                  setPreviousRejection(false);
+                  setRejectionStepDone(true);
+                }}
+                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              >
+                아니요
+              </button>
+            </div>
+            {previousRejection === true && (
+              <div className="mt-4">
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
+                />
+                <button
+                  onClick={() => setRejectionStepDone(true)}
+                  className="mt-3 w-full h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+                >
+                  다음
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {rejectionStepDone && !trc && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              2. 현재 거주증(TRC)을 보유하고 계신가요?
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <button
@@ -492,7 +485,7 @@ export default function DrivingLicenseCheckPage() {
         {trc === "yes" && !license && (
           <div className="mt-8">
             <p className="text-sm font-semibold text-gray-900">
-              2. 본국(자국)에서 발급된 운전면허를 보유하고 계신가요?
+              3. 본국(자국)에서 발급된 운전면허를 보유하고 계신가요?
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <button
@@ -599,12 +592,6 @@ export default function DrivingLicenseCheckPage() {
                   className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                 />
               </div>
-              <PreviousRejectionField
-                value={previousRejection}
-                onChange={setPreviousRejection}
-                reason={rejectionReason}
-                onReasonChange={setRejectionReason}
-              />
               <div>
                 <label className="flex items-start gap-2 text-xs text-gray-600">
                   <input
