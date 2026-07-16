@@ -182,13 +182,23 @@ export default async function AdminRejectionsPage({
                       </span>
                     )}
                   </div>
-                  <p className="mt-3 text-sm text-gray-700 leading-relaxed">
-                    {r.reason ? (
-                      r.reason
-                    ) : (
-                      <span className="text-gray-400">사유 미기재</span>
-                    )}
-                  </p>
+                  {r.reason ? (
+                    <details className="group mt-3">
+                      <summary className="cursor-pointer list-none marker:content-none [&::-webkit-details-marker]:hidden">
+                        <p className="text-sm text-gray-700 leading-relaxed line-clamp-2 group-open:line-clamp-none">
+                          {r.reason}
+                        </p>
+                        <span className="mt-1 inline-block text-[11px] font-semibold text-blue-900 group-open:hidden">
+                          더 보기 ▾
+                        </span>
+                        <span className="mt-1 hidden text-[11px] font-semibold text-gray-400 group-open:inline-block">
+                          접기 ▴
+                        </span>
+                      </summary>
+                    </details>
+                  ) : (
+                    <p className="mt-3 text-sm text-gray-400">사유 미기재</p>
+                  )}
                   {lead?.phone && (
                     <p className="mt-1 text-[11px] text-gray-400">{lead.phone}</p>
                   )}
