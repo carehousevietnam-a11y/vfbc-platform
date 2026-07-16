@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  MessageCircle,
   ExternalLink,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
@@ -687,7 +686,7 @@ export default function TrcCheckPage() {
           </div>
         )}
 
-        {showResult && result === "possible" && leadSubmitted && !agencyRequested && detailStage && (
+        {showResult && (result === "possible" || result === "conditional") && leadSubmitted && !agencyRequested && detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
@@ -748,7 +747,7 @@ export default function TrcCheckPage() {
           </div>
         )}
 
-        {showResult && result === "possible" && agencyRequested && (
+        {showResult && (result === "possible" || result === "conditional") && agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <div className="flex justify-center">
               <img
@@ -892,8 +891,8 @@ export default function TrcCheckPage() {
           </div>
         )}
 
-        {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 노출) */}
-        {showResult && result === "conditional" && leadSubmitted && (
+        {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 + 직접등록/대행신청 선택) */}
+        {showResult && result === "conditional" && leadSubmitted && !agencyRequested && !detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               거주증(TRC) · AI 분석 리포트
@@ -905,24 +904,40 @@ export default function TrcCheckPage() {
               </div>
             )}
 
-            <p className="mt-4 text-sm font-bold text-gray-900">
-              {messengers.primary.label} 또는 {messengers.secondary.label}로
-              곧 상세 안내를 보내드립니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              위 리포트를 바탕으로 전문가가 검토한 뒤, 비자 전환·거주증
-              발급 가능 여부와 필요서류를 메시지로 정리해드립니다.
-            </p>
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <MessageCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />
-              {emailProvided
-                ? "메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요."
-                : "메시지가 오지 않으면 알려주세요 — 담당자가 직접 확인 후 연락드립니다."}
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+              현재 조건으로는 자격 요건이 완전히 충족되지 않아, 직접
+              진행하실 경우 서류 준비나 절차에서 어려움을 겪으실 가능성이
+              높습니다. 그래도 직접 진행을 원하신다면 아래에서 선택하실 수
+              있습니다.
             </div>
 
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              위 내용, 어떻게 진행하시겠어요?
+            </p>
+            <div className="mt-3 flex flex-col gap-3">
+              <a
+                href={TRC_OFFICIAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleSelfPortalClick}
+                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-amber-600 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
+              >
+                그래도 내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
+              </a>
+              <button
+                onClick={() => setDetailStage(true)}
+                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+              >
+                전문가에게 맡길게요 (대행 신청)
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-400 text-center">
+              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
+            </p>
+
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" />
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
               입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
               자동 생성되며, 마이페이지에서 언제든 변경하실 수
               있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
@@ -931,7 +946,7 @@ export default function TrcCheckPage() {
 
             <Link
               href="/consultation?case=trc-conditional"
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-amber-600 px-5 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
+              className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:underline"
             >
               메시지 기다리지 않고 지금 상담하기
             </Link>
