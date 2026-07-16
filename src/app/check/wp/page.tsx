@@ -232,6 +232,7 @@ export default function WpCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const [rejectionRecordId, setRejectionRecordId] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
@@ -255,6 +256,31 @@ export default function WpCheckPage() {
       cancelled = true;
     };
   }, [education, experience, job, priorityField, showResult]);
+
+  // "네, 있습니다" 클릭 즉시 익명으로 저장 — 회원가입 여부와 무관하게 데이터가 남는다.
+  async function recordRejectionAnonymously() {
+    const id = crypto.randomUUID();
+    const { error } = await supabase.from("previous_rejections").insert({
+      id,
+      service_type: "wp",
+      source_page: "/check/wp",
+      reason: null,
+    });
+    if (!error) setRejectionRecordId(id);
+    else console.error("previous_rejections insert failed:", error);
+  }
+
+  // 사유를 입력하고 "다음"을 누른 시점에 사유를 업데이트하고 다음 질문으로 진행.
+  async function finalizeRejectionStep() {
+    if (rejectionRecordId && rejectionReason.trim()) {
+      const { error } = await supabase
+        .from("previous_rejections")
+        .update({ reason: rejectionReason.trim() })
+        .eq("id", rejectionRecordId);
+      if (error) console.error("previous_rejections reason update failed:", error);
+    }
+    setRejectionStepDone(true);
+  }
 
   // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
   // 링크는 target="_blank"라 기본 이동은 그대로 두고, 이메일 발송만 별도로 실행한다.
@@ -289,6 +315,7 @@ export default function WpCheckPage() {
     setPreviousRejection(null);
     setRejectionReason("");
     setRejectionStepDone(false);
+    setRejectionRecordId(null);
   }
 
   async function handleAgencyRequest() {
@@ -397,6 +424,18 @@ export default function WpCheckPage() {
       console.error("lead-submit fetch failed:", apiErr);
     }
 
+    // 익명으로 미리 저장해둔 거절 이력 기록이 있으면 이번 리드와 연결
+    if (rejectionRecordId) {
+      try {
+        await supabase
+          .from("previous_rejections")
+          .update({ linked_lead_id: leadId })
+          .eq("id", rejectionRecordId);
+      } catch (linkErr) {
+        console.error("previous_rejections link failed:", linkErr);
+      }
+    }
+
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setEmailProvided(!!email);
     setLeadId(leadId);
@@ -433,7 +472,10 @@ export default function WpCheckPage() {
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <button
-                onClick={() => setPreviousRejection(true)}
+                onClick={() => {
+                  setPreviousRejection(true);
+                  recordRejectionAnonymously();
+                }}
                 className={`rounded-2xl border p-4 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${
                   previousRejection === true
                     ? "border-blue-900 bg-blue-50 text-blue-900"
@@ -462,7 +504,7 @@ export default function WpCheckPage() {
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
                 />
                 <button
-                  onClick={() => setRejectionStepDone(true)}
+                  onClick={finalizeRejectionStep}
                   className="mt-3 w-full h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
                 >
                   다음
