@@ -227,7 +227,7 @@ export default function DrivingLicenseCheckPage() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
   const rejectionRecordIdRef = useRef<string | null>(null);
-  const pendingRejectionInsertRef = useRef<Promise<void> | null>(null);
+  const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
