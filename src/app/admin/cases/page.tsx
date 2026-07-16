@@ -380,6 +380,11 @@ export default async function AdminCasesPage({
   const orderedCats: CategoryKey[] = ["check", "verify", "permit", "consultation"];
   if (byCategory.has("unclassified")) orderedCats.push("unclassified");
 
+  // 거절이력 건수 조회 — 이 화면(대분류 홈)에서만 필요하므로 여기서 조회
+  const { count: rejectionCount } = await supabaseAdmin
+    .from("previous_rejections")
+    .select("id", { count: "exact", head: true });
+
   return (
     <Shell>
       <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
@@ -415,6 +420,23 @@ export default async function AdminCasesPage({
             </Link>
           );
         })}
+      </div>
+
+      <div className="mt-3">
+        <Link
+          href="/admin/rejections"
+          className="block rounded-2xl bg-white border border-red-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+        >
+          <span className="inline-block rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+            타 기관 거절이력
+          </span>
+          <div className="mt-3 flex gap-4">
+            <div>
+              <p className="text-xl font-bold text-gray-900">{rejectionCount ?? 0}</p>
+              <p className="text-[11px] text-gray-400">전체 건수</p>
+            </div>
+          </div>
+        </Link>
       </div>
       {byCategory.has("unclassified") && (
         <p className="mt-4 text-xs text-amber-700">
