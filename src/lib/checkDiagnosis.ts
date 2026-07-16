@@ -9,6 +9,13 @@
 // PERMIT(직접허가받기)은 법인설립(company) 1개 파일럿 구현.
 //   나머지 6개(식당/소방/위생/환경/화장품/의료기기) 업종허가는
 //   "법인(ERC) 보유 여부" 공통 게이트만 우선 적용, 세부 로직은 추후 확장 예정.
+//
+// [2026.7 업데이트] WP(노동허가) 경력요건 법령 최신화
+// 시행령 219/2025/ND-CP(2025.8.7 발효, Decree 152/2020 + 70/2023 대체) 반영.
+// 전문가(chuyên gia) 경력 요건: 일반분야 3년 → 2년으로 완화, 우선분야(기술/혁신/
+// 디지털전환)는 1년으로 더 완화. Linda 대표 검수 완료 후 반영.
+// 참고: 우선분야 세부 업종 리스트까지는 확정 못했음 — 사용자가 스스로 판단해서
+// 답하는 질문으로 처리하고, 최종 확정은 전문가 상담 단계에서 이뤄지도록 안내함.
 
 export type ResultTone = "possible" | "conditional" | "impossible";
 
@@ -43,34 +50,50 @@ export interface DiagnosisResult {
 // ── WP (노동허가) ──────────────────────────────────────────────
 
 export type WpEducation = "university" | "college" | "highschool" | null;
-export type WpExperience = "over3" | "one-to-three" | "under1" | null;
+// [2026.7] 경력 구간을 3년 기준 → 2년 기준으로 재편성 (219/2025/ND-CP 반영)
+export type WpExperience = "over2" | "one-to-two" | "under1" | null;
 export type WpJob = "expert" | "technical" | "unskilled" | null;
+// [2026.7 신규] 우선분야(기술·혁신·디지털전환) 종사 여부 — "예"면 경력 기준 1년 적용
+export type WpPriorityField = "yes" | "no" | null;
 
 export function computeWpResultTone(
   edu: WpEducation,
   exp: WpExperience,
-  job: WpJob
+  job: WpJob,
+  priorityField: WpPriorityField
 ): ResultTone | null {
-  if (!edu || !exp || !job) return null;
+  if (!edu || !exp || !job || !priorityField) return null;
   if (job === "unskilled") return "impossible";
-  if (edu === "university") return "possible";
-  if (edu === "college" && exp === "over3") return "possible";
-  if (job === "technical" && exp === "over3") return "conditional";
+
+  // 우선분야면 1년, 아니면 2년 기준 (219/2025/ND-CP)
+  const meetsThreshold =
+    priorityField === "yes" ? exp !== "under1" : exp === "over2";
+
+  // [버그 수정] 기존 로직은 edu === "university"면 경력 체크 없이 무조건 possible을
+  // 반환했음 — 구법(3년)·신법(2년) 어느 기준으로도 원래 틀린 로직이었음.
+  // 대졸이어도 경력 기준을 충족해야 possible.
+  if (edu === "university" && meetsThreshold) return "possible";
+  if (edu === "university" && !meetsThreshold) return "conditional";
+  if (edu === "college" && meetsThreshold) return "possible";
+  if (job === "technical" && meetsThreshold) return "conditional";
   if (edu === "college") return "conditional";
-  if (exp === "over3") return "conditional";
+  if (meetsThreshold) return "conditional";
   return "impossible";
 }
 
 function getWpDiagnosis(
   edu: WpEducation,
   exp: WpExperience,
-  job: WpJob
+  job: WpJob,
+  priorityField: WpPriorityField
 ): DiagnosisResult | null {
-  const tone = computeWpResultTone(edu, exp, job);
+  const tone = computeWpResultTone(edu, exp, job, priorityField);
   if (!tone) return null;
 
+  const isPriority = priorityField === "yes";
+  const thresholdLabel = isPriority ? "1년" : "2년";
+  const meetsThreshold = isPriority ? exp !== "under1" : exp === "over2";
   const degreeOk = edu === "university" || edu === "college";
-  const experienceOk = exp === "over3";
   // 번역공증·영사인증은 사실상 전원에게 필요한 절차라, 항상 "확인 필요"로 표시해
   // 무료 진단만으로는 완전히 끝나지 않는다는 걸 자연스럽게 안내한다.
   const translationOk = false;
@@ -80,12 +103,12 @@ function getWpDiagnosis(
   let riskLevel: "low" | "medium" | "high";
 
   if (tone === "possible") {
-    feasibilityScore = edu === "university" ? 88 : 78;
+    feasibilityScore = edu === "university" ? 90 : 80;
     estimatedDays = { min: 30, max: 45 };
     riskLevel = "low";
   } else if (tone === "conditional") {
     feasibilityScore =
-      job === "technical" && exp === "over3"
+      job === "technical" && meetsThreshold
         ? 58
         : edu === "college"
         ? 52
@@ -108,11 +131,11 @@ function getWpDiagnosis(
         : "고졸 이하로 학력만으로는 전문직 요건 미충족, 경력으로 보완 필요",
     },
     {
-      label: "경력증명서 공증",
-      passed: experienceOk,
-      reason: experienceOk
-        ? "3년 이상 경력으로 공증 절차상 무리 없음"
-        : "경력 3년 미만 또는 미확인 — 전 직장 경력증명서 공증 절차 확인 필요",
+      label: `경력증명서 공증 (${thresholdLabel} 이상${isPriority ? " · 우선분야 적용" : ""})`,
+      passed: meetsThreshold,
+      reason: meetsThreshold
+        ? `${thresholdLabel} 이상 경력으로 공증 절차상 무리 없음 (시행령 219/2025/ND-CP 기준)`
+        : `경력이 ${thresholdLabel} 미만 또는 미확인 — 전 직장 경력증명서 공증 절차 확인 필요`,
     },
     {
       label: "번역·영사인증 서류",
@@ -123,7 +146,11 @@ function getWpDiagnosis(
 
   const rejectionRisks: { rank: number; reason: string }[] = [];
   if (!degreeOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "학력 요건 미충족" });
-  if (!experienceOk) rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "경력증명서 공증 미비" });
+  if (!meetsThreshold)
+    rejectionRisks.push({
+      rank: rejectionRisks.length + 1,
+      reason: `경력증명서 공증 미비 (${thresholdLabel} 이상 필요)`,
+    });
   rejectionRisks.push({ rank: rejectionRisks.length + 1, reason: "번역·영사인증 서류 누락" });
 
   return {
@@ -134,10 +161,10 @@ function getWpDiagnosis(
       checklist: items.map(({ label, passed }) => ({ label, passed })),
       note:
         tone === "possible"
-          ? "번역·영사인증 등 준비 서류에 따라 처리기간이 달라질 수 있습니다."
+          ? "번역·영사인증 등 준비 서류에 따라 처리기간이 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다."
           : tone === "conditional"
-          ? "보완 서류에 따라 결과가 달라질 수 있습니다. 정확한 판단은 전문가 검토가 필요합니다."
-          : "현재 조건으로는 진행이 어렵습니다. 직무 변경 등 다른 방법을 전문가와 상의해보세요.",
+          ? "보완 서류에 따라 결과가 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 판단은 반드시 전문가와 상의하시기 바랍니다."
+          : "현재 조건으로는 진행이 어렵습니다. 직무 변경 등 다른 방법을, 행정기관 통폐합과 법령 개정이 잦은 점을 감안해 반드시 전문가와 상의해보세요.",
     },
     expertBrief: {
       riskLevel,
@@ -148,7 +175,10 @@ function getWpDiagnosis(
         "한국에서 준비: 범죄경력증명서·학위증명서 영사인증 진행",
         "베트남 현지에서 준비: 여권 공증·건강진단서·거주지 확인서 확보",
         "초청 법인에서 준비: 외국인 채용수요 승인서(최소 30일 전 신청 필요) 확보",
-      ],
+        isPriority
+          ? "우선분야(기술·혁신·디지털전환) 해당 여부를 증빙할 자료(직무기술서 등) 준비 권장 — 최종 해당 여부는 전문가 확인 필요"
+          : "",
+      ].filter(Boolean),
     },
   };
 }
@@ -241,10 +271,10 @@ function getTrcDiagnosis(
       checklist: items.map(({ label, passed }) => ({ label, passed })),
       note:
         tone === "possible"
-          ? "재직증명서·사업자등록증 등 준비 서류에 따라 처리기간이 달라질 수 있습니다."
+          ? "재직증명서·사업자등록증 등 준비 서류에 따라 처리기간이 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다."
           : tone === "conditional"
-          ? "비자 전환 여부에 따라 결과가 달라질 수 있습니다. 정확한 판단은 전문가 검토가 필요합니다."
-          : "법인 등록이 선행되어야 합니다. 법인설립 절차를 먼저 진행해보세요.",
+          ? "비자 전환 여부에 따라 결과가 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 판단은 반드시 전문가와 상의하시기 바랍니다."
+          : "법인 등록이 선행되어야 합니다. 법인설립 절차를 먼저 진행해보세요. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다.",
     },
     expertBrief: {
       riskLevel,
@@ -321,8 +351,8 @@ function getTamtruDiagnosis(timing: TamtruTiming): DiagnosisResult | null {
       estimatedDays,
       checklist: items.map(({ label, passed }) => ({ label, passed })),
       note: timingOk
-        ? "임대차 계약서 등 준비 서류에 따라 신고 소요시간이 달라질 수 있습니다."
-        : "기한 초과 시 과태료가 부과될 수 있어, 신고와 함께 소명 준비가 필요합니다.",
+        ? "임대차 계약서 등 준비 서류에 따라 신고 소요시간이 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다."
+        : "기한 초과 시 과태료가 부과될 수 있어, 신고와 함께 소명 준비가 필요합니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다.",
     },
     expertBrief: {
       riskLevel,
@@ -418,10 +448,10 @@ function getLicenseDiagnosis(
       checklist: items.map(({ label, passed }) => ({ label, passed })),
       note:
         tone === "possible"
-          ? "공증 번역본 등 준비 서류에 따라 처리기간이 달라질 수 있습니다."
+          ? "공증 번역본 등 준비 서류에 따라 처리기간이 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다."
           : tone === "conditional"
-          ? "거주증(TRC) 발급이 먼저 필요합니다. TRC 가능성부터 확인해보세요."
-          : "본국 면허가 없어 전환이 아닌 신규 취득 절차를 전문가와 상의해보세요.",
+          ? "거주증(TRC) 발급이 먼저 필요합니다. TRC 가능성부터 확인해보세요. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다."
+          : "본국 면허가 없어 전환이 아닌 신규 취득 절차를, 행정기관 통폐합과 법령 개정이 잦은 점을 감안해 반드시 전문가와 상의해보세요.",
     },
     expertBrief: {
       riskLevel,
@@ -564,8 +594,8 @@ function getPermitCompanyDiagnosis(
       checklist: items.map(({ label, passed }) => ({ label, passed })),
       note:
         tone === "possible"
-          ? "번역·공증·아포스티유 등 준비 서류에 따라 처리기간이 달라질 수 있습니다."
-          : "자본금·사무실 등 준비 상태에 따라 결과가 달라질 수 있습니다. 정확한 판단은 전문가 검토가 필요합니다.",
+          ? "번역·공증·아포스티유 등 준비 서류에 따라 처리기간이 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 최신 요건은 반드시 전문가와 상의하시기 바랍니다."
+          : "자본금·사무실 등 준비 상태에 따라 결과가 달라질 수 있습니다. 베트남은 행정기관 통폐합과 법령 개정이 잦은 편이라, 정확한 판단은 반드시 전문가와 상의하시기 바랍니다.",
     },
     expertBrief: {
       riskLevel,
@@ -599,7 +629,13 @@ function getPermitCompanyDiagnosis(
 // ── 공용 진입점 ────────────────────────────────────────────────
 
 export type CheckDiagnosisInput =
-  | { service: "wp"; education: WpEducation; experience: WpExperience; job: WpJob }
+  | {
+      service: "wp";
+      education: WpEducation;
+      experience: WpExperience;
+      job: WpJob;
+      priorityField: WpPriorityField;
+    }
   | { service: "trc"; visa: TrcVisa; role: TrcRole; company: TrcCompany }
   | { service: "tamtru"; timing: TamtruTiming }
   | { service: "license"; trc: LicenseTrc; license: LicenseHasLicense }
@@ -616,7 +652,12 @@ export async function getCheckDiagnosis(
 ): Promise<DiagnosisResult | null> {
   switch (input.service) {
     case "wp":
-      return getWpDiagnosis(input.education, input.experience, input.job);
+      return getWpDiagnosis(
+        input.education,
+        input.experience,
+        input.job,
+        input.priorityField
+      );
     case "trc":
       return getTrcDiagnosis(input.visa, input.role, input.company);
     case "tamtru":
