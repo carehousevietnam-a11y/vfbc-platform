@@ -20,6 +20,7 @@ import {
   type WpEducation,
   type WpExperience,
   type WpJob,
+  type WpPriorityField,
 } from "@/lib/checkDiagnosis";
 
 // 외국인노동자 관리 전용 국가포털 (Cổng DVC quản lý người lao động nước ngoài).
@@ -29,6 +30,7 @@ const WP_OFFICIAL_URL = "https://dichvucong.gov.vn/";
 type Education = WpEducation;
 type Experience = WpExperience;
 type Job = WpJob;
+type PriorityField = WpPriorityField;
 type Result = "possible" | "conditional" | "impossible" | null;
 
 const CONSENT_SUMMARY =
@@ -214,6 +216,7 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
 export default function WpCheckPage() {
   const [education, setEducation] = useState<Education>(null);
   const [experience, setExperience] = useState<Experience>(null);
+  const [priorityField, setPriorityField] = useState<PriorityField>(null);
   const [job, setJob] = useState<Job>(null);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
@@ -230,24 +233,26 @@ export default function WpCheckPage() {
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
-  const result: Result = computeWpResultTone(education, experience, job);
-  const showResult = education && experience && job;
+  const result: Result = computeWpResultTone(education, experience, job, priorityField);
+  const showResult = !!education && !!experience && !!priorityField && !!job;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
   // 화면에는 가입 직후(2번째 화면)부터 노출하지만, 계산 자체는 미리 해둔다.
   useEffect(() => {
     let cancelled = false;
     if (showResult) {
-      getCheckDiagnosis({ service: "wp", education, experience, job }).then((res) => {
-        if (!cancelled) setDiagnosis(res);
-      });
+      getCheckDiagnosis({ service: "wp", education, experience, job, priorityField }).then(
+        (res) => {
+          if (!cancelled) setDiagnosis(res);
+        }
+      );
     } else {
       setDiagnosis(null);
     }
     return () => {
       cancelled = true;
     };
-  }, [education, experience, job, showResult]);
+  }, [education, experience, job, priorityField, showResult]);
 
   // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
   // 링크는 target="_blank"라 기본 이동은 그대로 두고, 이메일 발송만 별도로 실행한다.
@@ -266,6 +271,7 @@ export default function WpCheckPage() {
   function reset() {
     setEducation(null);
     setExperience(null);
+    setPriorityField(null);
     setJob(null);
     setLeadSubmitted(false);
     setLeadId(null);
@@ -440,8 +446,8 @@ export default function WpCheckPage() {
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   {[
-                    { key: "over3", label: "3년 이상" },
-                    { key: "one-to-three", label: "1~3년" },
+                    { key: "over2", label: "2년 이상" },
+                    { key: "one-to-two", label: "1~2년" },
                     { key: "under1", label: "1년 미만" },
                   ].map((opt) => (
                     <button
@@ -456,10 +462,36 @@ export default function WpCheckPage() {
               </div>
             )}
 
-            {education && experience && !job && (
+            {education && experience && !priorityField && (
               <div className="mt-8">
                 <p className="text-sm font-semibold text-gray-900">
-                  3. 담당하실 직무 형태는 무엇인가요?
+                  3. 담당 직무가 기술·혁신·디지털전환 관련 우선분야에 해당하나요?
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  IT·소프트웨어 개발, R&amp;D, 신기술 도입 등이 해당될 수 있습니다.
+                  정확한 해당 여부는 전문가 확인이 필요합니다.
+                </p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setPriorityField("yes")}
+                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+                  >
+                    네, 해당될 것 같습니다
+                  </button>
+                  <button
+                    onClick={() => setPriorityField("no")}
+                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+                  >
+                    아니요 / 잘 모르겠습니다
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {education && experience && priorityField && !job && (
+              <div className="mt-8">
+                <p className="text-sm font-semibold text-gray-900">
+                  4. 담당하실 직무 형태는 무엇인가요?
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-1">
                   {[
@@ -682,7 +714,7 @@ export default function WpCheckPage() {
                     승인율이 높습니다
                   </li>
                   <li className="text-xs text-gray-600 pl-1">
-                    · 경력증명서 — 관련 분야 3년 이상(기술직 5년 이상),
+                    · 경력증명서 — 관련 분야 2년 이상(우선분야는 1년 이상),
                     전 직장 직인·업무·근무기간 명시 필수
                   </li>
                 </ul>
