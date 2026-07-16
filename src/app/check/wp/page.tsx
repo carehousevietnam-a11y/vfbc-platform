@@ -232,7 +232,8 @@ export default function WpCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
-  const [rejectionRecordId, setRejectionRecordId] = useState<string | null>(null);
+  const rejectionRecordIdRef = useRef<string | null>(null);
+  const pendingRejectionInsertRef = useRef<Promise<void> | null>(null);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
@@ -258,25 +259,39 @@ export default function WpCheckPage() {
   }, [education, experience, job, priorityField, showResult]);
 
   // "네, 있습니다" 클릭 즉시 익명으로 저장 — 회원가입 여부와 무관하게 데이터가 남는다.
-  async function recordRejectionAnonymously() {
+  // 삽입 Promise를 ref에 저장해두고, "다음" 클릭 시 이 Promise가 끝날 때까지
+  // 기다린 뒤 사유를 업데이트한다 (빠르게 연속 클릭해도 순서가 꼬이지 않도록).
+  function recordRejectionAnonymously() {
     const id = crypto.randomUUID();
-    const { error } = await supabase.from("previous_rejections").insert({
-      id,
-      service_type: "wp",
-      source_page: "/check/wp",
-      reason: null,
-    });
-    if (!error) setRejectionRecordId(id);
-    else console.error("previous_rejections insert failed:", error);
+    pendingRejectionInsertRef.current = supabase
+      .from("previous_rejections")
+      .insert({
+        id,
+        service_type: "wp",
+        source_page: "/check/wp",
+        reason: null,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.error("previous_rejections insert failed:", error);
+          return;
+        }
+        rejectionRecordIdRef.current = id;
+      });
   }
 
-  // 사유를 입력하고 "다음"을 누른 시점에 사유를 업데이트하고 다음 질문으로 진행.
+  // 사유를 입력하고 "다음"을 누른 시점에 — 저장이 아직 끝나지 않았으면 먼저 기다린 뒤 —
+  // 사유를 업데이트하고 다음 질문으로 진행.
   async function finalizeRejectionStep() {
-    if (rejectionRecordId && rejectionReason.trim()) {
+    if (pendingRejectionInsertRef.current) {
+      await pendingRejectionInsertRef.current;
+    }
+    const id = rejectionRecordIdRef.current;
+    if (id && rejectionReason.trim()) {
       const { error } = await supabase
         .from("previous_rejections")
         .update({ reason: rejectionReason.trim() })
-        .eq("id", rejectionRecordId);
+        .eq("id", id);
       if (error) console.error("previous_rejections reason update failed:", error);
     }
     setRejectionStepDone(true);
@@ -315,7 +330,8 @@ export default function WpCheckPage() {
     setPreviousRejection(null);
     setRejectionReason("");
     setRejectionStepDone(false);
-    setRejectionRecordId(null);
+    rejectionRecordIdRef.current = null;
+    pendingRejectionInsertRef.current = null;
   }
 
   async function handleAgencyRequest() {
@@ -425,12 +441,16 @@ export default function WpCheckPage() {
     }
 
     // 익명으로 미리 저장해둔 거절 이력 기록이 있으면 이번 리드와 연결
-    if (rejectionRecordId) {
+    // (저장이 아직 진행 중일 수 있으므로 먼저 기다린다)
+    if (pendingRejectionInsertRef.current) {
+      await pendingRejectionInsertRef.current;
+    }
+    if (rejectionRecordIdRef.current) {
       try {
         await supabase
           .from("previous_rejections")
           .update({ linked_lead_id: leadId })
-          .eq("id", rejectionRecordId);
+          .eq("id", rejectionRecordIdRef.current);
       } catch (linkErr) {
         console.error("previous_rejections link failed:", linkErr);
       }
