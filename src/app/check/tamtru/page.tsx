@@ -109,6 +109,62 @@ function ConsentDetails({
   );
 }
 
+// 타 기관/타 대행사 거절 이력 입력 필드 — 선택 항목.
+// 답변은 crm_activities.meta.previousRejection에 저장되어 어드민에서 "재검토" 배지로 노출됨.
+function PreviousRejectionField({
+  value,
+  onChange,
+  reason,
+  onReasonChange,
+}: {
+  value: boolean | null;
+  onChange: (v: boolean) => void;
+  reason: string;
+  onReasonChange: (v: string) => void;
+}) {
+  return (
+    <div className="rounded-lg bg-gray-50 p-3">
+      <p className="text-xs font-medium text-gray-700">
+        (선택) 이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가
+        거절·반려되신 적이 있나요?
+      </p>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(true)}
+          className={`h-9 rounded-lg border text-xs font-semibold transition-colors ${
+            value === true
+              ? "border-blue-900 bg-blue-50 text-blue-900"
+              : "border-gray-200 text-gray-500 hover:border-gray-300"
+          }`}
+        >
+          네, 있습니다
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange(false)}
+          className={`h-9 rounded-lg border text-xs font-semibold transition-colors ${
+            value === false
+              ? "border-blue-900 bg-blue-50 text-blue-900"
+              : "border-gray-200 text-gray-500 hover:border-gray-300"
+          }`}
+        >
+          아니요
+        </button>
+      </div>
+      {value === true && (
+        <textarea
+          value={reason}
+          onChange={(e) => onReasonChange(e.target.value)}
+          placeholder="어떤 이유로 거절되셨는지 알려주세요 (아시는 만큼만 적어주셔도 됩니다)"
+          rows={3}
+          className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-xs focus:border-blue-900 focus:outline-none resize-none"
+        />
+      )}
+    </div>
+  );
+}
+
 // AI 진단 게이지 — 원형 진행률로 feasibilityScore를 표시
 function ScoreGauge({
   score,
@@ -225,6 +281,8 @@ export default function TamTruCheckPage() {
   const [agencyError, setAgencyError] = useState<string | null>(null);
   const [detailStage, setDetailStage] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
+  const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const messengers = MESSENGERS_KO;
   const showLegalEscalation = landlordIssue === true;
@@ -277,6 +335,8 @@ export default function TamTruCheckPage() {
     setAgencyError(null);
     setDetailStage(false);
     setDiagnosis(null);
+    setPreviousRejection(null);
+    setRejectionReason("");
   }
 
   async function handleAgencyRequest() {
@@ -360,6 +420,12 @@ export default function TamTruCheckPage() {
         ? {
             feasibilityScore: diagnosis.customerView.feasibilityScore,
             expertBrief: diagnosis.expertBrief,
+            previousRejection:
+              previousRejection === true
+                ? { rejected: true, reason: rejectionReason || null }
+                : previousRejection === false
+                ? { rejected: false }
+                : null,
           }
         : null,
     });
@@ -605,6 +671,12 @@ export default function TamTruCheckPage() {
                       className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                     />
                   </div>
+                  <PreviousRejectionField
+                    value={previousRejection}
+                    onChange={setPreviousRejection}
+                    reason={rejectionReason}
+                    onReasonChange={setRejectionReason}
+                  />
                   <div>
                     <label className="flex items-start gap-2 text-xs text-gray-600">
                       <input

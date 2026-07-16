@@ -182,6 +182,7 @@ export default async function AdminCasesPage({
             const risk = meta?.expertBrief?.riskLevel;
             const resultInfo = RESULT_LABELS[lead.result ?? ""] ?? null;
             const isAgency = agencyLeadIds.has(lead.id);
+            const isRejectedElsewhere = meta?.previousRejection?.rejected === true;
 
             return (
               <Link
@@ -198,6 +199,11 @@ export default async function AdminCasesPage({
                       {isAgency && (
                         <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
                           대행신청
+                        </span>
+                      )}
+                      {isRejectedElsewhere && (
+                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700">
+                          재검토
                         </span>
                       )}
                       {risk && (
@@ -219,6 +225,11 @@ export default async function AdminCasesPage({
                       {lead.phone}
                       {lead.email ? ` · ${lead.email}` : ""}
                     </p>
+                    {isRejectedElsewhere && meta?.previousRejection?.reason && (
+                      <p className="mt-1 text-[11px] text-red-600 line-clamp-1">
+                        거절 사유: {meta.previousRejection.reason}
+                      </p>
+                    )}
                   </div>
                   <div className="text-right shrink-0">
                     {typeof score === "number" && (
