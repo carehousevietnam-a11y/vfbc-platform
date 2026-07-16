@@ -6,20 +6,35 @@ import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 
 export const dynamic = "force-dynamic";
 
+// ── service_type 정규화 (화면 표시용, DB는 건드리지 않음) ──────
+// 구버전 코드에서 다른 값으로 저장된 리드를 최신 값과 동일하게 인식시키기 위한 별칭 처리.
+// 새로운 별칭이 생기면 여기 한 줄만 추가하면 됨.
+const SERVICE_TYPE_ALIASES: Record<string, string> = {
+  register_company: "permit_company", // register/company 페이지 구버전에서 저장된 값
+};
+
+function normalizeServiceType(serviceType: string | null | undefined): string | null {
+  if (!serviceType) return serviceType ?? null;
+  return SERVICE_TYPE_ALIASES[serviceType] ?? serviceType;
+}
+
 // ── 서비스 → 대분류 매핑 ────────────────────────────────
 // CHECK(직접확인하기)는 여기 목록에 명시적으로 추가해야 함.
 // VERIFY(직접검토하기)는 service_type이 "verify"로 시작하면 자동 인식.
 // PERMIT(직접허가받기)는 service_type이 "permit"으로 시작하면 자동 인식.
+// CONSULTATION(상담문의)은 service_type이 정확히 "consultation"이면 자동 인식.
 // 어느 쪽에도 안 걸리면 "unclassified"로 모아서 놓치지 않게 함.
 const CHECK_SERVICE_TYPES = ["wp", "trc", "tamtru", "driving-license"];
 
-type CategoryKey = "check" | "verify" | "permit" | "unclassified";
+type CategoryKey = "check" | "verify" | "permit" | "consultation" | "unclassified";
 
 function getCategory(serviceType: string | null | undefined): CategoryKey {
-  if (!serviceType) return "unclassified";
-  if (serviceType.startsWith("verify")) return "verify";
-  if (serviceType.startsWith("permit")) return "permit";
-  if (CHECK_SERVICE_TYPES.includes(serviceType)) return "check";
+  const normalized = normalizeServiceType(serviceType);
+  if (!normalized) return "unclassified";
+  if (normalized === "consultation") return "consultation";
+  if (normalized.startsWith("verify")) return "verify";
+  if (normalized.startsWith("permit")) return "permit";
+  if (CHECK_SERVICE_TYPES.includes(normalized)) return "check";
   return "unclassified";
 }
 
@@ -39,6 +54,10 @@ const CATEGORY_INFO: Record<
     label: "직접허가받기 (PERMIT)",
     badgeColor: "bg-purple-50 text-purple-800",
   },
+  consultation: {
+    label: "상담문의",
+    badgeColor: "bg-teal-50 text-teal-800",
+  },
   unclassified: {
     label: "미분류 (매핑 필요)",
     badgeColor: "bg-amber-50 text-amber-800",
@@ -50,6 +69,7 @@ const SERVICE_LABELS: Record<string, string> = {
   trc: "거주증(TRC)",
   tamtru: "땀주",
   "driving-license": "운전면허",
+  consultation: "일반 상담문의",
 };
 
 function getServiceLabel(serviceType: string) {
@@ -102,7 +122,13 @@ export default async function AdminCasesPage({
   if (leadsError) {
     return <ErrorScreen message={leadsError.message} />;
   }
-  const leads = allLeads ?? [];
+
+  // service_type을 정규화한 뒤 사용 — 구버전 값(register_company 등)을 최신 값과 통합.
+  // DB 원본은 건드리지 않고 화면 표시 단계에서만 치환.
+  const leads = (allLeads ?? []).map((l) => ({
+    ...l,
+    service_type: normalizeServiceType(l.service_type),
+  }));
 
   // 2) 대행신청(agency_upgrade_request) 활동 조회 → lead_id 집합으로 변환
   const { data: agencyActivities, error: agencyError } = await supabaseAdmin
@@ -340,7 +366,7 @@ export default async function AdminCasesPage({
     if (agencyLeadIds.has(l.id)) cur.agency += 1;
     byCategory.set(cat, cur);
   }
-  const orderedCats: CategoryKey[] = ["check", "verify", "permit"];
+  const orderedCats: CategoryKey[] = ["check", "verify", "permit", "consultation"];
   if (byCategory.has("unclassified")) orderedCats.push("unclassified");
 
   return (
@@ -352,7 +378,7 @@ export default async function AdminCasesPage({
         총 {leads.length}건. 대분류를 선택하면 서비스별로 볼 수 있습니다.
       </p>
 
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      <div className="mt-6 grid grid-cols-2 gap-3">
         {orderedCats.map((catKey) => {
           const stat = byCategory.get(catKey) ?? { checks: 0, agency: 0 };
           const info = CATEGORY_INFO[catKey];
@@ -381,8 +407,8 @@ export default async function AdminCasesPage({
       </div>
       {byCategory.has("unclassified") && (
         <p className="mt-4 text-xs text-amber-700">
-          매핑되지 않은 service_type이 있습니다 — 코드의 CHECK_SERVICE_TYPES 목록을
-          확인해주세요.
+          매핑되지 않은 service_type이 있습니다 — 코드의 CHECK_SERVICE_TYPES 또는
+          SERVICE_TYPE_ALIASES 목록을 확인해주세요.
         </p>
       )}
     </Shell>
