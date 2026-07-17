@@ -17,8 +17,8 @@ function getSealUrl(): string {
   return `${siteUrl}/vfbc-seal.png`;
 }
 
-// service_type 매칭 전용 보조 함수 — 하이픈("verify-admin")과 언더스코어
-// ("verify_admin") 표기가 혼재해도 같은 값으로 인식시키기 위한 것.
+// service_type 매칭 전용 보조 함수 — 하이픈("register_fire-safety")과 언더스코어
+// ("register_fire_safety") 표기가 혼재해도 같은 값으로 인식시키기 위한 것.
 // 실제 화면/이메일에 노출되는 문자열 자체를 바꾸는 게 아니라,
 // 딕셔너리 매칭에만 쓰는 정규화 키다. (admin/cases/page.tsx와 동일한 패턴)
 function toPrefixKey(value: string): string {
@@ -39,8 +39,11 @@ const SERVICE_LABEL: Record<string, string> = {
   verify_tax: "세무 서류 검토",
   verify_unclear: "불확실한 서류 검토",
   register_restaurant: "식당허가", // register/restaurant/page.tsx 실제 service_type 값 확인 완료
-  // 화장품/환경/소방/위생/의료기기는 실제 service_type 값이 아직 확인되지 않아
-  // 추가하지 않음. 확인되는 대로 한 줄씩 추가할 것.
+  register_cosmetics: "화장품허가", // register/cosmetics/page.tsx 실제 service_type 값 확인 완료
+  register_environment: "환경허가", // register/environment/page.tsx 실제 service_type 값 확인 완료
+  register_fire_safety: "소방허가", // register/fire-safety/page.tsx 실제 값은 "register_fire-safety"(하이픈) — toPrefixKey 정규화로 매칭됨
+  register_hygiene: "위생허가", // register/hygiene/page.tsx 실제 service_type 값 확인 완료
+  register_medical_device: "의료기기허가", // register/medical-device/page.tsx 실제 값은 "register_medical-device"(하이픈) — toPrefixKey 정규화로 매칭됨
 };
 
 function resolveServiceLabel(serviceType: string): string {

@@ -18,10 +18,10 @@ function normalizeServiceType(serviceType: string | null | undefined): string | 
   return SERVICE_TYPE_ALIASES[serviceType] ?? serviceType;
 }
 
-// 분류/라벨 매칭 전용 보조 함수 — 하이픈("register-restaurant")과 언더스코어
-// ("register_restaurant") 표기가 혼재해도 같은 접두사로 인식시키기 위한 것.
+// 분류/라벨 매칭 전용 보조 함수 — 하이픈("register_fire-safety")과 언더스코어
+// ("register_fire_safety") 표기가 혼재해도 같은 접두사/값으로 인식시키기 위한 것.
 // DB 원본이나 화면에 최종 노출되는 표시 문자열 자체를 바꾸는 게 아니라,
-// startsWith() 비교에만 사용하는 매칭용 키다.
+// startsWith()/딕셔너리 비교에만 사용하는 매칭용 키다.
 function toPrefixKey(value: string): string {
   return value.toLowerCase().replace(/-/g, "_");
 }
@@ -89,6 +89,11 @@ const SERVICE_LABELS: Record<string, string> = {
   "driving-license": "운전면허",
   consultation: "일반 상담문의",
   register_restaurant: "식당허가", // register/restaurant/page.tsx 실제 service_type 값 확인 완료
+  register_cosmetics: "화장품허가", // register/cosmetics/page.tsx 실제 service_type 값 확인 완료
+  register_environment: "환경허가", // register/environment/page.tsx 실제 service_type 값 확인 완료
+  register_fire_safety: "소방허가", // register/fire-safety/page.tsx 실제 값은 "register_fire-safety"(하이픈) — toPrefixKey 정규화로 매칭됨
+  register_hygiene: "위생허가", // register/hygiene/page.tsx 실제 service_type 값 확인 완료
+  register_medical_device: "의료기기허가", // register/medical-device/page.tsx 실제 값은 "register_medical-device"(하이픈) — toPrefixKey 정규화로 매칭됨
 };
 
 function getServiceLabel(serviceType: string) {
@@ -108,10 +113,9 @@ function getServiceLabel(serviceType: string) {
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
   if (key.startsWith("register")) {
-    // register_restaurant 외 나머지 5종(cosmetics/environment/fire-safety/hygiene/
-    // medical-device)은 실제 service_type 값을 아직 확인하지 못해 하드코딩하지 않고
-    // 접두사 기반으로 안전하게 표시한다. 값 확인되는 대로 SERVICE_LABELS에
-    // 한 줄씩 추가하면 됨.
+    // REGISTER 스텁 6종(식당/화장품/환경/소방/위생/의료기기)은 전부 SERVICE_LABELS에
+    // 반영 완료. 이 fallback은 향후 새로운 register_* 서비스가 추가될 때를 대비한
+    // 안전장치로 유지한다.
     const sub = key.replace(/^register_?/, "");
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
