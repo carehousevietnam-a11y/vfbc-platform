@@ -21,7 +21,10 @@ function normalizeServiceType(serviceType: string | null | undefined): string | 
 // ── 서비스 → 대분류 매핑 ────────────────────────────────
 // CHECK(직접확인하기)는 여기 목록에 명시적으로 추가해야 함.
 // VERIFY(직접검토하기)는 service_type이 "verify"로 시작하면 자동 인식.
-// PERMIT(직접허가받기)는 service_type이 "permit"으로 시작하면 자동 인식.
+// PERMIT(직접허가받기, 화면상 REGISTER)은 service_type이 "permit" 또는 "register"로
+// 시작하면 자동 인식 — 법인설립(permit_company)뿐 아니라 업종허가 스텁 6종
+// (register_restaurant 등)도 같은 대분류로 묶인다 (2026.7.17 세션에 register_ 접두사
+// 인식 추가, admin/leads/page.tsx의 분류 기준과 통일).
 // CONSULTATION(상담문의)은 service_type이 정확히 "consultation"이면 자동 인식.
 // 어느 쪽에도 안 걸리면 "unclassified"로 모아서 놓치지 않게 함.
 const CHECK_SERVICE_TYPES = ["wp", "trc", "tamtru", "driving-license"];
@@ -34,6 +37,7 @@ function getCategory(serviceType: string | null | undefined): CategoryKey {
   if (normalized === "consultation") return "consultation";
   if (normalized.startsWith("verify")) return "verify";
   if (normalized.startsWith("permit")) return "permit";
+  if (normalized.startsWith("register")) return "permit"; // register_* 업종허가 스텁 포함
   if (CHECK_SERVICE_TYPES.includes(normalized)) return "check";
   return "unclassified";
 }
@@ -70,6 +74,7 @@ const SERVICE_LABELS: Record<string, string> = {
   tamtru: "땀주",
   "driving-license": "운전면허",
   consultation: "일반 상담문의",
+  register_restaurant: "식당허가", // register/restaurant/page.tsx 실제 service_type 값 확인 완료
 };
 
 function getServiceLabel(serviceType: string) {
@@ -80,6 +85,14 @@ function getServiceLabel(serviceType: string) {
   }
   if (serviceType.startsWith("permit")) {
     const sub = serviceType.replace(/^permit_?/, "");
+    return sub ? `PERMIT · ${sub}` : "PERMIT";
+  }
+  if (serviceType.startsWith("register")) {
+    // register_restaurant 외 나머지 5종(cosmetics/environment/fire-safety/hygiene/
+    // medical-device)은 실제 service_type 값(하이픈·언더스코어 표기)을 아직 확인하지
+    // 못해 하드코딩하지 않고 접두사 기반으로 안전하게 표시한다. 값 확인되는 대로
+    // SERVICE_LABELS에 한 줄씩 추가하면 됨.
+    const sub = serviceType.replace(/^register_?/, "");
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
   return serviceType;
