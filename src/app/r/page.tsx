@@ -41,6 +41,14 @@ const RESULT_LABELS: Record<string, { label: string; tone: "emerald" | "amber" |
   impossible: { label: "불가", tone: "red" },
 };
 
+// service_type 매칭 전용 보조 함수 — 하이픈("verify-admin")과 언더스코어
+// ("verify_admin") 표기가 혼재해도 같은 값으로 인식시키기 위한 것.
+// 화면에 노출되는 문자열 자체를 바꾸는 게 아니라 매칭에만 쓰는 정규화 키다.
+// (admin/cases/page.tsx, lib/notify/email.ts와 동일한 패턴)
+function toPrefixKey(value: string): string {
+  return value.toLowerCase().replace(/-/g, "_");
+}
+
 // 서비스 유형별 1차 필요서류 체크리스트
 const REQUIRED_DOCS: Record<string, string[]> = {
   tamtru: ["여권 사본", "임대차 계약서 (또는 집주인 확인서)", "숙소 주소지 증빙"],
@@ -55,8 +63,11 @@ const REQUIRED_DOCS: Record<string, string[]> = {
 const DEFAULT_DOCS = ["여권 사본", "관련 증빙서류"];
 
 function getDocs(serviceType: string | null) {
-  if (serviceType && REQUIRED_DOCS[serviceType]) return REQUIRED_DOCS[serviceType];
-  if (serviceType?.startsWith("verify-")) return ["검토 대상 서류 사본"];
+  if (!serviceType) return DEFAULT_DOCS;
+  if (REQUIRED_DOCS[serviceType]) return REQUIRED_DOCS[serviceType];
+  const key = toPrefixKey(serviceType);
+  if (REQUIRED_DOCS[key]) return REQUIRED_DOCS[key];
+  if (key.startsWith("verify")) return ["검토 대상 서류 사본"];
   return DEFAULT_DOCS;
 }
 
