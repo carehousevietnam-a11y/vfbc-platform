@@ -18,13 +18,22 @@ function normalizeServiceType(serviceType: string | null | undefined): string | 
   return SERVICE_TYPE_ALIASES[serviceType] ?? serviceType;
 }
 
+// 분류/라벨 매칭 전용 보조 함수 — 하이픈("register-restaurant")과 언더스코어
+// ("register_restaurant") 표기가 혼재해도 같은 접두사로 인식시키기 위한 것.
+// DB 원본이나 화면에 최종 노출되는 표시 문자열 자체를 바꾸는 게 아니라,
+// startsWith() 비교에만 사용하는 매칭용 키다.
+function toPrefixKey(value: string): string {
+  return value.toLowerCase().replace(/-/g, "_");
+}
+
 // ── 서비스 → 대분류 매핑 ────────────────────────────────
 // CHECK(직접확인하기)는 여기 목록에 명시적으로 추가해야 함.
-// VERIFY(직접검토하기)는 service_type이 "verify"로 시작하면 자동 인식.
-// PERMIT(직접허가받기, 화면상 REGISTER)은 service_type이 "permit" 또는 "register"로
-// 시작하면 자동 인식 — 법인설립(permit_company)뿐 아니라 업종허가 스텁 6종
-// (register_restaurant 등)도 같은 대분류로 묶인다 (2026.7.17 세션에 register_ 접두사
-// 인식 추가, admin/leads/page.tsx의 분류 기준과 통일).
+// VERIFY(직접검토하기)는 service_type이 "verify_"/"verify-"로 시작하면 자동 인식.
+// PERMIT(직접허가받기, 화면상 REGISTER)은 service_type이 "permit_"/"permit-" 또는
+// "register_"/"register-"로 시작하면 자동 인식 — 법인설립(permit_company)뿐 아니라
+// 업종허가 스텁 6종(register_restaurant 등)도 같은 대분류로 묶인다
+// (2026.7.17 세션에 register_ 접두사 인식 추가, admin/leads/page.tsx와 분류 기준 통일 +
+// 하이픈/언더스코어 표기 혼재까지 흡수하도록 보강).
 // CONSULTATION(상담문의)은 service_type이 정확히 "consultation"이면 자동 인식.
 // 어느 쪽에도 안 걸리면 "unclassified"로 모아서 놓치지 않게 함.
 const CHECK_SERVICE_TYPES = ["wp", "trc", "tamtru", "driving-license"];
@@ -35,9 +44,14 @@ function getCategory(serviceType: string | null | undefined): CategoryKey {
   const normalized = normalizeServiceType(serviceType);
   if (!normalized) return "unclassified";
   if (normalized === "consultation") return "consultation";
-  if (normalized.startsWith("verify")) return "verify";
-  if (normalized.startsWith("permit")) return "permit";
-  if (normalized.startsWith("register")) return "permit"; // register_* 업종허가 스텁 포함
+
+  // 접두사 판별은 하이픈/언더스코어 표기를 통일한 키로 비교한다.
+  // CHECK_SERVICE_TYPES 화이트리스트 비교(driving-license 등 기존 값)는
+  // 원본 normalized 값 그대로 사용해 기존 동작에 영향을 주지 않는다.
+  const prefixKey = toPrefixKey(normalized);
+  if (prefixKey.startsWith("verify")) return "verify";
+  if (prefixKey.startsWith("permit")) return "permit";
+  if (prefixKey.startsWith("register")) return "permit"; // register_* 업종허가 스텁 포함
   if (CHECK_SERVICE_TYPES.includes(normalized)) return "check";
   return "unclassified";
 }
@@ -78,21 +92,27 @@ const SERVICE_LABELS: Record<string, string> = {
 };
 
 function getServiceLabel(serviceType: string) {
+  // 1) 원본 그대로 먼저 매칭 (기존 동작 유지)
   if (SERVICE_LABELS[serviceType]) return SERVICE_LABELS[serviceType];
-  if (serviceType.startsWith("verify")) {
-    const sub = serviceType.replace(/^verify_?/, "");
+
+  // 2) 하이픈/언더스코어 표기가 달라 못 찾은 경우, 정규화한 키로 한 번 더 시도
+  const key = toPrefixKey(serviceType);
+  if (SERVICE_LABELS[key]) return SERVICE_LABELS[key];
+
+  if (key.startsWith("verify")) {
+    const sub = key.replace(/^verify_?/, "");
     return sub ? `VERIFY · ${sub}` : "VERIFY";
   }
-  if (serviceType.startsWith("permit")) {
-    const sub = serviceType.replace(/^permit_?/, "");
+  if (key.startsWith("permit")) {
+    const sub = key.replace(/^permit_?/, "");
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
-  if (serviceType.startsWith("register")) {
+  if (key.startsWith("register")) {
     // register_restaurant 외 나머지 5종(cosmetics/environment/fire-safety/hygiene/
-    // medical-device)은 실제 service_type 값(하이픈·언더스코어 표기)을 아직 확인하지
-    // 못해 하드코딩하지 않고 접두사 기반으로 안전하게 표시한다. 값 확인되는 대로
-    // SERVICE_LABELS에 한 줄씩 추가하면 됨.
-    const sub = serviceType.replace(/^register_?/, "");
+    // medical-device)은 실제 service_type 값을 아직 확인하지 못해 하드코딩하지 않고
+    // 접두사 기반으로 안전하게 표시한다. 값 확인되는 대로 SERVICE_LABELS에
+    // 한 줄씩 추가하면 됨.
+    const sub = key.replace(/^register_?/, "");
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
   return serviceType;
