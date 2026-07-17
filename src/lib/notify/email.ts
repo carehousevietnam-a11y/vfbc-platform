@@ -109,6 +109,11 @@ export async function sendResultEmail(
 
   const isAgencyRequest = result === "agency";
   const isDiagnosis = !!resultLabel;
+  // VERIFY(서류/상황 검토) 서비스 여부 — service_type이 "verify"로 시작하는 값은
+  // 하이픈("verify-admin")/언더스코어("verify_admin") 표기가 혼재할 수 있으므로
+  // 접두사만으로 판별한다. VERIFY는 CHECK의 "셀프등록 응원" 문구, "대행 신청" 문구가
+  // 맞지 않는 별개 서비스이므로 이 값으로 문구를 분기한다.
+  const isVerifyService = !!serviceType && serviceType.startsWith("verify");
 
   const selfActionLabel = serviceType === "tamtru" ? "자가등록" : "직접신청";
 
@@ -119,15 +124,21 @@ export async function sendResultEmail(
     ? `[VFBCAI] ${name}님의 ${serviceLabel} 대행 신청이 접수되었습니다`
     : isDiagnosis
     ? `[VFBCAI] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
+    : isVerifyService
+    ? `[VFBCAI] ${name}님의 검토 요청이 접수되었습니다`
     : `[VFBCAI] ${name}님의 ${serviceLabel} ${selfActionLabel} 진행을 응원합니다`;
 
   const headline = isAgencyRequest
     ? `${name}님, ${serviceLabel} 대행 신청이 완료되었습니다`
     : isDiagnosis
     ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
+    : isVerifyService
+    ? `${name}님, 검토 요청이 접수되었습니다`
     : `${name}님, ${selfActionLabel} 진행을 응원합니다`;
 
-  const buttonLabel = isAgencyRequest ? null : "막히면 빨리 도움신청하기";
+  // VERIFY 접수 확인 단계는 아직 "자가등록/직접신청" 같은 자기결정 행동이 존재하지
+  // 않으므로(단순 서류 접수 상태) 자기결정형 CTA 버튼을 노출하지 않는다.
+  const buttonLabel = isAgencyRequest || isVerifyService ? null : "막히면 빨리 도움신청하기";
 
   const HOOK_TEXT =
     "혼자 시도하다가 기한을 놓치거나 잘못된 서류기입으로 반려·재제출로 시간이 두 배로 걸리거나 접수 자체가 안될 수도 있어요.";
@@ -172,6 +183,15 @@ export async function sendResultEmail(
          <p style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">${resultLabel}</p>
        </div>
        <p style="font-size: 15px; font-weight: 700; color: #b45309; margin: 0 0 24px; line-height: 1.6;">${HOOK_TEXT}</p>`;
+  } else if (isVerifyService) {
+    // VERIFY(직접검토하기) 전용 문구 — CHECK의 "셀프등록 축하" 톤과 분리.
+    // 아직 결과가 나오지 않은 접수 확인 단계이므로 확정적 표현을 쓰지 않는다.
+    bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 12px; line-height: 1.6;">
+        검토 요청이 정상적으로 접수되었습니다. 제출하신 서류와 내용을 확인하고 있으며, 검토 결과가 준비되는 대로 안내드리겠습니다.
+       </p>
+       <p style="font-size: 13px; color: #6b7280; margin: 0 0 24px; line-height: 1.6;">
+        최종 판단은 전문가 검토를 통해 확정됩니다.
+       </p>`;
   } else {
     bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
         베트남어로 된 서류와 낯선 행정 절차, 혼자 진행하시기 쉽지 않으셨을 텐데 여기까지 잘 오셨습니다. 앞으로도 끝까지 응원할게요! 🎉

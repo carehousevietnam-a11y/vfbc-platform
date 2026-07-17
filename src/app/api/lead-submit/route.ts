@@ -198,8 +198,16 @@ export async function POST(req: NextRequest) {
     //      이메일을 보내지 않는다 (피로도 방지). 실제 포털 클릭·대행 확정 시점에
     //      /api/agency-confirm이 대신 발송한다 (추후 SNS 채널도 여기서 함께 처리).
     //    - "agency"(대행 폼 직접 제출)는 그 자체가 확정 행동이므로 즉시 발송한다.
+    //    - VERIFY(service_type이 "verify"로 시작)는 result가 항상 null이라
+    //      위 DEFERRED_RESULTS 문자열 매칭에 걸리지 않는다. VERIFY는 리드 제출
+    //      시점에 아직 서류 검토가 시작되지 않은 상태이므로, result 값과 무관하게
+    //      최초 제출 시에는 발송을 보류한다. (검토 완료 후 발송하는 트리거는
+    //      아직 구현되어 있지 않음 — 이번 수정은 "잘못된 즉시발송 방지"까지만 처리)
     const recipientEmail = email && email.trim() ? email.trim() : null;
-    const isDeferred = DEFERRED_RESULTS.includes(leadRow?.result ?? "");
+    const leadServiceType = leadRow?.service_type ?? "";
+    const isVerifyService = leadServiceType.startsWith("verify");
+    const isDeferred =
+      isVerifyService || DEFERRED_RESULTS.includes(leadRow?.result ?? "");
 
     if (recipientEmail && !isDeferred) {
       const emailResult = await sendResultEmail({
