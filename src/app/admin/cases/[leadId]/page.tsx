@@ -1,4 +1,10 @@
 // src/app/admin/cases/[leadId]/page.tsx
+//
+// CHECK(WP/TRC/땀주/운전면허) + REGISTER(PERMIT, 법인설립 등) 공용 리드 상세페이지.
+// checkDiagnosis.ts가 CHECK/PERMIT 전부 동일한 DiagnosisResult
+// (customerView + expertBrief) 구조로 결과를 만들기 때문에,
+// crm_activities.meta.expertBrief를 읽는 렌더링 로직은 두 엔진에 공통으로 재사용된다.
+// service_type 접두사(permit_)만으로 엔진을 구분해 라벨/뱃지만 다르게 표시한다.
 
 import Link from "next/link";
 import { ArrowLeft, AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -6,12 +12,25 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export const dynamic = "force-dynamic";
 
+// CHECK 4종 + REGISTER(PERMIT) 서비스 라벨.
+// 신규 업종허가(식당/소방/위생/환경/화장품/의료기기) 착수 시
+// "permit_restaurant" 등의 키만 이 표에 추가하면 된다.
 const SERVICE_LABELS: Record<string, string> = {
   wp: "노동허가(WP)",
   trc: "거주증(TRC)",
   tamtru: "땀주",
   "driving-license": "운전면허",
+  permit_company: "법인설립",
+  register_company: "법인설립", // 구버전 값(화면 표시만 통합, DB는 안 건드림)
 };
+
+// service_type 접두사로 어느 엔진(CHECK/REGISTER)인지 판별해 상단 라벨에 반영.
+function getEngineLabel(serviceType: string): string {
+  if (serviceType.startsWith("permit_") || serviceType === "register_company") {
+    return "직접허가받기(REGISTER)";
+  }
+  return "직접확인하기(CHECK)";
+}
 
 const RISK_LABELS: Record<string, { label: string; color: string }> = {
   low: { label: "낮음", color: "text-emerald-700 bg-emerald-50" },
@@ -59,6 +78,10 @@ export default async function AdminCaseDetailPage({
     );
   }
 
+  const serviceType = lead.service_type as string;
+  const serviceLabel = SERVICE_LABELS[serviceType] ?? serviceType;
+  const engineLabel = getEngineLabel(serviceType);
+
   const riskInfo = expertBrief?.riskLevel
     ? RISK_LABELS[expertBrief.riskLevel]
     : null;
@@ -75,7 +98,7 @@ export default async function AdminCaseDetailPage({
         </Link>
 
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC 관리자 · {SERVICE_LABELS[lead.service_type] ?? lead.service_type}
+          VFBCAI 관리자 · {engineLabel} · {serviceLabel}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
           {lead.name}
