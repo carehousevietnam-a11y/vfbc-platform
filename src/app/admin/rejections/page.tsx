@@ -1,7 +1,7 @@
 // src/app/admin/rejections/page.tsx
 //
 // previous_rejections 테이블 조회 화면.
-// 서비스별(WP/TRC/땀주/운전면허) 대분류 카드 → 개별 기록 목록 2단계 구조.
+// 서비스별(WP/TRC/땀주/운전면허/법인설립) 대분류 카드 → 개별 기록 목록 2단계 구조.
 // 리드로 전환된 기록은 해당 고객 상세 프로필(/admin/cases/[id])로 바로 연결됨.
 
 import Link from "next/link";
@@ -15,6 +15,7 @@ const SERVICE_LABELS: Record<string, string> = {
   trc: "거주증(TRC)",
   tamtru: "땀주",
   "driving-license": "운전면허",
+  permit_company: "법인설립",
 };
 
 function getServiceLabel(serviceType: string) {

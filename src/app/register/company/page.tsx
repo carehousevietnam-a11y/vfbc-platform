@@ -227,6 +227,11 @@ export default function PermitCompanyCheckPage() {
   const [agencyError, setAgencyError] = useState<string | null>(null);
   const [detailStage, setDetailStage] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
+  const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const rejectionRecordIdRef = useRef<string | null>(null);
+  const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
 
@@ -258,6 +263,46 @@ export default function PermitCompanyCheckPage() {
     };
   }, [investorType, capital, office, residentRep, showResult]);
 
+  // "네, 있습니다" 클릭 즉시 익명으로 저장 — 회원가입 여부와 무관하게 데이터가 남는다.
+  // 삽입 Promise를 ref에 저장해두고, "다음" 클릭 시 이 Promise가 끝날 때까지
+  // 기다린 뒤 사유를 업데이트한다 (빠르게 연속 클릭해도 순서가 꼬이지 않도록).
+  // (check/wp/page.tsx와 동일한 패턴)
+  function recordRejectionAnonymously() {
+    const id = crypto.randomUUID();
+    pendingRejectionInsertRef.current = supabase
+      .from("previous_rejections")
+      .insert({
+        id,
+        service_type: "permit_company",
+        source_page: "/register/company",
+        reason: null,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.error("previous_rejections insert failed:", error);
+          return;
+        }
+        rejectionRecordIdRef.current = id;
+      });
+  }
+
+  // 사유를 입력하고 "다음"을 누른 시점에 — 저장이 아직 끝나지 않았으면 먼저 기다린 뒤 —
+  // 사유를 업데이트하고 다음 질문으로 진행.
+  async function finalizeRejectionStep() {
+    if (pendingRejectionInsertRef.current) {
+      await pendingRejectionInsertRef.current;
+    }
+    const id = rejectionRecordIdRef.current;
+    if (id && rejectionReason.trim()) {
+      const { error } = await supabase
+        .from("previous_rejections")
+        .update({ reason: rejectionReason.trim() })
+        .eq("id", id);
+      if (error) console.error("previous_rejections reason update failed:", error);
+    }
+    setRejectionStepDone(true);
+  }
+
   function handleSelfPortalClick() {
     if (!leadId || selfNotifySentRef.current) return;
     selfNotifySentRef.current = true;
@@ -286,6 +331,11 @@ export default function PermitCompanyCheckPage() {
     setAgencyError(null);
     setDetailStage(false);
     setDiagnosis(null);
+    setPreviousRejection(null);
+    setRejectionReason("");
+    setRejectionStepDone(false);
+    rejectionRecordIdRef.current = null;
+    pendingRejectionInsertRef.current = null;
   }
 
   async function handleAgencyRequest() {
@@ -368,6 +418,12 @@ export default function PermitCompanyCheckPage() {
         ? {
             feasibilityScore: diagnosis.customerView.feasibilityScore,
             expertBrief: diagnosis.expertBrief,
+            previousRejection:
+              previousRejection === true
+                ? { rejected: true, reason: rejectionReason || null }
+                : previousRejection === false
+                ? { rejected: false }
+                : null,
           }
         : null,
     });
@@ -384,6 +440,22 @@ export default function PermitCompanyCheckPage() {
       }
     } catch (apiErr) {
       console.error("lead-submit fetch failed:", apiErr);
+    }
+
+    // 익명으로 미리 저장해둔 거절 이력 기록이 있으면 이번 리드와 연결
+    // (저장이 아직 진행 중일 수 있으므로 먼저 기다린다)
+    if (pendingRejectionInsertRef.current) {
+      await pendingRejectionInsertRef.current;
+    }
+    if (rejectionRecordIdRef.current) {
+      try {
+        await supabase
+          .from("previous_rejections")
+          .update({ linked_lead_id: newLeadId })
+          .eq("id", rejectionRecordIdRef.current);
+      } catch (linkErr) {
+        console.error("previous_rejections link failed:", linkErr);
+      }
     }
 
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
@@ -414,10 +486,61 @@ export default function PermitCompanyCheckPage() {
           투자자 유형에 따라 필요서류가 크게 달라집니다.
         </p>
 
-        {!investorChoice && (
+        {/* 신규: 거절이력 질문 — check/wp/page.tsx와 동일한 패턴 */}
+        {!rejectionStepDone && (
           <div className="mt-8">
             <p className="text-sm font-semibold text-gray-900">
-              1. 어떤 방식으로 투자하시나요?
+              1. 이전에 다른 곳(정부기관 또는 타 대행사)에서 법인설립을
+              신청하셨다가 거절·반려되신 적이 있나요?
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  setPreviousRejection(true);
+                  recordRejectionAnonymously();
+                }}
+                className={`rounded-2xl border p-4 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${
+                  previousRejection === true
+                    ? "border-blue-900 bg-blue-50 text-blue-900"
+                    : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5"
+                }`}
+              >
+                네, 있습니다
+              </button>
+              <button
+                onClick={() => {
+                  setPreviousRejection(false);
+                  setRejectionStepDone(true);
+                }}
+                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              >
+                아니요
+              </button>
+            </div>
+            {previousRejection === true && (
+              <div className="mt-4">
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
+                />
+                <button
+                  onClick={finalizeRejectionStep}
+                  className="mt-3 w-full h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+                >
+                  다음
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {rejectionStepDone && !investorChoice && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              2. 어떤 방식으로 투자하시나요?
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-1">
               {[
@@ -438,7 +561,7 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {isLocalNominee && (
+        {rejectionStepDone && isLocalNominee && (
           <div className="mt-8 rounded-3xl bg-white border border-red-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <AlertTriangle className="text-red-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
@@ -468,10 +591,10 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {investorType && !capital && (
+        {rejectionStepDone && investorType && !capital && (
           <div className="mt-8">
             <p className="text-sm font-semibold text-gray-900">
-              2.{" "}
+              3.{" "}
               {isCorporate
                 ? "감사보고서 또는 은행 잔고증명서가 준비되어 있나요?"
                 : "투자금 이상의 개인 은행 잔고증명서가 있나요?"}
@@ -493,10 +616,10 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {investorType && capital && !office && (
+        {rejectionStepDone && investorType && capital && !office && (
           <div className="mt-8">
             <p className="text-sm font-semibold text-gray-900">
-              3. 사무실 임대차 계약을 체결하셨나요?
+              4. 사무실 임대차 계약을 체결하셨나요?
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
@@ -515,10 +638,10 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {investorType && capital && office && !residentRep && (
+        {rejectionStepDone && investorType && capital && office && !residentRep && (
           <div className="mt-8">
             <p className="text-sm font-semibold text-gray-900">
-              4. 대표자(법인장)가 베트남에 상주하며 근무할 예정인가요?
+              5. 대표자(법인장)가 베트남에 상주하며 근무할 예정인가요?
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
