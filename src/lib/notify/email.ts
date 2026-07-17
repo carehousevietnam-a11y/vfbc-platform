@@ -13,7 +13,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // (check/*/page.tsx, r/page.tsx)과 디자인 컨셉만 동일하게 유지하면 된다.
 // (플랫폼용 SVG도 같은 문제가 생기면 동일하게 이 PNG로 교체 권장)
 function getSealUrl(): string {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc-platform.vercel.app";
   return `${siteUrl}/vfbc-seal.png`;
 }
 
@@ -112,7 +112,7 @@ export async function sendResultEmail(
 
   const selfActionLabel = serviceType === "tamtru" ? "자가등록" : "직접신청";
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc-platform.vercel.app";
   const resultUrl = `${siteUrl}/r?token=${token}`;
 
   const subject = isAgencyRequest

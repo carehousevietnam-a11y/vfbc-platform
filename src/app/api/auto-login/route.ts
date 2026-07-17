@@ -45,7 +45,11 @@ export async function POST(req: NextRequest) {
     }
 
     const email = authUserData.user.email;
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+    // 환경변수가 없으면 현재 정상 작동 중인 배포주소로 폴백.
+    // env 값 끝에 "/"가 붙어 있어도 "//r?..." 형태로 중복되지 않도록 제거 후 조합.
+    const rawSiteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://vfbc-platform.vercel.app";
+    const siteUrl = rawSiteUrl.replace(/\/+$/, "");
     const redirectTo = `${siteUrl}/r?token=${encodeURIComponent(token)}&al=1`;
 
     const { data: linkData, error: linkError } =
