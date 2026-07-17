@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
     <main className="min-h-screen bg-[#fafafa] flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 text-center">
-          VFBC 관리자
+          VFBCAI 관리자
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 text-center">
           접근 코드 입력

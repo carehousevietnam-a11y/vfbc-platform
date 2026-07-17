@@ -100,7 +100,7 @@ export default function AdminLeadsPage() {
       <div className="h-[3px] bg-blue-900" />
       <div className="mx-auto max-w-6xl px-6 py-10">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC ADMIN
+          VFBCAI ADMIN
         </p>
         <div className="mt-2 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">

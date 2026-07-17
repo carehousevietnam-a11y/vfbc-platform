@@ -314,7 +314,7 @@ export default function VerifyTaxPage() {
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
-              VFBC AI 사전진단
+              VFBCAI 사전진단
             </span>
             <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
             <p className="mt-1 text-xs text-gray-500 leading-relaxed">

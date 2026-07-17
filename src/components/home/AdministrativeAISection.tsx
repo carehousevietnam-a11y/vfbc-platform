@@ -35,7 +35,7 @@ export default function AdministrativeAISection() {
           </div>
           <div>
             <p className="text-sm font-bold">정확한 해결이 필요하다면 전문가와 상담하세요</p>
-            <p className="mt-0.5 text-xs text-blue-200">VFBC 전문 상담사가 맞춤 솔루션을 제공합니다</p>
+            <p className="mt-0.5 text-xs text-blue-200">VFBCAI 전문 상담사가 맞춤 솔루션을 제공합니다</p>
           </div>
         </div>
         <Link

@@ -221,7 +221,7 @@ function ResultContent() {
       <div className="h-[3px] bg-blue-900" />
       <div className="mx-auto max-w-xl px-6 py-10">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC · 결과 확인
+          VFBCAI · 결과 확인
         </p>
 
         {(status === "loading" || status === "preparing") && (
@@ -432,7 +432,7 @@ function ResultContent() {
                 <div className="flex justify-center">
                   <img
                     src="/vfbc-seal.png"
-                    alt="VFBC AI 접수완료 확인 도장"
+                    alt="VFBCAI 접수완료 확인 도장"
                     width={140}
                     height={140}
                   />

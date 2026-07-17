@@ -1,6 +1,6 @@
 // src/lib/verifyDiagnosis.ts
 //
-// VFBC VERIFY 엔진의 진단 로직을 담당하는 단일 진입점.
+// VFBCAI VERIFY 엔진의 진단 로직을 담당하는 단일 진입점.
 //
 // [v2 변경사항 — 2026.7.17]
 // 기존: 카테고리별 완전 고정 체크리스트/expertBrief (하드코딩, 입력값 무관)
@@ -331,7 +331,7 @@ export async function getDiagnosis(
   input: { fileUrl: string | null; fileName: string | null }
 ): Promise<DiagnosisResult> {
   // TODO(다음 단계): input.fileUrl을 실제로 분석(OCR/비전 모델)하고,
-  // VFBC 규칙엔진 + Supabase 법령·행정자료 테이블 조회 결과를 반영해
+  // VFBCAI 규칙엔진 + Supabase 법령·행정자료 테이블 조회 결과를 반영해
   // 서류 내용 자체에 근거한 맞춤 진단으로 확장. 현재는 서류 첨부
   // 여부·형식이라는 실제 입력값 기반의 규칙 진단 단계.
   if (!CATEGORY_BASE[category]) return DEFAULT_DIAGNOSIS;

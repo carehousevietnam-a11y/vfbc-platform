@@ -808,7 +808,7 @@ export default function PermitCompanyCheckPage() {
         {showResult && result === "possible" && agencyRequested && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <div className="flex justify-center">
-              <img src="/vfbc-seal.png" alt="VFBC AI 접수완료 확인 도장" width={160} height={160} />
+              <img src="/vfbc-seal.png" alt="VFBCAI 접수완료 확인 도장" width={160} height={160} />
             </div>
             <p className="mt-1 text-[10px] text-gray-400 text-center italic">
               Vietnam Foreign Business Verification &amp; Compliance AI Center

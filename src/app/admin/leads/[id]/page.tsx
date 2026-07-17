@@ -86,7 +86,7 @@ export default async function AdminLeadDetailPage({
         </Link>
 
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC 관리자 · VERIFY · {SERVICE_LABELS[lead.service_type as string] ?? lead.service_type}
+          VFBCAI 관리자 · VERIFY · {SERVICE_LABELS[lead.service_type as string] ?? lead.service_type}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
           {lead.name}

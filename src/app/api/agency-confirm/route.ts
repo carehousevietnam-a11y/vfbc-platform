@@ -12,7 +12,7 @@ const supabaseAdmin = createClient(
 // 호출된다. 호출 지점 예시:
 // 1) /r 결과확인 페이지의 "대행 신청하기" 버튼 → type 없음(기본값 agency), token 사용
 // 2) 땀주/TRC/WP의 관할기관 포털 링크 클릭(직접 신청 선택) → type: "self", leadId 사용
-// 3) 땀주 셀프등록의 "대신 VFBC 대행 신청하기" 업그레이드 버튼 → type: "agency", leadId 사용
+// 3) 땀주 셀프등록의 "대신 VFBCAI 대행 신청하기" 업그레이드 버튼 → type: "agency", leadId 사용
 //
 // 채널 확장 메모: 현재는 이메일(channel: "email")만 실제로 발송한다.
 // 나중에 카카오톡/잘로 API가 연동되면, 아래 notifications insert 부분에

@@ -191,7 +191,7 @@ function ConsultationForm() {
         </Link>
 
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          VFBC · 상담신청
+          VFBCAI · 상담신청
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
           전문가 상담 신청

@@ -116,10 +116,10 @@ export async function sendResultEmail(
   const resultUrl = `${siteUrl}/r?token=${token}`;
 
   const subject = isAgencyRequest
-    ? `[VFBC] ${name}님의 ${serviceLabel} 대행 신청이 접수되었습니다`
+    ? `[VFBCAI] ${name}님의 ${serviceLabel} 대행 신청이 접수되었습니다`
     : isDiagnosis
-    ? `[VFBC] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
-    : `[VFBC] ${name}님의 ${serviceLabel} ${selfActionLabel} 진행을 응원합니다`;
+    ? `[VFBCAI] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
+    : `[VFBCAI] ${name}님의 ${serviceLabel} ${selfActionLabel} 진행을 응원합니다`;
 
   const headline = isAgencyRequest
     ? `${name}님, ${serviceLabel} 대행 신청이 완료되었습니다`
@@ -157,7 +157,7 @@ export async function sendResultEmail(
     const docsSection =
       serviceType === "wp" ? WP_DETAILED_GUIDE_HTML : docsHtmlSimple(getDocs(serviceType));
     bodyHtml = `<div style="text-align: center; margin: 0 0 4px;">
-        <img src="${getSealUrl()}" width="176" height="176" alt="VFBC AI 접수완료 확인 도장" style="display:inline-block;" />
+        <img src="${getSealUrl()}" width="176" height="176" alt="VFBCAI 접수완료 확인 도장" style="display:inline-block;" />
       </div>
       <p style="font-size: 10px; color: #9ca3af; font-style: italic; text-align: center; margin: 0 0 20px;">
         Vietnam Foreign Business Verification &amp; Compliance AI Center
@@ -189,7 +189,7 @@ export async function sendResultEmail(
   <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #fafafa;">
     <div style="height: 3px; background: #1e3a8a; margin-bottom: 24px; border-radius: 2px;"></div>
     <p style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #9ca3af; margin: 0 0 8px;">
-      VFBC · 베트남 외국인 비즈니스센터청
+      VFBCAI · 베트남 외국인 비즈니스센터청
     </p>
     <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 16px; line-height: 1.4;">
       ${headline}
@@ -197,14 +197,14 @@ export async function sendResultEmail(
     ${bodyHtml}
     ${buttonHtml}
     <p style="font-size: 12px; color: #9ca3af; margin-top: 28px; line-height: 1.6;">
-      본 메일은 VFBC 서비스 이용 중 남기신 연락처로 발송되었습니다.<br/>
+      본 메일은 VFBCAI 서비스 이용 중 남기신 연락처로 발송되었습니다.<br/>
       링크는 30일간 유효합니다.
     </p>
   </div>`;
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "VFBC <onboarding@resend.dev>",
+      from: "VFBCAI <onboarding@resend.dev>",
       to,
       subject,
       html,
