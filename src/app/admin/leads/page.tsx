@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { RefreshCw, Search } from "lucide-react";
 
@@ -29,12 +30,16 @@ const CATEGORY_TABS: { key: CategoryKey; label: string }[] = [
   { key: "consultation", label: "상담" },
 ];
 
+// admin/cases와 동일한 분류 원칙 사용:
+// permit_ / register_ 접두사 → register, verify_ 접두사 → verify,
+// consultation은 정확히 일치, 나머지(WP/TRC/땀주/운전면허 등)는 check
 function getCategory(serviceType: string | null): CategoryKey {
   if (!serviceType) return "all";
-  if (serviceType.startsWith("register")) return "register";
-  if (serviceType.startsWith("verify")) return "verify";
+  if (serviceType.startsWith("permit_")) return "register";
+  if (serviceType.startsWith("register_")) return "register";
+  if (serviceType.startsWith("verify_")) return "verify";
   if (serviceType === "consultation") return "consultation";
-  return "check"; // tamtru, trc, wp 등
+  return "check"; // tamtru, trc, wp, driving-license 등
 }
 
 function formatDate(iso: string) {
@@ -48,6 +53,7 @@ function formatDate(iso: string) {
 }
 
 export default function AdminLeadsPage() {
+  const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<CategoryKey>("all");
@@ -94,6 +100,10 @@ export default function AdminLeadsPage() {
     });
     return map;
   }, [leads]);
+
+  function goToDetail(id: string) {
+    router.push(`/admin/leads/${id}`);
+  }
 
   return (
     <main className="min-h-screen bg-[#fafafa]">
@@ -185,7 +195,17 @@ export default function AdminLeadsPage() {
                 filtered.map((lead) => (
                   <tr
                     key={lead.id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition-colors"
+                    onClick={() => goToDetail(lead.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        goToDetail(lead.id);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${lead.name || "이름 없음"} 리드 상세보기`}
+                    className="cursor-pointer border-b border-gray-50 last:border-0 outline-none transition-colors hover:bg-gray-50/60 focus-visible:bg-blue-50/60 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-blue-900"
                   >
                     <td className="px-5 py-3 font-mono text-xs font-semibold text-blue-900">
                       {lead.display_id ?? "-"}
