@@ -6,7 +6,7 @@ import { ArrowLeft, FileText, CheckCircle2, Paperclip, AlertTriangle, Info } fro
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
-import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
+import { getDiagnosis, getIncidentTypes, DiagnosisResult } from "@/lib/verifyDiagnosis";
 
 const CATEGORY = "admin" as const;
 
@@ -97,8 +97,160 @@ function levelIcon(level: "info" | "warning" | "critical") {
   return <Info size={14} className="mt-0.5 shrink-0 text-gray-400" />;
 }
 
+function riskFactorBadgeClass(level: "critical" | "high" | "caution") {
+  if (level === "critical") return "bg-red-50 text-red-700 border border-red-100";
+  if (level === "high") return "bg-amber-50 text-amber-700 border border-amber-100";
+  return "bg-gray-50 text-gray-600 border border-gray-100";
+}
+
+function riskFactorLabel(level: "critical" | "high" | "caution") {
+  if (level === "critical") return "치명적 위험";
+  if (level === "high") return "높은 위험";
+  return "주의";
+}
+
+// STEP3 진단 리포트 — diagnosis.report(11개 항목)가 있으면 이걸 우선 렌더링.
+// report가 없는 경우(구버전 데이터 등)를 대비해 기존 headline/checklist/note
+// 렌더링은 그대로 보존해 폴백으로 사용한다.
+function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { report } = diagnosis;
+
+  if (!report) {
+    // 기존(v2) 방식 폴백 — headline/checklist/note만 사용
+    return (
+      <>
+        <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
+        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+          입력하신 정보와 등록된 법령·행정자료를 기준으로 첨부하신 서류를
+          1차 분석한 결과입니다.
+        </p>
+        <ul className="mt-4 space-y-2.5">
+          {diagnosis.checklist.map((item) => (
+            <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
+              {levelIcon(item.level)}
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">{diagnosis.note}</p>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
+
+      {/* 1. 사건 요약 */}
+      <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+        <p className="text-xs font-semibold text-gray-700">사건 요약</p>
+        <p className="mt-1.5 whitespace-pre-line text-xs text-gray-600 leading-relaxed">
+          {report.incidentSummary}
+        </p>
+      </div>
+
+      {/* 2. 주요 발견사항 */}
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">주요 발견사항</p>
+        <ul className="mt-2 space-y-2.5">
+          {report.keyFindings.map((item) => (
+            <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
+              {levelIcon(item.level)}
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* 3. AI 분석 의견 */}
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">VFBCAI 1차 검토 의견</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.analysisOpinion}</p>
+      </div>
+
+      {/* 4. 적용 가능성이 있는 법률 분야 */}
+      {report.legalAreas.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold text-gray-700">적용 가능성이 있는 법률 분야</p>
+          <ul className="mt-2 space-y-1.5">
+            {report.legalAreas.map((la) => (
+              <li key={la.area} className="text-xs text-gray-600 leading-relaxed">
+                <span className="font-semibold text-gray-800">{la.area}</span> — {la.note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* 5. 법률 적용 가능성 설명 */}
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">법률 적용 가능성 설명</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
+          {report.legalApplicabilityNote}
+        </p>
+      </div>
+
+      {/* 6. 최신 법령 확인 필요 여부 */}
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">최신 법령 확인 안내</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.legalUpdateNotice}</p>
+      </div>
+
+      {/* 7. 실무 행정 관행 안내 */}
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">실무 행정 관행 안내</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.practiceNotes}</p>
+      </div>
+
+      {/* 8. 위험요인 */}
+      {report.riskFactors.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold text-gray-700">위험요인</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {report.riskFactors.map((rf, idx) => (
+              <span
+                key={`${rf.label}-${idx}`}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${riskFactorBadgeClass(rf.level)}`}
+              >
+                [{riskFactorLabel(rf.level)}] {rf.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 9. 권장 조치 */}
+      {report.recommendedActions.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold text-gray-700">권장 조치</p>
+          <ol className="mt-2 space-y-1.5">
+            {report.recommendedActions.map((action, idx) => (
+              <li key={idx} className="text-xs text-gray-600 leading-relaxed">
+                {idx + 1}순위 {action}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {/* 10. 전문가 검토 권장 */}
+      <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
+        {report.expertReviewRecommendation}
+      </div>
+
+      {/* 11. AI 한계 고지 */}
+      <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">{report.aiLimitationNotice}</p>
+    </>
+  );
+}
+
 export default function VerifyAdminPage() {
-  const [step, setStep] = useState<"form" | "diagnosis" | "completed">("form");
+  // STEP1(사건정보) → STEP2(기존 서류·개인정보) → STEP3(진단) → 완료
+  const [step, setStep] = useState<"incident" | "form" | "diagnosis" | "completed">("incident");
+  const [incidentType, setIncidentType] = useState<string | null>(null);
+  const [incidentDescription, setIncidentDescription] = useState("");
+  const [incidentError, setIncidentError] = useState<string | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -111,6 +263,21 @@ export default function VerifyAdminPage() {
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [expertError, setExpertError] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
+
+  const incidentTypes = getIncidentTypes(CATEGORY);
+
+  function handleIncidentNext() {
+    if (!incidentType) {
+      setIncidentError("사건유형을 선택해주세요.");
+      return;
+    }
+    if (incidentDescription.trim().length < 10) {
+      setIncidentError("사건 설명을 10자 이상 입력해주세요.");
+      return;
+    }
+    setIncidentError(null);
+    setStep("form");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -172,11 +339,17 @@ export default function VerifyAdminPage() {
       }
     }
 
+    // 기존에 존재하던 crm_activities(verify_lead) meta 저장 로직에
+    // incident_type / incident_description만 추가 (신규 로직 아님, 기존 저장 확장)
     await supabase.from("crm_activities").insert({
       lead_id: newLeadId,
       action: "verify_lead",
       tag: "VERIFY_ADMIN",
-      meta: fileUrl ? { file_url: fileUrl, file_name: file?.name } : null,
+      meta: {
+        incident_type: incidentType,
+        incident_description: incidentDescription.trim(),
+        ...(fileUrl ? { file_url: fileUrl, file_name: file?.name } : {}),
+      },
     });
 
     try {
@@ -200,7 +373,12 @@ export default function VerifyAdminPage() {
     setSubmitting(false);
 
     setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, { fileUrl, fileName: file?.name || null });
+    const diag = await getDiagnosis(CATEGORY, {
+      fileUrl,
+      fileName: file?.name || null,
+      incidentType: incidentType || undefined,
+      incidentDescription: incidentDescription.trim() || undefined,
+    });
     setDiagnosis(diag);
     setDiagnosing(false);
     setStep("diagnosis");
@@ -240,6 +418,57 @@ export default function VerifyAdminPage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
         <p className="mt-1 text-sm text-gray-500">비자·거주증·노동허가 등 행정서류 사전 검토</p>
 
+        {/* STEP1: 사건 정보 (사건유형 + 사건설명) */}
+        {step === "incident" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <FileText className="text-gray-900" size={28} />
+            <p className="mt-4 text-sm font-semibold text-gray-900">
+              1. 어떤 종류의 사건·서류인가요?
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              {incidentTypes.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setIncidentType(t)}
+                  className={`rounded-2xl border p-3 text-xs font-semibold transition-all ${
+                    incidentType === t
+                      ? "border-gray-900 bg-gray-900 text-white"
+                      : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            <p className="mt-6 text-sm font-semibold text-gray-900">
+              2. 무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요.
+            </p>
+            <textarea
+              value={incidentDescription}
+              onChange={(e) => setIncidentDescription(e.target.value)}
+              placeholder="예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
+              rows={5}
+              className="mt-3 w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
+            />
+            <p className="mt-1.5 text-[11px] text-gray-400">
+              입력하신 내용은 전문가 검토 시 참고 정보로만 사용되며, 여기서 자동으로
+              분석·판단되지 않습니다.
+            </p>
+
+            {incidentError && <p className="mt-3 text-xs text-red-600">{incidentError}</p>}
+
+            <button
+              onClick={handleIncidentNext}
+              className="mt-5 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+            >
+              다음
+            </button>
+          </div>
+        )}
+
+        {/* STEP2: 기존 서류 첨부 + 개인정보 폼 (기존 그대로) */}
         {step === "form" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
@@ -309,32 +538,23 @@ export default function VerifyAdminPage() {
             <p className="mt-3 text-[11px] text-gray-400">
               서류가 없어도 접수 가능하며, 나중에 카카오톡/잘로로 보내주셔도 됩니다.
             </p>
+            <button
+              onClick={() => setStep("incident")}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 이전 단계로
+            </button>
           </div>
         )}
 
+        {/* STEP3: 진단 리포트 (report 11항목 우선, 없으면 기존 방식 폴백) */}
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
-              VFBCAI 사전진단
+              VFBCAI 1차 검토 결과
             </span>
-            <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
-            <p className="mt-1 text-xs text-gray-500 leading-relaxed">
-              입력하신 정보와 등록된 법령·행정자료를 기준으로 첨부하신 서류를
-              1차 분석한 결과입니다.
-            </p>
 
-            <ul className="mt-4 space-y-2.5">
-              {diagnosis.checklist.map((item) => (
-                <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
-                  {levelIcon(item.level)}
-                  <span>{item.label}</span>
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">
-              {diagnosis.note}
-            </p>
+            <DiagnosisReportSection diagnosis={diagnosis} />
 
             <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
               간단한 내용은 무료 1차 상담으로도 확인 가능합니다. 위 항목
