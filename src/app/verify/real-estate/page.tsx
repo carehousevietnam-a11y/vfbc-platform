@@ -2,16 +2,159 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Home, CheckCircle2, Paperclip, AlertTriangle, Info } from "lucide-react";
+import { ArrowLeft, Home, CheckCircle2, Paperclip, AlertTriangle, Info, ExternalLink, FileText } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
-import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
+import { getDiagnosis, getIncidentTypes, DiagnosisResult } from "@/lib/verifyDiagnosis";
 
 const CATEGORY = "real-estate" as const;
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
+
+// "직접 검토 진행하기" 하위 선택지 — real-estate 카테고리 전용.
+const AGENCY_OPTIONS = [
+  "부동산등기소",
+  "공증사무소",
+  "지역 인민위원회",
+  "부동산중개업 관련기관",
+  "민사법원",
+  "기타",
+] as const;
+
+type Agency = (typeof AGENCY_OPTIONS)[number];
+
+type AgencyGuidance = {
+  authority: string;
+  officialSite: { label: string; url: string };
+  submissionSteps: string[];
+  requiredDocuments: string[];
+  cautions: string[];
+};
+
+const AGENCY_GUIDANCE: Record<Agency, AgencyGuidance> = {
+  "부동산등기소": {
+    authority: "부동산 소유권 등기·이전 관련 사항은 관할 부동산등기소가 담당합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "관할 등기소 확인",
+      "등기 관련 서류 준비",
+      "신청서 제출 및 접수증 수령",
+      "등기 완료 및 등기부 확인",
+    ],
+    requiredDocuments: [
+      "매매·임대 계약서 사본",
+      "신분증·여권 사본",
+      "기존 소유권 증빙 서류 (해당 시)",
+    ],
+    cautions: [
+      "등기 명의와 실제 계약 당사자가 일치해야 합니다.",
+      "등기 절차는 지역에 따라 처리기간이 다를 수 있습니다.",
+      "등기 전 계약서 원본을 반드시 보관하세요.",
+    ],
+  },
+  "공증사무소": {
+    authority: "계약서 공증이 필요한 경우 관할 공증사무소가 담당합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "공증사무소 방문 예약 또는 확인",
+      "계약 당사자 신분증·계약서 원본 준비",
+      "공증사무소에서 계약서 검토 및 공증 진행",
+      "공증서 수령",
+    ],
+    requiredDocuments: [
+      "계약서 원본",
+      "계약 당사자 신분증·여권",
+      "부동산 소유 증빙 서류",
+    ],
+    cautions: [
+      "공증 전 계약서 내용을 반드시 사전에 검토하세요.",
+      "공증 비용은 계약 금액에 따라 달라질 수 있습니다.",
+      "공증 없이 서명한 계약은 추후 분쟁 시 효력 입증이 어려울 수 있습니다.",
+    ],
+  },
+  "지역 인민위원회": {
+    authority: "토지 이용 목적 변경, 인허가 등은 관할 지역 인민위원회가 담당합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "관할 인민위원회 확인",
+      "관련 서류 준비",
+      "신청서 제출",
+      "처리 결과 통지 확인",
+    ],
+    requiredDocuments: [
+      "토지 관련 증빙 서류",
+      "신분증·여권 사본",
+      "신청 목적 관련 서류",
+    ],
+    cautions: [
+      "지역마다 요구서류와 절차가 다를 수 있습니다.",
+      "처리기간이 예상보다 길어질 수 있어 여유를 두고 신청하세요.",
+      "정확한 관할처는 담당 지역 사무소에 문의하는 것이 안전합니다.",
+    ],
+  },
+  "부동산중개업 관련기관": {
+    authority: "중개업체·중개인의 자격 및 등록 여부는 관할 건설국에서 확인할 수 있습니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "중개업체 등록 여부 확인 요청",
+      "중개계약서 및 관련 자료 준비",
+      "필요 시 민원 또는 확인 신청 제출",
+      "답변 결과 확인",
+    ],
+    requiredDocuments: [
+      "중개계약서 사본",
+      "중개업체 정보(사업자등록번호 등)",
+      "거래 관련 증빙 자료",
+    ],
+    cautions: [
+      "미등록 중개업체를 통한 거래는 분쟁 시 보호받기 어려울 수 있습니다.",
+      "중개수수료 관련 조항을 사전에 확인하세요.",
+      "중개업체 신뢰도는 반드시 공식 경로로 재확인하세요.",
+    ],
+  },
+  "민사법원": {
+    authority: "계약 분쟁, 보증금 미반환 등 법적 다툼은 관할 민사법원이 담당합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "분쟁 관련 증거 자료 정리",
+      "소장 작성 준비",
+      "관할 법원에 소 제기",
+      "심리 절차 진행",
+    ],
+    requiredDocuments: [
+      "계약서 원본 또는 사본",
+      "송금·거래 증빙 자료",
+      "분쟁 경과를 정리한 자료",
+    ],
+    cautions: [
+      "소송 제기 전 증거 확보가 매우 중요합니다.",
+      "소송은 시간과 비용이 소요되므로 전문가 상담을 권장합니다.",
+      "관할 법원은 계약 체결지·소재지에 따라 달라질 수 있습니다.",
+    ],
+  },
+  "기타": {
+    authority: "위 항목에 해당하지 않는 경우, 계약서 또는 관련 서류에 명시된 기관명으로 관할처를 확인하는 것이 가장 정확합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "관련 서류에 명시된 발급·관할 기관 확인",
+      "포털 또는 창구에서 안내하는 절차 확인",
+      "요구되는 첨부서류 준비 및 제출",
+      "접수증 또는 처리 예정일 확인",
+    ],
+    requiredDocuments: [
+      "계약서 또는 관련 서류 사본",
+      "신분증·여권 사본",
+      "서류 종류별로 요구되는 추가 증빙 (기관 안내 확인 필요)",
+    ],
+    cautions: [
+      "관할기관 및 절차는 지역·사안에 따라 달라질 수 있어, 정확한 확인은 해당 기관에 직접 문의하시기 바랍니다.",
+      "제출 기한이 있는 사안은 기한을 넘기면 불이익이 발생할 수 있습니다.",
+      "계약 관련 인적사항이 실제 서류와 정확히 일치하는지 확인하세요.",
+    ],
+  },
+};
 
 function ConsentDetails({
   open,
@@ -97,11 +240,151 @@ function levelIcon(level: "info" | "warning" | "critical") {
   return <Info size={14} className="mt-0.5 shrink-0 text-gray-400" />;
 }
 
+function riskFactorBadgeClass(level: "critical" | "high" | "caution") {
+  if (level === "critical") return "bg-red-50 text-red-700 border border-red-100";
+  if (level === "high") return "bg-amber-50 text-amber-700 border border-amber-100";
+  return "bg-gray-50 text-gray-600 border border-gray-100";
+}
+
+function riskFactorLabel(level: "critical" | "high" | "caution") {
+  if (level === "critical") return "치명적 위험";
+  if (level === "high") return "높은 위험";
+  return "주의";
+}
+
+function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { report } = diagnosis;
+
+  if (!report) {
+    return (
+      <>
+        <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
+        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+          입력하신 정보와 등록된 법령·행정자료를 기준으로 첨부하신 서류를
+          1차 분석한 결과입니다.
+        </p>
+        <ul className="mt-4 space-y-2.5">
+          {diagnosis.checklist.map((item) => (
+            <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
+              {levelIcon(item.level)}
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">{diagnosis.note}</p>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
+
+      <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+        <p className="text-xs font-semibold text-gray-700">사건 요약</p>
+        <p className="mt-1.5 whitespace-pre-line text-xs text-gray-600 leading-relaxed">
+          {report.incidentSummary}
+        </p>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">주요 발견사항</p>
+        <ul className="mt-2 space-y-2.5">
+          {report.keyFindings.map((item) => (
+            <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
+              {levelIcon(item.level)}
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">VFBCAI 1차 검토 의견</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.analysisOpinion}</p>
+      </div>
+
+      {report.legalAreas.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold text-gray-700">적용 가능성이 있는 법률 분야</p>
+          <ul className="mt-2 space-y-1.5">
+            {report.legalAreas.map((la) => (
+              <li key={la.area} className="text-xs text-gray-600 leading-relaxed">
+                <span className="font-semibold text-gray-800">{la.area}</span> — {la.note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">법률 적용 가능성 설명</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
+          {report.legalApplicabilityNote}
+        </p>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">최신 법령 확인 안내</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.legalUpdateNotice}</p>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-gray-700">실무 행정 관행 안내</p>
+        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.practiceNotes}</p>
+      </div>
+
+      {report.riskFactors.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold text-gray-700">위험요인</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {report.riskFactors.map((rf, idx) => (
+              <span
+                key={`${rf.label}-${idx}`}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${riskFactorBadgeClass(rf.level)}`}
+              >
+                [{riskFactorLabel(rf.level)}] {rf.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {report.recommendedActions.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold text-gray-700">권장 조치</p>
+          <ol className="mt-2 space-y-1.5">
+            {report.recommendedActions.map((action, idx) => (
+              <li key={idx} className="text-xs text-gray-600 leading-relaxed">
+                {idx + 1}순위 {action}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
+        {report.expertReviewRecommendation}
+      </div>
+
+      <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">{report.aiLimitationNotice}</p>
+    </>
+  );
+}
+
 export default function VerifyRealEstatePage() {
-  const [step, setStep] = useState<"form" | "diagnosis" | "completed">("form");
+  const [step, setStep] = useState<
+    "incident" | "attachment" | "form" | "diagnosis" | "guidanceSelect" | "guidance" | "completed"
+  >("incident");
+  const [incidentType, setIncidentType] = useState<string | null>(null);
+  const [incidentDescription, setIncidentDescription] = useState("");
+  const [incidentError, setIncidentError] = useState<string | null>(null);
+
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
@@ -110,7 +393,23 @@ export default function VerifyRealEstatePage() {
   const [diagnosing, setDiagnosing] = useState(false);
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [expertError, setExpertError] = useState<string | null>(null);
+  const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const messengers = MESSENGERS_KO;
+
+  const incidentTypes = getIncidentTypes(CATEGORY);
+
+  function handleIncidentNext() {
+    if (!incidentType) {
+      setIncidentError("사건유형을 선택해주세요.");
+      return;
+    }
+    if (incidentDescription.trim().length === 0) {
+      setIncidentError("사건 설명을 입력해주세요.");
+      return;
+    }
+    setIncidentError(null);
+    setStep("attachment");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -125,7 +424,6 @@ export default function VerifyRealEstatePage() {
 
     setSubmitting(true);
     setError(null);
-    const file = fd.get("document") as File | null;
     const newLeadId = crypto.randomUUID();
 
     const name = String(fd.get("name") || "");
@@ -156,14 +454,14 @@ export default function VerifyRealEstatePage() {
     }
 
     let fileUrl: string | null = null;
-    if (file && file.size > 0) {
-      const rawExt = file.name.split(".").pop() || "";
+    if (attachedFile && attachedFile.size > 0) {
+      const rawExt = attachedFile.name.split(".").pop() || "";
       const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
       const path = `verify-real-estate/${newLeadId}.${safeExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("documents")
-        .upload(path, file);
+        .upload(path, attachedFile);
       if (!uploadError) {
         const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
         fileUrl = urlData.publicUrl;
@@ -176,7 +474,11 @@ export default function VerifyRealEstatePage() {
       lead_id: newLeadId,
       action: "verify_lead",
       tag: "VERIFY_REAL_ESTATE",
-      meta: fileUrl ? { file_url: fileUrl, file_name: file?.name } : null,
+      meta: {
+        incident_type: incidentType,
+        incident_description: incidentDescription.trim(),
+        ...(fileUrl ? { file_url: fileUrl, file_name: attachedFile?.name } : {}),
+      },
     });
 
     try {
@@ -196,11 +498,15 @@ export default function VerifyRealEstatePage() {
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setEmailProvided(!!email);
     setLeadId(newLeadId);
-    setFileName(file?.name || null);
     setSubmitting(false);
 
     setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, { fileUrl, fileName: file?.name || null });
+    const diag = await getDiagnosis(CATEGORY, {
+      fileUrl,
+      fileName: attachedFile?.name || null,
+      incidentType: incidentType || undefined,
+      incidentDescription: incidentDescription.trim() || undefined,
+    });
     setDiagnosis(diag);
     setDiagnosing(false);
     setStep("diagnosis");
@@ -226,6 +532,8 @@ export default function VerifyRealEstatePage() {
     }
   }
 
+  const activeGuidance = selectedAgency ? AGENCY_GUIDANCE[selectedAgency] : null;
+
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
@@ -240,6 +548,101 @@ export default function VerifyRealEstatePage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">부동산 문서 검토</h1>
         <p className="mt-1 text-sm text-gray-500">임대계약서·매매계약서 리스크 검토</p>
 
+        {step === "incident" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <FileText className="text-gray-900" size={28} />
+            <p className="mt-4 text-sm font-semibold text-gray-900">
+              1. 어떤 종류의 사건·서류인가요?
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              {incidentTypes.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setIncidentType(t)}
+                  className={`rounded-2xl border p-3 text-xs font-semibold transition-all ${
+                    incidentType === t
+                      ? "border-gray-900 bg-gray-900 text-white"
+                      : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            <p className="mt-6 text-sm font-semibold text-gray-900">
+              2. 무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요.
+            </p>
+            <textarea
+              value={incidentDescription}
+              onChange={(e) => setIncidentDescription(e.target.value)}
+              placeholder="예: 임대차 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
+              rows={5}
+              className="mt-3 w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
+            />
+            <p className="mt-1.5 text-[11px] text-gray-400">
+              입력하신 내용은 전문가 검토 시 참고 정보로만 사용되며, 여기서 자동으로
+              분석·판단되지 않습니다.
+            </p>
+
+            {incidentError && <p className="mt-3 text-xs text-red-600">{incidentError}</p>}
+
+            <button
+              onClick={handleIncidentNext}
+              className="mt-5 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+            >
+              다음
+            </button>
+          </div>
+        )}
+
+        {step === "attachment" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <Paperclip className="text-gray-900" size={28} />
+            <p className="mt-4 text-sm font-semibold text-gray-900">
+              3. 관련 서류가 있다면 첨부해주세요
+            </p>
+            <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+              서류 사진이나 PDF·워드 파일을 첨부하시면 더 정확한 확인이 가능합니다.
+            </p>
+
+            <label className="mt-4 flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
+              <Paperclip size={16} className="shrink-0" />
+              <span className="truncate">
+                {fileName || "서류 첨부 (사진 · PDF · Word)"}
+              </span>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0] || null;
+                  setAttachedFile(f);
+                  setFileName(f?.name || null);
+                }}
+              />
+            </label>
+            <p className="mt-1.5 text-[11px] text-gray-400">
+              서류가 없어도 다음 단계로 진행할 수 있으며, 나중에 카카오톡/잘로로
+              보내주셔도 됩니다.
+            </p>
+
+            <button
+              onClick={() => setStep("form")}
+              className="mt-5 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+            >
+              다음
+            </button>
+            <button
+              onClick={() => setStep("incident")}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 이전 단계로
+            </button>
+          </div>
+        )}
+
         {step === "form" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <Home className="text-gray-900" size={28} />
@@ -249,24 +652,10 @@ export default function VerifyRealEstatePage() {
 
             <p className="mt-4 text-sm text-gray-600 leading-relaxed">
               임대·매매 계약서에는 보증금 미반환 조항이나 불리한 특약이
-              생각보다 자주 숨어 있습니다. 계약서에 서명하기 전, 지금
-              확인해보세요. 서류 사진이나 PDF·워드 파일을 첨부하고
-              이름·연락처만 남기면 무료로 1차 검토해드립니다.
+              생각보다 자주 숨어 있습니다. 계약서에 서명하기 전, 이름·연락처만
+              남기면 무료로 1차 검토해드립니다.
             </p>
             <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-              <label className="flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
-                <Paperclip size={16} className="shrink-0" />
-                <span className="truncate">
-                  {fileName || "서류 첨부 (사진 · PDF · Word)"}
-                </span>
-                <input
-                  type="file"
-                  name="document"
-                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                  className="hidden"
-                  onChange={(e) => setFileName(e.target.files?.[0]?.name || null)}
-                />
-              </label>
               <input type="text" name="name" required placeholder="이름"
                 className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
               <input type="tel" name="phone" required placeholder="전화번호"
@@ -302,67 +691,192 @@ export default function VerifyRealEstatePage() {
               {error && <p className="text-xs text-red-600">{error}</p>}
               <button type="submit" disabled={submitting || diagnosing}
                 className="w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors">
-                {submitting || diagnosing ? "AI가 확인하는 중..." : "무료로 검토받기"}
+                {submitting || diagnosing ? "AI가 확인하는 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
-            <p className="mt-3 text-[11px] text-gray-400">
-              서류가 없어도 접수 가능하며, 나중에 카카오톡/잘로로 보내주셔도 됩니다.
-            </p>
+            <button
+              onClick={() => setStep("attachment")}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 이전 단계로
+            </button>
           </div>
         )}
 
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
-              VFBCAI 사전진단
+              VFBCAI 1차 검토 결과
             </span>
-            <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
-            <p className="mt-1 text-xs text-gray-500 leading-relaxed">
-              입력하신 정보와 등록된 법령·행정자료를 기준으로 첨부하신 서류를
-              1차 분석한 결과입니다.
+
+            <DiagnosisReportSection diagnosis={diagnosis} />
+
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              위 내용, 어떻게 진행하시겠어요?
+            </p>
+            <div className="mt-3 flex flex-col gap-3">
+              <button
+                onClick={() => setStep("guidanceSelect")}
+                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-gray-900 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+              >
+                직접 검토 진행하기
+              </button>
+              <button
+                onClick={handleExpertRequest}
+                disabled={expertRequesting}
+                className="h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
+              >
+                {expertRequesting ? "접수 중..." : "전문가 검토 진행하기"}
+              </button>
+            </div>
+            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
+            <p className="mt-2 text-[11px] text-gray-400 text-center">
+              어느 쪽을 선택해도 이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다.
+            </p>
+          </div>
+        )}
+
+        {step === "guidanceSelect" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <FileText className="text-gray-900" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              어떤 기관·경로와 관련된 사안인가요?
+            </p>
+            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+              선택하신 항목에 맞는 관할기관·공식 확인 경로·절차 안내를 보여드립니다.
             </p>
 
-            <ul className="mt-4 space-y-2.5">
-              {diagnosis.checklist.map((item) => (
-                <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
-                  {levelIcon(item.level)}
-                  <span>{item.label}</span>
-                </li>
+            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {AGENCY_OPTIONS.map((agency) => (
+                <button
+                  key={agency}
+                  onClick={() => {
+                    setSelectedAgency(agency);
+                    setStep("guidance");
+                  }}
+                  className="rounded-2xl border border-gray-100 bg-white p-4 text-left text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-all"
+                >
+                  {agency}
+                </button>
               ))}
-            </ul>
-
-            <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">
-              {diagnosis.note}
-            </p>
-
-            <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
-              간단한 내용은 무료 1차 상담으로도 확인 가능합니다. 위 항목
-              중 우려되는 부분이 있거나 서류가 복잡하다면, 전문가가 직접
-              서류를 검토해드립니다.
             </div>
 
-            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
+            <button
+              onClick={() => setStep("diagnosis")}
+              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 검토 결과로 돌아가기
+            </button>
+          </div>
+        )}
+
+        {step === "guidance" && activeGuidance && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <FileText className="text-gray-900" size={28} />
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              {selectedAgency}
+            </p>
+            <p className="mt-1 text-lg font-bold text-gray-900">
+              직접 진행을 위한 참고 안내
+            </p>
+            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+              아래는 일반적인 참고 정보이며, VFBCAI가 실제 신청·제출을 대신
+              처리하지는 않습니다. 정확한 절차는 관할기관에서 다시 확인해주세요.
+            </p>
+
+            <div className="mt-5 space-y-4">
+              <div className="rounded-xl bg-gray-50 px-4 py-3">
+                <p className="text-xs font-semibold text-gray-700">관할기관</p>
+                <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
+                  {activeGuidance.authority}
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-gray-50 px-4 py-3">
+                <p className="text-xs font-semibold text-gray-700">공식 확인 경로</p>
+                <a
+                  href={activeGuidance.officialSite.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-blue-900 hover:underline"
+                >
+                  {activeGuidance.officialSite.label} <ExternalLink size={12} />
+                </a>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-gray-700">기본 절차</p>
+                <ol className="mt-2 space-y-1.5">
+                  {activeGuidance.submissionSteps.map((s, idx) => (
+                    <li key={idx} className="text-xs text-gray-600 leading-relaxed">
+                      {idx + 1}. {s}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-gray-700">일반 준비서류</p>
+                <ul className="mt-2 space-y-1">
+                  {activeGuidance.requiredDocuments.map((d, idx) => (
+                    <li key={idx} className="text-xs text-gray-600 leading-relaxed">
+                      · {d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-xl bg-amber-50 px-4 py-3">
+                <p className="text-xs font-semibold text-amber-800">주의사항</p>
+                <ul className="mt-1.5 space-y-1">
+                  {activeGuidance.cautions.map((c, idx) => (
+                    <li key={idx} className="text-xs text-amber-800 leading-relaxed">
+                      · {c}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              직접 진행이 부담되신다면 전문가에게 맡기실 수도 있습니다.
+            </p>
             <button
               onClick={handleExpertRequest}
               disabled={expertRequesting}
-              className="mt-4 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
+              className="mt-3 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
             >
-              {expertRequesting ? "접수 중..." : "전문가 검토 요청하기 →"}
+              {expertRequesting ? "접수 중..." : "전문가 검토 진행하기"}
             </button>
-            <p className="mt-2 text-[11px] text-gray-400">
-              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
-            </p>
+            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
+
+            <button
+              onClick={() => setStep("guidanceSelect")}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 다른 기관 선택하기
+            </button>
           </div>
         )}
 
         {step === "completed" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={24} />
-            <p className="mt-3 text-base font-bold text-gray-900">
+            <div className="flex justify-center">
+              <img
+                src="/vfbc-seal.png"
+                alt="VFBCAI 접수완료 확인 도장"
+                width={160}
+                height={160}
+              />
+            </div>
+            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
+              Vietnam Foreign Business Verification &amp; Compliance AI Center
+            </p>
+            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
               전문가 검토 요청이 접수되었습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              전문가가 첨부하신 서류와 AI 사전진단 내용을 함께 확인한 뒤,
+              전문가가 첨부하신 계약서와 AI 사전진단 내용을 함께 확인한 뒤,
               가입하신 이메일 또는 {messengers.primary.label}/{messengers.secondary.label}로
               결과를 안내드립니다.
             </p>
