@@ -347,8 +347,8 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
 
 const PREVIOUS_REVIEW_OPTIONS = [
   "처음 검토합니다",
-  "다른 곳에서 검토받았지만 해결되지 않았습니다",
-  "반려 또는 보완 요청을 받았습니다",
+  "검토받았지만 해결되지 않았습니다",
+  "반려·보완 요청을 받았습니다",
   "잘 모르겠습니다",
 ] as const;
 
@@ -541,7 +541,7 @@ export default function VerifyFraudPage() {
             <FileText className="text-gray-900" size={28} />
 
             <p className="text-sm font-semibold text-gray-900">
-              1. 이 사건(또는 서류)을 이전에 다른 전문가나 기관에서 상담·검토받은 적이 있습니까?
+              1. 이전에 다른 곳에서 검토받은 적이 있나요?
             </p>
             <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
@@ -549,7 +549,7 @@ export default function VerifyFraudPage() {
                   key={opt}
                   type="button"
                   onClick={() => setPreviousReviewStatus(opt)}
-                  className={`rounded-2xl border p-3 text-left text-xs font-semibold transition-all ${
+                  className={`flex h-14 items-center justify-center rounded-2xl border px-3 text-center text-xs font-semibold leading-snug transition-all ${
                     previousReviewStatus === opt
                       ? "border-gray-900 bg-gray-900 text-white"
                       : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
