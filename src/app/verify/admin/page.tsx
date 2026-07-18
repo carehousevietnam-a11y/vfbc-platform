@@ -381,6 +381,13 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
   );
 }
 
+const PREVIOUS_REVIEW_OPTIONS = [
+  "처음 검토합니다",
+  "다른 곳에서 검토받았지만 해결되지 않았습니다",
+  "반려 또는 보완 요청을 받았습니다",
+  "잘 모르겠습니다",
+] as const;
+
 export default function VerifyAdminPage() {
   // STEP1(사건정보) → STEP2(서류첨부) → STEP3(개인정보) → STEP4(진단)
   // → STEP5-a(기관 선택) → STEP5-b(안내) / 전문가 진행 → 완료
@@ -390,6 +397,8 @@ export default function VerifyAdminPage() {
   const [incidentType, setIncidentType] = useState<string | null>(null);
   const [incidentDescription, setIncidentDescription] = useState("");
   const [incidentError, setIncidentError] = useState<string | null>(null);
+  const [previousReviewStatus, setPreviousReviewStatus] = useState<string | null>(null);
+  const [previousReviewError, setPreviousReviewError] = useState<string | null>(null);
 
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -410,6 +419,11 @@ export default function VerifyAdminPage() {
   const incidentTypes = getIncidentTypes(CATEGORY);
 
   function handleIncidentNext() {
+    if (!previousReviewStatus) {
+      setPreviousReviewError("이전 상담·검토 이력 여부를 선택해주세요.");
+      return;
+    }
+    setPreviousReviewError(null);
     if (!incidentType) {
       setIncidentError("사건유형을 선택해주세요.");
       return;
@@ -488,6 +502,7 @@ export default function VerifyAdminPage() {
       meta: {
         incident_type: incidentType,
         incident_description: incidentDescription.trim(),
+        previous_review_status: previousReviewStatus,
         ...(fileUrl ? { file_url: fileUrl, file_name: attachedFile?.name } : {}),
       },
     });
@@ -563,8 +578,32 @@ export default function VerifyAdminPage() {
         {step === "incident" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
-            <p className="mt-4 text-sm font-semibold text-gray-900">
-              1. 어떤 종류의 사건·서류인가요?
+
+            <p className="text-sm font-semibold text-gray-900">
+              1. 이 사건(또는 서류)을 이전에 다른 전문가나 기관에서 상담·검토받은 적이 있습니까?
+            </p>
+            <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setPreviousReviewStatus(opt)}
+                  className={`rounded-2xl border p-3 text-left text-xs font-semibold transition-all ${
+                    previousReviewStatus === opt
+                      ? "border-gray-900 bg-gray-900 text-white"
+                      : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+            {previousReviewError && (
+              <p className="mt-2 text-xs text-red-600">{previousReviewError}</p>
+            )}
+
+            <p className="mt-6 text-sm font-semibold text-gray-900">
+              2. 어떤 종류의 사건·서류인가요?
             </p>
             <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
               {incidentTypes.map((t) => (
@@ -584,7 +623,7 @@ export default function VerifyAdminPage() {
             </div>
 
             <p className="mt-6 text-sm font-semibold text-gray-900">
-              2. 무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요.
+              3. 무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요.
             </p>
             <textarea
               value={incidentDescription}
