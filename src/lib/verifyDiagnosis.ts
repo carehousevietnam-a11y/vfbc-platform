@@ -2,26 +2,35 @@
 //
 // VFBCAI VERIFY 엔진의 진단 로직을 담당하는 단일 진입점.
 //
+// [v3 변경사항 — 이번 세션]
+// 목적: VERIFY 표준 확장(사건유형 + 사건설명 입력 반영, 고객용 리포트 11항목 구조 추가)
+//
+// 원칙(지시서 기준):
+// 1) OpenAI 등 실제 생성형 AI를 새로 연동하지 않는다 — 여전히 규칙 기반 진단.
+// 2) incidentDescription(사건설명 자유 텍스트)은 "표시 용도"로만 사용한다.
+//    - 리포트의 사건요약에 원문 그대로 인용
+//    - expertBrief(expert_brief)에 원문 보존
+//    - crm_activities.meta 저장용 데이터로 전달
+//    - 내용을 키워드 분석하거나 법률적으로 판단하는 데 사용하지 않는다
+// 3) 법 조항 번호·판례·행정기관 실무를 구체적으로 임의 생성하지 않는다.
+//    항상 "가능성이 있습니다 / 추가 확인이 필요합니다" 톤을 유지한다.
+// 4) 기존 필드(headline/checklist/note/expertBrief)는 삭제·개명하지 않고 그대로 유지한다.
+//    새 필드는 모두 optional로 추가해 기존 5개 VERIFY 페이지(아직 미수정 상태)의
+//    getDiagnosis() 호출이 깨지지 않도록 한다.
+// 5) [v3.1] "적용 가능성이 있는 법률 분야"와 "법률 적용 가능성 설명"은
+//    서로 다른 항목(4번/5번)이므로 legalAreas와 legalApplicabilityNote로 분리한다.
+//    legalAreas에 설명 문구를 섞지 않는다.
+//
 // [v2 변경사항 — 2026.7.17]
 // 기존: 카테고리별 완전 고정 체크리스트/expertBrief (하드코딩, 입력값 무관)
 // 변경: 실제 사용 가능한 입력값(서류 첨부 여부, 서류 형식)에 따라
 //       고객용 체크리스트와 전문가용 expertBrief가 달라지는 규칙 기반 진단으로 개선.
 //
-// VERIFY 페이지들은 아직 CHECK처럼 "학력/경력" 같은 진단 질문을 받지 않으므로,
-// 현재 시점에서 유일하게 활용 가능한 실제 입력값은:
-//   1) 서류 첨부 여부 (fileUrl 존재 여부)
-//   2) 서류 형식 (이미지 vs PDF·Word 문서)
-// 이 두 값을 기준으로 위험도·체크리스트·전문가 브리핑이 달라진다.
-//
-// [다음 단계] OpenAI/OCR 연동 시에는 이 함수 "내부"만 교체하면 됨.
-// 호출부(각 verify 페이지)는 인터페이스(입력/출력 타입)에만 의존하므로
-// 페이지 코드는 이번에도 수정하지 않는다.
-//
 // [필드명 주의] 각 verify 페이지의 handleExpertRequest()는
 //   meta: { expert_brief: diagnosis.expertBrief }
 // 형태로 저장한다 (스네이크케이스 expert_brief). CHECK 쪽 admin/cases는
-// meta.expertBrief(카멜케이스)를 읽으므로 서로 다른 필드명이다 — VERIFY용
-// 관리자 화면(admin/leads/[id])은 반드시 meta.expert_brief를 읽어야 한다.
+// meta.expertBrief(카멜케이스)를 읽으므로 서로 다른 필드명이다 — 이번에도
+// 이 규칙을 그대로 유지한다 (통합/개명하지 않음).
 
 export type DiagnosisCheckItem = {
   id: string;
@@ -54,6 +63,51 @@ export type ExpertBrief = {
   // 실제 사례 데이터(case_records)가 쌓이기 전까지 항상 빈 배열.
   // 허위 성공사례 절대 금지 원칙(마스터문서 16장/23장 원칙 6·7).
   similarCases: string[];
+  // --- v3 추가 (optional, 기존 필드 삭제/개명 없음) ---
+  // 고객이 STEP1에서 입력한 원문 정보를 전문가 화면에서도 그대로 확인할 수 있도록 보존.
+  incidentType?: string;
+  incidentDescription?: string;
+};
+
+// v3 추가: "적용 가능성이 있는 법률 분야" 항목 — 조항 번호 없이 분야명 + 짧은 안내문만 제공.
+// 여기에는 "적용 가능성 설명"(항목 5)을 섞지 않는다 — 그건 legalApplicabilityNote로 분리.
+export type LegalAreaNote = {
+  area: string; // 예: "민법", "기업법", "투자법" 등 분야명만 (조항 번호 금지)
+  note: string; // 해당 분야가 왜 관련될 수 있는지에 대한 짧은 맥락 (역시 단정 금지)
+};
+
+// v3 추가: 위험요인 분류 카드용 타입 — [치명적 위험]/[높은 위험]/[주의] 3단계.
+export type RiskFactor = {
+  level: "critical" | "high" | "caution";
+  label: string;
+};
+
+// v3 추가: 고객 화면에 표시할 확장 리포트. 지시서 기준 11개 항목을 각각
+// 별도 필드로 대응시킨다 (섞어서 합치지 않음).
+//   1. 사건 요약               -> incidentSummary
+//   2. 주요 발견사항           -> keyFindings
+//   3. AI 분석 의견            -> analysisOpinion
+//   4. 적용 가능성 있는 법률 분야 -> legalAreas
+//   5. 법률 적용 가능성 설명    -> legalApplicabilityNote
+//   6. 최신 법령 확인 필요 여부 -> legalUpdateNotice
+//   7. 실무 행정 관행 안내     -> practiceNotes
+//   8. 위험요인                -> riskFactors
+//   9. 권장조치                -> recommendedActions
+//   10. 전문가 검토 권장       -> expertReviewRecommendation
+//   11. AI 한계 고지           -> aiLimitationNotice
+// 5개 VERIFY 페이지가 전부 이 필드를 사용하도록 전환되기 전까지는 optional로 둔다.
+export type CustomerReport = {
+  incidentSummary: string;
+  keyFindings: DiagnosisCheckItem[];
+  analysisOpinion: string;
+  legalAreas: LegalAreaNote[];
+  legalApplicabilityNote: string;
+  legalUpdateNotice: string;
+  practiceNotes: string;
+  riskFactors: RiskFactor[];
+  recommendedActions: string[];
+  expertReviewRecommendation: string;
+  aiLimitationNotice: string;
 };
 
 export type DiagnosisResult = {
@@ -61,6 +115,9 @@ export type DiagnosisResult = {
   checklist: DiagnosisCheckItem[];
   note: string;
   expertBrief: ExpertBrief;
+  // v3 추가 — optional. admin/page.tsx 등 신규 페이지에서만 사용,
+  // 기존 페이지는 이 필드를 몰라도 정상 동작한다.
+  report?: CustomerReport;
 };
 
 export type VerifyCategory =
@@ -73,10 +130,19 @@ export type VerifyCategory =
 export type DiagnosisInput = {
   fileUrl: string | null;
   fileName: string | null;
+  // v3 추가 — optional. 기존 4개 페이지(아직 미전환)는 이 필드 없이 호출해도
+  // 타입 에러가 나지 않는다.
+  incidentType?: string;
+  incidentDescription?: string;
 };
 
 const COMMON_NOTE =
   "위 항목은 일반적인 확인 포인트를 안내하는 1차 자가진단입니다. 실제 서류 내용과 상황에 따라 결과가 달라질 수 있어, 정확한 판단은 전문가 검토를 통해 확정됩니다. 간단한 내용은 무료 1차 상담으로도 확인 가능합니다.";
+
+// v3 추가: AI 한계 고지 — 지시서 원문 톤을 그대로 반영한 고정 문구.
+// 모든 카테고리 공통이며, 카테고리별로 달라지지 않는다.
+const AI_LIMITATION_NOTICE =
+  "본 결과는 고객이 입력한 내용, 제출한 자료 및 현재 확인 가능한 공개 법령·행정정보를 바탕으로 생성된 VFBCAI 1차 검토 결과입니다. 이 결과는 사건의 승패, 위법 여부, 형사책임 또는 최종 법률 결과를 확정적으로 판단하지 않습니다. 실제 사건은 계약서 원본, 추가 증거, 상대방 재산 상태, 내부 행정기록, 수사 및 재판 진행 상황 등에 따라 결과가 달라질 수 있습니다. 제출된 자료와 공개적으로 확인 가능한 정보만 검토할 수 있으며, 비공개 정보나 숨겨진 사실관계는 확인할 수 없습니다. 또한 동일한 사건이라도 담당 전문가의 경험, 증거 확보 능력, 대응 전략에 따라 결과가 크게 달라질 수 있습니다. 따라서 본 검토만으로 계약 체결, 지급, 신고, 소송 또는 기타 법적 조치를 결정하지 마시고, 반드시 전문가의 최종 검토를 받은 후 진행하시기 바랍니다.";
 
 type FileKind = "none" | "image" | "document" | "other";
 
@@ -94,6 +160,22 @@ function bumpRisk(base: "low" | "medium" | "high"): "low" | "medium" | "high" {
   return "high";
 }
 
+function riskLevelToFactorLevel(
+  level: "low" | "medium" | "high"
+): "critical" | "high" | "caution" {
+  if (level === "high") return "critical";
+  if (level === "medium") return "high";
+  return "caution";
+}
+
+function checklistLevelToFactorLevel(
+  level: "info" | "warning" | "critical"
+): "critical" | "high" | "caution" {
+  if (level === "critical") return "critical";
+  if (level === "warning") return "high";
+  return "caution";
+}
+
 // 카테고리별 정적 베이스 데이터 — 서류 첨부 여부와 무관하게 항상 확인해야
 // 하는 항목들. 실제 판단이 필요한 부분(위험도, 확인가능 여부, 안내문구)은
 // buildDiagnosis()에서 입력값에 따라 동적으로 조합한다.
@@ -107,6 +189,10 @@ type CategoryBase = {
   rejectionRisksTemplate: string[]; // 순서대로 rank 부여 (서류 없으면 1순위 앞에 삽입)
   recommendedStepsWithFile: string[];
   recommendedStepsNoFile: string[];
+  // v3 추가
+  incidentTypes: string[];
+  legalAreasTemplate: LegalAreaNote[];
+  practiceNotesTemplate: string;
 };
 
 const CATEGORY_BASE: Record<VerifyCategory, CategoryBase> = {
@@ -135,6 +221,13 @@ const CATEGORY_BASE: Record<VerifyCategory, CategoryBase> = {
       "서류 사진/PDF 확보 요청 (카카오톡/잘로 안내)",
       "서류 확보 전까지는 일반적 주의사항만 안내",
     ],
+    incidentTypes: ["행정문서", "계약서", "법인·투자", "노동·고용", "인허가", "세무", "기타"],
+    legalAreasTemplate: [
+      { area: "행정법", note: "행정기관의 처리 절차 및 기한과 관련된 분야입니다." },
+      { area: "기업법", note: "법인·인허가 관련 사항일 경우 함께 관련될 수 있는 분야입니다." },
+    ],
+    practiceNotesTemplate:
+      "행정기관·지역(하노이·호치민 등)에 따라 요구서류나 처리 절차에 차이가 있을 수 있어, 정확한 실무 기준은 담당 지역 전문가 확인이 필요합니다.",
   },
   "real-estate": {
     headline: "계약서, 이 부분들을 함께 확인해보세요",
@@ -161,6 +254,13 @@ const CATEGORY_BASE: Record<VerifyCategory, CategoryBase> = {
       "계약서 서명 전, 계약서 사진/PDF 확보 요청",
       "서명 완료된 경우 사본이라도 즉시 확보 요청",
     ],
+    incidentTypes: ["매매", "임대", "계약금", "소유권", "인허가", "분쟁", "기타"],
+    legalAreasTemplate: [
+      { area: "민법", note: "계약 성립·보증금 반환 관련 사항과 관련될 수 있는 분야입니다." },
+      { area: "토지법·주택법", note: "소유권·부동산 인허가 관련 사항일 경우 함께 관련될 수 있는 분야입니다." },
+    ],
+    practiceNotesTemplate:
+      "지역(하노이·호치민 등)이나 부동산 유형에 따라 계약·등기 실무 관행에 차이가 있을 수 있어, 정확한 실무 기준은 담당 지역 전문가 확인이 필요합니다.",
   },
   fraud: {
     headline: "이 제안서, 이 부분들을 먼저 확인해보세요",
@@ -187,6 +287,13 @@ const CATEGORY_BASE: Record<VerifyCategory, CategoryBase> = {
       "서류 유무와 무관하게 최우선 순위로 즉시 연락",
       "아직 송금 전인지부터 먼저 확인 (송금 임박 시 최우선 대응)",
     ],
+    incidentTypes: ["투자사기", "대출사기", "온라인거래사기", "결혼·연애사기", "사업제휴사기", "기타"],
+    legalAreasTemplate: [
+      { area: "형법", note: "사기 관련 사항일 경우 관련될 수 있는 분야입니다." },
+      { area: "민법", note: "금전 반환·손해배상 관련 사항일 경우 관련될 수 있는 분야입니다." },
+    ],
+    practiceNotesTemplate:
+      "사기 의심 사안은 신고·수사기관 협조 여부에 따라 대응 절차와 소요 기간이 크게 달라질 수 있어, 정확한 대응 방향은 전문가 확인이 필요합니다.",
   },
   tax: {
     headline: "세무 서류, 이 부분들을 함께 확인해보세요",
@@ -213,6 +320,13 @@ const CATEGORY_BASE: Record<VerifyCategory, CategoryBase> = {
       "서류를 받은 날짜와 명시된 기한부터 먼저 확인",
       "서류 사진/PDF 확보 요청",
     ],
+    incidentTypes: ["세금고지서", "신고서류", "계좌동결통지", "가산세통지", "세무조사", "기타"],
+    legalAreasTemplate: [
+      { area: "세법", note: "고지·신고 관련 사항과 관련될 수 있는 분야입니다." },
+      { area: "기업법", note: "사업자 명의·법인 관련 사항일 경우 함께 관련될 수 있는 분야입니다." },
+    ],
+    practiceNotesTemplate:
+      "관할 세무기관이나 지역에 따라 처리 절차와 기한 계산 방식에 차이가 있을 수 있어, 정확한 실무 기준은 담당 지역 전문가 확인이 필요합니다.",
   },
   unclear: {
     headline: "이 서류, 이 부분부터 확인해보세요",
@@ -238,13 +352,57 @@ const CATEGORY_BASE: Record<VerifyCategory, CategoryBase> = {
       "서류 사진/PDF 확보가 최우선 — 확보 전까지 카테고리 판단 불가",
       "서류를 어디서 받았는지(우편/방문/이메일 등) 확인",
     ],
+    incidentTypes: ["정부기관서류", "법원서류", "경찰서류", "회사서류", "개인간서류", "출처불명", "기타"],
+    legalAreasTemplate: [
+      { area: "행정법", note: "발신기관이 공공기관으로 확인될 경우 관련될 수 있는 분야입니다." },
+      { area: "민법", note: "발신기관이 사인(私人)·민간기관으로 확인될 경우 관련될 수 있는 분야입니다." },
+    ],
+    practiceNotesTemplate:
+      "서류의 발신기관과 성격이 확인되기 전까지는 실무 관행을 특정하기 어려우며, 확인 후 해당 분야 전문가 안내가 필요합니다.",
   },
 };
+
+function buildLegalUpdateNotice(): string {
+  return "관련 법령 및 절차는 수시로 개정될 수 있습니다. 정확한 최신 기준은 전문가 확인을 통해 다시 한번 검토하시길 권장합니다.";
+}
+
+// 항목 5: "법률 적용 가능성 설명" — legalAreas(항목 4, 분야명+짧은 맥락)와는
+// 별도로, "제출 정보 기준 / 가능성 있음 / 추가 확인 필요" 원칙 문장을 만든다.
+// 법 조항 번호나 위반 여부를 단정하지 않는다.
+function buildLegalApplicabilityNote(base: CategoryBase): string {
+  const areaNames = base.legalAreasTemplate.map((a) => a.area).join(", ");
+  return `제출된 사건유형과 자료를 기준으로 볼 때 ${areaNames} 등 관련 분야 법령이 검토 대상이 될 가능성이 있습니다. 정확한 적용 여부는 원본 자료와 최신 법령을 추가로 확인해야 하며, 최종 판단은 전문가 검토를 통해 이루어집니다.`;
+}
+
+function buildIncidentSummary(
+  incidentType: string | undefined,
+  incidentDescription: string | undefined
+): string {
+  const typeLine = incidentType
+    ? `선택하신 사건유형: ${incidentType}`
+    : "선택하신 사건유형: 미선택";
+  const descLine = incidentDescription
+    ? `입력하신 사건 설명:\n"${incidentDescription}"`
+    : "입력하신 사건 설명이 없습니다.";
+  return `${typeLine}\n\n${descLine}\n\n위 내용을 기준으로 한 VFBCAI 1차 검토 결과입니다. (해당 문구는 입력하신 내용을 그대로 표시한 것이며, AI가 내용을 해석·판단하지 않았습니다.)`;
+}
+
+function buildAnalysisOpinion(hasFile: boolean, hasDescription: boolean): string {
+  const fileNote = hasFile
+    ? "제출하신 자료를 함께 참고하여"
+    : "아직 자료가 첨부되지 않은 상태로";
+  const descNote = hasDescription
+    ? "입력하신 사건유형과 설명을 기준으로 검토할 때,"
+    : "입력하신 사건유형을 기준으로 검토할 때,";
+  return `${descNote} ${fileNote} 관련 절차 및 서류에 대한 추가 확인이 필요할 가능성이 있습니다. 구체적인 판단은 원본 자료와 추가 정보 확인 후 전문가 검토를 통해 이루어집니다.`;
+}
 
 function buildDiagnosis(category: VerifyCategory, input: DiagnosisInput): DiagnosisResult {
   const base = CATEGORY_BASE[category];
   const fileKind = getFileKind(input.fileName);
   const hasFile = !!input.fileUrl && fileKind !== "none";
+  const incidentType = input.incidentType?.trim() || undefined;
+  const incidentDescription = input.incidentDescription?.trim() || undefined;
 
   // --- 고객용 체크리스트 (기존 항목 유지 + 입력값 기반 항목 추가) ---
   const checklist: DiagnosisCheckItem[] = [...base.checklistTemplate];
@@ -302,6 +460,31 @@ function buildDiagnosis(category: VerifyCategory, input: DiagnosisInput): Diagno
     rejectionRisks,
     recommendedSteps,
     similarCases: [], // 실제 사례 데이터(case_records) 없이는 항상 빈 배열
+    incidentType,
+    incidentDescription,
+  };
+
+  // --- v3: 고객용 확장 리포트 (11개 항목, 각각 별도 필드) ---
+  const riskFactors: RiskFactor[] = checklist.map((item) => ({
+    level: checklistLevelToFactorLevel(item.level),
+    label: item.label,
+  }));
+
+  const report: CustomerReport = {
+    incidentSummary: buildIncidentSummary(incidentType, incidentDescription), // 1
+    keyFindings: checklist, // 2
+    analysisOpinion: buildAnalysisOpinion(hasFile, !!incidentDescription), // 3
+    legalAreas: base.legalAreasTemplate, // 4
+    legalApplicabilityNote: buildLegalApplicabilityNote(base), // 5
+    legalUpdateNotice: buildLegalUpdateNotice(), // 6
+    practiceNotes: base.practiceNotesTemplate, // 7
+    riskFactors, // 8
+    recommendedActions: recommendedSteps, // 9
+    expertReviewRecommendation: // 10
+      riskLevelToFactorLevel(riskLevel) === "critical"
+        ? "위험도가 높게 분류되어 전문가 검토를 우선 권장드립니다."
+        : "간단한 내용은 무료 1차 상담으로도 확인 가능하며, 정확한 판단을 위해 전문가 검토를 권장드립니다.",
+    aiLimitationNotice: AI_LIMITATION_NOTICE, // 11
   };
 
   return {
@@ -309,6 +492,7 @@ function buildDiagnosis(category: VerifyCategory, input: DiagnosisInput): Diagno
     checklist,
     note: COMMON_NOTE,
     expertBrief,
+    report,
   };
 }
 
@@ -326,14 +510,22 @@ const DEFAULT_DIAGNOSIS: DiagnosisResult = {
   },
 };
 
+// v3 추가: 각 VERIFY 페이지에서 카테고리별 사건유형 옵션을 가져오기 위한 헬퍼.
+// CATEGORY_BASE를 직접 export하지 않고 이 함수를 통해서만 노출한다
+// (기존 CATEGORY_BASE 내부 구조를 페이지에서 직접 참조하지 않도록 캡슐화).
+export function getIncidentTypes(category: VerifyCategory): string[] {
+  return CATEGORY_BASE[category]?.incidentTypes ?? [];
+}
+
 export async function getDiagnosis(
   category: VerifyCategory,
-  input: { fileUrl: string | null; fileName: string | null }
+  input: DiagnosisInput
 ): Promise<DiagnosisResult> {
   // TODO(다음 단계): input.fileUrl을 실제로 분석(OCR/비전 모델)하고,
   // VFBCAI 규칙엔진 + Supabase 법령·행정자료 테이블 조회 결과를 반영해
   // 서류 내용 자체에 근거한 맞춤 진단으로 확장. 현재는 서류 첨부
-  // 여부·형식이라는 실제 입력값 기반의 규칙 진단 단계.
+  // 여부·형식·사건유형·사건설명(표시 용도)이라는 실제 입력값 기반의
+  // 규칙 진단 단계이며, 실제 생성형 AI 호출은 아직 연동하지 않는다.
   if (!CATEGORY_BASE[category]) return DEFAULT_DIAGNOSIS;
   return buildDiagnosis(category, input);
 }
