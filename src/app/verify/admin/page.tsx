@@ -13,33 +13,153 @@ const CATEGORY = "admin" as const;
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
 
-// STEP4 "직접 확인 후 진행하기" 안내 콘텐츠 — admin 카테고리 전용 정적 안내.
-// CHECK/REGISTER의 "직접 신청/자가등록"과는 다르다 — 실제 제출을 대행하거나
-// 절차를 진행시켜주는 기능이 아니라, VERIFY 결과 이후 참고할 수 있는
-// 일반 안내 정보(관할기관/공식사이트/절차/서류/주의사항)만 제공한다.
-const ADMIN_GUIDANCE = {
-  authority:
-    "서류 종류에 따라 출입국관리국, 공안부, 또는 관련 행정기관이 관할합니다. 정확한 관할처는 서류 상단의 발급기관명으로 확인하는 것이 가장 정확합니다.",
-  officialSite: {
-    label: "베트남 국가 공공서비스포털",
-    url: "https://dichvucong.gov.vn",
+// "직접 검토 진행하기" 하위 선택지 — admin 카테고리 전용.
+// 카테고리별로 목록이 달라지므로 다른 VERIFY 페이지 확장 시 각각 별도 정의한다.
+const ADMIN_AGENCY_OPTIONS = [
+  "출입국관리기관",
+  "노동관서",
+  "세무기관",
+  "투자등록기관",
+  "사업자등록기관",
+  "기타 행정기관",
+] as const;
+
+type AdminAgency = (typeof ADMIN_AGENCY_OPTIONS)[number];
+
+type AgencyGuidance = {
+  authority: string;
+  officialSite: { label: string; url: string };
+  submissionSteps: string[];
+  requiredDocuments: string[];
+  cautions: string[];
+};
+
+// 선택한 기관에 따라 달라지는 안내 콘텐츠 — 실제 제출을 대행하는 기능이 아니라
+// VERIFY 결과 이후 참고할 수 있는 일반 안내 정보만 제공한다.
+const ADMIN_AGENCY_GUIDANCE: Record<AdminAgency, AgencyGuidance> = {
+  출입국관리기관: {
+    authority:
+      "여권·비자·거주증 등 출입국 관련 서류는 출입국관리국(이민관리국) 또는 관할 공안 출입국 부서가 담당합니다.",
+    officialSite: { label: "공안부 공공서비스포털", url: "https://dichvucong.bocongan.gov.vn" },
+    submissionSteps: [
+      "관할 출입국관리국 또는 온라인 포털에서 접수 창구 확인",
+      "여권 및 관련 서류 스캔본 준비",
+      "포털 또는 창구에서 신청서 작성 및 제출",
+      "접수번호 확인 및 처리 예정일 확인",
+    ],
+    requiredDocuments: [
+      "여권 사본 (인적사항 페이지)",
+      "현재 보유 비자·거주증 사본",
+      "입국일자·체류 목적 증빙",
+    ],
+    cautions: [
+      "체류 기간 만료 전 여유를 두고 신청하는 것이 안전합니다.",
+      "여권 정보와 신청서 기재 내용이 정확히 일치해야 합니다.",
+      "관할 지역에 따라 접수 창구가 다를 수 있어 사전 확인이 필요합니다.",
+    ],
   },
-  submissionSteps: [
-    "서류 발급기관 및 관할 창구 확인",
-    "포털 또는 창구에서 안내하는 신청서 양식 작성",
-    "요구되는 첨부서류 준비 및 제출",
-    "접수증 또는 처리 예정일 확인",
-  ],
-  requiredDocuments: [
-    "여권 사본 (인적사항 페이지)",
-    "관련 비자·거주증 등 현재 보유 서류 사본",
-    "서류 종류별로 요구되는 추가 증빙 (기관 안내 확인 필요)",
-  ],
-  cautions: [
-    "제출 기한이 있는 서류는 기한을 넘기면 반려·가산 불이익이 발생할 수 있습니다.",
-    "인적사항이 실제 서류와 정확히 일치하는지 제출 전 다시 확인하세요.",
-    "관할기관 및 절차는 지역·서류 종류에 따라 달라질 수 있어, 정확한 확인은 해당 기관에 직접 문의하시기 바랍니다.",
-  ],
+  노동관서: {
+    authority:
+      "노동허가서, 근로계약 신고 등은 관할 노동보훈사회국 또는 관련 노동관서가 담당합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "관할 노동관서 확인",
+      "고용계약 및 관련 서류 준비",
+      "신청서 작성 및 제출",
+      "처리 결과 통지 확인",
+    ],
+    requiredDocuments: [
+      "여권 사본",
+      "근로계약서 또는 고용확인서",
+      "학력·경력 증빙 서류 (해당 시)",
+    ],
+    cautions: [
+      "노동허가 관련 서류는 갱신 기한을 놓치면 불이익이 발생할 수 있습니다.",
+      "고용주 정보와 실제 근무처가 일치해야 합니다.",
+      "지역별로 요구서류가 달라질 수 있어 사전 확인이 필요합니다.",
+    ],
+  },
+  세무기관: {
+    authority: "세금 신고·고지 관련 사항은 관할 세무서 또는 세무총국이 담당합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "관할 세무서 확인",
+      "세금 고지서 또는 신고서 내용 확인",
+      "필요 서류 준비 후 제출 또는 온라인 신고",
+      "납부 또는 이의신청 기한 확인",
+    ],
+    requiredDocuments: [
+      "사업자등록증 사본 (해당 시)",
+      "세금 고지서 원본",
+      "관련 증빙 자료",
+    ],
+    cautions: [
+      "납부 기한을 넘기면 가산세가 부과될 수 있습니다.",
+      "사업자번호·명의가 정확히 일치하는지 확인이 필요합니다.",
+      "관할 세무서는 사업장 소재지에 따라 달라집니다.",
+    ],
+  },
+  투자등록기관: {
+    authority: "투자등록증(IRC) 관련 사항은 관할 기획투자국이 담당합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "관할 기획투자국 확인",
+      "투자 프로젝트 관련 서류 준비",
+      "신청서 제출 및 접수증 수령",
+      "심사 및 등록증 발급 확인",
+    ],
+    requiredDocuments: [
+      "투자자 신원 증빙 서류",
+      "투자 계획서 또는 사업계획서",
+      "자본금 증빙 자료",
+    ],
+    cautions: [
+      "투자 분야에 따라 추가 승인 절차가 필요할 수 있습니다.",
+      "제출 서류의 번역·공증이 요구될 수 있습니다.",
+      "처리 기간이 지역·분야에 따라 달라질 수 있습니다.",
+    ],
+  },
+  사업자등록기관: {
+    authority: "사업자등록증(ERC) 관련 사항은 관할 기획투자국 사업등록과 또는 국가 사업자등록 포털이 담당합니다.",
+    officialSite: { label: "국가 사업자등록포털", url: "https://dangkykinhdoanh.gov.vn" },
+    submissionSteps: [
+      "온라인 포털 또는 관할 등록과에서 접수 창구 확인",
+      "정관·출자자 정보 등 필요 서류 준비",
+      "신청서 온라인 제출 또는 방문 접수",
+      "등록증 발급 및 사업자번호 확인",
+    ],
+    requiredDocuments: [
+      "정관 초안 또는 사본",
+      "출자자·대표자 신원 증빙",
+      "본점 소재지 증빙 서류",
+    ],
+    cautions: [
+      "등록 정보와 실제 사업 현황이 다르면 추후 정정 절차가 필요합니다.",
+      "업종에 따라 추가 조건부 인허가가 필요할 수 있습니다.",
+      "등록 후 세무·사회보험 신고 등 후속 절차가 이어집니다.",
+    ],
+  },
+  "기타 행정기관": {
+    authority:
+      "위 항목에 해당하지 않는 서류는 발급기관명 또는 서류 상단 표기를 통해 관할기관을 확인하는 것이 가장 정확합니다.",
+    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
+    submissionSteps: [
+      "서류 발급기관 및 관할 창구 확인",
+      "포털 또는 창구에서 안내하는 신청서 양식 작성",
+      "요구되는 첨부서류 준비 및 제출",
+      "접수증 또는 처리 예정일 확인",
+    ],
+    requiredDocuments: [
+      "여권 사본 (인적사항 페이지)",
+      "관련 비자·거주증 등 현재 보유 서류 사본",
+      "서류 종류별로 요구되는 추가 증빙 (기관 안내 확인 필요)",
+    ],
+    cautions: [
+      "제출 기한이 있는 서류는 기한을 넘기면 반려·가산 불이익이 발생할 수 있습니다.",
+      "인적사항이 실제 서류와 정확히 일치하는지 제출 전 다시 확인하세요.",
+      "관할기관 및 절차는 지역·서류 종류에 따라 달라질 수 있어, 정확한 확인은 해당 기관에 직접 문의하시기 바랍니다.",
+    ],
+  },
 };
 
 function ConsentDetails({
@@ -138,7 +258,7 @@ function riskFactorLabel(level: "critical" | "high" | "caution") {
   return "주의";
 }
 
-// STEP3 진단 리포트 — diagnosis.report(11개 항목)가 있으면 이걸 우선 렌더링.
+// 진단 리포트 — diagnosis.report(11개 항목)가 있으면 이걸 우선 렌더링.
 // report가 없는 경우(구버전 데이터 등)를 대비해 기존 headline/checklist/note
 // 렌더링은 그대로 보존해 폴백으로 사용한다.
 function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
@@ -262,15 +382,20 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
 }
 
 export default function VerifyAdminPage() {
-  // STEP1(사건정보) → STEP2(기존 서류·개인정보) → STEP3(진단) → STEP4(진행방식 선택) → 완료
-  const [step, setStep] = useState<"incident" | "form" | "diagnosis" | "guidance" | "completed">("incident");
+  // STEP1(사건정보) → STEP2(서류첨부) → STEP3(개인정보) → STEP4(진단)
+  // → STEP5-a(기관 선택) → STEP5-b(안내) / 전문가 진행 → 완료
+  const [step, setStep] = useState<
+    "incident" | "attachment" | "form" | "diagnosis" | "guidanceSelect" | "guidance" | "completed"
+  >("incident");
   const [incidentType, setIncidentType] = useState<string | null>(null);
   const [incidentDescription, setIncidentDescription] = useState("");
   const [incidentError, setIncidentError] = useState<string | null>(null);
 
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
@@ -279,6 +404,7 @@ export default function VerifyAdminPage() {
   const [diagnosing, setDiagnosing] = useState(false);
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [expertError, setExpertError] = useState<string | null>(null);
+  const [selectedAgency, setSelectedAgency] = useState<AdminAgency | null>(null);
   const messengers = MESSENGERS_KO;
 
   const incidentTypes = getIncidentTypes(CATEGORY);
@@ -288,12 +414,12 @@ export default function VerifyAdminPage() {
       setIncidentError("사건유형을 선택해주세요.");
       return;
     }
-    if (incidentDescription.trim().length < 10) {
-      setIncidentError("사건 설명을 10자 이상 입력해주세요.");
+    if (incidentDescription.trim().length === 0) {
+      setIncidentError("사건 설명을 입력해주세요.");
       return;
     }
     setIncidentError(null);
-    setStep("form");
+    setStep("attachment");
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -309,7 +435,6 @@ export default function VerifyAdminPage() {
 
     setSubmitting(true);
     setError(null);
-    const file = fd.get("document") as File | null;
     const newLeadId = crypto.randomUUID();
 
     const name = String(fd.get("name") || "");
@@ -340,14 +465,14 @@ export default function VerifyAdminPage() {
     }
 
     let fileUrl: string | null = null;
-    if (file && file.size > 0) {
-      const rawExt = file.name.split(".").pop() || "";
+    if (attachedFile && attachedFile.size > 0) {
+      const rawExt = attachedFile.name.split(".").pop() || "";
       const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
       const path = `verify-admin/${newLeadId}.${safeExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("documents")
-        .upload(path, file);
+        .upload(path, attachedFile);
       if (!uploadError) {
         const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
         fileUrl = urlData.publicUrl;
@@ -363,7 +488,7 @@ export default function VerifyAdminPage() {
       meta: {
         incident_type: incidentType,
         incident_description: incidentDescription.trim(),
-        ...(fileUrl ? { file_url: fileUrl, file_name: file?.name } : {}),
+        ...(fileUrl ? { file_url: fileUrl, file_name: attachedFile?.name } : {}),
       },
     });
 
@@ -384,13 +509,12 @@ export default function VerifyAdminPage() {
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setEmailProvided(!!email);
     setLeadId(newLeadId);
-    setFileName(file?.name || null);
     setSubmitting(false);
 
     setDiagnosing(true);
     const diag = await getDiagnosis(CATEGORY, {
       fileUrl,
-      fileName: file?.name || null,
+      fileName: attachedFile?.name || null,
       incidentType: incidentType || undefined,
       incidentDescription: incidentDescription.trim() || undefined,
     });
@@ -419,6 +543,8 @@ export default function VerifyAdminPage() {
     }
   }
 
+  const activeGuidance = selectedAgency ? ADMIN_AGENCY_GUIDANCE[selectedAgency] : null;
+
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
@@ -433,6 +559,7 @@ export default function VerifyAdminPage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
         <p className="mt-1 text-sm text-gray-500">비자·거주증·노동허가 등 행정서류 사전 검토</p>
 
+        {/* STEP1: 사건유형 + 사건설명 */}
         {step === "incident" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
@@ -482,6 +609,54 @@ export default function VerifyAdminPage() {
           </div>
         )}
 
+        {/* STEP2: 서류 첨부 (개인정보 입력 이전, 선택) */}
+        {step === "attachment" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <Paperclip className="text-gray-900" size={28} />
+            <p className="mt-4 text-sm font-semibold text-gray-900">
+              3. 관련 서류가 있다면 첨부해주세요
+            </p>
+            <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+              서류 사진이나 PDF·워드 파일을 첨부하시면 더 정확한 확인이 가능합니다.
+            </p>
+
+            <label className="mt-4 flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
+              <Paperclip size={16} className="shrink-0" />
+              <span className="truncate">
+                {fileName || "서류 첨부 (사진 · PDF · Word)"}
+              </span>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0] || null;
+                  setAttachedFile(f);
+                  setFileName(f?.name || null);
+                }}
+              />
+            </label>
+            <p className="mt-1.5 text-[11px] text-gray-400">
+              서류가 없어도 다음 단계로 진행할 수 있으며, 나중에 카카오톡/잘로로
+              보내주셔도 됩니다.
+            </p>
+
+            <button
+              onClick={() => setStep("form")}
+              className="mt-5 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+            >
+              다음
+            </button>
+            <button
+              onClick={() => setStep("incident")}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 이전 단계로
+            </button>
+          </div>
+        )}
+
+        {/* STEP3: 개인정보 입력 */}
         {step === "form" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
@@ -491,25 +666,10 @@ export default function VerifyAdminPage() {
 
             <p className="mt-4 text-sm text-gray-600 leading-relaxed">
               관공서 공문서는 문구 하나만 잘못 해석해도 반려되거나 처리
-              기한을 놓쳐 불이익으로 이어질 수 있습니다. 서명하거나
-              제출하기 전에 AI가 먼저 확인해드립니다. 서류 사진이나 PDF·
-              워드 파일을 첨부하고 이름·연락처만 남기면 무료로 1차
-              검토해드립니다.
+              기한을 놓쳐 불이익으로 이어질 수 있습니다. 이름·연락처만
+              남기면 무료로 1차 검토해드립니다.
             </p>
             <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-              <label className="flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
-                <Paperclip size={16} className="shrink-0" />
-                <span className="truncate">
-                  {fileName || "서류 첨부 (사진 · PDF · Word)"}
-                </span>
-                <input
-                  type="file"
-                  name="document"
-                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                  className="hidden"
-                  onChange={(e) => setFileName(e.target.files?.[0]?.name || null)}
-                />
-              </label>
               <input type="text" name="name" required placeholder="이름"
                 className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
               <input type="tel" name="phone" required placeholder="전화번호"
@@ -545,14 +705,11 @@ export default function VerifyAdminPage() {
               {error && <p className="text-xs text-red-600">{error}</p>}
               <button type="submit" disabled={submitting || diagnosing}
                 className="w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors">
-                {submitting || diagnosing ? "AI가 확인하는 중..." : "무료로 검토받기"}
+                {submitting || diagnosing ? "AI가 확인하는 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
-            <p className="mt-3 text-[11px] text-gray-400">
-              서류가 없어도 접수 가능하며, 나중에 카카오톡/잘로로 보내주셔도 됩니다.
-            </p>
             <button
-              onClick={() => setStep("incident")}
+              onClick={() => setStep("attachment")}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
             >
               ← 이전 단계로
@@ -560,7 +717,7 @@ export default function VerifyAdminPage() {
           </div>
         )}
 
-        {/* STEP3: 진단 리포트 + STEP4 진입 버튼 2개 */}
+        {/* STEP4: 진단 리포트 + 진행방식 선택 진입 버튼 2개 */}
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
@@ -574,17 +731,17 @@ export default function VerifyAdminPage() {
             </p>
             <div className="mt-3 flex flex-col gap-3">
               <button
-                onClick={() => setStep("guidance")}
+                onClick={() => setStep("guidanceSelect")}
                 className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-gray-900 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
               >
-                직접 확인 후 진행하기
+                직접 검토 진행하기
               </button>
               <button
                 onClick={handleExpertRequest}
                 disabled={expertRequesting}
                 className="h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
               >
-                {expertRequesting ? "접수 중..." : "전문가 검토 신청하기 →"}
+                {expertRequesting ? "접수 중..." : "전문가 검토 진행하기"}
               </button>
             </div>
             {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
@@ -594,11 +751,49 @@ export default function VerifyAdminPage() {
           </div>
         )}
 
-        {/* STEP4: 직접 확인 후 진행하기 — 관할기관/공식사이트/절차/서류/주의사항 안내만 제공 */}
-        {step === "guidance" && (
+        {/* STEP5-a: 직접 검토 진행하기 — 관련 기관/진행 경로 선택 */}
+        {step === "guidanceSelect" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
+              어떤 기관·경로와 관련된 사안인가요?
+            </p>
+            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+              선택하신 항목에 맞는 관할기관·공식 확인 경로·절차 안내를 보여드립니다.
+            </p>
+
+            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {ADMIN_AGENCY_OPTIONS.map((agency) => (
+                <button
+                  key={agency}
+                  onClick={() => {
+                    setSelectedAgency(agency);
+                    setStep("guidance");
+                  }}
+                  className="rounded-2xl border border-gray-100 bg-white p-4 text-left text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-all"
+                >
+                  {agency}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setStep("diagnosis")}
+              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 검토 결과로 돌아가기
+            </button>
+          </div>
+        )}
+
+        {/* STEP5-b: 선택한 기관에 대한 안내 — 관할기관/공식 확인 경로/절차/서류/주의사항 */}
+        {step === "guidance" && activeGuidance && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <FileText className="text-gray-900" size={28} />
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              {selectedAgency}
+            </p>
+            <p className="mt-1 text-lg font-bold text-gray-900">
               직접 진행을 위한 참고 안내
             </p>
             <p className="mt-2 text-xs text-gray-500 leading-relaxed">
@@ -610,26 +805,26 @@ export default function VerifyAdminPage() {
               <div className="rounded-xl bg-gray-50 px-4 py-3">
                 <p className="text-xs font-semibold text-gray-700">관할기관</p>
                 <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
-                  {ADMIN_GUIDANCE.authority}
+                  {activeGuidance.authority}
                 </p>
               </div>
 
               <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">공식 사이트</p>
+                <p className="text-xs font-semibold text-gray-700">공식 확인 경로</p>
                 <a
-                  href={ADMIN_GUIDANCE.officialSite.url}
+                  href={activeGuidance.officialSite.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-blue-900 hover:underline"
                 >
-                  {ADMIN_GUIDANCE.officialSite.label} <ExternalLink size={12} />
+                  {activeGuidance.officialSite.label} <ExternalLink size={12} />
                 </a>
               </div>
 
               <div>
-                <p className="text-xs font-semibold text-gray-700">기본 제출 절차</p>
+                <p className="text-xs font-semibold text-gray-700">기본 절차</p>
                 <ol className="mt-2 space-y-1.5">
-                  {ADMIN_GUIDANCE.submissionSteps.map((s, idx) => (
+                  {activeGuidance.submissionSteps.map((s, idx) => (
                     <li key={idx} className="text-xs text-gray-600 leading-relaxed">
                       {idx + 1}. {s}
                     </li>
@@ -640,7 +835,7 @@ export default function VerifyAdminPage() {
               <div>
                 <p className="text-xs font-semibold text-gray-700">일반 준비서류</p>
                 <ul className="mt-2 space-y-1">
-                  {ADMIN_GUIDANCE.requiredDocuments.map((d, idx) => (
+                  {activeGuidance.requiredDocuments.map((d, idx) => (
                     <li key={idx} className="text-xs text-gray-600 leading-relaxed">
                       · {d}
                     </li>
@@ -651,7 +846,7 @@ export default function VerifyAdminPage() {
               <div className="rounded-xl bg-amber-50 px-4 py-3">
                 <p className="text-xs font-semibold text-amber-800">주의사항</p>
                 <ul className="mt-1.5 space-y-1">
-                  {ADMIN_GUIDANCE.cautions.map((c, idx) => (
+                  {activeGuidance.cautions.map((c, idx) => (
                     <li key={idx} className="text-xs text-amber-800 leading-relaxed">
                       · {c}
                     </li>
@@ -668,23 +863,33 @@ export default function VerifyAdminPage() {
               disabled={expertRequesting}
               className="mt-3 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
             >
-              {expertRequesting ? "접수 중..." : "전문가 검토 신청하기 →"}
+              {expertRequesting ? "접수 중..." : "전문가 검토 진행하기"}
             </button>
             {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
 
             <button
-              onClick={() => setStep("diagnosis")}
+              onClick={() => setStep("guidanceSelect")}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
             >
-              ← 검토 결과로 돌아가기
+              ← 다른 기관 선택하기
             </button>
           </div>
         )}
 
         {step === "completed" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={24} />
-            <p className="mt-3 text-base font-bold text-gray-900">
+            <div className="flex justify-center">
+              <img
+                src="/vfbc-seal.png"
+                alt="VFBCAI 접수완료 확인 도장"
+                width={160}
+                height={160}
+              />
+            </div>
+            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
+              Vietnam Foreign Business Verification &amp; Compliance AI Center
+            </p>
+            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
               전문가 검토 요청이 접수되었습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
