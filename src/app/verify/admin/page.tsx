@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, FileText, CheckCircle2, Paperclip, AlertTriangle, Info } from "lucide-react";
+import { ArrowLeft, FileText, CheckCircle2, Paperclip, AlertTriangle, Info, ExternalLink } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
@@ -12,6 +12,35 @@ const CATEGORY = "admin" as const;
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
+
+// STEP4 "직접 확인 후 진행하기" 안내 콘텐츠 — admin 카테고리 전용 정적 안내.
+// CHECK/REGISTER의 "직접 신청/자가등록"과는 다르다 — 실제 제출을 대행하거나
+// 절차를 진행시켜주는 기능이 아니라, VERIFY 결과 이후 참고할 수 있는
+// 일반 안내 정보(관할기관/공식사이트/절차/서류/주의사항)만 제공한다.
+const ADMIN_GUIDANCE = {
+  authority:
+    "서류 종류에 따라 출입국관리국, 공안부, 또는 관련 행정기관이 관할합니다. 정확한 관할처는 서류 상단의 발급기관명으로 확인하는 것이 가장 정확합니다.",
+  officialSite: {
+    label: "베트남 국가 공공서비스포털",
+    url: "https://dichvucong.gov.vn",
+  },
+  submissionSteps: [
+    "서류 발급기관 및 관할 창구 확인",
+    "포털 또는 창구에서 안내하는 신청서 양식 작성",
+    "요구되는 첨부서류 준비 및 제출",
+    "접수증 또는 처리 예정일 확인",
+  ],
+  requiredDocuments: [
+    "여권 사본 (인적사항 페이지)",
+    "관련 비자·거주증 등 현재 보유 서류 사본",
+    "서류 종류별로 요구되는 추가 증빙 (기관 안내 확인 필요)",
+  ],
+  cautions: [
+    "제출 기한이 있는 서류는 기한을 넘기면 반려·가산 불이익이 발생할 수 있습니다.",
+    "인적사항이 실제 서류와 정확히 일치하는지 제출 전 다시 확인하세요.",
+    "관할기관 및 절차는 지역·서류 종류에 따라 달라질 수 있어, 정확한 확인은 해당 기관에 직접 문의하시기 바랍니다.",
+  ],
+};
 
 function ConsentDetails({
   open,
@@ -116,7 +145,6 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
   const { report } = diagnosis;
 
   if (!report) {
-    // 기존(v2) 방식 폴백 — headline/checklist/note만 사용
     return (
       <>
         <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
@@ -141,7 +169,6 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
     <>
       <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
 
-      {/* 1. 사건 요약 */}
       <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
         <p className="text-xs font-semibold text-gray-700">사건 요약</p>
         <p className="mt-1.5 whitespace-pre-line text-xs text-gray-600 leading-relaxed">
@@ -149,7 +176,6 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </p>
       </div>
 
-      {/* 2. 주요 발견사항 */}
       <div className="mt-4">
         <p className="text-xs font-semibold text-gray-700">주요 발견사항</p>
         <ul className="mt-2 space-y-2.5">
@@ -162,13 +188,11 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </ul>
       </div>
 
-      {/* 3. AI 분석 의견 */}
       <div className="mt-4">
         <p className="text-xs font-semibold text-gray-700">VFBCAI 1차 검토 의견</p>
         <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.analysisOpinion}</p>
       </div>
 
-      {/* 4. 적용 가능성이 있는 법률 분야 */}
       {report.legalAreas.length > 0 && (
         <div className="mt-4">
           <p className="text-xs font-semibold text-gray-700">적용 가능성이 있는 법률 분야</p>
@@ -182,7 +206,6 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </div>
       )}
 
-      {/* 5. 법률 적용 가능성 설명 */}
       <div className="mt-4">
         <p className="text-xs font-semibold text-gray-700">법률 적용 가능성 설명</p>
         <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
@@ -190,19 +213,16 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </p>
       </div>
 
-      {/* 6. 최신 법령 확인 필요 여부 */}
       <div className="mt-4">
         <p className="text-xs font-semibold text-gray-700">최신 법령 확인 안내</p>
         <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.legalUpdateNotice}</p>
       </div>
 
-      {/* 7. 실무 행정 관행 안내 */}
       <div className="mt-4">
         <p className="text-xs font-semibold text-gray-700">실무 행정 관행 안내</p>
         <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.practiceNotes}</p>
       </div>
 
-      {/* 8. 위험요인 */}
       {report.riskFactors.length > 0 && (
         <div className="mt-4">
           <p className="text-xs font-semibold text-gray-700">위험요인</p>
@@ -219,7 +239,6 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </div>
       )}
 
-      {/* 9. 권장 조치 */}
       {report.recommendedActions.length > 0 && (
         <div className="mt-4">
           <p className="text-xs font-semibold text-gray-700">권장 조치</p>
@@ -233,20 +252,18 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </div>
       )}
 
-      {/* 10. 전문가 검토 권장 */}
       <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
         {report.expertReviewRecommendation}
       </div>
 
-      {/* 11. AI 한계 고지 */}
       <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">{report.aiLimitationNotice}</p>
     </>
   );
 }
 
 export default function VerifyAdminPage() {
-  // STEP1(사건정보) → STEP2(기존 서류·개인정보) → STEP3(진단) → 완료
-  const [step, setStep] = useState<"incident" | "form" | "diagnosis" | "completed">("incident");
+  // STEP1(사건정보) → STEP2(기존 서류·개인정보) → STEP3(진단) → STEP4(진행방식 선택) → 완료
+  const [step, setStep] = useState<"incident" | "form" | "diagnosis" | "guidance" | "completed">("incident");
   const [incidentType, setIncidentType] = useState<string | null>(null);
   const [incidentDescription, setIncidentDescription] = useState("");
   const [incidentError, setIncidentError] = useState<string | null>(null);
@@ -339,8 +356,6 @@ export default function VerifyAdminPage() {
       }
     }
 
-    // 기존에 존재하던 crm_activities(verify_lead) meta 저장 로직에
-    // incident_type / incident_description만 추가 (신규 로직 아님, 기존 저장 확장)
     await supabase.from("crm_activities").insert({
       lead_id: newLeadId,
       action: "verify_lead",
@@ -418,7 +433,6 @@ export default function VerifyAdminPage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
         <p className="mt-1 text-sm text-gray-500">비자·거주증·노동허가 등 행정서류 사전 검토</p>
 
-        {/* STEP1: 사건 정보 (사건유형 + 사건설명) */}
         {step === "incident" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
@@ -468,7 +482,6 @@ export default function VerifyAdminPage() {
           </div>
         )}
 
-        {/* STEP2: 기존 서류 첨부 + 개인정보 폼 (기존 그대로) */}
         {step === "form" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
@@ -547,7 +560,7 @@ export default function VerifyAdminPage() {
           </div>
         )}
 
-        {/* STEP3: 진단 리포트 (report 11항목 우선, 없으면 기존 방식 폴백) */}
+        {/* STEP3: 진단 리포트 + STEP4 진입 버튼 2개 */}
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
@@ -556,23 +569,115 @@ export default function VerifyAdminPage() {
 
             <DiagnosisReportSection diagnosis={diagnosis} />
 
-            <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
-              간단한 내용은 무료 1차 상담으로도 확인 가능합니다. 위 항목
-              중 우려되는 부분이 있거나 서류가 복잡하다면, 전문가가 직접
-              서류를 검토해드립니다.
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              위 내용, 어떻게 진행하시겠어요?
+            </p>
+            <div className="mt-3 flex flex-col gap-3">
+              <button
+                onClick={() => setStep("guidance")}
+                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-gray-900 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+              >
+                직접 확인 후 진행하기
+              </button>
+              <button
+                onClick={handleExpertRequest}
+                disabled={expertRequesting}
+                className="h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
+              >
+                {expertRequesting ? "접수 중..." : "전문가 검토 신청하기 →"}
+              </button>
+            </div>
+            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
+            <p className="mt-2 text-[11px] text-gray-400 text-center">
+              어느 쪽을 선택해도 이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다.
+            </p>
+          </div>
+        )}
+
+        {/* STEP4: 직접 확인 후 진행하기 — 관할기관/공식사이트/절차/서류/주의사항 안내만 제공 */}
+        {step === "guidance" && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <FileText className="text-gray-900" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              직접 진행을 위한 참고 안내
+            </p>
+            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+              아래는 일반적인 참고 정보이며, VFBCAI가 실제 신청·제출을 대신
+              처리하지는 않습니다. 정확한 절차는 관할기관에서 다시 확인해주세요.
+            </p>
+
+            <div className="mt-5 space-y-4">
+              <div className="rounded-xl bg-gray-50 px-4 py-3">
+                <p className="text-xs font-semibold text-gray-700">관할기관</p>
+                <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
+                  {ADMIN_GUIDANCE.authority}
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-gray-50 px-4 py-3">
+                <p className="text-xs font-semibold text-gray-700">공식 사이트</p>
+                <a
+                  href={ADMIN_GUIDANCE.officialSite.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-blue-900 hover:underline"
+                >
+                  {ADMIN_GUIDANCE.officialSite.label} <ExternalLink size={12} />
+                </a>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-gray-700">기본 제출 절차</p>
+                <ol className="mt-2 space-y-1.5">
+                  {ADMIN_GUIDANCE.submissionSteps.map((s, idx) => (
+                    <li key={idx} className="text-xs text-gray-600 leading-relaxed">
+                      {idx + 1}. {s}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-gray-700">일반 준비서류</p>
+                <ul className="mt-2 space-y-1">
+                  {ADMIN_GUIDANCE.requiredDocuments.map((d, idx) => (
+                    <li key={idx} className="text-xs text-gray-600 leading-relaxed">
+                      · {d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-xl bg-amber-50 px-4 py-3">
+                <p className="text-xs font-semibold text-amber-800">주의사항</p>
+                <ul className="mt-1.5 space-y-1">
+                  {ADMIN_GUIDANCE.cautions.map((c, idx) => (
+                    <li key={idx} className="text-xs text-amber-800 leading-relaxed">
+                      · {c}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
-            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              직접 진행이 부담되신다면 전문가에게 맡기실 수도 있습니다.
+            </p>
             <button
               onClick={handleExpertRequest}
               disabled={expertRequesting}
-              className="mt-4 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
+              className="mt-3 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
             >
-              {expertRequesting ? "접수 중..." : "전문가 검토 요청하기 →"}
+              {expertRequesting ? "접수 중..." : "전문가 검토 신청하기 →"}
             </button>
-            <p className="mt-2 text-[11px] text-gray-400">
-              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
-            </p>
+            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
+
+            <button
+              onClick={() => setStep("diagnosis")}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 검토 결과로 돌아가기
+            </button>
           </div>
         )}
 
