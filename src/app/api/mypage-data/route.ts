@@ -276,6 +276,10 @@ export async function POST(req: NextRequest) {
       let fileUrl: string | null = null;
       let fileName: string | null = null;
       for (const a of leadActivities) {
+        // "허가 완료"에 첨부되는 결과파일(허가증)은 아래에서 permitFileUrl로
+        // 따로 뽑는다 — 고객이 접수 시 직접 올린 첨부서류(fileUrl)와 섞이면
+        // 안 되므로 이 루프에서는 제외한다.
+        if (a.action === "process_permit_completed") continue;
         const meta = asMeta(a.meta);
         if (typeof meta?.feasibilityScore === "number") {
           feasibilityScore = meta.feasibilityScore as number;
@@ -285,6 +289,15 @@ export async function POST(req: NextRequest) {
           fileName = (meta.file_name as string | undefined) ?? null;
         }
       }
+
+      // STEP4: 정부 제출일 / 허가 완료일 / 허가증(결과파일)
+      const governmentSubmittedActivity = leadActivities.find((a) => a.action === "process_government_submitted");
+      const permitCompletedActivity = leadActivities.find((a) => a.action === "process_permit_completed");
+      const governmentSubmittedAt = governmentSubmittedActivity?.created_at ?? null;
+      const permitCompletedAt = permitCompletedActivity?.created_at ?? null;
+      const permitMeta = asMeta(permitCompletedActivity?.meta);
+      const permitFileUrl = (permitMeta?.file_url as string | undefined) ?? null;
+      const permitFileName = (permitMeta?.file_name as string | undefined) ?? null;
 
       const normalizedType = normalizeServiceType(lead.service_type);
       const category = getCategory(normalizedType);
@@ -344,6 +357,10 @@ export async function POST(req: NextRequest) {
         confidence,
         stage,
         activityLog,
+        governmentSubmittedAt,
+        permitCompletedAt,
+        permitFileUrl,
+        permitFileName,
         createdAt: lead.created_at,
       };
     });

@@ -293,6 +293,11 @@ async function addExpertMemo(formData: FormData) {
 // action은 SETTABLE_STAGE_ACTIONS 화이트리스트에 있는 값만 허용한다(폼 조작으로
 // 임의 문자열이 crm_activities.action에 저장되는 것을 방지).
 // 이미 동일 action이 있으면 다시 저장하지 않는다(중복 방지).
+//
+// STEP4: "허가 완료" 단계에서만 결과파일(허가증)을 함께 첨부할 수 있다.
+// 새 Storage 버킷을 만들지 않고, verify/*/page.tsx가 이미 쓰는 "documents"
+// 버킷·업로드 방식을 그대로 재사용한다. meta.file_url/file_name도 기존
+// VERIFY 첨부파일과 동일한 필드명 관례를 따른다.
 async function setProcessStage(formData: FormData) {
   "use server";
   const leadId = String(formData.get("leadId") || "");
@@ -307,11 +312,34 @@ async function setProcessStage(formData: FormData) {
     .maybeSingle();
   if (existing) return;
 
+  const meta: Record<string, unknown> = { setBy: "admin" };
+
+  if (action === "process_permit_completed") {
+    const file = formData.get("permitFile");
+    if (file instanceof File && file.size > 0) {
+      const rawExt = file.name.split(".").pop() || "";
+      const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+      const storagePath = `permit-results/${leadId}.${safeExt}`;
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("documents")
+        .upload(storagePath, file, { upsert: true });
+
+      if (!uploadError) {
+        const { data: urlData } = supabaseAdmin.storage.from("documents").getPublicUrl(storagePath);
+        meta.file_url = urlData.publicUrl;
+        meta.file_name = file.name;
+      } else {
+        console.error("permit file upload failed:", uploadError);
+      }
+    }
+  }
+
   await supabaseAdmin.from("crm_activities").insert({
     lead_id: leadId,
     action,
     tag: "ADMIN_STAGE_UPDATE",
-    meta: { setBy: "admin" },
+    meta,
   });
 
   revalidatePath(`/admin/leads/${leadId}`);
@@ -362,6 +390,11 @@ export default async function AdminLeadDetailPage({
   const resultInfo = lead.result ? RESULT_LABELS[lead.result] ?? null : null;
   const consultationStatus = getConsultationStatus(activities);
   const processSteps = buildProcessSteps(category, activities);
+
+  // STEP4: "허가 완료" 단계에 첨부된 결과파일(허가증)이 있으면 표시용으로 조회
+  const permitActivity = activities.find((a) => a.action === "process_permit_completed");
+  const permitFileUrl = (asMeta(permitActivity?.meta)?.file_url as string | undefined) ?? null;
+  const permitFileName = (asMeta(permitActivity?.meta)?.file_name as string | undefined) ?? null;
 
   // 첨부 서류 (VERIFY STEP2에서 저장되는 meta.file_url / file_name — 특정
   // action명에 묶지 않고 파일이 첨부된 첫 활동을 찾는다)
@@ -462,21 +495,41 @@ export default async function AdminLeadDetailPage({
           <p className="text-xs font-semibold text-gray-700">진행 단계 관리</p>
           <div className="mt-3 space-y-2">
             {processSteps.map((step) => (
-              <div key={step.label} className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  {step.done ? (
-                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                  ) : (
-                    <Circle size={16} className="text-gray-300 shrink-0" />
+              <div key={step.label} className="gap-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    {step.done ? (
+                      <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                    ) : (
+                      <Circle size={16} className="text-gray-300 shrink-0" />
+                    )}
+                    <span className={`text-xs ${step.done ? "font-semibold text-gray-900" : "text-gray-500"}`}>
+                      {step.label}
+                    </span>
+                  </div>
+                  {!step.done && step.settableAction && step.settableAction !== "process_permit_completed" && (
+                    <form action={setProcessStage}>
+                      <input type="hidden" name="leadId" value={lead.id} />
+                      <input type="hidden" name="stageAction" value={step.settableAction} />
+                      <button
+                        type="submit"
+                        className="rounded-full border border-blue-900 px-3 py-1 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+                      >
+                        이 단계로 설정
+                      </button>
+                    </form>
                   )}
-                  <span className={`text-xs ${step.done ? "font-semibold text-gray-900" : "text-gray-500"}`}>
-                    {step.label}
-                  </span>
                 </div>
-                {!step.done && step.settableAction && (
-                  <form action={setProcessStage}>
+                {/* STEP4: "허가 완료"는 결과파일(허가증)을 함께 첨부할 수 있다(선택) */}
+                {!step.done && step.settableAction === "process_permit_completed" && (
+                  <form action={setProcessStage} className="mt-2 flex flex-wrap items-center gap-2 pl-6">
                     <input type="hidden" name="leadId" value={lead.id} />
                     <input type="hidden" name="stageAction" value={step.settableAction} />
+                    <input
+                      type="file"
+                      name="permitFile"
+                      className="text-[10px] text-gray-500 file:mr-2 file:rounded-full file:border-0 file:bg-gray-100 file:px-2.5 file:py-1 file:text-[10px] file:font-semibold"
+                    />
                     <button
                       type="submit"
                       className="rounded-full border border-blue-900 px-3 py-1 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
@@ -484,6 +537,17 @@ export default async function AdminLeadDetailPage({
                       이 단계로 설정
                     </button>
                   </form>
+                )}
+                {/* STEP4: 이미 첨부된 허가증 파일이 있으면 표시 */}
+                {step.done && step.settableAction === "process_permit_completed" && permitFileUrl && (
+                  <a
+                    href={permitFileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 ml-6 inline-flex items-center gap-1 text-[11px] font-medium text-blue-900 hover:underline"
+                  >
+                    <Paperclip size={12} /> {permitFileName ?? "허가증 파일 열기"}
+                  </a>
                 )}
               </div>
             ))}

@@ -97,6 +97,10 @@ type MyPageItem = {
   confidence: ConfidenceStatus;
   stage: StageInfo;
   activityLog: ActivityLogEntry[];
+  governmentSubmittedAt: string | null;
+  permitCompletedAt: string | null;
+  permitFileUrl: string | null;
+  permitFileName: string | null;
   createdAt: string;
 };
 
@@ -118,6 +122,12 @@ function formatShortDate(iso: string) {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
   return `${mm}/${dd}`;
+}
+
+// STEP4 정부 제출/허가완료 날짜 표기 (예: 2026-07-23)
+function formatIsoDate(iso: string) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 // ── 단계별 타임라인 ──
@@ -358,6 +368,39 @@ function LeadCard({ item }: { item: MyPageItem }) {
 
       {/* STEP3: AI 결과 PDF 다운로드 */}
       <PdfDownloadButton leadId={item.id} />
+
+      {/* STEP4: 정부 제출 및 허가 결과 */}
+      {(item.governmentSubmittedAt || item.permitCompletedAt) && (
+        <div className="mt-4 space-y-3">
+          {item.governmentSubmittedAt && (
+            <div className="rounded-2xl bg-gray-50 px-4 py-3">
+              <p className="text-[11px] font-semibold text-gray-500">정부 제출</p>
+              <p className="mt-1 text-sm font-bold text-gray-900">
+                {formatIsoDate(item.governmentSubmittedAt)}
+              </p>
+              <p className="mt-1 text-[11px] text-gray-500">담당자 · {EXPERT_TEAM_LABEL}</p>
+            </div>
+          )}
+          {item.permitCompletedAt && (
+            <div className="rounded-2xl bg-emerald-50 px-4 py-3">
+              <p className="text-[11px] font-semibold text-emerald-700">허가 완료</p>
+              <p className="mt-1 text-sm font-bold text-emerald-900">
+                {formatIsoDate(item.permitCompletedAt)}
+              </p>
+              {item.permitFileUrl && (
+                <a
+                  href={item.permitFileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-700 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-800 transition-colors"
+                >
+                  <Download size={14} /> {item.permitFileName ?? "허가증 다운로드"}
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ⑦ 전문가 정보 */}
       <div className="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
