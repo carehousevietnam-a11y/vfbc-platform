@@ -2,20 +2,20 @@
 
 // src/app/mypage/page.tsx
 //
-// 고객용 My Page 1차 버전.
-// 로그인 방식은 새로 만들지 않는다 — /r 결과확인 페이지에서 이미 자동으로
-// 생기는 Supabase Auth 세션(auto-login/route.ts, magiclink 방식)을 그대로
-// 사용한다. 이 페이지에 처음 들어왔을 때 세션이 없으면, 새 로그인 화면을
-// 만드는 대신 기존에 받은 결과확인 링크로 안내한다.
+// 고객용 My Page v2. 로그인 방식은 v1과 동일하게 새로 만들지 않는다 —
+// /r 결과확인 페이지에서 자동으로 생기는 Supabase Auth 세션을 그대로 쓴다.
+//
+// ⚠️ 절대 금지 경계 (변경 없음): expertBrief / expert_brief / checkedItems /
+// rejectionRisks / recommendedSteps / similarCases 등 AI의 내부 판단 근거는
+// /api/mypage-data가 애초에 응답에 포함하지 않는다. 이 페이지는 그 API가
+// 반환하는 필드만 사용하므로, 여기서도 그런 내부 데이터를 다룰 수 없다.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  FileCheck2,
-  Clock,
-  Paperclip,
-  ChevronDown,
-  ChevronUp,
+  CheckCircle2,
+  Circle,
+  Download,
   MessageSquare,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -36,16 +36,50 @@ const RESULT_LABELS: Record<string, { label: string; className: string }> = {
   impossible: { label: "어려움", className: "text-red-700" },
 };
 
+// 예상 처리기간 안내 — DB 컬럼이 아니라, 각 서비스 진단 로직(checkDiagnosis.ts,
+// register/*/page.tsx의 estimatedDays)에 이미 쓰이던 값을 그대로 옮겨온
+// 화면 표시용 고정 참고자료다. 실제 처리기간은 서류 상태에 따라 달라질 수 있다.
+const ESTIMATED_DAYS: Record<string, string> = {
+  wp: "30~60 영업일",
+  trc: "15~45 영업일",
+  tamtru: "1~3 영업일",
+  "driving-license": "7~15 영업일",
+  permit_company: "20~55 영업일",
+  register_restaurant: "15~30 영업일",
+  register_cosmetics: "20~40 영업일",
+  register_environment: "25~50 영업일",
+  register_fire_safety: "10~25 영업일",
+  register_hygiene: "10~20 영업일",
+  register_medical_device: "30~60 영업일",
+  register_franchise: "20~45 영업일",
+};
+const VERIFY_ESTIMATE = "2~5 영업일 (전문가 확인 기준)";
+const CONSULTATION_ESTIMATE = "1~2 영업일 (담당자 확인 기준)";
+
+function getEstimate(category: CategoryKey, serviceType: string | null): string {
+  if (category === "verify") return VERIFY_ESTIMATE;
+  if (category === "consultation") return CONSULTATION_ESTIMATE;
+  if (serviceType && ESTIMATED_DAYS[serviceType]) return ESTIMATED_DAYS[serviceType];
+  return "담당자 확인 후 안내";
+}
+
+// 담당 전문가 표기 — 고정 문구. DB 컬럼 없음(담당자 배정 컬럼이 존재하지
+// 않는다는 사실은 admin/leads/[id]/page.tsx 작업 때 이미 확인된 내용과 동일).
+const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀 (Linda Kang · VNK 파트너)";
+
 type MyPageItem = {
   id: string;
   category: CategoryKey;
+  serviceType: string | null;
   serviceLabel: string;
   result: string | null;
   feasibilityScore: number | null;
-  status: string;
+  hasDiagnosis: boolean;
   hasExpertReview: boolean;
   hasAgency: boolean;
-  hasAttachment: boolean;
+  hasConsultationRequest: boolean;
+  fileUrl: string | null;
+  fileName: string | null;
   createdAt: string;
 };
 
@@ -61,70 +95,184 @@ function formatDate(iso: string) {
   });
 }
 
-function LeadCard({ item }: { item: MyPageItem }) {
-  const [expanded, setExpanded] = useState(false);
-  const badge = CATEGORY_BADGE[item.category];
-  const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
+// ── 단계별 타임라인 구성 ──
+// 판단 기준은 오직 crm_activities.action 기반 boolean(hasDiagnosis/
+// hasExpertReview/hasAgency/hasConsultationRequest)뿐이다. "정부 제출"·
+// "허가 완료"·"전문가 안내 대기" 등은 이를 감지할 action이 실제로 없으므로
+// 항상 미완료(○)로 표시된다 — 완료로 임의 표시하지 않는다.
+// VERIFY는 플랫폼 원칙상 정부 제출을 대행하지 않으므로 별도의 짧은
+// 타임라인을 쓴다(정부 제출/허가완료 단계를 넣지 않음).
+function buildSteps(item: MyPageItem): { label: string; done: boolean }[] {
+  if (item.category === "verify") {
+    return [
+      { label: "접수 완료", done: true },
+      { label: "자체 진단 완료", done: item.hasDiagnosis },
+      { label: "전문가 검토 요청", done: item.hasExpertReview },
+      { label: "전문가 안내 대기", done: false },
+    ];
+  }
+  if (item.category === "consultation") {
+    return [
+      { label: "상담 접수 완료", done: true },
+      { label: "담당자 확인 대기", done: false },
+    ];
+  }
+  // CHECK / REGISTER
+  return [
+    { label: "접수 완료", done: true },
+    { label: "AI 진단 완료", done: item.hasDiagnosis },
+    { label: "전문가 검토", done: item.hasExpertReview },
+    { label: "대행 신청", done: item.hasAgency },
+    { label: "정부 제출", done: false },
+    { label: "허가 완료", done: false },
+  ];
+}
+
+function nextStepLabel(item: MyPageItem, steps: { label: string; done: boolean }[]): string {
+  const firstPending = steps.find((s) => !s.done);
+  if (!firstPending) return "안내 대기";
+  return firstPending.label + " 예정";
+}
+
+function StepTimeline({ steps }: { steps: { label: string; done: boolean }[] }) {
+  return (
+    <div className="mt-4 space-y-0">
+      {steps.map((step, i) => (
+        <div key={step.label} className="flex gap-3">
+          <div className="flex flex-col items-center">
+            {step.done ? (
+              <CheckCircle2 size={20} className="text-emerald-600 shrink-0" />
+            ) : (
+              <Circle size={20} className="text-gray-300 shrink-0" />
+            )}
+            {i < steps.length - 1 && (
+              <div className={`w-px flex-1 min-h-[18px] ${step.done ? "bg-emerald-200" : "bg-gray-200"}`} />
+            )}
+          </div>
+          <p
+            className={`pb-4 text-sm ${
+              step.done ? "font-semibold text-gray-900" : "text-gray-400"
+            }`}
+          >
+            {step.label}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProgressCard({ item }: { item: MyPageItem }) {
+  const steps = buildSteps(item);
+  const doneCount = steps.filter((s) => s.done).length;
+  const percent = Math.round((doneCount / steps.length) * 100);
+  const currentLabel = [...steps].reverse().find((s) => s.done)?.label ?? steps[0].label;
 
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <div className="rounded-2xl bg-blue-50/60 px-4 py-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-blue-900">진행률</p>
+        <p className="text-xl font-bold text-blue-900">{percent}%</p>
+      </div>
+      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
+        <div
+          className="h-full rounded-full bg-blue-900 transition-all"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <p className="mt-2 text-[11px] text-blue-800">
+        현재 단계 · <span className="font-semibold">{currentLabel}</span>
+      </p>
+    </div>
+  );
+}
+
+function LeadCard({ item }: { item: MyPageItem }) {
+  const badge = CATEGORY_BADGE[item.category];
+  const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
+  const steps = buildSteps(item);
+  const estimate = getEstimate(item.category, item.serviceType);
+  const nextStep = nextStepLabel(item, steps);
+
+  return (
+    <div className="rounded-3xl bg-white border border-gray-100 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between gap-3">
-        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${badge.className}`}>
+        <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${badge.className}`}>
           {badge.label}
         </span>
         <span className="text-[11px] text-gray-400">{formatDate(item.createdAt)}</span>
       </div>
 
-      <p className="mt-3 text-base font-bold text-gray-900">{item.serviceLabel}</p>
+      <p className="mt-3 text-lg font-bold text-gray-900">{item.serviceLabel}</p>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2.5 py-1 text-[11px] font-semibold text-gray-600">
-          <Clock size={12} /> {item.status}
-        </span>
-        {resultInfo && (
-          <span className={`inline-flex items-center gap-1 rounded-full bg-gray-50 px-2.5 py-1 text-[11px] font-semibold ${resultInfo.className}`}>
-            결과 {resultInfo.label}
-          </span>
-        )}
-        {typeof item.feasibilityScore === "number" && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2.5 py-1 text-[11px] font-semibold text-gray-600">
-            <FileCheck2 size={12} /> 자가진단 {item.feasibilityScore}%
-          </span>
-        )}
-        {item.hasAttachment && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2.5 py-1 text-[11px] font-semibold text-gray-600">
-            <Paperclip size={12} /> 첨부서류
-          </span>
-        )}
+      {/* ② 진행률 카드 */}
+      <div className="mt-4">
+        <ProgressCard item={item} />
       </div>
 
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-900 hover:underline"
-      >
-        상세 내역 보기 {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-      </button>
+      {/* ① 진행 타임라인 */}
+      <div className="mt-5">
+        <p className="text-xs font-semibold text-gray-700">진행 현황</p>
+        <StepTimeline steps={steps} />
+      </div>
 
-      {expanded && (
-        <div className="mt-3 space-y-2 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-          <div className="flex items-center justify-between">
-            <span className="text-gray-500">전문가 검토 요청</span>
-            <span className="font-medium text-gray-800">{item.hasExpertReview ? "요청함" : "요청 전"}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-gray-500">대행 신청</span>
-            <span className="font-medium text-gray-800">{item.hasAgency ? "신청 완료" : "미신청"}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-gray-500">접수일</span>
-            <span className="font-medium text-gray-800">{formatDate(item.createdAt)}</span>
-          </div>
-          <p className="mt-2 text-[11px] text-gray-400 leading-relaxed">
-            정확한 진행 상황과 세부 사유는 담당자가 확인 후 카카오톡 또는
-            잘로(Zalo)로 안내드립니다.
+      {/* ③ AI 결과 영역 */}
+      {(typeof item.feasibilityScore === "number" || resultInfo) && (
+        <div className="rounded-2xl bg-gray-50 px-5 py-5 text-center">
+          <p className="text-xs font-semibold text-gray-500">AI 예측 결과</p>
+          {typeof item.feasibilityScore === "number" && (
+            <>
+              <p className="mt-1 text-[11px] text-gray-400">허가 가능성</p>
+              <p className="mt-1 text-4xl font-extrabold text-blue-900">
+                {item.feasibilityScore}%
+              </p>
+            </>
+          )}
+          {resultInfo && (
+            <p className={`mt-2 text-sm font-bold ${resultInfo.className}`}>
+              결과 {resultInfo.label}
+            </p>
+          )}
+          <p className="mt-2 text-[10px] text-gray-400 leading-relaxed">
+            1차 자가진단 결과이며, 정확한 진행 가능 여부는 서류 검토 후 확정됩니다.
           </p>
         </div>
       )}
+
+      {/* ⑦ 전문가 정보 */}
+      <div className="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
+        <p className="text-[11px] font-semibold text-gray-500">담당 전문가</p>
+        <p className="mt-1 text-sm font-semibold text-gray-800">{EXPERT_TEAM_LABEL}</p>
+        <p className="mt-1 text-[11px] text-gray-500 leading-relaxed">
+          {item.hasExpertReview
+            ? "이 신청은 현재 전문가팀이 함께 검토하고 있습니다."
+            : "필요 시 전문가 검토를 요청하실 수 있습니다."}
+        </p>
+      </div>
+
+      {/* ⑤ 첨부파일 */}
+      {item.fileUrl && (
+        <a
+          href={item.fileUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-blue-900 px-4 py-2 text-xs font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+        >
+          <Download size={14} /> {item.fileName ?? "첨부서류 다운로드"}
+        </a>
+      )}
+
+      {/* ④ 카드 하단 — 다음 단계 / 예상 처리기간 */}
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-gray-50 px-4 py-3">
+          <p className="text-[11px] text-gray-500">다음 단계</p>
+          <p className="mt-1 text-sm font-semibold text-gray-900">{nextStep}</p>
+        </div>
+        <div className="rounded-xl bg-gray-50 px-4 py-3">
+          <p className="text-[11px] text-gray-500">예상 처리기간</p>
+          <p className="mt-1 text-sm font-semibold text-gray-900">{estimate}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -178,7 +326,7 @@ export default function MyPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className="mx-auto max-w-xl px-6 py-10">
+      <div className="mx-auto max-w-xl px-4 py-8 sm:px-6 sm:py-10">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
           VFBCAI · 마이페이지
         </p>
@@ -228,7 +376,7 @@ export default function MyPage() {
         )}
 
         {state === "ready" && (
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 space-y-4">
             {items.length === 0 ? (
               <div className="rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-sm text-gray-500">아직 접수하신 신청 내역이 없습니다.</p>
