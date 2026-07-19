@@ -216,6 +216,66 @@ function ActivityTimeline({ log }: { log: ActivityLogEntry[] }) {
   );
 }
 
+// STEP3: 고객용 AI 결과 PDF 다운로드. accessToken은 클릭 시점에 새로 조회해
+// 사용한다(다른 fetch들과 동일한 인증 패턴 — /api/mypage-pdf가 서버에서
+// 다시 검증한다).
+function PdfDownloadButton({ leadId }: { leadId: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleDownload() {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        setError("로그인이 필요합니다.");
+        setLoading(false);
+        return;
+      }
+      const res = await fetch("/api/mypage-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken, leadId }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "PDF를 생성하지 못했습니다.");
+        setLoading(false);
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vfbcai-report-${leadId.slice(0, 8)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("pdf download failed:", err);
+      setError("서버와 통신 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      <button
+        onClick={handleDownload}
+        disabled={loading}
+        className="inline-flex items-center gap-1.5 rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+      >
+        <Download size={14} /> {loading ? "PDF 생성 중..." : "AI 결과 PDF 다운로드"}
+      </button>
+      {error && <p className="mt-1 text-[11px] text-red-600">{error}</p>}
+    </div>
+  );
+}
+
 function ProgressCard({ stage }: { stage: StageInfo }) {
   return (
     <div className="rounded-2xl bg-blue-50/60 px-4 py-4">
@@ -295,6 +355,9 @@ function LeadCard({ item }: { item: MyPageItem }) {
           </p>
         </div>
       )}
+
+      {/* STEP3: AI 결과 PDF 다운로드 */}
+      <PdfDownloadButton leadId={item.id} />
 
       {/* ⑦ 전문가 정보 */}
       <div className="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
