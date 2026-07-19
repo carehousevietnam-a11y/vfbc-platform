@@ -1,49 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, UtensilsCrossed, CheckCircle2, AlertTriangle } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  AlertTriangle,
+  MessageCircle,
+  ExternalLink,
+} from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 
+// 베트남 공공서비스포털 (Cổng Dịch vụ công quốc gia).
+// 식당허가(위생안전·소방)는 관할 지역(성·시)에 따라 담당부서가 달라, 이 포털에서
+// 관할 지역을 선택해 안내를 받도록 연결한다. (특정 부서 URL을 직접 지정하지 않음)
+// ⚠️ 배포 전 Linda 법률 검토 필요 — URL·안내 문구 확인 후 게시할 것.
+const REGISTER_RESTAURANT_OFFICIAL_URL = "https://dichvucong.gov.vn/";
+
+type RegistrationStatus = "confirmed" | "unconfirmed" | null;
+type PremisesStatus = "secured" | "unsecured" | null;
+type HygieneFireStatus = "ready" | "not_ready" | null;
+type OperationChoice = "not_open" | "operating_licensed" | "operating_unlicensed" | null;
+type ResultTone = "possible" | "conditional" | null;
+
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
-
-// 이전 신청 이력 — REGISTER 표준폼 공통 질문. 다른 REGISTER 카테고리 확장 시
-// 동일 옵션을 그대로 사용한다.
-const PREVIOUS_APPLICATION_OPTIONS = [
-  "처음 신청합니다",
-  "신청 준비 중입니다",
-  "보완 요청을 받았습니다",
-  "반려된 적이 있습니다",
-] as const;
-
-// 식당허가 기본 조건 질문 — 카테고리 전용, 다른 REGISTER로 확장 시 업종에 맞게
-// 별도로 정의한다.
-const OPERATION_STATUS_OPTIONS = [
-  "아직 준비 단계입니다",
-  "곧 오픈 예정입니다",
-  "이미 운영 중입니다",
-] as const;
-
-const BUSINESS_REGISTRATION_OPTIONS = [
-  "등록을 완료했습니다",
-  "등록 진행 중입니다",
-  "아직 등록 전입니다",
-] as const;
-
-const PREMISES_OPTIONS = [
-  "임대차 계약을 완료했습니다",
-  "계약을 협의 중입니다",
-  "아직 확보하지 못했습니다",
-] as const;
-
-const HYGIENE_FIRE_OPTIONS = [
-  "준비를 마쳤습니다",
-  "준비 중입니다",
-  "아직 시작하지 못했습니다",
-] as const;
 
 function ConsentDetails({
   open,
@@ -123,74 +106,276 @@ function ConsentDetails({
   );
 }
 
-function OptionGrid({
-  options,
-  value,
-  onSelect,
-  columns = 3,
-}: {
-  options: readonly string[];
-  value: string | null;
-  onSelect: (v: string) => void;
-  columns?: 2 | 3;
-}) {
+function ScoreGauge({ score, tone }: { score: number; tone: "possible" | "conditional" }) {
+  const r = 28;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - score / 100);
+  const color = tone === "possible" ? "#059669" : "#d97706";
+
   return (
-    <div
-      className={`mt-3 grid grid-cols-1 gap-2.5 ${
-        columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"
-      }`}
-    >
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onSelect(opt)}
-          className={`flex h-14 items-center justify-center rounded-2xl border px-3 text-center text-xs font-semibold leading-snug transition-all ${
-            value === opt
-              ? "border-amber-600 bg-amber-600 text-white"
-              : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-          }`}
-        >
-          {opt}
-        </button>
-      ))}
+    <div className="relative w-16 h-16 shrink-0">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#f3f4f6" strokeWidth="6" />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          transform="rotate(-90 32 32)"
+        />
+      </svg>
+      <div
+        className="absolute inset-0 flex items-center justify-center text-[15px] font-bold"
+        style={{ color }}
+      >
+        {score}%
+      </div>
+    </div>
+  );
+}
+
+// 자체 진단 로직 (checkDiagnosis.ts 미사용, 규칙 기반) — 등록상태·영업장확보
+// 여부로 점수를 계산하고, 위생·소방 준비상태는 체크리스트 항목으로만 반영한다.
+// 법 조항·구체적 허가가능 여부는 단정하지 않고 "가능성" 톤을 유지한다.
+type RestaurantDiagnosis = {
+  feasibilityScore: number;
+  resultTone: "possible" | "conditional";
+  checklist: { label: string; passed: boolean }[];
+  note: string;
+  estimatedDays: { min: number; max: number };
+};
+
+function computeRestaurantDiagnosis(
+  registrationStatus: RegistrationStatus,
+  premisesStatus: PremisesStatus,
+  hygieneFireStatus: HygieneFireStatus
+): RestaurantDiagnosis {
+  const checklist = [
+    { label: "사업자·법인 등록 서류 준비", passed: registrationStatus === "confirmed" },
+    { label: "영업장(매장) 임대차 계약 확보", passed: premisesStatus === "secured" },
+    { label: "위생·소방 안전시설 준비", passed: hygieneFireStatus === "ready" },
+  ];
+  const passedCount = checklist.filter((c) => c.passed).length;
+  const score = Math.round((passedCount / checklist.length) * 100);
+  const tone: "possible" | "conditional" =
+    registrationStatus === "confirmed" && premisesStatus === "secured" ? "possible" : "conditional";
+  const note =
+    tone === "possible"
+      ? "현재 입력 기준으로는 신청을 진행하실 수 있는 상태에 가깝습니다. 정확한 진행 가능 여부는 서류 검토 후 확정됩니다."
+      : "일부 준비가 더 필요할 수 있습니다. 준비 서류를 보완하면 진행할 수 있는 경우가 많습니다.";
+  return {
+    feasibilityScore: score,
+    resultTone: tone,
+    checklist,
+    note,
+    estimatedDays: { min: 15, max: 30 },
+  };
+}
+
+function DiagnosisReportCard({ diagnosis }: { diagnosis: RestaurantDiagnosis }) {
+  const { feasibilityScore, resultTone, estimatedDays, checklist, note } = diagnosis;
+  const tone = resultTone;
+  const toneLabel = tone === "possible" ? "가능" : "조건부 가능";
+  const issueCount = checklist.filter((c) => !c.passed).length;
+  const boxBg = tone === "possible" ? "bg-emerald-50" : "bg-amber-50";
+  const boxText = tone === "possible" ? "text-emerald-800" : "text-amber-800";
+  const badgeBg = tone === "possible" ? "bg-emerald-100" : "bg-amber-100";
+  const badgeText = tone === "possible" ? "text-emerald-700" : "text-amber-700";
+
+  return (
+    <div className="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+      <div className="flex items-center gap-3.5">
+        <ScoreGauge score={feasibilityScore} tone={tone} />
+        <div>
+          <p className="text-sm font-bold text-gray-900">{toneLabel}</p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {issueCount > 0 ? `준비 필요한 항목 ${issueCount}건` : "준비 완료된 항목뿐입니다"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {checklist.map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 text-xs ${item.passed ? "text-gray-700" : boxText}`}
+          >
+            <span
+              className={`w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                item.passed ? "bg-emerald-100 text-emerald-700" : `${badgeBg} ${badgeText}`
+              }`}
+            >
+              {item.passed ? "✓" : "!"}
+            </span>
+            {item.label}
+          </div>
+        ))}
+      </div>
+
+      {estimatedDays && (
+        <div className="mt-4 rounded-xl bg-white px-4 py-2.5 text-xs text-gray-600">
+          예상 처리기간{" "}
+          <span className="font-bold text-gray-900">
+            {estimatedDays.min}~{estimatedDays.max}일
+          </span>
+        </div>
+      )}
+
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
     </div>
   );
 }
 
 export default function RegisterRestaurantPage() {
-  const [step, setStep] = useState<"questions" | "form" | "completed">("questions");
+  const [operationChoice, setOperationChoice] = useState<OperationChoice>(null);
+  const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus>(null);
+  const [premisesStatus, setPremisesStatus] = useState<PremisesStatus>(null);
+  const [hygieneFireStatus, setHygieneFireStatus] = useState<HygieneFireStatus>(null);
 
-  const [previousApplicationStatus, setPreviousApplicationStatus] = useState<string | null>(null);
-  const [operationStatus, setOperationStatus] = useState<string | null>(null);
-  const [businessRegistrationStatus, setBusinessRegistrationStatus] = useState<string | null>(null);
-  const [premisesStatus, setPremisesStatus] = useState<string | null>(null);
-  const [hygieneFireStatus, setHygieneFireStatus] = useState<string | null>(null);
-  const [questionsError, setQuestionsError] = useState<string | null>(null);
-
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [leadError, setLeadError] = useState<string | null>(null);
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
+  const [agencyRequested, setAgencyRequested] = useState(false);
+  const [agencySaving, setAgencySaving] = useState(false);
+  const [agencyError, setAgencyError] = useState<string | null>(null);
+  const [detailStage, setDetailStage] = useState(false);
+
+  const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const rejectionRecordIdRef = useRef<string | null>(null);
+  const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
+  const selfNotifySentRef = useRef(false);
+
   const messengers = MESSENGERS_KO;
 
-  function handleQuestionsNext() {
-    if (
-      !previousApplicationStatus ||
-      !operationStatus ||
-      !businessRegistrationStatus ||
-      !premisesStatus ||
-      !hygieneFireStatus
-    ) {
-      setQuestionsError("모든 항목을 선택해주세요.");
-      return;
-    }
-    setQuestionsError(null);
-    setStep("form");
+  const isUnlicensedOperating = operationChoice === "operating_unlicensed";
+
+  const result: ResultTone =
+    registrationStatus && premisesStatus
+      ? registrationStatus === "confirmed" && premisesStatus === "secured"
+        ? "possible"
+        : "conditional"
+      : null;
+  const showResult = Boolean(operationChoice && !isUnlicensedOperating && registrationStatus && premisesStatus && hygieneFireStatus);
+
+  // 순수 함수 기반 자체 진단이라 비동기 조회가 필요 없으므로, useEffect 없이
+  // 렌더링 중 직접 계산한다 (company/page.tsx는 checkDiagnosis.ts의 비동기 조회
+  // 결과를 다뤄야 해서 useEffect+state를 쓰지만, 이 페이지는 그 구조가 불필요함).
+  const diagnosis = showResult
+    ? computeRestaurantDiagnosis(registrationStatus, premisesStatus, hygieneFireStatus)
+    : null;
+
+  // "네, 있습니다" 클릭 즉시 익명으로 저장 — company/page.tsx와 동일한 패턴
+  function recordRejectionAnonymously() {
+    const id = crypto.randomUUID();
+    pendingRejectionInsertRef.current = supabase
+      .from("previous_rejections")
+      .insert({
+        id,
+        service_type: "register_restaurant",
+        source_page: "/register/restaurant",
+        reason: null,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.error("previous_rejections insert failed:", error);
+          return;
+        }
+        rejectionRecordIdRef.current = id;
+      });
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function finalizeRejectionStep() {
+    if (pendingRejectionInsertRef.current) {
+      await pendingRejectionInsertRef.current;
+    }
+    const id = rejectionRecordIdRef.current;
+    if (id && rejectionReason.trim()) {
+      const { error } = await supabase
+        .from("previous_rejections")
+        .update({ reason: rejectionReason.trim() })
+        .eq("id", id);
+      if (error) console.error("previous_rejections reason update failed:", error);
+    }
+    setRejectionStepDone(true);
+  }
+
+  function handleSelfPortalClick() {
+    if (!leadId || selfNotifySentRef.current) return;
+    selfNotifySentRef.current = true;
+    fetch("/api/agency-confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId, type: "self" }),
+    }).catch((err) => {
+      console.error("self-notify email trigger failed:", err);
+    });
+  }
+
+  function reset() {
+    setOperationChoice(null);
+    setRegistrationStatus(null);
+    setPremisesStatus(null);
+    setHygieneFireStatus(null);
+    setLeadSubmitted(false);
+    setLeadId(null);
+    setLeadError(null);
+    setEmailProvided(false);
+    setConsentOpen(false);
+    setConsentHighlight(false);
+    setAgencyRequested(false);
+    setAgencySaving(false);
+    setAgencyError(null);
+    setDetailStage(false);
+    setPreviousRejection(null);
+    setRejectionReason("");
+    setRejectionStepDone(false);
+    rejectionRecordIdRef.current = null;
+    pendingRejectionInsertRef.current = null;
+    selfNotifySentRef.current = false;
+  }
+
+  async function handleAgencyRequest() {
+    if (!leadId) return;
+    setAgencySaving(true);
+    setAgencyError(null);
+    try {
+      const { error } = await supabase.from("crm_activities").insert({
+        lead_id: leadId,
+        action: "agency_upgrade_request",
+        tag: "REGISTER_RESTAURANT",
+      });
+      if (error) throw error;
+
+      try {
+        await fetch("/api/agency-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId }),
+        });
+      } catch (emailErr) {
+        console.error("agency-confirm email trigger failed:", emailErr);
+      }
+
+      setAgencyRequested(true);
+    } catch {
+      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setAgencySaving(false);
+    }
+  }
+
+  async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
 
@@ -202,9 +387,9 @@ export default function RegisterRestaurantPage() {
     setConsentHighlight(false);
 
     setSubmitting(true);
-    setError(null);
-    const leadId = crypto.randomUUID();
+    setLeadError(null);
 
+    const newLeadId = crypto.randomUUID();
     const name = String(fd.get("name") || "");
     const phone = String(fd.get("phone") || "");
     const address = String(fd.get("address") || "");
@@ -212,8 +397,8 @@ export default function RegisterRestaurantPage() {
     const kakaoId = (fd.get("kakao_id") as string) || null;
     const zaloId = (fd.get("zalo_id") as string) || null;
 
-    const { error: err } = await supabase.from("leads").insert({
-      id: leadId,
+    const { error } = await supabase.from("leads").insert({
+      id: newLeadId,
       name,
       phone,
       address,
@@ -221,35 +406,43 @@ export default function RegisterRestaurantPage() {
       kakao_id: kakaoId,
       zalo_id: zaloId,
       service_type: "register_restaurant",
-      result: null,
+      result,
       source_page: "/register/restaurant",
     });
 
-    if (err) {
-      console.error(err);
-      setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    if (error) {
+      console.error(error);
+      setLeadError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
       setSubmitting(false);
       return;
     }
 
     await supabase.from("crm_activities").insert({
-      lead_id: leadId,
-      action: "register_lead",
+      lead_id: newLeadId,
+      action: "register_restaurant_diagnosis_lead",
       tag: "REGISTER_RESTAURANT",
-      meta: {
-        previous_application_status: previousApplicationStatus,
-        operation_status: operationStatus,
-        business_registration_status: businessRegistrationStatus,
-        premises_status: premisesStatus,
-        hygiene_fire_readiness: hygieneFireStatus,
-      },
+      meta: diagnosis
+        ? {
+            feasibilityScore: diagnosis.feasibilityScore,
+            operationChoice,
+            registrationStatus,
+            premisesStatus,
+            hygieneFireStatus,
+            previousRejection:
+              previousRejection === true
+                ? { rejected: true, reason: rejectionReason || null }
+                : previousRejection === false
+                ? { rejected: false }
+                : null,
+          }
+        : null,
     });
 
     try {
       const res = await fetch("/api/lead-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, name, phone, email, address }),
+        body: JSON.stringify({ leadId: newLeadId, name, phone, email, address }),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
@@ -259,10 +452,25 @@ export default function RegisterRestaurantPage() {
       console.error("lead-submit fetch failed:", apiErr);
     }
 
+    if (pendingRejectionInsertRef.current) {
+      await pendingRejectionInsertRef.current;
+    }
+    if (rejectionRecordIdRef.current) {
+      try {
+        await supabase
+          .from("previous_rejections")
+          .update({ linked_lead_id: newLeadId })
+          .eq("id", rejectionRecordIdRef.current);
+      } catch (linkErr) {
+        console.error("previous_rejections link failed:", linkErr);
+      }
+    }
+
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
     setEmailProvided(!!email);
+    setLeadId(newLeadId);
     setSubmitting(false);
-    setStep("completed");
+    setLeadSubmitted(true);
   }
 
   return (
@@ -276,83 +484,205 @@ export default function RegisterRestaurantPage() {
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
           직접허가받기 · 베트남 인허가전문 AI
         </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">식당허가</h1>
-        <p className="mt-1 text-sm text-gray-500">요식업 영업허가</p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+          식당허가 가능성 진단
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          현재 운영·등록 상태에 따라 필요서류가 달라집니다.
+        </p>
 
-        {/* STEP1: 이전 신청 이력 + 식당허가 기본 조건 질문 */}
-        {step === "questions" && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <UtensilsCrossed className="text-amber-700" size={28} />
-            <span className="mt-3 inline-block rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
-              무허가 영업 시 즉시 폐쇄
-            </span>
-
-            <p className="mt-5 text-sm font-semibold text-gray-900">
-              1. 이전에 식당허가를 신청하신 적이 있나요?
+        {/* 1. previous_rejections 확인 */}
+        {!rejectionStepDone && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              1. 이전에 다른 곳(정부기관 또는 타 대행사)에서 식당허가를
+              신청하셨다가 거절·반려되신 적이 있나요?
             </p>
-            <OptionGrid
-              options={PREVIOUS_APPLICATION_OPTIONS}
-              value={previousApplicationStatus}
-              onSelect={setPreviousApplicationStatus}
-              columns={2}
-            />
-
-            <p className="mt-6 text-sm font-semibold text-gray-900">
-              2. 현재 식당 운영 상태는 어떤가요?
-            </p>
-            <OptionGrid
-              options={OPERATION_STATUS_OPTIONS}
-              value={operationStatus}
-              onSelect={setOperationStatus}
-            />
-
-            <p className="mt-6 text-sm font-semibold text-gray-900">
-              3. 사업자·법인 등록을 하셨나요?
-            </p>
-            <OptionGrid
-              options={BUSINESS_REGISTRATION_OPTIONS}
-              value={businessRegistrationStatus}
-              onSelect={setBusinessRegistrationStatus}
-            />
-
-            <p className="mt-6 text-sm font-semibold text-gray-900">
-              4. 영업장(매장)을 확보하셨나요?
-            </p>
-            <OptionGrid
-              options={PREMISES_OPTIONS}
-              value={premisesStatus}
-              onSelect={setPremisesStatus}
-            />
-
-            <p className="mt-6 text-sm font-semibold text-gray-900">
-              5. 위생·소방 관련 준비는 어느 정도 되셨나요?
-            </p>
-            <OptionGrid
-              options={HYGIENE_FIRE_OPTIONS}
-              value={hygieneFireStatus}
-              onSelect={setHygieneFireStatus}
-            />
-
-            {questionsError && <p className="mt-3 text-xs text-red-600">{questionsError}</p>}
-
-            <button
-              onClick={handleQuestionsNext}
-              className="mt-6 w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 transition-colors"
-            >
-              다음
-            </button>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  setPreviousRejection(true);
+                  recordRejectionAnonymously();
+                }}
+                className={`rounded-2xl border p-4 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${
+                  previousRejection === true
+                    ? "border-amber-600 bg-amber-50 text-amber-800"
+                    : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5"
+                }`}
+              >
+                네, 있습니다
+              </button>
+              <button
+                onClick={() => {
+                  setPreviousRejection(false);
+                  setRejectionStepDone(true);
+                }}
+                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              >
+                아니요
+              </button>
+            </div>
+            {previousRejection === true && (
+              <div className="mt-4">
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-amber-600 focus:outline-none resize-none"
+                />
+                <button
+                  onClick={finalizeRejectionStep}
+                  className="mt-3 w-full h-11 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 transition-colors"
+                >
+                  다음
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* STEP2: 개인정보 입력 + 동의 */}
-        {step === "form" && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <UtensilsCrossed className="text-amber-700" size={28} />
-            <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-              이름·연락처만 남기면 답변하신 내용을 바탕으로 필요서류를
-              안내해드리고, 예상비용은 메시지로 보내드리겠습니다.
+        {/* 2. 단계별 질문 */}
+        {rejectionStepDone && !operationChoice && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              2. 현재 식당을 어떻게 운영하고 계신가요?
             </p>
-            <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-1">
+              {[
+                { key: "not_open", label: "아직 오픈 전입니다", desc: "허가 신청을 준비하는 단계" },
+                { key: "operating_licensed", label: "허가를 받고 정상 운영 중입니다", desc: "" },
+                { key: "operating_unlicensed", label: "허가 없이 이미 영업 중입니다", desc: "" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setOperationChoice(opt.key as OperationChoice)}
+                  className="flex flex-col items-start rounded-2xl bg-white border border-gray-100 p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all"
+                >
+                  <p className="text-sm font-bold text-gray-900">{opt.label}</p>
+                  {opt.desc && <p className="mt-1 text-xs text-gray-500">{opt.desc}</p>}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {rejectionStepDone && isUnlicensedOperating && (
+          <div className="mt-8 rounded-3xl bg-white border border-red-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <AlertTriangle className="text-red-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              무허가 영업은 즉시 폐쇄될 수 있습니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              허가 없이 영업 중인 경우 단속 시 즉시 영업정지 또는 폐쇄
+              조치될 수 있으며, 이후 정식 허가 신청에도 불이익이 있을 수
+              있습니다. 가능한 빨리 허가 절차를 진행하시길 권합니다.
+            </p>
+            <div className="mt-5 flex flex-col gap-3">
+              <button
+                onClick={() => setOperationChoice(null)}
+                className="h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 transition-colors"
+              >
+                다시 선택하기
+              </button>
+              <Link
+                href="/consultation?case=register-restaurant-unlicensed-warning"
+                className="flex h-12 items-center justify-center rounded-full border border-red-600 text-sm font-semibold text-red-700 hover:bg-red-50 transition-colors"
+              >
+                전문가와 바로 상담하기
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {rejectionStepDone && operationChoice && !isUnlicensedOperating && !registrationStatus && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              3. 사업자·법인 등록 서류가 준비되어 있나요?
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {[
+                { key: "confirmed", label: "준비되어 있음" },
+                { key: "unconfirmed", label: "아직 미확정" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setRegistrationStatus(opt.key as RegistrationStatus)}
+                  className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {rejectionStepDone && registrationStatus && !premisesStatus && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              4. 영업장(매장) 임대차 계약을 체결하셨나요?
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {[
+                { key: "secured", label: "체결 완료" },
+                { key: "unsecured", label: "아직 미체결" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setPremisesStatus(opt.key as PremisesStatus)}
+                  className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {rejectionStepDone && registrationStatus && premisesStatus && !hygieneFireStatus && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-gray-900">
+              5. 위생·소방 안전시설 점검을 마치셨나요?
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {[
+                { key: "ready", label: "예, 완료했습니다" },
+                { key: "not_ready", label: "아직입니다" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setHygieneFireStatus(opt.key as HygieneFireStatus)}
+                  className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. 가능성 진단 결과 + 4. 개인정보 + 동의 */}
+        {showResult && result === "possible" && !leadSubmitted && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              식당허가 진행이 가능합니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              현재 사업자등록·영업장 준비 상태 기준으로 식당허가(위생안전
+              ·소방) 신청 요건을 충족합니다.
+            </p>
+            <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+              * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다.
+              정확한 진행 가능 여부는 서류 검토 후 전문가 상담을 통해
+              확정됩니다.
+            </p>
+            <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
+              이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
+              바로 보여드립니다.
+            </div>
+
+            <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
               <input type="text" name="name" required placeholder="이름"
                 className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-amber-600 focus:outline-none" />
               <input type="tel" name="phone" required placeholder="전화번호"
@@ -385,47 +715,328 @@ export default function RegisterRestaurantPage() {
                   highlight={consentHighlight}
                 />
               </div>
-              {error && <p className="text-xs text-red-600">{error}</p>}
+              {leadError && <p className="text-xs text-red-600">{leadError}</p>}
               <button type="submit" disabled={submitting}
                 className="w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60 transition-colors">
-                {submitting ? "접수 중..." : "필요서류·비용 무료로 안내받기"}
+                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
               </button>
             </form>
-            <p className="mt-3 text-[11px] text-gray-400">입력하신 정보는 상담 안내 목적으로만 사용됩니다.</p>
-            <button
-              onClick={() => setStep("questions")}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              ← 이전 단계로
+            <p className="mt-3 text-[11px] text-gray-400">
+              입력하신 정보는 상담 안내 목적으로만 사용됩니다.
+            </p>
+            <button onClick={reset} className="mt-4 block text-xs text-gray-400 hover:text-gray-600">
+              처음부터 다시 확인하기
             </button>
           </div>
         )}
 
-        {/* STEP3: 단순 접수 완료 화면 (AI 진단 없음) */}
-        {step === "completed" && (
+        {/* 5. AI 분석 리포트 + 6. 직접 진행 / 전문가 대행 선택 */}
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={24} />
-            <p className="mt-3 text-base font-bold text-gray-900">
-              접수 완료 — {messengers.primary.label} 또는 {messengers.secondary.label}로 곧 보내드립니다
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              식당허가 · AI 분석 리포트
+            </p>
+
+            {diagnosis && (
+              <div className="mt-3">
+                <DiagnosisReportCard diagnosis={diagnosis} />
+              </div>
+            )}
+
+            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+              <p className="text-xs font-semibold text-gray-700">식당허가에 필요한 서류</p>
+              <ul className="mt-2 space-y-1">
+                <li className="text-xs text-gray-600 pl-1">
+                  · 사업자등록증(영업자 등록증)
+                  {registrationStatus === "unconfirmed" && (
+                    <span className="ml-1 text-amber-700 font-semibold">(준비 필요)</span>
+                  )}
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 영업장 임대차 계약서(현지)
+                  {premisesStatus === "unsecured" && (
+                    <span className="ml-1 text-amber-700 font-semibold">(준비 필요)</span>
+                  )}
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 위생안전 자가점검 서류
+                  {hygieneFireStatus === "not_ready" && (
+                    <span className="ml-1 text-amber-700 font-semibold">(준비 필요)</span>
+                  )}
+                </li>
+                <li className="text-xs text-gray-600 pl-1">
+                  · 소방시설 점검·완비 관련 서류
+                  {hygieneFireStatus === "not_ready" && (
+                    <span className="ml-1 text-amber-700 font-semibold">(준비 필요)</span>
+                  )}
+                </li>
+              </ul>
+              <p className="mt-2 text-[11px] text-gray-400">
+                정확한 요건은 지역·업장 규모에 따라 다를 수 있어 담당자
+                확인이 필요합니다.
+              </p>
+            </div>
+
+            <p className="mt-5 text-xs font-semibold text-gray-700">
+              위 내용, 어떻게 진행하시겠어요?
+            </p>
+            <div className="mt-3 flex flex-col gap-3">
+              <a
+                href={REGISTER_RESTAURANT_OFFICIAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleSelfPortalClick}
+                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-amber-600 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
+              >
+                내가 직접 신청할게요 (공공서비스포털 연결) <ExternalLink size={14} />
+              </a>
+              <button
+                onClick={() => setDetailStage(true)}
+                className="h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 transition-colors"
+              >
+                전문가에게 맡길게요 (대행 신청)
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-400 text-center">
+              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
+            </p>
+            <p className="mt-2 text-[11px] text-gray-400">
+              공공서비스포털(Cổng Dịch vụ công quốc gia)로 이동합니다.
+              접속 후 관할 지역과 위생·소방 담당부서를 선택하시면 신청
+              메뉴를 찾으실 수 있습니다.
+            </p>
+
+            <button onClick={reset} className="mt-4 block text-xs text-gray-400 hover:text-gray-600">
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {/* 7. 진행 서류 및 절차 안내 (전문가 대행 선택 시) */}
+        {showResult && result === "possible" && leadSubmitted && !agencyRequested && detailStage && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckCircle2 className="text-emerald-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">식당허가 진행 서류 및 절차</p>
+
+            <div className="mt-4 space-y-3">
+              <div className="rounded-xl bg-gray-50 px-4 py-3">
+                <p className="text-xs font-semibold text-gray-700">① 서류 준비</p>
+                <ul className="mt-2 space-y-2">
+                  <li className="text-xs text-gray-600 pl-1">
+                    · 사업자등록증(영업자 등록증) 사본
+                  </li>
+                  <li className="text-xs text-gray-600 pl-1">
+                    · 영업장 임대차 계약서(공증본) 및 임대인 법적 권리 증빙
+                  </li>
+                  <li className="text-xs text-gray-600 pl-1">
+                    · 대표자·조리 종사자 건강검진서
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl bg-gray-50 px-4 py-3">
+                <p className="text-xs font-semibold text-gray-700">② 시설 준비</p>
+                <ul className="mt-2 space-y-2">
+                  <li className="text-xs text-gray-600 pl-1">
+                    · 위생안전 시설(조리·저장 공간) 자가점검
+                  </li>
+                  <li className="text-xs text-gray-600 pl-1">
+                    · 소방시설(소화기·비상구 등) 점검 및 완비
+                  </li>
+                  {hygieneFireStatus === "not_ready" && (
+                    <li className="text-xs text-gray-600 pl-1">
+                      · 위생·소방 점검이 아직 완료되지 않아, 시설 보완 후
+                      재점검이 필요할 수 있습니다 — 이 부분은 대행 접수 시
+                      담당자가 우선 확인해드립니다.
+                    </li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="rounded-xl bg-gray-50 px-4 py-3">
+                <p className="text-xs font-semibold text-gray-700">③ 신청 절차 요약</p>
+                <p className="mt-2 text-xs text-gray-600 leading-relaxed">
+                  서류 준비 → 영업장 임대차 계약 확정 → 위생안전 인증 신청·
+                  발급 → 소방완비 확인 신청·발급 → 사업자등록 및 영업신고
+                  완료
+                </p>
+                <p className="mt-2 text-[11px] text-gray-400">
+                  * 위 절차는 일반적인 흐름 안내이며, 지역·업장 규모에
+                  따라 순서나 요건이 달라질 수 있습니다.
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm font-bold text-gray-900">
+              정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
+              상의하세요.
+            </p>
+
+            {agencyError && <p className="mt-3 text-xs text-red-600">{agencyError}</p>}
+            <button
+              onClick={handleAgencyRequest}
+              disabled={agencySaving}
+              className="mt-4 w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60 transition-colors"
+            >
+              {agencySaving ? "접수 중..." : "대행 신청하기 →"}
+            </button>
+            <p className="mt-2 text-[11px] text-gray-400">
+              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+            </p>
+
+            <button
+              onClick={() => setDetailStage(false)}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← 간단 목록으로 돌아가기
+            </button>
+          </div>
+        )}
+
+        {showResult && result === "possible" && agencyRequested && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <div className="flex justify-center">
+              <img src="/vfbc-seal.png" alt="VFBCAI 접수완료 확인 도장" width={160} height={160} />
+            </div>
+            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
+              Vietnam Foreign Business Verification &amp; Compliance AI Center
+            </p>
+            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
+              대행 신청이 접수되었습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              답변하신 내용을 바탕으로 담당자가 필요서류·예상 비용·일정을
-              정리해 메시지로 보내드립니다.
+              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
+              {messengers.primary.label}/{messengers.secondary.label}로
+              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
             </p>
+
             {emailProvided && (
               <p className="mt-2 text-[11px] text-gray-400">
-                메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요.
+                메시지가 오지 않으면 이메일도 함께 확인해주세요.
               </p>
             )}
+
+            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" />
+              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는 자동
+              생성되며, 마이페이지에서 언제든 변경하실 수 있습니다.
+              거주증·노동허가·비자 등 만료 알림 서비스도 함께 이용하실 수
+              있습니다.
+            </div>
+
+            <button onClick={reset} className="mt-6 block text-xs text-gray-400 hover:text-gray-600">
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {showResult && result === "conditional" && !leadSubmitted && (
+          <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <AlertTriangle className="text-amber-600" size={28} />
+            <p className="mt-4 text-lg font-bold text-gray-900">보완이 필요할 수 있습니다</p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              현재 사업자등록 또는 영업장 준비 상태만으로는 식당허가
+              신청이 자동으로 진행되지 않습니다. 준비 서류를 보완하면
+              진행할 수 있는 경우가 많습니다.
+            </p>
+            <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800">
+              이름·연락처·주소만 남기시면 AI가 어떤 부분이 문제인지 분석한
+              리포트를 바로 보여드립니다.
+            </div>
+
+            <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
+              <input type="text" name="name" required placeholder="이름"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-amber-600 focus:outline-none" />
+              <input type="tel" name="phone" required placeholder="전화번호"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-amber-600 focus:outline-none" />
+              <input type="text" name="address" required placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-amber-600 focus:outline-none" />
+              <input type="email" name="email" placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
+                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-amber-600 focus:outline-none" />
+              <div className="grid grid-cols-2 gap-3">
+                <input type="text" name="kakao_id" placeholder={`${messengers.primary.label} ID (선택)`}
+                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-amber-600 focus:outline-none" />
+                <input type="text" name="zalo_id" placeholder={`${messengers.secondary.label} ID (선택)`}
+                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-amber-600 focus:outline-none" />
+              </div>
+              <div>
+                <label className="flex items-start gap-2 text-xs text-gray-600">
+                  <input
+                    type="checkbox"
+                    name="agreeTerms"
+                    onChange={(e) => {
+                      if (e.target.checked) setConsentHighlight(false);
+                    }}
+                    className="mt-0.5"
+                  />
+                  <span>(필수) {CONSENT_SUMMARY}</span>
+                </label>
+                <ConsentDetails
+                  open={consentOpen}
+                  onToggle={() => setConsentOpen((v) => !v)}
+                  highlight={consentHighlight}
+                />
+              </div>
+              {leadError && <p className="text-xs text-red-600">{leadError}</p>}
+              <button type="submit" disabled={submitting}
+                className="w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60 transition-colors">
+                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
+              </button>
+            </form>
+            <p className="mt-3 text-[11px] text-gray-400">
+              입력하신 정보는 상담 안내 목적으로만 사용됩니다.
+            </p>
+            <button onClick={reset} className="mt-4 block text-xs text-gray-400 hover:text-gray-600">
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {showResult && result === "conditional" && leadSubmitted && (
+          <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              식당허가 · AI 분석 리포트
+            </p>
+
+            {diagnosis && (
+              <div className="mt-3">
+                <DiagnosisReportCard diagnosis={diagnosis} />
+              </div>
+            )}
+
+            <p className="mt-4 text-sm font-bold text-gray-900">
+              {messengers.primary.label} 또는 {messengers.secondary.label}로
+              곧 상세 안내를 보내드립니다
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              위 리포트를 바탕으로 전문가가 검토한 뒤, 보완 가능 여부와
+              필요서류를 메시지로 정리해드립니다.
+            </p>
+
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
+              <MessageCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />
+              {emailProvided
+                ? "메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요."
+                : "메시지가 오지 않으면 알려주세요 — 담당자가 직접 확인 후 연락드립니다."}
+            </div>
+
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" />
               입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는 자동
               생성되며, 마이페이지에서 언제든 변경하실 수 있습니다.
+              거주증·노동허가·비자 등 만료 알림 서비스도 함께 이용하실 수
+              있습니다.
             </div>
-            <Link href="/consultation?case=register-restaurant"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-amber-600 px-5 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors">
+
+            <Link
+              href="/consultation?case=register-restaurant-conditional"
+              className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-amber-600 px-5 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
+            >
               메시지 기다리지 않고 지금 상담하기
             </Link>
+            <button onClick={reset} className="mt-4 block text-xs text-gray-400 hover:text-gray-600">
+              처음부터 다시 확인하기
+            </button>
           </div>
         )}
       </div>
