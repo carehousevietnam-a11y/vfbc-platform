@@ -17,6 +17,8 @@ import {
   Circle,
   Download,
   MessageSquare,
+  AlertTriangle,
+  ShieldAlert,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -67,6 +69,9 @@ function getEstimate(category: CategoryKey, serviceType: string | null): string 
 // 않는다는 사실은 admin/leads/[id]/page.tsx 작업 때 이미 확인된 내용과 동일).
 const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀 (Linda Kang · VNK 파트너)";
 
+type ConfidenceLevel = "green" | "yellow" | "red";
+type ConfidenceStatus = { level: ConfidenceLevel; label: string; message: string };
+
 type MyPageItem = {
   id: string;
   category: CategoryKey;
@@ -80,6 +85,7 @@ type MyPageItem = {
   hasConsultationRequest: boolean;
   fileUrl: string | null;
   fileName: string | null;
+  confidence: ConfidenceStatus;
   createdAt: string;
 };
 
@@ -162,6 +168,37 @@ function StepTimeline({ steps }: { steps: { label: string; done: boolean }[] }) 
   );
 }
 
+// 안심도(Confidence) 배너 — "AI 허가 가능성"(예측 결과)과는 별개로, "현재
+// 업무가 정상적으로 진행되고 있는지"를 보여준다. 혼동 방지를 위해 제목을
+// "현재 진행 상태"로 명확히 구분하고, AI 예측 결과 영역과는 별도 블록으로
+// 둔다.
+const CONFIDENCE_STYLE: Record<
+  ConfidenceLevel,
+  { bg: string; dot: string; text: string; Icon: typeof CheckCircle2 }
+> = {
+  green: { bg: "bg-emerald-50", dot: "bg-emerald-500", text: "text-emerald-800", Icon: CheckCircle2 },
+  yellow: { bg: "bg-amber-50", dot: "bg-amber-500", text: "text-amber-800", Icon: AlertTriangle },
+  red: { bg: "bg-red-50", dot: "bg-red-500", text: "text-red-800", Icon: ShieldAlert },
+};
+
+function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
+  const style = CONFIDENCE_STYLE[confidence.level];
+  const Icon = style.Icon;
+  return (
+    <div className={`mt-4 rounded-2xl ${style.bg} px-4 py-3`}>
+      <div className="flex items-center gap-2">
+        <span className={`h-2 w-2 rounded-full ${style.dot} shrink-0`} />
+        <Icon size={14} className={`${style.text} shrink-0`} />
+        <p className={`text-[11px] font-semibold ${style.text}`}>현재 진행 상태</p>
+      </div>
+      <p className={`mt-1 text-sm font-bold ${style.text}`}>{confidence.label}</p>
+      <p className={`mt-1 text-[11px] ${style.text} opacity-80 leading-relaxed`}>
+        {confidence.message}
+      </p>
+    </div>
+  );
+}
+
 function ProgressCard({ item }: { item: MyPageItem }) {
   const steps = buildSteps(item);
   const doneCount = steps.filter((s) => s.done).length;
@@ -204,6 +241,9 @@ function LeadCard({ item }: { item: MyPageItem }) {
       </div>
 
       <p className="mt-3 text-lg font-bold text-gray-900">{item.serviceLabel}</p>
+
+      {/* 안심도(Confidence) */}
+      <ConfidenceBanner confidence={item.confidence} />
 
       {/* ② 진행률 카드 */}
       <div className="mt-4">

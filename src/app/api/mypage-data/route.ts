@@ -90,6 +90,42 @@ function asMeta(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
+// ── 안심도(Confidence) 판단 ──
+// 전체 코드베이스에서 crm_activities.action으로 실제 저장되는 값을 전수
+// 확인한 결과(2026-07 기준): agency_upgrade_request, consultation_request,
+// expert_review_request, expert_memo, verify_lead, *_diagnosis_lead 뿐이다.
+// "추가서류요청"·"담당자확인필요"·"반려" 등에 해당하는 action은 현재
+// 존재하지 않는다. 그래서 RED_ACTIONS/YELLOW_ACTIONS는 비워둔다 — 존재하지
+// 않는 action을 하드코딩해 미래 기능인 것처럼 보이게 하지 않는다.
+// 나중에 그런 action이 실제로 추가되면 이 두 배열에만 채우면 자동 반영된다.
+type ConfidenceLevel = "green" | "yellow" | "red";
+type ConfidenceStatus = { level: ConfidenceLevel; label: string; message: string };
+
+const RED_ACTIONS: string[] = [];
+const YELLOW_ACTIONS: string[] = [];
+
+function getConfidenceStatus(actions: string[]): ConfidenceStatus {
+  if (actions.some((a) => RED_ACTIONS.includes(a))) {
+    return {
+      level: "red",
+      label: "담당자 확인 필요",
+      message: "담당자가 내용을 확인하고 있습니다. 확인 후 안내드리겠습니다.",
+    };
+  }
+  if (actions.some((a) => YELLOW_ACTIONS.includes(a))) {
+    return {
+      level: "yellow",
+      label: "추가 서류 확인 예정",
+      message: "담당자가 필요한 서류를 확인한 후 안내드릴 예정입니다.",
+    };
+  }
+  return {
+    level: "green",
+    label: "정상 진행 중",
+    message: "현재 접수된 절차가 정상적으로 진행되고 있습니다.",
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { accessToken } = (await req.json()) as { accessToken?: string };
@@ -165,6 +201,10 @@ export async function POST(req: NextRequest) {
 
       const normalizedType = normalizeServiceType(lead.service_type);
 
+      const confidence = getConfidenceStatus(
+        leadActivities.map((a) => a.action).filter((a): a is string => Boolean(a))
+      );
+
       return {
         id: lead.id,
         category: getCategory(normalizedType),
@@ -178,6 +218,7 @@ export async function POST(req: NextRequest) {
         hasConsultationRequest,
         fileUrl,
         fileName,
+        confidence,
         createdAt: lead.created_at,
       };
     });
