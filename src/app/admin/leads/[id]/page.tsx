@@ -30,6 +30,7 @@ import {
   ArrowLeft,
   AlertTriangle,
   CheckCircle2,
+  Circle,
   Paperclip,
   Info,
 } from "lucide-react";
@@ -183,6 +184,75 @@ function getConsultationStatus(activities: ActivityRow[]): { label: string; colo
   return { label: "접수됨", color: "text-gray-700 bg-gray-100" };
 }
 
+// ── 진행 단계 관리 ──
+// 아래 4개는 이미 존재하는 action을 그대로 재사용한다(신규 action 아님):
+// expert_review_request, agency_upgrade_request.
+// "정부 제출"·"허가 완료"는 코드 전체를 확인한 결과 대응하는 action이 없어
+// 새로 추가했다: process_government_submitted, process_permit_completed.
+// 관리자가 직접 저장할 수 있는 단계는 이 4개뿐이다 — "접수 완료"는 리드가
+// 존재하는 것 자체로 항상 참이라 별도 action이 필요 없고, "AI 진단 완료"는
+// 서비스별로 실제 action 이름이 달라(wp_diagnosis_lead, register_*_diagnosis_lead,
+// verify_lead 등) 이미 접수 시점에 자동 기록되므로 관리자가 별도로 저장할
+// 필요가 없다(자동 감지만 표시).
+type ProcessStep = { label: string; done: boolean; settableAction: string | null };
+
+const SETTABLE_STAGE_ACTIONS = new Set([
+  "expert_review_request",
+  "agency_upgrade_request",
+  "process_government_submitted",
+  "process_permit_completed",
+]);
+
+// 상위 단계 action이 존재하면 이전 단계도 완료로 표시(캐스케이드).
+function cascadeDone(rawDone: boolean[]): boolean[] {
+  let lastTrueIndex = -1;
+  rawDone.forEach((d, i) => {
+    if (d) lastTrueIndex = i;
+  });
+  return rawDone.map((_, i) => i <= lastTrueIndex);
+}
+
+function buildProcessSteps(category: CategoryKey, activities: ActivityRow[]): ProcessStep[] {
+  const actions = new Set(activities.map((a) => a.action));
+  const hasDiagnosis = activities.some(
+    (a) => a.action === "verify_lead" || (a.action ?? "").endsWith("_diagnosis_lead")
+  );
+  const hasExpertReview = actions.has("expert_review_request");
+  const hasAgency = actions.has("agency_upgrade_request");
+  const hasGovernmentSubmitted = actions.has("process_government_submitted");
+  const hasPermitCompleted = actions.has("process_permit_completed");
+
+  if (category === "verify") {
+    const raw = [true, hasDiagnosis, hasExpertReview, false];
+    const done = cascadeDone(raw);
+    return [
+      { label: "접수 완료", done: done[0], settableAction: null },
+      { label: "자체 진단 완료", done: done[1], settableAction: null },
+      { label: "전문가 검토 요청", done: done[2], settableAction: "expert_review_request" },
+      { label: "전문가 안내 대기", done: done[3], settableAction: null },
+    ];
+  }
+  if (category === "consultation") {
+    const raw = [true, false];
+    const done = cascadeDone(raw);
+    return [
+      { label: "상담 접수 완료", done: done[0], settableAction: null },
+      { label: "담당자 확인 대기", done: done[1], settableAction: null },
+    ];
+  }
+  // CHECK / REGISTER
+  const raw = [true, hasDiagnosis, hasExpertReview, hasAgency, hasGovernmentSubmitted, hasPermitCompleted];
+  const done = cascadeDone(raw);
+  return [
+    { label: "접수 완료", done: done[0], settableAction: null },
+    { label: "AI 진단 완료", done: done[1], settableAction: null },
+    { label: "전문가 검토", done: done[2], settableAction: "expert_review_request" },
+    { label: "대행 신청", done: done[3], settableAction: "agency_upgrade_request" },
+    { label: "정부 제출", done: done[4], settableAction: "process_government_submitted" },
+    { label: "허가 완료", done: done[5], settableAction: "process_permit_completed" },
+  ];
+}
+
 // meta 안의 camelCase/snake_case 키를 사람이 읽기 좋은 라벨로 변환
 // (REGISTER 자체진단처럼 카테고리마다 필드명이 달라 하드코딩하지 않고
 // 공통 포맷터로 처리한다).
@@ -213,6 +283,35 @@ async function addExpertMemo(formData: FormData) {
     action: "expert_memo",
     tag: "ADMIN_MEMO",
     meta: { memo },
+  });
+
+  revalidatePath(`/admin/leads/${leadId}`);
+}
+
+// ── 인라인 Server Action: 진행 단계 저장 ──
+// 새 테이블·컬럼·API 라우트 없이 기존 crm_activities에 활동 1건으로 기록한다.
+// action은 SETTABLE_STAGE_ACTIONS 화이트리스트에 있는 값만 허용한다(폼 조작으로
+// 임의 문자열이 crm_activities.action에 저장되는 것을 방지).
+// 이미 동일 action이 있으면 다시 저장하지 않는다(중복 방지).
+async function setProcessStage(formData: FormData) {
+  "use server";
+  const leadId = String(formData.get("leadId") || "");
+  const action = String(formData.get("stageAction") || "");
+  if (!leadId || !SETTABLE_STAGE_ACTIONS.has(action)) return;
+
+  const { data: existing } = await supabaseAdmin
+    .from("crm_activities")
+    .select("id")
+    .eq("lead_id", leadId)
+    .eq("action", action)
+    .maybeSingle();
+  if (existing) return;
+
+  await supabaseAdmin.from("crm_activities").insert({
+    lead_id: leadId,
+    action,
+    tag: "ADMIN_STAGE_UPDATE",
+    meta: { setBy: "admin" },
   });
 
   revalidatePath(`/admin/leads/${leadId}`);
@@ -262,6 +361,7 @@ export default async function AdminLeadDetailPage({
   const serviceLabel = getServiceLabel(serviceType ?? "");
   const resultInfo = lead.result ? RESULT_LABELS[lead.result] ?? null : null;
   const consultationStatus = getConsultationStatus(activities);
+  const processSteps = buildProcessSteps(category, activities);
 
   // 첨부 서류 (VERIFY STEP2에서 저장되는 meta.file_url / file_name — 특정
   // action명에 묶지 않고 파일이 첨부된 첫 활동을 찾는다)
@@ -355,6 +455,42 @@ export default async function AdminLeadDetailPage({
             <span className="text-gray-500">결과값</span>
             <span className="font-medium text-gray-900">{lead.result ?? "-"}</span>
           </div>
+        </div>
+
+        {/* 진행 단계 관리 (신규) */}
+        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-xs font-semibold text-gray-700">진행 단계 관리</p>
+          <div className="mt-3 space-y-2">
+            {processSteps.map((step) => (
+              <div key={step.label} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  {step.done ? (
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                  ) : (
+                    <Circle size={16} className="text-gray-300 shrink-0" />
+                  )}
+                  <span className={`text-xs ${step.done ? "font-semibold text-gray-900" : "text-gray-500"}`}>
+                    {step.label}
+                  </span>
+                </div>
+                {!step.done && step.settableAction && (
+                  <form action={setProcessStage}>
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <input type="hidden" name="stageAction" value={step.settableAction} />
+                    <button
+                      type="submit"
+                      className="rounded-full border border-blue-900 px-3 py-1 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+                    >
+                      이 단계로 설정
+                    </button>
+                  </form>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-[11px] text-gray-400">
+            &quot;접수 완료&quot;·&quot;AI 진단 완료&quot;는 접수 시점에 자동으로 기록되어 별도 설정이 필요 없습니다.
+          </p>
         </div>
 
         {/* 3. previous_rejections (타 기관 거절이력) */}

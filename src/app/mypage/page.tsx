@@ -72,6 +72,13 @@ const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀 (Linda Kang · VNK 파트너)"
 type ConfidenceLevel = "green" | "yellow" | "red";
 type ConfidenceStatus = { level: ConfidenceLevel; label: string; message: string };
 
+type ProcessStep = { label: string; done: boolean };
+type StageInfo = {
+  steps: ProcessStep[];
+  progressPercent: number;
+  currentStepLabel: string;
+};
+
 type MyPageItem = {
   id: string;
   category: CategoryKey;
@@ -86,6 +93,7 @@ type MyPageItem = {
   fileUrl: string | null;
   fileName: string | null;
   confidence: ConfidenceStatus;
+  stage: StageInfo;
   createdAt: string;
 };
 
@@ -101,40 +109,13 @@ function formatDate(iso: string) {
   });
 }
 
-// ── 단계별 타임라인 구성 ──
-// 판단 기준은 오직 crm_activities.action 기반 boolean(hasDiagnosis/
-// hasExpertReview/hasAgency/hasConsultationRequest)뿐이다. "정부 제출"·
-// "허가 완료"·"전문가 안내 대기" 등은 이를 감지할 action이 실제로 없으므로
-// 항상 미완료(○)로 표시된다 — 완료로 임의 표시하지 않는다.
-// VERIFY는 플랫폼 원칙상 정부 제출을 대행하지 않으므로 별도의 짧은
-// 타임라인을 쓴다(정부 제출/허가완료 단계를 넣지 않음).
-function buildSteps(item: MyPageItem): { label: string; done: boolean }[] {
-  if (item.category === "verify") {
-    return [
-      { label: "접수 완료", done: true },
-      { label: "자체 진단 완료", done: item.hasDiagnosis },
-      { label: "전문가 검토 요청", done: item.hasExpertReview },
-      { label: "전문가 안내 대기", done: false },
-    ];
-  }
-  if (item.category === "consultation") {
-    return [
-      { label: "상담 접수 완료", done: true },
-      { label: "담당자 확인 대기", done: false },
-    ];
-  }
-  // CHECK / REGISTER
-  return [
-    { label: "접수 완료", done: true },
-    { label: "AI 진단 완료", done: item.hasDiagnosis },
-    { label: "전문가 검토", done: item.hasExpertReview },
-    { label: "대행 신청", done: item.hasAgency },
-    { label: "정부 제출", done: false },
-    { label: "허가 완료", done: false },
-  ];
-}
-
-function nextStepLabel(item: MyPageItem, steps: { label: string; done: boolean }[]): string {
+// ── 단계별 타임라인 ──
+// 진행 단계(캐스케이드 포함)와 진행률은 이제 /api/mypage-data가
+// 서버에서 계산해 item.stage로 내려준다 — 관리자가 저장한 상위 단계
+// action이 있으면 이전 단계도 자동으로 완료 표시되는 캐스케이드 로직이
+// 이 페이지와 admin 페이지 양쪽에서 어긋나지 않도록 API 쪽에서 한 번만
+// 계산한다. 이 페이지는 그 결과만 그대로 렌더링한다.
+function nextStepLabel(steps: ProcessStep[]): string {
   const firstPending = steps.find((s) => !s.done);
   if (!firstPending) return "안내 대기";
   return firstPending.label + " 예정";
@@ -199,26 +180,21 @@ function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
   );
 }
 
-function ProgressCard({ item }: { item: MyPageItem }) {
-  const steps = buildSteps(item);
-  const doneCount = steps.filter((s) => s.done).length;
-  const percent = Math.round((doneCount / steps.length) * 100);
-  const currentLabel = [...steps].reverse().find((s) => s.done)?.label ?? steps[0].label;
-
+function ProgressCard({ stage }: { stage: StageInfo }) {
   return (
     <div className="rounded-2xl bg-blue-50/60 px-4 py-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-blue-900">진행률</p>
-        <p className="text-xl font-bold text-blue-900">{percent}%</p>
+        <p className="text-xl font-bold text-blue-900">{stage.progressPercent}%</p>
       </div>
       <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
         <div
           className="h-full rounded-full bg-blue-900 transition-all"
-          style={{ width: `${percent}%` }}
+          style={{ width: `${stage.progressPercent}%` }}
         />
       </div>
       <p className="mt-2 text-[11px] text-blue-800">
-        현재 단계 · <span className="font-semibold">{currentLabel}</span>
+        현재 단계 · <span className="font-semibold">{stage.currentStepLabel}</span>
       </p>
     </div>
   );
@@ -227,9 +203,8 @@ function ProgressCard({ item }: { item: MyPageItem }) {
 function LeadCard({ item }: { item: MyPageItem }) {
   const badge = CATEGORY_BADGE[item.category];
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
-  const steps = buildSteps(item);
   const estimate = getEstimate(item.category, item.serviceType);
-  const nextStep = nextStepLabel(item, steps);
+  const nextStep = nextStepLabel(item.stage.steps);
 
   return (
     <div className="rounded-3xl bg-white border border-gray-100 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -247,13 +222,13 @@ function LeadCard({ item }: { item: MyPageItem }) {
 
       {/* ② 진행률 카드 */}
       <div className="mt-4">
-        <ProgressCard item={item} />
+        <ProgressCard stage={item.stage} />
       </div>
 
       {/* ① 진행 타임라인 */}
       <div className="mt-5">
         <p className="text-xs font-semibold text-gray-700">진행 현황</p>
-        <StepTimeline steps={steps} />
+        <StepTimeline steps={item.stage.steps} />
       </div>
 
       {/* ③ AI 결과 영역 */}

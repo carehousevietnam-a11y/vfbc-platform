@@ -126,6 +126,90 @@ function getConfidenceStatus(actions: string[]): ConfidenceStatus {
   };
 }
 
+// ── 진행 단계 (admin/leads/[id]/page.tsx와 동일한 action 집합·캐스케이드 원칙) ──
+// expert_review_request / agency_upgrade_request는 기존 action 재사용.
+// process_government_submitted / process_permit_completed는 대응하는 기존
+// action이 없어 관리자 진행단계 관리 기능에서 신규로 사용하는 값이다.
+type ProcessStep = { label: string; done: boolean };
+type StageInfo = {
+  steps: ProcessStep[];
+  progressPercent: number;
+  currentStepLabel: string;
+};
+
+// 상위 단계 action이 있으면 이전 단계도 완료로 표시(캐스케이드) — 관리자가
+// 단계를 건너뛰고 저장해도 이전 단계가 자동으로 완료 표시되도록 한다.
+function cascadeDone(rawDone: boolean[]): boolean[] {
+  let lastTrueIndex = -1;
+  rawDone.forEach((d, i) => {
+    if (d) lastTrueIndex = i;
+  });
+  return rawDone.map((_, i) => i <= lastTrueIndex);
+}
+
+// 요청된 6단계 진행률 표: 1단계 17% ~ 6단계 100%.
+const SIX_STEP_PERCENTS = [17, 33, 50, 67, 83, 100];
+
+function buildStageInfo(
+  category: CategoryKey,
+  hasDiagnosis: boolean,
+  hasExpertReview: boolean,
+  hasAgency: boolean,
+  hasGovernmentSubmitted: boolean,
+  hasPermitCompleted: boolean
+): StageInfo {
+  if (category === "verify") {
+    const raw = [true, hasDiagnosis, hasExpertReview, false];
+    const done = cascadeDone(raw);
+    const steps: ProcessStep[] = [
+      { label: "접수 완료", done: done[0] },
+      { label: "자체 진단 완료", done: done[1] },
+      { label: "전문가 검토 요청", done: done[2] },
+      { label: "전문가 안내 대기", done: done[3] },
+    ];
+    const doneCount = done.filter(Boolean).length;
+    const idx = doneCount - 1;
+    return {
+      steps,
+      progressPercent: Math.round((doneCount / steps.length) * 100),
+      currentStepLabel: steps[idx]?.label ?? steps[0].label,
+    };
+  }
+  if (category === "consultation") {
+    const raw = [true, false];
+    const done = cascadeDone(raw);
+    const steps: ProcessStep[] = [
+      { label: "상담 접수 완료", done: done[0] },
+      { label: "담당자 확인 대기", done: done[1] },
+    ];
+    const doneCount = done.filter(Boolean).length;
+    const idx = doneCount - 1;
+    return {
+      steps,
+      progressPercent: Math.round((doneCount / steps.length) * 100),
+      currentStepLabel: steps[idx]?.label ?? steps[0].label,
+    };
+  }
+  // CHECK / REGISTER — 요청된 6단계 + 명시된 %표
+  const raw = [true, hasDiagnosis, hasExpertReview, hasAgency, hasGovernmentSubmitted, hasPermitCompleted];
+  const done = cascadeDone(raw);
+  const steps: ProcessStep[] = [
+    { label: "접수 완료", done: done[0] },
+    { label: "AI 진단 완료", done: done[1] },
+    { label: "전문가 검토", done: done[2] },
+    { label: "대행 신청", done: done[3] },
+    { label: "정부 제출", done: done[4] },
+    { label: "허가 완료", done: done[5] },
+  ];
+  const doneCount = done.filter(Boolean).length;
+  const idx = doneCount - 1;
+  return {
+    steps,
+    progressPercent: SIX_STEP_PERCENTS[idx] ?? SIX_STEP_PERCENTS[0],
+    currentStepLabel: steps[idx]?.label ?? steps[0].label,
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { accessToken } = (await req.json()) as { accessToken?: string };
@@ -180,6 +264,9 @@ export async function POST(req: NextRequest) {
       const hasExpertReview = actions.has("expert_review_request");
       const hasAgency = actions.has("agency_upgrade_request");
       const hasConsultationRequest = actions.has("consultation_request");
+      // 신규: 관리자 진행단계 관리 기능에서 저장하는 action (기존에 대응 action 없음)
+      const hasGovernmentSubmitted = actions.has("process_government_submitted");
+      const hasPermitCompleted = actions.has("process_permit_completed");
 
       // ⚠️ 안전 경계: expertBrief / expert_brief(전문가 전용 — checkedItems,
       // rejectionRisks, recommendedSteps, similarCases 등 AI의 "왜"에 해당하는
@@ -200,14 +287,39 @@ export async function POST(req: NextRequest) {
       }
 
       const normalizedType = normalizeServiceType(lead.service_type);
+      const category = getCategory(normalizedType);
 
       const confidence = getConfidenceStatus(
         leadActivities.map((a) => a.action).filter((a): a is string => Boolean(a))
       );
 
+      const stage = buildStageInfo(
+        category,
+        hasDiagnosis,
+        hasExpertReview,
+        hasAgency,
+        hasGovernmentSubmitted,
+        hasPermitCompleted
+      );
+
+      // 향후 고객 타임라인 UI 연결을 대비해 안전하게 정리한 활동 로그.
+      // action/created_at만 포함하고, 관리자 전용 메모(expert_memo)나
+      // meta 원본은 포함하지 않는다(전문가 전용 데이터 노출 방지 원칙 유지).
+      const STAGE_ACTIONS = new Set([
+        "verify_lead",
+        "expert_review_request",
+        "agency_upgrade_request",
+        "consultation_request",
+        "process_government_submitted",
+        "process_permit_completed",
+      ]);
+      const activityLog = leadActivities
+        .filter((a) => a.action && (STAGE_ACTIONS.has(a.action) || a.action.endsWith("_diagnosis_lead")))
+        .map((a) => ({ action: a.action as string, createdAt: a.created_at }));
+
       return {
         id: lead.id,
-        category: getCategory(normalizedType),
+        category,
         serviceType: normalizedType,
         serviceLabel: getServiceLabel(normalizedType ?? lead.service_type ?? ""),
         result: lead.result,
@@ -219,6 +331,8 @@ export async function POST(req: NextRequest) {
         fileUrl,
         fileName,
         confidence,
+        stage,
+        activityLog,
         createdAt: lead.created_at,
       };
     });
