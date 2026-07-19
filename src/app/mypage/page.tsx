@@ -79,6 +79,8 @@ type StageInfo = {
   currentStepLabel: string;
 };
 
+type ActivityLogEntry = { label: string; createdAt: string };
+
 type MyPageItem = {
   id: string;
   category: CategoryKey;
@@ -94,6 +96,7 @@ type MyPageItem = {
   fileName: string | null;
   confidence: ConfidenceStatus;
   stage: StageInfo;
+  activityLog: ActivityLogEntry[];
   createdAt: string;
 };
 
@@ -107,6 +110,14 @@ function formatDate(iso: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+// STEP2 타임라인용 짧은 날짜 표기 (예: 07/19)
+function formatShortDate(iso: string) {
+  const d = new Date(iso);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${mm}/${dd}`;
 }
 
 // ── 단계별 타임라인 ──
@@ -180,6 +191,31 @@ function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
   );
 }
 
+// STEP2: 고객 타임라인. StepTimeline(현재 단계까지의 진행 현황)과는 다른
+// 개념 — 이쪽은 crm_activities에 실제 기록된 이벤트를 날짜순으로 그대로
+// 나열한 이력이다. 라벨은 API가 이미 고객용 문구로 변환해서 내려준다.
+function ActivityTimeline({ log }: { log: ActivityLogEntry[] }) {
+  if (log.length === 0) {
+    return <p className="mt-3 text-xs text-gray-400">아직 기록된 처리 이력이 없습니다.</p>;
+  }
+  return (
+    <div className="mt-3 space-y-3">
+      {log.map((entry, i) => (
+        <div key={`${entry.label}-${entry.createdAt}`} className="flex gap-3">
+          <div className="flex flex-col items-center">
+            <span className="h-2 w-2 rounded-full bg-blue-900 shrink-0" />
+            {i < log.length - 1 && <div className="w-px flex-1 min-h-[20px] bg-gray-200" />}
+          </div>
+          <div className="pb-1">
+            <p className="text-[11px] text-gray-400">{formatShortDate(entry.createdAt)}</p>
+            <p className="text-sm font-semibold text-gray-900">{entry.label}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ProgressCard({ stage }: { stage: StageInfo }) {
   return (
     <div className="rounded-2xl bg-blue-50/60 px-4 py-4">
@@ -229,6 +265,12 @@ function LeadCard({ item }: { item: MyPageItem }) {
       <div className="mt-5">
         <p className="text-xs font-semibold text-gray-700">진행 현황</p>
         <StepTimeline steps={item.stage.steps} />
+      </div>
+
+      {/* STEP2: 처리 이력 타임라인 */}
+      <div className="mt-2">
+        <p className="text-xs font-semibold text-gray-700">처리 이력</p>
+        <ActivityTimeline log={item.activityLog} />
       </div>
 
       {/* ③ AI 결과 영역 */}

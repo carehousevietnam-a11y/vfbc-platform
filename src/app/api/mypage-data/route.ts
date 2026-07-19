@@ -302,9 +302,11 @@ export async function POST(req: NextRequest) {
         hasPermitCompleted
       );
 
-      // 향후 고객 타임라인 UI 연결을 대비해 안전하게 정리한 활동 로그.
-      // action/created_at만 포함하고, 관리자 전용 메모(expert_memo)나
-      // meta 원본은 포함하지 않는다(전문가 전용 데이터 노출 방지 원칙 유지).
+      // ── STEP2: 고객 타임라인 ──
+      // crm_activities.action을 그대로 노출하지 않고(예: "process_government_submitted"
+      // 같은 내부 코드명이 그대로 보이면 신뢰감을 해침), 고객이 이해할 수 있는
+      // 문구로만 변환해 내려준다. 매핑에 없는 action은 타임라인에서 제외한다
+      // (STAGE_ACTIONS 화이트리스트 필터가 이미 이를 보장한다).
       const STAGE_ACTIONS = new Set([
         "verify_lead",
         "expert_review_request",
@@ -313,9 +315,18 @@ export async function POST(req: NextRequest) {
         "process_government_submitted",
         "process_permit_completed",
       ]);
+      function getActivityLabel(action: string): string {
+        if (action === "verify_lead" || action.endsWith("_diagnosis_lead")) return "AI 검토 완료";
+        if (action === "expert_review_request") return "전문가 검토 시작";
+        if (action === "agency_upgrade_request") return "대행 신청 접수";
+        if (action === "consultation_request") return "상담 신청 접수";
+        if (action === "process_government_submitted") return "정부 제출 완료";
+        if (action === "process_permit_completed") return "허가 완료";
+        return "진행 업데이트";
+      }
       const activityLog = leadActivities
         .filter((a) => a.action && (STAGE_ACTIONS.has(a.action) || a.action.endsWith("_diagnosis_lead")))
-        .map((a) => ({ action: a.action as string, createdAt: a.created_at }));
+        .map((a) => ({ label: getActivityLabel(a.action as string), createdAt: a.created_at }));
 
       return {
         id: lead.id,
