@@ -9,6 +9,7 @@ import {
   Leaf,
   FlaskConical,
   Stethoscope,
+  Store,
   LucideIcon,
 } from "lucide-react";
 
@@ -77,6 +78,14 @@ const PERMIT_ITEMS: PermitItem[] = [
     desc: "의료기기 수입·유통 허가",
     icon: Stethoscope,
     href: "/register/medical-device",
+  },
+  {
+    key: "franchise",
+    title: "프랜차이즈 등록",
+    hook: "미등록 시 계약 무효",
+    desc: "가맹사업 등록·계약 허가",
+    icon: Store,
+    href: "/register/franchise",
   },
 ];
 
