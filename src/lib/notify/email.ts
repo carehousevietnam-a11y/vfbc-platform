@@ -330,11 +330,12 @@ export async function sendStageChangeEmail(
 
   // mypage/page.tsx는 자체 로그인 화면이 없고 "/r?token=" 링크의 자동로그인
   // (api/auto-login)에만 의존하는 구조다(v21 핸드오프 확인 완료). 그래서
-  // 이메일 버튼은 절대 "/mypage"로 직접 연결하지 않고, sendResultEmail과
-  // 동일하게 항상 "/r?token=" 결과확인 링크를 거치게 한다 — 이 링크가
-  // 자동 로그인 후 마이페이지로 이어진다.
+  // 이메일 버튼은 절대 "/mypage"로 직접 연결하지 않고 항상 "/r?token=" 결과확인
+  // 링크를 거치게 한다. 다만 이 링크는 "next=mypage" 파라미터를 붙여서, 로그인이
+  // 끝나면 (기존 sendResultEmail 링크처럼) 진단결과 카드를 보여주는 대신 곧바로
+  // 마이페이지로 리다이렉트하도록 한다 — src/app/r/page.tsx의 wantsMypage 분기.
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc-platform.vercel.app";
-  const resultUrl = `${siteUrl}/r?token=${token}`;
+  const resultUrl = `${siteUrl}/r?token=${token}&next=mypage`;
 
   let bodyHtml: string;
   let buttonLabel: string | null = "마이페이지에서 진행상황 확인하기";

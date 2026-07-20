@@ -13,7 +13,7 @@ const supabaseAdmin = createClient(
 // 세션을 만들고 다시 우리 사이트로 돌려보낸다).
 export async function POST(req: NextRequest) {
   try {
-    const { token } = (await req.json()) as { token?: string };
+    const { token, next } = (await req.json()) as { token?: string; next?: string };
 
     if (!token) {
       return NextResponse.json({ error: "토큰이 필요합니다." }, { status: 400 });
@@ -50,7 +50,11 @@ export async function POST(req: NextRequest) {
     const rawSiteUrl =
       process.env.NEXT_PUBLIC_SITE_URL || "https://vfbc-platform.vercel.app";
     const siteUrl = rawSiteUrl.replace(/\/+$/, "");
-    const redirectTo = `${siteUrl}/r?token=${encodeURIComponent(token)}&al=1`;
+    // next="mypage"가 오면 로그인 왕복(magiclink → Supabase → 우리 사이트) 후
+    // 다시 /r로 돌아왔을 때도 이 값을 유지해야 /r 페이지가 진단결과 카드 대신
+    // 마이페이지로 즉시 리다이렉트할 수 있다. (STEP6 단계변경 이메일 전용)
+    const nextParam = next ? `&next=${encodeURIComponent(next)}` : "";
+    const redirectTo = `${siteUrl}/r?token=${encodeURIComponent(token)}&al=1${nextParam}`;
 
     const { data: linkData, error: linkError } =
       await supabaseAdmin.auth.admin.generateLink({

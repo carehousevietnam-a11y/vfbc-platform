@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -72,9 +72,15 @@ function getDocs(serviceType: string | null) {
 }
 
 function ResultContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const alreadyLoggedInPass = searchParams.get("al") === "1";
+  // STEP6 단계변경 이메일 전용 — "/r?token=...&next=mypage"로 오면 로그인
+  // 완료 즉시 진단결과 카드 대신 마이페이지로 넘긴다. 값이 없으면(기존
+  // sendResultEmail 링크) 지금까지와 동일하게 이 페이지에 그대로 머문다.
+  const next = searchParams.get("next");
+  const wantsMypage = next === "mypage";
 
   const [status, setStatus] = useState<Status>("loading");
   const [info, setInfo] = useState<ResultInfo | null>(null);
@@ -149,7 +155,7 @@ function ResultContent() {
         const res = await fetch("/api/auto-login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify({ token, next: next || undefined }),
         });
         const data = await res.json();
         if (!res.ok || !data.actionLink) {
@@ -161,7 +167,16 @@ function ResultContent() {
         console.error("auto-login request failed:", err);
       }
     })();
-  }, [status, token, loginAttempted, alreadyLoggedInPass]);
+  }, [status, token, loginAttempted, alreadyLoggedInPass, next]);
+
+  // STEP6: next=mypage로 들어온 경우, 로그인 왕복이 끝나고(al=1) 링크가
+  // 유효한 것까지 확인되면(status === "ready") 진단결과 카드를 그리지 않고
+  // 바로 마이페이지로 넘긴다.
+  useEffect(() => {
+    if (wantsMypage && alreadyLoggedInPass && status === "ready") {
+      router.replace("/mypage");
+    }
+  }, [wantsMypage, alreadyLoggedInPass, status, router]);
 
   // 클릭 즉시 접수 — 중간 확인 화면 없이 한 번의 클릭으로 완료
   async function handleHelpRequest() {
@@ -279,7 +294,13 @@ function ResultContent() {
           </div>
         )}
 
-        {status === "ready" && info && (
+        {status === "ready" && info && wantsMypage && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p className="text-sm text-gray-500">마이페이지로 이동 중입니다...</p>
+          </div>
+        )}
+
+        {status === "ready" && info && !wantsMypage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
 
