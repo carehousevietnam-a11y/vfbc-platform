@@ -35,6 +35,7 @@ import {
   Info,
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { notifyStageChange, type StageChangeAction } from "@/lib/notify/stageChange";
 
 export const dynamic = "force-dynamic";
 
@@ -335,12 +336,23 @@ async function setProcessStage(formData: FormData) {
     }
   }
 
-  await supabaseAdmin.from("crm_activities").insert({
-    lead_id: leadId,
-    action,
-    tag: "ADMIN_STAGE_UPDATE",
-    meta,
-  });
+  const { error: stageInsertError } = await supabaseAdmin
+    .from("crm_activities")
+    .insert({
+      lead_id: leadId,
+      action,
+      tag: "ADMIN_STAGE_UPDATE",
+      meta,
+    });
+
+  // STEP6: 단계 저장이 실제로 성공했을 때만 고객에게 알림(이메일+카카오)을
+  // 보낸다. notifyStageChange 내부에서 모든 에러를 catch하므로 여기서
+  // 실패해도 단계 저장(위 insert) 자체는 이미 완료된 상태로 유지된다.
+  if (!stageInsertError) {
+    await notifyStageChange(leadId, action as StageChangeAction, {
+      permitFileUrl: (meta.file_url as string | undefined) ?? null,
+    });
+  }
 
   revalidatePath(`/admin/leads/${leadId}`);
 }

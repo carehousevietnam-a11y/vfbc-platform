@@ -266,3 +266,157 @@ export async function sendResultEmail(
     return { success: false, error: String(err) };
   }
 }
+
+// ────────────────────────────────────────────────────────────────
+// STEP6: 관리자 단계변경 자동 알림 이메일
+//
+// sendResultEmail()은 "고객이 직접 행동(진단 완료/대행신청 제출)"한 시점에
+// 트리거되지만, 이 함수는 admin/leads/[id]/page.tsx의 setProcessStage
+// 서버 액션이 crm_activities에 새 단계 action을 기록한 직후(관리자가
+// 진행 단계를 변경한 시점)에 호출된다. 디자인 톤(헤더 바, 배지, 도장
+// 이미지)은 sendResultEmail과 동일하게 유지해 같은 브랜드로 보이게 한다.
+// ────────────────────────────────────────────────────────────────
+
+// admin/leads/[id]/page.tsx의 SETTABLE_STAGE_ACTIONS와 동일한 4개 값만
+// 다룬다(관리자가 실제로 저장 버튼을 눌러 크론이 아니라 즉시 트리거하는
+// 값들). 새 단계가 추가되면 이 4곳(email.ts 2개 맵 + admin 페이지
+// SETTABLE_STAGE_ACTIONS + stageChange.ts STAGE_TEMPLATE)을 함께 갱신한다.
+export type StageChangeAction =
+  | "expert_review_request"
+  | "agency_upgrade_request"
+  | "process_government_submitted"
+  | "process_permit_completed";
+
+// 이메일 헤드라인과 카카오톡(추후) 문구가 동일한 표현을 쓰도록 여기서만
+// 정의하고 stageChange.ts에서 그대로 import해 재사용한다.
+export const STAGE_HEADLINE: Record<StageChangeAction, string> = {
+  expert_review_request: "전문가 검토가 시작되었습니다",
+  agency_upgrade_request: "대행 신청이 접수 확인되었습니다",
+  process_government_submitted: "정부 제출이 완료되었습니다",
+  process_permit_completed: "허가가 완료되었습니다",
+};
+
+const STAGE_SUBJECT_SUFFIX: Record<StageChangeAction, string> = {
+  expert_review_request: "전문가 검토 시작",
+  agency_upgrade_request: "대행 신청 접수 확인",
+  process_government_submitted: "정부 제출 완료",
+  process_permit_completed: "허가 완료",
+};
+
+// mypage/page.tsx의 EXPERT_TEAM_LABEL과 동일한 문구. 담당자 배정 컬럼이
+// DB에 없어(v21 핸드오프 확인 완료) 공용 lib 대신 파일별로 고정 문구를
+// 복제하는 이 프로젝트의 기존 관례를 그대로 따른다.
+const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀 (Linda Kang · VNK 파트너)";
+
+type SendStageChangeEmailParams = {
+  to: string;
+  name: string;
+  serviceType: string;
+  action: StageChangeAction;
+  token: string;
+  // "허가 완료" 단계에서만 사용 — admin/leads/[id]/page.tsx가 방금 업로드한
+  // 결과파일(허가증) URL이 있으면 이메일에 바로 다운로드 버튼을 넣는다.
+  permitFileUrl?: string | null;
+};
+
+export async function sendStageChangeEmail(
+  params: SendStageChangeEmailParams
+): Promise<SendResultEmailReturn> {
+  const { to, name, serviceType, action, token, permitFileUrl } = params;
+
+  const serviceLabel = resolveServiceLabel(serviceType);
+  const headline = `${name}님, ${serviceLabel} ${STAGE_HEADLINE[action]}`;
+  const subject = `[VFBCAI] ${name}님의 ${serviceLabel} - ${STAGE_SUBJECT_SUFFIX[action]}`;
+
+  // mypage/page.tsx는 자체 로그인 화면이 없고 "/r?token=" 링크의 자동로그인
+  // (api/auto-login)에만 의존하는 구조다(v21 핸드오프 확인 완료). 그래서
+  // 이메일 버튼은 절대 "/mypage"로 직접 연결하지 않고, sendResultEmail과
+  // 동일하게 항상 "/r?token=" 결과확인 링크를 거치게 한다 — 이 링크가
+  // 자동 로그인 후 마이페이지로 이어진다.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc-platform.vercel.app";
+  const resultUrl = `${siteUrl}/r?token=${token}`;
+
+  let bodyHtml: string;
+  let buttonLabel: string | null = "마이페이지에서 진행상황 확인하기";
+  let buttonUrl = resultUrl;
+
+  switch (action) {
+    case "expert_review_request":
+      bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+        제출하신 내용에 대해 ${EXPERT_TEAM_LABEL}의 전문가 검토가 시작되었습니다. 검토가 완료되는 대로 다시 안내드리겠습니다.
+      </p>`;
+      break;
+    case "agency_upgrade_request":
+      bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+        대행 신청이 접수 확인되었습니다. 담당자가 서류를 확인한 뒤 카카오톡 또는 잘로(Zalo)로 예상 비용과 진행 절차를 안내드립니다.
+      </p>`;
+      break;
+    case "process_government_submitted":
+      bodyHtml = `<div style="background: #ffffff; border-radius: 16px; padding: 20px; margin: 0 0 20px; border: 1px solid #f3f4f6;">
+        <p style="font-size: 13px; color: #6b7280; margin: 0 0 4px;">담당자</p>
+        <p style="font-size: 15px; font-weight: 700; color: #111827; margin: 0;">${EXPERT_TEAM_LABEL}</p>
+      </div>
+      <p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+        관할 기관에 정부 제출이 완료되었습니다. 심사 결과가 나오는 대로 다시 안내드리겠습니다.
+      </p>`;
+      break;
+    case "process_permit_completed":
+      buttonLabel = permitFileUrl ? "허가증(결과파일) 다운로드" : "마이페이지에서 확인하기";
+      buttonUrl = permitFileUrl ?? resultUrl;
+      bodyHtml = `<div style="text-align: center; margin: 0 0 4px;">
+        <img src="${getSealUrl()}" width="176" height="176" alt="VFBCAI 허가 완료 확인 도장" style="display:inline-block;" />
+      </div>
+      <p style="font-size: 10px; color: #9ca3af; font-style: italic; text-align: center; margin: 0 0 20px;">
+        Vietnam Foreign Business Verification &amp; Compliance AI Center
+      </p>
+      <p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+        축하드립니다! ${serviceLabel} 허가가 완료되었습니다.${
+          permitFileUrl
+            ? " 아래 버튼으로 허가증(결과파일)을 바로 다운로드하실 수 있습니다."
+            : " 결과파일은 마이페이지에서 확인하실 수 있습니다."
+        }
+      </p>`;
+      break;
+  }
+
+  const buttonHtml = buttonLabel
+    ? `<a href="${buttonUrl}" style="display: inline-block; background: #1e3a8a; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 9999px; text-decoration: none;">
+        ${buttonLabel}
+      </a>`
+    : "";
+
+  const html = `
+  <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #fafafa;">
+    <div style="height: 3px; background: #1e3a8a; margin-bottom: 24px; border-radius: 2px;"></div>
+    <p style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #9ca3af; margin: 0 0 8px;">
+      VFBCAI · 베트남 외국인 비즈니스센터청
+    </p>
+    <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 16px; line-height: 1.4;">
+      ${headline}
+    </h1>
+    ${bodyHtml}
+    ${buttonHtml}
+    <p style="font-size: 12px; color: #9ca3af; margin-top: 28px; line-height: 1.6;">
+      본 메일은 VFBCAI 서비스 이용 중 남기신 연락처로 발송되었습니다.<br/>
+      링크는 30일간 유효합니다.
+    </p>
+  </div>`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "VFBCAI <onboarding@resend.dev>",
+      to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.error("Resend send error (stage change):", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, id: data?.id };
+  } catch (err) {
+    console.error("sendStageChangeEmail exception:", err);
+    return { success: false, error: String(err) };
+  }
+}
