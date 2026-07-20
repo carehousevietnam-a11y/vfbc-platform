@@ -80,6 +80,7 @@ type StageInfo = {
 };
 
 type ActivityLogEntry = { label: string; createdAt: string };
+type PublicNote = { memo: string; createdAt: string };
 
 type MyPageItem = {
   id: string;
@@ -101,6 +102,7 @@ type MyPageItem = {
   permitCompletedAt: string | null;
   permitFileUrl: string | null;
   permitFileName: string | null;
+  publicNotes: PublicNote[];
   createdAt: string;
 };
 
@@ -399,6 +401,21 @@ function LeadCard({ item }: { item: MyPageItem }) {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* STEP5: 고객 공개 메모 (관리자가 "고객 공개"로 승인한 메모만) */}
+      {item.publicNotes.length > 0 && (
+        <div className="mt-4 rounded-2xl bg-blue-50/60 px-4 py-3">
+          <p className="text-[11px] font-semibold text-blue-900">담당자 안내</p>
+          <div className="mt-2 space-y-2">
+            {item.publicNotes.map((note, i) => (
+              <div key={`${note.createdAt}-${i}`}>
+                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{note.memo}</p>
+                <p className="mt-0.5 text-[10px] text-gray-400">{formatShortDate(note.createdAt)}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

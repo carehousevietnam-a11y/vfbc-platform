@@ -299,6 +299,16 @@ export async function POST(req: NextRequest) {
       const permitFileUrl = (permitMeta?.file_url as string | undefined) ?? null;
       const permitFileName = (permitMeta?.file_name as string | undefined) ?? null;
 
+      // STEP5: 관리자가 "고객 공개"로 체크한 메모만 골라서 내려준다.
+      // 작성자·내부 메모는 절대 포함하지 않는다(전문가 메모는 기본값이 비공개).
+      const publicNotes = leadActivities
+        .filter((a) => a.action === "expert_memo" && asMeta(a.meta)?.visibleToCustomer === true)
+        .map((a) => ({
+          memo: (asMeta(a.meta)?.memo as string | undefined) ?? "",
+          createdAt: a.created_at,
+        }))
+        .filter((n) => n.memo.trim().length > 0);
+
       const normalizedType = normalizeServiceType(lead.service_type);
       const category = getCategory(normalizedType);
 
@@ -361,6 +371,7 @@ export async function POST(req: NextRequest) {
         permitCompletedAt,
         permitFileUrl,
         permitFileName,
+        publicNotes,
         createdAt: lead.created_at,
       };
     });
