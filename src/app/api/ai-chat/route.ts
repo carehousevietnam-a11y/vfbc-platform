@@ -19,6 +19,7 @@ import {
   verifyOwnedLead,
   buildCaseContext,
   buildSystemPrompt,
+  buildGreetingPrompt,
   matchesEscalationKeyword,
   NEEDS_EXPERT_TOKEN,
 } from "@/lib/aiCaseContext";
@@ -34,8 +35,12 @@ export async function POST(req: NextRequest) {
       accessToken?: string;
       leadId?: string;
       messages?: ChatMessage[];
+      // STEP7-2: 첫 대화 진입 시 클라이언트가 질문 없이 호출하는 모드.
+      // 고객 메시지 없이도 AI가 먼저 사건을 요약해 인사하도록 한다.
+      mode?: "chat" | "greeting";
     };
-    const { accessToken, leadId, messages } = body;
+    const { accessToken, leadId, messages, mode } = body;
+    const isGreeting = mode === "greeting";
 
     // ── 1. 로그인 + 소유권 검증 (다른 고객의 leadId로 접근 차단) ──
     const ownership = await verifyOwnedLead(accessToken, leadId);
@@ -43,24 +48,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: ownership.error }, { status: ownership.status });
     }
 
-    // ── 2. 입력값 검증 ──
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json({ error: "메시지가 없습니다." }, { status: 400 });
-    }
-    const lastMessage = messages[messages.length - 1];
-    if (
-      !lastMessage ||
-      lastMessage.role !== "user" ||
-      typeof lastMessage.content !== "string" ||
-      !lastMessage.content.trim()
-    ) {
-      return NextResponse.json({ error: "빈 질문은 보낼 수 없습니다." }, { status: 400 });
-    }
-    if (lastMessage.content.length > MAX_MESSAGE_LENGTH) {
-      return NextResponse.json(
-        { error: `질문은 ${MAX_MESSAGE_LENGTH}자 이내로 입력해주세요.` },
-        { status: 400 }
-      );
+    // ── 2. 입력값 검증 (인사말 모드는 고객 메시지가 없는 게 정상이므로 건너뜀) ──
+    let lastMessage: ChatMessage | undefined;
+    if (!isGreeting) {
+      if (!Array.isArray(messages) || messages.length === 0) {
+        return NextResponse.json({ error: "메시지가 없습니다." }, { status: 400 });
+      }
+      lastMessage = messages[messages.length - 1];
+      if (
+        !lastMessage ||
+        lastMessage.role !== "user" ||
+        typeof lastMessage.content !== "string" ||
+        !lastMessage.content.trim()
+      ) {
+        return NextResponse.json({ error: "빈 질문은 보낼 수 없습니다." }, { status: 400 });
+      }
+      if (lastMessage.content.length > MAX_MESSAGE_LENGTH) {
+        return NextResponse.json(
+          { error: `질문은 ${MAX_MESSAGE_LENGTH}자 이내로 입력해주세요.` },
+          { status: 400 }
+        );
+      }
     }
 
     // ── 3. 환경변수 확인 (없으면 하드코딩하지 않고 명확한 오류) ──
@@ -91,10 +99,18 @@ export async function POST(req: NextRequest) {
     const systemPrompt = buildSystemPrompt(context);
 
     // ── 5. OpenAI 호출 (최근 대화만 잘라서 전달) ──
-    const trimmedHistory = messages.slice(-MAX_HISTORY_MESSAGES).map((m) => ({
-      role: m.role,
-      content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
-    }));
+    const openaiMessages = isGreeting
+      ? [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: buildGreetingPrompt() },
+        ]
+      : [
+          { role: "system", content: systemPrompt },
+          ...(messages as ChatMessage[]).slice(-MAX_HISTORY_MESSAGES).map((m) => ({
+            role: m.role,
+            content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
+          })),
+        ];
 
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -104,7 +120,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model,
-        messages: [{ role: "system", content: systemPrompt }, ...trimmedHistory],
+        messages: openaiMessages,
         temperature: 0.3,
         max_tokens: 600,
       }),
@@ -133,9 +149,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 6. 전문가 상담 필요 여부 판단 (모델 신호 + 키워드 신호, OR 조건) ──
+    // 인사말 모드는 고객 질문이 없으므로 항상 false — 모델 신호만 있어도
+    // buildGreetingPrompt()가 애초에 토큰을 붙이지 말라고 지시한다.
     const modelFlaggedNeedsExpert = rawReply.includes(NEEDS_EXPERT_TOKEN);
     const reply = rawReply.replace(NEEDS_EXPERT_TOKEN, "").trim();
-    const needsExpert = modelFlaggedNeedsExpert || matchesEscalationKeyword(lastMessage.content);
+    const needsExpert =
+      !isGreeting && (modelFlaggedNeedsExpert || matchesEscalationKeyword(lastMessage!.content));
 
     return NextResponse.json({ reply, needsExpert });
   } catch (err) {

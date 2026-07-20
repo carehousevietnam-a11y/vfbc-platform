@@ -65,6 +65,13 @@ function ChatContent() {
   const [expertInquiry, setExpertInquiry] = useState("");
   const [expertSubmitted, setExpertSubmitted] = useState(false);
 
+  // STEP7-2: 첫 대화 진입 시 AI가 사건을 분석해 먼저 안내하는 동적 인사말.
+  // 실패하면(OpenAI 오류·설정 미비 등) 기존 고정 문구(WELCOME_TEXT)로
+  // 자연스럽게 대체한다 — 고객에게 원문 오류를 노출하지 않는다.
+  const [greetingState, setGreetingState] = useState<"loading" | "ready" | "error">("loading");
+  const [greetingText, setGreetingText] = useState<string | null>(null);
+  const greetingTriggeredRef = useRef(false);
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,6 +94,31 @@ function ChatContent() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, sending]);
+
+  useEffect(() => {
+    if (state !== "ready" || !leadId || !accessToken || greetingTriggeredRef.current) return;
+    greetingTriggeredRef.current = true;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accessToken, leadId, mode: "greeting" }),
+        });
+        const data = await res.json();
+        if (!res.ok || typeof data?.reply !== "string" || !data.reply.trim()) {
+          setGreetingState("error");
+          return;
+        }
+        setGreetingText(data.reply);
+        setGreetingState("ready");
+      } catch (err) {
+        console.error("ai greeting fetch failed:", err);
+        setGreetingState("error");
+      }
+    })();
+  }, [state, leadId, accessToken]);
 
   async function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -226,14 +258,18 @@ function ChatContent() {
           {/* 메시지 영역 */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
             <div className="mx-auto max-w-xl space-y-3">
-              {/* 초기 안내문 */}
+              {/* STEP7-2: AI가 사건을 먼저 분석해 안내하는 동적 인사말.
+                  로딩 중에는 짧은 안내, 실패 시에는 기존 고정 문구로 폴백. */}
               <div className="flex justify-start">
                 <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm text-gray-700 leading-relaxed whitespace-pre-line shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-                  {WELCOME_TEXT}
+                  {greetingState === "loading" && "안녕하세요. 신청 정보를 확인하고 있습니다..."}
+                  {greetingState === "ready" && greetingText}
+                  {greetingState === "error" && WELCOME_TEXT}
                 </div>
               </div>
 
-              {/* 빠른 질문 버튼 */}
+              {/* 빠른 질문 버튼 — 인사말 로딩 여부와 무관하게, 고객이 아직
+                  질문을 하지 않았을 때만 노출 */}
               {messages.length === 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {QUICK_QUESTIONS.map((q) => (
