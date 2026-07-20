@@ -1,0 +1,426 @@
+// src/lib/aiCaseContext.ts
+//
+// STEP7: AI Case Manager가 답변할 때 참고하는 "고객 안전 데이터"만 골라
+// 만드는 서버 전용 헬퍼. 반드시 서버(API route)에서만 import한다 — service
+// role key를 쓰는 supabaseAdmin을 포함하므로 "use client" 파일에서 절대
+// import하면 안 된다.
+//
+// ⚠️ 절대 경계: api/mypage-data/route.ts가 지키는 것과 완전히 동일한 안전
+// 경계를 그대로 따른다. expertBrief / expert_brief / checkedItems /
+// rejectionRisks / recommendedSteps / similarCases, visibleToCustomer가
+// true가 아닌 메모, 다른 고객의 데이터는 이 파일 어디에서도 조회·조합하지
+// 않는다. (checkDiagnosis.ts / verifyDiagnosis.ts 구조 확인 완료 — 이 값들은
+// 전부 expertBrief 객체 내부에만 존재하고, 이 파일은 그 객체를 아예 select하지
+// 않는다.)
+//
+// api/mypage-data/route.ts의 로직을 그대로 재사용하지 않고 이 파일에
+// 필요한 범위만 복제한 이유: 그 route는 "로그인한 고객의 전체 신청 목록"을
+// 위한 것이고, 이 파일은 "단일 leadId + 소유권 재검증"이 목적이라 책임이
+// 다르다. 이 프로젝트는 공용 lib로 억지로 묶기보다 파일별 복제를 선호하는
+// 기존 관례(email.ts의 EXPERT_TEAM_LABEL 등)를 따른다.
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// ── admin/leads/[id]/page.tsx, api/mypage-data/route.ts와 동일한 정규화 원칙 ──
+function toPrefixKey(value: string): string {
+  return value.toLowerCase().replace(/-/g, "_");
+}
+
+const SERVICE_TYPE_ALIASES: Record<string, string> = {
+  register_company: "permit_company",
+};
+
+function normalizeServiceType(serviceType: string | null | undefined): string | null {
+  if (!serviceType) return serviceType ?? null;
+  return SERVICE_TYPE_ALIASES[serviceType] ?? serviceType;
+}
+
+type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
+const CHECK_SERVICE_TYPES = ["wp", "trc", "tamtru", "driving-license"];
+
+function getCategory(serviceType: string | null | undefined): CategoryKey {
+  const normalized = normalizeServiceType(serviceType);
+  if (!normalized) return "unclassified";
+  if (normalized === "consultation") return "consultation";
+  const prefixKey = toPrefixKey(normalized);
+  if (prefixKey.startsWith("verify")) return "verify";
+  if (prefixKey.startsWith("permit")) return "register";
+  if (prefixKey.startsWith("register")) return "register";
+  if (CHECK_SERVICE_TYPES.includes(normalized)) return "check";
+  return "unclassified";
+}
+
+const SERVICE_LABELS: Record<string, string> = {
+  wp: "노동허가(WP)",
+  trc: "거주증(TRC)",
+  tamtru: "땀주",
+  "driving-license": "운전면허",
+  consultation: "일반 상담문의",
+  permit_company: "법인설립",
+  verify_admin: "행정문서 검토",
+  "verify_real-estate": "부동산 문서 검토",
+  verify_fraud: "사기문서 검토",
+  verify_tax: "세무문서 검토",
+  verify_unclear: "불확실한 서류 검토",
+  register_restaurant: "식당허가",
+  register_cosmetics: "화장품허가",
+  register_environment: "환경허가",
+  register_fire_safety: "소방허가",
+  register_hygiene: "위생허가",
+  register_medical_device: "의료기기허가",
+  register_franchise: "프랜차이즈 등록",
+};
+
+function getServiceLabel(serviceType: string): string {
+  if (SERVICE_LABELS[serviceType]) return SERVICE_LABELS[serviceType];
+  const key = toPrefixKey(serviceType);
+  if (SERVICE_LABELS[key]) return SERVICE_LABELS[key];
+  if (key.startsWith("verify")) {
+    const sub = key.replace(/^verify_?/, "");
+    return sub ? `검토 · ${sub}` : "검토";
+  }
+  if (key.startsWith("permit") || key.startsWith("register")) {
+    const sub = key.replace(/^(permit|register)_?/, "");
+    return sub ? `허가 · ${sub}` : "허가";
+  }
+  return serviceType;
+}
+
+// mypage/page.tsx의 ESTIMATED_DAYS와 동일한 값(화면 표시용 참고자료를
+// AI 답변에도 그대로 재사용 — 새 수치를 만들지 않음).
+const ESTIMATED_DAYS: Record<string, string> = {
+  wp: "30~60 영업일",
+  trc: "15~45 영업일",
+  tamtru: "1~3 영업일",
+  "driving-license": "7~15 영업일",
+  permit_company: "20~55 영업일",
+  register_restaurant: "15~30 영업일",
+  register_cosmetics: "20~40 영업일",
+  register_environment: "25~50 영업일",
+  register_fire_safety: "10~25 영업일",
+  register_hygiene: "10~20 영업일",
+  register_medical_device: "30~60 영업일",
+  register_franchise: "20~45 영업일",
+};
+const VERIFY_ESTIMATE = "2~5 영업일 (전문가 확인 기준)";
+const CONSULTATION_ESTIMATE = "1~2 영업일 (담당자 확인 기준)";
+
+function getEstimate(category: CategoryKey, serviceType: string | null): string {
+  if (category === "verify") return VERIFY_ESTIMATE;
+  if (category === "consultation") return CONSULTATION_ESTIMATE;
+  if (serviceType && ESTIMATED_DAYS[serviceType]) return ESTIMATED_DAYS[serviceType];
+  return "담당자 확인 후 안내";
+}
+
+const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀 (Linda Kang · VNK 파트너)";
+
+type ActivityRow = { action: string | null; meta: unknown; created_at: string };
+
+function asMeta(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+}
+
+// mypage-data와 동일한 6단계 진행률 표
+const SIX_STEP_PERCENTS = [17, 33, 50, 67, 83, 100];
+
+type ProcessStep = { label: string; done: boolean };
+
+function cascadeDone(rawDone: boolean[]): boolean[] {
+  let lastTrueIndex = -1;
+  rawDone.forEach((d, i) => {
+    if (d) lastTrueIndex = i;
+  });
+  return rawDone.map((_, i) => i <= lastTrueIndex);
+}
+
+function buildStage(
+  category: CategoryKey,
+  hasDiagnosis: boolean,
+  hasExpertReview: boolean,
+  hasAgency: boolean,
+  hasGovernmentSubmitted: boolean,
+  hasPermitCompleted: boolean
+): { steps: ProcessStep[]; progressPercent: number; currentStepLabel: string } {
+  if (category === "verify") {
+    const done = cascadeDone([true, hasDiagnosis, hasExpertReview, false]);
+    const steps: ProcessStep[] = [
+      { label: "접수 완료", done: done[0] },
+      { label: "자체 진단 완료", done: done[1] },
+      { label: "전문가 검토 요청", done: done[2] },
+      { label: "전문가 안내 대기", done: done[3] },
+    ];
+    const doneCount = done.filter(Boolean).length;
+    return {
+      steps,
+      progressPercent: Math.round((doneCount / steps.length) * 100),
+      currentStepLabel: steps[doneCount - 1]?.label ?? steps[0].label,
+    };
+  }
+  if (category === "consultation") {
+    const done = cascadeDone([true, false]);
+    const steps: ProcessStep[] = [
+      { label: "상담 접수 완료", done: done[0] },
+      { label: "담당자 확인 대기", done: done[1] },
+    ];
+    const doneCount = done.filter(Boolean).length;
+    return {
+      steps,
+      progressPercent: Math.round((doneCount / steps.length) * 100),
+      currentStepLabel: steps[doneCount - 1]?.label ?? steps[0].label,
+    };
+  }
+  const done = cascadeDone([
+    true,
+    hasDiagnosis,
+    hasExpertReview,
+    hasAgency,
+    hasGovernmentSubmitted,
+    hasPermitCompleted,
+  ]);
+  const steps: ProcessStep[] = [
+    { label: "접수 완료", done: done[0] },
+    { label: "AI 진단 완료", done: done[1] },
+    { label: "전문가 검토", done: done[2] },
+    { label: "대행 신청", done: done[3] },
+    { label: "정부 제출", done: done[4] },
+    { label: "허가 완료", done: done[5] },
+  ];
+  const doneCount = done.filter(Boolean).length;
+  return {
+    steps,
+    progressPercent: SIX_STEP_PERCENTS[doneCount - 1] ?? SIX_STEP_PERCENTS[0],
+    currentStepLabel: steps[doneCount - 1]?.label ?? steps[0].label,
+  };
+}
+
+export type OwnershipResult =
+  | { ok: true; userId: string }
+  | { ok: false; status: 401 | 403 | 404; error: string };
+
+// access_token 검증 + leadId가 실제로 이 사용자 소유인지 재검증.
+// 클라이언트가 보낸 leadId를 그대로 믿지 않고 여기서 다시 확인한다
+// (다른 고객의 leadId로 바꿔치기 접근 차단).
+export async function verifyOwnedLead(
+  accessToken: string | undefined,
+  leadId: string | undefined
+): Promise<OwnershipResult> {
+  if (!accessToken) {
+    return { ok: false, status: 401, error: "로그인 정보가 없습니다." };
+  }
+  if (!leadId) {
+    return { ok: false, status: 404, error: "신청 건을 찾을 수 없습니다." };
+  }
+
+  const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
+  if (userError || !userData?.user) {
+    return { ok: false, status: 401, error: "로그인이 만료되었습니다. 다시 로그인해주세요." };
+  }
+  const userId = userData.user.id;
+
+  const { data: lead, error: leadError } = await supabaseAdmin
+    .from("leads")
+    .select("id")
+    .eq("id", leadId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (leadError || !lead) {
+    // 존재하지 않는 leadId와 "다른 사람 소유"인 leadId를 굳이 구분해서
+    // 응답하지 않는다(둘 다 404로 통일 — 존재 여부 자체를 유추 못 하게 함).
+    return { ok: false, status: 404, error: "신청 건을 찾을 수 없습니다." };
+  }
+
+  return { ok: true, userId };
+}
+
+export type CaseContext = {
+  serviceLabel: string;
+  category: CategoryKey;
+  resultLabel: string | null;
+  feasibilityScore: number | null;
+  currentStepLabel: string;
+  progressPercent: number;
+  steps: ProcessStep[];
+  activityLog: { label: string; createdAt: string }[];
+  governmentSubmittedAt: string | null;
+  permitCompletedAt: string | null;
+  hasPermitFile: boolean;
+  estimatedDays: string;
+  expertTeamLabel: string;
+  publicNotes: { memo: string; createdAt: string }[];
+};
+
+const RESULT_LABELS: Record<string, string> = {
+  possible: "가능",
+  conditional: "조건부 가능",
+  impossible: "어려움",
+};
+
+// leadId 소유권이 이미 검증된 뒤에만 호출한다(verifyOwnedLead를 먼저 통과).
+export async function buildCaseContext(leadId: string): Promise<CaseContext | null> {
+  const { data: lead, error: leadError } = await supabaseAdmin
+    .from("leads")
+    .select("id, service_type, result, created_at")
+    .eq("id", leadId)
+    .maybeSingle();
+
+  if (leadError || !lead) return null;
+
+  const { data: activitiesRaw } = await supabaseAdmin
+    .from("crm_activities")
+    .select("action, meta, created_at")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: true });
+  const activities = (activitiesRaw ?? []) as ActivityRow[];
+  const actions = new Set(activities.map((a) => a.action));
+
+  const hasDiagnosis = activities.some(
+    (a) => a.action === "verify_lead" || (a.action ?? "").endsWith("_diagnosis_lead")
+  );
+  const hasExpertReview = actions.has("expert_review_request");
+  const hasAgency = actions.has("agency_upgrade_request");
+  const hasGovernmentSubmitted = actions.has("process_government_submitted");
+  const hasPermitCompleted = actions.has("process_permit_completed");
+
+  // ⚠️ feasibilityScore만 뽑는다 — 같은 meta 안에 있을 수 있는 expertBrief류는
+  // 절대 꺼내지 않는다(애초에 아래에서 접근하는 필드가 feasibilityScore 뿐).
+  let feasibilityScore: number | null = null;
+  for (const a of activities) {
+    if (a.action === "process_permit_completed") continue;
+    const meta = asMeta(a.meta);
+    if (typeof meta?.feasibilityScore === "number") {
+      feasibilityScore = meta.feasibilityScore as number;
+    }
+  }
+
+  const governmentSubmittedActivity = activities.find((a) => a.action === "process_government_submitted");
+  const permitCompletedActivity = activities.find((a) => a.action === "process_permit_completed");
+  const permitMeta = asMeta(permitCompletedActivity?.meta);
+
+  // 고객 공개 메모 — visibleToCustomer === true인 것만
+  const publicNotes = activities
+    .filter((a) => a.action === "expert_memo" && asMeta(a.meta)?.visibleToCustomer === true)
+    .map((a) => ({ memo: (asMeta(a.meta)?.memo as string | undefined) ?? "", createdAt: a.created_at }))
+    .filter((n) => n.memo.trim().length > 0);
+
+  const normalizedType = normalizeServiceType(lead.service_type);
+  const category = getCategory(normalizedType);
+  const stage = buildStage(
+    category,
+    hasDiagnosis,
+    hasExpertReview,
+    hasAgency,
+    hasGovernmentSubmitted,
+    hasPermitCompleted
+  );
+
+  const STAGE_ACTIONS = new Set([
+    "verify_lead",
+    "expert_review_request",
+    "agency_upgrade_request",
+    "consultation_request",
+    "process_government_submitted",
+    "process_permit_completed",
+  ]);
+  function getActivityLabel(action: string): string {
+    if (action === "verify_lead" || action.endsWith("_diagnosis_lead")) return "AI 검토 완료";
+    if (action === "expert_review_request") return "전문가 검토 시작";
+    if (action === "agency_upgrade_request") return "대행 신청 접수";
+    if (action === "consultation_request") return "상담 신청 접수";
+    if (action === "process_government_submitted") return "정부 제출 완료";
+    if (action === "process_permit_completed") return "허가 완료";
+    return "진행 업데이트";
+  }
+  const activityLog = activities
+    .filter((a) => a.action && (STAGE_ACTIONS.has(a.action) || a.action.endsWith("_diagnosis_lead")))
+    .map((a) => ({ label: getActivityLabel(a.action as string), createdAt: a.created_at }));
+
+  return {
+    serviceLabel: getServiceLabel(normalizedType ?? lead.service_type ?? ""),
+    category,
+    resultLabel: lead.result ? RESULT_LABELS[lead.result] ?? null : null,
+    feasibilityScore,
+    currentStepLabel: stage.currentStepLabel,
+    progressPercent: stage.progressPercent,
+    steps: stage.steps,
+    activityLog,
+    governmentSubmittedAt: governmentSubmittedActivity?.created_at ?? null,
+    permitCompletedAt: permitCompletedActivity?.created_at ?? null,
+    hasPermitFile: typeof permitMeta?.file_url === "string",
+    estimatedDays: getEstimate(category, normalizedType),
+    expertTeamLabel: EXPERT_TEAM_LABEL,
+    publicNotes,
+  };
+}
+
+// 모델이 "전문가 판단이 필요하다"고 스스로 표시할 때 답변 맨 끝에 붙이도록
+// 시스템 프롬프트에서 지시하는 토큰. api/ai-chat/route.ts가 이 토큰을
+// 감지해서 UI에 [전문가 상담 요청] 버튼을 띄우고, 사용자에게 보여줄 텍스트
+// 에서는 잘라낸다.
+export const NEEDS_EXPERT_TOKEN = "[NEEDS_EXPERT]";
+
+// 시스템 프롬프트가 확정적 법률판단을 하면 안 되는 상황을 모델이 놓치는
+// 경우를 대비한 보조 신호 — 고객 메시지에 이 키워드가 있으면 모델 응답과
+// 무관하게 needsExpert를 true로 강제한다(OR 조건, 이중 안전장치).
+const ESCALATION_KEYWORDS = [
+  "소송",
+  "고소",
+  "고발",
+  "항소",
+  "계약 해석",
+  "분쟁",
+  "투자금 회수",
+  "형사",
+  "세무 법률",
+  "행정처분",
+  "행정 처분",
+  "담당자와 이야기",
+  "담당자와 상담",
+  "전문가와 상담",
+  "변호사",
+];
+
+export function matchesEscalationKeyword(userMessage: string): boolean {
+  return ESCALATION_KEYWORDS.some((kw) => userMessage.includes(kw));
+}
+
+export function buildSystemPrompt(context: CaseContext): string {
+  const safeContext = {
+    서비스: context.serviceLabel,
+    분류: context.category,
+    AI_1차_예측_결과: context.resultLabel,
+    AI_허가_가능성_점수: context.feasibilityScore,
+    현재_진행_단계: context.currentStepLabel,
+    진행률_퍼센트: context.progressPercent,
+    전체_단계: context.steps.map((s) => ({ 단계: s.label, 완료여부: s.done })),
+    처리_이력: context.activityLog.map((a) => ({ 항목: a.label, 일시: a.createdAt })),
+    정부_제출일: context.governmentSubmittedAt,
+    허가_완료일: context.permitCompletedAt,
+    허가증_결과파일_존재여부: context.hasPermitFile,
+    일반적인_예상_소요기간_참고용: context.estimatedDays,
+    담당_전문가: context.expertTeamLabel,
+    담당자가_고객에게_공개한_메모: context.publicNotes.map((n) => ({ 내용: n.memo, 일시: n.createdAt })),
+  };
+
+  return `당신은 VFBCAI AI Case Manager입니다.
+
+원칙:
+- 아래 [고객 사건 정보]에 있는 내용 안에서만 답변합니다.
+- 여기 없는 전문가 내부 데이터(세부 검토의견, 반려위험 근거, 유사사례, 권장조치 등)는 존재한다고 가정하거나 지어내지 않습니다.
+- 법률·행정 결과를 보장하지 않습니다. "반드시", "100%", "곧 승인될 것" 같은 확정적 표현을 쓰지 않습니다.
+- 확인되지 않은 날짜, 진행 상태, 필요 서류를 만들어내지 않습니다. 정보가 없으면 "현재 등록된 정보를 확인할 수 없습니다"라고 명확히 안내하고, 필요하면 전문가 상담을 권합니다.
+- 예상 처리기간은 [고객 사건 정보]의 "일반적인_예상_소요기간_참고용" 값만 참고용으로 안내하고, 실제 완료 시점은 기관·사안에 따라 달라질 수 있다고 항상 덧붙입니다.
+- 다음 주제는 확정적 법률 판단을 하지 않고 전문가 상담으로 안내합니다: 소송, 고소·고발, 항소, 계약 해석, 분쟁 대응, 투자금 회수, 형사 문제, 세무 법률 의견, 행정 처분 대응, 또는 고객이 명시적으로 담당자 상담을 요청한 경우, 혹은 아래 정보만으로는 답할 수 없는 질문.
+  → 이런 경우 답변 마지막 줄에 반드시 정확히 "${NEEDS_EXPERT_TOKEN}" 를 단독으로 추가하세요 (사용자에게는 보이지 않고 시스템이 처리합니다).
+- 답변은 짧고 이해하기 쉬운 한국어로 합니다.
+- 고객의 이름·전화번호·이메일·주소 등 개인정보는 알지 못한다고 가정하고, 답변에 사용하지 않습니다.
+
+[고객 사건 정보]
+${JSON.stringify(safeContext, null, 2)}
+`;
+}

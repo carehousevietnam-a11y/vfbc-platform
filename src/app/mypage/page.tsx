@@ -325,6 +325,14 @@ function LeadCard({ item }: { item: MyPageItem }) {
 
       <p className="mt-3 text-lg font-bold text-gray-900">{item.serviceLabel}</p>
 
+      {/* STEP7: AI Case Manager 진입 — 이 카드의 lead를 자동 선택해서 넘어간다 */}
+      <Link
+        href={`/mypage/chat?leadId=${item.id}&label=${encodeURIComponent(item.serviceLabel)}`}
+        className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
+      >
+        <MessageSquare size={14} /> 24시간 AI 상담
+      </Link>
+
       {/* 안심도(Confidence) */}
       <ConfidenceBanner confidence={item.confidence} />
 
