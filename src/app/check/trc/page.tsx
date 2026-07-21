@@ -328,50 +328,54 @@ function ProcessMethodCards({
       <p className="mt-5 text-sm font-bold text-gray-900">
         어떤 방법으로 진행하시겠습니까?
       </p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <div className="flex flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-sm font-bold text-gray-900">직접 진행</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
-              절차를 직접 진행하고 싶은 분
-            </span>
-            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
-              비용을 줄이고 싶은 분
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 sm:items-stretch">
+        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-bold text-gray-900">직접 신청</p>
+          <div className="mt-2">
+            <span className="inline-block rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
+              ✓ 직접 신청 가능
             </span>
           </div>
           <p className="mt-3 flex-1 text-xs text-gray-500 leading-relaxed">
-            가능하다고 판단되면 공식 사이트에서 바로 진행할 수 있습니다.
+            정부 공식 사이트에서 바로 신청할 수 있습니다.
           </p>
-          <a
-            href={TRC_OFFICIAL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onSelf}
-            className="mt-4 flex h-11 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-          >
-            내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
-          </a>
+          <div className="mt-4">
+            <a
+              href={TRC_OFFICIAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onSelf}
+              className="flex h-11 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+            >
+              정부 사이트로 이동 <ExternalLink size={14} />
+            </a>
+            <p className="mt-2 text-center text-[10px] text-gray-400">
+              ↗ 정부 공식 사이트로 이동합니다.
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col rounded-2xl border border-blue-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-sm font-bold text-gray-900">전문가 진행</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
-              서류가 복잡한 경우
-            </span>
-            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
-              최종 확인이 필요한 경우
+        <div className="flex h-full flex-col rounded-2xl border border-blue-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-bold text-gray-900">전문가와 함께</p>
+          <div className="mt-2">
+            <span className="inline-block rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
+              ✓ 최종 확인 필요
             </span>
           </div>
           <p className="mt-3 flex-1 text-xs text-gray-500 leading-relaxed">
-            전문가가 서류와 진행 절차를 함께 확인합니다.
+            전문가가 서류와 절차를 함께 확인합니다.
           </p>
-          <button
-            onClick={onExpert}
-            className="mt-4 h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-          >
-            전문가 진행 요청하기
-          </button>
+          <div className="mt-4">
+            <button
+              onClick={onExpert}
+              className="h-11 w-full rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+            >
+              진행 요청하기
+            </button>
+            <p className="mt-2 text-center text-[10px] text-gray-400">
+              &nbsp;
+            </p>
+          </div>
         </div>
       </div>
       <p className="mt-3 text-[11px] text-gray-400 text-center">
