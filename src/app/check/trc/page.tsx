@@ -178,6 +178,9 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
           </p>
         </div>
       </div>
+      <p className="mt-1.5 text-[11px] text-gray-400">
+        입력하신 정보 기준 AI 분석 결과입니다.
+      </p>
 
       <div className="mt-4 space-y-2">
         {checklist.map((item) => (
@@ -210,6 +213,9 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
           <span className="font-bold text-gray-900">
             {estimatedDays.min}~{estimatedDays.max}일
           </span>
+          <p className="mt-1 text-[11px] text-gray-400">
+            준비 서류와 관할 기관에 따라 달라질 수 있습니다.
+          </p>
         </div>
       )}
 
@@ -792,7 +798,7 @@ export default function TrcCheckPage() {
                 onClick={() => setDetailStage(true)}
                 className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
               >
-                전문가에게 맡길게요 (전문가 진행요청)
+                전문가 진행 요청하기
               </button>
             </div>
             <p className="mt-2 text-[11px] text-gray-400 text-center">
@@ -1058,7 +1064,7 @@ export default function TrcCheckPage() {
                 onClick={() => setDetailStage(true)}
                 className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
               >
-                전문가에게 맡길게요 (전문가 진행요청)
+                전문가 진행 요청하기
               </button>
             </div>
             <p className="mt-2 text-[11px] text-gray-400 text-center">
