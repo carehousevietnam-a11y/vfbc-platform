@@ -19,12 +19,56 @@
 // - 채팅 입력창 + 답변 화면만 구현한다(로딩·오류 상태 포함). 디자인은
 //   기존 VFBCAI 톤(Apple 미니멀리즘 + 정부포털, blue-900 포인트, rounded
 //   카드)을 그대로 따른다.
+// - STEP10-2: AI 답변 끝에 붙는 "📍 안내문: /경로" 줄을 감지해 클릭 가능한
+//   버튼으로 렌더링한다(parseAssistantContent/AssistantBubble). 일반 답변
+//   텍스트, /api/ai-chat 호출 방식, aiGateway.ts의 문구 포맷은 그대로다 —
+//   이미 온 문자열을 이 화면에서만 파싱해서 보여준다.
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Send, Loader2, AlertTriangle } from "lucide-react";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+
+// STEP10-2: lib/aiGateway.ts(buildNavigatorSuffix)가 답변 끝에 붙이는
+// "\n\n📍 {안내문}: {경로}" 줄을 감지해 일반 텍스트와 분리한다. 이 페이지
+// (렌더링)만 수정하고, API 응답 형태나 aiGateway.ts의 문구 포맷은 그대로
+// 둔다 — 여기서는 이미 온 문자열을 파싱만 한다.
+// 경로는 /check, /verify, /register, /mypage, /consultation만 버튼으로
+// 인식한다(그 외 경로가 섞여 있어도 일반 텍스트로만 표시되고 무시된다).
+const NAVIGATOR_LINE_PATTERN =
+  /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation)\S*)\s*$/;
+
+function parseAssistantContent(content: string): {
+  mainText: string;
+  nav: { label: string; href: string } | null;
+} {
+  const match = content.match(NAVIGATOR_LINE_PATTERN);
+  if (!match) return { mainText: content, nav: null };
+  return {
+    mainText: content.slice(0, match.index).trimEnd(),
+    nav: { label: match[1], href: match[2] },
+  };
+}
+
+function AssistantBubble({ content }: { content: string }) {
+  const { mainText, nav } = parseAssistantContent(content);
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm leading-relaxed text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <p className="whitespace-pre-line">{mainText}</p>
+        {nav && (
+          <Link
+            href={nav.href}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
+          >
+            {nav.label}
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function AiPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -118,11 +162,7 @@ export default function AiPage() {
                 </div>
               </div>
             ) : (
-              <div key={i} className="flex justify-start">
-                <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-                  {m.content}
-                </div>
-              </div>
+              <AssistantBubble key={i} content={m.content} />
             )
           )}
 
