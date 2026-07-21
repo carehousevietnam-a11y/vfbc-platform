@@ -238,32 +238,45 @@ export async function callOpenAiAnalysis(params: {
         model,
         messages: openaiMessages,
         temperature: 0.3,
-        max_tokens: 600,
+        max_completion_tokens: 600,
       }),
     });
+
+    // ── 디버깅 로그 1: OpenAI 응답 status ──
+    console.error("aiGateway.callOpenAiAnalysis: OpenAI 응답 status =", openaiRes.status);
 
     if (!openaiRes.ok) {
       // 응답 본문에 OpenAI 원문 오류가 담길 수 있어 고객에게는 절대 그대로
       // 노출하지 않고 서버 로그에만 남긴다.
-      const errText = await openaiRes.text().catch(() => "");
-      console.error("aiGateway.callOpenAiAnalysis: OpenAI API 오류", openaiRes.status, errText);
+      const errText = await openaiRes.text().catch(() => "(본문을 읽을 수 없음)");
+      // ── 디버깅 로그 2: OpenAI 응답 body(오류 원문) ──
+      console.error("aiGateway.callOpenAiAnalysis: OpenAI 응답 body =", errText);
       return { ok: false, status: 502 };
     }
 
-    const data = await openaiRes.json();
+    const rawBodyText = await openaiRes.text();
+    // ── 디버깅 로그 2: OpenAI 응답 body(정상 응답 원문) ──
+    console.error("aiGateway.callOpenAiAnalysis: OpenAI 응답 body =", rawBodyText);
+
+    const data = JSON.parse(rawBodyText);
     const rawReply: string = data?.choices?.[0]?.message?.content ?? "";
 
     if (!rawReply.trim()) {
       console.error(
-        "aiGateway.callOpenAiAnalysis: OpenAI 응답에 내용이 없습니다.",
-        JSON.stringify(data).slice(0, 500)
+        "aiGateway.callOpenAiAnalysis: OpenAI 응답에 내용이 없습니다. data =",
+        data
       );
       return { ok: false, status: 502 };
     }
 
     return { ok: true, rawReply };
   } catch (err) {
-    console.error("aiGateway.callOpenAiAnalysis exception:", err);
+    // ── 디버깅 로그 3/4: catch(error) 전체와 console.error ──
+    console.error("aiGateway.callOpenAiAnalysis: catch(error) =", err);
+    if (err instanceof Error) {
+      console.error("aiGateway.callOpenAiAnalysis: error.message =", err.message);
+      console.error("aiGateway.callOpenAiAnalysis: error.stack =", err.stack);
+    }
     return { ok: false, status: 502 };
   }
 }
