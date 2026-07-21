@@ -200,10 +200,10 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
     estimatedDays
   );
   const aiReasonSections = [
-    { icon: "✅", title: "기본 요건", description: aiReasonBullets[0] },
-    { icon: "⚠", title: "감점 요인", description: aiReasonBullets[1] },
+    { title: "✅ 기본 요건 충족", description: aiReasonBullets[0] },
+    { title: "⚠ 확인이 필요한 사항", description: aiReasonBullets[1] },
     ...(aiReasonBullets[2]
-      ? [{ icon: "🕒", title: "처리기간 판단", description: aiReasonBullets[2] }]
+      ? [{ title: "🕒 처리기간 판단", description: aiReasonBullets[2] }]
       : []),
   ];
   const toneLabel =
@@ -266,34 +266,29 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </div>
       )}
 
-      {/* STEP10-7: AI 판단 근거 — 리포트의 핵심 영역으로 강조 디자인.
-          buildAiReasonBullets()의 결과(로직 무변경)를 섹션 형태로만 재구성해 표시. */}
+      {/* STEP10-7(최종): AI 분석 근거 — 리포트의 핵심 영역, 항목 사이 얇은 구분선으로 리포트형 레이아웃.
+          buildAiReasonBullets() 로직은 그대로 사용하고, 화면 구조만 소제목+본문+구분선으로 재구성. */}
       <div className="mt-3 rounded-2xl bg-white border-2 border-blue-100 shadow-sm px-5 py-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-            AI
-          </span>
-          <p className="text-sm font-bold text-gray-900">AI가 이렇게 판단한 이유</p>
-        </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-          AI는 입력하신 정보를 공개 법령, 일반 행정 기준, 체크리스트를 종합하여 분석했습니다.
+        <p className="text-sm font-bold text-gray-900">🧠 AI 분석 근거</p>
+        <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500">
+          AI는 입력하신 정보를 공개 법령·일반 행정기준·체크리스트를 종합하여 분석했습니다.
         </p>
-        <div className="mt-3 space-y-3">
+        <div className="mt-4 divide-y divide-gray-100">
           {aiReasonSections.map((section) => (
-            <div key={section.title} className="flex items-start gap-2.5">
-              <span className="mt-0.5 shrink-0 text-sm leading-none">{section.icon}</span>
-              <div>
-                <p className="text-xs font-semibold text-gray-800">{section.title}</p>
-                <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
-                  {section.description}
-                </p>
-              </div>
+            <div key={section.title} className="py-3 first:pt-0 last:pb-0">
+              <p className="text-xs font-bold text-gray-900">{section.title}</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-gray-600">
+                {section.description}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>
+        <p className="font-bold">💡 안내사항</p>
+        <p className="mt-1">{note}</p>
+      </div>
     </div>
   );
 }
