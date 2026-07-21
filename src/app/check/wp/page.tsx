@@ -313,6 +313,69 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
   );
 }
 
+// STEP10-10: 진행 방법 선택 UI — TRC 디자인 표준을 그대로 적용.
+// 링크(href/onClick)·버튼 action은 기존 그대로 유지, UI(카드 구조)만 통일.
+function ProcessMethodCards({
+  onSelf,
+  onExpert,
+}: {
+  onSelf: () => void;
+  onExpert: () => void;
+}) {
+  return (
+    <div>
+      <p className="mt-5 text-sm font-bold text-gray-900">
+        어떤 방법으로 진행하시겠습니까?
+      </p>
+      <div className="mt-3 grid gap-4 sm:grid-cols-2 sm:items-stretch">
+        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-bold text-gray-900">직접 신청</p>
+          <span className="mt-1.5 w-fit rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
+            ✓ 직접 신청 가능
+          </span>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            정부 공식 사이트에서 바로 신청할 수 있습니다.
+          </p>
+          <a
+            href={WP_OFFICIAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onSelf}
+            className="mt-4 flex h-10 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+          >
+            정부 사이트로 이동 <ExternalLink size={13} />
+          </a>
+          <p className="mt-2 text-center text-[11px] text-slate-500">
+            ↗ 정부 공식 사이트로 이동합니다.
+          </p>
+        </div>
+
+        <div className="flex h-full flex-col rounded-2xl border border-blue-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-bold text-gray-900">전문가와 함께</p>
+          <span className="mt-1.5 w-fit rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
+            ✓ 최종 확인 필요
+          </span>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            전문가가 서류와 절차를 함께 확인합니다.
+          </p>
+          <button
+            onClick={onExpert}
+            className="mt-4 h-10 w-full rounded-full bg-blue-900 text-[13px] font-semibold text-white hover:bg-blue-950 transition-colors"
+          >
+            진행 요청하기
+          </button>
+          <p aria-hidden="true" className="invisible mt-2 text-center text-[11px] text-slate-500">
+            ↗ 정부 공식 사이트로 이동합니다.
+          </p>
+        </div>
+      </div>
+      <p className="mt-3 text-[11px] text-gray-400 text-center">
+        어떤 방법을 선택하시더라도 AI 분석 결과는 그대로 활용됩니다.
+      </p>
+    </div>
+  );
+}
+
 export default function WpCheckPage() {
   const [education, setEducation] = useState<Education>(null);
   const [experience, setExperience] = useState<Experience>(null);
@@ -875,29 +938,10 @@ export default function WpCheckPage() {
               </p>
             </div>
 
-            <p className="mt-5 text-xs font-semibold text-gray-700">
-              위 내용, 어떻게 진행하시겠어요?
-            </p>
-            <div className="mt-3 flex flex-col gap-3">
-              <a
-                href={WP_OFFICIAL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleSelfPortalClick}
-                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-              >
-                내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
-              </a>
-              <button
-                onClick={() => setDetailStage(true)}
-                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-              >
-                전문가 진행 요청하기
-              </button>
-            </div>
-            <p className="mt-2 text-[11px] text-gray-400 text-center">
-              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
-            </p>
+            <ProcessMethodCards
+              onSelf={handleSelfPortalClick}
+              onExpert={() => setDetailStage(true)}
+            />
             <p className="mt-2 text-[11px] text-gray-400">
               국가공공서비스포털(Cổng Dịch vụ công quốc gia)로 이동합니다.
               접속 후 검색창에 &quot;노동허가&quot; 또는 사업장 소재지로
@@ -1189,29 +1233,10 @@ export default function WpCheckPage() {
               있습니다.
             </div>
 
-            <p className="mt-5 text-xs font-semibold text-gray-700">
-              위 내용, 어떻게 진행하시겠어요?
-            </p>
-            <div className="mt-3 flex flex-col gap-3">
-              <a
-                href={WP_OFFICIAL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleSelfPortalClick}
-                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-amber-600 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
-              >
-                그래도 내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
-              </a>
-              <button
-                onClick={() => setDetailStage(true)}
-                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-              >
-                전문가 진행 요청하기
-              </button>
-            </div>
-            <p className="mt-2 text-[11px] text-gray-400 text-center">
-              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
-            </p>
+            <ProcessMethodCards
+              onSelf={handleSelfPortalClick}
+              onExpert={() => setDetailStage(true)}
+            />
 
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
