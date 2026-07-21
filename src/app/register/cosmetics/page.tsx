@@ -220,11 +220,19 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: CosmeticsDiagnosis }) {
     checklist,
     estimatedDays
   );
+  const passedItems = checklist.filter((c) => c.passed).map((c) => c.label);
+  const metRequirementsText =
+    passedItems.length > 0
+      ? `${passedItems.join(", ")} 항목을 충족하셨습니다.`
+      : "현재 입력하신 정보 기준으로 충족된 항목이 없습니다.";
+  const processingTimeText = estimatedDays
+    ? `예상 처리기간은 ${estimatedDays.min}~${estimatedDays.max}일이며, 준비 서류와 관할 기관에 따라 달라질 수 있습니다.`
+    : null;
   const aiReasonSections = [
-    { title: "✅ 기본 요건 충족", description: aiReasonBullets[0] },
+    { title: "✅ 기본 요건 충족", description: metRequirementsText },
     { title: "⚠ 확인이 필요한 사항", description: aiReasonBullets[1] },
-    ...(aiReasonBullets[2]
-      ? [{ title: "🕒 처리기간 판단", description: aiReasonBullets[2] }]
+    ...(processingTimeText
+      ? [{ title: "🕒 처리기간 판단", description: processingTimeText }]
       : []),
   ];
   const tone = resultTone;
@@ -285,23 +293,35 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: CosmeticsDiagnosis }) {
         </div>
       )}
 
-      {/* STEP10-7(최종): AI 분석 근거 — 리포트의 핵심 영역, 항목 사이 얇은 구분선으로 리포트형 레이아웃.
-          buildAiReasonBullets() 로직은 그대로 사용하고, 화면 구조만 소제목+본문+구분선으로 재구성. */}
+      {/* STEP10-8: AI 분석 근거 카드 UI 개선 — 파란 원형 AI 배지, 실제로 보이는 구분선(border-t),
+          체크리스트 기반 실제 요약 문구, 분석 기준 푸터. buildAiReasonBullets()는 "확인이 필요한 사항"에만
+          그대로 사용하며 함수 자체는 변경하지 않음. */}
       <div className="mt-3 rounded-2xl bg-white border-2 border-blue-100 shadow-sm px-5 py-4">
-        <p className="text-sm font-bold text-gray-900">🧠 AI 분석 근거</p>
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+            AI
+          </span>
+          <p className="text-sm font-bold text-gray-900">AI 분석 근거</p>
+        </div>
         <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500">
-          AI는 입력하신 정보를 공개 법령·일반 행정기준·체크리스트를 종합하여 분석했습니다.
+          공개 법령·행정 기준·체크리스트를 종합하여 분석했습니다.
         </p>
-        <div className="mt-4 divide-y divide-gray-100">
-          {aiReasonSections.map((section) => (
-            <div key={section.title} className="py-3 first:pt-0 last:pb-0">
+        <div className="mt-4">
+          {aiReasonSections.map((section, idx) => (
+            <div
+              key={section.title}
+              className={idx === 0 ? "pb-4" : "border-t border-gray-200 py-4"}
+            >
               <p className="text-xs font-bold text-gray-900">{section.title}</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-gray-600">
+              <p className="mt-1.5 text-[11px] leading-relaxed text-gray-600">
                 {section.description}
               </p>
             </div>
           ))}
         </div>
+        <p className="mt-1 border-t border-gray-100 pt-3 text-[10px] text-gray-400">
+          분석 기준: 공개 법령 · 행정 기준 · 체크리스트 · 유사 사례
+        </p>
       </div>
 
       <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>
