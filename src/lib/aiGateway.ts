@@ -237,7 +237,6 @@ export async function callOpenAiAnalysis(params: {
       body: JSON.stringify({
         model,
         messages: openaiMessages,
-        temperature: 0.3,
         max_completion_tokens: 600,
       }),
     });
