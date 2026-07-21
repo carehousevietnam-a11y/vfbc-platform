@@ -612,102 +612,145 @@ export default function VerifyAdminPage() {
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
 
-            <p className="text-sm font-semibold text-gray-900">
-              현재 어떤 상황인가요?
-            </p>
-            <p className="mt-1 text-xs text-gray-500">
-              검토 목적에 가장 가까운 항목을 선택해주세요.
-            </p>
-            <div className="mt-3 grid grid-cols-1 gap-2.5">
-              {REVIEW_STAGE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setReviewStage(opt.value)}
-                  className={`rounded-2xl border p-4 text-left transition-all ${
-                    reviewStage === opt.value
-                      ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-                  }`}
-                >
-                  <p className="text-sm font-bold">{opt.title}</p>
-                  <p
-                    className={`mt-1 text-xs leading-relaxed ${
-                      reviewStage === opt.value ? "text-gray-200" : "text-gray-500"
+            {/* 질문 1 — 현재 어떤 상황인가요? */}
+            <div className="mt-6">
+              <div className="flex items-center gap-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
+                  1
+                </span>
+                <p className="text-sm font-bold text-gray-900">
+                  현재 어떤 상황인가요?
+                </p>
+              </div>
+              <p className="mt-1 pl-7 text-xs text-gray-500">
+                검토 목적에 가장 가까운 항목을 선택해주세요.
+              </p>
+              <div className="mt-3 space-y-2.5">
+                {REVIEW_STAGE_OPTIONS.map((opt) => {
+                  const selected = reviewStage === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setReviewStage(opt.value)}
+                      className={`flex w-full items-start gap-2.5 rounded-xl border p-3 text-left transition-colors ${
+                        selected
+                          ? "border-blue-900 bg-blue-50"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                    >
+                      {selected ? (
+                        <CheckCircle2 className="mt-0.5 shrink-0 text-blue-900" size={16} />
+                      ) : (
+                        <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-gray-300" />
+                      )}
+                      <span>
+                        <p className="text-[13px] font-bold text-gray-900">{opt.title}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-gray-500">
+                          {opt.desc}
+                        </p>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {reviewStageError && (
+                <p className="mt-2 text-xs text-red-600">{reviewStageError}</p>
+              )}
+            </div>
+
+            <div className="my-7 border-t border-gray-100" />
+
+            {/* 질문 2 — 이전 검토 이력 */}
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
+                  2
+                </span>
+                <p className="text-sm font-bold text-gray-900">
+                  이전에 다른 곳에서 검토받은 적이 있나요?
+                </p>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => setPreviousReviewStatus(opt)}
+                    className={`flex h-11 items-center justify-center rounded-xl border px-3 text-center text-[11px] font-semibold leading-snug transition-colors ${
+                      previousReviewStatus === opt
+                        ? "border-gray-900 bg-gray-900 text-white"
+                        : "border-gray-200 bg-white text-gray-900 hover:border-gray-300"
                     }`}
                   >
-                    {opt.desc}
-                  </p>
-                </button>
-              ))}
-            </div>
-            {reviewStageError && (
-              <p className="mt-2 text-xs text-red-600">{reviewStageError}</p>
-            )}
-
-            <p className="mt-6 text-sm font-semibold text-gray-900">
-              1. 이전에 다른 곳에서 검토받은 적이 있나요?
-            </p>
-            <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => setPreviousReviewStatus(opt)}
-                  className={`flex h-14 items-center justify-center rounded-2xl border px-3 text-center text-xs font-semibold leading-snug transition-all ${
-                    previousReviewStatus === opt
-                      ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-            {previousReviewError && (
-              <p className="mt-2 text-xs text-red-600">{previousReviewError}</p>
-            )}
-
-            <p className="mt-6 text-sm font-semibold text-gray-900">
-              2. 어떤 종류의 사건·서류인가요?
-            </p>
-            <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-              {incidentTypes.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setIncidentType(t)}
-                  className={`rounded-2xl border p-3 text-xs font-semibold transition-all ${
-                    incidentType === t
-                      ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              {previousReviewError && (
+                <p className="mt-2 text-xs text-red-600">{previousReviewError}</p>
+              )}
             </div>
 
-            <p className="mt-6 text-sm font-semibold text-gray-900">
-              3. 무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요.
-            </p>
-            <textarea
-              value={incidentDescription}
-              onChange={(e) => setIncidentDescription(e.target.value)}
-              placeholder="예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
-              rows={5}
-              className="mt-3 w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
-            />
-            <p className="mt-1.5 text-[11px] text-gray-400">
-              입력하신 내용은 전문가 검토 시 참고 정보로만 사용되며, 여기서 자동으로
-              분석·판단되지 않습니다.
-            </p>
+            <div className="my-7 border-t border-gray-100" />
 
-            {incidentError && <p className="mt-3 text-xs text-red-600">{incidentError}</p>}
+            {/* 질문 3 — 사건유형 */}
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
+                  3
+                </span>
+                <p className="text-sm font-bold text-gray-900">
+                  어떤 종류의 사건·서류인가요?
+                </p>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                {incidentTypes.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setIncidentType(t)}
+                    className={`rounded-xl border p-3 text-xs font-semibold transition-colors ${
+                      incidentType === t
+                        ? "border-gray-900 bg-gray-900 text-white"
+                        : "border-gray-200 bg-white text-gray-900 hover:border-gray-300"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="my-7 border-t border-gray-100" />
+
+            {/* 질문 4 — 사건 설명 */}
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
+                  4
+                </span>
+                <p className="text-sm font-bold text-gray-900">
+                  무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요.
+                </p>
+              </div>
+              <textarea
+                value={incidentDescription}
+                onChange={(e) => setIncidentDescription(e.target.value)}
+                placeholder="예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
+                rows={5}
+                className="mt-4 w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
+              />
+              <p className="mt-2 text-[11px] text-gray-400">
+                입력하신 내용은 전문가 검토 시 참고 정보로만 사용되며, 여기서 자동으로
+                분석·판단되지 않습니다.
+              </p>
+              {incidentError && <p className="mt-3 text-xs text-red-600">{incidentError}</p>}
+            </div>
 
             <button
               onClick={handleIncidentNext}
-              className="mt-5 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+              className="mt-9 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
             >
               다음
             </button>
