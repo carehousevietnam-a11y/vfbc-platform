@@ -6,12 +6,12 @@
 // 전혀 요구하지 않는다 — 누구나 바로 질문을 입력하고 답을 받을 수 있다.
 //
 // - 인증/사건 조회 없음: supabase 세션 확인, leadId 쿼리, 마이페이지 신청
-//   건 조회를 전부 제거했다(이전 버전과 가장 큰 차이).
+//   건 조회를 전부 제거했다.
 // - 기존 POST /api/ai-chat을 그대로 호출한다(신규 API 없음). leadId를
 //   보내지 않으므로 api/ai-chat/route.ts의 "익명 모드"로 처리된다 — 로그인
 //   기반 Case Room(mypage/chat/page.tsx)의 동작·구조는 전혀 건드리지 않았다.
-// - lib/aiGateway.ts와 api/ai-chat/route.ts는 그대로 재사용한다(이 페이지는
-//   fetch 호출만 한다).
+// - lib/aiGateway.ts와 api/ai-chat/route.ts의 분류·OpenAI 호출 로직은 그대로
+//   재사용한다(이 페이지는 fetch 호출과 렌더링만 한다).
 // - OPENAI_API_KEY/OPENAI_MODEL은 이 페이지가 아니라 서버(api/ai-chat)가
 //   사용한다 — 키가 없어도 AI Gateway 분류상 progress/system/legal/
 //   off_platform 질문은 정상 응답하고, 일반 분석 질문만 "설정 확인 중"
@@ -19,29 +19,36 @@
 // - 채팅 입력창 + 답변 화면만 구현한다(로딩·오류 상태 포함). 디자인은
 //   기존 VFBCAI 톤(Apple 미니멀리즘 + 정부포털, blue-900 포인트, rounded
 //   카드)을 그대로 따른다.
-// - STEP10-2: AI 답변 끝에 붙는 "📍 안내문: /경로" 줄을 감지해 클릭 가능한
-//   버튼으로 렌더링한다(parseAssistantContent/AssistantBubble). 일반 답변
-//   텍스트, /api/ai-chat 호출 방식, aiGateway.ts의 문구 포맷은 그대로다 —
-//   이미 온 문자열을 이 화면에서만 파싱해서 보여준다.
+//
+// STEP10-2 보완: /api/ai-chat 응답의 구조화된 actions 배열({label, href})을
+// 버튼 렌더링의 1차 소스로 쓴다. 이전 버전은 답변 본문 문자열의
+// "📍 안내문: /경로" 줄을 정규식으로 파싱해서만 버튼을 만들었는데, 답변이
+// 재구성/번역되며 문구가 조금만 달라져도 파싱이 실패해 버튼이 누락되는
+// 문제가 있었다. 이제 서버가 판단 결과를 actions로 직접 내려주므로 그
+// 문제가 없다 — 문자열 파싱(parseAssistantContent)은 actions가 비어 있을
+// 때만 쓰는 보조 기능으로 남겨둔다(구버전 캐시·예외적 응답 대비).
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Send, Loader2, AlertTriangle } from "lucide-react";
 
-type ChatMessage = { role: "user" | "assistant"; content: string };
+type NavigatorAction = { label: string; href: string };
 
-// STEP10-2: lib/aiGateway.ts(buildNavigatorSuffix)가 답변 끝에 붙이는
-// "\n\n📍 {안내문}: {경로}" 줄을 감지해 일반 텍스트와 분리한다. 이 페이지
-// (렌더링)만 수정하고, API 응답 형태나 aiGateway.ts의 문구 포맷은 그대로
-// 둔다 — 여기서는 이미 온 문자열을 파싱만 한다.
-// 경로는 /check, /verify, /register, /mypage, /consultation만 버튼으로
-// 인식한다(그 외 경로가 섞여 있어도 일반 텍스트로만 표시되고 무시된다).
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  actions?: NavigatorAction[]; // assistant 메시지에만 존재
+};
+
+// 보조 기능: 서버가 actions를 못 내려준 경우에만 쓰는 문자열 파싱 폴백.
+// "\n\n📍 {안내문}: {경로}" 형식을 감지한다. /check, /verify, /register,
+// /mypage, /consultation 경로만 인식한다.
 const NAVIGATOR_LINE_PATTERN =
   /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation)\S*)\s*$/;
 
 function parseAssistantContent(content: string): {
   mainText: string;
-  nav: { label: string; href: string } | null;
+  nav: NavigatorAction | null;
 } {
   const match = content.match(NAVIGATOR_LINE_PATTERN);
   if (!match) return { mainText: content, nav: null };
@@ -51,19 +58,33 @@ function parseAssistantContent(content: string): {
   };
 }
 
-function AssistantBubble({ content }: { content: string }) {
-  const { mainText, nav } = parseAssistantContent(content);
+function AssistantBubble({ content, actions }: { content: string; actions?: NavigatorAction[] }) {
+  // 1차: 서버가 내려준 구조화된 actions. 2차(보조): 본문 문자열 파싱.
+  const hasServerActions = Array.isArray(actions) && actions.length > 0;
+  const parsed = parseAssistantContent(content);
+  const mainText = parsed.mainText;
+  const resolvedActions: NavigatorAction[] = hasServerActions
+    ? (actions as NavigatorAction[])
+    : parsed.nav
+    ? [parsed.nav]
+    : [];
+
   return (
     <div className="flex justify-start">
       <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm leading-relaxed text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <p className="whitespace-pre-line">{mainText}</p>
-        {nav && (
-          <Link
-            href={nav.href}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
-          >
-            {nav.label}
-          </Link>
+        {resolvedActions.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {resolvedActions.map((a, idx) => (
+              <Link
+                key={idx}
+                href={a.href}
+                className="inline-flex items-center gap-1.5 rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
+              >
+                {a.label}
+              </Link>
+            ))}
+          </div>
         )}
       </div>
     </div>
@@ -97,11 +118,15 @@ export default function AiPage() {
 
     try {
       // leadId/accessToken을 보내지 않는다 — api/ai-chat/route.ts가 이를
-      // "익명 모드"로 처리해 로그인·사건 조회 없이 답변한다.
+      // "익명 모드"로 처리해 로그인·사건 조회 없이 답변한다. 서버로 보낼
+      // 때는 actions 필드를 제거하고 role/content만 전달한다(OpenAI
+      // 컨텍스트에 불필요).
       const res = await fetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
+        body: JSON.stringify({
+          messages: nextMessages.map(({ role, content }) => ({ role, content })),
+        }),
       });
       const data = await res.json();
 
@@ -110,7 +135,14 @@ export default function AiPage() {
         return;
       }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply as string }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.reply as string,
+          actions: Array.isArray(data.actions) ? (data.actions as NavigatorAction[]) : [],
+        },
+      ]);
     } catch (err) {
       console.error("ai page request failed:", err);
       setError("서버와 통신 중 문제가 발생했습니다. 다시 시도해주세요.");
@@ -162,7 +194,7 @@ export default function AiPage() {
                 </div>
               </div>
             ) : (
-              <AssistantBubble key={i} content={m.content} />
+              <AssistantBubble key={i} content={m.content} actions={m.actions} />
             )
           )}
 

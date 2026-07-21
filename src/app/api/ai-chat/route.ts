@@ -57,6 +57,7 @@ import {
   ANONYMOUS_PROGRESS_NOTICE,
   callOpenAiAnalysis,
   buildNavigatorSuffix,
+  buildNavigatorAction,
 } from "@/lib/aiGateway";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -160,7 +161,11 @@ export async function POST(req: NextRequest) {
 
         // STEP10-1: AI Service Navigator — 분류 로직은 그대로 두고, 답변
         // 마지막에 관련 서비스 이동 안내만 덧붙인다.
+        // STEP10-2: 프론트가 본문 문자열을 다시 파싱하지 않도록, 같은
+        // 판단 결과를 구조화된 actions 배열로도 함께 내려준다.
         reply = reply + buildNavigatorSuffix(category, lastMessage!.content);
+        const action = buildNavigatorAction(category, lastMessage!.content);
+        const actions = action ? [action] : [];
 
         if (!isAnonymous) {
           const savedReply = await saveAssistantChatMessage(leadId as string, reply, needsExpert);
@@ -171,7 +176,7 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        return NextResponse.json({ reply, needsExpert, category });
+        return NextResponse.json({ reply, needsExpert, category, actions });
       }
       // category === "ai_analysis" → 아래 기존 OpenAI 흐름으로 이어진다.
     }
@@ -257,8 +262,12 @@ export async function POST(req: NextRequest) {
 
     // STEP10-1: AI Service Navigator — 인사말에는 붙이지 않는다(사건 정보
     // 없이 먼저 건네는 안내이므로 특정 서비스로 유도할 근거가 없음).
+    // STEP10-2: 구조화된 actions 배열도 함께 내려준다.
+    let actions: { label: string; href: string }[] = [];
     if (!isGreeting) {
       reply = reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+      const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
+      actions = action ? [action] : [];
     }
 
     // ── 8. 정상 AI 답변 저장 (채팅 모드 + leadId가 있을 때만 — 인사말/익명은 저장하지 않음) ──
@@ -269,7 +278,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ reply, needsExpert, category: isGreeting ? undefined : "ai_analysis" });
+    return NextResponse.json({
+      reply,
+      needsExpert,
+      category: isGreeting ? undefined : "ai_analysis",
+      actions,
+    });
   } catch (err) {
     // 서버 오류 내용을 그대로 고객에게 노출하지 않는다.
     console.error("ai-chat route error:", err);

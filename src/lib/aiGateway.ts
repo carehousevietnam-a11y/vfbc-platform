@@ -210,18 +210,26 @@ export function buildLegalConsultNotice(context: CaseContext | null): string {
 }
 
 // ────────────────────────────────────────────────────────────────
-// STEP10-1: AI Service Navigator. 기존 classifyMessage() 분류 로직은
-// 그대로 두고, 만들어진 답변 "마지막"에 관련 서비스로 이동할 수 있는
-// 안내 한 줄만 덧붙인다. DB/API 계약(reply/needsExpert/category 응답
-// 형태)은 바뀌지 않는다 — reply 문자열이 조금 더 길어질 뿐이다.
+// STEP10-1/STEP10-2: AI Service Navigator. 기존 classifyMessage() 분류
+// 로직은 그대로 두고, 만들어진 답변에 관련 서비스로 이동할 수 있는 안내를
+// 덧붙인다.
 //   - progress  → /mypage 안내
 //   - legal     → /consultation 안내
 //   - ai_analysis → 질문 내용에서 CHECK/VERIFY/REGISTER 세부 서비스를
 //     키워드로 추정해 해당 서비스 페이지 안내(확실치 않으면 아무것도
-//     붙이지 않는다 — 근거 없는 추천보다 무응답이 낫다는 원칙).
+//     반환하지 않는다 — 근거 없는 추천보다 무응답이 낫다는 원칙).
 //   - system/off_platform → 이동 안내 없음(정보 제공이 목적이므로).
+//
+// STEP10-2: 판단 로직을 resolveNavigatorAction() 하나로 통일했다. 이전
+// 버전은 텍스트 문구(buildNavigatorSuffix)만 만들고, 프론트(/ai/page.tsx)
+// 가 그 문구를 정규식으로 다시 파싱해 버튼을 만들었다 — 답변이 재구성/
+// 번역되며 문구가 살짝 달라지면 파싱이 실패해 버튼이 누락되는 문제가
+// 있었다. 이제 route.ts가 이 함수의 결과를 { label, href } 구조 그대로
+// JSON 응답의 actions 배열에 담아 내려주므로, 프론트는 더 이상 문자열을
+// 해석할 필요가 없다(파싱은 하위 호환용 보조 기능으로만 남긴다).
 // ────────────────────────────────────────────────────────────────
-type ServiceLink = { label: string; href: string };
+export type NavigatorAction = { label: string; href: string };
+type ServiceLink = NavigatorAction;
 
 function detectServiceLink(content: string): ServiceLink | null {
   const normalized = content.toLowerCase();
@@ -286,19 +294,38 @@ function detectServiceLink(content: string): ServiceLink | null {
   return null;
 }
 
-export function buildNavigatorSuffix(category: MessageCategory, content: string): string {
+// 단일 판단 로직 — buildNavigatorSuffix(문자열)와 buildNavigatorAction
+// (구조화 객체)이 둘 다 이 함수 하나만 호출한다. CHECK/VERIFY/REGISTER/
+// MYPAGE/CONSULTATION 안내가 필요한 경우 항상 이 함수가 결과를 준다.
+function resolveNavigatorAction(category: MessageCategory, content: string): ServiceLink | null {
   if (category === "progress") {
-    return "\n\n📍 마이페이지에서 전체 진행상황을 확인하실 수 있습니다: /mypage";
+    return { label: "마이페이지에서 진행상황 확인하기", href: "/mypage" };
   }
   if (category === "legal") {
-    return "\n\n📍 전문가 상담을 신청하실 수 있습니다: /consultation";
+    return { label: "전문가 상담 신청하기", href: "/consultation" };
   }
   if (category === "ai_analysis") {
-    const link = detectServiceLink(content);
-    return link ? `\n\n📍 ${link.label}: ${link.href}` : "";
+    return detectServiceLink(content);
   }
   // system / off_platform: 이동 안내 없음
-  return "";
+  return null;
+}
+
+// STEP10-2: /api/ai-chat 응답의 actions 배열용 — 구조화된 { label, href }를
+// 그대로 반환한다(없으면 null).
+export function buildNavigatorAction(
+  category: MessageCategory,
+  content: string
+): NavigatorAction | null {
+  return resolveNavigatorAction(category, content);
+}
+
+// STEP10-1과의 하위 호환/보조용 — 답변 본문 끝에 붙는 안내 한 줄(문자열).
+// 프론트가 actions 배열을 우선 사용하므로 이제는 필수가 아니지만, 문자열
+// 그대로 로그·다른 화면(Case Room 등)에서 참고할 수 있게 유지한다.
+export function buildNavigatorSuffix(category: MessageCategory, content: string): string {
+  const action = resolveNavigatorAction(category, content);
+  return action ? `\n\n📍 ${action.label}: ${action.href}` : "";
 }
 
 // ────────────────────────────────────────────────────────────────
