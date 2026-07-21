@@ -249,6 +249,11 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
     <>
       <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
 
+      {/* STEP10-4: 추천 분야 — AI가 분석한 분야를 고객에게 표시 (legalAreas와 별개, 법률 검토 대상 아님) */}
+      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-800">
+        추천 분야: 문서검토
+      </div>
+
       <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
         <p className="text-xs font-semibold text-gray-700">사건 요약</p>
         <p className="mt-1.5 whitespace-pre-line text-xs text-gray-600 leading-relaxed">

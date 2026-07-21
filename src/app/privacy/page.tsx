@@ -76,7 +76,7 @@ export default function PrivacyPolicyPage() {
               한국어 번역 — 제1조 (수집하는 개인정보 항목 및 방법)
             </h3>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              VFBCAI는 서비스 신청(진단, 상담, 등록 대행 등) 과정에서
+              VFBCAI는 서비스 신청(진단, 상담, 전문가 진행요청 등) 과정에서
               이용자가 직접 입력하는 방식으로 아래 정보를 수집합니다.
             </p>
             <ul className="mt-3 space-y-1.5">
@@ -96,7 +96,7 @@ export default function PrivacyPolicyPage() {
               </li>
               <li className="text-sm text-gray-600">
                 · <span className="font-medium text-gray-800">
-                  대행 신청 시 추가 수집
+                  전문가 진행요청 시 추가 수집
                 </span>{" "}
                 — 여권 사본, 임대차 계약서 등 서비스 처리에 필요한 서류
               </li>
@@ -141,7 +141,7 @@ export default function PrivacyPolicyPage() {
                 · 서비스 이용을 위한 계정 자동 생성 및 로그인 식별
               </li>
               <li className="text-sm text-gray-600">
-                · 행정 등록·신고 대행 서비스 수행
+                · 행정 등록·신고 전문가 진행요청 서비스 수행
               </li>
               <li className="text-sm text-gray-600">
                 · 거주증·노동허가·비자 등 만료 알림 등 부가 서비스 제공
@@ -215,7 +215,7 @@ export default function PrivacyPolicyPage() {
                 · 이용자가 사전에 별도로 동의한 경우
               </li>
               <li className="text-sm text-gray-600">
-                · 등록 대행 서비스 수행을 위해 베트남 관할 행정기관(공안,
+                · 전문가 진행요청 서비스 수행을 위해 베트남 관할 행정기관(공안,
                 출입국관리국 등)에 제출이 필요한 경우
               </li>
               <li className="text-sm text-gray-600">

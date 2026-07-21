@@ -138,7 +138,7 @@ function buildSteps(
     { label: "접수 완료", done: done[0] },
     { label: "AI 진단 완료", done: done[1] },
     { label: "전문가 검토", done: done[2] },
-    { label: "대행 신청", done: done[3] },
+    { label: "전문가 진행요청", done: done[3] },
     { label: "정부 제출", done: done[4] },
     { label: "허가 완료", done: done[5] },
   ];
@@ -157,7 +157,7 @@ const STAGE_ACTIONS = new Set([
 function getActivityLabel(action: string): string {
   if (action === "verify_lead" || action.endsWith("_diagnosis_lead")) return "AI 검토 완료";
   if (action === "expert_review_request") return "전문가 검토 시작";
-  if (action === "agency_upgrade_request") return "대행 신청 접수";
+  if (action === "agency_upgrade_request") return "전문가 진행요청 접수";
   if (action === "consultation_request") return "상담 신청 접수";
   if (action === "process_government_submitted") return "정부 제출 완료";
   if (action === "process_permit_completed") return "허가 완료";

@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 );
 
 // "정보만 입력한 시점"에는 이메일을 보내지 않는다. 실제로 사용자가 행동
-// (포털 클릭=직접신청 선택, 대행신청 확정)을 취했을 때만 /api/agency-confirm에서
+// (포털 클릭=직접신청 선택, 전문가 진행요청 확정)을 취했을 때만 /api/agency-confirm에서
 // 이메일(추후 SNS도 함께)을 보낸다.
 // - possible/conditional/impossible: TRC/WP 진단 결과 (아직 아무 행동 안 함)
 // - self: 땀주 등 "셀프로 진행하겠다"고 선택만 한 상태 (아직 포털 클릭 전)

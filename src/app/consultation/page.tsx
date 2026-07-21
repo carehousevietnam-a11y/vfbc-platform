@@ -10,7 +10,7 @@ import { getLeadContact, saveLeadContact, LeadContact } from "@/lib/leadContact"
 
 const CASE_LABELS: Record<string, string> = {
   "tamtru-landlord-dispute": "땀주 · 집주인 분쟁",
-  "tamtru-agency": "땀주 · 대행 신청",
+  "tamtru-agency": "땀주 · 전문가 진행요청",
   "trc-application": "거주증(TRC) 신청",
   "trc-conditional": "거주증(TRC) 조건 확인",
   "wp-application": "노동허가(WP) 신청",

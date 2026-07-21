@@ -233,7 +233,7 @@ function ResultContent() {
         tag: "CONSULTATION",
       });
 
-      // 대행 신청 접수 확인 이메일 발송 (원래 진단 결과의 token을 재사용해
+      // 전문가 진행요청 접수 확인 이메일 발송 (원래 진단 결과의 token을 재사용해
       // 이름·이메일 재입력 없이 서버에서 바로 발송한다).
       // 이메일 발송이 실패하더라도 접수 자체는 이미 완료된 것이므로
       // 화면 흐름(submitted 처리)은 막지 않는다.
@@ -456,14 +456,14 @@ function ResultContent() {
               </div>
             )}
 
-            {/* 대행 신청 — 클릭 1번으로 바로 접수, 중간 확인 없음 */}
+            {/* 전문가 진행요청 — 클릭 1번으로 바로 접수, 중간 확인 없음 */}
             {helpState === "idle" && (
               <>
                 <button
                   onClick={handleHelpRequest}
                   className="mt-5 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors inline-flex items-center justify-center gap-2"
                 >
-                  <MessageSquare size={16} /> 대행 신청하기
+                  <MessageSquare size={16} /> 전문가 진행요청하기
                 </button>
                 {helpError && (
                   <p className="mt-2 text-xs text-red-600">{helpError}</p>

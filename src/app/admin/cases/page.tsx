@@ -167,7 +167,7 @@ export default async function AdminCasesPage({
     service_type: normalizeServiceType(l.service_type),
   }));
 
-  // 2) 대행신청(agency_upgrade_request) 활동 조회 → lead_id 집합으로 변환
+  // 2) 전문가 진행요청(agency_upgrade_request) 활동 조회 → lead_id 집합으로 변환
   const { data: agencyActivities, error: agencyError } = await supabaseAdmin
     .from("crm_activities")
     .select("lead_id")
@@ -235,7 +235,7 @@ export default async function AdminCasesPage({
                       </p>
                       {isAgency && (
                         <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                          대행신청
+                          전문가 진행요청
                         </span>
                       )}
                       {isRejectedElsewhere && (
@@ -337,7 +337,7 @@ export default async function AdminCasesPage({
                   확인 {stat.checks}
                 </span>
                 <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                  대행 {stat.agency}
+                  진행요청 {stat.agency}
                 </span>
               </div>
             </Link>
@@ -395,7 +395,7 @@ export default async function AdminCasesPage({
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{stat.agency}</p>
-                  <p className="text-[11px] text-gray-400">대행신청</p>
+                  <p className="text-[11px] text-gray-400">전문가 진행요청</p>
                 </div>
               </div>
             </Link>
@@ -451,7 +451,7 @@ export default async function AdminCasesPage({
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{stat.agency}</p>
-                  <p className="text-[11px] text-gray-400">대행신청</p>
+                  <p className="text-[11px] text-gray-400">전문가 진행요청</p>
                 </div>
               </div>
             </Link>

@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 대행 신청 "완료" 이메일에만 넣는 신뢰도용 확인 도장.
+// 전문가 진행요청 "완료" 이메일에만 넣는 신뢰도용 확인 도장.
 // 이메일 클라이언트(Gmail, Outlook, 네이버메일 등) 대부분은 <img>로 삽입된
 // SVG 파일 자체를 렌더링하지 않거나(빈 박스) 내부 필터(feTurbulence 등)가
 // 깨져서 텍스트가 안 보이는 문제가 있다. 그래서 이메일 전용으로는
@@ -61,7 +61,7 @@ const RESULT_LABEL: Record<string, string> = {
 
 type DocItem = { label: string; tip?: string };
 
-// 서비스 유형별 1차 필요서류 체크리스트 (대행신청 완료 이메일 전용, WP 이외)
+// 서비스 유형별 1차 필요서류 체크리스트 (전문가 진행요청 완료 이메일 전용, WP 이외)
 // 화면(src/app/r/page.tsx, check/*/page.tsx)의 단순 목록과 동일하게 유지할 것
 const REQUIRED_DOCS: Record<string, DocItem[]> = {
   tamtru: [
@@ -137,7 +137,7 @@ export async function sendResultEmail(
   // VERIFY(서류/상황 검토) 서비스 여부 — service_type이 "verify"로 시작하는 값은
   // 하이픈("verify-admin")/언더스코어("verify_admin") 표기가 혼재할 수 있으나,
   // "verify" 자체는 접두사 첫 단어라 구분자 표기와 무관하게 startsWith로 안전하게
-  // 판별된다. VERIFY는 CHECK의 "셀프등록 응원" 문구, "대행 신청" 문구가 맞지 않는
+  // 판별된다. VERIFY는 CHECK의 "셀프등록 응원" 문구, "전문가 진행요청" 문구가 맞지 않는
   // 별개 서비스이므로 이 값으로 문구를 분기한다.
   const isVerifyService = !!serviceType && serviceType.startsWith("verify");
 
@@ -147,7 +147,7 @@ export async function sendResultEmail(
   const resultUrl = `${siteUrl}/r?token=${token}`;
 
   const subject = isAgencyRequest
-    ? `[VFBCAI] ${name}님의 ${serviceLabel} 대행 신청이 접수되었습니다`
+    ? `[VFBCAI] ${name}님의 ${serviceLabel} 전문가 진행요청이 접수되었습니다`
     : isDiagnosis
     ? `[VFBCAI] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
     : isVerifyService
@@ -155,7 +155,7 @@ export async function sendResultEmail(
     : `[VFBCAI] ${name}님의 ${serviceLabel} ${selfActionLabel} 진행을 응원합니다`;
 
   const headline = isAgencyRequest
-    ? `${name}님, ${serviceLabel} 대행 신청이 완료되었습니다`
+    ? `${name}님, ${serviceLabel} 전문가 진행요청이 완료되었습니다`
     : isDiagnosis
     ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
     : isVerifyService
@@ -270,7 +270,7 @@ export async function sendResultEmail(
 // ────────────────────────────────────────────────────────────────
 // STEP6: 관리자 단계변경 자동 알림 이메일
 //
-// sendResultEmail()은 "고객이 직접 행동(진단 완료/대행신청 제출)"한 시점에
+// sendResultEmail()은 "고객이 직접 행동(진단 완료/전문가 진행요청 제출)"한 시점에
 // 트리거되지만, 이 함수는 admin/leads/[id]/page.tsx의 setProcessStage
 // 서버 액션이 crm_activities에 새 단계 action을 기록한 직후(관리자가
 // 진행 단계를 변경한 시점)에 호출된다. 디자인 톤(헤더 바, 배지, 도장
@@ -291,14 +291,14 @@ export type StageChangeAction =
 // 정의하고 stageChange.ts에서 그대로 import해 재사용한다.
 export const STAGE_HEADLINE: Record<StageChangeAction, string> = {
   expert_review_request: "전문가 검토가 시작되었습니다",
-  agency_upgrade_request: "대행 신청이 접수 확인되었습니다",
+  agency_upgrade_request: "전문가 진행요청이 접수 확인되었습니다",
   process_government_submitted: "정부 제출이 완료되었습니다",
   process_permit_completed: "허가가 완료되었습니다",
 };
 
 const STAGE_SUBJECT_SUFFIX: Record<StageChangeAction, string> = {
   expert_review_request: "전문가 검토 시작",
-  agency_upgrade_request: "대행 신청 접수 확인",
+  agency_upgrade_request: "전문가 진행요청 접수 확인",
   process_government_submitted: "정부 제출 완료",
   process_permit_completed: "허가 완료",
 };
@@ -349,7 +349,7 @@ export async function sendStageChangeEmail(
       break;
     case "agency_upgrade_request":
       bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
-        대행 신청이 접수 확인되었습니다. 담당자가 서류를 확인한 뒤 카카오톡 또는 잘로(Zalo)로 예상 비용과 진행 절차를 안내드립니다.
+        전문가 진행요청이 접수 확인되었습니다. 담당자가 서류를 확인한 뒤 카카오톡 또는 잘로(Zalo)로 예상 비용과 진행 절차를 안내드립니다.
       </p>`;
       break;
     case "process_government_submitted":

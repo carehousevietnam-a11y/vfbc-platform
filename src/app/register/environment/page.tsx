@@ -218,6 +218,11 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: EnvironmentDiagnosis })
         ))}
       </div>
 
+      {/* STEP10-4: 추천 분야 — AI가 분석한 분야를 고객에게 표시 */}
+      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-800">
+        추천 분야: 인허가
+      </div>
+
       {estimatedDays && (
         <div className="mt-4 rounded-xl bg-white px-4 py-2.5 text-xs text-gray-600">
           예상 처리기간{" "}
@@ -733,7 +738,7 @@ export default function RegisterEnvironmentPage() {
           </div>
         )}
 
-        {/* 5. AI 분석 리포트 + 6. 직접 진행 / 전문가 대행 선택 */}
+        {/* 5. AI 분석 리포트 + 6. 직접 진행 / 전문가 진행요청 선택 */}
         {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
@@ -797,7 +802,7 @@ export default function RegisterEnvironmentPage() {
                 onClick={() => setDetailStage(true)}
                 className="h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 transition-colors"
               >
-                전문가에게 맡길게요 (대행 신청)
+                전문가에게 맡길게요 (전문가 진행요청)
               </button>
             </div>
             <p className="mt-2 text-[11px] text-gray-400 text-center">
@@ -815,7 +820,7 @@ export default function RegisterEnvironmentPage() {
           </div>
         )}
 
-        {/* 7. 진행 서류 및 절차 안내 (전문가 대행 선택 시) */}
+        {/* 7. 진행 서류 및 절차 안내 (전문가 진행요청 선택 시) */}
         {showResult && result === "possible" && leadSubmitted && !agencyRequested && detailStage && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
@@ -849,7 +854,7 @@ export default function RegisterEnvironmentPage() {
                   {assessmentStatus === "not_ready" && (
                     <li className="text-xs text-gray-600 pl-1">
                       · 평가자료가 아직 준비되지 않아, 자료 보완 후
-                      재검토가 필요할 수 있습니다 — 이 부분은 대행 접수 시
+                      재검토가 필요할 수 있습니다 — 이 부분은 전문가 진행요청 접수 시
                       담당자가 우선 확인해드립니다.
                     </li>
                   )}
@@ -876,12 +881,15 @@ export default function RegisterEnvironmentPage() {
             </p>
 
             {agencyError && <p className="mt-3 text-xs text-red-600">{agencyError}</p>}
+            <p className="mb-2 text-xs text-gray-500 leading-relaxed">
+              직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
+            </p>
             <button
               onClick={handleAgencyRequest}
               disabled={agencySaving}
               className="mt-4 w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60 transition-colors"
             >
-              {agencySaving ? "접수 중..." : "대행 신청하기 →"}
+              {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
             </button>
             <p className="mt-2 text-[11px] text-gray-400">
               이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
@@ -905,7 +913,7 @@ export default function RegisterEnvironmentPage() {
               Vietnam Foreign Business Verification &amp; Compliance AI Center
             </p>
             <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-              대행 신청이 접수되었습니다
+              전문가 진행요청이 접수되었습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
               담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}

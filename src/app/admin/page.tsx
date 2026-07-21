@@ -4,7 +4,7 @@
 // 분류 원칙은 admin/cases/page.tsx·admin/leads/page.tsx와 완전히 동일하게
 // 맞춘다 — 별도 로직을 새로 고안하지 않고 그대로 재사용(복제)한다.
 // leads.status 같은 존재가 확인되지 않은 컬럼은 사용하지 않고, 상담원
-// 처리상태(전문가 검토요청/대행신청접수)는 crm_activities.action 값으로만
+// 처리상태(전문가 검토요청/전문가 진행요청접수)는 crm_activities.action 값으로만
 // 집계한다 (admin/leads/[id]/page.tsx와 동일한 원칙).
 
 import Link from "next/link";
@@ -137,7 +137,7 @@ export default async function AdminDashboardPage() {
   }
   const allLeads = (allLeadsRaw ?? []) as LeadRow[];
 
-  // 3) 전문가 검토 요청 / 대행 신청 접수 — crm_activities.action 값 기준 정확한 카운트
+  // 3) 전문가 검토 요청 / 전문가 진행요청 접수 — crm_activities.action 값 기준 정확한 카운트
   const { count: expertReviewCount } = await supabaseAdmin
     .from("crm_activities")
     .select("id", { count: "exact", head: true })
@@ -183,7 +183,7 @@ export default async function AdminDashboardPage() {
     { label: "REGISTER 리드 수", value: categoryCounts.register },
     { label: "상담문의 수", value: categoryCounts.consultation },
     { label: "전문가 검토 요청 수", value: expertReviewCount ?? 0 },
-    { label: "대행 신청 접수 수", value: agencyUpgradeCount ?? 0 },
+    { label: "전문가 진행요청 접수 수", value: agencyUpgradeCount ?? 0 },
   ];
 
   return (

@@ -8,11 +8,11 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// 사용자가 실제 행동(포털 클릭=직접신청 선택, 대행신청 확정)을 취한 시점에만
+// 사용자가 실제 행동(포털 클릭=직접신청 선택, 전문가 진행요청 확정)을 취한 시점에만
 // 호출된다. 호출 지점 예시:
-// 1) /r 결과확인 페이지의 "대행 신청하기" 버튼 → type 없음(기본값 agency), token 사용
+// 1) /r 결과확인 페이지의 "전문가 진행요청하기" 버튼 → type 없음(기본값 agency), token 사용
 // 2) 땀주/TRC/WP의 관할기관 포털 링크 클릭(직접 신청 선택) → type: "self", leadId 사용
-// 3) 땀주 셀프등록의 "대신 VFBCAI 대행 신청하기" 업그레이드 버튼 → type: "agency", leadId 사용
+// 3) 땀주 셀프등록의 "대신 VFBCAI 전문가 진행요청하기" 업그레이드 버튼 → type: "agency", leadId 사용
 //
 // 채널 확장 메모: 현재는 이메일(channel: "email")만 실제로 발송한다.
 // 나중에 카카오톡/잘로 API가 연동되면, 아래 notifications insert 부분에
