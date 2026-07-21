@@ -421,3 +421,81 @@ export async function sendStageChangeEmail(
     return { success: false, error: String(err) };
   }
 }
+
+// ────────────────────────────────────────────────────────────────
+// STEP8-E: Case Room 전문가 상담 답변 등록 알림 이메일
+//
+// admin/leads/[id]/page.tsx의 respondToConsultation 서버 액션이
+// crm_activities에 "expert_consultation_response"를 저장한 직후 호출된다.
+// 디자인 톤은 sendStageChangeEmail과 동일(같은 브랜드 헤더/버튼 스타일).
+// ────────────────────────────────────────────────────────────────
+
+type SendConsultationResponseEmailParams = {
+  to: string;
+  name: string;
+  serviceType: string;
+  token: string;
+};
+
+export async function sendConsultationResponseEmail(
+  params: SendConsultationResponseEmailParams
+): Promise<SendResultEmailReturn> {
+  const { to, name, serviceType, token } = params;
+
+  const serviceLabel = resolveServiceLabel(serviceType);
+  const subject = "[VFBCAI] 전문가 답변이 등록되었습니다";
+  const headline = `${name}님, 전문가 답변이 등록되었습니다`;
+
+  // mypage/chat(Case Room)는 자체 로그인 화면이 없고 "/r?token=" 링크의
+  // 자동로그인(api/auto-login)에만 의존한다(STEP6에서 확인된 원칙과 동일).
+  // next=chat으로 오면 /r/page.tsx가 로그인 완료 즉시 해당 신청 건의
+  // Case Room(/mypage/chat?leadId=...)으로 바로 이동시킨다.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vfbc-platform.vercel.app";
+  const caseRoomUrl = `${siteUrl}/r?token=${token}&next=chat`;
+
+  const bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 12px; line-height: 1.6;">
+      고객님의 상담 요청에 담당 전문가의 답변이 등록되었습니다. VFBCAI My Page에서 확인해주세요.
+    </p>
+    <p style="font-size: 13px; color: #6b7280; margin: 0 0 24px; line-height: 1.6;">
+      ${serviceLabel} 신청 건 Case Room에서 전체 대화와 답변을 이어서 확인하실 수 있습니다.
+    </p>`;
+
+  const buttonHtml = `<a href="${caseRoomUrl}" style="display: inline-block; background: #1e3a8a; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 9999px; text-decoration: none;">
+      답변 확인하기
+    </a>`;
+
+  const html = `
+  <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #fafafa;">
+    <div style="height: 3px; background: #1e3a8a; margin-bottom: 24px; border-radius: 2px;"></div>
+    <p style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #9ca3af; margin: 0 0 8px;">
+      VFBCAI · 베트남 외국인 비즈니스센터청
+    </p>
+    <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 16px; line-height: 1.4;">
+      ${headline}
+    </h1>
+    ${bodyHtml}
+    ${buttonHtml}
+    <p style="font-size: 12px; color: #9ca3af; margin-top: 28px; line-height: 1.6;">
+      본 메일은 VFBCAI 서비스 이용 중 남기신 연락처로 발송되었습니다.<br/>
+      링크는 30일간 유효합니다.
+    </p>
+  </div>`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "VFBCAI <onboarding@resend.dev>",
+      to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.error("Resend send error (consultation response):", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, id: data?.id };
+  } catch (err) {
+    console.error("sendConsultationResponseEmail exception:", err);
+    return { success: false, error: String(err) };
+  }
+}

@@ -2,33 +2,37 @@
 
 // src/app/mypage/chat/page.tsx
 //
-// STEP7: 로그인 고객 전용 AI Case Manager 채팅 화면.
-// - 로그인은 mypage/page.tsx와 동일하게 /r 결과확인 페이지에서 생긴 기존
-//   Supabase Auth 세션을 그대로 쓴다(이 화면만의 별도 로그인 없음).
-// - 신청 건은 "특정 카드에서 AI 상담 진입 시 해당 lead 자동 선택" 방식을
-//   쓴다 — mypage/page.tsx의 LeadCard에서 ?leadId=로 넘어온다.
-// - 대화는 이번 단계에서 세션 상태로만 유지된다(새로고침 시 사라짐 — 의도된
-//   동작, STEP9에서 저장 기능이 붙는다). 저장되는 것처럼 보이는 문구를 쓰지 않는다.
+// STEP8/9: 로그인 고객 전용 Case Room 화면 (AI Case Manager + 전문가 상담
+// 통합). STEP7의 세션 전용 채팅 UI를 다음처럼 확장했다:
+// - 진입/새로고침 시 /api/case-messages로 기존 대화·전문가 상담 이력을
+//   전부 불러온다(다른 신청 건과 섞이지 않음 — leadId 기준 서버 필터).
+// - 이미 AI 대화가 있으면 동적 인사말(mode: "greeting")을 다시 부르지
+//   않는다(중복 저장 방지 이전에, 애초에 인사말 자체를 다시 보여줄 필요가
+//   없다 — 기존 히스토리를 그대로 이어서 보여준다).
+// - 전문가 상담 요청은 이제 실제로 저장된다(/api/case-consultation) —
+//   새로고침해도 유지되고, OpenAI 연결 여부와 무관하게 항상 작동한다.
+// - 헤더에 서비스/현재 단계/진행률/다음 단계/담당 전문가/AI 연결 상태를
+//   함께 보여준다(/api/case-messages가 함께 내려주는 context).
 //
 // ⚠️ 절대 금지 경계: expertBrief / checkedItems / rejectionRisks /
-// recommendedSteps / similarCases 등은 /api/ai-chat도, 이 화면도 다루지 않는다.
+// recommendedSteps / similarCases 등은 이 화면 어디에서도 다루지 않는다.
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Send, Loader2, AlertTriangle, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft,
+  Send,
+  Loader2,
+  AlertTriangle,
+  MessageSquare,
+  CheckCircle2,
+  Circle,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
-
-type ChatRole = "user" | "assistant";
-type ChatMessage = {
-  // STEP9에서 저장 기능을 붙이기 쉽도록 role/content/createdAt/leadId 구조를
-  // 미리 맞춰둔다. conversationId는 아직 대응하는 DB 구조가 없어 만들지 않는다.
-  role: ChatRole;
-  content: string;
-  createdAt: string;
-  leadId: string;
-  needsExpert?: boolean;
-};
+import type { CaseMessage } from "@/lib/caseMessages";
 
 const QUICK_QUESTIONS = [
   "지금 어디까지 진행됐나요?",
@@ -44,18 +48,42 @@ const WELCOME_TEXT =
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
 }
+function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString("ko-KR");
+}
 
 type LoadState = "checking" | "signed-out" | "ready" | "not-found";
+
+type CaseContextSummary = {
+  serviceLabel: string;
+  currentStepLabel: string;
+  nextStepLabel: string;
+  progressPercent: number;
+  expertTeamLabel: string;
+};
+
+type AiStatus = "checking" | "connected" | "unavailable";
+
+// 클라이언트에서 낙관적으로 붙이는 임시 항목 구분용 — 새로고침하면 서버가
+// 내려주는 실제 id로 교체된다(다시 /api/case-messages를 불러오므로).
+let tempIdCounter = 0;
+function nextTempId() {
+  tempIdCounter += 1;
+  return `temp-${Date.now()}-${tempIdCounter}`;
+}
 
 function ChatContent() {
   const searchParams = useSearchParams();
   const leadId = searchParams.get("leadId");
-  const serviceLabelParam = searchParams.get("label"); // mypage 카드에서 넘겨주는 표시용 라벨(선택)
+  const serviceLabelParam = searchParams.get("label"); // mypage 카드에서 넘겨주는 표시용 라벨(선택, context 로딩 전 임시 표시)
 
   const [state, setState] = useState<LoadState>("checking");
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [caseContext, setCaseContext] = useState<CaseContextSummary | null>(null);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [messages, setMessages] = useState<CaseMessage[]>([]);
+
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -63,14 +91,21 @@ function ChatContent() {
 
   const [expertPanelOpen, setExpertPanelOpen] = useState(false);
   const [expertInquiry, setExpertInquiry] = useState("");
-  const [expertSubmitted, setExpertSubmitted] = useState(false);
+  const [expertSending, setExpertSending] = useState(false);
+  const [expertError, setExpertError] = useState<string | null>(null);
+  const [expertJustSubmitted, setExpertJustSubmitted] = useState(false);
+  const expertSendingRef = useRef(false);
 
-  // STEP7-2: 첫 대화 진입 시 AI가 사건을 분석해 먼저 안내하는 동적 인사말.
-  // 실패하면(OpenAI 오류·설정 미비 등) 기존 고정 문구(WELCOME_TEXT)로
-  // 자연스럽게 대체한다 — 고객에게 원문 오류를 노출하지 않는다.
-  const [greetingState, setGreetingState] = useState<"loading" | "ready" | "error">("loading");
+  // STEP7-2/STEP8: 첫 대화 진입 시(=아직 저장된 AI 대화가 없을 때)만
+  // AI가 사건을 분석해 먼저 안내하는 동적 인사말. 실패하면(OpenAI 오류·
+  // 설정 미비 등) 기존 고정 문구(WELCOME_TEXT)로 자연스럽게 대체한다.
+  const [greetingState, setGreetingState] = useState<"idle" | "loading" | "ready" | "error">(
+    "idle"
+  );
   const [greetingText, setGreetingText] = useState<string | null>(null);
   const greetingTriggeredRef = useRef(false);
+
+  const [aiStatus, setAiStatus] = useState<AiStatus>("checking");
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -93,13 +128,55 @@ function ChatContent() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, sending]);
+  }, [messages, sending, greetingState]);
 
+  // ── 기존 대화·상담 이력 로딩 ──
   useEffect(() => {
-    if (state !== "ready" || !leadId || !accessToken || greetingTriggeredRef.current) return;
+    if (state !== "ready" || !leadId || !accessToken || historyLoaded) return;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/case-messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accessToken, leadId }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setMessages(Array.isArray(data.messages) ? data.messages : []);
+          setCaseContext(data.context ?? null);
+          const alreadyHasAiConversation = (data.messages ?? []).some(
+            (m: CaseMessage) => m.type === "customer" || m.type === "ai"
+          );
+          if (alreadyHasAiConversation) {
+            // 이미 AI와 대화한 이력이 있다는 것 자체가 AI가 최소 한 번은
+            // 정상 작동했다는 뜻 — 인사말을 다시 부르지 않고 바로 연결됨으로 표시.
+            setAiStatus("connected");
+          }
+        } else {
+          console.error("case-messages fetch failed:", data?.error);
+        }
+      } catch (err) {
+        console.error("case-messages fetch exception:", err);
+      } finally {
+        setHistoryLoaded(true);
+      }
+    })();
+  }, [state, leadId, accessToken, historyLoaded]);
+
+  // ── 동적 인사말: 히스토리 로딩이 끝났고, AI 대화 이력이 전혀 없을 때만 ──
+  useEffect(() => {
+    if (!historyLoaded || state !== "ready" || !leadId || !accessToken) return;
+    if (greetingTriggeredRef.current) return;
+
+    const hasAiConversation = messages.some((m) => m.type === "customer" || m.type === "ai");
+    if (hasAiConversation) return; // 이미 대화가 있으면 인사말을 다시 보여주지 않는다.
+
     greetingTriggeredRef.current = true;
 
     (async () => {
+      setGreetingState("loading");
+      setAiStatus("checking");
       try {
         const res = await fetch("/api/ai-chat", {
           method: "POST",
@@ -109,16 +186,19 @@ function ChatContent() {
         const data = await res.json();
         if (!res.ok || typeof data?.reply !== "string" || !data.reply.trim()) {
           setGreetingState("error");
+          setAiStatus("unavailable");
           return;
         }
         setGreetingText(data.reply);
         setGreetingState("ready");
+        setAiStatus("connected");
       } catch (err) {
         console.error("ai greeting fetch failed:", err);
         setGreetingState("error");
+        setAiStatus("unavailable");
       }
     })();
-  }, [state, leadId, accessToken]);
+  }, [historyLoaded, state, leadId, accessToken, messages]);
 
   async function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -128,40 +208,45 @@ function ChatContent() {
     setSending(true);
     setSendError(null);
 
-    const userMessage: ChatMessage = {
-      role: "user",
+    const userMessage: CaseMessage = {
+      id: nextTempId(),
+      type: "customer",
       content: trimmed,
       createdAt: new Date().toISOString(),
-      leadId,
     };
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setInput("");
 
+    // OpenAI 컨텍스트로 보낼 role/content 배열 — customer/ai 타입만 사용.
+    const openaiHistory = nextMessages
+      .filter((m): m is Extract<CaseMessage, { type: "customer" | "ai" }> =>
+        m.type === "customer" || m.type === "ai"
+      )
+      .map((m) => ({ role: m.type === "customer" ? "user" : "assistant", content: m.content }));
+
     try {
       const res = await fetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accessToken,
-          leadId,
-          messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
-        }),
+        body: JSON.stringify({ accessToken, leadId, messages: openaiHistory }),
       });
       const data = await res.json();
 
       if (!res.ok) {
         setSendError(data?.error ?? "메시지를 보내지 못했습니다. 다시 시도해주세요.");
+        if (res.status === 503) setAiStatus("unavailable");
         return;
       }
 
+      setAiStatus("connected");
       setMessages((prev) => [
         ...prev,
         {
-          role: "assistant",
+          id: nextTempId(),
+          type: "ai",
           content: data.reply as string,
           createdAt: new Date().toISOString(),
-          leadId,
           needsExpert: Boolean(data.needsExpert),
         },
       ]);
@@ -176,10 +261,10 @@ function ChatContent() {
 
   // 실패한 마지막 사용자 메시지 재시도 — 새 메시지를 추가하지 않고 동일 내용으로 재요청
   function retryLast() {
-    const lastUser = [...messages].reverse().find((m) => m.role === "user");
-    if (lastUser) {
-      setMessages((prev) => prev.filter((m) => m !== lastUser));
-      sendMessage(lastUser.content);
+    const lastCustomer = [...messages].reverse().find((m) => m.type === "customer");
+    if (lastCustomer && lastCustomer.type === "customer") {
+      setMessages((prev) => prev.filter((m) => m !== lastCustomer));
+      sendMessage(lastCustomer.content);
     }
   }
 
@@ -188,13 +273,48 @@ function ChatContent() {
     sendMessage(input);
   }
 
-  function handleExpertSubmit(e: React.FormEvent) {
+  async function handleExpertSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!expertInquiry.trim()) return;
-    // STEP7 범위: 실제 저장/담당자 알림은 STEP8에서 연결된다. 저장된 것처럼
-    // 보이는 문구를 쓰지 않고, 준비 중이라는 사실을 정직하게 안내한다.
-    setExpertSubmitted(true);
+    const trimmed = expertInquiry.trim();
+    if (!trimmed || expertSendingRef.current || !leadId || !accessToken) return;
+
+    expertSendingRef.current = true;
+    setExpertSending(true);
+    setExpertError(null);
+
+    try {
+      const res = await fetch("/api/case-consultation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken, leadId, content: trimmed }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setExpertError(data?.error ?? "상담 요청을 보내지 못했습니다. 다시 시도해주세요.");
+        return;
+      }
+
+      setMessages((prev) => [...prev, data.message as CaseMessage]);
+      setExpertInquiry("");
+      setExpertJustSubmitted(true);
+    } catch (err) {
+      console.error("case-consultation request failed:", err);
+      setExpertError("서버와 통신 중 문제가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      expertSendingRef.current = false;
+      setExpertSending(false);
+    }
   }
+
+  function closeExpertPanel() {
+    setExpertPanelOpen(false);
+    setExpertJustSubmitted(false);
+    setExpertError(null);
+  }
+
+  const hasAiConversation = messages.some((m) => m.type === "customer" || m.type === "ai");
+  const showGreetingBubble = historyLoaded && !hasAiConversation;
 
   return (
     <main className="min-h-screen bg-[#fafafa] flex flex-col">
@@ -209,16 +329,54 @@ function ChatContent() {
           >
             <ArrowLeft size={14} /> 마이페이지로
           </Link>
-          <div className="mt-1 flex items-center justify-between">
+          <div className="mt-1 flex items-start justify-between gap-2">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
                 VFBCAI · AI Case Manager
               </p>
               <h1 className="mt-0.5 text-lg font-bold text-gray-900">
-                24시간 AI 상담{serviceLabelParam ? ` · ${serviceLabelParam}` : ""}
+                Case Room
+                {(caseContext?.serviceLabel ?? serviceLabelParam)
+                  ? ` · ${caseContext?.serviceLabel ?? serviceLabelParam}`
+                  : ""}
               </h1>
             </div>
+            <span
+              className={`mt-1 inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+                aiStatus === "connected"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : aiStatus === "unavailable"
+                  ? "bg-gray-100 text-gray-500"
+                  : "bg-gray-100 text-gray-400"
+              }`}
+            >
+              {aiStatus === "connected" ? <Wifi size={11} /> : <WifiOff size={11} />}
+              {aiStatus === "connected"
+                ? "AI 연결됨"
+                : aiStatus === "unavailable"
+                ? "AI 준비 중"
+                : "AI 확인 중"}
+            </span>
           </div>
+
+          {caseContext && (
+            <div className="mt-3 rounded-2xl bg-gray-50 px-3 py-2.5">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="font-semibold text-gray-700">{caseContext.currentStepLabel}</span>
+                <span className="text-gray-400">{caseContext.progressPercent}%</span>
+              </div>
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                <div
+                  className="h-full rounded-full bg-blue-900 transition-all"
+                  style={{ width: `${caseContext.progressPercent}%` }}
+                />
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-1 text-[10.5px] text-gray-500">
+                <span>다음 단계: {caseContext.nextStepLabel}</span>
+                <span>담당: {caseContext.expertTeamLabel}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -258,19 +416,27 @@ function ChatContent() {
           {/* 메시지 영역 */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
             <div className="mx-auto max-w-xl space-y-3">
-              {/* STEP7-2: AI가 사건을 먼저 분석해 안내하는 동적 인사말.
-                  로딩 중에는 짧은 안내, 실패 시에는 기존 고정 문구로 폴백. */}
-              <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm text-gray-700 leading-relaxed whitespace-pre-line shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-                  {greetingState === "loading" && "안녕하세요. 신청 정보를 확인하고 있습니다..."}
-                  {greetingState === "ready" && greetingText}
-                  {greetingState === "error" && WELCOME_TEXT}
+              {!historyLoaded && (
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm text-gray-500 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                    대화 내역을 불러오는 중...
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* 빠른 질문 버튼 — 인사말 로딩 여부와 무관하게, 고객이 아직
-                  질문을 하지 않았을 때만 노출 */}
-              {messages.length === 0 && (
+              {/* 동적 인사말 — 저장된 AI 대화가 전혀 없을 때만 표시(저장되지 않는 임시 안내) */}
+              {showGreetingBubble && (
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm text-gray-700 leading-relaxed whitespace-pre-line shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                    {greetingState === "loading" && "안녕하세요. 신청 정보를 확인하고 있습니다..."}
+                    {greetingState === "ready" && greetingText}
+                    {greetingState === "error" && WELCOME_TEXT}
+                  </div>
+                </div>
+              )}
+
+              {/* 빠른 질문 버튼 — 아직 아무 대화·상담 이력도 없을 때만 노출 */}
+              {historyLoaded && messages.length === 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {QUICK_QUESTIONS.map((q) => (
                     <button
@@ -285,34 +451,69 @@ function ChatContent() {
                 </div>
               )}
 
-              {messages.map((m, i) => (
-                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-[85%] px-4 py-3 text-sm leading-relaxed whitespace-pre-line shadow-[0_1px_3px_rgba(0,0,0,0.04)] ${
-                      m.role === "user"
-                        ? "rounded-2xl rounded-tr-sm bg-blue-900 text-white"
-                        : "rounded-2xl rounded-tl-sm bg-white border border-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {m.content}
-                    <p
-                      className={`mt-1 text-[10px] ${
-                        m.role === "user" ? "text-blue-200" : "text-gray-400"
-                      }`}
-                    >
-                      {formatTime(m.createdAt)}
-                    </p>
-                    {m.role === "assistant" && m.needsExpert && (
-                      <button
-                        onClick={() => setExpertPanelOpen(true)}
-                        className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-200 transition-colors"
-                      >
-                        <MessageSquare size={12} /> 전문가 상담 요청
-                      </button>
-                    )}
+              {messages.map((m) => {
+                if (m.type === "customer") {
+                  return (
+                    <div key={m.id} className="flex justify-end">
+                      <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-blue-900 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                        {m.content}
+                        <p className="mt-1 text-[10px] text-blue-200">{formatTime(m.createdAt)}</p>
+                      </div>
+                    </div>
+                  );
+                }
+                if (m.type === "ai") {
+                  return (
+                    <div key={m.id} className="flex justify-start">
+                      <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                        {m.content}
+                        <p className="mt-1 text-[10px] text-gray-400">{formatTime(m.createdAt)}</p>
+                        {m.needsExpert && (
+                          <button
+                            onClick={() => setExpertPanelOpen(true)}
+                            className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-200 transition-colors"
+                          >
+                            <MessageSquare size={12} /> 전문가 상담 요청
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+                if (m.type === "consultation_request") {
+                  return (
+                    <div key={m.id} className="flex justify-end">
+                      <div className="max-w-[85%] rounded-2xl rounded-tr-sm border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-amber-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                        <div className="mb-1 flex items-center gap-1.5">
+                          <MessageSquare size={12} />
+                          <span className="text-[11px] font-semibold">전문가 상담 요청</span>
+                          {m.status === "answered" ? (
+                            <CheckCircle2 size={12} className="text-emerald-600" />
+                          ) : (
+                            <Circle size={12} className="text-amber-500" />
+                          )}
+                        </div>
+                        {m.content}
+                        <p className="mt-1 text-[10px] text-amber-700">
+                          {formatTime(m.createdAt)} · {m.status === "answered" ? "답변 완료" : "답변 대기 중"}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+                // consultation_response — AI와 명확히 다른 스타일
+                return (
+                  <div key={m.id} className="flex justify-start">
+                    <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-indigo-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                      <p className="text-[11px] font-semibold text-indigo-700">VFBCAI 전문가 답변</p>
+                      <p className="mt-1">{m.content}</p>
+                      <p className="mt-1 text-[10px] text-indigo-500">
+                        담당자: VFBCAI 담당 전문가 · {formatDateTime(m.createdAt)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {sending && (
                 <div className="flex justify-start">
@@ -342,30 +543,34 @@ function ChatContent() {
           {expertPanelOpen && (
             <div className="shrink-0 border-t border-amber-100 bg-amber-50 px-4 py-4 sm:px-6">
               <div className="mx-auto max-w-xl">
-                {!expertSubmitted ? (
+                {!expertJustSubmitted ? (
                   <form onSubmit={handleExpertSubmit}>
                     <p className="text-xs font-semibold text-amber-900">전문가 상담 요청</p>
                     <p className="mt-1 text-[11px] text-amber-800">
-                      문의 내용을 남겨주시면 담당자가 확인 후 안내드립니다.
+                      문의 내용을 남겨주시면 담당자가 확인 후 답변을 등록해드립니다. 답변이
+                      등록되면 이메일로 안내드립니다.
                     </p>
                     <textarea
                       value={expertInquiry}
                       onChange={(e) => setExpertInquiry(e.target.value)}
                       rows={3}
                       placeholder="문의하실 내용을 입력해주세요"
-                      className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-amber-400"
+                      disabled={expertSending}
+                      className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-amber-400 disabled:opacity-60"
                     />
+                    {expertError && <p className="mt-1.5 text-[11px] text-red-600">{expertError}</p>}
                     <div className="mt-2 flex items-center gap-2">
                       <button
                         type="submit"
-                        disabled={!expertInquiry.trim()}
-                        className="rounded-full bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+                        disabled={!expertInquiry.trim() || expertSending}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
                       >
+                        {expertSending && <Loader2 size={12} className="animate-spin" />}
                         문의 남기기
                       </button>
                       <button
                         type="button"
-                        onClick={() => setExpertPanelOpen(false)}
+                        onClick={closeExpertPanel}
                         className="rounded-full px-4 py-2 text-xs font-semibold text-gray-500 hover:bg-amber-100 transition-colors"
                       >
                         닫기
@@ -374,17 +579,13 @@ function ChatContent() {
                   </form>
                 ) : (
                   <div>
-                    <p className="text-sm font-semibold text-amber-900">문의 내용을 확인했습니다.</p>
+                    <p className="text-sm font-semibold text-amber-900">상담 요청이 접수되었습니다.</p>
                     <p className="mt-1 text-xs text-amber-800 leading-relaxed">
-                      담당자 연결·저장 기능은 다음 업데이트에서 연동됩니다. 급하신 문의는
-                      마이페이지 상단의 담당 전문가 안내를 참고해주세요.
+                      담당자가 확인 후 답변을 등록하면 이메일로 안내드리며, 이 Case Room에서도 바로
+                      확인하실 수 있습니다.
                     </p>
                     <button
-                      onClick={() => {
-                        setExpertPanelOpen(false);
-                        setExpertSubmitted(false);
-                        setExpertInquiry("");
-                      }}
+                      onClick={closeExpertPanel}
                       className="mt-2 rounded-full px-4 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
                     >
                       닫기
@@ -402,7 +603,11 @@ function ChatContent() {
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="궁금하신 내용을 입력해주세요"
+                  placeholder={
+                    aiStatus === "unavailable"
+                      ? "AI 상담 준비 중입니다 (질문은 계속 입력 가능)"
+                      : "궁금하신 내용을 입력해주세요"
+                  }
                   disabled={sending}
                   className="flex-1 rounded-full border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-900 disabled:opacity-60"
                 />

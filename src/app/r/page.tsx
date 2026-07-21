@@ -81,6 +81,12 @@ function ResultContent() {
   // sendResultEmail 링크) 지금까지와 동일하게 이 페이지에 그대로 머문다.
   const next = searchParams.get("next");
   const wantsMypage = next === "mypage";
+  // STEP8-E: 전문가 상담 답변 이메일 전용 — "/r?token=...&next=chat"으로
+  // 오면 로그인 완료 즉시 마이페이지가 아니라 이 토큰이 가리키는 신청 건의
+  // Case Room(/mypage/chat?leadId=...)으로 바로 이동시킨다. result_tokens가
+  // lead_id 단위로 발급되므로(stageChange.ts 등에서 확인된 원칙) info.leadId는
+  // 항상 이 토큰에 대응하는 정확한 신청 건이다.
+  const wantsChat = next === "chat";
 
   const [status, setStatus] = useState<Status>("loading");
   const [info, setInfo] = useState<ResultInfo | null>(null);
@@ -177,6 +183,16 @@ function ResultContent() {
       router.replace("/mypage");
     }
   }, [wantsMypage, alreadyLoggedInPass, status, router]);
+
+  // STEP8-E: next=chat으로 들어온 경우, 동일한 조건에서 마이페이지 대신
+  // 이 토큰이 가리키는 신청 건의 Case Room으로 바로 넘긴다. info(leadId)가
+  // 아직 안 왔으면(드묾) status가 "ready"가 될 수 없으므로 이 효과는 자연히
+  // info가 준비된 뒤에만 실행된다.
+  useEffect(() => {
+    if (wantsChat && alreadyLoggedInPass && status === "ready" && info?.leadId) {
+      router.replace(`/mypage/chat?leadId=${info.leadId}`);
+    }
+  }, [wantsChat, alreadyLoggedInPass, status, info, router]);
 
   // 클릭 즉시 접수 — 중간 확인 화면 없이 한 번의 클릭으로 완료
   async function handleHelpRequest() {
@@ -300,7 +316,13 @@ function ResultContent() {
           </div>
         )}
 
-        {status === "ready" && info && !wantsMypage && (
+        {status === "ready" && info && wantsChat && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p className="text-sm text-gray-500">Case Room으로 이동 중입니다...</p>
+          </div>
+        )}
+
+        {status === "ready" && info && !wantsMypage && !wantsChat && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
 

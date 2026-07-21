@@ -4,8 +4,16 @@
 // - access_token을 서버에서 직접 검증한다(클라이언트가 보낸 user_id를 믿지 않음).
 // - leadId가 실제로 이 사용자 소유인지 재검증한다(다른 고객 데이터 접근 차단).
 // - AI Context는 lib/aiCaseContext.ts의 안전 경계(전문가 내부 데이터 제외)만 사용한다.
-// - 대화 저장은 STEP9 범위 — 이 라우트는 매 요청마다 클라이언트가 보낸
-//   messages 배열(현재 세션 상태)을 그대로 받아 컨텍스트로만 쓰고, 저장하지 않는다.
+// - STEP8: 고객 질문 → OpenAI 호출 → 정상 AI 답변 순서로, 성공한 메시지만
+//   crm_activities에 저장한다(lib/caseMessages.ts). OpenAI 호출 실패/오류
+//   메시지는 정상 AI 답변인 것처럼 저장하지 않는다. 환경변수(OPENAI_API_KEY/
+//   OPENAI_MODEL) 미설정 시에는 애초에 호출을 안 하므로 고객 질문도 저장하지
+//   않는다(설정 전 "안 온 답변"이 상담 기록처럼 남지 않게 하기 위함).
+// - 인사말 모드(mode: "greeting")는 저장하지 않는다 — 매 진입마다 사건
+//   최신 상태로 다시 생성하는 게 자연스럽고, mypage/chat/page.tsx가 이미
+//   대화가 있으면(api/case-messages 조회 결과) 인사말 호출 자체를 건너뛴다.
+// - 클라이언트가 보낸 messages 배열은 이번 요청의 OpenAI 컨텍스트 조립에만
+//   쓰고, 그대로 신뢰해 저장하지 않는다(저장은 서버가 확정한 값만).
 //
 // 필요 환경변수: OPENAI_API_KEY (필수), OPENAI_MODEL (필수 — 기본값 없음,
 // 코드에 모델명을 하드코딩하지 않는다. 둘 중 하나라도 없으면 OpenAI를
@@ -23,6 +31,7 @@ import {
   matchesEscalationKeyword,
   NEEDS_EXPERT_TOKEN,
 } from "@/lib/aiCaseContext";
+import { saveUserChatMessage, saveAssistantChatMessage } from "@/lib/caseMessages";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -91,6 +100,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ── 3-1. 고객 질문 저장 (채팅 모드만, 인사말 모드는 저장하지 않음) ──
+    // 여기 도달했다는 것은 apiKey/model이 모두 있어 OpenAI를 실제로 호출할
+    // 것이라는 뜻 — "API Key가 없을 때는 고객 질문을 무조건 저장하지 않아도
+    // 된다"는 원칙에 맞춰, 호출 직전(성공 여부와 무관하게 질문 자체는 실재)
+    // 시점에 저장한다. 저장 실패는 채팅 자체를 막지 않는다(로그만 남김).
+    if (!isGreeting) {
+      const saved = await saveUserChatMessage(leadId as string, lastMessage!.content);
+      if (!saved) {
+        console.error("ai-chat: 고객 질문 저장 실패 (leadId=" + leadId + ")");
+      }
+    }
+
     // ── 4. 안전 컨텍스트 구성 (전문가 내부 데이터 절대 미포함) ──
     const context = await buildCaseContext(leadId as string);
     if (!context) {
@@ -155,6 +176,14 @@ export async function POST(req: NextRequest) {
     const reply = rawReply.replace(NEEDS_EXPERT_TOKEN, "").trim();
     const needsExpert =
       !isGreeting && (modelFlaggedNeedsExpert || matchesEscalationKeyword(lastMessage!.content));
+
+    // ── 7. 정상 AI 답변 저장 (채팅 모드만 — 인사말은 저장하지 않음) ──
+    if (!isGreeting) {
+      const savedReply = await saveAssistantChatMessage(leadId as string, reply, needsExpert);
+      if (!savedReply) {
+        console.error("ai-chat: AI 답변 저장 실패 (leadId=" + leadId + ")");
+      }
+    }
 
     return NextResponse.json({ reply, needsExpert });
   } catch (err) {

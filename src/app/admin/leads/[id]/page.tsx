@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyStageChange, type StageChangeAction } from "@/lib/notify/stageChange";
+import { saveConsultationResponse } from "@/lib/caseMessages";
+import { notifyConsultationResponse } from "@/lib/notify/consultationResponse";
 
 export const dynamic = "force-dynamic";
 
@@ -289,6 +291,30 @@ async function addExpertMemo(formData: FormData) {
   revalidatePath(`/admin/leads/${leadId}`);
 }
 
+// ── 인라인 Server Action: 전문가 상담 요청에 답변 ──
+// STEP8: 고객이 Case Room(mypage/chat)에서 남긴 전문가 상담 요청
+// (action: "expert_consultation_requested")에 답변을 등록한다. 새
+// API 라우트 없이 이 페이지의 다른 서버 액션(addExpertMemo,
+// setProcessStage)과 동일하게 인라인 Server Action으로 처리한다.
+// 여기서 저장하는 답변은 "전문가 메모"(내부용, 기본 비공개)와 완전히
+// 분리된 별도 action이며, 항상 고객에게 공개되는 답변이다.
+async function respondToConsultation(formData: FormData) {
+  "use server";
+  const leadId = String(formData.get("leadId") || "");
+  const requestActivityId = String(formData.get("requestActivityId") || "");
+  const content = String(formData.get("content") || "").trim();
+  if (!leadId || !requestActivityId || !content) return;
+
+  const saved = await saveConsultationResponse(leadId, requestActivityId, content);
+  // saved가 null이면 이미 답변이 존재하거나(중복 제출) 저장 자체가 실패한
+  // 것 — 두 경우 모두 이메일을 다시 보내지 않는다.
+  if (saved) {
+    await notifyConsultationResponse(leadId);
+  }
+
+  revalidatePath(`/admin/leads/${leadId}`);
+}
+
 // ── 인라인 Server Action: 진행 단계 저장 ──
 // 새 테이블·컬럼·API 라우트 없이 기존 crm_activities에 활동 1건으로 기록한다.
 // action은 SETTABLE_STAGE_ACTIONS 화이트리스트에 있는 값만 허용한다(폼 조작으로
@@ -435,6 +461,15 @@ export default async function AdminLeadDetailPage({
 
   // 전문가 메모만 모아서 별도 표시 (타임라인에도 동일 활동이 함께 나타남)
   const memoActivities = activities.filter((a) => a.action === "expert_memo");
+
+  // STEP8: Case Room 전문가 상담 요청/답변 — 새로 들어온 순(오래된 것부터)
+  // 요청마다 같은 lead의 답변 중 meta.requestActivityId가 일치하는 것을 찾아
+  // 매칭한다(1건당 답변 최대 1건 — saveConsultationResponse가 중복 저장 방지).
+  const consultationRequests = activities.filter((a) => a.action === "expert_consultation_requested");
+  const consultationResponses = activities.filter((a) => a.action === "expert_consultation_response");
+  function findResponseFor(requestId: string): ActivityRow | undefined {
+    return consultationResponses.find((r) => asMeta(r.meta)?.requestActivityId === requestId);
+  }
 
   return (
     <main className="min-h-screen bg-[#fafafa]">
@@ -761,7 +796,72 @@ export default async function AdminLeadDetailPage({
           </form>
         </div>
 
-        {/* 8. crm_activities 타임라인 */}
+        {/* 8. Case Room 전문가 상담 요청 (STEP8) */}
+        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-xs font-semibold text-gray-700">전문가 상담 요청 (Case Room)</p>
+          {consultationRequests.length === 0 ? (
+            <p className="mt-2 text-xs text-gray-400">접수된 상담 요청이 없습니다.</p>
+          ) : (
+            <div className="mt-2 space-y-3">
+              {[...consultationRequests].reverse().map((req) => {
+                const response = findResponseFor(req.id);
+                return (
+                  <div key={req.id} className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-semibold text-gray-500">고객 문의</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          response ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {response ? "답변 완료" : "미답변"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-800 leading-relaxed whitespace-pre-wrap">
+                      {(asMeta(req.meta)?.content as string | undefined) ?? ""}
+                    </p>
+                    <p className="mt-1 text-[11px] text-gray-400">
+                      {new Date(req.created_at).toLocaleString("ko-KR")}
+                    </p>
+
+                    {response ? (
+                      <div className="mt-2 rounded-lg bg-blue-50 px-3 py-2">
+                        <p className="text-[11px] font-semibold text-blue-900">VFBCAI 전문가 답변</p>
+                        <p className="mt-1 text-xs text-blue-900 leading-relaxed whitespace-pre-wrap">
+                          {(asMeta(response.meta)?.content as string | undefined) ?? ""}
+                        </p>
+                        <p className="mt-1 text-[10px] text-blue-700">
+                          담당자: VFBCAI 담당 전문가 · 답변 시간:{" "}
+                          {new Date(response.created_at).toLocaleString("ko-KR")}
+                        </p>
+                      </div>
+                    ) : (
+                      <form action={respondToConsultation} className="mt-2 space-y-2">
+                        <input type="hidden" name="leadId" value={lead.id} />
+                        <input type="hidden" name="requestActivityId" value={req.id} />
+                        <textarea
+                          name="content"
+                          required
+                          rows={3}
+                          placeholder="답변을 입력하세요"
+                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:border-blue-900 focus:outline-none resize-none"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-full bg-blue-900 px-4 py-1.5 text-[11px] font-semibold text-white hover:bg-blue-950 transition-colors"
+                        >
+                          답변 등록
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 9. crm_activities 타임라인 */}
         <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <p className="text-xs font-semibold text-gray-700">활동 타임라인</p>
           <div className="mt-2 space-y-2">
