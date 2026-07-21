@@ -314,6 +314,73 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
   );
 }
 
+// STEP10-9: 진행 방법 선택 UI — 버튼 2개를 2개의 선택 카드로 개편.
+// 링크(href/onClick)·버튼 action은 기존 그대로 유지, UI(카드 구조)만 변경.
+function ProcessMethodCards({
+  onSelf,
+  onExpert,
+}: {
+  onSelf: () => void;
+  onExpert: () => void;
+}) {
+  return (
+    <div>
+      <p className="mt-5 text-sm font-bold text-gray-900">
+        어떤 방법으로 진행하시겠습니까?
+      </p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-bold text-gray-900">직접 진행</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
+              절차를 직접 진행하고 싶은 분
+            </span>
+            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
+              비용을 줄이고 싶은 분
+            </span>
+          </div>
+          <p className="mt-3 flex-1 text-xs text-gray-500 leading-relaxed">
+            가능하다고 판단되면 공식 사이트에서 바로 진행할 수 있습니다.
+          </p>
+          <a
+            href={TRC_OFFICIAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onSelf}
+            className="mt-4 flex h-11 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+          >
+            내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
+          </a>
+        </div>
+
+        <div className="flex flex-col rounded-2xl border border-blue-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-bold text-gray-900">전문가 진행</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
+              서류가 복잡한 경우
+            </span>
+            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
+              최종 확인이 필요한 경우
+            </span>
+          </div>
+          <p className="mt-3 flex-1 text-xs text-gray-500 leading-relaxed">
+            전문가가 서류와 진행 절차를 함께 확인합니다.
+          </p>
+          <button
+            onClick={onExpert}
+            className="mt-4 h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+          >
+            전문가 진행 요청하기
+          </button>
+        </div>
+      </div>
+      <p className="mt-3 text-[11px] text-gray-400 text-center">
+        어떤 방법을 선택하시더라도 AI 분석 결과는 그대로 활용됩니다.
+      </p>
+    </div>
+  );
+}
+
 export default function TrcCheckPage() {
   const [nationality, setNationality] = useState<Nationality>(null);
   const [visa, setVisa] = useState<Visa>(null);
@@ -871,29 +938,10 @@ export default function TrcCheckPage() {
               </p>
             </div>
 
-            <p className="mt-5 text-xs font-semibold text-gray-700">
-              위 내용, 어떻게 진행하시겠어요?
-            </p>
-            <div className="mt-3 flex flex-col gap-3">
-              <a
-                href={TRC_OFFICIAL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleSelfPortalClick}
-                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-              >
-                내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
-              </a>
-              <button
-                onClick={() => setDetailStage(true)}
-                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-              >
-                전문가 진행 요청하기
-              </button>
-            </div>
-            <p className="mt-2 text-[11px] text-gray-400 text-center">
-              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
-            </p>
+            <ProcessMethodCards
+              onSelf={handleSelfPortalClick}
+              onExpert={() => setDetailStage(true)}
+            />
             <p className="mt-2 text-[11px] text-gray-400">
               공안부 공공서비스포털의 거주증(TRC) 발급 절차 안내 페이지로
               이동합니다. 구비서류·수수료·처리기간을 확인하실 수 있습니다.
@@ -1137,29 +1185,10 @@ export default function TrcCheckPage() {
               있습니다.
             </div>
 
-            <p className="mt-5 text-xs font-semibold text-gray-700">
-              위 내용, 어떻게 진행하시겠어요?
-            </p>
-            <div className="mt-3 flex flex-col gap-3">
-              <a
-                href={TRC_OFFICIAL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleSelfPortalClick}
-                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-amber-600 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
-              >
-                그래도 내가 직접 등록할게요 (공식 사이트 연결) <ExternalLink size={14} />
-              </a>
-              <button
-                onClick={() => setDetailStage(true)}
-                className="h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-              >
-                전문가 진행 요청하기
-              </button>
-            </div>
-            <p className="mt-2 text-[11px] text-gray-400 text-center">
-              어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다
-            </p>
+            <ProcessMethodCards
+              onSelf={handleSelfPortalClick}
+              onExpert={() => setDetailStage(true)}
+            />
 
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
