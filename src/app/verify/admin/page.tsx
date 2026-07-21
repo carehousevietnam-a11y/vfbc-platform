@@ -393,6 +393,27 @@ const PREVIOUS_REVIEW_OPTIONS = [
   "잘 모르겠습니다",
 ] as const;
 
+// STEP11-1: STEP1 최상단 — 사전 검토 / 사후 사건 검토 구분 질문.
+// 화면 로컬 state로만 관리하며, DB/API/CRM/진단 결과에는 아직 연결하지 않음.
+const REVIEW_STAGE_OPTIONS = [
+  {
+    value: "pre",
+    title: "문제 발생 전 사전 검토",
+    desc: "계약·제출·신청 전에 서류와 위험요인을 미리 확인하고 싶습니다.",
+  },
+  {
+    value: "post",
+    title: "문제 발생 후 사건 검토",
+    desc: "이미 반려·통지·분쟁·손해 등 문제가 발생해 대응 방향을 확인하고 싶습니다.",
+  },
+  {
+    value: "uncertain",
+    title: "잘 모르겠습니다",
+    desc: "현재 상황에 맞는 검토 방향부터 안내받고 싶습니다.",
+  },
+] as const;
+type ReviewStage = (typeof REVIEW_STAGE_OPTIONS)[number]["value"];
+
 export default function VerifyAdminPage() {
   // STEP1(사건정보) → STEP2(서류첨부) → STEP3(개인정보) → STEP4(진단)
   // → STEP5-a(기관 선택) → STEP5-b(안내) / 전문가 진행 → 완료
@@ -404,6 +425,8 @@ export default function VerifyAdminPage() {
   const [incidentError, setIncidentError] = useState<string | null>(null);
   const [previousReviewStatus, setPreviousReviewStatus] = useState<string | null>(null);
   const [previousReviewError, setPreviousReviewError] = useState<string | null>(null);
+  const [reviewStage, setReviewStage] = useState<ReviewStage | null>(null);
+  const [reviewStageError, setReviewStageError] = useState<string | null>(null);
 
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -424,6 +447,11 @@ export default function VerifyAdminPage() {
   const incidentTypes = getIncidentTypes(CATEGORY);
 
   function handleIncidentNext() {
+    if (!reviewStage) {
+      setReviewStageError("현재 상황에 가장 가까운 항목을 선택해주세요.");
+      return;
+    }
+    setReviewStageError(null);
     if (!previousReviewStatus) {
       setPreviousReviewError("이전 상담·검토 이력 여부를 선택해주세요.");
       return;
@@ -585,6 +613,39 @@ export default function VerifyAdminPage() {
             <FileText className="text-gray-900" size={28} />
 
             <p className="text-sm font-semibold text-gray-900">
+              현재 어떤 상황인가요?
+            </p>
+            <p className="mt-1 text-xs text-gray-500">
+              검토 목적에 가장 가까운 항목을 선택해주세요.
+            </p>
+            <div className="mt-3 grid grid-cols-1 gap-2.5">
+              {REVIEW_STAGE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setReviewStage(opt.value)}
+                  className={`rounded-2xl border p-4 text-left transition-all ${
+                    reviewStage === opt.value
+                      ? "border-gray-900 bg-gray-900 text-white"
+                      : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+                  }`}
+                >
+                  <p className="text-sm font-bold">{opt.title}</p>
+                  <p
+                    className={`mt-1 text-xs leading-relaxed ${
+                      reviewStage === opt.value ? "text-gray-200" : "text-gray-500"
+                    }`}
+                  >
+                    {opt.desc}
+                  </p>
+                </button>
+              ))}
+            </div>
+            {reviewStageError && (
+              <p className="mt-2 text-xs text-red-600">{reviewStageError}</p>
+            )}
+
+            <p className="mt-6 text-sm font-semibold text-gray-900">
               1. 이전에 다른 곳에서 검토받은 적이 있나요?
             </p>
             <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
