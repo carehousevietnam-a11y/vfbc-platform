@@ -156,9 +156,50 @@ function ScoreGauge({
 }
 
 // AI 진단 리포트 카드 — 가입 직후(2번째 화면)에만 노출. customerView만 사용, expertBrief는 여기서 절대 렌더링 안 함.
+// STEP10-6: AI 판단 근거 — 새 AI 호출 없이 기존 진단 결과(점수/체크리스트/상태)만으로
+// "왜 이렇게 판단했는지"를 2~3개의 짧은 문장으로 요약. DB/API/CRM 변경 없음.
+function buildAiReasonBullets(
+  feasibilityScore: number,
+  resultTone: "possible" | "conditional" | "impossible",
+  checklist: { label: string; passed: boolean }[],
+  estimatedDays: { min: number; max: number } | null
+): string[] {
+  const toneLabel =
+    resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
+  const bullets: string[] = [
+    `종합 판단 점수 ${feasibilityScore}%를 기준으로 '${toneLabel}' 단계로 분류했습니다.`,
+  ];
+
+  const failed = checklist.filter((c) => !c.passed);
+  if (failed.length > 0) {
+    const names = failed.slice(0, 2).map((c) => c.label).join(", ");
+    bullets.push(
+      failed.length > 2
+        ? `${names} 등 ${failed.length}개 항목이 아직 충족되지 않아 점수에 반영됐습니다.`
+        : `${names} 항목이 아직 충족되지 않아 점수에 반영됐습니다.`
+    );
+  } else {
+    bullets.push("입력하신 체크리스트 항목을 모두 충족하여 감점 요인이 없었습니다.");
+  }
+
+  if (estimatedDays) {
+    bullets.push(
+      `예상 처리기간 ${estimatedDays.min}~${estimatedDays.max}일은 유사 사례의 통상적인 소요 기간을 기준으로 산정했습니다.`
+    );
+  }
+
+  return bullets;
+}
+
 function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
   const { feasibilityScore, resultTone, estimatedDays, checklist, note } =
     diagnosis.customerView;
+  const aiReasonBullets = buildAiReasonBullets(
+    feasibilityScore,
+    resultTone,
+    checklist,
+    estimatedDays
+  );
   const toneLabel =
     resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
   const issueCount = checklist.filter((c) => !c.passed).length;
@@ -220,6 +261,19 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
       )}
 
       <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
+
+      {/* STEP10-6: AI 판단 근거 — 기존 진단 데이터만 사용, 신규 AI 호출/DB/API 없음 */}
+      <div className="mt-3 rounded-xl bg-white border border-gray-100 px-4 py-3">
+        <p className="text-xs font-bold text-gray-900">AI가 이렇게 판단한 이유</p>
+        <ul className="mt-1.5 space-y-1">
+          {aiReasonBullets.map((reason, idx) => (
+            <li key={idx} className="flex items-start gap-1.5 text-[11px] text-gray-500">
+              <span className="mt-0.5 text-gray-300">•</span>
+              <span>{reason}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
