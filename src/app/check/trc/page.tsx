@@ -328,7 +328,7 @@ function ProcessMethodCards({
       <p className="mt-5 text-sm font-bold text-gray-900">
         어떤 방법으로 진행하시겠습니까?
       </p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 sm:items-stretch">
+      <div className="mt-3 grid gap-6 sm:grid-cols-2 sm:items-stretch">
         <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <p className="text-sm font-bold text-gray-900">직접 신청</p>
           <div className="mt-2">
@@ -339,20 +339,18 @@ function ProcessMethodCards({
           <p className="mt-3 flex-1 text-xs text-gray-500 leading-relaxed">
             정부 공식 사이트에서 바로 신청할 수 있습니다.
           </p>
-          <div className="mt-4">
-            <a
-              href={TRC_OFFICIAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={onSelf}
-              className="flex h-11 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-            >
-              정부 사이트로 이동 <ExternalLink size={14} />
-            </a>
-            <p className="mt-2 text-center text-[10px] text-gray-400">
-              ↗ 정부 공식 사이트로 이동합니다.
-            </p>
-          </div>
+          <a
+            href={TRC_OFFICIAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onSelf}
+            className="mt-auto flex h-11 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+          >
+            정부 사이트로 이동 <ExternalLink size={14} />
+          </a>
+          <p className="mt-2 text-center text-xs text-slate-500">
+            ↗ 정부 공식 사이트로 이동합니다.
+          </p>
         </div>
 
         <div className="flex h-full flex-col rounded-2xl border border-blue-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -365,17 +363,15 @@ function ProcessMethodCards({
           <p className="mt-3 flex-1 text-xs text-gray-500 leading-relaxed">
             전문가가 서류와 절차를 함께 확인합니다.
           </p>
-          <div className="mt-4">
-            <button
-              onClick={onExpert}
-              className="h-11 w-full rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-            >
-              진행 요청하기
-            </button>
-            <p className="mt-2 text-center text-[10px] text-gray-400">
-              &nbsp;
-            </p>
-          </div>
+          <button
+            onClick={onExpert}
+            className="mt-auto h-11 w-full rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
+          >
+            진행 요청하기
+          </button>
+          <p aria-hidden="true" className="invisible mt-2 text-center text-xs text-slate-500">
+            ↗ 정부 공식 사이트로 이동합니다.
+          </p>
         </div>
       </div>
       <p className="mt-3 text-[11px] text-gray-400 text-center">
