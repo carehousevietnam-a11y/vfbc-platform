@@ -210,6 +210,98 @@ export function buildLegalConsultNotice(context: CaseContext | null): string {
 }
 
 // ────────────────────────────────────────────────────────────────
+// STEP10-1: AI Service Navigator. 기존 classifyMessage() 분류 로직은
+// 그대로 두고, 만들어진 답변 "마지막"에 관련 서비스로 이동할 수 있는
+// 안내 한 줄만 덧붙인다. DB/API 계약(reply/needsExpert/category 응답
+// 형태)은 바뀌지 않는다 — reply 문자열이 조금 더 길어질 뿐이다.
+//   - progress  → /mypage 안내
+//   - legal     → /consultation 안내
+//   - ai_analysis → 질문 내용에서 CHECK/VERIFY/REGISTER 세부 서비스를
+//     키워드로 추정해 해당 서비스 페이지 안내(확실치 않으면 아무것도
+//     붙이지 않는다 — 근거 없는 추천보다 무응답이 낫다는 원칙).
+//   - system/off_platform → 이동 안내 없음(정보 제공이 목적이므로).
+// ────────────────────────────────────────────────────────────────
+type ServiceLink = { label: string; href: string };
+
+function detectServiceLink(content: string): ServiceLink | null {
+  const normalized = content.toLowerCase();
+
+  // CHECK — 체류·허가 상태 자체 확인
+  if (/노동허가|work permit|\bwp\b/.test(normalized)) {
+    return { label: "노동허가(WP) 확인하기", href: "/check/wp" };
+  }
+  if (/거주증|\btrc\b/.test(normalized)) {
+    return { label: "거주증(TRC) 확인하기", href: "/check/trc" };
+  }
+  if (/땀주|tạm trú|tam tru/.test(normalized)) {
+    return { label: "땀주 확인하기", href: "/check/tamtru" };
+  }
+  if (/운전면허/.test(normalized)) {
+    return { label: "운전면허 확인하기", href: "/check/driving-license" };
+  }
+
+  // VERIFY — 서류 검토
+  if (/부동산|아파트 계약|토지/.test(normalized)) {
+    return { label: "부동산 서류 검토받기", href: "/verify/real-estate" };
+  }
+  if (/사기|피싱|사기당|사기 의심/.test(normalized)) {
+    return { label: "사기 위험 검토받기", href: "/verify/fraud" };
+  }
+  if (/세금|세무|택스/.test(normalized)) {
+    return { label: "세무 서류 검토받기", href: "/verify/tax" };
+  }
+  if (/행정 문서|행정서류|공문/.test(normalized)) {
+    return { label: "행정 문서 검토받기", href: "/verify/admin" };
+  }
+  if (/문서 검토|서류 검토|무슨 서류인지/.test(normalized)) {
+    return { label: "서류 진단받기", href: "/verify/unclear" };
+  }
+
+  // REGISTER — 사업자 인허가
+  if (/법인설립|법인 설립|회사 설립|사업자 등록/.test(normalized)) {
+    return { label: "법인설립 신청하기", href: "/register/company" };
+  }
+  if (/식당|레스토랑|음식점/.test(normalized)) {
+    return { label: "식당 허가 신청하기", href: "/register/restaurant" };
+  }
+  if (/화장품/.test(normalized)) {
+    return { label: "화장품 허가 신청하기", href: "/register/cosmetics" };
+  }
+  if (/환경\s*허가|환경영향/.test(normalized)) {
+    return { label: "환경 허가 신청하기", href: "/register/environment" };
+  }
+  if (/소방/.test(normalized)) {
+    return { label: "소방 허가 신청하기", href: "/register/fire-safety" };
+  }
+  if (/위생/.test(normalized)) {
+    return { label: "위생 허가 신청하기", href: "/register/hygiene" };
+  }
+  if (/의료기기/.test(normalized)) {
+    return { label: "의료기기 허가 신청하기", href: "/register/medical-device" };
+  }
+  if (/프랜차이즈/.test(normalized)) {
+    return { label: "프랜차이즈 등록하기", href: "/register/franchise" };
+  }
+
+  return null;
+}
+
+export function buildNavigatorSuffix(category: MessageCategory, content: string): string {
+  if (category === "progress") {
+    return "\n\n📍 마이페이지에서 전체 진행상황을 확인하실 수 있습니다: /mypage";
+  }
+  if (category === "legal") {
+    return "\n\n📍 전문가 상담을 신청하실 수 있습니다: /consultation";
+  }
+  if (category === "ai_analysis") {
+    const link = detectServiceLink(content);
+    return link ? `\n\n📍 ${link.label}: ${link.href}` : "";
+  }
+  // system / off_platform: 이동 안내 없음
+  return "";
+}
+
+// ────────────────────────────────────────────────────────────────
 // AI 분석 → 기존 OpenAI 호출 로직을 그대로 유지하되, api/ai-chat/route.ts
 // 에서 분리해 별도 함수로 둔다("OpenAI 함수 분리"). 프롬프트 조립
 // (buildSystemPrompt/buildGreetingPrompt)은 기존대로 aiCaseContext.ts가

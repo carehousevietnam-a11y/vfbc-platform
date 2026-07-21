@@ -56,6 +56,7 @@ import {
   OFF_PLATFORM_NOTICE,
   ANONYMOUS_PROGRESS_NOTICE,
   callOpenAiAnalysis,
+  buildNavigatorSuffix,
 } from "@/lib/aiGateway";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -157,6 +158,10 @@ export async function POST(req: NextRequest) {
           reply = OFF_PLATFORM_NOTICE;
         }
 
+        // STEP10-1: AI Service Navigator — 분류 로직은 그대로 두고, 답변
+        // 마지막에 관련 서비스 이동 안내만 덧붙인다.
+        reply = reply + buildNavigatorSuffix(category, lastMessage!.content);
+
         if (!isAnonymous) {
           const savedReply = await saveAssistantChatMessage(leadId as string, reply, needsExpert);
           if (!savedReply) {
@@ -246,9 +251,15 @@ export async function POST(req: NextRequest) {
     // 판단이 필요하다고 스스로 판단하는 경우를 위해 이 이중 안전장치는
     // 그대로 유지한다.
     const modelFlaggedNeedsExpert = rawReply.includes(NEEDS_EXPERT_TOKEN);
-    const reply = rawReply.replace(NEEDS_EXPERT_TOKEN, "").trim();
+    let reply = rawReply.replace(NEEDS_EXPERT_TOKEN, "").trim();
     const needsExpert =
       !isGreeting && (modelFlaggedNeedsExpert || matchesEscalationKeyword(lastMessage!.content));
+
+    // STEP10-1: AI Service Navigator — 인사말에는 붙이지 않는다(사건 정보
+    // 없이 먼저 건네는 안내이므로 특정 서비스로 유도할 근거가 없음).
+    if (!isGreeting) {
+      reply = reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+    }
 
     // ── 8. 정상 AI 답변 저장 (채팅 모드 + leadId가 있을 때만 — 인사말/익명은 저장하지 않음) ──
     if (!isGreeting && !isAnonymous) {
