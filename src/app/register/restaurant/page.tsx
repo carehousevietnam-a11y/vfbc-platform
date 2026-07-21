@@ -220,6 +220,13 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: RestaurantDiagnosis }) 
     checklist,
     estimatedDays
   );
+  const aiReasonSections = [
+    { title: "✅ 기본 요건 충족", description: aiReasonBullets[0] },
+    { title: "⚠ 확인이 필요한 사항", description: aiReasonBullets[1] },
+    ...(aiReasonBullets[2]
+      ? [{ title: "🕒 처리기간 판단", description: aiReasonBullets[2] }]
+      : []),
+  ];
   const tone = resultTone;
   const toneLabel = tone === "possible" ? "가능" : "조건부 가능";
   const issueCount = checklist.filter((c) => !c.passed).length;
@@ -278,19 +285,28 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: RestaurantDiagnosis }) 
         </div>
       )}
 
-      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
-
-      {/* STEP10-6: AI 판단 근거 — 기존 진단 데이터만 사용, 신규 AI 호출/DB/API 없음 */}
-      <div className="mt-3 rounded-xl bg-white border border-gray-100 px-4 py-3">
-        <p className="text-xs font-bold text-gray-900">AI가 이렇게 판단한 이유</p>
-        <ul className="mt-1.5 space-y-1">
-          {aiReasonBullets.map((reason, idx) => (
-            <li key={idx} className="flex items-start gap-1.5 text-[11px] text-gray-500">
-              <span className="mt-0.5 text-gray-300">•</span>
-              <span>{reason}</span>
-            </li>
+      {/* STEP10-7(최종): AI 분석 근거 — 리포트의 핵심 영역, 항목 사이 얇은 구분선으로 리포트형 레이아웃.
+          buildAiReasonBullets() 로직은 그대로 사용하고, 화면 구조만 소제목+본문+구분선으로 재구성. */}
+      <div className="mt-3 rounded-2xl bg-white border-2 border-blue-100 shadow-sm px-5 py-4">
+        <p className="text-sm font-bold text-gray-900">🧠 AI 분석 근거</p>
+        <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500">
+          AI는 입력하신 정보를 공개 법령·일반 행정기준·체크리스트를 종합하여 분석했습니다.
+        </p>
+        <div className="mt-4 divide-y divide-gray-100">
+          {aiReasonSections.map((section) => (
+            <div key={section.title} className="py-3 first:pt-0 last:pb-0">
+              <p className="text-xs font-bold text-gray-900">{section.title}</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-gray-600">
+                {section.description}
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
+      </div>
+
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>
+        <p className="font-bold">💡 안내사항</p>
+        <p className="mt-1">{note}</p>
       </div>
     </div>
   );
