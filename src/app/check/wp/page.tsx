@@ -199,6 +199,13 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
     checklist,
     estimatedDays
   );
+  const aiReasonSections = [
+    { icon: "✅", title: "기본 요건", description: aiReasonBullets[0] },
+    { icon: "⚠", title: "감점 요인", description: aiReasonBullets[1] },
+    ...(aiReasonBullets[2]
+      ? [{ icon: "🕒", title: "처리기간 판단", description: aiReasonBullets[2] }]
+      : []),
+  ];
   const toneLabel =
     resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
   const issueCount = checklist.filter((c) => !c.passed).length;
@@ -259,20 +266,34 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </div>
       )}
 
-      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
-
-      {/* STEP10-6: AI 판단 근거 — 기존 진단 데이터만 사용, 신규 AI 호출/DB/API 없음 */}
-      <div className="mt-3 rounded-xl bg-white border border-gray-100 px-4 py-3">
-        <p className="text-xs font-bold text-gray-900">AI가 이렇게 판단한 이유</p>
-        <ul className="mt-1.5 space-y-1">
-          {aiReasonBullets.map((reason, idx) => (
-            <li key={idx} className="flex items-start gap-1.5 text-[11px] text-gray-500">
-              <span className="mt-0.5 text-gray-300">•</span>
-              <span>{reason}</span>
-            </li>
+      {/* STEP10-7: AI 판단 근거 — 리포트의 핵심 영역으로 강조 디자인.
+          buildAiReasonBullets()의 결과(로직 무변경)를 섹션 형태로만 재구성해 표시. */}
+      <div className="mt-3 rounded-2xl bg-white border-2 border-blue-100 shadow-sm px-5 py-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+            AI
+          </span>
+          <p className="text-sm font-bold text-gray-900">AI가 이렇게 판단한 이유</p>
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+          AI는 입력하신 정보를 공개 법령, 일반 행정 기준, 체크리스트를 종합하여 분석했습니다.
+        </p>
+        <div className="mt-3 space-y-3">
+          {aiReasonSections.map((section) => (
+            <div key={section.title} className="flex items-start gap-2.5">
+              <span className="mt-0.5 shrink-0 text-sm leading-none">{section.icon}</span>
+              <div>
+                <p className="text-xs font-semibold text-gray-800">{section.title}</p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
+                  {section.description}
+                </p>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
+
+      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>{note}</div>
     </div>
   );
 }
