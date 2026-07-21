@@ -27,8 +27,17 @@
 // 문제가 있었다. 이제 서버가 판단 결과를 actions로 직접 내려주므로 그
 // 문제가 없다 — 문자열 파싱(parseAssistantContent)은 actions가 비어 있을
 // 때만 쓰는 보조 기능으로 남겨둔다(구버전 캐시·예외적 응답 대비).
+//
+// 홈 검색창 404 수정: 홈(Hero.tsx) 검색창이 존재하지 않는 /search 대신
+// /ai?q=질문 으로 이동하도록 고쳤다(이 페이지 밖 수정). 이 페이지는 그
+// q 파라미터를 최초 진입 시 한 번만 읽어 자동으로 첫 질문처럼 전송한다
+// (autoSentRef로 중복 전송 방지). q가 없거나 빈 값이면 아무 것도 하지
+// 않는다 — 기존 공개 AI 채팅 흐름, /api/ai-chat 호출 방식, AI Gateway,
+// Case Room 구조는 전혀 바뀌지 않았다.
 
 import { useRef, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Send, Loader2, AlertTriangle } from "lucide-react";
 
@@ -91,18 +100,35 @@ function AssistantBubble({ content, actions }: { content: string; actions?: Navi
   );
 }
 
-export default function AiPage() {
+function AiPageContent() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q");
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const sendingRef = useRef(false);
+  const autoSentRef = useRef(false); // ?q= 자동 전송을 한 번만 실행하기 위한 가드
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, sending]);
+
+  // 홈 검색창에서 /ai?q=... 로 넘어온 경우, 최초 진입 시 그 질문을 자동으로
+  // 한 번만 전송한다. q가 없거나 빈 값(공백만 있는 경우 포함)이면 아무 것도
+  // 하지 않는다 — 빈 검색어로 이동하지 않는 조건은 Hero.tsx에서 이미 걸러도,
+  // 여기서도 한 번 더 방어한다.
+  useEffect(() => {
+    if (autoSentRef.current) return;
+    const trimmed = initialQuery?.trim();
+    if (!trimmed) return;
+    autoSentRef.current = true;
+    sendMessage(trimmed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery]);
 
   async function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -241,5 +267,23 @@ export default function AiPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+// useSearchParams()는 Next.js에서 Suspense 경계 안에서만 쓸 수 있어 감싼다.
+export default function AiPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#fafafa]">
+          <div className="h-[3px] bg-blue-900" />
+          <div className="mx-auto max-w-xl px-6 py-10">
+            <p className="text-sm text-gray-500">불러오는 중...</p>
+          </div>
+        </main>
+      }
+    >
+      <AiPageContent />
+    </Suspense>
   );
 }

@@ -18,7 +18,9 @@ export default function Hero() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim()) return;
-    router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    // /search 페이지가 없어 404가 발생하던 문제 수정 — 공개 AI 채팅
+    // (src/app/ai/page.tsx)으로 질문을 그대로 전달한다.
+    router.push(`/ai?q=${encodeURIComponent(query.trim())}`);
   }
 
   return (
