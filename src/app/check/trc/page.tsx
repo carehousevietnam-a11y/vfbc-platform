@@ -579,7 +579,7 @@ function PremiumLeadCapture({
           <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-blue-500/25 blur-[100px]" />
           <div className="pointer-events-none absolute -bottom-24 left-8 h-56 w-56 rounded-full bg-cyan-400/15 blur-[90px]" />
 
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative flex flex-col items-center gap-6 lg:flex-row lg:items-center lg:justify-between">
             {/* Text — 좌측 42% 비중 */}
             <div className="max-w-md lg:w-[42%]">
               <span className={`inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold ${accentText} ring-1 ring-white/15`}>
@@ -606,18 +606,18 @@ function PremiumLeadCapture({
             </div>
 
             {/* Score / Info / Shield — 우측 58% 비중 */}
-            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center lg:w-[58%] lg:justify-between">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center lg:w-[58%] lg:justify-center lg:gap-10">
               <div
-                className={`relative flex h-[140px] w-[140px] shrink-0 items-center justify-center rounded-full ${ringGlow}`}
+                className={`relative flex h-[126px] w-[126px] shrink-0 items-center justify-center rounded-full ${ringGlow}`}
                 style={{ background: ringGradient }}
               >
                 <div className="absolute inset-[8px] rounded-full bg-[#0B1739]" />
                 <div className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_3px_rgba(255,255,255,0.85)]" />
                 <div className="relative text-center">
-                  <strong className="block text-[34px] font-extrabold leading-none tracking-tight">
+                  <strong className="block text-[36px] font-extrabold leading-none tracking-tight">
                     {score}%
                   </strong>
-                  <span className={`mt-2 block text-xs font-semibold ${accentText}`}>
+                  <span className={`mt-2 block text-[11px] font-semibold ${accentText}`}>
                     {status}
                   </span>
                   <div className="mt-1.5 flex justify-center gap-0.5 text-amber-300">
@@ -656,9 +656,9 @@ function PremiumLeadCapture({
 
               <div className="relative hidden h-[150px] w-[160px] shrink-0 items-center justify-center lg:flex">
                 <div className="absolute bottom-2 h-9 w-32 rounded-full bg-blue-400/25 blur-2xl" />
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/25 to-cyan-300/10 blur-xl" />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/40 to-cyan-300/20 blur-2xl" />
 
-                <div className="absolute right-2 top-6 h-20 w-16 -rotate-6 rounded-lg border border-white/70 bg-white/95 p-2 shadow-[0_14px_30px_rgba(15,23,42,0.32)]">
+                <div className="absolute right-2 top-6 h-20 w-16 -rotate-[11deg] rounded-lg border border-white/70 bg-white/95 p-2 shadow-[0_14px_30px_rgba(15,23,42,0.32)]">
                   <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100" />
                   <div className="mt-1.5 h-1 w-full rounded bg-slate-300" />
                   <div className="mt-1 h-1 w-2/3 rounded bg-slate-200" />
@@ -669,7 +669,7 @@ function PremiumLeadCapture({
                 <Shield
                   size={92}
                   strokeWidth={1.2}
-                  className="relative left-[-14px] top-[-4px] text-blue-300 drop-shadow-[0_10px_24px_rgba(59,130,246,0.45)]"
+                  className="relative left-[-14px] top-[-4px] text-blue-300 drop-shadow-[0_12px_32px_rgba(59,130,246,0.6)]"
                   fill="rgba(59,130,246,0.18)"
                 />
                 <CheckCircle2
@@ -690,11 +690,11 @@ function PremiumLeadCapture({
               분석 리포트
             </p>
 
-            <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-100 bg-white">
+            <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-100/70 bg-white">
               {reportItems.map(([Icon, itemTitle, desc, badgeClass]) => (
                 <div
                   key={itemTitle}
-                  className="flex items-center gap-3 px-4 py-4 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-50/80"
+                  className="relative flex items-center gap-3 px-4 py-4 transition duration-200 hover:z-10 hover:-translate-y-0.5 hover:bg-slate-50/80 hover:shadow-[0_10px_24px_rgba(15,23,42,0.1)]"
                 >
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${badgeClass}`}
@@ -725,19 +725,19 @@ function PremiumLeadCapture({
               </div>
               <div className="relative w-[38%] shrink-0 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-sky-100 via-blue-50 to-blue-100" />
-                <div className="absolute inset-x-0 bottom-1/2 flex items-end gap-[3px] px-3 opacity-45">
-                  {[12, 20, 15, 26, 17, 22, 11, 19].map((h, i) => (
+                <div className="absolute inset-x-0 bottom-1/2 flex items-end gap-[3px] px-3 opacity-40">
+                  {[13, 21, 16, 27, 18, 24, 14, 20, 12].map((h, i) => (
                     <div
                       key={i}
                       style={{ height: `${h}px` }}
-                      className="w-2 flex-1 rounded-t-[1px] bg-slate-500/60"
+                      className="w-2 flex-1 rounded-t-[1px] bg-slate-400/50"
                     />
                   ))}
                 </div>
                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-blue-200/70 to-blue-300/40" />
-                <div className="absolute bottom-3 left-1/2 h-6 w-9 -translate-x-1/2 overflow-hidden rounded-[2px] shadow-md">
+                <div className="absolute bottom-3 left-1/2 h-7 w-10 -translate-x-1/2 overflow-hidden rounded-[2px] shadow-md">
                   <div className="flex h-full w-full items-center justify-center bg-red-600">
-                    <Star size={11} className="text-yellow-300" fill="currentColor" strokeWidth={0} />
+                    <Star size={13} className="text-yellow-300" fill="currentColor" strokeWidth={0} />
                   </div>
                 </div>
               </div>
@@ -750,8 +750,8 @@ function PremiumLeadCapture({
                   key={title}
                   className="flex flex-col items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-4 text-center"
                 >
-                  <Icon size={18} className="text-blue-600" />
-                  <p className="text-xs font-bold leading-tight text-slate-900">
+                  <Icon size={20} className="text-blue-600" />
+                  <p className="text-xs font-extrabold leading-tight text-slate-900">
                     {title}
                   </p>
                   <p className="text-[10px] leading-[1.4] text-slate-500">
@@ -792,7 +792,7 @@ function PremiumLeadCapture({
                       name="name"
                       required
                       placeholder="이름을 입력해주세요"
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                     />
                   </div>
                 </label>
@@ -811,7 +811,7 @@ function PremiumLeadCapture({
                       name="phone"
                       required
                       placeholder="010-1234-5678"
-                      className="h-full w-full bg-transparent pl-3 text-sm text-slate-900 outline-none"
+                      className="h-full w-full bg-transparent pl-3 text-sm text-slate-900 outline-none placeholder:text-slate-500"
                     />
                   </div>
                 </label>
@@ -831,7 +831,7 @@ function PremiumLeadCapture({
                     name="address"
                     required
                     placeholder="예: Quận 1, TP.HCM"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
               </label>
@@ -860,7 +860,7 @@ function PremiumLeadCapture({
                     type="email"
                     name="email"
                     placeholder="이메일을 입력해주세요"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
               </label>
@@ -878,7 +878,7 @@ function PremiumLeadCapture({
                       type="text"
                       name="kakao_id"
                       placeholder={`${messengers.primary.label} ID (선택)`}
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                     />
                   </div>
                 </label>
@@ -894,7 +894,7 @@ function PremiumLeadCapture({
                       type="text"
                       name="zalo_id"
                       placeholder={`${messengers.secondary.label} ID (선택)`}
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                     />
                   </div>
                 </label>
@@ -957,7 +957,7 @@ function PremiumLeadCapture({
               <button
                 type="submit"
                 disabled={submitting}
-                className="group flex min-h-[58px] w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#1D4EDB] via-[#3B6FEF] to-[#1D4EDB] bg-[length:200%_100%] px-6 text-base font-bold text-white shadow-[0_8px_20px_rgba(29,78,216,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[position:100%_0] hover:shadow-[0_10px_24px_rgba(29,78,216,0.28)] disabled:translate-y-0 disabled:opacity-60"
+                className="group flex min-h-[58px] w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#1D4EDB] to-[#2E62E8] px-6 text-base font-bold text-white shadow-[0_8px_20px_rgba(29,78,216,0.24)] transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(59,130,246,0.15),0_10px_28px_rgba(29,78,216,0.28),0_0_32px_10px_rgba(59,130,246,0.28)] disabled:opacity-60"
               >
                 <Gift size={19} />
                 {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
