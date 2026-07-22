@@ -548,7 +548,6 @@ function PremiumLeadCapture({
   const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
   const status = isPossible ? "가능성 높음" : "추가 확인 필요";
   const accentText = isPossible ? "text-emerald-300" : "text-amber-300";
-  const accentBadge = isPossible ? "text-emerald-300" : "text-amber-300";
   const scoreRing = isPossible
     ? "from-emerald-400 to-cyan-400"
     : "from-amber-300 to-orange-400";
@@ -561,25 +560,32 @@ function PremiumLeadCapture({
     [Users, "전문가 검토 의견", "베트남 행정 전문가의 추가 코멘트 제공", "bg-cyan-50 text-cyan-600"],
   ];
 
-  const trustBadges: [React.ElementType, string, string][] = [
-    [Users, "20년+", "베트남 행정 경험"],
-    [ShieldCheck, "10,000+", "상담 및 처리 실적"],
-    [TrendingUp, "98%", "정확한 정보 제공"],
-    [Lock, "100%", "개인정보 보호"],
+  const reviewSteps = [
+    "AI 1차 분석 결과 확인",
+    "현지 행정 전문가 교차 검토",
+    "리포트 확정 및 안내",
+  ];
+
+  const trustPhrases: [React.ElementType, string][] = [
+    [Users, "베트남 행정 경험을 바탕으로 분석합니다"],
+    [ShieldCheck, "실제 상담·처리 사례를 기반으로 합니다"],
+    [TrendingUp, "정확한 정보로 빠르게 확인해드립니다"],
+    [Lock, "입력 정보는 안전하게 보호됩니다"],
   ];
 
   return (
     <div className="mt-8 sm:relative sm:left-1/2 sm:w-[calc(100vw-2rem)] sm:max-w-[1160px] sm:-translate-x-1/2">
       <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
-        {/* Hero */}
-        <div className="relative overflow-hidden bg-[#0B1739] px-6 py-8 text-white sm:px-10 sm:py-10">
+        {/* Hero — 4 regions: text / score / processing info / shield-document */}
+        <div className="relative overflow-hidden bg-[#0B1739] px-6 py-9 text-white sm:px-10 sm:py-11">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#0B1739] via-[#0F2A66] to-[#123B99]" />
-          <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-blue-500/30 blur-[90px]" />
-          <div className="pointer-events-none absolute -bottom-20 left-10 h-56 w-56 rounded-full bg-cyan-400/20 blur-[80px]" />
-          <div className="pointer-events-none absolute left-[42%] top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(96,165,250,0.24)_0%,rgba(59,130,246,0.08)_38%,transparent_72%)]" />
+          <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-blue-500/25 blur-[90px]" />
+          <div className="pointer-events-none absolute -bottom-20 left-10 h-56 w-56 rounded-full bg-cyan-400/15 blur-[80px]" />
+
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            {/* 1. Text */}
             <div className="max-w-md">
-              <span className={`inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold ${accentBadge} ring-1 ring-white/15`}>
+              <span className={`inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold ${accentText} ring-1 ring-white/15`}>
                 <CheckCircle2 size={13} /> AI 1차 분석 완료
               </span>
               <h1 className="mt-4 text-2xl font-bold leading-tight sm:text-[28px] break-keep">
@@ -602,8 +608,9 @@ function PremiumLeadCapture({
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6">
-              <div className="relative flex h-[124px] w-[124px] shrink-0 items-center justify-center rounded-full bg-white/5 ring-4 ring-white/10">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center lg:gap-8">
+              {/* 2. Score */}
+              <div className="relative flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-full bg-white/5 ring-4 ring-white/10">
                 <div className={`absolute inset-1.5 rounded-full bg-gradient-to-br ${scoreRing} opacity-90`} />
                 <div className="absolute inset-[9px] rounded-full bg-[#0B1739]" />
                 <div className="relative text-center">
@@ -613,15 +620,13 @@ function PremiumLeadCapture({
                   <span className={`mt-1.5 block text-[11px] font-semibold ${accentText}`}>
                     {status}
                   </span>
-                  <div className="mt-1 flex justify-center gap-0.5 text-amber-300">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={9} fill="currentColor" strokeWidth={0} />
-                    ))}
-                  </div>
                 </div>
               </div>
 
-              <div className="hidden flex-col gap-3 text-xs text-white/80 sm:flex">
+              <div className="hidden h-16 w-px bg-white/15 lg:block" />
+
+              {/* 3. Processing info */}
+              <div className="flex flex-col gap-3 text-xs text-white/80">
                 <div className="flex items-center gap-2.5">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
                     <Clock size={15} className="text-white/70" />
@@ -644,44 +649,23 @@ function PremiumLeadCapture({
                 </div>
               </div>
 
-              <div className="relative hidden h-[136px] w-[132px] shrink-0 items-center justify-center lg:flex">
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/25 to-cyan-300/10 blur-xl" />
+              <div className="hidden h-16 w-px bg-white/15 lg:block" />
 
-                {/* Shield (base) */}
+              {/* 4. Shield · Document visual */}
+              <div className="relative hidden h-[92px] w-[92px] shrink-0 items-center justify-center lg:flex">
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/20 to-cyan-300/10 blur-xl" />
                 <Shield
-                  size={88}
+                  size={72}
                   strokeWidth={1.3}
-                  className="absolute left-2 top-1 text-blue-300 drop-shadow-[0_8px_20px_rgba(59,130,246,0.45)]"
+                  className="relative text-blue-300 drop-shadow-[0_8px_20px_rgba(59,130,246,0.4)]"
                 />
+                <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md">
+                  <FileText size={13} className="text-blue-600" />
+                </span>
                 <CheckCircle2
-                  size={28}
-                  className="absolute bottom-4 left-8 text-emerald-300 drop-shadow-[0_2px_6px_rgba(16,185,129,0.5)]"
+                  size={20}
+                  className="absolute -left-1 top-0 text-emerald-300 drop-shadow-[0_2px_6px_rgba(16,185,129,0.5)]"
                 />
-
-                {/* Document */}
-                <div className="absolute -left-1 bottom-0 flex h-11 w-9 -rotate-6 flex-col gap-1 rounded-md border border-white/70 bg-white/95 p-1.5 shadow-[0_10px_24px_rgba(15,23,42,0.28)]">
-                  <div className="h-0.5 w-full rounded bg-slate-300" />
-                  <div className="h-0.5 w-full rounded bg-slate-300" />
-                  <div className="h-0.5 w-2/3 rounded bg-slate-300" />
-                  <FileText size={12} className="mt-auto text-blue-500" />
-                </div>
-
-                {/* ID Card */}
-                <div className="absolute right-0 top-2 h-16 w-[82px] rotate-6 rounded-xl border border-white/70 bg-white p-2 shadow-[0_12px_28px_rgba(15,23,42,0.3)]">
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-6 w-6 shrink-0 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100" />
-                    <div className="flex-1 space-y-1">
-                      <div className="h-1 w-full rounded bg-slate-300" />
-                      <div className="h-1 w-2/3 rounded bg-slate-200" />
-                    </div>
-                  </div>
-                  <div className="mt-1.5 h-1 w-full rounded bg-slate-200" />
-                  <div className="mt-1 h-1 w-3/4 rounded bg-slate-200" />
-                  <CheckCircle2
-                    size={12}
-                    className="absolute -bottom-1.5 -right-1.5 rounded-full bg-white text-emerald-500"
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -695,9 +679,13 @@ function PremiumLeadCapture({
               분석 리포트
             </p>
 
-            <div className="mt-5 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            {/* Premium Feature Rows — 독립 카드 5개 */}
+            <div className="mt-5 space-y-3">
               {reportItems.map(([Icon, itemTitle, desc, badgeClass]) => (
-                <div key={itemTitle} className="flex items-center gap-3 px-4 py-3.5">
+                <div
+                  key={itemTitle}
+                  className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                >
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${badgeClass}`}
                   >
@@ -711,58 +699,39 @@ function PremiumLeadCapture({
               ))}
             </div>
 
-            <div className="group mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(15,23,42,0.1)]">
-              <div className="p-5">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={17} className="text-blue-600" />
-                  <p className="text-sm font-bold text-slate-900">
-                    베트남 전문가 그룹 검토
-                  </p>
-                </div>
-                <p className="mt-2 text-xs leading-5 text-slate-500">
-                  입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더
-                  정확한 리포트를 제공합니다.
+            {/* 전문가 검토 프로세스 카드 (장식 제거) */}
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={17} className="text-blue-600" />
+                <p className="text-sm font-bold text-slate-900">
+                  전문가 검토 프로세스
                 </p>
               </div>
-              <div className="relative h-24 w-full overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-100 to-blue-100" />
-                <div className="absolute inset-x-0 bottom-1/2 flex items-end gap-[3px] px-5 opacity-70">
-                  {[14, 22, 16, 28, 18, 24, 12, 20, 26, 15, 23, 17].map((h, i) => (
-                    <div
-                      key={i}
-                      style={{ height: `${h}px` }}
-                      className="w-2 flex-1 rounded-t-[1px] bg-slate-500/60"
-                    />
-                  ))}
-                </div>
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-blue-200/70 to-blue-300/40" />
-                <div className="absolute bottom-3 left-6 h-6 w-9 overflow-hidden rounded-[2px] shadow-md">
-                  <div className="flex h-full w-full items-center justify-center bg-red-600">
-                    <Star
-                      size={11}
-                      className="text-yellow-300"
-                      fill="currentColor"
-                      strokeWidth={0}
-                    />
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                입력하신 정보는 아래 절차를 거쳐 베트남 현지 행정 전문가가
+                함께 검토합니다.
+              </p>
+              <div className="mt-4 space-y-2.5">
+                {reviewSteps.map((step, i) => (
+                  <div key={step} className="flex items-center gap-2.5 text-xs text-slate-600">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[10px] font-bold text-blue-600">
+                      {i + 1}
+                    </span>
+                    {step}
                   </div>
-                </div>
+                ))}
               </div>
             </div>
 
-
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {trustBadges.map(([Icon, num, label]) => (
+            {/* 신뢰 문구 배지 4개 (숫자 없음) */}
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {trustPhrases.map(([Icon, phrase]) => (
                 <div
-                  key={label}
-                  className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-3.5 text-center transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-sm"
+                  key={phrase}
+                  className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-3"
                 >
-                  <Icon size={16} className="text-slate-400" />
-                  <p className="mt-1 text-sm font-extrabold text-slate-900">
-                    {num}
-                  </p>
-                  <p className="text-[10px] leading-tight text-slate-500">
-                    {label}
-                  </p>
+                  <Icon size={15} className="mt-0.5 shrink-0 text-blue-600" />
+                  <p className="text-xs leading-5 text-slate-600">{phrase}</p>
                 </div>
               ))}
             </div>
@@ -779,205 +748,212 @@ function PremiumLeadCapture({
               </span>
             </div>
 
-            <form onSubmit={onSubmit} className="mt-6 space-y-5">
-              <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
-                기본 정보 (필수)
-              </p>
-              <div className="grid gap-4 sm:grid-cols-2">
+            <form onSubmit={onSubmit} className="mt-7 space-y-6">
+              <div className="space-y-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
+                  기본 정보 (필수)
+                </p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-semibold text-slate-700">
+                      이름 <b className="text-blue-600">*</b>
+                    </span>
+                    <div className="relative">
+                      <Users
+                        size={15}
+                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        placeholder="이름을 입력해주세요"
+                        className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      />
+                    </div>
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-semibold text-slate-700">
+                      전화번호 <b className="text-blue-600">*</b>
+                    </span>
+                    <div className="relative">
+                      <Phone
+                        size={15}
+                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+                      <input
+                        type="tel"
+                        name="phone"
+                        required
+                        placeholder="010-1234-5678"
+                        className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      />
+                    </div>
+                  </label>
+                </div>
+
                 <label className="block">
                   <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    이름 <b className="text-blue-600">*</b>
+                    현재 거주지 주소 <b className="text-blue-600">*</b>
                   </span>
                   <div className="relative">
-                    <Users
+                    <MapPin
                       size={15}
                       className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                     />
                     <input
                       type="text"
-                      name="name"
+                      name="address"
                       required
-                      placeholder="이름을 입력해주세요"
+                      placeholder="예: Quận 1, TP.HCM"
                       className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                     />
                   </div>
                 </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    전화번호 <b className="text-blue-600">*</b>
-                  </span>
-                  <div className="flex h-12 w-full items-center rounded-xl border border-slate-200 bg-white pr-4 transition duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
-                    <span className="flex shrink-0 items-center gap-1 border-r border-slate-200 pl-3.5 pr-3 text-sm font-medium text-slate-500">
-                      <Phone size={15} className="text-slate-400" />
-                      +82
-                      <ChevronDown size={12} className="text-slate-400" />
-                    </span>
-                    <input
-                      type="tel"
-                      name="phone"
-                      required
-                      placeholder="010-1234-5678"
-                      className="h-full w-full bg-transparent pl-3 text-sm text-slate-900 outline-none"
-                    />
+              </div>
+
+              <div className="space-y-4">
+                <div className="relative py-1">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200" />
                   </div>
-                </label>
-              </div>
-
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">
-                  현재 거주지 주소 <b className="text-blue-600">*</b>
-                </span>
-                <div className="relative">
-                  <MapPin
-                    size={15}
-                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-                  <input
-                    type="text"
-                    name="address"
-                    required
-                    placeholder="예: Quận 1, TP.HCM"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  />
+                  <div className="relative flex justify-center">
+                    <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                      추가 정보 (선택)
+                    </span>
+                  </div>
                 </div>
-              </label>
 
-              <div className="relative py-1">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                    추가 정보 (선택)
-                  </span>
-                </div>
-              </div>
-
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">
-                  이메일
-                </span>
-                <div className="relative">
-                  <Mail
-                    size={15}
-                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="이메일을 입력해주세요"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  />
-                </div>
-              </label>
-
-              <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    {messengers.primary.label} ID
+                    이메일
                   </span>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#FEE500]">
-                      <MessageCircle size={11} className="text-[#3C1E1E]" />
-                    </span>
+                    <Mail
+                      size={15}
+                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
                     <input
-                      type="text"
-                      name="kakao_id"
-                      placeholder={`${messengers.primary.label} ID (선택)`}
+                      type="email"
+                      name="email"
+                      placeholder="이메일을 입력해주세요"
                       className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                     />
                   </div>
                 </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    {messengers.secondary.label} ID
-                  </span>
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#0068FF] text-[7px] font-extrabold italic text-white">
-                      Zalo
-                    </span>
-                    <input
-                      type="text"
-                      name="zalo_id"
-                      placeholder={`${messengers.secondary.label} ID (선택)`}
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                    />
-                  </div>
-                </label>
-              </div>
 
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-blue-700 shadow-sm">
-                    <Lock size={15} />
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold text-slate-900">
-                      개인정보 보호 안내
-                    </p>
-                    <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
-                      <li>
-                        · 입력하신 정보는 AI 분석, 계정 생성, 상담 안내
-                        목적으로만 사용됩니다.
-                      </li>
-                      <li>· 제3자에게 제공하거나 판매하지 않습니다.</li>
-                      <li>· 안전한 방식으로 보호됩니다.</li>
-                    </ul>
-                  </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-semibold text-slate-700">
+                      {messengers.primary.label} ID
+                    </span>
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#FEE500]">
+                        <MessageCircle size={11} className="text-[#3C1E1E]" />
+                      </span>
+                      <input
+                        type="text"
+                        name="kakao_id"
+                        placeholder={`${messengers.primary.label} ID (선택)`}
+                        className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      />
+                    </div>
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-semibold text-slate-700">
+                      {messengers.secondary.label} ID
+                    </span>
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#0068FF] text-[7px] font-extrabold italic text-white">
+                        Zalo
+                      </span>
+                      <input
+                        type="text"
+                        name="zalo_id"
+                        placeholder={`${messengers.secondary.label} ID (선택)`}
+                        className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      />
+                    </div>
+                  </label>
                 </div>
               </div>
 
-              <div
-                className={`rounded-2xl border p-4 ${
-                  consentHighlight
-                    ? "border-red-200 bg-red-50"
-                    : "border-slate-200 bg-white"
-                }`}
-              >
-                <label className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-slate-600">
-                  <input
-                    type="checkbox"
-                    name="agreeTerms"
-                    onChange={(e) => {
-                      if (e.target.checked) onConsentChecked();
-                    }}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600"
-                  />
-                  <span>
-                    <b className="text-slate-900">(필수)</b> {CONSENT_SUMMARY}
-                  </span>
-                </label>
-                <ConsentDetails
-                  open={consentOpen}
-                  onToggle={onConsentToggle}
-                  highlight={consentHighlight}
-                />
-              </div>
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-blue-700 shadow-sm">
+                      <Lock size={15} />
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">
+                        개인정보 보호 안내
+                      </p>
+                      <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
+                        <li>
+                          · 입력하신 정보는 AI 분석, 계정 생성, 상담 안내
+                          목적으로만 사용됩니다.
+                        </li>
+                        <li>· 제3자에게 제공하거나 판매하지 않습니다.</li>
+                        <li>· 안전한 방식으로 보호됩니다.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
 
-              {leadError && (
-                <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-medium text-red-700">
-                  {leadError}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="group flex min-h-[62px] w-full items-center justify-center gap-2.5 rounded-[18px] bg-gradient-to-r from-[#1D4EDB] via-[#2563EB] to-[#1D4EDB] bg-[length:200%_100%] px-6 text-base font-bold text-white shadow-[0_16px_34px_rgba(29,78,216,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[position:100%_0] hover:shadow-[0_20px_40px_rgba(29,78,216,0.38)] disabled:translate-y-0 disabled:opacity-60"
-              >
-                <Gift size={19} />
-                {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
-                {!submitting && (
-                  <ArrowLeft
-                    size={18}
-                    className="rotate-180 transition-transform group-hover:translate-x-1"
+                <div
+                  className={`rounded-2xl border p-4 ${
+                    consentHighlight
+                      ? "border-red-200 bg-red-50"
+                      : "border-slate-200 bg-white"
+                  }`}
+                >
+                  <label className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-slate-600">
+                    <input
+                      type="checkbox"
+                      name="agreeTerms"
+                      onChange={(e) => {
+                        if (e.target.checked) onConsentChecked();
+                      }}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600"
+                    />
+                    <span>
+                      <b className="text-slate-900">(필수)</b> {CONSENT_SUMMARY}
+                    </span>
+                  </label>
+                  <ConsentDetails
+                    open={consentOpen}
+                    onToggle={onConsentToggle}
+                    highlight={consentHighlight}
                   />
+                </div>
+
+                {leadError && (
+                  <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-medium text-red-700">
+                    {leadError}
+                  </p>
                 )}
-              </button>
-              <p className="text-center text-[11px] text-slate-400">
-                입력하신 연락처로 AI 분석 리포트가 발송되며, 즉시 확인하실 수
-                있습니다.
-              </p>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="group flex min-h-[62px] w-full items-center justify-center gap-2.5 rounded-[18px] bg-gradient-to-r from-[#1D4EDB] via-[#2563EB] to-[#1D4EDB] bg-[length:200%_100%] px-6 text-base font-bold text-white shadow-[0_16px_34px_rgba(29,78,216,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[position:100%_0] hover:shadow-[0_20px_40px_rgba(29,78,216,0.38)] disabled:translate-y-0 disabled:opacity-60"
+                >
+                  <Gift size={19} />
+                  {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
+                  {!submitting && (
+                    <ArrowLeft
+                      size={18}
+                      className="rotate-180 transition-transform group-hover:translate-x-1"
+                    />
+                  )}
+                </button>
+                <p className="text-center text-[11px] text-slate-400">
+                  입력하신 연락처로 AI 분석 리포트가 발송되며, 즉시 확인하실
+                  수 있습니다.
+                </p>
+              </div>
             </form>
           </div>
         </div>
@@ -999,6 +975,7 @@ function PremiumLeadCapture({
     </div>
   );
 }
+
 
 export default function TrcCheckPage() {
   const [nationality, setNationality] = useState<Nationality>(null);
