@@ -17,6 +17,7 @@ import {
   FileText,
   Users,
   Building2,
+  Lock,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -1096,101 +1097,147 @@ export default function TrcCheckPage() {
         {/* 1번째 화면 (가입 전) — 리포트 없이 간단하게, 가입 장벽을 낮게 유지 */}
         {showResult && result === "possible" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              거주증 발급이 가능합니다
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-[#1D4EDB]">
+              <CheckCircle2 size={13} /> AI 1차 분석 완료
+            </span>
+            <p className="mt-4 text-2xl font-bold leading-snug text-gray-900 break-keep">
+              거주증 발급 가능성이 높습니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              현재 비자·직책·회사 형태 기준으로 거주증(TRC) 신청 요건을
-              충족합니다.
+              입력하신 조건을 기준으로 AI 분석이 완료되었습니다. 연락처를
+              입력하시면 상세 리포트를 바로 확인할 수 있습니다.
             </p>
             <p className="mt-2 text-xs text-gray-400 leading-relaxed">
-              * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다.
-              정확한 발급 가능 여부는 서류 검토 후 전문가 상담을 통해
-              확정됩니다.
+              * AI 1차 자가진단 결과이며, 정확한 발급 가능 여부는 전문가
+              검토를 통해 확정됩니다.
             </p>
-            <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
-              이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
-              바로 보여드립니다.
+
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="rounded-2xl border border-gray-200 bg-gray-50/60 p-6">
+                <p className="text-sm font-bold text-gray-900">
+                  무료 AI 분석 리포트
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {[
+                    "가능성 점수",
+                    "위험요인 분석",
+                    "준비서류 안내",
+                    "예상 처리기간",
+                    "전문가 검토 의견",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-center gap-2 text-sm text-gray-700"
+                    >
+                      <CheckCircle2 size={16} className="shrink-0 text-[#1D4EDB]" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6 flex items-center gap-2 border-t border-gray-200 pt-4 text-xs font-medium text-gray-500">
+                  <CheckCircle2 size={14} className="text-[#1D4EDB]" />
+                  베트남 전문가 그룹
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-white p-6">
+                <p className="text-sm font-bold text-gray-900">기본 정보</p>
+                <form onSubmit={handleLeadSubmit} className="mt-4 space-y-3">
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="이름"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="전화번호"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    name="address"
+                    required
+                    placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="h-px flex-1 bg-gray-200" />
+                    <span className="text-[11px] font-medium text-gray-400">
+                      추가 정보 (선택)
+                    </span>
+                    <div className="h-px flex-1 bg-gray-200" />
+                  </div>
+
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="이메일 (선택)"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      name="kakao_id"
+                      placeholder={`${messengers.primary.label} ID (선택)`}
+                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      name="zalo_id"
+                      placeholder={`${messengers.secondary.label} ID (선택)`}
+                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-start gap-2 rounded-xl bg-gray-50 px-3.5 py-3 text-xs text-gray-600">
+                    <Lock size={14} className="mt-0.5 shrink-0 text-gray-400" />
+                    입력하신 정보는 AI 분석, 진행 안내, 계정 생성을 위해서만
+                    사용됩니다. 제3자에게 임의 제공되지 않습니다.
+                  </div>
+
+                  <div>
+                    <label className="flex items-start gap-2 text-xs text-gray-600">
+                      <input
+                        type="checkbox"
+                        name="agreeTerms"
+                        onChange={(e) => {
+                          if (e.target.checked) setConsentHighlight(false);
+                        }}
+                        className="mt-0.5"
+                      />
+                      <span>(필수) {CONSENT_SUMMARY}</span>
+                    </label>
+                    <ConsentDetails
+                      open={consentOpen}
+                      onToggle={() => setConsentOpen((v) => !v)}
+                      highlight={consentHighlight}
+                    />
+                  </div>
+                  {leadError && (
+                    <p className="text-xs text-red-600">{leadError}</p>
+                  )}
+                  <p className="text-[11px] text-gray-400">
+                    입력은 약 1분 정도 소요됩니다.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full h-12 rounded-full bg-[#1D4EDB] text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60 transition-colors"
+                  >
+                    {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
+                  </button>
+                </form>
+              </div>
             </div>
 
-            <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="이름"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="tel"
-                name="phone"
-                required
-                placeholder="전화번호"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="text"
-                name="address"
-                required
-                placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  name="kakao_id"
-                  placeholder={`${messengers.primary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-                <input
-                  type="text"
-                  name="zalo_id"
-                  placeholder={`${messengers.secondary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="flex items-start gap-2 text-xs text-gray-600">
-                  <input
-                    type="checkbox"
-                    name="agreeTerms"
-                    onChange={(e) => {
-                      if (e.target.checked) setConsentHighlight(false);
-                    }}
-                    className="mt-0.5"
-                  />
-                  <span>(필수) {CONSENT_SUMMARY}</span>
-                </label>
-                <ConsentDetails
-                  open={consentOpen}
-                  onToggle={() => setConsentOpen((v) => !v)}
-                  highlight={consentHighlight}
-                />
-              </div>
-              {leadError && (
-                <p className="text-xs text-red-600">{leadError}</p>
-              )}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
-              >
-                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
-              </button>
-            </form>
-            <p className="mt-3 text-[11px] text-gray-400">
-              입력하신 정보는 상담 안내 목적으로만 사용됩니다.
-            </p>
             <button
               onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+              className="mt-5 block text-xs text-gray-400 hover:text-gray-600"
             >
               처음부터 다시 확인하기
             </button>
@@ -1363,96 +1410,147 @@ export default function TrcCheckPage() {
         {/* 조건부 가능 — 1번째 화면 (가입 전, 리포트 없이 간단하게) */}
         {showResult && result === "conditional" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <AlertTriangle className="text-amber-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              조건에 따라 가능할 수 있습니다
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+              <AlertTriangle size={13} /> AI 1차 분석 완료
+            </span>
+            <p className="mt-4 text-2xl font-bold leading-snug text-gray-900 break-keep">
+              조건에 따라 거주증 발급이 가능합니다
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              현재 비자 유형이나 직책만으로는 거주증 발급이 자동으로
-              보장되지 않습니다.
+              입력하신 조건을 기준으로 AI 분석이 완료되었습니다. 연락처를
+              입력하시면 상세 리포트를 바로 확인할 수 있습니다.
             </p>
-            <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800">
-              이름·연락처·주소만 남기시면 AI가 어떤 부분이 문제인지
-              분석한 리포트를 바로 보여드립니다.
+            <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+              * AI 1차 자가진단 결과이며, 정확한 발급 가능 여부는 전문가
+              검토를 통해 확정됩니다.
+            </p>
+
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="rounded-2xl border border-gray-200 bg-gray-50/60 p-6">
+                <p className="text-sm font-bold text-gray-900">
+                  무료 AI 분석 리포트
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {[
+                    "가능성 점수",
+                    "위험요인 분석",
+                    "준비서류 안내",
+                    "예상 처리기간",
+                    "전문가 검토 의견",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-center gap-2 text-sm text-gray-700"
+                    >
+                      <CheckCircle2 size={16} className="shrink-0 text-[#1D4EDB]" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6 flex items-center gap-2 border-t border-gray-200 pt-4 text-xs font-medium text-gray-500">
+                  <CheckCircle2 size={14} className="text-[#1D4EDB]" />
+                  베트남 전문가 그룹
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-white p-6">
+                <p className="text-sm font-bold text-gray-900">기본 정보</p>
+                <form onSubmit={handleLeadSubmit} className="mt-4 space-y-3">
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="이름"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="전화번호"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    name="address"
+                    required
+                    placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="h-px flex-1 bg-gray-200" />
+                    <span className="text-[11px] font-medium text-gray-400">
+                      추가 정보 (선택)
+                    </span>
+                    <div className="h-px flex-1 bg-gray-200" />
+                  </div>
+
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="이메일 (선택)"
+                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      name="kakao_id"
+                      placeholder={`${messengers.primary.label} ID (선택)`}
+                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      name="zalo_id"
+                      placeholder={`${messengers.secondary.label} ID (선택)`}
+                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-[#1D4EDB] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-start gap-2 rounded-xl bg-gray-50 px-3.5 py-3 text-xs text-gray-600">
+                    <Lock size={14} className="mt-0.5 shrink-0 text-gray-400" />
+                    입력하신 정보는 AI 분석, 진행 안내, 계정 생성을 위해서만
+                    사용됩니다. 제3자에게 임의 제공되지 않습니다.
+                  </div>
+
+                  <div>
+                    <label className="flex items-start gap-2 text-xs text-gray-600">
+                      <input
+                        type="checkbox"
+                        name="agreeTerms"
+                        onChange={(e) => {
+                          if (e.target.checked) setConsentHighlight(false);
+                        }}
+                        className="mt-0.5"
+                      />
+                      <span>(필수) {CONSENT_SUMMARY}</span>
+                    </label>
+                    <ConsentDetails
+                      open={consentOpen}
+                      onToggle={() => setConsentOpen((v) => !v)}
+                      highlight={consentHighlight}
+                    />
+                  </div>
+                  {leadError && (
+                    <p className="text-xs text-red-600">{leadError}</p>
+                  )}
+                  <p className="text-[11px] text-gray-400">
+                    입력은 약 1분 정도 소요됩니다.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full h-12 rounded-full bg-[#1D4EDB] text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60 transition-colors"
+                  >
+                    {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
+                  </button>
+                </form>
+              </div>
             </div>
 
-            <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="이름"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="tel"
-                name="phone"
-                required
-                placeholder="전화번호"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="text"
-                name="address"
-                required
-                placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  name="kakao_id"
-                  placeholder={`${messengers.primary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-                <input
-                  type="text"
-                  name="zalo_id"
-                  placeholder={`${messengers.secondary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="flex items-start gap-2 text-xs text-gray-600">
-                  <input
-                    type="checkbox"
-                    name="agreeTerms"
-                    onChange={(e) => {
-                      if (e.target.checked) setConsentHighlight(false);
-                    }}
-                    className="mt-0.5"
-                  />
-                  <span>(필수) {CONSENT_SUMMARY}</span>
-                </label>
-                <ConsentDetails
-                  open={consentOpen}
-                  onToggle={() => setConsentOpen((v) => !v)}
-                  highlight={consentHighlight}
-                />
-              </div>
-              {leadError && (
-                <p className="text-xs text-red-600">{leadError}</p>
-              )}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full h-12 rounded-full bg-amber-600 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60 transition-colors"
-              >
-                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
-              </button>
-            </form>
-            <p className="mt-3 text-[11px] text-gray-400">
-              입력하신 정보는 상담 안내 목적으로만 사용됩니다.
-            </p>
             <button
               onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+              className="mt-5 block text-xs text-gray-400 hover:text-gray-600"
             >
               처음부터 다시 확인하기
             </button>
