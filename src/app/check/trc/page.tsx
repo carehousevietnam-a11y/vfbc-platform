@@ -568,41 +568,41 @@ function PremiumLeadCapture({
     "h-[44px] w-full rounded-xl border border-[#D7E0EF] bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-[#97A6BC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-100";
 
   return (
-    <div className="mt-8 sm:relative sm:left-1/2 sm:w-[calc(100vw-32px)] sm:max-w-[1456px] sm:-translate-x-1/2">
+    <div className="mt-6 w-full max-w-full sm:relative sm:left-1/2 sm:w-[calc(100vw-32px)] sm:max-w-[1456px] sm:-translate-x-1/2">
       <section className="overflow-hidden rounded-[20px] border border-[#DCE5F1] bg-white shadow-[0_28px_80px_rgba(22,55,110,0.14)]">
-        <div className="relative min-h-[218px] overflow-hidden bg-[#071B43] px-8 py-7 text-white lg:px-9">
+        <div className="relative overflow-hidden bg-[#071B43] px-5 py-6 text-white sm:px-8 sm:py-7 lg:min-h-[218px] lg:px-9">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_20%,rgba(20,184,255,0.30),transparent_18%),radial-gradient(circle_at_86%_56%,rgba(37,99,235,0.26),transparent_25%),linear-gradient(108deg,#061632_0%,#08275f_52%,#0B3384_100%)]" />
           <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute right-16 top-7 h-16 w-16 rounded-full bg-cyan-300/10 blur-xl" />
 
-          <div className="relative grid min-h-[160px] items-center gap-6 lg:grid-cols-[1.40fr_0.60fr_0.82fr_0.50fr]">
+          <div className="relative grid items-center gap-6 lg:min-h-[160px] lg:grid-cols-[1.40fr_0.60fr_0.82fr_0.50fr]">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3 py-1.5 text-[12px] font-extrabold text-slate-100 ring-1 ring-emerald-300/20">
                 <CheckCircle2 size={15} className="text-emerald-300" />
                 AI 1차 분석 완료
               </span>
 
-              <h1 className="mt-4 text-[35px] font-extrabold leading-[1.18] tracking-[-0.035em] sm:text-[38px]">
-                거주증 발급{" "}
-                <span className={accentText}>
+              <h1 className="mt-4 break-keep text-[32px] font-extrabold leading-[1.22] tracking-[-0.035em] sm:text-[38px]">
+                <span className="block sm:inline">거주증 발급</span>{" "}
+                <span className={`block sm:inline ${accentText}`}>
                   {isPossible ? "가능성이 높습니다." : "추가 확인이 필요합니다."}
                 </span>
               </h1>
 
-              <p className="mt-3 text-[14px] leading-6 text-white/88">
+              <p className="mt-3 break-keep text-[14px] leading-6 text-white/88">
                 입력하신 조건을 기준으로 AI 분석이 완료되었습니다.
                 <br />
                 정확한 결과와 맞춤 가이드를 확인하세요.
               </p>
             </div>
 
-            <div className="flex justify-center">
-              <div className="relative flex h-[170px] w-[170px] items-center justify-center rounded-full">
+            <div className="flex items-center justify-center py-1 lg:py-0">
+              <div className="relative flex h-[156px] w-[156px] items-center justify-center rounded-full sm:h-[170px] sm:w-[170px]">
                 <div className="absolute inset-0 rounded-full bg-[conic-gradient(#22C55E_0deg,#34D399_88deg,#67E8F9_170deg,#60A5FA_250deg,#22C55E_360deg)] shadow-[0_0_34px_rgba(34,211,238,0.34)]" />
                 <div className="absolute inset-[8px] rounded-full bg-[#103777]" />
                 <div className="absolute inset-[17px] rounded-full border border-white/10 bg-[radial-gradient(circle_at_50%_35%,rgba(37,99,235,.42),rgba(5,24,57,.97)_69%)]" />
                 <div className="relative text-center">
-                  <strong className="block text-[42px] font-black leading-none">{score}%</strong>
+                  <strong className="block text-[40px] font-black leading-none sm:text-[42px]">{score}%</strong>
                   <span className={`mt-2 block text-[12px] font-extrabold ${accentText}`}>{status}</span>
                   <div className="mt-2 flex justify-center gap-1 text-emerald-300">
                     {Array.from({ length: 5 }).map((_, index) => (
@@ -613,7 +613,7 @@ function PremiumLeadCapture({
               </div>
             </div>
 
-            <div className="space-y-5 border-white/15 lg:border-l lg:pl-6">
+            <div className="mx-auto w-full max-w-[420px] space-y-5 border-white/15 lg:mx-0 lg:max-w-none lg:border-l lg:pl-6">
               <div className="flex items-start gap-3">
                 <Clock size={25} className="mt-0.5 shrink-0 text-blue-100" />
                 <div>
@@ -634,20 +634,20 @@ function PremiumLeadCapture({
               </div>
             </div>
 
-            <div className="relative hidden h-[170px] lg:block">
+            <div className="relative hidden h-[170px] overflow-hidden lg:block">
               <img
                 src="/images/trc/trc-hero-premium.png"
                 alt=""
-                className="h-full w-full object-contain object-center drop-shadow-[0_18px_32px_rgba(3,20,70,0.38)]"
+                className="absolute left-1/2 top-1/2 h-[188px] w-[300px] max-w-none -translate-x-[48%] -translate-y-1/2 object-cover object-center drop-shadow-[0_18px_32px_rgba(3,20,70,0.38)]"
               />
             </div>
           </div>
         </div>
 
-        <div className="grid bg-white lg:grid-cols-[0.42fr_0.58fr]">
-          <aside className="border-b border-[#DFE7F2] bg-[#FCFDFE] p-6 sm:p-7 lg:border-b-0 lg:border-r">
+        <div className="grid min-w-0 bg-white lg:grid-cols-[0.42fr_0.58fr]">
+          <aside className="min-w-0 border-b border-[#DFE7F2] bg-[#FCFDFE] p-4 sm:p-7 lg:border-b-0 lg:border-r">
             <div className="rounded-2xl border border-[#DCE5F2] bg-white p-4 shadow-[0_4px_18px_rgba(15,23,42,.035)]">
-              <h2 className="flex items-center gap-2 text-[17px] font-black tracking-[-0.02em] text-[#0B1739]">
+              <h2 className="flex items-center gap-2 break-keep text-[16px] font-black leading-6 tracking-[-0.02em] text-[#0B1739] sm:text-[17px]">
                 <Gift size={21} className="text-[#2563EB]" />
                 무료로 제공되는 AI 분석 리포트
               </h2>
@@ -656,7 +656,7 @@ function PremiumLeadCapture({
                 {reportItems.map(([Icon, title, description, iconClass], index) => (
                   <div
                     key={title}
-                    className={`flex min-h-[70px] items-center gap-4 px-4 py-3 ${
+                    className={`flex min-h-[70px] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 ${
                       index !== reportItems.length - 1 ? "border-b border-[#E1E8F2]" : ""
                     }`}
                   >
@@ -679,41 +679,41 @@ function PremiumLeadCapture({
                 className="absolute inset-0 h-full w-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(239,246,255,.99)_0%,rgba(239,246,255,.94)_52%,rgba(239,246,255,.12)_100%)]" />
-              <div className="relative max-w-[64%] p-5">
-                <h3 className="flex items-center gap-2 text-[16px] font-black text-[#0F5DE5]">
-                  <ShieldCheck size={22} />
-                  베트남 전문가 그룹 검토
+              <div className="relative max-w-[72%] p-4 sm:max-w-[64%] sm:p-5">
+                <h3 className="flex items-start gap-2 break-keep text-[15px] font-black leading-6 text-[#0F5DE5] sm:items-center sm:text-[16px]">
+                  <ShieldCheck size={22} className="mt-0.5 shrink-0 sm:mt-0" />
+                  <span>베트남 전문가 그룹 검토</span>
                 </h3>
-                <p className="mt-3 text-[12px] leading-6 text-[#30435F]">
+                <p className="mt-3 break-keep text-[12px] leading-6 text-[#30435F]">
                   입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더 정확한 리포트를 제공합니다.
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
               {trustItems.map(([Icon, title, description]) => (
                 <div
                   key={title}
-                  className="flex min-h-[118px] flex-col items-center justify-center rounded-2xl border border-[#DCE5F2] bg-white px-3 py-4 text-center shadow-[0_4px_16px_rgba(15,23,42,.03)]"
+                  className="flex min-h-[132px] flex-col items-center justify-start rounded-2xl border border-[#DCE5F2] bg-white px-3 pb-4 pt-5 text-center shadow-[0_4px_16px_rgba(15,23,42,.03)] sm:min-h-[118px]"
                 >
                   <Icon size={27} className="text-[#1769F5]" />
-                  <p className="mt-2 text-[12px] font-black text-[#0B1739]">{title}</p>
-                  <p className="mt-1 text-[9px] leading-4 text-[#66758A]">{description}</p>
+                  <p className="mt-2 min-h-[40px] break-keep text-[12px] font-black leading-5 text-[#0B1739] sm:min-h-0">{title}</p>
+                  <p className="mt-1 break-keep text-[10px] leading-4 text-[#66758A] sm:text-[9px]">{description}</p>
                 </div>
               ))}
             </div>
 
-            <p className="mt-5 flex items-start gap-2 text-[10px] leading-5 text-[#8A98AC]">
+            <p className="mt-5 flex min-w-0 items-start gap-2 break-keep text-[10px] leading-5 text-[#8A98AC]">
               <Lock size={12} className="mt-1 shrink-0" />
               본 서비스는 베트남에서 운영되며, 베트남 개인정보보호법 (91/2025/QH15) 및
               시행령(356/2025/NĐ-CP)에 따라 처리됩니다.
             </p>
           </aside>
 
-          <div className="bg-[#FCFDFE] p-6 sm:p-7">
+          <div className="min-w-0 bg-[#FCFDFE] p-4 sm:p-7">
             <div className="rounded-2xl border border-[#DCE5F2] bg-white p-5 shadow-[0_4px_18px_rgba(15,23,42,.035)] sm:p-6">
               <div className="flex items-start justify-between gap-4">
-                <h2 className="flex items-center gap-2 text-[17px] font-black tracking-[-0.02em] text-[#0B1739]">
+                <h2 className="flex items-start gap-2 break-keep text-[16px] font-black leading-6 tracking-[-0.02em] text-[#0B1739] sm:items-center sm:text-[17px]">
                   <FileText size={22} className="text-[#2563EB]" />
                   AI 분석 리포트 확인을 위해 정보를 입력해주세요
                 </h2>
@@ -854,10 +854,16 @@ function PremiumLeadCapture({
         </div>
       </section>
 
-      <button type="button" onClick={onReset} className="mx-auto mt-3 flex items-center gap-1 text-[11px] font-semibold text-[#1769F5] transition hover:text-blue-800">
-        <ArrowLeft size={13} />
-        처음부터 다시 확인하기
-      </button>
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-3 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-[#1769F5] transition hover:bg-blue-50 hover:text-blue-800"
+        >
+          <ArrowLeft size={13} />
+          처음부터 다시 확인하기
+        </button>
+      </div>
     </div>
   );
 }
