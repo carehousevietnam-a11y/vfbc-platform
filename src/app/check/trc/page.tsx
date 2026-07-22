@@ -634,27 +634,12 @@ function PremiumLeadCapture({
               </div>
             </div>
 
-            <div className="relative hidden h-[154px] lg:block">
-              <div className="absolute left-1/2 top-1/2 h-[120px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/15 blur-2xl" />
-              <div className="absolute left-2 top-0 h-[116px] w-[92px] rounded-[34px] bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-700 p-[2px] shadow-[0_16px_30px_rgba(14,165,233,.34)]">
-                <div className="flex h-full w-full items-center justify-center rounded-[32px] border border-white/25 bg-gradient-to-br from-white/18 to-transparent">
-                  <ShieldCheck size={66} strokeWidth={1.35} className="text-white drop-shadow-md" />
-                </div>
-              </div>
-              <div className="absolute bottom-3 left-1 h-6 w-20 rounded-full bg-cyan-300/25 blur-md" />
-              <div className="absolute bottom-1 right-0 h-[72px] w-[94px] rotate-6 rounded-xl border border-white/70 bg-white p-2 shadow-[0_14px_30px_rgba(2,8,23,.34)]">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-blue-100 to-slate-200">
-                    <Users size={14} className="text-blue-500" />
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <div className="h-1.5 rounded bg-blue-200" />
-                    <div className="h-1.5 w-2/3 rounded bg-slate-200" />
-                  </div>
-                </div>
-                <div className="mt-2 h-1.5 rounded bg-slate-200" />
-                <div className="mt-1.5 h-1.5 w-3/4 rounded bg-slate-200" />
-              </div>
+            <div className="relative hidden h-[170px] lg:block">
+              <img
+                src="/images/trc/trc-hero-premium.svg"
+                alt=""
+                className="h-full w-full object-contain object-center drop-shadow-[0_18px_32px_rgba(3,20,70,0.38)]"
+              />
             </div>
           </div>
         </div>
@@ -688,20 +673,12 @@ function PremiumLeadCapture({
             </div>
 
             <div className="relative mt-5 min-h-[142px] overflow-hidden rounded-2xl border border-[#D9E7FA] bg-[#EEF6FF] shadow-[0_5px_20px_rgba(37,99,235,.06)]">
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(239,246,255,.99)_0%,rgba(239,246,255,.95)_48%,rgba(219,234,254,.68)_100%)]" />
-              <div className="absolute inset-y-0 right-0 w-[46%] overflow-hidden">
-                <div className="absolute bottom-0 left-2 h-16 w-8 bg-slate-400/20" />
-                <div className="absolute bottom-0 left-12 h-24 w-10 bg-slate-400/22" />
-                <div className="absolute bottom-0 left-[92px] h-20 w-8 bg-slate-400/18" />
-                <div className="absolute bottom-0 right-16 h-28 w-12 bg-slate-400/20" />
-                <div className="absolute bottom-0 right-4 h-20 w-9 bg-slate-400/18" />
-                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-blue-200/70 to-transparent" />
-                <div className="absolute bottom-3 right-6 h-14 w-10 overflow-hidden rounded-sm border border-white shadow-md">
-                  <div className="flex h-full items-center justify-center bg-red-600">
-                    <Star size={13} fill="currentColor" strokeWidth={0} className="text-yellow-300" />
-                  </div>
-                </div>
-              </div>
+              <img
+                src="/images/trc/trc-expert-city.svg"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(239,246,255,.99)_0%,rgba(239,246,255,.94)_52%,rgba(239,246,255,.12)_100%)]" />
               <div className="relative max-w-[64%] p-5">
                 <h3 className="flex items-center gap-2 text-[16px] font-black text-[#0F5DE5]">
                   <ShieldCheck size={22} />
