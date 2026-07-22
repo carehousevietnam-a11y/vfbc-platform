@@ -636,7 +636,7 @@ function PremiumLeadCapture({
 
             <div className="relative hidden h-[170px] lg:block">
               <img
-                src="/images/trc/trc-hero-premium.svg"
+                src="/images/trc/trc-hero-premium.png"
                 alt=""
                 className="h-full w-full object-contain object-center drop-shadow-[0_18px_32px_rgba(3,20,70,0.38)]"
               />
@@ -674,7 +674,7 @@ function PremiumLeadCapture({
 
             <div className="relative mt-5 min-h-[142px] overflow-hidden rounded-2xl border border-[#D9E7FA] bg-[#EEF6FF] shadow-[0_5px_20px_rgba(37,99,235,.06)]">
               <img
-                src="/images/trc/trc-expert-city.svg"
+                src="/images/trc/trc-expert-city.png"
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover object-center"
               />
