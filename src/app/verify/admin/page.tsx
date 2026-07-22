@@ -22,6 +22,7 @@ import {
   FileQuestion,
 } from "lucide-react";
 import { SelectionCard } from "@/components/ui";
+import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
@@ -476,6 +477,32 @@ const INCIDENT_TYPE_ICONS: Record<string, typeof FileText> = {
   "기타": FileQuestion,
 };
 
+// STEP12-2B: 공통 SelectionCard용 tone 매핑(표시 전용). 값/옵션 배열은 변경하지 않음.
+// 지원 tone: blue / green / amber / red / purple / cyan / slate
+// (인허가=emerald→green, 계약=indigo→blue 계열, 노동=orange→amber로 대체 적용)
+const REVIEW_STAGE_TONES: Record<ReviewStage, SelectionCardTone> = {
+  pre: "blue",
+  post: "amber",
+  uncertain: "slate",
+};
+
+const PREVIOUS_REVIEW_TONES: Record<string, SelectionCardTone> = {
+  "처음 검토합니다": "green",
+  "검토받았지만 해결되지 않았습니다": "amber",
+  "반려·보완 요청을 받았습니다": "red",
+  "잘 모르겠습니다": "slate",
+};
+
+const INCIDENT_TYPE_TONES: Record<string, SelectionCardTone> = {
+  "행정문서": "blue",
+  "계약서": "blue",
+  "법인·투자": "purple",
+  "노동·고용": "amber",
+  "인허가": "green",
+  "세무": "cyan",
+  "기타": "slate",
+};
+
 export default function VerifyAdminPage() {
   // STEP1(사건정보) → STEP2(서류첨부) → STEP3(개인정보) → STEP4(진단)
   // → STEP5-a(기관 선택) → STEP5-b(안내) / 전문가 진행 → 완료
@@ -696,6 +723,7 @@ export default function VerifyAdminPage() {
                     selected={reviewStage === opt.value}
                     onClick={() => setReviewStage(opt.value)}
                     icon={REVIEW_STAGE_ICONS[opt.value]}
+                    tone={REVIEW_STAGE_TONES[opt.value]}
                   />
                 ))}
               </div>
@@ -716,7 +744,7 @@ export default function VerifyAdminPage() {
                   이전에 다른 곳에서 검토받은 적이 있나요?
                 </p>
               </div>
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
                   <SelectionCard
                     key={opt}
@@ -725,6 +753,7 @@ export default function VerifyAdminPage() {
                     selected={previousReviewStatus === opt}
                     onClick={() => setPreviousReviewStatus(opt)}
                     icon={PREVIOUS_REVIEW_ICONS[opt]}
+                    tone={PREVIOUS_REVIEW_TONES[opt]}
                   />
                 ))}
               </div>
@@ -745,7 +774,7 @@ export default function VerifyAdminPage() {
                   어떤 종류의 사건·서류인가요?
                 </p>
               </div>
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {incidentTypes.map((t) => (
                   <SelectionCard
                     key={t}
@@ -754,6 +783,7 @@ export default function VerifyAdminPage() {
                     selected={incidentType === t}
                     onClick={() => setIncidentType(t)}
                     icon={INCIDENT_TYPE_ICONS[t]}
+                    tone={INCIDENT_TYPE_TONES[t]}
                   />
                 ))}
               </div>
