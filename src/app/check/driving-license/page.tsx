@@ -13,6 +13,14 @@ import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
+  SelectionCard,
+  QuestionSection,
+  PrimaryButton,
+  NoticeCard,
+  InfoBox,
+  Divider,
+} from "@/components/ui";
+import {
   getCheckDiagnosis,
   computeLicenseResultTone,
   type DiagnosisResult,
@@ -337,7 +345,7 @@ function ProcessMethodCards({
             target="_blank"
             rel="noopener noreferrer"
             onClick={onSelf}
-            className="mt-4 flex h-10 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+            className="mt-4 flex h-10 items-center justify-center gap-1.5 rounded-xl border border-blue-900 text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
           >
             정부 사이트로 이동 <ExternalLink size={13} />
           </a>
@@ -354,12 +362,9 @@ function ProcessMethodCards({
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
             전문가가 서류와 절차를 함께 확인합니다.
           </p>
-          <button
-            onClick={onExpert}
-            className="mt-4 h-10 w-full rounded-full bg-blue-900 text-[13px] font-semibold text-white hover:bg-blue-950 transition-colors"
-          >
+          <PrimaryButton onClick={onExpert} className="mt-4 h-10">
             진행 요청하기
-          </button>
+          </PrimaryButton>
           <p aria-hidden="true" className="invisible mt-2 text-center text-[11px] text-slate-500">
             ↗ 정부 공식 사이트로 이동합니다.
           </p>
@@ -638,34 +643,31 @@ export default function DrivingLicenseCheckPage() {
 
         {!rejectionStepDone && (
           <div className="mt-8">
-            <p className="text-sm font-semibold text-gray-900">
-              1. 이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가
-              거절·반려되신 적이 있나요?
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => {
-                  setPreviousRejection(true);
-                  recordRejectionAnonymously();
-                }}
-                className={`rounded-2xl border p-4 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${
-                  previousRejection === true
-                    ? "border-blue-900 bg-blue-50 text-blue-900"
-                    : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5"
-                }`}
-              >
-                네, 있습니다
-              </button>
-              <button
-                onClick={() => {
-                  setPreviousRejection(false);
-                  setRejectionStepDone(true);
-                }}
-                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-              >
-                아니요
-              </button>
-            </div>
+            <QuestionSection
+              step={1}
+              title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
+            >
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <SelectionCard
+                  title="네, 있습니다"
+                  selected={previousRejection === true}
+                  tone="amber"
+                  onClick={() => {
+                    setPreviousRejection(true);
+                    recordRejectionAnonymously();
+                  }}
+                />
+                <SelectionCard
+                  title="아니요"
+                  selected={previousRejection === false}
+                  tone="blue"
+                  onClick={() => {
+                    setPreviousRejection(false);
+                    setRejectionStepDone(true);
+                  }}
+                />
+              </div>
+            </QuestionSection>
             {previousRejection === true && (
               <div className="mt-4">
                 <textarea
@@ -675,12 +677,9 @@ export default function DrivingLicenseCheckPage() {
                   rows={3}
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
                 />
-                <button
-                  onClick={finalizeRejectionStep}
-                  className="mt-3 w-full h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-                >
+                <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
                   다음
-                </button>
+                </PrimaryButton>
               </div>
             )}
           </div>
@@ -688,45 +687,43 @@ export default function DrivingLicenseCheckPage() {
 
         {rejectionStepDone && !trc && (
           <div className="mt-8">
-            <p className="text-sm font-semibold text-gray-900">
-              2. 현재 거주증(TRC)을 보유하고 계신가요?
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setTrc("yes")}
-                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-              >
-                네, 있습니다
-              </button>
-              <button
-                onClick={() => setTrc("no")}
-                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-              >
-                아니요, 없습니다
-              </button>
-            </div>
+            <QuestionSection step={2} title="현재 거주증(TRC)을 보유하고 계신가요?">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <SelectionCard
+                  title="네, 있습니다"
+                  selected={false}
+                  tone="blue"
+                  onClick={() => setTrc("yes")}
+                />
+                <SelectionCard
+                  title="아니요, 없습니다"
+                  selected={false}
+                  tone="slate"
+                  onClick={() => setTrc("no")}
+                />
+              </div>
+            </QuestionSection>
           </div>
         )}
 
         {trc === "yes" && !license && (
           <div className="mt-8">
-            <p className="text-sm font-semibold text-gray-900">
-              3. 본국(자국)에서 발급된 운전면허를 보유하고 계신가요?
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setLicense("yes")}
-                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-              >
-                네, 있습니다
-              </button>
-              <button
-                onClick={() => setLicense("no")}
-                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-              >
-                아니요, 없습니다
-              </button>
-            </div>
+            <QuestionSection step={3} title="본국(자국)에서 발급된 운전면허를 보유하고 계신가요?">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <SelectionCard
+                  title="네, 있습니다"
+                  selected={false}
+                  tone="blue"
+                  onClick={() => setLicense("yes")}
+                />
+                <SelectionCard
+                  title="아니요, 없습니다"
+                  selected={false}
+                  tone="slate"
+                  onClick={() => setLicense("no")}
+                />
+              </div>
+            </QuestionSection>
           </div>
         )}
 
@@ -771,9 +768,11 @@ export default function DrivingLicenseCheckPage() {
               정확한 전환 가능 여부는 서류 검토 후 전문가 상담을 통해
               확정됩니다.
             </p>
-            <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
-              이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
-              바로 보여드립니다.
+            <div className="mt-4">
+              <NoticeCard tone="success">
+                이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
+                바로 보여드립니다.
+              </NoticeCard>
             </div>
 
             <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
@@ -837,17 +836,13 @@ export default function DrivingLicenseCheckPage() {
                 />
               </div>
               {leadError && <p className="text-xs text-red-600">{leadError}</p>}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
-              >
+              <PrimaryButton type="submit" loading={submitting}>
                 {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
-              </button>
+              </PrimaryButton>
             </form>
-            <p className="mt-3 text-[11px] text-gray-400">
-              입력하신 정보는 상담 안내 목적으로만 사용됩니다.
-            </p>
+            <div className="mt-3">
+              <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
+            </div>
             <button
               onClick={reset}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
@@ -870,7 +865,9 @@ export default function DrivingLicenseCheckPage() {
               </div>
             )}
 
-            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+            <Divider />
+
+            <div className="rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
                 운전면허 전환에 필요한 서류
               </p>
@@ -890,14 +887,18 @@ export default function DrivingLicenseCheckPage() {
               </p>
             </div>
 
+            <Divider />
+
             <ProcessMethodCards
               onSelf={handleSelfPortalClick}
               onExpert={() => setDetailStage(true)}
             />
-            <p className="mt-2 text-[11px] text-gray-400">
-              성/시별 정확한 관할 경찰서(CSGT)를 찾기 위해 국가가 운영하는
-              통합 시스템으로 연결됩니다. 지역만 선택하면 바로 연결됩니다.
-            </p>
+            <div className="mt-2">
+              <InfoBox>
+                성/시별 정확한 관할 경찰서(CSGT)를 찾기 위해 국가가 운영하는
+                통합 시스템으로 연결됩니다. 지역만 선택하면 바로 연결됩니다.
+              </InfoBox>
+            </div>
 
             <button
               onClick={reset}
@@ -915,15 +916,19 @@ export default function DrivingLicenseCheckPage() {
               운전면허 전환 진행 서류 및 절차
             </p>
 
-            <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-              ⏱ 직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
-              달라 정확한 정보를 찾기 어렵고, 공증 번역본 준비 실수로
-              반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
-              혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
-              요청하세요.
+            <div className="mt-4">
+              <NoticeCard tone="warning">
+                직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
+                달라 정확한 정보를 찾기 어렵고, 공증 번역본 준비 실수로
+                반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
+                혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
+                요청하세요.
+              </NoticeCard>
             </div>
 
-            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+            <Divider />
+
+            <div className="rounded-xl bg-gray-50 px-4 py-3">
               <p className="text-xs font-semibold text-gray-700">
                 운전면허 전환에 필요한 서류
               </p>
@@ -939,6 +944,8 @@ export default function DrivingLicenseCheckPage() {
               </ul>
             </div>
 
+            <Divider />
+
             <p className="mt-4 text-sm font-bold text-gray-900">
               정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
               상의하세요.
@@ -950,16 +957,18 @@ export default function DrivingLicenseCheckPage() {
             <p className="mb-2 text-xs text-gray-500 leading-relaxed">
               직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
             </p>
-            <button
+            <PrimaryButton
               onClick={handleAgencyRequest}
-              disabled={agencySaving}
-              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+              loading={agencySaving}
+              className="mt-4"
             >
               {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
-            </button>
-            <p className="mt-2 text-[11px] text-gray-400">
-              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
-            </p>
+            </PrimaryButton>
+            <div className="mt-2">
+              <InfoBox>
+                이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
+              </InfoBox>
+            </div>
 
             <button
               onClick={() => setDetailStage(false)}
@@ -993,17 +1002,18 @@ export default function DrivingLicenseCheckPage() {
             </p>
 
             {emailProvided && (
-              <p className="mt-2 text-[11px] text-gray-400">
-                메시지가 오지 않으면 이메일도 함께 확인해주세요.
-              </p>
+              <div className="mt-2">
+                <InfoBox>메시지가 오지 않으면 이메일도 함께 확인해주세요.</InfoBox>
+              </div>
             )}
 
-            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-              자동 생성되며, 마이페이지에서 언제든 변경하실 수
-              있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-              함께 이용하실 수 있습니다.
+            <div className="mt-5">
+              <NoticeCard tone="info">
+                입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
+                자동 생성되며, 마이페이지에서 언제든 변경하실 수
+                있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
+                함께 이용하실 수 있습니다.
+              </NoticeCard>
             </div>
 
             <button

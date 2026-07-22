@@ -8,11 +8,17 @@ import {
   Home as HomeIcon,
   ShieldAlert,
   CheckCircle2,
-  Clock,
-  AlertTriangle,
   ExternalLink,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
+import {
+  SelectionCard,
+  QuestionSection,
+  PrimaryButton,
+  NoticeCard,
+  InfoBox,
+  Divider,
+} from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
@@ -337,7 +343,7 @@ function ProcessMethodCards({
             target="_blank"
             rel="noopener noreferrer"
             onClick={onSelf}
-            className="mt-4 flex h-10 items-center justify-center gap-1.5 rounded-full border border-blue-900 text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+            className="mt-4 flex h-10 items-center justify-center gap-1.5 rounded-xl border border-blue-900 text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
           >
             정부 사이트로 이동 <ExternalLink size={13} />
           </a>
@@ -354,12 +360,9 @@ function ProcessMethodCards({
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
             전문가가 서류와 절차를 함께 확인합니다.
           </p>
-          <button
-            onClick={onExpert}
-            className="mt-4 h-10 w-full rounded-full bg-blue-900 text-[13px] font-semibold text-white hover:bg-blue-950 transition-colors"
-          >
+          <PrimaryButton onClick={onExpert} className="mt-4 h-10">
             진행 요청하기
-          </button>
+          </PrimaryButton>
           <p aria-hidden="true" className="invisible mt-2 text-center text-[11px] text-slate-500">
             ↗ 정부 공식 사이트로 이동합니다.
           </p>
@@ -643,34 +646,31 @@ export default function TamTruCheckPage() {
 
         {!rejectionStepDone && (
           <div className="mt-8">
-            <p className="text-sm font-semibold text-gray-900">
-              1. 이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가
-              거절·반려되신 적이 있나요?
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => {
-                  setPreviousRejection(true);
-                  recordRejectionAnonymously();
-                }}
-                className={`rounded-2xl border p-4 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${
-                  previousRejection === true
-                    ? "border-blue-900 bg-blue-50 text-blue-900"
-                    : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5"
-                }`}
-              >
-                네, 있습니다
-              </button>
-              <button
-                onClick={() => {
-                  setPreviousRejection(false);
-                  setRejectionStepDone(true);
-                }}
-                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-              >
-                아니요
-              </button>
-            </div>
+            <QuestionSection
+              step={1}
+              title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
+            >
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <SelectionCard
+                  title="네, 있습니다"
+                  selected={previousRejection === true}
+                  tone="amber"
+                  onClick={() => {
+                    setPreviousRejection(true);
+                    recordRejectionAnonymously();
+                  }}
+                />
+                <SelectionCard
+                  title="아니요"
+                  selected={previousRejection === false}
+                  tone="blue"
+                  onClick={() => {
+                    setPreviousRejection(false);
+                    setRejectionStepDone(true);
+                  }}
+                />
+              </div>
+            </QuestionSection>
             {previousRejection === true && (
               <div className="mt-4">
                 <textarea
@@ -680,12 +680,9 @@ export default function TamTruCheckPage() {
                   rows={3}
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
                 />
-                <button
-                  onClick={finalizeRejectionStep}
-                  className="mt-3 w-full h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-                >
+                <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
                   다음
-                </button>
+                </PrimaryButton>
               </div>
             )}
           </div>
@@ -721,35 +718,26 @@ export default function TamTruCheckPage() {
             {/* STEP 1: 숙소 형태 */}
             {!housing && (
               <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  2. 현재 숙소 형태가 어떻게 되시나요?
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <button
-                    onClick={() => setHousing("hotel")}
-                    className="flex flex-col items-start rounded-2xl bg-white border border-gray-100 p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all"
-                  >
-                    <Building className="text-blue-900" size={22} />
-                    <p className="mt-3 text-sm font-bold text-gray-900">
-                      호텔 · 게스트하우스
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      숙박업소에 머무는 경우
-                    </p>
-                  </button>
-                  <button
-                    onClick={() => setHousing("personal")}
-                    className="flex flex-col items-start rounded-2xl bg-white border border-gray-100 p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all"
-                  >
-                    <HomeIcon className="text-blue-900" size={22} />
-                    <p className="mt-3 text-sm font-bold text-gray-900">
-                      개인주택 · 아파트 · 지인집
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      임대 또는 지인 거주
-                    </p>
-                  </button>
-                </div>
+                <QuestionSection step={2} title="현재 숙소 형태가 어떻게 되시나요?">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <SelectionCard
+                      title="호텔 · 게스트하우스"
+                      description="숙박업소에 머무는 경우"
+                      selected={false}
+                      tone="blue"
+                      icon={Building}
+                      onClick={() => setHousing("hotel")}
+                    />
+                    <SelectionCard
+                      title="개인주택 · 아파트 · 지인집"
+                      description="임대 또는 지인 거주"
+                      selected={false}
+                      tone="blue"
+                      icon={HomeIcon}
+                      onClick={() => setHousing("personal")}
+                    />
+                  </div>
+                </QuestionSection>
               </div>
             )}
 
@@ -765,9 +753,11 @@ export default function TamTruCheckPage() {
                   처리해야 합니다. 프론트 데스크에서 처리 여부를 확인만
                   하시면 됩니다.
                 </p>
-                <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800">
-                  체크인 시 여권을 제출하지 않으셨다면, 지금 프론트에
-                  문의하세요.
+                <div className="mt-4">
+                  <NoticeCard tone="warning">
+                    체크인 시 여권을 제출하지 않으셨다면, 지금 프론트에
+                    문의하세요.
+                  </NoticeCard>
                 </div>
                 <button
                   onClick={reset}
@@ -781,47 +771,45 @@ export default function TamTruCheckPage() {
             {/* STEP 2: 개인주택인 경우 - 집주인 이슈 확인 */}
             {housing === "personal" && landlordIssue === null && (
               <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  3. 집주인이 등록을 거부하거나 금전을 요구하시나요?
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => setLandlordIssue(true)}
-                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-red-200 hover:-translate-y-0.5 transition-all"
-                  >
-                    네, 그렇습니다
-                  </button>
-                  <button
-                    onClick={() => setLandlordIssue(false)}
-                    className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-blue-200 hover:-translate-y-0.5 transition-all"
-                  >
-                    아니요
-                  </button>
-                </div>
+                <QuestionSection step={3} title="집주인이 등록을 거부하거나 금전을 요구하시나요?">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <SelectionCard
+                      title="네, 그렇습니다"
+                      selected={false}
+                      tone="red"
+                      onClick={() => setLandlordIssue(true)}
+                    />
+                    <SelectionCard
+                      title="아니요"
+                      selected={false}
+                      tone="blue"
+                      onClick={() => setLandlordIssue(false)}
+                    />
+                  </div>
+                </QuestionSection>
               </div>
             )}
 
             {/* STEP 3: 경과일 */}
             {housing === "personal" && landlordIssue === false && !timing && (
               <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  4. 베트남에 도착(또는 숙소 이동)하신 지 얼마나 되셨나요?
-                </p>
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  {[
-                    { key: "within12", label: "12시간 이내" },
-                    { key: "within24", label: "12~24시간" },
-                    { key: "over24", label: "24시간 초과" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.key}
-                      onClick={() => setTiming(opt.key as Timing)}
-                      className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
+                <QuestionSection step={4} title="베트남에 도착(또는 숙소 이동)하신 지 얼마나 되셨나요?">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {[
+                      { key: "within12", label: "12시간 이내" },
+                      { key: "within24", label: "12~24시간" },
+                      { key: "over24", label: "24시간 초과" },
+                    ].map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        title={opt.label}
+                        selected={false}
+                        tone="blue"
+                        onClick={() => setTiming(opt.key as Timing)}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
               </div>
             )}
 
@@ -829,10 +817,11 @@ export default function TamTruCheckPage() {
             {showResult && !leadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 {timing === "over24" && (
-                  <div className="mb-5 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-xs text-red-700">
-                    <Clock size={16} className="mt-0.5 shrink-0" />
-                    신고 기한(12~24시간)이 이미 지났을 수 있습니다. 서둘러
-                    등록을 진행하세요.
+                  <div className="mb-5">
+                    <NoticeCard tone="danger">
+                      신고 기한(12~24시간)이 이미 지났을 수 있습니다. 서둘러
+                      등록을 진행하세요.
+                    </NoticeCard>
                   </div>
                 )}
                 <CheckCircle2 className="text-emerald-600" size={28} />
@@ -866,10 +855,12 @@ export default function TamTruCheckPage() {
                     placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
                     className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
                   />
-                  <p className="text-[11px] text-gray-400 -mt-1">
-                    주소가 있어야 관할 phường(동) 사이트를 정확히 찾아드릴
-                    수 있어요.
-                  </p>
+                  <div className="-mt-1">
+                    <InfoBox>
+                      주소가 있어야 관할 phường(동) 사이트를 정확히 찾아드릴
+                      수 있어요.
+                    </InfoBox>
+                  </div>
                   <input
                     type="email"
                     name="email"
@@ -911,17 +902,13 @@ export default function TamTruCheckPage() {
                   {leadError && (
                     <p className="text-xs text-red-600">{leadError}</p>
                   )}
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
-                  >
+                  <PrimaryButton type="submit" loading={submitting}>
                     {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
-                  </button>
+                  </PrimaryButton>
                 </form>
-                <p className="mt-3 text-[11px] text-gray-400">
-                  입력하신 정보는 상담 안내 목적으로만 사용됩니다.
-                </p>
+                <div className="mt-3">
+                  <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
+                </div>
                 <button
                   onClick={reset}
                   className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
@@ -944,7 +931,9 @@ export default function TamTruCheckPage() {
                   </div>
                 )}
 
-                <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
+                <Divider />
+
+                <div className="rounded-xl bg-gray-50 px-4 py-3">
                   <p className="text-xs font-semibold text-gray-700">
                     땀주 신고에 필요한 서류
                   </p>
@@ -961,15 +950,19 @@ export default function TamTruCheckPage() {
                   </p>
                 </div>
 
+                <Divider />
+
                 <ProcessMethodCards
                   onSelf={handleSelfPortalClick}
                   onExpert={() => setDetailStage(true)}
                 />
-                <p className="mt-2 text-[11px] text-gray-400">
-                  베트남 출입국관리국 전자포털(임시거주 신고 페이지)로
-                  이동합니다. 화면 안내에 따라 신고 내용을 확인하고
-                  진행하시면 됩니다.
-                </p>
+                <div className="mt-2">
+                  <InfoBox>
+                    베트남 출입국관리국 전자포털(임시거주 신고 페이지)로
+                    이동합니다. 화면 안내에 따라 신고 내용을 확인하고
+                    진행하시면 됩니다.
+                  </InfoBox>
+                </div>
 
                 <button
                   onClick={reset}
@@ -995,10 +988,11 @@ export default function TamTruCheckPage() {
                 </p>
 
                 {timing === "over24" && (
-                  <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-xs text-red-700">
-                    <Clock size={16} className="mt-0.5 shrink-0" />
-                    신고 기한이 지났을 가능성이 높습니다. 빠른 처리가
-                    필요합니다.
+                  <div className="mt-4">
+                    <NoticeCard tone="danger">
+                      신고 기한이 지났을 가능성이 높습니다. 빠른 처리가
+                      필요합니다.
+                    </NoticeCard>
                   </div>
                 )}
 
@@ -1008,17 +1002,19 @@ export default function TamTruCheckPage() {
                 <p className="mb-2 text-xs text-gray-500 leading-relaxed">
                   직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
                 </p>
-                <button
+                <PrimaryButton
                   onClick={handleAgencyRequest}
-                  disabled={agencySaving}
-                  className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
+                  loading={agencySaving}
+                  className="mt-4"
                 >
                   {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
-                </button>
-                <p className="mt-2 text-[11px] text-gray-400">
-                  이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요
-                  없습니다.
-                </p>
+                </PrimaryButton>
+                <div className="mt-2">
+                  <InfoBox>
+                    이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요
+                    없습니다.
+                  </InfoBox>
+                </div>
 
                 <button
                   onClick={() => setDetailStage(false)}
@@ -1053,17 +1049,18 @@ export default function TamTruCheckPage() {
                 </p>
 
                 {emailProvided && (
-                  <p className="mt-2 text-[11px] text-gray-400">
-                    메시지가 오지 않으면 이메일도 함께 확인해주세요.
-                  </p>
+                  <div className="mt-2">
+                    <InfoBox>메시지가 오지 않으면 이메일도 함께 확인해주세요.</InfoBox>
+                  </div>
                 )}
 
-                <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-                  입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-                  자동 생성되며, 마이페이지에서 언제든 변경하실 수
-                  있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-                  함께 이용하실 수 있습니다.
+                <div className="mt-5">
+                  <NoticeCard tone="info">
+                    입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
+                    자동 생성되며, 마이페이지에서 언제든 변경하실 수
+                    있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
+                    함께 이용하실 수 있습니다.
+                  </NoticeCard>
                 </div>
 
                 <button

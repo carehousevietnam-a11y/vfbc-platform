@@ -4,7 +4,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-type ButtonVariant = "primary" | "secondary" | "outline";
+type ButtonVariant = "primary" | "secondary" | "outline" | "amber";
 
 interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
@@ -15,6 +15,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: "bg-blue-900 text-white hover:bg-blue-950 hover:shadow-md",
   secondary: "bg-slate-100 text-slate-700 hover:bg-slate-200",
   outline: "border border-blue-900 bg-white text-blue-900 hover:bg-blue-50",
+  amber: "bg-amber-600 text-white hover:bg-amber-700 hover:shadow-md",
 };
 
 /**

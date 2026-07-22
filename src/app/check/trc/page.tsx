@@ -8,6 +8,11 @@ import {
   AlertTriangle,
   XCircle,
   ExternalLink,
+  Menu,
+  Shield,
+  Info,
+  ShieldCheck,
+  Lightbulb,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -625,56 +630,165 @@ export default function TrcCheckPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fafafa]">
-      <div className="h-[3px] bg-blue-900" />
-      <div className="mx-auto max-w-xl px-6 py-10">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600"
-        >
-          <ArrowLeft size={14} /> 홈으로
-        </Link>
+    <main className="min-h-screen bg-[#F8FAFC]">
+      {/* STEP12-3 목업 헤더 — 뒤로가기 / 브랜드 / 보안 안내 */}
+      <header className="border-b border-gray-100 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+          <Link
+            href="/"
+            className="flex w-16 items-center text-gray-400 hover:text-gray-600 sm:w-24"
+          >
+            <Menu size={20} className="sm:hidden" />
+            <span className="hidden items-center gap-1 text-xs font-medium sm:flex">
+              <ArrowLeft size={14} /> 홈으로
+            </span>
+          </Link>
 
-        <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          직접확인하기 · 베트남 행정전문 AI
-        </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          거주증 (TRC) 가능성 진단
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          국적·비자·직책·회사 형태에 따라 거주증 발급 가능 여부가 달라집니다.
-        </p>
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1D4EDB] text-[11px] font-bold text-white">
+                V
+              </span>
+              <span className="text-sm font-bold text-gray-900">VFBCAI</span>
+            </div>
+            <span className="text-[10px] text-gray-400">베트남 행정전문 AI</span>
+          </div>
+
+          <div className="flex w-16 items-center justify-end gap-1 text-[11px] text-gray-400 sm:w-auto">
+            <Shield size={14} />
+            <span className="hidden sm:inline">모든 정보는 안전하게 보호됩니다</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-xl px-6 py-10">
+        {rejectionStepDone && (
+          <>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600"
+            >
+              <ArrowLeft size={14} /> 홈으로
+            </Link>
+
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              직접확인하기 · 베트남 행정전문 AI
+            </p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+              거주증 (TRC) 가능성 진단
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              국적·비자·직책·회사 형태에 따라 거주증 발급 가능 여부가 달라집니다.
+            </p>
+          </>
+        )}
 
         {!rejectionStepDone && (
-          <div className="mt-8">
-            <p className="text-sm font-semibold text-gray-900">
-              1. 이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가
-              거절·반려되신 적이 있나요?
+          <div className="mt-6">
+            <p className="text-xs font-semibold text-[#1D4EDB]">
+              거주증(TRC) 가능성 진단
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <p className="mt-2 text-sm font-semibold text-[#1D4EDB]">
+              STEP 1 / 5
+            </p>
+            <h1 className="mt-2 text-2xl font-bold leading-snug text-gray-900 sm:text-[28px]">
+              이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가
+              거절·반려되신 적이 있나요?
+            </h1>
+
+            <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
+              <div className="flex items-start gap-2 rounded-xl bg-blue-50 px-3.5 py-2.5 text-xs text-blue-800 sm:flex-1">
+                <Info size={16} className="mt-0.5 shrink-0" />
+                이 질문은 반려 가능성을 판단하는 중요한 정보입니다.
+              </div>
+              <div className="flex items-start gap-2 rounded-xl bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-800 sm:flex-1">
+                <ShieldCheck size={16} className="mt-0.5 shrink-0" />
+                정확한 진단을 위해 솔직하게 선택해주세요.
+              </div>
+            </div>
+
+            <p className="mt-6 text-sm text-gray-600">
+              아래 항목 중 해당되는 것을 선택해주세요.
+            </p>
+
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
+                type="button"
                 onClick={() => {
                   setPreviousRejection(true);
                   recordRejectionAnonymously();
                 }}
-                className={`rounded-2xl border p-4 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${
+                className={`rounded-2xl border p-5 text-left transition-all duration-200 ${
                   previousRejection === true
-                    ? "border-blue-900 bg-blue-50 text-blue-900"
-                    : "border-gray-100 bg-white text-gray-900 hover:-translate-y-0.5"
+                    ? "border-[#1D4EDB] bg-white shadow-sm"
+                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
                 }`}
               >
-                네, 있습니다
+                <div className="flex items-start justify-between">
+                  <span
+                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
+                      previousRejection === true
+                        ? "border-[#1D4EDB]"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {previousRejection === true && (
+                      <span className="h-2 w-2 rounded-full bg-[#1D4EDB]" />
+                    )}
+                  </span>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
+                    <AlertTriangle size={18} className="text-[#EF4444]" />
+                  </span>
+                </div>
+                <p className="mt-4 text-base font-bold text-gray-900">
+                  네, 있습니다
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  이전에 신청했다가 거절·반려된 이력이 있습니다.
+                </p>
+                <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
+                  <CheckCircle2 size={12} /> 추가 검토가 필요할 수 있습니다.
+                </span>
               </button>
+
               <button
+                type="button"
                 onClick={() => {
                   setPreviousRejection(false);
                   setRejectionStepDone(true);
                 }}
-                className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+                className={`rounded-2xl border p-5 text-left transition-all duration-200 ${
+                  previousRejection === false
+                    ? "border-[#1D4EDB] bg-white shadow-sm"
+                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                }`}
               >
-                아니요
+                <div className="flex items-start justify-between">
+                  <span
+                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
+                      previousRejection === false
+                        ? "border-[#1D4EDB]"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {previousRejection === false && (
+                      <span className="h-2 w-2 rounded-full bg-[#1D4EDB]" />
+                    )}
+                  </span>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50">
+                    <CheckCircle2 size={18} className="text-emerald-600" />
+                  </span>
+                </div>
+                <p className="mt-4 text-base font-bold text-gray-900">아니요</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  처음 신청하거나, 신청 이력이 없습니다.
+                </p>
+                <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600">
+                  <CheckCircle2 size={12} /> 가장 일반적인 신청 유형입니다.
+                </span>
               </button>
             </div>
+
             {previousRejection === true && (
               <div className="mt-4">
                 <textarea
@@ -682,16 +796,41 @@ export default function TrcCheckPage() {
                   onChange={(e) => setRejectionReason(e.target.value)}
                   placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
                   rows={3}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#1D4EDB] focus:outline-none resize-none"
                 />
-                <button
-                  onClick={finalizeRejectionStep}
-                  className="mt-3 w-full h-11 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 transition-colors"
-                >
-                  다음
-                </button>
               </div>
             )}
+
+            <div className="mt-6 flex items-start gap-3 rounded-xl bg-blue-50/60 px-4 py-3.5">
+              <Lightbulb size={18} className="mt-0.5 shrink-0 text-[#1D4EDB]" />
+              <div>
+                <p className="text-sm font-bold text-gray-900">
+                  AI가 이 정보를 어떻게 활용하나요?
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                  이전 거절 이력이 있는 경우, 거절 사유 분석과 재신청 가능성을
+                  더 정밀하게 진단합니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/"
+                className="order-2 flex h-12 items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 sm:order-1 sm:flex-1"
+              >
+                <ArrowLeft size={16} /> 이전 단계로
+              </Link>
+              <button
+                type="button"
+                onClick={finalizeRejectionStep}
+                disabled={previousRejection !== true}
+                className="order-1 flex h-12 items-center justify-center gap-1.5 rounded-xl bg-[#1D4EDB] text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-40 sm:order-2 sm:flex-1"
+              >
+                다음 단계로
+                <ArrowLeft size={16} className="rotate-180" />
+              </button>
+            </div>
           </div>
         )}
 
