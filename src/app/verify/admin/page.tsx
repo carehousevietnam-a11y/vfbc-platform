@@ -2,7 +2,26 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, FileText, CheckCircle2, Paperclip, AlertTriangle, Info, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  FileText,
+  Paperclip,
+  AlertTriangle,
+  Info,
+  ExternalLink,
+  ShieldCheck,
+  HelpCircle,
+  FilePlus,
+  RotateCcw,
+  FileWarning,
+  FileSignature,
+  Building2,
+  Briefcase,
+  Stamp,
+  Receipt,
+  FileQuestion,
+} from "lucide-react";
+import { SelectionCard } from "@/components/ui";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
@@ -433,6 +452,30 @@ const REVIEW_STAGE_OPTIONS = [
 ] as const;
 type ReviewStage = (typeof REVIEW_STAGE_OPTIONS)[number]["value"];
 
+// STEP12-2: 공통 SelectionCard용 아이콘 매핑(표시 전용). 값/옵션 배열은 변경하지 않음.
+const REVIEW_STAGE_ICONS: Record<ReviewStage, typeof ShieldCheck> = {
+  pre: ShieldCheck,
+  post: AlertTriangle,
+  uncertain: HelpCircle,
+};
+
+const PREVIOUS_REVIEW_ICONS: Record<string, typeof FilePlus> = {
+  "처음 검토합니다": FilePlus,
+  "검토받았지만 해결되지 않았습니다": RotateCcw,
+  "반려·보완 요청을 받았습니다": FileWarning,
+  "잘 모르겠습니다": HelpCircle,
+};
+
+const INCIDENT_TYPE_ICONS: Record<string, typeof FileText> = {
+  "행정문서": FileText,
+  "계약서": FileSignature,
+  "법인·투자": Building2,
+  "노동·고용": Briefcase,
+  "인허가": Stamp,
+  "세무": Receipt,
+  "기타": FileQuestion,
+};
+
 export default function VerifyAdminPage() {
   // STEP1(사건정보) → STEP2(서류첨부) → STEP3(개인정보) → STEP4(진단)
   // → STEP5-a(기관 선택) → STEP5-b(안내) / 전문가 진행 → 완료
@@ -645,35 +688,16 @@ export default function VerifyAdminPage() {
                 검토 목적에 가장 가까운 항목을 선택해주세요.
               </p>
               <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {REVIEW_STAGE_OPTIONS.map((opt) => {
-                  const selected = reviewStage === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setReviewStage(opt.value)}
-                      className={`flex h-full w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
-                        selected
-                          ? "border-blue-900 bg-blue-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
-                      }`}
-                    >
-                      {selected ? (
-                        <CheckCircle2 className="mt-1 shrink-0 text-blue-900" size={18} />
-                      ) : (
-                        <span className="mt-1 h-[18px] w-[18px] shrink-0 rounded-full border border-gray-300" />
-                      )}
-                      <span>
-                        <p className="break-keep text-base font-semibold text-gray-900">
-                          {opt.title}
-                        </p>
-                        <p className="mt-1 break-keep text-sm leading-relaxed text-gray-500">
-                          {opt.desc}
-                        </p>
-                      </span>
-                    </button>
-                  );
-                })}
+                {REVIEW_STAGE_OPTIONS.map((opt) => (
+                  <SelectionCard
+                    key={opt.value}
+                    title={opt.title}
+                    description={opt.desc}
+                    selected={reviewStage === opt.value}
+                    onClick={() => setReviewStage(opt.value)}
+                    icon={REVIEW_STAGE_ICONS[opt.value]}
+                  />
+                ))}
               </div>
               {reviewStageError && (
                 <p className="mt-2 text-xs text-red-600">{reviewStageError}</p>
@@ -693,33 +717,16 @@ export default function VerifyAdminPage() {
                 </p>
               </div>
               <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                {PREVIOUS_REVIEW_OPTIONS.map((opt) => {
-                  const selected = previousReviewStatus === opt;
-                  return (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => setPreviousReviewStatus(opt)}
-                      className={`flex h-full w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
-                        selected
-                          ? "border-blue-900 bg-blue-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
-                      }`}
-                    >
-                      {selected ? (
-                        <CheckCircle2 className="mt-1 shrink-0 text-blue-900" size={18} />
-                      ) : (
-                        <span className="mt-1 h-[18px] w-[18px] shrink-0 rounded-full border border-gray-300" />
-                      )}
-                      <span>
-                        <p className="break-keep text-base font-semibold text-gray-900">{opt}</p>
-                        <p className="mt-1 break-keep text-sm leading-relaxed text-gray-500">
-                          {PREVIOUS_REVIEW_DESCRIPTIONS[opt]}
-                        </p>
-                      </span>
-                    </button>
-                  );
-                })}
+                {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
+                  <SelectionCard
+                    key={opt}
+                    title={opt}
+                    description={PREVIOUS_REVIEW_DESCRIPTIONS[opt]}
+                    selected={previousReviewStatus === opt}
+                    onClick={() => setPreviousReviewStatus(opt)}
+                    icon={PREVIOUS_REVIEW_ICONS[opt]}
+                  />
+                ))}
               </div>
               {previousReviewError && (
                 <p className="mt-2 text-xs text-red-600">{previousReviewError}</p>
@@ -739,33 +746,16 @@ export default function VerifyAdminPage() {
                 </p>
               </div>
               <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                {incidentTypes.map((t) => {
-                  const selected = incidentType === t;
-                  return (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setIncidentType(t)}
-                      className={`flex h-full w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
-                        selected
-                          ? "border-blue-900 bg-blue-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
-                      }`}
-                    >
-                      {selected ? (
-                        <CheckCircle2 className="mt-1 shrink-0 text-blue-900" size={18} />
-                      ) : (
-                        <span className="mt-1 h-[18px] w-[18px] shrink-0 rounded-full border border-gray-300" />
-                      )}
-                      <span>
-                        <p className="break-keep text-base font-semibold text-gray-900">{t}</p>
-                        <p className="mt-1 break-keep text-sm leading-relaxed text-gray-500">
-                          {INCIDENT_TYPE_DESCRIPTIONS[t] ?? ""}
-                        </p>
-                      </span>
-                    </button>
-                  );
-                })}
+                {incidentTypes.map((t) => (
+                  <SelectionCard
+                    key={t}
+                    title={t}
+                    description={INCIDENT_TYPE_DESCRIPTIONS[t] ?? ""}
+                    selected={incidentType === t}
+                    onClick={() => setIncidentType(t)}
+                    icon={INCIDENT_TYPE_ICONS[t]}
+                  />
+                ))}
               </div>
             </div>
 
