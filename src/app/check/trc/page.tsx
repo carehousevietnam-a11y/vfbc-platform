@@ -26,6 +26,7 @@ import {
   MessageCircle,
   TrendingUp,
   Star,
+  ChevronDown,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -809,6 +810,7 @@ function PremiumLeadCapture({
                     <span className="flex shrink-0 items-center gap-1 border-r border-slate-200 pl-3.5 pr-3 text-sm font-medium text-slate-500">
                       <Phone size={15} className="text-slate-400" />
                       +82
+                      <ChevronDown size={12} className="text-slate-400" />
                     </span>
                     <input
                       type="tel"
@@ -875,7 +877,7 @@ function PremiumLeadCapture({
                     {messengers.primary.label} ID
                   </span>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#FEE500]">
+                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#FEE500]">
                       <MessageCircle size={11} className="text-[#3C1E1E]" />
                     </span>
                     <input
@@ -891,8 +893,8 @@ function PremiumLeadCapture({
                     {messengers.secondary.label} ID
                   </span>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#0068FF]">
-                      <MessageCircle size={11} className="text-white" />
+                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#0068FF] text-[7px] font-extrabold italic text-white">
+                      Zalo
                     </span>
                     <input
                       type="text"
