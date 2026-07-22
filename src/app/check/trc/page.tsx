@@ -575,6 +575,14 @@ function PremiumLeadCapture({
           <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute right-16 top-7 h-16 w-16 rounded-full bg-cyan-300/10 blur-xl" />
 
+          <div className="pointer-events-none absolute right-1 top-5 block h-[132px] w-[158px] lg:hidden">
+            <img
+              src="/images/trc/trc-hero-premium.png?v=7"
+              alt=""
+              className="h-full w-full object-contain object-center drop-shadow-[0_12px_24px_rgba(2,18,70,0.30)]"
+            />
+          </div>
+
           <div className="relative grid items-center gap-6 lg:min-h-[160px] lg:grid-cols-[1.40fr_0.60fr_0.82fr_0.50fr]">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3 py-1.5 text-[12px] font-extrabold text-slate-100 ring-1 ring-emerald-300/20">
@@ -634,11 +642,12 @@ function PremiumLeadCapture({
               </div>
             </div>
 
-            <div className="relative hidden h-[170px] overflow-hidden lg:block">
+            <div className="relative hidden h-[170px] overflow-visible lg:block">
+              <div className="absolute inset-4 rounded-full bg-cyan-300/10 blur-2xl" />
               <img
-                src="/images/trc/trc-hero-premium.png"
+                src="/images/trc/trc-hero-premium.png?v=7"
                 alt=""
-                className="absolute left-1/2 top-1/2 h-[188px] w-[300px] max-w-none -translate-x-[48%] -translate-y-1/2 object-cover object-center drop-shadow-[0_18px_32px_rgba(3,20,70,0.38)]"
+                className="absolute left-1/2 top-1/2 h-[174px] w-[286px] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain object-center drop-shadow-[0_18px_32px_rgba(3,20,70,0.30)]"
               />
             </div>
           </div>
@@ -682,7 +691,7 @@ function PremiumLeadCapture({
               <div className="relative max-w-[72%] p-4 sm:max-w-[64%] sm:p-5">
                 <h3 className="flex items-start gap-2 break-keep text-[15px] font-black leading-6 text-[#0F5DE5] sm:items-center sm:text-[16px]">
                   <ShieldCheck size={22} className="mt-0.5 shrink-0 sm:mt-0" />
-                  <span>베트남 전문가 그룹 검토</span>
+                  <span className="whitespace-nowrap">베트남 전문가 그룹 검토</span>
                 </h3>
                 <p className="mt-3 break-keep text-[12px] leading-6 text-[#30435F]">
                   입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더 정확한 리포트를 제공합니다.
