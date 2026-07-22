@@ -13,6 +13,10 @@ import {
   Info,
   ShieldCheck,
   Lightbulb,
+  Globe,
+  FileText,
+  Users,
+  Building2,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -379,6 +383,59 @@ function ProcessMethodCards({
         어떤 방법을 선택하시더라도 AI 분석 결과는 그대로 활용됩니다.
       </p>
     </div>
+  );
+}
+
+// STEP12-4: STEP1(이전 신청 이력 질문) 목업 디자인을 STEP2~5에도 동일하게 적용하기 위한
+// 공통 UI 셸. 순수 표시 컴포넌트이며 상태·핸들러는 전달받은 onClick만 그대로 실행한다.
+function TrcStepHeader({ step, question }: { step: number; question: string }) {
+  return (
+    <>
+      <p className="text-xs font-semibold text-[#1D4EDB]">거주증(TRC) 가능성 진단</p>
+      <p className="mt-2 text-sm font-semibold text-[#1D4EDB]">STEP {step} / 5</p>
+      <h1 className="mt-2 text-2xl font-bold leading-snug text-gray-900 sm:text-[28px] break-keep">
+        {question}
+      </h1>
+      <p className="mt-6 text-sm text-gray-600">
+        아래 항목 중 해당되는 것을 선택해주세요.
+      </p>
+    </>
+  );
+}
+
+function TrcOptionCard({
+  icon,
+  iconBg,
+  title,
+  description,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  iconBg: string;
+  title: string;
+  description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-gray-300 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5"
+    >
+      <div className="flex items-start justify-between">
+        <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-gray-300" />
+        <span
+          className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}
+        >
+          {icon}
+        </span>
+      </div>
+      <p className="mt-4 text-base font-bold text-gray-900 break-keep">{title}</p>
+      <p className="mt-1 text-sm text-gray-500 break-keep">{description}</p>
+      <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600">
+        <CheckCircle2 size={12} /> 선택 시 다음 단계로 진행됩니다
+      </span>
+    </button>
   );
 }
 
@@ -838,23 +895,22 @@ export default function TrcCheckPage() {
           <>
             {!nationality && (
               <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  2. 국적이 어떻게 되시나요?
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <TrcStepHeader step={2} question="국적이 어떻게 되시나요?" />
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
-                    { key: "korea", label: "대한민국" },
-                    { key: "china", label: "중국" },
-                    { key: "japan", label: "일본" },
-                    { key: "other", label: "기타 국가" },
+                    { key: "korea", label: "대한민국", desc: "가장 많이 선택되는 국적입니다." },
+                    { key: "china", label: "중국", desc: "중국 국적 신청자에게 적용됩니다." },
+                    { key: "japan", label: "일본", desc: "일본 국적 신청자에게 적용됩니다." },
+                    { key: "other", label: "기타 국가", desc: "위 국가에 해당하지 않는 경우입니다." },
                   ].map((opt) => (
-                    <button
+                    <TrcOptionCard
                       key={opt.key}
+                      icon={<Globe size={18} className="text-blue-700" />}
+                      iconBg="bg-blue-50"
+                      title={opt.label}
+                      description={opt.desc}
                       onClick={() => setNationality(opt.key as Nationality)}
-                      className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                    >
-                      {opt.label}
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
@@ -862,24 +918,22 @@ export default function TrcCheckPage() {
 
             {nationality && !visa && (
               <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  3. 현재 어떤 비자를 소지하고 있나요?
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <TrcStepHeader step={3} question="현재 어떤 비자를 소지하고 있나요?" />
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
-                    { key: "invest", label: "투자비자 (DT)", desc: "출자·투자 목적" },
-                    { key: "work", label: "노동허가부 비자 (LD)", desc: "노동허가 취득 완료" },
-                    { key: "tourist", label: "관광·단기비자 (DL 등)", desc: "단기 체류 목적" },
-                    { key: "other", label: "기타 비자", desc: "위 항목에 없는 경우" },
+                    { key: "invest", label: "투자비자 (DT)", desc: "출자·투자 목적으로 발급된 비자입니다." },
+                    { key: "work", label: "노동허가부 비자 (LD)", desc: "노동허가 취득을 완료한 경우입니다." },
+                    { key: "tourist", label: "관광·단기비자 (DL 등)", desc: "단기 체류 목적으로 발급된 비자입니다." },
+                    { key: "other", label: "기타 비자", desc: "위 항목에 해당하지 않는 경우입니다." },
                   ].map((opt) => (
-                    <button
+                    <TrcOptionCard
                       key={opt.key}
+                      icon={<FileText size={18} className="text-blue-700" />}
+                      iconBg="bg-blue-50"
+                      title={opt.label}
+                      description={opt.desc}
                       onClick={() => setVisa(opt.key as Visa)}
-                      className="flex flex-col items-start rounded-2xl bg-white border border-gray-100 p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all"
-                    >
-                      <p className="text-sm font-bold text-gray-900">{opt.label}</p>
-                      <p className="mt-1 text-xs text-gray-500">{opt.desc}</p>
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
@@ -887,22 +941,21 @@ export default function TrcCheckPage() {
 
             {nationality && visa && !role && (
               <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  4. 회사 내 직책이 어떻게 되시나요?
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <TrcStepHeader step={4} question="회사 내 직책이 어떻게 되시나요?" />
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {[
-                    { key: "legal-rep", label: "법인장 · 법정대표자" },
-                    { key: "manager", label: "매니저 · 관리직" },
-                    { key: "staff", label: "일반 직원" },
+                    { key: "legal-rep", label: "법인장 · 법정대표자", desc: "법인의 대표 권한을 가진 경우입니다." },
+                    { key: "manager", label: "매니저 · 관리직", desc: "관리 업무를 담당하는 경우입니다." },
+                    { key: "staff", label: "일반 직원", desc: "일반 실무를 담당하는 경우입니다." },
                   ].map((opt) => (
-                    <button
+                    <TrcOptionCard
                       key={opt.key}
+                      icon={<Users size={18} className="text-blue-700" />}
+                      iconBg="bg-blue-50"
+                      title={opt.label}
+                      description={opt.desc}
                       onClick={() => setRole(opt.key as Role)}
-                      className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                    >
-                      {opt.label}
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
@@ -910,22 +963,21 @@ export default function TrcCheckPage() {
 
             {nationality && visa && role && !company && (
               <div className="mt-8">
-                <p className="text-sm font-semibold text-gray-900">
-                  5. 소속 회사의 법인 형태는 무엇인가요?
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <TrcStepHeader step={5} question="소속 회사의 법인 형태는 무엇인가요?" />
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {[
-                    { key: "fdi", label: "외국인투자법인 (FDI)" },
-                    { key: "local", label: "현지 법인" },
-                    { key: "unregistered", label: "아직 미등록 · 준비 중" },
+                    { key: "fdi", label: "외국인투자법인 (FDI)", desc: "외국인 투자 지분이 있는 법인입니다." },
+                    { key: "local", label: "현지 법인", desc: "베트남 현지 자본으로 설립된 법인입니다." },
+                    { key: "unregistered", label: "아직 미등록 · 준비 중", desc: "법인 등록 절차가 아직 진행 중입니다." },
                   ].map((opt) => (
-                    <button
+                    <TrcOptionCard
                       key={opt.key}
+                      icon={<Building2 size={18} className="text-blue-700" />}
+                      iconBg="bg-blue-50"
+                      title={opt.label}
+                      description={opt.desc}
                       onClick={() => setCompany(opt.key as Company)}
-                      className="rounded-2xl bg-white border border-gray-100 p-4 text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-                    >
-                      {opt.label}
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
