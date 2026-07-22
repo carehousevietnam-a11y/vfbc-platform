@@ -387,8 +387,17 @@ function ProcessMethodCards({
 }
 
 // STEP12-4: STEP1(이전 신청 이력 질문) 목업 디자인을 STEP2~5에도 동일하게 적용하기 위한
-// 공통 UI 셸. 순수 표시 컴포넌트이며 상태·핸들러는 전달받은 onClick만 그대로 실행한다.
-function TrcStepHeader({ step, question }: { step: number; question: string }) {
+// 공통 UI 셸. 순수 표시 컴포넌트이며 상태·핸들러는 전달받은 props(onClick/onPrev/onNext)만
+// 그대로 실행한다. 진단 계산 로직·DB·API는 전혀 참조하지 않는다.
+function TrcStepHeader({
+  step,
+  question,
+  note,
+}: {
+  step: number;
+  question: string;
+  note: string;
+}) {
   return (
     <>
       <p className="text-xs font-semibold text-[#1D4EDB]">거주증(TRC) 가능성 진단</p>
@@ -396,6 +405,8 @@ function TrcStepHeader({ step, question }: { step: number; question: string }) {
       <h1 className="mt-2 text-2xl font-bold leading-snug text-gray-900 sm:text-[28px] break-keep">
         {question}
       </h1>
+      <p className="mt-2 text-sm text-gray-500 break-keep">{note}</p>
+
       <p className="mt-6 text-sm text-gray-600">
         아래 항목 중 해당되는 것을 선택해주세요.
       </p>
@@ -408,22 +419,41 @@ function TrcOptionCard({
   iconBg,
   title,
   description,
+  meaning,
+  meaningTone,
+  selected,
   onClick,
 }: {
   icon: React.ReactNode;
   iconBg: string;
   title: string;
   description: string;
+  meaning: string;
+  meaningTone: "positive" | "caution";
+  selected: boolean;
   onClick: () => void;
 }) {
+  const meaningBg = meaningTone === "positive" ? "bg-emerald-50" : "bg-amber-50";
+  const meaningText = meaningTone === "positive" ? "text-emerald-700" : "text-amber-800";
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-gray-300 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5"
+      className={`rounded-2xl border p-5 text-left transition-all duration-200 ${
+        selected
+          ? "border-[#1D4EDB] bg-white shadow-sm"
+          : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5"
+      }`}
     >
       <div className="flex items-start justify-between">
-        <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-gray-300" />
+        <span
+          className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
+            selected ? "border-[#1D4EDB]" : "border-gray-300"
+          }`}
+        >
+          {selected && <span className="h-2 w-2 rounded-full bg-[#1D4EDB]" />}
+        </span>
         <span
           className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}
         >
@@ -432,12 +462,51 @@ function TrcOptionCard({
       </div>
       <p className="mt-4 text-base font-bold text-gray-900 break-keep">{title}</p>
       <p className="mt-1 text-sm text-gray-500 break-keep">{description}</p>
-      <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600">
-        <CheckCircle2 size={12} /> 선택 시 다음 단계로 진행됩니다
+      <span
+        className={`mt-3 inline-flex items-center gap-1 rounded-full ${meaningBg} px-2.5 py-1 text-[11px] font-medium ${meaningText}`}
+      >
+        {meaningTone === "positive" ? (
+          <CheckCircle2 size={12} />
+        ) : (
+          <AlertTriangle size={12} />
+        )}
+        {meaning}
       </span>
     </button>
   );
 }
+
+function TrcStepNav({
+  onPrev,
+  onNext,
+  nextDisabled,
+}: {
+  onPrev: () => void;
+  onNext: () => void;
+  nextDisabled: boolean;
+}) {
+  return (
+    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <button
+        type="button"
+        onClick={onPrev}
+        className="order-2 flex h-12 items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 sm:order-1 sm:flex-1"
+      >
+        <ArrowLeft size={16} /> 이전 단계로
+      </button>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={nextDisabled}
+        className="order-1 flex h-12 items-center justify-center gap-1.5 rounded-xl bg-[#1D4EDB] text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-40 sm:order-2 sm:flex-1"
+      >
+        다음 단계로
+        <ArrowLeft size={16} className="rotate-180" />
+      </button>
+    </div>
+  );
+}
+
 
 export default function TrcCheckPage() {
   const [nationality, setNationality] = useState<Nationality>(null);
@@ -459,6 +528,10 @@ export default function TrcCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const [pendingNationality, setPendingNationality] = useState<Nationality>(null);
+  const [pendingVisa, setPendingVisa] = useState<Visa>(null);
+  const [pendingRole, setPendingRole] = useState<Role>(null);
+  const [pendingCompany, setPendingCompany] = useState<Company>(null);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const messengers = MESSENGERS_KO;
@@ -554,6 +627,10 @@ export default function TrcCheckPage() {
     setPreviousRejection(null);
     setRejectionReason("");
     setRejectionStepDone(false);
+    setPendingNationality(null);
+    setPendingVisa(null);
+    setPendingRole(null);
+    setPendingCompany(null);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
   }
@@ -719,27 +796,6 @@ export default function TrcCheckPage() {
       </header>
 
       <div className="mx-auto max-w-xl px-6 py-10">
-        {rejectionStepDone && (
-          <>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600"
-            >
-              <ArrowLeft size={14} /> 홈으로
-            </Link>
-
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              직접확인하기 · 베트남 행정전문 AI
-            </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-              거주증 (TRC) 가능성 진단
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              국적·비자·직책·회사 형태에 따라 거주증 발급 가능 여부가 달라집니다.
-            </p>
-          </>
-        )}
-
         {!rejectionStepDone && (
           <div className="mt-6">
             <p className="text-xs font-semibold text-[#1D4EDB]">
@@ -895,13 +951,17 @@ export default function TrcCheckPage() {
           <>
             {!nationality && (
               <div className="mt-8">
-                <TrcStepHeader step={2} question="국적이 어떻게 되시나요?" />
+                <TrcStepHeader
+                  step={2}
+                  question="국적이 어떻게 되시나요?"
+                  note="국적은 적용 법령과 절차를 구분하는 기준입니다."
+                />
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
-                    { key: "korea", label: "대한민국", desc: "가장 많이 선택되는 국적입니다." },
-                    { key: "china", label: "중국", desc: "중국 국적 신청자에게 적용됩니다." },
-                    { key: "japan", label: "일본", desc: "일본 국적 신청자에게 적용됩니다." },
-                    { key: "other", label: "기타 국가", desc: "위 국가에 해당하지 않는 경우입니다." },
+                    { key: "korea", label: "대한민국", desc: "가장 많이 선택되는 국적입니다.", meaning: "국적 요건 충족 확인에 활용됩니다", tone: "positive" as const },
+                    { key: "china", label: "중국", desc: "중국 국적 신청자에게 적용됩니다.", meaning: "국가별 규정 확인이 필요한 유형입니다", tone: "caution" as const },
+                    { key: "japan", label: "일본", desc: "일본 국적 신청자에게 적용됩니다.", meaning: "국가별 규정 확인이 필요한 유형입니다", tone: "caution" as const },
+                    { key: "other", label: "기타 국가", desc: "위 국가에 해당하지 않는 경우입니다.", meaning: "추가 서류 확인이 필요할 수 있는 유형입니다", tone: "caution" as const },
                   ].map((opt) => (
                     <TrcOptionCard
                       key={opt.key}
@@ -909,22 +969,35 @@ export default function TrcCheckPage() {
                       iconBg="bg-blue-50"
                       title={opt.label}
                       description={opt.desc}
-                      onClick={() => setNationality(opt.key as Nationality)}
+                      meaning={opt.meaning}
+                      meaningTone={opt.tone}
+                      selected={pendingNationality === opt.key}
+                      onClick={() => setPendingNationality(opt.key as Nationality)}
                     />
                   ))}
                 </div>
+
+                <TrcStepNav
+                  onPrev={() => setRejectionStepDone(false)}
+                  onNext={() => setNationality(pendingNationality)}
+                  nextDisabled={!pendingNationality}
+                />
               </div>
             )}
 
             {nationality && !visa && (
               <div className="mt-8">
-                <TrcStepHeader step={3} question="현재 어떤 비자를 소지하고 있나요?" />
+                <TrcStepHeader
+                  step={3}
+                  question="현재 어떤 비자를 소지하고 있나요?"
+                  note="비자 종류는 거주증 발급 가능성을 판단하는 핵심 기준입니다."
+                />
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
-                    { key: "invest", label: "투자비자 (DT)", desc: "출자·투자 목적으로 발급된 비자입니다." },
-                    { key: "work", label: "노동허가부 비자 (LD)", desc: "노동허가 취득을 완료한 경우입니다." },
-                    { key: "tourist", label: "관광·단기비자 (DL 등)", desc: "단기 체류 목적으로 발급된 비자입니다." },
-                    { key: "other", label: "기타 비자", desc: "위 항목에 해당하지 않는 경우입니다." },
+                    { key: "invest", label: "투자비자 (DT)", desc: "출자·투자 목적으로 발급된 비자입니다.", meaning: "거주증 자격 판단에 유리한 유형입니다", tone: "positive" as const },
+                    { key: "work", label: "노동허가부 비자 (LD)", desc: "노동허가 취득을 완료한 경우입니다.", meaning: "거주증 자격 판단에 유리한 유형입니다", tone: "positive" as const },
+                    { key: "tourist", label: "관광·단기비자 (DL 등)", desc: "단기 체류 목적으로 발급된 비자입니다.", meaning: "추가 자격 확인이 필요한 유형입니다", tone: "caution" as const },
+                    { key: "other", label: "기타 비자", desc: "위 항목에 해당하지 않는 경우입니다.", meaning: "정밀 검토가 필요한 유형입니다", tone: "caution" as const },
                   ].map((opt) => (
                     <TrcOptionCard
                       key={opt.key}
@@ -932,21 +1005,34 @@ export default function TrcCheckPage() {
                       iconBg="bg-blue-50"
                       title={opt.label}
                       description={opt.desc}
-                      onClick={() => setVisa(opt.key as Visa)}
+                      meaning={opt.meaning}
+                      meaningTone={opt.tone}
+                      selected={pendingVisa === opt.key}
+                      onClick={() => setPendingVisa(opt.key as Visa)}
                     />
                   ))}
                 </div>
+
+                <TrcStepNav
+                  onPrev={() => setNationality(null)}
+                  onNext={() => setVisa(pendingVisa)}
+                  nextDisabled={!pendingVisa}
+                />
               </div>
             )}
 
             {nationality && visa && !role && (
               <div className="mt-8">
-                <TrcStepHeader step={4} question="회사 내 직책이 어떻게 되시나요?" />
+                <TrcStepHeader
+                  step={4}
+                  question="회사 내 직책이 어떻게 되시나요?"
+                  note="직책은 신청 자격 요건을 확인하는 데 사용됩니다."
+                />
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {[
-                    { key: "legal-rep", label: "법인장 · 법정대표자", desc: "법인의 대표 권한을 가진 경우입니다." },
-                    { key: "manager", label: "매니저 · 관리직", desc: "관리 업무를 담당하는 경우입니다." },
-                    { key: "staff", label: "일반 직원", desc: "일반 실무를 담당하는 경우입니다." },
+                    { key: "legal-rep", label: "법인장 · 법정대표자", desc: "법인의 대표 권한을 가진 경우입니다.", meaning: "거주증 자격 판단에 유리한 유형입니다", tone: "positive" as const },
+                    { key: "manager", label: "매니저 · 관리직", desc: "관리 업무를 담당하는 경우입니다.", meaning: "직책 요건 추가 확인이 필요한 유형입니다", tone: "caution" as const },
+                    { key: "staff", label: "일반 직원", desc: "일반 실무를 담당하는 경우입니다.", meaning: "직책 요건 추가 확인이 필요한 유형입니다", tone: "caution" as const },
                   ].map((opt) => (
                     <TrcOptionCard
                       key={opt.key}
@@ -954,21 +1040,34 @@ export default function TrcCheckPage() {
                       iconBg="bg-blue-50"
                       title={opt.label}
                       description={opt.desc}
-                      onClick={() => setRole(opt.key as Role)}
+                      meaning={opt.meaning}
+                      meaningTone={opt.tone}
+                      selected={pendingRole === opt.key}
+                      onClick={() => setPendingRole(opt.key as Role)}
                     />
                   ))}
                 </div>
+
+                <TrcStepNav
+                  onPrev={() => setVisa(null)}
+                  onNext={() => setRole(pendingRole)}
+                  nextDisabled={!pendingRole}
+                />
               </div>
             )}
 
             {nationality && visa && role && !company && (
               <div className="mt-8">
-                <TrcStepHeader step={5} question="소속 회사의 법인 형태는 무엇인가요?" />
+                <TrcStepHeader
+                  step={5}
+                  question="소속 회사의 법인 형태는 무엇인가요?"
+                  note="법인 형태는 필요 서류와 신청 가능 여부를 결정합니다."
+                />
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {[
-                    { key: "fdi", label: "외국인투자법인 (FDI)", desc: "외국인 투자 지분이 있는 법인입니다." },
-                    { key: "local", label: "현지 법인", desc: "베트남 현지 자본으로 설립된 법인입니다." },
-                    { key: "unregistered", label: "아직 미등록 · 준비 중", desc: "법인 등록 절차가 아직 진행 중입니다." },
+                    { key: "fdi", label: "외국인투자법인 (FDI)", desc: "외국인 투자 지분이 있는 법인입니다.", meaning: "거주증 자격 판단에 유리한 유형입니다", tone: "positive" as const },
+                    { key: "local", label: "현지 법인", desc: "베트남 현지 자본으로 설립된 법인입니다.", meaning: "법인 형태 추가 확인이 필요한 유형입니다", tone: "caution" as const },
+                    { key: "unregistered", label: "아직 미등록 · 준비 중", desc: "법인 등록 절차가 아직 진행 중입니다.", meaning: "법인 미등록 시 신청이 제한될 수 있는 유형입니다", tone: "caution" as const },
                   ].map((opt) => (
                     <TrcOptionCard
                       key={opt.key}
@@ -976,10 +1075,19 @@ export default function TrcCheckPage() {
                       iconBg="bg-blue-50"
                       title={opt.label}
                       description={opt.desc}
-                      onClick={() => setCompany(opt.key as Company)}
+                      meaning={opt.meaning}
+                      meaningTone={opt.tone}
+                      selected={pendingCompany === opt.key}
+                      onClick={() => setPendingCompany(opt.key as Company)}
                     />
                   ))}
                 </div>
+
+                <TrcStepNav
+                  onPrev={() => setRole(null)}
+                  onNext={() => setCompany(pendingCompany)}
+                  nextDisabled={!pendingCompany}
+                />
               </div>
             )}
           </>
