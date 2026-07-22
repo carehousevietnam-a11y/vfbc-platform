@@ -615,7 +615,7 @@ export default function VerifyAdminPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className="mx-auto max-w-xl px-6 py-10">
+      <div className={`mx-auto px-6 py-10 ${step === "incident" ? "max-w-4xl" : "max-w-xl"}`}>
         <Link href="/" className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600">
           <ArrowLeft size={14} /> 홈으로
         </Link>
@@ -644,7 +644,7 @@ export default function VerifyAdminPage() {
               <p className="mt-1 pl-7 text-xs text-gray-500">
                 검토 목적에 가장 가까운 항목을 선택해주세요.
               </p>
-              <div className="mt-3 space-y-3">
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {REVIEW_STAGE_OPTIONS.map((opt) => {
                   const selected = reviewStage === opt.value;
                   return (
@@ -652,20 +652,22 @@ export default function VerifyAdminPage() {
                       key={opt.value}
                       type="button"
                       onClick={() => setReviewStage(opt.value)}
-                      className={`flex w-full items-start gap-2.5 rounded-xl border p-3 text-left transition-colors ${
+                      className={`flex h-full w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
                         selected
                           ? "border-blue-900 bg-blue-50"
                           : "border-gray-200 bg-white hover:border-gray-300"
                       }`}
                     >
                       {selected ? (
-                        <CheckCircle2 className="mt-0.5 shrink-0 text-blue-900" size={16} />
+                        <CheckCircle2 className="mt-1 shrink-0 text-blue-900" size={18} />
                       ) : (
-                        <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-gray-300" />
+                        <span className="mt-1 h-[18px] w-[18px] shrink-0 rounded-full border border-gray-300" />
                       )}
                       <span>
-                        <p className="text-[13px] font-bold text-gray-900">{opt.title}</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-gray-500">
+                        <p className="break-keep text-base font-semibold text-gray-900">
+                          {opt.title}
+                        </p>
+                        <p className="mt-1 break-keep text-sm leading-relaxed text-gray-500">
                           {opt.desc}
                         </p>
                       </span>
@@ -690,7 +692,7 @@ export default function VerifyAdminPage() {
                   이전에 다른 곳에서 검토받은 적이 있나요?
                 </p>
               </div>
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                 {PREVIOUS_REVIEW_OPTIONS.map((opt) => {
                   const selected = previousReviewStatus === opt;
                   return (
@@ -698,20 +700,20 @@ export default function VerifyAdminPage() {
                       key={opt}
                       type="button"
                       onClick={() => setPreviousReviewStatus(opt)}
-                      className={`flex w-full items-start gap-2.5 rounded-xl border p-3 text-left transition-colors ${
+                      className={`flex h-full w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
                         selected
                           ? "border-blue-900 bg-blue-50"
                           : "border-gray-200 bg-white hover:border-gray-300"
                       }`}
                     >
                       {selected ? (
-                        <CheckCircle2 className="mt-0.5 shrink-0 text-blue-900" size={16} />
+                        <CheckCircle2 className="mt-1 shrink-0 text-blue-900" size={18} />
                       ) : (
-                        <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-gray-300" />
+                        <span className="mt-1 h-[18px] w-[18px] shrink-0 rounded-full border border-gray-300" />
                       )}
                       <span>
-                        <p className="text-[13px] font-bold text-gray-900">{opt}</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-gray-500">
+                        <p className="break-keep text-base font-semibold text-gray-900">{opt}</p>
+                        <p className="mt-1 break-keep text-sm leading-relaxed text-gray-500">
                           {PREVIOUS_REVIEW_DESCRIPTIONS[opt]}
                         </p>
                       </span>
@@ -736,7 +738,7 @@ export default function VerifyAdminPage() {
                   어떤 종류의 사건·서류인가요?
                 </p>
               </div>
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                 {incidentTypes.map((t) => {
                   const selected = incidentType === t;
                   return (
@@ -744,20 +746,20 @@ export default function VerifyAdminPage() {
                       key={t}
                       type="button"
                       onClick={() => setIncidentType(t)}
-                      className={`flex w-full items-start gap-2.5 rounded-xl border p-3 text-left transition-colors ${
+                      className={`flex h-full w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
                         selected
                           ? "border-blue-900 bg-blue-50"
                           : "border-gray-200 bg-white hover:border-gray-300"
                       }`}
                     >
                       {selected ? (
-                        <CheckCircle2 className="mt-0.5 shrink-0 text-blue-900" size={16} />
+                        <CheckCircle2 className="mt-1 shrink-0 text-blue-900" size={18} />
                       ) : (
-                        <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-gray-300" />
+                        <span className="mt-1 h-[18px] w-[18px] shrink-0 rounded-full border border-gray-300" />
                       )}
                       <span>
-                        <p className="text-[13px] font-bold text-gray-900">{t}</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-gray-500">
+                        <p className="break-keep text-base font-semibold text-gray-900">{t}</p>
+                        <p className="mt-1 break-keep text-sm leading-relaxed text-gray-500">
                           {INCIDENT_TYPE_DESCRIPTIONS[t] ?? ""}
                         </p>
                       </span>
