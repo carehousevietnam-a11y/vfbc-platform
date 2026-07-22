@@ -548,448 +548,339 @@ function PremiumLeadCapture({
   const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
   const status = isPossible ? "가능성 높음" : "추가 확인 필요";
   const accentText = isPossible ? "text-emerald-300" : "text-amber-300";
-  const ringGradient = isPossible
-    ? "conic-gradient(from 180deg, #34d399 0%, #22d3ee 50%, #34d399 100%)"
-    : "conic-gradient(from 180deg, #fbbf24 0%, #fb923c 50%, #fbbf24 100%)";
-  const ringGlow = isPossible
-    ? "shadow-[0_0_30px_6px_rgba(34,211,238,0.16)]"
-    : "shadow-[0_0_30px_6px_rgba(251,191,36,0.16)]";
 
   const reportItems: [React.ElementType, string, string, string][] = [
-    [TrendingUp, "가능성 점수", "거주증 발급 가능성을 점수로 확인", "bg-emerald-50 text-emerald-600"],
-    [AlertTriangle, "위험요인 분석", "거절·보완 가능성이 있는 항목 진단", "bg-amber-50 text-amber-600"],
+    [TrendingUp, "가능성 점수", "거주증 발급 가능성을 점수로 확인", "bg-emerald-50 text-emerald-500"],
+    [AlertTriangle, "위험요인 분석", "거절·보완 가능성이 있는 항목 진단", "bg-amber-50 text-amber-500"],
     [FileText, "준비서류 안내", "현재 조건에 맞는 필수 서류 목록", "bg-blue-50 text-blue-600"],
-    [Clock, "예상 처리기간", "신청부터 발급까지 예상 기간 안내", "bg-purple-50 text-purple-600"],
+    [Clock, "예상 처리기간", "신청부터 발급까지 예상 기간 안내", "bg-violet-50 text-violet-600"],
     [Users, "전문가 검토 의견", "베트남 행정 전문가의 추가 코멘트 제공", "bg-cyan-50 text-cyan-600"],
   ];
 
-  const trustBar: [React.ElementType, string, string][] = [
+  const trustItems: [React.ElementType, string, string][] = [
     [Users, "베트남 전문가 그룹", "베트남 현지 전문가 그룹의 체계적인 분석과 검토"],
     [ShieldCheck, "축적된 처리 경험", "다양한 실제 사례를 기반으로 AI 분석을 지속적으로 고도화"],
     [Clock, "신속한 결과 확인", "입력 후 즉시 AI 분석 리포트 제공"],
     [Lock, "개인정보 보호", "베트남 개인정보보호법 기준에 따라 안전하게 보호"],
   ];
 
-  return (
-    <div className="mt-8 sm:relative sm:left-1/2 sm:w-[calc(100vw-2rem)] sm:max-w-[1280px] sm:-translate-x-1/2">
-      <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
-        {/* Hero */}
-        <div className="relative overflow-hidden bg-[#0B1739] px-8 py-9 text-white sm:px-12 sm:py-10">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#0B1739] via-[#0F2A66] to-[#123B99]" />
-          <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-blue-500/25 blur-[100px]" />
-          <div className="pointer-events-none absolute -bottom-24 left-8 h-56 w-56 rounded-full bg-cyan-400/15 blur-[90px]" />
+  const fieldClass =
+    "h-[44px] w-full rounded-xl border border-[#D7E0EF] bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-[#97A6BC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-100";
 
-          <div className="relative flex flex-col items-center gap-6 lg:flex-row lg:items-center lg:justify-between">
-            {/* Text — 좌측 42% 비중 */}
-            <div className="max-w-md lg:w-[42%]">
-              <span className={`inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold ${accentText} ring-1 ring-white/15`}>
-                <CheckCircle2 size={13} /> AI 1차 분석 완료
+  return (
+    <div className="mt-8 sm:relative sm:left-1/2 sm:w-[calc(100vw-32px)] sm:max-w-[1456px] sm:-translate-x-1/2">
+      <section className="overflow-hidden rounded-[20px] border border-[#DCE5F1] bg-white shadow-[0_28px_80px_rgba(22,55,110,0.14)]">
+        <div className="relative min-h-[218px] overflow-hidden bg-[#071B43] px-8 py-7 text-white lg:px-9">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_20%,rgba(20,184,255,0.30),transparent_18%),radial-gradient(circle_at_86%_56%,rgba(37,99,235,0.26),transparent_25%),linear-gradient(108deg,#061632_0%,#08275f_52%,#0B3384_100%)]" />
+          <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
+          <div className="pointer-events-none absolute right-16 top-7 h-16 w-16 rounded-full bg-cyan-300/10 blur-xl" />
+
+          <div className="relative grid min-h-[160px] items-center gap-6 lg:grid-cols-[1.40fr_0.60fr_0.82fr_0.50fr]">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3 py-1.5 text-[12px] font-extrabold text-slate-100 ring-1 ring-emerald-300/20">
+                <CheckCircle2 size={15} className="text-emerald-300" />
+                AI 1차 분석 완료
               </span>
-              <h1 className="mt-3 text-[26px] font-bold leading-[1.25] tracking-tight sm:text-[32px] break-keep">
-                {isPossible ? (
-                  <>
-                    거주증 발급{" "}
-                    <span className={accentText}>가능성이 높습니다.</span>
-                  </>
-                ) : (
-                  <>
-                    조건을 보완하면{" "}
-                    <span className={accentText}>거주증 발급이 가능합니다.</span>
-                  </>
-                )}
+
+              <h1 className="mt-4 text-[35px] font-extrabold leading-[1.18] tracking-[-0.035em] sm:text-[38px]">
+                거주증 발급{" "}
+                <span className={accentText}>
+                  {isPossible ? "가능성이 높습니다." : "추가 확인이 필요합니다."}
+                </span>
               </h1>
-              <p className="mt-2 text-sm leading-6 text-white/70">
+
+              <p className="mt-3 text-[14px] leading-6 text-white/88">
                 입력하신 조건을 기준으로 AI 분석이 완료되었습니다.
                 <br />
                 정확한 결과와 맞춤 가이드를 확인하세요.
               </p>
             </div>
 
-            {/* Score / Info / Shield — 우측 58% 비중 */}
-            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center lg:w-[58%] lg:justify-center lg:gap-10">
-              <div
-                className={`relative flex h-[126px] w-[126px] shrink-0 items-center justify-center rounded-full ${ringGlow}`}
-                style={{ background: ringGradient }}
-              >
-                <div className="absolute inset-[8px] rounded-full bg-[#0B1739]" />
-                <div className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_3px_rgba(255,255,255,0.85)]" />
+            <div className="flex justify-center">
+              <div className="relative flex h-[170px] w-[170px] items-center justify-center rounded-full">
+                <div className="absolute inset-0 rounded-full bg-[conic-gradient(#22C55E_0deg,#34D399_88deg,#67E8F9_170deg,#60A5FA_250deg,#22C55E_360deg)] shadow-[0_0_34px_rgba(34,211,238,0.34)]" />
+                <div className="absolute inset-[8px] rounded-full bg-[#103777]" />
+                <div className="absolute inset-[17px] rounded-full border border-white/10 bg-[radial-gradient(circle_at_50%_35%,rgba(37,99,235,.42),rgba(5,24,57,.97)_69%)]" />
                 <div className="relative text-center">
-                  <strong className="block text-[36px] font-extrabold leading-none tracking-tight">
-                    {score}%
-                  </strong>
-                  <span className={`mt-2 block text-[11px] font-semibold ${accentText}`}>
-                    {status}
-                  </span>
-                  <div className="mt-1.5 flex justify-center gap-0.5 text-amber-300">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={10} fill="currentColor" strokeWidth={0} />
+                  <strong className="block text-[42px] font-black leading-none">{score}%</strong>
+                  <span className={`mt-2 block text-[12px] font-extrabold ${accentText}`}>{status}</span>
+                  <div className="mt-2 flex justify-center gap-1 text-emerald-300">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star key={index} size={12} fill="currentColor" strokeWidth={0} />
                     ))}
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="flex flex-col gap-3 text-xs text-white/80">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
-                    <Clock size={16} className="text-white/70" />
-                  </span>
-                  <div>
-                    <p className="text-white/50">예상 처리기간</p>
-                    <p className="text-sm font-semibold text-white">약 2~4주</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
-                    <Building2 size={16} className="text-white/70" />
-                  </span>
-                  <div>
-                    <p className="text-white/50">관할 기관</p>
-                    <p className="text-sm font-semibold text-white">
-                      베트남 공안부 출입국국
-                      <span className="block text-[10px] font-normal text-white/50">
-                        (Immigration Department)
-                      </span>
-                    </p>
-                  </div>
+            <div className="space-y-5 border-white/15 lg:border-l lg:pl-6">
+              <div className="flex items-start gap-3">
+                <Clock size={25} className="mt-0.5 shrink-0 text-blue-100" />
+                <div>
+                  <p className="text-[12px] font-semibold text-white/72">예상 처리기간</p>
+                  <p className="mt-0.5 text-[14px] font-extrabold text-white">약 2 ~ 4주</p>
                 </div>
               </div>
 
-              <div className="relative hidden h-[150px] w-[160px] shrink-0 items-center justify-center lg:flex">
-                <div className="absolute bottom-2 h-9 w-32 rounded-full bg-blue-400/25 blur-2xl" />
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/40 to-cyan-300/20 blur-2xl" />
+              <div className="h-px bg-white/15" />
 
-                <div className="absolute right-2 top-6 h-20 w-16 -rotate-[11deg] rounded-lg border border-white/70 bg-white/95 p-2 shadow-[0_14px_30px_rgba(15,23,42,0.32)]">
-                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100" />
-                  <div className="mt-1.5 h-1 w-full rounded bg-slate-300" />
-                  <div className="mt-1 h-1 w-2/3 rounded bg-slate-200" />
-                  <div className="mt-1 h-1 w-full rounded bg-slate-200" />
-                  <div className="mt-1 h-1 w-3/4 rounded bg-slate-200" />
+              <div className="flex items-start gap-3">
+                <Building2 size={25} className="mt-0.5 shrink-0 text-blue-100" />
+                <div>
+                  <p className="text-[12px] font-semibold text-white/72">관할 기관</p>
+                  <p className="mt-0.5 text-[13px] font-extrabold leading-5 text-white">베트남 공안부 출입국국</p>
+                  <p className="text-[11px] text-white/72">(Immigration Department)</p>
                 </div>
+              </div>
+            </div>
 
-                <Shield
-                  size={92}
-                  strokeWidth={1.2}
-                  className="relative left-[-14px] top-[-4px] text-blue-300 drop-shadow-[0_12px_32px_rgba(59,130,246,0.6)]"
-                  fill="rgba(59,130,246,0.18)"
-                />
-                <CheckCircle2
-                  size={40}
-                  strokeWidth={2}
-                  className="absolute left-1 top-3 text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.4)]"
-                />
+            <div className="relative hidden h-[154px] lg:block">
+              <div className="absolute left-1/2 top-1/2 h-[120px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/15 blur-2xl" />
+              <div className="absolute left-2 top-0 h-[116px] w-[92px] rounded-[34px] bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-700 p-[2px] shadow-[0_16px_30px_rgba(14,165,233,.34)]">
+                <div className="flex h-full w-full items-center justify-center rounded-[32px] border border-white/25 bg-gradient-to-br from-white/18 to-transparent">
+                  <ShieldCheck size={66} strokeWidth={1.35} className="text-white drop-shadow-md" />
+                </div>
+              </div>
+              <div className="absolute bottom-3 left-1 h-6 w-20 rounded-full bg-cyan-300/25 blur-md" />
+              <div className="absolute bottom-1 right-0 h-[72px] w-[94px] rotate-6 rounded-xl border border-white/70 bg-white p-2 shadow-[0_14px_30px_rgba(2,8,23,.34)]">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-blue-100 to-slate-200">
+                    <Users size={14} className="text-blue-500" />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-1.5 rounded bg-blue-200" />
+                    <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+                  </div>
+                </div>
+                <div className="mt-2 h-1.5 rounded bg-slate-200" />
+                <div className="mt-1.5 h-1.5 w-3/4 rounded bg-slate-200" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Body — 좌:우 = 42:58 */}
-        <div className="grid gap-0 lg:grid-cols-[0.42fr_0.58fr]">
-          <aside className="border-b border-slate-200 bg-slate-50/60 px-8 py-8 sm:py-9 lg:border-b-0 lg:border-r">
-            <p className="flex items-center gap-2 text-base font-bold text-slate-900">
-              <Gift size={18} className="text-blue-600" /> 무료로 제공되는 AI
-              분석 리포트
-            </p>
+        <div className="grid bg-white lg:grid-cols-[0.42fr_0.58fr]">
+          <aside className="border-b border-[#DFE7F2] bg-[#FCFDFE] p-6 sm:p-7 lg:border-b-0 lg:border-r">
+            <div className="rounded-2xl border border-[#DCE5F2] bg-white p-4 shadow-[0_4px_18px_rgba(15,23,42,.035)]">
+              <h2 className="flex items-center gap-2 text-[17px] font-black tracking-[-0.02em] text-[#0B1739]">
+                <Gift size={21} className="text-[#2563EB]" />
+                무료로 제공되는 AI 분석 리포트
+              </h2>
 
-            <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-100/70 bg-white">
-              {reportItems.map(([Icon, itemTitle, desc, badgeClass]) => (
-                <div
-                  key={itemTitle}
-                  className="relative flex items-center gap-3 px-4 py-4 transition duration-200 hover:z-10 hover:-translate-y-0.5 hover:bg-slate-50/80 hover:shadow-[0_10px_24px_rgba(15,23,42,0.1)]"
-                >
-                  <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${badgeClass}`}
+              <div className="mt-4 overflow-hidden rounded-xl border border-[#DCE5F2] bg-white">
+                {reportItems.map(([Icon, title, description, iconClass], index) => (
+                  <div
+                    key={title}
+                    className={`flex min-h-[70px] items-center gap-4 px-4 py-3 ${
+                      index !== reportItems.length - 1 ? "border-b border-[#E1E8F2]" : ""
+                    }`}
                   >
-                    <Icon size={16} />
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold leading-5 text-slate-900">{itemTitle}</p>
-                    <p className="text-xs leading-5 text-slate-500">{desc}</p>
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${iconClass}`}>
+                      <Icon size={21} strokeWidth={2.1} />
+                    </span>
+                    <div>
+                      <p className="text-[14px] font-black text-[#0B1739]">{title}</p>
+                      <p className="mt-0.5 text-[12px] text-[#718096]">{description}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* 전문가 그룹 카드 — 밝고 깔끔한 카드 + 우측 스카이라인 패널 */}
-            <div className="mt-4 flex overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              <div className="flex-1 p-5">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={17} className="text-blue-600" />
-                  <p className="text-sm font-bold text-slate-900">
-                    베트남 전문가 그룹 검토
-                  </p>
+            <div className="relative mt-5 min-h-[142px] overflow-hidden rounded-2xl border border-[#D9E7FA] bg-[#EEF6FF] shadow-[0_5px_20px_rgba(37,99,235,.06)]">
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(239,246,255,.99)_0%,rgba(239,246,255,.95)_48%,rgba(219,234,254,.68)_100%)]" />
+              <div className="absolute inset-y-0 right-0 w-[46%] overflow-hidden">
+                <div className="absolute bottom-0 left-2 h-16 w-8 bg-slate-400/20" />
+                <div className="absolute bottom-0 left-12 h-24 w-10 bg-slate-400/22" />
+                <div className="absolute bottom-0 left-[92px] h-20 w-8 bg-slate-400/18" />
+                <div className="absolute bottom-0 right-16 h-28 w-12 bg-slate-400/20" />
+                <div className="absolute bottom-0 right-4 h-20 w-9 bg-slate-400/18" />
+                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-blue-200/70 to-transparent" />
+                <div className="absolute bottom-3 right-6 h-14 w-10 overflow-hidden rounded-sm border border-white shadow-md">
+                  <div className="flex h-full items-center justify-center bg-red-600">
+                    <Star size={13} fill="currentColor" strokeWidth={0} className="text-yellow-300" />
+                  </div>
                 </div>
-                <p className="mt-2 text-xs leading-5 text-slate-500">
-                  입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더
-                  정확한 리포트를 제공합니다.
+              </div>
+              <div className="relative max-w-[64%] p-5">
+                <h3 className="flex items-center gap-2 text-[16px] font-black text-[#0F5DE5]">
+                  <ShieldCheck size={22} />
+                  베트남 전문가 그룹 검토
+                </h3>
+                <p className="mt-3 text-[12px] leading-6 text-[#30435F]">
+                  입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더 정확한 리포트를 제공합니다.
                 </p>
               </div>
-              <div className="relative w-[38%] shrink-0 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-sky-100 via-blue-50 to-blue-100" />
-                <div className="absolute inset-x-0 bottom-1/2 flex items-end gap-[3px] px-3 opacity-40">
-                  {[13, 21, 16, 27, 18, 24, 14, 20, 12].map((h, i) => (
-                    <div
-                      key={i}
-                      style={{ height: `${h}px` }}
-                      className="w-2 flex-1 rounded-t-[1px] bg-slate-400/50"
-                    />
-                  ))}
-                </div>
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-blue-200/70 to-blue-300/40" />
-                <div className="absolute bottom-3 left-1/2 h-7 w-10 -translate-x-1/2 overflow-hidden rounded-[2px] shadow-md">
-                  <div className="flex h-full w-full items-center justify-center bg-red-600">
-                    <Star size={13} className="text-yellow-300" fill="currentColor" strokeWidth={0} />
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* Trust Bar — 문구형 4개 (숫자 없음) */}
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {trustBar.map(([Icon, title, desc]) => (
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {trustItems.map(([Icon, title, description]) => (
                 <div
                   key={title}
-                  className="flex flex-col items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-4 text-center"
+                  className="flex min-h-[118px] flex-col items-center justify-center rounded-2xl border border-[#DCE5F2] bg-white px-3 py-4 text-center shadow-[0_4px_16px_rgba(15,23,42,.03)]"
                 >
-                  <Icon size={20} className="text-blue-600" />
-                  <p className="text-xs font-extrabold leading-tight text-slate-900">
-                    {title}
-                  </p>
-                  <p className="text-[10px] leading-[1.4] text-slate-500">
-                    {desc}
-                  </p>
+                  <Icon size={27} className="text-[#1769F5]" />
+                  <p className="mt-2 text-[12px] font-black text-[#0B1739]">{title}</p>
+                  <p className="mt-1 text-[9px] leading-4 text-[#66758A]">{description}</p>
                 </div>
               ))}
             </div>
+
+            <p className="mt-5 flex items-start gap-2 text-[10px] leading-5 text-[#8A98AC]">
+              <Lock size={12} className="mt-1 shrink-0" />
+              본 서비스는 베트남에서 운영되며, 베트남 개인정보보호법 (91/2025/QH15) 및
+              시행령(356/2025/NĐ-CP)에 따라 처리됩니다.
+            </p>
           </aside>
 
-          <div className="px-8 py-8 sm:px-9 sm:py-9 lg:px-10 lg:py-10">
-            <div className="flex items-start justify-between gap-4">
-              <p className="flex items-center gap-2 text-base font-bold text-slate-900">
-                <FileText size={18} className="text-blue-600" />
-                AI 분석 리포트 확인을 위해 정보를 입력해주세요
-              </p>
-              <span className="hidden shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 sm:inline-flex">
-                약 1분 소요
-              </span>
-            </div>
-
-            <form onSubmit={onSubmit} className="mt-6 space-y-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
-                기본 정보 (필수)
-              </p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    이름 <b className="text-blue-600">*</b>
-                  </span>
-                  <div className="relative">
-                    <Users
-                      size={15}
-                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      placeholder="이름을 입력해주세요"
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                    />
-                  </div>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    전화번호 <b className="text-blue-600">*</b>
-                  </span>
-                  <div className="flex h-12 w-full items-center rounded-xl border border-slate-200 bg-white pr-4 transition duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
-                    <span className="flex shrink-0 items-center gap-0.5 border-r border-slate-200 pl-3 pr-2 text-sm font-medium text-slate-500">
-                      <Phone size={15} className="text-slate-400" />
-                      +82
-                      <ChevronDown size={12} className="text-slate-400" />
-                    </span>
-                    <input
-                      type="tel"
-                      name="phone"
-                      required
-                      placeholder="010-1234-5678"
-                      className="h-full w-full bg-transparent pl-3 text-sm text-slate-900 outline-none placeholder:text-slate-500"
-                    />
-                  </div>
-                </label>
-              </div>
-
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">
-                  현재 거주지 주소 <b className="text-blue-600">*</b>
+          <div className="bg-[#FCFDFE] p-6 sm:p-7">
+            <div className="rounded-2xl border border-[#DCE5F2] bg-white p-5 shadow-[0_4px_18px_rgba(15,23,42,.035)] sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <h2 className="flex items-center gap-2 text-[17px] font-black tracking-[-0.02em] text-[#0B1739]">
+                  <FileText size={22} className="text-[#2563EB]" />
+                  AI 분석 리포트 확인을 위해 정보를 입력해주세요
+                </h2>
+                <span className="hidden shrink-0 rounded-full bg-[#F1F4F8] px-3 py-1.5 text-[11px] font-semibold text-[#7B8798] sm:inline-flex">
+                  약 1분 소요
                 </span>
-                <div className="relative">
-                  <MapPin
-                    size={15}
-                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-                  <input
-                    type="text"
-                    name="address"
-                    required
-                    placeholder="예: Quận 1, TP.HCM"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  />
-                </div>
-              </label>
-
-              <div className="relative py-2">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                    추가 정보 (선택)
-                  </span>
-                </div>
               </div>
 
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">
-                  이메일
-                </span>
-                <div className="relative">
-                  <Mail
-                    size={15}
-                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="이메일을 입력해주세요"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  />
-                </div>
-              </label>
+              <form onSubmit={onSubmit} className="mt-6 space-y-5">
+                <div>
+                  <p className="text-[13px] font-black text-[#1263EA]">기본 정보 (필수)</p>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    {messengers.primary.label} ID
-                  </span>
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#FEE500]">
-                      <MessageCircle size={11} className="text-[#3C1E1E]" />
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
+                        이름 <b className="text-red-500">*</b>
+                      </span>
+                      <div className="relative">
+                        <Users size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
+                        <input type="text" name="name" required placeholder="이름을 입력해주세요" className={`${fieldClass} pl-10`} />
+                      </div>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
+                        전화번호 <b className="text-red-500">*</b>
+                      </span>
+                      <div className="flex h-[44px] overflow-hidden rounded-xl border border-[#D7E0EF] bg-white transition duration-200 focus-within:border-[#2563EB] focus-within:ring-4 focus-within:ring-blue-100">
+                        <span className="flex shrink-0 items-center gap-2 border-r border-[#D7E0EF] px-3 text-[12px] font-semibold text-[#516076]">
+                          <Phone size={15} className="text-[#1769F5]" />
+                          +82
+                          <ChevronDown size={12} className="text-[#98A6BC]" />
+                        </span>
+                        <input type="tel" name="phone" required placeholder="010-1234-5678" className="h-full min-w-0 flex-1 bg-transparent px-3 text-[13px] text-slate-900 outline-none placeholder:text-[#97A6BC]" />
+                      </div>
+                    </label>
+                  </div>
+
+                  <label className="mt-4 block">
+                    <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
+                      현재 거주지 주소 <b className="text-red-500">*</b>
                     </span>
-                    <input
-                      type="text"
-                      name="kakao_id"
-                      placeholder={`${messengers.primary.label} ID (선택)`}
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                    />
-                  </div>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    {messengers.secondary.label} ID
-                  </span>
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#0068FF] text-[7px] font-extrabold italic text-white">
-                      Zalo
-                    </span>
-                    <input
-                      type="text"
-                      name="zalo_id"
-                      placeholder={`${messengers.secondary.label} ID (선택)`}
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                    />
-                  </div>
-                </label>
-              </div>
+                    <div className="relative">
+                      <MapPin size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
+                      <input type="text" name="address" required placeholder="예: Quận 1, TP.HCM" className={`${fieldClass} pl-10`} />
+                    </div>
+                  </label>
+                </div>
 
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-blue-700 shadow-sm">
-                    <Lock size={15} />
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold text-slate-900">
-                      개인정보 보호 안내
-                    </p>
-                    <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
-                      <li>
-                        · 입력하신 정보는 AI 분석, 계정 생성, 상담 안내
-                        목적으로만 사용됩니다.
-                      </li>
-                      <li>· 제3자에게 제공하거나 판매하지 않습니다.</li>
-                      <li>· 안전한 암호화 시스템으로 보호됩니다.</li>
-                    </ul>
+                <div>
+                  <p className="text-[13px] font-black text-[#1263EA]">추가 정보 (선택)</p>
+
+                  <label className="mt-4 block">
+                    <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">이메일</span>
+                    <div className="relative">
+                      <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
+                      <input type="email" name="email" placeholder="이메일을 입력해주세요" className={`${fieldClass} pl-10`} />
+                    </div>
+                  </label>
+
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">{messengers.primary.label} ID</span>
+                      <div className="relative">
+                        <MessageCircle size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-500" />
+                        <input type="text" name="kakao_id" placeholder={`${messengers.primary.label} ID (선택)`} className={`${fieldClass} pl-10`} />
+                      </div>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">{messengers.secondary.label} ID</span>
+                      <div className="relative">
+                        <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[5px] bg-[#0068FF] text-[6px] font-extrabold italic text-white">
+                          Zalo
+                        </span>
+                        <input type="text" name="zalo_id" placeholder={`${messengers.secondary.label} ID (선택)`} className={`${fieldClass} pl-10`} />
+                      </div>
+                    </label>
                   </div>
                 </div>
-              </div>
 
-              <div
-                className={`rounded-2xl border p-4 ${
-                  consentHighlight
-                    ? "border-red-200 bg-red-50"
-                    : "border-slate-200 bg-white"
-                }`}
-              >
-                <label className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-slate-600">
-                  <input
-                    type="checkbox"
-                    name="agreeTerms"
-                    onChange={(e) => {
-                      if (e.target.checked) onConsentChecked();
-                    }}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600"
-                  />
-                  <span>
-                    <b className="text-slate-900">(필수)</b> {CONSENT_SUMMARY}
-                  </span>
-                </label>
-                <ConsentDetails
-                  open={consentOpen}
-                  onToggle={onConsentToggle}
-                  highlight={consentHighlight}
-                />
-              </div>
+                <div className="rounded-2xl bg-gradient-to-r from-[#EFF5FF] to-[#EEF2FF] p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#1769F5] shadow-sm">
+                      <Lock size={18} />
+                    </span>
+                    <div>
+                      <p className="text-[13px] font-black text-[#1263EA]">개인정보 보호 안내</p>
+                      <ul className="mt-1.5 space-y-1 text-[11px] leading-5 text-[#465770]">
+                        <li>· 입력하신 정보는 AI 분석, 계정 생성, 상담 안내 목적으로만 사용됩니다.</li>
+                        <li>· 제3자에게 제공하거나 판매하지 않습니다.</li>
+                        <li>· 안전한 암호화 시스템으로 보호됩니다.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
 
-              {leadError && (
-                <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-medium text-red-700">
-                  {leadError}
-                </p>
-              )}
+                <div>
+                  <label className="flex cursor-pointer items-start gap-3 text-[11px] leading-5 text-[#465770]">
+                    <input
+                      type="checkbox"
+                      name="agreeTerms"
+                      onChange={(e) => {
+                        if (e.target.checked) onConsentChecked();
+                      }}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600"
+                    />
+                    <span>
+                      <b className="text-[#18243A]">(필수)</b> {CONSENT_SUMMARY}
+                    </span>
+                  </label>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="group flex min-h-[58px] w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#1D4EDB] to-[#2E62E8] px-6 text-base font-bold text-white shadow-[0_8px_20px_rgba(29,78,216,0.24)] transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(59,130,246,0.15),0_10px_28px_rgba(29,78,216,0.28),0_0_32px_10px_rgba(59,130,246,0.28)] disabled:opacity-60"
-              >
-                <Gift size={19} />
-                {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
-                {!submitting && (
-                  <ArrowLeft
-                    size={18}
-                    className="rotate-180 transition-transform group-hover:translate-x-1"
-                  />
+                  <div className={`mt-2 overflow-hidden rounded-xl border ${consentHighlight ? "border-red-200 bg-red-50" : "border-[#D9E7FA] bg-[#F4F8FF]"}`}>
+                    <ConsentDetails open={consentOpen} onToggle={onConsentToggle} highlight={consentHighlight} />
+                  </div>
+                </div>
+
+                {leadError && (
+                  <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-medium text-red-700">{leadError}</p>
                 )}
-              </button>
-              <p className="text-center text-[11px] text-slate-400">
-                입력하신 연락처로 AI 분석 리포트가 발송되며, 즉시 확인하실 수
-                있습니다.
-              </p>
-            </form>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="group flex min-h-[57px] w-full items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[#2D69F2] to-[#1653DE] px-6 text-[15px] font-black text-white shadow-[0_12px_26px_rgba(37,99,235,.30)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_15px_30px_rgba(37,99,235,.36)] disabled:translate-y-0 disabled:opacity-60"
+                >
+                  <Gift size={21} />
+                  {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
+                  {!submitting && <ArrowLeft size={20} className="rotate-180 transition-transform group-hover:translate-x-1" />}
+                </button>
+
+                <p className="text-center text-[10px] text-[#97A4B6]">
+                  입력하신 연락처로 AI 분석 리포트가 발송되며, 즉시 확인하실 수 있습니다.
+                </p>
+              </form>
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="flex items-center gap-1.5 text-[11px] text-slate-400">
-          <Lock size={11} /> 본 서비스는 베트남에서 운영되며, 베트남
-          개인정보보호법(91/2025/QH15) 및 시행령(356/2025/ND-CP)에 따라
-          처리됩니다.
-        </p>
-        <button
-          onClick={onReset}
-          className="text-left text-xs font-medium text-slate-400 transition hover:text-slate-600 sm:text-right"
-        >
-          ← 처음부터 다시 확인하기
-        </button>
-      </div>
+      <button type="button" onClick={onReset} className="mx-auto mt-3 flex items-center gap-1 text-[11px] font-semibold text-[#1769F5] transition hover:text-blue-800">
+        <ArrowLeft size={13} />
+        처음부터 다시 확인하기
+      </button>
     </div>
   );
 }
