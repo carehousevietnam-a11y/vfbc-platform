@@ -550,36 +550,11 @@ function PremiumLeadCapture({
   const accentText = isPossible ? "text-emerald-300" : "text-amber-300";
 
   const reportItems: [React.ElementType, string, string, string][] = [
-    [
-      TrendingUp,
-      "가능성 점수",
-      "거주증 발급 가능성을 점수로 확인",
-      "bg-emerald-50 text-emerald-500",
-    ],
-    [
-      AlertTriangle,
-      "위험요인 분석",
-      "거절·보완 가능성이 있는 항목 진단",
-      "bg-amber-50 text-amber-500",
-    ],
-    [
-      FileText,
-      "준비서류 안내",
-      "현재 조건에 맞는 필수 서류 목록",
-      "bg-blue-50 text-blue-600",
-    ],
-    [
-      Clock,
-      "예상 처리기간",
-      "신청부터 발급까지 예상 기간 안내",
-      "bg-violet-50 text-violet-600",
-    ],
-    [
-      Users,
-      "전문가 검토 의견",
-      "베트남 행정 전문가의 추가 코멘트 제공",
-      "bg-cyan-50 text-cyan-600",
-    ],
+    [TrendingUp, "가능성 점수", "거주증 발급 가능성을 점수로 확인", "bg-emerald-50 text-emerald-500"],
+    [AlertTriangle, "위험요인 분석", "거절·보완 가능성이 있는 항목 진단", "bg-amber-50 text-amber-500"],
+    [FileText, "준비서류 안내", "현재 조건에 맞는 필수 서류 목록", "bg-blue-50 text-blue-600"],
+    [Clock, "예상 처리기간", "신청부터 발급까지 예상 기간 안내", "bg-violet-50 text-violet-600"],
+    [Users, "전문가 검토 의견", "베트남 행정 전문가의 추가 코멘트 제공", "bg-cyan-50 text-cyan-600"],
   ];
 
   const trustItems: [React.ElementType, string, string][] = [
@@ -590,33 +565,31 @@ function PremiumLeadCapture({
   ];
 
   const fieldClass =
-    "h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
+    "h-[44px] w-full rounded-xl border border-[#D7E0EF] bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-[#98A6BC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-100";
 
   return (
-    <div className="mt-8 sm:relative sm:left-1/2 sm:w-[calc(100vw-2rem)] sm:max-w-[1280px] sm:-translate-x-1/2">
-      <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
-        {/* Hero */}
-        <div className="relative overflow-hidden bg-[#071738] px-7 py-8 text-white sm:px-10 lg:px-8 lg:py-7">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_67%_16%,rgba(14,165,233,0.35),transparent_18%),radial-gradient(circle_at_85%_54%,rgba(37,99,235,0.24),transparent_24%),linear-gradient(112deg,#071733_0%,#09275f_48%,#0a2f78_100%)]" />
-          <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:44px_44px]" />
-          <div className="pointer-events-none absolute right-[13%] top-2 h-24 w-24 rounded-full bg-blue-300/10 blur-2xl" />
-          <div className="pointer-events-none absolute bottom-0 left-[43%] h-px w-[48%] bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent" />
+    <div className="mt-8 sm:relative sm:left-1/2 sm:w-[calc(100vw-32px)] sm:max-w-[1300px] sm:-translate-x-1/2">
+      <section className="overflow-hidden rounded-[20px] border border-[#DCE5F2] bg-white shadow-[0_24px_70px_rgba(30,64,175,0.13)]">
+        <div className="relative min-h-[205px] overflow-hidden bg-[#071B43] px-8 py-7 text-white lg:px-9">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_20%,rgba(20,184,255,0.30),transparent_18%),radial-gradient(circle_at_86%_56%,rgba(37,99,235,0.26),transparent_25%),linear-gradient(108deg,#061632_0%,#08275f_52%,#0B3384_100%)]" />
+          <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
+          <div className="pointer-events-none absolute right-16 top-7 h-16 w-16 rounded-full bg-cyan-300/10 blur-xl" />
 
-          <div className="relative grid items-center gap-7 lg:grid-cols-[1.35fr_0.62fr_0.83fr_0.48fr]">
+          <div className="relative grid min-h-[150px] items-center gap-6 lg:grid-cols-[1.43fr_0.60fr_0.86fr_0.47fr]">
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1.5 text-[12px] font-bold text-slate-100 ring-1 ring-emerald-300/20">
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3 py-1.5 text-[12px] font-extrabold text-slate-100 ring-1 ring-emerald-300/20">
                 <CheckCircle2 size={15} className="text-emerald-300" />
                 AI 1차 분석 완료
               </span>
 
-              <h1 className="mt-4 text-[29px] font-extrabold leading-[1.22] tracking-[-0.025em] sm:text-[34px]">
+              <h1 className="mt-4 text-[32px] font-extrabold leading-[1.18] tracking-[-0.035em] sm:text-[35px]">
                 거주증 발급{" "}
                 <span className={accentText}>
                   {isPossible ? "가능성이 높습니다." : "추가 확인이 필요합니다."}
                 </span>
               </h1>
 
-              <p className="mt-3 text-[13px] leading-6 text-white/85 sm:text-[14px]">
+              <p className="mt-3 text-[14px] leading-6 text-white/88">
                 입력하신 조건을 기준으로 AI 분석이 완료되었습니다.
                 <br />
                 정확한 결과와 맞춤 가이드를 확인하세요.
@@ -624,25 +597,16 @@ function PremiumLeadCapture({
             </div>
 
             <div className="flex justify-center">
-              <div className="relative flex h-[148px] w-[148px] items-center justify-center rounded-full">
-                <div className="absolute inset-0 rounded-full bg-[conic-gradient(#22c55e_0deg,#34d399_80deg,#60a5fa_170deg,#7dd3fc_255deg,#22c55e_360deg)] shadow-[0_0_35px_rgba(45,212,191,0.3)]" />
-                <div className="absolute inset-[9px] rounded-full bg-[#0A2355]" />
-                <div className="absolute inset-[20px] rounded-full border border-white/10 bg-[radial-gradient(circle_at_50%_35%,rgba(37,99,235,.35),rgba(6,23,55,.92)_68%)]" />
+              <div className="relative flex h-[158px] w-[158px] items-center justify-center rounded-full">
+                <div className="absolute inset-0 rounded-full bg-[conic-gradient(#22C55E_0deg,#34D399_88deg,#67E8F9_170deg,#60A5FA_250deg,#22C55E_360deg)] shadow-[0_0_34px_rgba(34,211,238,0.34)]" />
+                <div className="absolute inset-[8px] rounded-full bg-[#103777]" />
+                <div className="absolute inset-[17px] rounded-full border border-white/10 bg-[radial-gradient(circle_at_50%_35%,rgba(37,99,235,.42),rgba(5,24,57,.97)_69%)]" />
                 <div className="relative text-center">
-                  <strong className="block text-[34px] font-extrabold leading-none">
-                    {score}%
-                  </strong>
-                  <span className={`mt-2 block text-[12px] font-bold ${accentText}`}>
-                    {status}
-                  </span>
+                  <strong className="block text-[37px] font-black leading-none">{score}%</strong>
+                  <span className={`mt-2 block text-[12px] font-extrabold ${accentText}`}>{status}</span>
                   <div className="mt-2 flex justify-center gap-1 text-emerald-300">
                     {Array.from({ length: 5 }).map((_, index) => (
-                      <Star
-                        key={index}
-                        size={12}
-                        fill="currentColor"
-                        strokeWidth={0}
-                      />
+                      <Star key={index} size={12} fill="currentColor" strokeWidth={0} />
                     ))}
                   </div>
                 </div>
@@ -651,47 +615,38 @@ function PremiumLeadCapture({
 
             <div className="space-y-5 border-white/15 lg:border-l lg:pl-6">
               <div className="flex items-start gap-3">
-                <Clock size={24} className="mt-0.5 shrink-0 text-blue-100" />
+                <Clock size={25} className="mt-0.5 shrink-0 text-blue-100" />
                 <div>
-                  <p className="text-[12px] font-semibold text-white/75">
-                    예상 처리기간
-                  </p>
-                  <p className="mt-0.5 text-[14px] font-bold text-white">
-                    약 2 ~ 4주
-                  </p>
+                  <p className="text-[12px] font-semibold text-white/72">예상 처리기간</p>
+                  <p className="mt-0.5 text-[14px] font-extrabold text-white">약 2 ~ 4주</p>
                 </div>
               </div>
 
               <div className="h-px bg-white/15" />
 
               <div className="flex items-start gap-3">
-                <Building2 size={24} className="mt-0.5 shrink-0 text-blue-100" />
+                <Building2 size={25} className="mt-0.5 shrink-0 text-blue-100" />
                 <div>
-                  <p className="text-[12px] font-semibold text-white/75">
-                    관할 기관
-                  </p>
-                  <p className="mt-0.5 text-[13px] font-bold leading-5 text-white">
-                    베트남 공안부 출입국국
-                  </p>
-                  <p className="text-[11px] leading-4 text-white/70">
-                    (Immigration Department)
-                  </p>
+                  <p className="text-[12px] font-semibold text-white/72">관할 기관</p>
+                  <p className="mt-0.5 text-[13px] font-extrabold leading-5 text-white">베트남 공안부 출입국국</p>
+                  <p className="text-[11px] text-white/72">(Immigration Department)</p>
                 </div>
               </div>
             </div>
 
-            <div className="relative hidden h-[136px] lg:block">
-              <div className="absolute left-1/2 top-1/2 h-[116px] w-[116px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/10 blur-xl" />
-              <div className="absolute left-3 top-0 flex h-[105px] w-[88px] items-center justify-center rounded-[36px] bg-gradient-to-br from-sky-300 via-blue-400 to-blue-700 shadow-[0_16px_30px_rgba(14,165,233,.28)]">
-                <ShieldCheck
-                  size={62}
-                  strokeWidth={1.45}
-                  className="text-white drop-shadow-md"
-                />
+            <div className="relative hidden h-[154px] lg:block">
+              <div className="absolute left-1/2 top-1/2 h-[120px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/15 blur-2xl" />
+              <div className="absolute left-2 top-0 h-[116px] w-[92px] rounded-[34px] bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-700 p-[2px] shadow-[0_16px_30px_rgba(14,165,233,.34)]">
+                <div className="flex h-full w-full items-center justify-center rounded-[32px] border border-white/25 bg-gradient-to-br from-white/18 to-transparent">
+                  <ShieldCheck size={66} strokeWidth={1.35} className="text-white drop-shadow-md" />
+                </div>
               </div>
-              <div className="absolute bottom-1 right-0 h-[70px] w-[90px] rotate-6 rounded-xl border border-white/60 bg-white p-2 shadow-[0_14px_30px_rgba(2,8,23,.34)]">
+              <div className="absolute bottom-3 left-1 h-6 w-20 rounded-full bg-cyan-300/25 blur-md" />
+              <div className="absolute bottom-1 right-0 h-[72px] w-[94px] rotate-6 rounded-xl border border-white/70 bg-white p-2 shadow-[0_14px_30px_rgba(2,8,23,.34)]">
                 <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-md bg-gradient-to-br from-blue-100 to-slate-200" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-blue-100 to-slate-200">
+                    <Users size={14} className="text-blue-500" />
+                  </div>
                   <div className="flex-1 space-y-1.5">
                     <div className="h-1.5 rounded bg-blue-200" />
                     <div className="h-1.5 w-2/3 rounded bg-slate-200" />
@@ -704,256 +659,173 @@ function PremiumLeadCapture({
           </div>
         </div>
 
-        {/* Content */}
-        <div className="grid bg-[#FBFCFE] lg:grid-cols-[0.79fr_1.21fr]">
-          <aside className="border-b border-slate-200 p-6 sm:p-7 lg:border-b-0 lg:border-r">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_4px_18px_rgba(15,23,42,.035)]">
-              <h2 className="flex items-center gap-2 text-[16px] font-extrabold text-slate-900">
-                <Gift size={20} className="text-blue-600" />
+        <div className="grid bg-white lg:grid-cols-[0.81fr_1.19fr]">
+          <aside className="border-b border-[#DFE7F2] bg-[#FCFDFE] p-6 sm:p-7 lg:border-b-0 lg:border-r">
+            <div className="rounded-2xl border border-[#DCE5F2] bg-white p-4 shadow-[0_4px_18px_rgba(15,23,42,.035)]">
+              <h2 className="flex items-center gap-2 text-[17px] font-black tracking-[-0.02em] text-[#0B1739]">
+                <Gift size={21} className="text-[#2563EB]" />
                 무료로 제공되는 AI 분석 리포트
               </h2>
 
-              <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="mt-4 overflow-hidden rounded-xl border border-[#DCE5F2] bg-white">
                 {reportItems.map(([Icon, title, description, iconClass], index) => (
                   <div
                     key={title}
-                    className={`flex items-center gap-4 px-4 py-3.5 ${
-                      index !== reportItems.length - 1
-                        ? "border-b border-slate-200"
-                        : ""
+                    className={`flex min-h-[70px] items-center gap-4 px-4 py-3 ${
+                      index !== reportItems.length - 1 ? "border-b border-[#E1E8F2]" : ""
                     }`}
                   >
-                    <span
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconClass}`}
-                    >
-                      <Icon size={20} strokeWidth={2.1} />
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${iconClass}`}>
+                      <Icon size={21} strokeWidth={2.1} />
                     </span>
                     <div>
-                      <p className="text-[14px] font-extrabold text-slate-900">
-                        {title}
-                      </p>
-                      <p className="mt-0.5 text-[12px] text-slate-500">
-                        {description}
-                      </p>
+                      <p className="text-[14px] font-black text-[#0B1739]">{title}</p>
+                      <p className="mt-0.5 text-[12px] text-[#718096]">{description}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="relative mt-5 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_5px_20px_rgba(37,99,235,.06)]">
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(239,246,255,.98)_0%,rgba(239,246,255,.88)_48%,rgba(219,234,254,.54)_100%)]" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-[42%] opacity-35">
-                <div className="absolute bottom-0 left-0 h-16 w-6 bg-slate-400/30" />
-                <div className="absolute bottom-0 left-8 h-24 w-8 bg-slate-400/25" />
-                <div className="absolute bottom-0 left-[72px] h-20 w-7 bg-slate-400/30" />
-                <div className="absolute bottom-0 left-[108px] h-28 w-9 bg-slate-400/25" />
-                <div className="absolute bottom-0 right-6 h-24 w-10 bg-slate-400/25" />
-                <div className="absolute bottom-0 right-3 h-16 w-4 bg-slate-400/30" />
-              </div>
-              <div className="pointer-events-none absolute bottom-0 right-5 h-14 w-10 overflow-hidden rounded-sm border border-white shadow-sm">
-                <div className="flex h-full items-center justify-center bg-red-600">
-                  <Star
-                    size={13}
-                    fill="currentColor"
-                    strokeWidth={0}
-                    className="text-yellow-300"
-                  />
+            <div className="relative mt-5 min-h-[142px] overflow-hidden rounded-2xl border border-[#D9E7FA] bg-[#EEF6FF] shadow-[0_5px_20px_rgba(37,99,235,.06)]">
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(239,246,255,.99)_0%,rgba(239,246,255,.95)_48%,rgba(219,234,254,.68)_100%)]" />
+              <div className="absolute inset-y-0 right-0 w-[46%] overflow-hidden">
+                <div className="absolute bottom-0 left-2 h-16 w-8 bg-slate-400/20" />
+                <div className="absolute bottom-0 left-12 h-24 w-10 bg-slate-400/22" />
+                <div className="absolute bottom-0 left-[92px] h-20 w-8 bg-slate-400/18" />
+                <div className="absolute bottom-0 right-16 h-28 w-12 bg-slate-400/20" />
+                <div className="absolute bottom-0 right-4 h-20 w-9 bg-slate-400/18" />
+                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-blue-200/70 to-transparent" />
+                <div className="absolute bottom-3 right-6 h-14 w-10 overflow-hidden rounded-sm border border-white shadow-md">
+                  <div className="flex h-full items-center justify-center bg-red-600">
+                    <Star size={13} fill="currentColor" strokeWidth={0} className="text-yellow-300" />
+                  </div>
                 </div>
               </div>
-
-              <div className="relative p-5 pr-[38%]">
-                <h3 className="flex items-center gap-2 text-[15px] font-extrabold text-blue-700">
-                  <ShieldCheck size={21} />
+              <div className="relative max-w-[64%] p-5">
+                <h3 className="flex items-center gap-2 text-[16px] font-black text-[#0F5DE5]">
+                  <ShieldCheck size={22} />
                   베트남 전문가 그룹 검토
                 </h3>
-                <p className="mt-3 text-[12px] leading-6 text-slate-700">
-                  입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더
-                  정확한 리포트를 제공합니다.
+                <p className="mt-3 text-[12px] leading-6 text-[#30435F]">
+                  입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더 정확한 리포트를 제공합니다.
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-white px-3 py-4 shadow-[0_4px_16px_rgba(15,23,42,.035)]">
-              <div className="grid grid-cols-2 divide-x divide-y divide-slate-200 sm:grid-cols-4 sm:divide-y-0">
+            <div className="mt-5 rounded-2xl border border-[#DCE5F2] bg-white px-3 py-4 shadow-[0_4px_16px_rgba(15,23,42,.035)]">
+              <div className="grid grid-cols-2 divide-x divide-y divide-[#E2E8F0] sm:grid-cols-4 sm:divide-y-0">
                 {trustItems.map(([Icon, value, label]) => (
-                  <div
-                    key={label}
-                    className="flex min-h-[92px] flex-col items-center justify-center px-2 text-center"
-                  >
-                    <Icon size={25} className="text-blue-600" />
-                    <p className="mt-2 text-[17px] font-extrabold text-slate-900">
-                      {value}
-                    </p>
-                    <p className="mt-0.5 text-[10px] leading-4 text-slate-500">
-                      {label}
-                    </p>
+                  <div key={label} className="flex min-h-[96px] flex-col items-center justify-center px-2 text-center">
+                    <Icon size={25} className="text-[#1769F5]" />
+                    <p className="mt-2 text-[18px] font-black text-[#0B1739]">{value}</p>
+                    <p className="mt-0.5 text-[10px] leading-4 text-[#5E6E83]">{label}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="mt-5 flex items-start gap-2 text-[10px] leading-5 text-slate-400">
+            <p className="mt-5 flex items-start gap-2 text-[10px] leading-5 text-[#8A98AC]">
               <Lock size={12} className="mt-1 shrink-0" />
-              본 서비스는 베트남에서 운영되며, 베트남 개인정보보호법
-              (91/2025/QH15) 및 시행령(356/2025/NĐ-CP)에 따라 처리됩니다.
+              본 서비스는 베트남에서 운영되며, 베트남 개인정보보호법 (91/2025/QH15) 및
+              시행령(356/2025/NĐ-CP)에 따라 처리됩니다.
             </p>
           </aside>
 
-          <div className="p-6 sm:p-7 lg:p-7">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_18px_rgba(15,23,42,.035)] sm:p-6">
+          <div className="bg-[#FCFDFE] p-6 sm:p-7">
+            <div className="rounded-2xl border border-[#DCE5F2] bg-white p-5 shadow-[0_4px_18px_rgba(15,23,42,.035)] sm:p-6">
               <div className="flex items-start justify-between gap-4">
-                <h2 className="flex items-center gap-2 text-[16px] font-extrabold text-slate-900">
-                  <FileText size={21} className="text-blue-600" />
+                <h2 className="flex items-center gap-2 text-[17px] font-black tracking-[-0.02em] text-[#0B1739]">
+                  <FileText size={22} className="text-[#2563EB]" />
                   AI 분석 리포트 확인을 위해 정보를 입력해주세요
                 </h2>
-                <span className="hidden shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-500 sm:inline-flex">
+                <span className="hidden shrink-0 rounded-full bg-[#F1F4F8] px-3 py-1.5 text-[11px] font-semibold text-[#7B8798] sm:inline-flex">
                   약 1분 소요
                 </span>
               </div>
 
               <form onSubmit={onSubmit} className="mt-6 space-y-5">
                 <div>
-                  <p className="text-[13px] font-extrabold text-blue-600">
-                    기본 정보 (필수)
-                  </p>
+                  <p className="text-[13px] font-black text-[#1263EA]">기본 정보 (필수)</p>
 
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block text-[12px] font-bold text-slate-700">
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
                         이름 <b className="text-red-500">*</b>
                       </span>
                       <div className="relative">
-                        <Users
-                          size={16}
-                          className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-600"
-                        />
-                        <input
-                          type="text"
-                          name="name"
-                          required
-                          placeholder="이름을 입력해주세요"
-                          className={`${fieldClass} pl-10`}
-                        />
+                        <Users size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
+                        <input type="text" name="name" required placeholder="이름을 입력해주세요" className={`${fieldClass} pl-10`} />
                       </div>
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-[12px] font-bold text-slate-700">
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
                         전화번호 <b className="text-red-500">*</b>
                       </span>
-                      <div className="flex h-11 overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
-                        <span className="flex shrink-0 items-center gap-2 border-r border-slate-200 px-3 text-[12px] font-semibold text-slate-600">
-                          <Phone size={15} className="text-blue-600" />
+                      <div className="flex h-[44px] overflow-hidden rounded-xl border border-[#D7E0EF] bg-white transition duration-200 focus-within:border-[#2563EB] focus-within:ring-4 focus-within:ring-blue-100">
+                        <span className="flex shrink-0 items-center gap-2 border-r border-[#D7E0EF] px-3 text-[12px] font-semibold text-[#516076]">
+                          <Phone size={15} className="text-[#1769F5]" />
                           +82
-                          <ChevronDown size={12} className="text-slate-400" />
+                          <ChevronDown size={12} className="text-[#98A6BC]" />
                         </span>
-                        <input
-                          type="tel"
-                          name="phone"
-                          required
-                          placeholder="010-1234-5678"
-                          className="h-full min-w-0 flex-1 bg-transparent px-3 text-[13px] text-slate-900 outline-none placeholder:text-slate-400"
-                        />
+                        <input type="tel" name="phone" required placeholder="010-1234-5678" className="h-full min-w-0 flex-1 bg-transparent px-3 text-[13px] text-slate-900 outline-none placeholder:text-[#98A6BC]" />
                       </div>
                     </label>
                   </div>
 
                   <label className="mt-4 block">
-                    <span className="mb-2 block text-[12px] font-bold text-slate-700">
+                    <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
                       현재 거주지 주소 <b className="text-red-500">*</b>
                     </span>
                     <div className="relative">
-                      <MapPin
-                        size={16}
-                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-600"
-                      />
-                      <input
-                        type="text"
-                        name="address"
-                        required
-                        placeholder="예: Quận 1, TP.HCM"
-                        className={`${fieldClass} pl-10`}
-                      />
+                      <MapPin size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
+                      <input type="text" name="address" required placeholder="예: Quận 1, TP.HCM" className={`${fieldClass} pl-10`} />
                     </div>
                   </label>
                 </div>
 
                 <div>
-                  <p className="text-[13px] font-extrabold text-blue-600">
-                    추가 정보 (선택)
-                  </p>
+                  <p className="text-[13px] font-black text-[#1263EA]">추가 정보 (선택)</p>
 
                   <label className="mt-4 block">
-                    <span className="mb-2 block text-[12px] font-bold text-slate-700">
-                      이메일
-                    </span>
+                    <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">이메일</span>
                     <div className="relative">
-                      <Mail
-                        size={16}
-                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-600"
-                      />
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="이메일을 입력해주세요"
-                        className={`${fieldClass} pl-10`}
-                      />
+                      <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
+                      <input type="email" name="email" placeholder="이메일을 입력해주세요" className={`${fieldClass} pl-10`} />
                     </div>
                   </label>
 
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block text-[12px] font-bold text-slate-700">
-                        {messengers.primary.label} ID
-                      </span>
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">{messengers.primary.label} ID</span>
                       <div className="relative">
-                        <MessageCircle
-                          size={16}
-                          className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-500"
-                        />
-                        <input
-                          type="text"
-                          name="kakao_id"
-                          placeholder={`${messengers.primary.label} ID (선택)`}
-                          className={`${fieldClass} pl-10`}
-                        />
+                        <MessageCircle size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-500" />
+                        <input type="text" name="kakao_id" placeholder={`${messengers.primary.label} ID (선택)`} className={`${fieldClass} pl-10`} />
                       </div>
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-[12px] font-bold text-slate-700">
-                        {messengers.secondary.label} ID
-                      </span>
+                      <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">{messengers.secondary.label} ID</span>
                       <div className="relative">
                         <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[5px] bg-[#0068FF] text-[6px] font-extrabold italic text-white">
                           Zalo
                         </span>
-                        <input
-                          type="text"
-                          name="zalo_id"
-                          placeholder={`${messengers.secondary.label} ID (선택)`}
-                          className={`${fieldClass} pl-10`}
-                        />
+                        <input type="text" name="zalo_id" placeholder={`${messengers.secondary.label} ID (선택)`} className={`${fieldClass} pl-10`} />
                       </div>
                     </label>
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+                <div className="rounded-2xl bg-gradient-to-r from-[#EFF5FF] to-[#EEF2FF] p-4">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#1769F5] shadow-sm">
                       <Lock size={18} />
                     </span>
                     <div>
-                      <p className="text-[13px] font-extrabold text-blue-700">
-                        개인정보 보호 안내
-                      </p>
-                      <ul className="mt-1.5 space-y-1 text-[11px] leading-5 text-slate-700">
-                        <li>
-                          · 입력하신 정보는 AI 분석, 계정 생성, 상담 안내
-                          목적으로만 사용됩니다.
-                        </li>
+                      <p className="text-[13px] font-black text-[#1263EA]">개인정보 보호 안내</p>
+                      <ul className="mt-1.5 space-y-1 text-[11px] leading-5 text-[#465770]">
+                        <li>· 입력하신 정보는 AI 분석, 계정 생성, 상담 안내 목적으로만 사용됩니다.</li>
                         <li>· 제3자에게 제공하거나 판매하지 않습니다.</li>
                         <li>· 안전한 암호화 시스템으로 보호됩니다.</li>
                       </ul>
@@ -962,7 +834,7 @@ function PremiumLeadCapture({
                 </div>
 
                 <div>
-                  <label className="flex cursor-pointer items-start gap-3 text-[11px] leading-5 text-slate-700">
+                  <label className="flex cursor-pointer items-start gap-3 text-[11px] leading-5 text-[#465770]">
                     <input
                       type="checkbox"
                       name="agreeTerms"
@@ -972,49 +844,31 @@ function PremiumLeadCapture({
                       className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600"
                     />
                     <span>
-                      <b className="text-slate-900">(필수)</b> {CONSENT_SUMMARY}
+                      <b className="text-[#18243A]">(필수)</b> {CONSENT_SUMMARY}
                     </span>
                   </label>
 
-                  <div
-                    className={`mt-2 overflow-hidden rounded-xl border ${
-                      consentHighlight
-                        ? "border-red-200 bg-red-50"
-                        : "border-blue-100 bg-blue-50/70"
-                    }`}
-                  >
-                    <ConsentDetails
-                      open={consentOpen}
-                      onToggle={onConsentToggle}
-                      highlight={consentHighlight}
-                    />
+                  <div className={`mt-2 overflow-hidden rounded-xl border ${consentHighlight ? "border-red-200 bg-red-50" : "border-[#D9E7FA] bg-[#F4F8FF]"}`}>
+                    <ConsentDetails open={consentOpen} onToggle={onConsentToggle} highlight={consentHighlight} />
                   </div>
                 </div>
 
                 {leadError && (
-                  <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-medium text-red-700">
-                    {leadError}
-                  </p>
+                  <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-medium text-red-700">{leadError}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="group flex min-h-[56px] w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1C54E8] via-[#2464F5] to-[#1748D4] px-6 text-[15px] font-extrabold text-white shadow-[0_12px_28px_rgba(37,99,235,.35)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(37,99,235,.42)] disabled:translate-y-0 disabled:opacity-60"
+                  className="group flex min-h-[57px] w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1C54E8] via-[#2464F5] to-[#1748D4] px-6 text-[15px] font-black text-white shadow-[0_12px_28px_rgba(37,99,235,.35)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(37,99,235,.42)] disabled:translate-y-0 disabled:opacity-60"
                 >
                   <Gift size={21} />
                   {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
-                  {!submitting && (
-                    <ArrowLeft
-                      size={20}
-                      className="rotate-180 transition-transform group-hover:translate-x-1"
-                    />
-                  )}
+                  {!submitting && <ArrowLeft size={20} className="rotate-180 transition-transform group-hover:translate-x-1" />}
                 </button>
 
-                <p className="text-center text-[10px] text-slate-400">
-                  입력하신 연락처로 AI 분석 리포트가 발송되며, 즉시 확인하실 수
-                  있습니다.
+                <p className="text-center text-[10px] text-[#97A4B6]">
+                  입력하신 연락처로 AI 분석 리포트가 발송되며, 즉시 확인하실 수 있습니다.
                 </p>
               </form>
             </div>
@@ -1022,11 +876,7 @@ function PremiumLeadCapture({
         </div>
       </section>
 
-      <button
-        type="button"
-        onClick={onReset}
-        className="mx-auto mt-3 flex items-center gap-1 text-[11px] font-semibold text-blue-600 transition hover:text-blue-800"
-      >
+      <button type="button" onClick={onReset} className="mx-auto mt-3 flex items-center gap-1 text-[11px] font-semibold text-[#1769F5] transition hover:text-blue-800">
         <ArrowLeft size={13} />
         처음부터 다시 확인하기
       </button>
