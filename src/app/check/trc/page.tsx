@@ -552,8 +552,8 @@ function PremiumLeadCapture({
     ? "conic-gradient(from 180deg, #34d399 0%, #22d3ee 50%, #34d399 100%)"
     : "conic-gradient(from 180deg, #fbbf24 0%, #fb923c 50%, #fbbf24 100%)";
   const ringGlow = isPossible
-    ? "shadow-[0_0_44px_10px_rgba(34,211,238,0.22)]"
-    : "shadow-[0_0_44px_10px_rgba(251,191,36,0.22)]";
+    ? "shadow-[0_0_30px_6px_rgba(34,211,238,0.16)]"
+    : "shadow-[0_0_30px_6px_rgba(251,191,36,0.16)]";
 
   const reportItems: [React.ElementType, string, string, string][] = [
     [TrendingUp, "가능성 점수", "거주증 발급 가능성을 점수로 확인", "bg-emerald-50 text-emerald-600"],
@@ -574,18 +574,18 @@ function PremiumLeadCapture({
     <div className="mt-8 sm:relative sm:left-1/2 sm:w-[calc(100vw-2rem)] sm:max-w-[1280px] sm:-translate-x-1/2">
       <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
         {/* Hero */}
-        <div className="relative overflow-hidden bg-[#0B1739] px-8 py-10 text-white sm:px-12 sm:py-12">
+        <div className="relative overflow-hidden bg-[#0B1739] px-8 py-9 text-white sm:px-12 sm:py-10">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#0B1739] via-[#0F2A66] to-[#123B99]" />
           <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-blue-500/25 blur-[100px]" />
           <div className="pointer-events-none absolute -bottom-24 left-8 h-56 w-56 rounded-full bg-cyan-400/15 blur-[90px]" />
 
-          <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             {/* Text — 좌측 42% 비중 */}
             <div className="max-w-md lg:w-[42%]">
               <span className={`inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold ${accentText} ring-1 ring-white/15`}>
                 <CheckCircle2 size={13} /> AI 1차 분석 완료
               </span>
-              <h1 className="mt-4 text-[26px] font-bold leading-[1.25] tracking-tight sm:text-[32px] break-keep">
+              <h1 className="mt-3 text-[26px] font-bold leading-[1.25] tracking-tight sm:text-[32px] break-keep">
                 {isPossible ? (
                   <>
                     거주증 발급{" "}
@@ -598,7 +598,7 @@ function PremiumLeadCapture({
                   </>
                 )}
               </h1>
-              <p className="mt-3 text-sm leading-[1.7] text-white/70">
+              <p className="mt-2 text-sm leading-6 text-white/70">
                 입력하신 조건을 기준으로 AI 분석이 완료되었습니다.
                 <br />
                 정확한 결과와 맞춤 가이드를 확인하세요.
@@ -606,12 +606,12 @@ function PremiumLeadCapture({
             </div>
 
             {/* Score / Info / Shield — 우측 58% 비중 */}
-            <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center lg:w-[58%] lg:justify-between">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center lg:w-[58%] lg:justify-between">
               <div
                 className={`relative flex h-[140px] w-[140px] shrink-0 items-center justify-center rounded-full ${ringGlow}`}
                 style={{ background: ringGradient }}
               >
-                <div className="absolute inset-[10px] rounded-full bg-[#0B1739]" />
+                <div className="absolute inset-[8px] rounded-full bg-[#0B1739]" />
                 <div className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_3px_rgba(255,255,255,0.85)]" />
                 <div className="relative text-center">
                   <strong className="block text-[34px] font-extrabold leading-none tracking-tight">
@@ -628,7 +628,7 @@ function PremiumLeadCapture({
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4 text-xs text-white/80">
+              <div className="flex flex-col gap-3 text-xs text-white/80">
                 <div className="flex items-center gap-3">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
                     <Clock size={16} className="text-white/70" />
@@ -690,9 +690,12 @@ function PremiumLeadCapture({
               분석 리포트
             </p>
 
-            <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-100 bg-white">
               {reportItems.map(([Icon, itemTitle, desc, badgeClass]) => (
-                <div key={itemTitle} className="flex items-center gap-3 px-4 py-4">
+                <div
+                  key={itemTitle}
+                  className="flex items-center gap-3 px-4 py-4 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-50/80"
+                >
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${badgeClass}`}
                   >
@@ -721,8 +724,8 @@ function PremiumLeadCapture({
                 </p>
               </div>
               <div className="relative w-[38%] shrink-0 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-100 to-blue-100" />
-                <div className="absolute inset-x-0 bottom-1/2 flex items-end gap-[3px] px-3 opacity-70">
+                <div className="absolute inset-0 bg-gradient-to-b from-sky-100 via-blue-50 to-blue-100" />
+                <div className="absolute inset-x-0 bottom-1/2 flex items-end gap-[3px] px-3 opacity-45">
                   {[12, 20, 15, 26, 17, 22, 11, 19].map((h, i) => (
                     <div
                       key={i}
@@ -798,7 +801,7 @@ function PremiumLeadCapture({
                     전화번호 <b className="text-blue-600">*</b>
                   </span>
                   <div className="flex h-12 w-full items-center rounded-xl border border-slate-200 bg-white pr-4 transition duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
-                    <span className="flex shrink-0 items-center gap-1 border-r border-slate-200 pl-3.5 pr-3 text-sm font-medium text-slate-500">
+                    <span className="flex shrink-0 items-center gap-0.5 border-r border-slate-200 pl-3 pr-2 text-sm font-medium text-slate-500">
                       <Phone size={15} className="text-slate-400" />
                       +82
                       <ChevronDown size={12} className="text-slate-400" />
@@ -833,7 +836,7 @@ function PremiumLeadCapture({
                 </div>
               </label>
 
-              <div className="relative py-1">
+              <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200" />
                 </div>
@@ -954,7 +957,7 @@ function PremiumLeadCapture({
               <button
                 type="submit"
                 disabled={submitting}
-                className="group flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#1D4EDB] via-[#2563EB] to-[#1D4EDB] bg-[length:200%_100%] px-6 text-base font-bold text-white shadow-[0_16px_34px_rgba(29,78,216,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[position:100%_0] hover:shadow-[0_20px_40px_rgba(29,78,216,0.38)] disabled:translate-y-0 disabled:opacity-60"
+                className="group flex min-h-[58px] w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#1D4EDB] via-[#3B6FEF] to-[#1D4EDB] bg-[length:200%_100%] px-6 text-base font-bold text-white shadow-[0_8px_20px_rgba(29,78,216,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[position:100%_0] hover:shadow-[0_10px_24px_rgba(29,78,216,0.28)] disabled:translate-y-0 disabled:opacity-60"
               >
                 <Gift size={19} />
                 {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
