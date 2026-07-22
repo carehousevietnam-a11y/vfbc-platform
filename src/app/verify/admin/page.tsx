@@ -393,6 +393,25 @@ const PREVIOUS_REVIEW_OPTIONS = [
   "잘 모르겠습니다",
 ] as const;
 
+// STEP11-2: 질문 2 카드형 UI용 설명 텍스트(표시 전용). 선택값·옵션 배열은 변경하지 않음.
+const PREVIOUS_REVIEW_DESCRIPTIONS: Record<string, string> = {
+  "처음 검토합니다": "이번이 첫 번째 검토입니다.",
+  "검토받았지만 해결되지 않았습니다": "기존 검토 후에도 문제가 남아 있습니다.",
+  "반려·보완 요청을 받았습니다": "기관 또는 전문가로부터 보완 요청을 받았습니다.",
+  "잘 모르겠습니다": "현재 상태를 정확히 알지 못합니다.",
+};
+
+// STEP11-2: 질문 3 카드형 UI용 설명 텍스트(표시 전용). incidentTypes 배열/값은 변경하지 않음.
+const INCIDENT_TYPE_DESCRIPTIONS: Record<string, string> = {
+  "행정문서": "비자·거주증·노동허가",
+  "계약서": "사업·거래 계약",
+  "법인·투자": "법인설립·투자 관련",
+  "노동·고용": "근로계약·노동 문제",
+  "인허가": "허가·등록 관련",
+  "세무": "세금·회계",
+  "기타": "기타 사건",
+};
+
 // STEP11-1: STEP1 최상단 — 사전 검토 / 사후 사건 검토 구분 질문.
 // 화면 로컬 state로만 관리하며, DB/API/CRM/진단 결과에는 아직 연결하지 않음.
 const REVIEW_STAGE_OPTIONS = [
@@ -625,7 +644,7 @@ export default function VerifyAdminPage() {
               <p className="mt-1 pl-7 text-xs text-gray-500">
                 검토 목적에 가장 가까운 항목을 선택해주세요.
               </p>
-              <div className="mt-3 space-y-2.5">
+              <div className="mt-3 space-y-3">
                 {REVIEW_STAGE_OPTIONS.map((opt) => {
                   const selected = reviewStage === opt.value;
                   return (
@@ -671,21 +690,34 @@ export default function VerifyAdminPage() {
                   이전에 다른 곳에서 검토받은 적이 있나요?
                 </p>
               </div>
-              <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => setPreviousReviewStatus(opt)}
-                    className={`flex h-11 items-center justify-center rounded-xl border px-3 text-center text-[11px] font-semibold leading-snug transition-colors ${
-                      previousReviewStatus === opt
-                        ? "border-gray-900 bg-gray-900 text-white"
-                        : "border-gray-200 bg-white text-gray-900 hover:border-gray-300"
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {PREVIOUS_REVIEW_OPTIONS.map((opt) => {
+                  const selected = previousReviewStatus === opt;
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setPreviousReviewStatus(opt)}
+                      className={`flex w-full items-start gap-2.5 rounded-xl border p-3 text-left transition-colors ${
+                        selected
+                          ? "border-blue-900 bg-blue-50"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                    >
+                      {selected ? (
+                        <CheckCircle2 className="mt-0.5 shrink-0 text-blue-900" size={16} />
+                      ) : (
+                        <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-gray-300" />
+                      )}
+                      <span>
+                        <p className="text-[13px] font-bold text-gray-900">{opt}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-gray-500">
+                          {PREVIOUS_REVIEW_DESCRIPTIONS[opt]}
+                        </p>
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
               {previousReviewError && (
                 <p className="mt-2 text-xs text-red-600">{previousReviewError}</p>
@@ -704,21 +736,34 @@ export default function VerifyAdminPage() {
                   어떤 종류의 사건·서류인가요?
                 </p>
               </div>
-              <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                {incidentTypes.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setIncidentType(t)}
-                    className={`rounded-xl border p-3 text-xs font-semibold transition-colors ${
-                      incidentType === t
-                        ? "border-gray-900 bg-gray-900 text-white"
-                        : "border-gray-200 bg-white text-gray-900 hover:border-gray-300"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {incidentTypes.map((t) => {
+                  const selected = incidentType === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setIncidentType(t)}
+                      className={`flex w-full items-start gap-2.5 rounded-xl border p-3 text-left transition-colors ${
+                        selected
+                          ? "border-blue-900 bg-blue-50"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                    >
+                      {selected ? (
+                        <CheckCircle2 className="mt-0.5 shrink-0 text-blue-900" size={16} />
+                      ) : (
+                        <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-gray-300" />
+                      )}
+                      <span>
+                        <p className="text-[13px] font-bold text-gray-900">{t}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-gray-500">
+                          {INCIDENT_TYPE_DESCRIPTIONS[t] ?? ""}
+                        </p>
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
