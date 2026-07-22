@@ -561,10 +561,10 @@ function PremiumLeadCapture({
   ];
 
   const trustBadges: [React.ElementType, string, string][] = [
-    [Users, "베트남 전문가 그룹", "현지 행정 검토 지원"],
-    [ShieldCheck, "실무 경험 기반", "AI 분석 및 안내"],
-    [TrendingUp, "빠른 결과 확인", "조건별 맞춤 가이드"],
-    [Lock, "개인정보 보호", "안전한 정보 처리"],
+    [Users, "20년+", "베트남 행정 경험"],
+    [ShieldCheck, "10,000+", "상담 및 처리 실적"],
+    [TrendingUp, "98%", "정확한 정보 제공"],
+    [Lock, "100%", "개인정보 보호"],
   ];
 
   return (
@@ -710,46 +710,57 @@ function PremiumLeadCapture({
               ))}
             </div>
 
-            <div className="group relative mt-5 overflow-hidden rounded-2xl transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(15,23,42,0.18)]">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#0B1739] via-[#123B8F] to-[#1D5FCC]" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-10 items-end gap-[3px] px-4 opacity-40">
-                {[10, 18, 12, 24, 14, 20, 9, 16, 22, 11, 19, 13, 25, 10, 17].map(
-                  (h, i) => (
-                    <div
-                      key={i}
-                      style={{ height: `${h}px` }}
-                      className="w-2 flex-1 rounded-t-[1px] bg-white/70"
-                    />
-                  ),
-                )}
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#0B1739] to-transparent" />
-              <div className="relative p-5 text-white">
+            <div className="group mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(15,23,42,0.1)]">
+              <div className="p-5">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck size={17} className="text-blue-300" />
-                  <p className="text-sm font-bold">베트남 전문가 그룹 검토</p>
+                  <ShieldCheck size={17} className="text-blue-600" />
+                  <p className="text-sm font-bold text-slate-900">
+                    베트남 전문가 그룹 검토
+                  </p>
                 </div>
-                <p className="mt-2 text-xs leading-5 text-white/70">
+                <p className="mt-2 text-xs leading-5 text-slate-500">
                   입력하신 정보는 베트남 현지 행정 전문가 그룹이 검토하여 더
                   정확한 리포트를 제공합니다.
                 </p>
               </div>
+              <div className="relative h-24 w-full overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-100 to-blue-100" />
+                <div className="absolute inset-x-0 bottom-1/2 flex items-end gap-[3px] px-5 opacity-70">
+                  {[14, 22, 16, 28, 18, 24, 12, 20, 26, 15, 23, 17].map((h, i) => (
+                    <div
+                      key={i}
+                      style={{ height: `${h}px` }}
+                      className="w-2 flex-1 rounded-t-[1px] bg-slate-500/60"
+                    />
+                  ))}
+                </div>
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-blue-200/70 to-blue-300/40" />
+                <div className="absolute bottom-3 left-6 h-6 w-9 overflow-hidden rounded-[2px] shadow-md">
+                  <div className="flex h-full w-full items-center justify-center bg-red-600">
+                    <Star
+                      size={11}
+                      className="text-yellow-300"
+                      fill="currentColor"
+                      strokeWidth={0}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
+
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {trustBadges.map(([Icon, title, description]) => (
+              {trustBadges.map(([Icon, num, label]) => (
                 <div
-                  key={title}
-                  className="flex flex-col items-center rounded-xl border border-slate-200 bg-white px-3 py-3.5 text-center transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-sm"
+                  key={label}
+                  className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-3.5 text-center transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-sm"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-                    <Icon size={16} />
-                  </span>
-                  <p className="mt-2 text-[11px] font-bold leading-tight text-slate-700">
-                    {title}
+                  <Icon size={16} className="text-slate-400" />
+                  <p className="mt-1 text-sm font-extrabold text-slate-900">
+                    {num}
                   </p>
-                  <p className="mt-1 text-[10px] leading-tight text-slate-400">
-                    {description}
+                  <p className="text-[10px] leading-tight text-slate-500">
+                    {label}
                   </p>
                 </div>
               ))}
@@ -794,17 +805,17 @@ function PremiumLeadCapture({
                   <span className="mb-2 block text-xs font-semibold text-slate-700">
                     전화번호 <b className="text-blue-600">*</b>
                   </span>
-                  <div className="relative">
-                    <Phone
-                      size={15}
-                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
+                  <div className="flex h-12 w-full items-center rounded-xl border border-slate-200 bg-white pr-4 transition duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
+                    <span className="flex shrink-0 items-center gap-1 border-r border-slate-200 pl-3.5 pr-3 text-sm font-medium text-slate-500">
+                      <Phone size={15} className="text-slate-400" />
+                      +82
+                    </span>
                     <input
                       type="tel"
                       name="phone"
                       required
                       placeholder="010-1234-5678"
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-full w-full bg-transparent pl-3 text-sm text-slate-900 outline-none"
                     />
                   </div>
                 </label>
@@ -864,10 +875,9 @@ function PremiumLeadCapture({
                     {messengers.primary.label} ID
                   </span>
                   <div className="relative">
-                    <MessageCircle
-                      size={15}
-                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-500"
-                    />
+                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#FEE500]">
+                      <MessageCircle size={11} className="text-[#3C1E1E]" />
+                    </span>
                     <input
                       type="text"
                       name="kakao_id"
@@ -881,10 +891,9 @@ function PremiumLeadCapture({
                     {messengers.secondary.label} ID
                   </span>
                   <div className="relative">
-                    <MessageCircle
-                      size={15}
-                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500"
-                    />
+                    <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[6px] bg-[#0068FF]">
+                      <MessageCircle size={11} className="text-white" />
+                    </span>
                     <input
                       type="text"
                       name="zalo_id"
