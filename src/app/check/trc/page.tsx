@@ -568,7 +568,7 @@ function PremiumLeadCapture({
     "h-[44px] w-full rounded-xl border border-[#D7E0EF] bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-[#97A6BC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-100";
 
   return (
-    <div className="-mx-6 mt-6 sm:relative sm:left-1/2 sm:mx-0 sm:w-[calc(100vw-32px)] sm:max-w-[1456px] sm:-translate-x-1/2">
+    <div className="-mx-6 -mt-16 sm:relative sm:left-1/2 sm:mx-0 sm:mt-6 sm:w-[calc(100vw-48px)] sm:max-w-[960px] sm:-translate-x-1/2">
       <section className="overflow-hidden rounded-none border-x-0 border-y border-[#DCE5F1] bg-white shadow-none sm:rounded-[20px] sm:border-x sm:shadow-[0_28px_80px_rgba(22,55,110,0.14)]">
         <div className="relative overflow-hidden bg-[#071B43] px-5 py-6 text-white sm:px-8 sm:py-7 lg:min-h-[218px] lg:px-9">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_20%,rgba(20,184,255,0.30),transparent_18%),radial-gradient(circle_at_86%_56%,rgba(37,99,235,0.26),transparent_25%),linear-gradient(108deg,#061632_0%,#08275f_52%,#0B3384_100%)]" />
@@ -699,7 +699,7 @@ function PremiumLeadCapture({
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               {trustItems.map(([Icon, title, description]) => (
                 <div
                   key={title}
