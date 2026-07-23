@@ -1270,13 +1270,35 @@ export default function TrcCheckPage() {
 
             {previousRejection === true && (
               <div className="mt-4">
+                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    AI
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">
+                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
+                      작성해주세요. 작성할수록 진단 정확도가 높아집니다.
+                    </p>
+                  </div>
+                </div>
+
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
-                  rows={3}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#1D4EDB] focus:outline-none resize-none"
+                  placeholder={
+                    "예)\n- 노동허가가 거절되었습니다.\n- 범죄경력증명서 문제라고 들었습니다.\n- 회사 자본금이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
+                  }
+                  rows={6}
+                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
                 />
+                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
+                  높이는 데 활용됩니다.
+                </p>
+
                 <button
                   type="button"
                   onClick={finalizeRejectionStep}
