@@ -568,12 +568,13 @@ function PremiumLeadCapture({
     "h-[44px] w-full rounded-xl border border-[#D7E0EF] bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-[#97A6BC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-100";
 
   return (
-    <div className="-mx-6 -mt-16 sm:relative sm:left-1/2 sm:mx-0 sm:mt-6 sm:w-[calc(100vw-48px)] sm:max-w-[960px] sm:-translate-x-1/2">
+    <div className="-mx-6 -mt-10 sm:relative sm:left-1/2 sm:mx-0 sm:mt-6 sm:w-[calc(100vw-48px)] sm:max-w-[960px] sm:-translate-x-1/2">
       <section className="overflow-hidden rounded-none border-x-0 border-y border-[#DCE5F1] bg-white shadow-none sm:rounded-[20px] sm:border-x sm:shadow-[0_28px_80px_rgba(22,55,110,0.14)]">
         <div className="relative overflow-hidden bg-[#071B43] px-5 py-6 text-white sm:px-8 sm:py-7 lg:min-h-[218px] lg:px-9">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_20%,rgba(20,184,255,0.30),transparent_18%),radial-gradient(circle_at_86%_56%,rgba(37,99,235,0.26),transparent_25%),linear-gradient(108deg,#061632_0%,#08275f_52%,#0B3384_100%)]" />
           <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute right-16 top-7 h-16 w-16 rounded-full bg-cyan-300/10 blur-xl" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-white sm:h-14" />
 
           <div className="pointer-events-none absolute right-3 top-5 block h-[112px] w-[134px] sm:right-5 sm:h-[132px] sm:w-[158px] lg:hidden">
             <img
@@ -711,12 +712,6 @@ function PremiumLeadCapture({
                 </div>
               ))}
             </div>
-
-            <p className="mt-5 flex min-w-0 items-start gap-2 break-keep text-[10px] leading-5 text-[#8A98AC]">
-              <Lock size={12} className="mt-1 shrink-0" />
-              본 서비스는 베트남에서 운영되며, 베트남 개인정보보호법 (91/2025/QH15) 및
-              시행령(356/2025/NĐ-CP)에 따라 처리됩니다.
-            </p>
           </aside>
 
           <div className="min-w-0 bg-[#FCFDFE] p-4 sm:p-7">
@@ -861,6 +856,12 @@ function PremiumLeadCapture({
             </div>
           </div>
         </div>
+
+        <p className="flex min-w-0 items-start gap-2 border-t border-[#EBEFF5] bg-[#FCFDFE] px-4 py-4 text-[10px] leading-5 text-[#8A98AC] sm:px-7">
+          <Lock size={12} className="mt-1 shrink-0" />
+          본 서비스는 베트남에서 운영되며, 베트남 개인정보보호법 (91/2025/QH15) 및
+          시행령(356/2025/NĐ-CP)에 따라 처리됩니다.
+        </p>
       </section>
 
       <div className="flex justify-center">
