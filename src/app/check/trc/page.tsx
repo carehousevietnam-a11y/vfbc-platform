@@ -575,9 +575,9 @@ function PremiumLeadCapture({
           <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute right-16 top-7 h-16 w-16 rounded-full bg-cyan-300/10 blur-xl" />
 
-          <div className="pointer-events-none absolute right-1 top-5 block h-[132px] w-[158px] lg:hidden">
+          <div className="pointer-events-none absolute right-3 top-5 block h-[112px] w-[134px] sm:right-5 sm:h-[132px] sm:w-[158px] lg:hidden">
             <img
-              src="/images/trc/trc-hero-premium.png?v=7"
+              src="/images/trc/trc-hero-premium.png?v=8"
               alt=""
               className="h-full w-full object-contain object-center drop-shadow-[0_12px_24px_rgba(2,18,70,0.30)]"
             />
@@ -590,7 +590,7 @@ function PremiumLeadCapture({
                 AI 1차 분석 완료
               </span>
 
-              <h1 className="mt-4 break-keep text-[32px] font-extrabold leading-[1.22] tracking-[-0.035em] sm:text-[38px]">
+              <h1 className="mt-[88px] break-keep text-[32px] font-extrabold leading-[1.22] tracking-[-0.035em] sm:mt-4 sm:text-[38px]">
                 <span className="block sm:inline">거주증 발급</span>{" "}
                 <span className={`block sm:inline ${accentText}`}>
                   {isPossible ? "가능성이 높습니다." : "추가 확인이 필요합니다."}
@@ -645,7 +645,7 @@ function PremiumLeadCapture({
             <div className="relative hidden h-[170px] overflow-visible lg:block">
               <div className="absolute inset-4 rounded-full bg-cyan-300/10 blur-2xl" />
               <img
-                src="/images/trc/trc-hero-premium.png?v=7"
+                src="/images/trc/trc-hero-premium.png?v=8"
                 alt=""
                 className="absolute left-1/2 top-1/2 h-[174px] w-[286px] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain object-center drop-shadow-[0_18px_32px_rgba(3,20,70,0.30)]"
               />
