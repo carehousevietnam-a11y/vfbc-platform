@@ -50,22 +50,14 @@ const CHECK_ITEMS: CheckItem[] = [
 export default function CheckSection() {
   return (
     <section id="check" className="mx-auto max-w-4xl px-6 py-14">
-      <div className="flex items-baseline justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-            직접확인하기
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            <span className="font-semibold text-blue-900">베트남 행정전문 AI</span>
-            {" "}— 1분 만에 가능 여부를 직접 확인하세요
-          </p>
-        </div>
-        <Link
-          href="/services"
-          className="text-xs font-semibold text-blue-900 hover:underline whitespace-nowrap"
-        >
-          모든 서비스 →
-        </Link>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+          직접확인하기
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          <span className="font-semibold text-blue-900">베트남 행정전문 AI</span>
+          {" "}— 1분 만에 가능 여부를 직접 확인하세요
+        </p>
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
