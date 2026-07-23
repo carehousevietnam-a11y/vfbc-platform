@@ -546,6 +546,8 @@ function PremiumLeadCapture({
   onReset: () => void;
 }) {
   const isPossible = tone === "possible";
+  const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
+  const status = isPossible ? "가능성 높음" : "추가 확인 필요";
 
   return (
     <div>
@@ -568,21 +570,55 @@ function PremiumLeadCapture({
           isPossible ? "border-gray-100" : "border-amber-100"
         }`}
       >
-        {isPossible ? (
-          <CheckCircle2 className="text-emerald-600" size={28} />
-        ) : (
-          <AlertTriangle className="text-amber-600" size={28} />
-        )}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            {isPossible ? (
+              <CheckCircle2 className="text-emerald-600" size={28} />
+            ) : (
+              <AlertTriangle className="text-amber-600" size={28} />
+            )}
 
-        <p className="mt-4 text-lg font-bold text-gray-900">
-          {isPossible ? "거주증 발급이 가능합니다" : "보완이 필요할 수 있습니다"}
-        </p>
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              {isPossible ? "거주증 발급이 가능합니다" : "보완이 필요할 수 있습니다"}
+            </p>
 
-        <p className="mt-2 text-sm leading-relaxed text-gray-600">
-          {isPossible
-            ? "현재 입력하신 국적·비자유형·직책·회사형태 기준으로 거주증(TRC) 신청 요건을 충족합니다."
-            : "현재 조건만으로는 거주증(TRC) 발급이 자동으로 보장되지 않습니다. 추가 서류로 요건을 충족시킬 수 있는 경우가 많습니다."}
-        </p>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              {isPossible
+                ? "현재 입력하신 국적·비자유형·직책·회사형태 기준으로 거주증(TRC) 신청 요건을 충족합니다."
+                : "현재 조건만으로는 거주증(TRC) 발급이 자동으로 보장되지 않습니다. 추가 서류로 요건을 충족시킬 수 있는 경우가 많습니다."}
+            </p>
+          </div>
+
+          <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
+            <svg width="104" height="104" viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
+              <circle cx="52" cy="52" r="46" fill="none" stroke="#E5E7EB" strokeWidth="7" />
+              <circle
+                cx="52"
+                cy="52"
+                r="46"
+                fill="none"
+                stroke={isPossible ? "#059669" : "#D97706"}
+                strokeWidth="7"
+                strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 46}
+                strokeDashoffset={2 * Math.PI * 46 * (1 - score / 100)}
+              />
+            </svg>
+            <div className="relative flex flex-col items-center">
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                  isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                }`}
+              >
+                {isPossible ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
+              </span>
+              <strong className="mt-0.5 text-[22px] font-black leading-none text-gray-900">{score}%</strong>
+              <span className={`mt-0.5 text-[10px] font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}>
+                {status}
+              </span>
+            </div>
+          </div>
+        </div>
 
         <p className="mt-2 text-xs leading-relaxed text-gray-400">
           * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다. 정확한
