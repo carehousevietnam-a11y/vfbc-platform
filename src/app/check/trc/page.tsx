@@ -1200,12 +1200,23 @@ export default function TrcCheckPage() {
                 onClick={() => {
                   setPreviousRejection(true);
                   recordRejectionAnonymously();
-                  setRejectionStepDone(true);
                 }}
-                className="rounded-2xl border border-gray-200 bg-white p-5 text-left transition-all duration-200 hover:border-gray-300 hover:shadow-sm"
+                className={`rounded-2xl border p-5 text-left transition-all duration-200 ${
+                  previousRejection === true
+                    ? "border-[#1D4EDB] bg-white shadow-sm"
+                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                }`}
               >
                 <div className="flex items-start justify-between">
-                  <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-gray-300" />
+                  <span
+                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
+                      previousRejection === true ? "border-[#1D4EDB]" : "border-gray-300"
+                    }`}
+                  >
+                    {previousRejection === true && (
+                      <span className="h-2 w-2 rounded-full bg-[#1D4EDB]" />
+                    )}
+                  </span>
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
                     <AlertTriangle size={18} className="text-[#EF4444]" />
                   </span>
@@ -1225,12 +1236,24 @@ export default function TrcCheckPage() {
                 type="button"
                 onClick={() => {
                   setPreviousRejection(false);
-                  setRejectionStepDone(true);
+                  setTimeout(() => setRejectionStepDone(true), 450);
                 }}
-                className="rounded-2xl border border-gray-200 bg-white p-5 text-left transition-all duration-200 hover:border-gray-300 hover:shadow-sm"
+                className={`rounded-2xl border p-5 text-left transition-all duration-200 ${
+                  previousRejection === false
+                    ? "border-[#1D4EDB] bg-white shadow-sm"
+                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                }`}
               >
                 <div className="flex items-start justify-between">
-                  <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-gray-300" />
+                  <span
+                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
+                      previousRejection === false ? "border-[#1D4EDB]" : "border-gray-300"
+                    }`}
+                  >
+                    {previousRejection === false && (
+                      <span className="h-2 w-2 rounded-full bg-[#1D4EDB]" />
+                    )}
+                  </span>
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50">
                     <CheckCircle2 size={18} className="text-emerald-600" />
                   </span>
@@ -1244,6 +1267,26 @@ export default function TrcCheckPage() {
                 </span>
               </button>
             </div>
+
+            {previousRejection === true && (
+              <div className="mt-4">
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
+                  rows={3}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#1D4EDB] focus:outline-none resize-none"
+                />
+                <button
+                  type="button"
+                  onClick={finalizeRejectionStep}
+                  className="mt-3 flex h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-[#1D4EDB] text-sm font-semibold text-white transition-colors hover:bg-blue-800 sm:w-auto sm:px-8"
+                >
+                  다음 단계로
+                  <ArrowLeft size={16} className="rotate-180" />
+                </button>
+              </div>
+            )}
 
             <div className="mt-6 flex items-start gap-3 rounded-xl bg-blue-50/60 px-4 py-3.5">
               <Lightbulb size={18} className="mt-0.5 shrink-0 text-[#1D4EDB]" />
@@ -1291,15 +1334,21 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={nationality === opt.key}
-                      onClick={() => setNationality(opt.key as Nationality)}
+                      selected={pendingNationality === opt.key}
+                      onClick={() => {
+                        setPendingNationality(opt.key as Nationality);
+                        setTimeout(() => setNationality(opt.key as Nationality), 450);
+                      }}
                     />
                   ))}
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => setRejectionStepDone(false)}
+                  onClick={() => {
+                    setPendingNationality(null);
+                    setRejectionStepDone(false);
+                  }}
                   className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
                 >
                   <ArrowLeft size={14} /> 이전 단계로
@@ -1329,15 +1378,21 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={visa === opt.key}
-                      onClick={() => setVisa(opt.key as Visa)}
+                      selected={pendingVisa === opt.key}
+                      onClick={() => {
+                        setPendingVisa(opt.key as Visa);
+                        setTimeout(() => setVisa(opt.key as Visa), 450);
+                      }}
                     />
                   ))}
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => setNationality(null)}
+                  onClick={() => {
+                    setPendingVisa(null);
+                    setNationality(null);
+                  }}
                   className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
                 >
                   <ArrowLeft size={14} /> 이전 단계로
@@ -1366,15 +1421,21 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={role === opt.key}
-                      onClick={() => setRole(opt.key as Role)}
+                      selected={pendingRole === opt.key}
+                      onClick={() => {
+                        setPendingRole(opt.key as Role);
+                        setTimeout(() => setRole(opt.key as Role), 450);
+                      }}
                     />
                   ))}
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => setVisa(null)}
+                  onClick={() => {
+                    setPendingRole(null);
+                    setVisa(null);
+                  }}
                   className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
                 >
                   <ArrowLeft size={14} /> 이전 단계로
@@ -1403,15 +1464,21 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={company === opt.key}
-                      onClick={() => setCompany(opt.key as Company)}
+                      selected={pendingCompany === opt.key}
+                      onClick={() => {
+                        setPendingCompany(opt.key as Company);
+                        setTimeout(() => setCompany(opt.key as Company), 450);
+                      }}
                     />
                   ))}
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => setRole(null)}
+                  onClick={() => {
+                    setPendingCompany(null);
+                    setRole(null);
+                  }}
                   className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
                 >
                   <ArrowLeft size={14} /> 이전 단계로
