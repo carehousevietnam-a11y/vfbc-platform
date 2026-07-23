@@ -2,6 +2,12 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// 운영 발신자 — Resend 도메인 인증 완료 후 Vercel에 RESEND_FROM_EMAIL을
+// 등록하면 그 값을 사용한다. 환경변수가 없으면(로컬 개발 등) 기존
+// Sandbox 발신자로 자동 폴백하므로 미설정 상태에서도 서비스가 죽지 않는다.
+const RESEND_FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL ?? "VFBCAI <onboarding@resend.dev>";
+
 // 전문가 진행요청 "완료" 이메일에만 넣는 신뢰도용 확인 도장.
 // 이메일 클라이언트(Gmail, Outlook, 네이버메일 등) 대부분은 <img>로 삽입된
 // SVG 파일 자체를 렌더링하지 않거나(빈 박스) 내부 필터(feTurbulence 등)가
@@ -250,7 +256,7 @@ export async function sendResultEmail(
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "VFBCAI <onboarding@resend.dev>",
+      from: RESEND_FROM_EMAIL,
       to,
       subject,
       html,
@@ -405,7 +411,7 @@ export async function sendStageChangeEmail(
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "VFBCAI <onboarding@resend.dev>",
+      from: RESEND_FROM_EMAIL,
       to,
       subject,
       html,
@@ -483,7 +489,7 @@ export async function sendConsultationResponseEmail(
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "VFBCAI <onboarding@resend.dev>",
+      from: RESEND_FROM_EMAIL,
       to,
       subject,
       html,
