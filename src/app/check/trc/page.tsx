@@ -31,7 +31,7 @@ import {
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
-import { NoticeCard, PrimaryButton } from "@/components/ui";
+import { NoticeCard, PrimaryButton, InfoBox } from "@/components/ui";
 import {
   getCheckDiagnosis,
   computeTrcResultTone,
@@ -549,21 +549,16 @@ function PremiumLeadCapture({
 
   return (
     <div>
-      {/* 2. 페이지 상단 기존 TRC 제목 영역 — 기존 문구 그대로 유지 */}
+      {/* 2. 페이지 상단 제목 영역 — 원본 문구(직접확인하기 · 베트남 행정전문 AI) 복원, 결과에 따라 바뀌지 않는 중립 문구 */}
       <div>
-        <p className="text-[12px] font-bold text-[#1D4EDB]">
-          베트남 거주증 발급 가능성 확인
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+          직접확인하기 · 베트남 행정전문 AI
         </p>
-        <h1 className="mt-2 break-keep text-[24px] font-extrabold leading-snug text-[#0B1739] sm:text-[28px]">
-          <span className="block sm:inline">거주증 발급</span>{" "}
-          <span className={`block sm:inline ${isPossible ? "text-emerald-600" : "text-amber-600"}`}>
-            {isPossible ? "가능성이 높습니다." : "추가 확인이 필요합니다."}
-          </span>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+          거주증 (TRC) 가능성 진단
         </h1>
-        <p className="mt-3 break-keep text-[13px] leading-6 text-[#5B6B84]">
-          거주증(TRC) 보유 여부와 현재 조건에 따라 발급 가능 여부가 달라집니다.
-          <br />
-          입력하신 조건을 기준으로 AI 분석이 완료되었습니다.
+        <p className="mt-1 text-sm text-gray-500">
+          국적·비자·직책·회사 형태에 따라 거주증 발급 가능 여부가 달라집니다.
         </p>
       </div>
 
@@ -676,26 +671,9 @@ function PremiumLeadCapture({
           </PrimaryButton>
         </form>
 
-        {/* 개인정보 보호 안내 — 기존 문구 그대로, 작게 유지 */}
-        <div className="mt-3 rounded-xl border border-[#E3E9F2] bg-[#FAFBFD] p-4">
-          <div className="flex items-start gap-2.5">
-            <Lock size={14} className="mt-0.5 shrink-0 text-[#7B8798]" />
-            <div>
-              <p className="text-[11px] font-bold text-[#4A5872]">개인정보 보호 안내</p>
-              <ul className="mt-1 space-y-0.5 text-[10px] leading-4 text-[#8592A8]">
-                <li>· 입력하신 정보는 AI 분석, 계정 생성, 상담 안내 목적으로만 사용됩니다.</li>
-                <li>· 제3자에게 제공하거나 판매하지 않습니다.</li>
-                <li>· 안전한 암호화 시스템으로 보호됩니다.</li>
-              </ul>
-            </div>
-          </div>
+        <div className="mt-3">
+          <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
         </div>
-
-        <p className="mt-3 flex items-start gap-1.5 text-[10px] leading-5 text-gray-400">
-          <Lock size={11} className="mt-0.5 shrink-0" />
-          본 서비스는 베트남에서 운영되며, 베트남 개인정보보호법 (91/2025/QH15) 및
-          시행령(356/2025/NĐ-CP)에 따라 처리됩니다.
-        </p>
 
         <button
           type="button"
