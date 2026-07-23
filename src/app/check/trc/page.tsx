@@ -850,12 +850,12 @@ function PremiumLeadCapture({
                   className="group flex min-h-[57px] w-full items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[#2D69F2] to-[#1653DE] px-6 text-[15px] font-black text-white shadow-[0_12px_26px_rgba(37,99,235,.30)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_15px_30px_rgba(37,99,235,.36)] disabled:translate-y-0 disabled:opacity-60"
                 >
                   <Gift size={21} />
-                  {submitting ? "접수 중..." : "무료 AI 리포트 바로 확인하기"}
+                  {submitting ? "접수 중..." : "무료 AI 리포트 확인하기"}
                   {!submitting && <ArrowLeft size={20} className="rotate-180 transition-transform group-hover:translate-x-1" />}
                 </button>
 
                 <p className="text-center text-[10px] text-[#97A4B6]">
-                  입력하신 연락처로 AI 분석 리포트가 발송되며, 즉시 확인하실 수 있습니다.
+                  입력 후 즉시 AI 리포트를 확인할 수 있습니다.
                 </p>
               </form>
             </div>
