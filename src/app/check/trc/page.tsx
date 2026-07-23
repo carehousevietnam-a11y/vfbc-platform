@@ -1200,25 +1200,12 @@ export default function TrcCheckPage() {
                 onClick={() => {
                   setPreviousRejection(true);
                   recordRejectionAnonymously();
+                  setRejectionStepDone(true);
                 }}
-                className={`rounded-2xl border p-5 text-left transition-all duration-200 ${
-                  previousRejection === true
-                    ? "border-[#1D4EDB] bg-white shadow-sm"
-                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
-                }`}
+                className="rounded-2xl border border-gray-200 bg-white p-5 text-left transition-all duration-200 hover:border-gray-300 hover:shadow-sm"
               >
                 <div className="flex items-start justify-between">
-                  <span
-                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
-                      previousRejection === true
-                        ? "border-[#1D4EDB]"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {previousRejection === true && (
-                      <span className="h-2 w-2 rounded-full bg-[#1D4EDB]" />
-                    )}
-                  </span>
+                  <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-gray-300" />
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
                     <AlertTriangle size={18} className="text-[#EF4444]" />
                   </span>
@@ -1240,24 +1227,10 @@ export default function TrcCheckPage() {
                   setPreviousRejection(false);
                   setRejectionStepDone(true);
                 }}
-                className={`rounded-2xl border p-5 text-left transition-all duration-200 ${
-                  previousRejection === false
-                    ? "border-[#1D4EDB] bg-white shadow-sm"
-                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
-                }`}
+                className="rounded-2xl border border-gray-200 bg-white p-5 text-left transition-all duration-200 hover:border-gray-300 hover:shadow-sm"
               >
                 <div className="flex items-start justify-between">
-                  <span
-                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
-                      previousRejection === false
-                        ? "border-[#1D4EDB]"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {previousRejection === false && (
-                      <span className="h-2 w-2 rounded-full bg-[#1D4EDB]" />
-                    )}
-                  </span>
+                  <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-gray-300" />
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50">
                     <CheckCircle2 size={18} className="text-emerald-600" />
                   </span>
@@ -1272,18 +1245,6 @@ export default function TrcCheckPage() {
               </button>
             </div>
 
-            {previousRejection === true && (
-              <div className="mt-4">
-                <textarea
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
-                  rows={3}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#1D4EDB] focus:outline-none resize-none"
-                />
-              </div>
-            )}
-
             <div className="mt-6 flex items-start gap-3 rounded-xl bg-blue-50/60 px-4 py-3.5">
               <Lightbulb size={18} className="mt-0.5 shrink-0 text-[#1D4EDB]" />
               <div>
@@ -1297,23 +1258,12 @@ export default function TrcCheckPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/"
-                className="order-2 flex h-12 items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 sm:order-1 sm:flex-1"
-              >
-                <ArrowLeft size={16} /> 이전 단계로
-              </Link>
-              <button
-                type="button"
-                onClick={finalizeRejectionStep}
-                disabled={previousRejection !== true}
-                className="order-1 flex h-12 items-center justify-center gap-1.5 rounded-xl bg-[#1D4EDB] text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-40 sm:order-2 sm:flex-1"
-              >
-                다음 단계로
-                <ArrowLeft size={16} className="rotate-180" />
-              </button>
-            </div>
+            <Link
+              href="/"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeft size={14} /> 홈으로
+            </Link>
           </div>
         )}
 
@@ -1341,17 +1291,19 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={pendingNationality === opt.key}
-                      onClick={() => setPendingNationality(opt.key as Nationality)}
+                      selected={nationality === opt.key}
+                      onClick={() => setNationality(opt.key as Nationality)}
                     />
                   ))}
                 </div>
 
-                <TrcStepNav
-                  onPrev={() => setRejectionStepDone(false)}
-                  onNext={() => setNationality(pendingNationality)}
-                  nextDisabled={!pendingNationality}
-                />
+                <button
+                  type="button"
+                  onClick={() => setRejectionStepDone(false)}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -1377,17 +1329,19 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={pendingVisa === opt.key}
-                      onClick={() => setPendingVisa(opt.key as Visa)}
+                      selected={visa === opt.key}
+                      onClick={() => setVisa(opt.key as Visa)}
                     />
                   ))}
                 </div>
 
-                <TrcStepNav
-                  onPrev={() => setNationality(null)}
-                  onNext={() => setVisa(pendingVisa)}
-                  nextDisabled={!pendingVisa}
-                />
+                <button
+                  type="button"
+                  onClick={() => setNationality(null)}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -1412,17 +1366,19 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={pendingRole === opt.key}
-                      onClick={() => setPendingRole(opt.key as Role)}
+                      selected={role === opt.key}
+                      onClick={() => setRole(opt.key as Role)}
                     />
                   ))}
                 </div>
 
-                <TrcStepNav
-                  onPrev={() => setVisa(null)}
-                  onNext={() => setRole(pendingRole)}
-                  nextDisabled={!pendingRole}
-                />
+                <button
+                  type="button"
+                  onClick={() => setVisa(null)}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -1447,17 +1403,19 @@ export default function TrcCheckPage() {
                       description={opt.desc}
                       meaning={opt.meaning}
                       meaningTone={opt.tone}
-                      selected={pendingCompany === opt.key}
-                      onClick={() => setPendingCompany(opt.key as Company)}
+                      selected={company === opt.key}
+                      onClick={() => setCompany(opt.key as Company)}
                     />
                   ))}
                 </div>
 
-                <TrcStepNav
-                  onPrev={() => setRole(null)}
-                  onNext={() => setCompany(pendingCompany)}
-                  nextDisabled={!pendingCompany}
-                />
+                <button
+                  type="button"
+                  onClick={() => setRole(null)}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
           </>
