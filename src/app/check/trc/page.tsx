@@ -574,7 +574,7 @@ function PremiumLeadCapture({
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_20%,rgba(20,184,255,0.30),transparent_18%),radial-gradient(circle_at_86%_56%,rgba(37,99,235,0.26),transparent_25%),linear-gradient(108deg,#061632_0%,#08275f_52%,#0B3384_100%)]" />
           <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute right-16 top-7 h-16 w-16 rounded-full bg-cyan-300/10 blur-xl" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-white sm:h-14" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3 bg-gradient-to-b from-transparent to-white sm:h-4" />
 
           <div className="pointer-events-none absolute right-3 top-5 block h-[112px] w-[134px] sm:right-5 sm:h-[132px] sm:w-[158px] lg:hidden">
             <img
