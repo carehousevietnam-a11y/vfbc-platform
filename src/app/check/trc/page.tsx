@@ -548,37 +548,37 @@ function PremiumLeadCapture({
   const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
   const status = isPossible ? "가능성 높음" : "추가 확인 필요";
 
+  const reportItems: [React.ElementType, string, string, string][] = [
+    [TrendingUp, "가능성 점수", "거주증 발급 가능성을 점수로 확인", "bg-emerald-50 text-emerald-500"],
+    [AlertTriangle, "위험요인 분석", "거절·보완 가능성이 있는 항목 진단", "bg-amber-50 text-amber-500"],
+    [FileText, "준비서류 안내", "현재 조건에 맞는 필수 서류 목록", "bg-blue-50 text-blue-600"],
+    [Clock, "예상 처리기간", "신청부터 발급까지 예상 기간 안내", "bg-violet-50 text-violet-600"],
+    [Users, "전문가 검토 의견", "베트남 행정 전문가의 추가 코멘트 제공", "bg-cyan-50 text-cyan-600"],
+  ];
+
   const fieldClass =
     "h-[44px] w-full rounded-xl border border-[#D7E0EF] bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-[#97A6BC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-100";
 
   return (
     <div className="-mx-6 -mt-10 sm:relative sm:left-1/2 sm:mx-0 sm:w-[calc(100vw-48px)] sm:max-w-[960px] sm:-translate-x-1/2">
       <section className="overflow-hidden rounded-none border-x-0 border-y border-[#DCE5F1] bg-white shadow-none sm:rounded-[20px] sm:border-x sm:shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-        {/* 1. 단순화된 레터헤드 — 로고 + VFBCAI + 베트남 행정전문 AI만 표시 */}
-        <div className="flex items-center gap-2.5 border-b border-[#E3E9F2] bg-white px-5 py-4 sm:px-8">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1D4EDB] text-[13px] font-bold text-white">
-            V
-          </span>
-          <div>
-            <p className="text-[15px] font-black leading-none text-[#0B1739]">VFBCAI</p>
-            <p className="mt-1 text-[11px] font-medium text-[#7B8798]">베트남 행정전문 AI</p>
-          </div>
-        </div>
-
         {/* 2/3. 결과 영역 — 좌측 제목+설명, 우측 정부 인증 배지 스타일 원형 Progress */}
         <div className="border-b border-[#E3E9F2] bg-[#FAFBFD] px-5 py-8 sm:px-8 sm:py-10">
           <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
             <div className="text-center sm:text-left">
-              <h1 className="break-keep text-[24px] font-extrabold leading-snug text-[#0B1739] sm:text-[28px]">
+              <p className="text-[12px] font-bold text-[#1D4EDB]">
+                베트남 거주증 발급 가능성 확인
+              </p>
+              <h1 className="mt-2 break-keep text-[24px] font-extrabold leading-snug text-[#0B1739] sm:text-[28px]">
                 <span className="block sm:inline">거주증 발급</span>{" "}
                 <span className={`block sm:inline ${isPossible ? "text-emerald-600" : "text-amber-600"}`}>
                   {isPossible ? "가능성이 높습니다." : "추가 확인이 필요합니다."}
                 </span>
               </h1>
               <p className="mt-3 break-keep text-[13px] leading-6 text-[#5B6B84]">
-                입력하신 조건을 기준으로 AI 분석이 완료되었습니다.
+                거주증(TRC) 보유 여부와 현재 조건에 따라 발급 가능 여부가 달라집니다.
                 <br />
-                정확한 결과와 맞춤 가이드를 확인하세요.
+                입력하신 조건을 기준으로 AI 분석이 완료되었습니다.
               </p>
             </div>
 
@@ -611,6 +611,25 @@ function PremiumLeadCapture({
                   {status}
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* 4/5. AI가 제공하는 분석 리포트 — Hero 바로 아래 가로형 Information Strip (기존 카드형보다 낮은 높이) */}
+          <div className="mt-6">
+            <p className="text-[12px] font-bold text-[#1263EA]">AI가 제공하는 분석 리포트</p>
+            <div className="mt-2.5 -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:grid-cols-5 sm:gap-2 sm:overflow-visible sm:px-0">
+              {reportItems.map(([Icon, title, description, iconClass]) => (
+                <div
+                  key={title}
+                  className="flex min-w-[124px] shrink-0 flex-col items-center gap-1.5 rounded-xl border border-[#E3E9F2] bg-white px-3 py-3 text-center sm:min-w-0"
+                >
+                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${iconClass}`}>
+                    <Icon size={16} />
+                  </span>
+                  <p className="text-[11px] font-bold leading-4 text-[#0B1739]">{title}</p>
+                  <p className="text-[9px] leading-3 text-[#8592A8]">{description}</p>
+                </div>
+              ))}
             </div>
           </div>
 
