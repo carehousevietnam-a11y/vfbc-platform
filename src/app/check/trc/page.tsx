@@ -568,8 +568,8 @@ function PremiumLeadCapture({
     "h-[44px] w-full rounded-xl border border-[#D7E0EF] bg-white px-4 text-[13px] text-slate-900 outline-none transition duration-200 placeholder:text-[#97A6BC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-100";
 
   return (
-    <div className="mt-6 w-full max-w-full sm:relative sm:left-1/2 sm:w-[calc(100vw-32px)] sm:max-w-[1456px] sm:-translate-x-1/2">
-      <section className="overflow-hidden rounded-[20px] border border-[#DCE5F1] bg-white shadow-[0_28px_80px_rgba(22,55,110,0.14)]">
+    <div className="-mx-6 mt-6 sm:relative sm:left-1/2 sm:mx-0 sm:w-[calc(100vw-32px)] sm:max-w-[1456px] sm:-translate-x-1/2">
+      <section className="overflow-hidden rounded-none border-x-0 border-y border-[#DCE5F1] bg-white shadow-none sm:rounded-[20px] sm:border-x sm:shadow-[0_28px_80px_rgba(22,55,110,0.14)]">
         <div className="relative overflow-hidden bg-[#071B43] px-5 py-6 text-white sm:px-8 sm:py-7 lg:min-h-[218px] lg:px-9">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_20%,rgba(20,184,255,0.30),transparent_18%),radial-gradient(circle_at_86%_56%,rgba(37,99,235,0.26),transparent_25%),linear-gradient(108deg,#061632_0%,#08275f_52%,#0B3384_100%)]" />
           <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px]" />
@@ -720,7 +720,7 @@ function PremiumLeadCapture({
           </aside>
 
           <div className="min-w-0 bg-[#FCFDFE] p-4 sm:p-7">
-            <div className="rounded-2xl border border-[#DCE5F2] bg-white p-5 shadow-[0_4px_18px_rgba(15,23,42,.035)] sm:p-6">
+            <div className="min-w-0 rounded-2xl border border-[#DCE5F2] bg-white p-5 shadow-[0_4px_18px_rgba(15,23,42,.035)] sm:p-6">
               <div className="flex items-start justify-between gap-4">
                 <h2 className="flex items-start gap-2 break-keep text-[16px] font-black leading-6 tracking-[-0.02em] text-[#0B1739] sm:items-center sm:text-[17px]">
                   <FileText size={22} className="text-[#2563EB]" />
@@ -735,22 +735,22 @@ function PremiumLeadCapture({
                 <div>
                   <p className="text-[13px] font-black text-[#1263EA]">기본 정보 (필수)</p>
 
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <label className="block">
+                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
                         이름 <b className="text-red-500">*</b>
                       </span>
-                      <div className="relative">
+                      <div className="relative min-w-0">
                         <Users size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
                         <input type="text" name="name" required placeholder="이름을 입력해주세요" className={`${fieldClass} pl-10`} />
                       </div>
                     </label>
 
-                    <label className="block">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
                         전화번호 <b className="text-red-500">*</b>
                       </span>
-                      <div className="flex h-[44px] overflow-hidden rounded-xl border border-[#D7E0EF] bg-white transition duration-200 focus-within:border-[#2563EB] focus-within:ring-4 focus-within:ring-blue-100">
+                      <div className="flex h-[44px] min-w-0 overflow-hidden rounded-xl border border-[#D7E0EF] bg-white transition duration-200 focus-within:border-[#2563EB] focus-within:ring-4 focus-within:ring-blue-100">
                         <span className="flex shrink-0 items-center gap-2 border-r border-[#D7E0EF] px-3 text-[12px] font-semibold text-[#516076]">
                           <Phone size={15} className="text-[#1769F5]" />
                           +82
@@ -761,11 +761,11 @@ function PremiumLeadCapture({
                     </label>
                   </div>
 
-                  <label className="mt-4 block">
+                  <label className="mt-4 block min-w-0">
                     <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">
                       현재 거주지 주소 <b className="text-red-500">*</b>
                     </span>
-                    <div className="relative">
+                    <div className="relative min-w-0">
                       <MapPin size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
                       <input type="text" name="address" required placeholder="예: Quận 1, TP.HCM" className={`${fieldClass} pl-10`} />
                     </div>
@@ -775,26 +775,26 @@ function PremiumLeadCapture({
                 <div>
                   <p className="text-[13px] font-black text-[#1263EA]">추가 정보 (선택)</p>
 
-                  <label className="mt-4 block">
+                  <label className="mt-4 block min-w-0">
                     <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">이메일</span>
-                    <div className="relative">
+                    <div className="relative min-w-0">
                       <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1769F5]" />
                       <input type="email" name="email" placeholder="이메일을 입력해주세요" className={`${fieldClass} pl-10`} />
                     </div>
                   </label>
 
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <label className="block">
+                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">{messengers.primary.label} ID</span>
-                      <div className="relative">
+                      <div className="relative min-w-0">
                         <MessageCircle size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-500" />
                         <input type="text" name="kakao_id" placeholder={`${messengers.primary.label} ID (선택)`} className={`${fieldClass} pl-10`} />
                       </div>
                     </label>
 
-                    <label className="block">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-[12px] font-extrabold text-[#18243A]">{messengers.secondary.label} ID</span>
-                      <div className="relative">
+                      <div className="relative min-w-0">
                         <span className="pointer-events-none absolute left-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[5px] bg-[#0068FF] text-[6px] font-extrabold italic text-white">
                           Zalo
                         </span>
