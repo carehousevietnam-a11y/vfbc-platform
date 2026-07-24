@@ -428,19 +428,6 @@ function PremiumLeadCapture({
 
   return (
     <div>
-      {/* 2. 페이지 상단 제목 영역 — 원본 문구(직접확인하기 · 베트남 행정전문 AI) 복원, 결과에 따라 바뀌지 않는 중립 문구 */}
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          직접확인하기 · 베트남 행정전문 AI
-        </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          거주증 (TRC) 가능성 진단
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          국적·비자·직책·회사 형태에 따라 거주증 발급 가능 여부가 달라집니다.
-        </p>
-      </div>
-
       {/* 3. WP 단순형 단일 카드 — 결과 + 입력폼 */}
       <div
         className={`mt-8 rounded-3xl border bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${
