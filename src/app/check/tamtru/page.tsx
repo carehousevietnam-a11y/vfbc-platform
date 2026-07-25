@@ -627,9 +627,31 @@ export default function TamTruCheckPage() {
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
       <div className="mx-auto max-w-xl px-6 py-10">
+        {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
         <Link
           href="/"
-          className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600"
+          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
+        >
+          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
+            <ArrowLeft size={14} /> 홈으로
+          </span>
+          <img
+            src="/vfbcai-shield-logo.png"
+            alt="VFBCAI"
+            width={34}
+            height={34}
+            className="shrink-0"
+          />
+          <div>
+            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
+            <p className="text-[11px] leading-tight text-gray-400">베트남 행정전문 AI</p>
+          </div>
+        </Link>
+
+        {/* 데스크톱 전용 — 기존 텍스트 링크 */}
+        <Link
+          href="/"
+          className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex"
         >
           <ArrowLeft size={14} /> 홈으로
         </Link>
