@@ -840,45 +840,23 @@ export default function TrcCheckPage() {
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
       <div className="mx-auto max-w-xl px-6 py-10">
-        {/* 모바일 전용 — 새 방패+체크 로고, 가로 배치(아이콘+텍스트) 후 중앙 정렬 */}
-        <div className="-mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden">
-          <svg width="34" height="34" viewBox="0 0 76 76" aria-hidden="true" className="shrink-0">
-            <rect x="0" y="0" width="76" height="76" fill="#0C2D5C" />
-            <path
-              d="M38 8 L62 20 L62 38 C62 54 51 63 38 68 C25 63 14 54 14 38 L14 20 Z"
-              fill="none"
-              stroke="white"
-              strokeWidth="2.6"
-            />
-            <path
-              d="M27 30 L38 20 L49 30"
-              fill="none"
-              stroke="white"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M40 34 C34 30 27 31 24 35"
-              fill="none"
-              stroke="white"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-            <path
-              d="M22 45 L32 53 L52 30"
-              fill="none"
-              stroke="white"
-              strokeWidth="4.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        {/* 모바일 전용 — 실제 로고 이미지, 가로 배치(아이콘+텍스트) 후 중앙 정렬, 탭하면 홈으로 이동 */}
+        <Link
+          href="/"
+          className="-mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
+        >
+          <img
+            src="/vfbcai-shield-logo.png"
+            alt="VFBCAI"
+            width={34}
+            height={34}
+            className="shrink-0"
+          />
           <div>
             <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
             <p className="text-[11px] leading-tight text-gray-400">베트남 행정전문 AI</p>
           </div>
-        </div>
+        </Link>
 
         {/* 데스크톱 전용 — 기존 텍스트 링크 */}
         <Link
