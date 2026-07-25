@@ -309,8 +309,73 @@ function ResultOverviewCards({
   );
 }
 
+// 결과 화면 헤더용 원형 점수표 — 개인정보 입력 화면(PremiumLeadCapture)의 게이지와
+// 동일한 스타일. 값은 기존 diagnosis.customerView에서만 가져오며 새로운 점수
+// 계산은 하지 않는다. size는 배치되는 위치에 맞게 비율 조정용(px)이다.
+function ResultHeaderGauge({
+  diagnosis,
+  size = 104,
+}: {
+  diagnosis: DiagnosisResult;
+  size?: number;
+}) {
+  const { feasibilityScore, resultTone } = diagnosis.customerView;
+  const isPossible = resultTone === "possible";
+  const status = isPossible ? "가능성 높음" : "추가 확인 필요";
+  const ringColor = isPossible ? "#059669" : resultTone === "conditional" ? "#D97706" : "#DC2626";
+  const scale = size / 104;
+  const strokeWidth = 7 * scale;
+  const r = 46 * scale;
+  const cx = size / 2;
 
-// STEP10-6: AI 판단 근거 — 새 AI 호출 없이 기존 진단 결과(점수/체크리스트/상태)만으로
+  return (
+    <div
+      className="relative shrink-0"
+      style={{ width: size, height: size }}
+    >
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <g transform={`rotate(-90 ${cx} ${cx})`}>
+          <circle cx={cx} cy={cx} r={r} fill="none" stroke="#E5E7EB" strokeWidth={strokeWidth} />
+          <circle
+            cx={cx}
+            cy={cx}
+            r={r}
+            fill="none"
+            stroke={ringColor}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={2 * Math.PI * r}
+            strokeDashoffset={2 * Math.PI * r * (1 - feasibilityScore / 100)}
+          />
+        </g>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span
+          className={`flex items-center justify-center rounded-full ${
+            isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+          }`}
+          style={{ width: 20 * scale, height: 20 * scale }}
+        >
+          {isPossible ? <CheckCircle2 size={12 * scale} /> : <AlertTriangle size={12 * scale} />}
+        </span>
+        <strong
+          className="mt-0.5 font-black leading-none text-gray-900"
+          style={{ fontSize: 22 * scale }}
+        >
+          {feasibilityScore}%
+        </strong>
+        <span
+          className={`mt-0.5 font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}
+          style={{ fontSize: 10 * scale }}
+        >
+          {status}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+
 // "왜 이렇게 판단했는지"를 2~3개의 짧은 문장으로 요약. DB/API/CRM 변경 없음.
 function buildAiReasonBullets(
   feasibilityScore: number,
@@ -1088,15 +1153,26 @@ export default function WpCheckPage() {
           <ArrowLeft size={14} /> 홈으로
         </Link>
 
-        <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          직접확인하기 · 베트남 행정전문 AI
-        </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          노동허가 (WP) 신청
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          학력·경력·직무 형태에 따라 노동허가 발급 가능 여부가 달라집니다.
-        </p>
+        <div className="mt-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              직접확인하기 · 베트남 행정전문 AI
+            </p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+              노동허가 (WP) 신청
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              학력·경력·직무 형태에 따라 노동허가 발급 가능 여부가 달라집니다.
+            </p>
+          </div>
+
+          {/* 모바일 전용 — 결과 화면 단계에서만 우측 상단에 원형 점수표 표시 */}
+          {resultScreenActive && diagnosis && (
+            <div className="shrink-0 sm:hidden">
+              <ResultHeaderGauge diagnosis={diagnosis} size={76} />
+            </div>
+          )}
+        </div>
 
         {!rejectionStepDone && (
           <div className="mt-8">
