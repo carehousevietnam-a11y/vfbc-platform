@@ -395,6 +395,7 @@ export default function TamTruCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
 
@@ -695,13 +696,35 @@ export default function TamTruCheckPage() {
             </QuestionSection>
             {previousRejection === true && (
               <div className="mt-4">
+                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    AI
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">
+                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
+                      작성해주세요. 작성할수록 진단 정확도가 높아집니다.
+                    </p>
+                  </div>
+                </div>
+
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
+                  placeholder={
+                    "예)\n- 신고가 거절되었습니다.\n- 임대차 계약서 문제라고 들었습니다.\n- 집주인 확인서가 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
+                  }
+                  rows={6}
+                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
                 />
+                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
+                  높이는 데 활용됩니다.
+                </p>
+
                 <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
                   다음
                 </PrimaryButton>
@@ -745,21 +768,44 @@ export default function TamTruCheckPage() {
                     <SelectionCard
                       title="호텔 · 게스트하우스"
                       description="숙박업소에 머무는 경우"
-                      selected={false}
+                      selected={selectedKey === "hotel"}
                       tone="blue"
                       icon={Building}
-                      onClick={() => setHousing("hotel")}
+                      onClick={() => {
+                        setSelectedKey("hotel");
+                        setTimeout(() => {
+                          setHousing("hotel");
+                          setSelectedKey(null);
+                        }, 300);
+                      }}
                     />
                     <SelectionCard
                       title="개인주택 · 아파트 · 지인집"
                       description="임대 또는 지인 거주"
-                      selected={false}
+                      selected={selectedKey === "personal"}
                       tone="blue"
                       icon={HomeIcon}
-                      onClick={() => setHousing("personal")}
+                      onClick={() => {
+                        setSelectedKey("personal");
+                        setTimeout(() => {
+                          setHousing("personal");
+                          setSelectedKey(null);
+                        }, 300);
+                      }}
                     />
                   </div>
                 </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setRejectionStepDone(false);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -797,18 +843,43 @@ export default function TamTruCheckPage() {
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <SelectionCard
                       title="네, 그렇습니다"
-                      selected={false}
+                      description="분쟁·갈취 사안으로 전문 변호사 확인이 필요합니다."
+                      selected={selectedKey === "landlord-yes"}
                       tone="red"
-                      onClick={() => setLandlordIssue(true)}
+                      onClick={() => {
+                        setSelectedKey("landlord-yes");
+                        setTimeout(() => {
+                          setLandlordIssue(true);
+                          setSelectedKey(null);
+                        }, 300);
+                      }}
                     />
                     <SelectionCard
                       title="아니요"
-                      selected={false}
+                      description="정상적으로 신고 절차를 진행할 수 있습니다."
+                      selected={selectedKey === "landlord-no"}
                       tone="blue"
-                      onClick={() => setLandlordIssue(false)}
+                      onClick={() => {
+                        setSelectedKey("landlord-no");
+                        setTimeout(() => {
+                          setLandlordIssue(false);
+                          setSelectedKey(null);
+                        }, 300);
+                      }}
                     />
                   </div>
                 </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setHousing(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -818,20 +889,38 @@ export default function TamTruCheckPage() {
                 <QuestionSection step={4} title="베트남에 도착(또는 숙소 이동)하신 지 얼마나 되셨나요?">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {[
-                      { key: "within12", label: "12시간 이내" },
-                      { key: "within24", label: "12~24시간" },
-                      { key: "over24", label: "24시간 초과" },
+                      { key: "within12", label: "12시간 이내", desc: "신고 기한 내 여유가 있습니다." },
+                      { key: "within24", label: "12~24시간", desc: "신고 기한이 임박했습니다." },
+                      { key: "over24", label: "24시간 초과", desc: "기한이 지났을 가능성이 높습니다." },
                     ].map((opt) => (
                       <SelectionCard
                         key={opt.key}
                         title={opt.label}
-                        selected={false}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
                         tone="blue"
-                        onClick={() => setTiming(opt.key as Timing)}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setTiming(opt.key as Timing);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
                       />
                     ))}
                   </div>
                 </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setLandlordIssue(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -846,14 +935,48 @@ export default function TamTruCheckPage() {
                     </NoticeCard>
                   </div>
                 )}
-                <CheckCircle2 className="text-emerald-600" size={28} />
-                <p className="mt-4 text-lg font-bold text-gray-900">
-                  임시거주(땀주) 신고를 진행할 수 있습니다
-                </p>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  이름·연락처·주소만 남기시면 AI가 신고 조건을 분석한
-                  리포트와 관할 사이트를 바로 보여드립니다.
-                </p>
+
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <CheckCircle2 className="text-emerald-600" size={28} />
+                    <p className="mt-4 text-lg font-bold text-gray-900">
+                      임시거주(땀주) 신고를 진행할 수 있습니다
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                      이름·연락처·주소만 남기시면 AI가 신고 조건을 분석한
+                      리포트와 관할 사이트를 바로 보여드립니다.
+                    </p>
+                  </div>
+
+                  {(() => {
+                    const score = diagnosis?.customerView.feasibilityScore ?? 88;
+                    return (
+                      <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
+                        <svg width="104" height="104" viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
+                          <circle cx="52" cy="52" r="46" fill="none" stroke="#E5E7EB" strokeWidth="7" />
+                          <circle
+                            cx="52"
+                            cy="52"
+                            r="46"
+                            fill="none"
+                            stroke="#059669"
+                            strokeWidth="7"
+                            strokeLinecap="round"
+                            strokeDasharray={2 * Math.PI * 46}
+                            strokeDashoffset={2 * Math.PI * 46 * (1 - score / 100)}
+                          />
+                        </svg>
+                        <div className="relative flex flex-col items-center">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                            <CheckCircle2 size={12} />
+                          </span>
+                          <strong className="mt-0.5 text-[22px] font-black leading-none text-gray-900">{score}%</strong>
+                          <span className="mt-0.5 text-[10px] font-bold text-emerald-600">가능성 높음</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
 
                 <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
                   <input

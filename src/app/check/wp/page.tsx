@@ -381,6 +381,193 @@ function ProcessMethodCards({
   );
 }
 
+function PremiumLeadCapture({
+  tone,
+  diagnosis,
+  messengers,
+  submitting,
+  leadError,
+  consentOpen,
+  consentHighlight,
+  onConsentToggle,
+  onConsentChecked,
+  onSubmit,
+  onReset,
+}: {
+  tone: "possible" | "conditional";
+  diagnosis: DiagnosisResult | null;
+  messengers: typeof MESSENGERS_KO;
+  submitting: boolean;
+  leadError: string | null;
+  consentOpen: boolean;
+  consentHighlight: boolean;
+  onConsentToggle: () => void;
+  onConsentChecked: () => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onReset: () => void;
+}) {
+  const isPossible = tone === "possible";
+  const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
+  const status = isPossible ? "가능성 높음" : "추가 확인 필요";
+
+  return (
+    <div>
+      <div
+        className={`mt-8 rounded-3xl border bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${
+          isPossible ? "border-gray-100" : "border-amber-100"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            {isPossible ? (
+              <CheckCircle2 className="text-emerald-600" size={28} />
+            ) : (
+              <AlertTriangle className="text-amber-600" size={28} />
+            )}
+
+            <p className="mt-4 text-lg font-bold text-gray-900">
+              {isPossible ? "노동허가 발급이 가능합니다" : "보완이 필요할 수 있습니다"}
+            </p>
+
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              {isPossible
+                ? "현재 학력·경력·직무 기준으로 노동허가(WP) 신청 요건을 충족합니다."
+                : "현재 학력·경력만으로는 노동허가 발급이 자동으로 보장되지 않습니다. 경력증명서·자격증 등 추가 서류로 요건을 충족시킬 수 있는 경우가 많습니다."}
+            </p>
+          </div>
+
+          <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
+            <svg width="104" height="104" viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
+              <circle cx="52" cy="52" r="46" fill="none" stroke="#E5E7EB" strokeWidth="7" />
+              <circle
+                cx="52"
+                cy="52"
+                r="46"
+                fill="none"
+                stroke={isPossible ? "#059669" : "#D97706"}
+                strokeWidth="7"
+                strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 46}
+                strokeDashoffset={2 * Math.PI * 46 * (1 - score / 100)}
+              />
+            </svg>
+            <div className="relative flex flex-col items-center">
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                  isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                }`}
+              >
+                {isPossible ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
+              </span>
+              <strong className="mt-0.5 text-[22px] font-black leading-none text-gray-900">{score}%</strong>
+              <span className={`mt-0.5 text-[10px] font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}>
+                {status}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-2 text-xs leading-relaxed text-gray-400">
+          * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다. 정확한
+          발급 가능 여부는 서류 검토 후 전문가 상담을 통해 확정됩니다.
+        </p>
+
+        <div className="mt-4">
+          <NoticeCard tone={isPossible ? "success" : "warning"}>
+            이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를 바로
+            보여드립니다.
+          </NoticeCard>
+        </div>
+
+        <form onSubmit={onSubmit} className="mt-5 space-y-3">
+          <input
+            type="text"
+            name="name"
+            required
+            placeholder="이름"
+            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+          />
+          <input
+            type="tel"
+            name="phone"
+            required
+            placeholder="전화번호"
+            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+          />
+          <input
+            type="text"
+            name="address"
+            required
+            placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
+            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
+            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+          />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <input
+              type="text"
+              name="kakao_id"
+              placeholder={`${messengers.primary.label} ID (선택)`}
+              className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+            />
+            <input
+              type="text"
+              name="zalo_id"
+              placeholder={`${messengers.secondary.label} ID (선택)`}
+              className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="flex items-start gap-2 text-xs text-gray-600">
+              <input
+                type="checkbox"
+                name="agreeTerms"
+                onChange={(e) => {
+                  if (e.target.checked) onConsentChecked();
+                }}
+                className="mt-0.5"
+              />
+              <span>(필수) {CONSENT_SUMMARY}</span>
+            </label>
+            <ConsentDetails
+              open={consentOpen}
+              onToggle={onConsentToggle}
+              highlight={consentHighlight}
+            />
+          </div>
+
+          {leadError && <p className="text-xs text-red-600">{leadError}</p>}
+
+          <PrimaryButton
+            type="submit"
+            variant={isPossible ? "primary" : "amber"}
+            loading={submitting}
+          >
+            {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
+          </PrimaryButton>
+        </form>
+
+        <div className="mt-3">
+          <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
+        </div>
+
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+        >
+          처음부터 다시 확인하기
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function WpCheckPage() {
   const [education, setEducation] = useState<Education>(null);
   const [experience, setExperience] = useState<Experience>(null);
@@ -401,6 +588,7 @@ export default function WpCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const messengers = MESSENGERS_KO;
@@ -704,13 +892,35 @@ export default function WpCheckPage() {
             </QuestionSection>
             {previousRejection === true && (
               <div className="mt-4">
+                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    AI
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">
+                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
+                      작성해주세요. 작성할수록 진단 정확도가 높아집니다.
+                    </p>
+                  </div>
+                </div>
+
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
+                  placeholder={
+                    "예)\n- 노동허가가 거절되었습니다.\n- 경력증명서 문제라고 들었습니다.\n- 학력요건이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
+                  }
+                  rows={6}
+                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
                 />
+                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
+                  높이는 데 활용됩니다.
+                </p>
+
                 <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
                   다음
                 </PrimaryButton>
@@ -726,20 +936,38 @@ export default function WpCheckPage() {
                 <QuestionSection step={2} title="최종 학력이 어떻게 되시나요?">
                   <div className="grid gap-3 sm:grid-cols-3">
                     {[
-                      { key: "university", label: "대학교 졸업 이상" },
-                      { key: "college", label: "전문대 졸업" },
-                      { key: "highschool", label: "고등학교 졸업 이하" },
+                      { key: "university", label: "대학교 졸업 이상", desc: "학사 이상의 학위를 소지한 경우입니다." },
+                      { key: "college", label: "전문대 졸업", desc: "전문학사 학위를 소지한 경우입니다." },
+                      { key: "highschool", label: "고등학교 졸업 이하", desc: "위 학력에 해당하지 않는 경우입니다." },
                     ].map((opt) => (
                       <SelectionCard
                         key={opt.key}
                         title={opt.label}
-                        selected={false}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
                         tone="blue"
-                        onClick={() => setEducation(opt.key as Education)}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setEducation(opt.key as Education);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
                       />
                     ))}
                   </div>
                 </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setRejectionStepDone(false);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -748,20 +976,38 @@ export default function WpCheckPage() {
                 <QuestionSection step={3} title="해당 직무 관련 경력은 얼마나 되시나요?">
                   <div className="grid gap-3 sm:grid-cols-3">
                     {[
-                      { key: "over2", label: "2년 이상" },
-                      { key: "one-to-two", label: "1~2년" },
-                      { key: "under1", label: "1년 미만" },
+                      { key: "over2", label: "2년 이상", desc: "일반 분야 경력 요건을 충족합니다." },
+                      { key: "one-to-two", label: "1~2년", desc: "우선분야 여부에 따라 요건 충족이 달라집니다." },
+                      { key: "under1", label: "1년 미만", desc: "추가 경력·자격 보완이 필요할 수 있습니다." },
                     ].map((opt) => (
                       <SelectionCard
                         key={opt.key}
                         title={opt.label}
-                        selected={false}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
                         tone="blue"
-                        onClick={() => setExperience(opt.key as Experience)}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setExperience(opt.key as Experience);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
                       />
                     ))}
                   </div>
                 </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setEducation(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -775,18 +1021,43 @@ export default function WpCheckPage() {
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <SelectionCard
                       title="네, 해당될 것 같습니다"
-                      selected={false}
+                      description="경력 요건이 1년으로 완화될 수 있습니다."
+                      selected={selectedKey === "priority-yes"}
                       tone="blue"
-                      onClick={() => setPriorityField("yes")}
+                      onClick={() => {
+                        setSelectedKey("priority-yes");
+                        setTimeout(() => {
+                          setPriorityField("yes");
+                          setSelectedKey(null);
+                        }, 300);
+                      }}
                     />
                     <SelectionCard
                       title="아니요 / 잘 모르겠습니다"
-                      selected={false}
+                      description="일반 분야 경력 요건(2년 이상)이 적용됩니다."
+                      selected={selectedKey === "priority-no"}
                       tone="slate"
-                      onClick={() => setPriorityField("no")}
+                      onClick={() => {
+                        setSelectedKey("priority-no");
+                        setTimeout(() => {
+                          setPriorityField("no");
+                          setSelectedKey(null);
+                        }, 300);
+                      }}
                     />
                   </div>
                 </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setExperience(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
 
@@ -803,118 +1074,50 @@ export default function WpCheckPage() {
                         key={opt.key}
                         title={opt.label}
                         description={opt.desc}
-                        selected={false}
+                        selected={selectedKey === opt.key}
                         tone="blue"
-                        onClick={() => setJob(opt.key as Job)}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setJob(opt.key as Job);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
                       />
                     ))}
                   </div>
                 </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setPriorityField(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
             )}
           </>
         )}
 
-        {/* 1번째 화면 (가입 전) — 리포트 없이 간단하게, 가입 장벽을 낮게 유지 */}
+        {/* 1번째 화면 (가입 전) — Premium SaaS lead capture */}
         {showResult && result === "possible" && !leadSubmitted && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              노동허가 발급이 가능합니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              현재 학력·경력·직무 기준으로 노동허가(WP) 신청 요건을
-              충족합니다.
-            </p>
-            <p className="mt-2 text-xs text-gray-400 leading-relaxed">
-              * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다.
-              정확한 발급 가능 여부는 서류 검토 후 전문가 상담을 통해
-              확정됩니다.
-            </p>
-            <div className="mt-4">
-              <NoticeCard tone="success">
-                이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
-                바로 보여드립니다.
-              </NoticeCard>
-            </div>
-
-            <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="이름"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="tel"
-                name="phone"
-                required
-                placeholder="전화번호"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="text"
-                name="address"
-                required
-                placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  name="kakao_id"
-                  placeholder={`${messengers.primary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-                <input
-                  type="text"
-                  name="zalo_id"
-                  placeholder={`${messengers.secondary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="flex items-start gap-2 text-xs text-gray-600">
-                  <input
-                    type="checkbox"
-                    name="agreeTerms"
-                    onChange={(e) => {
-                      if (e.target.checked) setConsentHighlight(false);
-                    }}
-                    className="mt-0.5"
-                  />
-                  <span>(필수) {CONSENT_SUMMARY}</span>
-                </label>
-                <ConsentDetails
-                  open={consentOpen}
-                  onToggle={() => setConsentOpen((v) => !v)}
-                  highlight={consentHighlight}
-                />
-              </div>
-              {leadError && (
-                <p className="text-xs text-red-600">{leadError}</p>
-              )}
-              <PrimaryButton type="submit" loading={submitting}>
-                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
-              </PrimaryButton>
-            </form>
-            <div className="mt-3">
-              <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
-            </div>
-            <button
-              onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
-          </div>
+          <PremiumLeadCapture
+            tone="possible"
+            diagnosis={diagnosis}
+            messengers={messengers}
+            submitting={submitting}
+            leadError={leadError}
+            consentOpen={consentOpen}
+            consentHighlight={consentHighlight}
+            onConsentToggle={() => setConsentOpen((v) => !v)}
+            onConsentChecked={() => setConsentHighlight(false)}
+            onSubmit={handleLeadSubmit}
+            onReset={reset}
+          />
         )}
 
         {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/전문가 진행요청 선택 */}
@@ -1136,102 +1339,21 @@ export default function WpCheckPage() {
           </div>
         )}
 
-        {/* 조건부 가능 — 1번째 화면 (가입 전, 리포트 없이 간단하게) */}
+        {/* 조건부 가능 — 1번째 화면 (가입 전, Premium SaaS lead capture) */}
         {showResult && result === "conditional" && !leadSubmitted && (
-          <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <AlertTriangle className="text-amber-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              보완이 필요할 수 있습니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              현재 학력·경력만으로는 노동허가 발급이 자동으로 보장되지
-              않습니다. 경력증명서·자격증 등 추가 서류로 요건을 충족시킬
-              수 있는 경우가 많습니다.
-            </p>
-            <div className="mt-4">
-              <NoticeCard tone="warning">
-                이름·연락처·주소만 남기시면 AI가 어떤 부분이 문제인지
-                분석한 리포트를 바로 보여드립니다.
-              </NoticeCard>
-            </div>
-
-            <form onSubmit={handleLeadSubmit} className="mt-5 space-y-3">
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="이름"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="tel"
-                name="phone"
-                required
-                placeholder="전화번호"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="text"
-                name="address"
-                required
-                placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  name="kakao_id"
-                  placeholder={`${messengers.primary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-                <input
-                  type="text"
-                  name="zalo_id"
-                  placeholder={`${messengers.secondary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="flex items-start gap-2 text-xs text-gray-600">
-                  <input
-                    type="checkbox"
-                    name="agreeTerms"
-                    onChange={(e) => {
-                      if (e.target.checked) setConsentHighlight(false);
-                    }}
-                    className="mt-0.5"
-                  />
-                  <span>(필수) {CONSENT_SUMMARY}</span>
-                </label>
-                <ConsentDetails
-                  open={consentOpen}
-                  onToggle={() => setConsentOpen((v) => !v)}
-                  highlight={consentHighlight}
-                />
-              </div>
-              {leadError && (
-                <p className="text-xs text-red-600">{leadError}</p>
-              )}
-              <PrimaryButton type="submit" variant="amber" loading={submitting}>
-                {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
-              </PrimaryButton>
-            </form>
-            <div className="mt-3">
-              <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
-            </div>
-            <button
-              onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
-          </div>
+          <PremiumLeadCapture
+            tone="conditional"
+            diagnosis={diagnosis}
+            messengers={messengers}
+            submitting={submitting}
+            leadError={leadError}
+            consentOpen={consentOpen}
+            consentHighlight={consentHighlight}
+            onConsentToggle={() => setConsentOpen((v) => !v)}
+            onConsentChecked={() => setConsentHighlight(false)}
+            onSubmit={handleLeadSubmit}
+            onReset={reset}
+          />
         )}
 
         {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 + 직접등록/전문가 진행요청 선택) */}

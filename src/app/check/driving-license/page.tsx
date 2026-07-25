@@ -395,6 +395,7 @@ export default function DrivingLicenseCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const messengers = MESSENGERS_KO;
@@ -692,13 +693,35 @@ export default function DrivingLicenseCheckPage() {
             </QuestionSection>
             {previousRejection === true && (
               <div className="mt-4">
+                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    AI
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">
+                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
+                      작성해주세요. 작성할수록 진단 정확도가 높아집니다.
+                    </p>
+                  </div>
+                </div>
+
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-blue-900 focus:outline-none resize-none"
+                  placeholder={
+                    "예)\n- 전환 신청이 거절되었습니다.\n- 면허 번역공증 문제라고 들었습니다.\n- 거주증(TRC) 요건이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
+                  }
+                  rows={6}
+                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
                 />
+                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
+                  높이는 데 활용됩니다.
+                </p>
+
                 <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
                   다음
                 </PrimaryButton>
@@ -713,18 +736,43 @@ export default function DrivingLicenseCheckPage() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <SelectionCard
                   title="네, 있습니다"
-                  selected={false}
+                  description="운전면허 전환 신청 요건을 충족합니다."
+                  selected={selectedKey === "trc-yes"}
                   tone="blue"
-                  onClick={() => setTrc("yes")}
+                  onClick={() => {
+                    setSelectedKey("trc-yes");
+                    setTimeout(() => {
+                      setTrc("yes");
+                      setSelectedKey(null);
+                    }, 300);
+                  }}
                 />
                 <SelectionCard
                   title="아니요, 없습니다"
-                  selected={false}
+                  description="거주증(TRC) 취득이 먼저 필요합니다."
+                  selected={selectedKey === "trc-no"}
                   tone="slate"
-                  onClick={() => setTrc("no")}
+                  onClick={() => {
+                    setSelectedKey("trc-no");
+                    setTimeout(() => {
+                      setTrc("no");
+                      setSelectedKey(null);
+                    }, 300);
+                  }}
                 />
               </div>
             </QuestionSection>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedKey(null);
+                setRejectionStepDone(false);
+              }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeft size={14} /> 이전 단계로
+            </button>
           </div>
         )}
 
@@ -734,18 +782,43 @@ export default function DrivingLicenseCheckPage() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <SelectionCard
                   title="네, 있습니다"
-                  selected={false}
+                  description="전환 신청 대상에 해당합니다."
+                  selected={selectedKey === "license-yes"}
                   tone="blue"
-                  onClick={() => setLicense("yes")}
+                  onClick={() => {
+                    setSelectedKey("license-yes");
+                    setTimeout(() => {
+                      setLicense("yes");
+                      setSelectedKey(null);
+                    }, 300);
+                  }}
                 />
                 <SelectionCard
                   title="아니요, 없습니다"
-                  selected={false}
+                  description="전환이 아닌 신규 취득 절차가 필요합니다."
+                  selected={selectedKey === "license-no"}
                   tone="slate"
-                  onClick={() => setLicense("no")}
+                  onClick={() => {
+                    setSelectedKey("license-no");
+                    setTimeout(() => {
+                      setLicense("no");
+                      setSelectedKey(null);
+                    }, 300);
+                  }}
                 />
               </div>
             </QuestionSection>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedKey(null);
+                setTrc(null);
+              }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeft size={14} /> 이전 단계로
+            </button>
           </div>
         )}
 
@@ -777,15 +850,49 @@ export default function DrivingLicenseCheckPage() {
         {/* 1번째 화면 (가입 전) — 리포트 없이 간단하게, 가입 장벽을 낮게 유지 */}
         {showResult && result === "possible" && !leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              운전면허 전환이 가능합니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              거주증과 본국 면허를 보유하고 있어 베트남 운전면허로 전환
-              신청이 가능합니다.
-            </p>
-            <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <CheckCircle2 className="text-emerald-600" size={28} />
+                <p className="mt-4 text-lg font-bold text-gray-900">
+                  운전면허 전환이 가능합니다
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                  거주증과 본국 면허를 보유하고 있어 베트남 운전면허로 전환
+                  신청이 가능합니다.
+                </p>
+              </div>
+
+              {(() => {
+                const score = diagnosis?.customerView.feasibilityScore ?? 90;
+                return (
+                  <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
+                    <svg width="104" height="104" viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
+                      <circle cx="52" cy="52" r="46" fill="none" stroke="#E5E7EB" strokeWidth="7" />
+                      <circle
+                        cx="52"
+                        cy="52"
+                        r="46"
+                        fill="none"
+                        stroke="#059669"
+                        strokeWidth="7"
+                        strokeLinecap="round"
+                        strokeDasharray={2 * Math.PI * 46}
+                        strokeDashoffset={2 * Math.PI * 46 * (1 - score / 100)}
+                      />
+                    </svg>
+                    <div className="relative flex flex-col items-center">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                        <CheckCircle2 size={12} />
+                      </span>
+                      <strong className="mt-0.5 text-[22px] font-black leading-none text-gray-900">{score}%</strong>
+                      <span className="mt-0.5 text-[10px] font-bold text-emerald-600">가능성 높음</span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <p className="mt-2 text-xs leading-relaxed text-gray-400">
               * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다.
               정확한 전환 가능 여부는 서류 검토 후 전문가 상담을 통해
               확정됩니다.
