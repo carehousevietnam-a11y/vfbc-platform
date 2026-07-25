@@ -602,10 +602,10 @@ function NextStepOptions({
     <div>
       <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
       <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) AI 리포트 요청하기 — 보조 강조 (아직 연결 없음) */}
+        {/* 1) AI 리포트 요청하기 — "필수" 강조 (아직 연결 없음) */}
         <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
-            추천
+          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            필수
           </span>
           <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 요청하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
@@ -617,9 +617,8 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
             <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
           </ul>
-          <p className="mt-2 text-[11px] leading-relaxed text-gray-400">
-            정확한 정보를 제공해주시면 좀 더 구체적인 리포트를 받아보실 수
-            있습니다.
+          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-blue-700">
+            아는 것과 모르는 것의 차이는 큽니다. 무료로 먼저 점검하세요.
           </p>
           <div className="mt-auto pt-4">
             <button
@@ -650,18 +649,13 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
             <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
           </ul>
-          <div className="mt-3 rounded-xl bg-blue-50 px-3 py-2.5 text-[11px] leading-relaxed text-blue-800">
-            전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수
-            있습니다.
-          </div>
           <div className="mt-auto pt-4">
             <PrimaryButton onClick={onExpert}>
               전문가 진행 요청하기
             </PrimaryButton>
-            {/* 다른 두 카드의 버튼 아래 안내문과 세로 위치를 맞추기 위한
-                비표시 자리 확보용 — 화면에는 보이지 않지만 동일한 높이를 차지한다. */}
-            <p aria-hidden="true" className="invisible mt-2 min-h-[32px] text-center text-[11px]">
-              spacer
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
+              전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수
+              있습니다.
             </p>
           </div>
         </div>
