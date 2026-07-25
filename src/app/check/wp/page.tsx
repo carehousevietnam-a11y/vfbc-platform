@@ -602,12 +602,12 @@ function NextStepOptions({
     <div>
       <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
       <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) AI 리포트 진행하기 — 보조 강조 (아직 연결 없음) */}
+        {/* 1) AI 리포트 요청하기 — 보조 강조 (아직 연결 없음) */}
         <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
           <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
             추천
           </span>
-          <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 진행하기</p>
+          <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 요청하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
             서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
           </p>
@@ -617,15 +617,21 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
             <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
           </ul>
-          <button
-            type="button"
-            className="mt-4 flex h-10 items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
-          >
-            AI 리포트 진행하기
-          </button>
-          <p className="mt-2 text-center text-[11px] text-slate-500">
-            결과는 My Page에서 PDF로 다운로드할 수 있습니다.
+          <p className="mt-2 text-[11px] leading-relaxed text-gray-400">
+            정확한 정보를 제공해주시면 좀 더 구체적인 리포트를 받아보실 수
+            있습니다.
           </p>
+          <div className="mt-auto pt-4">
+            <button
+              type="button"
+              className="flex h-10 w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
+            >
+              AI 리포트 요청하기
+            </button>
+            <p className="mt-2 text-center text-[11px] text-slate-500">
+              결과는 My Page에서 PDF로 다운로드할 수 있습니다.
+            </p>
+          </div>
         </div>
 
         {/* 2) 전문가 진행하기 — 가장 강한 파란색 CTA */}
@@ -644,9 +650,11 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
             <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
           </ul>
-          <PrimaryButton onClick={onExpert} className="mt-4 h-10">
-            전문가 진행 요청하기
-          </PrimaryButton>
+          <div className="mt-auto pt-4">
+            <PrimaryButton onClick={onExpert} className="h-10">
+              전문가 진행 요청하기
+            </PrimaryButton>
+          </div>
         </div>
 
         {/* 3) 직접 진행하기 — 흰색 테두리, 가장 낮은 강조 */}
@@ -655,18 +663,26 @@ function NextStepOptions({
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
             정부 공식 사이트에서 직접 신청할 수 있습니다.
           </p>
-          <a
-            href={WP_OFFICIAL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onSelf}
-            className="mt-auto pt-4 flex h-10 items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            정부 공식 사이트 이동 <ExternalLink size={13} />
-          </a>
-          <p className="mt-2 text-center text-[11px] text-slate-500">
-            신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
-          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 대행 비용 없이 직접 신청할 수 있습니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 베트남 행정 절차를 스스로 확인해야 합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
+          </ul>
+          <div className="mt-auto pt-4">
+            <a
+              href={WP_OFFICIAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onSelf}
+              className="flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              정부 공식 사이트 이동 <ExternalLink size={13} />
+            </a>
+            <p className="mt-2 text-center text-[11px] text-slate-500">
+              신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
+            </p>
+          </div>
         </div>
       </div>
     </div>
