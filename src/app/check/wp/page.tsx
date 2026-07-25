@@ -624,7 +624,7 @@ function NextStepOptions({
           <div className="mt-auto pt-4">
             <button
               type="button"
-              className="flex h-10 w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
+              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
             >
               AI 리포트 요청하기
             </button>
@@ -651,7 +651,7 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
           </ul>
           <div className="mt-auto pt-4">
-            <PrimaryButton onClick={onExpert} className="h-10">
+            <PrimaryButton onClick={onExpert}>
               전문가 진행 요청하기
             </PrimaryButton>
           </div>
@@ -675,7 +675,7 @@ function NextStepOptions({
               target="_blank"
               rel="noopener noreferrer"
               onClick={onSelf}
-              className="flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
             >
               정부 공식 사이트 이동 <ExternalLink size={13} />
             </a>
@@ -1139,7 +1139,7 @@ export default function WpCheckPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-5xl" : "max-w-xl"}`}>
+      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
         {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
         <Link
           href="/"
