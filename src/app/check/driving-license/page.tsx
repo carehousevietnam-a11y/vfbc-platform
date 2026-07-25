@@ -8,6 +8,9 @@ import {
   AlertTriangle,
   XCircle,
   ExternalLink,
+  FileText,
+  Clock,
+  UserCheck,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -31,6 +34,15 @@ import {
 // 운전면허 발급·전환 전국 통합 포털 (2025년 개편 이후 공안부 산하로 이관).
 // 신청 과정에서 거주 지역(성/시)을 선택하면 관할 경찰서(CSGT)로 자동 연결됨.
 const LICENSE_OFFICIAL_URL = "https://dvc-gplx.csgt.bocongan.gov.vn/";
+
+// 기존 "운전면허 전환에 필요한 서류" 목록과 동일한 4개 항목 — 값 변경 없이
+// 새 결과화면의 "3 준비서류 안내" 카드에서 개수 표시용으로만 재사용한다.
+const LICENSE_REQUIRED_DOCUMENTS = [
+  "여권 사본 (인적사항 페이지)",
+  "거주증(TRC) 사본",
+  "본국 운전면허 원본",
+  "면허 베트남어 공증 번역본 (국적에 따라 상이)",
+];
 
 type HasTrc = LicenseTrc;
 type HasLicense = LicenseHasLicense;
@@ -153,6 +165,208 @@ function ScoreGauge({
         style={{ color }}
       >
         {score}%
+      </div>
+    </div>
+  );
+}
+
+// 승인된 목업 기준 — 결과 화면 상단 5개 카드(가능성 점수/위험요인 분석/
+// 준비서류 안내/예상 처리기간/AI 검토 의견). 값은 전부 기존 진단 데이터
+// (diagnosis.customerView) 및 기존 서류 목록에서만 가져오며, 새로운
+// 점수·판정 계산은 하지 않는다. PC는 5칸 가로 배치, 모바일은 세로형
+// 요약 리스트로 별도 렌더링한다(sm 기준 분기).
+function ResultOverviewCards({
+  diagnosis,
+  docCount,
+}: {
+  diagnosis: DiagnosisResult;
+  docCount: number;
+}) {
+  const { feasibilityScore, resultTone, checklist, estimatedDays } = diagnosis.customerView;
+  const failedCount = checklist.filter((c) => !c.passed).length;
+
+  const scoreToneLabel =
+    resultTone === "possible" ? "높음 (HIGH)" : resultTone === "conditional" ? "보통 (MEDIUM)" : "낮음 (LOW)";
+  const scoreToneWord =
+    resultTone === "possible" ? "높습니다" : resultTone === "conditional" ? "있습니다" : "낮습니다";
+
+  const riskPillText = failedCount > 0 ? `보완 필요 항목 ${failedCount}개` : "문제 없음";
+  const riskPillTone = failedCount > 0 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700";
+
+  const docsPillText = `필수 서류 ${docCount}개`;
+
+  const daysPillText = estimatedDays ? `${estimatedDays.min}~${estimatedDays.max}일` : "안내 예정";
+
+  const aiOpinionText =
+    resultTone === "possible" ? "정상" : resultTone === "conditional" ? "주의" : "확인필요";
+  const aiOpinionTone =
+    resultTone === "possible"
+      ? "bg-emerald-50 text-emerald-700"
+      : resultTone === "conditional"
+      ? "bg-amber-50 text-amber-700"
+      : "bg-red-50 text-red-700";
+
+  const items = [
+    {
+      n: 1,
+      label: "가능성 점수",
+      visual: <ScoreGauge score={feasibilityScore} tone={resultTone} />,
+      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>,
+      caption: `입력하신 정보 기준으로 발급 가능성이 ${scoreToneWord}.`,
+    },
+    {
+      n: 2,
+      label: "위험요인 분석",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
+          <AlertTriangle className="text-amber-600" size={26} />
+        </div>
+      ),
+      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${riskPillTone}`}>{riskPillText}</span>,
+      caption: "거절·보완 가능성이 있는 항목이 확인되었습니다.",
+    },
+    {
+      n: 3,
+      label: "준비서류 안내",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+          <FileText className="text-blue-700" size={26} />
+        </div>
+      ),
+      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{docsPillText}</span>,
+      caption: "현재 조건에 맞는 필수 서류 목록입니다.",
+    },
+    {
+      n: 4,
+      label: "예상 처리기간",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50">
+          <Clock className="text-violet-600" size={26} />
+        </div>
+      ),
+      pill: <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">{daysPillText}</span>,
+      caption: "신청부터 발급까지 예상 기간 안내입니다.",
+    },
+    {
+      n: 5,
+      label: "AI 검토 의견",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+          <UserCheck className="text-gray-700" size={26} />
+        </div>
+      ),
+      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
+      caption: "베트남 행정 전문가 AI의 종합 검토 의견입니다.",
+    },
+  ];
+
+  return (
+    <>
+      {/* PC — 5칸 가로 배치 */}
+      <div className="mt-6 hidden overflow-hidden rounded-2xl border border-gray-100 bg-white sm:grid sm:grid-cols-5 sm:divide-x sm:divide-gray-100">
+        {items.map((item) => (
+          <div key={item.n} className="flex flex-col items-center gap-2.5 p-5 text-center">
+            <div className="flex items-center gap-1.5 self-start">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+                {item.n}
+              </span>
+              <span className="text-xs font-semibold text-gray-700">{item.label}</span>
+            </div>
+            <div className="mt-1">{item.visual}</div>
+            {item.pill}
+            <p className="text-[11px] leading-relaxed text-gray-500">{item.caption}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* 모바일 — 세로형 요약 리스트 */}
+      <div className="mt-6 divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white sm:hidden">
+        {items.map((item) => (
+          <div key={item.n} className="flex items-center justify-between gap-3 p-4">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+                {item.n}
+              </span>
+              <span className="truncate text-sm font-medium text-gray-700">{item.label}</span>
+            </div>
+            <div className="shrink-0">
+              {item.n === 1 ? (
+                <span className="text-sm font-bold text-gray-900">
+                  {feasibilityScore}/100{" "}
+                  <span className="text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>
+                </span>
+              ) : (
+                item.pill
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// 결과 화면 헤더용 원형 점수표 — 개인정보 입력 화면(PremiumLeadCapture)의 게이지와
+// 동일한 스타일. 값은 기존 diagnosis.customerView에서만 가져오며 새로운 점수
+// 계산은 하지 않는다. size는 배치되는 위치에 맞게 비율 조정용(px)이다.
+function ResultHeaderGauge({
+  diagnosis,
+  size = 104,
+}: {
+  diagnosis: DiagnosisResult;
+  size?: number;
+}) {
+  const { feasibilityScore, resultTone } = diagnosis.customerView;
+  const isPossible = resultTone === "possible";
+  const status = isPossible ? "가능성 높음" : "추가 확인 필요";
+  const ringColor = isPossible ? "#059669" : resultTone === "conditional" ? "#D97706" : "#DC2626";
+  const scale = size / 104;
+  const strokeWidth = 7 * scale;
+  const r = 46 * scale;
+  const cx = size / 2;
+
+  return (
+    <div
+      className="relative shrink-0"
+      style={{ width: size, height: size }}
+    >
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <g transform={`rotate(-90 ${cx} ${cx})`}>
+          <circle cx={cx} cy={cx} r={r} fill="none" stroke="#E5E7EB" strokeWidth={strokeWidth} />
+          <circle
+            cx={cx}
+            cy={cx}
+            r={r}
+            fill="none"
+            stroke={ringColor}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={2 * Math.PI * r}
+            strokeDashoffset={2 * Math.PI * r * (1 - feasibilityScore / 100)}
+          />
+        </g>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span
+          className={`flex items-center justify-center rounded-full ${
+            isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+          }`}
+          style={{ width: 20 * scale, height: 20 * scale }}
+        >
+          {isPossible ? <CheckCircle2 size={12 * scale} /> : <AlertTriangle size={12 * scale} />}
+        </span>
+        <strong
+          className="mt-0.5 font-black leading-none text-gray-900"
+          style={{ fontSize: 22 * scale }}
+        >
+          {feasibilityScore}%
+        </strong>
+        <span
+          className={`mt-0.5 font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}
+          style={{ fontSize: 10 * scale }}
+        >
+          {status}
+        </span>
       </div>
     </div>
   );
@@ -317,62 +531,169 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
   );
 }
 
-// STEP10-11: 진행 방법 선택 UI — TRC/WP 디자인 표준을 그대로 적용.
-// 링크(href/onClick)·버튼 action은 기존 그대로 유지, UI(카드 구조)만 통일.
-function ProcessMethodCards({
+// AI 분석 결과 요약 — 기존 진단 데이터(점수/톤/체크리스트/예상기간)만으로
+// 2~3문장의 자연스러운 요약문을 구성. 새 점수 계산이나 진단 로직은 없음.
+function buildResultSummaryText(
+  resultTone: "possible" | "conditional" | "impossible",
+  checklist: { label: string; passed: boolean }[],
+  estimatedDays: { min: number; max: number } | null
+): string {
+  const toneText =
+    resultTone === "possible"
+      ? "높은"
+      : resultTone === "conditional"
+      ? "있으나 보완이 필요한"
+      : "낮은";
+  const failed = checklist.filter((c) => !c.passed);
+
+  const sentence1 = `입력하신 정보를 기준으로 운전면허 전환 가능성은 ${toneText} 것으로 분석되었습니다.`;
+
+  let sentence2: string;
+  if (failed.length > 0) {
+    const names = failed.slice(0, 2).map((c) => c.label).join(", ");
+    sentence2 =
+      failed.length > 2
+        ? `${names} 등 ${failed.length}개 항목에서 보완이 필요한 것으로 확인되었으며, 현재 조건에 맞는 필수 서류 준비가 필요합니다.`
+        : `${names} 항목에서 보완이 필요한 것으로 확인되었으며, 현재 조건에 맞는 필수 서류 준비가 필요합니다.`;
+  } else {
+    sentence2 = "현재 입력하신 조건에서는 특별히 보완이 필요한 항목이 확인되지 않았습니다.";
+  }
+
+  const sentence3 = estimatedDays
+    ? `예상 처리기간은 약 ${estimatedDays.min}~${estimatedDays.max}일이며, 제출 전 서류를 다시 확인하는 것을 권장합니다.`
+    : "제출 전 서류를 다시 확인하는 것을 권장합니다.";
+
+  return `${sentence1} ${sentence2} ${sentence3}`;
+}
+
+// AI 분석 결과 요약 카드 — 기존 1~5번 결과 영역을 대체하지 않고 그 아래에 추가.
+// 흰 배경 · 얇은 테두리 · 작은 아이콘의 차분한 톤.
+function ResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { resultTone, checklist, estimatedDays } = diagnosis.customerView;
+  const summaryText = buildResultSummaryText(resultTone, checklist, estimatedDays);
+
+  return (
+    <div className="mt-3 rounded-2xl bg-white border border-gray-100 p-5">
+      <div className="flex items-center gap-2">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+          AI
+        </span>
+        <p className="text-sm font-bold text-gray-900">AI 분석 결과 요약</p>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-gray-700">{summaryText}</p>
+    </div>
+  );
+}
+
+// 다음 단계 선택 — 승인된 목업 기준 순서: AI 리포트 요청하기 → 전문가 진행하기
+// → 직접 진행하기. onSelf·onExpert는 기존 핸들러 그대로 재사용, 로직 변경 없음.
+// AI 리포트 버튼은 이번 단계에서 API·PDF·상담 페이지 어디와도 연결하지 않는다.
+function NextStepOptions({
   onSelf,
   onExpert,
+  officialUrl,
 }: {
   onSelf: () => void;
   onExpert: () => void;
+  officialUrl: string;
 }) {
   return (
     <div>
-      <p className="mt-5 text-sm font-bold text-gray-900">
-        어떤 방법으로 진행하시겠습니까?
-      </p>
-      <div className="mt-3 grid gap-4 sm:grid-cols-2 sm:items-stretch">
-        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-sm font-bold text-gray-900">직접 신청</p>
-          <span className="mt-1.5 w-fit rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
-            ✓ 직접 신청 가능
+      <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
+      <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
+        {/* 1) AI 리포트 요청하기 — "필수" 강조 (아직 연결 없음) */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            필수
           </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 요청하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            정부 공식 사이트에서 바로 신청할 수 있습니다.
+            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
           </p>
-          <a
-            href={LICENSE_OFFICIAL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onSelf}
-            className="mt-4 flex h-10 items-center justify-center gap-1.5 rounded-xl border border-blue-900 text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-          >
-            정부 사이트로 이동 <ExternalLink size={13} />
-          </a>
-          <p className="mt-2 text-center text-[11px] text-slate-500">
-            ↗ 정부 공식 사이트로 이동합니다.
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
+          </ul>
+          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-blue-700">
+            아는 것과 모르는 것의 차이는 큽니다. 무료로 먼저 점검하세요.
           </p>
+          <div className="mt-auto pt-4">
+            <button
+              type="button"
+              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
+            >
+              AI 리포트 요청하기
+            </button>
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
+              결과는 My Page에서 PDF로 다운로드할 수 있습니다.
+            </p>
+          </div>
         </div>
 
-        <div className="flex h-full flex-col rounded-2xl border border-blue-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-sm font-bold text-gray-900">전문가와 함께</p>
-          <span className="mt-1.5 w-fit rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
-            ✓ 최종 확인 필요
+        {/* 2) 전문가 진행하기 — 가장 강한 파란색 CTA */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            추천
           </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            전문가가 서류와 절차를 함께 확인합니다.
+            최신 법령과 실제 제출 서류를 전문가가 최종 확인하여 안전하게
+            진행합니다.
           </p>
-          <PrimaryButton onClick={onExpert} className="mt-4 h-10">
-            진행 요청하기
-          </PrimaryButton>
-          <p aria-hidden="true" className="invisible mt-2 text-center text-[11px] text-slate-500">
-            ↗ 정부 공식 사이트로 이동합니다.
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 최신 법령 및 정책 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 제출 서류 검토 및 보완 안내</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
+          </ul>
+          <div className="mt-auto pt-4">
+            <PrimaryButton onClick={onExpert}>
+              전문가 진행 요청하기
+            </PrimaryButton>
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
+              전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수
+              있습니다.
+            </p>
+          </div>
+        </div>
+
+        {/* 3) 직접 진행하기 — 흰색 테두리, "신중" 주의 배지 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            신중
+          </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            정부 공식 사이트에서 직접 신청할 수 있습니다.
           </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 대행 비용 없이 직접 신청할 수 있습니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 베트남 행정 절차를 스스로 확인해야 합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
+          </ul>
+          <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
+            개인 진행 시 신중하게 진행하셔야 합니다. 한 번 반려된 서류는
+            다시 제출할 때 더 까다롭게 검토될 수 있습니다.
+          </div>
+          <div className="mt-auto pt-4">
+            <a
+              href={officialUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onSelf}
+              className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              정부 공식 사이트 이동 <ExternalLink size={13} />
+            </a>
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
+              신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
+            </p>
+          </div>
         </div>
       </div>
-      <p className="mt-3 text-[11px] text-gray-400 text-center">
-        어떤 방법을 선택하시더라도 AI 분석 결과는 그대로 활용됩니다.
-      </p>
     </div>
   );
 }
@@ -403,6 +724,14 @@ export default function DrivingLicenseCheckPage() {
 
   const result: Result = computeLicenseResultTone(trc, license);
   const showResult = trc === "yes" && !!license;
+  // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
+  // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
+  const resultScreenActive =
+    showResult &&
+    result === "possible" &&
+    leadSubmitted &&
+    !agencyRequested &&
+    !detailStage;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
   useEffect(() => {
@@ -623,7 +952,7 @@ export default function DrivingLicenseCheckPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className="mx-auto max-w-xl px-6 py-10">
+      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
         {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
         <Link
           href="/"
@@ -653,16 +982,27 @@ export default function DrivingLicenseCheckPage() {
           <ArrowLeft size={14} /> 홈으로
         </Link>
 
-        <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          직접확인하기 · 베트남 행정전문 AI
-        </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          베트남 운전면허 전환 가능성 확인
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          거주증(TRC) 보유 여부와 본국 면허 소지 여부에 따라 전환 가능
-          여부가 달라집니다.
-        </p>
+        <div className="mt-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              직접확인하기 · 베트남 행정전문 AI
+            </p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+              베트남 운전면허 전환 가능성 확인
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              거주증(TRC) 보유 여부와 본국 면허 소지 여부에 따라 전환 가능
+              여부가 달라집니다.
+            </p>
+          </div>
+
+          {/* 모바일 전용 — 결과 화면 단계에서만 우측 상단에 원형 점수표 표시 */}
+          {resultScreenActive && diagnosis && (
+            <div className="shrink-0 sm:hidden">
+              <ResultHeaderGauge diagnosis={diagnosis} size={76} />
+            </div>
+          )}
+        </div>
 
         {!rejectionStepDone && (
           <div className="mt-8">
@@ -989,38 +1329,15 @@ export default function DrivingLicenseCheckPage() {
             </p>
 
             {diagnosis && (
-              <div className="mt-3">
-                <DiagnosisReportCard diagnosis={diagnosis} />
-              </div>
+              <ResultOverviewCards diagnosis={diagnosis} docCount={LICENSE_REQUIRED_DOCUMENTS.length} />
             )}
 
-            <Divider />
+            {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
 
-            <div className="rounded-xl bg-gray-50 px-4 py-3">
-              <p className="text-xs font-semibold text-gray-700">
-                운전면허 전환에 필요한 서류
-              </p>
-              <ul className="mt-2 space-y-1">
-                <li className="text-xs text-gray-600 pl-1">
-                  · 여권 사본 (인적사항 페이지)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">· 거주증(TRC) 사본</li>
-                <li className="text-xs text-gray-600 pl-1">· 본국 운전면허 원본</li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 면허 베트남어 공증 번역본 (국적에 따라 상이)
-                </li>
-              </ul>
-              <p className="mt-2 text-[11px] text-gray-400">
-                정확한 요건은 국적·지역에 따라 다를 수 있어 담당자 확인이
-                필요합니다.
-              </p>
-            </div>
-
-            <Divider />
-
-            <ProcessMethodCards
+            <NextStepOptions
               onSelf={handleSelfPortalClick}
               onExpert={() => setDetailStage(true)}
+              officialUrl={LICENSE_OFFICIAL_URL}
             />
             <div className="mt-2">
               <InfoBox>
