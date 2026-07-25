@@ -840,11 +840,15 @@ export default function TrcCheckPage() {
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
       <div className="mx-auto max-w-xl px-6 py-10">
-        {/* 모바일 전용 — 실제 로고 이미지, 가로 배치(아이콘+텍스트) 후 중앙 정렬, 탭하면 홈으로 이동 */}
+        {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
         <Link
           href="/"
-          className="-mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
+          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
         >
+          <ArrowLeft
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          />
           <img
             src="/vfbcai-shield-logo.png"
             alt="VFBCAI"
