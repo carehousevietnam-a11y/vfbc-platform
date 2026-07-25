@@ -8,6 +8,9 @@ import {
   AlertTriangle,
   XCircle,
   ExternalLink,
+  FileText,
+  Clock,
+  UserCheck,
 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -18,7 +21,6 @@ import {
   PrimaryButton,
   NoticeCard,
   InfoBox,
-  Divider,
 } from "@/components/ui";
 import {
   getCheckDiagnosis,
@@ -33,6 +35,15 @@ import {
 // 외국인노동자 관리 전용 국가포털 (Cổng DVC quản lý người lao động nước ngoài).
 // 신청 과정에서 근무지 성/시를 선택하면 관할 기관(Sở Nội vụ 등)으로 자동 연결됨.
 const WP_OFFICIAL_URL = "https://dichvucong.gov.vn/";
+
+// 기존 "노동허가(WP) 신청에 필요한 서류" 목록과 동일한 4개 항목 — 값 변경 없이
+// 새 결과화면의 "3 준비서류 안내" 카드에서 개수 표시용으로만 재사용한다.
+const WP_REQUIRED_DOCUMENTS = [
+  "여권 사본 (인적사항 페이지)",
+  "최종학력 증명서 (아포스티유)",
+  "범죄경력증명서 (아포스티유)",
+  "건강진단서",
+];
 
 type Education = WpEducation;
 type Experience = WpExperience;
@@ -162,7 +173,143 @@ function ScoreGauge({
   );
 }
 
-// AI 진단 리포트 카드 — 가입 직후(2번째 화면)에만 노출. customerView만 사용, expertBrief는 여기서 절대 렌더링 안 함.
+// 승인된 목업 기준 — 결과 화면 상단 5개 카드(가능성 점수/위험요인 분석/
+// 준비서류 안내/예상 처리기간/AI 검토 의견). 값은 전부 기존 진단 데이터
+// (diagnosis.customerView) 및 기존 서류 목록(WP_REQUIRED_DOCUMENTS)에서만
+// 가져오며, 새로운 점수·판정 계산은 하지 않는다. PC는 5칸 가로 배치,
+// 모바일은 세로형 요약 리스트로 별도 렌더링한다(sm 기준 분기).
+function ResultOverviewCards({
+  diagnosis,
+  docCount,
+}: {
+  diagnosis: DiagnosisResult;
+  docCount: number;
+}) {
+  const { feasibilityScore, resultTone, checklist, estimatedDays } = diagnosis.customerView;
+  const failedCount = checklist.filter((c) => !c.passed).length;
+
+  const scoreToneLabel =
+    resultTone === "possible" ? "높음 (HIGH)" : resultTone === "conditional" ? "보통 (MEDIUM)" : "낮음 (LOW)";
+  const scoreToneWord =
+    resultTone === "possible" ? "높습니다" : resultTone === "conditional" ? "있습니다" : "낮습니다";
+
+  const riskPillText = failedCount > 0 ? `보완 필요 항목 ${failedCount}개` : "문제 없음";
+  const riskPillTone = failedCount > 0 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700";
+
+  const docsPillText = `필수 서류 ${docCount}개`;
+
+  const daysPillText = estimatedDays ? `${estimatedDays.min}~${estimatedDays.max}일` : "안내 예정";
+
+  const aiOpinionText =
+    resultTone === "possible" ? "정상" : resultTone === "conditional" ? "주의" : "확인필요";
+  const aiOpinionTone =
+    resultTone === "possible"
+      ? "bg-emerald-50 text-emerald-700"
+      : resultTone === "conditional"
+      ? "bg-amber-50 text-amber-700"
+      : "bg-red-50 text-red-700";
+
+  const items = [
+    {
+      n: 1,
+      label: "가능성 점수",
+      visual: <ScoreGauge score={feasibilityScore} tone={resultTone} />,
+      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>,
+      caption: `입력하신 정보 기준으로 발급 가능성이 ${scoreToneWord}.`,
+    },
+    {
+      n: 2,
+      label: "위험요인 분석",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
+          <AlertTriangle className="text-amber-600" size={26} />
+        </div>
+      ),
+      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${riskPillTone}`}>{riskPillText}</span>,
+      caption: "거절·보완 가능성이 있는 항목이 확인되었습니다.",
+    },
+    {
+      n: 3,
+      label: "준비서류 안내",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+          <FileText className="text-blue-700" size={26} />
+        </div>
+      ),
+      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{docsPillText}</span>,
+      caption: "현재 조건에 맞는 필수 서류 목록입니다.",
+    },
+    {
+      n: 4,
+      label: "예상 처리기간",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50">
+          <Clock className="text-violet-600" size={26} />
+        </div>
+      ),
+      pill: <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">{daysPillText}</span>,
+      caption: "신청부터 발급까지 예상 기간 안내입니다.",
+    },
+    {
+      n: 5,
+      label: "AI 검토 의견",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+          <UserCheck className="text-gray-700" size={26} />
+        </div>
+      ),
+      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
+      caption: "베트남 행정 전문가 AI의 종합 검토 의견입니다.",
+    },
+  ];
+
+  return (
+    <>
+      {/* PC — 5칸 가로 배치 */}
+      <div className="mt-6 hidden overflow-hidden rounded-2xl border border-gray-100 bg-white sm:grid sm:grid-cols-5 sm:divide-x sm:divide-gray-100">
+        {items.map((item) => (
+          <div key={item.n} className="flex flex-col items-center gap-2.5 p-5 text-center">
+            <div className="flex items-center gap-1.5 self-start">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+                {item.n}
+              </span>
+              <span className="text-xs font-semibold text-gray-700">{item.label}</span>
+            </div>
+            <div className="mt-1">{item.visual}</div>
+            {item.pill}
+            <p className="text-[11px] leading-relaxed text-gray-500">{item.caption}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* 모바일 — 세로형 요약 리스트 */}
+      <div className="mt-6 divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white sm:hidden">
+        {items.map((item) => (
+          <div key={item.n} className="flex items-center justify-between gap-3 p-4">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+                {item.n}
+              </span>
+              <span className="truncate text-sm font-medium text-gray-700">{item.label}</span>
+            </div>
+            <div className="shrink-0">
+              {item.n === 1 ? (
+                <span className="text-sm font-bold text-gray-900">
+                  {feasibilityScore}/100{" "}
+                  <span className="text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>
+                </span>
+              ) : (
+                item.pill
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+
 // STEP10-6: AI 판단 근거 — 새 AI 호출 없이 기존 진단 결과(점수/체크리스트/상태)만으로
 // "왜 이렇게 판단했는지"를 2~3개의 짧은 문장으로 요약. DB/API/CRM 변경 없음.
 function buildAiReasonBullets(
@@ -375,27 +522,50 @@ function ResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
   );
 }
 
-// 다음 단계 선택 — 전문가 진행하기 / AI 리포트 진행하기 / 직접 진행하기 순서 고정.
-// onSelf·onExpert는 기존 핸들러 그대로 사용. AI 리포트는 아직 업로드·PDF 백엔드가
-// 없어 상담 페이지로 연결(기존 /consultation 라우트 재사용, 새 API 없음).
+// 다음 단계 선택 — 승인된 목업 기준 순서: AI 리포트 진행하기 → 전문가 진행하기
+// → 직접 진행하기. onSelf·onExpert는 기존 핸들러 그대로 재사용, 로직 변경 없음.
+// AI 리포트 버튼은 이번 단계에서 API·PDF·상담 페이지 어디와도 연결하지 않는다
+// (지시사항에 따라 클릭 동작 없는 정적 버튼으로만 표시).
 function NextStepOptions({
   onSelf,
   onExpert,
-  consultationCase,
 }: {
   onSelf: () => void;
   onExpert: () => void;
-  consultationCase: string;
 }) {
   return (
     <div>
-      <p className="mt-5 text-sm font-bold text-gray-900">
-        어떤 방법으로 진행하시겠습니까?
-      </p>
+      <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
       <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) 전문가 진행하기 — 가장 강조되는 추천 선택지 */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-blue-200 bg-white p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-900 px-2.5 py-0.5 text-[10px] font-bold text-white">
+        {/* 1) AI 리포트 진행하기 — 보조 강조 (아직 연결 없음) */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            추천
+          </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 진행하기</p>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
+          </ul>
+          <button
+            type="button"
+            className="mt-4 flex h-10 items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
+          >
+            AI 리포트 진행하기
+          </button>
+          <p className="mt-2 text-center text-[11px] text-slate-500">
+            결과는 My Page에서 PDF로 다운로드할 수 있습니다.
+          </p>
+        </div>
+
+        {/* 2) 전문가 진행하기 — 가장 강한 파란색 CTA */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
             추천
           </span>
           <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
@@ -414,31 +584,8 @@ function NextStepOptions({
           </PrimaryButton>
         </div>
 
-        {/* 2) AI 리포트 진행하기 — 참고용 AI 분석 자료, 전문가 검토 아님 */}
-        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-sm font-bold text-gray-900">AI 리포트 진행하기</p>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
-          </p>
-          <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
-          </ul>
-          <Link
-            href={`/consultation?case=${consultationCase}`}
-            className="mt-4 flex h-10 items-center justify-center rounded-xl border border-gray-200 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            AI 리포트 진행하기
-          </Link>
-          <p className="mt-2 text-center text-[11px] text-slate-500">
-            결과는 My Page에서 PDF로 다운로드할 수 있습니다.
-          </p>
-        </div>
-
-        {/* 3) 직접 진행하기 — 가장 낮은 강조 */}
-        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4">
+        {/* 3) 직접 진행하기 — 흰색 테두리, 가장 낮은 강조 */}
+        <div className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
           <p className="text-sm font-bold text-gray-900">직접 진행하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
             정부 공식 사이트에서 직접 신청할 수 있습니다.
@@ -676,6 +823,14 @@ export default function WpCheckPage() {
 
   const result: Result = computeWpResultTone(education, experience, job, priorityField);
   const showResult = !!education && !!experience && !!priorityField && !!job;
+  // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
+  // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
+  const resultScreenActive =
+    showResult &&
+    (result === "possible" || result === "conditional") &&
+    leadSubmitted &&
+    !agencyRequested &&
+    !detailStage;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
   // 화면에는 가입 직후(2번째 화면)부터 노출하지만, 계산 자체는 미리 해둔다.
@@ -903,7 +1058,7 @@ export default function WpCheckPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className="mx-auto max-w-xl px-6 py-10">
+      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-5xl" : "max-w-xl"}`}>
         {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
         <Link
           href="/"
@@ -1208,44 +1363,14 @@ export default function WpCheckPage() {
             </p>
 
             {diagnosis && (
-              <div className="mt-3">
-                <DiagnosisReportCard diagnosis={diagnosis} />
-              </div>
+              <ResultOverviewCards diagnosis={diagnosis} docCount={WP_REQUIRED_DOCUMENTS.length} />
             )}
-
-            <Divider />
-
-            <div className="rounded-xl bg-gray-50 px-4 py-3">
-              <p className="text-xs font-semibold text-gray-700">
-                노동허가(WP) 신청에 필요한 서류
-              </p>
-              <ul className="mt-2 space-y-1">
-                <li className="text-xs text-gray-600 pl-1">
-                  · 여권 사본 (인적사항 페이지)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 최종학력 증명서 (아포스티유)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 범죄경력증명서 (아포스티유)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 건강진단서
-                </li>
-              </ul>
-              <p className="mt-2 text-[11px] text-gray-400">
-                정확한 요건은 상황에 따라 다를 수 있어 담당자 확인이 필요합니다.
-              </p>
-            </div>
-
-            <Divider />
 
             {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
 
             <NextStepOptions
               onSelf={handleSelfPortalClick}
               onExpert={() => setDetailStage(true)}
-              consultationCase="wp-ai-report"
             />
             <div className="mt-2">
               <InfoBox>
@@ -1447,9 +1572,7 @@ export default function WpCheckPage() {
             </p>
 
             {diagnosis && (
-              <div className="mt-3">
-                <DiagnosisReportCard diagnosis={diagnosis} />
-              </div>
+              <ResultOverviewCards diagnosis={diagnosis} docCount={WP_REQUIRED_DOCUMENTS.length} />
             )}
 
             <div className="mt-4">
@@ -1466,7 +1589,6 @@ export default function WpCheckPage() {
             <NextStepOptions
               onSelf={handleSelfPortalClick}
               onExpert={() => setDetailStage(true)}
-              consultationCase="wp-ai-report"
             />
 
             <div className="mt-4">
