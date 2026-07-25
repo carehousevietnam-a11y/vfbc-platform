@@ -845,10 +845,9 @@ export default function TrcCheckPage() {
           href="/"
           className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
         >
-          <ArrowLeft
-            size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-          />
+          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
+            <ArrowLeft size={14} /> 홈으로
+          </span>
           <img
             src="/vfbcai-shield-logo.png"
             alt="VFBCAI"
