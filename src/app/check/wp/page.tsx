@@ -650,6 +650,10 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
             <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
           </ul>
+          <div className="mt-3 rounded-xl bg-blue-50 px-3 py-2.5 text-[11px] leading-relaxed text-blue-800">
+            전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수
+            있습니다.
+          </div>
           <div className="mt-auto pt-4">
             <PrimaryButton onClick={onExpert}>
               전문가 진행 요청하기
