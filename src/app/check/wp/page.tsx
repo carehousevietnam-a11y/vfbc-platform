@@ -628,7 +628,7 @@ function NextStepOptions({
             >
               AI 리포트 요청하기
             </button>
-            <p className="mt-2 text-center text-[11px] text-slate-500">
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
               결과는 My Page에서 PDF로 다운로드할 수 있습니다.
             </p>
           </div>
@@ -654,12 +654,20 @@ function NextStepOptions({
             <PrimaryButton onClick={onExpert}>
               전문가 진행 요청하기
             </PrimaryButton>
+            {/* 다른 두 카드의 버튼 아래 안내문과 세로 위치를 맞추기 위한
+                비표시 자리 확보용 — 화면에는 보이지 않지만 동일한 높이를 차지한다. */}
+            <p aria-hidden="true" className="invisible mt-2 min-h-[32px] text-center text-[11px]">
+              spacer
+            </p>
           </div>
         </div>
 
-        {/* 3) 직접 진행하기 — 흰색 테두리, 가장 낮은 강조 */}
-        <div className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
-          <p className="text-sm font-bold text-gray-900">직접 진행하기</p>
+        {/* 3) 직접 진행하기 — 흰색 테두리, "신중" 주의 배지 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            신중
+          </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
             정부 공식 사이트에서 직접 신청할 수 있습니다.
           </p>
@@ -669,6 +677,10 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
             <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
           </ul>
+          <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
+            개인 진행 시 신중하게 진행하셔야 합니다. 한 번 반려된 서류는
+            다시 제출할 때 더 까다롭게 검토될 수 있습니다.
+          </div>
           <div className="mt-auto pt-4">
             <a
               href={WP_OFFICIAL_URL}
@@ -679,7 +691,7 @@ function NextStepOptions({
             >
               정부 공식 사이트 이동 <ExternalLink size={13} />
             </a>
-            <p className="mt-2 text-center text-[11px] text-slate-500">
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
               신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
             </p>
           </div>
