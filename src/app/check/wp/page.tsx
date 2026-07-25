@@ -321,62 +321,142 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
   );
 }
 
-// STEP10-10: 진행 방법 선택 UI — TRC 디자인 표준을 그대로 적용.
-// 링크(href/onClick)·버튼 action은 기존 그대로 유지, UI(카드 구조)만 통일.
-function ProcessMethodCards({
+// AI 분석 결과 요약 — 기존 진단 데이터(점수/톤/체크리스트/예상기간)만으로
+// 2~3문장의 자연스러운 요약문을 구성. 새 점수 계산이나 진단 로직은 없음.
+function buildResultSummaryText(
+  resultTone: "possible" | "conditional" | "impossible",
+  checklist: { label: string; passed: boolean }[],
+  estimatedDays: { min: number; max: number } | null
+): string {
+  const toneText =
+    resultTone === "possible"
+      ? "높은"
+      : resultTone === "conditional"
+      ? "있으나 보완이 필요한"
+      : "낮은";
+  const failed = checklist.filter((c) => !c.passed);
+
+  const sentence1 = `입력하신 정보를 기준으로 노동허가 발급 가능성은 ${toneText} 것으로 분석되었습니다.`;
+
+  let sentence2: string;
+  if (failed.length > 0) {
+    const names = failed.slice(0, 2).map((c) => c.label).join(", ");
+    sentence2 =
+      failed.length > 2
+        ? `${names} 등 ${failed.length}개 항목에서 보완이 필요한 것으로 확인되었으며, 현재 조건에 맞는 필수 서류 준비가 필요합니다.`
+        : `${names} 항목에서 보완이 필요한 것으로 확인되었으며, 현재 조건에 맞는 필수 서류 준비가 필요합니다.`;
+  } else {
+    sentence2 = "현재 입력하신 조건에서는 특별히 보완이 필요한 항목이 확인되지 않았습니다.";
+  }
+
+  const sentence3 = estimatedDays
+    ? `예상 처리기간은 약 ${estimatedDays.min}~${estimatedDays.max}일이며, 제출 전 서류를 다시 확인하는 것을 권장합니다.`
+    : "제출 전 서류를 다시 확인하는 것을 권장합니다.";
+
+  return `${sentence1} ${sentence2} ${sentence3}`;
+}
+
+// AI 분석 결과 요약 카드 — 기존 1~5번 결과 영역을 대체하지 않고 그 아래에 추가.
+// 흰 배경 · 얇은 테두리 · 작은 아이콘의 차분한 톤 (TRC 카드 톤 기준).
+function ResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const { resultTone, checklist, estimatedDays } = diagnosis.customerView;
+  const summaryText = buildResultSummaryText(resultTone, checklist, estimatedDays);
+
+  return (
+    <div className="mt-3 rounded-2xl bg-white border border-gray-100 p-5">
+      <div className="flex items-center gap-2">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+          AI
+        </span>
+        <p className="text-sm font-bold text-gray-900">AI 분석 결과 요약</p>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-gray-700">{summaryText}</p>
+    </div>
+  );
+}
+
+// 다음 단계 선택 — 전문가 진행하기 / AI 리포트 진행하기 / 직접 진행하기 순서 고정.
+// onSelf·onExpert는 기존 핸들러 그대로 사용. AI 리포트는 아직 업로드·PDF 백엔드가
+// 없어 상담 페이지로 연결(기존 /consultation 라우트 재사용, 새 API 없음).
+function NextStepOptions({
   onSelf,
   onExpert,
+  consultationCase,
 }: {
   onSelf: () => void;
   onExpert: () => void;
+  consultationCase: string;
 }) {
   return (
     <div>
       <p className="mt-5 text-sm font-bold text-gray-900">
         어떤 방법으로 진행하시겠습니까?
       </p>
-      <div className="mt-3 grid gap-4 sm:grid-cols-2 sm:items-stretch">
-        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-sm font-bold text-gray-900">직접 신청</p>
-          <span className="mt-1.5 w-fit rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
-            ✓ 직접 신청 가능
+      <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
+        {/* 1) 전문가 진행하기 — 가장 강조되는 추천 선택지 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-blue-200 bg-white p-4">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-900 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            추천
           </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            정부 공식 사이트에서 바로 신청할 수 있습니다.
+            최신 법령과 실제 제출 서류를 전문가가 최종 확인하여 안전하게
+            진행합니다.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 최신 법령 및 정책 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 제출 서류 검토 및 보완 안내</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
+          </ul>
+          <PrimaryButton onClick={onExpert} className="mt-4 h-10">
+            전문가 진행 요청하기
+          </PrimaryButton>
+        </div>
+
+        {/* 2) AI 리포트 진행하기 — 참고용 AI 분석 자료, 전문가 검토 아님 */}
+        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-bold text-gray-900">AI 리포트 진행하기</p>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
+          </ul>
+          <Link
+            href={`/consultation?case=${consultationCase}`}
+            className="mt-4 flex h-10 items-center justify-center rounded-xl border border-gray-200 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            AI 리포트 진행하기
+          </Link>
+          <p className="mt-2 text-center text-[11px] text-slate-500">
+            결과는 My Page에서 PDF로 다운로드할 수 있습니다.
+          </p>
+        </div>
+
+        {/* 3) 직접 진행하기 — 가장 낮은 강조 */}
+        <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4">
+          <p className="text-sm font-bold text-gray-900">직접 진행하기</p>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            정부 공식 사이트에서 직접 신청할 수 있습니다.
           </p>
           <a
             href={WP_OFFICIAL_URL}
             target="_blank"
             rel="noopener noreferrer"
             onClick={onSelf}
-            className="mt-4 flex h-10 items-center justify-center gap-1.5 rounded-xl border border-blue-900 text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+            className="mt-auto pt-4 flex h-10 items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            정부 사이트로 이동 <ExternalLink size={13} />
+            정부 공식 사이트 이동 <ExternalLink size={13} />
           </a>
           <p className="mt-2 text-center text-[11px] text-slate-500">
-            ↗ 정부 공식 사이트로 이동합니다.
-          </p>
-        </div>
-
-        <div className="flex h-full flex-col rounded-2xl border border-blue-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-sm font-bold text-gray-900">전문가와 함께</p>
-          <span className="mt-1.5 w-fit rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-800">
-            ✓ 최종 확인 필요
-          </span>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            전문가가 서류와 절차를 함께 확인합니다.
-          </p>
-          <PrimaryButton onClick={onExpert} className="mt-4 h-10">
-            진행 요청하기
-          </PrimaryButton>
-          <p aria-hidden="true" className="invisible mt-2 text-center text-[11px] text-slate-500">
-            ↗ 정부 공식 사이트로 이동합니다.
+            신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
           </p>
         </div>
       </div>
-      <p className="mt-3 text-[11px] text-gray-400 text-center">
-        어떤 방법을 선택하시더라도 AI 분석 결과는 그대로 활용됩니다.
-      </p>
     </div>
   );
 }
@@ -1160,9 +1240,12 @@ export default function WpCheckPage() {
 
             <Divider />
 
-            <ProcessMethodCards
+            {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
+
+            <NextStepOptions
               onSelf={handleSelfPortalClick}
               onExpert={() => setDetailStage(true)}
+              consultationCase="wp-ai-report"
             />
             <div className="mt-2">
               <InfoBox>
@@ -1378,9 +1461,12 @@ export default function WpCheckPage() {
               </NoticeCard>
             </div>
 
-            <ProcessMethodCards
+            {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
+
+            <NextStepOptions
               onSelf={handleSelfPortalClick}
               onExpert={() => setDetailStage(true)}
+              consultationCase="wp-ai-report"
             />
 
             <div className="mt-4">

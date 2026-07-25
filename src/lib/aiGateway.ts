@@ -343,8 +343,11 @@ export async function callOpenAiAnalysis(params: {
   apiKey: string;
   model: string;
   openaiMessages: OpenAiChatMessage[];
+  // 선택: JSON 전용 응답이 필요한 호출부(예: WP 결과 설명 API)만 지정.
+  // 지정하지 않으면 기존 호출부(ai-chat 등)는 이전과 동일하게 동작한다.
+  responseFormat?: "json_object";
 }): Promise<OpenAiCallResult> {
-  const { apiKey, model, openaiMessages } = params;
+  const { apiKey, model, openaiMessages, responseFormat } = params;
 
   try {
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -357,6 +360,7 @@ export async function callOpenAiAnalysis(params: {
         model,
         messages: openaiMessages,
         max_completion_tokens: 600,
+        ...(responseFormat ? { response_format: { type: responseFormat } } : {}),
       }),
     });
 
