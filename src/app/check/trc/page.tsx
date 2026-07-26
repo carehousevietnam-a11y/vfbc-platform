@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -904,6 +905,7 @@ function PremiumLeadCapture({
 }
 
 export default function TrcCheckPage() {
+  const router = useRouter();
   const [nationality, setNationality] = useState<Nationality>(null);
   const [visa, setVisa] = useState<Visa>(null);
   const [role, setRole] = useState<Role>(null);
@@ -1480,7 +1482,7 @@ export default function TrcCheckPage() {
 
             <NextStepOptions
               onSelf={handleSelfPortalClick}
-              onExpert={() => setDetailStage(true)}
+              onExpert={() => router.push(`/documents?leadId=${leadId}&service=trc&mode=expert`)}
               officialUrl={TRC_OFFICIAL_URL}
             />
             <p className="mt-2 text-[11px] text-gray-400">
@@ -1646,7 +1648,7 @@ export default function TrcCheckPage() {
 
             <NextStepOptions
               onSelf={handleSelfPortalClick}
-              onExpert={() => setDetailStage(true)}
+              onExpert={() => router.push(`/documents?leadId=${leadId}&service=trc&mode=expert`)}
               officialUrl={TRC_OFFICIAL_URL}
             />
 
