@@ -21,7 +21,6 @@ import {
   CheckCircle2,
   Circle,
   ChevronDown,
-  Menu,
   Shield,
   UserCheck,
   Zap,
@@ -234,11 +233,17 @@ const MODE_COPY: Record<
   },
 };
 
-// 승인된 목업에 표시된 3개 신뢰 항목 — 모드와 무관하게 고정 문구.
+// 승인된 목업에 표시된 3개 신뢰 항목 — 모드와 무관하게 고정 문구. (PC 전용, 3개 그대로 유지)
 const TRUST_ITEMS = [
   { icon: Shield, label: "안전한 보안", sub: "개인정보 철저 보호" },
   { icon: UserCheck, label: "전문가 직접 확인", sub: "담당 전문가만 열람" },
   { icon: Zap, label: "빠른 안내", sub: "카톡·Zalo·이메일 안내" },
+];
+
+// 모바일 전용 신뢰 박스 — "빠른 안내" 제외 2개, 짧은 보조문구.
+const MOBILE_TRUST_ITEMS = [
+  { icon: Shield, label: "안전한 보안", sub: "개인정보 보호" },
+  { icon: UserCheck, label: "전문가 직접 확인", sub: "담당자만 열람" },
 ];
 
 // 문서 카드 설명 한 줄 — 승인된 목업에 문구가 있는 문서(여권/비자/재직증명서/회사서류)만
@@ -484,8 +489,15 @@ function DocumentUploadContent() {
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
       <div ref={scrollTopRef} className="mx-auto max-w-5xl px-6 py-10 pb-32 lg:pb-10">
-        {/* 모바일 전용 브랜드 헤더 — 로고+브랜드명(좌) / 메뉴 아이콘(우) */}
-        <div className="relative -mx-6 -mt-10 mb-4 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 lg:hidden">
+        {/* 모바일 전용 브랜드 헤더 — 좌측 "← 홈으로", 로고+브랜드명은 중앙 정렬 */}
+        <div className="relative -mx-6 -mt-10 mb-4 flex items-center justify-center border-b border-gray-100 bg-white px-4 py-3 lg:hidden">
+          <Link
+            href="/"
+            aria-label="홈으로"
+            className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-500"
+          >
+            <ArrowLeft size={14} /> 홈으로
+          </Link>
           <div className="flex items-center gap-2">
             <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={32} height={32} className="shrink-0" />
             <div>
@@ -493,19 +505,7 @@ function DocumentUploadContent() {
               <p className="text-[10px] leading-tight text-gray-400">Check. Verify. Register. Protect.</p>
             </div>
           </div>
-          <Link href="/" aria-label="홈으로" className="p-1 text-gray-500">
-            <Menu size={20} />
-          </Link>
         </div>
-
-        {/* 모바일 전용 — 결과로 돌아가기 */}
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="mb-4 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 lg:hidden"
-        >
-          <ArrowLeft size={14} /> 결과로 돌아가기
-        </button>
 
         {/* PC 전용 — 로고+브랜드명(좌) / 결과로 돌아가기 버튼(우) */}
         <div className="hidden items-center justify-between lg:flex">
@@ -543,8 +543,25 @@ function DocumentUploadContent() {
               </div>
             </div>
 
-            {/* 신뢰 항목 3개 */}
-            <div className="mt-5 grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-3">
+            {/* 신뢰 항목 — 모바일 2개(한 줄), PC 3개(기존 유지) */}
+            <div className="mt-5 grid grid-cols-2 gap-2 lg:hidden">
+              {MOBILE_TRUST_ITEMS.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-2.5 py-2"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50">
+                    <item.icon size={13} className="text-blue-700" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-[11px] font-bold text-gray-900">{item.label}</p>
+                    <p className="truncate text-[10px] text-gray-400">{item.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 hidden lg:grid lg:grid-cols-3 lg:gap-3">
               {TRUST_ITEMS.map((item) => (
                 <div
                   key={item.label}
