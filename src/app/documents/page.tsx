@@ -2,14 +2,18 @@
 
 // 공통 Document Upload Page (/documents)
 //
-// 이번 단계 범위: PC·모바일 UI 구현만. 아래는 의도적으로 하지 않는다.
-// - crm_activities / leads / 어떤 DB 테이블에도 저장하지 않음
-// - Supabase Storage(documents 버킷)에 업로드하지 않음
-// - 어떤 API route도 호출하지 않음
-// - 새로고침 시 값이 보존되지 않음(세션/로컬스토리지 저장 없음)
+// 이번 단계 범위: 실제 파일 업로드(Supabase Storage "documents" 버킷) 연동까지.
+// 아래는 여전히 의도적으로 하지 않는다.
+// - crm_activities / leads / 어떤 DB 테이블에도 메타데이터를 저장하지 않음
+// - 어떤 API route도 호출하지 않음(Storage 업로드/삭제는 클라이언트에서 기존 verify 페이지와
+//   동일한 방식으로 직접 supabase.storage 호출)
+// - 새로고침 시 값이 보존되지 않음(세션/로컬스토리지 저장 없음 — 업로드된 파일은 Storage에는
+//   남지만 화면 상태는 새로고침하면 초기화된다)
 // - 기존 CHECK 4개 결과화면 버튼과 아직 연결하지 않음(라우트만 존재)
+// - OpenAI/Claude 분석, 이메일·카카오톡·Zalo 발송, My Page 연결, CRM 생성은 하지 않음
 //
-// "업로드"·"직접 입력"·"제출"은 전부 React state로만 움직이는 화면 목업이다.
+// "직접 입력"·"제출"은 React state로만 움직이는 화면 목업이며, "파일 업로드"만 실제
+// Supabase Storage에 업로드/삭제된다.
 
 import { Suspense, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Link from "next/link";
@@ -21,6 +25,7 @@ import {
   CheckCircle2,
   Circle,
   ChevronDown,
+  Loader2,
   Shield,
   UserCheck,
   Zap,
@@ -33,21 +38,47 @@ import {
 } from "lucide-react";
 import { NoticeCard, PrimaryButton, StatusBadge } from "@/components/ui";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
+import { supabase } from "@/lib/supabase";
 
 type SubmitMode = "ai_report" | "expert";
 type DocInputMode = "upload" | "manual";
+
+// 기존 VERIFY(verify-real-estate 등)·admin(permit-results) 페이지가 이미 사용 중인
+// "documents" Storage 버킷을 그대로 재사용한다. 버킷명을 임의로 바꾸지 않는다.
+const STORAGE_BUCKET = "documents";
+// 기존 prefix(verify-real-estate, verify-fraud, verify-tax, verify-unclear, verify-admin,
+// permit-results)와 겹치지 않는 이 기능 전용 prefix. 버킷은 동일하게 재사용하고, 폴더만
+// leadId 하위에 문서별로 나눈다(한 신청건에 여러 문서가 있으므로).
+const STORAGE_PREFIX = "document-upload";
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "pdf", "doc", "docx"];
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
 
 interface DocState {
   label: string;
   inputMode: DocInputMode;
   file: File | null;
+  fileUrl: string | null; // 업로드 성공 후 공개 URL (기존 verify 페이지와 동일하게 getPublicUrl 사용)
+  storagePath: string | null; // 삭제 시 필요한 Storage 경로
+  uploading: boolean;
+  uploadError: string | null;
   text: string; // 추가 서류의 "직접 입력 내용" + 전용 입력폼이 없는 문서의 기존 textarea 값
   title: string; // 추가 서류(선택) 전용 "제목"
   fields: Record<string, string>; // 여권/비자/재직증명서/회사서류 등 구조화 입력값
 }
 
 function createDocState(label: string): DocState {
-  return { label, inputMode: "upload", file: null, text: "", title: "", fields: {} };
+  return {
+    label,
+    inputMode: "upload",
+    file: null,
+    fileUrl: null,
+    storagePath: null,
+    uploading: false,
+    uploadError: null,
+    text: "",
+    title: "",
+    fields: {},
+  };
 }
 
 function isDocReady(doc: DocState): boolean {
@@ -55,6 +86,10 @@ function isDocReady(doc: DocState): boolean {
   if (doc.text.trim().length > 0) return true;
   if (doc.title.trim().length > 0) return true;
   return Object.values(doc.fields).some((v) => v.trim().length > 0);
+}
+
+function getFileExtension(file: File): string {
+  return (file.name.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 function formatFileSize(bytes: number): string {
@@ -341,7 +376,11 @@ function DocumentCard({
 
         <div className="mt-2.5">
           {doc.inputMode === "upload" ? (
-            doc.file ? (
+            doc.uploading ? (
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-6 text-xs font-semibold text-blue-700">
+                <Loader2 size={16} className="animate-spin" /> 업로드 중...
+              </div>
+            ) : doc.file ? (
               <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3">
                 <div className="flex min-w-0 items-center gap-2">
                   <Paperclip size={15} className="shrink-0 text-blue-700" />
@@ -384,12 +423,19 @@ function DocumentCard({
                   <span className="text-[11px] text-gray-400">최대 10MB</span>
                 </label>
 
+                {doc.uploadError && (
+                  <p className="mt-1.5 text-[11px] text-red-600">{doc.uploadError}</p>
+                )}
+
                 <input
                   id={inputId}
                   type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
+                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
                   className="hidden"
-                  onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+                  onChange={(e) => {
+                    onFileChange(e.target.files?.[0] ?? null);
+                    e.target.value = "";
+                  }}
                 />
               </>
             )
@@ -472,6 +518,89 @@ function DocumentUploadContent() {
 
   function updateDoc(index: number, patch: Partial<DocState>) {
     setDocs((prev) => prev.map((d, i) => (i === index ? { ...d, ...patch } : d)));
+  }
+
+  // 실제 Supabase Storage("documents" 버킷, 기존 verify 페이지와 동일 버킷) 업로드.
+  // docs 배열 항목과 extraDoc(추가 서류) 모두 이 함수를 공유하고, applyPatch로 각자의
+  // state 조각만 갱신한다.
+  async function uploadDocumentFile(
+    file: File,
+    previousStoragePath: string | null,
+    applyPatch: (patch: Partial<DocState>) => void
+  ) {
+    const ext = getFileExtension(file);
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      applyPatch({
+        uploadError: "지원하지 않는 파일 형식입니다. JPG, PNG, PDF, DOC, DOCX 파일만 업로드할 수 있습니다.",
+      });
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      applyPatch({ uploadError: "파일 크기는 최대 10MB까지 업로드할 수 있습니다." });
+      return;
+    }
+    if (!leadId) {
+      applyPatch({ uploadError: "접수 정보가 없어 업로드할 수 없습니다. 처음부터 다시 시도해주세요." });
+      return;
+    }
+
+    applyPatch({ file, uploading: true, uploadError: null });
+
+    // 같은 문서 칸에 다시 업로드(교체)하는 경우, 이전 파일을 Storage에서 먼저 정리한다.
+    if (previousStoragePath) {
+      await supabase.storage.from(STORAGE_BUCKET).remove([previousStoragePath]).catch(() => {});
+    }
+
+    const storagePath = `${STORAGE_PREFIX}/${leadId}/${crypto.randomUUID()}.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage.from(STORAGE_BUCKET).upload(storagePath, file);
+    if (uploadErr) {
+      console.error("document upload failed:", uploadErr);
+      applyPatch({
+        file: null,
+        fileUrl: null,
+        storagePath: null,
+        uploading: false,
+        uploadError: "업로드 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      });
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
+    applyPatch({
+      file,
+      fileUrl: urlData.publicUrl,
+      storagePath,
+      uploading: false,
+      uploadError: null,
+    });
+  }
+
+  async function deleteDocumentFile(storagePath: string | null, applyPatch: (patch: Partial<DocState>) => void) {
+    applyPatch({ file: null, fileUrl: null, storagePath: null, uploadError: null });
+    if (!storagePath) return;
+    const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
+    if (error) console.error("document delete failed:", error);
+  }
+
+  function handleDocFileSelect(index: number, file: File | null) {
+    if (!file) return;
+    const previousStoragePath = docs[index]?.storagePath ?? null;
+    void uploadDocumentFile(file, previousStoragePath, (patch) => updateDoc(index, patch));
+  }
+
+  function handleDocFileClear(index: number) {
+    const storagePath = docs[index]?.storagePath ?? null;
+    void deleteDocumentFile(storagePath, (patch) => updateDoc(index, patch));
+  }
+
+  function handleExtraFileSelect(file: File | null) {
+    if (!file) return;
+    void uploadDocumentFile(file, extraDoc.storagePath, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
+  }
+
+  function handleExtraFileClear() {
+    void deleteDocumentFile(extraDoc.storagePath, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
   }
 
   function handleSubmit() {
@@ -686,8 +815,8 @@ function DocumentUploadContent() {
                   index={i}
                   doc={doc}
                   onModeChange={(inputMode) => updateDoc(i, { inputMode })}
-                  onFileChange={(file) => updateDoc(i, { file })}
-                  onFileClear={() => updateDoc(i, { file: null })}
+                  onFileChange={(file) => handleDocFileSelect(i, file)}
+                  onFileClear={() => handleDocFileClear(i)}
                   onTextChange={(text) => updateDoc(i, { text })}
                   onTitleChange={(title) => updateDoc(i, { title })}
                   onFieldChange={(key, value) =>
@@ -702,8 +831,8 @@ function DocumentUploadContent() {
                 index={docs.length}
                 doc={extraDoc}
                 onModeChange={(inputMode) => setExtraDoc((prev) => ({ ...prev, inputMode }))}
-                onFileChange={(file) => setExtraDoc((prev) => ({ ...prev, file }))}
-                onFileClear={() => setExtraDoc((prev) => ({ ...prev, file: null }))}
+                onFileChange={handleExtraFileSelect}
+                onFileClear={handleExtraFileClear}
                 onTextChange={(text) => setExtraDoc((prev) => ({ ...prev, text }))}
                 onTitleChange={(title) => setExtraDoc((prev) => ({ ...prev, title }))}
                 onFieldChange={(key, value) =>
