@@ -599,19 +599,66 @@ function DocumentUploadContent() {
         )}
 
         {submitted ? (
-          <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
-              <CheckCircle2 className="text-emerald-600" size={28} />
+          mode === "expert" ? (
+            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex justify-center">
+                <img
+                  src="/vfbc-seal.png"
+                  alt="VFBCAI 접수완료 확인 도장"
+                  width={140}
+                  height={140}
+                />
+              </div>
+              <p className="mt-1 text-[10px] italic text-gray-400">
+                Vietnam Foreign Business Verification &amp; Compliance AI Center
+              </p>
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">접수 완료</h2>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                전문가 진행 요청이 정상적으로 접수되었습니다.
+                <br />
+                제출하신 서류를 담당 전문가가 확인한 후 곧 연락드리겠습니다.
+                <br />
+                <br />
+                카카오톡 · Zalo · 이메일로 진행 안내를 보내드립니다.
+              </p>
+
+              <div className="mt-6 space-y-2.5">
+                <PrimaryButton onClick={() => router.push("/mypage")}>
+                  My Page에서 진행상황 확인하기
+                </PrimaryButton>
+                <PrimaryButton variant="outline" onClick={() => router.push("/")}>
+                  홈으로
+                </PrimaryButton>
+              </div>
+
+              <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-gray-400">
+                <Lock size={12} className="mt-0.5 shrink-0" />
+                <span>제출하신 자료는 안전하게 암호화되어 담당 전문가만 확인할 수 있습니다.</span>
+              </div>
+
+              {/*
+                TODO:
+                - 이메일 접수 완료 알림 발송
+                - 카카오톡 접수 완료 알림 발송
+                - Zalo 접수 완료 알림 발송
+                - My Page 진행상황 자동 연결
+              */}
             </div>
-            <p className="mt-4 text-lg font-bold text-gray-900">{copy.successTitle}</p>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">{copy.successBody}</p>
-            <button
-              onClick={handleReset}
-              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              다시 작성하기
-            </button>
-          </div>
+          ) : (
+            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
+                <CheckCircle2 className="text-emerald-600" size={28} />
+              </div>
+              <p className="mt-4 text-lg font-bold text-gray-900">{copy.successTitle}</p>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">{copy.successBody}</p>
+              <button
+                onClick={handleReset}
+                className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
+              >
+                다시 작성하기
+              </button>
+            </div>
+          )
         ) : (
           <div className="mt-6 lg:grid lg:grid-cols-[1fr_320px] lg:items-start lg:gap-6">
             {/* 좌측 — 문서 카드 목록 */}
