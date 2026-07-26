@@ -1,1705 +1,1002 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+// 공통 Document Upload Page (/documents)
+//
+// 이번 단계 범위: 실제 파일 업로드(Supabase Storage "documents" 버킷) 연동까지.
+// 아래는 여전히 의도적으로 하지 않는다.
+// - crm_activities / leads / 어떤 DB 테이블에도 메타데이터를 저장하지 않음
+// - 어떤 API route도 호출하지 않음(Storage 업로드/삭제는 클라이언트에서 기존 verify 페이지와
+//   동일한 방식으로 직접 supabase.storage 호출)
+// - 새로고침 시 값이 보존되지 않음(세션/로컬스토리지 저장 없음 — 업로드된 파일은 Storage에는
+//   남지만 화면 상태는 새로고침하면 초기화된다)
+// - 기존 CHECK 4개 결과화면 버튼과 아직 연결하지 않음(라우트만 존재)
+// - OpenAI/Claude 분석, 이메일·카카오톡·Zalo 발송, My Page 연결, CRM 생성은 하지 않음
+//
+// "직접 입력"·"제출"은 React state로만 움직이는 화면 목업이며, "파일 업로드"만 실제
+// Supabase Storage에 업로드/삭제된다.
+
+import { Suspense, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  Upload,
+  PenLine,
   CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  ExternalLink,
-  Menu,
-  Shield,
-  Info,
-  ShieldCheck,
-  Lightbulb,
-  Globe,
-  FileText,
-  Users,
-  Building2,
-  Lock,
-  Clock,
-  MapPin,
-  Mail,
-  Phone,
-  Gift,
-  MessageCircle,
-  TrendingUp,
-  Star,
+  Circle,
   ChevronDown,
+  Loader2,
+  Shield,
   UserCheck,
+  Zap,
+  FileText,
+  Send,
+  Clock,
+  Lock,
+  X,
+  Paperclip,
 } from "lucide-react";
-import { MESSENGERS_KO } from "@/lib/messenger";
+import { NoticeCard, PrimaryButton, StatusBadge } from "@/components/ui";
+import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import { supabase } from "@/lib/supabase";
-import { saveLeadContact } from "@/lib/leadContact";
-import { NoticeCard, PrimaryButton, InfoBox, QuestionSection, SelectionCard } from "@/components/ui";
-import {
-  getCheckDiagnosis,
-  computeTrcResultTone,
-  type DiagnosisResult,
-  type TrcNationality,
-  type TrcVisa,
-  type TrcRole,
-  type TrcCompany,
-} from "@/lib/checkDiagnosis";
 
-// 거주증(TRC)은 출입국 전자비자 포털(evisa) 소관이 아니라
-// 공안부 공공서비스포털을 통해 접수됩니다. (2026-07 확인 완료)
-const TRC_OFFICIAL_URL =
-  "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26285";
+type SubmitMode = "ai_report" | "expert";
+type DocInputMode = "upload" | "manual";
 
-// 기존 "거주증(TRC) 신청에 필요한 서류" 목록과 동일한 4개 항목 — 값 변경 없이
-// 새 결과화면의 "3 준비서류 안내" 카드에서 개수 표시용으로만 재사용한다.
-const TRC_REQUIRED_DOCUMENTS = [
-  "여권 사본 (인적사항 페이지)",
-  "현재 비자 사본",
-  "재직증명서 또는 노동계약서",
-  "회사 사업자등록증 사본",
+// 기존 VERIFY(verify-real-estate 등)·admin(permit-results) 페이지가 이미 사용 중인
+// "documents" Storage 버킷을 그대로 재사용한다. 버킷명을 임의로 바꾸지 않는다.
+const STORAGE_BUCKET = "documents";
+// 기존 prefix(verify-real-estate, verify-fraud, verify-tax, verify-unclear, verify-admin,
+// permit-results)와 겹치지 않는 이 기능 전용 prefix. 버킷은 동일하게 재사용하고, 폴더만
+// leadId 하위에 문서별로 나눈다(한 신청건에 여러 문서가 있으므로).
+const STORAGE_PREFIX = "document-upload";
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "pdf", "doc", "docx"];
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
+
+interface DocState {
+  label: string;
+  inputMode: DocInputMode;
+  file: File | null;
+  fileUrl: string | null; // 업로드 성공 후 공개 URL (기존 verify 페이지와 동일하게 getPublicUrl 사용)
+  storagePath: string | null; // 삭제 시 필요한 Storage 경로
+  uploading: boolean;
+  uploadError: string | null;
+  text: string; // 추가 서류의 "직접 입력 내용" + 전용 입력폼이 없는 문서의 기존 textarea 값
+  title: string; // 추가 서류(선택) 전용 "제목"
+  fields: Record<string, string>; // 여권/비자/재직증명서/회사서류 등 구조화 입력값
+}
+
+function createDocState(label: string): DocState {
+  return {
+    label,
+    inputMode: "upload",
+    file: null,
+    fileUrl: null,
+    storagePath: null,
+    uploading: false,
+    uploadError: null,
+    text: "",
+    title: "",
+    fields: {},
+  };
+}
+
+function isDocReady(doc: DocState): boolean {
+  if (doc.inputMode === "upload") return doc.file !== null;
+  if (doc.text.trim().length > 0) return true;
+  if (doc.title.trim().length > 0) return true;
+  return Object.values(doc.fields).some((v) => v.trim().length > 0);
+}
+
+function getFileExtension(file: File): string {
+  return (file.name.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+// 문서 종류별 "직접 입력" 항목 정의. 여기 정의되지 않은 문서(학력증명서, 범죄경력증명서 등)는
+// 기존과 동일하게 자유 textarea 하나만 표시한다(추측으로 새 항목을 만들지 않음).
+type FieldType = "text" | "date" | "select";
+interface FieldConfig {
+  key: string;
+  label: string;
+  type: FieldType;
+  options?: string[];
+}
+
+const NATIONALITY_OPTIONS = ["대한민국", "중국", "일본", "미국", "기타"];
+const GENDER_OPTIONS = ["남성", "여성", "기타"];
+const VISA_TYPE_OPTIONS = ["노동(LD)", "투자(DT)", "방문(DN)", "기타"];
+
+const FIELD_SCHEMA_BY_LABEL: Record<string, FieldConfig[]> = {
+  여권: [
+    { key: "fullNameEn", label: "영문 성명", type: "text" },
+    { key: "passportNo", label: "여권번호", type: "text" },
+    { key: "nationality", label: "국적", type: "select", options: NATIONALITY_OPTIONS },
+    { key: "birthDate", label: "생년월일", type: "date" },
+    { key: "gender", label: "성별", type: "select", options: GENDER_OPTIONS },
+    { key: "issueDate", label: "발급일", type: "date" },
+    { key: "expiryDate", label: "만료일", type: "date" },
+    { key: "addressEn", label: "영문 주소", type: "text" },
+  ],
+  비자: [
+    { key: "visaType", label: "비자 종류", type: "select", options: VISA_TYPE_OPTIONS },
+    { key: "visaNo", label: "비자 번호", type: "text" },
+    { key: "issueDate", label: "발급일", type: "date" },
+    { key: "expiryDate", label: "만료일", type: "date" },
+    { key: "issuingAuthority", label: "발급기관", type: "text" },
+  ],
+  재직증명서: [
+    { key: "companyName", label: "회사명", type: "text" },
+    { key: "position", label: "직위", type: "text" },
+    { key: "startDate", label: "근무 시작일", type: "date" },
+    { key: "workPermitNo", label: "노동허가번호", type: "text" },
+    { key: "workPermitExpiry", label: "노동허가 만료일", type: "date" },
+  ],
+  회사서류: [
+    { key: "companyName", label: "회사명", type: "text" },
+    { key: "businessRegNo", label: "사업자등록번호", type: "text" },
+    { key: "legalRepresentative", label: "법정대표자", type: "text" },
+    { key: "companyAddress", label: "회사 주소", type: "text" },
+  ],
+};
+
+function getFieldSchema(label: string): FieldConfig[] | null {
+  return FIELD_SCHEMA_BY_LABEL[label] ?? null;
+}
+
+// 공유 UI 라이브러리(components/ui)에는 Select 컴포넌트가 없어, 이번 작업 범위인 이
+// 페이지 전용으로만 최소 구현한다(공통 라이브러리는 수정하지 않음).
+// 직접 입력 폼의 세로 여백을 줄이기 위해 TextField/TextAreaField보다 촘촘한 간격을 쓴다.
+const COMPACT_FIELD_CLASS =
+  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 transition-colors duration-200 focus:border-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900/10";
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={COMPACT_FIELD_CLASS}
+      >
+        <option value="">선택 안 함</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function CompactTextField({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <input type={type} value={value} onChange={onChange} placeholder={placeholder} className={COMPACT_FIELD_CLASS} />
+    </label>
+  );
+}
+
+function CompactTextAreaField({
+  label,
+  rows,
+  value,
+  onChange,
+  placeholder,
+  hint,
+}: {
+  label: string;
+  rows: number;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  hint?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <textarea
+        rows={rows}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`${COMPACT_FIELD_CLASS} resize-none`}
+      />
+      {hint && <span className="mt-1 block text-[11px] text-gray-400">{hint}</span>}
+    </label>
+  );
+}
+
+const MODE_COPY: Record<
+  SubmitMode,
+  {
+    badgeLabel: string;
+    heading: string;
+    description: string;
+    submitLabel: string;
+    submitCaption: string;
+    successTitle: string;
+    successBody: string;
+  }
+> = {
+  ai_report: {
+    badgeLabel: "AI 리포트 요청",
+    heading: "AI 리포트를 위한 서류를 제출해주세요",
+    description: "제출하신 서류를 바탕으로 AI가 정밀 리포트를 준비합니다.",
+    submitLabel: "AI 리포트 요청하기",
+    submitCaption: "접수 후 AI가 리포트를 준비하며, My Page에서 PDF로 확인하실 수 있습니다.",
+    successTitle: "AI 리포트 요청이 접수되었습니다",
+    successBody: "My Page에서 진행 상황과 PDF 리포트를 확인하실 수 있습니다.",
+  },
+  expert: {
+    badgeLabel: "전문가 진행 요청",
+    heading: "전문가 진행을 위한 서류를 제출해주세요",
+    description: "제출하신 서류를 전문가가 직접 확인하여 실제 준비 절차를 안내드립니다.",
+    submitLabel: "전문가 진행 요청하기",
+    submitCaption: "접수 후 담당 전문가가 확인하여 카카오톡 · Zalo · 이메일로 안내드립니다.",
+    successTitle: "전문가 진행 요청이 접수되었습니다",
+    successBody: "담당자가 서류를 확인한 뒤 카카오톡 · Zalo · 이메일로 안내드립니다.",
+  },
+};
+
+// 승인된 목업에 표시된 3개 신뢰 항목 — 모드와 무관하게 고정 문구. (PC 전용, 3개 그대로 유지)
+const TRUST_ITEMS = [
+  { icon: Shield, label: "안전한 보안", sub: "개인정보 철저 보호" },
+  { icon: UserCheck, label: "전문가 직접 확인", sub: "담당 전문가만 열람" },
+  { icon: Zap, label: "빠른 안내", sub: "카톡·Zalo·이메일 안내" },
 ];
 
-type Nationality = TrcNationality;
-type Visa = TrcVisa;
-type Role = TrcRole;
-type Company = TrcCompany;
-type Result = "possible" | "conditional" | "impossible" | null;
+// 모바일 전용 신뢰 박스 — "빠른 안내" 제외 2개, 짧은 보조문구.
+const MOBILE_TRUST_ITEMS = [
+  { icon: Shield, label: "안전한 보안", sub: "개인정보 보호" },
+  { icon: UserCheck, label: "전문가 직접 확인", sub: "담당자만 열람" },
+];
 
-const CONSENT_SUMMARY =
-  "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
+// 문서 카드 설명 한 줄 — 승인된 목업에 문구가 있는 문서(여권/비자/재직증명서/회사서류)만
+// 정의한다. 그 외 문서는 목업에 없는 문구를 임의로 만들지 않기 위해 설명을 생략한다.
+const DOC_DESCRIPTION_BY_LABEL: Record<string, string> = {
+  여권: "본인 확인을 위해 필요합니다.",
+  비자: "현재 보유 중인 비자를 제출해주세요.",
+  재직증명서: "재직 증명 또는 노동허가 관련 서류를 제출해주세요.",
+  회사서류: "회사 사업자등록증 사본을 제출해주세요.",
+};
 
-function ConsentDetails({
-  open,
-  onToggle,
-  highlight,
+function DocumentCard({
+  index,
+  doc,
+  onModeChange,
+  onFileChange,
+  onFileClear,
+  onTextChange,
+  onTitleChange,
+  onFieldChange,
 }: {
-  open: boolean;
-  onToggle: () => void;
-  highlight?: boolean;
+  index: number;
+  doc: DocState;
+  onModeChange: (mode: DocInputMode) => void;
+  onFileChange: (file: File | null) => void;
+  onFileClear: () => void;
+  onTextChange: (text: string) => void;
+  onTitleChange: (title: string) => void;
+  onFieldChange: (key: string, value: string) => void;
 }) {
+  const inputId = `doc-file-${index}`;
+  const ready = isDocReady(doc);
+  const isExtraDoc = doc.label === "추가 서류 (선택)";
+  const schema = getFieldSchema(doc.label);
+  const description = DOC_DESCRIPTION_BY_LABEL[doc.label];
+
+  // Accordion — 기본은 접힌 상태이며 헤더를 누르면 펼쳐진다(PC·모바일 공통, 동시에 여러 개
+  // 펼쳐질 수 있음).
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <div
-      className={`mt-1 rounded-lg p-3 text-[11px] leading-relaxed transition-colors ${
-        highlight ? "bg-red-50 ring-1 ring-red-200" : "bg-gray-50"
-      }`}
-    >
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:p-5">
       <button
         type="button"
-        onClick={onToggle}
-        className="w-full text-left font-medium text-gray-700"
+        onClick={() => setExpanded((v) => !v)}
+        className="flex w-full items-start justify-between gap-3 text-left"
       >
-        {open ? "▾" : "▸"} 자세히 보기 (베트남 법령 원문 · 한국어 번역)
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+              {index + 1}
+            </span>
+            <p className="text-sm font-bold text-gray-900">{doc.label}</p>
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+              선택
+            </span>
+          </div>
+          {description && (
+            <p className="mt-1 pl-7 text-xs text-gray-500">{description}</p>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <StatusBadge tone={ready ? "success" : "neutral"}>
+            {ready ? "제출완료" : "미제출"}
+          </StatusBadge>
+          <ChevronDown
+            size={16}
+            className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </div>
       </button>
 
-      {highlight && (
-        <p className="mt-2 font-semibold text-red-700">
-          베트남 개인정보보호법에 따라 동의하지 않으면 계정 생성 및 서비스
-          이용(결과 확인, 상담 등)을 진행할 수 없습니다.
-        </p>
-      )}
-
-      {open && (
-        <div className="mt-2 space-y-3 text-gray-600">
-          <div>
-            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam (nguyên văn)</p>
-            <p>
-              Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
-              lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
-              thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn
-              sau khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại,
-              địa chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích
-              tư vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ
-              liệu được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục
-              đích xử lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ
-              chối có thể khiến bạn không thể sử dụng một số dịch vụ (xem kết
-              quả chẩn đoán, tư vấn, v.v.).
-            </p>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-700">한국어 번역 (이용자 편의 제공용)</p>
-            <p>
-              본 서비스는 베트남에서 운영되며, 이용자의 개인정보는 베트남
-              개인정보보호법(91/2025/QH15호, 2026년 1월 1일 시행) 및 시행령
-              (356/2025/NĐ-CP호)에 따라 처리됩니다. 원문과 번역본이 다를
-              경우 베트남어 원문이 우선합니다.
-            </p>
-            <ul className="mt-1 list-disc pl-4 space-y-0.5">
-              <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID</li>
-              <li>수집 목적: 상담·안내 및 서비스 이용을 위한 계정 자동 생성</li>
-              <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
-              <li>
-                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 결과
-                확인·상담 등 서비스 이용이 제한될 수 있습니다.
-              </li>
-            </ul>
-          </div>
-          <Link
-            href="/privacy"
-            target="_blank"
-            className="inline-block font-semibold text-blue-900 hover:underline"
-          >
-            개인정보처리방침 전문 보기 →
-          </Link>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// AI 진단 게이지 — 원형 진행률로 feasibilityScore를 표시
-function ScoreGauge({
-  score,
-  tone,
-}: {
-  score: number;
-  tone: "possible" | "conditional" | "impossible";
-}) {
-  const r = 28;
-  const circumference = 2 * Math.PI * r;
-  const offset = circumference * (1 - score / 100);
-  const color =
-    tone === "possible" ? "#059669" : tone === "conditional" ? "#d97706" : "#dc2626";
-
-  return (
-    <div className="relative w-16 h-16 shrink-0">
-      <svg width="64" height="64" viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r={r} fill="none" stroke="#f3f4f6" strokeWidth="6" />
-        <circle
-          cx="32"
-          cy="32"
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          transform="rotate(-90 32 32)"
-        />
-      </svg>
-      <div
-        className="absolute inset-0 flex items-center justify-center text-[15px] font-bold"
-        style={{ color }}
-      >
-        {score}%
-      </div>
-    </div>
-  );
-}
-
-// 승인된 목업 기준 — 결과 화면 상단 5개 카드(가능성 점수/위험요인 분석/
-// 준비서류 안내/예상 처리기간/AI 검토 의견). 값은 전부 기존 진단 데이터
-// (diagnosis.customerView) 및 기존 서류 목록에서만 가져오며, 새로운
-// 점수·판정 계산은 하지 않는다. PC는 5칸 가로 배치, 모바일은 세로형
-// 요약 리스트로 별도 렌더링한다(sm 기준 분기).
-function ResultOverviewCards({
-  diagnosis,
-  docCount,
-}: {
-  diagnosis: DiagnosisResult;
-  docCount: number;
-}) {
-  const { feasibilityScore, resultTone, checklist, estimatedDays } = diagnosis.customerView;
-  const failedCount = checklist.filter((c) => !c.passed).length;
-
-  const scoreToneLabel =
-    resultTone === "possible" ? "높음 (HIGH)" : resultTone === "conditional" ? "보통 (MEDIUM)" : "낮음 (LOW)";
-  const scoreToneWord =
-    resultTone === "possible" ? "높습니다" : resultTone === "conditional" ? "있습니다" : "낮습니다";
-
-  const riskPillText = failedCount > 0 ? `보완 필요 항목 ${failedCount}개` : "문제 없음";
-  const riskPillTone = failedCount > 0 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700";
-
-  const docsPillText = `필수 서류 ${docCount}개`;
-
-  const daysPillText = estimatedDays ? `${estimatedDays.min}~${estimatedDays.max}일` : "안내 예정";
-
-  const aiOpinionText =
-    resultTone === "possible" ? "정상" : resultTone === "conditional" ? "주의" : "확인필요";
-  const aiOpinionTone =
-    resultTone === "possible"
-      ? "bg-emerald-50 text-emerald-700"
-      : resultTone === "conditional"
-      ? "bg-amber-50 text-amber-700"
-      : "bg-red-50 text-red-700";
-
-  const items = [
-    {
-      n: 1,
-      label: "가능성 점수",
-      visual: <ScoreGauge score={feasibilityScore} tone={resultTone} />,
-      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>,
-      caption: `입력하신 정보 기준으로 발급 가능성이 ${scoreToneWord}.`,
-    },
-    {
-      n: 2,
-      label: "위험요인 분석",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
-          <AlertTriangle className="text-amber-600" size={26} />
-        </div>
-      ),
-      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${riskPillTone}`}>{riskPillText}</span>,
-      caption: "거절·보완 가능성이 있는 항목이 확인되었습니다.",
-    },
-    {
-      n: 3,
-      label: "준비서류 안내",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
-          <FileText className="text-blue-700" size={26} />
-        </div>
-      ),
-      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{docsPillText}</span>,
-      caption: "현재 조건에 맞는 필수 서류 목록입니다.",
-    },
-    {
-      n: 4,
-      label: "예상 처리기간",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50">
-          <Clock className="text-violet-600" size={26} />
-        </div>
-      ),
-      pill: <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">{daysPillText}</span>,
-      caption: "신청부터 발급까지 예상 기간 안내입니다.",
-    },
-    {
-      n: 5,
-      label: "AI 검토 의견",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-          <UserCheck className="text-gray-700" size={26} />
-        </div>
-      ),
-      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
-      caption: "베트남 행정 전문가 AI의 종합 검토 의견입니다.",
-    },
-  ];
-
-  return (
-    <>
-      {/* PC — 5칸 가로 배치 */}
-      <div className="mt-6 hidden overflow-hidden rounded-2xl border border-gray-100 bg-white sm:grid sm:grid-cols-5 sm:divide-x sm:divide-gray-100">
-        {items.map((item) => (
-          <div key={item.n} className="flex flex-col items-center gap-2.5 p-5 text-center">
-            <div className="flex items-center gap-1.5 self-start">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
-                {item.n}
-              </span>
-              <span className="text-xs font-semibold text-gray-700">{item.label}</span>
-            </div>
-            <div className="mt-1">{item.visual}</div>
-            {item.pill}
-            <p className="text-[11px] leading-relaxed text-gray-500">{item.caption}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* 모바일 — 세로형 요약 리스트 */}
-      <div className="mt-6 divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white sm:hidden">
-        {items.map((item) => (
-          <div key={item.n} className="flex items-center justify-between gap-3 p-4">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
-                {item.n}
-              </span>
-              <span className="truncate text-sm font-medium text-gray-700">{item.label}</span>
-            </div>
-            <div className="shrink-0">
-              {item.n === 1 ? (
-                <span className="text-sm font-bold text-gray-900">
-                  {feasibilityScore}/100{" "}
-                  <span className="text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>
-                </span>
-              ) : (
-                item.pill
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-// 결과 화면 헤더용 원형 점수표 — 개인정보 입력 화면(PremiumLeadCapture)의 게이지와
-// 동일한 스타일. 값은 기존 diagnosis.customerView에서만 가져오며 새로운 점수
-// 계산은 하지 않는다. size는 배치되는 위치에 맞게 비율 조정용(px)이다.
-function ResultHeaderGauge({
-  diagnosis,
-  size = 104,
-}: {
-  diagnosis: DiagnosisResult;
-  size?: number;
-}) {
-  const { feasibilityScore, resultTone } = diagnosis.customerView;
-  const isPossible = resultTone === "possible";
-  const status = isPossible ? "가능성 높음" : "추가 확인 필요";
-  const ringColor = isPossible ? "#059669" : resultTone === "conditional" ? "#D97706" : "#DC2626";
-  const scale = size / 104;
-  const strokeWidth = 7 * scale;
-  const r = 46 * scale;
-  const cx = size / 2;
-
-  return (
-    <div
-      className="relative shrink-0"
-      style={{ width: size, height: size }}
-    >
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <g transform={`rotate(-90 ${cx} ${cx})`}>
-          <circle cx={cx} cy={cx} r={r} fill="none" stroke="#E5E7EB" strokeWidth={strokeWidth} />
-          <circle
-            cx={cx}
-            cy={cx}
-            r={r}
-            fill="none"
-            stroke={ringColor}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={2 * Math.PI * r}
-            strokeDashoffset={2 * Math.PI * r * (1 - feasibilityScore / 100)}
-          />
-        </g>
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span
-          className={`flex items-center justify-center rounded-full ${
-            isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-          }`}
-          style={{ width: 20 * scale, height: 20 * scale }}
-        >
-          {isPossible ? <CheckCircle2 size={12 * scale} /> : <AlertTriangle size={12 * scale} />}
-        </span>
-        <strong
-          className="mt-0.5 font-black leading-none text-gray-900"
-          style={{ fontSize: 22 * scale }}
-        >
-          {feasibilityScore}%
-        </strong>
-        <span
-          className={`mt-0.5 font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}
-          style={{ fontSize: 10 * scale }}
-        >
-          {status}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// AI 진단 리포트 카드 — 가입 직후(2번째 화면)에만 노출. customerView만 사용, expertBrief는 여기서 절대 렌더링 안 함.
-// STEP10-6: AI 판단 근거 — 새 AI 호출 없이 기존 진단 결과(점수/체크리스트/상태)만으로
-// "왜 이렇게 판단했는지"를 2~3개의 짧은 문장으로 요약. DB/API/CRM 변경 없음.
-function buildAiReasonBullets(
-  feasibilityScore: number,
-  resultTone: "possible" | "conditional" | "impossible",
-  checklist: { label: string; passed: boolean }[],
-  estimatedDays: { min: number; max: number } | null
-): string[] {
-  const toneLabel =
-    resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
-  const bullets: string[] = [
-    `종합 판단 점수 ${feasibilityScore}%를 기준으로 '${toneLabel}' 단계로 분류했습니다.`,
-  ];
-
-  const failed = checklist.filter((c) => !c.passed);
-  if (failed.length > 0) {
-    const names = failed.slice(0, 2).map((c) => c.label).join(", ");
-    bullets.push(
-      failed.length > 2
-        ? `${names} 등 ${failed.length}개 항목이 아직 충족되지 않아 점수에 반영됐습니다.`
-        : `${names} 항목이 아직 충족되지 않아 점수에 반영됐습니다.`
-    );
-  } else {
-    bullets.push("입력하신 체크리스트 항목을 모두 충족하여 감점 요인이 없었습니다.");
-  }
-
-  if (estimatedDays) {
-    bullets.push(
-      `예상 처리기간 ${estimatedDays.min}~${estimatedDays.max}일은 유사 사례의 통상적인 소요 기간을 기준으로 산정했습니다.`
-    );
-  }
-
-  return bullets;
-}
-
-function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
-  const { feasibilityScore, resultTone, estimatedDays, checklist, note } =
-    diagnosis.customerView;
-  const aiReasonBullets = buildAiReasonBullets(
-    feasibilityScore,
-    resultTone,
-    checklist,
-    estimatedDays
-  );
-  const passedItems = checklist.filter((c) => c.passed).map((c) => c.label);
-  const metRequirementsText =
-    passedItems.length > 0
-      ? `${passedItems.join(", ")} 항목을 충족하셨습니다.`
-      : "현재 입력하신 정보 기준으로 충족된 항목이 없습니다.";
-  const processingTimeText = estimatedDays
-    ? `예상 처리기간은 ${estimatedDays.min}~${estimatedDays.max}일이며, 준비 서류와 관할 기관에 따라 달라질 수 있습니다.`
-    : null;
-  const aiReasonSections = [
-    { title: "✅ 기본 요건 충족", description: metRequirementsText },
-    { title: "⚠ 확인이 필요한 사항", description: aiReasonBullets[1] },
-    ...(processingTimeText
-      ? [{ title: "🕒 처리기간 판단", description: processingTimeText }]
-      : []),
-  ];
-  const toneLabel =
-    resultTone === "possible" ? "가능" : resultTone === "conditional" ? "조건부 가능" : "어려움";
-  const issueCount = checklist.filter((c) => !c.passed).length;
-  const boxBg = resultTone === "possible" ? "bg-emerald-50" : "bg-amber-50";
-  const boxText = resultTone === "possible" ? "text-emerald-800" : "text-amber-800";
-  const badgeBg = resultTone === "possible" ? "bg-emerald-100" : "bg-amber-100";
-  const badgeText = resultTone === "possible" ? "text-emerald-700" : "text-amber-700";
-
-  return (
-    <div className="rounded-2xl bg-gray-50 border border-gray-100 p-5">
-      <div className="flex items-center gap-3.5">
-        <ScoreGauge score={feasibilityScore} tone={resultTone} />
-        <div>
-          <p className="text-sm font-bold text-gray-900">{toneLabel}</p>
-          <p className="mt-0.5 text-xs text-gray-500">
-            {issueCount > 0 ? `발견된 문제 ${issueCount}건` : "확인된 문제 없음"}
-          </p>
-        </div>
-      </div>
-      <p className="mt-1.5 text-[11px] text-gray-400">
-        입력하신 정보 기준 AI 분석 결과입니다.
-      </p>
-
-      <div className="mt-4 space-y-2">
-        {checklist.map((item) => (
-          <div
-            key={item.label}
-            className={`flex items-center gap-2 text-xs ${
-              item.passed ? "text-gray-700" : boxText
+      <div className={expanded ? "block" : "hidden"}>
+        {/* 업로드 / 직접 입력 탭 */}
+        <div className="mt-3 inline-flex rounded-xl bg-gray-100 p-1">
+          <button
+            type="button"
+            onClick={() => onModeChange("upload")}
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              doc.inputMode === "upload" ? "bg-white text-blue-900 shadow-sm" : "text-gray-500"
             }`}
           >
-            <span
-              className={`w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                item.passed ? "bg-emerald-100 text-emerald-700" : `${badgeBg} ${badgeText}`
-              }`}
-            >
-              {item.passed ? "✓" : "!"}
-            </span>
-            {item.label}
-          </div>
-        ))}
-      </div>
-
-      {/* STEP10-4: 추천 분야 — AI가 분석한 분야를 고객에게 표시 */}
-      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-800">
-        추천 분야: 거주증
-      </div>
-
-      {estimatedDays && (
-        <div className="mt-4 rounded-xl bg-white px-4 py-2.5 text-xs text-gray-600">
-          예상 처리기간{" "}
-          <span className="font-bold text-gray-900">
-            {estimatedDays.min}~{estimatedDays.max}일
-          </span>
-          <p className="mt-1 text-[11px] text-gray-400">
-            준비 서류와 관할 기관에 따라 달라질 수 있습니다.
-          </p>
-        </div>
-      )}
-
-      {/* STEP10-8: AI 분석 근거 카드 UI 개선 — 파란 원형 AI 배지, 실제로 보이는 구분선(border-t),
-          체크리스트 기반 실제 요약 문구, 분석 기준 푸터. buildAiReasonBullets()는 "확인이 필요한 사항"에만
-          그대로 사용하며 함수 자체는 변경하지 않음. */}
-      <div className="mt-3 rounded-2xl bg-white border-2 border-blue-100 shadow-sm px-5 py-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-            AI
-          </span>
-          <p className="text-sm font-bold text-gray-900">AI 분석 근거</p>
-        </div>
-        <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500">
-          공개 법령·행정 기준·체크리스트를 종합하여 분석했습니다.
-        </p>
-        <div className="mt-4">
-          {aiReasonSections.map((section, idx) => (
-            <div
-              key={section.title}
-              className={idx === 0 ? "pb-4" : "border-t border-gray-200 py-4"}
-            >
-              <p className="text-xs font-bold text-gray-900">{section.title}</p>
-              <p className="mt-1.5 text-[11px] leading-relaxed text-gray-600">
-                {section.description}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-1 border-t border-gray-100 pt-3 text-[10px] text-gray-400">
-          분석 기준: 공개 법령 · 행정 기준 · 체크리스트 · 유사 사례
-        </p>
-      </div>
-
-      <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>
-        <p className="font-bold">💡 안내사항</p>
-        <p className="mt-1">{note}</p>
-      </div>
-    </div>
-  );
-}
-
-// AI 분석 결과 요약 — 기존 진단 데이터(점수/톤/체크리스트/예상기간)만으로
-// 2~3문장의 자연스러운 요약문을 구성. 새 점수 계산이나 진단 로직은 없음.
-function buildResultSummaryText(
-  resultTone: "possible" | "conditional" | "impossible",
-  checklist: { label: string; passed: boolean }[],
-  estimatedDays: { min: number; max: number } | null
-): string {
-  const toneText =
-    resultTone === "possible"
-      ? "높은"
-      : resultTone === "conditional"
-      ? "있으나 보완이 필요한"
-      : "낮은";
-  const failed = checklist.filter((c) => !c.passed);
-
-  const sentence1 = `입력하신 정보를 기준으로 거주증 발급 가능성은 ${toneText} 것으로 분석되었습니다.`;
-
-  let sentence2: string;
-  if (failed.length > 0) {
-    const names = failed.slice(0, 2).map((c) => c.label).join(", ");
-    sentence2 =
-      failed.length > 2
-        ? `${names} 등 ${failed.length}개 항목에서 보완이 필요한 것으로 확인되었으며, 현재 조건에 맞는 필수 서류 준비가 필요합니다.`
-        : `${names} 항목에서 보완이 필요한 것으로 확인되었으며, 현재 조건에 맞는 필수 서류 준비가 필요합니다.`;
-  } else {
-    sentence2 = "현재 입력하신 조건에서는 특별히 보완이 필요한 항목이 확인되지 않았습니다.";
-  }
-
-  const sentence3 = estimatedDays
-    ? `예상 처리기간은 약 ${estimatedDays.min}~${estimatedDays.max}일이며, 제출 전 서류를 다시 확인하는 것을 권장합니다.`
-    : "제출 전 서류를 다시 확인하는 것을 권장합니다.";
-
-  return `${sentence1} ${sentence2} ${sentence3}`;
-}
-
-// AI 분석 결과 요약 카드 — 기존 1~5번 결과 영역을 대체하지 않고 그 아래에 추가.
-// 흰 배경 · 얇은 테두리 · 작은 아이콘의 차분한 톤.
-function ResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
-  const { resultTone, checklist, estimatedDays } = diagnosis.customerView;
-  const summaryText = buildResultSummaryText(resultTone, checklist, estimatedDays);
-
-  return (
-    <div className="mt-3 rounded-2xl bg-white border border-gray-100 p-5">
-      <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-          AI
-        </span>
-        <p className="text-sm font-bold text-gray-900">AI 분석 결과 요약</p>
-      </div>
-      <p className="mt-3 text-sm leading-relaxed text-gray-700">{summaryText}</p>
-    </div>
-  );
-}
-
-// 다음 단계 선택 — 승인된 목업 기준 순서: AI 리포트 요청하기 → 전문가 진행하기
-// → 직접 진행하기. onSelf·onExpert는 기존 핸들러 그대로 재사용, 로직 변경 없음.
-// AI 리포트 버튼은 이번 단계에서 API·PDF·상담 페이지 어디와도 연결하지 않는다.
-function NextStepOptions({
-  onSelf,
-  onExpert,
-  officialUrl,
-}: {
-  onSelf: () => void;
-  onExpert: () => void;
-  officialUrl: string;
-}) {
-  return (
-    <div>
-      <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
-      <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) AI 리포트 요청하기 — "필수" 강조 (아직 연결 없음) */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
-            필수
-          </span>
-          <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 요청하기</p>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
-          </p>
-          <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
-          </ul>
-          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-blue-700">
-            아는 것과 모르는 것의 차이는 큽니다. 무료로 먼저 점검하세요.
-          </p>
-          <div className="mt-auto pt-4">
-            <button
-              type="button"
-              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
-            >
-              AI 리포트 요청하기
-            </button>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-              결과는 My Page에서 PDF로 다운로드할 수 있습니다.
-            </p>
-          </div>
-        </div>
-
-        {/* 2) 전문가 진행하기 — 가장 강한 파란색 CTA */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
-            추천
-          </span>
-          <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            최신 법령과 실제 제출 서류를 전문가가 최종 확인하여 안전하게
-            진행합니다.
-          </p>
-          <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 최신 법령 및 정책 확인</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 제출 서류 검토 및 보완 안내</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
-          </ul>
-          <div className="mt-auto pt-4">
-            <PrimaryButton onClick={onExpert}>
-              전문가 진행 요청하기
-            </PrimaryButton>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
-              전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수
-              있습니다.
-            </p>
-          </div>
-        </div>
-
-        {/* 3) 직접 진행하기 — 흰색 테두리, "신중" 주의 배지 */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
-            신중
-          </span>
-          <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            정부 공식 사이트에서 직접 신청할 수 있습니다.
-          </p>
-          <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 대행 비용 없이 직접 신청할 수 있습니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 베트남 행정 절차를 스스로 확인해야 합니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
-          </ul>
-          <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
-            개인 진행 시 신중하게 진행하셔야 합니다. 한 번 반려된 서류는
-            다시 제출할 때 더 까다롭게 검토될 수 있습니다.
-          </div>
-          <div className="mt-auto pt-4">
-            <a
-              href={officialUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={onSelf}
-              className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              정부 공식 사이트 이동 <ExternalLink size={13} />
-            </a>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-              신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PremiumLeadCapture({
-  tone,
-  diagnosis,
-  messengers,
-  submitting,
-  leadError,
-  consentOpen,
-  consentHighlight,
-  onConsentToggle,
-  onConsentChecked,
-  onSubmit,
-  onReset,
-}: {
-  tone: "possible" | "conditional";
-  diagnosis: DiagnosisResult | null;
-  messengers: typeof MESSENGERS_KO;
-  submitting: boolean;
-  leadError: string | null;
-  consentOpen: boolean;
-  consentHighlight: boolean;
-  onConsentToggle: () => void;
-  onConsentChecked: () => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  onReset: () => void;
-}) {
-  const isPossible = tone === "possible";
-  const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
-  const status = isPossible ? "가능성 높음" : "추가 확인 필요";
-
-  return (
-    <div>
-      {/* 3. WP 단순형 단일 카드 — 결과 + 입력폼 */}
-      <div
-        className={`mt-8 rounded-3xl border bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${
-          isPossible ? "border-gray-100" : "border-amber-100"
-        }`}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            {isPossible ? (
-              <CheckCircle2 className="text-emerald-600" size={28} />
-            ) : (
-              <AlertTriangle className="text-amber-600" size={28} />
-            )}
-
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              {isPossible ? "거주증 발급이 가능합니다" : "보완이 필요할 수 있습니다"}
-            </p>
-
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              {isPossible
-                ? "현재 입력하신 국적·비자유형·직책·회사형태 기준으로 거주증(TRC) 신청 요건을 충족합니다."
-                : "현재 조건만으로는 거주증(TRC) 발급이 자동으로 보장되지 않습니다. 추가 서류로 요건을 충족시킬 수 있는 경우가 많습니다."}
-            </p>
-          </div>
-
-          <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
-            <svg width="104" height="104" viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
-              <circle cx="52" cy="52" r="46" fill="none" stroke="#E5E7EB" strokeWidth="7" />
-              <circle
-                cx="52"
-                cy="52"
-                r="46"
-                fill="none"
-                stroke={isPossible ? "#059669" : "#D97706"}
-                strokeWidth="7"
-                strokeLinecap="round"
-                strokeDasharray={2 * Math.PI * 46}
-                strokeDashoffset={2 * Math.PI * 46 * (1 - score / 100)}
-              />
-            </svg>
-            <div className="relative flex flex-col items-center">
-              <span
-                className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                  isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-                }`}
-              >
-                {isPossible ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
-              </span>
-              <strong className="mt-0.5 text-[22px] font-black leading-none text-gray-900">{score}%</strong>
-              <span className={`mt-0.5 text-[10px] font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}>
-                {status}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <p className="mt-2 text-xs leading-relaxed text-gray-400">
-          * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다. 정확한
-          발급 가능 여부는 서류 검토 후 전문가 상담을 통해 확정됩니다.
-        </p>
-
-        {/* 4. 연한 초록(가능)/노랑(조건부) 안내 박스 */}
-        <div className="mt-4">
-          <NoticeCard tone={isPossible ? "success" : "warning"}>
-            이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를 바로
-            보여드립니다.
-          </NoticeCard>
-        </div>
-
-        {/* 5. 입력폼 — 기존 필드·name·검증·submit 로직 그대로 유지, 스타일만 WP 기준으로 단순화 */}
-        <form onSubmit={onSubmit} className="mt-5 space-y-3">
-          <input
-            type="text"
-            name="name"
-            required
-            placeholder="이름"
-            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-          />
-          <input
-            type="tel"
-            name="phone"
-            required
-            placeholder="전화번호"
-            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-          />
-          <input
-            type="text"
-            name="address"
-            required
-            placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-            className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-          />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input
-              type="text"
-              name="kakao_id"
-              placeholder={`${messengers.primary.label} ID (선택)`}
-              className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-            />
-            <input
-              type="text"
-              name="zalo_id"
-              placeholder={`${messengers.secondary.label} ID (선택)`}
-              className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="flex items-start gap-2 text-xs text-gray-600">
-              <input
-                type="checkbox"
-                name="agreeTerms"
-                onChange={(e) => {
-                  if (e.target.checked) onConsentChecked();
-                }}
-                className="mt-0.5"
-              />
-              <span>(필수) {CONSENT_SUMMARY}</span>
-            </label>
-            <ConsentDetails
-              open={consentOpen}
-              onToggle={onConsentToggle}
-              highlight={consentHighlight}
-            />
-          </div>
-
-          {leadError && <p className="text-xs text-red-600">{leadError}</p>}
-
-          <PrimaryButton
-            type="submit"
-            variant={isPossible ? "primary" : "amber"}
-            loading={submitting}
+            <Upload size={13} /> 파일 업로드
+          </button>
+          <button
+            type="button"
+            onClick={() => onModeChange("manual")}
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              doc.inputMode === "manual" ? "bg-white text-blue-900 shadow-sm" : "text-gray-500"
+            }`}
           >
-            {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
-          </PrimaryButton>
-        </form>
-
-        <div className="mt-3">
-          <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
+            <PenLine size={13} /> 직접 입력
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={onReset}
-          className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-        >
-          처음부터 다시 확인하기
-        </button>
+        <div className="mt-2.5">
+          {doc.inputMode === "upload" ? (
+            doc.uploading ? (
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-6 text-xs font-semibold text-blue-700">
+                <Loader2 size={16} className="animate-spin" /> 업로드 중...
+              </div>
+            ) : doc.file ? (
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3">
+                <div className="flex min-w-0 items-center gap-2">
+                  <Paperclip size={15} className="shrink-0 text-blue-700" />
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-semibold text-gray-900">{doc.file.name}</p>
+                    <p className="text-[11px] text-gray-500">{formatFileSize(doc.file.size)}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onFileClear}
+                  className="shrink-0 rounded-full p-1 text-gray-400 hover:bg-white hover:text-gray-600"
+                  aria-label="파일 삭제"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* PC 전용 — 파일 선택·드래그앤드롭 영역 */}
+                <label
+                  htmlFor={inputId}
+                  className="hidden cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-gray-300 bg-gray-50/60 px-4 py-6 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 lg:flex"
+                >
+                  <Upload size={20} className="text-gray-400" />
+                  <span className="text-xs font-semibold text-gray-600">파일 업로드</span>
+                  <span className="text-[11px] text-gray-400">JPG · PNG · PDF · DOC · DOCX</span>
+                  <span className="text-[11px] text-gray-400">최대 10MB</span>
+                </label>
+
+                {/* 모바일 전용 — 버튼형 업로드 UI */}
+                <label
+                  htmlFor={inputId}
+                  className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-center transition-colors hover:bg-gray-50 lg:hidden"
+                >
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900">
+                    <Upload size={15} /> 파일 업로드
+                  </span>
+                  <span className="text-[11px] text-gray-400">JPG · PNG · PDF · DOC · DOCX</span>
+                  <span className="text-[11px] text-gray-400">최대 10MB</span>
+                </label>
+
+                {doc.uploadError && (
+                  <p className="mt-1.5 text-[11px] text-red-600">{doc.uploadError}</p>
+                )}
+
+                <input
+                  id={inputId}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                  className="hidden"
+                  onChange={(e) => {
+                    onFileChange(e.target.files?.[0] ?? null);
+                    e.target.value = "";
+                  }}
+                />
+              </>
+            )
+          ) : isExtraDoc ? (
+            <div className="space-y-2.5">
+              <CompactTextField
+                label="제목"
+                placeholder="제출하시는 서류의 이름을 입력해주세요."
+                value={doc.title}
+                onChange={(e) => onTitleChange(e.target.value)}
+              />
+              <CompactTextAreaField
+                label="직접 입력 내용"
+                rows={3}
+                placeholder="서류 관련 정보를 자유롭게 입력해주세요."
+                value={doc.text}
+                onChange={(e) => onTextChange(e.target.value)}
+              />
+            </div>
+          ) : schema ? (
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {schema.map((f) =>
+                f.type === "select" ? (
+                  <SelectField
+                    key={f.key}
+                    label={f.label}
+                    value={doc.fields[f.key] ?? ""}
+                    onChange={(v) => onFieldChange(f.key, v)}
+                    options={f.options ?? []}
+                  />
+                ) : (
+                  <CompactTextField
+                    key={f.key}
+                    label={f.label}
+                    type={f.type === "date" ? "date" : "text"}
+                    value={doc.fields[f.key] ?? ""}
+                    onChange={(e) => onFieldChange(f.key, e.target.value)}
+                  />
+                )
+              )}
+            </div>
+          ) : (
+            <CompactTextAreaField
+              rows={3}
+              label="직접 입력"
+              placeholder="서류 번호, 발급일자 등 관련 정보를 직접 입력해주세요."
+              hint="사진이나 스캔본이 없어도 텍스트로 제출하실 수 있습니다."
+              value={doc.text}
+              onChange={(e) => onTextChange(e.target.value)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-export default function TrcCheckPage() {
+function DocumentUploadContent() {
+  const params = useSearchParams();
   const router = useRouter();
-  const [nationality, setNationality] = useState<Nationality>(null);
-  const [visa, setVisa] = useState<Visa>(null);
-  const [role, setRole] = useState<Role>(null);
-  const [company, setCompany] = useState<Company>(null);
-  const [leadSubmitted, setLeadSubmitted] = useState(false);
-  const [leadId, setLeadId] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [leadError, setLeadError] = useState<string | null>(null);
-  const [emailProvided, setEmailProvided] = useState(false);
-  const [consentOpen, setConsentOpen] = useState(false);
-  const [consentHighlight, setConsentHighlight] = useState(false);
-  const [agencyRequested, setAgencyRequested] = useState(false);
-  const [agencySaving, setAgencySaving] = useState(false);
-  const [agencyError, setAgencyError] = useState<string | null>(null);
-  const [detailStage, setDetailStage] = useState(false);
-  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
-  const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [rejectionStepDone, setRejectionStepDone] = useState(false);
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const rejectionRecordIdRef = useRef<string | null>(null);
-  const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
-  const messengers = MESSENGERS_KO;
-  const selfNotifySentRef = useRef(false);
+  const leadId = params.get("leadId");
+  const serviceParam = params.get("service");
+  const modeParam = params.get("mode");
+  const mode: SubmitMode = modeParam === "ai_report" ? "ai_report" : "expert";
 
-  const result: Result = computeTrcResultTone(visa, role, company);
-  const showResult = nationality && visa && role && company;
-  // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
-  // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
-  const resultScreenActive =
-    !!showResult &&
-    (result === "possible" || result === "conditional") &&
-    leadSubmitted &&
-    !agencyRequested &&
-    !detailStage;
+  const config = useMemo(() => getRequiredDocuments(serviceParam), [serviceParam]);
+  const copy = MODE_COPY[mode];
 
-  // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
-  // 화면에는 가입 직후(2번째 화면)부터 노출하지만, 계산 자체는 미리 해둔다.
-  useEffect(() => {
-    let cancelled = false;
-    if (showResult) {
-      getCheckDiagnosis({ service: "trc", visa, role, company }).then((res) => {
-        if (!cancelled) setDiagnosis(res);
+  const [docs, setDocs] = useState<DocState[]>(() => config.documents.map(createDocState));
+  const [submitted, setSubmitted] = useState(false);
+  const readyCount = docs.filter(isDocReady).length;
+  const totalCount = docs.length;
+  const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
+
+  // 마지막 순번에 추가되는 "추가 서류 (선택)" 카드 — 서비스별 필수 서류 목록(docs)과는
+  // 별개의 자유 제출용 카드라 기존 docs 배열/진행률 계산에는 포함하지 않는다.
+  const [extraDoc, setExtraDoc] = useState<DocState>(() => createDocState("추가 서류 (선택)"));
+
+  const scrollTopRef = useRef<HTMLDivElement>(null);
+
+  function updateDoc(index: number, patch: Partial<DocState>) {
+    setDocs((prev) => prev.map((d, i) => (i === index ? { ...d, ...patch } : d)));
+  }
+
+  // 실제 Supabase Storage("documents" 버킷, 기존 verify 페이지와 동일 버킷) 업로드.
+  // docs 배열 항목과 extraDoc(추가 서류) 모두 이 함수를 공유하고, applyPatch로 각자의
+  // state 조각만 갱신한다.
+  async function uploadDocumentFile(
+    file: File,
+    previousStoragePath: string | null,
+    applyPatch: (patch: Partial<DocState>) => void
+  ) {
+    const ext = getFileExtension(file);
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      applyPatch({
+        uploadError: "지원하지 않는 파일 형식입니다. JPG, PNG, PDF, DOC, DOCX 파일만 업로드할 수 있습니다.",
       });
-    } else {
-      setDiagnosis(null);
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [visa, role, company, showResult]);
-
-  // "네, 있습니다" 클릭 즉시 익명으로 저장 — 회원가입 여부와 무관하게 데이터가 남는다.
-  // 삽입 Promise를 ref에 저장해두고, "다음" 클릭 시 이 Promise가 끝날 때까지
-  // 기다린 뒤 사유를 업데이트한다 (빠르게 연속 클릭해도 순서가 꼬이지 않도록).
-  function recordRejectionAnonymously() {
-    const id = crypto.randomUUID();
-    pendingRejectionInsertRef.current = supabase
-      .from("previous_rejections")
-      .insert({
-        id,
-        service_type: "trc",
-        source_page: "/check/trc",
-        reason: null,
-      })
-      .then(({ error }) => {
-        if (error) {
-          console.error("previous_rejections insert failed:", error);
-          return;
-        }
-        rejectionRecordIdRef.current = id;
-      });
-  }
-
-  // 사유를 입력하고 "다음"을 누른 시점에 — 저장이 아직 끝나지 않았으면 먼저 기다린 뒤 —
-  // 사유를 업데이트하고 다음 질문으로 진행.
-  async function finalizeRejectionStep() {
-    if (pendingRejectionInsertRef.current) {
-      await pendingRejectionInsertRef.current;
-    }
-    const id = rejectionRecordIdRef.current;
-    if (id && rejectionReason.trim()) {
-      const { error } = await supabase
-        .from("previous_rejections")
-        .update({ reason: rejectionReason.trim() })
-        .eq("id", id);
-      if (error) console.error("previous_rejections reason update failed:", error);
-    }
-    setRejectionStepDone(true);
-  }
-
-  // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
-  function handleSelfPortalClick() {
-    if (!leadId || selfNotifySentRef.current) return;
-    selfNotifySentRef.current = true;
-    fetch("/api/agency-confirm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ leadId, type: "self" }),
-    }).catch((err) => {
-      console.error("self-notify email trigger failed:", err);
-    });
-  }
-
-  function reset() {
-    setNationality(null);
-    setVisa(null);
-    setRole(null);
-    setCompany(null);
-    setLeadSubmitted(false);
-    setLeadId(null);
-    setLeadError(null);
-    setEmailProvided(false);
-    setConsentOpen(false);
-    setConsentHighlight(false);
-    setAgencyRequested(false);
-    setAgencySaving(false);
-    setAgencyError(null);
-    setDetailStage(false);
-    setDiagnosis(null);
-    setPreviousRejection(null);
-    setRejectionReason("");
-    setRejectionStepDone(false);
-    setSelectedKey(null);
-    rejectionRecordIdRef.current = null;
-    pendingRejectionInsertRef.current = null;
-  }
-
-  async function handleAgencyRequest() {
-    if (!leadId) return;
-    setAgencySaving(true);
-    setAgencyError(null);
-    try {
-      const { error } = await supabase.from("crm_activities").insert({
-        lead_id: leadId,
-        action: "agency_upgrade_request",
-        tag: "TRC",
-      });
-      if (error) throw error;
-
-      try {
-        await fetch("/api/agency-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId }),
-        });
-      } catch (emailErr) {
-        console.error("agency-confirm email trigger failed:", emailErr);
-      }
-
-      setAgencyRequested(true);
-    } catch {
-      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setAgencySaving(false);
-    }
-  }
-
-  async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-
-    if (fd.get("agreeTerms") !== "on") {
-      setConsentOpen(true);
-      setConsentHighlight(true);
       return;
     }
-    setConsentHighlight(false);
-
-    setSubmitting(true);
-    setLeadError(null);
-
-    const leadId = crypto.randomUUID();
-    const name = String(fd.get("name") || "");
-    const phone = String(fd.get("phone") || "");
-    const address = String(fd.get("address") || "");
-    const email = (fd.get("email") as string) || "";
-    const kakaoId = (fd.get("kakao_id") as string) || null;
-    const zaloId = (fd.get("zalo_id") as string) || null;
-
-    const { error } = await supabase.from("leads").insert({
-      id: leadId,
-      name,
-      phone,
-      address,
-      email: email || null,
-      kakao_id: kakaoId,
-      zalo_id: zaloId,
-      service_type: "trc",
-      result: result,
-      source_page: "/check/trc",
-    });
-
-    if (error) {
-      console.error(error);
-      setLeadError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      setSubmitting(false);
+    if (file.size > MAX_UPLOAD_BYTES) {
+      applyPatch({ uploadError: "파일 크기는 최대 10MB까지 업로드할 수 있습니다." });
+      return;
+    }
+    if (!leadId) {
+      applyPatch({ uploadError: "접수 정보가 없어 업로드할 수 없습니다. 처음부터 다시 시도해주세요." });
       return;
     }
 
-    // expertBrief(전문가용 상세 진단)를 meta에 저장 — 향후 어드민 화면에서 활용
-    await supabase.from("crm_activities").insert({
-      lead_id: leadId,
-      action: "trc_diagnosis_lead",
-      tag: "TRC",
-      meta: diagnosis
-        ? {
-            feasibilityScore: diagnosis.customerView.feasibilityScore,
-            expertBrief: diagnosis.expertBrief,
-            previousRejection:
-              previousRejection === true
-                ? { rejected: true, reason: rejectionReason || null }
-                : previousRejection === false
-                ? { rejected: false }
-                : null,
-          }
-        : null,
+    applyPatch({ file, uploading: true, uploadError: null });
+
+    // ── 진단 전용 로그 (이번 작업 범위) — 화면 동작·에러 메시지에는 영향 없음 ──
+    // 1) 사용 중인 Storage Bucket 이름 / 2) Bucket 실제 존재 여부 / 3) 업로드 path
+    // 7) Supabase 인증 상태 / 8) 환경변수 존재 여부
+    console.log("[document-upload][diagnostic] bucket:", STORAGE_BUCKET);
+    console.log("[document-upload][diagnostic] env check:", {
+      NEXT_PUBLIC_SUPABASE_URL_present: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      NEXT_PUBLIC_SUPABASE_URL_value: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY_present: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    });
+    try {
+      const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+      console.log(
+        "[document-upload][diagnostic] auth session:",
+        sessionData?.session ? `authenticated (user id: ${sessionData.session.user.id})` : "anonymous (no session)",
+        sessionErr ? { sessionErr } : ""
+      );
+    } catch (sessionCatchErr) {
+      console.error("[document-upload][diagnostic] auth.getSession() threw:", sessionCatchErr);
+    }
+    try {
+      const { data: listData, error: listErr } = await supabase.storage.from(STORAGE_BUCKET).list("", { limit: 1 });
+      console.log(
+        "[document-upload][diagnostic] bucket list() check — exists/readable:",
+        !listErr,
+        "sample:",
+        listData,
+        listErr ? { listErr } : ""
+      );
+    } catch (listCatchErr) {
+      console.error("[document-upload][diagnostic] storage.list() threw:", listCatchErr);
+    }
+    // ── 진단 전용 로그 끝 ──
+
+    // 같은 문서 칸에 다시 업로드(교체)하는 경우, 이전 파일을 Storage에서 먼저 정리한다.
+    if (previousStoragePath) {
+      await supabase.storage.from(STORAGE_BUCKET).remove([previousStoragePath]).catch(() => {});
+    }
+
+    const storagePath = `${STORAGE_PREFIX}/${leadId}/${crypto.randomUUID()}.${ext}`;
+    console.log("[document-upload][diagnostic] upload path:", storagePath, "file:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
     });
 
-    try {
-      const res = await fetch("/api/lead-submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, name, phone, email, address }),
+    const { data: uploadData, error: uploadErr } = await supabase.storage.from(STORAGE_BUCKET).upload(storagePath, file);
+    if (uploadErr) {
+      // 4) upload() 반환 error 전체 출력 / 5) 실제 error.message, error.code 출력
+      console.error("[document-upload][diagnostic] upload() error (raw object):", uploadErr);
+      console.error("[document-upload][diagnostic] error.message:", uploadErr.message);
+      console.error("[document-upload][diagnostic] error.name:", uploadErr.name);
+      console.error(
+        "[document-upload][diagnostic] error (all enumerable + non-enumerable fields):",
+        JSON.stringify(uploadErr, Object.getOwnPropertyNames(uploadErr))
+      );
+      applyPatch({
+        file: null,
+        fileUrl: null,
+        storagePath: null,
+        uploading: false,
+        uploadError: "업로드 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
       });
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-        console.error("lead-submit API error:", errBody);
-      }
-    } catch (apiErr) {
-      console.error("lead-submit fetch failed:", apiErr);
+      return;
     }
+    console.log("[document-upload][diagnostic] upload() success data:", uploadData);
 
-    // 익명으로 미리 저장해둔 거절 이력 기록이 있으면 이번 리드와 연결
-    // (저장이 아직 진행 중일 수 있으므로 먼저 기다린다)
-    if (pendingRejectionInsertRef.current) {
-      await pendingRejectionInsertRef.current;
-    }
-    if (rejectionRecordIdRef.current) {
-      try {
-        await supabase
-          .from("previous_rejections")
-          .update({ linked_lead_id: leadId })
-          .eq("id", rejectionRecordIdRef.current);
-      } catch (linkErr) {
-        console.error("previous_rejections link failed:", linkErr);
-      }
-    }
+    const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
+    applyPatch({
+      file,
+      fileUrl: urlData.publicUrl,
+      storagePath,
+      uploading: false,
+      uploadError: null,
+    });
+  }
 
-    saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
-    setEmailProvided(!!email);
-    setLeadId(leadId);
-    setSubmitting(false);
-    setLeadSubmitted(true);
+  async function deleteDocumentFile(storagePath: string | null, applyPatch: (patch: Partial<DocState>) => void) {
+    applyPatch({ file: null, fileUrl: null, storagePath: null, uploadError: null });
+    if (!storagePath) return;
+    const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
+    if (error) console.error("document delete failed:", error);
+  }
+
+  function handleDocFileSelect(index: number, file: File | null) {
+    if (!file) return;
+    const previousStoragePath = docs[index]?.storagePath ?? null;
+    void uploadDocumentFile(file, previousStoragePath, (patch) => updateDoc(index, patch));
+  }
+
+  function handleDocFileClear(index: number) {
+    const storagePath = docs[index]?.storagePath ?? null;
+    void deleteDocumentFile(storagePath, (patch) => updateDoc(index, patch));
+  }
+
+  function handleExtraFileSelect(file: File | null) {
+    if (!file) return;
+    void uploadDocumentFile(file, extraDoc.storagePath, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
+  }
+
+  function handleExtraFileClear() {
+    void deleteDocumentFile(extraDoc.storagePath, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
+  }
+
+  function handleSubmit() {
+    setSubmitted(true);
+    scrollTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleReset() {
+    setDocs(config.documents.map(createDocState));
+    setExtraDoc(createDocState("추가 서류 (선택)"));
+    setSubmitted(false);
   }
 
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
-        {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
-        <Link
-          href="/"
-          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
-        >
-          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
+      <div ref={scrollTopRef} className="mx-auto max-w-4xl px-6 py-10 pb-32 lg:pb-10">
+        {/* 모바일 전용 브랜드 헤더 — 좌측 "← 홈으로", 로고+브랜드명은 중앙 정렬 */}
+        <div className="relative -mx-6 -mt-10 mb-4 flex items-center justify-center border-b border-gray-100 bg-white px-4 py-3 lg:hidden">
+          <Link
+            href="/"
+            aria-label="홈으로"
+            className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-500"
+          >
             <ArrowLeft size={14} /> 홈으로
-          </span>
-          <img
-            src="/vfbcai-shield-logo.png"
-            alt="VFBCAI"
-            width={34}
-            height={34}
-            className="shrink-0"
-          />
-          <div>
-            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
-            <p className="text-[11px] leading-tight text-gray-400">베트남 행정전문 AI</p>
-          </div>
-        </Link>
-
-        {/* 데스크톱 전용 — 기존 텍스트 링크 */}
-        <Link
-          href="/"
-          className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex"
-        >
-          <ArrowLeft size={14} /> 홈으로
-        </Link>
-
-        <div className="mt-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              직접확인하기 · 베트남 행정전문 AI
-            </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-              거주증 (TRC) 가능성 진단
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              국적·비자·직책·회사 형태에 따라 거주증 발급 가능 여부가 달라집니다.
-            </p>
-          </div>
-
-          {/* 모바일 전용 — 결과 화면 단계에서만 우측 상단에 원형 점수표 표시 */}
-          {resultScreenActive && diagnosis && (
-            <div className="shrink-0 sm:hidden">
-              <ResultHeaderGauge diagnosis={diagnosis} size={76} />
+          </Link>
+          <div className="flex items-center gap-2">
+            <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={32} height={32} className="shrink-0" />
+            <div>
+              <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
+              <p className="text-[10px] leading-tight text-gray-400">Check. Verify. Register. Protect.</p>
             </div>
-          )}
+          </div>
         </div>
 
-        {!rejectionStepDone && (
-          <div className="mt-8">
-            <QuestionSection
-              step={1}
-              title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
-            >
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <SelectionCard
-                  title="네, 있습니다"
-                  selected={previousRejection === true}
-                  tone="amber"
-                  onClick={() => {
-                    setPreviousRejection(true);
-                    recordRejectionAnonymously();
-                  }}
-                />
-                <SelectionCard
-                  title="아니요"
-                  selected={previousRejection === false}
-                  tone="blue"
-                  onClick={() => {
-                    setPreviousRejection(false);
-                    setRejectionStepDone(true);
-                  }}
-                />
-              </div>
-            </QuestionSection>
+        {/* PC 전용 — 로고+브랜드명(좌) / 홈으로 버튼(우) */}
+        <div className="hidden items-center justify-between lg:flex">
+          <div className="flex items-center gap-2.5">
+            <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={30} height={30} className="shrink-0" />
+            <div>
+              <p className="text-lg font-bold leading-tight text-gray-900">VFBCAI</p>
+              <p className="text-[11px] leading-tight text-gray-400">Check. Verify. Register. Protect.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+          >
+            <ArrowLeft size={13} /> 홈으로
+          </button>
+        </div>
 
-            {previousRejection === true && (
-              <div className="mt-4">
-                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    AI
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">
-                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
-                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
-                      작성해주세요. 작성할수록 진단 정확도가 높아집니다.
-                    </p>
+        {!submitted && (
+          <>
+            {/* 아이콘 + 서비스명 + 설명 */}
+            <div className="mt-6 flex items-start gap-3.5 lg:mt-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-900 lg:h-12 lg:w-12">
+                <FileText className="text-white" size={26} />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold tracking-tight text-gray-900 lg:text-xl">
+                  {config.serviceLabel} · {copy.badgeLabel}
+                </h1>
+                <p className="mt-1 text-xs text-gray-500">{copy.description}</p>
+                {leadId && (
+                  <p className="mt-1 text-[11px] text-gray-300">접수번호 {leadId.slice(0, 8)}</p>
+                )}
+              </div>
+            </div>
+
+            {/* 신뢰 항목 — 모바일 2개(한 줄), PC 3개(기존 유지) */}
+            <div className="mt-5 grid grid-cols-2 gap-2 lg:hidden">
+              {MOBILE_TRUST_ITEMS.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-2.5 py-2"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50">
+                    <item.icon size={13} className="text-blue-700" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-[11px] font-bold text-gray-900">{item.label}</p>
+                    <p className="truncate text-[10px] text-gray-400">{item.sub}</p>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <textarea
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder={
-                    "예)\n- 노동허가가 거절되었습니다.\n- 범죄경력증명서 문제라고 들었습니다.\n- 회사 자본금이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
-                  }
-                  rows={6}
-                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
+            <div className="mt-4 hidden lg:grid lg:grid-cols-3 lg:gap-2.5">
+              {TRUST_ITEMS.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50">
+                    <item.icon size={13} className="text-blue-700" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-gray-900">{item.label}</p>
+                    <p className="text-[11px] text-gray-400">{item.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 전체 제출 진행률 */}
+            <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-4 lg:mt-4 lg:p-3.5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-bold text-gray-900">제출 진행률</p>
+                <p className="shrink-0 text-xs font-semibold text-gray-400">{progressPercent}%</p>
+              </div>
+              <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100 lg:mt-2">
+                <div
+                  className="h-full rounded-full bg-blue-900 transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
                 />
-                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
-                  높이는 데 활용됩니다.
-                </p>
-
-                <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
-                  다음
-                </PrimaryButton>
               </div>
-            )}
-          </div>
-        )}
-
-        {rejectionStepDone && !showResult && (
-          <>
-            {!nationality && (
-              <div className="mt-8">
-                <QuestionSection step={2} title="국적이 어떻게 되시나요?">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {[
-                      { key: "korea", label: "대한민국", desc: "가장 많이 선택되는 국적입니다." },
-                      { key: "china", label: "중국", desc: "중국 국적 신청자에게 적용됩니다." },
-                      { key: "japan", label: "일본", desc: "일본 국적 신청자에게 적용됩니다." },
-                      { key: "other", label: "기타 국가", desc: "위 국가에 해당하지 않는 경우입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setNationality(opt.key as Nationality);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setRejectionStepDone(false);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
-
-            {nationality && !visa && (
-              <div className="mt-8">
-                <QuestionSection step={3} title="현재 어떤 비자를 소지하고 있나요?">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {[
-                      { key: "invest", label: "투자비자 (DT)", desc: "출자·투자 목적으로 발급된 비자입니다." },
-                      { key: "work", label: "노동허가부 비자 (LD)", desc: "노동허가 취득을 완료한 경우입니다." },
-                      { key: "tourist", label: "관광·단기비자 (DL 등)", desc: "단기 체류 목적으로 발급된 비자입니다." },
-                      { key: "other", label: "기타 비자", desc: "위 항목에 해당하지 않는 경우입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setVisa(opt.key as Visa);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setNationality(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
-
-            {nationality && visa && !role && (
-              <div className="mt-8">
-                <QuestionSection step={4} title="회사 내 직책이 어떻게 되시나요?">
-                  <div className="grid grid-cols-1 gap-3">
-                    {[
-                      { key: "legal-rep", label: "법인장 · 법정대표자", desc: "법인의 대표 권한을 가진 경우입니다." },
-                      { key: "manager", label: "매니저 · 관리직", desc: "관리 업무를 담당하는 경우입니다." },
-                      { key: "staff", label: "일반 직원", desc: "일반 실무를 담당하는 경우입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setRole(opt.key as Role);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setVisa(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
-
-            {nationality && visa && role && !company && (
-              <div className="mt-8">
-                <QuestionSection step={5} title="소속 회사의 법인 형태는 무엇인가요?">
-                  <div className="grid grid-cols-1 gap-3">
-                    {[
-                      { key: "fdi", label: "외국인투자법인 (FDI)", desc: "외국인 투자 지분이 있는 법인입니다." },
-                      { key: "local", label: "현지 법인", desc: "베트남 현지 자본으로 설립된 법인입니다." },
-                      { key: "unregistered", label: "아직 미등록 · 준비 중", desc: "법인 등록 절차가 아직 진행 중입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setCompany(opt.key as Company);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setRole(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
+              <p className="mt-3 text-xl font-bold text-blue-900 lg:mt-2.5 lg:text-lg">
+                {readyCount} / {totalCount} <span className="text-sm font-semibold text-gray-500">완료</span>
+              </p>
+              <p className="mt-0.5 text-xs text-gray-400">총 {totalCount}개 문서 필요</p>
+            </div>
           </>
         )}
 
-
-        {/* 1번째 화면 (가입 전) — Premium SaaS lead capture */}
-        {showResult && result === "possible" && !leadSubmitted && (
-          <PremiumLeadCapture
-            tone="possible"
-            diagnosis={diagnosis}
-            messengers={messengers}
-            submitting={submitting}
-            leadError={leadError}
-            consentOpen={consentOpen}
-            consentHighlight={consentHighlight}
-            onConsentToggle={() => setConsentOpen((v) => !v)}
-            onConsentChecked={() => setConsentHighlight(false)}
-            onSubmit={handleLeadSubmit}
-            onReset={reset}
-          />
-        )}
-
-        {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/전문가 진행요청 선택 */}
-        {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              거주증(TRC) · AI 분석 리포트
-            </p>
-
-            {diagnosis && (
-              <ResultOverviewCards diagnosis={diagnosis} docCount={TRC_REQUIRED_DOCUMENTS.length} />
-            )}
-
-            {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
-
-            <NextStepOptions
-              onSelf={handleSelfPortalClick}
-              onExpert={() => router.push(`/documents?leadId=${leadId}&service=trc&mode=expert`)}
-              officialUrl={TRC_OFFICIAL_URL}
-            />
-            <p className="mt-2 text-[11px] text-gray-400">
-              공안부 공공서비스포털의 거주증(TRC) 발급 절차 안내 페이지로
-              이동합니다. 구비서류·수수료·처리기간을 확인하실 수 있습니다.
-            </p>
-
-            <button
-              onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
-          </div>
-        )}
-
-        {showResult && (result === "possible" || result === "conditional") && leadSubmitted && !agencyRequested && detailStage && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              거주증(TRC) 진행 서류 및 절차
-            </p>
-
-            <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-              ⏱ 직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
-              달라 정확한 정보를 찾기 어렵고, 서류 준비 실수로
-              반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
-              혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
-              요청하세요.
-            </div>
-
-            <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
-              <p className="text-xs font-semibold text-gray-700">
-                거주증(TRC) 신청에 필요한 서류
+        {submitted ? (
+          mode === "expert" ? (
+            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex justify-center">
+                <img
+                  src="/vfbc-seal.png"
+                  alt="VFBCAI 접수완료 확인 도장"
+                  width={140}
+                  height={140}
+                />
+              </div>
+              <p className="mt-1 text-[10px] italic text-gray-400">
+                Vietnam Foreign Business Verification &amp; Compliance AI Center
               </p>
-              <ul className="mt-2 space-y-1">
-                <li className="text-xs text-gray-600 pl-1">
-                  · 여권 사본 (인적사항 페이지)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">· 현재 비자 사본</li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 재직증명서 또는 노동계약서
-                </li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 회사 사업자등록증 사본
-                </li>
-              </ul>
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">접수 완료</h2>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                전문가 진행 요청이 정상적으로 접수되었습니다.
+                <br />
+                제출하신 서류를 담당 전문가가 확인한 후 곧 연락드리겠습니다.
+                <br />
+                <br />
+                <span className="mx-auto block max-w-[240px] break-keep text-pretty leading-relaxed lg:max-w-none">
+                  카카오톡 · Zalo · 이메일로 진행 안내를 보내드립니다.
+                </span>
+              </p>
+
+              <div className="mt-6 space-y-2.5 lg:mx-auto lg:max-w-sm">
+                <button
+                  type="button"
+                  onClick={() => router.push("/mypage")}
+                  className="flex h-11 w-full items-center justify-center rounded-xl bg-blue-900 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-950 hover:shadow-md"
+                >
+                  My Page에서 진행상황 확인하기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/")}
+                  className="flex h-11 w-full items-center justify-center rounded-xl border border-blue-900 bg-white text-sm font-semibold text-blue-900 transition-all duration-200 hover:bg-blue-50"
+                >
+                  홈으로
+                </button>
+              </div>
+
+              <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-gray-400">
+                <Lock size={12} className="mt-0.5 shrink-0" />
+                <span>제출하신 자료는 안전하게 암호화되어 담당 전문가만 확인할 수 있습니다.</span>
+              </div>
+
+              {/*
+                TODO:
+                - 이메일 접수 완료 알림 발송
+                - 카카오톡 접수 완료 알림 발송
+                - Zalo 접수 완료 알림 발송
+                - My Page 진행상황 자동 연결
+              */}
             </div>
+          ) : (
+            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
+                <CheckCircle2 className="text-emerald-600" size={28} />
+              </div>
+              <p className="mt-4 text-lg font-bold text-gray-900">{copy.successTitle}</p>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">{copy.successBody}</p>
+              <button
+                onClick={handleReset}
+                className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
+              >
+                다시 작성하기
+              </button>
+            </div>
+          )
+        ) : (
+          <div className="mt-6 lg:grid lg:grid-cols-[1fr_280px] lg:items-start lg:gap-5">
+            {/* 좌측 — 문서 카드 목록 */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-base font-bold text-gray-900">필요한 문서</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  모든 문서는 선택 사항입니다. 보유하신 자료로만 제출해주세요.
+                </p>
+              </div>
 
-            <p className="mt-4 text-sm font-bold text-gray-900">
-              정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
-              상의하세요.
-            </p>
+              {docs.map((doc, i) => (
+                <DocumentCard
+                  key={doc.label}
+                  index={i}
+                  doc={doc}
+                  onModeChange={(inputMode) => updateDoc(i, { inputMode })}
+                  onFileChange={(file) => handleDocFileSelect(i, file)}
+                  onFileClear={() => handleDocFileClear(i)}
+                  onTextChange={(text) => updateDoc(i, { text })}
+                  onTitleChange={(title) => updateDoc(i, { title })}
+                  onFieldChange={(key, value) =>
+                    setDocs((prev) =>
+                      prev.map((d, idx) => (idx === i ? { ...d, fields: { ...d.fields, [key]: value } } : d))
+                    )
+                  }
+                />
+              ))}
 
-            {agencyError && (
-              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
-            )}
-            <p className="mb-2 text-xs text-gray-500 leading-relaxed">
-              직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
-            </p>
-            <button
-              onClick={handleAgencyRequest}
-              disabled={agencySaving}
-              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
-            >
-              {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
-            </button>
-            <p className="mt-2 text-[11px] text-gray-400">
-              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
-            </p>
-
-            <button
-              onClick={() => setDetailStage(false)}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              ← 간단 목록으로 돌아가기
-            </button>
-          </div>
-        )}
-
-        {showResult && (result === "possible" || result === "conditional") && agencyRequested && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex justify-center">
-              <img
-                src="/vfbc-seal.png"
-                alt="VFBCAI 접수완료 확인 도장"
-                width={160}
-                height={160}
+              <DocumentCard
+                index={docs.length}
+                doc={extraDoc}
+                onModeChange={(inputMode) => setExtraDoc((prev) => ({ ...prev, inputMode }))}
+                onFileChange={handleExtraFileSelect}
+                onFileClear={handleExtraFileClear}
+                onTextChange={(text) => setExtraDoc((prev) => ({ ...prev, text }))}
+                onTitleChange={(title) => setExtraDoc((prev) => ({ ...prev, title }))}
+                onFieldChange={(key, value) =>
+                  setExtraDoc((prev) => ({ ...prev, fields: { ...prev.fields, [key]: value } }))
+                }
               />
-            </div>
-            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
-              Vietnam Foreign Business Verification &amp; Compliance AI Center
-            </p>
-            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-              전문가 진행요청이 접수되었습니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
-              {messengers.primary.label}/{messengers.secondary.label}로
-              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
-            </p>
 
-            {emailProvided && (
-              <p className="mt-2 text-[11px] text-gray-400">
-                메시지가 오지 않으면 이메일도 함께 확인해주세요.
-              </p>
-            )}
-
-            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-              자동 생성되며, 마이페이지에서 언제든 변경하실 수
-              있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-              함께 이용하실 수 있습니다.
+              <NoticeCard tone="warning" className="mt-2">
+                <span className="block">
+                  · 제출서류는 신청 유형 및 관할기관에 따라 달라질 수 있습니다.
+                </span>
+                <span className="block">
+                  · 한국에서 발급된 일부 문서는 번역·공증 또는 영사 절차가 필요한 경우가
+                  있습니다.
+                </span>
+                <span className="block">
+                  · 베트남 행정 절차는 변경될 수 있으므로 최신 기준은 전문가와 확인하시기
+                  바랍니다.
+                </span>
+              </NoticeCard>
             </div>
 
-            <button
-              onClick={reset}
-              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
-          </div>
-        )}
+            {/* 우측 — 제출 현황 Sticky 카드 (PC 전용) */}
+            <div className="mt-6 hidden lg:sticky lg:top-6 lg:mt-0 lg:block">
+              <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                <p className="text-sm font-bold text-gray-900">제출 현황</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  {totalCount}개 문서 필요
+                </p>
+                <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-blue-900 transition-all duration-300"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  {readyCount} / {totalCount} 개 완료
+                </p>
 
-        {/* 조건부 가능 — 1번째 화면 (가입 전, Premium SaaS lead capture) */}
-        {showResult && result === "conditional" && !leadSubmitted && (
-          <PremiumLeadCapture
-            tone="conditional"
-            diagnosis={diagnosis}
-            messengers={messengers}
-            submitting={submitting}
-            leadError={leadError}
-            consentOpen={consentOpen}
-            consentHighlight={consentHighlight}
-            onConsentToggle={() => setConsentOpen((v) => !v)}
-            onConsentChecked={() => setConsentHighlight(false)}
-            onSubmit={handleLeadSubmit}
-            onReset={reset}
-          />
-        )}
+                <ul className="mt-3 space-y-1.5">
+                  {docs.map((doc) => (
+                    <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
+                      {isDocReady(doc) ? (
+                        <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                      ) : (
+                        <Circle size={14} className="shrink-0 text-gray-300" />
+                      )}
+                      <span className="truncate">{doc.label}</span>
+                    </li>
+                  ))}
+                </ul>
 
-        {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 + 직접등록/전문가 진행요청 선택) */}
-        {showResult && result === "conditional" && leadSubmitted && !agencyRequested && !detailStage && (
-          <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              거주증(TRC) · AI 분석 리포트
-            </p>
+                <div className="mt-3 space-y-2.5 border-t border-gray-100 pt-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <FileText size={14} className="shrink-0 text-gray-400" />
+                    <div>
+                      <p className="text-gray-400">신청 서비스</p>
+                      <p className="font-semibold text-gray-800">{config.serviceLabel}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Send size={14} className="shrink-0 text-gray-400" />
+                    <div>
+                      <p className="text-gray-400">신청 방식</p>
+                      <p className="font-semibold text-gray-800">{copy.badgeLabel}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock size={14} className="shrink-0 text-gray-400" />
+                    <div>
+                      <p className="text-gray-400">예상 제출시간</p>
+                      <p className="font-semibold text-gray-800">약 3분</p>
+                    </div>
+                  </div>
+                </div>
 
-            {diagnosis && (
-              <ResultOverviewCards diagnosis={diagnosis} docCount={TRC_REQUIRED_DOCUMENTS.length} />
-            )}
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0" />
-              현재 조건으로는 자격 요건이 완전히 충족되지 않아, 직접
-              진행하실 경우 서류 준비나 절차에서 어려움을 겪으실 가능성이
-              높습니다. 그래도 직접 진행을 원하신다면 아래에서 선택하실 수
-              있습니다.
+                <div className="mt-4">
+                  <PrimaryButton onClick={handleSubmit}>{copy.submitLabel}</PrimaryButton>
+                  <div className="mt-3 space-y-1 text-center text-sm leading-relaxed text-gray-600">
+                    <p className="flex items-center justify-center gap-1.5 font-semibold text-gray-800">
+                      <Lock size={14} className="shrink-0 text-gray-500" />
+                      개인정보는 안전하게 보호됩니다.
+                    </p>
+                    <p>담당 전문가만 제출자료를 확인합니다.</p>
+                    <p>카카오톡 · Zalo · 이메일로 안내드립니다.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
-
-            <NextStepOptions
-              onSelf={handleSelfPortalClick}
-              onExpert={() => router.push(`/documents?leadId=${leadId}&service=trc&mode=expert`)}
-              officialUrl={TRC_OFFICIAL_URL}
-            />
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-              자동 생성되며, 마이페이지에서 언제든 변경하실 수
-              있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-              함께 이용하실 수 있습니다.
-            </div>
-
-            <Link
-              href="/consultation?case=trc-conditional"
-              className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:underline"
-            >
-              메시지 기다리지 않고 지금 상담하기
-            </Link>
-            <button
-              onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
-          </div>
-        )}
-
-        {showResult && result === "impossible" && (
-          <div className="mt-8 rounded-3xl bg-white border border-red-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <XCircle className="text-red-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              현재 상태로는 거주증 발급이 어렵습니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              법인이 아직 등록되지 않은 상태에서는 거주증 신청 자체가
-              불가능합니다. 먼저 법인설립(IRC/ERC) 절차를 진행해야 합니다.
-            </p>
-            <Link
-              href="/register/company"
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
-            >
-              법인설립 절차 확인하기
-            </Link>
-            <button
-              onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
           </div>
         )}
       </div>
+
+      {/* 모바일 전용 — 하단 고정 CTA */}
+      {!submitted && (
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] lg:hidden">
+          <div className="mx-auto max-w-5xl text-center">
+            <p className="text-sm font-bold text-gray-900">
+              {readyCount} / {totalCount} 개 완료
+            </p>
+            <div className="mt-3">
+              <PrimaryButton onClick={handleSubmit}>{copy.submitLabel}</PrimaryButton>
+            </div>
+            <div className="mt-2 flex items-center justify-center gap-1 text-[11px] text-gray-400">
+              <Lock size={11} />
+              <span>{copy.submitCaption}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
+  );
+}
+
+export default function DocumentUploadPage() {
+  return (
+    <Suspense fallback={null}>
+      <DocumentUploadContent />
+    </Suspense>
   );
 }
