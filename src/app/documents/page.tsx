@@ -761,54 +761,83 @@ function DocumentUploadContent() {
 
   async function deleteDocumentFile(doc: DocState, applyPatch: (patch: Partial<DocState>) => void) {
     if (doc.deleting) return; // 중복 클릭 방지
-    if (!doc.storagePath) return; // 지울 파일이 없으면 아무 것도 하지 않음
+    if (!doc.storagePath) return; // 지울 파일이 없으면 아무 것도 하지 않음(Storage remove도 호출 안 함)
+
+    const storagePath = doc.storagePath;
 
     applyPatch({ deleting: true, uploadError: null });
 
-    // 1) crm_activities 행을 먼저 삭제한다.
-    if (leadId) {
-      console.log("[document-upload][diagnostic] crm delete 시도:", {
-        leadId,
-        action: CRM_DOCUMENT_ACTION,
-        tag: doc.label,
-      });
-      const { error: crmDeleteErr, count: crmDeleteCount } = await supabase
-        .from("crm_activities")
-        .delete({ count: "exact" })
-        .eq("lead_id", leadId)
-        .eq("action", CRM_DOCUMENT_ACTION)
-        .eq("tag", doc.label);
-      if (crmDeleteErr) {
-        // CRM 삭제 실패 — 화면 상태·Storage 파일을 그대로 유지하고 오류만 표시한다.
-        console.error("[document-upload][diagnostic] crm_activities 삭제 실패 (raw object):", crmDeleteErr);
-        console.error("[document-upload][diagnostic] error.message:", crmDeleteErr.message);
-        console.error("[document-upload][diagnostic] error.code:", crmDeleteErr.code);
-        console.error("[document-upload][diagnostic] error.details:", crmDeleteErr.details);
-        console.error("[document-upload][diagnostic] error.hint:", crmDeleteErr.hint);
-        applyPatch({ deleting: false, uploadError: "삭제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요." });
-        return;
-      }
-      console.log("[document-upload][diagnostic] crm delete 성공, 삭제된 행 수:", crmDeleteCount);
-      if (crmDeleteCount === 0) {
-        console.error(
-          "[document-upload][diagnostic] crm delete가 오류 없이 0건 삭제됨 — RLS가 대상 행을 안 보이게 막고 있을 가능성(정책 조건/leads.user_id 매칭 확인 필요)"
-        );
-      }
+    console.log("[document-delete][diagnostic] leadId:", leadId);
+    console.log("[document-delete][diagnostic] documentLabel:", doc.label);
+    console.log("[document-delete][diagnostic] storagePath:", storagePath);
+
+    if (!leadId) {
+      console.error("[document-delete][diagnostic] 최종 실패 단계: leadId 없음 — crm delete 시도조차 못 함");
+      applyPatch({ deleting: false, uploadError: "삭제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요." });
+      return;
     }
 
-    // 2) CRM 삭제가 확인된 뒤에만 Storage 파일을 정리한다. 이 단계가 실패해도
-    //    CRM 기록은 이미 없으므로 화면은 삭제 완료로 처리하고, 콘솔에만 고아 파일 정리
-    //    실패를 명확히 기록한다.
-    const { error: storageErr } = await supabase.storage.from(STORAGE_BUCKET).remove([doc.storagePath]);
-    if (storageErr) {
+    // 1) crm_activities 행을 lead_id + action + tag(documentLabel) 조건으로 정확히 1건만 삭제한다.
+    console.log("[document-delete][diagnostic] crm_activities DELETE 시작:", {
+      lead_id: leadId,
+      action: CRM_DOCUMENT_ACTION,
+      tag: doc.label,
+    });
+    const {
+      data: crmDeleteData,
+      error: crmDeleteErr,
+      count: crmDeleteCount,
+    } = await supabase
+      .from("crm_activities")
+      .delete({ count: "exact" })
+      .eq("lead_id", leadId)
+      .eq("action", CRM_DOCUMENT_ACTION)
+      .eq("tag", doc.label)
+      .select("id");
+    console.log("[document-delete][diagnostic] crm_activities DELETE 결과:", {
+      data: crmDeleteData,
+      count: crmDeleteCount,
+      error: crmDeleteErr,
+    });
+
+    if (crmDeleteErr) {
+      console.error("[document-delete][diagnostic] crm_activities DELETE error.message:", crmDeleteErr.message);
+      console.error("[document-delete][diagnostic] crm_activities DELETE error.code:", crmDeleteErr.code);
+      console.error("[document-delete][diagnostic] crm_activities DELETE error.details:", crmDeleteErr.details);
+      console.error("[document-delete][diagnostic] crm_activities DELETE error.hint:", crmDeleteErr.hint);
+      console.error("[document-delete][diagnostic] 최종 실패 단계: crm_activities DELETE");
+      // CRM 삭제 실패 — 화면 상태·Storage 파일을 그대로 유지하고 오류만 표시한 뒤 즉시 종료한다.
+      applyPatch({ deleting: false, uploadError: "삭제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요." });
+      return;
+    }
+    if (crmDeleteCount === 0) {
       console.error(
-        "[document-upload][diagnostic] Storage 파일 삭제 실패(고아 파일 가능성 — CRM은 이미 삭제됨):",
-        storageErr,
-        doc.storagePath
+        "[document-delete][diagnostic] crm_activities DELETE가 오류 없이 0건 삭제됨(RLS가 대상 행을 안 보이게 막고 있을 가능성 — leads.user_id/auth.uid() 매칭 또는 정책 미적용 여부 확인 필요)"
+      );
+      console.error("[document-delete][diagnostic] 최종 실패 단계: crm_activities DELETE (0건, RLS로 추정)");
+      applyPatch({ deleting: false, uploadError: "삭제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요." });
+      return;
+    }
+
+    // 2) CRM 삭제가 확인된 뒤에만 Storage 파일을 정리한다. 이 단계가 실패해도 CRM 기록은
+    //    이미 없으므로 화면은 삭제 완료로 처리하고, 일반 삭제 오류는 다시 표시하지 않는다.
+    console.log("[document-delete][diagnostic] Storage remove 시작:", storagePath);
+    const { data: storageRemoveData, error: storageErr } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .remove([storagePath]);
+    console.log("[document-delete][diagnostic] Storage remove 결과:", {
+      data: storageRemoveData,
+      error: storageErr,
+    });
+    if (storageErr) {
+      console.error("[document-delete][diagnostic] Storage remove error.message:", storageErr.message);
+      console.error(
+        "[document-delete][diagnostic] 최종 실패 단계: Storage remove (CRM은 이미 삭제됨 — 고아 파일 가능성)",
+        storagePath
       );
     }
 
-    // 3) CRM 삭제 성공이 확인된 뒤에만 화면 상태를 비운다.
+    // 3) CRM 삭제 성공이 확인된 뒤에만 화면 상태를 비운다(Storage 단계 실패 여부와 무관).
     applyPatch({
       file: null,
       fileName: null,
