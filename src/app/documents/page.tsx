@@ -507,7 +507,7 @@ function DocumentUploadContent() {
           </div>
         </div>
 
-        {/* PC 전용 — 로고+브랜드명(좌) / 결과로 돌아가기 버튼(우) */}
+        {/* PC 전용 — 로고+브랜드명(좌) / 홈으로 버튼(우) */}
         <div className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-2.5">
             <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={36} height={36} className="shrink-0" />
@@ -518,10 +518,10 @@ function DocumentUploadContent() {
           </div>
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => router.push("/")}
             className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
           >
-            <ArrowLeft size={13} /> 결과로 돌아가기
+            <ArrowLeft size={13} /> 홈으로
           </button>
         </div>
 
