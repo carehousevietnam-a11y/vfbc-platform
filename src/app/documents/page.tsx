@@ -2,20 +2,18 @@
 
 // 공통 Document Upload Page (/documents)
 //
-// 이번 단계 범위: 실제 파일 업로드(Supabase Storage "documents" 버킷) 연동까지.
-// 아래는 여전히 의도적으로 하지 않는다.
-// - crm_activities / leads / 어떤 DB 테이블에도 메타데이터를 저장하지 않음
-// - 어떤 API route도 호출하지 않음(Storage 업로드/삭제는 클라이언트에서 기존 verify 페이지와
-//   동일한 방식으로 직접 supabase.storage 호출)
-// - 새로고침 시 값이 보존되지 않음(세션/로컬스토리지 저장 없음 — 업로드된 파일은 Storage에는
-//   남지만 화면 상태는 새로고침하면 초기화된다)
-// - 기존 CHECK 4개 결과화면 버튼과 아직 연결하지 않음(라우트만 존재)
-// - OpenAI/Claude 분석, 이메일·카카오톡·Zalo 발송, My Page 연결, CRM 생성은 하지 않음
+// 이번 단계 범위: 실제 파일 업로드(Supabase Storage "documents" 버킷) + 업로드된 문서
+// 정보를 기존 crm_activities 테이블(action="document_upload", meta jsonb)에 저장/조회하여
+// 새로고침 후에도 leadId 기준으로 복원한다. 아래는 여전히 하지 않는다.
+// - leads/crm_activities 외 새 테이블·새 컬럼 생성 없음(기존 crm_activities.meta jsonb만 사용)
+// - 어떤 API route도 새로 만들지 않음(클라이언트에서 기존 verify 페이지와 동일한 방식으로
+//   supabase.storage / supabase.from("crm_activities") 직접 호출)
+// - OpenAI/Claude 분석, 이메일·카카오톡·Zalo 발송, My Page 연결은 하지 않음
 //
-// "직접 입력"·"제출"은 React state로만 움직이는 화면 목업이며, "파일 업로드"만 실제
-// Supabase Storage에 업로드/삭제된다.
+// "직접 입력"은 여전히 React state로만 움직이는 화면 목업이며, "파일 업로드"만 실제
+// Supabase Storage + crm_activities에 저장/조회된다.
 
-import { Suspense, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -52,14 +50,23 @@ const STORAGE_BUCKET = "documents";
 const STORAGE_PREFIX = "document-upload";
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "pdf", "doc", "docx"];
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
+// 기존 crm_activities 테이블(action은 자유 문자열 컬럼)을 그대로 재사용 — 새 테이블/컬럼 없음.
+// 문서 1건당 1행, tag에 문서명을 넣어 lead_id+action+tag로 유일하게 식별한다.
+const CRM_DOCUMENT_ACTION = "document_upload";
+// TRC 등 CHECK 페이지의 기존 "전문가 진행요청" CRM 기록과 동일한 action을 재사용한다
+// (src/app/check/trc/page.tsx의 handleAgencyRequest와 동일한 값 — 새 값 아님).
+const CRM_AGENCY_REQUEST_ACTION = "agency_upgrade_request";
 
 interface DocState {
   label: string;
   inputMode: DocInputMode;
   file: File | null;
-  fileUrl: string | null; // 업로드 성공 후 공개 URL (기존 verify 페이지와 동일하게 getPublicUrl 사용)
-  storagePath: string | null; // 삭제 시 필요한 Storage 경로
+  fileName: string | null; // 업로드된 파일명 — 새로고침 복원 시 File 객체 없이도 표시하기 위해 별도 보관
+  fileSize: number | null; // 업로드된 파일 용량(byte) — 위와 동일한 이유로 별도 보관
+  storagePath: string | null; // 업로드 성공/삭제/복원 판단 기준 및 Storage 경로. 공개 URL은
+  // 저장하지 않는다(개인정보 서류이므로 getPublicUrl 미사용, documents 버킷 private 유지).
   uploading: boolean;
+  deleting: boolean; // 삭제 처리 중 — 삭제 버튼 중복 클릭 방지용(문구/디자인 변경 없음)
   uploadError: string | null;
   text: string; // 추가 서류의 "직접 입력 내용" + 전용 입력폼이 없는 문서의 기존 textarea 값
   title: string; // 추가 서류(선택) 전용 "제목"
@@ -71,9 +78,11 @@ function createDocState(label: string): DocState {
     label,
     inputMode: "upload",
     file: null,
-    fileUrl: null,
+    fileName: null,
+    fileSize: null,
     storagePath: null,
     uploading: false,
+    deleting: false,
     uploadError: null,
     text: "",
     title: "",
@@ -82,7 +91,7 @@ function createDocState(label: string): DocState {
 }
 
 function isDocReady(doc: DocState): boolean {
-  if (doc.inputMode === "upload") return doc.file !== null;
+  if (doc.inputMode === "upload") return doc.storagePath !== null;
   if (doc.text.trim().length > 0) return true;
   if (doc.title.trim().length > 0) return true;
   return Object.values(doc.fields).some((v) => v.trim().length > 0);
@@ -380,24 +389,32 @@ function DocumentCard({
               <div className="flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-6 text-xs font-semibold text-blue-700">
                 <Loader2 size={16} className="animate-spin" /> 업로드 중...
               </div>
-            ) : doc.file ? (
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3">
-                <div className="flex min-w-0 items-center gap-2">
-                  <Paperclip size={15} className="shrink-0 text-blue-700" />
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-gray-900">{doc.file.name}</p>
-                    <p className="text-[11px] text-gray-500">{formatFileSize(doc.file.size)}</p>
+            ) : doc.storagePath ? (
+              <>
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Paperclip size={15} className="shrink-0 text-blue-700" />
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-semibold text-gray-900">{doc.fileName}</p>
+                      <p className="text-[11px] text-gray-500">
+                        {doc.fileSize !== null ? formatFileSize(doc.fileSize) : ""}
+                      </p>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={onFileClear}
+                    disabled={doc.deleting}
+                    className="shrink-0 rounded-full p-1 text-gray-400 hover:bg-white hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="파일 삭제"
+                  >
+                    <X size={15} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={onFileClear}
-                  className="shrink-0 rounded-full p-1 text-gray-400 hover:bg-white hover:text-gray-600"
-                  aria-label="파일 삭제"
-                >
-                  <X size={15} />
-                </button>
-              </div>
+                {doc.uploadError && (
+                  <p className="mt-1.5 text-[11px] text-red-600">{doc.uploadError}</p>
+                )}
+              </>
             ) : (
               <>
                 {/* PC 전용 — 파일 선택·드래그앤드롭 영역 */}
@@ -506,6 +523,8 @@ function DocumentUploadContent() {
 
   const [docs, setDocs] = useState<DocState[]>(() => config.documents.map(createDocState));
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const readyCount = docs.filter(isDocReady).length;
   const totalCount = docs.length;
   const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
@@ -515,6 +534,53 @@ function DocumentUploadContent() {
   const [extraDoc, setExtraDoc] = useState<DocState>(() => createDocState("추가 서류 (선택)"));
 
   const scrollTopRef = useRef<HTMLDivElement>(null);
+
+  // 새로고침/재방문 시 leadId 기준으로 기존에 저장된 문서 업로드 기록(crm_activities,
+  // action=document_upload)을 불러와 각 DocumentCard에 복원한다. 다른 leadId의 기록은
+  // 쿼리 자체가 lead_id로 필터링되고, RLS 정책상 본인 소유 lead가 아니면 결과가 아예
+  // 반환되지 않는다. 공개 URL은 저장하지 않으므로 storagePath/fileName/fileSize만 사용.
+  useEffect(() => {
+    if (!leadId) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("crm_activities")
+        .select("tag, meta")
+        .eq("lead_id", leadId)
+        .eq("action", CRM_DOCUMENT_ACTION);
+      if (cancelled) return;
+      if (error) {
+        console.error("[document-upload][diagnostic] 기존 문서 기록 조회 실패:", error);
+        return;
+      }
+      (data ?? []).forEach((row) => {
+        const meta = (row.meta ?? {}) as {
+          fileName?: string;
+          storagePath?: string;
+          fileSize?: number;
+        };
+        if (!meta.storagePath) return;
+        const patch: Partial<DocState> = {
+          file: null,
+          fileName: meta.fileName ?? null,
+          fileSize: typeof meta.fileSize === "number" ? meta.fileSize : null,
+          storagePath: meta.storagePath,
+          uploading: false,
+          uploadError: null,
+        };
+        if (row.tag === extraDoc.label) {
+          setExtraDoc((prev) => ({ ...prev, ...patch }));
+          return;
+        }
+        const index = config.documents.indexOf(row.tag ?? "");
+        if (index >= 0) updateDoc(index, patch);
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leadId]);
 
   function updateDoc(index: number, patch: Partial<DocState>) {
     setDocs((prev) => prev.map((d, i) => (i === index ? { ...d, ...patch } : d)));
@@ -526,6 +592,7 @@ function DocumentUploadContent() {
   async function uploadDocumentFile(
     file: File,
     previousStoragePath: string | null,
+    docLabel: string,
     applyPatch: (patch: Partial<DocState>) => void
   ) {
     const ext = getFileExtension(file);
@@ -544,11 +611,11 @@ function DocumentUploadContent() {
       return;
     }
 
+    // 업로드 중에는 기존 파일 정보를 그대로 두고(교체 실패 시 화면에 남아있도록) 상태만
+    // uploading으로 표시한다. file(선택된 File 객체)만 우선 갱신한다.
     applyPatch({ file, uploading: true, uploadError: null });
 
-    // ── 진단 전용 로그 (이번 작업 범위) — 화면 동작·에러 메시지에는 영향 없음 ──
-    // 1) 사용 중인 Storage Bucket 이름 / 2) Bucket 실제 존재 여부 / 3) 업로드 path
-    // 7) Supabase 인증 상태 / 8) 환경변수 존재 여부
+    // ── 진단 전용 로그 (이전 작업 범위) — 화면 동작·에러 메시지에는 영향 없음 ──
     console.log("[document-upload][diagnostic] bucket:", STORAGE_BUCKET);
     console.log("[document-upload][diagnostic] env check:", {
       NEXT_PUBLIC_SUPABASE_URL_present: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
@@ -579,11 +646,6 @@ function DocumentUploadContent() {
     }
     // ── 진단 전용 로그 끝 ──
 
-    // 같은 문서 칸에 다시 업로드(교체)하는 경우, 이전 파일을 Storage에서 먼저 정리한다.
-    if (previousStoragePath) {
-      await supabase.storage.from(STORAGE_BUCKET).remove([previousStoragePath]).catch(() => {});
-    }
-
     const storagePath = `${STORAGE_PREFIX}/${leadId}/${crypto.randomUUID()}.${ext}`;
     console.log("[document-upload][diagnostic] upload path:", storagePath, "file:", {
       name: file.name,
@@ -591,9 +653,10 @@ function DocumentUploadContent() {
       size: file.size,
     });
 
+    // 1) 새 파일을 새 경로에 먼저 업로드한다(기존 파일은 아직 전혀 건드리지 않음 —
+    //    실패해도 기존 파일/CRM 행이 그대로 남는다).
     const { data: uploadData, error: uploadErr } = await supabase.storage.from(STORAGE_BUCKET).upload(storagePath, file);
     if (uploadErr) {
-      // 4) upload() 반환 error 전체 출력 / 5) 실제 error.message, error.code 출력
       console.error("[document-upload][diagnostic] upload() error (raw object):", uploadErr);
       console.error("[document-upload][diagnostic] error.message:", uploadErr.message);
       console.error("[document-upload][diagnostic] error.name:", uploadErr.name);
@@ -602,9 +665,6 @@ function DocumentUploadContent() {
         JSON.stringify(uploadErr, Object.getOwnPropertyNames(uploadErr))
       );
       applyPatch({
-        file: null,
-        fileUrl: null,
-        storagePath: null,
         uploading: false,
         uploadError: "업로드 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
       });
@@ -612,44 +672,208 @@ function DocumentUploadContent() {
     }
     console.log("[document-upload][diagnostic] upload() success data:", uploadData);
 
-    const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
+    const metaPayload = {
+      service: serviceParam,
+      mode,
+      documentLabel: docLabel,
+      fileName: file.name,
+      storagePath,
+      fileSize: file.size,
+    };
+
+    if (previousStoragePath) {
+      // 재업로드(교체) — 기존 crm_activities 행을 UPDATE한다(삭제 후 재삽입하지 않음 →
+      // 실패해도 기존 행이 그대로 남아 중복/유실 위험이 없다).
+      const { data: updateData, error: updateErr } = await supabase
+        .from("crm_activities")
+        .update({ meta: metaPayload })
+        .eq("lead_id", leadId)
+        .eq("action", CRM_DOCUMENT_ACTION)
+        .eq("tag", docLabel)
+        .select("id");
+
+      if (updateErr || !updateData || updateData.length === 0) {
+        // UPDATE 실패(또는 매칭되는 기존 행 없음) — 새로 올린 파일만 롤백하고
+        // 기존 Storage 파일·기존 CRM 행은 절대 건드리지 않는다(화면도 그대로 유지).
+        console.error(
+          "[document-upload][diagnostic] crm_activities UPDATE 실패(기존 파일 보존):",
+          updateErr ?? "matching row not found"
+        );
+        await supabase
+          .storage.from(STORAGE_BUCKET)
+          .remove([storagePath])
+          .then(({ error }) => {
+            if (error) console.error("[document-upload][diagnostic] 신규 파일 롤백 실패:", error);
+          });
+        applyPatch({ uploading: false, uploadError: "저장 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요." });
+        return;
+      }
+
+      // UPDATE 성공이 확인된 뒤에만 기존(교체 대상) Storage 파일을 정리한다.
+      // 이 정리가 실패해도 새 파일/새 CRM 행은 이미 유효하므로 성공으로 처리하고
+      // 콘솔에만 고아 파일 정리 실패를 기록한다.
+      const { error: removeOldErr } = await supabase.storage.from(STORAGE_BUCKET).remove([previousStoragePath]);
+      if (removeOldErr) {
+        console.error(
+          "[document-upload][diagnostic] 기존 Storage 파일 정리 실패(고아 파일 가능성):",
+          removeOldErr,
+          previousStoragePath
+        );
+      }
+    } else {
+      // 최초 업로드 — 기존 행이 없으므로 INSERT.
+      const { error: insertErr } = await supabase.from("crm_activities").insert({
+        lead_id: leadId,
+        action: CRM_DOCUMENT_ACTION,
+        tag: docLabel,
+        meta: metaPayload,
+      });
+      if (insertErr) {
+        // INSERT 실패 — 방금 올린 Storage 파일을 즉시 롤백한다(고아 파일 방지).
+        console.error("[document-upload][diagnostic] crm_activities INSERT 실패:", insertErr);
+        await supabase
+          .storage.from(STORAGE_BUCKET)
+          .remove([storagePath])
+          .then(({ error }) => {
+            if (error) console.error("[document-upload][diagnostic] 신규 파일 롤백 실패:", error);
+          });
+        applyPatch({
+          file: null,
+          fileName: null,
+          fileSize: null,
+          storagePath: null,
+          uploading: false,
+          uploadError: "저장 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        });
+        return;
+      }
+    }
+
     applyPatch({
       file,
-      fileUrl: urlData.publicUrl,
+      fileName: file.name,
+      fileSize: file.size,
       storagePath,
       uploading: false,
       uploadError: null,
     });
   }
 
-  async function deleteDocumentFile(storagePath: string | null, applyPatch: (patch: Partial<DocState>) => void) {
-    applyPatch({ file: null, fileUrl: null, storagePath: null, uploadError: null });
-    if (!storagePath) return;
-    const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
-    if (error) console.error("document delete failed:", error);
+  async function deleteDocumentFile(doc: DocState, applyPatch: (patch: Partial<DocState>) => void) {
+    if (doc.deleting) return; // 중복 클릭 방지
+    if (!doc.storagePath) return; // 지울 파일이 없으면 아무 것도 하지 않음
+
+    applyPatch({ deleting: true, uploadError: null });
+
+    // 1) crm_activities 행을 먼저 삭제한다.
+    if (leadId) {
+      const { error: crmDeleteErr } = await supabase
+        .from("crm_activities")
+        .delete()
+        .eq("lead_id", leadId)
+        .eq("action", CRM_DOCUMENT_ACTION)
+        .eq("tag", doc.label);
+      if (crmDeleteErr) {
+        // CRM 삭제 실패 — 화면 상태·Storage 파일을 그대로 유지하고 오류만 표시한다.
+        console.error("[document-upload][diagnostic] crm_activities 삭제 실패:", crmDeleteErr);
+        applyPatch({ deleting: false, uploadError: "삭제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요." });
+        return;
+      }
+    }
+
+    // 2) CRM 삭제가 확인된 뒤에만 Storage 파일을 정리한다. 이 단계가 실패해도
+    //    CRM 기록은 이미 없으므로 화면은 삭제 완료로 처리하고, 콘솔에만 고아 파일 정리
+    //    실패를 명확히 기록한다.
+    const { error: storageErr } = await supabase.storage.from(STORAGE_BUCKET).remove([doc.storagePath]);
+    if (storageErr) {
+      console.error(
+        "[document-upload][diagnostic] Storage 파일 삭제 실패(고아 파일 가능성 — CRM은 이미 삭제됨):",
+        storageErr,
+        doc.storagePath
+      );
+    }
+
+    // 3) CRM 삭제 성공이 확인된 뒤에만 화면 상태를 비운다.
+    applyPatch({
+      file: null,
+      fileName: null,
+      fileSize: null,
+      storagePath: null,
+      uploading: false,
+      deleting: false,
+      uploadError: null,
+    });
   }
 
   function handleDocFileSelect(index: number, file: File | null) {
     if (!file) return;
-    const previousStoragePath = docs[index]?.storagePath ?? null;
-    void uploadDocumentFile(file, previousStoragePath, (patch) => updateDoc(index, patch));
+    const doc = docs[index];
+    if (!doc) return;
+    void uploadDocumentFile(file, doc.storagePath, doc.label, (patch) => updateDoc(index, patch));
   }
 
   function handleDocFileClear(index: number) {
-    const storagePath = docs[index]?.storagePath ?? null;
-    void deleteDocumentFile(storagePath, (patch) => updateDoc(index, patch));
+    const doc = docs[index];
+    if (!doc) return;
+    void deleteDocumentFile(doc, (patch) => updateDoc(index, patch));
   }
 
   function handleExtraFileSelect(file: File | null) {
     if (!file) return;
-    void uploadDocumentFile(file, extraDoc.storagePath, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
+    void uploadDocumentFile(file, extraDoc.storagePath, extraDoc.label, (patch) =>
+      setExtraDoc((prev) => ({ ...prev, ...patch }))
+    );
   }
 
   function handleExtraFileClear() {
-    void deleteDocumentFile(extraDoc.storagePath, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
+    void deleteDocumentFile(extraDoc, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
   }
 
-  function handleSubmit() {
+  // "전문가 진행 요청하기" 클릭 시, 기존 CHECK 페이지(TRC 등)가 써온 것과 동일한
+  // "agency_upgrade_request" 액션을 재사용해 요청 자체도 CRM에 남긴다(새 action 아님,
+  // 이메일 발송(/api/agency-confirm)은 이번 범위가 아니므로 호출하지 않음).
+  // admin/leads/[id]/page.tsx의 setProcessStage와 동일한 "이미 있으면 다시 만들지 않는다"
+  // 패턴을 그대로 재사용해 중복 행 생성을 막는다.
+  // 반환값: 성공(또는 이미 기록되어 있어 성공 처리) true / 실패 false.
+  async function recordAgencyRequest(): Promise<boolean> {
+    if (mode !== "expert") return true;
+    if (!leadId) return false;
+
+    const { data: existing, error: existingErr } = await supabase
+      .from("crm_activities")
+      .select("id")
+      .eq("lead_id", leadId)
+      .eq("action", CRM_AGENCY_REQUEST_ACTION)
+      .maybeSingle();
+    if (existingErr) {
+      console.error("[document-upload][diagnostic] agency_upgrade_request 조회 실패:", existingErr);
+      return false;
+    }
+    if (existing) return true; // 이미 기록됨 — 중복 생성하지 않고 성공으로 처리
+
+    const { error } = await supabase.from("crm_activities").insert({
+      lead_id: leadId,
+      action: CRM_AGENCY_REQUEST_ACTION,
+      tag: (serviceParam || "").toUpperCase(),
+      meta: { source: "document-upload", documentCount: readyCount },
+    });
+    if (error) {
+      console.error("[document-upload][diagnostic] agency_upgrade_request 저장 실패:", error);
+      return false;
+    }
+    return true;
+  }
+
+  async function handleSubmit() {
+    if (submitting || submitted) return; // 중복 클릭 방지
+    setSubmitting(true);
+    setSubmitError(null);
+    const ok = await recordAgencyRequest();
+    setSubmitting(false);
+    if (!ok) {
+      setSubmitError("접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
     setSubmitted(true);
     scrollTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -658,6 +882,7 @@ function DocumentUploadContent() {
     setDocs(config.documents.map(createDocState));
     setExtraDoc(createDocState("추가 서류 (선택)"));
     setSubmitted(false);
+    setSubmitError(null);
   }
 
   return (
@@ -956,7 +1181,12 @@ function DocumentUploadContent() {
                 </div>
 
                 <div className="mt-4">
-                  <PrimaryButton onClick={handleSubmit}>{copy.submitLabel}</PrimaryButton>
+                  <PrimaryButton onClick={handleSubmit} loading={submitting} disabled={submitting}>
+                    {copy.submitLabel}
+                  </PrimaryButton>
+                  {submitError && (
+                    <p className="mt-2 text-center text-xs text-red-600">{submitError}</p>
+                  )}
                   <div className="mt-3 space-y-1 text-center text-sm leading-relaxed text-gray-600">
                     <p className="flex items-center justify-center gap-1.5 font-semibold text-gray-800">
                       <Lock size={14} className="shrink-0 text-gray-500" />
@@ -980,8 +1210,11 @@ function DocumentUploadContent() {
               {readyCount} / {totalCount} 개 완료
             </p>
             <div className="mt-3">
-              <PrimaryButton onClick={handleSubmit}>{copy.submitLabel}</PrimaryButton>
+              <PrimaryButton onClick={handleSubmit} loading={submitting} disabled={submitting}>
+                {copy.submitLabel}
+              </PrimaryButton>
             </div>
+            {submitError && <p className="mt-2 text-center text-xs text-red-600">{submitError}</p>}
             <div className="mt-2 flex items-center justify-center gap-1 text-[11px] text-gray-400">
               <Lock size={11} />
               <span>{copy.submitCaption}</span>
