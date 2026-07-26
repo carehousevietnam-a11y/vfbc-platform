@@ -767,17 +767,32 @@ function DocumentUploadContent() {
 
     // 1) crm_activities 행을 먼저 삭제한다.
     if (leadId) {
-      const { error: crmDeleteErr } = await supabase
+      console.log("[document-upload][diagnostic] crm delete 시도:", {
+        leadId,
+        action: CRM_DOCUMENT_ACTION,
+        tag: doc.label,
+      });
+      const { error: crmDeleteErr, count: crmDeleteCount } = await supabase
         .from("crm_activities")
-        .delete()
+        .delete({ count: "exact" })
         .eq("lead_id", leadId)
         .eq("action", CRM_DOCUMENT_ACTION)
         .eq("tag", doc.label);
       if (crmDeleteErr) {
         // CRM 삭제 실패 — 화면 상태·Storage 파일을 그대로 유지하고 오류만 표시한다.
-        console.error("[document-upload][diagnostic] crm_activities 삭제 실패:", crmDeleteErr);
+        console.error("[document-upload][diagnostic] crm_activities 삭제 실패 (raw object):", crmDeleteErr);
+        console.error("[document-upload][diagnostic] error.message:", crmDeleteErr.message);
+        console.error("[document-upload][diagnostic] error.code:", crmDeleteErr.code);
+        console.error("[document-upload][diagnostic] error.details:", crmDeleteErr.details);
+        console.error("[document-upload][diagnostic] error.hint:", crmDeleteErr.hint);
         applyPatch({ deleting: false, uploadError: "삭제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요." });
         return;
+      }
+      console.log("[document-upload][diagnostic] crm delete 성공, 삭제된 행 수:", crmDeleteCount);
+      if (crmDeleteCount === 0) {
+        console.error(
+          "[document-upload][diagnostic] crm delete가 오류 없이 0건 삭제됨 — RLS가 대상 행을 안 보이게 막고 있을 가능성(정책 조건/leads.user_id 매칭 확인 필요)"
+        );
       }
     }
 
