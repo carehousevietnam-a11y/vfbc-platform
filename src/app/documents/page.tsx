@@ -663,7 +663,7 @@ function DocumentUploadContent() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div ref={scrollTopRef} className="mx-auto max-w-5xl px-6 py-10 pb-32 lg:pb-10">
+      <div ref={scrollTopRef} className="mx-auto max-w-4xl px-6 py-10 pb-32 lg:pb-10">
         {/* 모바일 전용 브랜드 헤더 — 좌측 "← 홈으로", 로고+브랜드명은 중앙 정렬 */}
         <div className="relative -mx-6 -mt-10 mb-4 flex items-center justify-center border-b border-gray-100 bg-white px-4 py-3 lg:hidden">
           <Link
@@ -685,7 +685,7 @@ function DocumentUploadContent() {
         {/* PC 전용 — 로고+브랜드명(좌) / 홈으로 버튼(우) */}
         <div className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-2.5">
-            <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={36} height={36} className="shrink-0" />
+            <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={30} height={30} className="shrink-0" />
             <div>
               <p className="text-lg font-bold leading-tight text-gray-900">VFBCAI</p>
               <p className="text-[11px] leading-tight text-gray-400">Check. Verify. Register. Protect.</p>
@@ -703,15 +703,15 @@ function DocumentUploadContent() {
         {!submitted && (
           <>
             {/* 아이콘 + 서비스명 + 설명 */}
-            <div className="mt-6 flex items-start gap-3.5">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-900 lg:h-16 lg:w-16">
+            <div className="mt-6 flex items-start gap-3.5 lg:mt-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-900 lg:h-12 lg:w-12">
                 <FileText className="text-white" size={26} />
               </div>
               <div className="min-w-0">
-                <h1 className="text-lg font-bold tracking-tight text-gray-900 lg:text-2xl">
+                <h1 className="text-lg font-bold tracking-tight text-gray-900 lg:text-xl">
                   {config.serviceLabel} · {copy.badgeLabel}
                 </h1>
-                <p className="mt-1 text-xs text-gray-500 lg:text-sm">{copy.description}</p>
+                <p className="mt-1 text-xs text-gray-500">{copy.description}</p>
                 {leadId && (
                   <p className="mt-1 text-[11px] text-gray-300">접수번호 {leadId.slice(0, 8)}</p>
                 )}
@@ -736,14 +736,14 @@ function DocumentUploadContent() {
               ))}
             </div>
 
-            <div className="mt-5 hidden lg:grid lg:grid-cols-3 lg:gap-3">
+            <div className="mt-4 hidden lg:grid lg:grid-cols-3 lg:gap-2.5">
               {TRUST_ITEMS.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-2.5 rounded-xl border border-gray-100 bg-white px-3.5 py-2.5"
+                  className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50">
-                    <item.icon size={15} className="text-blue-700" />
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50">
+                    <item.icon size={13} className="text-blue-700" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-gray-900">{item.label}</p>
@@ -754,18 +754,18 @@ function DocumentUploadContent() {
             </div>
 
             {/* 전체 제출 진행률 */}
-            <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-4">
+            <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-4 lg:mt-4 lg:p-3.5">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-bold text-gray-900">제출 진행률</p>
                 <p className="shrink-0 text-xs font-semibold text-gray-400">{progressPercent}%</p>
               </div>
-              <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+              <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100 lg:mt-2">
                 <div
                   className="h-full rounded-full bg-blue-900 transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              <p className="mt-3 text-xl font-bold text-blue-900">
+              <p className="mt-3 text-xl font-bold text-blue-900 lg:mt-2.5 lg:text-lg">
                 {readyCount} / {totalCount} <span className="text-sm font-semibold text-gray-500">완료</span>
               </p>
               <p className="mt-0.5 text-xs text-gray-400">총 {totalCount}개 문서 필요</p>
@@ -845,7 +845,7 @@ function DocumentUploadContent() {
             </div>
           )
         ) : (
-          <div className="mt-6 lg:grid lg:grid-cols-[1fr_320px] lg:items-start lg:gap-6">
+          <div className="mt-6 lg:grid lg:grid-cols-[1fr_280px] lg:items-start lg:gap-5">
             {/* 좌측 — 문서 카드 목록 */}
             <div className="space-y-4">
               <div>
@@ -903,12 +903,12 @@ function DocumentUploadContent() {
 
             {/* 우측 — 제출 현황 Sticky 카드 (PC 전용) */}
             <div className="mt-6 hidden lg:sticky lg:top-6 lg:mt-0 lg:block">
-              <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-sm font-bold text-gray-900">제출 현황</p>
                 <p className="mt-1 text-xs text-gray-500">
                   {totalCount}개 문서 필요
                 </p>
-                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
                     className="h-full rounded-full bg-blue-900 transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
@@ -918,7 +918,7 @@ function DocumentUploadContent() {
                   {readyCount} / {totalCount} 개 완료
                 </p>
 
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-3 space-y-1.5">
                   {docs.map((doc) => (
                     <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
                       {isDocReady(doc) ? (
@@ -931,7 +931,7 @@ function DocumentUploadContent() {
                   ))}
                 </ul>
 
-                <div className="mt-4 space-y-3 border-t border-gray-100 pt-4 text-xs">
+                <div className="mt-3 space-y-2.5 border-t border-gray-100 pt-3 text-xs">
                   <div className="flex items-center gap-2">
                     <FileText size={14} className="shrink-0 text-gray-400" />
                     <div>
@@ -955,7 +955,7 @@ function DocumentUploadContent() {
                   </div>
                 </div>
 
-                <div className="mt-5">
+                <div className="mt-4">
                   <PrimaryButton onClick={handleSubmit}>{copy.submitLabel}</PrimaryButton>
                   <div className="mt-3 space-y-1 text-center text-sm leading-relaxed text-gray-600">
                     <p className="flex items-center justify-center gap-1.5 font-semibold text-gray-800">
