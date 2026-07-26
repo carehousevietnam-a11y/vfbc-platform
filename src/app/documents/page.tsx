@@ -619,16 +619,26 @@ function DocumentUploadContent() {
                 제출하신 서류를 담당 전문가가 확인한 후 곧 연락드리겠습니다.
                 <br />
                 <br />
-                카카오톡 · Zalo · 이메일로 진행 안내를 보내드립니다.
+                <span className="mx-auto block max-w-[240px] break-keep text-pretty leading-relaxed lg:max-w-none">
+                  카카오톡 · Zalo · 이메일로 진행 안내를 보내드립니다.
+                </span>
               </p>
 
               <div className="mt-6 space-y-2.5">
-                <PrimaryButton onClick={() => router.push("/mypage")}>
+                <button
+                  type="button"
+                  onClick={() => router.push("/mypage")}
+                  className="flex h-11 w-full items-center justify-center rounded-xl bg-blue-900 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-950 hover:shadow-md"
+                >
                   My Page에서 진행상황 확인하기
-                </PrimaryButton>
-                <PrimaryButton variant="outline" onClick={() => router.push("/")}>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/")}
+                  className="flex h-11 w-full items-center justify-center rounded-xl border border-blue-900 bg-white text-sm font-semibold text-blue-900 transition-all duration-200 hover:bg-blue-50"
+                >
                   홈으로
-                </PrimaryButton>
+                </button>
               </div>
 
               <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-gray-400">
