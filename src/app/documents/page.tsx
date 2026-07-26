@@ -546,16 +546,61 @@ function DocumentUploadContent() {
 
     applyPatch({ file, uploading: true, uploadError: null });
 
+    // ── 진단 전용 로그 (이번 작업 범위) — 화면 동작·에러 메시지에는 영향 없음 ──
+    // 1) 사용 중인 Storage Bucket 이름 / 2) Bucket 실제 존재 여부 / 3) 업로드 path
+    // 7) Supabase 인증 상태 / 8) 환경변수 존재 여부
+    console.log("[document-upload][diagnostic] bucket:", STORAGE_BUCKET);
+    console.log("[document-upload][diagnostic] env check:", {
+      NEXT_PUBLIC_SUPABASE_URL_present: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      NEXT_PUBLIC_SUPABASE_URL_value: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY_present: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    });
+    try {
+      const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+      console.log(
+        "[document-upload][diagnostic] auth session:",
+        sessionData?.session ? `authenticated (user id: ${sessionData.session.user.id})` : "anonymous (no session)",
+        sessionErr ? { sessionErr } : ""
+      );
+    } catch (sessionCatchErr) {
+      console.error("[document-upload][diagnostic] auth.getSession() threw:", sessionCatchErr);
+    }
+    try {
+      const { data: listData, error: listErr } = await supabase.storage.from(STORAGE_BUCKET).list("", { limit: 1 });
+      console.log(
+        "[document-upload][diagnostic] bucket list() check — exists/readable:",
+        !listErr,
+        "sample:",
+        listData,
+        listErr ? { listErr } : ""
+      );
+    } catch (listCatchErr) {
+      console.error("[document-upload][diagnostic] storage.list() threw:", listCatchErr);
+    }
+    // ── 진단 전용 로그 끝 ──
+
     // 같은 문서 칸에 다시 업로드(교체)하는 경우, 이전 파일을 Storage에서 먼저 정리한다.
     if (previousStoragePath) {
       await supabase.storage.from(STORAGE_BUCKET).remove([previousStoragePath]).catch(() => {});
     }
 
     const storagePath = `${STORAGE_PREFIX}/${leadId}/${crypto.randomUUID()}.${ext}`;
+    console.log("[document-upload][diagnostic] upload path:", storagePath, "file:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
 
-    const { error: uploadErr } = await supabase.storage.from(STORAGE_BUCKET).upload(storagePath, file);
+    const { data: uploadData, error: uploadErr } = await supabase.storage.from(STORAGE_BUCKET).upload(storagePath, file);
     if (uploadErr) {
-      console.error("document upload failed:", uploadErr);
+      // 4) upload() 반환 error 전체 출력 / 5) 실제 error.message, error.code 출력
+      console.error("[document-upload][diagnostic] upload() error (raw object):", uploadErr);
+      console.error("[document-upload][diagnostic] error.message:", uploadErr.message);
+      console.error("[document-upload][diagnostic] error.name:", uploadErr.name);
+      console.error(
+        "[document-upload][diagnostic] error (all enumerable + non-enumerable fields):",
+        JSON.stringify(uploadErr, Object.getOwnPropertyNames(uploadErr))
+      );
       applyPatch({
         file: null,
         fileUrl: null,
@@ -565,6 +610,7 @@ function DocumentUploadContent() {
       });
       return;
     }
+    console.log("[document-upload][diagnostic] upload() success data:", uploadData);
 
     const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
     applyPatch({
