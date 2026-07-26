@@ -23,7 +23,7 @@ import {
   X,
   Paperclip,
 } from "lucide-react";
-import { NoticeCard, PrimaryButton, InfoBox, TextAreaField, StatusBadge } from "@/components/ui";
+import { NoticeCard, PrimaryButton, InfoBox, TextField, TextAreaField, StatusBadge } from "@/components/ui";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 type SubmitMode = "ai_report" | "expert";
@@ -33,17 +33,109 @@ interface DocState {
   label: string;
   inputMode: DocInputMode;
   file: File | null;
-  text: string;
+  text: string; // 추가 서류의 "직접 입력 내용" + 전용 입력폼이 없는 문서의 기존 textarea 값
+  title: string; // 추가 서류(선택) 전용 "제목"
+  fields: Record<string, string>; // 여권/비자/재직증명서/회사서류 등 구조화 입력값
+}
+
+function createDocState(label: string): DocState {
+  return { label, inputMode: "upload", file: null, text: "", title: "", fields: {} };
 }
 
 function isDocReady(doc: DocState): boolean {
-  return doc.inputMode === "upload" ? doc.file !== null : doc.text.trim().length > 0;
+  if (doc.inputMode === "upload") return doc.file !== null;
+  if (doc.text.trim().length > 0) return true;
+  if (doc.title.trim().length > 0) return true;
+  return Object.values(doc.fields).some((v) => v.trim().length > 0);
 }
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+// 문서 종류별 "직접 입력" 항목 정의. 여기 정의되지 않은 문서(학력증명서, 범죄경력증명서 등)는
+// 기존과 동일하게 자유 textarea 하나만 표시한다(추측으로 새 항목을 만들지 않음).
+type FieldType = "text" | "date" | "select";
+interface FieldConfig {
+  key: string;
+  label: string;
+  type: FieldType;
+  options?: string[];
+}
+
+const NATIONALITY_OPTIONS = ["대한민국", "중국", "일본", "미국", "기타"];
+const GENDER_OPTIONS = ["남성", "여성", "기타"];
+const VISA_TYPE_OPTIONS = ["노동(LD)", "투자(DT)", "방문(DN)", "기타"];
+
+const FIELD_SCHEMA_BY_LABEL: Record<string, FieldConfig[]> = {
+  여권: [
+    { key: "fullNameEn", label: "영문 성명", type: "text" },
+    { key: "passportNo", label: "여권번호", type: "text" },
+    { key: "nationality", label: "국적", type: "select", options: NATIONALITY_OPTIONS },
+    { key: "birthDate", label: "생년월일", type: "date" },
+    { key: "gender", label: "성별", type: "select", options: GENDER_OPTIONS },
+    { key: "issueDate", label: "발급일", type: "date" },
+    { key: "expiryDate", label: "만료일", type: "date" },
+    { key: "addressEn", label: "영문 주소", type: "text" },
+  ],
+  비자: [
+    { key: "visaType", label: "비자 종류", type: "select", options: VISA_TYPE_OPTIONS },
+    { key: "visaNo", label: "비자 번호", type: "text" },
+    { key: "issueDate", label: "발급일", type: "date" },
+    { key: "expiryDate", label: "만료일", type: "date" },
+    { key: "issuingAuthority", label: "발급기관", type: "text" },
+  ],
+  재직증명서: [
+    { key: "companyName", label: "회사명", type: "text" },
+    { key: "position", label: "직위", type: "text" },
+    { key: "startDate", label: "근무 시작일", type: "date" },
+    { key: "workPermitNo", label: "노동허가번호", type: "text" },
+    { key: "workPermitExpiry", label: "노동허가 만료일", type: "date" },
+  ],
+  회사서류: [
+    { key: "companyName", label: "회사명", type: "text" },
+    { key: "businessRegNo", label: "사업자등록번호", type: "text" },
+    { key: "legalRepresentative", label: "법정대표자", type: "text" },
+    { key: "companyAddress", label: "회사 주소", type: "text" },
+  ],
+};
+
+function getFieldSchema(label: string): FieldConfig[] | null {
+  return FIELD_SCHEMA_BY_LABEL[label] ?? null;
+}
+
+// 공유 UI 라이브러리(components/ui)에는 Select 컴포넌트가 없어, 이번 작업 범위인 이
+// 페이지 전용으로만 최소 구현한다(공통 라이브러리는 수정하지 않음).
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-semibold text-gray-900">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 transition-colors duration-200 focus:border-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900/10"
+      >
+        <option value="">선택 안 함</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }
 
 const MODE_COPY: Record<
@@ -85,6 +177,8 @@ function DocumentCard({
   onFileChange,
   onFileClear,
   onTextChange,
+  onTitleChange,
+  onFieldChange,
 }: {
   index: number;
   doc: DocState;
@@ -92,9 +186,13 @@ function DocumentCard({
   onFileChange: (file: File | null) => void;
   onFileClear: () => void;
   onTextChange: (text: string) => void;
+  onTitleChange: (title: string) => void;
+  onFieldChange: (key: string, value: string) => void;
 }) {
   const inputId = `doc-file-${index}`;
   const ready = isDocReady(doc);
+  const isExtraDoc = doc.label === "추가 서류 (선택)";
+  const schema = getFieldSchema(doc.label);
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -171,6 +269,44 @@ function DocumentCard({
               />
             </label>
           )
+        ) : isExtraDoc ? (
+          <div className="space-y-3">
+            <TextField
+              label="제목"
+              placeholder="제출하시는 서류의 이름을 입력해주세요."
+              value={doc.title}
+              onChange={(e) => onTitleChange(e.target.value)}
+            />
+            <TextAreaField
+              label="직접 입력 내용"
+              rows={3}
+              placeholder="서류 관련 정보를 자유롭게 입력해주세요."
+              value={doc.text}
+              onChange={(e) => onTextChange(e.target.value)}
+            />
+          </div>
+        ) : schema ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {schema.map((f) =>
+              f.type === "select" ? (
+                <SelectField
+                  key={f.key}
+                  label={f.label}
+                  value={doc.fields[f.key] ?? ""}
+                  onChange={(v) => onFieldChange(f.key, v)}
+                  options={f.options ?? []}
+                />
+              ) : (
+                <TextField
+                  key={f.key}
+                  label={f.label}
+                  type={f.type === "date" ? "date" : "text"}
+                  value={doc.fields[f.key] ?? ""}
+                  onChange={(e) => onFieldChange(f.key, e.target.value)}
+                />
+              )
+            )}
+          </div>
         ) : (
           <TextAreaField
             rows={3}
@@ -195,9 +331,7 @@ function DocumentUploadContent() {
   const config = useMemo(() => getRequiredDocuments(serviceParam), [serviceParam]);
   const copy = MODE_COPY[mode];
 
-  const [docs, setDocs] = useState<DocState[]>(() =>
-    config.documents.map((label) => ({ label, inputMode: "upload", file: null, text: "" }))
-  );
+  const [docs, setDocs] = useState<DocState[]>(() => config.documents.map(createDocState));
   const [submitted, setSubmitted] = useState(false);
   const readyCount = docs.filter(isDocReady).length;
   const totalCount = docs.length;
@@ -205,12 +339,7 @@ function DocumentUploadContent() {
 
   // 마지막 순번에 추가되는 "추가 서류 (선택)" 카드 — 서비스별 필수 서류 목록(docs)과는
   // 별개의 자유 제출용 카드라 기존 docs 배열/진행률 계산에는 포함하지 않는다.
-  const [extraDoc, setExtraDoc] = useState<DocState>({
-    label: "추가 서류 (선택)",
-    inputMode: "upload",
-    file: null,
-    text: "",
-  });
+  const [extraDoc, setExtraDoc] = useState<DocState>(() => createDocState("추가 서류 (선택)"));
 
   const scrollTopRef = useRef<HTMLDivElement>(null);
 
@@ -224,8 +353,8 @@ function DocumentUploadContent() {
   }
 
   function handleReset() {
-    setDocs(config.documents.map((label) => ({ label, inputMode: "upload", file: null, text: "" })));
-    setExtraDoc({ label: "추가 서류 (선택)", inputMode: "upload", file: null, text: "" });
+    setDocs(config.documents.map(createDocState));
+    setExtraDoc(createDocState("추가 서류 (선택)"));
     setSubmitted(false);
   }
 
@@ -299,6 +428,12 @@ function DocumentUploadContent() {
                   onFileChange={(file) => updateDoc(i, { file })}
                   onFileClear={() => updateDoc(i, { file: null })}
                   onTextChange={(text) => updateDoc(i, { text })}
+                  onTitleChange={(title) => updateDoc(i, { title })}
+                  onFieldChange={(key, value) =>
+                    setDocs((prev) =>
+                      prev.map((d, idx) => (idx === i ? { ...d, fields: { ...d.fields, [key]: value } } : d))
+                    )
+                  }
                 />
               ))}
 
@@ -309,6 +444,10 @@ function DocumentUploadContent() {
                 onFileChange={(file) => setExtraDoc((prev) => ({ ...prev, file }))}
                 onFileClear={() => setExtraDoc((prev) => ({ ...prev, file: null }))}
                 onTextChange={(text) => setExtraDoc((prev) => ({ ...prev, text }))}
+                onTitleChange={(title) => setExtraDoc((prev) => ({ ...prev, title }))}
+                onFieldChange={(key, value) =>
+                  setExtraDoc((prev) => ({ ...prev, fields: { ...prev.fields, [key]: value } }))
+                }
               />
 
               <NoticeCard tone="warning" className="mt-2">
