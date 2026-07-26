@@ -321,7 +321,7 @@ function DocumentCard({
               doc.inputMode === "upload" ? "bg-white text-blue-900 shadow-sm" : "text-gray-500"
             }`}
           >
-            <Upload size={13} /> 문서 업로드
+            <Upload size={13} /> 파일 업로드
           </button>
           <button
             type="button"
@@ -362,10 +362,9 @@ function DocumentCard({
                   className="hidden cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-gray-300 bg-gray-50/60 px-4 py-6 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 lg:flex"
                 >
                   <Upload size={20} className="text-gray-400" />
-                  <span className="text-xs font-semibold text-gray-600">
-                    파일을 선택하거나 끌어다 놓으세요
-                  </span>
-                  <span className="text-[11px] text-gray-400">JPG, PNG, PDF (최대 10MB)</span>
+                  <span className="text-xs font-semibold text-gray-600">파일 업로드</span>
+                  <span className="text-[11px] text-gray-400">JPG · PNG · PDF · DOC · DOCX</span>
+                  <span className="text-[11px] text-gray-400">최대 10MB</span>
                 </label>
 
                 {/* 모바일 전용 — 버튼형 업로드 UI */}
@@ -376,7 +375,8 @@ function DocumentCard({
                   <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900">
                     <Upload size={15} /> 파일 업로드
                   </span>
-                  <span className="text-[11px] text-gray-400">JPG, PNG, PDF · 최대 10MB</span>
+                  <span className="text-[11px] text-gray-400">JPG · PNG · PDF · DOC · DOCX</span>
+                  <span className="text-[11px] text-gray-400">최대 10MB</span>
                 </label>
 
                 <input
