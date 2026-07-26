@@ -11,7 +11,7 @@
 //
 // "업로드"·"직접 입력"·"제출"은 전부 React state로만 움직이는 화면 목업이다.
 
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -32,7 +32,7 @@ import {
   X,
   Paperclip,
 } from "lucide-react";
-import { NoticeCard, PrimaryButton, InfoBox, TextField, TextAreaField, StatusBadge } from "@/components/ui";
+import { NoticeCard, PrimaryButton, StatusBadge } from "@/components/ui";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 type SubmitMode = "ai_report" | "expert";
@@ -117,6 +117,10 @@ function getFieldSchema(label: string): FieldConfig[] | null {
 
 // 공유 UI 라이브러리(components/ui)에는 Select 컴포넌트가 없어, 이번 작업 범위인 이
 // 페이지 전용으로만 최소 구현한다(공통 라이브러리는 수정하지 않음).
+// 직접 입력 폼의 세로 여백을 줄이기 위해 TextField/TextAreaField보다 촘촘한 간격을 쓴다.
+const COMPACT_FIELD_CLASS =
+  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 transition-colors duration-200 focus:border-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900/10";
+
 function SelectField({
   label,
   value,
@@ -130,11 +134,11 @@ function SelectField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-semibold text-gray-900">{label}</span>
+      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 transition-colors duration-200 focus:border-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900/10"
+        className={COMPACT_FIELD_CLASS}
       >
         <option value="">선택 안 함</option>
         {options.map((opt) => (
@@ -143,6 +147,57 @@ function SelectField({
           </option>
         ))}
       </select>
+    </label>
+  );
+}
+
+function CompactTextField({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <input type={type} value={value} onChange={onChange} placeholder={placeholder} className={COMPACT_FIELD_CLASS} />
+    </label>
+  );
+}
+
+function CompactTextAreaField({
+  label,
+  rows,
+  value,
+  onChange,
+  placeholder,
+  hint,
+}: {
+  label: string;
+  rows: number;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  hint?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <textarea
+        rows={rows}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`${COMPACT_FIELD_CLASS} resize-none`}
+      />
+      {hint && <span className="mt-1 block text-[11px] text-gray-400">{hint}</span>}
     </label>
   );
 }
@@ -220,15 +275,16 @@ function DocumentCard({
   const schema = getFieldSchema(doc.label);
   const description = DOC_DESCRIPTION_BY_LABEL[doc.label];
 
-  // 모바일에서만 카드 내용을 접고 펼친다(PC는 항상 펼쳐진 상태 — 아래 lg:block으로 강제).
+  // Accordion — 기본은 접힌 상태이며 헤더를 누르면 펼쳐진다(PC·모바일 공통, 동시에 여러 개
+  // 펼쳐질 수 있음).
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:p-5">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-start justify-between gap-3 text-left lg:cursor-default"
+        className="flex w-full items-start justify-between gap-3 text-left"
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -241,7 +297,7 @@ function DocumentCard({
             </span>
           </div>
           {description && (
-            <p className="mt-1.5 pl-7 text-xs text-gray-500">{description}</p>
+            <p className="mt-1 pl-7 text-xs text-gray-500">{description}</p>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -250,14 +306,14 @@ function DocumentCard({
           </StatusBadge>
           <ChevronDown
             size={16}
-            className={`text-gray-400 transition-transform lg:hidden ${expanded ? "rotate-180" : ""}`}
+            className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
           />
         </div>
       </button>
 
-      <div className={`${expanded ? "block" : "hidden"} lg:block`}>
+      <div className={expanded ? "block" : "hidden"}>
         {/* 업로드 / 직접 입력 탭 */}
-        <div className="mt-4 inline-flex rounded-xl bg-gray-100 p-1">
+        <div className="mt-3 inline-flex rounded-xl bg-gray-100 p-1">
           <button
             type="button"
             onClick={() => onModeChange("upload")}
@@ -278,7 +334,7 @@ function DocumentCard({
           </button>
         </div>
 
-        <div className="mt-3">
+        <div className="mt-2.5">
           {doc.inputMode === "upload" ? (
             doc.file ? (
               <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3">
@@ -333,14 +389,14 @@ function DocumentCard({
               </>
             )
           ) : isExtraDoc ? (
-            <div className="space-y-3">
-              <TextField
+            <div className="space-y-2.5">
+              <CompactTextField
                 label="제목"
                 placeholder="제출하시는 서류의 이름을 입력해주세요."
                 value={doc.title}
                 onChange={(e) => onTitleChange(e.target.value)}
               />
-              <TextAreaField
+              <CompactTextAreaField
                 label="직접 입력 내용"
                 rows={3}
                 placeholder="서류 관련 정보를 자유롭게 입력해주세요."
@@ -349,7 +405,7 @@ function DocumentCard({
               />
             </div>
           ) : schema ? (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {schema.map((f) =>
                 f.type === "select" ? (
                   <SelectField
@@ -360,7 +416,7 @@ function DocumentCard({
                     options={f.options ?? []}
                   />
                 ) : (
-                  <TextField
+                  <CompactTextField
                     key={f.key}
                     label={f.label}
                     type={f.type === "date" ? "date" : "text"}
@@ -371,8 +427,9 @@ function DocumentCard({
               )}
             </div>
           ) : (
-            <TextAreaField
+            <CompactTextAreaField
               rows={3}
+              label="직접 입력"
               placeholder="서류 번호, 발급일자 등 관련 정보를 직접 입력해주세요."
               hint="사진이나 스캔본이 없어도 텍스트로 제출하실 수 있습니다."
               value={doc.text}
@@ -508,17 +565,18 @@ function DocumentUploadContent() {
             <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-4">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-bold text-gray-900">제출 진행률</p>
-                <div className="mx-3 h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                  <div
-                    className="h-full rounded-full bg-blue-900 transition-all duration-300"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-                <p className="shrink-0 text-sm font-bold text-blue-900">{progressPercent}%</p>
+                <p className="shrink-0 text-xs font-semibold text-gray-400">{progressPercent}%</p>
               </div>
-              <p className="mt-2 text-xs text-gray-500">
-                {readyCount} / {totalCount} 개 완료 · 총 {totalCount}개 문서 필요
+              <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                <div
+                  className="h-full rounded-full bg-blue-900 transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <p className="mt-3 text-xl font-bold text-blue-900">
+                {readyCount} / {totalCount} <span className="text-sm font-semibold text-gray-500">완료</span>
               </p>
+              <p className="mt-0.5 text-xs text-gray-400">총 {totalCount}개 문서 필요</p>
             </div>
           </>
         )}
@@ -650,12 +708,13 @@ function DocumentUploadContent() {
 
                 <div className="mt-5">
                   <PrimaryButton onClick={handleSubmit}>{copy.submitLabel}</PrimaryButton>
-                  <InfoBox className="mt-2 justify-center text-center">
-                    {copy.submitCaption}
-                  </InfoBox>
-                  <div className="mt-2 flex items-center justify-center gap-1 text-[11px] text-gray-400">
-                    <Lock size={11} />
-                    <span>개인정보는 안전하게 보호됩니다.</span>
+                  <div className="mt-3 space-y-1 text-center text-sm leading-relaxed text-gray-600">
+                    <p className="flex items-center justify-center gap-1.5 font-semibold text-gray-800">
+                      <Lock size={14} className="shrink-0 text-gray-500" />
+                      개인정보는 안전하게 보호됩니다.
+                    </p>
+                    <p>담당 전문가만 제출자료를 확인합니다.</p>
+                    <p>카카오톡 · Zalo · 이메일로 안내드립니다.</p>
                   </div>
                 </div>
               </div>
