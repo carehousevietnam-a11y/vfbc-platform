@@ -1183,13 +1183,13 @@ function DocumentUploadContent() {
             {/* 좌측 — 문서 카드 목록 */}
             <div className="space-y-4">
               {questionSubmittedDoc && (
-                <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                <div className="rounded-2xl border border-blue-100 border-l-4 border-l-blue-900 bg-blue-50/30 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                   <p className="text-sm font-bold text-gray-900">질문 단계에서 제출한 자료</p>
                   <div className="mt-3 space-y-1.5 text-xs text-gray-600">
-                    <p>
-                      <span className="text-gray-400">파일명 </span>
-                      {questionSubmittedDoc.fileName ?? "-"}
-                    </p>
+                    <div className="flex min-w-0 items-baseline gap-1">
+                      <span className="shrink-0 text-gray-400">파일명 </span>
+                      <span className="min-w-0 flex-1 truncate">{questionSubmittedDoc.fileName ?? "-"}</span>
+                    </div>
                     <p>
                       <span className="text-gray-400">문서 종류 </span>
                       {questionSubmittedDoc.documentType ?? "-"}
@@ -1198,11 +1198,15 @@ function DocumentUploadContent() {
                       <span className="text-gray-400">검토 단계 </span>
                       {formatReviewStageLabel(questionSubmittedDoc.reviewStage)}
                     </p>
-                    <p>
-                      <span className="text-gray-400">상태 </span>
-                      이미 제출됨
-                    </p>
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      <span className="text-gray-400">상태</span>
+                      <StatusBadge tone="success">이미 제출됨</StatusBadge>
+                    </div>
                   </div>
+                  <p className="mt-3 text-[11px] leading-relaxed text-gray-500">
+                    질문 단계에서 제출한 자료는 참고용으로 전달되었습니다. 아래에서 필요한 문서를
+                    추가로 제출하실 수 있습니다.
+                  </p>
                 </div>
               )}
 
