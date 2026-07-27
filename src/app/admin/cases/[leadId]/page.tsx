@@ -450,6 +450,13 @@ export default async function AdminLeadDetailPage({
   const nextStep = nextStepIndex >= 0 ? processSteps[nextStepIndex] : null;
   const permitStep = processSteps.find((s) => s.settableAction === "process_permit_completed") ?? null;
 
+  // "고객 요약" 카드 전용 — buildProcessSteps 결과에서 라벨만 골라 쓴다(점수/리스크 계산과
+  // 마찬가지로 새 계산 로직 없음). 마지막으로 완료된(done===true) 단계를 "현재 단계"로
+  // 표시하며, 완료된 단계가 없으면 첫 단계 라벨을 표시한다. nextStep(다음 진행 가능 단계)은
+  // 여기서 사용하지 않는다 — "다음 단계 실행" 카드 전용 값으로만 유지.
+  const currentStageLabel =
+    [...processSteps].reverse().find((s) => s.done)?.label ?? processSteps[0]?.label ?? "-";
+
   // STEP4: "허가 완료" 단계에 첨부된 결과파일(허가증)이 있으면 표시용으로 조회
   const permitActivity = activities.find((a) => a.action === "process_permit_completed");
   const permitFileUrl = (asMeta(permitActivity?.meta)?.file_url as string | undefined) ?? null;
@@ -578,6 +585,41 @@ export default async function AdminLeadDetailPage({
         <h1 className="mt-3 text-2xl font-bold tracking-tight text-gray-900">
           {lead.name}
         </h1>
+
+        {/* 고객 요약 — 기존 데이터(activeScore/riskInfo/processSteps)만 재사용, 새 계산 없음 */}
+        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <p className="text-xs font-semibold text-gray-700">고객 요약</p>
+          <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+              <p className="text-[10px] text-gray-400">고객</p>
+              <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{lead.name}</p>
+            </div>
+            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+              <p className="text-[10px] text-gray-400">서비스</p>
+              <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{serviceLabel}</p>
+            </div>
+            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+              <p className="text-[10px] text-gray-400">현재 단계</p>
+              <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{currentStageLabel}</p>
+            </div>
+            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+              <p className="text-[10px] text-gray-400">AI 점수</p>
+              <p className="mt-0.5 text-xs font-semibold text-gray-900">
+                {typeof activeScore === "number" ? `${activeScore}%` : "-"}
+              </p>
+            </div>
+            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+              <p className="text-[10px] text-gray-400">리스크</p>
+              {riskInfo ? (
+                <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
+                  {riskInfo.label}
+                </span>
+              ) : (
+                <p className="mt-0.5 text-xs font-semibold text-gray-900">-</p>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* 1~2. 고객 기본정보 + 신청 서비스 정보 — PC(lg 이상) 2열, 모바일 1열 */}
         <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
