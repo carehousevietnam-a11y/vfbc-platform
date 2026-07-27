@@ -87,6 +87,11 @@ function ResultContent() {
   // lead_id 단위로 발급되므로(stageChange.ts 등에서 확인된 원칙) info.leadId는
   // 항상 이 토큰에 대응하는 정확한 신청 건이다.
   const wantsChat = next === "chat";
+  // TRC/WP/땀주/운전면허 CHECK 서비스의 "전문가 진행 요청하기" 전용 — "/r?token=...&next=documents"로
+  // 오면 로그인 왕복이 끝난 뒤 진단결과 카드 대신 해당 신청 건의 Document Upload
+  // Page(/documents)로 바로 이동시킨다. info.serviceType은 leads.service_type과
+  // 동일한 값(trc/wp/tamtru/driving-license)이므로 documents 페이지의 service 쿼리에 그대로 쓸 수 있다.
+  const wantsDocuments = next === "documents";
 
   const [status, setStatus] = useState<Status>("loading");
   const [info, setInfo] = useState<ResultInfo | null>(null);
@@ -193,6 +198,15 @@ function ResultContent() {
       router.replace(`/mypage/chat?leadId=${info.leadId}`);
     }
   }, [wantsChat, alreadyLoggedInPass, status, info, router]);
+
+  // "전문가 진행 요청하기" 전용 — 로그인 왕복이 끝나면 결과 카드 대신 /documents로 바로 이동한다.
+  useEffect(() => {
+    if (wantsDocuments && alreadyLoggedInPass && status === "ready" && info?.leadId) {
+      router.replace(
+        `/documents?leadId=${info.leadId}&service=${info.serviceType ?? ""}&mode=expert`
+      );
+    }
+  }, [wantsDocuments, alreadyLoggedInPass, status, info, router]);
 
   // 클릭 즉시 접수 — 중간 확인 화면 없이 한 번의 클릭으로 완료
   async function handleHelpRequest() {
@@ -322,7 +336,13 @@ function ResultContent() {
           </div>
         )}
 
-        {status === "ready" && info && !wantsMypage && !wantsChat && (
+        {status === "ready" && info && wantsDocuments && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p className="text-sm text-gray-500">서류 제출 페이지로 이동 중입니다...</p>
+          </div>
+        )}
+
+        {status === "ready" && info && !wantsMypage && !wantsChat && !wantsDocuments && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckCircle2 className="text-emerald-600" size={28} />
 
