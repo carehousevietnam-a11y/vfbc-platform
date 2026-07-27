@@ -11,6 +11,8 @@ import {
   ExternalLink,
   ShieldCheck,
   Paperclip,
+  Clock,
+  UserCheck,
   FileSignature,
   Building2,
   Briefcase,
@@ -24,6 +26,7 @@ import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getDiagnosis, getIncidentTypes, DiagnosisResult } from "@/lib/verifyDiagnosis";
+import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 const CATEGORY = "admin" as const;
 
@@ -525,6 +528,173 @@ function RiskGauge({
           {label}
         </span>
       </div>
+    </div>
+  );
+}
+
+// CHECK(TRC)의 ResultOverviewCards와 동일한 PC 5칸 그리드 / 모바일 세로 리스트
+// wrapper(className 동일)를 그대로 재사용하고, 내용만 VERIFY 진단에 실제로 존재하는
+// 필드(riskLevel/checklist/report.riskFactors)로 채운다. TRC의 feasibilityScore·
+// estimatedDays처럼 VERIFY에 없는 수치는 만들어내지 않고, 자료가 없으면 "서류 확인
+// 필요"/"서류 확인 후 안내"로 표시한다.
+function VerifyResultOverviewCards({
+  diagnosis,
+  docCount,
+}: {
+  diagnosis: DiagnosisResult;
+  docCount: number;
+}) {
+  const { riskLevel } = diagnosis.expertBrief;
+  const riskLabel = riskLevel === "low" ? "낮음" : riskLevel === "medium" ? "보통" : "높음";
+  const topRiskFactor =
+    diagnosis.report?.riskFactors?.[0]?.label ??
+    diagnosis.checklist.find((c) => c.level === "critical")?.label ??
+    diagnosis.checklist[0]?.label ??
+    "확인된 주요 위험요인이 아직 없습니다";
+
+  const riskPillTone =
+    riskLevel === "low"
+      ? "bg-emerald-50 text-emerald-700"
+      : riskLevel === "medium"
+      ? "bg-amber-50 text-amber-700"
+      : "bg-red-50 text-red-700";
+
+  const aiOpinionText = riskLevel === "low" ? "정상" : "확인필요";
+  const aiOpinionTone =
+    riskLevel === "low"
+      ? "bg-emerald-50 text-emerald-700"
+      : riskLevel === "medium"
+      ? "bg-amber-50 text-amber-700"
+      : "bg-red-50 text-red-700";
+
+  const items = [
+    {
+      n: 1,
+      label: "위험도",
+      visual: <RiskGauge riskLevel={riskLevel} size={64} />,
+      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${riskPillTone}`}>{riskLabel}</span>,
+      caption: "입력하신 내용을 기준으로 분석한 1차 위험도입니다.",
+    },
+    {
+      n: 2,
+      label: "주요 위험요인",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
+          <AlertTriangle className="text-amber-600" size={26} />
+        </div>
+      ),
+      pill: (
+        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700">
+          {topRiskFactor}
+        </span>
+      ),
+      caption: "우선적으로 확인이 필요한 항목입니다.",
+    },
+    {
+      n: 3,
+      label: "추가 확인자료",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+          <FileText className="text-blue-700" size={26} />
+        </div>
+      ),
+      pill: (
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">
+          {docCount > 0 ? `필요 서류 ${docCount}개` : "서류 확인 필요"}
+        </span>
+      ),
+      caption: "정확한 검토를 위해 필요한 자료입니다.",
+    },
+    {
+      n: 4,
+      label: "예상 검토기간",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50">
+          <Clock className="text-violet-600" size={26} />
+        </div>
+      ),
+      pill: (
+        <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">
+          서류 확인 후 안내
+        </span>
+      ),
+      caption: "서류 제출 후 정밀 리포트에서 안내드립니다.",
+    },
+    {
+      n: 5,
+      label: "AI 1차 의견",
+      visual: (
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+          <UserCheck className="text-gray-700" size={26} />
+        </div>
+      ),
+      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
+      caption: "베트남 행정 전문가 AI의 1차 검토 의견입니다.",
+    },
+  ];
+
+  return (
+    <>
+      {/* PC — 5칸 가로 배치 */}
+      <div className="mt-6 hidden overflow-hidden rounded-2xl border border-gray-100 bg-white sm:grid sm:grid-cols-5 sm:divide-x sm:divide-gray-100">
+        {items.map((item) => (
+          <div key={item.n} className="flex flex-col items-center gap-2.5 p-5 text-center">
+            <div className="flex items-center gap-1.5 self-start">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+                {item.n}
+              </span>
+              <span className="text-xs font-semibold text-gray-700">{item.label}</span>
+            </div>
+            <div className="mt-1">{item.visual}</div>
+            {item.pill}
+            <p className="text-[11px] leading-relaxed text-gray-500">{item.caption}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* 모바일 — 세로형 요약 리스트 */}
+      <div className="mt-6 divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white sm:hidden">
+        {items.map((item) => (
+          <div key={item.n} className="flex items-center justify-between gap-3 p-4">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+                {item.n}
+              </span>
+              <span className="truncate text-sm font-medium text-gray-700">{item.label}</span>
+            </div>
+            <div className="shrink-0">{item.pill}</div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// CHECK(TRC)의 buildResultSummaryText/ResultSummaryCard와 동일한 구조 — 기존
+// 진단 데이터(riskLevel, report.analysisOpinion/expertBrief.summary)만으로 2~3문장
+// 요약을 구성한다. 새로운 판단이나 점수를 만들지 않는다.
+function buildVerifyResultSummaryText(diagnosis: DiagnosisResult): string {
+  const { riskLevel, summary } = diagnosis.expertBrief;
+  const riskLabel = riskLevel === "low" ? "낮은" : riskLevel === "medium" ? "보통" : "높은";
+  const sentence1 = `입력하신 사건유형·설명을 기준으로 위험도는 '${riskLabel}' 수준으로 1차 분류되었습니다.`;
+  const sentence2 = diagnosis.report?.analysisOpinion ?? summary;
+  const sentence3 =
+    "실제 서류를 확인하기 전까지는 참고용 1차 결과이며, 정확한 판단은 서류 제출 후 전문가 검토를 통해 확정됩니다.";
+  return `${sentence1} ${sentence2} ${sentence3}`;
+}
+
+function VerifyResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const summaryText = buildVerifyResultSummaryText(diagnosis);
+
+  return (
+    <div className="mt-3 rounded-2xl bg-white border border-gray-100 p-5">
+      <div className="flex items-center gap-2">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+          AI
+        </span>
+        <p className="text-sm font-bold text-gray-900">AI 분석 결과 요약</p>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-gray-700">{summaryText}</p>
     </div>
   );
 }
@@ -1142,14 +1312,16 @@ export default function VerifyAdminPage() {
         {/* STEP5: 진단 리포트 + 진행방식 선택 CTA 3개 — CHECK(TRC)와 동일한 구조 */}
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex items-start justify-between gap-4">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
-                VFBCAI 1차 검토 결과
-              </span>
-              <RiskGauge riskLevel={diagnosis.expertBrief.riskLevel} size={76} />
-            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              행정문서 검토 · AI 분석 리포트
+            </p>
 
-            <DiagnosisReportSection diagnosis={diagnosis} />
+            <VerifyResultOverviewCards
+              diagnosis={diagnosis}
+              docCount={getRequiredDocuments("verify_admin").documents.length}
+            />
+
+            <VerifyResultSummaryCard diagnosis={diagnosis} />
 
             <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
             <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
