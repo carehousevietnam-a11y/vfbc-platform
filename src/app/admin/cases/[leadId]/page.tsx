@@ -552,7 +552,7 @@ export default async function AdminLeadDetailPage({
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className="mx-auto max-w-2xl px-6 py-10">
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <Link href="/admin/cases" className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600">
           <ArrowLeft size={14} /> 목록으로
         </Link>
@@ -579,39 +579,42 @@ export default async function AdminLeadDetailPage({
           {lead.name}
         </h1>
 
-        {/* 1. 고객 기본정보 */}
-        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-xs font-semibold text-gray-700">고객 기본정보</p>
-          <div className="mt-2 grid grid-cols-2 gap-y-1.5 text-xs">
-            <span className="text-gray-500">전화번호</span>
-            <span className="font-medium text-gray-900">{lead.phone ?? "-"}</span>
-            <span className="text-gray-500">이메일</span>
-            <span className="font-medium text-gray-900">{lead.email ?? "-"}</span>
-            <span className="text-gray-500">주소</span>
-            <span className="font-medium text-gray-900">{lead.address ?? "-"}</span>
-            <span className="text-gray-500">카카오톡</span>
-            <span className="font-medium text-gray-900">{lead.kakao_id ?? "-"}</span>
-            <span className="text-gray-500">잘로</span>
-            <span className="font-medium text-gray-900">{lead.zalo_id ?? "-"}</span>
-            <span className="text-gray-500">접수일</span>
-            <span className="font-medium text-gray-900">
-              {new Date(lead.created_at).toLocaleString("ko-KR")}
-            </span>
+        {/* 1~2. 고객 기본정보 + 신청 서비스 정보 — PC(lg 이상) 2열, 모바일 1열 */}
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* 1. 고객 기본정보 */}
+          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="text-xs font-semibold text-gray-700">고객 기본정보</p>
+            <div className="mt-2 grid grid-cols-2 gap-y-1.5 text-xs">
+              <span className="text-gray-500">전화번호</span>
+              <span className="font-medium text-gray-900">{lead.phone ?? "-"}</span>
+              <span className="text-gray-500">이메일</span>
+              <span className="font-medium text-gray-900">{lead.email ?? "-"}</span>
+              <span className="text-gray-500">주소</span>
+              <span className="font-medium text-gray-900">{lead.address ?? "-"}</span>
+              <span className="text-gray-500">카카오톡</span>
+              <span className="font-medium text-gray-900">{lead.kakao_id ?? "-"}</span>
+              <span className="text-gray-500">잘로</span>
+              <span className="font-medium text-gray-900">{lead.zalo_id ?? "-"}</span>
+              <span className="text-gray-500">접수일</span>
+              <span className="font-medium text-gray-900">
+                {new Date(lead.created_at).toLocaleString("ko-KR")}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* 2. 신청 서비스 종류 / 유입 경로 */}
-        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-xs font-semibold text-gray-700">신청 서비스 정보</p>
-          <div className="mt-2 grid grid-cols-2 gap-y-1.5 text-xs">
-            <span className="text-gray-500">서비스 종류</span>
-            <span className="font-medium text-gray-900">{serviceLabel}</span>
-            <span className="text-gray-500">service_type 원본값</span>
-            <span className="font-mono text-[11px] text-gray-500">{lead.service_type ?? "-"}</span>
-            <span className="text-gray-500">유입 경로</span>
-            <span className="font-medium text-gray-900">{lead.source_page ?? "-"}</span>
-            <span className="text-gray-500">결과값</span>
-            <span className="font-medium text-gray-900">{lead.result ?? "-"}</span>
+          {/* 2. 신청 서비스 종류 / 유입 경로 */}
+          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="text-xs font-semibold text-gray-700">신청 서비스 정보</p>
+            <div className="mt-2 grid grid-cols-2 gap-y-1.5 text-xs">
+              <span className="text-gray-500">서비스 종류</span>
+              <span className="font-medium text-gray-900">{serviceLabel}</span>
+              <span className="text-gray-500">service_type 원본값</span>
+              <span className="font-mono text-[11px] text-gray-500">{lead.service_type ?? "-"}</span>
+              <span className="text-gray-500">유입 경로</span>
+              <span className="font-medium text-gray-900">{lead.source_page ?? "-"}</span>
+              <span className="text-gray-500">결과값</span>
+              <span className="font-medium text-gray-900">{lead.result ?? "-"}</span>
+            </div>
           </div>
         </div>
 
