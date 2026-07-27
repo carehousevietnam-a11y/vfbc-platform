@@ -890,72 +890,95 @@ export default async function AdminLeadDetailPage({
             )}
           </div>
 
-          {/* 우측: 문서 관리 — 첨부 서류 / 고객 추가 제출 자료 / 질문 단계 제출 자료를 한 카드의 섹션으로 통합 */}
-          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          {/* 우측: 문서 관리 — 첨부 서류 / 고객 추가 제출 자료 / 질문 단계 제출 자료를 행(Row) 형태로 통합 표시 */}
+          <div className="self-start rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <p className="text-xs font-semibold text-gray-700">문서 관리</p>
 
-            <div className="mt-3 divide-y divide-gray-100">
-              {/* 4. 첨부 서류 */}
-              {fileUrl && (
-                <div className="py-3 first:pt-0 last:pb-0">
-                  <p className="text-xs font-semibold text-gray-700">첨부 서류</p>
-                  <a
-                    href={fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-blue-900 hover:underline"
-                  >
-                    <Paperclip size={13} /> {fileName ?? "첨부파일 열기"}
-                  </a>
-                </div>
-              )}
-
-              {/* 4-1. 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
-              {customerDocuments.length > 0 && (
-                <div className="py-3 first:pt-0 last:pb-0">
-                  <p className="text-xs font-semibold text-gray-700">고객 추가 제출 자료</p>
-                  <div className="mt-2 space-y-2.5">
-                    {customerDocuments.map((doc) => (
-                      <div key={doc.id} className="rounded-xl bg-gray-50 px-3 py-2.5">
-                        <p className="text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
-                        <div className="mt-1 space-y-0.5 text-[11px] text-gray-500">
-                          <p>파일명: {doc.fileName ?? "-"}</p>
-                          <p>파일크기: {formatFileSizeLabel(doc.fileSize)}</p>
-                          <p>신청서비스: {doc.service ?? "-"}</p>
-                          <p>제출방식: {doc.mode ?? "-"}</p>
-                          <p>제출일: {new Date(doc.createdAt).toLocaleString("ko-KR")}</p>
-                        </div>
-                        {doc.signedUrl ? (
-                          <a
-                            href={doc.signedUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-blue-900 hover:underline"
-                          >
-                            <Paperclip size={12} /> 파일 열기
-                          </a>
-                        ) : (
-                          <p className="mt-1.5 text-[11px] text-gray-400">파일을 열 수 없습니다</p>
-                        )}
-                      </div>
-                    ))}
+            {fileUrl || customerDocuments.length > 0 || questionStageSubmittedDocument ? (
+              <div className="mt-3 divide-y divide-gray-100">
+                {/* 4. 첨부 서류 */}
+                {fileUrl && (
+                  <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                      <Paperclip size={14} className="text-blue-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-gray-800">
+                        {fileName ?? "첨부파일"}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                      제출완료
+                    </span>
+                    <a
+                      href={fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
+                    >
+                      열기
+                    </a>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용) */}
-              {questionStageSubmittedDocument && (
-                <div className="py-3 first:pt-0 last:pb-0">
-                  <p className="text-xs font-semibold text-gray-700">질문 단계 제출 자료</p>
-                  <div className="mt-2 space-y-0.5 text-[11px] text-gray-500">
-                    <p>파일명: {questionStageSubmittedDocument.fileName ?? "-"}</p>
-                    <p>문서종류: {questionStageSubmittedDocument.documentType ?? "-"}</p>
-                    <p>검토단계: {formatReviewStageLabel(questionStageSubmittedDocument.reviewStage)}</p>
-                    <p>상태: 이미 제출됨</p>
+                {/* 4-1. 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
+                {customerDocuments.map((doc) => (
+                  <div key={doc.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                      <Paperclip size={14} className="text-blue-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
+                      <p className="mt-0.5 truncate text-[11px] text-gray-400">
+                        {new Date(doc.createdAt).toLocaleString("ko-KR")}
+                      </p>
+                    </div>
+                    {doc.signedUrl ? (
+                      <>
+                        <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                          제출완료
+                        </span>
+                        <a
+                          href={doc.signedUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
+                        >
+                          열기
+                        </a>
+                      </>
+                    ) : (
+                      <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                        열람 불가
+                      </span>
+                    )}
                   </div>
-                </div>
-              )}
-            </div>
+                ))}
+
+                {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용 — 링크 없음) */}
+                {questionStageSubmittedDocument && (
+                  <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                      <Paperclip size={14} className="text-blue-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-gray-800">
+                        {questionStageSubmittedDocument.fileName ?? "질문 단계 제출 자료"}
+                      </p>
+                      <p className="mt-0.5 truncate text-[11px] text-gray-400">
+                        {questionStageSubmittedDocument.documentType ?? "-"} ·{" "}
+                        {formatReviewStageLabel(questionStageSubmittedDocument.reviewStage)}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                      이미 제출됨
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
+            )}
           </div>
         </div>
 
