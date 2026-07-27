@@ -592,10 +592,14 @@ function NextStepOptions({
   onSelf,
   onExpert,
   officialUrl,
+  expertPending,
+  expertError,
 }: {
   onSelf: () => void;
   onExpert: () => void;
   officialUrl: string;
+  expertPending?: boolean;
+  expertError?: string | null;
 }) {
   return (
     <div>
@@ -649,12 +653,15 @@ function NextStepOptions({
             <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
           </ul>
           <div className="mt-auto pt-4">
-            <PrimaryButton onClick={onExpert}>
+            <PrimaryButton onClick={onExpert} loading={expertPending}>
               전문가 진행 요청하기
             </PrimaryButton>
             <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
-              전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수
-              있습니다.
+              {expertError ? (
+                <span className="text-red-600">{expertError}</span>
+              ) : (
+                "전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수 있습니다."
+              )}
             </p>
           </div>
         </div>
@@ -721,6 +728,11 @@ export default function DrivingLicenseCheckPage() {
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const messengers = MESSENGERS_KO;
   const selfNotifySentRef = useRef(false);
+  // /api/lead-submit 응답의 result_tokens.token — "전문가 진행 요청하기" 클릭 시
+  // /api/auto-login에 전달해 로그인 세션을 만든 뒤 /documents로 이동시키는 데 쓴다.
+  const [resultToken, setResultToken] = useState<string | null>(null);
+  const [expertLoginPending, setExpertLoginPending] = useState(false);
+  const [expertLoginError, setExpertLoginError] = useState<string | null>(null);
 
   const result: Result = computeLicenseResultTone(trc, license);
   const showResult = trc === "yes" && !!license;
@@ -800,6 +812,39 @@ export default function DrivingLicenseCheckPage() {
     });
   }
 
+  // "전문가 진행 요청하기" 클릭 시 — resultToken이 있으면 /api/auto-login으로
+  // 실제 로그인 세션을 발급받은 뒤(magic link 왕복, /r?...&next=documents 경유)
+  // /documents로 이동한다. 세션이 없으면 이후 업로드/삭제가 RLS에서 permission
+  // denied로 조용히 실패하므로, 토큰이 없는 경우 이동하지 않고 오류만 표시한다.
+  async function handleExpertRequestClick() {
+    if (!leadId) return;
+    if (!resultToken) {
+      setExpertLoginError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
+      return;
+    }
+    setExpertLoginPending(true);
+    setExpertLoginError(null);
+    try {
+      const res = await fetch("/api/auto-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: resultToken, next: "documents" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.actionLink) {
+        console.error("auto-login failed:", data);
+        setExpertLoginError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+        setExpertLoginPending(false);
+        return;
+      }
+      window.location.href = data.actionLink;
+    } catch (err) {
+      console.error("auto-login request failed:", err);
+      setExpertLoginError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+      setExpertLoginPending(false);
+    }
+  }
+
   function reset() {
     setTrc(null);
     setLicense(null);
@@ -817,6 +862,9 @@ export default function DrivingLicenseCheckPage() {
     setPreviousRejection(null);
     setRejectionReason("");
     setRejectionStepDone(false);
+    setResultToken(null);
+    setExpertLoginPending(false);
+    setExpertLoginError(null);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
   }
@@ -921,6 +969,9 @@ export default function DrivingLicenseCheckPage() {
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
         console.error("lead-submit API error:", errBody);
+      } else {
+        const okBody = await res.json().catch(() => null);
+        if (okBody?.token) setResultToken(okBody.token);
       }
     } catch (apiErr) {
       console.error("lead-submit fetch failed:", apiErr);
@@ -1336,7 +1387,9 @@ export default function DrivingLicenseCheckPage() {
 
             <NextStepOptions
               onSelf={handleSelfPortalClick}
-              onExpert={() => setDetailStage(true)}
+              onExpert={handleExpertRequestClick}
+              expertPending={expertLoginPending}
+              expertError={expertLoginError}
               officialUrl={LICENSE_OFFICIAL_URL}
             />
             <div className="mt-2">
