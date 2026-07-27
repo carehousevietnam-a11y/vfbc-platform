@@ -91,7 +91,11 @@ function ResultContent() {
   // 오면 로그인 왕복이 끝난 뒤 진단결과 카드 대신 해당 신청 건의 Document Upload
   // Page(/documents)로 바로 이동시킨다. info.serviceType은 leads.service_type과
   // 동일한 값(trc/wp/tamtru/driving-license)이므로 documents 페이지의 service 쿼리에 그대로 쓸 수 있다.
-  const wantsDocuments = next === "documents";
+  // "documents"는 기존과 동일하게 mode=expert로 이동한다(하위호환, 동작 변경 없음).
+  // "documents_ai_report"는 신규 값으로, /documents로 mode=ai_report를 전달할 때만 쓴다.
+  // token/actionLink/next 파라미터 구조 자체는 그대로 두고, next에 담기는 값만 늘린 것이다.
+  const wantsDocuments = next === "documents" || next === "documents_ai_report";
+  const documentsMode = next === "documents_ai_report" ? "ai_report" : "expert";
 
   const [status, setStatus] = useState<Status>("loading");
   const [info, setInfo] = useState<ResultInfo | null>(null);
@@ -199,14 +203,17 @@ function ResultContent() {
     }
   }, [wantsChat, alreadyLoggedInPass, status, info, router]);
 
-  // "전문가 진행 요청하기" 전용 — 로그인 왕복이 끝나면 결과 카드 대신 /documents로 바로 이동한다.
+  // "전문가 진행 요청하기"/"AI 검토(리포트) 요청하기" 공용 — 로그인 왕복이 끝나면 결과
+  // 카드 대신 /documents로 바로 이동한다. mode는 next 값("documents" 또는
+  // "documents_ai_report")에 따라 documentsMode로 결정되며, /documents 쪽 자료 목록은
+  // mode가 아니라 service_type(info.serviceType)으로만 결정되므로 여기서는 손대지 않는다.
   useEffect(() => {
     if (wantsDocuments && alreadyLoggedInPass && status === "ready" && info?.leadId) {
       router.replace(
-        `/documents?leadId=${info.leadId}&service=${info.serviceType ?? ""}&mode=expert`
+        `/documents?leadId=${info.leadId}&service=${info.serviceType ?? ""}&mode=${documentsMode}`
       );
     }
-  }, [wantsDocuments, alreadyLoggedInPass, status, info, router]);
+  }, [wantsDocuments, alreadyLoggedInPass, status, info, router, documentsMode]);
 
   // 클릭 즉시 접수 — 중간 확인 화면 없이 한 번의 클릭으로 완료
   async function handleHelpRequest() {

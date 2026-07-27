@@ -528,6 +528,8 @@ export default function VerifyAdminPage() {
   const [diagnosing, setDiagnosing] = useState(false);
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [expertError, setExpertError] = useState<string | null>(null);
+  const [aiReportRequesting, setAiReportRequesting] = useState(false);
+  const [aiReportError, setAiReportError] = useState<string | null>(null);
   const [selectedAgency, setSelectedAgency] = useState<AdminAgency | null>(null);
   // CHECK(TRC)와 동일한 Step 방식 질문 화면의 선택 카드 클릭 피드백(300ms) 및
   // 전문가 진행 요청 시 사용할 로그인 토큰 — TRC의 selectedKey/resultToken과 동일한 용도.
@@ -676,6 +678,39 @@ export default function VerifyAdminPage() {
     } catch {
       setExpertError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
       setExpertRequesting(false);
+    }
+  }
+
+  // "AI 검토 요청하기" — handleExpertRequest와 동일한 Auto-login → /r → /documents
+  // 흐름을 타되, next 값만 "documents_ai_report"로 달라 /documents가 mode=ai_report로
+  // 열린다. 신규 CRM action은 만들지 않는다(핸드오프 문서 결정 유지) — CHECK(TRC)의
+  // "AI 리포트 요청하기" 버튼도 이 시점에는 CRM을 기록하지 않는 것과 동일하게 맞춘 것.
+  async function handleAiReportRequest() {
+    if (!leadId) return;
+    setAiReportRequesting(true);
+    setAiReportError(null);
+    try {
+      if (!resultToken) {
+        setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
+        setAiReportRequesting(false);
+        return;
+      }
+      const res = await fetch("/api/auto-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: resultToken, next: "documents_ai_report" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.actionLink) {
+        console.error("auto-login failed:", data);
+        setAiReportError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+        setAiReportRequesting(false);
+        return;
+      }
+      window.location.href = data.actionLink;
+    } catch {
+      setAiReportError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+      setAiReportRequesting(false);
     }
   }
 
@@ -937,7 +972,7 @@ export default function VerifyAdminPage() {
           </div>
         )}
 
-        {/* STEP4: 진단 리포트 + 진행방식 선택 진입 버튼 2개 */}
+        {/* STEP4: 진단 리포트 + 진행방식 선택 CTA 3개 */}
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-900">
@@ -947,20 +982,20 @@ export default function VerifyAdminPage() {
             <DiagnosisReportSection diagnosis={diagnosis} />
 
             <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2 sm:items-stretch">
-              {/* 1) 전문가 검토 진행하기 — 가장 강한 파란색 CTA */}
+            <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
+              {/* 1) 전문가 진행하기 — 가장 강한 파란색 CTA */}
               <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
                   추천
                 </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">전문가 검토 진행하기</p>
+                <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
                 <p className="mt-2 text-xs text-gray-500 leading-relaxed">
                   AI 사전진단 내용과 첨부하신 서류를 전문가가 함께 확인한 뒤
                   결과를 안내드립니다.
                 </p>
                 <div className="mt-auto pt-4">
                   <PrimaryButton onClick={handleExpertRequest} loading={expertRequesting}>
-                    전문가 검토 진행하기
+                    전문가 진행하기
                   </PrimaryButton>
                   <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
                     {expertError ? (
@@ -972,19 +1007,48 @@ export default function VerifyAdminPage() {
                 </div>
               </div>
 
-              {/* 2) 직접 검토 진행하기 — 흰색 테두리 보조 옵션 */}
+              {/* 2) AI 검토 요청하기 — 서류 업로드 후 mode=ai_report로 /documents 진입,
+                  전문가 카드보다 강조되지 않는 중립적인 보조 배지(슬레이트 톤) */}
+              <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
+                <span className="absolute -top-2.5 left-4 rounded-full bg-slate-400 px-2.5 py-0.5 text-[10px] font-bold text-white">
+                  선택 가능
+                </span>
+                <p className="mt-1 text-sm font-bold text-gray-900">AI 검토 요청하기</p>
+                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                  자료를 제출하시면 AI가 정밀 검토 리포트를 준비합니다.
+                </p>
+                <div className="mt-auto pt-4">
+                  <button
+                    type="button"
+                    onClick={handleAiReportRequest}
+                    disabled={aiReportRequesting}
+                    className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors disabled:opacity-60"
+                  >
+                    {aiReportRequesting ? "이동 중..." : "AI 검토 요청하기"}
+                  </button>
+                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
+                    {aiReportError ? (
+                      <span className="text-red-600">{aiReportError}</span>
+                    ) : (
+                      "이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다."
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* 3) 직접 진행하기 — 흰색 테두리 보조 옵션 */}
               <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
                 <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
                   신중
                 </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">직접 검토 진행하기</p>
+                <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
                 <p className="mt-2 text-xs text-gray-500 leading-relaxed">
                   관할기관·공식 확인 경로·절차 안내를 참고해 스스로 진행할
                   수 있습니다.
                 </p>
                 <div className="mt-auto pt-4">
                   <PrimaryButton variant="outline" onClick={() => setStep("guidanceSelect")}>
-                    직접 검토 진행하기
+                    직접 진행하기
                   </PrimaryButton>
                   <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
                     이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다.

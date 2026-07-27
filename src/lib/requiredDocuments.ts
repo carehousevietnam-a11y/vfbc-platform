@@ -8,7 +8,12 @@
 // 마스터문서 "AI 리포트 원칙"에 따라 상세 행정 절차 설명 없이, 여권/비자/노동허가증/
 // 회사서류/사진처럼 목록 중심의 단순 명칭만 사용한다.
 
-export type DocumentServiceKey = "wp" | "trc" | "tamtru" | "driving-license";
+export type DocumentServiceKey =
+  | "wp"
+  | "trc"
+  | "tamtru"
+  | "driving-license"
+  | "verify_admin";
 
 export interface RequiredDocumentConfig {
   serviceKey: string;
@@ -36,6 +41,18 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
     serviceKey: "driving-license",
     serviceLabel: "운전면허 전환",
     documents: ["여권", "거주증(TRC)", "본국 운전면허", "번역공증본"],
+  },
+  // VERIFY(직접검토하기) 전용 — CHECK 4종과는 완전히 별도의 사건자료 목록.
+  verify_admin: {
+    serviceKey: "verify_admin",
+    serviceLabel: "행정문서 검토",
+    documents: [
+      "사건 내용 정리",
+      "계약서·공문·통지서",
+      "카카오톡·Zalo·이메일 대화 캡처",
+      "사진·영수증·송금증 등 증거자료",
+      "기타 참고자료",
+    ],
   },
 };
 
