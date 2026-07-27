@@ -182,6 +182,48 @@ function formatReviewStageLabel(reviewStage: string | null): string {
   return reviewStage ?? "-";
 }
 
+// "활동 타임라인" 표시 전용 — crm_activities.action 원본 문자열은 절대 바꾸지 않고,
+// 화면에 보여줄 라벨/색상만 매핑한다. 여기 없는 action은 서비스별 진단 완료
+// 접미사(_diagnosis_lead)를 우선 확인하고, 그래도 없으면 기존 humanizeKey로
+// 사람이 읽기 좋게 변환해 표시한다(새 계산 로직이 아니라 기존 포맷터 재사용).
+const ACTIVITY_LABELS: Record<string, string> = {
+  expert_review_request: "전문가 검토 요청",
+  agency_upgrade_request: "전문가 진행 요청",
+  process_government_submitted: "정부 제출",
+  process_permit_completed: "허가 완료",
+  document_upload: "문서 제출",
+  consultation_request: "상담 신청",
+  expert_consultation_requested: "상담 요청 (Case Room)",
+  expert_memo: "전문가 메모 작성",
+  verify_lead: "AI 진단 완료",
+};
+
+const ACTIVITY_DOT_COLORS: Record<string, string> = {
+  expert_review_request: "bg-blue-500",
+  agency_upgrade_request: "bg-amber-500",
+  process_government_submitted: "bg-purple-500",
+  process_permit_completed: "bg-emerald-500",
+  document_upload: "bg-blue-500",
+  consultation_request: "bg-teal-500",
+  expert_consultation_requested: "bg-purple-500",
+  expert_memo: "bg-gray-400",
+  verify_lead: "bg-emerald-500",
+};
+
+function getActivityLabel(action: string | null): string {
+  if (!action) return "활동 기록";
+  if (ACTIVITY_LABELS[action]) return ACTIVITY_LABELS[action];
+  if (action.endsWith("_diagnosis_lead")) return "AI 진단 완료";
+  return humanizeKey(action);
+}
+
+function getActivityDotColor(action: string | null): string {
+  if (!action) return "bg-gray-300";
+  if (ACTIVITY_DOT_COLORS[action]) return ACTIVITY_DOT_COLORS[action];
+  if (action.endsWith("_diagnosis_lead")) return "bg-emerald-500";
+  return "bg-gray-300";
+}
+
 function getConsultationStatus(activities: ActivityRow[]): { label: string; color: string } {
   const actions = new Set(activities.map((a) => a.action));
   if (actions.has("agency_upgrade_request")) {
@@ -1041,14 +1083,17 @@ export default async function AdminLeadDetailPage({
                 <p className="text-xs text-gray-400">기록된 활동이 없습니다.</p>
               )}
               {activities.map((a) => (
-                <div key={a.id} className="flex items-start justify-between gap-3 text-xs">
-                  <span className="text-gray-600">
-                    {a.action}
-                    {a.tag && <span className="ml-1.5 text-gray-400">· {a.tag}</span>}
-                  </span>
-                  <span className="text-gray-400 shrink-0">
-                    {new Date(a.created_at).toLocaleString("ko-KR")}
-                  </span>
+                <div key={a.id} className="flex items-start gap-2.5 rounded-xl bg-gray-50 px-3 py-2.5">
+                  <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${getActivityDotColor(a.action)}`} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-gray-800">
+                      {getActivityLabel(a.action)}
+                      {a.tag && <span className="ml-1.5 font-normal text-gray-400">· {a.tag}</span>}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-gray-400">
+                      {new Date(a.created_at).toLocaleString("ko-KR")}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
