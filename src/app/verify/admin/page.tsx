@@ -422,16 +422,34 @@ const INCIDENT_TYPE_DESCRIPTIONS: Record<string, string> = {
 const REVIEW_STAGE_OPTIONS = [
   {
     value: "pre",
-    title: "문제 발생 전 사전 검토",
-    desc: "계약·제출·신청 전에 서류와 위험요인을 미리 확인하고 싶습니다.",
+    title: "제출·계약 전 서류 검토",
+    desc: "계약·제출·신청 전에 서류와 위험요인을 미리 확인하고 싶습니다. (Prevent Review)",
   },
   {
     value: "post",
-    title: "문제 발생 후 사건 검토",
-    desc: "이미 반려·통지·분쟁·손해 등 문제가 발생해 대응 방향을 확인하고 싶습니다.",
+    title: "문제 발생 후 대응 검토",
+    desc: "이미 반려·통지·분쟁·손해 등 문제가 발생해 대응 방향을 확인하고 싶습니다. (Case Review)",
   },
 ] as const;
 type ReviewStage = (typeof REVIEW_STAGE_OPTIONS)[number]["value"];
+
+// 질문3 — Prevent Review(사전 검토)에서만 사용. "무엇을 확인하고 싶으신가요?"
+// 진단 로직(verifyDiagnosis.ts)에는 전달하지 않고 CRM meta에만 참고 정보로 저장한다.
+const PREVENT_FOCUS_OPTIONS = [
+  "계약조건이 불리하지 않은지",
+  "필요한 서류가 맞는지",
+  "법적으로 문제되는 부분이 없는지",
+  "기타",
+] as const;
+
+// 질문3 — Case Review(사후 검토)에서만 사용. "현재 어느 단계인가요?"
+// 진단 로직(verifyDiagnosis.ts)에는 전달하지 않고 CRM meta에만 참고 정보로 저장한다.
+const CASE_STAGE_OPTIONS = [
+  "문제 발생 직후",
+  "기관에 이의제기·소명 중",
+  "이미 조치가 진행되고 있음",
+  "기타",
+] as const;
 
 // STEP12-2: 공통 SelectionCard용 아이콘 매핑(표시 전용). 값/옵션 배열은 변경하지 않음.
 const REVIEW_STAGE_ICONS: Record<ReviewStage, typeof ShieldCheck> = {
@@ -864,7 +882,10 @@ export default function VerifyAdminPage() {
   const [incidentError, setIncidentError] = useState<string | null>(null);
   const [reviewStage, setReviewStage] = useState<ReviewStage | null>(null);
   const [reviewStageError, setReviewStageError] = useState<string | null>(null);
-  // 질문3 — 선택형 간단 파일 업로드(선택 사항). 실제 업로드는 handleSubmit에서
+  // 질문3 — Prevent/Case Review 분기별로 다른 선택지("무엇을 확인하고 싶으신가요?" /
+  // "현재 어느 단계인가요?")를 저장. 진단 로직에는 전달하지 않고 CRM meta 참고용.
+  const [reviewFocus, setReviewFocus] = useState<string | null>(null);
+  // 질문4 — 선택형 간단 파일 업로드(선택 사항). 실제 업로드는 handleSubmit에서
   // 기존 VERIFY Storage 구조(documents 버킷)에 그대로 이루어진다.
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
@@ -922,6 +943,7 @@ export default function VerifyAdminPage() {
   function reset() {
     setStep("incident");
     setReviewStage(null);
+    setReviewFocus(null);
     setIncidentType(null);
     setIncidentDescription("");
     setAttachedFile(null);
@@ -1014,9 +1036,25 @@ export default function VerifyAdminPage() {
       tag: "VERIFY_ADMIN",
       meta: {
         review_stage: reviewStage,
+        review_focus: reviewFocus,
         incident_type: incidentType,
         incident_description: incidentDescription.trim(),
-        ...(fileUrl ? { file_url: fileUrl, file_name: attachedFile?.name } : {}),
+        // 질문 단계에서 제출한 파일에 document_type(incidentType)과 review_stage를
+        // 함께 태깅해 저장 — 기존 meta(jsonb) 구조를 확장한 것일 뿐 새 DB 컬럼은
+        // 없다. 향후 /documents 등에서 "이미 제출된 자료"를 조회할 때 이 값으로
+        // 어떤 서류가 이미 제출됐는지 식별할 수 있도록 준비해두는 용도.
+        ...(fileUrl
+          ? {
+              file_url: fileUrl,
+              file_name: attachedFile?.name,
+              submitted_document: {
+                document_type: incidentType,
+                review_stage: reviewStage,
+                file_url: fileUrl,
+                file_name: attachedFile?.name,
+              },
+            }
+          : {}),
       },
     });
 
@@ -1165,10 +1203,11 @@ export default function VerifyAdminPage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
         <p className="mt-1 text-sm text-gray-500">비자·거주증·노동허가 등 행정서류 사전 검토</p>
 
-        {/* STEP1: 질문 1~3 — CHECK(TRC)와 동일하게 질문 1개씩 진행 */}
+        {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
+            검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
         {step === "incident" && (
           <>
-            {/* 질문 1 — 문제 발생 전/후 */}
+            {/* 질문 1 — Prevent Review / Case Review */}
             {!reviewStage && (
               <div className="mt-8">
                 <QuestionSection step={1} title="현재 어떤 상황인가요?" description="검토 목적에 가장 가까운 항목을 선택해주세요.">
@@ -1195,10 +1234,15 @@ export default function VerifyAdminPage() {
               </div>
             )}
 
-            {/* 질문 2 — 사건·서류 종류 7개 */}
+            {/* 질문 2 — Prevent Review: "어떤 서류를 검토하시나요?" / Case Review: "어떤
+                문제가 발생했나요?" — 선택지는 기존 incidentTypes 7종을 그대로 재사용해
+                verifyDiagnosis.ts에 전달되는 incidentType 값과 진단 로직을 바꾸지 않는다. */}
             {reviewStage && !incidentType && (
               <div className="mt-8">
-                <QuestionSection step={2} title="어떤 종류의 사건·서류인가요?">
+                <QuestionSection
+                  step={2}
+                  title={reviewStage === "pre" ? "어떤 서류를 검토하시나요?" : "어떤 문제가 발생했나요?"}
+                >
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {incidentTypes.map((t) => (
                       <SelectionCard
@@ -1233,18 +1277,67 @@ export default function VerifyAdminPage() {
               </div>
             )}
 
-            {/* 질문 3 — 사건 설명 + 선택형 간단 파일 업로드 */}
-            {reviewStage && incidentType && (
+            {/* 질문 3 — Prevent Review: "무엇을 확인하고 싶으신가요?" / Case Review:
+                "현재 어느 단계인가요?" — 참고 정보로 CRM meta(review_focus)에만 저장되며
+                진단 로직(verifyDiagnosis.ts)에는 전달하지 않는다. */}
+            {reviewStage && incidentType && !reviewFocus && (
+              <div className="mt-8">
+                <QuestionSection step={3} title={reviewStage === "pre" ? "무엇을 확인하고 싶으신가요?" : "현재 어느 단계인가요?"}>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {(reviewStage === "pre" ? PREVENT_FOCUS_OPTIONS : CASE_STAGE_OPTIONS).map((opt) => (
+                      <SelectionCard
+                        key={opt}
+                        title={opt}
+                        selected={selectedKey === opt}
+                        icon={FileQuestion}
+                        tone="slate"
+                        onClick={() => {
+                          setSelectedKey(opt);
+                          setTimeout(() => {
+                            setReviewFocus(opt);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setIncidentType(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              </div>
+            )}
+
+            {/* 질문 4 — 사건/검토 내용 설명 + 선택형 간단 파일 업로드.
+                Prevent Review는 "검토 대상 서류", Case Review는 "핵심 문서 및 증거자료"
+                중심 안내 문구로 분기한다. */}
+            {reviewStage && incidentType && reviewFocus && (
               <div className="mt-8">
                 <QuestionSection
-                  step={3}
-                  title="무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요."
+                  step={4}
+                  title={
+                    reviewStage === "pre"
+                      ? "검토가 필요한 내용을 간단히 작성해주세요."
+                      : "사건 내용을 간단히 작성해주세요."
+                  }
                   error={incidentError}
                 >
                   <textarea
                     value={incidentDescription}
                     onChange={(e) => setIncidentDescription(e.target.value)}
-                    placeholder="예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
+                    placeholder={
+                      reviewStage === "pre"
+                        ? "예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
+                        : "예: 서류 반려 통지를 받았는데 사유를 정확히 이해하지 못했습니다."
+                    }
                     rows={5}
                     className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
                   />
@@ -1253,25 +1346,59 @@ export default function VerifyAdminPage() {
                     분석·판단되지 않습니다.
                   </p>
 
-                  <label className="mt-4 flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
-                    <Paperclip size={16} className="shrink-0" />
-                    <span className="truncate">
-                      {attachedFile?.name || "관련 서류 첨부 (선택 · 사진 · PDF · Word)"}
-                    </span>
-                    <input
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                      className="hidden"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0] || null;
-                        setAttachedFile(f);
-                      }}
-                    />
-                  </label>
-                  <p className="mt-1.5 text-[11px] text-gray-400">
-                    서류가 없어도 다음 단계로 진행할 수 있으며, 나중에 카카오톡/잘로로
-                    보내주셔도 됩니다.
-                  </p>
+                  {!attachedFile ? (
+                    <>
+                      <label className="mt-4 flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
+                        <Paperclip size={16} className="shrink-0" />
+                        <span className="truncate">
+                          {reviewStage === "pre"
+                            ? "검토 대상 서류 첨부 (선택 · 사진 · PDF · Word)"
+                            : "핵심 문서 및 증거자료 첨부 (선택 · 사진 · PDF · Word)"}
+                        </span>
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0] || null;
+                            setAttachedFile(f);
+                          }}
+                        />
+                      </label>
+                      <p className="mt-1.5 text-[11px] text-gray-400">
+                        서류가 없어도 다음 단계로 진행할 수 있으며, 나중에 카카오톡/잘로로
+                        보내주셔도 됩니다.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                      <p className="text-[11px] font-semibold text-gray-500">선택한 자료</p>
+                      <div className="mt-1.5 flex items-center justify-between gap-3">
+                        <span className="flex min-w-0 items-center gap-1.5 truncate text-sm text-gray-800">
+                          <Paperclip size={14} className="shrink-0 text-gray-400" />
+                          <span className="truncate">{attachedFile.name}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setAttachedFile(null)}
+                          className="shrink-0 text-xs font-medium text-gray-500 hover:text-gray-700"
+                        >
+                          다른 파일로 교체
+                        </button>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-800">
+                          {incidentType}
+                        </span>
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                          {reviewStage === "pre" ? "Prevent Review" : "Case Review"}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-[11px] leading-relaxed text-gray-400">
+                        개인정보 입력과 접수가 완료되면 이 자료가 함께 제출됩니다.
+                      </p>
+                    </div>
+                  )}
                 </QuestionSection>
 
                 <PrimaryButton onClick={handleIncidentNext} className="mt-6">
@@ -1282,7 +1409,7 @@ export default function VerifyAdminPage() {
                   type="button"
                   onClick={() => {
                     setSelectedKey(null);
-                    setIncidentType(null);
+                    setReviewFocus(null);
                   }}
                   className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
                 >
