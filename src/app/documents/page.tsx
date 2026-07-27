@@ -107,6 +107,13 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
+// verify/admin(questionSubmittedDoc) 표시 전용 변환 — pre/post 외 값은 원문 그대로 표시한다.
+function formatReviewStageLabel(reviewStage: string | null): string {
+  if (reviewStage === "pre") return "Prevent Review";
+  if (reviewStage === "post") return "Case Review";
+  return reviewStage ?? "-";
+}
+
 // 문서 종류별 "직접 입력" 항목 정의. 여기 정의되지 않은 문서(학력증명서, 범죄경력증명서 등)는
 // 기존과 동일하게 자유 textarea 하나만 표시한다(추측으로 새 항목을 만들지 않음).
 type FieldType = "text" | "date" | "select";
@@ -533,6 +540,16 @@ function DocumentUploadContent() {
   // 별개의 자유 제출용 카드라 기존 docs 배열/진행률 계산에는 포함하지 않는다.
   const [extraDoc, setExtraDoc] = useState<DocState>(() => createDocState("추가 서류 (선택)"));
 
+  // 질문 단계(VERIFY admin)에서 이미 제출된 자료 — crm_activities(action="verify_lead")의
+  // meta.submitted_document를 읽기 전용으로만 표시한다. 기존 필수서류 슬롯(docs)과는 완전히
+  // 분리된 별도 상태이며, 이 값은 업로드 진행률(readyCount/progressPercent) 계산에 절대
+  // 포함되지 않는다. file_url은 저장하지 않는다(공개 URL 미사용 원칙).
+  const [questionSubmittedDoc, setQuestionSubmittedDoc] = useState<{
+    fileName: string | null;
+    documentType: string | null;
+    reviewStage: string | null;
+  } | null>(null);
+
   const scrollTopRef = useRef<HTMLDivElement>(null);
 
   // 새로고침/재방문 시 leadId 기준으로 기존에 저장된 문서 업로드 기록(crm_activities,
@@ -580,6 +597,54 @@ function DocumentUploadContent() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leadId]);
+
+  // 질문 단계(VERIFY admin)에서 제출된 자료 조회 — 기존 document_upload 조회와는 완전히
+  // 별개의 조회이며, 위 useEffect(document_upload)를 전혀 수정하지 않는다. 가장 최근
+  // verify_lead 기록의 meta.submitted_document가 있을 때만 읽기 전용 카드로 표시한다.
+  // 조회 실패/데이터 없음 시에도 나머지 화면(필수서류 등)은 100% 동일하게 동작한다.
+  useEffect(() => {
+    if (!leadId) {
+      setQuestionSubmittedDoc(null);
+      return;
+    }
+    let cancelled = false;
+    setQuestionSubmittedDoc(null);
+    (async () => {
+      const { data, error } = await supabase
+        .from("crm_activities")
+        .select("meta")
+        .eq("lead_id", leadId)
+        .eq("action", "verify_lead")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (cancelled) return;
+      if (error) {
+        console.error("[document-upload][diagnostic] verify_lead 제출자료 조회 실패:", error);
+        setQuestionSubmittedDoc(null);
+        return;
+      }
+      const meta = (data?.[0]?.meta ?? {}) as {
+        submitted_document?: {
+          document_type?: string;
+          review_stage?: string;
+          file_name?: string;
+        };
+      };
+      const submittedDocument = meta.submitted_document;
+      if (!submittedDocument) {
+        setQuestionSubmittedDoc(null);
+        return;
+      }
+      setQuestionSubmittedDoc({
+        fileName: submittedDocument.file_name ?? null,
+        documentType: submittedDocument.document_type ?? null,
+        reviewStage: submittedDocument.review_stage ?? null,
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [leadId]);
 
   function updateDoc(index: number, patch: Partial<DocState>) {
@@ -1117,6 +1182,30 @@ function DocumentUploadContent() {
           <div className="mt-6 lg:grid lg:grid-cols-[1fr_280px] lg:items-start lg:gap-5">
             {/* 좌측 — 문서 카드 목록 */}
             <div className="space-y-4">
+              {questionSubmittedDoc && (
+                <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                  <p className="text-sm font-bold text-gray-900">질문 단계에서 제출한 자료</p>
+                  <div className="mt-3 space-y-1.5 text-xs text-gray-600">
+                    <p>
+                      <span className="text-gray-400">파일명 </span>
+                      {questionSubmittedDoc.fileName ?? "-"}
+                    </p>
+                    <p>
+                      <span className="text-gray-400">문서 종류 </span>
+                      {questionSubmittedDoc.documentType ?? "-"}
+                    </p>
+                    <p>
+                      <span className="text-gray-400">검토 단계 </span>
+                      {formatReviewStageLabel(questionSubmittedDoc.reviewStage)}
+                    </p>
+                    <p>
+                      <span className="text-gray-400">상태 </span>
+                      이미 제출됨
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <p className="text-base font-bold text-gray-900">필요한 문서</p>
                 <p className="mt-1 text-xs text-gray-500">
