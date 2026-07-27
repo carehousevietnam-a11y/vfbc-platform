@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   FileText,
-  Paperclip,
   AlertTriangle,
   Info,
   ExternalLink,
@@ -21,7 +20,7 @@ import {
   Receipt,
   FileQuestion,
 } from "lucide-react";
-import { SelectionCard } from "@/components/ui";
+import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
@@ -504,10 +503,12 @@ const INCIDENT_TYPE_TONES: Record<string, SelectionCardTone> = {
 };
 
 export default function VerifyAdminPage() {
-  // STEP1(사건정보) → STEP2(서류첨부) → STEP3(개인정보) → STEP4(진단)
-  // → STEP5-a(기관 선택) → STEP5-b(안내) / 전문가 진행 → 완료
+  // 질문(사건정보) → 개인정보 → 1차 결과(진단) → 전문가 검토 진행
+  // → Auto-login → /r → /documents(검토 대상 파일 업로드) → 마이페이지
+  // (CHECK와 동일한 순서. "completed"는 더 이상 도달하지 않지만 코드는 보존한다 —
+  // 도달 경로 제거 이력은 아래 handleExpertRequest 참고)
   const [step, setStep] = useState<
-    "incident" | "attachment" | "form" | "diagnosis" | "guidanceSelect" | "guidance" | "completed"
+    "incident" | "form" | "diagnosis" | "guidanceSelect" | "guidance" | "completed"
   >("incident");
   const [incidentType, setIncidentType] = useState<string | null>(null);
   const [incidentDescription, setIncidentDescription] = useState("");
@@ -516,9 +517,6 @@ export default function VerifyAdminPage() {
   const [previousReviewError, setPreviousReviewError] = useState<string | null>(null);
   const [reviewStage, setReviewStage] = useState<ReviewStage | null>(null);
   const [reviewStageError, setReviewStageError] = useState<string | null>(null);
-
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -531,31 +529,21 @@ export default function VerifyAdminPage() {
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [expertError, setExpertError] = useState<string | null>(null);
   const [selectedAgency, setSelectedAgency] = useState<AdminAgency | null>(null);
+  // CHECK(TRC)와 동일한 Step 방식 질문 화면의 선택 카드 클릭 피드백(300ms) 및
+  // 전문가 진행 요청 시 사용할 로그인 토큰 — TRC의 selectedKey/resultToken과 동일한 용도.
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [resultToken, setResultToken] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
 
   const incidentTypes = getIncidentTypes(CATEGORY);
 
   function handleIncidentNext() {
-    if (!reviewStage) {
-      setReviewStageError("현재 상황에 가장 가까운 항목을 선택해주세요.");
-      return;
-    }
-    setReviewStageError(null);
-    if (!previousReviewStatus) {
-      setPreviousReviewError("이전 상담·검토 이력 여부를 선택해주세요.");
-      return;
-    }
-    setPreviousReviewError(null);
-    if (!incidentType) {
-      setIncidentError("사건유형을 선택해주세요.");
-      return;
-    }
     if (incidentDescription.trim().length === 0) {
       setIncidentError("사건 설명을 입력해주세요.");
       return;
     }
     setIncidentError(null);
-    setStep("attachment");
+    setStep("form");
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -600,22 +588,11 @@ export default function VerifyAdminPage() {
       return;
     }
 
-    let fileUrl: string | null = null;
-    if (attachedFile && attachedFile.size > 0) {
-      const rawExt = attachedFile.name.split(".").pop() || "";
-      const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-      const path = `verify-admin/${newLeadId}.${safeExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("documents")
-        .upload(path, attachedFile);
-      if (!uploadError) {
-        const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
-        fileUrl = urlData.publicUrl;
-      } else {
-        console.error(uploadError);
-      }
-    }
+    // 서류 첨부는 더 이상 이 화면(1차 결과 이전)에서 수집하지 않는다. 실제 검토
+    // 대상 파일 업로드는 전문가 검토 진행 이후 Auto-login → /r → /documents
+    // 흐름에서만 이루어진다. getDiagnosis/crm_activities에는 fileUrl=null,
+    // fileName=null을 그대로 전달해 기존 구조를 깨지 않는다.
+    const fileUrl: string | null = null;
 
     await supabase.from("crm_activities").insert({
       lead_id: newLeadId,
@@ -625,7 +602,6 @@ export default function VerifyAdminPage() {
         incident_type: incidentType,
         incident_description: incidentDescription.trim(),
         previous_review_status: previousReviewStatus,
-        ...(fileUrl ? { file_url: fileUrl, file_name: attachedFile?.name } : {}),
       },
     });
 
@@ -638,6 +614,9 @@ export default function VerifyAdminPage() {
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
         console.error("lead-submit API error:", errBody);
+      } else {
+        const okBody = await res.json().catch(() => null);
+        if (okBody?.token) setResultToken(okBody.token);
       }
     } catch (apiErr) {
       console.error("lead-submit fetch failed:", apiErr);
@@ -651,7 +630,7 @@ export default function VerifyAdminPage() {
     setDiagnosing(true);
     const diag = await getDiagnosis(CATEGORY, {
       fileUrl,
-      fileName: attachedFile?.name || null,
+      fileName: null,
       incidentType: incidentType || undefined,
       incidentDescription: incidentDescription.trim() || undefined,
     });
@@ -672,10 +651,30 @@ export default function VerifyAdminPage() {
         meta: diagnosis ? { expert_brief: diagnosis.expertBrief } : null,
       });
       if (error) throw error;
-      setStep("completed");
+
+      // CHECK(TRC)와 동일한 흐름 — resultToken으로 /api/auto-login을 호출해 실제
+      // 로그인 세션을 만든 뒤(/r?...&next=documents 경유) /documents로 이동시킨다.
+      // 검토 대상 서류는 이 다음 화면(/documents)에서 업로드가 이어진다.
+      if (!resultToken) {
+        setExpertError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
+        setExpertRequesting(false);
+        return;
+      }
+      const res = await fetch("/api/auto-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: resultToken, next: "documents" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.actionLink) {
+        console.error("auto-login failed:", data);
+        setExpertError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+        setExpertRequesting(false);
+        return;
+      }
+      window.location.href = data.actionLink;
     } catch {
       setExpertError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
       setExpertRequesting(false);
     }
   }
@@ -685,8 +684,30 @@ export default function VerifyAdminPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${step === "incident" ? "max-w-4xl" : "max-w-xl"}`}>
-        <Link href="/" className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600">
+      <div className={`mx-auto px-6 py-10 ${step === "diagnosis" ? "max-w-4xl" : "max-w-xl"}`}>
+        {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
+        <Link
+          href="/"
+          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
+        >
+          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
+            <ArrowLeft size={14} /> 홈으로
+          </span>
+          <img
+            src="/vfbcai-shield-logo.png"
+            alt="VFBCAI"
+            width={34}
+            height={34}
+            className="shrink-0"
+          />
+          <div>
+            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
+            <p className="text-[11px] leading-tight text-gray-400">베트남 법률전문 AI</p>
+          </div>
+        </Link>
+
+        {/* 데스크톱 전용 — 기존 텍스트 링크 */}
+        <Link href="/" className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex">
           <ArrowLeft size={14} /> 홈으로
         </Link>
 
@@ -696,179 +717,150 @@ export default function VerifyAdminPage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
         <p className="mt-1 text-sm text-gray-500">비자·거주증·노동허가 등 행정서류 사전 검토</p>
 
-        {/* STEP1: 사건유형 + 사건설명 */}
+        {/* STEP1: 사건유형 + 사건설명 — CHECK(TRC)와 동일하게 질문 1개씩 진행 */}
         {step === "incident" && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <FileText className="text-gray-900" size={28} />
-
+          <>
             {/* 질문 1 — 현재 어떤 상황인가요? */}
-            <div className="mt-6">
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
-                  1
-                </span>
-                <p className="text-sm font-bold text-gray-900">
-                  현재 어떤 상황인가요?
-                </p>
+            {!reviewStage && (
+              <div className="mt-8">
+                <QuestionSection step={1} title="현재 어떤 상황인가요?" description="검토 목적에 가장 가까운 항목을 선택해주세요.">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                    {REVIEW_STAGE_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.value}
+                        title={opt.title}
+                        description={opt.desc}
+                        selected={selectedKey === opt.value}
+                        icon={REVIEW_STAGE_ICONS[opt.value]}
+                        tone={REVIEW_STAGE_TONES[opt.value]}
+                        onClick={() => {
+                          setSelectedKey(opt.value);
+                          setTimeout(() => {
+                            setReviewStage(opt.value);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
               </div>
-              <p className="mt-1 pl-7 text-xs text-gray-500">
-                검토 목적에 가장 가까운 항목을 선택해주세요.
-              </p>
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {REVIEW_STAGE_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.value}
-                    title={opt.title}
-                    description={opt.desc}
-                    selected={reviewStage === opt.value}
-                    onClick={() => setReviewStage(opt.value)}
-                    icon={REVIEW_STAGE_ICONS[opt.value]}
-                    tone={REVIEW_STAGE_TONES[opt.value]}
-                  />
-                ))}
-              </div>
-              {reviewStageError && (
-                <p className="mt-2 text-xs text-red-600">{reviewStageError}</p>
-              )}
-            </div>
-
-            <div className="my-7 border-t border-gray-100" />
+            )}
 
             {/* 질문 2 — 이전 검토 이력 */}
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
-                  2
-                </span>
-                <p className="text-sm font-bold text-gray-900">
-                  이전에 다른 곳에서 검토받은 적이 있나요?
-                </p>
-              </div>
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt}
-                    title={opt}
-                    description={PREVIOUS_REVIEW_DESCRIPTIONS[opt]}
-                    selected={previousReviewStatus === opt}
-                    onClick={() => setPreviousReviewStatus(opt)}
-                    icon={PREVIOUS_REVIEW_ICONS[opt]}
-                    tone={PREVIOUS_REVIEW_TONES[opt]}
-                  />
-                ))}
-              </div>
-              {previousReviewError && (
-                <p className="mt-2 text-xs text-red-600">{previousReviewError}</p>
-              )}
-            </div>
+            {reviewStage && !previousReviewStatus && (
+              <div className="mt-8">
+                <QuestionSection step={2} title="이전에 다른 곳에서 검토받은 적이 있나요?">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                    {PREVIOUS_REVIEW_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt}
+                        title={opt}
+                        description={PREVIOUS_REVIEW_DESCRIPTIONS[opt]}
+                        selected={selectedKey === opt}
+                        icon={PREVIOUS_REVIEW_ICONS[opt]}
+                        tone={PREVIOUS_REVIEW_TONES[opt]}
+                        onClick={() => {
+                          setSelectedKey(opt);
+                          setTimeout(() => {
+                            setPreviousReviewStatus(opt);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
 
-            <div className="my-7 border-t border-gray-100" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setReviewStage(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              </div>
+            )}
 
             {/* 질문 3 — 사건유형 */}
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
-                  3
-                </span>
-                <p className="text-sm font-bold text-gray-900">
-                  어떤 종류의 사건·서류인가요?
-                </p>
-              </div>
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {incidentTypes.map((t) => (
-                  <SelectionCard
-                    key={t}
-                    title={t}
-                    description={INCIDENT_TYPE_DESCRIPTIONS[t] ?? ""}
-                    selected={incidentType === t}
-                    onClick={() => setIncidentType(t)}
-                    icon={INCIDENT_TYPE_ICONS[t]}
-                    tone={INCIDENT_TYPE_TONES[t]}
-                  />
-                ))}
-              </div>
-            </div>
+            {reviewStage && previousReviewStatus && !incidentType && (
+              <div className="mt-8">
+                <QuestionSection step={3} title="어떤 종류의 사건·서류인가요?">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                    {incidentTypes.map((t) => (
+                      <SelectionCard
+                        key={t}
+                        title={t}
+                        description={INCIDENT_TYPE_DESCRIPTIONS[t] ?? ""}
+                        selected={selectedKey === t}
+                        icon={INCIDENT_TYPE_ICONS[t]}
+                        tone={INCIDENT_TYPE_TONES[t]}
+                        onClick={() => {
+                          setSelectedKey(t);
+                          setTimeout(() => {
+                            setIncidentType(t);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
 
-            <div className="my-7 border-t border-gray-100" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setPreviousReviewStatus(null);
+                  }}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              </div>
+            )}
 
             {/* 질문 4 — 사건 설명 */}
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold text-white">
-                  4
-                </span>
-                <p className="text-sm font-bold text-gray-900">
-                  무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요.
-                </p>
+            {reviewStage && previousReviewStatus && incidentType && (
+              <div className="mt-8">
+                <QuestionSection
+                  step={4}
+                  title="무슨 일이 있었는지, 현재 가장 걱정되는 부분을 간단히 작성해주세요."
+                  error={incidentError}
+                >
+                  <textarea
+                    value={incidentDescription}
+                    onChange={(e) => setIncidentDescription(e.target.value)}
+                    placeholder="예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
+                    rows={5}
+                    className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
+                  />
+                  <p className="mt-2 text-[11px] text-gray-400">
+                    입력하신 내용은 전문가 검토 시 참고 정보로만 사용되며, 여기서 자동으로
+                    분석·판단되지 않습니다.
+                  </p>
+                </QuestionSection>
+
+                <PrimaryButton onClick={handleIncidentNext} className="mt-6">
+                  다음
+                </PrimaryButton>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setIncidentType(null);
+                  }}
+                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
               </div>
-              <textarea
-                value={incidentDescription}
-                onChange={(e) => setIncidentDescription(e.target.value)}
-                placeholder="예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
-                rows={5}
-                className="mt-4 w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
-              />
-              <p className="mt-2 text-[11px] text-gray-400">
-                입력하신 내용은 전문가 검토 시 참고 정보로만 사용되며, 여기서 자동으로
-                분석·판단되지 않습니다.
-              </p>
-              {incidentError && <p className="mt-3 text-xs text-red-600">{incidentError}</p>}
-            </div>
-
-            <button
-              onClick={handleIncidentNext}
-              className="mt-9 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
-            >
-              다음
-            </button>
-          </div>
-        )}
-
-        {/* STEP2: 서류 첨부 (개인정보 입력 이전, 선택) */}
-        {step === "attachment" && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <Paperclip className="text-gray-900" size={28} />
-            <p className="mt-4 text-sm font-semibold text-gray-900">
-              3. 관련 서류가 있다면 첨부해주세요
-            </p>
-            <p className="mt-1 text-xs text-gray-500 leading-relaxed">
-              서류 사진이나 PDF·워드 파일을 첨부하시면 더 정확한 확인이 가능합니다.
-            </p>
-
-            <label className="mt-4 flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
-              <Paperclip size={16} className="shrink-0" />
-              <span className="truncate">
-                {fileName || "서류 첨부 (사진 · PDF · Word)"}
-              </span>
-              <input
-                type="file"
-                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0] || null;
-                  setAttachedFile(f);
-                  setFileName(f?.name || null);
-                }}
-              />
-            </label>
-            <p className="mt-1.5 text-[11px] text-gray-400">
-              서류가 없어도 다음 단계로 진행할 수 있으며, 나중에 카카오톡/잘로로
-              보내주셔도 됩니다.
-            </p>
-
-            <button
-              onClick={() => setStep("form")}
-              className="mt-5 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
-            >
-              다음
-            </button>
-            <button
-              onClick={() => setStep("incident")}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              ← 이전 단계로
-            </button>
-          </div>
+            )}
+          </>
         )}
 
         {/* STEP3: 개인정보 입력 */}
@@ -879,25 +871,33 @@ export default function VerifyAdminPage() {
               잘못 제출하면 반려·재접수
             </span>
 
-            <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+            <p className="mt-4 text-sm leading-relaxed text-gray-600">
               관공서 공문서는 문구 하나만 잘못 해석해도 반려되거나 처리
               기한을 놓쳐 불이익으로 이어질 수 있습니다. 이름·연락처만
               남기면 무료로 1차 검토해드립니다.
             </p>
+
+            <div className="mt-4">
+              <NoticeCard tone="info">
+                이름·연락처·주소만 남기시면 AI가 입력하신 내용을 바탕으로 1차
+                검토 리포트를 바로 보여드립니다.
+              </NoticeCard>
+            </div>
+
             <form onSubmit={handleSubmit} className="mt-5 space-y-3">
               <input type="text" name="name" required placeholder="이름"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+                className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none" />
               <input type="tel" name="phone" required placeholder="전화번호"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+                className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none" />
               <input type="text" name="address" required placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+                className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none" />
               <input type="email" name="email" placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
-                className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
-              <div className="grid grid-cols-2 gap-3">
+                className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none" />
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <input type="text" name="kakao_id" placeholder={`${messengers.primary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none" />
                 <input type="text" name="zalo_id" placeholder={`${messengers.secondary.label} ID (선택)`}
-                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-gray-900 focus:outline-none" />
+                  className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none" />
               </div>
               <div>
                 <label className="flex items-start gap-2 text-xs text-gray-600">
@@ -918,16 +918,21 @@ export default function VerifyAdminPage() {
                 />
               </div>
               {error && <p className="text-xs text-red-600">{error}</p>}
-              <button type="submit" disabled={submitting || diagnosing}
-                className="w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors">
+              <PrimaryButton type="submit" loading={submitting || diagnosing}>
                 {submitting || diagnosing ? "AI가 확인하는 중..." : "AI 분석 리포트 무료로 받기"}
-              </button>
+              </PrimaryButton>
             </form>
+
+            <div className="mt-3">
+              <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
+            </div>
+
             <button
-              onClick={() => setStep("attachment")}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+              type="button"
+              onClick={() => setStep("incident")}
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
             >
-              ← 이전 단계로
+              <ArrowLeft size={14} /> 이전 단계로
             </button>
           </div>
         )}
@@ -941,28 +946,52 @@ export default function VerifyAdminPage() {
 
             <DiagnosisReportSection diagnosis={diagnosis} />
 
-            <p className="mt-5 text-xs font-semibold text-gray-700">
-              위 내용, 어떻게 진행하시겠어요?
-            </p>
-            <div className="mt-3 flex flex-col gap-3">
-              <button
-                onClick={() => setStep("guidanceSelect")}
-                className="flex h-12 items-center justify-center gap-1.5 rounded-full border border-gray-900 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
-              >
-                직접 검토 진행하기
-              </button>
-              <button
-                onClick={handleExpertRequest}
-                disabled={expertRequesting}
-                className="h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
-              >
-                {expertRequesting ? "접수 중..." : "전문가 검토 진행하기"}
-              </button>
+            <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2 sm:items-stretch">
+              {/* 1) 전문가 검토 진행하기 — 가장 강한 파란색 CTA */}
+              <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+                  추천
+                </span>
+                <p className="mt-1 text-sm font-bold text-gray-900">전문가 검토 진행하기</p>
+                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                  AI 사전진단 내용과 첨부하신 서류를 전문가가 함께 확인한 뒤
+                  결과를 안내드립니다.
+                </p>
+                <div className="mt-auto pt-4">
+                  <PrimaryButton onClick={handleExpertRequest} loading={expertRequesting}>
+                    전문가 검토 진행하기
+                  </PrimaryButton>
+                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
+                    {expertError ? (
+                      <span className="text-red-600">{expertError}</span>
+                    ) : (
+                      "이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다."
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* 2) 직접 검토 진행하기 — 흰색 테두리 보조 옵션 */}
+              <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
+                <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+                  신중
+                </span>
+                <p className="mt-1 text-sm font-bold text-gray-900">직접 검토 진행하기</p>
+                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                  관할기관·공식 확인 경로·절차 안내를 참고해 스스로 진행할
+                  수 있습니다.
+                </p>
+                <div className="mt-auto pt-4">
+                  <PrimaryButton variant="outline" onClick={() => setStep("guidanceSelect")}>
+                    직접 검토 진행하기
+                  </PrimaryButton>
+                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
+                    이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다.
+                  </p>
+                </div>
+              </div>
             </div>
-            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
-            <p className="mt-2 text-[11px] text-gray-400 text-center">
-              어느 쪽을 선택해도 이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다.
-            </p>
           </div>
         )}
 
@@ -977,26 +1006,27 @@ export default function VerifyAdminPage() {
               선택하신 항목에 맞는 관할기관·공식 확인 경로·절차 안내를 보여드립니다.
             </p>
 
-            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {ADMIN_AGENCY_OPTIONS.map((agency) => (
-                <button
+                <SelectionCard
                   key={agency}
+                  title={agency}
+                  selected={selectedAgency === agency}
+                  tone="blue"
                   onClick={() => {
                     setSelectedAgency(agency);
                     setStep("guidance");
                   }}
-                  className="rounded-2xl border border-gray-100 bg-white p-4 text-left text-sm font-semibold text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-all"
-                >
-                  {agency}
-                </button>
+                />
               ))}
             </div>
 
             <button
+              type="button"
               onClick={() => setStep("diagnosis")}
-              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
             >
-              ← 검토 결과로 돌아가기
+              <ArrowLeft size={14} /> 검토 결과로 돌아가기
             </button>
           </div>
         )}
@@ -1073,20 +1103,17 @@ export default function VerifyAdminPage() {
             <p className="mt-5 text-xs font-semibold text-gray-700">
               직접 진행이 부담되신다면 전문가에게 맡기실 수도 있습니다.
             </p>
-            <button
-              onClick={handleExpertRequest}
-              disabled={expertRequesting}
-              className="mt-3 w-full h-12 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
-            >
-              {expertRequesting ? "접수 중..." : "전문가 검토 진행하기"}
-            </button>
+            <PrimaryButton onClick={handleExpertRequest} loading={expertRequesting} className="mt-3">
+              전문가 검토 진행하기
+            </PrimaryButton>
             {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
 
             <button
+              type="button"
               onClick={() => setStep("guidanceSelect")}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
             >
-              ← 다른 기관 선택하기
+              <ArrowLeft size={14} /> 다른 기관 선택하기
             </button>
           </div>
         )}
