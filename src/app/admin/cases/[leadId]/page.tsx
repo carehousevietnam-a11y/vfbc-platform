@@ -970,45 +970,69 @@ export default async function AdminLeadDetailPage({
           </div>
         </div>
 
-        {/* 7. 전문가 메모 */}
-        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-xs font-semibold text-gray-700">전문가 메모</p>
-          {memoActivities.length === 0 ? (
-            <p className="mt-2 text-xs text-gray-400">작성된 메모가 없습니다.</p>
-          ) : (
+        {/* 7, 9. 전문가 메모(좌) + 활동 타임라인(우) — PC(lg 이상) 2열, 모바일 1열 */}
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* 7. 전문가 메모 */}
+          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="text-xs font-semibold text-gray-700">전문가 메모</p>
+            {memoActivities.length === 0 ? (
+              <p className="mt-2 text-xs text-gray-400">작성된 메모가 없습니다.</p>
+            ) : (
+              <div className="mt-2 space-y-2">
+                {[...memoActivities].reverse().map((m) => (
+                  <div key={m.id} className="rounded-xl bg-gray-50 px-3 py-2.5">
+                    <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">
+                      {(asMeta(m.meta)?.memo as string | undefined) ?? ""}
+                    </p>
+                    <p className="mt-1 text-[11px] text-gray-400">
+                      {new Date(m.created_at).toLocaleString("ko-KR")}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <form action={addExpertMemo} className="mt-3 space-y-2">
+              <input type="hidden" name="leadId" value={lead.id} />
+              <textarea
+                name="memo"
+                required
+                rows={3}
+                placeholder="상담 내용, 특이사항 등을 기록하세요"
+                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-900 focus:outline-none resize-none"
+              />
+              <button
+                type="submit"
+                className="rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
+              >
+                메모 저장
+              </button>
+            </form>
+          </div>
+
+          {/* 9. crm_activities 타임라인 */}
+          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="text-xs font-semibold text-gray-700">활동 타임라인</p>
             <div className="mt-2 space-y-2">
-              {[...memoActivities].reverse().map((m) => (
-                <div key={m.id} className="rounded-xl bg-gray-50 px-3 py-2.5">
-                  <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {(asMeta(m.meta)?.memo as string | undefined) ?? ""}
-                  </p>
-                  <p className="mt-1 text-[11px] text-gray-400">
-                    {new Date(m.created_at).toLocaleString("ko-KR")}
-                  </p>
+              {activities.length === 0 && (
+                <p className="text-xs text-gray-400">기록된 활동이 없습니다.</p>
+              )}
+              {activities.map((a) => (
+                <div key={a.id} className="flex items-start justify-between gap-3 text-xs">
+                  <span className="text-gray-600">
+                    {a.action}
+                    {a.tag && <span className="ml-1.5 text-gray-400">· {a.tag}</span>}
+                  </span>
+                  <span className="text-gray-400 shrink-0">
+                    {new Date(a.created_at).toLocaleString("ko-KR")}
+                  </span>
                 </div>
               ))}
             </div>
-          )}
-
-          <form action={addExpertMemo} className="mt-3 space-y-2">
-            <input type="hidden" name="leadId" value={lead.id} />
-            <textarea
-              name="memo"
-              required
-              rows={3}
-              placeholder="상담 내용, 특이사항 등을 기록하세요"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-900 focus:outline-none resize-none"
-            />
-            <button
-              type="submit"
-              className="rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
-            >
-              메모 저장
-            </button>
-          </form>
+          </div>
         </div>
 
-        {/* 8. Case Room 전문가 상담 요청 (STEP8) */}
+        {/* 8. Case Room 전문가 상담 요청 (STEP8) — 내용 무변경, 기존 위치(담당자정보 다음) 그대로 유지 */}
         <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <p className="text-xs font-semibold text-gray-700">전문가 상담 요청 (Case Room)</p>
           {consultationRequests.length === 0 ? (
@@ -1071,27 +1095,6 @@ export default async function AdminLeadDetailPage({
               })}
             </div>
           )}
-        </div>
-
-        {/* 9. crm_activities 타임라인 */}
-        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-xs font-semibold text-gray-700">활동 타임라인</p>
-          <div className="mt-2 space-y-2">
-            {activities.length === 0 && (
-              <p className="text-xs text-gray-400">기록된 활동이 없습니다.</p>
-            )}
-            {activities.map((a) => (
-              <div key={a.id} className="flex items-start justify-between gap-3 text-xs">
-                <span className="text-gray-600">
-                  {a.action}
-                  {a.tag && <span className="ml-1.5 text-gray-400">· {a.tag}</span>}
-                </span>
-                <span className="text-gray-400 shrink-0">
-                  {new Date(a.created_at).toLocaleString("ko-KR")}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </main>
