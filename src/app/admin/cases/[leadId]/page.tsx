@@ -1,4 +1,4 @@
-// src/app/admin/leads/[id]/page.tsx
+// src/app/admin/cases/[leadId]/page.tsx
 //
 // CHECK(WP/TRC/땀주/운전면허) + VERIFY(admin/real-estate/fraud/tax/unclear) +
 // REGISTER(법인설립 + 식당/화장품/환경/소방/위생/의료기기/프랜차이즈) + 상담문의
@@ -167,6 +167,22 @@ function asMeta(value: unknown): ActivityMeta | null {
   return value && typeof value === "object" ? (value as ActivityMeta) : null;
 }
 
+// "고객 추가 제출 자료" 섹션 전용 — 바이트 단위 파일크기를 사람이 읽기 쉬운 형태로 변환.
+function formatFileSizeLabel(bytes: number | null): string {
+  if (bytes === null) return "-";
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+// "질문 단계 제출 자료" 섹션 전용 — pre/post 외 값은 원문 그대로 표시(src/app/documents/page.tsx의
+// formatReviewStageLabel과 동일한 변환 규칙).
+function formatReviewStageLabel(reviewStage: string | null): string {
+  if (reviewStage === "pre") return "Prevent Review";
+  if (reviewStage === "post") return "Case Review";
+  return reviewStage ?? "-";
+}
+
 function getConsultationStatus(activities: ActivityRow[]): { label: string; color: string } {
   const actions = new Set(activities.map((a) => a.action));
   if (actions.has("agency_upgrade_request")) {
@@ -288,7 +304,7 @@ async function addExpertMemo(formData: FormData) {
     meta: { memo },
   });
 
-  revalidatePath(`/admin/leads/${leadId}`);
+  revalidatePath(`/admin/cases/${leadId}`);
 }
 
 // ── 인라인 Server Action: 전문가 상담 요청에 답변 ──
@@ -312,7 +328,7 @@ async function respondToConsultation(formData: FormData) {
     await notifyConsultationResponse(leadId);
   }
 
-  revalidatePath(`/admin/leads/${leadId}`);
+  revalidatePath(`/admin/cases/${leadId}`);
 }
 
 // ── 인라인 Server Action: 진행 단계 저장 ──
@@ -380,27 +396,27 @@ async function setProcessStage(formData: FormData) {
     });
   }
 
-  revalidatePath(`/admin/leads/${leadId}`);
+  revalidatePath(`/admin/cases/${leadId}`);
 }
 
 export default async function AdminLeadDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ leadId: string }>;
 }) {
-  const { id } = await params;
+  const { leadId } = await params;
 
   const { data: lead } = await supabaseAdmin
     .from("leads")
     .select("*")
-    .eq("id", id)
+    .eq("id", leadId)
     .maybeSingle();
 
   if (!lead) {
     return (
       <main className="min-h-screen bg-[#fafafa] p-10">
         <p className="text-sm text-red-600">해당 리드를 찾을 수 없습니다.</p>
-        <Link href="/admin/leads" className="mt-4 inline-block text-xs text-blue-900 hover:underline">
+        <Link href="/admin/cases" className="mt-4 inline-block text-xs text-blue-900 hover:underline">
           ← 목록으로
         </Link>
       </main>
@@ -410,14 +426,14 @@ export default async function AdminLeadDetailPage({
   const { data: activitiesRaw } = await supabaseAdmin
     .from("crm_activities")
     .select("*")
-    .eq("lead_id", id)
+    .eq("lead_id", leadId)
     .order("created_at", { ascending: true });
   const activities = (activitiesRaw ?? []) as ActivityRow[];
 
   const { data: rejectionsRaw } = await supabaseAdmin
     .from("previous_rejections")
     .select("id, service_type, source_page, reason, linked_lead_id, created_at")
-    .eq("linked_lead_id", id)
+    .eq("linked_lead_id", leadId)
     .order("created_at", { ascending: false });
   const rejections = rejectionsRaw ?? [];
 
@@ -439,6 +455,63 @@ export default async function AdminLeadDetailPage({
   const uploadActivity = activities.find((a) => asMeta(a.meta)?.file_url);
   const fileUrl = (asMeta(uploadActivity?.meta)?.file_url as string | undefined) ?? null;
   const fileName = (asMeta(uploadActivity?.meta)?.file_name as string | undefined) ?? null;
+
+  // "고객 추가 제출 자료" — /documents 페이지에서 업로드된 문서(action="document_upload").
+  // storagePath만 저장되어 있으므로(공개 URL 미사용 원칙) 서버 컴포넌트 내부에서
+  // supabaseAdmin으로 Signed URL을 생성한다. 새 API 라우트를 만들지 않고, 실패해도
+  // 페이지 전체가 죽지 않도록 항목별로 개별 try/catch 처리한다.
+  const documentUploadActivities = activities.filter((a) => a.action === "document_upload");
+  const customerDocuments = await Promise.all(
+    documentUploadActivities.map(async (a) => {
+      const meta = asMeta(a.meta);
+      const storagePath = (meta?.storagePath as string | undefined) ?? null;
+      let signedUrl: string | null = null;
+      if (storagePath) {
+        try {
+          const { data: signedData, error: signedError } = await supabaseAdmin.storage
+            .from("documents")
+            .createSignedUrl(storagePath, 3600);
+          if (!signedError && signedData?.signedUrl) {
+            signedUrl = signedData.signedUrl;
+          }
+        } catch (signedCatchErr) {
+          console.error("[admin/cases][diagnostic] Signed URL 생성 실패:", signedCatchErr);
+          signedUrl = null;
+        }
+      }
+      return {
+        id: a.id,
+        tag: a.tag,
+        fileName: (meta?.fileName as string | undefined) ?? null,
+        fileSize: typeof meta?.fileSize === "number" ? (meta.fileSize as number) : null,
+        service: (meta?.service as string | undefined) ?? null,
+        mode: (meta?.mode as string | undefined) ?? null,
+        createdAt: a.created_at,
+        signedUrl,
+      };
+    })
+  );
+
+  // "질문 단계 제출 자료" — VERIFY admin의 질문 단계(action="verify_lead")에서 함께 제출된
+  // meta.submitted_document 중 가장 최근 것만 표시. activities는 created_at 오름차순이므로
+  // 배열 끝에서부터 찾는다. file_url은 공개 URL이므로 이번 작업에서는 사용하지 않는다
+  // (메타데이터만 표시, 링크 생성 없음).
+  const verifyLeadDocActivities = activities.filter(
+    (a) => a.action === "verify_lead" && Boolean(asMeta(a.meta)?.submitted_document)
+  );
+  const latestVerifyLeadDocActivity =
+    verifyLeadDocActivities.length > 0 ? verifyLeadDocActivities[verifyLeadDocActivities.length - 1] : null;
+  const questionStageSubmittedDocument = (() => {
+    const submittedDocument = asMeta(latestVerifyLeadDocActivity?.meta)?.submitted_document as
+      | { document_type?: string; review_stage?: string; file_name?: string }
+      | undefined;
+    if (!submittedDocument) return null;
+    return {
+      fileName: submittedDocument.file_name ?? null,
+      documentType: submittedDocument.document_type ?? null,
+      reviewStage: submittedDocument.review_stage ?? null,
+    };
+  })();
 
   // ── AI 진단 결과 감지: CHECK(camelCase) → VERIFY(snake_case) → REGISTER(평평한 구조) 순 ──
   const checkActivity = [...activities].reverse().find((a) => asMeta(a.meta)?.expertBrief);
@@ -475,7 +548,7 @@ export default async function AdminLeadDetailPage({
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
       <div className="mx-auto max-w-2xl px-6 py-10">
-        <Link href="/admin/leads" className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600">
+        <Link href="/admin/cases" className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600">
           <ArrowLeft size={14} /> 목록으로
         </Link>
 
@@ -642,6 +715,52 @@ export default async function AdminLeadDetailPage({
             >
               <Paperclip size={13} /> {fileName ?? "첨부파일 열기"}
             </a>
+          </div>
+        )}
+
+        {/* 4-1. 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
+        {customerDocuments.length > 0 && (
+          <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="text-xs font-semibold text-gray-700">고객 추가 제출 자료</p>
+            <div className="mt-2 space-y-2.5">
+              {customerDocuments.map((doc) => (
+                <div key={doc.id} className="rounded-xl bg-gray-50 px-3 py-2.5">
+                  <p className="text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
+                  <div className="mt-1 space-y-0.5 text-[11px] text-gray-500">
+                    <p>파일명: {doc.fileName ?? "-"}</p>
+                    <p>파일크기: {formatFileSizeLabel(doc.fileSize)}</p>
+                    <p>신청서비스: {doc.service ?? "-"}</p>
+                    <p>제출방식: {doc.mode ?? "-"}</p>
+                    <p>제출일: {new Date(doc.createdAt).toLocaleString("ko-KR")}</p>
+                  </div>
+                  {doc.signedUrl ? (
+                    <a
+                      href={doc.signedUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-blue-900 hover:underline"
+                    >
+                      <Paperclip size={12} /> 파일 열기
+                    </a>
+                  ) : (
+                    <p className="mt-1.5 text-[11px] text-gray-400">파일을 열 수 없습니다</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용) */}
+        {questionStageSubmittedDocument && (
+          <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="text-xs font-semibold text-gray-700">질문 단계 제출 자료</p>
+            <div className="mt-2 space-y-0.5 text-[11px] text-gray-500">
+              <p>파일명: {questionStageSubmittedDocument.fileName ?? "-"}</p>
+              <p>문서종류: {questionStageSubmittedDocument.documentType ?? "-"}</p>
+              <p>검토단계: {formatReviewStageLabel(questionStageSubmittedDocument.reviewStage)}</p>
+              <p>상태: 이미 제출됨</p>
+            </div>
           </div>
         )}
 
