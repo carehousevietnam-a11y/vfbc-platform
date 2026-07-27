@@ -744,167 +744,173 @@ export default async function AdminLeadDetailPage({
           )}
         </div>
 
-        {/* 4. 첨부 서류 */}
-        {fileUrl && (
-          <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-            <p className="text-xs font-semibold text-gray-700">첨부 서류</p>
-            <a
-              href={fileUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-blue-900 hover:underline"
-            >
-              <Paperclip size={13} /> {fileName ?? "첨부파일 열기"}
-            </a>
-          </div>
-        )}
+        {/* 4~5. AI 진단 결과(좌) + 문서 영역(우) — PC(lg 이상) 2열, 모바일 1열 */}
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* 좌측: 5. AI 진단 결과 (CHECK / VERIFY / REGISTER 3가지 구조 분기) */}
+          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-gray-700">AI 진단 결과</p>
+              {typeof activeScore === "number" && (
+                <span className="text-sm font-bold text-gray-900">{activeScore}%</span>
+              )}
+            </div>
 
-        {/* 4-1. 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
-        {customerDocuments.length > 0 && (
-          <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-            <p className="text-xs font-semibold text-gray-700">고객 추가 제출 자료</p>
-            <div className="mt-2 space-y-2.5">
-              {customerDocuments.map((doc) => (
-                <div key={doc.id} className="rounded-xl bg-gray-50 px-3 py-2.5">
-                  <p className="text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
-                  <div className="mt-1 space-y-0.5 text-[11px] text-gray-500">
-                    <p>파일명: {doc.fileName ?? "-"}</p>
-                    <p>파일크기: {formatFileSizeLabel(doc.fileSize)}</p>
-                    <p>신청서비스: {doc.service ?? "-"}</p>
-                    <p>제출방식: {doc.mode ?? "-"}</p>
-                    <p>제출일: {new Date(doc.createdAt).toLocaleString("ko-KR")}</p>
+            {activeBrief ? (
+              <>
+                {riskInfo && (
+                  <span className={`inline-block mt-2 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
+                    리스크 {riskInfo.label}
+                  </span>
+                )}
+                {activeBrief.summary && (
+                  <p className="mt-3 text-xs text-gray-600 leading-relaxed">{activeBrief.summary}</p>
+                )}
+                {(activeBrief.checkedItems?.length ?? 0) > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold text-gray-700">항목별 확인 결과</p>
+                    <div className="mt-2 space-y-2">
+                      {(activeBrief.checkedItems ?? []).map((item: ExpertChecklistItem, i: number) => (
+                        <div key={i} className="rounded-xl bg-gray-50 px-3 py-2.5">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-gray-800">
+                            {item.passed ? (
+                              <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                            ) : (
+                              <AlertTriangle size={14} className="text-amber-600 shrink-0" />
+                            )}
+                            {item.label}
+                          </div>
+                          {item.reason && (
+                            <p className="mt-1 text-[11px] text-gray-500 pl-[22px]">{item.reason}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  {doc.signedUrl ? (
-                    <a
-                      href={doc.signedUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-blue-900 hover:underline"
-                    >
-                      <Paperclip size={12} /> 파일 열기
-                    </a>
-                  ) : (
-                    <p className="mt-1.5 text-[11px] text-gray-400">파일을 열 수 없습니다</p>
-                  )}
+                )}
+                {(activeBrief.rejectionRisks?.length ?? 0) > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold text-gray-700">주요 위험 요인</p>
+                    <ol className="mt-2 space-y-1 list-decimal pl-4">
+                      {[...(activeBrief.rejectionRisks ?? [])]
+                        .sort((a: ExpertRejectionRisk, b: ExpertRejectionRisk) => a.rank - b.rank)
+                        .map((r: ExpertRejectionRisk, i: number) => (
+                          <li key={i} className="text-xs text-red-700">{r.reason}</li>
+                        ))}
+                    </ol>
+                  </div>
+                )}
+                {(activeBrief.recommendedSteps?.length ?? 0) > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold text-gray-700">권장 조치</p>
+                    <ul className="mt-2 space-y-1">
+                      {(activeBrief.recommendedSteps ?? []).map((s: string, i: number) => (
+                        <li key={i} className="text-xs text-gray-600 pl-1">· {s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {(activeBrief.similarCases?.length ?? 0) > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold text-gray-700">유사 사례</p>
+                    <ul className="mt-2 space-y-1">
+                      {(activeBrief.similarCases ?? []).map((c: string, i: number) => (
+                        <li key={i} className="text-xs text-gray-600 pl-1">· {c}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : registerMeta ? (
+              <div className="mt-3">
+                <p className="text-[11px] text-gray-400">
+                  REGISTER 자체진단 결과 (전문가 리포트가 아닌 1차 자가진단 값입니다)
+                </p>
+                <div className="mt-2 space-y-1.5 text-xs">
+                  {Object.entries(registerMeta)
+                    .filter(([k]) => k !== "feasibilityScore" && k !== "previousRejection")
+                    .map(([k, v]) => (
+                      <div key={k} className="flex items-center justify-between gap-3">
+                        <span className="text-gray-500">{humanizeKey(k)}</span>
+                        <span className="font-medium text-gray-900 text-right">{formatMetaValue(v)}</span>
+                      </div>
+                    ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용) */}
-        {questionStageSubmittedDocument && (
-          <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-            <p className="text-xs font-semibold text-gray-700">질문 단계 제출 자료</p>
-            <div className="mt-2 space-y-0.5 text-[11px] text-gray-500">
-              <p>파일명: {questionStageSubmittedDocument.fileName ?? "-"}</p>
-              <p>문서종류: {questionStageSubmittedDocument.documentType ?? "-"}</p>
-              <p>검토단계: {formatReviewStageLabel(questionStageSubmittedDocument.reviewStage)}</p>
-              <p>상태: 이미 제출됨</p>
-            </div>
-          </div>
-        )}
-
-        {/* 5. AI 진단 결과 (CHECK / VERIFY / REGISTER 3가지 구조 분기) */}
-        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-gray-700">AI 진단 결과</p>
-            {typeof activeScore === "number" && (
-              <span className="text-sm font-bold text-gray-900">{activeScore}%</span>
+                {Boolean(registerMeta.previousRejection) && (
+                  <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+                    이전 신청 이력: {formatMetaValue(registerMeta.previousRejection)}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-gray-400">
+                이 리드에는 아직 AI 진단 데이터가 없습니다.
+              </p>
             )}
           </div>
 
-          {activeBrief ? (
-            <>
-              {riskInfo && (
-                <span className={`inline-block mt-2 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
-                  리스크 {riskInfo.label}
-                </span>
-              )}
-              {activeBrief.summary && (
-                <p className="mt-3 text-xs text-gray-600 leading-relaxed">{activeBrief.summary}</p>
-              )}
-              {(activeBrief.checkedItems?.length ?? 0) > 0 && (
-                <div className="mt-4">
-                  <p className="text-xs font-semibold text-gray-700">항목별 확인 결과</p>
-                  <div className="mt-2 space-y-2">
-                    {(activeBrief.checkedItems ?? []).map((item: ExpertChecklistItem, i: number) => (
-                      <div key={i} className="rounded-xl bg-gray-50 px-3 py-2.5">
-                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-800">
-                          {item.passed ? (
-                            <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
-                          ) : (
-                            <AlertTriangle size={14} className="text-amber-600 shrink-0" />
-                          )}
-                          {item.label}
-                        </div>
-                        {item.reason && (
-                          <p className="mt-1 text-[11px] text-gray-500 pl-[22px]">{item.reason}</p>
-                        )}
+          {/* 우측: 문서 영역 — 첨부 서류 → 고객 추가 제출 자료 → 질문 단계 제출 자료 (기존 순서 유지) */}
+          <div className="flex flex-col gap-4">
+            {/* 4. 첨부 서류 */}
+            {fileUrl && (
+              <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                <p className="text-xs font-semibold text-gray-700">첨부 서류</p>
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-blue-900 hover:underline"
+                >
+                  <Paperclip size={13} /> {fileName ?? "첨부파일 열기"}
+                </a>
+              </div>
+            )}
+
+            {/* 4-1. 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
+            {customerDocuments.length > 0 && (
+              <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                <p className="text-xs font-semibold text-gray-700">고객 추가 제출 자료</p>
+                <div className="mt-2 space-y-2.5">
+                  {customerDocuments.map((doc) => (
+                    <div key={doc.id} className="rounded-xl bg-gray-50 px-3 py-2.5">
+                      <p className="text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
+                      <div className="mt-1 space-y-0.5 text-[11px] text-gray-500">
+                        <p>파일명: {doc.fileName ?? "-"}</p>
+                        <p>파일크기: {formatFileSizeLabel(doc.fileSize)}</p>
+                        <p>신청서비스: {doc.service ?? "-"}</p>
+                        <p>제출방식: {doc.mode ?? "-"}</p>
+                        <p>제출일: {new Date(doc.createdAt).toLocaleString("ko-KR")}</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {(activeBrief.rejectionRisks?.length ?? 0) > 0 && (
-                <div className="mt-4">
-                  <p className="text-xs font-semibold text-gray-700">주요 위험 요인</p>
-                  <ol className="mt-2 space-y-1 list-decimal pl-4">
-                    {[...(activeBrief.rejectionRisks ?? [])]
-                      .sort((a: ExpertRejectionRisk, b: ExpertRejectionRisk) => a.rank - b.rank)
-                      .map((r: ExpertRejectionRisk, i: number) => (
-                        <li key={i} className="text-xs text-red-700">{r.reason}</li>
-                      ))}
-                  </ol>
-                </div>
-              )}
-              {(activeBrief.recommendedSteps?.length ?? 0) > 0 && (
-                <div className="mt-4">
-                  <p className="text-xs font-semibold text-gray-700">권장 조치</p>
-                  <ul className="mt-2 space-y-1">
-                    {(activeBrief.recommendedSteps ?? []).map((s: string, i: number) => (
-                      <li key={i} className="text-xs text-gray-600 pl-1">· {s}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {(activeBrief.similarCases?.length ?? 0) > 0 && (
-                <div className="mt-4">
-                  <p className="text-xs font-semibold text-gray-700">유사 사례</p>
-                  <ul className="mt-2 space-y-1">
-                    {(activeBrief.similarCases ?? []).map((c: string, i: number) => (
-                      <li key={i} className="text-xs text-gray-600 pl-1">· {c}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </>
-          ) : registerMeta ? (
-            <div className="mt-3">
-              <p className="text-[11px] text-gray-400">
-                REGISTER 자체진단 결과 (전문가 리포트가 아닌 1차 자가진단 값입니다)
-              </p>
-              <div className="mt-2 space-y-1.5 text-xs">
-                {Object.entries(registerMeta)
-                  .filter(([k]) => k !== "feasibilityScore" && k !== "previousRejection")
-                  .map(([k, v]) => (
-                    <div key={k} className="flex items-center justify-between gap-3">
-                      <span className="text-gray-500">{humanizeKey(k)}</span>
-                      <span className="font-medium text-gray-900 text-right">{formatMetaValue(v)}</span>
+                      {doc.signedUrl ? (
+                        <a
+                          href={doc.signedUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-blue-900 hover:underline"
+                        >
+                          <Paperclip size={12} /> 파일 열기
+                        </a>
+                      ) : (
+                        <p className="mt-1.5 text-[11px] text-gray-400">파일을 열 수 없습니다</p>
+                      )}
                     </div>
                   ))}
-              </div>
-              {Boolean(registerMeta.previousRejection) && (
-                <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-                  이전 신청 이력: {formatMetaValue(registerMeta.previousRejection)}
                 </div>
-              )}
-            </div>
-          ) : (
-            <p className="mt-3 text-xs text-gray-400">
-              이 리드에는 아직 AI 진단 데이터가 없습니다.
-            </p>
-          )}
+              </div>
+            )}
+
+            {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용) */}
+            {questionStageSubmittedDocument && (
+              <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                <p className="text-xs font-semibold text-gray-700">질문 단계 제출 자료</p>
+                <div className="mt-2 space-y-0.5 text-[11px] text-gray-500">
+                  <p>파일명: {questionStageSubmittedDocument.fileName ?? "-"}</p>
+                  <p>문서종류: {questionStageSubmittedDocument.documentType ?? "-"}</p>
+                  <p>검토단계: {formatReviewStageLabel(questionStageSubmittedDocument.reviewStage)}</p>
+                  <p>상태: 이미 제출됨</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 6. 담당자 정보 */}
