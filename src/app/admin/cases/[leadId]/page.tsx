@@ -30,7 +30,6 @@ import {
   ArrowLeft,
   AlertTriangle,
   CheckCircle2,
-  Circle,
   Paperclip,
   Info,
 } from "lucide-react";
@@ -445,6 +444,12 @@ export default async function AdminLeadDetailPage({
   const consultationStatus = getConsultationStatus(activities);
   const processSteps = buildProcessSteps(category, activities);
 
+  // 진행 단계 UI 개선 전용 파생 값 — buildProcessSteps/setProcessStage의 로직·action 값은
+  // 그대로 두고, "다음으로 진행 가능한 단계 1개"만 렌더링에서 골라내기 위한 계산만 추가.
+  const nextStepIndex = processSteps.findIndex((s) => !s.done && s.settableAction);
+  const nextStep = nextStepIndex >= 0 ? processSteps[nextStepIndex] : null;
+  const permitStep = processSteps.find((s) => s.settableAction === "process_permit_completed") ?? null;
+
   // STEP4: "허가 완료" 단계에 첨부된 결과파일(허가증)이 있으면 표시용으로 조회
   const permitActivity = activities.find((a) => a.action === "process_permit_completed");
   const permitFileUrl = (asMeta(permitActivity?.meta)?.file_url as string | undefined) ?? null;
@@ -610,68 +615,101 @@ export default async function AdminLeadDetailPage({
           </div>
         </div>
 
-        {/* 진행 단계 관리 (신규) */}
+        {/* 진행 단계 관리 (신규) — 가로형 트랙 UI로 개편, 모바일은 세로형 자동 전환 */}
         <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <p className="text-xs font-semibold text-gray-700">진행 단계 관리</p>
-          <div className="mt-3 space-y-2">
-            {processSteps.map((step) => (
-              <div key={step.label} className="gap-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    {step.done ? (
-                      <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                    ) : (
-                      <Circle size={16} className="text-gray-300 shrink-0" />
-                    )}
-                    <span className={`text-xs ${step.done ? "font-semibold text-gray-900" : "text-gray-500"}`}>
+
+          {/* 가로형 단계 트랙 (sm 이상) / 세로형 (모바일) */}
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-0">
+            {processSteps.map((step, i) => {
+              const isNextStep = i === nextStepIndex;
+              return (
+                <div
+                  key={step.label}
+                  className="relative flex items-center sm:flex-1 sm:flex-col sm:items-center"
+                >
+                  {i > 0 && (
+                    <div
+                      className={`hidden sm:block absolute left-[-50%] right-[50%] top-[14px] h-px z-0 ${
+                        step.done ? "bg-emerald-400" : "bg-gray-200"
+                      }`}
+                    />
+                  )}
+                  <div className="relative z-10 flex items-center gap-2 sm:flex-col sm:gap-1.5 sm:px-2">
+                    <div
+                      className={
+                        step.done
+                          ? "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white"
+                          : isNextStep
+                          ? "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-white ring-4 ring-blue-100"
+                          : "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-400"
+                      }
+                    >
+                      {step.done ? (
+                        <CheckCircle2 size={15} />
+                      ) : (
+                        <span className="text-[11px] font-semibold">{i + 1}</span>
+                      )}
+                    </div>
+                    <span
+                      className={
+                        step.done
+                          ? "text-[11px] font-semibold text-gray-900 sm:text-center"
+                          : isNextStep
+                          ? "text-[11px] font-bold text-blue-900 sm:text-center"
+                          : "text-[11px] text-gray-400 sm:text-center"
+                      }
+                    >
                       {step.label}
                     </span>
                   </div>
-                  {!step.done && step.settableAction && step.settableAction !== "process_permit_completed" && (
-                    <form action={setProcessStage}>
-                      <input type="hidden" name="leadId" value={lead.id} />
-                      <input type="hidden" name="stageAction" value={step.settableAction} />
-                      <button
-                        type="submit"
-                        className="rounded-full border border-blue-900 px-3 py-1 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-                      >
-                        이 단계로 설정
-                      </button>
-                    </form>
-                  )}
                 </div>
-                {/* STEP4: "허가 완료"는 결과파일(허가증)을 함께 첨부할 수 있다(선택) */}
-                {!step.done && step.settableAction === "process_permit_completed" && (
-                  <form action={setProcessStage} className="mt-2 flex flex-wrap items-center gap-2 pl-6">
-                    <input type="hidden" name="leadId" value={lead.id} />
-                    <input type="hidden" name="stageAction" value={step.settableAction} />
-                    <input
-                      type="file"
-                      name="permitFile"
-                      className="text-[10px] text-gray-500 file:mr-2 file:rounded-full file:border-0 file:bg-gray-100 file:px-2.5 file:py-1 file:text-[10px] file:font-semibold"
-                    />
-                    <button
-                      type="submit"
-                      className="rounded-full border border-blue-900 px-3 py-1 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-                    >
-                      이 단계로 설정
-                    </button>
-                  </form>
-                )}
-                {/* STEP4: 이미 첨부된 허가증 파일이 있으면 표시 */}
-                {step.done && step.settableAction === "process_permit_completed" && permitFileUrl && (
-                  <a
-                    href={permitFileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-1 ml-6 inline-flex items-center gap-1 text-[11px] font-medium text-blue-900 hover:underline"
-                  >
-                    <Paperclip size={12} /> {permitFileName ?? "허가증 파일 열기"}
-                  </a>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
+
+          {/* 다음 단계 실행 — "이 단계로 설정" 버튼은 진행 가능한 다음 단계 1개에만 노출 */}
+          {nextStep && (
+            <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/40 p-3.5">
+              <p className="text-[11px] text-gray-600">
+                다음 단계: <span className="font-semibold text-blue-900">{nextStep.label}</span>
+              </p>
+              <form action={setProcessStage} className="mt-2 flex flex-wrap items-center gap-2">
+                <input type="hidden" name="leadId" value={lead.id} />
+                <input type="hidden" name="stageAction" value={nextStep.settableAction ?? ""} />
+                {/* STEP4: "허가 완료"는 결과파일(허가증)을 함께 첨부할 수 있다(선택, 기존 로직 유지) */}
+                {nextStep.settableAction === "process_permit_completed" && (
+                  <input
+                    type="file"
+                    name="permitFile"
+                    className="text-[10px] text-gray-500 file:mr-2 file:rounded-full file:border-0 file:bg-gray-100 file:px-2.5 file:py-1 file:text-[10px] file:font-semibold"
+                  />
+                )}
+                <button
+                  type="submit"
+                  className="rounded-full border border-blue-900 bg-white px-3.5 py-1.5 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+                >
+                  다음 단계로 변경
+                </button>
+              </form>
+              <p className="mt-1.5 text-[11px] text-gray-400">
+                변경 시 고객 마이페이지가 갱신되고 단계 변경 알림이 발송됩니다.
+              </p>
+            </div>
+          )}
+
+          {/* STEP4: 이미 첨부된 허가증 파일이 있으면 표시 (기존 로직 유지) */}
+          {permitStep?.done && permitFileUrl && (
+            <a
+              href={permitFileUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-blue-900 hover:underline"
+            >
+              <Paperclip size={12} /> {permitFileName ?? "허가증 파일 열기"}
+            </a>
+          )}
+
           <p className="mt-3 text-[11px] text-gray-400">
             &quot;접수 완료&quot;·&quot;AI 진단 완료&quot;는 접수 시점에 자동으로 기록되어 별도 설정이 필요 없습니다.
           </p>
