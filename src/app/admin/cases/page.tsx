@@ -116,6 +116,14 @@ function formatDateKey(dateKey: string) {
   return `${d.getUTCFullYear()}.${d.getUTCMonth() + 1}.${d.getUTCDate()}`;
 }
 
+function serviceAnchorId(dateKey: string, category: CategoryKey, serviceType: string) {
+  const safeService = serviceType
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `service-${dateKey}-${category}-${safeService || "unknown"}`;
+}
+
 function formatDateTime(createdAt: string) {
   return new Date(createdAt).toLocaleString("ko-KR", {
     year: "numeric",
@@ -435,10 +443,10 @@ export default async function AdminCasesPage({
       <PageHeader title="신청건 관리" description="전체 신청건을 날짜와 콘텐츠별로 관리합니다." />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard label="전체 신청건" value={leads.length} caption="현재 조회된 전체 리드" icon={<CasesIcon />} />
+        <KpiCard label="전체 신청건" value={leads.length} caption="현재 조회된 전체 리드" icon={<CasesIcon />} href="/admin/cases" />
         <KpiCard label="전문가 진행요청" value={agencyLeadIds.size} caption="전문가 연결 요청 건" icon={<ExpertIcon />} />
         <KpiCard label="서비스 종류" value={serviceCount} caption="현재 접수된 서비스 유형" icon={<ServiceIcon />} />
-        <KpiCard label="거절이력" value={rejectionCount ?? 0} caption="타 기관 거절 등록 건" icon={<RejectionIcon />} />
+        <KpiCard label="거절이력" value={rejectionCount ?? 0} caption="타 기관 거절 등록 건" icon={<RejectionIcon />} href="/admin/rejections" />
       </div>
 
       <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -602,7 +610,12 @@ function DateContentGroup({
             <ChevronIcon />
           </span>
           <div>
-            <h2 className="text-base font-bold text-slate-950">{formatDateKey(dateKey)}</h2>
+            <h2 className="flex items-center gap-2 text-base font-bold text-slate-950">
+              <span>{formatDateKey(dateKey)}</span>
+              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+                {leads.length}건
+              </span>
+            </h2>
             <p className="mt-0.5 text-xs text-slate-500">날짜별 신청건</p>
           </div>
         </div>
@@ -612,7 +625,6 @@ function DateContentGroup({
           <DateCategoryCount label="VERIFY" count={(groupedByCategory.get("verify") ?? []).length} colorClass="bg-violet-50 text-violet-700 ring-violet-100" />
           <DateCategoryCount label="REGISTER" count={(groupedByCategory.get("permit") ?? []).length} colorClass="bg-emerald-50 text-emerald-700 ring-emerald-100" />
           <DateCategoryCount label="상담" count={(groupedByCategory.get("consultation") ?? []).length} colorClass="bg-amber-50 text-amber-700 ring-amber-100" />
-          <span className="ml-auto rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-white sm:ml-1">총 {leads.length}건</span>
         </div>
       </summary>
 
@@ -620,7 +632,7 @@ function DateContentGroup({
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {categoryOrder.map((category) => {
             const categoryLeads = groupedByCategory.get(category) ?? [];
-            if (categoryLeads.length === 0) return null;
+            if (category === "unclassified" && categoryLeads.length === 0) return null;
 
             const byService = new Map<string, number>();
             for (const lead of categoryLeads) {
@@ -642,10 +654,15 @@ function DateContentGroup({
                   {Array.from(byService.entries())
                     .sort((a, b) => b[1] - a[1])
                     .map(([serviceType, count]) => (
-                      <span key={serviceType} className="inline-flex items-center gap-1 rounded-lg border border-white/80 bg-white/85 px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
+                      <a
+                        key={serviceType}
+                        href={`#${serviceAnchorId(dateKey, category, serviceType)}`}
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/90 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-700 hover:shadow"
+                        title={`${serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)} 신청건으로 이동`}
+                      >
                         <span>{serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}</span>
-                        <span className="font-extrabold text-slate-950">{count}</span>
-                      </span>
+                        <span className="font-extrabold text-slate-950">({count})</span>
+                      </a>
                     ))}
                 </div>
               </div>
@@ -671,8 +688,9 @@ function DateContentGroup({
               .map(([serviceType, serviceLeads], serviceIndex) => (
                 <details
                   key={`${category}-${serviceType}`}
+                  id={serviceAnchorId(dateKey, category, serviceType)}
                   open={defaultOpen && serviceIndex === 0}
-                  className="group/service overflow-hidden rounded-xl border border-slate-200 bg-white"
+                  className="group/service scroll-mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white"
                 >
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 transition hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
                     <div className="flex min-w-0 items-center gap-3">
@@ -1085,26 +1103,39 @@ function KpiCard({
   value,
   caption,
   icon,
+  href,
 }: {
   label: string;
   value: number;
   caption: string;
   icon: React.ReactNode;
+  href?: string;
 }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-600">{label}</p>
-          <p className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950">{value}</p>
-          <p className="mt-2 text-xs text-slate-400">{caption}</p>
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-          {icon}
-        </div>
+  const content = (
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <p className="text-sm font-semibold text-slate-600">{label}</p>
+        <p className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950">{value}</p>
+        <p className="mt-2 text-xs text-slate-400">{caption}</p>
+      </div>
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+        {icon}
       </div>
     </div>
   );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">{content}</div>;
 }
 
 function Breadcrumb({
