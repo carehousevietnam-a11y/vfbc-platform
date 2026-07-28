@@ -555,6 +555,42 @@ function DateContentGroup({
     groupedByCategory.set(category, categoryLeads);
   }
 
+  const categoryTheme: Record<
+    CategoryKey,
+    { shortLabel: string; dot: string; card: string; count: string }
+  > = {
+    check: {
+      shortLabel: "CHECK",
+      dot: "bg-blue-600",
+      card: "border-blue-100 bg-blue-50/60",
+      count: "text-blue-700",
+    },
+    verify: {
+      shortLabel: "VERIFY",
+      dot: "bg-violet-600",
+      card: "border-violet-100 bg-violet-50/60",
+      count: "text-violet-700",
+    },
+    permit: {
+      shortLabel: "REGISTER",
+      dot: "bg-emerald-600",
+      card: "border-emerald-100 bg-emerald-50/60",
+      count: "text-emerald-700",
+    },
+    consultation: {
+      shortLabel: "상담",
+      dot: "bg-amber-500",
+      card: "border-amber-100 bg-amber-50/60",
+      count: "text-amber-700",
+    },
+    unclassified: {
+      shortLabel: "미분류",
+      dot: "bg-slate-500",
+      card: "border-slate-200 bg-slate-50",
+      count: "text-slate-700",
+    },
+  };
+
   return (
     <details
       open={defaultOpen}
@@ -572,99 +608,97 @@ function DateContentGroup({
         </div>
 
         <div className="flex w-full flex-wrap items-center gap-2 pl-10 sm:w-auto sm:justify-end sm:pl-0">
-          <DateCategoryCount
-            label="CHECK"
-            count={(groupedByCategory.get("check") ?? []).length}
-            colorClass="bg-blue-50 text-blue-700 ring-blue-100"
-          />
-          <DateCategoryCount
-            label="VERIFY"
-            count={(groupedByCategory.get("verify") ?? []).length}
-            colorClass="bg-violet-50 text-violet-700 ring-violet-100"
-          />
-          <DateCategoryCount
-            label="REGISTER"
-            count={(groupedByCategory.get("permit") ?? []).length}
-            colorClass="bg-emerald-50 text-emerald-700 ring-emerald-100"
-          />
-          <DateCategoryCount
-            label="상담"
-            count={(groupedByCategory.get("consultation") ?? []).length}
-            colorClass="bg-amber-50 text-amber-700 ring-amber-100"
-          />
-          <span className="ml-auto rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-white sm:ml-1">
-            총 {leads.length}건
-          </span>
+          <DateCategoryCount label="CHECK" count={(groupedByCategory.get("check") ?? []).length} colorClass="bg-blue-50 text-blue-700 ring-blue-100" />
+          <DateCategoryCount label="VERIFY" count={(groupedByCategory.get("verify") ?? []).length} colorClass="bg-violet-50 text-violet-700 ring-violet-100" />
+          <DateCategoryCount label="REGISTER" count={(groupedByCategory.get("permit") ?? []).length} colorClass="bg-emerald-50 text-emerald-700 ring-emerald-100" />
+          <DateCategoryCount label="상담" count={(groupedByCategory.get("consultation") ?? []).length} colorClass="bg-amber-50 text-amber-700 ring-amber-100" />
+          <span className="ml-auto rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-white sm:ml-1">총 {leads.length}건</span>
         </div>
       </summary>
 
-      <div className="space-y-3 border-t border-slate-200 bg-slate-50/40 p-3 sm:p-4">
-        {categoryOrder.map((category) => {
-          const categoryLeads = groupedByCategory.get(category) ?? [];
-          if (categoryLeads.length === 0) return null;
+      <div className="border-t border-slate-200 bg-slate-50/40 p-3 sm:p-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {categoryOrder.map((category) => {
+            const categoryLeads = groupedByCategory.get(category) ?? [];
+            if (categoryLeads.length === 0) return null;
 
-          const byService = new Map<string, typeof categoryLeads>();
-          for (const lead of categoryLeads) {
-            const serviceKey = lead.service_type ?? "미상";
-            const serviceLeads = byService.get(serviceKey) ?? [];
-            serviceLeads.push(lead);
-            byService.set(serviceKey, serviceLeads);
-          }
+            const byService = new Map<string, number>();
+            for (const lead of categoryLeads) {
+              const serviceKey = lead.service_type ?? "미상";
+              byService.set(serviceKey, (byService.get(serviceKey) ?? 0) + 1);
+            }
 
-          return (
-            <details
-              key={category}
-              open={category === "check" || category === "verify"}
-              className="group/category overflow-hidden rounded-xl border border-slate-200 bg-white"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 transition hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
-                <div className="flex items-center gap-3">
-                  <span className="text-slate-400 transition group-open/category:rotate-90">
-                    <ChevronIcon />
-                  </span>
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${CATEGORY_INFO[category].badgeColor}`}>
-                    {CATEGORY_INFO[category].label}
-                  </span>
+            const theme = categoryTheme[category];
+            return (
+              <div key={category} className={`rounded-xl border p-4 ${theme.card}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
+                    <p className="text-xs font-extrabold tracking-wide text-slate-700">{theme.shortLabel}</p>
+                  </div>
+                  <p className={`text-2xl font-black tracking-tight ${theme.count}`}>{categoryLeads.length}<span className="ml-0.5 text-xs font-bold">건</span></p>
                 </div>
-                <span className="text-xs font-bold text-slate-500">{categoryLeads.length}건</span>
-              </summary>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {Array.from(byService.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([serviceType, count]) => (
+                      <span key={serviceType} className="inline-flex items-center gap-1 rounded-lg border border-white/80 bg-white/85 px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
+                        <span>{serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}</span>
+                        <span className="font-extrabold text-slate-950">{count}</span>
+                      </span>
+                    ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-              <div className="border-t border-slate-100">
-                {Array.from(byService.entries())
-                  .sort((a, b) => b[1].length - a[1].length)
-                  .map(([serviceType, serviceLeads], index) => (
-                    <div
-                      key={serviceType}
-                      className={index === 0 ? "" : "border-t border-slate-100"}
-                    >
-                      <div className="flex items-center justify-between bg-slate-50/70 px-4 py-2.5">
-                        <p className="text-sm font-semibold text-slate-800">
-                          {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
-                        </p>
-                        <span className="text-xs font-semibold text-slate-500">
-                          {serviceLeads.length}건
-                        </span>
-                      </div>
-                      <div className="divide-y divide-slate-100 lg:hidden">
-                        {serviceLeads.map((lead) => (
-                          <LeadMobileCard
-                            key={lead.id}
-                            lead={lead}
-                            category={category}
-                            isAgency={agencyLeadIds.has(lead.id)}
-                            isRejected={false}
-                          />
-                        ))}
-                      </div>
-                      <div className="hidden lg:block">
-                        <LeadTable leads={serviceLeads} agencyLeadIds={agencyLeadIds} />
+        <div className="mt-4 space-y-3">
+          {categoryOrder.map((category) => {
+            const categoryLeads = groupedByCategory.get(category) ?? [];
+            if (categoryLeads.length === 0) return null;
+
+            const byService = new Map<string, typeof categoryLeads>();
+            for (const lead of categoryLeads) {
+              const serviceKey = lead.service_type ?? "미상";
+              const serviceLeads = byService.get(serviceKey) ?? [];
+              serviceLeads.push(lead);
+              byService.set(serviceKey, serviceLeads);
+            }
+
+            return Array.from(byService.entries())
+              .sort((a, b) => b[1].length - a[1].length)
+              .map(([serviceType, serviceLeads], serviceIndex) => (
+                <details
+                  key={`${category}-${serviceType}`}
+                  open={defaultOpen && serviceIndex === 0}
+                  className="group/service overflow-hidden rounded-xl border border-slate-200 bg-white"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 transition hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="shrink-0 text-slate-400 transition group-open/service:rotate-90"><ChevronIcon /></span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-slate-900">{serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}</p>
+                        <p className="mt-0.5 text-[11px] text-slate-500">{CATEGORY_INFO[category].label}</p>
                       </div>
                     </div>
-                  ))}
-              </div>
-            </details>
-          );
-        })}
+                    <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{serviceLeads.length}건</span>
+                  </summary>
+
+                  <div className="border-t border-slate-100">
+                    <div className="divide-y divide-slate-100 lg:hidden">
+                      {serviceLeads.map((lead) => (
+                        <LeadMobileCard key={lead.id} lead={lead} category={category} isAgency={agencyLeadIds.has(lead.id)} isRejected={false} />
+                      ))}
+                    </div>
+                    <div className="hidden lg:block">
+                      <LeadTable leads={serviceLeads} agencyLeadIds={agencyLeadIds} />
+                    </div>
+                  </div>
+                </details>
+              ));
+          })}
+        </div>
       </div>
     </details>
   );
