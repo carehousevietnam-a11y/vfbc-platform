@@ -69,6 +69,13 @@ const SERVICE_LABELS: Record<string, string> = {
   register_fire_safety: "소방허가",
   register_hygiene: "위생허가",
   register_medical_device: "의료기기허가",
+  permit_company: "법인설립",
+  permit_franchise: "프랜차이즈허가",
+  verify_admin: "행정문서 검토",
+  verify_fraud: "사기·피해 검토",
+  verify_real_estate: "부동산 검토",
+  verify_tax: "세무 검토",
+  verify_unclear: "기타·불명확 검토",
 };
 
 function getServiceLabel(serviceType: string) {
@@ -90,6 +97,30 @@ function getServiceLabel(serviceType: string) {
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
   return serviceType;
+}
+
+function getServiceIcon(serviceType: string) {
+  const key = toPrefixKey(serviceType);
+
+  if (key === "permit_company") return "🏢";
+  if (key === "permit_franchise") return "🏪";
+  if (key.includes("fire_safety")) return "🧯";
+  if (key.includes("restaurant")) return "🍽️";
+  if (key.includes("cosmetics")) return "🧴";
+  if (key.includes("environment")) return "🌿";
+  if (key.includes("hygiene")) return "🧼";
+  if (key.includes("medical_device")) return "🩺";
+  if (key === "trc") return "🪪";
+  if (key === "wp") return "💼";
+  if (key === "tamtru") return "🏠";
+  if (key === "driving_license") return "🚗";
+  if (key.startsWith("verify_admin")) return "📄";
+  if (key.startsWith("verify_fraud")) return "🛡️";
+  if (key.startsWith("verify_real_estate")) return "🏘️";
+  if (key.startsWith("verify_tax")) return "🧾";
+  if (key.startsWith("verify_unclear")) return "🔎";
+  if (key === "consultation") return "💬";
+  return "📌";
 }
 
 const RESULT_LABELS: Record<string, { label: string; color: string }> = {
@@ -629,10 +660,10 @@ function DateContentGroup({
       </summary>
 
       <div className="border-t border-slate-200 bg-slate-50/40 p-3 sm:p-4">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
           {categoryOrder.map((category) => {
             const categoryLeads = groupedByCategory.get(category) ?? [];
-            if (category === "unclassified" && categoryLeads.length === 0) return null;
+            if (categoryLeads.length === 0) return null;
 
             const byService = new Map<string, number>();
             for (const lead of categoryLeads) {
@@ -642,7 +673,7 @@ function DateContentGroup({
 
             const theme = categoryTheme[category];
             return (
-              <div key={category} className={`rounded-xl border p-4 ${theme.card}`}>
+              <div key={category} className={`min-h-[112px] rounded-xl border p-3.5 ${theme.card}`}>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
@@ -650,18 +681,20 @@ function DateContentGroup({
                   </div>
                   <p className={`text-2xl font-black tracking-tight ${theme.count}`}>{categoryLeads.length}<span className="ml-0.5 text-xs font-bold">건</span></p>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-1.5">
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {Array.from(byService.entries())
                     .sort((a, b) => b[1] - a[1])
                     .map(([serviceType, count]) => (
                       <a
                         key={serviceType}
                         href={`#${serviceAnchorId(dateKey, category, serviceType)}`}
-                        className="inline-flex items-center gap-1 rounded-lg border border-white/90 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-700 hover:shadow"
+                        className="group/link inline-flex items-center gap-1.5 rounded-lg border border-white/90 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-700 hover:shadow"
                         title={`${serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)} 신청건으로 이동`}
                       >
+                        <span aria-hidden="true">{serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}</span>
                         <span>{serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}</span>
-                        <span className="font-extrabold text-slate-950">({count})</span>
+                        <span className="font-extrabold text-slate-950">{count}</span>
+                        <span className="ml-0.5 text-slate-400 transition group-hover/link:translate-x-0.5 group-hover/link:text-blue-600" aria-hidden="true">›</span>
                       </a>
                     ))}
                 </div>
