@@ -25,7 +25,7 @@ import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
-import { getDiagnosis, getIncidentTypes, DiagnosisResult } from "@/lib/verifyDiagnosis";
+import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 const CATEGORY = "admin" as const;
@@ -406,16 +406,35 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
   );
 }
 
-// STEP11-2: 질문 카드형 UI용 설명 텍스트(표시 전용). incidentTypes 배열/값은 변경하지 않음.
-const INCIDENT_TYPE_DESCRIPTIONS: Record<string, string> = {
-  "행정문서": "비자·거주증·노동허가",
-  "계약서": "사업·거래 계약",
-  "법인·투자": "법인설립·투자 관련",
-  "노동·고용": "근로계약·노동 문제",
-  "인허가": "허가·등록 관련",
-  "세무": "세금·회계",
-  "기타": "기타 사건",
+type ReviewQuestionOption = {
+  value: string;
+  title: string;
+  desc: string;
 };
+
+// 화면에는 합의한 VERIFY 문구를 표시하되, value는 기존 verifyDiagnosis.ts가
+// 사용하는 incidentType 값으로 유지한다. 따라서 진단·DB·CRM 로직은 변경하지 않는다.
+const PREVENT_DOCUMENT_OPTIONS: ReviewQuestionOption[] = [
+  { value: "행정문서", title: "행정기관 제출서류", desc: "비자·거주증·노동허가 등 기관 제출자료" },
+  { value: "계약서", title: "계약서", desc: "매매·임대·용역 등 계약 관련 서류" },
+  { value: "법인·투자", title: "법인·투자 서류", desc: "법인설립·투자·지분 관련 서류" },
+  { value: "노동·고용", title: "노동·고용 서류", desc: "근로계약·취업·인사 관련 서류" },
+  { value: "인허가", title: "인허가 서류", desc: "허가·등록·승인 신청 관련 서류" },
+  { value: "세무", title: "세무 서류", desc: "세금·회계·신고 관련 서류" },
+  { value: "기타", title: "번역·공증·인증 서류", desc: "원본·번역본·공증·영사확인 자료" },
+  { value: "기타", title: "기타", desc: "위 항목에 해당하지 않는 검토 자료" },
+];
+
+const CASE_ISSUE_OPTIONS: ReviewQuestionOption[] = [
+  { value: "행정문서", title: "행정기관 반려·보완 요구", desc: "반려서·보완 요청·행정 통지를 받은 경우" },
+  { value: "계약서", title: "계약 위반·대금 미지급", desc: "계약 불이행·미수금·보증금 문제" },
+  { value: "법인·투자", title: "투자·법인 분쟁", desc: "투자금·지분·법인 운영 관련 분쟁" },
+  { value: "노동·고용", title: "노동·고용 분쟁", desc: "해고·임금·근로계약 관련 문제" },
+  { value: "인허가", title: "인허가·영업정지", desc: "허가 반려·취소·영업정지 문제" },
+  { value: "세무", title: "세무 조사·추징", desc: "세무조사·추징·가산세 관련 문제" },
+  { value: "기타", title: "소송·형사·사기", desc: "경찰·검찰·법원 또는 사기 피해 관련" },
+  { value: "기타", title: "기타", desc: "위 항목에 해당하지 않는 문제" },
+];
 
 // STEP11-1: STEP1 최상단 — 사전 검토 / 사후 사건 검토 구분 질문.
 // 화면 로컬 state로만 관리하며, DB/API/CRM/진단 결과에는 아직 연결하지 않음.
@@ -436,19 +455,22 @@ type ReviewStage = (typeof REVIEW_STAGE_OPTIONS)[number]["value"];
 // 질문3 — Prevent Review(사전 검토)에서만 사용. "무엇을 확인하고 싶으신가요?"
 // 진단 로직(verifyDiagnosis.ts)에는 전달하지 않고 CRM meta에만 참고 정보로 저장한다.
 const PREVENT_FOCUS_OPTIONS = [
-  "계약조건이 불리하지 않은지",
-  "필요한 서류가 맞는지",
-  "법적으로 문제되는 부분이 없는지",
-  "기타",
+  "제출 요건과 형식",
+  "누락된 내용이나 서류",
+  "불리하거나 위험한 조항",
+  "원본과 번역본의 일치 여부",
+  "공증·인증·영사확인 필요 여부",
+  "전체 검토가 필요함",
 ] as const;
 
 // 질문3 — Case Review(사후 검토)에서만 사용. "현재 어느 단계인가요?"
 // 진단 로직(verifyDiagnosis.ts)에는 전달하지 않고 CRM meta에만 참고 정보로 저장한다.
 const CASE_STAGE_OPTIONS = [
-  "문제 발생 직후",
-  "기관에 이의제기·소명 중",
-  "이미 조치가 진행되고 있음",
-  "기타",
+  "공식 대응 전",
+  "상대방·기관과 협의 중",
+  "이의신청·통지 준비 중",
+  "경찰·검찰·법원·행정기관 접수",
+  "판결·결정 후 후속 대응",
 ] as const;
 
 // STEP12-2: 공통 SelectionCard용 아이콘 매핑(표시 전용). 값/옵션 배열은 변경하지 않음.
@@ -913,8 +935,6 @@ export default function VerifyAdminPage() {
   const [resultToken, setResultToken] = useState<string | null>(null);
   const messengers = MESSENGERS_KO;
 
-  const incidentTypes = getIncidentTypes(CATEGORY);
-
   // 질문3(사건유형+설명+선택 파일)이 채워지는 즉시, 아직 리드가 생성되기 전이라도
   // CHECK(TRC)와 동일하게 1번째 화면(개인정보 입력)에 미리보기 결과를 보여주기 위해
   // 계산해둔다. fileUrl은 실제 Storage URL이 아니라 "파일 선택 여부"만 필요하므로
@@ -1201,7 +1221,7 @@ export default function VerifyAdminPage() {
           직접검토하기 · 베트남 법률전문 AI
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
-        <p className="mt-1 text-sm text-gray-500">비자·거주증·노동허가 등 행정서류 사전 검토</p>
+        <p className="mt-1 text-sm text-gray-500">제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지</p>
 
         {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
@@ -1210,7 +1230,7 @@ export default function VerifyAdminPage() {
             {/* 질문 1 — Prevent Review / Case Review */}
             {!reviewStage && (
               <div className="mt-8">
-                <QuestionSection step={1} title="현재 어떤 상황인가요?" description="검토 목적에 가장 가까운 항목을 선택해주세요.">
+                <QuestionSection step={1} title="어떤 검토가 필요하신가요?" description="현재 상황에 맞는 검토 방식을 선택해주세요.">
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {REVIEW_STAGE_OPTIONS.map((opt) => (
                       <SelectionCard
@@ -1243,24 +1263,27 @@ export default function VerifyAdminPage() {
                   step={2}
                   title={reviewStage === "pre" ? "어떤 서류를 검토하시나요?" : "어떤 문제가 발생했나요?"}
                 >
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                    {incidentTypes.map((t) => (
-                      <SelectionCard
-                        key={t}
-                        title={t}
-                        description={INCIDENT_TYPE_DESCRIPTIONS[t] ?? ""}
-                        selected={selectedKey === t}
-                        icon={INCIDENT_TYPE_ICONS[t]}
-                        tone={INCIDENT_TYPE_TONES[t]}
-                        onClick={() => {
-                          setSelectedKey(t);
-                          setTimeout(() => {
-                            setIncidentType(t);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {(reviewStage === "pre" ? PREVENT_DOCUMENT_OPTIONS : CASE_ISSUE_OPTIONS).map((opt, index) => {
+                      const selectionKey = `${opt.value}-${index}`;
+                      return (
+                        <SelectionCard
+                          key={selectionKey}
+                          title={opt.title}
+                          description={opt.desc}
+                          selected={selectedKey === selectionKey}
+                          icon={INCIDENT_TYPE_ICONS[opt.value] ?? FileQuestion}
+                          tone={INCIDENT_TYPE_TONES[opt.value] ?? "slate"}
+                          onClick={() => {
+                            setSelectedKey(selectionKey);
+                            setTimeout(() => {
+                              setIncidentType(opt.value);
+                              setSelectedKey(null);
+                            }, 300);
+                          }}
+                        />
+                      );
+                    })}
                   </div>
                 </QuestionSection>
 
@@ -1325,8 +1348,8 @@ export default function VerifyAdminPage() {
                   step={4}
                   title={
                     reviewStage === "pre"
-                      ? "검토가 필요한 내용을 간단히 작성해주세요."
-                      : "사건 내용을 간단히 작성해주세요."
+                      ? "검토가 필요한 내용을 간단히 알려주세요."
+                      : "무슨 일이 있었는지 간단히 알려주세요."
                   }
                   error={incidentError}
                 >
@@ -1335,15 +1358,14 @@ export default function VerifyAdminPage() {
                     onChange={(e) => setIncidentDescription(e.target.value)}
                     placeholder={
                       reviewStage === "pre"
-                        ? "예: 계약서에 서명하기 전인데 보증금 반환 조항이 명확한지 확인하고 싶습니다."
-                        : "예: 서류 반려 통지를 받았는데 사유를 정확히 이해하지 못했습니다."
+                        ? "예: 베트남 노동허가 신청 예정입니다. 원본과 번역본이 일치하는지, 추가로 필요한 서류가 있는지 확인받고 싶습니다."
+                        : "예: 행정기관에서 보완 요청을 받았습니다. 어떤 내용을 보완해야 하는지와 대응 방법을 확인받고 싶습니다."
                     }
                     rows={5}
                     className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
                   />
                   <p className="mt-2 text-[11px] text-gray-400">
-                    입력하신 내용은 전문가 검토 시 참고 정보로만 사용되며, 여기서 자동으로
-                    분석·판단되지 않습니다.
+                    현재 상황과 확인이 필요한 내용을 중심으로 작성해주세요.
                   </p>
 
                   {!attachedFile ? (
@@ -1352,8 +1374,8 @@ export default function VerifyAdminPage() {
                         <Paperclip size={16} className="shrink-0" />
                         <span className="truncate">
                           {reviewStage === "pre"
-                            ? "검토 대상 서류 첨부 (선택 · 사진 · PDF · Word)"
-                            : "핵심 문서 및 증거자료 첨부 (선택 · 사진 · PDF · Word)"}
+                            ? "대표 검토 서류 1개 첨부 (선택 · 사진 · PDF · Word)"
+                            : "대표 핵심 문서 1개 첨부 (선택 · 사진 · PDF · Word)"}
                         </span>
                         <input
                           type="file"
@@ -1365,9 +1387,8 @@ export default function VerifyAdminPage() {
                           }}
                         />
                       </label>
-                      <p className="mt-1.5 text-[11px] text-gray-400">
-                        서류가 없어도 다음 단계로 진행할 수 있으며, 나중에 카카오톡/잘로로
-                        보내주셔도 됩니다.
+                      <p className="mt-1.5 text-[11px] leading-relaxed text-gray-400">
+                        첫 화면에서는 대표 서류만 제출해주세요. 접수 후 /documents에서 원본·번역본·공증본·기관 안내문 또는 추가 증거자료를 계속 제출할 수 있습니다.
                       </p>
                     </>
                   ) : (
