@@ -1190,7 +1190,15 @@ export default function VerifyAdminPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${step === "diagnosis" ? "max-w-4xl" : "max-w-xl"}`}>
+      <div
+        className={`mx-auto px-6 py-10 ${
+          step === "diagnosis"
+            ? "max-w-4xl"
+            : step === "incident" && reviewStage && !incidentType
+            ? "max-w-[920px]"
+            : "max-w-xl"
+        }`}
+      >
         {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
         <Link
           href="/"
@@ -1263,7 +1271,7 @@ export default function VerifyAdminPage() {
                   step={2}
                   title={reviewStage === "pre" ? "어떤 서류를 검토하시나요?" : "어떤 문제가 발생했나요?"}
                 >
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {(reviewStage === "pre" ? PREVENT_DOCUMENT_OPTIONS : CASE_ISSUE_OPTIONS).map((opt, index) => {
                       const selectionKey = `${opt.value}-${index}`;
                       return (
