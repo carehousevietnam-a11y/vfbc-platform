@@ -560,9 +560,9 @@ function DateContentGroup({
       open={defaultOpen}
       className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between bg-slate-50 px-5 py-4 transition hover:bg-slate-100 [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 bg-slate-50 px-5 py-4 transition hover:bg-slate-100 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
         <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-open:rotate-90">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-open:rotate-90">
             <ChevronIcon />
           </span>
           <div>
@@ -570,9 +570,32 @@ function DateContentGroup({
             <p className="mt-0.5 text-xs text-slate-500">날짜별 신청건</p>
           </div>
         </div>
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-          {leads.length}건
-        </span>
+
+        <div className="flex w-full flex-wrap items-center gap-2 pl-10 sm:w-auto sm:justify-end sm:pl-0">
+          <DateCategoryCount
+            label="CHECK"
+            count={(groupedByCategory.get("check") ?? []).length}
+            colorClass="bg-blue-50 text-blue-700 ring-blue-100"
+          />
+          <DateCategoryCount
+            label="VERIFY"
+            count={(groupedByCategory.get("verify") ?? []).length}
+            colorClass="bg-violet-50 text-violet-700 ring-violet-100"
+          />
+          <DateCategoryCount
+            label="REGISTER"
+            count={(groupedByCategory.get("permit") ?? []).length}
+            colorClass="bg-emerald-50 text-emerald-700 ring-emerald-100"
+          />
+          <DateCategoryCount
+            label="상담"
+            count={(groupedByCategory.get("consultation") ?? []).length}
+            colorClass="bg-amber-50 text-amber-700 ring-amber-100"
+          />
+          <span className="ml-auto rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-white sm:ml-1">
+            총 {leads.length}건
+          </span>
+        </div>
       </summary>
 
       <div className="space-y-3 border-t border-slate-200 bg-slate-50/40 p-3 sm:p-4">
@@ -644,6 +667,34 @@ function DateContentGroup({
         })}
       </div>
     </details>
+  );
+}
+
+function DateCategoryCount({
+  label,
+  count,
+  colorClass,
+}: {
+  label: string;
+  count: number;
+  colorClass: string;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ring-inset ${
+        count > 0 ? colorClass : "bg-white text-slate-400 ring-slate-200"
+      }`}
+      aria-label={`${label} ${count}건`}
+    >
+      <span>{label}</span>
+      <span
+        className={`inline-flex min-h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] leading-none ${
+          count > 0 ? "bg-white/80" : "bg-slate-100"
+        }`}
+      >
+        {count > 99 ? "99+" : count}
+      </span>
+    </span>
   );
 }
 
