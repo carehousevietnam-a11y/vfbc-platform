@@ -769,7 +769,7 @@ function DateContentGroup({
                     <p className="text-[11px] font-semibold text-slate-500">해당일 접수</p>
                   </div>
 
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     {Array.from(byService.entries())
                       .sort((a, b) => b[1] - a[1])
                       .map(([serviceType, count]) => {
@@ -778,7 +778,7 @@ function DateContentGroup({
                           <Link
                             key={serviceType}
                             href={buildHref({ focusDate: dateKey, focusService: serviceType })}
-                            className={`group/service grid min-h-[64px] grid-cols-[36px_minmax(0,1fr)_auto_18px] items-center gap-3 rounded-xl border px-3.5 py-3 shadow-sm transition ${
+                            className={`group/service grid min-h-[72px] grid-cols-[40px_minmax(max-content,1fr)_auto_18px] items-center gap-3 rounded-xl border px-4 py-3.5 shadow-sm transition ${
                               active
                                 ? `${theme.activeService} ring-1`
                                 : "border-white bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
@@ -790,7 +790,7 @@ function DateContentGroup({
                             >
                               {serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}
                             </span>
-                            <span className="min-w-0 truncate text-sm font-bold">
+                            <span className="whitespace-nowrap text-sm font-bold">
                               {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
                             </span>
                             <span className="whitespace-nowrap text-sm font-black">{count}건</span>
