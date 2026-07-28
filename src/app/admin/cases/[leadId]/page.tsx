@@ -628,17 +628,33 @@ export default async function AdminLeadDetailPage({
           )}
         </div>
 
-        {/* Hero KPI Dashboard — 좌: 고객명/서비스/현재단계, 가운데: 접수일/마지막 활동,
-            우: AI 점수/리스크/진단 결과/현재 단계 KPI. 전부 기존 변수(lead.*, serviceLabel,
+        {/* Hero — 좌: 고객명/연락처/이메일, 가운데: 서비스/현재단계/담당자 안내(기존 문구
+            그대로), 우: 접수일/AI 점수/리스크/결과. 전부 기존 변수(lead.*, serviceLabel,
             currentStageLabel, activeScore, riskInfo, resultInfo)만 재사용, 새 조회·새 계산
-            없음. "마지막 활동"은 activities 배열을 이용한 표시용 계산을 제거하고 정적으로
-            "-"만 표시한다. 담당자 안내는 우측 컬럼의 전용 카드에서만 노출한다(중복 제거). */}
+            없음. */}
         <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr_auto] lg:divide-x lg:divide-gray-100">
-            {/* 좌측: 고객명 / 서비스 / 현재 단계 */}
+            {/* 좌측: 고객명 / 연락처 / 이메일 */}
             <div className="lg:pr-6">
-              <p className="text-xl font-bold tracking-tight text-gray-900">{lead.name}</p>
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
+                <User size={12} /> 고객
+              </p>
+              <p className="mt-1.5 text-xl font-bold tracking-tight text-gray-900">{lead.name}</p>
               <div className="mt-3 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">연락처</span>
+                  <span className="font-medium text-gray-900">{lead.phone ?? "-"}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">이메일</span>
+                  <span className="font-medium text-gray-900">{lead.email ?? "-"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 가운데: 서비스 / 현재 단계 / 담당자 안내(기존 문구 그대로) */}
+            <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:px-6 lg:pt-0">
+              <div className="space-y-1.5 text-xs">
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-1 text-gray-500">
                     <FileText size={11} /> 서비스
@@ -652,35 +668,30 @@ export default async function AdminLeadDetailPage({
                   <span className="font-medium text-gray-900">{currentStageLabel}</span>
                 </div>
               </div>
-            </div>
-
-            {/* 가운데: 접수일 / 마지막 활동 */}
-            <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:px-6 lg:pt-0">
-              <p className="text-[11px] font-semibold text-gray-400">접수 정보</p>
-              <div className="mt-2.5 space-y-1.5 text-xs">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-gray-500">접수일</span>
-                  <span className="font-medium text-gray-900">
-                    {new Date(lead.created_at).toLocaleString("ko-KR")}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-gray-500">마지막 활동</span>
-                  <span className="font-medium text-gray-900">-</span>
-                </div>
+              <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-gray-50 px-2.5 py-2 text-[11px] leading-relaxed text-gray-600">
+                <Info size={12} className="mt-0.5 shrink-0 text-gray-400" />
+                현재 실시간 자동 배정 시스템이 없어 개별 담당자가 DB에 기록되지
+                않습니다. 이 리드는 어드민 화면에서 상담원이 직접 확인·대응하는
+                방식으로 운영됩니다.
               </div>
             </div>
 
-            {/* 우측: AI 점수 / 리스크 / 진단 결과 / 현재 단계 KPI */}
+            {/* 우측: 접수일 / AI 점수 / 리스크 / 결과 */}
             <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:pl-6 lg:w-[260px]">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-blue-50 px-3 py-2.5 text-center">
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <span className="text-gray-500">접수일</span>
+                <span className="font-medium text-gray-900">
+                  {new Date(lead.created_at).toLocaleString("ko-KR")}
+                </span>
+              </div>
+              <div className="mt-2.5 grid grid-cols-3 gap-2">
+                <div className="rounded-xl bg-blue-50 px-2.5 py-2.5 text-center">
                   <p className="text-[10px] text-blue-700">AI 점수</p>
                   <p className="mt-1 text-lg font-extrabold text-blue-900">
                     {typeof activeScore === "number" ? `${activeScore}%` : "-"}
                   </p>
                 </div>
-                <div className="rounded-xl bg-gray-50 px-3 py-2.5 text-center">
+                <div className="rounded-xl bg-gray-50 px-2.5 py-2.5 text-center">
                   <p className="text-[10px] text-gray-400">리스크</p>
                   {riskInfo ? (
                     <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
@@ -690,8 +701,8 @@ export default async function AdminLeadDetailPage({
                     <p className="mt-1 text-xs font-semibold text-gray-900">-</p>
                   )}
                 </div>
-                <div className="rounded-xl bg-gray-50 px-3 py-2.5 text-center">
-                  <p className="text-[10px] text-gray-400">진단 결과</p>
+                <div className="rounded-xl bg-gray-50 px-2.5 py-2.5 text-center">
+                  <p className="text-[10px] text-gray-400">결과</p>
                   {resultInfo ? (
                     <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${resultInfo.color}`}>
                       {resultInfo.label}
@@ -700,273 +711,283 @@ export default async function AdminLeadDetailPage({
                     <p className="mt-1 text-xs font-semibold text-gray-900">-</p>
                   )}
                 </div>
-                <div className="rounded-xl bg-gray-50 px-3 py-2.5 text-center">
-                  <p className="text-[10px] text-gray-400">현재 단계</p>
-                  <p className="mt-1 truncate text-xs font-semibold text-gray-900">{currentStageLabel}</p>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 본문 2열 — PC 좌 65% / 우 35%, 모바일은 세로 스택 */}
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[65fr_35fr] lg:items-start">
-          {/* 좌측 컬럼: ① 진행 단계 ② 문서 관리(가장 큰 카드) ③ AI 진단 결과 ④ 활동 타임라인 */}
-          <div className="space-y-4">
-              <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
-                <p className="text-xs font-semibold text-gray-700">진행 단계 관리</p>
+        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+          <p className="text-xs font-semibold text-gray-700">진행 단계 관리</p>
 
-                {/* 현재 단계·다음 단계 요약 — 기존 currentStageLabel/nextStep 값만 재사용, 새 계산 없음 */}
-                <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-700">
-                    현재 단계 · {currentStageLabel}
-                  </span>
-                  {nextStep && (
-                    <>
-                      <span className="text-[11px] text-gray-300">→</span>
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-900">
-                        다음 단계 · {nextStep.label}
-                      </span>
-                    </>
+          {/* 현재 단계·다음 단계 요약 — 기존 currentStageLabel/nextStep 값만 재사용, 새 계산 없음 */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-700">
+              현재 단계 · {currentStageLabel}
+            </span>
+            {nextStep && (
+              <>
+                <span className="text-[11px] text-gray-300">→</span>
+                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-900">
+                  다음 단계 · {nextStep.label}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* 가로형 단계 트랙 (sm 이상) / 세로형 (모바일) */}
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-0">
+            {processSteps.map((step, i) => {
+              const isNextStep = i === nextStepIndex;
+              return (
+                <div
+                  key={step.label}
+                  className="relative flex items-center sm:flex-1 sm:flex-col sm:items-center"
+                >
+                  {i > 0 && (
+                    <div
+                      className={`hidden sm:block absolute left-[-50%] right-[50%] top-[16px] h-[2px] z-0 ${
+                        step.done ? "bg-emerald-400" : "bg-gray-200"
+                      }`}
+                    />
                   )}
-                </div>
-
-                {/* 가로형 단계 트랙 (sm 이상) / 세로형 (모바일) */}
-                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-0">
-                  {processSteps.map((step, i) => {
-                    const isNextStep = i === nextStepIndex;
-                    return (
-                      <div
-                        key={step.label}
-                        className="relative flex items-center sm:flex-1 sm:flex-col sm:items-center"
-                      >
-                        {i > 0 && (
-                          <div
-                            className={`hidden sm:block absolute left-[-50%] right-[50%] top-[16px] h-[2px] z-0 ${
-                              step.done ? "bg-emerald-400" : "bg-gray-200"
-                            }`}
-                          />
-                        )}
-                        <div className="relative z-10 flex items-center gap-2.5 sm:flex-col sm:gap-2 sm:px-2">
-                          <div
-                            className={
-                              step.done
-                                ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white"
-                                : isNextStep
-                                ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-900 text-white ring-[5px] ring-blue-100"
-                                : "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-400"
-                            }
-                          >
-                            {step.done ? (
-                              <CheckCircle2 size={16} />
-                            ) : (
-                              <span className="text-[11px] font-semibold">{i + 1}</span>
-                            )}
-                          </div>
-                          <span
-                            className={
-                              step.done
-                                ? "text-[11px] font-semibold text-gray-900 sm:text-center"
-                                : isNextStep
-                                ? "text-[11px] font-bold text-blue-900 sm:text-center"
-                                : "text-[11px] text-gray-400 sm:text-center"
-                            }
-                          >
-                            {step.label}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* 다음 단계 실행 — "이 단계로 설정" 버튼은 진행 가능한 다음 단계 1개에만 노출 */}
-                {nextStep && (
-                  <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/40 p-3.5">
-                    <p className="text-[11px] text-gray-600">
-                      다음 단계: <span className="font-semibold text-blue-900">{nextStep.label}</span>
-                    </p>
-                    <form action={setProcessStage} className="mt-2 flex flex-wrap items-center gap-2">
-                      <input type="hidden" name="leadId" value={lead.id} />
-                      <input type="hidden" name="stageAction" value={nextStep.settableAction ?? ""} />
-                      {/* STEP4: "허가 완료"는 결과파일(허가증)을 함께 첨부할 수 있다(선택, 기존 로직 유지) */}
-                      {nextStep.settableAction === "process_permit_completed" && (
-                        <input
-                          type="file"
-                          name="permitFile"
-                          className="text-[10px] text-gray-500 file:mr-2 file:rounded-full file:border-0 file:bg-gray-100 file:px-2.5 file:py-1 file:text-[10px] file:font-semibold"
-                        />
+                  <div className="relative z-10 flex items-center gap-2.5 sm:flex-col sm:gap-2 sm:px-2">
+                    <div
+                      className={
+                        step.done
+                          ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white"
+                          : isNextStep
+                          ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-900 text-white ring-[5px] ring-blue-100"
+                          : "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-400"
+                      }
+                    >
+                      {step.done ? (
+                        <CheckCircle2 size={16} />
+                      ) : (
+                        <span className="text-[11px] font-semibold">{i + 1}</span>
                       )}
-                      <button
-                        type="submit"
-                        className="rounded-full border border-blue-900 bg-white px-3.5 py-1.5 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-                      >
-                        다음 단계로 변경
-                      </button>
-                    </form>
-                    <p className="mt-1.5 text-[11px] text-gray-400">
-                      변경 시 고객 마이페이지가 갱신되고 단계 변경 알림이 발송됩니다.
-                    </p>
+                    </div>
+                    <span
+                      className={
+                        step.done
+                          ? "text-[11px] font-semibold text-gray-900 sm:text-center"
+                          : isNextStep
+                          ? "text-[11px] font-bold text-blue-900 sm:text-center"
+                          : "text-[11px] text-gray-400 sm:text-center"
+                      }
+                    >
+                      {step.label}
+                    </span>
                   </div>
-                )}
+                </div>
+              );
+            })}
+          </div>
 
-                {/* STEP4: 이미 첨부된 허가증 파일이 있으면 표시 (기존 로직 유지) */}
-                {permitStep?.done && permitFileUrl && (
-                  <a
-                    href={permitFileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-blue-900 hover:underline"
-                  >
-                    <Paperclip size={12} /> {permitFileName ?? "허가증 파일 열기"}
-                  </a>
+          {/* 다음 단계 실행 — "이 단계로 설정" 버튼은 진행 가능한 다음 단계 1개에만 노출 */}
+          {nextStep && (
+            <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/40 p-3.5">
+              <p className="text-[11px] text-gray-600">
+                다음 단계: <span className="font-semibold text-blue-900">{nextStep.label}</span>
+              </p>
+              <form action={setProcessStage} className="mt-2 flex flex-wrap items-center gap-2">
+                <input type="hidden" name="leadId" value={lead.id} />
+                <input type="hidden" name="stageAction" value={nextStep.settableAction ?? ""} />
+                {/* STEP4: "허가 완료"는 결과파일(허가증)을 함께 첨부할 수 있다(선택, 기존 로직 유지) */}
+                {nextStep.settableAction === "process_permit_completed" && (
+                  <input
+                    type="file"
+                    name="permitFile"
+                    className="text-[10px] text-gray-500 file:mr-2 file:rounded-full file:border-0 file:bg-gray-100 file:px-2.5 file:py-1 file:text-[10px] file:font-semibold"
+                  />
                 )}
+                <button
+                  type="submit"
+                  className="rounded-full border border-blue-900 bg-white px-3.5 py-1.5 text-[11px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+                >
+                  다음 단계로 변경
+                </button>
+              </form>
+              <p className="mt-1.5 text-[11px] text-gray-400">
+                변경 시 고객 마이페이지가 갱신되고 단계 변경 알림이 발송됩니다.
+              </p>
+            </div>
+          )}
 
-                <p className="mt-3 text-[11px] text-gray-400">
-                  &quot;접수 완료&quot;·&quot;AI 진단 완료&quot;는 접수 시점에 자동으로 기록되어 별도 설정이 필요 없습니다.
-                </p>
-              </div>
+          {/* STEP4: 이미 첨부된 허가증 파일이 있으면 표시 (기존 로직 유지) */}
+          {permitStep?.done && permitFileUrl && (
+            <a
+              href={permitFileUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-blue-900 hover:underline"
+            >
+              <Paperclip size={12} /> {permitFileName ?? "허가증 파일 열기"}
+            </a>
+          )}
+
+          <p className="mt-3 text-[11px] text-gray-400">
+            &quot;접수 완료&quot;·&quot;AI 진단 완료&quot;는 접수 시점에 자동으로 기록되어 별도 설정이 필요 없습니다.
+          </p>
+        </div>
+
+        {/* 본문 2열 — PC 좌 65%(문서 관리/AI 진단 결과) / 우 35%(고객 정보/담당자 정보/
+            전문가 메모/거절이력/활동 타임라인), 모바일은 세로 스택 */}
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[65fr_35fr] lg:items-start">
+          <div className="space-y-4">
               <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
                 <p className="text-xs font-semibold text-gray-700">문서 관리</p>
 
-                {/* 리스트형(아이콘/문서명/상태/열기버튼) — fileUrl/customerDocuments/
+                {/* 실무형 테이블(문서명/파일명/구분/상태/작업) — fileUrl/customerDocuments/
                     questionStageSubmittedDocument/permitFileUrl 조회·Signed URL·조건은
-                    그대로 재사용, 표시 형태만 행 리스트로 변경. 새 로직 없음. */}
-                <div className="mt-3 space-y-2">
-                  {/* 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용 — 링크 없음) */}
-                  {questionStageSubmittedDocument ? (
-                    <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                        <Paperclip size={15} className="text-blue-700" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-gray-800">
-                          {questionStageSubmittedDocument.fileName ?? "질문 단계 제출 자료"}
-                        </p>
-                        <p className="mt-0.5 truncate text-[11px] text-gray-400">
-                          {questionStageSubmittedDocument.documentType ?? "-"} ·{" "}
-                          {formatReviewStageLabel(questionStageSubmittedDocument.reviewStage)}
-                        </p>
-                      </div>
-                      <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                        이미 제출됨
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                        <Paperclip size={15} className="text-gray-400" />
-                      </div>
-                      <p className="min-w-0 flex-1 truncate text-xs font-semibold text-gray-400">질문 단계 제출자료</p>
-                      <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
-                        미제출
-                      </span>
-                    </div>
-                  )}
+                    그대로 재사용, 표시 형태만 표로 변경. 새 상태 계산 없음. */}
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full min-w-[560px] border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-gray-100 text-left text-[10px] text-gray-400">
+                        <th className="pb-2 pr-3 font-semibold">문서명</th>
+                        <th className="pb-2 pr-3 font-semibold">파일명</th>
+                        <th className="pb-2 pr-3 font-semibold">구분</th>
+                        <th className="pb-2 pr-3 font-semibold">상태</th>
+                        <th className="pb-2 font-semibold">작업</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {/* 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용 — 링크 없음) */}
+                      <tr className="hover:bg-gray-50/60 transition-colors">
+                        <td className="py-2.5 pr-3 font-semibold text-gray-800">
+                          {questionStageSubmittedDocument
+                            ? questionStageSubmittedDocument.documentType ?? "질문 단계 제출 자료"
+                            : "질문 단계 제출자료"}
+                        </td>
+                        <td className="py-2.5 pr-3 text-gray-500">
+                          {questionStageSubmittedDocument?.fileName ?? "-"}
+                        </td>
+                        <td className="py-2.5 pr-3 text-gray-500">
+                          {questionStageSubmittedDocument
+                            ? formatReviewStageLabel(questionStageSubmittedDocument.reviewStage)
+                            : "-"}
+                        </td>
+                        <td className="py-2.5 pr-3">
+                          {questionStageSubmittedDocument ? (
+                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                              이미 제출됨
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                              미제출
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5 text-gray-300">-</td>
+                      </tr>
 
-                  {/* 첨부 서류 (fileUrl) */}
-                  {fileUrl && (
-                    <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                        <Paperclip size={15} className="text-blue-700" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-gray-800">{fileName ?? "첨부파일"}</p>
-                      </div>
-                      <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                        제출완료
-                      </span>
-                      <a
-                        href={fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
-                      >
-                        열기
-                      </a>
-                    </div>
-                  )}
-
-                  {/* 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
-                  {customerDocuments.map((doc) => (
-                    <div key={doc.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                        <Paperclip size={15} className="text-blue-700" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
-                        <p className="mt-0.5 truncate text-[11px] text-gray-400">
-                          {new Date(doc.createdAt).toLocaleString("ko-KR")}
-                        </p>
-                      </div>
-                      {doc.signedUrl ? (
-                        <>
-                          <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                            제출완료
-                          </span>
-                          <a
-                            href={doc.signedUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
-                          >
-                            열기
-                          </a>
-                        </>
-                      ) : (
-                        <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
-                          열람 불가
-                        </span>
+                      {/* 첨부 서류 (fileUrl) */}
+                      {fileUrl && (
+                        <tr className="hover:bg-gray-50/60 transition-colors">
+                          <td className="py-2.5 pr-3 font-semibold text-gray-800">첨부 서류</td>
+                          <td className="py-2.5 pr-3 text-gray-500">{fileName ?? "첨부파일"}</td>
+                          <td className="py-2.5 pr-3 text-gray-500">첨부 서류</td>
+                          <td className="py-2.5 pr-3">
+                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                              제출완료
+                            </span>
+                          </td>
+                          <td className="py-2.5">
+                            <a
+                              href={fileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-medium text-blue-900 hover:underline"
+                            >
+                              열기
+                            </a>
+                          </td>
+                        </tr>
                       )}
-                    </div>
-                  ))}
 
-                  {!fileUrl && customerDocuments.length === 0 && (
-                    <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                        <Paperclip size={15} className="text-gray-400" />
-                      </div>
-                      <p className="min-w-0 flex-1 truncate text-xs font-semibold text-gray-400">추가 제출자료</p>
-                      <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
-                        미제출
-                      </span>
-                    </div>
-                  )}
+                      {/* 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
+                      {customerDocuments.map((doc) => (
+                        <tr key={doc.id} className="hover:bg-gray-50/60 transition-colors">
+                          <td className="py-2.5 pr-3 font-semibold text-gray-800">{doc.tag ?? "문서"}</td>
+                          <td className="py-2.5 pr-3 text-gray-500">{doc.fileName ?? "-"}</td>
+                          <td className="py-2.5 pr-3 text-gray-500">고객 추가 제출</td>
+                          <td className="py-2.5 pr-3">
+                            {doc.signedUrl ? (
+                              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                제출완료
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                                열람 불가
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5">
+                            {doc.signedUrl ? (
+                              <a
+                                href={doc.signedUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium text-blue-900 hover:underline"
+                              >
+                                열기
+                              </a>
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
 
-                  {/* 허가증 (진행 단계 "허가 완료" 첨부파일 — 기존 permitFileUrl/permitFileName 재사용) */}
-                  {permitFileUrl ? (
-                    <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                        <Paperclip size={15} className="text-blue-700" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-gray-800">
-                          {permitFileName ?? "허가증 파일"}
-                        </p>
-                      </div>
-                      <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                        제출완료
-                      </span>
-                      <a
-                        href={permitFileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
-                      >
-                        열기
-                      </a>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                        <Paperclip size={15} className="text-gray-400" />
-                      </div>
-                      <p className="min-w-0 flex-1 truncate text-xs font-semibold text-gray-400">허가증</p>
-                      <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
-                        미제출
-                      </span>
-                    </div>
-                  )}
+                      {!fileUrl && customerDocuments.length === 0 && (
+                        <tr className="hover:bg-gray-50/60 transition-colors">
+                          <td className="py-2.5 pr-3 font-semibold text-gray-400">추가 제출자료</td>
+                          <td className="py-2.5 pr-3 text-gray-300">-</td>
+                          <td className="py-2.5 pr-3 text-gray-300">-</td>
+                          <td className="py-2.5 pr-3">
+                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                              미제출
+                            </span>
+                          </td>
+                          <td className="py-2.5 text-gray-300">-</td>
+                        </tr>
+                      )}
+
+                      {/* 허가증 (진행 단계 "허가 완료" 첨부파일 — 기존 permitFileUrl/permitFileName 재사용) */}
+                      <tr className="hover:bg-gray-50/60 transition-colors">
+                        <td className="py-2.5 pr-3 font-semibold text-gray-800">허가증</td>
+                        <td className="py-2.5 pr-3 text-gray-500">
+                          {permitFileUrl ? permitFileName ?? "허가증 파일" : "-"}
+                        </td>
+                        <td className="py-2.5 pr-3 text-gray-500">{permitFileUrl ? "허가증" : "-"}</td>
+                        <td className="py-2.5 pr-3">
+                          {permitFileUrl ? (
+                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                              제출완료
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                              미제출
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5">
+                          {permitFileUrl ? (
+                            <a
+                              href={permitFileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-medium text-blue-900 hover:underline"
+                            >
+                              열기
+                            </a>
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
               <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
@@ -1003,37 +1024,14 @@ export default async function AdminLeadDetailPage({
                   </div>
                 </div>
 
+                {/* KPI 아래는 위험요인·권장조치만 표시(요약/항목별 확인/유사사례는 카드
+                    길이를 줄이기 위해 생략, expertBrief 데이터·조건 자체는 무변경) */}
                 {activeBrief ? (
                   <>
-                    {activeBrief.summary && (
-                      <p className="mt-4 text-xs text-gray-600 leading-relaxed">{activeBrief.summary}</p>
-                    )}
-                    {(activeBrief.checkedItems?.length ?? 0) > 0 && (
-                      <div className="mt-5">
-                        <p className="text-[13px] font-semibold text-gray-700">항목별 확인 결과</p>
-                        <div className="mt-2.5 space-y-1.5">
-                          {(activeBrief.checkedItems ?? []).map((item: ExpertChecklistItem, i: number) => (
-                            <div key={i} className="rounded-xl bg-gray-50 px-3 py-2">
-                              <div className="flex items-center gap-2.5 text-[13px] font-semibold text-gray-800">
-                                {item.passed ? (
-                                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                                ) : (
-                                  <AlertTriangle size={16} className="text-amber-600 shrink-0" />
-                                )}
-                                <span className="truncate">{item.label}</span>
-                              </div>
-                              {item.reason && (
-                                <p className="mt-1 truncate text-[11px] text-gray-500 pl-[26px]">{item.reason}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                     {(activeBrief.rejectionRisks?.length ?? 0) > 0 && (
-                      <div className="mt-5">
+                      <div className="mt-4">
                         <p className="text-[13px] font-semibold text-gray-700">주요 위험 요인</p>
-                        <ol className="mt-2.5 space-y-1.5 list-decimal pl-4">
+                        <ol className="mt-2 space-y-1.5 list-decimal pl-4">
                           {[...(activeBrief.rejectionRisks ?? [])]
                             .sort((a: ExpertRejectionRisk, b: ExpertRejectionRisk) => a.rank - b.rank)
                             .map((r: ExpertRejectionRisk, i: number) => (
@@ -1043,21 +1041,11 @@ export default async function AdminLeadDetailPage({
                       </div>
                     )}
                     {(activeBrief.recommendedSteps?.length ?? 0) > 0 && (
-                      <div className="mt-5">
+                      <div className="mt-4">
                         <p className="text-[13px] font-semibold text-gray-700">권장 조치</p>
-                        <ul className="mt-2.5 space-y-1.5">
+                        <ul className="mt-2 space-y-1.5">
                           {(activeBrief.recommendedSteps ?? []).map((s: string, i: number) => (
                             <li key={i} className="text-xs text-gray-600 leading-relaxed pl-1">· {s}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {(activeBrief.similarCases?.length ?? 0) > 0 && (
-                      <div className="mt-5">
-                        <p className="text-[13px] font-semibold text-gray-700">유사 사례</p>
-                        <ul className="mt-2.5 space-y-1.5">
-                          {(activeBrief.similarCases ?? []).map((c: string, i: number) => (
-                            <li key={i} className="text-xs text-gray-600 leading-relaxed pl-1">· {c}</li>
                           ))}
                         </ul>
                       </div>
@@ -1090,39 +1078,8 @@ export default async function AdminLeadDetailPage({
                   </p>
                 )}
               </div>
-              <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
-                <p className="text-xs font-semibold text-gray-700">활동 타임라인</p>
-                {activities.length === 0 ? (
-                  <p className="mt-2 text-xs text-gray-400">기록된 활동이 없습니다.</p>
-                ) : (
-                  // Notion 스타일 세로선 타임라인 — activities 조회·정렬·action·tag·
-                  // getActivityLabel·getActivityDotColor는 그대로, 표시 형태만 변경
-                  <div className="relative mt-3">
-                    <div className="absolute left-[5px] top-1 bottom-1 w-px bg-gray-200" />
-                    <div className="space-y-4">
-                      {activities.map((a) => (
-                        <div key={a.id} className="relative flex items-start gap-3 pl-4">
-                          <span
-                            className={`absolute left-0 top-1 h-[11px] w-[11px] shrink-0 rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-gray-800">
-                              {getActivityLabel(a.action)}
-                              {a.tag && <span className="ml-1.5 font-normal text-gray-400">· {a.tag}</span>}
-                            </p>
-                            <p className="mt-0.5 text-[11px] text-gray-400">
-                              {new Date(a.created_at).toLocaleString("ko-KR")}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
           </div>
 
-          {/* 우측 컬럼: ① 고객 정보 ② 담당자 정보 ③ 전문가 메모 ④ 타 기관 거절이력 */}
           <div className="space-y-4">
               <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
                 <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
@@ -1208,8 +1165,36 @@ export default async function AdminLeadDetailPage({
                   </div>
                 )}
               </div>
+              <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+                <p className="text-xs font-semibold text-gray-700">활동 타임라인</p>
+                {activities.length === 0 ? (
+                  <p className="mt-2 text-xs text-gray-400">기록된 활동이 없습니다.</p>
+                ) : (
+                  // Notion 스타일 세로선 타임라인, 한 줄 구조(시간/이벤트/내용) — activities
+                  // 조회·정렬·action·tag·getActivityLabel·getActivityDotColor는 그대로,
+                  // 표시 형태만 변경
+                  <div className="relative mt-3">
+                    <div className="absolute left-[5px] top-1 bottom-1 w-px bg-gray-200" />
+                    <div className="space-y-2.5">
+                      {activities.map((a) => (
+                        <div key={a.id} className="relative flex items-center gap-2 pl-4 text-xs">
+                          <span
+                            className={`absolute left-0 h-[11px] w-[11px] shrink-0 rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}
+                          />
+                          <span className="w-[128px] shrink-0 text-[11px] text-gray-400">
+                            {new Date(a.created_at).toLocaleString("ko-KR")}
+                          </span>
+                          <span className="shrink-0 font-bold text-gray-800">{getActivityLabel(a.action)}</span>
+                          {a.tag && <span className="truncate text-gray-400">· {a.tag}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
           </div>
         </div>
+
 
         <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
           <p className="text-xs font-semibold text-gray-700">전문가 상담 요청 (Case Room)</p>
