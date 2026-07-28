@@ -616,205 +616,85 @@ export default async function AdminLeadDetailPage({
   }
 
   const latestActivity = activities.length > 0 ? activities[activities.length - 1] : null;
-  const submittedDocumentCount =
-    customerDocuments.length +
-    (fileUrl ? 1 : 0) +
-    (questionStageSubmittedDocument ? 1 : 0) +
-    (permitFileUrl ? 1 : 0);
+
+  const requiredDocumentLabels: Record<string, string[]> = {
+    trc: ["여권 사본", "사업자등록증 사본", "재직증명서 또는 근로계약서", "위임장", "임시거주신고 확인서"],
+    wp: ["여권 사본", "건강검진서", "범죄경력증명서", "경력증명서", "학력증명서", "고용계약서"],
+    tamtru: ["여권 사본", "비자 또는 거주증", "임대차계약서", "거주지 확인서"],
+    "driving-license": ["여권 사본", "비자 또는 거주증", "외국 운전면허증", "번역 공증본", "건강진단서"],
+    verify_admin: ["검토 대상 행정문서", "신분증 또는 여권", "관련 계약서", "기존 제출 자료", "거절·보완 통지서"],
+  };
+  const requiredDocuments = requiredDocumentLabels[serviceType] ?? ["신청서", "여권 사본", "관련 증빙서류", "위임장", "추가 요청서류"];
+  const documentEvidence = [
+    questionStageSubmittedDocument?.documentType,
+    questionStageSubmittedDocument?.fileName,
+    fileName,
+    ...customerDocuments.flatMap((doc) => [doc.tag, doc.fileName]),
+    permitFileName,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .replace(/\s+/g, "");
+  const isRequiredDocumentSubmitted = (label: string) => {
+    const keys = label
+      .replace(/또는/g, " ")
+      .replace(/[()·/]/g, " ")
+      .split(/\s+/)
+      .filter((key) => key.length >= 2);
+    return keys.some((key) => documentEvidence.includes(key.toLowerCase().replace(/\s+/g, "")));
+  };
+  const submittedRequiredCount = requiredDocuments.filter(isRequiredDocumentSubmitted).length;
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb] text-slate-900">
-      {/* Desktop navigation */}
+    <main className="min-h-screen bg-[#f4f7fb] text-slate-900">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] flex-col bg-[#102b4e] text-white xl:flex">
-        <div className="flex h-[72px] items-center gap-2 border-b border-white/10 px-5">
-          <ShieldCheck size={23} />
-          <span className="text-[17px] font-bold tracking-tight">VFBCAI 관리자</span>
-        </div>
+        <div className="flex h-[72px] items-center gap-2 border-b border-white/10 px-5"><ShieldCheck size={23}/><span className="text-[17px] font-bold">VFBCAI 관리자</span></div>
         <nav className="flex-1 space-y-1 px-3 py-5 text-[13px]">
-          <Link href="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70 hover:bg-white/10 hover:text-white">
-            <Home size={16} /> 대시보드
-          </Link>
-          <div className="rounded-xl bg-white/10 p-1">
-            <div className="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2.5 font-semibold">
-              <span className="flex items-center gap-3"><Inbox size={16} /> 신청건 관리</span>
-              <ChevronDown size={14} />
-            </div>
-            <div className="ml-5 mt-1 border-l border-white/15 py-1 pl-3 text-white/70">
-              <Link href="/admin/cases" className="block rounded-md bg-white/10 px-3 py-2 font-semibold text-white">전체 신청건</Link>
-              <span className="block px-3 py-2">미확인 문서</span>
-              <span className="block px-3 py-2">보완 요청</span>
-              <span className="block px-3 py-2">긴급 건</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><FolderOpen size={16} /> 문서 관리</div>
-          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><Users size={16} /> 직원 관리</div>
-          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><BarChart3 size={16} /> 통계 및 리포트</div>
-          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><Settings size={16} /> 설정</div>
-        </nav>
-        <div className="border-t border-white/10 p-4 text-[13px] text-white/70">
-          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5"><LogOut size={16} /> 로그아웃</div>
-        </div>
+          <Link href="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70 hover:bg-white/10"><Home size={16}/>대시보드</Link>
+          <div className="rounded-xl bg-white/10 p-1"><div className="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2.5 font-semibold"><span className="flex items-center gap-3"><Inbox size={16}/>신청건 관리</span><ChevronDown size={14}/></div><div className="ml-5 mt-1 border-l border-white/15 py-1 pl-3 text-white/70"><Link href="/admin/cases" className="block rounded-md bg-white/10 px-3 py-2 font-semibold text-white">전체 신청건</Link><span className="block px-3 py-2">미확인 문서</span><span className="block px-3 py-2">보완 요청</span><span className="block px-3 py-2">긴급 건</span></div></div>
+          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><FolderOpen size={16}/>문서 관리</div><div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><Users size={16}/>직원 관리</div><div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><BarChart3 size={16}/>통계 및 리포트</div><div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-white/70"><Settings size={16}/>설정</div>
+        </nav><div className="border-t border-white/10 p-4 text-[13px] text-white/70"><div className="flex items-center gap-3 rounded-lg px-3 py-2.5"><LogOut size={16}/>로그아웃</div></div>
       </aside>
 
-      {/* Mobile administrator header */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur xl:hidden">
-        <Menu size={21} className="text-slate-700" />
-        <div className="flex items-center gap-2 text-[15px] font-bold"><ShieldCheck size={18} className="text-blue-700" /> VFBCAI 관리자</div>
-        <Bell size={19} className="text-slate-700" />
-      </header>
+      <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-slate-200 bg-white px-4 xl:hidden"><Menu size={21}/><div className="flex items-center gap-2 text-[15px] font-bold"><ShieldCheck size={18} className="text-blue-700"/>VFBCAI 관리자</div><Bell size={19}/></header>
 
-      <div className="xl:pl-[220px]">
+      <div className="w-full xl:pl-[220px]">
         <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
-                <Link href="/admin/cases" className="hover:text-slate-700">신청건 관리</Link>
-                <span>›</span><span>신청건 상세</span>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2.5">
-                <h1 className="text-[24px] font-extrabold tracking-tight sm:text-[28px]">신청건 상세</h1>
-                <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span>
-              </div>
-            </div>
-            <Link href="/admin/cases" className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[12px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-              <ArrowLeft size={14} /> 목록으로 돌아가기
-            </Link>
-          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-[11px] font-medium text-slate-400">신청건 관리　›　신청건 상세</div><div className="mt-2 flex flex-wrap items-center gap-2.5"><h1 className="text-[24px] font-extrabold tracking-tight sm:text-[28px]">신청건 상세</h1><span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div></div><Link href="/admin/cases" className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[12px] font-semibold shadow-sm"><ArrowLeft size={14}/>목록으로 돌아가기</Link></div>
 
-          {/* Master summary */}
-          <section className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
-            <div className="grid lg:grid-cols-[1.15fr_1fr_.8fr_1.05fr] lg:divide-x lg:divide-slate-100">
-              <div className="p-5 sm:p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={24} /></div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-semibold text-slate-400">고객명</p>
-                    <p className="mt-0.5 truncate text-[19px] font-extrabold">{lead.name}</p>
-                    <dl className="mt-4 grid gap-2.5 text-[12px]">
-                      <div><dt className="text-slate-400">연락처</dt><dd className="mt-0.5 font-semibold">{lead.phone ?? "-"}</dd></div>
-                      <div><dt className="text-slate-400">이메일</dt><dd className="mt-0.5 break-all font-semibold">{lead.email ?? "-"}</dd></div>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-slate-100 p-5 sm:p-6 lg:border-t-0">
-                <p className="text-[11px] font-semibold text-slate-400">서비스</p>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className="text-[15px] font-bold">{serviceLabel}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span>
-                </div>
-                <p className="mt-5 text-[11px] font-semibold text-slate-400">현재 단계</p>
-                <span className="mt-1 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">{currentStageLabel}</span>
-                <p className="mt-5 text-[11px] font-semibold text-slate-400">담당 직원</p>
-                <div className="mt-1 flex items-center gap-2 text-[12px] font-semibold"><User size={13} /> VFBCAI 담당자</div>
-              </div>
-              <div className="border-t border-slate-100 p-5 sm:p-6 lg:border-t-0">
-                <dl className="space-y-5 text-[12px]">
-                  <div><dt className="text-slate-400">접수일</dt><dd className="mt-1 font-semibold">{new Date(lead.created_at).toLocaleString("ko-KR")}</dd></div>
-                  <div><dt className="text-slate-400">마지막 활동</dt><dd className="mt-1 font-semibold">{latestActivity ? new Date(latestActivity.created_at).toLocaleString("ko-KR") : "-"}</dd></div>
-                </dl>
-              </div>
-              <div className="border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0">
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="rounded-xl border border-slate-100 bg-white p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={13} /> 제출 문서</p><p className="mt-1 text-[19px] font-extrabold">{submittedDocumentCount}</p></div>
-                  <div className="rounded-xl border border-red-100 bg-red-50 p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={13} /> 미확인 문서</p><p className="mt-1 text-[19px] font-extrabold text-red-600">-</p></div>
-                  <div className="rounded-xl border border-amber-100 bg-amber-50 p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={13} /> 보완 요청</p><p className="mt-1 text-[19px] font-extrabold text-amber-700">-</p></div>
-                  <div className="rounded-xl border border-blue-100 bg-blue-50 p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={13} /> AI 점수</p><p className="mt-1 text-[19px] font-extrabold text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div>
-                </div>
-              </div>
+          <section className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="grid lg:grid-cols-[1.15fr_1fr_.85fr_1.05fr] lg:divide-x lg:divide-slate-100">
+              <div className="p-5 sm:p-6"><div className="flex items-start gap-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={24}/></div><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold text-slate-400">고객명</p><p className="mt-0.5 text-[19px] font-extrabold">{lead.name}</p><dl className="mt-4 space-y-2.5 text-[12px]"><div><dt className="text-slate-400">연락처</dt><dd className="font-semibold">{lead.phone ?? "-"}</dd></div><div><dt className="text-slate-400">이메일</dt><dd className="break-all font-semibold">{lead.email ?? "-"}</dd></div></dl></div></div></div>
+              <div className="border-t border-slate-100 p-5 sm:p-6 lg:border-t-0"><p className="text-[11px] font-semibold text-slate-400">서비스</p><div className="mt-1 flex flex-wrap items-center gap-2"><span className="text-[15px] font-bold">{serviceLabel}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div><p className="mt-5 text-[11px] font-semibold text-slate-400">현재 단계</p><span className="mt-1 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">{currentStageLabel}</span><p className="mt-5 text-[11px] font-semibold text-slate-400">담당 직원</p><div className="mt-1 flex items-center gap-2 text-[12px] font-semibold"><User size={13}/>VFBCAI 담당자</div></div>
+              <div className="border-t border-slate-100 p-5 sm:p-6 lg:border-t-0"><dl className="space-y-5 text-[12px]"><div><dt className="text-slate-400">접수일</dt><dd className="mt-1 font-semibold">{new Date(lead.created_at).toLocaleString("ko-KR")}</dd></div><div><dt className="text-slate-400">마지막 활동</dt><dd className="mt-1 font-semibold">{latestActivity ? new Date(latestActivity.created_at).toLocaleString("ko-KR") : "-"}</dd></div></dl></div>
+              <div className="border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0"><div className="grid grid-cols-2 gap-2.5"><div className="rounded-xl border border-slate-100 bg-white p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={13}/>제출 문서</p><p className="mt-1 text-[19px] font-extrabold">{submittedRequiredCount}</p></div><div className="rounded-xl border border-red-100 bg-red-50 p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={13}/>미제출 문서</p><p className="mt-1 text-[19px] font-extrabold text-red-600">{requiredDocuments.length - submittedRequiredCount}</p></div><div className="rounded-xl border border-amber-100 bg-amber-50 p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={13}/>보완 요청</p><p className="mt-1 text-[19px] font-extrabold text-amber-700">-</p></div><div className="rounded-xl border border-blue-100 bg-blue-50 p-3.5"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={13}/>AI 점수</p><p className="mt-1 text-[19px] font-extrabold text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div></div></div>
             </div>
           </section>
 
-          {/* Workflow */}
-          <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="flex items-center justify-between"><h2 className="text-[15px] font-extrabold">진행 단계</h2><span className="text-[11px] font-semibold text-slate-400">{currentStageLabel}</span></div>
-            <div className="mt-5 flex min-w-0 items-start overflow-x-auto pb-2">
-              {processSteps.map((step, i) => {
-                const isNextStep = i === nextStepIndex;
-                return (
-                  <div key={step.label} className="relative flex min-w-[110px] flex-1 flex-col items-center px-1">
-                    {i > 0 && <div className={`absolute right-1/2 top-4 h-[2px] w-full ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />}
-                    <div className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-[11px] font-extrabold ${step.done ? "border-emerald-300 bg-emerald-50 text-emerald-700" : isNextStep ? "border-blue-600 bg-blue-600 text-white ring-4 ring-blue-50" : "border-slate-200 bg-white text-slate-400"}`}>
-                      {step.done ? <CheckCircle2 size={15} /> : i + 1}
-                    </div>
-                    <p className={`mt-2 text-center text-[11px] font-bold ${step.done ? "text-emerald-700" : isNextStep ? "text-blue-700" : "text-slate-500"}`}>{step.label}</p>
-                  </div>
-                );
-              })}
-            </div>
-            {nextStep && (
-              <form action={setProcessStage} className="mt-4 flex flex-col gap-3 rounded-xl bg-blue-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <input type="hidden" name="leadId" value={lead.id} /><input type="hidden" name="stageAction" value={nextStep.settableAction ?? ""} />
-                <p className="text-[12px] font-semibold text-blue-900">다음 단계: <strong>{nextStep.label}</strong></p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {nextStep.settableAction === "process_permit_completed" && <input type="file" name="permitFile" className="max-w-[210px] text-[10px]" />}
-                  <button type="submit" className="rounded-lg border border-blue-600 bg-white px-3.5 py-2 text-[11px] font-bold text-blue-700 hover:bg-blue-50">다음 단계로 변경</button>
-                </div>
-              </form>
-            )}
-          </section>
+          <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between"><h2 className="text-[15px] font-extrabold">진행 단계</h2><span className="text-[11px] font-semibold text-slate-400">{currentStageLabel}</span></div><div className="mt-5 flex items-start">{processSteps.map((step,i)=>{const isNextStep=i===nextStepIndex;return <div key={step.label} className="relative min-w-0 flex-1 text-center">{i>0&&<div className={`absolute right-1/2 top-4 h-[2px] w-full ${step.done?"bg-emerald-300":"bg-slate-200"}`}/>}<div className={`relative z-10 mx-auto flex h-8 w-8 items-center justify-center rounded-full border-2 text-[11px] font-extrabold ${step.done?"border-emerald-300 bg-emerald-50 text-emerald-700":isNextStep?"border-blue-600 bg-blue-600 text-white":"border-slate-200 bg-white text-slate-400"}`}>{step.done?<CheckCircle2 size={15}/>:i+1}</div><p className={`mt-2 truncate px-1 text-[10px] font-bold sm:text-[11px] ${step.done?"text-emerald-700":isNextStep?"text-blue-700":"text-slate-500"}`}>{step.label}</p></div>})}</div>{nextStep&&<div className="mt-5 flex flex-col gap-3 rounded-xl bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between"><strong className="text-[12px] text-blue-900">다음 단계: {nextStep.label}</strong><form action={setProcessStage} className="flex flex-wrap gap-2"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="stageAction" value={nextStep.settableAction??""}/>{nextStep.settableAction==="process_permit_completed"&&<input type="file" name="permitFile" className="max-w-[190px] text-[10px]"/>}<button className="rounded-lg border border-blue-500 bg-white px-3 py-2 text-[11px] font-bold text-blue-700">다음 단계로 변경</button></form></div>}</section>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(330px,1fr)] lg:items-start">
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.85fr_1fr] lg:items-start">
             <div className="space-y-4">
-              {/* Documents */}
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                  <h2 className="text-[15px] font-extrabold">고객 제출 문서</h2>
-                  <button className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-[11px] font-semibold">전체 문서 <ChevronDown size={13} /></button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[720px] text-left text-[11px]">
-                    <thead className="bg-slate-50 text-slate-500"><tr><th className="px-5 py-3 font-semibold">문서명</th><th className="px-3 py-3 font-semibold">파일명</th><th className="px-3 py-3 font-semibold">구분</th><th className="px-3 py-3 font-semibold">제출일</th><th className="px-3 py-3 font-semibold">상태</th><th className="px-3 py-3 font-semibold">작업</th></tr></thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {questionStageSubmittedDocument && <tr className="hover:bg-slate-50"><td className="px-5 py-3 font-bold">{questionStageSubmittedDocument.documentType ?? "질문 단계 제출 자료"}</td><td className="px-3 py-3">{questionStageSubmittedDocument.fileName ?? "-"}</td><td className="px-3 py-3"><span className="rounded-full bg-violet-50 px-2 py-1 font-semibold text-violet-700">질문 단계 제출</span></td><td className="px-3 py-3 text-slate-400">-</td><td className="px-3 py-3"><span className="rounded-full bg-emerald-50 px-2 py-1 font-semibold text-emerald-700">확인 완료</span></td><td className="px-3 py-3 text-slate-300">-</td></tr>}
-                      {fileUrl && <tr className="hover:bg-slate-50"><td className="px-5 py-3 font-bold">첨부 서류</td><td className="px-3 py-3">{fileName ?? "첨부파일"}</td><td className="px-3 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 font-semibold text-blue-700">기본 제출</span></td><td className="px-3 py-3 text-slate-400">-</td><td className="px-3 py-3"><span className="rounded-full bg-emerald-50 px-2 py-1 font-semibold text-emerald-700">제출 완료</span></td><td className="px-3 py-3"><a href={fileUrl} target="_blank" rel="noreferrer" className="rounded-md border border-slate-200 px-3 py-1.5 font-semibold text-blue-700">열기</a></td></tr>}
-                      {customerDocuments.map((doc) => <tr key={doc.id} className="hover:bg-slate-50"><td className="px-5 py-3 font-bold">{doc.tag ?? "문서"}</td><td className="px-3 py-3">{doc.fileName ?? "-"}</td><td className="px-3 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 font-semibold text-blue-700">고객 추가 제출</span></td><td className="px-3 py-3 text-slate-500">{new Date(doc.createdAt).toLocaleString("ko-KR")}</td><td className="px-3 py-3"><span className={`rounded-full px-2 py-1 font-semibold ${doc.signedUrl ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{doc.signedUrl ? "제출 완료" : "열람 불가"}</span></td><td className="px-3 py-3">{doc.signedUrl ? <a href={doc.signedUrl} target="_blank" rel="noreferrer" className="rounded-md border border-slate-200 px-3 py-1.5 font-semibold text-blue-700">열기</a> : "-"}</td></tr>)}
-                      {permitFileUrl && <tr className="hover:bg-slate-50"><td className="px-5 py-3 font-bold">허가증</td><td className="px-3 py-3">{permitFileName ?? "허가증 파일"}</td><td className="px-3 py-3"><span className="rounded-full bg-emerald-50 px-2 py-1 font-semibold text-emerald-700">결과 문서</span></td><td className="px-3 py-3 text-slate-400">-</td><td className="px-3 py-3"><span className="rounded-full bg-emerald-50 px-2 py-1 font-semibold text-emerald-700">제출 완료</span></td><td className="px-3 py-3"><a href={permitFileUrl} target="_blank" rel="noreferrer" className="rounded-md border border-slate-200 px-3 py-1.5 font-semibold text-blue-700">열기</a></td></tr>}
-                      {!questionStageSubmittedDocument && !fileUrl && customerDocuments.length === 0 && !permitFileUrl && <tr><td colSpan={6} className="px-5 py-10 text-center text-slate-400">제출된 문서가 없습니다.</td></tr>}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="border-t border-slate-100 px-5 py-3"><span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-700"><Download size={13} /> 모든 문서 다운로드</span></div>
+              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><h2 className="text-[15px] font-extrabold">고객 제출 문서</h2><span className="rounded-lg border border-slate-200 px-3 py-1.5 text-[11px] font-semibold">전체 문서</span></div>
+                <div className="hidden overflow-x-auto sm:block"><table className="w-full min-w-[760px] text-left text-[11px]"><thead className="bg-slate-50 text-slate-500"><tr><th className="px-5 py-3">문서명</th><th className="px-3 py-3">파일명</th><th className="px-3 py-3">구분</th><th className="px-3 py-3">제출일</th><th className="px-3 py-3">상태</th><th className="px-3 py-3">작업</th></tr></thead><tbody className="divide-y divide-slate-100">{requiredDocuments.map((label,index)=>{const submitted=isRequiredDocumentSubmitted(label);const matched=customerDocuments.find(doc=>[doc.tag,doc.fileName].filter(Boolean).join(" ").includes(label.split(" ")[0]));return <tr key={label} className="hover:bg-slate-50"><td className="px-5 py-3 font-semibold"><span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded bg-blue-50 text-blue-600"><FileText size={13}/></span>{label}</td><td className="px-3 py-3 text-slate-500">{matched?.fileName??(index===0?questionStageSubmittedDocument?.fileName:null)??"-"}</td><td className="px-3 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-semibold text-blue-700">필수 서류</span></td><td className="px-3 py-3 text-slate-500">{matched?new Date(matched.createdAt).toLocaleString("ko-KR"):"-"}</td><td className="px-3 py-3"><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${submitted?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700"}`}>{submitted?"제출 완료":"미제출"}</span></td><td className="px-3 py-3">{matched?.signedUrl?<a href={matched.signedUrl} target="_blank" rel="noreferrer" className="font-bold text-blue-700">열기</a>:"-"}</td></tr>})}</tbody></table></div>
+                <div className="divide-y divide-slate-100 sm:hidden">{requiredDocuments.map((label)=>{const submitted=isRequiredDocumentSubmitted(label);return <div key={label} className="flex w-full items-center gap-3 px-4 py-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600"><FileText size={15}/></span><div className="min-w-0 flex-1"><p className="truncate text-[12px] font-bold">{label}</p><p className="mt-0.5 text-[10px] text-slate-400">필수 서류</p></div><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${submitted?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700"}`}>{submitted?"제출 완료":"미제출"}</span></div>})}</div>
+                <div className="border-t border-slate-100 px-5 py-3"><span className="inline-flex items-center gap-2 text-[11px] font-bold text-blue-700"><Download size={14}/>모든 문서 다운로드</span></div>
               </section>
 
-              {/* AI report */}
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <div className="flex items-center gap-2"><h2 className="text-[15px] font-extrabold">AI 진단 결과</h2><span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700">진단 완료</span></div>
-                <div className="mt-4 grid gap-3 md:grid-cols-[1.2fr_repeat(3,1fr)]">
-                  <div className="border-r-0 border-slate-100 md:border-r"><p className="text-[11px] text-slate-400">종합 결과</p><p className="mt-1 text-[24px] font-extrabold text-emerald-700">{resultInfo?.label ?? "-"}</p><p className="mt-1 text-[11px] text-slate-500">입력값 기준 AI 진단 결과입니다.</p></div>
-                  <div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">가능성 점수</p><p className="mt-1 text-[20px] font-extrabold">{typeof activeScore === "number" ? activeScore : "-"}<span className="text-[11px] font-medium text-slate-400">/100</span></p></div>
-                  <div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">위험도</p><p className="mt-2 text-[15px] font-extrabold text-amber-600">{riskInfo?.label ?? "-"}</p></div>
-                  <div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">현재 단계</p><p className="mt-2 text-[13px] font-extrabold">{currentStageLabel}</p></div>
-                </div>
-                <div className="mt-5 grid gap-5 border-t border-slate-100 pt-4 md:grid-cols-2">
-                  <div><h3 className="text-[12px] font-extrabold">주요 위험 요인</h3>{activeBrief?.rejectionRisks?.length ? <ul className="mt-2 space-y-1.5 text-[11px] text-slate-600">{[...activeBrief.rejectionRisks].sort((a,b)=>a.rank-b.rank).map((r,i)=><li key={i}>• {r.reason}</li>)}</ul> : <p className="mt-2 text-[11px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>}</div>
-                  <div><h3 className="text-[12px] font-extrabold">권장 조치</h3>{activeBrief?.recommendedSteps?.length ? <ul className="mt-2 space-y-1.5 text-[11px] text-slate-600">{activeBrief.recommendedSteps.map((s,i)=><li key={i}>• {s}</li>)}</ul> : <p className="mt-2 text-[11px] text-slate-400">등록된 권장 조치가 없습니다.</p>}</div>
-                </div>
-              </section>
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center gap-2"><h2 className="text-[15px] font-extrabold">AI 진단 결과</h2><span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700">진단 완료</span></div><div className="mt-4 grid gap-3 sm:grid-cols-[1.3fr_repeat(3,1fr)]"><div className="rounded-xl border-r-0 border-slate-100 p-3.5"><p className="text-[11px] text-slate-400">종합 결과</p><p className="mt-1 text-[24px] font-extrabold text-emerald-700">{resultInfo?.label??"-"}</p><p className="mt-1 text-[11px] text-slate-500">입력값 기준 AI 진단 결과입니다.</p></div><div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">가능성 점수</p><p className="mt-1 text-[20px] font-extrabold">{typeof activeScore==="number"?activeScore:"-"}<span className="text-[11px] font-medium text-slate-400">/100</span></p></div><div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">위험도</p><p className="mt-2 text-[15px] font-extrabold text-amber-600">{riskInfo?.label??"-"}</p></div><div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">현재 단계</p><p className="mt-2 text-[13px] font-extrabold">{currentStageLabel}</p></div></div><div className="mt-5 grid gap-5 border-t border-slate-100 pt-4 md:grid-cols-2"><div><h3 className="text-[12px] font-extrabold">주요 위험 요인</h3>{activeBrief?.rejectionRisks?.length?<ul className="mt-2 space-y-1.5 text-[11px] text-slate-600">{[...activeBrief.rejectionRisks].sort((a,b)=>a.rank-b.rank).map((r,i)=><li key={i}>• {r.reason}</li>)}</ul>:<p className="mt-2 text-[11px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>}</div><div><h3 className="text-[12px] font-extrabold">권장 조치</h3>{activeBrief?.recommendedSteps?.length?<ul className="mt-2 space-y-1.5 text-[11px] text-slate-600">{activeBrief.recommendedSteps.map((s,i)=><li key={i}>• {s}</li>)}</ul>:<p className="mt-2 text-[11px] text-slate-400">등록된 권장 조치가 없습니다.</p>}</div></div></section>
             </div>
 
-            {/* Desktop right rail */}
-            <aside className="hidden space-y-3 lg:block">
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-[14px] font-extrabold">고객 기본 정보</h2><dl className="mt-3 grid grid-cols-[90px_1fr] gap-y-2 text-[11px]"><dt className="text-slate-400">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-slate-400">연락처</dt><dd className="text-right font-semibold">{lead.phone ?? "-"}</dd><dt className="text-slate-400">이메일</dt><dd className="break-all text-right font-semibold">{lead.email ?? "-"}</dd><dt className="text-slate-400">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleDateString("ko-KR")}</dd></dl></section>
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><h2 className="text-[14px] font-extrabold">담당자 정보</h2><button className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">담당자 변경</button></div><dl className="mt-3 grid grid-cols-[90px_1fr] gap-y-2 text-[11px]"><dt className="text-slate-400">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-slate-400">배정일</dt><dd className="text-right font-semibold">-</dd></dl></section>
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><h2 className="text-[14px] font-extrabold">내부 메모</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">메모 작성</span></div>{memoActivities.length > 0 && <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed">{String(asMeta(memoActivities[memoActivities.length-1].meta)?.memo ?? "")}</div>}<form action={addExpertMemo} className="mt-3"><input type="hidden" name="leadId" value={lead.id} /><textarea name="memo" required rows={3} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[11px] outline-none focus:border-blue-500"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">메모 저장</button></form></section>
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-[14px] font-extrabold">타 기관 거절 이력</h2>{rejections.length ? <div className="mt-3 space-y-2">{rejections.map(r=><div key={r.id} className="rounded-lg border border-red-100 p-3 text-[11px]"><div className="flex justify-between"><strong>{getServiceLabel(r.service_type)}</strong><span className="text-red-500">거절</span></div><p className="mt-1 text-slate-500">{r.reason || "사유 미기재"}</p></div>)}</div> : <p className="mt-3 text-[11px] text-slate-400">연결된 거절이력이 없습니다.</p>}</section>
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-[14px] font-extrabold">활동 타임라인</h2>{activities.length ? <div className="relative mt-4 space-y-3 before:absolute before:bottom-1 before:left-[5px] before:top-1 before:w-px before:bg-slate-200">{activities.slice(-6).map(a=><div key={a.id} className="relative grid grid-cols-[92px_1fr] gap-2 pl-4 text-[10px]"><span className={`absolute left-0 top-1 h-[11px] w-[11px] rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}/><span className="text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</span><div><strong className="text-blue-700">{getActivityLabel(a.action)}</strong>{a.tag && <p className="mt-0.5 truncate text-slate-500">{a.tag}</p>}</div></div>)}</div> : <p className="mt-3 text-[11px] text-slate-400">기록된 활동이 없습니다.</p>}</section>
+            <aside className="space-y-4">
+              <section className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-[14px] font-extrabold">고객 기본 정보</h2><dl className="mt-3 grid grid-cols-[90px_1fr] gap-y-2 text-[11px]"><dt className="text-slate-400">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-slate-400">연락처</dt><dd className="text-right font-semibold">{lead.phone??"-"}</dd><dt className="text-slate-400">이메일</dt><dd className="break-all text-right font-semibold">{lead.email??"-"}</dd><dt className="text-slate-400">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleDateString("ko-KR")}</dd></dl></section>
+              <section className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><h2 className="text-[14px] font-extrabold">담당자 정보</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">담당자 변경</span></div><dl className="mt-3 grid grid-cols-[90px_1fr] gap-y-2 text-[11px]"><dt className="text-slate-400">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-slate-400">배정일</dt><dd className="text-right font-semibold">-</dd></dl></section>
+              <section className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><h2 className="text-[14px] font-extrabold">내부 메모</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">메모 작성</span></div>{memoActivities.length>0&&<div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px]">{String(asMeta(memoActivities[memoActivities.length-1].meta)?.memo??"")}</div>}<form action={addExpertMemo} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><textarea name="memo" required rows={3} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[11px] outline-none focus:border-blue-500"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">메모 저장</button></form></section>
+              <section className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-[14px] font-extrabold">타 기관 거절 이력</h2>{rejections.length?<div className="mt-3 space-y-2">{rejections.map(r=><div key={r.id} className="rounded-lg border border-red-100 p-3 text-[11px]"><div className="flex justify-between"><strong>{getServiceLabel(r.service_type)}</strong><span className="text-red-500">거절</span></div><p className="mt-1 text-slate-500">{r.reason||"사유 미기재"}</p></div>)}</div>:<p className="mt-3 text-[11px] text-slate-400">연결된 거절이력이 없습니다.</p>}</section>
+              <section className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-[14px] font-extrabold">활동 타임라인</h2>{activities.length?<div className="relative mt-4 space-y-3 before:absolute before:bottom-1 before:left-[5px] before:top-1 before:w-px before:bg-slate-200">{activities.slice(-6).map(a=><div key={a.id} className="relative grid grid-cols-[92px_1fr] gap-2 pl-4 text-[10px]"><span className={`absolute left-0 top-1 h-[11px] w-[11px] rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}/><span className="text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</span><div><strong className="text-blue-700">{getActivityLabel(a.action)}</strong>{a.tag&&<p className="mt-0.5 truncate text-slate-500">{a.tag}</p>}</div></div>)}</div>:<p className="mt-3 text-[11px] text-slate-400">기록된 활동이 없습니다.</p>}</section>
             </aside>
           </div>
 
-          {/* Mobile operational cards */}
-          <div className="mt-4 space-y-3 lg:hidden">
-            {[{title:"고객 기본 정보", body:<dl key="customer" className="grid grid-cols-[90px_1fr] gap-y-2 text-[12px]"><dt className="text-slate-400">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-slate-400">연락처</dt><dd className="text-right font-semibold">{lead.phone ?? "-"}</dd><dt className="text-slate-400">이메일</dt><dd className="break-all text-right font-semibold">{lead.email ?? "-"}</dd></dl>},{title:"담당자 정보",body:<dl key="manager" className="grid grid-cols-[90px_1fr] gap-y-2 text-[12px]"><dt className="text-slate-400">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd></dl>}].map((item,i)=><details key={i} className="group rounded-2xl border border-slate-200 bg-white shadow-sm"><summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-[14px] font-extrabold">{item.title}<ChevronDown size={16} className="transition-transform group-open:rotate-180"/></summary><div className="border-t border-slate-100 px-5 py-4">{item.body}</div></details>)}
-            <details open className="group rounded-2xl border border-slate-200 bg-white shadow-sm"><summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-[14px] font-extrabold">내부 메모<ChevronDown size={16} className="transition-transform group-open:rotate-180"/></summary><div className="border-t border-slate-100 px-5 py-4"><form action={addExpertMemo}><input type="hidden" name="leadId" value={lead.id}/><textarea name="memo" required rows={3} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[12px]"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">메모 저장</button></form></div></details>
-            <details className="group rounded-2xl border border-slate-200 bg-white shadow-sm"><summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-[14px] font-extrabold">활동 타임라인<ChevronDown size={16} className="transition-transform group-open:rotate-180"/></summary><div className="border-t border-slate-100 px-5 py-4">{activities.map(a=><div key={a.id} className="mb-3 flex gap-3 text-[11px]"><span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${getActivityDotColor(a.action)}`}/><div><p className="font-bold text-blue-700">{getActivityLabel(a.action)}</p><p className="mt-0.5 text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</p></div></div>)}</div></details>
-          </div>
-
-          {/* Case Room */}
-          <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="flex items-center gap-2"><MessageSquareText size={16} className="text-blue-700"/><h2 className="text-[14px] font-extrabold">전문가 상담 요청 (Case Room)</h2></div>
-            {consultationRequests.length === 0 ? <p className="mt-3 text-[11px] text-slate-400">접수된 상담 요청이 없습니다.</p> : <div className="mt-4 space-y-3">{[...consultationRequests].reverse().map(req=>{const response=findResponseFor(req.id);return <div key={req.id} className="rounded-xl bg-slate-50 p-4"><div className="flex justify-between text-[11px]"><strong>고객 문의</strong><span className={response?"text-emerald-600":"text-amber-600"}>{response?"답변 완료":"미답변"}</span></div><p className="mt-2 whitespace-pre-wrap text-[12px]">{String(asMeta(req.meta)?.content ?? "")}</p>{response?<div className="mt-3 rounded-lg bg-blue-50 p-3 text-[12px] text-blue-900">{String(asMeta(response.meta)?.content ?? "")}</div>:<form action={respondToConsultation} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="requestActivityId" value={req.id}/><textarea name="content" required rows={3} className="w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-[12px]" placeholder="답변을 입력하세요"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">답변 등록</button></form>}</div>})}</div>}
-          </section>
+          <section className="mt-4 w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center gap-2"><MessageSquareText size={16} className="text-blue-700"/><h2 className="text-[14px] font-extrabold">전문가 상담 요청 (Case Room)</h2></div>{consultationRequests.length===0?<p className="mt-3 text-[11px] text-slate-400">접수된 상담 요청이 없습니다.</p>:<div className="mt-4 space-y-3">{[...consultationRequests].reverse().map(req=>{const response=findResponseFor(req.id);return <div key={req.id} className="rounded-xl bg-slate-50 p-4"><div className="flex justify-between text-[11px]"><strong>고객 문의</strong><span className={response?"text-emerald-600":"text-amber-600"}>{response?"답변 완료":"미답변"}</span></div><p className="mt-2 whitespace-pre-wrap text-[12px]">{String(asMeta(req.meta)?.content??"")}</p>{response?<div className="mt-3 rounded-lg bg-blue-50 p-3 text-[12px] text-blue-900">{String(asMeta(response.meta)?.content??"")}</div>:<form action={respondToConsultation} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="requestActivityId" value={req.id}/><textarea name="content" required rows={3} className="w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-[12px]" placeholder="답변을 입력하세요"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">답변 등록</button></form>}</div>})}</div>}</section>
         </div>
       </div>
     </main>
