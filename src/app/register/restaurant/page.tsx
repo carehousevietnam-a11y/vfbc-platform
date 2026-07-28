@@ -6,16 +6,14 @@ import {
   ArrowLeft,
   CheckCircle2,
   AlertTriangle,
-  MessageCircle,
   ExternalLink,
-  ShieldCheck,
+  Clock,
+  UserCheck,
+  FileText,
   Store,
   FileCheck2,
   FileWarning,
   Flame,
-  Clock,
-  FileText,
-  UserCheck,
 } from "lucide-react";
 import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
@@ -39,6 +37,7 @@ type ResultTone = "possible" | "conditional" | null;
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
 
+// CHECK(TRC)의 ConsentDetails와 100% 동일한 컴포넌트 — 문구·구조 그대로 재사용.
 function ConsentDetails({
   open,
   onToggle,
@@ -117,33 +116,33 @@ function ConsentDetails({
   );
 }
 
-// ── 질문 옵션 + 아이콘/톤 매핑 (표시 전용) ──────────────────────────────
-// value/키는 기존과 100% 동일하게 유지한다. 아이콘·색상·문구 배치만 새로 추가.
+// ── 질문 옵션 + 아이콘/톤 매핑(표시 전용) + CHECK/TRC 스타일의 한 줄 설명.
+// value·키는 100% 동일하게 유지한다.
 const OPERATION_OPTIONS: { key: NonNullable<OperationChoice>; label: string; desc: string; icon: typeof Store; tone: SelectionCardTone }[] = [
-  { key: "not_open", label: "아직 오픈 전입니다", desc: "허가 신청을 준비하는 단계", icon: Store, tone: "blue" },
-  { key: "operating_licensed", label: "허가를 받고 정상 운영 중입니다", desc: "", icon: CheckCircle2, tone: "green" },
-  { key: "operating_unlicensed", label: "허가 없이 이미 영업 중입니다", desc: "", icon: AlertTriangle, tone: "red" },
+  { key: "not_open", label: "아직 오픈 전입니다", desc: "영업 시작 전 허가 신청을 준비하고 있습니다.", icon: Store, tone: "blue" },
+  { key: "operating_licensed", label: "허가를 받고 정상 운영 중입니다", desc: "현재 필요한 허가를 취득하여 운영 중입니다.", icon: CheckCircle2, tone: "green" },
+  { key: "operating_unlicensed", label: "허가 없이 이미 영업 중입니다", desc: "허가를 완료하지 못한 상태에서 영업 중입니다.", icon: AlertTriangle, tone: "red" },
 ];
 
-const REGISTRATION_OPTIONS: { key: NonNullable<RegistrationStatus>; label: string; icon: typeof FileCheck2; tone: SelectionCardTone }[] = [
-  { key: "confirmed", label: "준비되어 있음", icon: FileCheck2, tone: "green" },
-  { key: "unconfirmed", label: "아직 미확정", icon: FileWarning, tone: "amber" },
+const REGISTRATION_OPTIONS: { key: NonNullable<RegistrationStatus>; label: string; desc: string; icon: typeof FileCheck2; tone: SelectionCardTone }[] = [
+  { key: "confirmed", label: "준비되어 있음", desc: "사업자 또는 법인 등록 관련 서류를 보유하고 있습니다.", icon: FileCheck2, tone: "green" },
+  { key: "unconfirmed", label: "아직 미확정", desc: "사업자·법인 등록 서류를 아직 준비 중입니다.", icon: FileWarning, tone: "amber" },
 ];
 
-const PREMISES_OPTIONS: { key: NonNullable<PremisesStatus>; label: string; icon: typeof Store; tone: SelectionCardTone }[] = [
-  { key: "secured", label: "체결 완료", icon: Store, tone: "green" },
-  { key: "unsecured", label: "아직 미체결", icon: FileWarning, tone: "amber" },
+const PREMISES_OPTIONS: { key: NonNullable<PremisesStatus>; label: string; desc: string; icon: typeof Store; tone: SelectionCardTone }[] = [
+  { key: "secured", label: "체결 완료", desc: "영업장 임대차 계약을 완료했습니다.", icon: Store, tone: "green" },
+  { key: "unsecured", label: "아직 미체결", desc: "영업장 계약 장소가 아직 확정되지 않았습니다.", icon: FileWarning, tone: "amber" },
 ];
 
-const HYGIENE_OPTIONS: { key: NonNullable<HygieneFireStatus>; label: string; icon: typeof Flame; tone: SelectionCardTone }[] = [
-  { key: "ready", label: "예, 완료했습니다", icon: CheckCircle2, tone: "green" },
-  { key: "not_ready", label: "아직입니다", icon: Flame, tone: "amber" },
+const HYGIENE_OPTIONS: { key: NonNullable<HygieneFireStatus>; label: string; desc: string; icon: typeof Flame; tone: SelectionCardTone }[] = [
+  { key: "ready", label: "예, 완료했습니다", desc: "위생·소방 시설 준비와 점검을 완료했습니다.", icon: CheckCircle2, tone: "green" },
+  { key: "not_ready", label: "아직입니다", desc: "위생·소방 시설 준비 또는 점검이 남아 있습니다.", icon: Flame, tone: "amber" },
 ];
 
 // 자체 진단 로직 (checkDiagnosis.ts 미사용, 규칙 기반) — 등록상태·영업장확보
 // 여부로 점수를 계산하고, 위생·소방 준비상태는 체크리스트 항목으로만 반영한다.
 // 법 조항·구체적 허가가능 여부는 단정하지 않고 "가능성" 톤을 유지한다.
-// ⚠️ 이번 UI 통일 작업에서 이 함수는 단 한 글자도 수정하지 않았다.
+// ⚠️ 이번 정밀교정 작업에서도 이 함수는 단 한 글자도 수정하지 않았다.
 type RestaurantDiagnosis = {
   feasibilityScore: number;
   resultTone: "possible" | "conditional";
@@ -181,7 +180,7 @@ function computeRestaurantDiagnosis(
 
 // STEP10-6: AI 판단 근거 — 새 AI 호출 없이 기존 진단 결과(점수/체크리스트/상태)만으로
 // "왜 이렇게 판단했는지"를 2~3개의 짧은 문장으로 요약. DB/API/CRM 변경 없음.
-// ⚠️ 이번 UI 통일 작업에서 이 함수도 단 한 글자도 수정하지 않았다.
+// ⚠️ 이번 정밀교정 작업에서도 이 함수는 단 한 글자도 수정하지 않았다.
 function buildAiReasonBullets(
   feasibilityScore: number,
   resultTone: "possible" | "conditional" | "impossible",
@@ -215,28 +214,68 @@ function buildAiReasonBullets(
   return bullets;
 }
 
-// ── 여기부터 신규 UI(표시 전용) — CHECK(TRC)/VERIFY(admin)와 동일한 Master UI 구조 ──
+// ── 여기부터 신규 UI(표시 전용) — CHECK(TRC)의 실제 최신 코드(ResultOverviewCards/
+// ResultHeaderGauge/ResultSummaryCard/NextStepOptions/PremiumLeadCapture)를 그대로
+// 확인하여 구조·className·순서를 옮겨왔다. 값만 REGISTER(restaurant) 진단 결과로 채운다.
 
-// CHECK(TRC)의 ResultHeaderGauge와 동일한 SVG-native rotate 원형 게이지.
-// VERIFY의 riskLevel 대신 REGISTER는 feasibilityScore(0~100)가 이미 존재하므로,
-// 새 점수를 만들지 않고 기존 diagnosis.feasibilityScore를 그대로 시각화만 한다.
-function RestaurantResultGauge({
+// TRC의 PremiumLeadCapture 안 원형 게이지와 100% 동일한 마크업 — 결과 미리보기(가입 전)용.
+function RestaurantScoreGauge({
   score,
   tone,
-  size = 104,
 }: {
   score: number;
   tone: "possible" | "conditional";
-  size?: number;
 }) {
   const isPossible = tone === "possible";
+  return (
+    <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
+      <svg width="104" height="104" viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
+        <circle cx="52" cy="52" r="46" fill="none" stroke="#E5E7EB" strokeWidth="7" />
+        <circle
+          cx="52"
+          cy="52"
+          r="46"
+          fill="none"
+          stroke={isPossible ? "#059669" : "#D97706"}
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={2 * Math.PI * 46}
+          strokeDashoffset={2 * Math.PI * 46 * (1 - score / 100)}
+        />
+      </svg>
+      <div className="relative flex flex-col items-center">
+        <span
+          className={`flex h-5 w-5 items-center justify-center rounded-full ${
+            isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+          }`}
+        >
+          {isPossible ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
+        </span>
+        <strong className="mt-0.5 text-[22px] font-black leading-none text-gray-900">{score}%</strong>
+        <span className={`mt-0.5 text-[10px] font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}>
+          {isPossible ? "가능성 높음" : "추가 확인 필요"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// TRC의 ResultHeaderGauge와 100% 동일한 SVG-native rotate 소형 배지 — 결과화면
+// 단계에서만 제목(H1) 옆 모바일 전용 위치에 노출된다(TRC와 동일한 용도·크기 76px).
+function ResultHeaderGauge({
+  diagnosis,
+  size = 104,
+}: {
+  diagnosis: RestaurantDiagnosis;
+  size?: number;
+}) {
+  const isPossible = diagnosis.resultTone === "possible";
+  const status = isPossible ? "가능성 높음" : "추가 확인 필요";
   const ringColor = isPossible ? "#059669" : "#D97706";
   const scale = size / 104;
   const strokeWidth = 7 * scale;
   const r = 46 * scale;
   const cx = size / 2;
-  const circumference = 2 * Math.PI * r;
-  const fillRatio = Math.max(0, Math.min(1, score / 100));
 
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
@@ -251,8 +290,8 @@ function RestaurantResultGauge({
             stroke={ringColor}
             strokeWidth={strokeWidth}
             strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - fillRatio)}
+            strokeDasharray={2 * Math.PI * r}
+            strokeDashoffset={2 * Math.PI * r * (1 - diagnosis.feasibilityScore / 100)}
           />
         </g>
       </svg>
@@ -265,24 +304,24 @@ function RestaurantResultGauge({
         >
           {isPossible ? <CheckCircle2 size={12 * scale} /> : <AlertTriangle size={12 * scale} />}
         </span>
-        <strong className="mt-0.5 font-black leading-none text-gray-900" style={{ fontSize: 15 * scale }}>
-          {score}%
+        <strong className="mt-0.5 font-black leading-none text-gray-900" style={{ fontSize: 22 * scale }}>
+          {diagnosis.feasibilityScore}%
         </strong>
         <span
           className={`mt-0.5 font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}
-          style={{ fontSize: 11 * scale }}
+          style={{ fontSize: 10 * scale }}
         >
-          {isPossible ? "가능" : "조건부"}
+          {status}
         </span>
       </div>
     </div>
   );
 }
 
-// VERIFY(admin)의 VerifyResultOverviewCards와 동일한 PC 5칸 그리드 / 모바일 세로
-// 리스트 wrapper를 그대로 재사용하고, 내용만 REGISTER 진단(diagnosis)에 이미 존재하는
-// 필드(feasibilityScore/checklist/note/estimatedDays)로 채운다. 새 계산 로직 없음 —
-// 허위 데이터 금지 원칙에 따라 없는 값은 만들지 않고 기존 값만 재배치해 표시한다.
+// CHECK(TRC)의 ResultOverviewCards와 className·breakpoint까지 동일한 PC 5칸 그리드 /
+// 모바일 세로 리스트. 위험요인 카드는 TRC와 동일하게 checklist 미충족 개수만으로
+// pill 톤(문제없음=초록 / 보완필요=주황)을 자연스럽게 결정하고, 새 판정 로직은
+// 추가하지 않는다.
 function RestaurantResultOverviewCards({
   diagnosis,
   docCount,
@@ -290,38 +329,49 @@ function RestaurantResultOverviewCards({
   diagnosis: RestaurantDiagnosis;
   docCount: number;
 }) {
-  const { feasibilityScore, resultTone, checklist, note, estimatedDays } = diagnosis;
-  const isPossible = resultTone === "possible";
-  const toneLabel = isPossible ? "가능" : "조건부 가능";
-  const failedItems = checklist.filter((c) => !c.passed);
-  const topRiskFactor = failedItems[0]?.label ?? "확인된 주요 위험요인이 없습니다";
+  const { feasibilityScore, resultTone, checklist, estimatedDays } = diagnosis;
+  const failedCount = checklist.filter((c) => !c.passed).length;
 
-  const scorePillTone = isPossible ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700";
-  const aiOpinionText = isPossible ? "정상" : "확인필요";
-  const aiOpinionTone = isPossible ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700";
+  const scoreToneLabel = resultTone === "possible" ? "높음 (HIGH)" : "보통 (MEDIUM)";
+  const scoreToneWord = resultTone === "possible" ? "높습니다" : "있습니다";
+
+  const riskPillText = failedCount > 0 ? `보완 필요 항목 ${failedCount}개` : "문제 없음";
+  const riskPillTone = failedCount > 0 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700";
+  const riskIconBg = failedCount > 0 ? "bg-amber-50" : "bg-emerald-50";
+  const riskIconColor = failedCount > 0 ? "text-amber-600" : "text-emerald-600";
+
+  const docsPillText = `필수 서류 ${docCount}개`;
+  const daysPillText = estimatedDays ? `${estimatedDays.min}~${estimatedDays.max}일` : "안내 예정";
+
+  const aiOpinionText = resultTone === "possible" ? "정상" : "주의";
+  const aiOpinionTone =
+    resultTone === "possible" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700";
 
   const items = [
     {
       n: 1,
       label: "허가 가능성",
-      visual: <RestaurantResultGauge score={feasibilityScore} tone={resultTone} size={64} />,
-      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${scorePillTone}`}>{toneLabel}</span>,
-      caption: "입력하신 내용을 기준으로 분석한 1차 허가 가능성입니다.",
+      visual: <RestaurantScoreGauge score={feasibilityScore} tone={resultTone} />,
+      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>,
+      caption: `입력하신 정보 기준으로 허가 가능성이 ${scoreToneWord}.`,
     },
     {
       n: 2,
       label: "위험요인",
       visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
-          <AlertTriangle className="text-amber-600" size={26} />
+        <div className={`flex h-16 w-16 items-center justify-center rounded-full ${riskIconBg}`}>
+          {failedCount > 0 ? (
+            <AlertTriangle className={riskIconColor} size={26} />
+          ) : (
+            <CheckCircle2 className={riskIconColor} size={26} />
+          )}
         </div>
       ),
-      pill: (
-        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700">
-          {topRiskFactor}
-        </span>
-      ),
-      caption: "우선적으로 보완이 필요한 항목입니다.",
+      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${riskPillTone}`}>{riskPillText}</span>,
+      caption:
+        failedCount > 0
+          ? "보완이 필요한 항목이 확인되었습니다."
+          : "현재 확인된 위험요인이 없습니다.",
     },
     {
       n: 3,
@@ -331,12 +381,8 @@ function RestaurantResultOverviewCards({
           <FileText className="text-blue-700" size={26} />
         </div>
       ),
-      pill: (
-        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">
-          {docCount > 0 ? `필요 서류 ${docCount}개` : "서류 확인 필요"}
-        </span>
-      ),
-      caption: "허가 신청에 필요한 서류입니다.",
+      pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{docsPillText}</span>,
+      caption: "현재 조건에 맞는 필수 서류 목록입니다.",
     },
     {
       n: 4,
@@ -346,12 +392,8 @@ function RestaurantResultOverviewCards({
           <Clock className="text-violet-600" size={26} />
         </div>
       ),
-      pill: (
-        <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">
-          {estimatedDays ? `${estimatedDays.min}~${estimatedDays.max}일` : "서류 확인 후 안내"}
-        </span>
-      ),
-      caption: "준비 서류와 관할 기관에 따라 달라질 수 있습니다.",
+      pill: <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">{daysPillText}</span>,
+      caption: "신청부터 발급까지 예상 기간 안내입니다.",
     },
     {
       n: 5,
@@ -362,13 +404,13 @@ function RestaurantResultOverviewCards({
         </div>
       ),
       pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
-      caption: note,
+      caption: "베트남 인허가 전문 AI의 종합 검토 의견입니다.",
     },
   ];
 
   return (
     <>
-      {/* PC — 5칸 가로 배치 (태블릿까지는 세로 리스트를 유지하기 위해 lg 이상에서만 적용) */}
+      {/* PC — 5칸 가로 배치 (넓은 PC에서만 5열로 적용) */}
       <div className="mt-6 hidden overflow-hidden rounded-2xl border border-gray-100 bg-white lg:grid lg:grid-cols-5 lg:divide-x lg:divide-gray-100">
         {items.map((item) => (
           <div key={item.n} className="flex flex-col items-center gap-2.5 p-5 text-center">
@@ -385,7 +427,7 @@ function RestaurantResultOverviewCards({
         ))}
       </div>
 
-      {/* 모바일·태블릿 — 세로형 요약 리스트 (lg 미만에서는 5칸 대신 이 리스트를 사용) */}
+      {/* 모바일·태블릿 — 세로형 요약 리스트 */}
       <div className="mt-6 divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white lg:hidden">
         {items.map((item) => (
           <div key={item.n} className="flex items-center justify-between gap-3 p-4">
@@ -395,7 +437,16 @@ function RestaurantResultOverviewCards({
               </span>
               <span className="truncate text-sm font-medium text-gray-700">{item.label}</span>
             </div>
-            <div className="shrink-0">{item.pill}</div>
+            <div className="shrink-0">
+              {item.n === 1 ? (
+                <span className="text-sm font-bold text-gray-900">
+                  {feasibilityScore}/100{" "}
+                  <span className="text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>
+                </span>
+              ) : (
+                item.pill
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -403,8 +454,58 @@ function RestaurantResultOverviewCards({
   );
 }
 
-// VERIFY(admin)의 VerifyResultSummaryCard와 동일한 구조 — 기존 buildAiReasonBullets()
-// 결과(문장)만으로 요약 카드를 구성한다. 새로운 판단·문구 생성 로직 없음.
+// CHECK(TRC)의 buildResultSummaryText/ResultSummaryCard와 동일한 카드 셸(흰 배경·
+// AI 배지·제목)을 재사용하되, 내용은 REGISTER 쪽 절대불변 함수인 buildAiReasonBullets()
+// 결과만 그대로 표시한다. 새로운 AI 호출·새 문장 생성·임의 법률 판단 없음.
+
+function RestaurantDesktopResultHeader({
+  diagnosis,
+}: {
+  diagnosis: RestaurantDiagnosis;
+}) {
+  const isPossible = diagnosis.resultTone === "possible";
+
+  return (
+    <div
+      className={`mt-5 hidden items-center justify-between gap-8 rounded-2xl border p-6 lg:flex ${
+        isPossible
+          ? "border-emerald-100 bg-emerald-50/40"
+          : "border-amber-100 bg-amber-50/40"
+      }`}
+    >
+      <div className="flex min-w-0 items-start gap-4">
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+            isPossible
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-amber-100 text-amber-700"
+          }`}
+        >
+          {isPossible ? <CheckCircle2 size={24} /> : <AlertTriangle size={24} />}
+        </div>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+            입력값 기준 1차 진단 결과
+          </p>
+          <h2 className="mt-1 text-xl font-bold tracking-tight text-gray-900">
+            {isPossible
+              ? "식당허가 진행 가능성이 높습니다"
+              : "식당허가 진행 전 추가 확인이 필요합니다"}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">
+            {diagnosis.note}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-gray-400">
+            실제 진행 가능 여부는 제출 서류와 관할기관 확인 후 최종 확정됩니다.
+          </p>
+        </div>
+      </div>
+
+      <ResultHeaderGauge diagnosis={diagnosis} size={112} />
+    </div>
+  );
+}
+
 function RestaurantResultSummaryCard({ diagnosis }: { diagnosis: RestaurantDiagnosis }) {
   const bullets = buildAiReasonBullets(
     diagnosis.feasibilityScore,
@@ -432,12 +533,148 @@ function RestaurantResultSummaryCard({ diagnosis }: { diagnosis: RestaurantDiagn
   );
 }
 
-// CHECK(TRC)/VERIFY(admin)의 PremiumLeadCapture / VerifyAdminLeadCapture와 동일한
-// JSX/className 구조 — 1번째 화면(가입 전), 결과 미리보기 + 개인정보 입력.
+// CHECK(TRC)의 NextStepOptions와 카드 순서·배지·색상·테두리·버튼 높이·설명 문구
+// 길이·모바일/PC 배열을 그대로 일치시킨 3버튼 CTA. 서비스명(식당허가)과 연결
+// 대상(공식 사이트 URL, restaurant CRM)만 Restaurant에 맞게 대체했다.
+// AI 리포트 버튼은 TRC 원본에는 연결이 없으나("아직 연결 없음"), REGISTER는
+// VERIFY(admin)가 이미 쓰고 있는 auto-login(next=documents_ai_report) 연결을
+// 그대로 재사용해 실제로 동작하도록 했다(더 완성된 패턴 채택, 새 CRM action 없음).
+function RestaurantNextStepOptions({
+  onSelf,
+  onExpert,
+  onAiReport,
+  officialUrl,
+  expertPending,
+  expertError,
+  aiReportPending,
+  aiReportError,
+}: {
+  onSelf: () => void;
+  onExpert: () => void;
+  onAiReport: () => void;
+  officialUrl: string;
+  expertPending?: boolean;
+  expertError?: string | null;
+  aiReportPending?: boolean;
+  aiReportError?: string | null;
+}) {
+  return (
+    <div>
+      <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
+      <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
+        {/* 1) AI 리포트 진행하기 — "필수" 강조 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            필수
+          </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 진행하기</p>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
+          </ul>
+          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-blue-700">
+            아는 것과 모르는 것의 차이는 큽니다. 무료로 먼저 점검하세요.
+          </p>
+          <div className="mt-auto pt-4">
+            <button
+              type="button"
+              onClick={onAiReport}
+              disabled={aiReportPending}
+              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors disabled:opacity-60"
+            >
+              {aiReportPending ? "이동 중..." : "AI 리포트 진행하기"}
+            </button>
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
+              {aiReportError ? (
+                <span className="text-red-600">{aiReportError}</span>
+              ) : (
+                "결과는 My Page에서 PDF로 다운로드할 수 있습니다."
+              )}
+            </p>
+          </div>
+        </div>
+
+        {/* 2) 전문가 진행하기 — 가장 강한 파란색 CTA */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            추천
+          </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            최신 법령과 실제 제출 서류를 전문가가 최종 확인하여 안전하게
+            진행합니다.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 최신 법령 및 정책 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 제출 서류 검토 및 보완 안내</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
+          </ul>
+          <div className="mt-auto pt-4">
+            <PrimaryButton onClick={onExpert} loading={expertPending}>
+              전문가 진행하기
+            </PrimaryButton>
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
+              {expertError ? (
+                <span className="text-red-600">{expertError}</span>
+              ) : (
+                "전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수 있습니다."
+              )}
+            </p>
+          </div>
+        </div>
+
+        {/* 3) 직접 진행하기 — 흰색 테두리, "신중" 주의 배지 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+            신중
+          </span>
+          <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            정부 공식 사이트에서 직접 신청할 수 있습니다.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            <li className="text-[11px] text-gray-600 pl-1">· 대행 비용 없이 직접 신청할 수 있습니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 베트남 행정 절차를 스스로 확인해야 합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
+          </ul>
+          <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
+            개인 진행 시 신중하게 진행하셔야 합니다. 한 번 반려된 서류는
+            다시 제출할 때 더 까다롭게 검토될 수 있습니다.
+          </div>
+          <div className="mt-auto pt-4">
+            <a
+              href={officialUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onSelf}
+              className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              정부 공식 사이트 이동 <ExternalLink size={13} />
+            </a>
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
+              신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// CHECK(TRC)의 PremiumLeadCapture와 100% 동일한 JSX/className 구조 — 1번째 화면
+// (가입 전), 결과 미리보기 + 개인정보 입력.
 function RestaurantLeadCapture({
   diagnosis,
+  messengers,
   submitting,
-  error,
+  leadError,
   consentOpen,
   consentHighlight,
   onConsentToggle,
@@ -446,8 +683,9 @@ function RestaurantLeadCapture({
   onReset,
 }: {
   diagnosis: RestaurantDiagnosis;
+  messengers: typeof MESSENGERS_KO;
   submitting: boolean;
-  error: string | null;
+  leadError: string | null;
   consentOpen: boolean;
   consentHighlight: boolean;
   onConsentToggle: () => void;
@@ -456,7 +694,6 @@ function RestaurantLeadCapture({
   onReset: () => void;
 }) {
   const isPossible = diagnosis.resultTone === "possible";
-  const messengers = MESSENGERS_KO;
 
   return (
     <div>
@@ -484,7 +721,7 @@ function RestaurantLeadCapture({
             </p>
           </div>
 
-          <RestaurantResultGauge score={diagnosis.feasibilityScore} tone={diagnosis.resultTone} />
+          <RestaurantScoreGauge score={diagnosis.feasibilityScore} tone={diagnosis.resultTone} />
         </div>
 
         <p className="mt-2 text-xs leading-relaxed text-gray-400">
@@ -557,7 +794,7 @@ function RestaurantLeadCapture({
             <ConsentDetails open={consentOpen} onToggle={onConsentToggle} highlight={consentHighlight} />
           </div>
 
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {leadError && <p className="text-xs text-red-600">{leadError}</p>}
 
           <PrimaryButton type="submit" variant={isPossible ? "primary" : "amber"} loading={submitting}>
             {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
@@ -593,10 +830,8 @@ export default function RegisterRestaurantPage() {
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
-  const [agencyRequested, setAgencyRequested] = useState(false);
   const [agencySaving, setAgencySaving] = useState(false);
   const [agencyError, setAgencyError] = useState<string | null>(null);
-  const [detailStage, setDetailStage] = useState(false);
 
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -605,14 +840,13 @@ export default function RegisterRestaurantPage() {
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const selfNotifySentRef = useRef(false);
 
-  // ── 아래 4개는 이번 Master UI 통일 작업에서 새로 추가된 state다. 기존 진단·CRM·DB
-  // 관련 state(위 블록)는 단 하나도 이름·타입·용도를 바꾸지 않았다. 이 4개는 CHECK(TRC)/
-  // VERIFY(admin)가 이미 쓰고 있는 auto-login 연결(resultToken)과, 동일 UI 컴포넌트가
-  // 쓰는 클릭 피드백(selectedKey)·AI 리포트 버튼 상태(aiReportRequesting/Error)를
-  // 위해서만 필요하다 — 진단 결과·점수·meta 등 어떤 비즈니스 값도 담지 않는다.
-  const [resultToken, setResultToken] = useState<string | null>(null);
+  // CHECK(TRC)와 동일한 용도의 state — Q2~Q5(2개 이상 선택형 질문) 공용 클릭
+  // 피드백(300ms) 키, /api/lead-submit이 발급하는 resultToken(auto-login용),
+  // AI 리포트 버튼 로딩/에러 상태. previousRejection(질문1)은 TRC와 동일하게
+  // selectedKey를 쓰지 않고 값 자체로 선택 상태를 판정한다(아래 렌더 참고).
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [aiReportRequesting, setAiReportRequesting] = useState(false);
+  const [resultToken, setResultToken] = useState<string | null>(null);
+  const [aiReportPending, setAiReportPending] = useState(false);
   const [aiReportError, setAiReportError] = useState<string | null>(null);
 
   const messengers = MESSENGERS_KO;
@@ -636,9 +870,10 @@ export default function RegisterRestaurantPage() {
 
   const requiredDocs = getRequiredDocuments("register_restaurant");
 
-  // 표시 전용 — 최종 결과 화면(가입 직후)일 때만 컨테이너 너비를 넓게 쓰기 위한 판정.
-  // showResult/leadSubmitted 자체의 계산 로직(위 result/showResult)은 건드리지 않았다.
-  const isResultScreen = Boolean(showResult && diagnosis && leadSubmitted);
+  // CHECK(TRC)의 resultScreenActive와 동일한 판정 — 결과 화면(가입 직후)에서만
+  // 컨테이너 폭을 넓히기 위한 표시 전용 값. showResult/leadSubmitted 자체의
+  // 계산 로직은 그대로다.
+  const resultScreenActive = Boolean(showResult && diagnosis && leadSubmitted);
 
   // "네, 있습니다" 클릭 즉시 익명으로 저장 — 기존과 동일, 수정 없음.
   function recordRejectionAnonymously() {
@@ -698,26 +933,30 @@ export default function RegisterRestaurantPage() {
     setEmailProvided(false);
     setConsentOpen(false);
     setConsentHighlight(false);
-    setAgencyRequested(false);
     setAgencySaving(false);
     setAgencyError(null);
-    setDetailStage(false);
     setPreviousRejection(null);
     setRejectionReason("");
     setRejectionStepDone(false);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
     selfNotifySentRef.current = false;
-    setResultToken(null);
     setSelectedKey(null);
-    setAiReportRequesting(false);
+    setResultToken(null);
+    setAiReportPending(false);
     setAiReportError(null);
   }
 
-  // ⚠️ CRM 저장(action/tag)·agency-confirm 이메일 트리거는 이번 작업에서 단 한 글자도
-  // 수정하지 않았다. 마지막에 CHECK(TRC)/VERIFY(admin)와 동일한 auto-login→/r→/documents
-  // 리다이렉트만 추가했다(요청 사항).
-  async function handleAgencyRequest() {
+  // CHECK(TRC)의 실제 최신 코드를 직접 확인한 결과, TRC는 handleAgencyRequest(CRM
+  // insert)와 handleExpertRequestClick(auto-login redirect)이 분리되어 있고, CRM
+  // insert 쪽은 detailStage라는 화면을 거쳐야 도달하는데 detailStage는 어떤 버튼도
+  // true로 바꾸지 않아 실제로는 도달 불가능한 죽은 코드였다. 즉 TRC의 실제 사용자
+  // 흐름은 "결과 화면 → 전문가 진행하기 → 곧바로 auto-login/redirect"이며, 중간
+  // 확인 화면은 없다. REGISTER는 CRM에 agency_upgrade_request를 반드시 남겨야
+  // 하므로(요청 사항), 두 로직을 하나로 합쳐 TRC와 동일하게 버튼 1번 클릭으로
+  // CRM 저장(액션·태그 무변경) → agency-confirm(무변경) → auto-login → /r →
+  // /documents까지 곧바로 이어지도록 구성했다. 별도 확인 화면은 두지 않는다.
+  async function handleExpertRequest() {
     if (!leadId) return;
     setAgencySaving(true);
     setAgencyError(null);
@@ -738,8 +977,6 @@ export default function RegisterRestaurantPage() {
       } catch (emailErr) {
         console.error("agency-confirm email trigger failed:", emailErr);
       }
-
-      setAgencyRequested(true);
 
       if (!resultToken) {
         setAgencyError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
@@ -765,18 +1002,17 @@ export default function RegisterRestaurantPage() {
     }
   }
 
-  // "AI 리포트 진행하기" — handleAgencyRequest와 동일한 Auto-login → /r → /documents
-  // 흐름을 타되, next 값만 "documents_ai_report"로 달라 /documents가 mode=ai_report로
-  // 열린다. CHECK(TRC)/VERIFY(admin)의 AI 리포트 버튼과 동일하게 이 시점에는 CRM을
-  // 기록하지 않는다(신규 action 추가 없음).
+  // "AI 리포트 진행하기" — VERIFY(admin)가 이미 쓰고 있는 auto-login(next=
+  // documents_ai_report) 흐름을 그대로 재사용한다. 신규 CRM action은 추가하지
+  // 않는다(요청 사항).
   async function handleAiReportRequest() {
     if (!leadId) return;
-    setAiReportRequesting(true);
+    setAiReportPending(true);
     setAiReportError(null);
     try {
       if (!resultToken) {
         setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
-        setAiReportRequesting(false);
+        setAiReportPending(false);
         return;
       }
       const res = await fetch("/api/auto-login", {
@@ -788,20 +1024,19 @@ export default function RegisterRestaurantPage() {
       if (!res.ok || !data?.actionLink) {
         console.error("auto-login failed:", data);
         setAiReportError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
-        setAiReportRequesting(false);
+        setAiReportPending(false);
         return;
       }
       window.location.href = data.actionLink;
     } catch {
       setAiReportError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-      setAiReportRequesting(false);
+      setAiReportPending(false);
     }
   }
 
   // ⚠️ leads/crm_activities insert 로직 — 이번 작업에서 단 한 글자도 수정하지 않았다.
-  // 마지막에 /api/lead-submit 응답에서 token을 꺼내 resultToken에 저장하는 부분만
-  // 추가했다(기존에도 이 API를 호출하고 있었으나 응답의 token 필드를 쓰지 않고
-  // 버리고 있었다 — CHECK(TRC)/VERIFY(admin)와 동일하게 활용하도록 한 것 뿐이다).
+  // /api/lead-submit 응답의 token만 resultToken에 저장한다(기존에도 호출하고 있었으나
+  // 응답을 버리고 있었다 — CHECK(TRC)와 동일하게 활용하도록 한 것 뿐이다).
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -906,7 +1141,9 @@ export default function RegisterRestaurantPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${isResultScreen ? "max-w-5xl" : "max-w-xl"}`}>
+      {/* CHECK(TRC)와 동일하게 결과 화면일 때만 컨테이너 폭을 max-w-5xl로 넓힌다.
+          질문/개인정보 입력 단계는 기존과 동일한 max-w-xl을 유지한다. */}
+      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-5xl" : "max-w-xl"}`}>
         {/* 모바일 전용 — CHECK(TRC)/VERIFY(admin)와 동일한 브랜드 헤더 */}
         <Link
           href="/"
@@ -926,17 +1163,29 @@ export default function RegisterRestaurantPage() {
           <ArrowLeft size={14} /> 홈으로
         </Link>
 
-        <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-          직접허가받기 · 베트남 인허가전문 AI
-        </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          식당허가 가능성 진단
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          현재 운영·등록 상태에 따라 필요서류가 달라집니다.
-        </p>
+        <div className="mt-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+              직접허가받기 · 베트남 인허가전문 AI
+            </p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+              식당허가 가능성 진단
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              현재 운영·등록 상태에 따라 필요서류가 달라집니다.
+            </p>
+          </div>
 
-        {/* 질문 1 — 타 기관 거절이력 */}
+          {/* 모바일 전용 — 결과 화면 단계에서만 우측 상단에 원형 점수표 표시(TRC와 동일) */}
+          {resultScreenActive && diagnosis && (
+            <div className="shrink-0 sm:hidden">
+              <ResultHeaderGauge diagnosis={diagnosis} size={76} />
+            </div>
+          )}
+        </div>
+
+        {/* 질문 1 — 타 기관 거절이력. CHECK(TRC)와 동일하게 selectedKey를 쓰지 않고
+            previousRejection 값 자체로 선택 상태를 판정한다(충돌·소실 방지). */}
         {!rejectionStepDone && (
           <div className="mt-8">
             <QuestionSection
@@ -946,36 +1195,62 @@ export default function RegisterRestaurantPage() {
               <div className="grid grid-cols-2 gap-3">
                 <SelectionCard
                   title="네, 있습니다"
-                  selected={selectedKey === "rejection-yes"}
+                  description="이전 신청에서 거절 또는 반려된 경험이 있습니다."
+                  selected={previousRejection === true}
                   tone="amber"
                   onClick={() => {
-                    setSelectedKey("rejection-yes");
                     setPreviousRejection(true);
                     recordRejectionAnonymously();
                   }}
                 />
                 <SelectionCard
                   title="아니요"
-                  selected={selectedKey === "rejection-no"}
-                  tone="slate"
+                  description="이번이 첫 신청이거나 거절·반려 이력이 없습니다."
+                  selected={previousRejection === false}
+                  tone="blue"
                   onClick={() => {
-                    setSelectedKey("rejection-no");
                     setPreviousRejection(false);
                     setRejectionStepDone(true);
                   }}
                 />
               </div>
             </QuestionSection>
+
+            {/* CHECK(TRC)와 동일한 AI 안내카드 + textarea — 선택은 사항이며, 카드
+                선택 상태(previousRejection===true)는 입력 중에도 계속 유지된다. */}
             {previousRejection === true && (
               <div className="mt-4">
+                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    AI
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">
+                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
+                      작성해주세요. 작성하지 않으셔도 다음 단계로 진행할 수
+                      있습니다.
+                    </p>
+                  </div>
+                </div>
+
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="(선택) 어떤 이유로 거절되셨는지 알려주시면 더 정확히 봐드릴 수 있습니다"
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-amber-600 focus:outline-none resize-none"
+                  placeholder={
+                    "예)\n- 사업자등록 서류가 미비하다고 들었습니다.\n- 위생·소방 점검을 통과하지 못했습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요(선택)."
+                  }
+                  rows={6}
+                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
                 />
-                <PrimaryButton onClick={finalizeRejectionStep} variant="amber" className="mt-3">
+                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
+                  높이는 데 활용됩니다.
+                </p>
+
+                <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
                   다음
                 </PrimaryButton>
               </div>
@@ -983,7 +1258,8 @@ export default function RegisterRestaurantPage() {
           </div>
         )}
 
-        {/* 질문 2 — 현재 운영 상태 */}
+        {/* 질문 2 — 현재 운영 상태. CHECK Master UI의 3개 선택지 실제 배열 기준
+            그대로(grid-cols-1, 반응형 2열 강제 없음) 적용. */}
         {rejectionStepDone && !operationChoice && (
           <div className="mt-8">
             <QuestionSection step={2} title="현재 식당을 어떻게 운영하고 계신가요?">
@@ -992,23 +1268,37 @@ export default function RegisterRestaurantPage() {
                   <SelectionCard
                     key={opt.key}
                     title={opt.label}
-                    description={opt.desc || undefined}
+                    description={opt.desc}
                     selected={selectedKey === opt.key}
                     icon={opt.icon}
                     tone={opt.tone}
                     onClick={() => {
                       setSelectedKey(opt.key);
-                      setOperationChoice(opt.key);
+                      setTimeout(() => {
+                        setOperationChoice(opt.key);
+                        setSelectedKey(null);
+                      }, 300);
                     }}
                   />
                 ))}
               </div>
             </QuestionSection>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedKey(null);
+                setRejectionStepDone(false);
+              }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeft size={14} /> 이전 단계로
+            </button>
           </div>
         )}
 
-        {/* 무허가 영업 경고 — 정상 옵션과 동급으로 취급하지 않고 즉시 경고 화면으로 분기.
-            문구·동작(다시 선택하기 / 전문가와 바로 상담하기) 전부 기존과 동일, 수정 없음. */}
+        {/* 무허가 영업 경고 — 정상 옵션과 동급으로 취급하지 않고 즉시 경고 화면으로
+            분기. 문구·동작 전부 기존과 동일, 수정 없음. */}
         {rejectionStepDone && isUnlicensedOperating && (
           <div className="mt-8">
             <NoticeCard tone="danger" title="무허가 영업은 즉시 폐쇄될 수 있습니다">
@@ -1036,7 +1326,7 @@ export default function RegisterRestaurantPage() {
           </div>
         )}
 
-        {/* 질문 3 — 사업자·법인 등록 서류 준비 */}
+        {/* 질문 3 — 사업자·법인 등록 서류 준비 (모바일 2열 유지 — Restaurant 확정 요구사항) */}
         {rejectionStepDone && operationChoice && !isUnlicensedOperating && !registrationStatus && (
           <div className="mt-8">
             <QuestionSection step={3} title="사업자·법인 등록 서류가 준비되어 있나요?">
@@ -1045,21 +1335,36 @@ export default function RegisterRestaurantPage() {
                   <SelectionCard
                     key={opt.key}
                     title={opt.label}
+                    description={opt.desc}
                     selected={selectedKey === opt.key}
                     icon={opt.icon}
                     tone={opt.tone}
                     onClick={() => {
                       setSelectedKey(opt.key);
-                      setRegistrationStatus(opt.key);
+                      setTimeout(() => {
+                        setRegistrationStatus(opt.key);
+                        setSelectedKey(null);
+                      }, 300);
                     }}
                   />
                 ))}
               </div>
             </QuestionSection>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedKey(null);
+                setOperationChoice(null);
+              }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeft size={14} /> 이전 단계로
+            </button>
           </div>
         )}
 
-        {/* 질문 4 — 영업장 임대차 계약 */}
+        {/* 질문 4 — 영업장 임대차 계약 (모바일 2열 유지) */}
         {rejectionStepDone && registrationStatus && !premisesStatus && (
           <div className="mt-8">
             <QuestionSection step={4} title="영업장(매장) 임대차 계약을 체결하셨나요?">
@@ -1068,21 +1373,36 @@ export default function RegisterRestaurantPage() {
                   <SelectionCard
                     key={opt.key}
                     title={opt.label}
+                    description={opt.desc}
                     selected={selectedKey === opt.key}
                     icon={opt.icon}
                     tone={opt.tone}
                     onClick={() => {
                       setSelectedKey(opt.key);
-                      setPremisesStatus(opt.key);
+                      setTimeout(() => {
+                        setPremisesStatus(opt.key);
+                        setSelectedKey(null);
+                      }, 300);
                     }}
                   />
                 ))}
               </div>
             </QuestionSection>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedKey(null);
+                setRegistrationStatus(null);
+              }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeft size={14} /> 이전 단계로
+            </button>
           </div>
         )}
 
-        {/* 질문 5 — 위생·소방 안전시설 점검 */}
+        {/* 질문 5 — 위생·소방 안전시설 점검 (모바일 2열 유지) */}
         {rejectionStepDone && registrationStatus && premisesStatus && !hygieneFireStatus && (
           <div className="mt-8">
             <QuestionSection step={5} title="위생·소방 안전시설 점검을 마치셨나요?">
@@ -1091,26 +1411,43 @@ export default function RegisterRestaurantPage() {
                   <SelectionCard
                     key={opt.key}
                     title={opt.label}
+                    description={opt.desc}
                     selected={selectedKey === opt.key}
                     icon={opt.icon}
                     tone={opt.tone}
                     onClick={() => {
                       setSelectedKey(opt.key);
-                      setHygieneFireStatus(opt.key);
+                      setTimeout(() => {
+                        setHygieneFireStatus(opt.key);
+                        setSelectedKey(null);
+                      }, 300);
                     }}
                   />
                 ))}
               </div>
             </QuestionSection>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedKey(null);
+                setPremisesStatus(null);
+              }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeft size={14} /> 이전 단계로
+            </button>
           </div>
         )}
 
-        {/* 결과 미리보기 + 개인정보 입력 (가입 전) — possible/conditional 공통 구조 */}
+        {/* 결과 미리보기 + 개인정보 입력 (가입 전) — CHECK(TRC)의 PremiumLeadCapture와
+            동일한 구조. possible/conditional 공통. */}
         {showResult && diagnosis && !leadSubmitted && (
           <RestaurantLeadCapture
             diagnosis={diagnosis}
+            messengers={messengers}
             submitting={submitting}
-            error={leadError}
+            leadError={leadError}
             consentOpen={consentOpen}
             consentHighlight={consentHighlight}
             onConsentToggle={() => setConsentOpen((v) => !v)}
@@ -1120,15 +1457,17 @@ export default function RegisterRestaurantPage() {
           />
         )}
 
-        {/* 가입 직후 — CHECK(TRC)/VERIFY(admin)와 동일한 Master UI 결과 화면:
-            결과 헤더 + 5칸 개요 카드 + 중앙 요약 카드 + 3버튼(전문가/AI리포트/직접진행).
-            "전문가 진행하기"는 기존 원본과 동일하게 즉시 접수하지 않고, 아래 복구된
-            detailStage(진행 서류·절차 확인 단계)를 먼저 연다. */}
-        {showResult && diagnosis && leadSubmitted && !agencyRequested && !detailStage && (
+        {/* 가입 직후 — CHECK(TRC)와 동일한 카드 셸(제목 라벨 → 5칸 개요 → 요약카드 →
+            3버튼 CTA → 안내문 → 처음부터 다시 확인하기) 순서 그대로. 별도의 긴
+            중간 확인화면은 두지 않는다(TRC 실제 흐름과 동일 — 위 handleExpertRequest
+            주석 참고). */}
+        {showResult && diagnosis && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               식당허가 · AI 분석 리포트
             </p>
+
+            <RestaurantDesktopResultHeader diagnosis={diagnosis} />
 
             <RestaurantResultOverviewCards diagnosis={diagnosis} docCount={requiredDocs.documents.length} />
 
@@ -1144,235 +1483,30 @@ export default function RegisterRestaurantPage() {
               </div>
             )}
 
-            <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
-            <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-              {/* 1) 전문가 진행하기 — Primary */}
-              <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
-                  추천
-                </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  AI 사전진단 내용을 전문가가 함께 확인한 뒤 서류 준비부터
-                  신청까지 도와드립니다.
-                </p>
-                <div className="mt-auto pt-4">
-                  <PrimaryButton onClick={() => setDetailStage(true)}>
-                    전문가 진행하기
-                  </PrimaryButton>
-                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
-                    진행 서류와 절차를 확인한 뒤 접수하는 단계로 이동합니다.
-                  </p>
-                </div>
-              </div>
-
-              {/* 2) AI 리포트 진행하기 */}
-              <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
-                <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
-                  필수
-                </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 진행하기</p>
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  자료를 제출하시면 AI가 정밀 검토 리포트를 준비합니다.
-                </p>
-                <div className="mt-auto pt-4">
-                  <button
-                    type="button"
-                    onClick={handleAiReportRequest}
-                    disabled={aiReportRequesting}
-                    className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors disabled:opacity-60"
-                  >
-                    {aiReportRequesting ? "이동 중..." : "AI 리포트 진행하기"}
-                  </button>
-                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-                    {aiReportError ? (
-                      <span className="text-red-600">{aiReportError}</span>
-                    ) : (
-                      "이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다."
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* 3) 직접 진행하기 — 기존 공식 사이트 이동 유지 */}
-              <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
-                <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
-                  신중
-                </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  공공서비스포털(Cổng Dịch vụ công quốc gia)로 이동합니다.
-                  접속 후 관할 지역과 위생·소방 담당부서를 선택하시면 신청
-                  메뉴를 찾으실 수 있습니다.
-                </p>
-                <div className="mt-auto pt-4">
-                  <a
-                    href={REGISTER_RESTAURANT_OFFICIAL_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleSelfPortalClick}
-                    className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-blue-900 bg-white text-[13px] font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
-                  >
-                    직접 진행하기 <ExternalLink size={14} />
-                  </a>
-                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-                    어느 쪽을 선택해도 서류 체크리스트는 동일하게 제공됩니다.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {emailProvided && (
-              <p className="mt-4 text-[11px] text-gray-400">
-                결과를 이메일로도 보내드렸습니다 — 메시지가 오지 않으면 이메일도 함께 확인해주세요.
-              </p>
-            )}
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <ShieldCheck size={16} className="mt-0.5 shrink-0 text-blue-900" />
-              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는 자동
-              생성되며, 마이페이지에서 언제든 변경하실 수 있습니다.
-            </div>
-
-            {diagnosis.resultTone === "conditional" && (
-              <Link
-                href="/consultation?case=register-restaurant-conditional"
-                className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-amber-600 px-5 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
-              >
-                <MessageCircle size={14} /> 지금 바로 상담하기
-              </Link>
-            )}
-
-            <button onClick={reset} className="mt-6 block text-xs text-gray-400 hover:text-gray-600">
-              처음부터 다시 확인하기
-            </button>
-          </div>
-        )}
-
-        {/* 진행 서류 및 절차 안내 (전문가 진행요청 선택 시) — 원본 그대로 복구.
-            "전문가 진행요청하기 →" 버튼은 handleAgencyRequest를 그대로 호출하며,
-            이 함수는 기존 CRM insert(agency_upgrade_request) 완료 직후 이어서
-            auto-login → /r → /documents 리다이렉트를 실행한다(함수 자체는 수정 없음). */}
-        {showResult && diagnosis && leadSubmitted && !agencyRequested && detailStage && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">식당허가 진행 서류 및 절차</p>
-
-            <div className="mt-4 space-y-3">
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">① 서류 준비</p>
-                <ul className="mt-2 space-y-2">
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 사업자등록증(영업자 등록증) 사본
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 영업장 임대차 계약서(공증본) 및 임대인 법적 권리 증빙
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 대표자·조리 종사자 건강검진서
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">② 시설 준비</p>
-                <ul className="mt-2 space-y-2">
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 위생안전 시설(조리·저장 공간) 자가점검
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 소방시설(소화기·비상구 등) 점검 및 완비
-                  </li>
-                  {hygieneFireStatus === "not_ready" && (
-                    <li className="text-xs text-gray-600 pl-1">
-                      · 위생·소방 점검이 아직 완료되지 않아, 시설 보완 후
-                      재점검이 필요할 수 있습니다 — 이 부분은 전문가 진행요청 접수 시
-                      담당자가 우선 확인해드립니다.
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">③ 신청 절차 요약</p>
-                <p className="mt-2 text-xs text-gray-600 leading-relaxed">
-                  서류 준비 → 영업장 임대차 계약 확정 → 위생안전 인증 신청·
-                  발급 → 소방완비 확인 신청·발급 → 사업자등록 및 영업신고
-                  완료
-                </p>
-                <p className="mt-2 text-[11px] text-gray-400">
-                  * 위 절차는 일반적인 흐름 안내이며, 지역·업장 규모에
-                  따라 순서나 요건이 달라질 수 있습니다.
-                </p>
-              </div>
-            </div>
-
-            <p className="mt-4 text-sm font-bold text-gray-900">
-              정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
-              상의하세요.
-            </p>
-
-            {agencyError && <p className="mt-3 text-xs text-red-600">{agencyError}</p>}
-            <p className="mb-2 text-xs text-gray-500 leading-relaxed">
-              직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
-            </p>
-            <button
-              onClick={handleAgencyRequest}
-              disabled={agencySaving}
-              className="mt-4 w-full h-12 rounded-full bg-blue-900 text-sm font-semibold text-white hover:bg-blue-950 disabled:opacity-60 transition-colors"
-            >
-              {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
-            </button>
+            <RestaurantNextStepOptions
+              onSelf={handleSelfPortalClick}
+              onExpert={handleExpertRequest}
+              onAiReport={handleAiReportRequest}
+              officialUrl={REGISTER_RESTAURANT_OFFICIAL_URL}
+              expertPending={agencySaving}
+              expertError={agencyError}
+              aiReportPending={aiReportPending}
+              aiReportError={aiReportError}
+            />
             <p className="mt-2 text-[11px] text-gray-400">
-              이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
-            </p>
-
-            <button
-              onClick={() => setDetailStage(false)}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              ← 간단 목록으로 돌아가기
-            </button>
-          </div>
-        )}
-
-        {/* 접수완료 화면(도장) — 원본 그대로 복구. handleAgencyRequest가 CRM insert 직후
-            agencyRequested를 true로 바꾸는 즉시 이 화면이 렌더링되고, 같은 함수 안에서
-            이어서 auto-login 요청이 실행되어 성공 시 /r을 거쳐 /documents로 이동한다. */}
-        {showResult && diagnosis && agencyRequested && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex justify-center">
-              <img src="/vfbc-seal.png" alt="VFBCAI 접수완료 확인 도장" width={160} height={160} />
-            </div>
-            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
-              Vietnam Foreign Business Verification &amp; Compliance AI Center
-            </p>
-            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-              전문가 진행요청이 접수되었습니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
-              {messengers.primary.label}/{messengers.secondary.label}로
-              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
+              공공서비스포털(Cổng Dịch vụ công quốc gia)의 식당허가 절차 안내
+              페이지로 이동합니다. 구비서류·수수료·처리기간을 확인하실 수
+              있습니다.
             </p>
 
             {emailProvided && (
               <p className="mt-2 text-[11px] text-gray-400">
-                메시지가 오지 않으면 이메일도 함께 확인해주세요.
+                결과를 이메일로도 보내드렸습니다 — 메시지가 오지 않으면
+                이메일도 함께 확인해주세요.
               </p>
             )}
 
-            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" />
-              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는 자동
-              생성되며, 마이페이지에서 언제든 변경하실 수 있습니다.
-              거주증·노동허가·비자 등 만료 알림 서비스도 함께 이용하실 수
-              있습니다.
-            </div>
-
-            {agencyError && <p className="mt-3 text-xs text-red-600">{agencyError}</p>}
-
-            <button onClick={reset} className="mt-6 block text-xs text-gray-400 hover:text-gray-600">
+            <button onClick={reset} className="mt-4 block text-xs text-gray-400 hover:text-gray-600">
               처음부터 다시 확인하기
             </button>
           </div>
