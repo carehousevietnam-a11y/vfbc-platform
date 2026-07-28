@@ -13,7 +13,11 @@ export type DocumentServiceKey =
   | "trc"
   | "tamtru"
   | "driving-license"
-  | "verify_admin";
+  | "verify_admin"
+  | "verify_real-estate"
+  | "verify_fraud"
+  | "verify_tax"
+  | "verify_unclear";
 
 export interface RequiredDocumentConfig {
   serviceKey: string;
@@ -51,6 +55,53 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "계약서·공문·통지서",
       "카카오톡·Zalo·이메일 대화 캡처",
       "사진·영수증·송금증 등 증거자료",
+      "기타 참고자료",
+    ],
+  },
+  "verify_real-estate": {
+    serviceKey: "verify_real-estate",
+    serviceLabel: "부동산 문서 검토",
+    documents: [
+      "매매·임대차 계약서",
+      "등기부등본 등 소유권 증빙",
+      "계약금·중도금 송금증",
+      "카카오톡·Zalo·이메일 대화 캡처",
+      "기타 참고자료",
+    ],
+  },
+  verify_fraud: {
+    serviceKey: "verify_fraud",
+    serviceLabel: "사기·피해 문서 검토",
+    documents: [
+      "사건 내용 및 피해 경위 정리",
+      "계약서·투자약정서·차용증",
+      "송금증·입금내역·영수증",
+      "카카오톡·Zalo·이메일 대화 캡처",
+      "신고서·통지서 등 관련 자료",
+      "기타 증거자료",
+    ],
+  },
+  verify_tax: {
+    serviceKey: "verify_tax",
+    serviceLabel: "세금 문서 검토",
+    documents: [
+      "세금 신고서·납부서",
+      "세무기관 통지서·결정서",
+      "계약서·세금계산서·영수증",
+      "회계장부·거래내역",
+      "회사 사업자·세무 관련 서류",
+      "기타 참고자료",
+    ],
+  },
+  verify_unclear: {
+    serviceKey: "verify_unclear",
+    serviceLabel: "분야 불명확 문서 검토",
+    documents: [
+      "사건 내용 및 진행 경위 정리",
+      "계약서·공문·통지서",
+      "카카오톡·Zalo·이메일 대화 캡처",
+      "송금증·영수증·사진 등 증거자료",
+      "기관 접수증·결정서",
       "기타 참고자료",
     ],
   },
