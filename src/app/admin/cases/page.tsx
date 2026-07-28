@@ -126,6 +126,23 @@ function formatDateTime(createdAt: string) {
   });
 }
 
+function formatRelativeDateTime(createdAt: string) {
+  const target = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - target.getTime();
+  const diffMinutes = Math.max(0, Math.floor(diffMs / 60000));
+
+  if (diffMinutes < 1) return "방금 전";
+  if (diffMinutes < 60) return `${diffMinutes}분 전`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24 && target.toDateString() === now.toDateString()) {
+    return `${diffHours}시간 전`;
+  }
+
+  return formatDateTime(createdAt);
+}
+
 export default async function AdminCasesPage({
   searchParams,
 }: {
@@ -464,24 +481,14 @@ export default async function AdminCasesPage({
         {dateGroups.length === 0 && (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm"><EmptyState /></div>
         )}
-        {dateGroups.map(([dateKey, dateLeads]) => (
-          <section key={dateKey} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
-              <div>
-                <h2 className="text-base font-bold text-slate-950">{formatDateKey(dateKey)}</h2>
-                <p className="mt-1 text-xs text-slate-500">이 날짜에 접수된 신청건</p>
-              </div>
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{dateLeads.length}건</span>
-            </div>
-            <div className="lg:hidden divide-y divide-slate-100">
-              {dateLeads.map((lead) => (
-                <LeadMobileCard key={lead.id} lead={lead} category={getCategory(lead.service_type)} isAgency={agencyLeadIds.has(lead.id)} isRejected={false} />
-              ))}
-            </div>
-            <div className="hidden lg:block">
-              <LeadTable leads={dateLeads} agencyLeadIds={agencyLeadIds} />
-            </div>
-          </section>
+        {dateGroups.map(([dateKey, dateLeads], dateIndex) => (
+          <DateContentGroup
+            key={dateKey}
+            dateKey={dateKey}
+            leads={dateLeads}
+            agencyLeadIds={agencyLeadIds}
+            defaultOpen={dateIndex === 0}
+          />
         ))}
       </div>
 
@@ -494,6 +501,141 @@ export default async function AdminCasesPage({
         <p className="mt-4 text-xs text-amber-700">매핑되지 않은 service_type이 있습니다 — CHECK_SERVICE_TYPES 또는 SERVICE_TYPE_ALIASES 목록을 확인해주세요.</p>
       )}
     </Shell>
+  );
+}
+
+function DateContentGroup({
+  dateKey,
+  leads,
+  agencyLeadIds,
+  defaultOpen,
+}: {
+  dateKey: string;
+  leads: Array<{
+    id: string;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    service_type: string | null;
+    result: string | null;
+    created_at: string;
+  }>;
+  agencyLeadIds: Set<string>;
+  defaultOpen: boolean;
+}) {
+  const categoryOrder: CategoryKey[] = [
+    "check",
+    "verify",
+    "permit",
+    "consultation",
+    "unclassified",
+  ];
+
+  const groupedByCategory = new Map<CategoryKey, typeof leads>();
+  for (const lead of leads) {
+    const category = getCategory(lead.service_type);
+    const categoryLeads = groupedByCategory.get(category) ?? [];
+    categoryLeads.push(lead);
+    groupedByCategory.set(category, categoryLeads);
+  }
+
+  return (
+    <details
+      open={defaultOpen}
+      className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between bg-slate-50 px-5 py-4 transition hover:bg-slate-100 [&::-webkit-details-marker]:hidden">
+        <div className="flex items-center gap-3">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-open:rotate-90">
+            <ChevronIcon />
+          </span>
+          <div>
+            <h2 className="text-base font-bold text-slate-950">{formatDateKey(dateKey)}</h2>
+            <p className="mt-0.5 text-xs text-slate-500">날짜별 신청건</p>
+          </div>
+        </div>
+        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+          {leads.length}건
+        </span>
+      </summary>
+
+      <div className="space-y-3 border-t border-slate-200 bg-slate-50/40 p-3 sm:p-4">
+        {categoryOrder.map((category) => {
+          const categoryLeads = groupedByCategory.get(category) ?? [];
+          if (categoryLeads.length === 0) return null;
+
+          const byService = new Map<string, typeof categoryLeads>();
+          for (const lead of categoryLeads) {
+            const serviceKey = lead.service_type ?? "미상";
+            const serviceLeads = byService.get(serviceKey) ?? [];
+            serviceLeads.push(lead);
+            byService.set(serviceKey, serviceLeads);
+          }
+
+          return (
+            <details
+              key={category}
+              open={category === "check" || category === "verify"}
+              className="group/category overflow-hidden rounded-xl border border-slate-200 bg-white"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 transition hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
+                <div className="flex items-center gap-3">
+                  <span className="text-slate-400 transition group-open/category:rotate-90">
+                    <ChevronIcon />
+                  </span>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${CATEGORY_INFO[category].badgeColor}`}>
+                    {CATEGORY_INFO[category].label}
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-slate-500">{categoryLeads.length}건</span>
+              </summary>
+
+              <div className="border-t border-slate-100">
+                {Array.from(byService.entries())
+                  .sort((a, b) => b[1].length - a[1].length)
+                  .map(([serviceType, serviceLeads], index) => (
+                    <div
+                      key={serviceType}
+                      className={index === 0 ? "" : "border-t border-slate-100"}
+                    >
+                      <div className="flex items-center justify-between bg-slate-50/70 px-4 py-2.5">
+                        <p className="text-sm font-semibold text-slate-800">
+                          {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
+                        </p>
+                        <span className="text-xs font-semibold text-slate-500">
+                          {serviceLeads.length}건
+                        </span>
+                      </div>
+                      <div className="divide-y divide-slate-100 lg:hidden">
+                        {serviceLeads.map((lead) => (
+                          <LeadMobileCard
+                            key={lead.id}
+                            lead={lead}
+                            category={category}
+                            isAgency={agencyLeadIds.has(lead.id)}
+                            isRejected={false}
+                          />
+                        ))}
+                      </div>
+                      <div className="hidden lg:block">
+                        <LeadTable leads={serviceLeads} agencyLeadIds={agencyLeadIds} />
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </details>
+          );
+        })}
+      </div>
+    </details>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+      <path d="m7.5 5 5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -608,14 +750,14 @@ function LeadTable({
                   )}
                 </td>
                 <td className="px-4 py-4 align-middle text-xs text-slate-500">
-                  {formatDateTime(lead.created_at)}
+                  {formatRelativeDateTime(lead.created_at)}
                 </td>
                 <td className="px-5 py-4 text-right align-middle">
                   <Link
                     href={`/admin/cases/${lead.id}`}
-                    className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
+                    className="inline-flex h-9 min-w-[64px] items-center justify-center whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                   >
-                    상세보기
+                    열기
                   </Link>
                 </td>
               </tr>
@@ -687,14 +829,14 @@ function LeadMobileCard({
           <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${categoryInfo.badgeColor}`}>
             {categoryInfo.label}
           </span>
-          <span className="text-[11px] text-slate-400">{formatDateTime(lead.created_at)}</span>
+          <span className="text-[11px] text-slate-400">{formatRelativeDateTime(lead.created_at)}</span>
         </div>
 
         <Link
           href={`/admin/cases/${lead.id}`}
           className="mt-4 flex h-10 w-full items-center justify-center rounded-xl bg-blue-700 text-sm font-semibold text-white transition hover:bg-blue-800"
         >
-          상세보기
+          열기
         </Link>
       </div>
     </div>
