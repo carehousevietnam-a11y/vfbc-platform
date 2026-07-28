@@ -265,21 +265,21 @@ const MODE_COPY: Record<
   }
 > = {
   ai_report: {
-    badgeLabel: "AI 리포트 요청",
-    heading: "AI 리포트를 위한 서류를 제출해주세요",
+    badgeLabel: "AI 리포트 진행",
+    heading: "AI 리포트 진행을 위한 서류를 제출해주세요",
     description: "제출하신 서류를 바탕으로 AI가 정밀 리포트를 준비합니다.",
-    submitLabel: "AI 리포트 요청하기",
+    submitLabel: "AI 리포트 진행하기",
     submitCaption: "접수 후 AI가 리포트를 준비하며, My Page에서 PDF로 확인하실 수 있습니다.",
-    successTitle: "AI 리포트 요청이 접수되었습니다",
+    successTitle: "AI 리포트 진행이 접수되었습니다",
     successBody: "My Page에서 진행 상황과 PDF 리포트를 확인하실 수 있습니다.",
   },
   expert: {
-    badgeLabel: "전문가 진행 요청",
+    badgeLabel: "전문가 진행",
     heading: "전문가 진행을 위한 서류를 제출해주세요",
     description: "제출하신 서류를 전문가가 직접 확인하여 실제 준비 절차를 안내드립니다.",
-    submitLabel: "전문가 진행 요청하기",
+    submitLabel: "전문가 진행하기",
     submitCaption: "접수 후 담당 전문가가 확인하여 카카오톡 · Zalo · 이메일로 안내드립니다.",
-    successTitle: "전문가 진행 요청이 접수되었습니다",
+    successTitle: "전문가 진행이 접수되었습니다",
     successBody: "담당자가 서류를 확인한 뒤 카카오톡 · Zalo · 이메일로 안내드립니다.",
   },
 };
@@ -304,6 +304,22 @@ const DOC_DESCRIPTION_BY_LABEL: Record<string, string> = {
   비자: "현재 보유 중인 비자를 제출해주세요.",
   재직증명서: "재직 증명 또는 노동허가 관련 서류를 제출해주세요.",
   회사서류: "회사 사업자등록증 사본을 제출해주세요.",
+  "사업자등록증 또는 법인등록증":
+    "식당 영업 주체를 확인할 수 있는 사업자·법인 등록서류를 제출해주세요.",
+  "영업장 임대차계약서":
+    "식당 영업장 주소와 사용 권한을 확인할 수 있는 계약서를 제출해주세요.",
+  "임대인의 법적 권리 증빙":
+    "임대인이 해당 영업장을 임대할 권리가 있음을 확인하는 자료입니다.",
+  "대표자·조리 종사자 건강검진서":
+    "대표자와 식품을 취급하는 조리 종사자의 건강검진 자료를 제출해주세요.",
+  "위생안전 시설 관련 자료":
+    "조리·보관·세척시설 등 위생안전 준비 상태를 확인할 수 있는 자료입니다.",
+  "소방시설·소방점검 관련 자료":
+    "소화기·비상구 등 소방시설 준비 및 점검 관련 자료를 제출해주세요.",
+  "업장 평면도 또는 내부 사진":
+    "영업장 구조와 주방·보관·위생시설 배치를 확인할 수 있는 자료입니다.",
+  "기존 허가·반려 관련 자료":
+    "기존 신청서, 접수증, 보완요청서 또는 반려 통지서가 있다면 제출해주세요.",
 };
 
 function DocumentCard({
@@ -521,10 +537,53 @@ function DocumentUploadContent() {
   const params = useSearchParams();
   const router = useRouter();
   const leadId = params.get("leadId");
-  const serviceParam = params.get("service");
+  const serviceFromQuery = params.get("service");
   const modeParam = params.get("mode");
   const mode: SubmitMode = modeParam === "ai_report" ? "ai_report" : "expert";
 
+  // /r 또는 auto-login 경로에서 service 쿼리가 누락되더라도,
+  // 현재 lead의 service_type을 조회해 실제 서비스별 문서 목록을 복원한다.
+  const [resolvedService, setResolvedService] = useState<string | null>(serviceFromQuery);
+
+  useEffect(() => {
+    if (serviceFromQuery) {
+      setResolvedService(serviceFromQuery);
+      return;
+    }
+
+    if (!leadId) {
+      setResolvedService(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("service_type")
+        .eq("id", leadId)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("[document-upload] lead service_type 조회 실패:", error);
+        setResolvedService(null);
+        return;
+      }
+
+      setResolvedService(
+        typeof data?.service_type === "string" ? data.service_type : null
+      );
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [leadId, serviceFromQuery]);
+
+  const serviceParam = resolvedService;
   const config = useMemo(() => getRequiredDocuments(serviceParam), [serviceParam]);
   const copy = MODE_COPY[mode];
 
@@ -532,6 +591,13 @@ function DocumentUploadContent() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // lead 조회를 통해 서비스가 뒤늦게 확인되면 기본 문서 슬롯을
+  // 해당 서비스 전용 문서 목록으로 교체한다.
+  useEffect(() => {
+    setDocs(config.documents.map(createDocState));
+  }, [config.serviceKey]);
+
   const readyCount = docs.filter(isDocReady).length;
   const totalCount = docs.length;
   const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
@@ -597,7 +663,7 @@ function DocumentUploadContent() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leadId]);
+  }, [leadId, config.serviceKey]);
 
   // 질문 단계(VERIFY admin)에서 제출된 자료 조회 — 기존 document_upload 조회와는 완전히
   // 별개의 조회이며, 위 useEffect(document_upload)를 전혀 수정하지 않는다. 가장 최근
@@ -938,7 +1004,7 @@ function DocumentUploadContent() {
     void deleteDocumentFile(extraDoc, (patch) => setExtraDoc((prev) => ({ ...prev, ...patch })));
   }
 
-  // "전문가 진행 요청하기" 클릭 시, 기존 CHECK 페이지(TRC 등)가 써온 것과 동일한
+  // "전문가 진행하기" 클릭 시, 기존 CHECK 페이지(TRC 등)가 써온 것과 동일한
   // "agency_upgrade_request" 액션을 재사용해 요청 자체도 CRM에 남긴다(새 action 아님,
   // 이메일 발송(/api/agency-confirm)은 이번 범위가 아니므로 호출하지 않음).
   // admin/leads/[id]/page.tsx의 setProcessStage와 동일한 "이미 있으면 다시 만들지 않는다"
@@ -1123,7 +1189,7 @@ function DocumentUploadContent() {
               </p>
               <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">접수 완료</h2>
               <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                전문가 진행 요청이 정상적으로 접수되었습니다.
+                전문가 진행이 정상적으로 접수되었습니다.
                 <br />
                 제출하신 서류를 담당 전문가가 확인한 후 곧 연락드리겠습니다.
                 <br />

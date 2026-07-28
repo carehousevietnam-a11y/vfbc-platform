@@ -17,7 +17,8 @@ export type DocumentServiceKey =
   | "verify_real-estate"
   | "verify_fraud"
   | "verify_tax"
-  | "verify_unclear";
+  | "verify_unclear"
+  | "register_restaurant";
 
 export interface RequiredDocumentConfig {
   serviceKey: string;
@@ -103,6 +104,22 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
       "기타 참고자료",
+    ],
+  },
+  // REGISTER(직접허가받기) 전용 — restaurant 페이지에 기존에 있던 준비서류 문구를
+  // 그대로 재사용한다(새 목록 생성 없음).
+  register_restaurant: {
+    serviceKey: "register_restaurant",
+    serviceLabel: "식당허가",
+    documents: [
+      "사업자등록증 또는 법인등록증",
+      "영업장 임대차계약서",
+      "임대인의 법적 권리 증빙",
+      "대표자·조리 종사자 건강검진서",
+      "위생안전 시설 관련 자료",
+      "소방시설·소방점검 관련 자료",
+      "업장 평면도 또는 내부 사진",
+      "기존 허가·반려 관련 자료",
     ],
   },
 };
