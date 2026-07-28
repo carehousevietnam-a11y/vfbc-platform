@@ -832,20 +832,41 @@ export default async function AdminLeadDetailPage({
         <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
           {/* 좌측: 5. AI 진단 결과 (CHECK / VERIFY / REGISTER 3가지 구조 분기) */}
           <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-gray-700">AI 진단 결과</p>
-              {typeof activeScore === "number" && (
-                <span className="text-sm font-bold text-gray-900">{activeScore}%</span>
-              )}
+            <p className="text-xs font-semibold text-gray-700">AI 진단 결과</p>
+
+            {/* KPI 영역 — 기존 파생 변수(activeScore/riskInfo/resultInfo)만 재사용, 새 계산 없음.
+                모바일 2열, PC(lg 이상) 3열 */}
+            <div className="mt-3 grid grid-cols-2 gap-2.5 lg:grid-cols-3">
+              <div className="rounded-xl bg-gray-50 px-3 py-3">
+                <p className="text-[10px] text-gray-400">AI 점수</p>
+                <p className="mt-1 text-xl font-bold text-gray-900">
+                  {typeof activeScore === "number" ? `${activeScore}%` : "-"}
+                </p>
+              </div>
+              <div className="rounded-xl bg-gray-50 px-3 py-3">
+                <p className="text-[10px] text-gray-400">리스크</p>
+                {riskInfo ? (
+                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
+                    {riskInfo.label}
+                  </span>
+                ) : (
+                  <p className="mt-1 text-xs font-semibold text-gray-900">-</p>
+                )}
+              </div>
+              <div className="rounded-xl bg-gray-50 px-3 py-3">
+                <p className="text-[10px] text-gray-400">결과</p>
+                {resultInfo ? (
+                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${resultInfo.color}`}>
+                    {resultInfo.label}
+                  </span>
+                ) : (
+                  <p className="mt-1 text-xs font-semibold text-gray-900">-</p>
+                )}
+              </div>
             </div>
 
             {activeBrief ? (
               <>
-                {riskInfo && (
-                  <span className={`inline-block mt-2 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
-                    리스크 {riskInfo.label}
-                  </span>
-                )}
                 {activeBrief.summary && (
                   <p className="mt-3 text-xs text-gray-600 leading-relaxed">{activeBrief.summary}</p>
                 )}
