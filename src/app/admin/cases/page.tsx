@@ -358,6 +358,16 @@ export default async function AdminCasesPage({
   const normalizedQuery = q.toLowerCase();
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayLeads = leads.filter((lead) => new Date(lead.created_at) >= startOfToday);
+  const todayCountByCategory = new Map<CategoryKey, number>();
+  for (const lead of todayLeads) {
+    const categoryKey = getCategory(lead.service_type);
+    todayCountByCategory.set(
+      categoryKey,
+      (todayCountByCategory.get(categoryKey) ?? 0) + 1
+    );
+  }
+
   const periodStart = (() => {
     if (period === "today") return startOfToday;
     if (period === "7d") {
@@ -452,13 +462,19 @@ export default async function AdminCasesPage({
         <div className="space-y-5 p-5">
           <FilterRow label="콘텐츠">
             {[
-              ["all", "전체"],
-              ["check", "직접확인하기 CHECK"],
-              ["verify", "직접검토하기 VERIFY"],
-              ["permit", "직접허가받기 REGISTER"],
-              ["consultation", "상담문의"],
-            ].map(([value, label]) => (
-              <FilterChip key={value} href={buildHref({ content: value, filterService: "all" })} active={content === value} label={label} />
+              ["all", "전체", todayLeads.length],
+              ["check", "직접확인하기 CHECK", todayCountByCategory.get("check") ?? 0],
+              ["verify", "직접검토하기 VERIFY", todayCountByCategory.get("verify") ?? 0],
+              ["permit", "직접허가받기 REGISTER", todayCountByCategory.get("permit") ?? 0],
+              ["consultation", "상담받기", todayCountByCategory.get("consultation") ?? 0],
+            ].map(([value, label, todayCount]) => (
+              <FilterChip
+                key={String(value)}
+                href={buildHref({ content: String(value), filterService: "all" })}
+                active={content === value}
+                label={String(label)}
+                count={Number(todayCount)}
+              />
             ))}
           </FilterRow>
 
@@ -648,10 +664,44 @@ function FilterRow({ label, children }: { label: string; children: React.ReactNo
   );
 }
 
-function FilterChip({ href, active, label }: { href: string; active: boolean; label: string }) {
+function FilterChip({
+  href,
+  active,
+  label,
+  count,
+}: {
+  href: string;
+  active: boolean;
+  label: string;
+  count?: number;
+}) {
+  const displayCount = typeof count === "number" ? (count > 99 ? "99+" : count) : null;
+
   return (
-    <Link href={href} className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${active ? "border-blue-700 bg-blue-700 text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"}`}>
-      {label}
+    <Link
+      href={href}
+      className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+        active
+          ? "border-blue-700 bg-blue-700 text-white shadow-sm"
+          : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+      }`}
+    >
+      <span>{label}</span>
+      {displayCount !== null && (
+        <span
+          title={`오늘 신규 ${count}건`}
+          aria-label={`오늘 신규 ${count}건`}
+          className={`inline-flex min-h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold leading-none ${
+            active
+              ? "bg-white text-blue-700"
+              : count && count > 0
+              ? "bg-blue-600 text-white"
+              : "bg-slate-100 text-slate-400"
+          }`}
+        >
+          {displayCount}
+        </span>
+      )}
     </Link>
   );
 }
