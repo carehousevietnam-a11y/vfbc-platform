@@ -668,7 +668,7 @@ export default async function AdminLeadDetailPage({
           {/* 1. 고객 기본정보 */}
           <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <p className="text-xs font-semibold text-gray-700">고객 기본정보</p>
-            <div className="mt-2 grid grid-cols-2 gap-y-1.5 text-xs">
+            <div className="mt-2 grid grid-cols-2 gap-y-1 text-xs">
               <span className="text-gray-500">전화번호</span>
               <span className="font-medium text-gray-900">{lead.phone ?? "-"}</span>
               <span className="text-gray-500">이메일</span>
@@ -705,6 +705,21 @@ export default async function AdminLeadDetailPage({
         {/* 진행 단계 관리 (신규) — 가로형 트랙 UI로 개편, 모바일은 세로형 자동 전환 */}
         <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <p className="text-xs font-semibold text-gray-700">진행 단계 관리</p>
+
+          {/* 현재 단계·다음 단계 요약 — 기존 currentStageLabel/nextStep 값만 재사용, 새 계산 없음 */}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-700">
+              현재 단계 · {currentStageLabel}
+            </span>
+            {nextStep && (
+              <>
+                <span className="text-[11px] text-gray-300">→</span>
+                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-900">
+                  다음 단계 · {nextStep.label}
+                </span>
+              </>
+            )}
+          </div>
 
           {/* 가로형 단계 트랙 (sm 이상) / 세로형 (모바일) */}
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-0">
@@ -873,19 +888,19 @@ export default async function AdminLeadDetailPage({
                 {(activeBrief.checkedItems?.length ?? 0) > 0 && (
                   <div className="mt-4">
                     <p className="text-xs font-semibold text-gray-700">항목별 확인 결과</p>
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-2 space-y-1.5">
                       {(activeBrief.checkedItems ?? []).map((item: ExpertChecklistItem, i: number) => (
-                        <div key={i} className="rounded-xl bg-gray-50 px-3 py-2.5">
+                        <div key={i} className="rounded-xl bg-gray-50 px-3 py-1.5">
                           <div className="flex items-center gap-2 text-xs font-semibold text-gray-800">
                             {item.passed ? (
                               <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
                             ) : (
                               <AlertTriangle size={14} className="text-amber-600 shrink-0" />
                             )}
-                            {item.label}
+                            <span className="truncate">{item.label}</span>
                           </div>
                           {item.reason && (
-                            <p className="mt-1 text-[11px] text-gray-500 pl-[22px]">{item.reason}</p>
+                            <p className="mt-0.5 truncate text-[11px] text-gray-500 pl-[22px]">{item.reason}</p>
                           )}
                         </div>
                       ))}
@@ -957,70 +972,16 @@ export default async function AdminLeadDetailPage({
           <div className="self-start rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <p className="text-xs font-semibold text-gray-700">문서 관리</p>
 
-            {fileUrl || customerDocuments.length > 0 || questionStageSubmittedDocument ? (
-              <div className="mt-3 divide-y divide-gray-100">
-                {/* 4. 첨부 서류 */}
-                {fileUrl && (
-                  <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                      <Paperclip size={14} className="text-blue-700" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-gray-800">
-                        {fileName ?? "첨부파일"}
-                      </p>
-                    </div>
-                    <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                      제출완료
-                    </span>
-                    <a
-                      href={fileUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
-                    >
-                      열기
-                    </a>
-                  </div>
-                )}
-
-                {/* 4-1. 고객 추가 제출 자료 (action="document_upload", Signed URL) */}
-                {customerDocuments.map((doc) => (
-                  <div key={doc.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                      <Paperclip size={14} className="text-blue-700" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
-                      <p className="mt-0.5 truncate text-[11px] text-gray-400">
-                        {new Date(doc.createdAt).toLocaleString("ko-KR")}
-                      </p>
-                    </div>
-                    {doc.signedUrl ? (
-                      <>
-                        <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                          제출완료
-                        </span>
-                        <a
-                          href={doc.signedUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
-                        >
-                          열기
-                        </a>
-                      </>
-                    ) : (
-                      <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
-                        열람 불가
-                      </span>
-                    )}
-                  </div>
-                ))}
-
-                {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용 — 링크 없음) */}
-                {questionStageSubmittedDocument && (
-                  <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+            {/* 3개 고정 섹션(질문 단계 제출자료/추가 제출자료/허가증)을 항상 표시 —
+                각 섹션은 기존에 이미 계산된 값(fileUrl/customerDocuments/
+                questionStageSubmittedDocument/permitFileUrl)만 그대로 재사용하고,
+                값이 없을 때만 "현재 제출된 문서가 없습니다."를 보여준다. 새 계산 없음. */}
+            <div className="mt-3 space-y-3">
+              {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용 — 링크 없음) */}
+              <div>
+                <p className="text-[10px] font-semibold text-gray-400">질문 단계 제출자료</p>
+                {questionStageSubmittedDocument ? (
+                  <div className="mt-1.5 flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
                       <Paperclip size={14} className="text-blue-700" />
                     </div>
@@ -1037,11 +998,108 @@ export default async function AdminLeadDetailPage({
                       이미 제출됨
                     </span>
                   </div>
+                ) : (
+                  <p className="mt-1.5 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
                 )}
               </div>
-            ) : (
-              <p className="mt-3 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
-            )}
+
+              {/* 4, 4-1. 추가 제출 자료 (첨부 서류 fileUrl + action="document_upload" customerDocuments) */}
+              <div>
+                <p className="text-[10px] font-semibold text-gray-400">추가 제출자료</p>
+                {fileUrl || customerDocuments.length > 0 ? (
+                  <div className="mt-1.5 space-y-1.5">
+                    {fileUrl && (
+                      <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                          <Paperclip size={14} className="text-blue-700" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-semibold text-gray-800">
+                            {fileName ?? "첨부파일"}
+                          </p>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                          제출완료
+                        </span>
+                        <a
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
+                        >
+                          열기
+                        </a>
+                      </div>
+                    )}
+
+                    {customerDocuments.map((doc) => (
+                      <div key={doc.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                          <Paperclip size={14} className="text-blue-700" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-semibold text-gray-800">{doc.tag ?? "문서"}</p>
+                          <p className="mt-0.5 truncate text-[11px] text-gray-400">
+                            {new Date(doc.createdAt).toLocaleString("ko-KR")}
+                          </p>
+                        </div>
+                        {doc.signedUrl ? (
+                          <>
+                            <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                              제출완료
+                            </span>
+                            <a
+                              href={doc.signedUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
+                            >
+                              열기
+                            </a>
+                          </>
+                        ) : (
+                          <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                            열람 불가
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-1.5 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
+                )}
+              </div>
+
+              {/* 허가증 (진행 단계 "허가 완료" 첨부파일 — 기존 permitFileUrl/permitFileName 재사용, 새 계산 없음) */}
+              <div>
+                <p className="text-[10px] font-semibold text-gray-400">허가증</p>
+                {permitFileUrl ? (
+                  <div className="mt-1.5 flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                      <Paperclip size={14} className="text-blue-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-gray-800">
+                        {permitFileName ?? "허가증 파일"}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                      제출완료
+                    </span>
+                    <a
+                      href={permitFileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 text-[11px] font-medium text-blue-900 hover:underline"
+                    >
+                      열기
+                    </a>
+                  </div>
+                ) : (
+                  <p className="mt-1.5 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1083,7 +1141,7 @@ export default async function AdminLeadDetailPage({
               <textarea
                 name="memo"
                 required
-                rows={3}
+                rows={2}
                 placeholder="상담 내용, 특이사항 등을 기록하세요"
                 className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-900 focus:outline-none resize-none"
               />
