@@ -136,6 +136,9 @@ export default async function AdminCasesPage({
   const service = (typeof sp.service === "string" && sp.service) || null;
   const date = (typeof sp.date === "string" && sp.date) || null;
   const q = (typeof sp.q === "string" && sp.q.trim()) || "";
+  const content = (typeof sp.content === "string" && sp.content) || "all";
+  const period = (typeof sp.period === "string" && sp.period) || "all";
+  const filterService = (typeof sp.filterService === "string" && sp.filterService) || "all";
 
   const { data: allLeads, error: leadsError } = await supabaseAdmin
     .from("leads")
@@ -336,124 +339,178 @@ export default async function AdminCasesPage({
     .select("id", { count: "exact", head: true });
 
   const normalizedQuery = q.toLowerCase();
-  const filteredLeads = normalizedQuery
-    ? leads.filter((lead) => {
-        const serviceLabel = lead.service_type
-          ? getServiceLabel(lead.service_type).toLowerCase()
-          : "";
-        return [lead.name, lead.phone, lead.email, lead.service_type, serviceLabel]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
-      })
-    : leads;
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const periodStart = (() => {
+    if (period === "today") return startOfToday;
+    if (period === "7d") {
+      const d = new Date(startOfToday);
+      d.setDate(d.getDate() - 6);
+      return d;
+    }
+    if (period === "30d") {
+      const d = new Date(startOfToday);
+      d.setDate(d.getDate() - 29);
+      return d;
+    }
+    return null;
+  })();
+
+  const visibleServices = Array.from(
+    new Set(
+      leads
+        .filter((lead) => content === "all" || getCategory(lead.service_type) === content)
+        .map((lead) => lead.service_type)
+        .filter((value): value is string => Boolean(value))
+    )
+  ).sort((a, b) => getServiceLabel(a).localeCompare(getServiceLabel(b), "ko"));
+
+  const filteredLeads = leads.filter((lead) => {
+    const categoryMatch = content === "all" || getCategory(lead.service_type) === content;
+    const serviceMatch = filterService === "all" || lead.service_type === filterService;
+    const periodMatch = !periodStart || new Date(lead.created_at) >= periodStart;
+    const searchMatch = !normalizedQuery || (() => {
+      const serviceLabel = lead.service_type
+        ? getServiceLabel(lead.service_type).toLowerCase()
+        : "";
+      return [lead.name, lead.phone, lead.email, lead.service_type, serviceLabel]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+    })();
+    return categoryMatch && serviceMatch && periodMatch && searchMatch;
+  });
+
+  const groupedByDate = new Map<string, typeof filteredLeads>();
+  for (const lead of filteredLeads) {
+    const key = dateKeyOf(lead.created_at);
+    const group = groupedByDate.get(key) ?? [];
+    group.push(lead);
+    groupedByDate.set(key, group);
+  }
+  const dateGroups = Array.from(groupedByDate.entries()).sort((a, b) =>
+    a[0] < b[0] ? 1 : -1
+  );
 
   const serviceCount = new Set(leads.map((lead) => lead.service_type).filter(Boolean)).size;
+  const buildHref = (overrides: Record<string, string>) => {
+    const params = new URLSearchParams();
+    const next = { q, content, period, filterService, ...overrides };
+    if (next.q) params.set("q", next.q);
+    if (next.content && next.content !== "all") params.set("content", next.content);
+    if (next.period && next.period !== "all") params.set("period", next.period);
+    if (next.filterService && next.filterService !== "all") params.set("filterService", next.filterService);
+    const query = params.toString();
+    return query ? `/admin/cases?${query}` : "/admin/cases";
+  };
 
   return (
     <Shell>
-      <PageHeader title="신청건 관리" description="전체 신청건을 관리합니다." />
+      <PageHeader title="신청건 관리" description="전체 신청건을 날짜와 콘텐츠별로 관리합니다." />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          label="전체 신청건"
-          value={leads.length}
-          caption="현재 조회된 전체 리드"
-          icon={<CasesIcon />}
-        />
-        <KpiCard
-          label="전문가 진행요청"
-          value={agencyLeadIds.size}
-          caption="전문가 연결 요청 건"
-          icon={<ExpertIcon />}
-        />
-        <KpiCard
-          label="서비스 종류"
-          value={serviceCount}
-          caption="현재 접수된 서비스 유형"
-          icon={<ServiceIcon />}
-        />
-        <KpiCard
-          label="거절이력"
-          value={rejectionCount ?? 0}
-          caption="타 기관 거절 등록 건"
-          icon={<RejectionIcon />}
-        />
+        <KpiCard label="전체 신청건" value={leads.length} caption="현재 조회된 전체 리드" icon={<CasesIcon />} />
+        <KpiCard label="전문가 진행요청" value={agencyLeadIds.size} caption="전문가 연결 요청 건" icon={<ExpertIcon />} />
+        <KpiCard label="서비스 종류" value={serviceCount} caption="현재 접수된 서비스 유형" icon={<ServiceIcon />} />
+        <KpiCard label="거절이력" value={rejectionCount ?? 0} caption="타 기관 거절 등록 건" icon={<RejectionIcon />} />
       </div>
 
-      <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="text-base font-bold text-slate-950">전체 신청건</h2>
-              <p className="mt-1 text-xs text-slate-500">
-                고객 정보와 업무 상태를 한 화면에서 확인합니다.
-              </p>
-            </div>
-
-            <form action="/admin/cases" method="get" className="flex w-full gap-2 lg:max-w-xl">
-              <label className="relative min-w-0 flex-1">
-                <span className="sr-only">신청건 검색</span>
-                <SearchIcon />
-                <input
-                  name="q"
-                  defaultValue={q}
-                  placeholder="이름, 전화번호, 이메일, 서비스 검색"
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
-                />
-              </label>
-              <button
-                type="submit"
-                className="h-11 shrink-0 rounded-xl bg-blue-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
-              >
-                검색
-              </button>
-              {q && (
-                <Link
-                  href="/admin/cases"
-                  className="flex h-11 shrink-0 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
-                >
-                  초기화
-                </Link>
-              )}
-            </form>
-          </div>
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 p-5">
+          <form action="/admin/cases" method="get" className="flex flex-col gap-3 sm:flex-row">
+            {content !== "all" && <input type="hidden" name="content" value={content} />}
+            {period !== "all" && <input type="hidden" name="period" value={period} />}
+            {filterService !== "all" && <input type="hidden" name="filterService" value={filterService} />}
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">신청건 검색</span>
+              <SearchIcon />
+              <input name="q" defaultValue={q} placeholder="이름, 전화번호, 이메일, 서비스 검색" className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50" />
+            </label>
+            <button type="submit" className="h-12 rounded-xl bg-blue-700 px-6 text-sm font-semibold text-white hover:bg-blue-800">검색</button>
+            {(q || content !== "all" || period !== "all" || filterService !== "all") && (
+              <Link href="/admin/cases" className="flex h-12 items-center justify-center rounded-xl border border-slate-200 px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50">전체 초기화</Link>
+            )}
+          </form>
         </div>
 
-        <div className="lg:hidden">
-          {filteredLeads.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {filteredLeads.map((lead) => (
-                <LeadMobileCard
-                  key={lead.id}
-                  lead={lead}
-                  category={getCategory(lead.service_type)}
-                  isAgency={agencyLeadIds.has(lead.id)}
-                  isRejected={false}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <div className="space-y-5 p-5">
+          <FilterRow label="콘텐츠">
+            {[
+              ["all", "전체"],
+              ["check", "직접확인하기 CHECK"],
+              ["verify", "직접검토하기 VERIFY"],
+              ["permit", "직접허가받기 REGISTER"],
+              ["consultation", "상담문의"],
+            ].map(([value, label]) => (
+              <FilterChip key={value} href={buildHref({ content: value, filterService: "all" })} active={content === value} label={label} />
+            ))}
+          </FilterRow>
 
-        <div className="hidden lg:block">
-          <LeadTable leads={filteredLeads} agencyLeadIds={agencyLeadIds} />
-        </div>
+          <FilterRow label="기간">
+            {[["all", "전체"], ["today", "오늘"], ["7d", "최근 7일"], ["30d", "최근 30일"]].map(([value, label]) => (
+              <FilterChip key={value} href={buildHref({ period: value })} active={period === value} label={label} />
+            ))}
+          </FilterRow>
 
-        <div className="flex items-center justify-between border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
-          <span>{q ? `검색 결과 ${filteredLeads.length}건` : `총 ${leads.length}건`}</span>
-          <span>최대 2,000건 표시</span>
+          <FilterRow label="서비스">
+            <FilterChip href={buildHref({ filterService: "all" })} active={filterService === "all"} label="전체 서비스" />
+            {visibleServices.map((svc) => (
+              <FilterChip key={svc} href={buildHref({ filterService: svc })} active={filterService === svc} label={getServiceLabel(svc)} />
+            ))}
+          </FilterRow>
         </div>
       </section>
 
+      <div className="mt-6 space-y-6">
+        {dateGroups.length === 0 && (
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm"><EmptyState /></div>
+        )}
+        {dateGroups.map(([dateKey, dateLeads]) => (
+          <section key={dateKey} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
+              <div>
+                <h2 className="text-base font-bold text-slate-950">{formatDateKey(dateKey)}</h2>
+                <p className="mt-1 text-xs text-slate-500">이 날짜에 접수된 신청건</p>
+              </div>
+              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{dateLeads.length}건</span>
+            </div>
+            <div className="lg:hidden divide-y divide-slate-100">
+              {dateLeads.map((lead) => (
+                <LeadMobileCard key={lead.id} lead={lead} category={getCategory(lead.service_type)} isAgency={agencyLeadIds.has(lead.id)} isRejected={false} />
+              ))}
+            </div>
+            <div className="hidden lg:block">
+              <LeadTable leads={dateLeads} agencyLeadIds={agencyLeadIds} />
+            </div>
+          </section>
+        ))}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+        <span>필터 결과 {filteredLeads.length}건</span>
+        <span>최대 2,000건 표시</span>
+      </div>
+
       {byCategory.has("unclassified") && (
-        <p className="mt-4 text-xs text-amber-700">
-          매핑되지 않은 service_type이 있습니다 — CHECK_SERVICE_TYPES 또는
-          SERVICE_TYPE_ALIASES 목록을 확인해주세요.
-        </p>
+        <p className="mt-4 text-xs text-amber-700">매핑되지 않은 service_type이 있습니다 — CHECK_SERVICE_TYPES 또는 SERVICE_TYPE_ALIASES 목록을 확인해주세요.</p>
       )}
     </Shell>
+  );
+}
+
+function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+      <div className="w-20 shrink-0 pt-2 text-xs font-bold uppercase tracking-wide text-slate-400">{label}</div>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </div>
+  );
+}
+
+function FilterChip({ href, active, label }: { href: string; active: boolean; label: string }) {
+  return (
+    <Link href={href} className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${active ? "border-blue-700 bg-blue-700 text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"}`}>
+      {label}
+    </Link>
   );
 }
 
@@ -685,7 +742,7 @@ function Shell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
 
-          <div className="mx-auto w-full max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="w-full px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             {children}
           </div>
         </div>
