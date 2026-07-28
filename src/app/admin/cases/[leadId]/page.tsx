@@ -636,15 +636,15 @@ export default async function AdminLeadDetailPage({
             serviceLabel, currentStageLabel, consultationStatus, activeScore, riskInfo,
             resultInfo)만 재배치, 새 조회·새 계산 없음. PC 3열(고객/서비스/AI 요약),
             모바일은 세로 스택 */}
-        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:divide-x lg:divide-gray-100">
+        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="grid grid-cols-1 gap-7 lg:grid-cols-3 lg:divide-x lg:divide-gray-100">
             {/* 좌측: 고객 정보 */}
-            <div className="lg:pr-6">
+            <div className="lg:pr-7">
               <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
                 <User size={12} /> 고객 정보
               </p>
-              <p className="mt-2 text-base font-bold text-gray-900">{lead.name}</p>
-              <div className="mt-2 space-y-1.5 text-xs">
+              <p className="mt-2.5 text-xl font-bold tracking-tight text-gray-900">{lead.name}</p>
+              <div className="mt-3 space-y-2 text-xs">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-gray-500">연락처</span>
                   <span className="font-medium text-gray-900">{lead.phone ?? "-"}</span>
@@ -657,11 +657,11 @@ export default async function AdminLeadDetailPage({
             </div>
 
             {/* 가운데: 서비스 / 현재 단계 / 접수일 */}
-            <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:px-6 lg:pt-0">
+            <div className="border-t border-gray-100 pt-7 lg:border-t-0 lg:px-7 lg:pt-0">
               <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
                 <FileText size={12} /> 서비스 정보
               </p>
-              <div className="mt-2 space-y-1.5 text-xs">
+              <div className="mt-3 space-y-2 text-xs">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-gray-500">서비스</span>
                   <span className="font-medium text-gray-900">{serviceLabel}</span>
@@ -681,46 +681,30 @@ export default async function AdminLeadDetailPage({
               </div>
             </div>
 
-            {/* 우측: AI 점수 / 리스크 / 결과 / 상담 상태 */}
-            <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:pl-6">
+            {/* 우측: AI 점수(최강조) + 리스크/결과/상담상태 배지 */}
+            <div className="border-t border-gray-100 pt-7 lg:border-t-0 lg:pl-7">
               <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
                 <Brain size={12} /> AI 진단 요약
               </p>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-gray-50 px-3 py-2">
-                  <p className="text-[10px] text-gray-400">AI 점수</p>
-                  <p className="mt-0.5 text-xs font-semibold text-gray-900">
-                    {typeof activeScore === "number" ? `${activeScore}%` : "-"}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-gray-50 px-3 py-2">
-                  <p className="flex items-center gap-1 text-[10px] text-gray-400">
-                    <AlertTriangle size={10} /> 리스크
-                  </p>
-                  {riskInfo ? (
-                    <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
-                      {riskInfo.label}
-                    </span>
-                  ) : (
-                    <p className="mt-0.5 text-xs font-semibold text-gray-900">-</p>
-                  )}
-                </div>
-                <div className="rounded-xl bg-gray-50 px-3 py-2">
-                  <p className="text-[10px] text-gray-400">결과</p>
-                  {resultInfo ? (
-                    <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${resultInfo.color}`}>
-                      {resultInfo.label}
-                    </span>
-                  ) : (
-                    <p className="mt-0.5 text-xs font-semibold text-gray-900">-</p>
-                  )}
-                </div>
-                <div className="rounded-xl bg-gray-50 px-3 py-2">
-                  <p className="text-[10px] text-gray-400">상담 상태</p>
-                  <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${consultationStatus.color}`}>
-                    {consultationStatus.label}
+              <p className="mt-2 text-4xl font-extrabold tracking-tight text-blue-900">
+                {typeof activeScore === "number" ? `${activeScore}%` : "-"}
+              </p>
+              <p className="mt-0.5 text-[11px] text-gray-400">AI 점수</p>
+
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {riskInfo && (
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${riskInfo.color}`}>
+                    리스크 {riskInfo.label}
                   </span>
-                </div>
+                )}
+                {resultInfo && (
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${resultInfo.color}`}>
+                    결과 {resultInfo.label}
+                  </span>
+                )}
+                <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${consultationStatus.color}`}>
+                  {consultationStatus.label}
+                </span>
               </div>
             </div>
           </div>
@@ -756,23 +740,23 @@ export default async function AdminLeadDetailPage({
                 >
                   {i > 0 && (
                     <div
-                      className={`hidden sm:block absolute left-[-50%] right-[50%] top-[14px] h-px z-0 ${
+                      className={`hidden sm:block absolute left-[-50%] right-[50%] top-[16px] h-[2px] z-0 ${
                         step.done ? "bg-emerald-400" : "bg-gray-200"
                       }`}
                     />
                   )}
-                  <div className="relative z-10 flex items-center gap-2 sm:flex-col sm:gap-1.5 sm:px-2">
+                  <div className="relative z-10 flex items-center gap-2.5 sm:flex-col sm:gap-2 sm:px-2">
                     <div
                       className={
                         step.done
-                          ? "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white"
+                          ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white"
                           : isNextStep
-                          ? "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-white ring-4 ring-blue-100"
-                          : "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-400"
+                          ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-900 text-white ring-[5px] ring-blue-100"
+                          : "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-400"
                       }
                     >
                       {step.done ? (
-                        <CheckCircle2 size={15} />
+                        <CheckCircle2 size={16} />
                       ) : (
                         <span className="text-[11px] font-semibold">{i + 1}</span>
                       )}
@@ -878,7 +862,7 @@ export default async function AdminLeadDetailPage({
             <div className="mt-3 grid grid-cols-2 gap-2.5 lg:grid-cols-3">
               <div className="rounded-xl bg-gray-50 px-3 py-3">
                 <p className="text-[10px] text-gray-400">AI 점수</p>
-                <p className="mt-1 text-center text-xl font-bold text-gray-900">
+                <p className="mt-1 text-center text-2xl font-extrabold text-blue-900">
                   {typeof activeScore === "number" ? `${activeScore}%` : "-"}
                 </p>
               </div>
@@ -907,15 +891,15 @@ export default async function AdminLeadDetailPage({
             {activeBrief ? (
               <>
                 {activeBrief.summary && (
-                  <p className="mt-3 text-xs text-gray-600 leading-relaxed">{activeBrief.summary}</p>
+                  <p className="mt-4 text-xs text-gray-600 leading-relaxed">{activeBrief.summary}</p>
                 )}
                 {(activeBrief.checkedItems?.length ?? 0) > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs font-semibold text-gray-700">항목별 확인 결과</p>
-                    <div className="mt-2 space-y-1.5">
+                  <div className="mt-5">
+                    <p className="text-[13px] font-semibold text-gray-700">항목별 확인 결과</p>
+                    <div className="mt-2.5 space-y-1.5">
                       {(activeBrief.checkedItems ?? []).map((item: ExpertChecklistItem, i: number) => (
-                        <div key={i} className="rounded-xl bg-gray-50 px-3 py-1.5">
-                          <div className="flex items-center gap-2 text-[13px] font-semibold text-gray-800">
+                        <div key={i} className="rounded-xl bg-gray-50 px-3 py-2">
+                          <div className="flex items-center gap-2.5 text-[13px] font-semibold text-gray-800">
                             {item.passed ? (
                               <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
                             ) : (
@@ -924,7 +908,7 @@ export default async function AdminLeadDetailPage({
                             <span className="truncate">{item.label}</span>
                           </div>
                           {item.reason && (
-                            <p className="mt-0.5 truncate text-[11px] text-gray-500 pl-[24px]">{item.reason}</p>
+                            <p className="mt-1 truncate text-[11px] text-gray-500 pl-[26px]">{item.reason}</p>
                           )}
                         </div>
                       ))}
@@ -932,33 +916,33 @@ export default async function AdminLeadDetailPage({
                   </div>
                 )}
                 {(activeBrief.rejectionRisks?.length ?? 0) > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs font-semibold text-gray-700">주요 위험 요인</p>
-                    <ol className="mt-2 space-y-1 list-decimal pl-4">
+                  <div className="mt-5">
+                    <p className="text-[13px] font-semibold text-gray-700">주요 위험 요인</p>
+                    <ol className="mt-2.5 space-y-1.5 list-decimal pl-4">
                       {[...(activeBrief.rejectionRisks ?? [])]
                         .sort((a: ExpertRejectionRisk, b: ExpertRejectionRisk) => a.rank - b.rank)
                         .map((r: ExpertRejectionRisk, i: number) => (
-                          <li key={i} className="text-xs text-red-700">{r.reason}</li>
+                          <li key={i} className="text-xs text-red-700 leading-relaxed">{r.reason}</li>
                         ))}
                     </ol>
                   </div>
                 )}
                 {(activeBrief.recommendedSteps?.length ?? 0) > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs font-semibold text-gray-700">권장 조치</p>
-                    <ul className="mt-2 space-y-1">
+                  <div className="mt-5">
+                    <p className="text-[13px] font-semibold text-gray-700">권장 조치</p>
+                    <ul className="mt-2.5 space-y-1.5">
                       {(activeBrief.recommendedSteps ?? []).map((s: string, i: number) => (
-                        <li key={i} className="text-xs text-gray-600 pl-1">· {s}</li>
+                        <li key={i} className="text-xs text-gray-600 leading-relaxed pl-1">· {s}</li>
                       ))}
                     </ul>
                   </div>
                 )}
                 {(activeBrief.similarCases?.length ?? 0) > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs font-semibold text-gray-700">유사 사례</p>
-                    <ul className="mt-2 space-y-1">
+                  <div className="mt-5">
+                    <p className="text-[13px] font-semibold text-gray-700">유사 사례</p>
+                    <ul className="mt-2.5 space-y-1.5">
                       {(activeBrief.similarCases ?? []).map((c: string, i: number) => (
-                        <li key={i} className="text-xs text-gray-600 pl-1">· {c}</li>
+                        <li key={i} className="text-xs text-gray-600 leading-relaxed pl-1">· {c}</li>
                       ))}
                     </ul>
                   </div>
