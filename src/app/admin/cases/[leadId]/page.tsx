@@ -32,6 +32,10 @@ import {
   CheckCircle2,
   Paperclip,
   Info,
+  User,
+  FileText,
+  MapPin,
+  Brain,
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyStageChange, type StageChangeAction } from "@/lib/notify/stageChange";
@@ -633,25 +637,35 @@ export default async function AdminLeadDetailPage({
           <p className="text-xs font-semibold text-gray-700">고객 요약</p>
           <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
             <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="text-[10px] text-gray-400">고객</p>
+              <p className="flex items-center gap-1 text-[10px] text-gray-400">
+                <User size={10} /> 고객
+              </p>
               <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{lead.name}</p>
             </div>
             <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="text-[10px] text-gray-400">서비스</p>
+              <p className="flex items-center gap-1 text-[10px] text-gray-400">
+                <FileText size={10} /> 서비스
+              </p>
               <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{serviceLabel}</p>
             </div>
             <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="text-[10px] text-gray-400">현재 단계</p>
+              <p className="flex items-center gap-1 text-[10px] text-gray-400">
+                <MapPin size={10} /> 현재 단계
+              </p>
               <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{currentStageLabel}</p>
             </div>
             <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="text-[10px] text-gray-400">AI 점수</p>
+              <p className="flex items-center gap-1 text-[10px] text-gray-400">
+                <Brain size={10} /> AI 점수
+              </p>
               <p className="mt-0.5 text-xs font-semibold text-gray-900">
                 {typeof activeScore === "number" ? `${activeScore}%` : "-"}
               </p>
             </div>
             <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="text-[10px] text-gray-400">리스크</p>
+              <p className="flex items-center gap-1 text-[10px] text-gray-400">
+                <AlertTriangle size={10} /> 리스크
+              </p>
               {riskInfo ? (
                 <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
                   {riskInfo.label}
@@ -854,7 +868,7 @@ export default async function AdminLeadDetailPage({
             <div className="mt-3 grid grid-cols-2 gap-2.5 lg:grid-cols-3">
               <div className="rounded-xl bg-gray-50 px-3 py-3">
                 <p className="text-[10px] text-gray-400">AI 점수</p>
-                <p className="mt-1 text-xl font-bold text-gray-900">
+                <p className="mt-1 text-center text-xl font-bold text-gray-900">
                   {typeof activeScore === "number" ? `${activeScore}%` : "-"}
                 </p>
               </div>
@@ -999,7 +1013,9 @@ export default async function AdminLeadDetailPage({
                     </span>
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-400">○ 미제출</p>
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                    미제출
+                  </span>
                 )}
               </div>
 
@@ -1066,7 +1082,9 @@ export default async function AdminLeadDetailPage({
                     ))}
                   </div>
                 ) : (
-                  <p className="pt-0.5 text-xs text-gray-400">○ 미제출</p>
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                    미제출
+                  </span>
                 )}
               </div>
 
@@ -1096,7 +1114,9 @@ export default async function AdminLeadDetailPage({
                     </a>
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-400">○ 미제출</p>
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                    미제출
+                  </span>
                 )}
               </div>
             </div>
@@ -1165,7 +1185,7 @@ export default async function AdminLeadDetailPage({
                 <div key={a.id} className="flex items-start gap-2.5 rounded-xl bg-gray-50 px-3 py-2">
                   <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${getActivityDotColor(a.action)}`} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-gray-800">
+                    <p className="text-xs font-bold text-gray-800">
                       {getActivityLabel(a.action)}
                       {a.tag && <span className="ml-1.5 font-normal text-gray-400">· {a.tag}</span>}
                     </p>
