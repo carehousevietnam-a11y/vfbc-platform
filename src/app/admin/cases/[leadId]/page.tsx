@@ -805,50 +805,50 @@ export default async function AdminLeadDetailPage({
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+              <section className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-[14px] font-extrabold">AI 진단 결과</h2>
                   <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">진단 완료</span>
                 </div>
 
-                <div className="mt-3 grid overflow-hidden rounded-xl border border-slate-100 sm:grid-cols-[1.45fr_repeat(4,1fr)]">
-                  <div className="border-b border-emerald-100 bg-emerald-50/60 p-3 sm:border-b-0 sm:border-r">
+                <div className="mt-2.5 grid overflow-hidden rounded-xl border border-slate-100 sm:grid-cols-[1.45fr_repeat(4,1fr)]">
+                  <div className="border-b border-emerald-100 bg-emerald-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[11px] font-semibold text-slate-500">종합 결과</p>
-                    <p className="mt-1 text-[21px] font-extrabold text-emerald-700">{resultInfo?.label ?? "-"}</p>
+                    <p className="mt-1 text-[19px] font-extrabold text-emerald-700">{resultInfo?.label ?? "-"}</p>
                     <p className="mt-1 text-[11px] leading-relaxed text-slate-500">일부 보완 후 진행 가능합니다.</p>
                   </div>
-                  <div className="border-b border-blue-100 bg-blue-50/60 p-3 sm:border-b-0 sm:border-r">
+                  <div className="border-b border-blue-100 bg-blue-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[10px] font-semibold text-slate-400">가능성 점수</p>
-                    <p className="mt-2 text-[18px] font-extrabold text-slate-900">
+                    <p className="mt-2 text-[17px] font-extrabold text-slate-900">
                       {typeof activeScore === "number" ? activeScore : "-"}
                       <span className="text-[11px] font-medium text-slate-400">/100</span>
                     </p>
                   </div>
-                  <div className="border-b border-amber-100 bg-amber-50/60 p-3 sm:border-b-0 sm:border-r">
+                  <div className="border-b border-amber-100 bg-amber-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[10px] font-semibold text-slate-400">위험도</p>
                     <p className="mt-2 text-[16px] font-extrabold text-amber-600">{riskInfo?.label ?? "-"}</p>
                   </div>
-                  <div className="border-b border-violet-100 bg-violet-50/60 p-3 sm:border-b-0 sm:border-r">
+                  <div className="border-b border-violet-100 bg-violet-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[10px] font-semibold text-slate-400">예상 소요 기간</p>
                     <p className="mt-2 text-[16px] font-extrabold text-slate-900">-</p>
                   </div>
-                  <div className="bg-cyan-50/60 p-3">
+                  <div className="bg-cyan-50/60 px-3 py-2.5">
                     <p className="text-[10px] font-semibold text-slate-400">예상 비용</p>
                     <p className="mt-2 text-[16px] font-extrabold text-slate-900">-</p>
                   </div>
                 </div>
 
-                <div className="mt-3 grid gap-4 border-t border-slate-100 pt-4 md:grid-cols-2">
+                <div className="mt-2.5 grid gap-3 border-t border-slate-100 pt-3 md:grid-cols-2">
                   <div className="md:border-r md:border-slate-100 md:pr-5">
                     <h3 className="text-[13px] font-extrabold text-slate-800">주요 위험 요인</h3>
                     {activeBrief?.rejectionRisks?.length ? (
-                      <ul className="mt-3 space-y-2 text-[12px] leading-relaxed text-slate-600">
+                      <ul className="mt-2 space-y-1.5 text-[11px] leading-relaxed text-slate-600">
                         {[...activeBrief.rejectionRisks]
                           .sort((a, b) => a.rank - b.rank)
                           .map((risk, index) => <li key={index}>• {risk.reason}</li>)}
                       </ul>
                     ) : (
-                      <p className="mt-3 text-[12px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>
+                      <p className="mt-2 text-[11px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>
                     )}
                   </div>
                   <div>
@@ -857,27 +857,27 @@ export default async function AdminLeadDetailPage({
                       <span className="rounded-md border border-blue-200 bg-white px-2.5 py-1 text-[10px] font-bold text-blue-700">상세 리포트 보기</span>
                     </div>
                     {activeBrief?.recommendedSteps?.length ? (
-                      <ul className="mt-3 space-y-2 text-[12px] leading-relaxed text-slate-600">
+                      <ul className="mt-2 space-y-1.5 text-[11px] leading-relaxed text-slate-600">
                         {activeBrief.recommendedSteps.map((step, index) => <li key={index}>• {step}</li>)}
                       </ul>
                     ) : (
-                      <p className="mt-3 text-[12px] text-slate-400">등록된 권장 조치가 없습니다.</p>
+                      <p className="mt-2 text-[11px] text-slate-400">등록된 권장 조치가 없습니다.</p>
                     )}
                   </div>
                 </div>
               </section>
             </div>
 
-            <aside className="space-y-3.5">
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-blue-100 bg-blue-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-blue-950">고객 기본 정보</h2></div><dl className="grid grid-cols-[104px_1fr] gap-y-2 p-4 text-[11px]"><dt className="text-slate-500">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-slate-500">연락처</dt><dd className="text-right font-semibold">{lead.phone??"-"}</dd><dt className="text-slate-500">이메일</dt><dd className="min-w-0 break-all text-right font-semibold">{lead.email??"-"}</dd><dt className="text-amber-700">카카오톡 ID</dt><dd className="text-right font-bold text-amber-700">{lead.kakao_id??"-"}</dd><dt className="text-blue-700">Zalo ID</dt><dd className="text-right font-bold text-blue-700">{lead.zalo_id??"-"}</dd><dt className="text-slate-500">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleDateString("ko-KR")}</dd></dl></section>
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-violet-100 bg-violet-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-violet-950">담당자 정보</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">담당자 변경</span></div><dl className="grid grid-cols-[104px_1fr] gap-y-2 p-4 text-[11px]"><dt className="text-slate-500">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-slate-400">배정일</dt><dd className="text-right font-semibold">-</dd></dl></section>
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-amber-950">내부 메모</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">메모 작성</span></div><div className="p-4">{memoActivities.length>0&&<div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px]">{String(asMeta(memoActivities[memoActivities.length-1].meta)?.memo??"")}</div>}<form action={addExpertMemo} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><textarea name="memo" required rows={3} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[11px] outline-none focus:border-blue-500"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">메모 저장</button></form></div></section>
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-red-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-red-100 bg-red-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-red-950">타 기관 거절 이력</h2></div><div className="p-4">{rejections.length?<div className="mt-3 space-y-2">{rejections.map(r=><div key={r.id} className="rounded-lg border border-red-100 p-3 text-[11px]"><div className="flex justify-between"><strong>{getServiceLabel(r.service_type)}</strong><span className="text-red-500">거절</span></div><p className="mt-1 text-slate-500">{r.reason||"사유 미기재"}</p></div>)}</div>:<p className="mt-3 text-[12px] text-slate-400">연결된 거절이력이 없습니다.</p>}</div></section>
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-emerald-100 bg-emerald-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-emerald-950">활동 타임라인</h2></div><div className="p-4">{activities.length?<div className="relative mt-2 space-y-2.5 before:absolute before:bottom-1 before:left-[5px] before:top-1 before:w-px before:bg-slate-200">{activities.slice(-6).map(a=><div key={a.id} className="relative grid grid-cols-[88px_1fr] gap-2 pl-4 text-[10px]"><span className={`absolute left-0 top-1 h-[11px] w-[11px] rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}/><span className="text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</span><div><strong className="text-blue-700">{getActivityLabel(a.action)}</strong>{a.tag&&<p className="mt-0.5 truncate text-slate-500">{a.tag}</p>}</div></div>)}</div>:<p className="mt-3 text-[12px] text-slate-400">기록된 활동이 없습니다.</p>}</div></section>
+            <aside className="space-y-2.5">
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-blue-100 bg-blue-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-blue-950">고객 기본 정보</h2></div><dl className="grid grid-cols-[104px_1fr] gap-y-1.5 px-4 py-3 text-[11px]"><dt className="text-slate-500">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-slate-500">연락처</dt><dd className="text-right font-semibold">{lead.phone??"-"}</dd><dt className="text-slate-500">이메일</dt><dd className="min-w-0 break-all text-right font-semibold">{lead.email??"-"}</dd><dt className="text-amber-700">카카오톡 ID</dt><dd className="text-right font-bold text-amber-700">{lead.kakao_id??"-"}</dd><dt className="text-blue-700">Zalo ID</dt><dd className="text-right font-bold text-blue-700">{lead.zalo_id??"-"}</dd><dt className="text-slate-500">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleDateString("ko-KR")}</dd></dl></section>
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-violet-100 bg-violet-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-violet-950">담당자 정보</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">담당자 변경</span></div><dl className="grid grid-cols-[104px_1fr] gap-y-1.5 px-4 py-3 text-[11px]"><dt className="text-slate-500">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-slate-400">배정일</dt><dd className="text-right font-semibold">-</dd></dl></section>
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-amber-950">내부 메모</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">메모 작성</span></div><div className="px-4 py-3">{memoActivities.length>0&&<div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px]">{String(asMeta(memoActivities[memoActivities.length-1].meta)?.memo??"")}</div>}<form action={addExpertMemo} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><textarea name="memo" required rows={2} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[11px] outline-none focus:border-blue-500"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">메모 저장</button></form></div></section>
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-red-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-red-100 bg-red-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-red-950">타 기관 거절 이력</h2></div><div className="px-4 py-3">{rejections.length?<div className="mt-3 space-y-2">{rejections.map(r=><div key={r.id} className="rounded-lg border border-red-100 p-3 text-[11px]"><div className="flex justify-between"><strong>{getServiceLabel(r.service_type)}</strong><span className="text-red-500">거절</span></div><p className="mt-1 text-slate-500">{r.reason||"사유 미기재"}</p></div>)}</div>:<p className="mt-2 text-[11px] text-slate-400">연결된 거절이력이 없습니다.</p>}</div></section>
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-emerald-100 bg-emerald-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-emerald-950">활동 타임라인</h2></div><div className="px-4 py-3">{activities.length?<div className="relative mt-1.5 space-y-2 before:absolute before:bottom-1 before:left-[4px] before:top-1 before:w-px before:bg-slate-200">{activities.slice(-6).map(a=><div key={a.id} className="relative grid grid-cols-[82px_1fr] gap-2 pl-4 text-[9px]"><span className={`absolute left-0 top-1 h-[9px] w-[9px] rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}/><span className="text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</span><div><strong className="text-blue-700">{getActivityLabel(a.action)}</strong>{a.tag&&<p className="mt-0.5 truncate text-slate-500">{a.tag}</p>}</div></div>)}</div>:<p className="mt-2 text-[11px] text-slate-400">기록된 활동이 없습니다.</p>}</div></section>
             </aside>
           </div>
 
-          <section className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center gap-2"><MessageSquareText size={16} className="text-blue-700"/><h2 className="text-[14px] font-extrabold">전문가 상담 요청 (Case Room)</h2></div>{consultationRequests.length===0?<p className="mt-3 text-[12px] text-slate-400">접수된 상담 요청이 없습니다.</p>:<div className="mt-4 space-y-3">{[...consultationRequests].reverse().map(req=>{const response=findResponseFor(req.id);return <div key={req.id} className="rounded-xl bg-slate-50 p-4"><div className="flex justify-between text-[11px]"><strong>고객 문의</strong><span className={response?"text-emerald-600":"text-amber-600"}>{response?"답변 완료":"미답변"}</span></div><p className="mt-2 whitespace-pre-wrap text-[11px]">{String(asMeta(req.meta)?.content??"")}</p>{response?<div className="mt-3 rounded-lg bg-blue-50 p-3 text-[12px] text-blue-900">{String(asMeta(response.meta)?.content??"")}</div>:<form action={respondToConsultation} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="requestActivityId" value={req.id}/><textarea name="content" required rows={3} className="w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-[12px]" placeholder="답변을 입력하세요"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">답변 등록</button></form>}</div>})}</div>}</section>
+          <section className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center gap-2"><MessageSquareText size={16} className="text-blue-700"/><h2 className="text-[14px] font-extrabold">전문가 상담 요청 (Case Room)</h2></div>{consultationRequests.length===0?<p className="mt-2 text-[11px] text-slate-400">접수된 상담 요청이 없습니다.</p>:<div className="mt-4 space-y-3">{[...consultationRequests].reverse().map(req=>{const response=findResponseFor(req.id);return <div key={req.id} className="rounded-xl bg-slate-50 p-4"><div className="flex justify-between text-[11px]"><strong>고객 문의</strong><span className={response?"text-emerald-600":"text-amber-600"}>{response?"답변 완료":"미답변"}</span></div><p className="mt-2 whitespace-pre-wrap text-[11px]">{String(asMeta(req.meta)?.content??"")}</p>{response?<div className="mt-3 rounded-lg bg-blue-50 p-3 text-[12px] text-blue-900">{String(asMeta(response.meta)?.content??"")}</div>:<form action={respondToConsultation} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="requestActivityId" value={req.id}/><textarea name="content" required rows={3} className="w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-[12px]" placeholder="답변을 입력하세요"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">답변 등록</button></form>}</div>})}</div>}</section>
         </div>
       </div>
     </main>
