@@ -471,6 +471,7 @@ const CASE_STAGE_OPTIONS = [
   "이의신청·통지 준비 중",
   "경찰·검찰·법원·행정기관 접수",
   "판결·결정 후 후속 대응",
+  "기타",
 ] as const;
 
 // STEP12-2: 공통 SelectionCard용 아이콘 매핑(표시 전용). 값/옵션 배열은 변경하지 않음.
@@ -504,6 +505,40 @@ const INCIDENT_TYPE_TONES: Record<string, SelectionCardTone> = {
   "노동·고용": "amber",
   "인허가": "green",
   "세무": "cyan",
+  "기타": "slate",
+};
+
+
+// 질문 3 선택지의 아이콘·색상 매핑(표시 전용).
+// 선택값과 CRM meta(review_focus)는 기존 문자열을 그대로 저장하며,
+// 진단·DB·API 로직에는 영향을 주지 않는다.
+const REVIEW_FOCUS_ICONS: Record<string, typeof FileText> = {
+  "제출 요건과 형식": FileText,
+  "누락된 내용이나 서류": FileQuestion,
+  "불리하거나 위험한 조항": AlertTriangle,
+  "원본과 번역본의 일치 여부": FileSignature,
+  "공증·인증·영사확인 필요 여부": Stamp,
+  "전체 검토가 필요함": ShieldCheck,
+  "공식 대응 전": ShieldCheck,
+  "상대방·기관과 협의 중": UserCheck,
+  "이의신청·통지 준비 중": FileSignature,
+  "경찰·검찰·법원·행정기관 접수": Building2,
+  "판결·결정 후 후속 대응": Stamp,
+  "기타": FileQuestion,
+};
+
+const REVIEW_FOCUS_TONES: Record<string, SelectionCardTone> = {
+  "제출 요건과 형식": "blue",
+  "누락된 내용이나 서류": "cyan",
+  "불리하거나 위험한 조항": "amber",
+  "원본과 번역본의 일치 여부": "purple",
+  "공증·인증·영사확인 필요 여부": "green",
+  "전체 검토가 필요함": "slate",
+  "공식 대응 전": "blue",
+  "상대방·기관과 협의 중": "cyan",
+  "이의신청·통지 준비 중": "purple",
+  "경찰·검찰·법원·행정기관 접수": "amber",
+  "판결·결정 후 후속 대응": "green",
   "기타": "slate",
 };
 
@@ -1320,8 +1355,8 @@ export default function VerifyAdminPage() {
                         key={opt}
                         title={opt}
                         selected={selectedKey === opt}
-                        icon={FileQuestion}
-                        tone="slate"
+                        icon={REVIEW_FOCUS_ICONS[opt] ?? FileQuestion}
+                        tone={REVIEW_FOCUS_TONES[opt] ?? "slate"}
                         onClick={() => {
                           setSelectedKey(opt);
                           setTimeout(() => {
