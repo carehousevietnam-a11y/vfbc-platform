@@ -676,13 +676,196 @@ export default async function AdminLeadDetailPage({
 
           <div className="mt-4 grid gap-4 lg:grid-cols-[1.85fr_1fr] lg:items-start">
             <div className="space-y-4">
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><h2 className="text-[15px] font-extrabold">고객 제출 문서</h2><span className="rounded-lg border border-slate-200 px-3 py-1.5 text-[11px] font-semibold">전체 문서</span></div>
-                <div className="hidden overflow-x-auto sm:block"><table className="w-full min-w-[760px] text-left text-[11px]"><thead className="bg-slate-50 text-slate-500"><tr><th className="px-5 py-3">문서명</th><th className="px-3 py-3">파일명</th><th className="px-3 py-3">구분</th><th className="px-3 py-3">제출일</th><th className="px-3 py-3">상태</th><th className="px-3 py-3">작업</th></tr></thead><tbody className="divide-y divide-slate-100">{requiredDocuments.map((label,index)=>{const submitted=isRequiredDocumentSubmitted(label);const matched=customerDocuments.find(doc=>[doc.tag,doc.fileName].filter(Boolean).join(" ").includes(label.split(" ")[0]));return <tr key={label} className="hover:bg-slate-50"><td className="px-5 py-3 font-semibold"><span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded bg-blue-50 text-blue-600"><FileText size={13}/></span>{label}</td><td className="px-3 py-3 text-slate-500">{matched?.fileName??(index===0?questionStageSubmittedDocument?.fileName:null)??"-"}</td><td className="px-3 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-semibold text-blue-700">필수 서류</span></td><td className="px-3 py-3 text-slate-500">{matched?new Date(matched.createdAt).toLocaleString("ko-KR"):"-"}</td><td className="px-3 py-3"><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${submitted?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700"}`}>{submitted?"제출 완료":"미제출"}</span></td><td className="px-3 py-3">{matched?.signedUrl?<a href={matched.signedUrl} target="_blank" rel="noreferrer" className="font-bold text-blue-700">열기</a>:"-"}</td></tr>})}</tbody></table></div>
-                <div className="divide-y divide-slate-100 sm:hidden">{requiredDocuments.map((label)=>{const submitted=isRequiredDocumentSubmitted(label);return <div key={label} className="flex w-full items-center gap-3 px-4 py-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600"><FileText size={15}/></span><div className="min-w-0 flex-1"><p className="truncate text-[12px] font-bold">{label}</p><p className="mt-0.5 text-[10px] text-slate-400">필수 서류</p></div><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${submitted?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700"}`}>{submitted?"제출 완료":"미제출"}</span></div>})}</div>
-                <div className="border-t border-slate-100 px-5 py-3"><span className="inline-flex items-center gap-2 text-[11px] font-bold text-blue-700"><Download size={14}/>모든 문서 다운로드</span></div>
+              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-[15px] font-extrabold">고객 제출 문서</h2>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-[11px] font-bold text-blue-700">
+                        고객 추가 제출 자료
+                        <strong className="text-blue-800">{customerDocuments.length}</strong>
+                      </span>
+                      <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold text-slate-600">
+                        질문 단계 제출 자료
+                        <strong className="text-slate-500">{questionStageSubmittedDocument ? 1 : 0}</strong>
+                      </span>
+                    </div>
+                  </div>
+                  <span className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm">
+                    전체 문서 <ChevronDown size={13} />
+                  </span>
+                </div>
+
+                <div className="hidden overflow-x-auto sm:block">
+                  <table className="w-full min-w-[820px] text-left text-[11px]">
+                    <thead className="border-b border-slate-100 bg-slate-50 text-slate-500">
+                      <tr>
+                        <th className="px-5 py-3 font-bold">문서명</th>
+                        <th className="px-3 py-3 font-bold">파일명</th>
+                        <th className="px-3 py-3 font-bold">구분</th>
+                        <th className="px-3 py-3 font-bold">제출일</th>
+                        <th className="px-3 py-3 font-bold">상태</th>
+                        <th className="px-3 py-3 text-center font-bold">작업</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {requiredDocuments.map((label, index) => {
+                        const submitted = isRequiredDocumentSubmitted(label);
+                        const matched = customerDocuments.find((doc) =>
+                          [doc.tag, doc.fileName]
+                            .filter(Boolean)
+                            .join(" ")
+                            .toLowerCase()
+                            .replace(/\s+/g, "")
+                            .includes(label.split(" ")[0].toLowerCase().replace(/\s+/g, ""))
+                        );
+                        const questionFile = index === 0 ? questionStageSubmittedDocument?.fileName ?? null : null;
+                        const displayFileName = matched?.fileName ?? questionFile ?? "-";
+                        const displayDate = matched
+                          ? new Date(matched.createdAt).toLocaleString("ko-KR")
+                          : "-";
+                        const canOpen = Boolean(matched?.signedUrl);
+
+                        return (
+                          <tr key={label} className="transition-colors hover:bg-slate-50/80">
+                            <td className="px-5 py-3.5">
+                              <div className="flex items-center gap-3">
+                                <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${index % 3 === 0 ? "bg-red-50 text-red-500" : index % 3 === 1 ? "bg-blue-50 text-blue-600" : "bg-violet-50 text-violet-600"}`}>
+                                  <FileText size={14} />
+                                </span>
+                                <span className="font-bold text-slate-800">{label}</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-3.5 font-medium text-slate-600">{displayFileName}</td>
+                            <td className="px-3 py-3.5">
+                              <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${index < 3 ? "bg-blue-50 text-blue-700" : "bg-violet-50 text-violet-700"}`}>
+                                {index < 3 ? "고객 추가 제출" : "질문 단계 제출"}
+                              </span>
+                            </td>
+                            <td className="px-3 py-3.5 text-slate-500">{displayDate}</td>
+                            <td className="px-3 py-3.5">
+                              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${submitted ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                                <span className={`h-1.5 w-1.5 rounded-full ${submitted ? "bg-emerald-500" : "bg-amber-500"}`} />
+                                {submitted ? "확인 완료" : "미확인"}
+                              </span>
+                            </td>
+                            <td className="px-3 py-3.5 text-center">
+                              {canOpen ? (
+                                <a
+                                  href={matched?.signedUrl ?? "#"}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex min-w-[52px] items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-700 shadow-sm hover:border-blue-300 hover:text-blue-700"
+                                >
+                                  열기
+                                </a>
+                              ) : (
+                                <span className="text-slate-300">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="divide-y divide-slate-100 sm:hidden">
+                  {requiredDocuments.map((label, index) => {
+                    const submitted = isRequiredDocumentSubmitted(label);
+                    const matched = customerDocuments.find((doc) =>
+                      [doc.tag, doc.fileName]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase()
+                        .replace(/\s+/g, "")
+                        .includes(label.split(" ")[0].toLowerCase().replace(/\s+/g, ""))
+                    );
+                    return (
+                      <div key={label} className="flex w-full items-center gap-3 px-4 py-3.5">
+                        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index % 3 === 0 ? "bg-red-50 text-red-500" : index % 3 === 1 ? "bg-blue-50 text-blue-600" : "bg-violet-50 text-violet-600"}`}>
+                          <FileText size={16} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[12px] font-bold text-slate-800">{label}</p>
+                          <p className="mt-1 truncate text-[10px] text-slate-400">{matched?.fileName ?? "제출 파일 없음"}</p>
+                        </div>
+                        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${submitted ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                          {submitted ? "확인 완료" : "미확인"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="border-t border-slate-100 px-5 py-3.5">
+                  <span className="inline-flex items-center gap-2 text-[11px] font-bold text-blue-700">
+                    <Download size={14} /> 모든 문서 다운로드
+                  </span>
+                </div>
               </section>
 
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center gap-2"><h2 className="text-[15px] font-extrabold">AI 진단 결과</h2><span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700">진단 완료</span></div><div className="mt-4 grid gap-3 sm:grid-cols-[1.3fr_repeat(3,1fr)]"><div className="rounded-xl border-r-0 border-slate-100 p-3.5"><p className="text-[11px] text-slate-400">종합 결과</p><p className="mt-1 text-[24px] font-extrabold text-emerald-700">{resultInfo?.label??"-"}</p><p className="mt-1 text-[11px] text-slate-500">입력값 기준 AI 진단 결과입니다.</p></div><div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">가능성 점수</p><p className="mt-1 text-[20px] font-extrabold">{typeof activeScore==="number"?activeScore:"-"}<span className="text-[11px] font-medium text-slate-400">/100</span></p></div><div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">위험도</p><p className="mt-2 text-[15px] font-extrabold text-amber-600">{riskInfo?.label??"-"}</p></div><div className="rounded-xl bg-slate-50 p-3.5"><p className="text-[10px] text-slate-400">현재 단계</p><p className="mt-2 text-[13px] font-extrabold">{currentStageLabel}</p></div></div><div className="mt-5 grid gap-5 border-t border-slate-100 pt-4 md:grid-cols-2"><div><h3 className="text-[12px] font-extrabold">주요 위험 요인</h3>{activeBrief?.rejectionRisks?.length?<ul className="mt-2 space-y-1.5 text-[11px] text-slate-600">{[...activeBrief.rejectionRisks].sort((a,b)=>a.rank-b.rank).map((r,i)=><li key={i}>• {r.reason}</li>)}</ul>:<p className="mt-2 text-[11px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>}</div><div><h3 className="text-[12px] font-extrabold">권장 조치</h3>{activeBrief?.recommendedSteps?.length?<ul className="mt-2 space-y-1.5 text-[11px] text-slate-600">{activeBrief.recommendedSteps.map((s,i)=><li key={i}>• {s}</li>)}</ul>:<p className="mt-2 text-[11px] text-slate-400">등록된 권장 조치가 없습니다.</p>}</div></div></section>
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-[15px] font-extrabold">AI 진단 결과</h2>
+                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">진단 완료</span>
+                </div>
+
+                <div className="mt-4 grid overflow-hidden rounded-xl border border-slate-100 sm:grid-cols-[1.45fr_repeat(4,1fr)]">
+                  <div className="border-b border-slate-100 p-4 sm:border-b-0 sm:border-r">
+                    <p className="text-[11px] font-semibold text-slate-500">종합 결과</p>
+                    <p className="mt-1 text-[23px] font-extrabold text-emerald-700">{resultInfo?.label ?? "-"}</p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-slate-500">일부 보완 후 진행 가능합니다.</p>
+                  </div>
+                  <div className="border-b border-slate-100 bg-slate-50/70 p-4 sm:border-b-0 sm:border-r">
+                    <p className="text-[10px] font-semibold text-slate-400">가능성 점수</p>
+                    <p className="mt-2 text-[20px] font-extrabold text-slate-900">
+                      {typeof activeScore === "number" ? activeScore : "-"}
+                      <span className="text-[11px] font-medium text-slate-400">/100</span>
+                    </p>
+                  </div>
+                  <div className="border-b border-slate-100 bg-slate-50/70 p-4 sm:border-b-0 sm:border-r">
+                    <p className="text-[10px] font-semibold text-slate-400">위험도</p>
+                    <p className="mt-2 text-[15px] font-extrabold text-amber-600">{riskInfo?.label ?? "-"}</p>
+                  </div>
+                  <div className="border-b border-slate-100 bg-slate-50/70 p-4 sm:border-b-0 sm:border-r">
+                    <p className="text-[10px] font-semibold text-slate-400">예상 소요 기간</p>
+                    <p className="mt-2 text-[15px] font-extrabold text-slate-900">-</p>
+                  </div>
+                  <div className="bg-slate-50/70 p-4">
+                    <p className="text-[10px] font-semibold text-slate-400">예상 비용</p>
+                    <p className="mt-2 text-[15px] font-extrabold text-slate-900">-</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-5 border-t border-slate-100 pt-4 md:grid-cols-2">
+                  <div className="md:border-r md:border-slate-100 md:pr-5">
+                    <h3 className="text-[12px] font-extrabold text-slate-800">주요 위험 요인</h3>
+                    {activeBrief?.rejectionRisks?.length ? (
+                      <ul className="mt-3 space-y-2 text-[11px] leading-relaxed text-slate-600">
+                        {[...activeBrief.rejectionRisks]
+                          .sort((a, b) => a.rank - b.rank)
+                          .map((risk, index) => <li key={index}>• {risk.reason}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="mt-3 text-[11px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-[12px] font-extrabold text-slate-800">권장 조치</h3>
+                      <span className="rounded-md border border-blue-200 bg-white px-3 py-1.5 text-[10px] font-bold text-blue-700">상세 리포트 보기</span>
+                    </div>
+                    {activeBrief?.recommendedSteps?.length ? (
+                      <ul className="mt-3 space-y-2 text-[11px] leading-relaxed text-slate-600">
+                        {activeBrief.recommendedSteps.map((step, index) => <li key={index}>• {step}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="mt-3 text-[11px] text-slate-400">등록된 권장 조치가 없습니다.</p>
+                    )}
+                  </div>
+                </div>
+              </section>
             </div>
 
             <aside className="space-y-4">
