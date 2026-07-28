@@ -147,6 +147,19 @@ function formatDateKey(dateKey: string) {
   return `${d.getUTCFullYear()}.${d.getUTCMonth() + 1}.${d.getUTCDate()}`;
 }
 
+function getRelativeDateLabel(dateKey: string) {
+  const target = new Date(dateKey + "T00:00:00Z");
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const targetDay = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
+  const diffDays = Math.round((today - targetDay) / 86400000);
+
+  if (diffDays === 0) return "오늘";
+  if (diffDays === 1) return "어제";
+  if (diffDays > 1 && diffDays < 7) return `${diffDays}일 전`;
+  return "";
+}
+
 function serviceAnchorId(dateKey: string, category: CategoryKey, serviceType: string) {
   const safeService = serviceType
     .toLowerCase()
@@ -624,7 +637,7 @@ function DateContentGroup({
       shell: "border-blue-100 bg-blue-50/45",
       label: "text-blue-700",
       count: "text-blue-700",
-      activeService: "border-blue-300 bg-blue-50 text-blue-800 ring-blue-100",
+      activeService: "border-blue-700 bg-blue-700 text-white ring-blue-200",
     },
     verify: {
       shortLabel: "VERIFY",
@@ -632,7 +645,7 @@ function DateContentGroup({
       shell: "border-violet-100 bg-violet-50/45",
       label: "text-violet-700",
       count: "text-violet-700",
-      activeService: "border-violet-300 bg-violet-50 text-violet-800 ring-violet-100",
+      activeService: "border-violet-700 bg-violet-700 text-white ring-violet-200",
     },
     permit: {
       shortLabel: "REGISTER",
@@ -640,7 +653,7 @@ function DateContentGroup({
       shell: "border-emerald-100 bg-emerald-50/45",
       label: "text-emerald-700",
       count: "text-emerald-700",
-      activeService: "border-emerald-300 bg-emerald-50 text-emerald-800 ring-emerald-100",
+      activeService: "border-emerald-700 bg-emerald-700 text-white ring-emerald-200",
     },
     consultation: {
       shortLabel: "상담",
@@ -648,7 +661,7 @@ function DateContentGroup({
       shell: "border-amber-100 bg-amber-50/45",
       label: "text-amber-700",
       count: "text-amber-700",
-      activeService: "border-amber-300 bg-amber-50 text-amber-800 ring-amber-100",
+      activeService: "border-amber-600 bg-amber-500 text-white ring-amber-200",
     },
     unclassified: {
       shortLabel: "미분류",
@@ -656,7 +669,7 @@ function DateContentGroup({
       shell: "border-slate-200 bg-slate-50",
       label: "text-slate-700",
       count: "text-slate-700",
-      activeService: "border-slate-300 bg-slate-100 text-slate-800 ring-slate-200",
+      activeService: "border-slate-700 bg-slate-700 text-white ring-slate-300",
     },
   };
 
@@ -700,13 +713,18 @@ function DateContentGroup({
             📅
           </span>
           <div>
-            <h2 className="flex items-center gap-2 text-base font-bold text-slate-950">
-              <span>{formatDateKey(dateKey)}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              {getRelativeDateLabel(dateKey) && (
+                <span className="rounded-full bg-blue-700 px-2.5 py-1 text-[11px] font-bold text-white">
+                  {getRelativeDateLabel(dateKey)}
+                </span>
+              )}
+              <h2 className="text-base font-bold text-slate-950">{formatDateKey(dateKey)}</h2>
               <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600">
                 {leads.length}건
               </span>
-            </h2>
-            <p className="mt-0.5 text-xs text-slate-500">해당일 접수 {leads.length}건</p>
+            </div>
+            <p className="mt-0.5 text-xs text-slate-500">접수된 신청건 {leads.length}건</p>
           </div>
         </div>
 
@@ -736,21 +754,22 @@ function DateContentGroup({
                 key={category}
                 className={`rounded-2xl border px-4 py-4 ${theme.shell}`}
               >
-                <div className="grid gap-3 lg:grid-cols-[250px_minmax(0,1fr)] lg:items-center">
-                  <div className="flex items-center justify-between gap-5 lg:border-r lg:border-slate-200/80 lg:pr-6">
+                <div className="grid gap-4 lg:grid-cols-[210px_minmax(0,1fr)] lg:items-stretch">
+                  <div className="flex min-h-[104px] flex-col items-start justify-center gap-1 rounded-xl bg-white/55 px-5 py-4 lg:border-r lg:border-slate-200/80 lg:rounded-none lg:bg-transparent lg:px-0 lg:pr-6">
                     <div className="flex items-center gap-2.5">
                       <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
                       <p className={`text-sm font-black tracking-[0.06em] ${theme.label}`}>
                         {theme.shortLabel}
                       </p>
                     </div>
-                    <p className={`whitespace-nowrap text-2xl font-black tracking-[-0.04em] ${theme.count}`}>
+                    <p className={`whitespace-nowrap text-4xl font-black tracking-[-0.06em] ${theme.count}`}>
                       {categoryLeads.length}
-                      <span className="ml-1 text-xs font-bold">건</span>
+                      <span className="ml-1 text-sm font-bold">건</span>
                     </p>
+                    <p className="text-[11px] font-semibold text-slate-500">해당일 접수</p>
                   </div>
 
-                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
                     {Array.from(byService.entries())
                       .sort((a, b) => b[1] - a[1])
                       .map(([serviceType, count]) => {
@@ -759,14 +778,14 @@ function DateContentGroup({
                           <Link
                             key={serviceType}
                             href={buildHref({ focusDate: dateKey, focusService: serviceType })}
-                            className={`group/service grid min-h-[58px] grid-cols-[34px_minmax(0,1fr)_auto_18px] items-center gap-3 rounded-xl border bg-white px-3 py-2.5 shadow-sm transition ${
+                            className={`group/service grid min-h-[64px] grid-cols-[36px_minmax(0,1fr)_auto_18px] items-center gap-3 rounded-xl border px-3.5 py-3 shadow-sm transition ${
                               active
                                 ? `${theme.activeService} ring-1`
-                                : "border-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
+                                : "border-white bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
                             }`}
                           >
                             <span
-                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-base ring-1 ring-inset ring-slate-100"
+                              className={`flex h-9 w-9 items-center justify-center rounded-lg text-base ring-1 ring-inset ${active ? "bg-white/15 ring-white/20" : "bg-slate-50 ring-slate-100"}`}
                               aria-hidden="true"
                             >
                               {serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}
@@ -776,7 +795,7 @@ function DateContentGroup({
                             </span>
                             <span className="whitespace-nowrap text-sm font-black">{count}건</span>
                             <span
-                              className="text-right text-lg text-slate-400 transition group-hover/service:translate-x-0.5 group-hover/service:text-blue-600"
+                              className={`text-right text-lg transition group-hover/service:translate-x-0.5 ${active ? "text-white/80" : "text-slate-400 group-hover/service:text-blue-600"}`}
                               aria-hidden="true"
                             >
                               ›
