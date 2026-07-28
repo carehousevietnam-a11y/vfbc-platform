@@ -609,37 +609,54 @@ function DateContentGroup({
 
   const categoryTheme: Record<
     CategoryKey,
-    { shortLabel: string; dot: string; card: string; count: string }
+    {
+      shortLabel: string;
+      dot: string;
+      shell: string;
+      label: string;
+      count: string;
+      activeService: string;
+    }
   > = {
     check: {
       shortLabel: "CHECK",
       dot: "bg-blue-600",
-      card: "border-blue-100 bg-blue-50/60",
+      shell: "border-blue-100 bg-blue-50/45",
+      label: "text-blue-700",
       count: "text-blue-700",
+      activeService: "border-blue-300 bg-blue-50 text-blue-800 ring-blue-100",
     },
     verify: {
       shortLabel: "VERIFY",
       dot: "bg-violet-600",
-      card: "border-violet-100 bg-violet-50/60",
+      shell: "border-violet-100 bg-violet-50/45",
+      label: "text-violet-700",
       count: "text-violet-700",
+      activeService: "border-violet-300 bg-violet-50 text-violet-800 ring-violet-100",
     },
     permit: {
       shortLabel: "REGISTER",
       dot: "bg-emerald-600",
-      card: "border-emerald-100 bg-emerald-50/60",
+      shell: "border-emerald-100 bg-emerald-50/45",
+      label: "text-emerald-700",
       count: "text-emerald-700",
+      activeService: "border-emerald-300 bg-emerald-50 text-emerald-800 ring-emerald-100",
     },
     consultation: {
       shortLabel: "상담",
       dot: "bg-amber-500",
-      card: "border-amber-100 bg-amber-50/60",
+      shell: "border-amber-100 bg-amber-50/45",
+      label: "text-amber-700",
       count: "text-amber-700",
+      activeService: "border-amber-300 bg-amber-50 text-amber-800 ring-amber-100",
     },
     unclassified: {
       shortLabel: "미분류",
       dot: "bg-slate-500",
-      card: "border-slate-200 bg-slate-50",
+      shell: "border-slate-200 bg-slate-50",
+      label: "text-slate-700",
       count: "text-slate-700",
+      activeService: "border-slate-300 bg-slate-100 text-slate-800 ring-slate-200",
     },
   };
 
@@ -665,7 +682,8 @@ function DateContentGroup({
     focusDate === dateKey && focusService && serviceGroups.has(focusService)
       ? focusService
       : "";
-  const activeService = requestedService || (defaultOpen ? sortedServices[0]?.[0] ?? "" : "");
+  const activeService =
+    requestedService || (defaultOpen ? sortedServices[0]?.[0] ?? "" : "");
   const activeGroup = activeService ? serviceGroups.get(activeService) : undefined;
 
   return (
@@ -675,12 +693,14 @@ function DateContentGroup({
     >
       <summary className="flex cursor-pointer list-none flex-col gap-3 bg-slate-50 px-5 py-4 transition hover:bg-slate-100 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
         <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-open:rotate-90">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-open:rotate-90">
             <ChevronIcon />
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-base ring-1 ring-inset ring-blue-100" aria-hidden="true">
+            📅
           </span>
           <div>
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-950">
-              <span aria-hidden="true">📅</span>
               <span>{formatDateKey(dateKey)}</span>
               <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600">
                 {leads.length}건
@@ -690,7 +710,7 @@ function DateContentGroup({
           </div>
         </div>
 
-        <div className="flex w-full flex-wrap items-center gap-2 pl-10 sm:w-auto sm:justify-end sm:pl-0">
+        <div className="flex w-full flex-wrap items-center gap-2 pl-20 sm:w-auto sm:justify-end sm:pl-0">
           <DateCategoryCount label="CHECK" count={(groupedByCategory.get("check") ?? []).length} colorClass="bg-blue-50 text-blue-700 ring-blue-100" />
           <DateCategoryCount label="VERIFY" count={(groupedByCategory.get("verify") ?? []).length} colorClass="bg-violet-50 text-violet-700 ring-violet-100" />
           <DateCategoryCount label="REGISTER" count={(groupedByCategory.get("permit") ?? []).length} colorClass="bg-emerald-50 text-emerald-700 ring-emerald-100" />
@@ -698,8 +718,8 @@ function DateContentGroup({
         </div>
       </summary>
 
-      <div className="border-t border-slate-200 bg-slate-50/40 p-3 sm:p-4">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
+      <div className="border-t border-slate-200 bg-white p-3 sm:p-4">
+        <div className="space-y-3">
           {categoryOrder.map((category) => {
             const categoryLeads = groupedByCategory.get(category) ?? [];
             if (categoryLeads.length === 0) return null;
@@ -714,63 +734,57 @@ function DateContentGroup({
             return (
               <section
                 key={category}
-                className={`overflow-hidden rounded-2xl border ${theme.card}`}
+                className={`rounded-2xl border px-4 py-4 ${theme.shell}`}
               >
-                <div className="flex items-start justify-between gap-4 px-4 pb-4 pt-4 sm:px-5 sm:pt-5">
-                  <div>
-                    <div className="flex items-center gap-2">
+                <div className="grid gap-3 lg:grid-cols-[250px_minmax(0,1fr)] lg:items-center">
+                  <div className="flex items-center justify-between gap-5 lg:border-r lg:border-slate-200/80 lg:pr-6">
+                    <div className="flex items-center gap-2.5">
                       <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
-                      <p className="text-xs font-black tracking-[0.08em] text-slate-700">
+                      <p className={`text-sm font-black tracking-[0.06em] ${theme.label}`}>
                         {theme.shortLabel}
                       </p>
                     </div>
-                    <p className="mt-3 text-[11px] font-semibold text-slate-500">오늘 접수</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-4xl font-black leading-none tracking-[-0.04em] ${theme.count}`}>
+                    <p className={`whitespace-nowrap text-2xl font-black tracking-[-0.04em] ${theme.count}`}>
                       {categoryLeads.length}
+                      <span className="ml-1 text-xs font-bold">건</span>
                     </p>
-                    <p className={`mt-1 text-xs font-bold ${theme.count}`}>건</p>
                   </div>
-                </div>
 
-                <div className="grid gap-2 border-t border-white/80 bg-white/35 p-3 sm:grid-cols-2">
-                  {Array.from(byService.entries())
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([serviceType, count]) => {
-                      const active = activeService === serviceType;
-                      return (
-                        <Link
-                          key={serviceType}
-                          href={buildHref({ focusDate: dateKey, focusService: serviceType })}
-                          className={`group/service grid min-h-[72px] grid-cols-[36px_minmax(0,1fr)_auto_18px] items-center gap-3 rounded-xl border px-3 py-3 shadow-sm transition ${
-                            active
-                              ? "border-blue-300 bg-blue-50 text-blue-800 ring-1 ring-blue-100"
-                              : "border-white bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
-                          }`}
-                        >
-                          <span
-                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-lg ring-1 ring-inset ring-slate-100"
-                            aria-hidden="true"
+                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                    {Array.from(byService.entries())
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([serviceType, count]) => {
+                        const active = activeService === serviceType;
+                        return (
+                          <Link
+                            key={serviceType}
+                            href={buildHref({ focusDate: dateKey, focusService: serviceType })}
+                            className={`group/service grid min-h-[58px] grid-cols-[34px_minmax(0,1fr)_auto_18px] items-center gap-3 rounded-xl border bg-white px-3 py-2.5 shadow-sm transition ${
+                              active
+                                ? `${theme.activeService} ring-1`
+                                : "border-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
+                            }`}
                           >
-                            {serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}
-                          </span>
-                          <span className="min-w-0">
-                            <span className="block truncate text-sm font-bold">
+                            <span
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-base ring-1 ring-inset ring-slate-100"
+                              aria-hidden="true"
+                            >
+                              {serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}
+                            </span>
+                            <span className="min-w-0 truncate text-sm font-bold">
                               {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
                             </span>
-                            <span className="mt-0.5 block text-[11px] font-medium text-slate-400">신규 신청</span>
-                          </span>
-                          <span className="whitespace-nowrap text-sm font-black">{count}건</span>
-                          <span
-                            className="text-right text-lg text-slate-400 transition group-hover/service:translate-x-0.5 group-hover/service:text-blue-600"
-                            aria-hidden="true"
-                          >
-                            ›
-                          </span>
-                        </Link>
-                      );
-                    })}
+                            <span className="whitespace-nowrap text-sm font-black">{count}건</span>
+                            <span
+                              className="text-right text-lg text-slate-400 transition group-hover/service:translate-x-0.5 group-hover/service:text-blue-600"
+                              aria-hidden="true"
+                            >
+                              ›
+                            </span>
+                          </Link>
+                        );
+                      })}
+                  </div>
                 </div>
               </section>
             );
