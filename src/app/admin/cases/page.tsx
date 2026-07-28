@@ -712,19 +712,29 @@ function DateContentGroup({
 
             const theme = categoryTheme[category];
             return (
-              <div key={category} className={`rounded-xl border p-3.5 ${theme.card}`}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
-                    <p className="text-xs font-extrabold tracking-wide text-slate-700">{theme.shortLabel}</p>
+              <section
+                key={category}
+                className={`overflow-hidden rounded-2xl border ${theme.card}`}
+              >
+                <div className="flex items-start justify-between gap-4 px-4 pb-4 pt-4 sm:px-5 sm:pt-5">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
+                      <p className="text-xs font-black tracking-[0.08em] text-slate-700">
+                        {theme.shortLabel}
+                      </p>
+                    </div>
+                    <p className="mt-3 text-[11px] font-semibold text-slate-500">오늘 접수</p>
                   </div>
-                  <p className={`text-3xl font-black tracking-tight ${theme.count}`}>
-                    {categoryLeads.length}
-                    <span className="ml-0.5 text-xs font-bold">건</span>
-                  </p>
+                  <div className="text-right">
+                    <p className={`text-4xl font-black leading-none tracking-[-0.04em] ${theme.count}`}>
+                      {categoryLeads.length}
+                    </p>
+                    <p className={`mt-1 text-xs font-bold ${theme.count}`}>건</p>
+                  </div>
                 </div>
 
-                <div className="mt-3 space-y-1.5">
+                <div className="grid gap-2 border-t border-white/80 bg-white/35 p-3 sm:grid-cols-2">
                   {Array.from(byService.entries())
                     .sort((a, b) => b[1] - a[1])
                     .map(([serviceType, count]) => {
@@ -733,25 +743,36 @@ function DateContentGroup({
                         <Link
                           key={serviceType}
                           href={buildHref({ focusDate: dateKey, focusService: serviceType })}
-                          className={`grid grid-cols-[28px_minmax(0,1fr)_auto_18px] items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold shadow-sm transition ${
+                          className={`group/service grid min-h-[72px] grid-cols-[36px_minmax(0,1fr)_auto_18px] items-center gap-3 rounded-xl border px-3 py-3 shadow-sm transition ${
                             active
-                              ? "border-blue-300 bg-blue-50 text-blue-800"
-                              : "border-white/90 bg-white text-slate-700 hover:border-blue-200 hover:text-blue-700"
+                              ? "border-blue-300 bg-blue-50 text-blue-800 ring-1 ring-blue-100"
+                              : "border-white bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
                           }`}
                         >
-                          <span className="text-base" aria-hidden="true">
+                          <span
+                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-lg ring-1 ring-inset ring-slate-100"
+                            aria-hidden="true"
+                          >
                             {serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}
                           </span>
-                          <span className="truncate">
-                            {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-bold">
+                              {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
+                            </span>
+                            <span className="mt-0.5 block text-[11px] font-medium text-slate-400">신규 신청</span>
                           </span>
-                          <span className="whitespace-nowrap font-extrabold">{count}건</span>
-                          <span className="text-right text-slate-400" aria-hidden="true">›</span>
+                          <span className="whitespace-nowrap text-sm font-black">{count}건</span>
+                          <span
+                            className="text-right text-lg text-slate-400 transition group-hover/service:translate-x-0.5 group-hover/service:text-blue-600"
+                            aria-hidden="true"
+                          >
+                            ›
+                          </span>
                         </Link>
                       );
                     })}
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>
