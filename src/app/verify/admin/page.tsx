@@ -508,6 +508,19 @@ const INCIDENT_TYPE_TONES: Record<string, SelectionCardTone> = {
   "기타": "slate",
 };
 
+// 질문 2의 화면 표시용 제목별 아이콘·색상 매핑.
+// "소송·형사·사기"와 "기타"는 진단 호환을 위해 value가 모두 "기타"이므로,
+// 화면에서는 title 기준으로 서로 다른 아이콘과 색상을 적용한다.
+const QUESTION2_TITLE_ICONS: Record<string, typeof FileText> = {
+  "소송·형사·사기": AlertTriangle,
+  "기타": FileQuestion,
+};
+
+const QUESTION2_TITLE_TONES: Record<string, SelectionCardTone> = {
+  "소송·형사·사기": "red",
+  "기타": "slate",
+};
+
 
 // 질문 3 선택지의 아이콘·색상 매핑(표시 전용).
 // 선택값과 CRM meta(review_focus)는 기존 문자열을 그대로 저장하며,
@@ -524,7 +537,7 @@ const REVIEW_FOCUS_ICONS: Record<string, typeof FileText> = {
   "이의신청·통지 준비 중": FileSignature,
   "경찰·검찰·법원·행정기관 접수": Building2,
   "판결·결정 후 후속 대응": Stamp,
-  "기타": FileQuestion,
+  "기타": Info,
 };
 
 const REVIEW_FOCUS_TONES: Record<string, SelectionCardTone> = {
@@ -539,7 +552,7 @@ const REVIEW_FOCUS_TONES: Record<string, SelectionCardTone> = {
   "이의신청·통지 준비 중": "purple",
   "경찰·검찰·법원·행정기관 접수": "amber",
   "판결·결정 후 후속 대응": "green",
-  "기타": "slate",
+  "기타": "cyan",
 };
 
 // 위험도(riskLevel: low/medium/high) 3단계를 CHECK(TRC)의 ResultHeaderGauge와 동일한
@@ -1315,8 +1328,16 @@ export default function VerifyAdminPage() {
                           title={opt.title}
                           description={opt.desc}
                           selected={selectedKey === selectionKey}
-                          icon={INCIDENT_TYPE_ICONS[opt.value] ?? FileQuestion}
-                          tone={INCIDENT_TYPE_TONES[opt.value] ?? "slate"}
+                          icon={
+                            QUESTION2_TITLE_ICONS[opt.title] ??
+                            INCIDENT_TYPE_ICONS[opt.value] ??
+                            FileQuestion
+                          }
+                          tone={
+                            QUESTION2_TITLE_TONES[opt.title] ??
+                            INCIDENT_TYPE_TONES[opt.value] ??
+                            "slate"
+                          }
                           onClick={() => {
                             setSelectedKey(selectionKey);
                             setTimeout(() => {
@@ -1349,7 +1370,7 @@ export default function VerifyAdminPage() {
             {reviewStage && incidentType && !reviewFocus && (
               <div className="mt-8">
                 <QuestionSection step={3} title={reviewStage === "pre" ? "무엇을 확인하고 싶으신가요?" : "현재 어느 단계인가요?"}>
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {(reviewStage === "pre" ? PREVENT_FOCUS_OPTIONS : CASE_STAGE_OPTIONS).map((opt) => (
                       <SelectionCard
                         key={opt}
