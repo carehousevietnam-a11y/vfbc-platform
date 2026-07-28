@@ -195,6 +195,8 @@ export default async function AdminCasesPage({
   const content = (typeof sp.content === "string" && sp.content) || "all";
   const period = (typeof sp.period === "string" && sp.period) || "all";
   const filterService = (typeof sp.filterService === "string" && sp.filterService) || "all";
+  const focusDate = (typeof sp.focusDate === "string" && sp.focusDate) || "";
+  const focusService = (typeof sp.focusService === "string" && sp.focusService) || "";
 
   const { data: allLeads, error: leadsError } = await supabaseAdmin
     .from("leads")
@@ -460,11 +462,13 @@ export default async function AdminCasesPage({
   const serviceCount = new Set(leads.map((lead) => lead.service_type).filter(Boolean)).size;
   const buildHref = (overrides: Record<string, string>) => {
     const params = new URLSearchParams();
-    const next = { q, content, period, filterService, ...overrides };
+    const next = { q, content, period, filterService, focusDate, focusService, ...overrides };
     if (next.q) params.set("q", next.q);
     if (next.content && next.content !== "all") params.set("content", next.content);
     if (next.period && next.period !== "all") params.set("period", next.period);
     if (next.filterService && next.filterService !== "all") params.set("filterService", next.filterService);
+    if (next.focusDate) params.set("focusDate", next.focusDate);
+    if (next.focusService) params.set("focusService", next.focusService);
     const query = params.toString();
     return query ? `/admin/cases?${query}` : "/admin/cases";
   };
@@ -542,7 +546,10 @@ export default async function AdminCasesPage({
             dateKey={dateKey}
             leads={dateLeads}
             agencyLeadIds={agencyLeadIds}
-            defaultOpen={dateIndex === 0}
+            defaultOpen={dateIndex === 0 || focusDate === dateKey}
+            focusDate={focusDate}
+            focusService={focusService}
+            buildHref={buildHref}
           />
         ))}
       </div>
@@ -564,6 +571,9 @@ function DateContentGroup({
   leads,
   agencyLeadIds,
   defaultOpen,
+  focusDate,
+  focusService,
+  buildHref,
 }: {
   dateKey: string;
   leads: Array<{
@@ -577,6 +587,9 @@ function DateContentGroup({
   }>;
   agencyLeadIds: Set<string>;
   defaultOpen: boolean;
+  focusDate: string;
+  focusService: string;
+  buildHref: (overrides: Record<string, string>) => string;
 }) {
   const categoryOrder: CategoryKey[] = [
     "check",
@@ -630,6 +643,31 @@ function DateContentGroup({
     },
   };
 
+  const serviceGroups = new Map<
+    string,
+    { category: CategoryKey; leads: typeof leads }
+  >();
+
+  for (const category of categoryOrder) {
+    for (const lead of groupedByCategory.get(category) ?? []) {
+      const serviceType = lead.service_type ?? "미상";
+      const existing = serviceGroups.get(serviceType) ?? { category, leads: [] };
+      existing.leads.push(lead);
+      serviceGroups.set(serviceType, existing);
+    }
+  }
+
+  const sortedServices = Array.from(serviceGroups.entries()).sort(
+    (a, b) => b[1].leads.length - a[1].leads.length
+  );
+
+  const requestedService =
+    focusDate === dateKey && focusService && serviceGroups.has(focusService)
+      ? focusService
+      : "";
+  const activeService = requestedService || (defaultOpen ? sortedServices[0]?.[0] ?? "" : "");
+  const activeGroup = activeService ? serviceGroups.get(activeService) : undefined;
+
   return (
     <details
       open={defaultOpen}
@@ -642,12 +680,13 @@ function DateContentGroup({
           </span>
           <div>
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-950">
+              <span aria-hidden="true">📅</span>
               <span>{formatDateKey(dateKey)}</span>
               <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600">
                 {leads.length}건
               </span>
             </h2>
-            <p className="mt-0.5 text-xs text-slate-500">날짜별 신청건</p>
+            <p className="mt-0.5 text-xs text-slate-500">해당일 접수 {leads.length}건</p>
           </div>
         </div>
 
@@ -673,83 +712,91 @@ function DateContentGroup({
 
             const theme = categoryTheme[category];
             return (
-              <div key={category} className={`min-h-[112px] rounded-xl border p-3.5 ${theme.card}`}>
+              <div key={category} className={`rounded-xl border p-3.5 ${theme.card}`}>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
                     <p className="text-xs font-extrabold tracking-wide text-slate-700">{theme.shortLabel}</p>
                   </div>
-                  <p className={`text-2xl font-black tracking-tight ${theme.count}`}>{categoryLeads.length}<span className="ml-0.5 text-xs font-bold">건</span></p>
+                  <p className={`text-3xl font-black tracking-tight ${theme.count}`}>
+                    {categoryLeads.length}
+                    <span className="ml-0.5 text-xs font-bold">건</span>
+                  </p>
                 </div>
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
+
+                <div className="mt-3 space-y-1.5">
                   {Array.from(byService.entries())
                     .sort((a, b) => b[1] - a[1])
-                    .map(([serviceType, count]) => (
-                      <a
-                        key={serviceType}
-                        href={`#${serviceAnchorId(dateKey, category, serviceType)}`}
-                        className="group/link inline-flex items-center gap-1.5 rounded-lg border border-white/90 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-700 hover:shadow"
-                        title={`${serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)} 신청건으로 이동`}
-                      >
-                        <span aria-hidden="true">{serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}</span>
-                        <span>{serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}</span>
-                        <span className="font-extrabold text-slate-950">{count}</span>
-                        <span className="ml-0.5 text-slate-400 transition group-hover/link:translate-x-0.5 group-hover/link:text-blue-600" aria-hidden="true">›</span>
-                      </a>
-                    ))}
+                    .map(([serviceType, count]) => {
+                      const active = activeService === serviceType;
+                      return (
+                        <Link
+                          key={serviceType}
+                          href={buildHref({ focusDate: dateKey, focusService: serviceType })}
+                          className={`grid grid-cols-[28px_minmax(0,1fr)_auto_18px] items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold shadow-sm transition ${
+                            active
+                              ? "border-blue-300 bg-blue-50 text-blue-800"
+                              : "border-white/90 bg-white text-slate-700 hover:border-blue-200 hover:text-blue-700"
+                          }`}
+                        >
+                          <span className="text-base" aria-hidden="true">
+                            {serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}
+                          </span>
+                          <span className="truncate">
+                            {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
+                          </span>
+                          <span className="whitespace-nowrap font-extrabold">{count}건</span>
+                          <span className="text-right text-slate-400" aria-hidden="true">›</span>
+                        </Link>
+                      );
+                    })}
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className="mt-4 space-y-3">
-          {categoryOrder.map((category) => {
-            const categoryLeads = groupedByCategory.get(category) ?? [];
-            if (categoryLeads.length === 0) return null;
+        {activeGroup ? (
+          <section className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-3.5">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="text-xl" aria-hidden="true">
+                  {activeService === "미상" ? "📌" : getServiceIcon(activeService)}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-slate-950">
+                    {activeService === "미상" ? "서비스 미상" : getServiceLabel(activeService)}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-slate-500">
+                    {CATEGORY_INFO[activeGroup.category].label}
+                  </p>
+                </div>
+              </div>
+              <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+                {activeGroup.leads.length}건
+              </span>
+            </div>
 
-            const byService = new Map<string, typeof categoryLeads>();
-            for (const lead of categoryLeads) {
-              const serviceKey = lead.service_type ?? "미상";
-              const serviceLeads = byService.get(serviceKey) ?? [];
-              serviceLeads.push(lead);
-              byService.set(serviceKey, serviceLeads);
-            }
-
-            return Array.from(byService.entries())
-              .sort((a, b) => b[1].length - a[1].length)
-              .map(([serviceType, serviceLeads], serviceIndex) => (
-                <details
-                  key={`${category}-${serviceType}`}
-                  id={serviceAnchorId(dateKey, category, serviceType)}
-                  open={defaultOpen && serviceIndex === 0}
-                  className="group/service scroll-mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white"
-                >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 transition hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="shrink-0 text-slate-400 transition group-open/service:rotate-90"><ChevronIcon /></span>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-slate-900">{serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}</p>
-                        <p className="mt-0.5 text-[11px] text-slate-500">{CATEGORY_INFO[category].label}</p>
-                      </div>
-                    </div>
-                    <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{serviceLeads.length}건</span>
-                  </summary>
-
-                  <div className="border-t border-slate-100">
-                    <div className="divide-y divide-slate-100 lg:hidden">
-                      {serviceLeads.map((lead) => (
-                        <LeadMobileCard key={lead.id} lead={lead} category={category} isAgency={agencyLeadIds.has(lead.id)} isRejected={false} />
-                      ))}
-                    </div>
-                    <div className="hidden lg:block">
-                      <LeadTable leads={serviceLeads} agencyLeadIds={agencyLeadIds} />
-                    </div>
-                  </div>
-                </details>
-              ));
-          })}
-        </div>
+            <div className="divide-y divide-slate-100 lg:hidden">
+              {activeGroup.leads.map((lead) => (
+                <LeadMobileCard
+                  key={lead.id}
+                  lead={lead}
+                  category={activeGroup.category}
+                  isAgency={agencyLeadIds.has(lead.id)}
+                  isRejected={false}
+                />
+              ))}
+            </div>
+            <div className="hidden lg:block">
+              <LeadTable leads={activeGroup.leads} agencyLeadIds={agencyLeadIds} />
+            </div>
+          </section>
+        ) : (
+          <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white px-5 py-8 text-center text-sm text-slate-500">
+            위 서비스 버튼을 선택하면 해당 신청건 테이블이 표시됩니다.
+          </div>
+        )}
       </div>
     </details>
   );
