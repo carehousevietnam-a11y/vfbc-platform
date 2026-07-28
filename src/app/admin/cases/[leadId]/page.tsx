@@ -707,7 +707,7 @@ export default async function AdminLeadDetailPage({
           <p className="text-xs font-semibold text-gray-700">진행 단계 관리</p>
 
           {/* 현재 단계·다음 단계 요약 — 기존 currentStageLabel/nextStep 값만 재사용, 새 계산 없음 */}
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-700">
               현재 단계 · {currentStageLabel}
             </span>
@@ -722,7 +722,7 @@ export default async function AdminLeadDetailPage({
           </div>
 
           {/* 가로형 단계 트랙 (sm 이상) / 세로형 (모바일) */}
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-0">
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-0">
             {processSteps.map((step, i) => {
               const isNextStep = i === nextStepIndex;
               return (
@@ -891,16 +891,16 @@ export default async function AdminLeadDetailPage({
                     <div className="mt-2 space-y-1.5">
                       {(activeBrief.checkedItems ?? []).map((item: ExpertChecklistItem, i: number) => (
                         <div key={i} className="rounded-xl bg-gray-50 px-3 py-1.5">
-                          <div className="flex items-center gap-2 text-xs font-semibold text-gray-800">
+                          <div className="flex items-center gap-2 text-[13px] font-semibold text-gray-800">
                             {item.passed ? (
-                              <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                              <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
                             ) : (
-                              <AlertTriangle size={14} className="text-amber-600 shrink-0" />
+                              <AlertTriangle size={16} className="text-amber-600 shrink-0" />
                             )}
                             <span className="truncate">{item.label}</span>
                           </div>
                           {item.reason && (
-                            <p className="mt-0.5 truncate text-[11px] text-gray-500 pl-[22px]">{item.reason}</p>
+                            <p className="mt-0.5 truncate text-[11px] text-gray-500 pl-[24px]">{item.reason}</p>
                           )}
                         </div>
                       ))}
@@ -975,13 +975,13 @@ export default async function AdminLeadDetailPage({
             {/* 3개 고정 섹션(질문 단계 제출자료/추가 제출자료/허가증)을 항상 표시 —
                 각 섹션은 기존에 이미 계산된 값(fileUrl/customerDocuments/
                 questionStageSubmittedDocument/permitFileUrl)만 그대로 재사용하고,
-                값이 없을 때만 "현재 제출된 문서가 없습니다."를 보여준다. 새 계산 없음. */}
-            <div className="mt-3 space-y-3">
+                값이 없을 때만 "미제출"을 보여준다. 새 계산 없음. */}
+            <div className="mt-2.5 space-y-2">
               {/* 4-2. 질문 단계 제출 자료 (action="verify_lead" meta.submitted_document, 읽기 전용 — 링크 없음) */}
-              <div>
-                <p className="text-[10px] font-semibold text-gray-400">질문 단계 제출자료</p>
+              <div className="flex items-center gap-2">
+                <p className="w-[92px] shrink-0 text-[10px] font-semibold text-gray-400">질문 단계 제출자료</p>
                 {questionStageSubmittedDocument ? (
-                  <div className="mt-1.5 flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+                  <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
                       <Paperclip size={14} className="text-blue-700" />
                     </div>
@@ -999,15 +999,15 @@ export default async function AdminLeadDetailPage({
                     </span>
                   </div>
                 ) : (
-                  <p className="mt-1.5 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
+                  <p className="text-xs text-gray-400">○ 미제출</p>
                 )}
               </div>
 
               {/* 4, 4-1. 추가 제출 자료 (첨부 서류 fileUrl + action="document_upload" customerDocuments) */}
-              <div>
-                <p className="text-[10px] font-semibold text-gray-400">추가 제출자료</p>
+              <div className="flex items-start gap-2">
+                <p className="w-[92px] shrink-0 pt-0.5 text-[10px] font-semibold text-gray-400">추가 제출자료</p>
                 {fileUrl || customerDocuments.length > 0 ? (
-                  <div className="mt-1.5 space-y-1.5">
+                  <div className="min-w-0 flex-1 space-y-1.5">
                     {fileUrl && (
                       <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
@@ -1066,15 +1066,15 @@ export default async function AdminLeadDetailPage({
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-1.5 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
+                  <p className="pt-0.5 text-xs text-gray-400">○ 미제출</p>
                 )}
               </div>
 
               {/* 허가증 (진행 단계 "허가 완료" 첨부파일 — 기존 permitFileUrl/permitFileName 재사용, 새 계산 없음) */}
-              <div>
-                <p className="text-[10px] font-semibold text-gray-400">허가증</p>
+              <div className="flex items-center gap-2">
+                <p className="w-[92px] shrink-0 text-[10px] font-semibold text-gray-400">허가증</p>
                 {permitFileUrl ? (
-                  <div className="mt-1.5 flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+                  <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
                       <Paperclip size={14} className="text-blue-700" />
                     </div>
@@ -1096,7 +1096,7 @@ export default async function AdminLeadDetailPage({
                     </a>
                   </div>
                 ) : (
-                  <p className="mt-1.5 text-xs text-gray-400">현재 제출된 문서가 없습니다.</p>
+                  <p className="text-xs text-gray-400">○ 미제출</p>
                 )}
               </div>
             </div>
@@ -1147,7 +1147,7 @@ export default async function AdminLeadDetailPage({
               />
               <button
                 type="submit"
-                className="rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
+                className="rounded-full bg-blue-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
               >
                 메모 저장
               </button>
@@ -1157,12 +1157,12 @@ export default async function AdminLeadDetailPage({
           {/* 9. crm_activities 타임라인 */}
           <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <p className="text-xs font-semibold text-gray-700">활동 타임라인</p>
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 space-y-1.5">
               {activities.length === 0 && (
                 <p className="text-xs text-gray-400">기록된 활동이 없습니다.</p>
               )}
               {activities.map((a) => (
-                <div key={a.id} className="flex items-start gap-2.5 rounded-xl bg-gray-50 px-3 py-2.5">
+                <div key={a.id} className="flex items-start gap-2.5 rounded-xl bg-gray-50 px-3 py-2">
                   <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${getActivityDotColor(a.action)}`} />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-gray-800">
