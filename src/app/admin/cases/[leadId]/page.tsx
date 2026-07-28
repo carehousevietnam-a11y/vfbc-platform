@@ -632,86 +632,96 @@ export default async function AdminLeadDetailPage({
           {lead.name}
         </h1>
 
-        {/* 고객 요약 — 기존 데이터(activeScore/riskInfo/processSteps)만 재사용, 새 계산 없음 */}
-        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <p className="text-xs font-semibold text-gray-700">고객 요약</p>
-          <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
-            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="flex items-center gap-1 text-[10px] text-gray-400">
-                <User size={10} /> 고객
+        {/* Hero 카드 — 고객 요약/고객 기본정보/신청 서비스 정보 통합. 기존 변수(lead.*,
+            serviceLabel, currentStageLabel, consultationStatus, activeScore, riskInfo,
+            resultInfo)만 재배치, 새 조회·새 계산 없음. PC 3열(고객/서비스/AI 요약),
+            모바일은 세로 스택 */}
+        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:divide-x lg:divide-gray-100">
+            {/* 좌측: 고객 정보 */}
+            <div className="lg:pr-6">
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
+                <User size={12} /> 고객 정보
               </p>
-              <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{lead.name}</p>
+              <p className="mt-2 text-base font-bold text-gray-900">{lead.name}</p>
+              <div className="mt-2 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">연락처</span>
+                  <span className="font-medium text-gray-900">{lead.phone ?? "-"}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">이메일</span>
+                  <span className="font-medium text-gray-900">{lead.email ?? "-"}</span>
+                </div>
+              </div>
             </div>
-            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="flex items-center gap-1 text-[10px] text-gray-400">
-                <FileText size={10} /> 서비스
-              </p>
-              <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{serviceLabel}</p>
-            </div>
-            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="flex items-center gap-1 text-[10px] text-gray-400">
-                <MapPin size={10} /> 현재 단계
-              </p>
-              <p className="mt-0.5 truncate text-xs font-semibold text-gray-900">{currentStageLabel}</p>
-            </div>
-            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="flex items-center gap-1 text-[10px] text-gray-400">
-                <Brain size={10} /> AI 점수
-              </p>
-              <p className="mt-0.5 text-xs font-semibold text-gray-900">
-                {typeof activeScore === "number" ? `${activeScore}%` : "-"}
-              </p>
-            </div>
-            <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-              <p className="flex items-center gap-1 text-[10px] text-gray-400">
-                <AlertTriangle size={10} /> 리스크
-              </p>
-              {riskInfo ? (
-                <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
-                  {riskInfo.label}
-                </span>
-              ) : (
-                <p className="mt-0.5 text-xs font-semibold text-gray-900">-</p>
-              )}
-            </div>
-          </div>
-        </div>
 
-        {/* 1~2. 고객 기본정보 + 신청 서비스 정보 — PC(lg 이상) 2열, 모바일 1열 */}
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {/* 1. 고객 기본정보 */}
-          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-            <p className="text-xs font-semibold text-gray-700">고객 기본정보</p>
-            <div className="mt-2 grid grid-cols-2 gap-y-1 text-xs">
-              <span className="text-gray-500">전화번호</span>
-              <span className="font-medium text-gray-900">{lead.phone ?? "-"}</span>
-              <span className="text-gray-500">이메일</span>
-              <span className="font-medium text-gray-900">{lead.email ?? "-"}</span>
-              <span className="text-gray-500">주소</span>
-              <span className="font-medium text-gray-900">{lead.address ?? "-"}</span>
-              <span className="text-gray-500">카카오톡</span>
-              <span className="font-medium text-gray-900">{lead.kakao_id ?? "-"}</span>
-              <span className="text-gray-500">잘로</span>
-              <span className="font-medium text-gray-900">{lead.zalo_id ?? "-"}</span>
-              <span className="text-gray-500">접수일</span>
-              <span className="font-medium text-gray-900">
-                {new Date(lead.created_at).toLocaleString("ko-KR")}
-              </span>
+            {/* 가운데: 서비스 / 현재 단계 / 접수일 */}
+            <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:px-6 lg:pt-0">
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
+                <FileText size={12} /> 서비스 정보
+              </p>
+              <div className="mt-2 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">서비스</span>
+                  <span className="font-medium text-gray-900">{serviceLabel}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-1 text-gray-500">
+                    <MapPin size={11} /> 현재 단계
+                  </span>
+                  <span className="font-medium text-gray-900">{currentStageLabel}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">접수일</span>
+                  <span className="font-medium text-gray-900">
+                    {new Date(lead.created_at).toLocaleString("ko-KR")}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* 2. 신청 서비스 종류 / 유입 경로 */}
-          <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-            <p className="text-xs font-semibold text-gray-700">신청 서비스 정보</p>
-            <div className="mt-2 grid grid-cols-2 gap-y-1.5 text-xs">
-              <span className="text-gray-500">서비스 종류</span>
-              <span className="font-medium text-gray-900">{serviceLabel}</span>
-              <span className="text-gray-500">service_type 원본값</span>
-              <span className="font-mono text-[11px] text-gray-500">{lead.service_type ?? "-"}</span>
-              <span className="text-gray-500">유입 경로</span>
-              <span className="font-medium text-gray-900">{lead.source_page ?? "-"}</span>
-              <span className="text-gray-500">결과값</span>
-              <span className="font-medium text-gray-900">{lead.result ?? "-"}</span>
+            {/* 우측: AI 점수 / 리스크 / 결과 / 상담 상태 */}
+            <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:pl-6">
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
+                <Brain size={12} /> AI 진단 요약
+              </p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <div className="rounded-xl bg-gray-50 px-3 py-2">
+                  <p className="text-[10px] text-gray-400">AI 점수</p>
+                  <p className="mt-0.5 text-xs font-semibold text-gray-900">
+                    {typeof activeScore === "number" ? `${activeScore}%` : "-"}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-gray-50 px-3 py-2">
+                  <p className="flex items-center gap-1 text-[10px] text-gray-400">
+                    <AlertTriangle size={10} /> 리스크
+                  </p>
+                  {riskInfo ? (
+                    <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskInfo.color}`}>
+                      {riskInfo.label}
+                    </span>
+                  ) : (
+                    <p className="mt-0.5 text-xs font-semibold text-gray-900">-</p>
+                  )}
+                </div>
+                <div className="rounded-xl bg-gray-50 px-3 py-2">
+                  <p className="text-[10px] text-gray-400">결과</p>
+                  {resultInfo ? (
+                    <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${resultInfo.color}`}>
+                      {resultInfo.label}
+                    </span>
+                  ) : (
+                    <p className="mt-0.5 text-xs font-semibold text-gray-900">-</p>
+                  )}
+                </div>
+                <div className="rounded-xl bg-gray-50 px-3 py-2">
+                  <p className="text-[10px] text-gray-400">상담 상태</p>
+                  <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${consultationStatus.color}`}>
+                    {consultationStatus.label}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
