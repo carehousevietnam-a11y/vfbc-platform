@@ -1,16 +1,11 @@
-// src/app/admin/cases/page.tsx
-
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 
 export const dynamic = "force-dynamic";
 
-// ── service_type 정규화 (화면 표시용, DB는 건드리지 않음) ──────
-// 구버전 코드에서 다른 값으로 저장된 리드를 최신 값과 동일하게 인식시키기 위한 별칭 처리.
-// 새로운 별칭이 생기면 여기 한 줄만 추가하면 됨.
 const SERVICE_TYPE_ALIASES: Record<string, string> = {
-  register_company: "permit_company", // register/company 페이지 구버전에서 저장된 값
+  register_company: "permit_company",
 };
 
 function normalizeServiceType(serviceType: string | null | undefined): string | null {
@@ -18,24 +13,10 @@ function normalizeServiceType(serviceType: string | null | undefined): string | 
   return SERVICE_TYPE_ALIASES[serviceType] ?? serviceType;
 }
 
-// 분류/라벨 매칭 전용 보조 함수 — 하이픈("register_fire-safety")과 언더스코어
-// ("register_fire_safety") 표기가 혼재해도 같은 접두사/값으로 인식시키기 위한 것.
-// DB 원본이나 화면에 최종 노출되는 표시 문자열 자체를 바꾸는 게 아니라,
-// startsWith()/딕셔너리 비교에만 사용하는 매칭용 키다.
 function toPrefixKey(value: string): string {
   return value.toLowerCase().replace(/-/g, "_");
 }
 
-// ── 서비스 → 대분류 매핑 ────────────────────────────────
-// CHECK(직접확인하기)는 여기 목록에 명시적으로 추가해야 함.
-// VERIFY(직접검토하기)는 service_type이 "verify_"/"verify-"로 시작하면 자동 인식.
-// PERMIT(직접허가받기, 화면상 REGISTER)은 service_type이 "permit_"/"permit-" 또는
-// "register_"/"register-"로 시작하면 자동 인식 — 법인설립(permit_company)뿐 아니라
-// 업종허가 스텁 6종(register_restaurant 등)도 같은 대분류로 묶인다
-// (2026.7.17 세션에 register_ 접두사 인식 추가, admin/leads/page.tsx와 분류 기준 통일 +
-// 하이픈/언더스코어 표기 혼재까지 흡수하도록 보강).
-// CONSULTATION(상담문의)은 service_type이 정확히 "consultation"이면 자동 인식.
-// 어느 쪽에도 안 걸리면 "unclassified"로 모아서 놓치지 않게 함.
 const CHECK_SERVICE_TYPES = ["wp", "trc", "tamtru", "driving-license"];
 
 type CategoryKey = "check" | "verify" | "permit" | "consultation" | "unclassified";
@@ -45,40 +26,34 @@ function getCategory(serviceType: string | null | undefined): CategoryKey {
   if (!normalized) return "unclassified";
   if (normalized === "consultation") return "consultation";
 
-  // 접두사 판별은 하이픈/언더스코어 표기를 통일한 키로 비교한다.
-  // CHECK_SERVICE_TYPES 화이트리스트 비교(driving-license 등 기존 값)는
-  // 원본 normalized 값 그대로 사용해 기존 동작에 영향을 주지 않는다.
   const prefixKey = toPrefixKey(normalized);
   if (prefixKey.startsWith("verify")) return "verify";
   if (prefixKey.startsWith("permit")) return "permit";
-  if (prefixKey.startsWith("register")) return "permit"; // register_* 업종허가 스텁 포함
+  if (prefixKey.startsWith("register")) return "permit";
   if (CHECK_SERVICE_TYPES.includes(normalized)) return "check";
   return "unclassified";
 }
 
-const CATEGORY_INFO: Record<
-  CategoryKey,
-  { label: string; badgeColor: string }
-> = {
+const CATEGORY_INFO: Record<CategoryKey, { label: string; badgeColor: string }> = {
   check: {
     label: "직접확인하기 (CHECK)",
-    badgeColor: "bg-blue-50 text-blue-800",
+    badgeColor: "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-100",
   },
   verify: {
     label: "직접검토하기 (VERIFY)",
-    badgeColor: "bg-gray-100 text-gray-600",
+    badgeColor: "bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200",
   },
   permit: {
     label: "직접허가받기 (PERMIT)",
-    badgeColor: "bg-purple-50 text-purple-800",
+    badgeColor: "bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-100",
   },
   consultation: {
     label: "상담문의",
-    badgeColor: "bg-teal-50 text-teal-800",
+    badgeColor: "bg-teal-50 text-teal-700 ring-1 ring-inset ring-teal-100",
   },
   unclassified: {
-    label: "미분류 (매핑 필요)",
-    badgeColor: "bg-amber-50 text-amber-800",
+    label: "미분류",
+    badgeColor: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-100",
   },
 };
 
@@ -88,19 +63,17 @@ const SERVICE_LABELS: Record<string, string> = {
   tamtru: "땀주",
   "driving-license": "운전면허",
   consultation: "일반 상담문의",
-  register_restaurant: "식당허가", // register/restaurant/page.tsx 실제 service_type 값 확인 완료
-  register_cosmetics: "화장품허가", // register/cosmetics/page.tsx 실제 service_type 값 확인 완료
-  register_environment: "환경허가", // register/environment/page.tsx 실제 service_type 값 확인 완료
-  register_fire_safety: "소방허가", // register/fire-safety/page.tsx 실제 값은 "register_fire-safety"(하이픈) — toPrefixKey 정규화로 매칭됨
-  register_hygiene: "위생허가", // register/hygiene/page.tsx 실제 service_type 값 확인 완료
-  register_medical_device: "의료기기허가", // register/medical-device/page.tsx 실제 값은 "register_medical-device"(하이픈) — toPrefixKey 정규화로 매칭됨
+  register_restaurant: "식당허가",
+  register_cosmetics: "화장품허가",
+  register_environment: "환경허가",
+  register_fire_safety: "소방허가",
+  register_hygiene: "위생허가",
+  register_medical_device: "의료기기허가",
 };
 
 function getServiceLabel(serviceType: string) {
-  // 1) 원본 그대로 먼저 매칭 (기존 동작 유지)
   if (SERVICE_LABELS[serviceType]) return SERVICE_LABELS[serviceType];
 
-  // 2) 하이픈/언더스코어 표기가 달라 못 찾은 경우, 정규화한 키로 한 번 더 시도
   const key = toPrefixKey(serviceType);
   if (SERVICE_LABELS[key]) return SERVICE_LABELS[key];
 
@@ -113,9 +86,6 @@ function getServiceLabel(serviceType: string) {
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
   if (key.startsWith("register")) {
-    // REGISTER 스텁 6종(식당/화장품/환경/소방/위생/의료기기)은 전부 SERVICE_LABELS에
-    // 반영 완료. 이 fallback은 향후 새로운 register_* 서비스가 추가될 때를 대비한
-    // 안전장치로 유지한다.
     const sub = key.replace(/^register_?/, "");
     return sub ? `PERMIT · ${sub}` : "PERMIT";
   }
@@ -123,14 +93,22 @@ function getServiceLabel(serviceType: string) {
 }
 
 const RESULT_LABELS: Record<string, { label: string; color: string }> = {
-  possible: { label: "가능", color: "text-emerald-700 bg-emerald-50" },
-  conditional: { label: "조건부 가능", color: "text-amber-700 bg-amber-50" },
-  impossible: { label: "어려움", color: "text-red-700 bg-red-50" },
+  possible: {
+    label: "가능",
+    color: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100",
+  },
+  conditional: {
+    label: "조건부 가능",
+    color: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-100",
+  },
+  impossible: {
+    label: "어려움",
+    color: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-100",
+  },
 };
 
-// ── 날짜 헬퍼 ───────────────────────────────────────────
 function dateKeyOf(createdAt: string) {
-  return new Date(createdAt).toISOString().slice(0, 10); // YYYY-MM-DD
+  return new Date(createdAt).toISOString().slice(0, 10);
 }
 
 function formatDateKey(dateKey: string) {
@@ -138,7 +116,16 @@ function formatDateKey(dateKey: string) {
   return `${d.getUTCFullYear()}.${d.getUTCMonth() + 1}.${d.getUTCDate()}`;
 }
 
-// ── 페이지 ──────────────────────────────────────────────
+function formatDateTime(createdAt: string) {
+  return new Date(createdAt).toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default async function AdminCasesPage({
   searchParams,
 }: {
@@ -148,8 +135,8 @@ export default async function AdminCasesPage({
   const category = (typeof sp.category === "string" && sp.category) || null;
   const service = (typeof sp.service === "string" && sp.service) || null;
   const date = (typeof sp.date === "string" && sp.date) || null;
+  const q = (typeof sp.q === "string" && sp.q.trim()) || "";
 
-  // 1) 전체 leads 조회 (모든 레벨의 집계 기준)
   const { data: allLeads, error: leadsError } = await supabaseAdmin
     .from("leads")
     .select("id, name, phone, email, service_type, result, created_at")
@@ -160,14 +147,11 @@ export default async function AdminCasesPage({
     return <ErrorScreen message={leadsError.message} />;
   }
 
-  // service_type을 정규화한 뒤 사용 — 구버전 값(register_company 등)을 최신 값과 통합.
-  // DB 원본은 건드리지 않고 화면 표시 단계에서만 치환.
   const leads = (allLeads ?? []).map((l) => ({
     ...l,
     service_type: normalizeServiceType(l.service_type),
   }));
 
-  // 2) 전문가 진행요청(agency_upgrade_request) 활동 조회 → lead_id 집합으로 변환
   const { data: agencyActivities, error: agencyError } = await supabaseAdmin
     .from("crm_activities")
     .select("lead_id")
@@ -176,11 +160,11 @@ export default async function AdminCasesPage({
   if (agencyError) {
     return <ErrorScreen message={agencyError.message} />;
   }
+
   const agencyLeadIds = new Set(
     (agencyActivities ?? []).map((a) => a.lead_id).filter(Boolean)
   );
 
-  // ── LEVEL 4: 카테고리+서비스+날짜 → 개별 고객 리스트 ──
   if (category && service && date) {
     const dayLeads = leads.filter(
       (l) => l.service_type === service && dateKeyOf(l.created_at) === date
@@ -204,95 +188,38 @@ export default async function AdminCasesPage({
     return (
       <Shell>
         <Breadcrumb category={category as CategoryKey} service={service} date={date} />
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          {getServiceLabel(service)} · {formatDateKey(date)}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">{dayLeads.length}건</p>
+        <PageHeader
+          title={`${getServiceLabel(service)} · ${formatDateKey(date)}`}
+          description={`${dayLeads.length}건의 신청 내역입니다.`}
+        />
 
-        <div className="mt-6 space-y-3">
-          {dayLeads.length === 0 && (
-            <p className="text-sm text-gray-400">해당 날짜의 데이터가 없습니다.</p>
-          )}
+        <div className="mt-6 space-y-3 lg:hidden">
+          {dayLeads.length === 0 && <EmptyState />}
           {dayLeads.map((lead) => {
             const meta = metaByLead.get(lead.id);
-            const score = meta?.feasibilityScore;
-            const risk = meta?.expertBrief?.riskLevel;
-            const resultInfo = RESULT_LABELS[lead.result ?? ""] ?? null;
-            const isAgency = agencyLeadIds.has(lead.id);
-            const isRejectedElsewhere = meta?.previousRejection?.rejected === true;
-
             return (
-              <Link
+              <LeadMobileCard
                 key={lead.id}
-                href={`/admin/cases/${lead.id}`}
-                className="block rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-bold text-gray-900">
-                        {lead.name ?? "이름 미상"}
-                      </p>
-                      {isAgency && (
-                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                          전문가 진행요청
-                        </span>
-                      )}
-                      {isRejectedElsewhere && (
-                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700">
-                          재검토
-                        </span>
-                      )}
-                      {risk && (
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                            risk === "high"
-                              ? "bg-red-50 text-red-700"
-                              : risk === "medium"
-                              ? "bg-amber-50 text-amber-700"
-                              : "bg-emerald-50 text-emerald-700"
-                          }`}
-                        >
-                          위험{" "}
-                          {risk === "high" ? "높음" : risk === "medium" ? "중간" : "낮음"}
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500">
-                      {lead.phone}
-                      {lead.email ? ` · ${lead.email}` : ""}
-                    </p>
-                    {isRejectedElsewhere && meta?.previousRejection?.reason && (
-                      <p className="mt-1 text-[11px] text-red-600 line-clamp-1">
-                        거절 사유: {meta.previousRejection.reason}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right shrink-0">
-                    {typeof score === "number" && (
-                      <p className="text-sm font-bold text-gray-900">{score}%</p>
-                    )}
-                    {resultInfo && (
-                      <span
-                        className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${resultInfo.color}`}
-                      >
-                        {resultInfo.label}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <p className="mt-2 text-[11px] text-gray-400">
-                  {new Date(lead.created_at).toLocaleString("ko-KR")}
-                </p>
-              </Link>
+                lead={lead}
+                category={getCategory(lead.service_type)}
+                isAgency={agencyLeadIds.has(lead.id)}
+                isRejected={meta?.previousRejection?.rejected === true}
+              />
             );
           })}
+        </div>
+
+        <div className="mt-6 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:block">
+          <LeadTable
+            leads={dayLeads}
+            agencyLeadIds={agencyLeadIds}
+            metaByLead={metaByLead}
+          />
         </div>
       </Shell>
     );
   }
 
-  // ── LEVEL 3: 카테고리+서비스 → 날짜별 목록 ──
   if (category && service) {
     const serviceLeads = leads.filter((l) => l.service_type === service);
     const byDate = new Map<string, { checks: number; agency: number }>();
@@ -310,31 +237,27 @@ export default async function AdminCasesPage({
     return (
       <Shell>
         <Breadcrumb category={category as CategoryKey} service={service} />
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          {getServiceLabel(service)}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          총 {serviceLeads.length}건 · 날짜별로 나눠 보여드립니다.
-        </p>
+        <PageHeader
+          title={getServiceLabel(service)}
+          description={`총 ${serviceLeads.length}건 · 날짜별 접수 현황입니다.`}
+        />
 
-        <div className="mt-6 rounded-2xl bg-white border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
-          {dateRows.length === 0 && (
-            <p className="p-5 text-sm text-gray-400">데이터가 없습니다.</p>
-          )}
-          {dateRows.map(([dateKey, stat], i) => (
+        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          {dateRows.length === 0 && <EmptyState />}
+          {dateRows.map(([dateKey, stat], index) => (
             <Link
               key={dateKey}
               href={`/admin/cases?category=${category}&service=${service}&date=${dateKey}`}
-              className={`flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors ${
-                i === 0 ? "" : "border-t border-gray-100"
+              className={`flex items-center justify-between px-5 py-4 transition hover:bg-slate-50 ${
+                index === 0 ? "" : "border-t border-slate-100"
               }`}
             >
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-slate-900">
                 {formatDateKey(dateKey)}
               </span>
-              <div className="flex gap-2">
-                <span className="rounded-full bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600">
-                  확인 {stat.checks}
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                  접수 {stat.checks}
                 </span>
                 <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
                   진행요청 {stat.agency}
@@ -347,11 +270,8 @@ export default async function AdminCasesPage({
     );
   }
 
-  // ── LEVEL 2: 카테고리 → 서비스별 카드 ──
   if (category) {
-    const catLeads = leads.filter(
-      (l) => getCategory(l.service_type) === category
-    );
+    const catLeads = leads.filter((l) => getCategory(l.service_type) === category);
     const byService = new Map<string, { checks: number; agency: number }>();
     for (const l of catLeads) {
       const key = l.service_type ?? "미상";
@@ -368,35 +288,32 @@ export default async function AdminCasesPage({
     return (
       <Shell>
         <Breadcrumb category={category as CategoryKey} />
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-          {info.label}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          총 {catLeads.length}건. 서비스를 선택하면 날짜별로 볼 수 있습니다.
-        </p>
+        <PageHeader
+          title={info.label}
+          description={`총 ${catLeads.length}건 · 서비스를 선택해 날짜별 현황을 확인하세요.`}
+        />
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          {serviceRows.length === 0 && (
-            <p className="text-sm text-gray-400 col-span-2">데이터가 없습니다.</p>
-          )}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {serviceRows.length === 0 && <EmptyState />}
           {serviceRows.map(([svcType, stat]) => (
             <Link
               key={svcType}
               href={`/admin/cases?category=${category}&service=${svcType}`}
-              className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
+              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
             >
-              <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${info.badgeColor}`}>
-                {getServiceLabel(svcType)}
-              </span>
-              <div className="mt-3 flex gap-4">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xl font-bold text-gray-900">{stat.checks}</p>
-                  <p className="text-[11px] text-gray-400">확인횟수</p>
+                  <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${info.badgeColor}`}>
+                    {getServiceLabel(svcType)}
+                  </span>
+                  <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
+                    {stat.checks}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">전체 신청건</p>
                 </div>
-                <div>
-                  <p className="text-xl font-bold text-gray-900">{stat.agency}</p>
-                  <p className="text-[11px] text-gray-400">전문가 진행요청</p>
-                </div>
+                <span className="rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">
+                  진행요청 {stat.agency}
+                </span>
               </div>
             </Link>
           ))}
@@ -405,7 +322,6 @@ export default async function AdminCasesPage({
     );
   }
 
-  // ── LEVEL 1: 대분류 카드 (기본 화면) ──
   const byCategory = new Map<CategoryKey, { checks: number; agency: number }>();
   for (const l of leads) {
     const cat = getCategory(l.service_type);
@@ -414,70 +330,126 @@ export default async function AdminCasesPage({
     if (agencyLeadIds.has(l.id)) cur.agency += 1;
     byCategory.set(cat, cur);
   }
-  const orderedCats: CategoryKey[] = ["check", "verify", "permit", "consultation"];
-  if (byCategory.has("unclassified")) orderedCats.push("unclassified");
 
-  // 거절이력 건수 조회 — 이 화면(대분류 홈)에서만 필요하므로 여기서 조회
   const { count: rejectionCount } = await supabaseAdmin
     .from("previous_rejections")
     .select("id", { count: "exact", head: true });
 
+  const normalizedQuery = q.toLowerCase();
+  const filteredLeads = normalizedQuery
+    ? leads.filter((lead) => {
+        const serviceLabel = lead.service_type
+          ? getServiceLabel(lead.service_type).toLowerCase()
+          : "";
+        return [lead.name, lead.phone, lead.email, lead.service_type, serviceLabel]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+      })
+    : leads;
+
+  const serviceCount = new Set(leads.map((lead) => lead.service_type).filter(Boolean)).size;
+
   return (
     <Shell>
-      <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-        AI 진단 리포트 목록
-      </h1>
-      <p className="mt-1 text-sm text-gray-500">
-        총 {leads.length}건. 대분류를 선택하면 서비스별로 볼 수 있습니다.
-      </p>
+      <PageHeader title="신청건 관리" description="전체 신청건을 관리합니다." />
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        {orderedCats.map((catKey) => {
-          const stat = byCategory.get(catKey) ?? { checks: 0, agency: 0 };
-          const info = CATEGORY_INFO[catKey];
-          return (
-            <Link
-              key={catKey}
-              href={`/admin/cases?category=${catKey}`}
-              className="rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-            >
-              <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${info.badgeColor}`}>
-                {info.label}
-              </span>
-              <div className="mt-3 flex gap-4">
-                <div>
-                  <p className="text-xl font-bold text-gray-900">{stat.checks}</p>
-                  <p className="text-[11px] text-gray-400">확인횟수</p>
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-gray-900">{stat.agency}</p>
-                  <p className="text-[11px] text-gray-400">전문가 진행요청</p>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          label="전체 신청건"
+          value={leads.length}
+          caption="현재 조회된 전체 리드"
+          icon={<CasesIcon />}
+        />
+        <KpiCard
+          label="전문가 진행요청"
+          value={agencyLeadIds.size}
+          caption="전문가 연결 요청 건"
+          icon={<ExpertIcon />}
+        />
+        <KpiCard
+          label="서비스 종류"
+          value={serviceCount}
+          caption="현재 접수된 서비스 유형"
+          icon={<ServiceIcon />}
+        />
+        <KpiCard
+          label="거절이력"
+          value={rejectionCount ?? 0}
+          caption="타 기관 거절 등록 건"
+          icon={<RejectionIcon />}
+        />
       </div>
 
-      <div className="mt-3">
-        <Link
-          href="/admin/rejections"
-          className="block rounded-2xl bg-white border border-red-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all"
-        >
-          <span className="inline-block rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
-            타 기관 거절이력
-          </span>
-          <div className="mt-3 flex gap-4">
+      <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xl font-bold text-gray-900">{rejectionCount ?? 0}</p>
-              <p className="text-[11px] text-gray-400">전체 건수</p>
+              <h2 className="text-base font-bold text-slate-950">전체 신청건</h2>
+              <p className="mt-1 text-xs text-slate-500">
+                고객 정보와 업무 상태를 한 화면에서 확인합니다.
+              </p>
             </div>
+
+            <form action="/admin/cases" method="get" className="flex w-full gap-2 lg:max-w-xl">
+              <label className="relative min-w-0 flex-1">
+                <span className="sr-only">신청건 검색</span>
+                <SearchIcon />
+                <input
+                  name="q"
+                  defaultValue={q}
+                  placeholder="이름, 전화번호, 이메일, 서비스 검색"
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                />
+              </label>
+              <button
+                type="submit"
+                className="h-11 shrink-0 rounded-xl bg-blue-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+              >
+                검색
+              </button>
+              {q && (
+                <Link
+                  href="/admin/cases"
+                  className="flex h-11 shrink-0 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                >
+                  초기화
+                </Link>
+              )}
+            </form>
           </div>
-        </Link>
-      </div>
+        </div>
+
+        <div className="lg:hidden">
+          {filteredLeads.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {filteredLeads.map((lead) => (
+                <LeadMobileCard
+                  key={lead.id}
+                  lead={lead}
+                  category={getCategory(lead.service_type)}
+                  isAgency={agencyLeadIds.has(lead.id)}
+                  isRejected={false}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="hidden lg:block">
+          <LeadTable leads={filteredLeads} agencyLeadIds={agencyLeadIds} />
+        </div>
+
+        <div className="flex items-center justify-between border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
+          <span>{q ? `검색 결과 ${filteredLeads.length}건` : `총 ${leads.length}건`}</span>
+          <span>최대 2,000건 표시</span>
+        </div>
+      </section>
+
       {byCategory.has("unclassified") && (
         <p className="mt-4 text-xs text-amber-700">
-          매핑되지 않은 service_type이 있습니다 — 코드의 CHECK_SERVICE_TYPES 또는
+          매핑되지 않은 service_type이 있습니다 — CHECK_SERVICE_TYPES 또는
           SERVICE_TYPE_ALIASES 목록을 확인해주세요.
         </p>
       )}
@@ -485,21 +457,319 @@ export default async function AdminCasesPage({
   );
 }
 
-// ── 공통 레이아웃 컴포넌트 ──────────────────────────────
+function LeadTable({
+  leads,
+  agencyLeadIds,
+  metaByLead,
+}: {
+  leads: Array<{
+    id: string;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    service_type: string | null;
+    result: string | null;
+    created_at: string;
+  }>;
+  agencyLeadIds: Set<string>;
+  metaByLead?: Map<string, any>;
+}) {
+  if (leads.length === 0) return <EmptyState />;
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-fixed">
+        <thead className="bg-slate-50">
+          <tr className="border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+            <th className="w-[22%] px-5 py-3.5">고객</th>
+            <th className="w-[17%] px-4 py-3.5">서비스</th>
+            <th className="w-[17%] px-4 py-3.5">카테고리</th>
+            <th className="w-[12%] px-4 py-3.5">진단결과</th>
+            <th className="w-[14%] px-4 py-3.5">업무상태</th>
+            <th className="w-[12%] px-4 py-3.5">접수일</th>
+            <th className="w-[6%] px-5 py-3.5 text-right">작업</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 bg-white">
+          {leads.map((lead) => {
+            const category = getCategory(lead.service_type);
+            const categoryInfo = CATEGORY_INFO[category];
+            const resultInfo = RESULT_LABELS[lead.result ?? ""];
+            const isAgency = agencyLeadIds.has(lead.id);
+            const meta = metaByLead?.get(lead.id);
+            const isRejected = meta?.previousRejection?.rejected === true;
+
+            return (
+              <tr key={lead.id} className="group transition hover:bg-blue-50/40">
+                <td className="px-5 py-4 align-middle">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-600">
+                      {(lead.name ?? "?").slice(0, 1)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">
+                        {lead.name ?? "이름 미상"}
+                      </p>
+                      <p className="mt-0.5 truncate text-xs text-slate-500">
+                        {lead.phone || lead.email || "연락처 없음"}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-4 align-middle">
+                  <p className="truncate text-sm font-medium text-slate-800">
+                    {lead.service_type ? getServiceLabel(lead.service_type) : "미상"}
+                  </p>
+                </td>
+                <td className="px-4 py-4 align-middle">
+                  <span className={`inline-flex max-w-full truncate rounded-full px-2.5 py-1 text-xs font-semibold ${categoryInfo.badgeColor}`}>
+                    {categoryInfo.label}
+                  </span>
+                </td>
+                <td className="px-4 py-4 align-middle">
+                  {resultInfo ? (
+                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${resultInfo.color}`}>
+                      {resultInfo.label}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-slate-400">미지정</span>
+                  )}
+                </td>
+                <td className="px-4 py-4 align-middle">
+                  {isRejected ? (
+                    <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-100">
+                      재검토
+                    </span>
+                  ) : isAgency ? (
+                    <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-100">
+                      전문가 진행요청
+                    </span>
+                  ) : (
+                    <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-100">
+                      접수 완료
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-4 align-middle text-xs text-slate-500">
+                  {formatDateTime(lead.created_at)}
+                </td>
+                <td className="px-5 py-4 text-right align-middle">
+                  <Link
+                    href={`/admin/cases/${lead.id}`}
+                    className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
+                  >
+                    상세보기
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function LeadMobileCard({
+  lead,
+  category,
+  isAgency,
+  isRejected,
+}: {
+  lead: {
+    id: string;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    service_type: string | null;
+    result: string | null;
+    created_at: string;
+  };
+  category: CategoryKey;
+  isAgency: boolean;
+  isRejected: boolean;
+}) {
+  const categoryInfo = CATEGORY_INFO[category];
+  const resultInfo = RESULT_LABELS[lead.result ?? ""];
+
+  return (
+    <div className="p-4">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-slate-950">
+              {lead.name ?? "이름 미상"}
+            </p>
+            <p className="mt-1 truncate text-xs text-slate-500">
+              {lead.phone || lead.email || "연락처 없음"}
+            </p>
+          </div>
+          {resultInfo && (
+            <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${resultInfo.color}`}>
+              {resultInfo.label}
+            </span>
+          )}
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <p className="text-slate-400">서비스</p>
+            <p className="mt-1 font-semibold text-slate-800">
+              {lead.service_type ? getServiceLabel(lead.service_type) : "미상"}
+            </p>
+          </div>
+          <div>
+            <p className="text-slate-400">업무상태</p>
+            <p className="mt-1 font-semibold text-slate-800">
+              {isRejected ? "재검토" : isAgency ? "전문가 진행요청" : "접수 완료"}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${categoryInfo.badgeColor}`}>
+            {categoryInfo.label}
+          </span>
+          <span className="text-[11px] text-slate-400">{formatDateTime(lead.created_at)}</span>
+        </div>
+
+        <Link
+          href={`/admin/cases/${lead.id}`}
+          className="mt-4 flex h-10 w-full items-center justify-center rounded-xl bg-blue-700 text-sm font-semibold text-white transition hover:bg-blue-800"
+        >
+          상세보기
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-[#fafafa]">
-      <div className="h-[3px] bg-blue-900" />
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-            VFBCAI 관리자
-          </p>
-          <AdminLogoutButton />
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="flex min-h-screen">
+        <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white lg:flex lg:flex-col">
+          <div className="border-b border-slate-200 px-5 py-5">
+            <p className="text-sm font-extrabold tracking-tight text-slate-950">VFBCAI 관리자</p>
+            <p className="mt-1 text-[11px] text-slate-400">CRM WORKSPACE</p>
+          </div>
+
+          <nav className="flex-1 px-3 py-4 text-sm">
+            <SidebarLink href="/admin" label="대시보드" />
+            <SidebarLink href="/admin/cases" label="신청건 관리" active />
+            <div className="mb-2 ml-3 border-l border-slate-200 pl-3">
+              <SidebarLink href="/admin/cases" label="전체 신청건" compact active />
+              <SidebarDisabled label="미확인 문서" />
+              <SidebarDisabled label="보완 요청" />
+              <SidebarDisabled label="긴급 건" />
+            </div>
+            <SidebarDisabled label="문서관리" />
+            <SidebarDisabled label="직원관리" />
+            <SidebarDisabled label="통계" />
+            <SidebarLink href="/admin/rejections" label="거절이력관리" />
+          </nav>
+
+          <div className="border-t border-slate-200 p-3">
+            <AdminLogoutButton />
+          </div>
+        </aside>
+
+        <div className="min-w-0 flex-1">
+          <header className="border-b border-slate-200 bg-white lg:hidden">
+            <div className="flex h-16 items-center justify-between px-4">
+              <div>
+                <p className="text-sm font-extrabold text-slate-950">VFBCAI 관리자</p>
+                <p className="text-[10px] text-slate-400">CRM WORKSPACE</p>
+              </div>
+              <AdminLogoutButton />
+            </div>
+          </header>
+
+          <div className="mx-auto w-full max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            {children}
+          </div>
         </div>
-        {children}
       </div>
     </main>
+  );
+}
+
+function SidebarLink({
+  href,
+  label,
+  active = false,
+  compact = false,
+}: {
+  href: string;
+  label: string;
+  active?: boolean;
+  compact?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`mb-1 flex items-center rounded-lg px-3 py-2 transition ${
+        compact ? "text-xs" : "text-sm font-medium"
+      } ${
+        active
+          ? "bg-blue-50 text-blue-700"
+          : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
+      }`}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function SidebarDisabled({ label }: { label: string }) {
+  return (
+    <div className="mb-1 flex items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-400">
+      <span>{label}</span>
+      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold text-slate-400">
+        준비중
+      </span>
+    </div>
+  );
+}
+
+function PageHeader({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
+          {title}
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">{description}</p>
+      </div>
+      <p className="text-xs font-medium text-slate-400">실시간 데이터 기준</p>
+    </div>
+  );
+}
+
+function KpiCard({
+  label,
+  value,
+  caption,
+  icon,
+}: {
+  label: string;
+  value: number;
+  caption: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-slate-600">{label}</p>
+          <p className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950">{value}</p>
+          <p className="mt-2 text-xs text-slate-400">{caption}</p>
+        </div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+          {icon}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -514,14 +784,14 @@ function Breadcrumb({
 }) {
   const info = CATEGORY_INFO[category] ?? CATEGORY_INFO.unclassified;
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-gray-400">
-      <Link href="/admin/cases" className="hover:text-gray-600 hover:underline">
-        전체
+    <div className="mb-4 flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+      <Link href="/admin/cases" className="hover:text-blue-700">
+        전체 신청건
       </Link>
       <span>/</span>
       <Link
         href={`/admin/cases?category=${category}`}
-        className={service ? "hover:text-gray-600 hover:underline" : "text-gray-700 font-medium"}
+        className={service ? "hover:text-blue-700" : "font-semibold text-slate-700"}
       >
         {info.label}
       </Link>
@@ -530,7 +800,7 @@ function Breadcrumb({
           <span>/</span>
           <Link
             href={`/admin/cases?category=${category}&service=${service}`}
-            className={date ? "hover:text-gray-600 hover:underline" : "text-gray-700 font-medium"}
+            className={date ? "hover:text-blue-700" : "font-semibold text-slate-700"}
           >
             {getServiceLabel(service)}
           </Link>
@@ -539,19 +809,79 @@ function Breadcrumb({
       {date && (
         <>
           <span>/</span>
-          <span className="text-gray-700 font-medium">{formatDateKey(date)}</span>
+          <span className="font-semibold text-slate-700">{formatDateKey(date)}</span>
         </>
       )}
     </div>
   );
 }
 
+function EmptyState() {
+  return (
+    <div className="flex min-h-40 items-center justify-center p-8 text-sm text-slate-400">
+      표시할 데이터가 없습니다.
+    </div>
+  );
+}
+
 function ErrorScreen({ message }: { message: string }) {
   return (
-    <main className="min-h-screen bg-[#fafafa] p-10">
-      <p className="text-sm text-red-600">
-        데이터를 불러오는 중 문제가 발생했습니다: {message}
-      </p>
+    <main className="min-h-screen bg-slate-50 p-10">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold text-red-700">
+          데이터를 불러오는 중 문제가 발생했습니다.
+        </p>
+        <p className="mt-2 text-sm text-red-600">{message}</p>
+      </div>
     </main>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
+}
+
+function CasesIcon() {
+  return <IconPath d="M5 7h14M5 12h14M5 17h9" />;
+}
+
+function ExpertIcon() {
+  return <IconPath d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1 2 2 4-4M2 21a6 6 0 0 1 12 0" />;
+}
+
+function ServiceIcon() {
+  return <IconPath d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z" />;
+}
+
+function RejectionIcon() {
+  return <IconPath d="M12 9v4m0 4h.01M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z" />;
+}
+
+function IconPath({ d }: { d: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
   );
 }
