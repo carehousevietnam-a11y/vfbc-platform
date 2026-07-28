@@ -637,7 +637,7 @@ function DateContentGroup({
       shell: "border-blue-100 bg-blue-50/45",
       label: "text-blue-700",
       count: "text-blue-700",
-      activeService: "border-blue-700 bg-blue-700 text-white ring-blue-200",
+      activeService: "border-blue-200 border-l-4 border-l-blue-600 bg-white text-slate-800 ring-blue-100",
     },
     verify: {
       shortLabel: "VERIFY",
@@ -645,7 +645,7 @@ function DateContentGroup({
       shell: "border-violet-100 bg-violet-50/45",
       label: "text-violet-700",
       count: "text-violet-700",
-      activeService: "border-violet-700 bg-violet-700 text-white ring-violet-200",
+      activeService: "border-violet-200 border-l-4 border-l-violet-600 bg-white text-slate-800 ring-violet-100",
     },
     permit: {
       shortLabel: "REGISTER",
@@ -653,7 +653,7 @@ function DateContentGroup({
       shell: "border-emerald-100 bg-emerald-50/45",
       label: "text-emerald-700",
       count: "text-emerald-700",
-      activeService: "border-emerald-700 bg-emerald-700 text-white ring-emerald-200",
+      activeService: "border-emerald-200 border-l-4 border-l-emerald-600 bg-white text-slate-800 ring-emerald-100",
     },
     consultation: {
       shortLabel: "상담",
@@ -661,7 +661,7 @@ function DateContentGroup({
       shell: "border-amber-100 bg-amber-50/45",
       label: "text-amber-700",
       count: "text-amber-700",
-      activeService: "border-amber-600 bg-amber-500 text-white ring-amber-200",
+      activeService: "border-amber-200 border-l-4 border-l-amber-500 bg-white text-slate-800 ring-amber-100",
     },
     unclassified: {
       shortLabel: "미분류",
@@ -669,7 +669,7 @@ function DateContentGroup({
       shell: "border-slate-200 bg-slate-50",
       label: "text-slate-700",
       count: "text-slate-700",
-      activeService: "border-slate-700 bg-slate-700 text-white ring-slate-300",
+      activeService: "border-slate-300 border-l-4 border-l-slate-600 bg-white text-slate-800 ring-slate-200",
     },
   };
 
@@ -778,27 +778,42 @@ function DateContentGroup({
                           <Link
                             key={serviceType}
                             href={buildHref({ focusDate: dateKey, focusService: serviceType })}
-                            className={`group/service grid min-h-[72px] grid-cols-[40px_minmax(max-content,1fr)_auto_18px] items-center gap-3 rounded-xl border px-4 py-3.5 shadow-sm transition ${
+                            className={`group/service relative grid min-h-[82px] grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-4 py-3.5 shadow-sm transition hover:shadow-md ${
                               active
                                 ? `${theme.activeService} ring-1`
-                                : "border-white bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
+                                : "border-white bg-white text-slate-700 hover:border-slate-200"
                             }`}
                           >
                             <span
-                              className={`flex h-9 w-9 items-center justify-center rounded-lg text-base ring-1 ring-inset ${active ? "bg-white/15 ring-white/20" : "bg-slate-50 ring-slate-100"}`}
+                              className={`flex h-10 w-10 items-center justify-center rounded-lg text-base ring-1 ring-inset ${
+                                active
+                                  ? `${theme.label} bg-slate-50 ring-slate-200`
+                                  : "bg-slate-50 ring-slate-100"
+                              }`}
                               aria-hidden="true"
                             >
                               {serviceType === "미상" ? "📌" : getServiceIcon(serviceType)}
                             </span>
-                            <span className="whitespace-nowrap text-sm font-bold">
-                              {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
+
+                            <span className="min-w-0">
+                              <span className="block whitespace-nowrap text-sm font-bold text-slate-900">
+                                {serviceType === "미상" ? "서비스 미상" : getServiceLabel(serviceType)}
+                              </span>
+                              <span className={`mt-1 block text-[11px] font-bold ${active ? theme.label : "text-slate-400"}`}>
+                                {theme.shortLabel}
+                              </span>
                             </span>
-                            <span className="whitespace-nowrap text-sm font-black">{count}건</span>
-                            <span
-                              className={`text-right text-lg transition group-hover/service:translate-x-0.5 ${active ? "text-white/80" : "text-slate-400 group-hover/service:text-blue-600"}`}
-                              aria-hidden="true"
-                            >
-                              ›
+
+                            <span className="flex min-w-[54px] flex-col items-end justify-center pr-1">
+                              {active && (
+                                <span className={`absolute right-3 top-2 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-black ${theme.label} bg-slate-50 ring-1 ring-inset ring-slate-200`} aria-label="선택됨">
+                                  ✓
+                                </span>
+                              )}
+                              <span className={`text-xl font-black leading-none ${active ? theme.count : "text-slate-800"}`}>
+                                {count}
+                              </span>
+                              <span className="mt-1 text-[10px] font-semibold text-slate-400">신청</span>
                             </span>
                           </Link>
                         );
