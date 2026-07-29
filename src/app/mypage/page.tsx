@@ -717,12 +717,97 @@ function TimelineCard({ item }: { item: MyPageItem }) {
 
 function WalletSection() {
   const docs = [
-    { label: "여권", expiry: "만료일 2028.06.12", icon: "🛂", badge: "PDF", action: "신청에 사용" },
-    { label: "비자 (DN)", expiry: "만료일 2026.11.30", icon: "📄", badge: "PDF", action: "신청에 사용" },
-    { label: "거주증 (TRC)", expiry: "만료일 2026.10.15", icon: "🪪", badge: "PDF", action: "갱신 준비" },
-    { label: "증명사진", expiry: "최근 등록 2025.07.24", icon: "👤", badge: "JPG", action: "다시 사용" },
-    { label: "건강검진서", expiry: "만료일 2025.01.15", icon: "🧾", badge: "PDF", action: "신청에 사용" },
-  ];
+    {
+      label: "여권",
+      expiry: "만료일 2028.06.12",
+      kind: "passport",
+      badge: "PDF",
+      action: "신청에 사용",
+    },
+    {
+      label: "비자 (DN)",
+      expiry: "만료일 2026.11.30",
+      kind: "visa",
+      badge: "PDF",
+      action: "신청에 사용",
+    },
+    {
+      label: "거주증 (TRC)",
+      expiry: "만료일 2026.10.15",
+      kind: "trc",
+      badge: "PDF",
+      action: "갱신 준비",
+    },
+    {
+      label: "증명사진",
+      expiry: "최근 등록 2025.07.24",
+      kind: "photo",
+      badge: "JPG",
+      action: "다시 사용",
+    },
+    {
+      label: "건강검진서",
+      expiry: "만료일 2025.01.15",
+      kind: "certificate",
+      badge: "PDF",
+      action: "신청에 사용",
+    },
+  ] as const;
+
+  function DocumentPreview({ kind }: { kind: (typeof docs)[number]["kind"] }) {
+    if (kind === "passport") {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0a2457] to-[#123b80]">
+          <div className="flex h-[76px] w-[54px] flex-col items-center justify-center rounded-md border border-white/20 bg-[#0a2d6b] shadow-lg">
+            <Shield size={19} className="text-amber-300" />
+            <p className="mt-2 text-[7px] font-bold tracking-[0.18em] text-white/90">PASSPORT</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "photo") {
+      return (
+        <div className="flex h-full w-full items-end justify-center bg-gradient-to-b from-slate-100 to-slate-200">
+          <div className="mb-2 flex h-[78px] w-[60px] flex-col items-center justify-end overflow-hidden rounded-t-[30px] bg-gradient-to-b from-[#e9eef6] to-[#cbd5e1]">
+            <div className="h-8 w-8 rounded-full bg-[#f2c8a8]" />
+            <div className="mt-1 h-10 w-12 rounded-t-[14px] bg-[#1f2937]" />
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "trc") {
+      return (
+        <div className="h-full w-full bg-gradient-to-br from-[#dff7fb] to-[#fef5d7] p-2">
+          <div className="h-full rounded-md border border-cyan-200 bg-white/80 p-2">
+            <div className="flex gap-2">
+              <div className="h-10 w-8 rounded bg-slate-200" />
+              <div className="flex-1 space-y-1.5 pt-1">
+                <div className="h-1.5 rounded bg-cyan-200" />
+                <div className="h-1.5 w-3/4 rounded bg-slate-200" />
+                <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+              </div>
+            </div>
+            <div className="mt-3 h-1.5 rounded bg-amber-200" />
+            <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="h-full w-full bg-gradient-to-br from-slate-50 to-slate-200 p-2">
+        <div className="h-full rounded-md border border-slate-200 bg-white p-2 shadow-sm">
+          <div className="h-2 w-2/3 rounded bg-blue-100" />
+          <div className="mt-2 h-1.5 rounded bg-slate-200" />
+          <div className="mt-1.5 h-1.5 rounded bg-slate-200" />
+          <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
+          <div className="mt-3 h-8 rounded border border-slate-200" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section id="wallet" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -733,7 +818,7 @@ function WalletSection() {
             자주 사용하는 행정서류를 안전하게 보관하고 다시 사용할 수 있습니다.
           </p>
         </div>
-        <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
+        <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
           전체 보기 <ChevronRight size={13} />
         </button>
       </div>
@@ -744,8 +829,8 @@ function WalletSection() {
             key={doc.label}
             className="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
           >
-            <div className="relative flex h-[108px] items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 to-slate-100">
-              <span className="text-[44px] drop-shadow-sm">{doc.icon}</span>
+            <div className="relative h-[112px] overflow-hidden rounded-xl bg-slate-50">
+              <DocumentPreview kind={doc.kind} />
               <span
                 className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold ${
                   doc.badge === "JPG"
@@ -759,17 +844,17 @@ function WalletSection() {
             <p className="mt-3 truncate text-[12px] font-extrabold text-slate-900">{doc.label}</p>
             <p className="mt-1 truncate text-[9px] text-slate-400">{doc.expiry}</p>
             <div className="mt-3 grid grid-cols-2 gap-1">
-              <button className="rounded-lg border border-slate-200 py-1.5 text-[9px] font-bold text-slate-600 hover:bg-slate-50">
+              <button type="button" className="rounded-lg border border-slate-200 py-1.5 text-[9px] font-bold text-slate-600 hover:bg-slate-50">
                 보기
               </button>
-              <button className="rounded-lg border border-blue-200 bg-blue-50 py-1.5 text-[9px] font-bold text-blue-700 hover:bg-blue-100">
+              <button type="button" className="rounded-lg border border-blue-200 bg-blue-50 py-1.5 text-[9px] font-bold text-blue-700 hover:bg-blue-100">
                 {doc.action}
               </button>
             </div>
           </div>
         ))}
 
-        <button className="flex min-h-[184px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700 transition hover:bg-blue-50">
+        <button type="button" className="flex min-h-[190px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700 transition hover:bg-blue-50">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
             <Plus size={21} />
           </div>
@@ -1097,18 +1182,18 @@ function MobileBottomNav() {
           <Link
             key={item.label}
             href={item.href}
-            className={`relative flex flex-col items-center gap-1.5 py-1.5 text-[9px] font-semibold ${
+            className={`relative flex flex-col items-center gap-1.5 py-1.5 text-[10px] font-semibold ${
               item.active ? "text-blue-900" : "text-slate-500"
             }`}
           >
             <div
               className={`relative flex items-center justify-center ${
                 item.primary
-                  ? "-mt-6 h-14 w-14 rounded-full bg-blue-900 text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
+                  ? "-mt-7 h-14 w-14 rounded-full bg-blue-900 text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
                   : "h-7 w-7"
               }`}
             >
-              <item.icon size={item.primary ? 25 : 19} />
+              <item.icon size={item.primary ? 25 : 20} />
               {item.badge ? (
                 <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white ring-2 ring-white">
                   3
@@ -1193,13 +1278,23 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_286px]">
+        <WalletSection />
+        <ExpertCard item={activeItem} />
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_286px]">
+        <RecommendedServices />
+        <div id="profile">
+          <HelpCard />
+        </div>
+      </div>
+
       <div className="mt-5 grid gap-5 xl:hidden">
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
         <NotificationCard item={activeItem} />
         <PermitDocuments item={activeItem} />
-        <ExpertCard item={activeItem} />
-        <HelpCard />
       </div>
     </>
   );
@@ -1324,21 +1419,6 @@ export default function MyPage() {
           )}
         </div>
 
-        {state === "ready" && firstItem && (
-          <div className="mx-auto max-w-[1380px] space-y-5 px-4 pb-32 sm:px-6 xl:px-8">
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_286px]">
-              <WalletSection />
-              <ExpertCard item={firstItem} />
-            </div>
-
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_286px]">
-              <RecommendedServices />
-              <div id="profile">
-                <HelpCard />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       <MobileBottomNav />
