@@ -1207,7 +1207,7 @@ export default function PermitCompanyCheckPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-5xl" : "max-w-xl"}`}>
+      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
         <Link
           href="/"
           className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
@@ -1512,7 +1512,7 @@ export default function PermitCompanyCheckPage() {
         )}
 
         {showResult && diagnosis && leadSubmitted && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               법인설립 · AI 분석 리포트
             </p>
