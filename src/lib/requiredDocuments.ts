@@ -18,7 +18,8 @@ export type DocumentServiceKey =
   | "verify_fraud"
   | "verify_tax"
   | "verify_unclear"
-  | "register_restaurant";
+  | "register_restaurant"
+  | "register_cosmetics";
 
 export interface RequiredDocumentConfig {
   serviceKey: string;
@@ -106,8 +107,7 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "기타 참고자료",
     ],
   },
-  // REGISTER(직접허가받기) 전용 — restaurant 페이지에 기존에 있던 준비서류 문구를
-  // 그대로 재사용한다(새 목록 생성 없음).
+  // REGISTER(직접허가받기) 전용.
   register_restaurant: {
     serviceKey: "register_restaurant",
     serviceLabel: "식당허가",
@@ -120,6 +120,22 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "소방시설·소방점검 관련 자료",
       "업장 평면도 또는 내부 사진",
       "기존 허가·반려 관련 자료",
+    ],
+  },
+  register_cosmetics: {
+    serviceKey: "register_cosmetics",
+    serviceLabel: "화장품허가",
+    documents: [
+      "사업자등록증 또는 법인등록증",
+      "제조사 위임장",
+      "자유판매증명서(CFS)",
+      "화장품 제품 공고 관련 신청자료",
+      "제품 전성분표 및 성분자료",
+      "제품정보파일(PIF) 또는 안전성 자료",
+      "제품 라벨·포장 디자인 자료",
+      "제조사 및 품질관리 관련 증빙",
+      "기존 허가·반려 관련 자료",
+      "기타 제품별 추가자료",
     ],
   },
 };
