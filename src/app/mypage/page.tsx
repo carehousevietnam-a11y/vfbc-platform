@@ -717,11 +717,11 @@ function TimelineCard({ item }: { item: MyPageItem }) {
 
 function WalletSection() {
   const docs = [
-    { label: "여권", icon: "🛂", meta: "만료일 관리" },
-    { label: "비자(DN)", icon: "📄", meta: "신청에 사용" },
-    { label: "거주증(TRC)", icon: "🪪", meta: "만료일 관리" },
-    { label: "증명사진", icon: "📷", meta: "다시 사용" },
-    { label: "건강검진서", icon: "🧾", meta: "보안 저장" },
+    { label: "여권", expiry: "만료일 2028.06.12", icon: "🛂", badge: "PDF", action: "신청에 사용" },
+    { label: "비자 (DN)", expiry: "만료일 2026.11.30", icon: "📄", badge: "PDF", action: "신청에 사용" },
+    { label: "거주증 (TRC)", expiry: "만료일 2026.10.15", icon: "🪪", badge: "PDF", action: "갱신 준비" },
+    { label: "증명사진", expiry: "최근 등록 2025.07.24", icon: "👤", badge: "JPG", action: "다시 사용" },
+    { label: "건강검진서", expiry: "만료일 2025.01.15", icon: "🧾", badge: "PDF", action: "신청에 사용" },
   ];
 
   return (
@@ -729,31 +729,49 @@ function WalletSection() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
-          <p className="mt-1 text-[11px] text-slate-500">자주 사용하는 행정서류를 안전하게 보관합니다.</p>
+          <p className="mt-1 text-[11px] text-slate-500">
+            자주 사용하는 행정서류를 안전하게 보관하고 다시 사용할 수 있습니다.
+          </p>
         </div>
-        <span className="text-[11px] font-semibold text-blue-700">전체 보기</span>
+        <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
+          전체 보기 <ChevronRight size={13} />
+        </button>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {docs.map((doc) => (
-          <div key={doc.label} className="rounded-2xl border border-slate-200 bg-white p-3">
-            <div className="flex h-20 items-center justify-center rounded-xl bg-slate-50 text-[34px]">{doc.icon}</div>
-            <p className="mt-3 text-[12px] font-extrabold text-slate-900">{doc.label}</p>
-            <p className="mt-1 text-[10px] text-slate-400">{doc.meta}</p>
-            <div className="mt-3 flex gap-1">
-              <button className="flex-1 rounded-lg border border-slate-200 py-1.5 text-[9px] font-bold text-slate-600">
+          <div
+            key={doc.label}
+            className="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+          >
+            <div className="relative flex h-[108px] items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 to-slate-100">
+              <span className="text-[44px] drop-shadow-sm">{doc.icon}</span>
+              <span
+                className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold ${
+                  doc.badge === "JPG"
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-orange-100 text-orange-700"
+                }`}
+              >
+                {doc.badge}
+              </span>
+            </div>
+            <p className="mt-3 truncate text-[12px] font-extrabold text-slate-900">{doc.label}</p>
+            <p className="mt-1 truncate text-[9px] text-slate-400">{doc.expiry}</p>
+            <div className="mt-3 grid grid-cols-2 gap-1">
+              <button className="rounded-lg border border-slate-200 py-1.5 text-[9px] font-bold text-slate-600 hover:bg-slate-50">
                 보기
               </button>
-              <button className="flex-1 rounded-lg border border-blue-200 bg-blue-50 py-1.5 text-[9px] font-bold text-blue-700">
-                신청에 사용
+              <button className="rounded-lg border border-blue-200 bg-blue-50 py-1.5 text-[9px] font-bold text-blue-700 hover:bg-blue-100">
+                {doc.action}
               </button>
             </div>
           </div>
         ))}
 
-        <button className="flex min-h-[162px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-blue-300 bg-white">
-            <Plus size={20} />
+        <button className="flex min-h-[184px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700 transition hover:bg-blue-50">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
+            <Plus size={21} />
           </div>
           <span className="mt-3 text-[11px] font-bold">서류 추가</span>
         </button>
@@ -769,22 +787,59 @@ function WalletSection() {
 
 function RecommendedServices() {
   const services = [
-    { title: "거주증 갱신 지원", text: "만료 전에 미리 준비하세요.", className: "bg-blue-50 text-blue-900" },
-    { title: "운전면허 전환 확인", text: "한국 면허 전환 가능성 확인", className: "bg-emerald-50 text-emerald-900" },
-    { title: "사업자 허가 갱신", text: "정기 점검 시기 확인", className: "bg-orange-50 text-orange-900" },
-    { title: "가족 비자 확인", text: "가족 비자 가능성 확인", className: "bg-violet-50 text-violet-900" },
+    {
+      title: "거주증 갱신 지원",
+      text: "만료 87일 전, 미리 준비하세요.",
+      action: "자세히 보기",
+      className: "bg-gradient-to-br from-blue-50 to-blue-100/60",
+      iconClass: "bg-blue-100 text-blue-700",
+      icon: CalendarDays,
+    },
+    {
+      title: "운전면허 전환 확인",
+      text: "한국 면허 → 베트남 면허",
+      action: "확인하기",
+      className: "bg-gradient-to-br from-emerald-50 to-emerald-100/60",
+      iconClass: "bg-emerald-100 text-emerald-700",
+      icon: FileCheck2,
+    },
+    {
+      title: "사업자 허가 갱신",
+      text: "정기 점검 시기 확인하세요.",
+      action: "자세히 보기",
+      className: "bg-gradient-to-br from-orange-50 to-orange-100/60",
+      iconClass: "bg-orange-100 text-orange-700",
+      icon: Building2,
+    },
+    {
+      title: "가족 비자 확인",
+      text: "가족 비자 가능성 확인",
+      action: "자세히 보기",
+      className: "bg-gradient-to-br from-violet-50 to-violet-100/60",
+      iconClass: "bg-violet-100 text-violet-700",
+      icon: UserCheck,
+    },
   ];
 
   return (
     <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
+      <div className="flex items-center justify-between">
+        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
+        <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
+          전체 보기 <ChevronRight size={13} />
+        </button>
+      </div>
+
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {services.map((service) => (
-          <div key={service.title} className={`rounded-2xl p-4 ${service.className}`}>
-            <p className="text-[13px] font-extrabold">{service.title}</p>
-            <p className="mt-2 text-[10px] leading-5 opacity-70">{service.text}</p>
-            <button className="mt-4 rounded-lg bg-white px-3 py-2 text-[10px] font-bold shadow-sm">
-              자세히 보기
+          <div key={service.title} className={`rounded-2xl border border-white/80 p-4 ${service.className}`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${service.iconClass}`}>
+              <service.icon size={18} />
+            </div>
+            <p className="mt-4 text-[13px] font-extrabold text-slate-900">{service.title}</p>
+            <p className="mt-2 text-[10px] leading-5 text-slate-500">{service.text}</p>
+            <button className="mt-4 rounded-lg border border-white bg-white px-3 py-2 text-[10px] font-bold text-blue-800 shadow-sm hover:shadow">
+              {service.action}
             </button>
           </div>
         ))}
@@ -883,30 +938,31 @@ function ExpertCard({ item }: { item: MyPageItem }) {
   return (
     <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">담당 전문가</p>
-      <div className="mt-4 flex items-center gap-3">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#102f72] text-white">
-          <UserCheck size={24} />
+
+      <div className="mt-4 flex items-center gap-4">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-200 ring-4 ring-white shadow-sm">
+          <UserCheck size={28} className="text-[#102f72]" />
         </div>
-        <div>
-          <p className="text-[13px] font-extrabold text-slate-950">Linda Kang</p>
-          <p className="mt-1 text-[11px] text-slate-500">행정허가 전문가</p>
+        <div className="min-w-0">
+          <p className="text-[15px] font-extrabold text-slate-950">Linda Kang</p>
+          <p className="mt-1 text-[12px] text-slate-500">행정허가 전문가</p>
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <div className="rounded-xl bg-slate-50 p-3 text-center">
+      <div className="mt-5 grid grid-cols-2 divide-x divide-slate-200">
+        <div className="px-3 text-center">
           <p className="text-[10px] text-slate-400">진행 건수</p>
-          <p className="mt-1 text-[13px] font-extrabold text-slate-900">2,134건</p>
+          <p className="mt-1 text-[15px] font-extrabold text-slate-900">2,134건</p>
         </div>
-        <div className="rounded-xl bg-slate-50 p-3 text-center">
+        <div className="px-3 text-center">
           <p className="text-[10px] text-slate-400">평균 응답</p>
-          <p className="mt-1 text-[13px] font-extrabold text-slate-900">2시간 이내</p>
+          <p className="mt-1 text-[15px] font-extrabold text-slate-900">2시간 이내</p>
         </div>
       </div>
 
       <Link
         href={`/mypage/chat?leadId=${item.id}&label=${encodeURIComponent(item.serviceLabel)}`}
-        className="mt-4 flex h-11 items-center justify-center gap-2 rounded-xl bg-[#0f3279] text-[12px] font-bold text-white"
+        className="mt-5 flex h-11 items-center justify-center gap-2 rounded-xl bg-[#0f3279] text-[12px] font-bold text-white transition hover:bg-[#0b2863]"
       >
         <MessageSquare size={15} />
         메시지 보내기
@@ -916,22 +972,24 @@ function ExpertCard({ item }: { item: MyPageItem }) {
 }
 
 function HelpCard() {
+  const items = [
+    { label: "채팅 상담", icon: MessageSquare, tone: "bg-blue-50 text-blue-700" },
+    { label: "전화 상담", icon: HelpCircle, tone: "bg-emerald-50 text-emerald-700" },
+    { label: "1:1 문의", icon: MessageCircle, tone: "bg-indigo-50 text-indigo-700" },
+  ];
+
   return (
     <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">도움이 필요하신가요?</p>
       <div className="mt-4 grid grid-cols-3 gap-2">
-        {[
-          { label: "채팅 상담", icon: MessageSquare },
-          { label: "전화 상담", icon: HelpCircle },
-          { label: "1:1 문의", icon: MessageCircle },
-        ].map((item) => (
+        {items.map((item) => (
           <Link
             key={item.label}
             href="/consultation"
-            className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 p-3 text-center hover:bg-slate-50"
+            className="flex min-h-[92px] flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-center transition hover:-translate-y-0.5 hover:shadow-sm"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-700">
-              <item.icon size={16} />
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${item.tone}`}>
+              <item.icon size={17} />
             </div>
             <span className="text-[10px] font-bold text-slate-700">{item.label}</span>
           </Link>
@@ -1024,25 +1082,40 @@ function PermitDocuments({ item }: { item: MyPageItem }) {
 
 function MobileBottomNav() {
   const items = [
-    { label: "홈", icon: Home, href: "/mypage" },
+    { label: "홈", icon: Home, href: "/mypage", active: true },
     { label: "신청현황", icon: FileCheck2, href: "#applications" },
     { label: "서류지갑", icon: WalletCards, href: "#wallet" },
-    { label: "신청하기", icon: Plus, href: "/" },
-    { label: "알림", icon: Bell, href: "#notifications" },
+    { label: "신청하기", icon: Plus, href: "/", primary: true },
+    { label: "알림", icon: Bell, href: "#notifications", badge: true },
     { label: "내 정보", icon: User, href: "#profile" },
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+6px)] pt-2 backdrop-blur xl:hidden">
-      <div className="grid grid-cols-6">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur xl:hidden">
+      <div className="grid grid-cols-6 items-end">
         {items.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className="flex flex-col items-center gap-1 py-1.5 text-[9px] font-semibold text-slate-500"
+            className={`relative flex flex-col items-center gap-1.5 py-1.5 text-[9px] font-semibold ${
+              item.active ? "text-blue-900" : "text-slate-500"
+            }`}
           >
-            <item.icon size={18} />
-            {item.label}
+            <div
+              className={`relative flex items-center justify-center ${
+                item.primary
+                  ? "-mt-6 h-14 w-14 rounded-full bg-blue-900 text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
+                  : "h-7 w-7"
+              }`}
+            >
+              <item.icon size={item.primary ? 25 : 19} />
+              {item.badge ? (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white ring-2 ring-white">
+                  3
+                </span>
+              ) : null}
+            </div>
+            <span className={item.primary ? "mt-0.5 text-slate-600" : ""}>{item.label}</span>
           </Link>
         ))}
       </div>
