@@ -1564,7 +1564,7 @@ function DocumentUploadContent() {
               <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-sm font-bold text-gray-900">제출 현황</p>
                 <p className="mt-1 text-xs text-gray-500">
-                  `${totalCount}개 우선 제출 자료`
+                  {totalCount}개 우선 제출 자료
                 </p>
                 <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
@@ -1576,18 +1576,53 @@ function DocumentUploadContent() {
                   {readyCount} / {totalCount} 개 완료
                 </p>
 
-                <ul className="mt-3 space-y-1.5">
-                  {docs.map((doc) => (
-                    <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
-                      {isDocReady(doc) ? (
-                        <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
-                      ) : (
-                        <Circle size={14} className="shrink-0 text-gray-300" />
-                      )}
-                      <span className="truncate">{doc.label}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="mt-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-bold text-blue-900">우선 제출</p>
+                    <p className="text-[10px] font-medium text-gray-400">
+                      {requiredDocs.filter(isDocReady).length} / {requiredDocs.length}
+                    </p>
+                  </div>
+                  <ul className="mt-2 space-y-1.5">
+                    {requiredDocs.map((doc) => (
+                      <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
+                        {isDocReady(doc) ? (
+                          <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                        ) : (
+                          <Circle size={14} className="shrink-0 text-gray-300" />
+                        )}
+                        <span className="truncate">{doc.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {optionalLabels.length > 0 && (
+                  <div className="mt-4 border-t border-gray-100 pt-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[11px] font-bold text-gray-500">있으면 제출</p>
+                      <p className="text-[10px] font-medium text-gray-400">
+                        {docs.filter(
+                          (doc) => optionalLabels.includes(doc.label) && isDocReady(doc)
+                        ).length} / {optionalLabels.length}
+                      </p>
+                    </div>
+                    <ul className="mt-2 space-y-1.5">
+                      {docs
+                        .filter((doc) => optionalLabels.includes(doc.label))
+                        .map((doc) => (
+                          <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-500">
+                            {isDocReady(doc) ? (
+                              <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                            ) : (
+                              <Circle size={14} className="shrink-0 text-gray-300" />
+                            )}
+                            <span className="truncate">{doc.label}</span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
 
                 <div className="mt-3 space-y-2.5 border-t border-gray-100 pt-3 text-xs">
                   <div className="flex items-center gap-2">
