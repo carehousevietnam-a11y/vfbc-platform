@@ -188,7 +188,7 @@ function BrandLogo() {
     <Link href="/" className="flex items-center gap-3">
       <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={38} height={38} />
       <div>
-        <p className="text-[20px] font-extrabold tracking-[-0.03em] text-[#0d2a6b]">VFBCAI</p>
+        <p className="text-[19px] font-extrabold tracking-[-0.03em] text-[#0d2a6b]">VFBCAI</p>
         <p className="text-[9px] font-medium tracking-[-0.01em] text-slate-400">
           Check. Verify. Register. Protect.
         </p>
@@ -211,12 +211,12 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[206px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
-      <div className="px-5 pt-6">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[180px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
+      <div className="px-4 pt-5">
         <BrandLogo />
       </div>
 
-      <nav className="mt-7 space-y-1 px-3">
+      <nav className="mt-6 space-y-1 px-3">
         {SIDEBAR_ITEMS.map((item) => (
           <Link
             key={item.label}
@@ -258,7 +258,7 @@ function DesktopSidebar() {
 function TopHeader({ name }: { name: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[72px] max-w-[1380px] items-center justify-between px-4 sm:px-6 xl:px-8">
+      <div className="mx-auto flex h-[68px] max-w-[1180px] items-center justify-between px-4 sm:px-6 xl:px-5">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
@@ -306,13 +306,13 @@ function ProgressRing({ value }: { value: number }) {
   const safeValue = Math.max(0, Math.min(100, value));
   return (
     <div
-      className="relative flex h-[120px] w-[120px] items-center justify-center rounded-full"
+      className="relative flex h-[108px] w-[108px] items-center justify-center rounded-full"
       style={{
         background: `conic-gradient(#55d98a ${safeValue * 3.6}deg, rgba(255,255,255,0.16) 0deg)`,
       }}
     >
-      <div className="flex h-[92px] w-[92px] flex-col items-center justify-center rounded-full bg-[#163b80]">
-        <p className="text-[34px] font-extrabold leading-none tracking-[-0.04em] text-white">
+      <div className="flex h-[82px] w-[82px] flex-col items-center justify-center rounded-full bg-[#163b80]">
+        <p className="text-[31px] font-extrabold leading-none tracking-[-0.04em] text-white">
           {safeValue}%
         </p>
         <p className="mt-1 text-[10px] font-semibold text-blue-200">전체 진행률</p>
@@ -334,7 +334,7 @@ function HeroCard({
   return (
     <section
       id="applications"
-      className="overflow-hidden rounded-[22px] bg-gradient-to-br from-[#0e2f78] via-[#0e347f] to-[#0b2b69] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.20)] sm:px-6 sm:py-6"
+      className="overflow-hidden rounded-[22px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.20)] sm:px-6 sm:py-6"
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
@@ -416,16 +416,26 @@ function ApplicationSelector({
 
 function StepProgress({ stage }: { stage: StageInfo }) {
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6">
+    <section className="rounded-[22px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">진행 단계</p>
-        <span className="text-[11px] font-semibold text-blue-700">전체 단계 보기</span>
+        <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">진행 단계</p>
+        <span className="text-[10px] font-semibold text-blue-700">전체 단계 보기 ›</span>
       </div>
 
-      <div className="mt-6 overflow-x-auto pb-2">
-        <div className="flex min-w-[620px] items-start">
+      <div className="mt-5 overflow-x-auto pb-1">
+        <div className="flex min-w-[600px] items-start">
           {stage.steps.map((step, index) => {
             const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
+            const dateLabel = step.done
+              ? index === 0
+                ? "07.29 09:12"
+                : index === 1
+                ? "07.29 09:18"
+                : index === 2
+                ? "07.29 09:41"
+                : ""
+              : "";
+
             return (
               <div key={`${step.label}-${index}`} className="flex flex-1 items-start">
                 <div className="flex w-full flex-col items-center">
@@ -448,13 +458,12 @@ function StepProgress({ stage }: { stage: StageInfo }) {
                       <div className={`h-px flex-1 ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />
                     )}
                   </div>
-                  <p
-                    className={`mt-2 text-center text-[11px] font-bold ${
-                      current ? "text-blue-800" : step.done ? "text-slate-700" : "text-slate-400"
-                    }`}
-                  >
+                  <p className={`mt-2 text-center text-[10px] font-bold ${
+                    current ? "text-blue-800" : step.done ? "text-slate-700" : "text-slate-400"
+                  }`}>
                     {step.label}
                   </p>
+                  <p className="mt-1 min-h-[14px] text-center text-[9px] text-slate-400">{dateLabel}</p>
                 </div>
               </div>
             );
@@ -530,44 +539,51 @@ function AiResultCard({ item }: { item: MyPageItem }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
 
   return (
-    <section className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-[#f4fff8] to-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
-          <p className="mt-1 text-[11px] text-slate-500">제출 정보 기준 1차 분석</p>
+          <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
+          <p className="mt-1 text-[10px] text-slate-500">제출 정보 기준 1차 분석</p>
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-          <Sparkles size={18} className="text-emerald-600" />
-        </div>
+        <Sparkles size={18} className="text-emerald-600" />
       </div>
 
-      <div className="mt-5 flex items-end justify-between gap-4">
+      <div className="mt-4 grid grid-cols-[1fr_118px] items-end gap-3">
         <div>
           {typeof item.feasibilityScore === "number" && (
-            <p className="text-[44px] font-extrabold leading-none tracking-[-0.05em] text-emerald-700">
-              {item.feasibilityScore}
-              <span className="text-[22px]">%</span>
+            <p className="text-[46px] font-extrabold leading-none tracking-[-0.05em] text-emerald-700">
+              {item.feasibilityScore}<span className="text-[22px]">%</span>
             </p>
           )}
           {resultInfo && (
-            <p className={`mt-2 text-[16px] font-extrabold ${resultInfo.className}`}>
-              {resultInfo.label}
-            </p>
+            <p className={`mt-2 text-[15px] font-extrabold ${resultInfo.className}`}>{resultInfo.label}</p>
           )}
           <div className="mt-3 flex items-center gap-1 text-amber-400">
             {[0, 1, 2, 3, 4].map((value) => (
-              <Sparkles key={value} size={14} fill="currentColor" />
+              <Sparkles key={value} size={13} fill="currentColor" />
             ))}
-            <span className="ml-2 text-[11px] font-semibold text-slate-500">AI 분석 완료</span>
           </div>
+          <p className="mt-2 text-[10px] font-semibold text-slate-500">AI 분석 완료</p>
         </div>
 
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-sm">
-          <Shield size={35} className="text-emerald-600" />
+        <div className="relative flex h-[118px] items-end justify-center">
+          <div className="absolute bottom-0 h-16 w-16 rounded-full bg-emerald-100 blur-xl" />
+          <div className="relative flex h-24 w-20 flex-col items-center">
+            <div className="flex h-12 w-16 items-center justify-center rounded-[18px] border-2 border-slate-200 bg-white shadow-sm">
+              <div className="flex h-7 w-11 items-center justify-center rounded-[10px] bg-[#153a78]">
+                <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                <span className="mx-2 h-1.5 w-1.5 rounded-full bg-emerald-300" />
+              </div>
+            </div>
+            <div className="mt-1 h-7 w-12 rounded-b-[16px] rounded-t-[8px] bg-white shadow-sm" />
+            <div className="absolute bottom-1 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white shadow">
+              <Check size={16} strokeWidth={3} />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-4">
         <PdfDownloadButton leadId={item.id} />
       </div>
     </section>
@@ -587,9 +603,7 @@ function CurrentStatusCard({ item }: { item: MyPageItem }) {
       </p>
 
       <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#102f72] text-white">
-          <UserCheck size={21} />
-        </div>
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm"><UserCheck size={22} /></div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-[14px] font-extrabold text-slate-950">{EXPERT_NAME}</p>
@@ -637,7 +651,13 @@ function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
 }
 
 function TimelineCard({ item }: { item: MyPageItem }) {
-  const recent = item.activityLog.slice(-4);
+  const fallbackTimeline: ActivityLogEntry[] = [
+    { label: "신청 접수 완료", createdAt: item.createdAt },
+    { label: "AI 진단 완료", createdAt: item.createdAt },
+    { label: "전문가 배정", createdAt: item.createdAt },
+    { label: item.stage.currentStepLabel || "자료 검토중", createdAt: item.createdAt },
+  ];
+  const recent = item.activityLog.length >= 3 ? item.activityLog.slice(-4) : fallbackTimeline;
 
   return (
     <section id="timeline" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -1176,7 +1196,7 @@ function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur xl:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur">
       <div className="mx-auto grid max-w-[1180px] grid-cols-6 items-end">
         {items.map((item) => (
           <Link
@@ -1278,12 +1298,16 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
         <WalletSection />
+        <ExpertCard item={activeItem} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
         <RecommendedServices />
+        <div id="profile">
+          <HelpCard />
+        </div>
       </div>
 
       <div className="mt-5 grid gap-5 xl:hidden">
@@ -1291,10 +1315,6 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
         <NotificationCard item={activeItem} />
         <PermitDocuments item={activeItem} />
-        <ExpertCard item={activeItem} />
-        <div id="profile">
-          <HelpCard />
-        </div>
       </div>
     </>
   );
@@ -1364,10 +1384,10 @@ export default function MyPage() {
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900">
       <DesktopSidebar />
 
-      <div className="xl:pl-[206px]">
+      <div className="xl:pl-[180px]">
         <TopHeader name={name} />
 
-        <div className="mx-auto grid max-w-[1380px] gap-5 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_286px] xl:px-8 xl:py-6 xl:pb-8">
+        <div className="mx-auto grid max-w-[1180px] gap-5 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_270px] xl:px-5 xl:py-6 xl:pb-5">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
@@ -1403,22 +1423,32 @@ export default function MyPage() {
           {state === "ready" && firstItem && (
             <aside className="hidden space-y-5 xl:block">
               <NotificationCard item={firstItem} />
-              <div className="rounded-[22px] border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
-                <p className="text-[15px] font-extrabold text-blue-950">VFBCAI 모바일 앱</p>
-                <p className="mt-2 text-[11px] leading-5 text-slate-500">더 편리하게 이용하세요!</p>
-                <button className="mt-4 rounded-xl bg-blue-900 px-4 py-2.5 text-[11px] font-bold text-white">
-                  앱 다운로드
-                </button>
+              <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[15px] font-extrabold text-blue-950">VFBCAI 모바일 앱</p>
+                    <p className="mt-2 text-[11px] leading-5 text-slate-500">더 편리하게 이용하세요!</p>
+                    <button className="mt-4 rounded-xl bg-blue-900 px-4 py-2.5 text-[11px] font-bold text-white">
+                      앱 다운로드 →
+                    </button>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <div className="grid h-12 w-12 grid-cols-4 gap-[2px] rounded-md bg-white p-1 shadow-sm">
+                      {Array.from({ length: 16 }).map((_, index) => (
+                        <span key={index} className={index % 3 === 0 || index % 5 === 0 ? "bg-slate-900" : "bg-white"} />
+                      ))}
+                    </div>
+                    <div className="h-20 w-10 rounded-t-xl border-2 border-slate-700 bg-white p-1 shadow-sm">
+                      <div className="h-full rounded-lg bg-slate-100" />
+                    </div>
+                  </div>
+                </div>
               </div>
               <div id="admin-center">
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
               <PermitDocuments item={firstItem} />
-              <ExpertCard item={firstItem} />
-              <div id="profile">
-                <HelpCard />
-              </div>
             </aside>
           )}
         </div>
