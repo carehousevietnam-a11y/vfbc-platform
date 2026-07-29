@@ -569,14 +569,23 @@ function AiResultCard({ item }: { item: MyPageItem }) {
 
         <div className="relative flex h-[118px] items-end justify-center">
           <div className="absolute bottom-0 h-16 w-16 rounded-full bg-emerald-100 blur-xl" />
-          <div className="relative flex h-24 w-20 flex-col items-center">
-            <div className="flex h-12 w-16 items-center justify-center rounded-[18px] border-2 border-slate-200 bg-white shadow-sm">
-              <div className="flex h-7 w-11 items-center justify-center rounded-[10px] bg-[#153a78]">
+          <div className="relative flex h-[104px] w-20 flex-col items-center">
+            {/* 안테나 */}
+            <span className="h-3 w-[3px] rounded-full bg-slate-300" />
+            <span className="-mt-0.5 h-2 w-2 rounded-full bg-emerald-400" />
+            {/* 머리 */}
+            <div className="mt-1 flex h-11 w-14 items-center justify-center rounded-[16px] border-2 border-slate-200 bg-white shadow-sm">
+              <div className="flex h-6 w-10 items-center justify-center gap-2 rounded-[9px] bg-[#153a78]">
                 <span className="h-2 w-2 rounded-full bg-emerald-300" />
-                <span className="mx-2 h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                <span className="h-2 w-2 rounded-full bg-emerald-300" />
               </div>
             </div>
-            <div className="mt-1 h-7 w-12 rounded-b-[16px] rounded-t-[8px] bg-white shadow-sm" />
+            {/* 몸통 + 팔 */}
+            <div className="relative mt-1 flex items-center">
+              <span className="mr-[-4px] h-5 w-2 rounded-full bg-slate-200" />
+              <div className="h-9 w-12 rounded-[14px] border-2 border-slate-200 bg-white shadow-sm" />
+              <span className="ml-[-4px] h-5 w-2 rounded-full bg-slate-200" />
+            </div>
             <div className="absolute bottom-1 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white shadow">
               <Check size={16} strokeWidth={3} />
             </div>
@@ -812,6 +821,44 @@ function WalletSection() {
             </div>
             <div className="mt-3 h-1.5 rounded bg-amber-200" />
             <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "visa") {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 p-2">
+          <div className="flex h-full w-full flex-col rounded-md border border-indigo-200 bg-white/90 p-2">
+            <div className="flex items-center justify-between">
+              <FileCheck2 size={16} className="text-indigo-600" />
+              <span className="text-[7px] font-bold tracking-[0.14em] text-indigo-400">VISA</span>
+            </div>
+            <div className="mt-2 flex-1 space-y-1.5">
+              <div className="h-1.5 w-4/5 rounded bg-indigo-200" />
+              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
+              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+            </div>
+            <div className="h-6 rounded border border-dashed border-indigo-200" />
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "certificate") {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-2">
+          <div className="flex h-full w-full flex-col rounded-md border border-rose-200 bg-white/90 p-2">
+            <div className="flex items-center justify-between">
+              <CheckCircle2 size={16} className="text-rose-500" />
+              <span className="text-[7px] font-bold tracking-[0.14em] text-rose-400">HEALTH</span>
+            </div>
+            <div className="mt-2 flex-1 space-y-1.5">
+              <div className="h-1.5 w-4/5 rounded bg-rose-200" />
+              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
+            </div>
+            <div className="h-6 rounded border border-dashed border-rose-200" />
           </div>
         </div>
       );
