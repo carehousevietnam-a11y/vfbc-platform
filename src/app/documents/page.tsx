@@ -268,8 +268,9 @@ const MODE_COPY: Record<
 > = {
   ai_report: {
     badgeLabel: "AI 리포트 진행",
-    heading: "AI 리포트 진행을 위한 서류를 제출해주세요",
-    description: "제출하신 서류를 바탕으로 AI가 정밀 리포트를 준비합니다.",
+    heading: "먼저 핵심 자료만 제출해주세요",
+    description:
+      "우선 제출 자료만으로도 AI 분석을 시작할 수 있습니다. 현재 가지고 있는 계약서·증빙·사진·기존 신청자료를 함께 제출하면 고객 상황에 맞는 더 정확한 결과를 받을 수 있습니다.",
     submitLabel: "AI 리포트 진행하기",
     submitCaption: "접수 후 AI가 리포트를 준비하며, My Page에서 PDF로 확인하실 수 있습니다.",
     successTitle: "AI 리포트 진행이 접수되었습니다",
@@ -277,8 +278,9 @@ const MODE_COPY: Record<
   },
   expert: {
     badgeLabel: "전문가 진행",
-    heading: "전문가 진행을 위한 서류를 제출해주세요",
-    description: "제출하신 서류를 전문가가 직접 확인하여 실제 준비 절차를 안내드립니다.",
+    heading: "먼저 핵심 자료만 제출해주세요",
+    description:
+      "고객 또는 신청 주체만 제공할 수 있는 자료를 우선 확인합니다. 나머지는 현재 가지고 있는 경우에만 제출하시고, 추가 서류는 담당 전문가가 검토 후 안내드립니다.",
     submitLabel: "전문가 진행하기",
     submitCaption: "접수 후 담당 전문가가 확인하여 카카오톡 · Zalo · 이메일로 안내드립니다.",
     successTitle: "전문가 진행이 접수되었습니다",
@@ -302,6 +304,29 @@ const MOBILE_TRUST_ITEMS = [
 // 문서 카드 설명 한 줄 — 승인된 목업에 문구가 있는 문서(여권/비자/재직증명서/회사서류)만
 // 정의한다. 그 외 문서는 목업에 없는 문구를 임의로 만들지 않기 위해 설명을 생략한다.
 const DOC_DESCRIPTION_BY_LABEL: Record<string, string> = {
+  "개인 투자자 여권": "투자자 본인 확인을 위한 여권 사본입니다.",
+  "개인 은행 잔고증명서": "예정 투자금을 확인할 수 있는 개인 명의 잔고증명서입니다.",
+  "예정 법정대표자 여권": "베트남 법인의 예정 법정대표자 신분 확인 자료입니다.",
+  "본점 임대차계약서 또는 예정 주소 자료":
+    "계약을 완료했다면 임대차계약서를, 아직이라면 예정 주소 자료를 제출해주세요.",
+  "투자법인 등록증": "해외 투자법인의 설립 및 등록 상태를 확인하는 자료입니다.",
+  "투자법인 정관": "투자법인의 조직과 권한 구조를 확인하는 정관입니다.",
+  "투자법인 법정대표자 여권": "투자법인 법정대표자의 신분 확인 자료입니다.",
+  "재무제표·감사보고서 또는 법인 잔고증명서":
+    "투자법인의 재정능력을 확인할 수 있는 현재 보유 자료를 제출해주세요.",
+  "예정 베트남 법인 법정대표자 여권":
+    "설립 예정인 베트남 법인의 법정대표자 여권입니다.",
+  "투자 결정서 또는 이사회·주주총회 결의서":
+    "베트남 투자를 승인한 내부 결의서가 있다면 제출해주세요.",
+  "위임장": "베트남 절차 수행을 위한 위임장이 있다면 제출해주세요.",
+  "예정 법인명·사업목적·투자금 정리자료":
+    "예정 법인명, 사업목적, 투자금과 출자구조를 정리한 자료가 있다면 제출해주세요.",
+  "기존 보완요청서·반려 통지서":
+    "기존 신청에서 받은 보완요청서 또는 반려 통지서가 있다면 제출해주세요.",
+  "사업장 내부 사진이나 시설자료":
+    "사업장 내부 사진이나 시설 관련 자료가 있다면 제출해주세요.",
+  "기타 관련 자료": "판단이나 진행에 도움이 될 수 있는 기타 자료를 자유롭게 제출해주세요.",
+
   여권: "본인 확인을 위해 필요합니다.",
   비자: "현재 보유 중인 비자를 제출해주세요.",
   재직증명서: "재직 증명 또는 노동허가 관련 서류를 제출해주세요.",
@@ -357,6 +382,7 @@ const DOC_DESCRIPTION_BY_LABEL: Record<string, string> = {
 function DocumentCard({
   index,
   doc,
+  requirementLabel,
   onModeChange,
   onFileChange,
   onFileClear,
@@ -366,6 +392,7 @@ function DocumentCard({
 }: {
   index: number;
   doc: DocState;
+  requirementLabel: "선택" | "우선 제출" | "있으면 제출";
   onModeChange: (mode: DocInputMode) => void;
   onFileChange: (file: File | null) => void;
   onFileClear: () => void;
@@ -396,8 +423,16 @@ function DocumentCard({
               {index + 1}
             </span>
             <p className="text-sm font-bold text-gray-900">{doc.label}</p>
-            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
-              선택
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                requirementLabel === "우선 제출"
+                  ? "bg-blue-50 text-blue-700"
+                  : requirementLabel === "있으면 제출"
+                  ? "bg-gray-100 text-gray-600"
+                  : "bg-blue-50 text-blue-700"
+              }`}
+            >
+              {requirementLabel}
             </span>
           </div>
           {description && (
@@ -664,7 +699,16 @@ function DocumentUploadContent() {
     return `${prefix}_company_${investorType}`;
   }, [isCompanyService, investorType, rawServiceParam]);
 
-  const config = useMemo(() => getRequiredDocuments(serviceParam), [serviceParam]);
+  const config = useMemo(
+    () => getRequiredDocuments(serviceParam, mode),
+    [serviceParam, mode]
+  );
+  const requiredLabels = useMemo(() => config.documents, [config]);
+  const optionalLabels = useMemo(() => config.optionalDocuments ?? [], [config]);
+  const allDocumentLabels = useMemo(
+    () => [...requiredLabels, ...optionalLabels],
+    [requiredLabels, optionalLabels]
+  );
   const copy = MODE_COPY[mode];
 
   function selectInvestorType(type: "individual" | "corporate") {
@@ -677,7 +721,7 @@ function DocumentUploadContent() {
     router.replace(`/documents?${nextParams.toString()}`, { scroll: false });
   }
 
-  const [docs, setDocs] = useState<DocState[]>(() => config.documents.map(createDocState));
+  const [docs, setDocs] = useState<DocState[]>(() => allDocumentLabels.map(createDocState));
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -685,11 +729,12 @@ function DocumentUploadContent() {
   // lead 조회를 통해 서비스가 뒤늦게 확인되면 기본 문서 슬롯을
   // 해당 서비스 전용 문서 목록으로 교체한다.
   useEffect(() => {
-    setDocs(config.documents.map(createDocState));
-  }, [config.serviceKey]);
+    setDocs(allDocumentLabels.map(createDocState));
+  }, [config.serviceKey, mode, allDocumentLabels]);
 
-  const readyCount = docs.filter(isDocReady).length;
-  const totalCount = docs.length;
+  const requiredDocs = docs.filter((doc) => requiredLabels.includes(doc.label));
+  const readyCount = requiredDocs.filter(isDocReady).length;
+  const totalCount = requiredDocs.length;
   const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
 
   // 마지막 순번에 추가되는 "추가 서류 (선택)" 카드 — 서비스별 필수 서류 목록(docs)과는
@@ -745,7 +790,7 @@ function DocumentUploadContent() {
           setExtraDoc((prev) => ({ ...prev, ...patch }));
           return;
         }
-        const index = config.documents.indexOf(row.tag ?? "");
+        const index = allDocumentLabels.indexOf(row.tag ?? "");
         if (index >= 0) updateDoc(index, patch);
       });
     })();
@@ -753,7 +798,7 @@ function DocumentUploadContent() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leadId, config.serviceKey]);
+  }, [leadId, config.serviceKey, mode, allDocumentLabels]);
 
   // 질문 단계(VERIFY admin)에서 제출된 자료 조회 — 기존 document_upload 조회와는 완전히
   // 별개의 조회이며, 위 useEffect(document_upload)를 전혀 수정하지 않는다. 가장 최근
@@ -1310,7 +1355,7 @@ function DocumentUploadContent() {
             {/* 전체 제출 진행률 */}
             <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-4 lg:mt-4 lg:p-3.5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-bold text-gray-900">제출 진행률</p>
+                <p className="text-sm font-bold text-gray-900">핵심 자료 제출 현황</p>
                 <p className="shrink-0 text-xs font-semibold text-gray-400">{progressPercent}%</p>
               </div>
               <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100 lg:mt-2">
@@ -1322,7 +1367,9 @@ function DocumentUploadContent() {
               <p className="mt-3 text-xl font-bold text-blue-900 lg:mt-2.5 lg:text-lg">
                 {readyCount} / {totalCount} <span className="text-sm font-semibold text-gray-500">완료</span>
               </p>
-              <p className="mt-0.5 text-xs text-gray-400">총 {totalCount}개 문서 필요</p>
+              <p className="mt-0.5 text-xs text-gray-400">
+                우선 제출 자료 {totalCount}개 · 있으면 제출 자료는 진행률에 포함되지 않습니다.
+              </p>
             </div>
               </>
             )}
@@ -1432,11 +1479,32 @@ function DocumentUploadContent() {
                 </div>
               )}
 
+              {mode === "expert" && (
+                <div className="rounded-2xl border border-blue-100 bg-blue-50/40 px-4 py-3">
+                  <p className="text-xs font-bold text-blue-900">
+                    AI 리포트 단계에서 제출한 자료는 다시 제출하지 않으셔도 됩니다.
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-blue-700">
+                    기존 업로드 자료가 자동으로 복원됩니다. 담당 전문가가 먼저 확인한 뒤 실제로 필요한 추가 자료만 안내드립니다.
+                  </p>
+                </div>
+              )}
+
               <div>
-                <p className="text-base font-bold text-gray-900">필요한 문서</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  모든 문서는 선택 사항입니다. 보유하신 자료로만 제출해주세요.
+                <p className="text-base font-bold text-gray-900">제출 자료</p>
+                <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                  우선 제출 자료를 먼저 준비해주세요. 있으면 제출 자료는 현재 보유한 경우에만 올리시면 됩니다.
                 </p>
+                {mode === "ai_report" && (
+                  <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/50 px-3.5 py-3">
+                    <p className="text-xs font-bold text-blue-900">
+                      AI는 제출된 자료 안에서 고객님의 상황을 판단합니다.
+                    </p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-blue-700">
+                      계약서, 기존 신청자료, 반려 문서, 사진 등 현재 가지고 있는 자료를 성실하게 함께 제출하면 누락 가능성·위험요인·보완 방향을 더 구체적으로 확인할 수 있습니다.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {docs.map((doc, i) => (
@@ -1444,6 +1512,11 @@ function DocumentUploadContent() {
                   key={doc.label}
                   index={i}
                   doc={doc}
+                  requirementLabel={
+                    requiredLabels.includes(doc.label)
+                      ? "우선 제출"
+                      : "있으면 제출"
+                  }
                   onModeChange={(inputMode) => updateDoc(i, { inputMode })}
                   onFileChange={(file) => handleDocFileSelect(i, file)}
                   onFileClear={() => handleDocFileClear(i)}
@@ -1460,6 +1533,7 @@ function DocumentUploadContent() {
               <DocumentCard
                 index={docs.length}
                 doc={extraDoc}
+                requirementLabel="있으면 제출"
                 onModeChange={(inputMode) => setExtraDoc((prev) => ({ ...prev, inputMode }))}
                 onFileChange={handleExtraFileSelect}
                 onFileClear={handleExtraFileClear}
@@ -1490,7 +1564,7 @@ function DocumentUploadContent() {
               <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-sm font-bold text-gray-900">제출 현황</p>
                 <p className="mt-1 text-xs text-gray-500">
-                  {totalCount}개 문서 필요
+                  `${totalCount}개 우선 제출 자료`
                 </p>
                 <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
