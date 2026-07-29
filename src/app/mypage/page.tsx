@@ -1091,8 +1091,8 @@ function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur xl:hidden">
-      <div className="grid grid-cols-6 items-end">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur">
+      <div className="mx-auto grid max-w-[1180px] grid-cols-6 items-end">
         {items.map((item) => (
           <Link
             key={item.label}
@@ -1193,14 +1193,6 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-5">
-        <WalletSection />
-      </div>
-
-      <div className="mt-5">
-        <RecommendedServices />
-      </div>
-
       <div className="mt-5 grid gap-5 xl:hidden">
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
@@ -1280,7 +1272,7 @@ export default function MyPage() {
       <div className="xl:pl-[206px]">
         <TopHeader name={name} />
 
-        <div className="mx-auto grid max-w-[1380px] gap-5 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_286px] xl:px-8 xl:py-6 xl:pb-8">
+        <div className="mx-auto grid max-w-[1380px] gap-5 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_286px] xl:px-8 xl:py-6 xl:pb-5">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
@@ -1328,13 +1320,25 @@ export default function MyPage() {
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
               <PermitDocuments item={firstItem} />
-              <ExpertCard item={firstItem} />
-              <div id="profile">
-                <HelpCard />
-              </div>
             </aside>
           )}
         </div>
+
+        {state === "ready" && firstItem && (
+          <div className="mx-auto max-w-[1380px] space-y-5 px-4 pb-32 sm:px-6 xl:px-8">
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_286px]">
+              <WalletSection />
+              <ExpertCard item={firstItem} />
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_286px]">
+              <RecommendedServices />
+              <div id="profile">
+                <HelpCard />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <MobileBottomNav />
