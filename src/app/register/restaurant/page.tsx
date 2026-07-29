@@ -1141,9 +1141,9 @@ export default function RegisterRestaurantPage() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      {/* CHECK(TRC)와 동일하게 결과 화면일 때만 컨테이너 폭을 max-w-5xl로 넓힌다.
+      {/* CHECK(TRC)와 동일하게 결과 화면은 법인설립 Master Size인 max-w-4xl을 사용한다.
           질문/개인정보 입력 단계는 기존과 동일한 max-w-xl을 유지한다. */}
-      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-5xl" : "max-w-xl"}`}>
+      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
         {/* 모바일 전용 — CHECK(TRC)/VERIFY(admin)와 동일한 브랜드 헤더 */}
         <Link
           href="/"
@@ -1462,7 +1462,7 @@ export default function RegisterRestaurantPage() {
             중간 확인화면은 두지 않는다(TRC 실제 흐름과 동일 — 위 handleExpertRequest
             주석 참고). */}
         {showResult && diagnosis && leadSubmitted && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               식당허가 · AI 분석 리포트
             </p>
