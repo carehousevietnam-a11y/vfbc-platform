@@ -168,7 +168,10 @@ function buildStageInfo(
       { label: "전문가 안내 대기", done: done[3] },
     ];
     const doneCount = done.filter(Boolean).length;
-    const idx = doneCount - 1;
+    // 화면(StepProgress)의 "현재 단계" 표시는 '첫 번째 미완료 단계'를 기준으로
+    // 하이라이트한다(마지막 완료 단계가 아님). currentStepLabel도 동일한 기준으로
+    // 맞춰야 카드 상단 텍스트와 진행단계 그래프가 서로 다른 단계를 가리키지 않는다.
+    const idx = Math.min(doneCount, steps.length - 1);
     return {
       steps,
       progressPercent: Math.round((doneCount / steps.length) * 100),
@@ -183,7 +186,7 @@ function buildStageInfo(
       { label: "담당자 확인 대기", done: done[1] },
     ];
     const doneCount = done.filter(Boolean).length;
-    const idx = doneCount - 1;
+    const idx = Math.min(doneCount, steps.length - 1);
     return {
       steps,
       progressPercent: Math.round((doneCount / steps.length) * 100),
@@ -202,10 +205,10 @@ function buildStageInfo(
     { label: "허가 완료", done: done[5] },
   ];
   const doneCount = done.filter(Boolean).length;
-  const idx = doneCount - 1;
+  const idx = Math.min(doneCount, steps.length - 1);
   return {
     steps,
-    progressPercent: SIX_STEP_PERCENTS[idx] ?? SIX_STEP_PERCENTS[0],
+    progressPercent: SIX_STEP_PERCENTS[doneCount - 1] ?? SIX_STEP_PERCENTS[0],
     currentStepLabel: steps[idx]?.label ?? steps[0].label,
   };
 }

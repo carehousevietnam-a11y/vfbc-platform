@@ -36,6 +36,7 @@ import {
   Shield,
   ShieldAlert,
   Sparkles,
+  Star,
   User,
   UserCheck,
   WalletCards,
@@ -560,7 +561,7 @@ function AiResultCard({ item }: { item: MyPageItem }) {
           )}
           <div className="mt-3 flex items-center gap-1 text-amber-400">
             {[0, 1, 2, 3, 4].map((value) => (
-              <Sparkles key={value} size={13} fill="currentColor" />
+              <Star key={value} size={13} fill="currentColor" />
             ))}
           </div>
           <p className="mt-2 text-[10px] font-semibold text-slate-500">AI 분석 완료</p>
@@ -843,7 +844,7 @@ function WalletSection() {
         </button>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-6">
         {docs.map((doc) => (
           <div
             key={doc.label}
