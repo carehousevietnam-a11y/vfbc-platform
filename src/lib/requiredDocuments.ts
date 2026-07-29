@@ -19,7 +19,13 @@ export type DocumentServiceKey =
   | "verify_tax"
   | "verify_unclear"
   | "register_restaurant"
-  | "register_cosmetics";
+  | "register_cosmetics"
+  | "permit_company"
+  | "register_company"
+  | "permit_company_individual"
+  | "permit_company_corporate"
+  | "register_company_individual"
+  | "register_company_corporate";
 
 export interface RequiredDocumentConfig {
   serviceKey: string;
@@ -136,6 +142,88 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "제조사 및 품질관리 관련 증빙",
       "기존 허가·반려 관련 자료",
       "기타 제품별 추가자료",
+    ],
+  },
+  permit_company: {
+    serviceKey: "permit_company",
+    serviceLabel: "외국인투자 법인설립",
+    documents: [],
+  },
+  register_company: {
+    serviceKey: "register_company",
+    serviceLabel: "외국인투자 법인설립",
+    documents: [],
+  },
+  permit_company_individual: {
+    serviceKey: "permit_company_individual",
+    serviceLabel: "법인설립 · 개인 투자",
+    documents: [
+      "개인 투자자 여권",
+      "개인 투자자 재정능력 증빙",
+      "예정 법인명·사업목적·투자금 정보",
+      "본점 임대차계약서",
+      "임대인의 법적 권리 증빙",
+      "예정 법정대표자 여권",
+      "투자 프로젝트 제안자료",
+      "투자등록증(IRC) 신청자료",
+      "기업등록증(ERC) 신청자료",
+      "기존 신청·보완·반려 관련 자료",
+    ],
+  },
+  register_company_individual: {
+    serviceKey: "register_company_individual",
+    serviceLabel: "법인설립 · 개인 투자",
+    documents: [
+      "개인 투자자 여권",
+      "개인 투자자 재정능력 증빙",
+      "예정 법인명·사업목적·투자금 정보",
+      "본점 임대차계약서",
+      "임대인의 법적 권리 증빙",
+      "예정 법정대표자 여권",
+      "투자 프로젝트 제안자료",
+      "투자등록증(IRC) 신청자료",
+      "기업등록증(ERC) 신청자료",
+      "기존 신청·보완·반려 관련 자료",
+    ],
+  },
+  permit_company_corporate: {
+    serviceKey: "permit_company_corporate",
+    serviceLabel: "법인설립 · 법인 투자",
+    documents: [
+      "투자법인 등록증",
+      "투자법인 정관",
+      "투자법인 법정대표자 여권",
+      "베트남 투자 결정서 또는 이사회·주주총회 결의서",
+      "투자법인 재정능력 증빙",
+      "베트남 절차 수행 위임장",
+      "예정 법인명·사업목적·투자금 정보",
+      "본점 임대차계약서",
+      "임대인의 법적 권리 증빙",
+      "예정 베트남 법인 법정대표자 여권",
+      "투자 프로젝트 제안자료",
+      "투자등록증(IRC) 신청자료",
+      "기업등록증(ERC) 신청자료",
+      "기존 신청·보완·반려 관련 자료",
+    ],
+  },
+  register_company_corporate: {
+    serviceKey: "register_company_corporate",
+    serviceLabel: "법인설립 · 법인 투자",
+    documents: [
+      "투자법인 등록증",
+      "투자법인 정관",
+      "투자법인 법정대표자 여권",
+      "베트남 투자 결정서 또는 이사회·주주총회 결의서",
+      "투자법인 재정능력 증빙",
+      "베트남 절차 수행 위임장",
+      "예정 법인명·사업목적·투자금 정보",
+      "본점 임대차계약서",
+      "임대인의 법적 권리 증빙",
+      "예정 베트남 법인 법정대표자 여권",
+      "투자 프로젝트 제안자료",
+      "투자등록증(IRC) 신청자료",
+      "기업등록증(ERC) 신청자료",
+      "기존 신청·보완·반려 관련 자료",
     ],
   },
 };

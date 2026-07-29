@@ -33,6 +33,8 @@ import {
   Lock,
   X,
   Paperclip,
+  UserRound,
+  Building2,
 } from "lucide-react";
 import { NoticeCard, PrimaryButton, StatusBadge } from "@/components/ui";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
@@ -336,6 +338,24 @@ const DOC_DESCRIPTION_BY_LABEL: Record<string, string> = {
     "제조사 정보와 제조·품질관리 기준을 확인할 수 있는 자료입니다.",
   "기타 제품별 추가자료":
     "제품 특성이나 관할기관 요청에 따라 필요한 추가자료가 있다면 제출해주세요.",
+  "투자자 여권 또는 법인등록서류":
+    "개인 투자자는 여권, 법인 투자자는 법인등록 및 대표자 관련 서류를 제출해주세요.",
+  "투자자 재정능력 증빙":
+    "예금잔고증명서, 재무제표 등 투자금 조달 능력을 확인할 수 있는 자료입니다.",
+  "법인명·사업목적·투자금 정보":
+    "예정 법인명, 사업목적, 투자금 및 출자구조를 정리한 자료를 제출해주세요.",
+  "본점 임대차계약서":
+    "베트남 법인의 예정 본점 주소와 사용 권한을 확인하는 계약서입니다.",
+  "예정 법정대표자 신분자료":
+    "예정 법정대표자의 여권 또는 신분 확인 자료를 제출해주세요.",
+  "투자등록증(IRC) 관련 신청자료":
+    "외국인 투자 프로젝트와 투자등록 신청에 필요한 자료를 제출해주세요.",
+  "기업등록증(ERC) 관련 신청자료":
+    "법인 설립 및 기업등록 신청에 사용되는 자료를 제출해주세요.",
+  "사업장 위치·시설 관련 자료":
+    "사업장 주소, 용도, 내부 사진 또는 시설 현황을 확인할 수 있는 자료입니다.",
+  "기존 신청·보완·반려 관련 자료":
+    "기존 접수증, 보완요청서 또는 반려 통지서가 있다면 제출해주세요.",
 };
 
 function DocumentCard({
@@ -599,9 +619,61 @@ function DocumentUploadContent() {
     };
   }, [leadId, serviceFromQuery]);
 
-  const serviceParam = resolvedService;
+  const rawServiceParam = resolvedService;
+  const investorTypeFromQuery = params.get("investorType");
+  const [investorType, setInvestorType] = useState<"individual" | "corporate" | null>(
+    investorTypeFromQuery === "individual" || investorTypeFromQuery === "corporate"
+      ? investorTypeFromQuery
+      : null
+  );
+
+  useEffect(() => {
+    if (investorTypeFromQuery === "individual" || investorTypeFromQuery === "corporate") {
+      setInvestorType(investorTypeFromQuery);
+    }
+  }, [investorTypeFromQuery]);
+
+  const isCompanyService =
+    rawServiceParam === "permit_company" ||
+    rawServiceParam === "register_company" ||
+    rawServiceParam === "permit_company_individual" ||
+    rawServiceParam === "register_company_individual" ||
+    rawServiceParam === "permit_company_corporate" ||
+    rawServiceParam === "register_company_corporate";
+
+  useEffect(() => {
+    if (
+      rawServiceParam === "permit_company_individual" ||
+      rawServiceParam === "register_company_individual"
+    ) {
+      setInvestorType("individual");
+    } else if (
+      rawServiceParam === "permit_company_corporate" ||
+      rawServiceParam === "register_company_corporate"
+    ) {
+      setInvestorType("corporate");
+    }
+  }, [rawServiceParam]);
+
+  const serviceParam = useMemo(() => {
+    if (!isCompanyService || !investorType) return rawServiceParam;
+
+    const prefix = rawServiceParam?.startsWith("permit_") ? "permit" : "register";
+    return `${prefix}_company_${investorType}`;
+  }, [isCompanyService, investorType, rawServiceParam]);
+
   const config = useMemo(() => getRequiredDocuments(serviceParam), [serviceParam]);
   const copy = MODE_COPY[mode];
+
+  function selectInvestorType(type: "individual" | "corporate") {
+    setInvestorType(type);
+    setSubmitted(false);
+    setSubmitError(null);
+
+    const nextParams = new URLSearchParams(params.toString());
+    nextParams.set("investorType", type);
+    router.replace(`/documents?${nextParams.toString()}`, { scroll: false });
+  }
 
   const [docs, setDocs] = useState<DocState[]>(() => config.documents.map(createDocState));
   const [submitted, setSubmitted] = useState(false);
@@ -1134,6 +1206,70 @@ function DocumentUploadContent() {
               </div>
             </div>
 
+            {isCompanyService && (
+              <section className="mt-5 rounded-2xl border border-gray-200 bg-white p-4 lg:p-5">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                    <Building2 size={18} className="text-blue-900" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">투자자 유형을 선택해주세요</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                      개인 투자와 법인 투자는 제출해야 하는 서류가 다릅니다.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => selectInvestorType("individual")}
+                    className={`rounded-2xl border p-4 text-left transition ${
+                      investorType === "individual"
+                        ? "border-blue-900 bg-blue-50 ring-1 ring-blue-900"
+                        : "border-gray-200 bg-white hover:border-blue-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                        investorType === "individual" ? "bg-blue-900 text-white" : "bg-gray-100 text-gray-500"
+                      }`}>
+                        <UserRound size={19} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-gray-900">개인 투자</p>
+                        <p className="mt-0.5 text-xs text-gray-500">개인이 직접 투자자가 되는 방식</p>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => selectInvestorType("corporate")}
+                    className={`rounded-2xl border p-4 text-left transition ${
+                      investorType === "corporate"
+                        ? "border-blue-900 bg-blue-50 ring-1 ring-blue-900"
+                        : "border-gray-200 bg-white hover:border-blue-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                        investorType === "corporate" ? "bg-blue-900 text-white" : "bg-gray-100 text-gray-500"
+                      }`}>
+                        <Building2 size={19} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-gray-900">법인 투자</p>
+                        <p className="mt-0.5 text-xs text-gray-500">해외 법인이 투자자가 되는 방식</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {(!isCompanyService || investorType) && (
+              <>
             {/* 신뢰 항목 — 모바일 2개(한 줄), PC 3개(기존 유지) */}
             <div className="mt-5 grid grid-cols-2 gap-2 lg:hidden">
               {MOBILE_TRUST_ITEMS.map((item) => (
@@ -1186,6 +1322,8 @@ function DocumentUploadContent() {
               </p>
               <p className="mt-0.5 text-xs text-gray-400">총 {totalCount}개 문서 필요</p>
             </div>
+              </>
+            )}
           </>
         )}
 
@@ -1422,7 +1560,7 @@ function DocumentUploadContent() {
       </div>
 
       {/* 모바일 전용 — 하단 고정 CTA */}
-      {!submitted && (
+      {!submitted && (!isCompanyService || investorType) && (
         <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] lg:hidden">
           <div className="mx-auto max-w-5xl text-center">
             <p className="text-sm font-bold text-gray-900">
