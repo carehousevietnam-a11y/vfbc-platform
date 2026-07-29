@@ -726,6 +726,18 @@ function DocumentUploadContent() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // AI 리포트 접수 완료 화면을 충분히 확인한 뒤 My Page로 자동 이동한다.
+  // 전문가 모드와 기존 접수·업로드·CRM 로직에는 영향을 주지 않는다.
+  useEffect(() => {
+    if (!submitted || mode !== "ai_report") return;
+
+    const timer = window.setTimeout(() => {
+      router.push("/mypage");
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [mode, router, submitted]);
+
   // lead 조회를 통해 서비스가 뒤늦게 확인되면 기본 문서 슬롯을
   // 해당 서비스 전용 문서 목록으로 교체한다.
   useEffect(() => {
@@ -1433,18 +1445,58 @@ function DocumentUploadContent() {
               */}
             </div>
           ) : (
-            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
-                <CheckCircle2 className="text-emerald-600" size={28} />
+            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex justify-center">
+                <img
+                  src="/vfbc-seal.png"
+                  alt="VFBCAI AI 리포트 접수완료 확인 도장"
+                  width={140}
+                  height={140}
+                />
               </div>
-              <p className="mt-4 text-lg font-bold text-gray-900">{copy.successTitle}</p>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">{copy.successBody}</p>
-              <button
-                onClick={handleReset}
-                className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
-              >
-                다시 작성하기
-              </button>
+              <p className="mt-1 text-[10px] italic text-gray-400">
+                Vietnam Foreign Business Verification &amp; Compliance AI Center
+              </p>
+
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
+                AI 리포트 접수 완료
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                AI 리포트 요청이 정상적으로 접수되었습니다.
+                <br />
+                제출하신 자료를 바탕으로 AI 검토가 진행됩니다.
+                <br />
+                <br />
+                <span className="mx-auto block max-w-[280px] break-keep text-pretty leading-relaxed lg:max-w-none">
+                  완료된 PDF 리포트와 진행상황은 My Page에서 확인할 수 있습니다.
+                </span>
+              </p>
+
+              <div className="mt-6 space-y-2.5 lg:mx-auto lg:max-w-sm">
+                <button
+                  type="button"
+                  onClick={() => router.push("/mypage")}
+                  className="flex h-11 w-full items-center justify-center rounded-xl bg-blue-900 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-950 hover:shadow-md"
+                >
+                  My Page에서 리포트 확인하기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/")}
+                  className="flex h-11 w-full items-center justify-center rounded-xl border border-blue-900 bg-white text-sm font-semibold text-blue-900 transition-all duration-200 hover:bg-blue-50"
+                >
+                  홈으로
+                </button>
+              </div>
+
+              <p className="mt-4 text-[11px] text-gray-400">
+                3초 후 My Page로 자동 이동합니다.
+              </p>
+
+              <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-gray-400">
+                <Lock size={12} className="mt-0.5 shrink-0" />
+                <span>제출하신 자료는 안전하게 보호되며 AI 리포트 작성에만 사용됩니다.</span>
+              </div>
             </div>
           )
         ) : (
@@ -1564,7 +1616,7 @@ function DocumentUploadContent() {
               <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-sm font-bold text-gray-900">제출 현황</p>
                 <p className="mt-1 text-xs text-gray-500">
-                  {totalCount}개 우선 제출 자료
+                  `${totalCount}개 우선 제출 자료`
                 </p>
                 <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
@@ -1576,53 +1628,18 @@ function DocumentUploadContent() {
                   {readyCount} / {totalCount} 개 완료
                 </p>
 
-                <div className="mt-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[11px] font-bold text-blue-900">우선 제출</p>
-                    <p className="text-[10px] font-medium text-gray-400">
-                      {requiredDocs.filter(isDocReady).length} / {requiredDocs.length}
-                    </p>
-                  </div>
-                  <ul className="mt-2 space-y-1.5">
-                    {requiredDocs.map((doc) => (
-                      <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
-                        {isDocReady(doc) ? (
-                          <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
-                        ) : (
-                          <Circle size={14} className="shrink-0 text-gray-300" />
-                        )}
-                        <span className="truncate">{doc.label}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {optionalLabels.length > 0 && (
-                  <div className="mt-4 border-t border-gray-100 pt-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-[11px] font-bold text-gray-500">있으면 제출</p>
-                      <p className="text-[10px] font-medium text-gray-400">
-                        {docs.filter(
-                          (doc) => optionalLabels.includes(doc.label) && isDocReady(doc)
-                        ).length} / {optionalLabels.length}
-                      </p>
-                    </div>
-                    <ul className="mt-2 space-y-1.5">
-                      {docs
-                        .filter((doc) => optionalLabels.includes(doc.label))
-                        .map((doc) => (
-                          <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-500">
-                            {isDocReady(doc) ? (
-                              <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
-                            ) : (
-                              <Circle size={14} className="shrink-0 text-gray-300" />
-                            )}
-                            <span className="truncate">{doc.label}</span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                )}
+                <ul className="mt-3 space-y-1.5">
+                  {docs.map((doc) => (
+                    <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
+                      {isDocReady(doc) ? (
+                        <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                      ) : (
+                        <Circle size={14} className="shrink-0 text-gray-300" />
+                      )}
+                      <span className="truncate">{doc.label}</span>
+                    </li>
+                  ))}
+                </ul>
 
                 <div className="mt-3 space-y-2.5 border-t border-gray-100 pt-3 text-xs">
                   <div className="flex items-center gap-2">
