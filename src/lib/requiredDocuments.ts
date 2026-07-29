@@ -19,6 +19,11 @@ export type DocumentServiceKey =
   | "verify_unclear"
   | "register_restaurant"
   | "register_cosmetics"
+  | "register_environment"
+  | "register_fire_safety"
+  | "register_franchise"
+  | "register_hygiene"
+  | "register_medical_device"
   | "permit_company"
   | "register_company"
   | "permit_company_individual"
@@ -162,6 +167,98 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "제품 라벨·포장 디자인 자료",
       "제조사 및 품질관리 관련 증빙",
       "기존 허가·보완·반려 관련 자료",
+      "기타 제품별 추가자료",
+    ],
+  },
+  register_environment: {
+    serviceKey: "register_environment",
+    serviceLabel: "환경허가",
+    documents: [
+      "사업자등록증 또는 법인등록증",
+      "사업장 임대차계약서 또는 토지·공장 사용권 자료",
+      "사업장 위치도·평면도 및 공정 설명자료",
+      "환경영향평가서 또는 환경보호계획 관련 자료",
+    ],
+    optionalDocuments: [
+      "배출시설·방지시설 설계도 및 설치자료",
+      "폐수·대기·소음·폐기물 관련 측정자료",
+      "원료·연료·생산량 및 공정 흐름도",
+      "사업장 내부·외부 및 환경시설 사진",
+      "기존 환경허가·보완요청서·반려 통지서",
+      "기타 환경 관련 자료",
+    ],
+  },
+  register_fire_safety: {
+    serviceKey: "register_fire_safety",
+    serviceLabel: "소방허가",
+    documents: [
+      "사업자등록증 또는 법인등록증",
+      "영업장·사업장 임대차계약서",
+      "건축물 평면도 및 소방시설 배치도",
+      "소방시설 설치·점검 관련 자료",
+    ],
+    optionalDocuments: [
+      "소방안전관리자 선임자료",
+      "소방계획서·비상대피계획",
+      "소화기·경보·스프링클러 등 시설 사진",
+      "건축물 사용승인 또는 관련 건축자료",
+      "기존 소방검사·보완요청서·반려 통지서",
+      "기타 소방 관련 자료",
+    ],
+  },
+  register_franchise: {
+    serviceKey: "register_franchise",
+    serviceLabel: "프랜차이즈 등록",
+    documents: [
+      "가맹본부 사업자등록증 또는 법인등록증",
+      "직영점 운영 이력 증빙",
+      "가맹계약서",
+      "가맹사업 운영매뉴얼",
+    ],
+    optionalDocuments: [
+      "가맹사업 정보공개자료",
+      "상표권·브랜드 사용권 증빙",
+      "직영점 매출·운영 관련 자료",
+      "가맹점 교육·지원 체계 자료",
+      "기존 등록·보완요청서·반려 통지서",
+      "기타 프랜차이즈 관련 자료",
+    ],
+  },
+  register_hygiene: {
+    serviceKey: "register_hygiene",
+    serviceLabel: "위생허가",
+    documents: [
+      "사업자등록증 또는 법인등록증",
+      "영업장 임대차계약서",
+      "영업장 평면도 및 시설 배치도",
+      "대표자·종사자 건강검진서",
+    ],
+    optionalDocuments: [
+      "종사자 위생교육 이수자료",
+      "조리·저장·세척시설 사진",
+      "식재료 보관·폐기물 처리 관련 자료",
+      "수질검사 또는 방역·소독 관련 자료",
+      "기존 위생검사·보완요청서·반려 통지서",
+      "기타 위생 관련 자료",
+    ],
+  },
+  register_medical_device: {
+    serviceKey: "register_medical_device",
+    serviceLabel: "의료기기 수입·유통허가",
+    documents: [
+      "사업자등록증 또는 법인등록증",
+      "제조사 위임장 또는 공급계약서",
+      "의료기기 제품 분류자료",
+      "제품 품질·기술문서",
+      "보관·유통시설 또는 창고 관련 자료",
+    ],
+    optionalDocuments: [
+      "자유판매증명서(CFS)",
+      "ISO·품질관리 인증자료",
+      "제품 라벨·사용설명서",
+      "시험성적서·안전성·성능 자료",
+      "창고 평면도·시설 사진 및 관리절차",
+      "기존 허가·보완요청서·반려 통지서",
       "기타 제품별 추가자료",
     ],
   },
