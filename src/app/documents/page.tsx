@@ -348,10 +348,6 @@ const DOC_DESCRIPTION_BY_LABEL: Record<string, string> = {
     "베트남 법인의 예정 본점 주소와 사용 권한을 확인하는 계약서입니다.",
   "예정 법정대표자 신분자료":
     "예정 법정대표자의 여권 또는 신분 확인 자료를 제출해주세요.",
-  "투자등록증(IRC) 관련 신청자료":
-    "외국인 투자 프로젝트와 투자등록 신청에 필요한 자료를 제출해주세요.",
-  "기업등록증(ERC) 관련 신청자료":
-    "법인 설립 및 기업등록 신청에 사용되는 자료를 제출해주세요.",
   "사업장 위치·시설 관련 자료":
     "사업장 주소, 용도, 내부 사진 또는 시설 현황을 확인할 수 있는 자료입니다.",
   "기존 신청·보완·반려 관련 자료":
@@ -630,6 +626,12 @@ function DocumentUploadContent() {
   useEffect(() => {
     if (investorTypeFromQuery === "individual" || investorTypeFromQuery === "corporate") {
       setInvestorType(investorTypeFromQuery);
+      return;
+    }
+
+    const savedInvestorType = window.sessionStorage.getItem("permitCompanyInvestorType");
+    if (savedInvestorType === "individual" || savedInvestorType === "corporate") {
+      setInvestorType(savedInvestorType);
     }
   }, [investorTypeFromQuery]);
 
