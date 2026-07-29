@@ -274,7 +274,7 @@ function CompanyScoreGauge({
   tone,
 }: {
   score: number;
-  tone: "possible" | "conditional";
+  tone: ResultTone;
 }) {
   const isPossible = tone === "possible";
   return (
