@@ -12,6 +12,7 @@ import {
   AlertCircle,
   AlertTriangle,
   Bell,
+  Bot,
   Building2,
   CalendarDays,
   Check,
@@ -567,27 +568,12 @@ function AiResultCard({ item }: { item: MyPageItem }) {
           <p className="mt-2 text-[10px] font-semibold text-slate-500">AI 분석 완료</p>
         </div>
 
-        <div className="relative flex h-[118px] items-end justify-center">
-          <div className="absolute bottom-0 h-16 w-16 rounded-full bg-emerald-100 blur-xl" />
-          <div className="relative flex h-[104px] w-20 flex-col items-center">
-            {/* 안테나 */}
-            <span className="h-3 w-[3px] rounded-full bg-slate-300" />
-            <span className="-mt-0.5 h-2 w-2 rounded-full bg-emerald-400" />
-            {/* 머리 */}
-            <div className="mt-1 flex h-11 w-14 items-center justify-center rounded-[16px] border-2 border-slate-200 bg-white shadow-sm">
-              <div className="flex h-6 w-10 items-center justify-center gap-2 rounded-[9px] bg-[#153a78]">
-                <span className="h-2 w-2 rounded-full bg-emerald-300" />
-                <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              </div>
-            </div>
-            {/* 몸통 + 팔 */}
-            <div className="relative mt-1 flex items-center">
-              <span className="mr-[-4px] h-5 w-2 rounded-full bg-slate-200" />
-              <div className="h-9 w-12 rounded-[14px] border-2 border-slate-200 bg-white shadow-sm" />
-              <span className="ml-[-4px] h-5 w-2 rounded-full bg-slate-200" />
-            </div>
-            <div className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white">
-              <Check size={16} strokeWidth={3} />
+        <div className="relative flex h-[118px] items-center justify-center">
+          <div className="absolute h-16 w-16 rounded-full bg-emerald-100 blur-xl" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-slate-200 bg-white shadow-sm">
+            <Bot size={32} className="text-[#153a78]" strokeWidth={1.75} />
+            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white">
+              <Check size={14} strokeWidth={3} />
             </div>
           </div>
         </div>
@@ -1346,12 +1332,12 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
+      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
         <WalletSection />
         <ExpertCard item={activeItem} />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
+      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
         <RecommendedServices />
         <div id="profile">
           <HelpCard />
