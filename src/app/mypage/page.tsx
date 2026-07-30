@@ -1001,15 +1001,16 @@ function PublicLinksCard({
             href={link.href}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between py-3.5 transition hover:bg-slate-50"
+            className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-white shadow-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white p-1 shadow-sm">
                 <img
                   src={link.iconSrc}
                   alt={`${link.label} 기관 아이콘`}
-                  className="h-full w-full object-cover"
+                  className="block h-full w-full rounded-full object-contain object-center"
                   loading="lazy"
+                  draggable={false}
                 />
               </div>
               <div className="min-w-0">
