@@ -213,7 +213,7 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[208px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
+    <aside className="hidden w-[208px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
       <div className="px-5 pt-6">
         <BrandLogo />
       </div>
@@ -260,7 +260,7 @@ function DesktopSidebar() {
 function TopHeader({ name }: { name: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[76px] max-w-[1480px] items-center justify-between px-4 sm:px-6 xl:px-8">
+      <div className="flex h-[76px] w-full items-center justify-between px-4 sm:px-6 xl:px-8">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
@@ -1332,12 +1332,12 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-7 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="mt-7 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <WalletSection />
         <ExpertCard item={activeItem} />
       </div>
 
-      <div className="mt-7 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="mt-7 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <RecommendedServices />
         <div id="profile">
           <HelpCard />
@@ -1415,13 +1415,16 @@ export default function MyPage() {
   const firstItem = items[0] ?? null;
 
   return (
-    <main className="min-h-screen bg-[#f6f8fc] text-slate-900">
+    <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:flex">
       <DesktopSidebar />
 
-      <div className="xl:pl-[208px]">
+      {/* App Shell — Sidebar를 제외한 나머지 폭 전체를 그대로 차지한다(flex-1).
+          더 이상 xl:pl-[...] 오프셋이나 mx-auto/max-w로 폭을 제한하지 않는다. */}
+      <div className="min-w-0 xl:flex-1">
         <TopHeader name={name} />
 
-        <div className="mx-auto grid max-w-[1480px] gap-6 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_300px] xl:px-8 xl:py-8 xl:pb-8">
+        <div className="w-full px-4 py-5 pb-28 sm:px-6 xl:px-8 xl:py-8 xl:pb-8">
+          <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
@@ -1485,6 +1488,7 @@ export default function MyPage() {
               <PermitDocuments item={firstItem} />
             </aside>
           )}
+          </div>
         </div>
 
       </div>
