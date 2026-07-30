@@ -1331,16 +1331,12 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="mt-5">
         <WalletSection />
-        <ExpertCard item={activeItem} />
       </div>
 
-      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="mt-5">
         <RecommendedServices />
-        <div id="profile">
-          <HelpCard />
-        </div>
       </div>
 
       <div className="mt-5 grid gap-5 xl:hidden">
@@ -1484,6 +1480,10 @@ export default function MyPage() {
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
+              <ExpertCard item={firstItem} />
+              <div id="profile">
+                <HelpCard />
+              </div>
               <PermitDocuments item={firstItem} />
             </aside>
           )}
