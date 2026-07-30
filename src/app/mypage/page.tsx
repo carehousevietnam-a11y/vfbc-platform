@@ -76,8 +76,8 @@ const ESTIMATED_DAYS: Record<string, string> = {
 
 const VERIFY_ESTIMATE = "2~5 영업일";
 const CONSULTATION_ESTIMATE = "1~2 영업일";
-const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀";
-const EXPERT_NAME = "Linda Kang · VNK 파트너";
+const EXPERT_TEAM_LABEL = "VFBCAI 행정전문팀";
+const EXPERT_NAME = "VFBCAI 행정전문팀 · VNK 파트너";
 
 type ConfidenceLevel = "green" | "yellow" | "red";
 type ConfidenceStatus = { level: ConfidenceLevel; label: string; message: string };
@@ -927,18 +927,58 @@ function RecommendedServices() {
 }
 
 const PUBLIC_LINKS = [
-  { label: "정부24", sub: "주민등록등본, 가족관계증명서 등", href: "https://www.gov.kr/" },
-  { label: "영사민원24", sub: "공증, 영사확인, 여권 등", href: "https://consul.mofa.go.kr/" },
-  { label: "법무부", sub: "출입국·체류·국적 관련 정보", href: "https://www.moj.go.kr/" },
-  { label: "하이코리아", sub: "외국인 전자민원, 체류 신청 등", href: "https://www.hikorea.go.kr/" },
+  {
+    label: "정부24",
+    sub: "주민등록등본, 가족관계증명서 등",
+    href: "https://www.gov.kr/",
+    iconSrc: "/mypage-icons/kr-gov24.webp",
+  },
+  {
+    label: "영사민원24",
+    sub: "공증, 영사확인, 여권 등",
+    href: "https://consul.mofa.go.kr/",
+    iconSrc: "/mypage-icons/kr-consul.webp",
+  },
+  {
+    label: "법무부",
+    sub: "출입국·체류·국적 관련 정보",
+    href: "https://www.moj.go.kr/",
+    iconSrc: "/mypage-icons/kr-moj.webp",
+  },
+  {
+    label: "하이코리아",
+    sub: "외국인 전자민원, 체류 신청 등",
+    href: "https://www.hikorea.go.kr/",
+    iconSrc: "/mypage-icons/kr-hikorea.webp",
+  },
 ];
 
 const VN_PUBLIC_LINKS = [
-  { label: "베트남 공공서비스 포털", href: "https://dichvucong.gov.vn/" },
-  { label: "출입국관리기관", href: "https://xuatnhapcanh.gov.vn/" },
-  { label: "세무기관", href: "https://www.gdt.gov.vn/" },
-  { label: "기업등록기관", href: "https://dangkykinhdoanh.gov.vn/" },
-  { label: "노동기관", href: "https://molisa.gov.vn/" },
+  {
+    label: "베트남 공공서비스 포털",
+    href: "https://dichvucong.gov.vn/",
+    iconSrc: "/mypage-icons/vn-portal.webp",
+  },
+  {
+    label: "출입국관리기관",
+    href: "https://xuatnhapcanh.gov.vn/",
+    iconSrc: "/mypage-icons/vn-immigration.webp",
+  },
+  {
+    label: "세무기관",
+    href: "https://www.gdt.gov.vn/",
+    iconSrc: "/mypage-icons/vn-tax.webp",
+  },
+  {
+    label: "기업등록기관",
+    href: "https://dangkykinhdoanh.gov.vn/",
+    iconSrc: "/mypage-icons/vn-business.webp",
+  },
+  {
+    label: "노동기관",
+    href: "https://molisa.gov.vn/",
+    iconSrc: "/mypage-icons/vn-labor.webp",
+  },
 ];
 
 function PublicLinksCard({
@@ -946,7 +986,7 @@ function PublicLinksCard({
   links,
 }: {
   title: string;
-  links: { label: string; sub?: string; href: string }[];
+  links: { label: string; sub?: string; href: string; iconSrc: string }[];
 }) {
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -961,11 +1001,16 @@ function PublicLinksCard({
             href={link.href}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between py-3 transition hover:bg-slate-50"
+            className="flex items-center justify-between py-3.5 transition hover:bg-slate-50"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50">
-                <Landmark size={16} className="text-blue-900" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-white shadow-sm">
+                <img
+                  src={link.iconSrc}
+                  alt={`${link.label} 기관 아이콘`}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
               </div>
               <div className="min-w-0">
                 <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
@@ -982,7 +1027,7 @@ function PublicLinksCard({
 
 function NotificationCard({ item }: { item: MyPageItem }) {
   const entries = [
-    { icon: MessageCircle, tone: "bg-red-50 text-red-600", title: "전문가 메시지", sub: "추가 서류가 필요합니다." },
+    { icon: MessageCircle, tone: "bg-red-50 text-red-600", title: "행정전문팀 메시지", sub: "행정전문팀에서 추가 서류를 요청했습니다." },
     { icon: AlertTriangle, tone: "bg-amber-50 text-amber-600", title: "거주증 만료 알림", sub: "만료까지 87일 남았습니다." },
     { icon: FileCheck2, tone: "bg-emerald-50 text-emerald-600", title: "AI 리포트 완료", sub: "AI 리포트가 준비되었습니다." },
     { icon: Building2, tone: "bg-blue-50 text-blue-600", title: "정부 제출 예정", sub: nextStepLabel(item.stage.steps) },
@@ -1022,8 +1067,8 @@ function ExpertCard({ item }: { item: MyPageItem }) {
           <UserCheck size={28} className="text-[#102f72]" />
         </div>
         <div className="min-w-0">
-          <p className="text-[15px] font-extrabold text-slate-950">Linda Kang</p>
-          <p className="mt-1 text-[12px] text-slate-500">행정허가 전문가</p>
+          <p className="text-[15px] font-extrabold text-slate-950">VFBCAI 행정전문팀</p>
+          <p className="mt-1 text-[12px] text-slate-500">행정·허가 전문팀</p>
         </div>
       </div>
 
@@ -1395,26 +1440,13 @@ export default function MyPage() {
           {state === "ready" && firstItem && (
             <aside className="hidden space-y-5 xl:block">
               <NotificationCard item={firstItem} />
-              <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm">
-                <div className="flex items-end justify-between gap-3">
-                  <div>
-                    <p className="text-[15px] font-extrabold text-blue-950">VFBCAI 모바일 앱</p>
-                    <p className="mt-2 text-[11px] leading-5 text-slate-500">더 편리하게 이용하세요!</p>
-                    <button className="mt-4 rounded-xl bg-blue-900 px-4 py-2.5 text-[11px] font-bold text-white">
-                      앱 다운로드 →
-                    </button>
-                  </div>
-                  <div className="flex items-end gap-2">
-                    <div className="grid h-12 w-12 grid-cols-4 gap-[2px] rounded-md bg-white p-1 shadow-sm">
-                      {Array.from({ length: 16 }).map((_, index) => (
-                        <span key={index} className={index % 3 === 0 || index % 5 === 0 ? "bg-slate-900" : "bg-white"} />
-                      ))}
-                    </div>
-                    <div className="h-20 w-10 rounded-t-xl border-2 border-slate-700 bg-white p-1 shadow-sm">
-                      <div className="h-full rounded-lg bg-slate-100" />
-                    </div>
-                  </div>
-                </div>
+              <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+                <img
+                  src="/mypage-icons/app-promo.webp"
+                  alt="VFBCAI 모바일 앱 다운로드"
+                  className="h-auto w-full object-cover"
+                  loading="lazy"
+                />
               </div>
               <div id="admin-center">
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
