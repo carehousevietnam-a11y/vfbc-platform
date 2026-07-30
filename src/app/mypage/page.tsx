@@ -213,17 +213,17 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[180px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
-      <div className="px-4 pt-5">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[208px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
+      <div className="px-5 pt-6">
         <BrandLogo />
       </div>
 
-      <nav className="mt-6 space-y-1 px-3">
+      <nav className="mt-7 space-y-1.5 px-4">
         {SIDEBAR_ITEMS.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex h-11 items-center justify-between rounded-xl px-3 text-[13px] font-semibold transition ${
+            className={`flex h-12 items-center justify-between rounded-xl px-3.5 text-[13.5px] font-semibold transition ${
               item.active
                 ? "bg-[#0b2e77] text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -242,8 +242,8 @@ function DesktopSidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto p-4">
-        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-4">
+      <div className="mt-auto p-5">
+        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-5">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
             <FolderLock size={19} className="text-[#0d2a6b]" />
           </div>
@@ -260,7 +260,7 @@ function DesktopSidebar() {
 function TopHeader({ name }: { name: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[68px] max-w-[1180px] items-center justify-between px-4 sm:px-6 xl:px-5">
+      <div className="mx-auto flex h-[76px] max-w-[1480px] items-center justify-between px-4 sm:px-6 xl:px-8">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
@@ -336,7 +336,7 @@ function HeroCard({
   return (
     <section
       id="applications"
-      className="overflow-hidden rounded-[22px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.20)] sm:px-6 sm:py-6"
+      className="overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-6 py-6 text-white shadow-[0_14px_40px_rgba(18,55,126,0.20)] sm:px-8 sm:py-8"
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
@@ -418,7 +418,7 @@ function ApplicationSelector({
 
 function StepProgress({ stage }: { stage: StageInfo }) {
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
+    <section className="rounded-[24px] border border-slate-200 bg-white px-6 py-6 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">진행 단계</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 단계 보기 ›</span>
@@ -541,7 +541,7 @@ function AiResultCard({ item }: { item: MyPageItem }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
 
   return (
-    <section className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
+    <section className="rounded-[24px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-6 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
@@ -590,7 +590,7 @@ function CurrentStatusCard({ item }: { item: MyPageItem }) {
   const estimate = getEstimate(item.category, item.serviceType);
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
       <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
       <p className="mt-3 text-[13px] leading-6 text-slate-600">
         {item.hasExpertReview
@@ -656,7 +656,7 @@ function TimelineCard({ item }: { item: MyPageItem }) {
   const recent = item.activityLog.length >= 3 ? item.activityLog.slice(-4) : fallbackTimeline;
 
   return (
-    <section id="timeline" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id="timeline" className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">진행 타임라인</p>
@@ -864,7 +864,7 @@ function WalletSection() {
   }
 
   return (
-    <section id="wallet" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id="wallet" className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
@@ -961,7 +961,7 @@ function RecommendedServices() {
   ];
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
       <div className="flex items-center justify-between">
         <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
         <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
@@ -1010,7 +1010,7 @@ function PublicLinksCard({
   links: { label: string; sub?: string; href: string }[];
 }) {
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">{title}</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
@@ -1050,7 +1050,7 @@ function NotificationCard({ item }: { item: MyPageItem }) {
   ];
 
   return (
-    <section id="notifications" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section id="notifications" className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">알림 센터</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
@@ -1075,7 +1075,7 @@ function NotificationCard({ item }: { item: MyPageItem }) {
 
 function ExpertCard({ item }: { item: MyPageItem }) {
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">담당 전문가</p>
 
       <div className="mt-4 flex items-center gap-4">
@@ -1118,7 +1118,7 @@ function HelpCard() {
   ];
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">도움이 필요하신가요?</p>
       <div className="mt-4 grid grid-cols-3 gap-2">
         {items.map((item) => (
@@ -1142,7 +1142,7 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
   if (notes.length === 0) return null;
 
   return (
-    <section className="rounded-[22px] border border-blue-100 bg-blue-50/60 p-5">
+    <section className="rounded-[24px] border border-blue-100 bg-blue-50/60 p-5">
       <div className="flex items-center gap-2">
         <MessageCircle size={17} className="text-blue-900" />
         <p className="text-[15px] font-extrabold text-blue-950">담당자 안내</p>
@@ -1163,7 +1163,7 @@ function PermitDocuments({ item }: { item: MyPageItem }) {
   if (!item.governmentSubmittedAt && !item.permitCompletedAt && !item.fileUrl) return null;
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">제출 및 결과 문서</p>
       <div className="mt-4 space-y-3">
         {item.governmentSubmittedAt && (
@@ -1230,8 +1230,8 @@ function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur">
-      <div className="mx-auto grid max-w-[1180px] grid-cols-6 items-end">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur xl:hidden">
+      <div className="mx-auto grid max-w-[1480px] grid-cols-6 items-end">
         {items.map((item) => (
           <Link
             key={item.label}
@@ -1278,7 +1278,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
 
   if (!activeItem) {
     return (
-      <div className="rounded-[22px] border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="rounded-[24px] border border-slate-200 bg-white p-8 text-center shadow-sm">
         <FileText size={32} className="mx-auto text-slate-300" />
         <p className="mt-4 text-[18px] font-extrabold text-slate-900">아직 접수하신 신청 내역이 없습니다.</p>
         <Link
@@ -1311,40 +1311,40 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         }
       />
 
-      <div className="mt-5">
+      <div className="mt-7">
         <StepProgress stage={activeItem.stage} />
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-7 grid gap-6 lg:grid-cols-2">
         <AiResultCard item={activeItem} />
         <CurrentStatusCard item={activeItem} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-7">
         <ConfidenceBanner confidence={activeItem.confidence} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-7">
         <TimelineCard item={activeItem} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-7">
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
+      <div className="mt-7 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <WalletSection />
         <ExpertCard item={activeItem} />
       </div>
 
-      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
+      <div className="mt-7 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <RecommendedServices />
         <div id="profile">
           <HelpCard />
         </div>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:hidden">
+      <div className="mt-7 grid gap-6 xl:hidden">
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
         <NotificationCard item={activeItem} />
@@ -1356,7 +1356,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
 
 function LoadingCard({ message }: { message: string }) {
   return (
-    <div className="rounded-[22px] border border-slate-200 bg-white p-7 shadow-sm">
+    <div className="rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 animate-pulse rounded-xl bg-blue-100" />
         <p className="text-[13px] text-slate-500">{message}</p>
@@ -1418,16 +1418,16 @@ export default function MyPage() {
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900">
       <DesktopSidebar />
 
-      <div className="xl:pl-[180px]">
+      <div className="xl:pl-[208px]">
         <TopHeader name={name} />
 
-        <div className="mx-auto grid max-w-[1180px] gap-5 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_270px] xl:px-5 xl:py-6 xl:pb-5">
+        <div className="mx-auto grid max-w-[1480px] gap-6 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_300px] xl:px-8 xl:py-8 xl:pb-8">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
 
             {state === "signed-out" && (
-              <div className="rounded-[22px] border border-amber-200 bg-white p-8 shadow-sm">
+              <div className="rounded-[24px] border border-amber-200 bg-white p-8 shadow-sm">
                 <AlertCircle size={24} className="text-amber-700" />
                 <h1 className="mt-5 text-[24px] font-extrabold text-slate-950">로그인이 필요합니다</h1>
                 <p className="mt-3 max-w-xl text-[13px] leading-6 text-slate-600">
@@ -1445,7 +1445,7 @@ export default function MyPage() {
             )}
 
             {state === "error" && (
-              <div className="rounded-[22px] border border-red-200 bg-white p-7 shadow-sm">
+              <div className="rounded-[24px] border border-red-200 bg-white p-7 shadow-sm">
                 <AlertTriangle size={24} className="text-red-600" />
                 <p className="mt-4 text-[13px] font-semibold text-red-700">{errorMessage}</p>
               </div>
@@ -1455,9 +1455,9 @@ export default function MyPage() {
           </div>
 
           {state === "ready" && firstItem && (
-            <aside className="hidden space-y-5 xl:block">
+            <aside className="hidden space-y-6 xl:block">
               <NotificationCard item={firstItem} />
-              <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
+              <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm">
                 <div className="flex items-end justify-between gap-3">
                   <div>
                     <p className="text-[15px] font-extrabold text-blue-950">VFBCAI 모바일 앱</p>
