@@ -738,6 +738,7 @@ function WalletSection() {
       kind: "passport",
       badge: "PDF",
       action: "신청에 사용",
+      actionTone: "blue",
     },
     {
       label: "비자 (DN)",
@@ -745,6 +746,7 @@ function WalletSection() {
       kind: "visa",
       badge: "PDF",
       action: "신청에 사용",
+      actionTone: "blue",
     },
     {
       label: "거주증 (TRC)",
@@ -752,6 +754,7 @@ function WalletSection() {
       kind: "trc",
       badge: "PDF",
       action: "갱신 준비",
+      actionTone: "green",
     },
     {
       label: "증명사진",
@@ -759,6 +762,7 @@ function WalletSection() {
       kind: "photo",
       badge: "JPG",
       action: "다시 사용",
+      actionTone: "blue",
     },
     {
       label: "건강검진서",
@@ -766,46 +770,19 @@ function WalletSection() {
       kind: "certificate",
       badge: "PDF",
       action: "신청에 사용",
+      actionTone: "blue",
     },
   ] as const;
 
   function DocumentPreview({ kind }: { kind: (typeof docs)[number]["kind"] }) {
     if (kind === "passport") {
       return (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0a2457] to-[#123b80]">
-          <div className="flex h-[76px] w-[54px] flex-col items-center justify-center rounded-md border border-white/20 bg-[#0a2d6b] shadow-lg">
-            <Shield size={19} className="text-amber-300" />
-            <p className="mt-2 text-[7px] font-bold tracking-[0.18em] text-white/90">PASSPORT</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (kind === "photo") {
-      return (
-        <div className="flex h-full w-full items-end justify-center bg-gradient-to-b from-slate-100 to-slate-200">
-          <div className="mb-2 flex h-[78px] w-[60px] flex-col items-center justify-end overflow-hidden rounded-t-[30px] bg-gradient-to-b from-[#e9eef6] to-[#cbd5e1]">
-            <div className="h-8 w-8 rounded-full bg-[#f2c8a8]" />
-            <div className="mt-1 h-10 w-12 rounded-t-[14px] bg-[#1f2937]" />
-          </div>
-        </div>
-      );
-    }
-
-    if (kind === "trc") {
-      return (
-        <div className="h-full w-full bg-gradient-to-br from-[#dff7fb] to-[#fef5d7] p-2">
-          <div className="h-full rounded-md border border-cyan-200 bg-white/80 p-2">
-            <div className="flex gap-2">
-              <div className="h-10 w-8 rounded bg-slate-200" />
-              <div className="flex-1 space-y-1.5 pt-1">
-                <div className="h-1.5 rounded bg-cyan-200" />
-                <div className="h-1.5 w-3/4 rounded bg-slate-200" />
-                <div className="h-1.5 w-2/3 rounded bg-slate-200" />
-              </div>
-            </div>
-            <div className="mt-3 h-1.5 rounded bg-amber-200" />
-            <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
+        <div className="flex h-full w-full items-center justify-center bg-[#f7f9fc] px-3 py-2">
+          <div className="relative flex h-[94px] w-[66px] flex-col items-center justify-center rounded-[4px] bg-gradient-to-b from-[#123e82] to-[#08275e] shadow-[0_8px_18px_rgba(15,47,111,0.25)]">
+            <div className="absolute inset-x-0 top-0 h-1/2 bg-white/5" />
+            <Shield size={20} className="relative text-[#f6c900]" strokeWidth={1.8} />
+            <p className="relative mt-2 text-[7px] font-extrabold tracking-[0.14em] text-white">PASSPORT</p>
+            <span className="absolute bottom-2 h-[2px] w-7 rounded bg-[#f6c900]/70" />
           </div>
         </div>
       );
@@ -813,50 +790,86 @@ function WalletSection() {
 
     if (kind === "visa") {
       return (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 p-2">
-          <div className="flex h-full w-full flex-col rounded-md border border-indigo-200 bg-white/90 p-2">
-            <div className="flex items-center justify-between">
-              <FileCheck2 size={16} className="text-indigo-600" />
-              <span className="text-[7px] font-bold tracking-[0.14em] text-indigo-400">VISA</span>
+        <div className="h-full w-full bg-[#f7f9fc] p-2.5">
+          <div className="relative h-full overflow-hidden rounded-[4px] border border-[#cfd8f7] bg-gradient-to-br from-[#eef1ff] via-white to-[#e7ecff] shadow-sm">
+            <div className="absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_25%_20%,rgba(99,102,241,0.22),transparent_34%),radial-gradient(circle_at_80%_75%,rgba(59,130,246,0.18),transparent_30%)]" />
+            <div className="relative p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[7px] font-black tracking-[0.2em] text-indigo-500">VISA</span>
+                <span className="h-4 w-4 rounded-full border border-indigo-200" />
+              </div>
+              <div className="mt-2 flex gap-2">
+                <div className="h-9 w-7 rounded-sm bg-slate-200" />
+                <div className="flex-1 space-y-1.5 pt-0.5">
+                  <div className="h-1.5 rounded bg-indigo-200" />
+                  <div className="h-1.5 w-4/5 rounded bg-slate-200" />
+                  <div className="h-1.5 w-3/5 rounded bg-slate-200" />
+                </div>
+              </div>
+              <div className="mt-2 space-y-1.5">
+                <div className="h-1.5 rounded bg-slate-200" />
+                <div className="h-1.5 w-5/6 rounded bg-slate-200" />
+              </div>
             </div>
-            <div className="mt-2 flex-1 space-y-1.5">
-              <div className="h-1.5 w-4/5 rounded bg-indigo-200" />
-              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
-              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
-            </div>
-            <div className="h-6 rounded border border-dashed border-indigo-200" />
           </div>
         </div>
       );
     }
 
-    if (kind === "certificate") {
+    if (kind === "trc") {
       return (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-2">
-          <div className="flex h-full w-full flex-col rounded-md border border-rose-200 bg-white/90 p-2">
-            <div className="flex items-center justify-between">
-              <CheckCircle2 size={16} className="text-rose-500" />
-              <span className="text-[7px] font-bold tracking-[0.14em] text-rose-400">HEALTH</span>
+        <div className="h-full w-full bg-[#f7f9fc] p-2.5">
+          <div className="relative h-full overflow-hidden rounded-[5px] border border-cyan-200 bg-gradient-to-br from-[#eafcff] via-white to-[#fff7db] shadow-sm">
+            <div className="absolute right-0 top-0 h-12 w-12 rounded-bl-full bg-cyan-100/70" />
+            <div className="relative p-2">
+              <div className="flex items-start gap-2">
+                <div className="flex h-9 w-7 items-end justify-center overflow-hidden rounded bg-slate-200">
+                  <div className="h-4 w-4 rounded-full bg-[#efc3a2]" />
+                  <div className="h-4 w-6 rounded-t-md bg-slate-700" />
+                </div>
+                <div className="flex-1 space-y-1.5 pt-0.5">
+                  <div className="h-1.5 rounded bg-cyan-300" />
+                  <div className="h-1.5 w-5/6 rounded bg-slate-200" />
+                  <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+                </div>
+              </div>
+              <div className="mt-2 h-1.5 rounded bg-amber-200" />
+              <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
+              <div className="mt-1.5 h-1.5 w-2/3 rounded bg-slate-200" />
             </div>
-            <div className="mt-2 flex-1 space-y-1.5">
-              <div className="h-1.5 w-4/5 rounded bg-rose-200" />
-              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
-              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
-            </div>
-            <div className="h-6 rounded border border-dashed border-rose-200" />
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "photo") {
+      return (
+        <div className="flex h-full w-full items-end justify-center bg-[#f7f9fc] px-3 pt-2">
+          <div className="relative flex h-[96px] w-[70px] flex-col items-center justify-end overflow-hidden rounded-[5px] border border-slate-200 bg-gradient-to-b from-[#f2f6fb] to-[#dde5ef] shadow-sm">
+            <div className="absolute top-4 h-9 w-9 rounded-full bg-[#f2c39d]" />
+            <div className="absolute top-[46px] h-8 w-12 rounded-t-[18px] bg-[#202938]" />
+            <div className="absolute bottom-0 h-8 w-16 bg-[#172235]" />
+            <div className="absolute top-[12px] h-3 w-9 rounded-t-full bg-[#1e293b]" />
           </div>
         </div>
       );
     }
 
     return (
-      <div className="h-full w-full bg-gradient-to-br from-slate-50 to-slate-200 p-2">
-        <div className="h-full rounded-md border border-slate-200 bg-white p-2 shadow-sm">
-          <div className="h-2 w-2/3 rounded bg-blue-100" />
-          <div className="mt-2 h-1.5 rounded bg-slate-200" />
-          <div className="mt-1.5 h-1.5 rounded bg-slate-200" />
-          <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
-          <div className="mt-3 h-8 rounded border border-slate-200" />
+      <div className="h-full w-full bg-[#f7f9fc] p-2.5">
+        <div className="relative h-full overflow-hidden rounded-[4px] border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 px-2 py-1.5">
+            <div className="flex items-center justify-between">
+              <CheckCircle2 size={13} className="text-rose-500" />
+              <span className="text-[6px] font-black tracking-[0.16em] text-rose-400">HEALTH</span>
+            </div>
+          </div>
+          <div className="space-y-1.5 p-2">
+            <div className="h-1.5 w-4/5 rounded bg-rose-200" />
+            <div className="h-1.5 rounded bg-slate-200" />
+            <div className="h-1.5 w-5/6 rounded bg-slate-200" />
+            <div className="mt-2 h-7 rounded border border-dashed border-rose-200 bg-rose-50/40" />
+          </div>
         </div>
       </div>
     );
@@ -864,28 +877,31 @@ function WalletSection() {
 
   return (
     <section id="wallet" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
           <p className="mt-1 text-[11px] text-slate-500">
             자주 사용하는 행정서류를 안전하게 보관하고 다시 사용할 수 있습니다.
           </p>
         </div>
-        <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
+        <button type="button" className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-blue-700">
           전체 보기 <ChevronRight size={13} />
         </button>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+      <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
         {docs.map((doc) => (
           <div
             key={doc.label}
-            className="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+            className="group min-w-0 rounded-[14px] border border-slate-200 bg-white p-2.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
           >
-            <div className="relative h-[112px] overflow-hidden rounded-xl bg-slate-50">
+            <p className="truncate text-[11px] font-extrabold text-slate-900">{doc.label}</p>
+            <p className="mt-0.5 truncate text-[8px] text-slate-400">{doc.expiry}</p>
+
+            <div className="relative mt-2 h-[118px] overflow-hidden rounded-[8px] border border-slate-100 bg-slate-50">
               <DocumentPreview kind={doc.kind} />
               <span
-                className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold ${
+                className={`absolute bottom-1.5 right-1.5 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold shadow-sm ${
                   doc.badge === "JPG"
                     ? "bg-emerald-100 text-emerald-700"
                     : "bg-orange-100 text-orange-700"
@@ -894,24 +910,36 @@ function WalletSection() {
                 {doc.badge}
               </span>
             </div>
-            <p className="mt-3 truncate text-[12px] font-extrabold text-slate-900">{doc.label}</p>
-            <p className="mt-1 truncate text-[9px] text-slate-400">{doc.expiry}</p>
-            <div className="mt-3 grid grid-cols-2 gap-1">
-              <button type="button" className="rounded-lg border border-slate-200 py-1.5 text-[9px] font-bold text-slate-600 hover:bg-slate-50">
+
+            <div className="mt-2 grid grid-cols-[38px_minmax(0,1fr)] gap-1">
+              <button
+                type="button"
+                className="rounded-[7px] border border-slate-200 bg-white py-1.5 text-[8px] font-bold text-slate-700 hover:bg-slate-50"
+              >
                 보기
               </button>
-              <button type="button" className="rounded-lg border border-blue-200 bg-blue-50 py-1.5 text-[9px] font-bold text-blue-700 hover:bg-blue-100">
+              <button
+                type="button"
+                className={`truncate rounded-[7px] border py-1.5 px-1 text-[8px] font-bold ${
+                  doc.actionTone === "green"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                    : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                }`}
+              >
                 {doc.action}
               </button>
             </div>
           </div>
         ))}
 
-        <button type="button" className="flex min-h-[190px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700 transition hover:bg-blue-50">
+        <button
+          type="button"
+          className="flex min-h-[180px] min-w-0 flex-col items-center justify-center rounded-[14px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50"
+        >
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
-            <Plus size={21} />
+            <Plus size={22} />
           </div>
-          <span className="mt-3 text-[11px] font-bold">서류 추가</span>
+          <span className="mt-3 text-[10px] font-bold">서류 추가</span>
         </button>
       </div>
 
