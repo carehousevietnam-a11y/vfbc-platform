@@ -736,6 +736,7 @@ function WalletSection() {
       label: "여권",
       expiry: "만료일 2028.06.12",
       kind: "passport",
+      imageSrc: "/mypage-documents/passport-sample.webp",
       badge: "PDF",
       action: "신청에 사용",
       actionTone: "blue",
@@ -744,6 +745,7 @@ function WalletSection() {
       label: "비자 (DN)",
       expiry: "만료일 2026.11.30",
       kind: "visa",
+      imageSrc: "/mypage-documents/visa-sample.webp",
       badge: "PDF",
       action: "신청에 사용",
       actionTone: "blue",
@@ -752,6 +754,7 @@ function WalletSection() {
       label: "거주증 (TRC)",
       expiry: "만료일 2026.10.15",
       kind: "trc",
+      imageSrc: "/mypage-documents/trc-sample.webp",
       badge: "PDF",
       action: "갱신 준비",
       actionTone: "green",
@@ -760,6 +763,7 @@ function WalletSection() {
       label: "증명사진",
       expiry: "최근 등록 2025.07.24",
       kind: "photo",
+      imageSrc: "/mypage-documents/id-photo-sample.webp",
       badge: "JPG",
       action: "다시 사용",
       actionTone: "blue",
@@ -768,112 +772,14 @@ function WalletSection() {
       label: "건강검진서",
       expiry: "만료일 2025.01.15",
       kind: "certificate",
+      imageSrc: "/mypage-documents/health-certificate-sample.webp",
       badge: "PDF",
       action: "신청에 사용",
       actionTone: "blue",
     },
   ] as const;
 
-  function DocumentPreview({ kind }: { kind: (typeof docs)[number]["kind"] }) {
-    if (kind === "passport") {
-      return (
-        <div className="flex h-full w-full items-center justify-center bg-[#f7f9fc] px-3 py-2">
-          <div className="relative flex h-[94px] w-[66px] flex-col items-center justify-center rounded-[4px] bg-gradient-to-b from-[#123e82] to-[#08275e] shadow-[0_8px_18px_rgba(15,47,111,0.25)]">
-            <div className="absolute inset-x-0 top-0 h-1/2 bg-white/5" />
-            <Shield size={20} className="relative text-[#f6c900]" strokeWidth={1.8} />
-            <p className="relative mt-2 text-[7px] font-extrabold tracking-[0.14em] text-white">PASSPORT</p>
-            <span className="absolute bottom-2 h-[2px] w-7 rounded bg-[#f6c900]/70" />
-          </div>
-        </div>
-      );
-    }
 
-    if (kind === "visa") {
-      return (
-        <div className="h-full w-full bg-[#f7f9fc] p-2.5">
-          <div className="relative h-full overflow-hidden rounded-[4px] border border-[#cfd8f7] bg-gradient-to-br from-[#eef1ff] via-white to-[#e7ecff] shadow-sm">
-            <div className="absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_25%_20%,rgba(99,102,241,0.22),transparent_34%),radial-gradient(circle_at_80%_75%,rgba(59,130,246,0.18),transparent_30%)]" />
-            <div className="relative p-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[7px] font-black tracking-[0.2em] text-indigo-500">VISA</span>
-                <span className="h-4 w-4 rounded-full border border-indigo-200" />
-              </div>
-              <div className="mt-2 flex gap-2">
-                <div className="h-9 w-7 rounded-sm bg-slate-200" />
-                <div className="flex-1 space-y-1.5 pt-0.5">
-                  <div className="h-1.5 rounded bg-indigo-200" />
-                  <div className="h-1.5 w-4/5 rounded bg-slate-200" />
-                  <div className="h-1.5 w-3/5 rounded bg-slate-200" />
-                </div>
-              </div>
-              <div className="mt-2 space-y-1.5">
-                <div className="h-1.5 rounded bg-slate-200" />
-                <div className="h-1.5 w-5/6 rounded bg-slate-200" />
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (kind === "trc") {
-      return (
-        <div className="h-full w-full bg-[#f7f9fc] p-2.5">
-          <div className="relative h-full overflow-hidden rounded-[5px] border border-cyan-200 bg-gradient-to-br from-[#eafcff] via-white to-[#fff7db] shadow-sm">
-            <div className="absolute right-0 top-0 h-12 w-12 rounded-bl-full bg-cyan-100/70" />
-            <div className="relative p-2">
-              <div className="flex items-start gap-2">
-                <div className="flex h-9 w-7 items-end justify-center overflow-hidden rounded bg-slate-200">
-                  <div className="h-4 w-4 rounded-full bg-[#efc3a2]" />
-                  <div className="h-4 w-6 rounded-t-md bg-slate-700" />
-                </div>
-                <div className="flex-1 space-y-1.5 pt-0.5">
-                  <div className="h-1.5 rounded bg-cyan-300" />
-                  <div className="h-1.5 w-5/6 rounded bg-slate-200" />
-                  <div className="h-1.5 w-2/3 rounded bg-slate-200" />
-                </div>
-              </div>
-              <div className="mt-2 h-1.5 rounded bg-amber-200" />
-              <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
-              <div className="mt-1.5 h-1.5 w-2/3 rounded bg-slate-200" />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (kind === "photo") {
-      return (
-        <div className="flex h-full w-full items-end justify-center bg-[#f7f9fc] px-3 pt-2">
-          <div className="relative flex h-[96px] w-[70px] flex-col items-center justify-end overflow-hidden rounded-[5px] border border-slate-200 bg-gradient-to-b from-[#f2f6fb] to-[#dde5ef] shadow-sm">
-            <div className="absolute top-4 h-9 w-9 rounded-full bg-[#f2c39d]" />
-            <div className="absolute top-[46px] h-8 w-12 rounded-t-[18px] bg-[#202938]" />
-            <div className="absolute bottom-0 h-8 w-16 bg-[#172235]" />
-            <div className="absolute top-[12px] h-3 w-9 rounded-t-full bg-[#1e293b]" />
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="h-full w-full bg-[#f7f9fc] p-2.5">
-        <div className="relative h-full overflow-hidden rounded-[4px] border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-2 py-1.5">
-            <div className="flex items-center justify-between">
-              <CheckCircle2 size={13} className="text-rose-500" />
-              <span className="text-[6px] font-black tracking-[0.16em] text-rose-400">HEALTH</span>
-            </div>
-          </div>
-          <div className="space-y-1.5 p-2">
-            <div className="h-1.5 w-4/5 rounded bg-rose-200" />
-            <div className="h-1.5 rounded bg-slate-200" />
-            <div className="h-1.5 w-5/6 rounded bg-slate-200" />
-            <div className="mt-2 h-7 rounded border border-dashed border-rose-200 bg-rose-50/40" />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <section id="wallet" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -889,7 +795,7 @@ function WalletSection() {
         </button>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-6">
         {docs.map((doc) => (
           <div
             key={doc.label}
@@ -898,8 +804,14 @@ function WalletSection() {
             <p className="truncate text-[11px] font-extrabold text-slate-900">{doc.label}</p>
             <p className="mt-0.5 truncate text-[8px] text-slate-400">{doc.expiry}</p>
 
-            <div className="relative mt-2 h-[118px] overflow-hidden rounded-[8px] border border-slate-100 bg-slate-50">
-              <DocumentPreview kind={doc.kind} />
+            <div className="relative mt-2 h-[150px] overflow-hidden rounded-[8px] border border-slate-200 bg-white p-1.5 shadow-inner">
+              <img
+                src={doc.imageSrc}
+                alt={`${doc.label} 샘플 미리보기`}
+                className="h-full w-full object-contain"
+                loading="lazy"
+                draggable={false}
+              />
               <span
                 className={`absolute bottom-1.5 right-1.5 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold shadow-sm ${
                   doc.badge === "JPG"
