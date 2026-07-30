@@ -212,17 +212,17 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[180px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
-      <div className="px-4 pt-5">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[160px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
+      <div className="px-4 pt-4">
         <BrandLogo />
       </div>
 
-      <nav className="mt-6 space-y-1 px-3">
+      <nav className="mt-5 space-y-1 px-3">
         {SIDEBAR_ITEMS.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex h-11 items-center justify-between rounded-xl px-3 text-[13px] font-semibold transition ${
+            className={`flex h-10 items-center justify-between rounded-xl px-3 text-[12px] font-semibold transition ${
               item.active
                 ? "bg-[#0b2e77] text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -259,7 +259,7 @@ function DesktopSidebar() {
 function TopHeader({ name }: { name: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[68px] max-w-[1180px] items-center justify-between px-4 sm:px-6 xl:px-5">
+      <div className="mx-auto flex h-[60px] max-w-[1024px] items-center justify-between px-4 sm:px-6 xl:px-4">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
@@ -335,7 +335,7 @@ function HeroCard({
   return (
     <section
       id="applications"
-      className="overflow-hidden rounded-[22px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.20)] sm:px-6 sm:py-6"
+      className="overflow-hidden rounded-2xl bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.20)] sm:px-6 sm:py-6"
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
@@ -417,59 +417,58 @@ function ApplicationSelector({
 
 function StepProgress({ stage }: { stage: StageInfo }) {
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
       <div className="flex items-center justify-between">
-        <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">진행 단계</p>
+        <p className="text-[16px] font-extrabold tracking-[-0.02em] text-slate-950">진행 단계</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 단계 보기 ›</span>
       </div>
 
-      <div className="mt-5 overflow-x-auto pb-1">
-        <div className="flex min-w-[420px] items-start">
-          {stage.steps.map((step, index) => {
-            const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
-            const dateLabel = step.done
-              ? index === 0
-                ? "07.29 09:12"
-                : index === 1
-                ? "07.29 09:18"
-                : index === 2
-                ? "07.29 09:41"
-                : ""
-              : "";
+      <div className="mt-5 grid grid-cols-6 items-start">
+        {stage.steps.map((step, index) => {
+          const current =
+            !step.done && stage.steps.slice(0, index).every((previous) => previous.done);
+          const dateLabel = step.done
+            ? index === 0
+              ? "07.29 09:12"
+              : index === 1
+              ? "07.29 09:18"
+              : index === 2
+              ? "07.29 09:41"
+              : ""
+            : "";
 
-            return (
-              <div key={`${step.label}-${index}`} className="flex flex-1 items-start">
-                <div className="flex w-full flex-col items-center">
-                  <div className="flex w-full items-center">
-                    {index > 0 && (
-                      <div className={`h-px flex-1 ${step.done || current ? "bg-emerald-300" : "bg-slate-200"}`} />
-                    )}
-                    <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                        step.done
-                          ? "bg-emerald-100 text-emerald-700"
-                          : current
-                          ? "bg-[#12398a] text-white"
-                          : "bg-slate-100 text-slate-400"
-                      }`}
-                    >
-                      {step.done ? <Check size={19} strokeWidth={3} /> : current ? <UserCheck size={18} /> : <Circle size={17} />}
-                    </div>
-                    {index < stage.steps.length - 1 && (
-                      <div className={`h-px flex-1 ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />
-                    )}
-                  </div>
-                  <p className={`mt-2 text-center text-[10px] font-bold ${
-                    current ? "text-blue-800" : step.done ? "text-slate-700" : "text-slate-400"
-                  }`}>
-                    {step.label}
-                  </p>
-                  <p className="mt-1 min-h-[14px] text-center text-[9px] text-slate-400">{dateLabel}</p>
-                </div>
+          return (
+            <div key={`${step.label}-${index}`} className="relative flex min-w-0 flex-col items-center">
+              {index > 0 && (
+                <div
+                  className={`absolute right-1/2 top-[21px] h-px w-full ${
+                    step.done || current ? "bg-emerald-300" : "bg-slate-200"
+                  }`}
+                />
+              )}
+              <div
+                className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full ring-4 ring-white ${
+                  step.done
+                    ? "bg-emerald-100 text-emerald-700"
+                    : current
+                    ? "bg-[#12398a] text-white"
+                    : "bg-slate-100 text-slate-400"
+                }`}
+              >
+                {step.done ? <Check size={18} strokeWidth={3} /> : current ? <UserCheck size={17} /> : <Circle size={16} />}
               </div>
-            );
-          })}
-        </div>
+              <p
+                className={`mt-2 w-full truncate px-1 text-center text-[10px] font-bold ${
+                  current ? "text-blue-800" : step.done ? "text-slate-700" : "text-slate-400"
+                }`}
+                title={step.label}
+              >
+                {step.label}
+              </p>
+              <p className="mt-1 min-h-[13px] text-center text-[8px] text-slate-400">{dateLabel}</p>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -540,7 +539,7 @@ function AiResultCard({ item }: { item: MyPageItem }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
 
   return (
-    <section className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
@@ -569,23 +568,14 @@ function AiResultCard({ item }: { item: MyPageItem }) {
 
         <div className="relative flex h-[118px] items-end justify-center">
           <div className="absolute bottom-0 h-16 w-16 rounded-full bg-emerald-100 blur-xl" />
-          <div className="relative flex h-[104px] w-20 flex-col items-center">
-            {/* 안테나 */}
-            <span className="h-3 w-[3px] rounded-full bg-slate-300" />
-            <span className="-mt-0.5 h-2 w-2 rounded-full bg-emerald-400" />
-            {/* 머리 */}
-            <div className="mt-1 flex h-11 w-14 items-center justify-center rounded-[16px] border-2 border-slate-200 bg-white shadow-sm">
-              <div className="flex h-6 w-10 items-center justify-center gap-2 rounded-[9px] bg-[#153a78]">
+          <div className="relative flex h-24 w-20 flex-col items-center">
+            <div className="flex h-12 w-16 items-center justify-center rounded-[18px] border-2 border-slate-200 bg-white shadow-sm">
+              <div className="flex h-7 w-11 items-center justify-center rounded-[10px] bg-[#153a78]">
                 <span className="h-2 w-2 rounded-full bg-emerald-300" />
-                <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                <span className="mx-2 h-1.5 w-1.5 rounded-full bg-emerald-300" />
               </div>
             </div>
-            {/* 몸통 + 팔 */}
-            <div className="relative mt-1 flex items-center">
-              <span className="mr-[-4px] h-5 w-2 rounded-full bg-slate-200" />
-              <div className="h-9 w-12 rounded-[14px] border-2 border-slate-200 bg-white shadow-sm" />
-              <span className="ml-[-4px] h-5 w-2 rounded-full bg-slate-200" />
-            </div>
+            <div className="mt-1 h-7 w-12 rounded-b-[16px] rounded-t-[8px] bg-white shadow-sm" />
             <div className="absolute bottom-1 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white shadow">
               <Check size={16} strokeWidth={3} />
             </div>
@@ -604,7 +594,7 @@ function CurrentStatusCard({ item }: { item: MyPageItem }) {
   const estimate = getEstimate(item.category, item.serviceType);
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
       <p className="mt-3 text-[13px] leading-6 text-slate-600">
         {item.hasExpertReview
@@ -670,7 +660,7 @@ function TimelineCard({ item }: { item: MyPageItem }) {
   const recent = item.activityLog.length >= 3 ? item.activityLog.slice(-4) : fallbackTimeline;
 
   return (
-    <section id="timeline" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id="timeline" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">진행 타임라인</p>
@@ -685,7 +675,7 @@ function TimelineCard({ item }: { item: MyPageItem }) {
           <p className="mt-2 text-[12px] text-slate-500">아직 기록된 처리 이력이 없습니다.</p>
         </div>
       ) : (
-        <div className="mt-6 grid gap-5 md:grid-cols-[1fr_210px]">
+        <div className="mt-6 grid gap-4 md:grid-cols-[1fr_210px]">
           <div className="space-y-0">
             {recent.map((entry, index) => (
               <div key={`${entry.label}-${entry.createdAt}-${index}`} className="flex gap-4">
@@ -826,44 +816,6 @@ function WalletSection() {
       );
     }
 
-    if (kind === "visa") {
-      return (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 p-2">
-          <div className="flex h-full w-full flex-col rounded-md border border-indigo-200 bg-white/90 p-2">
-            <div className="flex items-center justify-between">
-              <FileCheck2 size={16} className="text-indigo-600" />
-              <span className="text-[7px] font-bold tracking-[0.14em] text-indigo-400">VISA</span>
-            </div>
-            <div className="mt-2 flex-1 space-y-1.5">
-              <div className="h-1.5 w-4/5 rounded bg-indigo-200" />
-              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
-              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
-            </div>
-            <div className="h-6 rounded border border-dashed border-indigo-200" />
-          </div>
-        </div>
-      );
-    }
-
-    if (kind === "certificate") {
-      return (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-2">
-          <div className="flex h-full w-full flex-col rounded-md border border-rose-200 bg-white/90 p-2">
-            <div className="flex items-center justify-between">
-              <CheckCircle2 size={16} className="text-rose-500" />
-              <span className="text-[7px] font-bold tracking-[0.14em] text-rose-400">HEALTH</span>
-            </div>
-            <div className="mt-2 flex-1 space-y-1.5">
-              <div className="h-1.5 w-4/5 rounded bg-rose-200" />
-              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
-              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
-            </div>
-            <div className="h-6 rounded border border-dashed border-rose-200" />
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="h-full w-full bg-gradient-to-br from-slate-50 to-slate-200 p-2">
         <div className="h-full rounded-md border border-slate-200 bg-white p-2 shadow-sm">
@@ -878,7 +830,7 @@ function WalletSection() {
   }
 
   return (
-    <section id="wallet" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id="wallet" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
@@ -891,13 +843,13 @@ function WalletSection() {
         </button>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-6">
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         {docs.map((doc) => (
           <div
             key={doc.label}
             className="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
           >
-            <div className="relative h-[112px] overflow-hidden rounded-xl bg-slate-50">
+            <div className="relative h-[86px] overflow-hidden rounded-xl bg-slate-50">
               <DocumentPreview kind={doc.kind} />
               <span
                 className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold ${
@@ -922,7 +874,7 @@ function WalletSection() {
           </div>
         ))}
 
-        <button type="button" className="flex min-h-[190px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700 transition hover:bg-blue-50">
+        <button type="button" className="flex min-h-[154px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700 transition hover:bg-blue-50">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
             <Plus size={21} />
           </div>
@@ -975,7 +927,7 @@ function RecommendedServices() {
   ];
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
         <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
         <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
@@ -983,7 +935,7 @@ function RecommendedServices() {
         </button>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-3 grid-cols-2 xl:grid-cols-4">
         {services.map((service) => (
           <div key={service.title} className={`rounded-2xl border border-white/80 p-4 ${service.className}`}>
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${service.iconClass}`}>
@@ -1024,7 +976,7 @@ function PublicLinksCard({
   links: { label: string; sub?: string; href: string }[];
 }) {
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">{title}</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
@@ -1064,7 +1016,7 @@ function NotificationCard({ item }: { item: MyPageItem }) {
   ];
 
   return (
-    <section id="notifications" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section id="notifications" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">알림 센터</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
@@ -1089,7 +1041,7 @@ function NotificationCard({ item }: { item: MyPageItem }) {
 
 function ExpertCard({ item }: { item: MyPageItem }) {
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">담당 전문가</p>
 
       <div className="mt-4 flex items-center gap-4">
@@ -1132,7 +1084,7 @@ function HelpCard() {
   ];
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">도움이 필요하신가요?</p>
       <div className="mt-4 grid grid-cols-3 gap-2">
         {items.map((item) => (
@@ -1156,7 +1108,7 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
   if (notes.length === 0) return null;
 
   return (
-    <section className="rounded-[22px] border border-blue-100 bg-blue-50/60 p-5">
+    <section className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
       <div className="flex items-center gap-2">
         <MessageCircle size={17} className="text-blue-900" />
         <p className="text-[15px] font-extrabold text-blue-950">담당자 안내</p>
@@ -1177,7 +1129,7 @@ function PermitDocuments({ item }: { item: MyPageItem }) {
   if (!item.governmentSubmittedAt && !item.permitCompletedAt && !item.fileUrl) return null;
 
   return (
-    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">제출 및 결과 문서</p>
       <div className="mt-4 space-y-3">
         {item.governmentSubmittedAt && (
@@ -1244,31 +1196,31 @@ function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur">
-      <div className="mx-auto grid max-w-[1180px] grid-cols-6 items-end">
+    <nav className="fixed inset-x-0 bottom-0 z-50 h-[72px] border-t border-slate-200/90 bg-white/95 shadow-[0_-8px_28px_rgba(15,23,42,0.07)] backdrop-blur-xl">
+      <div className="mx-auto grid h-full max-w-[860px] grid-cols-6 items-center px-2">
         {items.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`relative flex flex-col items-center gap-1.5 py-1.5 text-[10px] font-semibold ${
-              item.active ? "text-blue-900" : "text-slate-500"
+            className={`relative flex h-full flex-col items-center justify-center gap-1 text-[9px] font-semibold ${
+              item.active ? "text-[#12398a]" : "text-slate-500"
             }`}
           >
             <div
               className={`relative flex items-center justify-center ${
                 item.primary
-                  ? "-mt-7 h-14 w-14 rounded-full bg-blue-900 text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
-                  : "h-7 w-7"
+                  ? "-mt-8 h-12 w-12 rounded-full bg-[#12398a] text-white shadow-[0_8px_22px_rgba(18,57,138,0.34)] ring-4 ring-white"
+                  : "h-6 w-6"
               }`}
             >
-              <item.icon size={item.primary ? 25 : 20} />
+              <item.icon size={item.primary ? 23 : 18} strokeWidth={1.9} />
               {item.badge ? (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white ring-2 ring-white">
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white ring-2 ring-white">
                   3
                 </span>
               ) : null}
             </div>
-            <span className={item.primary ? "mt-0.5 text-slate-600" : ""}>{item.label}</span>
+            <span className={item.primary ? "-mt-0.5 text-slate-600" : ""}>{item.label}</span>
           </Link>
         ))}
       </div>
@@ -1292,7 +1244,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
 
   if (!activeItem) {
     return (
-      <div className="rounded-[22px] border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
         <FileText size={32} className="mx-auto text-slate-300" />
         <p className="mt-4 text-[18px] font-extrabold text-slate-900">아직 접수하신 신청 내역이 없습니다.</p>
         <Link
@@ -1329,7 +1281,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <StepProgress stage={activeItem.stage} />
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <AiResultCard item={activeItem} />
         <CurrentStatusCard item={activeItem} />
       </div>
@@ -1346,19 +1298,15 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
+      <div className="mt-4">
         <WalletSection />
-        <ExpertCard item={activeItem} />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
+      <div className="mt-4">
         <RecommendedServices />
-        <div id="profile">
-          <HelpCard />
-        </div>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:hidden">
+      <div className="mt-5 grid gap-4 xl:hidden">
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
         <NotificationCard item={activeItem} />
@@ -1370,7 +1318,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
 
 function LoadingCard({ message }: { message: string }) {
   return (
-    <div className="rounded-[22px] border border-slate-200 bg-white p-7 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 animate-pulse rounded-xl bg-blue-100" />
         <p className="text-[13px] text-slate-500">{message}</p>
@@ -1432,16 +1380,16 @@ export default function MyPage() {
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900">
       <DesktopSidebar />
 
-      <div className="xl:pl-[180px]">
+      <div className="xl:pl-[160px]">
         <TopHeader name={name} />
 
-        <div className="mx-auto grid max-w-[1180px] gap-5 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_270px] xl:px-5 xl:py-6 xl:pb-5">
+        <div className="mx-auto grid max-w-[1024px] gap-4 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,620px)_220px] xl:px-4 xl:py-6 xl:pb-24">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
 
             {state === "signed-out" && (
-              <div className="rounded-[22px] border border-amber-200 bg-white p-8 shadow-sm">
+              <div className="rounded-2xl border border-amber-200 bg-white p-8 shadow-sm">
                 <AlertCircle size={24} className="text-amber-700" />
                 <h1 className="mt-5 text-[24px] font-extrabold text-slate-950">로그인이 필요합니다</h1>
                 <p className="mt-3 max-w-xl text-[13px] leading-6 text-slate-600">
@@ -1459,7 +1407,7 @@ export default function MyPage() {
             )}
 
             {state === "error" && (
-              <div className="rounded-[22px] border border-red-200 bg-white p-7 shadow-sm">
+              <div className="rounded-2xl border border-red-200 bg-white p-7 shadow-sm">
                 <AlertTriangle size={24} className="text-red-600" />
                 <p className="mt-4 text-[13px] font-semibold text-red-700">{errorMessage}</p>
               </div>
@@ -1469,9 +1417,9 @@ export default function MyPage() {
           </div>
 
           {state === "ready" && firstItem && (
-            <aside className="hidden space-y-5 xl:block">
+            <aside className="hidden space-y-4 xl:block">
               <NotificationCard item={firstItem} />
-              <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
                 <div className="flex items-end justify-between gap-3">
                   <div>
                     <p className="text-[15px] font-extrabold text-blue-950">VFBCAI 모바일 앱</p>
@@ -1497,6 +1445,10 @@ export default function MyPage() {
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
               <PermitDocuments item={firstItem} />
+              <ExpertCard item={firstItem} />
+              <div id="profile">
+                <HelpCard />
+              </div>
             </aside>
           )}
         </div>
