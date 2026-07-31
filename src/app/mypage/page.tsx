@@ -1084,70 +1084,258 @@ function NotificationCard({ item }: { item: MyPageItem }) {
   );
 }
 
-const VIETNAM_LIFE_PRIMARY_ITEMS = [
-  {
-    label: "오늘 날씨",
-    desc: "하노이 기상정보 확인",
-    icon: Sun,
-    iconClass: "bg-amber-50 text-amber-600",
-  },
-  {
-    label: "환율",
-    desc: "원화·달러 환율 확인",
-    icon: DollarSign,
-    iconClass: "bg-emerald-50 text-emerald-600",
-  },
+type VietnamLifeDetailKey =
+  | "weather"
+  | "exchange"
+  | "bank"
+  | "holiday"
+  | "notice"
+  | "schedule";
+
+type WeatherState = {
+  temperature: number | null;
+  weatherCode: number | null;
+  updatedAt: string | null;
+  loading: boolean;
+  error: boolean;
+};
+
+type ExchangeState = {
+  krwToVnd: number | null;
+  usdToVnd: number | null;
+  updatedAt: string | null;
+  loading: boolean;
+  error: boolean;
+};
+
+const VIETNAM_HOLIDAYS_2026 = [
+  { start: "2026-01-01", end: "2026-01-04", label: "신정 연휴" },
+  { start: "2026-02-14", end: "2026-02-22", label: "설날(Tết) 연휴" },
+  { start: "2026-04-25", end: "2026-04-27", label: "훙왕 기념일 연휴" },
+  { start: "2026-04-30", end: "2026-05-03", label: "통일절·노동절 연휴" },
+  { start: "2026-08-29", end: "2026-09-02", label: "베트남 국경절 연휴" },
 ];
 
-const VIETNAM_LIFE_MORE_ITEMS = [
-  {
-    label: "은행 휴무",
-    desc: "은행 운영정보",
-    icon: Building2,
-    iconClass: "bg-blue-50 text-blue-600",
-  },
-  {
-    label: "공휴일",
-    desc: "베트남 정부 휴무일",
-    icon: CalendarDays,
-    iconClass: "bg-violet-50 text-violet-600",
-  },
-  {
-    label: "행정 공지",
-    desc: "출입국·노동·세무 안내",
-    icon: Bell,
-    iconClass: "bg-rose-50 text-rose-600",
-  },
-  {
-    label: "내 일정",
-    desc: "개인 행정 일정 확인",
-    icon: CalendarCheck,
-    iconClass: "bg-indigo-50 text-indigo-600",
-  },
-];
+function dateOnly(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
+}
 
-function VietnamLifeCard() {
+function parseLocalDate(value: string) {
+  return new Date(`${value}T00:00:00`);
+}
+
+function getVietnamHolidayStatus(now = new Date()) {
+  const today = dateOnly(now);
+  const current = VIETNAM_HOLIDAYS_2026.find(
+    (holiday) => today >= holiday.start && today <= holiday.end
+  );
+  const next = VIETNAM_HOLIDAYS_2026.find((holiday) => holiday.start > today) ?? null;
+  return { current, next };
+}
+
+function formatHolidayDate(start: string, end: string) {
+  const startDate = parseLocalDate(start);
+  const endDate = parseLocalDate(end);
+  const startLabel = `${startDate.getMonth() + 1}월 ${startDate.getDate()}일`;
+  const endLabel = `${endDate.getMonth() + 1}월 ${endDate.getDate()}일`;
+  return start === end ? startLabel : `${startLabel}~${endLabel}`;
+}
+
+function weatherCodeLabel(code: number | null) {
+  if (code === null) return "날씨 확인 중";
+  if (code === 0) return "맑음";
+  if ([1, 2].includes(code)) return "대체로 맑음";
+  if (code === 3) return "흐림";
+  if ([45, 48].includes(code)) return "안개";
+  if ([51, 53, 55, 56, 57].includes(code)) return "이슬비";
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "비";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "눈";
+  if ([95, 96, 99].includes(code)) return "뇌우";
+  return "기상정보";
+}
+
+function VietnamLifeCard({ item }: { item: MyPageItem }) {
   const [expanded, setExpanded] = useState(false);
+  const [detail, setDetail] = useState<VietnamLifeDetailKey | null>(null);
+  const [weather, setWeather] = useState<WeatherState>({
+    temperature: null,
+    weatherCode: null,
+    updatedAt: null,
+    loading: true,
+    error: false,
+  });
+  const [exchange, setExchange] = useState<ExchangeState>({
+    krwToVnd: null,
+    usdToVnd: null,
+    updatedAt: null,
+    loading: true,
+    error: false,
+  });
 
-  const renderLifeItem = (
-    item: (typeof VIETNAM_LIFE_PRIMARY_ITEMS)[number] | (typeof VIETNAM_LIFE_MORE_ITEMS)[number]
-  ) => (
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadWeather() {
+      try {
+        const response = await fetch(
+          "https://api.open-meteo.com/v1/forecast?latitude=21.0285&longitude=105.8542&current=temperature_2m,weather_code&timezone=Asia%2FBangkok",
+          { cache: "no-store" }
+        );
+        if (!response.ok) throw new Error("weather fetch failed");
+        const data = await response.json();
+        if (cancelled) return;
+        setWeather({
+          temperature:
+            typeof data?.current?.temperature_2m === "number"
+              ? data.current.temperature_2m
+              : null,
+          weatherCode:
+            typeof data?.current?.weather_code === "number"
+              ? data.current.weather_code
+              : null,
+          updatedAt: data?.current?.time ?? new Date().toISOString(),
+          loading: false,
+          error: false,
+        });
+      } catch (error) {
+        console.error("weather fetch failed:", error);
+        if (!cancelled) {
+          setWeather((current) => ({ ...current, loading: false, error: true }));
+        }
+      }
+    }
+
+    async function loadExchange() {
+      try {
+        const response = await fetch("https://api.exchangerate-api.com/v4/latest/KRW", {
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("exchange fetch failed");
+        const data = await response.json();
+        const krwToVnd = Number(data?.rates?.VND);
+        const krwToUsd = Number(data?.rates?.USD);
+        if (!Number.isFinite(krwToVnd) || !Number.isFinite(krwToUsd) || krwToUsd <= 0) {
+          throw new Error("invalid exchange response");
+        }
+        if (cancelled) return;
+        setExchange({
+          krwToVnd,
+          usdToVnd: krwToVnd / krwToUsd,
+          updatedAt: data?.date ?? new Date().toISOString(),
+          loading: false,
+          error: false,
+        });
+      } catch (error) {
+        console.error("exchange fetch failed:", error);
+        if (!cancelled) {
+          setExchange((current) => ({ ...current, loading: false, error: true }));
+        }
+      }
+    }
+
+    loadWeather();
+    loadExchange();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const holidayStatus = getVietnamHolidayStatus();
+  const isWeekend = [0, 6].includes(new Date().getDay());
+  const bankClosed = isWeekend || Boolean(holidayStatus.current);
+  const nextSchedule = item.stage.steps.find((step) => !step.done);
+  const scheduleLabel = nextSchedule
+    ? `${nextSchedule.label} 준비`
+    : item.permitCompletedAt
+      ? "허가 완료"
+      : "담당자 안내 대기";
+
+  const weatherDescription = weather.loading
+    ? "하노이 날씨 불러오는 중"
+    : weather.error || weather.temperature === null
+      ? "날씨를 불러오지 못했습니다"
+      : `${Math.round(weather.temperature)}°C · ${weatherCodeLabel(weather.weatherCode)}`;
+
+  const exchangeDescription = exchange.loading
+    ? "환율 불러오는 중"
+    : exchange.error || exchange.krwToVnd === null
+      ? "환율을 불러오지 못했습니다"
+      : `1,000원 = ${Math.round(exchange.krwToVnd * 1000).toLocaleString("ko-KR")}동`;
+
+  const lifeItems = [
+    {
+      key: "weather" as const,
+      label: "오늘 날씨",
+      desc: weatherDescription,
+      icon: Sun,
+      iconClass: "bg-amber-50 text-amber-600",
+    },
+    {
+      key: "exchange" as const,
+      label: "환율",
+      desc: exchangeDescription,
+      icon: DollarSign,
+      iconClass: "bg-emerald-50 text-emerald-600",
+    },
+    {
+      key: "bank" as const,
+      label: "은행 휴무",
+      desc: bankClosed
+        ? holidayStatus.current?.label ?? "주말 휴무"
+        : "오늘 정상 영업 예상",
+      icon: Building2,
+      iconClass: "bg-blue-50 text-blue-600",
+    },
+    {
+      key: "holiday" as const,
+      label: "공휴일",
+      desc: holidayStatus.current
+        ? holidayStatus.current.label
+        : holidayStatus.next
+          ? `다음: ${holidayStatus.next.label}`
+          : "예정된 공휴일 확인",
+      icon: CalendarDays,
+      iconClass: "bg-violet-50 text-violet-600",
+    },
+    {
+      key: "notice" as const,
+      label: "행정 공지",
+      desc: "현재 등록된 긴급 공지 없음",
+      icon: Bell,
+      iconClass: "bg-rose-50 text-rose-600",
+    },
+    {
+      key: "schedule" as const,
+      label: "내 일정",
+      desc: scheduleLabel,
+      icon: CalendarCheck,
+      iconClass: "bg-indigo-50 text-indigo-600",
+    },
+  ];
+
+  const primaryItems = lifeItems.slice(0, 2);
+  const moreItems = lifeItems.slice(2);
+
+  const renderLifeItem = (lifeItem: (typeof lifeItems)[number]) => (
     <button
-      key={item.label}
+      key={lifeItem.key}
       type="button"
-      onClick={() => {}}
+      onClick={() => setDetail(lifeItem.key)}
       className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-slate-50 hover:shadow-sm"
     >
       <span className="flex min-w-0 items-center gap-3">
         <span
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${item.iconClass}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${lifeItem.iconClass}`}
         >
-          <item.icon size={18} strokeWidth={2} />
+          <lifeItem.icon size={18} strokeWidth={2} />
         </span>
         <span className="min-w-0">
-          <span className="block text-[12px] font-extrabold text-slate-900">{item.label}</span>
+          <span className="block text-[12px] font-extrabold text-slate-900">{lifeItem.label}</span>
           <span className="mt-0.5 block truncate text-[10px] font-medium text-slate-500">
-            {item.desc}
+            {lifeItem.desc}
           </span>
         </span>
       </span>
@@ -1155,41 +1343,209 @@ function VietnamLifeCard() {
     </button>
   );
 
+  const detailTitle = lifeItems.find((lifeItem) => lifeItem.key === detail)?.label ?? "";
+
   return (
-    <section id="vietnam-life" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[16px] font-extrabold text-slate-950">🇻🇳 베트남 생활 정보</p>
-        <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
-          LIVE
-        </span>
-      </div>
-      <p className="mt-1 text-[11px] leading-5 text-slate-500">
-        생활에 필요한 주요 정보를 빠르게 확인하세요.
-      </p>
+    <>
+      <section id="vietnam-life" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[16px] font-extrabold text-slate-950">🇻🇳 베트남 생활 정보</p>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
+            LIVE
+          </span>
+        </div>
+        <p className="mt-1 text-[11px] leading-5 text-slate-500">
+          생활에 필요한 주요 정보를 빠르게 확인하세요.
+        </p>
 
-      <div className="mt-4 space-y-2">
-        {VIETNAM_LIFE_PRIMARY_ITEMS.map(renderLifeItem)}
-      </div>
+        <div className="mt-4 space-y-2">{primaryItems.map(renderLifeItem)}</div>
 
-      {expanded && (
-        <div className="mt-2 space-y-2 border-t border-slate-100 pt-2">
-          {VIETNAM_LIFE_MORE_ITEMS.map(renderLifeItem)}
+        {expanded && (
+          <div className="mt-2 space-y-2 border-t border-slate-100 pt-2">
+            {moreItems.map(renderLifeItem)}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 text-[11px] font-bold text-blue-800 transition hover:bg-blue-100"
+        >
+          {expanded ? "생활정보 접기" : "생활정보 4개 더 보기"}
+          <ChevronDown
+            size={15}
+            className={`transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      </section>
+
+      {detail && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/45 p-0 sm:items-center sm:p-5"
+          onClick={() => setDetail(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-label={detailTitle}
+            className="max-h-[85vh] w-full overflow-y-auto rounded-t-[24px] bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-[24px] sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-[18px] font-extrabold text-slate-950">{detailTitle}</h2>
+              <button
+                type="button"
+                onClick={() => setDetail(null)}
+                aria-label="닫기"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+              >
+                <X size={17} />
+              </button>
+            </div>
+
+            {detail === "weather" && (
+              <div className="mt-5 rounded-2xl bg-amber-50 p-5">
+                <p className="text-[12px] font-bold text-amber-800">하노이 현재 날씨</p>
+                <p className="mt-2 text-[30px] font-extrabold text-slate-950">
+                  {weather.temperature === null ? "—" : `${Math.round(weather.temperature)}°C`}
+                </p>
+                <p className="mt-1 text-[13px] font-semibold text-slate-700">
+                  {weather.error ? "날씨 정보를 불러오지 못했습니다." : weatherCodeLabel(weather.weatherCode)}
+                </p>
+                <p className="mt-4 text-[10px] leading-5 text-slate-500">
+                  하노이 중심 좌표 기준 정보이며 실제 위치에 따라 차이가 있을 수 있습니다.
+                </p>
+              </div>
+            )}
+
+            {detail === "exchange" && (
+              <div className="mt-5 space-y-3">
+                <div className="rounded-2xl bg-emerald-50 p-4">
+                  <p className="text-[11px] font-bold text-emerald-800">대한민국 원화</p>
+                  <p className="mt-1 text-[20px] font-extrabold text-slate-950">
+                    {exchange.krwToVnd === null
+                      ? "조회 실패"
+                      : `1,000원 = ${Math.round(exchange.krwToVnd * 1000).toLocaleString("ko-KR")}동`}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-[11px] font-bold text-slate-600">미국 달러</p>
+                  <p className="mt-1 text-[18px] font-extrabold text-slate-950">
+                    {exchange.usdToVnd === null
+                      ? "조회 실패"
+                      : `1달러 = ${Math.round(exchange.usdToVnd).toLocaleString("ko-KR")}동`}
+                  </p>
+                </div>
+                <p className="text-[10px] leading-5 text-slate-500">
+                  참고용 시장 환율입니다. 실제 송금·환전 시 은행별 고시환율과 수수료가 적용됩니다.
+                </p>
+              </div>
+            )}
+
+            {detail === "bank" && (
+              <div className="mt-5 rounded-2xl bg-blue-50 p-5">
+                <p className="text-[12px] font-bold text-blue-800">오늘 은행 운영 예상</p>
+                <p className="mt-2 text-[22px] font-extrabold text-slate-950">
+                  {bankClosed ? "휴무 예상" : "정상 영업 예상"}
+                </p>
+                <p className="mt-2 text-[11px] leading-5 text-slate-600">
+                  {holidayStatus.current
+                    ? `${holidayStatus.current.label} 기간입니다.`
+                    : isWeekend
+                      ? "주말 기준으로 휴무로 표시됩니다."
+                      : "평일 기준으로 정상 영업으로 표시됩니다."}
+                </p>
+                <p className="mt-4 text-[10px] leading-5 text-slate-500">
+                  지점별 영업시간과 특별 휴무는 다를 수 있으므로 방문 전 해당 은행에 확인하세요.
+                </p>
+              </div>
+            )}
+
+            {detail === "holiday" && (
+              <div className="mt-5 space-y-3">
+                {holidayStatus.current && (
+                  <div className="rounded-2xl bg-violet-50 p-4">
+                    <p className="text-[11px] font-bold text-violet-800">현재 공휴일</p>
+                    <p className="mt-1 text-[17px] font-extrabold text-slate-950">
+                      {holidayStatus.current.label}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-600">
+                      {formatHolidayDate(holidayStatus.current.start, holidayStatus.current.end)}
+                    </p>
+                  </div>
+                )}
+                {holidayStatus.next ? (
+                  <div className="rounded-2xl border border-slate-200 p-4">
+                    <p className="text-[11px] font-bold text-slate-600">다음 공휴일</p>
+                    <p className="mt-1 text-[17px] font-extrabold text-slate-950">
+                      {holidayStatus.next.label}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-600">
+                      {formatHolidayDate(holidayStatus.next.start, holidayStatus.next.end)}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="rounded-2xl bg-slate-50 p-4 text-[12px] text-slate-600">
+                    등록된 다음 공휴일 일정이 없습니다.
+                  </p>
+                )}
+                <p className="text-[10px] leading-5 text-slate-500">
+                  정부의 대체근무일 또는 기관별 휴무는 별도로 달라질 수 있습니다.
+                </p>
+              </div>
+            )}
+
+            {detail === "notice" && (
+              <div className="mt-5 space-y-3">
+                <div className="rounded-2xl bg-emerald-50 p-4">
+                  <p className="text-[12px] font-extrabold text-emerald-800">
+                    현재 등록된 긴급 행정 공지가 없습니다.
+                  </p>
+                  <p className="mt-2 text-[10px] leading-5 text-slate-600">
+                    출입국·노동·세무 관련 중요 변경사항이 확인되면 이곳에 안내됩니다.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-[11px] font-bold text-slate-700">공식기관 확인</p>
+                  <p className="mt-2 text-[10px] leading-5 text-slate-500">
+                    마이페이지의 베트남 공공기관 바로가기에서 최신 공지를 직접 확인할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {detail === "schedule" && (
+              <div className="mt-5 space-y-3">
+                <div className="rounded-2xl bg-indigo-50 p-4">
+                  <p className="text-[11px] font-bold text-indigo-800">현재 신청</p>
+                  <p className="mt-1 text-[17px] font-extrabold text-slate-950">
+                    {item.serviceLabel}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-[11px] font-bold text-slate-600">다음 일정</p>
+                  <p className="mt-1 text-[17px] font-extrabold text-slate-950">
+                    {scheduleLabel}
+                  </p>
+                  <p className="mt-2 text-[10px] leading-5 text-slate-500">
+                    예상 처리기간: {getEstimate(item.category, item.serviceType)}
+                  </p>
+                </div>
+                {item.governmentSubmittedAt && (
+                  <div className="rounded-2xl border border-slate-200 p-4">
+                    <p className="text-[11px] font-bold text-slate-600">정부 제출일</p>
+                    <p className="mt-1 text-[13px] font-extrabold text-slate-950">
+                      {formatDate(item.governmentSubmittedAt)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
         </div>
       )}
-
-      <button
-        type="button"
-        onClick={() => setExpanded((current) => !current)}
-        aria-expanded={expanded}
-        className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 text-[11px] font-bold text-blue-800 transition hover:bg-blue-100"
-      >
-        {expanded ? "생활정보 접기" : "생활정보 4개 더 보기"}
-        <ChevronDown
-          size={15}
-          className={`transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
-        />
-      </button>
-    </section>
+    </>
   );
 }
 
@@ -1589,7 +1945,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <NotificationCard item={activeItem} />
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-        <VietnamLifeCard />
+        <VietnamLifeCard item={activeItem} />
         <PermitDocuments item={activeItem} />
       </div>
     </>
@@ -1706,7 +2062,7 @@ export default function MyPage() {
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-              <VietnamLifeCard />
+              <VietnamLifeCard item={firstItem} />
               <EmergencyHelpCard item={firstItem} />
               <div id="profile">
                 <HelpCard />
