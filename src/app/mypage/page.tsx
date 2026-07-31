@@ -1031,6 +1031,59 @@ function PublicLinksCard({
   );
 }
 
+
+function NotificationCard({ item }: { item: MyPageItem }) {
+  const entries = [
+    {
+      icon: MessageCircle,
+      tone: "bg-red-50 text-red-600",
+      title: "행정전문팀 메시지",
+      sub: "행정전문팀에서 추가 서류를 요청했습니다.",
+    },
+    {
+      icon: AlertTriangle,
+      tone: "bg-amber-50 text-amber-600",
+      title: "거주증 만료 알림",
+      sub: "만료까지 87일 남았습니다.",
+    },
+    {
+      icon: FileCheck2,
+      tone: "bg-emerald-50 text-emerald-600",
+      title: "AI 리포트 완료",
+      sub: "AI 리포트가 준비되었습니다.",
+    },
+    {
+      icon: Building2,
+      tone: "bg-blue-50 text-blue-600",
+      title: "정부 제출 예정",
+      sub: nextStepLabel(item.stage.steps),
+    },
+  ];
+
+  return (
+    <section id="notifications" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-[16px] font-extrabold text-slate-950">알림 센터</p>
+        <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+      </div>
+
+      <div className="mt-3 space-y-1">
+        {entries.map((entry) => (
+          <div key={entry.title} className="flex gap-3 rounded-xl p-2.5 hover:bg-slate-50">
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${entry.tone}`}>
+              <entry.icon size={15} />
+            </div>
+            <div>
+              <p className="text-[11px] font-extrabold text-slate-900">{entry.title}</p>
+              <p className="mt-1 text-[10px] leading-4 text-slate-500">{entry.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 const VIETNAM_LIFE_ITEMS = [
   { label: "오늘 날씨", desc: "오늘의 기상정보", icon: Sun },
   { label: "환율", desc: "실시간 환율", icon: DollarSign },
@@ -1042,7 +1095,7 @@ const VIETNAM_LIFE_ITEMS = [
 
 function VietnamLifeCard() {
   return (
-    <section id="notifications" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section id="vietnam-life" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">🇻🇳 베트남 생활 정보</p>
         <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
@@ -1469,6 +1522,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
       </div>
 
       <div className="mt-5 grid gap-5 xl:hidden">
+        <NotificationCard item={activeItem} />
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
         <VietnamLifeCard />
@@ -1583,7 +1637,7 @@ export default function MyPage() {
 
           {state === "ready" && firstItem && (
             <aside className="hidden space-y-5 xl:block">
-              <VietnamLifeCard />
+              <NotificationCard item={firstItem} />
               <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
                 <img
                   src="/mypage-icons/app-promo.webp"
@@ -1596,6 +1650,7 @@ export default function MyPage() {
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
+              <VietnamLifeCard />
               <EmergencyHelpCard item={firstItem} />
               <div id="profile">
                 <HelpCard />
