@@ -12,6 +12,7 @@ import {
   AlertCircle,
   AlertTriangle,
   Bell,
+  BookUser,
   Bot,
   Building2,
   CalendarCheck,
@@ -30,18 +31,21 @@ import {
   FolderLock,
   HelpCircle,
   Home,
+  IdCard,
   Landmark,
   Loader2,
   Lock,
   MessageCircle,
   MessageSquare,
   Phone,
+  Plane,
   Plus,
   RefreshCw,
   Shield,
   ShieldAlert,
   Sparkles,
   Star,
+  Stethoscope,
   Sun,
   Upload,
   User,
@@ -813,6 +817,75 @@ function getWalletFileExt(file: File): string {
   return (parts.pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+// ── 고정 서류 슬롯 — 목업과 동일하게 여권/비자/거주증/증명사진/건강검진서는 문서가
+// 없어도 항상 카드가 보이는 "보관함 슬롯" 구조로 표시한다. uploadTag는 WALLET_DOC_TYPES
+// 안의 실제 값과 정확히 일치해야 업로드 모달의 서류 종류 select가 올바르게 선택된다.
+type WalletSlotKey = "passport" | "visa" | "trc" | "photo" | "health";
+
+type WalletSlotConfig = {
+  key: WalletSlotKey;
+  label: string;
+  emptyPrompt: string;
+  uploadTag: string;
+  icon: typeof FileText;
+  aliases: string[];
+};
+
+const WALLET_SLOTS: WalletSlotConfig[] = [
+  {
+    key: "passport",
+    label: "여권",
+    emptyPrompt: "여권을 등록해주세요",
+    uploadTag: "여권",
+    icon: BookUser,
+    aliases: ["여권", "passport"],
+  },
+  {
+    key: "visa",
+    label: "비자(DN)",
+    emptyPrompt: "비자를 등록해주세요",
+    uploadTag: "비자",
+    icon: Plane,
+    aliases: ["비자", "비자(dn)", "visa"],
+  },
+  {
+    key: "trc",
+    label: "거주증(TRC)",
+    emptyPrompt: "거주증을 등록해주세요",
+    uploadTag: "거주증(TRC)",
+    icon: IdCard,
+    aliases: ["거주증", "거주증(trc)", "trc"],
+  },
+  {
+    key: "photo",
+    label: "증명사진",
+    emptyPrompt: "증명사진을 등록해주세요",
+    uploadTag: "증명사진",
+    icon: User,
+    aliases: ["증명사진", "사진", "photo"],
+  },
+  {
+    key: "health",
+    label: "건강검진서",
+    emptyPrompt: "건강검진서를 등록해주세요",
+    uploadTag: "건강검진서",
+    icon: Stethoscope,
+    aliases: ["건강검진서", "건강검진", "health", "medical"],
+  },
+];
+
+// crm_activities.tag(docType)를 고정 슬롯에 안전하게 매핑한다. 정확히 일치하지 않는
+// 값은 어떤 슬롯에도 억지로 넣지 않고 null을 반환 — 이런 문서는 "전체 보기"에서만 노출된다.
+function matchWalletSlot(docType: string): WalletSlotKey | null {
+  const normalized = docType.trim().toLowerCase();
+  for (const slot of WALLET_SLOTS) {
+    if (slot.aliases.some((alias) => alias.toLowerCase() === normalized)) {
+      return slot.key;
+    }
+  }
+  return null;
+}
+
 function WalletUploadModal({
   docType,
   onDocTypeChange,
@@ -1178,8 +1251,8 @@ function WalletSection({ leadId }: { leadId: string }) {
     return () => clearTimeout(timer);
   }, [notice]);
 
-  function openUploadModal() {
-    setUploadDocType(WALLET_DOC_TYPES[0]);
+  function openUploadModal(presetDocType?: string) {
+    setUploadDocType(presetDocType ?? WALLET_DOC_TYPES[0]);
     setUploadFile(null);
     setUploadExpiry("");
     setUploadError(null);
@@ -1249,10 +1322,6 @@ function WalletSection({ leadId }: { leadId: string }) {
     setTimeout(() => setUploadOpen(false), 900);
   }
 
-  function handleReuseClick() {
-    setNotice("신청 서류 재사용 기능은 준비 중입니다.");
-  }
-
   function triggerDownload(doc: WalletDocumentEntry) {
     if (!doc.downloadUrl) return;
     const anchor = document.createElement("a");
@@ -1261,7 +1330,18 @@ function WalletSection({ leadId }: { leadId: string }) {
     anchor.click();
   }
 
-  const isEmpty = !loading && !loadError && documents.length === 0;
+  const slotDocuments = useMemo(() => {
+    const map: Partial<Record<WalletSlotKey, WalletDocumentEntry>> = {};
+    for (const doc of documents) {
+      const slotKey = matchWalletSlot(doc.docType);
+      // documents는 API에서 이미 created_at 내림차순으로 오므로, 슬롯당 처음 매칭된
+      // 문서(=가장 최근 업로드)만 대표로 채택한다. 나머지는 전체 보기에서 확인 가능.
+      if (slotKey && !map[slotKey]) {
+        map[slotKey] = doc;
+      }
+    }
+    return map;
+  }, [documents]);
 
   function handleAllViewClick() {
     if (documents.length === 0) {
@@ -1273,6 +1353,10 @@ function WalletSection({ leadId }: { leadId: string }) {
 
   return (
     <section id="wallet" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <style>{`
+        .wallet-scroll::-webkit-scrollbar { display: none; }
+        .wallet-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
@@ -1311,130 +1395,117 @@ function WalletSection({ leadId }: { leadId: string }) {
         </div>
       )}
 
-      {/* 카드형 레이아웃 — 문서가 있든 없든 항상 이 가로 카드 목록 구조를 유지한다.
-          PC에서는 여러 카드가 나란히 보이고, 모바일에서는 같은 목록이 가로 스크롤된다.
-          카드 크기: PC 약 220px x 320px, 모바일 약 78vw — 기존 목업 수준으로 복원. */}
+      {/* 문서 종류별 고정 슬롯 — 여권/비자/거주증/증명사진/건강검진서는 실제 문서가
+          없어도 항상 카드가 표시된다. PC에서는 6장이 한 줄에 배치되고, 공간이 부족하면
+          가로 스크롤(스크롤바는 숨김 처리)된다. */}
       {!loading && !loadError && (
-        <div className="mt-5 -mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-3">
-          {isEmpty ? (
-            <>
-              <div className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-blue-100 bg-blue-50/40 p-4 sm:w-[220px]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-blue-700 shadow-sm">
-                  <FolderLock size={20} />
-                </div>
-                <p className="mt-3.5 text-[15px] font-extrabold leading-6 text-slate-900">
-                  첫 서류를 등록해보세요
-                </p>
-                <p className="mt-2 flex-1 text-[11px] leading-5 text-slate-500">
-                  여권, 비자, 거주증 등 자주 사용하는 서류를 안전하게 보관할 수 있습니다.
-                </p>
-                <button
-                  type="button"
-                  onClick={openUploadModal}
-                  className="mt-3 flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-blue-900 text-[12px] font-bold text-white hover:bg-blue-800"
-                >
-                  <Plus size={15} />
-                  서류 추가
-                </button>
-              </div>
+        <div className="wallet-scroll mt-5 -mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-3">
+          {WALLET_SLOTS.map((slot) => {
+            const doc = slotDocuments[slot.key];
+            const SlotIcon = slot.icon;
 
-              <div className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-4 sm:w-[220px]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-                  <Shield size={20} />
-                </div>
-                <p className="mt-3.5 text-[15px] font-extrabold leading-6 text-slate-900">본인만 확인 가능</p>
-                <p className="mt-2 flex-1 text-[11px] leading-5 text-slate-500">
-                  등록한 문서는 안전한 임시 링크로만 열립니다.
-                </p>
-              </div>
-
-              <div className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-4 sm:w-[220px]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-50 text-amber-700">
-                  <Download size={20} />
-                </div>
-                <p className="mt-3.5 text-[15px] font-extrabold leading-6 text-slate-900">필요할 때 다시 사용</p>
-                <p className="mt-2 flex-1 text-[11px] leading-5 text-slate-500">
-                  등록한 서류를 확인하고 내려받을 수 있습니다.
-                </p>
-              </div>
-            </>
-          ) : (
-            documents.map((doc) => {
-              const status = getWalletExpiryStatus(doc.expiryDate);
-              const statusStyle = WALLET_EXPIRY_STYLE[status];
-              const isImage = ["jpg", "jpeg", "png"].includes(doc.fileExt);
+            if (!doc) {
               return (
                 <div
-                  key={doc.activityId}
-                  className="group flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:w-[220px]"
+                  key={slot.key}
+                  className="flex h-[320px] w-[240px] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 sm:w-[200px]"
                 >
-                  <p className="truncate text-[14px] font-extrabold text-slate-900">{doc.docType}</p>
-                  <p className="mt-1 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
+                  <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                  <p className="mt-1 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
 
-                  <div className="relative mt-2.5 h-[190px] overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner">
-                    {isImage && doc.viewUrl ? (
-                      <img
-                        src={doc.viewUrl}
-                        alt={`${doc.docType} 미리보기`}
-                        className="h-full w-full object-contain"
-                        loading="lazy"
-                        draggable={false}
-                      />
-                    ) : (
-                      <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400">
-                        <FileText size={38} />
-                        <span className="max-w-full truncate px-2 text-[10px]">{doc.fileName}</span>
-                      </div>
-                    )}
-                    <span
-                      className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[10px] font-extrabold shadow-sm ${
-                        isImage ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
-                      }`}
-                    >
-                      {doc.fileExt.toUpperCase() || "FILE"}
-                    </span>
-                    <span
-                      className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[9px] font-extrabold shadow-sm ${statusStyle.className}`}
-                    >
-                      {statusStyle.label}
-                    </span>
-                  </div>
-
-                  <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setViewDoc(doc)}
-                      disabled={!doc.viewUrl}
-                      className="h-9 rounded-[9px] border border-slate-200 bg-white text-[11px] font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      보기
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => triggerDownload(doc)}
-                      disabled={!doc.downloadUrl}
-                      className="h-9 truncate rounded-[9px] border border-blue-200 bg-blue-50 px-1 text-[11px] font-bold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      다운로드
-                    </button>
+                  <div className="mt-2.5 flex h-[190px] flex-col items-center justify-center gap-2 rounded-[10px] border border-dashed border-slate-200 bg-slate-50 px-3 text-center">
+                    <SlotIcon size={30} className="text-slate-300" />
+                    <p className="text-[11px] font-semibold text-slate-500">{slot.emptyPrompt}</p>
+                    <p className="text-[9px] leading-4 text-slate-400">PDF, JPG, PNG 업로드 가능</p>
                   </div>
 
                   <button
                     type="button"
-                    onClick={handleReuseClick}
-                    className="mt-1.5 h-9 w-full truncate rounded-[9px] border border-slate-200 bg-slate-50 px-1 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
+                    onClick={() => openUploadModal(slot.uploadTag)}
+                    className="mt-2.5 flex h-9 items-center justify-center gap-1.5 rounded-[9px] bg-blue-900 text-[11px] font-bold text-white hover:bg-blue-800"
                   >
-                    신청에 사용
+                    <Upload size={13} />
+                    업로드
                   </button>
                 </div>
               );
-            })
-          )}
+            }
+
+            const status = getWalletExpiryStatus(doc.expiryDate);
+            const statusStyle = WALLET_EXPIRY_STYLE[status];
+            const isImage = ["jpg", "jpeg", "png"].includes(doc.fileExt);
+
+            return (
+              <div
+                key={slot.key}
+                className="group flex h-[320px] w-[240px] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:w-[200px]"
+              >
+                <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                <p className="mt-1 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
+
+                <div className="relative mt-2.5 h-[190px] overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner">
+                  {isImage && doc.viewUrl ? (
+                    <img
+                      src={doc.viewUrl}
+                      alt={`${slot.label} 미리보기`}
+                      className="h-full w-full object-contain"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400">
+                      <FileText size={38} />
+                      <span className="max-w-full truncate px-2 text-[10px]">{doc.fileName}</span>
+                    </div>
+                  )}
+                  <span
+                    className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[10px] font-extrabold shadow-sm ${
+                      isImage ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
+                    }`}
+                  >
+                    {doc.fileExt.toUpperCase() || "FILE"}
+                  </span>
+                  <span
+                    className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[9px] font-extrabold shadow-sm ${statusStyle.className}`}
+                  >
+                    {statusStyle.label}
+                  </span>
+                </div>
+
+                <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setViewDoc(doc)}
+                    disabled={!doc.viewUrl}
+                    className="h-9 rounded-[9px] border border-slate-200 bg-white text-[11px] font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    보기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => triggerDownload(doc)}
+                    disabled={!doc.downloadUrl}
+                    className="h-9 truncate rounded-[9px] border border-blue-200 bg-blue-50 px-1 text-[11px] font-bold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    다운로드
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => openUploadModal(slot.uploadTag)}
+                  className="mt-1.5 h-9 w-full truncate rounded-[9px] border border-slate-200 bg-slate-50 px-1 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
+                >
+                  다시 업로드
+                </button>
+              </div>
+            );
+          })}
 
           <button
             type="button"
-            onClick={openUploadModal}
-            className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 sm:w-[220px]"
+            onClick={() => openUploadModal()}
+            className="flex h-[320px] w-[240px] shrink-0 snap-start flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 sm:w-[200px]"
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
               <Plus size={24} />
@@ -1444,10 +1515,10 @@ function WalletSection({ leadId }: { leadId: string }) {
         </div>
       )}
 
-      {!loading && !loadError && !isEmpty && (
+      {!loading && !loadError && (
         <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-slate-400">
           <Lock size={12} />
-          업로드한 서류는 본인만 조회·다운로드할 수 있습니다.
+          등록한 서류는 본인만 확인할 수 있으며 안전한 임시 링크로 열립니다.
         </div>
       )}
 
