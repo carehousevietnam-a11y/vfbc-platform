@@ -3015,17 +3015,20 @@ function MobileBottomNav() {
   );
 }
 
-function Dashboard({
-  name,
-  items,
-  activeItem,
-  onChangeActive,
-}: {
-  name: string | null;
-  items: MyPageItem[];
-  activeItem: MyPageItem | null;
-  onChangeActive: (id: string) => void;
-}) {
+function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }) {
+  const [activeId, setActiveId] = useState(items[0]?.id ?? "");
+
+  useEffect(() => {
+    if (!items.some((item) => item.id === activeId)) {
+      setActiveId(items[0]?.id ?? "");
+    }
+  }, [activeId, items]);
+
+  const activeItem = useMemo(
+    () => items.find((item) => item.id === activeId) ?? items[0] ?? null,
+    [activeId, items]
+  );
+
   if (!activeItem) {
     return (
       <div className="rounded-[20px] border border-slate-200 bg-white p-8 text-center shadow-sm">
@@ -3056,7 +3059,7 @@ function Dashboard({
           <ApplicationSelector
             items={items}
             activeId={activeItem.id}
-            onChange={onChangeActive}
+            onChange={setActiveId}
           />
         }
       />
@@ -3080,6 +3083,14 @@ function Dashboard({
 
       <div className="mt-5">
         <PublicNotes notes={activeItem.publicNotes} />
+      </div>
+
+      <div className="mt-5">
+        <WalletSection leadId={activeItem.id} />
+      </div>
+
+      <div className="mt-5">
+        <RecommendedServices />
       </div>
 
       <div className="mt-5 grid gap-5 xl:hidden">
@@ -3153,18 +3164,6 @@ export default function MyPage() {
 
   const firstItem = items[0] ?? null;
 
-  const [activeId, setActiveId] = useState("");
-  useEffect(() => {
-    if (!items.some((item) => item.id === activeId)) {
-      setActiveId(items[0]?.id ?? "");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeId, items]);
-  const activeItem = useMemo(
-    () => items.find((item) => item.id === activeId) ?? items[0] ?? null,
-    [activeId, items]
-  );
-
   return (
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
       <DesktopSidebar />
@@ -3208,9 +3207,7 @@ export default function MyPage() {
               </div>
             )}
 
-            {state === "ready" && (
-              <Dashboard name={name} items={items} activeItem={activeItem} onChangeActive={setActiveId} />
-            )}
+            {state === "ready" && <Dashboard name={name} items={items} />}
           </div>
 
           {state === "ready" && firstItem && (
@@ -3229,21 +3226,6 @@ export default function MyPage() {
             </aside>
           )}
           </div>
-
-          {/* 하단 공통 섹션 — 내 서류 지갑 / 맞춤 추천 서비스는 위 2열 grid의 자식이 아니라
-              형제 요소로 배치한다. 그래야 xl 이상에서 중앙 column(1fr)과 오른쪽 보조패널
-              (280px)을 합친 전체 폭을 그대로 사용하며, 오른쪽 보조패널이 먼저 끝나도
-              오른쪽 하단에 빈 공간이 남지 않는다. 모바일에서는 자연스럽게 아래로 이어진다. */}
-          {state === "ready" && activeItem && (
-            <>
-              <div className="mt-5 xl:mt-6">
-                <WalletSection leadId={activeItem.id} />
-              </div>
-              <div className="mt-5 xl:mt-6">
-                <RecommendedServices />
-              </div>
-            </>
-          )}
         </div>
 
       </div>
