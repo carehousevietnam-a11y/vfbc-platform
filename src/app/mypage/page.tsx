@@ -2,7 +2,7 @@
 
 // src/app/mypage/page.tsx
 //
-// VFBCAI 고객용 My Page — 승인 목업 기준 전체 UI 재구성본
+// VFBCAI 고객용 My Page — 승인된 대시보드 목업 기준 UI
 // 기존 인증·API·PDF·진행단계·CRM 데이터 구조는 그대로 유지하고,
 // 화면 구조와 반응형 UI만 재설계한다.
 
@@ -33,6 +33,7 @@ import {
   MessageCircle,
   MessageSquare,
   Plus,
+  Search,
   Shield,
   ShieldAlert,
   Sparkles,
@@ -76,8 +77,8 @@ const ESTIMATED_DAYS: Record<string, string> = {
 
 const VERIFY_ESTIMATE = "2~5 영업일";
 const CONSULTATION_ESTIMATE = "1~2 영업일";
-const EXPERT_TEAM_LABEL = "VFBCAI 행정전문팀";
-const EXPERT_NAME = "VFBCAI 행정전문팀 · VNK 파트너";
+const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀";
+const EXPERT_NAME = "Linda Kang · VNK 파트너";
 
 type ConfidenceLevel = "green" | "yellow" | "red";
 type ConfidenceStatus = { level: ConfidenceLevel; label: string; message: string };
@@ -212,17 +213,17 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar() {
   return (
-    <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
-      <div className="px-5 pt-6">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[180px] border-r border-slate-200 bg-white xl:flex xl:flex-col">
+      <div className="px-4 pt-5">
         <BrandLogo />
       </div>
 
-      <nav className="mt-5 space-y-1.5 px-4">
+      <nav className="mt-6 space-y-1 px-3">
         {SIDEBAR_ITEMS.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex h-12 items-center justify-between rounded-xl px-3.5 text-[13.5px] font-semibold transition ${
+            className={`flex h-11 items-center justify-between rounded-xl px-3 text-[13px] font-semibold transition ${
               item.active
                 ? "bg-[#0b2e77] text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -241,8 +242,8 @@ function DesktopSidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto p-5">
-        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-5">
+      <div className="mt-auto p-4">
+        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
             <FolderLock size={19} className="text-[#0d2a6b]" />
           </div>
@@ -259,7 +260,7 @@ function DesktopSidebar() {
 function TopHeader({ name }: { name: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/95 backdrop-blur">
-      <div className="flex h-[80px] w-full items-center justify-between px-4 sm:px-6 xl:px-7">
+      <div className="mx-auto flex h-[68px] max-w-[1180px] items-center justify-between px-4 sm:px-6 xl:px-5">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
@@ -335,9 +336,9 @@ function HeroCard({
   return (
     <section
       id="applications"
-      className="overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.18)] sm:px-6 sm:py-6"
+      className="overflow-hidden rounded-[22px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.20)] sm:px-6 sm:py-6"
     >
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-semibold text-blue-200">현재 진행 중인 서비스</span>
@@ -363,7 +364,7 @@ function HeroCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-5 lg:justify-end">
+        <div className="flex items-center justify-between gap-6 lg:justify-end">
           <ProgressRing value={item.stage.progressPercent} />
           <div className="min-w-[150px]">
             <p className="text-[11px] font-semibold text-blue-200">예상 완료일</p>
@@ -417,14 +418,14 @@ function ApplicationSelector({
 
 function StepProgress({ stage }: { stage: StageInfo }) {
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
+    <section className="rounded-[22px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">진행 단계</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 단계 보기 ›</span>
       </div>
 
       <div className="mt-5 overflow-x-auto pb-1">
-        <div className="flex min-w-[420px] items-start">
+        <div className="flex min-w-[600px] items-start">
           {stage.steps.map((step, index) => {
             const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
             const dateLabel = step.done
@@ -540,7 +541,7 @@ function AiResultCard({ item }: { item: MyPageItem }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
 
   return (
-    <section className="rounded-[20px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
+    <section className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
@@ -589,7 +590,7 @@ function CurrentStatusCard({ item }: { item: MyPageItem }) {
   const estimate = getEstimate(item.category, item.serviceType);
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
       <p className="mt-3 text-[13px] leading-6 text-slate-600">
         {item.hasExpertReview
@@ -655,7 +656,7 @@ function TimelineCard({ item }: { item: MyPageItem }) {
   const recent = item.activityLog.length >= 3 ? item.activityLog.slice(-4) : fallbackTimeline;
 
   return (
-    <section id="timeline" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id="timeline" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">진행 타임라인</p>
@@ -736,61 +737,142 @@ function WalletSection() {
       label: "여권",
       expiry: "만료일 2028.06.12",
       kind: "passport",
-      imageSrc: "/mypage-documents/passport-sample.webp",
       badge: "PDF",
       action: "신청에 사용",
-      actionTone: "blue",
     },
     {
       label: "비자 (DN)",
       expiry: "만료일 2026.11.30",
       kind: "visa",
-      imageSrc: "/mypage-documents/visa-sample.webp",
       badge: "PDF",
       action: "신청에 사용",
-      actionTone: "blue",
     },
     {
       label: "거주증 (TRC)",
       expiry: "만료일 2026.10.15",
       kind: "trc",
-      imageSrc: "/mypage-documents/trc-sample.webp",
       badge: "PDF",
       action: "갱신 준비",
-      actionTone: "green",
     },
     {
       label: "증명사진",
       expiry: "최근 등록 2025.07.24",
       kind: "photo",
-      imageSrc: "/mypage-documents/id-photo-sample.webp",
       badge: "JPG",
       action: "다시 사용",
-      actionTone: "blue",
     },
     {
       label: "건강검진서",
       expiry: "만료일 2025.01.15",
       kind: "certificate",
-      imageSrc: "/mypage-documents/health-certificate-sample.webp",
       badge: "PDF",
       action: "신청에 사용",
-      actionTone: "blue",
     },
   ] as const;
 
+  function DocumentPreview({ kind }: { kind: (typeof docs)[number]["kind"] }) {
+    if (kind === "passport") {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0a2457] to-[#123b80]">
+          <div className="flex h-[76px] w-[54px] flex-col items-center justify-center rounded-md border border-white/20 bg-[#0a2d6b] shadow-lg">
+            <Shield size={19} className="text-amber-300" />
+            <p className="mt-2 text-[7px] font-bold tracking-[0.18em] text-white/90">PASSPORT</p>
+          </div>
+        </div>
+      );
+    }
 
+    if (kind === "photo") {
+      return (
+        <div className="flex h-full w-full items-end justify-center bg-gradient-to-b from-slate-100 to-slate-200">
+          <div className="mb-2 flex h-[78px] w-[60px] flex-col items-center justify-end overflow-hidden rounded-t-[30px] bg-gradient-to-b from-[#e9eef6] to-[#cbd5e1]">
+            <div className="h-8 w-8 rounded-full bg-[#f2c8a8]" />
+            <div className="mt-1 h-10 w-12 rounded-t-[14px] bg-[#1f2937]" />
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "trc") {
+      return (
+        <div className="h-full w-full bg-gradient-to-br from-[#dff7fb] to-[#fef5d7] p-2">
+          <div className="h-full rounded-md border border-cyan-200 bg-white/80 p-2">
+            <div className="flex gap-2">
+              <div className="h-10 w-8 rounded bg-slate-200" />
+              <div className="flex-1 space-y-1.5 pt-1">
+                <div className="h-1.5 rounded bg-cyan-200" />
+                <div className="h-1.5 w-3/4 rounded bg-slate-200" />
+                <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+              </div>
+            </div>
+            <div className="mt-3 h-1.5 rounded bg-amber-200" />
+            <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "visa") {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 p-2">
+          <div className="flex h-full w-full flex-col rounded-md border border-indigo-200 bg-white/90 p-2">
+            <div className="flex items-center justify-between">
+              <FileCheck2 size={16} className="text-indigo-600" />
+              <span className="text-[7px] font-bold tracking-[0.14em] text-indigo-400">VISA</span>
+            </div>
+            <div className="mt-2 flex-1 space-y-1.5">
+              <div className="h-1.5 w-4/5 rounded bg-indigo-200" />
+              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
+              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+            </div>
+            <div className="h-6 rounded border border-dashed border-indigo-200" />
+          </div>
+        </div>
+      );
+    }
+
+    if (kind === "certificate") {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-2">
+          <div className="flex h-full w-full flex-col rounded-md border border-rose-200 bg-white/90 p-2">
+            <div className="flex items-center justify-between">
+              <CheckCircle2 size={16} className="text-rose-500" />
+              <span className="text-[7px] font-bold tracking-[0.14em] text-rose-400">HEALTH</span>
+            </div>
+            <div className="mt-2 flex-1 space-y-1.5">
+              <div className="h-1.5 w-4/5 rounded bg-rose-200" />
+              <div className="h-1.5 w-2/3 rounded bg-slate-200" />
+              <div className="h-1.5 w-3/5 rounded bg-slate-200" />
+            </div>
+            <div className="h-6 rounded border border-dashed border-rose-200" />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="h-full w-full bg-gradient-to-br from-slate-50 to-slate-200 p-2">
+        <div className="h-full rounded-md border border-slate-200 bg-white p-2 shadow-sm">
+          <div className="h-2 w-2/3 rounded bg-blue-100" />
+          <div className="mt-2 h-1.5 rounded bg-slate-200" />
+          <div className="mt-1.5 h-1.5 rounded bg-slate-200" />
+          <div className="mt-1.5 h-1.5 w-4/5 rounded bg-slate-200" />
+          <div className="mt-3 h-8 rounded border border-slate-200" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <section id="wallet" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex items-start justify-between gap-4">
+    <section id="wallet" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
           <p className="mt-1 text-[11px] text-slate-500">
             자주 사용하는 행정서류를 안전하게 보관하고 다시 사용할 수 있습니다.
           </p>
         </div>
-        <button type="button" className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-blue-700">
+        <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
           전체 보기 <ChevronRight size={13} />
         </button>
       </div>
@@ -799,21 +881,12 @@ function WalletSection() {
         {docs.map((doc) => (
           <div
             key={doc.label}
-            className="group min-w-0 rounded-[14px] border border-slate-200 bg-white p-2.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+            className="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
           >
-            <p className="truncate text-[11px] font-extrabold text-slate-900">{doc.label}</p>
-            <p className="mt-0.5 truncate text-[8px] text-slate-400">{doc.expiry}</p>
-
-            <div className="relative mt-2 h-[150px] overflow-hidden rounded-[8px] border border-slate-200 bg-white p-1.5 shadow-inner">
-              <img
-                src={doc.imageSrc}
-                alt={`${doc.label} 샘플 미리보기`}
-                className="h-full w-full object-contain"
-                loading="lazy"
-                draggable={false}
-              />
+            <div className="relative h-[112px] overflow-hidden rounded-xl bg-slate-50">
+              <DocumentPreview kind={doc.kind} />
               <span
-                className={`absolute bottom-1.5 right-1.5 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold shadow-sm ${
+                className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold ${
                   doc.badge === "JPG"
                     ? "bg-emerald-100 text-emerald-700"
                     : "bg-orange-100 text-orange-700"
@@ -822,36 +895,24 @@ function WalletSection() {
                 {doc.badge}
               </span>
             </div>
-
-            <div className="mt-2 grid grid-cols-[38px_minmax(0,1fr)] gap-1">
-              <button
-                type="button"
-                className="rounded-[7px] border border-slate-200 bg-white py-1.5 text-[8px] font-bold text-slate-700 hover:bg-slate-50"
-              >
+            <p className="mt-3 truncate text-[12px] font-extrabold text-slate-900">{doc.label}</p>
+            <p className="mt-1 truncate text-[9px] text-slate-400">{doc.expiry}</p>
+            <div className="mt-3 grid grid-cols-2 gap-1">
+              <button type="button" className="rounded-lg border border-slate-200 py-1.5 text-[9px] font-bold text-slate-600 hover:bg-slate-50">
                 보기
               </button>
-              <button
-                type="button"
-                className={`truncate rounded-[7px] border py-1.5 px-1 text-[8px] font-bold ${
-                  doc.actionTone === "green"
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                    : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                }`}
-              >
+              <button type="button" className="rounded-lg border border-blue-200 bg-blue-50 py-1.5 text-[9px] font-bold text-blue-700 hover:bg-blue-100">
                 {doc.action}
               </button>
             </div>
           </div>
         ))}
 
-        <button
-          type="button"
-          className="flex min-h-[180px] min-w-0 flex-col items-center justify-center rounded-[14px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50"
-        >
+        <button type="button" className="flex min-h-[190px] flex-col items-center justify-center rounded-2xl border border-dashed border-blue-300 bg-blue-50/40 text-blue-700 transition hover:bg-blue-50">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
-            <Plus size={22} />
+            <Plus size={21} />
           </div>
-          <span className="mt-3 text-[10px] font-bold">서류 추가</span>
+          <span className="mt-3 text-[11px] font-bold">서류 추가</span>
         </button>
       </div>
 
@@ -900,7 +961,7 @@ function RecommendedServices() {
   ];
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
         <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
         <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
@@ -927,58 +988,18 @@ function RecommendedServices() {
 }
 
 const PUBLIC_LINKS = [
-  {
-    label: "정부24",
-    sub: "주민등록등본, 가족관계증명서 등",
-    href: "https://www.gov.kr/",
-    iconSrc: "/mypage-icons/kr-gov24.webp",
-  },
-  {
-    label: "영사민원24",
-    sub: "공증, 영사확인, 여권 등",
-    href: "https://consul.mofa.go.kr/",
-    iconSrc: "/mypage-icons/kr-consul.webp",
-  },
-  {
-    label: "법무부",
-    sub: "출입국·체류·국적 관련 정보",
-    href: "https://www.moj.go.kr/",
-    iconSrc: "/mypage-icons/kr-moj.webp",
-  },
-  {
-    label: "하이코리아",
-    sub: "외국인 전자민원, 체류 신청 등",
-    href: "https://www.hikorea.go.kr/",
-    iconSrc: "/mypage-icons/kr-hikorea.webp",
-  },
+  { label: "정부24", sub: "주민등록등본, 가족관계증명서 등", href: "https://www.gov.kr/", iconSrc: "/mypage-icons/kr-gov24.png" },
+  { label: "영사민원24", sub: "공증, 영사확인, 여권 등", href: "https://consul.mofa.go.kr/", iconSrc: "/mypage-icons/kr-consul.png" },
+  { label: "법무부", sub: "출입국·체류·국적 관련 정보", href: "https://www.moj.go.kr/", iconSrc: "/mypage-icons/kr-moj.png" },
+  { label: "하이코리아", sub: "외국인 전자민원, 체류 신청 등", href: "https://www.hikorea.go.kr/", iconSrc: "/mypage-icons/kr-hikorea.png" },
 ];
 
 const VN_PUBLIC_LINKS = [
-  {
-    label: "베트남 공공서비스 포털",
-    href: "https://dichvucong.gov.vn/",
-    iconSrc: "/mypage-icons/vn-portal.webp",
-  },
-  {
-    label: "출입국관리기관",
-    href: "https://xuatnhapcanh.gov.vn/",
-    iconSrc: "/mypage-icons/vn-immigration.webp",
-  },
-  {
-    label: "세무기관",
-    href: "https://www.gdt.gov.vn/",
-    iconSrc: "/mypage-icons/vn-tax.webp",
-  },
-  {
-    label: "기업등록기관",
-    href: "https://dangkykinhdoanh.gov.vn/",
-    iconSrc: "/mypage-icons/vn-business.webp",
-  },
-  {
-    label: "노동기관",
-    href: "https://molisa.gov.vn/",
-    iconSrc: "/mypage-icons/vn-labor.webp",
-  },
+  { label: "베트남 공공서비스 포털", href: "https://dichvucong.gov.vn/", iconSrc: "/mypage-icons/vn-portal.png" },
+  { label: "출입국관리기관", href: "https://xuatnhapcanh.gov.vn/", iconSrc: "/mypage-icons/vn-immigration.png" },
+  { label: "세무기관", href: "https://www.gdt.gov.vn/", iconSrc: "/mypage-icons/vn-tax.png" },
+  { label: "기업등록기관", href: "https://dangkykinhdoanh.gov.vn/", iconSrc: "/mypage-icons/vn-business.png" },
+  { label: "노동기관", href: "https://molisa.gov.vn/", iconSrc: "/mypage-icons/vn-labor.png" },
 ];
 
 function PublicLinksCard({
@@ -989,7 +1010,7 @@ function PublicLinksCard({
   links: { label: string; sub?: string; href: string; iconSrc: string }[];
 }) {
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">{title}</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
@@ -1001,14 +1022,14 @@ function PublicLinksCard({
             href={link.href}
             target="_blank"
             rel="noreferrer"
-            className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
+            className="flex items-center justify-between py-3 transition hover:bg-slate-50"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white p-1 shadow-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
                 <img
                   src={link.iconSrc}
                   alt={`${link.label} 기관 아이콘`}
-                  className="block h-full w-full rounded-full object-contain object-center"
+                  className="block h-7 w-7 object-contain object-center"
                   loading="lazy"
                   draggable={false}
                 />
@@ -1028,14 +1049,14 @@ function PublicLinksCard({
 
 function NotificationCard({ item }: { item: MyPageItem }) {
   const entries = [
-    { icon: MessageCircle, tone: "bg-red-50 text-red-600", title: "행정전문팀 메시지", sub: "행정전문팀에서 추가 서류를 요청했습니다." },
+    { icon: MessageCircle, tone: "bg-red-50 text-red-600", title: "전문가 메시지", sub: "추가 서류가 필요합니다." },
     { icon: AlertTriangle, tone: "bg-amber-50 text-amber-600", title: "거주증 만료 알림", sub: "만료까지 87일 남았습니다." },
     { icon: FileCheck2, tone: "bg-emerald-50 text-emerald-600", title: "AI 리포트 완료", sub: "AI 리포트가 준비되었습니다." },
     { icon: Building2, tone: "bg-blue-50 text-blue-600", title: "정부 제출 예정", sub: nextStepLabel(item.stage.steps) },
   ];
 
   return (
-    <section id="notifications" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section id="notifications" className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">알림 센터</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
@@ -1060,7 +1081,7 @@ function NotificationCard({ item }: { item: MyPageItem }) {
 
 function ExpertCard({ item }: { item: MyPageItem }) {
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">담당 전문가</p>
 
       <div className="mt-4 flex items-center gap-4">
@@ -1068,8 +1089,8 @@ function ExpertCard({ item }: { item: MyPageItem }) {
           <UserCheck size={28} className="text-[#102f72]" />
         </div>
         <div className="min-w-0">
-          <p className="text-[15px] font-extrabold text-slate-950">VFBCAI 행정전문팀</p>
-          <p className="mt-1 text-[12px] text-slate-500">행정·허가 전문팀</p>
+          <p className="text-[15px] font-extrabold text-slate-950">Linda Kang</p>
+          <p className="mt-1 text-[12px] text-slate-500">행정허가 전문가</p>
         </div>
       </div>
 
@@ -1103,7 +1124,7 @@ function HelpCard() {
   ];
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">도움이 필요하신가요?</p>
       <div className="mt-4 grid grid-cols-3 gap-2">
         {items.map((item) => (
@@ -1127,7 +1148,7 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
   if (notes.length === 0) return null;
 
   return (
-    <section className="rounded-[20px] border border-blue-100 bg-blue-50/60 p-5">
+    <section className="rounded-[22px] border border-blue-100 bg-blue-50/60 p-5">
       <div className="flex items-center gap-2">
         <MessageCircle size={17} className="text-blue-900" />
         <p className="text-[15px] font-extrabold text-blue-950">담당자 안내</p>
@@ -1148,7 +1169,7 @@ function PermitDocuments({ item }: { item: MyPageItem }) {
   if (!item.governmentSubmittedAt && !item.permitCompletedAt && !item.fileUrl) return null;
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-[16px] font-extrabold text-slate-950">제출 및 결과 문서</p>
       <div className="mt-4 space-y-3">
         {item.governmentSubmittedAt && (
@@ -1216,7 +1237,7 @@ function MobileBottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur xl:hidden">
-      <div className="mx-auto grid max-w-[1480px] grid-cols-6 items-end">
+      <div className="mx-auto grid max-w-[1180px] grid-cols-6 items-end">
         {items.map((item) => (
           <Link
             key={item.label}
@@ -1228,7 +1249,7 @@ function MobileBottomNav() {
             <div
               className={`relative flex items-center justify-center ${
                 item.primary
-                  ? "-mt-5 h-14 w-14 rounded-full bg-blue-900 text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
+                  ? "-mt-7 h-14 w-14 rounded-full bg-blue-900 text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
                   : "h-7 w-7"
               }`}
             >
@@ -1263,7 +1284,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
 
   if (!activeItem) {
     return (
-      <div className="rounded-[20px] border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="rounded-[22px] border border-slate-200 bg-white p-8 text-center shadow-sm">
         <FileText size={32} className="mx-auto text-slate-300" />
         <p className="mt-4 text-[18px] font-extrabold text-slate-900">아직 접수하신 신청 내역이 없습니다.</p>
         <Link
@@ -1317,12 +1338,16 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
         <PublicNotes notes={activeItem.publicNotes} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
         <WalletSection />
+        <ExpertCard item={activeItem} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_270px]">
         <RecommendedServices />
+        <div id="profile">
+          <HelpCard />
+        </div>
       </div>
 
       <div className="mt-5 grid gap-5 xl:hidden">
@@ -1337,7 +1362,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
 
 function LoadingCard({ message }: { message: string }) {
   return (
-    <div className="rounded-[20px] border border-slate-200 bg-white p-7 shadow-sm">
+    <div className="rounded-[22px] border border-slate-200 bg-white p-7 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 animate-pulse rounded-xl bg-blue-100" />
         <p className="text-[13px] text-slate-500">{message}</p>
@@ -1396,22 +1421,19 @@ export default function MyPage() {
   const firstItem = items[0] ?? null;
 
   return (
-    <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
+    <main className="min-h-screen bg-[#f6f8fc] text-slate-900">
       <DesktopSidebar />
 
-      {/* App Shell — Sidebar를 제외한 나머지 폭 전체를 그대로 차지한다(flex-1).
-          더 이상 xl:pl-[...] 오프셋이나 mx-auto/max-w로 폭을 제한하지 않는다. */}
-      <div className="min-w-0">
+      <div className="xl:pl-[180px]">
         <TopHeader name={name} />
 
-        <div className="w-full px-4 py-5 pb-28 sm:px-6 xl:px-6 xl:py-6 xl:pb-8">
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="mx-auto grid max-w-[1180px] gap-5 px-4 py-5 pb-28 sm:px-6 xl:grid-cols-[minmax(0,1fr)_270px] xl:px-5 xl:py-6 xl:pb-5">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
 
             {state === "signed-out" && (
-              <div className="rounded-[20px] border border-amber-200 bg-white p-8 shadow-sm">
+              <div className="rounded-[22px] border border-amber-200 bg-white p-8 shadow-sm">
                 <AlertCircle size={24} className="text-amber-700" />
                 <h1 className="mt-5 text-[24px] font-extrabold text-slate-950">로그인이 필요합니다</h1>
                 <p className="mt-3 max-w-xl text-[13px] leading-6 text-slate-600">
@@ -1429,7 +1451,7 @@ export default function MyPage() {
             )}
 
             {state === "error" && (
-              <div className="rounded-[20px] border border-red-200 bg-white p-7 shadow-sm">
+              <div className="rounded-[22px] border border-red-200 bg-white p-7 shadow-sm">
                 <AlertTriangle size={24} className="text-red-600" />
                 <p className="mt-4 text-[13px] font-semibold text-red-700">{errorMessage}</p>
               </div>
@@ -1441,7 +1463,7 @@ export default function MyPage() {
           {state === "ready" && firstItem && (
             <aside className="hidden space-y-5 xl:block">
               <NotificationCard item={firstItem} />
-              <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+              <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-sm">
                 <img
                   src="/mypage-icons/app-promo.webp"
                   alt="VFBCAI 모바일 앱 다운로드"
@@ -1453,14 +1475,9 @@ export default function MyPage() {
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-              <ExpertCard item={firstItem} />
-              <div id="profile">
-                <HelpCard />
-              </div>
               <PermitDocuments item={firstItem} />
             </aside>
           )}
-          </div>
         </div>
 
       </div>
