@@ -820,6 +820,8 @@ function getWalletFileExt(file: File): string {
 // ── 고정 서류 슬롯 — 목업과 동일하게 여권/비자/거주증/증명사진/건강검진서는 문서가
 // 없어도 항상 카드가 보이는 "보관함 슬롯" 구조로 표시한다. uploadTag는 WALLET_DOC_TYPES
 // 안의 실제 값과 정확히 일치해야 업로드 모달의 서류 종류 select가 올바르게 선택된다.
+// sampleImageSrc는 public/mypage-documents에 실제로 존재하는 예시 이미지만 사용한다
+// (신규 이미지 추가 없음 — 이전 세션에서 이미 배치된 파일을 재사용).
 type WalletSlotKey = "passport" | "visa" | "trc" | "photo" | "health";
 
 type WalletSlotConfig = {
@@ -829,6 +831,7 @@ type WalletSlotConfig = {
   uploadTag: string;
   icon: typeof FileText;
   aliases: string[];
+  sampleImageSrc: string;
 };
 
 const WALLET_SLOTS: WalletSlotConfig[] = [
@@ -839,6 +842,7 @@ const WALLET_SLOTS: WalletSlotConfig[] = [
     uploadTag: "여권",
     icon: BookUser,
     aliases: ["여권", "passport"],
+    sampleImageSrc: "/mypage-documents/passport-sample.webp",
   },
   {
     key: "visa",
@@ -847,6 +851,7 @@ const WALLET_SLOTS: WalletSlotConfig[] = [
     uploadTag: "비자",
     icon: Plane,
     aliases: ["비자", "비자(dn)", "visa"],
+    sampleImageSrc: "/mypage-documents/visa-sample.webp",
   },
   {
     key: "trc",
@@ -855,6 +860,7 @@ const WALLET_SLOTS: WalletSlotConfig[] = [
     uploadTag: "거주증(TRC)",
     icon: IdCard,
     aliases: ["거주증", "거주증(trc)", "trc"],
+    sampleImageSrc: "/mypage-documents/trc-sample.webp",
   },
   {
     key: "photo",
@@ -863,6 +869,7 @@ const WALLET_SLOTS: WalletSlotConfig[] = [
     uploadTag: "증명사진",
     icon: User,
     aliases: ["증명사진", "사진", "photo"],
+    sampleImageSrc: "/mypage-documents/id-photo-sample.webp",
   },
   {
     key: "health",
@@ -871,6 +878,7 @@ const WALLET_SLOTS: WalletSlotConfig[] = [
     uploadTag: "건강검진서",
     icon: Stethoscope,
     aliases: ["건강검진서", "건강검진", "health", "medical"],
+    sampleImageSrc: "/mypage-documents/health-certificate-sample.webp",
   },
 ];
 
@@ -1353,10 +1361,6 @@ function WalletSection({ leadId }: { leadId: string }) {
 
   return (
     <section id="wallet" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <style>{`
-        .wallet-scroll::-webkit-scrollbar { display: none; }
-        .wallet-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
@@ -1395,36 +1399,44 @@ function WalletSection({ leadId }: { leadId: string }) {
         </div>
       )}
 
-      {/* 문서 종류별 고정 슬롯 — 여권/비자/거주증/증명사진/건강검진서는 실제 문서가
-          없어도 항상 카드가 표시된다. PC에서는 6장이 한 줄에 배치되고, 공간이 부족하면
-          가로 스크롤(스크롤바는 숨김 처리)된다. */}
+      {/* 문서 종류별 고정 슬롯 — 여권/비자/거주증/증명사진/건강검진서는 실제 문서가 없어도
+          항상 카드가 표시된다. 순서는 항상 여권→비자→거주증→증명사진→건강검진서→서류추가로
+          고정. 모바일 1열 → sm 2열 → lg 3열(3열×2행, PC 가로 스크롤 없음). */}
       {!loading && !loadError && (
-        <div className="wallet-scroll mt-5 -mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-3">
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
-            const SlotIcon = slot.icon;
 
             if (!doc) {
               return (
                 <div
                   key={slot.key}
-                  className="flex h-[320px] w-[240px] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 sm:w-[200px]"
+                  className="flex h-[320px] w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
                 >
-                  <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                  <p className="truncate text-[15px] font-extrabold text-slate-900">{slot.label}</p>
                   <p className="mt-1 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
 
-                  <div className="mt-2.5 flex h-[190px] flex-col items-center justify-center gap-2 rounded-[10px] border border-dashed border-slate-200 bg-slate-50 px-3 text-center">
-                    <SlotIcon size={30} className="text-slate-300" />
-                    <p className="text-[11px] font-semibold text-slate-500">{slot.emptyPrompt}</p>
-                    <p className="text-[9px] leading-4 text-slate-400">PDF, JPG, PNG 업로드 가능</p>
+                  <div className="relative mt-2.5 h-[190px] overflow-hidden rounded-[10px] border border-dashed border-slate-200 bg-slate-50 p-2">
+                    <img
+                      src={slot.sampleImageSrc}
+                      alt={`${slot.label} 예시 이미지`}
+                      className="h-full w-full object-contain opacity-70"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                    <span className="absolute left-2 top-2 rounded-md bg-slate-900/80 px-1.5 py-0.5 text-[9px] font-extrabold text-white">
+                      예시
+                    </span>
                   </div>
+
+                  <p className="mt-2 text-[10px] leading-4 text-slate-400">{slot.emptyPrompt} (PDF, JPG, PNG)</p>
 
                   <button
                     type="button"
                     onClick={() => openUploadModal(slot.uploadTag)}
-                    className="mt-2.5 flex h-9 items-center justify-center gap-1.5 rounded-[9px] bg-blue-900 text-[11px] font-bold text-white hover:bg-blue-800"
+                    className="mt-2.5 flex h-10 items-center justify-center gap-1.5 rounded-[9px] bg-blue-900 text-[12px] font-bold text-white hover:bg-blue-800"
                   >
-                    <Upload size={13} />
+                    <Upload size={14} />
                     업로드
                   </button>
                 </div>
@@ -1438,9 +1450,9 @@ function WalletSection({ leadId }: { leadId: string }) {
             return (
               <div
                 key={slot.key}
-                className="group flex h-[320px] w-[240px] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:w-[200px]"
+                className="group flex h-[320px] w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
               >
-                <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                <p className="truncate text-[15px] font-extrabold text-slate-900">{slot.label}</p>
                 <p className="mt-1 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
 
                 <div className="relative mt-2.5 h-[190px] overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner">
@@ -1477,7 +1489,7 @@ function WalletSection({ leadId }: { leadId: string }) {
                     type="button"
                     onClick={() => setViewDoc(doc)}
                     disabled={!doc.viewUrl}
-                    className="h-9 rounded-[9px] border border-slate-200 bg-white text-[11px] font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-10 rounded-[9px] border border-slate-200 bg-white text-[12px] font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     보기
                   </button>
@@ -1485,7 +1497,7 @@ function WalletSection({ leadId }: { leadId: string }) {
                     type="button"
                     onClick={() => triggerDownload(doc)}
                     disabled={!doc.downloadUrl}
-                    className="h-9 truncate rounded-[9px] border border-blue-200 bg-blue-50 px-1 text-[11px] font-bold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-10 truncate rounded-[9px] border border-blue-200 bg-blue-50 px-1 text-[12px] font-bold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     다운로드
                   </button>
@@ -1494,7 +1506,7 @@ function WalletSection({ leadId }: { leadId: string }) {
                 <button
                   type="button"
                   onClick={() => openUploadModal(slot.uploadTag)}
-                  className="mt-1.5 h-9 w-full truncate rounded-[9px] border border-slate-200 bg-slate-50 px-1 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
+                  className="mt-1.5 h-10 w-full truncate rounded-[9px] border border-slate-200 bg-slate-50 px-1 text-[12px] font-bold text-slate-500 hover:bg-slate-100"
                 >
                   다시 업로드
                 </button>
@@ -1505,7 +1517,7 @@ function WalletSection({ leadId }: { leadId: string }) {
           <button
             type="button"
             onClick={() => openUploadModal()}
-            className="flex h-[320px] w-[240px] shrink-0 snap-start flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 sm:w-[200px]"
+            className="flex h-[320px] w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50"
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
               <Plus size={24} />
