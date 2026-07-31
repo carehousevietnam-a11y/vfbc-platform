@@ -980,8 +980,8 @@ const VN_PUBLIC_LINKS = [
     iconSrc: "/mypage-icons/vn-business.webp",
   },
   {
-    label: "노동기관",
-    href: "https://molisa.gov.vn/",
+    label: "노동·고용 기관",
+    href: "https://moha.gov.vn/",
     iconSrc: "/mypage-icons/vn-labor.webp",
   },
 ];
