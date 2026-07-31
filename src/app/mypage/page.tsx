@@ -1094,7 +1094,15 @@ type VietnamLifeDetailKey =
 
 type WeatherState = {
   temperature: number | null;
+  apparentTemperature: number | null;
+  humidity: number | null;
+  windSpeed: number | null;
+  precipitation: number | null;
   weatherCode: number | null;
+  dailyHigh: number | null;
+  dailyLow: number | null;
+  sunrise: string | null;
+  sunset: string | null;
   updatedAt: string | null;
   loading: boolean;
   error: boolean;
@@ -1156,12 +1164,44 @@ function weatherCodeLabel(code: number | null) {
   return "기상정보";
 }
 
+function formatWeatherTime(value: string | null) {
+  if (!value) return "확인 중";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "확인 중";
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatClock(value: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
 function VietnamLifeCard({ item }: { item: MyPageItem }) {
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<VietnamLifeDetailKey | null>(null);
+  const [krwAmount, setKrwAmount] = useState("100000");
+  const [usdAmount, setUsdAmount] = useState("100");
   const [weather, setWeather] = useState<WeatherState>({
     temperature: null,
+    apparentTemperature: null,
+    humidity: null,
+    windSpeed: null,
+    precipitation: null,
     weatherCode: null,
+    dailyHigh: null,
+    dailyLow: null,
+    sunrise: null,
+    sunset: null,
     updatedAt: null,
     loading: true,
     error: false,
@@ -1180,7 +1220,7 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
     async function loadWeather() {
       try {
         const response = await fetch(
-          "https://api.open-meteo.com/v1/forecast?latitude=21.0285&longitude=105.8542&current=temperature_2m,weather_code&timezone=Asia%2FBangkok",
+          "https://api.open-meteo.com/v1/forecast?latitude=21.0285&longitude=105.8542&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=Asia%2FBangkok&forecast_days=1",
           { cache: "no-store" }
         );
         if (!response.ok) throw new Error("weather fetch failed");
@@ -1191,10 +1231,36 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
             typeof data?.current?.temperature_2m === "number"
               ? data.current.temperature_2m
               : null,
+          apparentTemperature:
+            typeof data?.current?.apparent_temperature === "number"
+              ? data.current.apparent_temperature
+              : null,
+          humidity:
+            typeof data?.current?.relative_humidity_2m === "number"
+              ? data.current.relative_humidity_2m
+              : null,
+          windSpeed:
+            typeof data?.current?.wind_speed_10m === "number"
+              ? data.current.wind_speed_10m
+              : null,
+          precipitation:
+            typeof data?.current?.precipitation === "number"
+              ? data.current.precipitation
+              : null,
           weatherCode:
             typeof data?.current?.weather_code === "number"
               ? data.current.weather_code
               : null,
+          dailyHigh:
+            typeof data?.daily?.temperature_2m_max?.[0] === "number"
+              ? data.daily.temperature_2m_max[0]
+              : null,
+          dailyLow:
+            typeof data?.daily?.temperature_2m_min?.[0] === "number"
+              ? data.daily.temperature_2m_min[0]
+              : null,
+          sunrise: data?.daily?.sunrise?.[0] ?? null,
+          sunset: data?.daily?.sunset?.[0] ?? null,
           updatedAt: data?.current?.time ?? new Date().toISOString(),
           loading: false,
           error: false,
@@ -1247,6 +1313,7 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
   const isWeekend = [0, 6].includes(new Date().getDay());
   const bankClosed = isWeekend || Boolean(holidayStatus.current);
   const nextSchedule = item.stage.steps.find((step) => !step.done);
+  const completedStepCount = item.stage.steps.filter((step) => step.done).length;
   const scheduleLabel = nextSchedule
     ? `${nextSchedule.label} 준비`
     : item.permitCompletedAt
@@ -1264,6 +1331,24 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
     : exchange.error || exchange.krwToVnd === null
       ? "환율을 불러오지 못했습니다"
       : `1,000원 = ${Math.round(exchange.krwToVnd * 1000).toLocaleString("ko-KR")}동`;
+
+  const parseCurrencyAmount = (value: string) => {
+    const normalized = value.replace(/[^0-9.]/g, "");
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+  };
+
+  const formatCurrencyInput = (value: string) => {
+    const digits = value.replace(/[^0-9]/g, "");
+    return digits ? Number(digits).toLocaleString("ko-KR") : "";
+  };
+
+  const krwNumericAmount = parseCurrencyAmount(krwAmount);
+  const usdNumericAmount = parseCurrencyAmount(usdAmount);
+  const krwConvertedVnd =
+    exchange.krwToVnd === null ? null : Math.round(krwNumericAmount * exchange.krwToVnd);
+  const usdConvertedVnd =
+    exchange.usdToVnd === null ? null : Math.round(usdNumericAmount * exchange.usdToVnd);
 
   const lifeItems = [
     {
@@ -1382,166 +1467,524 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
 
       {detail && (
         <div
-          className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/45 p-0 sm:items-center sm:p-5"
+          className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
           onClick={() => setDetail(null)}
         >
           <section
             role="dialog"
             aria-modal="true"
             aria-label={detailTitle}
-            className="max-h-[85vh] w-full overflow-y-auto rounded-t-[24px] bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-[24px] sm:p-6"
+            className="max-h-[92vh] w-full overflow-y-auto rounded-t-[28px] bg-slate-50 shadow-2xl sm:max-w-xl sm:rounded-[28px]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-[18px] font-extrabold text-slate-950">{detailTitle}</h2>
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:px-7 sm:py-5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">
+                  Vietnam Life Brief
+                </p>
+                <h2 className="mt-1 text-[20px] font-extrabold text-slate-950">{detailTitle}</h2>
+              </div>
               <button
                 type="button"
                 onClick={() => setDetail(null)}
                 aria-label="닫기"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100"
               >
-                <X size={17} />
+                <X size={18} />
               </button>
             </div>
 
-            {detail === "weather" && (
-              <div className="mt-5 rounded-2xl bg-amber-50 p-5">
-                <p className="text-[12px] font-bold text-amber-800">하노이 현재 날씨</p>
-                <p className="mt-2 text-[30px] font-extrabold text-slate-950">
-                  {weather.temperature === null ? "—" : `${Math.round(weather.temperature)}°C`}
-                </p>
-                <p className="mt-1 text-[13px] font-semibold text-slate-700">
-                  {weather.error ? "날씨 정보를 불러오지 못했습니다." : weatherCodeLabel(weather.weatherCode)}
-                </p>
-                <p className="mt-4 text-[10px] leading-5 text-slate-500">
-                  하노이 중심 좌표 기준 정보이며 실제 위치에 따라 차이가 있을 수 있습니다.
-                </p>
-              </div>
-            )}
+            <div className="p-5 sm:p-7">
+              {detail === "weather" && (
+                <div className="space-y-4">
+                  <div className="overflow-hidden rounded-[22px] border border-amber-100 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 shadow-sm">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                            <Sun size={18} />
+                          </span>
+                          <div>
+                            <p className="text-[11px] font-bold text-amber-800">하노이 현재 날씨</p>
+                            <p className="text-[10px] text-slate-500">
+                              {formatWeatherTime(weather.updatedAt)} 업데이트
+                            </p>
+                          </div>
+                        </div>
+                        <p className="mt-5 text-[42px] font-extrabold tracking-tight text-slate-950">
+                          {weather.temperature === null ? "—" : `${Math.round(weather.temperature)}°C`}
+                        </p>
+                        <p className="mt-1 text-[15px] font-bold text-slate-700">
+                          {weather.error
+                            ? "날씨 정보를 불러오지 못했습니다."
+                            : weatherCodeLabel(weather.weatherCode)}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-white/80 bg-white/75 px-4 py-3 text-right shadow-sm">
+                        <p className="text-[10px] font-bold text-slate-500">오늘 최고 / 최저</p>
+                        <p className="mt-1 text-[15px] font-extrabold text-slate-900">
+                          {weather.dailyHigh === null ? "—" : `${Math.round(weather.dailyHigh)}°`}
+                          <span className="mx-1 text-slate-300">/</span>
+                          {weather.dailyLow === null ? "—" : `${Math.round(weather.dailyLow)}°`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-            {detail === "exchange" && (
-              <div className="mt-5 space-y-3">
-                <div className="rounded-2xl bg-emerald-50 p-4">
-                  <p className="text-[11px] font-bold text-emerald-800">대한민국 원화</p>
-                  <p className="mt-1 text-[20px] font-extrabold text-slate-950">
-                    {exchange.krwToVnd === null
-                      ? "조회 실패"
-                      : `1,000원 = ${Math.round(exchange.krwToVnd * 1000).toLocaleString("ko-KR")}동`}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-200 p-4">
-                  <p className="text-[11px] font-bold text-slate-600">미국 달러</p>
-                  <p className="mt-1 text-[18px] font-extrabold text-slate-950">
-                    {exchange.usdToVnd === null
-                      ? "조회 실패"
-                      : `1달러 = ${Math.round(exchange.usdToVnd).toLocaleString("ko-KR")}동`}
-                  </p>
-                </div>
-                <p className="text-[10px] leading-5 text-slate-500">
-                  참고용 시장 환율입니다. 실제 송금·환전 시 은행별 고시환율과 수수료가 적용됩니다.
-                </p>
-              </div>
-            )}
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[
+                      ["체감온도", weather.apparentTemperature === null ? "—" : `${Math.round(weather.apparentTemperature)}°C`],
+                      ["습도", weather.humidity === null ? "—" : `${Math.round(weather.humidity)}%`],
+                      ["풍속", weather.windSpeed === null ? "—" : `${Math.round(weather.windSpeed)} km/h`],
+                      ["강수량", weather.precipitation === null ? "—" : `${weather.precipitation.toFixed(1)} mm`],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <p className="text-[10px] font-bold text-slate-500">{label}</p>
+                        <p className="mt-1 text-[16px] font-extrabold text-slate-950">{value}</p>
+                      </div>
+                    ))}
+                  </div>
 
-            {detail === "bank" && (
-              <div className="mt-5 rounded-2xl bg-blue-50 p-5">
-                <p className="text-[12px] font-bold text-blue-800">오늘 은행 운영 예상</p>
-                <p className="mt-2 text-[22px] font-extrabold text-slate-950">
-                  {bankClosed ? "휴무 예상" : "정상 영업 예상"}
-                </p>
-                <p className="mt-2 text-[11px] leading-5 text-slate-600">
-                  {holidayStatus.current
-                    ? `${holidayStatus.current.label} 기간입니다.`
-                    : isWeekend
-                      ? "주말 기준으로 휴무로 표시됩니다."
-                      : "평일 기준으로 정상 영업으로 표시됩니다."}
-                </p>
-                <p className="mt-4 text-[10px] leading-5 text-slate-500">
-                  지점별 영업시간과 특별 휴무는 다를 수 있으므로 방문 전 해당 은행에 확인하세요.
-                </p>
-              </div>
-            )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <p className="text-[10px] font-bold text-slate-500">일출</p>
+                      <p className="mt-1 text-[16px] font-extrabold text-slate-950">
+                        {formatClock(weather.sunrise)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <p className="text-[10px] font-bold text-slate-500">일몰</p>
+                      <p className="mt-1 text-[16px] font-extrabold text-slate-950">
+                        {formatClock(weather.sunset)}
+                      </p>
+                    </div>
+                  </div>
 
-            {detail === "holiday" && (
-              <div className="mt-5 space-y-3">
-                {holidayStatus.current && (
-                  <div className="rounded-2xl bg-violet-50 p-4">
-                    <p className="text-[11px] font-bold text-violet-800">현재 공휴일</p>
-                    <p className="mt-1 text-[17px] font-extrabold text-slate-950">
-                      {holidayStatus.current.label}
-                    </p>
-                    <p className="mt-1 text-[11px] text-slate-600">
-                      {formatHolidayDate(holidayStatus.current.start, holidayStatus.current.end)}
+                  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                    <p className="text-[11px] font-extrabold text-blue-900">정보 기준</p>
+                    <p className="mt-1 text-[10px] leading-5 text-blue-800/75">
+                      하노이 중심 좌표를 기준으로 제공되는 실시간 참고 정보입니다. 실제 위치와
+                      시간에 따라 차이가 있을 수 있습니다.
                     </p>
                   </div>
-                )}
-                {holidayStatus.next ? (
-                  <div className="rounded-2xl border border-slate-200 p-4">
-                    <p className="text-[11px] font-bold text-slate-600">다음 공휴일</p>
-                    <p className="mt-1 text-[17px] font-extrabold text-slate-950">
-                      {holidayStatus.next.label}
-                    </p>
-                    <p className="mt-1 text-[11px] text-slate-600">
-                      {formatHolidayDate(holidayStatus.next.start, holidayStatus.next.end)}
+                </div>
+              )}
+
+              {detail === "exchange" && (
+                <div className="space-y-4">
+                  <div className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                          <DollarSign size={20} />
+                        </span>
+                        <div>
+                          <p className="text-[11px] font-bold text-emerald-800">기준 환율</p>
+                          <p className="text-[10px] text-slate-500">
+                            {exchange.updatedAt ? `${exchange.updatedAt} 기준` : "최신 데이터 확인 중"}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-white px-3 py-1 text-[9px] font-extrabold text-emerald-700 shadow-sm">
+                        LIVE RATE
+                      </span>
+                    </div>
+
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-white/85 p-4">
+                        <p className="text-[10px] font-bold text-slate-500">대한민국 원화</p>
+                        <p className="mt-1 text-[18px] font-extrabold text-slate-950">
+                          {exchange.krwToVnd === null
+                            ? "조회 실패"
+                            : `1,000원 = ${Math.round(exchange.krwToVnd * 1000).toLocaleString("ko-KR")}동`}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-white/85 p-4">
+                        <p className="text-[10px] font-bold text-slate-500">미국 달러</p>
+                        <p className="mt-1 text-[18px] font-extrabold text-slate-950">
+                          {exchange.usdToVnd === null
+                            ? "조회 실패"
+                            : `1달러 = ${Math.round(exchange.usdToVnd).toLocaleString("ko-KR")}동`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[12px] font-extrabold text-slate-950">원화 → 베트남 동 계산</p>
+                        <p className="mt-1 text-[9px] text-slate-500">
+                          원화 금액을 입력하면 현재 환율로 자동 계산됩니다.
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-bold text-emerald-700">
+                        KRW → VND
+                      </span>
+                    </div>
+
+                    <div className="mt-4">
+                      <label className="text-[10px] font-bold text-slate-600">대한민국 원화</label>
+                      <div className="mt-1.5 flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-50">
+                        <span className="shrink-0 text-[15px] font-extrabold text-slate-500">₩</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={formatCurrencyInput(krwAmount)}
+                          onChange={(event) =>
+                            setKrwAmount(event.target.value.replace(/[^0-9]/g, ""))
+                          }
+                          placeholder="100,000"
+                          className="h-14 min-w-0 flex-1 bg-transparent px-3 text-right text-[22px] font-extrabold text-slate-950 outline-none"
+                        />
+                        <span className="shrink-0 text-[12px] font-bold text-slate-500">원</span>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {[100000, 500000, 1000000, 5000000].map((amount) => (
+                          <button
+                            key={amount}
+                            type="button"
+                            onClick={() => setKrwAmount(String(amount))}
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[9px] font-bold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                          >
+                            {amount.toLocaleString("ko-KR")}원
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 rounded-2xl bg-emerald-50 p-4">
+                        <p className="text-[10px] font-bold text-emerald-800">예상 베트남 동</p>
+                        <p className="mt-1 break-words text-[25px] font-extrabold tracking-tight text-slate-950">
+                          {krwConvertedVnd === null
+                            ? "환율 조회 중"
+                            : `${krwConvertedVnd.toLocaleString("ko-KR")}동`}
+                        </p>
+                        <p className="mt-1 text-[9px] text-emerald-800/70">
+                          {krwNumericAmount.toLocaleString("ko-KR")}원 기준
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[12px] font-extrabold text-slate-950">달러 → 베트남 동 계산</p>
+                        <p className="mt-1 text-[9px] text-slate-500">
+                          미국 달러 금액을 입력하면 현재 환율로 자동 계산됩니다.
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[9px] font-bold text-blue-700">
+                        USD → VND
+                      </span>
+                    </div>
+
+                    <div className="mt-4">
+                      <label className="text-[10px] font-bold text-slate-600">미국 달러</label>
+                      <div className="mt-1.5 flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 focus-within:border-blue-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-50">
+                        <span className="shrink-0 text-[15px] font-extrabold text-slate-500">$</span>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={usdAmount}
+                          onChange={(event) => {
+                            const next = event.target.value.replace(/[^0-9.]/g, "");
+                            const parts = next.split(".");
+                            setUsdAmount(
+                              parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : next
+                            );
+                          }}
+                          placeholder="100"
+                          className="h-14 min-w-0 flex-1 bg-transparent px-3 text-right text-[22px] font-extrabold text-slate-950 outline-none"
+                        />
+                        <span className="shrink-0 text-[12px] font-bold text-slate-500">USD</span>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {[100, 500, 1000, 5000].map((amount) => (
+                          <button
+                            key={amount}
+                            type="button"
+                            onClick={() => setUsdAmount(String(amount))}
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[9px] font-bold text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                          >
+                            ${amount.toLocaleString("en-US")}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 rounded-2xl bg-blue-50 p-4">
+                        <p className="text-[10px] font-bold text-blue-800">예상 베트남 동</p>
+                        <p className="mt-1 break-words text-[25px] font-extrabold tracking-tight text-slate-950">
+                          {usdConvertedVnd === null
+                            ? "환율 조회 중"
+                            : `${usdConvertedVnd.toLocaleString("ko-KR")}동`}
+                        </p>
+                        <p className="mt-1 text-[9px] text-blue-800/70">
+                          {usdNumericAmount.toLocaleString("en-US")}달러 기준
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                    <p className="text-[11px] font-extrabold text-amber-900">환전 전 확인하세요</p>
+                    <p className="mt-1 text-[10px] leading-5 text-amber-900/75">
+                      계산 결과는 참고용 시장 환율을 적용한 예상 금액입니다. 실제 송금·현금 환전 시
+                      은행 고시환율, 환전소 스프레드 및 수수료가 별도로 적용됩니다.
                     </p>
                   </div>
-                ) : (
-                  <p className="rounded-2xl bg-slate-50 p-4 text-[12px] text-slate-600">
-                    등록된 다음 공휴일 일정이 없습니다.
-                  </p>
-                )}
-                <p className="text-[10px] leading-5 text-slate-500">
-                  정부의 대체근무일 또는 기관별 휴무는 별도로 달라질 수 있습니다.
-                </p>
-              </div>
-            )}
+                </div>
+              )}
 
-            {detail === "notice" && (
-              <div className="mt-5 space-y-3">
-                <div className="rounded-2xl bg-emerald-50 p-4">
-                  <p className="text-[12px] font-extrabold text-emerald-800">
-                    현재 등록된 긴급 행정 공지가 없습니다.
-                  </p>
-                  <p className="mt-2 text-[10px] leading-5 text-slate-600">
-                    출입국·노동·세무 관련 중요 변경사항이 확인되면 이곳에 안내됩니다.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-200 p-4">
-                  <p className="text-[11px] font-bold text-slate-700">공식기관 확인</p>
-                  <p className="mt-2 text-[10px] leading-5 text-slate-500">
-                    마이페이지의 베트남 공공기관 바로가기에서 최신 공지를 직접 확인할 수 있습니다.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {detail === "schedule" && (
-              <div className="mt-5 space-y-3">
-                <div className="rounded-2xl bg-indigo-50 p-4">
-                  <p className="text-[11px] font-bold text-indigo-800">현재 신청</p>
-                  <p className="mt-1 text-[17px] font-extrabold text-slate-950">
-                    {item.serviceLabel}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-200 p-4">
-                  <p className="text-[11px] font-bold text-slate-600">다음 일정</p>
-                  <p className="mt-1 text-[17px] font-extrabold text-slate-950">
-                    {scheduleLabel}
-                  </p>
-                  <p className="mt-2 text-[10px] leading-5 text-slate-500">
-                    예상 처리기간: {getEstimate(item.category, item.serviceType)}
-                  </p>
-                </div>
-                {item.governmentSubmittedAt && (
-                  <div className="rounded-2xl border border-slate-200 p-4">
-                    <p className="text-[11px] font-bold text-slate-600">정부 제출일</p>
-                    <p className="mt-1 text-[13px] font-extrabold text-slate-950">
-                      {formatDate(item.governmentSubmittedAt)}
+              {detail === "bank" && (
+                <div className="space-y-4">
+                  <div className="rounded-[22px] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-5 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+                        <Building2 size={20} />
+                      </span>
+                      <div>
+                        <p className="text-[11px] font-bold text-blue-800">오늘 은행 운영 예상</p>
+                        <p className="mt-0.5 text-[24px] font-extrabold text-slate-950">
+                          {bankClosed ? "휴무 예상" : "정상 영업 예상"}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-[11px] leading-5 text-slate-600">
+                      {holidayStatus.current
+                        ? `${holidayStatus.current.label} 기간으로 공휴일 휴무가 예상됩니다.`
+                        : isWeekend
+                          ? "오늘은 주말이므로 일반 영업점은 휴무로 예상됩니다."
+                          : "오늘은 평일이며 일반 영업점 기준 정상 운영이 예상됩니다."}
                     </p>
                   </div>
-                )}
-              </div>
-            )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <p className="text-[10px] font-bold text-slate-500">일반 창구</p>
+                      <p className="mt-1 text-[15px] font-extrabold text-slate-950">
+                        평일 영업 중심
+                      </p>
+                      <p className="mt-1 text-[9px] leading-4 text-slate-500">
+                        지점별 운영시간 상이
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <p className="text-[10px] font-bold text-slate-500">ATM·모바일뱅킹</p>
+                      <p className="mt-1 text-[15px] font-extrabold text-slate-950">
+                        대부분 이용 가능
+                      </p>
+                      <p className="mt-1 text-[9px] leading-4 text-slate-500">
+                        점검시간 제외
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <p className="text-[11px] font-extrabold text-slate-900">방문 전 체크</p>
+                    <div className="mt-3 space-y-2 text-[10px] text-slate-600">
+                      <p>• 현금 환전 창구 운영 여부</p>
+                      <p>• 점심시간 및 번호표 마감시간</p>
+                      <p>• 기업·외국인 전용 창구 운영 여부</p>
+                    </div>
+                  </div>
+
+                  <p className="text-[9px] leading-5 text-slate-500">
+                    이 정보는 달력 기준 예상값입니다. 특별 휴무와 지점별 운영시간은 해당 은행에
+                    직접 확인해야 합니다.
+                  </p>
+                </div>
+              )}
+
+              {detail === "holiday" && (
+                <div className="space-y-4">
+                  {holidayStatus.current && (
+                    <div className="rounded-[22px] border border-violet-100 bg-violet-50 p-5">
+                      <p className="text-[10px] font-bold text-violet-700">현재 공휴일</p>
+                      <p className="mt-1 text-[20px] font-extrabold text-slate-950">
+                        {holidayStatus.current.label}
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-600">
+                        {formatHolidayDate(holidayStatus.current.start, holidayStatus.current.end)}
+                      </p>
+                    </div>
+                  )}
+
+                  {holidayStatus.next && (
+                    <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500">다음 공휴일</p>
+                          <p className="mt-1 text-[18px] font-extrabold text-slate-950">
+                            {holidayStatus.next.label}
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-violet-100 px-3 py-1 text-[9px] font-extrabold text-violet-700">
+                          UPCOMING
+                        </span>
+                      </div>
+                      <p className="mt-3 text-[12px] font-bold text-violet-700">
+                        {formatHolidayDate(holidayStatus.next.start, holidayStatus.next.end)}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <p className="text-[11px] font-extrabold text-slate-900">2026 주요 공휴일</p>
+                    <div className="mt-3 divide-y divide-slate-100">
+                      {VIETNAM_HOLIDAYS_2026.map((holiday) => (
+                        <div key={holiday.label} className="flex items-center justify-between gap-3 py-3">
+                          <p className="text-[10px] font-bold text-slate-700">{holiday.label}</p>
+                          <p className="shrink-0 text-[9px] font-semibold text-slate-500">
+                            {formatHolidayDate(holiday.start, holiday.end)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                    <p className="text-[10px] leading-5 text-amber-900/80">
+                      정부 발표에 따라 대체근무일·연휴 기간이 조정될 수 있습니다. 관공서 방문과
+                      서류 제출 전 담당기관 일정을 다시 확인하세요.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {detail === "notice" && (
+                <div className="space-y-4">
+                  <div className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <CheckCircle2 size={20} />
+                      </span>
+                      <div>
+                        <p className="text-[10px] font-bold text-emerald-700">현재 상태</p>
+                        <p className="mt-0.5 text-[17px] font-extrabold text-slate-950">
+                          긴급 행정 공지 없음
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-[10px] leading-5 text-slate-600">
+                      현재 고객에게 즉시 영향을 주는 긴급 출입국·노동·세무 공지는 등록되어 있지
+                      않습니다.
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <p className="text-[11px] font-extrabold text-slate-900">공지 분류</p>
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {[
+                        ["출입국", "거주증·비자"],
+                        ["노동", "노동허가"],
+                        ["세무", "신고·납부"],
+                      ].map(([title, desc]) => (
+                        <div key={title} className="rounded-xl bg-slate-50 p-3 text-center">
+                          <p className="text-[10px] font-extrabold text-slate-800">{title}</p>
+                          <p className="mt-1 text-[8px] text-slate-500">{desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                    <p className="text-[11px] font-extrabold text-blue-900">확인 방법</p>
+                    <p className="mt-1 text-[10px] leading-5 text-blue-900/75">
+                      중요 변경사항은 이 카드와 마이페이지 알림센터에 함께 표시됩니다. 공식 원문은
+                      우측 베트남 공공기관 바로가기에서 다시 확인할 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {detail === "schedule" && (
+                <div className="space-y-4">
+                  <div className="rounded-[22px] border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-[10px] font-bold text-indigo-700">현재 신청</p>
+                        <p className="mt-1 text-[19px] font-extrabold text-slate-950">
+                          {item.serviceLabel}
+                        </p>
+                        <p className="mt-1 text-[10px] text-slate-500">
+                          다음 단계: {scheduleLabel}
+                        </p>
+                      </div>
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-[6px] border-indigo-100 bg-white">
+                        <span className="text-[14px] font-extrabold text-indigo-700">
+                          {item.stage.progressPercent}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[11px] font-extrabold text-slate-900">진행 현황</p>
+                      <p className="text-[9px] font-bold text-slate-500">
+                        {completedStepCount}/{item.stage.steps.length} 단계 완료
+                      </p>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {item.stage.steps.map((step, index) => (
+                        <div key={`${step.label}-${index}`} className="flex items-center gap-3">
+                          <span
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                              step.done
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-slate-100 text-slate-400"
+                            }`}
+                          >
+                            {step.done ? <Check size={13} /> : <span className="text-[9px] font-bold">{index + 1}</span>}
+                          </span>
+                          <p
+                            className={`text-[10px] font-bold ${
+                              step.done ? "text-slate-900" : "text-slate-500"
+                            }`}
+                          >
+                            {step.label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <p className="text-[10px] font-bold text-slate-500">예상 처리기간</p>
+                      <p className="mt-1 text-[14px] font-extrabold text-slate-950">
+                        {getEstimate(item.category, item.serviceType)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <p className="text-[10px] font-bold text-slate-500">현재 단계</p>
+                      <p className="mt-1 text-[14px] font-extrabold text-slate-950">
+                        {item.stage.currentStepLabel}
+                      </p>
+                    </div>
+                  </div>
+
+                  {item.governmentSubmittedAt && (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <p className="text-[10px] font-bold text-slate-500">정부 제출일</p>
+                      <p className="mt-1 text-[14px] font-extrabold text-slate-950">
+                        {formatDate(item.governmentSubmittedAt)}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                    <p className="text-[10px] leading-5 text-blue-900/75">
+                      일정은 담당기관 심사와 추가 보완 요청에 따라 변동될 수 있습니다. 중요한
+                      변경사항은 알림센터와 담당자 메모에 표시됩니다.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
         </div>
       )}
