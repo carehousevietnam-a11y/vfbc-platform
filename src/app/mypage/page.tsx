@@ -1896,7 +1896,6 @@ function formatClock(value: string | null) {
 }
 
 function VietnamLifeCard({ item }: { item: MyPageItem }) {
-  const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<VietnamLifeDetailKey | null>(null);
   const [krwAmount, setKrwAmount] = useState("100000");
   const [usdAmount, setUsdAmount] = useState("100");
@@ -2110,9 +2109,6 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
     },
   ];
 
-  const primaryItems = lifeItems.slice(0, 2);
-  const moreItems = lifeItems.slice(2);
-
   const renderLifeItem = (lifeItem: (typeof lifeItems)[number]) => (
     <button
       key={lifeItem.key}
@@ -2152,26 +2148,7 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
           생활에 필요한 주요 정보를 빠르게 확인하세요.
         </p>
 
-        <div className="mt-4 space-y-2">{primaryItems.map(renderLifeItem)}</div>
-
-        {expanded && (
-          <div className="mt-2 space-y-2 border-t border-slate-100 pt-2">
-            {moreItems.map(renderLifeItem)}
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setExpanded((current) => !current)}
-          aria-expanded={expanded}
-          className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 text-[11px] font-bold text-blue-800 transition hover:bg-blue-100"
-        >
-          {expanded ? "생활정보 접기" : "생활정보 4개 더 보기"}
-          <ChevronDown
-            size={15}
-            className={`transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
-          />
-        </button>
+        <div className="mt-4 space-y-2">{lifeItems.map(renderLifeItem)}</div>
       </section>
 
       {detail && (
