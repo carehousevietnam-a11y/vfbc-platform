@@ -253,13 +253,13 @@ function DesktopSidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto p-4">
-        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
-            <FolderLock size={19} className="text-[#0d2a6b]" />
+      <div className="mt-auto p-3">
+        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
+            <FolderLock size={17} className="text-[#0d2a6b]" />
           </div>
-          <p className="mt-3 text-sm font-bold text-[#0d2a6b]">보안 안전 지갑</p>
-          <p className="mt-1 text-[11px] leading-4 text-slate-500">
+          <p className="mt-2 text-sm font-bold text-[#0d2a6b]">보안 안전 지갑</p>
+          <p className="mt-1 text-[11px] leading-[15px] text-slate-500">
             고객님의 중요 자료는 암호화되어 안전하게 관리됩니다.
           </p>
         </div>
@@ -1614,7 +1614,7 @@ function RecommendedServices() {
   ];
 
   return (
-    <section className="w-full rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6 xl:p-7">
+    <section className="w-full rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6 xl:px-6 xl:py-4">
       <div className="flex items-center justify-between">
         <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
         <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
@@ -1622,18 +1622,20 @@ function RecommendedServices() {
         </button>
       </div>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:mt-6 xl:gap-5">
+      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:mt-3 xl:gap-3">
         {services.map((service) => (
           <div
             key={service.title}
-            className={`rounded-2xl border border-white/80 p-4 xl:p-5 ${service.className}`}
+            className={`flex flex-col rounded-2xl border border-white/80 p-4 xl:p-3.5 ${service.className}`}
           >
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${service.iconClass}`}>
               <service.icon size={18} />
             </div>
-            <p className="mt-4 text-[13px] font-extrabold text-slate-900 xl:mt-5">{service.title}</p>
-            <p className="mt-2 text-[10px] leading-5 text-slate-500 xl:mt-2.5">{service.text}</p>
-            <button className="mt-4 rounded-lg border border-white bg-white px-3 py-2 text-[10px] font-bold text-blue-800 shadow-sm hover:shadow xl:mt-6 xl:px-3.5 xl:py-2.5">
+            <p className="mt-4 text-[13px] font-extrabold text-slate-900 xl:mt-3">{service.title}</p>
+            <p className="mt-2 line-clamp-2 text-[10px] leading-5 text-slate-500 xl:mt-1.5 xl:leading-4">
+              {service.text}
+            </p>
+            <button className="mt-auto self-start rounded-lg border border-white bg-white px-3 py-2 text-[10px] font-bold text-blue-800 shadow-sm hover:shadow xl:mt-3 xl:py-1.5">
               {service.action}
             </button>
           </div>
