@@ -222,7 +222,7 @@ const SIDEBAR_ITEMS = [
   { label: "도움말", icon: HelpCircle, href: "/consultation" },
 ];
 
-function DesktopSidebar() {
+function DesktopSidebar({ messageHref }: { messageHref: string }) {
   return (
     <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
       <div className="px-5 pt-4">
@@ -233,7 +233,7 @@ function DesktopSidebar() {
         {SIDEBAR_ITEMS.map((item) => (
           <Link
             key={item.label}
-            href={item.href}
+            href={item.label === "메시지" ? messageHref : item.href}
             className={`flex h-11 items-center justify-between rounded-xl px-3.5 text-[13px] font-semibold transition ${
               item.active
                 ? "bg-[#0b2e77] text-white shadow-sm"
@@ -3021,15 +3021,17 @@ function MobileBottomNav() {
   );
 }
 
-function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }) {
-  const [activeId, setActiveId] = useState(items[0]?.id ?? "");
-
-  useEffect(() => {
-    if (!items.some((item) => item.id === activeId)) {
-      setActiveId(items[0]?.id ?? "");
-    }
-  }, [activeId, items]);
-
+function Dashboard({
+  name,
+  items,
+  activeId,
+  onChangeActive,
+}: {
+  name: string | null;
+  items: MyPageItem[];
+  activeId: string;
+  onChangeActive: (id: string) => void;
+}) {
   const activeItem = useMemo(
     () => items.find((item) => item.id === activeId) ?? items[0] ?? null,
     [activeId, items]
@@ -3065,7 +3067,7 @@ function Dashboard({ name, items }: { name: string | null; items: MyPageItem[] }
           <ApplicationSelector
             items={items}
             activeId={activeItem.id}
-            onChange={setActiveId}
+            onChange={onChangeActive}
           />
         }
       />
@@ -3170,9 +3172,29 @@ export default function MyPage() {
 
   const firstItem = items[0] ?? null;
 
+  // activeId: 어떤 신청 건이 현재 선택되어 있는지 — 기존 Dashboard 내부에 있던 것과
+  // 완전히 동일한 로직(useState 초기값 + useEffect 동기화)을 그대로 옮겨왔다. 선택
+  // 알고리즘 자체는 한 글자도 바뀌지 않았고, Dashboard가 이 값을 prop으로 받아 기존과
+  // 동일한 위치에 동일한 순서로 렌더링한다(WalletSection/RecommendedServices 등 어떤
+  // 섹션도 이동하지 않음). 왼쪽 사이드바의 "메시지" 링크가 현재 선택된 신청 건의
+  // leadId를 알아야 하므로 이 값만 최소한으로 상위로 옮긴 것이다.
+  const [activeId, setActiveId] = useState("");
+  useEffect(() => {
+    if (!items.some((item) => item.id === activeId)) {
+      setActiveId(items[0]?.id ?? "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, items]);
+
+  // Case Room(src/app/mypage/chat/page.tsx)은 leadId 쿼리 파라미터로 신청 건을 찾는다
+  // (EmergencyHelpCard의 기존 이동 링크와 동일한 파라미터). 신청 건이 아직 없으면
+  // 기존 정적 경로로 그대로 둔다(기존 동작 유지, 새로운 오류 화면으로 강제 이동시키지 않음).
+  const messageActiveId = activeId || firstItem?.id || null;
+  const messageHref = messageActiveId ? `/mypage/chat?leadId=${messageActiveId}` : "/mypage/chat";
+
   return (
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
-      <DesktopSidebar />
+      <DesktopSidebar messageHref={messageHref} />
 
       {/* App Shell — Sidebar를 제외한 나머지 폭 전체를 그대로 차지한다(flex-1).
           더 이상 xl:pl-[...] 오프셋이나 mx-auto/max-w로 폭을 제한하지 않는다. */}
@@ -3213,7 +3235,9 @@ export default function MyPage() {
               </div>
             )}
 
-            {state === "ready" && <Dashboard name={name} items={items} />}
+            {state === "ready" && (
+              <Dashboard name={name} items={items} activeId={activeId} onChangeActive={setActiveId} />
+            )}
           </div>
 
           {state === "ready" && firstItem && (
