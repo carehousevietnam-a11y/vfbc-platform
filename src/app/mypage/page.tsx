@@ -1263,6 +1263,14 @@ function WalletSection({ leadId }: { leadId: string }) {
 
   const isEmpty = !loading && !loadError && documents.length === 0;
 
+  function handleAllViewClick() {
+    if (documents.length === 0) {
+      setNotice("아직 등록된 서류가 없습니다.");
+      return;
+    }
+    setAllOpen(true);
+  }
+
   return (
     <section id="wallet" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-start justify-between gap-4">
@@ -1274,9 +1282,8 @@ function WalletSection({ leadId }: { leadId: string }) {
         </div>
         <button
           type="button"
-          onClick={() => setAllOpen(true)}
-          disabled={documents.length === 0}
-          className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-blue-700 disabled:cursor-not-allowed disabled:text-slate-300"
+          onClick={handleAllViewClick}
+          className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-blue-700 hover:text-blue-800"
         >
           전체 보기 <ChevronRight size={13} />
         </button>
@@ -1304,106 +1311,135 @@ function WalletSection({ leadId }: { leadId: string }) {
         </div>
       )}
 
-      {!loading && !loadError && isEmpty && (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-7 text-center">
-          <FolderLock size={26} className="mx-auto text-slate-300" />
-          <p className="mt-3 text-[13px] font-bold text-slate-700">아직 보관된 서류가 없습니다.</p>
-          <p className="mt-1 text-[11px] leading-5 text-slate-500">
-            자주 사용하는 행정서류를 등록하면 필요할 때 다시 확인하고 내려받을 수 있습니다.
-          </p>
-          <button
-            type="button"
-            onClick={openUploadModal}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-900 px-4 py-2.5 text-[12px] font-bold text-white hover:bg-blue-800"
-          >
-            <Plus size={15} />
-            서류 추가
-          </button>
-        </div>
-      )}
-
-      {!loading && !loadError && !isEmpty && (
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-6">
-          {documents.map((doc) => {
-            const status = getWalletExpiryStatus(doc.expiryDate);
-            const statusStyle = WALLET_EXPIRY_STYLE[status];
-            const isImage = ["jpg", "jpeg", "png"].includes(doc.fileExt);
-            return (
-              <div
-                key={doc.activityId}
-                className="group min-w-0 rounded-[14px] border border-slate-200 bg-white p-2.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
-              >
-                <p className="truncate text-[11px] font-extrabold text-slate-900">{doc.docType}</p>
-                <p className="mt-0.5 truncate text-[8px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
-
-                <div className="relative mt-2 h-[150px] overflow-hidden rounded-[8px] border border-slate-200 bg-slate-50 p-1.5 shadow-inner">
-                  {isImage && doc.viewUrl ? (
-                    <img
-                      src={doc.viewUrl}
-                      alt={`${doc.docType} 미리보기`}
-                      className="h-full w-full object-contain"
-                      loading="lazy"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 text-slate-400">
-                      <FileText size={30} />
-                      <span className="max-w-full truncate px-2 text-[9px]">{doc.fileName}</span>
-                    </div>
-                  )}
-                  <span
-                    className={`absolute bottom-1.5 right-1.5 rounded-md px-1.5 py-0.5 text-[8px] font-extrabold shadow-sm ${
-                      isImage ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
-                    }`}
-                  >
-                    {doc.fileExt.toUpperCase() || "FILE"}
-                  </span>
-                  <span
-                    className={`absolute left-1.5 top-1.5 rounded-md px-1.5 py-0.5 text-[7px] font-extrabold shadow-sm ${statusStyle.className}`}
-                  >
-                    {statusStyle.label}
-                  </span>
+      {/* 카드형 레이아웃 — 문서가 있든 없든 항상 이 가로 카드 목록 구조를 유지한다.
+          PC에서는 여러 카드가 나란히 보이고, 모바일에서는 같은 목록이 가로 스크롤된다.
+          카드 크기: PC 약 220px x 320px, 모바일 약 78vw — 기존 목업 수준으로 복원. */}
+      {!loading && !loadError && (
+        <div className="mt-5 -mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-3">
+          {isEmpty ? (
+            <>
+              <div className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-blue-100 bg-blue-50/40 p-4 sm:w-[220px]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-blue-700 shadow-sm">
+                  <FolderLock size={20} />
                 </div>
-
-                <div className="mt-2 grid grid-cols-2 gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setViewDoc(doc)}
-                    disabled={!doc.viewUrl}
-                    className="rounded-[7px] border border-slate-200 bg-white py-1.5 text-[8px] font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    보기
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => triggerDownload(doc)}
-                    disabled={!doc.downloadUrl}
-                    className="truncate rounded-[7px] border border-blue-200 bg-blue-50 px-1 py-1.5 text-[8px] font-bold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    다운로드
-                  </button>
-                </div>
-
+                <p className="mt-3.5 text-[15px] font-extrabold leading-6 text-slate-900">
+                  첫 서류를 등록해보세요
+                </p>
+                <p className="mt-2 flex-1 text-[11px] leading-5 text-slate-500">
+                  여권, 비자, 거주증 등 자주 사용하는 서류를 안전하게 보관할 수 있습니다.
+                </p>
                 <button
                   type="button"
-                  onClick={handleReuseClick}
-                  className="mt-1 w-full truncate rounded-[7px] border border-slate-200 bg-slate-50 px-1 py-1.5 text-[8px] font-bold text-slate-500 hover:bg-slate-100"
+                  onClick={openUploadModal}
+                  className="mt-3 flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-blue-900 text-[12px] font-bold text-white hover:bg-blue-800"
                 >
-                  신청에 사용
+                  <Plus size={15} />
+                  서류 추가
                 </button>
               </div>
-            );
-          })}
+
+              <div className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-4 sm:w-[220px]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <Shield size={20} />
+                </div>
+                <p className="mt-3.5 text-[15px] font-extrabold leading-6 text-slate-900">본인만 확인 가능</p>
+                <p className="mt-2 flex-1 text-[11px] leading-5 text-slate-500">
+                  등록한 문서는 안전한 임시 링크로만 열립니다.
+                </p>
+              </div>
+
+              <div className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-4 sm:w-[220px]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-50 text-amber-700">
+                  <Download size={20} />
+                </div>
+                <p className="mt-3.5 text-[15px] font-extrabold leading-6 text-slate-900">필요할 때 다시 사용</p>
+                <p className="mt-2 flex-1 text-[11px] leading-5 text-slate-500">
+                  등록한 서류를 확인하고 내려받을 수 있습니다.
+                </p>
+              </div>
+            </>
+          ) : (
+            documents.map((doc) => {
+              const status = getWalletExpiryStatus(doc.expiryDate);
+              const statusStyle = WALLET_EXPIRY_STYLE[status];
+              const isImage = ["jpg", "jpeg", "png"].includes(doc.fileExt);
+              return (
+                <div
+                  key={doc.activityId}
+                  className="group flex h-[320px] w-[78vw] shrink-0 snap-start flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:w-[220px]"
+                >
+                  <p className="truncate text-[14px] font-extrabold text-slate-900">{doc.docType}</p>
+                  <p className="mt-1 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
+
+                  <div className="relative mt-2.5 h-[190px] overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner">
+                    {isImage && doc.viewUrl ? (
+                      <img
+                        src={doc.viewUrl}
+                        alt={`${doc.docType} 미리보기`}
+                        className="h-full w-full object-contain"
+                        loading="lazy"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400">
+                        <FileText size={38} />
+                        <span className="max-w-full truncate px-2 text-[10px]">{doc.fileName}</span>
+                      </div>
+                    )}
+                    <span
+                      className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[10px] font-extrabold shadow-sm ${
+                        isImage ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
+                      }`}
+                    >
+                      {doc.fileExt.toUpperCase() || "FILE"}
+                    </span>
+                    <span
+                      className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[9px] font-extrabold shadow-sm ${statusStyle.className}`}
+                    >
+                      {statusStyle.label}
+                    </span>
+                  </div>
+
+                  <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setViewDoc(doc)}
+                      disabled={!doc.viewUrl}
+                      className="h-9 rounded-[9px] border border-slate-200 bg-white text-[11px] font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      보기
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => triggerDownload(doc)}
+                      disabled={!doc.downloadUrl}
+                      className="h-9 truncate rounded-[9px] border border-blue-200 bg-blue-50 px-1 text-[11px] font-bold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      다운로드
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleReuseClick}
+                    className="mt-1.5 h-9 w-full truncate rounded-[9px] border border-slate-200 bg-slate-50 px-1 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
+                  >
+                    신청에 사용
+                  </button>
+                </div>
+              );
+            })
+          )}
 
           <button
             type="button"
             onClick={openUploadModal}
-            className="flex min-h-[180px] min-w-0 flex-col items-center justify-center rounded-[14px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50"
+            className="flex h-[320px] w-[78vw] shrink-0 snap-start flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 sm:w-[220px]"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
-              <Plus size={22} />
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
+              <Plus size={24} />
             </div>
-            <span className="mt-3 text-[10px] font-bold">서류 추가</span>
+            <span className="mt-3.5 text-[12px] font-bold">서류 추가</span>
           </button>
         </div>
       )}
