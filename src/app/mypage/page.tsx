@@ -32,6 +32,7 @@ import {
   Lock,
   MessageCircle,
   MessageSquare,
+  Phone,
   Plus,
   Shield,
   ShieldAlert,
@@ -40,6 +41,7 @@ import {
   User,
   UserCheck,
   WalletCards,
+  X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -1058,191 +1060,167 @@ function NotificationCard({ item }: { item: MyPageItem }) {
   );
 }
 
-function ExpertCard({ item }: { item: MyPageItem }) {
-  return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-[16px] font-extrabold text-slate-950">담당 전문가</p>
-
-      <div className="mt-4 flex items-center gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-200 ring-4 ring-white shadow-sm">
-          <UserCheck size={28} className="text-[#102f72]" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-[15px] font-extrabold text-slate-950">VFBCAI 행정전문팀</p>
-          <p className="mt-1 text-[12px] text-slate-500">행정·허가 전문팀</p>
-        </div>
-      </div>
-
-      <div className="mt-5 grid grid-cols-2 divide-x divide-slate-200">
-        <div className="px-3 text-center">
-          <p className="text-[10px] text-slate-400">진행 건수</p>
-          <p className="mt-1 text-[15px] font-extrabold text-slate-900">2,134건</p>
-        </div>
-        <div className="px-3 text-center">
-          <p className="text-[10px] text-slate-400">평균 응답</p>
-          <p className="mt-1 text-[15px] font-extrabold text-slate-900">2시간 이내</p>
-        </div>
-      </div>
-
-      <Link
-        href={`/mypage/chat?leadId=${item.id}&label=${encodeURIComponent(item.serviceLabel)}`}
-        className="mt-5 flex h-11 items-center justify-center gap-2 rounded-xl bg-[#0f3279] text-[12px] font-bold text-white transition hover:bg-[#0b2863]"
-      >
-        <MessageSquare size={15} />
-        메시지 보내기
-      </Link>
-    </section>
-  );
-}
-
-
-function ProgressGuideCard({ item }: { item: MyPageItem }) {
-  const checklist = [
-    {
-      label: "신청 정보 확인",
-      description: "서비스 내용이 정상적으로 접수되었습니다.",
-      done: true,
-      icon: FileCheck2,
-    },
-    {
-      label: "필수 서류 제출",
-      description: item.fileUrl
-        ? "필요 서류가 제출 목록에 반영되었습니다."
-        : "서류 지갑에서 준비된 자료를 제출해 주세요.",
-      done: Boolean(item.fileUrl),
-      icon: WalletCards,
-    },
-    {
-      label: "전문가 검토",
-      description: item.hasExpertReview
-        ? "VFBCAI 행정전문팀이 검토 중입니다."
-        : "필수 자료 제출 후 전문가 검토가 시작됩니다.",
-      done: item.hasExpertReview,
-      icon: UserCheck,
-    },
-    {
-      label: "정부기관 제출",
-      description: item.governmentSubmittedAt
-        ? `${formatIsoDate(item.governmentSubmittedAt)} 제출 완료`
-        : "검토 완료 후 접수 일정이 안내됩니다.",
-      done: Boolean(item.governmentSubmittedAt),
-      icon: Landmark,
-    },
-    {
-      label: "완료 / 허가증 수령",
-      description: item.permitCompletedAt
-        ? `${formatIsoDate(item.permitCompletedAt)} 처리 완료`
-        : "최종 결과와 허가 문서가 안내됩니다.",
-      done: Boolean(item.permitCompletedAt),
-      icon: Shield,
-    },
-  ];
-
-  const completedCount = checklist.filter((step) => step.done).length;
-  const progress = Math.round((completedCount / checklist.length) * 100);
-  const currentIndex = Math.min(
-    checklist.findIndex((step) => !step.done),
-    checklist.length - 1
-  );
+function EmergencyHelpCard({ item }: { item: MyPageItem }) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[16px] font-extrabold text-slate-950">진행 전 체크리스트</p>
-        <span className="text-[10px] font-semibold text-blue-700">전체 보기 ›</span>
-      </div>
-
-      <div className="mt-4">
-        <div className="flex items-end justify-between">
+    <>
+      <section className="rounded-[20px] border border-red-100 bg-white p-5 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-semibold text-slate-500">전체 진행률</p>
-            <p className="mt-1 text-[12px] font-extrabold text-slate-900">
-              {completedCount}/{checklist.length} 단계 완료
-            </p>
-          </div>
-          <p className="text-[28px] font-extrabold leading-none tracking-[-0.04em] text-emerald-600">
-            {progress}%
-          </p>
-        </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="mt-5">
-        {checklist.map((step, index) => {
-          const active = index === currentIndex && !step.done;
-          return (
-            <div key={step.label} className="relative flex gap-3 pb-5 last:pb-0">
-              {index < checklist.length - 1 ? (
-                <div
-                  className={`absolute left-[15px] top-8 h-[calc(100%-20px)] w-px ${
-                    step.done ? "bg-emerald-200" : "bg-slate-200"
-                  }`}
-                />
-              ) : null}
-
-              <div
-                className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 ${
-                  step.done
-                    ? "border-emerald-500 bg-emerald-500 text-white"
-                    : active
-                    ? "border-blue-700 bg-blue-700 text-white"
-                    : "border-slate-300 bg-white text-slate-400"
-                }`}
-              >
-                {step.done ? (
-                  <Check size={14} strokeWidth={3} />
-                ) : (
-                  <span className="text-[10px] font-extrabold">{index + 1}</span>
-                )}
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                <ShieldAlert size={18} />
               </div>
-
-              <div className="min-w-0 pt-0.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[11px] font-extrabold text-slate-900">{step.label}</p>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
-                      step.done
-                        ? "bg-emerald-50 text-emerald-700"
-                        : active
-                        ? "bg-blue-50 text-blue-700"
-                        : "bg-slate-100 text-slate-500"
-                    }`}
-                  >
-                    {step.done ? "완료" : active ? "진행 중" : "대기"}
-                  </span>
-                </div>
-                <p className="mt-1 text-[9px] leading-4 text-slate-500">{step.description}</p>
+              <div>
+                <p className="text-[16px] font-extrabold text-slate-950">베트남 긴급 도움</p>
+                <p className="mt-0.5 text-[10px] text-slate-500">응급 상황 발생 시 즉시 연락하세요.</p>
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+          <span className="rounded-full bg-red-50 px-2.5 py-1 text-[9px] font-extrabold text-red-600">24시간</span>
+        </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-2">
-        <Link
-          href="#applications"
-          className="flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-[10px] font-bold text-slate-800 transition hover:bg-slate-50"
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {[
+            { label: "경찰", number: "113", tone: "bg-blue-50 text-blue-800" },
+            { label: "소방", number: "114", tone: "bg-orange-50 text-orange-700" },
+            { label: "구급", number: "115", tone: "bg-emerald-50 text-emerald-700" },
+          ].map((contact) => (
+            <a
+              key={contact.number}
+              href={`tel:${contact.number}`}
+              className={`flex min-w-0 flex-col items-center justify-center rounded-xl px-2 py-3 transition hover:-translate-y-0.5 ${contact.tone}`}
+            >
+              <span className="text-[10px] font-bold">{contact.label}</span>
+              <span className="mt-1 text-[17px] font-extrabold tracking-[-0.03em]">{contact.number}</span>
+            </a>
+          ))}
+        </div>
+
+        <a
+          href="tel:+82232100404"
+          className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 transition hover:bg-slate-100"
         >
-          <FileText size={13} />
-          진행 상황 상세 보기
-        </Link>
-        <Link
-          href={`/mypage/chat?leadId=${item.id}&label=${encodeURIComponent(item.serviceLabel)}`}
-          className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#1556e8] text-[10px] font-bold text-white shadow-sm transition hover:bg-[#1048c8]"
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold text-slate-500">대한민국 영사콜센터 · 24시간</p>
+            <p className="mt-1 text-[13px] font-extrabold text-slate-900">+82-2-3210-0404</p>
+          </div>
+          <Phone size={17} className="shrink-0 text-[#0f3279]" />
+        </a>
+
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white text-[11px] font-bold text-red-700 transition hover:bg-red-50"
         >
-          <MessageSquare size={13} />
-          전문가 문의하기
-        </Link>
-      </div>
-    </section>
+          긴급 연락처·지원 보기
+          <ChevronRight size={14} />
+        </button>
+      </section>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="베트남 긴급 연락처 및 지원 안내"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setOpen(false);
+          }}
+        >
+          <div className="max-h-[88vh] w-full max-w-[520px] overflow-y-auto rounded-[24px] bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4 sm:px-6">
+              <div>
+                <p className="text-[18px] font-extrabold text-slate-950">긴급 연락처 및 지원</p>
+                <p className="mt-1 text-[11px] text-slate-500">상황에 맞는 기관으로 즉시 연락하세요.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+                aria-label="닫기"
+              >
+                <X size={17} />
+              </button>
+            </div>
+
+            <div className="space-y-4 p-5 sm:p-6">
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: "경찰", number: "113", tone: "border-blue-100 bg-blue-50 text-blue-800" },
+                  { label: "소방", number: "114", tone: "border-orange-100 bg-orange-50 text-orange-700" },
+                  { label: "구급", number: "115", tone: "border-emerald-100 bg-emerald-50 text-emerald-700" },
+                ].map((contact) => (
+                  <a
+                    key={contact.number}
+                    href={`tel:${contact.number}`}
+                    className={`rounded-2xl border px-3 py-4 text-center ${contact.tone}`}
+                  >
+                    <p className="text-[11px] font-bold">{contact.label}</p>
+                    <p className="mt-1 text-[21px] font-extrabold">{contact.number}</p>
+                    <p className="mt-1 text-[9px] font-semibold">전화 연결</p>
+                  </a>
+                ))}
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-800">
+                    <Landmark size={17} />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-extrabold text-slate-950">대한민국 영사 지원</p>
+                    <p className="mt-1 text-[11px] leading-5 text-slate-500">
+                      여권 분실, 체포·조사, 응급 의료, 긴급 귀국 등 영사 지원이 필요한 경우 이용하세요.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href="tel:+82232100404"
+                  className="mt-3 flex h-11 items-center justify-center gap-2 rounded-xl bg-[#0f3279] text-[12px] font-bold text-white"
+                >
+                  <Phone size={15} />
+                  영사콜센터 +82-2-3210-0404
+                </a>
+              </div>
+
+              <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                <p className="text-[13px] font-extrabold text-amber-950">분실·사고 지원 항목</p>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-semibold text-amber-900">
+                  {["여권 분실", "교통사고", "체포·조사", "응급 의료", "긴급 귀국", "사기·계약 분쟁"].map((label) => (
+                    <div key={label} className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2">
+                      <CheckCircle2 size={13} className="shrink-0 text-amber-600" />
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+                <p className="text-[13px] font-extrabold text-red-950">VFBCAI 긴급 법률 지원</p>
+                <p className="mt-1 text-[11px] leading-5 text-red-800">
+                  사기, 계약 분쟁, 행정 문제 등 긴급한 법률 지원이 필요한 경우 상담을 요청하세요.
+                </p>
+                <Link
+                  href={`/mypage/chat?leadId=${item.id}&label=${encodeURIComponent(item.serviceLabel)}`}
+                  className="mt-3 flex h-11 items-center justify-center gap-2 rounded-xl bg-red-600 text-[12px] font-bold text-white transition hover:bg-red-700"
+                >
+                  <MessageSquare size={15} />
+                  긴급 상담 요청
+                </Link>
+              </div>
+
+              <p className="text-[10px] leading-5 text-slate-400">
+                생명 또는 신체의 위험이 있는 경우 VFBCAI 상담보다 현지 긴급번호에 먼저 연락하세요.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
-
 
 function HelpCard() {
   const items = [
@@ -1602,8 +1580,7 @@ export default function MyPage() {
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-              <ProgressGuideCard item={firstItem} />
-              <ExpertCard item={firstItem} />
+              <EmergencyHelpCard item={firstItem} />
               <div id="profile">
                 <HelpCard />
               </div>
