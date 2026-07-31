@@ -224,17 +224,17 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar() {
   return (
-    <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col xl:overflow-y-auto xl:overflow-x-hidden">
-      <div className="px-5 pt-6">
+    <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
+      <div className="px-5 pt-4">
         <BrandLogo />
       </div>
 
-      <nav className="mt-5 space-y-1.5 px-4">
+      <nav className="mt-4 space-y-1 px-4">
         {SIDEBAR_ITEMS.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex h-12 items-center justify-between rounded-xl px-3.5 text-[13.5px] font-semibold transition ${
+            className={`flex h-11 items-center justify-between rounded-xl px-3.5 text-[13px] font-semibold transition ${
               item.active
                 ? "bg-[#0b2e77] text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -253,13 +253,13 @@ function DesktopSidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto p-5 xl:pb-6">
-        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-5">
+      <div className="mt-auto p-4">
+        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
             <FolderLock size={19} className="text-[#0d2a6b]" />
           </div>
           <p className="mt-3 text-sm font-bold text-[#0d2a6b]">보안 안전 지갑</p>
-          <p className="mt-1 text-[11px] leading-5 text-slate-500">
+          <p className="mt-1 text-[11px] leading-4 text-slate-500">
             고객님의 중요 자료는 암호화되어 안전하게 관리됩니다.
           </p>
         </div>
@@ -2750,6 +2750,26 @@ function EmergencyHelpCard({ item }: { item: MyPageItem }) {
           <Phone size={17} className="shrink-0 text-[#0f3279]" />
         </a>
 
+        <div className="mt-3 hidden grid-cols-2 gap-1.5 xl:grid">
+          {[
+            "여권 분실 대응",
+            "교통사고 긴급 지원",
+            "체포·조사 영사 지원",
+            "응급 의료 안내",
+            "긴급 귀국 지원",
+            "VFBCAI 긴급 법률 상담",
+          ].map((label) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => setOpen(true)}
+              className="truncate rounded-lg bg-red-50/70 px-2.5 py-2 text-left text-[10px] font-semibold text-red-800 hover:bg-red-100"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -3211,7 +3231,7 @@ export default function MyPage() {
           </div>
 
           {state === "ready" && firstItem && (
-            <aside className="hidden space-y-5 pb-6 xl:block xl:sticky xl:top-[104px] xl:max-h-[calc(100vh-128px)] xl:overflow-x-hidden xl:overflow-y-auto">
+            <aside className="hidden space-y-5 xl:block">
               <NotificationCard item={firstItem} />
               <div id="admin-center">
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
