@@ -271,7 +271,7 @@ function DesktopSidebar() {
 function TopHeader({ name }: { name: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/95 backdrop-blur">
-      <div className="flex h-[80px] w-full items-center justify-between px-4 sm:px-6 xl:px-7">
+      <div className="flex h-[80px] w-full items-center justify-between px-4 sm:px-5 xl:px-5">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
@@ -1360,7 +1360,7 @@ function WalletSection({ leadId }: { leadId: string }) {
   }
 
   return (
-    <section id="wallet" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id="wallet" className="w-full rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
@@ -1614,7 +1614,7 @@ function RecommendedServices() {
   ];
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="w-full rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
         <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
         <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
@@ -3173,8 +3173,11 @@ export default function MyPage() {
       <div className="min-w-0">
         <TopHeader name={name} />
 
-        <div className="w-full px-4 py-5 pb-28 sm:px-6 xl:px-6 xl:py-6 xl:pb-8">
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="w-full px-4 py-5 pb-28 sm:px-5 xl:px-5 xl:py-6 xl:pb-8">
+          {/* 중앙 column과 오른쪽 보조패널(280px)을 나누는 유일한 grid — 바깥 padding은
+              위 wrapper 한 곳에서만 적용되고, 중앙 column 자체에는 별도 좌우 padding을
+              주지 않는다(중복 padding 방지). gap은 20px(기본) / 24px(xl 이상)로 고정. */}
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
