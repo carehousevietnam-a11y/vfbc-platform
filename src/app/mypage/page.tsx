@@ -1638,14 +1638,6 @@ export default function MyPage() {
           {state === "ready" && firstItem && (
             <aside className="hidden space-y-5 xl:block">
               <NotificationCard item={firstItem} />
-              <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
-                <img
-                  src="/mypage-icons/app-promo.webp"
-                  alt="VFBCAI 모바일 앱 다운로드"
-                  className="h-auto w-full object-cover"
-                  loading="lazy"
-                />
-              </div>
               <div id="admin-center">
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
