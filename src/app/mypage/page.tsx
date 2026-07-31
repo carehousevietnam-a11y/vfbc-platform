@@ -1095,6 +1095,155 @@ function ExpertCard({ item }: { item: MyPageItem }) {
   );
 }
 
+
+function ProgressGuideCard({ item }: { item: MyPageItem }) {
+  const checklist = [
+    {
+      label: "신청 정보 확인",
+      description: "서비스 내용이 정상적으로 접수되었습니다.",
+      done: true,
+      icon: FileCheck2,
+    },
+    {
+      label: "필수 서류 제출",
+      description: item.fileUrl
+        ? "필요 서류가 제출 목록에 반영되었습니다."
+        : "서류 지갑에서 준비된 자료를 제출해 주세요.",
+      done: Boolean(item.fileUrl),
+      icon: WalletCards,
+    },
+    {
+      label: "전문가 검토",
+      description: item.hasExpertReview
+        ? "VFBCAI 행정전문팀이 검토 중입니다."
+        : "필수 자료 제출 후 전문가 검토가 시작됩니다.",
+      done: item.hasExpertReview,
+      icon: UserCheck,
+    },
+    {
+      label: "정부기관 제출",
+      description: item.governmentSubmittedAt
+        ? `${formatIsoDate(item.governmentSubmittedAt)} 제출 완료`
+        : "검토 완료 후 접수 일정이 안내됩니다.",
+      done: Boolean(item.governmentSubmittedAt),
+      icon: Landmark,
+    },
+    {
+      label: "완료 / 허가증 수령",
+      description: item.permitCompletedAt
+        ? `${formatIsoDate(item.permitCompletedAt)} 처리 완료`
+        : "최종 결과와 허가 문서가 안내됩니다.",
+      done: Boolean(item.permitCompletedAt),
+      icon: Shield,
+    },
+  ];
+
+  const completedCount = checklist.filter((step) => step.done).length;
+  const progress = Math.round((completedCount / checklist.length) * 100);
+  const currentIndex = Math.min(
+    checklist.findIndex((step) => !step.done),
+    checklist.length - 1
+  );
+
+  return (
+    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[16px] font-extrabold text-slate-950">진행 전 체크리스트</p>
+        <span className="text-[10px] font-semibold text-blue-700">전체 보기 ›</span>
+      </div>
+
+      <div className="mt-4">
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-[10px] font-semibold text-slate-500">전체 진행률</p>
+            <p className="mt-1 text-[12px] font-extrabold text-slate-900">
+              {completedCount}/{checklist.length} 단계 완료
+            </p>
+          </div>
+          <p className="text-[28px] font-extrabold leading-none tracking-[-0.04em] text-emerald-600">
+            {progress}%
+          </p>
+        </div>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="mt-5">
+        {checklist.map((step, index) => {
+          const active = index === currentIndex && !step.done;
+          return (
+            <div key={step.label} className="relative flex gap-3 pb-5 last:pb-0">
+              {index < checklist.length - 1 ? (
+                <div
+                  className={`absolute left-[15px] top-8 h-[calc(100%-20px)] w-px ${
+                    step.done ? "bg-emerald-200" : "bg-slate-200"
+                  }`}
+                />
+              ) : null}
+
+              <div
+                className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 ${
+                  step.done
+                    ? "border-emerald-500 bg-emerald-500 text-white"
+                    : active
+                    ? "border-blue-700 bg-blue-700 text-white"
+                    : "border-slate-300 bg-white text-slate-400"
+                }`}
+              >
+                {step.done ? (
+                  <Check size={14} strokeWidth={3} />
+                ) : (
+                  <span className="text-[10px] font-extrabold">{index + 1}</span>
+                )}
+              </div>
+
+              <div className="min-w-0 pt-0.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-[11px] font-extrabold text-slate-900">{step.label}</p>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
+                      step.done
+                        ? "bg-emerald-50 text-emerald-700"
+                        : active
+                        ? "bg-blue-50 text-blue-700"
+                        : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    {step.done ? "완료" : active ? "진행 중" : "대기"}
+                  </span>
+                </div>
+                <p className="mt-1 text-[9px] leading-4 text-slate-500">{step.description}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <Link
+          href="#applications"
+          className="flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-[10px] font-bold text-slate-800 transition hover:bg-slate-50"
+        >
+          <FileText size={13} />
+          진행 상황 상세 보기
+        </Link>
+        <Link
+          href={`/mypage/chat?leadId=${item.id}&label=${encodeURIComponent(item.serviceLabel)}`}
+          className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#1556e8] text-[10px] font-bold text-white shadow-sm transition hover:bg-[#1048c8]"
+        >
+          <MessageSquare size={13} />
+          전문가 문의하기
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+
 function HelpCard() {
   const items = [
     { label: "채팅 상담", icon: MessageSquare, tone: "bg-blue-50 text-blue-700" },
@@ -1453,6 +1602,7 @@ export default function MyPage() {
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
               </div>
               <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
+              <ProgressGuideCard item={firstItem} />
               <ExpertCard item={firstItem} />
               <div id="profile">
                 <HelpCard />
