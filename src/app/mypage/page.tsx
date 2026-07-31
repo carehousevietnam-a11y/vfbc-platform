@@ -224,7 +224,7 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar() {
   return (
-    <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
+    <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col xl:overflow-y-auto xl:overflow-x-hidden">
       <div className="px-5 pt-6">
         <BrandLogo />
       </div>
@@ -253,7 +253,7 @@ function DesktopSidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto p-5">
+      <div className="mt-auto p-5 xl:pb-6">
         <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-5">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
             <FolderLock size={19} className="text-[#0d2a6b]" />
@@ -3211,7 +3211,7 @@ export default function MyPage() {
           </div>
 
           {state === "ready" && firstItem && (
-            <aside className="hidden space-y-5 xl:block">
+            <aside className="hidden space-y-5 pb-6 xl:block xl:sticky xl:top-[104px] xl:max-h-[calc(100vh-128px)] xl:overflow-x-hidden xl:overflow-y-auto">
               <NotificationCard item={firstItem} />
               <div id="admin-center">
                 <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
