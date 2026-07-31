@@ -1084,47 +1084,111 @@ function NotificationCard({ item }: { item: MyPageItem }) {
   );
 }
 
-const VIETNAM_LIFE_ITEMS = [
-  { label: "오늘 날씨", desc: "오늘의 기상정보", icon: Sun },
-  { label: "환율", desc: "실시간 환율", icon: DollarSign },
-  { label: "은행 휴무", desc: "은행 운영정보", icon: Building2 },
-  { label: "공휴일", desc: "정부 휴무일", icon: CalendarDays },
-  { label: "행정 공지", desc: "출입국·행정 안내", icon: Bell },
-  { label: "내 일정", desc: "개인 일정 확인", icon: CalendarCheck },
+const VIETNAM_LIFE_PRIMARY_ITEMS = [
+  {
+    label: "오늘 날씨",
+    desc: "하노이 기상정보 확인",
+    icon: Sun,
+    iconClass: "bg-amber-50 text-amber-600",
+  },
+  {
+    label: "환율",
+    desc: "원화·달러 환율 확인",
+    icon: DollarSign,
+    iconClass: "bg-emerald-50 text-emerald-600",
+  },
+];
+
+const VIETNAM_LIFE_MORE_ITEMS = [
+  {
+    label: "은행 휴무",
+    desc: "은행 운영정보",
+    icon: Building2,
+    iconClass: "bg-blue-50 text-blue-600",
+  },
+  {
+    label: "공휴일",
+    desc: "베트남 정부 휴무일",
+    icon: CalendarDays,
+    iconClass: "bg-violet-50 text-violet-600",
+  },
+  {
+    label: "행정 공지",
+    desc: "출입국·노동·세무 안내",
+    icon: Bell,
+    iconClass: "bg-rose-50 text-rose-600",
+  },
+  {
+    label: "내 일정",
+    desc: "개인 행정 일정 확인",
+    icon: CalendarCheck,
+    iconClass: "bg-indigo-50 text-indigo-600",
+  },
 ];
 
 function VietnamLifeCard() {
+  const [expanded, setExpanded] = useState(false);
+
+  const renderLifeItem = (
+    item: (typeof VIETNAM_LIFE_PRIMARY_ITEMS)[number] | (typeof VIETNAM_LIFE_MORE_ITEMS)[number]
+  ) => (
+    <button
+      key={item.label}
+      type="button"
+      onClick={() => {}}
+      className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-slate-50 hover:shadow-sm"
+    >
+      <span className="flex min-w-0 items-center gap-3">
+        <span
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${item.iconClass}`}
+        >
+          <item.icon size={18} strokeWidth={2} />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-[12px] font-extrabold text-slate-900">{item.label}</span>
+          <span className="mt-0.5 block truncate text-[10px] font-medium text-slate-500">
+            {item.desc}
+          </span>
+        </span>
+      </span>
+      <ChevronRight size={15} className="shrink-0 text-slate-400" />
+    </button>
+  );
+
   return (
     <section id="vietnam-life" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <p className="text-[16px] font-extrabold text-slate-950">🇻🇳 베트남 생활 정보</p>
-        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
+        <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
           LIVE
         </span>
       </div>
-      <p className="mt-1 text-[11px] text-slate-500">베트남 생활에 필요한 정보를 빠르게 확인하세요.</p>
+      <p className="mt-1 text-[11px] leading-5 text-slate-500">
+        생활에 필요한 주요 정보를 빠르게 확인하세요.
+      </p>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        {VIETNAM_LIFE_ITEMS.map((item) => (
-          <a
-            key={item.label}
-            href="#"
-            onClick={(event) => event.preventDefault()}
-            className="flex min-w-0 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-sm"
-          >
-            <div className="flex min-w-0 items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-700">
-                <item.icon size={16} />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-[11px] font-extrabold text-slate-900">{item.label}</p>
-                <p className="mt-0.5 truncate text-[9px] text-slate-400">{item.desc}</p>
-              </div>
-            </div>
-            <ChevronRight size={14} className="shrink-0 text-slate-300" />
-          </a>
-        ))}
+      <div className="mt-4 space-y-2">
+        {VIETNAM_LIFE_PRIMARY_ITEMS.map(renderLifeItem)}
       </div>
+
+      {expanded && (
+        <div className="mt-2 space-y-2 border-t border-slate-100 pt-2">
+          {VIETNAM_LIFE_MORE_ITEMS.map(renderLifeItem)}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => setExpanded((current) => !current)}
+        aria-expanded={expanded}
+        className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 text-[11px] font-bold text-blue-800 transition hover:bg-blue-100"
+      >
+        {expanded ? "생활정보 접기" : "생활정보 4개 더 보기"}
+        <ChevronDown
+          size={15}
+          className={`transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
     </section>
   );
 }
