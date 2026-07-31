@@ -1631,11 +1631,13 @@ function RecommendedServices() {
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${service.iconClass}`}>
               <service.icon size={18} />
             </div>
-            <p className="mt-4 text-[13px] font-extrabold text-slate-900 xl:mt-3">{service.title}</p>
-            <p className="mt-2 line-clamp-2 text-[10px] leading-5 text-slate-500 xl:mt-1.5 xl:leading-4">
+            <p className="mt-4 min-h-[16px] truncate text-[13px] font-extrabold leading-4 text-slate-900 xl:mt-3 xl:min-h-[16px]">
+              {service.title}
+            </p>
+            <p className="mt-2 line-clamp-2 min-h-[40px] text-[10px] leading-5 text-slate-500 xl:mt-1.5 xl:min-h-[32px] xl:leading-4">
               {service.text}
             </p>
-            <button className="mt-auto self-start rounded-lg border border-white bg-white px-3 py-2 text-[10px] font-bold text-blue-800 shadow-sm hover:shadow xl:mt-3 xl:py-1.5">
+            <button className="mt-3 self-start rounded-lg border border-white bg-white px-3 py-2 text-[10px] font-bold text-blue-800 shadow-sm hover:shadow xl:mt-3 xl:py-1.5">
               {service.action}
             </button>
           </div>
@@ -2885,7 +2887,9 @@ function HelpCard() {
             <div className={`flex h-10 w-10 items-center justify-center rounded-full ${item.tone}`}>
               <item.icon size={17} />
             </div>
-            <span className="text-[10px] font-bold text-slate-700">{item.label}</span>
+            <span className="whitespace-nowrap text-[10px] font-bold leading-none text-slate-700">
+              {item.label}
+            </span>
           </Link>
         ))}
       </div>
