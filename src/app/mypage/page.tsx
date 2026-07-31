@@ -1403,7 +1403,7 @@ function WalletSection({ leadId }: { leadId: string }) {
           항상 카드가 표시된다. 순서는 항상 여권→비자→거주증→증명사진→건강검진서→서류추가로
           고정. 모바일 1열 → sm 2열 → lg 3열(3열×2행, PC 가로 스크롤 없음). */}
       {!loading && !loadError && (
-        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
 
@@ -1622,7 +1622,7 @@ function RecommendedServices() {
         </button>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {services.map((service) => (
           <div key={service.title} className={`rounded-2xl border border-white/80 p-4 ${service.className}`}>
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${service.iconClass}`}>
