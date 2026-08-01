@@ -968,20 +968,32 @@ export async function POST(req: NextRequest) {
 
     // ── 헤더 (Executive Assessment Report) ──
     let y = pageHeight - 42;
-    const logoSize = 30;
-    page.drawImage(watermarkImage, { x: marginX, y: y - logoSize + 6, width: logoSize, height: logoSize });
-    page.drawText("VFBCAI", { x: marginX + logoSize + 9, y, size: 17, font: fontBold, color: rgb(0.09, 0.15, 0.35) });
+    const logoSize = 34;
+    const brandTextX = marginX + logoSize + 10;
+    page.drawImage(watermarkImage, {
+      x: marginX,
+      y: y - logoSize + 5,
+      width: logoSize,
+      height: logoSize,
+    });
+    page.drawText("VFBCAI", {
+      x: brandTextX,
+      y: y - 1,
+      size: 16,
+      font: fontBold,
+      color: rgb(0.09, 0.15, 0.35),
+    });
     page.drawText("Vietnam Foreign Business Verification &", {
-      x: marginX + logoSize + 9,
-      y: y - 15,
-      size: 7,
+      x: brandTextX,
+      y: y - 17,
+      size: 6.5,
       font,
       color: rgb(0.55, 0.55, 0.55),
     });
     page.drawText("Compliance AI Center", {
-      x: marginX + logoSize + 9,
-      y: y - 24,
-      size: 7,
+      x: brandTextX,
+      y: y - 26,
+      size: 6.5,
       font,
       color: rgb(0.55, 0.55, 0.55),
     });
@@ -1253,7 +1265,7 @@ export async function POST(req: NextRequest) {
     );
 
     drawRightCard(
-      "MANDATORY DOCUMENTS · 필수 제출서류",
+      "MANDATORY DOCUMENTS",
       requiredDocsList.length > 0
         ? requiredDocsList.slice(0, 6).map((docName) => `✓ ${docName}`)
         : ["아직 연결된 서류 목록이 없습니다."],
