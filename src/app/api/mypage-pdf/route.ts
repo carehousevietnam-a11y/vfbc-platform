@@ -16,8 +16,8 @@ import { getDiagnosis as getVerifyDiagnosis, type VerifyCategory } from "@/lib/v
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
 //
-// STEP7 (Executive Report 콘텐츠 구조 개편 — 데이터 소스·비즈니스 로직·전체
-// 레이아웃 틀은 STEP6 승인 범위 그대로, "내용 구성/텍스트 계층"만 바꿨다):
+// STEP8 (Executive Decision Paper 고도화 — 데이터 소스·비즈니스 로직은
+// 그대로 유지하고, 의사결정 중심 정보 구조와 문서 완성도만 개선했다):
 // - src/lib/checkDiagnosis.ts / src/lib/verifyDiagnosis.ts / src/lib/requiredDocuments.ts
 //   는 이번에도 한 글자도 수정하지 않았다. import해서 그대로 재호출만 한다.
 // - 데이터 연결 방식은 STEP5·STEP6과 동일: 법인설립·VERIFY는 기존 결정론적
@@ -244,9 +244,10 @@ function buildChecklistSections(
             .map((f) => f.label)
             .join(", ")}${failed.length > 2 ? ` 외 ${failed.length - 2}건` : ""}만 추가 준비가 필요합니다.`
         );
-        execSummary.push("해당 항목을 보완한 후 서류 원본과 함께 최종 확인을 진행하는 것이 필요합니다.");
+        execSummary.push("현재 판단의 핵심 변수는 위 미확인 항목이며, 해당 자료를 준비한 후 서류 원본 기준의 최종 확인이 필요합니다.");
       } else {
-        execSummary.push(`확인된 ${checklist.length}개 항목을 모두 충족한 상태로, 별도 보완사항은 없습니다.`);
+        execSummary.push(`확인된 ${checklist.length}개 항목을 모두 충족했으며, 현재 입력정보 범위에서는 별도 보완항목이 확인되지 않았습니다.`);
+        execSummary.push("다만 실제 제출 전에는 서류 원본과 최신 행정요건을 기준으로 최종 확인해 주세요.");
       }
     }
     if (customerNote) execSummary.push(customerNote);
@@ -261,12 +262,12 @@ function buildChecklistSections(
   const keyFindings: string[] = [];
   if (checklist.length > 0) {
     if (passed.length > 0) {
-      keyFindings.push("■ 확인 완료 (Confirmed)");
-      passed.slice(0, 4).forEach((p) => keyFindings.push(`✓ ${p.label}`));
+      keyFindings.push("■ CONFIRMED REQUIREMENTS · 확인 완료");
+      passed.slice(0, 4).forEach((p) => keyFindings.push(`✓ CONFIRMED  ${p.label}`));
     }
     if (failed.length > 0) {
-      keyFindings.push("■ 추가 확인 필요 (Needs Review)");
-      failed.slice(0, 4).forEach((f) => keyFindings.push(`○ ${f.label}`));
+      keyFindings.push("■ OPEN ITEMS · 추가 확인 필요");
+      failed.slice(0, 4).forEach((f) => keyFindings.push(`○ REVIEW  ${f.label}`));
     }
   } else {
     keyFindings.push("아직 이 항목에 연결된 확인 데이터가 없습니다.");
@@ -277,7 +278,7 @@ function buildChecklistSections(
   if (checklist.length > 0) {
     if (failed.length > 0) {
       failed.slice(0, 4).forEach((f, idx) => {
-        keyRisks.push(`${idx + 1}. ${f.label} — 입력하신 답변 기준으로 아직 준비가 확인되지 않은 항목입니다.`);
+        keyRisks.push(`PRIORITY ${idx + 1}  ${f.label} — 입력하신 답변 기준으로 준비 여부가 아직 확인되지 않았습니다.`);
       });
       keyRisks.push("위 항목을 먼저 준비한 후 서류 원본과 함께 전문가 확인을 진행해 주세요.");
     } else {
@@ -291,8 +292,8 @@ function buildChecklistSections(
   const recommendedAction: string[] = [];
   recommendedAction.push(
     toneLabel
-      ? `현재 제출 정보를 기준으로 '${toneLabel}' 상태이며, 아래 사항을 확인하신 후 진행하시길 권장합니다.`
-      : "현재 제출 정보를 기준으로 아래 사항을 확인하신 후 진행하시길 권장합니다."
+      ? `현재 제출정보 기준 판단은 '${toneLabel}'입니다. 아래 조치를 우선순위대로 진행해 주세요.`
+      : "현재 제출정보를 기준으로 아래 조치를 우선순위대로 진행해 주세요."
   );
   const recommendations: string[] = [];
   for (const f of failed.slice(0, 2)) recommendations.push(f.label);
@@ -389,6 +390,62 @@ function buildCautionLinesFromRiskFactors(riskFactors: { label: string }[]): str
   return [EXISTING_LEGAL_CHANGE_NOTICE];
 }
 
+
+type ReportSupportData = {
+  assessmentBasis: string[];
+  primaryNextAction: string;
+  currentStageLabel: string;
+};
+
+function buildReportSupportData(
+  category: CategoryKey,
+  hasDiagnosis: boolean,
+  hasExpertReview: boolean,
+  hasAgency: boolean,
+  hasGovSubmit: boolean,
+  hasPermitDone: boolean,
+  cautionLines: string[],
+  recommendedAction: string[],
+  requiredDocsCount: number | null
+): ReportSupportData {
+  const currentStageLabel = hasPermitDone
+    ? "Permit completed"
+    : hasGovSubmit
+      ? "Government submission"
+      : hasAgency
+        ? "Professional processing"
+        : hasExpertReview
+          ? "Expert review"
+          : hasDiagnosis
+            ? "Assessment complete"
+            : "Assessment pending";
+
+  const actionFromRecommendation = recommendedAction.find(
+    (line) => line.startsWith("①") || line.startsWith("②") || line.startsWith("③")
+  );
+  const primaryNextAction =
+    actionFromRecommendation?.replace(/^[①②③]\s*/, "") ??
+    cautionLines[1] ??
+    cautionLines[0] ??
+    "서류 원본 확인";
+
+  const assessmentBasis =
+    category === "verify"
+      ? [
+          "고객 입력 사건정보 및 제출자료",
+          "고객용 문서검토 결과와 위험요인",
+          "기존 VFBCAI 문서검토 규칙",
+          `연결된 준비서류 ${requiredDocsCount ?? 0}종`,
+        ]
+      : [
+          "고객 입력정보 및 확인 항목",
+          "필수 제출서류 목록과 준비상태",
+          "기존 VFBCAI 행정 진단 규칙",
+          `연결된 준비서류 ${requiredDocsCount ?? 0}종`,
+        ];
+
+  return { assessmentBasis, primaryNextAction, currentStageLabel };
+}
 
 type ExecutiveDecision = {
   eyebrow: string;
@@ -720,6 +777,17 @@ export async function POST(req: NextRequest) {
     const executiveDecision = getExecutiveDecision(category, resultTone, riskCount, hasDiagnosis);
 
     const processSteps = buildProcessSteps(category, hasDiagnosis, hasExpertReview, hasAgency, hasGovSubmit, hasPermitDone);
+    const supportData = buildReportSupportData(
+      category,
+      hasDiagnosis,
+      hasExpertReview,
+      hasAgency,
+      hasGovSubmit,
+      hasPermitDone,
+      cautionLines,
+      recommendedAction,
+      requiredDocsCount
+    );
 
     // ── PDF 생성 (A4 세로 1페이지 고정) ──
     const doc = await PDFDocument.create();
@@ -910,7 +978,7 @@ export async function POST(req: NextRequest) {
       color: rgb(0.55, 0.55, 0.55),
     });
     ry -= 12;
-    const generatedByLine = "Generated by VFBCAI Administrative Intelligence Engine";
+    const generatedByLine = "CONFIDENTIAL · Generated by VFBCAI Administrative Intelligence Engine";
     page.drawText(generatedByLine, {
       x: pageWidth - marginX - font.widthOfTextAtSize(generatedByLine, 7),
       y: ry,
@@ -1060,7 +1128,7 @@ export async function POST(req: NextRequest) {
         font: fontBold,
         color: rgb(0.09, 0.15, 0.35),
       });
-      page.drawText("결론 · 핵심 근거 · 권고 방향", {
+      page.drawText("Decision rationale · 핵심 근거 · 우선 조치", {
         x: marginX + 16,
         y: summaryTop - 31,
         size: 7,
@@ -1069,7 +1137,7 @@ export async function POST(req: NextRequest) {
       });
       const state = { y: summaryTop - 46 };
       const d = makeDrawers(page, marginX + 16, contentWidth - 32, state);
-      d.drawParagraphList(execSummary, 9.2, 3.5, 5, rgb(0.2, 0.21, 0.24), summaryTop - summaryHeight + 10);
+      d.drawParagraphList(execSummary, 8.9, 3.4, 6, rgb(0.2, 0.21, 0.24), summaryTop - summaryHeight + 10);
       y = summaryTop - summaryHeight - 12;
     }
 
@@ -1087,15 +1155,36 @@ export async function POST(req: NextRequest) {
 
     // 좌측: Key Findings → Key Risks → Recommended Action
     if (left.drawSectionHeader("EVIDENCE & KEY FINDINGS")) {
-      left.drawParagraphList(keyFindings, 8.5, 3.5, MAX_LINES_PER_AREA);
+      page.drawText("판단 근거와 확인 결과", {
+        x: leftX + 8,
+        y: leftState.y + 13,
+        size: 6.8,
+        font,
+        color: rgb(0.56, 0.56, 0.59),
+      });
+      left.drawParagraphList(keyFindings, 8.3, 3.3, MAX_LINES_PER_AREA);
       if (leftState.y > BODY_MIN_Y) leftState.y -= 7;
     }
     if (left.drawSectionHeader("KEY RISKS & GAPS")) {
-      left.drawParagraphList(keyRisks, 8.5, 3.5, MAX_LINES_PER_AREA);
+      page.drawText("미확인 항목과 우선 검토사항", {
+        x: leftX + 8,
+        y: leftState.y + 13,
+        size: 6.8,
+        font,
+        color: rgb(0.56, 0.56, 0.59),
+      });
+      left.drawParagraphList(keyRisks, 8.3, 3.3, MAX_LINES_PER_AREA);
       if (leftState.y > BODY_MIN_Y) leftState.y -= 7;
     }
     if (left.drawSectionHeader("RECOMMENDED ACTIONS")) {
-      left.drawParagraphList(recommendedAction, 8.5, 3.5, MAX_LINES_PER_AREA);
+      page.drawText("우선순위별 다음 조치", {
+        x: leftX + 8,
+        y: leftState.y + 13,
+        size: 6.8,
+        font,
+        color: rgb(0.56, 0.56, 0.59),
+      });
+      left.drawParagraphList(recommendedAction, 8.3, 3.3, MAX_LINES_PER_AREA);
     }
 
     // 우측: Executive Dashboard — 필수 제출서류 / 진행 현황 / 다음 조치 (고정 카드 박스)
@@ -1125,30 +1214,34 @@ export async function POST(req: NextRequest) {
     }
 
     drawRightCard(
-      "DECISION DASHBOARD",
+      "EXECUTIVE DASHBOARD",
       [
         `Decision  ${executiveDecision.headline}`,
-        `Priority  ${riskCount && riskCount > 0 ? "HIGH" : "NORMAL"}`,
-        `Current stage  ${hasDiagnosis ? "Assessment complete" : "Assessment pending"}`,
-        `Next action  ${cautionLines[1] ?? cautionLines[0]}`,
-        `Required documents  ${docsCardText}`,
+        `Assessment  ${possibilityText}`,
+        `Requirements  ${requirementsText}`,
+        `Risk / Outstanding  ${riskCardText}`,
+        `Current stage  ${supportData.currentStageLabel}`,
+        `Next action  ${supportData.primaryNextAction}`,
       ],
-      128,
+      148,
+      9,
+      false
+    );
+
+    drawRightCard(
+      "MANDATORY DOCUMENTS",
+      requiredDocsList.length > 0
+        ? requiredDocsList.slice(0, 6).map((docName) => `✓ ${docName}`)
+        : ["아직 연결된 서류 목록이 없습니다."],
+      118,
       8,
       false
     );
 
     drawRightCard(
-      "REQUIRED DOCUMENTS",
-      requiredDocsList.length > 0 ? requiredDocsList.slice(0, 6) : ["아직 연결된 서류 목록이 없습니다."],
-      126,
-      8
-    );
-
-    drawRightCard(
-      "SERVICE STATUS",
-      processSteps.map((s) => `${s.done ? "●" : "○"} ${s.label}`),
-      104,
+      "ASSESSMENT BASIS",
+      supportData.assessmentBasis.map((line) => `• ${line}`),
+      94,
       6,
       false
     );
@@ -1162,14 +1255,14 @@ export async function POST(req: NextRequest) {
     // 만들지 않고, 위 상단 정보의 접수번호(receiptNumber, 기존 마이페이지
     // 표시 방식 재사용)를 그대로 Report ID로 다시 쓴다. 버전은 이 리포트
     // 템플릿 자체의 표기용 상수(v1.0)이며 DB/배포 시스템과 연동되지 않는다.
-    page.drawText(`Prepared by VFBCAI Administrative Intelligence Engine  ·  CONFIDENTIAL  ·  Report ID ${receiptNumber}`, {
+    page.drawText(`VFBCAI Executive Administrative Assessment  ·  CONFIDENTIAL  ·  Report ID ${receiptNumber}`, {
       x: marginX + footerLogoSize + 6,
       y: footerY + 18,
       size: 7.5,
       font: fontBold,
       color: rgb(0.09, 0.15, 0.35),
     });
-    page.drawText("본 리포트는 입력하신 정보를 기준으로 한 1차 자가진단이며, 정확한 진행·허가 가능 여부는 서류 검토 후 전문가 상담을 통해 확정됩니다.", {
+    page.drawText("본 문서는 입력정보와 연결된 진단자료를 기준으로 작성된 행정 평가서이며, 최종 진행 여부는 서류 원본 검토와 전문가 확인을 통해 확정됩니다.", {
       x: marginX,
       y: footerY + 4,
       size: 7,
