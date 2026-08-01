@@ -1030,32 +1030,36 @@ export async function POST(req: NextRequest) {
 
     // ── 헤더 (Executive Assessment Report) ──
     let y = pageHeight - 42;
-    const logoSize = 34;
-    const brandTextX = marginX + logoSize + 10;
+    // Brand Block: 로고를 약 35% 확대(34→46px)하고, 제목/설명 크기와 간격을
+    // 재조정해 로고·텍스트가 하나의 브랜드 블록으로 보이도록 수직 중앙정렬했다.
+    // 우측 "Executive Assessment Report" 블록의 위치/크기는 건드리지 않았다.
+    const logoSize = 46;
+    const brandGap = 13;
+    const brandTextX = marginX + logoSize + brandGap;
     page.drawImage(watermarkImage, {
       x: marginX,
-      y: y - logoSize + 5,
+      y: y - logoSize + 8,
       width: logoSize,
       height: logoSize,
     });
     page.drawText("VFBCAI", {
       x: brandTextX,
-      y: y - 1,
-      size: 16,
+      y: y - 6,
+      size: 14,
       font: fontBold,
       color: rgb(0.09, 0.15, 0.35),
     });
     page.drawText("Vietnam Foreign Business Verification &", {
       x: brandTextX,
-      y: y - 17,
-      size: 6.5,
+      y: y - 20,
+      size: 7.2,
       font,
       color: rgb(0.55, 0.55, 0.55),
     });
     page.drawText("Compliance AI Center", {
       x: brandTextX,
-      y: y - 26,
-      size: 6.5,
+      y: y - 31,
+      size: 7.2,
       font,
       color: rgb(0.55, 0.55, 0.55),
     });
