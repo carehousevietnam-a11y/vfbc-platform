@@ -389,6 +389,89 @@ function buildCautionLinesFromRiskFactors(riskFactors: { label: string }[]): str
   return [EXISTING_LEGAL_CHANGE_NOTICE];
 }
 
+
+type ExecutiveDecision = {
+  eyebrow: string;
+  headline: string;
+  subline: string;
+  color: ReturnType<typeof rgb>;
+  softColor: ReturnType<typeof rgb>;
+};
+
+function getExecutiveDecision(
+  category: CategoryKey,
+  resultTone: string | null,
+  riskCount: number | null,
+  hasDiagnosis: boolean
+): ExecutiveDecision {
+  if (!hasDiagnosis) {
+    return {
+      eyebrow: "ASSESSMENT STATUS",
+      headline: "ASSESSMENT PENDING",
+      subline: "진단 데이터가 확인되면 최종 판단이 표시됩니다.",
+      color: rgb(0.42, 0.44, 0.5),
+      softColor: rgb(0.965, 0.968, 0.975),
+    };
+  }
+
+  if (category === "verify") {
+    if ((riskCount ?? 0) > 0) {
+      return {
+        eyebrow: "EXECUTIVE DECISION",
+        headline: "PRIORITY REVIEW REQUIRED",
+        subline: `확인된 위험요인 ${riskCount ?? 0}건을 중심으로 서류 원본 검토가 필요합니다.`,
+        color: rgb(0.72, 0.34, 0.04),
+        softColor: rgb(0.995, 0.965, 0.92),
+      };
+    }
+    return {
+      eyebrow: "EXECUTIVE DECISION",
+      headline: "DOCUMENT REVIEW COMPLETED",
+      subline: "현재 입력자료 기준으로 우선 검토가 완료되었습니다.",
+      color: rgb(0.02, 0.45, 0.32),
+      softColor: rgb(0.93, 0.985, 0.965),
+    };
+  }
+
+  if (resultTone === "possible") {
+    return {
+      eyebrow: "EXECUTIVE DECISION",
+      headline: "PROCEED WITH DOCUMENT PREPARATION",
+      subline: "현재 확인된 조건을 기준으로 다음 서류 준비 단계 진행이 가능합니다.",
+      color: rgb(0.02, 0.45, 0.32),
+      softColor: rgb(0.93, 0.985, 0.965),
+    };
+  }
+
+  if (resultTone === "conditional") {
+    return {
+      eyebrow: "EXECUTIVE DECISION",
+      headline: "PROCEED AFTER SUPPLEMENT",
+      subline: "미확인 또는 미준비 항목을 보완한 후 최종 확인을 진행해 주세요.",
+      color: rgb(0.72, 0.45, 0.02),
+      softColor: rgb(0.995, 0.97, 0.92),
+    };
+  }
+
+  if (resultTone === "impossible") {
+    return {
+      eyebrow: "EXECUTIVE DECISION",
+      headline: "EXPERT REVIEW REQUIRED",
+      subline: "현재 입력정보만으로는 바로 진행하기 어려워 전문가 검토가 필요합니다.",
+      color: rgb(0.7, 0.15, 0.15),
+      softColor: rgb(0.995, 0.94, 0.94),
+    };
+  }
+
+  return {
+    eyebrow: "EXECUTIVE DECISION",
+    headline: "DOCUMENT REVIEW REQUIRED",
+    subline: "현재 자료를 기준으로 서류 확인과 최종 검토가 필요합니다.",
+    color: rgb(0.09, 0.15, 0.35),
+    softColor: rgb(0.95, 0.96, 0.985),
+  };
+}
+
 const MAX_LINES_PER_AREA = 7;
 
 export async function POST(req: NextRequest) {
@@ -462,6 +545,8 @@ export async function POST(req: NextRequest) {
     let requiredDocsCount: number | null = null;
     let requiredDocsList: string[] = [];
     let cautionLines: string[] = [EXISTING_LEGAL_CHANGE_NOTICE];
+    let reviewedCount: number | null = null;
+    let satisfiedCount: number | null = null;
 
     if (category === "check") {
       // ⚠️ expertBrief에서 label/passed만 추출. reason/riskLevel/rejectionRisks/
@@ -479,6 +564,8 @@ export async function POST(req: NextRequest) {
       const requiredDocs = getRequiredDocuments(normalizedType ?? undefined);
       requiredDocsCount = requiredDocs.documents.length;
       requiredDocsList = requiredDocs.documents;
+      reviewedCount = checklist.length;
+      satisfiedCount = checklist.filter((item) => item.passed).length;
       const built = buildChecklistSections(serviceLabel, feasibilityScore, resultTone, checklist, requiredDocs, null);
       ({ execSummary, keyFindings, keyRisks, recommendedAction, riskCount } = built);
       cautionLines = buildCautionLines(checklist.filter((c) => !c.passed));
@@ -503,6 +590,8 @@ export async function POST(req: NextRequest) {
         });
         if (recomputed) {
           const cv = recomputed.customerView;
+          reviewedCount = cv.checklist.length;
+          satisfiedCount = cv.checklist.filter((item) => item.passed).length;
           const built = buildChecklistSections(serviceLabel, cv.feasibilityScore, cv.resultTone, cv.checklist, requiredDocs, cv.note);
           ({ execSummary, keyFindings, keyRisks, recommendedAction, riskCount } = built);
           cautionLines = buildCautionLines(cv.checklist.filter((c) => !c.passed));
@@ -526,6 +615,8 @@ export async function POST(req: NextRequest) {
             { label: cfg.readyLabel, passed: asStringField(diagMeta, cfg.readyField) === "ready" },
           ]
         : [];
+      reviewedCount = checklist.length;
+      satisfiedCount = checklist.filter((item) => item.passed).length;
       const built = buildChecklistSections(serviceLabel, feasibilityScore, resultTone, checklist, requiredDocs, null);
       ({ execSummary, keyFindings, keyRisks, recommendedAction, riskCount } = built);
       cautionLines = buildCautionLines(checklist.filter((c) => !c.passed));
@@ -590,6 +681,8 @@ export async function POST(req: NextRequest) {
           if (recommendedAction.length === 0) recommendedAction.push("아직 이 항목에 연결된 권고 데이터가 없습니다.");
 
           riskCount = report.riskFactors.length;
+          reviewedCount = Math.max(report.keyFindings.length, report.legalAreas.length);
+          satisfiedCount = Math.max(0, (reviewedCount ?? 0) - report.riskFactors.length);
           cautionLines = buildCautionLinesFromRiskFactors(report.riskFactors);
         } else {
           // report가 없는 예외 상황(구버전 데이터 등) — 고객에게 이미 노출되는
@@ -620,6 +713,11 @@ export async function POST(req: NextRequest) {
     const possibilityCardLabel = category === "verify" ? "검토유형" : "가능성";
     const riskCardText = riskCount !== null ? `${riskCount}건` : "확인 전";
     const docsCardText = requiredDocsCount !== null ? `${requiredDocsCount}종` : "확인 전";
+    const requirementsText =
+      reviewedCount !== null && reviewedCount > 0 && satisfiedCount !== null
+        ? `${satisfiedCount}/${reviewedCount}`
+        : "확인 전";
+    const executiveDecision = getExecutiveDecision(category, resultTone, riskCount, hasDiagnosis);
 
     const processSteps = buildProcessSteps(category, hasDiagnosis, hasExpertReview, hasAgency, hasGovSubmit, hasPermitDone);
 
@@ -847,16 +945,72 @@ export async function POST(req: NextRequest) {
     });
     y -= 34;
 
-    // ── 상단 5개 요약 카드 (Executive Dashboard 톤 — 숫자를 크게 강조) ──
-    const cardGap = 8;
+    // ── Executive Decision: 10초 안에 결론을 이해하도록 가장 먼저 강조 ──
+    const decisionHeight = 58;
+    page.drawRectangle({
+      x: marginX,
+      y: y - decisionHeight,
+      width: contentWidth,
+      height: decisionHeight,
+      color: executiveDecision.softColor,
+      borderColor: executiveDecision.color,
+      borderWidth: 0.8,
+    });
+    page.drawRectangle({
+      x: marginX,
+      y: y - decisionHeight,
+      width: 6,
+      height: decisionHeight,
+      color: executiveDecision.color,
+    });
+    page.drawText(executiveDecision.eyebrow, {
+      x: marginX + 18,
+      y: y - 16,
+      size: 7.2,
+      font: fontBold,
+      color: executiveDecision.color,
+    });
+    page.drawText(executiveDecision.headline, {
+      x: marginX + 18,
+      y: y - 35,
+      size: 15,
+      font: fontBold,
+      color: executiveDecision.color,
+    });
+    page.drawText(executiveDecision.subline, {
+      x: marginX + 18,
+      y: y - 50,
+      size: 8,
+      font,
+      color: rgb(0.35, 0.35, 0.38),
+    });
+    const decisionStatus = category === "verify" ? "REVIEW" : resultTone === "possible" ? "GO" : resultTone === "conditional" ? "HOLD" : "REVIEW";
+    page.drawCircle({
+      x: pageWidth - marginX - 32,
+      y: y - decisionHeight / 2,
+      size: 18,
+      color: executiveDecision.color,
+    });
+    const decisionStatusWidth = fontBold.widthOfTextAtSize(decisionStatus, 8);
+    page.drawText(decisionStatus, {
+      x: pageWidth - marginX - 32 - decisionStatusWidth / 2,
+      y: y - decisionHeight / 2 - 3,
+      size: 8,
+      font: fontBold,
+      color: rgb(1, 1, 1),
+    });
+    y -= decisionHeight + 12;
+
+    // ── Executive Metrics: 단순 수치가 아니라 의사결정에 필요한 5개 지표 ──
+    const cardGap = 7;
     const cardWidth = (contentWidth - cardGap * 4) / 5;
-    const cardHeight = 58;
-    const cards: { label: string; value: string; color: ReturnType<typeof rgb>; symbol: string }[] = [
-      { label: possibilityCardLabel, value: possibilityText, color: resultColor, symbol: "%" },
-      { label: "위험요인", value: riskCardText, color: rgb(0.7, 0.45, 0.02), symbol: "!" },
-      { label: "준비서류", value: docsCardText, color: rgb(0.09, 0.15, 0.35), symbol: "D" },
-      { label: "예상 처리기간", value: estimatedDaysText, color: rgb(0.35, 0.35, 0.4), symbol: "T" },
-      { label: "AI 검토상태", value: aiStatusText, color: hasDiagnosis ? rgb(0.02, 0.45, 0.32) : rgb(0.5, 0.5, 0.5), symbol: "A" },
+    const cardHeight = 46;
+    const cards: { label: string; value: string; color: ReturnType<typeof rgb> }[] = [
+      { label: category === "verify" ? "Review Type" : "Assessment", value: possibilityText, color: resultColor },
+      { label: "Requirements", value: requirementsText, color: rgb(0.09, 0.15, 0.35) },
+      { label: "Outstanding", value: riskCardText, color: rgb(0.72, 0.45, 0.02) },
+      { label: "Documents", value: docsCardText, color: rgb(0.09, 0.15, 0.35) },
+      { label: "Status", value: aiStatusText, color: hasDiagnosis ? rgb(0.02, 0.45, 0.32) : rgb(0.5, 0.5, 0.5) },
     ];
     cards.forEach((card, i) => {
       const cx = marginX + i * (cardWidth + cardGap);
@@ -865,32 +1019,61 @@ export async function POST(req: NextRequest) {
         y: y - cardHeight,
         width: cardWidth,
         height: cardHeight,
-        borderColor: rgb(0.88, 0.88, 0.88),
-        borderWidth: 0.75,
-        color: rgb(0.985, 0.985, 0.99),
+        color: rgb(0.988, 0.989, 0.993),
+        borderColor: rgb(0.88, 0.885, 0.9),
+        borderWidth: 0.7,
       });
-      page.drawRectangle({ x: cx, y: y - 2.5, width: cardWidth, height: 2.5, color: card.color });
-      drawBadge(cx + 15, y - 18, 8, card.color, card.symbol);
-      page.drawText(card.label, { x: cx + 29, y: y - 15, size: 7, font, color: rgb(0.5, 0.5, 0.5) });
-      // Executive Dashboard 톤 — 값 폰트를 이전보다 키워 숫자를 강조한다.
-      const valSize = card.value.length > 8 ? 11 : 14.5;
-      page.drawText(card.value, { x: cx + 8, y: y - 47, size: valSize, font: fontBold, color: card.color });
+      page.drawRectangle({ x: cx, y: y - 2, width: cardWidth, height: 2, color: card.color });
+      page.drawText(card.label.toUpperCase(), {
+        x: cx + 8,
+        y: y - 14,
+        size: 6.5,
+        font: fontBold,
+        color: rgb(0.48, 0.49, 0.53),
+      });
+      const valSize = card.value.length > 9 ? 9.5 : 13.5;
+      page.drawText(card.value, {
+        x: cx + 8,
+        y: y - 35,
+        size: valSize,
+        font: fontBold,
+        color: card.color,
+      });
     });
-    y -= cardHeight + 16;
+    y -= cardHeight + 14;
 
-    // ── Executive Summary (신설 — 상단 카드 바로 아래, 가장 중요한 영역) ──
+    // ── Executive Summary: 결론·근거·다음 행동을 한 번에 읽는 핵심 요약 ──
     {
-      const state = { y };
-      const d = makeDrawers(page, marginX, contentWidth, state);
-      if (d.drawSectionHeader("EXECUTIVE SUMMARY")) {
-        page.drawText("종합 요약", { x: marginX + 8, y: state.y + 13, size: 7, font, color: rgb(0.6, 0.6, 0.6) });
-        d.drawParagraphList(execSummary, 9.5, 4, 8, rgb(0.22, 0.22, 0.25));
-      }
-      y = state.y - 10;
+      const summaryTop = y;
+      const summaryHeight = 82;
+      page.drawRectangle({
+        x: marginX,
+        y: summaryTop - summaryHeight,
+        width: contentWidth,
+        height: summaryHeight,
+        color: rgb(0.965, 0.972, 0.988),
+      });
+      page.drawText("EXECUTIVE SUMMARY", {
+        x: marginX + 16,
+        y: summaryTop - 18,
+        size: 10,
+        font: fontBold,
+        color: rgb(0.09, 0.15, 0.35),
+      });
+      page.drawText("결론 · 핵심 근거 · 권고 방향", {
+        x: marginX + 16,
+        y: summaryTop - 31,
+        size: 7,
+        font,
+        color: rgb(0.52, 0.53, 0.57),
+      });
+      const state = { y: summaryTop - 46 };
+      const d = makeDrawers(page, marginX + 16, contentWidth - 32, state);
+      d.drawParagraphList(execSummary, 9.2, 3.5, 5, rgb(0.2, 0.21, 0.24), summaryTop - summaryHeight + 10);
+      y = summaryTop - summaryHeight - 12;
     }
-    page.drawLine({ start: { x: marginX, y: y + 4 }, end: { x: pageWidth - marginX, y: y + 4 }, thickness: 0.5, color: rgb(0.9, 0.9, 0.9) });
 
-    // ── 2단 본문: 좌측 Key Findings/Key Risks/Recommended Action / 우측 Executive Dashboard ──
+    // ── 2단 본문: 좌측 Evidence/Risks/Actions · 우측 Decision Dashboard ──
     const gutter = 16;
     const leftWidth = Math.round(contentWidth * 0.62);
     const rightWidth = contentWidth - leftWidth - gutter;
@@ -903,15 +1086,15 @@ export async function POST(req: NextRequest) {
     const right = makeDrawers(page, rightX, rightWidth, rightState);
 
     // 좌측: Key Findings → Key Risks → Recommended Action
-    if (left.drawSectionHeader("KEY FINDINGS")) {
+    if (left.drawSectionHeader("EVIDENCE & KEY FINDINGS")) {
       left.drawParagraphList(keyFindings, 8.5, 3.5, MAX_LINES_PER_AREA);
       if (leftState.y > BODY_MIN_Y) leftState.y -= 7;
     }
-    if (left.drawSectionHeader("KEY RISKS")) {
+    if (left.drawSectionHeader("KEY RISKS & GAPS")) {
       left.drawParagraphList(keyRisks, 8.5, 3.5, MAX_LINES_PER_AREA);
       if (leftState.y > BODY_MIN_Y) leftState.y -= 7;
     }
-    if (left.drawSectionHeader("RECOMMENDED ACTION")) {
+    if (left.drawSectionHeader("RECOMMENDED ACTIONS")) {
       left.drawParagraphList(recommendedAction, 8.5, 3.5, MAX_LINES_PER_AREA);
     }
 
@@ -942,21 +1125,33 @@ export async function POST(req: NextRequest) {
     }
 
     drawRightCard(
-      "Required Documents · 필수 제출서류",
+      "DECISION DASHBOARD",
+      [
+        `Decision  ${executiveDecision.headline}`,
+        `Priority  ${riskCount && riskCount > 0 ? "HIGH" : "NORMAL"}`,
+        `Current stage  ${hasDiagnosis ? "Assessment complete" : "Assessment pending"}`,
+        `Next action  ${cautionLines[1] ?? cautionLines[0]}`,
+        `Required documents  ${docsCardText}`,
+      ],
+      128,
+      8,
+      false
+    );
+
+    drawRightCard(
+      "REQUIRED DOCUMENTS",
       requiredDocsList.length > 0 ? requiredDocsList.slice(0, 6) : ["아직 연결된 서류 목록이 없습니다."],
-      132,
+      126,
       8
     );
 
     drawRightCard(
-      "Current Status · 진행 현황",
-      processSteps.map((s) => `${s.done ? "[완료]" : "[예정]"} ${s.label}`),
-      110,
+      "SERVICE STATUS",
+      processSteps.map((s) => `${s.done ? "●" : "○"} ${s.label}`),
+      104,
       6,
       false
     );
-
-    drawRightCard("Next Action · 주의사항", cautionLines, 88, 4);
 
     // ── 하단 (신뢰감 있는 Footer — 발급 주체/버전/Report ID/문의/면책문구) ──
     const footerY = 58;
@@ -967,7 +1162,7 @@ export async function POST(req: NextRequest) {
     // 만들지 않고, 위 상단 정보의 접수번호(receiptNumber, 기존 마이페이지
     // 표시 방식 재사용)를 그대로 Report ID로 다시 쓴다. 버전은 이 리포트
     // 템플릿 자체의 표기용 상수(v1.0)이며 DB/배포 시스템과 연동되지 않는다.
-    page.drawText(`Generated by VFBCAI AI  ·  Report Template v1.0  ·  Report ID ${receiptNumber}`, {
+    page.drawText(`Prepared by VFBCAI Administrative Intelligence Engine  ·  CONFIDENTIAL  ·  Report ID ${receiptNumber}`, {
       x: marginX + footerLogoSize + 6,
       y: footerY + 18,
       size: 7.5,
