@@ -227,86 +227,124 @@ function buildChecklistSections(
   const qualitative = resultTone ? RESULT_QUALITATIVE[resultTone] ?? null : null;
   const passed = checklist.filter((c) => c.passed);
   const failed = checklist.filter((c) => !c.passed);
+  const reviewedCount = checklist.length;
+  const readinessText =
+    reviewedCount > 0 ? `${passed.length}/${reviewedCount}개 요건 확인` : "요건 확인 데이터 없음";
 
-  // ── Executive Summary ──
   const execSummary: string[] = [];
   if (typeof feasibilityScore === "number") {
     execSummary.push(
-      `제출하신 자료를 종합 분석한 결과, ${serviceLabel} 진행 가능성은 ${
-        qualitative ? `${qualitative} 수준(${feasibilityScore}%)으로` : `${feasibilityScore}%로`
-      } 평가됩니다.`
+      `${serviceLabel}에 대해 제출하신 정보를 검토한 결과, 현재 진행 가능성은 ${
+        qualitative ? `${qualitative} 수준(${feasibilityScore}%)` : `${feasibilityScore}%`
+      }으로 평가됩니다.`
     );
-    if (checklist.length > 0) {
-      if (failed.length > 0) {
-        execSummary.push(
-          `현재 확인된 항목 가운데 ${failed
-            .slice(0, 2)
-            .map((f) => f.label)
-            .join(", ")}${failed.length > 2 ? ` 외 ${failed.length - 2}건` : ""}만 추가 준비가 필요합니다.`
-        );
-        execSummary.push("현재 판단의 핵심 변수는 위 미확인 항목이며, 해당 자료를 준비한 후 서류 원본 기준의 최종 확인이 필요합니다.");
-      } else {
-        execSummary.push(`확인된 ${checklist.length}개 항목을 모두 충족했으며, 현재 입력정보 범위에서는 별도 보완항목이 확인되지 않았습니다.`);
-        execSummary.push("다만 실제 제출 전에는 서류 원본과 최신 행정요건을 기준으로 최종 확인해 주세요.");
-      }
+
+    if (reviewedCount > 0) {
+      execSummary.push(
+        `검토된 핵심 요건은 총 ${reviewedCount}개이며, 이 중 ${passed.length}개가 확인되고 ${failed.length}개는 추가 확인이 필요합니다.`
+      );
     }
+
+    if (failed.length > 0) {
+      execSummary.push(
+        `가장 우선적으로 확인해야 할 사항은 ${failed
+          .slice(0, 2)
+          .map((f) => f.label)
+          .join(", ")}${failed.length > 2 ? ` 외 ${failed.length - 2}건` : ""}입니다.`
+      );
+      execSummary.push(
+        "해당 항목을 보완한 뒤 서류 원본과 함께 최종 검토를 진행하는 것이 안전합니다."
+      );
+    } else if (reviewedCount > 0) {
+      execSummary.push(
+        "현재 확인된 범위에서는 핵심 준비요건이 모두 충족된 상태이며, 다음 서류 준비 단계로 진행할 수 있습니다."
+      );
+    }
+
     if (customerNote) execSummary.push(customerNote);
+
     if (requiredDocs.documents.length > 0) {
-      execSummary.push(`준비서류는 총 ${requiredDocs.documents.length}종이 확인되며, 상세 목록은 우측을 참고해 주세요.`);
+      execSummary.push(
+        `현재 확인된 필수 제출서류는 총 ${requiredDocs.documents.length}종이며, 제출 전 원본 상태와 유효기간을 다시 확인해 주세요.`
+      );
     }
   } else {
-    execSummary.push("아직 AI 진단 결과가 없습니다.");
+    execSummary.push("현재 저장된 정보만으로는 최종 평가를 구성하기 어렵습니다.");
   }
 
-  // ── Key Findings (확인 완료 / 추가 확인 필요) ──
   const keyFindings: string[] = [];
-  if (checklist.length > 0) {
-    if (passed.length > 0) {
-      keyFindings.push("■ 확인 완료");
-      passed.slice(0, 4).forEach((p) => keyFindings.push(`✓  ${p.label}`));
-    }
+  if (reviewedCount > 0) {
+    keyFindings.push(`■ 확인 결과 · ${readinessText}`);
+    passed.slice(0, 4).forEach((p) => keyFindings.push(`✓ ${p.label} · 확인 완료`));
     if (failed.length > 0) {
       keyFindings.push("■ 추가 확인 필요");
-      failed.slice(0, 4).forEach((f) => keyFindings.push(`○ REVIEW  ${f.label}`));
+      failed.slice(0, 3).forEach((f) => keyFindings.push(`○ ${f.label} · 보완 필요`));
     }
   } else {
-    keyFindings.push("아직 이 항목에 연결된 확인 데이터가 없습니다.");
+    keyFindings.push("현재 연결된 세부 확인 데이터가 없습니다.");
   }
 
-  // ── Key Risks ── (등급 데이터가 없어 HIGH/MEDIUM/LOW를 붙이지 않는다 — 아래 참고)
   const keyRisks: string[] = [];
-  if (checklist.length > 0) {
+  if (reviewedCount > 0) {
     if (failed.length > 0) {
-      failed.slice(0, 4).forEach((f, idx) => {
-        keyRisks.push(`PRIORITY ${idx + 1}  ${f.label} — 입력하신 답변 기준으로 준비 여부가 아직 확인되지 않았습니다.`);
+      failed.slice(0, 3).forEach((f, idx) => {
+        keyRisks.push(
+          `${idx + 1}. ${f.label} · 현재 입력 기준으로 준비 여부가 확인되지 않았습니다.`
+        );
       });
-      keyRisks.push("위 항목을 먼저 준비한 후 서류 원본과 함께 전문가 확인을 진행해 주세요.");
+      keyRisks.push(
+        "영향 · 미확인 항목이 남아 있으면 실제 접수 전 추가 서류 확인이 필요할 수 있습니다."
+      );
+      keyRisks.push(
+        "대응 · 우선순위가 높은 항목부터 준비한 뒤 전문가 최종 확인을 진행해 주세요."
+      );
     } else {
-      keyRisks.push("확인된 항목은 모두 충족되어 현재 시점 기준으로는 별도 위험요인이 발견되지 않았습니다.");
+      keyRisks.push(
+        "현재 확인된 요건은 모두 충족되어 별도 미확인 항목은 없습니다."
+      );
+      keyRisks.push(
+        "다만 실제 제출 전에는 서류 원본, 유효기간 및 최신 행정기준을 다시 확인해야 합니다."
+      );
     }
   } else {
-    keyRisks.push("아직 이 항목에 연결된 위험요인 확인 데이터가 없습니다.");
+    keyRisks.push("현재 연결된 위험요인 확인 데이터가 없습니다.");
   }
 
-  // ── Recommended Action ──
   const recommendedAction: string[] = [];
-  recommendedAction.push(
-    toneLabel
-      ? `현재 제출정보 기준 판단은 '${toneLabel}'입니다. 아래 조치를 우선순위대로 진행해 주세요.`
-      : "현재 제출정보를 기준으로 아래 조치를 우선순위대로 진행해 주세요."
-  );
-  const recommendations: string[] = [];
-  for (const f of failed.slice(0, 2)) recommendations.push(f.label);
-  if (requiredDocs.documents.length > 0) recommendations.push(`준비 서류: ${requiredDocs.documents.slice(0, 3).join(", ")}`);
-  const circled = ["①", "②", "③"];
-  recommendations.slice(0, 3).forEach((r, idx) => recommendedAction.push(`${circled[idx]} ${r}`));
-  recommendedAction.push("모든 항목을 준비하신 후에는 전문가 상담을 통해 최종 확인을 진행해 주세요.");
-  if (recommendations.length === 0 && failed.length === 0 && requiredDocs.documents.length === 0) {
-    recommendedAction.length = 0;
-    recommendedAction.push("아직 이 항목에 연결된 권고 데이터가 없습니다.");
+  if (toneLabel) {
+    recommendedAction.push(
+      `현재 상태 · ${toneLabel} / ${readinessText}`
+    );
   }
 
-  return { execSummary, keyFindings, keyRisks, recommendedAction, riskCount: checklist.length > 0 ? failed.length : null };
+  const actions: string[] = [];
+  failed.slice(0, 2).forEach((f) => actions.push(`${f.label} 준비 및 확인`));
+
+  if (requiredDocs.documents.length > 0) {
+    actions.push(
+      `필수서류 ${requiredDocs.documents.slice(0, 3).join(", ")} 원본 확인`
+    );
+  }
+
+  if (actions.length > 0) {
+    const labels = ["① 우선 조치", "② 다음 조치", "③ 최종 조치"];
+    actions.slice(0, 3).forEach((action, idx) => {
+      recommendedAction.push(`${labels[idx]} · ${action}`);
+    });
+    recommendedAction.push(
+      "모든 준비가 끝나면 전문가 검토를 통해 최종 진행 여부를 확인해 주세요."
+    );
+  } else {
+    recommendedAction.push("현재 연결된 권고 데이터가 없습니다.");
+  }
+
+  return {
+    execSummary,
+    keyFindings,
+    keyRisks,
+    recommendedAction,
+    riskCount: reviewedCount > 0 ? failed.length : null,
+  };
 }
 
 // ── 진행단계 (기존 CRM 활동 로그 기반, 새 절차 아님) ──
@@ -699,21 +737,26 @@ export async function POST(req: NextRequest) {
         const report = diag.report;
         if (report) {
           // ── Executive Summary ──
-          execSummary = [report.incidentSummary, report.analysisOpinion];
-          execSummary.push(
+          execSummary = [
+            report.incidentSummary,
+            report.analysisOpinion,
             report.riskFactors.length > 0
-              ? `확인된 위험요인은 총 ${report.riskFactors.length}건입니다.`
-              : "현재 시점 기준으로 별도 위험요인이 확인되지 않았습니다."
-          );
+              ? `현재 확인된 핵심 위험요인은 ${report.riskFactors.length}건이며, 우선순위가 높은 항목부터 원본 자료 확인이 필요합니다.`
+              : "현재 입력자료 기준으로는 별도 핵심 위험요인이 확인되지 않았습니다.",
+          ];
           if (report.recommendedActions.length > 0) {
-            execSummary.push(`권장 조치는 총 ${report.recommendedActions.length}건이며, 아래 Recommended Action을 참고해 주세요.`);
+            execSummary.push(
+              `권장 조치는 ${report.recommendedActions.length}건이며, 즉시 조치가 필요한 항목부터 순서대로 확인하는 것이 필요합니다.`
+            );
           }
 
           // ── Key Findings (법률 분야 + 실무 안내) ──
           keyFindings = [];
           if (report.legalAreas.length > 0) {
             keyFindings.push("■ 관련 법률 분야");
-            for (const la of report.legalAreas.slice(0, 3)) keyFindings.push(`✓ [${la.area}] ${la.note}`);
+            for (const la of report.legalAreas.slice(0, 3)) {
+              keyFindings.push(`✓ ${la.area} · ${la.note}`);
+            }
           }
           const practiceLines = [report.legalApplicabilityNote, report.legalUpdateNotice, report.practiceNotes].filter(Boolean);
           if (practiceLines.length > 0) {
@@ -730,10 +773,15 @@ export async function POST(req: NextRequest) {
                   return `${tag} ${r.label}`;
                 })
               : ["확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다."];
-          if (report.riskFactors.length > 0) keyRisks.push("우선순위가 높은 항목부터 서류 원본과 함께 보완해 주세요.");
+          if (report.riskFactors.length > 0) {
+            keyRisks.push("영향 · 사실관계 또는 증빙이 부족하면 최종 판단이 달라질 수 있습니다.");
+            keyRisks.push("대응 · 우선순위가 높은 항목부터 서류 원본과 함께 확인해 주세요.");
+          }
 
           // ── Recommended Action ──
-          recommendedAction = report.recommendedActions.slice(0, 3).map((a, idx) => `${["①", "②", "③"][idx]} ${a}`);
+          recommendedAction = report.recommendedActions
+            .slice(0, 3)
+            .map((a, idx) => `${["① 우선 조치", "② 다음 조치", "③ 최종 조치"][idx]} · ${a}`);
           if (report.expertReviewRecommendation) recommendedAction.push(report.expertReviewRecommendation);
           if (recommendedAction.length === 0) recommendedAction.push("아직 이 항목에 연결된 권고 데이터가 없습니다.");
 
