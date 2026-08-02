@@ -909,12 +909,12 @@ export default async function AdminLeadDetailPage({
       <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-slate-200 bg-white px-4 xl:hidden"><Menu size={21}/><div className="flex items-center gap-2 text-[16px] font-bold"><ShieldCheck size={18} className="text-blue-700"/>VFBCAI 관리자</div><Bell size={19}/></header>
 
       <div className="w-full xl:pl-[196px]">
-        <div className="mx-auto w-full max-w-[1280px] px-5 py-5 sm:px-6 lg:px-8 lg:py-5">
+        <div className="mx-auto w-full max-w-[1680px] px-4 py-4 sm:px-5 lg:px-6 lg:py-4 2xl:px-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-[11px] font-medium text-slate-400">신청건 관리　›　신청건 상세</div><div className="mt-2 flex flex-wrap items-center gap-2.5"><h1 className="text-[24px] font-extrabold tracking-tight sm:text-[28px]">신청건 상세</h1><span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div></div><div className="flex items-start gap-2"><ExecutivePdfButton leadId={lead.id} /><Link href="/admin/cases" className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[14px] font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><ArrowLeft size={14}/>목록으로 돌아가기</Link></div></div>
 
           <section className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
             <div className="grid lg:grid-cols-[1.22fr_1.02fr_.9fr_1.08fr] lg:divide-x lg:divide-slate-100">
-              <div className="min-h-[168px] p-4"><div className="flex h-full items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={20}/></div><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold text-slate-400">고객명</p><p className="mt-0.5 text-[18px] font-extrabold">{lead.name}</p><dl className="mt-3 space-y-1.5 text-[11px]"><div><dt className="text-slate-400">연락처</dt><dd className="font-semibold">{lead.phone ?? "-"}</dd></div><div><dt className="text-slate-400">이메일</dt><dd className="break-all font-semibold">{lead.email ?? "-"}</dd></div></dl></div></div></div>
+              <div className="min-h-[168px] p-4"><div className="flex h-full items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={20}/></div><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold text-slate-400">고객명</p><p className="mt-0.5 text-[18px] font-extrabold">{lead.name}</p><dl className="mt-2 space-y-0.5.5 text-[11px]"><div><dt className="text-slate-400">연락처</dt><dd className="font-semibold">{lead.phone ?? "-"}</dd></div><div><dt className="text-slate-400">이메일</dt><dd className="break-all font-semibold">{lead.email ?? "-"}</dd></div></dl></div></div></div>
               <div className="min-h-[168px] border-t border-slate-100 p-4 lg:border-t-0"><p className="text-[11px] font-semibold text-slate-400">서비스</p><div className="mt-1 flex flex-wrap items-center gap-2"><span className="text-[14px] font-bold">{serviceLabel}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div><p className="mt-5 text-[11px] font-semibold text-slate-400">현재 단계</p><span className="mt-1 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">{currentStageLabel}</span><p className="mt-5 text-[11px] font-semibold text-slate-400">담당 직원</p><div className="mt-1 flex items-center gap-2 text-[12px] font-semibold"><User size={13}/>VFBCAI 담당자</div></div>
               <div className="min-h-[168px] border-t border-slate-100 p-4 lg:border-t-0"><dl className="space-y-3 text-[11px]"><div><dt className="text-slate-400">접수일</dt><dd className="mt-1 font-semibold">{new Date(lead.created_at).toLocaleString("ko-KR")}</dd></div><div><dt className="text-slate-400">마지막 활동</dt><dd className="mt-1 font-semibold">{latestActivity ? new Date(latestActivity.created_at).toLocaleString("ko-KR") : "-"}</dd></div></dl></div>
               <div className="min-h-[168px] border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0"><div className="grid grid-cols-2 gap-2.5"><div className="rounded-xl border border-slate-100 bg-white p-3"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={13}/>제출 문서</p><p className="mt-1 text-[18px] font-extrabold">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted).length : submittedRequiredCount}</p></div><div className="rounded-xl border border-red-100 bg-red-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={13}/>미제출 문서</p><p className="mt-1 text-[18px] font-extrabold text-red-600">{isCheckWorkspace ? wpMissingMandatory.length : requiredDocuments.length - submittedRequiredCount}</p></div><div className="rounded-xl border border-amber-100 bg-amber-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={13}/>보완 요청</p><p className="mt-1 text-[18px] font-extrabold text-amber-700">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted && wpAiReview(row) !== "-").length : "-"}</p></div><div className="rounded-xl border border-blue-100 bg-blue-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={13}/>AI 점수</p><p className="mt-1 text-[18px] font-extrabold text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div></div></div>
@@ -923,8 +923,8 @@ export default async function AdminLeadDetailPage({
 
           <section className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between"><h2 className="text-[14px] font-extrabold">진행 단계</h2><span className="text-[13px] font-semibold text-slate-400">{currentStageLabel}</span></div><div className="mt-4 flex items-start">{processSteps.map((step,i)=>{const isNextStep=i===nextStepIndex;return <div key={step.label} className="relative min-w-0 flex-1 text-center">{i>0&&<div className={`absolute right-1/2 top-[14px] h-[2px] w-full ${step.done?"bg-emerald-300":"bg-slate-200"}`}/>}<div className={`relative z-10 mx-auto flex h-6 w-6 items-center justify-center rounded-full border-2 text-[11px] font-extrabold ${step.done?"border-emerald-300 bg-emerald-50 text-emerald-700":isNextStep?"border-blue-600 bg-blue-600 text-white":"border-slate-200 bg-white text-slate-400"}`}>{step.done?<CheckCircle2 size={13}/>:i+1}</div><p className={`mt-1.5 truncate px-1 text-[10px] font-bold ${step.done?"text-emerald-700":isNextStep?"text-blue-700":"text-slate-500"}`}>{step.label}</p></div>})}</div>{nextStep&&<div className="mt-4 flex flex-col gap-2 rounded-xl bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"><strong className="text-[12px] text-blue-900">다음 단계: {nextStep.label}</strong><form action={setProcessStage} className="flex flex-wrap gap-2"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="stageAction" value={nextStep.settableAction??""}/>{nextStep.settableAction==="process_permit_completed"&&<input type="file" name="permitFile" className="max-w-[190px] text-[10px]"/>}<button className="rounded-lg border border-blue-500 bg-white px-3 py-2 text-[11px] font-bold text-blue-700">다음 단계로 변경</button></form></div>}</section>
 
-          <div className="mt-4 grid min-w-0 gap-2.5 lg:grid-cols-[minmax(0,2.75fr)_minmax(300px,1fr)] lg:items-start">
-            <div className="min-w-0 space-y-4">
+          <div className="mt-3 grid min-w-0 gap-3 xl:grid-cols-[minmax(0,72fr)_minmax(340px,28fr)] xl:items-start">
+            <div className="min-w-0 space-y-3">
               <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
                 <div className="flex flex-col gap-2 border-b border-blue-100 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -951,18 +951,18 @@ export default async function AdminLeadDetailPage({
                       <table className="w-full table-fixed text-left text-[11px]">
                         <thead className="sticky top-0 z-10 border-b border-slate-100 bg-slate-50 text-slate-500">
                           <tr>
-                            <th className="w-[24%] px-4 py-2 font-bold">문서명</th>
-                            <th className="w-[14%] px-2 py-2 font-bold">준비구분</th>
-                            <th className="w-[20%] px-2 py-2 font-bold">파일명</th>
-                            <th className="w-[14%] px-2 py-2 font-bold">제출상태</th>
-                            <th className="w-[14%] px-2 py-2 font-bold">검토 상태</th>
-                            <th className="w-[14%] px-2 py-2 font-bold">다음조치</th>
+                            <th className="w-[23%] px-4 py-3 font-bold">문서명</th>
+                            <th className="w-[14%] px-3 py-3 font-bold">준비구분</th>
+                            <th className="w-[21%] px-3 py-3 font-bold">파일명</th>
+                            <th className="w-[14%] px-3 py-3 font-bold">제출상태</th>
+                            <th className="w-[14%] px-3 py-3 font-bold">검토 상태</th>
+                            <th className="w-[14%] px-3 py-3 font-bold">다음조치</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {wpDocRows.map((row, index) => (
                             <tr key={row.label} className="transition-colors odd:bg-white even:bg-slate-50/40 hover:bg-blue-50/50">
-                              <td className="px-4 py-2">
+                              <td className="px-4 py-3">
                                 <div className="flex items-center gap-2">
                                   <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${index % 3 === 0 ? "bg-red-50 text-red-500" : index % 3 === 1 ? "bg-blue-50 text-blue-600" : "bg-violet-50 text-violet-600"}`}>
                                     <FileText size={12} />
@@ -973,27 +973,27 @@ export default async function AdminLeadDetailPage({
                                   </span>
                                 </div>
                               </td>
-                              <td className="px-2 py-2 text-slate-500">{row.origin}</td>
-                              <td className="truncate px-2 py-2 font-medium text-slate-600">
+                              <td className="px-3 py-3 text-slate-500">{row.origin}</td>
+                              <td className="truncate px-3 py-3 font-medium text-slate-600">
                                 {row.signedUrl ? (
                                   <a href={row.signedUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:underline">{row.fileName ?? "파일 보기"}</a>
                                 ) : (
                                   row.fileName ?? "-"
                                 )}
                               </td>
-                              <td className="px-2 py-2">
-                                <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
+                              <td className="px-3 py-3">
+                                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
                                   <span className={`h-1.5 w-1.5 rounded-full ${wpSubmissionBadge(row).dot}`} />
                                   {wpSubmissionBadge(row).label}
                                 </span>
                               </td>
-                              <td className="px-2 py-2">
-                                <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[10px] font-bold ${wpReviewBadge(row).className}`}>
+                              <td className="px-3 py-3">
+                                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold ${wpReviewBadge(row).className}`}>
                                   <span className={`h-1.5 w-1.5 rounded-full ${wpReviewBadge(row).dot}`} />
                                   {wpReviewBadge(row).label}
                                 </span>
                               </td>
-                              <td className="px-2 py-2 text-slate-600">
+                              <td className="px-3 py-3 text-slate-600">
                                 <span className="inline-flex items-center gap-1.5">
                                   {(() => {
                                     const NextActionIcon = wpNextActionIcon(wpNextAction(row));
@@ -1018,7 +1018,7 @@ export default async function AdminLeadDetailPage({
                             <p className="truncate text-[12px] font-bold text-slate-800">{row.label}</p>
                             <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {wpReviewBadge(row).label} · {row.fileName ?? "제출 파일 없음"}</p>
                           </div>
-                          <span className={`shrink-0 rounded-full px-4 py-2 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
+                          <span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
                             {wpSubmissionBadge(row).label}
                           </span>
                         </div>
@@ -1036,9 +1036,9 @@ export default async function AdminLeadDetailPage({
                     <thead className="sticky top-0 z-10 border-b border-slate-100 bg-slate-50 text-slate-500">
                       <tr>
                         <th className="w-[30%] px-4 py-2 font-bold">문서명</th>
-                        <th className="w-[20%] px-2 py-2 font-bold">파일명</th>
+                        <th className="w-[21%] px-3 py-3 font-bold">파일명</th>
                         <th className="w-[17%] px-2 py-2 font-bold">구분</th>
-                        <th className="w-[14%] px-2 py-2 font-bold">제출일</th>
+                        <th className="w-[14%] px-3 py-3 font-bold">제출일</th>
                         <th className="w-[11%] px-2 py-2 font-bold">상태</th>
                         <th className="w-[8%] px-2 py-2 text-center font-bold">작업</th>
                       </tr>
@@ -1063,7 +1063,7 @@ export default async function AdminLeadDetailPage({
 
                         return (
                           <tr key={label} className="transition-colors odd:bg-white even:bg-slate-50/40 hover:bg-blue-50/50">
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${index % 3 === 0 ? "bg-red-50 text-red-500" : index % 3 === 1 ? "bg-blue-50 text-blue-600" : "bg-violet-50 text-violet-600"}`}>
                                   <FileText size={12} />
@@ -1071,14 +1071,14 @@ export default async function AdminLeadDetailPage({
                                 <span className="font-bold text-slate-800">{label}</span>
                               </div>
                             </td>
-                            <td className="truncate px-2 py-2 font-medium text-slate-600">{displayFileName}</td>
-                            <td className="px-2 py-2">
+                            <td className="truncate px-3 py-3 font-medium text-slate-600">{displayFileName}</td>
+                            <td className="px-3 py-3">
                               <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${index < 3 ? "bg-blue-50 text-blue-700" : "bg-violet-50 text-violet-700"}`}>
                                 {index < 3 ? "고객 추가 제출" : "질문 단계 제출"}
                               </span>
                             </td>
                             <td className="truncate px-2 py-2 text-slate-500">{displayDate}</td>
-                            <td className="px-2 py-2">
+                            <td className="px-3 py-3">
                               <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${submitted ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                                 <span className={`h-1.5 w-1.5 rounded-full ${submitted ? "bg-emerald-500" : "bg-amber-500"}`} />
                                 {submitted ? "확인 완료" : "미확인"}
@@ -1142,36 +1142,36 @@ export default async function AdminLeadDetailPage({
                 </div>
               </section>
 
-              <section className="min-h-[238px] rounded-2xl border border-slate-200 bg-white p-5 pb-6 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+              <section className="min-h-[220px] rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-[14px] font-extrabold">AI 진단 결과</h2>
                   <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">진단 완료</span>
                 </div>
 
                 {isCheckWorkspace && (
-                  <div className={`mt-4 flex flex-col gap-4 overflow-hidden rounded-xl border border-slate-100 px-6 py-6 sm:flex-row sm:items-center ${wpDecisionTone.bg}`}>
+                  <div className={`mt-3 flex flex-col gap-3 overflow-hidden rounded-xl border border-amber-200 px-5 py-4 sm:flex-row sm:items-center ${wpDecisionTone.bg}`}>
                     <div className="flex flex-1 items-start gap-3.5">
                       <WpDecisionIcon size={22} className={`mt-0.5 shrink-0 ${wpDecisionTone.value}`} />
                       <div className="min-w-0">
                         <p className={`text-[11px] font-semibold ${wpDecisionTone.label}`}>AI 종합 판단</p>
-                        <p className={`mt-1.5 text-2xl font-semibold ${wpDecisionTone.value}`}>{wpDecisionLabel}</p>
-                        <div className="mt-3 space-y-1">
+                        <p className={`mt-1 text-[24px] font-extrabold tracking-tight ${wpDecisionTone.value}`}>{wpDecisionLabel}</p>
+                        <div className="mt-2 space-y-0.5">
                           {wpDecisionDetailLines.map((line, idx) => (
                             <p key={idx} className="text-[12px] leading-relaxed text-slate-600">{line}</p>
                           ))}
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2.5 sm:w-[300px] sm:shrink-0">
-                      <div className="flex flex-col items-center justify-center rounded-lg bg-white/70 px-2 py-3 text-center">
+                    <div className="grid grid-cols-3 gap-2.5 sm:w-[360px] sm:shrink-0">
+                      <div className="flex flex-col items-center justify-center rounded-xl border border-white/80 bg-white/80 px-3 py-3 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                         <p className="text-[10px] text-slate-500">가능성 점수</p>
                         <p className="mt-1 text-xl font-extrabold text-slate-900">{typeof activeScore === "number" ? activeScore : "-"}</p>
                       </div>
-                      <div className="flex flex-col items-center justify-center rounded-lg bg-white/70 px-2 py-3 text-center">
+                      <div className="flex flex-col items-center justify-center rounded-xl border border-white/80 bg-white/80 px-3 py-3 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                         <p className="text-[10px] text-slate-500">고객 요청</p>
                         <p className="mt-1 text-xl font-extrabold text-slate-900">{wpMissingMandatory.length}건</p>
                       </div>
-                      <div className="flex flex-col items-center justify-center rounded-lg bg-white/70 px-2 py-3 text-center">
+                      <div className="flex flex-col items-center justify-center rounded-xl border border-white/80 bg-white/80 px-3 py-3 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                         <p className="text-[10px] text-slate-500">전문가 확인</p>
                         <p className="mt-1 text-xl font-extrabold text-slate-900">{wpExpertConfirmAll.length}건</p>
                       </div>
@@ -1179,35 +1179,35 @@ export default async function AdminLeadDetailPage({
                   </div>
                 )}
 
-                <div className="mt-5 grid overflow-hidden rounded-xl border border-slate-100 sm:grid-cols-[1.45fr_repeat(4,1fr)]">
-                  <div className="flex min-h-[84px] flex-col justify-center border-b border-emerald-100 bg-emerald-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
+                <div className="mt-3 grid overflow-hidden rounded-xl border border-slate-200 sm:grid-cols-[1.45fr_repeat(4,1fr)]">
+                  <div className="flex min-h-[78px] flex-col justify-center border-b border-emerald-100 bg-emerald-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[11px] font-semibold text-slate-500">종합 결과</p>
                     <p className="mt-1 text-[19px] font-extrabold text-emerald-700">{resultInfo?.label ?? "-"}</p>
                     <p className="mt-1 text-[11px] leading-relaxed text-slate-500">일부 보완 후 진행 가능합니다.</p>
                   </div>
-                  <div className="flex min-h-[84px] flex-col justify-center border-b border-blue-100 bg-blue-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
+                  <div className="flex min-h-[78px] flex-col justify-center border-b border-blue-100 bg-blue-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[10px] font-semibold text-slate-400">가능성 점수</p>
                     <p className="mt-2 text-[17px] font-extrabold text-slate-900">
                       {typeof activeScore === "number" ? activeScore : "-"}
                       <span className="text-[11px] font-medium text-slate-400">/100</span>
                     </p>
                   </div>
-                  <div className="flex min-h-[84px] flex-col justify-center border-b border-amber-100 bg-amber-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
+                  <div className="flex min-h-[78px] flex-col justify-center border-b border-amber-100 bg-amber-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[10px] font-semibold text-slate-400">위험도</p>
                     <p className="mt-2 text-[16px] font-extrabold text-amber-600">{riskInfo?.label ?? "-"}</p>
                   </div>
-                  <div className="flex min-h-[84px] flex-col justify-center border-b border-violet-100 bg-violet-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
+                  <div className="flex min-h-[78px] flex-col justify-center border-b border-violet-100 bg-violet-50/60 px-3 py-2.5 sm:border-b-0 sm:border-r">
                     <p className="text-[10px] font-semibold text-slate-400">예상 소요 기간</p>
                     <p className="mt-2 text-[16px] font-extrabold text-slate-900">-</p>
                   </div>
-                  <div className="flex min-h-[84px] flex-col justify-center bg-cyan-50/60 px-3 py-2.5">
+                  <div className="flex min-h-[78px] flex-col justify-center bg-cyan-50/60 px-3 py-2.5">
                     <p className="text-[10px] font-semibold text-slate-400">예상 비용</p>
                     <p className="mt-2 text-[16px] font-extrabold text-slate-900">-</p>
                   </div>
                 </div>
 
                 {isCheckWorkspace && (
-                  <div className="mt-5 grid grid-cols-2 gap-2 border-t border-slate-100 pt-5 sm:grid-cols-5">
+                  <div className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3 sm:grid-cols-5">
                     <div className="rounded-xl border border-violet-100 bg-violet-50 p-2.5"><p className="text-[10px] text-violet-700">신청 유형</p><p className="mt-0.5 truncate text-[13px] font-extrabold text-violet-800">{wpApplicationType}</p></div>
                     <div className="rounded-xl border border-slate-100 bg-white p-2.5"><p className="text-[10px] text-slate-500">한국 준비</p><p className="mt-0.5 text-[13px] font-extrabold">{wpMissingByOrigin.한국}건</p></div>
                     <div className="rounded-xl border border-slate-100 bg-white p-2.5"><p className="text-[10px] text-slate-500">베트남 준비</p><p className="mt-0.5 text-[13px] font-extrabold">{wpMissingByOrigin.베트남}건</p></div>
@@ -1216,7 +1216,7 @@ export default async function AdminLeadDetailPage({
                   </div>
                 )}
 
-                <div className="mt-5 grid gap-4 border-t border-slate-100 pt-5 md:grid-cols-2">
+                <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 md:grid-cols-2">
                   <div className="md:border-r md:border-slate-100 md:pr-7">
                     <h3 className="flex items-center gap-2 border-b border-slate-100 pb-2 text-[15px] font-semibold text-slate-800"><AlertTriangle size={15} className="shrink-0 text-slate-400" />주요 위험 요인</h3>
                     {activeBrief?.rejectionRisks?.length ? (
@@ -1270,7 +1270,7 @@ export default async function AdminLeadDetailPage({
                 </div>
 
                 {isCheckWorkspace && (
-                  <div className="mt-5 grid gap-4 border-t border-slate-100 pt-5 md:grid-cols-2">
+                  <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 md:grid-cols-2">
                     <div className="md:border-r md:border-slate-100 md:pr-7">
                       <h3 className="flex items-center gap-2 border-b border-slate-100 pb-2 text-[15px] font-semibold text-slate-800"><Mail size={15} className="shrink-0 text-slate-400" />고객 요청</h3>
                       {wpCustomerRequestItems.length > 0 ? (
@@ -1304,13 +1304,13 @@ export default async function AdminLeadDetailPage({
                   </div>
                 )}
                 {isCheckWorkspace && (
-                  <div className="mt-5 border-t border-slate-100 pt-5">
+                  <div className="mt-3 border-t border-slate-100 pt-3">
                     <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
                       <h3 className="flex items-center gap-2 text-[15px] font-semibold text-slate-800"><CheckCircle2 size={15} className="shrink-0 text-slate-400" />최종 검토 체크리스트</h3>
                       <span className="shrink-0 rounded-full bg-slate-100 px-3.5 py-1.5 text-[11px] font-bold text-slate-600">서류 {wpSubmittedMandatoryCount}/{wpMandatoryLabels.length}</span>
                     </div>
                     {wpFindingsChecklist.length > 0 ? (
-                      <ul className="mt-4 grid gap-3.5 sm:grid-cols-2">
+                      <ul className="mt-3 grid gap-2.5 sm:grid-cols-2">
                         {wpFindingsChecklist.map((item, idx) => (
                           <li key={idx} className="flex items-start gap-3 text-[12px] leading-relaxed text-slate-600">
                             <span className="shrink-0">☐</span>
@@ -1326,17 +1326,17 @@ export default async function AdminLeadDetailPage({
               </section>
             </div>
 
-            <aside className="space-y-3">
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-blue-100 bg-blue-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-blue-950">고객 기본 정보</h2></div><dl className="grid grid-cols-[104px_1fr] gap-y-1.5 px-4 py-3 text-[11px]"><dt className="text-slate-500">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-slate-500">연락처</dt><dd className="text-right font-semibold">{lead.phone??"-"}</dd><dt className="text-slate-500">이메일</dt><dd className="min-w-0 break-all text-right font-semibold">{lead.email??"-"}</dd><dt className="text-amber-700">카카오톡 ID</dt><dd className="text-right font-bold text-amber-700">{lead.kakao_id??"-"}</dd><dt className="text-blue-700">Zalo ID</dt><dd className="text-right font-bold text-blue-700">{lead.zalo_id??"-"}</dd><dt className="text-slate-500">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleDateString("ko-KR")}</dd></dl></section>
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-violet-100 bg-violet-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-violet-950">담당자 정보</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">담당자 변경</span></div><dl className="grid grid-cols-[104px_1fr] gap-y-1.5 px-4 py-3 text-[11px]"><dt className="text-slate-500">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-slate-400">배정일</dt><dd className="text-right font-semibold">-</dd></dl></section>
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-amber-950">내부 메모</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">메모 작성</span></div><div className="px-4 py-3">{memoActivities.length>0&&<div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px]">{String(asMeta(memoActivities[memoActivities.length-1].meta)?.memo??"")}</div>}<form action={addExpertMemo} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><textarea name="memo" required rows={2} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[11px] outline-none focus:border-blue-500"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">메모 저장</button></form></div></section>
-              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-red-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-red-100 bg-red-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-red-950">타 기관 거절 이력</h2></div><div className="px-4 py-3">{rejections.length?<div className="mt-3 space-y-2">{rejections.map(r=><div key={r.id} className="rounded-lg border border-red-100 p-3 text-[11px]"><div className="flex justify-between"><strong>{getServiceLabel(r.service_type)}</strong><span className="text-red-500">거절</span></div><p className="mt-1 text-slate-500">{r.reason||"사유 미기재"}</p></div>)}</div>:<p className="mt-2 text-[11px] text-slate-400">연결된 거절이력이 없습니다.</p>}</div></section>
-              <section className="min-h-[176px] min-w-0 w-full overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-emerald-100 bg-emerald-50 px-4 py-2.5"><h2 className="text-[14px] font-extrabold text-emerald-950">활동 타임라인</h2></div><div className="px-4 py-3">{activities.length?<div className="relative mt-1.5 space-y-2 before:absolute before:bottom-1 before:left-[4px] before:top-1 before:w-px before:bg-slate-200">{activities.slice(-6).map(a=><div key={a.id} className="relative grid grid-cols-[82px_1fr] gap-2 pl-4 text-[9px]"><span className={`absolute left-0 top-1 h-[9px] w-[9px] rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}/><span className="text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</span><div><strong className="text-blue-700">{getActivityLabel(a.action)}</strong>{a.tag&&<p className="mt-0.5 truncate text-slate-500">{a.tag}</p>}</div></div>)}</div>:<p className="mt-2 text-[11px] text-slate-400">기록된 활동이 없습니다.</p>}</div></section>
+            <aside className="min-w-0 space-y-3">
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-blue-100 bg-blue-50 px-4 py-3"><h2 className="text-[14px] font-extrabold text-blue-950">고객 기본 정보</h2></div><dl className="grid grid-cols-[104px_1fr] gap-y-2.5 px-4 py-4 text-[11px]"><dt className="text-slate-500">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-slate-500">연락처</dt><dd className="text-right font-semibold">{lead.phone??"-"}</dd><dt className="text-slate-500">이메일</dt><dd className="min-w-0 break-all text-right font-semibold">{lead.email??"-"}</dd><dt className="text-amber-700">카카오톡 ID</dt><dd className="text-right font-bold text-amber-700">{lead.kakao_id??"-"}</dd><dt className="text-blue-700">Zalo ID</dt><dd className="text-right font-bold text-blue-700">{lead.zalo_id??"-"}</dd><dt className="text-slate-500">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleDateString("ko-KR")}</dd></dl></section>
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-violet-100 bg-violet-50 px-4 py-3"><h2 className="text-[14px] font-extrabold text-violet-950">담당자 정보</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">담당자 변경</span></div><dl className="grid grid-cols-[104px_1fr] gap-y-2.5 px-4 py-4 text-[11px]"><dt className="text-slate-500">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-slate-400">배정일</dt><dd className="text-right font-semibold">-</dd></dl></section>
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-4 py-3"><h2 className="text-[14px] font-extrabold text-amber-950">내부 메모</h2><span className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700">메모 작성</span></div><div className="px-4 py-4">{memoActivities.length>0&&<div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px]">{String(asMeta(memoActivities[memoActivities.length-1].meta)?.memo??"")}</div>}<form action={addExpertMemo} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><textarea name="memo" required rows={2} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[11px] outline-none focus:border-blue-500"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">메모 저장</button></form></div></section>
+              <section className="min-w-0 w-full overflow-hidden rounded-2xl border border-red-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-red-100 bg-red-50 px-4 py-3"><h2 className="text-[14px] font-extrabold text-red-950">타 기관 거절 이력</h2></div><div className="px-4 py-3">{rejections.length?<div className="mt-3 space-y-2">{rejections.map(r=><div key={r.id} className="rounded-lg border border-red-100 p-3 text-[11px]"><div className="flex justify-between"><strong>{getServiceLabel(r.service_type)}</strong><span className="text-red-500">거절</span></div><p className="mt-1 text-slate-500">{r.reason||"사유 미기재"}</p></div>)}</div>:<p className="mt-2 text-[11px] text-slate-400">연결된 거절이력이 없습니다.</p>}</div></section>
+              <section className="min-h-[212px] min-w-0 w-full overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="border-b border-emerald-100 bg-emerald-50 px-4 py-3"><h2 className="text-[14px] font-extrabold text-emerald-950">활동 타임라인</h2></div><div className="px-4 py-4">{activities.length?<div className="relative mt-1 space-y-3 before:absolute before:bottom-1 before:left-[4px] before:top-1 before:w-px before:bg-slate-200">{activities.slice(-6).map(a=><div key={a.id} className="relative grid grid-cols-[92px_1fr] gap-3 pl-5 text-[10px]"><span className={`absolute left-0 top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}/><span className="text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</span><div><strong className="text-blue-700">{getActivityLabel(a.action)}</strong>{a.tag&&<p className="mt-0.5 truncate text-slate-500">{a.tag}</p>}</div></div>)}</div>:<p className="mt-2 text-[11px] text-slate-400">기록된 활동이 없습니다.</p>}</div></section>
             </aside>
           </div>
 
 
-          <section className="mt-3 min-h-[64px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center gap-2"><MessageSquareText size={16} className="text-blue-700"/><h2 className="text-[14px] font-extrabold">전문가 상담 요청 (Case Room)</h2></div>{consultationRequests.length===0?<p className="mt-2 text-[11px] text-slate-400">접수된 상담 요청이 없습니다.</p>:<div className="mt-4 space-y-3">{[...consultationRequests].reverse().map(req=>{const response=findResponseFor(req.id);return <div key={req.id} className="rounded-xl bg-slate-50 p-4"><div className="flex justify-between text-[11px]"><strong>고객 문의</strong><span className={response?"text-emerald-600":"text-amber-600"}>{response?"답변 완료":"미답변"}</span></div><p className="mt-2 whitespace-pre-wrap text-[11px]">{String(asMeta(req.meta)?.content??"")}</p>{response?<div className="mt-3 rounded-lg bg-blue-50 p-3 text-[12px] text-blue-900">{String(asMeta(response.meta)?.content??"")}</div>:<form action={respondToConsultation} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="requestActivityId" value={req.id}/><textarea name="content" required rows={3} className="w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-[12px]" placeholder="답변을 입력하세요"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">답변 등록</button></form>}</div>})}</div>}</section>
+          <section className="mt-3 min-h-[92px] w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"><div className="flex items-center gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><MessageSquareText size={17}/></span><div><h2 className="text-[14px] font-extrabold">전문가 상담 요청 (Case Room)</h2><p className="mt-0.5 text-[11px] text-slate-400">전문가와의 상담 및 자료를 한곳에서 관리합니다.</p></div></div>{consultationRequests.length===0?<div className="mt-3 flex items-center justify-between rounded-xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-3"><p className="text-[11px] text-slate-400">현재 접수된 상담 요청이 없습니다.</p><span className="text-[18px] text-slate-300">›</span></div>:<div className="mt-4 space-y-3">{[...consultationRequests].reverse().map(req=>{const response=findResponseFor(req.id);return <div key={req.id} className="rounded-xl bg-slate-50 p-4"><div className="flex justify-between text-[11px]"><strong>고객 문의</strong><span className={response?"text-emerald-600":"text-amber-600"}>{response?"답변 완료":"미답변"}</span></div><p className="mt-2 whitespace-pre-wrap text-[11px]">{String(asMeta(req.meta)?.content??"")}</p>{response?<div className="mt-3 rounded-lg bg-blue-50 p-3 text-[12px] text-blue-900">{String(asMeta(response.meta)?.content??"")}</div>:<form action={respondToConsultation} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="requestActivityId" value={req.id}/><textarea name="content" required rows={3} className="w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-[12px]" placeholder="답변을 입력하세요"/><button className="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-[11px] font-bold text-white">답변 등록</button></form>}</div>})}</div>}</section>
         </div>
       </div>
     </main>
