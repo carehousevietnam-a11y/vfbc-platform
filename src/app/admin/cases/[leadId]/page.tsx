@@ -795,19 +795,23 @@ export default async function AdminLeadDetailPage({
   // 조합한 문장이다. 새 AI 판단이 아니라 기존 숫자를 문장으로 풀어쓴 것이다.
   const wpDecisionLabel: string =
     wpMissingMandatory.length > 0 ? "보완 필요" : wpExpertConfirmAll.length > 0 ? "전문가 확인 필요" : "진행 가능";
-  const wpMissingOriginPhrases: string[] = [];
-  if (wpMissingByOrigin.한국 > 0) wpMissingOriginPhrases.push(`한국 준비 서류 ${wpMissingByOrigin.한국}건`);
-  if (wpMissingByOrigin.베트남 > 0) wpMissingOriginPhrases.push(`베트남 준비 서류 ${wpMissingByOrigin.베트남}건`);
-  if (wpMissingByOrigin.회사 > 0) wpMissingOriginPhrases.push(`회사 준비 서류 ${wpMissingByOrigin.회사}건`);
-  if (wpMissingByOrigin.확인필요 > 0) wpMissingOriginPhrases.push(`준비 주체 확인이 필요한 서류 ${wpMissingByOrigin.확인필요}건`);
-  const wpExecutiveSummaryText: string =
+  // "다음 조치" 한 줄 요약과 AI 종합 판단 색상 — 전부 이미 계산된 값(미제출/
+  // 전문가확인 건수)만으로 분기하며, 새 판단을 만들지 않는다.
+  const wpNextActionSummary: string =
     wpMissingMandatory.length > 0
-      ? `현재 제출된 필수서류를 기준으로 검토한 결과, ${wpMissingOriginPhrases.join(
-          ", "
-        )}이(가) 추가로 필요합니다. 전문가 확인이 필요한 항목은 ${wpExpertConfirmAll.length}건입니다. 다음 단계는 고객에게 부족한 서류를 요청한 후 행정 형식을 검토하는 것입니다.`
+      ? "고객에게 부족한 서류 요청"
       : wpExpertConfirmAll.length > 0
-        ? `현재 필수서류는 모두 제출된 상태이며, 전문가 확인이 필요한 항목이 ${wpExpertConfirmAll.length}건 있습니다. 다음 단계는 해당 항목을 전문가가 확인하는 것입니다.`
-        : `현재 제출된 필수서류를 기준으로 확인된 보완사항이 없습니다. 다음 단계는 최종 전문가 검토입니다.`;
+        ? "전문가 확인 진행"
+        : "추가 조치 없음";
+  const wpDecisionTone =
+    wpDecisionLabel === "보완 필요"
+      ? { bg: "bg-amber-50", label: "text-amber-700", value: "text-amber-800" }
+      : wpDecisionLabel === "전문가 확인 필요"
+        ? { bg: "bg-violet-50", label: "text-violet-700", value: "text-violet-800" }
+        : { bg: "bg-emerald-50", label: "text-emerald-700", value: "text-emerald-800" };
+  // AI 종합 판단 영역은 이제 문장이 아니라 구조화된 타일로 표시하므로(아래
+  // JSX), 별도 문단 텍스트 변수는 두지 않는다 — wpMissingByOrigin/
+  // wpMissingMandatory/wpExpertConfirmAll을 타일에서 직접 사용한다.
 
   // Review Checklist(카드 하단, 관리자가 확인해야 하는 항목) — expertBrief와
   // 서류 준비구분에서 실제로 확인되는 항목만 넣는다. 데이터가 없는 항목(예:
@@ -824,17 +828,35 @@ export default async function AdminLeadDetailPage({
   // 고객 제출 문서 표의 상태 배지 — 이진값(제출/미제출) 대신 "다음에 무엇을
   // 해야 하는지"를 바로 알 수 있게 4단계로 표시한다. 기존 색상 팔레트만
   // 재사용(emerald/blue/violet/amber, 전부 이 파일에 이미 있는 색).
-  function wpStatusBadge(row: (typeof wpDocRows)[number]): { label: string; className: string; dot: string } {
-    if (!row.submitted) {
-      return { label: "고객 요청", className: "bg-amber-50 text-amber-700", dot: "bg-amber-500" };
+  // 제출상태 — 실제 업로드 여부만 표시(준비구분·필수여부와 무관하게 사실만).
+  function wpSubmissionBadge(row: (typeof wpDocRows)[number]): { label: string; className: string; dot: string } {
+    if (row.submitted) {
+      return { label: "제출 완료", className: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" };
     }
     if (!row.mandatory) {
-      return { label: "제출 완료", className: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" };
+      return { label: "선택 미제출", className: "bg-slate-100 text-slate-500", dot: "bg-slate-400" };
+    }
+    return { label: "미제출", className: "bg-amber-50 text-amber-700", dot: "bg-amber-500" };
+  }
+
+  // 검토상태 — "다음에 무엇을 해야 하는지"만 표시. 미제출 선택서류는 고객에게
+  // 요청할 필수 항목이 아니므로 "-"로 둔다(선택서류 오판 방지). 제출된
+  // 서류는 필수·선택 구분 없이 준비구분에 따라 동일하게 안내한다.
+  function wpReviewBadge(row: (typeof wpDocRows)[number]): { label: string; className: string; dot: string } {
+    if (!row.submitted) {
+      if (!row.mandatory) {
+        return { label: "-", className: "bg-slate-50 text-slate-400", dot: "bg-slate-300" };
+      }
+      return { label: "고객 요청", className: "bg-amber-50 text-amber-700", dot: "bg-amber-500" };
     }
     if (row.origin === "한국") {
       return { label: "형식 확인", className: "bg-blue-50 text-blue-700", dot: "bg-blue-500" };
     }
-    return { label: "전문가 확인", className: "bg-violet-50 text-violet-700", dot: "bg-violet-500" };
+    if (row.origin === "확인 필요") {
+      return { label: "전문가 확인", className: "bg-violet-50 text-violet-700", dot: "bg-violet-500" };
+    }
+    // 베트남, 회사
+    return { label: "행정 확인", className: "bg-teal-50 text-teal-700", dot: "bg-teal-500" };
   }
 
   return (
@@ -897,7 +919,7 @@ export default async function AdminLeadDetailPage({
                             <th className="w-[14%] px-2 py-2 font-bold">준비구분</th>
                             <th className="w-[20%] px-2 py-2 font-bold">파일명</th>
                             <th className="w-[14%] px-2 py-2 font-bold">제출상태</th>
-                            <th className="w-[14%] px-2 py-2 font-bold">AI 검토</th>
+                            <th className="w-[14%] px-2 py-2 font-bold">검토 상태</th>
                             <th className="w-[14%] px-2 py-2 font-bold">다음조치</th>
                           </tr>
                         </thead>
@@ -924,12 +946,17 @@ export default async function AdminLeadDetailPage({
                                 )}
                               </td>
                               <td className="px-2 py-2">
-                                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${wpStatusBadge(row).className}`}>
-                                  <span className={`h-1.5 w-1.5 rounded-full ${wpStatusBadge(row).dot}`} />
-                                  {wpStatusBadge(row).label}
+                                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
+                                  <span className={`h-1.5 w-1.5 rounded-full ${wpSubmissionBadge(row).dot}`} />
+                                  {wpSubmissionBadge(row).label}
                                 </span>
                               </td>
-                              <td className="px-2 py-2 text-slate-600">{wpAiReview(row)}</td>
+                              <td className="px-2 py-2">
+                                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${wpReviewBadge(row).className}`}>
+                                  <span className={`h-1.5 w-1.5 rounded-full ${wpReviewBadge(row).dot}`} />
+                                  {wpReviewBadge(row).label}
+                                </span>
+                              </td>
                               <td className="px-2 py-2 text-slate-600">{wpNextAction(row)}</td>
                             </tr>
                           ))}
@@ -945,10 +972,10 @@ export default async function AdminLeadDetailPage({
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-[12px] font-bold text-slate-800">{row.label}</p>
-                            <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {row.fileName ?? "제출 파일 없음"}</p>
+                            <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {wpReviewBadge(row).label} · {row.fileName ?? "제출 파일 없음"}</p>
                           </div>
-                          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${wpStatusBadge(row).className}`}>
-                            {wpStatusBadge(row).label}
+                          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
+                            {wpSubmissionBadge(row).label}
                           </span>
                         </div>
                       ))}
@@ -1078,11 +1105,17 @@ export default async function AdminLeadDetailPage({
                 </div>
 
                 {isCheckWorkspace && (
-                  <div className="mt-2.5 rounded-xl border border-blue-100 bg-blue-50/50 p-3.5">
-                    <p className="flex items-center gap-1.5 text-[11px] font-bold text-blue-800">
-                      <ShieldCheck size={13} /> AI 종합 판단 · {wpDecisionLabel}
-                    </p>
-                    <p className="mt-1.5 text-[11px] leading-relaxed text-slate-600">{wpExecutiveSummaryText}</p>
+                  <div className="mt-2.5 overflow-hidden rounded-xl border border-slate-100">
+                    <div className={`px-3.5 py-2.5 ${wpDecisionTone.bg}`}>
+                      <p className={`text-[10px] font-semibold ${wpDecisionTone.label}`}>AI 종합 판단</p>
+                      <p className={`mt-1 text-[18px] font-extrabold ${wpDecisionTone.value}`}>{wpDecisionLabel}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-px bg-slate-100 sm:grid-cols-4">
+                      <div className="bg-white px-3 py-2.5"><p className="text-[10px] text-slate-500">필수서류</p><p className="mt-1 text-[14px] font-extrabold">{wpSubmittedMandatoryCount}/{wpMandatoryLabels.length}</p></div>
+                      <div className="bg-white px-3 py-2.5"><p className="text-[10px] text-slate-500">고객 요청</p><p className="mt-1 text-[14px] font-extrabold">{wpMissingMandatory.length}건</p></div>
+                      <div className="bg-white px-3 py-2.5"><p className="text-[10px] text-slate-500">전문가 확인</p><p className="mt-1 text-[14px] font-extrabold">{wpExpertConfirmAll.length}건</p></div>
+                      <div className="bg-white px-3 py-2.5"><p className="text-[10px] text-slate-500">다음 조치</p><p className="mt-1 truncate text-[12px] font-bold text-blue-700">{wpNextActionSummary}</p></div>
+                    </div>
                   </div>
                 )}
 
@@ -1182,7 +1215,7 @@ export default async function AdminLeadDetailPage({
                 {isCheckWorkspace && (
                   <div className="mt-2.5 border-t border-slate-100 pt-3">
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-[13px] font-extrabold text-slate-800">Review Checklist</h3>
+                      <h3 className="text-[13px] font-extrabold text-slate-800">최종 검토 체크리스트</h3>
                       <span className="text-[10px] font-semibold text-slate-400">{currentStageLabel} · 서류 {wpSubmittedMandatoryCount}/{wpMandatoryLabels.length}</span>
                     </div>
                     {wpFindingsChecklist.length > 0 ? (
