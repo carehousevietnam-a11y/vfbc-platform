@@ -909,7 +909,7 @@ export default async function AdminLeadDetailPage({
       <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-slate-200 bg-white px-4 xl:hidden"><Menu size={21}/><div className="flex items-center gap-2 text-[16px] font-bold"><ShieldCheck size={18} className="text-blue-700"/>VFBCAI 관리자</div><Bell size={19}/></header>
 
       <div className="w-full xl:pl-[196px]">
-        <div className="mx-auto w-full max-w-[1280px] px-5 py-5 sm:px-6 lg:px-8 lg:py-5">
+        <div className="w-full max-w-none px-4 py-5 sm:px-5 lg:px-6 2xl:px-8 lg:py-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-[11px] font-medium text-slate-400">신청건 관리　›　신청건 상세</div><div className="mt-2 flex flex-wrap items-center gap-2.5"><h1 className="text-[24px] font-extrabold tracking-tight sm:text-[28px]">신청건 상세</h1><span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div></div><div className="flex items-start gap-2"><ExecutivePdfButton leadId={lead.id} /><Link href="/admin/cases" className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[14px] font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><ArrowLeft size={14}/>목록으로 돌아가기</Link></div></div>
 
           <section className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
