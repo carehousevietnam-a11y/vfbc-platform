@@ -205,7 +205,7 @@ function formatReviewStageLabel(reviewStage: string | null): string {
 // 화면에 보여줄 라벨/색상만 매핑한다. 여기 없는 action은 서비스별 진단 완료
 // 접미사(_diagnosis_lead)를 우선 확인하고, 그래도 없으면 기존 humanizeKey로
 // 사람이 읽기 좋게 변환해 표시한다(새 계산 로직이 아니라 기존 포맷터 재사용).
-// "고객 요청" 카드(WP 전용)의 번호 매기기 전용 — 새 데이터 아님, 표시용 상수.
+// "고객 요청" 카드(CHECK 공통)의 번호 매기기 전용 — 새 데이터 아님, 표시용 상수.
 const WP_CIRCLED_NUMBERS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"];
 
 const ACTIVITY_LABELS: Record<string, string> = {
@@ -652,36 +652,60 @@ export default async function AdminLeadDetailPage({
   const submittedRequiredCount = requiredDocuments.filter(isRequiredDocumentSubmitted).length;
 
   // ══════════════════════════════════════════════════════════════════════
-  // AI Review Checklist (WP 전용, 신규 — TRC/Tamtru/Driving License/VERIFY/
-  // REGISTER는 이 블록의 영향을 받지 않는다. 위에서 이미 쓰이고 있는
-  // requiredDocuments / isRequiredDocumentSubmitted(로컬 하드코딩 목록,
-  // 퍼지 매칭)는 다른 섹션이 계속 사용하므로 그대로 두고 절대 수정하지
-  // 않았다. 아래는 전부 새 변수다.
+  // AI Review Workspace (CHECK 공통, 신규 — TRC/WP/Tamtru/Driving License 4개
+  // 서비스가 전부 이 블록을 공유한다. VERIFY/REGISTER는 이 블록의 영향을
+  // 받지 않는다(카테고리가 "check"가 아니므로 isCheckWorkspace=false). 위에서
+  // 이미 쓰이고 있는 requiredDocuments / isRequiredDocumentSubmitted(로컬
+  // 하드코딩 목록, 퍼지 매칭)는 다른 섹션이 계속 사용하므로 그대로 두고
+  // 절대 수정하지 않았다. 아래는 전부 새 변수다.
   //
-  // 필수서류 목록: getRequiredDocuments("wp") — 재사용, 무수정.
+  // 필수서류 목록: getRequiredDocuments(serviceType) — 서비스별로 그대로
+  // 재사용(무수정). 문서명을 여기서 하드코딩하지 않는다 — 실제 반환된
+  // documents/optionalDocuments 배열만 쓴다.
   // 접수 여부: src/app/documents/page.tsx의 업로드 로직을 그대로 근거로
   // 삼는다 — 그 페이지는 crm_activities.tag에 정확히 getRequiredDocuments()
   // 라벨 문자열을 저장하므로(퍼지 매칭 아님), 여기서도 정확히 일치하는
   // tag만 "제출됨"으로 인정한다.
   // ══════════════════════════════════════════════════════════════════════
-  const isWpChecklist = serviceType === "wp";
-  const wpRequiredDocs = getRequiredDocuments("wp");
+  const isCheckWorkspace = category === "check";
+  const wpRequiredDocs = getRequiredDocuments(serviceType);
   const wpMandatoryLabels = wpRequiredDocs.documents;
   const wpOptionalLabels = wpRequiredDocs.optionalDocuments ?? [];
   const wpAllLabels = [...wpMandatoryLabels, ...wpOptionalLabels];
 
-  // 준비 구분(한국/베트남/회사/확인 필요) — getRequiredDocuments("wp")가 실제로
-  // 반환하는 문서명(위 wpMandatoryLabels/wpOptionalLabels)만 대상으로 한
-  // 표시 전용 매핑이다. requiredDocuments.ts는 건드리지 않았고, 여기 없는
-  // 서류를 새로 추가하지도 않았다. 확실하게 분류할 수 없는 항목은 전부
-  // "확인 필요"로 둔다(임의 추정 금지).
-  const WP_DOCUMENT_ORIGIN: Record<string, "한국" | "베트남" | "회사" | "확인 필요"> = {
+  // 준비 구분(한국/베트남/회사/확인 필요) — CHECK 4개 서비스가
+  // getRequiredDocuments()로 실제 반환하는 문서명만 대상으로 한 표시 전용
+  // 매핑이다. requiredDocuments.ts는 건드리지 않았고, 거기 없는 서류를
+  // 새로 추가하지도 않았다. 확실하게 분류할 수 없는 항목은 전부
+  // "확인 필요"로 둔다(임의 추정 금지) — 매핑에 없는 라벨(예: 향후
+  // requiredDocuments.ts가 바뀌어 새 문서명이 추가되는 경우)도 아래
+  // fallback으로 자동으로 "확인 필요"가 된다.
+  const CHECK_DOCUMENT_ORIGIN: Record<string, "한국" | "베트남" | "회사" | "확인 필요"> = {
+    // WP
     학력증명서: "한국",
     범죄경력증명서: "한국",
     건강진단서: "베트남",
     "재직·경력 관련 자료": "회사",
-    여권: "확인 필요",
     "기존 노동허가·보완·반려 관련 자료": "확인 필요",
+    // TRC
+    비자: "확인 필요",
+    재직증명서: "회사",
+    회사서류: "회사",
+    "주소지 관련 자료": "베트남",
+    "기존 거주증·보완·반려 관련 자료": "확인 필요",
+    // 땀주(Tam Tru)
+    임대차계약서: "베트남",
+    "주소지 증빙": "베트남",
+    "집주인 또는 관리사무소 관련 자료": "베트남",
+    "기존 등록·보완·반려 관련 자료": "확인 필요",
+    // 운전면허(Driving License)
+    "거주증(TRC)": "확인 필요",
+    "본국 운전면허": "한국",
+    번역공증본: "한국",
+    "면허 앞·뒷면 추가 사진": "확인 필요",
+    "기존 전환 신청·보완·반려 관련 자료": "확인 필요",
+    // 공통
+    여권: "확인 필요",
     "기타 관련 자료": "확인 필요",
   };
 
@@ -693,7 +717,7 @@ export default async function AdminLeadDetailPage({
       submitted: Boolean(upload),
       fileName: upload?.fileName ?? null,
       signedUrl: upload?.signedUrl ?? null,
-      origin: WP_DOCUMENT_ORIGIN[label] ?? "확인 필요",
+      origin: CHECK_DOCUMENT_ORIGIN[label] ?? "확인 필요",
     };
   });
   const wpMissingMandatory = wpDocRows.filter((d) => d.mandatory && !d.submitted);
@@ -733,7 +757,7 @@ export default async function AdminLeadDetailPage({
   // 아니므로 더 이상 이 판단에 쓰지 않는다.
   const wpActionSet = new Set(activities.map((a) => a.action));
   const wpAiReportRequested = activities.some(
-    (a) => a.action === "document_upload" && asMeta(a.meta)?.service === "wp" && asMeta(a.meta)?.mode === "ai_report"
+    (a) => a.action === "document_upload" && asMeta(a.meta)?.service === serviceType && asMeta(a.meta)?.mode === "ai_report"
   );
   const wpApplicationType: string = wpActionSet.has("agency_upgrade_request")
     ? "전문가 진행"
@@ -795,7 +819,7 @@ export default async function AdminLeadDetailPage({
               <div className="min-h-[168px] p-4"><div className="flex h-full items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={20}/></div><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold text-slate-400">고객명</p><p className="mt-0.5 text-[18px] font-extrabold">{lead.name}</p><dl className="mt-3 space-y-1.5 text-[11px]"><div><dt className="text-slate-400">연락처</dt><dd className="font-semibold">{lead.phone ?? "-"}</dd></div><div><dt className="text-slate-400">이메일</dt><dd className="break-all font-semibold">{lead.email ?? "-"}</dd></div></dl></div></div></div>
               <div className="min-h-[168px] border-t border-slate-100 p-4 lg:border-t-0"><p className="text-[11px] font-semibold text-slate-400">서비스</p><div className="mt-1 flex flex-wrap items-center gap-2"><span className="text-[14px] font-bold">{serviceLabel}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div><p className="mt-5 text-[11px] font-semibold text-slate-400">현재 단계</p><span className="mt-1 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">{currentStageLabel}</span><p className="mt-5 text-[11px] font-semibold text-slate-400">담당 직원</p><div className="mt-1 flex items-center gap-2 text-[12px] font-semibold"><User size={13}/>VFBCAI 담당자</div></div>
               <div className="min-h-[168px] border-t border-slate-100 p-4 lg:border-t-0"><dl className="space-y-3 text-[11px]"><div><dt className="text-slate-400">접수일</dt><dd className="mt-1 font-semibold">{new Date(lead.created_at).toLocaleString("ko-KR")}</dd></div><div><dt className="text-slate-400">마지막 활동</dt><dd className="mt-1 font-semibold">{latestActivity ? new Date(latestActivity.created_at).toLocaleString("ko-KR") : "-"}</dd></div></dl></div>
-              <div className="min-h-[168px] border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0"><div className="grid grid-cols-2 gap-2.5"><div className="rounded-xl border border-slate-100 bg-white p-3"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={13}/>제출 문서</p><p className="mt-1 text-[18px] font-extrabold">{isWpChecklist ? wpDocRows.filter((row) => row.mandatory && row.submitted).length : submittedRequiredCount}</p></div><div className="rounded-xl border border-red-100 bg-red-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={13}/>미제출 문서</p><p className="mt-1 text-[18px] font-extrabold text-red-600">{isWpChecklist ? wpMissingMandatory.length : requiredDocuments.length - submittedRequiredCount}</p></div><div className="rounded-xl border border-amber-100 bg-amber-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={13}/>보완 요청</p><p className="mt-1 text-[18px] font-extrabold text-amber-700">{isWpChecklist ? wpDocRows.filter((row) => row.mandatory && row.submitted && wpAiReview(row) !== "-").length : "-"}</p></div><div className="rounded-xl border border-blue-100 bg-blue-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={13}/>AI 점수</p><p className="mt-1 text-[18px] font-extrabold text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div></div></div>
+              <div className="min-h-[168px] border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0"><div className="grid grid-cols-2 gap-2.5"><div className="rounded-xl border border-slate-100 bg-white p-3"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={13}/>제출 문서</p><p className="mt-1 text-[18px] font-extrabold">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted).length : submittedRequiredCount}</p></div><div className="rounded-xl border border-red-100 bg-red-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={13}/>미제출 문서</p><p className="mt-1 text-[18px] font-extrabold text-red-600">{isCheckWorkspace ? wpMissingMandatory.length : requiredDocuments.length - submittedRequiredCount}</p></div><div className="rounded-xl border border-amber-100 bg-amber-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={13}/>보완 요청</p><p className="mt-1 text-[18px] font-extrabold text-amber-700">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted && wpAiReview(row) !== "-").length : "-"}</p></div><div className="rounded-xl border border-blue-100 bg-blue-50 p-3"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={13}/>AI 점수</p><p className="mt-1 text-[18px] font-extrabold text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div></div></div>
             </div>
           </section>
 
@@ -823,7 +847,7 @@ export default async function AdminLeadDetailPage({
                   </span>
                 </div>
 
-                {isWpChecklist ? (
+                {isCheckWorkspace ? (
                   <>
                     <div className="hidden sm:block">
                       <table className="w-full table-fixed text-left text-[11px]">
@@ -1040,7 +1064,7 @@ export default async function AdminLeadDetailPage({
                   </div>
                 </div>
 
-                {isWpChecklist && (
+                {isCheckWorkspace && (
                   <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 text-[10px]">
                     <span className="rounded-full bg-violet-50 px-2.5 py-1 font-bold text-violet-700">신청 유형 · {wpApplicationType}</span>
                     <span className="rounded-full bg-slate-100 px-2.5 py-1 font-semibold text-slate-600">한국 준비 {wpMissingByOrigin.한국}건</span>
@@ -1078,7 +1102,7 @@ export default async function AdminLeadDetailPage({
                   </div>
                 </div>
 
-                {isWpChecklist && (
+                {isCheckWorkspace && (
                   <div className="mt-2.5 grid gap-3 border-t border-slate-100 pt-3 md:grid-cols-2">
                     <div className="md:border-r md:border-slate-100 md:pr-5">
                       <h3 className="text-[13px] font-extrabold text-slate-800">고객 요청</h3>
@@ -1118,12 +1142,12 @@ export default async function AdminLeadDetailPage({
             </aside>
           </div>
 
-          {isWpChecklist && (
+          {isCheckWorkspace && (
             <section className="mt-3 w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
               <div className="flex flex-wrap items-center gap-2">
                 <ShieldCheck size={16} className="text-blue-700" />
                 <h2 className="text-[14px] font-extrabold">AI Review Checklist</h2>
-                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700">WP · 노동허가</span>
+                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700">{serviceLabel}</span>
               </div>
 
               {/* 1. CASE SNAPSHOT */}
