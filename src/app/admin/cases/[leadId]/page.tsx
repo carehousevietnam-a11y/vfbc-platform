@@ -981,13 +981,13 @@ export default async function AdminLeadDetailPage({
                                 )}
                               </td>
                               <td className="px-2 py-2">
-                                <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
+                                <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
                                   <span className={`h-1.5 w-1.5 rounded-full ${wpSubmissionBadge(row).dot}`} />
                                   {wpSubmissionBadge(row).label}
                                 </span>
                               </td>
                               <td className="px-2 py-2">
-                                <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[10px] font-bold ${wpReviewBadge(row).className}`}>
+                                <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[10px] font-bold ${wpReviewBadge(row).className}`}>
                                   <span className={`h-1.5 w-1.5 rounded-full ${wpReviewBadge(row).dot}`} />
                                   {wpReviewBadge(row).label}
                                 </span>
@@ -1017,7 +1017,7 @@ export default async function AdminLeadDetailPage({
                             <p className="truncate text-[12px] font-bold text-slate-800">{row.label}</p>
                             <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {wpReviewBadge(row).label} · {row.fileName ?? "제출 파일 없음"}</p>
                           </div>
-                          <span className={`shrink-0 rounded-full px-3.5 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
+                          <span className={`shrink-0 rounded-full px-4 py-2 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
                             {wpSubmissionBadge(row).label}
                           </span>
                         </div>
@@ -1141,7 +1141,7 @@ export default async function AdminLeadDetailPage({
                 </div>
               </section>
 
-              <section className="min-h-[238px] rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+              <section className="min-h-[238px] rounded-2xl border border-slate-200 bg-white p-5 pb-6 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-[14px] font-extrabold">AI 진단 결과</h2>
                   <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">진단 완료</span>
@@ -1149,12 +1149,12 @@ export default async function AdminLeadDetailPage({
 
                 {isCheckWorkspace && (
                   <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
-                    <div className={`flex items-start gap-3 px-5 py-5 ${wpDecisionTone.bg}`}>
-                      <WpDecisionIcon size={26} className={`mt-0.5 shrink-0 ${wpDecisionTone.value}`} />
+                    <div className={`flex items-start gap-3.5 px-6 py-6 ${wpDecisionTone.bg}`}>
+                      <WpDecisionIcon size={22} className={`mt-0.5 shrink-0 ${wpDecisionTone.value}`} />
                       <div className="min-w-0">
                         <p className={`text-[11px] font-semibold ${wpDecisionTone.label}`}>AI 종합 판단</p>
-                        <p className={`mt-1 text-xl font-semibold ${wpDecisionTone.value}`}>{wpDecisionLabel}</p>
-                        <div className="mt-2.5 space-y-1">
+                        <p className={`mt-1.5 text-2xl font-semibold ${wpDecisionTone.value}`}>{wpDecisionLabel}</p>
+                        <div className="mt-3 space-y-1">
                           {wpDecisionDetailLines.map((line, idx) => (
                             <p key={idx} className="text-[12px] leading-relaxed text-slate-600">{line}</p>
                           ))}
@@ -1162,10 +1162,10 @@ export default async function AdminLeadDetailPage({
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-px bg-slate-100 sm:grid-cols-4">
-                      <div className="flex min-h-[76px] flex-col justify-center bg-white px-4 py-3.5"><p className="text-xs text-slate-500">필수서류</p><p className="mt-1 text-2xl font-extrabold">{wpSubmittedMandatoryCount}/{wpMandatoryLabels.length}</p></div>
-                      <div className="flex min-h-[76px] flex-col justify-center bg-white px-4 py-3.5"><p className="text-xs text-slate-500">고객 요청</p><p className="mt-1 text-2xl font-extrabold">{wpMissingMandatory.length}건</p></div>
-                      <div className="flex min-h-[76px] flex-col justify-center bg-white px-4 py-3.5"><p className="text-xs text-slate-500">전문가 확인</p><p className="mt-1 text-2xl font-extrabold">{wpExpertConfirmAll.length}건</p></div>
-                      <div className="flex min-h-[76px] flex-col justify-center bg-white px-4 py-3.5"><p className="text-xs text-slate-500">다음 조치</p><p className="mt-1 truncate text-[13px] font-bold text-blue-700">{wpNextActionSummary}</p></div>
+                      <div className="flex min-h-[80px] flex-col justify-center bg-white px-4 py-4"><p className="text-xs text-slate-500">필수서류</p><p className="mt-1 text-2xl font-extrabold">{wpSubmittedMandatoryCount}/{wpMandatoryLabels.length}</p></div>
+                      <div className="flex min-h-[80px] flex-col justify-center bg-white px-4 py-4"><p className="text-xs text-slate-500">고객 요청</p><p className="mt-1 text-2xl font-extrabold">{wpMissingMandatory.length}건</p></div>
+                      <div className="flex min-h-[80px] flex-col justify-center bg-white px-4 py-4"><p className="text-xs text-slate-500">전문가 확인</p><p className="mt-1 text-2xl font-extrabold">{wpExpertConfirmAll.length}건</p></div>
+                      <div className="flex min-h-[80px] flex-col justify-center bg-white px-4 py-4"><p className="text-xs text-slate-500">다음 조치</p><p className="mt-1 truncate text-[13px] font-bold text-blue-700">{wpNextActionSummary}</p></div>
                     </div>
                   </div>
                 )}
@@ -1207,37 +1207,37 @@ export default async function AdminLeadDetailPage({
                   </div>
                 )}
 
-                <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 md:grid-cols-2">
-                  <div className="md:border-r md:border-slate-100 md:pr-6">
+                <div className="mt-4 grid gap-4 border-t border-slate-100 pt-4 md:grid-cols-2">
+                  <div className="md:border-r md:border-slate-100 md:pr-7">
                     <h3 className="text-[13px] font-extrabold text-slate-800">주요 위험 요인</h3>
                     {activeBrief?.rejectionRisks?.length ? (
-                      <ul className="mt-2.5 space-y-2">
+                      <ul className="mt-3 space-y-3">
                         {[...activeBrief.rejectionRisks]
                           .sort((a, b) => a.rank - b.rank)
                           .map((risk, index) => (
-                            <li key={index} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-600">
+                            <li key={index} className="flex items-start gap-3 text-[12px] leading-relaxed text-slate-600">
                               <span className="mt-0.5 shrink-0">•</span>
                               <span>{risk.reason}</span>
                             </li>
                           ))}
                       </ul>
                     ) : wpRiskConfirmedItems.length > 0 || wpRiskPendingItems.length > 0 ? (
-                      <ul className="mt-2.5 space-y-2">
+                      <ul className="mt-3 space-y-3">
                         {wpRiskConfirmedItems.map((item, idx) => (
-                          <li key={`confirmed-${idx}`} className="flex items-start gap-2 text-[11px] leading-relaxed text-emerald-700">
+                          <li key={`confirmed-${idx}`} className="flex items-start gap-3 text-[12px] leading-relaxed text-emerald-700">
                             <span className="mt-0.5 shrink-0">✓</span>
                             <span>{item}</span>
                           </li>
                         ))}
                         {wpRiskPendingItems.map((item, idx) => (
-                          <li key={`pending-${idx}`} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-600">
+                          <li key={`pending-${idx}`} className="flex items-start gap-3 text-[12px] leading-relaxed text-slate-600">
                             <span className="mt-0.5 shrink-0">☐</span>
                             <span>{item}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-2.5 text-[11px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>
+                      <p className="mt-3 text-[11px] text-slate-400">확인된 주요 위험 요인이 없습니다.</p>
                     )}
                   </div>
                   <div>
@@ -1246,50 +1246,50 @@ export default async function AdminLeadDetailPage({
                       <span className="rounded-md border border-blue-200 bg-white px-2.5 py-1 text-[10px] font-bold text-blue-700">상세 리포트 보기</span>
                     </div>
                     {activeBrief?.recommendedSteps?.length ? (
-                      <ul className="mt-2.5 space-y-2">
+                      <ul className="mt-3 space-y-3">
                         {activeBrief.recommendedSteps.map((step, index) => (
-                          <li key={index} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-600">
+                          <li key={index} className="flex items-start gap-3 text-[12px] leading-relaxed text-slate-600">
                             <span className="mt-0.5 shrink-0">•</span>
                             <span>{step}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-2.5 text-[11px] text-slate-400">등록된 권장 조치가 없습니다.</p>
+                      <p className="mt-3 text-[11px] text-slate-400">등록된 권장 조치가 없습니다.</p>
                     )}
                   </div>
                 </div>
 
                 {isCheckWorkspace && (
-                  <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 md:grid-cols-2">
-                    <div className="md:border-r md:border-slate-100 md:pr-6">
+                  <div className="mt-4 grid gap-4 border-t border-slate-100 pt-4 md:grid-cols-2">
+                    <div className="md:border-r md:border-slate-100 md:pr-7">
                       <h3 className="text-[13px] font-extrabold text-slate-800">고객 요청</h3>
                       {wpCustomerRequestItems.length > 0 ? (
-                        <ol className="mt-2.5 space-y-3 text-[11px] leading-relaxed text-slate-600">
+                        <ol className="mt-3 space-y-3.5 text-[12px] leading-[1.7] text-slate-600">
                           {wpCustomerRequestItems.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
+                            <li key={idx} className="flex items-start gap-3">
                               <span className="shrink-0 font-bold text-violet-700">{WP_CIRCLED_NUMBERS[idx] ?? `${idx + 1}.`}</span>
                               <span>{item}</span>
                             </li>
                           ))}
                         </ol>
                       ) : (
-                        <p className="mt-2.5 text-[11px] text-slate-400">현재 추가로 요청할 서류가 없습니다.</p>
+                        <p className="mt-3 text-[11px] text-slate-400">현재 추가로 요청할 서류가 없습니다.</p>
                       )}
                     </div>
                     <div>
                       <h3 className="text-[13px] font-extrabold text-slate-800">전문가 확인</h3>
                       {wpExpertConfirmItems.length > 0 ? (
-                        <ul className="mt-2.5 space-y-3 text-[11px] leading-relaxed text-slate-600">
+                        <ul className="mt-3 space-y-3.5 text-[12px] leading-[1.7] text-slate-600">
                           {wpExpertConfirmItems.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
+                            <li key={idx} className="flex items-start gap-3">
                               <span className="shrink-0">☐</span>
                               <span>{item}</span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="mt-2.5 text-[11px] text-slate-400">전문가가 추가로 확인할 항목이 없습니다.</p>
+                        <p className="mt-3 text-[11px] text-slate-400">전문가가 추가로 확인할 항목이 없습니다.</p>
                       )}
                     </div>
                   </div>
@@ -1298,19 +1298,19 @@ export default async function AdminLeadDetailPage({
                   <div className="mt-4 border-t border-slate-100 pt-4">
                     <div className="flex items-center justify-between gap-2">
                       <h3 className="text-[13px] font-extrabold text-slate-800">최종 검토 체크리스트</h3>
-                      <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">서류 {wpSubmittedMandatoryCount}/{wpMandatoryLabels.length}</span>
+                      <span className="shrink-0 rounded-full bg-slate-100 px-3.5 py-1.5 text-[11px] font-bold text-slate-600">서류 {wpSubmittedMandatoryCount}/{wpMandatoryLabels.length}</span>
                     </div>
                     {wpFindingsChecklist.length > 0 ? (
-                      <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <ul className="mt-4 grid gap-3.5 sm:grid-cols-2">
                         {wpFindingsChecklist.map((item, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-600">
+                          <li key={idx} className="flex items-start gap-3 text-[12px] leading-relaxed text-slate-600">
                             <span className="shrink-0">☐</span>
                             <span>{item}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-2.5 text-[11px] text-slate-400">현재 관리자가 추가로 확인할 항목이 없습니다.</p>
+                      <p className="mt-3 text-[11px] text-slate-400">현재 관리자가 추가로 확인할 항목이 없습니다.</p>
                     )}
                   </div>
                 )}
