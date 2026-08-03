@@ -733,16 +733,19 @@ function DateDocumentGroup({
 
         {/* 요구사항 3·4: leadId로 묶은 문서 그룹, 그룹 안에서만 문서를 출력 */}
         <div className="mt-4 space-y-3">
-          {/* lg 이상에서만 보이는 공유 컬럼 헤더 — 각 신청건 카드의 문서 행과 같은 그리드를 쓴다 */}
-          <div className={`hidden items-center rounded-t-xl border border-b-0 border-slate-200 bg-slate-100 py-2.5 text-[10px] font-extrabold uppercase tracking-wide text-slate-600 lg:grid ${DOC_ROW_GRID} gap-2 px-4`}>
-            <span>문서유형</span>
-            <span>문서명</span>
-            <span>업로드일</span>
-            <span>상태</span>
-            <span>담당자</span>
-            <span>다음조치</span>
-            <span className="text-center">다운로드</span>
-            <span className="text-center">미리보기</span>
+          {/* lg 이상에서만 보이는 공유 컬럼 헤더 — 각 신청건 카드의 문서 행과 같은 그리드를 쓴다.
+              v5: 미리보기 컬럼이 잘리지 않도록 overflow-x-auto + 최소 너비를 지정했다. */}
+          <div className="hidden overflow-x-auto rounded-t-xl border border-b-0 border-slate-200 bg-slate-100 lg:block">
+            <div className={`items-center py-2.5 text-[10px] font-extrabold uppercase tracking-wide text-slate-600 lg:grid lg:min-w-[1180px] ${DOC_ROW_GRID} gap-2 px-4`}>
+              <span>문서유형</span>
+              <span>문서명</span>
+              <span>업로드일</span>
+              <span>상태</span>
+              <span>담당자</span>
+              <span>다음조치</span>
+              <span className="text-center">다운로드</span>
+              <span className="text-center">미리보기</span>
+            </div>
           </div>
           {sortedLeadGroups.map((group) => (
             <LeadDocumentGroupCard key={group.leadId} group={group} />
@@ -766,7 +769,10 @@ type LeadDocGroup = {
 // 요구사항 5(v4): 진행률은 문서 단위가 아니라 신청건 단위 값이므로 LeadDocumentGroupCard
 // 헤더에 한 번만 크게 표시하고, 문서 행 그리드에서는 제외했다(문서유형/문서명/업로드일/
 // 상태/담당자/다음조치/다운로드/미리보기 8열).
-const DOC_ROW_GRID = "lg:grid-cols-[10%_24%_12%_10%_10%_14%_10%_10%]";
+// v5: 다운로드·미리보기 컬럼이 오른쪽에서 잘리는 문제 수정 — 두 컬럼을 minmax(64px, %)로
+// 고정해 항상 최소 64px을 보장하고, 전체 비율 합을 줄여 컨테이너 안에 들어오게 했다.
+// 이 그리드를 쓰는 헤더/행 컨테이너에는 lg:min-w-[1180px] + overflow-x-auto를 적용한다.
+const DOC_ROW_GRID = "lg:grid-cols-[9%_22%_12%_9%_10%_14%_minmax(64px,8%)_minmax(64px,8%)]";
 
 function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
   const categoryInfo = CATEGORY_INFO[group.category];
@@ -797,11 +803,15 @@ function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
         </div>
       </div>
 
-      {/* 문서 행 — lg 이상은 공유 헤더와 같은 그리드, 이하는 카드형으로 쌓는다 */}
-      <div className="divide-y divide-slate-100">
-        {group.docs.map((d) => (
-          <DocumentRowItem key={d.key} doc={d} />
-        ))}
+      {/* 문서 행 — lg 이상은 공유 헤더와 같은 그리드, 이하는 카드형으로 쌓는다.
+          v5: 카드 헤더(고객 정보)는 폭을 그대로 유지하고, 문서 행 목록만 별도로
+          overflow-x-auto + 최소 너비를 줘서 미리보기 컬럼이 잘리지 않게 한다. */}
+      <div className="overflow-x-auto">
+        <div className="divide-y divide-slate-100 lg:min-w-[1180px]">
+          {group.docs.map((d) => (
+            <DocumentRowItem key={d.key} doc={d} />
+          ))}
+        </div>
       </div>
     </div>
   );
