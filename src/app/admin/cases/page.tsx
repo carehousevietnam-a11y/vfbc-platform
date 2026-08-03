@@ -210,6 +210,9 @@ export default async function AdminCasesPage({
   const filterService = (typeof sp.filterService === "string" && sp.filterService) || "all";
   const focusDate = (typeof sp.focusDate === "string" && sp.focusDate) || "";
   const focusService = (typeof sp.focusService === "string" && sp.focusService) || "";
+  // 좌측 사이드바 "미확인 문서"/"보완 요청"/"긴급 건" 필터 — 새 DB 컬럼·새 action 없이
+  // 아래(플랫 목록 분기)에서 실제 crm_activities.action / expertBrief·expert_brief 구조만으로 계산한다.
+  const status = (typeof sp.status === "string" && sp.status) || "";
 
   const { data: allLeads, error: leadsError } = await supabaseAdmin
     .from("leads")
@@ -260,7 +263,7 @@ export default async function AdminCasesPage({
     }
 
     return (
-      <Shell>
+      <Shell status={status}>
         <Breadcrumb category={category as CategoryKey} service={service} date={date} />
         <PageHeader
           title={`${getServiceLabel(service)} · ${formatDateKey(date)}`}
@@ -309,7 +312,7 @@ export default async function AdminCasesPage({
     );
 
     return (
-      <Shell>
+      <Shell status={status}>
         <Breadcrumb category={category as CategoryKey} service={service} />
         <PageHeader
           title={getServiceLabel(service)}
@@ -360,7 +363,7 @@ export default async function AdminCasesPage({
     const info = CATEGORY_INFO[category as CategoryKey] ?? CATEGORY_INFO.unclassified;
 
     return (
-      <Shell>
+      <Shell status={status}>
         <Breadcrumb category={category as CategoryKey} />
         <PageHeader
           title={info.label}
@@ -409,6 +412,62 @@ export default async function AdminCasesPage({
     .from("previous_rejections")
     .select("id", { count: "exact", head: true });
 
+  // ── 좌측 사이드바 상태 필터(미확인 문서 / 보완 요청 / 긴급 건) ──
+  // 새 컬럼·새 action·새 상태값을 추가하지 않고, 이미 이 프로젝트에 실제로 존재하는
+  // crm_activities.action("document_upload", "expert_review_request")과
+  // 진단 결과 meta.expertBrief(CHECK/REGISTER, camelCase) / meta.expert_brief(VERIFY,
+  // snake_case)의 checkedItems.passed / rejectionRisks / riskLevel(admin/cases/[leadId]/page.tsx가
+  // 이미 사용 중인 동일 구조)만으로 판단한다.
+  //   - 미확인 문서: 고객이 document_upload로 서류를 제출했지만 아직 expert_review_request(전문가
+  //     검토 요청)가 기록되지 않은 건
+  //   - 보완 요청: 최신 진단 결과에 미충족 확인항목(checkedItems.passed===false) 또는
+  //     반려위험(rejectionRisks)이 있는 건
+  //   - 긴급 건: 최신 진단 결과의 riskLevel이 "high"인 건
+  let statusLeadIds: Set<string> | null = null;
+  if (status === "unreviewed" || status === "supplement" || status === "urgent") {
+    const scopedLeadIds = leads.map((l) => l.id);
+    const { data: statusActivities } = scopedLeadIds.length
+      ? await supabaseAdmin
+          .from("crm_activities")
+          .select("lead_id, action, meta, created_at")
+          .in("lead_id", scopedLeadIds)
+          .order("created_at", { ascending: true })
+      : { data: [] as any[] };
+
+    const actionsByLead = new Map<string, Set<string>>();
+    const briefByLead = new Map<string, any>();
+    for (const a of statusActivities ?? []) {
+      if (!a.lead_id) continue;
+      const actionSet = actionsByLead.get(a.lead_id) ?? new Set<string>();
+      if (a.action) actionSet.add(a.action);
+      actionsByLead.set(a.lead_id, actionSet);
+
+      const m = a.meta as any;
+      const brief = m && typeof m === "object" ? m.expertBrief ?? m.expert_brief : null;
+      if (brief) briefByLead.set(a.lead_id, brief);
+    }
+
+    statusLeadIds = new Set(
+      leads
+        .filter((l) => {
+          const actionSet = actionsByLead.get(l.id) ?? new Set<string>();
+          if (status === "unreviewed") {
+            return actionSet.has("document_upload") && !actionSet.has("expert_review_request");
+          }
+          const brief = briefByLead.get(l.id);
+          if (status === "urgent") {
+            return brief?.riskLevel === "high";
+          }
+          // supplement
+          const hasFailedItem =
+            Array.isArray(brief?.checkedItems) && brief.checkedItems.some((c: any) => c?.passed === false);
+          const hasRejectionRisk = Array.isArray(brief?.rejectionRisks) && brief.rejectionRisks.length > 0;
+          return hasFailedItem || hasRejectionRisk;
+        })
+        .map((l) => l.id)
+    );
+  }
+
   const normalizedQuery = q.toLowerCase();
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -450,6 +509,7 @@ export default async function AdminCasesPage({
     const categoryMatch = content === "all" || getCategory(lead.service_type) === content;
     const serviceMatch = filterService === "all" || lead.service_type === filterService;
     const periodMatch = !periodStart || new Date(lead.created_at) >= periodStart;
+    const statusMatch = !statusLeadIds || statusLeadIds.has(lead.id);
     const searchMatch = !normalizedQuery || (() => {
       const serviceLabel = lead.service_type
         ? getServiceLabel(lead.service_type).toLowerCase()
@@ -458,7 +518,7 @@ export default async function AdminCasesPage({
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedQuery));
     })();
-    return categoryMatch && serviceMatch && periodMatch && searchMatch;
+    return categoryMatch && serviceMatch && periodMatch && statusMatch && searchMatch;
   });
 
   const groupedByDate = new Map<string, typeof filteredLeads>();
@@ -475,20 +535,34 @@ export default async function AdminCasesPage({
   const serviceCount = new Set(leads.map((lead) => lead.service_type).filter(Boolean)).size;
   const buildHref = (overrides: Record<string, string>) => {
     const params = new URLSearchParams();
-    const next = { q, content, period, filterService, focusDate, focusService, ...overrides };
+    const next = { q, content, period, filterService, focusDate, focusService, status, ...overrides };
     if (next.q) params.set("q", next.q);
     if (next.content && next.content !== "all") params.set("content", next.content);
     if (next.period && next.period !== "all") params.set("period", next.period);
     if (next.filterService && next.filterService !== "all") params.set("filterService", next.filterService);
     if (next.focusDate) params.set("focusDate", next.focusDate);
     if (next.focusService) params.set("focusService", next.focusService);
+    if (next.status) params.set("status", next.status);
     const query = params.toString();
     return query ? `/admin/cases?${query}` : "/admin/cases";
   };
 
+  const STATUS_LABELS: Record<string, string> = {
+    unreviewed: "미확인 문서",
+    supplement: "보완 요청",
+    urgent: "긴급 건",
+  };
+
   return (
-    <Shell>
-      <PageHeader title="신청건 관리" description="전체 신청건을 날짜와 콘텐츠별로 관리합니다." />
+    <Shell status={status}>
+      <PageHeader
+        title="신청건 관리"
+        description={
+          status && STATUS_LABELS[status]
+            ? `"${STATUS_LABELS[status]}" 조건으로 필터링된 신청건입니다.`
+            : "전체 신청건을 날짜와 콘텐츠별로 관리합니다."
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard label="전체 신청건" value={leads.length} caption="현재 조회된 전체 리드" icon={<CasesIcon />} href="/admin/cases" />
@@ -503,16 +577,22 @@ export default async function AdminCasesPage({
             {content !== "all" && <input type="hidden" name="content" value={content} />}
             {period !== "all" && <input type="hidden" name="period" value={period} />}
             {filterService !== "all" && <input type="hidden" name="filterService" value={filterService} />}
+            {status && <input type="hidden" name="status" value={status} />}
             <label className="relative min-w-0 flex-1">
               <span className="sr-only">신청건 검색</span>
               <SearchIcon />
               <input name="q" defaultValue={q} placeholder="이름, 전화번호, 이메일, 서비스 검색" className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50" />
             </label>
             <button type="submit" className="h-12 rounded-xl bg-blue-700 px-6 text-sm font-semibold text-white hover:bg-blue-800">검색</button>
-            {(q || content !== "all" || period !== "all" || filterService !== "all") && (
+            {(q || content !== "all" || period !== "all" || filterService !== "all" || status) && (
               <Link href="/admin/cases" className="flex h-12 items-center justify-center rounded-xl border border-slate-200 px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50">전체 초기화</Link>
             )}
           </form>
+          {status && STATUS_LABELS[status] && (
+            <div className="mt-3">
+              <FilterChip href="/admin/cases" active label={`${STATUS_LABELS[status]} 필터 적용됨 · 해제`} />
+            </div>
+          )}
         </div>
 
         <div className="space-y-5 p-5">
@@ -551,7 +631,9 @@ export default async function AdminCasesPage({
 
       <div className="mt-6 space-y-6">
         {dateGroups.length === 0 && (
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm"><EmptyState /></div>
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <EmptyState message={status ? "조건에 맞는 신청건이 없습니다." : undefined} />
+          </div>
         )}
         {dateGroups.map(([dateKey, dateLeads], dateIndex) => (
           <DateContentGroup
@@ -1145,7 +1227,7 @@ function LeadMobileCard({
   );
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children, status = "" }: { children: React.ReactNode; status?: string }) {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="flex min-h-screen">
@@ -1159,10 +1241,10 @@ function Shell({ children }: { children: React.ReactNode }) {
             <SidebarLink href="/admin" label="대시보드" />
             <SidebarLink href="/admin/cases" label="신청건 관리" active />
             <div className="mb-2 ml-3 border-l border-slate-200 pl-3">
-              <SidebarLink href="/admin/cases" label="전체 신청건" compact active />
-              <SidebarDisabled label="미확인 문서" />
-              <SidebarDisabled label="보완 요청" />
-              <SidebarDisabled label="긴급 건" />
+              <SidebarLink href="/admin/cases" label="전체 신청건" compact active={!status} />
+              <SidebarLink href="/admin/cases?status=unreviewed" label="미확인 문서" compact active={status === "unreviewed"} />
+              <SidebarLink href="/admin/cases?status=supplement" label="보완 요청" compact active={status === "supplement"} />
+              <SidebarLink href="/admin/cases?status=urgent" label="긴급 건" compact active={status === "urgent"} />
             </div>
             <SidebarDisabled label="문서관리" />
             <SidebarDisabled label="직원관리" />
@@ -1330,10 +1412,10 @@ function Breadcrumb({
   );
 }
 
-function EmptyState() {
+function EmptyState({ message = "표시할 데이터가 없습니다." }: { message?: string }) {
   return (
     <div className="flex min-h-40 items-center justify-center p-8 text-sm text-slate-400">
-      표시할 데이터가 없습니다.
+      {message}
     </div>
   );
 }
