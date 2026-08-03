@@ -74,6 +74,19 @@ const CATEGORY_INFO: Record<CategoryKey, { label: string; badgeColor: string }> 
   unclassified: { label: "미분류", badgeColor: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-100" },
 };
 
+// v3: admin/cases/page.tsx의 DateContentGroup categoryTheme과 동일한 팔레트를 그대로
+// 복제했다(다른 파일의 비공개 상수라 import 불가). 날짜 그룹 안의 카테고리 요약카드 색상을
+// 신청건 관리와 동일하게 맞추기 위함이다.
+const CATEGORY_ORDER: CategoryKey[] = ["check", "verify", "permit", "consultation", "unclassified"];
+
+const CATEGORY_THEME: Record<CategoryKey, { dot: string; shell: string; label: string; count: string }> = {
+  check: { dot: "bg-blue-600", shell: "border-blue-100 bg-blue-50/45", label: "text-blue-700", count: "text-blue-700" },
+  verify: { dot: "bg-violet-600", shell: "border-violet-100 bg-violet-50/45", label: "text-violet-700", count: "text-violet-700" },
+  permit: { dot: "bg-emerald-600", shell: "border-emerald-100 bg-emerald-50/45", label: "text-emerald-700", count: "text-emerald-700" },
+  consultation: { dot: "bg-amber-500", shell: "border-amber-100 bg-amber-50/45", label: "text-amber-700", count: "text-amber-700" },
+  unclassified: { dot: "bg-slate-500", shell: "border-slate-200 bg-slate-50", label: "text-slate-700", count: "text-slate-700" },
+};
+
 const SERVICE_LABELS: Record<string, string> = {
   wp: "노동허가(WP)",
   trc: "거주증(TRC)",
@@ -125,6 +138,31 @@ function formatDateTime(createdAt: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+// ── v3: 날짜 그룹 — admin/cases/page.tsx의 dateKeyOf/formatDateKey/getRelativeDateLabel과
+// 동일한 로직을 그대로 복제했다(다른 파일의 비공개 함수라 import 불가, 이 파일의 기존 관례와
+// 동일). 새 날짜 계산 방식이 아니라 기존 uploaded_at(=crm_activities.created_at)만 사용한다.
+function dateKeyOf(uploadedAt: string) {
+  return new Date(uploadedAt).toISOString().slice(0, 10);
+}
+
+function formatDateKey(dateKey: string) {
+  const d = new Date(dateKey + "T00:00:00Z");
+  return `${d.getUTCFullYear()}.${d.getUTCMonth() + 1}.${d.getUTCDate()}`;
+}
+
+function getRelativeDateLabel(dateKey: string) {
+  const target = new Date(dateKey + "T00:00:00Z");
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const targetDay = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
+  const diffDays = Math.round((today - targetDay) / 86400000);
+
+  if (diffDays === 0) return "오늘";
+  if (diffDays === 1) return "어제";
+  if (diffDays > 1 && diffDays < 7) return `${diffDays}일 전`;
+  return "";
 }
 
 // ── 문서 상태 ──
@@ -179,6 +217,19 @@ const DOC_TYPE_META: Record<DocTypeKey, string> = {
   contract: "계약서",
   healthCert: "건강검진서",
   other: "기타",
+};
+
+// v3: 문서유형 배지에 색상을 부여한다 — 새 배지 디자인이 아니라, 이 파일 전체에서 이미
+// 쓰고 있는 pill 스타일(rounded-full/rounded-md + bg-X-50 + text-X-700)을 색상만 바꿔
+// 재사용한다.
+const DOC_TYPE_BADGE: Record<DocTypeKey, string> = {
+  passport: "bg-blue-50 text-blue-700",
+  visa: "bg-violet-50 text-violet-700",
+  residenceCard: "bg-teal-50 text-teal-700",
+  businessCert: "bg-emerald-50 text-emerald-700",
+  contract: "bg-amber-50 text-amber-700",
+  healthCert: "bg-rose-50 text-rose-700",
+  other: "bg-slate-100 text-slate-600",
 };
 
 function classifyDocType(label: string): DocTypeKey {
@@ -426,6 +477,18 @@ export default async function AdminDocumentsPage({
     })
   );
 
+  // v3: 날짜 그룹 — admin/cases/page.tsx의 DateContentGroup과 동일한 원칙으로,
+  // 이미 정렬·제한된 documentsWithUrls(우선순위 그대로 유지)를 uploaded_at 기준
+  // dateKey로만 묶는다. 새 컬럼 없이 기존 uploaded_at만 사용한다.
+  const groupedByDate = new Map<string, DocumentWithUrl[]>();
+  for (const d of documentsWithUrls) {
+    const key = dateKeyOf(d.uploadedAt);
+    const group = groupedByDate.get(key) ?? [];
+    group.push(d);
+    groupedByDate.set(key, group);
+  }
+  const dateGroups = Array.from(groupedByDate.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+
   const buildHref = (overrides: Record<string, string>) => {
     const params = new URLSearchParams();
     const next = { q, content, filterService, period, docStatus, ...overrides };
@@ -522,21 +585,15 @@ export default async function AdminDocumentsPage({
         </div>
       </section>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        {documentsWithUrls.length === 0 ? (
-          <EmptyState message={hasActiveFilter ? "조건에 맞는 문서가 없습니다." : undefined} />
-        ) : (
-          <>
-            <div className="hidden lg:block">
-              <DocumentTable documents={documentsWithUrls} />
-            </div>
-            <div className="divide-y divide-slate-100 lg:hidden">
-              {documentsWithUrls.map((d) => (
-                <DocumentMobileCard key={d.key} doc={d} />
-              ))}
-            </div>
-          </>
+      <div className="mt-6 space-y-4">
+        {dateGroups.length === 0 && (
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <EmptyState message={hasActiveFilter ? "조건에 맞는 문서가 없습니다." : undefined} />
+          </div>
         )}
+        {dateGroups.map(([dateKey, docs], dateIndex) => (
+          <DateDocumentGroup key={dateKey} dateKey={dateKey} documents={docs} defaultOpen={dateIndex === 0} />
+        ))}
       </div>
 
       <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
@@ -549,110 +606,290 @@ export default async function AdminDocumentsPage({
 
 type DocumentWithUrl = DocumentRow & { signedUrl: string | null };
 
-function DocumentTable({ documents }: { documents: DocumentWithUrl[] }) {
+// v3: Admin Cases의 DateContentGroup과 동일한 원칙(날짜 <details> → 카테고리 요약 →
+// 상세 목록) — 문서 버전에서는 "상세 목록"이 leadId로 묶인 문서 그룹이 된다.
+function DateDocumentGroup({
+  dateKey,
+  documents,
+  defaultOpen,
+}: {
+  dateKey: string;
+  documents: DocumentWithUrl[];
+  defaultOpen: boolean;
+}) {
+  const byCategory = new Map<CategoryKey, DocumentWithUrl[]>();
+  for (const d of documents) {
+    const arr = byCategory.get(d.category) ?? [];
+    arr.push(d);
+    byCategory.set(d.category, arr);
+  }
+
+  // 요구사항 3: 동일 leadId 문서를 한 그룹으로 묶는다(leadId 기준만 사용, 새 로직 없음).
+  const leadGroups = new Map<string, LeadDocGroup>();
+  for (const d of documents) {
+    const existing = leadGroups.get(d.leadId);
+    if (existing) {
+      existing.docs.push(d);
+    } else {
+      leadGroups.set(d.leadId, {
+        leadId: d.leadId,
+        customerName: d.customerName,
+        customerContact: d.customerContact,
+        serviceType: d.serviceType,
+        serviceLabel: d.serviceLabel,
+        category: d.category,
+        docs: [d],
+      });
+    }
+  }
+  const sortedLeadGroups = Array.from(leadGroups.values()).sort(
+    (a, b) => new Date(b.docs[0].uploadedAt).getTime() - new Date(a.docs[0].uploadedAt).getTime()
+  );
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full table-fixed text-left">
-        <thead className="bg-slate-50">
-          <tr className="border-b border-slate-200 text-[10px] font-bold uppercase tracking-wide text-slate-500">
-            <th className="w-[13%] px-5 py-3">고객</th>
-            <th className="w-[11%] px-3 py-3">서비스</th>
-            <th className="w-[7%] px-3 py-3">문서유형</th>
-            <th className="w-[13%] px-3 py-3">문서명</th>
-            <th className="w-[9%] px-3 py-3">업로드일</th>
-            <th className="w-[8%] px-3 py-3">상태</th>
-            <th className="w-[7%] px-3 py-3">담당자</th>
-            <th className="w-[9%] px-3 py-3">다음조치</th>
-            <th className="w-[5%] px-2 py-3 text-center">다운로드</th>
-            <th className="w-[5%] px-2 py-3 text-center">미리보기</th>
-            <th className="w-[9%] px-5 py-3">제출 진행률</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 bg-white">
-          {documents.map((d) => {
-            const statusMeta = STATUS_META[d.status];
-            const categoryInfo = CATEGORY_INFO[d.category];
+    <details open={defaultOpen} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 bg-slate-50 px-5 py-4 transition hover:bg-slate-100 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-open:rotate-90">
+            <ChevronIcon />
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-base ring-1 ring-inset ring-blue-100" aria-hidden="true">
+            📄
+          </span>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              {getRelativeDateLabel(dateKey) && (
+                <span className="rounded-full bg-blue-700 px-2.5 py-1 text-[11px] font-bold text-white">{getRelativeDateLabel(dateKey)}</span>
+              )}
+              <h2 className="text-base font-bold text-slate-950">{formatDateKey(dateKey)}</h2>
+              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600">{documents.length}건</span>
+            </div>
+            <p className="mt-0.5 text-xs text-slate-500">제출된 문서 {documents.length}건 · 신청건 {leadGroups.size}건</p>
+          </div>
+        </div>
+
+        <div className="flex w-full flex-wrap items-center gap-2 pl-20 sm:w-auto sm:justify-end sm:pl-0">
+          {CATEGORY_ORDER.filter((c) => c !== "unclassified").map((c) => (
+            <DateCategoryCountBadge key={c} label={CATEGORY_INFO[c].label} count={(byCategory.get(c) ?? []).length} />
+          ))}
+        </div>
+      </summary>
+
+      <div className="border-t border-slate-200 bg-white p-3 sm:p-4">
+        {/* 요구사항 2: 날짜 아래 CHECK/VERIFY/REGISTER 등 서비스 요약카드 */}
+        <div className="space-y-3">
+          {CATEGORY_ORDER.map((category) => {
+            const categoryDocs = byCategory.get(category) ?? [];
+            if (categoryDocs.length === 0) return null;
+
+            const byService = new Map<string, number>();
+            for (const d of categoryDocs) {
+              byService.set(d.serviceType, (byService.get(d.serviceType) ?? 0) + 1);
+            }
+            const theme = CATEGORY_THEME[category];
+
             return (
-              <tr key={d.key} className="group transition-colors hover:bg-blue-50/40">
-                <td className="px-5 py-3.5 align-middle">
-                  <p className="truncate text-sm font-semibold text-slate-950">{d.customerName}</p>
-                  <p className="mt-0.5 truncate text-xs text-slate-500">{d.customerContact}</p>
-                </td>
-                <td className="px-3 py-3.5 align-middle">
-                  {/* v2: 계층 정리 — 상위 분류(CHECK/VERIFY/REGISTER)를 작은 라벨로 위에,
-                      실제 서비스명을 아래에 더 크게 배치한다. */}
-                  <span className={`inline-flex max-w-full truncate rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${categoryInfo.badgeColor}`}>
-                    {categoryInfo.label}
-                  </span>
-                  <p className="mt-1 truncate text-sm font-semibold text-slate-800">{d.serviceLabel}</p>
-                </td>
-                <td className="px-3 py-3.5 align-middle">
-                  <span className="inline-flex max-w-full truncate rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600">
-                    {DOC_TYPE_META[d.docType]}
-                  </span>
-                </td>
-                <td className="px-3 py-3.5 align-middle">
-                  <Link href={`/admin/cases/${d.leadId}`} className="block truncate text-sm font-bold text-blue-700 transition-colors hover:text-blue-800 hover:underline">
-                    {d.docLabel}
-                  </Link>
-                  <p className="mt-0.5 truncate text-[11px] text-slate-400">
-                    {d.fileName ?? "-"}
-                    {d.fileSize !== null ? ` · ${formatFileSize(d.fileSize)}` : ""}
-                  </p>
-                </td>
-                <td className="px-3 py-3.5 align-middle text-xs text-slate-500">{formatDateTime(d.uploadedAt)}</td>
-                <td className="px-3 py-3.5 align-middle">
-                  <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badge}`}>{statusMeta.label}</span>
-                </td>
-                <td className="px-3 py-3.5 align-middle text-xs font-semibold text-slate-700">VFBCAI 담당자</td>
-                <td className="px-3 py-3.5 align-middle text-xs text-slate-600">{d.nextAction}</td>
-                <td className="px-2 py-3.5 text-center align-middle">
-                  {d.signedUrl ? (
-                    <a
-                      href={d.signedUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                      title="다운로드"
-                    >
-                      <Download size={14} />
-                    </a>
-                  ) : (
-                    <span className="text-slate-300">-</span>
-                  )}
-                </td>
-                <td className="px-2 py-3.5 text-center align-middle">
-                  {d.signedUrl ? (
-                    <a
-                      href={d.signedUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                      title="미리보기"
-                    >
-                      <ExternalLink size={14} />
-                    </a>
-                  ) : (
-                    <span className="text-slate-300">-</span>
-                  )}
-                </td>
-                <td className="px-5 py-3.5 align-middle">
-                  <DocProgressIndicator progress={d.progress} />
-                </td>
-              </tr>
+              <section key={category} className={`rounded-2xl border px-4 py-4 ${theme.shell}`}>
+                <div className="grid gap-4 lg:grid-cols-[210px_minmax(0,1fr)] lg:items-stretch">
+                  <div className="flex min-h-[88px] flex-col items-start justify-center gap-1 rounded-xl bg-white/55 px-5 py-4 lg:border-r lg:border-slate-200/80 lg:rounded-none lg:bg-transparent lg:px-0 lg:pr-6">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
+                      <p className={`text-sm font-black tracking-[0.06em] ${theme.label}`}>{CATEGORY_INFO[category].label}</p>
+                    </div>
+                    <p className={`whitespace-nowrap text-3xl font-black tracking-[-0.06em] ${theme.count}`}>
+                      {categoryDocs.length}
+                      <span className="ml-1 text-sm font-bold">건</span>
+                    </p>
+                    <p className="text-[11px] font-semibold text-slate-500">해당일 제출 문서</p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {Array.from(byService.entries())
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([serviceType, count]) => (
+                        <div
+                          key={serviceType}
+                          className="grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-white bg-white px-4 py-3.5 text-slate-700 shadow-sm"
+                        >
+                          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-base ring-1 ring-inset ring-slate-100" aria-hidden="true">
+                            <FileText size={16} className="text-slate-400" />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-bold text-slate-900">{getServiceLabel(serviceType)}</span>
+                            <span className="mt-1 block text-[11px] font-bold text-slate-400">{CATEGORY_INFO[category].label}</span>
+                          </span>
+                          <span className="flex min-w-[40px] flex-col items-end justify-center">
+                            <span className="text-xl font-black leading-none text-slate-800">{count}</span>
+                            <span className="mt-1 text-[10px] font-semibold text-slate-400">건</span>
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </section>
             );
           })}
-        </tbody>
-      </table>
+        </div>
+
+        {/* 요구사항 3·4: leadId로 묶은 문서 그룹, 그룹 안에서만 문서를 출력 */}
+        <div className="mt-4 space-y-3">
+          {/* lg 이상에서만 보이는 공유 컬럼 헤더 — 각 신청건 카드의 문서 행과 같은 그리드를 쓴다 */}
+          <div className={`hidden text-[10px] font-bold uppercase tracking-wide text-slate-400 lg:grid ${DOC_ROW_GRID} gap-2 px-4`}>
+            <span>문서유형</span>
+            <span>문서명</span>
+            <span>업로드일</span>
+            <span>상태</span>
+            <span>제출 진행률</span>
+            <span>담당자</span>
+            <span>다음조치</span>
+            <span className="text-center">다운로드</span>
+            <span className="text-center">미리보기</span>
+          </div>
+          {sortedLeadGroups.map((group) => (
+            <LeadDocumentGroupCard key={group.leadId} group={group} />
+          ))}
+        </div>
+      </div>
+    </details>
+  );
+}
+
+type LeadDocGroup = {
+  leadId: string;
+  customerName: string;
+  customerContact: string;
+  serviceType: string;
+  serviceLabel: string;
+  category: CategoryKey;
+  docs: DocumentWithUrl[];
+};
+
+// 요구사항 5: 진행률을 오른쪽 끝이 아니라 "상태 바로 뒤"로 옮긴 공유 그리드 컬럼 비율
+// (문서유형/문서명/업로드일/상태/진행률/담당자/다음조치/다운로드/미리보기).
+const DOC_ROW_GRID = "lg:grid-cols-[9%_20%_11%_9%_12%_9%_11%_9%_9%]";
+
+function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
+  const categoryInfo = CATEGORY_INFO[group.category];
+  // 신청건 진행률은 문서 단위가 아니라 신청건 단위 값(모든 문서 행이 같은 값)이므로 첫 문서에서만 읽는다.
+  const progress = group.docs[0]?.progress ?? null;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-colors hover:border-blue-200">
+      <div className="flex flex-col gap-2 border-b border-slate-100 bg-slate-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-600">
+            {group.customerName.slice(0, 1)}
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link href={`/admin/cases/${group.leadId}`} className="truncate text-sm font-bold text-slate-950 transition-colors hover:text-blue-700 hover:underline">
+                {group.customerName}
+              </Link>
+              <span className={`inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span>
+              <span className="text-xs font-semibold text-slate-500">{group.serviceLabel}</span>
+            </div>
+            <p className="mt-0.5 truncate text-xs text-slate-400">{group.customerContact}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 pl-12 sm:pl-0">
+          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-slate-600 ring-1 ring-inset ring-slate-200">문서 {group.docs.length}건</span>
+          <div className="w-[104px]">
+            <DocProgressIndicator progress={progress} />
+          </div>
+        </div>
+      </div>
+
+      {/* 문서 행 — lg 이상은 공유 헤더와 같은 그리드, 이하는 카드형으로 쌓는다 */}
+      <div className="divide-y divide-slate-100">
+        {group.docs.map((d) => (
+          <DocumentRowItem key={d.key} doc={d} />
+        ))}
+      </div>
     </div>
   );
 }
 
-// v2: "문서 제출 진행률" — 같은 신청건의 필수서류 제출 개수만 그대로 시각화한다(새 계산 없음).
-function DocProgressIndicator({ progress }: { progress: DocProgress | null }) {
+function DocumentRowItem({ doc }: { doc: DocumentWithUrl }) {
+  const statusMeta = STATUS_META[doc.status];
+  return (
+    <div className={`group/row grid items-center gap-2 px-4 py-3 text-sm transition-colors hover:bg-blue-50/40 ${DOC_ROW_GRID}`}>
+      <div className="flex items-center lg:block">
+        <span className={`inline-flex max-w-full truncate rounded-md px-2 py-1 text-[11px] font-semibold ${DOC_TYPE_BADGE[doc.docType]}`}>{DOC_TYPE_META[doc.docType]}</span>
+      </div>
+      <div className="min-w-0">
+        <Link href={`/admin/cases/${doc.leadId}`} className="block truncate text-sm font-bold text-blue-700 transition-colors hover:text-blue-800 hover:underline">
+          {doc.docLabel}
+        </Link>
+        <p className="mt-0.5 truncate text-[11px] text-slate-400">
+          {doc.fileName ?? "-"}
+          {doc.fileSize !== null ? ` · ${formatFileSize(doc.fileSize)}` : ""}
+        </p>
+      </div>
+      <div className="text-xs text-slate-500">{formatDateTime(doc.uploadedAt)}</div>
+      <div>
+        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badge}`}>{statusMeta.label}</span>
+      </div>
+      <div className="hidden lg:block">
+        <DocProgressIndicator progress={doc.progress} compact />
+      </div>
+      <div className="hidden text-xs font-semibold text-slate-700 lg:block">VFBCAI 담당자</div>
+      <div className="hidden text-xs text-slate-600 lg:block">{doc.nextAction}</div>
+      <div className="flex items-center gap-2 lg:justify-center">
+        {doc.signedUrl ? (
+          <a
+            href={doc.signedUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+            title="다운로드"
+          >
+            <Download size={14} />
+          </a>
+        ) : (
+          <span className="text-slate-300">-</span>
+        )}
+        {/* lg 미만에서는 다운로드/미리보기를 한 줄에 같이 보여준다(그리드 컬럼을 그대로 다 펼치지 않음) */}
+        {doc.signedUrl && (
+          <a
+            href={doc.signedUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 lg:hidden"
+            title="미리보기"
+          >
+            <ExternalLink size={14} />
+          </a>
+        )}
+      </div>
+      <div className="hidden lg:flex lg:items-center lg:justify-center">
+        {doc.signedUrl ? (
+          <a
+            href={doc.signedUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+            title="미리보기"
+          >
+            <ExternalLink size={14} />
+          </a>
+        ) : (
+          <span className="text-slate-300">-</span>
+        )}
+      </div>
+      {/* lg 미만 전용 보조 정보(담당자/다음조치/진행률) — 공유 그리드 대신 한 줄 요약으로 */}
+      <div className="col-span-2 -mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400 lg:hidden">
+        <span>담당자 <b className="font-semibold text-slate-600">VFBCAI 담당자</b></span>
+        <span>다음조치 <b className="font-semibold text-slate-600">{doc.nextAction}</b></span>
+      </div>
+    </div>
+  );
+}
+
+// v2/v3: "문서 제출 진행률" — 같은 신청건의 필수서류 제출 개수만 그대로 시각화한다(새 계산 없음).
+function DocProgressIndicator({ progress, compact = false }: { progress: DocProgress | null; compact?: boolean }) {
   if (!progress) return <span className="text-xs text-slate-300">-</span>;
   return (
-    <div className="min-w-[88px]">
+    <div className={compact ? "min-w-[80px]" : "min-w-[88px]"}>
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-xs font-bold text-slate-800">
           {progress.submitted}/{progress.total}
@@ -669,81 +906,28 @@ function DocProgressIndicator({ progress }: { progress: DocProgress | null }) {
   );
 }
 
-function DocumentMobileCard({ doc }: { doc: DocumentWithUrl }) {
-  const statusMeta = STATUS_META[doc.status];
-  const categoryInfo = CATEGORY_INFO[doc.category];
+// Admin Cases의 DateCategoryCount와 동일한 배지(다른 파일의 비공개 컴포넌트라 복제).
+function DateCategoryCountBadge({ label, count }: { label: string; count: number }) {
   return (
-    <div className="p-4">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-colors">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <span className={`inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span>
-            <p className="mt-1 truncate text-sm font-bold text-slate-950">{doc.customerName}</p>
-            <p className="mt-0.5 truncate text-xs text-slate-500">{doc.customerContact}</p>
-          </div>
-          <span className={`shrink-0 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badge}`}>{statusMeta.label}</span>
-        </div>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ring-inset ${
+        count > 0 ? "bg-blue-50 text-blue-700 ring-blue-100" : "bg-white text-slate-400 ring-slate-200"
+      }`}
+      aria-label={`${label} ${count}건`}
+    >
+      <span>{label}</span>
+      <span className={`inline-flex min-h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] leading-none ${count > 0 ? "bg-white/80" : "bg-slate-100"}`}>
+        {count > 99 ? "99+" : count}
+      </span>
+    </span>
+  );
+}
 
-        <Link href={`/admin/cases/${doc.leadId}`} className="mt-3 block truncate text-sm font-bold text-blue-700 transition-colors hover:text-blue-800 hover:underline">
-          {doc.docLabel}
-        </Link>
-        <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
-          <span className="inline-flex rounded-md bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-600">{DOC_TYPE_META[doc.docType]}</span>
-          <span className="truncate">
-            {doc.fileName ?? "-"}
-            {doc.fileSize !== null ? ` · ${formatFileSize(doc.fileSize)}` : ""}
-          </span>
-        </p>
-
-        <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-          <div>
-            <p className="text-slate-400">서비스</p>
-            <p className="mt-1 truncate font-semibold text-slate-800">{doc.serviceLabel}</p>
-          </div>
-          <div>
-            <p className="text-slate-400">다음조치</p>
-            <p className="mt-1 truncate font-semibold text-slate-800">{doc.nextAction}</p>
-          </div>
-          <div>
-            <p className="text-slate-400">업로드일</p>
-            <p className="mt-1 font-semibold text-slate-800">{formatDateTime(doc.uploadedAt)}</p>
-          </div>
-          <div>
-            <p className="text-slate-400">담당자</p>
-            <p className="mt-1 font-semibold text-slate-800">VFBCAI 담당자</p>
-          </div>
-        </div>
-
-        <div className="mt-3">
-          <p className="text-xs text-slate-400">제출 진행률</p>
-          <div className="mt-1.5">
-            <DocProgressIndicator progress={doc.progress} />
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {doc.signedUrl ? (
-            <>
-              <a href={doc.signedUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700">
-                <Download size={12} /> 다운로드
-              </a>
-              <a href={doc.signedUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700">
-                <ExternalLink size={12} /> 미리보기
-              </a>
-            </>
-          ) : (
-            <span className="text-[11px] text-slate-300">파일 링크 없음</span>
-          )}
-        </div>
-
-        <Link
-          href={`/admin/cases/${doc.leadId}`}
-          className="mt-4 flex h-10 w-full items-center justify-center rounded-xl bg-blue-700 text-sm font-semibold text-white transition-colors hover:bg-blue-800"
-        >
-          신청건 상세 열기
-        </Link>
-      </div>
-    </div>
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+      <path d="m7.5 5 5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
