@@ -505,6 +505,17 @@ export default async function AdminLeadDetailPage({
     .order("created_at", { ascending: false });
   const rejections = rejectionsRaw ?? [];
 
+  // v9: "AI Report" 카드용 — 이미 존재하는 result_tokens 테이블(결과확인 링크 토큰)을
+  // 읽기 전용으로 조회만 한다. 새 테이블·컬럼·API 없음, agency-confirm 라우트가 리드당
+  // 기존 토큰을 재사용하는 것과 동일하게 가장 먼저 발급된 토큰 1건만 확인한다.
+  const { data: resultTokenRow } = await supabaseAdmin
+    .from("result_tokens")
+    .select("token, created_at")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
   const serviceType = normalizeServiceType(lead.service_type as string) ?? (lead.service_type as string);
   const category = getCategory(serviceType);
   const categoryInfo = CATEGORY_INFO[category];
@@ -725,9 +736,9 @@ export default async function AdminLeadDetailPage({
       origin: CHECK_DOCUMENT_ORIGIN[label] ?? "확인 필요",
       // v8-1: 문서 "용도" 구분 — 새 문서유형을 만들지 않고, /documents 페이지가 업로드 시
       // 이미 저장하는 실제 meta.mode 값("ai_report"|"expert")만 docPurposeLabel()로 읽는다.
-      // mode가 없으면(예: 과거 업로드 등) "공통 자료"라고 단정하지 않고 "용도 확인 필요"로
-      // 표시한다(docPurposeLabel 참고).
+      // mode가 없으면(예: 과거 업로드 등) 단정하지 않고 "용도 확인 필요"로 표시한다.
       purpose: upload ? docPurposeLabel(upload.mode) : null,
+      purposeMode: upload?.mode ?? null,
     };
   });
   const wpMissingMandatory = wpDocRows.filter((d) => d.mandatory && !d.submitted);
@@ -784,60 +795,130 @@ export default async function AdminLeadDetailPage({
   const wpRejectionRisks = activeBrief?.rejectionRisks ? [...activeBrief.rejectionRisks].sort((a, b) => a.rank - b.rank) : [];
   const wpRecommendedSteps = activeBrief?.recommendedSteps ?? [];
 
-  // ── 고객 여정 통합 현황(Executive Summary, v7/v8) ──
-  // 새 계산식을 만들지 않고, 이 페이지가 이미 계산해 둔 값만 그대로 다시 쓴다:
-  // - 자료 재사용 문서 수 / 추가 필요 문서 수: 상단 히어로 카드의 "제출 문서"·"미제출
-  //   문서" 타일과 완전히 동일한 표현식(isCheckWorkspace ? wpDocRows... : requiredDocuments...).
-  // - AI 분석 재사용 여부: activeBrief(CHECK/VERIFY) 또는 registerMeta(REGISTER 자체진단)
-  //   존재 여부 — 둘 다 이미 위에서 실제 crm_activities.meta로부터 감지된 값이다.
+  // ── 고객 여정 통합 현황 / Journey Timeline / AI Report 카드(v7~v9) ──
+  // 새 계산식·새 action을 만들지 않고, 실제 crm_activities.action과 document_upload의
+  // 실제 meta.mode만으로 판단한다.
   const journeyReusedDocsCount = isCheckWorkspace ? wpSubmittedMandatoryCount : submittedRequiredCount;
   const journeyMissingDocsCount = isCheckWorkspace
     ? wpMissingMandatory.length
     : requiredDocuments.length - submittedRequiredCount;
+  const journeyRequiredDocsCount = isCheckWorkspace ? wpMandatoryLabels.length : requiredDocuments.length;
   const journeyHasAiAnalysis = Boolean(activeBrief) || Boolean(registerMeta);
-  const journeyTypeTone: { className: string } =
-    wpApplicationType === "전문가 진행"
-      ? { className: "bg-blue-50 text-blue-700" }
-      : wpApplicationType === "전문가 검토"
-        ? { className: "bg-violet-50 text-violet-700" }
-        : wpApplicationType === "AI 리포트"
-          ? { className: "bg-emerald-50 text-emerald-700" }
-          : { className: "bg-slate-100 text-slate-500" };
+  const journeyIsExpertTrack = wpActionSet.has("agency_upgrade_request");
 
   // v8-1·v8-2: 문서 "용도" 라벨을 CHECK/VERIFY/REGISTER 공통 헬퍼로 분리했다. 새 문서유형을
   // 만들지 않고 /documents 페이지가 실제 저장하는 meta.mode("ai_report"|"expert")만 읽으며,
-  // mode를 알 수 없을 때는 "공통 자료"처럼 사실을 단정하지 않고 "용도 확인 필요"로 표시한다.
+  // mode를 알 수 없을 때는 사실을 단정하지 않고 "용도 확인 필요"로 표시한다. 이 프로젝트에는
+  // "전문가 검토용"과 "전문가 진행 추가자료"를 구분하는 실제 데이터가 없어(둘 다 mode="expert")
+  // 두 라벨을 억지로 나누지 않았다.
   function docPurposeLabel(mode: string | null | undefined): string {
     if (mode === "ai_report") return "AI 리포트용";
     if (mode === "expert") return "전문가 진행 추가자료";
     return "용도 확인 필요";
   }
+  function docPurposeBadgeClass(mode: string | null | undefined): string {
+    if (mode === "ai_report") return "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-100";
+    if (mode === "expert") return "bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-100";
+    return "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-100";
+  }
 
-  // v8-3: "고객 여정 순서형 표시" — 실제 crm_activities.action과 document_upload
-  // meta.mode만으로 4가지 실제 마일스톤 발생 여부를 판단한다(새 action 없음).
-  // AI 진단 감지식은 buildProcessSteps() 내부의 hasDiagnosis 판단식과 완전히 동일하다
-  // (다른 함수 내부 지역변수라 그대로 가져올 수 없어 동일한 식만 다시 썼다 — 판단 기준
-  // 자체는 바뀌지 않았다). 존재하는 마일스톤만 화면에 표시하고 순서는 고정한다.
   const journeyHasDiagnosisAction = activities.some(
     (a) => a.action === "verify_lead" || (a.action ?? "").endsWith("_diagnosis_lead")
   );
-  const journeyMilestones: Array<{ label: string; occurred: boolean }> = [
-    { label: "AI 진단", occurred: journeyHasDiagnosisAction },
-    { label: "AI 리포트 요청", occurred: wpAiReportRequested },
-    { label: "전문가 검토 요청", occurred: wpActionSet.has("expert_review_request") },
-    { label: "전문가 진행 요청", occurred: wpActionSet.has("agency_upgrade_request") },
-  ];
-  const journeyOccurredMilestones = journeyMilestones.filter((m) => m.occurred);
+  // 추가자료 제출 — /documents 페이지가 저장하는 실제 meta.mode==="expert" 업로드가
+  // 하나라도 있으면 "전문가 진행을 위해 추가로 자료를 냈다"는 실제 근거로 삼는다.
+  const journeyHasExpertMaterial = activities.some(
+    (a) => a.action === "document_upload" && asMeta(a.meta)?.mode === "expert"
+  );
 
-  // v8-4: 고객용/관리자용 리포트 "현재 상태" — 실제로 판단 가능한 범위(진단·전문가 브리프
-  // 데이터의 존재 여부)만으로 표시한다. 고객이 실제로 리포트를 열람했는지 여부는
-  // crm_activities에 기록되는 action이 없어 판단할 수 없으므로 "열람 여부"는 단정하지 않는다.
-  const journeyCustomerReportStatus = journeyHasDiagnosisAction ? "발급 가능(열람 여부 확인 불가)" : "기록 없음";
+  // v9-fix-4: 고객용/관리자용 리포트 "현재 상태" — 실제로 판단 가능한 범위(진단·전문가
+  // 브리프 데이터의 존재 여부)만으로 표시한다. "생성 완료"·"다운로드 완료"·"고객 열람
+  // 완료" 같은 단정적 문구는 절대 쓰지 않는다 — 그런 사실을 확인할 action이 없다.
+  const journeyCustomerReportStatus = journeyHasDiagnosisAction ? "발급 가능" : "기록 없음";
   const journeyAdminReportStatus = activeBrief
     ? "검토자료 있음"
     : registerMeta
       ? "기본 정보만 있음(상세 검토자료 없음)"
       : "기록 없음";
+
+  // v9-fix-1: "고객 Journey Timeline" — 10단계 고정 표시. 각 단계는 실제 action/meta.mode
+  // 근거가 있을 때만 독립적으로 done=true다. buildProcessSteps()가 쓰는 cascadeDone()은
+  // 여기서는 절대 사용하지 않는다(cascadeDone은 뒷 단계가 있으면 앞 단계도 완료로
+  // 간주하는 함수라, 이 Timeline의 "실제로 일어난 단계만 보여준다"는 목적과 맞지 않음
+  // — buildProcessSteps 내부의 cascadeDone 로직 자체는 그대로 두고 전혀 수정하지 않았다).
+  // "AI 리포트 생성"·"AI 리포트 다운로드"는 이 프로젝트에 대응하는 action이 전혀 없어
+  // 항상 false(회색 + "추적 기록 없음")로만 표시한다 — 실제로 일어났을 수 있어도 근거
+  // 없이 완료 처리하지 않는다.
+  const journeyFirstStepLabel =
+    category === "check"
+      ? "CHECK 접수"
+      : category === "verify"
+        ? "VERIFY 접수"
+        : category === "register"
+          ? "REGISTER 접수"
+          : category === "consultation"
+            ? "상담 접수"
+            : "신청 접수";
+  const JOURNEY_TIMELINE_LABELS = [
+    journeyFirstStepLabel,
+    "AI 진단 완료",
+    "AI 리포트 요청",
+    "AI 리포트 생성",
+    "AI 리포트 다운로드",
+    "전문가 검토 요청",
+    "추가자료 제출",
+    "전문가 진행 요청",
+    "정부 제출",
+    "완료",
+  ] as const;
+  const journeyTimelineRawDone = [
+    true, // 리드가 실제로 존재한다는 것 자체가 접수 완료의 근거
+    journeyHasDiagnosisAction,
+    wpAiReportRequested,
+    false, // AI 리포트 생성 — 추적 action 없음, 항상 false
+    false, // AI 리포트 다운로드 — 추적 action 없음, 항상 false
+    wpActionSet.has("expert_review_request"),
+    journeyHasExpertMaterial,
+    wpActionSet.has("agency_upgrade_request"),
+    wpActionSet.has("process_government_submitted"),
+    wpActionSet.has("process_permit_completed"),
+  ];
+  const journeyTimelineSteps = JOURNEY_TIMELINE_LABELS.map((label, i) => ({
+    label,
+    done: journeyTimelineRawDone[i],
+    tracked: i !== 3 && i !== 4, // 생성·다운로드는 추적 근거가 없다는 것을 화면에 별도 표기
+  }));
+  // v9-fix-5: 현재 Journey 단계 — 추적 가능한(tracked) 단계 중 실제로 발생한 것 중에서만
+  // 업무 진행상 가장 뒤에 있는 단계를 고른다. 추적 불가 단계(생성·다운로드)는 제외한다.
+  const journeyCurrentTimelineLabel =
+    [...journeyTimelineSteps].reverse().find((s) => s.tracked && s.done)?.label ?? journeyTimelineSteps[0].label;
+
+  // v9-2: Executive Summary 5카드 — ③ AI 리포트 상태 / ⑤ 전문가 진행 상태.
+  // "생성 완료"·"다운로드 완료"는 추적 action이 없어 실제로 판단 가능한 가장 가까운
+  // 상태(전문가 전환 여부·진단 존재 여부)로 표시한다(허위 상태 표시 금지).
+  const journeyAiReportStatusLabel = wpActionSet.has("agency_upgrade_request")
+    ? "전문가 진행 전환"
+    : wpActionSet.has("expert_review_request")
+      ? "전문가 검토 전환"
+      : journeyHasDiagnosisAction
+        ? "생성 가능(다운로드 여부 확인 불가)"
+        : "기록 없음";
+  const journeyExpertProgressStatus = wpActionSet.has("process_permit_completed")
+    ? "완료"
+    : wpActionSet.has("agency_upgrade_request")
+      ? "진행중"
+      : wpActionSet.has("expert_review_request")
+        ? "검토중"
+        : "미신청";
+
+  // v9-3: "AI Report" 카드 — result_tokens/checkActivity/verifyActivity/registerActivity/
+  // activeBrief/registerMeta 등 이미 위에서 조회·계산된 실제 데이터만 재사용한다.
+  const journeyDiagnosisActivity = checkActivity ?? verifyActivity ?? registerActivity ?? null;
+  const journeyReportGeneratedAt = journeyDiagnosisActivity?.created_at ?? null;
+  const journeyExpertConverted = wpActionSet.has("expert_review_request") || wpActionSet.has("agency_upgrade_request");
+  // v9-4: "기존 AI 분석 재사용" 배지 — 진단(AI 분석)이 실제로 존재하는 상태에서, 그 이후
+  // 전문가 트랙(검토요청/진행요청)으로 실제 전환된 경우에만 표시한다(추측 표시 금지).
+  const journeyReuseBadgeVisible = journeyHasAiAnalysis && journeyExpertConverted;
 
   // 최우선 조치 정보는 이제 Executive Summary 문장(wpExecutiveSummaryText)이
   // 같은 데이터로 이미 전달하므로 별도 변수를 두지 않는다(중복 제거).
@@ -981,10 +1062,9 @@ export default async function AdminLeadDetailPage({
             </div>
           </section>
 
-          {/* 고객 여정 통합 현황(Executive Summary, v7/v8) — 리포트만 요청했던 고객이 나중에
-              전문가 진행을 선택해도 같은 Lead/문서/AI분석을 그대로 이어 쓴다는 걸 관리자가
-              한눈에 확인하는 영역. 전부 위에서 이미 계산된 실제 action/데이터만 표시하며,
-              판단 근거가 없는 값은 숫자를 만들지 않고 "기록 없음"/"확인 필요"로 표시한다. */}
+          {/* 고객 여정 통합 현황(Executive Summary, v9) — 5개 카드. 전부 위에서 이미 계산된
+              실제 action/데이터만 표시하며, 판단 근거가 없는 값은 숫자를 만들지 않고
+              "기록 없음"/"확인 필요"로 표시한다. */}
           <section className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <h2 className="text-[14px] font-extrabold">고객 여정 통합 현황</h2>
@@ -992,41 +1072,102 @@ export default async function AdminLeadDetailPage({
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-slate-100">
               <div className="flex min-h-[112px] flex-col justify-center gap-1.5 p-4">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><UserCheck size={12}/>현재 이용유형</p>
-                <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-[12px] font-bold ${journeyTypeTone.className}`}>{wpApplicationType}</span>
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><UserCheck size={12}/>① 현재 이용 서비스</p>
+                <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-[12px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span>
+                {journeyIsExpertTrack && <span className="inline-flex w-fit rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700">전문가 진행</span>}
               </div>
               <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 p-4 lg:border-t-0">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><ListChecks size={12}/>진행 이력</p>
-                {journeyOccurredMilestones.length > 0 ? (
-                  <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-[11px] font-bold text-emerald-700">
-                    {journeyOccurredMilestones.map((m, i) => (
-                      <span key={m.label} className="flex items-center gap-1">
-                        {i > 0 && <span className="text-slate-300">→</span>}
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5">{m.label}</span>
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[12px] font-semibold text-slate-400">기록 없음</p>
-                )}
-                <p className="text-[11px] text-slate-400">현재 단계: {currentStageLabel}</p>
-              </div>
-              <div className="flex min-h-[112px] flex-col justify-center gap-1 border-t border-slate-100 p-4 lg:border-t-0">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><FileText size={12}/>리포트 상태</p>
-                <p className="text-[12px] text-slate-600">고객용: <span className="font-bold text-slate-900">{journeyCustomerReportStatus}</span></p>
-                <p className="text-[12px] text-slate-600">관리자용: <span className="font-bold text-slate-900">{journeyAdminReportStatus}</span></p>
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><ListChecks size={12}/>② 고객 Journey 단계</p>
+                <p className="text-[13px] font-bold text-slate-900">{journeyCurrentTimelineLabel}</p>
+                <p className="text-[11px] text-slate-400">{journeyTimelineSteps.filter((s) => s.done).length}/{journeyTimelineSteps.length}단계</p>
               </div>
               <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 p-4 lg:border-t-0">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><FileText size={12}/>자료 재사용</p>
-                <p className="text-[13px] font-bold text-emerald-700">기존 문서 {journeyReusedDocsCount}건 재사용</p>
-                <p className="text-[11px] text-slate-500">{journeyHasAiAnalysis ? "기존 AI 분석 재사용" : "AI 분석 기록 없음"}</p>
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><FileText size={12}/>③ AI 리포트 상태</p>
+                <p className="text-[13px] font-bold text-slate-900">{journeyAiReportStatusLabel}</p>
               </div>
-              <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 bg-amber-50/40 p-4 lg:border-t-0">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-amber-700"><FileWarning size={12}/>추가 필요 자료</p>
-                <p className="text-[13px] font-bold text-amber-700">{journeyMissingDocsCount > 0 ? `문서 ${journeyMissingDocsCount}건` : "추가 서류 없음"}</p>
-                <p className="text-[11px] text-slate-500">추가 정보 확인 필요</p>
+              <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 p-4 lg:border-t-0">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><Paperclip size={12}/>④ 제출 문서 현황</p>
+                <p className="text-[12px] text-slate-600">필수 제출 <span className="font-bold text-slate-900">{journeyRequiredDocsCount}건</span></p>
+                <p className="text-[12px] text-slate-600">제출 완료 <span className="font-bold text-emerald-700">{journeyReusedDocsCount}건</span></p>
+                <p className="text-[12px] text-slate-600">추가 필요 <span className="font-bold text-amber-700">{journeyMissingDocsCount}건</span></p>
+              </div>
+              <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 p-4 lg:border-t-0">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><ShieldCheck size={12}/>⑤ 전문가 진행 상태</p>
+                <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-[12px] font-bold ${
+                  journeyExpertProgressStatus === "완료" ? "bg-emerald-50 text-emerald-700"
+                  : journeyExpertProgressStatus === "진행중" ? "bg-blue-50 text-blue-700"
+                  : journeyExpertProgressStatus === "검토중" ? "bg-violet-50 text-violet-700"
+                  : "bg-slate-100 text-slate-500"
+                }`}>{journeyExpertProgressStatus}</span>
               </div>
             </div>
+          </section>
+
+          {/* 고객 Journey Timeline(v9, 신규) — 10단계 고정 표시, 실제 action 근거가 있는
+              단계만 활성화한다. "AI 리포트 생성"/"다운로드"는 대응 action이 없어 항상
+              회색으로 표시(추적 불가 표시 포함). 기존 "진행 단계" 스텝퍼(관리자가 다음
+              단계로 수동 변경하는 기능)는 그대로 아래에 유지한다 — 이 타임라인은 읽기
+              전용 요약이며 setProcessStage 등 기존 로직을 대체하지 않는다. */}
+          <section className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[14px] font-extrabold">고객 Journey Timeline</h2>
+              <span className="text-[11px] font-semibold text-slate-400">{journeyCurrentTimelineLabel}</span>
+            </div>
+            <div className="mt-4 space-y-0">
+              {journeyTimelineSteps.map((step, i) => (
+                <div key={step.label} className="relative flex gap-3 pb-4 last:pb-0">
+                  {i < journeyTimelineSteps.length - 1 && (
+                    <div className={`absolute left-[11px] top-[22px] h-full w-[2px] ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />
+                  )}
+                  <div className={`relative z-10 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-extrabold ${
+                    step.done ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-300"
+                  }`}>
+                    {step.done ? <CheckCircle2 size={12} /> : i + 1}
+                  </div>
+                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                    <p className={`text-[13px] font-bold ${step.done ? "text-slate-900" : "text-slate-400"}`}>{step.label}</p>
+                    {!step.tracked && <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-400">추적 안 됨</span>}
+                    {step.tracked && step.done && <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">완료</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* "AI Report" 카드(v9, 신규) — result_tokens/checkActivity/verifyActivity/
+              registerActivity/activeBrief/registerMeta 등 기존 데이터만 사용한다. */}
+          <section className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-[14px] font-extrabold">AI Report</h2>
+              {journeyReuseBadgeVisible && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                  <CheckCircle2 size={12}/>기존 AI 분석 재사용
+                </span>
+              )}
+            </div>
+            <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">고객용 AI 리포트</dt>
+                <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyCustomerReportStatus}</dd>
+              </div>
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">관리자용 AI 리포트</dt>
+                <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyAdminReportStatus}</dd>
+              </div>
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">생성일</dt>
+                <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyReportGeneratedAt ? new Date(journeyReportGeneratedAt).toLocaleString("ko-KR") : "기록 없음"}</dd>
+              </div>
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">다운로드 여부</dt>
+                <dd className="mt-1 text-[12px] font-bold text-slate-800">확인 불가(추적 action 없음)</dd>
+              </div>
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">전문가 전환 여부</dt>
+                <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyExpertConverted ? "전환됨" : "전환 안 됨"}</dd>
+              </div>
+            </dl>
+            <p className="mt-3 text-[11px] text-slate-400">result_tokens: {resultTokenRow ? `결과 확인 링크 발급됨 · ${new Date(resultTokenRow.created_at).toLocaleDateString("ko-KR")}` : "결과 확인 링크 미발급"}</p>
           </section>
 
           <section className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="flex items-center justify-between"><h2 className="text-[14px] font-extrabold">진행 단계</h2><span className="text-[13px] font-semibold text-slate-400">{currentStageLabel}</span></div><div className="mt-4 flex items-start">{processSteps.map((step,i)=>{const isNextStep=i===nextStepIndex;return <div key={step.label} className="relative min-w-0 flex-1 text-center">{i>0&&<div className={`absolute right-1/2 top-[14px] h-[2px] w-full ${step.done?"bg-emerald-300":"bg-slate-200"}`}/>}<div className={`relative z-10 mx-auto flex h-6 w-6 items-center justify-center rounded-full border-2 text-[11px] font-extrabold ${step.done?"border-emerald-300 bg-emerald-50 text-emerald-700":isNextStep?"border-blue-600 bg-blue-600 text-white":"border-slate-200 bg-white text-slate-400"}`}>{step.done?<CheckCircle2 size={13}/>:i+1}</div><p className={`mt-1.5 truncate px-1 text-[10px] font-bold ${step.done?"text-emerald-700":isNextStep?"text-blue-700":"text-slate-500"}`}>{step.label}</p></div>})}</div>{nextStep&&<div className="mt-4 flex flex-col gap-2 rounded-xl bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"><strong className="text-[12px] text-blue-900">다음 단계: {nextStep.label}</strong><form action={setProcessStage} className="flex flex-wrap gap-2"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="stageAction" value={nextStep.settableAction??""}/>{nextStep.settableAction==="process_permit_completed"&&<input type="file" name="permitFile" className="max-w-[190px] text-[10px]"/>}<button className="rounded-lg border border-blue-500 bg-white px-3 py-2 text-[11px] font-bold text-blue-700">다음 단계로 변경</button></form></div>}</section>
@@ -1088,7 +1229,7 @@ export default async function AdminLeadDetailPage({
                                 ) : (
                                   row.fileName ?? "-"
                                 )}
-                                {row.purpose && <p className="mt-0.5 text-[10px] font-semibold text-slate-400">{row.purpose}</p>}
+                                {row.purpose && <div className="mt-1"><span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${docPurposeBadgeClass(row.purposeMode)}`}>{row.purpose}</span></div>}
                               </td>
                               <td className="px-2 py-3">
                                 <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
@@ -1125,7 +1266,8 @@ export default async function AdminLeadDetailPage({
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-[12px] font-bold text-slate-800">{row.label}</p>
-                            <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {wpReviewBadge(row).label} · {row.fileName ?? "제출 파일 없음"}{row.purpose ? ` · ${row.purpose}` : ""}</p>
+                            <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {wpReviewBadge(row).label} · {row.fileName ?? "제출 파일 없음"}</p>
+                            {row.purpose && <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold ${docPurposeBadgeClass(row.purposeMode)}`}>{row.purpose}</span>}
                           </div>
                           <span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
                             {wpSubmissionBadge(row).label}
@@ -1182,7 +1324,7 @@ export default async function AdminLeadDetailPage({
                             </td>
                             <td className="truncate px-2 py-3 font-medium text-slate-600">
                               {displayFileName}
-                              {matched && <p className="mt-0.5 text-[10px] font-semibold text-slate-400">{docPurposeLabel(matched.mode)}</p>}
+                              {matched && <div className="mt-1"><span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${docPurposeBadgeClass(matched.mode)}`}>{docPurposeLabel(matched.mode)}</span></div>}
                             </td>
                             <td className="px-2 py-3">
                               <span className={`rounded-full px-3 py-1.5 text-[10px] font-bold ${index < 3 ? "bg-blue-50 text-blue-700" : "bg-violet-50 text-violet-700"}`}>
@@ -1235,7 +1377,8 @@ export default async function AdminLeadDetailPage({
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-[12px] font-bold text-slate-800">{label}</p>
-                          <p className="mt-1 truncate text-[10px] text-slate-400">{matched?.fileName ?? "제출 파일 없음"}{matched ? ` · ${docPurposeLabel(matched.mode)}` : ""}</p>
+                          <p className="mt-1 truncate text-[10px] text-slate-400">{matched?.fileName ?? "제출 파일 없음"}</p>
+                          {matched && <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold ${docPurposeBadgeClass(matched.mode)}`}>{docPurposeLabel(matched.mode)}</span>}
                         </div>
                         <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${submitted ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                           {submitted ? "확인 완료" : "미확인"}
