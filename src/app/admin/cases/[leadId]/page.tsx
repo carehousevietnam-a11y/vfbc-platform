@@ -913,12 +913,18 @@ export default async function AdminLeadDetailPage({
 
   // v9-3: "AI Report" 카드 — result_tokens/checkActivity/verifyActivity/registerActivity/
   // activeBrief/registerMeta 등 이미 위에서 조회·계산된 실제 데이터만 재사용한다.
-  const journeyDiagnosisActivity = checkActivity ?? verifyActivity ?? registerActivity ?? null;
-  const journeyReportGeneratedAt = journeyDiagnosisActivity?.created_at ?? null;
   const journeyExpertConverted = wpActionSet.has("expert_review_request") || wpActionSet.has("agency_upgrade_request");
   // v9-4: "기존 AI 분석 재사용" 배지 — 진단(AI 분석)이 실제로 존재하는 상태에서, 그 이후
   // 전문가 트랙(검토요청/진행요청)으로 실제 전환된 경우에만 표시한다(추측 표시 금지).
   const journeyReuseBadgeVisible = journeyHasAiAnalysis && journeyExpertConverted;
+
+  // v10: "Customer 360 Dashboard" 패널 — 전부 위에서 이미 계산된 값의 별칭(alias)이다.
+  // 새 계산식은 하나도 없다. nextStep은 buildProcessSteps() 결과에서 이미 파생된
+  // 기존 변수를 그대로 참조만 한다(재계산 없음).
+  const journeyNextStepLabel = nextStep?.label ?? "다음 단계 없음";
+  const journeyGovSubmitted = wpActionSet.has("process_government_submitted");
+  const journeyUploadReused = journeyReusedDocsCount > 0;
+  const journeyQuestionReused = journeyHasDiagnosisAction;
 
   // 최우선 조치 정보는 이제 Executive Summary 문장(wpExecutiveSummaryText)이
   // 같은 데이터로 이미 전달하므로 별도 변수를 두지 않는다(중복 제거).
@@ -1103,68 +1109,131 @@ export default async function AdminLeadDetailPage({
             </div>
           </section>
 
-          {/* 고객 Journey Timeline(v9, 신규) — 10단계 고정 표시, 실제 action 근거가 있는
-              단계만 활성화한다. "AI 리포트 생성"/"다운로드"는 대응 action이 없어 항상
-              회색으로 표시(추적 불가 표시 포함). 기존 "진행 단계" 스텝퍼(관리자가 다음
-              단계로 수동 변경하는 기능)는 그대로 아래에 유지한다 — 이 타임라인은 읽기
-              전용 요약이며 setProcessStage 등 기존 로직을 대체하지 않는다. */}
-          <section className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-[14px] font-extrabold">고객 Journey Timeline</h2>
-              <span className="text-[11px] font-semibold text-slate-400">{journeyCurrentTimelineLabel}</span>
-            </div>
-            <div className="mt-4 space-y-0">
-              {journeyTimelineSteps.map((step, i) => (
-                <div key={step.label} className="relative flex gap-3 pb-4 last:pb-0">
-                  {i < journeyTimelineSteps.length - 1 && (
-                    <div className={`absolute left-[11px] top-[22px] h-full w-[2px] ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />
-                  )}
-                  <div className={`relative z-10 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-extrabold ${
-                    step.done ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-300"
-                  }`}>
-                    {step.done ? <CheckCircle2 size={12} /> : i + 1}
+          {/* v10: "Customer 360 Dashboard" — 기존 세로형 Journey Timeline(계산 로직 무수정)은
+              왼쪽 폭만 줄이고, 오른쪽 빈 공간에 이미 계산되어 있던 값들만 다시 보여주는
+              요약 카드 3개를 배치한다. 새 계산 로직 없음. */}
+          <div className="mt-3 grid gap-3 lg:grid-cols-[62fr_38fr] lg:items-stretch">
+            {/* 고객 Journey Timeline(v9) — 10단계 고정 표시, 실제 action 근거가 있는
+                단계만 활성화한다. "AI 리포트 생성"/"다운로드"는 대응 action이 없어 항상
+                회색으로 표시(추적 불가 표시 포함). 기존 "진행 단계" 스텝퍼(관리자가 다음
+                단계로 수동 변경하는 기능)는 그대로 아래에 유지한다 — 이 타임라인은 읽기
+                전용 요약이며 setProcessStage 등 기존 로직을 대체하지 않는다. */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[14px] font-extrabold">고객 Journey Timeline</h2>
+                <span className="text-[11px] font-semibold text-slate-400">{journeyCurrentTimelineLabel}</span>
+              </div>
+              <div className="mt-4 space-y-0">
+                {journeyTimelineSteps.map((step, i) => (
+                  <div key={step.label} className="relative flex gap-3 pb-4 last:pb-0">
+                    {i < journeyTimelineSteps.length - 1 && (
+                      <div className={`absolute left-[11px] top-[22px] h-full w-[2px] ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />
+                    )}
+                    <div className={`relative z-10 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-extrabold ${
+                      step.done ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-300"
+                    }`}>
+                      {step.done ? <CheckCircle2 size={12} /> : i + 1}
+                    </div>
+                    <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                      <p className={`text-[13px] font-bold ${step.done ? "text-slate-900" : "text-slate-400"}`}>{step.label}</p>
+                      {!step.tracked && <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-400">추적 안 됨</span>}
+                      {step.tracked && step.done && <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">완료</span>}
+                    </div>
                   </div>
-                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <p className={`text-[13px] font-bold ${step.done ? "text-slate-900" : "text-slate-400"}`}>{step.label}</p>
-                    {!step.tracked && <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-400">추적 안 됨</span>}
-                    {step.tracked && step.done && <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">완료</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
 
-          {/* "AI Report" 카드(v9, 신규) — result_tokens/checkActivity/verifyActivity/
+            {/* Customer 360 패널(v10, 신규) — ①AI 재사용 현황 ②현재 진행 상태 ③다음 Action.
+                셋 다 기존에 이미 계산된 값의 별칭만 표시한다(새 계산 없음). */}
+            <div className="flex flex-col gap-3">
+              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+                <h3 className="flex items-center gap-1.5 text-[12px] font-extrabold text-slate-700"><CheckCircle2 size={13} className="text-emerald-600"/>① AI 재사용 현황</h3>
+                <dl className="mt-3 space-y-2 text-[12px]">
+                  <div className="flex items-center justify-between"><dt className="text-slate-500">AI 분석 재사용</dt><dd className={`font-bold ${journeyHasAiAnalysis ? "text-emerald-700" : "text-slate-400"}`}>{journeyHasAiAnalysis ? "예" : "아니오"}</dd></div>
+                  <div className="flex items-center justify-between"><dt className="text-slate-500">업로드 문서 재사용</dt><dd className={`font-bold ${journeyUploadReused ? "text-emerald-700" : "text-slate-400"}`}>{journeyUploadReused ? "예" : "아니오"}</dd></div>
+                  <div className="flex items-center justify-between"><dt className="text-slate-500">기존 질문 재사용</dt><dd className={`font-bold ${journeyQuestionReused ? "text-emerald-700" : "text-slate-400"}`}>{journeyQuestionReused ? "예" : "아니오"}</dd></div>
+                  <div className="flex items-center justify-between"><dt className="text-slate-500">전문가 이어서 진행</dt><dd className={`font-bold ${journeyExpertConverted ? "text-emerald-700" : "text-slate-400"}`}>{journeyExpertConverted ? "예" : "아니오"}</dd></div>
+                </dl>
+              </section>
+
+              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+                <h3 className="flex items-center gap-1.5 text-[12px] font-extrabold text-slate-700"><ListChecks size={13} className="text-blue-600"/>② 현재 진행 상태</h3>
+                <dl className="mt-3 space-y-2 text-[12px]">
+                  <div className="flex items-center justify-between gap-2"><dt className="shrink-0 text-slate-500">현재 단계</dt><dd className="truncate font-bold text-slate-900">{journeyCurrentTimelineLabel}</dd></div>
+                  <div className="flex items-center justify-between gap-2"><dt className="shrink-0 text-slate-500">다음 단계</dt><dd className="truncate font-bold text-slate-900">{journeyNextStepLabel}</dd></div>
+                  <div className="flex items-center justify-between gap-2"><dt className="shrink-0 text-slate-500">현재 이용 서비스</dt><dd className="truncate font-bold text-slate-900">{categoryInfo.label}</dd></div>
+                  <div className="flex items-center justify-between gap-2"><dt className="shrink-0 text-slate-500">전문가 진행 여부</dt><dd className={`font-bold ${journeyIsExpertTrack ? "text-blue-700" : "text-slate-400"}`}>{journeyIsExpertTrack ? "진행중" : "아니오"}</dd></div>
+                </dl>
+              </section>
+
+              <section className="rounded-2xl border border-slate-200 bg-amber-50/40 p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+                <h3 className="flex items-center gap-1.5 text-[12px] font-extrabold text-amber-800"><FileWarning size={13} className="text-amber-600"/>③ 다음 Action</h3>
+                <dl className="mt-3 space-y-2 text-[12px]">
+                  <div className="flex items-center justify-between gap-2"><dt className="shrink-0 text-slate-500">관리자 다음 작업</dt><dd className="truncate font-bold text-slate-900">{journeyNextStepLabel}</dd></div>
+                  <div className="flex items-center justify-between"><dt className="text-slate-500">추가 제출 필요 문서</dt><dd className="font-bold text-amber-700">{journeyMissingDocsCount}건</dd></div>
+                  <div className="flex items-center justify-between"><dt className="text-slate-500">정부 제출 여부</dt><dd className={`font-bold ${journeyGovSubmitted ? "text-emerald-700" : "text-slate-400"}`}>{journeyGovSubmitted ? "제출됨" : "미제출"}</dd></div>
+                </dl>
+              </section>
+            </div>
+          </div>
+
+          {/* 재사용 강조 스트립(v10) — Journey와 AI Report 사이. "기존 AI 분석 재사용"으로
+              실제 전환된 경우에만 노출하며, 전부 위에서 이미 계산된 값만 아이콘과 함께
+              보여준다(추측 금지). */}
+          {journeyReuseBadgeVisible && (
+            <section className="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white">
+                <CheckCircle2 size={12}/>기존 AI 분석 재사용
+              </span>
+              <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-[12px] font-semibold text-emerald-800"><CheckCircle2 size={14} className="shrink-0 text-emerald-600"/>AI 분석 재사용</div>
+                <div className="flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-[12px] font-semibold text-emerald-800"><CheckCircle2 size={14} className="shrink-0 text-emerald-600"/>업로드 문서 재사용</div>
+                <div className="flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-[12px] font-semibold text-emerald-800"><CheckCircle2 size={14} className="shrink-0 text-emerald-600"/>질문 재입력 없음</div>
+                <div className="flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-[12px] font-semibold text-emerald-800"><CheckCircle2 size={14} className="shrink-0 text-emerald-600"/>문서 재업로드 없음</div>
+              </div>
+            </section>
+          )}
+
+          {/* "AI Report" 카드(v9/v10) — result_tokens/checkActivity/verifyActivity/
               registerActivity/activeBrief/registerMeta 등 기존 데이터만 사용한다. */}
           <section className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-[14px] font-extrabold">AI Report</h2>
+              <h2 className="text-[14px] font-extrabold">AI REPORT</h2>
               {journeyReuseBadgeVisible && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-100">
                   <CheckCircle2 size={12}/>기존 AI 분석 재사용
                 </span>
               )}
             </div>
-            <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
-                <dt className="text-[10px] font-semibold text-slate-400">고객용 AI 리포트</dt>
+                <dt className="text-[10px] font-semibold text-slate-400">고객 리포트</dt>
                 <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyCustomerReportStatus}</dd>
               </div>
               <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
-                <dt className="text-[10px] font-semibold text-slate-400">관리자용 AI 리포트</dt>
+                <dt className="text-[10px] font-semibold text-slate-400">관리자 리포트</dt>
                 <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyAdminReportStatus}</dd>
               </div>
               <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
-                <dt className="text-[10px] font-semibold text-slate-400">생성일</dt>
-                <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyReportGeneratedAt ? new Date(journeyReportGeneratedAt).toLocaleString("ko-KR") : "기록 없음"}</dd>
+                <dt className="text-[10px] font-semibold text-slate-400">AI 분석 재사용</dt>
+                <dd className={`mt-1 text-[12px] font-bold ${journeyHasAiAnalysis ? "text-emerald-700" : "text-slate-400"}`}>{journeyHasAiAnalysis ? "예" : "아니오"}</dd>
+              </div>
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">문서 재사용</dt>
+                <dd className={`mt-1 text-[12px] font-bold ${journeyUploadReused ? "text-emerald-700" : "text-slate-400"}`}>{journeyUploadReused ? `예 (${journeyReusedDocsCount}건)` : "아니오"}</dd>
+              </div>
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">전문가 전환</dt>
+                <dd className={`mt-1 text-[12px] font-bold ${journeyExpertConverted ? "text-blue-700" : "text-slate-400"}`}>{journeyExpertConverted ? "전환됨" : "전환 안 됨"}</dd>
+              </div>
+              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <dt className="text-[10px] font-semibold text-slate-400">Result Link 발급 여부</dt>
+                <dd className="mt-1 text-[12px] font-bold text-slate-800">{resultTokenRow ? "발급됨" : "미발급"}</dd>
               </div>
               <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
                 <dt className="text-[10px] font-semibold text-slate-400">다운로드 여부</dt>
                 <dd className="mt-1 text-[12px] font-bold text-slate-800">확인 불가(추적 action 없음)</dd>
-              </div>
-              <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
-                <dt className="text-[10px] font-semibold text-slate-400">전문가 전환 여부</dt>
-                <dd className="mt-1 text-[12px] font-bold text-slate-800">{journeyExpertConverted ? "전환됨" : "전환 안 됨"}</dd>
               </div>
             </dl>
             <p className="mt-3 text-[11px] text-slate-400">result_tokens: {resultTokenRow ? `결과 확인 링크 발급됨 · ${new Date(resultTokenRow.created_at).toLocaleDateString("ko-KR")}` : "결과 확인 링크 미발급"}</p>
