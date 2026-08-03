@@ -140,6 +140,28 @@ function formatDateTime(createdAt: string) {
   });
 }
 
+// 화면 표시용 파일명만 축약한다. 원본 fileName, Storage path, Signed URL은 변경하지 않는다.
+function formatDisplayFileName(fileName: string | null, maxBaseLength = 22): string {
+  if (!fileName) return "-";
+  const lastDot = fileName.lastIndexOf(".");
+  const hasExtension = lastDot > 0 && lastDot < fileName.length - 1;
+  const extension = hasExtension ? fileName.slice(lastDot) : "";
+  const baseName = hasExtension ? fileName.slice(0, lastDot) : fileName;
+  if (baseName.length <= maxBaseLength) return fileName;
+  return `${baseName.slice(0, maxBaseLength).trimEnd()}…${extension}`;
+}
+
+function formatCompactDateTime(createdAt: string) {
+  return new Date(createdAt).toLocaleString("ko-KR", {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 // ── v3: 날짜 그룹 — admin/cases/page.tsx의 dateKeyOf/formatDateKey/getRelativeDateLabel과
 // 동일한 로직을 그대로 복제했다(다른 파일의 비공개 함수라 import 불가, 이 파일의 기존 관례와
 // 동일). 새 날짜 계산 방식이 아니라 기존 uploaded_at(=crm_activities.created_at)만 사용한다.
@@ -733,19 +755,16 @@ function DateDocumentGroup({
 
         {/* 요구사항 3·4: leadId로 묶은 문서 그룹, 그룹 안에서만 문서를 출력 */}
         <div className="mt-4 space-y-3">
-          {/* lg 이상에서만 보이는 공유 컬럼 헤더 — 각 신청건 카드의 문서 행과 같은 그리드를 쓴다.
-              v5: 미리보기 컬럼이 잘리지 않도록 overflow-x-auto + 최소 너비를 지정했다. */}
-          <div className="hidden overflow-x-auto rounded-t-xl border border-b-0 border-slate-200 bg-slate-100 lg:block">
-            <div className={`items-center py-2.5 text-[10px] font-extrabold uppercase tracking-wide text-slate-600 lg:grid lg:min-w-[1180px] ${DOC_ROW_GRID} gap-2 px-4`}>
-              <span>문서유형</span>
-              <span>문서명</span>
-              <span>업로드일</span>
-              <span>상태</span>
-              <span>담당자</span>
-              <span>다음조치</span>
-              <span className="text-center">다운로드</span>
-              <span className="text-center">미리보기</span>
-            </div>
+          {/* lg 이상에서만 보이는 공유 컬럼 헤더 — 가로 스크롤 없이 모든 열을 한 화면에 표시한다. */}
+          <div className={`hidden items-center rounded-t-xl border border-b-0 border-slate-200 bg-slate-100 py-2.5 text-[10px] font-extrabold uppercase tracking-wide text-slate-600 lg:grid ${DOC_ROW_GRID} gap-2 px-4`}>
+            <span>문서유형</span>
+            <span>문서명</span>
+            <span>업로드일</span>
+            <span>상태</span>
+            <span>담당자</span>
+            <span>다음조치</span>
+            <span className="text-center">다운로드</span>
+            <span className="text-center">미리보기</span>
           </div>
           {sortedLeadGroups.map((group) => (
             <LeadDocumentGroupCard key={group.leadId} group={group} />
@@ -766,13 +785,9 @@ type LeadDocGroup = {
   docs: DocumentWithUrl[];
 };
 
-// 요구사항 5(v4): 진행률은 문서 단위가 아니라 신청건 단위 값이므로 LeadDocumentGroupCard
-// 헤더에 한 번만 크게 표시하고, 문서 행 그리드에서는 제외했다(문서유형/문서명/업로드일/
-// 상태/담당자/다음조치/다운로드/미리보기 8열).
-// v5: 다운로드·미리보기 컬럼이 오른쪽에서 잘리는 문제 수정 — 두 컬럼을 minmax(64px, %)로
-// 고정해 항상 최소 64px을 보장하고, 전체 비율 합을 줄여 컨테이너 안에 들어오게 했다.
-// 이 그리드를 쓰는 헤더/행 컨테이너에는 lg:min-w-[1180px] + overflow-x-auto를 적용한다.
-const DOC_ROW_GRID = "lg:grid-cols-[9%_22%_12%_9%_10%_14%_minmax(64px,8%)_minmax(64px,8%)]";
+// 진행률은 신청건 헤더에 한 번만 표시한다. 문서 행은 가로 스크롤 없이 8열을 모두 노출한다.
+// 문서명과 다음조치는 minmax(0, fr)로 유연하게 줄이고, 액션 버튼은 56px 고정 폭을 보장한다.
+const DOC_ROW_GRID = "lg:grid-cols-[72px_minmax(0,2fr)_118px_92px_112px_minmax(0,1fr)_56px_56px]";
 
 function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
   const categoryInfo = CATEGORY_INFO[group.category];
@@ -803,15 +818,11 @@ function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
         </div>
       </div>
 
-      {/* 문서 행 — lg 이상은 공유 헤더와 같은 그리드, 이하는 카드형으로 쌓는다.
-          v5: 카드 헤더(고객 정보)는 폭을 그대로 유지하고, 문서 행 목록만 별도로
-          overflow-x-auto + 최소 너비를 줘서 미리보기 컬럼이 잘리지 않게 한다. */}
-      <div className="overflow-x-auto">
-        <div className="divide-y divide-slate-100 lg:min-w-[1180px]">
-          {group.docs.map((d) => (
-            <DocumentRowItem key={d.key} doc={d} />
-          ))}
-        </div>
+      {/* 문서 행 — lg 이상은 공유 헤더와 같은 그리드, 이하는 카드형으로 쌓는다. */}
+      <div className="divide-y divide-slate-100">
+        {group.docs.map((d) => (
+          <DocumentRowItem key={d.key} doc={d} />
+        ))}
       </div>
     </div>
   );
@@ -828,17 +839,20 @@ function DocumentRowItem({ doc }: { doc: DocumentWithUrl }) {
         <Link href={`/admin/cases/${doc.leadId}`} className="block truncate text-sm font-bold leading-tight text-blue-700 transition-colors hover:text-blue-800 hover:underline">
           {doc.docLabel}
         </Link>
-        <p className="mt-0 truncate text-[11px] leading-tight text-slate-400">
-          {doc.fileName ?? "-"}
+        <p
+          className="mt-0 block max-w-full truncate whitespace-nowrap text-[11px] leading-tight text-slate-400"
+          title={doc.fileName ?? undefined}
+        >
+          {formatDisplayFileName(doc.fileName)}
           {doc.fileSize !== null ? ` · ${formatFileSize(doc.fileSize)}` : ""}
         </p>
       </div>
-      <div className="text-xs text-slate-500">{formatDateTime(doc.uploadedAt)}</div>
+      <div className="whitespace-nowrap text-xs text-slate-500">{formatCompactDateTime(doc.uploadedAt)}</div>
       <div className="flex h-full items-center">
         <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badge}`}>{statusMeta.label}</span>
       </div>
-      <div className="hidden text-xs font-semibold text-slate-700 lg:block">VFBCAI 담당자</div>
-      <div className="hidden text-xs text-slate-600 lg:block">{doc.nextAction}</div>
+      <div className="hidden truncate whitespace-nowrap text-xs font-semibold text-slate-700 lg:block" title="VFBCAI 담당자">VFBCAI 담당자</div>
+      <div className="hidden truncate whitespace-nowrap text-xs text-slate-600 lg:block" title={doc.nextAction}>{doc.nextAction}</div>
       <div className="flex h-full items-center gap-2 lg:justify-center">
         {doc.signedUrl ? (
           <a
