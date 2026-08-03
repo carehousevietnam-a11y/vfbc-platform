@@ -13,6 +13,8 @@ import {
   type PermitResidentRep,
 } from "@/lib/checkDiagnosis";
 import { getDiagnosis as getVerifyDiagnosis, type VerifyCategory } from "@/lib/verifyDiagnosis";
+import { createAdminReadOnlyClient } from "@/lib/adminAuth/readOnlyClient";
+import { verifyAdminUser } from "@/lib/adminAuth/verifyAdminUser";
 
 // ── 관리자 전용 Case Review PDF (신규 파일) ──────────────────────────────
 //
@@ -20,10 +22,11 @@ import { getDiagnosis as getVerifyDiagnosis, type VerifyCategory } from "@/lib/v
 //
 // 왜 새 파일인가: 프로젝트에 관리자용 PDF 생성 route가 존재하지 않아(고객용
 // src/app/api/mypage-pdf/route.ts 하나뿐) "기존 파일 수정"이 불가능했다.
-// src/middleware.ts의 matcher가 이미 "/api/admin/:path*" 전체를 접근코드
-// 쿠키(vfbc_admin_session)로 보호하고 있으므로, 이 경로에 새 route 파일을
-// 하나 추가하는 것만으로 별도 인증 로직·미들웨어 수정 없이 관리자 전용으로
-// 동작한다. src/middleware.ts는 한 글자도 건드리지 않았다.
+// src/middleware.ts의 matcher가 이미 "/api/admin/:path*" 전체를 보호하고
+// 있으므로 원래는 별도 인증 로직 없이 관리자 전용으로 동작했으나,
+// [2026-08-03 STEP 1] 개인별 Supabase Auth 로그인으로 인증 방식이 바뀌면서
+// 아래의 자체 방어 확인 로직도 동일한 기준(세션+admin_users.active)으로
+// 함께 교체했다 — PDF 생성 로직 본문은 이 변경과 무관하게 그대로다.
 //
 // 데이터 소스·재사용 원칙은 고객용 mypage-pdf.ts와 동일하다:
 // - src/lib/checkDiagnosis.ts / verifyDiagnosis.ts / requiredDocuments.ts는
@@ -52,8 +55,6 @@ const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-const ADMIN_COOKIE_NAME = "vfbc_admin_session";
 
 // ── 서비스 분류 (mypage-pdf.ts와 동일 로직 복제) ──
 function toPrefixKey(value: string): string {
@@ -316,12 +317,16 @@ const RISK_LEVEL_COLOR: Record<"low" | "medium" | "high", ReturnType<typeof rgb>
 
 export async function POST(req: NextRequest) {
   try {
-    // middleware.ts가 이미 /api/admin/* 전체를 vfbc_admin_session 쿠키로
-    // 차단하지만, 이 파일 단독으로도 동일 기준을 만족하는지 방어적으로
-    // 한 번 더 확인한다(admin/login/route.ts와 동일한 비교 방식, 새 로직 아님).
-    const sessionCookie = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
-    const expected = process.env.ADMIN_SESSION_SECRET;
-    if (!expected || sessionCookie !== expected) {
+    // [2026-08-03 STEP 1 변경] middleware.ts가 고정 접근코드 쿠키 대신
+    // 개인별 Supabase Auth 세션으로 /api/admin/* 전체를 보호하도록 바뀌어,
+    // 이 파일의 방어적 재확인 로직도 동일한 기준으로 교체했다(비교 대상만
+    // 교체 — PDF 생성 로직은 한 글자도 건드리지 않음).
+    const readOnlySupabase = createAdminReadOnlyClient(req);
+    const {
+      data: { user },
+    } = await readOnlySupabase.auth.getUser();
+    const adminUser = user ? await verifyAdminUser(user.id) : null;
+    if (!adminUser) {
       return NextResponse.json({ error: "관리자 인증이 필요합니다." }, { status: 401 });
     }
 
