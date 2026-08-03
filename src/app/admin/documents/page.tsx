@@ -690,9 +690,9 @@ function DateDocumentGroup({
 
             return (
               <section key={category} className={`rounded-2xl border px-4 py-4 ${theme.shell}`}>
-                <div className="grid gap-4 lg:grid-cols-[210px_minmax(0,1fr)] lg:items-stretch">
-                  <div className="flex min-h-[88px] flex-col items-start justify-center gap-1 rounded-xl bg-white/55 px-5 py-4 lg:border-r lg:border-slate-200/80 lg:rounded-none lg:bg-transparent lg:px-0 lg:pr-6">
-                    <div className="flex items-center gap-2.5">
+                <div className="grid gap-4 lg:grid-cols-[136px_minmax(0,1fr)] lg:items-stretch">
+                  <div className="flex min-h-[88px] flex-col items-start justify-center gap-1 rounded-xl bg-white/55 px-4 py-4 lg:border-r lg:border-slate-200/80 lg:rounded-none lg:bg-transparent lg:px-0 lg:pr-5">
+                    <div className="flex items-center gap-2">
                       <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} />
                       <p className={`text-sm font-black tracking-[0.06em] ${theme.label}`}>{CATEGORY_INFO[category].label}</p>
                     </div>
@@ -703,24 +703,24 @@ function DateDocumentGroup({
                     <p className="text-[11px] font-semibold text-slate-500">해당일 제출 문서</p>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
                     {Array.from(byService.entries())
                       .sort((a, b) => b[1] - a[1])
                       .map(([serviceType, count]) => (
                         <div
                           key={serviceType}
-                          className="grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-white bg-white px-4 py-3.5 text-slate-700 shadow-sm"
+                          className="grid min-h-[62px] grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-white bg-white px-3 py-2.5 text-slate-700 shadow-sm"
                         >
-                          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-base ring-1 ring-inset ring-slate-100" aria-hidden="true">
-                            <FileText size={16} className="text-slate-400" />
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-base ring-1 ring-inset ring-slate-100" aria-hidden="true">
+                            <FileText size={14} className="text-slate-400" />
                           </span>
                           <span className="min-w-0">
-                            <span className="block truncate text-sm font-bold text-slate-900">{getServiceLabel(serviceType)}</span>
-                            <span className="mt-1 block text-[11px] font-bold text-slate-400">{CATEGORY_INFO[category].label}</span>
+                            <span className="block truncate text-[13px] font-bold text-slate-900">{getServiceLabel(serviceType)}</span>
+                            <span className="mt-0.5 block text-[10px] font-bold text-slate-400">{CATEGORY_INFO[category].label}</span>
                           </span>
-                          <span className="flex min-w-[40px] flex-col items-end justify-center">
-                            <span className="text-xl font-black leading-none text-slate-800">{count}</span>
-                            <span className="mt-1 text-[10px] font-semibold text-slate-400">건</span>
+                          <span className="flex min-w-[36px] flex-col items-end justify-center">
+                            <span className="text-lg font-black leading-none text-slate-800">{count}</span>
+                            <span className="mt-0.5 text-[10px] font-semibold text-slate-400">건</span>
                           </span>
                         </div>
                       ))}
@@ -734,12 +734,11 @@ function DateDocumentGroup({
         {/* 요구사항 3·4: leadId로 묶은 문서 그룹, 그룹 안에서만 문서를 출력 */}
         <div className="mt-4 space-y-3">
           {/* lg 이상에서만 보이는 공유 컬럼 헤더 — 각 신청건 카드의 문서 행과 같은 그리드를 쓴다 */}
-          <div className={`hidden text-[10px] font-bold uppercase tracking-wide text-slate-400 lg:grid ${DOC_ROW_GRID} gap-2 px-4`}>
+          <div className={`hidden items-center rounded-t-xl border border-b-0 border-slate-200 bg-slate-100 py-2.5 text-[10px] font-extrabold uppercase tracking-wide text-slate-600 lg:grid ${DOC_ROW_GRID} gap-2 px-4`}>
             <span>문서유형</span>
             <span>문서명</span>
             <span>업로드일</span>
             <span>상태</span>
-            <span>제출 진행률</span>
             <span>담당자</span>
             <span>다음조치</span>
             <span className="text-center">다운로드</span>
@@ -764,9 +763,10 @@ type LeadDocGroup = {
   docs: DocumentWithUrl[];
 };
 
-// 요구사항 5: 진행률을 오른쪽 끝이 아니라 "상태 바로 뒤"로 옮긴 공유 그리드 컬럼 비율
-// (문서유형/문서명/업로드일/상태/진행률/담당자/다음조치/다운로드/미리보기).
-const DOC_ROW_GRID = "lg:grid-cols-[9%_20%_11%_9%_12%_9%_11%_9%_9%]";
+// 요구사항 5(v4): 진행률은 문서 단위가 아니라 신청건 단위 값이므로 LeadDocumentGroupCard
+// 헤더에 한 번만 크게 표시하고, 문서 행 그리드에서는 제외했다(문서유형/문서명/업로드일/
+// 상태/담당자/다음조치/다운로드/미리보기 8열).
+const DOC_ROW_GRID = "lg:grid-cols-[10%_24%_12%_10%_10%_14%_10%_10%]";
 
 function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
   const categoryInfo = CATEGORY_INFO[group.category];
@@ -791,11 +791,9 @@ function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
             <p className="mt-0.5 truncate text-xs text-slate-400">{group.customerContact}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 pl-12 sm:pl-0">
+        <div className="flex items-center gap-4 pl-12 sm:pl-0">
           <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-slate-600 ring-1 ring-inset ring-slate-200">문서 {group.docs.length}건</span>
-          <div className="w-[104px]">
-            <DocProgressIndicator progress={progress} />
-          </div>
+          <LeadProgressPanel progress={progress} />
         </div>
       </div>
 
@@ -812,29 +810,26 @@ function LeadDocumentGroupCard({ group }: { group: LeadDocGroup }) {
 function DocumentRowItem({ doc }: { doc: DocumentWithUrl }) {
   const statusMeta = STATUS_META[doc.status];
   return (
-    <div className={`group/row grid items-center gap-2 px-4 py-3 text-sm transition-colors hover:bg-blue-50/40 ${DOC_ROW_GRID}`}>
-      <div className="flex items-center lg:block">
+    <div className={`group/row grid items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-blue-50/40 ${DOC_ROW_GRID}`}>
+      <div className="flex h-full items-center">
         <span className={`inline-flex max-w-full truncate rounded-md px-2 py-1 text-[11px] font-semibold ${DOC_TYPE_BADGE[doc.docType]}`}>{DOC_TYPE_META[doc.docType]}</span>
       </div>
       <div className="min-w-0">
-        <Link href={`/admin/cases/${doc.leadId}`} className="block truncate text-sm font-bold text-blue-700 transition-colors hover:text-blue-800 hover:underline">
+        <Link href={`/admin/cases/${doc.leadId}`} className="block truncate text-sm font-bold leading-tight text-blue-700 transition-colors hover:text-blue-800 hover:underline">
           {doc.docLabel}
         </Link>
-        <p className="mt-0.5 truncate text-[11px] text-slate-400">
+        <p className="mt-0 truncate text-[11px] leading-tight text-slate-400">
           {doc.fileName ?? "-"}
           {doc.fileSize !== null ? ` · ${formatFileSize(doc.fileSize)}` : ""}
         </p>
       </div>
       <div className="text-xs text-slate-500">{formatDateTime(doc.uploadedAt)}</div>
-      <div>
+      <div className="flex h-full items-center">
         <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badge}`}>{statusMeta.label}</span>
-      </div>
-      <div className="hidden lg:block">
-        <DocProgressIndicator progress={doc.progress} compact />
       </div>
       <div className="hidden text-xs font-semibold text-slate-700 lg:block">VFBCAI 담당자</div>
       <div className="hidden text-xs text-slate-600 lg:block">{doc.nextAction}</div>
-      <div className="flex items-center gap-2 lg:justify-center">
+      <div className="flex h-full items-center gap-2 lg:justify-center">
         {doc.signedUrl ? (
           <a
             href={doc.signedUrl}
@@ -861,7 +856,7 @@ function DocumentRowItem({ doc }: { doc: DocumentWithUrl }) {
           </a>
         )}
       </div>
-      <div className="hidden lg:flex lg:items-center lg:justify-center">
+      <div className="hidden h-full lg:flex lg:items-center lg:justify-center">
         {doc.signedUrl ? (
           <a
             href={doc.signedUrl}
@@ -876,7 +871,7 @@ function DocumentRowItem({ doc }: { doc: DocumentWithUrl }) {
           <span className="text-slate-300">-</span>
         )}
       </div>
-      {/* lg 미만 전용 보조 정보(담당자/다음조치/진행률) — 공유 그리드 대신 한 줄 요약으로 */}
+      {/* lg 미만 전용 보조 정보(담당자/다음조치) — 공유 그리드 대신 한 줄 요약으로 */}
       <div className="col-span-2 -mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400 lg:hidden">
         <span>담당자 <b className="font-semibold text-slate-600">VFBCAI 담당자</b></span>
         <span>다음조치 <b className="font-semibold text-slate-600">{doc.nextAction}</b></span>
@@ -885,18 +880,20 @@ function DocumentRowItem({ doc }: { doc: DocumentWithUrl }) {
   );
 }
 
-// v2/v3: "문서 제출 진행률" — 같은 신청건의 필수서류 제출 개수만 그대로 시각화한다(새 계산 없음).
-function DocProgressIndicator({ progress, compact = false }: { progress: DocProgress | null; compact?: boolean }) {
-  if (!progress) return <span className="text-xs text-slate-300">-</span>;
+// v4: "제출 진행률"은 문서 단위가 아니라 신청건 단위 값이므로, 문서 행에서는 제거하고
+// LeadDocumentGroupCard 헤더에 한 번만 크게 표시한다. 계산 로직(progress 값)은 기존
+// computeProgress()를 그대로 재사용하며 여기서는 시각화만 담당한다.
+function LeadProgressPanel({ progress }: { progress: DocProgress | null }) {
+  if (!progress) return <span className="text-xs text-slate-300">진행률 정보 없음</span>;
   return (
-    <div className={compact ? "min-w-[80px]" : "min-w-[88px]"}>
+    <div className="w-[176px] shrink-0">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-xs font-bold text-slate-800">
-          {progress.submitted}/{progress.total}
+        <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">제출 진행률</span>
+        <span className="text-xs font-extrabold text-slate-700">
+          {progress.submitted} / {progress.total} <span className="font-semibold text-slate-500">({progress.percent}%)</span>
         </span>
-        <span className="text-[11px] font-semibold text-slate-400">{progress.percent}%</span>
       </div>
-      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-100">
         <div
           className={`h-full rounded-full transition-all ${progress.percent >= 100 ? "bg-emerald-500" : "bg-blue-600"}`}
           style={{ width: `${Math.min(100, progress.percent)}%` }}
