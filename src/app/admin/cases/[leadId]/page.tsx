@@ -723,6 +723,11 @@ export default async function AdminLeadDetailPage({
       fileName: upload?.fileName ?? null,
       signedUrl: upload?.signedUrl ?? null,
       origin: CHECK_DOCUMENT_ORIGIN[label] ?? "확인 필요",
+      // v8-1: 문서 "용도" 구분 — 새 문서유형을 만들지 않고, /documents 페이지가 업로드 시
+      // 이미 저장하는 실제 meta.mode 값("ai_report"|"expert")만 docPurposeLabel()로 읽는다.
+      // mode가 없으면(예: 과거 업로드 등) "공통 자료"라고 단정하지 않고 "용도 확인 필요"로
+      // 표시한다(docPurposeLabel 참고).
+      purpose: upload ? docPurposeLabel(upload.mode) : null,
     };
   });
   const wpMissingMandatory = wpDocRows.filter((d) => d.mandatory && !d.submitted);
@@ -778,6 +783,61 @@ export default async function AdminLeadDetailPage({
   const wpFailedItems = wpCheckedItems.filter((c) => !c.passed);
   const wpRejectionRisks = activeBrief?.rejectionRisks ? [...activeBrief.rejectionRisks].sort((a, b) => a.rank - b.rank) : [];
   const wpRecommendedSteps = activeBrief?.recommendedSteps ?? [];
+
+  // ── 고객 여정 통합 현황(Executive Summary, v7/v8) ──
+  // 새 계산식을 만들지 않고, 이 페이지가 이미 계산해 둔 값만 그대로 다시 쓴다:
+  // - 자료 재사용 문서 수 / 추가 필요 문서 수: 상단 히어로 카드의 "제출 문서"·"미제출
+  //   문서" 타일과 완전히 동일한 표현식(isCheckWorkspace ? wpDocRows... : requiredDocuments...).
+  // - AI 분석 재사용 여부: activeBrief(CHECK/VERIFY) 또는 registerMeta(REGISTER 자체진단)
+  //   존재 여부 — 둘 다 이미 위에서 실제 crm_activities.meta로부터 감지된 값이다.
+  const journeyReusedDocsCount = isCheckWorkspace ? wpSubmittedMandatoryCount : submittedRequiredCount;
+  const journeyMissingDocsCount = isCheckWorkspace
+    ? wpMissingMandatory.length
+    : requiredDocuments.length - submittedRequiredCount;
+  const journeyHasAiAnalysis = Boolean(activeBrief) || Boolean(registerMeta);
+  const journeyTypeTone: { className: string } =
+    wpApplicationType === "전문가 진행"
+      ? { className: "bg-blue-50 text-blue-700" }
+      : wpApplicationType === "전문가 검토"
+        ? { className: "bg-violet-50 text-violet-700" }
+        : wpApplicationType === "AI 리포트"
+          ? { className: "bg-emerald-50 text-emerald-700" }
+          : { className: "bg-slate-100 text-slate-500" };
+
+  // v8-1·v8-2: 문서 "용도" 라벨을 CHECK/VERIFY/REGISTER 공통 헬퍼로 분리했다. 새 문서유형을
+  // 만들지 않고 /documents 페이지가 실제 저장하는 meta.mode("ai_report"|"expert")만 읽으며,
+  // mode를 알 수 없을 때는 "공통 자료"처럼 사실을 단정하지 않고 "용도 확인 필요"로 표시한다.
+  function docPurposeLabel(mode: string | null | undefined): string {
+    if (mode === "ai_report") return "AI 리포트용";
+    if (mode === "expert") return "전문가 진행 추가자료";
+    return "용도 확인 필요";
+  }
+
+  // v8-3: "고객 여정 순서형 표시" — 실제 crm_activities.action과 document_upload
+  // meta.mode만으로 4가지 실제 마일스톤 발생 여부를 판단한다(새 action 없음).
+  // AI 진단 감지식은 buildProcessSteps() 내부의 hasDiagnosis 판단식과 완전히 동일하다
+  // (다른 함수 내부 지역변수라 그대로 가져올 수 없어 동일한 식만 다시 썼다 — 판단 기준
+  // 자체는 바뀌지 않았다). 존재하는 마일스톤만 화면에 표시하고 순서는 고정한다.
+  const journeyHasDiagnosisAction = activities.some(
+    (a) => a.action === "verify_lead" || (a.action ?? "").endsWith("_diagnosis_lead")
+  );
+  const journeyMilestones: Array<{ label: string; occurred: boolean }> = [
+    { label: "AI 진단", occurred: journeyHasDiagnosisAction },
+    { label: "AI 리포트 요청", occurred: wpAiReportRequested },
+    { label: "전문가 검토 요청", occurred: wpActionSet.has("expert_review_request") },
+    { label: "전문가 진행 요청", occurred: wpActionSet.has("agency_upgrade_request") },
+  ];
+  const journeyOccurredMilestones = journeyMilestones.filter((m) => m.occurred);
+
+  // v8-4: 고객용/관리자용 리포트 "현재 상태" — 실제로 판단 가능한 범위(진단·전문가 브리프
+  // 데이터의 존재 여부)만으로 표시한다. 고객이 실제로 리포트를 열람했는지 여부는
+  // crm_activities에 기록되는 action이 없어 판단할 수 없으므로 "열람 여부"는 단정하지 않는다.
+  const journeyCustomerReportStatus = journeyHasDiagnosisAction ? "발급 가능(열람 여부 확인 불가)" : "기록 없음";
+  const journeyAdminReportStatus = activeBrief
+    ? "검토자료 있음"
+    : registerMeta
+      ? "기본 정보만 있음(상세 검토자료 없음)"
+      : "기록 없음";
 
   // 최우선 조치 정보는 이제 Executive Summary 문장(wpExecutiveSummaryText)이
   // 같은 데이터로 이미 전달하므로 별도 변수를 두지 않는다(중복 제거).
@@ -921,6 +981,54 @@ export default async function AdminLeadDetailPage({
             </div>
           </section>
 
+          {/* 고객 여정 통합 현황(Executive Summary, v7/v8) — 리포트만 요청했던 고객이 나중에
+              전문가 진행을 선택해도 같은 Lead/문서/AI분석을 그대로 이어 쓴다는 걸 관리자가
+              한눈에 확인하는 영역. 전부 위에서 이미 계산된 실제 action/데이터만 표시하며,
+              판단 근거가 없는 값은 숫자를 만들지 않고 "기록 없음"/"확인 필요"로 표시한다. */}
+          <section className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <h2 className="text-[14px] font-extrabold">고객 여정 통합 현황</h2>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Executive Summary</span>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-slate-100">
+              <div className="flex min-h-[112px] flex-col justify-center gap-1.5 p-4">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><UserCheck size={12}/>현재 이용유형</p>
+                <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-[12px] font-bold ${journeyTypeTone.className}`}>{wpApplicationType}</span>
+              </div>
+              <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 p-4 lg:border-t-0">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><ListChecks size={12}/>진행 이력</p>
+                {journeyOccurredMilestones.length > 0 ? (
+                  <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-[11px] font-bold text-emerald-700">
+                    {journeyOccurredMilestones.map((m, i) => (
+                      <span key={m.label} className="flex items-center gap-1">
+                        {i > 0 && <span className="text-slate-300">→</span>}
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5">{m.label}</span>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[12px] font-semibold text-slate-400">기록 없음</p>
+                )}
+                <p className="text-[11px] text-slate-400">현재 단계: {currentStageLabel}</p>
+              </div>
+              <div className="flex min-h-[112px] flex-col justify-center gap-1 border-t border-slate-100 p-4 lg:border-t-0">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><FileText size={12}/>리포트 상태</p>
+                <p className="text-[12px] text-slate-600">고객용: <span className="font-bold text-slate-900">{journeyCustomerReportStatus}</span></p>
+                <p className="text-[12px] text-slate-600">관리자용: <span className="font-bold text-slate-900">{journeyAdminReportStatus}</span></p>
+              </div>
+              <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 p-4 lg:border-t-0">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-slate-400"><FileText size={12}/>자료 재사용</p>
+                <p className="text-[13px] font-bold text-emerald-700">기존 문서 {journeyReusedDocsCount}건 재사용</p>
+                <p className="text-[11px] text-slate-500">{journeyHasAiAnalysis ? "기존 AI 분석 재사용" : "AI 분석 기록 없음"}</p>
+              </div>
+              <div className="flex min-h-[112px] flex-col justify-center gap-1.5 border-t border-slate-100 bg-amber-50/40 p-4 lg:border-t-0">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-amber-700"><FileWarning size={12}/>추가 필요 자료</p>
+                <p className="text-[13px] font-bold text-amber-700">{journeyMissingDocsCount > 0 ? `문서 ${journeyMissingDocsCount}건` : "추가 서류 없음"}</p>
+                <p className="text-[11px] text-slate-500">추가 정보 확인 필요</p>
+              </div>
+            </div>
+          </section>
+
           <section className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="flex items-center justify-between"><h2 className="text-[14px] font-extrabold">진행 단계</h2><span className="text-[13px] font-semibold text-slate-400">{currentStageLabel}</span></div><div className="mt-4 flex items-start">{processSteps.map((step,i)=>{const isNextStep=i===nextStepIndex;return <div key={step.label} className="relative min-w-0 flex-1 text-center">{i>0&&<div className={`absolute right-1/2 top-[14px] h-[2px] w-full ${step.done?"bg-emerald-300":"bg-slate-200"}`}/>}<div className={`relative z-10 mx-auto flex h-6 w-6 items-center justify-center rounded-full border-2 text-[11px] font-extrabold ${step.done?"border-emerald-300 bg-emerald-50 text-emerald-700":isNextStep?"border-blue-600 bg-blue-600 text-white":"border-slate-200 bg-white text-slate-400"}`}>{step.done?<CheckCircle2 size={13}/>:i+1}</div><p className={`mt-1.5 truncate px-1 text-[10px] font-bold ${step.done?"text-emerald-700":isNextStep?"text-blue-700":"text-slate-500"}`}>{step.label}</p></div>})}</div>{nextStep&&<div className="mt-4 flex flex-col gap-2 rounded-xl bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"><strong className="text-[12px] text-blue-900">다음 단계: {nextStep.label}</strong><form action={setProcessStage} className="flex flex-wrap gap-2"><input type="hidden" name="leadId" value={lead.id}/><input type="hidden" name="stageAction" value={nextStep.settableAction??""}/>{nextStep.settableAction==="process_permit_completed"&&<input type="file" name="permitFile" className="max-w-[190px] text-[10px]"/>}<button className="rounded-lg border border-blue-500 bg-white px-3 py-2 text-[11px] font-bold text-blue-700">다음 단계로 변경</button></form></div>}</section>
 
           <div className="mt-4 grid min-w-0 gap-3 lg:grid-cols-[minmax(0,2.6fr)_minmax(320px,1fr)] lg:items-stretch">
@@ -980,6 +1088,7 @@ export default async function AdminLeadDetailPage({
                                 ) : (
                                   row.fileName ?? "-"
                                 )}
+                                {row.purpose && <p className="mt-0.5 text-[10px] font-semibold text-slate-400">{row.purpose}</p>}
                               </td>
                               <td className="px-2 py-3">
                                 <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
@@ -1016,7 +1125,7 @@ export default async function AdminLeadDetailPage({
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-[12px] font-bold text-slate-800">{row.label}</p>
-                            <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {wpReviewBadge(row).label} · {row.fileName ?? "제출 파일 없음"}</p>
+                            <p className="mt-1 truncate text-[10px] text-slate-400">{row.origin} · {wpReviewBadge(row).label} · {row.fileName ?? "제출 파일 없음"}{row.purpose ? ` · ${row.purpose}` : ""}</p>
                           </div>
                           <span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${wpSubmissionBadge(row).className}`}>
                             {wpSubmissionBadge(row).label}
@@ -1071,7 +1180,10 @@ export default async function AdminLeadDetailPage({
                                 <span className="font-bold text-slate-800">{label}</span>
                               </div>
                             </td>
-                            <td className="truncate px-2 py-3 font-medium text-slate-600">{displayFileName}</td>
+                            <td className="truncate px-2 py-3 font-medium text-slate-600">
+                              {displayFileName}
+                              {matched && <p className="mt-0.5 text-[10px] font-semibold text-slate-400">{docPurposeLabel(matched.mode)}</p>}
+                            </td>
                             <td className="px-2 py-3">
                               <span className={`rounded-full px-3 py-1.5 text-[10px] font-bold ${index < 3 ? "bg-blue-50 text-blue-700" : "bg-violet-50 text-violet-700"}`}>
                                 {index < 3 ? "고객 추가 제출" : "질문 단계 제출"}
@@ -1123,7 +1235,7 @@ export default async function AdminLeadDetailPage({
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-[12px] font-bold text-slate-800">{label}</p>
-                          <p className="mt-1 truncate text-[10px] text-slate-400">{matched?.fileName ?? "제출 파일 없음"}</p>
+                          <p className="mt-1 truncate text-[10px] text-slate-400">{matched?.fileName ?? "제출 파일 없음"}{matched ? ` · ${docPurposeLabel(matched.mode)}` : ""}</p>
                         </div>
                         <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${submitted ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                           {submitted ? "확인 완료" : "미확인"}
