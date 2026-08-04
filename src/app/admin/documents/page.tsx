@@ -976,7 +976,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               <SidebarLink href="/admin/cases?status=urgent" label="긴급 건" compact />
             </div>
             <SidebarLink href="/admin/documents" label="문서관리" active />
-            <SidebarDisabled label="직원관리" />
+            <SidebarLink href="/admin/users" label="직원관리" />
             <SidebarDisabled label="통계" />
             <SidebarLink href="/admin/rejections" label="거절이력관리" />
           </nav>
