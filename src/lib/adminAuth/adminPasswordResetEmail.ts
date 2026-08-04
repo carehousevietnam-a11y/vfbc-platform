@@ -16,6 +16,15 @@
 // 위함 — 지금까지 이 프로젝트의 admin 인증 작업 전체가 따른 것과 동일한
 // 원칙).
 
+// [2026-08-04 수정] 파라미터명을 actionLink → resetUrl로 변경했다. 더 이상
+// Supabase의 action_link를 그대로 전달받지 않고, forgot-password/route.ts가
+// token_hash 기반으로 직접 조립한 우리 자체 콜백 URL을 전달받기 때문이다
+// (버튼 href에 그대로 넣는 역할만 유지 — URL 재생성/파싱/Supabase 호출 없음).
+// [2026-08-04 추가 수정] 호출부와 정의부의 파라미터 이름이 서로 달라(to vs
+// resetUrl 조합) 타입 불일치가 발생해, 수신자 파라미터명도 `to` → `email`로
+// 통일했다 — 호출부(forgot-password/route.ts)와 정의부가 이제 동일하게
+// `{ email, resetUrl }` 형태를 사용한다.
+
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -26,19 +35,18 @@ const RESEND_FROM_EMAIL =
   process.env.RESEND_FROM_EMAIL ?? "VFBCAI <onboarding@resend.dev>";
 
 type SendAdminPasswordResetEmailParams = {
-  to: string;
-  actionLink: string;
+  email: string;
+  resetUrl: string;
 };
 
 type SendAdminPasswordResetEmailReturn =
   | { success: true; id?: string }
   | { success: false; error: string };
 
-export async function sendAdminPasswordResetEmail(
-  params: SendAdminPasswordResetEmailParams
-): Promise<SendAdminPasswordResetEmailReturn> {
-  const { to, actionLink } = params;
-
+export async function sendAdminPasswordResetEmail({
+  email,
+  resetUrl,
+}: SendAdminPasswordResetEmailParams): Promise<SendAdminPasswordResetEmailReturn> {
   const subject = "[VFBCAI 관리자] 비밀번호 재설정 안내";
 
   // src/lib/notify/email.ts의 기존 이메일들과 동일한 브랜드 헤더 바·
@@ -56,7 +64,7 @@ export async function sendAdminPasswordResetEmail(
     <p style="font-size: 15px; color: #374151; margin: 0 0 24px; line-height: 1.6;">
       아래 버튼을 눌러 새 비밀번호를 설정해주세요. 본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.
     </p>
-    <a href="${actionLink}" style="display: inline-block; background: #1e3a8a; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 9999px; text-decoration: none;">
+    <a href="${resetUrl}" style="display: inline-block; background: #1e3a8a; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 9999px; text-decoration: none;">
       새 비밀번호 설정하기
     </a>
     <p style="font-size: 12px; color: #9ca3af; margin-top: 28px; line-height: 1.6;">
@@ -68,7 +76,7 @@ export async function sendAdminPasswordResetEmail(
   try {
     const { data, error } = await resend.emails.send({
       from: RESEND_FROM_EMAIL,
-      to,
+      to: email,
       subject,
       html,
     });
