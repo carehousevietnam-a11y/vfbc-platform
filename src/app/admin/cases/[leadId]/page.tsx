@@ -471,10 +471,23 @@ async function setProcessStage(formData: FormData) {
 
 export default async function AdminLeadDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ leadId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { leadId } = await params;
+  const sp = await searchParams;
+  const requestedReturnTo = typeof sp.returnTo === "string" ? sp.returnTo : "/admin/cases";
+  const returnTo = requestedReturnTo.startsWith("/admin/cases") ? requestedReturnTo : "/admin/cases";
+  const returnUrl = new URL(returnTo, "https://vfbcai.local");
+  const returnStatus = returnUrl.searchParams.get("status") ?? "";
+  const returnViewLabel: Record<string, string> = {
+    unreviewed: "미확인 문서",
+    supplement: "보완 요청",
+    urgent: "긴급 건",
+  };
+  const sourceViewLabel = returnViewLabel[returnStatus] ?? "전체 신청건";
 
   const { data: lead } = await supabaseAdmin
     .from("leads")
@@ -486,8 +499,8 @@ export default async function AdminLeadDetailPage({
     return (
       <main className="min-h-screen bg-[#fafafa] p-10">
         <p className="text-sm text-red-600">해당 리드를 찾을 수 없습니다.</p>
-        <Link href="/admin/cases" className="mt-4 inline-block text-xs text-blue-900 hover:underline">
-          ← 목록으로
+        <Link href={returnTo} className="mt-4 inline-block text-xs text-blue-900 hover:underline">
+          ← {sourceViewLabel} 목록으로
         </Link>
       </main>
     );
@@ -1110,7 +1123,7 @@ export default async function AdminLeadDetailPage({
         <div className="flex h-[68px] items-center gap-2 border-b border-white/10 px-4"><ShieldCheck size={22}/><span className="text-[16px] font-bold">VFBCAI 관리자</span></div>
         <nav className="flex-1 space-y-1 px-3 py-2.5 text-[13px]">
           <Link href="/admin/cases" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-white/70 hover:bg-white/10 hover:text-white"><Home size={16}/>대시보드</Link>
-          <div className="rounded-xl bg-white/[0.08] p-1"><div className="flex items-center justify-between rounded-lg bg-white/[0.10] px-3 py-2.5 font-semibold"><span className="flex items-center gap-2"><Inbox size={16}/>신청건 관리</span><ChevronDown size={14}/></div><div className="ml-5 mt-1 border-l border-white/15 py-1 pl-3 text-white/70"><Link href="/admin/cases" className="block rounded-md bg-white/10 px-3 py-2 font-semibold text-white">전체 신청건</Link><Link href="/admin/cases?status=unreviewed" className="block rounded-md px-3 py-2 font-semibold text-white/70 hover:bg-white/10 hover:text-white">미확인 문서</Link><Link href="/admin/cases?status=supplement" className="block rounded-md px-3 py-2 font-semibold text-white/70 hover:bg-white/10 hover:text-white">보완 요청</Link><Link href="/admin/cases?status=urgent" className="block rounded-md px-3 py-2 font-semibold text-white/70 hover:bg-white/10 hover:text-white">긴급 건</Link></div></div>
+          <div className="rounded-xl bg-white/[0.08] p-1"><div className="flex items-center justify-between rounded-lg bg-white/[0.10] px-3 py-2.5 font-semibold"><span className="flex items-center gap-2"><Inbox size={16}/>신청건 관리</span><ChevronDown size={14}/></div><div className="ml-5 mt-1 border-l border-white/15 py-1 pl-3 text-white/70"><Link href="/admin/cases" className={`block rounded-md px-3 py-2 font-semibold ${!returnStatus ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>전체 신청건</Link><Link href="/admin/cases?status=unreviewed" className={`block rounded-md px-3 py-2 font-semibold ${returnStatus === "unreviewed" ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>미확인 문서</Link><Link href="/admin/cases?status=supplement" className={`block rounded-md px-3 py-2 font-semibold ${returnStatus === "supplement" ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>보완 요청</Link><Link href="/admin/cases?status=urgent" className={`block rounded-md px-3 py-2 font-semibold ${returnStatus === "urgent" ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>긴급 건</Link></div></div>
           <Link href="/admin/documents" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-white/70 hover:bg-white/10 hover:text-white"><FolderOpen size={16}/>문서 관리</Link><Link href="/admin/users" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-white/70 hover:bg-white/10 hover:text-white"><Users size={16}/>직원 관리</Link><div title="통계 페이지 준비 중" className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-white/40"><span className="flex items-center gap-2"><BarChart3 size={16}/>통계 및 리포트</span><span className="text-[10px]">준비중</span></div><Link href="/admin/rejections" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-white/70 hover:bg-white/10 hover:text-white"><Settings size={16}/>거절이력 관리</Link>
         </nav><div className="border-t border-white/10 p-4 text-[13px] text-white/70"><form action="/api/admin/logout" method="post"><button type="submit" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left hover:bg-white/10 hover:text-white"><LogOut size={16}/>로그아웃</button></form></div>
       </aside>
@@ -1119,7 +1132,7 @@ export default async function AdminLeadDetailPage({
 
       <div className="w-full xl:pl-[196px]">
         <div className="mx-auto w-full max-w-[1480px] px-5 py-5 sm:px-6 lg:px-8 lg:py-5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-[11px] font-medium text-slate-400">신청건 관리　›　신청건 상세</div><div className="mt-2 flex flex-wrap items-center gap-2.5"><h1 className="text-[24px] font-extrabold tracking-tight sm:text-[28px]">신청건 상세</h1><span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div></div><div className="flex items-start gap-2"><ExecutivePdfButton leadId={lead.id} /><Link href="/admin/cases" className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[14px] font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><ArrowLeft size={14}/>목록으로 돌아가기</Link></div></div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><nav className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-slate-400" aria-label="현재 위치"><Link href="/admin/cases" className="hover:text-blue-700">신청건 관리</Link><span>›</span><Link href={returnTo} className="font-semibold text-blue-700 hover:text-blue-800">{sourceViewLabel}</Link><span>›</span><span>{categoryInfo.label}</span><span>›</span><span className="max-w-[220px] truncate text-slate-600">{lead.name ?? "이름 미상"}</span></nav><div className="mt-2 flex flex-wrap items-center gap-2.5"><h1 className="text-[24px] font-extrabold tracking-tight sm:text-[28px]">신청건 상세</h1><span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span><span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700">{sourceViewLabel}에서 열림</span></div></div><div className="flex items-start gap-2"><ExecutivePdfButton leadId={lead.id} /><Link href={returnTo} className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[14px] font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><ArrowLeft size={14}/>{sourceViewLabel} 목록으로</Link></div></div>
 
           <section className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
             <div className="grid lg:grid-cols-[1.22fr_1.02fr_.9fr_1.08fr] lg:divide-x lg:divide-slate-100">
