@@ -44,3 +44,48 @@ export async function verifyAdminUser(
 
   return data as AdminUserRecord;
 }
+
+/**
+ * [2026-08-03 비밀번호 재설정 기능 추가] 이메일 기준으로 active 관리자
+ * 계정을 조회한다. src/app/api/admin/forgot-password/route.ts에서만
+ * 사용 — "이 이메일로 실제 비밀번호 재설정 메일을 보낼지"를 내부적으로
+ * 판단하는 용도일 뿐, 조회 결과(존재/비존재)는 절대 응답에 노출하지
+ * 않는다(모든 경우에 동일한 안내 메시지만 반환).
+ *
+ * [수정] 대소문자 구분 비교(.eq("email", email))를 사용하면, 가입 시
+ * 저장된 admin_users.email의 대소문자와 입력값의 대소문자가 한 글자라도
+ * 다를 때 조회에 실패해 재설정 메일이 발송되지 않는 문제가 있었다.
+ * "lower(email) = lower(input)"과 동일한 의미로 대소문자를 구분하지 않고
+ * 비교하도록 변경했다. Supabase(PostgREST) JS 클라이언트는 별도의
+ * "대소문자 무시 완전일치" 연산자를 제공하지 않아 ilike를 사용하는데,
+ * ilike는 '%'와 '_'를 와일드카드로 해석하므로(예: 이메일에 '_'가 포함된
+ * 경우 의도치 않게 다른 문자와 매칭될 수 있음) 입력값에서 이 두 문자를
+ * 먼저 이스케이프해 "완전일치 + 대소문자 무시"만 되도록 만들었다.
+ */
+function escapeForIlikeExactMatch(value: string): string {
+  // '%'와 '_'는 SQL LIKE/ILIKE의 와일드카드이므로, 이메일에 포함되어
+  // 있어도 문자 그대로 취급되도록 백슬래시로 이스케이프한다.
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
+export async function findActiveAdminByEmail(
+  email: string
+): Promise<AdminUserRecord | null> {
+  if (!email) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from("admin_users")
+    .select("id, auth_user_id, name, email, role, active")
+    .ilike("email", escapeForIlikeExactMatch(email))
+    .maybeSingle();
+
+  if (error) {
+    console.error("findActiveAdminByEmail lookup error:", error);
+    return null;
+  }
+  if (!data || data.active !== true) {
+    return null;
+  }
+
+  return data as AdminUserRecord;
+}
