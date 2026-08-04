@@ -56,11 +56,13 @@ import {
   ListChecks,
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getCurrentAdminUser } from "@/lib/adminAuth/serverComponentClient";
 import { notifyStageChange, type StageChangeAction } from "@/lib/notify/stageChange";
 import { saveConsultationResponse } from "@/lib/caseMessages";
 import { notifyConsultationResponse } from "@/lib/notify/consultationResponse";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import ExecutivePdfButton from "./ExecutivePdfButton";
+import AssignmentControl from "./AssignmentControl";
 
 export const dynamic = "force-dynamic";
 
@@ -504,6 +506,66 @@ export default async function AdminLeadDetailPage({
     .eq("linked_lead_id", leadId)
     .order("created_at", { ascending: false });
   const rejections = rejectionsRaw ?? [];
+
+  // ── 업무 배정(STEP 4) — lead_assignments 조회 ──
+  // 이 리드의 "현재 담당자"는 STEP3(/admin/users/[id])와 동일한 규칙으로
+  // 판단한다: lead_id별 assigned_at이 가장 최근인 행 1건. status로
+  // 필터링하지 않는다(실제 운영 status 값 미확인, STEP3 사전조사 결과와
+  // 동일한 이유).
+  //
+  // [정합성 보완] 이 4개 조회(lead_assignments/담당 admin_users/active
+  // admin_users/getCurrentAdminUser) 중 하나라도 실패하면 "미배정"이나
+  // "빈 관리자 목록"처럼 정상 상태와 구분되지 않게 보이지 않도록,
+  // assignmentSectionError 플래그로 별도 표시한다(페이지 전체를 막지는
+  // 않음 — 이 조회 실패가 신청건 상세의 다른 정보 확인까지 막을 이유는
+  // 없어 기존 페이지의 "치명적이지 않은 오류는 해당 섹션만 안내" 원칙을
+  // 따름). Supabase 원문 오류는 서버 로그에만 남기고 화면에는 노출하지
+  // 않는다.
+  let assignmentSectionError = false;
+
+  const { data: assignmentRows, error: assignmentRowsError } = await supabaseAdmin
+    .from("lead_assignments")
+    .select("id, admin_user_id, assigned_by, assigned_at, status")
+    .eq("lead_id", leadId)
+    .order("assigned_at", { ascending: false })
+    .limit(1);
+  if (assignmentRowsError) {
+    console.error("case detail: lead_assignments query error:", assignmentRowsError);
+    assignmentSectionError = true;
+  }
+  const currentAssignment = assignmentRows?.[0] ?? null;
+
+  const { data: assignedAdminRow, error: assignedAdminError } = currentAssignment
+    ? await supabaseAdmin
+        .from("admin_users")
+        .select("id, name")
+        .eq("id", currentAssignment.admin_user_id)
+        .maybeSingle()
+    : { data: null, error: null };
+  if (assignedAdminError) {
+    console.error("case detail: assigned admin_users query error:", assignedAdminError);
+    assignmentSectionError = true;
+  }
+
+  // 배정 가능한 후보 — active 관리자만 (role 제한 없음)
+  const { data: activeAdminRows, error: activeAdminsError } = await supabaseAdmin
+    .from("admin_users")
+    .select("id, name, role")
+    .eq("active", true)
+    .order("name", { ascending: true });
+  if (activeAdminsError) {
+    console.error("case detail: active admin_users query error:", activeAdminsError);
+    assignmentSectionError = true;
+  }
+  const activeAdmins = activeAdminRows ?? [];
+
+  // 배정 변경 UI는 super_admin에게만 노출 (최종 방어는 API가 담당)
+  // getCurrentAdminUser()는 세션 조회 실패 시 null을 반환하는 기존 설계라
+  // (throw하지 않음, src/lib/adminAuth/serverComponentClient.ts 참고)
+  // 별도 error 캡처 대상이 아니다 — null이면 안전한 기본값(비-super_admin
+  // 취급)으로 동작해 이미 "미배정처럼 보이는 오판"을 만들지 않는다.
+  const viewerAdmin = await getCurrentAdminUser();
+  const isSuperAdmin = viewerAdmin?.role === "super_admin";
 
   // v9: "AI Report" 카드용 — 이미 존재하는 result_tokens 테이블(결과확인 링크 토큰)을
   // 읽기 전용으로 조회만 한다. 새 테이블·컬럼·API 없음, agency-confirm 라우트가 리드당
@@ -1062,7 +1124,7 @@ export default async function AdminLeadDetailPage({
           <section className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
             <div className="grid lg:grid-cols-[1.22fr_1.02fr_.9fr_1.08fr] lg:divide-x lg:divide-slate-100">
               <div className="flex min-h-[152px] flex-col justify-center p-4"><div className="flex items-start gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={18}/></div><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold tracking-wide text-slate-400">고객명</p><p className="mt-1 text-[19px] font-extrabold leading-tight">{lead.name}</p><dl className="mt-2.5 space-y-1.5 text-[11px]"><div className="flex items-baseline justify-between gap-2"><dt className="shrink-0 text-slate-400">연락처</dt><dd className="truncate font-semibold">{lead.phone ?? "-"}</dd></div><div className="flex items-baseline justify-between gap-2"><dt className="shrink-0 text-slate-400">이메일</dt><dd className="min-w-0 truncate break-all font-semibold">{lead.email ?? "-"}</dd></div></dl></div></div></div>
-              <div className="flex min-h-[152px] flex-col justify-center gap-3 border-t border-slate-100 p-4 lg:border-t-0"><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">서비스</p><div className="mt-1.5 flex flex-wrap items-center gap-2"><span className="text-[14px] font-bold leading-tight">{serviceLabel}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div></div><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">현재 단계</p><span className="mt-1.5 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">{currentStageLabel}</span></div><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">담당 직원</p><div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-semibold"><User size={12}/>VFBCAI 담당자</div></div></div>
+              <div className="flex min-h-[152px] flex-col justify-center gap-3 border-t border-slate-100 p-4 lg:border-t-0"><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">서비스</p><div className="mt-1.5 flex flex-wrap items-center gap-2"><span className="text-[14px] font-bold leading-tight">{serviceLabel}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div></div><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">현재 단계</p><span className="mt-1.5 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">{currentStageLabel}</span></div><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">담당 직원</p><div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-semibold"><User size={12}/>{assignmentSectionError?"확인 필요":(assignedAdminRow?.name??"미배정")}</div></div></div>
               <div className="flex min-h-[152px] flex-col justify-center gap-3 border-t border-slate-100 p-4 lg:border-t-0"><div><dt className="text-[11px] font-semibold tracking-wide text-slate-400">접수일</dt><dd className="mt-1 text-[12px] font-semibold">{new Date(lead.created_at).toLocaleString("ko-KR")}</dd></div><div><dt className="text-[11px] font-semibold tracking-wide text-slate-400">마지막 활동</dt><dd className="mt-1 text-[12px] font-semibold">{latestActivity ? new Date(latestActivity.created_at).toLocaleString("ko-KR") : "-"}</dd></div></div>
               <div className="flex min-h-[152px] flex-col justify-center border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0"><div className="grid grid-cols-2 gap-2"><div className="flex flex-col justify-center rounded-xl border border-slate-100 bg-white px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={12}/>제출 문서</p><p className="mt-1 text-[18px] font-extrabold leading-none">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted).length : submittedRequiredCount}</p></div><div className="flex flex-col justify-center rounded-xl border border-red-100 bg-red-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={12}/>미제출 문서</p><p className="mt-1 text-[18px] font-extrabold leading-none text-red-600">{isCheckWorkspace ? wpMissingMandatory.length : requiredDocuments.length - submittedRequiredCount}</p></div><div className="flex flex-col justify-center rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={12}/>보완 요청</p><p className="mt-1 text-[18px] font-extrabold leading-none text-amber-700">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted && wpAiReview(row) !== "-").length : "-"}</p></div><div className="flex flex-col justify-center rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={12}/>AI 점수</p><p className="mt-1 text-[18px] font-extrabold leading-none text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div></div></div>
             </div>
@@ -1652,7 +1714,7 @@ export default async function AdminLeadDetailPage({
 
             <aside className="flex h-full min-w-0 flex-col gap-3.5">
               <section className="min-h-[172px] min-w-0 w-full overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="border-b border-blue-100 bg-blue-50 px-4 py-3"><h2 className="text-[14px] font-bold text-blue-950">고객 기본 정보</h2></div><dl className="grid grid-cols-[104px_1fr] gap-y-2 px-4 py-3.5 text-[12px]"><dt className="text-[11px] text-slate-500">고객 구분</dt><dd className="text-right font-semibold">개인</dd><dt className="text-[11px] text-slate-500">연락처</dt><dd className="text-right font-semibold">{lead.phone??"-"}</dd><dt className="text-[11px] text-slate-500">이메일</dt><dd className="min-w-0 break-all text-right font-semibold">{lead.email??"-"}</dd><dt className="text-[11px] text-amber-700">카카오톡 ID</dt><dd className="text-right font-bold text-amber-700">{lead.kakao_id??"-"}</dd><dt className="text-[11px] text-blue-700">Zalo ID</dt><dd className="text-right font-bold text-blue-700">{lead.zalo_id??"-"}</dd><dt className="text-[11px] text-slate-500">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleDateString("ko-KR")}</dd></dl></section>
-              <section className="min-h-[152px] min-w-0 w-full overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="flex items-center justify-between border-b border-violet-100 bg-violet-50 px-4 py-3"><h2 className="text-[14px] font-bold text-violet-950">담당자 정보</h2><span className="inline-flex h-7 items-center rounded-md border border-blue-200 px-2.5 text-[10px] font-bold text-blue-700">담당자 변경</span></div><dl className="grid grid-cols-[104px_1fr] gap-y-2 px-4 py-3.5 text-[12px]"><dt className="text-[11px] text-slate-500">담당 직원</dt><dd className="text-right font-bold text-blue-700">VFBCAI 담당자</dd><dt className="text-[11px] text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-[11px] text-slate-400">배정일</dt><dd className="text-right font-semibold">-</dd></dl></section>
+              <section className="min-h-[152px] min-w-0 w-full overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="flex items-center justify-between border-b border-violet-100 bg-violet-50 px-4 py-3"><h2 className="text-[14px] font-bold text-violet-950">담당자 정보</h2>{!assignmentSectionError&&<AssignmentControl leadId={lead.id} currentAdminName={assignedAdminRow?.name??null} currentAdminId={assignedAdminRow?.id??null} isSuperAdmin={isSuperAdmin} activeAdmins={activeAdmins}/>}</div>{assignmentSectionError?<div className="px-4 py-3.5 text-[12px] text-red-600">담당자 정보를 불러오지 못했습니다. 새로고침 후 다시 확인해주세요.</div>:<dl className="grid grid-cols-[104px_1fr] gap-y-2 px-4 py-3.5 text-[12px]"><dt className="text-[11px] text-slate-500">담당 직원</dt><dd className="text-right font-bold text-blue-700">{assignedAdminRow?.name??"미배정"}</dd><dt className="text-[11px] text-slate-400">소속 팀</dt><dd className="text-right font-semibold">행정전문팀</dd><dt className="text-[11px] text-slate-400">배정일</dt><dd className="text-right font-semibold">{currentAssignment?new Date(currentAssignment.assigned_at).toLocaleDateString("ko-KR"):"-"}</dd></dl>}</section>
               <section className="min-h-[208px] min-w-0 w-full overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-4 py-3"><h2 className="text-[14px] font-bold text-amber-950">내부 메모</h2><span className="inline-flex h-7 items-center rounded-md border border-blue-200 px-2.5 text-[10px] font-bold text-blue-700">메모 작성</span></div><div className="px-4 py-3.5">{memoActivities.length>0&&<div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[12px]">{String(asMeta(memoActivities[memoActivities.length-1].meta)?.memo??"")}</div>}<form action={addExpertMemo} className="mt-3"><input type="hidden" name="leadId" value={lead.id}/><textarea name="memo" required rows={2} placeholder="고객 및 업무 관련 메모를 작성하세요" className="w-full resize-none rounded-lg border border-slate-200 p-3 text-[12px] outline-none focus:border-blue-500"/><button className="mt-2.5 h-8 rounded-lg bg-blue-600 px-3.5 text-[11px] font-bold text-white">메모 저장</button></form></div></section>
               <section className="min-h-[152px] min-w-0 w-full overflow-hidden rounded-2xl border border-red-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="border-b border-red-100 bg-red-50 px-4 py-3"><h2 className="text-[14px] font-bold text-red-950">타 기관 거절 이력</h2></div><div className="px-4 py-3.5">{rejections.length?<div className="space-y-2">{rejections.map(r=><div key={r.id} className="rounded-lg border border-red-100 p-3 text-[12px]"><div className="flex justify-between"><strong>{getServiceLabel(r.service_type)}</strong><span className="text-[11px] text-red-500">거절</span></div><p className="mt-1 text-[11px] text-slate-500">{r.reason||"사유 미기재"}</p></div>)}</div>:<p className="text-[11px] text-slate-400">연결된 거절이력이 없습니다.</p>}</div></section>
               <section className="flex min-h-[240px] min-w-0 w-full flex-col overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><div className="shrink-0 border-b border-emerald-100 bg-emerald-50 px-4 py-3"><h2 className="text-[14px] font-bold text-emerald-950">활동 타임라인</h2></div><div className="flex-1 px-4 py-3.5">{activities.length?<div className="relative space-y-3.5 before:absolute before:bottom-1 before:left-[4px] before:top-1 before:w-px before:bg-slate-200">{activities.slice(-6).map(a=><div key={a.id} className="relative grid grid-cols-[86px_1fr] gap-2.5 pl-4 text-[10px]"><span className={`absolute left-0 top-1 h-[9px] w-[9px] rounded-full ring-2 ring-white ${getActivityDotColor(a.action)}`}/><span className="text-slate-400">{new Date(a.created_at).toLocaleString("ko-KR")}</span><div><strong className="text-[11px] text-blue-700">{getActivityLabel(a.action)}</strong>{a.tag&&<p className="mt-0.5 truncate text-slate-500">{a.tag}</p>}</div></div>)}</div>:<p className="text-[11px] text-slate-400">기록된 활동이 없습니다.</p>}</div></section>
