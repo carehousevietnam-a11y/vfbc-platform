@@ -249,6 +249,7 @@ export default async function AdminUsersPage() {
                   activeWorkCount={activeWorkCountByAdmin?.get(u.id) ?? 0}
                   workCountAvailable={activeWorkCountByAdmin !== null}
                   avgProgress={avgProgressByAdmin?.get(u.id) ?? null}
+                  avgProgressAvailable={avgProgressByAdmin !== null}
                 />
               ))}
             </div>
@@ -287,14 +288,13 @@ function AdminUserTable({
         <thead className="bg-slate-50">
           <tr className="border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
             <th className="w-[15%] px-5 py-3.5">이름</th>
-            <th className="w-[17%] px-4 py-3.5">이메일</th>
-            <th className="w-[10%] px-4 py-3.5">역할</th>
+            <th className="w-[19%] px-4 py-3.5">이메일</th>
+            <th className="w-[11%] px-4 py-3.5">역할</th>
             <th className="w-[8%] px-4 py-3.5">상태</th>
-            <th className="w-[10%] px-4 py-3.5">현재 업무</th>
-            <th className="w-[11%] px-4 py-3.5">진행률</th>
+            <th className="w-[17%] px-4 py-3.5">업무 현황</th>
             <th className="w-[11%] px-4 py-3.5">등록일</th>
             <th className="w-[10%] px-4 py-3.5">최근 수정일</th>
-            <th className="w-[8%] px-5 py-3.5 text-right">관리</th>
+            <th className="w-[9%] px-5 py-3.5 text-right">관리</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 bg-white">
@@ -323,10 +323,12 @@ function AdminUserTable({
                 <StatusBadge active={u.active} />
               </td>
               <td className="px-4 py-4 align-middle">
-                <WorkCountBadge count={activeWorkCountByAdmin?.get(u.id) ?? 0} available={activeWorkCountByAdmin !== null} />
-              </td>
-              <td className="px-4 py-4 align-middle">
-                <MiniProgressBar percent={avgProgressByAdmin?.get(u.id) ?? null} />
+                <WorkStatusCell
+                  count={activeWorkCountByAdmin?.get(u.id) ?? 0}
+                  countAvailable={activeWorkCountByAdmin !== null}
+                  percent={avgProgressByAdmin?.get(u.id) ?? null}
+                  percentAvailable={avgProgressByAdmin !== null}
+                />
               </td>
               <td className="px-4 py-4 align-middle">
                 <p className="text-xs text-slate-500">{formatDate(u.created_at)}</p>
@@ -356,6 +358,7 @@ function AdminUserMobileCard({
   activeWorkCount,
   workCountAvailable,
   avgProgress,
+  avgProgressAvailable,
 }: {
   user: AdminUserRow;
   isSelf: boolean;
@@ -363,6 +366,7 @@ function AdminUserMobileCard({
   activeWorkCount: number;
   workCountAvailable: boolean;
   avgProgress: number | null;
+  avgProgressAvailable: boolean;
 }) {
   return (
     <div className="p-4">
@@ -384,10 +388,14 @@ function AdminUserMobileCard({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <RoleBadge role={user.role} />
         <StatusBadge active={user.active} />
-        <WorkCountBadge count={activeWorkCount} available={workCountAvailable} />
       </div>
       <div className="mt-3">
-        <MiniProgressBar percent={avgProgress} />
+        <WorkStatusCell
+          count={activeWorkCount}
+          countAvailable={workCountAvailable}
+          percent={avgProgress}
+          percentAvailable={avgProgressAvailable}
+        />
       </div>
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400">
         <span>등록 {formatDate(user.created_at)}</span>
@@ -397,21 +405,48 @@ function AdminUserMobileCard({
   );
 }
 
-// [STEP6] 관리자 목록의 작은 진행률 Progress Bar — buildProcessSteps 기존
+// [STEP8] "현재 업무"+"진행률" 두 컬럼을 "업무 현황" 하나로 통합했다(문제2
+// 수정 — 컬럼이 좁아 가독성이 떨어지던 문제). 계산값은 WorkCountBadge/
+// MiniProgressBar와 완전히 동일(activeWorkCountByAdmin/avgProgressByAdmin
+// 그대로 재사용, 새 계산 없음) — 두 값을 한 셀에 세로로 배치만 했다.
+function WorkStatusCell({
+  count,
+  countAvailable,
+  percent,
+  percentAvailable,
+}: {
+  count: number;
+  countAvailable: boolean;
+  percent: number | null;
+  percentAvailable: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <WorkCountBadge count={count} available={countAvailable} />
+      <MiniProgressBar percent={percent} available={percentAvailable} />
+    </div>
+  );
+}
+
+// [STEP7] 관리자 목록의 작은 진행률 Progress Bar — buildProcessSteps 기존
 // 계산(progressPercentOf)만 그대로 사용, 새 계산식 없음.
-function MiniProgressBar({ percent }: { percent: number | null }) {
-  if (percent === null) {
-    return <span className="text-xs text-slate-400">-</span>;
+// available=false(집계 자체 실패)와 배정이 0건이라 값이 없는 경우를
+// 구분한다 — 후자는 "-"가 아니라 회색 0% 바 + "업무 없음"으로 표시해
+// 데이터가 비어있는 정상 상태임을 분명히 한다.
+function MiniProgressBar({ percent, available = true }: { percent: number | null; available?: boolean }) {
+  if (!available) {
+    return <span className="text-xs text-slate-400">확인 불가</span>;
   }
+  const value = percent ?? 0;
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
         <div
-          className={`h-full rounded-full ${percent >= 100 ? "bg-emerald-500" : "bg-blue-600"}`}
-          style={{ width: `${Math.min(100, percent)}%` }}
+          className={`h-full rounded-full ${value === 0 ? "bg-slate-200" : value >= 100 ? "bg-emerald-500" : "bg-blue-600"}`}
+          style={{ width: `${Math.min(100, value)}%` }}
         />
       </div>
-      <span className="text-xs font-semibold text-slate-500">{percent}%</span>
+      <span className={`text-xs font-semibold ${value === 0 ? "text-slate-400" : "text-slate-500"}`}>{value}%</span>
     </div>
   );
 }
