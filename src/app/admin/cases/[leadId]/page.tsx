@@ -1218,18 +1218,47 @@ export default async function AdminLeadDetailPage({
           </section>
 
           <section id="case-overview" className="mt-4 scroll-mt-20 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
-            <div className="grid lg:grid-cols-[1.22fr_1.02fr_.9fr_1.08fr] lg:divide-x lg:divide-slate-100">
-              <div className="flex min-h-[152px] flex-col justify-center p-4"><div className="flex items-start gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={18}/></div><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold tracking-wide text-slate-400">고객명</p><p className="mt-1 text-[19px] font-extrabold leading-tight">{lead.name}</p><dl className="mt-2.5 space-y-1.5 text-[11px]"><div className="flex items-baseline justify-between gap-2"><dt className="shrink-0 text-slate-400">연락처</dt><dd className="truncate font-semibold">{lead.phone ?? "-"}</dd></div><div className="flex items-baseline justify-between gap-2"><dt className="shrink-0 text-slate-400">이메일</dt><dd className="min-w-0 truncate break-all font-semibold">{lead.email ?? "-"}</dd></div></dl></div></div></div>
-              <div className="flex min-h-[152px] flex-col justify-center gap-3 border-t border-slate-100 p-4 lg:border-t-0"><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">서비스</p><div className="mt-1.5 flex flex-wrap items-center gap-2"><span className="text-[14px] font-bold leading-tight">{serviceLabel}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span></div></div><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">현재 단계</p><span className="mt-1.5 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">{currentStageLabel}</span></div><div><p className="text-[11px] font-semibold tracking-wide text-slate-400">담당 직원</p><div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-semibold"><User size={12}/>{assignmentSectionError?"확인 필요":(assignedAdminRow?.name??"미배정")}</div></div></div>
-              <div className="flex min-h-[152px] flex-col justify-center gap-3 border-t border-slate-100 p-4 lg:border-t-0"><div><dt className="text-[11px] font-semibold tracking-wide text-slate-400">접수일</dt><dd className="mt-1 text-[12px] font-semibold">{new Date(lead.created_at).toLocaleString("ko-KR")}</dd></div><div><dt className="text-[11px] font-semibold tracking-wide text-slate-400">마지막 활동</dt><dd className="mt-1 text-[12px] font-semibold">{latestActivity ? new Date(latestActivity.created_at).toLocaleString("ko-KR") : "-"}</dd></div></div>
-              <div className="flex min-h-[152px] flex-col justify-center border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0"><div className="grid grid-cols-2 gap-2"><div className="flex flex-col justify-center rounded-xl border border-slate-100 bg-white px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={12}/>제출 문서</p><p className="mt-1 text-[18px] font-extrabold leading-none">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted).length : submittedRequiredCount}</p></div><div className="flex flex-col justify-center rounded-xl border border-red-100 bg-red-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={12}/>미제출 문서</p><p className="mt-1 text-[18px] font-extrabold leading-none text-red-600">{isCheckWorkspace ? wpMissingMandatory.length : requiredDocuments.length - submittedRequiredCount}</p></div><div className="flex flex-col justify-center rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={12}/>보완 요청</p><p className="mt-1 text-[18px] font-extrabold leading-none text-amber-700">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted && wpAiReview(row) !== "-").length : "-"}</p></div><div className="flex flex-col justify-center rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={12}/>AI 점수</p><p className="mt-1 text-[18px] font-extrabold leading-none text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div></div></div>
+            <div className="grid lg:grid-cols-[1.05fr_1.05fr_.9fr_1.18fr] lg:divide-x lg:divide-slate-100">
+              <div className="flex min-h-[142px] flex-col justify-center p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700"><User size={18}/></div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-semibold tracking-wide text-slate-400">연락 정보</p>
+                    <dl className="mt-2.5 space-y-2 text-[11px]">
+                      <div className="flex items-baseline justify-between gap-3"><dt className="shrink-0 text-slate-400">연락처</dt><dd className="truncate font-semibold">{lead.phone ?? "-"}</dd></div>
+                      <div className="flex items-baseline justify-between gap-3"><dt className="shrink-0 text-slate-400">이메일</dt><dd className="min-w-0 truncate break-all font-semibold">{lead.email ?? "-"}</dd></div>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div className="flex min-h-[142px] flex-col justify-center gap-3 border-t border-slate-100 p-4 lg:border-t-0">
+                <div>
+                  <p className="text-[11px] font-semibold tracking-wide text-slate-400">신청 정보</p>
+                  <dl className="mt-2.5 space-y-2 text-[11px]">
+                    <div className="flex items-baseline justify-between gap-3"><dt className="shrink-0 text-slate-400">접수번호</dt><dd className="max-w-[180px] truncate font-mono font-semibold text-slate-700" title={lead.id}>{lead.id}</dd></div>
+                    <div className="flex items-baseline justify-between gap-3"><dt className="shrink-0 text-slate-400">접수일</dt><dd className="text-right font-semibold">{new Date(lead.created_at).toLocaleString("ko-KR")}</dd></div>
+                  </dl>
+                </div>
+              </div>
+              <div className="flex min-h-[142px] flex-col justify-center gap-3 border-t border-slate-100 p-4 lg:border-t-0">
+                <div><p className="text-[11px] font-semibold tracking-wide text-slate-400">마지막 활동</p><p className="mt-1.5 text-[12px] font-semibold">{latestActivity ? new Date(latestActivity.created_at).toLocaleString("ko-KR") : "-"}</p></div>
+                <div><p className="text-[11px] font-semibold tracking-wide text-slate-400">접수 상태</p><span className={`mt-1.5 inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${consultationStatus.color}`}>{consultationStatus.label}</span></div>
+              </div>
+              <div className="flex min-h-[142px] flex-col justify-center border-t border-slate-100 bg-slate-50/50 p-4 lg:border-t-0">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col justify-center rounded-xl border border-slate-100 bg-white px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-slate-500"><FileText size={12}/>제출 문서</p><p className="mt-1 text-[18px] font-extrabold leading-none">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted).length : submittedRequiredCount}</p></div>
+                  <div className="flex flex-col justify-center rounded-xl border border-red-100 bg-red-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-red-600"><FileWarning size={12}/>미제출 문서</p><p className="mt-1 text-[18px] font-extrabold leading-none text-red-600">{isCheckWorkspace ? wpMissingMandatory.length : requiredDocuments.length - submittedRequiredCount}</p></div>
+                  <div className="flex flex-col justify-center rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-amber-700"><Paperclip size={12}/>보완 요청</p><p className="mt-1 text-[18px] font-extrabold leading-none text-amber-700">{isCheckWorkspace ? wpDocRows.filter((row) => row.mandatory && row.submitted && wpAiReview(row) !== "-").length : "-"}</p></div>
+                  <div className="flex flex-col justify-center rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5"><p className="flex items-center gap-1.5 text-[11px] text-blue-700"><ShieldCheck size={12}/>AI 점수</p><p className="mt-1 text-[18px] font-extrabold leading-none text-blue-800">{typeof activeScore === "number" ? activeScore : "-"}</p></div>
+                </div>
+              </div>
             </div>
           </section>
 
           <section className="sticky top-14 z-20 mt-3 rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-[0_4px_14px_rgba(15,23,42,0.06)] backdrop-blur xl:top-3">
             <nav className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold" aria-label="신청건 상세 바로가기">
               <span className="mr-1 text-slate-400">바로가기</span>
-              <a href="#case-overview" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">고객·신청</a>
+              <a href="#case-overview" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">신청 정보</a>
               <a href="#case-progress" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">진행 단계</a>
               <a href="#case-documents" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">제출 문서</a>
               <a href="#case-ai-review" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">AI 검토</a>
