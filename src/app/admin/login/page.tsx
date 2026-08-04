@@ -12,8 +12,15 @@
 // 추가로 "//"(프로토콜 상대 경로), "://"(외부 스킴), "\"(백슬래시 —
 // 일부 브라우저가 "/\evil.com"을 "//evil.com"으로 해석하는 우회 방지),
 // CR/LF(응답 스플리팅·경로 조작 방지)가 포함된 값도 전부 차단한다.
+// [수정 3 - 비밀번호 재설정 기능 추가] 비밀번호 입력 아래에 "비밀번호를
+// 잊으셨나요?" 링크(/admin/forgot-password)를 추가했다. 기존 로그인
+// 폼 구조·필드는 그대로 유지했다. 로그인 페이지가 이미 useSearchParams를
+// 쓰고 있어, /admin/reset-password 성공 후 돌아올 때 붙는 "?reset=success"
+// 와 콜백 실패 시 붙는 "?error=reset_failed"를 같은 params로 읽어 배너로
+// 보여준다.
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const DEFAULT_ADMIN_REDIRECT = "/admin/cases";
@@ -76,6 +83,16 @@ function AdminLoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-3">
+      {params.get("reset") === "success" && (
+        <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3">
+          비밀번호가 변경되었습니다.
+        </p>
+      )}
+      {params.get("error") === "reset_failed" && (
+        <p className="text-xs text-red-600">
+          비밀번호 재설정 링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요.
+        </p>
+      )}
       <input
         type="email"
         value={email}
@@ -95,6 +112,12 @@ function AdminLoginForm() {
         autoComplete="current-password"
         className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
       />
+      <Link
+        href="/admin/forgot-password"
+        className="block text-right text-xs text-gray-500 hover:text-gray-700"
+      >
+        비밀번호를 잊으셨나요?
+      </Link>
       {error && <p className="text-xs text-red-600">{error}</p>}
       <button
         type="submit"
