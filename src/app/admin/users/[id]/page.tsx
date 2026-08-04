@@ -44,6 +44,40 @@
 // 나타내는 컬럼이 없어(사전 조사 결과, 이런 컬럼 존재 확인 안 됨) 이번
 // STEP에서 구현하지 않았다 — 새 컬럼을 추측해서 만들지 않고, team_manager도
 // staff와 동일하게 "본인 업무만" 조회로 처리했다(최종 제출 보고서에 명시).
+//
+// [STEP 5 — 직원 업무 운영] 아래는 전부 위 3개 쿼리(lead_assignments/leads/
+// crm_activities)와 buildProcessSteps 계산 결과만으로 파생한 값이며, 새
+// 컬럼·새 상태값·새 action을 추가하지 않았다.
+//   - "신청번호": 실제 신청번호 컬럼이 프로젝트에 없어(조사 결과), 이미
+//     고객 마이페이지/PDF(src/app/mypage/page.tsx, src/app/api/mypage-pdf/
+//     route.ts)가 쓰고 있는 기존 표시 규칙 `VF${leadId 앞 8자.toUpperCase()}`를
+//     그대로 재사용했다(신규 포맷 아님).
+//   - "후속 단계 미정"(보완 리뷰에서 "고객 대기"→개명): buildProcessSteps
+//     결과에서 다음 실행 가능한 내부 단계(settableAction이 있고 아직 done
+//     아닌 단계)가 없는데도 아직 "완료"가 아닌 건 — 실제로는 VERIFY의
+//     "전문가 안내 대기", 상담문의의 "담당자 확인 대기"처럼 이 프로젝트가
+//     이미 쓰고 있는 라벨이 마지막 단계로 멈춰있는 경우에만 해당한다
+//     (CHECK/REGISTER는 마지막 단계 자체가 settableAction이 있어 이 조건에
+//     해당하지 않음). crm_activities에 이 상태를 뒷받침하는 검증된 action
+//     (customer_waiting 등)이 있는지 재조사했으나 존재하지 않아, "고객이
+//     기다리는 중"이라고 단정하지 않고 기계적 사실만 표시하도록 이름을
+//     바꿨다. 판정 기준 자체(계산식)는 바꾸지 않았다.
+//   - "정부 제출 대기": nextStepLabel이 정확히 "정부 제출"인 건(기존
+//     process_government_submitted 액션에 대응하는 기존 라벨 재사용).
+//   - "오늘 완료"/"이번주 완료"/"평균 처리 기간": 리드의 마지막 활동
+//     시각(lastActivityAt)이 아니라, 실제 완료를 나타내는 기존 action
+//     (process_permit_completed)의 created_at을 completedAt으로 별도
+//     계산해 사용한다(보완 리뷰 반영 — 완료 후 추가 활동이 생겨도 완료
+//     시점이 밀리지 않도록). completedAt이 없는 VERIFY/consultation은
+//     이 세 지표 전부에서 제외된다(추측으로 완료 처리하지 않음).
+//   - "반려 위험": 보완요청 판정에 쓰는 것과 동일한 최신 expertBrief/
+//     expert_brief의 rejectionRisks 배열이 비어있지 않은 건만 별도로 센
+//     것 — 보완요청(체크항목 실패 OR 반려위험)보다 좁은 부분집합이다.
+//   - "카테고리별 진행중": status==="진행중"인 건을 기존 getCategory()
+//     기준(CHECK/VERIFY/REGISTER/상담/미분류)으로만 묶어 센 것.
+//   - "Work Queue"(담당 업무 우선순위 정렬): 보완요청 → 정부 제출 대기 →
+//     진행중 → 완료 순으로 기존 status/nextStepLabel 값만으로 정렬한다.
+//     새 우선순위 컬럼을 추가하지 않았다.
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -56,6 +90,13 @@ import {
   TrendingUp,
   History,
   Timer,
+  CalendarCheck,
+  CalendarDays,
+  Hourglass,
+  Landmark,
+  Percent,
+  ShieldAlert,
+  ArrowRight,
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getCurrentAdminUser } from "@/lib/adminAuth/serverComponentClient";
@@ -170,8 +211,16 @@ function buildProcessSteps(category: CategoryKey, activities: ActivityRow[]): Pr
   ];
 }
 
-// ── 보완 요청 판정 (admin/cases/page.tsx의 status=supplement 필터와 완전히 동일한 기준) ──
-function hasSupplementFlag(activities: ActivityRow[]): boolean {
+// ── 보완 요청 / 반려 위험 판정 (admin/cases/page.tsx의 status=supplement
+// 필터와 완전히 동일한 기준을 그대로 재사용). 두 플래그를 한 번에
+// 계산하도록 묶었을 뿐, 판정 기준 자체는 바꾸지 않았다:
+//   - hasFailedItem: 최신 진단의 checkedItems 중 passed===false가 있음
+//   - hasRejectionRisk: 최신 진단의 rejectionRisks 배열이 비어있지 않음
+//   - "보완요청" 상태 = hasFailedItem OR hasRejectionRisk (기존과 동일)
+//   - "반려 위험"(STEP5 신규 집계) = hasRejectionRisk만 별도로 센 것
+//     (보완요청보다 좁은 부분집합 — 새 판정 기준이 아니라 기존 두 값을
+//     따로 노출한 것뿐)
+function getBriefFlags(activities: ActivityRow[]): { hasFailedItem: boolean; hasRejectionRisk: boolean } {
   let brief: any = null;
   for (const a of activities) {
     const m = a.meta as any;
@@ -180,7 +229,7 @@ function hasSupplementFlag(activities: ActivityRow[]): boolean {
   }
   const hasFailedItem = Array.isArray(brief?.checkedItems) && brief.checkedItems.some((c: any) => c?.passed === false);
   const hasRejectionRisk = Array.isArray(brief?.rejectionRisks) && brief.rejectionRisks.length > 0;
-  return hasFailedItem || hasRejectionRisk;
+  return { hasFailedItem, hasRejectionRisk };
 }
 
 // ── 활동 라벨(admin/cases/[leadId]/page.tsx의 ACTIVITY_LABELS/getActivityLabel과 동일) ──
@@ -209,6 +258,38 @@ function getActivityLabel(action: string | null): string {
 function daysBetween(a: Date, b: Date): number {
   return Math.floor((b.getTime() - a.getTime()) / 86400000);
 }
+
+// "현재 단계"의 실제 의미(마지막 완료 단계 vs 다음 할 일 vs 대기 중인
+// 단계)가 헷갈리지 않도록 종류를 구분해 표시한다. 판정 기준 자체는
+// 바꾸지 않았다 — status/nextStepLabel/pendingStageLabel/currentStageLabel
+// 전부 기존 계산값 그대로이고, 이 함수는 그중 무엇을 보여줄지만 정리한
+// 것이다.
+//   - 완료 건: 마지막 완료 단계 라벨
+//   - 실행 가능한 다음 단계가 있는 건(nextStepLabel !== "없음"): 그 단계
+//   - 실행 가능한 다음 단계는 없지만 미완료 단계가 남아있는 건
+//     (VERIFY의 "전문가 안내 대기", 상담의 "담당자 확인 대기"처럼
+//     settableAction이 없는 대기 단계): pendingStageLabel — 이전 버전은
+//     이 경우 currentStageLabel(마지막으로 "완료된" 단계)을 잘못
+//     보여주고 있었다(예: "대기 · 전문가 검토 요청"처럼 이미 지난 단계가
+//     표시됨). 이번 수정으로 실제 대기 중인 단계("전문가 안내 대기")가
+//     표시된다.
+//   - 미완료 단계 자체가 없는 예외적 경우: "확인 필요"
+function getStageDisplay(w: {
+  status: WorkItemStatus;
+  currentStageLabel: string;
+  nextStepLabel: string;
+  pendingStageLabel: string;
+}): { kind: "completed" | "next" | "waiting"; label: string } {
+  if (w.status === "완료") return { kind: "completed", label: w.currentStageLabel };
+  if (w.nextStepLabel !== "없음") return { kind: "next", label: w.nextStepLabel };
+  if (w.pendingStageLabel !== "없음") return { kind: "waiting", label: w.pendingStageLabel };
+  return { kind: "waiting", label: "확인 필요" };
+}
+const STAGE_KIND_PREFIX: Record<"completed" | "next" | "waiting", string> = {
+  completed: "완료",
+  next: "다음",
+  waiting: "대기",
+};
 function formatDate(value: string | null): string {
   if (!value) return "-";
   return new Date(value).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
@@ -233,6 +314,13 @@ function formatRelative(value: string | null): string {
   if (diffHour < 24) return `${diffHour}시간 전`;
   const diffDay = Math.floor(diffHour / 24);
   return `${diffDay}일 전`;
+}
+
+// 신청번호 표시 — src/app/mypage/page.tsx·src/app/api/mypage-pdf/route.ts가
+// 이미 고객에게 노출 중인 기존 규칙(VF+leadId 앞 8자)을 그대로 재사용.
+// 실제 신청번호 DB 컬럼은 없다(조사 결과, 새로 만들지 않음).
+function receiptNumberOf(leadId: string): string {
+  return `VF${leadId.slice(0, 8).toUpperCase()}`;
 }
 
 type LeadRow = {
@@ -262,11 +350,15 @@ type WorkItem = {
   steps: ProcessStep[];
   currentStageLabel: string;
   nextStepLabel: string;
+  pendingStageLabel: string;
   progressPercent: number;
   status: WorkItemStatus;
   assignedAt: string;
   lastActivityAt: string | null;
+  lastActivityAction: string | null;
+  completedAt: string | null;
   isOverdue: boolean;
+  hasRejectionRisk: boolean;
 };
 
 export default async function StaffWorkStatusPage({
@@ -368,17 +460,40 @@ export default async function StaffWorkStatusPage({
       const currentStageLabel = [...steps].reverse().find((s) => s.done)?.label ?? steps[0]?.label ?? "-";
       const nextStepIndex = steps.findIndex((s) => !s.done && s.settableAction);
       const nextStepLabel = nextStepIndex >= 0 ? steps[nextStepIndex].label : "없음";
+      // pendingStageLabel: "현재 기다리고 있는 미완료 단계"의 라벨(있다면).
+      // nextStepLabel(!done && settableAction 기준)과는 목적이 다르다 —
+      // VERIFY의 "전문가 안내 대기", 상담의 "담당자 확인 대기"처럼
+      // settableAction이 null이라 nextStepLabel로는 잡히지 않는 대기
+      // 단계를 그대로 보여주기 위한 값이다. steps/done 배열 자체는 전혀
+      // 바꾸지 않았다 — done=false인 첫 단계를 찾는 것뿐이다.
+      const firstPendingStep = steps.find((s) => !s.done);
+      const pendingStageLabel = firstPendingStep?.label ?? "없음";
       const isCompleted = steps.length > 0 && steps[steps.length - 1].done;
-      const supplement = !isCompleted && hasSupplementFlag(leadActivities);
+      const { hasFailedItem, hasRejectionRisk } = getBriefFlags(leadActivities);
+      const supplement = !isCompleted && (hasFailedItem || hasRejectionRisk);
       const status: WorkItemStatus = isCompleted ? "완료" : supplement ? "보완요청" : "진행중";
       const progressPercent = steps.length
         ? Math.round((steps.filter((s) => s.done).length / steps.length) * 100)
         : 0;
-      const lastActivityAt = leadActivities.length
-        ? leadActivities[leadActivities.length - 1].created_at
-        : null;
+      const lastActivity = leadActivities.length ? leadActivities[leadActivities.length - 1] : null;
+      const lastActivityAt = lastActivity?.created_at ?? null;
+      const lastActivityAction = lastActivity?.action ?? null;
       const referenceDate = lastActivityAt ? new Date(lastActivityAt) : new Date(a.assigned_at);
       const isOverdue = !isCompleted && daysBetween(referenceDate, now) >= OVERDUE_DAYS_THRESHOLD;
+
+      // 완료 시각(completedAt) — 리드의 마지막 활동 시각(lastActivityAt)이
+      // 아니라, 실제 완료를 나타내는 기존 action(process_permit_completed)의
+      // created_at을 사용한다. 완료 이후 문서 재업로드 등 다른 활동이
+      // 추가돼도 완료 시각이 밀리지 않게 하기 위함이다. 이 action이 존재하는
+      // 카테고리는 CHECK/REGISTER뿐이고(VERIFY/consultation은 대응 action이
+      // 없어 isCompleted가 애초에 항상 false — 위 buildProcessSteps 원본
+      // 로직 자체가 그렇게 되어 있음), 여러 번 기록됐다면 가장 최근 발생
+      // 시각을 사용한다.
+      const permitCompletedActivities = leadActivities.filter((act) => act.action === "process_permit_completed");
+      const completedAt =
+        isCompleted && permitCompletedActivities.length
+          ? permitCompletedActivities[permitCompletedActivities.length - 1].created_at
+          : null;
 
       return {
         lead,
@@ -386,11 +501,15 @@ export default async function StaffWorkStatusPage({
         steps,
         currentStageLabel,
         nextStepLabel,
+        pendingStageLabel,
         progressPercent,
         status,
         assignedAt: a.assigned_at,
         lastActivityAt,
+        lastActivityAction,
+        completedAt,
         isOverdue,
+        hasRejectionRisk: !isCompleted && hasRejectionRisk,
       };
     });
 
@@ -406,12 +525,82 @@ export default async function StaffWorkStatusPage({
 
   const mostRecentActivityAt = activities.length ? activities[activities.length - 1].created_at : null;
 
+  // 평균 처리 기간: assignedAt → completedAt(실제 완료 action 시각) 기준.
+  // completedAt이 없는 건(VERIFY/consultation — 완료 action 자체가 없음)은
+  // 평균 대상에서 제외한다. 완료 이후 발생한 다른 활동은 이 값에 영향을
+  // 주지 않는다.
   const completedDurations = workItems
-    .filter((w) => w.status === "완료" && w.lastActivityAt)
-    .map((w) => daysBetween(new Date(w.assignedAt), new Date(w.lastActivityAt!)));
+    .filter((w) => w.completedAt)
+    .map((w) => daysBetween(new Date(w.assignedAt), new Date(w.completedAt!)));
   const avgProcessingDays = completedDurations.length
     ? Math.round((completedDurations.reduce((sum, d) => sum + d, 0) / completedDurations.length) * 10) / 10
     : null;
+
+  // ── STEP5 추가 집계 — 전부 위 workItems에서만 파생, 새 쿼리/새 상태 없음 ──
+  // 이번 주 시작(월요일 00:00) — dateKeyOf류 기존 날짜 유틸이 이 파일에는
+  // 없어(다른 admin 파일과 동일하게 로컬 계산), 표준 Date 계산만 사용했다.
+  const dayOfWeek = now.getDay(); // 0=일,1=월,...
+  const diffToMonday = (dayOfWeek + 6) % 7;
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfWeek.getDate() - diffToMonday);
+
+  // 오늘/이번주 완료: completedAt(실제 완료 action 시각) 기준.
+  // completedAt이 없는 건(VERIFY/consultation)은 대상에서 제외된다 —
+  // 이 카테고리는 기존 시스템상 완료 판정 자체가 불가능하다(최종 보고서
+  // 참고, 추측으로 완료 처리하지 않음).
+  const todayCompletedCount = workItems.filter(
+    (w) => w.completedAt && new Date(w.completedAt) >= startOfToday
+  ).length;
+  const weekCompletedCount = workItems.filter(
+    (w) => w.completedAt && new Date(w.completedAt) >= startOfWeek
+  ).length;
+  // "후속 단계 미정"(이전 명칭 "고객 대기"에서 변경): 완료가 아닌데 다음
+  // 실행 가능한 내부 단계(settableAction이 있고 미완료인 단계)가 없는 건.
+  // crm_activities에 이 상태를 명확히 뒷받침하는 action(예: customer_
+  // waiting/document_request 등)이 존재하는지 재조사했으나 이 프로젝트에는
+  // 그런 action이 없다(사전 조사 결과 동일). 실제로는 VERIFY의 "전문가
+  // 안내 대기", 상담문의의 "담당자 확인 대기"처럼 시스템이 이미 쓰는
+  // 마지막 단계 라벨에서 멈춰 있는 것뿐이며, 이것이 "고객이 무언가를
+  // 기다리는 중"이라는 근거는 없다 — 그래서 "고객 대기"라는 이름을 쓰지
+  // 않고 기계적 사실("다음 내부 실행 단계가 없음")만 표시한다.
+  const nextStepUndecidedCount = workItems.filter(
+    (w) => w.status !== "완료" && w.nextStepLabel === "없음"
+  ).length;
+  const waitingGovSubmitCount = workItems.filter((w) => w.nextStepLabel === "정부 제출").length;
+  const rejectionRiskCount = workItems.filter((w) => w.hasRejectionRisk).length;
+  const completionRate = totalCustomers ? Math.round((completedCount / totalCustomers) * 100) : null;
+  const supplementRate = totalCustomers ? Math.round((supplementCount / totalCustomers) * 100) : null;
+
+  // 카테고리별 "진행중" 건수 — 기존 getCategory() 분류만 사용.
+  const categoryLabels: Record<CategoryKey, string> = {
+    check: "CHECK",
+    verify: "VERIFY",
+    register: "REGISTER",
+    consultation: "상담",
+    unclassified: "미분류",
+  };
+  const categoryOrder: CategoryKey[] = ["check", "verify", "register", "consultation", "unclassified"];
+  const inProgressByCategory = new Map<CategoryKey, number>();
+  for (const w of workItems) {
+    if (w.status !== "진행중") continue;
+    inProgressByCategory.set(w.category, (inProgressByCategory.get(w.category) ?? 0) + 1);
+  }
+
+  // ── Work Queue: 담당 업무를 우선순위(보완요청 → 정부 제출 대기 → 진행중
+  // → 완료) 순으로 정렬한다. 정렬 기준 자체는 이미 계산된 status/
+  // nextStepLabel 값만 사용 — 새 우선순위 컬럼을 추가하지 않았다. ──
+  function priorityRank(w: WorkItem): number {
+    if (w.status === "보완요청") return 0;
+    if (w.nextStepLabel === "정부 제출") return 1;
+    if (w.status === "진행중") return 2;
+    return 3; // 완료
+  }
+  const queuedWorkItems = [...workItems].sort((x, y) => {
+    const rankDiff = priorityRank(x) - priorityRank(y);
+    if (rankDiff !== 0) return rankDiff;
+    if (x.isOverdue !== y.isOverdue) return x.isOverdue ? -1 : 1;
+    return new Date(y.assignedAt).getTime() - new Date(x.assignedAt).getTime();
+  });
 
   // ── 최근 활동 타임라인 (crm_activities 재사용, 새 테이블 없음) ──
   const recentActivities = [...activities]
@@ -468,21 +657,73 @@ export default async function StaffWorkStatusPage({
         />
       </div>
 
+      {/* 카테고리별 진행중 건수 — 기존 getCategory() 분류만 사용 */}
+      <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+        <span className="text-xs font-semibold text-slate-500">진행 중 업무 분류</span>
+        {categoryOrder.map((c) => (
+          <span
+            key={c}
+            className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200"
+          >
+            {categoryLabels[c]}
+            <span className="font-bold text-slate-900">{inProgressByCategory.get(c) ?? 0}</span>
+          </span>
+        ))}
+      </div>
+
+      {/* STEP5 — 운영 지표: 완료 시점/대기 상태를 기존 데이터에서 추가 집계 */}
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiCard label="오늘 완료" value={todayCompletedCount} caption="오늘 완료 처리된 건" icon={<CalendarCheck size={18} />} />
+        <KpiCard label="이번주 완료" value={weekCompletedCount} caption="이번 주(월요일~) 완료된 건" icon={<CalendarDays size={18} />} />
+        <KpiCard
+          label="후속 단계 미정"
+          value={nextStepUndecidedCount}
+          caption="실행 가능한 다음 내부 단계가 없는 대기 건(고객 대기 여부는 알 수 없음)"
+          icon={<Hourglass size={18} />}
+        />
+        <KpiCard label="정부 제출 대기" value={waitingGovSubmitCount} caption="다음 단계가 정부 제출인 건" icon={<Landmark size={18} />} />
+      </div>
+
+      {/* STEP5 — 생산성: 완료율/보완률/반려위험은 기존 status 값을 비율로만 재표현.
+          평균 처리 기간은 상단 기본 KPI 카드에 이미 있어 중복 표시하지 않는다. */}
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <KpiCard
+          label="완료율"
+          value={completionRate === null ? "-" : `${completionRate}%`}
+          caption="담당 건 대비 완료 비율"
+          icon={<Percent size={18} />}
+        />
+        <KpiCard
+          label="보완률"
+          value={supplementRate === null ? "-" : `${supplementRate}%`}
+          caption="담당 건 대비 보완요청 비율"
+          icon={<Percent size={18} />}
+        />
+        <KpiCard
+          label="반려 위험"
+          value={rejectionRiskCount}
+          caption="반려 위험 항목이 확인된 건"
+          icon={<ShieldAlert size={18} />}
+          tone={rejectionRiskCount > 0 ? "warning" : "default"}
+        />
+      </div>
+
       <section className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-4 py-3.5">
-          <p className="text-sm font-bold text-slate-950">담당 업무</p>
+          <p className="text-sm font-bold text-slate-950">담당 업무 (Work Queue)</p>
+          <p className="mt-0.5 text-xs text-slate-400">보완 요청 → 정부 제출 대기 → 진행 중 → 완료 순으로 정렬됩니다.</p>
         </div>
-        {workItems.length === 0 ? (
+        {queuedWorkItems.length === 0 ? (
           <EmptyState message="배정된 업무가 없습니다." />
         ) : (
           <>
             <div className="divide-y divide-slate-100 lg:hidden">
-              {workItems.map((w) => (
+              {queuedWorkItems.map((w) => (
                 <WorkItemMobileCard key={w.lead.id} item={w} />
               ))}
             </div>
             <div className="hidden lg:block">
-              <WorkItemTable items={workItems} />
+              <WorkItemTable items={queuedWorkItems} />
             </div>
           </>
         )}
@@ -526,20 +767,23 @@ function WorkItemTable({ items }: { items: WorkItem[] }) {
       <table className="min-w-full table-fixed">
         <thead className="bg-slate-50">
           <tr className="border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
-            <th className="w-[16%] px-5 py-3.5">고객명</th>
-            <th className="w-[14%] px-4 py-3.5">서비스</th>
-            <th className="w-[13%] px-4 py-3.5">현재 단계</th>
-            <th className="w-[11%] px-4 py-3.5">담당 시작일</th>
-            <th className="w-[11%] px-4 py-3.5">최근 처리일</th>
-            <th className="w-[10%] px-4 py-3.5">상태</th>
-            <th className="w-[13%] px-4 py-3.5">다음 작업</th>
-            <th className="w-[12%] px-5 py-3.5">진행률</th>
+            <th className="w-[11%] px-5 py-3.5">신청번호</th>
+            <th className="w-[15%] px-4 py-3.5">고객명</th>
+            <th className="w-[13%] px-4 py-3.5">서비스</th>
+            <th className="w-[16%] px-4 py-3.5">진행 상태</th>
+            <th className="w-[12%] px-4 py-3.5">진행률</th>
+            <th className="w-[15%] px-4 py-3.5">최근 활동</th>
+            <th className="w-[9%] px-4 py-3.5">담당일</th>
+            <th className="w-[9%] px-5 py-3.5 text-right">바로가기</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 bg-white">
           {items.map((w) => (
             <tr key={w.lead.id} className="group transition hover:bg-blue-50/40">
               <td className="px-5 py-4 align-middle">
+                <p className="font-mono text-xs text-slate-500">{receiptNumberOf(w.lead.id)}</p>
+              </td>
+              <td className="px-4 py-4 align-middle">
                 <Link
                   href={`/admin/cases/${w.lead.id}`}
                   className="truncate text-sm font-semibold text-slate-950 hover:text-blue-700 hover:underline"
@@ -552,22 +796,34 @@ function WorkItemTable({ items }: { items: WorkItem[] }) {
                 <p className="truncate text-sm text-slate-700">{getServiceLabel(w.lead.service_type)}</p>
               </td>
               <td className="px-4 py-4 align-middle">
-                <p className="truncate text-sm text-slate-700">{w.currentStageLabel}</p>
+                {(() => {
+                  const stage = getStageDisplay(w);
+                  return (
+                    <p className="truncate text-sm text-slate-700">
+                      <span className="text-xs font-semibold text-slate-400">{STAGE_KIND_PREFIX[stage.kind]} · </span>
+                      {stage.label}
+                    </p>
+                  );
+                })()}
+                <div className="mt-1"><StatusBadge status={w.status} isOverdue={w.isOverdue} /></div>
+              </td>
+              <td className="px-4 py-4 align-middle">
+                <ProgressBar percent={w.progressPercent} />
+              </td>
+              <td className="px-4 py-4 align-middle">
+                <p className="truncate text-xs font-semibold text-slate-600">{getActivityLabel(w.lastActivityAction)}</p>
+                <p className="mt-0.5 text-[11px] text-slate-400">{formatDate(w.lastActivityAt)}</p>
               </td>
               <td className="px-4 py-4 align-middle">
                 <p className="text-xs text-slate-500">{formatDate(w.assignedAt)}</p>
               </td>
-              <td className="px-4 py-4 align-middle">
-                <p className="text-xs text-slate-500">{formatDate(w.lastActivityAt)}</p>
-              </td>
-              <td className="px-4 py-4 align-middle">
-                <StatusBadge status={w.status} isOverdue={w.isOverdue} />
-              </td>
-              <td className="px-4 py-4 align-middle">
-                <p className="truncate text-xs text-slate-600">{w.nextStepLabel}</p>
-              </td>
-              <td className="px-5 py-4 align-middle">
-                <ProgressBar percent={w.progressPercent} />
+              <td className="px-5 py-4 text-right align-middle">
+                <Link
+                  href={`/admin/cases/${w.lead.id}`}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                >
+                  바로가기 <ArrowRight size={12} />
+                </Link>
               </td>
             </tr>
           ))}
@@ -582,6 +838,7 @@ function WorkItemMobileCard({ item: w }: { item: WorkItem }) {
     <div className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
+          <p className="font-mono text-[10px] text-slate-400">{receiptNumberOf(w.lead.id)}</p>
           <Link
             href={`/admin/cases/${w.lead.id}`}
             className="truncate text-sm font-semibold text-slate-950 hover:text-blue-700 hover:underline"
@@ -596,12 +853,17 @@ function WorkItemMobileCard({ item: w }: { item: WorkItem }) {
         <ProgressBar percent={w.progressPercent} />
       </div>
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500">
-        <span>현재 {w.currentStageLabel}</span>
-        <span>다음 {w.nextStepLabel}</span>
+        <span>{STAGE_KIND_PREFIX[getStageDisplay(w).kind]} {getStageDisplay(w).label}</span>
+        <span>최근활동 {getActivityLabel(w.lastActivityAction)} · {formatDate(w.lastActivityAt)}</span>
       </div>
-      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400">
-        <span>담당 {formatDate(w.assignedAt)}</span>
-        <span>처리 {formatDate(w.lastActivityAt)}</span>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[11px] text-slate-400">담당 {formatDate(w.assignedAt)}</span>
+        <Link
+          href={`/admin/cases/${w.lead.id}`}
+          className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+        >
+          바로가기 <ArrowRight size={11} />
+        </Link>
       </div>
     </div>
   );
