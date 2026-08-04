@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         )}&type=recovery`;
 
         const sendResult = await sendAdminPasswordResetEmail({
-          to: email,
+          email,
           resetUrl,
         });
 
