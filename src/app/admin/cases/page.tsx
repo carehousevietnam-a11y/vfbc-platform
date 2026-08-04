@@ -425,50 +425,59 @@ export default async function AdminCasesPage({
   //   - 보완 요청: 최신 진단 결과에 미충족 확인항목(checkedItems.passed===false) 또는
   //     반려위험(rejectionRisks)이 있는 건
   //   - 긴급 건: 최신 진단 결과의 riskLevel이 "high"인 건
-  let statusLeadIds: Set<string> | null = null;
-  if (status === "unreviewed" || status === "supplement" || status === "urgent") {
-    const scopedLeadIds = leads.map((l) => l.id);
-    const { data: statusActivities } = scopedLeadIds.length
-      ? await supabaseAdmin
-          .from("crm_activities")
-          .select("lead_id, action, meta, created_at")
-          .in("lead_id", scopedLeadIds)
-          .order("created_at", { ascending: true })
-      : { data: [] as any[] };
+  const scopedLeadIds = leads.map((l) => l.id);
+  const { data: statusActivities } = scopedLeadIds.length
+    ? await supabaseAdmin
+        .from("crm_activities")
+        .select("lead_id, action, meta, created_at")
+        .in("lead_id", scopedLeadIds)
+        .order("created_at", { ascending: true })
+    : { data: [] as any[] };
 
-    const actionsByLead = new Map<string, Set<string>>();
-    const briefByLead = new Map<string, any>();
-    for (const a of statusActivities ?? []) {
-      if (!a.lead_id) continue;
-      const actionSet = actionsByLead.get(a.lead_id) ?? new Set<string>();
-      if (a.action) actionSet.add(a.action);
-      actionsByLead.set(a.lead_id, actionSet);
+  const actionsByLead = new Map<string, Set<string>>();
+  const briefByLead = new Map<string, any>();
+  for (const a of statusActivities ?? []) {
+    if (!a.lead_id) continue;
+    const actionSet = actionsByLead.get(a.lead_id) ?? new Set<string>();
+    if (a.action) actionSet.add(a.action);
+    actionsByLead.set(a.lead_id, actionSet);
 
-      const m = a.meta as any;
-      const brief = m && typeof m === "object" ? m.expertBrief ?? m.expert_brief : null;
-      if (brief) briefByLead.set(a.lead_id, brief);
-    }
-
-    statusLeadIds = new Set(
-      leads
-        .filter((l) => {
-          const actionSet = actionsByLead.get(l.id) ?? new Set<string>();
-          if (status === "unreviewed") {
-            return actionSet.has("document_upload") && !actionSet.has("expert_review_request");
-          }
-          const brief = briefByLead.get(l.id);
-          if (status === "urgent") {
-            return brief?.riskLevel === "high";
-          }
-          // supplement
-          const hasFailedItem =
-            Array.isArray(brief?.checkedItems) && brief.checkedItems.some((c: any) => c?.passed === false);
-          const hasRejectionRisk = Array.isArray(brief?.rejectionRisks) && brief.rejectionRisks.length > 0;
-          return hasFailedItem || hasRejectionRisk;
-        })
-        .map((l) => l.id)
-    );
+    const m = a.meta as any;
+    const brief = m && typeof m === "object" ? m.expertBrief ?? m.expert_brief : null;
+    if (brief) briefByLead.set(a.lead_id, brief);
   }
+
+  const unreviewedLeadIds = new Set(
+    leads
+      .filter((l) => {
+        const actionSet = actionsByLead.get(l.id) ?? new Set<string>();
+        return actionSet.has("document_upload") && !actionSet.has("expert_review_request");
+      })
+      .map((l) => l.id)
+  );
+  const supplementLeadIds = new Set(
+    leads
+      .filter((l) => {
+        const brief = briefByLead.get(l.id);
+        const hasFailedItem =
+          Array.isArray(brief?.checkedItems) && brief.checkedItems.some((c: any) => c?.passed === false);
+        const hasRejectionRisk = Array.isArray(brief?.rejectionRisks) && brief.rejectionRisks.length > 0;
+        return hasFailedItem || hasRejectionRisk;
+      })
+      .map((l) => l.id)
+  );
+  const urgentLeadIds = new Set(
+    leads.filter((l) => briefByLead.get(l.id)?.riskLevel === "high").map((l) => l.id)
+  );
+
+  const statusLeadIds =
+    status === "unreviewed"
+      ? unreviewedLeadIds
+      : status === "supplement"
+      ? supplementLeadIds
+      : status === "urgent"
+      ? urgentLeadIds
+      : null;
 
   const normalizedQuery = q.toLowerCase();
   const now = new Date();
@@ -534,7 +543,6 @@ export default async function AdminCasesPage({
     a[0] < b[0] ? 1 : -1
   );
 
-  const serviceCount = new Set(leads.map((lead) => lead.service_type).filter(Boolean)).size;
   const buildHref = (overrides: Record<string, string>) => {
     const params = new URLSearchParams();
     const next = { q, content, period, filterService, focusDate, focusService, status, ...overrides };
@@ -558,11 +566,6 @@ export default async function AdminCasesPage({
   const currentViewLabel = STATUS_LABELS[status] ?? "전체 신청건";
   const statusViewCount = statusLeadIds ? statusLeadIds.size : leads.length;
   const statusTodayCount = filteredLeads.filter((lead) => new Date(lead.created_at) >= startOfToday).length;
-  const statusCheckCount = filteredLeads.filter((lead) => getCategory(lead.service_type) === "check").length;
-  const statusVerifyRegisterCount = filteredLeads.filter((lead) => {
-    const categoryKey = getCategory(lead.service_type);
-    return categoryKey === "verify" || categoryKey === "permit";
-  }).length;
   const currentListHref = buildHref({});
 
   return (
@@ -576,39 +579,36 @@ export default async function AdminCasesPage({
         }
       />
 
-      <section className="mt-5 flex flex-col gap-3 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-blue-600">현재 보기</p>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
+      <section className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400">현재 보기</span>
             <span className="rounded-full bg-blue-700 px-3 py-1 text-xs font-bold text-white">{currentViewLabel}</span>
-            {content !== "all" && <span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700">{CATEGORY_INFO[content as CategoryKey]?.label ?? content}</span>}
-            {filterService !== "all" && <span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700">{getServiceLabel(filterService)}</span>}
+            {content !== "all" && <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{CATEGORY_INFO[content as CategoryKey]?.label ?? content}</span>}
+            {filterService !== "all" && <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{getServiceLabel(filterService)}</span>}
+            <span className="text-xs font-semibold text-slate-500">{filteredLeads.length}건</span>
           </div>
+          <p className="text-[11px] text-slate-400">상세 화면을 열어도 현재 검색·필터 조건이 유지됩니다.</p>
         </div>
-        <p className="text-xs text-blue-700">목록에서 상세 화면으로 이동해도 현재 필터와 검색 조건이 유지됩니다.</p>
+
+        <div className="grid divide-y divide-slate-100 sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+          <CompactKpi label={currentViewLabel} value={statusViewCount} caption="현재 조건" tone="blue" />
+          <CompactKpi label="오늘 접수" value={statusTodayCount} caption="오늘 신규" tone="slate" />
+          <CompactKpi label="전문가 진행요청" value={agencyLeadIds.size} caption="전문가 연결" tone="violet" />
+          <CompactKpi label="거절이력" value={rejectionCount ?? 0} caption="타 기관 기록" tone="amber" href="/admin/rejections" />
+        </div>
       </section>
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {status ? (
-          <>
-            <KpiCard label={currentViewLabel} value={statusViewCount} caption="현재 조건에 해당하는 신청건" icon={<CasesIcon />} />
-            <KpiCard label="오늘 접수" value={statusTodayCount} caption="현재 목록의 오늘 신규 접수" icon={<ExpertIcon />} />
-            <KpiCard label="CHECK" value={statusCheckCount} caption="현재 목록의 직접확인 신청" icon={<ServiceIcon />} />
-            <KpiCard label="VERIFY · REGISTER" value={statusVerifyRegisterCount} caption="현재 목록의 검토·허가 신청" icon={<RejectionIcon />} />
-          </>
-        ) : (
-          <>
-            <KpiCard label="전체 신청건" value={leads.length} caption="현재 조회된 전체 리드" icon={<CasesIcon />} href="/admin/cases" />
-            <KpiCard label="전문가 진행요청" value={agencyLeadIds.size} caption="전문가 연결 요청 건" icon={<ExpertIcon />} />
-            <KpiCard label="서비스 종류" value={serviceCount} caption="현재 접수된 서비스 유형" icon={<ServiceIcon />} />
-            <KpiCard label="거절이력" value={rejectionCount ?? 0} caption="타 기관 거절 등록 건" icon={<RejectionIcon />} href="/admin/rejections" />
-          </>
-        )}
-      </div>
+      <section className="mt-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="text-xs font-extrabold text-slate-900">오늘 처리 우선순위</span>
+            <PriorityLink href="/admin/cases?status=urgent" label="긴급" count={urgentLeadIds.size} tone="red" active={status === "urgent"} />
+            <PriorityLink href="/admin/cases?status=supplement" label="보완" count={supplementLeadIds.size} tone="amber" active={status === "supplement"} />
+            <PriorityLink href="/admin/cases?status=unreviewed" label="미확인" count={unreviewedLeadIds.size} tone="blue" active={status === "unreviewed"} />
+          </div>
 
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 p-5">
-          <form action="/admin/cases" method="get" className="flex flex-col gap-3 sm:flex-row">
+          <form action="/admin/cases" method="get" className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
             {content !== "all" && <input type="hidden" name="content" value={content} />}
             {period !== "all" && <input type="hidden" name="period" value={period} />}
             {filterService !== "all" && <input type="hidden" name="filterService" value={filterService} />}
@@ -616,55 +616,48 @@ export default async function AdminCasesPage({
             <label className="relative min-w-0 flex-1">
               <span className="sr-only">신청건 검색</span>
               <SearchIcon />
-              <input name="q" defaultValue={q} placeholder="이름, 전화번호, 이메일, 서비스 검색" className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50" />
+              <input name="q" defaultValue={q} placeholder="이름, 전화번호, 이메일, 서비스 검색" className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50" />
             </label>
-            <button type="submit" className="h-12 rounded-xl bg-blue-700 px-6 text-sm font-semibold text-white hover:bg-blue-800">검색</button>
+            <button type="submit" className="h-10 rounded-lg bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800">검색</button>
             {(q || content !== "all" || period !== "all" || filterService !== "all" || status) && (
-              <Link href="/admin/cases" className="flex h-12 items-center justify-center rounded-xl border border-slate-200 px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50">전체 초기화</Link>
+              <Link href="/admin/cases" className="flex h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50">초기화</Link>
             )}
           </form>
-          {status && STATUS_LABELS[status] && (
-            <div className="mt-3">
-              <FilterChip href="/admin/cases" active label={`${STATUS_LABELS[status]} 필터 적용됨 · 해제`} />
-            </div>
-          )}
         </div>
 
-        <div className="space-y-5 p-5">
-          <FilterRow label="콘텐츠">
-            {[
-              ["all", "전체", todayLeads.length],
-              ["check", "직접확인하기 CHECK", todayCountByCategory.get("check") ?? 0],
-              ["verify", "직접검토하기 VERIFY", todayCountByCategory.get("verify") ?? 0],
-              ["permit", "직접허가받기 REGISTER", todayCountByCategory.get("permit") ?? 0],
-              ["consultation", "상담받기", todayCountByCategory.get("consultation") ?? 0],
-            ].map(([value, label, todayCount]) => (
-              <FilterChip
-                key={String(value)}
-                href={buildHref({ content: String(value), filterService: "all" })}
-                active={content === value}
-                label={String(label)}
-                count={Number(todayCount)}
-              />
-            ))}
-          </FilterRow>
-
-          <FilterRow label="기간">
-            {[["all", "전체"], ["today", "오늘"], ["7d", "최근 7일"], ["30d", "최근 30일"]].map(([value, label]) => (
-              <FilterChip key={value} href={buildHref({ period: value })} active={period === value} label={label} />
-            ))}
-          </FilterRow>
-
-          <FilterRow label="서비스">
-            <FilterChip href={buildHref({ filterService: "all" })} active={filterService === "all"} label="전체 서비스" />
-            {visibleServices.map((svc) => (
-              <FilterChip key={svc} href={buildHref({ filterService: svc })} active={filterService === svc} label={getServiceLabel(svc)} />
-            ))}
-          </FilterRow>
-        </div>
+        <details className="group mt-3 border-t border-slate-100 pt-3" open={Boolean(content !== "all" || period !== "all" || filterService !== "all")}>
+          <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold text-slate-600">
+            <span>상세 필터</span>
+            <span className="text-slate-400 group-open:rotate-180">⌄</span>
+          </summary>
+          <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_.62fr_1.4fr]">
+            <FilterRow label="콘텐츠">
+              {[
+                ["all", "전체", todayLeads.length],
+                ["check", "CHECK", todayCountByCategory.get("check") ?? 0],
+                ["verify", "VERIFY", todayCountByCategory.get("verify") ?? 0],
+                ["permit", "REGISTER", todayCountByCategory.get("permit") ?? 0],
+                ["consultation", "상담", todayCountByCategory.get("consultation") ?? 0],
+              ].map(([value, label, todayCount]) => (
+                <FilterChip key={String(value)} href={buildHref({ content: String(value), filterService: "all" })} active={content === value} label={String(label)} count={Number(todayCount)} />
+              ))}
+            </FilterRow>
+            <FilterRow label="기간">
+              {[["all", "전체"], ["today", "오늘"], ["7d", "7일"], ["30d", "30일"]].map(([value, label]) => (
+                <FilterChip key={value} href={buildHref({ period: value })} active={period === value} label={label} />
+              ))}
+            </FilterRow>
+            <FilterRow label="서비스">
+              <FilterChip href={buildHref({ filterService: "all" })} active={filterService === "all"} label="전체" />
+              {visibleServices.map((svc) => (
+                <FilterChip key={svc} href={buildHref({ filterService: svc })} active={filterService === svc} label={getServiceLabel(svc)} />
+              ))}
+            </FilterRow>
+          </div>
+        </details>
       </section>
 
-      <div className="mt-6 space-y-6">
+      <div className="mt-4 space-y-4">
         {dateGroups.length === 0 && (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <EmptyState message={status ? "조건에 맞는 신청건이 없습니다." : undefined} />
@@ -681,6 +674,7 @@ export default async function AdminCasesPage({
             focusService={focusService}
             buildHref={buildHref}
             returnTo={currentListHref}
+            viewStatus={status}
           />
         ))}
       </div>
@@ -697,6 +691,71 @@ export default async function AdminCasesPage({
   );
 }
 
+function CompactKpi({
+  label,
+  value,
+  caption,
+  tone,
+  href,
+}: {
+  label: string;
+  value: number;
+  caption: string;
+  tone: "blue" | "slate" | "violet" | "amber";
+  href?: string;
+}) {
+  const toneClass = {
+    blue: "text-blue-700",
+    slate: "text-slate-800",
+    violet: "text-violet-700",
+    amber: "text-amber-700",
+  }[tone];
+  const body = (
+    <div className="flex min-h-[86px] items-center justify-between gap-3 px-4 py-3 transition hover:bg-slate-50/70">
+      <div>
+        <p className="text-[11px] font-semibold text-slate-500">{label}</p>
+        <p className={`mt-1 text-2xl font-black leading-none ${toneClass}`}>{value}</p>
+      </div>
+      <span className="text-[10px] font-semibold text-slate-400">{caption}</span>
+    </div>
+  );
+  return href ? <Link href={href}>{body}</Link> : body;
+}
+
+function PriorityLink({
+  href,
+  label,
+  count,
+  tone,
+  active,
+}: {
+  href: string;
+  label: string;
+  count: number;
+  tone: "red" | "amber" | "blue";
+  active: boolean;
+}) {
+  const toneClass = {
+    red: active ? "border-red-600 bg-red-600 text-white" : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
+    amber: active ? "border-amber-500 bg-amber-500 text-white" : "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100",
+    blue: active ? "border-blue-600 bg-blue-600 text-white" : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
+  }[tone];
+  return (
+    <Link href={href} className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold transition ${toneClass}`}>
+      <span>{label}</span>
+      <span className={`inline-flex min-w-5 items-center justify-center rounded-full px-1 text-[10px] ${active ? "bg-white/20" : "bg-white"}`}>{count}</span>
+    </Link>
+  );
+}
+
+function getPriorityMeta(viewStatus: string, isRejected: boolean, isAgency: boolean) {
+  if (viewStatus === "urgent") return { label: "긴급", badge: "bg-red-50 text-red-700", border: "border-l-red-500" };
+  if (viewStatus === "supplement" || isRejected) return { label: "보완", badge: "bg-amber-50 text-amber-700", border: "border-l-amber-400" };
+  if (viewStatus === "unreviewed") return { label: "미확인", badge: "bg-blue-50 text-blue-700", border: "border-l-blue-500" };
+  if (isAgency) return { label: "전문가", badge: "bg-violet-50 text-violet-700", border: "border-l-violet-400" };
+  return { label: "일반", badge: "bg-emerald-50 text-emerald-700", border: "border-l-emerald-400" };
+}
+
 function DateContentGroup({
   dateKey,
   leads,
@@ -706,6 +765,7 @@ function DateContentGroup({
   focusService,
   buildHref,
   returnTo,
+  viewStatus,
 }: {
   dateKey: string;
   leads: Array<{
@@ -723,6 +783,7 @@ function DateContentGroup({
   focusService: string;
   buildHref: (overrides: Record<string, string>) => string;
   returnTo: string;
+  viewStatus: string;
 }) {
   const categoryOrder: CategoryKey[] = [
     "check",
@@ -975,11 +1036,12 @@ function DateContentGroup({
                   isAgency={agencyLeadIds.has(lead.id)}
                   isRejected={false}
                   returnTo={returnTo}
+                  viewStatus={viewStatus}
                 />
               ))}
             </div>
             <div className="hidden lg:block">
-              <LeadTable leads={activeGroup.leads} agencyLeadIds={agencyLeadIds} returnTo={returnTo} />
+              <LeadTable leads={activeGroup.leads} agencyLeadIds={agencyLeadIds} returnTo={returnTo} viewStatus={viewStatus} />
             </div>
           </section>
         ) : (
@@ -1090,6 +1152,7 @@ function LeadTable({
   agencyLeadIds,
   metaByLead,
   returnTo = "/admin/cases",
+  viewStatus = "",
 }: {
   leads: Array<{
     id: string;
@@ -1103,6 +1166,7 @@ function LeadTable({
   agencyLeadIds: Set<string>;
   metaByLead?: Map<string, any>;
   returnTo?: string;
+  viewStatus?: string;
 }) {
   if (leads.length === 0) return <EmptyState />;
 
@@ -1128,35 +1192,41 @@ function LeadTable({
             const isAgency = agencyLeadIds.has(lead.id);
             const meta = metaByLead?.get(lead.id);
             const isRejected = meta?.previousRejection?.rejected === true;
+            const priority = getPriorityMeta(viewStatus, isRejected, isAgency);
 
             return (
               <tr key={lead.id} className="group transition hover:bg-blue-50/40">
-                <td className="px-5 py-4 align-middle">
+                <td className={`border-l-4 px-5 py-3 align-middle ${priority.border}`}>
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-600">
                       {(lead.name ?? "?").slice(0, 1)}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-950">
-                        {lead.name ?? "이름 미상"}
-                      </p>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-slate-950">
+                          {lead.name ?? "이름 미상"}
+                        </p>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${priority.badge}`}>
+                          {priority.label}
+                        </span>
+                      </div>
                       <p className="mt-0.5 truncate text-xs text-slate-500">
                         {lead.phone || lead.email || "연락처 없음"}
                       </p>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4 align-middle">
+                <td className="px-4 py-3 align-middle">
                   <p className="truncate text-sm font-medium text-slate-800">
                     {lead.service_type ? getServiceLabel(lead.service_type) : "미상"}
                   </p>
                 </td>
-                <td className="px-4 py-4 align-middle">
+                <td className="px-4 py-3 align-middle">
                   <span className={`inline-flex max-w-full truncate rounded-full px-2.5 py-1 text-xs font-semibold ${categoryInfo.badgeColor}`}>
                     {categoryInfo.label}
                   </span>
                 </td>
-                <td className="px-4 py-4 align-middle">
+                <td className="px-4 py-3 align-middle">
                   {resultInfo ? (
                     <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${resultInfo.color}`}>
                       {resultInfo.label}
@@ -1165,7 +1235,7 @@ function LeadTable({
                     <span className="text-xs text-slate-400">미지정</span>
                   )}
                 </td>
-                <td className="px-4 py-4 align-middle">
+                <td className="px-4 py-3 align-middle">
                   {isRejected ? (
                     <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-100">
                       재검토
@@ -1180,10 +1250,10 @@ function LeadTable({
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-4 align-middle text-xs text-slate-500">
+                <td className="px-4 py-3 align-middle text-xs text-slate-500">
                   {formatRelativeDateTime(lead.created_at)}
                 </td>
-                <td className="px-5 py-4 text-right align-middle">
+                <td className="px-5 py-3 text-right align-middle">
                   <Link
                     href={buildCaseDetailHref(lead.id, returnTo)}
                     className="inline-flex h-9 min-w-[64px] items-center justify-center whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
@@ -1206,6 +1276,7 @@ function LeadMobileCard({
   isAgency,
   isRejected,
   returnTo = "/admin/cases",
+  viewStatus = "",
 }: {
   lead: {
     id: string;
@@ -1220,18 +1291,25 @@ function LeadMobileCard({
   isAgency: boolean;
   isRejected: boolean;
   returnTo?: string;
+  viewStatus?: string;
 }) {
   const categoryInfo = CATEGORY_INFO[category];
   const resultInfo = RESULT_LABELS[lead.result ?? ""];
+  const priority = getPriorityMeta(viewStatus, isRejected, isAgency);
 
   return (
-    <div className="p-4">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="p-3">
+      <div className={`rounded-xl border border-slate-200 border-l-4 bg-white p-4 shadow-sm ${priority.border}`}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-slate-950">
-              {lead.name ?? "이름 미상"}
-            </p>
+            <div className="flex min-w-0 items-center gap-2">
+              <p className="truncate text-sm font-bold text-slate-950">
+                {lead.name ?? "이름 미상"}
+              </p>
+              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${priority.badge}`}>
+                {priority.label}
+              </span>
+            </div>
             <p className="mt-1 truncate text-xs text-slate-500">
               {lead.phone || lead.email || "연락처 없음"}
             </p>

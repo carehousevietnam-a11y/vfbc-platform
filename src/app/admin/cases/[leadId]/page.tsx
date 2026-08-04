@@ -469,6 +469,28 @@ async function setProcessStage(formData: FormData) {
   revalidatePath(`/admin/cases/${leadId}`);
 }
 
+function ExecutiveMetric({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "blue" | "violet" | "amber";
+}) {
+  const toneClass = {
+    blue: "border-blue-100 bg-blue-50/70 text-blue-800",
+    violet: "border-violet-100 bg-violet-50/70 text-violet-800",
+    amber: "border-amber-100 bg-amber-50/70 text-amber-800",
+  }[tone];
+  return (
+    <div className={`border-b border-slate-200 px-5 py-4 sm:border-b-0 sm:border-r ${toneClass}`}>
+      <p className="text-[10px] font-bold uppercase tracking-[0.08em] opacity-60">{label}</p>
+      <p className="mt-2 truncate text-[13px] font-extrabold">{value}</p>
+    </div>
+  );
+}
+
 export default async function AdminLeadDetailPage({
   params,
   searchParams,
@@ -611,6 +633,9 @@ export default async function AdminLeadDetailPage({
   // 여기서 사용하지 않는다 — "다음 단계 실행" 카드 전용 값으로만 유지.
   const currentStageLabel =
     [...processSteps].reverse().find((s) => s.done)?.label ?? processSteps[0]?.label ?? "-";
+  const processProgress = processSteps.length
+    ? Math.round((processSteps.filter((step) => step.done).length / processSteps.length) * 100)
+    : 0;
 
   // STEP4: "허가 완료" 단계에 첨부된 결과파일(허가증)이 있으면 표시용으로 조회
   const permitActivity = activities.find((a) => a.action === "process_permit_completed");
@@ -1132,7 +1157,42 @@ export default async function AdminLeadDetailPage({
 
       <div className="w-full xl:pl-[196px]">
         <div className="mx-auto w-full max-w-[1480px] px-5 py-5 sm:px-6 lg:px-8 lg:py-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><nav className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-slate-400" aria-label="현재 위치"><Link href="/admin/cases" className="hover:text-blue-700">신청건 관리</Link><span>›</span><Link href={returnTo} className="font-semibold text-blue-700 hover:text-blue-800">{sourceViewLabel}</Link><span>›</span><span>{categoryInfo.label}</span><span>›</span><span className="max-w-[220px] truncate text-slate-600">{lead.name ?? "이름 미상"}</span></nav><div className="mt-2 flex flex-wrap items-center gap-2.5"><h1 className="text-[24px] font-extrabold tracking-tight sm:text-[28px]">{lead.name ?? "이름 미상"} 신청건</h1><span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span><span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700">{sourceViewLabel}에서 열림</span></div></div><div className="flex items-start gap-2"><ExecutivePdfButton leadId={lead.id} /><Link href={returnTo} className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[14px] font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><ArrowLeft size={14}/>{sourceViewLabel} 목록으로</Link></div></div>
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+            <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <nav className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-slate-400" aria-label="현재 위치">
+                  <Link href="/admin/cases" className="hover:text-blue-700">신청건 관리</Link><span>›</span>
+                  <Link href={returnTo} className="font-semibold text-blue-700 hover:text-blue-800">{sourceViewLabel}</Link><span>›</span>
+                  <span>{categoryInfo.label}</span><span>›</span>
+                  <span className="max-w-[220px] truncate text-slate-600">{lead.name ?? "이름 미상"}</span>
+                </nav>
+                <div className="mt-2 flex flex-wrap items-center gap-2.5">
+                  <h1 className="text-[25px] font-extrabold tracking-tight sm:text-[30px]">{lead.name ?? "이름 미상"}</h1>
+                  <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${categoryInfo.badgeColor}`}>{categoryInfo.label}</span>
+                  <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700">{serviceLabel}</span>
+                  {resultInfo && <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${resultInfo.color}`}>{resultInfo.label}</span>}
+                </div>
+                <p className="mt-1 text-[12px] text-slate-500">접수 {new Date(lead.created_at).toLocaleString("ko-KR")} · {sourceViewLabel}에서 열림</p>
+              </div>
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <ExecutivePdfButton leadId={lead.id} />
+                <Link href={returnTo} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.05)]"><ArrowLeft size={14}/>{sourceViewLabel} 목록으로</Link>
+              </div>
+            </div>
+
+            <div className="grid gap-0 bg-slate-50/70 sm:grid-cols-2 xl:grid-cols-[1.35fr_1fr_1fr_1fr]">
+              <div className="border-b border-slate-200 px-5 py-4 sm:col-span-2 xl:col-span-1 xl:border-b-0 xl:border-r">
+                <div className="flex items-center justify-between gap-3">
+                  <div><p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">전체 진행률</p><p className="mt-1 text-[20px] font-black text-slate-950">{processProgress}%</p></div>
+                  <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-slate-600 ring-1 ring-inset ring-slate-200">{currentStageLabel}</span>
+                </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-blue-600" style={{ width: `${processProgress}%` }} /></div>
+              </div>
+              <ExecutiveMetric label="다음 조치" value={nextStep?.label ?? "담당자 확인 대기"} tone="blue" />
+              <ExecutiveMetric label="담당 직원" value={assignmentSectionError ? "확인 필요" : (assignedAdminRow?.name ?? "미배정")} tone="violet" />
+              <ExecutiveMetric label="필수 문서" value={isCheckWorkspace ? `${wpDocRows.filter((row) => row.mandatory && row.submitted).length}/${wpDocRows.filter((row) => row.mandatory).length}` : `${submittedRequiredCount}/${requiredDocuments.length}`} tone="amber" />
+            </div>
+          </section>
 
           <section id="case-overview" className="mt-4 scroll-mt-20 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
             <div className="grid lg:grid-cols-[1.22fr_1.02fr_.9fr_1.08fr] lg:divide-x lg:divide-slate-100">
@@ -1143,38 +1203,15 @@ export default async function AdminLeadDetailPage({
             </div>
           </section>
 
-          <section className="sticky top-14 z-20 mt-3 rounded-2xl border border-blue-100 bg-white/95 p-3 shadow-[0_4px_14px_rgba(15,23,42,0.06)] backdrop-blur xl:top-3">
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
-                <div className="rounded-xl bg-slate-50 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold text-slate-400">현재 단계</p>
-                  <p className="mt-1 truncate text-[12px] font-extrabold text-slate-800">{currentStageLabel}</p>
-                </div>
-                <div className="rounded-xl bg-blue-50 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold text-blue-500">다음 조치</p>
-                  <p className="mt-1 truncate text-[12px] font-extrabold text-blue-800">{nextStep?.label ?? "담당자 확인 대기"}</p>
-                </div>
-                <div className="rounded-xl bg-violet-50 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold text-violet-500">담당 직원</p>
-                  <p className="mt-1 truncate text-[12px] font-extrabold text-violet-800">{assignmentSectionError ? "확인 필요" : (assignedAdminRow?.name ?? "미배정")}</p>
-                </div>
-                <div className="rounded-xl bg-amber-50 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold text-amber-600">필수 문서</p>
-                  <p className="mt-1 text-[12px] font-extrabold text-amber-800">{isCheckWorkspace ? `${wpDocRows.filter((row) => row.mandatory && row.submitted).length}/${wpDocRows.filter((row) => row.mandatory).length}` : `${submittedRequiredCount}/${requiredDocuments.length}`}</p>
-                </div>
-                <div className="rounded-xl bg-emerald-50 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold text-emerald-600">AI 판단</p>
-                  <p className="mt-1 truncate text-[12px] font-extrabold text-emerald-800">{typeof activeScore === "number" ? `${activeScore}점` : "확인 필요"}</p>
-                </div>
-              </div>
-              <nav className="flex shrink-0 flex-wrap gap-1.5 text-[11px] font-bold" aria-label="신청건 상세 바로가기">
-                <a href="#case-overview" className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-slate-600 hover:border-blue-300 hover:text-blue-700">고객·신청</a>
-                <a href="#case-progress" className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-slate-600 hover:border-blue-300 hover:text-blue-700">진행 단계</a>
-                <a href="#case-documents" className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-slate-600 hover:border-blue-300 hover:text-blue-700">제출 문서</a>
-                <a href="#case-ai-review" className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-slate-600 hover:border-blue-300 hover:text-blue-700">AI 검토</a>
-                <a href="#case-assignee" className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-slate-600 hover:border-blue-300 hover:text-blue-700">담당·메모</a>
-              </nav>
-            </div>
+          <section className="sticky top-14 z-20 mt-3 rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-[0_4px_14px_rgba(15,23,42,0.06)] backdrop-blur xl:top-3">
+            <nav className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold" aria-label="신청건 상세 바로가기">
+              <span className="mr-1 text-slate-400">바로가기</span>
+              <a href="#case-overview" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">고객·신청</a>
+              <a href="#case-progress" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">진행 단계</a>
+              <a href="#case-documents" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">제출 문서</a>
+              <a href="#case-ai-review" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">AI 검토</a>
+              <a href="#case-assignee" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-600 hover:border-blue-300 hover:text-blue-700">담당·메모</a>
+            </nav>
           </section>
 
           {/* 고객 여정 통합 현황(Executive Summary, v9) — 5개 카드. 전부 위에서 이미 계산된
