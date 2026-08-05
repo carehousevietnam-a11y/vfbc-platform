@@ -1,0 +1,72 @@
+{
+  "total_checks": 13,
+  "passed": 13,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "exact.document_number",
+      "passed": true,
+      "detail": "1건 반환"
+    },
+    {
+      "name": "exact.article",
+      "passed": true,
+      "detail": "1건 반환"
+    },
+    {
+      "name": "exact.official_url",
+      "passed": true,
+      "detail": "3건 반환"
+    },
+    {
+      "name": "exact.document_id",
+      "passed": true,
+      "detail": "1건 반환"
+    },
+    {
+      "name": "keyword.substring_or_phrase",
+      "passed": true,
+      "detail": "1건 반환"
+    },
+    {
+      "name": "keyword.prefix",
+      "passed": true,
+      "detail": "2건 반환"
+    },
+    {
+      "name": "keyword.multi_keyword_phrase",
+      "passed": true,
+      "detail": "2건 반환"
+    },
+    {
+      "name": "keyword.case_insensitive",
+      "passed": true,
+      "detail": "lower=3건, upper=3건"
+    },
+    {
+      "name": "filter.status",
+      "passed": true,
+      "detail": "1건 반환, 전부 status=fully_expired"
+    },
+    {
+      "name": "filter.document_type",
+      "passed": true,
+      "detail": "2건 반환"
+    },
+    {
+      "name": "filter.relation_type",
+      "passed": true,
+      "detail": "3건 반환"
+    },
+    {
+      "name": "ranking.exact_before_keyword",
+      "passed": true,
+      "detail": "exact_scores=[100.0], keyword_scores=[]"
+    },
+    {
+      "name": "ranking.sorted_desc",
+      "passed": true,
+      "detail": "scores=[30.0, 30.0, 30.0]"
+    }
+  ]
+}

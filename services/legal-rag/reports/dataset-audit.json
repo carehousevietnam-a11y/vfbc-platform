@@ -1,0 +1,225 @@
+{
+  "revision_info": {
+    "vbpl": "11c902856b7a389788853fdd39b4998a5effa490",
+    "th1nhng0": "0a39ad7eae8e6c188cb225c4b1443c3b346461d8"
+  },
+  "license_info": {
+    "vbpl": {
+      "license": "CC-BY-4.0",
+      "note": "원본 vbpl.vn 공개 포털(robots.txt Allow: /), 재배포는 CC-BY-4.0"
+    },
+    "th1nhng0": {
+      "license": "원문: Public Domain (베트남 정보접근법 104/2016/QH13, 법령공포법 64/2025/QH15) / 편집본: CC-BY-4.0",
+      "note": "편집(스키마·큐레이션) 부분에만 CC-BY-4.0 출처 표시 필요"
+    }
+  },
+  "files_examined": [
+    "data/raw/th1nhng0/sample_content.jsonl",
+    "data/raw/th1nhng0/sample_legacy_metadata.jsonl",
+    "data/raw/th1nhng0/sample_metadata.jsonl",
+    "data/raw/th1nhng0/sample_relationships.jsonl",
+    "data/raw/vbpl/sample.jsonl"
+  ],
+  "total_documents": 120,
+  "per_source_counts": {
+    "vbpl": 100,
+    "th1nhng0_legacy_metadata": 10,
+    "th1nhng0_metadata": 10
+  },
+  "metadata_field_presence": {
+    "th1nhng0_content": {
+      "id": 10,
+      "content_html": 10
+    },
+    "th1nhng0_legacy_metadata": {
+      "id": 10,
+      "document_number": 10,
+      "title": 10,
+      "legal_type": 10,
+      "legal_sectors": 10,
+      "issuing_authority": 10,
+      "issuance_date": 10,
+      "effect_date": 10,
+      "effect_status": 10,
+      "signers": 10,
+      "effectless_date": 1
+    },
+    "th1nhng0_metadata": {
+      "id": 10,
+      "title": 10,
+      "so_ky_hieu": 10,
+      "ngay_ban_hanh": 10,
+      "loai_van_ban": 10,
+      "ngay_co_hieu_luc": 10,
+      "linh_vuc": 10,
+      "co_quan_ban_hanh": 10,
+      "chuc_danh": 10,
+      "nguoi_ky": 10,
+      "pham_vi": 10,
+      "tinh_trang_hieu_luc": 10,
+      "nganh": 6,
+      "nguon_thu_thap": 5,
+      "ngay_het_hieu_luc": 3,
+      "ngay_dang_cong_bao": 1
+    },
+    "th1nhng0_relationships": {
+      "doc_id": 10,
+      "other_doc_id": 10,
+      "relationship": 10
+    },
+    "vbpl": {
+      "doc_name": 100,
+      "item_id": 100,
+      "scope": 100,
+      "source": 100,
+      "source_url": 100,
+      "api_url": 100,
+      "title": 100,
+      "doc_type": 100,
+      "legal_type": 100,
+      "legal_area": 100,
+      "doc_number": 100,
+      "issue_date": 100,
+      "year": 100,
+      "issuing_authority": 100,
+      "num_sections": 100,
+      "num_paragraphs": 100,
+      "num_sentences": 100,
+      "char_len": 100,
+      "parser_model": 100,
+      "parser_runtime": 100,
+      "body_source": 100,
+      "parsed_at": 100,
+      "structure_json": 100,
+      "extracted_json": 100,
+      "markdown": 99,
+      "text_hash": 99
+    }
+  },
+  "relationship_total": 10,
+  "relationship_type_counts": {
+    "Căn cứ": 10
+  },
+  "duplicate_candidate_count": 0,
+  "missing_body_count": 21,
+  "missing_url_count": 0,
+  "missing_issue_date_count": 0,
+  "status_value_counts": {
+    "In effect": 8,
+    "Hết hiệu lực toàn bộ": 5,
+    "Còn hiệu lực": 4,
+    "Unknown": 1,
+    "Expired": 1,
+    "Chưa xác định": 1
+  },
+  "doc_number_format_ok": 120,
+  "doc_number_format_bad": 0,
+  "issuing_authority_top": {
+    "UBND tỉnh Bà Rịa - Vũng Tàu": 25,
+    "UBND Thành phố Hồ Chí Minh": 15,
+    "UBND tỉnh Phú Yên": 8,
+    "HĐND tỉnh Bà Rịa - Vũng Tàu": 6,
+    "Bộ Tư pháp": 5,
+    "UBND Thành phố Hà Nội": 5,
+    "UBND Tỉnh Sơn La": 4,
+    "HĐND tỉnh Bình Phước": 4,
+    "UBND Tỉnh Tây Ninh": 3,
+    "HĐND tỉnh Phú Yên": 3,
+    "Uỷ ban Thường vụ Quốc hội": 3,
+    "UBND Tỉnh Thanh Hóa": 2,
+    "Chính phủ": 2,
+    "HĐND Tỉnh Phú Thọ": 2,
+    "HĐND Tỉnh Thanh Hóa": 2,
+    "Hội đồng bầu cử quốc gia": 1,
+    "Tỉnh Quảng Trị": 1,
+    "Thành phố Hồ Chí Minh": 1,
+    "Tỉnh Lâm Đồng": 1,
+    "Ban Chỉ đạo Trung ương về phát triển khoa học, công nghệ, đổi mới sáng tạo và chuyển đổi số": 1,
+    "Tỉnh Đồng Tháp": 1,
+    "Tỉnh Yên Bái": 1,
+    "Cục Hải quan": 1,
+    "Tỉnh Tây Ninh": 1,
+    "Văn phòng quốc hội": 1,
+    "Bộ Giáo dục và Đào tạo": 1,
+    "HĐND Tỉnh An Giang": 1,
+    "HĐND Tỉnh Gia Lai": 1,
+    "UBND tỉnh Bắc Kạn": 1,
+    "UBND Tỉnh Quảng Ninh": 1,
+    "UBND thành phố Đà Nẵng": 1,
+    "UBND tỉnh Hậu Giang": 1,
+    "HĐND tỉnh Quảng Bình": 1,
+    "Bộ Lao động": 1,
+    "Bộ Nội vụ": 1,
+    "Chủ tịch nước": 1,
+    "Quốc hội": 1,
+    "Thủ tướng Chính phủ": 1,
+    "UBND tỉnh Tiền Giang": 1,
+    "Bộ Công Thương": 1,
+    "HĐND Tỉnh Khánh Hòa": 1,
+    "UBND tỉnh Long An": 1,
+    "UBND tỉnh Hà Giang": 1,
+    "UBND tỉnh Trà Vinh": 1,
+    "HĐND tỉnh Nam Định": 1,
+    "HĐND Tỉnh Vĩnh Long": 1
+  },
+  "file_sizes_bytes": {
+    "data/raw/th1nhng0/sample_content.jsonl": 320544,
+    "data/raw/th1nhng0/sample_legacy_metadata.jsonl": 5815,
+    "data/raw/th1nhng0/sample_metadata.jsonl": 7091,
+    "data/raw/th1nhng0/sample_relationships.jsonl": 695,
+    "data/raw/vbpl/sample.jsonl": 4462636
+  },
+  "sha256_manifest": {
+    "entries": {
+      "vbpl/sample.jsonl": {
+        "sha256": "b04e47f2af41c54bcc3b10786560b546c03c0cf33cfec60faedc0e8911457674",
+        "size_bytes": 4462636
+      },
+      "th1nhng0/sample_metadata.jsonl": {
+        "sha256": "d2f6a110a6ccb5958667d7ebe5559eedd675294221d0dd5ca70ad311c8187ed6",
+        "size_bytes": 7091,
+        "source_method": "dataset_viewer_rows",
+        "sample_rows": 10,
+        "dataset": "th1nhng0/vietnamese-legal-documents",
+        "config": "metadata",
+        "split": "data",
+        "revision_guaranteed": false
+      },
+      "th1nhng0/sample_content.jsonl": {
+        "sha256": "78c99879211153dd66776eb4a42d3e3149fc7eefcc09cb573f136e69ab8f0980",
+        "size_bytes": 320544,
+        "source_method": "dataset_viewer_rows",
+        "sample_rows": 10,
+        "dataset": "th1nhng0/vietnamese-legal-documents",
+        "config": "content",
+        "split": "data",
+        "revision_guaranteed": false
+      },
+      "th1nhng0/sample_relationships.jsonl": {
+        "sha256": "a7b9cdc500e7a800534b434ecad829b5b0278044a00e3f154c0c60c9e9f9a8e3",
+        "size_bytes": 695,
+        "source_method": "dataset_viewer_rows",
+        "sample_rows": 10,
+        "dataset": "th1nhng0/vietnamese-legal-documents",
+        "config": "relationships",
+        "split": "data",
+        "revision_guaranteed": false
+      },
+      "th1nhng0/sample_legacy_metadata.jsonl": {
+        "sha256": "3e44710ef84857ad1372d46729cf91a175e74fd215dc09e77af34cdfccfb635c",
+        "size_bytes": 5815,
+        "source_method": "dataset_viewer_rows",
+        "sample_rows": 10,
+        "dataset": "th1nhng0/vietnamese-legal-documents",
+        "config": "legacy_metadata",
+        "split": "metadata",
+        "revision_guaranteed": false
+      }
+    },
+    "th1nhng0_sample_source": "dataset_viewer_rows",
+    "th1nhng0_sample_revision_guaranteed": false,
+    "th1nhng0_skipped_sample_configs": [
+      "legacy_content"
+    ]
+  }
+}

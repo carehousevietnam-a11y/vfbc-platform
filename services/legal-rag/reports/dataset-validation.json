@@ -1,0 +1,75 @@
+{
+  "total_documents": 120,
+  "total_relationships": 0,
+  "duplicate_group_count": 0,
+  "duplicate_groups_sample": [],
+  "categories": {
+    "official_url": {
+      "checked": 120,
+      "passed": 100,
+      "missing": 20,
+      "malformed": 0,
+      "examples": []
+    },
+    "document_number": {
+      "checked": 120,
+      "passed": 120,
+      "missing": 0,
+      "malformed": 0,
+      "examples": []
+    },
+    "issue_date": {
+      "checked": 120,
+      "passed": 120,
+      "missing": 0,
+      "malformed": 0,
+      "examples": []
+    },
+    "effective_date": {
+      "checked": 120,
+      "passed": 20,
+      "missing": 100,
+      "malformed": 0,
+      "examples": []
+    },
+    "status": {
+      "checked": 120,
+      "passed": 17,
+      "missing": 100,
+      "malformed": 3,
+      "examples": [
+        "th1nhng0-legacy:669819: rawStatus='Unknown' 매핑 실패(표준화 안 됨)",
+        "th1nhng0-legacy:616543: rawStatus='Expired' 매핑 실패(표준화 안 됨)",
+        "th1nhng0:8733: rawStatus='Chưa xác định' 매핑 실패(표준화 안 됨)"
+      ]
+    },
+    "title": {
+      "checked": 120,
+      "passed": 120,
+      "missing": 0,
+      "malformed": 0,
+      "examples": []
+    },
+    "content": {
+      "checked": 120,
+      "passed": 99,
+      "missing": 21,
+      "malformed": 0,
+      "examples": []
+    },
+    "html_residue": {
+      "checked": 120,
+      "passed": 99,
+      "missing": 0,
+      "malformed": 0,
+      "examples": []
+    },
+    "metadata_completeness": {
+      "checked": 120,
+      "passed": 120,
+      "missing": 0,
+      "malformed": 0,
+      "examples": []
+    }
+  }
+}

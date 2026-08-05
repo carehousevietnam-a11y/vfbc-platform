@@ -1,0 +1,377 @@
+{
+  "table_count": 7,
+  "index_count": 20,
+  "error_count": 0,
+  "warning_count": 0,
+  "tables": {
+    "legal_dataset_versions": {
+      "columns": [
+        "dataset_name",
+        "download_date",
+        "license",
+        "revision",
+        "sha256",
+        "verified"
+      ],
+      "primary_key": [
+        "dataset_name",
+        "revision"
+      ],
+      "foreign_keys": []
+    },
+    "legal_documents": {
+      "columns": [
+        "content_hash",
+        "created_at",
+        "document_number",
+        "document_type",
+        "effective_date",
+        "expiry_date",
+        "internal_id",
+        "issue_date",
+        "issuing_authority",
+        "official_document_id",
+        "official_url",
+        "raw_status",
+        "source_dataset",
+        "source_revision",
+        "status",
+        "title",
+        "updated_at"
+      ],
+      "primary_key": [
+        "internal_id"
+      ],
+      "foreign_keys": [
+        {
+          "local_columns": [
+            "source_dataset",
+            "source_revision"
+          ],
+          "ref_table": "legal_dataset_versions",
+          "ref_columns": [
+            "dataset_name",
+            "revision"
+          ]
+        }
+      ]
+    },
+    "legal_articles": {
+      "columns": [
+        "article_id",
+        "chuong_no",
+        "created_at",
+        "diem_no",
+        "dieu_no",
+        "document_id",
+        "heading",
+        "khoan_no",
+        "level",
+        "muc_no",
+        "parent_article_id",
+        "path",
+        "phan_no"
+      ],
+      "primary_key": [
+        "article_id"
+      ],
+      "foreign_keys": [
+        {
+          "local_columns": [
+            "document_id"
+          ],
+          "ref_table": "legal_documents",
+          "ref_columns": [
+            "internal_id"
+          ]
+        },
+        {
+          "local_columns": [
+            "parent_article_id"
+          ],
+          "ref_table": "legal_articles",
+          "ref_columns": [
+            "article_id"
+          ]
+        }
+      ]
+    },
+    "legal_chunks": {
+      "columns": [
+        "article_no",
+        "chapter_no",
+        "chunk_id",
+        "clause_no",
+        "content_hash",
+        "document_id",
+        "heading",
+        "item_no",
+        "normalized_text",
+        "official_url",
+        "original_text",
+        "search_text",
+        "status"
+      ],
+      "primary_key": [
+        "chunk_id"
+      ],
+      "foreign_keys": [
+        {
+          "local_columns": [
+            "document_id"
+          ],
+          "ref_table": "legal_documents",
+          "ref_columns": [
+            "internal_id"
+          ]
+        }
+      ]
+    },
+    "legal_relations": {
+      "columns": [
+        "effective_from",
+        "effective_to",
+        "relation_id",
+        "relation_type",
+        "source_article",
+        "source_document_id",
+        "target_article",
+        "target_document_id",
+        "verified"
+      ],
+      "primary_key": [
+        "relation_id"
+      ],
+      "foreign_keys": [
+        {
+          "local_columns": [
+            "source_document_id"
+          ],
+          "ref_table": "legal_documents",
+          "ref_columns": [
+            "internal_id"
+          ]
+        },
+        {
+          "local_columns": [
+            "target_document_id"
+          ],
+          "ref_table": "legal_documents",
+          "ref_columns": [
+            "internal_id"
+          ]
+        }
+      ]
+    },
+    "legal_effective_scopes": {
+      "columns": [
+        "article_no",
+        "clause_no",
+        "document_id",
+        "effective_from",
+        "effective_to",
+        "item_no",
+        "relation_id",
+        "scope_id",
+        "status"
+      ],
+      "primary_key": [
+        "scope_id"
+      ],
+      "foreign_keys": [
+        {
+          "local_columns": [
+            "document_id"
+          ],
+          "ref_table": "legal_documents",
+          "ref_columns": [
+            "internal_id"
+          ]
+        },
+        {
+          "local_columns": [
+            "relation_id"
+          ],
+          "ref_table": "legal_relations",
+          "ref_columns": [
+            "relation_id"
+          ]
+        }
+      ]
+    },
+    "legal_import_history": {
+      "columns": [
+        "dataset",
+        "errors",
+        "finished_at",
+        "import_id",
+        "imported_documents",
+        "revision",
+        "started_at",
+        "success",
+        "warnings"
+      ],
+      "primary_key": [
+        "import_id"
+      ],
+      "foreign_keys": [
+        {
+          "local_columns": [
+            "dataset",
+            "revision"
+          ],
+          "ref_table": "legal_dataset_versions",
+          "ref_columns": [
+            "dataset_name",
+            "revision"
+          ]
+        }
+      ]
+    }
+  },
+  "indexes": [
+    {
+      "name": "idx_legal_documents_document_number",
+      "table": "legal_documents",
+      "columns": [
+        "document_number"
+      ]
+    },
+    {
+      "name": "idx_legal_documents_official_url",
+      "table": "legal_documents",
+      "columns": [
+        "official_url"
+      ]
+    },
+    {
+      "name": "idx_legal_documents_status",
+      "table": "legal_documents",
+      "columns": [
+        "status"
+      ]
+    },
+    {
+      "name": "idx_legal_documents_issue_date",
+      "table": "legal_documents",
+      "columns": [
+        "issue_date"
+      ]
+    },
+    {
+      "name": "idx_legal_documents_effective_date",
+      "table": "legal_documents",
+      "columns": [
+        "effective_date"
+      ]
+    },
+    {
+      "name": "idx_legal_documents_content_hash",
+      "table": "legal_documents",
+      "columns": [
+        "content_hash"
+      ]
+    },
+    {
+      "name": "idx_legal_chunks_content_hash",
+      "table": "legal_chunks",
+      "columns": [
+        "content_hash"
+      ]
+    },
+    {
+      "name": "idx_legal_chunks_article_no",
+      "table": "legal_chunks",
+      "columns": [
+        "article_no"
+      ]
+    },
+    {
+      "name": "idx_legal_articles_dieu_no",
+      "table": "legal_articles",
+      "columns": [
+        "dieu_no"
+      ]
+    },
+    {
+      "name": "idx_legal_effective_scopes_article_no",
+      "table": "legal_effective_scopes",
+      "columns": [
+        "article_no"
+      ]
+    },
+    {
+      "name": "idx_legal_relations_relation_type",
+      "table": "legal_relations",
+      "columns": [
+        "relation_type"
+      ]
+    },
+    {
+      "name": "idx_legal_documents_source_dataset_revision",
+      "table": "legal_documents",
+      "columns": [
+        "source_dataset",
+        "source_revision"
+      ]
+    },
+    {
+      "name": "idx_legal_articles_document_id",
+      "table": "legal_articles",
+      "columns": [
+        "document_id"
+      ]
+    },
+    {
+      "name": "idx_legal_articles_parent_article_id",
+      "table": "legal_articles",
+      "columns": [
+        "parent_article_id"
+      ]
+    },
+    {
+      "name": "idx_legal_chunks_document_id",
+      "table": "legal_chunks",
+      "columns": [
+        "document_id"
+      ]
+    },
+    {
+      "name": "idx_legal_relations_source_document_id",
+      "table": "legal_relations",
+      "columns": [
+        "source_document_id"
+      ]
+    },
+    {
+      "name": "idx_legal_relations_target_document_id",
+      "table": "legal_relations",
+      "columns": [
+        "target_document_id"
+      ]
+    },
+    {
+      "name": "idx_legal_effective_scopes_document_id",
+      "table": "legal_effective_scopes",
+      "columns": [
+        "document_id"
+      ]
+    },
+    {
+      "name": "idx_legal_effective_scopes_relation_id",
+      "table": "legal_effective_scopes",
+      "columns": [
+        "relation_id"
+      ]
+    },
+    {
+      "name": "idx_legal_import_history_dataset_revision",
+      "table": "legal_import_history",
+      "columns": [
+        "dataset",
+        "revision"
+      ]
+    }
+  ],
+  "issues": []
+}

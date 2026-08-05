@@ -1,0 +1,27 @@
+# services/legal-rag 의존성
+# 아래 패키지들은 이번 STEP1-1에서 실제로 설치하고 단위/통합 테스트를 실행해
+# 검증했다(56개 테스트 전부 통과, 4-2번 실행결과 참고). 단, download_datasets.py의
+# 실제 네트워크 호출(huggingface_hub.snapshot_download / datasets.load_dataset)은
+# huggingface.co 접근 불가로 실행하지 못했다 — 이 부분만 사용자 로컬 PC에서 처음
+# 실행 시 검증 필요.
+
+datasets>=5.0.0          # 실제 설치: 5.0.1 — Hugging Face 데이터셋 스트리밍/로드
+huggingface_hub>=1.26.0   # 실제 설치: 1.26.0 — snapshot_download, revision pinning
+pandas>=3.0.0              # 실제 설치: 3.0.2
+pyarrow>=25.0.0             # 실제 설치: 25.0.0 — parquet 입출력 (audit_datasets.py에서 사용)
+tqdm>=4.66.0                 # download_datasets.py progress bar
+python-dotenv>=1.0.0          # .env 로드 (아직 코드에서 직접 사용하지 않음, .env.example 대응용)
+
+# 테스트
+pytest>=8.0.0                  # 실제 설치: 9.1.1 — tests/ 전체 56개 테스트 실행에 사용됨
+
+# 아래는 STEP2 이후에만 필요 (설치/사용하지 않음)
+# psycopg[binary]>=3.1.0   # STEP2 PostgreSQL 적재
+# pgvector>=0.2.5            # STEP5
+
+# STEP5-3(OpenAI RAG Connector)에서 실제 설치·확인: openai==2.53.0
+# (client.chat.completions.create 인터페이스 확인됨). 이 STEP에서는 실제 API를
+# 호출하지 않으며, 테스트는 전부 Mock Client로 실행된다.
+openai>=1.30.0
+
+# fastapi>=0.111.0            # STEP7

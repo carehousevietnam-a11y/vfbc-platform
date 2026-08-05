@@ -1,0 +1,28 @@
+{
+  "total_rows": 120,
+  "mapped_rows": 120,
+  "field_hit_counts": {
+    "sourceDocumentId": 120,
+    "officialUrl": 100,
+    "gatewayUrl": 100,
+    "documentNumberRaw": 120,
+    "documentType": 120,
+    "title": 120,
+    "issuingAuthority": 120,
+    "issueDateRaw": 120,
+    "bodyRaw": 99,
+    "effectiveDateRaw": 20,
+    "rawStatus": 20,
+    "expiryDateRaw": 4
+  },
+  "field_miss_counts": {
+    "effectiveDateRaw": 100,
+    "expiryDateRaw": 116,
+    "rawStatus": 100,
+    "bodyRaw": 21,
+    "officialUrl": 20,
+    "gatewayUrl": 20
+  },
+  "issue_count": 0,
+  "issues_sample": []
+}

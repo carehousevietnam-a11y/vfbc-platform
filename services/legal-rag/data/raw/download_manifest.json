@@ -1,0 +1,53 @@
+{
+  "entries": {
+    "vbpl/sample.jsonl": {
+      "sha256": "b04e47f2af41c54bcc3b10786560b546c03c0cf33cfec60faedc0e8911457674",
+      "size_bytes": 4462636
+    },
+    "th1nhng0/sample_metadata.jsonl": {
+      "sha256": "d2f6a110a6ccb5958667d7ebe5559eedd675294221d0dd5ca70ad311c8187ed6",
+      "size_bytes": 7091,
+      "source_method": "dataset_viewer_rows",
+      "sample_rows": 10,
+      "dataset": "th1nhng0/vietnamese-legal-documents",
+      "config": "metadata",
+      "split": "data",
+      "revision_guaranteed": false
+    },
+    "th1nhng0/sample_content.jsonl": {
+      "sha256": "78c99879211153dd66776eb4a42d3e3149fc7eefcc09cb573f136e69ab8f0980",
+      "size_bytes": 320544,
+      "source_method": "dataset_viewer_rows",
+      "sample_rows": 10,
+      "dataset": "th1nhng0/vietnamese-legal-documents",
+      "config": "content",
+      "split": "data",
+      "revision_guaranteed": false
+    },
+    "th1nhng0/sample_relationships.jsonl": {
+      "sha256": "a7b9cdc500e7a800534b434ecad829b5b0278044a00e3f154c0c60c9e9f9a8e3",
+      "size_bytes": 695,
+      "source_method": "dataset_viewer_rows",
+      "sample_rows": 10,
+      "dataset": "th1nhng0/vietnamese-legal-documents",
+      "config": "relationships",
+      "split": "data",
+      "revision_guaranteed": false
+    },
+    "th1nhng0/sample_legacy_metadata.jsonl": {
+      "sha256": "3e44710ef84857ad1372d46729cf91a175e74fd215dc09e77af34cdfccfb635c",
+      "size_bytes": 5815,
+      "source_method": "dataset_viewer_rows",
+      "sample_rows": 10,
+      "dataset": "th1nhng0/vietnamese-legal-documents",
+      "config": "legacy_metadata",
+      "split": "metadata",
+      "revision_guaranteed": false
+    }
+  },
+  "th1nhng0_sample_source": "dataset_viewer_rows",
+  "th1nhng0_sample_revision_guaranteed": false,
+  "th1nhng0_skipped_sample_configs": [
+    "legacy_content"
+  ]
+}

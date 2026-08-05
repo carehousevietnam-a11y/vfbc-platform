@@ -1,0 +1,66 @@
+{
+  "stages": [
+    {
+      "name": "normalize",
+      "ok": true,
+      "detail": "4/4행 매핑 성공, 필드 누락={'effectiveDateRaw': 4, 'expiryDateRaw': 4, 'rawStatus': 2, 'gatewayUrl': 3, 'documentNumberRaw': 1, 'issuingAuthority': 1, 'issueDateRaw': 1, 'bodyRaw': 1, 'officialUrl': 2, 'documentType': 2}",
+      "count": 4
+    },
+    {
+      "name": "dataset_validation",
+      "ok": true,
+      "detail": "official_url 누락=2, content 누락=1, 중복그룹=1",
+      "count": 0
+    },
+    {
+      "name": "deduplicate",
+      "ok": true,
+      "detail": "4건 -> 3건 (중복 그룹 1개)",
+      "count": 3
+    },
+    {
+      "name": "parse_structure",
+      "ok": true,
+      "detail": "3개 문서 -> 6개 chunk (구조 인식 실패 0건)",
+      "count": 6
+    },
+    {
+      "name": "parse_structure.khoan_diem_split",
+      "ok": true,
+      "detail": "장문 조항에서 Khoản/Điểm 분리 확인됨: 3개",
+      "count": 0
+    },
+    {
+      "name": "relationships",
+      "ok": true,
+      "detail": "2개 edge 생성, 미분류 라벨 1건",
+      "count": 2
+    },
+    {
+      "name": "effective_scopes",
+      "ok": true,
+      "detail": "6건 생성",
+      "count": 6
+    }
+  ],
+  "search_smoke_tests": [
+    {
+      "name": "search_by_document_number",
+      "ok": true,
+      "detail": "query='152/2020/NĐ-CP' -> 1건"
+    },
+    {
+      "name": "search_by_document_id",
+      "ok": true,
+      "detail": "query='tmquan:186739' -> 1건"
+    },
+    {
+      "name": "browse_by_status_filter",
+      "ok": true,
+      "detail": "status=active -> 0건(0건도 정상일 수 있음)"
+    }
+  ],
+  "problems": [
+    "관계 라벨 미분류(수동 매핑 검토 필요): 'Loại quan hệ không xác định XYZ' (1건)"
+  ]
+}

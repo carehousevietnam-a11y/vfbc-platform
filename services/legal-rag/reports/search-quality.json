@@ -1,0 +1,56 @@
+{
+  "exact_success": {
+    "numerator": 120,
+    "denominator": 120,
+    "rate": 1.0,
+    "examples": []
+  },
+  "keyword_success": {
+    "numerator": 99,
+    "denominator": 99,
+    "rate": 1.0,
+    "examples": []
+  },
+  "document_match": {
+    "numerator": 120,
+    "denominator": 120,
+    "rate": 1.0,
+    "examples": []
+  },
+  "article_match": {
+    "numerator": 1,
+    "denominator": 1,
+    "rate": 1.0,
+    "examples": []
+  },
+  "relationship_match": {
+    "numerator": 0,
+    "denominator": 10,
+    "rate": 0.0,
+    "examples": [
+      "관계 th1nhng0:106046->th1nhng0:36867(references) 필터 검색 실패",
+      "관계 th1nhng0:84010->th1nhng0:20068(references) 필터 검색 실패",
+      "관계 th1nhng0:92312->th1nhng0:22281(references) 필터 검색 실패",
+      "관계 th1nhng0:129653->th1nhng0:70800(references) 필터 검색 실패",
+      "관계 th1nhng0:172915->th1nhng0:70803(references) 필터 검색 실패",
+      "관계 th1nhng0:186055->th1nhng0:174000(references) 필터 검색 실패",
+      "관계 th1nhng0:48807->th1nhng0:17855(references) 필터 검색 실패",
+      "관계 th1nhng0:67741->th1nhng0:60249(references) 필터 검색 실패",
+      "관계 th1nhng0:67738->th1nhng0:33544(references) 필터 검색 실패",
+      "관계 th1nhng0:43916->th1nhng0:17855(references) 필터 검색 실패"
+    ]
+  },
+  "status_match": {
+    "numerator": 1,
+    "denominator": 1,
+    "rate": 1.0,
+    "examples": []
+  },
+  "parsing_errors": 98,
+  "missing_documents": 21,
+  "duplicate_documents": 0,
+  "html_errors": 0,
+  "notes": [
+    "파이프라인 실행 중 1건 문제 발견(real-dataset-pipeline.md 참고)"
+  ]
+}
