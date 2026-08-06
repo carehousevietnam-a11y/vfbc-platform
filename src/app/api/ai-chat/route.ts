@@ -48,6 +48,8 @@ import {
   NEEDS_EXPERT_TOKEN,
 } from "@/lib/aiCaseContext";
 import { saveUserChatMessage, saveAssistantChatMessage } from "@/lib/caseMessages";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { reviewLegalCase, type LegalRagServiceGroup } from "@/lib/legal-rag-client";
 import {
   classifyMessage,
   buildProgressAnswer,
@@ -64,6 +66,43 @@ type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_MESSAGES = 20; // 토큰 사용량/남용 방지 — 최근 대화만 컨텍스트로 전달
+const STANDARD_AI_ERROR = "AI 상담 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isLegalRagServiceGroup(value: unknown): value is LegalRagServiceGroup {
+  return value === "check" || value === "verify" || value === "register";
+}
+
+function extractLegalRagChatResult(
+  data: unknown
+): { ok: true; reply: string; needsExpert: boolean } | { ok: false } {
+  if (!isRecord(data) || !isRecord(data.review)) return { ok: false };
+  if (data.review.status !== "success") return { ok: false };
+  if (typeof data.review.expert_review_required !== "boolean") return { ok: false };
+
+  let customerSummary: unknown;
+  if (isRecord(data.customer) && isRecord(data.customer.review)) {
+    customerSummary = data.customer.review.ai_summary;
+  }
+
+  const replyCandidate =
+    typeof customerSummary === "string" && customerSummary.trim()
+      ? customerSummary.trim()
+      : typeof data.review.summary === "string" && data.review.summary.trim()
+        ? data.review.summary.trim()
+        : null;
+
+  if (!replyCandidate) return { ok: false };
+
+  return {
+    ok: true,
+    reply: replyCandidate,
+    needsExpert: data.review.expert_review_required,
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -75,8 +114,9 @@ export async function POST(req: NextRequest) {
       // 고객 메시지 없이도 AI가 먼저 사건을 요약해 인사하도록 한다.
       // leadId가 있는 Case Room 전용 — 익명 모드에서는 지원하지 않는다.
       mode?: "chat" | "greeting";
+      language?: string;
     };
-    const { accessToken, leadId, messages, mode } = body;
+    const { accessToken, leadId, messages, mode, language } = body;
     const isGreeting = mode === "greeting";
     // STEP9-UI: leadId가 없으면 익명(공개) 문의로 취급한다. accessToken만
     // 오고 leadId가 없는 경우도 동일하게 익명 처리(사건에 귀속시킬 수 없음).
@@ -178,10 +218,87 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ reply, needsExpert, category, actions });
       }
-      // category === "ai_analysis" → 아래 기존 OpenAI 흐름으로 이어진다.
+      // STEP19 파일럿: 인증된 사건의 ai_analysis이면서 실제 서비스 그룹이
+      // check/verify/register인 경우에만 Legal RAG를 사용한다. 호출을 시작한 뒤
+      // 실패하면 기존 OpenAI로 자동 fallback하지 않는다.
+      if (!isAnonymous) {
+        const caseContext = await buildCaseContext(leadId as string);
+        if (!caseContext) {
+          return NextResponse.json({ error: "신청 건을 찾을 수 없습니다." }, { status: 404 });
+        }
+
+        if (isLegalRagServiceGroup(caseContext.category)) {
+          const { data: leadRow, error: leadError } = await supabaseAdmin
+            .from("leads")
+            .select("service_type")
+            .eq("id", leadId as string)
+            .maybeSingle();
+
+          const serviceType =
+            !leadError && typeof leadRow?.service_type === "string"
+              ? leadRow.service_type.trim()
+              : "";
+
+          if (!serviceType) {
+            console.error("ai-chat: Legal RAG service_type lookup failed");
+            return NextResponse.json({ error: STANDARD_AI_ERROR }, { status: 500 });
+          }
+
+          const savedUser = await saveUserChatMessage(leadId as string, lastMessage!.content);
+          if (!savedUser) {
+            console.error("ai-chat: 고객 질문 저장 실패 (Legal RAG)");
+          }
+
+          const legalRagResult = await reviewLegalCase({
+            question: lastMessage!.content.trim(),
+            language: typeof language === "string" && language.trim() ? language.trim() : "ko",
+            audience: "all",
+            context: {
+              lead_id: leadId as string,
+              service_type: serviceType,
+              service_group: caseContext.category,
+            },
+          });
+
+          if (!legalRagResult.ok) {
+            console.error("ai-chat: Legal RAG request failed", { status: legalRagResult.status });
+            return NextResponse.json(
+              { error: STANDARD_AI_ERROR },
+              { status: legalRagResult.status }
+            );
+          }
+
+          const mapped = extractLegalRagChatResult(legalRagResult.data);
+          if (!mapped.ok) {
+            console.error("ai-chat: Legal RAG response schema/status rejected");
+            return NextResponse.json({ error: STANDARD_AI_ERROR }, { status: 502 });
+          }
+
+          const reply = mapped.reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+          const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
+          const actions = action ? [action] : [];
+
+          const savedReply = await saveAssistantChatMessage(
+            leadId as string,
+            reply,
+            mapped.needsExpert
+          );
+          if (!savedReply) {
+            console.error("ai-chat: Legal RAG 답변 저장 실패");
+          }
+
+          return NextResponse.json({
+            reply,
+            needsExpert: mapped.needsExpert,
+            category: "ai_analysis",
+            actions,
+          });
+        }
+      }
+      // 익명 ai_analysis 및 consultation/unclassified 사건은 기존 OpenAI 흐름 유지.
     }
 
-    // ── 4. 환경변수 확인 (ai_analysis·인사말 경로에서만 필요) ──
+    // ── 4. 환경변수 확인 (기존 OpenAI 대상 ai_analysis·인사말 경로) ──
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       console.error("ai-chat: OPENAI_API_KEY 환경변수가 설정되지 않았습니다.");
