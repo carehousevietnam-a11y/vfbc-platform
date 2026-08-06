@@ -80,6 +80,17 @@ function ChatContent() {
   const [state, setState] = useState<LoadState>("checking");
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
+  // [STEP20-5] 로그인 버튼용 next 값. leadId를 직접 조립하지 않고
+  // 현재 URL(pathname+쿼리스트링) 전체를 그대로 캡처한다 — SiteHeader.tsx의
+  // 동일 패턴을 그대로 재사용했다(leadId 등 어떤 파라미터도 하드코딩하지
+  // 않음). 로그인 성공 후 이 leadId의 Case Room으로 자동 복귀한다.
+  const [loginHref, setLoginHref] = useState("/login");
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const next = `${window.location.pathname}${window.location.search}`;
+    setLoginHref(`/login?next=${encodeURIComponent(next)}`);
+  }, []);
+
   const [caseContext, setCaseContext] = useState<CaseContextSummary | null>(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [messages, setMessages] = useState<CaseMessage[]>([]);
@@ -405,8 +416,14 @@ function ChatContent() {
           <div className="rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-sm font-bold text-gray-900">로그인이 필요합니다</p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              마이페이지에서 &quot;결과 확인&quot; 링크로 접속하신 뒤 다시 시도해주세요.
+              로그인 후 이 상담(Case Room)으로 자동으로 돌아옵니다.
             </p>
+            <Link
+              href={loginHref}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
+            >
+              로그인
+            </Link>
           </div>
         </div>
       )}
