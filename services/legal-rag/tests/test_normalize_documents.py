@@ -12,7 +12,11 @@ def test_standardize_status_active():
 
 
 def test_standardize_status_fully_expired():
-    assert standardize_status("Hết hiệu lực toàn bộ") == DocumentStatus.FULLY_EXPIRED
+    assert standardize_status("Hết hiệu lực toàn bộ") == DocumentStatus.REPEALED
+
+
+def test_standardize_status_partially_expired_maps_to_amended():
+    assert standardize_status("Hết hiệu lực một phần") == DocumentStatus.AMENDED
 
 
 def test_standardize_status_unknown_for_unmapped():
@@ -35,7 +39,7 @@ def test_normalize_vbpl_row_basic_fields():
         "issuing_authority": "Bộ Tư pháp",
         "markdown": "Điều 1. Phạm vi điều chỉnh\nQuyết định này quy định...",
     }
-    doc = normalize_vbpl_row(row)
+    doc, _ = normalize_vbpl_row(row)
     assert doc.documentId == "tmquan:186739"
     assert doc.sourceDataset == "tmquan_vbpl_vn"
     assert doc.documentNumber == ["143/QĐ-KHTC"]
@@ -48,7 +52,7 @@ def test_normalize_vbpl_row_basic_fields():
 
 def test_normalize_vbpl_row_handles_null_body():
     row = {"doc_name": "1", "markdown": None, "doc_number": None}
-    doc = normalize_vbpl_row(row)
+    doc, _ = normalize_vbpl_row(row)
     assert doc.originalText is None
     assert doc.normalizedText is None
     assert doc.contentHash is None
@@ -65,7 +69,7 @@ def test_normalize_th1nhng0_metadata_row_with_content_join():
         "tinh_trang_hieu_luc": "Còn hiệu lực",
     }
     content_by_id = {"4260": "<p>Nội dung quyết định...</p>"}
-    doc = normalize_th1nhng0_metadata_row(row, content_by_id)
+    doc, _ = normalize_th1nhng0_metadata_row(row, content_by_id)
     assert doc.documentId == "th1nhng0:4260"
     assert doc.issueDate == "2014-12-15"
     assert doc.status == "active"
@@ -76,9 +80,9 @@ def test_normalize_th1nhng0_metadata_row_with_content_join():
 
 def test_normalize_th1nhng0_metadata_row_without_content():
     row = {"id": "1", "title": "T", "tinh_trang_hieu_luc": "Hết hiệu lực toàn bộ"}
-    doc = normalize_th1nhng0_metadata_row(row)
+    doc, _ = normalize_th1nhng0_metadata_row(row)
     assert doc.originalText is None
-    assert doc.status == "fully_expired"
+    assert doc.status == "repealed"
 
 
 def test_normalize_th1nhng0_legacy_row():
@@ -93,7 +97,7 @@ def test_normalize_th1nhng0_legacy_row():
         "effectless_date": "",
         "effect_status": "In effect",
     }
-    doc = normalize_th1nhng0_legacy_row(row)
+    doc, _ = normalize_th1nhng0_legacy_row(row)
     assert doc.documentId == "th1nhng0-legacy:999"
     assert doc.issueDate == "2015-12-04"
     assert doc.effectiveDate == "2016-01-01"

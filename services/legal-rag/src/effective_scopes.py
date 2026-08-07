@@ -43,7 +43,7 @@ from .schema import EffectiveScope, RelationType
 logger = logging.getLogger("legal_rag.effective_scopes")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-_SCOPE_ENDING_RELATIONS = {RelationType.REPEALS.value, RelationType.REPLACES.value, RelationType.SUPERSEDES.value}
+_SCOPE_ENDING_RELATIONS = {RelationType.REPEALS.value, RelationType.SUPERSEDES.value}
 
 _DIEU_NO_RE = re.compile(r"Điều\s+(\d+)", re.IGNORECASE)
 _KHOAN_NO_RE = re.compile(r"Khoản\s+(\d+)", re.IGNORECASE)
