@@ -14,15 +14,16 @@
 
 ### 1-3_search_152_2020
 - **verdict**: (a) 데이터 부재였으나 rework로 해결됨 — 152/2020/NĐ-CP 추가 후 exact_document_number 매치 2건 확인
-- **detail**: 200건 manifest에 152/2020/NĐ-CP 포함: True. 검색 hit: 2 (score 100, match_type=exact_document_number)
+- **detail**: 200건 manifest에 152/2020/NĐ-CP 포함: True. 검색 hit: 3 (score 100, match_type=exact_document_number)
 - **152_in_corpus**: True
 - **additional_finding_criminal_query**: 'lừa đảo chiếm đoạt tài sản' 0건은 검색 버그가 아니라 원문 markdown 표기 차이: Bộ luật Hình sự(100/2015/QH13) 본문은 'lừa đảo chiếm đọat tài sản'(đọat, 성조 위치 다름)로 추출되어 있어 정확한 phrase 'chiếm đoạt'와 불일치. phrase-exact 키워드 검색의 한계이며 임베딩/의미검색은 이번 범위에서 구현하지 않음(kickoff §하지 않을 것).
 - **additional_finding_realestate_query**: 'quyền sử dụng đất người nước ngoài' 0건은 Luật Đất đai 2024(31/2024/QH15) 원문에 'người nước ngoài'라는 정확한 문구가 없기 때문(대신 '외국인투자 경제조직' 등 다른 법률 용어 사용). phrase 매칭의 한계이며 데이터 누락이 아님.
-- **chunking_note**: 대형 법전(Bộ luật Hình sự 554K자, Luật Đất đai 522K자)이 단일 1개 chunk로 처리됨. 원인: normalize_vietnamese_text()가 줄바꿈을 공백으로 접어 연속 문자열로 만들고, parse_legal_structure.py의 ^\s*Điều 정규식은 줄 시작( MULTILINE )만 인식 — 접힌 본문에서 'Điều 1.'이 줄 중간에 있으면 마커 0건 → fallback 단일 chunk. 해결 방향(1,000건 이후): 파서에 비-줄시작 마커 분할 추가, 또는 정규화 시 Chương/Điều/Khoản 앞에 줄바꿈 보존.
+- **chunking_note**: 대형 법전 단일 청크 문제 — 수정됨(normalize_vietnamese_text에 Phần/Chương/Mục/Điều 마커 앞 개행 삽입). tmquan markdown은 줄바꿈 0인 연속 문자열이 원인이었음. 단일청크: 170→56건(청크 있는 문서 기준), 총 청크 170→4635. Bộ luật Hình sự 426조, Luật Đất đai 2024 260조 분할 확인.
 
 ### 2-round2_bugs_fixed
 - **bug1_authorityWeight**: tmquan doc_type 'luat'/'bo_luat'가 authority_weight 패턴(bo luat, bộ luật)과 불일치 → 30점 fallback. ^luat$|^bo_luat$ 패턴 추가 후 luat/bo_luat 35건 모두 100점.
-- **bug2_vat_search**: 106/2016/QH13은 tmquan markdown 본문 비어 있어 chunk 없음 + RealEstate 문서는 본문 'Căn cứ Luật Thuế giá trị gia tăng' 인용으로 phrase 매치. search_title_only_documents()로 chunk 없는 문서 제목 검색 추가 — VAT 질의 1위: 106/2016/QH13 (score 75, title phrase).
+- **bug2_vat_search**: 106/2016/QH13은 tmquan markdown 본문 비어 있어 chunk 없음 + RealEstate 문서는 본문 'Căn cứ Luật Thuế giá trị gia tăng' 인용으로 phrase 매치. search_title_only_documents()로 chunk 없는 문서 제목 검색 추가 — VAT 질의 1위: 106/2016/QH13 (score 75, title phrase). 빈 본문 30/200건 — 전부 tmquan char_len=0, body_source=shell_html (원본 데이터 결함).
+- **issue3_structure_newlines**: normalize_vietnamese_text()에 Phần/Chương/Mục/Điều 마커 앞 개행 삽입 추가 — tmquan markdown이 줄바꿈 없이 저장된 경우 parse_legal_structure가 조/항 분할 가능.
 
 ### rework_swaps
 - **removed**: 83
@@ -322,9 +323,9 @@
 
 ## 5. Sample search queries
 - **외국인 노동허가 요건** → 0건
-- **giấy phép lao động người nước ngoài** → 3건
+- **giấy phép lao động người nước ngoài** → 5건
   - ['23/2017/TT-BLĐTBXH'] | Hướng dẫn thực hiện cấp giấy phép lao động cho người lao độn
-  - ['28-TC/TCT'] | hướng dẫn chế độ thu, nộp và quản lý lệ phí cấp giấy phép la
+  - ['23/2017/TT-BLĐTBXH'] | Hướng dẫn thực hiện cấp giấy phép lao động cho người lao độn
 - **베트남 부동산 매매 시 외국인 제한** → 0건
 - **quyền sử dụng đất người nước ngoài** → 0건
 - **사기 계약 관련 hình sự** → 0건
@@ -337,7 +338,7 @@
   - ['19/2016/TT-BXD'] | Hướng dẫn thực hiện một số nội dung của Luật Nhà ở và của Ch
 - **thủ tục hành chính** → 5건
   - ['19/2011/TT-BNNPTNT'] | Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chí
-  - ['22/2011/TT-BNNPTNT'] | Sửa đổi, bổ sung một số quy định về thủ tục hành chính trong
-- **152/2020/NĐ-CP** → 2건
+  - ['19/2011/TT-BNNPTNT'] | Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chí
+- **152/2020/NĐ-CP** → 3건
   - ['152/2020/NĐ-CP'] | Quy định về người lao động nước ngoài làm việc tại Việt Nam 
   - ['70/2023/NĐ-CP'] | Sửa đổi, bổ sung một số điều của của Chính phủ quy định về n

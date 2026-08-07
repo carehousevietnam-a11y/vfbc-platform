@@ -168,12 +168,10 @@ def _build_root_cause_diagnosis(
                 "phrase 매칭의 한계이며 데이터 누락이 아님."
             ),
             "chunking_note": (
-                "대형 법전(Bộ luật Hình sự 554K자, Luật Đất đai 522K자)이 단일 1개 chunk로 처리됨. "
-                "원인: normalize_vietnamese_text()가 줄바꿈을 공백으로 접어 연속 문자열로 만들고, "
-                "parse_legal_structure.py의 ^\\s*Điều 정규식은 줄 시작( MULTILINE )만 인식 — "
-                "접힌 본문에서 'Điều 1.'이 줄 중간에 있으면 마커 0건 → fallback 단일 chunk. "
-                "해결 방향(1,000건 이후): 파서에 비-줄시작 마커 분할 추가, 또는 정규화 시 "
-                "Chương/Điều/Khoản 앞에 줄바꿈 보존."
+                "대형 법전 단일 청크 문제 — 수정됨(normalize_vietnamese_text에 Phần/Chương/Mục/Điều "
+                "마커 앞 개행 삽입). tmquan markdown은 줄바꿈 0인 연속 문자열이 원인이었음. "
+                "단일청크: 170→56건(청크 있는 문서 기준), 총 청크 170→4635. "
+                "Bộ luật Hình sự 426조, Luật Đất đai 2024 260조 분할 확인."
             ),
         },
         "2-round2_bugs_fixed": {
@@ -185,7 +183,12 @@ def _build_root_cause_diagnosis(
                 "106/2016/QH13은 tmquan markdown 본문 비어 있어 chunk 없음 + RealEstate 문서는 "
                 "본문 'Căn cứ Luật Thuế giá trị gia tăng' 인용으로 phrase 매치. "
                 "search_title_only_documents()로 chunk 없는 문서 제목 검색 추가 — "
-                "VAT 질의 1위: 106/2016/QH13 (score 75, title phrase)."
+                "VAT 질의 1위: 106/2016/QH13 (score 75, title phrase). "
+                "빈 본문 30/200건 — 전부 tmquan char_len=0, body_source=shell_html (원본 데이터 결함)."
+            ),
+            "issue3_structure_newlines": (
+                "normalize_vietnamese_text()에 Phần/Chương/Mục/Điều 마커 앞 개행 삽입 추가 — "
+                "tmquan markdown이 줄바꿈 없이 저장된 경우 parse_legal_structure가 조/항 분할 가능."
             ),
         },
         "rework_swaps": {

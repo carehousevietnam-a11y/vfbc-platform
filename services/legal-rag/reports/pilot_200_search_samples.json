@@ -6,14 +6,14 @@
   },
   {
     "query": "giấy phép lao động người nước ngoài",
-    "hit_count": 3,
+    "hit_count": 5,
     "top_hits": [
       {
         "document_number": [
           "23/2017/TT-BLĐTBXH"
         ],
         "title": "Hướng dẫn thực hiện cấp giấy phép lao động cho người lao động nước ngoài làm việc tại Việt Nam qua mạng điện tử",
-        "article_no": null,
+        "article_no": "1",
         "clause_no": null,
         "status": "active",
         "score": 15.0,
@@ -21,10 +21,10 @@
       },
       {
         "document_number": [
-          "28-TC/TCT"
+          "23/2017/TT-BLĐTBXH"
         ],
-        "title": "hướng dẫn chế độ thu, nộp và quản lý lệ phí cấp giấy phép lao động cho người nước ngoài làm việc tại các doanh nghiệp, tổ chức ở Việt Nam",
-        "article_no": null,
+        "title": "Hướng dẫn thực hiện cấp giấy phép lao động cho người lao động nước ngoài làm việc tại Việt Nam qua mạng điện tử",
+        "article_no": "2",
         "clause_no": null,
         "status": "active",
         "score": 15.0,
@@ -32,12 +32,12 @@
       },
       {
         "document_number": [
-          "35/2016/TT-BCT"
+          "23/2017/TT-BLĐTBXH"
         ],
-        "title": "Quy định việc xác định người lao động nước ngoài di chuyển trong nội bộ doanh nghiệp thuộc phạm vi mười một ngành dịch vụ trong Biểu cam kết cụ thể về dịch vụ của Việt Nam với Tổ chức thương mại thế giới không thuộc diện cấp giấy phép lao động",
-        "article_no": null,
+        "title": "Hướng dẫn thực hiện cấp giấy phép lao động cho người lao động nước ngoài làm việc tại Việt Nam qua mạng điện tử",
+        "article_no": "3",
         "clause_no": null,
-        "status": "repealed",
+        "status": "active",
         "score": 15.0,
         "match_type": "keyword_all_terms"
       }
@@ -72,7 +72,7 @@
           "105/2016/QH13"
         ],
         "title": "Luật Dược số",
-        "article_no": null,
+        "article_no": "38",
         "clause_no": null,
         "status": "amended",
         "score": 50.0,
@@ -83,7 +83,7 @@
           "80/2021/NĐ-CP"
         ],
         "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Luật Hỗ trợ doanh nghiệp nhỏ và vừa",
-        "article_no": null,
+        "article_no": "10",
         "clause_no": null,
         "status": "active",
         "score": 50.0,
@@ -91,12 +91,12 @@
       },
       {
         "document_number": [
-          "10/2020/NĐ-CP"
+          "80/2021/NĐ-CP"
         ],
-        "title": "Quy định về kinh doanh và điều kiện kinh doanh vận tải bằng xe ô tô",
-        "article_no": null,
+        "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Luật Hỗ trợ doanh nghiệp nhỏ và vừa",
+        "article_no": "13",
         "clause_no": null,
-        "status": "repealed",
+        "status": "active",
         "score": 50.0,
         "match_type": "keyword_phrase"
       }
@@ -122,7 +122,7 @@
           "19/2016/TT-BXD"
         ],
         "title": "Hướng dẫn thực hiện một số nội dung của Luật Nhà ở và của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Luật Nhà ở",
-        "article_no": null,
+        "article_no": "3",
         "clause_no": null,
         "status": "repealed",
         "score": 50.0,
@@ -130,12 +130,12 @@
       },
       {
         "document_number": [
-          "27/2023/QH15"
+          "19/2016/TT-BXD"
         ],
-        "title": "Luật Nhà ở số",
-        "article_no": null,
+        "title": "Hướng dẫn thực hiện một số nội dung của Luật Nhà ở và của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Luật Nhà ở",
+        "article_no": "13",
         "clause_no": null,
-        "status": "amended",
+        "status": "repealed",
         "score": 50.0,
         "match_type": "keyword_phrase"
       }
@@ -150,7 +150,7 @@
           "19/2011/TT-BNNPTNT"
         ],
         "title": "Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chính trong lĩnh vực chăn nuôi theo",
-        "article_no": null,
+        "article_no": "1",
         "clause_no": null,
         "status": "amended",
         "score": 75.0,
@@ -158,21 +158,21 @@
       },
       {
         "document_number": [
-          "22/2011/TT-BNNPTNT"
+          "19/2011/TT-BNNPTNT"
         ],
-        "title": "Sửa đổi, bổ sung một số quy định về thủ tục hành chính trong lĩnh vực kinh tế hợp tác và phát triển nông thôn, thi đua khen thưởng, quản lý đề tài khoa học theo",
-        "article_no": null,
+        "title": "Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chính trong lĩnh vực chăn nuôi theo",
+        "article_no": "2",
         "clause_no": null,
-        "status": "active",
+        "status": "amended",
         "score": 75.0,
         "match_type": "keyword_phrase"
       },
       {
         "document_number": [
-          "04/2016/TT-BCT"
+          "19/2011/TT-BNNPTNT"
         ],
-        "title": "Sửa đổi, bổ sung một số Thông tư của Bộ trưởng Bộ Công Thương về thủ tục hành chính trong lĩnh vực thương mại điện tử, hóa chất, sản xuất kinh doanh rượu, nhượng quyền thương mại, hoạt động mua bán hàng hóa qua sở giao dịch hàng hóa, năng lượng, an toàn thực phẩm và điện lực",
-        "article_no": null,
+        "title": "Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chính trong lĩnh vực chăn nuôi theo",
+        "article_no": "12",
         "clause_no": null,
         "status": "amended",
         "score": 75.0,
@@ -182,7 +182,7 @@
   },
   {
     "query": "152/2020/NĐ-CP",
-    "hit_count": 2,
+    "hit_count": 3,
     "top_hits": [
       {
         "document_number": [
@@ -200,7 +200,18 @@
           "70/2023/NĐ-CP"
         ],
         "title": "Sửa đổi, bổ sung một số điều của của Chính phủ quy định về người lao động nước ngoài làm việc tại Việt Nam và tuyển dụng, quản lý người lao động Việt Nam làm việc cho tổ chức, cá nhân nước ngoài tại Việt Nam",
-        "article_no": null,
+        "article_no": "1",
+        "clause_no": null,
+        "status": "amended",
+        "score": 30.0,
+        "match_type": "keyword_prefix"
+      },
+      {
+        "document_number": [
+          "70/2023/NĐ-CP"
+        ],
+        "title": "Sửa đổi, bổ sung một số điều của của Chính phủ quy định về người lao động nước ngoài làm việc tại Việt Nam và tuyển dụng, quản lý người lao động Việt Nam làm việc cho tổ chức, cá nhân nước ngoài tại Việt Nam",
+        "article_no": "13",
         "clause_no": null,
         "status": "amended",
         "score": 30.0,
