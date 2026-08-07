@@ -15,7 +15,7 @@ def test_map_relation_type_repeals():
 
 
 def test_map_relation_type_replaces():
-    assert map_relation_type("Thay thế") == RelationType.REPLACES
+    assert map_relation_type("Thay thế") == RelationType.SUPERSEDES
 
 
 def test_map_relation_type_supersedes():

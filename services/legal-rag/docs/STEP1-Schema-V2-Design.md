@@ -1,6 +1,6 @@
 # STEP 1 — CanonicalDocument Schema V2 (Merged Design)
 
-**Status: 검토 대기 v3 (Review pending — 코드 미적용)**
+**Status: 구현 완료 (STEP1 Schema V2 applied)**
 
 이 문서는 아래 두 애드덤을 병합한 STEP 1 최종 설계안이다.
 
@@ -311,7 +311,7 @@ supersedes / supersededBy / amends / amendedBy
 
 → SoT + 파생 패턴으로 구현 가능하며, **권장 방식**이다.
 
-### 6.2 RelationType enum (11개)
+### 6.2 RelationType enum (12개)
 
 `relatedDocuments` 각 항목: `{ "documentId": "...", "relationType": "..." }`
 
@@ -321,7 +321,8 @@ amends, amended_by,
 supersedes, superseded_by,
 repeals, repealed_by,
 references, referenced_by,
-related_to
+related_to,
+unknown
 ```
 
 | relationType | 설명 |
@@ -337,8 +338,9 @@ related_to
 | `references` | 인용/참조 |
 | `referenced_by` | 역방향 |
 | `related_to` | 최후 수단 (남용 금지 — 비율 높으면 분류 오류로 간주) |
+| `unknown` | 미분류 — `related_to`로 자동 승격 금지, 검수 필요 |
 
-**레거시 → V2 매핑 (제안)**
+**레거시 → V2 매핑**
 
 | 기존 RelationType | V2 |
 |---|---|
@@ -348,7 +350,7 @@ related_to
 | `replaces` | `supersedes` |
 | `supersedes` | `supersedes` |
 | `references` | `references` |
-| `unknown` | `related_to` (또는 edge 제외 + 리포트 — 구현 시 결정) |
+| `unknown` | `unknown` (❌ `related_to` 승격 금지) |
 
 ---
 
@@ -363,7 +365,7 @@ related_to
 | **2b** | `effectiveDate < issueDate` → 오류 (`effectiveDate == issueDate`는 허용) |
 | **3** | `expiryDate` 존재 시 `expiryDate <= effectiveDate` → 오류 |
 | **4** | `relatedDocuments[]`의 모든 `documentId` 및 파생 배열(`supersedes`/`supersededBy`/`amends`/`amendedBy`)의 id가 문서 집합에 존재 |
-| **5** | `supersedes`/`supersededBy`/`amends`/`amendedBy` 관계에서 순환(A→B→C→A) — `references`/`referenced_by`/`related_to`는 제외 |
+| **5** | `supersedes`/`supersededBy`/`amends`/`amendedBy` 관계에서 순환(A→B→C→A) — `references`/`referenced_by`/`related_to`/`unknown`은 제외 |
 
 Rule 1·4·5는 **`relatedDocuments[]`(SoT) 기준**으로 검증하고, 파생 필드는 SoT와 불일치 시 **파생 로직 버그**로 처리한다 (문서 데이터 hard-fail이 아님).
 

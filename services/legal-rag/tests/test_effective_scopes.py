@@ -38,7 +38,7 @@ def test_build_effective_scopes_with_repealing_relation():
     ]
     documents_by_id = {
         "doc1": {
-            "status": "fully_expired",
+            "status": "repealed",
             "issueDate": "2015-01-01",
             "effectiveDate": "2015-02-01",
             "expiryDate": "2020-12-31",
