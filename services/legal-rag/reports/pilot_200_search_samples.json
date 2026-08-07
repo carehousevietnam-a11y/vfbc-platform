@@ -6,7 +6,7 @@
   },
   {
     "query": "giấy phép lao động người nước ngoài",
-    "hit_count": 1,
+    "hit_count": 3,
     "top_hits": [
       {
         "document_number": [
@@ -16,6 +16,28 @@
         "article_no": null,
         "clause_no": null,
         "status": "active",
+        "score": 15.0,
+        "match_type": "keyword_all_terms"
+      },
+      {
+        "document_number": [
+          "28-TC/TCT"
+        ],
+        "title": "hướng dẫn chế độ thu, nộp và quản lý lệ phí cấp giấy phép lao động cho người nước ngoài làm việc tại các doanh nghiệp, tổ chức ở Việt Nam",
+        "article_no": null,
+        "clause_no": null,
+        "status": "active",
+        "score": 15.0,
+        "match_type": "keyword_all_terms"
+      },
+      {
+        "document_number": [
+          "35/2016/TT-BCT"
+        ],
+        "title": "Quy định việc xác định người lao động nước ngoài di chuyển trong nội bộ doanh nghiệp thuộc phạm vi mười một ngành dịch vụ trong Biểu cam kết cụ thể về dịch vụ của Việt Nam với Tổ chức thương mại thế giới không thuộc diện cấp giấy phép lao động",
+        "article_no": null,
+        "clause_no": null,
+        "status": "repealed",
         "score": 15.0,
         "match_type": "keyword_all_terms"
       }
@@ -86,6 +108,17 @@
     "top_hits": [
       {
         "document_number": [
+          "106/2016/QH13"
+        ],
+        "title": "Luật Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng, Luật Thuế tiêu thụ đặc biệt và Luật Quản lý thuế số",
+        "article_no": null,
+        "clause_no": null,
+        "status": "repealed",
+        "score": 75.0,
+        "match_type": "keyword_phrase"
+      },
+      {
+        "document_number": [
           "19/2016/TT-BXD"
         ],
         "title": "Hướng dẫn thực hiện một số nội dung của Luật Nhà ở và của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Luật Nhà ở",
@@ -100,17 +133,6 @@
           "27/2023/QH15"
         ],
         "title": "Luật Nhà ở số",
-        "article_no": null,
-        "clause_no": null,
-        "status": "amended",
-        "score": 50.0,
-        "match_type": "keyword_phrase"
-      },
-      {
-        "document_number": [
-          "05/2024/TT-BXD"
-        ],
-        "title": "Quy định chi tiết một số điều của Luật Nhà ở",
         "article_no": null,
         "clause_no": null,
         "status": "amended",

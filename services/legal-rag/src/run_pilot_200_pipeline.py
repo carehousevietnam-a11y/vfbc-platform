@@ -168,8 +168,24 @@ def _build_root_cause_diagnosis(
                 "phrase 매칭의 한계이며 데이터 누락이 아님."
             ),
             "chunking_note": (
-                "대형 법전(Bộ luật Hình sự 554K자, Luật Đất đai 522K자)이 구조 파서가 조/항 헤더를 "
-                "인식하지 못해 문서 전체가 단일 1개 chunk로 처리됨 — chunk 단위 phrase 검색 정밀도에 영향."
+                "대형 법전(Bộ luật Hình sự 554K자, Luật Đất đai 522K자)이 단일 1개 chunk로 처리됨. "
+                "원인: normalize_vietnamese_text()가 줄바꿈을 공백으로 접어 연속 문자열로 만들고, "
+                "parse_legal_structure.py의 ^\\s*Điều 정규식은 줄 시작( MULTILINE )만 인식 — "
+                "접힌 본문에서 'Điều 1.'이 줄 중간에 있으면 마커 0건 → fallback 단일 chunk. "
+                "해결 방향(1,000건 이후): 파서에 비-줄시작 마커 분할 추가, 또는 정규화 시 "
+                "Chương/Điều/Khoản 앞에 줄바꿈 보존."
+            ),
+        },
+        "2-round2_bugs_fixed": {
+            "bug1_authorityWeight": (
+                "tmquan doc_type 'luat'/'bo_luat'가 authority_weight 패턴(bo luat, bộ luật)과 "
+                "불일치 → 30점 fallback. ^luat$|^bo_luat$ 패턴 추가 후 luat/bo_luat 35건 모두 100점."
+            ),
+            "bug2_vat_search": (
+                "106/2016/QH13은 tmquan markdown 본문 비어 있어 chunk 없음 + RealEstate 문서는 "
+                "본문 'Căn cứ Luật Thuế giá trị gia tăng' 인용으로 phrase 매치. "
+                "search_title_only_documents()로 chunk 없는 문서 제목 검색 추가 — "
+                "VAT 질의 1위: 106/2016/QH13 (score 75, title phrase)."
             ),
         },
         "rework_swaps": {

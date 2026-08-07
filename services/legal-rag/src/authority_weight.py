@@ -5,7 +5,8 @@ from __future__ import annotations
 import re
 
 _WEIGHT_PATTERNS: list[tuple[re.Pattern, int]] = [
-    (re.compile(r"bộ\s*luật|bo\s*luat|\blaw\b", re.IGNORECASE), 100),
+    # tmquan doc_type uses snake_case: "luat", "bo_luat" (underscore, not space)
+    (re.compile(r"^bo_luat$|^luat$|bộ\s*luật|bo[\s_]*luat|\blaw\b|\bluật\b", re.IGNORECASE), 100),
     (re.compile(r"nghị\s*định|nghi_dinh|\bdecree\b", re.IGNORECASE), 90),
     (re.compile(r"thông\s*tư|thong_tu|\bcircular\b", re.IGNORECASE), 80),
     (re.compile(r"quyết\s*định|quyet_dinh|\bdecision\b", re.IGNORECASE), 60),
