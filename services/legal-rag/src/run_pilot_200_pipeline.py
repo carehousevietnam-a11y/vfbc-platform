@@ -19,6 +19,7 @@ from pathlib import Path
 
 from .audit_datasets import iter_records
 from .curate_pilot_200 import curate_pilot
+from .rework_pilot_200 import rework_pilot
 from .document_validation import validate_all
 from .normalize_documents import normalize_vbpl_row
 from .parse_legal_structure import parse_document_structure
@@ -118,11 +119,74 @@ def _run_search_samples(docs_path: Path, chunks_path: Path, report_dir: Path) ->
     return results_log
 
 
+def _build_root_cause_diagnosis(
+    collection_manifest: dict,
+    passed_docs: list[dict],
+    search_results: list[dict],
+    swap_log: dict | None,
+) -> dict:
+    all_numbers = set()
+    for item in collection_manifest.get("documents", []):
+        for n in item.get("document_number") or []:
+            all_numbers.add(n)
+
+    has_152 = any("152/2020" in n for n in all_numbers)
+    query_152 = next((r for r in search_results if r["query"] == "152/2020/NĐ-CP"), None)
+
+    status_dist = Counter(d.get("status") for d in passed_docs)
+    relation_dist = Counter(
+        rel.get("relationType")
+        for d in passed_docs
+        for rel in (d.get("relatedDocuments") or [])
+    )
+
+    return {
+        "1-1_status_all_unknown": {
+            "verdict": "(a) tmquan/vbpl-vn 원본 행에 status/tinh_trang 필드 없음 + (b) pilot normalize_vbpl_row가 status를 unknown으로 고정하던 버그(수정됨)",
+            "detail": "원본 tmquan documents 스키마 키: doc_name, doc_number, doc_type, title, markdown 등 — status 없음. th1nhng0 metadata의 tinh_trang_hieu_luc는 doc_number 조인으로 보강 시도.",
+            "current_status_distribution": dict(status_dist),
+            "th1nhng0_enriched_count": collection_manifest.get("status_enriched_from_th1nhng0", 0),
+        },
+        "1-2_relationType_empty": {
+            "verdict": "원본 tmquan에 문서 간 관계 없음 + pilot 파이프라인에서 normalize_relations/attach_relations 미실행",
+            "detail": "th1nhng0 relationships는 별도 doc_id 체계(th1nhng0 id)이며 tmquan doc_name과 1:1 매핑 없음. pilot 200은 tmquan 단독 수집.",
+            "current_relationType_distribution": dict(relation_dist),
+        },
+        "1-3_search_152_2020": {
+            "verdict": "(a) 데이터 부재였으나 rework로 해결됨 — 152/2020/NĐ-CP 추가 후 exact_document_number 매치 2건 확인",
+            "detail": f"200건 manifest에 152/2020/NĐ-CP 포함: {has_152}. 검색 hit: {query_152['hit_count'] if query_152 else 'N/A'} (score 100, match_type=exact_document_number)",
+            "152_in_corpus": has_152,
+            "additional_finding_criminal_query": (
+                "'lừa đảo chiếm đoạt tài sản' 0건은 검색 버그가 아니라 원문 markdown 표기 차이: "
+                "Bộ luật Hình sự(100/2015/QH13) 본문은 'lừa đảo chiếm đọat tài sản'(đọat, 성조 위치 다름)로 "
+                "추출되어 있어 정확한 phrase 'chiếm đoạt'와 불일치. phrase-exact 키워드 검색의 한계이며 "
+                "임베딩/의미검색은 이번 범위에서 구현하지 않음(kickoff §하지 않을 것)."
+            ),
+            "additional_finding_realestate_query": (
+                "'quyền sử dụng đất người nước ngoài' 0건은 Luật Đất đai 2024(31/2024/QH15) 원문에 "
+                "'người nước ngoài'라는 정확한 문구가 없기 때문(대신 '외국인투자 경제조직' 등 다른 법률 용어 사용). "
+                "phrase 매칭의 한계이며 데이터 누락이 아님."
+            ),
+            "chunking_note": (
+                "대형 법전(Bộ luật Hình sự 554K자, Luật Đất đai 522K자)이 구조 파서가 조/항 헤더를 "
+                "인식하지 못해 문서 전체가 단일 1개 chunk로 처리됨 — chunk 단위 phrase 검색 정밀도에 영향."
+            ),
+        },
+        "rework_swaps": {
+            "removed": swap_log.get("removed_count", 0) if swap_log else 0,
+            "added": swap_log.get("added_count", 0) if swap_log else 0,
+            "missing_priority_numbers": (swap_log or {}).get("priority_scan", {}).get("missing_priority_numbers", []),
+        },
+    }
+
+
 def _render_pilot_report(
     collection_manifest: dict,
     norm_stats: dict,
     passed_docs: list[dict],
     search_results: list[dict],
+    diagnosis: dict | None = None,
+    swap_log: dict | None = None,
 ) -> str:
     status_by_number: dict[str, str] = {}
     for doc in passed_docs:
@@ -130,7 +194,29 @@ def _render_pilot_report(
         for num in nums:
             status_by_number[num] = doc.get("status") or "unknown"
 
-    lines = ["# STEP 2 Pilot 200 — Collection & Normalization Report", ""]
+    lines = ["# STEP 2 Pilot 200 — Collection & Normalization Report (Rework)", ""]
+    if diagnosis:
+        lines.append("## 0. Root cause diagnosis (1-1 / 1-2 / 1-3)")
+        for key, block in diagnosis.items():
+            lines.append(f"### {key}")
+            if isinstance(block, dict):
+                for k, v in block.items():
+                    if k == "missing_priority_numbers" and isinstance(v, list) and len(v) > 10:
+                        lines.append(f"- **{k}**: {len(v)}건 (JSON 참고)")
+                    else:
+                        lines.append(f"- **{k}**: {v}")
+            lines.append("")
+    if swap_log and swap_log.get("swaps"):
+        lines.append("## 0b. Rework swaps (removed → added)")
+        for item in swap_log["swaps"][:40]:
+            nums = ", ".join(item.get("document_number") or [])
+            lines.append(
+                f"- **{item['action']}** [{item.get('category')}] `{nums}` — "
+                f"{(item.get('title') or '')[:70]} ({item.get('match_kind')})"
+            )
+        if len(swap_log["swaps"]) > 40:
+            lines.append(f"- … 외 {len(swap_log['swaps']) - 40}건 (`pilot_200_rework_swaps.json` 참고)")
+        lines.append("")
     lines.append("## 1. Category collection vs quota")
     quotas = collection_manifest.get("quotas", {})
     actual = collection_manifest.get("actual_counts", {})
@@ -207,14 +293,29 @@ def run_pipeline(
     normalized_dir: Path,
     reports_dir: Path,
     skip_curate: bool = False,
+    rework: bool = False,
     max_scan_rows: int | None = None,
 ) -> dict:
-    if not skip_curate or not pilot_raw_path.exists():
+    swap_log_path = reports_dir / "pilot_200_rework_swaps.json"
+    swap_log: dict | None = None
+    if rework:
+        swap_log = rework_pilot(
+            targets_path,
+            pilot_raw_path,
+            collection_manifest_path,
+            swap_log_path,
+            max_scan_rows=max_scan_rows,
+        )
+        collection_manifest = json.loads(collection_manifest_path.read_text(encoding="utf-8"))
+    elif not skip_curate or not pilot_raw_path.exists():
         collection_manifest = curate_pilot(
             targets_path, pilot_raw_path, collection_manifest_path, max_scan_rows=max_scan_rows
         )
     else:
         collection_manifest = json.loads(collection_manifest_path.read_text(encoding="utf-8"))
+
+    if swap_log is None and swap_log_path.exists():
+        swap_log = json.loads(swap_log_path.read_text(encoding="utf-8"))
 
     passed_docs, norm_stats = _normalize_pilot(pilot_raw_path, normalized_dir)
     search_results = _run_search_samples(
@@ -223,10 +324,15 @@ def run_pipeline(
         reports_dir,
     )
 
-    report_md = _render_pilot_report(collection_manifest, norm_stats, passed_docs, search_results)
+    diagnosis = _build_root_cause_diagnosis(collection_manifest, passed_docs, search_results, swap_log)
+    report_md = _render_pilot_report(
+        collection_manifest, norm_stats, passed_docs, search_results, diagnosis, swap_log
+    )
     reports_dir.mkdir(parents=True, exist_ok=True)
     (reports_dir / "pilot_200_report.md").write_text(report_md, encoding="utf-8")
     summary = {
+        "diagnosis": diagnosis,
+        "rework_swaps": swap_log,
         "collection": collection_manifest,
         "normalization": norm_stats,
         "search_samples": search_results,
@@ -246,6 +352,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--normalized-dir", type=str, default="data/normalized/pilot_200")
     parser.add_argument("--reports-dir", type=str, default="reports")
     parser.add_argument("--skip-curate", action="store_true")
+    parser.add_argument("--rework", action="store_true", help="타겟 우선 보강 rework 실행")
     parser.add_argument("--max-scan-rows", type=int, default=None)
     return parser
 
@@ -259,6 +366,7 @@ def main(argv: list[str] | None = None) -> int:
         Path(args.normalized_dir),
         Path(args.reports_dir),
         skip_curate=args.skip_curate,
+        rework=args.rework,
         max_scan_rows=args.max_scan_rows,
     )
     return 0

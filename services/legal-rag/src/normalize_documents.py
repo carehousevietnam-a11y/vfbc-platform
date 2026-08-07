@@ -108,10 +108,11 @@ def normalize_vbpl_row(row: dict[str, Any], today: date | None = None) -> tuple[
 
     if row.get("pilotStatusHint") == "repealed":
         status = DocumentStatus.REPEALED.value
-        raw_status = "pilot:repealed_example"
+        raw_status = row.get("tinh_trang_hieu_luc") or "pilot:repealed_example"
     else:
-        status = DocumentStatus.UNKNOWN.value
-        raw_status = None
+        raw_status = row.get("tinh_trang_hieu_luc") or row.get("status") or row.get("legal_status")
+        effective_date = normalize_date(row.get("effective_date") or row.get("ngay_co_hieu_luc"))
+        status = finalize_status(raw_status, effective_date, today=today)
 
     doc = CanonicalDocument(
         documentId=f"tmquan:{row.get('doc_name')}",

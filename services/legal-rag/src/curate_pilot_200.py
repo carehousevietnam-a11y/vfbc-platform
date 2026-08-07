@@ -27,7 +27,14 @@ from typing import Any
 
 from datasets import load_dataset
 
-from .utils import normalize_document_number
+from .pilot_target_lookup import (
+    build_priority_number_index,
+    build_title_priority_rules,
+    doc_numbers_from_row,
+    match_row_to_target,
+    norm_text,
+    passes_filters,
+)
 
 logger = logging.getLogger("legal_rag.curate_pilot")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -41,30 +48,16 @@ def _norm_text(value: str | None) -> str:
 
 
 def _doc_numbers_from_row(row: dict[str, Any]) -> list[str]:
-    raw = row.get("doc_number")
-    if raw is None:
-        return []
-    if isinstance(raw, list):
-        items = raw
-    else:
-        items = [raw]
-    result: list[str] = []
-    for item in items:
-        result.extend(normalize_document_number(str(item)))
-    return result
+    return doc_numbers_from_row(row)
+
+
+def _norm_text(value: str | None) -> str:
+    return norm_text(value)
 
 
 def _build_number_index(targets: dict) -> dict[str, tuple[str, str]]:
-    """normalized doc number -> (category, match_kind)"""
-    index: dict[str, tuple[str, str]] = {}
-    for category, spec in targets["categories"].items():
-        for num in spec.get("doc_numbers", []):
-            for n in normalize_document_number(num):
-                index[_norm_text(n)] = (category, "doc_number")
-        for num in spec.get("repealed_doc_numbers", []):
-            for n in normalize_document_number(num):
-                index[_norm_text(n)] = (category, "repealed_example")
-    return index
+    index = build_priority_number_index(targets)
+    return {k: (v[0], v[2]) for k, v in index.items()}
 
 
 def _build_keyword_index(targets: dict) -> dict[str, list[str]]:
@@ -125,13 +118,7 @@ class CollectionState:
 
 
 def _passes_filters(row: dict, allowed_scope: set[str], allowed_types: set[str]) -> bool:
-    if row.get("scope") not in allowed_scope:
-        return False
-    if row.get("doc_type") not in allowed_types:
-        return False
-    if not row.get("markdown") and not row.get("title"):
-        return False
-    return True
+    return passes_filters(row, allowed_scope, allowed_types)
 
 
 def _match_category_by_number(
@@ -171,14 +158,39 @@ def curate_pilot(
     state = CollectionState(quotas=quotas, repealed_cap=repealed_cap)
     number_index = _build_number_index(targets)
     keyword_index = _build_keyword_index(targets)
+    title_rules = build_title_priority_rules(targets)
 
-    logger.info("스트리밍 수집 시작 (quota=%s)", quotas)
+    logger.info("Phase 1: priority doc_number/title scan (quota=%s)", quotas)
     ds = load_dataset("tmquan/vbpl-vn", "documents", split="train", streaming=True)
 
     scanned = 0
     for row in ds:
         scanned += 1
         if max_scan_rows and scanned > max_scan_rows:
+            break
+        if state.total_remaining() <= 0:
+            break
+        if not _passes_filters(row, allowed_scope, allowed_types):
+            continue
+
+        hit = match_row_to_target(row, build_priority_number_index(targets), title_rules)
+        if not hit:
+            continue
+        category, kind, matched = hit
+        if kind == "title_keyword":
+            continue
+        if state.can_add(category, kind):
+            state.add(row, category, kind, matched)
+
+        if scanned % 10000 == 0:
+            logger.info("Phase1 스캔 %d행 — 수집 %d건 — %s", scanned, len(state.records), dict(state.counts))
+
+    logger.info("Phase 2: keyword backfill (remaining=%s)", {c: state.remaining(c) for c in quotas if state.remaining(c)})
+    ds2 = load_dataset("tmquan/vbpl-vn", "documents", split="train", streaming=True)
+    scanned2 = 0
+    for row in ds2:
+        scanned2 += 1
+        if max_scan_rows and (scanned + scanned2) > max_scan_rows:
             break
         if state.total_remaining() <= 0:
             break
@@ -193,16 +205,19 @@ def curate_pilot(
                 state.add(row, category, kind, f"doc_number:{matched}")
             continue
 
-        # keyword pass only when category still needs docs
         title = row.get("title") or ""
         kw_hit = _match_category_by_keywords(title, keyword_index)
         if kw_hit:
             category, kw = kw_hit
+            if category == "Criminal" and "tài sản" in kw:
+                continue
             if state.can_add(category, "title_keyword"):
                 state.add(row, category, "title_keyword", f"title_keyword:{kw}")
 
-        if scanned % 10000 == 0:
-            logger.info("스캔 %d행 — 수집 %d건 — %s", scanned, len(state.records), dict(state.counts))
+        if scanned2 % 10000 == 0:
+            logger.info("Phase2 스캔 %d행 — 수집 %d건", scanned2, len(state.records))
+
+    scanned += scanned2
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:

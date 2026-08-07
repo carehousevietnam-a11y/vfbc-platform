@@ -28,6 +28,11 @@
         "24/2020/TT-BTC",
         "80/2021/NĐ-CP"
       ],
+      "title_priority": [
+        "Luật Xuất cảnh nhập cảnh",
+        "Luật Cư trú",
+        "giấy phép lao động người nước ngoài"
+      ],
       "title_keywords": [
         "xuất nhập cảnh",
         "người nước ngoài",
@@ -53,6 +58,11 @@
         "12/2022/NĐ-CP",
         "06/2021/NĐ-CP",
         "103/2015/NĐ-CP"
+      ],
+      "title_priority": [
+        "Bộ luật Lao động",
+        "giấy phép lao động",
+        "Quy định chi tiết thi hành một số điều của Bộ luật Lao động"
       ],
       "title_keywords": [
         "lao động",
@@ -91,8 +101,11 @@
         "12/2017/QH14",
         "44/2019/QH14",
         "56/2024/QH15",
-        "27/2018/QH14",
-        "100/2015/QH13"
+        "27/2018/QH14"
+      ],
+      "title_priority": [
+        "Bộ luật Hình sự",
+        "Luật sửa đổi bổ sung một số điều của Bộ luật Hình sự"
       ],
       "title_keywords": [
         "hình sự",
@@ -100,7 +113,6 @@
         "gian dối",
         "phạm tội",
         "chiếm đoạt",
-        "tài sản",
         "bộ luật hình sự"
       ],
       "repealed_doc_numbers": ["42/2010/QH12"]
@@ -115,6 +127,11 @@
         "148/2020/NĐ-CP",
         "30/2021/NĐ-CP",
         "101/2015/NĐ-CP"
+      ],
+      "title_priority": [
+        "người nước ngoài mua nhà",
+        "quyền sử dụng đất của người nước ngoài",
+        "Luật Nhà ở"
       ],
       "title_keywords": [
         "đất đai",

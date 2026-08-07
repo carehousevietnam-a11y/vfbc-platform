@@ -6,8 +6,20 @@
   },
   {
     "query": "giấy phép lao động người nước ngoài",
-    "hit_count": 0,
-    "top_hits": []
+    "hit_count": 1,
+    "top_hits": [
+      {
+        "document_number": [
+          "23/2017/TT-BLĐTBXH"
+        ],
+        "title": "Hướng dẫn thực hiện cấp giấy phép lao động cho người lao động nước ngoài làm việc tại Việt Nam qua mạng điện tử",
+        "article_no": null,
+        "clause_no": null,
+        "status": "active",
+        "score": 15.0,
+        "match_type": "keyword_all_terms"
+      }
+    ]
   },
   {
     "query": "베트남 부동산 매매 시 외국인 제한",
@@ -40,29 +52,29 @@
         "title": "Luật Dược số",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "amended",
         "score": 50.0,
         "match_type": "keyword_phrase"
       },
       {
         "document_number": [
-          "184/2015/TT-BTC"
+          "80/2021/NĐ-CP"
         ],
-        "title": "Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiền thuế, tiền chậm nộp, tiền phạt, tiền phí, lệ phí, các khoản thu khác, đối với hàng hóa xuất khẩu, nhập khẩu, quá cảnh và phương tiện xuất cảnh, nhập cảnh, quá cảnh",
+        "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Luật Hỗ trợ doanh nghiệp nhỏ và vừa",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "active",
         "score": 50.0,
         "match_type": "keyword_phrase"
       },
       {
         "document_number": [
-          "86/2013/NĐ-CP"
+          "10/2020/NĐ-CP"
         ],
-        "title": "quy định về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài",
+        "title": "Quy định về kinh doanh và điều kiện kinh doanh vận tải bằng xe ô tô",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "repealed",
         "score": 50.0,
         "match_type": "keyword_phrase"
       }
@@ -74,36 +86,36 @@
     "top_hits": [
       {
         "document_number": [
-          "184/2015/TT-BTC"
+          "19/2016/TT-BXD"
         ],
-        "title": "Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiền thuế, tiền chậm nộp, tiền phạt, tiền phí, lệ phí, các khoản thu khác, đối với hàng hóa xuất khẩu, nhập khẩu, quá cảnh và phương tiện xuất cảnh, nhập cảnh, quá cảnh",
+        "title": "Hướng dẫn thực hiện một số nội dung của Luật Nhà ở và của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Luật Nhà ở",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "repealed",
         "score": 50.0,
         "match_type": "keyword_phrase"
       },
       {
         "document_number": [
-          "118/2009/TT-BTC"
+          "27/2023/QH15"
         ],
-        "title": "Hướng dẫn việc nhập khẩu xe ôtô đang sử dụng theo chế độ tài sản di chuyển của người Việt Nam định cư ở nước ngoài đã hoàn tất thủ tục đăng ký thường trú tại Việt Nam",
+        "title": "Luật Nhà ở số",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "amended",
         "score": 50.0,
         "match_type": "keyword_phrase"
       },
       {
         "document_number": [
-          "03-BXD/VKT"
+          "05/2024/TT-BXD"
         ],
-        "title": "Hướng dẫn việc xây dựng đơn giá xây dựng cơ bản và lập dự toán các công trình xây dựng cơ bản",
+        "title": "Quy định chi tiết một số điều của Luật Nhà ở",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
-        "score": 10.0,
-        "match_type": "keyword_all_terms"
+        "status": "amended",
+        "score": 50.0,
+        "match_type": "keyword_phrase"
       }
     ]
   },
@@ -118,7 +130,7 @@
         "title": "Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chính trong lĩnh vực chăn nuôi theo",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "amended",
         "score": 75.0,
         "match_type": "keyword_phrase"
       },
@@ -129,7 +141,7 @@
         "title": "Sửa đổi, bổ sung một số quy định về thủ tục hành chính trong lĩnh vực kinh tế hợp tác và phát triển nông thôn, thi đua khen thưởng, quản lý đề tài khoa học theo",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "active",
         "score": 75.0,
         "match_type": "keyword_phrase"
       },
@@ -140,7 +152,7 @@
         "title": "Sửa đổi, bổ sung một số Thông tư của Bộ trưởng Bộ Công Thương về thủ tục hành chính trong lĩnh vực thương mại điện tử, hóa chất, sản xuất kinh doanh rượu, nhượng quyền thương mại, hoạt động mua bán hàng hóa qua sở giao dịch hàng hóa, năng lượng, an toàn thực phẩm và điện lực",
         "article_no": null,
         "clause_no": null,
-        "status": "unknown",
+        "status": "amended",
         "score": 75.0,
         "match_type": "keyword_phrase"
       }
@@ -148,7 +160,30 @@
   },
   {
     "query": "152/2020/NĐ-CP",
-    "hit_count": 0,
-    "top_hits": []
+    "hit_count": 2,
+    "top_hits": [
+      {
+        "document_number": [
+          "152/2020/NĐ-CP"
+        ],
+        "title": "Quy định về người lao động nước ngoài làm việc tại Việt Nam và tuyển dụng, quản lý người lao động Việt Nam làm việc cho tổ chức, cá nhân nước ngoài tại Việt Nam",
+        "article_no": null,
+        "clause_no": null,
+        "status": "amended",
+        "score": 100.0,
+        "match_type": "exact_document_number"
+      },
+      {
+        "document_number": [
+          "70/2023/NĐ-CP"
+        ],
+        "title": "Sửa đổi, bổ sung một số điều của của Chính phủ quy định về người lao động nước ngoài làm việc tại Việt Nam và tuyển dụng, quản lý người lao động Việt Nam làm việc cho tổ chức, cá nhân nước ngoài tại Việt Nam",
+        "article_no": null,
+        "clause_no": null,
+        "status": "amended",
+        "score": 30.0,
+        "match_type": "keyword_prefix"
+      }
+    ]
   }
 ]
