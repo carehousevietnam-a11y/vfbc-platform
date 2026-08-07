@@ -749,7 +749,9 @@ export default function TamTruCheckPage() {
     zalo_id: string;
   }>({ name: "", phone: "", address: "", email: "", kakao_id: "", zalo_id: "" });
   const [consentChecked, setConsentChecked] = useState(false);
-  const canSubmit = validateLeadForm(formValues, lang).valid && consentChecked;
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const { valid: formValuesValid, errors: liveErrors } = validateLeadForm(formValues, lang);
+  const canSubmit = formValuesValid && consentChecked;
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const showLegalEscalation = landlordIssue === true;
   const selfNotifySentRef = useRef(false);
@@ -1435,24 +1437,48 @@ export default function TamTruCheckPage() {
                     required
                     placeholder={LEAD_FORM_MESSAGES[lang].name.placeholder}
                     onChange={(e) => setFormValues((v) => ({ ...v, name: e.target.value }))}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+                    onBlur={() => setTouched((t) => ({ ...t, name: true }))}
+                    className={`w-full h-11 rounded-lg border px-4 text-sm focus:outline-none ${
+                      touched.name && liveErrors.name
+                        ? "border-red-300 focus:border-red-400"
+                        : "border-gray-200 focus:border-blue-900"
+                    }`}
                   />
+                  {touched.name && liveErrors.name && (
+                    <p className="-mt-2 text-xs text-red-600">{liveErrors.name}</p>
+                  )}
                   <input
                     type="tel"
                     name="phone"
                     required
                     placeholder={LEAD_FORM_MESSAGES[lang].phone.placeholder}
                     onChange={(e) => setFormValues((v) => ({ ...v, phone: e.target.value }))}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+                    onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+                    className={`w-full h-11 rounded-lg border px-4 text-sm focus:outline-none ${
+                      touched.phone && liveErrors.phone
+                        ? "border-red-300 focus:border-red-400"
+                        : "border-gray-200 focus:border-blue-900"
+                    }`}
                   />
+                  {touched.phone && liveErrors.phone && (
+                    <p className="-mt-2 text-xs text-red-600">{liveErrors.phone}</p>
+                  )}
                   <input
                     type="text"
                     name="address"
                     required
                     placeholder={LEAD_FORM_MESSAGES[lang].address.placeholder}
                     onChange={(e) => setFormValues((v) => ({ ...v, address: e.target.value }))}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+                    onBlur={() => setTouched((t) => ({ ...t, address: true }))}
+                    className={`w-full h-11 rounded-lg border px-4 text-sm focus:outline-none ${
+                      touched.address && liveErrors.address
+                        ? "border-red-300 focus:border-red-400"
+                        : "border-gray-200 focus:border-blue-900"
+                    }`}
                   />
+                  {touched.address && liveErrors.address && (
+                    <p className="-mt-2 text-xs text-red-600">{liveErrors.address}</p>
+                  )}
                   <div className="-mt-1">
                     <InfoBox>
                       주소가 있어야 관할 phường(동) 사이트를 정확히 찾아드릴
@@ -1465,25 +1491,45 @@ export default function TamTruCheckPage() {
                     required
                     placeholder={LEAD_FORM_MESSAGES[lang].email.placeholder}
                     onChange={(e) => setFormValues((v) => ({ ...v, email: e.target.value }))}
-                    className="w-full h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+                    onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                    className={`w-full h-11 rounded-lg border px-4 text-sm focus:outline-none ${
+                      touched.email && liveErrors.email
+                        ? "border-red-300 focus:border-red-400"
+                        : "border-gray-200 focus:border-blue-900"
+                    }`}
                   />
+                  {touched.email && liveErrors.email && (
+                    <p className="-mt-2 text-xs text-red-600">{liveErrors.email}</p>
+                  )}
                   <div className="grid grid-cols-2 gap-3">
                     <input
                       type="text"
                       name="kakao_id"
                       placeholder={`${messengers.primary.label} ID`}
                       onChange={(e) => setFormValues((v) => ({ ...v, kakao_id: e.target.value }))}
-                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+                      onBlur={() => setTouched((t) => ({ ...t, kakao_id: true }))}
+                      className={`h-11 rounded-lg border px-4 text-sm focus:outline-none ${
+                        (touched.kakao_id || touched.zalo_id) && liveErrors.sns
+                          ? "border-red-300 focus:border-red-400"
+                          : "border-gray-200 focus:border-blue-900"
+                      }`}
                     />
                     <input
                       type="text"
                       name="zalo_id"
                       placeholder={`${messengers.secondary.label} ID`}
                       onChange={(e) => setFormValues((v) => ({ ...v, zalo_id: e.target.value }))}
-                      className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
+                      onBlur={() => setTouched((t) => ({ ...t, zalo_id: true }))}
+                      className={`h-11 rounded-lg border px-4 text-sm focus:outline-none ${
+                        (touched.kakao_id || touched.zalo_id) && liveErrors.sns
+                          ? "border-red-300 focus:border-red-400"
+                          : "border-gray-200 focus:border-blue-900"
+                      }`}
                     />
                   </div>
-                  <p className="-mt-1 text-[11px] text-gray-400">{LEAD_FORM_MESSAGES[lang].sns.required}</p>
+                  <p className={`-mt-1 text-[11px] ${(touched.kakao_id || touched.zalo_id) && liveErrors.sns ? "text-red-600" : "text-gray-400"}`}>
+                    {LEAD_FORM_MESSAGES[lang].sns.required}
+                  </p>
                   <div>
                     <label className="flex items-start gap-2 text-xs text-gray-600">
                       <input
