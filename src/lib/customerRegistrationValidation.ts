@@ -69,6 +69,7 @@ export type LeadFormMessages = {
   privacyNoticeLine: string;
   noticeLine: string;
   resetLabel: string;
+  countryCodeCustomRequired: string;
 };
 
 export const LEAD_FORM_MESSAGES: Record<SupportedLanguage, LeadFormMessages> = {
@@ -109,6 +110,7 @@ export const LEAD_FORM_MESSAGES: Record<SupportedLanguage, LeadFormMessages> = {
     privacyNoticeLine: "입력하신 정보는 상담 안내 목적으로만 사용됩니다.",
     noticeLine: "이름·연락처·주소·이메일을 남기시면 AI가 서류를 상세 분석한 리포트를 바로 보여드립니다.",
     resetLabel: "처음부터 다시 확인하기",
+    countryCodeCustomRequired: "국가번호를 입력해주세요.",
   },
   zh: {
     name: {
@@ -147,6 +149,7 @@ export const LEAD_FORM_MESSAGES: Record<SupportedLanguage, LeadFormMessages> = {
     privacyNoticeLine: "您输入的信息仅用于咨询指导目的。",
     noticeLine: "留下姓名、联系方式、地址和电子邮箱，即可立即获取AI详细分析报告。",
     resetLabel: "重新开始诊断",
+    countryCodeCustomRequired: "请输入国家代码。",
   },
   en: {
     name: {
@@ -186,6 +189,7 @@ export const LEAD_FORM_MESSAGES: Record<SupportedLanguage, LeadFormMessages> = {
     privacyNoticeLine: "The information you provide is used only for consultation purposes.",
     noticeLine: "Leave your name, contact, address, and email, and get a detailed AI-analyzed report right away.",
     resetLabel: "Start over",
+    countryCodeCustomRequired: "Please enter a country code.",
   },
   vi: {
     name: {
@@ -225,6 +229,7 @@ export const LEAD_FORM_MESSAGES: Record<SupportedLanguage, LeadFormMessages> = {
     privacyNoticeLine: "Thông tin bạn cung cấp chỉ được sử dụng cho mục đích tư vấn, hướng dẫn.",
     noticeLine: "Chỉ cần để lại họ tên, số điện thoại, địa chỉ và email, AI sẽ gửi ngay báo cáo phân tích chi tiết.",
     resetLabel: "Kiểm tra lại từ đầu",
+    countryCodeCustomRequired: "Vui lòng nhập mã quốc gia.",
   },
 };
 
@@ -424,4 +429,52 @@ export function buildSocialContacts(input: {
     out[input.secondaryKey] = secondary;
   }
   return out;
+}
+
+// ── 전화번호 국가번호 선택 ───────────────────────────────────────────
+// 베트남에 거주하는 외국인이 타깃이라, 실제 사용 전화가 본국(한국/중국) 번호일 수도,
+// 현지(베트남) 번호일 수도 있다. 언어와 실제 소지한 폰의 국가가 항상 일치하지는
+// 않으므로(예: 한국어를 쓰지만 베트남 현지 유심을 쓰는 경우), 언어에 따라 기본값만
+// 잡아주고 사용자가 언제든 직접 바꿀 수 있게 한다. DB 스키마는 바꾸지 않고, 국가번호는
+// 번호 앞에 합쳐서 하나의 phone 문자열로 저장한다(예: "+82 10-1234-5678").
+export type CountryCode = "+82" | "+84" | "+86" | "other";
+
+export const COUNTRY_CODE_OPTIONS: { value: CountryCode; label: string }[] = [
+  { value: "+82", label: "🇰🇷 +82" },
+  { value: "+84", label: "🇻🇳 +84" },
+  { value: "+86", label: "🇨🇳 +86" },
+  { value: "other", label: "기타" },
+];
+
+/** 언어별 기본 국가번호 — 어디까지나 "기본값"이며 사용자가 즉시 다른 값으로 바꿀 수 있다. */
+export const DEFAULT_COUNTRY_CODE_BY_LANGUAGE: Record<SupportedLanguage, CountryCode> = {
+  ko: "+82",
+  zh: "+86",
+  en: "+84",
+  vi: "+84",
+};
+
+export const COUNTRY_CODE_LABEL: Record<SupportedLanguage, string> = {
+  ko: "국가번호",
+  zh: "国家代码",
+  en: "Country code",
+  vi: "Mã quốc gia",
+};
+
+export const COUNTRY_CODE_CUSTOM_PLACEHOLDER: Record<SupportedLanguage, string> = {
+  ko: "+1",
+  zh: "+1",
+  en: "+1",
+  vi: "+1",
+};
+
+/** 선택된 국가번호(또는 직접입력값)와 전화번호 숫자를 하나의 저장용 문자열로 합친다. */
+export function combinePhoneWithCountryCode(
+  countryCode: CountryCode,
+  customCode: string,
+  phoneDigits: string
+): string {
+  const prefix = countryCode === "other" ? customCode.trim() : countryCode;
+  const number = phoneDigits.trim();
+  return prefix ? `${prefix} ${number}`.trim() : number;
 }

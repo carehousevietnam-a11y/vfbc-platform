@@ -39,6 +39,12 @@ import {
   LEAD_FORM_MESSAGES,
   getConsentTranslation,
   buildSocialContacts,
+  type CountryCode,
+  COUNTRY_CODE_OPTIONS,
+  DEFAULT_COUNTRY_CODE_BY_LANGUAGE,
+  COUNTRY_CODE_LABEL,
+  COUNTRY_CODE_CUSTOM_PLACEHOLDER,
+  combinePhoneWithCountryCode,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
@@ -769,8 +775,19 @@ function PremiumLeadCapture({
   }>({ name: "", phone: "", address: "", email: "", kakao_id: "", zalo_id: "" });
   const [consentChecked, setConsentChecked] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  // [국가번호] 언어 기본값으로 시작하되, 사용자가 직접 바꾸면(countryCodeTouched) 그 이후로는
+  // 언어가 바뀌어도 되돌리지 않는다 — "한국어로 보지만 실제로는 베트남 유심" 같은 경우 대응.
+  const [countryCode, setCountryCode] = useState<CountryCode>(DEFAULT_COUNTRY_CODE_BY_LANGUAGE[lang]);
+  const [countryCodeCustom, setCountryCodeCustom] = useState("");
+  const [countryCodeTouched, setCountryCodeTouched] = useState(false);
+  useEffect(() => {
+    if (!countryCodeTouched) {
+      setCountryCode(DEFAULT_COUNTRY_CODE_BY_LANGUAGE[lang]);
+    }
+  }, [lang, countryCodeTouched]);
   const { valid: formValuesValid, errors: liveErrors } = validateLeadForm(formValues, lang);
-  const canSubmit = formValuesValid && consentChecked;
+  const canSubmit =
+    formValuesValid && consentChecked && (countryCode !== "other" || countryCodeCustom.trim().length > 0);
   const isPossible = tone === "possible";
   const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
   const status = isPossible ? "가능성 높음" : "추가 확인 필요";
@@ -864,21 +881,53 @@ function PremiumLeadCapture({
           {touched.name && liveErrors.name && (
             <p className="-mt-2 text-xs text-red-600">{liveErrors.name}</p>
           )}
-          <input
-            type="tel"
-            name="phone"
-            required
-            placeholder={LEAD_FORM_MESSAGES[lang].phone.placeholder}
-            onChange={(e) => setFormValues((v) => ({ ...v, phone: e.target.value }))}
-            onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
-            className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.phone && liveErrors.phone
-                ? "border-red-300 focus:border-red-400"
-                : "border-gray-200 focus:border-blue-900"
-            }`}
-          />
+          <div className="flex gap-2">
+            <select
+              name="countryCode"
+              value={countryCode}
+              onChange={(e) => {
+                setCountryCode(e.target.value as CountryCode);
+                setCountryCodeTouched(true);
+              }}
+              aria-label={COUNTRY_CODE_LABEL[lang]}
+              className="h-11 shrink-0 rounded-lg border border-gray-200 bg-white px-2 text-sm focus:border-blue-900 focus:outline-none"
+            >
+              {COUNTRY_CODE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            {countryCode === "other" && (
+              <input
+                type="text"
+                name="countryCodeCustom"
+                required
+                placeholder={COUNTRY_CODE_CUSTOM_PLACEHOLDER[lang]}
+                value={countryCodeCustom}
+                onChange={(e) => setCountryCodeCustom(e.target.value)}
+                className="h-11 w-16 shrink-0 rounded-lg border border-gray-200 px-2 text-sm focus:border-blue-900 focus:outline-none"
+              />
+            )}
+            <input
+              type="tel"
+              name="phone"
+              required
+              placeholder={LEAD_FORM_MESSAGES[lang].phone.placeholder}
+              onChange={(e) => setFormValues((v) => ({ ...v, phone: e.target.value }))}
+              onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+              className={`h-11 min-w-0 flex-1 rounded-lg border px-4 text-sm focus:outline-none ${
+                touched.phone && liveErrors.phone
+                  ? "border-red-300 focus:border-red-400"
+                  : "border-gray-200 focus:border-blue-900"
+              }`}
+            />
+          </div>
           {touched.phone && liveErrors.phone && (
             <p className="-mt-2 text-xs text-red-600">{liveErrors.phone}</p>
+          )}
+          {countryCode === "other" && countryCodeCustom.trim() === "" && (
+            <p className="-mt-2 text-xs text-red-600">{LEAD_FORM_MESSAGES[lang].countryCodeCustomRequired}</p>
           )}
           <input
             type="text"
@@ -1218,13 +1267,15 @@ export default function TrcCheckPage() {
 
     const leadId = crypto.randomUUID();
     const name = String(fd.get("name") || "");
-    const phone = String(fd.get("phone") || "");
+    const phoneDigits = String(fd.get("phone") || "");
+    const countryCode = (String(fd.get("countryCode") || "") || "+84") as CountryCode;
+    const countryCodeCustom = String(fd.get("countryCodeCustom") || "");
     const address = String(fd.get("address") || "");
     const email = (fd.get("email") as string) || "";
     const kakaoId = (fd.get("kakao_id") as string) || null;
     const zaloId = (fd.get("zalo_id") as string) || null;
 
-    const { valid, errors } = validateLeadForm({ name, phone, address, email, kakao_id: kakaoId, zalo_id: zaloId }, lang);
+    const { valid, errors } = validateLeadForm({ name, phone: phoneDigits, address, email, kakao_id: kakaoId, zalo_id: zaloId }, lang);
     if (!valid) {
       setFieldErrors(errors);
       setLeadError(Object.values(errors)[0] || null);
@@ -1232,6 +1283,11 @@ export default function TrcCheckPage() {
       return;
     }
     setFieldErrors({});
+
+    // [국가번호] 검증은 순수 자릿수(phoneDigits)로 했고, 실제 저장에는 국가번호를
+    // 합친 값을 쓴다 — 이후 phone을 참조하는 모든 곳(leads insert, crm_activities,
+    // /api/lead-submit 요청 등)이 자동으로 합쳐진 값을 쓰게 된다.
+    const phone = combinePhoneWithCountryCode(countryCode, countryCodeCustom, phoneDigits);
 
     // [STEP22] SNS는 실제 플랫폼명을 정확히 구분해 crm_activities.meta에 별도로 남긴다.
     // 기존 kakao_id/zalo_id 컬럼(primary/secondary 슬롯)은 그대로 유지하고, DB 스키마는 바꾸지 않는다.
@@ -1307,7 +1363,7 @@ export default function TrcCheckPage() {
     const res = await fetch("/api/lead-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, name, phone, email, address, lang, kakao_id: kakaoId, zalo_id: zaloId }),
+        body: JSON.stringify({ leadId, name, phone, phoneDigits, email, address, lang, kakao_id: kakaoId, zalo_id: zaloId }),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
