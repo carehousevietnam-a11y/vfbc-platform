@@ -36,6 +36,13 @@
 //
 // 필요 환경변수: OPENAI_API_KEY, OPENAI_MODEL — ai_analysis 카테고리와
 // 인사말 모드에서만 필요하다. 기본값 없음, 코드에 모델명 하드코딩 없음.
+//
+// STEP21: 기존 crm_activities 저장(saveUserChatMessage/saveAssistantChatMessage)
+// 옆에, 동일한 대화 내용을 case_conversations 테이블에도 추가로 기록한다
+// (logCaseConversationTurn, src/lib/caseKnowledge/conversationLog.ts).
+// 기존 저장 로직·응답 구조·판단 흐름은 전혀 바뀌지 않았고, 실패해도
+// 채팅 응답에 영향을 주지 않는 병행 기록이다. 인사말(mode: "greeting")과
+// 익명 모드는 기존 저장 원칙과 동일하게 이 로그도 남기지 않는다.
 
 import { NextRequest, NextResponse } from "next/server";
 import {
@@ -48,6 +55,7 @@ import {
   NEEDS_EXPERT_TOKEN,
 } from "@/lib/aiCaseContext";
 import { saveUserChatMessage, saveAssistantChatMessage } from "@/lib/caseMessages";
+import { logCaseConversationTurn } from "@/lib/caseKnowledge/conversationLog";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { reviewLegalCase, type LegalRagServiceGroup } from "@/lib/legal-rag-client";
 import {
@@ -74,6 +82,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isLegalRagServiceGroup(value: unknown): value is LegalRagServiceGroup {
   return value === "check" || value === "verify" || value === "register";
+}
+
+// [STEP21-1] void(fire-and-forget) 대신 await + try/catch로 바꿨다 — Vercel
+// Serverless 함수는 응답을 반환하는 즉시(또는 직후) 실행이 종료될 수
+// 있어, await하지 않은 채로 남겨둔 프로미스는 실제로 완료되기 전에
+// 함수가 종료되어 저장이 누락될 위험이 있다. 이 저장은 반드시 응답을
+// 만들기 전에 끝나야 한다. 단, 이 로그 저장이 실패해도 AI 응답 자체는
+// 항상 기존과 동일하게 반환되어야 하므로 try/catch로 감싸 실패를
+// 삼킨다(logCaseConversationTurn 내부도 이미 자체적으로 throw하지
+// 않도록 방어돼 있어 이중 안전장치다).
+async function safeLogCaseConversationTurn(
+  leadId: string,
+  role: "user" | "assistant",
+  content: string
+): Promise<void> {
+  try {
+    await logCaseConversationTurn(leadId, role, content);
+  } catch (err) {
+    console.error("ai-chat: case_conversations 기록 실패", err);
+  }
 }
 
 function extractLegalRagChatResult(
@@ -173,6 +201,9 @@ export async function POST(req: NextRequest) {
           if (!savedUser) {
             console.error("ai-chat: 고객 질문 저장 실패 (leadId=" + leadId + ")");
           }
+          // STEP21: case_conversations에도 추가로 기록(기존 저장과 병행,
+          // 실패해도 채팅 응답에 영향 없음).
+          await safeLogCaseConversationTurn(leadId as string, "user", lastMessage!.content);
         }
 
         let reply: string;
@@ -214,6 +245,7 @@ export async function POST(req: NextRequest) {
               "ai-chat: 답변 저장 실패 (leadId=" + leadId + ", category=" + category + ")"
             );
           }
+          await safeLogCaseConversationTurn(leadId as string, "assistant", reply);
         }
 
         return NextResponse.json({ reply, needsExpert, category, actions });
@@ -248,6 +280,7 @@ export async function POST(req: NextRequest) {
           if (!savedUser) {
             console.error("ai-chat: 고객 질문 저장 실패 (Legal RAG)");
           }
+          await safeLogCaseConversationTurn(leadId as string, "user", lastMessage!.content);
 
           const legalRagResult = await reviewLegalCase({
             question: lastMessage!.content.trim(),
@@ -286,6 +319,7 @@ export async function POST(req: NextRequest) {
           if (!savedReply) {
             console.error("ai-chat: Legal RAG 답변 저장 실패");
           }
+          await safeLogCaseConversationTurn(leadId as string, "assistant", reply);
 
           return NextResponse.json({
             reply,
@@ -328,6 +362,7 @@ export async function POST(req: NextRequest) {
       if (!saved) {
         console.error("ai-chat: 고객 질문 저장 실패 (leadId=" + leadId + ")");
       }
+      await safeLogCaseConversationTurn(leadId as string, "user", lastMessage!.content);
     }
 
     // ── 5. 시스템 프롬프트 구성 ──
@@ -393,6 +428,7 @@ export async function POST(req: NextRequest) {
       if (!savedReply) {
         console.error("ai-chat: AI 답변 저장 실패 (leadId=" + leadId + ")");
       }
+      await safeLogCaseConversationTurn(leadId as string, "assistant", reply);
     }
 
     return NextResponse.json({

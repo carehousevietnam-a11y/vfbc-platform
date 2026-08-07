@@ -30,7 +30,16 @@ import {
   ChevronDown,
   UserCheck,
 } from "lucide-react";
-import { MESSENGERS_KO } from "@/lib/messenger";
+import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
+import {
+  resolveLanguage,
+  validateLeadForm,
+  type SupportedLanguage,
+  type FieldErrors,
+  LEAD_FORM_MESSAGES,
+  getConsentTranslation,
+  buildSocialContacts,
+} from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import { NoticeCard, PrimaryButton, InfoBox, QuestionSection, SelectionCard } from "@/components/ui";
@@ -71,11 +80,16 @@ function ConsentDetails({
   open,
   onToggle,
   highlight,
+  lang = "ko",
+  messengers,
 }: {
   open: boolean;
   onToggle: () => void;
   highlight?: boolean;
+  lang?: SupportedLanguage;
+  messengers: MessengerPair;
 }) {
+  const translation = getConsentTranslation(lang, messengers.primary.label, messengers.secondary.label);
   return (
     <div
       className={`mt-1 rounded-lg p-3 text-[11px] leading-relaxed transition-colors ${
@@ -87,13 +101,12 @@ function ConsentDetails({
         onClick={onToggle}
         className="w-full text-left font-medium text-gray-700"
       >
-        {open ? "▾" : "▸"} 자세히 보기 (베트남 법령 원문 · 한국어 번역)
+        {open ? "▾" : "▸"} 자세히 보기 (베트남 법령 원문 · 번역)
       </button>
 
       {highlight && (
         <p className="mt-2 font-semibold text-red-700">
-          베트남 개인정보보호법에 따라 동의하지 않으면 계정 생성 및 서비스
-          이용(결과 확인, 상담 등)을 진행할 수 없습니다.
+          {LEAD_FORM_MESSAGES[lang].consentRequiredWarning}
         </p>
       )}
 
@@ -106,30 +119,22 @@ function ConsentDetails({
               lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
               thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn
               sau khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại,
-              địa chỉ, email (nếu có), ID Kakao/Zalo (nếu có), nhằm mục đích
-              tư vấn, hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ
-              liệu được lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục
-              đích xử lý. Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ
-              chối có thể khiến bạn không thể sử dụng một số dịch vụ (xem kết
-              quả chẩn đoán, tư vấn, v.v.).
+              địa chỉ, email, và ít nhất một ID mạng xã hội (Kakao, WeChat,
+              WhatsApp hoặc Zalo — bắt buộc chọn một), nhằm mục đích tư vấn,
+              hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ liệu được
+              lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục đích xử lý.
+              Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ chối có thể
+              khiến bạn không thể sử dụng một số dịch vụ (xem kết quả chẩn
+              đoán, tư vấn, v.v.).
             </p>
           </div>
           <div>
-            <p className="font-semibold text-gray-700">한국어 번역 (이용자 편의 제공용)</p>
-            <p>
-              본 서비스는 베트남에서 운영되며, 이용자의 개인정보는 베트남
-              개인정보보호법(91/2025/QH15호, 2026년 1월 1일 시행) 및 시행령
-              (356/2025/NĐ-CP호)에 따라 처리됩니다. 원문과 번역본이 다를
-              경우 베트남어 원문이 우선합니다.
-            </p>
+            <p className="font-semibold text-gray-700">{translation.heading}</p>
+            <p>{translation.body}</p>
             <ul className="mt-1 list-disc pl-4 space-y-0.5">
-              <li>수집 항목: 이름, 전화번호, 주소, (선택) 이메일, (선택) 카카오톡/잘로 ID</li>
-              <li>수집 목적: 상담·안내 및 서비스 이용을 위한 계정 자동 생성</li>
-              <li>보유 기간: 회원 탈퇴 시 또는 목적 달성 시까지</li>
-              <li>
-                동의를 거부하실 수 있으나, 거부 시 계정 생성이 불가하여 결과
-                확인·상담 등 서비스 이용이 제한될 수 있습니다.
-              </li>
+              {translation.items.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
             </ul>
           </div>
           <Link
@@ -725,6 +730,8 @@ function PremiumLeadCapture({
   tone,
   diagnosis,
   messengers,
+  lang,
+  fieldErrors,
   submitting,
   leadError,
   consentOpen,
@@ -736,7 +743,9 @@ function PremiumLeadCapture({
 }: {
   tone: "possible" | "conditional";
   diagnosis: DiagnosisResult | null;
-  messengers: typeof MESSENGERS_KO;
+  messengers: MessengerPair;
+  lang: SupportedLanguage;
+  fieldErrors: FieldErrors;
   submitting: boolean;
   leadError: string | null;
   consentOpen: boolean;
@@ -746,6 +755,20 @@ function PremiumLeadCapture({
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onReset: () => void;
 }) {
+
+  // [STEP22 2차] 실시간 검증 — 입력값이 바뀔 때마다 공용 검증 모듈로 재검사해서
+  // 제출 버튼의 disabled 여부를 즉시 반영한다. name 속성은 그대로 두고
+  // FormData 기반 제출도 그대로 유지하면서, 버튼 활성화 판단용으로만 별도 상태를 쓴다.
+  const [formValues, setFormValues] = useState<{
+    name: string;
+    phone: string;
+    address: string;
+    email: string;
+    kakao_id: string;
+    zalo_id: string;
+  }>({ name: "", phone: "", address: "", email: "", kakao_id: "", zalo_id: "" });
+  const [consentChecked, setConsentChecked] = useState(false);
+  const canSubmit = validateLeadForm(formValues, lang).valid && consentChecked;
   const isPossible = tone === "possible";
   const score = diagnosis?.customerView.feasibilityScore ?? (isPossible ? 92 : 74);
   const status = isPossible ? "가능성 높음" : "추가 확인 필요";
@@ -827,43 +850,51 @@ function PremiumLeadCapture({
             type="text"
             name="name"
             required
-            placeholder="이름"
+            placeholder={LEAD_FORM_MESSAGES[lang].name.placeholder}
+            onChange={(e) => setFormValues((v) => ({ ...v, name: e.target.value }))}
             className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
           />
           <input
             type="tel"
             name="phone"
             required
-            placeholder="전화번호"
+            placeholder={LEAD_FORM_MESSAGES[lang].phone.placeholder}
+            onChange={(e) => setFormValues((v) => ({ ...v, phone: e.target.value }))}
             className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
           />
           <input
             type="text"
             name="address"
             required
-            placeholder="현재 거주지 주소 (예: Quận 1, TP.HCM)"
+            placeholder={LEAD_FORM_MESSAGES[lang].address.placeholder}
+            onChange={(e) => setFormValues((v) => ({ ...v, address: e.target.value }))}
             className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
           />
           <input
             type="email"
             name="email"
-            placeholder="이메일 (선택 — 결과를 이메일로도 받아보세요)"
+            required
+            placeholder={LEAD_FORM_MESSAGES[lang].email.placeholder}
+            onChange={(e) => setFormValues((v) => ({ ...v, email: e.target.value }))}
             className="h-11 w-full rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
           />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               type="text"
               name="kakao_id"
-              placeholder={`${messengers.primary.label} ID (선택)`}
+              placeholder={`${messengers.primary.label} ID`}
+              onChange={(e) => setFormValues((v) => ({ ...v, kakao_id: e.target.value }))}
               className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
             />
             <input
               type="text"
               name="zalo_id"
-              placeholder={`${messengers.secondary.label} ID (선택)`}
+              placeholder={`${messengers.secondary.label} ID`}
+              onChange={(e) => setFormValues((v) => ({ ...v, zalo_id: e.target.value }))}
               className="h-11 rounded-lg border border-gray-200 px-4 text-sm focus:border-blue-900 focus:outline-none"
             />
           </div>
+          <p className="-mt-1 text-[11px] text-gray-400">{LEAD_FORM_MESSAGES[lang].sns.required}</p>
 
           <div>
             <label className="flex items-start gap-2 text-xs text-gray-600">
@@ -872,15 +903,18 @@ function PremiumLeadCapture({
                 name="agreeTerms"
                 onChange={(e) => {
                   if (e.target.checked) onConsentChecked();
+                  setConsentChecked(e.target.checked);
                 }}
                 className="mt-0.5"
               />
-              <span>(필수) {CONSENT_SUMMARY}</span>
+              <span>(필수) {LEAD_FORM_MESSAGES[lang].consentSummary}</span>
             </label>
             <ConsentDetails
               open={consentOpen}
               onToggle={onConsentToggle}
               highlight={consentHighlight}
+              lang={lang}
+              messengers={messengers}
             />
           </div>
 
@@ -890,13 +924,14 @@ function PremiumLeadCapture({
             type="submit"
             variant={isPossible ? "primary" : "amber"}
             loading={submitting}
+            disabled={!canSubmit}
           >
-            {submitting ? "접수 중..." : "AI 분석 리포트 무료로 받기"}
+            {submitting ? LEAD_FORM_MESSAGES[lang].submitLoadingLabel : LEAD_FORM_MESSAGES[lang].submitLabel}
           </PrimaryButton>
         </form>
 
         <div className="mt-3">
-          <InfoBox>입력하신 정보는 상담 안내 목적으로만 사용됩니다.</InfoBox>
+          <InfoBox>{LEAD_FORM_MESSAGES[lang].privacyNoticeLine}</InfoBox>
         </div>
 
         <button
@@ -904,7 +939,7 @@ function PremiumLeadCapture({
           onClick={onReset}
           className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
         >
-          처음부터 다시 확인하기
+          {LEAD_FORM_MESSAGES[lang].resetLabel}
         </button>
       </div>
     </div>
@@ -935,7 +970,15 @@ export default function TrcCheckPage() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
-  const messengers = MESSENGERS_KO;
+  const [lang, setLang] = useState<SupportedLanguage>("ko");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setLang(resolveLanguage(params.get("lang")));
+    }
+  }, []);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const selfNotifySentRef = useRef(false);
   // /api/lead-submit 응답의 result_tokens.token — "전문가 진행 요청하기" 클릭 시
   // /api/auto-login에 전달해 로그인 세션을 만든 뒤 /documents로 이동시키는 데 쓴다.
@@ -1135,6 +1178,24 @@ export default function TrcCheckPage() {
     const kakaoId = (fd.get("kakao_id") as string) || null;
     const zaloId = (fd.get("zalo_id") as string) || null;
 
+    const { valid, errors } = validateLeadForm({ name, phone, address, email, kakao_id: kakaoId, zalo_id: zaloId }, lang);
+    if (!valid) {
+      setFieldErrors(errors);
+      setLeadError(Object.values(errors)[0] || null);
+      setSubmitting(false);
+      return;
+    }
+    setFieldErrors({});
+
+    // [STEP22] SNS는 실제 플랫폼명을 정확히 구분해 crm_activities.meta에 별도로 남긴다.
+    // 기존 kakao_id/zalo_id 컬럼(primary/secondary 슬롯)은 그대로 유지하고, DB 스키마는 바꾸지 않는다.
+    const socialContacts = buildSocialContacts({
+      kakaoValue: kakaoId,
+      zaloValue: zaloId,
+      primaryKey: messengers.primary.key,
+      secondaryKey: messengers.secondary.key,
+    });
+
     const { error } = await supabase.from("leads").insert({
       id: leadId,
       name,
@@ -1175,10 +1236,32 @@ export default function TrcCheckPage() {
     });
 
     try {
-      const res = await fetch("/api/lead-submit", {
+      // [STEP22 2차] 기존 crm_activities.meta를 읽어와 socialContacts/preferredLanguage만
+    // 병합한다 — 서비스마다 meta 구조가 다르므로 그 형태를 추측하지 않고, 기존 값을
+    // 그대로 읽은 뒤 spread로 덮어쓰지 않고 새 키만 추가한다. 이 시점에 이 lead_id로
+    // 남아있는 crm_activities 행은 방금 삽입한 진단 행 하나뿐이므로 lead_id로 최신
+    // 행을 찾아 병합하면 다른 서비스의 meta 구조를 알 필요가 없다.
+    const { data: existingActivity } = await supabase
+      .from("crm_activities")
+      .select("id, meta")
+      .eq("lead_id", leadId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingActivity?.id) {
+      const existingMeta =
+        existingActivity.meta && typeof existingActivity.meta === "object" ? existingActivity.meta : {};
+      await supabase
+        .from("crm_activities")
+        .update({ meta: { ...existingMeta, socialContacts, preferredLanguage: lang } })
+        .eq("id", existingActivity.id);
+    }
+
+    const res = await fetch("/api/lead-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, name, phone, email, address }),
+        body: JSON.stringify({ leadId, name, phone, email, address, lang, kakao_id: kakaoId, zalo_id: zaloId }),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
@@ -1508,6 +1591,8 @@ export default function TrcCheckPage() {
             tone="possible"
             diagnosis={diagnosis}
             messengers={messengers}
+            lang={lang}
+            fieldErrors={fieldErrors}
             submitting={submitting}
             leadError={leadError}
             consentOpen={consentOpen}
@@ -1668,6 +1753,8 @@ export default function TrcCheckPage() {
             tone="conditional"
             diagnosis={diagnosis}
             messengers={messengers}
+            lang={lang}
+            fieldErrors={fieldErrors}
             submitting={submitting}
             leadError={leadError}
             consentOpen={consentOpen}

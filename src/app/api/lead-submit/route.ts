@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendResultEmail } from "@/lib/notify/email";
+import {
+  validateLeadForm,
+  resolveLanguage,
+  type SupportedLanguage,
+} from "@/lib/customerRegistrationValidation";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
 const supabaseAdmin = createClient(
@@ -41,12 +46,15 @@ async function findAuthUserIdByEmail(authEmail: string): Promise<string | null> 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { leadId, name, phone, email, address } = body as {
+    const { leadId, name, phone, email, address, lang, kakao_id, zalo_id } = body as {
       leadId: string;
       name: string;
       phone: string;
       email?: string;
       address?: string;
+      lang?: string;
+      kakao_id?: string | null;
+      zalo_id?: string | null;
     };
 
     if (!leadId || !name || !phone) {
@@ -56,6 +64,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // [STEP22] 프론트와 동일한 공통 검증 모듈로 서버 최종 검증을 수행한다.
+    // name/phone/address는 모든 CHECK/VERIFY/REGISTER 폼이 이미 보내는 필드라
+    // 즉시 전체 17개 폼에 적용된다. email은 이번 STEP부터 전 언어 공통 필수이고,
+    // [STEP22 2차] kakao_id/zalo_id 중 최소 하나도 필수다(언어별로 어떤 플랫폼이
+    // 그 슬롯에 들어가는지는 messenger.ts가 결정하므로 서버는 슬롯 값만 확인한다).
+    const requestLang: SupportedLanguage = resolveLanguage(lang);
+    const { valid, errors } = validateLeadForm(
+      {
+        name,
+        phone,
+        address: address ?? "",
+        email: email ?? "",
+        kakao_id: kakao_id ?? "",
+        zalo_id: zalo_id ?? "",
+      },
+      requestLang
+    );
+    if (!valid) {
+      const firstField = Object.keys(errors)[0] as keyof typeof errors;
+      return NextResponse.json(
+        {
+          error: "VALIDATION_ERROR",
+          field: firstField,
+          message: errors[firstField],
+          errors,
+        },
+        { status: 400 }
+      );
+    }
+
+    // 위 검증을 통과하면 email은 항상 값이 있는 상태다. 아래 폴백(`${phone}@vfbc.local`)은
+    // 검증을 우회한 직접 API 호출 등 예외 상황에 대비한 안전장치로만 남겨둔다.
     const authEmail = email && email.trim() ? email.trim() : `${phone}@vfbc.local`;
 
     // 1. 이 전화번호 "또는" 이메일로 이미 가입된 회원인지 확인
