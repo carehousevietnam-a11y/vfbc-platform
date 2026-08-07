@@ -1,0 +1,154 @@
+[
+  {
+    "query": "외국인 노동허가 요건",
+    "hit_count": 0,
+    "top_hits": []
+  },
+  {
+    "query": "giấy phép lao động người nước ngoài",
+    "hit_count": 0,
+    "top_hits": []
+  },
+  {
+    "query": "베트남 부동산 매매 시 외국인 제한",
+    "hit_count": 0,
+    "top_hits": []
+  },
+  {
+    "query": "quyền sử dụng đất người nước ngoài",
+    "hit_count": 0,
+    "top_hits": []
+  },
+  {
+    "query": "사기 계약 관련 hình sự",
+    "hit_count": 0,
+    "top_hits": []
+  },
+  {
+    "query": "lừa đảo chiếm đoạt tài sản",
+    "hit_count": 0,
+    "top_hits": []
+  },
+  {
+    "query": "đăng ký doanh nghiệp",
+    "hit_count": 5,
+    "top_hits": [
+      {
+        "document_number": [
+          "105/2016/QH13"
+        ],
+        "title": "Luật Dược số",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 50.0,
+        "match_type": "keyword_phrase"
+      },
+      {
+        "document_number": [
+          "184/2015/TT-BTC"
+        ],
+        "title": "Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiền thuế, tiền chậm nộp, tiền phạt, tiền phí, lệ phí, các khoản thu khác, đối với hàng hóa xuất khẩu, nhập khẩu, quá cảnh và phương tiện xuất cảnh, nhập cảnh, quá cảnh",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 50.0,
+        "match_type": "keyword_phrase"
+      },
+      {
+        "document_number": [
+          "86/2013/NĐ-CP"
+        ],
+        "title": "quy định về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 50.0,
+        "match_type": "keyword_phrase"
+      }
+    ]
+  },
+  {
+    "query": "thuế giá trị gia tăng",
+    "hit_count": 5,
+    "top_hits": [
+      {
+        "document_number": [
+          "184/2015/TT-BTC"
+        ],
+        "title": "Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiền thuế, tiền chậm nộp, tiền phạt, tiền phí, lệ phí, các khoản thu khác, đối với hàng hóa xuất khẩu, nhập khẩu, quá cảnh và phương tiện xuất cảnh, nhập cảnh, quá cảnh",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 50.0,
+        "match_type": "keyword_phrase"
+      },
+      {
+        "document_number": [
+          "118/2009/TT-BTC"
+        ],
+        "title": "Hướng dẫn việc nhập khẩu xe ôtô đang sử dụng theo chế độ tài sản di chuyển của người Việt Nam định cư ở nước ngoài đã hoàn tất thủ tục đăng ký thường trú tại Việt Nam",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 50.0,
+        "match_type": "keyword_phrase"
+      },
+      {
+        "document_number": [
+          "03-BXD/VKT"
+        ],
+        "title": "Hướng dẫn việc xây dựng đơn giá xây dựng cơ bản và lập dự toán các công trình xây dựng cơ bản",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 10.0,
+        "match_type": "keyword_all_terms"
+      }
+    ]
+  },
+  {
+    "query": "thủ tục hành chính",
+    "hit_count": 5,
+    "top_hits": [
+      {
+        "document_number": [
+          "19/2011/TT-BNNPTNT"
+        ],
+        "title": "Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chính trong lĩnh vực chăn nuôi theo",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 75.0,
+        "match_type": "keyword_phrase"
+      },
+      {
+        "document_number": [
+          "22/2011/TT-BNNPTNT"
+        ],
+        "title": "Sửa đổi, bổ sung một số quy định về thủ tục hành chính trong lĩnh vực kinh tế hợp tác và phát triển nông thôn, thi đua khen thưởng, quản lý đề tài khoa học theo",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 75.0,
+        "match_type": "keyword_phrase"
+      },
+      {
+        "document_number": [
+          "04/2016/TT-BCT"
+        ],
+        "title": "Sửa đổi, bổ sung một số Thông tư của Bộ trưởng Bộ Công Thương về thủ tục hành chính trong lĩnh vực thương mại điện tử, hóa chất, sản xuất kinh doanh rượu, nhượng quyền thương mại, hoạt động mua bán hàng hóa qua sở giao dịch hàng hóa, năng lượng, an toàn thực phẩm và điện lực",
+        "article_no": null,
+        "clause_no": null,
+        "status": "unknown",
+        "score": 75.0,
+        "match_type": "keyword_phrase"
+      }
+    ]
+  },
+  {
+    "query": "152/2020/NĐ-CP",
+    "hit_count": 0,
+    "top_hits": []
+  }
+]

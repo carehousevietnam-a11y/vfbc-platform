@@ -99,9 +99,21 @@ def normalize_vbpl_row(row: dict[str, Any], today: date | None = None) -> tuple[
     content_hash = sha256_text(normalized) if normalized else None
     doc_type = row.get("doc_type")
     legal_area = row.get("legal_area")
-    category, empty_reason = map_vbpl_legal_area(legal_area)
+    pilot_category = row.get("pilotCategory")
+    if pilot_category and isinstance(pilot_category, list):
+        category = pilot_category
+        empty_reason = None
+    else:
+        category, empty_reason = map_vbpl_legal_area(legal_area)
 
-    return CanonicalDocument(
+    if row.get("pilotStatusHint") == "repealed":
+        status = DocumentStatus.REPEALED.value
+        raw_status = "pilot:repealed_example"
+    else:
+        status = DocumentStatus.UNKNOWN.value
+        raw_status = None
+
+    doc = CanonicalDocument(
         documentId=f"tmquan:{row.get('doc_name')}",
         sourceDataset=SourceDataset.TMQUAN_VBPL_VN.value,
         sourceRevision=VBPL_VN_REVISION,
@@ -119,8 +131,8 @@ def normalize_vbpl_row(row: dict[str, Any], today: date | None = None) -> tuple[
         effectiveDate=None,
         expiryDate=None,
         publicationDate=None,
-        status=DocumentStatus.UNKNOWN.value,
-        rawStatus=None,
+        status=status,
+        rawStatus=raw_status,
         category=category,
         authorityWeight=compute_authority_weight(doc_type),
         language="vi",
@@ -130,7 +142,8 @@ def normalize_vbpl_row(row: dict[str, Any], today: date | None = None) -> tuple[
         normalizedText=normalized,
         searchText=search_text,
         contentHash=content_hash,
-    ), empty_reason
+    )
+    return doc, empty_reason
 
 
 def normalize_th1nhng0_metadata_row(

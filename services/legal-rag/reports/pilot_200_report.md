@@ -1,0 +1,253 @@
+# STEP 2 Pilot 200 — Collection & Normalization Report
+
+## 1. Category collection vs quota
+- **Administrative**: 35 / 35
+- **Immigration**: 30 / 30
+- **Labor**: 30 / 30
+- **Criminal**: 25 / 25
+- **RealEstate**: 25 / 25
+- **Tax**: 20 / 20
+- **Company**: 20 / 20
+- **Licensing**: 15 / 15
+
+## 2. Collected documents (full list)
+- [Administrative] `34-TC/TNVT` — Hướng dẫn bù giá 6 mặt hàng bán theo định lượng với giá bán lẻ chỉ đạo ổn định của Nhà nước cho công nhân, viên chức và hạch toán số tiền bù giá vào giá thành sản phẩm, phí lưu thông (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `03-TC/TNVT` — Hướng dẫn bù giá dầu hoả thắp sáng cho cán bộ công nhân viên chức theo công điện số của Hội đồng Bộ trưởng (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `26/LĐTBXH-TT` — Hướng dẫn thực hiện chế độ phụ cấp độc hại phóng xạ đối với công chức, viên chức làm việc tại viện nghiên cứu hạt nhân (Đà Lạt) (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `17/TT-NH3` — Hướng dẫn việc giải quyết khiếu nại, tố cáo trong ngành Ngân hàng (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `104/2016/QH13` — Luật Tiếp cận thông tin số (status: `unknown`, doc_number, luat)
+- [Administrative] `9/TC-HCVX` — Quy định chế độ công tác phí cho công nhân viên chức Nhà nước đi công tác trong nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `05-TC/HCVX` — Quy định chế độ phụ cấp cho cán bộ, công nhân, viên chức Nhà nước đi công tác ở trong nước (Công tác phí) (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `53-CP` — Quy định các biện pháp xử lý đối với cán bộ, viên chức Nhà nước và những người có hành vi liên quan đến mại dâm, ma tuý, cờ bạc và say rượu bê tha (status: `unknown`, title_keyword, nghi_dinh)
+- [Administrative] `47/2016/NĐ-CP` — Quy định mức lương cơ sở đối với cán bộ, công chức, viên chức và lực lượng vũ trang (status: `unknown`, title_keyword, nghi_dinh)
+- [Administrative] `49/2011/TT-BTC` — Sửa đổi, bổ sung Quy chế, Quy trình tiếp công dân, nhận và giải quyết đơn thư khiếu nại, tố cáo của công dân tại các đơn vị thuộc Bộ Tài chính được ban hành kèm theo và của Bộ trưởng Bộ Tài chính (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `04/2016/TT-BCT` — Sửa đổi, bổ sung một số Thông tư của Bộ trưởng Bộ Công Thương về thủ tục hành chính trong lĩnh vực thương mại điện tử, hóa chất, sản xuất kinh doanh rượu, nhượng quyền thương mại, hoạt động mua bán hàng hóa qua sở giao dịch hàng hóa, năng lượng, an toàn thực phẩm và điện lực (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `22/2011/TT-BNNPTNT` — Sửa đổi, bổ sung một số quy định về thủ tục hành chính trong lĩnh vực kinh tế hợp tác và phát triển nông thôn, thi đua khen thưởng, quản lý đề tài khoa học theo (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `19/2011/TT-BNNPTNT` — Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chính trong lĩnh vực chăn nuôi theo (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `` — TC /CÐTC Hướng dẫn việc thực hiện tiền thưởng cuối năm 1987 đối với công nhân viên chức khu vực hành chính sự nghiệp và lực lượng vũ trang (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `` — TC/ HCVX Về việc áp dụng chế độ công tác phí cho cán bộ, công nhân viên chức đi dự các lớp tập huấn và học tại chức (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `` — TC/CÐTC Hướng dẫn việc thực hiện tiền thưởng cuối năm đối với công nhân viên chức khu vực HCSN và lực lượng vũ trang (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `` — TC/HCVX Sửa đổi mức chi về nước uống trong giờ làm việc cho cán bộ công nhân viên chức Nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `28-TC/HCVX` — bổ sung chế độ phụ cấp cho cán bộ, công nhân, viên chức đi công tác ở trong nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `12-TC/HCVX` — bổ sung và sửa đổi một số điểm về chế độ phụ cấp cho cán bộ, công nhân viên chức Nhà nước đi công tác ở trong nước (công tác phí) (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `17-TC/HCVX` — bổ sung, sửa đổi một số điểm về chế độ phụ cấp công tác phí cho cán bộ, công nhân, viên chức đi công tác ở trong nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `150/1998/TT-BTC` — hướng dẫn quản lý, sử dụng kinh phí đào tạo, bồi dưỡng cán bộ và công chức Nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `5-TC/HCVX` — hướng dẫn thi hành chế độ thanh toán tiền tàu xe nghỉ phép hàng năm đối với công nhân viên chức Nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `08-TC/HCVX` — hướng dẫn thi hành chế độ trợ cấp sơ tán cho gia đình cán bộ, công nhân, viên chức và nhân dân trong tình hình mới (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `20-TC/VX` — hướng dẫn thủ tục cấp phát kinh phí và thanh toán trợ cấp đối với cán bộ, viên chức ra ngoài biên chế Nhà nước theo của Hội đồng Bộ trưởng (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `07/2000/TT-BTC` — hướng dẫn việc cấp, quản lý, hạch toán, quyết toán kinh phí thôi việc và nộp ngân sách tiền bồi thường chi phí đào tạo, bồi dưỡng cán bộ công chức (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `38/1998/TT-BTC` — hướng dẫn việc lập dự toán, sử dụng và quyết toán ngân sách Nhà nước cho bồi thường thiệt hại do công chức, viên chức Nhà nước, người có thẩm quyền của cơ quan Nhà nước, cơ quan tiến hành tố tụng gây ra (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `94/1998/TT-BTC` — quy định chế độ công tác phí cho cán bộ, công chức Nhà nước đi công tác trong nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `9-TC/HCVX` — quy định chế độ công tác phí cho công nhân viên chức Nhà nước đi công tác trong nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `09-TC/HCVX` — quy định chế độ công tác phí cho công nhân, viên chức Nhà nước đi công tác ở trong nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `2-TC/HCVX` — quy định chế độ phụ cấp cho cán bộ, công nhân, viên chức Nhà nước đi công tác ở trong Nhà nước (công tác phí) (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `1-TC/HCVX` — quy định chế độ phụ cấp tiền tàu xe cho công nhân viên chức (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `206-TT/HCVX` — quy định chế độ trợ cấp tiền tàu xe cho cán bộ, công nhân, viên chức nhà nước trong các trường hợp đi khám bệnh, điều trị, đi nghỉ phép và thôi việc về quê quán (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `206/CT` — quy định tạm thời chế độ tài chính đối với các thành viên gia đình đi theo cán bộ công nhân viên chức làm việc tại các cơ quan đại diện Việt Nam tại nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `25-TC/HCVX` — về việc sửa đổi chế độ công tác phí cho cán bộ, công nhân viên chức Nhà nước đi công tác trong nước (status: `unknown`, title_keyword, thong_tu)
+- [Administrative] `41-NV-6-TT` — Định thể lệ xếp công chức vào thang lương chung theo năng lực (status: `unknown`, title_keyword, thong_tu)
+- [Company] `120-CP` — Ban hành Quy chế tạm thời về việc phát hành trái phiếu, cổ phiếu doanh nghiệp Nhà nước (status: `unknown`, title_keyword, nghi_dinh)
+- [Company] `40/CP` — Ban hành Quy chế Đặt Văn phòng đại diện doanh nghiệp Việt nam ở nước ngoài (status: `unknown`, title_keyword, nghi_dinh)
+- [Company] `94/TC-CN` — Hướng dẫn chế độ trích lập và sử dụng vốn KHCB tại các doanh nghiệp Nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [Company] `27/TC-HCVX` — Hướng dẫn một số chính sách tài chính đối với các doanh nghiệp Nhà nước chuyên tổ chức biểu diễn nghệ thuật (status: `unknown`, title_keyword, thong_tu)
+- [Company] `189-CP` — Hướng dẫn thi hành Luật Phá sản doanh nghiệp (status: `unknown`, title_keyword, nghi_dinh)
+- [Company] `61/2016/TT-BTC` — Hướng dẫn thu, nộp và quản lý khoản lợi nhuận, cổ tức được chia cho phần vốn nhà nước đầu tư tại doanh nghiệp (status: `unknown`, title_keyword, thong_tu)
+- [Company] `472-PLDS-KT` — Hướng dẫn thủ tục và thời hạn cấp Giấy phép thành lập doanh nghiệp tư nhân và công ty (status: `unknown`, title_keyword, thong_tu)
+- [Company] `10-TM/PC` — Hướng dẫn thực hiện Quy chế Đặt Văn phòng Đại diện doanh nghiệp Việt Nam ở nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Company] `15/TC-CN` — Hướng dẫn thực hiện chế độ bảo toàn và phát triển vốn đến 01/01/1993 đối với các doanh nghiệp Nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [Company] `38/TC-CĐTC` — Hướng dẫn thực hiện chế độ quản lý tài chính đối với các công ty xổ số kiến thiết (status: `unknown`, title_keyword, thong_tu)
+- [Company] `7/TT-NH7` — Hướng dẫn việc quản lý vay và trả nợ nước ngoài của các doanh nghiệp (status: `unknown`, title_keyword, thong_tu)
+- [Company] `13-BYT/TT` — Hướng dẫn xếp hạng các doanh nghiệp ngành y tế (status: `unknown`, title_keyword, thong_tu)
+- [Company] `Không số` — Luật Phá sản doanh nghiệp số Không số (status: `unknown`, title_keyword, luat)
+- [Company] `Không số` — Luật Sửa đổi một số điều của Luật Công ty số Không số (status: `unknown`, title_keyword, luat)
+- [Company] `Không số` — Luật Sửa đổi một số điều của Luật Doanh nghiệp tư nhân số Không số (status: `unknown`, title_keyword, luat)
+- [Company] `45/TC-CĐKT` — Quy định chế độ quản lý tài chính đối với doanh nghiệp bảo hiểm (status: `unknown`, title_keyword, thong_tu)
+- [Company] `5/CP` — Quy định tạm thời việc thực hiện mức lương mới đối với người đương nhiệm trong các cơ quan của NN, Đảng, đoàn thể, lực lượng vũ trang và trong các doanh nghiệp; điều chỉnh mức lương hưu, mức trợ cấp đối với các đối tượng CSXH (status: `unknown`, title_keyword, nghi_dinh)
+- [Company] `18/2016/NĐ-CP` — Sửa đổi, bổ sung một số điều của của Chính phủ về thành lập, tổ chức và hoạt động của Công ty Quản lý tài sản của các tổ chức tín dụng Việt Nam (status: `unknown`, title_keyword, nghi_dinh)
+- [Company] `05/2016/TT-NHNN` — Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước hướng dẫn một số nội dung về quản lý ngoại hối đối với việc vay, trả nợ nước ngoài của doanh nghiệp (status: `unknown`, title_keyword, thong_tu)
+- [Company] `06/2016/TT-NHNN` — Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước quy định về các giới hạn, tỷ lệ bảo đảm an toàn trong hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `57/2016/TT-BTC` — Hưóng dẫn chế độ thu nộp, hạch toản các khoản đóng góp vào Quỹ Dịch vụ viễn thông công ích Việt Nam và việc chuyển giao tài sản hình thành từ kinh phí của Quỹ Dịch vụ viễn thông công ích Việt Nam đến năm 2020 (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `15-TC/TNVT` — Hướng dẫn bàn giao vốn, tài sản và vật tư dự trữ nhà nước theo nghị định số của Hội đồng Bộ trưởng (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `46/TC-ĐT` — Hướng dẫn thực hiện của Chủ tịch HĐBT về việc đền bù thiệt hại về đất đai và tài sản, hoa màu cho các đối tượng sử dụng đất có đường dây tải điện 500KV đi qua (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `104/2006/TT-BTC` — Hướng dẫn thực hiện việc quản lý, sử dụng ngân sách và tài sản nhà nước đối với một số hoạt động thuộc lĩnh vực Cơ yếu (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `37-TC/CÐKT` — Hướng dẫn xử lý kết quả thừa, thiếu tài sản trong kiểm kê và kế toán kết quả KK và đánh giá lại vốn sản xuất kinh doanh theo quyết định 101/HÐBT của Hội đồng Bộ trưởng (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `Không số` — Luật Sửa đổi, bổ sung một số điều của Bộ luật Hình sự số Không số (status: `unknown`, title_keyword, luat)
+- [Criminal] `Không số` — Luật Sửa đổi, bổ sung một số điều của Bộ luật Tố tụng hình sự số Không số (status: `unknown`, title_keyword, luat)
+- [Criminal] `31-TC/TCĐN` — Quy định chế độ khấu hao tài sản cố định đối với các xí nghiệp có vốn đầu tư nước ngoài và các bên nước ngoài hợp tác kinh doanh trên cơ sở hợp đồng (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `80/CP` — Quy định khung giá các loại đất để tính thuế chuyển quyền sử dụng đất, thu tiền khi giao đất, cho thuê đất, tính giá trị tài sản khi giao đất, bồi thường thiệt hại về đất khi thu hồi (status: `unknown`, title_keyword, nghi_dinh)
+- [Criminal] `` — TC / CÐKT Hướng dẫn kế toán thi hành thông tư số 260 - TTg ngày 20/6/1977 của Thủ tướng Chính phủ về sửa đổi bổ sung một số quy định về quản lý và hạch toán tài sản cố định trong các xí nghiệp quốc doanh (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `` — TC / QLNS Hướng dẫn thi hành Ðiều lệ xử phạt vi cảnh về mặt tài sản (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `` — TC/CÐKT Hướng dẫn xử lý tài sản thừa, thiếu trong kiểm kê; kế toán kết quả kiểm kê và đánh giá lại tài sản khu vực hành chính sự nghiệp 0h ngày 01/7/1990 theo của Hội đồng Bộ trưởng (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `` — TC/VI hướng dẫn nộp lệ phí trước bạ đối với tài sản của Ðảng được Nhà nước xác nhận; chuyển giao quyền sở hữu, sử dụng theo QÐ 248/CT ngày 2/7/1992 của Chủ tịch Hội đồng Bộ trưởng (nay là Thủ Tướng Chính phủ) (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `` — TC/ÐT HƯớNG DẫN Bổ SUNG Về ÐềN Bù TàI SảN, ÐấT ÐAI Ðể CảI TạO MặT BằNG, NâNG CấP QUốC Lộ 5 (ÐOạN KM47 ÐếN KM62) (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `67-TC/HCVX` — hướng dẫn kiểm kê và xử lý kết quả kiểm kê tài sản 0 giờ ngày 1/1/1988 khu vực hành chính sự nghiệp (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `27-TC/CÐKT` — hướng dẫn kế toán kết quả tổng kiểm kê và đánh giá lại tài sản cố định 0 giờ ngày 1/10/1985 (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `16-TC/CÐKT` — hướng dẫn kế toán kết quả tổng kiểm kê và đánh giá lại tài sản cố định 0 giờ ngày 1/9/1980 (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `07/2009/TT-BTC` — hướng dẫn mẫu biểu thực hiện công khai quản lý, sử dụng tài sản nhà nước và báo cáo số liệu tình hình quản lý, sử dụng tài sản nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `165/1998/TT-BTC` — hướng dẫn phương pháp hạch toán kế toán kết quả kiểm kê và đánh giá lại tài sản cố định khu vực hành chính sự nghiệp tại 0h ngày 1/1/1998 (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `83/1997/TT/KK-TW` — hướng dẫn sử dụng bảng giá và hệ số tính giá để xác định giá tài sản cố định áp dụng trong kỳ tổng kiểm kê đánh gía tài sản cố định của Nhà nước tại khu vực hành chính sự nghiệp vào thời điểm 0 giờ ngày 01/01/1998 (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `34-TC/CN` — hướng dẫn việc chuyển giao, cho thuê, nhượng bán, thanh lý tài sản cố định (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `43-TC/QLCS` — hướng dẫn việc tiếp nhận và bàn giao tài sản giữa các cơ quan hành chính sự nghiệp, tổ chức kinh tế theo quyết định của cơ quan có thẩm quyền (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `69/1999/TT-BTC` — hướng dẫn việc xử lý đối với tài sản Nhà nước tại khu vực HCSN sau tổng kiểm kê đánh giá lại tài sản cố định theo (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `13-TC/ÐTXD` — hướng dẫn về việc trích lập và sử dụng quỹ khấu hao cơ bản để lại cho xí nghiệp và sửa đổi, bổ sung một số điểm trong chế độ khấu hao tài sản cố định (status: `unknown`, title_keyword, thong_tu)
+- [Criminal] `33-TC/CN` — quy định chế độ khấu hao tài sản cố định (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `13-BYT/TT` — Bổ sung thông tư 19-BYT/TT ngày 26/7/1988 về quy định tạm thời chế độ thu tiền khám chữa bệnh và dịch vụ y tế đối với người nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `146/2009/TT-BTC` — Hướng dẫn chế độ thu, nộp và quản lý sử dụng lệ phí giải quyết các việc liên quan đến quốc tịch (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `100/TC-TCT` — Hướng dẫn thu, quản lý, sử dụng lệ phí đặt và hoạt động của văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `4/TN-PC` — Hướng dẫn thực hiện Quy chế đặt và hoạt động của Văn phòng đại diện thường trú các tổ chức kinh tế nước ngoài tại Cộng hoà xã hội chủ nghĩa Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `769-NG/TT` — Hướng dẫn thực hiện của Chính phủ quy định chi tiết thi hành Pháp lệnh nhập cảnh, xuất cảnh, cư trú, đi lại của người nước ngoài tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `118/2009/TT-BTC` — Hướng dẫn việc nhập khẩu xe ôtô đang sử dụng theo chế độ tài sản di chuyển của người Việt Nam định cư ở nước ngoài đã hoàn tất thủ tục đăng ký thường trú tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `55/2015/TT-BLĐTBXH` — Hướng dẫn việc tiếp nhận, quản lý và giáo dục người chưa thành niên không có nơi cư trú ổn định bị áp dụng biện pháp giáo dục tại xã, phường, thị trấn tại các cơ sở trợ giúp trẻ em (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `138/2016/TT-BTC` — Mức thu, chế độ thu, nộp lệ phí cấp giấy phép lên bờ cho thuyền viên nước ngoài, giấy phép xuống tàu nước ngoài, giấy phép cho người điều khiển phương tiện Việt Nam cặp mạn tàu nước ngoài và giấy phép cho người Việt Nam và người nước ngoài thực hiện các hoạt động báo chí, nghiên cứu khoa học, tham quan du lịch có liên quan đến tàu, thuyền nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `4-CP` — Quy định chi tiết thi hành Pháp lệnh Nhập cảnh xuất cảnh, cư trú, đi lại của người nước ngoài tại Việt Nam (status: `unknown`, title_keyword, nghi_dinh)
+- [Immigration] `281/2016/TT-BTC` — Quy định mức thu, chế độ thu, nộp, quản lý và sử dụng phí khai thác, sử dụng thông tin trong cơ sở dữ liệu hộ tịch, phí xác nhận có quốc tịch Việt Nam, phí xác nhận là người gốc Việt Nam, lệ phí quốc tịch (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `219/2016/TT-BTC` — Quy định mức thu, chế độ thu, nộp, quản lý và sử dụng phí, lệ phí trong lĩnh vực xuất cảnh, nhập cảnh, quá cảnh, cư trú tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `184/2015/TT-BTC` — Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiền thuế, tiền chậm nộp, tiền phạt, tiền phí, lệ phí, các khoản thu khác, đối với hàng hóa xuất khẩu, nhập khẩu, quá cảnh và phương tiện xuất cảnh, nhập cảnh, quá cảnh (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `120/2015/TT-BTC` — Quy định về mẫu, chế độ in, phát hành, quản lý và sử dụng Tờ khai Hải quan dùng cho ngườỉ xuất cảnh, nhập cảnh (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `184-CP` — Quy định về thủ tục kết hôn, nhận con ngoài giá thú, nuôi con nuôi, nhận đỡ đầu giữa công dân Việt Nam và người nước ngoài (status: `unknown`, title_keyword, nghi_dinh)
+- [Immigration] `07/2016/TT-NHNN` — Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước quy định cho vay bằng ngoại tệ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng vay là người cư trú (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `31/2016/TT-NHNN` — Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước quy định cho vay bằng ngoại tệ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng vay là người cư trú (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `175/2016/NĐ-CP` — Sửa đổi, bổ sung một số điều quy định tại của Chính phủ về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài (status: `unknown`, title_keyword, nghi_dinh)
+- [Immigration] `175/2016/NĐ-CP` — Sửa đổi, bổ sung một số điều quy định tại của Chính phủ về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài (status: `unknown`, title_keyword, nghi_dinh)
+- [Immigration] `100/2011/TT-BTC` — TT-BTC Quy định việc quản lý, sử dụng số thu lệ phí xuất nhập cảnh phải nộp Ngân sách nhà nước để thực hiện Đề án Sản xuất và phát hành hộ chiếu điện tử Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `26/TC-HCVX` — Về chế độ thu tiền lệ phí cấp hộ chiếu, các loại giấy tờ, chứng nhận cho người nước ngoài và công dân Việt Nam nhập cảnh, xuất cảnh và cư trú (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `9-CP` — Về tiêu chuẩn hành lý miễn thuế của khách xuất - nhập cảnh (status: `unknown`, title_keyword, nghi_dinh)
+- [Immigration] `17-CP` — Về việc sửa đổi một số điều khoản trong Quy định chi tiết thi hành Pháp lệnh nhập cảnh, xuất cảnh, cư trú, đi lại của người nước ngoài tại Việt nam (status: `unknown`, title_keyword, nghi_dinh)
+- [Immigration] `28-TC/TCT` — hướng dẫn chế độ thu, nộp và quản lý lệ phí cấp giấy phép lao động cho người nước ngoài làm việc tại các doanh nghiệp, tổ chức ở Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `51-TC/CSTC` — hướng dẫn các khoản thu ngân sách Nhà nước đối với hoạt động cho người nước ngoài, người Việt Nam định cư ở nước ngoài thuê nhà tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `65/1998/TT-BTC` — hướng dẫn sửa đổi TT 93-TT/LB ngày 7/11/1994 về lệ phí hạn ngạch kinh doanh XNK hàng dệt may vào thị trường EC và TT 100-TC/TCT ngày 3/12/1993 về lệ phí đặt và hoạt động của Văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `136/1998/TT/BTC` — hướng dẫn sửa đổi thông tư số về lệ phí hạn ngạch kinh doanh xuất nhập khẩu hàng dệt, may vào thị trưởng EU và lệ phí đặt và hoạt động của văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `100-TC/TCT` — hướng dẫn thu, quản lý, sử dụng lệ phí đặt và hoạt động của văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `53/2016/TT-BCA` — quy định cách thức thực hiện khai báo, tiếp nhận thông tin tạm trú của người nước ngoài tại Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Immigration] `86/2013/NĐ-CP` — quy định về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài (status: `unknown`, title_keyword, nghi_dinh)
+- [Immigration] `26-TC-HCVX` — về chế độ thu tiền lệ phí cấp hộ chiếu, các loại giấy tờ, chứng nhận cho người nước ngoài và công dân Việt Nam nhập cảnh, xuất cảnh và cư trú (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `Không số` — Bộ luật Lao động số Không số (status: `unknown`, title_keyword, bo_luat)
+- [Labor] `68/2016/TT-BTC` — Hướng dẫn quản lý và sử dụng kinh phí thực hiện Đề án đẩy mạnh các hoạt động học tập suốt đời trong công nhân lao động tại các doanh nghiệp đến năm 2020 (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `32/LĐTBXH-TT` — Hướng dẫn thi hành chế độ tiền lương để lại cho gia đinh đối với cán bộ công nhân viên Nhà nước, lực lượng vũ trang đi công tác, làm việc, học tập ở nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `05/2016/TT-BLĐTBXH` — Hướng dẫn thi hành một số điều của của Chính phủ quy định chế độ quản lý trợ cấp, phụ cấp đối với công chức, viên chức và người lao động làm việc tại các cơ sở quản lý người nghiện ma túy, người sau cai nghiện ma túy và cơ sở trợ giúp xã hội công lập (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `4-LĐTBXH/TT` — Hướng dẫn thực hiện của Hội đồng Bộ trưởng quy định chi tiết thi hành Pháp lệnh hợp đồng lao động (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `170/2009/TT-BTC` — Hướng dẫn thực hiện hỗ trợ kinh phí cho việc sắp xếp lao động sau cổ phần hoá đối với các doanh nghiệp thuộc Tập đoàn Dệt May Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `18/LĐTBXH-TT` — Hướng dẫn việc cấp, quản lý và sử dụng sổ lao động (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `39/2016/NĐ-CP` — Quy định chi tiết thi hành một số điều của Luật An toàn, vệ sinh lao động (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `198-CP` — Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về hợp đồng lao động (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `195/CP` — Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về thời giờ làm việc, thời giờ nghỉ ngơi (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `197-CP` — Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về tiền lương (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `196-CP` — Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật lao động về thỏa ước lao động tập thể (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `33/2016/NĐ-CP` — Quy định chi tiết và hướng dẫn thi hành một số điều của Luật Bảo hiểm xã hội về bảo hiểm xã hội bắt buộc đối với quân nhân, công an nhân dân và người làm công tác cơ yếu hưởng lương như đối với quân nhân (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `37/2016/NĐ-CP` — Quy định chi tiết và hướng dẫn thi hành một số điều của Luật an toàn, vệ sinh lao động về bảo hiểm tai nạn lao động, bệnh nghề nghiệp bắt buộc (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `26/2016/NĐ-CP` — Quy định chế độ trợ cấp, phụ cấp đối với công chức, viên chức và người lao động làm việc tại các cơ sở quản lý người nghiện ma túy, người sau cai nghiện ma túy và cơ sở trợ giúp xã hội công lập (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `51/2016/NĐ-CP` — Quy định quản lý lao động, tiền lương và tiền thưởng đối với người lao động làm việc trong công ty trách nhiệm hữu hạn một thành viên do Nhà nước nắm giữ 100% vốn điều lệ (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `52/2016/NĐ-CP` — Quy định tiền lương, thù lao, tiền thưởng đối với người quản lý công ty trách nhiệm hữu hạn một thành viên do Nhà nước nắm giữ 100% vốn điều lệ (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `43-CP` — Quy định tạm thời chế độ bảo hiểm xã hội (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `25-CP` — Quy định tạm thời chế độ tiền lương mới của công chức, viên chức hành chính, sự nghiệp và lực lượng vũ trang (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `26-CP` — Quy định tạm thời chế độ tiền lương mới trong các doanh nghiệp (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `21/2016/NĐ-CP` — Quy định việc thực hiện chức năng thanh tra chuyên ngành về đóng bảo hiểm xã hội, bảo hiểm thất nghiệp, bảo hiểm y tế của cơ quan bảo hiểm xã hội (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `53/2016/NĐ-CP` — Quy định về lao động, tiền lương, thù lao, tiền thưởng đối với công ty có cổ phần, vốn góp chi phối của Nhà nước (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `24/2015/TT-BCT` — Quy định về thời giờ làm việc, thời giờ nghỉ ngơi đối với người lao động làm các công việc có tính chất đặc biệt trong lĩnh vực thăm dò, khai thác dầu khí trên biển (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `15/BXD-QLN` — Sửa đổi của Liên Bộ Lao động- Thương binh và Xã hội- Tài chính- Xây dựng hướng dẫn thực hiện nhà ở vào tiền lương (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `24/LĐ-NĐ` — Tổ chức các cơ quan Lao động địa phương liên khu và tỉnh (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `96/CP` — Về chức năng, nhiệm vụ, quyền hạn và tổ chức bộ máy của Bộ lao động - Thương binh và xã hội (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `1/CP` — Về thành lập Cục Phòng, chống tệ nạn xã hội trực thuộc Bộ Lao động - Thương binh và xã hội (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `79/1997/TT-BTC` — hướng dẫn thực hiện của Chính phủ Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về những quy định riêng đối với lao động nữ (status: `unknown`, title_keyword, thong_tu)
+- [Labor] `30/2016/NĐ-CP` — quy định chi tiết hoạt động đầu tư từ quỹ bảo hiểm xã hội, bảo hiểm y tế, bảo hiểm thất nghiệp (status: `unknown`, title_keyword, nghi_dinh)
+- [Labor] `55/2016/NĐ-CP` — Điều chỉnh mức lương hưu, trợ cấp mất sức lao động, trợ cấp hằng tháng và trợ cấp đối với giáo viên mầm non có thời gian làm việc trước năm 1995 (status: `unknown`, title_keyword, nghi_dinh)
+- [Licensing] `105-TC/ĐT` — Hướng dẫn bảo hiểm các công trình xây dựng (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `339/TT-KHTC` — Hướng dẫn quy trình quản lý và sử dụng kinh phí hỗ trợ cho việc chống xuống cấp các cơ quan khoa học, công nghệ và môi trường (kinh phí sửa chữa xây dựng nhỏ) (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `8/BYT-TT` — Hướng dẫn thực hiện Pháp lệnh Hành nghề y, dược tư nhân và của Chính phủ về cụ thể hoá một số Điều của Pháp lệnh Hành nghề y, dược tư nhân về lĩnh vực hành nghề y, dược cổ truyền dân tộc tư nhân (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `09-BYT/TT` — Hướng dẫn thực hiện Pháp lệnh hành nghề y, dược tư nhân và của Chính phủ về cụ thể hoá một số điều trong Pháp lệnh hành nghề y, dược tư nhân thuộc lĩnh vực dược (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `1485/MTg` — Hướng dẫn tổ chức, quyền hạn và phạm vi hoạt động của Thanh tra về bảo vệ môi trường (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `7/BYT-TT` — Hướng dẫn việc thực hiện Pháp lệnh Hành nghề y, dược tư nhân và của Chính phủ về cụ thể hoá một số Điều của Pháp lệnh Hành nghề y, dược tư nhân thuộc lĩnh vực hành nghề y tư nhân (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `03-BXD/VKT` — Hướng dẫn việc xây dựng đơn giá xây dựng cơ bản và lập dự toán các công trình xây dựng cơ bản (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `1420/MTg` — Hướng dẫn đánh giá tác động môi trường đối với các cơ sở đang hoạt động (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `105/2016/QH13` — Luật Dược số (status: `unknown`, title_keyword, luat)
+- [Licensing] `15/CP` — Về chức năng, nhiệm vụ, quyền hạn và cơ cấu tổ chức của Bộ Xây dựng (status: `unknown`, title_keyword, nghi_dinh)
+- [Licensing] `175/CP` — Về hướng dẫn thi hành Luật Bảo vệ môi trường (status: `unknown`, title_keyword, nghi_dinh)
+- [Licensing] `24a/2016/NĐ-CP` — Về quản lý vật liệu xây dựng (status: `unknown`, title_keyword, nghi_dinh)
+- [Licensing] `177-CP` — Về việc ban hành Điều lệ Quản lý đầu tư và xây dựng (status: `unknown`, title_keyword, nghi_dinh)
+- [Licensing] `11-BYT/TT` — Về việc xây dựng trạm y tế theo kế hoạch xoá xã trắng (status: `unknown`, title_keyword, thong_tu)
+- [Licensing] `23/2016/NĐ-CP` — Về xây dựng, quản lý, sử dụng nghĩa trang và cơ sở hỏa táng (status: `unknown`, title_keyword, nghi_dinh)
+- [RealEstate] `60/TC-TCT` — Hướng dẫn chế độ quản lý thu đối với việc bán nhà thuộc sở hữu Nhà nước, việc cấp quyền sử dụng đất xây dựng nhà ở và công trình (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `44/TC-CĐKT` — Hướng dẫn kế toán thu và quản lý sử dụng tiền thu về cho thuê nhà ở thuộc sở hữu Nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `5-BXD/ĐT` — Hướng dẫn phương pháp xác định diện tích sử dụng và phân cấp nhà ở (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `78-TC/TCT` — Hướng dẫn thu lệ phí trước bạ đối với các trường hợp chuyển quyền sử dụng đất (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `70/TC-TCT` — Hướng dẫn thực hiện các khoản thu Ngân sách đối với việc cấp giấy chứng nhận quyền sở hữu nhà ở, quyền sử dụng đất ở tại đô thị theo và việc mua bán và kinh doanh nhà ở theo ngày (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `70/TC-TCT` — Hướng dẫn thực hiện các khoản thu ngân sách đối với việc cấp giấy giấy chứng nhận quyền sở hữu nhà ở, quyền sử dụng đất đai ở đô thị theo NĐ số và việc mua bán kinh doanh nhà ở theo NĐ 61/CP ngày 5/7/1994 của Chính phủ (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `69-TC/ĐT` — Hướng dẫn việc thu nộp và sử dụng tiền bán nhà ở thuộc sở hữu Nhà nước cho người đang thuê (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `Không số` — Luật Thuế Chuyển quyền sử dụng đất số Không số (status: `unknown`, title_keyword, luat)
+- [RealEstate] `103-SL/L005` — Luật Về việc đảm bảo quyền tự do thân thể và quyền bất khả xâm phạm đối với nhà ở, đồ vật, thư tín của nhân dân số (status: `unknown`, title_keyword, luat)
+- [RealEstate] `Không số` — Luật Đất đai số Không số (status: `unknown`, title_keyword, luat)
+- [RealEstate] `114-CP` — Quy định chi tiết thi hành Luật thuế chuyển quyền sử dụng đất (status: `unknown`, title_keyword, nghi_dinh)
+- [RealEstate] `18/2009/TT-NHNN` — Quy định chi tiết việc cho vay của các Ngân hàng thương mại đối với các đối tượng mua, thuê mua nhà ở thu nhập thấp tại khu vực đô thị (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `60/2015/TT-BTNMT` — Quy định về kỹ thuật điều tra, đánh giá đất đai (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `66/2008/TT-BTC` — Sửa đổi, bổ sung của Bộ Tài chính hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật Thuế chuyển quyền sử dụng đất và Luật sửa đổi, bổ sung một số điều của Luật Thuế chuyển quyền sử dụng đất (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `` — TC/TCT hướng dẫn bổ sung, sửa đổi Thông tư số 78 TC/TCT ngày 30/9/1994 của Bộ Tài chính về thuế chuyển quyền sử dụng đất (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `61-CP` — Về mua bán và kinh doanh nhà ở (status: `unknown`, title_keyword, nghi_dinh)
+- [RealEstate] `60-CP` — Về quyền sở hữu nhà ở và quyền sử dụng đất ở tại đô thị (status: `unknown`, title_keyword, nghi_dinh)
+- [RealEstate] `12-TC/TCT` — hướng dẫn bổ sung về việc thực hiện các khoản thu ngân sách Nhà nước đối với hoạt động cho thuê nhà (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `44-TC/CÐKT` — hướng dẫn kế toán thu và quản lý sử dụng tiền thu về cho thuê nhà ở thuộc sở hữu Nhà nước (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `78-TC/TCT` — hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật thuế chuyển quyền sử dụng đất (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `78-TC/TCT` — hướng dẫn thu lệ phí trước bạ đối với các trường hợp chuyển quyền sử dụng đất (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `70-TC/TCT` — hướng dẫn thực hiện các khoản thu Ngân sách đối với việc cấp giấy chứng nhận quyền sở hữu nhà ở, quyền sử dụng đất ở tại đô thị theo và việc mua bán và kinh doanh nhà ở theo ngày (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `9-TC/TT` — hướng dẫn tính và thu nộp khấu hao cơ bản đối với nhà ở thuộc sở hữu Nhà nước cho thuê (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `70-TC/QLCS` — hướng dẫn việc nộp tiền thuê đất, góp vốn liên doanh bằng giá trị quyền sử dụng đất của các tổ chức trong nước theo quy định tại của Chính phủ (status: `unknown`, title_keyword, thong_tu)
+- [RealEstate] `69-TC/ÐT` — hướng dẫn việc thu nộp và sử dụng tiền bán nhà ở thuộc sở hữu Nhà nước cho người đang thuê (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `29/TC-TCT` — Hướng dẫn thi hành Nghị quyết của Uỷ ban Thường vụ Quốc hội và nghị định của Chính phủ về việc bổ sung Pháp lệnh thuế thu nhập đối với người có thu nhập cao (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `89/TC-TCT` — Hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật thuế sử dụng đất nông nghiệp (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `74/A-TC-TCT` — Hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật thuế tiêu thụ đặc biệt và Luật sửa đổi, bổ sung một số điều của Luật thuế tiêu thụ đặc biệt (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `1241-KHTC` — Hướng dẫn thực hiện một số quy định của Pháp lệnh Kế toán và Thống kê (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `85-BTC/TCT` — Hướng dẫn thực hiện thu thuế cước đối với tàu biển nước ngoài đến kinh doanh vận chuyển hàng hoá tại các cảng biển Việt Nam (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `99/TC-TCT` — Hướng dẫn việc thi hành của Chính phủ về việc điều chỉnh các mức thuế môn bài và thẩm quyền định mức thuế sát sinh (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `106/2016/QH13` — Luật Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng, Luật Thuế tiêu thụ đặc biệt và Luật Quản lý thuế số (status: `unknown`, title_keyword, luat)
+- [Tax] `107/2016/QH13` — Luật Thuế xuất khẩu, thuế nhập khẩu số (status: `unknown`, title_keyword, luat)
+- [Tax] `84-CP` — Quy định chi tiết thi hành Pháp lệnh Thuế bổ sung đối với hộ gia đình sử dụng đất nông nghiệp vượt quá hạn mức diện tích (status: `unknown`, title_keyword, nghi_dinh)
+- [Tax] `182-CP` — Quy định chi tiết thi hành của UBTVQH về việc sửa đổi, bổ sung thuế suất thuế doanh thu đối với một số ngành nghề trong biểu thuế doanh thu (status: `unknown`, title_keyword, nghi_dinh)
+- [Tax] `23/CP` — Quy định chi tiết thi hành của Uỷ ban Thường vụ Quốc hội về việc bổ sung Pháp lệnh thuế thu nhập đối với người có thu nhập cao (status: `unknown`, title_keyword, nghi_dinh)
+- [Tax] `94-CP` — Quy định chi tiết thi hành pháp lệnh về thuế nhà, đất và pháp lệnh sửa đổi, bổ xung một số điều của pháp lệnh về thuế nhà, đất (status: `unknown`, title_keyword, nghi_dinh)
+- [Tax] `73/2016/TT-BTC` — Sửa đổi, bổ sung mức thuế suất thuế xuất khẩu đối với mặt hàng than làm từ mùn cưa thuộc nhóm 44.02 tại Biểu thuế xuất khẩu ban hành kèm theo của Bộ trưởng Bộ Tài chính (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `` — TC/TCT hướng dẫn bổ sung Thông tư số 47 TC/TCT ngày 1-6-1994 hướng dẫn việc xét miễn thuế, hoàn thuế xuất nhập khẩu đối với xí nghiệp có vốn đầu tư nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `82-TC/TCT` — hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Pháp lệnh Thuế bổ sung đối với hộ gia đình sử dụng đất nông nghiệp vượt quá hạn mức diện tích (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `83-TC/TCT` — hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Pháp lệnh về thuế nhà, đất (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `73-TC/TCT` — hướng dẫn việc thực hiện Ðiều 4 QÐ số ban hành Biểu thuế xuất khẩu, Biểu thuế nhập khẩu kèm theo NÐ số (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `47/TC-TCT` — hướng dẫn việc xét miễn thuế, hoãn thuế xuất nhập khẩu đối với xí nghiệp có vốn đầu tư nước ngoài (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `08/TC-TCT` — hướng dẫn về thuế đối với thu nhập từ tiền bản quyền (status: `unknown`, title_keyword, thong_tu)
+- [Tax] `02/2016/TT-BCT` — quy định về nguyên tắc điều hành hạn ngạch thuế quan nhập khẩu đối với mặt hàng muối, trứng gia cầm năm 2016 (status: `unknown`, title_keyword, thong_tu)
+
+## 3. Validation
+- Input: 200, Passed: 200, Hard-fail: 0
+
+## 4. Distributions
+### status
+- `unknown`: 200
+### authorityWeight
+- 30: 13
+- 80: 140
+- 90: 47
+### category
+- `Administrative`: 35
+- `Labor`: 30
+- `Immigration`: 30
+- `RealEstate`: 25
+- `Criminal`: 25
+- `Tax`: 20
+- `Company`: 20
+- `Licensing`: 15
+### relationType (relatedDocuments)
+- (none — pilot corpus has no relatedDocuments edges in this run)
+
+## 5. Sample search queries
+- **외국인 노동허가 요건** → 0건
+- **giấy phép lao động người nước ngoài** → 0건
+- **베트남 부동산 매매 시 외국인 제한** → 0건
+- **quyền sử dụng đất người nước ngoài** → 0건
+- **사기 계약 관련 hình sự** → 0건
+- **lừa đảo chiếm đoạt tài sản** → 0건
+- **đăng ký doanh nghiệp** → 5건
+  - ['105/2016/QH13'] | Luật Dược số
+  - ['184/2015/TT-BTC'] | Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiề
+- **thuế giá trị gia tăng** → 5건
+  - ['184/2015/TT-BTC'] | Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiề
+  - ['118/2009/TT-BTC'] | Hướng dẫn việc nhập khẩu xe ôtô đang sử dụng theo chế độ tài
+- **thủ tục hành chính** → 5건
+  - ['19/2011/TT-BNNPTNT'] | Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chí
+  - ['22/2011/TT-BNNPTNT'] | Sửa đổi, bổ sung một số quy định về thủ tục hành chính trong
+- **152/2020/NĐ-CP** → 0건

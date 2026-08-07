@@ -1,0 +1,2406 @@
+{
+  "scanned_rows": 17347,
+  "collected_total": 200,
+  "quotas": {
+    "Administrative": 35,
+    "Immigration": 30,
+    "Labor": 30,
+    "Criminal": 25,
+    "RealEstate": 25,
+    "Tax": 20,
+    "Company": 20,
+    "Licensing": 15
+  },
+  "actual_counts": {
+    "Labor": 30,
+    "Administrative": 35,
+    "Tax": 20,
+    "Company": 20,
+    "Licensing": 15,
+    "RealEstate": 25,
+    "Immigration": 30,
+    "Criminal": 25
+  },
+  "repealed_counts": {},
+  "shortfalls": {},
+  "documents": [
+    {
+      "doc_name": "1",
+      "document_number": [
+        "24/LĐ-NĐ"
+      ],
+      "title": "Tổ chức các cơ quan Lao động địa phương liên khu và tỉnh",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10",
+      "document_number": [
+        "41-NV-6-TT"
+      ],
+      "title": "Định thể lệ xếp công chức vào thang lương chung theo năng lực",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:công chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "100024",
+      "document_number": [
+        "02/2016/TT-BCT"
+      ],
+      "title": "quy định về nguyên tắc điều hành hạn ngạch thuế quan nhập khẩu đối với mặt hàng muối, trứng gia cầm năm 2016",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "100048",
+      "document_number": [
+        "18/2016/NĐ-CP"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều của của Chính phủ về thành lập, tổ chức và hoạt động của Công ty Quản lý tài sản của các tổ chức tín dụng Việt Nam",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:công ty",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "100197",
+      "document_number": [
+        "21/2016/NĐ-CP"
+      ],
+      "title": "Quy định việc thực hiện chức năng thanh tra chuyên ngành về đóng bảo hiểm xã hội, bảo hiểm thất nghiệp, bảo hiểm y tế của cơ quan bảo hiểm xã hội",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:bảo hiểm xã hội",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10027",
+      "document_number": [
+        "13-BYT/TT"
+      ],
+      "title": "Hướng dẫn xếp hạng các doanh nghiệp ngành y tế",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10029",
+      "document_number": [
+        "11-BYT/TT"
+      ],
+      "title": "Về việc xây dựng trạm y tế theo kế hoạch xoá xã trắng",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xây dựng",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10042",
+      "document_number": [
+        "85-BTC/TCT"
+      ],
+      "title": "Hướng dẫn thực hiện thu thuế cước đối với tàu biển nước ngoài đến kinh doanh vận chuyển hàng hoá tại các cảng biển Việt Nam",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10043",
+      "document_number": [
+        "03-BXD/VKT"
+      ],
+      "title": "Hướng dẫn việc xây dựng đơn giá xây dựng cơ bản và lập dự toán các công trình xây dựng cơ bản",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xây dựng",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10052",
+      "document_number": [
+        "99/TC-TCT"
+      ],
+      "title": "Hướng dẫn việc thi hành của Chính phủ về việc điều chỉnh các mức thuế môn bài và thẩm quyền định mức thuế sát sinh",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10058",
+      "document_number": [
+        "339/TT-KHTC"
+      ],
+      "title": "Hướng dẫn quy trình quản lý và sử dụng kinh phí hỗ trợ cho việc chống xuống cấp các cơ quan khoa học, công nghệ và môi trường (kinh phí sửa chữa xây dựng nhỏ)",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:môi trường",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10060",
+      "document_number": [
+        "1420/MTg"
+      ],
+      "title": "Hướng dẫn đánh giá tác động môi trường đối với các cơ sở đang hoạt động",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:môi trường",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10061",
+      "document_number": [
+        "1485/MTg"
+      ],
+      "title": "Hướng dẫn tổ chức, quyền hạn và phạm vi hoạt động của Thanh tra về bảo vệ môi trường",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:môi trường",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "100624",
+      "document_number": [
+        "23/2016/NĐ-CP"
+      ],
+      "title": "Về xây dựng, quản lý, sử dụng nghĩa trang và cơ sở hỏa táng",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xây dựng",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10069",
+      "document_number": [
+        "09-BYT/TT"
+      ],
+      "title": "Hướng dẫn thực hiện Pháp lệnh hành nghề y, dược tư nhân và của Chính phủ về cụ thể hoá một số điều trong Pháp lệnh hành nghề y, dược tư nhân thuộc lĩnh vực dược",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:dược",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10078",
+      "document_number": [
+        "70/TC-TCT"
+      ],
+      "title": "Hướng dẫn thực hiện các khoản thu ngân sách đối với việc cấp giấy giấy chứng nhận quyền sở hữu nhà ở, quyền sử dụng đất đai ở đô thị theo NĐ số và việc mua bán kinh doanh nhà ở theo NĐ 61/CP ngày 5/7/1994 của Chính phủ",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:đất đai",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10087",
+      "document_number": [
+        "26/LĐTBXH-TT"
+      ],
+      "title": "Hướng dẫn thực hiện chế độ phụ cấp độc hại phóng xạ đối với công chức, viên chức làm việc tại viện nghiên cứu hạt nhân (Đà Lạt)",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10096",
+      "document_number": [
+        "18/LĐTBXH-TT"
+      ],
+      "title": "Hướng dẫn việc cấp, quản lý và sử dụng sổ lao động",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "100964",
+      "document_number": [
+        "24a/2016/NĐ-CP"
+      ],
+      "title": "Về quản lý vật liệu xây dựng",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xây dựng",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10098",
+      "document_number": [
+        "45/TC-CĐKT"
+      ],
+      "title": "Quy định chế độ quản lý tài chính đối với doanh nghiệp bảo hiểm",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10108",
+      "document_number": [
+        "73-TC/TCT"
+      ],
+      "title": "hướng dẫn việc thực hiện Ðiều 4 QÐ số ban hành Biểu thuế xuất khẩu, Biểu thuế nhập khẩu kèm theo NÐ số",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10118",
+      "document_number": [
+        "47/TC-TCT"
+      ],
+      "title": "hướng dẫn việc xét miễn thuế, hoãn thuế xuất nhập khẩu đối với xí nghiệp có vốn đầu tư nước ngoài",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10119",
+      "document_number": [
+        "94-CP"
+      ],
+      "title": "Quy định chi tiết thi hành pháp lệnh về thuế nhà, đất và pháp lệnh sửa đổi, bổ xung một số điều của pháp lệnh về thuế nhà, đất",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10120",
+      "document_number": [
+        "08/TC-TCT"
+      ],
+      "title": "hướng dẫn về thuế đối với thu nhập từ tiền bản quyền",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "101401",
+      "document_number": [
+        "26/2016/NĐ-CP"
+      ],
+      "title": "Quy định chế độ trợ cấp, phụ cấp đối với công chức, viên chức và người lao động làm việc tại các cơ sở quản lý người nghiện ma túy, người sau cai nghiện ma túy và cơ sở trợ giúp xã hội công lập",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10141",
+      "document_number": [
+        "105-TC/ĐT"
+      ],
+      "title": "Hướng dẫn bảo hiểm các công trình xây dựng",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xây dựng",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10142",
+      "document_number": [
+        "83-TC/TCT"
+      ],
+      "title": "hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Pháp lệnh về thuế nhà, đất",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10144",
+      "document_number": [
+        "70/TC-TCT"
+      ],
+      "title": "Hướng dẫn thực hiện các khoản thu Ngân sách đối với việc cấp giấy chứng nhận quyền sở hữu nhà ở, quyền sử dụng đất ở tại đô thị theo và việc mua bán và kinh doanh nhà ở theo ngày",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10146",
+      "document_number": [
+        "69-TC/ĐT"
+      ],
+      "title": "Hướng dẫn việc thu nộp và sử dụng tiền bán nhà ở thuộc sở hữu Nhà nước cho người đang thuê",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10147",
+      "document_number": [
+        "78-TC/TCT"
+      ],
+      "title": "hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật thuế chuyển quyền sử dụng đất",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10150",
+      "document_number": [
+        "15/BXD-QLN"
+      ],
+      "title": "Sửa đổi của Liên Bộ Lao động- Thương binh và Xã hội- Tài chính- Xây dựng hướng dẫn thực hiện nhà ở vào tiền lương",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "101681",
+      "document_number": [
+        "18/2009/TT-NHNN"
+      ],
+      "title": "Quy định chi tiết việc cho vay của các Ngân hàng thương mại đối với các đối tượng mua, thuê mua nhà ở thu nhập thấp tại khu vực đô thị",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "101702",
+      "document_number": [
+        "05/2016/TT-NHNN"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước hướng dẫn một số nội dung về quản lý ngoại hối đối với việc vay, trả nợ nước ngoài của doanh nghiệp",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10174",
+      "document_number": [
+        "196-CP"
+      ],
+      "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật lao động về thỏa ước lao động tập thể",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10175",
+      "document_number": [
+        "82-TC/TCT"
+      ],
+      "title": "hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Pháp lệnh Thuế bổ sung đối với hộ gia đình sử dụng đất nông nghiệp vượt quá hạn mức diện tích",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10177",
+      "document_number": [],
+      "title": "TC/TCT hướng dẫn bổ sung Thông tư số 47 TC/TCT ngày 1-6-1994 hướng dẫn việc xét miễn thuế, hoàn thuế xuất nhập khẩu đối với xí nghiệp có vốn đầu tư nước ngoài",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10182",
+      "document_number": [
+        "198-CP"
+      ],
+      "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về hợp đồng lao động",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "101873",
+      "document_number": [
+        "104/2016/QH13"
+      ],
+      "title": "Luật Tiếp cận thông tin số",
+      "category": "Administrative",
+      "match_kind": "doc_number",
+      "matched_by": "doc_number:104/2016/QH13",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "101886",
+      "document_number": [
+        "105/2016/QH13"
+      ],
+      "title": "Luật Dược số",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:dược",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "101890",
+      "document_number": [
+        "106/2016/QH13"
+      ],
+      "title": "Luật Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng, Luật Thuế tiêu thụ đặc biệt và Luật Quản lý thuế số",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "101897",
+      "document_number": [
+        "107/2016/QH13"
+      ],
+      "title": "Luật Thuế xuất khẩu, thuế nhập khẩu số",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "10197",
+      "document_number": [
+        "197-CP"
+      ],
+      "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về tiền lương",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10201",
+      "document_number": [
+        "189-CP"
+      ],
+      "title": "Hướng dẫn thi hành Luật Phá sản doanh nghiệp",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10206",
+      "document_number": [
+        "184-CP"
+      ],
+      "title": "Quy định về thủ tục kết hôn, nhận con ngoài giá thú, nuôi con nuôi, nhận đỡ đầu giữa công dân Việt Nam và người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10218",
+      "document_number": [
+        "182-CP"
+      ],
+      "title": "Quy định chi tiết thi hành của UBTVQH về việc sửa đổi, bổ sung thuế suất thuế doanh thu đối với một số ngành nghề trong biểu thuế doanh thu",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10221",
+      "document_number": [
+        "175/CP"
+      ],
+      "title": "Về hướng dẫn thi hành Luật Bảo vệ môi trường",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:môi trường",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10222",
+      "document_number": [
+        "53-CP"
+      ],
+      "title": "Quy định các biện pháp xử lý đối với cán bộ, viên chức Nhà nước và những người có hành vi liên quan đến mại dâm, ma tuý, cờ bạc và say rượu bê tha",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10239",
+      "document_number": [
+        "177-CP"
+      ],
+      "title": "Về việc ban hành Điều lệ Quản lý đầu tư và xây dựng",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xây dựng",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10250",
+      "document_number": [
+        "120-CP"
+      ],
+      "title": "Ban hành Quy chế tạm thời về việc phát hành trái phiếu, cổ phiếu doanh nghiệp Nhà nước",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10271",
+      "document_number": [
+        "114-CP"
+      ],
+      "title": "Quy định chi tiết thi hành Luật thuế chuyển quyền sử dụng đất",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10283",
+      "document_number": [
+        "10-TM/PC"
+      ],
+      "title": "Hướng dẫn thực hiện Quy chế Đặt Văn phòng Đại diện doanh nghiệp Việt Nam ở nước ngoài",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10292",
+      "document_number": [
+        "84-CP"
+      ],
+      "title": "Quy định chi tiết thi hành Pháp lệnh Thuế bổ sung đối với hộ gia đình sử dụng đất nông nghiệp vượt quá hạn mức diện tích",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "103067",
+      "document_number": [
+        "33/2016/NĐ-CP"
+      ],
+      "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Luật Bảo hiểm xã hội về bảo hiểm xã hội bắt buộc đối với quân nhân, công an nhân dân và người làm công tác cơ yếu hưởng lương như đối với quân nhân",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:bảo hiểm xã hội",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "1031",
+      "document_number": [
+        "103-SL/L005"
+      ],
+      "title": "Luật Về việc đảm bảo quyền tự do thân thể và quyền bất khả xâm phạm đối với nhà ở, đồ vật, thư tín của nhân dân số",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "10316",
+      "document_number": [
+        "61-CP"
+      ],
+      "title": "Về mua bán và kinh doanh nhà ở",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10317",
+      "document_number": [
+        "60-CP"
+      ],
+      "title": "Về quyền sở hữu nhà ở và quyền sử dụng đất ở tại đô thị",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10333",
+      "document_number": [
+        "40/CP"
+      ],
+      "title": "Ban hành Quy chế Đặt Văn phòng đại diện doanh nghiệp Việt nam ở nước ngoài",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10340",
+      "document_number": [
+        "8/BYT-TT"
+      ],
+      "title": "Hướng dẫn thực hiện Pháp lệnh Hành nghề y, dược tư nhân và của Chính phủ về cụ thể hoá một số Điều của Pháp lệnh Hành nghề y, dược tư nhân về lĩnh vực hành nghề y, dược cổ truyền dân tộc tư nhân",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:dược",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10345",
+      "document_number": [
+        "7/BYT-TT"
+      ],
+      "title": "Hướng dẫn việc thực hiện Pháp lệnh Hành nghề y, dược tư nhân và của Chính phủ về cụ thể hoá một số Điều của Pháp lệnh Hành nghề y, dược tư nhân thuộc lĩnh vực hành nghề y tư nhân",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:dược",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "103500",
+      "document_number": [
+        "68/2016/TT-BTC"
+      ],
+      "title": "Hướng dẫn quản lý và sử dụng kinh phí thực hiện Đề án đẩy mạnh các hoạt động học tập suốt đời trong công nhân lao động tại các doanh nghiệp đến năm 2020",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "103627",
+      "document_number": [
+        "57/2016/TT-BTC"
+      ],
+      "title": "Hưóng dẫn chế độ thu nộp, hạch toản các khoản đóng góp vào Quỹ Dịch vụ viễn thông công ích Việt Nam và việc chuyển giao tài sản hình thành từ kinh phí của Quỹ Dịch vụ viễn thông công ích Việt Nam đến năm 2020",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10372",
+      "document_number": [
+        "7/TT-NH7"
+      ],
+      "title": "Hướng dẫn việc quản lý vay và trả nợ nước ngoài của các doanh nghiệp",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10393",
+      "document_number": [
+        "15/CP"
+      ],
+      "title": "Về chức năng, nhiệm vụ, quyền hạn và cơ cấu tổ chức của Bộ Xây dựng",
+      "category": "Licensing",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xây dựng",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10398",
+      "document_number": [
+        "195/CP"
+      ],
+      "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về thời giờ làm việc, thời giờ nghỉ ngơi",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10404",
+      "document_number": [
+        "9/TC-HCVX"
+      ],
+      "title": "Quy định chế độ công tác phí cho công nhân viên chức Nhà nước đi công tác trong nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10414",
+      "document_number": [
+        "5/CP"
+      ],
+      "title": "Quy định tạm thời việc thực hiện mức lương mới đối với người đương nhiệm trong các cơ quan của NN, Đảng, đoàn thể, lực lượng vũ trang và trong các doanh nghiệp; điều chỉnh mức lương hưu, mức trợ cấp đối với các đối tượng CSXH",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10419",
+      "document_number": [
+        "1/CP"
+      ],
+      "title": "Về thành lập Cục Phòng, chống tệ nạn xã hội trực thuộc Bộ Lao động - Thương binh và xã hội",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "104197",
+      "document_number": [
+        "07/2016/TT-NHNN"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước quy định cho vay bằng ngoại tệ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng vay là người cư trú",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "104204",
+      "document_number": [
+        "06/2016/TT-NHNN"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước quy định về các giới hạn, tỷ lệ bảo đảm an toàn trong hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:chi nhánh",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10421",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Luật Thuế Chuyển quyền sử dụng đất số Không số",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "10423",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Luật Sửa đổi một số điều của Luật Doanh nghiệp tư nhân số Không số",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "10424",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Luật Sửa đổi một số điều của Luật Công ty số Không số",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:công ty",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "10427",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Bộ luật Lao động số Không số",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "bo_luat"
+    },
+    {
+      "doc_name": "104288",
+      "document_number": [
+        "47/2016/NĐ-CP"
+      ],
+      "title": "Quy định mức lương cơ sở đối với cán bộ, công chức, viên chức và lực lượng vũ trang",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10434",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Luật Phá sản doanh nghiệp số Không số",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "104347",
+      "document_number": [
+        "73/2016/TT-BTC"
+      ],
+      "title": "Sửa đổi, bổ sung mức thuế suất thuế xuất khẩu đối với mặt hàng than làm từ mùn cưa thuộc nhóm 44.02 tại Biểu thuế xuất khẩu ban hành kèm theo của Bộ trưởng Bộ Tài chính",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "104349",
+      "document_number": [
+        "30/2016/NĐ-CP"
+      ],
+      "title": "quy định chi tiết hoạt động đầu tư từ quỹ bảo hiểm xã hội, bảo hiểm y tế, bảo hiểm thất nghiệp",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:bảo hiểm xã hội",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10436",
+      "document_number": [
+        "1241-KHTC"
+      ],
+      "title": "Hướng dẫn thực hiện một số quy định của Pháp lệnh Kế toán và Thống kê",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:kế toán",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "104486",
+      "document_number": [
+        "61/2016/TT-BTC"
+      ],
+      "title": "Hướng dẫn thu, nộp và quản lý khoản lợi nhuận, cổ tức được chia cho phần vốn nhà nước đầu tư tại doanh nghiệp",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "104532",
+      "document_number": [
+        "19/2011/TT-BNNPTNT"
+      ],
+      "title": "Sửa đổi, bổ sung, bãi bỏ một số quy định về thủ tục hành chính trong lĩnh vực chăn nuôi theo",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thủ tục hành chính",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "104533",
+      "document_number": [
+        "22/2011/TT-BNNPTNT"
+      ],
+      "title": "Sửa đổi, bổ sung một số quy định về thủ tục hành chính trong lĩnh vực kinh tế hợp tác và phát triển nông thôn, thi đua khen thưởng, quản lý đề tài khoa học theo",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thủ tục hành chính",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10470",
+      "document_number": [
+        "80/CP"
+      ],
+      "title": "Quy định khung giá các loại đất để tính thuế chuyển quyền sử dụng đất, thu tiền khi giao đất, cho thuê đất, tính giá trị tài sản khi giao đất, bồi thường thiệt hại về đất khi thu hồi",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10479",
+      "document_number": [
+        "27/TC-HCVX"
+      ],
+      "title": "Hướng dẫn một số chính sách tài chính đối với các doanh nghiệp Nhà nước chuyên tổ chức biểu diễn nghệ thuật",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10484",
+      "document_number": [
+        "29/TC-TCT"
+      ],
+      "title": "Hướng dẫn thi hành Nghị quyết của Uỷ ban Thường vụ Quốc hội và nghị định của Chính phủ về việc bổ sung Pháp lệnh thuế thu nhập đối với người có thu nhập cao",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10485",
+      "document_number": [
+        "23/CP"
+      ],
+      "title": "Quy định chi tiết thi hành của Uỷ ban Thường vụ Quốc hội về việc bổ sung Pháp lệnh thuế thu nhập đối với người có thu nhập cao",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10489",
+      "document_number": [
+        "38/TC-CĐTC"
+      ],
+      "title": "Hướng dẫn thực hiện chế độ quản lý tài chính đối với các công ty xổ số kiến thiết",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:công ty",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "105007",
+      "document_number": [
+        "04/2016/TT-BCT"
+      ],
+      "title": "Sửa đổi, bổ sung một số Thông tư của Bộ trưởng Bộ Công Thương về thủ tục hành chính trong lĩnh vực thương mại điện tử, hóa chất, sản xuất kinh doanh rượu, nhượng quyền thương mại, hoạt động mua bán hàng hóa qua sở giao dịch hàng hóa, năng lượng, an toàn thực phẩm và điện lực",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thủ tục hành chính",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10502",
+      "document_number": [
+        "472-PLDS-KT"
+      ],
+      "title": "Hướng dẫn thủ tục và thời hạn cấp Giấy phép thành lập doanh nghiệp tư nhân và công ty",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10515",
+      "document_number": [
+        "89/TC-TCT"
+      ],
+      "title": "Hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật thuế sử dụng đất nông nghiệp",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10535",
+      "document_number": [
+        "94/TC-CN"
+      ],
+      "title": "Hướng dẫn chế độ trích lập và sử dụng vốn KHCB tại các doanh nghiệp Nhà nước",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10536",
+      "document_number": [
+        "15/TC-CN"
+      ],
+      "title": "Hướng dẫn thực hiện chế độ bảo toàn và phát triển vốn đến 01/01/1993 đối với các doanh nghiệp Nhà nước",
+      "category": "Company",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:doanh nghiệp",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10546",
+      "document_number": [
+        "74/A-TC-TCT"
+      ],
+      "title": "Hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật thuế tiêu thụ đặc biệt và Luật sửa đổi, bổ sung một số điều của Luật thuế tiêu thụ đặc biệt",
+      "category": "Tax",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuế",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10551",
+      "document_number": [
+        "60/TC-TCT"
+      ],
+      "title": "Hướng dẫn chế độ quản lý thu đối với việc bán nhà thuộc sở hữu Nhà nước, việc cấp quyền sử dụng đất xây dựng nhà ở và công trình",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10554",
+      "document_number": [
+        "44/TC-CĐKT"
+      ],
+      "title": "Hướng dẫn kế toán thu và quản lý sử dụng tiền thu về cho thuê nhà ở thuộc sở hữu Nhà nước",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10564",
+      "document_number": [
+        "26/TC-HCVX"
+      ],
+      "title": "Về chế độ thu tiền lệ phí cấp hộ chiếu, các loại giấy tờ, chứng nhận cho người nước ngoài và công dân Việt Nam nhập cảnh, xuất cảnh và cư trú",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10572",
+      "document_number": [
+        "100/TC-TCT"
+      ],
+      "title": "Hướng dẫn thu, quản lý, sử dụng lệ phí đặt và hoạt động của văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thường trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "105721",
+      "document_number": [
+        "24/2015/TT-BCT"
+      ],
+      "title": "Quy định về thời giờ làm việc, thời giờ nghỉ ngơi đối với người lao động làm các công việc có tính chất đặc biệt trong lĩnh vực thăm dò, khai thác dầu khí trên biển",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10574",
+      "document_number": [
+        "32/LĐTBXH-TT"
+      ],
+      "title": "Hướng dẫn thi hành chế độ tiền lương để lại cho gia đinh đối với cán bộ công nhân viên Nhà nước, lực lượng vũ trang đi công tác, làm việc, học tập ở nước ngoài",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tiền lương",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "105812",
+      "document_number": [
+        "55/2016/NĐ-CP"
+      ],
+      "title": "Điều chỉnh mức lương hưu, trợ cấp mất sức lao động, trợ cấp hằng tháng và trợ cấp đối với giáo viên mầm non có thời gian làm việc trước năm 1995",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "105814",
+      "document_number": [
+        "53/2016/NĐ-CP"
+      ],
+      "title": "Quy định về lao động, tiền lương, thù lao, tiền thưởng đối với công ty có cổ phần, vốn góp chi phối của Nhà nước",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "105815",
+      "document_number": [
+        "52/2016/NĐ-CP"
+      ],
+      "title": "Quy định tiền lương, thù lao, tiền thưởng đối với người quản lý công ty trách nhiệm hữu hạn một thành viên do Nhà nước nắm giữ 100% vốn điều lệ",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tiền lương",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "105816",
+      "document_number": [
+        "51/2016/NĐ-CP"
+      ],
+      "title": "Quy định quản lý lao động, tiền lương và tiền thưởng đối với người lao động làm việc trong công ty trách nhiệm hữu hạn một thành viên do Nhà nước nắm giữ 100% vốn điều lệ",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "105821",
+      "document_number": [
+        "39/2016/NĐ-CP"
+      ],
+      "title": "Quy định chi tiết thi hành một số điều của Luật An toàn, vệ sinh lao động",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "105823",
+      "document_number": [
+        "37/2016/NĐ-CP"
+      ],
+      "title": "Quy định chi tiết và hướng dẫn thi hành một số điều của Luật an toàn, vệ sinh lao động về bảo hiểm tai nạn lao động, bệnh nghề nghiệp bắt buộc",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "106201",
+      "document_number": [
+        "60/2015/TT-BTNMT"
+      ],
+      "title": "Quy định về kỹ thuật điều tra, đánh giá đất đai",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:đất đai",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10628",
+      "document_number": [
+        "96/CP"
+      ],
+      "title": "Về chức năng, nhiệm vụ, quyền hạn và tổ chức bộ máy của Bộ lao động - Thương binh và xã hội",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "106599",
+      "document_number": [
+        "05/2016/TT-BLĐTBXH"
+      ],
+      "title": "Hướng dẫn thi hành một số điều của của Chính phủ quy định chế độ quản lý trợ cấp, phụ cấp đối với công chức, viên chức và người lao động làm việc tại các cơ sở quản lý người nghiện ma túy, người sau cai nghiện ma túy và cơ sở trợ giúp xã hội công lập",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10686",
+      "document_number": [
+        "43-CP"
+      ],
+      "title": "Quy định tạm thời chế độ bảo hiểm xã hội",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:bảo hiểm xã hội",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10707",
+      "document_number": [
+        "26-CP"
+      ],
+      "title": "Quy định tạm thời chế độ tiền lương mới trong các doanh nghiệp",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tiền lương",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10708",
+      "document_number": [
+        "25-CP"
+      ],
+      "title": "Quy định tạm thời chế độ tiền lương mới của công chức, viên chức hành chính, sự nghiệp và lực lượng vũ trang",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tiền lương",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "10730",
+      "document_number": [
+        "769-NG/TT"
+      ],
+      "title": "Hướng dẫn thực hiện của Chính phủ quy định chi tiết thi hành Pháp lệnh nhập cảnh, xuất cảnh, cư trú, đi lại của người nước ngoài tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107338",
+      "document_number": [],
+      "title": "TC/VI hướng dẫn nộp lệ phí trước bạ đối với tài sản của Ðảng được Nhà nước xác nhận; chuyển giao quyền sở hữu, sử dụng theo QÐ 248/CT ngày 2/7/1992 của Chủ tịch Hội đồng Bộ trưởng (nay là Thủ Tướng Chính phủ)",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107366",
+      "document_number": [
+        "170/2009/TT-BTC"
+      ],
+      "title": "Hướng dẫn thực hiện hỗ trợ kinh phí cho việc sắp xếp lao động sau cổ phần hoá đối với các doanh nghiệp thuộc Tập đoàn Dệt May Việt Nam",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107388",
+      "document_number": [
+        "78-TC/TCT"
+      ],
+      "title": "hướng dẫn thu lệ phí trước bạ đối với các trường hợp chuyển quyền sử dụng đất",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10739",
+      "document_number": [
+        "17-CP"
+      ],
+      "title": "Về việc sửa đổi một số điều khoản trong Quy định chi tiết thi hành Pháp lệnh nhập cảnh, xuất cảnh, cư trú, đi lại của người nước ngoài tại Việt nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "107408",
+      "document_number": [
+        "104/2006/TT-BTC"
+      ],
+      "title": "Hướng dẫn thực hiện việc quản lý, sử dụng ngân sách và tài sản nhà nước đối với một số hoạt động thuộc lĩnh vực Cơ yếu",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107451",
+      "document_number": [
+        "66/2008/TT-BTC"
+      ],
+      "title": "Sửa đổi, bổ sung của Bộ Tài chính hướng dẫn thi hành của Chính phủ quy định chi tiết thi hành Luật Thuế chuyển quyền sử dụng đất và Luật sửa đổi, bổ sung một số điều của Luật Thuế chuyển quyền sử dụng đất",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107486",
+      "document_number": [
+        "12-TC/HCVX"
+      ],
+      "title": "bổ sung và sửa đổi một số điểm về chế độ phụ cấp cho cán bộ, công nhân viên chức Nhà nước đi công tác ở trong nước (công tác phí)",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10749",
+      "document_number": [
+        "4-LĐTBXH/TT"
+      ],
+      "title": "Hướng dẫn thực hiện của Hội đồng Bộ trưởng quy định chi tiết thi hành Pháp lệnh hợp đồng lao động",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107506",
+      "document_number": [],
+      "title": "TC/CÐKT Hướng dẫn xử lý tài sản thừa, thiếu trong kiểm kê; kế toán kết quả kiểm kê và đánh giá lại tài sản khu vực hành chính sự nghiệp 0h ngày 01/7/1990 theo của Hội đồng Bộ trưởng",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107540",
+      "document_number": [
+        "70-TC/TCT"
+      ],
+      "title": "hướng dẫn thực hiện các khoản thu Ngân sách đối với việc cấp giấy chứng nhận quyền sở hữu nhà ở, quyền sử dụng đất ở tại đô thị theo và việc mua bán và kinh doanh nhà ở theo ngày",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107582",
+      "document_number": [
+        "79/1997/TT-BTC"
+      ],
+      "title": "hướng dẫn thực hiện của Chính phủ Quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về những quy định riêng đối với lao động nữ",
+      "category": "Labor",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:lao động",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107596",
+      "document_number": [],
+      "title": "TC/TCT hướng dẫn bổ sung, sửa đổi Thông tư số 78 TC/TCT ngày 30/9/1994 của Bộ Tài chính về thuế chuyển quyền sử dụng đất",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107606",
+      "document_number": [
+        "34-TC/TNVT"
+      ],
+      "title": "Hướng dẫn bù giá 6 mặt hàng bán theo định lượng với giá bán lẻ chỉ đạo ổn định của Nhà nước cho công nhân, viên chức và hạch toán số tiền bù giá vào giá thành sản phẩm, phí lưu thông",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107648",
+      "document_number": [
+        "20-TC/VX"
+      ],
+      "title": "hướng dẫn thủ tục cấp phát kinh phí và thanh toán trợ cấp đối với cán bộ, viên chức ra ngoài biên chế Nhà nước theo của Hội đồng Bộ trưởng",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10774",
+      "document_number": [
+        "9-TC/TT"
+      ],
+      "title": "hướng dẫn tính và thu nộp khấu hao cơ bản đối với nhà ở thuộc sở hữu Nhà nước cho thuê",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107746",
+      "document_number": [
+        "28-TC/HCVX"
+      ],
+      "title": "bổ sung chế độ phụ cấp cho cán bộ, công nhân, viên chức đi công tác ở trong nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10776",
+      "document_number": [
+        "5-BXD/ĐT"
+      ],
+      "title": "Hướng dẫn phương pháp xác định diện tích sử dụng và phân cấp nhà ở",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107765",
+      "document_number": [
+        "9-TC/HCVX"
+      ],
+      "title": "quy định chế độ công tác phí cho công nhân viên chức Nhà nước đi công tác trong nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107846",
+      "document_number": [
+        "37-TC/CÐKT"
+      ],
+      "title": "Hướng dẫn xử lý kết quả thừa, thiếu tài sản trong kiểm kê và kế toán kết quả KK và đánh giá lại vốn sản xuất kinh doanh theo quyết định 101/HÐBT của Hội đồng Bộ trưởng",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107849",
+      "document_number": [
+        "26-TC-HCVX"
+      ],
+      "title": "về chế độ thu tiền lệ phí cấp hộ chiếu, các loại giấy tờ, chứng nhận cho người nước ngoài và công dân Việt Nam nhập cảnh, xuất cảnh và cư trú",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10789",
+      "document_number": [
+        "4-CP"
+      ],
+      "title": "Quy định chi tiết thi hành Pháp lệnh Nhập cảnh xuất cảnh, cư trú, đi lại của người nước ngoài tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "107930",
+      "document_number": [
+        "1-TC/HCVX"
+      ],
+      "title": "quy định chế độ phụ cấp tiền tàu xe cho công nhân viên chức",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "107938",
+      "document_number": [
+        "33-TC/CN"
+      ],
+      "title": "quy định chế độ khấu hao tài sản cố định",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108014",
+      "document_number": [
+        "07/2009/TT-BTC"
+      ],
+      "title": "hướng dẫn mẫu biểu thực hiện công khai quản lý, sử dụng tài sản nhà nước và báo cáo số liệu tình hình quản lý, sử dụng tài sản nhà nước",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10802",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Luật Đất đai số Không số",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:đất đai",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "108026",
+      "document_number": [],
+      "title": "TC/CÐTC Hướng dẫn việc thực hiện tiền thưởng cuối năm đối với công nhân viên chức khu vực HCSN và lực lượng vũ trang",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108101",
+      "document_number": [],
+      "title": "TC/ÐT HƯớNG DẫN Bổ SUNG Về ÐềN Bù TàI SảN, ÐấT ÐAI Ðể CảI TạO MặT BằNG, NâNG CấP QUốC Lộ 5 (ÐOạN KM47 ÐếN KM62)",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10821",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Luật Sửa đổi, bổ sung một số điều của Bộ luật Tố tụng hình sự số Không số",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hình sự",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "10822",
+      "document_number": [
+        "Không số"
+      ],
+      "title": "Luật Sửa đổi, bổ sung một số điều của Bộ luật Hình sự số Không số",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hình sự",
+      "scope": "trung_uong",
+      "doc_type": "luat"
+    },
+    {
+      "doc_name": "108240",
+      "document_number": [],
+      "title": "TC/HCVX Sửa đổi mức chi về nước uống trong giờ làm việc cho cán bộ công nhân viên chức Nhà nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108268",
+      "document_number": [
+        "150/1998/TT-BTC"
+      ],
+      "title": "hướng dẫn quản lý, sử dụng kinh phí đào tạo, bồi dưỡng cán bộ và công chức Nhà nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:công chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108321",
+      "document_number": [
+        "51-TC/CSTC"
+      ],
+      "title": "hướng dẫn các khoản thu ngân sách Nhà nước đối với hoạt động cho người nước ngoài, người Việt Nam định cư ở nước ngoài thuê nhà tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108339",
+      "document_number": [
+        "27-TC/CÐKT"
+      ],
+      "title": "hướng dẫn kế toán kết quả tổng kiểm kê và đánh giá lại tài sản cố định 0 giờ ngày 1/10/1985",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108454",
+      "document_number": [
+        "83/1997/TT/KK-TW"
+      ],
+      "title": "hướng dẫn sử dụng bảng giá và hệ số tính giá để xác định giá tài sản cố định áp dụng trong kỳ tổng kiểm kê đánh gía tài sản cố định của Nhà nước tại khu vực hành chính sự nghiệp vào thời điểm 0 giờ ngày 01/01/1998",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108488",
+      "document_number": [
+        "05-TC/HCVX"
+      ],
+      "title": "Quy định chế độ phụ cấp cho cán bộ, công nhân, viên chức Nhà nước đi công tác ở trong nước (Công tác phí)",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108562",
+      "document_number": [
+        "206-TT/HCVX"
+      ],
+      "title": "quy định chế độ trợ cấp tiền tàu xe cho cán bộ, công nhân, viên chức nhà nước trong các trường hợp đi khám bệnh, điều trị, đi nghỉ phép và thôi việc về quê quán",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108620",
+      "document_number": [
+        "38/1998/TT-BTC"
+      ],
+      "title": "hướng dẫn việc lập dự toán, sử dụng và quyết toán ngân sách Nhà nước cho bồi thường thiệt hại do công chức, viên chức Nhà nước, người có thẩm quyền của cơ quan Nhà nước, cơ quan tiến hành tố tụng gây ra",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108627",
+      "document_number": [
+        "70-TC/QLCS"
+      ],
+      "title": "hướng dẫn việc nộp tiền thuê đất, góp vốn liên doanh bằng giá trị quyền sử dụng đất của các tổ chức trong nước theo quy định tại của Chính phủ",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108684",
+      "document_number": [
+        "69/1999/TT-BTC"
+      ],
+      "title": "hướng dẫn việc xử lý đối với tài sản Nhà nước tại khu vực HCSN sau tổng kiểm kê đánh giá lại tài sản cố định theo",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10875",
+      "document_number": [
+        "46/TC-ĐT"
+      ],
+      "title": "Hướng dẫn thực hiện của Chủ tịch HĐBT về việc đền bù thiệt hại về đất đai và tài sản, hoa màu cho các đối tượng sử dụng đất có đường dây tải điện 500KV đi qua",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108766",
+      "document_number": [
+        "17-TC/HCVX"
+      ],
+      "title": "bổ sung, sửa đổi một số điểm về chế độ phụ cấp công tác phí cho cán bộ, công nhân, viên chức đi công tác ở trong nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108798",
+      "document_number": [
+        "09-TC/HCVX"
+      ],
+      "title": "quy định chế độ công tác phí cho công nhân, viên chức Nhà nước đi công tác ở trong nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108879",
+      "document_number": [
+        "206/CT"
+      ],
+      "title": "quy định tạm thời chế độ tài chính đối với các thành viên gia đình đi theo cán bộ công nhân viên chức làm việc tại các cơ quan đại diện Việt Nam tại nước ngoài",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108885",
+      "document_number": [
+        "136/1998/TT/BTC"
+      ],
+      "title": "hướng dẫn sửa đổi thông tư số về lệ phí hạn ngạch kinh doanh xuất nhập khẩu hàng dệt, may vào thị trưởng EU và lệ phí đặt và hoạt động của văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thường trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "10890",
+      "document_number": [
+        "78-TC/TCT"
+      ],
+      "title": "Hướng dẫn thu lệ phí trước bạ đối với các trường hợp chuyển quyền sử dụng đất",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quyền sử dụng đất",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108911",
+      "document_number": [
+        "28-TC/TCT"
+      ],
+      "title": "hướng dẫn chế độ thu, nộp và quản lý lệ phí cấp giấy phép lao động cho người nước ngoài làm việc tại các doanh nghiệp, tổ chức ở Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "108918",
+      "document_number": [
+        "165/1998/TT-BTC"
+      ],
+      "title": "hướng dẫn phương pháp hạch toán kế toán kết quả kiểm kê và đánh giá lại tài sản cố định khu vực hành chính sự nghiệp tại 0h ngày 1/1/1998",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109043",
+      "document_number": [
+        "69-TC/ÐT"
+      ],
+      "title": "hướng dẫn việc thu nộp và sử dụng tiền bán nhà ở thuộc sở hữu Nhà nước cho người đang thuê",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109055",
+      "document_number": [
+        "16-TC/CÐKT"
+      ],
+      "title": "hướng dẫn kế toán kết quả tổng kiểm kê và đánh giá lại tài sản cố định 0 giờ ngày 1/9/1980",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109123",
+      "document_number": [
+        "5-TC/HCVX"
+      ],
+      "title": "hướng dẫn thi hành chế độ thanh toán tiền tàu xe nghỉ phép hàng năm đối với công nhân viên chức Nhà nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109190",
+      "document_number": [
+        "44-TC/CÐKT"
+      ],
+      "title": "hướng dẫn kế toán thu và quản lý sử dụng tiền thu về cho thuê nhà ở thuộc sở hữu Nhà nước",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhà ở",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109206",
+      "document_number": [],
+      "title": "TC /CÐTC Hướng dẫn việc thực hiện tiền thưởng cuối năm 1987 đối với công nhân viên chức khu vực hành chính sự nghiệp và lực lượng vũ trang",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109343",
+      "document_number": [
+        "13-TC/ÐTXD"
+      ],
+      "title": "hướng dẫn về việc trích lập và sử dụng quỹ khấu hao cơ bản để lại cho xí nghiệp và sửa đổi, bổ sung một số điểm trong chế độ khấu hao tài sản cố định",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109364",
+      "document_number": [
+        "15-TC/TNVT"
+      ],
+      "title": "Hướng dẫn bàn giao vốn, tài sản và vật tư dự trữ nhà nước theo nghị định số của Hội đồng Bộ trưởng",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109481",
+      "document_number": [
+        "25-TC/HCVX"
+      ],
+      "title": "về việc sửa đổi chế độ công tác phí cho cán bộ, công nhân viên chức Nhà nước đi công tác trong nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109484",
+      "document_number": [
+        "65/1998/TT-BTC"
+      ],
+      "title": "hướng dẫn sửa đổi TT 93-TT/LB ngày 7/11/1994 về lệ phí hạn ngạch kinh doanh XNK hàng dệt may vào thị trường EC và TT 100-TC/TCT ngày 3/12/1993 về lệ phí đặt và hoạt động của Văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thường trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109491",
+      "document_number": [
+        "12-TC/TCT"
+      ],
+      "title": "hướng dẫn bổ sung về việc thực hiện các khoản thu ngân sách Nhà nước đối với hoạt động cho thuê nhà",
+      "category": "RealEstate",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thuê nhà",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109501",
+      "document_number": [
+        "08-TC/HCVX"
+      ],
+      "title": "hướng dẫn thi hành chế độ trợ cấp sơ tán cho gia đình cán bộ, công nhân, viên chức và nhân dân trong tình hình mới",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109574",
+      "document_number": [
+        "100-TC/TCT"
+      ],
+      "title": "hướng dẫn thu, quản lý, sử dụng lệ phí đặt và hoạt động của văn phòng thường trú các tổ chức kinh tế nước ngoài tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thường trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109701",
+      "document_number": [],
+      "title": "TC / QLNS Hướng dẫn thi hành Ðiều lệ xử phạt vi cảnh về mặt tài sản",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109830",
+      "document_number": [],
+      "title": "TC/ HCVX Về việc áp dụng chế độ công tác phí cho cán bộ, công nhân viên chức đi dự các lớp tập huấn và học tại chức",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109891",
+      "document_number": [
+        "49/2011/TT-BTC"
+      ],
+      "title": "Sửa đổi, bổ sung Quy chế, Quy trình tiếp công dân, nhận và giải quyết đơn thư khiếu nại, tố cáo của công dân tại các đơn vị thuộc Bộ Tài chính được ban hành kèm theo và của Bộ trưởng Bộ Tài chính",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:khiếu nại",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109964",
+      "document_number": [],
+      "title": "TC / CÐKT Hướng dẫn kế toán thi hành thông tư số 260 - TTg ngày 20/6/1977 của Thủ tướng Chính phủ về sửa đổi bổ sung một số quy định về quản lý và hạch toán tài sản cố định trong các xí nghiệp quốc doanh",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109972",
+      "document_number": [
+        "43-TC/QLCS"
+      ],
+      "title": "hướng dẫn việc tiếp nhận và bàn giao tài sản giữa các cơ quan hành chính sự nghiệp, tổ chức kinh tế theo quyết định của cơ quan có thẩm quyền",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109975",
+      "document_number": [
+        "03-TC/TNVT"
+      ],
+      "title": "Hướng dẫn bù giá dầu hoả thắp sáng cho cán bộ công nhân viên chức theo công điện số của Hội đồng Bộ trưởng",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "109993",
+      "document_number": [
+        "100/2011/TT-BTC"
+      ],
+      "title": "TT-BTC Quy định việc quản lý, sử dụng số thu lệ phí xuất nhập cảnh phải nộp Ngân sách nhà nước để thực hiện Đề án Sản xuất và phát hành hộ chiếu điện tử Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "110056",
+      "document_number": [
+        "94/1998/TT-BTC"
+      ],
+      "title": "quy định chế độ công tác phí cho cán bộ, công chức Nhà nước đi công tác trong nước",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:công chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "110075",
+      "document_number": [
+        "67-TC/HCVX"
+      ],
+      "title": "hướng dẫn kiểm kê và xử lý kết quả kiểm kê tài sản 0 giờ ngày 1/1/1988 khu vực hành chính sự nghiệp",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "110078",
+      "document_number": [
+        "34-TC/CN"
+      ],
+      "title": "hướng dẫn việc chuyển giao, cho thuê, nhượng bán, thanh lý tài sản cố định",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "110090",
+      "document_number": [
+        "2-TC/HCVX"
+      ],
+      "title": "quy định chế độ phụ cấp cho cán bộ, công nhân, viên chức Nhà nước đi công tác ở trong Nhà nước (công tác phí)",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:viên chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "11015",
+      "document_number": [
+        "17/TT-NH3"
+      ],
+      "title": "Hướng dẫn việc giải quyết khiếu nại, tố cáo trong ngành Ngân hàng",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:khiếu nại",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "110164",
+      "document_number": [
+        "07/2000/TT-BTC"
+      ],
+      "title": "hướng dẫn việc cấp, quản lý, hạch toán, quyết toán kinh phí thôi việc và nộp ngân sách tiền bồi thường chi phí đào tạo, bồi dưỡng cán bộ công chức",
+      "category": "Administrative",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:công chức",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "11020",
+      "document_number": [
+        "31-TC/TCĐN"
+      ],
+      "title": "Quy định chế độ khấu hao tài sản cố định đối với các xí nghiệp có vốn đầu tư nước ngoài và các bên nước ngoài hợp tác kinh doanh trên cơ sở hợp đồng",
+      "category": "Criminal",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tài sản",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "11076",
+      "document_number": [
+        "9-CP"
+      ],
+      "title": "Về tiêu chuẩn hành lý miễn thuế của khách xuất - nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "110890",
+      "document_number": [
+        "120/2015/TT-BTC"
+      ],
+      "title": "Quy định về mẫu, chế độ in, phát hành, quản lý và sử dụng Tờ khai Hải quan dùng cho ngườỉ xuất cảnh, nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "110923",
+      "document_number": [
+        "184/2015/TT-BTC"
+      ],
+      "title": "Quy định thủ tục về kê khai, bảo lãnh tiền thuế, thu nộp tiền thuế, tiền chậm nộp, tiền phạt, tiền phí, lệ phí, các khoản thu khác, đối với hàng hóa xuất khẩu, nhập khẩu, quá cảnh và phương tiện xuất cảnh, nhập cảnh, quá cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "11361",
+      "document_number": [
+        "13-BYT/TT"
+      ],
+      "title": "Bổ sung thông tư 19-BYT/TT ngày 26/7/1988 về quy định tạm thời chế độ thu tiền khám chữa bệnh và dịch vụ y tế đối với người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "114469",
+      "document_number": [
+        "138/2016/TT-BTC"
+      ],
+      "title": "Mức thu, chế độ thu, nộp lệ phí cấp giấy phép lên bờ cho thuyền viên nước ngoài, giấy phép xuống tàu nước ngoài, giấy phép cho người điều khiển phương tiện Việt Nam cặp mạn tàu nước ngoài và giấy phép cho người Việt Nam và người nước ngoài thực hiện các hoạt động báo chí, nghiên cứu khoa học, tham quan du lịch có liên quan đến tàu, thuyền nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "115243",
+      "document_number": [
+        "31/2016/TT-NHNN"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều của của Thống đốc Ngân hàng Nhà nước quy định cho vay bằng ngoại tệ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng vay là người cư trú",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "11531",
+      "document_number": [
+        "4/TN-PC"
+      ],
+      "title": "Hướng dẫn thực hiện Quy chế đặt và hoạt động của Văn phòng đại diện thường trú các tổ chức kinh tế nước ngoài tại Cộng hoà xã hội chủ nghĩa Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thường trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "117608",
+      "document_number": [
+        "86/2013/NĐ-CP"
+      ],
+      "title": "quy định về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "117609",
+      "document_number": [
+        "175/2016/NĐ-CP"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều quy định tại của Chính phủ về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "11765",
+      "document_number": [
+        "146/2009/TT-BTC"
+      ],
+      "title": "Hướng dẫn chế độ thu, nộp và quản lý sử dụng lệ phí giải quyết các việc liên quan đến quốc tịch",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "118314",
+      "document_number": [
+        "175/2016/NĐ-CP"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều quy định tại của Chính phủ về kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "118526",
+      "document_number": [
+        "219/2016/TT-BTC"
+      ],
+      "title": "Quy định mức thu, chế độ thu, nộp, quản lý và sử dụng phí, lệ phí trong lĩnh vực xuất cảnh, nhập cảnh, quá cảnh, cư trú tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "118635",
+      "document_number": [
+        "53/2016/TT-BCA"
+      ],
+      "title": "quy định cách thức thực hiện khai báo, tiếp nhận thông tin tạm trú của người nước ngoài tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "11885",
+      "document_number": [
+        "118/2009/TT-BTC"
+      ],
+      "title": "Hướng dẫn việc nhập khẩu xe ôtô đang sử dụng theo chế độ tài sản di chuyển của người Việt Nam định cư ở nước ngoài đã hoàn tất thủ tục đăng ký thường trú tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thường trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "119000",
+      "document_number": [
+        "55/2015/TT-BLĐTBXH"
+      ],
+      "title": "Hướng dẫn việc tiếp nhận, quản lý và giáo dục người chưa thành niên không có nơi cư trú ổn định bị áp dụng biện pháp giáo dục tại xã, phường, thị trấn tại các cơ sở trợ giúp trẻ em",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    },
+    {
+      "doc_name": "119177",
+      "document_number": [
+        "281/2016/TT-BTC"
+      ],
+      "title": "Quy định mức thu, chế độ thu, nộp, quản lý và sử dụng phí khai thác, sử dụng thông tin trong cơ sở dữ liệu hộ tịch, phí xác nhận có quốc tịch Việt Nam, phí xác nhận là người gốc Việt Nam, lệ phí quốc tịch",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "thong_tu"
+    }
+  ]
+}

@@ -93,6 +93,9 @@ def _classify_file(path: Path) -> str | None:
     name = path.name.lower()
     parts = [p.lower() for p in path.parts]
 
+    if "pilot" in name and name.endswith(".jsonl"):
+        return "vbpl"
+
     if "vbpl" in parts and "th1nhng0" not in parts:
         return "vbpl"
 
