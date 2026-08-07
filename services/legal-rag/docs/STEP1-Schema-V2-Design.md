@@ -1,6 +1,6 @@
 # STEP 1 — CanonicalDocument Schema V2 (Merged Design)
 
-**Status: 검토 대기 (Review pending — 코드 미적용)**
+**Status: 검토 대기 v2 (Review pending — 코드 미적용)**
 
 이 문서는 아래 두 애드덤을 병합한 STEP 1 최종 설계안이다.
 
@@ -8,6 +8,8 @@
 - `CURSOR_INSTRUCTION_ADDENDUM2_STEP1_TIMEVALIDITY.md` (2차)
 
 기존 `CURSOR_INSTRUCTION_LEGAL_RAG_SCHEMA_AND_CURATION.md`의 STEP 2, "이번 범위에 포함 안 되는 것", "절대 준수사항"은 그대로 유지한다.
+
+**v2 갱신**: `CURSOR_REQUEST_STEP1_DESIGN_FIXES.md` 5건 반영 (status 8값, Rule 2 분리, RelationType 11개, relatedDocuments SoT, category 원본값 표).
 
 ---
 
@@ -33,7 +35,7 @@
 | `id` | `documentId` | string | 내부 고유 ID (`{source}:{sourceDocumentId}`) |
 | `title` | `title` | string? | 문서 제목 |
 | `document_type` | `documentType` | string | Law, Decree, Circular, Decision, Resolution … (원본 slug/전체명 정규화) |
-| `category[]` | `category` | string[] | **13개 고정 목록만** (아래 §3) |
+| `category[]` | `category` | string[] | **13개 canonical 목록만** (아래 §3). 미분류는 `[]` |
 | `authority` | `issuingAuthority` | string? | 발행기관명 |
 | `authority_weight` | `authorityWeight` | int | `documentType`에서 파생 (§4) |
 | `document_number` | `documentNumber` | string[] | 예: `["59/2020/QH14"]` |
@@ -41,12 +43,12 @@
 | `effective_date` | `effectiveDate` | date? | 발효일 |
 | `expiry_date` | `expiryDate` | date? | 명시적 폐지/만료일 (nullable) |
 | `publication_date` | `publicationDate` | date? | 관보(Công báo) 등록일 |
-| `status` | `status` | enum | §5 |
-| `supersedes[]` | `supersedes` | string[] | 이 문서가 대체한 문서 id |
-| `superseded_by[]` | `supersededBy` | string[] | 이 문서를 대체한 문서 id |
-| `amends[]` | `amends` | string[] | 이 문서가 개정한 문서 id |
-| `amended_by[]` | `amendedBy` | string[] | 이 문서를 개정한 문서 id |
-| `related_documents[]` | `relatedDocuments` | object[] | `{ documentId, relationType }` (§6) |
+| `status` | `status` | enum | §5 (8값) |
+| `supersedes[]` | `supersedes` | string[] | **파생** — §6 |
+| `superseded_by[]` | `supersededBy` | string[] | **파생** — §6 |
+| `amends[]` | `amends` | string[] | **파생** — §6 |
+| `amended_by[]` | `amendedBy` | string[] | **파생** — §6 |
+| `related_documents[]` | `relatedDocuments` | object[] | **원본(SoT)** `{ documentId, relationType }` — §6 |
 | `language` | `language` | string? | 언어 (기본 `vi`) |
 | `summary` | `summary` | string? | 요약 |
 | `keywords[]` | `keywords` | string[] | 키워드 |
@@ -64,19 +66,93 @@
 
 **별도 그래프 테이블**
 
-- `RelationshipEdge` / `normalize_relations.py`는 유지하되, 정규화 마지막 단계에서 `relatedDocuments[]` 및 `supersedes`/`supersededBy`/`amends`/`amendedBy` 배열을 **역방향 포함(inverse) 관계까지 materialize**한다.
+- `RelationshipEdge` / `normalize_relations.py`는 **원시 관계 입력(raw edges)** 용으로 유지한다.
+- 문서 단위 최종 관계의 **유일한 원본(source of truth)은 `relatedDocuments[]`** 이다 (§6).
+- `supersedes` / `supersededBy` / `amends` / `amendedBy`는 `relatedDocuments[]`에서 **읽기 전용으로 파생**한다. 두 곳에 독립적으로 값을 쓰지 않는다.
 
 ---
 
-## 3. category[] — 13개 고정 목록
+## 3. category[] — 13개 canonical 목록 및 원본값 현황
 
-애드덤: "기존 문서 목록 그대로" — **원본 지시문(`CURSOR_INSTRUCTION_LEGAL_RAG_SCHEMA_AND_CURATION.md`)에 정의된 13개 목록이 저장소에 없음.**
+### 3.1 Canonical 13 (매핑 목표)
 
-현재 샘플 데이터(`legal_area` / `linh_vuc`)에서는 30+ 비표준 값이 관찰됨. 200건 파일럿 전 Ace 승인이 필요:
+```
+Company, Investment, Labor, Immigration, Tax, RealEstate, Licensing,
+Customs, Banking, Civil, Commercial, Criminal, Administrative
+```
 
-1. 13개 canonical category 목록 확정
-2. `legal_area` / `linh_vuc` / `legal_sectors` → canonical 매핑표
-3. 매핑 불가 시 `["Chưa phân loại"]` 또는 hard-fail 정책 결정
+- `Chưa phân loại`(미분류) 및 매핑 불가 원본값 → **`category: []`** (canonical에 넣지 않음)
+- 미분류 건수는 정규화 보고 시 별도 집계
+
+### 3.2 원본 필드값 분포 (현재 120건 샘플)
+
+데이터 경로: `data/raw/` (2026-03 기준 HF sample/preview)
+
+#### tmquan/vbpl-vn — `legal_area` (100건, 30개 distinct 값)
+
+| 값 | 건수 |
+|---|---|
+| Chưa phân loại | 63 |
+| Tổ chức- Biên chế | 3 |
+| Tổ chức cán bộ | 3 |
+| Đường bộ | 2 |
+| Công chức | 2 |
+| Đất đai | 2 |
+| Môi trường | 2 |
+| Chất lượng Nông Lâm sản và Thủy sản | 1 |
+| Tin học hóa | 1 |
+| Quản lý thị trường | 1 |
+| Thi hành án dân sự | 1 |
+| Lâm nghiệp | 1 |
+| Xuất nhập khẩu | 1 |
+| Thi đua khen thưởng | 1 |
+| Phát triển đô thị | 1 |
+| Đầu tư tại Việt Nam | 1 |
+| Quản lý ngân sách nhà nước | 1 |
+| Điện | 1 |
+| Thành lập và hoạt động của doanh nghiệp | 1 |
+| Kiểm soát thủ tục hành chính | 1 |
+| Chính sách | 1 |
+| Công chức, viên chức | 1 |
+| Khiếu nại, tố cáo | 1 |
+| Giáo dục thường xuyên | 1 |
+| Đào tạo và nghiên cứu y dược | 1 |
+| Ngân sách nhà nước | 1 |
+| Thủy lợi, đề điều và phòng chống bão lụt | 1 |
+| Đường thủy nội địa | 1 |
+| Quản lý quỹ ngân sách, quỹ dự trữ nhà nước, và các quỹ tài chính khác của nhà nước | 1 |
+| Phát triển nông thôn | 1 |
+
+#### th1nhng0 metadata — `linh_vuc` (10건, 3개 distinct 값)
+
+| 값 | 건수 |
+|---|---|
+| Chưa phân loại | 8 |
+| Đất đai | 1 |
+| Chính quyền địa phương | 1 |
+
+#### th1nhng0 legacy — `legal_sectors` (10건, 7개 distinct 값 — 배열 필드, 문서당 1항목)
+
+| 값 | 건수 |
+|---|---|
+| Administrative apparatus | 4 |
+| Education | 1 |
+| Real estate, Transport | 1 |
+| Employment - Wages, Administrative apparatus | 1 |
+| Information technology, Administrative apparatus | 1 |
+| Investment | 1 |
+| Export & Import | 1 |
+
+### 3.3 미분류(`Chưa phân loại`) 집계
+
+| 소스 | 필드 | 미분류 건수 | 전체 |
+|---|---|---|---|
+| tmquan/vbpl-vn | `legal_area` | 63 | 100 |
+| th1nhng0 metadata | `linh_vuc` | 8 | 10 |
+| th1nhng0 legacy | `legal_sectors` | 0 (영문 별도 taxonomy) | 10 |
+| **합계** | | **71** | **120** |
+
+→ 120건 중 **59.2%**가 베트남어 미분류 라벨. canonical 13 매핑표는 구현 단계에서 위 원본값을 기준으로 작성한다.
 
 ---
 
@@ -95,35 +171,81 @@
 
 ---
 
-## 5. status enum (V2)
+## 5. status enum (V2 — 8값)
 
-애드덤 V2 status (기존 7값 → 5값으로 단순화):
+**최종 V2 status enum:**
+
+```
+active, not_yet_effective, amended, superseded, repealed, suspended, unknown
+```
+
+(`not_yet_effective`는 별도 원본값이 아니라 **`effectiveDate`가 미래일 때 자동 파생**)
 
 | V2 값 | 설명 |
 |---|---|
 | `active` | 현재 유효 |
-| `not_yet_effective` | `effectiveDate`가 미래 |
-| `amended` | 개정됨 |
+| `not_yet_effective` | `effectiveDate` > 오늘 (자동 파생) |
+| `amended` | 개정됨 (일부 조항 실효 포함) |
 | `superseded` | 대체됨 |
-| `repealed` | 폐지됨 |
+| `repealed` | 전체 폐지/만료 |
+| `suspended` | 효력 정지 (repealed와 별개) |
+| `unknown` | 상태 정보 없음 — `rawStatus` 보존, 기본 검색 제외, **hard-fail 아님** |
 
-**기존 → V2 매핑 (제안)**
+**레거시 7값 → V2 매핑**
 
-| 기존 | V2 |
+| 기존 (레거시) | V2 (최종) |
 |---|---|
 | `active` | `active` |
-| `partially_expired` | `active` (부분실효는 `EffectiveScope`로 처리) |
+| `partially_expired` | `amended` |
 | `fully_expired` | `repealed` |
 | `amended` | `amended` |
 | `replaced` | `superseded` |
-| `suspended` | `repealed` (또는 별도 enum 추가 — **승인 필요**) |
-| `unknown` | `active` + `rawStatus` 보존, 또는 hard-fail — **승인 필요** |
+| `suspended` | `suspended` |
+| `unknown` | `unknown` (+ `rawStatus` 보존) |
+| (자동 파생) | `not_yet_effective` — `effectiveDate`가 미래 |
+
+**검색 정책**: `unknown` 문서는 기본 검색 결과에서 제외. 정규화 파이프라인에서는 hard-fail하지 않는다.
 
 ---
 
 ## 6. related_documents[] / relation_type
 
+### 6.1 Source of truth (SoT) — 구현 의도
+
+```
+normalize_relations.py (raw edges)
+        ↓
+relatedDocuments[]  ← 유일한 원본 (쓰기는 여기만)
+        ↓ derive (read-only)
+supersedes / supersededBy / amends / amendedBy
+```
+
+- **`relatedDocuments[]`가 유일한 원본**이다. `normalize_relations.py`가 raw edge를 V2 `relationType`으로 매핑한 뒤, 역방향(inverse) edge까지 포함해 이 배열에 기록한다.
+- **`supersedes` / `supersededBy` / `amends` / `amendedBy`는 파생 필드**다. Rule 1 검증 등에서 빠른 접근용이며, `relatedDocuments[]`에서 deterministic하게 재계산 가능해야 한다.
+- 구현 시 **두 곳에 독립적으로 값을 넣지 않는다.** 파생 함수 예: `derive_relation_arrays(relatedDocuments) → { supersedes, supersededBy, amends, amendedBy }`
+
+**이중 기록(dual-write) 시 리스크**
+
+| 리스크 | 설명 |
+|---|---|
+| 데이터 drift | `relatedDocuments`에는 A→B `amends`가 있는데 `amends[]`에는 B id가 빠지는 불일치 |
+| 검증 우회 | Rule 1이 `supersededBy`(파생)만 보고 `relatedDocuments`(원본)와 모순되는 상태를 놓칠 수 있음 |
+| 디버깅 비용 | 어느 쪽이 최신/정확한지 추적 불가 |
+
+→ SoT + 파생 패턴으로 구현 가능하며, **권장 방식**이다.
+
+### 6.2 RelationType enum (11개)
+
 `relatedDocuments` 각 항목: `{ "documentId": "...", "relationType": "..." }`
+
+```
+implements, implemented_by,
+amends, amended_by,
+supersedes, superseded_by,
+repeals, repealed_by,
+references, referenced_by,
+related_to
+```
 
 | relationType | 설명 |
 |---|---|
@@ -131,13 +253,25 @@
 | `implemented_by` | 역방향 |
 | `amends` | 개정 |
 | `amended_by` | 역방향 |
+| `supersedes` | 대체 (구 `replaces`/`supersedes` 매핑) |
+| `superseded_by` | 역방향 |
 | `repeals` | 폐지 |
 | `repealed_by` | 역방향 |
 | `references` | 인용/참조 |
-| `referenced_by` | 역방향 (2차 애드덤) |
-| `related_to` | 최후 수단 (남용 금지) |
+| `referenced_by` | 역방향 |
+| `related_to` | 최후 수단 (남용 금지 — 비율 높으면 분류 오류로 간주) |
 
-기존 `RelationType` enum (`replaces`/`supersedes`/`unknown` 등)은 V2 enum으로 통합·매핑 필요.
+**레거시 → V2 매핑 (제안)**
+
+| 기존 RelationType | V2 |
+|---|---|
+| `implements` | `implements` |
+| `amends` | `amends` |
+| `repeals` | `repeals` |
+| `replaces` | `supersedes` |
+| `supersedes` | `supersedes` |
+| `references` | `references` |
+| `unknown` | `related_to` (또는 edge 제외 + 리포트 — 구현 시 결정) |
 
 ---
 
@@ -147,11 +281,14 @@
 
 | Rule | 조건 |
 |---|---|
-| 1 | `supersededBy` 비어있지 않은데 `status == active` |
-| 2 | `effectiveDate`가 미래인데 `status == active` → `not_yet_effective`여야 함 (1차 애드덤) / `effectiveDate < issueDate` 위반 (2차: `>=` 허용) |
-| 3 | `expiryDate` 존재 시 `expiryDate <= effectiveDate` |
-| 4 | `relatedDocuments[]` 및 `supersedes`/`supersededBy`/`amends`/`amendedBy`의 모든 id가 문서 집합에 존재 |
-| 5 | `supersedes`/`supersededBy`/`amends`/`amendedBy` 관계에서 순환(A→B→C→A) — `references`/`referenced_by`/`related_to`는 제외 |
+| **1** | `supersededBy`(파생)가 비어있지 않은데 `status == active` |
+| **2a** | `effectiveDate`가 미래인데 `status == active` → `not_yet_effective`여야 함 |
+| **2b** | `effectiveDate < issueDate` → 오류 (`effectiveDate == issueDate`는 허용) |
+| **3** | `expiryDate` 존재 시 `expiryDate <= effectiveDate` → 오류 |
+| **4** | `relatedDocuments[]`의 모든 `documentId` 및 파생 배열(`supersedes`/`supersededBy`/`amends`/`amendedBy`)의 id가 문서 집합에 존재 |
+| **5** | `supersedes`/`supersededBy`/`amends`/`amendedBy` 관계에서 순환(A→B→C→A) — `references`/`referenced_by`/`related_to`는 제외 |
+
+Rule 1·4·5는 **`relatedDocuments[]`(SoT) 기준**으로 검증하고, 파생 필드는 SoT와 불일치 시 **파생 로직 버그**로 처리한다 (문서 데이터 hard-fail이 아님).
 
 ---
 
@@ -159,12 +296,13 @@
 
 | V2 필드 | tmquan/vbpl | th1nhng0 metadata | th1nhng0 legacy |
 |---|---|---|---|
-| `category` | `legal_area` → canonical 13 | `linh_vuc` → canonical 13 | `legal_sectors` → canonical 13 |
+| `category` | `legal_area` → canonical 13 또는 `[]` | `linh_vuc` → canonical 13 또는 `[]` | `legal_sectors` → canonical 13 또는 `[]` |
 | `publicationDate` | (없음) | `ngay_dang_cong_bao` | (없음) |
 | `summary` | `summary` | (없음) | (없음) |
 | `language` | 추론 `vi` | 추론 `vi` | 추론 `vi` |
 | `keywords` | (없음) | (없음) | (없음) |
-| relation arrays | (없음 — relations 파일 후처리) | relationships → materialize | (없음) |
+| `relatedDocuments` | (없음 — relations 후처리) | relationships → SoT | (없음) |
+| `supersedes` 등 4필드 | — | `relatedDocuments`에서 파생 | — |
 
 ---
 
@@ -180,10 +318,10 @@
 
 ## 10. 작업 순서 (애드덤 준수)
 
-1. **본 문서 + diff 검토** ← **현재 단계**
+1. **본 문서 검토** ← **현재 단계** (design fixes v2 반영 완료)
 2. 승인 후 `schema.py`, `normalize_documents.py`, validation 모듈 적용
 3. 기존 120건 재정규화
-4. 보고: category 분포, authorityWeight 분포, relation 배열 채워진 문서 수, hard-fail 건수
+4. 보고: category 분포, authorityWeight 분포, relation(SoT) 채워진 문서 수, 미분류(`category:[]`) 건수, hard-fail 건수
 5. 타입체크/린트/테스트 통과 확인
 6. **STEP 2 착수 전 Ace 확인**
 
