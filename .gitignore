@@ -43,3 +43,7 @@ next-env.d.ts
 # legal-rag pilot 1000 generated artifacts (exceed GitHub 100MB limit; regenerate via run_pilot_1000_pipeline.py)
 services/legal-rag/data/raw/pilot/pilot_1000.jsonl
 services/legal-rag/data/normalized/pilot_1000/
+
+# legal-rag pilot 3000 generated artifacts (exceed GitHub 100MB limit; regenerate via run_pilot_3000_pipeline.py)
+services/legal-rag/data/raw/pilot/pilot_3000.jsonl
+services/legal-rag/data/normalized/pilot_3000/

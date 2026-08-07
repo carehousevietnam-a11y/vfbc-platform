@@ -334,20 +334,33 @@ def backfill_pilot(
                 state.add(row, category, "title_keyword", f"title_keyword:{kw}")
                 continue
 
-        if "Criminal" in backfill_quotas and state.remaining("Criminal") > 0:
+        _LEGAL_AREA_BACKFILL: dict[str, tuple[str, ...]] = {
+            "Criminal": (
+                "hình sự",
+                "hinh su",
+                "bộ luật hình sự",
+                "tố tụng hình sự",
+                "thi hành án hình sự",
+            ),
+            "Civil": ("dân sự", "thi hành án dân sự"),
+            "Commercial": ("thương mại", "quản lý thị trường"),
+            "Investment": ("đầu tư", "đầu tư tại việt nam"),
+            "Banking": ("tín dụng", "ngân hàng"),
+            "Customs": ("hải quan", "xuất nhập khẩu", "xuất nhập cảnh hàng hóa"),
+        }
+        for cat, hints in _LEGAL_AREA_BACKFILL.items():
+            if cat not in backfill_quotas or state.remaining(cat) <= 0:
+                continue
             la = (row.get("legal_area") or "").lower()
-            md = (row.get("markdown") or "").lower()[:2000]
             ti = (row.get("title") or "").lower()
-            criminal_hint = (
-                "hình sự" in la
-                or "hinh su" in la
-                or "bộ luật hình sự" in ti
-                or "bộ luật hình sự" in md
-                or "tố tụng hình sự" in ti
-                or "thi hành án hình sự" in la
-            )
-            if criminal_hint and state.can_add("Criminal", "legal_area"):
-                state.add(row, "Criminal", "legal_area", f"legal_area:{row.get('legal_area')}")
+            if any(h in la or h in ti for h in hints):
+                if cat == "Investment" and any(
+                    x in ti for x in ("đầu tư công", "đầu tư nước ngoài", "đối tác công tư")
+                ):
+                    continue
+                if state.can_add(cat, "legal_area"):
+                    state.add(row, cat, "legal_area", f"legal_area:{row.get('legal_area')}")
+                    break
 
         if scanned % 50000 == 0:
             logger.info("Backfill 스캔 %d행 — 추가 %d건 — %s", scanned, len(state.records) - len(existing_records), dict(state.counts))

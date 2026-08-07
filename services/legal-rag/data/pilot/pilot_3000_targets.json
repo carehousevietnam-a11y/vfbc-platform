@@ -1,0 +1,422 @@
+{
+  "version": 1,
+  "description": "STEP2 3,000-doc expansion — 8 existing categories scaled to 2,400 + 5 new categories ×120",
+  "quotas": {
+    "Administrative": 420,
+    "Immigration": 360,
+    "Labor": 360,
+    "Criminal": 300,
+    "RealEstate": 300,
+    "Tax": 240,
+    "Company": 240,
+    "Licensing": 180,
+    "Civil": 120,
+    "Commercial": 120,
+    "Investment": 120,
+    "Banking": 120,
+    "Customs": 120
+  },
+  "allowed_doc_types": [
+    "luat",
+    "bo_luat",
+    "nghi_dinh",
+    "thong_tu"
+  ],
+  "allowed_scope": [
+    "trung_uong"
+  ],
+  "repealed_examples_per_category": 2,
+  "categories": {
+    "Immigration": {
+      "doc_numbers": [
+        "47/2014/QH13",
+        "25/2020/NĐ-CP",
+        "31/2014/NĐ-CP",
+        "56/2023/NĐ-CP",
+        "04/2015/TT-BCA",
+        "07/2017/TT-BCA",
+        "04/2021/TT-BCA",
+        "12/2020/TT-BCA",
+        "24/2020/TT-BTC",
+        "80/2021/NĐ-CP"
+      ],
+      "title_priority": [
+        "Luật Xuất cảnh nhập cảnh",
+        "Luật Cư trú",
+        "giấy phép lao động người nước ngoài"
+      ],
+      "title_keywords": [
+        "xuất nhập cảnh",
+        "người nước ngoài",
+        "cư trú",
+        "tạm trú",
+        "thường trú",
+        "visa",
+        "giấy tờ có giá trị đi lại",
+        "quốc tịch",
+        "nhập cảnh"
+      ],
+      "repealed_doc_numbers": [
+        "36/2007/NĐ-CP"
+      ]
+    },
+    "Labor": {
+      "doc_numbers": [
+        "45/2019/QH14",
+        "152/2020/NĐ-CP",
+        "70/2023/NĐ-CP",
+        "10/2020/NĐ-CP",
+        "145/2020/NĐ-CP",
+        "135/2020/NĐ-CP",
+        "28/2020/NĐ-CP",
+        "12/2022/NĐ-CP",
+        "06/2021/NĐ-CP",
+        "103/2015/NĐ-CP"
+      ],
+      "title_priority": [
+        "Bộ luật Lao động",
+        "giấy phép lao động",
+        "Quy định chi tiết thi hành một số điều của Bộ luật Lao động"
+      ],
+      "title_keywords": [
+        "lao động",
+        "giấy phép lao động",
+        "người lao động nước ngoài",
+        "hợp đồng lao động",
+        "bảo hiểm xã hội",
+        "tiền lương",
+        "nghỉ việc"
+      ],
+      "repealed_doc_numbers": [
+        "75/2014/NĐ-CP"
+      ]
+    },
+    "Company": {
+      "doc_numbers": [
+        "59/2020/QH14",
+        "01/2021/NĐ-CP",
+        "155/2020/NĐ-CP",
+        "47/2021/NĐ-CP",
+        "50/2016/QH13",
+        "68/2014/QH13",
+        "17/2020/NĐ-CP",
+        "43/2017/NĐ-CP"
+      ],
+      "title_keywords": [
+        "doanh nghiệp",
+        "đăng ký kinh doanh",
+        "công ty",
+        "hộ kinh doanh",
+        "chi nhánh"
+      ],
+      "repealed_doc_numbers": [
+        "68/2014/QH13"
+      ]
+    },
+    "Criminal": {
+      "doc_numbers": [
+        "100/2015/QH13",
+        "12/2017/QH14",
+        "44/2019/QH14",
+        "56/2024/QH15",
+        "27/2018/QH14"
+      ],
+      "title_priority": [
+        "Bộ luật Hình sự",
+        "Luật sửa đổi bổ sung một số điều của Bộ luật Hình sự"
+      ],
+      "title_keywords": [
+        "hình sự",
+        "lừa đảo",
+        "gian dối",
+        "phạm tội",
+        "chiếm đoạt",
+        "bộ luật hình sự",
+        "tố tụng hình sự",
+        "hình phạt",
+        "khởi tố",
+        "tội phạm",
+        "xử phạt hình sự",
+        "tội danh"
+      ],
+      "repealed_doc_numbers": [
+        "42/2010/QH12"
+      ]
+    },
+    "RealEstate": {
+      "doc_numbers": [
+        "31/2024/QH15",
+        "65/2024/QH15",
+        "45/2013/QH13",
+        "59/2015/QH11",
+        "43/2014/NĐ-CP",
+        "148/2020/NĐ-CP",
+        "30/2021/NĐ-CP",
+        "101/2015/NĐ-CP"
+      ],
+      "title_priority": [
+        "người nước ngoài mua nhà",
+        "quyền sử dụng đất của người nước ngoài",
+        "Luật Nhà ở"
+      ],
+      "title_keywords": [
+        "đất đai",
+        "nhà ở",
+        "bất động sản",
+        "quyền sử dụng đất",
+        "thuê nhà",
+        "chung cư"
+      ],
+      "repealed_doc_numbers": [
+        "45/2013/QH13"
+      ]
+    },
+    "Tax": {
+      "doc_numbers": [
+        "38/2019/QH14",
+        "13/2008/QH12",
+        "04/2007/QH12",
+        "71/2014/QH13",
+        "106/2016/QH13",
+        "123/2015/NĐ-CP",
+        "78/2014/TT-BTC",
+        "96/2015/TT-BTC",
+        "40/2021/QĐ-TTg"
+      ],
+      "title_keywords": [
+        "thuế",
+        "thuế giá trị gia tăng",
+        "thuế thu nhập",
+        "hóa đơn",
+        "kế toán"
+      ],
+      "repealed_doc_numbers": [
+        "83/2008/QH12"
+      ]
+    },
+    "Administrative": {
+      "doc_numbers": [
+        "69/2018/QH14",
+        "36/2018/QH14",
+        "104/2016/QH13",
+        "63/2010/QH12",
+        "64/2025/QH15",
+        "115/2015/NĐ-CP",
+        "61/2018/NĐ-CP",
+        "45/2020/NĐ-CP",
+        "118/2021/NĐ-CP"
+      ],
+      "title_keywords": [
+        "thủ tục hành chính",
+        "khiếu nại",
+        "tố cáo",
+        "công vụ",
+        "viên chức",
+        "công chức",
+        "tiếp cận thông tin"
+      ],
+      "repealed_doc_numbers": [
+        "80/2015/NĐ-CP"
+      ]
+    },
+    "Licensing": {
+      "doc_numbers": [
+        "155/2018/NĐ-CP",
+        "08/2022/NĐ-CP",
+        "98/2020/NĐ-CP",
+        "40/2019/TT-BYT",
+        "32/2018/NĐ-CP",
+        "59/2019/NĐ-CP",
+        "72/2020/NĐ-CP"
+      ],
+      "title_keywords": [
+        "điều kiện kinh doanh",
+        "cấp phép",
+        "an toàn thực phẩm",
+        "môi trường",
+        "dược",
+        "mỹ phẩm",
+        "xây dựng"
+      ],
+      "repealed_doc_numbers": [
+        "39/2018/NĐ-CP"
+      ]
+    },
+    "Civil": {
+      "doc_numbers": [
+        "91/2015/QH13",
+        "26/2008/QH12",
+        "21/2021/NĐ-CP",
+        "138/2006/NĐ-CP",
+        "100/2006/NĐ-CP",
+        "52/2017/NĐ-CP",
+        "325/2016/TT-BTP",
+        "01/2017/TT-BTP"
+      ],
+      "title_priority": [
+        "Bộ luật Dân sự",
+        "Luật Thi hành án dân sự"
+      ],
+      "title_keywords": [
+        "dân sự",
+        "bồi thường thiệt hại",
+        "hợp đồng dân sự",
+        "quyền sở hữu",
+        "thi hành án dân sự",
+        "tranh chấp dân sự",
+        "năng lực pháp luật",
+        "thừa kế"
+      ],
+      "repealed_doc_numbers": [
+        "33/2005/QH11"
+      ]
+    },
+    "Commercial": {
+      "doc_numbers": [
+        "36/2005/QH11",
+        "187/2013/NĐ-CP",
+        "52/2005/NĐ-CP",
+        "03/2016/TT-BCT",
+        "04/2014/TT-BCT",
+        "08/2015/TT-BCT",
+        "219/2013/NĐ-CP",
+        "116/2018/NĐ-CP"
+      ],
+      "title_priority": [
+        "Luật Thương mại"
+      ],
+      "title_keywords": [
+        "thương mại",
+        "thương nhân",
+        "mua bán hàng hóa",
+        "hợp đồng thương mại",
+        "tranh chấp thương mại",
+        "nhượng quyền thương mại",
+        "xúc tiến thương mại",
+        "sở giao dịch hàng hóa"
+      ],
+      "repealed_doc_numbers": [
+        "67/2005/QH11"
+      ]
+    },
+    "Investment": {
+      "doc_numbers": [
+        "61/2020/QH14",
+        "31/2021/NĐ-CP",
+        "03/2022/QH15",
+        "05/2022/QH15",
+        "39/2019/QH14",
+        "15/2015/NĐ-CP",
+        "118/2015/NĐ-CP",
+        "46/2015/NĐ-CP"
+      ],
+      "title_priority": [
+        "Luật Đầu tư",
+        "Luật Đầu tư theo phương thức đối tác công tư"
+      ],
+      "title_keywords": [
+        "đầu tư",
+        "nhà đầu tư",
+        "dự án đầu tư",
+        "đối tác công tư",
+        "ppp",
+        "khu kinh tế",
+        "khu công nghiệp",
+        "giấy chứng nhận đầu tư"
+      ],
+      "repealed_doc_numbers": [
+        "59/2010/QH12"
+      ]
+    },
+    "Banking": {
+      "doc_numbers": [
+        "32/2024/QH15",
+        "47/2010/QH12",
+        "17/2017/QH14",
+        "43/2024/QH15",
+        "01/2014/TT-NHNN",
+        "06/2016/TT-NHNN",
+        "13/2018/TT-NHNN",
+        "16/2024/TT-NHNN"
+      ],
+      "title_priority": [
+        "Luật Các tổ chức tín dụng",
+        "Luật các tổ chức tín dụng"
+      ],
+      "title_keywords": [
+        "tổ chức tín dụng",
+        "ngân hàng",
+        "cho vay",
+        "tiền gửi",
+        "tài khoản ngân hàng",
+        "tín dụng",
+        "ngân hàng thương mại",
+        "thanh toán"
+      ],
+      "repealed_doc_numbers": [
+        "42/2010/QH12"
+      ]
+    },
+    "Customs": {
+      "doc_numbers": [
+        "54/2014/QH13",
+        "59/2018/NĐ-CP",
+        "08/2015/NĐ-CP",
+        "14/2015/TT-BTC",
+        "39/2018/TT-BTC",
+        "65/2017/TT-BTC",
+        "166/2025/NĐ-CP",
+        "167/2025/NĐ-CP"
+      ],
+      "title_priority": [
+        "Luật Hải quan"
+      ],
+      "title_keywords": [
+        "hải quan",
+        "thủ tục hải quan",
+        "tờ khai hải quan",
+        "xuất khẩu",
+        "nhập khẩu",
+        "thuế quan",
+        "kiểm tra hải quan",
+        "vận chuyển quốc tế"
+      ],
+      "repealed_doc_numbers": [
+        "29/2001/QH10"
+      ]
+    }
+  },
+  "core_law_candidates": {
+    "Civil": {
+      "title": "Bộ luật Dân sự",
+      "doc_numbers": [
+        "91/2015/QH13"
+      ]
+    },
+    "Commercial": {
+      "title": "Luật Thương mại",
+      "doc_numbers": [
+        "36/2005/QH11"
+      ]
+    },
+    "Investment": {
+      "title": "Luật Đầu tư",
+      "doc_numbers": [
+        "61/2020/QH14"
+      ]
+    },
+    "Banking": {
+      "title": "Luật Các tổ chức tín dụng",
+      "doc_numbers": [
+        "32/2024/QH15",
+        "47/2010/QH12"
+      ]
+    },
+    "Customs": {
+      "title": "Luật Hải quan",
+      "doc_numbers": [
+        "54/2014/QH13"
+      ]
+    }
+  }
+}

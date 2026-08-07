@@ -73,6 +73,20 @@ def build_title_priority_rules(targets: dict) -> dict[str, list[tuple[str, str]]
                     (norm_text("người nước ngoài"), "foreign_realestate"),
                 ]
             )
+        if category == "Civil":
+            items.append((norm_text("bộ luật dân sự"), "core_law"))
+        if category == "Commercial":
+            items.append((norm_text("luật thương mại số"), "core_law"))
+        if category == "Investment":
+            items.append((norm_text("luật đầu tư số"), "core_law"))
+        if category == "Banking":
+            items.extend(
+                [
+                    (norm_text("luật các tổ chức tín dụng số"), "core_law"),
+                ]
+            )
+        if category == "Customs":
+            items.append((norm_text("luật hải quan số"), "core_law"))
         if items:
             rules[category] = items
     return rules
@@ -110,8 +124,18 @@ def match_row_to_target(
                 if kind == "foreign_realestate":
                     if not any(k in title for k in ("đất", "nhà ở", "bất động sản", "quyền sử dụng")):
                         continue
-                if kind == "criminal_code":
+                if kind in {"criminal_code", "core_law"}:
                     if row.get("doc_type") not in {"luat", "bo_luat"}:
+                        continue
+                if kind == "core_law" and category == "Investment":
+                    if any(
+                        x in title
+                        for x in (
+                            "đầu tư công",
+                            "đầu tư nước ngoài",
+                            "đối tác công tư",
+                        )
+                    ):
                         continue
                 return category, kind, f"title:{pattern}"
     return None
