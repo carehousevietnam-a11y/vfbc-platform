@@ -247,6 +247,145 @@ def curate_pilot(
     return manifest
 
 
+def backfill_pilot(
+    targets_path: Path,
+    output_path: Path,
+    manifest_path: Path,
+    categories: list[str] | None = None,
+    max_scan_rows: int | None = None,
+) -> dict:
+    """기존 pilot jsonl/manifest에 이어 특정 카테고리 quota 미달분만 추가 수집."""
+    targets = json.loads(targets_path.read_text(encoding="utf-8"))
+    quotas = targets["quotas"]
+    allowed_scope = set(targets["allowed_scope"])
+    allowed_types = set(targets["allowed_doc_types"])
+    repealed_cap = int(targets.get("repealed_examples_per_category", 2))
+
+    existing_records: list[dict] = []
+    if output_path.exists():
+        existing_records = [json.loads(line) for line in output_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+    actual = Counter(manifest.get("actual_counts") or {})
+    repealed = Counter(manifest.get("repealed_counts") or {})
+
+    fill_categories = categories or [c for c in quotas if actual.get(c, 0) < quotas[c]]
+    if not fill_categories:
+        logger.info("Backfill 불필요 — 모든 quota 충족")
+        return manifest
+
+    backfill_quotas = {c: quotas[c] - actual.get(c, 0) for c in fill_categories}
+    logger.info("Backfill 시작 — categories=%s quotas=%s", fill_categories, backfill_quotas)
+
+    state = CollectionState(quotas=backfill_quotas, repealed_cap=repealed_cap)
+    state.records = list(existing_records)
+    state.collected_ids = {str(r.get("doc_name")) for r in existing_records}
+    state.counts = Counter({c: 0 for c in backfill_quotas})
+    state.repealed_counts = Counter({c: 0 for c in backfill_quotas})
+    if manifest.get("documents"):
+        state.match_log = list(manifest["documents"])
+
+    number_index = _build_number_index(targets)
+    keyword_index = _build_keyword_index(targets)
+    title_rules = build_title_priority_rules(targets)
+
+    scanned = 0
+    ds = load_dataset("tmquan/vbpl-vn", "documents", split="train", streaming=True)
+    for row in ds:
+        scanned += 1
+        if max_scan_rows and scanned > max_scan_rows:
+            break
+        if state.total_remaining() <= 0:
+            break
+        if not _passes_filters(row, allowed_scope, allowed_types):
+            continue
+        doc_name = str(row.get("doc_name"))
+        if doc_name in state.collected_ids:
+            continue
+
+        hit = match_row_to_target(row, build_priority_number_index(targets), title_rules)
+        if hit:
+            category, kind, matched = hit
+            if category not in backfill_quotas:
+                continue
+            if kind == "title_keyword":
+                continue
+            if state.can_add(category, kind):
+                state.add(row, category, kind, matched)
+            continue
+
+        numbers = _doc_numbers_from_row(row)
+        num_hit = _match_category_by_number(numbers, number_index)
+        if num_hit:
+            category, kind, matched = num_hit
+            if category in backfill_quotas and state.can_add(category, kind):
+                state.add(row, category, kind, f"doc_number:{matched}")
+            continue
+
+        title = row.get("title") or ""
+        kw_hit = _match_category_by_keywords(title, keyword_index)
+        if kw_hit:
+            category, kw = kw_hit
+            if category not in backfill_quotas:
+                continue
+            if category == "Criminal" and "tài sản" in kw:
+                continue
+            if state.can_add(category, "title_keyword"):
+                state.add(row, category, "title_keyword", f"title_keyword:{kw}")
+                continue
+
+        if "Criminal" in backfill_quotas and state.remaining("Criminal") > 0:
+            la = (row.get("legal_area") or "").lower()
+            md = (row.get("markdown") or "").lower()[:2000]
+            ti = (row.get("title") or "").lower()
+            criminal_hint = (
+                "hình sự" in la
+                or "hinh su" in la
+                or "bộ luật hình sự" in ti
+                or "bộ luật hình sự" in md
+                or "tố tụng hình sự" in ti
+                or "thi hành án hình sự" in la
+            )
+            if criminal_hint and state.can_add("Criminal", "legal_area"):
+                state.add(row, "Criminal", "legal_area", f"legal_area:{row.get('legal_area')}")
+
+        if scanned % 50000 == 0:
+            logger.info("Backfill 스캔 %d행 — 추가 %d건 — %s", scanned, len(state.records) - len(existing_records), dict(state.counts))
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        for record in state.records:
+            f.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
+
+    for c in quotas:
+        actual[c] = sum(1 for e in state.match_log if e.get("category") == c)
+        repealed[c] = sum(
+            1 for e in state.match_log if e.get("category") == c and e.get("match_kind") == "repealed_example"
+        )
+
+    shortfalls = {cat: max(0, quotas[cat] - actual.get(cat, 0)) for cat in quotas if actual.get(cat, 0) < quotas[cat]}
+    updated = {
+        **manifest,
+        "scanned_rows": (manifest.get("scanned_rows") or 0) + scanned,
+        "collected_total": len(state.records),
+        "quotas": quotas,
+        "actual_counts": dict(actual),
+        "repealed_counts": dict(repealed),
+        "shortfalls": shortfalls,
+        "documents": state.match_log,
+        "backfill_added": sum(state.counts.values()),
+    }
+    manifest_path.write_text(json.dumps(updated, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info(
+        "Backfill 완료: +%d건, total=%d/%d, 부족=%s",
+        sum(state.counts.values()),
+        len(state.records),
+        sum(quotas.values()),
+        shortfalls or "없음",
+    )
+    return updated
+
+
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="STEP2 200-doc pilot curation")
     parser.add_argument("--targets", type=str, default="data/pilot/pilot_200_targets.json")
