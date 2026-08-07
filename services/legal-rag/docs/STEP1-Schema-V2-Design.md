@@ -1,6 +1,6 @@
 # STEP 1 — CanonicalDocument Schema V2 (Merged Design)
 
-**Status: 검토 대기 v2 (Review pending — 코드 미적용)**
+**Status: 검토 대기 v3 (Review pending — 코드 미적용)**
 
 이 문서는 아래 두 애드덤을 병합한 STEP 1 최종 설계안이다.
 
@@ -9,7 +9,9 @@
 
 기존 `CURSOR_INSTRUCTION_LEGAL_RAG_SCHEMA_AND_CURATION.md`의 STEP 2, "이번 범위에 포함 안 되는 것", "절대 준수사항"은 그대로 유지한다.
 
-**v2 갱신**: `CURSOR_REQUEST_STEP1_DESIGN_FIXES.md` 5건 반영 (status 8값, Rule 2 분리, RelationType 11개, relatedDocuments SoT, category 원본값 표).
+**v2 갱신**: `CURSOR_REQUEST_STEP1_DESIGN_FIXES.md` 5건 반영 (status 7값, Rule 2 분리, RelationType 11개, relatedDocuments SoT, category 원본값 표).
+
+**v3 갱신**: `CURSOR_REQUEST_CATEGORY_MAPPING_AND_MISSING_SECTIONS.md` — category 매핑안 확정, 120건 샘플 전략 명시, status "7값" 라벨 수정.
 
 ---
 
@@ -43,7 +45,7 @@
 | `effective_date` | `effectiveDate` | date? | 발효일 |
 | `expiry_date` | `expiryDate` | date? | 명시적 폐지/만료일 (nullable) |
 | `publication_date` | `publicationDate` | date? | 관보(Công báo) 등록일 |
-| `status` | `status` | enum | §5 (8값) |
+| `status` | `status` | enum | §5 (7값) |
 | `supersedes[]` | `supersedes` | string[] | **파생** — §6 |
 | `superseded_by[]` | `supersededBy` | string[] | **파생** — §6 |
 | `amends[]` | `amends` | string[] | **파생** — §6 |
@@ -72,7 +74,13 @@
 
 ---
 
-## 3. category[] — 13개 canonical 목록 및 원본값 현황
+## 3. category[] — 13개 canonical 목록, 매핑안, 원본값 현황
+
+### 3.0 120건 샘플의 역할 (전략)
+
+현재 120건 HF sample/preview는 **비즈니스/외국인 대상으로 큐레이션된 코퍼스가 아니라**, tmquan 중앙·지방 vbpl 문서가 무작위에 가깝게 포함된 데이터다. `legal_area` 30개 값 중 상당수(포상, 평생교육, 수리·제방 등)는 VFBCAI 서비스와 관련이 낮다.
+
+**이 120건에 대한 category 매핑은 "실제 서비스용 최종 배정"이 아니라 "매핑 로직·파이프라인이 정상 동작하는지 확인하는 테스트"로 취급한다.** STEP 2에서 카테고리별 핵심 법전을 이름으로 지정해 큐레이션 수집을 시작하면, 관련성 높은 문서가 유입된다(원래 STEP 2 지시).
 
 ### 3.1 Canonical 13 (매핑 목표)
 
@@ -81,8 +89,9 @@ Company, Investment, Labor, Immigration, Tax, RealEstate, Licensing,
 Customs, Banking, Civil, Commercial, Criminal, Administrative
 ```
 
-- `Chưa phân loại`(미분류) 및 매핑 불가 원본값 → **`category: []`** (canonical에 넣지 않음)
-- 미분류 건수는 정규화 보고 시 별도 집계
+- `Chưa phân loại`(미분류) → **`category: []`**
+- 서비스 범위 밖 원본값 → **`category: []`** + 보고서에 **미매핑 사유: 서비스 범위 밖** 기록 (데이터 삭제 아님, 감사 추적)
+- 미분류·미매핑 건수는 정규화 보고 시 별도 집계
 
 ### 3.2 원본 필드값 분포 (현재 120건 샘플)
 
@@ -152,7 +161,75 @@ Customs, Banking, Civil, Commercial, Criminal, Administrative
 | th1nhng0 legacy | `legal_sectors` | 0 (영문 별도 taxonomy) | 10 |
 | **합계** | | **71** | **120** |
 
-→ 120건 중 **59.2%**가 베트남어 미분류 라벨. canonical 13 매핑표는 구현 단계에서 위 원본값을 기준으로 작성한다.
+→ 120건 중 **59.2%**가 베트남어 `Chưa phân loại` 라벨.
+
+### 3.4 Category 매핑안 (구현 기준 — 승인됨)
+
+#### tmquan/vbpl-vn — `legal_area` → `category[]`
+
+| 원본값 | canonical | 비고 |
+|---|---|---|
+| Đất đai | RealEstate | |
+| Đầu tư tại Việt Nam | Investment | |
+| Thành lập và hoạt động của doanh nghiệp | Company | |
+| Xuất nhập khẩu | Customs | |
+| Quản lý thị trường | Commercial | |
+| Thi hành án dân sự | Civil | |
+| Phát triển đô thị | RealEstate | |
+| Môi trường | Licensing | REGISTER 환경 업종허가와 대응 |
+| Chất lượng Nông Lâm sản và Thủy sản | Licensing | |
+| Lâm nghiệp | Licensing | |
+| Điện | Licensing | |
+| Đào tạo và nghiên cứu y dược | Licensing | REGISTER 의료기기 업종허가와 인접 |
+| Tổ chức- Biên chế | Administrative | |
+| Tổ chức cán bộ | Administrative | |
+| Công chức | Administrative | |
+| Công chức, viên chức | Administrative | |
+| Đường bộ | Administrative | |
+| Tin học hóa | Administrative | |
+| Kiểm soát thủ tục hành chính | Administrative | |
+| Chính sách | Administrative | 매우 포괄적 — 최후수단 배정 |
+| Khiếu nại, tố cáo | Administrative | |
+| Quản lý ngân sách nhà nước | Administrative | |
+| Ngân sách nhà nước | Administrative | |
+| Quản lý quỹ ngân sách, quỹ dự trữ nhà nước, và các quỹ tài chính khác của nhà nước | Administrative | |
+| Đường thủy nội địa | Administrative | |
+| Thủy lợi, đề điều và phòng chống bão lụt | **[]** | 미매핑 — 서비스 범위 밖 |
+| Phát triển nông thôn | **[]** | 미매핑 — 서비스 범위 밖 |
+| Thi đua khen thưởng | **[]** | 미매핑 — 서비스 범위 밖 |
+| Giáo dục thường xuyên | **[]** | 미매핑 — 서비스 범위 밖 |
+| Chưa phân loại | **[]** | 미분류 유지 |
+
+#### th1nhng0 metadata — `linh_vuc` → `category[]`
+
+| 원본값 | canonical |
+|---|---|
+| Đất đai | RealEstate |
+| Chính quyền địa phương | Administrative |
+| Chưa phân loại | **[]** |
+
+#### th1nhng0 legacy — `legal_sectors` → `category[]`
+
+| 원본값 | canonical | 비고 |
+|---|---|---|
+| Investment | Investment | |
+| Export & Import | Customs | |
+| Real estate, Transport | RealEstate | "Transport" 부분은 미매핑 |
+| Employment - Wages, Administrative apparatus | **Labor, Administrative** | 배열 — 두 카테고리 동시 배정 |
+| Administrative apparatus | Administrative | |
+| Information technology, Administrative apparatus | Administrative | |
+| Education | **[]** | 미매핑 — 서비스 범위 밖 |
+
+### 3.5 120건 샘플 매핑 예상 결과 (파이프라인 테스트용)
+
+| 구분 | 건수 | 설명 |
+|---|---|---|
+| canonical 배정됨 | **44** | tmquan 33 + metadata 2 + legacy 9 |
+| `Chưa phân loại` → `[]` | **71** | tmquan 63 + metadata 8 |
+| 서비스 범위 밖 → `[]` | **5** | tmquan 4 + legacy 1 (Education) |
+| **합계** | **120** | |
+
+정규화 보고서 필수 항목: `category:[]` 문서별 **원본값**, **사유**(`미분류` / `서비스 범위 밖`).
 
 ---
 
@@ -171,9 +248,9 @@ Customs, Banking, Civil, Commercial, Criminal, Administrative
 
 ---
 
-## 5. status enum (V2 — 8값)
+## 5. status enum (V2 — 7값)
 
-**최종 V2 status enum:**
+**최종 V2 status enum (7개):**
 
 ```
 active, not_yet_effective, amended, superseded, repealed, suspended, unknown
@@ -318,7 +395,7 @@ Rule 1·4·5는 **`relatedDocuments[]`(SoT) 기준**으로 검증하고, 파생 
 
 ## 10. 작업 순서 (애드덤 준수)
 
-1. **본 문서 검토** ← **현재 단계** (design fixes v2 반영 완료)
+1. **본 문서 검토** ← **현재 단계** (v3: category 매핑안 반영 완료)
 2. 승인 후 `schema.py`, `normalize_documents.py`, validation 모듈 적용
 3. 기존 120건 재정규화
 4. 보고: category 분포, authorityWeight 분포, relation(SoT) 채워진 문서 수, 미분류(`category:[]`) 건수, hard-fail 건수
