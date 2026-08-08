@@ -28,6 +28,25 @@ def test_normalize_vietnamese_text_collapses_whitespace():
     assert "\n\n\n" not in result
 
 
+def test_normalize_vietnamese_text_inserts_newlines_before_dieu_markers():
+    """tmquan-style single-line body: Điều markers must become line-start for parser."""
+    raw = (
+        "Chương I QUY ĐỊNH CHUNG Điều 1. Phạm vi điều chỉnh "
+        "Nghị định này quy định. Điều 2. Đối tượng áp dụng Người lao động."
+    )
+    result = normalize_vietnamese_text(raw)
+    lines = [ln for ln in result.split("\n") if ln.strip()]
+    assert any(ln.startswith("Điều 1.") for ln in lines)
+    assert any(ln.startswith("Điều 2.") for ln in lines)
+
+
+def test_normalize_vietnamese_text_inserts_newlines_before_chuong():
+    raw = "Phần thứ nhất NHỮNG QUY ĐỊNH CHUNG Chương I ĐIỀU KHOẢN CƠ BẢN Điều 1. Nội dung"
+    result = normalize_vietnamese_text(raw)
+    assert "\nChương I" in result or result.split("\n")[1].startswith("Chương I")
+    assert any("Điều 1." in ln for ln in result.split("\n"))
+
+
 def test_build_search_text_lowercases():
     normalized = "Điều 1. Phạm Vi Điều Chỉnh"
     search_text = build_search_text(normalized)

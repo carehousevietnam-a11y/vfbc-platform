@@ -1,0 +1,35 @@
+{
+  "total": 120,
+  "passed": 120,
+  "hard_fail": 0,
+  "status": {
+    "active": 12,
+    "unknown": 102,
+    "repealed": 6
+  },
+  "authority_weight": {
+    "50": 29,
+    "60": 63,
+    "30": 23,
+    "80": 3,
+    "90": 2
+  },
+  "category": {
+    "Administrative": 26,
+    "RealEstate": 5,
+    "Labor": 1,
+    "Investment": 2,
+    "Customs": 2,
+    "Licensing": 6,
+    "Commercial": 1,
+    "Civil": 1,
+    "Company": 1
+  },
+  "empty_category_total": 76,
+  "empty_unclassified": 71,
+  "empty_out_of_scope": 5,
+  "docs_with_relations": 0,
+  "relation_entries": 0,
+  "relation_type": {},
+  "hard_fail_details": []
+}

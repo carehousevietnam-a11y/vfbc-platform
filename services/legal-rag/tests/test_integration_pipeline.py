@@ -106,13 +106,13 @@ def test_full_pipeline_end_to_end(tmp_path):
     assert audit_result.missing_body_count >= 1  # doc_name=1002는 markdown=None
 
     # 2. Normalize
-    documents = list(normalize_all(raw_dir))
+    documents = [doc for doc, _ in normalize_all(raw_dir)]
     assert len(documents) == 4  # vbpl 2 + th1nhng0 metadata 2
     doc_by_id = {d.documentId: d for d in documents}
     assert "tmquan:1001" in doc_by_id
     assert "th1nhng0:5001" in doc_by_id
     assert doc_by_id["th1nhng0:5001"].status == "active"
-    assert doc_by_id["th1nhng0:5002"].status == "fully_expired"
+    assert doc_by_id["th1nhng0:5002"].status == "repealed"
     assert doc_by_id["th1nhng0:5001"].originalText is not None  # content join 성공
 
     # 3. Deduplicate — tmquan:1001과 th1nhng0:5001은 documentNumber+issueDate+authority가 동일
