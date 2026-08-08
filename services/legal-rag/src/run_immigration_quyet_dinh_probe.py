@@ -17,7 +17,7 @@ from pathlib import Path
 from datasets import load_dataset
 
 from .authority_weight import compute_authority_weight
-from .curate_pilot_200 import CollectionState, _legal_area_backfill_map, _pick_keyword_match
+from .curate_pilot_200 import CollectionState, _legal_area_backfill_map
 from .pilot_target_lookup import (
     build_priority_number_index,
     build_title_priority_rules,
@@ -31,6 +31,20 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 IMMIGRATION = "Immigration"
 EXTRA_DOC_TYPE = "quyet_dinh"
+# Option B: exclude standalone biên giới title matches (Criminal `tài sản` pattern).
+IMMIGRATION_EXCLUDED_KEYWORDS = frozenset({norm_text("biên giới")})
+
+
+def _pick_immigration_keyword_match(title: str, keyword_index: dict[str, list[str]]) -> tuple[str, str] | None:
+    from .curate_pilot_200 import _match_all_categories_by_keywords
+
+    for category, kw in _match_all_categories_by_keywords(title, keyword_index):
+        if category != IMMIGRATION:
+            continue
+        if kw in IMMIGRATION_EXCLUDED_KEYWORDS:
+            continue
+        return category, kw
+    return None
 
 
 def _immigration_match(row: dict, targets: dict) -> tuple[str, str] | None:
@@ -57,11 +71,7 @@ def _immigration_match(row: dict, targets: dict) -> tuple[str, str] | None:
             if category == IMMIGRATION:
                 return kind, f"doc_number:{num}"
 
-    kw_hit = _pick_keyword_match(
-        row.get("title") or "",
-        keyword_index,
-        lambda cat, kind: cat == IMMIGRATION,
-    )
+    kw_hit = _pick_immigration_keyword_match(row.get("title") or "", keyword_index)
     if kw_hit:
         return "title_keyword", f"title_keyword:{kw_hit[1]}"
 
@@ -143,6 +153,7 @@ def probe_immigration_quyet_dinh(
         "addable_up_to_quota": addable,
         "immigration_projected_total": projected,
         "projected_fill_pct": round(100 * projected / quota, 1),
+        "option_b_exclude_keywords": sorted(IMMIGRATION_EXCLUDED_KEYWORDS),
         "new_match_kind_distribution": dict(Counter(c["match_kind"] for c in candidates)),
         "sample_new_titles": sample_new,
         "sample_mid_titles": sample_random_mid,
