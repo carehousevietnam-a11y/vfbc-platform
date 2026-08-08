@@ -143,6 +143,64 @@ def _match_category_by_keywords(title: str, keyword_index: dict[str, list[str]])
     return None
 
 
+def _legal_area_backfill_map() -> dict[str, tuple[str, ...]]:
+    """Shared legal_area/title hint map for shortfall backfill (no loose Criminal keywords)."""
+    return {
+        "Criminal": (
+            "hình sự",
+            "hinh su",
+            "bộ luật hình sự",
+            "tố tụng hình sự",
+            "thi hành án hình sự",
+        ),
+        "Immigration": (
+            "xuất nhập cảnh",
+            "quốc tịch",
+            "cư trú",
+            "hộ chiếu",
+            "biên phòng",
+            "người nước ngoài",
+            "nhập cảnh",
+            "xuất cảnh",
+        ),
+        "RealEstate": (
+            "đất đai",
+            "nhà ở",
+            "bất động sản",
+            "phát triển đô thị",
+            "quyền sử dụng đất",
+            "quy hoạch",
+        ),
+        "Civil": (
+            "dân sự",
+            "thi hành án dân sự",
+            "bồi thường thiệt hại",
+            "thừa kế",
+            "hôn nhân và gia đình",
+        ),
+        "Commercial": ("thương mại", "quản lý thị trường", "mua bán hàng hóa"),
+        "Investment": ("đầu tư", "đầu tư tại việt nam"),
+        "Banking": ("tín dụng", "ngân hàng"),
+        "Customs": ("hải quan", "xuất nhập khẩu", "xuất nhập cảnh hàng hóa"),
+        "Administrative": (
+            "thủ tục hành chính",
+            "hành chính",
+            "khiếu nại",
+            "tố cáo",
+            "công vụ",
+            "viên chức",
+            "công chức",
+        ),
+        "Labor": (
+            "lao động",
+            "bảo hiểm xã hội",
+            "hợp đồng lao động",
+            "tiền lương",
+            "người lao động",
+        ),
+    }
+
+
 def curate_pilot(
     targets_path: Path,
     output_path: Path,
@@ -218,6 +276,52 @@ def curate_pilot(
             logger.info("Phase2 스캔 %d행 — 수집 %d건", scanned2, len(state.records))
 
     scanned += scanned2
+
+    # Phase 3: legal_area / title hint backfill for remaining shortfalls (shared map).
+    legal_area_map = _legal_area_backfill_map()
+    if state.total_remaining() > 0 and legal_area_map:
+        remaining_cats = {c for c in quotas if state.remaining(c) > 0}
+        logger.info(
+            "Phase 3: legal_area backfill (remaining=%s)",
+            {c: state.remaining(c) for c in remaining_cats},
+        )
+        ds3 = load_dataset("tmquan/vbpl-vn", "documents", split="train", streaming=True)
+        scanned3 = 0
+        for row in ds3:
+            scanned3 += 1
+            if max_scan_rows and (scanned + scanned3) > max_scan_rows:
+                break
+            if state.total_remaining() <= 0:
+                break
+            if not _passes_filters(row, allowed_scope, allowed_types):
+                continue
+            doc_name = str(row.get("doc_name"))
+            if doc_name in state.collected_ids:
+                continue
+            # Prefer explicit priority/keyword matches already handled; here only shortfalls.
+            la = (row.get("legal_area") or "").lower()
+            ti = (row.get("title") or "").lower()
+            for cat, hints in legal_area_map.items():
+                if cat not in remaining_cats or state.remaining(cat) <= 0:
+                    continue
+                if any(h in la or h in ti for h in hints):
+                    if cat == "Investment" and any(
+                        x in ti for x in ("đầu tư công", "đầu tư nước ngoài", "đối tác công tư")
+                    ):
+                        continue
+                    if cat == "Criminal" and "tài sản" in ti and "hình sự" not in ti and "hình sự" not in la:
+                        continue
+                    if state.can_add(cat, "legal_area"):
+                        state.add(row, cat, "legal_area", f"legal_area:{row.get('legal_area')}")
+                        break
+            if scanned3 % 50000 == 0:
+                logger.info(
+                    "Phase3 스캔 %d행 — 수집 %d건 — %s",
+                    scanned3,
+                    len(state.records),
+                    {c: state.counts[c] for c in remaining_cats},
+                )
+        scanned += scanned3
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
@@ -334,33 +438,7 @@ def backfill_pilot(
                 state.add(row, category, "title_keyword", f"title_keyword:{kw}")
                 continue
 
-        _LEGAL_AREA_BACKFILL: dict[str, tuple[str, ...]] = {
-            "Criminal": (
-                "hình sự",
-                "hinh su",
-                "bộ luật hình sự",
-                "tố tụng hình sự",
-                "thi hành án hình sự",
-            ),
-            "Immigration": (
-                "xuất nhập cảnh",
-                "quốc tịch",
-                "cư trú",
-                "hộ chiếu",
-                "biên phòng",
-            ),
-            "RealEstate": (
-                "đất đai",
-                "nhà ở",
-                "bất động sản",
-                "phát triển đô thị",
-            ),
-            "Civil": ("dân sự", "thi hành án dân sự"),
-            "Commercial": ("thương mại", "quản lý thị trường"),
-            "Investment": ("đầu tư", "đầu tư tại việt nam"),
-            "Banking": ("tín dụng", "ngân hàng"),
-            "Customs": ("hải quan", "xuất nhập khẩu", "xuất nhập cảnh hàng hóa"),
-        }
+        _LEGAL_AREA_BACKFILL = _legal_area_backfill_map()
         for cat, hints in _LEGAL_AREA_BACKFILL.items():
             if cat not in backfill_quotas or state.remaining(cat) <= 0:
                 continue
