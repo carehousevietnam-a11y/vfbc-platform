@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!env.production.example
+!services/legal-rag/env.production.example
 
 # vercel
 .vercel
@@ -40,14 +42,20 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# legal-rag pilot 1000 generated artifacts (exceed GitHub 100MB limit; regenerate via run_pilot_1000_pipeline.py)
+# python (services/legal-rag)
+__pycache__/
+*.pyc
+services/legal-rag/.venv
+
+# legal-rag pilot generated artifacts (exceed GitHub 100MB limit; regenerate via pipeline)
 services/legal-rag/data/raw/pilot/pilot_1000.jsonl
 services/legal-rag/data/normalized/pilot_1000/
-
-# legal-rag pilot 3000 generated artifacts (exceed GitHub 100MB limit; regenerate via run_pilot_3000_pipeline.py)
 services/legal-rag/data/raw/pilot/pilot_3000.jsonl
 services/legal-rag/data/normalized/pilot_3000/
-
-# legal-rag pilot 10000 generated artifacts (exceed GitHub 100MB limit; regenerate via run_pilot_10000_pipeline.py)
 services/legal-rag/data/raw/pilot/pilot_10000.jsonl
 services/legal-rag/data/normalized/pilot_10000/
+
+# VPS-deployed pilot corpus (install via scripts/install-pilot-corpus.sh)
+services/legal-rag/data/corpus/*
+!services/legal-rag/data/corpus/.gitkeep
+services/legal-rag/dist/
