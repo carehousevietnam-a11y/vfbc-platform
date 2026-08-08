@@ -54,7 +54,14 @@
         "visa",
         "giấy tờ có giá trị đi lại",
         "quốc tịch",
-        "nhập cảnh"
+        "nhập cảnh",
+        "hộ chiếu",
+        "biên phòng",
+        "kiều bào",
+        "lưu trú",
+        "tạm vắng",
+        "biên giới",
+        "kiều hương"
       ],
       "repealed_doc_numbers": [
         "36/2007/NĐ-CP"
@@ -137,7 +144,13 @@
         "khởi tố",
         "tội phạm",
         "xử phạt hình sự",
-        "tội danh"
+        "tội danh",
+        "bị can",
+        "bị cáo",
+        "án phạt",
+        "xét xử",
+        "tội giết người",
+        "ma túy"
       ],
       "repealed_doc_numbers": [
         "42/2010/QH12"
@@ -165,7 +178,12 @@
         "bất động sản",
         "quyền sử dụng đất",
         "thuê nhà",
-        "chung cư"
+        "chung cư",
+        "sổ đỏ",
+        "quy hoạch",
+        "căn hộ",
+        "giao dịch bất động sản",
+        "sử dụng đất"
       ],
       "repealed_doc_numbers": [
         "45/2013/QH13"
