@@ -10,11 +10,14 @@ import hmac
 from typing import Any, Mapping
 
 from ..integration import IntegrationContext
+import logging
+
 from ..runtime import LegalRAGRequest, LegalRAGService
 from .models import ApiResponse, ParsedApiRequest
 from .request_parser import parse_api_request
 
 API_SCHEMA_VERSION = "step14-api"
+logger = logging.getLogger("legal_rag.api")
 
 
 class LegalRAGApi:
@@ -25,11 +28,13 @@ class LegalRAGApi:
         internal_token: str | None = None,
         openai_api_key: str | None = None,
         model: str | None = None,
+        translation_model: str | None = None,
     ) -> None:
         self._service = service
         self._internal_token = internal_token
         self._openai_api_key = openai_api_key
         self._model = model
+        self._translation_model = translation_model
 
     def health(self) -> ApiResponse:
         return ApiResponse(
@@ -58,12 +63,14 @@ class LegalRAGApi:
                 runtime_request,
                 api_key=self._openai_api_key,
                 model=self._model,
+                translation_model=self._translation_model,
                 client=client,
             )
             return ApiResponse(200, self._select_payload(result.to_dict(), parsed.audience))
         except ValueError as exc:
             return self._error(400, "invalid_request", str(exc))
         except Exception:
+            logger.exception("Legal review pipeline failed")
             # Do not expose SDK credentials, prompts, stack traces, or evidence internals.
             return self._error(500, "internal_error", "Legal review could not be completed")
 

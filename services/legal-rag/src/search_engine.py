@@ -58,10 +58,30 @@ def _load_jsonl(path: Path) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
+def _normalize_document_number(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        normalized = value.strip()
+        return [normalized] if normalized else []
+    if isinstance(value, list):
+        numbers: list[str] = []
+        for item in value:
+            if item is None:
+                continue
+            text = str(item).strip()
+            if text:
+                numbers.append(text)
+        return numbers
+    text = str(value).strip()
+    return [text] if text else []
+
+
 def _canonical_document_to_row(d: dict) -> dict:
+    document_number = d.get("documentNumber", d.get("document_number"))
     return {
-        "document_id": d["documentId"],
-        "document_number": d.get("documentNumber") or [],
+        "document_id": d.get("documentId", d.get("document_id")),
+        "document_number": _normalize_document_number(document_number),
         "document_type": d.get("documentType"),
         "title": d.get("title"),
         "issuing_authority": d.get("issuingAuthority"),
@@ -78,8 +98,8 @@ def _legal_chunk_to_row(c: dict) -> dict:
     locators = parse_locators_from_path(c.get("path", ""))
     text = c.get("text") or ""
     return {
-        "chunk_id": c["chunkId"],
-        "document_id": c["documentId"],
+        "chunk_id": c.get("chunkId", c.get("chunk_id")),
+        "document_id": c.get("documentId", c.get("document_id")),
         "chapter_no": locators["chapter_no"],
         "article_no": locators["article_no"],
         "clause_no": locators["clause_no"],

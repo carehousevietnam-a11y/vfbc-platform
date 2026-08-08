@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .ai_review_engine import ReviewResult
+from .answer_policy import append_mandatory_disclaimer
 from .citation_engine import CitationResult
 from .confidence_engine import ConfidenceResult
 
@@ -114,11 +115,15 @@ def build_customer_review(
     if expert_required and not reason and confidence_result.reasons:
         reason = confidence_result.reasons[0]
 
+    summary = review_result.summary
+    if summary:
+        summary = append_mandatory_disclaimer(summary)
+
     return CustomerReview(
         status=review_result.status,
         language=review_result.language,
         question=review_result.question,
-        ai_summary=review_result.summary,
+        ai_summary=summary,
         confidence_score=confidence_result.score,
         confidence_level=confidence_result.level,
         legal_basis=_customer_legal_basis(citation_result),

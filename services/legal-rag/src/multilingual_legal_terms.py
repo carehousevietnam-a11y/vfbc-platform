@@ -4,31 +4,11 @@ VFBCAI Legal Intelligence Platform — 다국어 법률 용어 사전 (Ontology 
 Google Translate, 외부 번역 API, LLM을 사용하지 않는다. 법률 개념(concept) 단위로
 표준 베트남어 표현(canonical_vi)과 한국어/영어/중국어/베트남어 동의어를 직접
 등록한 사전만 사용한다.
-
-⚠️ 이 모듈은 search_engine.py/search_exact.py/search_keyword.py 등 기존 검색
-   로직을 전혀 참조하지 않는다 — 순수 사전 조회 유틸리티다.
-
-구조:
-    LEGAL_TERMS[concept_key] = {
-        "canonical_vi": str,      # 검색에 항상 사용할 표준 베트남어 표현
-        "ko": list[str],
-        "en": list[str],
-        "zh": list[str],
-        "vi": list[str],          # canonical_vi 자체 + 비공식 변형(성조 생략 등) 포함
-    }
-
-향후 다른 법률 개념(예: 거주증/TRC, 임시거주등록/땀주 등)을 추가할 때는
-LEGAL_TERMS에 새 key만 추가하면 된다 — 조회 로직(lookup_canonical_vi 등)은
-수정할 필요가 없다.
 """
 
 from __future__ import annotations
 
 import unicodedata
-
-# ---------------------------------------------------------------------------
-# 법률 개념 사전
-# ---------------------------------------------------------------------------
 
 LEGAL_TERMS: dict[str, dict[str, object]] = {
     "work_permit": {
@@ -40,6 +20,13 @@ LEGAL_TERMS: dict[str, dict[str, object]] = {
             "취업 허가",
             "근로허가",
             "근로 허가",
+            "외국인 노동허가",
+            "외국인 노동 허가",
+            "노동허가 경력",
+            "노동허가 경력 요건",
+            "경력 요건",
+            "노동허가 신청",
+            "노동허가 갱신",
         ],
         "en": [
             "work permit",
@@ -56,22 +43,89 @@ LEGAL_TERMS: dict[str, dict[str, object]] = {
         "vi": [
             "giấy phép lao động",
             "giay phep lao dong",
+            "người lao động nước ngoài",
+        ],
+    },
+    "trc": {
+        "canonical_vi": "thẻ tạm thường trú",
+        "ko": [
+            "거주증",
+            "거주 증",
+            "trc",
+            "거주증 갱신",
+            "거주증 신청",
+            "임시거주증",
+            "거주증 발급",
+            "거주증 조건",
+        ],
+        "en": [
+            "temporary residence card",
+            "trc",
+            "residence card",
+        ],
+        "zh": [
+            "临时居留证",
+            "居留证",
+        ],
+        "vi": [
+            "thẻ tạm thường trú",
+            "the tam thuong tru",
+            "giấy tạm thường trú",
+        ],
+    },
+    "tamtru": {
+        "canonical_vi": "tạm trú",
+        "ko": [
+            "땀주",
+            "임시거주",
+            "임시 거주",
+            "임시거주등록",
+            "임시거주 등록",
+            "임시거주등록 기한",
+            "임시거주 신고",
+            "임시체류",
+        ],
+        "en": [
+            "temporary residence registration",
+            "tam tru",
+        ],
+        "zh": [
+            "临时居留登记",
+            "暂住登记",
+        ],
+        "vi": [
+            "tạm trú",
+            "tam tru",
+            "đăng ký tạm trú",
+        ],
+    },
+    "driving_license": {
+        "canonical_vi": "giấy phép lái xe",
+        "ko": [
+            "운전면허",
+            "운전 면허",
+            "운전면허 전환",
+            "운전면허 신규",
+            "운전면허 갱신",
+            "국제운전면허",
+        ],
+        "en": [
+            "driving license",
+            "driver license",
+        ],
+        "zh": [
+            "驾驶证",
+            "驾驶执照",
+        ],
+        "vi": [
+            "giấy phép lái xe",
+            "giay phep lai xe",
         ],
     },
 }
 
 
-# ---------------------------------------------------------------------------
-# 조회용 정규화 + 인덱스
-# ---------------------------------------------------------------------------
-
-
 def _normalize_term(term: str) -> str:
-    """사전 조회 전용 정규화: Unicode NFC + 소문자 + trim + 연속 공백 정리.
-
-    ⚠️ 이 정규화는 사전 "조회 키"를 만드는 데만 쓰인다. 검색 엔진에 실제로
-    전달되는 질의 문자열(canonical_vi 또는 원문)에는 영향을 주지 않는다.
-    """
     if not term:
         return ""
     text = unicodedata.normalize("NFC", term).strip().lower()
@@ -79,7 +133,6 @@ def _normalize_term(term: str) -> str:
 
 
 def _build_lookup_index() -> dict[str, str]:
-    """모든 개념의 모든 언어 동의어(정규화됨) -> canonical_vi 매핑을 1회 생성."""
     index: dict[str, str] = {}
     for concept in LEGAL_TERMS.values():
         canonical_vi = str(concept["canonical_vi"])
@@ -94,16 +147,49 @@ _LOOKUP_INDEX: dict[str, str] = _build_lookup_index()
 
 
 def lookup_canonical_vi(term: str) -> str | None:
-    """임의 언어의 법률 용어를 canonical_vi(표준 베트남어 표현)로 변환.
-
-    사전에 없으면 None을 반환한다 — 호출자(query_normalizer.py)가 이 경우
-    원문을 그대로 사용하도록 처리한다.
-    """
     if not term:
         return None
     return _LOOKUP_INDEX.get(_normalize_term(term))
 
 
+def list_canonical_vi_terms() -> list[str]:
+    """Unique canonical Vietnamese terms for translation-layer few-shot guidance."""
+    seen: set[str] = set()
+    terms: list[str] = []
+    for concept in LEGAL_TERMS.values():
+        canonical = str(concept["canonical_vi"])
+        if canonical not in seen:
+            seen.add(canonical)
+            terms.append(canonical)
+    return terms
+
+
+def extract_partial_ontology_matches(query: str) -> list[str]:
+    """Return canonical_vi terms whose registered synonyms appear inside the query."""
+    normalized_query = _normalize_term(query)
+    if not normalized_query:
+        return []
+
+    hits: list[tuple[int, str]] = []
+    for synonym, canonical in _LOOKUP_INDEX.items():
+        if len(synonym) < 2:
+            continue
+        if synonym in normalized_query:
+            hits.append((len(synonym), canonical))
+
+    if not hits:
+        return []
+
+    hits.sort(key=lambda item: item[0], reverse=True)
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for _, canonical in hits:
+        if canonical in seen:
+            continue
+        seen.add(canonical)
+        ordered.append(canonical)
+    return ordered
+
+
 def all_concepts() -> list[str]:
-    """등록된 법률 개념 key 목록 (테스트/디버깅용)."""
     return list(LEGAL_TERMS.keys())

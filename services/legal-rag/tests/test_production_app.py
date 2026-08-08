@@ -150,6 +150,8 @@ def test_structured_events_exclude_question_and_payload(tmp_path: Path):
     )
     assert [event for event, fields in events] == [
         "legal_rag.request.started",
+        "legal_rag.translation",
+        "legal_rag.answer",
         "legal_rag.request.completed",
     ]
     serialized = json.dumps(events, ensure_ascii=False)
