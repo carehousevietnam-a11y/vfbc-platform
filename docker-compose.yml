@@ -44,6 +44,8 @@ services:
       LEGAL_RAG_RELATIONSHIPS_PATH: ${LEGAL_RAG_RELATIONSHIPS_PATH:-data/corpus/pilot_10000/internal_relations.jsonl}
     volumes:
       - ./services/legal-rag/data/corpus/pilot_10000:/app/data/corpus/pilot_10000:ro
+    ports:
+      - "8080:8080"
     expose:
       - "8080"
     healthcheck:
