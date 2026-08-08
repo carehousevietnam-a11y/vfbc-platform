@@ -1,10 +1,21 @@
-"""Multilingual search orchestration with translation + ontology partial-match fallback."""
+"""Multilingual search orchestration with ontology → translation → original fallback."""
 
 from __future__ import annotations
+
+import re
 
 from .multilingual_legal_terms import extract_partial_ontology_matches
 from .search_engine import LegalSearchIndex
 from .search_models import SearchResult
+
+_DOCUMENT_NUMBER_RE = re.compile(
+    r"\b\d{1,4}/\d{4}/(?:NĐ-CP|NĐ|TT-[A-ZĐ]+|QH\d+|QĐ-[A-ZĐ]+|NQ-HĐND|Nghị định|Thông tư)\b",
+    re.IGNORECASE,
+)
+_VIETNAMESE_LEGAL_MARKERS_RE = re.compile(
+    r"(Điều\s+\d+|Luật|Nghị định|Thông tư|Khoản\s+\d+|NĐ-CP|TT-|QH\d+)",
+    re.IGNORECASE,
+)
 
 
 def _dedupe_results(results: list[SearchResult]) -> list[SearchResult]:
@@ -18,6 +29,43 @@ def _dedupe_results(results: list[SearchResult]) -> list[SearchResult]:
     return merged
 
 
+def _search_terms(
+    index: LegalSearchIndex,
+    terms: list[str],
+    *,
+    language: str | None,
+    limit: int,
+) -> list[SearchResult]:
+    results: list[SearchResult] = []
+    for term in terms:
+        normalized = (term or "").strip()
+        if not normalized:
+            continue
+        results.extend(index.search(query=normalized, limit=limit, language=language))
+    return _dedupe_results(results)[:limit]
+
+
+def looks_like_vietnamese_legal_reference(question: str | None) -> bool:
+    text = (question or "").strip()
+    if not text:
+        return False
+    if _DOCUMENT_NUMBER_RE.search(text):
+        return True
+    return _VIETNAMESE_LEGAL_MARKERS_RE.search(text) is not None
+
+
+def should_search_original_question(language: str | None, question: str | None = None) -> bool:
+    """Vietnamese queries may fall back to the raw question; other languages should not.
+
+    Scanning an 100k-chunk Vietnamese corpus with Korean/English text is almost never
+    useful and costs tens of seconds on VPS hardware. Exception: the question itself
+    contains Vietnamese legal references (document numbers, Điều/Luật markers).
+    """
+    if (language or "").strip().lower() in {"", "vi"}:
+        return True
+    return looks_like_vietnamese_legal_reference(question)
+
+
 def search_with_fallback(
     index: LegalSearchIndex,
     *,
@@ -25,42 +73,48 @@ def search_with_fallback(
     language: str | None,
     translated_terms: list[str],
     limit: int,
+    allow_original_question: bool | None = None,
 ) -> tuple[list[SearchResult], dict]:
-    """Try translated terms, then partial ontology, then original question."""
-    stage = "none"
-    results: list[SearchResult] = []
-
-    if translated_terms:
-        stage = "translated_terms"
-        for term in translated_terms:
-            term = (term or "").strip()
-            if not term:
-                continue
-            hits = index.search(query=term, limit=limit, language=language)
-            results.extend(hits)
-        results = _dedupe_results(results)
-        if results:
-            return results[:limit], {
-                "search_stage": stage,
-                "search_queries": list(translated_terms),
-            }
+    """Try ontology partial match, translated terms, then (vi-only) original question."""
+    stages_attempted: list[str] = []
+    allow_original = (
+        should_search_original_question(language, question)
+        if allow_original_question is None
+        else allow_original_question
+    )
 
     partial_terms = extract_partial_ontology_matches(question)
     if partial_terms:
-        stage = "ontology_partial"
-        for term in partial_terms:
-            hits = index.search(query=term, limit=limit, language=language)
-            results.extend(hits)
-        results = _dedupe_results(results)
+        stages_attempted.append("ontology_partial")
+        results = _search_terms(index, partial_terms, language=language, limit=limit)
         if results:
-            return results[:limit], {
-                "search_stage": stage,
+            return results, {
+                "search_stage": "ontology_partial",
                 "search_queries": partial_terms,
+                "search_stages_attempted": stages_attempted,
             }
 
-    stage = "original_question"
-    results = index.search(query=question, limit=limit, language=language)
-    return results[:limit], {
-        "search_stage": stage,
-        "search_queries": [question],
+    if translated_terms:
+        stages_attempted.append("translated_terms")
+        results = _search_terms(index, translated_terms, language=language, limit=limit)
+        if results:
+            return results, {
+                "search_stage": "translated_terms",
+                "search_queries": list(translated_terms),
+                "search_stages_attempted": stages_attempted,
+            }
+
+    if allow_original:
+        stages_attempted.append("original_question")
+        results = index.search(query=question, limit=limit, language=language)
+        return results[:limit], {
+            "search_stage": "original_question",
+            "search_queries": [question],
+            "search_stages_attempted": stages_attempted,
+        }
+
+    return [], {
+        "search_stage": "none",
+        "search_queries": [],
+        "search_stages_attempted": stages_attempted,
     }

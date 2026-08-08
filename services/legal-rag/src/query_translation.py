@@ -21,7 +21,9 @@ _SYSTEM_PROMPT = (
     "You extract Vietnamese legal search keywords from user questions for a Vietnam legal corpus.\n"
     "Do NOT translate into full sentences. Return short noun phrases that appear in Vietnamese law texts.\n"
     "Prefer terms from the provided standard glossary when applicable.\n"
-    "Output JSON only: {\"terms\": [\"...\", \"...\"]}"
+    "If the question is clearly unrelated to Vietnamese law/administration (weather, sports, chit-chat), "
+    'return {"terms": [], "no_legal_terms": true}.\n'
+    'Output JSON only: {"terms": ["...", "..."], "no_legal_terms": false}'
 )
 
 
@@ -40,27 +42,29 @@ def _build_user_prompt(question: str) -> str:
     )
 
 
-def _parse_terms(raw_text: str) -> list[str]:
+def _parse_terms(raw_text: str) -> tuple[list[str], bool]:
     cleaned = (raw_text or "").strip()
     if cleaned.startswith("```"):
         cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.IGNORECASE | re.MULTILINE).strip()
     try:
         parsed = json.loads(cleaned)
     except json.JSONDecodeError:
-        return []
+        return [], False
+    no_legal_terms = False
     if isinstance(parsed, dict):
         terms = parsed.get("terms")
+        no_legal_terms = bool(parsed.get("no_legal_terms"))
     elif isinstance(parsed, list):
         terms = parsed
     else:
-        return []
+        return [], False
     if not isinstance(terms, list):
-        return []
+        return [], no_legal_terms
     result: list[str] = []
     for item in terms:
         if isinstance(item, str) and item.strip():
             result.append(item.strip())
-    return result
+    return result, no_legal_terms
 
 
 @dataclass(frozen=True)
@@ -69,6 +73,7 @@ class QueryTranslationResult:
     terms: list[str]
     duration_ms: float | None = None
     error: str | None = None
+    no_legal_terms: bool = False
 
 
 def should_skip_translation(language: str | None) -> bool:
@@ -114,7 +119,7 @@ def translate_query_terms(
             response_format={"type": "json_object"},
         )
         raw = response.choices[0].message.content
-        terms = _parse_terms(raw or "")
+        terms, no_legal_terms = _parse_terms(raw or "")
         duration_ms = (time.perf_counter() - started) * 1000.0
         if not terms:
             return QueryTranslationResult(
@@ -122,8 +127,14 @@ def translate_query_terms(
                 terms=[],
                 duration_ms=duration_ms,
                 error="empty_terms",
+                no_legal_terms=no_legal_terms,
             )
-        return QueryTranslationResult(skipped=False, terms=terms, duration_ms=duration_ms)
+        return QueryTranslationResult(
+            skipped=False,
+            terms=terms,
+            duration_ms=duration_ms,
+            no_legal_terms=no_legal_terms,
+        )
     except Exception as exc:  # noqa: BLE001
         logger.warning("Query translation failed: %s", type(exc).__name__)
         duration_ms = (time.perf_counter() - started) * 1000.0

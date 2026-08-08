@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from ..ai_review_engine import AIReviewEngine
-from ..answer_tier import ANSWER_TIER_EXPERT_REFERRAL, classify_answer_tier
+from ..answer_tier import ANSWER_TIER_EXPERT_REFERRAL, classify_answer_tier, reconcile_answer_tier
 from ..citation_engine import build_citations
 from ..confidence_engine import calculate_confidence
 from ..customer_report_builder import build_customer_report
@@ -14,7 +15,8 @@ from ..evidence_builder import build_evidence_packs
 from ..expert_report_builder import build_expert_report
 from ..expert_review_builder import build_expert_review
 from ..integration.report_service import build_service_integration_bundle
-from ..query_translation import translate_query_terms
+from ..multilingual_legal_terms import extract_partial_ontology_matches
+from ..query_translation import QueryTranslationResult, should_skip_translation, translate_query_terms
 from ..search_engine import LegalSearchIndex
 from ..search_with_fallback import search_with_fallback
 from .models import LegalRAGRequest, LegalRAGRuntimeResult
@@ -44,15 +46,17 @@ class LegalRAGService:
         client: Any | None = None,
     ) -> LegalRAGRuntimeResult:
         normalized = request.normalized()
+        pipeline_started = time.perf_counter()
 
-        translation = translate_query_terms(
+        translation = self._resolve_translation(
             normalized.question,
             language=normalized.language,
             api_key=api_key,
-            model=translation_model or self._translation_model,
+            translation_model=translation_model or self._translation_model,
             client=client,
         )
 
+        search_started = time.perf_counter()
         search_results, search_meta = search_with_fallback(
             self._search_index,
             question=normalized.question,
@@ -60,6 +64,7 @@ class LegalRAGService:
             translated_terms=translation.terms,
             limit=normalized.limit,
         )
+        search_duration_ms = (time.perf_counter() - search_started) * 1000.0
 
         answer_tier = classify_answer_tier(search_results)
         top_score = max((item.score for item in search_results), default=0.0)
@@ -80,6 +85,11 @@ class LegalRAGService:
             service_group=normalized.context.service_group,
         )
         citations = build_citations(review, evidence_packs)
+        answer_tier = reconcile_answer_tier(
+            search_results,
+            review_status=review.status,
+            verified_citation_count=len(citations.citations),
+        )
         confidence = calculate_confidence(review, citations, evidence_packs)
         customer_review = build_customer_review(review, citations, confidence)
         expert_review = build_expert_review(review, citations, confidence, evidence_packs)
@@ -90,6 +100,8 @@ class LegalRAGService:
             customer_report=customer_report,
             expert_report=expert_report,
         )
+
+        total_duration_ms = (time.perf_counter() - pipeline_started) * 1000.0
 
         return LegalRAGRuntimeResult(
             request=normalized,
@@ -110,11 +122,39 @@ class LegalRAGService:
                 "translation_terms": list(translation.terms),
                 "translation_duration_ms": translation.duration_ms,
                 "translation_error": translation.error,
+                "translation_no_legal_terms": translation.no_legal_terms,
                 "search_stage": search_meta.get("search_stage"),
                 "search_queries": search_meta.get("search_queries"),
+                "search_stages_attempted": search_meta.get("search_stages_attempted"),
+                "search_duration_ms": round(search_duration_ms, 2),
+                "pipeline_duration_ms": round(total_duration_ms, 2),
                 "answer_tier": answer_tier,
                 "top_search_score": top_score,
             },
+        )
+
+    def _resolve_translation(
+        self,
+        question: str,
+        *,
+        language: str | None,
+        api_key: str | None,
+        translation_model: str | None,
+        client: Any | None,
+    ) -> QueryTranslationResult:
+        """Call OpenAI term extraction only when local ontology cannot match the query."""
+        if should_skip_translation(language):
+            return QueryTranslationResult(skipped=True, terms=[])
+
+        if extract_partial_ontology_matches(question):
+            return QueryTranslationResult(skipped=True, terms=[])
+
+        return translate_query_terms(
+            question,
+            language=language,
+            api_key=api_key,
+            model=translation_model,
+            client=client,
         )
 
 

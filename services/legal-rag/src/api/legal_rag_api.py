@@ -10,11 +10,14 @@ import hmac
 from typing import Any, Mapping
 
 from ..integration import IntegrationContext
+import logging
+
 from ..runtime import LegalRAGRequest, LegalRAGService
 from .models import ApiResponse, ParsedApiRequest
 from .request_parser import parse_api_request
 
 API_SCHEMA_VERSION = "step14-api"
+logger = logging.getLogger("legal_rag.api")
 
 
 class LegalRAGApi:
@@ -67,6 +70,7 @@ class LegalRAGApi:
         except ValueError as exc:
             return self._error(400, "invalid_request", str(exc))
         except Exception:
+            logger.exception("Legal review pipeline failed")
             # Do not expose SDK credentials, prompts, stack traces, or evidence internals.
             return self._error(500, "internal_error", "Legal review could not be completed")
 

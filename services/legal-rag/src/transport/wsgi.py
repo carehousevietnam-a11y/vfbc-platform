@@ -57,7 +57,21 @@ class LegalRAGWSGIApp:
                     },
                 },
             )
-        payload = json.dumps(response.body, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        try:
+            payload = json.dumps(response.body, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        except (TypeError, ValueError):
+            response = ApiResponse(
+                500,
+                {
+                    "ok": False,
+                    "schema_version": "step16-wsgi",
+                    "error": {
+                        "code": "response_encoding_error",
+                        "message": "Response could not be encoded",
+                    },
+                },
+            )
+            payload = json.dumps(response.body, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         headers = {key.lower(): value for key, value in response.headers.items()}
         headers.setdefault("content-type", "application/json; charset=utf-8")
         headers["content-length"] = str(len(payload))
