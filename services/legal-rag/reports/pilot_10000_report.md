@@ -30,16 +30,28 @@ Full-corpus probe of title-keyword ∪ legal_area capacity (non-exclusive counts
 
 | Category | Approx. available | Quota | Collected |
 |---|---:|---:|---:|
-| Immigration | ~450–470 | 1300 | 472 |
+| Immigration | ~450–470 | 1300 | **472 (최종)** |
 | RealEstate | ~590–600 | 1083 | 590 |
 | Civil | ~220–255 | 433 | 255 |
 | Labor | ~1100–1170 | 1300 | 1062 |
 | Criminal | ~150–170 | 250 | 151 |
 | Commercial | ~500 | 433 | 408 |
 
+### Immigration `quyet_dinh` 재조사 (2026-08-08)
+
+Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유지)**:
+
+| | 값 |
+|---|---:|
+| quyet_dinh 추가 가능 | +263 → **735/1300 (56.5%)** |
+| on-topic (strong) | ~187 |
+| weak (`biên giới` 단독) | ~74 (28% noise) |
+| strict 합계 (biên giới 제외) | **~659** (<700) |
+
+상세: `reports/pilot_10000_immigration_quyet_dinh_report.md`
+
 이민/부동산/민사 부족분은 **필터를 더 풀지 않은 상태의 코퍼스 한도**에 가깝습니다.
-10k 목표까지 채우려면 `quyet_dinh` 등 doc_type 확대 또는 quota 재배분이 필요합니다
-(이번 라운드에서는 승인 범위 밖이라 적용하지 않음).
+10k 목표까지 채우려면 quota 재배분이 필요합니다 (이번 라운드 미적용).
 
 ## 2. Spot checks
 - **authorityWeight=100**: 218건
