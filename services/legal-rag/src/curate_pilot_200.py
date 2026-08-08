@@ -186,6 +186,8 @@ def _legal_area_backfill_map() -> dict[str, tuple[str, ...]]:
             "người nước ngoài",
             "nhập cảnh",
             "xuất cảnh",
+            "thị thực",
+            "định cư",
         ),
         "RealEstate": (
             "đất đai",
@@ -194,6 +196,9 @@ def _legal_area_backfill_map() -> dict[str, tuple[str, ...]]:
             "phát triển đô thị",
             "quyền sử dụng đất",
             "quy hoạch",
+            "thu hồi đất",
+            "giao đất",
+            "giá đất",
         ),
         "Civil": (
             "dân sự",
@@ -201,8 +206,18 @@ def _legal_area_backfill_map() -> dict[str, tuple[str, ...]]:
             "bồi thường thiệt hại",
             "thừa kế",
             "hôn nhân và gia đình",
+            "hôn nhân",
+            "ly hôn",
+            "giám hộ",
         ),
-        "Commercial": ("thương mại", "quản lý thị trường", "mua bán hàng hóa"),
+        "Commercial": (
+            "thương mại",
+            "quản lý thị trường",
+            "mua bán hàng hóa",
+            "thương nhân",
+            "người tiêu dùng",
+            "cạnh tranh",
+        ),
         "Investment": ("đầu tư", "đầu tư tại việt nam"),
         "Banking": ("tín dụng", "ngân hàng"),
         "Customs": ("hải quan", "xuất nhập khẩu", "xuất nhập cảnh hàng hóa"),
@@ -221,6 +236,9 @@ def _legal_area_backfill_map() -> dict[str, tuple[str, ...]]:
             "hợp đồng lao động",
             "tiền lương",
             "người lao động",
+            "bảo hiểm thất nghiệp",
+            "công đoàn",
+            "an toàn lao động",
         ),
     }
 
