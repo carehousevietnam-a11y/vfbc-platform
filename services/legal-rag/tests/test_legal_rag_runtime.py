@@ -159,5 +159,5 @@ def test_convenience_function_uses_injected_engine():
 
 def test_runtime_metadata_declares_pipeline():
     result = _service().run(_request())
-    assert result.metadata["pipeline"].startswith("search>evidence>review")
+    assert result.metadata["pipeline"].startswith("translate>search>evidence>review")
     assert result.metadata["search_limit"] == 5

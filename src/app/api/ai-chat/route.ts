@@ -108,7 +108,10 @@ function extractLegalRagChatResult(
   data: unknown
 ): { ok: true; reply: string; needsExpert: boolean } | { ok: false } {
   if (!isRecord(data) || !isRecord(data.review)) return { ok: false };
-  if (data.review.status !== "success") return { ok: false };
+
+  const status = data.review.status;
+  const allowedStatuses = new Set(["success", "no_evidence", "insufficient_evidence"]);
+  if (typeof status !== "string" || !allowedStatuses.has(status)) return { ok: false };
   if (typeof data.review.expert_review_required !== "boolean") return { ok: false };
 
   let customerSummary: unknown;
@@ -125,10 +128,15 @@ function extractLegalRagChatResult(
 
   if (!replyCandidate) return { ok: false };
 
+  const needsExpert =
+    status === "no_evidence" ||
+    status === "insufficient_evidence" ||
+    data.review.expert_review_required === true;
+
   return {
     ok: true,
     reply: replyCandidate,
-    needsExpert: data.review.expert_review_required,
+    needsExpert,
   };
 }
 

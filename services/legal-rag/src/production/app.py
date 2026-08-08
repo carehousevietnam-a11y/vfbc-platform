@@ -38,7 +38,11 @@ class ProductionLegalRAGApp:
     ) -> "ProductionLegalRAGApp":
         events = event_logger or ProductionEventLogger()
         loaded = load_production_index(settings)
-        base_service = LegalRAGService(loaded.index, review_engine)
+        base_service = LegalRAGService(
+            loaded.index,
+            review_engine,
+            translation_model=settings.translation_model,
+        )
 
         retry_kwargs: dict[str, Any] = {}
         if sleeper is not None:
@@ -57,6 +61,7 @@ class ProductionLegalRAGApp:
             internal_token=settings.internal_token,
             openai_api_key=settings.openai_api_key,
             model=settings.openai_model,
+            translation_model=settings.translation_model,
         )
         return cls(settings=settings, loaded_index=loaded, api=api, events=events)
 
@@ -106,6 +111,21 @@ class ProductionLegalRAGApp:
             service_group=context.get("service_group") if isinstance(context, dict) else None,
         )
         response = self.api.review(payload, headers=headers, client=client)
+        if response.status_code == 200 and isinstance(response.body, dict):
+            metadata = response.body.get("metadata") or {}
+            self.events.emit(
+                "legal_rag.translation",
+                skipped=metadata.get("translation_skipped"),
+                duration_ms=metadata.get("translation_duration_ms"),
+                term_count=len(metadata.get("translation_terms") or []),
+                error=metadata.get("translation_error"),
+            )
+            self.events.emit(
+                "legal_rag.answer",
+                answer_tier=metadata.get("answer_tier"),
+                search_stage=metadata.get("search_stage"),
+                top_search_score=metadata.get("top_search_score"),
+            )
         self.events.emit(
             "legal_rag.request.completed",
             request_id=context.get("request_id") if isinstance(context, dict) else None,

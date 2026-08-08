@@ -33,7 +33,7 @@ def test_lookup_is_case_and_whitespace_insensitive():
 
 def test_lookup_unregistered_term_returns_none():
     assert lookup_canonical_vi("이것은 사전에 없는 완전히 다른 용어") is None
-    assert lookup_canonical_vi("residence card") is None
+    assert lookup_canonical_vi("completely unrelated random phrase xyz") is None
 
 
 def test_lookup_empty_or_none_returns_none():

@@ -33,8 +33,8 @@ def _pack() -> EvidencePack:
 def test_engine_builds_prompt_calls_connector_and_returns_review_result():
     calls = {}
 
-    def fake_prompt_builder(packs, user_question, language, max_tokens):
-        calls["prompt"] = (packs, user_question, language, max_tokens)
+    def fake_prompt_builder(packs, user_question, language, max_tokens, **kwargs):
+        calls["prompt"] = (packs, user_question, language, max_tokens, kwargs)
         from src.prompt_builder import build_prompt
         return build_prompt(packs, user_question, language, max_tokens)
 

@@ -16,9 +16,12 @@ from typing import Any, Callable
 
 from .ai_review_models import (
     STATUS_CONFIGURATION_ERROR,
+    STATUS_NO_EVIDENCE,
     AIReviewResult,
     LegalBasisCitation,
 )
+from .answer_policy import build_expert_referral_summary
+from .answer_tier import ANSWER_TIER_EXPERT_REFERRAL
 from .evidence_builder import EvidencePack
 from .openai_rag_connector import call_openai_rag
 from .prompt_builder import DEFAULT_MAX_TOKENS, PromptPackage, build_prompt
@@ -95,6 +98,9 @@ class AIReviewEngine:
         api_key: str | None = None,
         model: str | None = None,
         client: Any | None = None,
+        *,
+        answer_tier: str = "direct",
+        service_group: str | None = None,
     ) -> ReviewResult:
         """Evidence와 질문을 최종 ``ReviewResult``로 변환한다."""
         question = user_question if isinstance(user_question, str) else ""
@@ -110,13 +116,34 @@ class AIReviewEngine:
                 model=model,
                 error_code="empty_question",
             )
-            return _to_review_result(ai_result, question, {})
+            return _to_review_result(ai_result, question, {"answer_tier": answer_tier})
+
+        if answer_tier == ANSWER_TIER_EXPERT_REFERRAL and not evidence_packs:
+            summary = build_expert_referral_summary(question, language=language)
+            ai_result = AIReviewResult(
+                status=STATUS_NO_EVIDENCE,
+                language=language,
+                summary=summary,
+                expert_review_required=True,
+                expert_review_reason="검색된 관련 법령 근거(Evidence)가 없어 전문가 연결 안내를 제공합니다.",
+                source_document_count=0,
+                source_article_count=0,
+                model=model,
+                error_code=STATUS_NO_EVIDENCE,
+            )
+            return _to_review_result(
+                ai_result,
+                question,
+                {"answer_tier": answer_tier, "service_group": service_group},
+            )
 
         prompt_package = self._prompt_builder(
             evidence_packs,
             user_question=question,
             language=language,
             max_tokens=max_tokens,
+            answer_tier=answer_tier,
+            service_group=service_group,
         )
         ai_result = self._connector(
             prompt_package,
@@ -126,7 +153,11 @@ class AIReviewEngine:
             client=client,
         )
         ruled_result = apply_review_rules(ai_result)
-        return _to_review_result(ruled_result, question, prompt_package.metadata)
+        metadata = dict(prompt_package.metadata)
+        metadata["answer_tier"] = answer_tier
+        if service_group:
+            metadata["service_group"] = service_group
+        return _to_review_result(ruled_result, question, metadata)
 
 
 def _to_review_result(

@@ -18,6 +18,7 @@ class ProductionSettings:
     relationships_path: Path | None
     openai_api_key: str | None
     openai_model: str | None
+    translation_model: str | None
     internal_token: str | None
     retry_attempts: int = 2
     retry_delay_seconds: float = 0.25
@@ -67,6 +68,9 @@ class ProductionSettings:
             relationships_path=relationships,
             openai_api_key=(env.get("OPENAI_API_KEY") or "").strip() or None,
             openai_model=(env.get("OPENAI_MODEL") or "").strip() or None,
+            translation_model=(
+                (env.get("LEGAL_RAG_TRANSLATION_MODEL") or "gpt-4o-mini").strip() or None
+            ),
             internal_token=(env.get("LEGAL_RAG_INTERNAL_TOKEN") or "").strip() or None,
             retry_attempts=attempts,
             retry_delay_seconds=delay,

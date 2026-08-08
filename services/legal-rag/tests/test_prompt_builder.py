@@ -280,7 +280,12 @@ def _render_helper(pack: EvidencePack) -> str:
 def test_metadata_contains_required_keys():
     result = build_prompt([_pack()], user_question="test", language="ko")
     assert set(result.metadata.keys()) == {
-        "language", "created_at", "evidence_builder_version", "prompt_builder_version",
+        "language",
+        "answer_tier",
+        "service_group",
+        "created_at",
+        "evidence_builder_version",
+        "prompt_builder_version",
     }
     assert result.metadata["language"] == "ko"
     assert result.metadata["evidence_builder_version"]
