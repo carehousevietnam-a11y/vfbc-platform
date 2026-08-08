@@ -1,0 +1,34 @@
+# Dependencies & build output
+node_modules
+.next
+out
+build
+coverage
+
+# Python (legal-rag is built from its own context; exclude from web build)
+services/legal-rag/.venv
+services/legal-rag/**/__pycache__
+services/legal-rag/.pytest_cache
+services/legal-rag/data/raw
+services/legal-rag/reports
+
+# Environment & secrets
+.env
+.env.*
+!.env.production.example
+services/legal-rag/.env
+services/legal-rag/.env.*
+
+# Git & IDE
+.git
+.gitignore
+.cursor
+.vscode
+*.md
+
+# Misc
+.DS_Store
+*.pem
+npm-debug.log*
+.vercel
+*.tsbuildinfo

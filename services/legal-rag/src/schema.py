@@ -1,18 +1,17 @@
 """
 Canonical Schema 공유 정의.
 
-docs/Schema.md의 설계를 실제 코드로 구현한 것. 모든 파이프라인 단계
-(normalize/deduplicate/parse/relations)가 이 모듈의 dataclass를 공통으로 사용해
-필드 불일치를 방지한다.
+docs/Schema.md 및 STEP1-Schema-V2-Design.md 설계를 코드로 구현한다.
+모든 파이프라인 단계(normalize/deduplicate/parse/relations)가 이 모듈의
+dataclass를 공통으로 사용해 필드 불일치를 방지한다.
 
-⚠️ 이번 단계에서 PostgreSQL 적재는 하지 않는다. 이 모듈은 순수 Python
-   dataclass/enum이며 어떤 DB에도 연결하지 않는다.
+⚠️ 이번 단계에서 PostgreSQL 적재는 하지 않는다.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, date, timezone
+from datetime import datetime, timezone
 from enum import Enum
 
 
@@ -28,22 +27,31 @@ class SourceDataset(str, Enum):
 
 
 class DocumentStatus(str, Enum):
+    """V2 status enum (7 values). not_yet_effective is derived from effectiveDate."""
+
     ACTIVE = "active"
-    PARTIALLY_EXPIRED = "partially_expired"
-    FULLY_EXPIRED = "fully_expired"
+    NOT_YET_EFFECTIVE = "not_yet_effective"
     AMENDED = "amended"
-    REPLACED = "replaced"
+    SUPERSEDED = "superseded"
+    REPEALED = "repealed"
     SUSPENDED = "suspended"
     UNKNOWN = "unknown"
 
 
 class RelationType(str, Enum):
-    AMENDS = "amends"
-    REPEALS = "repeals"
-    REPLACES = "replaces"
-    SUPERSEDES = "supersedes"
-    REFERENCES = "references"
+    """V2 relation types (12 values). unknown is separate from related_to."""
+
     IMPLEMENTS = "implements"
+    IMPLEMENTED_BY = "implemented_by"
+    AMENDS = "amends"
+    AMENDED_BY = "amended_by"
+    SUPERSEDES = "supersedes"
+    SUPERSEDED_BY = "superseded_by"
+    REPEALS = "repeals"
+    REPEALED_BY = "repealed_by"
+    REFERENCES = "references"
+    REFERENCED_BY = "referenced_by"
+    RELATED_TO = "related_to"
     UNKNOWN = "unknown"
 
 
@@ -57,9 +65,17 @@ class ChunkLevel(str, Enum):
 
 
 # ---------------------------------------------------------------------------
-# Canonical Document Schema (docs/Schema.md 1장 — originalText/normalizedText/
-# searchText로 필드가 갱신됨, STEP1-1 지시사항 기준)
+# Canonical Document Schema (STEP1 Schema V2)
 # ---------------------------------------------------------------------------
+
+
+@dataclass
+class RelatedDocumentEntry:
+    documentId: str
+    relationType: str  # RelationType value
+
+    def to_dict(self) -> dict:
+        return asdict(self)
 
 
 @dataclass
@@ -77,12 +93,23 @@ class CanonicalDocument:
     issueDate: str | None          # ISO YYYY-MM-DD
     effectiveDate: str | None      # ISO YYYY-MM-DD
     expiryDate: str | None         # ISO YYYY-MM-DD
-    status: str                    # DocumentStatus 값
-    rawStatus: str | None
-    originalText: str | None       # 원본 그대로(HTML 또는 원본 마크다운), 절대 가공하지 않음
-    normalizedText: str | None     # NFC 정규화 + 스캐폴딩 제거된 본문
-    searchText: str | None         # FTS/trigram 검색용 (소문자, 공백 정리, simple config 대상)
-    contentHash: str | None        # normalizedText의 SHA-256
+    publicationDate: str | None = None
+    status: str = DocumentStatus.UNKNOWN.value
+    rawStatus: str | None = None
+    category: list[str] = field(default_factory=list)
+    authorityWeight: int = 30
+    language: str = "vi"
+    summary: str | None = None
+    keywords: list[str] = field(default_factory=list)
+    relatedDocuments: list[dict] = field(default_factory=list)  # RelatedDocumentEntry.to_dict()
+    supersedes: list[str] = field(default_factory=list)
+    supersededBy: list[str] = field(default_factory=list)
+    amends: list[str] = field(default_factory=list)
+    amendedBy: list[str] = field(default_factory=list)
+    originalText: str | None = None
+    normalizedText: str | None = None
+    searchText: str | None = None
+    contentHash: str | None = None
     importedAt: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     def to_dict(self) -> dict:
@@ -93,7 +120,7 @@ class CanonicalDocument:
 class LegalChunk:
     chunkId: str
     documentId: str
-    level: str                      # ChunkLevel 값
+    level: str
     parentChunkId: str | None
     path: str
     breadcrumbTitle: str
@@ -112,7 +139,7 @@ class RelationshipEdge:
     edgeId: str
     sourceDocumentId: str
     targetDocumentId: str
-    relationType: str               # RelationType 값
+    relationType: str
     rawRelationLabel: str | None
     sourceDataset: str
     confidence: float | None = None
@@ -123,17 +150,11 @@ class RelationshipEdge:
 
 @dataclass
 class InternalRelation:
-    """
-    문서 내부 참조 관계 (예: "quy định tại Khoản 2 Điều này").
-    cross-document RelationshipEdge와 별도로 관리 — STEP1-1 지시사항의
-    "Internal Relation도 별도 생성" 요구사항 구현.
-    """
-
     edgeId: str
     documentId: str
     sourceChunkId: str
-    targetChunkId: str | None       # 대상 chunk를 특정할 수 없으면 None (targetRawRef만 보존)
-    targetRawRef: str               # 원문 참조 표현 그대로 (예: "Khoản 2 Điều này")
+    targetChunkId: str | None
+    targetRawRef: str
     relationType: str = "references"
 
     def to_dict(self) -> dict:
@@ -142,24 +163,14 @@ class InternalRelation:
 
 @dataclass
 class EffectiveScope:
-    """
-    부분 실효(article/khoản/điểm 단위 효력 상태)를 지원하기 위한 스키마.
-    STEP1-1 지시사항의 legal_effective_scopes 설계를 구현.
-
-    현재 소스 데이터(th1nhng0 relationships)는 문서 단위 관계만 제공하므로,
-    article 단위 부분실효는 명시적으로 감지되지 않는 한 문서 전체 범위
-    (article_no=None)로 생성된다 — 이 한계는 src/effective_scopes.py의
-    docstring에 명시했다.
-    """
-
     document_id: str
-    article_no: str | None          # None이면 문서 전체 범위
+    article_no: str | None
     clause_no: str | None
     item_no: str | None
-    status: str                     # DocumentStatus 값
-    effective_from: str | None      # ISO date
-    effective_to: str | None        # ISO date, None이면 현재까지 유효
-    source_relation_id: str | None  # 이 scope 변경의 근거가 된 RelationshipEdge.edgeId
+    status: str
+    effective_from: str | None
+    effective_to: str | None
+    source_relation_id: str | None
 
     def to_dict(self) -> dict:
         return asdict(self)

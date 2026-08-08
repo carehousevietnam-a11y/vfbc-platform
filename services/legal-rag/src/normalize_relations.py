@@ -56,7 +56,7 @@ _RELATION_PATTERNS: list[tuple[re.Pattern, RelationType]] = [
     (re.compile(r"sửa\s*đổi|bổ\s*sung|amend", re.IGNORECASE), RelationType.AMENDS),
     (re.compile(r"bãi\s*bỏ|hết\s*hiệu\s*lực|repeal", re.IGNORECASE), RelationType.REPEALS),
     (re.compile(r"thay\s*thế toàn bộ|supersede", re.IGNORECASE), RelationType.SUPERSEDES),
-    (re.compile(r"thay\s*thế|replace", re.IGNORECASE), RelationType.REPLACES),
+    (re.compile(r"thay\s*thế|replace", re.IGNORECASE), RelationType.SUPERSEDES),
     (re.compile(r"hướng\s*dẫn|quy\s*định\s*chi\s*tiết|implement", re.IGNORECASE), RelationType.IMPLEMENTS),
     (re.compile(r"dẫn\s*chiếu|căn\s*cứ|liên\s*quan|reference|cite", re.IGNORECASE), RelationType.REFERENCES),
 ]
