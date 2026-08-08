@@ -46,6 +46,17 @@ def sha256_file(path: str, chunk_size: int = 1024 * 1024) -> str:
 _WHITESPACE_RE = re.compile(r"[ \t\u00a0]+")
 _MULTI_NEWLINE_RE = re.compile(r"\n{3,}")
 
+# 법률 구조 마커(Phần/Chương/Mục/Điều) 앞에 개행 삽입 — tmquan markdown은 종종
+# 줄바꿈 없이 한 줄로 저장되어 parse_legal_structure의 ^\s*Điều 정규식이
+# 매칭하지 못한다. 정규화 단계에서 마커 경계를 복원한다(파서 변경보다 낮은 리스크).
+_LEGAL_STRUCTURE_NEWLINE_RES: list[re.Pattern] = [
+    re.compile(r"(?<=\S)\s+(?=Phần\s+(?:thứ\s+)?(?:[IVXLCDM\d]+)\b)", re.IGNORECASE | re.UNICODE),
+    re.compile(r"(?<=\S)\s+(?=Chương\s+(?:[IVXLCDM\d]+)\b)", re.IGNORECASE | re.UNICODE),
+    re.compile(r"(?<=\S)\s+(?=Mục\s+\d+\b)", re.IGNORECASE | re.UNICODE),
+    # 조문 헤더는 "Điều N." 형태가 대부분 — 본문 인용 "theo Điều 5 Luật" 오탐 완화
+    re.compile(r"(?<=\S)\s+(?=Điều\s+\d+\.)", re.IGNORECASE | re.UNICODE),
+]
+
 # 구형/신형 정서법 정규화(1984년 이후 표준) — VFBCAI 마스터문서 9장에서 언급된
 # tmquan 데이터셋의 정규화 방식과 동일한 원칙(Toà→Tòa 등)을 자체 정규화 시에도 적용.
 _TONE_MARK_FIXES = {
@@ -59,6 +70,13 @@ _TONE_MARK_FIXES = {
 _HTML_TAG_RE = re.compile(r"<[^>]+>")
 _CSS_BLOCK_RE = re.compile(r"\{[^{}]*\}")
 _MSO_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def _insert_legal_structure_newlines(text: str) -> str:
+    """연속 문자열 본문에서 Phần/Chương/Mục/Điều 마커 앞에 개행을 삽입한다."""
+    for pattern in _LEGAL_STRUCTURE_NEWLINE_RES:
+        text = pattern.sub("\n", text)
+    return text
 
 
 def normalize_vietnamese_text(raw: str) -> str:
@@ -77,6 +95,7 @@ def normalize_vietnamese_text(raw: str) -> str:
         text = _MSO_COMMENT_RE.sub(" ", text)
         text = _HTML_TAG_RE.sub(" ", text)
 
+    text = _insert_legal_structure_newlines(text)
     text = _WHITESPACE_RE.sub(" ", text)
     text = _MULTI_NEWLINE_RE.sub("\n\n", text)
     text = "\n".join(line.strip() for line in text.split("\n"))

@@ -24,7 +24,7 @@ from .query_normalizer import LegalQueryNormalizer
 from .result_localizer import LocalizedSearchResult, localize_results
 from .search_exact import search_exact
 from .search_filters import apply_filters, filter_documents
-from .search_keyword import search_canonical_concept, search_keyword
+from .search_keyword import search_canonical_concept, search_keyword, search_title_only_documents
 from .search_models import (
     Chunk,
     Document,
@@ -202,7 +202,12 @@ class LegalSearchIndex:
 
             exact_hits = search_exact(normalized_query, self.documents, self.chunks, self.documents_by_id)
             keyword_hits = search_keyword(normalized_query, self.chunks, self.documents_by_id)
-            results = self._dedupe_keep_best(concept_hits + exact_hits + keyword_hits)
+            title_only_hits = search_title_only_documents(
+                normalized_query, self.documents, self.chunks
+            )
+            results = self._dedupe_keep_best(
+                concept_hits + exact_hits + keyword_hits + title_only_hits
+            )
         elif filters and not filters.is_empty():
             if filters.article_no is not None:
                 # article_no는 chunk 단위 개념이므로 문서가 아니라 chunk를 기준으로 browse.

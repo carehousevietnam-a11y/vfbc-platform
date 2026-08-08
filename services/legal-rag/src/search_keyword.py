@@ -83,6 +83,49 @@ def _split_keywords(query: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+def search_title_only_documents(
+    query: str,
+    documents: list[Document],
+    chunks: list[Chunk],
+) -> list[SearchResult]:
+    """본문 청크가 없어 chunk 루프에 잡히지 않는 문서의 제목만 검색한다.
+
+    tmquan 원본에 markdown 본문이 비어 있는 문서(예: 106/2016/QH13)는 정규화·청킹
+    단계에서 chunk가 생성되지 않는다. 제목에만 법률 주제가 담긴 이런 문서도
+    키워드 검색 결과에 포함되어야 한다.
+    """
+    query_norm = normalize_query_text(query)
+    if not query_norm:
+        return []
+
+    chunked_doc_ids = {c.document_id for c in chunks}
+    keywords = _split_keywords(query_norm)
+    results: list[SearchResult] = []
+
+    for doc in documents:
+        if doc.document_id in chunked_doc_ids:
+            continue
+        title_norm = normalize_query_text(doc.title) if doc.title else ""
+        if not title_norm:
+            continue
+
+        if len(keywords) > 1 and match_phrase(title_norm, query_norm):
+            match_type = MatchType.KEYWORD_PHRASE
+        elif match_prefix(title_norm, query_norm):
+            match_type = MatchType.KEYWORD_PREFIX
+        elif match_substring(title_norm, query_norm):
+            match_type = MatchType.KEYWORD_SUBSTRING
+        elif len(keywords) > 1 and match_multi_keyword(title_norm, keywords, "all"):
+            match_type = MatchType.KEYWORD_ALL_TERMS
+        else:
+            continue
+
+        score = KEYWORD_BASE_SCORE[match_type] * FIELD_WEIGHT["title"]
+        results.append(result_from_document(doc, score, match_type))
+
+    return results
+
+
 def search_keyword(
     query: str,
     chunks: list[Chunk],
