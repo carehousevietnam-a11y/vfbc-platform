@@ -133,13 +133,37 @@ def _match_category_by_number(
 
 
 def _match_category_by_keywords(title: str, keyword_index: dict[str, list[str]]) -> tuple[str, str] | None:
+    hits = _match_all_categories_by_keywords(title, keyword_index)
+    return hits[0] if hits else None
+
+
+def _match_all_categories_by_keywords(
+    title: str, keyword_index: dict[str, list[str]]
+) -> list[tuple[str, str]]:
+    """All (category, keyword) title hits — order follows keyword_index insertion order."""
     norm_title = _norm_text(title)
     if not norm_title:
-        return None
+        return []
+    hits: list[tuple[str, str]] = []
     for category, keywords in keyword_index.items():
         for kw in keywords:
             if kw and kw in norm_title:
-                return category, kw
+                hits.append((category, kw))
+                break
+    return hits
+
+
+def _pick_keyword_match(
+    title: str,
+    keyword_index: dict[str, list[str]],
+    can_add,
+) -> tuple[str, str] | None:
+    """Prefer a keyword match whose category still has quota (skip filled cats)."""
+    for category, kw in _match_all_categories_by_keywords(title, keyword_index):
+        if category == "Criminal" and "tài sản" in kw:
+            continue
+        if can_add(category, "title_keyword"):
+            return category, kw
     return None
 
 
@@ -261,16 +285,14 @@ def curate_pilot(
             category, kind, matched = hit
             if state.can_add(category, kind):
                 state.add(row, category, kind, f"doc_number:{matched}")
+            # Explicit target doc_number — do not reassign via keywords when category is full.
             continue
 
         title = row.get("title") or ""
-        kw_hit = _match_category_by_keywords(title, keyword_index)
+        kw_hit = _pick_keyword_match(title, keyword_index, state.can_add)
         if kw_hit:
             category, kw = kw_hit
-            if category == "Criminal" and "tài sản" in kw:
-                continue
-            if state.can_add(category, "title_keyword"):
-                state.add(row, category, "title_keyword", f"title_keyword:{kw}")
+            state.add(row, category, "title_keyword", f"title_keyword:{kw}")
 
         if scanned2 % 10000 == 0:
             logger.info("Phase2 스캔 %d행 — 수집 %d건", scanned2, len(state.records))
@@ -410,13 +432,11 @@ def backfill_pilot(
         hit = match_row_to_target(row, build_priority_number_index(targets), title_rules)
         if hit:
             category, kind, matched = hit
-            if category not in backfill_quotas:
-                continue
-            if kind == "title_keyword":
-                continue
-            if state.can_add(category, kind):
+            if kind != "title_keyword" and category in backfill_quotas and state.can_add(category, kind):
                 state.add(row, category, kind, matched)
-            continue
+                continue
+            # Priority hit for a filled/non-backfill category: fall through so shortfall
+            # categories can still claim via their own keywords / legal_area.
 
         numbers = _doc_numbers_from_row(row)
         num_hit = _match_category_by_number(numbers, number_index)
@@ -424,26 +444,26 @@ def backfill_pilot(
             category, kind, matched = num_hit
             if category in backfill_quotas and state.can_add(category, kind):
                 state.add(row, category, kind, f"doc_number:{matched}")
+            # Explicit target doc_number — never reassign via keywords/legal_area.
             continue
 
         title = row.get("title") or ""
-        kw_hit = _match_category_by_keywords(title, keyword_index)
+        kw_hit = _pick_keyword_match(
+            title,
+            keyword_index,
+            lambda cat, kind: cat in backfill_quotas and state.can_add(cat, kind),
+        )
         if kw_hit:
             category, kw = kw_hit
-            if category not in backfill_quotas:
-                continue
-            if category == "Criminal" and "tài sản" in kw:
-                continue
-            if state.can_add(category, "title_keyword"):
-                state.add(row, category, "title_keyword", f"title_keyword:{kw}")
-                continue
+            state.add(row, category, "title_keyword", f"title_keyword:{kw}")
+            continue
 
         _LEGAL_AREA_BACKFILL = _legal_area_backfill_map()
+        la = (row.get("legal_area") or "").lower()
+        ti = (row.get("title") or "").lower()
         for cat, hints in _LEGAL_AREA_BACKFILL.items():
             if cat not in backfill_quotas or state.remaining(cat) <= 0:
                 continue
-            la = (row.get("legal_area") or "").lower()
-            ti = (row.get("title") or "").lower()
             if any(h in la or h in ti for h in hints):
                 if cat == "Investment" and any(
                     x in ti for x in ("đầu tư công", "đầu tư nước ngoài", "đối tác công tư")
