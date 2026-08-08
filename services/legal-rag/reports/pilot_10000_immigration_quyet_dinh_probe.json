@@ -4,27 +4,18 @@
   "remaining_quota": 828,
   "scanned_rows": 158822,
   "quyet_dinh_trung_uong_seen": 12708,
-  "quyet_dinh_immigration_on_topic_not_collected": 263,
-  "addable_up_to_quota": 263,
-  "immigration_projected_total": 735,
-  "projected_fill_pct": 56.5,
+  "quyet_dinh_immigration_on_topic_not_collected": 189,
+  "addable_up_to_quota": 189,
+  "immigration_projected_total": 661,
+  "projected_fill_pct": 50.8,
+  "option_b_exclude_keywords": [
+    "biên giới"
+  ],
   "new_match_kind_distribution": {
-    "title_keyword": 258,
+    "title_keyword": 184,
     "legal_area": 5
   },
   "sample_new_titles": [
-    {
-      "doc_name": "10162",
-      "document_number": [
-        "490/QĐ-ĐB"
-      ],
-      "title": "Ban hành bản quy định tạm thời về quản lý, bảo dưỡng và sửa chữa cầu ở biên giới quốc gia",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
     {
       "doc_name": "102889",
       "document_number": [
@@ -59,18 +50,6 @@
       "legal_area": "Chưa phân loại",
       "match_kind": "title_keyword",
       "matched_by": "title_keyword:định cư",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "109454",
-      "document_number": [
-        "66/2001/QÐ-BTC"
-      ],
-      "title": "về việc ban hành mức thu lệ phí qua lại biên giới trên đất liền giữa Việt Nam và các nước láng giềng",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Quản lý thuế, phí và lệ phí",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
       "authorityWeight": 60
     },
     {
@@ -110,30 +89,6 @@
       "authorityWeight": 60
     },
     {
-      "doc_name": "110123",
-      "document_number": [
-        "24/2004/QĐ/BTC"
-      ],
-      "title": "về việc sửa đổi nội dung Tờ khai xuất khẩu biên giới",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "110326",
-      "document_number": [
-        "525/QĐ-BTC"
-      ],
-      "title": "Về việc đính chính &ĐT ngày 26/12/2012 của Bộ Tài chính hướng dẫn chế độ quản lý, sử dụng kinh phí ngân sách nhà nước thực hiện Chương trình mục tiêu quốc gia đưa thông tin về cơ sở miền núi, vùng sâu, vùng xa, biên giới, hải đảo giai đoạn 2012-2015",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Quản lý ngân sách",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
-    {
       "doc_name": "11074",
       "document_number": [
         "96-TTg"
@@ -170,30 +125,6 @@
       "authorityWeight": 60
     },
     {
-      "doc_name": "11629",
-      "document_number": [
-        "1179/QĐ-TTg"
-      ],
-      "title": "Phê duyệt Quy hoạch bố trí ổn định dân cư các xã biên giới Việt Nam – Lào thuộc các tỉnh: Hà Tĩnh, Quảng Bình, Quảng Trị, Thừa Thiên Huế, Quảng Nam và Kon Tum đến năm 2015",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "11630",
-      "document_number": [
-        "1178/QĐ-TTg"
-      ],
-      "title": "Phê duyệt Quy hoạch bố trí ổn định dân cư các xã biên giới Việt Nam – Campuchia đến năm 2015",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
-    {
       "doc_name": "11661",
       "document_number": [
         "1118/QĐ-CTN"
@@ -203,18 +134,6 @@
       "legal_area": "Chưa phân loại",
       "match_kind": "title_keyword",
       "matched_by": "title_keyword:quốc tịch",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "11719",
-      "document_number": [
-        "1105/QĐ-TTg"
-      ],
-      "title": "Về việc phê duyệt bổ sung danh sách xã đặc biệt khó khăn, xã biên giới, xã an toàn khu vào diện đầu tư Chương trình 135 giai đoạn II và danh sách xã hoàn thành mục tiêu, ra khỏi diện đầu tư của Chương trình 135 giai đoạn II",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
       "authorityWeight": 60
     },
     {
@@ -312,19 +231,199 @@
       "match_kind": "title_keyword",
       "matched_by": "title_keyword:quốc tịch",
       "authorityWeight": 60
+    },
+    {
+      "doc_name": "12143",
+      "document_number": [
+        "72/2009/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi, bổ sung một số điều của Quy định về bồi thường, hỗ trợ và tái định cư Dự án thủy điện Sơn La, ban hành kèm theo của Thủ tướng Chính phủ",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "12175",
+      "document_number": [
+        "489/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "122397",
+      "document_number": [
+        "3207/2008/QĐ-BNG"
+      ],
+      "title": "Ban hành Quy chế về miễn thị thực đối với công dân Liên bang Nga mang hộ chiếu phổ thông",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Quản lý xuất nhập cảnh",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "12254",
+      "document_number": [
+        "418/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "12281",
+      "document_number": [
+        "388/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "12307",
+      "document_number": [
+        "203/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "12339",
+      "document_number": [
+        "189/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "authorityWeight": 60
     }
   ],
   "sample_mid_titles": [
     {
-      "doc_name": "18758",
+      "doc_name": "17865",
       "document_number": [
-        "17/2004/QĐ-NHNN"
+        "54/2005/QĐ-BTC"
       ],
-      "title": "Về việc ban hành Quy chế thanh toán trong mua bán, trao đổi hàng hoá và dịch vụ thương mại tại khu vực biên giới Việt Nam - Campuchia",
+      "title": "Về việc ban hành mức thu lệ phí cấp giấy phép lao động cho người nước ngoài làm việc tại Việt Nam",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Quản lý thuế, phí và lệ phí",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "178776",
+      "document_number": [
+        "1870/QĐ-BNG"
+      ],
+      "title": "V/v đính chính của Bộ trưởng Bộ Ngoại giao sửa đổi, bổ sung một số điều của của Bộ trưởng Bộ Ngoại giao quy định thủ tục cấp giấy phép nhập cảnh thi hài, hài cốt, tro cốt về Việt Nam; của Bộ trưởng Bộ Ngoại giao hướng dẫn thủ tục đăng ký công dân Việt Nam ở nước ngoài; của Bộ trưởng Bộ Ngoại giao hướng dẫn việc cấp, gia hạn, hủy giá trị sử dụng hộ chiếu ngoại giao, hộ chiếu công vụ và cấp công hàm đề nghị phía nước ngoài cấp thị thực",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Công tác lãnh sự",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "17880",
+      "document_number": [
+        "621/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
       "doc_type": "quyet_dinh",
       "legal_area": "Chưa phân loại",
       "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
+      "matched_by": "title_keyword:quốc tịch",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "17881",
+      "document_number": [
+        "196/2004/QĐ-TTg"
+      ],
+      "title": "Phê duyệt quy hoạch tổng thể di dân, tái định cư Dự án thuỷ điện Sơn La",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "17894",
+      "document_number": [
+        "39/2005/QĐ-BNN"
+      ],
+      "title": "Ban hành Quy định áp dụng đơn giá lập Quy hoạch chi tiết khu (điểm) tái định cư Dự án thuỷ điện Sơn La",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "180886",
+      "document_number": [
+        "178/1997/QĐ-LĐTBXH"
+      ],
+      "title": "Về việc in, phát hành và quản lý giấy phép lao động cấp cho người nước ngoài",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "18099",
+      "document_number": [
+        "32/2005/QĐ-BGTVT"
+      ],
+      "title": "Ban hành quy định về xếp loại đường để xác định cước vận tải đường bộ",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Đường bộ",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "18105",
+      "document_number": [
+        "921/2005/QĐ-NHNN"
+      ],
+      "title": "Về việc sửa đổi khoản a và b Điều 1 của Thống đốc Ngân hàng Nhà nước về việc mang ngoại tệ bằng tiền mặt và đồng Việt Nam bằng tiền mặt khi xuất nhập cảnh",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Chưa phân loại",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "authorityWeight": 60
+    },
+    {
+      "doc_name": "182736",
+      "document_number": [
+        "31/2025/QĐ-TTg"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều các Quyết định của Thủ tướng Chính phủ về thực hiện thủ tục biên phòng điện tử tại các cửa khẩu do Bộ Quốc phòng quản lý",
+      "doc_type": "quyet_dinh",
+      "legal_area": "Biên phòng",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
       "authorityWeight": 60
     },
     {
@@ -337,102 +436,6 @@
       "legal_area": "Chưa phân loại",
       "match_kind": "title_keyword",
       "matched_by": "title_keyword:định cư",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "19289",
-      "document_number": [
-        "358/2003/QĐ-CTN"
-      ],
-      "title": "Về việc cho thôi quốc tịch Việt Nam",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:quốc tịch",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "19615",
-      "document_number": [
-        "689/2004/QĐ-NHNN"
-      ],
-      "title": "Về việc ban hành Quy chế thanh toán trong mua bán, trao đổi hàng hoá và dịch vụ tại khu vực biên giới và khu kinh tế cửa khẩu giữa Việt Nam và Trung Quốc",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Quản lý ngoại hối",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "19814",
-      "document_number": [
-        "134/2003/QĐ-CTN"
-      ],
-      "title": "Về việc cho thôi quốc tịch Việt Nam",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:quốc tịch",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "19862",
-      "document_number": [
-        "57/2003/QĐ-BTC"
-      ],
-      "title": "Quy định về thủ tục hải quan đối với tầu biển xuất cảnh, nhập cảnh, quá cảnh, chuyển cảng và kiểm soát, giám sát hải quan tại các cảng biển và cảng chuyên dùng",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Hải quan",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:nhập cảnh",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "19863",
-      "document_number": [
-        "55/2003/QĐ-BTC"
-      ],
-      "title": "Ban hành Quy định về thủ tục hải quan, công tác kiểm soát, giám sát hải quan đối với tầu hoả liên vận quốc tế nhập cảnh, xuất cảnh",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Hải quan",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:nhập cảnh",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "19959",
-      "document_number": [
-        "24/2004/QĐ-BTC"
-      ],
-      "title": "về việc sửa đổi nội dung tờ khai xuất khẩu biên giới",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Quản lý thuế, phí và lệ phí",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "20563",
-      "document_number": [
-        "262/2003/QĐ-TTg"
-      ],
-      "title": "Về việc thành lập Sở Ngoại vụ và Biên giới tỉnh Hà Giang",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chính quyền địa phương",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
-      "authorityWeight": 60
-    },
-    {
-      "doc_name": "20940",
-      "document_number": [
-        "231/2003/QĐ-TTg"
-      ],
-      "title": "Bổ sung và thay tên xã thuộc Chương trình phát triển kinh tế xã hội các xã đặc biệt khó khăn, vùng đồng bào dân tộc miền núi, biên giới và vùng sâu, vùng xa",
-      "doc_type": "quyet_dinh",
-      "legal_area": "Chưa phân loại",
-      "match_kind": "title_keyword",
-      "matched_by": "title_keyword:biên giới",
       "authorityWeight": 60
     }
   ]

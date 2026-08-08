@@ -2,12 +2,13 @@
   "spot_checks": {
     "authorityWeight_100_count": 218,
     "authorityWeight_distribution": {
+      "60": 189,
       "80": 5926,
       "90": 1994,
       "100": 218
     },
-    "empty_body_count": 497,
-    "empty_body_ratio_pct": 6.1,
+    "empty_body_count": 500,
+    "empty_body_ratio_pct": 6.0,
     "empty_body_by_category": {
       "Tax": 186,
       "Administrative": 56,
@@ -17,16 +18,16 @@
       "RealEstate": 30,
       "Banking": 29,
       "Customs": 25,
+      "Immigration": 18,
       "Labor": 16,
-      "Immigration": 15,
       "Commercial": 12,
       "Civil": 6,
       "Criminal": 4
     },
-    "docs_with_zero_chunks": 497,
-    "single_chunk_docs": 1784,
-    "multi_chunk_docs": 5857,
-    "total_chunks": 107715,
+    "docs_with_zero_chunks": 500,
+    "single_chunk_docs": 1793,
+    "multi_chunk_docs": 6034,
+    "total_chunks": 108597,
     "large_docs_100k_plus_single_chunk": [
       {
         "document_number": [
@@ -950,7 +951,7 @@
     ],
     "large_chunk_structure_analysis": {
       "large_single_chunk_count": 16,
-      "large_multi_chunk_count": 306,
+      "large_multi_chunk_count": 307,
       "structure_type_distribution": {
         "section_headers_no_dieu": 7,
         "muc_sections": 6,
@@ -1998,17 +1999,17 @@
       "top_hits": []
     },
     "new_category_quotas": {
-      "Banking": {
+      "Commercial": {
         "quota": 433,
-        "actual": 433
+        "actual": 408
       },
       "Civil": {
         "quota": 433,
         "actual": 255
       },
-      "Commercial": {
+      "Banking": {
         "quota": 433,
-        "actual": 408
+        "actual": 433
       },
       "Investment": {
         "quota": 433,
@@ -2282,8 +2283,8 @@
     ]
   },
   "collection": {
-    "scanned_rows": 476466,
-    "collected_total": 8138,
+    "scanned_rows": 635288,
+    "collected_total": 8327,
     "quotas": {
       "Administrative": 1517,
       "Immigration": 1300,
@@ -2312,7 +2313,7 @@
       "Company": 867,
       "Customs": 433,
       "Licensing": 650,
-      "Immigration": 472
+      "Immigration": 661
     },
     "repealed_counts": {
       "Licensing": 1,
@@ -2323,25 +2324,30 @@
       "RealEstate": 1,
       "Labor": 1,
       "Company": 1,
-      "Administrative": 1
+      "Administrative": 1,
+      "Tax": 0,
+      "Commercial": 0,
+      "Banking": 0,
+      "Criminal": 0
     },
     "shortfalls": {
-      "Immigration": 828,
+      "Immigration": 639,
       "Labor": 238,
       "RealEstate": 493,
       "Civil": 178,
       "Commercial": 25,
       "Criminal": 99
     },
-    "status_enriched_from_th1nhng0": 7876
+    "status_enriched_from_th1nhng0": 8065,
+    "immigration_quyet_dinh_added": 189
   },
-  "collection_document_count": 8138,
+  "collection_document_count": 8327,
   "normalization": {
-    "input": 8138,
-    "passed": 8138,
+    "input": 8327,
+    "passed": 8327,
     "hard_fail": 0,
     "hard_fail_details": [],
-    "chunks": 107715
+    "chunks": 108597
   },
   "search_samples": [
     {
@@ -2395,8 +2401,42 @@
     },
     {
       "query": "quyền sử dụng đất người nước ngoài",
-      "hit_count": 0,
-      "top_hits": []
+      "hit_count": 3,
+      "top_hits": [
+        {
+          "document_number": [
+            "29/2001/QĐ-BXD"
+          ],
+          "title": "Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề nghị cấp Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở áp dụng đối với người Việt Nam định cư ở nước ngoài mua nhà ở tại Việt Nam theo quy định tại của Chính phủ",
+          "article_no": "1",
+          "clause_no": null,
+          "status": "repealed",
+          "score": 15.0,
+          "match_type": "keyword_all_terms"
+        },
+        {
+          "document_number": [
+            "29/2001/QĐ-BXD"
+          ],
+          "title": "Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề nghị cấp Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở áp dụng đối với người Việt Nam định cư ở nước ngoài mua nhà ở tại Việt Nam theo quy định tại của Chính phủ",
+          "article_no": "2",
+          "clause_no": null,
+          "status": "repealed",
+          "score": 15.0,
+          "match_type": "keyword_all_terms"
+        },
+        {
+          "document_number": [
+            "29/2001/QĐ-BXD"
+          ],
+          "title": "Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề nghị cấp Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở áp dụng đối với người Việt Nam định cư ở nước ngoài mua nhà ở tại Việt Nam theo quy định tại của Chính phủ",
+          "article_no": "3",
+          "clause_no": null,
+          "status": "repealed",
+          "score": 15.0,
+          "match_type": "keyword_all_terms"
+        }
+      ]
     },
     {
       "query": "사기 계약 관련 hình sự",

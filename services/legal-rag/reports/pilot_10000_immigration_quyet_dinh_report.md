@@ -60,18 +60,29 @@
 
 ---
 
-## 3. 최종 Immigration 권고 (수집 반영 **안 함** — 승인 대기)
+## 3. 최종 Immigration — **Option B 적용 완료**
 
-| 옵션 | Immigration | 설명 |
-|---|---:|---|
-| **A (권장)** | **472** | 기존 4 doc types만 — CHECK 품질 우선, noise 없음 |
-| B | **~659** | 472 + on-topic `quyet_dinh` ~187 (biên giới 제외) |
-| C | 735 | 472 + quyet_dinh 263 전부 — 28% noise 포함 |
+| | 값 |
+|---|---:|
+| 기존 (4 doc types) | 472 |
+| quyet_dinh 추가 (biên giới 단독 제외) | **+189** |
+| **최종 Immigration** | **661 / 1,300 (50.8%)** |
+| 전체 pilot 합계 | **8,327 / 9,999** |
 
-**판단**: `quyet_dinh`로 quota 1300의 **56%**까지는 올라가지만, **1300 목표 달성 불가**이며 noise 없이 채우면 **700 미만(~659)**.  
-→ **trung_uong × {luat, nghi_dinh, thong_tu, quyet_dinh} 범위에서 Immigration 한도는 ~650–735**로 보는 것이 타당. **무리한 추가 채우기 중단.**
+**판단**: biên giới noise 74건 제외 후 on-topic Quyết định만 반영. quota 1300 미달(639)은
+trung_uong Immigration corpus 한도로 **추가 채우기 중단**.
 
-현재 PR 코퍼스는 **옵션 A (472건)** 그대로 유지했습니다. 옵션 B 승인 시 `--apply` + biên giới 필터로 반영 가능.
+STEP 2 큐레이션 공식 종료: `reports/STEP2_CLOSE.md`
+
+---
+
+## (참고) Option B 적용 전 probe 결과
+
+| | 값 |
+|---|---:|
+| quyet_dinh raw (+263, biên giới 포함) | 735 projected |
+| on-topic strong | ~187 |
+| weak (`biên giới` 단독) | ~74 (28% noise) — **제외됨** |
 
 ---
 

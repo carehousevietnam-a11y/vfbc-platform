@@ -1,6 +1,6 @@
 {
-  "scanned_rows": 476466,
-  "collected_total": 8138,
+  "scanned_rows": 635288,
+  "collected_total": 8327,
   "quotas": {
     "Administrative": 1517,
     "Immigration": 1300,
@@ -29,7 +29,7 @@
     "Company": 867,
     "Customs": 433,
     "Licensing": 650,
-    "Immigration": 472
+    "Immigration": 661
   },
   "repealed_counts": {
     "Licensing": 1,
@@ -40,10 +40,14 @@
     "RealEstate": 1,
     "Labor": 1,
     "Company": 1,
-    "Administrative": 1
+    "Administrative": 1,
+    "Tax": 0,
+    "Commercial": 0,
+    "Banking": 0,
+    "Criminal": 0
   },
   "shortfalls": {
-    "Immigration": 828,
+    "Immigration": 639,
     "Labor": 238,
     "RealEstate": 493,
     "Civil": 178,
@@ -97534,7 +97538,2276 @@
       "matched_by": "legal_area:Chưa phân loại",
       "scope": "trung_uong",
       "doc_type": "nghi_dinh"
+    },
+    {
+      "doc_name": "102889",
+      "document_number": [
+        "856/2001/QĐ-NHNN"
+      ],
+      "title": "của Thống đốc Ngân hàng Nhà nuớc về việc ban hành Quy chế quản lý hộ chiếu của cán bộ, công chức, viên chức ngành Ngân hàng",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "10409",
+      "document_number": [
+        "59/TTg"
+      ],
+      "title": "Về việc giải quyết cho người Việt Nam định cư ở nước ngoài hồi hương về Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "10640",
+      "document_number": [
+        "567/TTg"
+      ],
+      "title": "Về cơ chế sử dụng chuyên gia, trí thức là người Việt Nam định cư ở nước ngoài tham gia tư vấn cho các cơ quan của Chính phủ trong một số lĩnh vực công tác",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "109916",
+      "document_number": [
+        "136/1999/QÐ-BTC"
+      ],
+      "title": "của bộ trưởng bộ tài chính ban hành biểu mức thu lệ phí nhập cảnh, xuất cảnh, quá cảnhvà cư trú tại việt nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "109944",
+      "document_number": [
+        "55/2003/QÐ-BTC"
+      ],
+      "title": "ban hành quy định về thủ tục hải quan, công tác kiểm soát, giám sát hải quan đối với tàu hoả liên vận quốc tế nhập cảnh, xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "110039",
+      "document_number": [
+        "57/2003/QÐ-BTC"
+      ],
+      "title": "quy định về thủ tục hải quan đối với tàu biển xuất cảnh, nhập cảnh, quá cảnh, chuyển cảng và kiểm soát, giám sát hải quan tại các cảng biển và cảng chuyên dùng",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11074",
+      "document_number": [
+        "96-TTg"
+      ],
+      "title": "Về việc bãi bỏ chế độ đối với hàng hoá của Việt kiều mang theo khi về nước và của người Việt Nam định cư ở nước ngoài gửi về nước",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "112403",
+      "document_number": [
+        "29/2001/QĐ-BXD"
+      ],
+      "title": "Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề nghị cấp Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở áp dụng đối với người Việt Nam định cư ở nước ngoài mua nhà ở tại Việt Nam theo quy định tại của Chính phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "114302",
+      "document_number": [
+        "122/2006/QĐ-BQP"
+      ],
+      "title": "Về việc thực hiện một số chế độ, chính sách đối với lực lượng Cảnh sát biển",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cảnh sát biển",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11661",
+      "document_number": [
+        "1118/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11723",
+      "document_number": [
+        "932/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11786",
+      "document_number": [
+        "1023/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11881",
+      "document_number": [
+        "834/QĐ-TTg"
+      ],
+      "title": "Phê duyệt Quy hoạch tổng thể di dân, tái định cư Dự án thủy điện Bản Chát",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11882",
+      "document_number": [
+        "833/QĐ-TTg"
+      ],
+      "title": "Phê duyệt Quy hoạch tổng thể di dân, tái định cư Dự án thủy điện Huội Quảng",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11904",
+      "document_number": [
+        "838/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "11937",
+      "document_number": [
+        "682/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12013",
+      "document_number": [
+        "756/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12067",
+      "document_number": [
+        "617/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12143",
+      "document_number": [
+        "72/2009/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi, bổ sung một số điều của Quy định về bồi thường, hỗ trợ và tái định cư Dự án thủy điện Sơn La, ban hành kèm theo của Thủ tướng Chính phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12175",
+      "document_number": [
+        "489/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "122397",
+      "document_number": [
+        "3207/2008/QĐ-BNG"
+      ],
+      "title": "Ban hành Quy chế về miễn thị thực đối với công dân Liên bang Nga mang hộ chiếu phổ thông",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12254",
+      "document_number": [
+        "418/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12281",
+      "document_number": [
+        "388/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12307",
+      "document_number": [
+        "203/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12339",
+      "document_number": [
+        "189/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12367",
+      "document_number": [
+        "98/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12472",
+      "document_number": [
+        "04/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "125057",
+      "document_number": [
+        "43/2017/QĐ-TTg"
+      ],
+      "title": "Quy định trách nhiệm thực hiện thủ tục đối với tàu bay xuất cảnh, nhập cảnh, quá cảnh thông qua Cơ chế một cửa quốc gia",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12564",
+      "document_number": [
+        "1898/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "126397",
+      "document_number": [
+        "182/2008/QĐ-BQP"
+      ],
+      "title": "VỀ VIỆC THỰC HIỆN CHẾ ĐỘ ĐỐI VỚI SĨ QUAN, QUÂN NHÂN CHUYÊN NGHIỆP THUỘC BỘ ĐỘI BIÊN PHÒNG LÀM NHIỆM VỤ TĂNG CƯỜNG CÁC XÃ BIÊN GIỚI CÓ ĐIỀU KIỆN KINH TẾ, XÃ HỘI ĐẶC BIỆT KHÓ KHĂN",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "126403",
+      "document_number": [
+        "2512/2001/QĐ-BQP"
+      ],
+      "title": "Về việc ban hành Quy định quan hệ giữa Bộ Tư lệnh Bộ đội Biên phòng vối Bộ Tư lệnh Quân khu, Bộ Tư lệnh Hải quân; giữa Bộ chỉ huy Bộ đội Biên phòng tỉnh, thành phố, Hải đoàn biên phòng với Bộ chỉ huy Quân sự tỉnh, thành phố, Bộ chỉ huy vùng Hải quân trong thực hiện nhiệm vụ phòng thủ tác chiến",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12684",
+      "document_number": [
+        "25/2008/QĐ-BGTVT"
+      ],
+      "title": "Về việc xếp loại đường để xác định cước vận tải đường bộ năm 2008",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12759",
+      "document_number": [
+        "31/008/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi, bổ sung một số điều của Quy định về bồi thường, hỗ trợ và tái định cư Dự án thuỷ điện Sơn La, ban hành kèm theo của Thủ tướng Chính phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12868",
+      "document_number": [
+        "1052/2007/QĐ-CTN"
+      ],
+      "title": "Về việc thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12975",
+      "document_number": [
+        "1674/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12983",
+      "document_number": [
+        "1463/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "12984",
+      "document_number": [
+        "1462/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13179",
+      "document_number": [
+        "679/2007/QĐ-BCA"
+      ],
+      "title": "Về việc ban hành quy chế cấp và quản lý giấy phép xuất nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "134059",
+      "document_number": [
+        "06/2019/QĐ-TTg"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều của của Thủ tướng Chính phủ về chính sách đặc thù về di dân, tái định cư các dự án thủy lợi, thủy điện",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13415",
+      "document_number": [
+        "370/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "135061",
+      "document_number": [
+        "15/2019/QĐ-TTg"
+      ],
+      "title": "Về việc thực hiện thủ tục biên phòng điện tử tại các cửa khẩu do Bộ Quốc phòng quản lý",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13569",
+      "document_number": [
+        "141/2007/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi, bổ sung một số điều của Quy định về bồi thường, hỗ trợ và tái định cư Dự án thuỷ điện Sơn La, ban hành kèm theo của Thủ tướng Chính phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13632",
+      "document_number": [
+        "816/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13633",
+      "document_number": [
+        "815/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13634",
+      "document_number": [
+        "525/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13635",
+      "document_number": [
+        "524/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13636",
+      "document_number": [
+        "390/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13678",
+      "document_number": [
+        "135/2007/QĐ-TTg"
+      ],
+      "title": "Ban hành Quy chế về miễn thị thực cho người Việt Nam định cư ở nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thị thực",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "13837",
+      "document_number": [
+        "107/2007/QĐ-TTg"
+      ],
+      "title": "Về việc tính thời gian để hưởng chế độ bảo hiểm xã hội đối với cán bộ, công chức, viên chức, công nhân, quân nhân và công an nhân dân thuộc biên chế các cơ quan nhà nước, các tổ chức chính trị, các tổ chức chính trị - xã hội, doanh nghiệp nhà nước, đơn vị lực lượng vũ trang đã xuất cảnh hợp pháp nhưng không về nước đúng hạn",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14056",
+      "document_number": [
+        "10/2007/QĐ-BTM"
+      ],
+      "title": "Công bố lộ trình thực hiện hoạt động mua bán hàng hoá và các hoạt động liên quan trực tiếp đến mua bán hàng hoá",
+      "category": "Immigration",
+      "match_kind": "legal_area",
+      "matched_by": "legal_area:Quản lý hoạt động thương mại của các tổ chức và cá nhân người Việt Nam ở nước ngoài và của người nước ngoài ở Việt Nam",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14154",
+      "document_number": [
+        "1371/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14338",
+      "document_number": [
+        "219/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14340",
+      "document_number": [
+        "33/2007/QĐ-TTg"
+      ],
+      "title": "Chính sách hỗ trợ di dân thực hiện định canh, định cư cho đồng bào dân tộc thiểu số giai đoạn 2007 - 2010",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14371",
+      "document_number": [
+        "966/2003/QĐ-NHNN"
+      ],
+      "title": "Về cho vay bằng ngoại tệ của tổ chức tín dụng đối với khách hàng vay là người cư trú",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14656",
+      "document_number": [
+        "1137/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14658",
+      "document_number": [
+        "165/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14659",
+      "document_number": [
+        "161/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14660",
+      "document_number": [
+        "159/2007/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14732",
+      "document_number": [
+        "08/2007/QĐ-TTg"
+      ],
+      "title": "Phê duyệt Quy hoạch tổng thể di dân, tái định cư Dự án thuỷ điện Tuyên Quang",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14746",
+      "document_number": [
+        "02/2007/QĐ-TTg"
+      ],
+      "title": "Về việc ban hành Quy định về bồi thường, hỗ trợ và tái định cư Dự án thuỷ điện Sơn La",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "14966",
+      "document_number": [
+        "1258/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15005",
+      "document_number": [
+        "35/2006/QĐ-BGTVT"
+      ],
+      "title": "Ban hành Tiêu chuẩn ngành 22 TCN 351 - 06 Quy trình thí nghiệm xác định cường độ chịu uốn của tà vẹt bê tông cốt thép",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15063",
+      "document_number": [
+        "1161/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15137",
+      "document_number": [
+        "55/2006/QĐ-BTC"
+      ],
+      "title": "Bãi bỏ mẫu tờ khai nhập cảnh, xuất cảnh quy định tại Điều 1 của Bộ Tài chính",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "151643",
+      "document_number": [
+        "34/2021/QĐ-TTg"
+      ],
+      "title": "Quy định về định danh và xác thực điện tử trên nền tảng Cơ sở dữ liệu quốc gia về dân cư, Cơ sở dữ liệu Căn cước công dân và Cơ sở dữ liệu quốc gia về xuất nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15227",
+      "document_number": [
+        "44/2006/QĐ-BTC"
+      ],
+      "title": "Ban hành Tờ khai hải quan dùng cho phương tiện vận tải xuất nhập cảnh qua cửa khẩu biên giới đường bộ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15245",
+      "document_number": [
+        "1051/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15356",
+      "document_number": [
+        "42/2006/QĐ-BTC"
+      ],
+      "title": "Bổ sung Điều 1 của Bộ Tài chính ban hành Quy định về mẫu, hướng dẫn sử dụng, in phát hành và quản lý tờ khai nhập cảnh / xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15600",
+      "document_number": [
+        "814/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15618",
+      "document_number": [
+        "841/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15652",
+      "document_number": [
+        "880/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15653",
+      "document_number": [
+        "879/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "15791",
+      "document_number": [
+        "100/2006/QĐ-BQP"
+      ],
+      "title": "Quy định về chức năng, nhiệm vụ, quyền hạn của các cơ quan Thanh tra quốc phòng quân khu, Thanh tra Bộ Tổng tham mưu; Tổng cục Chính trị và các tổng cục; quân chủng; Bộ đội biên phòng; quân đoàn; binh chủng và tương đương",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16012",
+      "document_number": [
+        "01/2006/QĐ-BTP"
+      ],
+      "title": "Về việc ban hành sổ hộ tịch, biểu mẫu hộ tịch",
+      "category": "Immigration",
+      "match_kind": "legal_area",
+      "matched_by": "legal_area:Hộ tịch, quốc tịch, chứng thực",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16052",
+      "document_number": [
+        "686/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16169",
+      "document_number": [
+        "29/2006/QĐ-BTC"
+      ],
+      "title": "Ban hành Quy định về mẫu, hướng dẫn sử dụng, in phát hành và quản lý tờ khai nhập cảnh/xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16208",
+      "document_number": [
+        "535/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16427",
+      "document_number": [
+        "260/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16745",
+      "document_number": [
+        "163/2006/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16849",
+      "document_number": [
+        "1500/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16861",
+      "document_number": [
+        "1548/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16958",
+      "document_number": [
+        "33/2005/QĐ-BBCVT"
+      ],
+      "title": "Về việc quy định cước dịch vụ điện thoại sử dụng công nghệ CDMA nội tỉnh đối với máy đầu cuối là di động do Tổng Công ty Bưu chính Viễn thông Việt Nam cung cấp",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16989",
+      "document_number": [
+        "373/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "16990",
+      "document_number": [
+        "372/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17260",
+      "document_number": [
+        "1291/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17262",
+      "document_number": [
+        "1255/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17339",
+      "document_number": [
+        "1166/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17389",
+      "document_number": [
+        "1139/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho trở lại quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17391",
+      "document_number": [
+        "1138/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17433",
+      "document_number": [
+        "1041/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17472",
+      "document_number": [
+        "229/2005/QĐ-TTg"
+      ],
+      "title": "Ban hành Quy chế nhập cảnh, xuất cảnh, cư trú của người nước ngoài tại đảo Phú Quốc, tỉnh Kiên Giang",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17524",
+      "document_number": [
+        "231/2005/QĐ-TTg"
+      ],
+      "title": "Về việc hỗ trợ doanh nghiệp lâm nghiệp nhà nước, Ban quản lý rừng đặc dụng, Ban quản lý rừng phòng hộ sử dụng lao động là người dân tộc thiểu số cư trú hợp pháp tại các tỉnh Tây nguyên",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "175323",
+      "document_number": [
+        "03/2025/QĐ-TTg"
+      ],
+      "title": "sửa đổi, bổ sung một số điều của của Thủ tướng Chính phủ về việc thực hiện thủ tục biên phòng điện tử tại các cửa khẩu do Bộ Quốc phòng quản lý",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17561",
+      "document_number": [
+        "958/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17865",
+      "document_number": [
+        "54/2005/QĐ-BTC"
+      ],
+      "title": "Về việc ban hành mức thu lệ phí cấp giấy phép lao động cho người nước ngoài làm việc tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "178776",
+      "document_number": [
+        "1870/QĐ-BNG"
+      ],
+      "title": "V/v đính chính của Bộ trưởng Bộ Ngoại giao sửa đổi, bổ sung một số điều của của Bộ trưởng Bộ Ngoại giao quy định thủ tục cấp giấy phép nhập cảnh thi hài, hài cốt, tro cốt về Việt Nam; của Bộ trưởng Bộ Ngoại giao hướng dẫn thủ tục đăng ký công dân Việt Nam ở nước ngoài; của Bộ trưởng Bộ Ngoại giao hướng dẫn việc cấp, gia hạn, hủy giá trị sử dụng hộ chiếu ngoại giao, hộ chiếu công vụ và cấp công hàm đề nghị phía nước ngoài cấp thị thực",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17880",
+      "document_number": [
+        "621/2005/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17881",
+      "document_number": [
+        "196/2004/QĐ-TTg"
+      ],
+      "title": "Phê duyệt quy hoạch tổng thể di dân, tái định cư Dự án thuỷ điện Sơn La",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "17894",
+      "document_number": [
+        "39/2005/QĐ-BNN"
+      ],
+      "title": "Ban hành Quy định áp dụng đơn giá lập Quy hoạch chi tiết khu (điểm) tái định cư Dự án thuỷ điện Sơn La",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "180886",
+      "document_number": [
+        "178/1997/QĐ-LĐTBXH"
+      ],
+      "title": "Về việc in, phát hành và quản lý giấy phép lao động cấp cho người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "18099",
+      "document_number": [
+        "32/2005/QĐ-BGTVT"
+      ],
+      "title": "Ban hành quy định về xếp loại đường để xác định cước vận tải đường bộ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "18105",
+      "document_number": [
+        "921/2005/QĐ-NHNN"
+      ],
+      "title": "Về việc sửa đổi khoản a và b Điều 1 của Thống đốc Ngân hàng Nhà nước về việc mang ngoại tệ bằng tiền mặt và đồng Việt Nam bằng tiền mặt khi xuất nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "182736",
+      "document_number": [
+        "31/2025/QĐ-TTg"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều các Quyết định của Thủ tướng Chính phủ về thực hiện thủ tục biên phòng điện tử tại các cửa khẩu do Bộ Quốc phòng quản lý",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "18830",
+      "document_number": [
+        "25/2004/QĐ-BXD"
+      ],
+      "title": "Về việc ban hành TCXDVN162:2004 Bê tông nặng - Phương pháp xác định cường độ nén bằng súng bật nẩy",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "19289",
+      "document_number": [
+        "358/2003/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "19814",
+      "document_number": [
+        "134/2003/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "19862",
+      "document_number": [
+        "57/2003/QĐ-BTC"
+      ],
+      "title": "Quy định về thủ tục hải quan đối với tầu biển xuất cảnh, nhập cảnh, quá cảnh, chuyển cảng và kiểm soát, giám sát hải quan tại các cảng biển và cảng chuyên dùng",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "19863",
+      "document_number": [
+        "55/2003/QĐ-BTC"
+      ],
+      "title": "Ban hành Quy định về thủ tục hải quan, công tác kiểm soát, giám sát hải quan đối với tầu hoả liên vận quốc tế nhập cảnh, xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "21377",
+      "document_number": [
+        "69/2003/QĐ-BTC"
+      ],
+      "title": "của Bộ trưởng BTC ban hành Quy định về thủ tục hải quan đối với hàng hóa xuất khẩu, nhập khẩu, quá cảnh; phương tiện vận tải xuất cảnh, nhập cảnh, quá cảnh tại khu vực khuyến khích phát triển kinh tế và thương mại Lao Bảo, tỉnh Quảng Trị",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "21503",
+      "document_number": [
+        "357/2003/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "21630",
+      "document_number": [
+        "16/2002/QĐ-TTg"
+      ],
+      "title": "Phê duyệt Khung chính sách bồi thường, tái định cư, hỗ trợ những người bị ảnh hưởng bởi Dự án và Kế hoạch hành động dân tộc thiểu số của Dự án hạ tầng cơ sở nông thôn dựa vào cộng đồng",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "21640",
+      "document_number": [
+        "46/2003/QĐ-TTg"
+      ],
+      "title": "Về tỷ lệ bắt buộc phải bán ngoại tệ đối với nguồn thu vãng lai của người cư trú là tổ chức kinh tế, tổ chức xã hội",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "21684",
+      "document_number": [
+        "32/2003/QĐ-TTg"
+      ],
+      "title": "Ban hành Quy chế về hoạt động kinh doanh trò chơi điện tử có thưởng dành cho người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "21816",
+      "document_number": [
+        "15/2003/QĐ-BTP"
+      ],
+      "title": "Về việc ban hành biểu mẫu, sổ Hộ tịch có yếu tố nước ngoài",
+      "category": "Immigration",
+      "match_kind": "legal_area",
+      "matched_by": "legal_area:Hộ tịch, quốc tịch, chứng thực",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "22078",
+      "document_number": [
+        "612/2002/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "22205",
+      "document_number": [
+        "133/2002/QĐ-TTg"
+      ],
+      "title": "Ban hành Quy chế phối hợp giữa lực lượng Công an, Bộ đội Biên phòng, Cảnh sát biển và Hải quan trong đấu tranh phòng, chống các tội phạm về ma tuý tại địa bàn biên giới, cửa khẩu và trên biển",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "22413",
+      "document_number": [
+        "35/2002/QĐ-BNNPTNT"
+      ],
+      "title": "Về việc Phân cấp cho các trường Đại học quyền quyết định và chịu trách nhiệm trong việc quản lý xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "22439",
+      "document_number": [
+        "69/2002/QĐ-TTg"
+      ],
+      "title": "Về việc ban hành Quy chế hoạt động của Ban Chỉ đạo Nhà nước về di dân, tái định cư Dự án nhà máy thủy điện Sơn La",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "22469",
+      "document_number": [
+        "260/2002/QĐ-BKH"
+      ],
+      "title": "Về việc ban hành danh mục các ngành nghề người nước ngoài được mua cổ phần trong các doanh nghiệp ngoài quốc doanh theo quy định của Luật Khuyến khích đầu tư trong nước",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "22482",
+      "document_number": [
+        "61/2002/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi khoản 1 Điều 1 của Thủ tướng Chính phủ về nghĩa vụ bán và quyền mua ngoại tệ của người cư trú là tổ chức",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "22936",
+      "document_number": [
+        "1437/2001/QĐ-NHNN"
+      ],
+      "title": "Về việc ban hành Quy định về mua, chuyển, mang ngoại tệ ra nước ngoài của Người cư trú là công dân Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "23037",
+      "document_number": [
+        "1165/2001/QĐ-NHNN"
+      ],
+      "title": "Về việc mang vàng của cá nhân khi xuất cảnh, nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "23141",
+      "document_number": [
+        "1076/2001/QĐ-NHNN"
+      ],
+      "title": "Về việc bổ sung, sửa đổi một số điểm tại Thông tư05/2001/TT-NHNN ngày 31/05/2001 của Ngân hàng Nhà nước hướng dẫn thi hành của Thủ tướng Chính phủ về nghĩa vụ bán và quyền mua ngoại tệ của Người cư trú là Tổ chức",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "23283",
+      "document_number": [
+        "108/2001/QĐ-TTg"
+      ],
+      "title": "Thành lập Ban chỉ đạo Nhà nước về di dân, tái định cư Dự án nhà máy thuỷ điện Sơn La",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "23453",
+      "document_number": [
+        "61/2001/QĐ-TTg"
+      ],
+      "title": "Về nghĩa vụ bán và quyền mua ngoại tệ của người cư trú là tổ chức",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "23604",
+      "document_number": [
+        "1373/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch việt nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "24171",
+      "document_number": [
+        "76/2008/QĐ-TTg"
+      ],
+      "title": "Về việc phê duyệt Hiệp định giữa Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam và Chính phủ nước Cộng hòa Ăng-gô-la về miễn thị thực cho người mang hộ chiếu ngoại giao, hộ chiếu công vụ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "24172",
+      "document_number": [
+        "75/2008/QĐ-TTg"
+      ],
+      "title": "Về việc phê duyệt Hiệp định giữa Chính phủ nước Cộng hoà xã hội chủ nghĩa Việt Nam và Chính phủ nước Cộng hoà Mô-dăm-bích về miễn thị thực cho người mang hộ chiếu ngoại giao và hộ chiếu công vụ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "24269",
+      "document_number": [
+        "50/2008/QĐ-TTg"
+      ],
+      "title": "Về việc phê duyệt Hiệp định giữa Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam và Chính phủ nước Cộng hòa Đông U-ru-goay về miễn thị thực cho người mang hộ chiếu ngoại giao và hộ chiếu công vụ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "24444",
+      "document_number": [
+        "31/2008/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi, bổ sung một số điều của Quy định về bồi thường, hỗ trợ và tái định cư Dự án thuỷ điện Sơn La, ban hành kèm theo của Thủ tướng Chính phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "24648",
+      "document_number": [
+        "29/2007/QĐ-BGTVT"
+      ],
+      "title": "Về việc xếp loại đường để xác định cước vận tải đường bộ năm 2007",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "25153",
+      "document_number": [
+        "34/2010/QĐ-TTg"
+      ],
+      "title": "Về việc ban hành quy định về bồi thường, hỗ trợ và tái định cư các dự án thủy lợi, thủy điện",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "25920",
+      "document_number": [
+        "75/2010/QĐ-TTg"
+      ],
+      "title": "Về việc hỗ trợ tổ chức, đơn vị sử dụng lao động là người dân tộc thiểu số cư trú hợp pháp tại các tỉnh Tây Nguyên",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "26359",
+      "document_number": [
+        "19/2011/QĐ-TTg"
+      ],
+      "title": "Về việc thí điểm thực hiện tiếp nhận bản khai hàng hóa, các chứng từ có liên quan và thông quan điện tử đối với tàu biển nhập cảnh, xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "26476",
+      "document_number": [
+        "22/2011/QĐ-TTg"
+      ],
+      "title": "Về việc thực hiện thí điểm thủ tục biên phòng điện tử cảng biển",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "26547",
+      "document_number": [
+        "33/2011/QĐ-TTg"
+      ],
+      "title": "Về việc miễn tiền sử dụng đất ở cho hộ dân làng chài, dân sống trên sông nước, đầm phá di chuyển đến định cư tại các khu, điểm tái định cư",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "26810",
+      "document_number": [
+        "43/2011/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi, bổ sung một số điều của Quy định về bồi thường, hỗ trợ và tái định cư Dự án thủy điện Sơn La ban hành kèm theo của Thủ tướng Chính phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "27329",
+      "document_number": [
+        "10/2012/QĐ-TTg"
+      ],
+      "title": "Sửa đổi, bổ sung một số điều Quy chế về miễn thị thực cho người Việt Nam định cư ở nước ngoài ban hành kèm theo của Thủ tướng Chính phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thị thực",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "27550",
+      "document_number": [
+        "25/2012/QĐ-TTg"
+      ],
+      "title": "Quy định một số chế độ ưu đãi đối với sĩ quan, quân nhân chuyên nghiệp, hạ sĩ quan, binh sĩ, công chức quốc phòng và công nhân quốc phòng thuộc lực lượng Cảnh sát biển Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cảnh sát biển",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "31045",
+      "document_number": [
+        "01/QĐ-UB-AN"
+      ],
+      "title": "Về tiêu chuẩn xét đăng ký thường trú cho những người từ các tỉnh khác đến cư trú tại thành phố Hồ Chí Minh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "32371",
+      "document_number": [
+        "58/2012/QĐ-TTg"
+      ],
+      "title": "Về việc sử dụng và quản lý hộ chiếu ngoại giao, hộ chiếu công vụ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "32760",
+      "document_number": [
+        "581/QĐ-TTg"
+      ],
+      "title": "Về việc phê duyệt Hiệp định giữa Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam và Chính phủ nước Cộng hòa Xlô-ven-ni-a về việc miễn thị thực cho người mang hộ chiếu ngoại giao và hộ chiếu công vụ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "33938",
+      "document_number": [
+        "459/QĐ-TTg"
+      ],
+      "title": "Về việc ban hành Quy định về bồi thường, di dân, tái định cư Dự án thuỷ điện Sơn La",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "34080",
+      "document_number": [
+        "33/2013/QĐ-TTg"
+      ],
+      "title": "Về việc tiếp tục thực hiện chính sách hỗ trợ di dân thực hiện định canh, định cư cho đồng bào dân tộc thiểu số đến năm 2015",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "3558",
+      "document_number": [
+        "103/BNgT-PC-HG"
+      ],
+      "title": "Ban hành bản Quy định về chế độ gửi và nhận hàng phi mậu dịch dưới hình thức quà biếu đối với các gia đình trong nước có người thân định cư ở các nước ngoài hệ thống XHCN",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "37794",
+      "document_number": [
+        "64/2014/QĐ-TTg"
+      ],
+      "title": "Chính sách đặc thù về di dân, tái định cư các dự án thủy lợi, thủy điện",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "39842",
+      "document_number": [
+        "77/2007/QĐ-BTC"
+      ],
+      "title": "Về việc quy định mức thu, chế độ thu, nộp, quản lý và sử dụng phí xử lý hồ sơ cấp Giấy miễn thị thực cho người Việt Nam định cư ở nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thị thực",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "47636",
+      "document_number": [
+        "01/QĐ-LS"
+      ],
+      "title": "Ban hành mẫu tờ khai cấp, gia hạn, sửa đổi, bổ sung hộ chiếu ngoại giao, hộ chiếu công vụ ở trong nước và nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:hộ chiếu",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "5503",
+      "document_number": [
+        "788-TTg"
+      ],
+      "title": "Về việc người Việt Nam định cư ở nước ngoài và người Việt Nam mang hộ chiếu nước ngoài cư trú tại Việt Nam tham gia các hoạt động trong các đoàn thể thao Việt Nam ở trong nước và ngoài nước",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "5646",
+      "document_number": [
+        "1649/2000/QĐ-BKHCNMT"
+      ],
+      "title": "Về việc ban hành quy định xét duyệt, quyết định xuất cảnh, nhập cảnh đối với cán bộ, công chức, nhân viên của Bộ Khoa học, Công nghệ và Môi trường",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "5758",
+      "document_number": [
+        "92/2000/QĐ-NHNN7"
+      ],
+      "title": "Về việc mang ngoại tệ tiền mặt, đồng Việt Nam bằng tiền mặt đối với cá nhân xuất nhập cảnh bằng giấy thông hành xuất nhập cảnh hoặc giấy chứng minh biên giới",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "5905",
+      "document_number": [
+        "138/2000/QĐ-TTg"
+      ],
+      "title": "Về việc hợp nhất dự án định canh định cư, dự án hỗ trợ dân tộc đặc biệt khó khăn, Chương trình xây dựng trung tâm cụm xã miền núi, vùng cao, vào Chương trình phát triển kinh tế - xã hội các xã đặc biệt khó khăn miền núi và vùng sâu, vùng xa",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "6497",
+      "document_number": [
+        "136/1999/QĐ-BTC"
+      ],
+      "title": "Ban hành biểu mức thu lệ phí nhập cảnh, xuất cảnh, quá cảnh và cư trú tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "6582",
+      "document_number": [
+        "140/l999/QĐ-BNN/ĐCĐC"
+      ],
+      "title": "Về nội dung, tiêu chí định canh định cư",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "6586",
+      "document_number": [
+        "126/1999/QĐ-BNN/TCCB"
+      ],
+      "title": "Về việc phân cấp cho một số đơn vị quyền quyết định và chịu trách nhiệm trong việc quản lý xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "6618",
+      "document_number": [
+        "180/1999/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi khoản 1 Điều 1 của Thủ tướng Chính phủ về nghĩa vụ bán và quyền mua ngoại tệ của Người cư trú là tổ chức",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "6666",
+      "document_number": [
+        "60/1999/QĐ-TP-QT"
+      ],
+      "title": "Về việc ban hành mẫu giấy tờ về quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "6681",
+      "document_number": [
+        "33/1999/QĐ-BGD"
+      ],
+      "title": "Về việc ban hành Quy chế Công tác người nước ngoài học tại Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "70288",
+      "document_number": [
+        "1317/QĐ-BTC"
+      ],
+      "title": "Về việc đính chính của Bộ Tài chính hướng dẫn việc thực hiện một số nội dung của của Thủ tướng Chính phủ về việc thí điểm hoàn thuế giá trị gia tăng đối với hàng hoá của người nước ngoài mua tại Việt Nam mang theo khi xuất cảnh qua cửa khẩu sân bay quốc tế Nội Bài và sân bay quốc tế Tân Sơn Nhất",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "7346",
+      "document_number": [
+        "416/1998/QĐ-NHNN7"
+      ],
+      "title": "về việc mang vàng của cá nhân khi xuất nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "7436",
+      "document_number": [
+        "337/1998/QĐ-NHNN7"
+      ],
+      "title": "về việc mang ngoại tệ tiền mặt, đồng Việt Nam bằng tiền mặt khi xuất nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "7487",
+      "document_number": [
+        "173/1998/QĐ-TTg"
+      ],
+      "title": "Về nghĩa vụ bán và quyền mua ngoại tệ của người cư trú là tổ chức",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "76941",
+      "document_number": [
+        "698/2007/QĐ-BCA"
+      ],
+      "title": "Về việc ban hành các biểu mẫu để sử dụng trong đăng ký, quản lý cư trú",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "76943",
+      "document_number": [
+        "702/2007/QĐ-BCA-C11"
+      ],
+      "title": "Về việc ban hành Quy trình đăng ký thường trú, đăng ký tạm trú và tiếp nhận thông báo lưu trú",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:tạm trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "76945",
+      "document_number": [
+        "1279/2002/QĐ-BCA"
+      ],
+      "title": "về việc ban hành quy chế quản lý người nước ngoài quá cảnh vào Việt Nam tham quan, du lịch",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "79986",
+      "document_number": [
+        "2068/QĐ-QLXNC"
+      ],
+      "title": "Về việc ban hành các biểu mẫu dùng cho phụ nữ, trẻ em bị buôn bán từ nước ngoài trở về",
+      "category": "Immigration",
+      "match_kind": "legal_area",
+      "matched_by": "legal_area:Quản lý xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "81056",
+      "document_number": [
+        "849/2004/QĐ-BCA"
+      ],
+      "title": "Về việc ban hành Quy chế về tổ chức và quản lý công dân Trung Quốc sử dụng giấy phép nhập, xuất cảnh do Trung Quốc cấp vào Việt Nam tham quan, du lịch",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "81099",
+      "document_number": [
+        "1251/QĐ-TTg"
+      ],
+      "title": "Về việc sửa đổi, bổ sung một số điều của Quy định về bồi thường, di dân, tái định cư dự án thuỷ điện sơn la kèm theo quyết định số của Thủ Tướng Chính Phủ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "81191",
+      "document_number": [
+        "246/QĐ-TTg"
+      ],
+      "title": "Cơ chế đặc thù về thu hồi đất; giao đất ở, đất sản xuất nông nghiệp cho các hộ dân tái định cư dự án thủy điện Sơn La",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "8174",
+      "document_number": [
+        "957/1997/QĐ-TTg"
+      ],
+      "title": "cải tiến một số thủ tục về xuất cảnh và giải quyết vấn đề người Việt Nam đã xuất cảnh nhưng không về nước đúng hạn",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "8266",
+      "document_number": [
+        "864/1997/QĐ-TTg"
+      ],
+      "title": "về việc thành lập cơ quan thường trú của Đài tiếng nói Việt Nam tại thành phố Cần Thơ",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:thường trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "8304",
+      "document_number": [
+        "767/TTg"
+      ],
+      "title": "Về một số chủ trương chính sách đối với cộng đồng người Việt Nam định cư ở nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "86392",
+      "document_number": [
+        "1081/QĐ-TTg"
+      ],
+      "title": "Về việc phê duyệt Khung chính sách tái định cư cho Dự án Hiệu quả lưới điện truyền tải (TEP) vay vốn Ngân hàng thế giới (WB)",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "8657",
+      "document_number": [
+        "178/LĐTBXH-QĐ"
+      ],
+      "title": "Về việc in, phát hành và quản lý giấy phép lao động cấp cho người nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:người nước ngoài",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "87428",
+      "document_number": [
+        "2068/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "87635",
+      "document_number": [
+        "86/2000/QĐ-BNN-TCCB"
+      ],
+      "title": "V/v phân cấp cho một số đơn vị quyền quyết định và chịu trách nhiệm trong việc quản lý xuất cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "87736",
+      "document_number": [
+        "1066/QĐ-TTg"
+      ],
+      "title": "Về việc phê duyệt quy hoạch đất quốc phòng do bộ đội biên phòng quản lý trên địa bàn cả nước",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "87970",
+      "document_number": [
+        "01-QĐ/BNV"
+      ],
+      "title": "Về thủ tục xin xuất cảnh định cư ở nước ngoài",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "87973",
+      "document_number": [
+        "5-QĐ/BNV"
+      ],
+      "title": "Ban hành điều lệ quản lý nghề chứa trọ",
+      "category": "Immigration",
+      "match_kind": "legal_area",
+      "matched_by": "legal_area:Đăng ký, quản lý cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "88149",
+      "document_number": [
+        "152/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "88195",
+      "document_number": [
+        "263/QĐ-CTN"
+      ],
+      "title": "Về việc cho nhập quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "88201",
+      "document_number": [
+        "263/QĐ-CTN"
+      ],
+      "title": "Về việc cho thôi quốc tịch Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:quốc tịch",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "8917",
+      "document_number": [
+        "875-TTg"
+      ],
+      "title": "về việc giải quyết cho công dân Việt Nam định cư ở nước ngoài hồi hương về Việt Nam",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "9323",
+      "document_number": [
+        "353/TTg"
+      ],
+      "title": "Về chức năng, nhiệm vụ, quyền hạn và tổ chức bộ máy của Cục Định canh, định cư và vùng kinh tế mới trực thuộc Bộ Nông nghiệp và phát triển nông thôn",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "95259",
+      "document_number": [
+        "64/2015/QĐ-TTg"
+      ],
+      "title": "Sửa đổi, bổ sung của Thủ tướng Chính phủ về việc hỗ trợ tổ chức, đơn vị sử dụng lao động là người dân tộc thiểu số cư trú tại khu vực miền núi, vùng đặc biệt khó khăn",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:cư trú",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "9620",
+      "document_number": [
+        "754/TTg"
+      ],
+      "title": "Về chuyển giao bộ đội biên phòng sang Bộ Quốc phòng quản lý",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "9650",
+      "document_number": [
+        "820/TTg"
+      ],
+      "title": "Về việc chuyển Cục định canh định cư từ Uỷ ban dân tộc và Miền núi sang Bộ Nông nghiệp và Phát triển nông thôn",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:định cư",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "9687",
+      "document_number": [
+        "382/QĐ-NH7"
+      ],
+      "title": "Về việc mang ngoại tệ tiền mặt và séc du lịch khi xuất nhập cảnh",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:xuất nhập cảnh",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
+    },
+    {
+      "doc_name": "98268",
+      "document_number": [
+        "10/2016/QĐ-TTg"
+      ],
+      "title": "Về thực hiện thủ tục biên phòng điện tử cảng biển",
+      "category": "Immigration",
+      "match_kind": "title_keyword",
+      "matched_by": "title_keyword:biên phòng",
+      "scope": "trung_uong",
+      "doc_type": "quyet_dinh"
     }
   ],
-  "status_enriched_from_th1nhng0": 7876
+  "status_enriched_from_th1nhng0": 8065,
+  "immigration_quyet_dinh_added": 189
 }

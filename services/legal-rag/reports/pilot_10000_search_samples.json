@@ -50,8 +50,42 @@
   },
   {
     "query": "quyền sử dụng đất người nước ngoài",
-    "hit_count": 0,
-    "top_hits": []
+    "hit_count": 3,
+    "top_hits": [
+      {
+        "document_number": [
+          "29/2001/QĐ-BXD"
+        ],
+        "title": "Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề nghị cấp Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở áp dụng đối với người Việt Nam định cư ở nước ngoài mua nhà ở tại Việt Nam theo quy định tại của Chính phủ",
+        "article_no": "1",
+        "clause_no": null,
+        "status": "repealed",
+        "score": 15.0,
+        "match_type": "keyword_all_terms"
+      },
+      {
+        "document_number": [
+          "29/2001/QĐ-BXD"
+        ],
+        "title": "Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề nghị cấp Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở áp dụng đối với người Việt Nam định cư ở nước ngoài mua nhà ở tại Việt Nam theo quy định tại của Chính phủ",
+        "article_no": "2",
+        "clause_no": null,
+        "status": "repealed",
+        "score": 15.0,
+        "match_type": "keyword_all_terms"
+      },
+      {
+        "document_number": [
+          "29/2001/QĐ-BXD"
+        ],
+        "title": "Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề nghị cấp Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở áp dụng đối với người Việt Nam định cư ở nước ngoài mua nhà ở tại Việt Nam theo quy định tại của Chính phủ",
+        "article_no": "3",
+        "clause_no": null,
+        "status": "repealed",
+        "score": 15.0,
+        "match_type": "keyword_all_terms"
+      }
+    ]
   },
   {
     "query": "사기 계약 관련 hình sự",

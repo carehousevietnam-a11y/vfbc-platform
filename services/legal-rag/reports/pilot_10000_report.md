@@ -2,7 +2,7 @@
 
 ## 1. Category collection vs quota
 - **Administrative**: 1517 / 1517
-- **Immigration**: 472 / 1300
+- **Immigration**: 661 / 1300
 - **Labor**: 1062 / 1300
 - **RealEstate**: 590 / 1083
 - **Tax**: 867 / 867
@@ -16,50 +16,24 @@
 - **Criminal**: 151 / 250
 
 ### Shortfalls
-- Immigration: 828건 부족
+- Immigration: 639건 부족
 - Labor: 238건 부족
 - RealEstate: 493건 부족
 - Civil: 178건 부족
 - Commercial: 25건 부족
 - Criminal: 99건 부족 (의도적 — 필터 완화 없이 corpus 한도 존중)
 
-- **수집 합계**: 8138 / 9999
+- **수집 합계**: 8327 / 9999
 
-### Corpus ceiling (tmquan trung_uong × luat/bo_luat/nghi_dinh/thong_tu)
-Full-corpus probe of title-keyword ∪ legal_area capacity (non-exclusive counts):
-
-| Category | Approx. available | Quota | Collected |
-|---|---:|---:|---:|
-| Immigration | ~450–470 | 1300 | **472 (최종)** |
-| RealEstate | ~590–600 | 1083 | 590 |
-| Civil | ~220–255 | 433 | 255 |
-| Labor | ~1100–1170 | 1300 | 1062 |
-| Criminal | ~150–170 | 250 | 151 |
-| Commercial | ~500 | 433 | 408 |
-
-### Immigration `quyet_dinh` 재조사 (2026-08-08)
-
-Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유지)**:
-
-| | 값 |
-|---|---:|
-| quyet_dinh 추가 가능 | +263 → **735/1300 (56.5%)** |
-| on-topic (strong) | ~187 |
-| weak (`biên giới` 단독) | ~74 (28% noise) |
-| strict 합계 (biên giới 제외) | **~659** (<700) |
-
-상세: `reports/pilot_10000_immigration_quyet_dinh_report.md`
-
-이민/부동산/민사 부족분은 **필터를 더 풀지 않은 상태의 코퍼스 한도**에 가깝습니다.
-10k 목표까지 채우려면 quota 재배분이 필요합니다 (이번 라운드 미적용).
+**Immigration Option B**: 472 → **661** (+189 on-topic `quyet_dinh`, `biên giới` 단독 74건 제외). STEP 2 종료: `reports/STEP2_CLOSE.md`
 
 ## 2. Spot checks
 - **authorityWeight=100**: 218건
-- **authorityWeight 분포**: {80: 5926, 90: 1994, 100: 218}
-- **빈 본문(원본 markdown empty)**: 497건 (6.1%)
-- **빈 본문 by category**: {'Tax': 186, 'Administrative': 56, 'Company': 43, 'Licensing': 41, 'Investment': 34, 'RealEstate': 30, 'Banking': 29, 'Customs': 25, 'Labor': 16, 'Immigration': 15, 'Commercial': 12, 'Civil': 6, 'Criminal': 4}
-- **청크 0개 문서**: 497건
-- **단일 청크 / 다중 청크**: 1784 / 5857 (총 청크 107715)
+- **authorityWeight 분포**: {60: 189, 80: 5926, 90: 1994, 100: 218}
+- **빈 본문(원본 markdown empty)**: 500건 (6.0%)
+- **빈 본문 by category**: {'Tax': 186, 'Administrative': 56, 'Company': 43, 'Licensing': 41, 'Investment': 34, 'RealEstate': 30, 'Banking': 29, 'Customs': 25, 'Immigration': 18, 'Labor': 16, 'Commercial': 12, 'Civil': 6, 'Criminal': 4}
+- **청크 0개 문서**: 500건
+- **단일 청크 / 다중 청크**: 1793 / 6034 (총 청크 108597)
 - **10만자+ 단일 청크 (주의)**:
   - ['49/2009/TT-BTC'] (thong_tu, 172233자, 1 chunks, structure=prose_no_structure)
   - ['130/2008/TT-BTC'] (thong_tu, 120456자, 1 chunks, structure=section_headers_no_dieu)
@@ -84,24 +58,30 @@ Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유�
 - **비고**: 수정하지 않음 — 원인 파악 + 건수 집계만. 단일 청크는 주로 Điều 마커 부재(Thông tư 숫자목록/Mục/산문)에서 발생.
 
 ### 3,000건에서 관측된 Thông tư 2건 재확인
-- **['130/2008/TT-BTC']** — Hướng dẫn thi hành một số điều của Luật thuế thu nhập doanh nghiệp… (120456자, chunks=1)
-  - structure_type: `section_headers_no_dieu` (Phần C/D/I/II 헤더 + 본문 산문; **Điều 마커 없음**)
-  - marker counts: {'dieu': 0, 'muc': 0, 'chuong': 0, 'phan': 9, 'numbered_1_2': 0}
-  - text shape: **개행이 9줄뿐** (12만자가 거의 한 덩어리). 파서는 줄 시작 `Điều N`만 인식 → 단일 청크
-  - why: Điều 부재 + 개행 붕괴로 Khoản `1.`/`2.` 줄단위 매칭도 실패
-- **['28/2004/TT-BTNMT']** — Về việc hướng dẫn thực hiện thống kê, kiểm kê đất đai… (119492자, chunks=1)
-  - structure_type: `prose_no_structure` (**개행 0줄** — 원문 추출이 단일 라인)
-  - marker counts: {'dieu': 0, 'muc': 0, 'chuong': 0, 'phan': 0, 'numbered_1_2': 0}
-  - note: 본문 어딘가에 `Điều` 문자열 3회 있으나 줄 시작이 아니라 파서가  Ignored
-  - why: 구조 헤더/숫자목록이 줄 단위로 존재하지 않는 긴 산문 블롭
-
-10,000건에서 동일 패턴(10만자+ 단일 청크) **16건** — 대부분 Thông tư, 개행 붕괴 또는 Điều 없는 Phần/Mục/산문 구조.
-지금은 **집계만** 하고 청커 수정은 보류 (건수 기준으로 추후 판단).
+- **['130/2008/TT-BTC']** — Hướng dẫn thi hành một số điều của Luật thuế thu nhập doanh nghiệp số và hướng dẫn thi hành của Chín (120456자, chunks=1)
+  - structure_type: `section_headers_no_dieu`
+  - marker counts: {'dieu': 0, 'muc': 0, 'chuong': 0, 'phan': 9, 'numbered_1_2': 0, 'roman_section_headers': 0}
+  - why: parse_document_structure는 Điều 마커가 없으면 문서 전체를 1개 chunk로 반환함
+  - sample lines:
+    - `THÔNG TƯ Hướng dẫn thi hành một số điều của Luật Thuế thu nhập doanh nghiệp số 14/2008/QH12 và hướng`
+    - `Phần C CĂN CỨ TÍNH THUẾ THU NHẬP DOANH NGHIỆP I. THU NHẬP TÍNH THUẾ Thu nhập tính thuế trong kỳ tính`
+    - `Phần C Thông tư này. - Thu nhập được miễn thuế đối với các doanh nghiệp tại điểm này phải đáp ứng đủ`
+    - `Phần D NƠI NỘP THUẾ 1. Nguyên tắc xác định Doanh nghiệp nộp thuế tại nơi có trụ sở chính. Trường hợp`
+    - `Phần II Tờ khai số 09/TNDN. Khi bàn giao bất động sản, doanh nghiệp phải quyết tóan chính thức thuế `
+    - `Phần I Tờ khai số 09/TNDN. 5. Trường hợp tổ chức tín dụng nhận giá trị bất động sản là tài sản bảo đ`
+    - `Phần C Thông tư này. b) Thu nhập từ họat động tìm kiếm, thăm dò, khai thác dầu khí và tài nguyên quí`
+    - `Phần C Thông tư này nếu hạch tóan riêng được. Các đơn vị sự nghiệp, cơ quan văn phòng thuộc các Tổng`
+- **['28/2004/TT-BTNMT']** — Về việc hướng dẫn thực hiện thống kê, kiểm kê đất đai và xây dựng bản đồ hiện trạng sử dụng đất (119492자, chunks=1)
+  - structure_type: `prose_no_structure`
+  - marker counts: {'dieu': 0, 'muc': 0, 'chuong': 0, 'phan': 0, 'numbered_1_2': 0, 'roman_section_headers': 0}
+  - why: parse_document_structure는 Điều 마커가 없으면 문서 전체를 1개 chunk로 반환함
+  - sample lines:
+    - `THÔNG TƯ Về việc hướng dẫn thực hiện thống kê, kiểm kê đất đai và xây dựng bản đồ hiện trạng sử dụng`
 
 ## 4. 신규 5개 카테고리 quota
-- **Banking**: 433 / 433
-- **Civil**: 255 / 433
 - **Commercial**: 408 / 433
+- **Civil**: 255 / 433
+- **Banking**: 433 / 433
 - **Investment**: 433 / 433
 - **Customs**: 433 / 433
 
@@ -129,16 +109,17 @@ Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유�
   - ✓ `['54/2014/QH13']` — LUẬT HẢI QUAN SỐ 54/2014/QH13
 
 ## 6. Validation
-- Input: 8138, Passed: 8138, Hard-fail: 0
+- Input: 8327, Passed: 8327, Hard-fail: 0
 
 ## 7. Distributions
 ### status
-- `active`: 3611
-- `repealed`: 3368
-- `amended`: 838
+- `active`: 3737
+- `repealed`: 3426
+- `amended`: 843
 - `unknown`: 290
 - `suspended`: 31
 ### authorityWeight
+- 60: 189
 - 80: 5926
 - 90: 1994
 - 100: 218
@@ -147,9 +128,9 @@ Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유�
 - `Labor`: 1062
 - `Tax`: 867
 - `Company`: 867
+- `Immigration`: 661
 - `Licensing`: 650
 - `RealEstate`: 590
-- `Immigration`: 472
 - `Banking`: 433
 - `Investment`: 433
 - `Customs`: 433
@@ -165,7 +146,9 @@ Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유�
   - ['23/2017/TT-BLĐTBXH'] | score=15.0 keyword_all_terms | Hướng dẫn thực hiện cấp giấy phép lao động cho người lao độn
   - ['23/2017/TT-BLĐTBXH'] | score=15.0 keyword_all_terms | Hướng dẫn thực hiện cấp giấy phép lao động cho người lao độn
 - **베트남 부동산 매매 시 외국인 제한** → 0건
-- **quyền sử dụng đất người nước ngoài** → 0건
+- **quyền sử dụng đất người nước ngoài** → 3건
+  - ['29/2001/QĐ-BXD'] | score=15.0 keyword_all_terms | Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề ng
+  - ['29/2001/QĐ-BXD'] | score=15.0 keyword_all_terms | Về việc quy định mẫu hợp đồng mua bán nhà ở và mẫu đơn đề ng
 - **사기 계약 관련 hình sự** → 0건
 - **lừa đảo chiếm đoạt tài sản** → 0건
 - **đăng ký doanh nghiệp** → 5건
@@ -192,16 +175,6 @@ Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유�
 - **thủ tục hải quan nhập khẩu** → 5건
   - ['39/2018/TT-BTC'] | score=50.0 keyword_phrase | Sửa đổi, bổ sung một số điều tại của Bộ trưởng Bộ Tài chính 
   - ['39/2018/TT-BTC'] | score=50.0 keyword_phrase | Sửa đổi, bổ sung một số điều tại của Bộ trưởng Bộ Tài chính 
-
-### Banking 질의 진단 (코퍼스 433건 확보 후)
-- Banking 문서 중 `ngân hàng` 본문/제목 포함: 366/433
-- `tài khoản` 포함: 9/433 — `người nước ngoài` / `mở tài khoản` 동시 포함: 거의 없음
-- 동일 인덱스에서 관련 질의는 히트함:
-  - `ngân hàng` → 5건
-  - `tài khoản ngân hàng` → 5건
-  - `người nước ngoài mở tài khoản` → 5건 (예: `39/2025/TT-NHNN` 계좌·외화 관련)
-- **결론**: Banking 코퍼스 확대는 됐으나, 승인 질의 전체 토큰(`mở`+`tài khoản`+`ngân hàng`+`người nước ngoài`)을
-  한 덩어리에서 모두 요구하는 keyword_all_terms 경로에서는 0건. 랭킹/매칭 완화는 다음 단계(랭킹 공식) 이슈.
 
 ## 9. Document list (abbreviated — full list in JSON manifest)
 - [Administrative] `31/2004/TT-BTC` — 2004/TT-BTC Hướng dẫn thực hiện của Chính phủ quy định xử phạt vi phạm
@@ -254,4 +227,4 @@ Immigration만 `quyet_dinh` 추가 스캔 — **코퍼스 미반영(472건 유�
 - [Administrative] `12/2018/TT-BNV` — Bãi bỏ một số văn bản quy phạm pháp luật do Bộ trưởng Bộ Nội vụ ban hà
 - [Administrative] `12/2024/TT-BTP` — Bãi bỏ một số điều, khoản của các Thông tư do Bộ trưởng Bộ Tư pháp ban
 - [Administrative] `06/2013/TT-BNV` — Bãi bỏ Điều 19 của Bộ Nội vụ quy định chi tiết một số điều về tuyển dụ
-- … 외 8088건 (manifest JSON 참고)
+- … 외 8277건 (manifest JSON 참고)
