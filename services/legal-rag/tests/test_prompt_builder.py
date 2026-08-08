@@ -72,6 +72,20 @@ def test_system_prompt_contains_required_principles():
     assert NO_EVIDENCE_MESSAGE in result.system_prompt
 
 
+def test_related_tier_system_prompt_requires_specific_citations_first():
+    from src.prompt_builder import build_system_prompt, build_response_rules
+
+    prompt = build_system_prompt(answer_tier="related", service_group="verify")
+    assert "근거 조문" in prompt
+    assert "먼저 구체적으로 명시" in prompt
+    assert "관련 법령에 따르면" in prompt
+    assert "얼버무리" in prompt
+
+    rules = build_response_rules(answer_tier="related")
+    assert "문서번호·조항" in rules
+    assert "관련 법령에 따르면" in rules
+
+
 def test_openai_is_never_called_no_network_dependency():
     """이 모듈은 순수 텍스트 조립만 하므로 실제 OpenAI API 호출/클라이언트
     사용 흔적이 없어야 한다(모듈 docstring이 'OpenAI를 호출하지 않는다'고
