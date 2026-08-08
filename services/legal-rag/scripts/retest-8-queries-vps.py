@@ -169,7 +169,7 @@ def main() -> int:
                 "elapsed_seconds": round(elapsed, 3),
                 "status": review.get("status"),
                 "answer_tier": metadata.get("answer_tier"),
-                "top_score": metadata.get("top_score"),
+                "top_score": metadata.get("top_search_score") or metadata.get("top_score"),
                 "search_stage": metadata.get("search_stage"),
                 "review_summary_full": summary,
                 "customer_ai_summary_full": ai_summary,

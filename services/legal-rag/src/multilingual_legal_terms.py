@@ -122,6 +122,65 @@ LEGAL_TERMS: dict[str, dict[str, object]] = {
             "giay phep lai xe",
         ],
     },
+    "verify_fraud": {
+        "canonical_vi": "lừa đảo",
+        "ko": [
+            "부동산 사기",
+            "부동산 사기 계약",
+            "사기 계약",
+            "사기 거래",
+            "사기",
+            "사기성 계약",
+            "사기 피해",
+        ],
+        "en": [
+            "real estate fraud",
+            "fraudulent contract",
+            "property fraud",
+            "scam contract",
+        ],
+        "zh": [
+            "房产诈骗",
+            "欺诈合同",
+            "合同诈骗",
+        ],
+        "vi": [
+            "lừa đảo",
+            "gian lận",
+            "hợp đồng giả mạo",
+        ],
+    },
+    "verify_real_estate": {
+        "canonical_vi": "hợp đồng thuê nhà",
+        "ko": [
+            "임대 계약",
+            "임대계약",
+            "임대 계약 분쟁",
+            "임대 분쟁",
+            "임대차",
+            "임차",
+            "부동산 임대",
+            "전세",
+            "월세",
+        ],
+        "en": [
+            "rental contract",
+            "lease dispute",
+            "tenancy agreement",
+            "landlord tenant",
+        ],
+        "zh": [
+            "租赁合同",
+            "租赁纠纷",
+            "租房合同",
+        ],
+        "vi": [
+            "hợp đồng thuê nhà",
+            "hợp đồng thuê",
+            "thuê nhà",
+            "cho thuê nhà",
+        ],
+    },
 }
 
 

@@ -15,7 +15,6 @@ from ..evidence_builder import build_evidence_packs
 from ..expert_report_builder import build_expert_report
 from ..expert_review_builder import build_expert_review
 from ..integration.report_service import build_service_integration_bundle
-from ..multilingual_legal_terms import extract_partial_ontology_matches
 from ..query_translation import QueryTranslationResult, should_skip_translation, translate_query_terms
 from ..search_engine import LegalSearchIndex
 from ..search_with_fallback import search_with_fallback
@@ -142,11 +141,8 @@ class LegalRAGService:
         translation_model: str | None,
         client: Any | None,
     ) -> QueryTranslationResult:
-        """Call OpenAI term extraction only when local ontology cannot match the query."""
+        """Extract Vietnamese search terms for non-Vietnamese queries (always, even with ontology hits)."""
         if should_skip_translation(language):
-            return QueryTranslationResult(skipped=True, terms=[])
-
-        if extract_partial_ontology_matches(question):
             return QueryTranslationResult(skipped=True, terms=[])
 
         return translate_query_terms(

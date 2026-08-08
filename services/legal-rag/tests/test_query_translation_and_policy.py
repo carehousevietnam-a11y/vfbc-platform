@@ -246,7 +246,146 @@ def test_reconcile_answer_tier_downgrades_insufficient_evidence():
     )
 
 
-def test_runtime_skips_translation_when_ontology_matches():
+def test_search_fallback_merges_ontology_and_translated_terms():
+    from src.search_models import Chunk, Document
+
+    wp_doc = Document.from_dict(
+        {
+            "document_id": "doc-wp",
+            "document_number": ["152/2020/NĐ-CP"],
+            "document_type": "decree",
+            "title": "Giấy phép lao động",
+            "issuing_authority": "Gov",
+            "issue_date": None,
+            "effective_date": None,
+            "expiry_date": None,
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    wp_chunk = Chunk.from_dict(
+        {
+            "chunk_id": "c-wp",
+            "document_id": "doc-wp",
+            "chapter_no": None,
+            "article_no": "1",
+            "clause_no": None,
+            "item_no": None,
+            "heading": "Điều 1",
+            "original_text": "giấy phép lao động cho người nước ngoài",
+            "normalized_text": "giấy phép lao động cho người nước ngoài",
+            "search_text": "giấy phép lao động cho người nước ngoài",
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    exp_doc = Document.from_dict(
+        {
+            "document_id": "doc-exp",
+            "document_number": ["152/2020/NĐ-CP"],
+            "document_type": "decree",
+            "title": "Kinh nghiệm",
+            "issuing_authority": "Gov",
+            "issue_date": None,
+            "effective_date": None,
+            "expiry_date": None,
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    exp_chunk = Chunk.from_dict(
+        {
+            "chunk_id": "c-exp",
+            "document_id": "doc-exp",
+            "chapter_no": None,
+            "article_no": "9",
+            "clause_no": None,
+            "item_no": None,
+            "heading": "Điều 9",
+            "original_text": "kinh nghiệm làm việc tối thiểu",
+            "normalized_text": "kinh nghiệm làm việc tối thiểu",
+            "search_text": "kinh nghiệm làm việc tối thiểu",
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    index = LegalSearchIndex([wp_doc, exp_doc], [wp_chunk, exp_chunk])
+    results, meta = search_with_fallback(
+        index,
+        question="노동허가 경력 요건이 어떻게 되나요?",
+        language="ko",
+        translated_terms=["kinh nghiệm làm việc"],
+        limit=10,
+    )
+    assert len(results) >= 2
+    assert "ontology_partial" in meta["search_stages_attempted"]
+    assert "translated_terms" in meta["search_stages_attempted"]
+    assert meta["search_stage"] in {"ontology_partial", "translated_terms"}
+
+
+def test_partial_ontology_matches_verify_fraud_query():
+    terms = extract_partial_ontology_matches("부동산 사기 계약인지 어떻게 알 수 있나요?")
+    assert "lừa đảo" in terms
+
+
+def test_partial_ontology_matches_verify_rental_query():
+    terms = extract_partial_ontology_matches("임대 계약 분쟁 관련 법령이 뭐예요?")
+    assert "hợp đồng thuê nhà" in terms
+
+
+def test_search_fallback_attempts_verify_ontology_without_translation():
+    from src.search_models import Chunk, Document
+
+    doc = Document.from_dict(
+        {
+            "document_id": "doc-fraud",
+            "document_number": ["100/2015/NĐ-CP"],
+            "document_type": "decree",
+            "title": "Lừa đảo",
+            "issuing_authority": "Gov",
+            "issue_date": None,
+            "effective_date": None,
+            "expiry_date": None,
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    chunk = Chunk.from_dict(
+        {
+            "chunk_id": "c-fraud",
+            "document_id": "doc-fraud",
+            "chapter_no": None,
+            "article_no": "3",
+            "clause_no": None,
+            "item_no": None,
+            "heading": "Điều 3",
+            "original_text": "hành vi lừa đảo trong giao dịch bất động sản",
+            "normalized_text": "hành vi lừa đảo trong giao dịch bất động sản",
+            "search_text": "hành vi lừa đảo trong giao dịch bất động sản",
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    index = LegalSearchIndex([doc], [chunk])
+    results, meta = search_with_fallback(
+        index,
+        question="부동산 사기 계약인지 어떻게 알 수 있나요?",
+        language="ko",
+        translated_terms=[],
+        limit=10,
+    )
+    assert results
+    assert meta["search_stage"] == "ontology_partial"
+    assert meta["search_stage"] != "none"
+
+
+def test_runtime_translates_even_when_ontology_matches():
     from src.search_models import Chunk, Document
 
     doc = Document.from_dict(
@@ -283,13 +422,14 @@ def test_runtime_skips_translation_when_ontology_matches():
     )
     index = LegalSearchIndex([doc], [chunk])
 
-    class ExplodingClient:
+    class RecordingClient:
         def __init__(self):
-            self.chat = self
-
-        @property
-        def completions(self):
-            raise AssertionError("translation API must not be called when ontology matches")
+            self.chat = _FakeChat(
+                json.dumps(
+                    {"terms": ["kinh nghiệm làm việc"], "no_legal_terms": False},
+                    ensure_ascii=False,
+                )
+            )
 
     def connector(prompt_package, evidence_packs, **kwargs):
         return AIReviewResult(
@@ -301,6 +441,7 @@ def test_runtime_skips_translation_when_ontology_matches():
             model="test",
         )
 
+    client = RecordingClient()
     service = LegalRAGService(index, AIReviewEngine(connector=connector))
     result = service.run(
         LegalRAGRequest(
@@ -310,8 +451,10 @@ def test_runtime_skips_translation_when_ontology_matches():
             limit=5,
         ),
         api_key="sk-test",
-        client=ExplodingClient(),
+        client=client,
     )
-    assert result.metadata["translation_skipped"] is True
-    assert result.metadata["search_stage"] == "ontology_partial"
+    assert result.metadata["translation_skipped"] is False
+    assert result.metadata["translation_terms"] == ["kinh nghiệm làm việc"]
+    assert client.chat.completions.calls
+    assert "ontology_partial" in (result.metadata.get("search_stages_attempted") or [])
     assert result.search_results

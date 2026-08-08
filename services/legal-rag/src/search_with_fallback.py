@@ -66,6 +66,20 @@ def should_search_original_question(language: str | None, question: str | None =
     return looks_like_vietnamese_legal_reference(question)
 
 
+def _primary_search_stage(stage_hits: dict[str, list[SearchResult]]) -> str:
+    """Pick the stage that produced the highest-scoring result."""
+    best_stage = "none"
+    best_score = -1.0
+    for stage, hits in stage_hits.items():
+        if not hits:
+            continue
+        top = max(item.score for item in hits)
+        if top > best_score:
+            best_score = top
+            best_stage = stage
+    return best_stage
+
+
 def search_with_fallback(
     index: LegalSearchIndex,
     *,
@@ -75,8 +89,10 @@ def search_with_fallback(
     limit: int,
     allow_original_question: bool | None = None,
 ) -> tuple[list[SearchResult], dict]:
-    """Try ontology partial match, translated terms, then (vi-only) original question."""
+    """Run ontology, translated-term, and (vi-only) original-question stages; merge hits."""
     stages_attempted: list[str] = []
+    stage_hits: dict[str, list[SearchResult]] = {}
+    search_queries: list[str] = []
     allow_original = (
         should_search_original_question(language, question)
         if allow_original_question is None
@@ -86,23 +102,28 @@ def search_with_fallback(
     partial_terms = extract_partial_ontology_matches(question)
     if partial_terms:
         stages_attempted.append("ontology_partial")
-        results = _search_terms(index, partial_terms, language=language, limit=limit)
-        if results:
-            return results, {
-                "search_stage": "ontology_partial",
-                "search_queries": partial_terms,
-                "search_stages_attempted": stages_attempted,
-            }
+        stage_hits["ontology_partial"] = _search_terms(
+            index, partial_terms, language=language, limit=limit
+        )
+        search_queries.extend(partial_terms)
 
     if translated_terms:
         stages_attempted.append("translated_terms")
-        results = _search_terms(index, translated_terms, language=language, limit=limit)
-        if results:
-            return results, {
-                "search_stage": "translated_terms",
-                "search_queries": list(translated_terms),
-                "search_stages_attempted": stages_attempted,
-            }
+        stage_hits["translated_terms"] = _search_terms(
+            index, translated_terms, language=language, limit=limit
+        )
+        search_queries.extend(translated_terms)
+
+    merged = _dedupe_results(
+        [hit for hits in stage_hits.values() for hit in hits]
+    )[:limit]
+
+    if merged:
+        return merged, {
+            "search_stage": _primary_search_stage(stage_hits),
+            "search_queries": search_queries,
+            "search_stages_attempted": stages_attempted,
+        }
 
     if allow_original:
         stages_attempted.append("original_question")
