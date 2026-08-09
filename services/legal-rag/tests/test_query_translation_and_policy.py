@@ -129,6 +129,7 @@ def test_expert_referral_summary_includes_disclaimer():
     assert "노동허가" in summary
     assert "필수 행정서류" in summary
     assert "추가·첨부" in summary
+    assert "서류 목록" in summary
     assert "샘플" in summary
     assert "마이페이지" in summary
     assert "전문가" in summary

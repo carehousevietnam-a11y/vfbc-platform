@@ -26,18 +26,18 @@ FORBIDDEN_DEFINITIVE_PATTERNS: tuple[re.Pattern[str], ...] = (
 )
 
 _SIGNUP_CTA_KO = (
-    "무료 회원가입 후 마이페이지에서 서류 작성 샘플·맞춤 AI 리포트·전문가 검토를 "
-    "이용하실 수 있습니다."
+    "정확한 서류 목록·예시 샘플·맞춤 AI 리포트·전문가 검토는 무료 회원가입 후 "
+    "마이페이지에서 이용하실 수 있습니다."
 )
 _SIGNUP_CTA_VI = (
     "Đăng ký miễn phí để xem mẫu hồ sơ, báo cáo AI và hỗ trợ chuyên gia tại Trang của tôi."
 )
 
 _MYPAGE_SAMPLES_CTA_KO = (
-    "각 서류의 작성 예시(샘플)는 무료 회원가입 후 마이페이지에서 확인하실 수 있습니다."
+    "정확한 서류 목록과 예시 샘플은 무료회원 가입 후 마이페이지에서 확인하실 수 있습니다."
 )
 _MYPAGE_SAMPLES_CTA_VI = (
-    "Mẫu hồ sơ mẫu có thể xem tại Trang của tôi sau khi đăng ký miễn phí."
+    "Danh sách hồ sơ chính xác và mẫu ví dụ có thể xem tại Trang của tôi sau khi đăng ký miễn phí."
 )
 
 _EXPERT_CTA_KO = (
