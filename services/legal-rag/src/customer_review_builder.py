@@ -12,7 +12,12 @@ from typing import Any
 
 from .ai_review_engine import ReviewResult
 from .ai_review_models import STATUS_PARTIAL_EVIDENCE
-from .answer_policy import append_mandatory_disclaimer, collect_document_references
+from .answer_policy import (
+    append_mandatory_disclaimer,
+    collect_document_references,
+    format_document_reference,
+    format_structured_citation,
+)
 from .citation_engine import CitationResult
 from .confidence_engine import ConfidenceResult
 from .evidence_builder import EvidencePack
@@ -26,6 +31,7 @@ class CustomerLegalBasis:
     article: str | None
     title: str | None
     official_url: str | None
+    formatted_line: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -33,6 +39,7 @@ class CustomerLegalBasis:
             "article": self.article,
             "title": self.title,
             "official_url": self.official_url,
+            "formatted_line": self.formatted_line,
         }
 
 
@@ -75,13 +82,23 @@ class CustomerReview:
         }
 
 
-def _customer_legal_basis(citations: CitationResult) -> list[CustomerLegalBasis]:
+def _customer_legal_basis(
+    citations: CitationResult,
+    *,
+    language: str | None,
+) -> list[CustomerLegalBasis]:
     return [
         CustomerLegalBasis(
             document_number=item.document_number,
             article=item.article,
             title=item.title,
             official_url=item.official_url,
+            formatted_line=format_structured_citation(
+                title=item.title,
+                document_number=item.document_number,
+                article=item.article,
+                language=language,
+            ),
         )
         for item in citations.citations
     ]
@@ -89,16 +106,25 @@ def _customer_legal_basis(citations: CitationResult) -> list[CustomerLegalBasis]
 
 def _customer_legal_basis_from_documents(
     evidence_packs: list[EvidencePack],
+    *,
+    language: str | None,
 ) -> list[CustomerLegalBasis]:
     """Grade B — document name/number only, no article."""
     items: list[CustomerLegalBasis] = []
     for ref in collect_document_references(evidence_packs):
+        document_number = str(ref["document_number"] or "")
+        title = ref.get("title")
         items.append(
             CustomerLegalBasis(
-                document_number=str(ref["document_number"] or ""),
+                document_number=document_number,
                 article=None,
-                title=ref.get("title"),
+                title=title,
                 official_url=ref.get("official_url"),
+                formatted_line=format_document_reference(
+                    title=title,
+                    document_number=document_number,
+                    language=language,
+                ),
             )
         )
     return items
@@ -108,11 +134,13 @@ def _resolve_legal_basis(
     review: ReviewResult,
     citations: CitationResult,
     evidence_packs: list[EvidencePack] | None,
+    *,
+    language: str | None,
 ) -> list[CustomerLegalBasis]:
     if citations.citations:
-        return _customer_legal_basis(citations)
+        return _customer_legal_basis(citations, language=language)
     if review.status == STATUS_PARTIAL_EVIDENCE and evidence_packs:
-        return _customer_legal_basis_from_documents(evidence_packs)
+        return _customer_legal_basis_from_documents(evidence_packs, language=language)
     return []
 
 
@@ -158,7 +186,12 @@ def build_customer_review(
         ai_summary=summary,
         confidence_score=confidence_result.score,
         confidence_level=confidence_result.level,
-        legal_basis=_resolve_legal_basis(review_result, citation_result, evidence_packs),
+        legal_basis=_resolve_legal_basis(
+            review_result,
+            citation_result,
+            evidence_packs,
+            language=review_result.language,
+        ),
         risk_factors=list(review_result.risk_factors),
         required_documents=list(review_result.required_documents),
         next_actions=_next_actions(review_result, confidence_result),

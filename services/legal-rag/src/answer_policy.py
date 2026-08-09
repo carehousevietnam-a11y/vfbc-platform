@@ -100,18 +100,57 @@ def collect_document_references(evidence_packs: list[EvidencePack]) -> list[dict
     return refs
 
 
+_ARTICLE_LOCATOR_RE = re.compile(
+    r"^\s*Điều\s+(?P<article>[^\s]+)"
+    r"(?:\s+Khoản\s+(?P<clause>[^\s]+))?"
+    r"(?:\s+Điểm\s+(?P<item>[^\s]+))?\s*$",
+    re.IGNORECASE,
+)
+
+
+def _format_korean_article_locator(article: str) -> str:
+    """Convert verified Điều/Khoản locator to Korean 제N조 제M항 style."""
+    match = _ARTICLE_LOCATOR_RE.match(article)
+    if not match:
+        return article.strip()
+    parts: list[str] = [f"제{match.group('article')}조"]
+    if match.group("clause"):
+        parts.append(f"제{match.group('clause')}항")
+    if match.group("item"):
+        parts.append(f"제{match.group('item')}호")
+    return " ".join(parts)
+
+
 def format_structured_citation(
     *,
     title: str | None,
     document_number: str,
     article: str | None = None,
+    language: str | None = None,
 ) -> str:
     """DESIGN v3 §5 — structured citation line for grade A (when article is verified)."""
     name = (title or "").strip() or document_number
     base = f"{name} ({document_number})"
-    if article:
-        return f"{base} {article}"
-    return base
+    if not article:
+        return base
+    if language == "vi":
+        return f"{base} {article.strip()}"
+    return f"{base} {_format_korean_article_locator(article)}"
+
+
+def format_document_reference(
+    *,
+    title: str | None,
+    document_number: str,
+    language: str | None = None,
+) -> str:
+    """DESIGN v3 grade B — document name/number only, never invent articles."""
+    _ = language
+    return format_structured_citation(
+        title=title,
+        document_number=document_number,
+        article=None,
+    )
 
 
 def _format_document_list(refs: list[dict[str, str | None]], *, language: str | None) -> str:

@@ -7,6 +7,8 @@ from src.answer_policy import (
     append_mandatory_disclaimer,
     build_expert_referral_summary,
     contains_forbidden_definitive_phrasing,
+    format_document_reference,
+    format_structured_citation,
 )
 from src.customer_review_builder import build_customer_review
 from src.ai_review_engine import ReviewResult
@@ -63,6 +65,26 @@ class _FakeChat:
 class FakeTranslationClient:
     def __init__(self, content: str):
         self.chat = _FakeChat(content)
+
+
+def test_format_structured_citation_grade_a_korean_article_markers():
+    line = format_structured_citation(
+        title="Nghị định về giấy phép lao động",
+        document_number="77/2022/NĐ-CP",
+        article="Điều 9 Khoản 2",
+        language="ko",
+    )
+    assert line == "Nghị định về giấy phép lao động (77/2022/NĐ-CP) 제9조 제2항"
+
+
+def test_format_structured_citation_grade_b_document_only():
+    line = format_document_reference(
+        title="Nghị định về giấy phép lao động",
+        document_number="77/2022/NĐ-CP",
+        language="ko",
+    )
+    assert line == "Nghị định về giấy phép lao động (77/2022/NĐ-CP)"
+    assert "제" not in line
 
 
 def test_partial_evidence_summary_lists_documents():

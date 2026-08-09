@@ -66,7 +66,7 @@ def apply_review_rules(
             return result
 
         if has_docs:
-            summary = result.summary or build_partial_evidence_summary(
+            summary = build_partial_evidence_summary(
                 question or "",
                 packs,
                 language=result.language,
@@ -96,7 +96,7 @@ def apply_review_rules(
         )
 
     if result.status == STATUS_INSUFFICIENT_EVIDENCE and has_docs:
-        summary = result.summary or build_partial_evidence_summary(
+        summary = build_partial_evidence_summary(
             question or "",
             packs,
             language=result.language,
