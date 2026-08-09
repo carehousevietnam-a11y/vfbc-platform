@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -309,11 +310,6 @@ const STAGE_SUBJECT_SUFFIX: Record<StageChangeAction, string> = {
   process_permit_completed: "허가 완료",
 };
 
-// mypage/page.tsx의 EXPERT_TEAM_LABEL과 동일한 문구. 담당자 배정 컬럼이
-// DB에 없어(v21 핸드오프 확인 완료) 공용 lib 대신 파일별로 고정 문구를
-// 복제하는 이 프로젝트의 기존 관례를 그대로 따른다.
-const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀 (Linda Kang · VNK 파트너)";
-
 type SendStageChangeEmailParams = {
   to: string;
   name: string;
@@ -350,7 +346,7 @@ export async function sendStageChangeEmail(
   switch (action) {
     case "expert_review_request":
       bodyHtml = `<p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
-        제출하신 내용에 대해 ${EXPERT_TEAM_LABEL}의 전문가 검토가 시작되었습니다. 검토가 완료되는 대로 다시 안내드리겠습니다.
+        제출하신 내용에 대해 ${resolveExpertTeamLabel(null, serviceType)}의 전문가 검토가 시작되었습니다. 검토가 완료되는 대로 다시 안내드리겠습니다.
       </p>`;
       break;
     case "agency_upgrade_request":
@@ -361,7 +357,7 @@ export async function sendStageChangeEmail(
     case "process_government_submitted":
       bodyHtml = `<div style="background: #ffffff; border-radius: 16px; padding: 20px; margin: 0 0 20px; border: 1px solid #f3f4f6;">
         <p style="font-size: 13px; color: #6b7280; margin: 0 0 4px;">담당자</p>
-        <p style="font-size: 15px; font-weight: 700; color: #111827; margin: 0;">${EXPERT_TEAM_LABEL}</p>
+        <p style="font-size: 15px; font-weight: 700; color: #111827; margin: 0;">${resolveExpertTeamLabel(null, serviceType)}</p>
       </div>
       <p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
         관할 기관에 정부 제출이 완료되었습니다. 심사 결과가 나오는 대로 다시 안내드리겠습니다.

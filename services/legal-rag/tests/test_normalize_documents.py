@@ -46,6 +46,16 @@ def test_normalize_vbpl_row_basic_fields():
     assert doc.contentHash is not None
 
 
+def test_normalize_vbpl_row_preserves_legal_area():
+    row = {
+        "doc_name": "99",
+        "markdown": "Điều 1",
+        "legal_area": "Đất đai",
+    }
+    doc = normalize_vbpl_row(row)
+    assert doc.legalArea == "Đất đai"
+
+
 def test_normalize_vbpl_row_handles_null_body():
     row = {"doc_name": "1", "markdown": None, "doc_number": None}
     doc = normalize_vbpl_row(row)

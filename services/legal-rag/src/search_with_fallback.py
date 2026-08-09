@@ -6,7 +6,8 @@ import re
 
 from .multilingual_legal_terms import extract_partial_ontology_matches
 from .search_engine import LegalSearchIndex
-from .search_models import SearchResult, normalize_query_text
+from .search_models import SearchFilters, SearchResult, normalize_query_text
+from .service_category_mapping import index_has_legal_area_metadata, resolve_legal_areas_for_service
 
 _DOCUMENT_NUMBER_RE = re.compile(
     r"\b\d{1,4}/\d{4}/(?:NĐ-CP|NĐ|TT-[A-ZĐ]+|QH\d+|QĐ-[A-ZĐ]+|NQ-HĐND|Nghị định|Thông tư)\b",
@@ -43,6 +44,7 @@ def _search_terms(
     language: str | None,
     limit: int,
     max_terms: int = _MAX_TERMS_PER_STAGE,
+    filters: SearchFilters | None = None,
 ) -> list[SearchResult]:
     results: list[SearchResult] = []
     seen_terms: set[str] = set()
@@ -60,7 +62,7 @@ def _search_terms(
         if len(_dedupe_results(results)) >= limit:
             break
 
-        hits = index.search(query=normalized, limit=limit, language=language)
+        hits = index.search(query=normalized, limit=limit, language=language, filters=filters)
         results.extend(hits)
         results = _dedupe_results(results)[:limit]
     return results
@@ -109,8 +111,16 @@ def search_with_fallback(
     translated_terms: list[str],
     limit: int,
     allow_original_question: bool | None = None,
+    service_type: str | None = None,
 ) -> tuple[list[SearchResult], dict]:
     """Run ontology, translated-term, and (vi-only) original-question stages; merge hits."""
+    legal_areas = resolve_legal_areas_for_service(service_type)
+    if legal_areas and not index_has_legal_area_metadata(index.documents):
+        legal_areas = None
+    area_filters: SearchFilters | None = (
+        SearchFilters(legal_areas=legal_areas) if legal_areas else None
+    )
+
     stages_attempted: list[str] = []
     stage_hits: dict[str, list[SearchResult]] = {}
     search_queries: list[str] = []
@@ -125,7 +135,11 @@ def search_with_fallback(
     if partial_terms:
         stages_attempted.append("ontology_partial")
         stage_hits["ontology_partial"] = _search_terms(
-            index, partial_terms, language=language, limit=limit
+            index,
+            partial_terms,
+            language=language,
+            limit=limit,
+            filters=area_filters,
         )
         search_queries.extend(partial_terms)
         searched_term_keys.update(_normalize_term_key(t) for t in partial_terms)
@@ -138,7 +152,11 @@ def search_with_fallback(
     if translation_terms:
         stages_attempted.append("translated_terms")
         stage_hits["translated_terms"] = _search_terms(
-            index, translation_terms, language=language, limit=limit
+            index,
+            translation_terms,
+            language=language,
+            limit=limit,
+            filters=area_filters,
         )
         search_queries.extend(translation_terms)
 
@@ -151,19 +169,27 @@ def search_with_fallback(
             "search_stage": _primary_search_stage(stage_hits),
             "search_queries": search_queries,
             "search_stages_attempted": stages_attempted,
+            "legal_area_filter": list(legal_areas) if legal_areas else None,
         }
 
     if allow_original:
         stages_attempted.append("original_question")
-        results = index.search(query=question, limit=limit, language=language)
+        results = index.search(
+            query=question,
+            limit=limit,
+            language=language,
+            filters=area_filters,
+        )
         return results[:limit], {
             "search_stage": "original_question",
             "search_queries": [question],
             "search_stages_attempted": stages_attempted,
+            "legal_area_filter": list(legal_areas) if legal_areas else None,
         }
 
     return [], {
         "search_stage": "none",
         "search_queries": [],
         "search_stages_attempted": stages_attempted,
+        "legal_area_filter": list(legal_areas) if legal_areas else None,
     }

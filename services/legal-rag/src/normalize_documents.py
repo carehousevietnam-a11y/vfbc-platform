@@ -78,6 +78,20 @@ def _build_content_fields(original: str | None) -> tuple[str | None, str | None,
 # ---------------------------------------------------------------------------
 
 
+def _normalize_legal_area(value: object) -> str | None:
+    """Preserve vbpl legal_area / th1nhng0 linh_vuc / legacy legal_sectors as a single string."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        stripped = value.strip()
+        return stripped or None
+    if isinstance(value, list):
+        parts = [str(item).strip() for item in value if str(item).strip()]
+        return ", ".join(parts) if parts else None
+    text = str(value).strip()
+    return text or None
+
+
 def normalize_vbpl_row(row: dict[str, Any]) -> CanonicalDocument:
     original, normalized, search_text = _build_content_fields(row.get("markdown"))
     content_hash = sha256_text(normalized) if normalized else None
@@ -105,6 +119,7 @@ def normalize_vbpl_row(row: dict[str, Any]) -> CanonicalDocument:
         normalizedText=normalized,
         searchText=search_text,
         contentHash=content_hash,
+        legalArea=_normalize_legal_area(row.get("legal_area")),
     )
 
 
@@ -139,6 +154,7 @@ def normalize_th1nhng0_metadata_row(
         normalizedText=normalized,
         searchText=search_text,
         contentHash=content_hash,
+        legalArea=_normalize_legal_area(row.get("linh_vuc")),
     )
 
 
@@ -172,12 +188,8 @@ def normalize_th1nhng0_legacy_row(row: dict[str, Any], content_by_id: dict[str, 
         normalizedText=normalized,
         searchText=search_text,
         contentHash=content_hash,
+        legalArea=_normalize_legal_area(row.get("legal_sectors")),
     )
-
-
-# ---------------------------------------------------------------------------
-# 파이프라인 실행 (파일 discovery 기반)
-# ---------------------------------------------------------------------------
 
 
 def _load_content_index(files: list[Path], classify_key: str) -> dict[str, str]:

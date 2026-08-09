@@ -83,6 +83,7 @@ class CanonicalDocument:
     normalizedText: str | None     # NFC 정규화 + 스캐폴딩 제거된 본문
     searchText: str | None         # FTS/trigram 검색용 (소문자, 공백 정리, simple config 대상)
     contentHash: str | None        # normalizedText의 SHA-256
+    legalArea: str | None = None     # vbpl legal_area / th1nhng0 linh_vuc / legacy legal_sectors
     importedAt: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     def to_dict(self) -> dict:

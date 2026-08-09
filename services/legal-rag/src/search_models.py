@@ -88,6 +88,7 @@ class Document:
     status: str = "unknown"
     official_url: str | None = None
     content_hash: str | None = None
+    legal_area: str | None = None
 
     @staticmethod
     def from_dict(d: dict) -> "Document":
@@ -103,6 +104,7 @@ class Document:
             status=d.get("status") or "unknown",
             official_url=d.get("official_url"),
             content_hash=d.get("content_hash"),
+            legal_area=d.get("legal_area"),
         )
 
 
@@ -121,6 +123,7 @@ class Chunk:
     status: str | None = None
     official_url: str | None = None
     content_hash: str | None = None
+    legal_area: str | None = None
 
     @staticmethod
     def from_dict(d: dict) -> "Chunk":
@@ -138,6 +141,7 @@ class Chunk:
             status=d.get("status"),
             official_url=d.get("official_url"),
             content_hash=d.get("content_hash"),
+            legal_area=d.get("legal_area"),
         )
 
 
@@ -230,6 +234,7 @@ class SearchFilters:
     issue_date_to: str | None = None
     article_no: str | None = None
     relation_type: str | None = None        # legal_relations.relation_type — 참여 문서만 통과
+    legal_areas: tuple[str, ...] | None = None  # vbpl legal_area labels (service-scoped search)
 
     def is_empty(self) -> bool:
         return all(
@@ -238,7 +243,7 @@ class SearchFilters:
                 self.status, self.document_type, self.issuing_authority,
                 self.effective_date, self.effective_date_from, self.effective_date_to,
                 self.issue_date, self.issue_date_from, self.issue_date_to,
-                self.article_no, self.relation_type,
+                self.article_no, self.relation_type, self.legal_areas,
             )
         )
 

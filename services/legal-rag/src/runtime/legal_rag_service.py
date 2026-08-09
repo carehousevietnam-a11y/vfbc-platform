@@ -62,6 +62,7 @@ class LegalRAGService:
             language=normalized.language,
             translated_terms=translation.terms,
             limit=normalized.limit,
+            service_type=normalized.context.service_type,
         )
         search_duration_ms = (time.perf_counter() - search_started) * 1000.0
 
@@ -125,6 +126,7 @@ class LegalRAGService:
                 "search_stage": search_meta.get("search_stage"),
                 "search_queries": search_meta.get("search_queries"),
                 "search_stages_attempted": search_meta.get("search_stages_attempted"),
+                "legal_area_filter": search_meta.get("legal_area_filter"),
                 "search_duration_ms": round(search_duration_ms, 2),
                 "pipeline_duration_ms": round(total_duration_ms, 2),
                 "answer_tier": answer_tier,

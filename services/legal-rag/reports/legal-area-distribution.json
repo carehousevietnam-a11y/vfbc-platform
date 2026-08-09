@@ -1,0 +1,2196 @@
+{
+  "source": "tmquan/vbpl-vn (HuggingFace, revision 11c902856b7a389788853fdd39b4998a5effa490)",
+  "field": "legal_area",
+  "total_documents": 158822,
+  "unique_values": 547,
+  "distribution": [
+    {
+      "legal_area": "Chưa phân loại",
+      "count": 112784
+    },
+    {
+      "legal_area": "Đất đai",
+      "count": 2861
+    },
+    {
+      "legal_area": "Quản lý thuế, phí, lệ phí và thu khác của ngân sách nhà nước",
+      "count": 2301
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí",
+      "count": 1698
+    },
+    {
+      "legal_area": "Lĩnh vực giá",
+      "count": 1673
+    },
+    {
+      "legal_area": "Tổ chức- Biên chế",
+      "count": 1424
+    },
+    {
+      "legal_area": "Lao động, tiền lương, tiền công",
+      "count": 1373
+    },
+    {
+      "legal_area": "Quản lý ngân sách",
+      "count": 1211
+    },
+    {
+      "legal_area": "Quản lý ngân sách nhà nước",
+      "count": 1052
+    },
+    {
+      "legal_area": "Ngân sách nhà nước",
+      "count": 951
+    },
+    {
+      "legal_area": "Đường bộ",
+      "count": 942
+    },
+    {
+      "legal_area": "Chính quyền địa phương",
+      "count": 869
+    },
+    {
+      "legal_area": "Công chức, viên chức",
+      "count": 715
+    },
+    {
+      "legal_area": "Tài chính khác",
+      "count": 657
+    },
+    {
+      "legal_area": "Lâm nghiệp",
+      "count": 637
+    },
+    {
+      "legal_area": "Môi trường",
+      "count": 557
+    },
+    {
+      "legal_area": "Nông nghiệp",
+      "count": 513
+    },
+    {
+      "legal_area": "Thủy lợi",
+      "count": 473
+    },
+    {
+      "legal_area": "Chính sách thuế",
+      "count": 465
+    },
+    {
+      "legal_area": "Tổ chức cán bộ",
+      "count": 407
+    },
+    {
+      "legal_area": "Cải cách hành chính",
+      "count": 405
+    },
+    {
+      "legal_area": "An ninh và trật tự, an toàn xã hội",
+      "count": 389
+    },
+    {
+      "legal_area": "Bảo trợ xã hội",
+      "count": 360
+    },
+    {
+      "legal_area": "Tài nguyên khoáng sản, địa chất",
+      "count": 344
+    },
+    {
+      "legal_area": "Phát triển nông thôn",
+      "count": 341
+    },
+    {
+      "legal_area": "Kiểm tra, rà soát, hệ thống hóa, hợp nhất văn bản quy phạm pháp luật, pháp điển hệ thống quy phạm pháp luật",
+      "count": 331
+    },
+    {
+      "legal_area": "Đầu tư tại Việt Nam",
+      "count": 326
+    },
+    {
+      "legal_area": "Kiến trúc, quy hoạch xây dựng",
+      "count": 321
+    },
+    {
+      "legal_area": "Vận tải",
+      "count": 314
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác",
+      "count": 313
+    },
+    {
+      "legal_area": "Quản lý hoạt động xây dựng",
+      "count": 309
+    },
+    {
+      "legal_area": "Thi đua khen thưởng",
+      "count": 302
+    },
+    {
+      "legal_area": "Thủy sản",
+      "count": 298
+    },
+    {
+      "legal_area": "Quản lý dịch vụ tài chính và các quỹ tài chính",
+      "count": 292
+    },
+    {
+      "legal_area": "Xây dựng",
+      "count": 286
+    },
+    {
+      "legal_area": "Thanh tra",
+      "count": 285
+    },
+    {
+      "legal_area": "Tài chính hành chính sự nghiệp",
+      "count": 277
+    },
+    {
+      "legal_area": "Xuất nhập khẩu",
+      "count": 275
+    },
+    {
+      "legal_area": "Quản lý công sản",
+      "count": 260
+    },
+    {
+      "legal_area": "Hoạt động khoa học và công nghệ",
+      "count": 257
+    },
+    {
+      "legal_area": "Văn hóa",
+      "count": 250
+    },
+    {
+      "legal_area": "Điện",
+      "count": 244
+    },
+    {
+      "legal_area": "Bổ trợ tư pháp",
+      "count": 238
+    },
+    {
+      "legal_area": "Công nghệ thông tin,điện tử",
+      "count": 238
+    },
+    {
+      "legal_area": "Hàng hải",
+      "count": 237
+    },
+    {
+      "legal_area": "Đường thủy nội địa",
+      "count": 235
+    },
+    {
+      "legal_area": "Công nghiệp",
+      "count": 235
+    },
+    {
+      "legal_area": "Đấu thầu",
+      "count": 230
+    },
+    {
+      "legal_area": "Khám chữa bệnh",
+      "count": 229
+    },
+    {
+      "legal_area": "Công chức",
+      "count": 216
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp",
+      "count": 210
+    },
+    {
+      "legal_area": "Phòng, chống tệ nạn xã hội",
+      "count": 205
+    },
+    {
+      "legal_area": "Tài nguyên nước",
+      "count": 203
+    },
+    {
+      "legal_area": "Diêm nghiệp",
+      "count": 202
+    },
+    {
+      "legal_area": "Văn hóa cơ sở",
+      "count": 194
+    },
+    {
+      "legal_area": "Tiêu chuẩn đo lường chất lượng",
+      "count": 192
+    },
+    {
+      "legal_area": "Thủy lợi, đề điều và phòng chống bão lụt",
+      "count": 191
+    },
+    {
+      "legal_area": "Quản lý tài sản nhà nước",
+      "count": 191
+    },
+    {
+      "legal_area": "Thú y",
+      "count": 188
+    },
+    {
+      "legal_area": "Quản lý nhà",
+      "count": 187
+    },
+    {
+      "legal_area": "Bưu chính",
+      "count": 185
+    },
+    {
+      "legal_area": "Phổ biến, giáo dục pháp luật",
+      "count": 182
+    },
+    {
+      "legal_area": "Nhà ở và công sở",
+      "count": 179
+    },
+    {
+      "legal_area": "Giáo dục trung học",
+      "count": 173
+    },
+    {
+      "legal_area": "Giáo dục đào tạo thuộc hệ thống giáo dục quốc dân và các cơ sở khác",
+      "count": 172
+    },
+    {
+      "legal_area": "Du lịch",
+      "count": 167
+    },
+    {
+      "legal_area": "Tổng hợp",
+      "count": 164
+    },
+    {
+      "legal_area": "Thể dục thể thao",
+      "count": 154
+    },
+    {
+      "legal_area": "Bảo hiểm y tế",
+      "count": 152
+    },
+    {
+      "legal_area": "Phòng cháy, chữa cháy",
+      "count": 152
+    },
+    {
+      "legal_area": "Đo đạc và bản đồ",
+      "count": 151
+    },
+    {
+      "legal_area": "Thi đua, khen thưởng",
+      "count": 148
+    },
+    {
+      "legal_area": "Phát triển đô thị",
+      "count": 146
+    },
+    {
+      "legal_area": "Hộ tịch, quốc tịch, chứng thực",
+      "count": 145
+    },
+    {
+      "legal_area": "Khiếu nại, tố cáo",
+      "count": 144
+    },
+    {
+      "legal_area": "Xây dựng pháp luật, pháp chế",
+      "count": 141
+    },
+    {
+      "legal_area": "Người có công",
+      "count": 141
+    },
+    {
+      "legal_area": "Viễn thông và Internet",
+      "count": 140
+    },
+    {
+      "legal_area": "Thanh tra, giám sát ngân hàng",
+      "count": 140
+    },
+    {
+      "legal_area": "Dân số - Kế hoạch hóa gia đình",
+      "count": 140
+    },
+    {
+      "legal_area": "Hàng không",
+      "count": 140
+    },
+    {
+      "legal_area": "Di sản văn hóa",
+      "count": 137
+    },
+    {
+      "legal_area": "Y tế dự phòng",
+      "count": 136
+    },
+    {
+      "legal_area": "Đầu tư và nông nghiệp, nông thôn",
+      "count": 134
+    },
+    {
+      "legal_area": "Dân quân tự vệ",
+      "count": 133
+    },
+    {
+      "legal_area": "Thi hành án dân sự",
+      "count": 131
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Tài chính khác",
+      "count": 131
+    },
+    {
+      "legal_area": "Thi đua - Khen thưởng",
+      "count": 127
+    },
+    {
+      "legal_area": "Hóa chất, vật liệu nổ công nghiệp",
+      "count": 123
+    },
+    {
+      "legal_area": "Quản lý thị trường",
+      "count": 120
+    },
+    {
+      "legal_area": "Chính sách tiền tệ",
+      "count": 119
+    },
+    {
+      "legal_area": "Quản lý quỹ ngân sách, quỹ dự trữ nhà nước, và các quỹ tài chính khác của nhà nước",
+      "count": 118
+    },
+    {
+      "legal_area": "Quản lý giá",
+      "count": 118
+    },
+    {
+      "legal_area": "Thành lập và hoạt động của doanh nghiệp",
+      "count": 117
+    },
+    {
+      "legal_area": "Kiểm soát thủ tục hành chính",
+      "count": 115
+    },
+    {
+      "legal_area": "Giáo dục mầm non",
+      "count": 115
+    },
+    {
+      "legal_area": "Hạ tầng kỹ thuật",
+      "count": 112
+    },
+    {
+      "legal_area": "Bảo vệ và chăm sóc trẻ em",
+      "count": 111
+    },
+    {
+      "legal_area": "Hành chính tư pháp",
+      "count": 111
+    },
+    {
+      "legal_area": "Công tác dân tộc",
+      "count": 109
+    },
+    {
+      "legal_area": "Tài chính",
+      "count": 107
+    },
+    {
+      "legal_area": "Tài chính đối ngoại",
+      "count": 107
+    },
+    {
+      "legal_area": "Đăng kiểm",
+      "count": 106
+    },
+    {
+      "legal_area": "An toàn thông tin",
+      "count": 105
+    },
+    {
+      "legal_area": "Quy hoạch - Kiến trúc",
+      "count": 102
+    },
+    {
+      "legal_area": "Thể dục, thể thao",
+      "count": 99
+    },
+    {
+      "legal_area": "Phát thanh truyền hình và thông tin điện tử",
+      "count": 98
+    },
+    {
+      "legal_area": "Kinh tế hợp tác và Phát triển nông thôn",
+      "count": 98
+    },
+    {
+      "legal_area": "Bảo vệ thực vật",
+      "count": 97
+    },
+    {
+      "legal_area": "Đường sắt",
+      "count": 97
+    },
+    {
+      "legal_area": "Quản lý tài sản công",
+      "count": 97
+    },
+    {
+      "legal_area": "Việc làm",
+      "count": 96
+    },
+    {
+      "legal_area": "Phát triển công nghiệp và thương mại địa phương",
+      "count": 96
+    },
+    {
+      "legal_area": "Kinh tế xây dựng",
+      "count": 95
+    },
+    {
+      "legal_area": "Tín dụng",
+      "count": 94
+    },
+    {
+      "legal_area": "Văn thư và Lưu trữ Nhà nước",
+      "count": 93
+    },
+    {
+      "legal_area": "Công tác học sinh, sinh viên",
+      "count": 91
+    },
+    {
+      "legal_area": "Trợ giúp pháp lý",
+      "count": 90
+    },
+    {
+      "legal_area": "An toàn lao động",
+      "count": 86
+    },
+    {
+      "legal_area": "Kết cấu hạ tầng giao thông",
+      "count": 84
+    },
+    {
+      "legal_area": "Chất lượng Nông Lâm sản và Thủy sản",
+      "count": 83
+    },
+    {
+      "legal_area": "Dịch vụ thương mại",
+      "count": 82
+    },
+    {
+      "legal_area": "Xúc tiến thương mại",
+      "count": 82
+    },
+    {
+      "legal_area": "Lao động ngoài nước",
+      "count": 82
+    },
+    {
+      "legal_area": "Vệ sinh an toàn và dinh dưỡng",
+      "count": 79
+    },
+    {
+      "legal_area": "Hình sự - hành chính",
+      "count": 79
+    },
+    {
+      "legal_area": "Tài chính doanh nghiệp",
+      "count": 77
+    },
+    {
+      "legal_area": "Vật liệu xây dựng",
+      "count": 75
+    },
+    {
+      "legal_area": "Quản lý ngoại hối",
+      "count": 75
+    },
+    {
+      "legal_area": "Lưu trữ",
+      "count": 72
+    },
+    {
+      "legal_area": "Tổ chức phi Chính phủ",
+      "count": 72
+    },
+    {
+      "legal_area": "Cơ sở vật chất và thiết bị trường học",
+      "count": 71
+    },
+    {
+      "legal_area": "Khí hậu , thủy văn",
+      "count": 71
+    },
+    {
+      "legal_area": "Giáo dục đại học",
+      "count": 71
+    },
+    {
+      "legal_area": "Đăng ký, quản lý cư trú",
+      "count": 70
+    },
+    {
+      "legal_area": "Quản lý nhà và thị trường bất động sản",
+      "count": 69
+    },
+    {
+      "legal_area": "Kế toán, kiểm toán",
+      "count": 69
+    },
+    {
+      "legal_area": "Bảo hiểm xã hội",
+      "count": 69
+    },
+    {
+      "legal_area": "Sở hữu trí tuệ",
+      "count": 66
+    },
+    {
+      "legal_area": "Hạ tầng kỹ thuật đô thị, khu công nghiệp, khu kinh tế, khu công nghệ cao",
+      "count": 66
+    },
+    {
+      "legal_area": "Công nghiệp tiêu dùng, công nghiệp thực phẩm và công nghiệp chế biến khác",
+      "count": 66
+    },
+    {
+      "legal_area": "Nhà giáo và Cán bộ quản lý cơ sở giáo dục",
+      "count": 66
+    },
+    {
+      "legal_area": "Lĩnh vực khác",
+      "count": 66
+    },
+    {
+      "legal_area": "Phổ biến, giáo dục pháp luật, hòa giải ở cơ sở",
+      "count": 65
+    },
+    {
+      "legal_area": "Giáo dục chuyên nghiệp",
+      "count": 65
+    },
+    {
+      "legal_area": "Khoa học và công nghệ",
+      "count": 64
+    },
+    {
+      "legal_area": "Điều tiết điện lực",
+      "count": 62
+    },
+    {
+      "legal_area": "Chính sách",
+      "count": 60
+    },
+    {
+      "legal_area": "Bồi thường nhà nước",
+      "count": 60
+    },
+    {
+      "legal_area": "Phát triển tiềm lực khoa học và công nghệ",
+      "count": 58
+    },
+    {
+      "legal_area": "Đăng ký giao dịch bảo đảm",
+      "count": 58
+    },
+    {
+      "legal_area": "Xử lý vi phạm hành chính và theo dõi thi hành pháp luật",
+      "count": 58
+    },
+    {
+      "legal_area": "Tần số-vô tuyến điện",
+      "count": 57
+    },
+    {
+      "legal_area": "Quản lý khu cụm, điểm công nghiệp",
+      "count": 56
+    },
+    {
+      "legal_area": "Ngân hàng và tổ chức tài chính",
+      "count": 55
+    },
+    {
+      "legal_area": "Quy chế thi, tuyển sinh",
+      "count": 54
+    },
+    {
+      "legal_area": "Cơ cấu tổ chức",
+      "count": 54
+    },
+    {
+      "legal_area": "Dược - Mỹ phẩm",
+      "count": 53
+    },
+    {
+      "legal_area": "Khác",
+      "count": 53
+    },
+    {
+      "legal_area": "Dầu khí",
+      "count": 52
+    },
+    {
+      "legal_area": "Quản lý xuất nhập cảnh",
+      "count": 51
+    },
+    {
+      "legal_area": "Tôn giáo",
+      "count": 51
+    },
+    {
+      "legal_area": "Giám định nhà nước về Chất lượng công trình xây dựng",
+      "count": 50
+    },
+    {
+      "legal_area": "Hải quan",
+      "count": 50
+    },
+    {
+      "legal_area": "Cán bộ, công chức",
+      "count": 49
+    },
+    {
+      "legal_area": "Tổ chức, bộ máy",
+      "count": 49
+    },
+    {
+      "legal_area": "Quản lý biên giới",
+      "count": 48
+    },
+    {
+      "legal_area": "Ứng dụng và Phát triển công nghệ",
+      "count": 47
+    },
+    {
+      "legal_area": "Phòng, chống tham nhũng",
+      "count": 47
+    },
+    {
+      "legal_area": "Đánh giá, thẩm định và giám định công nghệ",
+      "count": 44
+    },
+    {
+      "legal_area": "Khoa học công nghệ",
+      "count": 44
+    },
+    {
+      "legal_area": "Bảo vệ quyền lợi người tiêu dùng",
+      "count": 43
+    },
+    {
+      "legal_area": "Nuôi con nuôi",
+      "count": 43
+    },
+    {
+      "legal_area": "Tài chính, kế toán",
+      "count": 41
+    },
+    {
+      "legal_area": "Công tác lãnh sự",
+      "count": 40
+    },
+    {
+      "legal_area": "Xử lý vi phạm hành chính",
+      "count": 40
+    },
+    {
+      "legal_area": "Giáo dục đào tạo",
+      "count": 40
+    },
+    {
+      "legal_area": "giảm nghèo",
+      "count": 40
+    },
+    {
+      "legal_area": "Dân sự - Kinh tế",
+      "count": 39
+    },
+    {
+      "legal_area": "Nông nghiệp và Môi trường",
+      "count": 39
+    },
+    {
+      "legal_area": "giáo dục nghề nghiệp",
+      "count": 38
+    },
+    {
+      "legal_area": "Hợp tác quốc tế",
+      "count": 37
+    },
+    {
+      "legal_area": "Bảo hiểm",
+      "count": 37
+    },
+    {
+      "legal_area": "Biển và hải đảo",
+      "count": 36
+    },
+    {
+      "legal_area": "Lĩnh vực quản lý vũ khí – vật liệu nổ công nghiệp và công cụ hỗ trợ",
+      "count": 36
+    },
+    {
+      "legal_area": "Công nghiệp nhẹ",
+      "count": 36
+    },
+    {
+      "legal_area": "Chứng khoán",
+      "count": 36
+    },
+    {
+      "legal_area": "Hộ tịch",
+      "count": 35
+    },
+    {
+      "legal_area": "Lưu thông hàng hóa trong nước và xuất khẩu, nhập khẩu",
+      "count": 35
+    },
+    {
+      "legal_area": "Tài chính khác; Quản lý ngân sách",
+      "count": 35
+    },
+    {
+      "legal_area": "Quản lý vay nợ, trả nợ trong nước, ngoài nước của Chính phủ, nợ của khu vực công, nợ quốc gia và nguồn viện trợ quốc tế",
+      "count": 34
+    },
+    {
+      "legal_area": "Kế hoạch - Tài chính",
+      "count": 34
+    },
+    {
+      "legal_area": "Thanh tra, kiểm tra tài chính",
+      "count": 34
+    },
+    {
+      "legal_area": "Đấu giá tài sản",
+      "count": 34
+    },
+    {
+      "legal_area": "An toàn bức xạ và hạt nhân",
+      "count": 33
+    },
+    {
+      "legal_area": "Viên chức",
+      "count": 33
+    },
+    {
+      "legal_area": "Giáo dục",
+      "count": 32
+    },
+    {
+      "legal_area": "HIV/AIDS",
+      "count": 32
+    },
+    {
+      "legal_area": "Ban hành văn bản QPPL",
+      "count": 32
+    },
+    {
+      "legal_area": "Khảo thí và Kiểm định chất lượng",
+      "count": 32
+    },
+    {
+      "legal_area": "Than, khoáng sản",
+      "count": 31
+    },
+    {
+      "legal_area": "Khoa học và Công nghệ các ngành kinh tế - kỹ thuật",
+      "count": 31
+    },
+    {
+      "legal_area": "Thư viện",
+      "count": 31
+    },
+    {
+      "legal_area": "Trang thiết bị và công trình y tế",
+      "count": 30
+    },
+    {
+      "legal_area": "Tuyển quân",
+      "count": 30
+    },
+    {
+      "legal_area": "Phát hành và kho quỹ",
+      "count": 30
+    },
+    {
+      "legal_area": "Xuất bản, in, phát hành",
+      "count": 30
+    },
+    {
+      "legal_area": "Giao thông vận tải",
+      "count": 30
+    },
+    {
+      "legal_area": "An toàn, vệ sinh lao động",
+      "count": 30
+    },
+    {
+      "legal_area": "Trang thiết bị y tế",
+      "count": 30
+    },
+    {
+      "legal_area": "Hợp tác xã",
+      "count": 29
+    },
+    {
+      "legal_area": "Tài chính doanh nghiệp và quản lý vốn của nhà nước tại doanh nghiệp",
+      "count": 29
+    },
+    {
+      "legal_area": "Khoa học, công nghệ và môi trường",
+      "count": 29
+    },
+    {
+      "legal_area": "Đầu tư bằng nguồn vốn hỗ trợ phát triển chính thức (ODA)",
+      "count": 29
+    },
+    {
+      "legal_area": "Giáo dục thường xuyên",
+      "count": 28
+    },
+    {
+      "legal_area": "An toàn kỹ thuật công nghiệp",
+      "count": 28
+    },
+    {
+      "legal_area": "Quản lý hoạt động thương mại của các tổ chức và cá nhân người Việt Nam ở nước ngoài và của người nước ngoài ở Việt Nam",
+      "count": 26
+    },
+    {
+      "legal_area": "Cơ khí - Luyện kim - Công nghiệp hỗ trợ",
+      "count": 26
+    },
+    {
+      "legal_area": "Quản lý tài chính các tổ chức tài chính và dịch vụ tài chính",
+      "count": 26
+    },
+    {
+      "legal_area": "Chế biến nông lâm thủy sản và Nghề muối",
+      "count": 26
+    },
+    {
+      "legal_area": "Đào tạo và nghiên cứu y dược",
+      "count": 25
+    },
+    {
+      "legal_area": "Kinh doanh bất động sản",
+      "count": 25
+    },
+    {
+      "legal_area": "Giáo dục dân tộc",
+      "count": 25
+    },
+    {
+      "legal_area": "Kế hoạch - Tổng hợp",
+      "count": 24
+    },
+    {
+      "legal_area": "Công nghệ tin học ngân hàng",
+      "count": 24
+    },
+    {
+      "legal_area": "Đăng ký hoạt động khoa học và công nghệ",
+      "count": 24
+    },
+    {
+      "legal_area": "Công tác thanh niên",
+      "count": 24
+    },
+    {
+      "legal_area": "Môi trường y tế",
+      "count": 24
+    },
+    {
+      "legal_area": "Nghệ thuật biểu diễn",
+      "count": 24
+    },
+    {
+      "legal_area": "xây dựng lực lượng",
+      "count": 24
+    },
+    {
+      "legal_area": "Đăng ký, quản lý phương tiện giao thông",
+      "count": 24
+    },
+    {
+      "legal_area": "Quảng cáo",
+      "count": 23
+    },
+    {
+      "legal_area": "Tài chính khác; Quản lý thuế, phí và lệ phí",
+      "count": 23
+    },
+    {
+      "legal_area": "Kinh tế nông nghiệp",
+      "count": 23
+    },
+    {
+      "legal_area": "Năng lượng",
+      "count": 23
+    },
+    {
+      "legal_area": "Y dược cổ truyền",
+      "count": 23
+    },
+    {
+      "legal_area": "Phát triển thị trường và doanh nghiệp khoa học và công nghệ",
+      "count": 22
+    },
+    {
+      "legal_area": "Khu công nghiệp, khu kinh tế, khu chế xuất, khu công nghệ cao",
+      "count": 22
+    },
+    {
+      "legal_area": "Kho bạc",
+      "count": 22
+    },
+    {
+      "legal_area": "Kỹ thuật an toàn và Môi trường công nghiệp",
+      "count": 21
+    },
+    {
+      "legal_area": "Hoạt động khác",
+      "count": 21
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí; Tài chính khác",
+      "count": 21
+    },
+    {
+      "legal_area": "Chính sách thương mại biên giới, thương mại miền núi",
+      "count": 21
+    },
+    {
+      "legal_area": "Lý lịch tư pháp",
+      "count": 21
+    },
+    {
+      "legal_area": "nội vụ",
+      "count": 21
+    },
+    {
+      "legal_area": "Quản lý nợ và tài chính đối ngoại",
+      "count": 20
+    },
+    {
+      "legal_area": "Năng lượng nguyên tử, an toàn bức xạ và hạt nhân",
+      "count": 20
+    },
+    {
+      "legal_area": "Thương mại điện tử",
+      "count": 20
+    },
+    {
+      "legal_area": "văn phòng",
+      "count": 20
+    },
+    {
+      "legal_area": "Quản lý dự trữ nhà nước",
+      "count": 19
+    },
+    {
+      "legal_area": "Nghĩa vụ quân sự",
+      "count": 19
+    },
+    {
+      "legal_area": "Hệ thống văn bằng, chứng chỉ",
+      "count": 19
+    },
+    {
+      "legal_area": "Thống kê",
+      "count": 18
+    },
+    {
+      "legal_area": "Gia đình",
+      "count": 18
+    },
+    {
+      "legal_area": "Khí tượng thủy văn và biến đổi khí hậu",
+      "count": 18
+    },
+    {
+      "legal_area": "Cấp giấy chứng minh nhân dân",
+      "count": 18
+    },
+    {
+      "legal_area": "Tuyển sinh quân sự",
+      "count": 18
+    },
+    {
+      "legal_area": "Văn thư - Lưu trữ",
+      "count": 18
+    },
+    {
+      "legal_area": "Đào tạo bồi dưỡng cán bộ, công chức, viên chức",
+      "count": 18
+    },
+    {
+      "legal_area": "Hoạt động của các tổ chức phi chính phủ nước ngoài tại VN",
+      "count": 18
+    },
+    {
+      "legal_area": "Hội nhập kinh tế, thương mại quốc tế",
+      "count": 17
+    },
+    {
+      "legal_area": "Tổ chức hoạt động hòa giải ở cơ sở",
+      "count": 17
+    },
+    {
+      "legal_area": "Nông thôn mới",
+      "count": 17
+    },
+    {
+      "legal_area": "Dự trữ nhà nước",
+      "count": 17
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Tài chính khác",
+      "count": 16
+    },
+    {
+      "legal_area": "An toàn giao thông",
+      "count": 16
+    },
+    {
+      "legal_area": "Giám định tư pháp",
+      "count": 16
+    },
+    {
+      "legal_area": "An toàn thực phẩm",
+      "count": 16
+    },
+    {
+      "legal_area": "quy hoạch",
+      "count": 16
+    },
+    {
+      "legal_area": "Kinh tế đối ngoại",
+      "count": 15
+    },
+    {
+      "legal_area": "Sức khỏe sinh sản",
+      "count": 15
+    },
+    {
+      "legal_area": "Thông tin khoa học và công nghệ quốc gia",
+      "count": 15
+    },
+    {
+      "legal_area": "Tiếp công dân",
+      "count": 15
+    },
+    {
+      "legal_area": "Biên phòng",
+      "count": 15
+    },
+    {
+      "legal_area": "Động viên",
+      "count": 15
+    },
+    {
+      "legal_area": "Chính sách hậu phương quân đội",
+      "count": 14
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Quản lý dịch vụ tài chính và các quỹ tài chính",
+      "count": 14
+    },
+    {
+      "legal_area": "Lương, phụ cấp",
+      "count": 14
+    },
+    {
+      "legal_area": "Quân nhân chuyên nghiệp, công nhân và viên chức quốc phòng",
+      "count": 14
+    },
+    {
+      "legal_area": "Thi hành án",
+      "count": 14
+    },
+    {
+      "legal_area": "Kiểm lâm",
+      "count": 14
+    },
+    {
+      "legal_area": "Cục An toàn hệ thống các tổ chức tín dụng",
+      "count": 14
+    },
+    {
+      "legal_area": "Thị trường trong nước",
+      "count": 13
+    },
+    {
+      "legal_area": "Quản lý ngành nghề kinh doanh có điều kiện",
+      "count": 13
+    },
+    {
+      "legal_area": "Tài nguyên và Môi trường",
+      "count": 13
+    },
+    {
+      "legal_area": "Giám định y khoa, pháp y, pháp y tâm thần",
+      "count": 13
+    },
+    {
+      "legal_area": "Chứng khoán và thị trường chứng khoán",
+      "count": 12
+    },
+    {
+      "legal_area": "Tiêu chuẩn nhà giáo, cán bộ quản lý giáo dục",
+      "count": 12
+    },
+    {
+      "legal_area": "Ngoại vụ địa phương",
+      "count": 12
+    },
+    {
+      "legal_area": "Pháp chế",
+      "count": 12
+    },
+    {
+      "legal_area": "Công nghệ cao, chuyển giao công nghệ",
+      "count": 12
+    },
+    {
+      "legal_area": "Quyền tác giả, quyền liên quan đối với tác phẩm văn học, nghệ thuật",
+      "count": 12
+    },
+    {
+      "legal_area": "Tin học hóa",
+      "count": 11
+    },
+    {
+      "legal_area": "Phí và lệ phí",
+      "count": 11
+    },
+    {
+      "legal_area": "Cán bộ, công chức, viên chức",
+      "count": 11
+    },
+    {
+      "legal_area": "Đào tạo với nước ngoài",
+      "count": 11
+    },
+    {
+      "legal_area": "Ủy ban nhân dân",
+      "count": 11
+    },
+    {
+      "legal_area": "Lâm nghiệp và Kiểm lâm",
+      "count": 11
+    },
+    {
+      "legal_area": "Tố tụng hình sự",
+      "count": 11
+    },
+    {
+      "legal_area": "Bảo hiểm xã hội bắt buộc và bảo hiểm xã hội tự nguyện",
+      "count": 11
+    },
+    {
+      "legal_area": "Đầu tư công",
+      "count": 11
+    },
+    {
+      "legal_area": "Thống kê y tế",
+      "count": 11
+    },
+    {
+      "legal_area": "Trồng trọt",
+      "count": 10
+    },
+    {
+      "legal_area": "Tư pháp, pháp chế",
+      "count": 10
+    },
+    {
+      "legal_area": "Quản lý chung",
+      "count": 10
+    },
+    {
+      "legal_area": "Doanh nghiệp",
+      "count": 10
+    },
+    {
+      "legal_area": "Kỹ thuật",
+      "count": 9
+    },
+    {
+      "legal_area": "Quân y",
+      "count": 9
+    },
+    {
+      "legal_area": "Giáo dục quốc phòng",
+      "count": 9
+    },
+    {
+      "legal_area": "Công nghệ thông tin",
+      "count": 9
+    },
+    {
+      "legal_area": "Kết cấu hạ tầng thương mại",
+      "count": 9
+    },
+    {
+      "legal_area": "Quản lý dịch vụ tài chính và các quỹ tài chính; Tài chính khác",
+      "count": 9
+    },
+    {
+      "legal_area": "Đăng ký, quản lý con dấu",
+      "count": 9
+    },
+    {
+      "legal_area": "Giao thông đường bộ",
+      "count": 9
+    },
+    {
+      "legal_area": "Kinh doanh lữ hành",
+      "count": 9
+    },
+    {
+      "legal_area": "Giáo dục nghề nghiệp",
+      "count": 9
+    },
+    {
+      "legal_area": "Bình đẳng giới",
+      "count": 9
+    },
+    {
+      "legal_area": "khám bệnh, chữa bệnh",
+      "count": 9
+    },
+    {
+      "legal_area": "Điện ảnh",
+      "count": 9
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Quản lý ngân sách",
+      "count": 9
+    },
+    {
+      "legal_area": "Thanh tra Bộ",
+      "count": 9
+    },
+    {
+      "legal_area": "Lễ tân Nhà nước, người VN ở nước ngoài",
+      "count": 8
+    },
+    {
+      "legal_area": "Quản lý vùng trời",
+      "count": 8
+    },
+    {
+      "legal_area": "Khoa học thanh tra",
+      "count": 8
+    },
+    {
+      "legal_area": "Pháp luật quốc tế",
+      "count": 8
+    },
+    {
+      "legal_area": "Các lĩnh vực khác",
+      "count": 8
+    },
+    {
+      "legal_area": "Quản lý dược",
+      "count": 8
+    },
+    {
+      "legal_area": "Tiêu chuẩn, quy chuẩn",
+      "count": 8
+    },
+    {
+      "legal_area": "An ninh quốc gia",
+      "count": 8
+    },
+    {
+      "legal_area": "Lễ tân ngoại giao",
+      "count": 7
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Quản lý thuế, phí và lệ phí",
+      "count": 7
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí; Quản lý ngân sách",
+      "count": 7
+    },
+    {
+      "legal_area": "Thuế xuất khẩu, thuế nhập khẩu",
+      "count": 7
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Quản lý tài chính doanh nghiệp",
+      "count": 7
+    },
+    {
+      "legal_area": "Cảnh sát biển",
+      "count": 7
+    },
+    {
+      "legal_area": "Chức năng, nhiệm vụ quyền hạn",
+      "count": 7
+    },
+    {
+      "legal_area": "Hành chính",
+      "count": 7
+    },
+    {
+      "legal_area": "Thừa phát lại",
+      "count": 7
+    },
+    {
+      "legal_area": "Thi hành án hình sự và hỗ trợ tư pháp",
+      "count": 7
+    },
+    {
+      "legal_area": "Lao động",
+      "count": 7
+    },
+    {
+      "legal_area": "Giao thông đường thủy nội địa",
+      "count": 7
+    },
+    {
+      "legal_area": "Sĩ quan",
+      "count": 7
+    },
+    {
+      "legal_area": "Quản lý cạnh tranh",
+      "count": 7
+    },
+    {
+      "legal_area": "Quốc phòng",
+      "count": 7
+    },
+    {
+      "legal_area": "Chế độ báo cáo",
+      "count": 7
+    },
+    {
+      "legal_area": "Quốc tịch",
+      "count": 7
+    },
+    {
+      "legal_area": "Ngân hàng Nhà nước Việt Nam",
+      "count": 6
+    },
+    {
+      "legal_area": "Tương trợ tư pháp",
+      "count": 6
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí; Quản lý dịch vụ tài chính và các quỹ tài chính",
+      "count": 6
+    },
+    {
+      "legal_area": "Mỹ thuật, nhiếp ảnh và triển lãm",
+      "count": 6
+    },
+    {
+      "legal_area": "Công nghiệp quốc phòng",
+      "count": 6
+    },
+    {
+      "legal_area": "y tế khác",
+      "count": 6
+    },
+    {
+      "legal_area": "Công trình quốc phòng, khu quân sự",
+      "count": 6
+    },
+    {
+      "legal_area": "Nhà ở",
+      "count": 6
+    },
+    {
+      "legal_area": "Tín ngưỡng, tôn giáo",
+      "count": 6
+    },
+    {
+      "legal_area": "Chăn nuôi",
+      "count": 6
+    },
+    {
+      "legal_area": "Kiểm tra theo dõi thi hành văn bản QPPL",
+      "count": 6
+    },
+    {
+      "legal_area": "Tài chính khác; TCNH và thị trường TC, trái phiếu, khác",
+      "count": 6
+    },
+    {
+      "legal_area": "Đê điều và Phòng chống thiên tai",
+      "count": 6
+    },
+    {
+      "legal_area": "Quản lý, sử dụng vũ khí, vật liệu nổ, công cụ hỗ trợ",
+      "count": 6
+    },
+    {
+      "legal_area": "chuyển đổi số",
+      "count": 6
+    },
+    {
+      "legal_area": "phân cấp, phân quyền",
+      "count": 6
+    },
+    {
+      "legal_area": "Cơ yếu",
+      "count": 5
+    },
+    {
+      "legal_area": "Kinh doanh lưu trú",
+      "count": 5
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí; Quản lý tài chính doanh nghiệp",
+      "count": 5
+    },
+    {
+      "legal_area": "Phòng, chống thiên tai",
+      "count": 5
+    },
+    {
+      "legal_area": "Bảo hiểm thất nghiệp",
+      "count": 5
+    },
+    {
+      "legal_area": "Tuyển dụng cán bộ, công chức",
+      "count": 5
+    },
+    {
+      "legal_area": "Thương mại",
+      "count": 5
+    },
+    {
+      "legal_area": "Báo chí",
+      "count": 5
+    },
+    {
+      "legal_area": "Văn hóa đối ngoại",
+      "count": 5
+    },
+    {
+      "legal_area": "Xây dựng nhà ở",
+      "count": 5
+    },
+    {
+      "legal_area": "Tư vấn pháp luật",
+      "count": 5
+    },
+    {
+      "legal_area": "Quản lý giá; Quản lý thuế, phí và lệ phí",
+      "count": 5
+    },
+    {
+      "legal_area": "Giao dịch",
+      "count": 4
+    },
+    {
+      "legal_area": "Quản lý giá; Quản lý ngân sách",
+      "count": 4
+    },
+    {
+      "legal_area": "Quản lý ngân sách; TCNH và thị trường TC, trái phiếu, khác",
+      "count": 4
+    },
+    {
+      "legal_area": "Quản lý dịch vụ tài chính và các quỹ tài chính; TCNH và thị trường TC, trái phiếu, khác",
+      "count": 4
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Quản lý giá",
+      "count": 4
+    },
+    {
+      "legal_area": "Biên giới quốc gia",
+      "count": 4
+    },
+    {
+      "legal_area": "chức năng, nhiệm vụ, quyền hạn, cơ cấu tổ chức của sở Thông tin và Truyền thông",
+      "count": 4
+    },
+    {
+      "legal_area": "Hội đồng nhân dân",
+      "count": 4
+    },
+    {
+      "legal_area": "Khiếu nại",
+      "count": 4
+    },
+    {
+      "legal_area": "Quản lý Khám, chữa bệnh",
+      "count": 4
+    },
+    {
+      "legal_area": "Tiêu chuẩn vật chất hậu cần cho quân nhân tại ngũ",
+      "count": 4
+    },
+    {
+      "legal_area": "Hàng không dân dụng",
+      "count": 4
+    },
+    {
+      "legal_area": "Khoa học và đào tạo",
+      "count": 4
+    },
+    {
+      "legal_area": "Trọng tài thương mại",
+      "count": 4
+    },
+    {
+      "legal_area": "Luật sư",
+      "count": 4
+    },
+    {
+      "legal_area": "Ký kết điều ước quốc tế, thỏa thuận quốc tế",
+      "count": 4
+    },
+    {
+      "legal_area": "Xây dựng, kiểm tra, rà soát, hệ thống hóa văn bản",
+      "count": 4
+    },
+    {
+      "legal_area": "Quản lý, sử dụng tài sản công",
+      "count": 4
+    },
+    {
+      "legal_area": "Bảo vệ bí mật nhà nước",
+      "count": 4
+    },
+    {
+      "legal_area": "Bảo vệ và kiểm dịch thực vật",
+      "count": 4
+    },
+    {
+      "legal_area": "Thông tin tín dụng",
+      "count": 4
+    },
+    {
+      "legal_area": "Dân tộc",
+      "count": 4
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí; Tài chính đối ngoại",
+      "count": 4
+    },
+    {
+      "legal_area": "Phòng, chống rửa tiền",
+      "count": 4
+    },
+    {
+      "legal_area": "Biến đổi khí hậu",
+      "count": 4
+    },
+    {
+      "legal_area": "Chăn nuôi, thú y",
+      "count": 4
+    },
+    {
+      "legal_area": "Phòng không nhân dân",
+      "count": 4
+    },
+    {
+      "legal_area": "Địa chất, khoáng sản",
+      "count": 4
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Tài chính khác; Quản lý ngân sách",
+      "count": 4
+    },
+    {
+      "legal_area": "Tổ chức Quốc hội",
+      "count": 4
+    },
+    {
+      "legal_area": "Hướng dẫn du lịch",
+      "count": 3
+    },
+    {
+      "legal_area": "Hội đồng nhân dân tỉnh",
+      "count": 3
+    },
+    {
+      "legal_area": "Quản lý dịch vụ tài chính và các quỹ tài chính; Quản lý ngân sách",
+      "count": 3
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Tài chính đối ngoại",
+      "count": 3
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Quản lý tài chính doanh nghiệp",
+      "count": 3
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Quản lý dịch vụ tài chính và các quỹ tài chính",
+      "count": 3
+    },
+    {
+      "legal_area": "Tài chính đối ngoại; Quản lý ngân sách",
+      "count": 3
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp; Quản lý dịch vụ tài chính và các quỹ tài chính",
+      "count": 3
+    },
+    {
+      "legal_area": "Quản lý giá; Tài chính khác",
+      "count": 3
+    },
+    {
+      "legal_area": "Hoạt động giám sát của Quốc hội và Hội đồng nhân dân",
+      "count": 3
+    },
+    {
+      "legal_area": "Công tác người Việt Nam ở nước ngoài",
+      "count": 3
+    },
+    {
+      "legal_area": "Cơ quan đại diện Việt Nam ở nước ngoài",
+      "count": 3
+    },
+    {
+      "legal_area": "Hỗ trợ doanh nghiệp nhỏ và vừa",
+      "count": 3
+    },
+    {
+      "legal_area": "Biên giới, lãnh thổ",
+      "count": 3
+    },
+    {
+      "legal_area": "Người cao tuổi",
+      "count": 3
+    },
+    {
+      "legal_area": "Mỹ phẩm",
+      "count": 3
+    },
+    {
+      "legal_area": "Kiến trúc",
+      "count": 3
+    },
+    {
+      "legal_area": "Tiêu chuẩn và quy chuẩn kỹ thuật",
+      "count": 3
+    },
+    {
+      "legal_area": "Lĩnh vực thực hiện chính sách bảo hiểm y tế",
+      "count": 3
+    },
+    {
+      "legal_area": "Quốc phòng, an ninh",
+      "count": 3
+    },
+    {
+      "legal_area": "Hình sự",
+      "count": 3
+    },
+    {
+      "legal_area": "Biên giới Quốc gia",
+      "count": 3
+    },
+    {
+      "legal_area": "Chính sách trợ giúp xã hội đối với đối tượng bảo trợ xã hội",
+      "count": 3
+    },
+    {
+      "legal_area": "An toàn thông tin mạng",
+      "count": 3
+    },
+    {
+      "legal_area": "Đối ngoại",
+      "count": 3
+    },
+    {
+      "legal_area": "Quản lý thuế",
+      "count": 3
+    },
+    {
+      "legal_area": "Phòng thủ dân sự",
+      "count": 3
+    },
+    {
+      "legal_area": "Trách nhiệm bồi thường của Nhà nước",
+      "count": 3
+    },
+    {
+      "legal_area": "Hoạt động giám sát",
+      "count": 3
+    },
+    {
+      "legal_area": "Thủy sản, kiểm ngư",
+      "count": 3
+    },
+    {
+      "legal_area": "Địa chất và khoáng sản",
+      "count": 3
+    },
+    {
+      "legal_area": "Kiểm toán Nhà nước",
+      "count": 3
+    },
+    {
+      "legal_area": "Khoa học - Công nghệ",
+      "count": 3
+    },
+    {
+      "legal_area": "Thành lập và hoạt động của hợp tác xã",
+      "count": 3
+    },
+    {
+      "legal_area": "Kế toán",
+      "count": 3
+    },
+    {
+      "legal_area": "Quản lý dịch vụ tài chính và các quỹ tài chính; Quản lý thuế, phí và lệ phí",
+      "count": 3
+    },
+    {
+      "legal_area": "Hoạt động thông tin, báo chí nước ngoài tại VN",
+      "count": 3
+    },
+    {
+      "legal_area": "Thực hành tiết kiệm, chống lãng phí",
+      "count": 3
+    },
+    {
+      "legal_area": "Đầu tư từ VN ra nước ngoài",
+      "count": 3
+    },
+    {
+      "legal_area": "Tổ chức Viện kiểm sát nhân dân",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Tài chính khác; Quản lý thuế, phí và lệ phí",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí; TCNH và thị trường TC, trái phiếu, khác",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý tài sản công; Tài chính khác",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp; Tài chính khác",
+      "count": 2
+    },
+    {
+      "legal_area": "Tài chính khác; Quản lý tài chính doanh nghiệp",
+      "count": 2
+    },
+    {
+      "legal_area": "Thanh tra, kiểm tra tài chính; Quản lý ngân sách",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Tài chính khác; Quản lý tài sản công",
+      "count": 2
+    },
+    {
+      "legal_area": "Tổ chức, quản lý hội thảo, hội nghị quốc tế",
+      "count": 2
+    },
+    {
+      "legal_area": "Tư pháp",
+      "count": 2
+    },
+    {
+      "legal_area": "Bảo hiểm tiền gửi",
+      "count": 2
+    },
+    {
+      "legal_area": "Nhập cảnh, xuất cảnh, quá cảnh, cư trú của người nước ngoài tại Việt Nam",
+      "count": 2
+    },
+    {
+      "legal_area": "Hòa giải thương mại",
+      "count": 2
+    },
+    {
+      "legal_area": "Phòng, chống ma túy",
+      "count": 2
+    },
+    {
+      "legal_area": "Hàng không dân dụng Việt Nam",
+      "count": 2
+    },
+    {
+      "legal_area": "Chăn nuôi và Thú y",
+      "count": 2
+    },
+    {
+      "legal_area": "Tiêu chuẩn - Đo lường - Chất lượng",
+      "count": 2
+    },
+    {
+      "legal_area": "Xuất cảnh, nhập cảnh của công dân Việt Nam",
+      "count": 2
+    },
+    {
+      "legal_area": "Công an nhân dân",
+      "count": 2
+    },
+    {
+      "legal_area": "Thực hiện nếp sống văn minh trong việc cưới, việc tang",
+      "count": 2
+    },
+    {
+      "legal_area": "học phí",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý ngân sách; TCNH và thị trường TC, trái phiếu, khác; Tài chính khác",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Quản lý tài sản công",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý dịch vụ tài chính và các quỹ tài chính; Quản lý tài chính doanh nghiệp",
+      "count": 2
+    },
+    {
+      "legal_area": "Tiếp cận thông tin",
+      "count": 2
+    },
+    {
+      "legal_area": "Tài nguyên, môi trường biển và hải đảo",
+      "count": 2
+    },
+    {
+      "legal_area": "Bầu cử đại biểu Quốc hội và đại biểu Hội đồng nhân dân",
+      "count": 2
+    },
+    {
+      "legal_area": "công nghệ thông tin",
+      "count": 2
+    },
+    {
+      "legal_area": "Người lao động Việt Nam đi làm việc ở nước ngoài theo hợp đồng",
+      "count": 2
+    },
+    {
+      "legal_area": "Đo đạc bản đồ",
+      "count": 2
+    },
+    {
+      "legal_area": "VBQPPL",
+      "count": 2
+    },
+    {
+      "legal_area": "Sĩ quan Quân đội nhân dân Việt Nam",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý giá; Quản lý dịch vụ tài chính và các quỹ tài chính",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý tài sản công; Quản lý giá",
+      "count": 2
+    },
+    {
+      "legal_area": "Tài chính đối ngoại; Quản lý thuế, phí và lệ phí",
+      "count": 2
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Quản lý thuế, phí và lệ phí",
+      "count": 2
+    },
+    {
+      "legal_area": "Thuế thu nhập cá nhân",
+      "count": 2
+    },
+    {
+      "legal_area": "Quy chế đặt tên, đổi tên đường, phố và công trình công cộng",
+      "count": 2
+    },
+    {
+      "legal_area": "Phòng, chống HIV/AIDS",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp; Quản lý thuế, phí và lệ phí",
+      "count": 2
+    },
+    {
+      "legal_area": "Tài chính khác; Quản lý dịch vụ tài chính và các quỹ tài chính",
+      "count": 2
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp; TCNH và thị trường TC, trái phiếu, khác",
+      "count": 1
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Quản lý giá",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý tài sản công; Quản lý tài chính doanh nghiệp",
+      "count": 1
+    },
+    {
+      "legal_area": "Tài chính khác; Tài chính đối ngoại",
+      "count": 1
+    },
+    {
+      "legal_area": "Chuyển giao công nghệ",
+      "count": 1
+    },
+    {
+      "legal_area": "Thuế bảo vệ môi trường",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý thuế, phí và lệ phí; Quản lý giá",
+      "count": 1
+    },
+    {
+      "legal_area": "Thanh tra ngoại giao",
+      "count": 1
+    },
+    {
+      "legal_area": "Ngoại giao kinh tế",
+      "count": 1
+    },
+    {
+      "legal_area": "Ưu đãi, miễn trừ ngoại giao",
+      "count": 1
+    },
+    {
+      "legal_area": "Chức năng, nhiệm vụ, quyền hạn và tổ chức bộ máy của tổ chức pháp chế",
+      "count": 1
+    },
+    {
+      "legal_area": "Tiếp nhận, xử lý phản ánh, kiến nghị của cá nhân, tổ chức về quy định hành chính",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý nợ công",
+      "count": 1
+    },
+    {
+      "legal_area": "Quy hoạch",
+      "count": 1
+    },
+    {
+      "legal_area": "tiêu chí và định mức",
+      "count": 1
+    },
+    {
+      "legal_area": "Kinh doanh bảo hiểm",
+      "count": 1
+    },
+    {
+      "legal_area": "Phát triển ngành nghề nông thôn",
+      "count": 1
+    },
+    {
+      "legal_area": "hoạt động sáng kiến",
+      "count": 1
+    },
+    {
+      "legal_area": "Xử phạt vi phạm hành chính",
+      "count": 1
+    },
+    {
+      "legal_area": "Hóa chất",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý giá; Quản lý tài sản công",
+      "count": 1
+    },
+    {
+      "legal_area": "Thuế tài nguyên",
+      "count": 1
+    },
+    {
+      "legal_area": "Dự trữ quốc gia",
+      "count": 1
+    },
+    {
+      "legal_area": "Nhuận bút, thù lao đối với tác phẩm điện ảnh, mỹ thuật, nhiếp ảnh, sân khấu và các loại hình nghệ thuật biểu diễn khác",
+      "count": 1
+    },
+    {
+      "legal_area": "TCNH và thị trường TC, trái phiếu, khác; Tài chính đối ngoại",
+      "count": 1
+    },
+    {
+      "legal_area": "Xuất bản, báo chí",
+      "count": 1
+    },
+    {
+      "legal_area": "Biển Việt Nam",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý vốn ủy thác (ODA cho vay lại và các nguồn vốn ủy thác khác)",
+      "count": 1
+    },
+    {
+      "legal_area": "Công đoàn",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Quản lý tài chính doanh nghiệp; Quản lý giá",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý ngân sách; Tài chính đối ngoại; TCNH và thị trường TC, trái phiếu, khác",
+      "count": 1
+    },
+    {
+      "legal_area": "Trợ giúp tư pháp",
+      "count": 1
+    },
+    {
+      "legal_area": "Cạnh tranh",
+      "count": 1
+    },
+    {
+      "legal_area": "Văn phòng đại diện tổ chức hợp tác, nghiên cứu nước ngoài tại Việt Nam",
+      "count": 1
+    },
+    {
+      "legal_area": "Một số hoạt động kinh doanh đặc thù",
+      "count": 1
+    },
+    {
+      "legal_area": "Hàm, cấp ngoại giao",
+      "count": 1
+    },
+    {
+      "legal_area": "Tham gia lực lượng gìn giữ hòa bình",
+      "count": 1
+    },
+    {
+      "legal_area": "Điều ước quốc tế",
+      "count": 1
+    },
+    {
+      "legal_area": "Hàng hải Việt Nam",
+      "count": 1
+    },
+    {
+      "legal_area": "Lăng Chủ tịch Hồ Chí Minh",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý môi trường y tế",
+      "count": 1
+    },
+    {
+      "legal_area": "Quân sự",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp; Quản lý ngân sách",
+      "count": 1
+    },
+    {
+      "legal_area": "Thuế thu nhập doanh nghiệp",
+      "count": 1
+    },
+    {
+      "legal_area": "Thuế tiêu thụ đặc biệt",
+      "count": 1
+    },
+    {
+      "legal_area": "Phòng, chống mại dâm",
+      "count": 1
+    },
+    {
+      "legal_area": "Thực hiện chế độ hưu trí đối với quân nhân trực tiếp tham gia kháng chiến chống Mỹ cứu nước từ ngày 30 tháng 4 năm 1975 trở về trước có 20 năm trở lên phục vụ quân đội đã phục viên, xuất ngũ",
+      "count": 1
+    },
+    {
+      "legal_area": "Tố tụng hành chính",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý ngoại thương",
+      "count": 1
+    },
+    {
+      "legal_area": "Handling of Administrative Violations",
+      "count": 1
+    },
+    {
+      "legal_area": "Thế chấp",
+      "count": 1
+    },
+    {
+      "legal_area": "Hoạt động chữ thập đỏ",
+      "count": 1
+    },
+    {
+      "legal_area": "Chất lượng sản phẩm, hàng hóa",
+      "count": 1
+    },
+    {
+      "legal_area": "Ưu đãi người có công với cách mạng",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp; Quản lý giá",
+      "count": 1
+    },
+    {
+      "legal_area": "Thuế sử dụng đất nông nghiệp",
+      "count": 1
+    },
+    {
+      "legal_area": "Đặt đổi tên đường",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý tài chính doanh nghiệp; Quản lý ngân sách; TCNH và thị trường TC, trái phiếu, khác",
+      "count": 1
+    },
+    {
+      "legal_area": "Báo chí và xuất bản y học",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý cho vay vốn tín dụng đầu tư, tín dụng xuất khẩu của Nhà nước",
+      "count": 1
+    },
+    {
+      "legal_area": "Tài chính đối ngoại; Tài chính khác",
+      "count": 1
+    },
+    {
+      "legal_area": "Quản lý tổng hợp tài nguyên, bảo vệ môi trường biển và hải đảo",
+      "count": 1
+    },
+    {
+      "legal_area": "Sử dụng năng lượng tiết kiệm và hiệu quả",
+      "count": 1
+    }
+  ]
+}

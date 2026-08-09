@@ -20,6 +20,7 @@
 // 기존 관례(email.ts의 EXPERT_TEAM_LABEL 등)를 따른다.
 
 import { createClient } from "@supabase/supabase-js";
+import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -116,8 +117,6 @@ function getEstimate(category: CategoryKey, serviceType: string | null): string 
   if (serviceType && ESTIMATED_DAYS[serviceType]) return ESTIMATED_DAYS[serviceType];
   return "담당자 확인 후 안내";
 }
-
-const EXPERT_TEAM_LABEL = "VFBCAI 법률자문팀 (Linda Kang · VNK 파트너)";
 
 type ActivityRow = { action: string | null; meta: unknown; created_at: string };
 
@@ -389,7 +388,7 @@ export async function buildCaseContext(leadId: string): Promise<CaseContext | nu
     permitCompletedAt: permitCompletedActivity?.created_at ?? null,
     hasPermitFile: typeof permitMeta?.file_url === "string",
     estimatedDays: getEstimate(category, normalizedType),
-    expertTeamLabel: EXPERT_TEAM_LABEL,
+    expertTeamLabel: resolveExpertTeamLabel(category, normalizedType),
     publicNotes,
     confidenceLevel: confidence.level,
     confidenceMessage: confidence.message,

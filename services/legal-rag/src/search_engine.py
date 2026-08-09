@@ -23,7 +23,7 @@ from pathlib import Path
 from .query_normalizer import LegalQueryNormalizer
 from .result_localizer import LocalizedSearchResult, localize_results
 from .search_exact import search_exact
-from .search_filters import apply_filters, filter_documents
+from .search_filters import apply_filters, filter_documents, scope_index_for_legal_areas
 from .search_keyword import search_canonical_concept, search_keyword
 from .search_models import (
     Chunk,
@@ -91,6 +91,7 @@ def _canonical_document_to_row(d: dict) -> dict:
         "status": d.get("status") or "unknown",
         "official_url": d.get("officialUrl"),
         "content_hash": d.get("contentHash"),
+        "legal_area": d.get("legalArea", d.get("legal_area")),
     }
 
 
@@ -138,6 +139,7 @@ def load_from_pipeline_jsonl(
         doc = documents_by_id.get(row["document_id"])
         if doc:
             row["official_url"] = doc.official_url
+            row["legal_area"] = doc.legal_area
         chunk_rows.append(row)
     chunks = [Chunk.from_dict(r) for r in chunk_rows]
 
@@ -206,6 +208,14 @@ class LegalSearchIndex:
         원문 질의 포함)는 원문 그대로 전달되므로 기존 검색 결과와 동일하다.
         """
         results: list[SearchResult] = []
+        documents = self.documents
+        chunks = self.chunks
+        documents_by_id = self.documents_by_id
+
+        if filters and filters.legal_areas:
+            documents, chunks, documents_by_id = scope_index_for_legal_areas(
+                documents, chunks, filters.legal_areas
+            )
 
         if query:
             normalization = _QUERY_NORMALIZER.normalize(query, language)
@@ -217,14 +227,14 @@ class LegalSearchIndex:
                 # 경우에만 Concept Match를 시도한다 — canonical_vi 문구가 문서
                 # 제목/조문 heading에 연속 문자열로 정확히 있어야만 인정됨.
                 concept_hits = search_canonical_concept(
-                    normalized_query, self.documents, self.chunks, self.documents_by_id
+                    normalized_query, documents, chunks, documents_by_id
                 )
 
-            exact_hits = search_exact(normalized_query, self.documents, self.chunks, self.documents_by_id)
+            exact_hits = search_exact(normalized_query, documents, chunks, documents_by_id)
             keyword_hits = search_keyword(
                 normalized_query,
-                self.chunks,
-                self.documents_by_id,
+                chunks,
+                documents_by_id,
                 limit=limit if limit else None,
             )
             results = self._dedupe_keep_best(concept_hits + exact_hits + keyword_hits)
@@ -234,19 +244,19 @@ class LegalSearchIndex:
                 # 여기서는 아직 필터를 적용하지 않은 전체 chunk 목록만 만들고,
                 # 실제 필터링은 아래 공통 apply_filters 단계에서 수행한다.
                 results = [
-                    result_from_chunk(c, self.documents_by_id.get(c.document_id), 0.0, _BrowseMatchTypeShim())
-                    for c in self.chunks
+                    result_from_chunk(c, documents_by_id.get(c.document_id), 0.0, _BrowseMatchTypeShim())
+                    for c in chunks
                 ]
             else:
                 # 문서 단위 browse는 filter_documents가 필터링까지 전부 수행한다
-                docs = filter_documents(self.documents, filters, self.relations)
+                docs = filter_documents(documents, filters, self.relations)
                 results = [result_from_document(d, score=0.0, match_type=_BrowseMatchTypeShim()) for d in docs]
                 filters = None  # 이미 적용 완료 — 아래 공통 단계에서 중복 적용하지 않음
         else:
             return []
 
         if filters and not filters.is_empty():
-            results = apply_filters(results, filters, self.documents_by_id, self.relations)
+            results = apply_filters(results, filters, documents_by_id, self.relations)
 
         # Ranking: 단순 점수 내림차순 (Exact가 항상 Keyword보다 높은 고정 점수를
         # 가지므로 이 정렬만으로 "Exact 우선, Keyword 다음"이 자연히 만족된다)

@@ -54,6 +54,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
 
@@ -88,8 +89,6 @@ const ESTIMATED_DAYS: Record<string, string> = {
 
 const VERIFY_ESTIMATE = "2~5 영업일";
 const CONSULTATION_ESTIMATE = "1~2 영업일";
-const EXPERT_TEAM_LABEL = "VFBCAI 행정전문팀";
-const EXPERT_NAME = "VFBCAI 행정전문팀 · VNK 파트너";
 
 type ConfidenceLevel = "green" | "yellow" | "red";
 type ConfidenceStatus = { level: ConfidenceLevel; label: string; message: string };
@@ -599,6 +598,7 @@ function AiResultCard({ item }: { item: MyPageItem }) {
 
 function CurrentStatusCard({ item }: { item: MyPageItem }) {
   const estimate = getEstimate(item.category, item.serviceType);
+  const expertTeamLabel = resolveExpertTeamLabel(item.category, item.serviceType);
 
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -613,12 +613,12 @@ function CurrentStatusCard({ item }: { item: MyPageItem }) {
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm"><UserCheck size={22} /></div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[14px] font-extrabold text-slate-950">{EXPERT_NAME}</p>
+            <p className="text-[14px] font-extrabold text-slate-950">{expertTeamLabel}</p>
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800">
               담당 전문가
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-slate-500">{EXPERT_TEAM_LABEL}</p>
+          <p className="mt-1 text-[11px] text-slate-500">{expertTeamLabel}</p>
         </div>
       </div>
 

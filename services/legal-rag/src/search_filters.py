@@ -15,7 +15,22 @@ issue_date, article_no, relation_type
 
 from __future__ import annotations
 
-from .search_models import Document, SearchFilters, SearchResult
+from .search_models import Chunk, Document, SearchFilters, SearchResult
+from .service_category_mapping import document_matches_legal_areas
+
+
+def scope_index_for_legal_areas(
+    documents: list[Document],
+    chunks: list[Chunk],
+    legal_areas: tuple[str, ...],
+) -> tuple[list[Document], list[Chunk], dict[str, Document]]:
+    """Restrict in-memory index to documents whose legal_area matches allowed labels."""
+    allowed = tuple(legal_areas)
+    scoped_docs = [d for d in documents if document_matches_legal_areas(d.legal_area, allowed)]
+    doc_ids = {d.document_id for d in scoped_docs}
+    scoped_chunks = [c for c in chunks if c.document_id in doc_ids]
+    documents_by_id = {d.document_id: d for d in scoped_docs}
+    return scoped_docs, scoped_chunks, documents_by_id
 
 
 def _date_in_range(value: str | None, exact: str | None, date_from: str | None, date_to: str | None) -> bool:
@@ -94,6 +109,10 @@ def apply_filters(
         if relation_doc_ids is not None and r.document_id not in relation_doc_ids:
             continue
 
+        if filters.legal_areas is not None:
+            if not doc or not document_matches_legal_areas(doc.legal_area, filters.legal_areas):
+                continue
+
         filtered.append(r)
 
     return filtered
@@ -128,6 +147,9 @@ def filter_documents(
             continue
         if relation_doc_ids is not None and doc.document_id not in relation_doc_ids:
             continue
+        if filters.legal_areas is not None:
+            if not document_matches_legal_areas(doc.legal_area, filters.legal_areas):
+                continue
         # article_no는 문서 단위 필터가 아니라 chunk 단위 개념이므로 browse 모드에서는 무시
         out.append(doc)
     return out
