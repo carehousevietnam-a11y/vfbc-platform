@@ -499,7 +499,12 @@ class TestFullPipelineIntegration:
 
         index = self._build_index()
         results = index.search(query="노동허가", language="ko", limit=5)
-        packs = build_evidence_packs(results, query="giấy phép lao động", documents_by_id=index.documents_by_id)
+        packs = build_evidence_packs(
+            results,
+            query="giấy phép lao động",
+            documents_by_id=index.documents_by_id,
+            chunks_by_document_id=index.chunks_by_document_id(),
+        )
         prompt = build_prompt(packs, user_question="노동허가 조건이 뭔가요?", language="ko")
 
         client = FakeOpenAIClient(content=_valid_json_response(

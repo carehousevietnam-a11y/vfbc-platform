@@ -162,6 +162,16 @@ class LegalSearchIndex:
         self.chunks = chunks
         self.relations = relations or []
         self.documents_by_id: dict[str, Document] = {d.document_id: d for d in documents}
+        self._chunks_by_document_id: dict[str, list[Chunk]] | None = None
+
+    def chunks_by_document_id(self) -> dict[str, list[Chunk]]:
+        """document_id별 chunk 목록(지연 생성, 읽기 전용)."""
+        if self._chunks_by_document_id is None:
+            grouped: dict[str, list[Chunk]] = {}
+            for chunk in self.chunks:
+                grouped.setdefault(chunk.document_id, []).append(chunk)
+            self._chunks_by_document_id = grouped
+        return self._chunks_by_document_id
 
     @classmethod
     def from_dicts(

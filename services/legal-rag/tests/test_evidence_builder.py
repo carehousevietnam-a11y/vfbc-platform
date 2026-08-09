@@ -17,12 +17,13 @@ STEP5-1 Evidence Builder 신규 테스트.
 import copy
 
 from src.evidence_builder import (
+    EVIDENCE_SIBLING_MATCH_TYPE,
     ArticleReference,
     EvidencePack,
     build_evidence_packs,
     format_evidence_pack_text,
 )
-from src.search_models import Document, MatchType, SearchResult
+from src.search_models import Chunk, Document, MatchType, SearchResult
 
 
 def _result(**overrides) -> SearchResult:
@@ -325,3 +326,129 @@ def test_evidence_pack_to_dict_roundtrip_keys():
     assert set(d.keys()) == expected_keys
     assert isinstance(d["articles"], list)
     assert isinstance(packs[0], EvidencePack)
+
+
+def test_document_level_hit_expands_sibling_articles_from_chunks():
+    """canonical_concept 제목 매치(article_no=None) 시 동일 문서 chunk 조항으로 보강."""
+    results = [
+        _result(
+            document_id="tmquan:CONCEPT-TITLE",
+            document_number=["77/2022/NĐ-CP"],
+            article_no=None,
+            score=85.0,
+            match_type=MatchType.CANONICAL_CONCEPT.value,
+        )
+    ]
+    chunks = {
+        "tmquan:CONCEPT-TITLE": [
+            Chunk.from_dict({
+                "chunk_id": "tmquan:CONCEPT-TITLE#dieu1",
+                "document_id": "tmquan:CONCEPT-TITLE",
+                "chapter_no": "I",
+                "article_no": "1",
+                "clause_no": None,
+                "item_no": None,
+                "heading": "Điều 1 Phạm vi điều chỉnh",
+                "original_text": "Điều 1.",
+                "normalized_text": "Điều 1.",
+                "search_text": "điều 1.",
+                "status": "active",
+                "official_url": None,
+                "content_hash": None,
+            }),
+            Chunk.from_dict({
+                "chunk_id": "tmquan:CONCEPT-TITLE#dieu2",
+                "document_id": "tmquan:CONCEPT-TITLE",
+                "chapter_no": "I",
+                "article_no": "2",
+                "clause_no": None,
+                "item_no": None,
+                "heading": "Điều 2 Điều kiện cấp phép",
+                "original_text": "Điều 2.",
+                "normalized_text": "Điều 2.",
+                "search_text": "điều 2.",
+                "status": "active",
+                "official_url": None,
+                "content_hash": None,
+            }),
+        ]
+    }
+    packs = build_evidence_packs(results, chunks_by_document_id=chunks)
+    assert len(packs) == 1
+    assert [a.article_no for a in packs[0].articles] == ["1", "2"]
+    assert all(a.match_type == EVIDENCE_SIBLING_MATCH_TYPE for a in packs[0].articles)
+    assert packs[0].top_match_type == MatchType.CANONICAL_CONCEPT.value
+
+
+def test_article_level_hits_are_not_expanded_with_siblings():
+    results = [
+        _result(article_no="9", score=90.0, match_type=MatchType.KEYWORD_PHRASE.value),
+    ]
+    chunks = {
+        "tmquan:1001": [
+            Chunk.from_dict({
+                "chunk_id": "tmquan:1001#dieu10",
+                "document_id": "tmquan:1001",
+                "chapter_no": None,
+                "article_no": "10",
+                "clause_no": None,
+                "item_no": None,
+                "heading": "Điều 10",
+                "original_text": "Điều 10.",
+                "normalized_text": "Điều 10.",
+                "search_text": "điều 10.",
+                "status": "active",
+                "official_url": None,
+                "content_hash": None,
+            }),
+        ]
+    }
+    packs = build_evidence_packs(results, chunks_by_document_id=chunks)
+    assert len(packs[0].articles) == 1
+    assert packs[0].articles[0].article_no == "9"
+    assert packs[0].articles[0].match_type == MatchType.KEYWORD_PHRASE.value
+
+
+def test_sibling_expansion_enables_citation_validation():
+    from src.openai_rag_connector import call_openai_rag
+    from src.prompt_builder import build_prompt
+    from tests.test_openai_rag_connector import FakeOpenAIClient, _valid_json_response
+
+    results = [
+        _result(
+            document_id="tmquan:CONCEPT-TITLE",
+            document_number=["77/2022/NĐ-CP"],
+            article_no=None,
+            score=85.0,
+            match_type=MatchType.CANONICAL_CONCEPT.value,
+        )
+    ]
+    chunks = {
+        "tmquan:CONCEPT-TITLE": [
+            Chunk.from_dict({
+                "chunk_id": "tmquan:CONCEPT-TITLE#dieu9",
+                "document_id": "tmquan:CONCEPT-TITLE",
+                "chapter_no": "I",
+                "article_no": "9",
+                "clause_no": None,
+                "item_no": None,
+                "heading": "Điều 9 Hồ sơ",
+                "original_text": "Điều 9.",
+                "normalized_text": "Điều 9.",
+                "search_text": "điều 9.",
+                "status": "active",
+                "official_url": None,
+                "content_hash": None,
+            }),
+        ]
+    }
+    packs = build_evidence_packs(results, chunks_by_document_id=chunks)
+    prompt = build_prompt(packs, user_question="노동허가 서류는?", language="ko")
+    client = FakeOpenAIClient(
+        content=_valid_json_response(document_number="77/2022/NĐ-CP", article="Điều 9")
+    )
+    result = call_openai_rag(prompt, evidence_packs=packs, api_key="sk-test", model="gpt-4o", client=client)
+
+    assert result.status == "success"
+    assert len(result.legal_basis) == 1
+    assert result.legal_basis[0].article == "Điều 9"

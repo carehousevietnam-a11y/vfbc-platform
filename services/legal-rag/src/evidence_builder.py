@@ -18,7 +18,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .search_models import Document, SearchResult
+from .search_models import Chunk, Document, SearchResult
+
+# 문서 제목(canonical_concept) 매치처럼 조항 없이 문서 전체만 Evidence에 남을 때,
+# 동일 문서의 chunk 조항을 보강해 citation 검증이 가능하도록 한다 (DESIGN v2 7-2).
+DEFAULT_SIBLING_EXPANSION_LIMIT = 10
+EVIDENCE_SIBLING_MATCH_TYPE = "evidence_sibling"
 
 
 # ---------------------------------------------------------------------------
@@ -114,6 +119,69 @@ def _article_sort_key(ref: ArticleReference) -> tuple:
     )
 
 
+def _is_document_level_only(articles: list[ArticleReference]) -> bool:
+    """조항(article_no)이 하나도 없는 문서 전체 매치만 있는지 확인한다."""
+    if not articles:
+        return True
+    return all(
+        article.article_no is None and article.clause_no is None and article.item_no is None
+        for article in articles
+    )
+
+
+def _expand_sibling_articles(
+    chunks: list[Chunk],
+    *,
+    parent_score: float,
+    limit: int,
+) -> list[ArticleReference]:
+    """동일 문서 chunk에서 고유 조항 locator를 추출한다(검색 hit가 아닌 보강용)."""
+    best_by_locator: dict[tuple[str | None, str | None, str | None], ArticleReference] = {}
+    for chunk in chunks:
+        if chunk.article_no is None:
+            continue
+        ref = ArticleReference(
+            article_no=chunk.article_no,
+            clause_no=chunk.clause_no,
+            item_no=chunk.item_no,
+            heading=chunk.heading,
+            score=parent_score,
+            match_type=EVIDENCE_SIBLING_MATCH_TYPE,
+        )
+        key = ref.dedup_key()
+        if key not in best_by_locator:
+            best_by_locator[key] = ref
+
+    expanded = sorted(best_by_locator.values(), key=_article_sort_key)
+    return expanded[:limit]
+
+
+def _maybe_expand_document_level_articles(
+    articles: list[ArticleReference],
+    *,
+    document_id: str,
+    parent_score: float,
+    chunks_by_document_id: dict[str, list[Chunk]] | None,
+    sibling_limit: int,
+) -> list[ArticleReference]:
+    """문서 전체 매치만 있을 때 동일 문서의 조항 chunk로 Evidence를 보강한다."""
+    if not _is_document_level_only(articles):
+        return articles
+    if not chunks_by_document_id:
+        return articles
+
+    doc_chunks = chunks_by_document_id.get(document_id)
+    if not doc_chunks:
+        return articles
+
+    expanded = _expand_sibling_articles(
+        doc_chunks,
+        parent_score=parent_score,
+        limit=sibling_limit,
+    )
+    return expanded if expanded else articles
+
+
 # ---------------------------------------------------------------------------
 # Evidence Builder — 핵심 변환 함수
 # ---------------------------------------------------------------------------
@@ -123,6 +191,8 @@ def build_evidence_packs(
     results: list[SearchResult],
     query: str | None = None,
     documents_by_id: dict[str, Document] | None = None,
+    chunks_by_document_id: dict[str, list[Chunk]] | None = None,
+    sibling_expansion_limit: int = DEFAULT_SIBLING_EXPANSION_LIMIT,
 ) -> list[EvidencePack]:
     """SearchResult 목록 -> Evidence Pack 목록(문서번호 기준 정렬).
 
@@ -131,7 +201,9 @@ def build_evidence_packs(
     issuing_authority/effective_date처럼 SearchResult 자체에는 없는 필드를
     보강하기 위한 것으로, search_engine.py의 LegalSearchIndex.documents_by_id를
     그대로 전달하면 된다(Search Engine 코드 자체는 변경하지 않음).
-    """
+    `chunks_by_document_id`(선택)는 문서 제목 매치 등 조항 없는 hit만 있을 때
+    동일 문서의 chunk 조항을 Evidence에 보강(sibling expansion)하기 위한 것이다.
+  """
     documents_by_id = documents_by_id or {}
     search_keywords = [query] if query else []
 
@@ -168,6 +240,16 @@ def build_evidence_packs(
         # 3) 정렬 — Article -> Clause -> Point
         articles = sorted(best_by_locator.values(), key=_article_sort_key)
 
+        # 3b) 문서 전체 매치만 있으면 동일 문서 chunk 조항으로 보강 (7-2)
+        top_result = max(group, key=lambda r: r.score)
+        articles = _maybe_expand_document_level_articles(
+            articles,
+            document_id=document_id,
+            parent_score=top_result.score,
+            chunks_by_document_id=chunks_by_document_id,
+            sibling_limit=sibling_expansion_limit,
+        )
+
         # 4) 원문 Heading 전체 목록(중복 제거, 원본 순서 보존)
         seen_headings: set[str] = set()
         original_headings: list[str] = []
@@ -175,9 +257,12 @@ def build_evidence_packs(
             if r.heading and r.heading not in seen_headings:
                 seen_headings.add(r.heading)
                 original_headings.append(r.heading)
+        for article in articles:
+            if article.heading and article.heading not in seen_headings:
+                seen_headings.add(article.heading)
+                original_headings.append(article.heading)
 
         # 5) 대표 점수/MatchType — 이 문서에 속한 매치 중 최고점(재계산 아님)
-        top_result = max(group, key=lambda r: r.score)
 
         # 6) 문서번호/제목/URL/상태 — 그룹 내 어느 SearchResult나 동일 문서이므로
         #    첫 항목 기준(같은 document_id면 document_number/title/status 값은

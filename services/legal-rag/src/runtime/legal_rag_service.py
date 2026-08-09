@@ -73,6 +73,7 @@ class LegalRAGService:
             search_results,
             query=normalized.question,
             documents_by_id=self._search_index.documents_by_id,
+            chunks_by_document_id=self._search_index.chunks_by_document_id(),
         )
         review = self._review_engine.review(
             evidence_packs=evidence_packs,
