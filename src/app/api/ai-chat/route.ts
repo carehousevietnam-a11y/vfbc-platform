@@ -26,7 +26,7 @@
 //   - progress 질문 → DB 조회 없이 "로그인 후 마이페이지 확인" 안내(aiGateway.ANONYMOUS_PROGRESS_NOTICE)
 //   - legal 질문    → buildLegalConsultNotice(null)이 기본 담당팀 라벨로 안내
 //   - system/off_platform → leadId 여부와 무관하게 완전히 동일한 규칙 답변
-//   - ai_analysis   → 사건 데이터가 없는 일반 시스템 프롬프트(buildGenericSystemPrompt)로 OpenAI 호출
+//   - ai_analysis   → 주제가 추정되면 Legal RAG 가이드 우선, 실패 시 OpenAI
 //   - 저장(crm_activities) 없음 — 저장은 leadId가 있을 때만 의미가 있다(사건에 귀속되는 기록이므로).
 //     인사말(mode: "greeting")은 사건 정보를 전제로 하므로 익명 모드에서는 지원하지 않는다.
 //
@@ -68,6 +68,7 @@ import {
   callOpenAiAnalysis,
   buildNavigatorSuffix,
   buildNavigatorAction,
+  inferAnonymousLegalRagContext,
 } from "@/lib/aiGateway";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -336,7 +337,46 @@ export async function POST(req: NextRequest) {
           }
         }
       }
-      // 익명 ai_analysis 및 consultation/unclassified 사건은 기존 OpenAI 흐름 유지.
+
+      // 익명 /ai: CHECK·VERIFY·REGISTER 주제가 추정되면 Legal RAG 구조화 가이드를 우선한다.
+      if (isAnonymous) {
+        const inferred = inferAnonymousLegalRagContext(lastMessage!.content);
+        if (inferred) {
+          const legalRagResult = await reviewLegalCase({
+            question: lastMessage!.content.trim(),
+            language: typeof language === "string" && language.trim() ? language.trim() : "ko",
+            audience: "all",
+            context: {
+              lead_id: "anonymous",
+              service_type: inferred.service_type,
+              service_group: inferred.service_group,
+            },
+          });
+
+          if (legalRagResult.ok) {
+            const mapped = extractLegalRagChatResult(legalRagResult.data);
+            if (mapped.ok) {
+              const reply =
+                mapped.reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+              const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
+              const actions = action ? [action] : [];
+
+              return NextResponse.json({
+                reply,
+                needsExpert: mapped.needsExpert,
+                category: "ai_analysis",
+                actions,
+              });
+            }
+            console.error("ai-chat: anonymous Legal RAG response schema rejected, falling back");
+          } else {
+            console.error("ai-chat: anonymous Legal RAG failed, falling back to OpenAI", {
+              status: legalRagResult.status,
+            });
+          }
+        }
+      }
+      // 익명 ai_analysis(주제 미추정) 및 consultation/unclassified 사건은 OpenAI 흐름.
     }
 
     // ── 4. 환경변수 확인 (기존 OpenAI 대상 ai_analysis·인사말 경로) ──
