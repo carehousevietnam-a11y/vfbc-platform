@@ -84,6 +84,7 @@ class CanonicalDocument:
     searchText: str | None         # FTS/trigram 검색용 (소문자, 공백 정리, simple config 대상)
     contentHash: str | None        # normalizedText의 SHA-256
     legalArea: str | None = None     # vbpl legal_area / th1nhng0 linh_vuc / legacy legal_sectors
+    sectorNganh: str | None = None   # th1nhng0 nganh (발행 부처·업권); vbpl 원본에는 없음
     importedAt: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     def to_dict(self) -> dict:

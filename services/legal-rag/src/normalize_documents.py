@@ -155,6 +155,7 @@ def normalize_th1nhng0_metadata_row(
         searchText=search_text,
         contentHash=content_hash,
         legalArea=_normalize_legal_area(row.get("linh_vuc")),
+        sectorNganh=_normalize_legal_area(row.get("nganh")),
     )
 
 

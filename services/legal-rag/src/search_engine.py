@@ -23,7 +23,7 @@ from pathlib import Path
 from .query_normalizer import LegalQueryNormalizer
 from .result_localizer import LocalizedSearchResult, localize_results
 from .search_exact import search_exact
-from .search_filters import apply_filters, filter_documents, scope_index_for_legal_areas
+from .search_filters import apply_filters, filter_documents, scope_index_for_filters
 from .search_keyword import search_canonical_concept, search_keyword
 from .search_models import (
     Chunk,
@@ -92,6 +92,7 @@ def _canonical_document_to_row(d: dict) -> dict:
         "official_url": d.get("officialUrl"),
         "content_hash": d.get("contentHash"),
         "legal_area": d.get("legalArea", d.get("legal_area")),
+        "nganh": d.get("sectorNganh", d.get("nganh")),
     }
 
 
@@ -212,9 +213,9 @@ class LegalSearchIndex:
         chunks = self.chunks
         documents_by_id = self.documents_by_id
 
-        if filters and filters.legal_areas:
-            documents, chunks, documents_by_id = scope_index_for_legal_areas(
-                documents, chunks, filters.legal_areas
+        if filters and (filters.legal_areas or filters.hybrid_scope):
+            documents, chunks, documents_by_id = scope_index_for_filters(
+                documents, chunks, filters
             )
 
         if query:

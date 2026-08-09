@@ -89,6 +89,7 @@ class Document:
     official_url: str | None = None
     content_hash: str | None = None
     legal_area: str | None = None
+    nganh: str | None = None
 
     @staticmethod
     def from_dict(d: dict) -> "Document":
@@ -105,6 +106,7 @@ class Document:
             official_url=d.get("official_url"),
             content_hash=d.get("content_hash"),
             legal_area=d.get("legal_area"),
+            nganh=d.get("nganh"),
         )
 
 
@@ -235,6 +237,8 @@ class SearchFilters:
     article_no: str | None = None
     relation_type: str | None = None        # legal_relations.relation_type — 참여 문서만 통과
     legal_areas: tuple[str, ...] | None = None  # vbpl legal_area labels (service-scoped search)
+    nganh_areas: tuple[str, ...] | None = None  # th1nhng0 nganh / ministry sector fallback
+    hybrid_scope: bool = False  # tiered legal_area + nganh inclusion (see search_filters)
 
     def is_empty(self) -> bool:
         return all(
@@ -244,8 +248,9 @@ class SearchFilters:
                 self.effective_date, self.effective_date_from, self.effective_date_to,
                 self.issue_date, self.issue_date_from, self.issue_date_to,
                 self.article_no, self.relation_type, self.legal_areas,
+                self.nganh_areas,
             )
-        )
+        ) and not self.hybrid_scope
 
 
 # ---------------------------------------------------------------------------

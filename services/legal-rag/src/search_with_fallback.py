@@ -7,7 +7,12 @@ import re
 from .multilingual_legal_terms import extract_partial_ontology_matches
 from .search_engine import LegalSearchIndex
 from .search_models import SearchFilters, SearchResult, normalize_query_text
-from .service_category_mapping import index_has_legal_area_metadata, resolve_legal_areas_for_service
+from .service_category_mapping import (
+    estimate_hybrid_coverage,
+    index_has_legal_area_metadata,
+    resolve_legal_areas_for_service,
+    resolve_nganh_for_service,
+)
 
 _DOCUMENT_NUMBER_RE = re.compile(
     r"\b\d{1,4}/\d{4}/(?:NĐ-CP|NĐ|TT-[A-ZĐ]+|QH\d+|QĐ-[A-ZĐ]+|NQ-HĐND|Nghị định|Thông tư)\b",
@@ -115,11 +120,20 @@ def search_with_fallback(
 ) -> tuple[list[SearchResult], dict]:
     """Run ontology, translated-term, and (vi-only) original-question stages; merge hits."""
     legal_areas = resolve_legal_areas_for_service(service_type)
+    nganh_areas = resolve_nganh_for_service(service_type)
     if legal_areas and not index_has_legal_area_metadata(index.documents):
         legal_areas = None
-    area_filters: SearchFilters | None = (
-        SearchFilters(legal_areas=legal_areas) if legal_areas else None
-    )
+        nganh_areas = None
+
+    area_filters: SearchFilters | None = None
+    hybrid_coverage: dict | None = None
+    if legal_areas:
+        area_filters = SearchFilters(
+            legal_areas=legal_areas,
+            nganh_areas=nganh_areas,
+            hybrid_scope=True,
+        )
+        hybrid_coverage = estimate_hybrid_coverage(index.documents, service_type)
 
     stages_attempted: list[str] = []
     stage_hits: dict[str, list[SearchResult]] = {}
@@ -170,6 +184,9 @@ def search_with_fallback(
             "search_queries": search_queries,
             "search_stages_attempted": stages_attempted,
             "legal_area_filter": list(legal_areas) if legal_areas else None,
+            "nganh_filter": list(nganh_areas) if nganh_areas else None,
+            "hybrid_scope": bool(area_filters and area_filters.hybrid_scope),
+            "hybrid_coverage": hybrid_coverage,
         }
 
     if allow_original:
@@ -185,6 +202,9 @@ def search_with_fallback(
             "search_queries": [question],
             "search_stages_attempted": stages_attempted,
             "legal_area_filter": list(legal_areas) if legal_areas else None,
+            "nganh_filter": list(nganh_areas) if nganh_areas else None,
+            "hybrid_scope": bool(area_filters and area_filters.hybrid_scope),
+            "hybrid_coverage": hybrid_coverage,
         }
 
     return [], {
@@ -192,4 +212,7 @@ def search_with_fallback(
         "search_queries": [],
         "search_stages_attempted": stages_attempted,
         "legal_area_filter": list(legal_areas) if legal_areas else None,
+        "nganh_filter": list(nganh_areas) if nganh_areas else None,
+        "hybrid_scope": bool(area_filters and area_filters.hybrid_scope),
+        "hybrid_coverage": hybrid_coverage,
     }

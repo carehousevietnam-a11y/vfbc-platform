@@ -2,21 +2,30 @@
 Filter Engine — 실제 실행 가능한 구현.
 
 지원 (STEP3 지시사항): status, document_type, issuing_authority, effective_date,
-issue_date, article_no, relation_type
-
-⚠️ DB에 연결하지 않는다. SearchResult 리스트(또는 Document/Chunk 리스트)에 대한
-   순수 Python 필터링이다.
-
-설계 판단(추측이 아니라 명시적 기본값): STEP3 지시사항은 effective_date/issue_date를
-"지원"한다고만 명시하고 정확일치인지 범위인지 규정하지 않았다. 기본은 정확일치
-(`effective_date`)로 하되, 범위 검색이 필요한 경우를 위해 `_from`/`_to` 옵션을
-추가로 제공한다(SearchFilters에 이미 정의됨) — 이 판단 근거를 README에도 명시한다.
+issue_date, article_no, relation_type, legal_area hybrid scope (tier1/tier2/tier3)
 """
 
 from __future__ import annotations
 
 from .search_models import Chunk, Document, SearchFilters, SearchResult
-from .service_category_mapping import document_matches_legal_areas
+from .service_category_mapping import document_in_hybrid_scope, document_matches_legal_areas
+
+
+def scope_index_for_hybrid(
+    documents: list[Document],
+    chunks: list[Chunk],
+    legal_areas: tuple[str, ...],
+    nganh_areas: tuple[str, ...] | None,
+) -> tuple[list[Document], list[Chunk], dict[str, Document]]:
+    scoped_docs = [
+        d
+        for d in documents
+        if document_in_hybrid_scope(d.legal_area, d.nganh, legal_areas, nganh_areas)
+    ]
+    doc_ids = {d.document_id for d in scoped_docs}
+    scoped_chunks = [c for c in chunks if c.document_id in doc_ids]
+    documents_by_id = {d.document_id: d for d in scoped_docs}
+    return scoped_docs, scoped_chunks, documents_by_id
 
 
 def scope_index_for_legal_areas(
@@ -24,13 +33,30 @@ def scope_index_for_legal_areas(
     chunks: list[Chunk],
     legal_areas: tuple[str, ...],
 ) -> tuple[list[Document], list[Chunk], dict[str, Document]]:
-    """Restrict in-memory index to documents whose legal_area matches allowed labels."""
+    """Legacy narrow filter — classified legal_area only (excludes unclassified)."""
     allowed = tuple(legal_areas)
     scoped_docs = [d for d in documents if document_matches_legal_areas(d.legal_area, allowed)]
     doc_ids = {d.document_id for d in scoped_docs}
     scoped_chunks = [c for c in chunks if c.document_id in doc_ids]
     documents_by_id = {d.document_id: d for d in scoped_docs}
     return scoped_docs, scoped_chunks, documents_by_id
+
+
+def scope_index_for_filters(
+    documents: list[Document],
+    chunks: list[Chunk],
+    filters: SearchFilters,
+) -> tuple[list[Document], list[Chunk], dict[str, Document]]:
+    if filters.hybrid_scope and filters.legal_areas:
+        return scope_index_for_hybrid(
+            documents,
+            chunks,
+            filters.legal_areas,
+            filters.nganh_areas,
+        )
+    if filters.legal_areas:
+        return scope_index_for_legal_areas(documents, chunks, filters.legal_areas)
+    return documents, chunks, {d.document_id: d for d in documents}
 
 
 def _date_in_range(value: str | None, exact: str | None, date_from: str | None, date_to: str | None) -> bool:
@@ -66,11 +92,6 @@ def apply_filters(
     documents_by_id: dict[str, Document] | None = None,
     relations: list[dict] | None = None,
 ) -> list[SearchResult]:
-    """
-    SearchResult 리스트에 필터를 적용한다. status/document_type/article_no는
-    SearchResult 자체 필드로 바로 판정 가능하고, issuing_authority/effective_date/
-    issue_date/relation_type은 Document 조회가 필요하다(documents_by_id 필수).
-    """
     if filters is None or filters.is_empty():
         return results
 
@@ -109,7 +130,12 @@ def apply_filters(
         if relation_doc_ids is not None and r.document_id not in relation_doc_ids:
             continue
 
-        if filters.legal_areas is not None:
+        if filters.hybrid_scope and filters.legal_areas:
+            if not doc or not document_in_hybrid_scope(
+                doc.legal_area, doc.nganh, filters.legal_areas, filters.nganh_areas
+            ):
+                continue
+        elif filters.legal_areas is not None:
             if not doc or not document_matches_legal_areas(doc.legal_area, filters.legal_areas):
                 continue
 
@@ -121,7 +147,6 @@ def apply_filters(
 def filter_documents(
     documents: list[Document], filters: SearchFilters | None, relations: list[dict] | None = None
 ) -> list[Document]:
-    """query 없이 필터만으로 문서를 조회하는 'browse' 모드용 (search_engine.py에서 사용)."""
     if filters is None or filters.is_empty():
         return documents
 
@@ -147,9 +172,13 @@ def filter_documents(
             continue
         if relation_doc_ids is not None and doc.document_id not in relation_doc_ids:
             continue
-        if filters.legal_areas is not None:
+        if filters.hybrid_scope and filters.legal_areas:
+            if not document_in_hybrid_scope(
+                doc.legal_area, doc.nganh, filters.legal_areas, filters.nganh_areas
+            ):
+                continue
+        elif filters.legal_areas is not None:
             if not document_matches_legal_areas(doc.legal_area, filters.legal_areas):
                 continue
-        # article_no는 문서 단위 필터가 아니라 chunk 단위 개념이므로 browse 모드에서는 무시
         out.append(doc)
     return out

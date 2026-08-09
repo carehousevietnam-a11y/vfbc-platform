@@ -1,0 +1,420 @@
+{
+  "source": "tmquan/vbpl-vn (HuggingFace, revision 11c902856b7a389788853fdd39b4998a5effa490)",
+  "method": "tier1/excluded from legal_area distribution; tier2 requires nganh field on corpus",
+  "unclassified_legal_area_pct": 71.0,
+  "nganh_unclassified_rate_reference": "32.7% (Monmoonluna investigation; tmquan vbpl has no nganh field)",
+  "by_service": [
+    {
+      "service_type": "driving_license",
+      "corpus_total": 158822,
+      "tier1_legal_area": 1207,
+      "tier1_pct": 0.8,
+      "excluded_classified_wrong_area": 44831,
+      "excluded_pct": 28.2,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.8,
+      "legal_areas": [
+        "Đường bộ",
+        "Đường thủy nội địa",
+        "Giao thông vận tải",
+        "Transport"
+      ],
+      "nganh_areas": [
+        "Giao thông Vận tải",
+        "Công Thương",
+        "Quốc phòng"
+      ]
+    },
+    {
+      "service_type": "permit_company",
+      "corpus_total": 158822,
+      "tier1_legal_area": 443,
+      "tier1_pct": 0.3,
+      "excluded_classified_wrong_area": 45595,
+      "excluded_pct": 28.7,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.3,
+      "legal_areas": [
+        "Thành lập và hoạt động của doanh nghiệp",
+        "Đầu tư tại Việt Nam",
+        "Business"
+      ],
+      "nganh_areas": [
+        "Tài chính",
+        "Kế hoạch và Đầu tư",
+        "Công Thương"
+      ]
+    },
+    {
+      "service_type": "register_company",
+      "corpus_total": 158822,
+      "tier1_legal_area": 443,
+      "tier1_pct": 0.3,
+      "excluded_classified_wrong_area": 45595,
+      "excluded_pct": 28.7,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.3,
+      "legal_areas": [
+        "Thành lập và hoạt động của doanh nghiệp",
+        "Đầu tư tại Việt Nam",
+        "Business"
+      ],
+      "nganh_areas": [
+        "Tài chính",
+        "Kế hoạch và Đầu tư",
+        "Công Thương"
+      ]
+    },
+    {
+      "service_type": "register_cosmetics",
+      "corpus_total": 158822,
+      "tier1_legal_area": 120,
+      "tier1_pct": 0.1,
+      "excluded_classified_wrong_area": 45918,
+      "excluded_pct": 28.9,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.1,
+      "legal_areas": [
+        "Thành lập và hoạt động của doanh nghiệp",
+        "Mỹ phẩm"
+      ],
+      "nganh_areas": [
+        "Công Thương",
+        "Y  tế",
+        "Y tế"
+      ]
+    },
+    {
+      "service_type": "register_environment",
+      "corpus_total": 158822,
+      "tier1_legal_area": 557,
+      "tier1_pct": 0.4,
+      "excluded_classified_wrong_area": 45481,
+      "excluded_pct": 28.6,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.4,
+      "legal_areas": [
+        "Môi trường",
+        "Environment"
+      ],
+      "nganh_areas": [
+        "Tài nguyên và Môi trường",
+        "Môi trường"
+      ]
+    },
+    {
+      "service_type": "register_fire_safety",
+      "corpus_total": 158822,
+      "tier1_legal_area": 0,
+      "tier1_pct": 0.0,
+      "excluded_classified_wrong_area": 46038,
+      "excluded_pct": 29.0,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.0,
+      "legal_areas": [
+        "Phòng cháy chữa cháy",
+        "Fire safety"
+      ],
+      "nganh_areas": [
+        "Công an",
+        "Quốc phòng"
+      ]
+    },
+    {
+      "service_type": "register_franchise",
+      "corpus_total": 158822,
+      "tier1_legal_area": 122,
+      "tier1_pct": 0.1,
+      "excluded_classified_wrong_area": 45916,
+      "excluded_pct": 28.9,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.1,
+      "legal_areas": [
+        "Thành lập và hoạt động của doanh nghiệp",
+        "Thương mại"
+      ],
+      "nganh_areas": [
+        "Công Thương",
+        "Tài chính"
+      ]
+    },
+    {
+      "service_type": "register_hygiene",
+      "corpus_total": 158822,
+      "tier1_legal_area": 0,
+      "tier1_pct": 0.0,
+      "excluded_classified_wrong_area": 46038,
+      "excluded_pct": 29.0,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.0,
+      "legal_areas": [
+        "Vệ sinh an toàn",
+        "Hygiene"
+      ],
+      "nganh_areas": [
+        "Y  tế",
+        "Y tế"
+      ]
+    },
+    {
+      "service_type": "register_medical_device",
+      "corpus_total": 158822,
+      "tier1_legal_area": 25,
+      "tier1_pct": 0.0,
+      "excluded_classified_wrong_area": 46013,
+      "excluded_pct": 29.0,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.0,
+      "legal_areas": [
+        "Y tế",
+        "Medical",
+        "Đào tạo và nghiên cứu y dược"
+      ],
+      "nganh_areas": [
+        "Y  tế",
+        "Y tế"
+      ]
+    },
+    {
+      "service_type": "register_restaurant",
+      "corpus_total": 158822,
+      "tier1_legal_area": 133,
+      "tier1_pct": 0.1,
+      "excluded_classified_wrong_area": 45905,
+      "excluded_pct": 28.9,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.1,
+      "legal_areas": [
+        "Thành lập và hoạt động của doanh nghiệp",
+        "An toàn thực phẩm",
+        "Food safety"
+      ],
+      "nganh_areas": [
+        "Công Thương",
+        "Y  tế",
+        "Y tế"
+      ]
+    },
+    {
+      "service_type": "tamtru",
+      "corpus_total": 158822,
+      "tier1_legal_area": 1114,
+      "tier1_pct": 0.7,
+      "excluded_classified_wrong_area": 44924,
+      "excluded_pct": 28.3,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.7,
+      "legal_areas": [
+        "Kiểm soát thủ tục hành chính",
+        "Chính sách",
+        "Chính quyền địa phương",
+        "Đăng ký, quản lý cư trú"
+      ],
+      "nganh_areas": [
+        "Công an",
+        "Nội vụ",
+        "Tư pháp"
+      ]
+    },
+    {
+      "service_type": "trc",
+      "corpus_total": 158822,
+      "tier1_legal_area": 520,
+      "tier1_pct": 0.3,
+      "excluded_classified_wrong_area": 45518,
+      "excluded_pct": 28.7,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.3,
+      "legal_areas": [
+        "Kiểm soát thủ tục hành chính",
+        "Xuất nhập khẩu",
+        "Chính sách",
+        "Immigration",
+        "Đăng ký, quản lý cư trú"
+      ],
+      "nganh_areas": [
+        "Nội vụ",
+        "Công an",
+        "Tư pháp"
+      ]
+    },
+    {
+      "service_type": "verify_admin",
+      "corpus_total": 158822,
+      "tier1_legal_area": 3282,
+      "tier1_pct": 2.1,
+      "excluded_classified_wrong_area": 42756,
+      "excluded_pct": 26.9,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 73.1,
+      "legal_areas": [
+        "Kiểm soát thủ tục hành chính",
+        "Công chức",
+        "Công chức, viên chức",
+        "Administrative apparatus",
+        "Cải cách hành chính",
+        "Tổ chức- Biên chế",
+        "Tổ chức cán bộ"
+      ],
+      "nganh_areas": [
+        "Nội vụ",
+        "Tư pháp"
+      ]
+    },
+    {
+      "service_type": "verify_fraud",
+      "corpus_total": 158822,
+      "tier1_legal_area": 523,
+      "tier1_pct": 0.3,
+      "excluded_classified_wrong_area": 45515,
+      "excluded_pct": 28.7,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 71.3,
+      "legal_areas": [
+        "Thi hành án dân sự",
+        "Hình sự",
+        "Criminal",
+        "Civil",
+        "An ninh và trật tự, an toàn xã hội"
+      ],
+      "nganh_areas": [
+        "Tư pháp",
+        "Công an"
+      ]
+    },
+    {
+      "service_type": "verify_real_estate",
+      "corpus_total": 158822,
+      "tier1_legal_area": 3076,
+      "tier1_pct": 1.9,
+      "excluded_classified_wrong_area": 42962,
+      "excluded_pct": 27.1,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 72.9,
+      "legal_areas": [
+        "Đất đai",
+        "Real estate",
+        "Phát triển đô thị",
+        "Quản lý nhà và thị trường bất động sản"
+      ],
+      "nganh_areas": [
+        "Xây dựng",
+        "Tài chính",
+        "Tư pháp"
+      ]
+    },
+    {
+      "service_type": "verify_tax",
+      "corpus_total": 158822,
+      "tier1_legal_area": 7678,
+      "tier1_pct": 4.8,
+      "excluded_classified_wrong_area": 38360,
+      "excluded_pct": 24.2,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 75.8,
+      "legal_areas": [
+        "Ngân sách nhà nước",
+        "Quản lý ngân sách nhà nước",
+        "Quản lý ngân sách",
+        "Quản lý thuế, phí, lệ phí và thu khác của ngân sách nhà nước",
+        "Quản lý thuế, phí và lệ phí",
+        "Chính sách thuế",
+        "Finance",
+        "Tax"
+      ],
+      "nganh_areas": [
+        "Tài chính",
+        "Ngân hàng"
+      ]
+    },
+    {
+      "service_type": "wp",
+      "corpus_total": 158822,
+      "tier1_legal_area": 2228,
+      "tier1_pct": 1.4,
+      "excluded_classified_wrong_area": 43810,
+      "excluded_pct": 27.6,
+      "unclassified_legal_area_pool": 112784,
+      "unclassified_pool_pct": 71.0,
+      "tier2_nganh_note": "Requires sectorNganh/nganh per document; not in legal-area-distribution.json",
+      "tier3_full_note": "Subset of unclassified_pool after tier2 nganh fallback",
+      "scoped_without_nganh_pct": 72.4,
+      "legal_areas": [
+        "Kiểm soát thủ tục hành chính",
+        "Lao động, tiền lương, tiền công",
+        "Xuất nhập khẩu",
+        "Chính sách",
+        "Labor",
+        "Administrative apparatus",
+        "Cải cách hành chính"
+      ],
+      "nganh_areas": [
+        "Lao động - Thương binh và Xã hội",
+        "Nội vụ",
+        "Công an"
+      ]
+    }
+  ],
+  "synthetic_wp_example": {
+    "service_type": "wp",
+    "mode": "hybrid",
+    "total": 4,
+    "tier1_legal_area": 1,
+    "tier2_nganh": 1,
+    "tier3_full": 1,
+    "excluded": 1,
+    "tier1_pct": 25.0,
+    "tier2_pct": 25.0,
+    "tier3_pct": 25.0,
+    "excluded_pct": 25.0,
+    "scoped_pct": 75.0
+  }
+}
