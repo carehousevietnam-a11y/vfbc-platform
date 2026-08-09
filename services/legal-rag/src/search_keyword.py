@@ -53,10 +53,15 @@ def match_prefix(text: str, keyword: str) -> bool:
     """단어 경계 기준 prefix 매치 (텍스트 안에 keyword로 시작하는 단어가 있으면 매치)."""
     if not keyword:
         return False
+    if text.startswith(keyword):
+        return True
+    # Multi-word queries cannot match as a single-word prefix.
+    if " " in keyword:
+        return False
     for word in text.split():
-        if word.startswith(keyword):
+        if len(word) >= len(keyword) and word.startswith(keyword):
             return True
-    return text.startswith(keyword)
+    return False
 
 
 def match_phrase(text: str, phrase: str) -> bool:
@@ -83,16 +88,37 @@ def _split_keywords(query: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+def _chunk_might_match(
+    chunk: Chunk,
+    document: Document | None,
+    query_norm: str,
+    keywords: list[str],
+) -> bool:
+    """Cheap pre-filter: skip chunks that cannot contain the query as substring."""
+    search_text = normalize_query_text(chunk.search_text) if chunk.search_text else ""
+    title_text = normalize_query_text(document.title) if document and document.title else ""
+    if query_norm in search_text or query_norm in title_text:
+        return True
+    if len(keywords) <= 1:
+        return False
+    return any(k in search_text or k in title_text for k in keywords if k)
+
+
 def search_keyword(
     query: str,
     chunks: list[Chunk],
     documents_by_id: dict[str, Document],
     fields: tuple[str, ...] = SEARCH_FIELDS,
     multi_keyword_mode: str = "all",
+    limit: int | None = None,
 ) -> list[SearchResult]:
     """
     query 하나로 phrase(전체 구/다중 키워드 전부 포함) > prefix > substring 순으로
     판정하고, 매치된 필드 중 가장 가중치가 높은 필드를 기준으로 점수를 매긴다.
+
+    When ``limit`` is set, stop scanning after collecting enough matches (early
+    termination). This keeps translation-stage keyword scans bounded on large
+    corpora without changing ranking among collected hits.
     """
     query_norm = normalize_query_text(query)
     if not query_norm:
@@ -100,9 +126,13 @@ def search_keyword(
 
     keywords = _split_keywords(query_norm)
     results: list[SearchResult] = []
+    use_fast_reject = len(keywords) > 1 or len(query_norm) >= 4
 
     for chunk in chunks:
         document = documents_by_id.get(chunk.document_id)
+        if use_fast_reject and not _chunk_might_match(chunk, document, query_norm, keywords):
+            continue
+
         best_match_type: MatchType | None = None
         best_field_weight = 0.0
 
@@ -140,6 +170,8 @@ def search_keyword(
         if best_match_type is not None:
             score = KEYWORD_BASE_SCORE[best_match_type] * best_field_weight
             results.append(result_from_chunk(chunk, document, score, best_match_type))
+            if limit is not None and len(results) >= limit:
+                break
 
     return results
 

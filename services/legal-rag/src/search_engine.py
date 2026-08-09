@@ -221,7 +221,12 @@ class LegalSearchIndex:
                 )
 
             exact_hits = search_exact(normalized_query, self.documents, self.chunks, self.documents_by_id)
-            keyword_hits = search_keyword(normalized_query, self.chunks, self.documents_by_id)
+            keyword_hits = search_keyword(
+                normalized_query,
+                self.chunks,
+                self.documents_by_id,
+                limit=limit if limit else None,
+            )
             results = self._dedupe_keep_best(concept_hits + exact_hits + keyword_hits)
         elif filters and not filters.is_empty():
             if filters.article_no is not None:

@@ -458,3 +458,52 @@ def test_runtime_translates_even_when_ontology_matches():
     assert client.chat.completions.calls
     assert "ontology_partial" in (result.metadata.get("search_stages_attempted") or [])
     assert result.search_results
+
+
+def test_search_fallback_skips_duplicate_translation_terms_already_searched_by_ontology():
+    from src.search_models import Chunk, Document
+
+    doc = Document.from_dict(
+        {
+            "document_id": "doc-wp",
+            "document_number": ["152/2020/NĐ-CP"],
+            "document_type": "decree",
+            "title": "Giấy phép lao động",
+            "issuing_authority": "Gov",
+            "issue_date": None,
+            "effective_date": None,
+            "expiry_date": None,
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    chunk = Chunk.from_dict(
+        {
+            "chunk_id": "c-wp",
+            "document_id": "doc-wp",
+            "chapter_no": None,
+            "article_no": "1",
+            "clause_no": None,
+            "item_no": None,
+            "heading": "Điều 1",
+            "original_text": "giấy phép lao động cho người nước ngoài",
+            "normalized_text": "giấy phép lao động cho người nước ngoài",
+            "search_text": "giấy phép lao động cho người nước ngoài",
+            "status": "active",
+            "official_url": None,
+            "content_hash": None,
+        }
+    )
+    index = LegalSearchIndex([doc], [chunk])
+    results, meta = search_with_fallback(
+        index,
+        question="노동허가 경력 요건이 어떻게 되나요?",
+        language="ko",
+        translated_terms=["giấy phép lao động"],
+        limit=10,
+    )
+    assert results
+    assert meta["search_stage"] == "ontology_partial"
+    assert meta["search_stages_attempted"] == ["ontology_partial"]
+    assert meta["search_queries"] == ["giấy phép lao động"]

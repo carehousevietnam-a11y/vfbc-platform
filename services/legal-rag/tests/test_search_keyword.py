@@ -113,3 +113,13 @@ def test_keyword_search_title_field_included():
 def test_keyword_search_score_is_positive():
     results = search_keyword("lao động", CHUNKS, DOCS_BY_ID)
     assert all(r.score > 0 for r in results)
+
+
+def test_keyword_search_early_termination_respects_limit():
+    results = search_keyword("lao động", CHUNKS, DOCS_BY_ID, limit=1)
+    assert len(results) == 1
+
+
+def test_keyword_search_fast_reject_skips_non_matching_chunks():
+    results = search_keyword("xyzxyz_nonexistent_phrase", CHUNKS, DOCS_BY_ID)
+    assert results == []

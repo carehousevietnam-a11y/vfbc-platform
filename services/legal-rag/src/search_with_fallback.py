@@ -6,7 +6,7 @@ import re
 
 from .multilingual_legal_terms import extract_partial_ontology_matches
 from .search_engine import LegalSearchIndex
-from .search_models import SearchResult
+from .search_models import SearchResult, normalize_query_text
 
 _DOCUMENT_NUMBER_RE = re.compile(
     r"\b\d{1,4}/\d{4}/(?:NĐ-CP|NĐ|TT-[A-ZĐ]+|QH\d+|QĐ-[A-ZĐ]+|NQ-HĐND|Nghị định|Thông tư)\b",
@@ -16,6 +16,9 @@ _VIETNAMESE_LEGAL_MARKERS_RE = re.compile(
     r"(Điều\s+\d+|Luật|Nghị định|Thông tư|Khoản\s+\d+|NĐ-CP|TT-|QH\d+)",
     re.IGNORECASE,
 )
+
+# Cap per-stage term fan-out so translation cannot trigger dozens of full scans.
+_MAX_TERMS_PER_STAGE = 3
 
 
 def _dedupe_results(results: list[SearchResult]) -> list[SearchResult]:
@@ -29,20 +32,38 @@ def _dedupe_results(results: list[SearchResult]) -> list[SearchResult]:
     return merged
 
 
+def _normalize_term_key(term: str) -> str:
+    return normalize_query_text((term or "").strip())
+
+
 def _search_terms(
     index: LegalSearchIndex,
     terms: list[str],
     *,
     language: str | None,
     limit: int,
+    max_terms: int = _MAX_TERMS_PER_STAGE,
 ) -> list[SearchResult]:
     results: list[SearchResult] = []
+    seen_terms: set[str] = set()
     for term in terms:
+        if len(seen_terms) >= max_terms:
+            break
         normalized = (term or "").strip()
         if not normalized:
             continue
-        results.extend(index.search(query=normalized, limit=limit, language=language))
-    return _dedupe_results(results)[:limit]
+        term_key = _normalize_term_key(normalized)
+        if term_key in seen_terms:
+            continue
+        seen_terms.add(term_key)
+
+        if len(_dedupe_results(results)) >= limit:
+            break
+
+        hits = index.search(query=normalized, limit=limit, language=language)
+        results.extend(hits)
+        results = _dedupe_results(results)[:limit]
+    return results
 
 
 def looks_like_vietnamese_legal_reference(question: str | None) -> bool:
@@ -93,6 +114,7 @@ def search_with_fallback(
     stages_attempted: list[str] = []
     stage_hits: dict[str, list[SearchResult]] = {}
     search_queries: list[str] = []
+    searched_term_keys: set[str] = set()
     allow_original = (
         should_search_original_question(language, question)
         if allow_original_question is None
@@ -106,13 +128,19 @@ def search_with_fallback(
             index, partial_terms, language=language, limit=limit
         )
         search_queries.extend(partial_terms)
+        searched_term_keys.update(_normalize_term_key(t) for t in partial_terms)
 
-    if translated_terms:
+    translation_terms = [
+        term
+        for term in translated_terms
+        if _normalize_term_key(term) not in searched_term_keys
+    ]
+    if translation_terms:
         stages_attempted.append("translated_terms")
         stage_hits["translated_terms"] = _search_terms(
-            index, translated_terms, language=language, limit=limit
+            index, translation_terms, language=language, limit=limit
         )
-        search_queries.extend(translated_terms)
+        search_queries.extend(translation_terms)
 
     merged = _dedupe_results(
         [hit for hits in stage_hits.values() for hit in hits]
