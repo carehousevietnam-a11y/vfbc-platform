@@ -67,5 +67,8 @@ def test_insufficient_evidence_with_documents_becomes_partial_evidence():
 
 def test_success_without_evidence_becomes_insufficient():
     result = AIReviewResult(status=STATUS_SUCCESS, language="ko")
-    ruled = apply_review_rules(result, evidence_packs=[], question="질문")
+    ruled = apply_review_rules(result, evidence_packs=[], question="노동허가 경력 요건", service_group="check", service_type="wp")
     assert ruled.status == STATUS_INSUFFICIENT_EVIDENCE
+    assert ruled.summary
+    assert "노동허가" in ruled.summary
+    assert "전문가" in ruled.summary

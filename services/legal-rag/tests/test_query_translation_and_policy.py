@@ -126,9 +126,24 @@ def test_append_mandatory_disclaimer_is_idempotent():
 
 def test_expert_referral_summary_includes_disclaimer():
     summary = build_expert_referral_summary("노동허가 경력 요건이 어떻게 되나요?", language="ko")
-    assert "노동허가 경력 요건" in summary
-    assert "전문가 상담" in summary
+    assert "노동허가" in summary
+    assert "일반 가이드" in summary or "준비" in summary
+    assert "전문가" in summary
     assert MANDATORY_DISCLAIMER in summary
+
+
+def test_no_evidence_guidance_lists_practical_checklist():
+    from src.answer_policy import build_no_evidence_guidance_summary
+
+    summary = build_no_evidence_guidance_summary(
+        "노동허가 경력 요건이 어떻게 되나요?",
+        language="ko",
+        service_group="check",
+        service_type="wp",
+    )
+    assert "노동허가" in summary
+    assert "고용계약서" in summary or "경력" in summary
+    assert "전문가" in summary
 
 
 def test_forbidden_definitive_phrasing_detection():

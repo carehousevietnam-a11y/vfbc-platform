@@ -14,11 +14,13 @@ from .ai_review_models import (
     ALL_STATUSES,
     STATUS_CONFIGURATION_ERROR,
     STATUS_INSUFFICIENT_EVIDENCE,
+    STATUS_NO_EVIDENCE,
     STATUS_PARTIAL_EVIDENCE,
     STATUS_SUCCESS,
     AIReviewResult,
 )
 from .answer_policy import (
+    build_no_evidence_guidance_summary,
     build_partial_evidence_summary,
     collect_document_references,
     has_verified_article_citations,
@@ -38,6 +40,7 @@ def apply_review_rules(
     evidence_packs: list[EvidencePack] | None = None,
     question: str | None = None,
     service_group: str | None = None,
+    service_type: str | None = None,
 ) -> AIReviewResult:
     """Connector 결과에 STEP6 + DESIGN v3 등급 규칙을 적용한 새 객체를 반환한다.
 
@@ -87,6 +90,12 @@ def apply_review_rules(
         return replace(
             result,
             status=STATUS_INSUFFICIENT_EVIDENCE,
+            summary=build_no_evidence_guidance_summary(
+                question or "",
+                language=result.language,
+                service_group=service_group,
+                service_type=service_type,
+            ),
             expert_review_required=True,
             expert_review_reason=(
                 result.expert_review_reason
@@ -112,6 +121,23 @@ def apply_review_rules(
                 or "관련 법령은 확인됐으나 인용 검증에 실패하여 전문가 확인이 필요합니다."
             ),
             error_code=STATUS_PARTIAL_EVIDENCE,
+        )
+
+    if result.status in {STATUS_INSUFFICIENT_EVIDENCE, STATUS_NO_EVIDENCE} and not has_docs:
+        summary = build_no_evidence_guidance_summary(
+            question or "",
+            language=result.language,
+            service_group=service_group,
+            service_type=service_type,
+        )
+        return replace(
+            result,
+            summary=summary,
+            expert_review_required=True,
+            expert_review_reason=(
+                result.expert_review_reason
+                or "검색된 관련 법령 근거가 없어 가이드와 전문가 연결 안내를 제공합니다."
+            ),
         )
 
     if result.status != STATUS_SUCCESS and not result.expert_review_required:

@@ -101,6 +101,7 @@ class AIReviewEngine:
         *,
         answer_tier: str = "direct",
         service_group: str | None = None,
+        service_type: str | None = None,
     ) -> ReviewResult:
         """Evidence와 질문을 최종 ``ReviewResult``로 변환한다."""
         question = user_question if isinstance(user_question, str) else ""
@@ -119,7 +120,12 @@ class AIReviewEngine:
             return _to_review_result(ai_result, question, {"answer_tier": answer_tier})
 
         if answer_tier == ANSWER_TIER_EXPERT_REFERRAL and not evidence_packs:
-            summary = build_expert_referral_summary(question, language=language)
+            summary = build_expert_referral_summary(
+                question,
+                language=language,
+                service_group=service_group,
+                service_type=service_type,
+            )
             ai_result = AIReviewResult(
                 status=STATUS_NO_EVIDENCE,
                 language=language,
@@ -157,11 +163,14 @@ class AIReviewEngine:
             evidence_packs=evidence_packs,
             question=question,
             service_group=service_group,
+            service_type=service_type,
         )
         metadata = dict(prompt_package.metadata)
         metadata["answer_tier"] = answer_tier
         if service_group:
             metadata["service_group"] = service_group
+        if service_type:
+            metadata["service_type"] = service_type
         return _to_review_result(ruled_result, question, metadata)
 
 

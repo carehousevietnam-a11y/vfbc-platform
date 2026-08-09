@@ -84,6 +84,7 @@ class LegalRAGService:
             client=client,
             answer_tier=answer_tier,
             service_group=normalized.context.service_group,
+            service_type=normalized.context.service_type,
         )
         citations = build_citations(review, evidence_packs)
         answer_tier = reconcile_answer_tier(

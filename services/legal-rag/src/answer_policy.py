@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from .multilingual_legal_terms import extract_partial_ontology_matches
+
 if TYPE_CHECKING:
     from .evidence_builder import EvidencePack
 
@@ -42,25 +44,202 @@ def append_mandatory_disclaimer(text: str) -> str:
     return f"{cleaned}\n\n{MANDATORY_DISCLAIMER}"
 
 
-def build_expert_referral_summary(question: str, *, language: str | None = None) -> str:
-    """Tier 3 — complete customer-facing answer when no corpus evidence was found."""
+def build_expert_referral_summary(
+    question: str,
+    *,
+    language: str | None = None,
+    service_group: str | None = None,
+    service_type: str | None = None,
+) -> str:
+    """Grade C — practical guide first, then expert referral (no invented law citations)."""
+    return build_no_evidence_guidance_summary(
+        question,
+        language=language,
+        service_group=service_group,
+        service_type=service_type,
+    )
+
+
+_CANONICAL_TOPIC_KO: dict[str, str] = {
+    "giấy phép lao động": "노동허가(외국인 근로 허가)",
+    "thẻ tạm thường trú": "거주증(TRC)",
+    "tạm trú": "임시거주등록(땀주)",
+    "giấy phép lái xe": "운전면허",
+    "lừa đảo": "부동산·계약 사기 위험",
+    "hợp đồng thuê nhà": "임대·부동산 계약",
+}
+
+_SERVICE_TYPE_TOPIC_KO: dict[str, str] = {
+    "wp": "노동허가(외국인 근로 허가)",
+    "trc": "거주증(TRC)",
+    "tamtru": "임시거주등록(땀주)",
+    "driving-license": "운전면허",
+    "verify_fraud": "부동산·계약 사기 위험",
+    "verify_real-estate": "임대·부동산 계약",
+    "verify_tax": "세무·회계 서류",
+    "verify_admin": "행정 문서",
+    "verify_unclear": "불확실한 서류·분쟁",
+}
+
+_GUIDANCE_CHECKLIST_KO: dict[str, list[str]] = {
+    "giấy phép lao động": [
+        "고용계약서·회사 사업자 정보 등 근로 관계를 보여주는 서류",
+        "학력·경력 증명, 건강검진 등 신청 시 흔히 요구되는 기본 서류",
+        "현재 체류 자격·만료일 — 허가 종류에 따라 필요 서류가 달라질 수 있습니다",
+    ],
+    "thẻ tạm thường trú": [
+        "여권·현재 체류 자격(비자/스탬프)과 만료일",
+        "거주 목적을 보여주는 근로·사업·가족 관계 증빙",
+        "거주지 임대차 계약·임대 확인 서류 등 주소 증빙",
+    ],
+    "tạm trú": [
+        "여권·입국 스탬프·현재 체류 상태",
+        "거주지 주소·임대차 또는 거주 확인 서류",
+        "등록 기한·연장 사유를 설명할 수 있는 상황 정리(언제부터 어디에 거주 중인지)",
+    ],
+    "giấy phép lái xe": [
+        "본국 운전면허증·공증·번역 여부",
+        "체류 자격·거주 증빙(허가 종류에 따라 요구 서류가 다름)",
+        "신규 발급 vs 전환(교환) 중 어떤 경로인지",
+    ],
+    "lừa đảo": [
+        "계약서·영수증·송금 내역·메신저 대화 등 거래 흔적",
+        "상대방 신원·부동산 권리(소유·대리 권한)를 확인할 수 있는 자료",
+        "당시 약속·지급 조건·인도 시점을 시간순으로 정리한 메모",
+    ],
+    "hợp đồng thuê nhà": [
+        "임대차 계약서·보증금·월세 지급 내역",
+        "부동산 소유·대리 권한을 확인할 수 있는 서류 사본",
+        "분쟁이 된 조항(해지·보증금 반환·수리 의무 등)을 표시한 계약서",
+    ],
+}
+
+_GUIDANCE_CHECKLIST_VI: dict[str, list[str]] = {
+    "giấy phép lao động": [
+        "Hợp đồng lao động và thông tin doanh nghiệp",
+        "Bằng cấp, kinh nghiệm, giấy khám sức khỏe",
+        "Tư cách lưu trú hiện tại và ngày hết hạn",
+    ],
+}
+
+_DEFAULT_CHECKLIST_KO: dict[str, list[str]] = {
+    "check": [
+        "여권·체류 자격·만료일 등 기본 신분·체류 정보",
+        "질문과 관련된 계약서·허가증·신청 서류 사본",
+        "지금까지 진행한 절차(어디에 제출했는지, 결과는 무엇인지)를 짧게 정리",
+    ],
+    "verify": [
+        "문제가 된 계약서·영수증·송금·메신저 대화 등 핵심 자료",
+        "상대방·부동산·회사의 신원·권한을 확인할 수 있는 자료",
+        "무엇이 걱정되는지(사기·분쟁·위조 등)를 한 문장으로 정리",
+    ],
+    "register": [
+        "사업 형태(개인·법인)·업종·예상 영업 장소",
+        "임대차·투자·대표자 신분 등 설립·인허가에 필요한 기본 정보",
+        "이미 받은 안내문·반려 통지·임시 허가 등이 있다면 사본",
+    ],
+}
+
+
+def _resolve_guidance_topic(
+    question: str,
+    *,
+    service_group: str | None,
+    service_type: str | None,
+) -> tuple[str, str | None]:
+    """Return (display topic label, canonical_vi key for checklist lookup)."""
+    matches = extract_partial_ontology_matches(question)
+    if matches:
+        canonical = matches[0]
+        label = _CANONICAL_TOPIC_KO.get(canonical, canonical)
+        return label, canonical
+
+    if service_type:
+        normalized = service_type.replace("-", "_")
+        if service_type in _SERVICE_TYPE_TOPIC_KO:
+            label = _SERVICE_TYPE_TOPIC_KO[service_type]
+            canonical = next(
+                (key for key, value in _CANONICAL_TOPIC_KO.items() if value == label),
+                None,
+            )
+            return label, canonical
+        if normalized in _SERVICE_TYPE_TOPIC_KO:
+            label = _SERVICE_TYPE_TOPIC_KO[normalized]
+            return label, None
+
+    if service_group:
+        group_labels = {
+            "check": "체류·허가·행정 확인",
+            "verify": "서류·분쟁·위험 검토",
+            "register": "사업자 설립·인허가",
+        }
+        return group_labels.get(service_group, "관련 행정·법률·인허가"), None
+
+    return "관련 행정·법률·인허가", None
+
+
+def _guidance_checklist(
+    *,
+    canonical: str | None,
+    service_group: str | None,
+    language: str | None,
+) -> list[str]:
+    if language == "vi" and canonical and canonical in _GUIDANCE_CHECKLIST_VI:
+        return _GUIDANCE_CHECKLIST_VI[canonical]
+    if canonical and canonical in _GUIDANCE_CHECKLIST_KO:
+        return _GUIDANCE_CHECKLIST_KO[canonical]
+    if service_group and service_group in _DEFAULT_CHECKLIST_KO:
+        return _DEFAULT_CHECKLIST_KO[service_group]
+    return [
+        "질문과 관련된 서류·계약·허가증 사본",
+        "지금까지 진행한 절차와 결과를 짧게 정리한 메모",
+        "체류 자격·만료일·거주지 등 기본 정보",
+    ]
+
+
+def build_no_evidence_guidance_summary(
+    question: str,
+    *,
+    language: str | None = None,
+    service_group: str | None = None,
+    service_type: str | None = None,
+) -> str:
+    """Grade C — topic guide + honest no-match note + expert CTA."""
     q = (question or "").strip()
+    topic, canonical = _resolve_guidance_topic(
+        q,
+        service_group=service_group,
+        service_type=service_type,
+    )
+    checklist = _guidance_checklist(
+        canonical=canonical,
+        service_group=service_group,
+        language=language,
+    )
+    bullets = "\n".join(f"- {item}" for item in checklist)
+
     if language == "vi":
         intro = f"Về câu hỏi của bạn ({q}), " if q else "Về câu hỏi của bạn, "
         body = (
-            f"{intro}chúng tôi chưa tìm thấy văn bản pháp luật cụ thể tương ứng trong cơ sở dữ liệu. "
-            "Loại vấn đề này thường phụ thuộc vào sự kiện, hồ sơ và thực tiễn địa phương, "
-            "nên việc chuyên gia xem xét trực tiếp thường là cách nhanh và chính xác nhất. "
-            'Bạn có thể nhấn "Yêu cầu tư vấn chuyên gia" trong phòng tư vấn để đội ngũ chuyên gia VFBCAI hỗ trợ.'
+            f"{intro}vấn đề này có vẻ liên quan đến **{topic}**.\n\n"
+            "Dù chúng tôi chưa tìm thấy văn bản pháp luật cụ thể trong cơ sở dữ liệu, "
+            "bạn có thể chuẩn bị theo hướng dẫn chung sau:\n"
+            f"{bullets}\n\n"
+            "Kết luận chính xác phụ thuộc vào hồ sơ và thực tế từng trường hợp. "
+            'Nhấn "Yêu cầu tư vấn chuyên gia" trong phòng tư vấn để VFBCAI hỗ trợ bước tiếp theo.'
         )
     else:
         intro = f"말씀하신 \"{q}\"" if q else "말씀하신 내용"
         body = (
-            f"{intro}에 대해, 현재 데이터베이스에서 바로 대응되는 법령을 찾지 못했습니다. "
-            "이런 사안은 실제 서류·상황·지역 관행에 따라 결론이 달라질 수 있어, "
-            "전문가가 직접 확인하시는 것이 가장 확실하고 빠른 방법입니다. "
-            "Case Room(마이페이지)에서 「전문가 상담 요청」을 누르시면 VFBCAI 전문가팀이 확인 후 안내드립니다."
+            f"{intro}은(는) **{topic}** 관련 문의로 보입니다.\n\n"
+            "데이터베이스에서 바로 대응되는 법령 조문은 찾지 못했지만, "
+            "아래 일반 가이드를 참고해 준비하실 수 있습니다:\n"
+            f"{bullets}\n\n"
+            "실제 결론은 서류·상황·지역 관행에 따라 달라질 수 있습니다. "
+            "정확한 확인과 다음 단계 안내는 Case Room(마이페이지)에서 "
+            "「전문가 상담 요청」을 누르시면 VFBCAI 전문가팀이 도와드립니다."
         )
+
     return append_mandatory_disclaimer(body)
 
 
