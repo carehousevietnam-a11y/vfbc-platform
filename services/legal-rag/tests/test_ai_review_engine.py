@@ -103,7 +103,7 @@ def test_engine_no_evidence_passes_connector_status_without_inventing_content():
     result = AIReviewEngine().review([], "질문", "ko")
     assert result.status == STATUS_NO_EVIDENCE
     assert result.summary
-    assert "일반 가이드" in result.summary or "준비" in result.summary
+    assert "필수 행정서류" in result.summary or "준비" in result.summary
     assert "전문가" in result.summary
     assert result.legal_basis == []
     assert result.required_documents == []

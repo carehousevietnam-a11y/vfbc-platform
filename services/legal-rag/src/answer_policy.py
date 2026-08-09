@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from .multilingual_legal_terms import extract_partial_ontology_matches
@@ -25,12 +26,28 @@ FORBIDDEN_DEFINITIVE_PATTERNS: tuple[re.Pattern[str], ...] = (
 )
 
 _SIGNUP_CTA_KO = (
-    "더 정확한 법령 근거·맞춤 AI 리포트·전문가 검토는 무료 회원가입 후 "
-    "마이페이지에서 이용하실 수 있습니다."
+    "무료 회원가입 후 마이페이지에서 서류 작성 샘플·맞춤 AI 리포트·전문가 검토를 "
+    "이용하실 수 있습니다."
 )
 _SIGNUP_CTA_VI = (
-    "Để xem căn cứ pháp lý chi tiết, báo cáo AI và hỗ trợ chuyên gia, "
-    "vui lòng đăng ký miễn phí và tiếp tục tại Trang của tôi."
+    "Đăng ký miễn phí để xem mẫu hồ sơ, báo cáo AI và hỗ trợ chuyên gia tại Trang của tôi."
+)
+
+_MYPAGE_SAMPLES_CTA_KO = (
+    "각 서류의 작성 예시(샘플)는 무료 회원가입 후 마이페이지에서 확인하실 수 있습니다."
+)
+_MYPAGE_SAMPLES_CTA_VI = (
+    "Mẫu hồ sơ mẫu có thể xem tại Trang của tôi sau khi đăng ký miễn phí."
+)
+
+_EXPERT_CTA_KO = (
+    "회원님 상황에 맞는 정확한 확인이 필요하시면, 마이페이지 Case Room에서 "
+    "「전문가 상담 요청」을 남겨 주세요. VFBCAI 전문가팀이 서류를 검토한 뒤 "
+    "다음 단계를 안내해 드립니다."
+)
+_EXPERT_CTA_VI = (
+    'Nhấn "Yêu cầu tư vấn chuyên gia" trong phòng tư vấn — đội ngũ VFBCAI sẽ '
+    "xem xét hồ sơ và hướng dẫn bước tiếp theo."
 )
 
 
@@ -81,64 +98,140 @@ _SERVICE_TYPE_TOPIC_KO: dict[str, str] = {
     "verify_unclear": "불확실한 서류·분쟁",
 }
 
-_GUIDANCE_CHECKLIST_KO: dict[str, list[str]] = {
-    "giấy phép lao động": [
-        "고용계약서·회사 사업자 정보 등 근로 관계를 보여주는 서류",
-        "학력·경력 증명, 건강검진 등 신청 시 흔히 요구되는 기본 서류",
-        "현재 체류 자격·만료일 — 허가 종류에 따라 필요 서류가 달라질 수 있습니다",
-    ],
-    "thẻ tạm thường trú": [
-        "여권·현재 체류 자격(비자/스탬프)과 만료일",
-        "거주 목적을 보여주는 근로·사업·가족 관계 증빙",
-        "거주지 임대차 계약·임대 확인 서류 등 주소 증빙",
-    ],
-    "tạm trú": [
-        "여권·입국 스탬프·현재 체류 상태",
-        "거주지 주소·임대차 또는 거주 확인 서류",
-        "등록 기한·연장 사유를 설명할 수 있는 상황 정리(언제부터 어디에 거주 중인지)",
-    ],
-    "giấy phép lái xe": [
-        "본국 운전면허증·공증·번역 여부",
-        "체류 자격·거주 증빙(허가 종류에 따라 요구 서류가 다름)",
-        "신규 발급 vs 전환(교환) 중 어떤 경로인지",
-    ],
-    "lừa đảo": [
-        "계약서·영수증·송금 내역·메신저 대화 등 거래 흔적",
-        "상대방 신원·부동산 권리(소유·대리 권한)를 확인할 수 있는 자료",
-        "당시 약속·지급 조건·인도 시점을 시간순으로 정리한 메모",
-    ],
-    "hợp đồng thuê nhà": [
-        "임대차 계약서·보증금·월세 지급 내역",
-        "부동산 소유·대리 권한을 확인할 수 있는 서류 사본",
-        "분쟁이 된 조항(해지·보증금 반환·수리 의무 등)을 표시한 계약서",
-    ],
+@dataclass(frozen=True)
+class DocumentGuideTier:
+    """Required administrative documents vs situational attachments."""
+
+    required: tuple[str, ...]
+    supplementary: tuple[str, ...]
+
+
+_GUIDANCE_DOCUMENTS_KO: dict[str, DocumentGuideTier] = {
+    "giấy phép lao động": DocumentGuideTier(
+        required=(
+            "여권 사본 및 현재 체류 자격(비자) 정보",
+            "고용계약서·회사 사업자등록 등 근로 관계를 보여주는 기본 서류",
+            "노동허가 신청에 필요한 정해진 행정 서식(해당 시)",
+        ),
+        supplementary=(
+            "학력·경력 증명서, 건강검진 결과 등 자격 요건 증빙",
+            "이전 허가증·갱신 이력이 있다면 해당 사본",
+            "고용주(회사) 측에서 요청하는 추가 확인 서류",
+        ),
+    ),
+    "thẻ tạm thường trú": DocumentGuideTier(
+        required=(
+            "여권 및 현재 체류 자격(비자/스탬프)과 만료일",
+            "거주 목적을 보여주는 근로·사업·가족 관계 기본 증빙",
+            "거주지 주소를 확인할 수 있는 임대차·거주 확인 서류",
+        ),
+        supplementary=(
+            "회사·사업자 관련 서류(근로·투자 목적인 경우)",
+            "이전 TRC·체류 이력이 있다면 해당 사본",
+            "기관에서 추가로 요청한 확인 서류",
+        ),
+    ),
+    "tạm trú": DocumentGuideTier(
+        required=(
+            "여권·입국 스탬프 및 현재 체류 상태",
+            "거주지 주소·임대차 또는 거주 확인 서류",
+            "임시거주등록(땀주) 신청·연장에 필요한 정해진 행정 서식",
+        ),
+        supplementary=(
+            "등록·연장 사유를 설명할 수 있는 상황 정리(거주 시작일·주소 등)",
+            "집주인·거주지 확인에 필요한 추가 연락처·서류",
+            "이전 등록증 사본(갱신·연장인 경우)",
+        ),
+    ),
+    "giấy phép lái xe": DocumentGuideTier(
+        required=(
+            "여권 및 현재 체류 자격 증빙",
+            "본국 운전면허증(전환·교환 신청 시)",
+            "신청 유형에 맞는 정해진 행정 서식",
+        ),
+        supplementary=(
+            "면허증 공증·번역본(요구되는 경우)",
+            "거주지·체류 기간 확인 서류",
+            "이전 발급·갱신 이력이 있다면 해당 사본",
+        ),
+    ),
+    "lừa đảo": DocumentGuideTier(
+        required=(
+            "계약서·영수증·송금 내역 등 거래의 핵심 증빙",
+            "상대방과의 연락 기록(메신저·이메일 등)",
+            "문제가 된 약속·지급·인도 시점을 정리한 메모",
+        ),
+        supplementary=(
+            "부동산·회사의 소유·대리 권한을 확인할 수 있는 자료",
+            "중개인·제3자 관련 서류·대화 기록",
+            "이미 제출한 신고·민원 접수 확인서(있다면)",
+        ),
+    ),
+    "hợp đồng thuê nhà": DocumentGuideTier(
+        required=(
+            "임대차 계약서 원본 또는 사본",
+            "보증금·월세 지급 내역(송금·영수증 등)",
+            "분쟁이 된 조항이 표시된 계약서",
+        ),
+        supplementary=(
+            "부동산 소유·대리 권한 확인 자료",
+            "입주 전·후 사진, 수리·하자 관련 기록",
+            "집주인·중개인과의 추가 연락 기록",
+        ),
+    ),
 }
 
-_GUIDANCE_CHECKLIST_VI: dict[str, list[str]] = {
-    "giấy phép lao động": [
-        "Hợp đồng lao động và thông tin doanh nghiệp",
-        "Bằng cấp, kinh nghiệm, giấy khám sức khỏe",
-        "Tư cách lưu trú hiện tại và ngày hết hạn",
-    ],
+_DEFAULT_GUIDE_KO: dict[str, DocumentGuideTier] = {
+    "check": DocumentGuideTier(
+        required=(
+            "여권 사본 및 현재 체류 자격·만료일",
+            "질문과 직접 관련된 허가증·신청 서류 사본",
+            "해당 절차에 필요한 정해진 행정 서식(있는 경우)",
+        ),
+        supplementary=(
+            "고용·거주·사업 관계를 보여주는 계약서·확인서",
+            "지금까지 진행한 절차와 결과를 짧게 정리한 메모",
+            "기관·회사에서 추가로 요청한 서류",
+        ),
+    ),
+    "verify": DocumentGuideTier(
+        required=(
+            "검토가 필요한 계약서·영수증·송금 내역 등 핵심 자료",
+            "상대방·부동산·회사의 신원·권한을 확인할 수 있는 기본 자료",
+            "무엇이 걱정되는지 한 문장으로 정리한 메모",
+        ),
+        supplementary=(
+            "메신저·이메일 등 추가 연락 기록",
+            "중개·제3자 관련 서류",
+            "이미 받은 안내·통지·반려 문서(있다면)",
+        ),
+    ),
+    "register": DocumentGuideTier(
+        required=(
+            "사업 형태(개인·법인)·업종·예상 영업 장소 정보",
+            "대표자 신분·거주 관련 기본 증빙",
+            "설립·인허가에 필요한 정해진 신청 서식",
+        ),
+        supplementary=(
+            "임대차·투자·자본 관련 확인 서류",
+            "이미 받은 안내문·반려 통지·임시 허가 사본",
+            "업종별 추가 요구 서류(해당 시)",
+        ),
+    ),
 }
 
-_DEFAULT_CHECKLIST_KO: dict[str, list[str]] = {
-    "check": [
-        "여권·체류 자격·만료일 등 기본 신분·체류 정보",
+_DEFAULT_GUIDE_FALLBACK_KO = DocumentGuideTier(
+    required=(
+        "여권 및 현재 체류·거주 관련 기본 정보",
         "질문과 관련된 계약서·허가증·신청 서류 사본",
-        "지금까지 진행한 절차(어디에 제출했는지, 결과는 무엇인지)를 짧게 정리",
-    ],
-    "verify": [
-        "문제가 된 계약서·영수증·송금·메신저 대화 등 핵심 자료",
-        "상대방·부동산·회사의 신원·권한을 확인할 수 있는 자료",
-        "무엇이 걱정되는지(사기·분쟁·위조 등)를 한 문장으로 정리",
-    ],
-    "register": [
-        "사업 형태(개인·법인)·업종·예상 영업 장소",
-        "임대차·투자·대표자 신분 등 설립·인허가에 필요한 기본 정보",
-        "이미 받은 안내문·반려 통지·임시 허가 등이 있다면 사본",
-    ],
-}
+        "해당 절차에 필요한 정해진 행정 서식(있는 경우)",
+    ),
+    supplementary=(
+        "지금까지 진행한 절차와 결과를 짧게 정리한 메모",
+        "상대방·회사·부동산 관련 추가 확인 자료",
+        "기관에서 요청한 추가 서류",
+    ),
+)
 
 
 def _resolve_guidance_topic(
@@ -178,23 +271,42 @@ def _resolve_guidance_topic(
     return "관련 행정·법률·인허가", None
 
 
-def _guidance_checklist(
+def _resolve_document_guide(
     *,
     canonical: str | None,
     service_group: str | None,
+) -> DocumentGuideTier:
+    if canonical and canonical in _GUIDANCE_DOCUMENTS_KO:
+        return _GUIDANCE_DOCUMENTS_KO[canonical]
+    if service_group and service_group in _DEFAULT_GUIDE_KO:
+        return _DEFAULT_GUIDE_KO[service_group]
+    return _DEFAULT_GUIDE_FALLBACK_KO
+
+
+def _format_bullet_block(items: tuple[str, ...], *, prefix: str = "  · ") -> str:
+    return "\n".join(f"{prefix}{item}" for item in items)
+
+
+def _format_document_guide_section(
+    guide: DocumentGuideTier,
+    *,
     language: str | None,
-) -> list[str]:
-    if language == "vi" and canonical and canonical in _GUIDANCE_CHECKLIST_VI:
-        return _GUIDANCE_CHECKLIST_VI[canonical]
-    if canonical and canonical in _GUIDANCE_CHECKLIST_KO:
-        return _GUIDANCE_CHECKLIST_KO[canonical]
-    if service_group and service_group in _DEFAULT_CHECKLIST_KO:
-        return _DEFAULT_CHECKLIST_KO[service_group]
-    return [
-        "질문과 관련된 서류·계약·허가증 사본",
-        "지금까지 진행한 절차와 결과를 짧게 정리한 메모",
-        "체류 자격·만료일·거주지 등 기본 정보",
-    ]
+) -> str:
+    if language == "vi":
+        return (
+            "【Hồ sơ hành chính bắt buộc】\n"
+            f"{_format_bullet_block(guide.required)}\n\n"
+            "【Hồ sơ bổ sung】\n"
+            f"{_format_bullet_block(guide.supplementary)}\n\n"
+            f"{_MYPAGE_SAMPLES_CTA_VI}"
+        )
+    return (
+        "【필수 행정서류】\n"
+        f"{_format_bullet_block(guide.required)}\n\n"
+        "【추가·첨부 서류】\n"
+        f"{_format_bullet_block(guide.supplementary)}\n\n"
+        f"{_MYPAGE_SAMPLES_CTA_KO}"
+    )
 
 
 def build_no_evidence_guidance_summary(
@@ -211,33 +323,27 @@ def build_no_evidence_guidance_summary(
         service_group=service_group,
         service_type=service_type,
     )
-    checklist = _guidance_checklist(
-        canonical=canonical,
-        service_group=service_group,
-        language=language,
-    )
-    bullets = "\n".join(f"- {item}" for item in checklist)
+    guide = _resolve_document_guide(canonical=canonical, service_group=service_group)
+    guide_section = _format_document_guide_section(guide, language=language)
 
     if language == "vi":
         intro = f"Về câu hỏi của bạn ({q}), " if q else "Về câu hỏi của bạn, "
         body = (
-            f"{intro}vấn đề này có vẻ liên quan đến **{topic}**.\n\n"
-            "Dù chúng tôi chưa tìm thấy văn bản pháp luật cụ thể trong cơ sở dữ liệu, "
-            "bạn có thể chuẩn bị theo hướng dẫn chung sau:\n"
-            f"{bullets}\n\n"
-            "Kết luận chính xác phụ thuộc vào hồ sơ và thực tế từng trường hợp. "
-            'Nhấn "Yêu cầu tư vấn chuyên gia" trong phòng tư vấn để VFBCAI hỗ trợ bước tiếp theo.'
+            f"{intro}chúng tôi hiểu đây là vấn đề liên quan đến **{topic}**.\n\n"
+            "Hiện chưa xác định được văn bản pháp luật cụ thể trong cơ sở dữ liệu, "
+            "nhưng bạn có thể chuẩn bị hồ sơ theo thứ tự sau để được hỗ trợ nhanh hơn:\n\n"
+            f"{guide_section}\n\n"
+            f"{_EXPERT_CTA_VI}"
         )
     else:
         intro = f"말씀하신 \"{q}\"" if q else "말씀하신 내용"
         body = (
-            f"{intro}은(는) **{topic}** 관련 문의로 보입니다.\n\n"
-            "데이터베이스에서 바로 대응되는 법령 조문은 찾지 못했지만, "
-            "아래 일반 가이드를 참고해 준비하실 수 있습니다:\n"
-            f"{bullets}\n\n"
-            "실제 결론은 서류·상황·지역 관행에 따라 달라질 수 있습니다. "
-            "정확한 확인과 다음 단계 안내는 Case Room(마이페이지)에서 "
-            "「전문가 상담 요청」을 누르시면 VFBCAI 전문가팀이 도와드립니다."
+            f"{intro}은(는) **{topic}** 관련 문의로 이해했습니다.\n\n"
+            "지금 단계에서는 데이터베이스에서 귀하의 상황에 바로 대응하는 법령 조문을 "
+            "특정하지 못했습니다. 다만 아래 순서로 서류를 준비하시면, 전문가 상담 시 "
+            "훨씬 빠르게 맞춤 안내를 받으실 수 있습니다.\n\n"
+            f"{guide_section}\n\n"
+            f"{_EXPERT_CTA_KO}"
         )
 
     return append_mandatory_disclaimer(body)
@@ -375,6 +481,7 @@ def build_partial_evidence_summary(
     q = (question or "").strip()
     doc_block = _format_document_list(refs, language=language)
     context = _service_context_phrase(service_group, language=language)
+    _, canonical = _resolve_guidance_topic(q, service_group=service_group, service_type=None)
 
     if language == "vi":
         intro = f"Về câu hỏi của bạn ({q}), " if q else "Về câu hỏi của bạn, "
@@ -390,11 +497,12 @@ def build_partial_evidence_summary(
     else:
         intro = f"말씀하신 \"{q}\"" if q else "말씀하신 내용"
         body = (
-            f"{intro}에 대해, {context}와 관련된 아래 법령·문서가 데이터베이스에서 확인되었습니다:\n"
+            f"{intro}에 대해, {context}와 관련된 아래 법령·문서가 확인되었습니다:\n"
             f"{doc_block}\n\n"
-            "다만 AI가 귀하의 상황에 적용되는 구체적인 조항(Điều/Khoản)까지는 특정하지 못했습니다. "
-            "정확한 근거 확인과 다음 단계 안내는 VFBCAI 전문가 검토 또는 서류 업로드 후 "
-            "AI 리포트를 통해 진행하실 수 있습니다."
+            "다만 귀하의 상황에 적용되는 구체 조항(Điều/Khoản)까지는 아직 특정하지 못했습니다. "
+            "정확한 근거 확인·서류 준비는 아래 순서를 참고해 주세요.\n\n"
+            f"{_format_document_guide_section(_resolve_document_guide(canonical=canonical, service_group=service_group), language=language)}\n\n"
+            f"{_EXPERT_CTA_KO}"
         )
         if include_signup_cta:
             body += f"\n\n{_SIGNUP_CTA_KO}"
@@ -420,9 +528,10 @@ def build_anonymous_topic_guidance(
         )
     else:
         body = (
-            f"말씀하신 내용은 **{topic}** 관련 사안으로 보입니다. "
-            "비회원 상태에서는 일반적인 절차·서류 안내만 드릴 수 있으며, "
-            "개인 상황에 맞는 법령 근거·조항·AI 리포트는 제공되지 않습니다. "
+            f"말씀하신 내용은 **{topic}** 관련 사안으로 보입니다.\n\n"
+            "비회원 상태에서는 일반적인 절차·서류 안내만 드릴 수 있습니다. "
+            "개인 상황에 맞는 법령 근거·조항·AI 리포트는 회원 전용입니다.\n\n"
+            f"{_format_document_guide_section(_DEFAULT_GUIDE_FALLBACK_KO, language=language)}\n\n"
             f"{_SIGNUP_CTA_KO}"
         )
     return append_mandatory_disclaimer(body)
