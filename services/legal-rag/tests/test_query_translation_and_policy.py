@@ -7,6 +7,8 @@ from src.answer_policy import (
     append_mandatory_disclaimer,
     build_expert_referral_summary,
     contains_forbidden_definitive_phrasing,
+    format_document_reference,
+    format_structured_citation,
 )
 from src.customer_review_builder import build_customer_review
 from src.ai_review_engine import ReviewResult
@@ -14,6 +16,7 @@ from src.citation_engine import CitationResult
 from src.confidence_engine import ConfidenceBreakdown, ConfidenceResult
 from src.answer_tier import (
     ANSWER_TIER_EXPERT_REFERRAL,
+    ANSWER_TIER_RELATED,
     classify_answer_tier,
     reconcile_answer_tier,
 )
@@ -64,6 +67,55 @@ class FakeTranslationClient:
         self.chat = _FakeChat(content)
 
 
+def test_format_structured_citation_grade_a_korean_article_markers():
+    line = format_structured_citation(
+        title="Nghị định về giấy phép lao động",
+        document_number="77/2022/NĐ-CP",
+        article="Điều 9 Khoản 2",
+        language="ko",
+    )
+    assert line == "Nghị định về giấy phép lao động (77/2022/NĐ-CP) 제9조 제2항"
+
+
+def test_format_structured_citation_grade_b_document_only():
+    line = format_document_reference(
+        title="Nghị định về giấy phép lao động",
+        document_number="77/2022/NĐ-CP",
+        language="ko",
+    )
+    assert line == "Nghị định về giấy phép lao động (77/2022/NĐ-CP)"
+    assert "제" not in line
+
+
+def test_partial_evidence_summary_lists_documents():
+    from src.answer_policy import build_partial_evidence_summary
+    from src.evidence_builder import ArticleReference, EvidencePack
+
+    pack = EvidencePack(
+        document_id="doc-1",
+        document_number=["77/2022/NĐ-CP"],
+        title="Nghị định về giấy phép lao động",
+        issuing_authority=None,
+        effective_date=None,
+        status="active",
+        official_url=None,
+        articles=[ArticleReference(None, None, None, None, 85.0, "canonical_concept")],
+        search_keywords=[],
+        top_score=85.0,
+        top_match_type="canonical_concept",
+        original_title="Nghị định về giấy phép lao động",
+        original_headings=[],
+    )
+    text = build_partial_evidence_summary(
+        "노동허가가 필요한가요?",
+        [pack],
+        language="ko",
+        service_group="check",
+    )
+    assert "77/2022/NĐ-CP" in text
+    assert "조항" in text or "Điều" in text or "특정" in text
+
+
 def test_append_mandatory_disclaimer_is_idempotent():
     base = "해석 가이드입니다."
     once = append_mandatory_disclaimer(base)
@@ -74,9 +126,31 @@ def test_append_mandatory_disclaimer_is_idempotent():
 
 def test_expert_referral_summary_includes_disclaimer():
     summary = build_expert_referral_summary("노동허가 경력 요건이 어떻게 되나요?", language="ko")
-    assert "노동허가 경력 요건" in summary
-    assert "전문가 상담" in summary
+    assert "노동허가" in summary
+    assert "필수 행정서류" in summary
+    assert "추가·첨부" in summary
+    assert "서류 목록" in summary
+    assert "샘플" in summary
+    assert "마이페이지" in summary
+    assert "전문가" in summary
     assert MANDATORY_DISCLAIMER in summary
+
+
+def test_no_evidence_guidance_lists_practical_checklist():
+    from src.answer_policy import build_no_evidence_guidance_summary
+
+    summary = build_no_evidence_guidance_summary(
+        "노동허가 경력 요건이 어떻게 되나요?",
+        language="ko",
+        service_group="check",
+        service_type="wp",
+    )
+    assert "노동허가" in summary
+    assert "필수 행정서류" in summary
+    assert "고용계약서" in summary or "여권" in summary
+    assert "추가·첨부" in summary
+    assert "샘플" in summary
+    assert "전문가" in summary
 
 
 def test_forbidden_definitive_phrasing_detection():
@@ -218,6 +292,33 @@ def test_search_fallback_skips_original_question_for_korean():
     assert results == []
     assert meta["search_stage"] == "none"
     assert meta["search_stages_attempted"] == []
+
+
+def test_reconcile_answer_tier_partial_evidence_stays_related():
+    hit = SearchResult(
+        document_id="doc-1",
+        document_number=["152/2020/NĐ-CP"],
+        document_type="decree",
+        title="WP",
+        article_no=None,
+        clause_no=None,
+        item_no=None,
+        heading=None,
+        status="active",
+        official_url=None,
+        score=85.0,
+        match_type=MatchType.CANONICAL_CONCEPT.value,
+    )
+    from src.ai_review_models import STATUS_PARTIAL_EVIDENCE
+
+    assert (
+        reconcile_answer_tier(
+            [hit],
+            review_status=STATUS_PARTIAL_EVIDENCE,
+            verified_citation_count=0,
+        )
+        == ANSWER_TIER_RELATED
+    )
 
 
 def test_reconcile_answer_tier_downgrades_insufficient_evidence():

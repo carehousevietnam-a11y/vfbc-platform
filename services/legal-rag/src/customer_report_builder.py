@@ -119,6 +119,7 @@ def _legal_basis_items(review: CustomerReview) -> tuple[list[dict[str, Any]], li
             "document_number": basis.document_number,
             "article": basis.article,
             "title": basis.title,
+            "formatted_line": basis.formatted_line,
         })
         if basis.official_url:
             links.append(ReportLink(basis.document_number, basis.official_url))

@@ -7,6 +7,7 @@ from typing import Any
 
 from ..ai_review_engine import AIReviewEngine
 from ..answer_tier import ANSWER_TIER_EXPERT_REFERRAL, classify_answer_tier, reconcile_answer_tier
+from ..case_library_seed import build_case_library_publish_seed
 from ..citation_engine import build_citations
 from ..confidence_engine import calculate_confidence
 from ..customer_report_builder import build_customer_report
@@ -84,6 +85,7 @@ class LegalRAGService:
             client=client,
             answer_tier=answer_tier,
             service_group=normalized.context.service_group,
+            service_type=normalized.context.service_type,
         )
         citations = build_citations(review, evidence_packs)
         answer_tier = reconcile_answer_tier(
@@ -92,7 +94,7 @@ class LegalRAGService:
             verified_citation_count=len(citations.citations),
         )
         confidence = calculate_confidence(review, citations, evidence_packs)
-        customer_review = build_customer_review(review, citations, confidence)
+        customer_review = build_customer_review(review, citations, confidence, evidence_packs)
         expert_review = build_expert_review(review, citations, confidence, evidence_packs)
         customer_report = build_customer_report(customer_review)
         expert_report = build_expert_report(expert_review)
@@ -135,6 +137,12 @@ class LegalRAGService:
                 "pipeline_duration_ms": round(total_duration_ms, 2),
                 "answer_tier": answer_tier,
                 "top_search_score": top_score,
+                "case_library_seed": build_case_library_publish_seed(
+                    normalized.question,
+                    service_group=normalized.context.service_group,
+                    service_type=normalized.context.service_type,
+                    answer_grade=review.status,
+                ),
             },
         )
 

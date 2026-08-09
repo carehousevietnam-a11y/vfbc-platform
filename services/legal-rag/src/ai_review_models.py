@@ -28,6 +28,8 @@ STATUS_INVALID_LANGUAGE = "invalid_language"
 STATUS_INVALID_RESPONSE = "invalid_response"
 STATUS_API_ERROR = "api_error"
 STATUS_INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+# DESIGN v3 §4 — 관련 법령·문서는 확인됐으나 조항(article)까지 특정하지 못한 등급 B.
+STATUS_PARTIAL_EVIDENCE = "partial_evidence"
 
 ALL_STATUSES = (
     STATUS_SUCCESS,
@@ -37,6 +39,7 @@ ALL_STATUSES = (
     STATUS_INVALID_RESPONSE,
     STATUS_API_ERROR,
     STATUS_INSUFFICIENT_EVIDENCE,
+    STATUS_PARTIAL_EVIDENCE,
 )
 
 

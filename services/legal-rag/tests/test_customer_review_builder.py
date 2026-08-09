@@ -80,10 +80,40 @@ def test_customer_output_hides_internal_review_metadata():
 def test_customer_legal_basis_contains_only_public_fields():
     result, *_ = _build()
     basis = result.to_dict()["legal_basis"][0]
-    assert list(basis) == ["document_number", "article", "title", "official_url"]
+    assert list(basis) == ["document_number", "article", "title", "official_url", "formatted_line"]
     assert "note" not in basis
     assert "document_id" not in basis
     assert "evidence_index" not in basis
+
+
+def test_customer_legal_basis_grade_a_uses_structured_citation_line():
+    result, *_ = _build()
+    basis = result.to_dict()["legal_basis"][0]
+    assert basis["formatted_line"] == "Nghị định về lao động nước ngoài (152/2020/NĐ-CP) 제9조"
+
+
+def test_customer_legal_basis_grade_b_document_only_line():
+    from src.ai_review_models import STATUS_PARTIAL_EVIDENCE
+    from src.confidence_engine import calculate_confidence
+
+    pack = _pack()
+    review = ReviewResult(
+        status=STATUS_PARTIAL_EVIDENCE,
+        language="ko",
+        question="노동허가가 필요한가요?",
+        summary="관련 문서 확인",
+        expert_review_required=True,
+        source_document_count=1,
+        source_article_count=0,
+        model="gpt-test",
+        prompt_metadata={},
+    )
+    citations = build_citations(review, [pack])
+    confidence = calculate_confidence(review, citations, [pack])
+    result = build_customer_review(review, citations, confidence, [pack])
+    basis = result.to_dict()["legal_basis"][0]
+    assert basis["article"] is None
+    assert basis["formatted_line"] == "Nghị định về lao động nước ngoài (152/2020/NĐ-CP)"
 
 
 def test_customer_next_actions_are_deterministic():

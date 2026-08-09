@@ -5,6 +5,7 @@ from src.ai_review_models import (
     STATUS_CONFIGURATION_ERROR,
     STATUS_INSUFFICIENT_EVIDENCE,
     STATUS_NO_EVIDENCE,
+    STATUS_PARTIAL_EVIDENCE,
     STATUS_SUCCESS,
     AIReviewResult,
     LegalBasisCitation,
@@ -101,21 +102,23 @@ def test_engine_empty_question_does_not_call_dependencies():
 def test_engine_no_evidence_passes_connector_status_without_inventing_content():
     result = AIReviewEngine().review([], "질문", "ko")
     assert result.status == STATUS_NO_EVIDENCE
-    assert result.summary is None
+    assert result.summary
+    assert "필수 행정서류" in result.summary or "준비" in result.summary
+    assert "전문가" in result.summary
     assert result.legal_basis == []
     assert result.required_documents == []
 
 
-def test_success_without_verified_legal_basis_is_downgraded():
+def test_success_without_verified_legal_basis_becomes_partial_when_documents_exist():
     def connector(prompt, evidence_packs, api_key, model, client):
         return AIReviewResult(status=STATUS_SUCCESS, language="en", summary="unsupported")
 
     result = AIReviewEngine(connector=connector).review(
-        [_pack()], "Question", "en", api_key="x", model="m"
+        [_pack()], "Question", "en", api_key="x", model="m", service_group="check"
     )
-    assert result.status == STATUS_INSUFFICIENT_EVIDENCE
+    assert result.status == STATUS_PARTIAL_EVIDENCE
     assert result.expert_review_required is True
-    assert result.error_code == STATUS_INSUFFICIENT_EVIDENCE
+    assert result.summary
 
 
 def test_engine_does_not_mutate_evidence_input():

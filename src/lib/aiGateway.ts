@@ -231,6 +231,38 @@ export function buildLegalConsultNotice(context: CaseContext | null): string {
 export type NavigatorAction = { label: string; href: string };
 type ServiceLink = NavigatorAction;
 
+export type InferredLegalRagContext = {
+  service_type: string;
+  service_group: "check" | "verify" | "register";
+};
+
+const HREF_TO_LEGAL_RAG: Record<string, InferredLegalRagContext> = {
+  "/check/wp": { service_type: "wp", service_group: "check" },
+  "/check/trc": { service_type: "trc", service_group: "check" },
+  "/check/tamtru": { service_type: "tamtru", service_group: "check" },
+  "/check/driving-license": { service_type: "driving-license", service_group: "check" },
+  "/verify/real-estate": { service_type: "verify_real-estate", service_group: "verify" },
+  "/verify/fraud": { service_type: "verify_fraud", service_group: "verify" },
+  "/verify/tax": { service_type: "verify_tax", service_group: "verify" },
+  "/verify/admin": { service_type: "verify_admin", service_group: "verify" },
+  "/verify/unclear": { service_type: "verify_unclear", service_group: "verify" },
+  "/register/company": { service_type: "register_company", service_group: "register" },
+  "/register/restaurant": { service_type: "register_restaurant", service_group: "register" },
+  "/register/cosmetics": { service_type: "register_cosmetics", service_group: "register" },
+  "/register/environment": { service_type: "register_environment", service_group: "register" },
+  "/register/fire-safety": { service_type: "register_fire_safety", service_group: "register" },
+  "/register/hygiene": { service_type: "register_hygiene", service_group: "register" },
+  "/register/medical-device": { service_type: "register_medical_device", service_group: "register" },
+  "/register/franchise": { service_type: "register_franchise", service_group: "register" },
+};
+
+/** 익명 /ai 채팅에서 Legal RAG로 보낼 service_type/service_group 추정. */
+export function inferAnonymousLegalRagContext(content: string): InferredLegalRagContext | null {
+  const link = detectServiceLink(content);
+  if (!link) return null;
+  return HREF_TO_LEGAL_RAG[link.href] ?? null;
+}
+
 function detectServiceLink(content: string): ServiceLink | null {
   const normalized = content.toLowerCase();
 
