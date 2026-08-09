@@ -40,6 +40,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Send, Loader2, AlertTriangle } from "lucide-react";
+import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
 
 type NavigatorAction = { label: string; href: string };
 
@@ -80,10 +81,10 @@ function AssistantBubble({ content, actions }: { content: string; actions?: Navi
 
   return (
     <div className="flex justify-start">
-      <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm leading-relaxed text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-        <p className="whitespace-pre-line">{mainText}</p>
+      <div className="w-full max-w-[min(100%,42rem)] rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5 sm:py-4">
+        <ChatAnswerContent content={mainText} />
         {resolvedActions.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-50 pt-3">
             {resolvedActions.map((a, idx) => (
               <Link
                 key={idx}
@@ -188,7 +189,7 @@ function AiPageContent() {
       <div className="h-[3px] bg-blue-900 shrink-0" />
 
       <div className="shrink-0 border-b border-gray-100 bg-white px-4 py-3 sm:px-6">
-        <div className="mx-auto max-w-xl">
+        <div className="mx-auto w-full max-w-2xl">
           <Link href="/" className="text-xs text-gray-400 hover:text-gray-600">
             VFBCAI
           </Link>
@@ -205,7 +206,7 @@ function AiPageContent() {
 
       {/* 답변 화면 */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
-        <div className="mx-auto max-w-xl space-y-3">
+        <div className="mx-auto w-full max-w-2xl space-y-3">
           {messages.length === 0 && (
             <div className="rounded-2xl bg-white border border-gray-100 px-4 py-3 text-sm text-gray-500 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               궁금하신 내용을 입력해주세요.
@@ -244,7 +245,7 @@ function AiPageContent() {
 
       {/* 채팅 입력창 */}
       <div className="shrink-0 border-t border-gray-100 bg-white px-4 py-3 sm:px-6">
-        <div className="mx-auto max-w-xl">
+        <div className="mx-auto w-full max-w-2xl">
           <form onSubmit={handleSubmit} className="flex items-center gap-2">
             <input
               value={input}
