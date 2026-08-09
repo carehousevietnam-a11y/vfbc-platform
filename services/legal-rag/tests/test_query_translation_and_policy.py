@@ -87,6 +87,37 @@ def test_format_structured_citation_grade_b_document_only():
     assert "제" not in line
 
 
+def test_abbreviate_vietnamese_title_strips_boilerplate():
+    from src.answer_policy import abbreviate_vietnamese_title
+
+    long_title = (
+        "Hướng dẫn thủ tục cấp thị thực, cấp thẻ tạm trú, gia hạn tạm trú "
+        "cho người nước ngoài tại Việt Nam thuộc thẩm quyền của Bộ Ngoại giao"
+    )
+    short = abbreviate_vietnamese_title(long_title)
+    assert len(short) <= 45
+    assert "Hướng dẫn thủ tục" not in short
+
+
+def test_format_document_list_uses_compact_doc_number_format():
+    from src.answer_policy import _format_document_list
+
+    refs = [
+        {
+            "document_number": "04/2016/TT-BNG",
+            "title": (
+                "Hướng dẫn thủ tục cấp thị thực, cấp thẻ tạm trú, gia hạn tạm trú "
+                "cho người nước ngoài tại Việt Nam thuộc thẩm quyền của Bộ Ngoại giao"
+            ),
+            "official_url": None,
+        }
+    ]
+    block = _format_document_list(refs, language="ko")
+    assert "04/2016/TT-BNG" in block
+    assert block.startswith("·")
+    assert "문서번호:" not in block
+
+
 def test_partial_evidence_summary_lists_documents():
     from src.answer_policy import build_partial_evidence_summary
     from src.evidence_builder import ArticleReference, EvidencePack

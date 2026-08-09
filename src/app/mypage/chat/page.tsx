@@ -20,6 +20,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
 import {
   ArrowLeft,
   Send,
@@ -482,9 +483,9 @@ function ChatContent() {
                 if (m.type === "ai") {
                   return (
                     <div key={m.id} className="flex justify-start">
-                      <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-                        {m.content}
-                        <p className="mt-1 text-[10px] text-gray-400">{formatTime(m.createdAt)}</p>
+                      <div className="w-full max-w-[min(100%,42rem)] rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5 sm:py-4">
+                        <ChatAnswerContent content={m.content} />
+                        <p className="mt-2 text-[10px] text-gray-400">{formatTime(m.createdAt)}</p>
                         {m.needsExpert && (
                           <button
                             onClick={() => setExpertPanelOpen(true)}

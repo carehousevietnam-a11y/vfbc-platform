@@ -438,17 +438,61 @@ def format_document_reference(
     )
 
 
-def _format_document_list(refs: list[dict[str, str | None]], *, language: str | None) -> str:
+_TITLE_BOILERPLATE_RE = re.compile(
+    r"^(?:Sửa đổi, bổ sung một số điều của(?: của)? |"
+    r"Hướng dẫn (?:thực hiện |thủ tục )?|"
+    r"Quy định (?:chi tiết và hướng dẫn thi hành |mẫu )?|"
+    r"Thông tư hướng dẫn )",
+    re.IGNORECASE,
+)
+_LAW_CORE_RE = re.compile(r"(Luật\s+[^.]{4,80})", re.IGNORECASE)
+_DECREE_CORE_RE = re.compile(r"(Nghị định\s+[^.]{4,60})", re.IGNORECASE)
+
+
+def abbreviate_vietnamese_title(title: str | None, *, max_len: int = 44) -> str:
+    """Shorten long Vietnamese legal document titles for chat readability."""
+    text = (title or "").strip()
+    if not text:
+        return ""
+    text = _TITLE_BOILERPLATE_RE.sub("", text).strip()
+    for pattern in (_LAW_CORE_RE, _DECREE_CORE_RE):
+        match = pattern.search(text)
+        if match:
+            text = match.group(1).strip()
+            break
+    if len(text) > max_len:
+        text = text[: max_len - 1].rstrip(" ,;") + "…"
+    return text
+
+
+def _format_document_list(
+    refs: list[dict[str, str | None]],
+    *,
+    language: str | None,
+    max_items: int = 3,
+) -> str:
     if not refs:
         return ""
     lines: list[str] = []
-    for ref in refs[:5]:
-        number = ref["document_number"] or ""
-        title = ref["title"] or number
+    for ref in refs[:max_items]:
+        number = (ref["document_number"] or "").strip()
+        short_title = abbreviate_vietnamese_title(ref["title"])
         if language == "vi":
-            lines.append(f"- {title} ({number})")
+            if short_title and short_title != number:
+                lines.append(f"· {number}\n  {short_title}")
+            else:
+                lines.append(f"· {number or short_title}")
         else:
-            lines.append(f"- {title} (문서번호: {number})")
+            if short_title and short_title != number:
+                lines.append(f"· {number}\n  {short_title}")
+            else:
+                lines.append(f"· {number or short_title}")
+    remaining = len(refs) - max_items
+    if remaining > 0:
+        if language == "vi":
+            lines.append(f"· +{remaining} văn bản liên quan khác")
+        else:
+            lines.append(f"· 외 {remaining}건의 관련 문서")
     return "\n".join(lines)
 
 
@@ -483,24 +527,25 @@ def build_partial_evidence_summary(
     context = _service_context_phrase(service_group, language=language)
     _, canonical = _resolve_guidance_topic(q, service_group=service_group, service_type=None)
 
+    doc_count = len(refs)
     if language == "vi":
         intro = f"Về câu hỏi của bạn ({q}), " if q else "Về câu hỏi của bạn, "
         body = (
-            f"{intro}chúng tôi đã xác định được văn bản pháp luật liên quan đến {context}:\n"
+            f"{intro}đã xác định {doc_count} văn bản liên quan đến {context}:\n\n"
             f"{doc_block}\n\n"
             "Tuy nhiên, AI chưa thể xác định chính xác điều/khoản cụ thể áp dụng cho trường hợp của bạn. "
-            "Để xác nhận căn cứ chính xác và bước tiếp theo, vui lòng yêu cầu VFBCAI xem xét chuyên gia "
-            "hoặc tải lên hồ sơ để nhận báo cáo AI chi tiết hơn."
+            "Vui lòng tham khảo hồ sơ bên dưới và yêu cầu tư vấn chuyên gia khi cần xác nhận chính xác."
         )
         if include_signup_cta:
             body += f"\n\n{_SIGNUP_CTA_VI}"
     else:
         intro = f"말씀하신 \"{q}\"" if q else "말씀하신 내용"
         body = (
-            f"{intro}에 대해, {context}와 관련된 아래 법령·문서가 확인되었습니다:\n"
+            f"{intro}은(는) **{context}** 관련 문의로 이해했습니다.\n\n"
+            f"관련 법령·문서 **{doc_count}건**이 확인되었습니다:\n\n"
             f"{doc_block}\n\n"
             "다만 귀하의 상황에 적용되는 구체 조항(Điều/Khoản)까지는 아직 특정하지 못했습니다. "
-            "정확한 근거 확인·서류 준비는 아래 순서를 참고해 주세요.\n\n"
+            "아래 서류 준비 순서를 참고해 주세요.\n\n"
             f"{_format_document_guide_section(_resolve_document_guide(canonical=canonical, service_group=service_group), language=language)}\n\n"
             f"{_EXPERT_CTA_KO}"
         )
