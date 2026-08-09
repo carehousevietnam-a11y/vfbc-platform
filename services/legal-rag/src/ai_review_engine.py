@@ -152,7 +152,12 @@ class AIReviewEngine:
             model=model,
             client=client,
         )
-        ruled_result = apply_review_rules(ai_result)
+        ruled_result = apply_review_rules(
+            ai_result,
+            evidence_packs=evidence_packs,
+            question=question,
+            service_group=service_group,
+        )
         metadata = dict(prompt_package.metadata)
         metadata["answer_tier"] = answer_tier
         if service_group:

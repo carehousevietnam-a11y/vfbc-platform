@@ -30,7 +30,7 @@ def test_format_review_dict_has_stable_top_level_contract():
         "expert_review_required", "expert_review_reason", "sources",
         "model", "error_code", "prompt_metadata",
     ]
-    assert data["schema_version"] == "step6"
+    assert data["schema_version"] == "step6-v3"
     assert data["sources"] == {"document_count": 1, "article_count": 1}
 
 

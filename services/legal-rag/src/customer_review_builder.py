@@ -11,9 +11,11 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .ai_review_engine import ReviewResult
-from .answer_policy import append_mandatory_disclaimer
+from .ai_review_models import STATUS_PARTIAL_EVIDENCE
+from .answer_policy import append_mandatory_disclaimer, collect_document_references
 from .citation_engine import CitationResult
 from .confidence_engine import ConfidenceResult
+from .evidence_builder import EvidencePack
 
 CUSTOMER_REVIEW_SCHEMA_VERSION = "step9-customer"
 
@@ -85,6 +87,35 @@ def _customer_legal_basis(citations: CitationResult) -> list[CustomerLegalBasis]
     ]
 
 
+def _customer_legal_basis_from_documents(
+    evidence_packs: list[EvidencePack],
+) -> list[CustomerLegalBasis]:
+    """Grade B — document name/number only, no article."""
+    items: list[CustomerLegalBasis] = []
+    for ref in collect_document_references(evidence_packs):
+        items.append(
+            CustomerLegalBasis(
+                document_number=str(ref["document_number"] or ""),
+                article=None,
+                title=ref.get("title"),
+                official_url=ref.get("official_url"),
+            )
+        )
+    return items
+
+
+def _resolve_legal_basis(
+    review: ReviewResult,
+    citations: CitationResult,
+    evidence_packs: list[EvidencePack] | None,
+) -> list[CustomerLegalBasis]:
+    if citations.citations:
+        return _customer_legal_basis(citations)
+    if review.status == STATUS_PARTIAL_EVIDENCE and evidence_packs:
+        return _customer_legal_basis_from_documents(evidence_packs)
+    return []
+
+
 def _next_actions(review: ReviewResult, confidence: ConfidenceResult) -> list[str]:
     actions: list[str] = []
     if review.required_documents:
@@ -93,7 +124,7 @@ def _next_actions(review: ReviewResult, confidence: ConfidenceResult) -> list[st
         actions.append("review_identified_risks")
     if review.expert_review_required or confidence.expert_review_required:
         actions.append("request_expert_review")
-    if review.status == "success" and not actions:
+    if review.status in {"success", STATUS_PARTIAL_EVIDENCE} and not actions:
         actions.append("proceed_with_review_result")
     return actions
 
@@ -102,6 +133,7 @@ def build_customer_review(
     review_result: ReviewResult,
     citation_result: CitationResult,
     confidence_result: ConfidenceResult,
+    evidence_packs: list[EvidencePack] | None = None,
 ) -> CustomerReview:
     """공통 엔진 결과를 고객용 Review로 변환한다.
 
@@ -126,7 +158,7 @@ def build_customer_review(
         ai_summary=summary,
         confidence_score=confidence_result.score,
         confidence_level=confidence_result.level,
-        legal_basis=_customer_legal_basis(citation_result),
+        legal_basis=_resolve_legal_basis(review_result, citation_result, evidence_packs),
         risk_factors=list(review_result.risk_factors),
         required_documents=list(review_result.required_documents),
         next_actions=_next_actions(review_result, confidence_result),

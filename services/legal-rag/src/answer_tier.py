@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .ai_review_models import STATUS_INSUFFICIENT_EVIDENCE, STATUS_NO_EVIDENCE
+from .ai_review_models import STATUS_INSUFFICIENT_EVIDENCE, STATUS_NO_EVIDENCE, STATUS_PARTIAL_EVIDENCE
 from .search_models import MatchType, SearchResult
 
 ANSWER_TIER_DIRECT = "direct"
@@ -50,6 +50,8 @@ def reconcile_answer_tier(
         return ANSWER_TIER_EXPERT_REFERRAL
     if review_status in {STATUS_NO_EVIDENCE, STATUS_INSUFFICIENT_EVIDENCE}:
         return ANSWER_TIER_EXPERT_REFERRAL
+    if review_status == STATUS_PARTIAL_EVIDENCE:
+        return ANSWER_TIER_RELATED
     if verified_citation_count == 0 and review_status != "success":
         return ANSWER_TIER_EXPERT_REFERRAL
     return classify_answer_tier(search_results)

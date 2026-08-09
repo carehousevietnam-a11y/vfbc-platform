@@ -14,6 +14,7 @@ from src.citation_engine import CitationResult
 from src.confidence_engine import ConfidenceBreakdown, ConfidenceResult
 from src.answer_tier import (
     ANSWER_TIER_EXPERT_REFERRAL,
+    ANSWER_TIER_RELATED,
     classify_answer_tier,
     reconcile_answer_tier,
 )
@@ -62,6 +63,35 @@ class _FakeChat:
 class FakeTranslationClient:
     def __init__(self, content: str):
         self.chat = _FakeChat(content)
+
+
+def test_partial_evidence_summary_lists_documents():
+    from src.answer_policy import build_partial_evidence_summary
+    from src.evidence_builder import ArticleReference, EvidencePack
+
+    pack = EvidencePack(
+        document_id="doc-1",
+        document_number=["77/2022/NĐ-CP"],
+        title="Nghị định về giấy phép lao động",
+        issuing_authority=None,
+        effective_date=None,
+        status="active",
+        official_url=None,
+        articles=[ArticleReference(None, None, None, None, 85.0, "canonical_concept")],
+        search_keywords=[],
+        top_score=85.0,
+        top_match_type="canonical_concept",
+        original_title="Nghị định về giấy phép lao động",
+        original_headings=[],
+    )
+    text = build_partial_evidence_summary(
+        "노동허가가 필요한가요?",
+        [pack],
+        language="ko",
+        service_group="check",
+    )
+    assert "77/2022/NĐ-CP" in text
+    assert "조항" in text or "Điều" in text or "특정" in text
 
 
 def test_append_mandatory_disclaimer_is_idempotent():
@@ -218,6 +248,33 @@ def test_search_fallback_skips_original_question_for_korean():
     assert results == []
     assert meta["search_stage"] == "none"
     assert meta["search_stages_attempted"] == []
+
+
+def test_reconcile_answer_tier_partial_evidence_stays_related():
+    hit = SearchResult(
+        document_id="doc-1",
+        document_number=["152/2020/NĐ-CP"],
+        document_type="decree",
+        title="WP",
+        article_no=None,
+        clause_no=None,
+        item_no=None,
+        heading=None,
+        status="active",
+        official_url=None,
+        score=85.0,
+        match_type=MatchType.CANONICAL_CONCEPT.value,
+    )
+    from src.ai_review_models import STATUS_PARTIAL_EVIDENCE
+
+    assert (
+        reconcile_answer_tier(
+            [hit],
+            review_status=STATUS_PARTIAL_EVIDENCE,
+            verified_citation_count=0,
+        )
+        == ANSWER_TIER_RELATED
+    )
 
 
 def test_reconcile_answer_tier_downgrades_insufficient_evidence():

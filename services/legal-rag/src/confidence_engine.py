@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .ai_review_engine import ReviewResult
-from .ai_review_models import STATUS_SUCCESS, SUPPORTED_LANGUAGES
+from .ai_review_models import STATUS_PARTIAL_EVIDENCE, STATUS_SUCCESS, SUPPORTED_LANGUAGES
 from .citation_engine import CitationResult
 from .evidence_builder import EvidencePack
 
@@ -121,6 +121,8 @@ def _review_completeness(review: ReviewResult) -> int:
         points += 2
     if review.status == STATUS_SUCCESS:
         points += 4
+    elif review.status == STATUS_PARTIAL_EVIDENCE:
+        points += 3
     return points
 
 
@@ -146,8 +148,13 @@ def calculate_confidence(
     completeness = _review_completeness(review_result)
     raw_score = evidence + citations + quality + completeness
 
-    # 성공하지 못한 Review가 높은 confidence로 보이지 않도록 안전 상한을 둔다.
-    score = min(raw_score, 49) if review_result.status != STATUS_SUCCESS else raw_score
+    # partial_evidence(등급 B)는 조항 인용은 없지만 문서 수준 근거가 있으므로 상한 69.
+    if review_result.status == STATUS_PARTIAL_EVIDENCE:
+        score = min(raw_score, 69)
+    elif review_result.status != STATUS_SUCCESS:
+        score = min(raw_score, 49)
+    else:
+        score = raw_score
     score = int(_clamp(score, 0, 100))
 
     reasons: list[str] = []

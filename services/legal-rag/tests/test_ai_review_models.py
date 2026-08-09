@@ -6,6 +6,7 @@ from src.ai_review_models import (
     STATUS_INVALID_LANGUAGE,
     STATUS_INVALID_RESPONSE,
     STATUS_NO_EVIDENCE,
+    STATUS_PARTIAL_EVIDENCE,
     STATUS_SUCCESS,
     SUPPORTED_LANGUAGES,
     AIReviewResult,
@@ -17,9 +18,10 @@ def test_supported_languages():
     assert SUPPORTED_LANGUAGES == ("ko", "en", "zh", "vi")
 
 
-def test_all_statuses_contains_seven_codes():
-    assert len(ALL_STATUSES) == 7
+def test_all_statuses_contains_eight_codes():
+    assert len(ALL_STATUSES) == 8
     assert STATUS_SUCCESS in ALL_STATUSES
+    assert STATUS_PARTIAL_EVIDENCE in ALL_STATUSES
     assert STATUS_NO_EVIDENCE in ALL_STATUSES
     assert STATUS_CONFIGURATION_ERROR in ALL_STATUSES
     assert STATUS_INVALID_LANGUAGE in ALL_STATUSES

@@ -92,7 +92,7 @@ class LegalRAGService:
             verified_citation_count=len(citations.citations),
         )
         confidence = calculate_confidence(review, citations, evidence_packs)
-        customer_review = build_customer_review(review, citations, confidence)
+        customer_review = build_customer_review(review, citations, confidence, evidence_packs)
         expert_review = build_expert_review(review, citations, confidence, evidence_packs)
         customer_report = build_customer_report(customer_review)
         expert_report = build_expert_report(expert_review)
