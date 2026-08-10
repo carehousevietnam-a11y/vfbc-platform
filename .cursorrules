@@ -17,7 +17,7 @@ Three independent layers — do NOT make chat a teaser that forces clicking arti
 3. **Funnel (`/check/*`, etc.)**: Story + conversion; personalized diagnosis.
 
 ## Legal content policy
-- Expert pre-review only for paid expert/agency cases — NOT for anonymous chat, diagnoses, `/answers/*`, SNS.
+- Expert pre-review only for **paid expert/agency (대행) cases** — NOT for anonymous chat, diagnoses, `/answers/*`, SNS. (Ace confirmed 2026-08-10: no Linda pre-review for `/answers/*`; cite laws/sources clearly + disclaimer + expert CTA is sufficient.)
 - Never invent articles/facts. Grade A/B/C from legal-rag (`answer_policy`) is the source for citations.
 - `legalRagBasis.ts` (5s timeout) applies to TRC and all anonymous CHECK/VERIFY/REGISTER chat paths.
 - External sources: whitelist only, must be fetched (not name-only), include fixed expert-consult disclaimer when used.
