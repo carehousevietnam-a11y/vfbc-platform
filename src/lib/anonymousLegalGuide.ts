@@ -52,6 +52,11 @@ function mergedDocumentLines(serviceType: string): string[] {
   return [...config.documents, ...optional];
 }
 
+/** 익명 가이드·발행 글에서 우선/있으면 구분 없이 쓰는 통합 서류 목록. */
+export function getAnonymousDocumentList(serviceType: string): string[] {
+  return mergedDocumentLines(serviceType);
+}
+
 function legalBasisLine(serviceType: string): string {
   const refs = LEGAL_REFS[serviceType];
   if (refs) {

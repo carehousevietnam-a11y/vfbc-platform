@@ -1,4 +1,5 @@
 import type { PublishedArticle } from "@/lib/contentPacks/types";
+import { getAnonymousDocumentList } from "@/lib/anonymousLegalGuide";
 
 const UPDATED = "2026-03-09";
 
@@ -14,31 +15,17 @@ export const TRC_DOCUMENTS_ARTICLE: PublishedArticle = {
   updatedAt: UPDATED,
   articleType: "info",
   funnelHref: "/check/trc",
-  funnelCtaLabel: "내 상황에 맞게 확인하기",
+  funnelCtaLabel: "내 상황 확인하기",
   relatedSlug: "trc-how-to-apply",
   sections: [
     {
       type: "p",
       text: "베트남에서 거주증(Thẻ tạm thường trú, TRC)을 준비하실 때 가장 먼저 궁금한 것이 서류 목록인 경우가 많습니다. 아래는 외국인 직장인·체류자 기준으로 일반적으로 요구되는 서류를 VFBCAI가 정리한 참고용 가이드입니다. 비자 종류·회사 형태에 따라 추가 요청이 있을 수 있습니다.",
     },
-    { type: "h2", text: "우선 챙기면 좋은 서류" },
+    { type: "h2", text: "필요 서류 (참고)" },
     {
       type: "bullets",
-      items: [
-        "여권 — 신분 및 국적 확인용",
-        "비자 — 현재 체류 자격",
-        "재직증명서 — 근로·체류 목적 확인",
-        "회사서류 — 사업자등록, 고용 관계 등 (회사에서 발급)",
-      ],
-    },
-    { type: "h2", text: "있으면 함께 제출하는 서류" },
-    {
-      type: "bullets",
-      items: [
-        "주소지 관련 자료 — 임대차, 거주 확인 등",
-        "기존 거주증·보완·반려 관련 자료 — 갱신·재신청 시",
-        "기타 관련 자료 — 기관에서 추가로 요청할 수 있는 항목",
-      ],
+      items: getAnonymousDocumentList("trc"),
     },
     {
       type: "p",
@@ -69,7 +56,7 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
   updatedAt: UPDATED,
   articleType: "story",
   funnelHref: "/check/trc",
-  funnelCtaLabel: "3분 안에 내 상황 확인하기",
+  funnelCtaLabel: "내 상황 확인하기",
   relatedSlug: "trc-required-documents",
   sections: [
     {
@@ -80,10 +67,14 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
       type: "p",
       text: "정리하면, 공통으로 많이 요구되는 것과 나의 경우에만 추가로 필요한 것을 나누어 생각하면 됩니다.",
     },
-    { type: "h2", text: "Step 1 — 공통으로 먼저 준비할 서류" },
+    { type: "h2", text: "Step 1 — 필요 서류 정리" },
+    {
+      type: "bullets",
+      items: getAnonymousDocumentList("trc"),
+    },
     {
       type: "p",
-      text: "대부분의 외국인 직장인·체류자에게 공통으로 거론되는 서류는 여권, 비자, 재직증명서, 회사서류입니다. 주소지 관련 자료나 기존 거주증·보완·반려 서류는 있으면 함께 준비하세요. 리스트가 길게 느껴지시면 앞 네 가지만 먼저 모으셔도 됩니다.",
+      text: "비자·고용 형태에 따라 추가 요청이 있을 수 있습니다. 위 목록을 기준으로 먼저 모아 두시면 보완 대응이 수월합니다.",
     },
     { type: "h2", text: "Step 2 — 진행 순서" },
     {
@@ -107,7 +98,7 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
     {
       type: "numbered",
       items: [
-        "여권·비자·재직증명서·회사서류부터 준비",
+        "필요 서류를 위 목록 기준으로 먼저 정리",
         "내 비자·고용 형태를 한 줄로 정리 (예: E비자, 현지 법인 재직)",
         "맞춤 확인으로 내 경우에 추가로 필요한 것만 짚어 보기",
       ],

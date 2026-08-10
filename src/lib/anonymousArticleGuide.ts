@@ -30,10 +30,6 @@ export function buildArticleChatReply(
   article: PublishedArticle
 ): { reply: string; actions: NavigatorAction[] } {
   const articleHref = `/answers/${article.slug}`;
-  const readLabel =
-    article.articleType === "story"
-      ? `${article.title} — 글 읽기`
-      : `${article.title} — 글 읽기`;
 
   const reply = [
     chatIntro(question, article),
@@ -46,7 +42,7 @@ export function buildArticleChatReply(
   ].join("\n");
 
   const actions: NavigatorAction[] = [
-    { label: readLabel, href: articleHref },
+    { label: "글 읽기", href: articleHref },
     { label: article.funnelCtaLabel, href: article.funnelHref },
   ];
 
