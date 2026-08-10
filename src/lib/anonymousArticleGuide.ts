@@ -1,38 +1,79 @@
 import type { PublishedArticle } from "@/lib/contentPacks/types";
-import { ANONYMOUS_GUIDE_DISCLAIMER } from "@/lib/anonymousLegalGuide";
+import {
+  ANONYMOUS_GUIDE_DISCLAIMER,
+  getAnonymousDocumentList,
+  getAnonymousProcessLine,
+} from "@/lib/anonymousLegalGuide";
 import type { NavigatorAction } from "@/lib/aiGateway";
 
 const MYPAGE_CTA =
   "정확한 서류 목록과 예시 샘플은 무료회원 가입 후 마이페이지에서 확인하실 수 있습니다.";
 
-const CONFUSION_RE =
-  /힘들|막막|헷갈|혼란|말이.?다르|제각각|여기서는|저기서는/i;
+const PROGRESS_QUESTION_RE =
+  /힘들|막막|헷갈|혼란|말이.?다르|제각각|어떻게.*해야|어떻게.*하나|어떻게.*해요|진행|절차|순서/i;
 
 function formatUpdatedLine(updatedAt: string): string {
   return `최종 업데이트: ${updatedAt}`;
 }
 
-function chatIntro(question: string, article: PublishedArticle): string {
-  if (article.intentId === "trc-documents") {
-    return `**${article.serviceLabel}** 필요 서류를 정리한 안내 글이 있습니다.\n\n아래에서 한눈에 확인하실 수 있습니다.`;
-  }
-
-  if (CONFUSION_RE.test(question)) {
-    return `여러 곳에서 말이 다르면 헷갈리시는 게 당연해요.\n\n**${article.serviceLabel}** 진행 방법을 1분짜리 안내 글로 정리해 두었습니다.`;
-  }
-
-  return `**${article.serviceLabel}** 신청·진행 방법을 안내 글로 정리해 두었습니다.`;
+function formatDocumentBullets(serviceType: string): string {
+  return getAnonymousDocumentList(serviceType)
+    .map((item) => `· ${item}`)
+    .join("\n");
 }
 
-/** 반복 질문에도 동일 canonical 글을 가리키는 짧은 채팅 답변. */
+function openingLine(question: string, article: PublishedArticle): string {
+  if (article.intentId === "trc-documents") {
+    return `네, **${article.serviceLabel}** 신청에 일반적으로 준비하는 서류를 정리해 드릴게요.`;
+  }
+
+  if (PROGRESS_QUESTION_RE.test(question)) {
+    return `**${article.serviceLabel}** 진행은 보통 아래 순서로 진행됩니다. 비자·고용 형태에 따라 추가 요청이 있을 수 있어요.`;
+  }
+
+  return `**${article.serviceLabel}** 신청·진행 방법을 정리해 드릴게요.`;
+}
+
+function buildBodyBlocks(
+  question: string,
+  article: PublishedArticle,
+  legalBasisLine: string
+): string[] {
+  const docs = formatDocumentBullets(article.serviceType);
+  const process = getAnonymousProcessLine(article.serviceType);
+  const blocks: string[] = [];
+
+  if (article.intentId === "trc-documents") {
+    blocks.push("【필요 서류】", docs, "", "【진행 순서】", process);
+  } else {
+    blocks.push("【진행 순서】", process, "", "【필요 서류】", docs);
+    if (PROGRESS_QUESTION_RE.test(question)) {
+      blocks.push(
+        "",
+        "말이 제각각이어도 절차 자체는 같고, 준비물만 상황마다 달라지는 경우가 많습니다."
+      );
+    }
+  }
+
+  blocks.push("", legalBasisLine);
+  return blocks;
+}
+
+/** 익명 TRC 채팅 — 가이드 페이지 없이도 완결된 답변. */
 export function buildArticleChatReply(
   question: string,
-  article: PublishedArticle
+  article: PublishedArticle,
+  options?: { legalBasisLine?: string }
 ): { reply: string; actions: NavigatorAction[] } {
   const articleHref = `/answers/${article.slug}`;
+  const legalLine =
+    options?.legalBasisLine?.trim() ||
+    "관련 법령: 04/2016/TT-BNG, 47/2014/QH13 (구체 조항은 전문가 확인 필요)";
 
   const reply = [
-    chatIntro(question, article),
+    openingLine(question, article),
+    "",
+    ...buildBodyBlocks(question, article, legalLine),
     "",
     formatUpdatedLine(article.updatedAt),
     "",
@@ -42,8 +83,8 @@ export function buildArticleChatReply(
   ].join("\n");
 
   const actions: NavigatorAction[] = [
-    { label: "글 읽기", href: articleHref },
     { label: article.funnelCtaLabel, href: article.funnelHref },
+    { label: "더 자세히 보기", href: articleHref },
   ];
 
   return { reply, actions };

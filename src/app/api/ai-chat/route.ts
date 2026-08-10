@@ -356,7 +356,13 @@ export async function POST(req: NextRequest) {
           if (isTrcService(inferred.service_type)) {
             const intentId = resolveTrcArticleIntent(lastMessage!.content);
             const article = getTrcArticleByIntent(intentId);
-            const { reply, actions } = buildArticleChatReply(lastMessage!.content, article);
+            const legalBasisLine = await fetchAnonymousLegalBasisLine(
+              lastMessage!.content,
+              inferred
+            );
+            const { reply, actions } = buildArticleChatReply(lastMessage!.content, article, {
+              legalBasisLine,
+            });
 
             return NextResponse.json({
               reply,

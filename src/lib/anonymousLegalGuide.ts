@@ -14,7 +14,7 @@ const LEGAL_REFS: Partial<Record<string, string>> = {
   "driving-license": "04/2016/TT-BNG, 47/2014/QH13",
 };
 
-const PROCESS_BY_GROUP: Record<InferredLegalRagContext["service_group"], string> = {
+export const PROCESS_BY_GROUP: Record<InferredLegalRagContext["service_group"], string> = {
   check:
     "일반적으로는 ① 서류 준비 → ② 관할 출입국·거주 관리 기관 신청 → ③ 심사 후 발급 순으로 진행됩니다. 유형에 따라 추가 서류를 요청받을 수 있습니다.",
   verify:
@@ -55,6 +55,29 @@ function mergedDocumentLines(serviceType: string): string[] {
 /** 익명 가이드·발행 글에서 우선/있으면 구분 없이 쓰는 통합 서류 목록. */
 export function getAnonymousDocumentList(serviceType: string): string[] {
   return mergedDocumentLines(serviceType);
+}
+
+const SERVICE_GROUP_BY_TYPE: Partial<
+  Record<string, InferredLegalRagContext["service_group"]>
+> = {
+  trc: "check",
+  wp: "check",
+  tamtru: "check",
+  "driving-license": "check",
+};
+
+/** CHECK/VERIFY/REGISTER 서비스별 진행 순서 한 줄 안내. */
+export function getAnonymousProcessLine(serviceType: string): string {
+  const config = getRequiredDocuments(serviceType);
+  const prefix = config.serviceLabel;
+  if (serviceType.startsWith("verify_")) {
+    return `${prefix}: ${PROCESS_BY_GROUP.verify}`;
+  }
+  if (serviceType.startsWith("register_") || serviceType.startsWith("permit_")) {
+    return `${prefix}: ${PROCESS_BY_GROUP.register}`;
+  }
+  const group = SERVICE_GROUP_BY_TYPE[serviceType] ?? "check";
+  return `${prefix}: ${PROCESS_BY_GROUP[group]}`;
 }
 
 function legalBasisLine(serviceType: string): string {
