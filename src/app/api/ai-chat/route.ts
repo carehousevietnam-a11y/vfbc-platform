@@ -26,7 +26,7 @@
 //   - progress 질문 → DB 조회 없이 "로그인 후 마이페이지 확인" 안내(aiGateway.ANONYMOUS_PROGRESS_NOTICE)
 //   - legal 질문    → buildLegalConsultNotice(null)이 기본 담당팀 라벨로 안내
 //   - system/off_platform → leadId 여부와 무관하게 완전히 동일한 규칙 답변
-//   - ai_analysis   → 주제가 추정되면 즉시 구조화 가이드(서류·진행 안내), 미추정 시 OpenAI
+//   - ai_analysis   → 주제 추정 시 발행 가이드 링크(TRC) 또는 구조화 가이드 + RAG 법령 보완
 //   - 저장(crm_activities) 없음 — 저장은 leadId가 있을 때만 의미가 있다(사건에 귀속되는 기록이므로).
 //     인사말(mode: "greeting")은 사건 정보를 전제로 하므로 익명 모드에서는 지원하지 않는다.
 //
@@ -71,6 +71,13 @@ import {
   inferAnonymousLegalRagContext,
 } from "@/lib/aiGateway";
 import { buildAnonymousFastGuide } from "@/lib/anonymousLegalGuide";
+import { buildArticleChatReply } from "@/lib/anonymousArticleGuide";
+import {
+  getTrcArticleByIntent,
+  isTrcService,
+  resolveTrcArticleIntent,
+} from "@/lib/contentPacks/intentRouter";
+import { fetchAnonymousLegalBasisLine } from "@/lib/legalRagBasis";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -342,12 +349,26 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // 익명 /ai: CHECK·VERIFY·REGISTER 주제가 추정되면 Legal RAG 없이 즉시 구조화 가이드를 반환한다.
+      // 익명 /ai: CHECK·VERIFY·REGISTER 주제 추정 시 발행 가이드(TRC) 또는 하이브리드 가이드.
       if (isAnonymous) {
         const inferred = inferAnonymousLegalRagContext(lastMessage!.content);
         if (inferred) {
+          if (isTrcService(inferred.service_type)) {
+            const intentId = resolveTrcArticleIntent(lastMessage!.content);
+            const article = getTrcArticleByIntent(intentId);
+            const { reply, actions } = buildArticleChatReply(lastMessage!.content, article);
+
+            return NextResponse.json({
+              reply,
+              needsExpert: true,
+              category: "ai_analysis",
+              actions,
+            });
+          }
+
+          const legalBasisLine = await fetchAnonymousLegalBasisLine(lastMessage!.content, inferred);
           const reply =
-            buildAnonymousFastGuide(inferred) +
+            buildAnonymousFastGuide(inferred, { legalBasisLine }) +
             buildNavigatorSuffix("ai_analysis", lastMessage!.content);
           const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
           const actions = action ? [action] : [];

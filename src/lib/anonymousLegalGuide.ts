@@ -60,11 +60,15 @@ function legalBasisLine(serviceType: string): string {
   return "관련 법령은 사안별로 다르며, 구체 조항은 전문가 확인이 필요합니다.";
 }
 
-/** 익명 /ai — 주제 추정 성공 시 즉시 반환하는 구조화 가이드 (Legal RAG 생략). */
-export function buildAnonymousFastGuide(inferred: InferredLegalRagContext): string {
+/** 익명 /ai — 주제 추정 성공 시 즉시 반환하는 구조화 가이드. */
+export function buildAnonymousFastGuide(
+  inferred: InferredLegalRagContext,
+  options?: { legalBasisLine?: string }
+): string {
   const config = getRequiredDocuments(inferred.service_type);
   const docs = mergedDocumentLines(inferred.service_type);
   const bullets = docs.map((item) => `· ${item}`).join("\n");
+  const legalLine = options?.legalBasisLine ?? legalBasisLine(inferred.service_type);
 
   return [
     openingLine(config.serviceLabel, inferred.service_group),
@@ -75,7 +79,7 @@ export function buildAnonymousFastGuide(inferred: InferredLegalRagContext): stri
     "",
     PROCESS_BY_GROUP[inferred.service_group],
     "",
-    legalBasisLine(inferred.service_type),
+    legalLine,
     "",
     ANONYMOUS_GUIDE_DISCLAIMER,
     "",
