@@ -6,7 +6,7 @@ const DOC_NUMBER_LINE_RE =
   /^[·-]\s*(\d{1,4}\/\d{4}\/[A-Za-zÀ-ỹĐđ\-]+(?:\s*\(số\))?)/;
 const DISCLAIMER_PREFIX = "이 내용은 AI가";
 const LEGAL_BASIS_PREFIX = "관련 법령";
-const MYPAGE_CTA_PREFIX = "정확한 서류 목록과 예시 샘플은";
+const MYPAGE_CTA_PREFIX = "무료 회원가입 후";
 const VIETNAMESE_CHAR_RE = /[À-ỹĐđ]/;
 
 type Block =

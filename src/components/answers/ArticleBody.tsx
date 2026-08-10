@@ -1,9 +1,8 @@
 import Link from "next/link";
 import type { PublishedArticle, ArticleSection } from "@/lib/contentPacks/types";
-import { ANONYMOUS_GUIDE_DISCLAIMER } from "@/lib/anonymousLegalGuide";
+import { ANONYMOUS_GUIDE_DISCLAIMER, ANONYMOUS_MYPAGE_CTA } from "@/lib/anonymousLegalGuide";
 
-const MYPAGE_CTA =
-  "정확한 서류 목록과 예시 샘플은 무료회원 가입 후 마이페이지에서 확인하실 수 있습니다.";
+const MYPAGE_CTA = ANONYMOUS_MYPAGE_CTA;
 
 function SectionBlock({ section }: { section: ArticleSection }) {
   if (section.type === "h2") {

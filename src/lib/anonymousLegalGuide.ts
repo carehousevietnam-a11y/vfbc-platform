@@ -1,8 +1,10 @@
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import type { InferredLegalRagContext } from "@/lib/aiGateway";
 
-const MYPAGE_CTA =
-  "정확한 서류 목록과 예시 샘플은 무료회원 가입 후 마이페이지에서 확인하실 수 있습니다.";
+export const ANONYMOUS_MYPAGE_CTA =
+  "무료 회원가입 후 마이페이지에서 신청 진행상황과 서류 제출 현황을 확인하실 수 있습니다.";
+
+const MYPAGE_CTA = ANONYMOUS_MYPAGE_CTA;
 
 export const ANONYMOUS_GUIDE_DISCLAIMER =
   "이 내용은 AI가 제공하는 참고용 가이드이며, 실제 진행은 전문가와 상의하시기 바랍니다.";

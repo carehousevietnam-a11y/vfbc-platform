@@ -1,13 +1,13 @@
 import type { PublishedArticle } from "@/lib/contentPacks/types";
 import {
   ANONYMOUS_GUIDE_DISCLAIMER,
+  ANONYMOUS_MYPAGE_CTA,
   getAnonymousDocumentList,
   getAnonymousProcessLine,
 } from "@/lib/anonymousLegalGuide";
 import type { NavigatorAction } from "@/lib/aiGateway";
 
-const MYPAGE_CTA =
-  "정확한 서류 목록과 예시 샘플은 무료회원 가입 후 마이페이지에서 확인하실 수 있습니다.";
+const MYPAGE_CTA = ANONYMOUS_MYPAGE_CTA;
 
 const PROGRESS_QUESTION_RE =
   /힘들|막막|헷갈|혼란|말이.?다르|제각각|어떻게.*해야|어떻게.*하나|어떻게.*해요|진행|절차|순서/i;
