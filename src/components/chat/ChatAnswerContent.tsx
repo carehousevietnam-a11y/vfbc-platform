@@ -5,6 +5,8 @@ const BULLET_RE = /^(?:·|-)\s+/;
 const DOC_NUMBER_LINE_RE =
   /^[·-]\s*(\d{1,4}\/\d{4}\/[A-Za-zÀ-ỹĐđ\-]+(?:\s*\(số\))?)/;
 const DISCLAIMER_PREFIX = "이 내용은 AI가";
+const LEGAL_BASIS_PREFIX = "관련 법령";
+const MYPAGE_CTA_PREFIX = "무료 회원가입 후";
 const VIETNAMESE_CHAR_RE = /[À-ỹĐđ]/;
 
 type Block =
@@ -13,6 +15,10 @@ type Block =
   | { kind: "bullet"; text: string }
   | { kind: "doc"; number: string; title?: string }
   | { kind: "disclaimer"; text: string };
+
+type RenderUnit =
+  | { kind: "bullets"; items: string[] }
+  | { kind: "block"; block: Block };
 
 function renderInline(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
@@ -105,22 +111,69 @@ function parseBlocks(content: string): Block[] {
   return blocks;
 }
 
+function groupBlocks(blocks: Block[]): RenderUnit[] {
+  const units: RenderUnit[] = [];
+  let bulletBuffer: string[] = [];
+
+  const flushBullets = () => {
+    if (bulletBuffer.length > 0) {
+      units.push({ kind: "bullets", items: bulletBuffer });
+      bulletBuffer = [];
+    }
+  };
+
+  for (const block of blocks) {
+    if (block.kind === "bullet") {
+      bulletBuffer.push(block.text);
+      continue;
+    }
+    flushBullets();
+    units.push({ kind: "block", block });
+  }
+
+  flushBullets();
+  return units;
+}
+
 type ChatAnswerContentProps = {
   content: string;
   className?: string;
 };
 
 export function ChatAnswerContent({ content, className = "" }: ChatAnswerContentProps) {
-  const blocks = parseBlocks(content);
+  const units = groupBlocks(parseBlocks(content));
 
   return (
-    <div className={`space-y-3 text-sm leading-relaxed text-gray-800 sm:text-[15px] sm:leading-7 ${className}`}>
-      {blocks.map((block, index) => {
+    <div
+      className={`space-y-2.5 text-sm leading-relaxed text-gray-800 sm:space-y-3 sm:text-[15px] sm:leading-[1.65] ${className}`}
+    >
+      {units.map((unit, index) => {
+        if (unit.kind === "bullets") {
+          return (
+            <div key={index} className="space-y-1">
+              {unit.items.map((text, bulletIndex) => (
+                <div key={bulletIndex} className="flex gap-2 pl-0.5">
+                  <span className="mt-[0.4rem] h-1.5 w-1.5 shrink-0 rounded-full bg-blue-900/70" />
+                  <p
+                    className={`min-w-0 flex-1 break-words leading-snug ${
+                      isVietnameseHeavy(text) ? "text-xs text-slate-600 sm:text-[13px]" : ""
+                    }`}
+                  >
+                    {renderInline(text)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        const block = unit.block;
+
         if (block.kind === "section") {
           return (
             <p
               key={index}
-              className="pt-1 text-[13px] font-bold tracking-tight text-blue-950 sm:text-sm"
+              className="pt-0.5 text-[13px] font-bold tracking-tight text-blue-950 sm:text-sm"
             >
               【{block.title}】
             </p>
@@ -145,40 +198,45 @@ export function ChatAnswerContent({ content, className = "" }: ChatAnswerContent
           );
         }
 
-        if (block.kind === "bullet") {
-          return (
-            <div key={index} className="flex gap-2 pl-0.5">
-              <span className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-blue-900/70" />
-              <p
-                className={`min-w-0 flex-1 break-words ${
-                  isVietnameseHeavy(block.text) ? "text-xs leading-5 text-slate-600 sm:text-[13px]" : ""
-                }`}
-              >
-                {renderInline(block.text)}
-              </p>
-            </div>
-          );
-        }
-
         if (block.kind === "disclaimer") {
           return (
             <p
               key={index}
-              className="border-t border-gray-100 pt-3 text-[11px] leading-5 text-gray-400 sm:text-xs"
+              className="border-t border-gray-100 pt-2.5 text-[11px] leading-5 text-gray-400 sm:text-xs"
             >
               {block.text}
             </p>
           );
         }
 
+        if (block.kind === "paragraph") {
+          if (block.text.startsWith(LEGAL_BASIS_PREFIX)) {
+            return (
+              <p key={index} className="text-[11px] leading-5 text-gray-500 sm:text-xs sm:leading-5">
+                {renderInline(block.text)}
+              </p>
+            );
+          }
+
+          if (block.text.startsWith(MYPAGE_CTA_PREFIX)) {
+            return (
+              <p key={index} className="text-[12px] leading-5 text-slate-600 sm:text-[13px] sm:leading-6">
+                {renderInline(block.text)}
+              </p>
+            );
+          }
+        }
+
         return (
           <p
             key={index}
-            className={`break-words whitespace-pre-line ${
-              isVietnameseHeavy(block.text) ? "text-xs leading-5 text-slate-600 sm:text-[13px] sm:leading-6" : ""
+            className={`break-words whitespace-pre-line leading-snug sm:leading-[1.65] ${
+              block.kind === "paragraph" && isVietnameseHeavy(block.text)
+                ? "text-xs leading-5 text-slate-600 sm:text-[13px] sm:leading-6"
+                : ""
             }`}
           >
-            {renderInline(block.text)}
+            {block.kind === "paragraph" ? renderInline(block.text) : null}
           </p>
         );
       })}

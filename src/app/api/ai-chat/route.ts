@@ -26,7 +26,7 @@
 //   - progress 질문 → DB 조회 없이 "로그인 후 마이페이지 확인" 안내(aiGateway.ANONYMOUS_PROGRESS_NOTICE)
 //   - legal 질문    → buildLegalConsultNotice(null)이 기본 담당팀 라벨로 안내
 //   - system/off_platform → leadId 여부와 무관하게 완전히 동일한 규칙 답변
-//   - ai_analysis   → 주제가 추정되면 Legal RAG 가이드 우선, 실패 시 구조화 폴백
+//   - ai_analysis   → 주제 추정 시 발행 가이드 링크(TRC) 또는 구조화 가이드 + RAG 법령 보완
 //   - 저장(crm_activities) 없음 — 저장은 leadId가 있을 때만 의미가 있다(사건에 귀속되는 기록이므로).
 //     인사말(mode: "greeting")은 사건 정보를 전제로 하므로 익명 모드에서는 지원하지 않는다.
 //
@@ -70,14 +70,19 @@ import {
   buildNavigatorAction,
   inferAnonymousLegalRagContext,
 } from "@/lib/aiGateway";
-import { buildAnonymousStructuredFallback } from "@/lib/anonymousLegalGuide";
+import { buildAnonymousFastGuide } from "@/lib/anonymousLegalGuide";
+import { buildArticleChatReply } from "@/lib/anonymousArticleGuide";
+import {
+  getTrcArticleByIntent,
+  isTrcService,
+  resolveTrcArticleIntent,
+} from "@/lib/contentPacks/intentRouter";
+import { fetchAnonymousLegalBasisLine } from "@/lib/legalRagBasis";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 // Legal RAG /review는 종종 15~25초 걸린다. Vercel 기본 10초 한도를 넘기지 않도록 연장.
 export const maxDuration = 60;
-
-const ANONYMOUS_LEGAL_RAG_TIMEOUT_MS = 55_000;
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_MESSAGES = 20; // 토큰 사용량/남용 방지 — 최근 대화만 컨텍스트로 전달
@@ -344,54 +349,38 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // 익명 /ai: CHECK·VERIFY·REGISTER 주제가 추정되면 Legal RAG 구조화 가이드를 우선한다.
+      // 익명 /ai: CHECK·VERIFY·REGISTER 주제 추정 시 발행 가이드(TRC) 또는 하이브리드 가이드.
       if (isAnonymous) {
         const inferred = inferAnonymousLegalRagContext(lastMessage!.content);
         if (inferred) {
-          const legalRagResult = await reviewLegalCase(
-            {
-              question: lastMessage!.content.trim(),
-              language: typeof language === "string" && language.trim() ? language.trim() : "ko",
-              audience: "all",
-              context: {
-                lead_id: "anonymous",
-                service_type: inferred.service_type,
-                service_group: inferred.service_group,
-              },
-            },
-            { timeoutMs: ANONYMOUS_LEGAL_RAG_TIMEOUT_MS }
-          );
+          if (isTrcService(inferred.service_type)) {
+            const intentId = resolveTrcArticleIntent(lastMessage!.content);
+            const article = getTrcArticleByIntent(intentId);
+            const legalBasisLine = await fetchAnonymousLegalBasisLine(
+              lastMessage!.content,
+              inferred
+            );
+            const { reply, actions } = buildArticleChatReply(lastMessage!.content, article, {
+              legalBasisLine,
+            });
 
-          if (legalRagResult.ok) {
-            const mapped = extractLegalRagChatResult(legalRagResult.data);
-            if (mapped.ok) {
-              const reply =
-                mapped.reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
-              const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
-              const actions = action ? [action] : [];
-
-              return NextResponse.json({
-                reply,
-                needsExpert: mapped.needsExpert,
-                category: "ai_analysis",
-                actions,
-              });
-            }
-            console.error("ai-chat: anonymous Legal RAG response schema rejected, using structured fallback");
-          } else {
-            console.error("ai-chat: anonymous Legal RAG failed, using structured fallback", {
-              status: legalRagResult.status,
+            return NextResponse.json({
+              reply,
+              needsExpert: true,
+              category: "ai_analysis",
+              actions,
             });
           }
 
-          const fallbackReply =
-            buildAnonymousStructuredFallback(lastMessage!.content, inferred) +
+          const legalBasisLine = await fetchAnonymousLegalBasisLine(lastMessage!.content, inferred);
+          const reply =
+            buildAnonymousFastGuide(inferred, { legalBasisLine }) +
             buildNavigatorSuffix("ai_analysis", lastMessage!.content);
           const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
           const actions = action ? [action] : [];
 
           return NextResponse.json({
-            reply: fallbackReply,
+            reply,
             needsExpert: true,
             category: "ai_analysis",
             actions,

@@ -1,0 +1,31 @@
+# VFBCAI Cursor context (synced 2026-08-10)
+
+## Priority
+- GOAL1 first: CHECK / VERIFY / REGISTER / expert request / CRM / admin / mypage / notifications stability.
+- No large new features (payments, OCR, Digital Vault, business member) before GOAL1 ships.
+
+## Immutable principles
+- Engine: CHECK → VERIFY → REGISTER → PROTECT (do not rename/reorder).
+- No prices on customer UI.
+- Customer-facing expert label: "VFBCAI 전문가팀" only (no real names / external org names).
+- Prefer full-file replacements when Ace requests file delivery; one feature at a time; confirm before coding.
+
+## Anonymous /ai channel structure (2026-08-10)
+Three independent layers — do NOT make chat a teaser that forces clicking articles:
+1. **Chat (`/ai`)**: Self-contained answer (full doc list + process + legal basis via `legalRagBasis.ts`). Article link is optional "더 자세히 보기", not required.
+2. **Articles (`/answers/*`)**: SEO/AEO landing; not a mandatory hop from chat.
+3. **Funnel (`/check/*`, etc.)**: Story + conversion; personalized diagnosis.
+
+## Legal content policy
+- Expert pre-review only for **paid expert/agency (대행) cases** — NOT for anonymous chat, diagnoses, `/answers/*`, SNS. (Ace confirmed 2026-08-10: no Linda pre-review for `/answers/*`; cite laws/sources clearly + disclaimer + expert CTA is sufficient.)
+- Never invent articles/facts. Grade A/B/C from legal-rag (`answer_policy`) is the source for citations.
+- `legalRagBasis.ts` (5s timeout) applies to TRC and all anonymous CHECK/VERIFY/REGISTER chat paths.
+- External sources: whitelist only, must be fetched (not name-only), include fixed expert-consult disclaimer when used.
+
+## PR #12 branch notes
+- Branch: `cursor/anonymous-ai-fast-guide-cbde`
+- Do not deploy `/answers/*` static pages without Ace confirming expert review (4-1); can feature-flag if needed.
+- Intent routing: one canonical article per intent (not per question URL).
+
+## Reference docs in repo
+- `VFBCAI_PLATFORM_DEVELOPMENT_CONSTITUTION.md` / `VFBCAI_MASTER_DOCUMENT_v6_0.md` (if present)

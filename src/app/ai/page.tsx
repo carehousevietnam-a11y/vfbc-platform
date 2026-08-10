@@ -54,7 +54,7 @@ type ChatMessage = {
 // "\n\n📍 {안내문}: {경로}" 형식을 감지한다. /check, /verify, /register,
 // /mypage, /consultation 경로만 인식한다.
 const NAVIGATOR_LINE_PATTERN =
-  /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation)\S*)\s*$/;
+  /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation|answers)\S*)\s*$/;
 
 function parseAssistantContent(content: string): {
   mainText: string;
