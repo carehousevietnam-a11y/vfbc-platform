@@ -6,8 +6,30 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // 운영 발신자 — Resend 도메인 인증 완료 후 Vercel에 RESEND_FROM_EMAIL을
 // 등록하면 그 값을 사용한다. 환경변수가 없으면(로컬 개발 등) 기존
 // Sandbox 발신자로 자동 폴백하므로 미설정 상태에서도 서비스가 죽지 않는다.
-const RESEND_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? "VFBCAI <onboarding@resend.dev>";
+const RESEND_FROM_EMAIL = (
+  process.env.RESEND_FROM_EMAIL ?? "VFBCAI <onboarding@resend.dev>"
+).trim();
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function sanitizeNameForEmail(name: string): string {
+  return (name || "고객").replace(/[\r\n<>]/g, " ").trim() || "고객";
+}
+
+function normalizeRecipientEmail(to: string): string | null {
+  const trimmed = String(to ?? "").trim();
+  if (!trimmed) return null;
+  // Resend 422 방지 — agency-confirm과 동일하게 단일 수신자 문자열만 허용
+  if (!/^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/.test(trimmed)) return null;
+  return trimmed;
+}
 
 // 전문가 진행요청 "완료" 이메일에만 넣는 신뢰도용 확인 도장.
 // 이메일 클라이언트(Gmail, Outlook, 네이버메일 등) 대부분은 <img>로 삽입된
@@ -136,6 +158,13 @@ export async function sendResultEmail(
 ): Promise<SendResultEmailReturn> {
   const { to, name, serviceType, result, token } = params;
 
+  const recipient = normalizeRecipientEmail(to);
+  if (!recipient) {
+    console.error("sendResultEmail: invalid recipient", { to });
+    return { success: false, error: "Invalid recipient email" };
+  }
+
+  const safeName = sanitizeNameForEmail(name);
   const serviceLabel = resolveServiceLabel(serviceType);
   const resultLabel = result ? RESULT_LABEL[result] ?? null : null;
 
@@ -155,24 +184,24 @@ export async function sendResultEmail(
   const resultUrl = `${siteUrl}/r?token=${token}`;
 
   const subject = isAgencyRequest
-    ? `[VFBCAI] ${name}님의 ${serviceLabel} 전문가 진행요청이 접수되었습니다`
+    ? `[VFBCAI] ${safeName}님의 ${serviceLabel} 전문가 진행요청이 접수되었습니다`
     : isAiReportRequest
-    ? `[VFBCAI] ${name}님의 ${serviceLabel} AI 리포트 요청이 접수되었습니다`
+    ? `[VFBCAI] ${safeName}님의 ${serviceLabel} AI 리포트 요청이 접수되었습니다`
     : isDiagnosis
-    ? `[VFBCAI] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
+    ? `[VFBCAI] ${safeName}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
     : isVerifyService
-    ? `[VFBCAI] ${name}님의 검토 요청이 접수되었습니다`
-    : `[VFBCAI] ${name}님의 ${serviceLabel} ${selfActionLabel} 진행을 응원합니다`;
+    ? `[VFBCAI] ${safeName}님의 검토 요청이 접수되었습니다`
+    : `[VFBCAI] ${safeName}님의 ${serviceLabel} ${selfActionLabel} 진행을 응원합니다`;
 
   const headline = isAgencyRequest
-    ? `${name}님, ${serviceLabel} 전문가 진행요청이 완료되었습니다`
+    ? `${safeName}님, ${serviceLabel} 전문가 진행요청이 완료되었습니다`
     : isAiReportRequest
-    ? `${name}님, ${serviceLabel} AI 리포트 요청이 접수되었습니다`
+    ? `${safeName}님, ${serviceLabel} AI 리포트 요청이 접수되었습니다`
     : isDiagnosis
-    ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
+    ? `${safeName}님, ${serviceLabel} 진단이 완료되었습니다`
     : isVerifyService
-    ? `${name}님, 검토 요청이 접수되었습니다`
-    : `${name}님, ${selfActionLabel} 진행을 응원합니다`;
+    ? `${safeName}님, 검토 요청이 접수되었습니다`
+    : `${safeName}님, ${selfActionLabel} 진행을 응원합니다`;
 
   // VERIFY 접수 확인 단계는 아직 "자가등록/직접신청" 같은 자기결정 행동이 존재하지
   // 않으므로(단순 서류 접수 상태) 자기결정형 CTA 버튼을 노출하지 않는다.
@@ -264,7 +293,7 @@ export async function sendResultEmail(
       VFBCAI · 베트남 외국인 비즈니스센터청
     </p>
     <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 16px; line-height: 1.4;">
-      ${headline}
+      ${escapeHtml(headline)}
     </h1>
     ${bodyHtml}
     ${buttonHtml}
@@ -277,13 +306,13 @@ export async function sendResultEmail(
   try {
     const { data, error } = await resend.emails.send({
       from: RESEND_FROM_EMAIL,
-      to,
+      to: [recipient],
       subject,
       html,
     });
 
     if (error) {
-      console.error("Resend send error:", error);
+      console.error("Resend send error:", JSON.stringify(error));
       return { success: false, error: error.message };
     }
     return { success: true, id: data?.id };

@@ -1310,15 +1310,11 @@ export default function VerifyFraudPage() {
         setAiReportRequesting(false);
         return;
       }
-      try {
-        await recordAiReportRequestAndNotify({
+      recordAiReportRequestAndNotify({
           leadId,
           tag: "VERIFY_FRAUD",
           token: resultToken,
         });
-      } catch (aiReportErr) {
-        console.error("ai report notify failed:", aiReportErr);
-      }
 
       const res = await fetch("/api/auto-login", {
         method: "POST",

@@ -1167,7 +1167,10 @@ export default function TrcCheckPage() {
 
   // "AI 리포트 요청하기" — CRM 기록 + 접수 확인 이메일 후 auto-login(next=documents_ai_report)
   async function handleAiReportRequest() {
-    if (!leadId) return;
+    if (!leadId) {
+      setAiReportError("신청 정보를 찾지 못했습니다. 다시 신청해주세요.");
+      return;
+    }
     setAiReportPending(true);
     setAiReportError(null);
     try {
@@ -1176,15 +1179,11 @@ export default function TrcCheckPage() {
         setAiReportPending(false);
         return;
       }
-      try {
-        await recordAiReportRequestAndNotify({
-          leadId,
-          tag: "TRC",
-          token: resultToken,
-        });
-      } catch (aiReportErr) {
-        console.error("ai report notify failed:", aiReportErr);
-      }
+      recordAiReportRequestAndNotify({
+        leadId,
+        tag: "TRC",
+        token: resultToken,
+      });
 
       const res = await fetch("/api/auto-login", {
         method: "POST",

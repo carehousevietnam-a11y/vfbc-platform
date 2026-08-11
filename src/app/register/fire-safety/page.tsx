@@ -1108,15 +1108,11 @@ export default function RegisterFireSafetyPage() {
         setAiReportPending(false);
         return;
       }
-      try {
-        await recordAiReportRequestAndNotify({
+      recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_FIRE_SAFETY",
           token: resultToken,
         });
-      } catch (aiReportErr) {
-        console.error("ai report notify failed:", aiReportErr);
-      }
 
       const res = await fetch("/api/auto-login", {
         method: "POST",

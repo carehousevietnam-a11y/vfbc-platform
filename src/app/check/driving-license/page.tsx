@@ -891,7 +891,10 @@ export default function DrivingLicenseCheckPage() {
   }
 
   async function handleAiReportRequest() {
-    if (!leadId) return;
+    if (!leadId) {
+      setAiReportError("신청 정보를 찾지 못했습니다. 다시 신청해주세요.");
+      return;
+    }
     setAiReportPending(true);
     setAiReportError(null);
     try {
@@ -900,15 +903,11 @@ export default function DrivingLicenseCheckPage() {
         setAiReportPending(false);
         return;
       }
-      try {
-        await recordAiReportRequestAndNotify({
+      recordAiReportRequestAndNotify({
           leadId,
           tag: "DRIVING_LICENSE",
           token: resultToken,
         });
-      } catch (aiReportErr) {
-        console.error("ai report notify failed:", aiReportErr);
-      }
 
       const res = await fetch("/api/auto-login", {
         method: "POST",

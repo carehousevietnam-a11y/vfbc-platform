@@ -1289,15 +1289,11 @@ export default function VerifyTaxPage() {
         setAiReportRequesting(false);
         return;
       }
-      try {
-        await recordAiReportRequestAndNotify({
+      recordAiReportRequestAndNotify({
           leadId,
           tag: "VERIFY_TAX",
           token: resultToken,
         });
-      } catch (aiReportErr) {
-        console.error("ai report notify failed:", aiReportErr);
-      }
 
       const res = await fetch("/api/auto-login", {
         method: "POST",

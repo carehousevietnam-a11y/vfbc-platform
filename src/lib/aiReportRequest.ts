@@ -3,8 +3,18 @@ import { supabase } from "@/lib/supabase";
 const CRM_AI_REPORT_REQUEST_ACTION = "ai_report_request";
 
 // 결과화면 "AI 리포트 요청하기" — CRM 기록 + 접수 확인 이메일 트리거.
-// agencyUpgradeRequest.ts와 동일한 중복 방지 패턴을 사용한다.
-export async function recordAiReportRequestAndNotify(params: {
+// redirect(auto-login)을 막지 않도록 비동기 fire-and-forget으로 실행한다.
+export function recordAiReportRequestAndNotify(params: {
+  leadId: string;
+  tag: string;
+  token?: string;
+}): void {
+  void recordAiReportRequestAndNotifyAsync(params).catch((err) => {
+    console.error("ai report notify failed:", err);
+  });
+}
+
+async function recordAiReportRequestAndNotifyAsync(params: {
   leadId: string;
   tag: string;
   token?: string;
@@ -22,24 +32,28 @@ export async function recordAiReportRequestAndNotify(params: {
     console.error("ai_report_request lookup failed:", existingErr);
   }
 
-  if (existing) return;
+  if (!existing) {
+    const { error: insertErr } = await supabase.from("crm_activities").insert({
+      lead_id: leadId,
+      action: CRM_AI_REPORT_REQUEST_ACTION,
+      tag,
+    });
 
-  const { error: insertErr } = await supabase.from("crm_activities").insert({
-    lead_id: leadId,
-    action: CRM_AI_REPORT_REQUEST_ACTION,
-    tag,
-  });
-
-  if (insertErr) {
-    console.error("ai_report_request insert failed:", insertErr);
+    if (insertErr) {
+      console.error("ai_report_request insert failed:", insertErr);
+    }
   }
 
   try {
-    await fetch("/api/ai-report-confirm", {
+    const res = await fetch("/api/ai-report-confirm", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(token ? { token } : { leadId }),
     });
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      console.error("ai-report-confirm failed:", res.status, body);
+    }
   } catch (emailErr) {
     console.error("ai-report-confirm email trigger failed:", emailErr);
   }
