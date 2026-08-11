@@ -140,7 +140,8 @@ export async function sendResultEmail(
   const resultLabel = result ? RESULT_LABEL[result] ?? null : null;
 
   const isAgencyRequest = result === "agency";
-  const isDiagnosis = !!resultLabel;
+  const isAiReportRequest = result === "ai_report";
+  const isDiagnosis = !!resultLabel && !isAiReportRequest;
   // VERIFY(서류/상황 검토) 서비스 여부 — service_type이 "verify"로 시작하는 값은
   // 하이픈("verify-admin")/언더스코어("verify_admin") 표기가 혼재할 수 있으나,
   // "verify" 자체는 접두사 첫 단어라 구분자 표기와 무관하게 startsWith로 안전하게
@@ -155,6 +156,8 @@ export async function sendResultEmail(
 
   const subject = isAgencyRequest
     ? `[VFBCAI] ${name}님의 ${serviceLabel} 전문가 진행요청이 접수되었습니다`
+    : isAiReportRequest
+    ? `[VFBCAI] ${name}님의 ${serviceLabel} AI 리포트 요청이 접수되었습니다`
     : isDiagnosis
     ? `[VFBCAI] ${name}님의 ${serviceLabel} 진단 결과: ${resultLabel}`
     : isVerifyService
@@ -163,6 +166,8 @@ export async function sendResultEmail(
 
   const headline = isAgencyRequest
     ? `${name}님, ${serviceLabel} 전문가 진행요청이 완료되었습니다`
+    : isAiReportRequest
+    ? `${name}님, ${serviceLabel} AI 리포트 요청이 접수되었습니다`
     : isDiagnosis
     ? `${name}님, ${serviceLabel} 진단이 완료되었습니다`
     : isVerifyService
@@ -171,7 +176,8 @@ export async function sendResultEmail(
 
   // VERIFY 접수 확인 단계는 아직 "자가등록/직접신청" 같은 자기결정 행동이 존재하지
   // 않으므로(단순 서류 접수 상태) 자기결정형 CTA 버튼을 노출하지 않는다.
-  const buttonLabel = isAgencyRequest || isVerifyService ? null : "막히면 빨리 도움신청하기";
+  const buttonLabel =
+    isAgencyRequest || isVerifyService || isAiReportRequest ? null : "막히면 빨리 도움신청하기";
 
   const HOOK_TEXT =
     "혼자 시도하다가 기한을 놓치거나 잘못된 서류기입으로 반려·재제출로 시간이 두 배로 걸리거나 접수 자체가 안될 수도 있어요.";
@@ -208,6 +214,19 @@ export async function sendResultEmail(
       </p>
       <p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
         담당자가 서류를 확인한 뒤 카카오톡 또는 잘로(Zalo)로 예상 비용과 진행 절차를 안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
+      </p>
+      ${docsSection}`;
+  } else if (isAiReportRequest) {
+    const docsSection =
+      serviceType === "wp" ? WP_DETAILED_GUIDE_HTML : docsHtmlSimple(getDocs(serviceType));
+    bodyHtml = `<div style="text-align: center; margin: 0 0 4px;">
+        <img src="${getSealUrl()}" width="176" height="176" alt="VFBCAI 접수완료 확인 도장" style="display:inline-block;" />
+      </div>
+      <p style="font-size: 10px; color: #9ca3af; font-style: italic; text-align: center; margin: 0 0 20px;">
+        Vietnam Foreign Business Verification &amp; Compliance AI Center
+      </p>
+      <p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+        AI 리포트 요청이 정상적으로 접수되었습니다. 제출하신 자료는 안전하게 보관되며, 담당자가 확인 후 마이페이지를 통해 안내드립니다.
       </p>
       ${docsSection}`;
   } else if (isDiagnosis) {

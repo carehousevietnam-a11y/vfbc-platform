@@ -41,6 +41,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { recordAgencyUpgradeAndNotify } from "@/lib/agencyUpgradeRequest";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import { NoticeCard, PrimaryButton, InfoBox, QuestionSection, SelectionCard } from "@/components/ui";
@@ -1164,8 +1165,7 @@ export default function TrcCheckPage() {
     }
   }
 
-  // "AI 리포트 요청하기" — VERIFY/REGISTER와 동일하게 auto-login(next=documents_ai_report)
-  // 흐름으로 /documents?mode=ai_report를 연다. 신규 CRM action·이메일 발송은 없음.
+  // "AI 리포트 요청하기" — CRM 기록 + 접수 확인 이메일 후 auto-login(next=documents_ai_report)
   async function handleAiReportRequest() {
     if (!leadId) return;
     setAiReportPending(true);
@@ -1176,6 +1176,16 @@ export default function TrcCheckPage() {
         setAiReportPending(false);
         return;
       }
+      try {
+        await recordAiReportRequestAndNotify({
+          leadId,
+          tag: "TRC",
+          token: resultToken,
+        });
+      } catch (aiReportErr) {
+        console.error("ai report notify failed:", aiReportErr);
+      }
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

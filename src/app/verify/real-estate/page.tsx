@@ -33,6 +33,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
@@ -1335,6 +1336,16 @@ export default function VerifyRealEstatePage() {
         setAiReportRequesting(false);
         return;
       }
+      try {
+        await recordAiReportRequestAndNotify({
+          leadId,
+          tag: "VERIFY_REAL_ESTATE",
+          token: resultToken,
+        });
+      } catch (aiReportErr) {
+        console.error("ai report notify failed:", aiReportErr);
+      }
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

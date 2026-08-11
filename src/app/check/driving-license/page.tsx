@@ -23,6 +23,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { recordAgencyUpgradeAndNotify } from "@/lib/agencyUpgradeRequest";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
@@ -899,6 +900,16 @@ export default function DrivingLicenseCheckPage() {
         setAiReportPending(false);
         return;
       }
+      try {
+        await recordAiReportRequestAndNotify({
+          leadId,
+          tag: "DRIVING_LICENSE",
+          token: resultToken,
+        });
+      } catch (aiReportErr) {
+        console.error("ai report notify failed:", aiReportErr);
+      }
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
