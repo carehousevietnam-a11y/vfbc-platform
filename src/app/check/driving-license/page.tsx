@@ -22,6 +22,7 @@ import {
   getConsentTranslation,
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
+import { recordAgencyUpgradeAndNotify } from "@/lib/agencyUpgradeRequest";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
@@ -720,10 +721,6 @@ export default function DrivingLicenseCheckPage() {
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
-  const [agencyRequested, setAgencyRequested] = useState(false);
-  const [agencySaving, setAgencySaving] = useState(false);
-  const [agencyError, setAgencyError] = useState<string | null>(null);
-  const [detailStage, setDetailStage] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -766,9 +763,7 @@ export default function DrivingLicenseCheckPage() {
   const resultScreenActive =
     showResult &&
     result === "possible" &&
-    leadSubmitted &&
-    !agencyRequested &&
-    !detailStage;
+    leadSubmitted;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
   useEffect(() => {
@@ -850,6 +845,16 @@ export default function DrivingLicenseCheckPage() {
     setExpertLoginPending(true);
     setExpertLoginError(null);
     try {
+      try {
+        await recordAgencyUpgradeAndNotify({
+          leadId,
+          tag: "DRIVING_LICENSE",
+          token: resultToken,
+        });
+      } catch (agencyErr) {
+        console.error("agency upgrade notify failed:", agencyErr);
+      }
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -879,10 +884,6 @@ export default function DrivingLicenseCheckPage() {
     setEmailProvided(false);
     setConsentOpen(false);
     setConsentHighlight(false);
-    setAgencyRequested(false);
-    setAgencySaving(false);
-    setAgencyError(null);
-    setDetailStage(false);
     setDiagnosis(null);
     setPreviousRejection(null);
     setRejectionReason("");
@@ -892,36 +893,6 @@ export default function DrivingLicenseCheckPage() {
     setExpertLoginError(null);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
-  }
-
-  async function handleAgencyRequest() {
-    if (!leadId) return;
-    setAgencySaving(true);
-    setAgencyError(null);
-    try {
-      const { error } = await supabase.from("crm_activities").insert({
-        lead_id: leadId,
-        action: "agency_upgrade_request",
-        tag: "DRIVING_LICENSE",
-      });
-      if (error) throw error;
-
-      try {
-        await fetch("/api/agency-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId }),
-        });
-      } catch (emailErr) {
-        console.error("agency-confirm email trigger failed:", emailErr);
-      }
-
-      setAgencyRequested(true);
-    } catch {
-      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setAgencySaving(false);
-    }
   }
 
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -1493,7 +1464,7 @@ export default function DrivingLicenseCheckPage() {
         )}
 
         {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/전문가 진행요청 선택 */}
-        {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
+        {showResult && result === "possible" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               운전면허 전환 · AI 분석 리포트
@@ -1522,122 +1493,6 @@ export default function DrivingLicenseCheckPage() {
             <button
               onClick={reset}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
-          </div>
-        )}
-
-        {showResult && result === "possible" && leadSubmitted && !agencyRequested && detailStage && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              운전면허 전환 진행 서류 및 절차
-            </p>
-
-            <div className="mt-4">
-              <NoticeCard tone="warning">
-                직접 신청하시는 경우, 지역마다 요구서류와 절차가 조금씩
-                달라 정확한 정보를 찾기 어렵고, 공증 번역본 준비 실수로
-                반려·재제출이 잦아 시간이 예상보다 오래 걸릴 수 있습니다.
-                혹시 걱정되시거나 자신이 없으시다면, 언제든 편하게 도움을
-                요청하세요.
-              </NoticeCard>
-            </div>
-
-            <Divider />
-
-            <div className="rounded-xl bg-gray-50 px-4 py-3">
-              <p className="text-xs font-semibold text-gray-700">
-                운전면허 전환에 필요한 서류
-              </p>
-              <ul className="mt-2 space-y-1">
-                <li className="text-xs text-gray-600 pl-1">
-                  · 여권 사본 (인적사항 페이지)
-                </li>
-                <li className="text-xs text-gray-600 pl-1">· 거주증(TRC) 사본</li>
-                <li className="text-xs text-gray-600 pl-1">· 본국 운전면허 원본</li>
-                <li className="text-xs text-gray-600 pl-1">
-                  · 면허 베트남어 공증 번역본 (국적에 따라 상이)
-                </li>
-              </ul>
-            </div>
-
-            <Divider />
-
-            <p className="mt-4 text-sm font-bold text-gray-900">
-              정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
-              상의하세요.
-            </p>
-
-            {agencyError && (
-              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
-            )}
-            <p className="mb-2 text-xs text-gray-500 leading-relaxed">
-              직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
-            </p>
-            <PrimaryButton
-              onClick={handleAgencyRequest}
-              loading={agencySaving}
-              className="mt-4"
-            >
-              {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
-            </PrimaryButton>
-            <div className="mt-2">
-              <InfoBox>
-                이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
-              </InfoBox>
-            </div>
-
-            <button
-              onClick={() => setDetailStage(false)}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              ← 간단 목록으로 돌아가기
-            </button>
-          </div>
-        )}
-
-        {showResult && result === "possible" && agencyRequested && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex justify-center">
-              <img
-                src="/vfbc-seal.png"
-                alt="VFBCAI 접수완료 확인 도장"
-                width={160}
-                height={160}
-              />
-            </div>
-            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
-              Vietnam Foreign Business Verification &amp; Compliance AI Center
-            </p>
-            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-              전문가 진행요청이 접수되었습니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
-              {messengers.primary.label}/{messengers.secondary.label}로
-              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
-            </p>
-
-            {emailProvided && (
-              <div className="mt-2">
-                <InfoBox>메시지가 오지 않으면 이메일도 함께 확인해주세요.</InfoBox>
-              </div>
-            )}
-
-            <div className="mt-5">
-              <NoticeCard tone="info">
-                입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-                자동 생성되며, 마이페이지에서 언제든 변경하실 수
-                있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-                함께 이용하실 수 있습니다.
-              </NoticeCard>
-            </div>
-
-            <button
-              onClick={reset}
-              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
             >
               처음부터 다시 확인하기
             </button>
