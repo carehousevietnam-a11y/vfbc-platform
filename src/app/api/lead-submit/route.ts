@@ -46,10 +46,17 @@ async function findAuthUserIdByEmail(authEmail: string): Promise<string | null> 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { leadId, name, phone, email, address, lang, kakao_id, zalo_id } = body as {
+    const { leadId, name, phone, phoneDigits, email, address, lang, kakao_id, zalo_id } = body as {
       leadId: string;
       name: string;
       phone: string;
+      // [국가번호] 클라이언트가 country-code selector 도입 후 저장에 넘기는 `phone`은
+      // 이미 국가번호가 합쳐진 값(예: "+84 0901234567")이라, 이 값 그대로 자릿수
+      // 검증을 하면 국가번호 숫자까지 포함되어 원래 8~15자리 기준과 어긋난다.
+      // 그래서 클라이언트가 검증에 실제로 쓴 순수 숫자(phoneDigits)를 별도로 함께
+      // 보내고, 서버는 이 값이 있으면 이 값으로 재검증한다. 이 필드를 보내지 않는
+      // (과거) 호출부와의 하위호환을 위해 없으면 phone 그대로 검증에 사용한다.
+      phoneDigits?: string;
       email?: string;
       address?: string;
       lang?: string;
@@ -73,7 +80,9 @@ export async function POST(req: NextRequest) {
     const { valid, errors } = validateLeadForm(
       {
         name,
-        phone,
+        // phoneDigits(국가번호 제외 순수 자릿수)가 있으면 그걸로 검증하고, 없으면
+        // 하위호환으로 phone 그대로 검증한다. 저장은 항상 phone(국가번호 포함 값)을 쓴다.
+        phone: phoneDigits ?? phone,
         address: address ?? "",
         email: email ?? "",
         kakao_id: kakao_id ?? "",
