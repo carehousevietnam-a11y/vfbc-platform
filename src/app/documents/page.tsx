@@ -270,11 +270,11 @@ const MODE_COPY: Record<
     badgeLabel: "AI 리포트 진행",
     heading: "먼저 핵심 자료만 제출해주세요",
     description:
-      "우선 제출 자료만으로도 AI 분석을 시작할 수 있습니다. 현재 가지고 있는 계약서·증빙·사진·기존 신청자료를 함께 제출하면 고객 상황에 맞는 더 정확한 결과를 받을 수 있습니다.",
+      "현재 가지고 있는 계약서·증빙·사진·기존 신청자료를 제출해 주세요. 제출하신 자료는 안전하게 보관되며, 담당자가 확인 후 마이페이지를 통해 안내드립니다.",
     submitLabel: "AI 리포트 진행하기",
-    submitCaption: "접수 후 AI가 리포트를 준비하며, My Page에서 PDF로 확인하실 수 있습니다.",
+    submitCaption: "접수 후 진행 상황은 My Page에서 확인하실 수 있습니다.",
     successTitle: "AI 리포트 진행이 접수되었습니다",
-    successBody: "My Page에서 진행 상황과 PDF 리포트를 확인하실 수 있습니다.",
+    successBody: "제출하신 자료는 안전하게 보관되며, 담당자가 확인 후 마이페이지를 통해 안내드립니다.",
   },
   expert: {
     badgeLabel: "전문가 진행",
@@ -1464,11 +1464,11 @@ function DocumentUploadContent() {
               <p className="mt-3 text-sm leading-relaxed text-gray-600">
                 AI 리포트 요청이 정상적으로 접수되었습니다.
                 <br />
-                제출하신 자료를 바탕으로 AI 검토가 진행됩니다.
+                제출하신 자료는 안전하게 보관되며, 담당자가 확인 후 마이페이지를 통해 안내드립니다.
                 <br />
                 <br />
                 <span className="mx-auto block max-w-[280px] break-keep text-pretty leading-relaxed lg:max-w-none">
-                  완료된 PDF 리포트와 진행상황은 My Page에서 확인할 수 있습니다.
+                  진행 상황은 My Page에서 확인할 수 있습니다.
                 </span>
               </p>
 
@@ -1550,10 +1550,10 @@ function DocumentUploadContent() {
                 {mode === "ai_report" && (
                   <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/50 px-3.5 py-3">
                     <p className="text-xs font-bold text-blue-900">
-                      AI는 제출된 자료 안에서 고객님의 상황을 판단합니다.
+                      제출 자료는 담당자 확인 후 안내됩니다.
                     </p>
                     <p className="mt-1 text-[11px] leading-relaxed text-blue-700">
-                      계약서, 기존 신청자료, 반려 문서, 사진 등 현재 가지고 있는 자료를 성실하게 함께 제출하면 누락 가능성·위험요인·보완 방향을 더 구체적으로 확인할 수 있습니다.
+                      계약서, 기존 신청자료, 반려 문서, 사진 등 현재 가지고 있는 자료를 함께 제출해 주시면 확인에 도움이 됩니다.
                     </p>
                   </div>
                 )}

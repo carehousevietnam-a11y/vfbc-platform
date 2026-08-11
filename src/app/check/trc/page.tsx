@@ -613,21 +613,27 @@ function ResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
 function NextStepOptions({
   onSelf,
   onExpert,
+  onAiReport,
   officialUrl,
   expertPending,
   expertError,
+  aiReportPending,
+  aiReportError,
 }: {
   onSelf: () => void;
   onExpert: () => void;
+  onAiReport: () => void;
   officialUrl: string;
   expertPending?: boolean;
   expertError?: string | null;
+  aiReportPending?: boolean;
+  aiReportError?: string | null;
 }) {
   return (
     <div>
       <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
       <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) AI 리포트 요청하기 — "필수" 강조 (아직 연결 없음) */}
+        {/* 1) AI 리포트 요청하기 — "필수" 강조 */}
         <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
           <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
             필수
@@ -648,12 +654,18 @@ function NextStepOptions({
           <div className="mt-auto pt-4">
             <button
               type="button"
-              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
+              onClick={onAiReport}
+              disabled={aiReportPending}
+              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors disabled:opacity-60"
             >
-              AI 리포트 요청하기
+              {aiReportPending ? "이동 중..." : "AI 리포트 요청하기"}
             </button>
             <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-              결과는 My Page에서 PDF로 다운로드할 수 있습니다.
+              {aiReportError ? (
+                <span className="text-red-600">{aiReportError}</span>
+              ) : (
+                "결과는 My Page에서 PDF로 다운로드할 수 있습니다."
+              )}
             </p>
           </div>
         </div>
@@ -1028,6 +1040,8 @@ export default function TrcCheckPage() {
   const [resultToken, setResultToken] = useState<string | null>(null);
   const [expertLoginPending, setExpertLoginPending] = useState(false);
   const [expertLoginError, setExpertLoginError] = useState<string | null>(null);
+  const [aiReportPending, setAiReportPending] = useState(false);
+  const [aiReportError, setAiReportError] = useState<string | null>(null);
 
   const result: Result = computeTrcResultTone(visa, role, company);
   const showResult = nationality && visa && role && company;
@@ -1150,6 +1164,37 @@ export default function TrcCheckPage() {
     }
   }
 
+  // "AI 리포트 요청하기" — VERIFY/REGISTER와 동일하게 auto-login(next=documents_ai_report)
+  // 흐름으로 /documents?mode=ai_report를 연다. 신규 CRM action·이메일 발송은 없음.
+  async function handleAiReportRequest() {
+    if (!leadId) return;
+    setAiReportPending(true);
+    setAiReportError(null);
+    try {
+      if (!resultToken) {
+        setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
+        setAiReportPending(false);
+        return;
+      }
+      const res = await fetch("/api/auto-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: resultToken, next: "documents_ai_report" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.actionLink) {
+        console.error("auto-login failed:", data);
+        setAiReportError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+        setAiReportPending(false);
+        return;
+      }
+      window.location.href = data.actionLink;
+    } catch {
+      setAiReportError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+      setAiReportPending(false);
+    }
+  }
+
   function reset() {
     setNationality(null);
     setVisa(null);
@@ -1169,6 +1214,8 @@ export default function TrcCheckPage() {
     setResultToken(null);
     setExpertLoginPending(false);
     setExpertLoginError(null);
+    setAiReportPending(false);
+    setAiReportError(null);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
   }
@@ -1637,9 +1684,12 @@ export default function TrcCheckPage() {
             <NextStepOptions
               onSelf={handleSelfPortalClick}
               onExpert={handleExpertRequestClick}
+              onAiReport={handleAiReportRequest}
               officialUrl={TRC_OFFICIAL_URL}
               expertPending={expertLoginPending}
               expertError={expertLoginError}
+              aiReportPending={aiReportPending}
+              aiReportError={aiReportError}
             />
             <p className="mt-2 text-[11px] text-gray-400">
               공안부 공공서비스포털의 거주증(TRC) 발급 절차 안내 페이지로
@@ -1698,9 +1748,12 @@ export default function TrcCheckPage() {
             <NextStepOptions
               onSelf={handleSelfPortalClick}
               onExpert={handleExpertRequestClick}
+              onAiReport={handleAiReportRequest}
               officialUrl={TRC_OFFICIAL_URL}
               expertPending={expertLoginPending}
               expertError={expertLoginError}
+              aiReportPending={aiReportPending}
+              aiReportError={aiReportError}
             />
 
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">

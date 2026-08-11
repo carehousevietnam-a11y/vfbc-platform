@@ -591,25 +591,31 @@ function ResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
 
 // 다음 단계 선택 — 승인된 목업 기준 순서: AI 리포트 요청하기 → 전문가 진행하기
 // → 직접 진행하기. onSelf·onExpert는 기존 핸들러 그대로 재사용, 로직 변경 없음.
-// AI 리포트 버튼은 이번 단계에서 API·PDF·상담 페이지 어디와도 연결하지 않는다.
+// AI 리포트 버튼은 VERIFY/REGISTER와 동일한 auto-login(next=documents_ai_report) 연결을 사용한다.
 function NextStepOptions({
   onSelf,
   onExpert,
+  onAiReport,
   officialUrl,
   expertPending,
   expertError,
+  aiReportPending,
+  aiReportError,
 }: {
   onSelf: () => void;
   onExpert: () => void;
+  onAiReport: () => void;
   officialUrl: string;
   expertPending?: boolean;
   expertError?: string | null;
+  aiReportPending?: boolean;
+  aiReportError?: string | null;
 }) {
   return (
     <div>
       <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
       <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) AI 리포트 요청하기 — "필수" 강조 (아직 연결 없음) */}
+        {/* 1) AI 리포트 요청하기 — "필수" 강조 */}
         <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
           <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
             필수
@@ -630,12 +636,18 @@ function NextStepOptions({
           <div className="mt-auto pt-4">
             <button
               type="button"
-              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors"
+              onClick={onAiReport}
+              disabled={aiReportPending}
+              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors disabled:opacity-60"
             >
-              AI 리포트 요청하기
+              {aiReportPending ? "이동 중..." : "AI 리포트 요청하기"}
             </button>
             <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-              결과는 My Page에서 PDF로 다운로드할 수 있습니다.
+              {aiReportError ? (
+                <span className="text-red-600">{aiReportError}</span>
+              ) : (
+                "결과는 My Page에서 PDF로 다운로드할 수 있습니다."
+              )}
             </p>
           </div>
         </div>
@@ -757,6 +769,8 @@ export default function TamTruCheckPage() {
   const [resultToken, setResultToken] = useState<string | null>(null);
   const [expertLoginPending, setExpertLoginPending] = useState(false);
   const [expertLoginError, setExpertLoginError] = useState<string | null>(null);
+  const [aiReportPending, setAiReportPending] = useState(false);
+  const [aiReportError, setAiReportError] = useState<string | null>(null);
 
   const result: Result = computeTamtruResultTone(timing);
   const showResult = housing === "personal" && landlordIssue === false && !!timing;
@@ -874,6 +888,35 @@ export default function TamTruCheckPage() {
     }
   }
 
+  async function handleAiReportRequest() {
+    if (!leadId) return;
+    setAiReportPending(true);
+    setAiReportError(null);
+    try {
+      if (!resultToken) {
+        setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
+        setAiReportPending(false);
+        return;
+      }
+      const res = await fetch("/api/auto-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: resultToken, next: "documents_ai_report" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.actionLink) {
+        console.error("auto-login failed:", data);
+        setAiReportError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+        setAiReportPending(false);
+        return;
+      }
+      window.location.href = data.actionLink;
+    } catch {
+      setAiReportError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+      setAiReportPending(false);
+    }
+  }
+
   function reset() {
     setHousing(null);
     setLandlordIssue(null);
@@ -892,6 +935,8 @@ export default function TamTruCheckPage() {
     setResultToken(null);
     setExpertLoginPending(false);
     setExpertLoginError(null);
+    setAiReportPending(false);
+    setAiReportError(null);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
   }
@@ -1558,8 +1603,11 @@ export default function TamTruCheckPage() {
                 <NextStepOptions
                   onSelf={handleSelfPortalClick}
                   onExpert={handleExpertRequestClick}
-              expertPending={expertLoginPending}
-              expertError={expertLoginError}
+                  onAiReport={handleAiReportRequest}
+                  expertPending={expertLoginPending}
+                  expertError={expertLoginError}
+                  aiReportPending={aiReportPending}
+                  aiReportError={aiReportError}
                   officialUrl={TAMTRU_OFFICIAL_URL}
                 />
                 <div className="mt-2">
