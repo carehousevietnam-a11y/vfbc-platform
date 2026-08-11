@@ -22,6 +22,7 @@ import {
   getConsentTranslation,
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
+import { recordAgencyUpgradeAndNotify } from "@/lib/agencyUpgradeRequest";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
@@ -986,10 +987,6 @@ export default function WpCheckPage() {
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
-  const [agencyRequested, setAgencyRequested] = useState(false);
-  const [agencySaving, setAgencySaving] = useState(false);
-  const [agencyError, setAgencyError] = useState<string | null>(null);
-  const [detailStage, setDetailStage] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -1020,9 +1017,7 @@ export default function WpCheckPage() {
   const resultScreenActive =
     showResult &&
     (result === "possible" || result === "conditional") &&
-    leadSubmitted &&
-    !agencyRequested &&
-    !detailStage;
+    leadSubmitted;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
   // 화면에는 가입 직후(2번째 화면)부터 노출하지만, 계산 자체는 미리 해둔다.
@@ -1108,6 +1103,16 @@ export default function WpCheckPage() {
     setExpertLoginPending(true);
     setExpertLoginError(null);
     try {
+      try {
+        await recordAgencyUpgradeAndNotify({
+          leadId,
+          tag: "WORK_PERMIT",
+          token: resultToken,
+        });
+      } catch (agencyErr) {
+        console.error("agency upgrade notify failed:", agencyErr);
+      }
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1139,10 +1144,6 @@ export default function WpCheckPage() {
     setEmailProvided(false);
     setConsentOpen(false);
     setConsentHighlight(false);
-    setAgencyRequested(false);
-    setAgencySaving(false);
-    setAgencyError(null);
-    setDetailStage(false);
     setDiagnosis(null);
     setPreviousRejection(null);
     setRejectionReason("");
@@ -1152,37 +1153,6 @@ export default function WpCheckPage() {
     setExpertLoginError(null);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
-  }
-
-  async function handleAgencyRequest() {
-    if (!leadId) return;
-    setAgencySaving(true);
-    setAgencyError(null);
-    try {
-      const { error } = await supabase.from("crm_activities").insert({
-        lead_id: leadId,
-        action: "agency_upgrade_request",
-        tag: "WORK_PERMIT",
-      });
-      if (error) throw error;
-
-      // 전문가 진행요청 완료 이메일 발송 (실패해도 화면 흐름은 그대로 진행)
-      try {
-        await fetch("/api/agency-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId }),
-        });
-      } catch (emailErr) {
-        console.error("agency-confirm email trigger failed:", emailErr);
-      }
-
-      setAgencyRequested(true);
-    } catch {
-      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setAgencySaving(false);
-    }
   }
 
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -1640,7 +1610,7 @@ export default function WpCheckPage() {
         )}
 
         {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/전문가 진행요청 선택 */}
-        {showResult && result === "possible" && leadSubmitted && !agencyRequested && !detailStage && (
+        {showResult && result === "possible" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               노동허가(WP) · AI 분석 리포트
@@ -1675,164 +1645,6 @@ export default function WpCheckPage() {
           </div>
         )}
 
-        {showResult && (result === "possible" || result === "conditional") && leadSubmitted && !agencyRequested && detailStage && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <CheckCircle2 className="text-emerald-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              노동허가(WP) 진행 서류 및 절차
-            </p>
-
-            <div className="mt-4 space-y-3">
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">
-                  ① 한국에서 준비 (번역공증·영사인증 필요)
-                </p>
-                <ul className="mt-2 space-y-2">
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 범죄경력증명서 — 발급 6개월 이내, 공증사무소 → 외교부
-                    영사확인 → 주한 베트남대사관 인증 순으로 진행
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 학위증명서(졸업증명서) — 신청 직책과 전공이 일치할수록
-                    승인율이 높습니다
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 경력증명서 — 관련 분야 2년 이상(우선분야는 1년 이상),
-                    전 직장 직인·업무·근무기간 명시 필수
-                  </li>
-                </ul>
-                <p className="mt-2 text-[11px] text-gray-400">
-                  베트남은 아포스티유 협약국이 아니라, 아포스티유 대신
-                  외교부 영사확인 절차를 거쳐야 합니다.
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">
-                  ② 베트남 현지에서 준비 (번역공증 불필요)
-                </p>
-                <ul className="mt-2 space-y-2">
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 여권 원본 및 공증 사본 — 유효기간 6개월 이상(2년 이상
-                    권장), 현지 공증사무소에서 전 페이지 사본 공증
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 건강진단서 — 지정병원 발급 시 번역공증 불필요
-                    (유효기간 6개월)
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 증명사진 2~4매 — 4×6cm, 흰 배경, 최근 6개월 이내
-                    촬영본
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 임시거주지 확인서 — 집주인·호텔을 통해 관할 공안에
-                    신고된 거주 확인서
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">
-                  ③ 초청 법인(회사)에서 준비
-                </p>
-                <ul className="mt-2 space-y-2">
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 사업자등록증(ERC) 사본 공증
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 외국인 채용수요 승인서 — 신청 최소 30일 전 인민위원회
-                    또는 노동부 승인 필요 (가장 까다로운 단계)
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 노동허가 신청서(Form 11/PLI) — 회사 직인 날인
-                  </li>
-                  <li className="text-xs text-gray-600 pl-1">
-                    · 근로계약서 초안 또는 파견명령서 — 주재원은 한국
-                    본사 파견명령서(영사인증)가 요구될 수 있음
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <p className="mt-4 text-sm font-bold text-gray-900">
-              정확하고 문제없이 빠르게 진행하시길 원한다면 반드시 전문가와
-              상의하세요.
-            </p>
-
-            {agencyError && (
-              <p className="mt-3 text-xs text-red-600">{agencyError}</p>
-            )}
-            <p className="mb-2 text-xs text-gray-500 leading-relaxed">
-              직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
-            </p>
-            <PrimaryButton
-              onClick={handleAgencyRequest}
-              loading={agencySaving}
-              className="mt-4"
-            >
-              {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
-            </PrimaryButton>
-            <div className="mt-2">
-              <InfoBox>
-                이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요 없습니다.
-              </InfoBox>
-            </div>
-
-            <button
-              onClick={() => setDetailStage(false)}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              ← 간단 목록으로 돌아가기
-            </button>
-          </div>
-        )}
-
-        {showResult && (result === "possible" || result === "conditional") && agencyRequested && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex justify-center">
-              <img
-                src="/vfbc-seal.png"
-                alt="VFBCAI 접수완료 확인 도장"
-                width={160}
-                height={160}
-              />
-            </div>
-            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
-              Vietnam Foreign Business Verification &amp; Compliance AI Center
-            </p>
-            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-              전문가 진행요청이 접수되었습니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
-              {messengers.primary.label}/{messengers.secondary.label}로
-              안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
-            </p>
-
-            {emailProvided && (
-              <div className="mt-2">
-                <InfoBox>메시지가 오지 않으면 이메일도 함께 확인해주세요.</InfoBox>
-              </div>
-            )}
-
-            <div className="mt-5">
-              <NoticeCard tone="info">
-                입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-                자동 생성되며, 마이페이지에서 언제든 변경하실 수
-                있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-                함께 이용하실 수 있습니다.
-              </NoticeCard>
-            </div>
-
-            <button
-              onClick={reset}
-              className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              처음부터 다시 확인하기
-            </button>
-          </div>
-        )}
-
         {/* 조건부 가능 — 1번째 화면 (가입 전, Premium SaaS lead capture) */}
         {showResult && result === "conditional" && !leadSubmitted && (
           <PremiumLeadCapture
@@ -1853,7 +1665,7 @@ export default function WpCheckPage() {
         )}
 
         {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 + 직접등록/전문가 진행요청 선택) */}
-        {showResult && result === "conditional" && leadSubmitted && !agencyRequested && !detailStage && (
+        {showResult && result === "conditional" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               노동허가(WP) · AI 분석 리포트

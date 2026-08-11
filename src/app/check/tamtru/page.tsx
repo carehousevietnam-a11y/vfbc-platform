@@ -32,6 +32,7 @@ import {
   InfoBox,
   Divider,
 } from "@/components/ui";
+import { recordAgencyUpgradeAndNotify } from "@/lib/agencyUpgradeRequest";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
@@ -720,10 +721,6 @@ export default function TamTruCheckPage() {
   const [emailProvided, setEmailProvided] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentHighlight, setConsentHighlight] = useState(false);
-  const [agencyRequested, setAgencyRequested] = useState(false);
-  const [agencySaving, setAgencySaving] = useState(false);
-  const [agencyError, setAgencyError] = useState<string | null>(null);
-  const [detailStage, setDetailStage] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -765,8 +762,7 @@ export default function TamTruCheckPage() {
   const showResult = housing === "personal" && landlordIssue === false && !!timing;
   // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
   // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
-  const resultScreenActive =
-    showResult && leadSubmitted && !agencyRequested && !detailStage;
+  const resultScreenActive = showResult && leadSubmitted;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
   useEffect(() => {
@@ -848,6 +844,16 @@ export default function TamTruCheckPage() {
     setExpertLoginPending(true);
     setExpertLoginError(null);
     try {
+      try {
+        await recordAgencyUpgradeAndNotify({
+          leadId,
+          tag: "TAMTRU",
+          token: resultToken,
+        });
+      } catch (agencyErr) {
+        console.error("agency upgrade notify failed:", agencyErr);
+      }
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -879,10 +885,6 @@ export default function TamTruCheckPage() {
     setEmailProvided(false);
     setConsentOpen(false);
     setConsentHighlight(false);
-    setAgencyRequested(false);
-    setAgencySaving(false);
-    setAgencyError(null);
-    setDetailStage(false);
     setDiagnosis(null);
     setPreviousRejection(null);
     setRejectionReason("");
@@ -892,36 +894,6 @@ export default function TamTruCheckPage() {
     setExpertLoginError(null);
     rejectionRecordIdRef.current = null;
     pendingRejectionInsertRef.current = null;
-  }
-
-  async function handleAgencyRequest() {
-    if (!leadId) return;
-    setAgencySaving(true);
-    setAgencyError(null);
-    try {
-      const { error } = await supabase.from("crm_activities").insert({
-        lead_id: leadId,
-        action: "agency_upgrade_request",
-        tag: "TAMTRU",
-      });
-      if (error) throw error;
-
-      try {
-        await fetch("/api/agency-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId }),
-        });
-      } catch (emailErr) {
-        console.error("agency-confirm email trigger failed:", emailErr);
-      }
-
-      setAgencyRequested(true);
-    } catch {
-      setAgencyError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setAgencySaving(false);
-    }
   }
 
   async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -1571,7 +1543,7 @@ export default function TamTruCheckPage() {
             )}
 
             {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/전문가 진행요청 선택 */}
-            {showResult && leadSubmitted && !agencyRequested && !detailStage && (
+            {showResult && leadSubmitted && (
               <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
                   땀주(임시거주등록) · AI 분석 리포트
@@ -1607,104 +1579,6 @@ export default function TamTruCheckPage() {
               </div>
             )}
 
-            {/* 전문가 진행요청 상세 단계 */}
-            {showResult && leadSubmitted && !agencyRequested && detailStage && (
-              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                <p className="text-lg font-bold text-gray-900">
-                  VFBCAI 땀주 전문가 진행요청
-                </p>
-                <p className="mt-1 text-sm font-semibold text-blue-900">
-                  예상 비용은 문자로 보내드리겠습니다
-                </p>
-                <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-                  여권, 임대계약서만 보내주시면 관할 사이트 신고부터 완료
-                  확인까지 대신 처리해드립니다.
-                </p>
-
-                {timing === "over24" && (
-                  <div className="mt-4">
-                    <NoticeCard tone="danger">
-                      신고 기한이 지났을 가능성이 높습니다. 빠른 처리가
-                      필요합니다.
-                    </NoticeCard>
-                  </div>
-                )}
-
-                {agencyError && (
-                  <p className="mt-3 text-xs text-red-600">{agencyError}</p>
-                )}
-                <p className="mb-2 text-xs text-gray-500 leading-relaxed">
-                  직접 진행이 어려운 경우 전문가에게 진행을 요청할 수 있습니다.
-                </p>
-                <PrimaryButton
-                  onClick={handleAgencyRequest}
-                  loading={agencySaving}
-                  className="mt-4"
-                >
-                  {agencySaving ? "접수 중..." : "전문가 진행요청하기 →"}
-                </PrimaryButton>
-                <div className="mt-2">
-                  <InfoBox>
-                    이미 입력하신 정보로 바로 접수되며, 다시 입력하실 필요
-                    없습니다.
-                  </InfoBox>
-                </div>
-
-                <button
-                  onClick={() => setDetailStage(false)}
-                  className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-                >
-                  ← 간단 목록으로 돌아가기
-                </button>
-              </div>
-            )}
-
-            {/* 전문가 진행요청 완료 */}
-            {showResult && agencyRequested && (
-              <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                <div className="flex justify-center">
-                  <img
-                    src="/vfbc-seal.png"
-                    alt="VFBCAI 접수완료 확인 도장"
-                    width={160}
-                    height={160}
-                  />
-                </div>
-                <p className="mt-1 text-[10px] text-gray-400 text-center italic">
-                  Vietnam Foreign Business Verification &amp; Compliance AI Center
-                </p>
-                <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-                  전문가 진행요청이 접수되었습니다
-                </p>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  담당자가 서류를 확인한 뒤 진행 상황을 가입하신 이메일 또는{" "}
-                  {messengers.primary.label}/{messengers.secondary.label}로
-                  안내드립니다. 별도로 상담을 신청하지 않으셔도 됩니다.
-                </p>
-
-                {emailProvided && (
-                  <div className="mt-2">
-                    <InfoBox>메시지가 오지 않으면 이메일도 함께 확인해주세요.</InfoBox>
-                  </div>
-                )}
-
-                <div className="mt-5">
-                  <NoticeCard tone="info">
-                    입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-                    자동 생성되며, 마이페이지에서 언제든 변경하실 수
-                    있습니다. 거주증·노동허가·비자 등 만료 알림 서비스도
-                    함께 이용하실 수 있습니다.
-                  </NoticeCard>
-                </div>
-
-                <button
-                  onClick={reset}
-                  className="mt-6 block text-xs text-gray-400 hover:text-gray-600"
-                >
-                  처음부터 다시 확인하기
-                </button>
-              </div>
-            )}
           </>
         ) : null}
       </div>
