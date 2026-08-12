@@ -1763,12 +1763,6 @@ function NotificationCard({ item }: { item: MyPageItem }) {
       sub: "만료까지 87일 남았습니다.",
     },
     {
-      icon: FileCheck2,
-      tone: "bg-emerald-50 text-emerald-600",
-      title: "AI 리포트 완료",
-      sub: "AI 리포트가 준비되었습니다.",
-    },
-    {
       icon: Building2,
       tone: "bg-blue-50 text-blue-600",
       title: "정부 제출 예정",

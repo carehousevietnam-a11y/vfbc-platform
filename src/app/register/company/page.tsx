@@ -32,6 +32,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import {
@@ -1176,6 +1177,12 @@ export default function PermitCompanyCheckPage() {
         setAiReportPending(false);
         return;
       }
+      recordAiReportRequestAndNotify({
+          leadId,
+          tag: "PERMIT_COMPANY",
+          token: resultToken,
+        });
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

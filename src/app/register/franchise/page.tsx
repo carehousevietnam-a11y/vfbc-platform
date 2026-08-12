@@ -28,6 +28,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
@@ -1107,6 +1108,12 @@ export default function RegisterFranchisePage() {
         setAiReportPending(false);
         return;
       }
+      recordAiReportRequestAndNotify({
+          leadId,
+          tag: "REGISTER_FRANCHISE",
+          token: resultToken,
+        });
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

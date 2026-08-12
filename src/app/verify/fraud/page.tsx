@@ -32,6 +32,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
@@ -1309,6 +1310,12 @@ export default function VerifyFraudPage() {
         setAiReportRequesting(false);
         return;
       }
+      recordAiReportRequestAndNotify({
+          leadId,
+          tag: "VERIFY_FRAUD",
+          token: resultToken,
+        });
+
       const res = await fetch("/api/auto-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
