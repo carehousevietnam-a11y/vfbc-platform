@@ -18,6 +18,7 @@ export function ReviewScoreGauge({ score, verdict, label }: ReviewScoreGaugeProp
   const circumference = 2 * Math.PI * radius;
   const progress = (Math.min(100, Math.max(0, score)) / 100) * circumference;
   const { stroke, track } = GAUGE_COLORS[verdict];
+  const isVeryLow = verdict === "very_low";
 
   return (
     <div className="flex flex-col items-center">
@@ -35,11 +36,23 @@ export function ReviewScoreGauge({ score, verdict, label }: ReviewScoreGaugeProp
             strokeDasharray={`${progress} ${circumference}`}
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-slate-900">{Math.round(score)}</span>
-          <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-            점
-          </span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
+          {isVeryLow ? (
+            <>
+              <span className="text-lg font-bold leading-tight text-slate-700">확인</span>
+              <span className="text-lg font-bold leading-tight text-slate-700">필요</span>
+              <span className="mt-0.5 text-[10px] font-medium text-slate-500">
+                ({Math.round(score)}점)
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-3xl font-bold text-slate-900">{Math.round(score)}</span>
+              <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                점
+              </span>
+            </>
+          )}
         </div>
       </div>
       <p className="mt-2 text-sm font-semibold text-slate-700">{label}</p>
@@ -52,10 +65,18 @@ export function clampScore(value: number): number {
 }
 
 export function computeReviewScore(
+  verdict: ReviewVerdict,
   bubblePercent: number | null,
   fairReference: number,
-  quotedAmount: number
+  quotedAmount: number,
+  marketMin: number
 ): number {
+  if (verdict === "very_low") {
+    if (marketMin <= 0) return 0;
+    const shortfallPercent = (Math.abs(quotedAmount - marketMin) / marketMin) * 100;
+    return clampScore(100 - shortfallPercent);
+  }
+
   const bubble =
     bubblePercent ??
     (fairReference > 0 ? ((quotedAmount - fairReference) / fairReference) * 100 : 0);

@@ -78,7 +78,7 @@ export default function DocumentReviewSection() {
           </p>
         </div>
         <Link
-          href="/verify"
+          href="/verify/admin"
           className="text-xs font-semibold text-blue-900 hover:underline whitespace-nowrap"
         >
           모든 항목 →

@@ -375,9 +375,11 @@ function CostCheckPageContent() {
                     <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
                       <ReviewScoreGauge
                         score={computeReviewScore(
+                          reviewResult.verdict,
                           reviewResult.bubblePercent,
                           reviewResult.fairReference,
-                          reviewResult.quotedAmount
+                          reviewResult.quotedAmount,
+                          reviewResult.service.marketMin
                         )}
                         verdict={reviewResult.verdict}
                         label={VERDICT_STYLE[reviewResult.verdict].label}

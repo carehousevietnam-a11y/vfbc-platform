@@ -103,7 +103,7 @@ export default function PermitSection() {
           </p>
         </div>
         <Link
-          href="/register"
+          href="/register/company"
           className="text-xs font-semibold text-blue-900 hover:underline whitespace-nowrap"
         >
           모든 허가 →
