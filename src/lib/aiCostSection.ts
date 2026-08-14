@@ -38,7 +38,7 @@ const SERVICE_PATTERNS: { id: CostCheckServiceId; pattern: RegExp }[] = [
   { id: "notary", pattern: /공증|번역|notary/i },
 ];
 
-const QUOTE_COMPARE_SUGGESTION = "받으신 견적도 비교해볼까요?";
+export const QUOTE_COMPARE_SUGGESTION = "받으신 견적도 비교해볼까요?";
 const COST_SECTION_MARKER = "**비용 참고 안내**";
 
 function normalize(text: string): string {

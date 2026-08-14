@@ -79,6 +79,7 @@ import {
 } from "@/lib/contentPacks/intentRouter";
 import { fetchAnonymousLegalBasisLine } from "@/lib/legalRagBasis";
 import { enrichReplyWithCostData } from "@/lib/aiCostSection";
+import { resolveQuoteReview } from "@/lib/aiQuoteReview";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -214,6 +215,20 @@ export async function POST(req: NextRequest) {
     // ── 3. AI Gateway(Classifier): 채팅 모드에서만 분류한다 ──
     // ai_analysis가 아니면 OpenAI를 전혀 호출하지 않고 여기서 바로 응답한다.
     if (!isGreeting) {
+      const quoteResolved = resolveQuoteReview(
+        messages as ChatMessage[],
+        lastMessage!.content
+      );
+      if (quoteResolved) {
+        return NextResponse.json({
+          reply: quoteResolved.reply,
+          quoteReview: quoteResolved.quoteReview,
+          needsExpert: false,
+          category: "quote_review",
+          actions: [],
+        });
+      }
+
       const category = classifyMessage(lastMessage!.content);
 
       if (category !== "ai_analysis") {
