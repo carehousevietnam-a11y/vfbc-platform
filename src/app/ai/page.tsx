@@ -41,13 +41,28 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Send, Loader2, AlertTriangle } from "lucide-react";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
+import { ReviewJudgmentDetails } from "@/components/cost-check/ReviewJudgmentDetails";
+import {
+  ReviewScoreGauge,
+  computeReviewScore,
+} from "@/components/cost-check/ReviewScoreGauge";
+import { getCostCheckService, type ReviewVerdict } from "@/lib/costCheck";
+import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 
 type NavigatorAction = { label: string; href: string };
 
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
-  actions?: NavigatorAction[]; // assistant 메시지에만 존재
+  actions?: NavigatorAction[];
+  quoteReview?: QuoteReviewPayload;
+};
+
+const VERDICT_LABEL: Record<ReviewVerdict, string> = {
+  fair: "적정",
+  caution: "주의",
+  risk: "위험",
+  very_low: "너무 낮음",
 };
 
 // 보조 기능: 서버가 actions를 못 내려준 경우에만 쓰는 문자열 파싱 폴백.
@@ -68,20 +83,54 @@ function parseAssistantContent(content: string): {
   };
 }
 
-function AssistantBubble({ content, actions }: { content: string; actions?: NavigatorAction[] }) {
-  // 1차: 서버가 내려준 구조화된 actions. 2차(보조): 본문 문자열 파싱.
+function AssistantBubble({
+  content,
+  actions,
+  quoteReview,
+}: {
+  content: string;
+  actions?: NavigatorAction[];
+  quoteReview?: QuoteReviewPayload;
+}) {
   const hasServerActions = Array.isArray(actions) && actions.length > 0;
   const parsed = parseAssistantContent(content);
   const mainText = parsed.mainText;
   const resolvedActions: NavigatorAction[] = hasServerActions
     ? (actions as NavigatorAction[])
     : parsed.nav
-    ? [parsed.nav]
-    : [];
+      ? [parsed.nav]
+      : [];
+
+  const service = quoteReview ? getCostCheckService(quoteReview.serviceId) : null;
+  const gaugeScore =
+    quoteReview && service
+      ? computeReviewScore(
+          quoteReview.verdict,
+          quoteReview.bubblePercent,
+          quoteReview.fairReference,
+          quoteReview.quotedAmount,
+          service.marketMin
+        )
+      : null;
 
   return (
     <div className="flex justify-start">
       <div className="w-full max-w-[min(100%,42rem)] rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5 sm:py-4">
+        {quoteReview && service && gaugeScore != null && (
+          <div className="mb-4 space-y-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
+            <ReviewScoreGauge
+              score={gaugeScore}
+              verdict={quoteReview.verdict}
+              label={VERDICT_LABEL[quoteReview.verdict]}
+            />
+            <ReviewJudgmentDetails
+              service={service}
+              quotedAmount={quoteReview.quotedAmount}
+              fairReference={quoteReview.fairReference}
+              bubblePercent={quoteReview.bubblePercent}
+            />
+          </div>
+        )}
         <ChatAnswerContent content={mainText} />
         {resolvedActions.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-50 pt-3">
@@ -168,6 +217,10 @@ function AiPageContent() {
           role: "assistant",
           content: data.reply as string,
           actions: Array.isArray(data.actions) ? (data.actions as NavigatorAction[]) : [],
+          quoteReview:
+            data.quoteReview && typeof data.quoteReview === "object"
+              ? (data.quoteReview as QuoteReviewPayload)
+              : undefined,
         },
       ]);
     } catch (err) {
@@ -221,7 +274,12 @@ function AiPageContent() {
                 </div>
               </div>
             ) : (
-              <AssistantBubble key={i} content={m.content} actions={m.actions} />
+              <AssistantBubble
+                key={i}
+                content={m.content}
+                actions={m.actions}
+                quoteReview={m.quoteReview}
+              />
             )
           )}
 
