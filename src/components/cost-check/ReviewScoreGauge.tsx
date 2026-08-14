@@ -15,18 +15,26 @@ export const STATUS_BADGE_LABEL: Record<ReviewVerdict, string> = {
 };
 
 type ReviewScoreGaugeProps = {
-  score: number;
-  verdict: ReviewVerdict;
+  score?: number;
+  verdict?: ReviewVerdict;
   size?: "default" | "large";
+  empty?: boolean;
 };
 
-export function ReviewScoreGauge({ score, verdict, size = "default" }: ReviewScoreGaugeProps) {
+export function ReviewScoreGauge({
+  score = 0,
+  verdict = "fair",
+  size = "default",
+  empty = false,
+}: ReviewScoreGaugeProps) {
   const isLarge = size === "large";
   const radius = isLarge ? 68 : 52;
   const circumference = 2 * Math.PI * radius;
-  const progress = (Math.min(100, Math.max(0, score)) / 100) * circumference;
-  const { stroke, track } = GAUGE_COLORS[verdict];
-  const isVeryLow = verdict === "very_low";
+  const progress = empty ? 0 : (Math.min(100, Math.max(0, score)) / 100) * circumference;
+  const { stroke, track } = empty
+    ? { stroke: "#cbd5e1", track: "#e2e8f0" }
+    : GAUGE_COLORS[verdict];
+  const isVeryLow = !empty && verdict === "very_low";
   const boxClass = isLarge ? "h-44 w-44" : "h-32 w-32";
 
   return (
@@ -40,19 +48,32 @@ export function ReviewScoreGauge({ score, verdict, size = "default" }: ReviewSco
           stroke={track}
           strokeWidth={isLarge ? "12" : "10"}
         />
-        <circle
-          cx="80"
-          cy="80"
-          r={radius}
-          fill="none"
-          stroke={stroke}
-          strokeWidth={isLarge ? "12" : "10"}
-          strokeLinecap="round"
-          strokeDasharray={`${progress} ${circumference}`}
-        />
+        {!empty ? (
+          <circle
+            cx="80"
+            cy="80"
+            r={radius}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={isLarge ? "12" : "10"}
+            strokeLinecap="round"
+            strokeDasharray={`${progress} ${circumference}`}
+            className="transition-all duration-500 ease-out"
+          />
+        ) : null}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
-        {isVeryLow ? (
+        {empty ? (
+          <>
+            <span
+              className={`font-medium leading-snug text-slate-400 ${isLarge ? "text-sm" : "text-xs"}`}
+            >
+              견적을 알려주시면
+              <br />
+              확인해드려요
+            </span>
+          </>
+        ) : isVeryLow ? (
           <>
             <span className={`font-bold leading-tight text-slate-700 ${isLarge ? "text-xl" : "text-lg"}`}>
               확인 필요

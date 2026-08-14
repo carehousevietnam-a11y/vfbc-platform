@@ -79,9 +79,25 @@ import {
 } from "@/lib/contentPacks/intentRouter";
 import { fetchAnonymousLegalBasisLine } from "@/lib/legalRagBasis";
 import { enrichReplyWithCostData, shouldSuppressNavigatorActions } from "@/lib/aiCostSection";
-import { resolveQuoteReview, tryAffirmativeQuotePrompt } from "@/lib/aiQuoteReview";
+import { resolveQuoteReview, tryAffirmativeQuotePrompt, tryQuoteAmountReprompt, shouldBlockAiQuoteJudgment } from "@/lib/aiQuoteReview";
+import { sanitizeAssistantReply } from "@/lib/aiReplySanitize";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+
+function chatJsonResponse(body: {
+  reply: string;
+  needsExpert?: boolean;
+  category?: string;
+  actions?: { label: string; href: string }[];
+  quoteReview?: unknown;
+}) {
+  const { reply, needsExpertFromMarker } = sanitizeAssistantReply(body.reply);
+  return NextResponse.json({
+    ...body,
+    reply,
+    needsExpert: Boolean(body.needsExpert) || needsExpertFromMarker,
+  });
+}
 
 // Legal RAG /review는 종종 15~25초 걸린다. Vercel 기본 10초 한도를 넘기지 않도록 연장.
 export const maxDuration = 60;
@@ -220,7 +236,7 @@ export async function POST(req: NextRequest) {
         lastMessage!.content
       );
       if (affirmative) {
-        return NextResponse.json({
+        return chatJsonResponse({
           reply: affirmative.reply,
           needsExpert: false,
           category: "ai_analysis",
@@ -233,11 +249,38 @@ export async function POST(req: NextRequest) {
         lastMessage!.content
       );
       if (quoteResolved) {
-        return NextResponse.json({
+        return chatJsonResponse({
           reply: quoteResolved.reply,
           quoteReview: quoteResolved.quoteReview,
           needsExpert: false,
           category: "quote_review",
+          actions: [],
+        });
+      }
+
+      const quoteReprompt = tryQuoteAmountReprompt(
+        messages as ChatMessage[],
+        lastMessage!.content
+      );
+      if (quoteReprompt) {
+        return chatJsonResponse({
+          reply: quoteReprompt.reply,
+          needsExpert: false,
+          category: "ai_analysis",
+          actions: [],
+        });
+      }
+
+      if (shouldBlockAiQuoteJudgment(messages as ChatMessage[], lastMessage!.content)) {
+        const serviceHint = "견적 금액";
+        return chatJsonResponse({
+          reply: [
+            `금액을 정확히 이해하지 못했습니다. 받으신 ${serviceHint}을 숫자로 다시 알려주세요.`,
+            "",
+            "예: 1,000달러, 500만동",
+          ].join("\n"),
+          needsExpert: false,
+          category: "ai_analysis",
           actions: [],
         });
       }
@@ -538,7 +581,7 @@ export async function POST(req: NextRequest) {
       await safeLogCaseConversationTurn(leadId as string, "assistant", reply);
     }
 
-    return NextResponse.json({
+    return chatJsonResponse({
       reply,
       needsExpert,
       category: isGreeting ? undefined : "ai_analysis",
