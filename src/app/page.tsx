@@ -1,8 +1,5 @@
 import SiteHeader from "@/components/home/SiteHeader";
 import MyVietCheckHero from "@/components/home/MyVietCheckHero";
-import CheckSection from "@/components/home/CheckSection";
-import DocumentReviewSection from "@/components/home/DocumentReviewSection";
-import PermitSection from "@/components/home/PermitSection";
 import AdministrativeAISection from "@/components/home/AdministrativeAISection";
 
 export default function Home() {
@@ -10,9 +7,6 @@ export default function Home() {
     <>
       <SiteHeader />
       <MyVietCheckHero />
-      <CheckSection />
-      <DocumentReviewSection />
-      <PermitSection />
       <AdministrativeAISection />
     </>
   );
