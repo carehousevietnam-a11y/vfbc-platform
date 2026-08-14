@@ -1,5 +1,5 @@
 import SiteHeader from "@/components/home/SiteHeader";
-import Hero from "@/components/home/Hero";
+import MyVietCheckHero from "@/components/home/MyVietCheckHero";
 import CostCheckPromo from "@/components/home/CostCheckPromo";
 import CheckSection from "@/components/home/CheckSection";
 import DocumentReviewSection from "@/components/home/DocumentReviewSection";
@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-      <Hero />
+      <MyVietCheckHero />
       <CostCheckPromo />
       <CheckSection />
       <DocumentReviewSection />
