@@ -78,7 +78,7 @@ import {
   resolveTrcArticleIntent,
 } from "@/lib/contentPacks/intentRouter";
 import { fetchAnonymousLegalBasisLine } from "@/lib/legalRagBasis";
-import { enrichReplyWithCostData } from "@/lib/aiCostSection";
+import { enrichReplyWithCostData, shouldSuppressNavigatorActions } from "@/lib/aiCostSection";
 import { resolveQuoteReview, tryAffirmativeQuotePrompt } from "@/lib/aiQuoteReview";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -282,13 +282,16 @@ export async function POST(req: NextRequest) {
         }
 
         reply = enrichReplyWithCostData(reply, lastMessage!.content);
+        const suppressNavActions = shouldSuppressNavigatorActions(reply);
         // STEP10-1: AI Service Navigator — 분류 로직은 그대로 두고, 답변
         // 마지막에 관련 서비스 이동 안내만 덧붙인다.
         // STEP10-2: 프론트가 본문 문자열을 다시 파싱하지 않도록, 같은
         // 판단 결과를 구조화된 actions 배열로도 함께 내려준다.
-        reply = reply + buildNavigatorSuffix(category, lastMessage!.content);
+        if (!suppressNavActions) {
+          reply = reply + buildNavigatorSuffix(category, lastMessage!.content);
+        }
         const action = buildNavigatorAction(category, lastMessage!.content);
-        const actions = action ? [action] : [];
+        const actions = suppressNavActions ? [] : action ? [action] : [];
 
         if (!isAnonymous) {
           const savedReply = await saveAssistantChatMessage(leadId as string, reply, needsExpert);
@@ -354,11 +357,13 @@ export async function POST(req: NextRequest) {
             if (!mapped.ok) {
               console.error("ai-chat: Legal RAG response schema/status rejected, falling back");
             } else {
+              const replyBody = enrichReplyWithCostData(mapped.reply, lastMessage!.content);
+              const suppressNavActions = shouldSuppressNavigatorActions(replyBody);
               const reply =
-                enrichReplyWithCostData(mapped.reply, lastMessage!.content) +
-                buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+                replyBody +
+                (suppressNavActions ? "" : buildNavigatorSuffix("ai_analysis", lastMessage!.content));
               const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
-              const actions = action ? [action] : [];
+              const actions = suppressNavActions ? [] : action ? [action] : [];
 
               const savedReply = await saveAssistantChatMessage(
                 leadId as string,
@@ -401,18 +406,21 @@ export async function POST(req: NextRequest) {
               reply: enrichedReply,
               needsExpert: true,
               category: "ai_analysis",
-              actions,
+              actions: shouldSuppressNavigatorActions(enrichedReply) ? [] : actions,
             });
           }
 
           const legalBasisLine = await fetchAnonymousLegalBasisLine(lastMessage!.content, inferred);
+          const replyBody = enrichReplyWithCostData(
+            buildAnonymousFastGuide(inferred, { legalBasisLine }),
+            lastMessage!.content
+          );
+          const suppressNavActions = shouldSuppressNavigatorActions(replyBody);
           const reply =
-            enrichReplyWithCostData(
-              buildAnonymousFastGuide(inferred, { legalBasisLine }),
-              lastMessage!.content
-            ) + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+            replyBody +
+            (suppressNavActions ? "" : buildNavigatorSuffix("ai_analysis", lastMessage!.content));
           const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
-          const actions = action ? [action] : [];
+          const actions = suppressNavActions ? [] : action ? [action] : [];
 
           return NextResponse.json({
             reply,
@@ -513,9 +521,12 @@ export async function POST(req: NextRequest) {
     // STEP10-2: 구조화된 actions 배열도 함께 내려준다.
     let actions: { label: string; href: string }[] = [];
     if (!isGreeting) {
-      reply = reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+      const suppressNavActions = shouldSuppressNavigatorActions(reply);
+      if (!suppressNavActions) {
+        reply = reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+      }
       const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
-      actions = action ? [action] : [];
+      actions = suppressNavActions ? [] : action ? [action] : [];
     }
 
     // ── 8. 정상 AI 답변 저장 (채팅 모드 + leadId가 있을 때만 — 인사말/익명은 저장하지 않음) ──

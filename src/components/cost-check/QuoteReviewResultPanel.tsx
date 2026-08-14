@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import {
-  formatCostAmount,
   getCostCheckService,
   type CostCheckServiceId,
   type ReviewVerdict,
 } from "@/lib/costCheck";
+import { CostBasisCard } from "@/components/cost-check/CostBasisCard";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 import { ReviewJudgmentDetails } from "@/components/cost-check/ReviewJudgmentDetails";
 import {
@@ -70,26 +70,7 @@ export function QuoteReviewResultPanel({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">비용 기준</p>
-        <div className="mt-3 space-y-2 border-b border-slate-100 pb-4 text-sm">
-          <div className="flex items-start justify-between gap-4">
-            <span className="text-slate-600 shrink-0">정부 공식 수수료</span>
-            <span className="text-right font-medium text-slate-900">{service.governmentFee}</span>
-          </div>
-          <div className="flex items-start justify-between gap-4">
-            <span className="text-slate-600 shrink-0">일반 시장 범위</span>
-            <span className="text-right font-medium text-slate-900">
-              {formatCostAmount(service.marketMin, service.currency)} ~{" "}
-              {formatCostAmount(service.marketMax, service.currency)}
-            </span>
-          </div>
-        </div>
-        <p className="mt-4 text-xs text-slate-500">입력하신 견적</p>
-        <p className="mt-1 text-2xl font-bold text-slate-900">
-          {formatCostAmount(quotedAmount, service.currency)}
-        </p>
-      </div>
+      <CostBasisCard service={service} quotedAmount={quotedAmount} />
 
       <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
         <div className="flex flex-col items-center text-center">
