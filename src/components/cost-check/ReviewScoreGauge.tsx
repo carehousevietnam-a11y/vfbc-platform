@@ -44,15 +44,17 @@ function semiArcPoint(score: number): { x: number; y: number } {
 function SemiCircleGauge({
   score,
   verdict,
+  empty = false,
 }: {
   score: number;
   verdict: ReviewVerdict;
+  empty?: boolean;
 }) {
   const gradientId = useId();
   const clamped = Math.min(100, Math.max(0, score));
   const { stroke } = GAUGE_COLORS[verdict];
   const track = "#e2e8f0";
-  const isVeryLow = verdict === "very_low";
+  const isVeryLow = !empty && verdict === "very_low";
   const dot = semiArcPoint(clamped);
 
   return (
@@ -60,7 +62,11 @@ function SemiCircleGauge({
       className="relative mx-auto w-full max-w-[290px] sm:max-w-[360px]"
       style={{ filter: "drop-shadow(0 2px 6px rgba(15, 23, 42, 0.06))" }}
       role="img"
-      aria-label={`적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`}
+      aria-label={
+        empty
+          ? "견적을 입력하면 적정성 점수를 확인할 수 있습니다"
+          : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
+      }
     >
       <svg
         viewBox="0 0 360 220"
@@ -81,25 +87,45 @@ function SemiCircleGauge({
           strokeWidth={18}
           strokeLinecap="round"
         />
-        <path
-          d={SEMI_PATH}
-          fill="none"
-          stroke={`url(#${gradientId})`}
-          strokeWidth={18}
-          strokeLinecap="round"
-        />
-        <circle
-          cx={dot.x}
-          cy={dot.y}
-          r={7}
-          fill="#ffffff"
-          stroke={stroke}
-          strokeWidth={3}
-        />
-        <circle cx={dot.x} cy={dot.y} r={3} fill={stroke} />
+        {!empty ? (
+          <path
+            d={SEMI_PATH}
+            fill="none"
+            stroke={`url(#${gradientId})`}
+            strokeWidth={18}
+            strokeLinecap="round"
+            className="transition-opacity duration-500 ease-out"
+          />
+        ) : null}
+        {!empty ? (
+          <>
+            <circle
+              cx={dot.x}
+              cy={dot.y}
+              r={7}
+              fill="#ffffff"
+              stroke={stroke}
+              strokeWidth={3}
+              className="transition-all duration-500 ease-out"
+            />
+            <circle
+              cx={dot.x}
+              cy={dot.y}
+              r={3}
+              fill={stroke}
+              className="transition-all duration-500 ease-out"
+            />
+          </>
+        ) : null}
       </svg>
       <div className="pointer-events-none absolute inset-x-0 top-[38%] flex flex-col items-center text-center">
-        {isVeryLow ? (
+        {empty ? (
+          <span className="max-w-[9rem] text-xs font-medium leading-snug text-slate-400 sm:max-w-[11rem] sm:text-sm">
+            견적을 알려주시면
+            <br />
+            확인해드려요
+          </span>
+        ) : isVeryLow ? (
           <>
             <span className="text-lg font-bold text-slate-700 sm:text-xl">확인 필요</span>
             <span className="mt-0.5 text-xs font-medium text-slate-500 sm:text-sm">
@@ -136,8 +162,7 @@ export function ReviewScoreGauge({
   empty = false,
 }: ReviewScoreGaugeProps) {
   if (size === "semi") {
-    if (empty) return null;
-    return <SemiCircleGauge score={score} verdict={verdict} />;
+    return <SemiCircleGauge score={score} verdict={verdict} empty={empty} />;
   }
 
   const isLarge = size === "large";
