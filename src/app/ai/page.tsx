@@ -41,12 +41,10 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Send, Loader2, AlertTriangle } from "lucide-react";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
-import { ReviewJudgmentDetails } from "@/components/cost-check/ReviewJudgmentDetails";
 import {
-  ReviewScoreGauge,
-  computeReviewScore,
-} from "@/components/cost-check/ReviewScoreGauge";
-import { getCostCheckService, type ReviewVerdict } from "@/lib/costCheck";
+  QuoteReviewResultPanel,
+  quoteReviewFromPayload,
+} from "@/components/cost-check/QuoteReviewResultPanel";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 
 type NavigatorAction = { label: string; href: string };
@@ -56,13 +54,6 @@ type ChatMessage = {
   content: string;
   actions?: NavigatorAction[];
   quoteReview?: QuoteReviewPayload;
-};
-
-const VERDICT_LABEL: Record<ReviewVerdict, string> = {
-  fair: "적정",
-  caution: "주의",
-  risk: "위험",
-  very_low: "너무 낮음",
 };
 
 // 보조 기능: 서버가 actions를 못 내려준 경우에만 쓰는 문자열 파싱 폴백.
@@ -101,38 +92,15 @@ function AssistantBubble({
       ? [parsed.nav]
       : [];
 
-  const service = quoteReview ? getCostCheckService(quoteReview.serviceId) : null;
-  const gaugeScore =
-    quoteReview && service
-      ? computeReviewScore(
-          quoteReview.verdict,
-          quoteReview.bubblePercent,
-          quoteReview.fairReference,
-          quoteReview.quotedAmount,
-          service.marketMin
-        )
-      : null;
-
   return (
     <div className="flex justify-start">
       <div className="w-full max-w-[min(100%,42rem)] rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5 sm:py-4">
-        {quoteReview && service && gaugeScore != null && (
-          <div className="mb-4 space-y-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
-            <ReviewScoreGauge
-              score={gaugeScore}
-              verdict={quoteReview.verdict}
-              label={VERDICT_LABEL[quoteReview.verdict]}
-            />
-            <ReviewJudgmentDetails
-              service={service}
-              quotedAmount={quoteReview.quotedAmount}
-              fairReference={quoteReview.fairReference}
-              bubblePercent={quoteReview.bubblePercent}
-            />
-          </div>
+        {quoteReview ? (
+          <QuoteReviewResultPanel {...quoteReviewFromPayload(quoteReview)} />
+        ) : (
+          <ChatAnswerContent content={mainText} />
         )}
-        <ChatAnswerContent content={mainText} />
-        {resolvedActions.length > 0 && (
+        {!quoteReview && resolvedActions.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-50 pt-3">
             {resolvedActions.map((a, idx) => (
               <Link

@@ -15,8 +15,8 @@ import {
   getCostCheckService,
   type CostCheckServiceId,
   type CostCheckTab,
-  type ReviewVerdict,
 } from "@/lib/costCheck";
+import { QuoteReviewResultPanel } from "@/components/cost-check/QuoteReviewResultPanel";
 
 const TABS: { id: CostCheckTab; label: string; desc: string }[] = [
   { id: "lookup", label: "확인하기", desc: "정부 수수료·기준 안내" },
@@ -47,36 +47,6 @@ function extractAmountFromQuery(q: string): string {
   const match = q.replace(/,/g, "").match(/(\d[\d.]*)/);
   return match ? match[1] : "";
 }
-
-const VERDICT_STYLE: Record<
-  ReviewVerdict,
-  { bg: string; border: string; text: string; label: string }
-> = {
-  fair: {
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-    text: "text-emerald-800",
-    label: "적정",
-  },
-  caution: {
-    bg: "bg-amber-50",
-    border: "border-amber-200",
-    text: "text-amber-900",
-    label: "주의",
-  },
-  risk: {
-    bg: "bg-red-50",
-    border: "border-red-200",
-    text: "text-red-800",
-    label: "위험",
-  },
-  very_low: {
-    bg: "bg-slate-50",
-    border: "border-slate-200",
-    text: "text-slate-700",
-    label: "너무 낮음",
-  },
-};
 
 function CtaBlock() {
   return (
@@ -363,67 +333,19 @@ function CostCheckPageContent() {
               </form>
 
               {reviewResult && (
-                <div className="space-y-4 border-t border-slate-100 pt-6">
-                  <div
-                    className={`rounded-xl border p-4 ${VERDICT_STYLE[reviewResult.verdict].bg} ${VERDICT_STYLE[reviewResult.verdict].border}`}
-                  >
-                    <p
-                      className={`text-lg font-bold ${VERDICT_STYLE[reviewResult.verdict].text}`}
-                    >
-                      {VERDICT_STYLE[reviewResult.verdict].label}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-slate-800">
-                      {reviewResult.title}
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-800">
-                      {reviewResult.summary}
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                      {reviewResult.detail}
-                    </p>
-                  </div>
-
-                  <div className="grid gap-3 text-sm sm:grid-cols-2">
-                    <div className="rounded-lg bg-slate-50 p-3">
-                      <p className="text-xs text-slate-500">기준 합계 (R)</p>
-                      <p className="font-semibold text-slate-900">
-                        {formatCostAmount(
-                          reviewResult.fairReference,
-                          reviewResult.service.currency
-                        )}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        정부{" "}
-                        {formatCostAmount(
-                          reviewResult.service.govFeeAmount,
-                          reviewResult.service.currency
-                        )}{" "}
-                        + 대행{" "}
-                        {formatCostAmount(
-                          reviewResult.service.marketUsualFeeAmount,
-                          reviewResult.service.currency
-                        )}
-                      </p>
-                    </div>
-                    <div className="rounded-lg bg-slate-50 p-3">
-                      <p className="text-xs text-slate-500">입력 견적</p>
-                      <p className="font-semibold text-slate-900">
-                        {formatCostAmount(
-                          reviewResult.quotedAmount,
-                          reviewResult.service.currency
-                        )}
-                      </p>
-                      {reviewResult.bubblePercent != null && reviewResult.bubblePercent > 0 && (
-                        <p className="mt-1 text-xs text-slate-500">
-                          기준 대비 +{reviewResult.bubblePercent.toFixed(0)}%
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                <div className="border-t border-slate-100 pt-6">
+                  <QuoteReviewResultPanel
+                    serviceId={reviewResult.service.id}
+                    quotedAmount={reviewResult.quotedAmount}
+                    verdict={reviewResult.verdict}
+                    title={reviewResult.title}
+                    summary={reviewResult.summary}
+                    detail={reviewResult.detail}
+                    fairReference={reviewResult.fairReference}
+                    bubblePercent={reviewResult.bubblePercent}
+                  />
                 </div>
               )}
-
-              <CtaBlock />
             </div>
           )}
 
