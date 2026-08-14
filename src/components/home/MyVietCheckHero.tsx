@@ -8,13 +8,12 @@ import {
   Building2,
   ClipboardList,
   Coins,
-  Landmark,
   Receipt,
   Scale,
   Search,
-  Stamp,
 } from "lucide-react";
 import { routeByKeywords } from "@/lib/smartRouter";
+import HomeServiceAccordion from "@/components/home/HomeServiceAccordion";
 
 const INPUT_PLACEHOLDER = "노동허가 진행 비용이 얼마인가요?";
 
@@ -23,42 +22,6 @@ const EXAMPLE_CHIPS = [
   "거주증 비용",
   "법인설립 비용",
   "받은 견적 확인",
-] as const;
-
-const COMPRESSED_SECTIONS = [
-  {
-    key: "check",
-    title: "직접 확인하기",
-    subtitle: "비용·자격·등록 가능 여부",
-    items: "거주증 · 노동허가 · 운전면허 · 법인설립",
-    cta: "전체 확인",
-    href: "#check",
-    icon: Landmark,
-    iconClass: "bg-blue-50 text-blue-900",
-    ctaClass: "text-blue-900",
-  },
-  {
-    key: "verify",
-    title: "직접 검토하기",
-    subtitle: "받은 견적·서류의 적정성",
-    items: "견적 · 계약서 · 세무 · 서류",
-    cta: "전체 검토",
-    href: "#verify",
-    icon: Scale,
-    iconClass: "bg-gray-100 text-gray-800",
-    ctaClass: "text-gray-800",
-  },
-  {
-    key: "register",
-    title: "직접 허가받기",
-    subtitle: "실제 행정·법률 업무 진행",
-    items: "법인설립 · 식당허가 · 공장허가",
-    cta: "전체 허가",
-    href: "#register",
-    icon: Stamp,
-    iconClass: "bg-amber-50 text-amber-700",
-    ctaClass: "text-amber-700",
-  },
 ] as const;
 
 export default function MyVietCheckHero() {
@@ -187,40 +150,7 @@ export default function MyVietCheckHero() {
           <div className="h-px flex-1 bg-gray-200" />
         </div>
 
-        {/* 압축 3개 섹션 */}
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          {COMPRESSED_SECTIONS.map((section) => {
-            const Icon = section.icon;
-            return (
-              <a
-                key={section.key}
-                href={section.href}
-                className="group flex flex-col rounded-xl border border-gray-100 bg-gray-50/60 p-4 hover:border-gray-200 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${section.iconClass}`}
-                  >
-                    <Icon size={17} strokeWidth={1.75} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-gray-900">{section.title}</p>
-                    <p className="mt-0.5 text-[11px] text-gray-500 leading-snug">
-                      {section.subtitle}
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-3 text-[11px] text-gray-400 leading-snug">{section.items}</p>
-                <span
-                  className={`mt-3 inline-flex items-center gap-1 text-[11px] font-semibold ${section.ctaClass} group-hover:gap-1.5 transition-all`}
-                >
-                  {section.cta}
-                  <ArrowRight size={12} />
-                </span>
-              </a>
-            );
-          })}
-        </div>
+        <HomeServiceAccordion />
       </div>
     </section>
   );
