@@ -53,7 +53,7 @@ export function ReviewJudgmentDetails({
           </span>
         </p>
         <p>
-          입력하신 견적:{" "}
+          다른곳에서 받은 견적:{" "}
           <span className="font-medium text-slate-900">
             {formatCostAmount(quotedAmount, currency)}
           </span>
