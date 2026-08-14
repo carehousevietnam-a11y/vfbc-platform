@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
 import { CostCheckCard, quoteReviewToCostCheckQuote } from "@/components/cost-check/CostCheckCard";
 import { parseCostEnrichedReply } from "@/lib/aiCostSection";
@@ -69,27 +69,29 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
   return (
     <div className="w-full">
       <div className="flex items-start justify-between gap-4">
-        <p className="text-sm leading-snug">
+        <p className="text-base leading-snug sm:text-lg">
           <span className="font-bold tracking-tight text-slate-900">MY VIET CHECK</span>
-          <span className="text-slate-400"> · by VFBCAI</span>
+          <span className="text-sm font-normal text-slate-400"> · by VFBCAI</span>
         </p>
         <button
           type="button"
           onClick={onReset}
-          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-slate-200 px-2.5 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
+          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
         >
           <RotateCcw size={12} />
           처음부터 다시 확인하기
         </button>
       </div>
 
-      <p className="mt-4 text-sm text-slate-600">
-        확인 요청:{" "}
-        <span className="font-medium text-slate-800">&ldquo;{report.question}&rdquo;</span>
-      </p>
-      <p className="mt-1 text-xs text-slate-400">{formatRequestedAt(report.requestedAt)}</p>
+      <div className="mt-6 border-b border-slate-200 pb-6">
+        <p className="text-xs font-medium text-slate-400">확인 요청</p>
+        <p className="mt-1 text-lg font-bold leading-snug text-slate-900 sm:text-xl">
+          {report.question}
+        </p>
+        <p className="mt-2 text-[11px] text-slate-400">{formatRequestedAt(report.requestedAt)}</p>
+      </div>
 
-      <div className="mt-8 border-t border-slate-200 pt-8">
+      <div className="mt-8">
         {hasCostPanel ? (
           <>
             {mainText.trim() ? (
@@ -109,15 +111,15 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
           <div className="space-y-6">
             <ChatAnswerContent content={mainText} />
             {resolvedActions.length > 0 ? (
-              <div className="space-y-2 border-t border-slate-100 pt-6">
+              <div className="divide-y divide-slate-100 border-t border-slate-100">
                 {resolvedActions.map((action) => (
                   <Link
                     key={action.href + action.label}
                     href={action.href}
-                    className="flex items-center gap-1.5 text-sm text-blue-900 hover:underline"
+                    className="flex items-center justify-between py-3 text-sm text-slate-800 hover:text-blue-900"
                   >
-                    <ArrowRight size={14} className="shrink-0" />
-                    {action.label}
+                    <span>{action.label}</span>
+                    <span className="text-slate-400">&gt;</span>
                   </Link>
                 ))}
               </div>
