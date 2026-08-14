@@ -1,61 +1,77 @@
 import type { ReviewVerdict } from "@/lib/costCheck";
 
-const GAUGE_COLORS: Record<ReviewVerdict, { stroke: string; track: string }> = {
-  fair: { stroke: "#059669", track: "#d1fae5" },
-  caution: { stroke: "#d97706", track: "#fef3c7" },
-  risk: { stroke: "#dc2626", track: "#fee2e2" },
-  very_low: { stroke: "#475569", track: "#e2e8f0" },
+const GAUGE_COLORS: Record<ReviewVerdict, { stroke: string; track: string; badge: string }> = {
+  fair: { stroke: "#059669", track: "#e2e8f0", badge: "bg-emerald-50 text-emerald-800" },
+  caution: { stroke: "#d97706", track: "#e2e8f0", badge: "bg-amber-50 text-amber-900" },
+  risk: { stroke: "#dc2626", track: "#e2e8f0", badge: "bg-red-50 text-red-800" },
+  very_low: { stroke: "#475569", track: "#e2e8f0", badge: "bg-slate-100 text-slate-700" },
+};
+
+export const STATUS_BADGE_LABEL: Record<ReviewVerdict, string> = {
+  fair: "적정",
+  caution: "높은편",
+  risk: "높은편",
+  very_low: "낮은편",
 };
 
 type ReviewScoreGaugeProps = {
   score: number;
   verdict: ReviewVerdict;
-  label: string;
+  size?: "default" | "large";
 };
 
-export function ReviewScoreGauge({ score, verdict, label }: ReviewScoreGaugeProps) {
-  const radius = 52;
+export function ReviewScoreGauge({ score, verdict, size = "default" }: ReviewScoreGaugeProps) {
+  const isLarge = size === "large";
+  const radius = isLarge ? 68 : 52;
   const circumference = 2 * Math.PI * radius;
   const progress = (Math.min(100, Math.max(0, score)) / 100) * circumference;
   const { stroke, track } = GAUGE_COLORS[verdict];
   const isVeryLow = verdict === "very_low";
+  const boxClass = isLarge ? "h-44 w-44" : "h-32 w-32";
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative h-32 w-32">
-        <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120" aria-hidden>
-          <circle cx="60" cy="60" r={radius} fill="none" stroke={track} strokeWidth="10" />
-          <circle
-            cx="60"
-            cy="60"
-            r={radius}
-            fill="none"
-            stroke={stroke}
-            strokeWidth="10"
-            strokeLinecap="round"
-            strokeDasharray={`${progress} ${circumference}`}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
-          {isVeryLow ? (
-            <>
-              <span className="text-lg font-bold leading-tight text-slate-700">확인</span>
-              <span className="text-lg font-bold leading-tight text-slate-700">필요</span>
-              <span className="mt-0.5 text-[10px] font-medium text-slate-500">
-                ({Math.round(score)}점)
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="text-3xl font-bold text-slate-900">{Math.round(score)}</span>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                점
-              </span>
-            </>
-          )}
-        </div>
+    <div className={`relative ${boxClass}`}>
+      <svg className="h-full w-full -rotate-90" viewBox="0 0 160 160" aria-hidden>
+        <circle
+          cx="80"
+          cy="80"
+          r={radius}
+          fill="none"
+          stroke={track}
+          strokeWidth={isLarge ? "12" : "10"}
+        />
+        <circle
+          cx="80"
+          cy="80"
+          r={radius}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={isLarge ? "12" : "10"}
+          strokeLinecap="round"
+          strokeDasharray={`${progress} ${circumference}`}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
+        {isVeryLow ? (
+          <>
+            <span className={`font-bold leading-tight text-slate-700 ${isLarge ? "text-xl" : "text-lg"}`}>
+              확인 필요
+            </span>
+            <span className={`mt-0.5 font-medium text-slate-500 ${isLarge ? "text-sm" : "text-[10px]"}`}>
+              ({Math.round(score)}점)
+            </span>
+          </>
+        ) : (
+          <>
+            <span className={`font-bold text-slate-900 ${isLarge ? "text-5xl" : "text-3xl"}`}>
+              {Math.round(score)}
+            </span>
+            <span className={`font-medium text-slate-400 ${isLarge ? "text-sm" : "text-[10px]"}`}>
+              / 100
+            </span>
+          </>
+        )}
       </div>
-      <p className="mt-2 text-sm font-semibold text-slate-700">{label}</p>
     </div>
   );
 }

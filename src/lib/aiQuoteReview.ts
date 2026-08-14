@@ -18,6 +18,9 @@ const REVIEW_INTENT_PATTERN = /적정|비싼|비싸|괜찮|합리|또래|시장|
 
 const PROCEDURE_HINT_PATTERN = /어떻게|방법|절차|신청|가능|무엇|뭐|되나요|하나요|할까요/;
 
+const AFFIRMATIVE_PATTERN =
+  /^(네|예|응|yes|y|ok|okay|좋아요|그래|해주세요|비교해(?:주세요)?|알려(?:줄게|드릴게)?)[.!?\s]*$/i;
+
 export type QuoteReviewPayload = {
   serviceId: CostCheckServiceId;
   quotedAmount: number;
@@ -101,6 +104,30 @@ function tryInitialQuoteReview(
   if (!hasReviewIntent) return null;
 
   return { service, amount };
+}
+
+export function tryAffirmativeQuotePrompt(
+  messages: ChatTurn[],
+  query: string
+): { reply: string } | null {
+  if (!AFFIRMATIVE_PATTERN.test(query.trim())) return null;
+  if (messages.length < 2) return null;
+
+  const prior = messages.slice(0, -1);
+  const lastAssistant = [...prior].reverse().find((m) => m.role === "assistant");
+  if (!lastAssistant || !isQuoteCompareSuggestion(lastAssistant.content)) return null;
+
+  const service = findServiceInHistory(prior);
+  if (!service) return null;
+
+  const unit = service.currency === "USD" ? "달러" : "VND";
+  return {
+    reply: [
+      `받으신 **${service.label}** 견적 금액을 알려주세요.`,
+      "",
+      `예: 1,400${unit}, 500만동`,
+    ].join("\n"),
+  };
 }
 
 function tryFollowUpQuoteReview(

@@ -40,6 +40,7 @@ const SERVICE_PATTERNS: { id: CostCheckServiceId; pattern: RegExp }[] = [
 
 export const QUOTE_COMPARE_SUGGESTION = "받으신 견적도 비교해볼까요?";
 const COST_SECTION_MARKER = "**비용 참고 안내**";
+const SYSTEM_COST_DENIAL_SNIPPET = "비용 정보를 안내해드리지 않";
 
 function normalize(text: string): string {
   return text.trim().toLowerCase();
@@ -104,5 +105,10 @@ export function enrichReplyWithCostData(reply: string, query: string): string {
   const service = matchCostCheckService(query);
   if (!service) return reply;
 
-  return `${reply.trimEnd()}\n\n${buildCostSection(service)}\n\n${QUOTE_COMPARE_SUGGESTION}`;
+  const base =
+    reply.includes(SYSTEM_COST_DENIAL_SNIPPET)
+      ? `**${service.label}** 관련 비용 참고 안내입니다.`
+      : reply.trimEnd();
+
+  return `${base}\n\n${buildCostSection(service)}\n\n${QUOTE_COMPARE_SUGGESTION}`;
 }
