@@ -1,5 +1,7 @@
 "use client";
 
+const NEEDS_EXPERT_MARKER = "[NEEDS_EXPERT]";
+
 const SECTION_HEADER_RE = /^【(.+?)】$/;
 const BULLET_RE = /^(?:·|-)\s+/;
 const DOC_NUMBER_LINE_RE =
@@ -141,7 +143,8 @@ type ChatAnswerContentProps = {
 };
 
 export function ChatAnswerContent({ content, className = "" }: ChatAnswerContentProps) {
-  const units = groupBlocks(parseBlocks(content));
+  const sanitized = content.split(NEEDS_EXPERT_MARKER).join("").trim();
+  const units = groupBlocks(parseBlocks(sanitized));
 
   return (
     <div

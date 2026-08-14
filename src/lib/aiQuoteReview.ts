@@ -36,6 +36,32 @@ export function isQuoteCompareSuggestion(content: string): boolean {
   return content.includes(QUOTE_COMPARE_SUGGESTION);
 }
 
+export function isAwaitingQuoteAmount(content: string): boolean {
+  return /견적\s*금액을\s*알려주세요/.test(content);
+}
+
+function isQuoteFlowAssistantMessage(content: string): boolean {
+  return isQuoteCompareSuggestion(content) || isAwaitingQuoteAmount(content);
+}
+
+export function isInQuoteReviewFlow(messages: ChatTurn[]): boolean {
+  if (messages.length < 2) return false;
+  const prior = messages.slice(0, -1);
+  const lastAssistant = [...prior].reverse().find((m) => m.role === "assistant");
+  return Boolean(lastAssistant && isQuoteFlowAssistantMessage(lastAssistant.content));
+}
+
+/** 견적 비교 흐름 중 AI 자유생성 판단 경로 차단 */
+export function shouldBlockAiQuoteJudgment(messages: ChatTurn[], query: string): boolean {
+  if (messages.length < 2) return false;
+  const prior = messages.slice(0, -1);
+  const lastAssistant = [...prior].reverse().find((m) => m.role === "assistant");
+  if (!lastAssistant) return false;
+  if (isAwaitingQuoteAmount(lastAssistant.content)) return true;
+  if (isQuoteCompareSuggestion(lastAssistant.content) && /\d/.test(query)) return true;
+  return false;
+}
+
 export function isNumberHeavyQuoteMessage(text: string): boolean {
   const trimmed = text.trim();
   if (!/\d/.test(trimmed)) return false;
@@ -138,7 +164,7 @@ function tryFollowUpQuoteReview(
 
   const prior = messages.slice(0, -1);
   const lastAssistant = [...prior].reverse().find((m) => m.role === "assistant");
-  if (!lastAssistant || !isQuoteCompareSuggestion(lastAssistant.content)) return null;
+  if (!lastAssistant || !isQuoteFlowAssistantMessage(lastAssistant.content)) return null;
   if (!isNumberHeavyQuoteMessage(query)) return null;
 
   const service = findServiceInHistory(prior);
@@ -148,6 +174,29 @@ function tryFollowUpQuoteReview(
   if (!amount) return null;
 
   return { service, amount };
+}
+
+export function tryQuoteAmountReprompt(
+  messages: ChatTurn[],
+  query: string
+): { reply: string } | null {
+  if (!isInQuoteReviewFlow(messages)) return null;
+
+  const prior = messages.slice(0, -1);
+  const service = findServiceInHistory(prior);
+  if (!service) return null;
+
+  const amount = parseQuotedAmount(query, service.currency);
+  if (amount) return null;
+
+  const unit = service.currency === "USD" ? "달러" : "VND";
+  return {
+    reply: [
+      `금액을 정확히 이해하지 못했습니다. **${service.label}** 견적 금액을 다시 알려주세요.`,
+      "",
+      `예: 1,000${unit}, 500만동`,
+    ].join("\n"),
+  };
 }
 
 export function resolveQuoteReview(

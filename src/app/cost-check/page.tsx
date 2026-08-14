@@ -16,7 +16,7 @@ import {
   type CostCheckServiceId,
   type CostCheckTab,
 } from "@/lib/costCheck";
-import { QuoteReviewResultPanel } from "@/components/cost-check/QuoteReviewResultPanel";
+import { CostCheckCard } from "@/components/cost-check/CostCheckCard";
 
 const TABS: { id: CostCheckTab; label: string; desc: string }[] = [
   { id: "lookup", label: "확인하기", desc: "정부 수수료·기준 안내" },
@@ -334,15 +334,17 @@ function CostCheckPageContent() {
 
               {reviewResult && (
                 <div className="border-t border-slate-100 pt-6">
-                  <QuoteReviewResultPanel
+                  <CostCheckCard
                     serviceId={reviewResult.service.id}
-                    quotedAmount={reviewResult.quotedAmount}
-                    verdict={reviewResult.verdict}
-                    title={reviewResult.title}
-                    summary={reviewResult.summary}
-                    detail={reviewResult.detail}
-                    fairReference={reviewResult.fairReference}
-                    bubblePercent={reviewResult.bubblePercent}
+                    quote={{
+                      quotedAmount: reviewResult.quotedAmount,
+                      verdict: reviewResult.verdict,
+                      title: reviewResult.title,
+                      summary: reviewResult.summary,
+                      detail: reviewResult.detail,
+                      fairReference: reviewResult.fairReference,
+                      bubblePercent: reviewResult.bubblePercent,
+                    }}
                   />
                 </div>
               )}

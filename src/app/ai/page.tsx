@@ -41,11 +41,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Send, Loader2, AlertTriangle } from "lucide-react";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
-import {
-  QuoteReviewResultPanel,
-  quoteReviewFromPayload,
-} from "@/components/cost-check/QuoteReviewResultPanel";
-import { CostReferencePanel } from "@/components/cost-check/CostReferencePanel";
+import { CostCheckCard, quoteReviewToCostCheckQuote } from "@/components/cost-check/CostCheckCard";
 import { parseCostEnrichedReply } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 
@@ -105,21 +101,22 @@ function AssistantBubble({
   return (
     <div className="flex justify-start">
       <div className="w-full max-w-[min(100%,42rem)] rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5 sm:py-4">
-        {quoteReview ? (
-          <QuoteReviewResultPanel {...quoteReviewFromPayload(quoteReview)} />
-        ) : (
+        {quoteReview || (hasCostReference && parsedCost.serviceId) ? (
           <>
-            {mainText.trim() ? <ChatAnswerContent content={mainText} /> : null}
-            {hasCostReference && parsedCost.serviceId ? (
-              <div className={mainText.trim() ? "mt-4" : ""}>
-                <CostReferencePanel
-                  serviceId={parsedCost.serviceId}
-                  onCompareYes={() => onCompareYes?.()}
-                />
+            {mainText.trim() ? (
+              <div className="mb-4">
+                <ChatAnswerContent content={mainText} />
               </div>
             ) : null}
+            <CostCheckCard
+              serviceId={(quoteReview?.serviceId ?? parsedCost.serviceId)!}
+              quote={quoteReview ? quoteReviewToCostCheckQuote(quoteReview) : null}
+              onCompareYes={() => onCompareYes?.()}
+            />
           </>
-        )}
+        ) : mainText.trim() ? (
+          <ChatAnswerContent content={mainText} />
+        ) : null}
         {!quoteReview && !hasCostReference && resolvedActions.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-50 pt-3">
             {resolvedActions.map((a, idx) => (
