@@ -12,6 +12,7 @@ type ApiTurn = { role: "user" | "assistant"; content: string };
 
 type AiSession = {
   question: string;
+  requestedAt: string;
   turns: ApiTurn[];
   report: AiReportData;
 };
@@ -47,6 +48,7 @@ function AiPageContent() {
 
     const priorTurns = mode === "new" ? [] : (session?.turns ?? []);
     const question = mode === "new" ? trimmed : (session?.question ?? trimmed);
+    const requestedAt = mode === "new" ? new Date().toISOString() : (session?.requestedAt ?? new Date().toISOString());
     const apiMessages: ApiTurn[] = [...priorTurns, { role: "user", content: trimmed }];
 
     try {
@@ -65,6 +67,7 @@ function AiPageContent() {
       const assistantTurn: ApiTurn = { role: "assistant", content: data.reply as string };
       const nextReport: AiReportData = {
         question,
+        requestedAt,
         reply: data.reply as string,
         actions: Array.isArray(data.actions) ? data.actions : [],
         quoteReview:
@@ -75,6 +78,7 @@ function AiPageContent() {
 
       setSession({
         question,
+        requestedAt,
         turns: [...apiMessages, assistantTurn],
         report: nextReport,
       });
@@ -103,7 +107,7 @@ function AiPageContent() {
       <div className="h-[3px] bg-blue-900 shrink-0" />
 
       <div className="shrink-0 border-b border-gray-100 bg-white px-4 py-3 sm:px-6">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-[960px]">
           <Link href="/" className="text-xs text-gray-400 hover:text-gray-600">
             VFBCAI
           </Link>
@@ -111,7 +115,7 @@ function AiPageContent() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-8 sm:px-6">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-[960px]">
           {!session && !sending ? (
             <div className="text-sm text-slate-500">
               궁금하신 내용을 아래에 입력해주세요.
@@ -143,7 +147,7 @@ function AiPageContent() {
       </div>
 
       <div className="shrink-0 border-t border-gray-100 bg-white px-4 py-3 sm:px-6">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-[960px]">
           <form onSubmit={handleSubmit} className="flex items-center gap-2">
             <input
               value={input}
