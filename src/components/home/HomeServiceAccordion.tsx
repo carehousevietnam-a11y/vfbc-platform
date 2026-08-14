@@ -40,6 +40,8 @@ type AccordionSection = {
   key: AccordionKey;
   id: string;
   title: string;
+  expertLabel: string;
+  expertLabelClass: string;
   description: string;
   toggleLabel: string;
   icon: LucideIcon;
@@ -54,6 +56,8 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
     key: "check",
     id: "check",
     title: "직접 확인하기",
+    expertLabel: "베트남 행정전문 AI",
+    expertLabelClass: "text-blue-900",
     description:
       "비용·자격·등록 가능 여부를 1분 만에 스스로 확인합니다. 거주증·노동허가·운전면허·법인설립까지 4개 서비스를 지원합니다.",
     toggleLabel: "전체 확인",
@@ -78,6 +82,8 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
     key: "verify",
     id: "verify",
     title: "직접 검토하기",
+    expertLabel: "베트남 법률전문 AI",
+    expertLabelClass: "text-gray-900",
     description:
       "받은 견적이나 서류가 정상 범위인지 직접 검토합니다. 계약서·세무문서·사기의심 문서까지 5개 항목을 지원합니다.",
     toggleLabel: "전체 검토",
@@ -103,6 +109,8 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
     key: "register",
     id: "register",
     title: "직접 허가받기",
+    expertLabel: "베트남 인허가전문 AI",
+    expertLabelClass: "text-amber-700",
     description:
       "법인설립부터 업종별 인허가까지 실제 행정·법률 업무를 진행합니다. 식당·소방·위생 등 8개 업종을 지원합니다.",
     toggleLabel: "전체 허가",
@@ -186,7 +194,12 @@ export default function HomeServiceAccordion() {
                   <SectionIcon size={18} strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-900 sm:text-[15px]">{section.title}</p>
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <p className="text-sm font-semibold text-gray-900 sm:text-[15px]">{section.title}</p>
+                    <span className={`text-[11px] font-semibold sm:text-xs ${section.expertLabelClass}`}>
+                      {section.expertLabel}
+                    </span>
+                  </div>
                   <p className="mt-1.5 text-[12px] leading-relaxed text-gray-500 sm:text-[13px]">
                     {section.description}
                   </p>
