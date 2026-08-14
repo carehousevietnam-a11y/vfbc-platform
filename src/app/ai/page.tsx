@@ -45,6 +45,8 @@ import {
   QuoteReviewResultPanel,
   quoteReviewFromPayload,
 } from "@/components/cost-check/QuoteReviewResultPanel";
+import { CostReferencePanel } from "@/components/cost-check/CostReferencePanel";
+import { parseCostEnrichedReply } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 
 type NavigatorAction = { label: string; href: string };
@@ -78,19 +80,27 @@ function AssistantBubble({
   content,
   actions,
   quoteReview,
+  onCompareYes,
 }: {
   content: string;
   actions?: NavigatorAction[];
   quoteReview?: QuoteReviewPayload;
+  onCompareYes?: () => void;
 }) {
+  const parsedCost = parseCostEnrichedReply(content);
+  const hasCostReference =
+    !quoteReview && parsedCost.serviceId != null && parsedCost.hasQuoteCompareSuggestion;
   const hasServerActions = Array.isArray(actions) && actions.length > 0;
-  const parsed = parseAssistantContent(content);
+  const parsed = parseAssistantContent(hasCostReference ? parsedCost.introText : content);
   const mainText = parsed.mainText;
-  const resolvedActions: NavigatorAction[] = hasServerActions
-    ? (actions as NavigatorAction[])
-    : parsed.nav
-      ? [parsed.nav]
-      : [];
+  const resolvedActions: NavigatorAction[] =
+    quoteReview || hasCostReference
+      ? []
+      : hasServerActions
+        ? (actions as NavigatorAction[])
+        : parsed.nav
+          ? [parsed.nav]
+          : [];
 
   return (
     <div className="flex justify-start">
@@ -98,9 +108,19 @@ function AssistantBubble({
         {quoteReview ? (
           <QuoteReviewResultPanel {...quoteReviewFromPayload(quoteReview)} />
         ) : (
-          <ChatAnswerContent content={mainText} />
+          <>
+            {mainText.trim() ? <ChatAnswerContent content={mainText} /> : null}
+            {hasCostReference && parsedCost.serviceId ? (
+              <div className={mainText.trim() ? "mt-4" : ""}>
+                <CostReferencePanel
+                  serviceId={parsedCost.serviceId}
+                  onCompareYes={() => onCompareYes?.()}
+                />
+              </div>
+            ) : null}
+          </>
         )}
-        {!quoteReview && resolvedActions.length > 0 && (
+        {!quoteReview && !hasCostReference && resolvedActions.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-50 pt-3">
             {resolvedActions.map((a, idx) => (
               <Link
@@ -247,6 +267,7 @@ function AiPageContent() {
                 content={m.content}
                 actions={m.actions}
                 quoteReview={m.quoteReview}
+                onCompareYes={() => sendMessage("네")}
               />
             )
           )}

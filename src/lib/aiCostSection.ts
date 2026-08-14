@@ -39,7 +39,7 @@ const SERVICE_PATTERNS: { id: CostCheckServiceId; pattern: RegExp }[] = [
 ];
 
 export const QUOTE_COMPARE_SUGGESTION = "받으신 견적도 비교해볼까요?";
-const COST_SECTION_MARKER = "**비용 참고 안내**";
+export const COST_SECTION_MARKER = "**비용 참고 안내**";
 const SYSTEM_COST_DENIAL_SNIPPET = "비용 정보를 안내해드리지 않";
 
 function normalize(text: string): string {
@@ -111,4 +111,45 @@ export function enrichReplyWithCostData(reply: string, query: string): string {
       : reply.trimEnd();
 
   return `${base}\n\n${buildCostSection(service)}\n\n${QUOTE_COMPARE_SUGGESTION}`;
+}
+
+export type ParsedCostReply = {
+  introText: string;
+  serviceId: CostCheckServiceId | null;
+  hasQuoteCompareSuggestion: boolean;
+};
+
+function resolveServiceIdFromCostLabel(label: string): CostCheckServiceId | null {
+  const normalized = label.trim().toLowerCase();
+  for (const service of COST_CHECK_SERVICES) {
+    if (
+      normalized === service.label.toLowerCase() ||
+      normalized.includes(service.label.toLowerCase()) ||
+      normalized.includes(service.shortLabel.toLowerCase())
+    ) {
+      return service.id;
+    }
+  }
+  return matchCostCheckService(label)?.id ?? null;
+}
+
+/** 비용 섹션이 붙은 /ai 답변을 본문·서비스·견적비교 여부로 분리한다. */
+export function parseCostEnrichedReply(reply: string): ParsedCostReply {
+  const markerIndex = reply.indexOf(COST_SECTION_MARKER);
+  if (markerIndex < 0) {
+    return { introText: reply, serviceId: null, hasQuoteCompareSuggestion: false };
+  }
+
+  let introText = reply.slice(0, markerIndex).replace(/\n?---\s*$/, "").trimEnd();
+  const costTail = reply.slice(markerIndex);
+  const hasQuoteCompareSuggestion = costTail.includes(QUOTE_COMPARE_SUGGESTION);
+
+  const labelMatch = costTail.match(/\*\*비용 참고 안내\*\*\s*\(([^)]+)\)/);
+  const serviceId = labelMatch ? resolveServiceIdFromCostLabel(labelMatch[1]) : null;
+
+  return { introText, serviceId, hasQuoteCompareSuggestion };
+}
+
+export function shouldSuppressNavigatorActions(reply: string): boolean {
+  return reply.includes(COST_SECTION_MARKER) && reply.includes(QUOTE_COMPARE_SUGGESTION);
 }
