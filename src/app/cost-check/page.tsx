@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   COST_CHECK_DISCLAIMER,
   COST_CHECK_SERVICES,
@@ -22,6 +23,30 @@ const TABS: { id: CostCheckTab; label: string; desc: string }[] = [
   { id: "review", label: "검토하기", desc: "견적 적정성 검토" },
   { id: "direct", label: "직접 허가받기", desc: "법인 직접 진행 참고" },
 ];
+
+const VALID_TABS = new Set<CostCheckTab>(["lookup", "review", "direct"]);
+
+function parseTabParam(value: string | null): CostCheckTab {
+  if (value && VALID_TABS.has(value as CostCheckTab)) {
+    return value as CostCheckTab;
+  }
+  return "lookup";
+}
+
+function inferServiceFromQuery(q: string): CostCheckServiceId | "" {
+  const text = q.toLowerCase();
+  if (/노동허가|work\s*permit|\bwp\b/.test(text)) return "wp";
+  if (/거주증|\btrc\b/.test(text)) return "trc";
+  if (/땀주|임시거주|tam\s*tru/.test(text)) return "tamtru";
+  if (/법인|erc|설립|irc/.test(text)) return "company";
+  if (/공증|번역|notary/.test(text)) return "notary";
+  return "";
+}
+
+function extractAmountFromQuery(q: string): string {
+  const match = q.replace(/,/g, "").match(/(\d[\d.]*)/);
+  return match ? match[1] : "";
+}
 
 const VERDICT_STYLE: Record<
   ReviewVerdict,
@@ -75,8 +100,12 @@ function CtaBlock() {
   );
 }
 
-export default function CostCheckPage() {
+function CostCheckPageContent() {
+  const searchParams = useSearchParams();
+  const initializedRef = useRef(false);
+
   const [tab, setTab] = useState<CostCheckTab>("lookup");
+  const [initialQuery, setInitialQuery] = useState("");
 
   const [lookupServiceId, setLookupServiceId] = useState<CostCheckServiceId | "">("");
   const lookupService = useMemo(
@@ -88,6 +117,28 @@ export default function CostCheckPage() {
   const [reviewAmount, setReviewAmount] = useState("");
   const [reviewPrep, setReviewPrep] = useState<"yes" | "no" | "">("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
+    const tabParam = parseTabParam(searchParams.get("tab"));
+    const qParam = searchParams.get("q")?.trim() ?? "";
+
+    setTab(tabParam);
+    if (qParam) setInitialQuery(qParam);
+
+    const inferredService = qParam ? inferServiceFromQuery(qParam) : "";
+    if (inferredService) {
+      if (tabParam === "lookup") setLookupServiceId(inferredService);
+      if (tabParam === "review") setReviewServiceId(inferredService);
+    }
+
+    if (tabParam === "review" && qParam) {
+      const amount = extractAmountFromQuery(qParam);
+      if (amount) setReviewAmount(amount);
+    }
+  }, [searchParams]);
 
   const reviewResult = useMemo(() => {
     if (!reviewSubmitted || !reviewServiceId || !reviewPrep) return null;
@@ -151,6 +202,11 @@ export default function CostCheckPage() {
                 <p className="mt-1 text-sm text-slate-600">
                   서비스를 선택하면 정부 수수료와 시장 일반 대행료 기준을 확인할 수 있습니다.
                 </p>
+                {initialQuery && (
+                  <p className="mt-2 text-xs text-slate-500">
+                    질문: <span className="text-slate-700">{initialQuery}</span>
+                  </p>
+                )}
               </div>
 
               <div>
@@ -423,5 +479,21 @@ export default function CostCheckPage() {
         <p className="mt-6 text-center text-xs text-slate-500">{COST_CHECK_DISCLAIMER}</p>
       </div>
     </main>
+  );
+}
+
+export default function CostCheckPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+          <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+            <p className="text-center text-sm text-slate-500">불러오는 중...</p>
+          </div>
+        </main>
+      }
+    >
+      <CostCheckPageContent />
+    </Suspense>
   );
 }
