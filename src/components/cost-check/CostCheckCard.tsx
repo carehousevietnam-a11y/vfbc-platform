@@ -15,6 +15,8 @@ import {
   ReviewScoreGauge,
   STATUS_BADGE_LABEL,
   computeReviewScore,
+  computeDisplayBubblePercent,
+  formatBubbleHint,
 } from "@/components/cost-check/ReviewScoreGauge";
 import { getQuoteFunnelHref, getQuoteNextLinks } from "@/lib/quoteReviewLinks";
 
@@ -87,7 +89,10 @@ export function CostCheckCard({
     : 0;
   const nextLinks = getQuoteNextLinks(serviceId);
   const funnelHref = getQuoteFunnelHref(serviceId);
-  const gaugeSize = isReport ? "report" : "large";
+  const gaugeSize = isReport ? "semi" : "large";
+  const displayBubble = hasQuote
+    ? computeDisplayBubblePercent(quote.bubblePercent, quote.fairReference, quote.quotedAmount)
+    : 0;
   const badgeClass =
     !hasQuote
       ? ""
@@ -164,32 +169,59 @@ export function CostCheckCard({
     </>
   );
 
-  const gaugeSection = (
+  const adequacySection = hasQuote ? (
     <>
       {isReport ? (
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">견적 적정성</p>
       ) : null}
-      <div className={isReport ? "mt-4 flex flex-col items-center text-center" : "flex flex-col items-center text-center"}>
-        <ReviewScoreGauge
-          score={score}
-          verdict={hasQuote ? quote.verdict : "fair"}
-          size={gaugeSize}
-          empty={!hasQuote}
-        />
-        {hasQuote ? (
-          <>
-            <span
-              className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeClass}`}
-            >
-              {STATUS_BADGE_LABEL[quote.verdict]}
-            </span>
-            <p className="mt-3 text-sm font-semibold text-slate-900">{quote.title}</p>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">{quote.summary}</p>
-            <p className="mt-1 text-sm leading-relaxed text-slate-500">{quote.detail}</p>
-          </>
-        ) : null}
+      <div
+        className={
+          isReport
+            ? "mt-4 grid gap-6 lg:grid-cols-[minmax(0,360px)_1fr] lg:items-start lg:gap-10"
+            : "flex flex-col items-center text-center"
+        }
+      >
+        <div className={isReport ? "min-w-0" : ""}>
+          <ReviewScoreGauge
+            score={score}
+            verdict={quote.verdict}
+            size={gaugeSize}
+          />
+          {isReport ? (
+            <p className="mt-3 text-center text-sm text-slate-600">{formatBubbleHint(displayBubble)}</p>
+          ) : null}
+        </div>
+        <div className={isReport ? "min-w-0 space-y-3" : ""}>
+          <span
+            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeClass}`}
+          >
+            {STATUS_BADGE_LABEL[quote.verdict]}
+          </span>
+          <p className={`text-sm font-semibold text-slate-900 ${isReport ? "" : "mt-3"}`}>
+            {quote.title}
+          </p>
+          <p className="text-sm leading-relaxed text-slate-600">{quote.summary}</p>
+          <p className="text-sm leading-relaxed text-slate-500">{quote.detail}</p>
+          {isReport ? (
+            <ReviewJudgmentDetails
+              service={service}
+              quotedAmount={quote.quotedAmount}
+              fairReference={quote.fairReference}
+              bubblePercent={quote.bubblePercent}
+              score={score}
+            />
+          ) : null}
+        </div>
       </div>
     </>
+  ) : null;
+
+  const gaugeSectionCard = hasQuote ? (
+    <div className="flex flex-col items-center text-center">{adequacySection}</div>
+  ) : (
+    <div className="flex flex-col items-center text-center">
+      <ReviewScoreGauge score={0} verdict="fair" size="large" empty />
+    </div>
   );
 
   const compareBlock = !hasQuote ? (
@@ -262,20 +294,11 @@ export function CostCheckCard({
     return (
       <div className="space-y-8">
         <section>{costBasis}</section>
-        <section className="border-t border-slate-100 pt-8">{gaugeSection}</section>
+        {hasQuote ? (
+          <section className="border-t border-slate-100 pt-8">{adequacySection}</section>
+        ) : null}
         {!hasQuote && compareBlock ? (
           <section className="border-t border-slate-100 pt-8">{compareBlock}</section>
-        ) : null}
-        {hasQuote ? (
-          <section className="border-t border-slate-100 pt-4">
-            <ReviewJudgmentDetails
-              service={service}
-              quotedAmount={quote.quotedAmount}
-              fairReference={quote.fairReference}
-              bubblePercent={quote.bubblePercent}
-              score={score}
-            />
-          </section>
         ) : null}
         <section className="border-t border-slate-100 pt-8">{nextLinksBlock}</section>
         <section className="border-t border-slate-100 pt-8">{funnelBlock}</section>
@@ -286,7 +309,7 @@ export function CostCheckCard({
   return (
     <div className="space-y-5">
       <SectionWrap variant={variant}>{costBasis}</SectionWrap>
-      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">{gaugeSection}</div>
+      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">{gaugeSectionCard}</div>
       {!hasQuote && compareBlock ? <SectionWrap variant={variant}>{compareBlock}</SectionWrap> : null}
       {hasQuote ? (
         <ReviewJudgmentDetails

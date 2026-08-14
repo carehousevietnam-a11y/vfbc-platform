@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, RotateCcw } from "lucide-react";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
 import { CostCheckCard, quoteReviewToCostCheckQuote } from "@/components/cost-check/CostCheckCard";
 import { parseCostEnrichedReply } from "@/lib/aiCostSection";
@@ -12,6 +12,7 @@ type NavigatorAction = { label: string; href: string };
 export type AiReportData = {
   question: string;
   reply: string;
+  requestedAt: string;
   actions?: NavigatorAction[];
   quoteReview?: QuoteReviewPayload;
 };
@@ -29,6 +30,17 @@ function parseAssistantContent(content: string): {
     mainText: content.slice(0, match.index).trimEnd(),
     nav: { label: match[1], href: match[2] },
   };
+}
+
+function formatRequestedAt(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const h = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${y}.${m}.${d} ${h}:${min} 기준`;
 }
 
 type AiReportViewProps = {
@@ -56,13 +68,26 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
 
   return (
     <div className="w-full">
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-        MY VIET CHECK · by VFBCAI
-      </p>
-      <p className="mt-3 text-sm text-slate-600">
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-sm leading-snug">
+          <span className="font-bold tracking-tight text-slate-900">MY VIET CHECK</span>
+          <span className="text-slate-400"> · by VFBCAI</span>
+        </p>
+        <button
+          type="button"
+          onClick={onReset}
+          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-slate-200 px-2.5 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
+        >
+          <RotateCcw size={12} />
+          처음부터 다시 확인하기
+        </button>
+      </div>
+
+      <p className="mt-4 text-sm text-slate-600">
         확인 요청:{" "}
         <span className="font-medium text-slate-800">&ldquo;{report.question}&rdquo;</span>
       </p>
+      <p className="mt-1 text-xs text-slate-400">{formatRequestedAt(report.requestedAt)}</p>
 
       <div className="mt-8 border-t border-slate-200 pt-8">
         {hasCostPanel ? (
@@ -100,14 +125,6 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
           </div>
         ) : null}
       </div>
-
-      <button
-        type="button"
-        onClick={onReset}
-        className="mt-10 text-sm text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline"
-      >
-        처음부터 다시 확인하기
-      </button>
     </div>
   );
 }
