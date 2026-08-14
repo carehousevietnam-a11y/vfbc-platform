@@ -17,7 +17,7 @@ export const STATUS_BADGE_LABEL: Record<ReviewVerdict, string> = {
 type ReviewScoreGaugeProps = {
   score?: number;
   verdict?: ReviewVerdict;
-  size?: "default" | "large";
+  size?: "default" | "large" | "report";
   empty?: boolean;
 };
 
@@ -27,15 +27,17 @@ export function ReviewScoreGauge({
   size = "default",
   empty = false,
 }: ReviewScoreGaugeProps) {
+  const isReport = size === "report";
   const isLarge = size === "large";
-  const radius = isLarge ? 68 : 52;
+  const radius = isReport ? 50 : isLarge ? 68 : 52;
   const circumference = 2 * Math.PI * radius;
   const progress = empty ? 0 : (Math.min(100, Math.max(0, score)) / 100) * circumference;
   const { stroke, track } = empty
     ? { stroke: "#cbd5e1", track: "#e2e8f0" }
     : GAUGE_COLORS[verdict];
   const isVeryLow = !empty && verdict === "very_low";
-  const boxClass = isLarge ? "h-44 w-44" : "h-32 w-32";
+  const boxClass = isReport ? "h-[120px] w-[120px] sm:h-[130px] sm:w-[130px]" : isLarge ? "h-44 w-44" : "h-32 w-32";
+  const strokeWidth = isReport ? "10" : isLarge ? "12" : "10";
 
   return (
     <div className={`relative ${boxClass}`}>
@@ -46,7 +48,7 @@ export function ReviewScoreGauge({
           r={radius}
           fill="none"
           stroke={track}
-          strokeWidth={isLarge ? "12" : "10"}
+          strokeWidth={strokeWidth}
         />
         {!empty ? (
           <circle
@@ -55,7 +57,7 @@ export function ReviewScoreGauge({
             r={radius}
             fill="none"
             stroke={stroke}
-            strokeWidth={isLarge ? "12" : "10"}
+            strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={`${progress} ${circumference}`}
             className="transition-all duration-500 ease-out"
@@ -66,7 +68,9 @@ export function ReviewScoreGauge({
         {empty ? (
           <>
             <span
-              className={`font-medium leading-snug text-slate-400 ${isLarge ? "text-sm" : "text-xs"}`}
+              className={`font-medium leading-snug text-slate-400 ${
+                isReport ? "text-[11px] sm:text-xs" : isLarge ? "text-sm" : "text-xs"
+              }`}
             >
               견적을 알려주시면
               <br />
@@ -84,7 +88,11 @@ export function ReviewScoreGauge({
           </>
         ) : (
           <>
-            <span className={`font-bold text-slate-900 ${isLarge ? "text-5xl" : "text-3xl"}`}>
+            <span
+              className={`font-bold text-slate-900 ${
+                isReport ? "text-3xl sm:text-4xl" : isLarge ? "text-5xl" : "text-3xl"
+              }`}
+            >
               {Math.round(score)}
             </span>
             <span className={`font-medium text-slate-400 ${isLarge ? "text-sm" : "text-[10px]"}`}>
