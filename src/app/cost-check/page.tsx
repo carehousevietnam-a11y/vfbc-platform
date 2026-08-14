@@ -3,350 +3,424 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Building2,
-  FileText,
-  Home,
-  IdCard,
-  Landmark,
-  Scale,
-  Sparkles,
-} from "lucide-react";
-import { PrimaryButton, SelectionCard, InfoBox } from "@/components/ui";
-import {
   COST_CHECK_DISCLAIMER,
-  COST_CHECK_MARKET_NOTE,
   COST_CHECK_SERVICES,
-  type CostCheckServiceId,
-  type DocPrepStatus,
-  docPrepHint,
-  evaluateCostQuote,
+  DIRECT_PERMIT_COMPANY_DISCLAIMER,
+  DIRECT_PERMIT_COMPANY_GUIDE,
+  DIRECT_PERMIT_COMPANY_ITEMS,
+  DIRECT_PERMIT_COMPANY_TOTAL,
+  evaluateCostQuoteReview,
   formatCostAmount,
   getCostCheckService,
+  type CostCheckServiceId,
+  type CostCheckTab,
+  type ReviewVerdict,
 } from "@/lib/costCheck";
 
-type Step = "service" | "amount" | "prep" | "result";
-
-const SERVICE_ICONS = {
-  tamtru: Home,
-  trc: IdCard,
-  wp: FileText,
-  company: Building2,
-  notary: Scale,
-} as const;
-
-const SERVICE_TONES = {
-  tamtru: "cyan",
-  trc: "blue",
-  wp: "green",
-  company: "purple",
-  notary: "amber",
-} as const;
-
-const DOC_PREP_OPTIONS: { id: DocPrepStatus; label: string; description: string }[] = [
-  { id: "unknown", label: "잘 모르겠음", description: "아직 서류 준비 상태를 확인하지 않았어요" },
-  { id: "not_started", label: "아직 시작 전", description: "필요 서류를 거의 준비하지 않았어요" },
-  { id: "partial", label: "일부 준비됨", description: "일부 서류만 준비된 상태예요" },
-  { id: "ready", label: "대체로 준비됨", description: "제출 가능한 서류가 대부분 갖춰졌어요" },
+const TABS: { id: CostCheckTab; label: string; desc: string }[] = [
+  { id: "lookup", label: "확인하기", desc: "정부 수수료·기준 안내" },
+  { id: "review", label: "검토하기", desc: "견적 적정성 검토" },
+  { id: "direct", label: "직접 허가받기", desc: "법인 직접 진행 참고" },
 ];
 
-const VERDICT_STYLES = {
-  very_low: {
-    badge: "bg-amber-100 text-amber-800",
-    ring: "ring-amber-200",
-    label: "주의 필요",
-  },
-  low: {
-    badge: "bg-sky-100 text-sky-800",
-    ring: "ring-sky-200",
-    label: "낮은 편",
-  },
+const VERDICT_STYLE: Record<
+  ReviewVerdict,
+  { bg: string; border: string; text: string; label: string }
+> = {
   fair: {
-    badge: "bg-emerald-100 text-emerald-800",
-    ring: "ring-emerald-200",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+    text: "text-emerald-800",
     label: "적정",
   },
-  high: {
-    badge: "bg-orange-100 text-orange-800",
-    ring: "ring-orange-200",
-    label: "높은 편",
+  caution: {
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    text: "text-amber-900",
+    label: "주의",
   },
-} as const;
+  risk: {
+    bg: "bg-red-50",
+    border: "border-red-200",
+    text: "text-red-800",
+    label: "위험",
+  },
+  very_low: {
+    bg: "bg-slate-50",
+    border: "border-slate-200",
+    text: "text-slate-700",
+    label: "너무 낮음",
+  },
+};
+
+function CtaBlock() {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+      <p className="text-sm font-medium text-slate-800">다음 단계</p>
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href="/check"
+          className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
+        >
+          CHECK로 절차 확인
+        </Link>
+        <Link
+          href="/register"
+          className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+        >
+          REGISTER로 등록 지원
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 export default function CostCheckPage() {
-  const [step, setStep] = useState<Step>("service");
-  const [serviceId, setServiceId] = useState<CostCheckServiceId | null>(null);
-  const [amountInput, setAmountInput] = useState("");
-  const [docPrep, setDocPrep] = useState<DocPrepStatus>("unknown");
+  const [tab, setTab] = useState<CostCheckTab>("lookup");
 
-  const service = serviceId ? getCostCheckService(serviceId) : null;
+  const [lookupServiceId, setLookupServiceId] = useState<CostCheckServiceId | "">("");
+  const lookupService = useMemo(
+    () => (lookupServiceId ? getCostCheckService(lookupServiceId) : null),
+    [lookupServiceId]
+  );
 
-  const parsedAmount = useMemo(() => {
-    const normalized = amountInput.replace(/,/g, "").trim();
-    if (!normalized) return null;
-    const value = Number(normalized);
-    if (!Number.isFinite(value) || value <= 0) return null;
-    return value;
-  }, [amountInput]);
+  const [reviewServiceId, setReviewServiceId] = useState<CostCheckServiceId | "">("");
+  const [reviewAmount, setReviewAmount] = useState("");
+  const [reviewPrep, setReviewPrep] = useState<"yes" | "no" | "">("");
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-  const evaluation = useMemo(() => {
-    if (!service || parsedAmount == null) return null;
-    return evaluateCostQuote(service, parsedAmount);
-  }, [service, parsedAmount]);
+  const reviewResult = useMemo(() => {
+    if (!reviewSubmitted || !reviewServiceId || !reviewPrep) return null;
+    const amount = Number(reviewAmount.replace(/,/g, ""));
+    if (!Number.isFinite(amount) || amount <= 0) return null;
+    const service = getCostCheckService(reviewServiceId);
+    return {
+      service,
+      quotedAmount: amount,
+      ...evaluateCostQuoteReview(service, amount),
+    };
+  }, [reviewSubmitted, reviewServiceId, reviewAmount, reviewPrep]);
 
-  function resetFlow() {
-    setStep("service");
-    setServiceId(null);
-    setAmountInput("");
-    setDocPrep("unknown");
-  }
-
-  function goToAmount() {
-    if (!serviceId) return;
-    setStep("amount");
-  }
-
-  function goToPrep() {
-    if (parsedAmount == null) return;
-    setStep("prep");
-  }
-
-  function showResult() {
-    if (parsedAmount == null || !service) return;
-    setStep("result");
-  }
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setReviewSubmitted(true);
+  };
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb]">
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800"
-          >
-            <ArrowLeft size={16} />
-            홈으로
-          </Link>
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-800">
-            무료 · 회원가입 없음
-          </span>
-        </div>
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+        <header className="mb-8 text-center">
+          <p className="text-sm font-medium text-blue-600">무료 · 가입 없음</p>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            비용, 얼마가 적정할까?
+          </h1>
+          <p className="mt-3 text-sm text-slate-600 sm:text-base">
+            정부 수수료 확인 · 견적 검토 · 법인 직접 진행 참고를 한곳에서
+          </p>
+        </header>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-900 text-white">
-              <Landmark size={22} />
-            </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-blue-700">
-                Cost Check
-              </p>
-              <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
-                행정비용 적정성 진단
-              </h1>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                받으신 견적이 정부 공식 수수료와 시장 참고 범위 대비 어느 정도인지
-                규칙 기반으로 빠르게 확인합니다. VFBCAI 서비스 가격은 표시하지 않습니다.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-4 gap-2 text-center text-[10px] font-semibold text-slate-500">
-            {[
-              { key: "service", label: "1. 서비스" },
-              { key: "amount", label: "2. 견적" },
-              { key: "prep", label: "3. 서류" },
-              { key: "result", label: "4. 결과" },
-            ].map((item) => (
-              <div
-                key={item.key}
-                className={`rounded-xl px-2 py-2 ${
-                  step === item.key ? "bg-blue-900 text-white" : "bg-slate-50 text-slate-500"
+        <div className="mb-6 flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`flex-1 rounded-lg px-2 py-2.5 text-center transition sm:px-3 ${
+                tab === t.id
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <span className="block text-sm font-semibold">{t.label}</span>
+              <span
+                className={`mt-0.5 hidden text-[10px] sm:block ${
+                  tab === t.id ? "text-slate-300" : "text-slate-400"
                 }`}
               >
-                {item.label}
+                {t.desc}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          {tab === "lookup" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">정부 수수료 · 기준 안내</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  서비스를 선택하면 정부 수수료와 시장 일반 대행료 기준을 확인할 수 있습니다.
+                </p>
               </div>
-            ))}
-          </div>
-        </section>
 
-        {step === "service" && (
-          <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-lg font-bold text-slate-900">어떤 서비스 견적인가요?</h2>
-            <p className="mt-1 text-sm text-slate-500">해당하는 항목을 선택해주세요.</p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {COST_CHECK_SERVICES.map((item) => {
-                const Icon = SERVICE_ICONS[item.id];
-                return (
-                  <SelectionCard
-                    key={item.id}
-                    title={item.label}
-                    description={item.description}
-                    icon={Icon}
-                    tone={SERVICE_TONES[item.id]}
-                    selected={serviceId === item.id}
-                    onClick={() => setServiceId(item.id)}
-                  />
-                );
-              })}
-            </div>
-            <div className="mt-6">
-              <PrimaryButton disabled={!serviceId} onClick={goToAmount}>
-                다음: 견적 금액 입력
-              </PrimaryButton>
-            </div>
-          </section>
-        )}
-
-        {step === "amount" && service && (
-          <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-lg font-bold text-slate-900">견적받은 금액을 입력해주세요</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              {service.label} · {service.currency === "USD" ? "USD 기준" : "VND 기준"}
-            </p>
-            <label className="mt-5 block">
-              <span className="text-xs font-semibold text-slate-700">견적 금액</span>
-              <div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100">
-                <span className="text-sm font-semibold text-slate-500">
-                  {service.currency === "USD" ? "$" : "₫"}
-                </span>
-                <input
-                  type="number"
-                  min={1}
-                  inputMode="decimal"
-                  value={amountInput}
-                  onChange={(e) => setAmountInput(e.target.value)}
-                  placeholder={service.currency === "USD" ? "예: 320" : "예: 150000"}
-                  className="w-full bg-transparent text-lg font-semibold text-slate-900 outline-none"
-                />
-                <span className="text-xs font-medium text-slate-400">{service.currency}</span>
-              </div>
-            </label>
-            <div className="mt-4 flex gap-2">
-              <PrimaryButton variant="secondary" onClick={() => setStep("service")}>
-                이전
-              </PrimaryButton>
-              <PrimaryButton disabled={parsedAmount == null} onClick={goToPrep}>
-                다음: 서류 준비 상태
-              </PrimaryButton>
-            </div>
-          </section>
-        )}
-
-        {step === "prep" && service && (
-          <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-lg font-bold text-slate-900">서류 준비 상태 (선택)</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              선택 사항입니다. 결과 안내 문구에만 반영됩니다.
-            </p>
-            <div className="mt-5 grid gap-3">
-              {DOC_PREP_OPTIONS.map((option) => (
-                <SelectionCard
-                  key={option.id}
-                  title={option.label}
-                  description={option.description}
-                  tone="slate"
-                  selected={docPrep === option.id}
-                  onClick={() => setDocPrep(option.id)}
-                />
-              ))}
-            </div>
-            <div className="mt-4 flex gap-2">
-              <PrimaryButton variant="secondary" onClick={() => setStep("amount")}>
-                이전
-              </PrimaryButton>
-              <PrimaryButton onClick={showResult}>결과 보기</PrimaryButton>
-            </div>
-          </section>
-        )}
-
-        {step === "result" && service && evaluation && parsedAmount != null && (
-          <section className="mt-5 space-y-5">
-            <div
-              className={`rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ring-2 sm:p-8 ${VERDICT_STYLES[evaluation.verdict].ring}`}
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${VERDICT_STYLES[evaluation.verdict].badge}`}
+              <div>
+                <label className="block text-sm font-medium text-slate-700">서비스 선택</label>
+                <select
+                  value={lookupServiceId}
+                  onChange={(e) => setLookupServiceId(e.target.value as CostCheckServiceId)}
+                  className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                  {VERDICT_STYLES[evaluation.verdict].label}
-                </span>
-                <span className="text-xs text-slate-500">{service.label}</span>
+                  <option value="">선택하세요</option>
+                  {COST_CHECK_SERVICES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <h2 className="mt-4 text-2xl font-extrabold text-slate-950">{evaluation.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{evaluation.summary}</p>
-              <p className="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-700">
-                {evaluation.detail}
-              </p>
-              {docPrepHint(docPrep) && (
-                <p className="mt-3 text-xs leading-relaxed text-slate-500">{docPrepHint(docPrep)}</p>
+
+              {lookupService && (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-blue-700">
+                      정부 수수료
+                    </p>
+                    <p className="mt-1 text-2xl font-bold text-slate-900">
+                      {lookupService.governmentFee}
+                    </p>
+                    <p className="mt-2 text-xs text-slate-600">
+                      출처: {lookupService.source}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs font-medium text-slate-500">시장 일반 대행료 (참고)</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-800">
+                      {formatCostAmount(lookupService.marketUsualFeeAmount, lookupService.currency)}{" "}
+                      전후
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      범위{" "}
+                      {formatCostAmount(lookupService.marketMin, lookupService.currency)} ~{" "}
+                      {formatCostAmount(lookupService.marketMax, lookupService.currency)}
+                    </p>
+                  </div>
+
+                  <p className="text-sm leading-relaxed text-slate-700">
+                    {lookupService.lookupGuide}
+                  </p>
+                </div>
               )}
-            </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <h3 className="text-base font-bold text-slate-900">비용 비교 요약</h3>
-              <dl className="mt-4 space-y-3 text-sm">
-                <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="text-slate-500">입력 견적</dt>
-                  <dd className="font-bold text-slate-900">
-                    {formatCostAmount(parsedAmount, service.currency)}
-                  </dd>
-                </div>
-                <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="text-slate-500">정부 공식 수수료</dt>
-                  <dd className="max-w-[60%] text-right font-semibold text-slate-800">
-                    {service.governmentFee}
-                  </dd>
-                </div>
-                <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="text-slate-500">시장 참고 범위</dt>
-                  <dd className="text-right font-semibold text-slate-800">
-                    {formatCostAmount(service.marketMin, service.currency)} ~{" "}
-                    {formatCostAmount(service.marketMax, service.currency)}
-                  </dd>
-                </div>
-                <div className="flex items-start justify-between gap-4">
-                  <dt className="text-slate-500">출처</dt>
-                  <dd className="max-w-[60%] text-right text-xs leading-relaxed text-slate-600">
-                    {service.source}
-                  </dd>
-                </div>
-              </dl>
-              <p className="mt-4 text-[11px] leading-relaxed text-slate-500">{service.marketNote}</p>
-              <p className="mt-2 text-[11px] leading-relaxed text-slate-500">{COST_CHECK_MARKET_NOTE}</p>
+              <CtaBlock />
             </div>
+          )}
 
-            <div className="rounded-3xl border border-blue-100 bg-blue-50/60 p-6 sm:p-8">
-              <div className="flex items-center gap-2 text-blue-900">
-                <Sparkles size={18} />
-                <p className="text-sm font-bold">정확한 진단은 VFBCAI에서</p>
+          {tab === "review" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">견적 적정성 검토</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  받은 견적이 정부 수수료 + 시장 일반 대행료 기준 대비 어느 정도인지 확인합니다.
+                </p>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-blue-900/80">
-                이 도구는 견적 적정성 참고용입니다. 내 상황에 맞는 가능성·필요 서류·진행
-                전략은 VFBCAI 진단을 통해 확인할 수 있습니다.
+
+              <form onSubmit={handleReviewSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">서비스</label>
+                  <select
+                    value={reviewServiceId}
+                    onChange={(e) => {
+                      setReviewServiceId(e.target.value as CostCheckServiceId);
+                      setReviewSubmitted(false);
+                    }}
+                    className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">선택하세요</option>
+                    {COST_CHECK_SERVICES.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">
+                    받은 견적 (VAT 포함)
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder={
+                      reviewServiceId === "notary" ? "예: 200,000" : "예: 1,500"
+                    }
+                    value={reviewAmount}
+                    onChange={(e) => {
+                      setReviewAmount(e.target.value);
+                      setReviewSubmitted(false);
+                    }}
+                    className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    required
+                  />
+                  {reviewServiceId && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      단위:{" "}
+                      {getCostCheckService(reviewServiceId).currency === "USD" ? "USD" : "VND"}
+                    </p>
+                  )}
+                </div>
+
+                <fieldset>
+                  <legend className="text-sm font-medium text-slate-700">
+                    서류 준비·번역 포함 여부
+                  </legend>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {(
+                      [
+                        { v: "yes", l: "포함" },
+                        { v: "no", l: "미포함" },
+                      ] as const
+                    ).map(({ v, l }) => (
+                      <label
+                        key={v}
+                        className={`cursor-pointer rounded-lg border px-4 py-2.5 text-sm ${
+                          reviewPrep === v
+                            ? "border-slate-900 bg-slate-900 text-white"
+                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="reviewPrep"
+                          value={v}
+                          checked={reviewPrep === v}
+                          onChange={() => {
+                            setReviewPrep(v);
+                            setReviewSubmitted(false);
+                          }}
+                          className="sr-only"
+                        />
+                        {l}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-lg bg-slate-900 py-3 text-sm font-medium text-white hover:bg-slate-800"
+                >
+                  검토하기
+                </button>
+              </form>
+
+              {reviewResult && (
+                <div className="space-y-4 border-t border-slate-100 pt-6">
+                  <div
+                    className={`rounded-xl border p-4 ${VERDICT_STYLE[reviewResult.verdict].bg} ${VERDICT_STYLE[reviewResult.verdict].border}`}
+                  >
+                    <p
+                      className={`text-lg font-bold ${VERDICT_STYLE[reviewResult.verdict].text}`}
+                    >
+                      {VERDICT_STYLE[reviewResult.verdict].label}
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-slate-800">
+                      {reviewResult.title}
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-800">
+                      {reviewResult.summary}
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                      {reviewResult.detail}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 text-sm sm:grid-cols-2">
+                    <div className="rounded-lg bg-slate-50 p-3">
+                      <p className="text-xs text-slate-500">기준 합계 (R)</p>
+                      <p className="font-semibold text-slate-900">
+                        {formatCostAmount(
+                          reviewResult.fairReference,
+                          reviewResult.service.currency
+                        )}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        정부{" "}
+                        {formatCostAmount(
+                          reviewResult.service.govFeeAmount,
+                          reviewResult.service.currency
+                        )}{" "}
+                        + 대행{" "}
+                        {formatCostAmount(
+                          reviewResult.service.marketUsualFeeAmount,
+                          reviewResult.service.currency
+                        )}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-50 p-3">
+                      <p className="text-xs text-slate-500">입력 견적</p>
+                      <p className="font-semibold text-slate-900">
+                        {formatCostAmount(
+                          reviewResult.quotedAmount,
+                          reviewResult.service.currency
+                        )}
+                      </p>
+                      {reviewResult.bubblePercent != null && reviewResult.bubblePercent > 0 && (
+                        <p className="mt-1 text-xs text-slate-500">
+                          기준 대비 +{reviewResult.bubblePercent.toFixed(0)}%
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <CtaBlock />
+            </div>
+          )}
+
+          {tab === "direct" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  법인 직접 허가 — 참고 비용
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  법인이 대행 없이 직접 진행할 때 드는 대표 비용 항목입니다. 계산기가 아닌
+                  참고용 안내입니다.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-medium text-amber-900">필수 안내</p>
+                <p className="mt-2 text-sm leading-relaxed text-amber-900/90">
+                  {DIRECT_PERMIT_COMPANY_DISCLAIMER}
+                </p>
+              </div>
+
+              <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200">
+                {DIRECT_PERMIT_COMPANY_ITEMS.map((item) => (
+                  <li
+                    key={item.label}
+                    className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
+                  >
+                    <span className="text-slate-700">
+                      {item.label}
+                      <span className="ml-1 text-xs text-slate-400">
+                        ({item.kind === "government" ? "정부고시" : "시장가 참고"})
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-medium text-slate-900">{item.amount}</span>
+                  </li>
+                ))}
+                <li className="flex items-center justify-between bg-slate-50 px-4 py-3 text-sm font-semibold">
+                  <span className="text-slate-800">참고 합계</span>
+                  <span className="text-slate-900">{DIRECT_PERMIT_COMPANY_TOTAL}</span>
+                </li>
+              </ul>
+
+              <p className="text-sm leading-relaxed text-slate-600">
+                {DIRECT_PERMIT_COMPANY_GUIDE}
               </p>
-              <Link
-                href={service.ctaHref}
-                className="mt-4 inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-blue-900 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-950"
-              >
-                {service.ctaLabel}
-                <ArrowRight size={16} />
-              </Link>
-            </div>
 
-            <InfoBox>{COST_CHECK_DISCLAIMER}</InfoBox>
-
-            <div className="flex gap-2">
-              <PrimaryButton variant="secondary" onClick={() => setStep("prep")}>
-                입력 수정
-              </PrimaryButton>
-              <PrimaryButton variant="outline" onClick={resetFlow}>
-                처음부터 다시
-              </PrimaryButton>
+              <CtaBlock />
             </div>
-          </section>
-        )}
+          )}
+        </div>
+
+        <p className="mt-6 text-center text-xs text-slate-500">{COST_CHECK_DISCLAIMER}</p>
       </div>
     </main>
   );
