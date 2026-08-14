@@ -17,6 +17,11 @@ import {
   type CostCheckTab,
   type ReviewVerdict,
 } from "@/lib/costCheck";
+import {
+  ReviewScoreGauge,
+  computeReviewScore,
+} from "@/components/cost-check/ReviewScoreGauge";
+import { ReviewJudgmentDetails } from "@/components/cost-check/ReviewJudgmentDetails";
 
 const TABS: { id: CostCheckTab; label: string; desc: string }[] = [
   { id: "lookup", label: "확인하기", desc: "정부 수수료·기준 안내" },
@@ -365,23 +370,43 @@ function CostCheckPageContent() {
               {reviewResult && (
                 <div className="space-y-4 border-t border-slate-100 pt-6">
                   <div
-                    className={`rounded-xl border p-4 ${VERDICT_STYLE[reviewResult.verdict].bg} ${VERDICT_STYLE[reviewResult.verdict].border}`}
+                    className={`rounded-xl border p-4 sm:p-5 ${VERDICT_STYLE[reviewResult.verdict].bg} ${VERDICT_STYLE[reviewResult.verdict].border}`}
                   >
-                    <p
-                      className={`text-lg font-bold ${VERDICT_STYLE[reviewResult.verdict].text}`}
-                    >
-                      {VERDICT_STYLE[reviewResult.verdict].label}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-slate-800">
-                      {reviewResult.title}
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-800">
-                      {reviewResult.summary}
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                      {reviewResult.detail}
-                    </p>
+                    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+                      <ReviewScoreGauge
+                        score={computeReviewScore(
+                          reviewResult.bubblePercent,
+                          reviewResult.fairReference,
+                          reviewResult.quotedAmount
+                        )}
+                        verdict={reviewResult.verdict}
+                        label={VERDICT_STYLE[reviewResult.verdict].label}
+                      />
+                      <div className="flex-1 text-center sm:text-left">
+                        <p
+                          className={`text-lg font-bold ${VERDICT_STYLE[reviewResult.verdict].text}`}
+                        >
+                          {VERDICT_STYLE[reviewResult.verdict].label}
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-slate-800">
+                          {reviewResult.title}
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-slate-800">
+                          {reviewResult.summary}
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                          {reviewResult.detail}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+
+                  <ReviewJudgmentDetails
+                    service={reviewResult.service}
+                    quotedAmount={reviewResult.quotedAmount}
+                    fairReference={reviewResult.fairReference}
+                    bubblePercent={reviewResult.bubblePercent}
+                  />
 
                   <div className="grid gap-3 text-sm sm:grid-cols-2">
                     <div className="rounded-lg bg-slate-50 p-3">
