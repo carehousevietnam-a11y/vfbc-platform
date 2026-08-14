@@ -28,7 +28,9 @@ const SEMI_PATH = "M 36 188 A 144 144 0 0 1 324 188";
 const SEMI_PATH_LENGTH = Math.PI * 144;
 
 function semiArcPoint(score: number): { x: number; y: number } {
-  const t = Math.min(100, Math.max(0, score)) / 100;
+  const clamped = Math.min(100, Math.max(0, score));
+  // 낮은 적정성 점수(위험) → arc 오른쪽(빨강), 높은 점수 → 왼쪽(초록)
+  const t = (100 - clamped) / 100;
   const angle = Math.PI * (1 - t);
   const cx = 180;
   const cy = 188;
@@ -48,8 +50,8 @@ function SemiCircleGauge({
 }) {
   const gradientId = useId();
   const clamped = Math.min(100, Math.max(0, score));
-  const progress = (clamped / 100) * SEMI_PATH_LENGTH;
-  const { stroke, track } = GAUGE_COLORS[verdict];
+  const { stroke } = GAUGE_COLORS[verdict];
+  const track = "#e2e8f0";
   const isVeryLow = verdict === "very_low";
   const dot = semiArcPoint(clamped);
 
@@ -67,9 +69,9 @@ function SemiCircleGauge({
       >
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#dc2626" />
-            <stop offset="45%" stopColor="#d97706" />
-            <stop offset="100%" stopColor="#059669" />
+            <stop offset="0%" stopColor="#14b8a6" />
+            <stop offset="50%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#dc2626" />
           </linearGradient>
         </defs>
         <path
@@ -85,8 +87,6 @@ function SemiCircleGauge({
           stroke={`url(#${gradientId})`}
           strokeWidth={18}
           strokeLinecap="round"
-          strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
-          className="transition-all duration-500 ease-out"
         />
         <circle
           cx={dot.x}
@@ -115,10 +115,15 @@ function SemiCircleGauge({
           </>
         )}
       </div>
-      <div className="mt-1 flex justify-between px-2 text-[10px] font-medium text-slate-400 sm:text-xs">
+      <div className="mt-1 flex justify-between px-1 text-[10px] font-medium text-slate-400 sm:px-2 sm:text-xs">
         <span>0</span>
-        <span>· 50 ·</span>
+        <span>50</span>
         <span>100</span>
+      </div>
+      <div className="mt-1 flex justify-between px-0 text-[10px] text-slate-500 sm:text-[11px]">
+        <span className="text-left">적정 범위 내</span>
+        <span className="text-center">주의 필요</span>
+        <span className="text-right">위험 수준</span>
       </div>
     </div>
   );
