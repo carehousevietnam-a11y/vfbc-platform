@@ -78,6 +78,7 @@ import {
   resolveTrcArticleIntent,
 } from "@/lib/contentPacks/intentRouter";
 import { fetchAnonymousLegalBasisLine } from "@/lib/legalRagBasis";
+import { enrichReplyWithCostData } from "@/lib/aiCostSection";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -252,6 +253,7 @@ export async function POST(req: NextRequest) {
           reply = OFF_PLATFORM_NOTICE;
         }
 
+        reply = enrichReplyWithCostData(reply, lastMessage!.content);
         // STEP10-1: AI Service Navigator — 분류 로직은 그대로 두고, 답변
         // 마지막에 관련 서비스 이동 안내만 덧붙인다.
         // STEP10-2: 프론트가 본문 문자열을 다시 파싱하지 않도록, 같은
@@ -324,7 +326,9 @@ export async function POST(req: NextRequest) {
             if (!mapped.ok) {
               console.error("ai-chat: Legal RAG response schema/status rejected, falling back");
             } else {
-              const reply = mapped.reply + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+              const reply =
+                enrichReplyWithCostData(mapped.reply, lastMessage!.content) +
+                buildNavigatorSuffix("ai_analysis", lastMessage!.content);
               const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
               const actions = action ? [action] : [];
 
@@ -363,9 +367,10 @@ export async function POST(req: NextRequest) {
             const { reply, actions } = buildArticleChatReply(lastMessage!.content, article, {
               legalBasisLine,
             });
+            const enrichedReply = enrichReplyWithCostData(reply, lastMessage!.content);
 
             return NextResponse.json({
-              reply,
+              reply: enrichedReply,
               needsExpert: true,
               category: "ai_analysis",
               actions,
@@ -374,8 +379,10 @@ export async function POST(req: NextRequest) {
 
           const legalBasisLine = await fetchAnonymousLegalBasisLine(lastMessage!.content, inferred);
           const reply =
-            buildAnonymousFastGuide(inferred, { legalBasisLine }) +
-            buildNavigatorSuffix("ai_analysis", lastMessage!.content);
+            enrichReplyWithCostData(
+              buildAnonymousFastGuide(inferred, { legalBasisLine }),
+              lastMessage!.content
+            ) + buildNavigatorSuffix("ai_analysis", lastMessage!.content);
           const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
           const actions = action ? [action] : [];
 
@@ -467,6 +474,9 @@ export async function POST(req: NextRequest) {
     // 그대로 유지한다.
     const modelFlaggedNeedsExpert = rawReply.includes(NEEDS_EXPERT_TOKEN);
     let reply = rawReply.replace(NEEDS_EXPERT_TOKEN, "").trim();
+    if (!isGreeting && lastMessage) {
+      reply = enrichReplyWithCostData(reply, lastMessage.content);
+    }
     const needsExpert =
       !isGreeting && (modelFlaggedNeedsExpert || matchesEscalationKeyword(lastMessage!.content));
 
