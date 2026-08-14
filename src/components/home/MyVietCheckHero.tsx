@@ -6,8 +6,10 @@ import {
   ArrowRight,
   BarChart3,
   Building2,
+  Calculator,
   ClipboardList,
   Coins,
+  MessageSquareText,
   Receipt,
   Scale,
   Search,
@@ -24,8 +26,15 @@ const EXAMPLE_CHIPS = [
   "받은 견적 확인",
 ] as const;
 
+const CALC_DISPLAY = [
+  { icon: Building2, label: "정부 수수료", hint: "공식 기준" },
+  { icon: BarChart3, label: "시장 범위", hint: "참고 구간" },
+  { icon: Receipt, label: "받은 견적", hint: "적정성 검토" },
+] as const;
+
 export default function MyVietCheckHero() {
   const [query, setQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
 
   function handleSubmit(e: React.FormEvent) {
@@ -59,67 +68,112 @@ export default function MyVietCheckHero() {
           </p>
         </div>
 
-        {/* Check Desk */}
+        {/* Check Desk — 질문 입력 + 비용 계산기 */}
         <form onSubmit={handleSubmit} className="mt-8">
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-            {/* 상단: 질문 입력 */}
-            <div className="px-4 pt-4 pb-3 sm:px-5 sm:pt-5">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-600">
-                <Scale size={14} className="text-gray-400 shrink-0" />
-                무엇이 궁금하신가요?
-              </p>
-              <div className="mt-2.5 flex items-center gap-2.5">
-                <Search size={18} className="shrink-0 text-gray-400" />
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={INPUT_PLACEHOLDER}
-                  className="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
-                />
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_4px_24px_rgba(15,23,42,0.06)]">
+            {/* 헤더: 듀얼 아이덴티티 */}
+            <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50/40 px-4 py-3 sm:px-5">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold tracking-wide text-blue-900 shadow-sm ring-1 ring-blue-900/10">
+                  <MessageSquareText size={12} />
+                  질문 입력
+                </span>
+                <span className="text-[10px] font-medium text-slate-300">+</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold tracking-wide text-slate-700 shadow-sm ring-1 ring-slate-200">
+                  <Calculator size={12} />
+                  비용 계산
+                </span>
               </div>
+              <p className="hidden text-[10px] font-medium text-slate-400 sm:block">CHECK DESK</p>
+            </div>
+
+            {/* 입력 영역 — 명확한 필드 박스 */}
+            <div className="px-4 pt-4 pb-3 sm:px-5 sm:pt-5">
+              <label
+                htmlFor="check-desk-query"
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-700"
+              >
+                <Scale size={14} className="shrink-0 text-blue-900" />
+                무엇이 궁금하신가요?
+              </label>
+
+              <div
+                className={`mt-3 rounded-xl border-2 bg-white transition-all duration-150 ${
+                  isFocused
+                    ? "border-blue-900 shadow-[0_0_0_4px_rgba(30,58,138,0.08)]"
+                    : "border-slate-200 shadow-inner"
+                }`}
+              >
+                <div className="flex items-center gap-3 px-4 py-3.5 sm:py-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
+                    <Search size={18} strokeWidth={2} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-900/70">
+                      여기에 입력하세요
+                    </p>
+                    <input
+                      id="check-desk-query"
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={() => setIsFocused(false)}
+                      placeholder={INPUT_PLACEHOLDER}
+                      className="mt-0.5 w-full border-0 bg-transparent p-0 text-sm font-medium text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-[15px]"
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
+                비용·절차·견적 등 궁금한 내용을 입력하면 AI가 바로 계산·확인해 드립니다.
+              </p>
             </div>
 
             {/* 중단: 태그 + CTA */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 bg-gray-50 px-4 py-3 sm:px-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-y border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[10px] font-semibold tracking-wide text-gray-600">
-                  <Coins size={12} className="text-gray-400" />
+                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold tracking-wide text-slate-600">
+                  <Coins size={12} className="text-slate-400" />
                   COST
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[10px] font-semibold tracking-wide text-gray-600">
-                  <ClipboardList size={12} className="text-gray-400" />
+                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold tracking-wide text-slate-600">
+                  <ClipboardList size={12} className="text-slate-400" />
                   PROCEDURE
                 </span>
               </div>
               <button
                 type="submit"
-                className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950 transition-colors"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-900 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-950 sm:text-[13px]"
               >
                 직접 확인
                 <ArrowRight size={14} />
               </button>
             </div>
 
-            {/* 하단: 3열 디스플레이 */}
-            <div className="grid grid-cols-3 divide-x divide-gray-100 border-t border-gray-100">
-              <div className="flex flex-col items-center gap-1 px-2 py-3 text-center sm:px-3 sm:py-3.5">
-                <Building2 size={15} className="text-gray-400" />
-                <span className="text-[10px] sm:text-[11px] font-medium text-gray-500 leading-tight">
-                  정부 수수료
-                </span>
-              </div>
-              <div className="flex flex-col items-center gap-1 px-2 py-3 text-center sm:px-3 sm:py-3.5">
-                <BarChart3 size={15} className="text-gray-400" />
-                <span className="text-[10px] sm:text-[11px] font-medium text-gray-500 leading-tight">
-                  시장 범위
-                </span>
-              </div>
-              <div className="flex flex-col items-center gap-1 px-2 py-3 text-center sm:px-3 sm:py-3.5">
-                <Receipt size={15} className="text-gray-400" />
-                <span className="text-[10px] sm:text-[11px] font-medium text-gray-500 leading-tight">
-                  받은 견적
-                </span>
+            {/* 하단: 계산기 디스플레이 */}
+            <div className="bg-slate-900 px-3 py-3 sm:px-4 sm:py-3.5">
+              <p className="mb-2 text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                확인 결과 미리보기
+              </p>
+              <div className="grid grid-cols-3 divide-x divide-slate-700/80 rounded-lg bg-slate-800/60 ring-1 ring-slate-700/50">
+                {CALC_DISPLAY.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.label}
+                      className="flex flex-col items-center gap-1 px-2 py-3 text-center sm:px-3 sm:py-3.5"
+                    >
+                      <Icon size={15} className="text-slate-400" />
+                      <span className="text-[10px] font-semibold text-slate-200 sm:text-[11px]">
+                        {item.label}
+                      </span>
+                      <span className="text-[9px] text-slate-500">{item.hint}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -130,17 +184,23 @@ export default function MyVietCheckHero() {
         </form>
 
         {/* 예시 질문 칩 */}
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {EXAMPLE_CHIPS.map((chip) => (
-            <button
-              key={chip}
-              type="button"
-              onClick={() => setQuery(chip)}
-              className="rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-xs text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              {chip}
-            </button>
-          ))}
+        <div className="mt-4">
+          <p className="mb-2 text-center text-[10px] font-medium text-slate-400">예시 질문</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {EXAMPLE_CHIPS.map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => {
+                  setQuery(chip);
+                  document.getElementById("check-desk-query")?.focus();
+                }}
+                className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs text-slate-700 shadow-sm transition-colors hover:border-blue-900/30 hover:bg-blue-50/50"
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* 또는 구분선 */}
