@@ -102,26 +102,26 @@ export default function SiteHeader() {
 
   if (isHome) {
     return (
-      <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-[3.75rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-900/5 ring-1 ring-blue-900/10">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-900/[0.06] ring-1 ring-blue-900/10">
               <ShieldCheck size={18} className="text-blue-900" />
             </div>
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-[13px] font-bold tracking-tight text-slate-900">
+              <p className="truncate text-[13px] font-bold tracking-tight text-blue-900">
                 MY VIET CHECK
               </p>
-              <p className="truncate text-[10px] font-medium text-slate-400">by VFBCAI</p>
+              <p className="truncate text-[10px] font-medium text-slate-500">by VFBCAI</p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-0.5 lg:flex">
             {HOME_NAV_ITEMS.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-center transition-colors hover:bg-slate-50"
+                className="rounded-lg px-3 py-2 text-center transition-colors hover:bg-[#faf8f5]"
               >
                 <span className="block text-[10px] font-bold tracking-[0.14em] text-blue-900">
                   {item.label}
@@ -146,7 +146,7 @@ export default function SiteHeader() {
 
             <Link
               href="#hero-query"
-              className="hidden rounded-xl bg-blue-900 px-3.5 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-blue-950 sm:inline-flex"
+              className="hidden rounded-xl border border-blue-900/10 bg-blue-900 px-3.5 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-[#152a63] sm:inline-flex"
             >
               내 상황 진단
             </Link>
