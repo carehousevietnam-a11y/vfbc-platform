@@ -317,7 +317,11 @@ function AccordionItemCard({
   );
 }
 
-export default function HomeServiceAccordion() {
+export default function HomeServiceAccordion({
+  hideSectionHeaders = false,
+}: {
+  hideSectionHeaders?: boolean;
+}) {
   const [openKey, setOpenKey] = useState<AccordionKey | null>(null);
 
   useEffect(() => {
@@ -325,6 +329,8 @@ export default function HomeServiceAccordion() {
       const hash = window.location.hash.replace("#", "");
       if (hash === "check" || hash === "verify" || hash === "register") {
         setOpenKey(hash);
+      } else if (hash === "protect") {
+        setOpenKey("verify");
       }
     }
 
@@ -337,11 +343,28 @@ export default function HomeServiceAccordion() {
     setOpenKey((current) => (current === key ? null : key));
   }
 
+  if (hideSectionHeaders && !openKey) {
+    return null;
+  }
+
   return (
-    <div className="mt-6 space-y-3">
+    <div className="mt-0 space-y-3">
       {ACCORDION_SECTIONS.map((section) => {
         const isOpen = openKey === section.key;
         const SectionIcon = section.icon;
+
+        if (hideSectionHeaders) {
+          if (!isOpen) return null;
+          return (
+            <div key={section.key} id={section.id} className="overflow-hidden">
+              <div className={`grid gap-3 sm:gap-4 ${section.gridClass}`}>
+                {section.items.map((item) => (
+                  <AccordionItemCard key={item.key} item={item} variant={section.cardVariant} />
+                ))}
+              </div>
+            </div>
+          );
+        }
 
         return (
           <div
