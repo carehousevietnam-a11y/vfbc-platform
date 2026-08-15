@@ -226,10 +226,12 @@ function CostCheckPageContent() {
                   <p className="text-sm leading-relaxed text-slate-700">
                     {lookupService.lookupGuide}
                   </p>
-                  <WpRegionalOfficialFee
-                    sources={lookupService.officialSources}
-                    question={initialQuery || undefined}
-                  />
+                  {lookupServiceId === "wp" ? (
+                    <WpRegionalOfficialFee
+                      sources={lookupService.officialSources}
+                      question={initialQuery || undefined}
+                    />
+                  ) : null}
                 </div>
               )}
 
