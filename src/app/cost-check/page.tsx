@@ -17,6 +17,7 @@ import {
   type CostCheckTab,
 } from "@/lib/costCheck";
 import { CostCheckCard } from "@/components/cost-check/CostCheckCard";
+import { OfficialSourceList } from "@/components/cost-check/OfficialSourceList";
 
 const TABS: { id: CostCheckTab; label: string; desc: string }[] = [
   { id: "lookup", label: "확인하기", desc: "정부 수수료·기준 안내" },
@@ -225,6 +226,7 @@ function CostCheckPageContent() {
                   <p className="text-sm leading-relaxed text-slate-700">
                     {lookupService.lookupGuide}
                   </p>
+                  <OfficialSourceList sources={lookupService.officialSources} />
                 </div>
               )}
 
