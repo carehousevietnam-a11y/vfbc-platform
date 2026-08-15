@@ -8,6 +8,29 @@ export type DocPrepStatus = "unknown" | "not_started" | "partial" | "ready";
 
 export type CostCheckCurrency = "USD" | "VND";
 
+export type PriceReliabilityStatus =
+  | "VERIFIED"
+  | "OFFICIAL_CURRENT_CHECK_REQUIRED"
+  | "OFFICIAL_SCOPE_CHECK_REQUIRED"
+  | "MARKET_REFERENCE"
+  | "REFERENCE_ONLY"
+  | "PENDING"
+  | "NOT_FOUND";
+
+export type OfficialSourceEntry = {
+  region: string;
+  applicationType: "new" | "reissue" | "renewal" | "exemption";
+  amount: number | null;
+  currency: "VND";
+  source: string;
+  sourceType: "official_government_document";
+  sourceDate?: string;
+  checkedDate: string;
+  status: PriceReliabilityStatus;
+  uncertainty?: string;
+  verificationNote?: string;
+};
+
 export type CostCheckService = {
   id: CostCheckServiceId;
   label: string;
@@ -26,6 +49,8 @@ export type CostCheckService = {
   lookupGuide: string;
   ctaLabel: string;
   ctaHref: string;
+  /** STEP 5B/5C: 지역별 공식 원문 확인 데이터 (선택적, 없으면 기존 UI 그대로) */
+  officialSources?: OfficialSourceEntry[];
 };
 
 export type DirectPermitLineItem = {
@@ -130,6 +155,137 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
       "노동허가 정부 수수료는 관할 지역에 따라 VND 금액이 달라집니다. 견적은 정부 수수료와 대행·번역 비용이 함께 포함됐는지 확인하세요.",
     ctaLabel: "WP 가능성 진단 (CHECK)",
     ctaHref: "/check/wp",
+    officialSources: [
+      {
+        region: "Hà Nội",
+        applicationType: "new",
+        amount: 400_000,
+        currency: "VND",
+        source: "QĐ 396/QĐ-TTPVHCC (Hà Nội TTPVHCC, 2026-03-31)",
+        sourceType: "official_government_document",
+        sourceDate: "2026-03-31",
+        checkedDate: "2026-08-15",
+        status: "VERIFIED",
+      },
+      {
+        region: "Hà Nội",
+        applicationType: "reissue",
+        amount: 300_000,
+        currency: "VND",
+        source: "QĐ 396/QĐ-TTPVHCC (Hà Nội TTPVHCC, 2026-03-31)",
+        sourceType: "official_government_document",
+        sourceDate: "2026-03-31",
+        checkedDate: "2026-08-15",
+        status: "VERIFIED",
+      },
+      {
+        region: "Hà Nội",
+        applicationType: "renewal",
+        amount: 300_000,
+        currency: "VND",
+        source: "QĐ 396/QĐ-TTPVHCC (Hà Nội TTPVHCC, 2026-03-31)",
+        sourceType: "official_government_document",
+        sourceDate: "2026-03-31",
+        checkedDate: "2026-08-15",
+        status: "VERIFIED",
+      },
+      {
+        region: "Quảng Ngãi",
+        applicationType: "new",
+        amount: 600_000,
+        currency: "VND",
+        source: "NQ 16/2025/NQ-HĐND (HĐND tỉnh Quảng Ngãi, 2025-10-24)",
+        sourceType: "official_government_document",
+        sourceDate: "2025-10-24",
+        checkedDate: "2026-08-15",
+        status: "VERIFIED",
+      },
+      {
+        region: "Quảng Ngãi",
+        applicationType: "reissue",
+        amount: 450_000,
+        currency: "VND",
+        source: "NQ 16/2025/NQ-HĐND (HĐND tỉnh Quảng Ngãi, 2025-10-24)",
+        sourceType: "official_government_document",
+        sourceDate: "2025-10-24",
+        checkedDate: "2026-08-15",
+        status: "VERIFIED",
+      },
+      {
+        region: "Quảng Ngãi",
+        applicationType: "renewal",
+        amount: 450_000,
+        currency: "VND",
+        source: "NQ 16/2025/NQ-HĐND (HĐND tỉnh Quảng Ngãi, 2025-10-24)",
+        sourceType: "official_government_document",
+        sourceDate: "2025-10-24",
+        checkedDate: "2026-08-15",
+        status: "VERIFIED",
+      },
+      {
+        region: "TP. Hồ Chí Minh",
+        applicationType: "new",
+        amount: 600_000,
+        currency: "VND",
+        source: "NQ 09/2022/NQ-HĐND (HĐND TP.HCM, 2022-07-08)",
+        sourceType: "official_government_document",
+        sourceDate: "2022-07-20",
+        checkedDate: "2026-08-15",
+        status: "OFFICIAL_CURRENT_CHECK_REQUIRED",
+        uncertainty:
+          "2025.7.1 행정구역 통합(舊 Bình Dương·Bà Rịa-Vũng Tàu 병합) 이후 이 금액이 그대로 적용되는지, 온라인 신청 면제 조항(NQ 07/2024)의 2026년 현재 유효 여부가 확인되지 않았습니다.",
+        verificationNote:
+          "공식 결의안 원문(NQ 09/2022/NQ-HĐND)은 확인되었으나, 행정구역 통합 이후 현재 적용 여부는 별도 확인이 필요합니다.",
+      },
+      {
+        region: "TP. Hồ Chí Minh",
+        applicationType: "reissue",
+        amount: 450_000,
+        currency: "VND",
+        source: "NQ 09/2022/NQ-HĐND (HĐND TP.HCM, 2022-07-08)",
+        sourceType: "official_government_document",
+        sourceDate: "2022-07-20",
+        checkedDate: "2026-08-15",
+        status: "OFFICIAL_CURRENT_CHECK_REQUIRED",
+        uncertainty: "2025.7.1 행정구역 통합 이후 현재 적용 여부 확인 필요.",
+      },
+      {
+        region: "TP. Hồ Chí Minh",
+        applicationType: "renewal",
+        amount: 450_000,
+        currency: "VND",
+        source: "NQ 09/2022/NQ-HĐND (HĐND TP.HCM, 2022-07-08)",
+        sourceType: "official_government_document",
+        sourceDate: "2022-07-20",
+        checkedDate: "2026-08-15",
+        status: "OFFICIAL_CURRENT_CHECK_REQUIRED",
+        uncertainty: "2025.7.1 행정구역 통합 이후 현재 적용 여부 확인 필요.",
+      },
+      {
+        region: "Quảng Ninh",
+        applicationType: "new",
+        amount: null,
+        currency: "VND",
+        source: "NQ 97/2025/NQ-HĐND (HĐND tỉnh Quảng Ninh, 2025-12-16, 2026~2030 적용 예정)",
+        sourceType: "official_government_document",
+        sourceDate: "2025-12-16",
+        checkedDate: "2026-08-15",
+        status: "PENDING",
+        uncertainty:
+          "구 결의안(NQ 62/2017, NQ 84/2022)은 폐지가 확인되었으나 신규 금액 원문은 아직 확인하지 못했습니다.",
+      },
+      {
+        region: "Đồng Nai",
+        applicationType: "new",
+        amount: null,
+        currency: "VND",
+        source: "NQ 43/2025/NQ-HĐND (HĐND tỉnh Đồng Nai, 2026-01-01 시행 예정)",
+        sourceType: "official_government_document",
+        checkedDate: "2026-08-15",
+        status: "PENDING",
+        uncertainty: "결의안 존재는 확인되었으나 구체적 금액 원문은 아직 확인하지 못했습니다.",
+      },
+    ],
   },
   {
     id: "company",
