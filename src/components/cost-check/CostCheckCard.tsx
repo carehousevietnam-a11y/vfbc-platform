@@ -16,6 +16,7 @@ import {
 } from "@/lib/costCheck";
 import { QUOTE_COMPARE_SUGGESTION } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
+import { OfficialSourceList } from "@/components/cost-check/OfficialSourceList";
 import { ReviewJudgmentDetails } from "@/components/cost-check/ReviewJudgmentDetails";
 import {
   ReviewScoreGauge,
@@ -200,6 +201,7 @@ export function CostCheckCard({
           subValue={govFee.sub}
           showInfo
         />
+        <OfficialSourceList sources={service.officialSources} />
         <CostIconRow
           icon={<BarChart3 size={18} className="text-emerald-700" />}
           iconBg="bg-emerald-100"
@@ -251,6 +253,7 @@ export function CostCheckCard({
           <span className="text-right font-medium text-slate-900">{service.governmentFee}</span>
         </div>
         <p className="text-right text-[11px] leading-snug text-slate-400">출처: {service.source}</p>
+        <OfficialSourceList sources={service.officialSources} />
         <div className="flex items-start justify-between gap-4">
           <span className="shrink-0 text-slate-600">일반 시장 범위</span>
           <span className="text-right font-medium text-slate-900">

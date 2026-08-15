@@ -6,7 +6,7 @@ const STATUS_LABEL: Record<PriceReliabilityStatus, string> = {
   OFFICIAL_SCOPE_CHECK_REQUIRED: "공식자료 확인 · 적용조건 확인 필요",
   MARKET_REFERENCE: "시장 참고가격",
   REFERENCE_ONLY: "참고자료",
-  PENDING: "확인 진행 중",
+  PENDING: "공식 자료 확인 · 금액 원문 확인 필요",
   NOT_FOUND: "확인된 자료 없음",
 };
 
