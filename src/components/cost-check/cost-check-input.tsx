@@ -1,16 +1,16 @@
 "use client";
 
-import { ArrowRight, CircleDollarSign, Scale, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, BadgeCheck, CircleDollarSign, MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-const COST_CHIPS = [
-  { label: "₫", title: "동(VND)" },
-  { label: "$", title: "달러(USD)" },
-  { label: "비용", accent: true },
-  { label: "시장 범위", accent: true },
-  { label: "받은 견적", accent: true },
-  { label: "적정성", accent: true },
+const FLOW_STEPS = [
+  { label: "질문", icon: MessageSquareText },
+  { label: "비용 확인", icon: CircleDollarSign, accent: true },
+  { label: "견적 검토", icon: BadgeCheck },
 ] as const;
+
+const COST_CUES = ["₫", "$", "비용", "시장 범위", "받은 견적", "적정성"] as const;
 
 type CostCheckInputProps = {
   value: string;
@@ -19,6 +19,8 @@ type CostCheckInputProps = {
 };
 
 export default function CostCheckInput({ value, onChange, onSubmit }: CostCheckInputProps) {
+  const [focused, setFocused] = useState(false);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     onSubmit();
@@ -28,92 +30,129 @@ export default function CostCheckInput({ value, onChange, onSubmit }: CostCheckI
     <form onSubmit={handleSubmit} className="w-full">
       <div
         className={cn(
-          "relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white",
-          "shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_40px_-12px_rgba(15,23,42,0.12)]",
-          "ring-1 ring-slate-900/[0.03]",
-          "transition-shadow duration-300 hover:shadow-[0_2px_4px_rgba(15,23,42,0.05),0_20px_48px_-16px_rgba(15,23,42,0.14)]"
+          "relative overflow-hidden rounded-[1.35rem] bg-white",
+          "border border-slate-200/90",
+          "shadow-[0_1px_1px_rgba(15,23,42,0.03),0_4px_6px_-2px_rgba(15,23,42,0.04),0_18px_44px_-14px_rgba(15,23,42,0.10)]",
+          "ring-1 ring-inset ring-white/80",
+          "transition-all duration-200",
+          focused
+            ? "-translate-y-0.5 border-teal-200/70 shadow-[0_2px_4px_rgba(15,23,42,0.04),0_8px_16px_-4px_rgba(15,23,42,0.06),0_24px_52px_-16px_rgba(15,23,42,0.14)] ring-2 ring-teal-500/15"
+            : "hover:border-slate-300/90 hover:shadow-[0_2px_4px_rgba(15,23,42,0.04),0_22px_48px_-14px_rgba(15,23,42,0.12)]"
         )}
       >
-        {/* subtle top gradient layer */}
+        {/* inner highlight */}
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-50/90 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-x-6 top-0 h-20 bg-gradient-to-b from-slate-50/80 to-transparent"
           aria-hidden
         />
 
-        <div className="relative border-b border-slate-100 px-5 py-3.5 sm:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-              <Sparkles size={14} className="text-teal-600" aria-hidden />
-              <span>행정 · 법률 · 비용 직접 확인</span>
-            </div>
-            <div className="hidden items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 sm:flex">
-              <span className="flex items-center gap-1">
-                <Scale size={12} aria-hidden />
-                질문
-              </span>
-              <span className="text-slate-200">|</span>
-              <span className="flex items-center gap-1 text-teal-700/80">
-                <CircleDollarSign size={12} aria-hidden />
-                비용
-              </span>
-              <span className="text-slate-200">|</span>
-              <span>확인</span>
-            </div>
+        {/* header bar */}
+        <div className="relative flex items-center justify-between gap-3 border-b border-slate-100/90 px-4 py-3 sm:px-5">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" aria-hidden />
+            <span className="truncate text-xs font-semibold text-slate-700">
+              행정 · 법률 직접 확인
+            </span>
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {FLOW_STEPS.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <span key={step.label} className="flex items-center gap-1">
+                  {index > 0 && (
+                    <span className="text-[10px] text-slate-200" aria-hidden>
+                      ·
+                    </span>
+                  )}
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold sm:gap-1 sm:px-2 sm:text-[11px]",
+                      "accent" in step && step.accent
+                        ? "bg-teal-50 text-teal-800"
+                        : "text-slate-400"
+                    )}
+                  >
+                    <Icon size={11} strokeWidth={2} aria-hidden />
+                    <span className="hidden sm:inline">{step.label}</span>
+                    <span className="sm:hidden">
+                      {step.label === "비용 확인" ? "비용" : step.label === "견적 검토" ? "견적" : step.label}
+                    </span>
+                  </span>
+                </span>
+              );
+            })}
           </div>
         </div>
 
-        <div className="relative px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
+        {/* input body */}
+        <div className="relative px-4 pb-5 pt-5 sm:px-5 sm:pt-6">
           <label htmlFor="cost-check-question" className="block text-sm font-semibold text-slate-800">
             무엇이 궁금하신가요?
           </label>
-          <textarea
-            id="cost-check-question"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="노동허가 진행 비용이 얼마나 드나요?"
-            rows={3}
-            className={cn(
-              "mt-3 w-full resize-none border-0 bg-transparent p-0 text-base leading-relaxed text-slate-900",
-              "placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-[17px]"
-            )}
-          />
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {COST_CHIPS.map((chip) => (
-              <span
-                key={chip.label}
-                title={"title" in chip ? chip.title : chip.label}
-                className={cn(
-                  "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium",
-                  "accent" in chip && chip.accent
-                    ? "border border-teal-200/60 bg-teal-50/50 text-teal-800"
-                    : "border border-slate-200 bg-slate-50 text-slate-600"
-                )}
-              >
-                {chip.label}
-              </span>
-            ))}
+          <div className="relative mt-3">
+            <textarea
+              id="cost-check-question"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              placeholder="예) 노동허가 진행 비용이 얼마나 드나요?"
+              rows={4}
+              className={cn(
+                "w-full resize-none rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3.5",
+                "text-[15px] leading-relaxed text-slate-900 sm:text-base",
+                "placeholder:text-slate-400",
+                "transition-all duration-200",
+                "focus:border-teal-200/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10"
+              )}
+            />
           </div>
-        </div>
 
-        <div className="relative border-t border-slate-100 bg-slate-50/40 px-5 py-4 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-            <p className="text-[11px] leading-relaxed text-slate-400 sm:mr-auto sm:max-w-[55%]">
-              행정·법률 비용과 절차를 한곳에서 확인합니다. 실제 계산은 다음 단계에서 연결됩니다.
-            </p>
+          {/* cost calculator visual cues — labels only, no values */}
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {COST_CUES.map((cue) => {
+              const isCurrency = cue === "₫" || cue === "$";
+              const isAccent = !isCurrency;
+              return (
+                <span
+                  key={cue}
+                  className={cn(
+                    "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium sm:text-[11px]",
+                    isCurrency
+                      ? "border border-slate-200/80 bg-white text-slate-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
+                      : isAccent
+                        ? "border border-teal-100 bg-teal-50/60 text-teal-800/90"
+                        : "border border-slate-100 bg-slate-50 text-slate-500"
+                  )}
+                >
+                  {cue}
+                </span>
+              );
+            })}
+          </div>
+
+          {/* CTA */}
+          <div className="mt-5 flex justify-end">
             <button
               type="submit"
               disabled={!value.trim()}
               className={cn(
-                "inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-6 text-sm font-semibold transition-all duration-200",
-                "bg-slate-900 text-white shadow-[0_2px_8px_rgba(15,23,42,0.2)]",
-                "hover:bg-slate-800 hover:shadow-[0_4px_14px_rgba(15,23,42,0.22)] hover:-translate-y-px",
-                "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[0_2px_8px_rgba(15,23,42,0.2)]",
-                "sm:min-w-[140px]"
+                "inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl px-6 text-sm font-semibold sm:w-auto sm:min-w-[168px]",
+                "bg-blue-900 text-white",
+                "shadow-[0_1px_2px_rgba(30,58,138,0.2),0_6px_20px_-4px_rgba(30,58,138,0.35)]",
+                "transition-all duration-200",
+                "hover:bg-blue-950 hover:shadow-[0_2px_4px_rgba(30,58,138,0.22),0_10px_28px_-6px_rgba(30,58,138,0.4)] hover:-translate-y-px",
+                "active:translate-y-0 active:shadow-[0_1px_2px_rgba(30,58,138,0.2)]",
+                "disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:hover:translate-y-0"
               )}
             >
-              확인하기
-              <ArrowRight size={16} aria-hidden />
+              직접 확인하기
+              <ArrowRight size={16} strokeWidth={2.25} aria-hidden />
             </button>
           </div>
         </div>
