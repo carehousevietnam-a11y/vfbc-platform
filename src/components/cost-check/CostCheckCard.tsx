@@ -16,7 +16,7 @@ import {
 } from "@/lib/costCheck";
 import { QUOTE_COMPARE_SUGGESTION } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
-import { OfficialSourceList } from "@/components/cost-check/OfficialSourceList";
+import { WpRegionalOfficialFee } from "@/components/cost-check/WpRegionalOfficialFee";
 import { ReviewJudgmentDetails } from "@/components/cost-check/ReviewJudgmentDetails";
 import {
   ReviewScoreGauge,
@@ -41,6 +41,7 @@ type CostCheckCardProps = {
   serviceId: CostCheckServiceId;
   quote?: CostCheckQuoteResult | null;
   variant?: "card" | "report";
+  question?: string;
   onCompareYes?: () => void;
   onQuoteSubmit?: (amount: string) => void;
 };
@@ -135,6 +136,7 @@ export function CostCheckCard({
   serviceId,
   quote = null,
   variant = "card",
+  question,
   onCompareYes,
   onQuoteSubmit,
 }: CostCheckCardProps) {
@@ -182,6 +184,11 @@ export function CostCheckCard({
     service.currency
   )}`;
 
+  const regionalOfficialFee =
+    serviceId === "wp" && service.officialSources ? (
+      <WpRegionalOfficialFee sources={service.officialSources} question={question} />
+    ) : null;
+
   const reportCostBlock = (
     <section>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">비용 확인</p>
@@ -201,7 +208,7 @@ export function CostCheckCard({
           subValue={govFee.sub}
           showInfo
         />
-        <OfficialSourceList sources={service.officialSources} />
+        {regionalOfficialFee}
         <CostIconRow
           icon={<BarChart3 size={18} className="text-emerald-700" />}
           iconBg="bg-emerald-100"
@@ -253,7 +260,7 @@ export function CostCheckCard({
           <span className="text-right font-medium text-slate-900">{service.governmentFee}</span>
         </div>
         <p className="text-right text-[11px] leading-snug text-slate-400">출처: {service.source}</p>
-        <OfficialSourceList sources={service.officialSources} />
+        {regionalOfficialFee}
         <div className="flex items-start justify-between gap-4">
           <span className="shrink-0 text-slate-600">일반 시장 범위</span>
           <span className="text-right font-medium text-slate-900">

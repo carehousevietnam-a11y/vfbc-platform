@@ -103,6 +103,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
               serviceId={(report.quoteReview?.serviceId ?? parsedCost.serviceId)!}
               quote={report.quoteReview ? quoteReviewToCostCheckQuote(report.quoteReview) : null}
               variant="report"
+              question={report.question}
               onCompareYes={onCompareYes}
               onQuoteSubmit={onQuoteSubmit}
             />
