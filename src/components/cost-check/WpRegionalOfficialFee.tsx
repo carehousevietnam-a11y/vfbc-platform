@@ -27,9 +27,20 @@ function regionContextLabel(source: RegionSource): string {
   return "회원님의 신청 지역";
 }
 
+function buildWpLeadCaptureHref(): string {
+  if (typeof window === "undefined") return "/check/wp";
+  const next = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+  return `/check/wp?next=${next}`;
+}
+
 export function WpRegionalOfficialFee({ sources, question }: WpRegionalOfficialFeeProps) {
   const [profileAddress, setProfileAddress] = useState<string | null>(null);
   const [profileChecked, setProfileChecked] = useState(false);
+  const [leadCaptureHref, setLeadCaptureHref] = useState("/check/wp");
+
+  useEffect(() => {
+    setLeadCaptureHref(buildWpLeadCaptureHref());
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,7 +111,7 @@ export function WpRegionalOfficialFee({ sources, question }: WpRegionalOfficialF
             비용을 안내해드립니다.
           </p>
           <Link
-            href="/mypage"
+            href={leadCaptureHref}
             className="mt-3 inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-slate-800"
           >
             내 정보 확인
@@ -123,7 +134,7 @@ export function WpRegionalOfficialFee({ sources, question }: WpRegionalOfficialF
             않았습니다.
           </p>
           <Link
-            href="/mypage"
+            href={leadCaptureHref}
             className="mt-3 inline-flex text-xs font-semibold text-slate-700 underline hover:text-slate-900"
           >
             내 정보 확인
