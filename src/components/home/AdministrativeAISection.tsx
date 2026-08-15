@@ -5,7 +5,7 @@ import { MessageCircle, Headphones } from "lucide-react";
 
 export default function AdministrativeAISection() {
   return (
-    <section className="mx-auto max-w-4xl px-6 py-10 space-y-4">
+    <section className="mx-auto max-w-4xl space-y-4 border-t border-slate-100 bg-white px-5 py-10 sm:px-6 sm:py-12">
       {/* AI 상담 배너 (무료 진입) */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-gray-50 px-7 py-6">
         <div className="flex items-center gap-4">
