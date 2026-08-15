@@ -32,7 +32,13 @@ function formatVnd(amount: number | null): string {
   return `${amount.toLocaleString("ko-KR")} VND`;
 }
 
-export function OfficialSourceList({ sources }: { sources?: OfficialSourceEntry[] }) {
+export function OfficialSourceList({
+  sources,
+  regionLabel,
+}: {
+  sources?: OfficialSourceEntry[];
+  regionLabel?: string;
+}) {
   if (!sources || sources.length === 0) return null;
 
   const byRegion = sources.reduce<Record<string, OfficialSourceEntry[]>>((acc, entry) => {
@@ -43,7 +49,7 @@ export function OfficialSourceList({ sources }: { sources?: OfficialSourceEntry[
   return (
     <div className="mt-4 space-y-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-        지역별 공식 확인 자료
+        {regionLabel ?? "지역별 공식 확인 자료"}
       </p>
       {Object.entries(byRegion).map(([region, entries]) => (
         <div key={region} className="rounded-xl border border-slate-200 bg-white p-4">
