@@ -62,6 +62,14 @@ type Job = WpJob;
 type PriorityField = WpPriorityField;
 type Result = "possible" | "conditional" | "impossible" | null;
 
+function sanitizeReturnHref(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  if (raw.includes("://") || raw.includes("\\")) return null;
+  if (raw.includes("\r") || raw.includes("\n")) return null;
+  return raw;
+}
+
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
 
@@ -1023,6 +1031,13 @@ export default function WpCheckPage() {
   const [expertLoginError, setExpertLoginError] = useState<string | null>(null);
   const [aiReportPending, setAiReportPending] = useState(false);
   const [aiReportError, setAiReportError] = useState<string | null>(null);
+  const [returnHref, setReturnHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setReturnHref(sanitizeReturnHref(params.get("next")));
+  }, []);
 
   const result: Result = computeWpResultTone(education, experience, job, priorityField);
   const showResult = !!education && !!experience && !!priorityField && !!job;
@@ -1693,6 +1708,15 @@ export default function WpCheckPage() {
               </InfoBox>
             </div>
 
+            {returnHref && (
+              <Link
+                href={returnHref}
+                className="mt-4 inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                비용 확인으로 돌아가기
+              </Link>
+            )}
+
             <button
               onClick={reset}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
@@ -1768,6 +1792,14 @@ export default function WpCheckPage() {
             >
               메시지 기다리지 않고 지금 상담하기
             </Link>
+            {returnHref && (
+              <Link
+                href={returnHref}
+                className="mt-4 inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                비용 확인으로 돌아가기
+              </Link>
+            )}
             <button
               onClick={reset}
               className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
