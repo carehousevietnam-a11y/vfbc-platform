@@ -48,7 +48,7 @@ export function OfficialSourceList({
 
   return (
     <div className="mt-4 space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 sm:text-[13px]">
         {regionLabel ?? "지역별 공식 확인 자료"}
       </p>
       {Object.entries(byRegion).map(([region, entries]) => (
@@ -69,7 +69,7 @@ export function OfficialSourceList({
                   >
                     {STATUS_LABEL[entry.status]}
                   </span>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-xs text-slate-500 sm:text-[13px]">
                     출처: {entry.source} · 확인일 {entry.checkedDate}
                   </span>
                 </div>
@@ -83,7 +83,7 @@ export function OfficialSourceList({
           </ul>
         </div>
       ))}
-      <p className="text-[11px] leading-relaxed text-slate-500">
+      <p className="text-xs leading-relaxed text-slate-500 sm:text-[13px]">
         정확한 현재 적용 금액은 관할 관공서 또는 전문가에게 확인하세요.
       </p>
     </div>

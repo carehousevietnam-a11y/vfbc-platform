@@ -27,7 +27,7 @@ function renderInline(text: string) {
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={index} className="font-semibold text-gray-900">
+        <strong key={index} className="font-semibold text-slate-900">
           {part.slice(2, -2)}
         </strong>
       );
@@ -144,29 +144,31 @@ type ChatAnswerContentProps = {
 
 export function ChatAnswerContent({ content, className = "" }: ChatAnswerContentProps) {
   const sanitized = content.split(NEEDS_EXPERT_MARKER).join("").trim();
+  if (!sanitized) return null;
+
   const units = groupBlocks(parseBlocks(sanitized));
 
   return (
     <div
-      className={`space-y-2.5 text-sm leading-relaxed text-gray-800 sm:space-y-3 sm:text-[15px] sm:leading-[1.65] ${className}`}
+      className={`space-y-4 text-[15px] leading-relaxed text-slate-800 sm:text-base sm:leading-[1.65] ${className}`}
     >
       {units.map((unit, index) => {
         if (unit.kind === "bullets") {
           return (
-            <div key={index} className="space-y-1">
+            <ul key={index} className="space-y-2">
               {unit.items.map((text, bulletIndex) => (
-                <div key={bulletIndex} className="flex gap-2 pl-0.5">
-                  <span className="mt-[0.4rem] h-1.5 w-1.5 shrink-0 rounded-full bg-blue-900/70" />
-                  <p
-                    className={`min-w-0 flex-1 break-words leading-snug ${
-                      isVietnameseHeavy(text) ? "text-xs text-slate-600 sm:text-[13px]" : ""
+                <li key={bulletIndex} className="flex gap-2.5">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-900/70" />
+                  <span
+                    className={`min-w-0 flex-1 break-words ${
+                      isVietnameseHeavy(text) ? "text-[14px] leading-relaxed text-slate-700" : ""
                     }`}
                   >
                     {renderInline(text)}
-                  </p>
-                </div>
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
           );
         }
 
@@ -174,12 +176,12 @@ export function ChatAnswerContent({ content, className = "" }: ChatAnswerContent
 
         if (block.kind === "section") {
           return (
-            <p
+            <h3
               key={index}
-              className="pt-0.5 text-[13px] font-bold tracking-tight text-blue-950 sm:text-sm"
+              className="pt-2 text-base font-semibold tracking-tight text-slate-900 sm:text-lg"
             >
-              【{block.title}】
-            </p>
+              {block.title}
+            </h3>
           );
         }
 
@@ -187,13 +189,13 @@ export function ChatAnswerContent({ content, className = "" }: ChatAnswerContent
           return (
             <div
               key={index}
-              className="rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-2.5"
+              className="rounded-xl bg-slate-50/90 px-4 py-3 ring-1 ring-slate-200/70"
             >
-              <p className="font-mono text-[12px] font-semibold tracking-tight text-slate-800 sm:text-[13px]">
+              <p className="font-mono text-[13px] font-semibold tracking-tight text-slate-800 sm:text-sm">
                 {block.number}
               </p>
               {block.title ? (
-                <p className="mt-1 break-words text-[11px] leading-5 text-slate-500 sm:text-xs sm:leading-5">
+                <p className="mt-1 break-words text-xs leading-relaxed text-slate-600 sm:text-[13px]">
                   {block.title}
                 </p>
               ) : null}
@@ -205,7 +207,7 @@ export function ChatAnswerContent({ content, className = "" }: ChatAnswerContent
           return (
             <p
               key={index}
-              className="border-t border-gray-100 pt-2.5 text-[11px] leading-5 text-gray-400 sm:text-xs"
+              className="border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500 sm:text-[13px]"
             >
               {block.text}
             </p>
@@ -215,7 +217,10 @@ export function ChatAnswerContent({ content, className = "" }: ChatAnswerContent
         if (block.kind === "paragraph") {
           if (block.text.startsWith(LEGAL_BASIS_PREFIX)) {
             return (
-              <p key={index} className="text-[11px] leading-5 text-gray-500 sm:text-xs sm:leading-5">
+              <p
+                key={index}
+                className="text-[13px] leading-relaxed text-slate-600 sm:text-sm"
+              >
                 {renderInline(block.text)}
               </p>
             );
@@ -223,8 +228,16 @@ export function ChatAnswerContent({ content, className = "" }: ChatAnswerContent
 
           if (block.text.startsWith(MYPAGE_CTA_PREFIX)) {
             return (
-              <p key={index} className="text-[12px] leading-5 text-slate-600 sm:text-[13px] sm:leading-6">
+              <p key={index} className="text-sm leading-relaxed text-slate-600 sm:text-[15px]">
                 {renderInline(block.text)}
+              </p>
+            );
+          }
+
+          if (block.text.startsWith("최종 업데이트:")) {
+            return (
+              <p key={index} className="text-xs text-slate-500 sm:text-[13px]">
+                <time>{block.text.replace("최종 업데이트:", "").trim()}</time>
               </p>
             );
           }
@@ -233,9 +246,9 @@ export function ChatAnswerContent({ content, className = "" }: ChatAnswerContent
         return (
           <p
             key={index}
-            className={`break-words whitespace-pre-line leading-snug sm:leading-[1.65] ${
+            className={`break-words whitespace-pre-line ${
               block.kind === "paragraph" && isVietnameseHeavy(block.text)
-                ? "text-xs leading-5 text-slate-600 sm:text-[13px] sm:leading-6"
+                ? "text-[14px] leading-relaxed text-slate-700"
                 : ""
             }`}
           >

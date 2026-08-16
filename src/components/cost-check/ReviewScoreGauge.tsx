@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReviewVerdict } from "@/lib/costCheck";
-import { useId } from "react";
 
 const GAUGE_COLORS: Record<ReviewVerdict, { stroke: string; track: string; badge: string }> = {
   fair: { stroke: "#059669", track: "#e2e8f0", badge: "bg-emerald-50 text-emerald-800" },
@@ -29,7 +28,6 @@ const SEMI_PATH_LENGTH = Math.PI * 144;
 
 function semiArcPoint(score: number): { x: number; y: number } {
   const clamped = Math.min(100, Math.max(0, score));
-  // 낮은 적정성 점수(위험) → arc 오른쪽(빨강), 높은 점수 → 왼쪽(초록)
   const t = (100 - clamped) / 100;
   const angle = Math.PI * (1 - t);
   const cx = 180;
@@ -50,17 +48,17 @@ function SemiCircleGauge({
   verdict: ReviewVerdict;
   empty?: boolean;
 }) {
-  const gradientId = useId();
   const clamped = Math.min(100, Math.max(0, score));
-  const { stroke } = GAUGE_COLORS[verdict];
-  const track = "#e2e8f0";
+  const { stroke, track } = empty
+    ? { stroke: "#cbd5e1", track: "#e2e8f0" }
+    : GAUGE_COLORS[verdict];
   const isVeryLow = !empty && verdict === "very_low";
   const dot = semiArcPoint(clamped);
+  const progress = empty ? 0 : (clamped / 100) * SEMI_PATH_LENGTH;
 
   return (
     <div
-      className="relative mx-auto w-full max-w-[290px] sm:max-w-[360px]"
-      style={{ filter: "drop-shadow(0 2px 6px rgba(15, 23, 42, 0.06))" }}
+      className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px]"
       role="img"
       aria-label={
         empty
@@ -68,33 +66,17 @@ function SemiCircleGauge({
           : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
       }
     >
-      <svg
-        viewBox="0 0 360 220"
-        className="h-[170px] w-full sm:h-[220px]"
-        aria-hidden
-      >
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#14b8a6" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#dc2626" />
-          </linearGradient>
-        </defs>
-        <path
-          d={SEMI_PATH}
-          fill="none"
-          stroke={track}
-          strokeWidth={18}
-          strokeLinecap="round"
-        />
+      <svg viewBox="0 0 360 220" className="h-[160px] w-full sm:h-[190px]" aria-hidden>
+        <path d={SEMI_PATH} fill="none" stroke={track} strokeWidth={16} strokeLinecap="round" />
         {!empty ? (
           <path
             d={SEMI_PATH}
             fill="none"
-            stroke={`url(#${gradientId})`}
-            strokeWidth={18}
+            stroke={stroke}
+            strokeWidth={16}
             strokeLinecap="round"
-            className="transition-opacity duration-500 ease-out"
+            strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
+            className="transition-all duration-500 ease-out"
           />
         ) : null}
         {!empty ? (
@@ -118,38 +100,38 @@ function SemiCircleGauge({
           </>
         ) : null}
       </svg>
-      <div className="pointer-events-none absolute inset-x-0 top-[38%] flex flex-col items-center text-center">
+      <div className="pointer-events-none absolute inset-x-0 top-[36%] flex flex-col items-center text-center sm:top-[38%]">
         {empty ? (
-          <span className="max-w-[9rem] text-xs font-medium leading-snug text-slate-400 sm:max-w-[11rem] sm:text-sm">
+          <span className="max-w-[10rem] text-sm font-medium leading-snug text-slate-400">
             견적을 알려주시면
             <br />
             확인해드려요
           </span>
         ) : isVeryLow ? (
           <>
-            <span className="text-lg font-bold text-slate-700 sm:text-xl">확인 필요</span>
-            <span className="mt-0.5 text-xs font-medium text-slate-500 sm:text-sm">
+            <span className="text-xl font-bold text-slate-700 sm:text-2xl">확인 필요</span>
+            <span className="mt-0.5 text-sm font-medium text-slate-500">
               ({Math.round(clamped)}점)
             </span>
           </>
         ) : (
           <>
-            <span className="text-5xl font-bold leading-none text-slate-900 sm:text-6xl sm:leading-none">
+            <span className="text-5xl font-bold leading-none text-slate-900 sm:text-[3.25rem]">
               {Math.round(clamped)}
             </span>
             <span className="mt-1 text-sm font-medium text-slate-400">/ 100</span>
           </>
         )}
       </div>
-      <div className="mt-1 flex justify-between px-1 text-[10px] font-medium text-slate-400 sm:px-2 sm:text-xs">
-        <span>0</span>
-        <span>50</span>
-        <span>100</span>
-      </div>
-      <div className="mt-1 flex justify-between px-0 text-[10px] text-slate-500 sm:text-[11px]">
-        <span className="text-left">적정 범위 내</span>
-        <span className="text-center">주의 필요</span>
-        <span className="text-right">위험 수준</span>
+      {!empty ? (
+        <p className="mt-1 text-center text-sm font-medium text-slate-600">
+          {STATUS_BADGE_LABEL[verdict]}
+        </p>
+      ) : null}
+      <div className="mt-2 flex justify-between px-1 text-xs text-slate-400">
+        <span>적정</span>
+        <span>주의</span>
+        <span>위험</span>
       </div>
     </div>
   );
@@ -196,7 +178,7 @@ export function ReviewScoreGauge({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
         {empty ? (
-          <span className="text-xs font-medium leading-snug text-slate-400">
+          <span className="text-sm font-medium leading-snug text-slate-400">
             견적을 알려주시면
             <br />
             확인해드려요
@@ -206,7 +188,7 @@ export function ReviewScoreGauge({
             <span className={`font-bold leading-tight text-slate-700 ${isLarge ? "text-xl" : "text-lg"}`}>
               확인 필요
             </span>
-            <span className={`mt-0.5 font-medium text-slate-500 ${isLarge ? "text-sm" : "text-[10px]"}`}>
+            <span className={`mt-0.5 font-medium text-slate-500 ${isLarge ? "text-sm" : "text-xs"}`}>
               ({Math.round(score)}점)
             </span>
           </>
@@ -215,7 +197,7 @@ export function ReviewScoreGauge({
             <span className={`font-bold text-slate-900 ${isLarge ? "text-5xl" : "text-3xl"}`}>
               {Math.round(score)}
             </span>
-            <span className={`font-medium text-slate-400 ${isLarge ? "text-sm" : "text-[10px]"}`}>
+            <span className={`font-medium text-slate-400 ${isLarge ? "text-sm" : "text-xs"}`}>
               / 100
             </span>
           </>
@@ -260,7 +242,7 @@ export function computeDisplayBubblePercent(
 
 export function formatBubbleHint(bubblePercent: number): string {
   const rounded = Math.round(bubblePercent);
-  if (rounded > 0) return `참고 시장 범위보다 약 ${rounded}% 높습니다`;
-  if (rounded < 0) return `참고 시장 범위보다 약 ${Math.abs(rounded)}% 낮습니다`;
-  return "참고 시장 범위와 비슷합니다";
+  if (rounded > 0) return `일반 시장 범위보다 약 ${rounded}% 높습니다`;
+  if (rounded < 0) return `일반 시장 범위보다 약 ${Math.abs(rounded)}% 낮습니다`;
+  return "일반 시장 범위와 비슷합니다";
 }
