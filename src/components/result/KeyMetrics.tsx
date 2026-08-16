@@ -26,8 +26,8 @@ export function KeyMetrics({ title = "핵심 수치", metrics }: KeyMetricsProps
             key={metric.label}
             className={`rounded-xl px-4 py-4 sm:px-5 sm:py-5 ${
               metric.emphasis
-                ? "bg-blue-900/[0.04] ring-1 ring-blue-900/10"
-                : "bg-white ring-1 ring-slate-200/80"
+                ? "bg-blue-900/[0.04]"
+                : "bg-white/80"
             }`}
           >
             <dt className="text-xs font-medium text-slate-500 sm:text-[13px]">{metric.label}</dt>

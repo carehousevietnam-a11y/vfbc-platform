@@ -15,9 +15,9 @@ export function RelatedQuestions({ links }: RelatedQuestionsProps) {
   return (
     <section className="mt-10" aria-labelledby="related-heading">
       <h2 id="related-heading" className="text-base font-semibold text-blue-900 sm:text-lg">
-        다음에 확인해보세요
+        함께 많이 확인해요
       </h2>
-      <nav className="mt-3 divide-y divide-slate-100 rounded-xl bg-white ring-1 ring-slate-200/80">
+      <nav className="mt-3 divide-y divide-slate-100/80">
         {links.map((link) => (
           <Link
             key={link.href + link.label}

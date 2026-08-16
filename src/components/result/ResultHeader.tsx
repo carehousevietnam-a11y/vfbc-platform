@@ -4,16 +4,38 @@ import { RotateCcw } from "lucide-react";
 
 type ResultHeaderProps = {
   onReset: () => void;
+  categoryLabel?: string;
+  modeLabel?: string;
+  serviceLabel?: string;
 };
 
-export function ResultHeader({ onReset }: ResultHeaderProps) {
+export function ResultHeader({
+  onReset,
+  categoryLabel,
+  modeLabel,
+  serviceLabel,
+}: ResultHeaderProps) {
   return (
     <header className="flex items-start justify-between gap-4">
       <div>
-        <p className="text-xs font-semibold tracking-[0.12em] text-blue-900/70">VFBCAI</p>
-        <h1 className="mt-1 text-xl font-bold tracking-tight text-blue-900 sm:text-2xl">
+        <h1 className="text-xl font-bold tracking-tight text-blue-900 sm:text-2xl">
           MY VIET CHECK
         </h1>
+        {(categoryLabel || modeLabel || serviceLabel) && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {categoryLabel ? (
+              <span className="rounded-md bg-blue-900/[0.06] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-blue-900 sm:text-xs">
+                {categoryLabel}
+              </span>
+            ) : null}
+            {modeLabel ? (
+              <span className="text-xs font-medium text-slate-600 sm:text-[13px]">{modeLabel}</span>
+            ) : null}
+            {serviceLabel ? (
+              <span className="text-xs font-semibold text-slate-800 sm:text-[13px]">{serviceLabel}</span>
+            ) : null}
+          </div>
+        )}
       </div>
       <button
         type="button"
