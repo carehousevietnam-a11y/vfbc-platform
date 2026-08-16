@@ -4,7 +4,7 @@ import AdministrativeAISection from "@/components/home/AdministrativeAISection";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#faf8f5]">
+    <main className="w-full bg-[#faf8f5]">
       <SiteHeader />
       <MyVietCheckHero />
       <AdministrativeAISection />
