@@ -1,11 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import { RotateCcw } from "lucide-react";
-import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
 import { CostCheckCard, quoteReviewToCostCheckQuote } from "@/components/cost-check/CostCheckCard";
+import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
 import { parseCostEnrichedReply } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
+import { ResultHeader } from "@/components/result/ResultHeader";
+import { QuestionCard } from "@/components/result/QuestionCard";
+import { ResultSummary } from "@/components/result/ResultSummary";
+import { EvidenceSection } from "@/components/result/EvidenceSection";
+import { RelatedQuestions } from "@/components/result/RelatedQuestions";
+import { NextStep } from "@/components/result/NextStep";
+import { extractDirectAnswer } from "@/components/result/parseReplyPresentation";
+import { getQuoteFunnelHref } from "@/lib/quoteReviewLinks";
+import type { CostCheckServiceId } from "@/lib/costCheck";
 
 type NavigatorAction = { label: string; href: string };
 
@@ -32,15 +39,19 @@ function parseAssistantContent(content: string): {
   };
 }
 
-function formatRequestedAt(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  const h = String(date.getHours()).padStart(2, "0");
-  const min = String(date.getMinutes()).padStart(2, "0");
-  return `${y}.${m}.${d} ${h}:${min} 기준`;
+function resolveDirectAnswer(
+  mainText: string,
+  hasQuote: boolean,
+  quote?: QuoteReviewPayload
+): { directAnswer: string; remainder: string } {
+  if (hasQuote && quote) {
+    const fromQuote = quote.summary?.trim() || quote.title?.trim();
+    if (fromQuote) {
+      const { remainder } = extractDirectAnswer(mainText);
+      return { directAnswer: fromQuote, remainder };
+    }
+  }
+  return extractDirectAnswer(mainText);
 }
 
 type AiReportViewProps = {
@@ -57,77 +68,53 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
   const hasCostPanel = Boolean(report.quoteReview || hasCostReference);
   const parsed = parseAssistantContent(hasCostReference ? parsedCost.introText : report.reply);
   const mainText = parsed.mainText;
-  const resolvedActions: NavigatorAction[] =
-    hasCostPanel
-      ? []
-      : Array.isArray(report.actions) && report.actions.length > 0
-        ? report.actions
-        : parsed.nav
-          ? [parsed.nav]
-          : [];
+  const hasQuote = Boolean(report.quoteReview);
+  const { directAnswer, remainder } = resolveDirectAnswer(mainText, hasQuote, report.quoteReview);
+
+  const resolvedActions: NavigatorAction[] = hasCostPanel
+    ? []
+    : Array.isArray(report.actions) && report.actions.length > 0
+      ? report.actions
+      : parsed.nav
+        ? [parsed.nav]
+        : [];
+
+  const serviceId = (report.quoteReview?.serviceId ?? parsedCost.serviceId) as
+    | CostCheckServiceId
+    | undefined;
+  const funnelHref = serviceId ? getQuoteFunnelHref(serviceId) : "/check";
 
   return (
-    <div className="w-full">
-      <div className="flex items-start justify-between gap-4">
-        <p className="text-base leading-snug sm:text-lg">
-          <span className="font-bold tracking-tight text-slate-900">MY VIET CHECK</span>
-          <span className="text-sm font-normal text-slate-400"> · by VFBCAI</span>
-        </p>
-        <button
-          type="button"
-          onClick={onReset}
-          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
-        >
-          <RotateCcw size={12} />
-          처음부터 다시 확인하기
-        </button>
-      </div>
+    <article className="w-full">
+      <ResultHeader onReset={onReset} />
+      <QuestionCard question={report.question} requestedAt={report.requestedAt} />
+      <ResultSummary directAnswer={directAnswer} />
 
-      <div className="mt-6 border-b border-slate-200 pb-6">
-        <p className="text-xs font-medium text-slate-400">확인 요청</p>
-        <p className="mt-1 text-lg font-bold leading-snug text-slate-900 sm:text-xl">
-          {report.question}
-        </p>
-        <p className="mt-2 text-[11px] text-slate-400">{formatRequestedAt(report.requestedAt)}</p>
-      </div>
+      {hasCostPanel && serviceId ? (
+        <CostCheckCard
+          serviceId={serviceId}
+          quote={report.quoteReview ? quoteReviewToCostCheckQuote(report.quoteReview) : null}
+          variant="report"
+          question={report.question}
+          onCompareYes={onCompareYes}
+          onQuoteSubmit={onQuoteSubmit}
+        />
+      ) : (
+        <>
+          {remainder.trim() ? (
+            <EvidenceSection title="상세 안내">
+              <ChatAnswerContent content={remainder} />
+            </EvidenceSection>
+          ) : mainText.trim() && !directAnswer ? (
+            <EvidenceSection title="상세 안내">
+              <ChatAnswerContent content={mainText} />
+            </EvidenceSection>
+          ) : null}
 
-      <div className="mt-8">
-        {hasCostPanel ? (
-          <>
-            {mainText.trim() ? (
-              <div className="mb-8 border-b border-slate-100 pb-8">
-                <ChatAnswerContent content={mainText} />
-              </div>
-            ) : null}
-            <CostCheckCard
-              serviceId={(report.quoteReview?.serviceId ?? parsedCost.serviceId)!}
-              quote={report.quoteReview ? quoteReviewToCostCheckQuote(report.quoteReview) : null}
-              variant="report"
-              question={report.question}
-              onCompareYes={onCompareYes}
-              onQuoteSubmit={onQuoteSubmit}
-            />
-          </>
-        ) : mainText.trim() ? (
-          <div className="space-y-6">
-            <ChatAnswerContent content={mainText} />
-            {resolvedActions.length > 0 ? (
-              <div className="divide-y divide-slate-100 border-t border-slate-100">
-                {resolvedActions.map((action) => (
-                  <Link
-                    key={action.href + action.label}
-                    href={action.href}
-                    className="flex items-center justify-between py-3 text-sm text-slate-800 hover:text-blue-900"
-                  >
-                    <span>{action.label}</span>
-                    <span className="text-slate-400">&gt;</span>
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-    </div>
+          <RelatedQuestions links={resolvedActions} />
+          <NextStep funnelHref={funnelHref} />
+        </>
+      )}
+    </article>
   );
 }
