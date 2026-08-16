@@ -28,3 +28,10 @@ body {
 body {
   background-color: #fafafa;
 }
+
+/* layout.tsx의 html h-full이 문서 높이를 뷰포트에 고정해
+   콘텐츠가 잘리거나 하단에 빈 공간이 생기는 문제를 방지 */
+html {
+  height: auto !important;
+  min-height: 100%;
+}
