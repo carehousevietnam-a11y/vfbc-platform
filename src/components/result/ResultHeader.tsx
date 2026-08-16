@@ -16,23 +16,23 @@ export function ResultHeader({
   serviceLabel,
 }: ResultHeaderProps) {
   return (
-    <header className="flex items-start justify-between gap-4">
+    <header className="mt-8 flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-blue-900 sm:text-2xl">
+        <h1 className="text-xl font-bold tracking-tight text-blue-900 sm:text-2xl lg:text-[28px]">
           MY VIET CHECK
         </h1>
         {(categoryLabel || modeLabel || serviceLabel) && (
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2.5">
             {categoryLabel ? (
-              <span className="rounded-md bg-blue-900/[0.06] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-blue-900 sm:text-xs">
+              <span className="rounded-md bg-blue-900/[0.06] px-2.5 py-1 text-xs font-semibold tracking-wide text-blue-900">
                 {categoryLabel}
               </span>
             ) : null}
             {modeLabel ? (
-              <span className="text-xs font-medium text-slate-600 sm:text-[13px]">{modeLabel}</span>
+              <span className="text-sm font-medium text-slate-600 sm:text-[15px]">{modeLabel}</span>
             ) : null}
             {serviceLabel ? (
-              <span className="text-xs font-semibold text-slate-800 sm:text-[13px]">{serviceLabel}</span>
+              <span className="text-sm font-semibold text-slate-800 sm:text-[15px]">{serviceLabel}</span>
             ) : null}
           </div>
         )}
@@ -40,7 +40,7 @@ export function ResultHeader({
       <button
         type="button"
         onClick={onReset}
-        className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-[#faf8f5] sm:text-[13px]"
+        className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-600 transition-colors hover:bg-[#faf8f5] sm:text-sm"
       >
         <RotateCcw size={14} />
         <span className="hidden sm:inline">처음부터 다시 확인하기</span>

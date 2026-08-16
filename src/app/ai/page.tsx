@@ -124,9 +124,9 @@ function AiPageContent() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-8 sm:px-6 sm:py-10">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto w-full max-w-6xl">
-          <div className="mx-auto w-full max-w-[880px]">
+          <div className="mx-auto w-full max-w-[1100px]">
             {!session && !sending ? (
               <div className="rounded-2xl bg-white px-5 py-8 text-center ring-1 ring-slate-200/70 sm:px-8">
                 <p className="text-lg font-semibold text-slate-900">무엇을 확인하고 싶으신가요?</p>
@@ -163,7 +163,7 @@ function AiPageContent() {
 
       <footer className="shrink-0 border-t border-slate-200/70 bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
         <div className="mx-auto w-full max-w-6xl">
-          <div className="mx-auto w-full max-w-[880px]">
+          <div className="mx-auto w-full max-w-[1100px]">
             <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
               <input
                 value={input}

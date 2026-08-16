@@ -58,7 +58,7 @@ function SemiCircleGauge({
 
   return (
     <div
-      className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px]"
+      className="relative mx-auto w-full max-w-[300px] sm:max-w-[340px] lg:max-w-[360px]"
       role="img"
       aria-label={
         empty
@@ -66,7 +66,7 @@ function SemiCircleGauge({
           : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
       }
     >
-      <svg viewBox="0 0 360 220" className="h-[160px] w-full sm:h-[190px]" aria-hidden>
+      <svg viewBox="0 0 360 220" className="h-[170px] w-full sm:h-[200px] lg:h-[210px]" aria-hidden>
         <path d={SEMI_PATH} fill="none" stroke={track} strokeWidth={16} strokeLinecap="round" />
         {!empty ? (
           <path

@@ -11,6 +11,7 @@ import {
 import { QUOTE_COMPARE_SUGGESTION } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 import { WpRegionalOfficialFee } from "@/components/cost-check/WpRegionalOfficialFee";
+import { OfficialSourceList } from "@/components/cost-check/OfficialSourceList";
 import { ReviewJudgmentDetails } from "@/components/cost-check/ReviewJudgmentDetails";
 import {
   ReviewScoreGauge,
@@ -20,9 +21,7 @@ import {
   formatBubbleHint,
 } from "@/components/cost-check/ReviewScoreGauge";
 import { getQuoteFunnelHref, getQuoteNextLinks } from "@/lib/quoteReviewLinks";
-import { KeyMetrics } from "@/components/result/KeyMetrics";
-import { CostComparisonBar } from "@/components/result/CostComparisonBar";
-import { DecisionSection } from "@/components/result/DecisionSection";
+import { CostMetricCard } from "@/components/result/CostMetricCard";
 import { EvidenceSection } from "@/components/result/EvidenceSection";
 import { SourceSection } from "@/components/result/SourceSection";
 import { RelatedQuestions } from "@/components/result/RelatedQuestions";
@@ -140,108 +139,106 @@ export function CostCheckCard({
     ) : null;
 
   if (isReport) {
-    const metrics = [
-      {
-        label: "정부 공식 비용",
-        value: govFee.main,
-        hint: govFee.sub,
-      },
-      {
-        label: "일반 시장 범위",
-        value: marketRange,
-        hint: service.lookupGuide,
-      },
-      ...(hasQuote
-        ? [
-            {
-              label: "내가 받은 견적",
-              value: formatCostAmount(quote.quotedAmount, service.currency),
-              emphasis: true,
-            },
-          ]
-        : []),
-    ];
+    const quotedDisplay = hasQuote
+      ? formatCostAmount(quote.quotedAmount, service.currency)
+      : "입력 대기";
 
     return (
-      <div className="mt-10 space-y-10">
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-10">
-          <section aria-labelledby="cost-check-heading">
-            <h2 id="cost-check-heading" className="text-base font-semibold text-blue-900 sm:text-lg">
-              비용 확인
-            </h2>
-            <p className="mt-1 text-sm font-medium text-slate-800 sm:text-[15px]">{service.label}</p>
-            <p className="mt-2 text-xs text-slate-500 sm:text-[13px]">
-              출처: {service.source}
-            </p>
-            <div className="mt-5">
-              <KeyMetrics title="핵심 수치" metrics={metrics} />
-            </div>
-            <CostComparisonBar
-              governmentAmount={service.govFeeAmount}
-              marketMin={service.marketMin}
-              marketMax={service.marketMax}
-              quotedAmount={hasQuote ? quote.quotedAmount : null}
-              currency={service.currency}
-            />
-
-            {!hasQuote && onQuoteSubmit ? (
-              <form onSubmit={handleQuoteSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <input
-                  type="text"
-                  value={quoteInput}
-                  onChange={(e) => setQuoteInput(e.target.value)}
-                  placeholder="예: 1,000달러, 500만동"
-                  className="min-h-[44px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10"
-                />
-                <button
-                  type="submit"
-                  disabled={!quoteInput.trim()}
-                  className="min-h-[44px] rounded-xl bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40"
-                >
-                  견적 확인
-                </button>
-              </form>
-            ) : null}
-          </section>
-
-          <DecisionSection
-            title="견적 적정성"
-            layout="stacked"
-            verdictLabel={hasQuote ? `${Math.round(score)} / 100` : undefined}
-            verdictHint={
-              hasQuote
-                ? isReport
-                  ? formatBubbleHint(displayBubble)
-                  : quote.summary
-                : undefined
-            }
+      <div className="mt-10 space-y-10 lg:space-y-12">
+        <section aria-labelledby="cost-check-heading">
+          <h2
+            id="cost-check-heading"
+            className="text-base font-semibold text-blue-900 sm:text-lg lg:text-[18px]"
           >
-            <ReviewScoreGauge
-              score={score}
-              verdict={hasQuote ? quote.verdict : "fair"}
-              size={gaugeSize}
-              empty={!hasQuote}
-            />
-          </DecisionSection>
-        </div>
+            비용 확인
+          </h2>
+          <p className="mt-2 text-[15px] font-medium text-slate-800 sm:text-base">{service.label}</p>
+          <p className="mt-1.5 text-[13px] text-slate-500 sm:text-sm">
+            출처: {service.source}
+          </p>
 
-        {regionalOfficialFee ? (
-          <SourceSection title="공식 출처">{regionalOfficialFee}</SourceSection>
-        ) : null}
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
+            <CostMetricCard label="정부 공식 비용" value={govFee.main} hint={govFee.sub} />
+            <CostMetricCard label="일반 시장 범위" value={marketRange} hint={service.lookupGuide} />
+            <CostMetricCard
+              label="내가 받은 견적"
+              value={quotedDisplay}
+              emphasis={hasQuote}
+              placeholder={!hasQuote}
+            />
+
+            <div className="flex flex-col rounded-2xl bg-white px-4 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-5 sm:py-6">
+              <h2
+                id="decision-heading"
+                className="text-base font-semibold text-blue-900 sm:text-lg lg:text-[18px]"
+              >
+                견적 적정성
+              </h2>
+              <div className="mt-2 flex flex-1 flex-col items-center justify-center">
+                <ReviewScoreGauge
+                  score={score}
+                  verdict={hasQuote ? quote.verdict : "fair"}
+                  size={gaugeSize}
+                  empty={!hasQuote}
+                />
+                {hasQuote ? (
+                  <div className="mt-3 w-full space-y-1.5 text-center">
+                    <p className="text-2xl font-bold text-slate-900 sm:text-3xl">
+                      {Math.round(score)} / 100
+                    </p>
+                    <p className="text-[15px] font-semibold text-slate-800 sm:text-base">
+                      {STATUS_BADGE_LABEL[quote.verdict]}
+                    </p>
+                    <p className="text-[14px] leading-relaxed text-slate-600 sm:text-[15px]">
+                      {formatBubbleHint(displayBubble)}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="mt-3 text-center text-[14px] leading-relaxed text-slate-500 sm:text-[15px]">
+                    견적을 입력하면 적정성 점수를 확인할 수 있습니다
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {!hasQuote && onQuoteSubmit ? (
+            <form onSubmit={handleQuoteSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row lg:max-w-xl">
+              <input
+                type="text"
+                value={quoteInput}
+                onChange={(e) => setQuoteInput(e.target.value)}
+                placeholder="예: 1,000달러, 500만동"
+                className="min-h-[48px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10 sm:text-base"
+              />
+              <button
+                type="submit"
+                disabled={!quoteInput.trim()}
+                className="min-h-[48px] rounded-xl bg-blue-900 px-6 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40 sm:text-base"
+              >
+                견적 확인
+              </button>
+            </form>
+          ) : null}
+        </section>
 
         {hasQuote ? (
           <>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3">
               <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold sm:text-[13px] ${badgeClass}`}
+                className={`inline-flex rounded-full px-3.5 py-1 text-[13px] font-semibold sm:text-sm ${badgeClass}`}
               >
                 {STATUS_BADGE_LABEL[quote.verdict]}
               </span>
-              <p className="text-[15px] font-semibold text-slate-900 sm:text-base">{quote.title}</p>
+              <p className="text-[15px] font-semibold text-slate-900 sm:text-base lg:text-[17px]">
+                {quote.title}
+              </p>
             </div>
-            <p className="text-[15px] leading-relaxed text-slate-600 sm:text-base">{quote.detail}</p>
+            <p className="text-[15px] leading-relaxed text-slate-600 sm:text-base lg:text-[17px]">
+              {quote.detail}
+            </p>
 
-            <EvidenceSection title="왜 이렇게 판단했나요?" highlighted>
+            <EvidenceSection title="판단 근거" lead="왜 이렇게 판단했나요?" highlighted>
               <ReviewJudgmentDetails
                 service={service}
                 quotedAmount={quote.quotedAmount}
@@ -255,27 +252,43 @@ export function CostCheckCard({
         ) : null}
 
         {!hasQuote ? (
-          <section className="rounded-2xl bg-white px-5 py-5 ring-1 ring-slate-200/70 sm:px-6">
-            <p className="text-[15px] font-medium text-slate-800">{QUOTE_COMPARE_SUGGESTION}</p>
-            <div className="mt-4 flex flex-wrap gap-3">
+          <section className="rounded-2xl bg-white px-6 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-7 sm:py-7">
+            <p className="text-[15px] font-medium text-slate-800 sm:text-base">{QUOTE_COMPARE_SUGGESTION}</p>
+            <div className="mt-5 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={onCompareYes}
-                className="min-h-[44px] rounded-xl bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#152a63]"
+                className="min-h-[48px] rounded-xl bg-blue-900 px-6 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-[#152a63] sm:text-base"
               >
                 네, 비교할게요
               </button>
-              <span className="inline-flex min-h-[44px] items-center rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-500">
+              <span className="inline-flex min-h-[48px] items-center rounded-xl border border-slate-200 px-6 py-2.5 text-[15px] font-medium text-slate-500 sm:text-base">
                 괜찮아요
               </span>
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-slate-500 sm:text-[13px]">
+            <p className="mt-4 text-[13px] leading-relaxed text-slate-500 sm:text-sm">
               {COST_CHECK_MARKET_NOTE}
             </p>
           </section>
         ) : null}
 
-        <RelatedQuestions links={nextLinks} />
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
+          {regionalOfficialFee ? (
+            <SourceSection embedded>{regionalOfficialFee}</SourceSection>
+          ) : service.officialSources && service.officialSources.length > 0 ? (
+            <SourceSection embedded>
+              <OfficialSourceList sources={service.officialSources} />
+            </SourceSection>
+          ) : (
+            <SourceSection embedded>
+              <p className="text-[13px] leading-relaxed text-slate-500 sm:text-sm">
+                출처: {service.source}
+              </p>
+            </SourceSection>
+          )}
+          <RelatedQuestions links={nextLinks} embedded />
+        </div>
+
         <NextStep funnelHref={funnelHref} />
       </div>
     );

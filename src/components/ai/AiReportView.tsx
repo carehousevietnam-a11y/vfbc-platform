@@ -8,6 +8,7 @@ import { ResultHeader } from "@/components/result/ResultHeader";
 import { QuestionCard } from "@/components/result/QuestionCard";
 import { ResultSummary } from "@/components/result/ResultSummary";
 import { EvidenceSection } from "@/components/result/EvidenceSection";
+import { SourceSection } from "@/components/result/SourceSection";
 import { RelatedQuestions } from "@/components/result/RelatedQuestions";
 import { NextStep } from "@/components/result/NextStep";
 import { extractDirectAnswer } from "@/components/result/parseReplyPresentation";
@@ -93,16 +94,16 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
 
   return (
     <article className="w-full">
+      <QuestionCard
+        question={report.question}
+        requestedAt={report.requestedAt}
+        showCostAnchor={hasCostPanel}
+      />
       <ResultHeader
         onReset={onReset}
         categoryLabel={service ? resolveCategoryLabel(serviceId!) : undefined}
         modeLabel={hasQuote ? "견적 적정성 검증" : hasCostPanel ? "비용 확인" : undefined}
         serviceLabel={service?.label}
-      />
-      <QuestionCard
-        question={report.question}
-        requestedAt={report.requestedAt}
-        showCostAnchor={hasCostPanel}
       />
       <ResultSummary directAnswer={directAnswer} />
 
@@ -118,16 +119,23 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
       ) : (
         <>
           {remainder.trim() ? (
-            <EvidenceSection title="상세 안내">
+            <EvidenceSection title="판단 근거" lead="상세 안내">
               <ChatAnswerContent content={remainder} />
             </EvidenceSection>
           ) : mainText.trim() && !directAnswer ? (
-            <EvidenceSection title="상세 안내">
+            <EvidenceSection title="판단 근거" lead="상세 안내">
               <ChatAnswerContent content={mainText} />
             </EvidenceSection>
           ) : null}
 
-          <RelatedQuestions links={resolvedActions} />
+          <div className="grid gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
+            <SourceSection embedded>
+              <p className="text-[13px] leading-relaxed text-slate-500 sm:text-sm">
+                Vietnam · {service?.label ?? "행정·법률 확인"}
+              </p>
+            </SourceSection>
+            <RelatedQuestions links={resolvedActions} embedded />
+          </div>
           <NextStep funnelHref={funnelHref} />
         </>
       )}
