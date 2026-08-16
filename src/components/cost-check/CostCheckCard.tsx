@@ -21,6 +21,7 @@ import {
 } from "@/components/cost-check/ReviewScoreGauge";
 import { getQuoteFunnelHref, getQuoteNextLinks } from "@/lib/quoteReviewLinks";
 import { KeyMetrics } from "@/components/result/KeyMetrics";
+import { CostComparisonBar } from "@/components/result/CostComparisonBar";
 import { DecisionSection } from "@/components/result/DecisionSection";
 import { EvidenceSection } from "@/components/result/EvidenceSection";
 import { SourceSection } from "@/components/result/SourceSection";
@@ -163,59 +164,70 @@ export function CostCheckCard({
 
     return (
       <div className="mt-10 space-y-10">
-        <section aria-labelledby="cost-check-heading">
-          <h2 id="cost-check-heading" className="text-base font-semibold text-blue-900 sm:text-lg">
-            비용 확인 · {service.label}
-          </h2>
-          <p className="mt-2 text-xs text-slate-500 sm:text-[13px]">
-            출처: {service.source}
-          </p>
-          <div className="mt-5">
-            <KeyMetrics title="핵심 수치" metrics={metrics} />
-          </div>
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-10">
+          <section aria-labelledby="cost-check-heading">
+            <h2 id="cost-check-heading" className="text-base font-semibold text-blue-900 sm:text-lg">
+              비용 확인
+            </h2>
+            <p className="mt-1 text-sm font-medium text-slate-800 sm:text-[15px]">{service.label}</p>
+            <p className="mt-2 text-xs text-slate-500 sm:text-[13px]">
+              출처: {service.source}
+            </p>
+            <div className="mt-5">
+              <KeyMetrics title="핵심 수치" metrics={metrics} />
+            </div>
+            <CostComparisonBar
+              governmentAmount={service.govFeeAmount}
+              marketMin={service.marketMin}
+              marketMax={service.marketMax}
+              quotedAmount={hasQuote ? quote.quotedAmount : null}
+              currency={service.currency}
+            />
 
-          {!hasQuote && onQuoteSubmit ? (
-            <form onSubmit={handleQuoteSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <input
-                type="text"
-                value={quoteInput}
-                onChange={(e) => setQuoteInput(e.target.value)}
-                placeholder="예: 1,000달러, 500만동"
-                className="min-h-[44px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10"
-              />
-              <button
-                type="submit"
-                disabled={!quoteInput.trim()}
-                className="min-h-[44px] rounded-xl bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40"
-              >
-                견적 확인
-              </button>
-            </form>
-          ) : null}
-        </section>
+            {!hasQuote && onQuoteSubmit ? (
+              <form onSubmit={handleQuoteSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  value={quoteInput}
+                  onChange={(e) => setQuoteInput(e.target.value)}
+                  placeholder="예: 1,000달러, 500만동"
+                  className="min-h-[44px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10"
+                />
+                <button
+                  type="submit"
+                  disabled={!quoteInput.trim()}
+                  className="min-h-[44px] rounded-xl bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40"
+                >
+                  견적 확인
+                </button>
+              </form>
+            ) : null}
+          </section>
+
+          <DecisionSection
+            title="견적 적정성"
+            layout="stacked"
+            verdictLabel={hasQuote ? `${Math.round(score)} / 100` : undefined}
+            verdictHint={
+              hasQuote
+                ? isReport
+                  ? formatBubbleHint(displayBubble)
+                  : quote.summary
+                : undefined
+            }
+          >
+            <ReviewScoreGauge
+              score={score}
+              verdict={hasQuote ? quote.verdict : "fair"}
+              size={gaugeSize}
+              empty={!hasQuote}
+            />
+          </DecisionSection>
+        </div>
 
         {regionalOfficialFee ? (
-          <SourceSection title="지역별 공식 비용">{regionalOfficialFee}</SourceSection>
+          <SourceSection title="공식 출처">{regionalOfficialFee}</SourceSection>
         ) : null}
-
-        <DecisionSection
-          title="견적 적정성"
-          verdictLabel={hasQuote ? `${Math.round(score)} / 100` : undefined}
-          verdictHint={
-            hasQuote
-              ? isReport
-                ? formatBubbleHint(displayBubble)
-                : quote.summary
-              : undefined
-          }
-        >
-          <ReviewScoreGauge
-            score={score}
-            verdict={hasQuote ? quote.verdict : "fair"}
-            size={gaugeSize}
-            empty={!hasQuote}
-          />
-        </DecisionSection>
 
         {hasQuote ? (
           <>
@@ -227,23 +239,23 @@ export function CostCheckCard({
               </span>
               <p className="text-[15px] font-semibold text-slate-900 sm:text-base">{quote.title}</p>
             </div>
-            <p className="text-[15px] leading-relaxed text-slate-600">{quote.detail}</p>
+            <p className="text-[15px] leading-relaxed text-slate-600 sm:text-base">{quote.detail}</p>
 
-            <EvidenceSection title="왜 이렇게 판단했나요?">
+            <EvidenceSection title="왜 이렇게 판단했나요?" highlighted>
               <ReviewJudgmentDetails
                 service={service}
                 quotedAmount={quote.quotedAmount}
                 fairReference={quote.fairReference}
                 bubblePercent={quote.bubblePercent}
                 score={score}
-                variant="pill"
+                variant="open"
               />
             </EvidenceSection>
           </>
         ) : null}
 
         {!hasQuote ? (
-          <section className="rounded-xl bg-white px-5 py-5 ring-1 ring-slate-200/80 sm:px-6">
+          <section className="rounded-2xl bg-white px-5 py-5 ring-1 ring-slate-200/70 sm:px-6">
             <p className="text-[15px] font-medium text-slate-800">{QUOTE_COMPARE_SUGGESTION}</p>
             <div className="mt-4 flex flex-wrap gap-3">
               <button

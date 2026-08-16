@@ -18,25 +18,26 @@ export function NextStep({
       <h2 id="next-step-heading" className="text-base font-semibold text-blue-900 sm:text-lg">
         다음 단계
       </h2>
-      <div className="mt-4 rounded-2xl bg-white px-5 py-6 ring-1 ring-slate-200/80 sm:px-6 sm:py-7">
-        <p className="text-[15px] text-slate-700">비용과 절차를 확인했다면, 이제 내 상황을 점검해 보세요.</p>
-        <p className="mt-2 text-sm leading-relaxed text-slate-500">
-          같은 업무라도 사람마다 필요한 절차와 조건이 다를 수 있습니다. 내 상황에 맞는 절차와 서류를
-          확인하세요.
+      <div className="mt-4 rounded-2xl bg-blue-900 px-5 py-7 sm:px-8 sm:py-8">
+        <p className="text-[15px] font-semibold text-white sm:text-base">
+          정확한 절차와 비용이 궁금하다면?
         </p>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <p className="mt-2 text-sm leading-relaxed text-blue-100 sm:text-[15px]">
+          지금 내 상황에 맞는 정확한 절차와 비용을 확인해보세요.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link
             href={funnelHref}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-xl bg-blue-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#152a63] sm:min-w-[200px] sm:flex-none"
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-blue-900 transition-colors hover:bg-blue-50 sm:min-w-[200px] sm:flex-none"
           >
-            {funnelLabel} →
+            {funnelLabel}
           </Link>
           {showExpertCta ? (
             <Link
               href="/consultation"
-              className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-blue-900 transition-colors hover:bg-[#faf8f5] sm:min-w-[160px] sm:flex-none"
+              className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/15 sm:min-w-[160px] sm:flex-none"
             >
-              전문가 상담
+              전문가 상담하기
             </Link>
           ) : null}
         </div>

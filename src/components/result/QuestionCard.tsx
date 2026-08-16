@@ -1,34 +1,56 @@
 "use client";
 
+import { MessageCircle, CircleDollarSign, CheckCircle2 } from "lucide-react";
 import { formatRequestedAt } from "@/components/result/parseReplyPresentation";
 
 type QuestionCardProps = {
   question: string;
   requestedAt: string;
+  showCostAnchor?: boolean;
 };
 
-export function QuestionCard({ question, requestedAt }: QuestionCardProps) {
+const ANCHOR_CLASS =
+  "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-50 hover:text-blue-900";
+
+export function QuestionCard({ question, requestedAt, showCostAnchor = false }: QuestionCardProps) {
   const dateLabel = formatRequestedAt(requestedAt);
 
   return (
     <section
-      className="mt-8 rounded-2xl border border-slate-200/70 bg-white px-5 py-5 sm:px-6 sm:py-6"
+      className="mt-8 rounded-2xl bg-white px-5 py-5 ring-1 ring-slate-200/70 sm:px-6 sm:py-6"
       aria-labelledby="ai-question-heading"
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">확인 요청</p>
-      <h2
-        id="ai-question-heading"
-        className="mt-2 text-lg font-bold leading-snug text-slate-900 sm:text-[22px] sm:leading-tight"
-      >
-        {question}
-      </h2>
-      {dateLabel ? (
-        <p className="mt-3 text-xs text-slate-500">
-          <time dateTime={requestedAt}>{dateLabel}</time>
-          <span className="mx-1.5 text-slate-300">·</span>
-          <span>Vietnam</span>
-        </p>
-      ) : null}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold tracking-wide text-blue-900/70">행정·법률 확인기</p>
+          <h2
+            id="ai-question-heading"
+            className="mt-2 break-words text-lg font-bold leading-snug text-slate-900 sm:text-[22px] sm:leading-tight"
+          >
+            &ldquo;{question}&rdquo;
+          </h2>
+          {dateLabel ? (
+            <p className="mt-3 text-xs text-slate-500 sm:text-[13px]">
+              <time dateTime={requestedAt}>{dateLabel}</time>
+              <span className="mx-1.5 text-slate-300">·</span>
+              <span>Vietnam</span>
+            </p>
+          ) : null}
+        </div>
+        <nav className="flex shrink-0 items-center gap-0.5" aria-label="결과 섹션 바로가기">
+          <a href="#ai-question-heading" className={ANCHOR_CLASS} aria-label="질문">
+            <MessageCircle size={18} />
+          </a>
+          {showCostAnchor ? (
+            <a href="#cost-check-heading" className={ANCHOR_CLASS} aria-label="비용">
+              <CircleDollarSign size={18} />
+            </a>
+          ) : null}
+          <a href="#direct-answer-heading" className={ANCHOR_CLASS} aria-label="확인">
+            <CheckCircle2 size={18} />
+          </a>
+        </nav>
+      </div>
     </section>
   );
 }

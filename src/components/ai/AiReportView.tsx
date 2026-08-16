@@ -12,9 +12,15 @@ import { RelatedQuestions } from "@/components/result/RelatedQuestions";
 import { NextStep } from "@/components/result/NextStep";
 import { extractDirectAnswer } from "@/components/result/parseReplyPresentation";
 import { getQuoteFunnelHref } from "@/lib/quoteReviewLinks";
-import type { CostCheckServiceId } from "@/lib/costCheck";
+import { getCostCheckService, type CostCheckServiceId } from "@/lib/costCheck";
 
 type NavigatorAction = { label: string; href: string };
+
+function resolveCategoryLabel(serviceId: CostCheckServiceId): string {
+  if (serviceId === "company") return "REGISTER";
+  if (serviceId === "notary") return "VERIFY";
+  return "CHECK";
+}
 
 export type AiReportData = {
   question: string;
@@ -83,11 +89,21 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
     | CostCheckServiceId
     | undefined;
   const funnelHref = serviceId ? getQuoteFunnelHref(serviceId) : "/check";
+  const service = serviceId ? getCostCheckService(serviceId) : null;
 
   return (
     <article className="w-full">
-      <ResultHeader onReset={onReset} />
-      <QuestionCard question={report.question} requestedAt={report.requestedAt} />
+      <ResultHeader
+        onReset={onReset}
+        categoryLabel={service ? resolveCategoryLabel(serviceId!) : undefined}
+        modeLabel={hasQuote ? "견적 적정성 검증" : hasCostPanel ? "비용 확인" : undefined}
+        serviceLabel={service?.label}
+      />
+      <QuestionCard
+        question={report.question}
+        requestedAt={report.requestedAt}
+        showCostAnchor={hasCostPanel}
+      />
       <ResultSummary directAnswer={directAnswer} />
 
       {hasCostPanel && serviceId ? (
