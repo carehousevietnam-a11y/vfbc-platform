@@ -77,7 +77,6 @@ import {
   isTrcService,
   resolveTrcArticleIntent,
 } from "@/lib/contentPacks/intentRouter";
-import { fetchAnonymousLegalBasisLine } from "@/lib/legalRagBasis";
 import { enrichReplyWithCostData, shouldSuppressNavigatorActions } from "@/lib/aiCostSection";
 import { resolveQuoteReview, tryAffirmativeQuotePrompt, tryQuoteAmountReprompt, shouldBlockAiQuoteJudgment } from "@/lib/aiQuoteReview";
 import { sanitizeAssistantReply } from "@/lib/aiReplySanitize";
@@ -436,13 +435,7 @@ export async function POST(req: NextRequest) {
           if (isTrcService(inferred.service_type)) {
             const intentId = resolveTrcArticleIntent(lastMessage!.content);
             const article = getTrcArticleByIntent(intentId);
-            const legalBasisLine = await fetchAnonymousLegalBasisLine(
-              lastMessage!.content,
-              inferred
-            );
-            const { reply, actions } = buildArticleChatReply(lastMessage!.content, article, {
-              legalBasisLine,
-            });
+            const { reply, actions } = buildArticleChatReply(lastMessage!.content, article);
             const enrichedReply = enrichReplyWithCostData(reply, lastMessage!.content);
 
             return NextResponse.json({
@@ -453,9 +446,8 @@ export async function POST(req: NextRequest) {
             });
           }
 
-          const legalBasisLine = await fetchAnonymousLegalBasisLine(lastMessage!.content, inferred);
           const replyBody = enrichReplyWithCostData(
-            buildAnonymousFastGuide(inferred, { legalBasisLine }),
+            buildAnonymousFastGuide(inferred),
             lastMessage!.content
           );
           const suppressNavActions = shouldSuppressNavigatorActions(replyBody);
