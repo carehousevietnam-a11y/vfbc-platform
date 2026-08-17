@@ -21,6 +21,8 @@ type ReviewScoreGaugeProps = {
   verdict?: ReviewVerdict;
   size?: "default" | "large" | "semi" | "compact";
   empty?: boolean;
+  /** 일반 범위 기준 baseline 화면 (실제 견적 점수 아님) */
+  baseline?: boolean;
 };
 
 const SEMI_PATH = "M 36 188 A 144 144 0 0 1 324 188";
@@ -44,11 +46,13 @@ function SemiCircleGauge({
   verdict,
   empty = false,
   compact = false,
+  baseline = false,
 }: {
   score: number;
   verdict: ReviewVerdict;
   empty?: boolean;
   compact?: boolean;
+  baseline?: boolean;
 }) {
   const clamped = Math.min(100, Math.max(0, score));
   const { stroke, track } = empty
@@ -67,9 +71,11 @@ function SemiCircleGauge({
       }
       role="img"
       aria-label={
-        empty
-          ? "견적을 입력하면 적정성 점수를 확인할 수 있습니다"
-          : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
+        baseline
+          ? "일반 범위 기준 화면입니다. 금액을 입력하면 적정성을 판단합니다"
+          : empty
+            ? "견적을 입력하면 적정성 점수를 확인할 수 있습니다"
+            : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
       }
     >
       <svg
@@ -145,12 +151,12 @@ function SemiCircleGauge({
           </>
         )}
       </div>
-      {!empty && !compact ? (
+      {!empty && !compact && !baseline ? (
         <p className="mt-1 text-center text-sm font-medium text-slate-600">
           {STATUS_BADGE_LABEL[verdict]}
         </p>
       ) : null}
-      {!empty && !compact ? (
+      {!empty && !compact && !baseline ? (
         <div className="mt-2 flex justify-between px-1 text-xs text-slate-400">
           <span>적정</span>
           <span>주의</span>
@@ -166,9 +172,18 @@ export function ReviewScoreGauge({
   verdict = "fair",
   size = "default",
   empty = false,
+  baseline = false,
 }: ReviewScoreGaugeProps) {
   if (size === "semi" || size === "compact") {
-    return <SemiCircleGauge score={score} verdict={verdict} empty={empty} compact={size === "compact"} />;
+    return (
+      <SemiCircleGauge
+        score={score}
+        verdict={verdict}
+        empty={empty}
+        compact={size === "compact"}
+        baseline={baseline}
+      />
+    );
   }
 
   const isLarge = size === "large";
