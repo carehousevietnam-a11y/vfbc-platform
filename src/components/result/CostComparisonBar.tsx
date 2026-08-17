@@ -35,7 +35,7 @@ export function CostComparisonBar({
     quotedAmount != null ? clampPercent((quotedAmount / maxValue) * 100) : null;
 
   return (
-    <div className="mt-6" aria-labelledby="cost-comparison-heading">
+    <div className="mt-4" aria-labelledby="cost-comparison-heading">
       <h3 id="cost-comparison-heading" className="sr-only">
         비용 비교
       </h3>

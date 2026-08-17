@@ -17,7 +17,7 @@ export function QuestionCard({ question, requestedAt, showCostAnchor = false }: 
 
   return (
     <section
-      className="rounded-2xl bg-white px-5 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-7 sm:py-7"
+      className="rounded-xl bg-white px-5 py-5 ring-1 ring-slate-200/70 sm:px-6 sm:py-6"
       aria-labelledby="ai-question-heading"
     >
       <div className="flex items-start justify-between gap-4">
@@ -27,7 +27,7 @@ export function QuestionCard({ question, requestedAt, showCostAnchor = false }: 
           </p>
           <h2
             id="ai-question-heading"
-            className="mt-2 break-words text-xl font-bold leading-snug text-slate-900 sm:text-[21px] lg:text-[22px] lg:leading-tight"
+            className="mt-2 break-keep text-xl font-bold leading-snug text-slate-900 sm:text-[21px] lg:text-[22px] lg:leading-tight"
           >
             &ldquo;{question}&rdquo;
           </h2>

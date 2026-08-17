@@ -15,14 +15,14 @@ export function SourceSection({
 }: SourceSectionProps) {
   return (
     <section
-      className={embedded ? "" : "mt-10 lg:mt-12"}
+      className={embedded ? "" : "mt-8 lg:mt-9"}
       aria-labelledby="source-heading"
     >
-      <h2 id="source-heading" className="text-base font-semibold text-blue-900 sm:text-lg lg:text-[18px]">
+      <h2 id="source-heading" className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]">
         {title}
       </h2>
       <div
-        className={`mt-4 ${embedded ? "rounded-2xl bg-white px-5 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-6 sm:py-6" : ""}`}
+        className={`mt-3 ${embedded ? "rounded-xl bg-white px-4 py-4 ring-1 ring-slate-200/70 sm:px-5 sm:py-5" : ""}`}
       >
         {children}
       </div>

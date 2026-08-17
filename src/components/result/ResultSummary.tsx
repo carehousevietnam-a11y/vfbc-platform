@@ -15,7 +15,7 @@ export function ResultSummary({ directAnswer }: ResultSummaryProps) {
       >
         직접 확인한 결과
       </h2>
-      <p className="mt-4 max-w-4xl break-words text-lg font-medium leading-relaxed text-slate-900 sm:text-xl lg:text-[21px] lg:leading-snug">
+      <p className="mt-3 max-w-3xl break-keep text-lg font-medium leading-relaxed text-slate-900 sm:text-xl lg:text-[21px] lg:leading-snug">
         &ldquo;{directAnswer}&rdquo;
       </p>
     </section>

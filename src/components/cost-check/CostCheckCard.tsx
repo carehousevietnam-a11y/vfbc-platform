@@ -105,7 +105,7 @@ export function CostCheckCard({
     : 0;
   const nextLinks = getQuoteNextLinks(serviceId);
   const funnelHref = getQuoteFunnelHref(serviceId);
-  const gaugeSize = isReport ? "semi" : "large";
+  const gaugeSize = isReport ? "compact" : "large";
   const displayBubble = hasQuote
     ? computeDisplayBubblePercent(quote.bubblePercent, quote.fairReference, quote.quotedAmount)
     : 0;
@@ -145,7 +145,7 @@ export function CostCheckCard({
       : "입력 대기";
 
     return (
-      <div className="mt-10 space-y-10 lg:space-y-12">
+      <div className="mt-8 space-y-8 lg:space-y-9">
         <section aria-labelledby="cost-check-heading">
           <h2
             id="cost-check-heading"
@@ -153,24 +153,29 @@ export function CostCheckCard({
           >
             비용 확인
           </h2>
-          <p className="mt-2 text-[15px] font-medium text-slate-800 sm:text-base lg:text-[16px]">
+          <p className="mt-1.5 text-[15px] font-medium text-slate-800 sm:text-base">
             {service.label}
           </p>
-          <p className="mt-1.5 text-[13px] text-slate-500 sm:text-sm">
+          <p className="mt-1 text-[13px] text-slate-500 sm:text-sm">
             출처: {service.source}
           </p>
 
-          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)] lg:gap-8">
-            <div className="min-w-0 space-y-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-5">
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_252px] lg:items-start lg:gap-6">
+            <div className="min-w-0 space-y-4">
+              <h3 id="key-metrics-heading" className="text-[15px] font-semibold text-slate-800 sm:text-base">
+                핵심 수치
+              </h3>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
                 <CostMetricCard label="정부 공식 비용" value={govFee.main} hint={govFee.sub} />
                 <CostMetricCard label="일반 시장 범위" value={marketRange} hint={service.lookupGuide} />
-                <CostMetricCard
-                  label="내가 받은 견적"
-                  value={quotedDisplay}
-                  emphasis={hasQuote}
-                  placeholder={!hasQuote}
-                />
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <CostMetricCard
+                    label="내가 받은 견적"
+                    value={quotedDisplay}
+                    emphasis={hasQuote}
+                    placeholder={!hasQuote}
+                  />
+                </div>
               </div>
 
               <CostComparisonBar
@@ -188,12 +193,12 @@ export function CostCheckCard({
                     value={quoteInput}
                     onChange={(e) => setQuoteInput(e.target.value)}
                     placeholder="예: 1,000달러, 500만동"
-                    className="min-h-[48px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10 sm:text-base"
+                    className="min-h-[44px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10 sm:text-base"
                   />
                   <button
                     type="submit"
                     disabled={!quoteInput.trim()}
-                    className="min-h-[48px] rounded-xl bg-blue-900 px-6 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40 sm:text-base"
+                    className="min-h-[44px] rounded-xl bg-blue-900 px-6 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40 sm:text-base"
                   >
                     견적 확인
                   </button>
@@ -201,7 +206,7 @@ export function CostCheckCard({
               ) : null}
             </div>
 
-            <div className="flex min-w-[280px] flex-col rounded-2xl bg-white px-5 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-6 lg:min-h-[320px] lg:py-7">
+            <div className="flex w-full flex-col rounded-xl bg-white px-4 py-4 ring-1 ring-slate-200/70 sm:px-5 sm:py-5 lg:w-[252px] lg:shrink-0">
               <h2
                 id="decision-heading"
                 className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]"
@@ -209,28 +214,28 @@ export function CostCheckCard({
                 견적 적정성
               </h2>
               {hasQuote ? (
-                <div className="mt-4 flex flex-1 flex-col items-center justify-center">
+                <div className="mt-3 flex flex-col items-center">
                   <ReviewScoreGauge
                     score={score}
                     verdict={quote.verdict}
                     size={gaugeSize}
                     empty={false}
                   />
-                  <div className="mt-4 w-full space-y-1 text-center">
-                    <p className="text-3xl font-bold text-slate-900 lg:text-[2rem]">
+                  <div className="mt-2 w-full space-y-0.5 text-center">
+                    <p className="text-2xl font-bold tabular-nums text-slate-900 lg:text-[1.75rem]">
                       {Math.round(score)} / 100
                     </p>
-                    <p className="text-[16px] font-semibold text-slate-800 lg:text-[17px]">
+                    <p className="text-[15px] font-semibold text-slate-800">
                       {STATUS_BADGE_LABEL[quote.verdict]}
                     </p>
-                    <p className="text-[14px] leading-relaxed text-slate-600 sm:text-[15px]">
+                    <p className="text-[13px] leading-relaxed text-slate-600 sm:text-sm">
                       {formatBubbleHint(displayBubble)}
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="mt-6 flex flex-1 flex-col items-center justify-center px-2 text-center">
-                  <p className="text-[15px] font-medium leading-relaxed text-slate-600 sm:text-base">
+                <div className="mt-4 px-1 text-center">
+                  <p className="text-[15px] font-medium leading-relaxed text-slate-600">
                     견적을 입력하면 적정성을 확인할 수 있습니다.
                   </p>
                 </div>
@@ -241,21 +246,23 @@ export function CostCheckCard({
 
         {hasQuote ? (
           <>
-            <div className="flex flex-wrap items-center gap-3">
-              <span
-                className={`inline-flex rounded-full px-3.5 py-1 text-[13px] font-semibold sm:text-sm ${badgeClass}`}
-              >
-                {STATUS_BADGE_LABEL[quote.verdict]}
-              </span>
-              <p className="text-[15px] font-semibold text-slate-900 sm:text-base lg:text-[17px]">
-                {quote.title}
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-[13px] font-semibold sm:text-sm ${badgeClass}`}
+                >
+                  {STATUS_BADGE_LABEL[quote.verdict]}
+                </span>
+                <p className="text-[15px] font-semibold text-slate-900 sm:text-base">
+                  {quote.title}
+                </p>
+              </div>
+              <p className="text-[15px] leading-relaxed text-slate-600 sm:text-base">
+                {quote.detail}
               </p>
             </div>
-            <p className="text-[15px] leading-relaxed text-slate-600 sm:text-base lg:text-[17px]">
-              {quote.detail}
-            </p>
 
-            <EvidenceSection title="판단 근거" lead="왜 이렇게 판단했나요?" highlighted>
+            <EvidenceSection title="판단 근거" lead="왜 이렇게 판단했나요?" highlighted className="!mt-0">
               <ReviewJudgmentDetails
                 service={service}
                 quotedAmount={quote.quotedAmount}
@@ -269,7 +276,7 @@ export function CostCheckCard({
         ) : null}
 
         {!hasQuote ? (
-          <section className="rounded-2xl bg-white px-6 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-7 sm:py-7">
+          <section className="rounded-xl bg-white px-5 py-5 ring-1 ring-slate-200/70 sm:px-6 sm:py-6">
             <p className="text-[15px] font-medium text-slate-800 sm:text-base">{QUOTE_COMPARE_SUGGESTION}</p>
             <div className="mt-5 flex flex-wrap gap-3">
               <button
@@ -289,7 +296,7 @@ export function CostCheckCard({
           </section>
         ) : null}
 
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
           {regionalOfficialFee ? (
             <SourceSection embedded>{regionalOfficialFee}</SourceSection>
           ) : service.officialSources && service.officialSources.length > 0 ? (

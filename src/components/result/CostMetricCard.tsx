@@ -8,6 +8,13 @@ type CostMetricCardProps = {
   placeholder?: boolean;
 };
 
+function resolveValueClass(value: string, emphasis: boolean, placeholder: boolean): string {
+  const long = value.length > 16;
+  if (placeholder) return "text-slate-300";
+  if (emphasis) return "text-blue-900";
+  return "text-slate-900";
+}
+
 export function CostMetricCard({
   label,
   value,
@@ -15,27 +22,27 @@ export function CostMetricCard({
   emphasis = false,
   placeholder = false,
 }: CostMetricCardProps) {
+  const longValue = value.length > 16;
+
   return (
     <div
-      className={`flex min-h-[128px] min-w-0 flex-col justify-between rounded-2xl bg-white px-5 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:min-w-[160px] sm:px-6 sm:py-6 lg:min-w-[180px] ${
-        emphasis ? "ring-blue-900/15" : ""
+      className={`flex min-w-0 flex-col rounded-xl bg-white px-4 py-4 ring-1 ring-slate-200/70 sm:px-5 sm:py-5 lg:min-w-[200px] ${
+        emphasis ? "ring-blue-900/20" : ""
       }`}
     >
-      <p className="text-[13px] font-medium text-slate-500 sm:text-sm lg:text-[14px]">{label}</p>
-      <div className="mt-3">
+      <p className="text-[13px] font-medium text-slate-500 sm:text-sm">{label}</p>
+      <div className="mt-2.5 min-w-0">
         <p
-          className={`break-words text-2xl font-bold tracking-tight sm:text-[26px] lg:text-[30px] ${
-            placeholder
-              ? "text-slate-300"
-              : emphasis
-                ? "text-blue-900"
-                : "text-slate-900"
-          }`}
+          className={`break-keep font-bold tabular-nums tracking-tight ${resolveValueClass(value, emphasis, placeholder)} ${
+            longValue
+              ? "text-lg leading-snug sm:text-xl lg:text-[22px]"
+              : "text-xl leading-none sm:text-2xl lg:text-[26px]"
+          } ${longValue ? "" : "lg:whitespace-nowrap"}`}
         >
           {value}
         </p>
         {hint ? (
-          <p className="mt-2 text-[13px] leading-relaxed text-slate-500 sm:text-sm line-clamp-3">
+          <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-slate-500 sm:text-sm">
             {hint}
           </p>
         ) : null}
