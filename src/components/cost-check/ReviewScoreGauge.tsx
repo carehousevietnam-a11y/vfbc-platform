@@ -67,7 +67,7 @@ function SemiCircleGauge({
       className={
         compact
           ? "relative mx-auto w-full max-w-[200px]"
-          : "relative mx-auto w-full max-w-[300px] sm:max-w-[340px] lg:max-w-[360px]"
+          : "relative mx-auto w-full max-w-[240px] sm:max-w-[250px] lg:max-w-[260px]"
       }
       role="img"
       aria-label={
@@ -83,7 +83,7 @@ function SemiCircleGauge({
         className={
           compact
             ? "h-[96px] w-full"
-            : "h-[170px] w-full sm:h-[200px] lg:h-[210px]"
+            : "h-[118px] w-full sm:h-[128px] lg:h-[136px]"
         }
         aria-hidden
       >
@@ -140,12 +140,16 @@ function SemiCircleGauge({
               className={
                 compact
                   ? "text-3xl font-bold leading-none text-slate-900"
-                  : "text-5xl font-bold leading-none text-slate-900 sm:text-[3.25rem]"
+                  : baseline
+                    ? "sr-only"
+                    : "text-4xl font-bold leading-none text-slate-900"
               }
             >
               {Math.round(clamped)}
             </span>
-            <span className={`mt-0.5 font-medium text-slate-400 ${compact ? "text-xs" : "text-sm"}`}>
+            <span
+              className={`mt-0.5 font-medium text-slate-400 ${compact ? "text-xs" : baseline ? "sr-only" : "text-sm"}`}
+            >
               / 100
             </span>
           </>

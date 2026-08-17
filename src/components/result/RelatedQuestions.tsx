@@ -15,14 +15,14 @@ export function RelatedQuestions({ links, embedded = false }: RelatedQuestionsPr
 
   return (
     <section
-      className={embedded ? "" : "mt-8 lg:mt-9"}
+      className={embedded ? "" : "mt-6 lg:mt-7"}
       aria-labelledby="related-heading"
     >
-      <h2 id="related-heading" className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]">
+      <h2 id="related-heading" className="text-base font-semibold text-blue-900 sm:text-[17px] lg:text-lg">
         함께 많이 확인해요
       </h2>
       <nav
-        className={`mt-3 divide-y divide-slate-100/80 ${
+        className={`mt-2.5 divide-y divide-slate-100/80 ${
           embedded ? "rounded-xl bg-white ring-1 ring-slate-200/70" : ""
         }`}
       >
@@ -30,7 +30,7 @@ export function RelatedQuestions({ links, embedded = false }: RelatedQuestionsPr
           <Link
             key={link.href + link.label}
             href={link.href}
-            className="flex min-h-[44px] items-center justify-between gap-3 px-4 py-3 text-[15px] text-slate-800 transition-colors hover:bg-[#faf8f5] hover:text-blue-900 sm:px-5 sm:text-base"
+            className="flex min-h-[44px] items-center justify-between gap-3 px-3.5 py-2.5 text-[14px] text-slate-800 transition-colors hover:bg-[#faf8f5] hover:text-blue-900 sm:px-4 sm:text-[15px]"
           >
             <span className="min-w-0 flex-1 break-keep">{link.label}</span>
             <ChevronRight size={16} className="shrink-0 text-slate-400" />

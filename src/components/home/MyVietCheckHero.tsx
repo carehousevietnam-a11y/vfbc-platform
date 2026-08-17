@@ -90,15 +90,15 @@ function CitySilhouette() {
 
 function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
   return (
-    <div className="mt-6 border-t border-slate-100 pt-5">
+    <div className="mt-4 border-t border-slate-100 pt-4">
       <p className="text-[11px] font-semibold tracking-wide text-slate-400">추천 질문</p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-2.5 flex flex-wrap gap-2">
         {EXAMPLE_CHIPS.map((chip) => (
           <button
             key={chip}
             type="button"
             onClick={() => onSelect(chip)}
-            className="rounded-full border border-slate-200/90 bg-[#faf8f5] px-3.5 py-1.5 text-xs text-slate-700 transition-colors hover:border-amber-200 hover:bg-amber-50/60 hover:text-blue-900"
+            className="rounded-full border border-slate-200/90 bg-[#faf8f5] px-3 py-1.5 text-[14px] text-slate-700 transition-colors hover:border-amber-200 hover:bg-amber-50/60 hover:text-blue-900"
           >
             {chip}
           </button>
@@ -148,23 +148,22 @@ export default function MyVietCheckHero() {
       <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#faf8f5] to-[#f7f4ef]">
         <CitySilhouette />
 
-        <div className="relative mx-auto max-w-[820px] px-5 pb-10 pt-10 text-center sm:px-6 sm:pb-12 sm:pt-14">
-          <h1 className="text-[1.75rem] font-bold leading-tight tracking-tight text-blue-900 sm:text-[2.35rem] sm:leading-[1.18]">
-            베트남에서 돈 쓰기 전에,
-            <br />
-            먼저 <span className="text-amber-600">직접 확인</span>하세요.
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-[15px]">
-            비용 · 절차 · 필요서류 · 받은 견적까지 확인할 수 있습니다.
-          </p>
-          <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-[14px]">
-            질문 하나로 정부 공식 비용과 시장 범위,
-            <br className="hidden sm:block" />
-            견적 적정성을 한 번에 확인하세요.
-          </p>
+        <div className="relative mx-auto w-full max-w-[900px] px-5 pb-8 pt-8 text-center sm:px-6 sm:pb-10 sm:pt-11">
+          <div className="mx-auto max-w-[760px]">
+            <h1 className="text-[1.65rem] font-bold leading-[1.28] tracking-tight text-blue-900 sm:text-[2rem] lg:text-[2.125rem]">
+              베트남에서 돈 쓰기 전에,
+              <br />
+              먼저 <span className="text-amber-600">직접 확인</span>하세요.
+            </h1>
+            <p className="mx-auto mt-3.5 max-w-[680px] text-[15px] leading-[1.6] text-slate-600">
+              비용 · 절차 · 필요서류 · 받은 견적까지
+              <br className="hidden sm:block" />
+              질문 하나로 먼저 확인하세요.
+            </p>
+          </div>
 
-          <form id="hero-query" onSubmit={handleSubmit} className="mt-8 sm:mt-9">
-            <div className="rounded-[1.35rem] border border-slate-200/70 bg-white p-5 text-left shadow-[0_16px_48px_rgba(30,58,138,0.07)] sm:p-7">
+          <form id="hero-query" onSubmit={handleSubmit} className="mx-auto mt-6 max-w-[880px] sm:mt-7">
+            <div className="rounded-2xl border border-slate-200/70 bg-white p-4 text-left shadow-[0_8px_32px_rgba(30,58,138,0.06)] sm:p-5">
               <span className="inline-flex items-center rounded-full border border-amber-100/80 bg-[#faf6ed] px-3 py-1 text-[11px] font-bold tracking-wide text-blue-900">
                 행정 · 법률 확인기
               </span>
@@ -174,12 +173,12 @@ export default function MyVietCheckHero() {
               </label>
 
               <div
-                className={`mt-4 flex flex-col gap-3 sm:flex-row sm:items-stretch ${
-                  showError ? "rounded-2xl ring-2 ring-red-200" : ""
+                className={`mt-3 flex flex-col gap-2.5 sm:flex-row sm:items-stretch ${
+                  showError ? "rounded-xl ring-2 ring-red-200" : ""
                 }`}
               >
                 <div
-                  className={`flex min-w-0 flex-1 items-center gap-3 rounded-2xl border bg-[#faf8f5]/60 px-4 py-3.5 transition-colors ${
+                  className={`flex min-h-[56px] min-w-0 flex-1 items-center gap-3 rounded-xl border bg-[#faf8f5]/60 px-4 transition-colors sm:min-h-[60px] ${
                     isFocused ? "border-blue-200 bg-white" : "border-slate-200/90"
                   }`}
                 >
@@ -195,14 +194,14 @@ export default function MyVietCheckHero() {
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder={INPUT_PLACEHOLDER}
-                    className="w-full border-0 bg-transparent p-0 text-sm font-medium text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-[15px]"
+                    className="w-full border-0 bg-transparent p-0 text-[15px] font-medium text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-0"
                     autoComplete="off"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-blue-900 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#152a63] sm:min-w-[112px]"
+                  className="inline-flex min-h-[56px] w-full shrink-0 items-center justify-center gap-1.5 rounded-xl bg-blue-900 px-5 text-[15px] font-bold text-white transition-colors hover:bg-[#152a63] sm:min-h-[60px] sm:w-[120px]"
                 >
                   확인
                   <ArrowRight size={16} />
@@ -210,14 +209,10 @@ export default function MyVietCheckHero() {
               </div>
 
               {showError ? (
-                <p className="mt-2.5 text-xs font-medium text-red-600">
+                <p className="mt-2 text-xs font-medium text-red-600">
                   질문을 입력한 뒤 확인 버튼을 눌러주세요.
                 </p>
-              ) : (
-                <p className="mt-2.5 text-[11px] leading-relaxed text-slate-400">
-                  서류 · 절차 · 비용 · 견적을 한 번에 입력하면 AI가 계산 · 검증합니다.
-                </p>
-              )}
+              ) : null}
 
               <ExampleChips onSelect={handleChipSelect} />
             </div>
