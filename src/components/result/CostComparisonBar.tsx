@@ -58,7 +58,7 @@ export function CostComparisonBar({
           />
         ) : null}
       </div>
-      <dl className="mt-4 grid grid-cols-1 gap-3 text-xs sm:grid-cols-3 sm:text-[13px]">
+      <dl className="mt-4 grid grid-cols-1 gap-3 text-[13px] sm:grid-cols-3 sm:text-sm lg:text-[14px]">
         <div className="flex items-start gap-2">
           <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-slate-500" aria-hidden />
           <div>

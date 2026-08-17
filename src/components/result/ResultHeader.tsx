@@ -16,23 +16,23 @@ export function ResultHeader({
   serviceLabel,
 }: ResultHeaderProps) {
   return (
-    <header className="mt-8 flex items-start justify-between gap-4">
+    <header className="mt-8 flex items-start justify-between gap-4 lg:mt-10">
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-blue-900 sm:text-2xl lg:text-[28px]">
+        <h1 className="text-2xl font-bold tracking-tight text-blue-900 lg:text-[26px]">
           MY VIET CHECK
         </h1>
         {(categoryLabel || modeLabel || serviceLabel) && (
           <div className="mt-3 flex flex-wrap items-center gap-2.5">
             {categoryLabel ? (
-              <span className="rounded-md bg-blue-900/[0.06] px-2.5 py-1 text-xs font-semibold tracking-wide text-blue-900">
+              <span className="rounded-md bg-blue-900/[0.06] px-2.5 py-1 text-xs font-semibold tracking-wide text-blue-900 sm:text-[13px]">
                 {categoryLabel}
               </span>
             ) : null}
             {modeLabel ? (
-              <span className="text-sm font-medium text-slate-600 sm:text-[15px]">{modeLabel}</span>
+              <span className="text-[15px] font-medium text-slate-600 lg:text-[16px]">{modeLabel}</span>
             ) : null}
             {serviceLabel ? (
-              <span className="text-sm font-semibold text-slate-800 sm:text-[15px]">{serviceLabel}</span>
+              <span className="text-[15px] font-semibold text-slate-800 lg:text-[16px]">{serviceLabel}</span>
             ) : null}
           </div>
         )}

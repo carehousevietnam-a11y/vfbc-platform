@@ -27,7 +27,7 @@ export function QuestionCard({ question, requestedAt, showCostAnchor = false }: 
           </p>
           <h2
             id="ai-question-heading"
-            className="mt-2 break-words text-xl font-bold leading-snug text-slate-900 sm:text-[22px] lg:text-2xl lg:leading-tight"
+            className="mt-2 break-words text-xl font-bold leading-snug text-slate-900 sm:text-[21px] lg:text-[22px] lg:leading-tight"
           >
             &ldquo;{question}&rdquo;
           </h2>

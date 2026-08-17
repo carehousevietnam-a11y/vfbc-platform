@@ -93,7 +93,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
   const service = serviceId ? getCostCheckService(serviceId) : null;
 
   return (
-    <article className="w-full">
+    <article className="w-full min-w-0">
       <QuestionCard
         question={report.question}
         requestedAt={report.requestedAt}

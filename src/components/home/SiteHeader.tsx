@@ -28,6 +28,8 @@ export default function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isAiPage = pathname === "/ai";
+  const useHomeStyleHeader = isHome || isAiPage;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -100,7 +102,7 @@ export default function SiteHeader() {
     router.refresh();
   }
 
-  if (isHome) {
+  if (useHomeStyleHeader) {
     return (
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-[3.75rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
@@ -145,7 +147,7 @@ export default function SiteHeader() {
             </div>
 
             <Link
-              href="#hero-query"
+              href={isAiPage ? "/check" : "#hero-query"}
               className="hidden rounded-xl border border-blue-900/10 bg-blue-900 px-3.5 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-[#152a63] sm:inline-flex"
             >
               내 상황 진단
@@ -178,7 +180,7 @@ export default function SiteHeader() {
                 </Link>
               ))}
               <Link
-                href="#hero-query"
+                href={isAiPage ? "/check" : "#hero-query"}
                 onClick={() => setMobileOpen(false)}
                 className="mt-1 rounded-xl bg-blue-900 px-3 py-2.5 text-center text-[13px] font-semibold text-white"
               >
