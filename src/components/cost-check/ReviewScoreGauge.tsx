@@ -19,7 +19,7 @@ export const STATUS_BADGE_LABEL: Record<ReviewVerdict, string> = {
 type ReviewScoreGaugeProps = {
   score?: number;
   verdict?: ReviewVerdict;
-  size?: "default" | "large" | "semi";
+  size?: "default" | "large" | "semi" | "compact";
   empty?: boolean;
 };
 
@@ -43,10 +43,12 @@ function SemiCircleGauge({
   score,
   verdict,
   empty = false,
+  compact = false,
 }: {
   score: number;
   verdict: ReviewVerdict;
   empty?: boolean;
+  compact?: boolean;
 }) {
   const clamped = Math.min(100, Math.max(0, score));
   const { stroke, track } = empty
@@ -58,7 +60,11 @@ function SemiCircleGauge({
 
   return (
     <div
-      className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px]"
+      className={
+        compact
+          ? "relative mx-auto w-full max-w-[200px]"
+          : "relative mx-auto w-full max-w-[300px] sm:max-w-[340px] lg:max-w-[360px]"
+      }
       role="img"
       aria-label={
         empty
@@ -66,7 +72,15 @@ function SemiCircleGauge({
           : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
       }
     >
-      <svg viewBox="0 0 360 220" className="h-[160px] w-full sm:h-[190px]" aria-hidden>
+      <svg
+        viewBox="0 0 360 220"
+        className={
+          compact
+            ? "h-[96px] w-full"
+            : "h-[170px] w-full sm:h-[200px] lg:h-[210px]"
+        }
+        aria-hidden
+      >
         <path d={SEMI_PATH} fill="none" stroke={track} strokeWidth={16} strokeLinecap="round" />
         {!empty ? (
           <path
@@ -116,23 +130,33 @@ function SemiCircleGauge({
           </>
         ) : (
           <>
-            <span className="text-5xl font-bold leading-none text-slate-900 sm:text-[3.25rem]">
+            <span
+              className={
+                compact
+                  ? "text-3xl font-bold leading-none text-slate-900"
+                  : "text-5xl font-bold leading-none text-slate-900 sm:text-[3.25rem]"
+              }
+            >
               {Math.round(clamped)}
             </span>
-            <span className="mt-1 text-sm font-medium text-slate-400">/ 100</span>
+            <span className={`mt-0.5 font-medium text-slate-400 ${compact ? "text-xs" : "text-sm"}`}>
+              / 100
+            </span>
           </>
         )}
       </div>
-      {!empty ? (
+      {!empty && !compact ? (
         <p className="mt-1 text-center text-sm font-medium text-slate-600">
           {STATUS_BADGE_LABEL[verdict]}
         </p>
       ) : null}
-      <div className="mt-2 flex justify-between px-1 text-xs text-slate-400">
-        <span>적정</span>
-        <span>주의</span>
-        <span>위험</span>
-      </div>
+      {!empty && !compact ? (
+        <div className="mt-2 flex justify-between px-1 text-xs text-slate-400">
+          <span>적정</span>
+          <span>주의</span>
+          <span>위험</span>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -143,8 +167,8 @@ export function ReviewScoreGauge({
   size = "default",
   empty = false,
 }: ReviewScoreGaugeProps) {
-  if (size === "semi") {
-    return <SemiCircleGauge score={score} verdict={verdict} empty={empty} />;
+  if (size === "semi" || size === "compact") {
+    return <SemiCircleGauge score={score} verdict={verdict} empty={empty} compact={size === "compact"} />;
   }
 
   const isLarge = size === "large";
