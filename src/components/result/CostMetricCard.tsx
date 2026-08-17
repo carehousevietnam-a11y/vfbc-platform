@@ -30,7 +30,7 @@ export function CostMetricCard({
         emphasis ? "ring-blue-900/20" : ""
       }`}
     >
-      <p className="text-[13px] font-medium text-slate-500 sm:text-sm">{label}</p>
+      <p className="text-sm font-medium text-slate-500">{label}</p>
       <div className="mt-2.5 min-w-0">
         <p
           className={`break-keep font-bold tabular-nums tracking-tight ${resolveValueClass(value, emphasis, placeholder)} ${
