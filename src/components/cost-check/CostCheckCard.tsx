@@ -160,7 +160,7 @@ export function CostCheckCard({
             출처: {service.source}
           </p>
 
-          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_252px] lg:items-start lg:gap-6">
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_260px]">
             <div className="min-w-0 space-y-4">
               <h3 id="key-metrics-heading" className="text-[15px] font-semibold text-slate-800 sm:text-base">
                 핵심 수치
@@ -206,7 +206,7 @@ export function CostCheckCard({
               ) : null}
             </div>
 
-            <div className="flex w-full flex-col rounded-xl bg-white px-4 py-4 ring-1 ring-slate-200/70 sm:px-5 sm:py-5 lg:w-[252px] lg:shrink-0">
+            <div className="flex w-full flex-col self-start rounded-xl bg-white px-4 py-4 ring-1 ring-slate-200/70 sm:px-5 sm:py-5 lg:w-auto lg:max-w-[260px] lg:shrink-0">
               <h2
                 id="decision-heading"
                 className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]"
