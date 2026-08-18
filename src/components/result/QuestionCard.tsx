@@ -2,6 +2,7 @@
 
 import { MessageCircle, CircleDollarSign, CheckCircle2 } from "lucide-react";
 import { formatRequestedAt } from "@/components/result/parseReplyPresentation";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type QuestionCardProps = {
   question: string;
@@ -13,6 +14,7 @@ const ANCHOR_CLASS =
   "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-50 hover:text-blue-900";
 
 export function QuestionCard({ question, requestedAt, showCostAnchor = false }: QuestionCardProps) {
+  const { t } = useLocale();
   const dateLabel = formatRequestedAt(requestedAt);
 
   return (
@@ -23,7 +25,7 @@ export function QuestionCard({ question, requestedAt, showCostAnchor = false }: 
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-semibold tracking-wide text-blue-900/70 sm:text-sm">
-            행정·법률 확인기
+            {t("result.questionBadge")}
           </p>
           <h2
             id="ai-question-heading"
