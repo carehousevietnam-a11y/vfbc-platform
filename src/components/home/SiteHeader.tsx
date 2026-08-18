@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 import LanguageMenu from "./LanguageMenu";
 import NotificationBell from "./NotificationBell";
 import HeaderUserMenu from "./HeaderUserMenu";
@@ -19,7 +20,15 @@ const HOME_NAV_ITEMS = [
   { href: "#protect", label: "PROTECT", sub: "보호" },
 ] as const;
 
+const NAV_SUB_KEYS = {
+  "#check": "nav.check",
+  "#verify": "nav.verify",
+  "#register": "nav.register",
+  "#protect": "nav.protect",
+} as const;
+
 export default function SiteHeader() {
+  const { t } = useLocale();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [name, setName] = useState<string | null>(null);
   const [messageHref, setMessageHref] = useState(DEFAULT_MESSAGE_HREF);
@@ -128,7 +137,9 @@ export default function SiteHeader() {
                 <span className="block text-[10px] font-bold tracking-[0.14em] text-blue-900">
                   {item.label}
                 </span>
-                <span className="mt-0.5 block text-[11px] font-medium text-slate-500">{item.sub}</span>
+                <span className="mt-0.5 block text-[11px] font-medium text-slate-500">
+                  {t(NAV_SUB_KEYS[item.href])}
+                </span>
               </Link>
             ))}
           </nav>
@@ -150,14 +161,14 @@ export default function SiteHeader() {
               href={isAiPage ? "/check" : "#hero-query"}
               className="hidden rounded-xl border border-blue-900/10 bg-blue-900 px-3.5 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-[#152a63] sm:inline-flex"
             >
-              내 상황 진단
+              {t("header.diagnose")}
             </Link>
 
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
               className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 lg:hidden"
-              aria-label="메뉴"
+              aria-label={t("header.menu")}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -176,7 +187,7 @@ export default function SiteHeader() {
                   className="flex items-center justify-between rounded-xl px-3 py-2.5 hover:bg-slate-50"
                 >
                   <span className="text-[13px] font-semibold text-slate-800">{item.label}</span>
-                  <span className="text-[12px] text-slate-500">{item.sub}</span>
+                  <span className="text-[12px] text-slate-500">{t(NAV_SUB_KEYS[item.href])}</span>
                 </Link>
               ))}
               <Link
@@ -184,7 +195,7 @@ export default function SiteHeader() {
                 onClick={() => setMobileOpen(false)}
                 className="mt-1 rounded-xl bg-blue-900 px-3 py-2.5 text-center text-[13px] font-semibold text-white"
               >
-                내 상황 진단
+                {t("header.diagnose")}
               </Link>
               <div className="mt-2 flex items-center gap-2 border-t border-slate-100 pt-3">
                 <LanguageMenu />
@@ -228,7 +239,7 @@ export default function SiteHeader() {
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
             className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 transition hover:bg-gray-100"
-            aria-label="메뉴"
+            aria-label={t("header.menu")}
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -252,21 +263,21 @@ export default function SiteHeader() {
               onClick={() => setMobileOpen(false)}
               className="rounded-xl px-3 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50"
             >
-              직접확인하기 (CHECK)
+              {t("header.checkSelf")}
             </Link>
             <Link
               href="#verify"
               onClick={() => setMobileOpen(false)}
               className="rounded-xl px-3 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50"
             >
-              직접검토하기 (VERIFY)
+              {t("header.verifySelf")}
             </Link>
             <Link
               href="#register"
               onClick={() => setMobileOpen(false)}
               className="rounded-xl px-3 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50"
             >
-              직접허가받기 (REGISTER)
+              {t("header.registerSelf")}
             </Link>
             {isSignedIn && (
               <Link
@@ -274,7 +285,7 @@ export default function SiteHeader() {
                 onClick={() => setMobileOpen(false)}
                 className="rounded-xl px-3 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50"
               >
-                마이페이지
+                {t("header.mypage")}
               </Link>
             )}
           </nav>

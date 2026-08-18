@@ -70,7 +70,8 @@ export function OfficialSourceList({
                     {STATUS_LABEL[entry.status]}
                   </span>
                   <span className="text-xs text-slate-500 sm:text-[13px]">
-                    출처: {entry.source} · 확인일 {entry.checkedDate}
+                    출처: {entry.source} · 확인일{" "}
+                    <time dateTime={entry.checkedDate}>{entry.checkedDate}</time>
                   </span>
                 </div>
                 {entry.uncertainty ? (

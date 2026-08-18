@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type RelatedLink = { label: string; href: string };
 
@@ -11,6 +12,7 @@ type RelatedQuestionsProps = {
 };
 
 export function RelatedQuestions({ links, embedded = false }: RelatedQuestionsProps) {
+  const { t } = useLocale();
   if (links.length === 0) return null;
 
   return (
@@ -19,7 +21,7 @@ export function RelatedQuestions({ links, embedded = false }: RelatedQuestionsPr
       aria-labelledby="related-heading"
     >
       <h2 id="related-heading" className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]">
-        함께 많이 확인해요
+        {t("result.relatedTitle")}
       </h2>
       <nav
         className={`mt-3 divide-y divide-slate-100/80 ${

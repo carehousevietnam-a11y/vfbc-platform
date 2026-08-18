@@ -2,20 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Globe, Check } from "lucide-react";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
+import type { Locale } from "@/lib/i18n/locales";
 
-// [STEP20-1] 언어 선택 드롭다운 — UI 전용.
-// 실제 번역/다국어 전환 로직은 다음 STEP에서 구현하며, 이 컴포넌트는
-// 선택된 언어를 로컬 state로만 표시한다(다른 로직에 영향 없음).
 const LANGUAGES = [
-  { code: "ko", label: "한국어" },
-  { code: "en", label: "English" },
-  { code: "zh", label: "中文" },
-  { code: "vi", label: "Tiếng Việt" },
-] as const;
+  { code: "ko" as const, label: "한국어" },
+  { code: "en" as const, label: "English" },
+  { code: "zh" as const, label: "中文" },
+  { code: "vi" as const, label: "Tiếng Việt" },
+] satisfies { code: Locale; label: string }[];
 
 export default function LanguageMenu() {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<(typeof LANGUAGES)[number]["code"]>("ko");
+  const { locale, setLocale } = useLocale();
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -52,13 +51,13 @@ export default function LanguageMenu() {
               type="button"
               role="menuitem"
               onClick={() => {
-                setSelected(lang.code);
+                setLocale(lang.code);
                 setOpen(false);
               }}
               className="flex w-full items-center justify-between px-3.5 py-2 text-left text-[13px] text-gray-700 transition hover:bg-gray-50"
             >
               {lang.label}
-              {selected === lang.code && <Check size={14} className="text-blue-900" />}
+              {locale === lang.code && <Check size={14} className="text-blue-900" />}
             </button>
           ))}
         </div>

@@ -14,6 +14,7 @@ import { NextStep } from "@/components/result/NextStep";
 import { extractDirectAnswer } from "@/components/result/parseReplyPresentation";
 import { getQuoteFunnelHref } from "@/lib/quoteReviewLinks";
 import { getCostCheckService, type CostCheckServiceId } from "@/lib/costCheck";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type NavigatorAction = { label: string; href: string };
 
@@ -69,6 +70,7 @@ type AiReportViewProps = {
 };
 
 export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: AiReportViewProps) {
+  const { t } = useLocale();
   const parsedCost = parseCostEnrichedReply(report.reply);
   const hasCostReference =
     !report.quoteReview && parsedCost.serviceId != null && parsedCost.hasQuoteCompareSuggestion;
@@ -102,7 +104,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
       <ResultHeader
         onReset={onReset}
         categoryLabel={service ? resolveCategoryLabel(serviceId!) : undefined}
-        modeLabel={hasQuote ? "견적 적정성 검증" : hasCostPanel ? "비용 확인" : undefined}
+        modeLabel={hasQuote ? t("result.modeQuote") : hasCostPanel ? t("result.modeCost") : undefined}
         serviceLabel={service?.label}
       />
       <ResultSummary directAnswer={directAnswer} />
@@ -119,11 +121,11 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
       ) : (
         <>
           {remainder.trim() ? (
-            <EvidenceSection title="판단 근거" lead="상세 안내">
+            <EvidenceSection title={t("result.evidenceTitle")} lead={t("result.evidenceLead")}>
               <ChatAnswerContent content={remainder} />
             </EvidenceSection>
           ) : mainText.trim() && !directAnswer ? (
-            <EvidenceSection title="판단 근거" lead="상세 안내">
+            <EvidenceSection title={t("result.evidenceTitle")} lead={t("result.evidenceLead")}>
               <ChatAnswerContent content={mainText} />
             </EvidenceSection>
           ) : null}
@@ -131,7 +133,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
             <SourceSection embedded>
               <p className="text-[13px] leading-relaxed text-slate-500 sm:text-sm">
-                Vietnam · {service?.label ?? "행정·법률 확인"}
+                Vietnam · {service?.label ?? t("result.adminLegal")}
               </p>
             </SourceSection>
             <RelatedQuestions links={resolvedActions} embedded />
