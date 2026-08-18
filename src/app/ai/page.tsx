@@ -108,14 +108,14 @@ function AiPageContent() {
       <div className="h-[3px] shrink-0 bg-blue-900" />
       <SiteHeader />
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden py-8 sm:py-10 lg:py-12">
-        <div className="mx-auto w-full max-w-6xl px-6 lg:px-8">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden py-6 sm:py-8 lg:py-9">
+        <div className="mx-auto w-full max-w-[1040px] px-4 sm:px-6">
           {!session && !sending ? (
-            <div className="rounded-2xl bg-white px-6 py-10 text-center shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-10">
-              <p className="text-xl font-semibold text-slate-900 lg:text-[22px]">
+            <div className="rounded-2xl bg-white px-5 py-8 text-center ring-1 ring-slate-200/60 sm:px-8">
+              <p className="text-lg font-semibold text-slate-900 sm:text-xl">
                 무엇을 확인하고 싶으신가요?
               </p>
-              <p className="mt-3 text-[15px] leading-relaxed text-slate-500 sm:text-base">
+              <p className="mt-2.5 text-[15px] leading-relaxed text-slate-500">
                 비용 · 절차 · 서류 · 견적 적정성을 아래에 입력해 주세요.
               </p>
             </div>
@@ -131,14 +131,14 @@ function AiPageContent() {
           ) : null}
 
           {sending ? (
-            <div className="mt-8 flex items-center gap-2.5 text-[15px] text-slate-600 sm:text-base">
+            <div className="mt-6 flex items-center gap-2.5 text-[15px] text-slate-600">
               <Loader2 size={18} className="animate-spin text-blue-900" />
               확인 중입니다…
             </div>
           ) : null}
 
           {error ? (
-            <div className="mt-6 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 sm:text-[15px]">
+            <div className="mt-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           ) : null}
@@ -146,7 +146,7 @@ function AiPageContent() {
       </div>
 
       <footer className="shrink-0 border-t border-slate-200/70 bg-white/95 backdrop-blur">
-        <div className="mx-auto w-full max-w-6xl px-6 py-4 lg:px-8">
+        <div className="mx-auto w-full max-w-[1040px] px-4 py-4 sm:px-6">
           <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
             <input
               value={input}
@@ -165,7 +165,7 @@ function AiPageContent() {
               <Send size={18} />
             </button>
           </form>
-          <p className="mt-2.5 flex items-center gap-1.5 text-[13px] text-slate-500 sm:text-sm">
+          <p className="mt-2.5 flex items-center gap-1.5 text-[13px] text-slate-500">
             <AlertTriangle size={12} className="shrink-0" />
             AI 안내는 참고용이며 확정적인 법률 판단이 아닙니다.
           </p>
@@ -181,7 +181,7 @@ export default function AiPage() {
       fallback={
         <main className="min-h-screen bg-[#faf8f5]">
           <div className="h-[3px] bg-blue-900" />
-          <div className="mx-auto max-w-6xl px-6 py-10 lg:px-8">
+          <div className="mx-auto w-full max-w-[1040px] px-4 py-10 sm:px-6">
             <p className="text-sm text-slate-500">불러오는 중...</p>
           </div>
         </main>

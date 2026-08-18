@@ -141,28 +141,28 @@ export function CostCheckCard({
 
   if (isReport) {
     return (
-      <div className="mt-8 space-y-8 lg:space-y-9">
+      <div className="mt-6 space-y-6 lg:space-y-7">
         <section aria-labelledby="cost-check-heading">
           <h2
             id="cost-check-heading"
-            className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]"
+            className="text-lg font-semibold leading-[1.55] text-blue-900 sm:text-[19px] lg:text-xl"
           >
             비용 확인
           </h2>
-          <p className="mt-1.5 text-[15px] font-medium text-slate-800 sm:text-base">
+          <p className="mt-1 text-[15px] font-medium text-slate-800">
             {service.label}
           </p>
-          <p className="mt-1 text-[13px] text-slate-500 sm:text-sm">
+          <p className="mt-0.5 text-[13px] text-slate-500">
             출처: {service.source}
           </p>
 
-          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
-            <div className="min-w-0 space-y-4">
-              <h3 id="key-metrics-heading" className="text-[15px] font-semibold text-slate-800 sm:text-base">
+          <div className="mt-4 grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start lg:gap-5">
+            <div className="min-w-0 space-y-3.5">
+              <h3 id="key-metrics-heading" className="text-[15px] font-semibold leading-[1.55] text-slate-800 sm:text-[16px] lg:text-[17px]">
                 핵심 수치
               </h3>
               <div
-                className={`grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-4 ${
+                className={`grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:gap-3 ${
                   hasQuote ? "lg:grid-cols-3" : "lg:grid-cols-2"
                 }`}
               >
@@ -189,38 +189,38 @@ export function CostCheckCard({
               />
 
               {!hasQuote && onQuoteSubmit ? (
-                <div className="space-y-2">
-                  <form onSubmit={handleQuoteSubmit} className="flex flex-col gap-3 sm:flex-row">
+                <div className="max-w-[580px] space-y-2">
+                  <form onSubmit={handleQuoteSubmit} className="flex flex-col gap-2.5 sm:flex-row">
                     <input
                       type="text"
                       value={quoteInput}
                       onChange={(e) => setQuoteInput(e.target.value)}
                       placeholder="예: 1,000달러, 500만동"
-                      className="min-h-[44px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10 sm:text-base"
+                      className="min-h-[44px] flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] outline-none focus:border-blue-900/30 focus:ring-2 focus:ring-blue-900/10"
                     />
                     <button
                       type="submit"
                       disabled={!quoteInput.trim()}
-                      className="min-h-[44px] rounded-xl bg-blue-900 px-6 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40 sm:text-base"
+                      className="min-h-[44px] w-full shrink-0 rounded-xl bg-blue-900 px-4 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-[#152a63] disabled:opacity-40 sm:w-[120px]"
                     >
                       견적 확인
                     </button>
                   </form>
-                  <p className="break-keep text-[13px] leading-relaxed text-slate-500 sm:text-sm">
+                  <p className="break-keep text-[13px] leading-[1.55] text-slate-500">
                     {COST_CHECK_MARKET_NOTE}
                   </p>
                 </div>
               ) : null}
             </div>
 
-            <div className="flex w-full flex-col self-start rounded-xl bg-white px-4 py-4 ring-1 ring-slate-200/70 sm:px-5 sm:py-5 lg:w-auto lg:max-w-[300px] lg:shrink-0">
+            <div className="flex w-full flex-col self-start rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-slate-200/70 sm:px-4 sm:py-4 lg:w-[260px] lg:max-w-[260px] lg:shrink-0">
               <h2
                 id="decision-heading"
-                className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]"
+                className="text-lg font-semibold leading-[1.55] text-blue-900 sm:text-[19px] lg:text-xl"
               >
                 견적 적정성
               </h2>
-              <div className="mt-3 flex flex-col items-center">
+              <div className="mt-2 flex flex-col items-center">
                 <ReviewScoreGauge
                   score={hasQuote ? score : 100}
                   verdict={hasQuote ? quote.verdict : "fair"}
@@ -228,11 +228,11 @@ export function CostCheckCard({
                   empty={false}
                   baseline={!hasQuote}
                 />
-                <div className="mt-3 w-full space-y-1 text-center">
-                  <p className="text-2xl font-bold tabular-nums text-slate-900 lg:text-[1.75rem]">
+                <div className="mt-2 w-full space-y-0.5 text-center">
+                  <p className="text-[2.75rem] font-bold leading-none tabular-nums text-slate-900 sm:text-[3rem]">
                     {hasQuote ? Math.round(score) : 100} / 100
                   </p>
-                  <p className="flex items-center justify-center gap-1.5 text-[15px] font-semibold text-slate-800">
+                  <p className="flex items-center justify-center gap-1.5 text-[15px] font-semibold text-slate-800 sm:text-base">
                     <span
                       className={`h-2 w-2 shrink-0 rounded-full ${
                         hasQuote
@@ -247,7 +247,7 @@ export function CostCheckCard({
                     />
                     {hasQuote ? STATUS_BADGE_LABEL[quote.verdict] : "일반 범위"}
                   </p>
-                  <p className="text-sm leading-relaxed text-slate-600">
+                  <p className="text-[13px] leading-[1.55] text-slate-600 sm:text-sm">
                     {hasQuote
                       ? formatBubbleHint(displayBubble)
                       : "금액을 입력하면 적정성을 판단해드립니다."}
@@ -295,7 +295,7 @@ export function CostCheckCard({
           </>
         ) : null}
 
-        <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+        <div className="grid gap-5 lg:grid-cols-2 lg:gap-6">
           {regionalOfficialFee ? (
             <SourceSection embedded>{regionalOfficialFee}</SourceSection>
           ) : service.officialSources && service.officialSources.length > 0 ? (
