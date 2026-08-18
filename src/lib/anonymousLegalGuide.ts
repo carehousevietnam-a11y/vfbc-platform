@@ -1,5 +1,6 @@
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import type { InferredLegalRagContext } from "@/lib/aiGateway";
+import { hasCostSignal } from "@/lib/aiCostSection";
 
 export const ANONYMOUS_MYPAGE_CTA =
   "무료 회원가입 후 마이페이지에서 신청 진행상황과 서류 제출 현황을 확인하실 수 있습니다.";
@@ -8,6 +9,24 @@ const MYPAGE_CTA = ANONYMOUS_MYPAGE_CTA;
 
 export const ANONYMOUS_GUIDE_DISCLAIMER =
   "이 내용은 AI가 제공하는 참고용 가이드이며, 실제 진행은 전문가와 상의하시기 바랍니다.";
+
+export type AnonymousGuideIntent = "cost" | "procedure" | "document";
+
+const GROUP_ACTION: Record<InferredLegalRagContext["service_group"], string> = {
+  check: "신청",
+  verify: "검토",
+  register: "등록",
+};
+
+const PROCEDURE_SIGNAL_RE =
+  /절차|순서|진행\s*방법|어떻게\s*(신청|진행|하나요|해요|해야)|procedure|process/i;
+
+/** 익명 가이드 도입문용 질문 의도. 비용 신호는 기존 COST_SIGNAL_KEYWORDS를 재사용. */
+export function resolveAnonymousGuideIntent(question: string): AnonymousGuideIntent {
+  if (hasCostSignal(question)) return "cost";
+  if (PROCEDURE_SIGNAL_RE.test(question.trim())) return "procedure";
+  return "document";
+}
 
 const LEGAL_REFS: Partial<Record<string, string>> = {
   trc: "04/2016/TT-BNG, 47/2014/QH13",
@@ -27,15 +46,17 @@ export const PROCESS_BY_GROUP: Record<InferredLegalRagContext["service_group"], 
 
 function openingLine(
   serviceLabel: string,
-  serviceGroup: InferredLegalRagContext["service_group"]
+  serviceGroup: InferredLegalRagContext["service_group"],
+  intent: AnonymousGuideIntent
 ): string {
-  if (serviceGroup === "verify") {
-    return `네, **${serviceLabel}** 검토에 필요한 서류를 정리해 드릴게요.`;
+  const action = GROUP_ACTION[serviceGroup];
+  if (intent === "cost") {
+    return `네, **${serviceLabel}** ${action} 비용을 확인해 드릴게요.`;
   }
-  if (serviceGroup === "register") {
-    return `네, **${serviceLabel}** 등록에 필요한 서류를 정리해 드릴게요.`;
+  if (intent === "procedure") {
+    return `네, **${serviceLabel}** ${action} 절차를 안내해 드릴게요.`;
   }
-  return `네, **${serviceLabel}** 신청에 필요한 서류를 정리해 드릴게요.`;
+  return `네, **${serviceLabel}** ${action}에 필요한 서류를 정리해 드릴게요.`;
 }
 
 function docIntroLine(serviceLabel: string, serviceGroup: InferredLegalRagContext["service_group"]): string {
@@ -93,15 +114,16 @@ function legalBasisLine(serviceType: string): string {
 /** 익명 /ai — 주제 추정 성공 시 즉시 반환하는 구조화 가이드. */
 export function buildAnonymousFastGuide(
   inferred: InferredLegalRagContext,
-  options?: { legalBasisLine?: string }
+  options?: { legalBasisLine?: string; question?: string }
 ): string {
   const config = getRequiredDocuments(inferred.service_type);
   const docs = mergedDocumentLines(inferred.service_type);
   const bullets = docs.map((item) => `· ${item}`).join("\n");
   const legalLine = options?.legalBasisLine ?? legalBasisLine(inferred.service_type);
+  const intent = resolveAnonymousGuideIntent(options?.question ?? "");
 
   return [
-    openingLine(config.serviceLabel, inferred.service_group),
+    openingLine(config.serviceLabel, inferred.service_group, intent),
     "",
     docIntroLine(config.serviceLabel, inferred.service_group),
     "",
@@ -122,5 +144,5 @@ export function buildAnonymousStructuredFallback(
   _question: string,
   inferred: InferredLegalRagContext
 ): string {
-  return buildAnonymousFastGuide(inferred);
+  return buildAnonymousFastGuide(inferred, { question: _question });
 }
