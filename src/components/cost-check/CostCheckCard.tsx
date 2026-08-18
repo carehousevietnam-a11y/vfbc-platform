@@ -145,7 +145,7 @@ export function CostCheckCard({
         <section aria-labelledby="cost-check-heading">
           <h2
             id="cost-check-heading"
-            className="text-base font-semibold text-blue-900 sm:text-[17px] lg:text-lg"
+            className="text-lg font-semibold leading-[1.55] text-blue-900 sm:text-[19px] lg:text-xl"
           >
             비용 확인
           </h2>
@@ -156,9 +156,9 @@ export function CostCheckCard({
             출처: {service.source}
           </p>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_270px] lg:items-start lg:gap-6">
+          <div className="mt-4 grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start lg:gap-5">
             <div className="min-w-0 space-y-3.5">
-              <h3 id="key-metrics-heading" className="text-[15px] font-semibold text-slate-800 sm:text-base">
+              <h3 id="key-metrics-heading" className="text-[15px] font-semibold leading-[1.55] text-slate-800 sm:text-[16px] lg:text-[17px]">
                 핵심 수치
               </h3>
               <div
@@ -213,10 +213,10 @@ export function CostCheckCard({
               ) : null}
             </div>
 
-            <div className="flex w-full flex-col self-start rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-slate-200/70 sm:px-4 sm:py-4 lg:w-[270px] lg:max-w-[270px] lg:shrink-0">
+            <div className="flex w-full flex-col self-start rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-slate-200/70 sm:px-4 sm:py-4 lg:w-[260px] lg:max-w-[260px] lg:shrink-0">
               <h2
                 id="decision-heading"
-                className="text-base font-semibold text-blue-900 sm:text-[17px] lg:text-lg"
+                className="text-lg font-semibold leading-[1.55] text-blue-900 sm:text-[19px] lg:text-xl"
               >
                 견적 적정성
               </h2>
@@ -229,7 +229,7 @@ export function CostCheckCard({
                   baseline={!hasQuote}
                 />
                 <div className="mt-2 w-full space-y-0.5 text-center">
-                  <p className="text-[2.625rem] font-bold leading-none tabular-nums text-slate-900">
+                  <p className="text-[2.75rem] font-bold leading-none tabular-nums text-slate-900 sm:text-[3rem]">
                     {hasQuote ? Math.round(score) : 100} / 100
                   </p>
                   <p className="flex items-center justify-center gap-1.5 text-[15px] font-semibold text-slate-800 sm:text-base">

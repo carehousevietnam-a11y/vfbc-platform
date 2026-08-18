@@ -18,7 +18,7 @@ export function RelatedQuestions({ links, embedded = false }: RelatedQuestionsPr
       className={embedded ? "" : "mt-6 lg:mt-7"}
       aria-labelledby="related-heading"
     >
-      <h2 id="related-heading" className="text-base font-semibold text-blue-900 sm:text-[17px] lg:text-lg">
+      <h2 id="related-heading" className="text-lg font-semibold leading-[1.55] text-blue-900 sm:text-[19px] lg:text-xl">
         함께 많이 확인해요
       </h2>
       <nav

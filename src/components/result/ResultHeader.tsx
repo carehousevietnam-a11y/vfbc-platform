@@ -18,7 +18,7 @@ export function ResultHeader({
   return (
     <header className="mt-5 flex items-start justify-between gap-4 lg:mt-6">
       <div>
-        <h1 className="text-[26px] font-bold leading-tight tracking-tight text-blue-900 lg:text-[28px]">
+        <h1 className="text-[1.875rem] font-bold leading-[1.25] tracking-tight text-blue-900 lg:text-[2.125rem]">
           MY VIET CHECK
         </h1>
         {(categoryLabel || modeLabel || serviceLabel) && (

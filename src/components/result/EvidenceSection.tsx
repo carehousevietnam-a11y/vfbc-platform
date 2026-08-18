@@ -22,7 +22,7 @@ export function EvidenceSection({
       className={`mt-6 lg:mt-7 ${className}`.trim()}
       aria-labelledby="evidence-heading"
     >
-      <h2 id="evidence-heading" className="text-base font-semibold text-blue-900 sm:text-[17px] lg:text-lg">
+      <h2 id="evidence-heading" className="text-lg font-semibold leading-[1.55] text-blue-900 sm:text-[19px] lg:text-xl">
         {title}
       </h2>
       {lead ? (

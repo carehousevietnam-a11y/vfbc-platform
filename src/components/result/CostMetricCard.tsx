@@ -29,19 +29,19 @@ export function CostMetricCard({
         emphasis ? "ring-blue-900/20" : ""
       }`}
     >
-      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="text-[13px] font-medium leading-[1.55] text-slate-500 sm:text-sm">{label}</p>
       <div className="mt-2 min-w-0">
         <p
           className={`break-keep font-bold tabular-nums tracking-tight ${resolveValueClass(value, emphasis, placeholder)} ${
             longValue
-              ? "text-lg leading-snug sm:text-xl lg:text-2xl"
-              : "text-2xl leading-none sm:text-[26px] lg:whitespace-nowrap"
+              ? "text-2xl leading-snug sm:text-[26px]"
+              : "whitespace-nowrap text-2xl leading-none sm:text-[26px] lg:text-[28px]"
           }`}
         >
           {value}
         </p>
         {hint ? (
-          <p className="mt-1.5 line-clamp-2 text-[13px] leading-[1.5] text-slate-500 sm:text-sm">{hint}</p>
+          <p className="mt-1.5 line-clamp-3 break-keep text-[13px] leading-[1.55] text-slate-500 sm:text-sm">{hint}</p>
         ) : null}
       </div>
     </div>

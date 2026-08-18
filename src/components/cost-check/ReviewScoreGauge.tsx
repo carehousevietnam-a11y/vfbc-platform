@@ -67,7 +67,7 @@ function SemiCircleGauge({
       className={
         compact
           ? "relative mx-auto w-full max-w-[200px]"
-          : "relative mx-auto w-full max-w-[240px] sm:max-w-[250px] lg:max-w-[260px]"
+          : "relative mx-auto w-full max-w-[220px] sm:max-w-[236px] lg:max-w-[240px]"
       }
       role="img"
       aria-label={

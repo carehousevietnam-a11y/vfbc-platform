@@ -109,8 +109,7 @@ function AiPageContent() {
       <SiteHeader />
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden py-6 sm:py-8 lg:py-9">
-        <div className="mx-auto w-full max-w-[1120px] px-5 lg:px-8">
-          <div className="mx-auto w-full max-w-[1000px]">
+        <div className="mx-auto w-full max-w-[1040px] px-4 sm:px-6">
           {!session && !sending ? (
             <div className="rounded-2xl bg-white px-5 py-8 text-center ring-1 ring-slate-200/60 sm:px-8">
               <p className="text-lg font-semibold text-slate-900 sm:text-xl">
@@ -143,13 +142,11 @@ function AiPageContent() {
               {error}
             </div>
           ) : null}
-          </div>
         </div>
       </div>
 
       <footer className="shrink-0 border-t border-slate-200/70 bg-white/95 backdrop-blur">
-        <div className="mx-auto w-full max-w-[1120px] px-5 py-4 lg:px-8">
-          <div className="mx-auto w-full max-w-[1000px]">
+        <div className="mx-auto w-full max-w-[1040px] px-4 py-4 sm:px-6">
           <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
             <input
               value={input}
@@ -172,7 +169,6 @@ function AiPageContent() {
             <AlertTriangle size={12} className="shrink-0" />
             AI 안내는 참고용이며 확정적인 법률 판단이 아닙니다.
           </p>
-          </div>
         </div>
       </footer>
     </main>
@@ -185,7 +181,7 @@ export default function AiPage() {
       fallback={
         <main className="min-h-screen bg-[#faf8f5]">
           <div className="h-[3px] bg-blue-900" />
-          <div className="mx-auto max-w-[1120px] px-5 py-10 lg:px-8">
+          <div className="mx-auto w-full max-w-[1040px] px-4 py-10 sm:px-6">
             <p className="text-sm text-slate-500">불러오는 중...</p>
           </div>
         </main>

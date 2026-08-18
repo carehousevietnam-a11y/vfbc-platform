@@ -18,7 +18,7 @@ export function SourceSection({
       className={embedded ? "" : "mt-6 lg:mt-7"}
       aria-labelledby="source-heading"
     >
-      <h2 id="source-heading" className="text-base font-semibold text-blue-900 sm:text-[17px] lg:text-lg">
+      <h2 id="source-heading" className="text-lg font-semibold leading-[1.55] text-blue-900 sm:text-[19px] lg:text-xl">
         {title}
       </h2>
       <div

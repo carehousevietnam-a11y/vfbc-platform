@@ -105,7 +105,7 @@ export default function SiteHeader() {
   if (useHomeStyleHeader) {
     return (
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-[3.75rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="mx-auto flex h-[3.75rem] w-full max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-900/[0.06] ring-1 ring-blue-900/10">
               <ShieldCheck size={18} className="text-blue-900" />

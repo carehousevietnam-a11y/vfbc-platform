@@ -148,9 +148,9 @@ export default function MyVietCheckHero() {
       <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#faf8f5] to-[#f7f4ef]">
         <CitySilhouette />
 
-        <div className="relative mx-auto w-full max-w-[900px] px-5 pb-8 pt-8 text-center sm:px-6 sm:pb-10 sm:pt-11">
-          <div className="mx-auto max-w-[760px]">
-            <h1 className="text-[1.65rem] font-bold leading-[1.28] tracking-tight text-blue-900 sm:text-[2rem] lg:text-[2.125rem]">
+        <div className="relative mx-auto w-full max-w-[1040px] px-4 pb-8 pt-8 text-center sm:px-6 sm:pb-10 sm:pt-11">
+          <div className="mx-auto max-w-[780px]">
+            <h1 className="text-[1.75rem] font-bold leading-[1.28] tracking-tight text-blue-900 sm:text-[2rem] lg:text-[2.25rem]">
               베트남에서 돈 쓰기 전에,
               <br />
               먼저 <span className="text-amber-600">직접 확인</span>하세요.
@@ -162,7 +162,7 @@ export default function MyVietCheckHero() {
             </p>
           </div>
 
-          <form id="hero-query" onSubmit={handleSubmit} className="mx-auto mt-6 max-w-[880px] sm:mt-7">
+          <form id="hero-query" onSubmit={handleSubmit} className="mx-auto mt-6 w-full max-w-[1000px] sm:mt-7">
             <div className="rounded-2xl border border-slate-200/70 bg-white p-4 text-left shadow-[0_8px_32px_rgba(30,58,138,0.06)] sm:p-5">
               <span className="inline-flex items-center rounded-full border border-amber-100/80 bg-[#faf6ed] px-3 py-1 text-[11px] font-bold tracking-wide text-blue-900">
                 행정 · 법률 확인기
@@ -221,7 +221,7 @@ export default function MyVietCheckHero() {
       </section>
 
       <section id="protect" className="border-t border-slate-200/60 bg-[#f7f4ef]/50">
-        <div className="mx-auto max-w-6xl px-5 py-10 sm:px-6 sm:py-12">
+        <div className="mx-auto w-full max-w-[1040px] px-4 py-10 sm:px-6 sm:py-12">
           <p className="text-center text-sm font-semibold text-blue-900 sm:text-[15px]">
             판단은 본인이 합니다. 우리는 확인할 근거를 제공합니다.
           </p>
