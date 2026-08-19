@@ -241,7 +241,16 @@ export function CostCheckCard({
               <div className="mt-2 max-w-xl">
                 <dt className="sr-only">판단 설명</dt>
                 <dd className="text-center text-[14px] leading-relaxed text-slate-600">
-                  {hasQuote ? formatBubbleHint(displayBubble) : "금액을 입력하면 적정성을 판단해드립니다."}
+                  {hasQuote ? (
+                    formatBubbleHint(displayBubble)
+                  ) : (
+                    <>
+                      정부 공식 수수료와 일반 시장 범위를 함께 비교해, 입력하신 금액의 위치를
+                      확인합니다.
+                      <br />
+                      실제 견적은 포함된 업무 범위에 따라 달라질 수 있습니다.
+                    </>
+                  )}
                 </dd>
               </div>
             </dl>
