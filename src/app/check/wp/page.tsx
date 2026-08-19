@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -61,6 +61,137 @@ type Experience = WpExperience;
 type Job = WpJob;
 type PriorityField = WpPriorityField;
 type Result = "possible" | "conditional" | "impossible" | null;
+type WpQuestionId = 1 | 2 | 3 | 4 | 5;
+
+const EDUCATION_OPTIONS: { key: NonNullable<Education>; label: string; desc: string }[] = [
+  { key: "university", label: "대학교 졸업 이상", desc: "학사 이상의 학위를 소지한 경우입니다." },
+  { key: "college", label: "전문대 졸업", desc: "전문학사 학위를 소지한 경우입니다." },
+  { key: "highschool", label: "고등학교 졸업 이하", desc: "위 학력에 해당하지 않는 경우입니다." },
+];
+
+const EXPERIENCE_OPTIONS: { key: NonNullable<Experience>; label: string; desc: string }[] = [
+  { key: "over2", label: "2년 이상", desc: "일반 분야 경력 요건을 충족합니다." },
+  { key: "one-to-two", label: "1~2년", desc: "우선분야 여부에 따라 요건 충족이 달라집니다." },
+  { key: "under1", label: "1년 미만", desc: "추가 경력·자격 보완이 필요할 수 있습니다." },
+];
+
+const JOB_OPTIONS: { key: NonNullable<Job>; label: string; desc: string }[] = [
+  { key: "expert", label: "전문직 · 관리직", desc: "매니저, 전문가, 임원 등" },
+  { key: "technical", label: "기능직 · 기술직", desc: "특정 기술·자격이 필요한 직무" },
+  { key: "unskilled", label: "단순노무", desc: "특별한 학력·경력이 필요 없는 업무" },
+];
+
+function educationLabel(value: Education): string | null {
+  return EDUCATION_OPTIONS.find((opt) => opt.key === value)?.label ?? null;
+}
+
+function experienceLabel(value: Experience): string | null {
+  return EXPERIENCE_OPTIONS.find((opt) => opt.key === value)?.label ?? null;
+}
+
+function jobLabel(value: Job): string | null {
+  return JOB_OPTIONS.find((opt) => opt.key === value)?.label ?? null;
+}
+
+function WpQuestionSummary({
+  label,
+  value,
+  onEdit,
+}: {
+  label: string;
+  value: string;
+  onEdit: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onEdit}
+      className="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-left"
+    >
+      <span className="text-sm text-gray-500">{label}</span>
+      <span className="text-sm font-semibold text-gray-900">✓ {value}</span>
+    </button>
+  );
+}
+
+function WpUpcomingHint({ label }: { label: string }) {
+  return (
+    <div className="rounded-xl border border-dashed border-gray-200 px-4 py-2.5 text-sm text-gray-400">
+      {label}
+    </div>
+  );
+}
+
+type WpFlowMode = "hidden" | "upcoming" | "current" | "summary";
+
+function WpCollapse({
+  open,
+  children,
+  appearDelay = false,
+}: {
+  open: boolean;
+  children: ReactNode;
+  appearDelay?: boolean;
+}) {
+  return (
+    <div
+      className={`overflow-hidden transition-[max-height,opacity,transform] ease-out motion-reduce:transition-none motion-reduce:delay-0 ${
+        open
+          ? `max-h-[960px] opacity-100 duration-300 ${appearDelay ? "delay-100" : ""}`
+          : "max-h-0 opacity-0 duration-300"
+      }`}
+      aria-hidden={!open}
+      inert={!open}
+    >
+      {children}
+    </div>
+  );
+}
+
+function WpFlowSlot({
+  mode,
+  entering,
+  summary,
+  hint,
+  children,
+}: {
+  mode: WpFlowMode;
+  entering: boolean;
+  summary: ReactNode;
+  hint: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <WpCollapse open={mode === "summary"} appearDelay>
+        {summary}
+      </WpCollapse>
+      <WpCollapse open={mode === "current"}>
+        <div
+          className={`transition-all duration-300 ease-out motion-reduce:transition-none motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+            entering ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+          }`}
+        >
+          {children}
+        </div>
+      </WpCollapse>
+      <WpCollapse open={mode === "upcoming"} appearDelay>
+        {hint}
+      </WpCollapse>
+    </div>
+  );
+}
+
+function wpStepMode(
+  step: WpQuestionId,
+  currentStep: WpQuestionId | null,
+  answered: boolean
+): WpFlowMode {
+  if (currentStep === step) return "current";
+  if (answered) return "summary";
+  if (currentStep !== null && step === ((currentStep + 1) as WpQuestionId)) return "upcoming";
+  return "hidden";
+}
 
 function sanitizeReturnHref(raw: string | null): string | null {
   if (!raw) return null;
@@ -1011,7 +1142,10 @@ export default function WpCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const [questionsConfirmed, setQuestionsConfirmed] = useState(false);
+  const [editingStep, setEditingStep] = useState<WpQuestionId | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [stepEnterReady, setStepEnterReady] = useState(false);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
@@ -1041,6 +1175,29 @@ export default function WpCheckPage() {
 
   const result: Result = computeWpResultTone(education, experience, job, priorityField);
   const showResult = !!education && !!experience && !!priorityField && !!job;
+  const questionsComplete =
+    rejectionStepDone && !!education && !!experience && !!priorityField && !!job;
+  const currentStep: WpQuestionId | null = editingStep
+    ? editingStep
+    : !rejectionStepDone
+      ? 1
+      : !education
+        ? 2
+        : !experience
+          ? 3
+          : !priorityField
+            ? 4
+            : !job
+              ? 5
+              : null;
+  const showQuestionFlow = !questionsConfirmed && !leadSubmitted;
+  useEffect(() => {
+    setStepEnterReady(false);
+    const id = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setStepEnterReady(true));
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [currentStep]);
   // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
   // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
   const resultScreenActive =
@@ -1103,6 +1260,7 @@ export default function WpCheckPage() {
       if (error) console.error("previous_rejections reason update failed:", error);
     }
     setRejectionStepDone(true);
+    setEditingStep(null);
   }
 
   // 관할 포털 링크(직접 등록) 클릭 시점에 응원 이메일을 한 번만 보낸다.
@@ -1215,6 +1373,8 @@ export default function WpCheckPage() {
     setPreviousRejection(null);
     setRejectionReason("");
     setRejectionStepDone(false);
+    setQuestionsConfirmed(false);
+    setEditingStep(null);
     setResultToken(null);
     setExpertLoginPending(false);
     setExpertLoginError(null);
@@ -1404,10 +1564,10 @@ export default function WpCheckPage() {
               직접확인하기 · 베트남 행정전문 AI
             </p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-              노동허가 (WP) 신청
+              노동허가 가능성 확인
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              학력·경력·직무 형태에 따라 노동허가 발급 가능 여부가 달라집니다.
+              간단한 질문 몇 가지만 확인합니다. 학력·경력·직무 형태에 따라 노동허가 발급 가능 여부가 달라집니다.
             </p>
           </div>
 
@@ -1419,248 +1579,258 @@ export default function WpCheckPage() {
           )}
         </div>
 
-        {!rejectionStepDone && (
-          <div className="mt-8">
-            <QuestionSection
-              step={1}
-              title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
+        {showQuestionFlow && (
+          <div className="mt-8 space-y-3">
+            <WpFlowSlot
+              mode={wpStepMode(1, currentStep, rejectionStepDone)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="거절 이력"
+                  value={previousRejection ? "있음" : "없음"}
+                  onEdit={() => setEditingStep(1)}
+                />
+              }
+              hint={<WpUpcomingHint label="거절 이력" />}
             >
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <SelectionCard
-                  title="네, 있습니다"
-                  selected={previousRejection === true}
-                  tone="amber"
-                  onClick={() => {
-                    setPreviousRejection(true);
-                    recordRejectionAnonymously();
-                  }}
-                />
-                <SelectionCard
-                  title="아니요"
-                  selected={previousRejection === false}
-                  tone="blue"
-                  onClick={() => {
-                    setPreviousRejection(false);
-                    setRejectionStepDone(true);
-                  }}
-                />
-              </div>
-            </QuestionSection>
-            {previousRejection === true && (
-              <div className="mt-4">
-                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    AI
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">
-                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
-                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
-                      작성해주세요. 작성할수록 진단 정확도가 높아집니다.
-                    </p>
-                  </div>
+              <QuestionSection
+                step={1}
+                title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
+              >
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <SelectionCard
+                    title="네, 있습니다"
+                    selected={previousRejection === true}
+                    tone="amber"
+                    onClick={() => {
+                      setPreviousRejection(true);
+                      if (previousRejection !== true) {
+                        recordRejectionAnonymously();
+                        setRejectionStepDone(false);
+                      }
+                    }}
+                  />
+                  <SelectionCard
+                    title="아니요"
+                    selected={previousRejection === false}
+                    tone="blue"
+                    onClick={() => {
+                      setPreviousRejection(false);
+                      setRejectionStepDone(true);
+                      setEditingStep(null);
+                    }}
+                  />
                 </div>
+              </QuestionSection>
+              {previousRejection === true && currentStep === 1 && (
+                <div className="mt-4">
+                  <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                      AI
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">
+                        거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                        이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
+                        작성해주세요. 작성할수록 진단 정확도가 높아집니다.
+                      </p>
+                    </div>
+                  </div>
 
-                <textarea
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder={
-                    "예)\n- 노동허가가 거절되었습니다.\n- 경력증명서 문제라고 들었습니다.\n- 학력요건이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
-                  }
-                  rows={6}
-                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder={
+                      "예)\n- 노동허가가 거절되었습니다.\n- 경력증명서 문제라고 들었습니다.\n- 학력요건이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
+                    }
+                    rows={6}
+                    className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                    작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
+                    높이는 데 활용됩니다.
+                  </p>
+
+                  <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
+                    다음
+                  </PrimaryButton>
+                </div>
+              )}
+            </WpFlowSlot>
+
+            <WpFlowSlot
+              mode={wpStepMode(2, currentStep, !!education)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="학력"
+                  value={educationLabel(education) ?? ""}
+                  onEdit={() => setEditingStep(2)}
                 />
-                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
-                  높이는 데 활용됩니다.
-                </p>
+              }
+              hint={<WpUpcomingHint label="학력" />}
+            >
+              <QuestionSection step={2} title="최종 학력이 어떻게 되시나요?">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {EDUCATION_OPTIONS.map((opt) => (
+                    <SelectionCard
+                      key={opt.key}
+                      title={opt.label}
+                      description={opt.desc}
+                      selected={selectedKey === opt.key || education === opt.key}
+                      tone="blue"
+                      onClick={() => {
+                        setSelectedKey(opt.key);
+                        setTimeout(() => {
+                          setEducation(opt.key);
+                          setSelectedKey(null);
+                          setEditingStep(null);
+                        }, 300);
+                      }}
+                    />
+                  ))}
+                </div>
+              </QuestionSection>
+            </WpFlowSlot>
 
-                <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
-                  다음
-                </PrimaryButton>
-              </div>
-            )}
+            <WpFlowSlot
+              mode={wpStepMode(3, currentStep, !!experience)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="경력"
+                  value={experienceLabel(experience) ?? ""}
+                  onEdit={() => setEditingStep(3)}
+                />
+              }
+              hint={<WpUpcomingHint label="경력" />}
+            >
+              <QuestionSection step={3} title="해당 직무 관련 경력은 얼마나 되시나요?">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {EXPERIENCE_OPTIONS.map((opt) => (
+                    <SelectionCard
+                      key={opt.key}
+                      title={opt.label}
+                      description={opt.desc}
+                      selected={selectedKey === opt.key || experience === opt.key}
+                      tone="blue"
+                      onClick={() => {
+                        setSelectedKey(opt.key);
+                        setTimeout(() => {
+                          setExperience(opt.key);
+                          setSelectedKey(null);
+                          setEditingStep(null);
+                        }, 300);
+                      }}
+                    />
+                  ))}
+                </div>
+              </QuestionSection>
+            </WpFlowSlot>
+
+            <WpFlowSlot
+              mode={wpStepMode(4, currentStep, !!priorityField)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="우선 분야"
+                  value={
+                    priorityField === "yes"
+                      ? "해당될 것 같음"
+                      : priorityField === "no"
+                        ? "아니요 / 잘 모름"
+                        : ""
+                  }
+                  onEdit={() => setEditingStep(4)}
+                />
+              }
+              hint={<WpUpcomingHint label="우선 분야" />}
+            >
+              <QuestionSection
+                step={4}
+                title="담당 직무가 기술·혁신·디지털전환 관련 우선분야에 해당하나요?"
+                description="IT·소프트웨어 개발, R&D, 신기술 도입 등이 해당될 수 있습니다. 정확한 해당 여부는 전문가 확인이 필요합니다."
+              >
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <SelectionCard
+                    title="네, 해당될 것 같습니다"
+                    description="경력 요건이 1년으로 완화될 수 있습니다."
+                    selected={selectedKey === "priority-yes" || priorityField === "yes"}
+                    tone="blue"
+                    onClick={() => {
+                      setSelectedKey("priority-yes");
+                      setTimeout(() => {
+                        setPriorityField("yes");
+                        setSelectedKey(null);
+                        setEditingStep(null);
+                      }, 300);
+                    }}
+                  />
+                  <SelectionCard
+                    title="아니요 / 잘 모르겠습니다"
+                    description="일반 분야 경력 요건(2년 이상)이 적용됩니다."
+                    selected={selectedKey === "priority-no" || priorityField === "no"}
+                    tone="slate"
+                    onClick={() => {
+                      setSelectedKey("priority-no");
+                      setTimeout(() => {
+                        setPriorityField("no");
+                        setSelectedKey(null);
+                        setEditingStep(null);
+                      }, 300);
+                    }}
+                  />
+                </div>
+              </QuestionSection>
+            </WpFlowSlot>
+
+            <WpFlowSlot
+              mode={wpStepMode(5, currentStep, !!job)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="직무 형태"
+                  value={jobLabel(job) ?? ""}
+                  onEdit={() => setEditingStep(5)}
+                />
+              }
+              hint={<WpUpcomingHint label="직무 형태" />}
+            >
+              <QuestionSection step={5} title="담당하실 직무 형태는 무엇인가요?">
+                <div className="grid grid-cols-1 gap-3">
+                  {JOB_OPTIONS.map((opt) => (
+                    <SelectionCard
+                      key={opt.key}
+                      title={opt.label}
+                      description={opt.desc}
+                      selected={selectedKey === opt.key || job === opt.key}
+                      tone="blue"
+                      onClick={() => {
+                        setSelectedKey(opt.key);
+                        setTimeout(() => {
+                          setJob(opt.key);
+                          setSelectedKey(null);
+                          setEditingStep(null);
+                        }, 300);
+                      }}
+                    />
+                  ))}
+                </div>
+              </QuestionSection>
+            </WpFlowSlot>
+
+            <WpCollapse open={questionsComplete && currentStep === null}>
+              <PrimaryButton onClick={() => setQuestionsConfirmed(true)} className="mt-3">
+                다음 단계
+              </PrimaryButton>
+            </WpCollapse>
           </div>
         )}
 
-        {rejectionStepDone && !showResult && (
-          <>
-            {!education && (
-              <div className="mt-8">
-                <QuestionSection step={2} title="최종 학력이 어떻게 되시나요?">
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {[
-                      { key: "university", label: "대학교 졸업 이상", desc: "학사 이상의 학위를 소지한 경우입니다." },
-                      { key: "college", label: "전문대 졸업", desc: "전문학사 학위를 소지한 경우입니다." },
-                      { key: "highschool", label: "고등학교 졸업 이하", desc: "위 학력에 해당하지 않는 경우입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setEducation(opt.key as Education);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setRejectionStepDone(false);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
-
-            {education && !experience && (
-              <div className="mt-8">
-                <QuestionSection step={3} title="해당 직무 관련 경력은 얼마나 되시나요?">
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {[
-                      { key: "over2", label: "2년 이상", desc: "일반 분야 경력 요건을 충족합니다." },
-                      { key: "one-to-two", label: "1~2년", desc: "우선분야 여부에 따라 요건 충족이 달라집니다." },
-                      { key: "under1", label: "1년 미만", desc: "추가 경력·자격 보완이 필요할 수 있습니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setExperience(opt.key as Experience);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setEducation(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
-
-            {education && experience && !priorityField && (
-              <div className="mt-8">
-                <QuestionSection
-                  step={4}
-                  title="담당 직무가 기술·혁신·디지털전환 관련 우선분야에 해당하나요?"
-                  description="IT·소프트웨어 개발, R&D, 신기술 도입 등이 해당될 수 있습니다. 정확한 해당 여부는 전문가 확인이 필요합니다."
-                >
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <SelectionCard
-                      title="네, 해당될 것 같습니다"
-                      description="경력 요건이 1년으로 완화될 수 있습니다."
-                      selected={selectedKey === "priority-yes"}
-                      tone="blue"
-                      onClick={() => {
-                        setSelectedKey("priority-yes");
-                        setTimeout(() => {
-                          setPriorityField("yes");
-                          setSelectedKey(null);
-                        }, 300);
-                      }}
-                    />
-                    <SelectionCard
-                      title="아니요 / 잘 모르겠습니다"
-                      description="일반 분야 경력 요건(2년 이상)이 적용됩니다."
-                      selected={selectedKey === "priority-no"}
-                      tone="slate"
-                      onClick={() => {
-                        setSelectedKey("priority-no");
-                        setTimeout(() => {
-                          setPriorityField("no");
-                          setSelectedKey(null);
-                        }, 300);
-                      }}
-                    />
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setExperience(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
-
-            {education && experience && priorityField && !job && (
-              <div className="mt-8">
-                <QuestionSection step={5} title="담당하실 직무 형태는 무엇인가요?">
-                  <div className="grid grid-cols-1 gap-3">
-                    {[
-                      { key: "expert", label: "전문직 · 관리직", desc: "매니저, 전문가, 임원 등" },
-                      { key: "technical", label: "기능직 · 기술직", desc: "특정 기술·자격이 필요한 직무" },
-                      { key: "unskilled", label: "단순노무", desc: "특별한 학력·경력이 필요 없는 업무" },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setJob(opt.key as Job);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setPriorityField(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
         {/* 1번째 화면 (가입 전) — Premium SaaS lead capture */}
-        {showResult && result === "possible" && !leadSubmitted && (
+        {questionsConfirmed && showResult && result === "possible" && !leadSubmitted && (
           <PremiumLeadCapture
             tone="possible"
             diagnosis={diagnosis}
@@ -1679,7 +1849,7 @@ export default function WpCheckPage() {
         )}
 
         {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/전문가 진행요청 선택 */}
-        {showResult && result === "possible" && leadSubmitted && (
+        {questionsConfirmed && showResult && result === "possible" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               노동허가(WP) · AI 분석 리포트
@@ -1727,7 +1897,7 @@ export default function WpCheckPage() {
         )}
 
         {/* 조건부 가능 — 1번째 화면 (가입 전, Premium SaaS lead capture) */}
-        {showResult && result === "conditional" && !leadSubmitted && (
+        {questionsConfirmed && showResult && result === "conditional" && !leadSubmitted && (
           <PremiumLeadCapture
             tone="conditional"
             diagnosis={diagnosis}
@@ -1746,7 +1916,7 @@ export default function WpCheckPage() {
         )}
 
         {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 + 직접등록/전문가 진행요청 선택) */}
-        {showResult && result === "conditional" && leadSubmitted && (
+        {questionsConfirmed && showResult && result === "conditional" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               노동허가(WP) · AI 분석 리포트
@@ -1809,7 +1979,7 @@ export default function WpCheckPage() {
           </div>
         )}
 
-        {showResult && result === "impossible" && (
+        {questionsConfirmed && showResult && result === "impossible" && (
           <div className="mt-8 rounded-3xl bg-white border border-red-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <XCircle className="text-red-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
