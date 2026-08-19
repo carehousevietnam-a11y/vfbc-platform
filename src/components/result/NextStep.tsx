@@ -27,6 +27,9 @@ export function NextStep({
         <p className="mt-2.5 max-w-2xl text-[15px] leading-relaxed text-blue-100 sm:text-base">
           {t("result.nextBody")}
         </p>
+        <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-blue-200/90 sm:text-sm">
+          {t("result.nextOptional")}
+        </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link
             href={funnelHref}
