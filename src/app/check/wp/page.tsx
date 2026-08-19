@@ -140,6 +140,8 @@ function WpCollapse({
           ? `max-h-[960px] opacity-100 duration-300 ${appearDelay ? "delay-100" : ""}`
           : "max-h-0 opacity-0 duration-300"
       }`}
+      aria-hidden={!open}
+      inert={!open}
     >
       {children}
     </div>
@@ -1734,7 +1736,13 @@ export default function WpCheckPage() {
               summary={
                 <WpQuestionSummary
                   label="우선 분야"
-                  value={priorityField === "yes" ? "해당될 것 같음" : "아니요 / 잘 모름"}
+                  value={
+                    priorityField === "yes"
+                      ? "해당될 것 같음"
+                      : priorityField === "no"
+                        ? "아니요 / 잘 모름"
+                        : ""
+                  }
                   onEdit={() => setEditingStep(4)}
                 />
               }
