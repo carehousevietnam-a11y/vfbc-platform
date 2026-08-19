@@ -112,7 +112,7 @@ export default function MyVietCheckHero() {
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-900" aria-hidden />
                   {t("hero.badge")}
                 </span>
-                <nav className="hidden items-center gap-3 text-[11px] font-medium text-slate-400 sm:flex" aria-hidden>
+                <nav className="flex items-center gap-3 text-[11px] font-medium text-slate-400" aria-hidden>
                   <span>질문</span>
                   <span>비용</span>
                   <span>확인</span>
