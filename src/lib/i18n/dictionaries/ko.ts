@@ -1,4 +1,5 @@
 export const ko = {
+  "hero.eyebrow": "행정·법률·비용 확인 플랫폼",
   "hero.titleLine1": "베트남에서 돈 쓰기 전에,",
   "hero.titleBeforeHighlight": "먼저 ",
   "hero.titleHighlight": "직접 확인",

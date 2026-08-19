@@ -1,6 +1,7 @@
 import type { ko } from "./ko";
 
 export const zh: Record<keyof typeof ko, string> = {
+  "hero.eyebrow": "行政·法律·费用确认平台",
   "hero.titleLine1": "在越南花钱之前，",
   "hero.titleBeforeHighlight": "请先",
   "hero.titleHighlight": "亲自确认",

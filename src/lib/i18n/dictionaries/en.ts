@@ -1,6 +1,7 @@
 import type { ko } from "./ko";
 
 export const en: Record<keyof typeof ko, string> = {
+  "hero.eyebrow": "Administrative, legal, and cost verification platform",
   "hero.titleLine1": "Before spending money in Vietnam,",
   "hero.titleBeforeHighlight": "first ",
   "hero.titleHighlight": "check it yourself",

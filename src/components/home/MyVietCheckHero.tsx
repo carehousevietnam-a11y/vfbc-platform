@@ -90,6 +90,9 @@ export default function MyVietCheckHero() {
       <section className="bg-[#faf8f5]">
         <div className="mx-auto w-full max-w-[1040px] px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-10">
           <div className="max-w-[720px]">
+            <p className="mb-3 text-[12px] font-medium tracking-[0.04em] text-slate-500 sm:text-[13px]">
+              {t("hero.eyebrow")}
+            </p>
             <h1 className="break-keep text-[1.875rem] font-bold leading-[1.28] tracking-tight text-blue-900 sm:text-[2.125rem] lg:text-[2.35rem]">
               {t("hero.titleLine1")}
               <br />

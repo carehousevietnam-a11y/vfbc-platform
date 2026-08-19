@@ -1,6 +1,7 @@
 import type { ko } from "./ko";
 
 export const vi: Record<keyof typeof ko, string> = {
+  "hero.eyebrow": "Nền tảng xác nhận hành chính, pháp lý và chi phí",
   "hero.titleLine1": "Trước khi chi tiền tại Việt Nam,",
   "hero.titleBeforeHighlight": "hãy ",
   "hero.titleHighlight": "tự kiểm tra",

@@ -17,15 +17,15 @@ export function CostMetricCard({
 }: CostMetricCardProps) {
   return (
     <div className="min-w-0 py-1">
-      <p className="text-[13px] text-slate-500">{label}</p>
-      <p
-        className={`mt-1 break-keep text-[1.25rem] font-semibold tabular-nums tracking-tight ${
+      <dt className="text-[13px] text-slate-500">{label}</dt>
+      <dd
+        className={`mt-1 break-keep text-[1.5rem] font-semibold tabular-nums tracking-tight ${
           placeholder ? "text-slate-300" : emphasis ? "text-blue-900" : "text-slate-900"
         }`}
       >
         {value}
-      </p>
-      {hint ? <p className="mt-1 text-[12px] leading-relaxed text-slate-400">{hint}</p> : null}
+      </dd>
+      {hint ? <dd className="mt-1 text-[12px] leading-relaxed text-slate-400">{hint}</dd> : null}
     </div>
   );
 }

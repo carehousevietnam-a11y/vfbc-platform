@@ -84,7 +84,10 @@ export function ReviewJudgmentDetails({
             : "flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 py-3 text-[15px] font-medium text-slate-800 [&::-webkit-details-marker]:hidden"
         }
       >
-        왜 이렇게 판단했나요? <span className="text-slate-400">⌄</span>
+        <h2 id="evidence-heading" className="text-[15px] font-medium text-slate-800">
+          왜 이렇게 판단했나요?
+        </h2>
+        <span className="text-slate-400">⌄</span>
       </summary>
       {body}
     </details>

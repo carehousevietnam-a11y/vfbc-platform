@@ -151,7 +151,7 @@ export function CostCheckCard({
             출처: {service.source}
           </p>
 
-          <div
+          <dl
             className={`mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 ${
               hasQuote ? "lg:grid-cols-3" : ""
             }`}
@@ -166,7 +166,7 @@ export function CostCheckCard({
                 emphasis
               />
             ) : null}
-          </div>
+          </dl>
 
           <CostComparisonBar
             governmentAmount={service.govFeeAmount}
@@ -213,27 +213,38 @@ export function CostCheckCard({
               empty={false}
               baseline={!hasQuote}
             />
-            <p className="mt-2 text-[1.5rem] font-bold tabular-nums text-slate-900">
-              {hasQuote ? Math.round(score) : 100} / 100
-            </p>
-            <p className="mt-1 flex items-center justify-center gap-1.5 text-[14px] font-semibold text-slate-800">
-              <span
-                className={`h-2 w-2 shrink-0 rounded-full ${
-                  hasQuote
-                    ? quote.verdict === "fair"
-                      ? "bg-emerald-500"
-                      : quote.verdict === "caution" || quote.verdict === "risk"
-                        ? "bg-amber-500"
-                        : "bg-slate-500"
-                    : "bg-emerald-500"
-                }`}
-                aria-hidden
-              />
-              {hasQuote ? STATUS_BADGE_LABEL[quote.verdict] : "일반 범위"}
-            </p>
-            <p className="mt-2 max-w-xl text-center text-[14px] leading-relaxed text-slate-600">
-              {hasQuote ? formatBubbleHint(displayBubble) : "금액을 입력하면 적정성을 판단해드립니다."}
-            </p>
+            <dl className="mt-2 text-center">
+              <div>
+                <dt className="sr-only">견적 적정성 점수</dt>
+                <dd className="text-[1.5rem] font-bold tabular-nums text-slate-900">
+                  {hasQuote ? Math.round(score) : 100} / 100
+                </dd>
+              </div>
+              <div className="mt-1 flex items-center justify-center gap-1.5 text-[14px] font-semibold text-slate-800">
+                <dt className="sr-only">판정</dt>
+                <dd className="flex items-center justify-center gap-1.5">
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${
+                      hasQuote
+                        ? quote.verdict === "fair"
+                          ? "bg-emerald-500"
+                          : quote.verdict === "caution" || quote.verdict === "risk"
+                            ? "bg-amber-500"
+                            : "bg-slate-500"
+                        : "bg-emerald-500"
+                    }`}
+                    aria-hidden
+                  />
+                  {hasQuote ? STATUS_BADGE_LABEL[quote.verdict] : "일반 범위"}
+                </dd>
+              </div>
+              <div className="mt-2 max-w-xl">
+                <dt className="sr-only">판단 설명</dt>
+                <dd className="text-center text-[14px] leading-relaxed text-slate-600">
+                  {hasQuote ? formatBubbleHint(displayBubble) : "금액을 입력하면 적정성을 판단해드립니다."}
+                </dd>
+              </div>
+            </dl>
             {!hasQuote ? (
               <p className="sr-only">
                 현재 100점 표시는 일반 범위 기준 화면 상태이며, 사용자 견적 적정성 점수가
@@ -252,9 +263,6 @@ export function CostCheckCard({
 
         {hasQuote ? (
           <section className="py-1" aria-labelledby="evidence-heading">
-            <h2 id="evidence-heading" className="sr-only">
-              판단 근거
-            </h2>
             <ReviewJudgmentDetails
               service={service}
               quotedAmount={quote.quotedAmount}

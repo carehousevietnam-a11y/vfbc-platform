@@ -18,14 +18,14 @@ export function ResultHeader({
 }: ResultHeaderProps) {
   const { t } = useLocale();
   return (
-    <header className="mt-6 flex items-start justify-between gap-4">
+    <header className="mt-4 flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-[1.25rem] font-bold tracking-tight text-blue-900 sm:text-[1.375rem]">
+        <p className="text-[13px] font-semibold leading-snug tracking-tight text-blue-900 sm:text-[14px]">
           MY VIET CHECK
-          <span className="ml-1.5 text-[12px] font-medium text-slate-400">· by VFBCAI</span>
-        </h1>
+          <span className="ml-1.5 font-medium text-slate-400">· by VFBCAI</span>
+        </p>
         {(categoryLabel || modeLabel || serviceLabel) && (
-          <p className="mt-2 break-keep text-[13px] text-slate-500">
+          <p className="mt-1.5 break-keep text-[13px] text-slate-500">
             {[categoryLabel, modeLabel, serviceLabel].filter(Boolean).join(" · ")}
           </p>
         )}

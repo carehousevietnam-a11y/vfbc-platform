@@ -95,17 +95,19 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
   const service = serviceId ? getCostCheckService(serviceId) : null;
 
   return (
-    <article className="w-full min-w-0">
+    <article className="mx-auto w-full min-w-0 max-w-[960px]">
       <QuestionCard
         question={report.question}
         requestedAt={report.requestedAt}
         showCostAnchor={hasCostPanel}
-      />
-      <ResultHeader
-        onReset={onReset}
-        categoryLabel={service ? resolveCategoryLabel(serviceId!) : undefined}
-        modeLabel={hasQuote ? t("result.modeQuote") : hasCostPanel ? t("result.modeCost") : undefined}
-        serviceLabel={service?.label}
+        lead={
+          <ResultHeader
+            onReset={onReset}
+            categoryLabel={service ? resolveCategoryLabel(serviceId!) : undefined}
+            modeLabel={hasQuote ? t("result.modeQuote") : hasCostPanel ? t("result.modeCost") : undefined}
+            serviceLabel={service?.label}
+          />
+        }
       />
       <ResultSummary directAnswer={directAnswer} />
 

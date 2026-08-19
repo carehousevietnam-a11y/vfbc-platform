@@ -17,10 +17,10 @@ export function NextStep({
   const { t } = useLocale();
   return (
     <section className="mt-6" aria-labelledby="next-step-heading">
-      <h2 id="next-step-heading" className="sr-only">
+      <h2 id="next-step-heading" className="text-[15px] font-semibold text-blue-900">
         {t("result.nextStep")}
       </h2>
-      <div className="rounded-2xl bg-blue-900 px-5 py-6 sm:px-7 sm:py-7">
+      <div className="mt-3 rounded-2xl bg-blue-900 px-5 py-6 sm:px-7 sm:py-7">
         <p className="text-lg font-semibold text-white sm:text-xl lg:text-[22px]">
           {t("result.nextHeadline")}
         </p>
