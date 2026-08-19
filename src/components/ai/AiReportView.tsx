@@ -130,13 +130,13 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
             </EvidenceSection>
           ) : null}
 
-          <div className="grid gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
-            <SourceSection embedded>
-              <p className="text-[13px] leading-relaxed text-slate-500 sm:text-sm">
+          <div className="mt-6 space-y-6 border-b border-slate-200/80 pb-6">
+            <SourceSection>
+              <p className="text-[13px] leading-relaxed text-slate-500">
                 Vietnam · {service?.label ?? t("result.adminLegal")}
               </p>
             </SourceSection>
-            <RelatedQuestions links={resolvedActions} embedded />
+            <RelatedQuestions links={resolvedActions} />
           </div>
           <NextStep funnelHref={funnelHref} />
         </>

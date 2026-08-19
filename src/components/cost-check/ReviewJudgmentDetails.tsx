@@ -31,7 +31,7 @@ export function ReviewJudgmentDetails({
           ? "space-y-2 text-[14px] leading-relaxed text-slate-700 sm:text-[15px]"
           : isPill
             ? "mt-3 rounded-lg border border-slate-100 bg-slate-50/80 px-4 py-3 text-sm leading-relaxed text-slate-700 space-y-2"
-            : "border-t border-slate-100 px-4 py-3 text-sm leading-relaxed text-slate-700 space-y-2"
+            : "border-t border-slate-100 pb-4 pt-1 text-[14px] leading-relaxed text-slate-700 space-y-2"
       }
     >
       <p>
@@ -76,12 +76,12 @@ export function ReviewJudgmentDetails({
   }
 
   return (
-    <details className={isPill ? "group" : "rounded-lg border border-slate-200 bg-white group"}>
+    <details className={isPill ? "group" : "group border-y border-slate-200/80"}>
       <summary
         className={
           isPill
             ? "inline-flex cursor-pointer list-none items-center gap-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 [&::-webkit-details-marker]:hidden"
-            : "cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50 [&::-webkit-details-marker]:hidden"
+            : "flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 py-3 text-[15px] font-medium text-slate-800 [&::-webkit-details-marker]:hidden"
         }
       >
         왜 이렇게 판단했나요? <span className="text-slate-400">⌄</span>

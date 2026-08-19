@@ -67,7 +67,7 @@ function SemiCircleGauge({
       className={
         compact
           ? "relative mx-auto w-full max-w-[200px]"
-          : "relative mx-auto w-full max-w-[300px] sm:max-w-[340px] lg:max-w-[360px]"
+          : "relative mx-auto w-full max-w-[240px] sm:max-w-[260px] lg:max-w-[280px]"
       }
       role="img"
       aria-label={
@@ -83,7 +83,7 @@ function SemiCircleGauge({
         className={
           compact
             ? "h-[96px] w-full"
-            : "h-[170px] w-full sm:h-[200px] lg:h-[210px]"
+            : "h-[148px] w-full sm:h-[160px] lg:h-[172px]"
         }
         aria-hidden
       >
@@ -140,7 +140,7 @@ function SemiCircleGauge({
               className={
                 compact
                   ? "text-3xl font-bold leading-none text-slate-900"
-                  : "text-5xl font-bold leading-none text-slate-900 sm:text-[3.25rem]"
+                  : "text-[2.25rem] font-bold leading-none text-slate-900 sm:text-[2.5rem]"
               }
             >
               {Math.round(clamped)}

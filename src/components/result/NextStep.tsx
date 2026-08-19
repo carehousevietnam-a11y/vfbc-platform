@@ -16,11 +16,11 @@ export function NextStep({
 }: NextStepProps) {
   const { t } = useLocale();
   return (
-    <section className="mt-8 lg:mt-10" aria-labelledby="next-step-heading">
+    <section className="mt-6" aria-labelledby="next-step-heading">
       <h2 id="next-step-heading" className="sr-only">
         {t("result.nextStep")}
       </h2>
-      <div className="rounded-xl bg-blue-900 px-6 py-8 sm:px-8 sm:py-9 lg:px-10 lg:py-10">
+      <div className="rounded-2xl bg-blue-900 px-5 py-6 sm:px-7 sm:py-7">
         <p className="text-lg font-semibold text-white sm:text-xl lg:text-[22px]">
           {t("result.nextHeadline")}
         </p>

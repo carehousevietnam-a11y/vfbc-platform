@@ -18,14 +18,14 @@ export function SourceSection({
   const heading = title ?? t("result.sourceTitle");
   return (
     <section
-      className={embedded ? "" : "mt-8 lg:mt-9"}
+      className={embedded ? "" : "mt-0"}
       aria-labelledby="source-heading"
     >
-      <h2 id="source-heading" className="text-[17px] font-semibold text-blue-900 sm:text-lg lg:text-[18px]">
+      <h2 id="source-heading" className="text-[15px] font-semibold text-blue-900">
         {heading}
       </h2>
       <div
-        className={`mt-3 ${embedded ? "rounded-xl bg-white px-4 py-4 ring-1 ring-slate-200/70 sm:px-5 sm:py-5" : ""}`}
+        className={`mt-2 ${embedded ? "" : ""}`}
       >
         {children}
       </div>
