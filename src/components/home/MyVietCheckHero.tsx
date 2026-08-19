@@ -105,7 +105,7 @@ function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
             key={chip}
             type="button"
             onClick={() => onSelect(chip)}
-            className="rounded-full border border-slate-200/90 bg-[#faf8f5] px-3.5 py-1.5 text-xs text-slate-700 transition-colors hover:border-amber-200 hover:bg-amber-50/60 hover:text-blue-900"
+            className="rounded-full border border-slate-200/70 bg-transparent px-2.5 py-1 text-[11px] text-slate-500 transition-colors hover:border-slate-300 hover:text-blue-900"
           >
             {t(EXAMPLE_CHIP_KEYS[index])}
           </button>
