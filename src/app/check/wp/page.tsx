@@ -124,14 +124,24 @@ function WpUpcomingHint({ label }: { label: string }) {
 
 type WpFlowMode = "hidden" | "upcoming" | "current" | "summary";
 
-function WpCollapse({ open, children }: { open: boolean; children: ReactNode }) {
+function WpCollapse({
+  open,
+  children,
+  appearDelay = false,
+}: {
+  open: boolean;
+  children: ReactNode;
+  appearDelay?: boolean;
+}) {
   return (
     <div
-      className={`grid motion-safe:transition-[grid-template-rows] motion-safe:duration-300 motion-safe:ease-out motion-reduce:transition-none ${
-        open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+      className={`overflow-hidden transition-[max-height,opacity,transform] ease-out motion-reduce:transition-none motion-reduce:delay-0 ${
+        open
+          ? `max-h-[960px] opacity-100 duration-300 ${appearDelay ? "delay-100" : ""}`
+          : "max-h-0 opacity-0 duration-300"
       }`}
     >
-      <div className="min-h-0 overflow-hidden">{children}</div>
+      {children}
     </div>
   );
 }
@@ -151,17 +161,21 @@ function WpFlowSlot({
 }) {
   return (
     <div>
-      <WpCollapse open={mode === "summary"}>{summary}</WpCollapse>
+      <WpCollapse open={mode === "summary"} appearDelay>
+        {summary}
+      </WpCollapse>
       <WpCollapse open={mode === "current"}>
         <div
-          className={`motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out motion-reduce:transition-none motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+          className={`transition-all duration-300 ease-out motion-reduce:transition-none motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
             entering ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
           }`}
         >
           {children}
         </div>
       </WpCollapse>
-      <WpCollapse open={mode === "upcoming"}>{hint}</WpCollapse>
+      <WpCollapse open={mode === "upcoming"} appearDelay>
+        {hint}
+      </WpCollapse>
     </div>
   );
 }
