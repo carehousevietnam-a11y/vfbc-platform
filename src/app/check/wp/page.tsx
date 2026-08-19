@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -120,6 +120,61 @@ function WpUpcomingHint({ label }: { label: string }) {
       {label}
     </div>
   );
+}
+
+type WpFlowMode = "hidden" | "upcoming" | "current" | "summary";
+
+function WpCollapse({ open, children }: { open: boolean; children: ReactNode }) {
+  return (
+    <div
+      className={`grid motion-safe:transition-[grid-template-rows] motion-safe:duration-300 motion-safe:ease-out motion-reduce:transition-none ${
+        open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+      }`}
+    >
+      <div className="min-h-0 overflow-hidden">{children}</div>
+    </div>
+  );
+}
+
+function WpFlowSlot({
+  mode,
+  entering,
+  summary,
+  hint,
+  children,
+}: {
+  mode: WpFlowMode;
+  entering: boolean;
+  summary: ReactNode;
+  hint: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <WpCollapse open={mode === "summary"}>{summary}</WpCollapse>
+      <WpCollapse open={mode === "current"}>
+        <div
+          className={`motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out motion-reduce:transition-none motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+            entering ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+          }`}
+        >
+          {children}
+        </div>
+      </WpCollapse>
+      <WpCollapse open={mode === "upcoming"}>{hint}</WpCollapse>
+    </div>
+  );
+}
+
+function wpStepMode(
+  step: WpQuestionId,
+  currentStep: WpQuestionId | null,
+  answered: boolean
+): WpFlowMode {
+  if (currentStep === step) return "current";
+  if (answered) return "summary";
+  if (currentStep !== null && step === ((currentStep + 1) as WpQuestionId)) return "upcoming";
+  return "hidden";
 }
 
 function sanitizeReturnHref(raw: string | null): string | null {
@@ -1074,6 +1129,7 @@ export default function WpCheckPage() {
   const [questionsConfirmed, setQuestionsConfirmed] = useState(false);
   const [editingStep, setEditingStep] = useState<WpQuestionId | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [stepEnterReady, setStepEnterReady] = useState(false);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
@@ -1119,6 +1175,13 @@ export default function WpCheckPage() {
               ? 5
               : null;
   const showQuestionFlow = !questionsConfirmed && !leadSubmitted;
+  useEffect(() => {
+    setStepEnterReady(false);
+    const id = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setStepEnterReady(true));
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [currentStep]);
   // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
   // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
   const resultScreenActive =
@@ -1502,89 +1565,97 @@ export default function WpCheckPage() {
 
         {showQuestionFlow && (
           <div className="mt-8 space-y-3">
-            {rejectionStepDone && currentStep !== 1 ? (
-              <WpQuestionSummary
-                label="거절 이력"
-                value={previousRejection ? "있음" : "없음"}
-                onEdit={() => setEditingStep(1)}
-              />
-            ) : (
-              <div>
-                <QuestionSection
-                  step={1}
-                  title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
-                >
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <SelectionCard
-                      title="네, 있습니다"
-                      selected={previousRejection === true}
-                      tone="amber"
-                      onClick={() => {
-                        setPreviousRejection(true);
-                        if (previousRejection !== true) {
-                          recordRejectionAnonymously();
-                          setRejectionStepDone(false);
-                        }
-                      }}
-                    />
-                    <SelectionCard
-                      title="아니요"
-                      selected={previousRejection === false}
-                      tone="blue"
-                      onClick={() => {
-                        setPreviousRejection(false);
-                        setRejectionStepDone(true);
-                        setEditingStep(null);
-                      }}
-                    />
-                  </div>
-                </QuestionSection>
-                {previousRejection === true && currentStep === 1 && (
-                  <div className="mt-4">
-                    <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                        AI
-                      </span>
-                      <div>
-                        <p className="text-sm font-bold text-gray-900">
-                          거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
-                        </p>
-                        <p className="mt-1 text-xs leading-relaxed text-gray-600">
-                          이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
-                          작성해주세요. 작성할수록 진단 정확도가 높아집니다.
-                        </p>
-                      </div>
-                    </div>
-
-                    <textarea
-                      value={rejectionReason}
-                      onChange={(e) => setRejectionReason(e.target.value)}
-                      placeholder={
-                        "예)\n- 노동허가가 거절되었습니다.\n- 경력증명서 문제라고 들었습니다.\n- 학력요건이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
+            <WpFlowSlot
+              mode={wpStepMode(1, currentStep, rejectionStepDone)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="거절 이력"
+                  value={previousRejection ? "있음" : "없음"}
+                  onEdit={() => setEditingStep(1)}
+                />
+              }
+              hint={<WpUpcomingHint label="거절 이력" />}
+            >
+              <QuestionSection
+                step={1}
+                title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
+              >
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <SelectionCard
+                    title="네, 있습니다"
+                    selected={previousRejection === true}
+                    tone="amber"
+                    onClick={() => {
+                      setPreviousRejection(true);
+                      if (previousRejection !== true) {
+                        recordRejectionAnonymously();
+                        setRejectionStepDone(false);
                       }
-                      rows={6}
-                      className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
-                    />
-                    <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                      작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
-                      높이는 데 활용됩니다.
-                    </p>
-
-                    <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
-                      다음
-                    </PrimaryButton>
+                    }}
+                  />
+                  <SelectionCard
+                    title="아니요"
+                    selected={previousRejection === false}
+                    tone="blue"
+                    onClick={() => {
+                      setPreviousRejection(false);
+                      setRejectionStepDone(true);
+                      setEditingStep(null);
+                    }}
+                  />
+                </div>
+              </QuestionSection>
+              {previousRejection === true && currentStep === 1 && (
+                <div className="mt-4">
+                  <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                      AI
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">
+                        거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                        이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
+                        작성해주세요. 작성할수록 진단 정확도가 높아집니다.
+                      </p>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
 
-            {education && currentStep !== 2 ? (
-              <WpQuestionSummary
-                label="학력"
-                value={educationLabel(education) ?? ""}
-                onEdit={() => setEditingStep(2)}
-              />
-            ) : currentStep === 2 ? (
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder={
+                      "예)\n- 노동허가가 거절되었습니다.\n- 경력증명서 문제라고 들었습니다.\n- 학력요건이 부족하다고 안내받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요."
+                    }
+                    rows={6}
+                    className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
+                  />
+                  <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                    작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
+                    높이는 데 활용됩니다.
+                  </p>
+
+                  <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
+                    다음
+                  </PrimaryButton>
+                </div>
+              )}
+            </WpFlowSlot>
+
+            <WpFlowSlot
+              mode={wpStepMode(2, currentStep, !!education)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="학력"
+                  value={educationLabel(education) ?? ""}
+                  onEdit={() => setEditingStep(2)}
+                />
+              }
+              hint={<WpUpcomingHint label="학력" />}
+            >
               <QuestionSection step={2} title="최종 학력이 어떻게 되시나요?">
                 <div className="grid gap-3 sm:grid-cols-3">
                   {EDUCATION_OPTIONS.map((opt) => (
@@ -1606,17 +1677,20 @@ export default function WpCheckPage() {
                   ))}
                 </div>
               </QuestionSection>
-            ) : currentStep === 1 ? (
-              <WpUpcomingHint label="학력" />
-            ) : null}
+            </WpFlowSlot>
 
-            {experience && currentStep !== 3 ? (
-              <WpQuestionSummary
-                label="경력"
-                value={experienceLabel(experience) ?? ""}
-                onEdit={() => setEditingStep(3)}
-              />
-            ) : currentStep === 3 ? (
+            <WpFlowSlot
+              mode={wpStepMode(3, currentStep, !!experience)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="경력"
+                  value={experienceLabel(experience) ?? ""}
+                  onEdit={() => setEditingStep(3)}
+                />
+              }
+              hint={<WpUpcomingHint label="경력" />}
+            >
               <QuestionSection step={3} title="해당 직무 관련 경력은 얼마나 되시나요?">
                 <div className="grid gap-3 sm:grid-cols-3">
                   {EXPERIENCE_OPTIONS.map((opt) => (
@@ -1638,17 +1712,20 @@ export default function WpCheckPage() {
                   ))}
                 </div>
               </QuestionSection>
-            ) : currentStep === 2 ? (
-              <WpUpcomingHint label="경력" />
-            ) : null}
+            </WpFlowSlot>
 
-            {priorityField && currentStep !== 4 ? (
-              <WpQuestionSummary
-                label="우선 분야"
-                value={priorityField === "yes" ? "해당될 것 같음" : "아니요 / 잘 모름"}
-                onEdit={() => setEditingStep(4)}
-              />
-            ) : currentStep === 4 ? (
+            <WpFlowSlot
+              mode={wpStepMode(4, currentStep, !!priorityField)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="우선 분야"
+                  value={priorityField === "yes" ? "해당될 것 같음" : "아니요 / 잘 모름"}
+                  onEdit={() => setEditingStep(4)}
+                />
+              }
+              hint={<WpUpcomingHint label="우선 분야" />}
+            >
               <QuestionSection
                 step={4}
                 title="담당 직무가 기술·혁신·디지털전환 관련 우선분야에 해당하나요?"
@@ -1685,17 +1762,20 @@ export default function WpCheckPage() {
                   />
                 </div>
               </QuestionSection>
-            ) : currentStep === 3 ? (
-              <WpUpcomingHint label="우선 분야" />
-            ) : null}
+            </WpFlowSlot>
 
-            {job && currentStep !== 5 ? (
-              <WpQuestionSummary
-                label="직무 형태"
-                value={jobLabel(job) ?? ""}
-                onEdit={() => setEditingStep(5)}
-              />
-            ) : currentStep === 5 ? (
+            <WpFlowSlot
+              mode={wpStepMode(5, currentStep, !!job)}
+              entering={stepEnterReady}
+              summary={
+                <WpQuestionSummary
+                  label="직무 형태"
+                  value={jobLabel(job) ?? ""}
+                  onEdit={() => setEditingStep(5)}
+                />
+              }
+              hint={<WpUpcomingHint label="직무 형태" />}
+            >
               <QuestionSection step={5} title="담당하실 직무 형태는 무엇인가요?">
                 <div className="grid grid-cols-1 gap-3">
                   {JOB_OPTIONS.map((opt) => (
@@ -1717,15 +1797,13 @@ export default function WpCheckPage() {
                   ))}
                 </div>
               </QuestionSection>
-            ) : currentStep === 4 ? (
-              <WpUpcomingHint label="직무 형태" />
-            ) : null}
+            </WpFlowSlot>
 
-            {questionsComplete && currentStep === null && (
+            <WpCollapse open={questionsComplete && currentStep === null}>
               <PrimaryButton onClick={() => setQuestionsConfirmed(true)} className="mt-3">
                 다음 단계
               </PrimaryButton>
-            )}
+            </WpCollapse>
           </div>
         )}
 
