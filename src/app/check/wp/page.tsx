@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  Check,
   CheckCircle2,
   AlertTriangle,
   XCircle,
@@ -106,18 +107,29 @@ function WpQuestionSummary({
     <button
       type="button"
       onClick={onEdit}
-      className="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-left"
+      className="group flex w-full items-center gap-2.5 py-1.5 text-left"
     >
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-semibold text-gray-900">✓ {value}</span>
+      <span
+        aria-hidden
+        className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-900 text-white"
+      >
+        <Check size={10} strokeWidth={3} />
+      </span>
+      <span className="flex min-w-0 flex-1 items-baseline justify-between gap-3 border-b border-gray-100 pb-1.5">
+        <span className="shrink-0 text-[12px] text-gray-400">{label}</span>
+        <span className="truncate text-right text-[13px] font-medium tracking-tight text-gray-800 group-hover:text-blue-900">
+          {value}
+        </span>
+      </span>
     </button>
   );
 }
 
 function WpUpcomingHint({ label }: { label: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-gray-200 px-4 py-2.5 text-sm text-gray-400">
-      {label}
+    <div className="flex items-center gap-2.5 py-1.5">
+      <span aria-hidden className="h-4 w-4 shrink-0 rounded-full border border-dashed border-gray-300" />
+      <span className="text-[13px] text-gray-400">{label}</span>
     </div>
   );
 }
@@ -162,7 +174,7 @@ function WpFlowSlot({
   children: ReactNode;
 }) {
   return (
-    <div>
+    <div className={mode === "current" ? "mt-4" : mode === "upcoming" ? "mt-1.5" : undefined}>
       <WpCollapse open={mode === "summary"} appearDelay>
         {summary}
       </WpCollapse>
@@ -172,7 +184,7 @@ function WpFlowSlot({
             entering ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
           }`}
         >
-          {children}
+          <div className="border-l-2 border-blue-900 pl-3.5 sm:pl-4">{children}</div>
         </div>
       </WpCollapse>
       <WpCollapse open={mode === "upcoming"} appearDelay>
@@ -1580,7 +1592,7 @@ export default function WpCheckPage() {
         </div>
 
         {showQuestionFlow && (
-          <div className="mt-8 space-y-3">
+          <div className="mt-6">
             <WpFlowSlot
               mode={wpStepMode(1, currentStep, rejectionStepDone)}
               entering={stepEnterReady}
@@ -1822,9 +1834,19 @@ export default function WpCheckPage() {
             </WpFlowSlot>
 
             <WpCollapse open={questionsComplete && currentStep === null}>
-              <PrimaryButton onClick={() => setQuestionsConfirmed(true)} className="mt-3">
-                다음 단계
-              </PrimaryButton>
+              <div className="mt-5 pt-1">
+                <p className="text-sm font-medium text-gray-900">확인이 완료되었습니다</p>
+                <p className="mt-1 text-[13px] leading-relaxed text-gray-500">
+                  입력하신 조건으로 결과를 확인할 수 있습니다.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setQuestionsConfirmed(true)}
+                  className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-blue-900 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-950 sm:w-auto sm:min-w-[168px]"
+                >
+                  다음 단계
+                </button>
+              </div>
             </WpCollapse>
           </div>
         )}
