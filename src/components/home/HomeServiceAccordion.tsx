@@ -27,7 +27,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 
-type AccordionKey = "check" | "verify" | "register";
+export type AccordionKey = "check" | "verify" | "register";
 type CardVariant = "check" | "verify" | "register";
 
 type ServiceItem = {
@@ -247,21 +247,74 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
   },
 ];
 
+export function getCheckServiceItems(): Array<{
+  key: string;
+  title: string;
+  desc: string;
+  href: string;
+}> {
+  const section = ACCORDION_SECTIONS.find((item) => item.key === "check");
+  return (section?.items ?? []).map(({ key, title, desc, href }) => ({
+    key,
+    title,
+    desc,
+    href,
+  }));
+}
+
+export function getVerifyServiceItems(): Array<{
+  key: string;
+  title: string;
+  desc: string;
+  href: string;
+}> {
+  const section = ACCORDION_SECTIONS.find((item) => item.key === "verify");
+  return (section?.items ?? []).map(({ key, title, desc, href }) => ({
+    key,
+    title,
+    desc,
+    href,
+  }));
+}
+
+export function getRegisterServiceItems(): Array<{
+  key: string;
+  title: string;
+  desc: string;
+  href: string;
+}> {
+  const section = ACCORDION_SECTIONS.find((item) => item.key === "register");
+  return (section?.items ?? []).map(({ key, title, desc, href }) => ({
+    key,
+    title,
+    desc,
+    href,
+  }));
+}
+
 function AccordionItemCard({
   item,
   variant,
+  compact = false,
 }: {
   item: ServiceItem;
   variant: CardVariant;
+  compact?: boolean;
 }) {
   const ItemIcon = item.icon;
+  const checkClass = compact
+    ? "group flex flex-col rounded-xl border border-slate-200/80 bg-white p-3"
+    : "group flex flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:p-5";
+  const verifyClass = compact
+    ? "group flex flex-col items-center rounded-xl border border-slate-200/80 bg-white px-2.5 py-3.5 text-center"
+    : "group flex flex-col items-center rounded-2xl border border-gray-100 bg-white px-3 py-5 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:px-4 sm:py-6";
+  const registerClass = compact
+    ? "group flex flex-col rounded-xl border border-slate-200/80 bg-white p-3"
+    : "group flex flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:p-5";
 
   if (variant === "check") {
     return (
-      <Link
-        href={item.href}
-        className="group flex flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:p-5"
-      >
+      <Link href={item.href} className={checkClass}>
         <span className="inline-block self-start rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600">
           {item.hook}
         </span>
@@ -277,10 +330,7 @@ function AccordionItemCard({
 
   if (variant === "verify") {
     return (
-      <Link
-        href={item.href}
-        className="group flex flex-col items-center rounded-2xl border border-gray-100 bg-white px-3 py-5 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:px-4 sm:py-6"
-      >
+      <Link href={item.href} className={verifyClass}>
         <span
           className={`inline-block rounded-full px-2.5 py-1 text-[10px] font-bold ${
             item.danger ? "bg-red-50 text-red-600" : "bg-gray-100 text-gray-600"
@@ -300,10 +350,7 @@ function AccordionItemCard({
   }
 
   return (
-    <Link
-      href={item.href}
-      className="group flex flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:p-5"
-    >
+    <Link href={item.href} className={registerClass}>
       <span className="inline-block self-start rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
         {item.hook}
       </span>
@@ -319,28 +366,40 @@ function AccordionItemCard({
 
 export default function HomeServiceAccordion({
   hideSectionHeaders = false,
+  openKey: openKeyProp,
+  onToggle,
 }: {
   hideSectionHeaders?: boolean;
+  openKey?: AccordionKey | null;
+  onToggle?: (key: AccordionKey) => void;
 }) {
-  const [openKey, setOpenKey] = useState<AccordionKey | null>(null);
+  const [uncontrolledOpenKey, setUncontrolledOpenKey] = useState<AccordionKey | null>(null);
+  const isControlled = openKeyProp !== undefined && typeof onToggle === "function";
+  const openKey = isControlled ? (openKeyProp ?? null) : uncontrolledOpenKey;
 
   useEffect(() => {
+    if (isControlled) return;
+
     function syncFromHash() {
       const hash = window.location.hash.replace("#", "");
       if (hash === "check" || hash === "verify" || hash === "register") {
-        setOpenKey(hash);
+        setUncontrolledOpenKey(hash);
       } else if (hash === "protect") {
-        setOpenKey("verify");
+        setUncontrolledOpenKey("verify");
       }
     }
 
     syncFromHash();
     window.addEventListener("hashchange", syncFromHash);
     return () => window.removeEventListener("hashchange", syncFromHash);
-  }, []);
+  }, [isControlled]);
 
   function toggleSection(key: AccordionKey) {
-    setOpenKey((current) => (current === key ? null : key));
+    if (isControlled) {
+      onToggle?.(key);
+      return;
+    }
+    setUncontrolledOpenKey((current) => (current === key ? null : key));
   }
 
   if (hideSectionHeaders && !openKey) {
@@ -352,14 +411,20 @@ export default function HomeServiceAccordion({
       {ACCORDION_SECTIONS.map((section) => {
         const isOpen = openKey === section.key;
         const SectionIcon = section.icon;
+        const panelId = `home-service-panel-${section.key}`;
 
         if (hideSectionHeaders) {
           if (!isOpen) return null;
           return (
-            <div key={section.key} id={section.id} className="overflow-hidden">
-              <div className={`grid gap-3 sm:gap-4 ${section.gridClass}`}>
+            <div key={section.key} id={panelId} role="region" className="overflow-hidden pb-4">
+              <div className={`grid gap-2 sm:gap-3 ${section.gridClass}`}>
                 {section.items.map((item) => (
-                  <AccordionItemCard key={item.key} item={item} variant={section.cardVariant} />
+                  <AccordionItemCard
+                    key={item.key}
+                    item={item}
+                    variant={section.cardVariant}
+                    compact={hideSectionHeaders}
+                  />
                 ))}
               </div>
             </div>
@@ -376,6 +441,7 @@ export default function HomeServiceAccordion({
               type="button"
               onClick={() => toggleSection(section.key)}
               aria-expanded={isOpen}
+              aria-controls={panelId}
               className="w-full px-4 py-4 text-left sm:px-5 sm:py-5"
             >
               <div className="flex items-start gap-3">
@@ -408,6 +474,7 @@ export default function HomeServiceAccordion({
             </button>
 
             <div
+              id={panelId}
               className={`grid transition-[grid-template-rows] duration-150 ease-out ${
                 isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}

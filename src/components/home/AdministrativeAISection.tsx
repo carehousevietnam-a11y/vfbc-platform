@@ -5,8 +5,8 @@ import { Headphones, MessageCircle } from "lucide-react";
 
 export default function AdministrativeAISection() {
   return (
-    <section className="border-t border-slate-200/60 bg-white">
-      <div className="mx-auto flex max-w-4xl flex-col gap-3 px-5 py-8 sm:px-6 sm:py-10">
+    <section className="border-t border-slate-200/70 bg-[#faf8f5]">
+      <div className="mx-auto flex max-w-[1040px] flex-col gap-2.5 px-4 py-8 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/70 bg-[#faf8f5] px-4 py-4 sm:px-5">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-blue-900 shadow-sm ring-1 ring-slate-100">

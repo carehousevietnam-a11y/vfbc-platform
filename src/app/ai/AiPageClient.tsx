@@ -128,8 +128,8 @@ function AiPageContent() {
       <div className="h-[3px] shrink-0 bg-blue-900" />
       <SiteHeader />
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden py-8 sm:py-10 lg:py-12">
-        <div className="mx-auto w-full max-w-6xl px-6 lg:px-8">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden py-6 sm:py-8">
+        <div className="mx-auto w-full max-w-[1040px] px-4 sm:px-6">
           {!session && !sending ? (
             <div className="rounded-2xl bg-white px-6 py-10 text-center shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/60 sm:px-10">
               <p className="text-xl font-semibold text-slate-900 lg:text-[22px]">
@@ -166,7 +166,7 @@ function AiPageContent() {
       </div>
 
       <footer className="shrink-0 border-t border-slate-200/70 bg-white/95 backdrop-blur">
-        <div className="mx-auto w-full max-w-6xl px-6 py-4 lg:px-8">
+        <div className="mx-auto w-full max-w-[1040px] px-4 py-4 sm:px-6">
           <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
             <input
               value={input}
@@ -200,7 +200,7 @@ export default function AiPageClient() {
       fallback={
         <main className="min-h-screen bg-[#faf8f5]">
           <div className="h-[3px] bg-blue-900" />
-          <div className="mx-auto max-w-6xl px-6 py-10 lg:px-8">
+          <div className="mx-auto max-w-[1040px] px-4 py-10 sm:px-6">
             <p className="text-sm text-slate-500">{t("ai.loading")}</p>
           </div>
         </main>

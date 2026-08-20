@@ -67,7 +67,7 @@ function SemiCircleGauge({
       className={
         compact
           ? "relative mx-auto w-full max-w-[200px]"
-          : "relative mx-auto w-full max-w-[300px] sm:max-w-[340px] lg:max-w-[360px]"
+          : "relative mx-auto w-full max-w-[284px] sm:max-w-[308px] lg:max-w-[330px]"
       }
       role="img"
       aria-label={
@@ -83,17 +83,17 @@ function SemiCircleGauge({
         className={
           compact
             ? "h-[96px] w-full"
-            : "h-[170px] w-full sm:h-[200px] lg:h-[210px]"
+            : "h-[174px] w-full sm:h-[188px] lg:h-[204px]"
         }
         aria-hidden
       >
-        <path d={SEMI_PATH} fill="none" stroke={track} strokeWidth={16} strokeLinecap="round" />
+        <path d={SEMI_PATH} fill="none" stroke={track} strokeWidth={18} strokeLinecap="round" />
         {!empty ? (
           <path
             d={SEMI_PATH}
             fill="none"
             stroke={stroke}
-            strokeWidth={16}
+            strokeWidth={18}
             strokeLinecap="round"
             strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
             className="transition-all duration-500 ease-out"
@@ -140,7 +140,7 @@ function SemiCircleGauge({
               className={
                 compact
                   ? "text-3xl font-bold leading-none text-slate-900"
-                  : "text-5xl font-bold leading-none text-slate-900 sm:text-[3.25rem]"
+                  : "text-[2.25rem] font-bold leading-none text-slate-900 sm:text-[2.5rem]"
               }
             >
               {Math.round(clamped)}
