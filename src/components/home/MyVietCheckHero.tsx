@@ -125,23 +125,29 @@ function EnginePillars() {
                 }
                 toggleProtect();
               }}
-              className="flex min-h-11 w-full items-center justify-between gap-4 py-3.5 text-left transition-colors hover:text-blue-900"
+              className="group flex w-full items-start justify-between gap-3 py-3.5 text-left sm:items-center sm:gap-5"
             >
-              <span className="min-w-0">
+              <span className="min-w-0 flex-1">
                 <span className="block text-[11px] font-bold tracking-[0.18em] text-blue-900">
                   {pillar.label}
                 </span>
                 <span className="mt-0.5 block text-[14px] leading-snug text-slate-700">
                   {t(`pillar.${pillar.key}.subtitle`)}
                 </span>
+                <span className="mt-1 block max-w-[38rem] break-keep text-[13px] leading-relaxed text-slate-500">
+                  {t(`pillar.${pillar.key}.line`)}
+                </span>
               </span>
-              <ChevronDown
-                size={18}
-                aria-hidden
-                className={`shrink-0 text-slate-400 transition-transform duration-150 ${
-                  isOpen ? "rotate-0" : "-rotate-90"
-                }`}
-              />
+              <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-[12px] font-medium text-blue-900 transition-colors group-hover:text-[#152a63] sm:mt-0">
+                {t(`pillar.${pillar.key}.cta`)}
+                <ChevronDown
+                  size={16}
+                  aria-hidden
+                  className={`shrink-0 text-blue-900/70 transition-transform duration-150 ${
+                    isOpen ? "rotate-0" : "-rotate-90"
+                  }`}
+                />
+              </span>
             </button>
             {isServiceAccordion && isOpen ? (
               <HomeServiceAccordion
