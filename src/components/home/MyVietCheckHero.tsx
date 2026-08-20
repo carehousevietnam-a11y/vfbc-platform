@@ -58,10 +58,35 @@ function ValueBadges() {
   );
 }
 
+function HeroToPreviewArrow() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute right-full top-10 mr-1 hidden h-[72px] w-[72px] text-amber-600 lg:block"
+      viewBox="0 0 72 72"
+      fill="none"
+    >
+      <path
+        d="M8 58c6-24 24-42 52-46"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M50 6.5 66 14.5 49 22"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function ExamplePreviewCard() {
   const { t } = useLocale();
   return (
-    <div className="mt-6 w-full max-w-[420px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
+    <div className="w-full max-w-[420px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.05)] lg:ml-auto">
       <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
         {t("hero.preview.tag")}
       </span>
@@ -204,25 +229,33 @@ export default function MyVietCheckHero() {
     <>
       <section className="bg-[#faf8f5]">
         <div className="mx-auto w-full max-w-[1040px] px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-14">
-          <div className="max-w-[720px]">
-            <span className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium tracking-[0.02em] text-slate-500 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:text-[12.5px]">
-              {t("hero.eyebrow")}
-            </span>
-            <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[3.125rem]">
-              {t("hero.titleLine1")}
-              <br />
-              {t("hero.titleBeforeHighlight")}
-              <span className="text-amber-600">{t("hero.titleHighlight")}</span>
-              {t("hero.titleAfterHighlight")}
-            </h1>
-            <p className="mt-5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
-              {t("hero.subtitle")}
-            </p>
-            <ValueBadges />
-          </div>
+          <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-start">
+            <div className="order-1 min-w-0 w-full lg:w-7/12 lg:pr-12">
+              <span className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium tracking-[0.02em] text-slate-500 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:text-[12.5px]">
+                {t("hero.eyebrow")}
+              </span>
+              <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[3.125rem]">
+                {t("hero.titleLine1")}
+                <br />
+                {t("hero.titleBeforeHighlight")}
+                <span className="text-amber-600">{t("hero.titleHighlight")}</span>
+                {t("hero.titleAfterHighlight")}
+              </h1>
+              <p className="mt-5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
+                {t("hero.subtitle")}
+              </p>
+              <ValueBadges />
+            </div>
 
-          <form id="hero-query" onSubmit={handleSubmit} className="mt-9 sm:mt-11">
-            <div className="rounded-2xl border border-slate-200/80 bg-white px-5 py-6 shadow-[0_4px_20px_rgba(15,23,42,0.07)] sm:px-7 sm:py-7">
+            <div className="relative order-3 mt-6 min-w-0 w-full lg:order-2 lg:mt-1 lg:w-5/12">
+              <div className="relative lg:ml-auto lg:max-w-[420px]">
+                <HeroToPreviewArrow />
+                <ExamplePreviewCard />
+              </div>
+            </div>
+
+            <form id="hero-query" onSubmit={handleSubmit} className="order-2 mt-8 w-full lg:order-3 lg:mt-10">
+              <div className="rounded-2xl border border-slate-200/80 bg-white px-5 py-6 shadow-[0_4px_20px_rgba(15,23,42,0.07)] sm:px-7 sm:py-7">
               <div className="flex items-center justify-between gap-3">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-blue-900">
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-900" aria-hidden />
@@ -279,9 +312,9 @@ export default function MyVietCheckHero() {
               ) : null}
 
               <ExampleChips onSelect={handleChipSelect} />
-            </div>
-          </form>
-          <ExamplePreviewCard />
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 
