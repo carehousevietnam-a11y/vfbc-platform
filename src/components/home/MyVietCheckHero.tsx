@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { routeByKeywords } from "@/lib/smartRouter";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
-import HomeServiceAccordion, { type AccordionKey } from "@/components/home/HomeServiceAccordion";
 
 const EXAMPLE_CHIPS = [
   "노동허가 비용",
@@ -15,27 +15,11 @@ const EXAMPLE_CHIPS = [
 ] as const;
 
 const ENGINE_PILLARS = [
-  { key: "check", label: "CHECK" },
-  { key: "verify", label: "VERIFY" },
-  { key: "register", label: "REGISTER" },
-  { key: "protect", label: "PROTECT" },
+  { key: "check", label: "CHECK", href: "/check" },
+  { key: "verify", label: "VERIFY", href: "/verify" },
+  { key: "register", label: "REGISTER", href: "/register" },
+  { key: "protect", label: "PROTECT", href: "/protect" },
 ] as const;
-
-type PillarKey = (typeof ENGINE_PILLARS)[number]["key"];
-type EngineOpenKey = AccordionKey | "protect";
-
-function isAccordionKey(key: string | null): key is AccordionKey {
-  return key === "check" || key === "verify" || key === "register";
-}
-
-function updateAccordionHash(next: AccordionKey | null) {
-  if (typeof window === "undefined") return;
-  if (next) {
-    window.history.replaceState(null, "", `#${next}`);
-    return;
-  }
-  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
-}
 
 const EXAMPLE_CHIP_KEYS = [
   "hero.chip.wp",
@@ -67,114 +51,42 @@ function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
 
 function EnginePillars() {
   const { t } = useLocale();
-  const [openKey, setOpenKey] = useState<EngineOpenKey | null>(null);
-
-  useEffect(() => {
-    function syncFromHash() {
-      const hash = window.location.hash.replace("#", "").toLowerCase();
-      if (hash === "check" || hash === "verify" || hash === "register") {
-        setOpenKey(hash);
-        return;
-      }
-      if (hash === "protect") {
-        setOpenKey("protect");
-      }
-    }
-
-    syncFromHash();
-    window.addEventListener("hashchange", syncFromHash);
-    return () => window.removeEventListener("hashchange", syncFromHash);
-  }, []);
-
-  function toggleSection(key: AccordionKey) {
-    setOpenKey((current) => {
-      const next = current === key ? null : key;
-      updateAccordionHash(next);
-      return next;
-    });
-  }
-
-  function toggleProtect() {
-    setOpenKey((current) => (current === "protect" ? null : "protect"));
-  }
-
-  const accordionOpenKey: AccordionKey | null = isAccordionKey(openKey) ? openKey : null;
 
   return (
-    <div className="mt-6 divide-y divide-slate-200/80 border-y border-slate-200/80">
-      {ENGINE_PILLARS.map((pillar) => {
-        const isOpen = openKey === pillar.key;
-        const buttonId = `pillar-button-${pillar.key}`;
-        const isServiceAccordion = isAccordionKey(pillar.key);
-        const panelId = isServiceAccordion
-          ? `home-service-panel-${pillar.key}`
-          : `pillar-panel-${pillar.key}`;
-
-        return (
-          <div key={pillar.key} id={pillar.key} className="scroll-mt-24">
-            <h2 className="sr-only">{pillar.label}</h2>
-            <button
-              type="button"
-              id={buttonId}
-              aria-expanded={isOpen}
-              aria-controls={panelId}
-              onClick={() => {
-                if (isAccordionKey(pillar.key)) {
-                  toggleSection(pillar.key);
-                  return;
-                }
-                toggleProtect();
-              }}
-              className="group flex w-full items-end justify-between gap-3 py-3.5 text-left sm:gap-5"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-[11px] font-bold tracking-[0.18em] text-blue-900">
-                  {pillar.label}
-                </span>
-                <span className="mt-0.5 block text-[14px] leading-snug text-slate-700">
-                  {t(`pillar.${pillar.key}.subtitle`)}
-                </span>
-                <span className="mt-1 block max-w-[38rem] break-keep text-[13px] leading-relaxed text-slate-500">
-                  {t(`pillar.${pillar.key}.line`)}
-                </span>
+    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2">
+      {ENGINE_PILLARS.map((pillar) => (
+        <div
+          key={pillar.key}
+          id={pillar.key}
+          className="scroll-mt-24 border-t border-slate-200/80 py-4 last:border-b sm:odd:border-r sm:odd:pr-8 sm:even:pl-8 sm:[&:nth-child(n+3)]:border-b"
+        >
+          <h2 className="sr-only">{pillar.label}</h2>
+          <Link
+            href={pillar.href}
+            className="group flex w-full items-end justify-between gap-3 text-left no-underline sm:gap-5"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block text-[11px] font-bold tracking-[0.18em] text-blue-900">
+                {pillar.label}
               </span>
-              <span className="inline-flex shrink-0 items-center gap-1 pb-0.5 text-[12px] font-medium text-blue-900 transition-colors group-hover:text-[#152a63]">
-                {t(`pillar.${pillar.key}.cta`)}
-                <ChevronDown
-                  size={16}
-                  aria-hidden
-                  className={`shrink-0 text-blue-900/70 transition-transform duration-150 ${
-                    isOpen ? "rotate-0" : "-rotate-90"
-                  }`}
-                />
+              <span className="mt-0.5 block text-[14px] leading-snug text-slate-700">
+                {t(`pillar.${pillar.key}.subtitle`)}
               </span>
-            </button>
-            {isServiceAccordion && isOpen ? (
-              <HomeServiceAccordion
-                hideSectionHeaders
-                openKey={accordionOpenKey}
-                onToggle={toggleSection}
+              <span className="mt-1 block break-keep text-[13px] leading-relaxed text-slate-500">
+                {t(`pillar.${pillar.key}.line`)}
+              </span>
+            </span>
+            <span className="inline-flex shrink-0 items-center gap-1 pb-0.5 text-[12px] font-medium text-blue-900 transition-colors group-hover:text-[#152a63]">
+              {t(`pillar.${pillar.key}.cta`)}
+              <ChevronDown
+                size={16}
+                aria-hidden
+                className="-rotate-90 shrink-0 text-blue-900/70"
               />
-            ) : null}
-            {pillar.key === "protect" ? (
-              <div
-                id={panelId}
-                role="region"
-                aria-labelledby={buttonId}
-                hidden={!isOpen}
-                className="pb-4"
-              >
-                <p className="max-w-2xl break-keep text-[14px] leading-relaxed text-slate-600">
-                  {t("pillar.protect.body")}
-                </p>
-                <p className="mt-2 max-w-2xl break-keep text-[13px] leading-relaxed text-slate-500">
-                  {t("pillar.protect.purpose")}
-                </p>
-              </div>
-            ) : null}
-          </div>
-        );
-      })}
+            </span>
+          </Link>
+        </div>
+      ))}
     </div>
   );
 }
