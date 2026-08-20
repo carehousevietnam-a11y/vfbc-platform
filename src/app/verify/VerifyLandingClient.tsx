@@ -22,6 +22,14 @@ const VERIFY_CHECKLIST_ITEMS = [
   "verify.checklist.source",
 ] as const;
 
+const VERIFY_HOOKS: Record<string, string> = {
+  admin: "서명 전 필수 확인",
+  "real-estate": "보증금 미반환 주의",
+  fraud: "투자사기 사전탐지",
+  tax: "계좌동결 위험",
+  unclear: "기한 놓치면 위험",
+};
+
 export default function VerifyLandingClient() {
   const { t } = useLocale();
   const router = useRouter();
@@ -177,7 +185,7 @@ export default function VerifyLandingClient() {
               const title = serviceLabel(item.key, "title", item.title);
               const desc = serviceLabel(item.key, "desc", item.desc);
               const cta = t("pillar.verify.cta");
-
+              const hook = VERIFY_HOOKS[item.key];
               return (
                 <div
                   key={item.key}
@@ -189,7 +197,15 @@ export default function VerifyLandingClient() {
                     className="group flex w-full items-end justify-between gap-3 text-left no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:gap-5"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[14px] leading-snug text-slate-700">{title}</span>
+                      <span className="block text-[14px] leading-snug text-slate-700">
+                        {title}
+                        {hook ? (
+                          <>
+                            {" - "}
+                            <span className="text-red-600">{hook}</span>
+                          </>
+                        ) : null}
+                      </span>
                       <span className="mt-1 block break-keep text-[13px] leading-relaxed text-slate-500">
                         {desc}
                       </span>

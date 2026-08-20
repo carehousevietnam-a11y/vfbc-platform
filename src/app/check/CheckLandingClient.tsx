@@ -22,6 +22,13 @@ const CHECKLIST_ITEMS = [
   "check.checklist.source",
 ] as const;
 
+const CHECK_HOOKS: Record<string, string> = {
+  trc: "만료 시 벌금 위험",
+  wp: "무허가 근무 적발 위험",
+  tamtru: "12시간 이내 신고 필요",
+  license: "국제면허 미인정 사례 있음",
+};
+
 export default function CheckLandingClient() {
   const { t } = useLocale();
   const router = useRouter();
@@ -177,7 +184,7 @@ export default function CheckLandingClient() {
               const title = serviceLabel(item.key, "title", item.title);
               const desc = serviceLabel(item.key, "desc", item.desc);
               const cta = t("pillar.check.cta");
-
+              const hook = CHECK_HOOKS[item.key];
               return (
                 <div
                   key={item.key}
@@ -189,7 +196,15 @@ export default function CheckLandingClient() {
                     className="group flex w-full items-end justify-between gap-3 text-left no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:gap-5"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[14px] leading-snug text-slate-700">{title}</span>
+                      <span className="block text-[14px] leading-snug text-slate-700">
+                        {title}
+                        {hook ? (
+                          <>
+                            {" - "}
+                            <span className="text-red-600">{hook}</span>
+                          </>
+                        ) : null}
+                      </span>
                       <span className="mt-1 block break-keep text-[13px] leading-relaxed text-slate-500">
                         {desc}
                       </span>

@@ -22,6 +22,17 @@ const REGISTER_CHECKLIST_ITEMS = [
   "register.checklist.source",
 ] as const;
 
+const REGISTER_HOOKS: Record<string, string> = {
+  company: "잘못 만들면 못 고침",
+  restaurant: "무허가 영업 시 즉시 폐쇄",
+  fire: "미필증 시 영업정지",
+  hygiene: "단속 1순위 항목",
+  environment: "누락 시 가동중단",
+  cosmetics: "무허가 시 전량 회수",
+  "medical-device": "무허가 유통은 형사처벌",
+  franchise: "미등록 시 계약 무효",
+};
+
 export default function RegisterLandingClient() {
   const { t } = useLocale();
   const router = useRouter();
@@ -177,7 +188,7 @@ export default function RegisterLandingClient() {
               const title = serviceLabel(item.key, "title", item.title);
               const desc = serviceLabel(item.key, "desc", item.desc);
               const cta = t("pillar.register.cta");
-
+              const hook = REGISTER_HOOKS[item.key];
               return (
                 <div
                   key={item.key}
@@ -189,7 +200,15 @@ export default function RegisterLandingClient() {
                     className="group flex w-full items-end justify-between gap-3 text-left no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:gap-5"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[14px] leading-snug text-slate-700">{title}</span>
+                      <span className="block text-[14px] leading-snug text-slate-700">
+                        {title}
+                        {hook ? (
+                          <>
+                            {" - "}
+                            <span className="text-red-600">{hook}</span>
+                          </>
+                        ) : null}
+                      </span>
                       <span className="mt-1 block break-keep text-[13px] leading-relaxed text-slate-500">
                         {desc}
                       </span>
