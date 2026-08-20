@@ -20,13 +20,29 @@ import {
 import { routeByKeywords } from "@/lib/smartRouter";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
-const EXAMPLE_CHIPS = [
-  "노동허가 비용",
-  "거주증 비용",
-  "법인설립 비용",
-  "비자 연장 비용",
-  "받은 견적 확인",
-] as const;
+type PopularChip = {
+  query: string;
+  labelKey?: string;
+  desktopOnly?: boolean;
+};
+
+const POPULAR_CHIPS: PopularChip[] = [
+  { query: "노동허가 비용", labelKey: "hero.chip.wp" },
+  { query: "거주증 비용", labelKey: "hero.chip.trc" },
+  { query: "법인설립 비용", labelKey: "hero.chip.company", desktopOnly: true },
+  { query: "법인설립 진행절차" },
+  { query: "식당허가", labelKey: "register.service.restaurant.title" },
+  { query: "소방허가", labelKey: "register.service.fire.title", desktopOnly: true },
+  { query: "위생허가", labelKey: "register.service.hygiene.title", desktopOnly: true },
+  { query: "환경허가", labelKey: "register.service.environment.title", desktopOnly: true },
+  { query: "화장품허가", labelKey: "register.service.cosmetics.title", desktopOnly: true },
+  { query: "프랜차이즈 등록", labelKey: "register.service.franchise.title", desktopOnly: true },
+  { query: "비자 연장 비용", labelKey: "hero.chip.visa", desktopOnly: true },
+  { query: "운전면허 전환", desktopOnly: true },
+  { query: "받은 견적 확인", labelKey: "hero.chip.quote" },
+  { query: "세무 비용", desktopOnly: true },
+  { query: "부동산 계약 검토", desktopOnly: true },
+];
 
 const ENGINE_PILLARS = [
   { key: "check", label: "CHECK", href: "/check", icon: ShieldCheck, tone: "blue" },
@@ -41,14 +57,6 @@ const PILLAR_TONE_CLASSES: Record<string, { bg: string; text: string; accent: st
   amber: { bg: "bg-amber-50", text: "text-amber-700", accent: "border-t-amber-600" },
   violet: { bg: "bg-violet-50", text: "text-violet-700", accent: "border-t-violet-600" },
 };
-
-const EXAMPLE_CHIP_KEYS = [
-  "hero.chip.wp",
-  "hero.chip.trc",
-  "hero.chip.company",
-  "hero.chip.visa",
-  "hero.chip.quote",
-] as const;
 
 const VALUE_BADGES = [
   { key: "hero.badges.cost", icon: CircleDollarSign },
@@ -180,15 +188,15 @@ function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
   return (
     <div className="mt-5">
       <p className="text-[11px] font-semibold tracking-wide text-slate-400">{t("hero.homeChipsLabel")}</p>
-      <div className="mt-2.5 flex flex-wrap gap-2">
-        {EXAMPLE_CHIPS.map((chip, index) => (
+      <div className="mt-2.5 flex flex-wrap gap-2 xl:gap-2.5">
+        {POPULAR_CHIPS.map(({ query, labelKey, desktopOnly }) => (
           <button
-            key={chip}
+            key={query}
             type="button"
-            onClick={() => onSelect(chip)}
-            className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-900 sm:px-4 sm:py-2"
+            onClick={() => onSelect(query)}
+            className={`${desktopOnly ? "hidden xl:inline-flex" : "inline-flex"} items-center rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-900 sm:px-4 sm:py-2`}
           >
-            {t(EXAMPLE_CHIP_KEYS[index])}
+            {labelKey ? t(labelKey) : query}
           </button>
         ))}
       </div>
