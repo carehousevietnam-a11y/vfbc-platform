@@ -98,4 +98,11 @@ export const ko = {
   "check.service.tamtru.desc": "임시거주 등록 상태를 지금 확인하세요",
   "check.service.license.title": "운전면허",
   "check.service.license.desc": "베트남 면허 전환 가능 여부를 확인하세요",
+  "check.checklistLead": "확인할 수 있는 것",
+  "check.checklist.eligibility": "신청 자격 및 요건",
+  "check.checklist.officialFee": "정부 공식 비용",
+  "check.checklist.documents": "필요 서류",
+  "check.checklist.duration": "예상 처리기간",
+  "check.checklist.process": "절차 및 처리 단계",
+  "check.checklist.source": "공식 근거 및 출처",
 } as const;

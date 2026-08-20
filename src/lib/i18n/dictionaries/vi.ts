@@ -100,4 +100,11 @@ export const vi: Record<keyof typeof ko, string> = {
   "check.service.tamtru.desc": "Kiểm tra ngay tình trạng đăng ký tạm trú",
   "check.service.license.title": "Bằng lái xe",
   "check.service.license.desc": "Kiểm tra khả năng đổi sang bằng lái Việt Nam",
+  "check.checklistLead": "Những gì bạn có thể kiểm tra",
+  "check.checklist.eligibility": "Điều kiện và yêu cầu",
+  "check.checklist.officialFee": "Lệ phí chính thức của nhà nước",
+  "check.checklist.documents": "Giấy tờ cần thiết",
+  "check.checklist.duration": "Thời gian xử lý dự kiến",
+  "check.checklist.process": "Thủ tục và các bước",
+  "check.checklist.source": "Căn cứ và nguồn chính thức",
 };

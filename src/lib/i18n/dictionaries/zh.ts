@@ -100,4 +100,11 @@ export const zh: Record<keyof typeof ko, string> = {
   "check.service.tamtru.desc": "现在确认临时居留登记状态",
   "check.service.license.title": "驾驶执照",
   "check.service.license.desc": "确认能否转换为越南驾照",
+  "check.checklistLead": "可以确认的内容",
+  "check.checklist.eligibility": "申请资格与条件",
+  "check.checklist.officialFee": "政府官方费用",
+  "check.checklist.documents": "所需材料",
+  "check.checklist.duration": "预计办理时间",
+  "check.checklist.process": "手续与办理步骤",
+  "check.checklist.source": "官方依据与来源",
 };

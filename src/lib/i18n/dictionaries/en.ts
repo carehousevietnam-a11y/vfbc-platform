@@ -100,4 +100,11 @@ export const en: Record<keyof typeof ko, string> = {
   "check.service.tamtru.desc": "Check your temporary residence registration status now",
   "check.service.license.title": "Driving license",
   "check.service.license.desc": "Check whether you can convert to a Vietnam license",
+  "check.checklistLead": "What you can check",
+  "check.checklist.eligibility": "Eligibility and requirements",
+  "check.checklist.officialFee": "Official government fees",
+  "check.checklist.documents": "Required documents",
+  "check.checklist.duration": "Expected processing time",
+  "check.checklist.process": "Procedure and steps",
+  "check.checklist.source": "Official basis and sources",
 };

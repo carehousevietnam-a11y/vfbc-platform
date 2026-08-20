@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronDown } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
 import { routeByKeywords } from "@/lib/smartRouter";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -11,6 +11,15 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
 const CHECK_CHIPS = [
   { chip: "노동허가 비용", key: "hero.chip.wp" },
   { chip: "거주증 비용", key: "hero.chip.trc" },
+] as const;
+
+const CHECKLIST_ITEMS = [
+  "check.checklist.eligibility",
+  "check.checklist.officialFee",
+  "check.checklist.documents",
+  "check.checklist.duration",
+  "check.checklist.process",
+  "check.checklist.source",
 ] as const;
 
 export default function CheckLandingClient() {
@@ -198,6 +207,22 @@ export default function CheckLandingClient() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      <section className="border-t border-slate-200/70 bg-[#faf8f5]">
+        <div className="mx-auto w-full max-w-[1040px] px-4 py-8 sm:px-6 sm:py-10">
+          <p className="break-keep text-[15px] font-medium leading-relaxed text-blue-900">
+            {t("check.checklistLead")}
+          </p>
+          <ul className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+            {CHECKLIST_ITEMS.map((key) => (
+              <li key={key} className="flex items-start gap-2">
+                <Check size={15} className="mt-0.5 shrink-0 text-blue-900" aria-hidden />
+                <span className="text-[13px] leading-relaxed text-slate-700">{t(key)}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </main>
