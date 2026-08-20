@@ -14,6 +14,7 @@ import {
   GitCompare,
   Lock,
   Scale,
+  Search,
   ShieldCheck,
 } from "lucide-react";
 import { routeByKeywords } from "@/lib/smartRouter";
@@ -54,6 +55,13 @@ const VALUE_BADGES = [
   { key: "hero.badges.timeline", icon: Clock },
   { key: "hero.badges.documents", icon: Files },
   { key: "hero.badges.compare", icon: GitCompare },
+] as const;
+
+const COMPOSER_GUIDES = [
+  { titleKey: "hero.badges.cost", lineKey: "hero.preview.costLabel", icon: CircleDollarSign },
+  { titleKey: "hero.badges.timeline", lineKey: "hero.preview.stepsLabel", icon: Clock },
+  { titleKey: "hero.badges.documents", lineKey: "hero.preview.docsLabel", icon: Files },
+  { titleKey: "hero.badges.compare", lineKey: "hero.preview.compareLabel", icon: GitCompare },
 ] as const;
 
 function ValueBadges() {
@@ -140,6 +148,25 @@ function ExamplePreviewCard() {
   );
 }
 
+function ComposerGuides() {
+  const { t } = useLocale();
+  return (
+    <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {COMPOSER_GUIDES.map(({ titleKey, lineKey, icon: Icon }) => (
+        <div key={titleKey} className="flex min-w-0 items-start gap-2">
+          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50" aria-hidden>
+            <Icon size={15} className="text-blue-800" strokeWidth={2.25} />
+          </span>
+          <span className="min-w-0">
+            <span className="block break-keep text-[12.5px] font-semibold text-blue-900">{t(titleKey)}</span>
+            <span className="mt-0.5 block break-keep text-[11.5px] leading-snug text-slate-500">{t(lineKey)}</span>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
   const { t } = useLocale();
   return (
@@ -151,7 +178,7 @@ function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
             key={chip}
             type="button"
             onClick={() => onSelect(chip)}
-            className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-all hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-900 hover:shadow-[0_2px_6px_rgba(30,58,138,0.08)]"
+            className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-900 sm:px-4 sm:py-2"
           >
             {t(EXAMPLE_CHIP_KEYS[index])}
           </button>
@@ -272,20 +299,24 @@ export default function MyVietCheckHero() {
             </div>
 
             <form id="hero-query" onSubmit={handleSubmit} className="order-2 mt-8 w-full lg:order-3 lg:mt-10">
-              <div className="rounded-2xl border border-slate-200/80 bg-white px-5 py-6 shadow-[0_4px_20px_rgba(15,23,42,0.07)] sm:px-7 sm:py-7">
-                <label htmlFor="hero-query-input" className="flex items-start gap-2.5 text-[18px] font-bold leading-snug text-blue-900 sm:text-[20px]">
+              <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8">
+                <label htmlFor="hero-query-input" className="flex items-start gap-2.5 text-blue-900">
                   <span
                     className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[13px] font-bold text-white"
                     aria-hidden
                   >
                     !
                   </span>
-                  <span className="break-keep">
-                    {t("hero.homeTitleBefore")}
-                    <span className="text-amber-600">{t("hero.homeTitleHighlight")}</span>
-                    {t("hero.homeTitleAfter").replace("무료로 직접 확인하세요", "")}
+                  <span className="min-w-0">
+                    <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px]">
+                      {t("hero.homeTitleBefore")}
+                      <span className="text-amber-600">{t("hero.homeTitleHighlight")}</span>
+                      {t("hero.homeTitleAfter").replace("무료로 직접 확인하세요", "")}
+                    </span>
                     {t("hero.homeTitleAfter").includes("무료로 직접 확인하세요") ? (
-                      <span className="text-amber-600">무료로 직접 확인하세요</span>
+                      <span className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-amber-600 sm:text-[19px]">
+                        무료로 직접 확인하세요
+                      </span>
                     ) : null}
                   </span>
                 </label>
@@ -294,10 +325,13 @@ export default function MyVietCheckHero() {
                 </p>
 
                 <div
-                  className={`mt-4 flex items-center gap-2 rounded-xl border bg-[#faf8f5]/70 py-1.5 pl-3.5 pr-1.5 transition-colors ${
-                    isFocused ? "border-blue-200 bg-white" : "border-slate-200/90"
-                  } ${showError ? "ring-2 ring-red-200" : ""}`}
+                  className={`mt-5 flex items-center gap-2 rounded-xl border bg-white py-2 pl-3.5 pr-1.5 transition-shadow ${
+                    isFocused
+                      ? "border-blue-400 shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
+                      : "border-slate-300"
+                  } ${showError ? "border-red-300 shadow-[0_0_0_4px_rgba(252,165,165,0.45)]" : ""}`}
                 >
+                  <Search size={18} aria-hidden className="shrink-0 text-slate-400" />
                   <input
                     id="hero-query-input"
                     type="text"
@@ -309,12 +343,12 @@ export default function MyVietCheckHero() {
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder={t("hero.homePlaceholder")}
-                    className="min-h-10 min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-[16px]"
+                    className="min-h-11 min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:min-h-12 sm:text-[16px]"
                     autoComplete="off"
                   />
                   <button
                     type="submit"
-                    className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1 rounded-lg bg-blue-900 px-3.5 text-[13px] font-semibold text-white shadow-[0_2px_6px_rgba(30,58,138,0.18)] transition-all hover:bg-[#152a63] sm:min-h-11 sm:px-5 sm:text-[14px]"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-blue-900 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:min-h-12 sm:px-5 sm:text-[14px]"
                   >
                     {t("hero.homeSubmit")}
                     <ArrowRight size={15} />
@@ -325,6 +359,7 @@ export default function MyVietCheckHero() {
                   <p className="mt-2 text-xs font-medium text-red-600">{t("hero.error")}</p>
                 ) : null}
 
+                <ComposerGuides />
                 <ExampleChips onSelect={handleChipSelect} />
               </div>
             </form>
