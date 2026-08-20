@@ -277,6 +277,21 @@ export function getVerifyServiceItems(): Array<{
   }));
 }
 
+export function getRegisterServiceItems(): Array<{
+  key: string;
+  title: string;
+  desc: string;
+  href: string;
+}> {
+  const section = ACCORDION_SECTIONS.find((item) => item.key === "register");
+  return (section?.items ?? []).map(({ key, title, desc, href }) => ({
+    key,
+    title,
+    desc,
+    href,
+  }));
+}
+
 function AccordionItemCard({
   item,
   variant,
