@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -151,17 +151,22 @@ function ExamplePreviewCard() {
 function ComposerGuides() {
   const { t } = useLocale();
   return (
-    <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-      {COMPOSER_GUIDES.map(({ titleKey, lineKey, icon: Icon }) => (
-        <div key={titleKey} className="flex min-w-0 items-start gap-2">
-          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50" aria-hidden>
-            <Icon size={15} className="text-blue-800" strokeWidth={2.25} />
-          </span>
-          <span className="min-w-0">
-            <span className="block break-keep text-[12.5px] font-semibold text-blue-900">{t(titleKey)}</span>
-            <span className="mt-0.5 block break-keep text-[11.5px] leading-snug text-slate-500">{t(lineKey)}</span>
-          </span>
-        </div>
+    <div className="mt-5 grid grid-cols-2 gap-3 lg:flex lg:items-start lg:gap-0">
+      {COMPOSER_GUIDES.map(({ titleKey, lineKey, icon: Icon }, index) => (
+        <Fragment key={titleKey}>
+          <div className="flex min-w-0 items-start gap-2 lg:shrink-0">
+            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50" aria-hidden>
+              <Icon size={15} className="text-blue-800" strokeWidth={2.25} />
+            </span>
+            <span className="min-w-0">
+              <span className="block break-keep text-[12.5px] font-semibold text-blue-900">{t(titleKey)}</span>
+              <span className="mt-0.5 block break-keep text-[11.5px] leading-snug text-slate-500">{t(lineKey)}</span>
+            </span>
+          </div>
+          {index < COMPOSER_GUIDES.length - 1 ? (
+            <span aria-hidden className="mx-3 mt-4 hidden h-px min-w-4 flex-1 bg-blue-200 lg:block" />
+          ) : null}
+        </Fragment>
       ))}
     </div>
   );
