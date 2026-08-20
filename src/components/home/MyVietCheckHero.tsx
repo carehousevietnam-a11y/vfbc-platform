@@ -283,7 +283,10 @@ export default function MyVietCheckHero() {
                   <span className="break-keep">
                     {t("hero.homeTitleBefore")}
                     <span className="text-amber-600">{t("hero.homeTitleHighlight")}</span>
-                    {t("hero.homeTitleAfter")}
+                    {t("hero.homeTitleAfter").replace("무료로 직접 확인하세요", "")}
+                    {t("hero.homeTitleAfter").includes("무료로 직접 확인하세요") ? (
+                      <span className="text-amber-600">무료로 직접 확인하세요</span>
+                    ) : null}
                   </span>
                 </label>
                 <p className="mt-2 break-keep pl-9 text-[13px] leading-relaxed text-slate-500 sm:text-[14px]">

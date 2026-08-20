@@ -11,7 +11,7 @@ export const ko = {
   "hero.inputLabel": "무엇에 돈을 쓰려고 하시나요?",
   "hero.homeTitleBefore": "무엇에 ",
   "hero.homeTitleHighlight": "돈을 쓰려고",
-  "hero.homeTitleAfter": " 하시나요?",
+  "hero.homeTitleAfter": " 하시나요? 무료로 직접 확인하세요",
   "hero.homeLead": "비용·절차·필요서류·받은 견적까지 한 번에 확인하세요.",
   "hero.homePlaceholder": "예) 노동허가 비용이 얼마인가요?",
   "hero.homeSubmit": "확인하기",
