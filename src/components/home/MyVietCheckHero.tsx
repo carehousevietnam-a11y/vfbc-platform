@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { routeByKeywords } from "@/lib/smartRouter";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import HomeServiceAccordion, { type AccordionKey } from "@/components/home/HomeServiceAccordion";
 
 const EXAMPLE_CHIPS = [
   "노동허가 비용",
@@ -21,6 +22,20 @@ const ENGINE_PILLARS = [
 ] as const;
 
 type PillarKey = (typeof ENGINE_PILLARS)[number]["key"];
+type EngineOpenKey = AccordionKey | "protect";
+
+function isAccordionKey(key: string | null): key is AccordionKey {
+  return key === "check" || key === "verify" || key === "register";
+}
+
+function updateAccordionHash(next: AccordionKey | null) {
+  if (typeof window === "undefined") return;
+  if (next) {
+    window.history.replaceState(null, "", `#${next}`);
+    return;
+  }
+  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+}
 
 const EXAMPLE_CHIP_KEYS = [
   "hero.chip.wp",
@@ -52,13 +67,17 @@ function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
 
 function EnginePillars() {
   const { t } = useLocale();
-  const [openKey, setOpenKey] = useState<PillarKey | null>(null);
+  const [openKey, setOpenKey] = useState<EngineOpenKey | null>(null);
 
   useEffect(() => {
     function syncFromHash() {
-      const hash = window.location.hash.replace("#", "");
-      if (hash === "check" || hash === "verify" || hash === "register" || hash === "protect") {
+      const hash = window.location.hash.replace("#", "").toLowerCase();
+      if (hash === "check" || hash === "verify" || hash === "register") {
         setOpenKey(hash);
+        return;
+      }
+      if (hash === "protect") {
+        setOpenKey("protect");
       }
     }
 
@@ -67,16 +86,29 @@ function EnginePillars() {
     return () => window.removeEventListener("hashchange", syncFromHash);
   }, []);
 
-  function togglePillar(key: PillarKey) {
-    setOpenKey((current) => (current === key ? null : key));
+  function toggleSection(key: AccordionKey) {
+    setOpenKey((current) => {
+      const next = current === key ? null : key;
+      updateAccordionHash(next);
+      return next;
+    });
   }
+
+  function toggleProtect() {
+    setOpenKey((current) => (current === "protect" ? null : "protect"));
+  }
+
+  const accordionOpenKey: AccordionKey | null = isAccordionKey(openKey) ? openKey : null;
 
   return (
     <div className="mt-6 divide-y divide-slate-200/80 border-y border-slate-200/80">
       {ENGINE_PILLARS.map((pillar) => {
         const isOpen = openKey === pillar.key;
-        const panelId = `pillar-panel-${pillar.key}`;
         const buttonId = `pillar-button-${pillar.key}`;
+        const isServiceAccordion = isAccordionKey(pillar.key);
+        const panelId = isServiceAccordion
+          ? `home-service-panel-${pillar.key}`
+          : `pillar-panel-${pillar.key}`;
 
         return (
           <div key={pillar.key} id={pillar.key} className="scroll-mt-24">
@@ -86,7 +118,13 @@ function EnginePillars() {
               id={buttonId}
               aria-expanded={isOpen}
               aria-controls={panelId}
-              onClick={() => togglePillar(pillar.key)}
+              onClick={() => {
+                if (isAccordionKey(pillar.key)) {
+                  toggleSection(pillar.key);
+                  return;
+                }
+                toggleProtect();
+              }}
               className="flex min-h-11 w-full items-center justify-between gap-4 py-3.5 text-left transition-colors hover:text-blue-900"
             >
               <span className="min-w-0">
@@ -101,24 +139,33 @@ function EnginePillars() {
                 size={18}
                 aria-hidden
                 className={`shrink-0 text-slate-400 transition-transform duration-150 ${
-                  isOpen ? "rotate-180" : "-rotate-90"
+                  isOpen ? "rotate-0" : "-rotate-90"
                 }`}
               />
             </button>
-            <div
-              id={panelId}
-              role="region"
-              aria-labelledby={buttonId}
-              hidden={!isOpen}
-              className="pb-4"
-            >
-              <p className="max-w-2xl break-keep text-[14px] leading-relaxed text-slate-600">
-                {t(`pillar.${pillar.key}.body`)}
-              </p>
-              <p className="mt-2 max-w-2xl break-keep text-[13px] leading-relaxed text-slate-500">
-                {t(`pillar.${pillar.key}.purpose`)}
-              </p>
-            </div>
+            {isServiceAccordion && isOpen ? (
+              <HomeServiceAccordion
+                hideSectionHeaders
+                openKey={accordionOpenKey}
+                onToggle={toggleSection}
+              />
+            ) : null}
+            {pillar.key === "protect" ? (
+              <div
+                id={panelId}
+                role="region"
+                aria-labelledby={buttonId}
+                hidden={!isOpen}
+                className="pb-4"
+              >
+                <p className="max-w-2xl break-keep text-[14px] leading-relaxed text-slate-600">
+                  {t("pillar.protect.body")}
+                </p>
+                <p className="mt-2 max-w-2xl break-keep text-[13px] leading-relaxed text-slate-500">
+                  {t("pillar.protect.purpose")}
+                </p>
+              </div>
+            ) : null}
           </div>
         );
       })}
