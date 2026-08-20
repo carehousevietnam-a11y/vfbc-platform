@@ -35,6 +35,70 @@ const EXAMPLE_CHIP_KEYS = [
   "hero.chip.quote",
 ] as const;
 
+const VALUE_BADGE_KEYS = [
+  "hero.badges.cost",
+  "hero.badges.timeline",
+  "hero.badges.documents",
+  "hero.badges.compare",
+] as const;
+
+function ValueBadges() {
+  const { t } = useLocale();
+  return (
+    <div className="mt-5 flex flex-wrap gap-2">
+      {VALUE_BADGE_KEYS.map((key) => (
+        <span
+          key={key}
+          className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-600"
+        >
+          {t(key)}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ExamplePreviewCard() {
+  const { t } = useLocale();
+  return (
+    <div className="mt-6 w-full max-w-[420px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+        {t("hero.preview.tag")}
+      </span>
+      <p className="mt-3 break-keep text-[13.5px] font-medium leading-snug text-slate-700">
+        {t("hero.preview.question")}
+      </p>
+      <dl className="mt-4 space-y-2.5">
+        <div className="flex items-center justify-between text-[13px]">
+          <dt className="text-slate-500">{t("hero.preview.costLabel")}</dt>
+          <dd className="font-semibold text-blue-900">{t("hero.preview.costValue")}</dd>
+        </div>
+        <div className="flex items-center justify-between text-[13px]">
+          <dt className="text-slate-500">{t("hero.preview.stepsLabel")}</dt>
+          <dd className="font-semibold text-blue-900">{t("hero.preview.stepsValue")}</dd>
+        </div>
+        <div className="flex items-center justify-between text-[13px]">
+          <dt className="text-slate-500">{t("hero.preview.docsLabel")}</dt>
+          <dd className="font-semibold text-blue-900">{t("hero.preview.docsValue")}</dd>
+        </div>
+        <div className="flex items-center justify-between text-[13px]">
+          <dt className="text-slate-500">{t("hero.preview.compareLabel")}</dt>
+          <dd className="flex items-center gap-1.5 font-semibold">
+            <span className="text-emerald-600">{t("hero.preview.compareGood")}</span>
+            <span className="text-slate-300">/</span>
+            <span className="text-amber-600">{t("hero.preview.compareCaution")}</span>
+            <span className="text-slate-300">/</span>
+            <span className="text-red-500">{t("hero.preview.compareBad")}</span>
+          </dd>
+        </div>
+      </dl>
+      <p className="mt-4 break-keep text-[11px] leading-relaxed text-slate-400">
+        {t("hero.preview.disclaimer")}
+      </p>
+    </div>
+  );
+}
+
 function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
   const { t } = useLocale();
   return (
@@ -154,6 +218,7 @@ export default function MyVietCheckHero() {
             <p className="mt-5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
               {t("hero.subtitle")}
             </p>
+            <ValueBadges />
           </div>
 
           <form id="hero-query" onSubmit={handleSubmit} className="mt-9 sm:mt-11">
@@ -216,6 +281,7 @@ export default function MyVietCheckHero() {
               <ExampleChips onSelect={handleChipSelect} />
             </div>
           </form>
+          <ExamplePreviewCard />
         </div>
       </section>
 
