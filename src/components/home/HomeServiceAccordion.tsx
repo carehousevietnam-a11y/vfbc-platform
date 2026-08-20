@@ -247,6 +247,21 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
   },
 ];
 
+export function getCheckServiceItems(): Array<{
+  key: string;
+  title: string;
+  desc: string;
+  href: string;
+}> {
+  const section = ACCORDION_SECTIONS.find((item) => item.key === "check");
+  return (section?.items ?? []).map(({ key, title, desc, href }) => ({
+    key,
+    title,
+    desc,
+    href,
+  }));
+}
+
 function AccordionItemCard({
   item,
   variant,
