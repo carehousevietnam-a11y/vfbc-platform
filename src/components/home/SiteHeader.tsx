@@ -14,17 +14,17 @@ const DEFAULT_MESSAGE_HREF = "/mypage/chat";
 const DEFAULT_LOGIN_HREF = "/login";
 
 const HOME_NAV_ITEMS = [
-  { href: "#check", label: "CHECK", sub: "확인" },
-  { href: "#verify", label: "VERIFY", sub: "검증" },
-  { href: "#register", label: "REGISTER", sub: "진행" },
-  { href: "#protect", label: "PROTECT", sub: "보호" },
+  { href: "/check", label: "CHECK", sub: "확인" },
+  { href: "/verify", label: "VERIFY", sub: "검증" },
+  { href: "/register", label: "REGISTER", sub: "진행" },
+  { href: "/protect", label: "PROTECT", sub: "보호" },
 ] as const;
 
 const NAV_SUB_KEYS = {
-  "#check": "nav.check",
-  "#verify": "nav.verify",
-  "#register": "nav.register",
-  "#protect": "nav.protect",
+  "/check": "nav.check",
+  "/verify": "nav.verify",
+  "/register": "nav.register",
+  "/protect": "nav.protect",
 } as const;
 
 export default function SiteHeader() {
