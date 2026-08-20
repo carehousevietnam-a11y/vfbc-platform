@@ -125,7 +125,7 @@ function EnginePillars() {
                 }
                 toggleProtect();
               }}
-              className="group flex w-full items-start justify-between gap-3 py-3.5 text-left sm:items-center sm:gap-5"
+              className="group flex w-full items-end justify-between gap-3 py-3.5 text-left sm:gap-5"
             >
               <span className="min-w-0 flex-1">
                 <span className="block text-[11px] font-bold tracking-[0.18em] text-blue-900">
@@ -138,7 +138,7 @@ function EnginePillars() {
                   {t(`pillar.${pillar.key}.line`)}
                 </span>
               </span>
-              <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-[12px] font-medium text-blue-900 transition-colors group-hover:text-[#152a63] sm:mt-0">
+              <span className="inline-flex shrink-0 items-center gap-1 pb-0.5 text-[12px] font-medium text-blue-900 transition-colors group-hover:text-[#152a63]">
                 {t(`pillar.${pillar.key}.cta`)}
                 <ChevronDown
                   size={16}
