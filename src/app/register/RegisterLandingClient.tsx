@@ -200,13 +200,13 @@ export default function RegisterLandingClient() {
                     className="group flex w-full items-end justify-between gap-3 text-left no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:gap-5"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[14px] leading-snug text-slate-700">
-                        {title}
+                      <span className="block leading-snug">
+                        <span className="text-[15px] font-bold text-slate-700">{title}</span>
                         {hook ? (
-                          <>
+                          <span className="text-[12px] font-normal text-slate-500">
                             {" - "}
                             <span className="text-red-600">{hook}</span>
-                          </>
+                          </span>
                         ) : null}
                       </span>
                       <span className="mt-1 block break-keep text-[13px] leading-relaxed text-slate-500">
