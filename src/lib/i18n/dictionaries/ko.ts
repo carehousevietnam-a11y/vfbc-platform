@@ -26,7 +26,7 @@ export const ko = {
   "hero.engineCta.protect": "보호하기",
   "hero.badges.cost": "공식 비용 확인",
   "hero.badges.timeline": "절차·기간 확인",
-  "hero.badges.documents": "필요 서류 확인",
+  "hero.badges.documents": "필요서류 확인",
   "hero.badges.compare": "받은 견적 비교",
   "hero.preview.tag": "예시 결과 미리보기",
   "hero.preview.question": "노동허가 비용이 3,000달러라는데 맞나요?",

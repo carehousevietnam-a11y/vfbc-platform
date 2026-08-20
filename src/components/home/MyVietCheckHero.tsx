@@ -65,7 +65,7 @@ function ValueBadges() {
           key={key}
           className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-600"
         >
-          <Icon size={14} className="text-blue-800" strokeWidth={2.2} aria-hidden />
+          <Icon size={15} className="shrink-0 text-blue-800" strokeWidth={2.35} aria-hidden />
           {t(key)}
         </span>
       ))}
@@ -77,20 +77,20 @@ function HeroToPreviewArrow() {
   return (
     <svg
       aria-hidden="true"
-      className="pointer-events-none absolute right-full top-16 mr-0 hidden h-[80px] w-[76px] text-blue-800 lg:block"
-      viewBox="0 0 76 80"
+      className="pointer-events-none absolute right-full top-8 -mr-0.5 hidden h-[112px] w-[124px] text-amber-500 lg:block"
+      viewBox="0 0 124 112"
       fill="none"
     >
       <path
-        d="M8 64c8-28 28-48 56-54"
+        d="M12 96c12-42 46-74 96-80"
         stroke="currentColor"
-        strokeWidth="2.2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
       <path
-        d="M54 4.5 70 14 52 22"
+        d="M92 8 116 18 90 32"
         stroke="currentColor"
-        strokeWidth="2.2"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
