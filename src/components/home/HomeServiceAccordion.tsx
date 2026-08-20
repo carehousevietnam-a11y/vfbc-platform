@@ -262,6 +262,21 @@ export function getCheckServiceItems(): Array<{
   }));
 }
 
+export function getVerifyServiceItems(): Array<{
+  key: string;
+  title: string;
+  desc: string;
+  href: string;
+}> {
+  const section = ACCORDION_SECTIONS.find((item) => item.key === "verify");
+  return (section?.items ?? []).map(({ key, title, desc, href }) => ({
+    key,
+    title,
+    desc,
+    href,
+  }));
+}
+
 function AccordionItemCard({
   item,
   variant,
