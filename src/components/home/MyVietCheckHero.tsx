@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { routeByKeywords } from "@/lib/smartRouter";
-import HomeServiceAccordion from "@/components/home/HomeServiceAccordion";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 const EXAMPLE_CHIPS = [
@@ -15,11 +14,13 @@ const EXAMPLE_CHIPS = [
 ] as const;
 
 const ENGINE_PILLARS = [
-  { key: "check", label: "CHECK", href: "#check" },
-  { key: "verify", label: "VERIFY", href: "#verify" },
-  { key: "register", label: "REGISTER", href: "#register" },
-  { key: "protect", label: "PROTECT", href: "#protect" },
+  { key: "check", label: "CHECK" },
+  { key: "verify", label: "VERIFY" },
+  { key: "register", label: "REGISTER" },
+  { key: "protect", label: "PROTECT" },
 ] as const;
+
+type PillarKey = (typeof ENGINE_PILLARS)[number]["key"];
 
 const EXAMPLE_CHIP_KEYS = [
   "hero.chip.wp",
@@ -45,6 +46,82 @@ function ExampleChips({ onSelect }: { onSelect: (chip: string) => void }) {
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function EnginePillars() {
+  const { t } = useLocale();
+  const [openKey, setOpenKey] = useState<PillarKey | null>(null);
+
+  useEffect(() => {
+    function syncFromHash() {
+      const hash = window.location.hash.replace("#", "");
+      if (hash === "check" || hash === "verify" || hash === "register" || hash === "protect") {
+        setOpenKey(hash);
+      }
+    }
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
+
+  function togglePillar(key: PillarKey) {
+    setOpenKey((current) => (current === key ? null : key));
+  }
+
+  return (
+    <div className="mt-6 divide-y divide-slate-200/80 border-y border-slate-200/80">
+      {ENGINE_PILLARS.map((pillar) => {
+        const isOpen = openKey === pillar.key;
+        const panelId = `pillar-panel-${pillar.key}`;
+        const buttonId = `pillar-button-${pillar.key}`;
+
+        return (
+          <div key={pillar.key} id={pillar.key} className="scroll-mt-24">
+            <h2 className="sr-only">{pillar.label}</h2>
+            <button
+              type="button"
+              id={buttonId}
+              aria-expanded={isOpen}
+              aria-controls={panelId}
+              onClick={() => togglePillar(pillar.key)}
+              className="flex min-h-11 w-full items-center justify-between gap-4 py-3.5 text-left transition-colors hover:text-blue-900"
+            >
+              <span className="min-w-0">
+                <span className="block text-[11px] font-bold tracking-[0.18em] text-blue-900">
+                  {pillar.label}
+                </span>
+                <span className="mt-0.5 block text-[14px] leading-snug text-slate-700">
+                  {t(`pillar.${pillar.key}.subtitle`)}
+                </span>
+              </span>
+              <ChevronDown
+                size={18}
+                aria-hidden
+                className={`shrink-0 text-slate-400 transition-transform duration-150 ${
+                  isOpen ? "rotate-180" : "-rotate-90"
+                }`}
+              />
+            </button>
+            <div
+              id={panelId}
+              role="region"
+              aria-labelledby={buttonId}
+              hidden={!isOpen}
+              className="pb-4"
+            >
+              <p className="max-w-2xl break-keep text-[14px] leading-relaxed text-slate-600">
+                {t(`pillar.${pillar.key}.body`)}
+              </p>
+              <p className="mt-2 max-w-2xl break-keep text-[13px] leading-relaxed text-slate-500">
+                {t(`pillar.${pillar.key}.purpose`)}
+              </p>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -168,33 +245,12 @@ export default function MyVietCheckHero() {
         </div>
       </section>
 
-      <section id="protect" className="border-t border-slate-200/70 bg-[#faf8f5]">
+      <section className="border-t border-slate-200/70 bg-[#faf8f5]">
         <div className="mx-auto w-full max-w-[1040px] px-4 py-8 sm:px-6 sm:py-10">
           <p className="break-keep text-[15px] font-medium leading-relaxed text-blue-900">
             {t("hero.pillarsLead")}
           </p>
-
-          <dl className="mt-6 divide-y divide-slate-200/80 border-y border-slate-200/80">
-            {ENGINE_PILLARS.map((pillar) => (
-              <div key={pillar.key}>
-                <a
-                  href={pillar.href}
-                  className="flex min-h-11 items-baseline justify-between gap-4 py-3.5 transition-colors hover:text-blue-900"
-                >
-                  <dt className="shrink-0 text-[11px] font-bold tracking-[0.18em] text-blue-900">
-                    {pillar.label}
-                  </dt>
-                  <dd className="min-w-0 text-right text-[14px] leading-snug text-slate-600">
-                    {t(`pillar.${pillar.key}.desc1`)}
-                  </dd>
-                </a>
-              </div>
-            ))}
-          </dl>
-
-          <div id="home-service-detail" className="mt-8 scroll-mt-24">
-            <HomeServiceAccordion hideSectionHeaders />
-          </div>
+          <EnginePillars />
         </div>
       </section>
     </>
