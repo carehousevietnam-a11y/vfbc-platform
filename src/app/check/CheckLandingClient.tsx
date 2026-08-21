@@ -1,10 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, ChevronDown } from "lucide-react";
+import { Briefcase, Car, CreditCard, Home, ShieldCheck } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
+import {
+  ENGINE_SECTION_ICON,
+  EngineBreadcrumb,
+  EngineChecklistSection,
+  EngineComposer,
+  EngineDisclaimerSection,
+  EngineHero,
+  EngineLandingMain,
+  EngineServiceCard,
+  EngineServiceSection,
+  EngineTopSection,
+  type EngineServiceVisual,
+} from "@/components/engine/EngineLandingChrome";
 import { routeByKeywords } from "@/lib/smartRouter";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -27,6 +39,13 @@ const CHECK_HOOKS: Record<string, string> = {
   wp: "무허가 근무 적발 위험",
   tamtru: "12시간 이내 신고 필요",
   license: "국제면허 미인정 사례 있음",
+};
+
+const CHECK_SERVICE_VISUAL: Record<string, EngineServiceVisual> = {
+  trc: { icon: CreditCard, bg: "bg-blue-50", text: "text-blue-900", accent: "border-t-blue-700" },
+  wp: { icon: Briefcase, bg: "bg-emerald-50", text: "text-emerald-700", accent: "border-t-emerald-600" },
+  tamtru: { icon: Home, bg: "bg-violet-50", text: "text-violet-700", accent: "border-t-violet-600" },
+  license: { icon: Car, bg: "bg-amber-50", text: "text-amber-700", accent: "border-t-amber-600" },
 };
 
 export default function CheckLandingClient() {
@@ -72,174 +91,52 @@ export default function CheckLandingClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#faf8f5]">
-      <header className="border-b border-slate-200/80 bg-[#faf8f5]">
-        <div className="mx-auto flex h-12 w-full max-w-[1040px] items-center px-4 sm:px-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
-          >
-            <ArrowLeft size={14} aria-hidden />
-            {t("check.backHome")}
-          </Link>
-        </div>
-      </header>
+    <EngineLandingMain>
+      <EngineTopSection>
+        <EngineBreadcrumb engine="CHECK" />
+        <EngineHero
+          engine="CHECK"
+          title={t("pillar.check.subtitle")}
+          description={t("pillar.check.body")}
+          deco={<ShieldCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
+        />
+        <EngineComposer
+          formId="check-query"
+          inputId="check-query-input"
+          query={query}
+          isFocused={isFocused}
+          showError={showError}
+          chips={CHECK_CHIPS}
+          title="무엇을 확인하고 싶으세요?"
+          emphasis="무료로 직접 확인하세요"
+          placeholder="예) 노동허가 비용이 얼마나 드나요?"
+          onSubmit={handleSubmit}
+          onQueryChange={(value) => {
+            setQuery(value);
+            if (value.trim()) setShowError(false);
+          }}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onChipSelect={handleChipSelect}
+        />
+      </EngineTopSection>
 
-      <section className="bg-[#faf8f5]">
-        <div className="mx-auto w-full max-w-[1040px] px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-10">
-          <div className="max-w-[720px]">
-            <p className="mb-3 text-[11px] font-bold tracking-[0.18em] text-blue-900">CHECK</p>
-            <h1 className="break-keep text-[1.875rem] font-bold leading-[1.28] tracking-tight text-blue-900 sm:text-[2.125rem] lg:text-[2.35rem]">
-              {t("pillar.check.subtitle")}
-            </h1>
-            <p className="mt-3.5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-base">
-              {t("pillar.check.body")}
-            </p>
-          </div>
+      <EngineServiceSection engine="CHECK" lead={t("check.selectLead")}>
+        {services.map((item) => (
+          <EngineServiceCard
+            key={item.key}
+            href={item.href}
+            title={serviceLabel(item.key, "title", item.title)}
+            desc={serviceLabel(item.key, "desc", item.desc)}
+            cta={t("pillar.check.cta")}
+            hook={CHECK_HOOKS[item.key]}
+            visual={CHECK_SERVICE_VISUAL[item.key]}
+          />
+        ))}
+      </EngineServiceSection>
 
-          <form id="check-query" onSubmit={handleSubmit} className="mt-7 sm:mt-8">
-            <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-4 sm:px-5 sm:py-4">
-              <div className="flex items-center justify-between gap-3">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-blue-900">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-900" aria-hidden />
-                  {t("hero.badge")}
-                </span>
-                <nav className="flex items-center gap-3 text-[11px] font-medium text-slate-400" aria-hidden>
-                  <span>질문</span>
-                  <span>비용</span>
-                  <span>확인</span>
-                </nav>
-              </div>
-
-              <label htmlFor="check-query-input" className="mt-3 block text-[13px] font-medium text-slate-700">
-                {t("hero.inputLabel")}
-              </label>
-
-              <div
-                className={`mt-2 flex flex-col gap-2 sm:flex-row sm:items-stretch ${
-                  showError ? "rounded-xl ring-2 ring-red-200" : ""
-                }`}
-              >
-                <div
-                  className={`flex min-h-11 min-w-0 flex-1 items-center rounded-xl border bg-[#faf8f5]/70 px-3.5 transition-colors ${
-                    isFocused ? "border-blue-200 bg-white" : "border-slate-200/90"
-                  }`}
-                >
-                  <input
-                    id="check-query-input"
-                    type="text"
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      if (e.target.value.trim()) setShowError(false);
-                    }}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    placeholder={t("hero.placeholder")}
-                    className="w-full border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0"
-                    autoComplete="off"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-1 rounded-xl bg-blue-900 px-5 text-[14px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:w-auto sm:min-w-[96px]"
-                >
-                  {t("hero.submit")}
-                  <ArrowRight size={15} />
-                </button>
-              </div>
-
-              {showError ? (
-                <p className="mt-2 text-xs font-medium text-red-600">{t("hero.error")}</p>
-              ) : null}
-
-              <div className="mt-4">
-                <p className="text-[11px] font-medium tracking-wide text-slate-400">{t("hero.chipsLabel")}</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {CHECK_CHIPS.map((item) => (
-                    <button
-                      key={item.chip}
-                      type="button"
-                      onClick={() => handleChipSelect(item.chip)}
-                      className="rounded-full border border-slate-200/90 bg-[#faf8f5] px-2.5 py-1 text-[12px] text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
-                    >
-                      {t(item.key)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <section className="border-t border-slate-200/70 bg-[#faf8f5]">
-        <div className="mx-auto w-full max-w-[1040px] px-4 py-8 sm:px-6 sm:py-10">
-          <p className="break-keep text-[15px] font-medium leading-relaxed text-blue-900">
-            {t("check.selectLead")}
-          </p>
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2">
-            {services.map((item) => {
-              const title = serviceLabel(item.key, "title", item.title);
-              const desc = serviceLabel(item.key, "desc", item.desc);
-              const cta = t("pillar.check.cta");
-              const hook = CHECK_HOOKS[item.key];
-              return (
-                <div
-                  key={item.key}
-                  className="border-t border-slate-200/80 py-4 last:border-b sm:odd:border-r sm:odd:pr-8 sm:even:pl-8 sm:[&:nth-child(n+3)]:border-b"
-                >
-                  <Link
-                    href={item.href}
-                    aria-label={`${title} ${cta}`}
-                    className="group flex w-full items-end justify-between gap-3 text-left no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:gap-5"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block leading-snug">
-                        <span className="text-[15px] font-bold text-slate-700">{title}</span>
-                        {hook ? (
-                          <span className="text-[12px] font-normal text-slate-500">
-                            {" - "}
-                            <span className="text-red-600">{hook}</span>
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="mt-1 block break-keep text-[13px] leading-relaxed text-slate-500">
-                        {desc}
-                      </span>
-                    </span>
-                    <span className="inline-flex shrink-0 items-center gap-1 pb-0.5 text-[12px] font-medium text-blue-900 transition-colors group-hover:text-[#152a63]">
-                      {cta}
-                      <ChevronDown
-                        size={16}
-                        aria-hidden
-                        className="-rotate-90 shrink-0 text-blue-900/70"
-                      />
-                    </span>
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-slate-200/70 bg-[#faf8f5]">
-        <div className="mx-auto w-full max-w-[1040px] px-4 py-8 sm:px-6 sm:py-10">
-          <p className="break-keep text-[15px] font-medium leading-relaxed text-blue-900">
-            {t("check.checklistLead")}
-          </p>
-          <ul className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
-            {CHECKLIST_ITEMS.map((key) => (
-              <li key={key} className="flex items-start gap-2">
-                <Check size={15} className="mt-0.5 shrink-0 text-blue-900" aria-hidden />
-                <span className="text-[13px] leading-relaxed text-slate-700">{t(key)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    </main>
+      <EngineChecklistSection lead={t("check.checklistLead")} items={CHECKLIST_ITEMS} />
+      <EngineDisclaimerSection />
+    </EngineLandingMain>
   );
 }
