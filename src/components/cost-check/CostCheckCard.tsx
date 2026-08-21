@@ -108,16 +108,6 @@ export function CostCheckCard({
   const displayBubble = hasQuote
     ? computeDisplayBubblePercent(quote.bubblePercent, quote.fairReference, quote.quotedAmount)
     : 0;
-  const badgeClass =
-    !hasQuote
-      ? ""
-      : quote.verdict === "fair"
-        ? "bg-emerald-50 text-emerald-800"
-        : quote.verdict === "very_low"
-          ? "bg-slate-100 text-slate-700"
-          : quote.verdict === "caution"
-            ? "bg-amber-50 text-amber-900"
-            : "bg-red-50 text-red-800";
 
   function handleQuoteSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -368,12 +358,7 @@ export function CostCheckCard({
       />
       {hasQuote ? (
         <div className="mt-3">
-          <span
-            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeClass}`}
-          >
-            {STATUS_BADGE_LABEL[quote.verdict]}
-          </span>
-          <p className="mt-3 text-sm font-semibold text-slate-900">{quote.title}</p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">{quote.title}</p>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">{quote.summary}</p>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">{quote.detail}</p>
         </div>
