@@ -17,7 +17,7 @@ import {
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 export const ENGINE_CONTAINER = "mx-auto w-full max-w-[1100px] px-4 sm:px-6";
-const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-6";
+const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-5";
 
 const COMPOSER_GUIDES = [
   { titleKey: "hero.badges.cost", lineKey: "hero.preview.costLabel", icon: CircleDollarSign },
@@ -42,7 +42,7 @@ export function EngineLandingMain({ children }: { children: ReactNode }) {
 export function EngineTopSection({ children }: { children: ReactNode }) {
   return (
     <section className="bg-white">
-      <div className={`${ENGINE_CONTAINER} pb-8 pt-6 sm:pb-10 sm:pt-8 lg:py-6`}>{children}</div>
+      <div className={`${ENGINE_CONTAINER} pb-8 pt-6 sm:pb-10 sm:pt-8 lg:pb-5 lg:pt-4`}>{children}</div>
     </section>
   );
 }
@@ -77,13 +77,13 @@ export function EngineHero({
 }) {
   return (
     <div className="w-full">
-      <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[2.5rem]">
+      <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[2.25rem]">
         {engine}
       </h1>
-      <p className="mt-3 break-keep text-[18px] font-bold leading-snug text-blue-900 sm:text-[20px] lg:mt-2 lg:text-[17px]">
+      <p className="mt-3 break-keep text-[18px] font-bold leading-snug text-blue-900 sm:text-[20px] lg:mt-2 lg:text-[15px]">
         {title}
       </p>
-      <p className="mt-4 break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px] lg:mt-3 lg:text-[15px]">
+      <p className="mt-4 break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px] lg:mt-2 lg:text-[14px]">
         {description}
       </p>
     </div>
@@ -105,7 +105,7 @@ function EngineComposerTitle({ htmlFor }: { htmlFor: string }) {
         !
       </span>
       <span className="min-w-0">
-        <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px] lg:text-[17px]">
+        <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px] lg:text-[16px]">
           {inputHighlightIndex >= 0 ? (
             <>
               {inputLabel.slice(0, inputHighlightIndex)}
@@ -124,11 +124,11 @@ function EngineComposerTitle({ htmlFor }: { htmlFor: string }) {
 function EngineComposerGuides() {
   const { t } = useLocale();
   return (
-    <div className="mt-5 grid grid-cols-2 gap-3 lg:mt-4 lg:flex lg:items-center lg:gap-0">
+    <div className="mt-5 grid grid-cols-2 gap-3 lg:mt-3 lg:flex lg:items-center lg:gap-0">
       {COMPOSER_GUIDES.map(({ titleKey, lineKey, icon: Icon }, index) => (
         <Fragment key={titleKey}>
           <div className="flex min-w-0 items-center gap-2 lg:shrink-0">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 lg:h-7 lg:w-7" aria-hidden>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 lg:h-6 lg:w-6" aria-hidden>
               <Icon size={15} className="text-blue-800" strokeWidth={2.25} />
             </span>
             <span className="min-w-0">
@@ -163,7 +163,7 @@ function EngineChipRow({
   if (chips.length === 0) return null;
 
   return (
-    <div className="mt-5 lg:mt-4">
+    <div className="mt-5 lg:mt-3">
       <p className="text-[11px] font-semibold tracking-wide text-slate-400">{t("hero.chipsLabel")}</p>
       <div className="mt-2.5 flex flex-wrap gap-2 xl:flex-nowrap">
         {chips.map((item) => (
@@ -209,8 +209,8 @@ export function EngineComposer({
   const { t } = useLocale();
 
   return (
-    <form id={formId} onSubmit={onSubmit} className="mt-8 w-full lg:mt-6">
-      <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8 lg:rounded-2xl lg:px-5 lg:py-5">
+    <form id={formId} onSubmit={onSubmit} className="mt-8 w-full lg:mt-5">
+      <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8 lg:rounded-2xl lg:px-4 lg:py-4">
         <EngineComposerTitle htmlFor={inputId} />
         <p className="mt-2 break-keep pl-9 text-[13px] leading-relaxed text-slate-500 sm:text-[14px] lg:text-[13px]">
           {t("hero.homeLead")}
@@ -268,10 +268,10 @@ export function EngineServiceSection({
     <section className="border-t border-slate-200/70 bg-white">
       <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD}`}>
         <p className="text-[11px] font-bold tracking-[0.18em] text-blue-900">{engine}</p>
-        <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[17px]">
+        <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[16px]">
           {lead}
         </p>
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mt-5 lg:grid-cols-4 lg:gap-3">{children}</div>
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mt-4 lg:grid-cols-4 lg:gap-3">{children}</div>
         {footer ? <div className="mt-6">{footer}</div> : null}
       </div>
     </section>
@@ -341,10 +341,10 @@ export function EngineChecklistSection({
   return (
     <section className="border-t border-slate-200/70 bg-white">
       <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD}`}>
-        <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[17px]">
+        <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[16px]">
           {lead}
         </p>
-        <ul className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 lg:mt-5 lg:grid-cols-6">
+        <ul className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 lg:mt-4 lg:grid-cols-6">
           {items.map((key) => (
             <li key={key} className="flex items-start gap-2.5 bg-white p-4 lg:p-3">
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 lg:h-7 lg:w-7" aria-hidden>

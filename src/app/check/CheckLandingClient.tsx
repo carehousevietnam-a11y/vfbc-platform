@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Briefcase, Car, CreditCard, Home } from "lucide-react";
+import { Briefcase, Car, CreditCard, Home, ShieldCheck } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
   EngineBreadcrumb,
@@ -93,11 +93,19 @@ export default function CheckLandingClient() {
     <EngineLandingMain>
       <EngineTopSection>
         <EngineBreadcrumb engine="CHECK" />
-        <EngineHero
-          engine="CHECK"
-          title={t("pillar.check.subtitle")}
-          description={t("pillar.check.body")}
-        />
+        <div className="relative w-full lg:pr-24">
+          <EngineHero
+            engine="CHECK"
+            title={t("pillar.check.subtitle")}
+            description={t("pillar.check.body")}
+          />
+          <ShieldCheck
+            aria-hidden
+            size={72}
+            strokeWidth={1.2}
+            className="pointer-events-none absolute right-0 top-0 hidden text-blue-900/[0.14] lg:block"
+          />
+        </div>
         <EngineComposer
           formId="check-query"
           inputId="check-query-input"
