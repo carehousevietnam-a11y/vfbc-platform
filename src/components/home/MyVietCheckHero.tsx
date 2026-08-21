@@ -37,10 +37,38 @@ const POPULAR_CHIPS: PopularChip[] = [
 ];
 
 const ENGINE_PILLARS = [
-  { key: "check", label: "CHECK", href: "/check", icon: ShieldCheck, tone: "blue" },
-  { key: "verify", label: "VERIFY", href: "/verify", icon: Scale, tone: "emerald" },
-  { key: "register", label: "REGISTER", href: "/register", icon: FileText, tone: "amber" },
-  { key: "protect", label: "PROTECT", href: "/protect", icon: Lock, tone: "violet" },
+  {
+    key: "check",
+    label: "CHECK",
+    href: "/check",
+    icon: ShieldCheck,
+    tone: "blue",
+    desc: "베트남 행정절차·비용·필요서류를 직접 확인합니다.",
+  },
+  {
+    key: "verify",
+    label: "VERIFY",
+    href: "/verify",
+    icon: Scale,
+    tone: "emerald",
+    desc: "계약·부동산·세무·사기 관련 내용을 직접 검토합니다.",
+  },
+  {
+    key: "register",
+    label: "REGISTER",
+    href: "/register",
+    icon: FileText,
+    tone: "amber",
+    desc: "법인·식당·소방·위생 등 인허가를 직접 확인합니다.",
+  },
+  {
+    key: "protect",
+    label: "PROTECT",
+    href: "/protect",
+    icon: Lock,
+    tone: "violet",
+    desc: "신청 진행상황·서류·만료일을 확인하고 문제를 미리 예방합니다.",
+  },
 ] as const;
 
 const PILLAR_TONE_CLASSES: Record<string, { bg: string; text: string; accent: string }> = {
@@ -50,36 +78,12 @@ const PILLAR_TONE_CLASSES: Record<string, { bg: string; text: string; accent: st
   violet: { bg: "bg-violet-50", text: "text-violet-700", accent: "border-t-violet-600" },
 };
 
-const VALUE_BADGES = [
-  { key: "hero.badges.cost", icon: CircleDollarSign },
-  { key: "hero.badges.timeline", icon: Clock },
-  { key: "hero.badges.documents", icon: Files },
-  { key: "hero.badges.compare", icon: GitCompare },
-] as const;
-
 const COMPOSER_GUIDES = [
   { titleKey: "hero.badges.cost", lineKey: "hero.preview.costLabel", icon: CircleDollarSign },
   { titleKey: "hero.badges.timeline", lineKey: "hero.preview.stepsLabel", icon: Clock },
   { titleKey: "hero.badges.documents", lineKey: "hero.preview.docsLabel", icon: Files },
   { titleKey: "hero.badges.compare", lineKey: "hero.preview.compareLabel", icon: GitCompare },
 ] as const;
-
-function ValueBadges() {
-  const { t } = useLocale();
-  return (
-    <div className="mt-5 flex flex-wrap gap-2">
-      {VALUE_BADGES.map(({ key, icon: Icon }) => (
-        <span
-          key={key}
-          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-600"
-        >
-          <Icon size={15} className="shrink-0 text-blue-800" strokeWidth={2.35} aria-hidden />
-          {t(key)}
-        </span>
-      ))}
-    </div>
-  );
-}
 
 function HeroToPreviewArrow() {
   return (
@@ -221,8 +225,8 @@ function EnginePillars() {
               <p className="mt-0.5 text-[14px] font-semibold leading-snug text-slate-800 lg:mt-1 lg:text-[15px]">
                 {t(`pillar.${pillar.key}.subtitle`)}
               </p>
-              <p className="mt-1.5 hidden break-keep text-[13px] leading-relaxed text-slate-500 lg:block">
-                {t(`pillar.${pillar.key}.line`)}
+              <p className="mt-1.5 break-keep text-[13px] leading-relaxed text-slate-500">
+                {pillar.desc}
               </p>
               <span className="mt-4 hidden items-center gap-1 text-[12.5px] font-semibold text-blue-900 transition-colors group-hover:text-[#152a63] lg:inline-flex">
                 {t(`hero.engineCta.${pillar.key}`)}
@@ -296,7 +300,6 @@ export default function MyVietCheckHero() {
               <p className="mt-5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
                 {t("hero.subtitle")}
               </p>
-              <ValueBadges />
             </div>
 
             <div className="relative order-3 mt-6 min-w-0 w-full lg:order-2 lg:mt-1 lg:w-5/12">
