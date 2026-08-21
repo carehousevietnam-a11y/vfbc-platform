@@ -18,6 +18,7 @@ import {
 } from "@/lib/costCheck";
 import { CostCheckCard } from "@/components/cost-check/CostCheckCard";
 import { WpRegionalOfficialFee } from "@/components/cost-check/WpRegionalOfficialFee";
+import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
 
 const TABS: { id: CostCheckTab; label: string; desc: string }[] = [
   { id: "lookup", label: "확인하기", desc: "정부 수수료·기준 안내" },
@@ -130,7 +131,7 @@ function CostCheckPageContent() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+      <div className={`${ENGINE_CONTAINER} py-10 sm:py-14`}>
         <header className="mb-8 text-center">
           <p className="text-sm font-medium text-blue-600">무료 · 가입 없음</p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
@@ -419,7 +420,7 @@ export default function CostCheckPage() {
     <Suspense
       fallback={
         <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-          <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+          <div className={`${ENGINE_CONTAINER} py-10 sm:py-14`}>
             <p className="text-center text-sm text-slate-500">불러오는 중...</p>
           </div>
         </main>

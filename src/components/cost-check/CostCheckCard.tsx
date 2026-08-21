@@ -108,16 +108,6 @@ export function CostCheckCard({
   const displayBubble = hasQuote
     ? computeDisplayBubblePercent(quote.bubblePercent, quote.fairReference, quote.quotedAmount)
     : 0;
-  const badgeClass =
-    !hasQuote
-      ? ""
-      : quote.verdict === "fair"
-        ? "bg-emerald-50 text-emerald-800"
-        : quote.verdict === "very_low"
-          ? "bg-slate-100 text-slate-700"
-          : quote.verdict === "caution"
-            ? "bg-amber-50 text-amber-900"
-            : "bg-red-50 text-red-800";
 
   function handleQuoteSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -368,12 +358,7 @@ export function CostCheckCard({
       />
       {hasQuote ? (
         <div className="mt-3">
-          <span
-            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeClass}`}
-          >
-            {STATUS_BADGE_LABEL[quote.verdict]}
-          </span>
-          <p className="mt-3 text-sm font-semibold text-slate-900">{quote.title}</p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">{quote.title}</p>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">{quote.summary}</p>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">{quote.detail}</p>
         </div>
@@ -442,7 +427,9 @@ export function CostCheckCard({
   return (
     <div className="space-y-5">
       <SectionWrap variant={variant}>{costBasis}</SectionWrap>
-      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">{adequacySection}</div>
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.05)] sm:p-6">
+        {adequacySection}
+      </div>
       {!hasQuote && compareBlock ? <SectionWrap variant={variant}>{compareBlock}</SectionWrap> : null}
       {hasQuote ? (
         <ReviewJudgmentDetails
