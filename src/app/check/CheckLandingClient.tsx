@@ -10,7 +10,11 @@ import {
   Car,
   Check,
   ChevronRight,
+  CircleDollarSign,
+  Clock,
   CreditCard,
+  Files,
+  GitCompare,
   Home,
   Search,
 } from "lucide-react";
@@ -39,7 +43,12 @@ const CHECK_HOOKS: Record<string, string> = {
   license: "국제면허 미인정 사례 있음",
 };
 
-const CHECK_FLOW_STEPS = ["질문", "비용", "확인"] as const;
+const CHECK_COMPOSER_GUIDES = [
+  { titleKey: "hero.badges.cost", lineKey: "hero.preview.costLabel", icon: CircleDollarSign },
+  { titleKey: "hero.badges.timeline", lineKey: "hero.preview.stepsLabel", icon: Clock },
+  { titleKey: "hero.badges.documents", lineKey: "hero.preview.docsLabel", icon: Files },
+  { titleKey: "hero.badges.compare", lineKey: "hero.preview.compareLabel", icon: GitCompare },
+] as const;
 
 const CHECK_SERVICE_VISUAL: Record<
   string,
@@ -58,9 +67,6 @@ export default function CheckLandingClient() {
   const [isFocused, setIsFocused] = useState(false);
   const [showError, setShowError] = useState(false);
   const services = getCheckServiceItems();
-  const inputLabel = t("hero.inputLabel");
-  const inputHighlight = "돈을 쓰려고";
-  const inputHighlightIndex = inputLabel.indexOf(inputHighlight);
 
   function focusInput() {
     const el = document.getElementById("check-query-input");
@@ -112,7 +118,7 @@ export default function CheckLandingClient() {
 
       <section className="bg-white">
         <div className="mx-auto w-full max-w-[1100px] px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-14">
-          <div className="max-w-[36rem]">
+          <div className="w-full">
             <p className="mb-5 text-[11px] font-bold tracking-[0.18em] text-blue-900">CHECK</p>
             <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[3.125rem]">
               {t("pillar.check.subtitle")}
@@ -122,43 +128,31 @@ export default function CheckLandingClient() {
             </p>
           </div>
 
-          <form id="check-query" onSubmit={handleSubmit} className="mt-8 lg:mt-10">
+          <form id="check-query" onSubmit={handleSubmit} className="mt-8 w-full lg:mt-10">
             <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-blue-800">
-                  {t("hero.badge")}
-                </span>
-                <nav className="hidden items-center text-[11px] font-medium text-slate-400 lg:flex" aria-hidden>
-                  {CHECK_FLOW_STEPS.map((step, index) => (
-                    <Fragment key={step}>
-                      <span>{step}</span>
-                      {index < CHECK_FLOW_STEPS.length - 1 ? (
-                        <span className="mx-2 h-px w-6 border-t border-dashed border-blue-200" />
-                      ) : null}
-                    </Fragment>
-                  ))}
-                </nav>
-              </div>
-
-              <label htmlFor="check-query-input" className="mt-5 flex items-start gap-2.5 text-blue-900">
+              <label htmlFor="check-query-input" className="flex items-start gap-2.5 text-blue-900">
                 <span
                   className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[13px] font-bold text-white"
                   aria-hidden
                 >
                   !
                 </span>
-                <span className="min-w-0 break-keep text-[18px] font-bold leading-snug sm:text-[20px]">
-                  {inputHighlightIndex >= 0 ? (
-                    <>
-                      {inputLabel.slice(0, inputHighlightIndex)}
-                      <span className="text-amber-600">{inputHighlight}</span>
-                      {inputLabel.slice(inputHighlightIndex + inputHighlight.length)}
-                    </>
-                  ) : (
-                    inputLabel
-                  )}
+                <span className="min-w-0">
+                  <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px]">
+                    {t("hero.homeTitleBefore")}
+                    <span className="text-amber-600">{t("hero.homeTitleHighlight")}</span>
+                    {t("hero.homeTitleAfter").replace("무료로 직접 확인하세요", "")}
+                  </span>
+                  {t("hero.homeTitleAfter").includes("무료로 직접 확인하세요") ? (
+                    <span className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-amber-600 sm:text-[19px]">
+                      무료로 직접 확인하세요
+                    </span>
+                  ) : null}
                 </span>
               </label>
+              <p className="mt-2 break-keep pl-9 text-[13px] leading-relaxed text-slate-500 sm:text-[14px]">
+                {t("hero.homeLead")}
+              </p>
 
               <div
                 className={`mt-5 flex items-center gap-2 rounded-xl border bg-white py-2 pl-3.5 pr-1.5 transition-shadow ${
@@ -195,21 +189,41 @@ export default function CheckLandingClient() {
                 <p className="mt-2 text-xs font-medium text-red-600">{t("hero.error")}</p>
               ) : null}
 
-              <nav className="mt-5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-medium text-slate-400 lg:hidden" aria-hidden>
-                {CHECK_FLOW_STEPS.map((step) => (
-                  <span key={step}>{step}</span>
+              <div className="mt-5 grid grid-cols-2 gap-3 lg:flex lg:items-center lg:gap-0">
+                {CHECK_COMPOSER_GUIDES.map(({ titleKey, lineKey, icon: Icon }, index) => (
+                  <Fragment key={titleKey}>
+                    <div className="flex min-w-0 items-center gap-2 lg:shrink-0">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50" aria-hidden>
+                        <Icon size={15} className="text-blue-800" strokeWidth={2.25} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block break-keep text-[12.5px] font-semibold leading-tight text-blue-900">
+                          {t(titleKey)}
+                        </span>
+                        <span className="mt-0.5 block break-keep text-[11.5px] leading-snug text-slate-500">
+                          {t(lineKey)}
+                        </span>
+                      </span>
+                    </div>
+                    {index < CHECK_COMPOSER_GUIDES.length - 1 ? (
+                      <span aria-hidden className="mx-2 hidden min-w-8 flex-1 items-center lg:flex">
+                        <span className="h-0 w-full border-t border-dashed border-blue-300" />
+                        <ArrowRight size={12} className="-ml-px shrink-0 text-blue-400" strokeWidth={2.25} />
+                      </span>
+                    ) : null}
+                  </Fragment>
                 ))}
-              </nav>
+              </div>
 
               <div className="mt-5">
                 <p className="text-[11px] font-semibold tracking-wide text-slate-400">{t("hero.chipsLabel")}</p>
-                <div className="mt-2.5 flex flex-wrap gap-2 xl:flex-nowrap">
+                <div className="mt-2.5 flex flex-wrap gap-2 xl:flex-nowrap xl:gap-1.5">
                   {CHECK_CHIPS.map((item) => (
                     <button
                       key={item.chip}
                       type="button"
                       onClick={() => handleChipSelect(item.chip)}
-                      className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:px-4 sm:py-2"
+                      className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:px-4 sm:py-2 xl:px-3.5 xl:py-1.5"
                     >
                       {t(item.key)}
                     </button>
