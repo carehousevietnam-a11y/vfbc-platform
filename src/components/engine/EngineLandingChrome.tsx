@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
-export const ENGINE_CONTAINER = "mx-auto w-full max-w-[1100px] px-4 sm:px-6";
+export const ENGINE_CONTAINER = "mx-auto w-full max-w-[960px] px-4 sm:px-6";
 const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-5";
 
 const COMPOSER_GUIDES = [
@@ -90,12 +90,15 @@ export function EngineHero({
   );
 }
 
-function EngineComposerTitle({ htmlFor }: { htmlFor: string }) {
-  const { t } = useLocale();
-  const inputLabel = t("hero.inputLabel");
-  const inputHighlight = "돈을 쓰려고";
-  const inputHighlightIndex = inputLabel.indexOf(inputHighlight);
-
+function EngineComposerTitle({
+  htmlFor,
+  title,
+  emphasis,
+}: {
+  htmlFor: string;
+  title: string;
+  emphasis?: string;
+}) {
   return (
     <label htmlFor={htmlFor} className="flex items-start gap-2.5 text-blue-900">
       <span
@@ -106,16 +109,13 @@ function EngineComposerTitle({ htmlFor }: { htmlFor: string }) {
       </span>
       <span className="min-w-0">
         <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px] lg:text-[16px]">
-          {inputHighlightIndex >= 0 ? (
-            <>
-              {inputLabel.slice(0, inputHighlightIndex)}
-              <span className="text-amber-600">{inputHighlight}</span>
-              {inputLabel.slice(inputHighlightIndex + inputHighlight.length)}
-            </>
-          ) : (
-            inputLabel
-          )}
+          {title}
         </span>
+        {emphasis ? (
+          <span className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-amber-600 sm:text-[19px] lg:text-[16px]">
+            {emphasis}
+          </span>
+        ) : null}
       </span>
     </label>
   );
@@ -188,6 +188,8 @@ export function EngineComposer({
   isFocused,
   showError,
   chips,
+  title,
+  emphasis,
   onSubmit,
   onQueryChange,
   onFocus,
@@ -200,6 +202,8 @@ export function EngineComposer({
   isFocused: boolean;
   showError: boolean;
   chips: readonly EngineChip[];
+  title?: string;
+  emphasis?: string;
   onSubmit: (e: FormEvent) => void;
   onQueryChange: (value: string) => void;
   onFocus: () => void;
@@ -211,7 +215,7 @@ export function EngineComposer({
   return (
     <form id={formId} onSubmit={onSubmit} className="mt-8 w-full lg:mt-5">
       <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8 lg:rounded-2xl lg:px-4 lg:py-4">
-        <EngineComposerTitle htmlFor={inputId} />
+        <EngineComposerTitle htmlFor={inputId} title={title ?? t("hero.inputLabel")} emphasis={emphasis} />
         <p className="mt-2 break-keep pl-9 text-[13px] leading-relaxed text-slate-500 sm:text-[14px] lg:text-[13px]">
           {t("hero.homeLead")}
         </p>

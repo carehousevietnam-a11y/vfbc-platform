@@ -122,6 +122,8 @@ export default function RegisterLandingClient() {
           isFocused={isFocused}
           showError={showError}
           chips={REGISTER_CHIPS}
+          title="무엇을 진행하고 싶으세요?"
+          emphasis="무료로 직접 진행하세요"
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);

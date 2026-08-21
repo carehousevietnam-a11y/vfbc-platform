@@ -113,6 +113,8 @@ export default function CheckLandingClient() {
           isFocused={isFocused}
           showError={showError}
           chips={CHECK_CHIPS}
+          title="무엇을 확인하고 싶으세요?"
+          emphasis="무료로 직접 확인하세요"
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);

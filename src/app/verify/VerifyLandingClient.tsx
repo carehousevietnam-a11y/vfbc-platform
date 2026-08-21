@@ -107,6 +107,8 @@ export default function VerifyLandingClient() {
           isFocused={isFocused}
           showError={showError}
           chips={VERIFY_CHIPS}
+          title="무엇을 검토하고 싶으세요?"
+          emphasis="무료로 직접 검토하세요"
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);
