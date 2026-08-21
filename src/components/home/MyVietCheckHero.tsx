@@ -322,11 +322,11 @@ export default function MyVietCheckHero() {
                     <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px]">
                       {t("hero.homeTitleBefore")}
                       <span className="text-amber-600">{t("hero.homeTitleHighlight")}</span>
-                      {t("hero.homeTitleAfter").replace("무료로 직접 확인하세요", "")}
+                      {t("hero.homeTitleAfter").replace("먼저 직접 확인하세요.", "")}
                     </span>
-                    {t("hero.homeTitleAfter").includes("무료로 직접 확인하세요") ? (
+                    {t("hero.homeTitleAfter").includes("먼저 직접 확인하세요.") ? (
                       <span className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-amber-600 sm:text-[19px]">
-                        무료로 직접 확인하세요
+                        먼저 직접 확인하세요.
                       </span>
                     ) : null}
                   </span>
