@@ -86,7 +86,7 @@ export function ArticleBody({ article }: ArticleBodyProps) {
           </Link>
           {article.relatedSlug ? (
             <Link
-              href={`/answers/${article.relatedSlug}`}
+              href={`/guide/${article.relatedSlug}`}
               className="inline-flex rounded-full border border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:border-blue-900 hover:text-blue-900"
             >
               관련 가이드 보기

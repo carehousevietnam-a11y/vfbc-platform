@@ -6,6 +6,7 @@ import {
   getAnonymousProcessLine,
 } from "@/lib/anonymousLegalGuide";
 import type { NavigatorAction } from "@/lib/aiGateway";
+import { guidePath } from "@/lib/contentPacks/paths";
 
 const MYPAGE_CTA = ANONYMOUS_MYPAGE_CTA;
 
@@ -65,7 +66,7 @@ export function buildArticleChatReply(
   article: PublishedArticle,
   options?: { legalBasisLine?: string }
 ): { reply: string; actions: NavigatorAction[] } {
-  const articleHref = `/answers/${article.slug}`;
+  const articleHref = guidePath(article.slug);
   const legalLine =
     options?.legalBasisLine?.trim() ||
     "관련 법령: 04/2016/TT-BNG, 47/2014/QH13 (구체 조항은 전문가 확인 필요)";
@@ -100,17 +101,20 @@ export function injectLegalBasisIntoArticle(
     (section) => section.type === "h2" && /관련 법령|법령/.test(section.text)
   );
 
+  const officialBasis = [legalBasisLine, ...article.caseLanding.officialBasis.filter((line) => line !== legalBasisLine)];
+  const caseLanding = { ...article.caseLanding, officialBasis };
+
   if (lawHeadingIndex >= 0) {
     const next = sections[lawHeadingIndex + 1];
     if (next?.type === "p") {
       sections[lawHeadingIndex + 1] = { type: "p", text: legalBasisLine };
-      return { ...article, sections };
+      return { ...article, sections, caseLanding };
     }
     sections.splice(lawHeadingIndex + 1, 0, { type: "p", text: legalBasisLine });
-    return { ...article, sections };
+    return { ...article, sections, caseLanding };
   }
 
   sections.push({ type: "h2", text: "관련 법령 (참고)" });
   sections.push({ type: "p", text: legalBasisLine });
-  return { ...article, sections };
+  return { ...article, sections, caseLanding };
 }

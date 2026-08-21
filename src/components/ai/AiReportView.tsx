@@ -33,7 +33,7 @@ export type AiReportData = {
 };
 
 const NAVIGATOR_LINE_PATTERN =
-  /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation|answers)\S*)\s*$/;
+  /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation|answers|guide)\S*)\s*$/;
 
 function parseAssistantContent(content: string): {
   mainText: string;
