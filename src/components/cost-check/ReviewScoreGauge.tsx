@@ -93,22 +93,12 @@ type Palette = {
 function GaugeDefs({ uid, palette }: { uid: string; palette: Palette }) {
   return (
     <defs>
-      <linearGradient id={`${uid}-track`} x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#dbe3ee" />
-        <stop offset="42%" stopColor="#b7c4d4" />
-        <stop offset="100%" stopColor="#7d8ea3" />
-      </linearGradient>
-      <linearGradient id={`${uid}-progress`} x1="18%" y1="0%" x2="86%" y2="100%">
-        <stop offset="0%" stopColor={palette.highlight} />
-        <stop offset="46%" stopColor={palette.glow} />
-        <stop offset="100%" stopColor={palette.stroke} />
-      </linearGradient>
-      <radialGradient id={`${uid}-knob`} cx="32%" cy="28%" r="72%">
+      <radialGradient id={`${uid}-knob`} cx="30%" cy="26%" r="72%">
         <stop offset="0%" stopColor="#ffffff" />
-        <stop offset="42%" stopColor={palette.highlight} />
+        <stop offset="38%" stopColor={palette.highlight} />
         <stop offset="100%" stopColor={palette.stroke} />
       </radialGradient>
-      <radialGradient id={`${uid}-knob-base`} cx="50%" cy="50%" r="50%">
+      <radialGradient id={`${uid}-knob-base`} cx="50%" cy="58%" r="58%">
         <stop offset="0%" stopColor={palette.stroke} />
         <stop offset="100%" stopColor={palette.depth} />
       </radialGradient>
@@ -181,10 +171,12 @@ function SemiCircleGauge({
   const isVeryLow = !empty && verdict === "very_low";
   const dot = semiArcPoint(clamped);
   const progress = empty ? 0 : (clamped / 100) * SEMI_PATH_LENGTH;
-  const baseWidth = compact ? 26 : 32;
-  const trackWidth = compact ? 20 : 24;
-  const progressWidth = compact ? 18 : 22;
-  const knobR = compact ? 11 : 14;
+  const trackW = compact ? 22 : 26;
+  const grooveW = compact ? 14 : 16;
+  const progressW = compact ? 16 : 18;
+  const highlightW = compact ? 5 : 6;
+  const knobR = compact ? 12 : 14;
+  const depth = 2.5;
 
   return (
     <div
@@ -202,7 +194,7 @@ function SemiCircleGauge({
             : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
       }
     >
-      <div className="relative rounded-[1.35rem] bg-gradient-to-b from-white via-slate-50 to-slate-100/90 px-1 pt-2 shadow-[0_12px_28px_rgba(15,23,42,0.10),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-10px_18px_rgba(15,23,42,0.05)] ring-1 ring-slate-200/90">
+      <div className="relative rounded-[1.35rem] bg-white px-1 pt-2 shadow-[0_8px_20px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/90">
         <svg
           viewBox="0 0 360 220"
           className={
@@ -211,39 +203,30 @@ function SemiCircleGauge({
           aria-hidden
         >
           <GaugeDefs uid={uid} palette={palette} />
+          {/* ① BACK DEPTH RING */}
           <path
             d={SEMI_PATH}
             fill="none"
             stroke="#0f172a"
-            strokeOpacity="0.3"
-            strokeWidth={baseWidth}
+            strokeOpacity="0.16"
+            strokeWidth={trackW + 2}
             strokeLinecap="round"
+            transform={`translate(0 ${depth})`}
           />
-          {/* B. DEPTH LAYER */}
+          {/* ② BASE RING */}
           <path
             d={SEMI_PATH}
             fill="none"
-            stroke="#1e293b"
-            strokeOpacity="0.3"
-            strokeWidth={trackWidth}
-            strokeLinecap="round"
-            transform="translate(0 4)"
-          />
-          <path
-            d={SEMI_PATH}
-            fill="none"
-            stroke={`url(#${uid}-track)`}
-            strokeWidth={trackWidth}
+            stroke="#7d8ea0"
+            strokeWidth={trackW}
             strokeLinecap="round"
           />
           <path
             d={SEMI_PATH}
             fill="none"
-            stroke="#ffffff"
-            strokeOpacity="0.55"
-            strokeWidth={compact ? 5 : 6}
+            stroke="#e8eef5"
+            strokeWidth={grooveW}
             strokeLinecap="round"
-            transform="translate(0 -6)"
           />
           {!empty ? (
             <>
@@ -251,32 +234,35 @@ function SemiCircleGauge({
                 d={SEMI_PATH}
                 fill="none"
                 stroke={palette.depth}
-                strokeOpacity="0.75"
-                strokeWidth={progressWidth}
+                strokeOpacity="0.42"
+                strokeWidth={progressW}
                 strokeLinecap="round"
                 strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
-                transform="translate(0 4)"
+                transform={`translate(0 ${depth})`}
               />
+              {/* ③ MAIN PROGRESS RING */}
               <path
                 d={SEMI_PATH}
                 fill="none"
-                stroke={`url(#${uid}-progress)`}
-                strokeWidth={progressWidth}
+                stroke={palette.stroke}
+                strokeWidth={progressW}
                 strokeLinecap="round"
                 strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
                 className="transition-all duration-500 ease-out"
               />
+              {/* ④ HIGHLIGHT EDGE */}
               <path
                 d={SEMI_PATH}
                 fill="none"
                 stroke={palette.highlight}
-                strokeOpacity="0.92"
-                strokeWidth={compact ? 6 : 7}
+                strokeOpacity="0.9"
+                strokeWidth={highlightW}
                 strokeLinecap="round"
                 strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
-                transform="translate(0 -4)"
+                transform="translate(0 -2)"
                 className="transition-all duration-500 ease-out"
               />
+              {/* ⑤ END KNOB */}
               <EndKnob x={dot.x} y={dot.y} r={knobR} uid={uid} />
             </>
           ) : null}
@@ -341,10 +327,10 @@ function CircleGauge({
   isLarge: boolean;
 }) {
   const uid = useId().replace(/:/g, "");
-  const vb = 240;
-  const cx = 120;
-  const cy = 120;
-  const radius = isLarge ? 84 : 68;
+  const vb = 220;
+  const cx = 110;
+  const cy = 110;
+  const radius = isLarge ? 78 : 62;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.min(100, Math.max(0, score));
   const progress = empty ? 0 : (clamped / 100) * circumference;
@@ -353,19 +339,18 @@ function CircleGauge({
     : GAUGE_COLORS[verdict];
   const isVeryLow = !empty && verdict === "very_low";
   const knob = circleArcPoint(clamped, cx, cy, radius);
-  const troughWidth = isLarge ? 36 : 30;
-  const trackWidth = isLarge ? 26 : 20;
-  const progressWidth = isLarge ? 20 : 16;
-  const highlightWidth = isLarge ? 8 : 6;
-  const knobR = isLarge ? 17 : 13;
-  const innerR = radius - trackWidth / 2 - 2;
-  const highlightR = radius - progressWidth / 2 + 1;
+  const depthY = 2.5;
+  const trackW = isLarge ? 24 : 20;
+  const grooveW = isLarge ? 16 : 13;
+  const progressW = isLarge ? 16 : 13;
+  const highlightW = isLarge ? 5 : 4;
+  const knobR = isLarge ? 14 : 11;
+  const highlightR = radius - progressW / 2 + 1;
   const highlightCirc = 2 * Math.PI * highlightR;
   const highlightProgress = empty ? 0 : (clamped / 100) * highlightCirc;
   const boxClass = isLarge
-    ? "h-[14rem] w-[14rem] sm:h-[15.5rem] sm:w-[15.5rem] lg:h-[17.25rem] lg:w-[17.25rem]"
+    ? "h-[13.5rem] w-[13.5rem] lg:h-[16.25rem] lg:w-[16.25rem]"
     : "h-36 w-36";
-  const innerInset = isLarge ? "inset-[19%]" : "inset-[20%]";
 
   return (
     <div
@@ -377,113 +362,65 @@ function CircleGauge({
           : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
       }
     >
-      {/* Outer plate */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white via-slate-50 to-slate-100 shadow-[0_18px_36px_rgba(15,23,42,0.14),0_3px_0_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,1)] ring-1 ring-slate-300/80" />
-      {/* F. INNER DISC — recessed center */}
-      <div
-        className={`absolute ${innerInset} rounded-full bg-gradient-to-b from-white to-[#e4ecf6] shadow-[inset_0_14px_26px_rgba(15,23,42,0.16),inset_0_1px_0_rgba(15,23,42,0.08)] ring-1 ring-slate-300/70`}
-      />
+      <div className="absolute inset-0 rounded-full bg-white shadow-[0_10px_22px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/90" />
+      <div className="absolute inset-[21%] rounded-full bg-white shadow-[inset_0_8px_14px_rgba(15,23,42,0.10)] ring-1 ring-slate-200/70" />
       <svg className="relative h-full w-full overflow-visible" viewBox={`0 0 ${vb} ${vb}`} aria-hidden>
         <GaugeDefs uid={uid} palette={palette} />
-        {/* A. BACK / BASE RING — dark channel behind the track */}
+        {/* ① BACK DEPTH RING */}
         <circle
           cx={cx}
-          cy={cy}
+          cy={cy + depthY}
           r={radius}
           fill="none"
           stroke="#0f172a"
-          strokeOpacity="0.34"
-          strokeWidth={troughWidth}
+          strokeOpacity="0.16"
+          strokeWidth={trackW + 2}
         />
-        {/* B. DEPTH LAYER under the track */}
-        <circle
-          cx={cx}
-          cy={cy + 4}
-          r={radius}
-          fill="none"
-          stroke="#1e293b"
-          strokeOpacity="0.32"
-          strokeWidth={trackWidth + 3}
-        />
-        <circle
-          cx={cx}
-          cy={cy}
-          r={radius}
-          fill="none"
-          stroke={`url(#${uid}-track)`}
-          strokeWidth={trackWidth}
-        />
-        {/* Track inner / outer lips so the channel reads as a trough */}
-        <circle
-          cx={cx}
-          cy={cy}
-          r={radius + trackWidth / 2 - 0.5}
-          fill="none"
-          stroke="#334155"
-          strokeOpacity="0.5"
-          strokeWidth="3"
-        />
-        <circle
-          cx={cx}
-          cy={cy}
-          r={innerR}
-          fill="none"
-          stroke="#0f172a"
-          strokeOpacity="0.28"
-          strokeWidth="4"
-        />
-        <circle
-          cx={cx}
-          cy={cy - 6}
-          r={radius}
-          fill="none"
-          stroke="#ffffff"
-          strokeOpacity="0.55"
-          strokeWidth={isLarge ? 7 : 5}
-        />
+        {/* ② BASE RING — groove wall + floor */}
+        <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#7d8ea0" strokeWidth={trackW} />
+        <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#e8eef5" strokeWidth={grooveW} />
         {!empty ? (
           <>
-            {/* Raised progress extrusion */}
             <circle
               cx={cx}
-              cy={cy + 4}
+              cy={cy + depthY}
               r={radius}
               fill="none"
               stroke={palette.depth}
-              strokeOpacity="0.78"
-              strokeWidth={progressWidth + 1}
+              strokeOpacity="0.45"
+              strokeWidth={progressW}
               strokeLinecap="round"
               strokeDasharray={`${progress} ${circumference}`}
-              transform={`rotate(-90 ${cx} ${cy + 4})`}
+              transform={`rotate(-90 ${cx} ${cy + depthY})`}
             />
-            {/* C. MAIN PROGRESS RING */}
+            {/* ③ MAIN PROGRESS RING */}
             <circle
               cx={cx}
               cy={cy}
               r={radius}
               fill="none"
-              stroke={`url(#${uid}-progress)`}
-              strokeWidth={progressWidth}
+              stroke={palette.stroke}
+              strokeWidth={progressW}
               strokeLinecap="round"
               strokeDasharray={`${progress} ${circumference}`}
               transform={`rotate(-90 ${cx} ${cy})`}
               className="transition-all duration-500 ease-out"
             />
-            {/* D. HIGHLIGHT on the inner edge of progress */}
+            {/* ④ HIGHLIGHT EDGE */}
             <circle
               cx={cx}
               cy={cy}
               r={highlightR}
               fill="none"
               stroke={palette.highlight}
-              strokeOpacity="0.95"
-              strokeWidth={highlightWidth}
+              strokeOpacity="0.92"
+              strokeWidth={highlightW}
               strokeLinecap="round"
               strokeDasharray={`${highlightProgress} ${highlightCirc}`}
               transform={`rotate(-90 ${cx} ${cy})`}
               className="transition-all duration-500 ease-out"
             />
-            {/* E. END KNOB */}
+            {/* ⑤ END KNOB */}
             <EndKnob x={knob.x} y={knob.y} r={knobR} uid={uid} />
           </>
         ) : null}
