@@ -16,13 +16,14 @@ export type CaseExample = { title: string; body: string };
 
 export type CaseComparison = { label: string; text: string };
 
-/** 질문 1개 = 사례형 랜딩 1페이지. 비용은 기존 공식 데이터만 연결한다. */
+/** 질문 1개 = 사례형 랜딩 1페이지. 없는 사실·조항·금액을 채우지 않는다. */
 export type CaseLanding = {
   question: string;
   /** 한 문장 직접 답변 */
   directAnswer: string;
   /** 왜 그런지 설명 */
   why: string;
+  /** 관련 법령 번호만. 서류 목록의 근거처럼 쓰지 않는다. */
   officialBasis: string[];
   costNote: string;
   /** 처리 일수처럼 코드에 없는 숫자는 넣지 않는다. */
@@ -36,6 +37,10 @@ export type CaseLanding = {
   qa: CaseQa[];
   relatedQuestions: CaseRelatedQuestion[];
   sources: CaseSource[];
+  /** false면 서류 목록 블록을 넣지 않는다. 기본 true. */
+  showDocuments?: boolean;
+  /** true일 때만 기존 costCheck 수수료를 표시하고 Circular를 비용에만 연결한다. */
+  showOfficialCost?: boolean;
 };
 
 export type PublishedArticle = {
