@@ -109,7 +109,7 @@ export default function CheckLandingClient() {
           chips={CHECK_CHIPS}
           title="무엇을 확인하고 싶으세요?"
           emphasis="무료로 직접 확인하세요"
-          placeholder="예) 노동허가 비용이 얼마나 드나요?"
+          placeholder="예) 노동허가 비용은?"
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);
