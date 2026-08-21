@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getPublishedArticleBySlug, listPublishedArticleSlugs } from "@/lib/contentPacks/registry";
 import { guidePath } from "@/lib/contentPacks/paths";
+import { getSiteOrigin } from "@/lib/siteOrigin";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -13,14 +14,24 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const origin = getSiteOrigin();
   const article = getPublishedArticleBySlug(slug);
+  const canonicalPath = guidePath(slug);
+
   if (!article) {
-    return { title: "가이드를 찾을 수 없습니다 | VFBCAI" };
+    return {
+      metadataBase: new URL(origin),
+      title: "가이드를 찾을 수 없습니다 | VFBCAI",
+      robots: { index: false, follow: false },
+    };
   }
 
   return {
+    metadataBase: new URL(origin),
     title: `${article.caseLanding.question} | VFBCAI`,
     description: article.metaDescription,
+    alternates: { canonical: canonicalPath },
+    robots: { index: false, follow: true },
   };
 }
 
