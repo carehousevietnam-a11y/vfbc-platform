@@ -102,34 +102,44 @@ export default function CheckLandingClient() {
     return translated === `check.service.${key}.${field}` ? fallback : translated;
   }
 
+  const inputLabel = t("hero.inputLabel");
+  const inputHighlight = "돈을 쓰려고";
+  const inputHighlightIndex = inputLabel.indexOf(inputHighlight);
+
   return (
     <main className="min-h-screen bg-white">
-      <header className="border-b border-slate-200/80 bg-white">
-        <div className="mx-auto flex h-12 w-full max-w-[1100px] items-center px-4 sm:px-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
-          >
-            <ArrowLeft size={14} aria-hidden />
-            {t("check.backHome")}
-          </Link>
-        </div>
-      </header>
-
       <section className="bg-white">
-        <div className="mx-auto w-full max-w-[1100px] px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-14">
-          <div className="w-full">
-            <p className="mb-5 text-[11px] font-bold tracking-[0.18em] text-blue-900">CHECK</p>
-            <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[3.125rem]">
-              {t("pillar.check.subtitle")}
-            </h1>
-            <p className="mt-5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
-              {t("pillar.check.body")}
-            </p>
+        <div className="mx-auto w-full max-w-[1100px] px-4 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8">
+          <nav className="mb-6 flex items-center gap-1.5 text-[12px] font-medium text-slate-500 sm:mb-8">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
+            >
+              <ArrowLeft size={14} aria-hidden />
+              {t("check.backHome")}
+            </Link>
+            <span className="text-slate-300" aria-hidden>
+              /
+            </span>
+            <span className="font-semibold tracking-[0.14em] text-blue-900">CHECK</span>
+          </nav>
+
+          <div className="flex flex-col lg:flex-row lg:items-start">
+            <div className="min-w-0 w-full lg:w-7/12 lg:pr-12">
+              <h1 className="break-keep text-[2.25rem] font-bold leading-[1.12] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[3.125rem]">
+                CHECK
+              </h1>
+              <p className="mt-3 break-keep text-[20px] font-bold leading-snug text-blue-900 sm:text-[24px]">
+                {t("pillar.check.subtitle")}
+              </p>
+              <p className="mt-4 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
+                {t("pillar.check.body")}
+              </p>
+            </div>
           </div>
 
           <form id="check-query" onSubmit={handleSubmit} className="mt-8 w-full lg:mt-10">
-            <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8">
+            <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-10 sm:py-10">
               <label htmlFor="check-query-input" className="flex items-start gap-2.5 text-blue-900">
                 <span
                   className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[13px] font-bold text-white"
@@ -138,16 +148,17 @@ export default function CheckLandingClient() {
                   !
                 </span>
                 <span className="min-w-0">
-                  <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px]">
-                    {t("hero.homeTitleBefore")}
-                    <span className="text-amber-600">{t("hero.homeTitleHighlight")}</span>
-                    {t("hero.homeTitleAfter").replace("무료로 직접 확인하세요", "")}
+                  <span className="block break-keep text-[20px] font-bold leading-snug sm:text-[24px]">
+                    {inputHighlightIndex >= 0 ? (
+                      <>
+                        {inputLabel.slice(0, inputHighlightIndex)}
+                        <span className="text-amber-600">{inputHighlight}</span>
+                        {inputLabel.slice(inputHighlightIndex + inputHighlight.length)}
+                      </>
+                    ) : (
+                      inputLabel
+                    )}
                   </span>
-                  {t("hero.homeTitleAfter").includes("무료로 직접 확인하세요") ? (
-                    <span className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-amber-600 sm:text-[19px]">
-                      무료로 직접 확인하세요
-                    </span>
-                  ) : null}
                 </span>
               </label>
               <p className="mt-2 break-keep pl-9 text-[13px] leading-relaxed text-slate-500 sm:text-[14px]">
@@ -155,7 +166,7 @@ export default function CheckLandingClient() {
               </p>
 
               <div
-                className={`mt-5 flex items-center gap-2 rounded-xl border bg-white py-2 pl-3.5 pr-1.5 transition-shadow ${
+                className={`mt-6 flex items-center gap-2 rounded-xl border bg-white py-2.5 pl-4 pr-1.5 transition-shadow ${
                   isFocused
                     ? "border-blue-400 shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
                     : "border-slate-300"
@@ -173,12 +184,12 @@ export default function CheckLandingClient() {
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   placeholder={t("hero.placeholder")}
-                  className="min-h-11 min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:min-h-12 sm:text-[16px]"
+                  className="min-h-12 min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:min-h-14 sm:text-[16px]"
                   autoComplete="off"
                 />
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-blue-900 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:min-h-12 sm:px-5 sm:text-[14px]"
+                  className="inline-flex min-h-12 shrink-0 items-center justify-center gap-1 rounded-lg bg-blue-900 px-5 text-[14px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:min-h-14 sm:px-6 sm:text-[15px]"
                 >
                   {t("hero.submit")}
                   <ArrowRight size={15} />
@@ -189,7 +200,7 @@ export default function CheckLandingClient() {
                 <p className="mt-2 text-xs font-medium text-red-600">{t("hero.error")}</p>
               ) : null}
 
-              <div className="mt-5 grid grid-cols-2 gap-3 lg:flex lg:items-center lg:gap-0">
+              <div className="mt-6 grid grid-cols-2 gap-3 lg:flex lg:items-center lg:gap-0">
                 {CHECK_COMPOSER_GUIDES.map(({ titleKey, lineKey, icon: Icon }, index) => (
                   <Fragment key={titleKey}>
                     <div className="flex min-w-0 items-center gap-2 lg:shrink-0">
@@ -215,7 +226,7 @@ export default function CheckLandingClient() {
                 ))}
               </div>
 
-              <div className="mt-5">
+              <div className="mt-6">
                 <p className="text-[11px] font-semibold tracking-wide text-slate-400">{t("hero.chipsLabel")}</p>
                 <div className="mt-2.5 flex flex-wrap gap-2 xl:flex-nowrap xl:gap-1.5">
                   {CHECK_CHIPS.map((item) => (
@@ -236,11 +247,12 @@ export default function CheckLandingClient() {
       </section>
 
       <section className="border-t border-slate-200/70 bg-white">
-        <div className="mx-auto w-full max-w-[1100px] px-4 py-14 sm:px-6 sm:py-20">
-          <p className="break-keep text-center text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px]">
+        <div className="mx-auto w-full max-w-[1100px] px-4 py-10 sm:px-6 sm:py-12">
+          <p className="text-[11px] font-bold tracking-[0.18em] text-blue-900">CHECK</p>
+          <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px]">
             {t("check.selectLead")}
           </p>
-          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
             {services.map((item) => {
               const title = serviceLabel(item.key, "title", item.title);
               const desc = serviceLabel(item.key, "desc", item.desc);
@@ -253,29 +265,29 @@ export default function CheckLandingClient() {
                   key={item.key}
                   href={item.href}
                   aria-label={`${title} ${cta}`}
-                  className={`group flex flex-row items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left no-underline shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,58,138,0.10)] lg:flex-col lg:items-start lg:border-t-[3px] lg:p-6 lg:hover:-translate-y-1 ${visual?.accent ?? ""}`}
+                  className={`group flex min-h-[5.5rem] flex-row items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-5 text-left no-underline shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,58,138,0.10)] lg:min-h-[280px] lg:flex-col lg:items-start lg:border-t-[3px] lg:p-8 lg:hover:-translate-y-1 ${visual?.accent ?? ""}`}
                 >
                   {Icon ? (
                     <span
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl lg:h-12 lg:w-12 ${visual.bg}`}
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl lg:h-14 lg:w-14 ${visual.bg}`}
                       aria-hidden
                     >
-                      <Icon size={22} className={visual.text} strokeWidth={2.25} />
+                      <Icon size={24} className={visual.text} strokeWidth={2.25} />
                     </span>
                   ) : null}
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] font-semibold leading-snug text-slate-800 lg:text-[16px]">
+                    <span className="block text-[16px] font-semibold leading-snug text-slate-800 lg:mt-1 lg:text-[18px]">
                       {title}
                     </span>
                     {hook ? (
-                      <span className="mt-1.5 inline-flex rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600">
+                      <span className="mt-2 inline-flex rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-medium text-red-600">
                         {hook}
                       </span>
                     ) : null}
-                    <span className="mt-1.5 block break-keep text-[13px] leading-relaxed text-slate-500">
+                    <span className="mt-2 block break-keep text-[13px] leading-relaxed text-slate-500 lg:text-[14px]">
                       {desc}
                     </span>
-                    <span className="mt-4 hidden items-center gap-1 text-[12.5px] font-semibold text-blue-900 transition-colors group-hover:text-[#152a63] lg:inline-flex">
+                    <span className="mt-5 hidden items-center gap-1 text-[13px] font-semibold text-blue-900 transition-colors group-hover:text-[#152a63] lg:inline-flex">
                       {cta}
                       <ArrowRight
                         size={14}
@@ -293,16 +305,13 @@ export default function CheckLandingClient() {
       </section>
 
       <section className="border-t border-slate-200/70 bg-white">
-        <div className="mx-auto w-full max-w-[1100px] px-4 py-14 sm:px-6 sm:py-20">
-          <p className="break-keep text-center text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px]">
+        <div className="mx-auto w-full max-w-[1100px] px-4 py-10 sm:px-6 sm:py-12">
+          <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px]">
             {t("check.checklistLead")}
           </p>
-          <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <ul className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 lg:grid-cols-6">
             {CHECKLIST_ITEMS.map((key) => (
-              <li
-                key={key}
-                className="flex items-start gap-2.5 rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4"
-              >
+              <li key={key} className="flex items-start gap-2.5 bg-white p-4 sm:p-5">
                 <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50" aria-hidden>
                   <Check size={15} className="text-blue-900" />
                 </span>
