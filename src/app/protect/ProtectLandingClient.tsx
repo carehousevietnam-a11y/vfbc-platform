@@ -106,7 +106,7 @@ export default function ProtectLandingClient() {
           isFocused={isFocused}
           showError={showError}
           chips={[]}
-          placeholder="예) 노동허가 만료일과 갱신 시기를 확인하고 싶어요."
+          placeholder="예) 노동허가 만료를 확인해주세요."
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);

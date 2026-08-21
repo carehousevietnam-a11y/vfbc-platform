@@ -127,7 +127,7 @@ export default function RegisterLandingClient() {
           chips={REGISTER_CHIPS}
           title="무엇을 진행하고 싶으세요?"
           emphasis="무료로 직접 진행하세요"
-          placeholder="예) 식당을 열려면 어떤 허가가 필요한가요?"
+          placeholder="예) 식당 허가를 확인해주세요."
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);

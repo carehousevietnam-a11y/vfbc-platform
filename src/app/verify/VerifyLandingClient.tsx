@@ -111,7 +111,7 @@ export default function VerifyLandingClient() {
           chips={VERIFY_CHIPS}
           title="무엇을 검토하고 싶으세요?"
           emphasis="무료로 직접 검토하세요"
-          placeholder="예) 이 임대계약서가 안전한지 검토해 주세요."
+          placeholder="예) 계약서를 검토해주세요."
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);
