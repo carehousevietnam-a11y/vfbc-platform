@@ -1,6 +1,5 @@
 "use client";
 
-import { useId } from "react";
 import type { ReviewVerdict } from "@/lib/costCheck";
 
 const GAUGE_COLORS: Record<
@@ -58,7 +57,6 @@ type ReviewScoreGaugeProps = {
 };
 
 const SEMI_PATH = "M 36 188 A 144 144 0 0 1 324 188";
-const SEMI_PATH_LENGTH = Math.PI * 144;
 const SEMI_CX = 180;
 const SEMI_CY = 188;
 const SEMI_R = 144;
@@ -90,62 +88,37 @@ type Palette = {
   depth: string;
 };
 
-function GaugeDefs({ uid, palette }: { uid: string; palette: Palette }) {
-  return (
-    <defs>
-      <radialGradient id={`${uid}-knob`} cx="30%" cy="26%" r="72%">
-        <stop offset="0%" stopColor="#ffffff" />
-        <stop offset="38%" stopColor={palette.highlight} />
-        <stop offset="100%" stopColor={palette.stroke} />
-      </radialGradient>
-      <radialGradient id={`${uid}-knob-base`} cx="50%" cy="58%" r="58%">
-        <stop offset="0%" stopColor={palette.stroke} />
-        <stop offset="100%" stopColor={palette.depth} />
-      </radialGradient>
-    </defs>
-  );
+function donutPath(cx: number, cy: number, outerR: number, innerR: number): string {
+  return [
+    `M ${cx} ${cy - outerR}`,
+    `A ${outerR} ${outerR} 0 1 1 ${cx} ${cy + outerR}`,
+    `A ${outerR} ${outerR} 0 1 1 ${cx} ${cy - outerR}`,
+    "Z",
+    `M ${cx} ${cy - innerR}`,
+    `A ${innerR} ${innerR} 0 1 0 ${cx} ${cy + innerR}`,
+    `A ${innerR} ${innerR} 0 1 0 ${cx} ${cy - innerR}`,
+    "Z",
+  ].join(" ");
 }
 
 function EndKnob({
   x,
   y,
   r,
-  uid,
+  fill,
+  depth,
 }: {
   x: number;
   y: number;
   r: number;
-  uid: string;
+  fill: string;
+  depth: string;
 }) {
-  const highlightR = Math.max(3.2, r * 0.34);
   return (
     <g>
-      <ellipse
-        cx={x + r * 0.12}
-        cy={y + r * 0.38}
-        rx={r * 0.92}
-        ry={r * 0.58}
-        fill="#0f172a"
-        opacity="0.22"
-      />
-      <circle cx={x + 1.1} cy={y + 2.2} r={r} fill={`url(#${uid}-knob-base)`} />
-      <circle cx={x} cy={y} r={r - 1.4} fill={`url(#${uid}-knob)`} />
-      <circle
-        cx={x - r * 0.28}
-        cy={y - r * 0.32}
-        r={highlightR}
-        fill="#ffffff"
-        opacity="0.42"
-      />
-      <circle
-        cx={x}
-        cy={y}
-        r={r - 1.4}
-        fill="none"
-        stroke="#ffffff"
-        strokeOpacity="0.7"
-        strokeWidth="1.6"
-      />
+      <circle cx={x + 1.5} cy={y + 3.5} r={r} fill={depth} />
+      <circle cx={x} cy={y} r={r - 1} fill={fill} />
+      <circle cx={x - r * 0.3} cy={y - r * 0.34} r={Math.max(3, r * 0.36)} fill="#ffffff" opacity="0.7" />
     </g>
   );
 }
@@ -163,20 +136,15 @@ function SemiCircleGauge({
   compact?: boolean;
   baseline?: boolean;
 }) {
-  const uid = useId().replace(/:/g, "");
   const clamped = Math.min(100, Math.max(0, score));
   const palette: Palette = empty
     ? { stroke: "#94a3b8", track: "#e2e8f0", glow: "#cbd5e1", highlight: "#e2e8f0", depth: "#64748b" }
     : GAUGE_COLORS[verdict];
   const isVeryLow = !empty && verdict === "very_low";
   const dot = semiArcPoint(clamped);
-  const progress = empty ? 0 : (clamped / 100) * SEMI_PATH_LENGTH;
-  const trackW = compact ? 22 : 26;
-  const grooveW = compact ? 14 : 16;
-  const progressW = compact ? 16 : 18;
-  const highlightW = compact ? 5 : 6;
   const knobR = compact ? 12 : 14;
-  const depth = 2.5;
+  const SEMI_DEPTH_PATH = "M 24 193 A 156 156 0 0 1 336 193";
+  const SEMI_HIGHLIGHT_PATH = "M 54 188 A 126 126 0 0 1 306 188";
 
   return (
     <div
@@ -202,30 +170,18 @@ function SemiCircleGauge({
           }
           aria-hidden
         >
-          <GaugeDefs uid={uid} palette={palette} />
-          {/* ① BACK DEPTH RING */}
           <path
-            d={SEMI_PATH}
+            d={SEMI_DEPTH_PATH}
             fill="none"
-            stroke="#0f172a"
-            strokeOpacity="0.16"
-            strokeWidth={trackW + 2}
-            strokeLinecap="round"
-            transform={`translate(0 ${depth})`}
-          />
-          {/* ② BASE RING */}
-          <path
-            d={SEMI_PATH}
-            fill="none"
-            stroke="#7d8ea0"
-            strokeWidth={trackW}
+            stroke="#334155"
+            strokeWidth={compact ? 22 : 26}
             strokeLinecap="round"
           />
           <path
             d={SEMI_PATH}
             fill="none"
-            stroke="#e8eef5"
-            strokeWidth={grooveW}
+            stroke="#c5d0dc"
+            strokeWidth={compact ? 18 : 22}
             strokeLinecap="round"
           />
           {!empty ? (
@@ -233,37 +189,24 @@ function SemiCircleGauge({
               <path
                 d={SEMI_PATH}
                 fill="none"
-                stroke={palette.depth}
-                strokeOpacity="0.42"
-                strokeWidth={progressW}
-                strokeLinecap="round"
-                strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
-                transform={`translate(0 ${depth})`}
-              />
-              {/* ③ MAIN PROGRESS RING */}
-              <path
-                d={SEMI_PATH}
-                fill="none"
                 stroke={palette.stroke}
-                strokeWidth={progressW}
+                strokeWidth={compact ? 16 : 18}
                 strokeLinecap="round"
-                strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
+                pathLength={100}
+                strokeDasharray={`${clamped} 100`}
                 className="transition-all duration-500 ease-out"
               />
-              {/* ④ HIGHLIGHT EDGE */}
               <path
-                d={SEMI_PATH}
+                d={SEMI_HIGHLIGHT_PATH}
                 fill="none"
                 stroke={palette.highlight}
-                strokeOpacity="0.9"
-                strokeWidth={highlightW}
+                strokeWidth={compact ? 5 : 6}
                 strokeLinecap="round"
-                strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
-                transform="translate(0 -2)"
+                pathLength={100}
+                strokeDasharray={`${clamped} 100`}
                 className="transition-all duration-500 ease-out"
               />
-              {/* ⑤ END KNOB */}
-              <EndKnob x={dot.x} y={dot.y} r={knobR} uid={uid} />
+              <EndKnob x={dot.x} y={dot.y} r={knobR} fill={palette.stroke} depth={palette.depth} />
             </>
           ) : null}
         </svg>
@@ -326,28 +269,23 @@ function CircleGauge({
   empty: boolean;
   isLarge: boolean;
 }) {
-  const uid = useId().replace(/:/g, "");
-  const vb = 220;
-  const cx = 110;
-  const cy = 110;
-  const radius = isLarge ? 78 : 62;
-  const circumference = 2 * Math.PI * radius;
+  const vb = 240;
+  const cx = 120;
+  const cy = 120;
+  const outerR = isLarge ? 94 : 76;
+  const innerR = isLarge ? 62 : 50;
+  const mainR = isLarge ? 78 : 63;
+  const mainW = isLarge ? 16 : 13;
+  const highR = isLarge ? 66 : 53;
+  const highW = isLarge ? 5 : 4;
+  const knobR = isLarge ? 15 : 12;
+  const depthY = 6;
   const clamped = Math.min(100, Math.max(0, score));
-  const progress = empty ? 0 : (clamped / 100) * circumference;
   const palette: Palette = empty
     ? { stroke: "#94a3b8", track: "#e2e8f0", glow: "#cbd5e1", highlight: "#e2e8f0", depth: "#64748b" }
     : GAUGE_COLORS[verdict];
   const isVeryLow = !empty && verdict === "very_low";
-  const knob = circleArcPoint(clamped, cx, cy, radius);
-  const depthY = 2.5;
-  const trackW = isLarge ? 24 : 20;
-  const grooveW = isLarge ? 16 : 13;
-  const progressW = isLarge ? 16 : 13;
-  const highlightW = isLarge ? 5 : 4;
-  const knobR = isLarge ? 14 : 11;
-  const highlightR = radius - progressW / 2 + 1;
-  const highlightCirc = 2 * Math.PI * highlightR;
-  const highlightProgress = empty ? 0 : (clamped / 100) * highlightCirc;
+  const knob = circleArcPoint(clamped, cx, cy, mainR);
   const boxClass = isLarge
     ? "h-[13.5rem] w-[13.5rem] lg:h-[16.25rem] lg:w-[16.25rem]"
     : "h-36 w-36";
@@ -362,66 +300,52 @@ function CircleGauge({
           : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
       }
     >
-      <div className="absolute inset-0 rounded-full bg-white shadow-[0_10px_22px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/90" />
-      <div className="absolute inset-[21%] rounded-full bg-white shadow-[inset_0_8px_14px_rgba(15,23,42,0.10)] ring-1 ring-slate-200/70" />
+      <div className="absolute inset-0 rounded-full bg-white ring-1 ring-slate-200/80" />
+      <div className="absolute inset-[24%] rounded-full bg-white shadow-[inset_0_6px_10px_rgba(15,23,42,0.10)]" />
       <svg className="relative h-full w-full overflow-visible" viewBox={`0 0 ${vb} ${vb}`} aria-hidden>
-        <GaugeDefs uid={uid} palette={palette} />
-        {/* ① BACK DEPTH RING */}
-        <circle
-          cx={cx}
-          cy={cy + depthY}
-          r={radius}
-          fill="none"
-          stroke="#0f172a"
-          strokeOpacity="0.16"
-          strokeWidth={trackW + 2}
+        {/* ① DEPTH: filled donut, 6px down, darker — different geometry from main */}
+        <path
+          d={donutPath(cx, cy + depthY, outerR + 1, innerR - 1)}
+          fill="#334155"
+          fillOpacity="0.38"
+          fillRule="evenodd"
         />
-        {/* ② BASE RING — groove wall + floor */}
-        <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#7d8ea0" strokeWidth={trackW} />
-        <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#e8eef5" strokeWidth={grooveW} />
+        {/* BASE RING: filled donut so it reads as a ring body, not a round-cap stroke */}
+        <path d={donutPath(cx, cy, outerR, innerR)} fill="#d5dee8" fillRule="evenodd" />
+        <circle cx={cx} cy={cy} r={outerR} fill="none" stroke="#64748b" strokeWidth="2.5" />
+        <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="#94a3b8" strokeWidth="2.5" />
         {!empty ? (
           <>
-            <circle
-              cx={cx}
-              cy={cy + depthY}
-              r={radius}
-              fill="none"
-              stroke={palette.depth}
-              strokeOpacity="0.45"
-              strokeWidth={progressW}
-              strokeLinecap="round"
-              strokeDasharray={`${progress} ${circumference}`}
-              transform={`rotate(-90 ${cx} ${cy + depthY})`}
-            />
-            {/* ③ MAIN PROGRESS RING */}
+            {/* ② MAIN RING: centerline of the donut, solid status color */}
             <circle
               cx={cx}
               cy={cy}
-              r={radius}
+              r={mainR}
               fill="none"
               stroke={palette.stroke}
-              strokeWidth={progressW}
+              strokeWidth={mainW}
               strokeLinecap="round"
-              strokeDasharray={`${progress} ${circumference}`}
+              pathLength={100}
+              strokeDasharray={`${clamped} 100`}
               transform={`rotate(-90 ${cx} ${cy})`}
               className="transition-all duration-500 ease-out"
             />
-            {/* ④ HIGHLIGHT EDGE */}
+            {/* ③ HIGHLIGHT: inner radius — pixel band does not overlap main */}
             <circle
               cx={cx}
               cy={cy}
-              r={highlightR}
+              r={highR}
               fill="none"
               stroke={palette.highlight}
-              strokeOpacity="0.92"
-              strokeWidth={highlightW}
+              strokeWidth={highW}
               strokeLinecap="round"
-              strokeDasharray={`${highlightProgress} ${highlightCirc}`}
+              pathLength={100}
+              strokeDasharray={`${clamped} 100`}
               transform={`rotate(-90 ${cx} ${cy})`}
               className="transition-all duration-500 ease-out"
             />
-            {/* ⑤ END KNOB */}
-            <EndKnob x={knob.x} y={knob.y} r={knobR} uid={uid} />
+            {/* ④ END KNOB: darker base + body + highlight */}
+            <EndKnob x={knob.x} y={knob.y} r={knobR} fill={palette.stroke} depth={palette.depth} />
           </>
         ) : null}
       </svg>
