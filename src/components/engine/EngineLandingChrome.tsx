@@ -17,7 +17,7 @@ import {
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 export const ENGINE_CONTAINER = "mx-auto w-full max-w-[1100px] px-4 sm:px-6";
-const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-8";
+const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-6";
 
 const COMPOSER_GUIDES = [
   { titleKey: "hero.badges.cost", lineKey: "hero.preview.costLabel", icon: CircleDollarSign },
@@ -42,7 +42,7 @@ export function EngineLandingMain({ children }: { children: ReactNode }) {
 export function EngineTopSection({ children }: { children: ReactNode }) {
   return (
     <section className="bg-white">
-      <div className={`${ENGINE_CONTAINER} pb-8 pt-6 sm:pb-10 sm:pt-8 lg:pb-8 lg:pt-6`}>{children}</div>
+      <div className={`${ENGINE_CONTAINER} pb-8 pt-6 sm:pb-10 sm:pt-8 lg:py-6`}>{children}</div>
     </section>
   );
 }
@@ -50,7 +50,7 @@ export function EngineTopSection({ children }: { children: ReactNode }) {
 export function EngineBreadcrumb({ engine }: { engine: string }) {
   const { t } = useLocale();
   return (
-    <nav className="mb-5 flex items-center gap-1.5 text-[12px] font-medium text-slate-500">
+    <nav className="mb-5 flex items-center gap-1.5 text-[12px] font-medium text-slate-500 lg:mb-4">
       <Link
         href="/"
         className="inline-flex items-center gap-1 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
@@ -77,10 +77,10 @@ export function EngineHero({
 }) {
   return (
     <div className="w-full">
-      <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem]">
+      <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[2.5rem]">
         {engine}
       </h1>
-      <p className="mt-3 break-keep text-[18px] font-bold leading-snug text-blue-900 sm:text-[20px] lg:mt-2 lg:text-[18px]">
+      <p className="mt-3 break-keep text-[18px] font-bold leading-snug text-blue-900 sm:text-[20px] lg:mt-2 lg:text-[17px]">
         {title}
       </p>
       <p className="mt-4 break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px] lg:mt-3 lg:text-[15px]">
@@ -105,7 +105,7 @@ function EngineComposerTitle({ htmlFor }: { htmlFor: string }) {
         !
       </span>
       <span className="min-w-0">
-        <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px] lg:text-[18px]">
+        <span className="block break-keep text-[18px] font-bold leading-snug sm:text-[20px] lg:text-[17px]">
           {inputHighlightIndex >= 0 ? (
             <>
               {inputLabel.slice(0, inputHighlightIndex)}
@@ -210,7 +210,7 @@ export function EngineComposer({
 
   return (
     <form id={formId} onSubmit={onSubmit} className="mt-8 w-full lg:mt-6">
-      <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8 lg:px-6 lg:py-6">
+      <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8 lg:rounded-2xl lg:px-5 lg:py-5">
         <EngineComposerTitle htmlFor={inputId} />
         <p className="mt-2 break-keep pl-9 text-[13px] leading-relaxed text-slate-500 sm:text-[14px] lg:text-[13px]">
           {t("hero.homeLead")}
@@ -268,7 +268,7 @@ export function EngineServiceSection({
     <section className="border-t border-slate-200/70 bg-white">
       <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD}`}>
         <p className="text-[11px] font-bold tracking-[0.18em] text-blue-900">{engine}</p>
-        <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[18px]">
+        <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[17px]">
           {lead}
         </p>
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mt-5 lg:grid-cols-4 lg:gap-3">{children}</div>
@@ -298,7 +298,7 @@ export function EngineServiceCard({
     <Link
       href={href}
       aria-label={`${title} ${cta}`}
-      className={`group flex flex-row items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left no-underline shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,58,138,0.10)] lg:flex-col lg:items-start lg:border-t-[3px] lg:p-5 lg:hover:-translate-y-1 ${visual?.accent ?? ""}`}
+      className={`group flex flex-row items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left no-underline shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,58,138,0.10)] lg:flex-col lg:items-start lg:border-t-[3px] lg:p-4 lg:hover:-translate-y-1 ${visual?.accent ?? ""}`}
     >
       {Icon ? (
         <span
@@ -341,7 +341,7 @@ export function EngineChecklistSection({
   return (
     <section className="border-t border-slate-200/70 bg-white">
       <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD}`}>
-        <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[18px]">
+        <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[17px]">
           {lead}
         </p>
         <ul className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 lg:mt-5 lg:grid-cols-6">
