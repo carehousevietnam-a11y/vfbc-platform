@@ -65,23 +65,41 @@ type ReviewScoreGaugeProps = {
 };
 
 const CX = 130;
-const CY = 126;
-const MAIN_R = 100;
-const HIGH_R = 88;
-const DEPTH_R = 104;
+const CY = 136;
 const TRACK = "#EFF2F6";
+const START_DEG = 180;
 
-function semiPath(r: number): string {
-  return `M ${CX - r} ${CY} A ${r} ${r} 0 0 1 ${CX + r} ${CY}`;
+function polar(r: number, deg: number): { x: number; y: number } {
+  const rad = (deg * Math.PI) / 180;
+  return {
+    x: CX + r * Math.cos(rad),
+    y: CY - r * Math.sin(rad),
+  };
 }
 
-function semiPoint(score: number, r: number): { x: number; y: number } {
-  const t = Math.min(100, Math.max(0, score)) / 100;
-  const angle = Math.PI * (1 - t);
-  return {
-    x: CX + r * Math.cos(angle),
-    y: CY - r * Math.sin(angle),
-  };
+function housingPath(r: number, chin: number): string {
+  const left = CX - r;
+  const right = CX + r;
+  const bottom = CY + chin;
+  return `M ${left} ${CY} A ${r} ${r} 0 0 1 ${right} ${CY} L ${right} ${bottom} Q ${CX} ${bottom + 7} ${left} ${bottom} Z`;
+}
+
+/** Filled semi-annulus from 180° (left) toward 0° (right) through the top. */
+function annularSector(rInner: number, rOuter: number, startDeg: number, endDeg: number): string {
+  const span = (startDeg - endDeg + 360) % 360;
+  if (span < 0.4) return "";
+  const large = span > 180 ? 1 : 0;
+  const p1 = polar(rOuter, startDeg);
+  const p2 = polar(rOuter, endDeg);
+  const p3 = polar(rInner, endDeg);
+  const p4 = polar(rInner, startDeg);
+  return [
+    `M ${p1.x.toFixed(3)} ${p1.y.toFixed(3)}`,
+    `A ${rOuter} ${rOuter} 0 ${large} 1 ${p2.x.toFixed(3)} ${p2.y.toFixed(3)}`,
+    `L ${p3.x.toFixed(3)} ${p3.y.toFixed(3)}`,
+    `A ${rInner} ${rInner} 0 ${large} 0 ${p4.x.toFixed(3)} ${p4.y.toFixed(3)}`,
+    "Z",
+  ].join(" ");
 }
 
 function MoldedSemiGauge({
@@ -105,114 +123,111 @@ function MoldedSemiGauge({
     ? { stroke: "#94a3b8", glow: "#cbd5e1", highlight: "#e2e8f0", depth: "#475569" }
     : GAUGE_COLORS[verdict];
   const isVeryLow = !empty && verdict === "very_low";
-  const knob = semiPoint(clamped, MAIN_R);
+  const endDeg = START_DEG - (clamped / 100) * 180;
+  const tubeMidR = 88;
+  const knob = polar(tubeMidR, endDeg);
+  const trackLeft = polar(tubeMidR, START_DEG);
+  const trackRight = polar(tubeMidR, 0);
   const boxClass = compact
     ? "h-[110px] w-[180px]"
     : showStatusRow
       ? "h-[132px] w-[216px] lg:h-[160px] lg:w-[260px]"
       : "h-[124px] w-[204px] sm:h-[140px] sm:w-[230px]";
 
+  const groove = annularSector(72, 104, START_DEG, 0);
+  const trackFloor = annularSector(78, 98, START_DEG, 0);
+  const progressBody = empty ? "" : annularSector(78, 98, START_DEG, endDeg);
+  const progressDepth = empty ? "" : annularSector(92, 98, START_DEG, endDeg);
+  const progressHighlight = empty ? "" : annularSector(78, 84, START_DEG, endDeg);
+
   return (
-    <div className="relative mx-auto w-full max-w-[260px]" role="img" aria-label={
-      baseline
-        ? "일반 범위 기준 화면입니다. 금액을 입력하면 적정성을 판단합니다"
-        : empty
-          ? "견적을 입력하면 적정성 점수를 확인할 수 있습니다"
-          : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
-    }>
+    <div
+      className="relative mx-auto w-full max-w-[260px]"
+      role="img"
+      aria-label={
+        baseline
+          ? "일반 범위 기준 화면입니다. 금액을 입력하면 적정성을 판단합니다"
+          : empty
+            ? "견적을 입력하면 적정성 점수를 확인할 수 있습니다"
+            : `적정성 점수 ${Math.round(clamped)}점, ${STATUS_BADGE_LABEL[verdict]}`
+      }
+    >
       <div className={`relative mx-auto ${boxClass}`}>
         <svg viewBox="0 0 260 160" className="h-full w-full overflow-visible" aria-hidden>
           <defs>
-            <linearGradient id={`${uid}-bezel`} x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id={`${uid}-bezel`} x1="18%" y1="0%" x2="82%" y2="100%">
               <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="55%" stopColor="#e8edf3" />
-              <stop offset="100%" stopColor="#cfd8e3" />
+              <stop offset="42%" stopColor="#eef2f6" />
+              <stop offset="100%" stopColor="#c5d0dc" />
             </linearGradient>
-            <radialGradient id={`${uid}-well`} cx="50%" cy="38%" r="72%">
-              <stop offset="0%" stopColor="#1a2b4a" />
-              <stop offset="100%" stopColor="#0b1b36" />
+            <linearGradient id={`${uid}-lip`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#9aa8b8" />
+              <stop offset="100%" stopColor="#6b7c8f" />
+            </linearGradient>
+            <radialGradient id={`${uid}-well`} cx="50%" cy="62%" r="78%">
+              <stop offset="0%" stopColor="#1c3358" />
+              <stop offset="55%" stopColor="#0e1f3c" />
+              <stop offset="100%" stopColor="#071226" />
             </radialGradient>
-            <linearGradient id={`${uid}-progress`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={`${uid}-tube`} x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor={palette.highlight} />
-              <stop offset="55%" stopColor={palette.glow} />
+              <stop offset="38%" stopColor={palette.glow} />
               <stop offset="100%" stopColor={palette.stroke} />
             </linearGradient>
-            <filter id={`${uid}-soft`} x="-12%" y="-12%" width="124%" height="140%">
-              <feDropShadow dx="0" dy="4" stdDeviation="3.5" floodColor="#0f172a" floodOpacity="0.22" />
+            <radialGradient id={`${uid}-knob`} cx="32%" cy="28%" r="72%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="28%" stopColor={palette.highlight} />
+              <stop offset="62%" stopColor={palette.stroke} />
+              <stop offset="100%" stopColor={palette.depth} />
+            </radialGradient>
+            <filter id={`${uid}-body`} x="-18%" y="-18%" width="136%" height="150%">
+              <feDropShadow dx="0" dy="6" stdDeviation="5" floodColor="#0f172a" floodOpacity="0.22" />
             </filter>
           </defs>
 
-          {/* OUTER BEZEL */}
-          <rect
-            x="8"
-            y="8"
-            width="244"
-            height="144"
-            rx="28"
-            fill={`url(#${uid}-bezel)`}
-            filter={`url(#${uid}-soft)`}
-          />
-          {/* INNER DARK SURFACE */}
-          <rect x="14" y="14" width="232" height="132" rx="22" fill={`url(#${uid}-well)`} />
-          <rect
-            x="14"
-            y="14"
-            width="232"
-            height="132"
-            rx="22"
+          {/* OUTER BEZEL — D-shaped molded housing */}
+          <path d={housingPath(118, 16)} fill={`url(#${uid}-bezel)`} filter={`url(#${uid}-body)`} />
+          {/* Inner lip (separate geometry from the well) */}
+          <path d={housingPath(112, 12)} fill={`url(#${uid}-lip)`} />
+          {/* INNER DARK SURFACE — recessed navy well */}
+          <path d={housingPath(108, 9)} fill={`url(#${uid}-well)`} />
+          <path
+            d={housingPath(108, 9)}
             fill="none"
-            stroke="#0a1224"
-            strokeWidth="1.25"
+            stroke="#030814"
+            strokeWidth="2.25"
+            strokeOpacity="0.55"
           />
+          <ellipse cx={CX} cy={CY - 46} rx="70" ry="28" fill="#ffffff" opacity="0.07" />
+
+          {/* GROOVE walls — wide carved channel, not a stroke */}
+          <path d={groove} fill="#050d1c" />
+          <circle cx={trackLeft.x} cy={trackLeft.y} r="16" fill="#050d1c" />
+          <circle cx={trackRight.x} cy={trackRight.y} r="16" fill="#050d1c" />
 
           {/* TRACK 0–100 */}
-          <path d={semiPath(MAIN_R)} fill="none" stroke={TRACK} strokeWidth="20" strokeLinecap="round" />
+          <path d={trackFloor} fill={TRACK} />
+          <circle cx={trackLeft.x} cy={trackLeft.y} r="10" fill={TRACK} />
+          <circle cx={trackRight.x} cy={trackRight.y} r="10" fill={TRACK} />
 
-          {!empty ? (
+          {!empty && progressBody ? (
             <>
-              {/* DEPTH under progress — larger radius, darker state color */}
-              <path
-                d={semiPath(DEPTH_R)}
-                fill="none"
-                stroke={palette.depth}
-                strokeWidth="20"
-                strokeLinecap="round"
-                pathLength={100}
-                strokeDasharray={`${clamped} 100`}
-                opacity="0.55"
-              />
-              {/* PROGRESS */}
-              <path
-                d={semiPath(MAIN_R)}
-                fill="none"
-                stroke={`url(#${uid}-progress)`}
-                strokeWidth="20"
-                strokeLinecap="round"
-                pathLength={100}
-                strokeDasharray={`${clamped} 100`}
-                className="transition-all duration-500 ease-out"
-              />
-              {/* HIGHLIGHT — inner radius so it cannot merge into the main stroke */}
-              <path
-                d={semiPath(HIGH_R)}
-                fill="none"
-                stroke="#ffffff"
-                strokeOpacity="0.42"
-                strokeWidth="4"
-                strokeLinecap="round"
-                pathLength={100}
-                strokeDasharray={`${clamped} 100`}
-                className="transition-all duration-500 ease-out"
-              />
-              {/* END KNOB */}
-              <circle cx={knob.x + 1.2} cy={knob.y + 3} r="11" fill={palette.depth} />
-              <circle cx={knob.x} cy={knob.y} r="10" fill={palette.stroke} />
-              <circle cx={knob.x - 3.2} cy={knob.y - 3.4} r="3.4" fill="#ffffff" opacity="0.72" />
+              {/* PROGRESS tube body */}
+              <path d={progressBody} fill={`url(#${uid}-tube)`} />
+              <circle cx={trackLeft.x} cy={trackLeft.y} r="10" fill={palette.stroke} />
+              {/* DEPTH — outer radius of the tube only */}
+              <path d={progressDepth} fill={palette.depth} opacity="0.55" />
+              {/* HIGHLIGHT — inner radius of the tube only */}
+              <path d={progressHighlight} fill="#ffffff" opacity="0.38" />
+              {/* END KNOB — 3D sphere */}
+              <circle cx={knob.x + 1.4} cy={knob.y + 3.2} r="13" fill={palette.depth} opacity="0.7" />
+              <circle cx={knob.x} cy={knob.y} r="12" fill={`url(#${uid}-knob)`} />
+              <circle cx={knob.x - 3.6} cy={knob.y - 4} r="3.6" fill="#ffffff" opacity="0.85" />
             </>
           ) : null}
         </svg>
 
-        <div className="pointer-events-none absolute inset-x-0 top-[38%] flex flex-col items-center text-center">
+        <div className="pointer-events-none absolute inset-x-0 top-[42%] flex flex-col items-center text-center">
           {empty ? (
             <span className="max-w-[9.5rem] text-[13px] font-medium leading-snug text-slate-300">
               견적을 알려주시면
@@ -239,9 +254,7 @@ function MoldedSemiGauge({
 
       {showStatusRow && !empty && !baseline ? (
         <p className="mt-3 flex items-center justify-center gap-2 text-sm font-semibold text-slate-800">
-          <span className="tabular-nums">
-            {Math.round(clamped)} / 100
-          </span>
+          <span className="tabular-nums">{Math.round(clamped)} / 100</span>
           <span className={`h-2 w-2 rounded-full ${STATUS_DOT[verdict]}`} aria-hidden />
           <span>{STATUS_BADGE_LABEL[verdict]}</span>
         </p>
