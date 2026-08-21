@@ -94,9 +94,9 @@ function GaugeDefs({ uid, palette }: { uid: string; palette: Palette }) {
   return (
     <defs>
       <linearGradient id={`${uid}-track`} x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#eef2f7" />
-        <stop offset="38%" stopColor="#d5dee8" />
-        <stop offset="100%" stopColor="#9aa8b8" />
+        <stop offset="0%" stopColor="#dbe3ee" />
+        <stop offset="42%" stopColor="#b7c4d4" />
+        <stop offset="100%" stopColor="#7d8ea3" />
       </linearGradient>
       <linearGradient id={`${uid}-progress`} x1="18%" y1="0%" x2="86%" y2="100%">
         <stop offset="0%" stopColor={palette.highlight} />
@@ -211,12 +211,11 @@ function SemiCircleGauge({
           aria-hidden
         >
           <GaugeDefs uid={uid} palette={palette} />
-          {/* A. BACK / BASE RING */}
           <path
             d={SEMI_PATH}
             fill="none"
             stroke="#0f172a"
-            strokeOpacity="0.18"
+            strokeOpacity="0.3"
             strokeWidth={baseWidth}
             strokeLinecap="round"
           />
@@ -225,10 +224,10 @@ function SemiCircleGauge({
             d={SEMI_PATH}
             fill="none"
             stroke="#1e293b"
-            strokeOpacity="0.2"
+            strokeOpacity="0.3"
             strokeWidth={trackWidth}
             strokeLinecap="round"
-            transform="translate(0 3)"
+            transform="translate(0 4)"
           />
           <path
             d={SEMI_PATH}
@@ -252,11 +251,11 @@ function SemiCircleGauge({
                 d={SEMI_PATH}
                 fill="none"
                 stroke={palette.depth}
-                strokeOpacity="0.55"
+                strokeOpacity="0.75"
                 strokeWidth={progressWidth}
                 strokeLinecap="round"
                 strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
-                transform="translate(0 3)"
+                transform="translate(0 4)"
               />
               <path
                 d={SEMI_PATH}
@@ -271,8 +270,8 @@ function SemiCircleGauge({
                 d={SEMI_PATH}
                 fill="none"
                 stroke={palette.highlight}
-                strokeOpacity="0.7"
-                strokeWidth={compact ? 5 : 6}
+                strokeOpacity="0.92"
+                strokeWidth={compact ? 6 : 7}
                 strokeLinecap="round"
                 strokeDasharray={`${progress} ${SEMI_PATH_LENGTH}`}
                 transform="translate(0 -4)"
@@ -354,11 +353,11 @@ function CircleGauge({
     : GAUGE_COLORS[verdict];
   const isVeryLow = !empty && verdict === "very_low";
   const knob = circleArcPoint(clamped, cx, cy, radius);
-  const troughWidth = isLarge ? 34 : 28;
+  const troughWidth = isLarge ? 36 : 30;
   const trackWidth = isLarge ? 26 : 20;
-  const progressWidth = isLarge ? 22 : 17;
-  const highlightWidth = isLarge ? 7 : 5;
-  const knobR = isLarge ? 16 : 12;
+  const progressWidth = isLarge ? 20 : 16;
+  const highlightWidth = isLarge ? 8 : 6;
+  const knobR = isLarge ? 17 : 13;
   const innerR = radius - trackWidth / 2 - 2;
   const highlightR = radius - progressWidth / 2 + 1;
   const highlightCirc = 2 * Math.PI * highlightR;
@@ -379,32 +378,32 @@ function CircleGauge({
       }
     >
       {/* Outer plate */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white via-slate-50 to-slate-100 shadow-[0_16px_34px_rgba(15,23,42,0.12),0_2px_0_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,1)] ring-1 ring-slate-300/70" />
+      <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white via-slate-50 to-slate-100 shadow-[0_18px_36px_rgba(15,23,42,0.14),0_3px_0_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,1)] ring-1 ring-slate-300/80" />
       {/* F. INNER DISC — recessed center */}
       <div
-        className={`absolute ${innerInset} rounded-full bg-gradient-to-b from-white to-[#eef3f9] shadow-[inset_0_10px_18px_rgba(15,23,42,0.12),inset_0_-1px_0_rgba(255,255,255,0.9)] ring-1 ring-slate-200/80`}
+        className={`absolute ${innerInset} rounded-full bg-gradient-to-b from-white to-[#e4ecf6] shadow-[inset_0_14px_26px_rgba(15,23,42,0.16),inset_0_1px_0_rgba(15,23,42,0.08)] ring-1 ring-slate-300/70`}
       />
       <svg className="relative h-full w-full overflow-visible" viewBox={`0 0 ${vb} ${vb}`} aria-hidden>
         <GaugeDefs uid={uid} palette={palette} />
-        {/* A. BACK / BASE RING */}
+        {/* A. BACK / BASE RING — dark channel behind the track */}
         <circle
           cx={cx}
           cy={cy}
           r={radius}
           fill="none"
           stroke="#0f172a"
-          strokeOpacity="0.2"
+          strokeOpacity="0.34"
           strokeWidth={troughWidth}
         />
         {/* B. DEPTH LAYER under the track */}
         <circle
           cx={cx}
-          cy={cy + 3}
+          cy={cy + 4}
           r={radius}
           fill="none"
           stroke="#1e293b"
-          strokeOpacity="0.22"
-          strokeWidth={trackWidth + 2}
+          strokeOpacity="0.32"
+          strokeWidth={trackWidth + 3}
         />
         <circle
           cx={cx}
@@ -418,11 +417,11 @@ function CircleGauge({
         <circle
           cx={cx}
           cy={cy}
-          r={radius + trackWidth / 2 - 1}
+          r={radius + trackWidth / 2 - 0.5}
           fill="none"
-          stroke="#64748b"
-          strokeOpacity="0.35"
-          strokeWidth="2.4"
+          stroke="#334155"
+          strokeOpacity="0.5"
+          strokeWidth="3"
         />
         <circle
           cx={cx}
@@ -430,32 +429,32 @@ function CircleGauge({
           r={innerR}
           fill="none"
           stroke="#0f172a"
-          strokeOpacity="0.16"
-          strokeWidth="3"
+          strokeOpacity="0.28"
+          strokeWidth="4"
         />
         <circle
           cx={cx}
-          cy={cy - 5}
+          cy={cy - 6}
           r={radius}
           fill="none"
           stroke="#ffffff"
-          strokeOpacity="0.45"
-          strokeWidth={isLarge ? 6 : 4}
+          strokeOpacity="0.55"
+          strokeWidth={isLarge ? 7 : 5}
         />
         {!empty ? (
           <>
             {/* Raised progress extrusion */}
             <circle
               cx={cx}
-              cy={cy + 3}
+              cy={cy + 4}
               r={radius}
               fill="none"
               stroke={palette.depth}
-              strokeOpacity="0.62"
-              strokeWidth={progressWidth}
+              strokeOpacity="0.78"
+              strokeWidth={progressWidth + 1}
               strokeLinecap="round"
               strokeDasharray={`${progress} ${circumference}`}
-              transform={`rotate(-90 ${cx} ${cy + 3})`}
+              transform={`rotate(-90 ${cx} ${cy + 4})`}
             />
             {/* C. MAIN PROGRESS RING */}
             <circle
@@ -477,7 +476,7 @@ function CircleGauge({
               r={highlightR}
               fill="none"
               stroke={palette.highlight}
-              strokeOpacity="0.82"
+              strokeOpacity="0.95"
               strokeWidth={highlightWidth}
               strokeLinecap="round"
               strokeDasharray={`${highlightProgress} ${highlightCirc}`}
