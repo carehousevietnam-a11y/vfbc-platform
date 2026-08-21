@@ -442,7 +442,9 @@ export function CostCheckCard({
   return (
     <div className="space-y-5">
       <SectionWrap variant={variant}>{costBasis}</SectionWrap>
-      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">{adequacySection}</div>
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.05)] sm:p-6">
+        {adequacySection}
+      </div>
       {!hasQuote && compareBlock ? <SectionWrap variant={variant}>{compareBlock}</SectionWrap> : null}
       {hasQuote ? (
         <ReviewJudgmentDetails
