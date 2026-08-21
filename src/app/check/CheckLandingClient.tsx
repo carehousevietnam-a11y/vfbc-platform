@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, ChevronDown } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Briefcase,
+  Car,
+  Check,
+  ChevronRight,
+  CreditCard,
+  Home,
+  Search,
+} from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
 import { routeByKeywords } from "@/lib/smartRouter";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -29,6 +39,18 @@ const CHECK_HOOKS: Record<string, string> = {
   license: "국제면허 미인정 사례 있음",
 };
 
+const CHECK_FLOW_STEPS = ["질문", "비용", "확인"] as const;
+
+const CHECK_SERVICE_VISUAL: Record<
+  string,
+  { icon: typeof CreditCard; bg: string; text: string; accent: string }
+> = {
+  trc: { icon: CreditCard, bg: "bg-blue-50", text: "text-blue-900", accent: "border-t-blue-700" },
+  wp: { icon: Briefcase, bg: "bg-emerald-50", text: "text-emerald-700", accent: "border-t-emerald-600" },
+  tamtru: { icon: Home, bg: "bg-violet-50", text: "text-violet-700", accent: "border-t-violet-600" },
+  license: { icon: Car, bg: "bg-amber-50", text: "text-amber-700", accent: "border-t-amber-600" },
+};
+
 export default function CheckLandingClient() {
   const { t } = useLocale();
   const router = useRouter();
@@ -36,6 +58,9 @@ export default function CheckLandingClient() {
   const [isFocused, setIsFocused] = useState(false);
   const [showError, setShowError] = useState(false);
   const services = getCheckServiceItems();
+  const inputLabel = t("hero.inputLabel");
+  const inputHighlight = "돈을 쓰려고";
+  const inputHighlightIndex = inputLabel.indexOf(inputHighlight);
 
   function focusInput() {
     const el = document.getElementById("check-query-input");
@@ -72,9 +97,9 @@ export default function CheckLandingClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#faf8f5]">
-      <header className="border-b border-slate-200/80 bg-[#faf8f5]">
-        <div className="mx-auto flex h-12 w-full max-w-[1040px] items-center px-4 sm:px-6">
+    <main className="min-h-screen bg-white">
+      <header className="border-b border-slate-200/80 bg-white">
+        <div className="mx-auto flex h-12 w-full max-w-[1100px] items-center px-4 sm:px-6">
           <Link
             href="/"
             className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
@@ -85,65 +110,81 @@ export default function CheckLandingClient() {
         </div>
       </header>
 
-      <section className="bg-[#faf8f5]">
-        <div className="mx-auto w-full max-w-[1040px] px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-10">
-          <div className="max-w-[720px]">
-            <p className="mb-3 text-[11px] font-bold tracking-[0.18em] text-blue-900">CHECK</p>
-            <h1 className="break-keep text-[1.875rem] font-bold leading-[1.28] tracking-tight text-blue-900 sm:text-[2.125rem] lg:text-[2.35rem]">
+      <section className="bg-white">
+        <div className="mx-auto w-full max-w-[1100px] px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-14">
+          <div className="max-w-[36rem]">
+            <p className="mb-5 text-[11px] font-bold tracking-[0.18em] text-blue-900">CHECK</p>
+            <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[3.125rem]">
               {t("pillar.check.subtitle")}
             </h1>
-            <p className="mt-3.5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-base">
+            <p className="mt-5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
               {t("pillar.check.body")}
             </p>
           </div>
 
-          <form id="check-query" onSubmit={handleSubmit} className="mt-7 sm:mt-8">
-            <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-4 sm:px-5 sm:py-4">
-              <div className="flex items-center justify-between gap-3">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-blue-900">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-900" aria-hidden />
+          <form id="check-query" onSubmit={handleSubmit} className="mt-8 lg:mt-10">
+            <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-blue-800">
                   {t("hero.badge")}
                 </span>
-                <nav className="flex items-center gap-3 text-[11px] font-medium text-slate-400" aria-hidden>
-                  <span>질문</span>
-                  <span>비용</span>
-                  <span>확인</span>
+                <nav className="hidden items-center text-[11px] font-medium text-slate-400 lg:flex" aria-hidden>
+                  {CHECK_FLOW_STEPS.map((step, index) => (
+                    <Fragment key={step}>
+                      <span>{step}</span>
+                      {index < CHECK_FLOW_STEPS.length - 1 ? (
+                        <span className="mx-2 h-px w-6 border-t border-dashed border-blue-200" />
+                      ) : null}
+                    </Fragment>
+                  ))}
                 </nav>
               </div>
 
-              <label htmlFor="check-query-input" className="mt-3 block text-[13px] font-medium text-slate-700">
-                {t("hero.inputLabel")}
+              <label htmlFor="check-query-input" className="mt-5 flex items-start gap-2.5 text-blue-900">
+                <span
+                  className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[13px] font-bold text-white"
+                  aria-hidden
+                >
+                  !
+                </span>
+                <span className="min-w-0 break-keep text-[18px] font-bold leading-snug sm:text-[20px]">
+                  {inputHighlightIndex >= 0 ? (
+                    <>
+                      {inputLabel.slice(0, inputHighlightIndex)}
+                      <span className="text-amber-600">{inputHighlight}</span>
+                      {inputLabel.slice(inputHighlightIndex + inputHighlight.length)}
+                    </>
+                  ) : (
+                    inputLabel
+                  )}
+                </span>
               </label>
 
               <div
-                className={`mt-2 flex flex-col gap-2 sm:flex-row sm:items-stretch ${
-                  showError ? "rounded-xl ring-2 ring-red-200" : ""
-                }`}
+                className={`mt-5 flex items-center gap-2 rounded-xl border bg-white py-2 pl-3.5 pr-1.5 transition-shadow ${
+                  isFocused
+                    ? "border-blue-400 shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
+                    : "border-slate-300"
+                } ${showError ? "border-red-300 shadow-[0_0_0_4px_rgba(252,165,165,0.45)]" : ""}`}
               >
-                <div
-                  className={`flex min-h-11 min-w-0 flex-1 items-center rounded-xl border bg-[#faf8f5]/70 px-3.5 transition-colors ${
-                    isFocused ? "border-blue-200 bg-white" : "border-slate-200/90"
-                  }`}
-                >
-                  <input
-                    id="check-query-input"
-                    type="text"
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      if (e.target.value.trim()) setShowError(false);
-                    }}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    placeholder={t("hero.placeholder")}
-                    className="w-full border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0"
-                    autoComplete="off"
-                  />
-                </div>
-
+                <Search size={18} aria-hidden className="shrink-0 text-slate-400" />
+                <input
+                  id="check-query-input"
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    if (e.target.value.trim()) setShowError(false);
+                  }}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  placeholder={t("hero.placeholder")}
+                  className="min-h-11 min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:min-h-12 sm:text-[16px]"
+                  autoComplete="off"
+                />
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-1 rounded-xl bg-blue-900 px-5 text-[14px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:w-auto sm:min-w-[96px]"
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-blue-900 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:min-h-12 sm:px-5 sm:text-[14px]"
                 >
                   {t("hero.submit")}
                   <ArrowRight size={15} />
@@ -154,15 +195,21 @@ export default function CheckLandingClient() {
                 <p className="mt-2 text-xs font-medium text-red-600">{t("hero.error")}</p>
               ) : null}
 
-              <div className="mt-4">
-                <p className="text-[11px] font-medium tracking-wide text-slate-400">{t("hero.chipsLabel")}</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
+              <nav className="mt-5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-medium text-slate-400 lg:hidden" aria-hidden>
+                {CHECK_FLOW_STEPS.map((step) => (
+                  <span key={step}>{step}</span>
+                ))}
+              </nav>
+
+              <div className="mt-5">
+                <p className="text-[11px] font-semibold tracking-wide text-slate-400">{t("hero.chipsLabel")}</p>
+                <div className="mt-2.5 flex flex-wrap gap-2 xl:flex-nowrap">
                   {CHECK_CHIPS.map((item) => (
                     <button
                       key={item.chip}
                       type="button"
                       onClick={() => handleChipSelect(item.chip)}
-                      className="rounded-full border border-slate-200/90 bg-[#faf8f5] px-2.5 py-1 text-[12px] text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
+                      className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:px-4 sm:py-2"
                     >
                       {t(item.key)}
                     </button>
@@ -174,67 +221,78 @@ export default function CheckLandingClient() {
         </div>
       </section>
 
-      <section className="border-t border-slate-200/70 bg-[#faf8f5]">
-        <div className="mx-auto w-full max-w-[1040px] px-4 py-8 sm:px-6 sm:py-10">
-          <p className="break-keep text-[15px] font-medium leading-relaxed text-blue-900">
+      <section className="border-t border-slate-200/70 bg-white">
+        <div className="mx-auto w-full max-w-[1100px] px-4 py-14 sm:px-6 sm:py-20">
+          <p className="break-keep text-center text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px]">
             {t("check.selectLead")}
           </p>
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
             {services.map((item) => {
               const title = serviceLabel(item.key, "title", item.title);
               const desc = serviceLabel(item.key, "desc", item.desc);
               const cta = t("pillar.check.cta");
               const hook = CHECK_HOOKS[item.key];
+              const visual = CHECK_SERVICE_VISUAL[item.key];
+              const Icon = visual?.icon;
               return (
-                <div
+                <Link
                   key={item.key}
-                  className="border-t border-slate-200/80 py-4 last:border-b sm:odd:border-r sm:odd:pr-8 sm:even:pl-8 sm:[&:nth-child(n+3)]:border-b"
+                  href={item.href}
+                  aria-label={`${title} ${cta}`}
+                  className={`group flex flex-row items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left no-underline shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,58,138,0.10)] lg:flex-col lg:items-start lg:border-t-[3px] lg:p-6 lg:hover:-translate-y-1 ${visual?.accent ?? ""}`}
                 >
-                  <Link
-                    href={item.href}
-                    aria-label={`${title} ${cta}`}
-                    className="group flex w-full items-end justify-between gap-3 text-left no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:gap-5"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block leading-snug">
-                        <span className="text-[15px] font-bold text-slate-700">{title}</span>
-                        {hook ? (
-                          <span className="text-[12px] font-normal text-slate-500">
-                            {" - "}
-                            <span className="text-red-600">{hook}</span>
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="mt-1 block break-keep text-[13px] leading-relaxed text-slate-500">
-                        {desc}
-                      </span>
+                  {Icon ? (
+                    <span
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl lg:h-12 lg:w-12 ${visual.bg}`}
+                      aria-hidden
+                    >
+                      <Icon size={22} className={visual.text} strokeWidth={2.25} />
                     </span>
-                    <span className="inline-flex shrink-0 items-center gap-1 pb-0.5 text-[12px] font-medium text-blue-900 transition-colors group-hover:text-[#152a63]">
+                  ) : null}
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-semibold leading-snug text-slate-800 lg:text-[16px]">
+                      {title}
+                    </span>
+                    {hook ? (
+                      <span className="mt-1.5 inline-flex rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600">
+                        {hook}
+                      </span>
+                    ) : null}
+                    <span className="mt-1.5 block break-keep text-[13px] leading-relaxed text-slate-500">
+                      {desc}
+                    </span>
+                    <span className="mt-4 hidden items-center gap-1 text-[12.5px] font-semibold text-blue-900 transition-colors group-hover:text-[#152a63] lg:inline-flex">
                       {cta}
-                      <ChevronDown
-                        size={16}
+                      <ArrowRight
+                        size={14}
                         aria-hidden
-                        className="-rotate-90 shrink-0 text-blue-900/70"
+                        className="transition-transform group-hover:translate-x-0.5"
                       />
                     </span>
-                  </Link>
-                </div>
+                  </span>
+                  <ChevronRight size={18} aria-hidden className="shrink-0 text-slate-400 lg:hidden" />
+                </Link>
               );
             })}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-slate-200/70 bg-[#faf8f5]">
-        <div className="mx-auto w-full max-w-[1040px] px-4 py-8 sm:px-6 sm:py-10">
-          <p className="break-keep text-[15px] font-medium leading-relaxed text-blue-900">
+      <section className="border-t border-slate-200/70 bg-white">
+        <div className="mx-auto w-full max-w-[1100px] px-4 py-14 sm:px-6 sm:py-20">
+          <p className="break-keep text-center text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px]">
             {t("check.checklistLead")}
           </p>
-          <ul className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+          <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {CHECKLIST_ITEMS.map((key) => (
-              <li key={key} className="flex items-start gap-2">
-                <Check size={15} className="mt-0.5 shrink-0 text-blue-900" aria-hidden />
-                <span className="text-[13px] leading-relaxed text-slate-700">{t(key)}</span>
+              <li
+                key={key}
+                className="flex items-start gap-2.5 rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4"
+              >
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50" aria-hidden>
+                  <Check size={15} className="text-blue-900" />
+                </span>
+                <span className="break-keep text-[13px] leading-relaxed text-slate-700">{t(key)}</span>
               </li>
             ))}
           </ul>
