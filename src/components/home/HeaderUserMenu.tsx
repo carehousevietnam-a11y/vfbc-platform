@@ -29,12 +29,14 @@ export default function HeaderUserMenu({
   messageHref,
   loginHref,
   onSignOut,
+  compactPc = false,
 }: {
   isSignedIn: boolean;
   name: string | null;
   messageHref: string;
   loginHref: string;
   onSignOut: () => void;
+  compactPc?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -53,7 +55,7 @@ export default function HeaderUserMenu({
     return (
       <Link
         href={loginHref}
-        className="flex h-10 items-center gap-2 rounded-xl border border-gray-200 px-3.5 text-[12px] font-semibold text-gray-700 transition hover:bg-gray-100"
+        className={`flex h-10 items-center gap-2 rounded-xl border border-gray-200 px-3.5 text-[12px] font-semibold text-gray-700 transition hover:bg-gray-100${compactPc ? " lg:h-9 lg:px-3 lg:text-[11px]" : ""}`}
       >
         <User size={16} />
         <span className="hidden sm:inline">로그인</span>

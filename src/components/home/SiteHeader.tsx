@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import LanguageMenu from "./LanguageMenu";
 import NotificationBell from "./NotificationBell";
@@ -114,13 +115,13 @@ export default function SiteHeader() {
   if (useHomeStyleHeader) {
     return (
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-[3.75rem] max-w-[1100px] items-center justify-between gap-3 px-4 sm:px-6">
-          <Link href="/" className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-900/[0.06] ring-1 ring-blue-900/10">
-              <ShieldCheck size={18} className="text-blue-900" />
+        <div className={`${ENGINE_CONTAINER} flex h-[3.75rem] items-center justify-between gap-3 lg:h-14`}>
+          <Link href="/" className="flex min-w-0 items-center gap-2.5 lg:gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-900/[0.06] ring-1 ring-blue-900/10 lg:h-8 lg:w-8">
+              <ShieldCheck size={18} className="text-blue-900 lg:h-4 lg:w-4" />
             </div>
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-[13px] font-bold tracking-tight text-blue-900">
+              <p className="truncate text-[13px] font-bold tracking-tight text-blue-900 lg:text-[12px]">
                 MY VIET CHECK
               </p>
               <p className="truncate text-[10px] font-medium text-slate-500">by VFBCAI</p>
@@ -132,12 +133,12 @@ export default function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-center transition-colors hover:bg-[#faf8f5]"
+                className="rounded-lg px-2.5 py-1.5 text-center transition-colors hover:bg-[#faf8f5]"
               >
                 <span className="block text-[10px] font-bold tracking-[0.14em] text-blue-900">
                   {item.label}
                 </span>
-                <span className="mt-0.5 block text-[11px] font-medium text-slate-500">
+                <span className="mt-0.5 block text-[10px] font-medium text-slate-500">
                   {t(NAV_SUB_KEYS[item.href])}
                 </span>
               </Link>
@@ -146,7 +147,7 @@ export default function SiteHeader() {
 
           <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="hidden items-center gap-1 sm:flex">
-              <LanguageMenu />
+              <LanguageMenu compactPc />
               {isSignedIn && <NotificationBell unreadCount={0} />}
               <HeaderUserMenu
                 isSignedIn={isSignedIn}
@@ -154,12 +155,13 @@ export default function SiteHeader() {
                 messageHref={messageHref}
                 loginHref={loginHref}
                 onSignOut={handleSignOut}
+                compactPc
               />
             </div>
 
             <Link
               href={isAiPage ? "/check" : "#hero-query"}
-              className="hidden rounded-xl border border-blue-900/10 bg-blue-900 px-3.5 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-[#152a63] sm:inline-flex"
+              className="hidden rounded-xl border border-blue-900/10 bg-blue-900 px-3.5 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-[#152a63] sm:inline-flex lg:px-3 lg:py-1.5 lg:text-[11px]"
             >
               {t("header.diagnose")}
             </Link>
