@@ -21,6 +21,7 @@ const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-5";
 const SECTION_MARK =
   "pointer-events-none absolute right-7 top-6 flex h-11 w-11 items-center justify-center rounded-full bg-blue-50 lg:right-8 lg:top-7 lg:h-16 lg:w-16";
 const SECTION_MARK_PAD = "pr-16 lg:pr-28";
+export const ENGINE_SECTION_ICON = "h-[22px] w-[22px] text-blue-900/70 lg:h-8 lg:w-8";
 
 const COMPOSER_GUIDES = [
   { titleKey: "hero.badges.cost", lineKey: "hero.preview.costLabel", icon: CircleDollarSign },
@@ -200,6 +201,7 @@ export function EngineComposer({
   chips,
   title,
   emphasis,
+  placeholder,
   onSubmit,
   onQueryChange,
   onFocus,
@@ -214,6 +216,7 @@ export function EngineComposer({
   chips: readonly EngineChip[];
   title?: string;
   emphasis?: string;
+  placeholder?: string;
   onSubmit: (e: FormEvent) => void;
   onQueryChange: (value: string) => void;
   onFocus: () => void;
@@ -245,7 +248,7 @@ export function EngineComposer({
             onChange={(e) => onQueryChange(e.target.value)}
             onFocus={onFocus}
             onBlur={onBlur}
-            placeholder={t("hero.placeholder")}
+            placeholder={placeholder ?? t("hero.placeholder")}
             className="min-h-11 min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:min-h-12 sm:text-[16px] lg:min-h-11 lg:text-[15px]"
             autoComplete="off"
           />

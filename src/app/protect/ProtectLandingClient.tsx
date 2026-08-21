@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Bell, FolderLock, MessageCircle, Clock3 } from "lucide-react";
+import { ArrowRight, Bell, FolderLock, Lock, MessageCircle, Clock3, ShieldAlert } from "lucide-react";
 import {
+  ENGINE_SECTION_ICON,
   EngineBreadcrumb,
   EngineComposer,
   EngineDisclaimerSection,
@@ -96,6 +97,7 @@ export default function ProtectLandingClient() {
           engine="PROTECT"
           title={t("pillar.protect.subtitle")}
           description={t("pillar.protect.body")}
+          deco={<ShieldAlert strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
         />
         <EngineComposer
           formId="protect-query"
@@ -104,6 +106,7 @@ export default function ProtectLandingClient() {
           isFocused={isFocused}
           showError={showError}
           chips={[]}
+          placeholder="예) 노동허가 만료일과 갱신 시기를 확인하고 싶어요."
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);
@@ -118,6 +121,7 @@ export default function ProtectLandingClient() {
       <EngineServiceSection
         engine="PROTECT"
         lead="보호할 수 있는 것"
+        deco={<Lock strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
         footer={
           <Link
             href="/mypage"
@@ -140,7 +144,7 @@ export default function ProtectLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineDisclaimerSection />
+      <EngineDisclaimerSection deco={<Bell strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
     </EngineLandingMain>
   );
 }

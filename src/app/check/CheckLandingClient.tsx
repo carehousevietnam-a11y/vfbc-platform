@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Briefcase, Car, ClipboardCheck, CreditCard, Home, Info, ListChecks, ShieldCheck } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
+  ENGINE_SECTION_ICON,
   EngineBreadcrumb,
   EngineChecklistSection,
   EngineComposer,
@@ -39,8 +40,6 @@ const CHECK_HOOKS: Record<string, string> = {
   tamtru: "12시간 이내 신고 필요",
   license: "국제면허 미인정 사례 있음",
 };
-
-const CHECK_SECTION_ICON = "h-[22px] w-[22px] text-blue-900/70 lg:h-8 lg:w-8";
 
 const CHECK_SERVICE_VISUAL: Record<string, EngineServiceVisual> = {
   trc: { icon: CreditCard, bg: "bg-blue-50", text: "text-blue-900", accent: "border-t-blue-700" },
@@ -99,7 +98,7 @@ export default function CheckLandingClient() {
           engine="CHECK"
           title={t("pillar.check.subtitle")}
           description={t("pillar.check.body")}
-          deco={<ShieldCheck strokeWidth={1.75} className={CHECK_SECTION_ICON} />}
+          deco={<ShieldCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
         />
         <EngineComposer
           formId="check-query"
@@ -110,6 +109,7 @@ export default function CheckLandingClient() {
           chips={CHECK_CHIPS}
           title="무엇을 확인하고 싶으세요?"
           emphasis="무료로 직접 확인하세요"
+          placeholder="예) 노동허가 비용이 얼마나 드나요?"
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);
@@ -124,7 +124,7 @@ export default function CheckLandingClient() {
       <EngineServiceSection
         engine="CHECK"
         lead={t("check.selectLead")}
-        deco={<ClipboardCheck strokeWidth={1.75} className={CHECK_SECTION_ICON} />}
+        deco={<ClipboardCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
       >
         {services.map((item) => (
           <EngineServiceCard
@@ -142,9 +142,9 @@ export default function CheckLandingClient() {
       <EngineChecklistSection
         lead={t("check.checklistLead")}
         items={CHECKLIST_ITEMS}
-        deco={<ListChecks strokeWidth={1.75} className={CHECK_SECTION_ICON} />}
+        deco={<ListChecks strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
       />
-      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={CHECK_SECTION_ICON} />} />
+      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
     </EngineLandingMain>
   );
 }

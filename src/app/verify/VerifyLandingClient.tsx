@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Building2, FileQuestion, FileText, Receipt } from "lucide-react";
+import { AlertTriangle, Building2, FileCheck, FileQuestion, FileText, Info, Receipt, Scale, SearchCheck } from "lucide-react";
 import { getVerifyServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
+  ENGINE_SECTION_ICON,
   EngineBreadcrumb,
   EngineChecklistSection,
   EngineComposer,
@@ -99,6 +100,7 @@ export default function VerifyLandingClient() {
           engine="VERIFY"
           title={t("pillar.verify.subtitle")}
           description={t("pillar.verify.body")}
+          deco={<Scale strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
         />
         <EngineComposer
           formId="verify-query"
@@ -109,6 +111,7 @@ export default function VerifyLandingClient() {
           chips={VERIFY_CHIPS}
           title="무엇을 검토하고 싶으세요?"
           emphasis="무료로 직접 검토하세요"
+          placeholder="예) 이 임대계약서가 안전한지 검토해 주세요."
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);
@@ -120,7 +123,11 @@ export default function VerifyLandingClient() {
         />
       </EngineTopSection>
 
-      <EngineServiceSection engine="VERIFY" lead={t("verify.selectLead")}>
+      <EngineServiceSection
+        engine="VERIFY"
+        lead={t("verify.selectLead")}
+        deco={<SearchCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
+      >
         {services.map((item) => (
           <EngineServiceCard
             key={item.key}
@@ -134,8 +141,12 @@ export default function VerifyLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineChecklistSection lead={t("verify.checklistLead")} items={VERIFY_CHECKLIST_ITEMS} />
-      <EngineDisclaimerSection />
+      <EngineChecklistSection
+        lead={t("verify.checklistLead")}
+        items={VERIFY_CHECKLIST_ITEMS}
+        deco={<FileCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
+      />
+      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
     </EngineLandingMain>
   );
 }

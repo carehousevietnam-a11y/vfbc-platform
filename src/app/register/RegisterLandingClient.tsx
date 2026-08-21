@@ -4,9 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
+  ClipboardPen,
   Droplets,
+  FilePlus,
   Flame,
   FlaskConical,
+  Info,
   Leaf,
   Stethoscope,
   Store,
@@ -14,6 +17,7 @@ import {
 } from "lucide-react";
 import { getRegisterServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
+  ENGINE_SECTION_ICON,
   EngineBreadcrumb,
   EngineChecklistSection,
   EngineComposer,
@@ -114,6 +118,7 @@ export default function RegisterLandingClient() {
           engine="REGISTER"
           title={t("pillar.register.subtitle")}
           description={t("pillar.register.body")}
+          deco={<FilePlus strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
         />
         <EngineComposer
           formId="register-query"
@@ -124,6 +129,7 @@ export default function RegisterLandingClient() {
           chips={REGISTER_CHIPS}
           title="무엇을 진행하고 싶으세요?"
           emphasis="무료로 직접 진행하세요"
+          placeholder="예) 식당을 열려면 어떤 허가가 필요한가요?"
           onSubmit={handleSubmit}
           onQueryChange={(value) => {
             setQuery(value);
@@ -135,7 +141,11 @@ export default function RegisterLandingClient() {
         />
       </EngineTopSection>
 
-      <EngineServiceSection engine="REGISTER" lead={t("register.selectLead")}>
+      <EngineServiceSection
+        engine="REGISTER"
+        lead={t("register.selectLead")}
+        deco={<Building2 strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
+      >
         {services.map((item) => (
           <EngineServiceCard
             key={item.key}
@@ -149,8 +159,12 @@ export default function RegisterLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineChecklistSection lead={t("register.checklistLead")} items={REGISTER_CHECKLIST_ITEMS} />
-      <EngineDisclaimerSection />
+      <EngineChecklistSection
+        lead={t("register.checklistLead")}
+        items={REGISTER_CHECKLIST_ITEMS}
+        deco={<ClipboardPen strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
+      />
+      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
     </EngineLandingMain>
   );
 }
