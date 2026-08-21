@@ -290,7 +290,7 @@ export default function MyVietCheckHero() {
               <span className="mb-5 inline-flex max-w-full items-center gap-1.5 break-keep rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[12px] font-medium tracking-[0.02em] text-blue-800 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:text-[12.5px]">
                 {t("hero.eyebrow")}
               </span>
-              <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[3.125rem]">
+              <h1 className="break-keep text-[1.75rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.5rem] lg:text-[2.875rem]">
                 {t("hero.titleLine1")}
                 <br />
                 {t("hero.titleBeforeHighlight")}
