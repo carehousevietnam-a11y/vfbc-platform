@@ -262,17 +262,27 @@ export function EngineServiceSection({
   lead,
   children,
   footer,
+  deco,
 }: {
   engine: string;
   lead: string;
   children: ReactNode;
   footer?: ReactNode;
+  deco?: ReactNode;
 }) {
   return (
     <section className="border-t border-slate-200/70 bg-white">
-      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD}`}>
-        <p className="text-[11px] font-bold tracking-[0.18em] text-blue-900">{engine}</p>
-        <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[16px]">
+      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative overflow-hidden`}>
+        {deco ? (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-4 top-5 hidden h-10 w-10 items-center justify-center rounded-full bg-blue-50 sm:right-6 lg:flex"
+          >
+            {deco}
+          </span>
+        ) : null}
+        <p className="text-[11px] font-bold tracking-[0.18em] text-blue-900 lg:pr-14">{engine}</p>
+        <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:pr-14 lg:text-[16px]">
           {lead}
         </p>
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mt-4 lg:grid-cols-4 lg:gap-3">{children}</div>
@@ -335,17 +345,27 @@ export function EngineServiceCard({
 export function EngineChecklistSection({
   lead,
   items,
+  deco,
 }: {
   lead: string;
   items: readonly string[];
+  deco?: ReactNode;
 }) {
   const { t } = useLocale();
   if (items.length === 0) return null;
 
   return (
     <section className="border-t border-slate-200/70 bg-white">
-      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD}`}>
-        <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[16px]">
+      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative overflow-hidden`}>
+        {deco ? (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-4 top-5 hidden h-10 w-10 items-center justify-center rounded-full bg-blue-50 sm:right-6 lg:flex"
+          >
+            {deco}
+          </span>
+        ) : null}
+        <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:pr-14 lg:text-[16px]">
           {lead}
         </p>
         <ul className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 lg:mt-4 lg:grid-cols-6">
@@ -363,12 +383,20 @@ export function EngineChecklistSection({
   );
 }
 
-export function EngineDisclaimerSection() {
+export function EngineDisclaimerSection({ deco }: { deco?: ReactNode }) {
   const { t } = useLocale();
   return (
     <section className="border-t border-slate-200/70 bg-white">
-      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD}`}>
-        <p className="break-keep text-[13px] leading-relaxed text-slate-500">
+      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative overflow-hidden`}>
+        {deco ? (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-4 top-5 hidden h-9 w-9 items-center justify-center rounded-full bg-blue-50 sm:right-6 lg:flex"
+          >
+            {deco}
+          </span>
+        ) : null}
+        <p className="break-keep text-[13px] leading-relaxed text-slate-500 lg:pr-14">
           {t("ai.disclaimer")}
         </p>
       </div>

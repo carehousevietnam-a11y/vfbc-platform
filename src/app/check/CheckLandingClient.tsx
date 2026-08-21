@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Briefcase, Car, CreditCard, Home, ShieldCheck } from "lucide-react";
+import { Briefcase, Car, ClipboardCheck, CreditCard, Files, Home, Info, ShieldCheck } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
   EngineBreadcrumb,
@@ -93,18 +93,18 @@ export default function CheckLandingClient() {
     <EngineLandingMain>
       <EngineTopSection>
         <EngineBreadcrumb engine="CHECK" />
-        <div className="relative w-full lg:pr-24">
+        <div className="relative w-full overflow-hidden lg:pr-20">
           <EngineHero
             engine="CHECK"
             title={t("pillar.check.subtitle")}
             description={t("pillar.check.body")}
           />
-          <ShieldCheck
+          <span
             aria-hidden
-            size={72}
-            strokeWidth={1.2}
-            className="pointer-events-none absolute right-0 top-0 hidden text-blue-900/[0.14] lg:block"
-          />
+            className="pointer-events-none absolute right-0 top-0 hidden h-11 w-11 items-center justify-center rounded-full bg-blue-50 lg:flex"
+          >
+            <ShieldCheck size={22} strokeWidth={1.6} className="text-blue-900/45" />
+          </span>
         </div>
         <EngineComposer
           formId="check-query"
@@ -126,7 +126,11 @@ export default function CheckLandingClient() {
         />
       </EngineTopSection>
 
-      <EngineServiceSection engine="CHECK" lead={t("check.selectLead")}>
+      <EngineServiceSection
+        engine="CHECK"
+        lead={t("check.selectLead")}
+        deco={<Files size={20} strokeWidth={1.6} className="text-blue-900/45" />}
+      >
         {services.map((item) => (
           <EngineServiceCard
             key={item.key}
@@ -140,8 +144,12 @@ export default function CheckLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineChecklistSection lead={t("check.checklistLead")} items={CHECKLIST_ITEMS} />
-      <EngineDisclaimerSection />
+      <EngineChecklistSection
+        lead={t("check.checklistLead")}
+        items={CHECKLIST_ITEMS}
+        deco={<ClipboardCheck size={20} strokeWidth={1.6} className="text-blue-900/45" />}
+      />
+      <EngineDisclaimerSection deco={<Info size={18} strokeWidth={1.6} className="text-blue-900/40" />} />
     </EngineLandingMain>
   );
 }
