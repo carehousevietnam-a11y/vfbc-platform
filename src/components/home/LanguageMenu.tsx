@@ -12,7 +12,7 @@ const LANGUAGES = [
   { code: "vi" as const, label: "Tiếng Việt" },
 ] satisfies { code: Locale; label: string }[];
 
-export default function LanguageMenu() {
+export default function LanguageMenu({ compactPc = false }: { compactPc?: boolean }) {
   const [open, setOpen] = useState(false);
   const { locale, setLocale } = useLocale();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -32,7 +32,7 @@ export default function LanguageMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-10 items-center gap-2 rounded-xl px-2.5 text-[12px] font-semibold text-gray-600 transition hover:bg-gray-100"
+        className={`flex h-10 items-center gap-2 rounded-xl px-2.5 text-[12px] font-semibold text-gray-600 transition hover:bg-gray-100${compactPc ? " lg:h-9 lg:px-2 lg:text-[11px]" : ""}`}
         aria-haspopup="menu"
         aria-expanded={open}
       >
