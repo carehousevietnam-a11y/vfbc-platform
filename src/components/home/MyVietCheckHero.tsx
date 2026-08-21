@@ -17,6 +17,7 @@ import {
   Search,
   ShieldCheck,
 } from "lucide-react";
+import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
 import { routeByKeywords } from "@/lib/smartRouter";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -284,7 +285,7 @@ export default function MyVietCheckHero() {
   return (
     <>
       <section className="bg-white">
-        <div className="mx-auto w-full max-w-[1100px] px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-14">
+        <div className={`${ENGINE_CONTAINER} pb-10 pt-10 sm:pb-14 sm:pt-14`}>
           <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-start">
             <div className="order-1 min-w-0 w-full lg:w-7/12 lg:pr-12">
               <span className="mb-5 inline-flex max-w-full items-center gap-1.5 break-keep rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[12px] font-medium tracking-[0.02em] text-blue-800 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:text-[12.5px]">
@@ -379,7 +380,7 @@ export default function MyVietCheckHero() {
       </section>
 
       <section className="border-t border-slate-200/70 bg-white">
-        <div className="mx-auto w-full max-w-[1100px] px-4 py-14 sm:px-6 sm:py-20">
+        <div className={`${ENGINE_CONTAINER} py-14 sm:py-20`}>
           <p className="break-keep text-center text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px]">
             {t("hero.pillarsLeadBefore")}
             <span className="text-amber-600">{t("hero.pillarsLeadHighlight")}</span>
