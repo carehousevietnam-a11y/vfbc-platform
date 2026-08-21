@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Briefcase, Car, ClipboardCheck, CreditCard, Files, Home, Info, ShieldCheck } from "lucide-react";
+import { Briefcase, Car, ClipboardCheck, CreditCard, Home, Info, ListChecks, ShieldCheck } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
   EngineBreadcrumb,
@@ -39,6 +39,8 @@ const CHECK_HOOKS: Record<string, string> = {
   tamtru: "12시간 이내 신고 필요",
   license: "국제면허 미인정 사례 있음",
 };
+
+const CHECK_SECTION_ICON = "h-[22px] w-[22px] text-blue-900/70 lg:h-8 lg:w-8";
 
 const CHECK_SERVICE_VISUAL: Record<string, EngineServiceVisual> = {
   trc: { icon: CreditCard, bg: "bg-blue-50", text: "text-blue-900", accent: "border-t-blue-700" },
@@ -93,19 +95,12 @@ export default function CheckLandingClient() {
     <EngineLandingMain>
       <EngineTopSection>
         <EngineBreadcrumb engine="CHECK" />
-        <div className="relative w-full overflow-hidden lg:pr-20">
-          <EngineHero
-            engine="CHECK"
-            title={t("pillar.check.subtitle")}
-            description={t("pillar.check.body")}
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-0 top-0 hidden h-11 w-11 items-center justify-center rounded-full bg-blue-50 lg:flex"
-          >
-            <ShieldCheck size={22} strokeWidth={1.6} className="text-blue-900/45" />
-          </span>
-        </div>
+        <EngineHero
+          engine="CHECK"
+          title={t("pillar.check.subtitle")}
+          description={t("pillar.check.body")}
+          deco={<ShieldCheck strokeWidth={1.75} className={CHECK_SECTION_ICON} />}
+        />
         <EngineComposer
           formId="check-query"
           inputId="check-query-input"
@@ -129,7 +124,7 @@ export default function CheckLandingClient() {
       <EngineServiceSection
         engine="CHECK"
         lead={t("check.selectLead")}
-        deco={<Files size={20} strokeWidth={1.6} className="text-blue-900/45" />}
+        deco={<ClipboardCheck strokeWidth={1.75} className={CHECK_SECTION_ICON} />}
       >
         {services.map((item) => (
           <EngineServiceCard
@@ -147,9 +142,9 @@ export default function CheckLandingClient() {
       <EngineChecklistSection
         lead={t("check.checklistLead")}
         items={CHECKLIST_ITEMS}
-        deco={<ClipboardCheck size={20} strokeWidth={1.6} className="text-blue-900/45" />}
+        deco={<ListChecks strokeWidth={1.75} className={CHECK_SECTION_ICON} />}
       />
-      <EngineDisclaimerSection deco={<Info size={18} strokeWidth={1.6} className="text-blue-900/40" />} />
+      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={CHECK_SECTION_ICON} />} />
     </EngineLandingMain>
   );
 }

@@ -18,6 +18,9 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 export const ENGINE_CONTAINER = "mx-auto w-full max-w-[960px] px-4 sm:px-6";
 const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-5";
+const SECTION_MARK =
+  "pointer-events-none absolute right-7 top-6 flex h-11 w-11 items-center justify-center rounded-full bg-blue-50 lg:right-8 lg:top-7 lg:h-16 lg:w-16";
+const SECTION_MARK_PAD = "pr-16 lg:pr-28";
 
 const COMPOSER_GUIDES = [
   { titleKey: "hero.badges.cost", lineKey: "hero.preview.costLabel", icon: CircleDollarSign },
@@ -70,13 +73,20 @@ export function EngineHero({
   engine,
   title,
   description,
+  deco,
 }: {
   engine: string;
   title: string;
   description: string;
+  deco?: ReactNode;
 }) {
   return (
-    <div className="w-full">
+    <div className={`relative w-full ${deco ? SECTION_MARK_PAD : ""}`}>
+      {deco ? (
+        <span aria-hidden className={SECTION_MARK}>
+          {deco}
+        </span>
+      ) : null}
       <h1 className="break-keep text-[2.25rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.75rem] lg:text-[2.25rem]">
         {engine}
       </h1>
@@ -272,17 +282,14 @@ export function EngineServiceSection({
 }) {
   return (
     <section className="border-t border-slate-200/70 bg-white">
-      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative overflow-hidden`}>
+      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative`}>
         {deco ? (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-4 top-5 hidden h-10 w-10 items-center justify-center rounded-full bg-blue-50 sm:right-6 lg:flex"
-          >
+          <span aria-hidden className={SECTION_MARK}>
             {deco}
           </span>
         ) : null}
-        <p className="text-[11px] font-bold tracking-[0.18em] text-blue-900 lg:pr-14">{engine}</p>
-        <p className="mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:pr-14 lg:text-[16px]">
+        <p className={`text-[11px] font-bold tracking-[0.18em] text-blue-900 ${deco ? SECTION_MARK_PAD : ""}`}>{engine}</p>
+        <p className={`mt-2 break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[16px] ${deco ? SECTION_MARK_PAD : ""}`}>
           {lead}
         </p>
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mt-4 lg:grid-cols-4 lg:gap-3">{children}</div>
@@ -356,16 +363,13 @@ export function EngineChecklistSection({
 
   return (
     <section className="border-t border-slate-200/70 bg-white">
-      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative overflow-hidden`}>
+      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative`}>
         {deco ? (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-4 top-5 hidden h-10 w-10 items-center justify-center rounded-full bg-blue-50 sm:right-6 lg:flex"
-          >
+          <span aria-hidden className={SECTION_MARK}>
             {deco}
           </span>
         ) : null}
-        <p className="break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:pr-14 lg:text-[16px]">
+        <p className={`break-keep text-[18px] font-bold leading-relaxed text-blue-900 sm:text-[20px] lg:text-[16px] ${deco ? SECTION_MARK_PAD : ""}`}>
           {lead}
         </p>
         <ul className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 lg:mt-4 lg:grid-cols-6">
@@ -387,16 +391,13 @@ export function EngineDisclaimerSection({ deco }: { deco?: ReactNode }) {
   const { t } = useLocale();
   return (
     <section className="border-t border-slate-200/70 bg-white">
-      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative overflow-hidden`}>
+      <div className={`${ENGINE_CONTAINER} ${ENGINE_SECTION_PAD} relative ${deco ? "lg:min-h-[7.5rem]" : ""}`}>
         {deco ? (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-4 top-5 hidden h-9 w-9 items-center justify-center rounded-full bg-blue-50 sm:right-6 lg:flex"
-          >
+          <span aria-hidden className={SECTION_MARK}>
             {deco}
           </span>
         ) : null}
-        <p className="break-keep text-[13px] leading-relaxed text-slate-500 lg:pr-14">
+        <p className={`break-keep text-[13px] leading-relaxed text-slate-500 ${deco ? SECTION_MARK_PAD : ""}`}>
           {t("ai.disclaimer")}
         </p>
       </div>
