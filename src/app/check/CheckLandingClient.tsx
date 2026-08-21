@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Briefcase, Car, ClipboardCheck, CreditCard, Home, Info, ListChecks, ShieldCheck } from "lucide-react";
+import { Briefcase, Car, CreditCard, Home, ShieldCheck } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
   ENGINE_SECTION_ICON,
@@ -121,11 +121,7 @@ export default function CheckLandingClient() {
         />
       </EngineTopSection>
 
-      <EngineServiceSection
-        engine="CHECK"
-        lead={t("check.selectLead")}
-        deco={<ClipboardCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
-      >
+      <EngineServiceSection engine="CHECK" lead={t("check.selectLead")}>
         {services.map((item) => (
           <EngineServiceCard
             key={item.key}
@@ -139,12 +135,8 @@ export default function CheckLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineChecklistSection
-        lead={t("check.checklistLead")}
-        items={CHECKLIST_ITEMS}
-        deco={<ListChecks strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
-      />
-      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
+      <EngineChecklistSection lead={t("check.checklistLead")} items={CHECKLIST_ITEMS} />
+      <EngineDisclaimerSection />
     </EngineLandingMain>
   );
 }

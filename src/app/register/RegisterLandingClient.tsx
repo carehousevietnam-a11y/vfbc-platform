@@ -4,12 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
-  ClipboardPen,
   Droplets,
   FilePlus,
   Flame,
   FlaskConical,
-  Info,
   Leaf,
   Stethoscope,
   Store,
@@ -141,11 +139,7 @@ export default function RegisterLandingClient() {
         />
       </EngineTopSection>
 
-      <EngineServiceSection
-        engine="REGISTER"
-        lead={t("register.selectLead")}
-        deco={<Building2 strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
-      >
+      <EngineServiceSection engine="REGISTER" lead={t("register.selectLead")}>
         {services.map((item) => (
           <EngineServiceCard
             key={item.key}
@@ -159,12 +153,8 @@ export default function RegisterLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineChecklistSection
-        lead={t("register.checklistLead")}
-        items={REGISTER_CHECKLIST_ITEMS}
-        deco={<ClipboardPen strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
-      />
-      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
+      <EngineChecklistSection lead={t("register.checklistLead")} items={REGISTER_CHECKLIST_ITEMS} />
+      <EngineDisclaimerSection />
     </EngineLandingMain>
   );
 }

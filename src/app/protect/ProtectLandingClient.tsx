@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Bell, FolderLock, Lock, MessageCircle, Clock3, ShieldAlert } from "lucide-react";
+import { ArrowRight, Bell, FolderLock, MessageCircle, Clock3, ShieldAlert } from "lucide-react";
 import {
   ENGINE_SECTION_ICON,
   EngineBreadcrumb,
@@ -121,7 +121,6 @@ export default function ProtectLandingClient() {
       <EngineServiceSection
         engine="PROTECT"
         lead="보호할 수 있는 것"
-        deco={<Lock strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
         footer={
           <Link
             href="/mypage"
@@ -144,7 +143,7 @@ export default function ProtectLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineDisclaimerSection deco={<Bell strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
+      <EngineDisclaimerSection />
     </EngineLandingMain>
   );
 }

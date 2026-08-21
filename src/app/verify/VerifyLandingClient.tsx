@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Building2, FileCheck, FileQuestion, FileText, Info, Receipt, Scale, SearchCheck } from "lucide-react";
+import { AlertTriangle, Building2, FileQuestion, FileText, Receipt, Scale } from "lucide-react";
 import { getVerifyServiceItems } from "@/components/home/HomeServiceAccordion";
 import {
   ENGINE_SECTION_ICON,
@@ -123,11 +123,7 @@ export default function VerifyLandingClient() {
         />
       </EngineTopSection>
 
-      <EngineServiceSection
-        engine="VERIFY"
-        lead={t("verify.selectLead")}
-        deco={<SearchCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
-      >
+      <EngineServiceSection engine="VERIFY" lead={t("verify.selectLead")}>
         {services.map((item) => (
           <EngineServiceCard
             key={item.key}
@@ -141,12 +137,8 @@ export default function VerifyLandingClient() {
         ))}
       </EngineServiceSection>
 
-      <EngineChecklistSection
-        lead={t("verify.checklistLead")}
-        items={VERIFY_CHECKLIST_ITEMS}
-        deco={<FileCheck strokeWidth={1.75} className={ENGINE_SECTION_ICON} />}
-      />
-      <EngineDisclaimerSection deco={<Info strokeWidth={1.75} className={ENGINE_SECTION_ICON} />} />
+      <EngineChecklistSection lead={t("verify.checklistLead")} items={VERIFY_CHECKLIST_ITEMS} />
+      <EngineDisclaimerSection />
     </EngineLandingMain>
   );
 }
