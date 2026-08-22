@@ -139,7 +139,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
           />
         }
       />
-      <ResultSummary directAnswer={displayDirectAnswer} />
+      <ResultSummary directAnswer={displayDirectAnswer} guideHref={guideHref ?? undefined} />
 
       {hasCostPanel && serviceId ? (
         <CostCheckCard
@@ -172,13 +172,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
         </>
       )}
 
-      <NextStep
-        compact
-        showExpertCta={false}
-        funnelHref={checkHref}
-        extraHref={guideHref ?? undefined}
-        extraLabel={guideHref ? "더 자세히 보기" : undefined}
-      />
+      <NextStep compact showExpertCta={false} funnelHref={checkHref} />
     </article>
   );
 }
