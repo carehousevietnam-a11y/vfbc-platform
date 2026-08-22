@@ -70,7 +70,7 @@ import {
   buildNavigatorAction,
   inferAnonymousLegalRagContext,
 } from "@/lib/aiGateway";
-import { buildAnonymousFastGuide } from "@/lib/anonymousLegalGuide";
+import { buildAnonymousFastGuide, buildAnonymousCompoundGuide, isAnonymousCompoundGuideQuestion } from "@/lib/anonymousLegalGuide";
 import { buildArticleChatReply } from "@/lib/anonymousArticleGuide";
 import {
   getTrcArticleByIntent,
@@ -284,7 +284,10 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const category = classifyMessage(lastMessage!.content);
+      let category = classifyMessage(lastMessage!.content);
+      if (isAnonymous && category === "progress" && isAnonymousCompoundGuideQuestion(lastMessage!.content)) {
+        category = "ai_analysis";
+      }
 
       if (category !== "ai_analysis") {
         // 저장은 leadId가 있을 때만 한다 — 익명 문의는 특정 사건에 귀속시킬
@@ -432,6 +435,26 @@ export async function POST(req: NextRequest) {
       if (isAnonymous) {
         const inferred = inferAnonymousLegalRagContext(lastMessage!.content);
         if (inferred) {
+          if (isAnonymousCompoundGuideQuestion(lastMessage!.content)) {
+            const replyBody = enrichReplyWithCostData(
+              buildAnonymousCompoundGuide(inferred, lastMessage!.content),
+              lastMessage!.content
+            );
+            const suppressNavActions = shouldSuppressNavigatorActions(replyBody);
+            const reply =
+              replyBody +
+              (suppressNavActions ? "" : buildNavigatorSuffix("ai_analysis", lastMessage!.content));
+            const action = buildNavigatorAction("ai_analysis", lastMessage!.content);
+            const actions = suppressNavActions ? [] : action ? [action] : [];
+
+            return NextResponse.json({
+              reply,
+              needsExpert: true,
+              category: "ai_analysis",
+              actions,
+            });
+          }
+
           if (isTrcService(inferred.service_type)) {
             const intentId = resolveTrcArticleIntent(lastMessage!.content);
             const article = getTrcArticleByIntent(intentId);
