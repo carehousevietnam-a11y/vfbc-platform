@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { CostCheckCard, quoteReviewToCostCheckQuote } from "@/components/cost-check/CostCheckCard";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
 import { matchCostCheckService, parseCostEnrichedReply } from "@/lib/aiCostSection";
@@ -10,11 +9,13 @@ import { QuestionCard } from "@/components/result/QuestionCard";
 import { ResultSummary } from "@/components/result/ResultSummary";
 import { EvidenceSection } from "@/components/result/EvidenceSection";
 import { SourceSection } from "@/components/result/SourceSection";
+import { NextStep } from "@/components/result/NextStep";
 import { extractDirectAnswer } from "@/components/result/parseReplyPresentation";
 import { getQuoteFunnelHref } from "@/lib/quoteReviewLinks";
 import { getCostCheckService, type CostCheckServiceId } from "@/lib/costCheck";
 import { getTrcArticleByIntent, isTrcService, resolveTrcArticleIntent } from "@/lib/contentPacks/intentRouter";
 import { guidePath } from "@/lib/contentPacks/paths";
+import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type NavigatorAction = { label: string; href: string };
@@ -46,6 +47,13 @@ function parseAssistantContent(content: string): {
     mainText: content.slice(0, match.index).trimEnd(),
     nav: { label: match[1], href: match[2] },
   };
+}
+
+function publishedGuideHref(href: string | undefined): string | null {
+  if (!href) return null;
+  const match = href.match(/^\/guide\/([a-z0-9-]+)\/?$/i);
+  if (!match) return null;
+  return getPublishedArticleBySlug(match[1]) ? guidePath(match[1]) : null;
 }
 
 function resolveDirectAnswer(
@@ -87,15 +95,19 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
     | undefined;
   const service = serviceId ? getCostCheckService(serviceId) : null;
 
-  const actionGuideHref = (report.actions ?? []).find((item) => item.href.startsWith("/guide/"))?.href;
+  const actionGuideHref = publishedGuideHref(
+    (report.actions ?? []).find((item) => item.href.startsWith("/guide/"))?.href
+  );
   const actionCheckHref = (report.actions ?? []).find((item) =>
     item.href.startsWith("/check")
   )?.href;
-  const guideHref =
-    actionGuideHref ??
-    (serviceId && isTrcService(serviceId)
-      ? guidePath(getTrcArticleByIntent(resolveTrcArticleIntent(report.question)).slug)
-      : null);
+  const trcGuideHref =
+    serviceId && isTrcService(serviceId)
+      ? publishedGuideHref(
+          guidePath(getTrcArticleByIntent(resolveTrcArticleIntent(report.question)).slug)
+        )
+      : null;
+  const guideHref = actionGuideHref ?? trcGuideHref;
   const checkHref =
     actionCheckHref ?? (serviceId ? getQuoteFunnelHref(serviceId) : parsed.nav?.href ?? "/check");
 
@@ -147,33 +159,13 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
         </>
       )}
 
-      <nav
-        className="mt-6 border-t border-slate-200/80 pt-6"
-        aria-label="다음 행동"
-      >
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {guideHref ? (
-            <Link
-              href={guideHref}
-              className="min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3.5 transition-colors hover:border-blue-900/30"
-            >
-              <p className="text-[15px] font-semibold text-slate-900">더 자세히 보기</p>
-              <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
-                이 답변의 조건·근거·상황별 내용을 더 자세히 확인해보세요.
-              </p>
-            </Link>
-          ) : null}
-          <Link
-            href={checkHref}
-            className="min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3.5 transition-colors hover:border-blue-900/30"
-          >
-            <p className="text-[15px] font-semibold text-slate-900">내 상황 확인하기</p>
-            <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
-              같은 질문이라도 내 체류·근무·서류 상황에 따라 확인할 내용이 달라질 수 있습니다.
-            </p>
-          </Link>
-        </div>
-      </nav>
+      <NextStep
+        compact
+        showExpertCta={false}
+        funnelHref={checkHref}
+        extraHref={guideHref ?? undefined}
+        extraLabel={guideHref ? "더 자세히 보기" : undefined}
+      />
     </article>
   );
 }
