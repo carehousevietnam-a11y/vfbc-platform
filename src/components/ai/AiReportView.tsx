@@ -1,19 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { CostCheckCard, quoteReviewToCostCheckQuote } from "@/components/cost-check/CostCheckCard";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
-import { parseCostEnrichedReply } from "@/lib/aiCostSection";
+import { matchCostCheckService, parseCostEnrichedReply } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 import { ResultHeader } from "@/components/result/ResultHeader";
 import { QuestionCard } from "@/components/result/QuestionCard";
 import { ResultSummary } from "@/components/result/ResultSummary";
 import { EvidenceSection } from "@/components/result/EvidenceSection";
 import { SourceSection } from "@/components/result/SourceSection";
-import { RelatedQuestions } from "@/components/result/RelatedQuestions";
-import { NextStep } from "@/components/result/NextStep";
 import { extractDirectAnswer } from "@/components/result/parseReplyPresentation";
 import { getQuoteFunnelHref } from "@/lib/quoteReviewLinks";
 import { getCostCheckService, type CostCheckServiceId } from "@/lib/costCheck";
+import { getTrcArticleByIntent, isTrcService, resolveTrcArticleIntent } from "@/lib/contentPacks/intentRouter";
+import { guidePath } from "@/lib/contentPacks/paths";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type NavigatorAction = { label: string; href: string };
@@ -80,19 +81,23 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
   const hasQuote = Boolean(report.quoteReview);
   const { directAnswer, remainder } = resolveDirectAnswer(mainText, hasQuote, report.quoteReview);
 
-  const resolvedActions: NavigatorAction[] = hasCostPanel
-    ? []
-    : Array.isArray(report.actions) && report.actions.length > 0
-      ? report.actions
-      : parsed.nav
-        ? [parsed.nav]
-        : [];
-
-  const serviceId = (report.quoteReview?.serviceId ?? parsedCost.serviceId) as
+  const matchedService = matchCostCheckService(report.question);
+  const serviceId = (report.quoteReview?.serviceId ?? parsedCost.serviceId ?? matchedService?.id) as
     | CostCheckServiceId
     | undefined;
-  const funnelHref = serviceId ? getQuoteFunnelHref(serviceId) : "/check";
   const service = serviceId ? getCostCheckService(serviceId) : null;
+
+  const actionGuideHref = (report.actions ?? []).find((item) => item.href.startsWith("/guide/"))?.href;
+  const actionCheckHref = (report.actions ?? []).find((item) =>
+    item.href.startsWith("/check")
+  )?.href;
+  const guideHref =
+    actionGuideHref ??
+    (serviceId && isTrcService(serviceId)
+      ? guidePath(getTrcArticleByIntent(resolveTrcArticleIntent(report.question)).slug)
+      : null);
+  const checkHref =
+    actionCheckHref ?? (serviceId ? getQuoteFunnelHref(serviceId) : parsed.nav?.href ?? "/check");
 
   return (
     <article className="mx-auto w-full min-w-0 max-w-[960px]">
@@ -138,11 +143,37 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
                 Vietnam · {service?.label ?? t("result.adminLegal")}
               </p>
             </SourceSection>
-            <RelatedQuestions links={resolvedActions} />
           </div>
-          <NextStep funnelHref={funnelHref} />
         </>
       )}
+
+      <nav
+        className="mt-6 border-t border-slate-200/80 pt-6"
+        aria-label="다음 행동"
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {guideHref ? (
+            <Link
+              href={guideHref}
+              className="min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3.5 transition-colors hover:border-blue-900/30"
+            >
+              <p className="text-[15px] font-semibold text-slate-900">더 자세히 보기</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
+                이 답변의 조건·근거·상황별 내용을 더 자세히 확인해보세요.
+              </p>
+            </Link>
+          ) : null}
+          <Link
+            href={checkHref}
+            className="min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3.5 transition-colors hover:border-blue-900/30"
+          >
+            <p className="text-[15px] font-semibold text-slate-900">내 상황 확인하기</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
+              같은 질문이라도 내 체류·근무·서류 상황에 따라 확인할 내용이 달라질 수 있습니다.
+            </p>
+          </Link>
+        </div>
+      </nav>
     </article>
   );
 }
