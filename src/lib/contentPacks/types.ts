@@ -4,7 +4,7 @@ export type ArticleSection =
   | { type: "bullets"; title?: string; items: string[] }
   | { type: "numbered"; items: string[] };
 
-export type ArticleIntentId = "trc-documents" | "trc-guide";
+export type ArticleIntentId = "trc-documents" | "trc-guide" | "wp-guide";
 
 export type CaseQa = { q: string; a: string };
 

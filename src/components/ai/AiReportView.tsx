@@ -16,6 +16,8 @@ import { getCostCheckService, type CostCheckServiceId } from "@/lib/costCheck";
 import { getTrcArticleByIntent, isTrcService, resolveTrcArticleIntent } from "@/lib/contentPacks/intentRouter";
 import { guidePath } from "@/lib/contentPacks/paths";
 import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
+import { WP_GUIDE_SLUG } from "@/lib/contentPacks/wpArticles";
+import { getAnonymousGuideFacets, getAnonymousProcessLine } from "@/lib/anonymousLegalGuide";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type NavigatorAction = { label: string; href: string };
@@ -88,12 +90,22 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
   const mainText = parsed.mainText;
   const hasQuote = Boolean(report.quoteReview);
   const { directAnswer, remainder } = resolveDirectAnswer(mainText, hasQuote, report.quoteReview);
+  const facets = getAnonymousGuideFacets(report.question);
 
   const matchedService = matchCostCheckService(report.question);
   const serviceId = (report.quoteReview?.serviceId ?? parsedCost.serviceId ?? matchedService?.id) as
     | CostCheckServiceId
     | undefined;
   const service = serviceId ? getCostCheckService(serviceId) : null;
+
+  let displayDirectAnswer = directAnswer;
+  if (!hasQuote && serviceId === "wp" && service) {
+    if (hasCostPanel && facets.cost && !facets.process && !facets.documents) {
+      displayDirectAnswer = `${service.label} 비용은 정부 수수료 ${service.governmentFee}(${service.source})와 대행·번역 비용을 함께 확인하는 것이 좋습니다. ${service.lookupGuide}`;
+    } else if (!hasCostPanel && facets.process && !facets.documents && !facets.cost) {
+      displayDirectAnswer = getAnonymousProcessLine("wp");
+    }
+  }
 
   const actionGuideHref = publishedGuideHref(
     (report.actions ?? []).find((item) => item.href.startsWith("/guide/"))?.href
@@ -107,7 +119,8 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
           guidePath(getTrcArticleByIntent(resolveTrcArticleIntent(report.question)).slug)
         )
       : null;
-  const guideHref = actionGuideHref ?? trcGuideHref;
+  const wpGuideHref = serviceId === "wp" ? guidePath(WP_GUIDE_SLUG) : null;
+  const guideHref = actionGuideHref ?? trcGuideHref ?? wpGuideHref;
   const checkHref =
     actionCheckHref ?? (serviceId ? getQuoteFunnelHref(serviceId) : parsed.nav?.href ?? "/check");
 
@@ -126,7 +139,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
           />
         }
       />
-      <ResultSummary directAnswer={directAnswer} />
+      <ResultSummary directAnswer={displayDirectAnswer} />
 
       {hasCostPanel && serviceId ? (
         <CostCheckCard

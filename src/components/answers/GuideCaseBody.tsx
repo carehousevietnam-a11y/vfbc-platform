@@ -28,7 +28,9 @@ export function GuideCaseBody({ article }: GuideCaseBodyProps) {
   const showDocuments = landing.showDocuments !== false;
   const showOfficialCost = landing.showOfficialCost === true;
   const costService =
-    showOfficialCost && article.serviceType === "trc" ? getCostCheckService("trc") : null;
+    showOfficialCost && (article.serviceType === "trc" || article.serviceType === "wp")
+      ? getCostCheckService(article.serviceType)
+      : null;
 
   const sources = [...landing.sources];
   if (costService && !sources.some((item) => item.label === costService.source)) {
@@ -94,8 +96,8 @@ export function GuideCaseBody({ article }: GuideCaseBodyProps) {
         <section className="mt-6 border-b border-slate-200/80 pb-6" aria-labelledby="guide-docs">
           <SectionHeading id="guide-docs">필요한 서류</SectionHeading>
           <p className="mt-2 text-xs leading-relaxed text-slate-500">
-            아래는 VFBCAI가 같은 플랫폼의 거주증 서류 목록으로 정리한 참고용입니다. 법령 조항에서 확정한
-            제출 목록이 아니며, 「회사서류」「기타 관련 자료」의 세부 구성은 이 목록에 정해져 있지 않습니다.
+            아래는 VFBCAI가 같은 플랫폼의 {docs.serviceLabel} 서류 목록으로 정리한 참고용입니다. 법령
+            조항에서 확정한 제출 목록이 아니며, 선택 항목의 세부 구성은 이 목록에 정해져 있지 않습니다.
           </p>
           <p className="mt-3 text-sm font-semibold text-slate-800">우선 제출</p>
           <ul className="mt-2 space-y-2">
@@ -271,7 +273,9 @@ export function GuideCaseBody({ article }: GuideCaseBodyProps) {
               {article.funnelCtaLabel}
             </Link>
             <Link
-              href="/cost-check?tab=lookup&q=거주증"
+              href={`/cost-check?tab=lookup&q=${encodeURIComponent(
+                article.serviceType === "wp" ? "노동허가" : "거주증"
+              )}`}
               className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/25 bg-white/10 px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-white/15"
             >
               COST CHECK로 비용 확인
