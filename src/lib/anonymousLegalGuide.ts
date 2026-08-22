@@ -1,5 +1,6 @@
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import type { InferredLegalRagContext } from "@/lib/aiGateway";
+import { hasCostSignal } from "@/lib/aiCostSection";
 
 export const ANONYMOUS_MYPAGE_CTA =
   "무료 회원가입 후 마이페이지에서 신청 진행상황과 서류 제출 현황을 확인하실 수 있습니다.";
@@ -88,6 +89,65 @@ function legalBasisLine(serviceType: string): string {
     return `관련 법령: ${refs} (구체 조항은 전문가 확인 필요)`;
   }
   return "관련 법령은 사안별로 다르며, 구체 조항은 전문가 확인이 필요합니다.";
+}
+
+const DOCUMENT_FACET_RE =
+  /서류|준비물|필요.*(뭐|무엇)|뭐.*필요|목록|체크리스트|document|서류목록|제출.*서류/i;
+const PROCESS_FACET_RE =
+  /진행|절차|순서|어떻게.*해야|어떻게.*하나|어떻게.*해요|어떻게 되고/i;
+
+export type AnonymousGuideFacets = {
+  process: boolean;
+  documents: boolean;
+  cost: boolean;
+};
+
+/** 한 질문에 진행·서류·비용이 함께 들어 있는지 본다. 새 라우터가 아니다. */
+export function getAnonymousGuideFacets(question: string): AnonymousGuideFacets {
+  const q = question.trim();
+  return {
+    process: PROCESS_FACET_RE.test(q),
+    documents: DOCUMENT_FACET_RE.test(q),
+    cost: hasCostSignal(q),
+  };
+}
+
+export function isAnonymousCompoundGuideQuestion(question: string): boolean {
+  const facets = getAnonymousGuideFacets(question);
+  return [facets.process, facets.documents, facets.cost].filter(Boolean).length >= 2;
+}
+
+function firstProcessSentence(serviceType: string): string {
+  const line = getAnonymousProcessLine(serviceType);
+  const match = line.match(/^.+?다\./);
+  return match ? match[0] : line;
+}
+
+/**
+ * 복합 질문용 짧은 직접 답변. 기존 서류·절차 데이터만 쓰고 마이페이지 안내를 답변으로 쓰지 않는다.
+ * 비용 금액은 enrichReplyWithCostData가 이어서 붙인다.
+ */
+export function buildAnonymousCompoundGuide(
+  inferred: InferredLegalRagContext,
+  question: string
+): string {
+  const config = getRequiredDocuments(inferred.service_type);
+  const facets = getAnonymousGuideFacets(question);
+  const sentences: string[] = [];
+
+  if (facets.process) {
+    sentences.push(firstProcessSentence(inferred.service_type));
+  }
+  if (facets.documents) {
+    sentences.push(`핵심 서류는 ${config.documents.join(", ")}입니다.`);
+  }
+
+  const lead = sentences.join(" ").trim();
+  if (!lead) {
+    return buildAnonymousFastGuide(inferred);
+  }
+
+  return [lead, "", ANONYMOUS_GUIDE_DISCLAIMER].join("\n");
 }
 
 /** 익명 /ai — 주제 추정 성공 시 즉시 반환하는 구조화 가이드. */

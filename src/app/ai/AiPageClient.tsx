@@ -165,30 +165,32 @@ function AiPageContent() {
         </div>
       </div>
 
-      <footer className="shrink-0 border-t border-slate-200/70 bg-white/95 backdrop-blur">
-        <div className="mx-auto w-full max-w-[1040px] px-4 py-4 sm:px-6">
-          <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={session ? t("ai.placeholderFollowup") : t("ai.placeholderNew")}
-              disabled={sending}
-              className="min-h-[48px] flex-1 rounded-xl border border-slate-200 bg-[#faf8f5]/60 px-4 py-2.5 text-[15px] outline-none transition-colors focus:border-blue-900/30 focus:bg-white focus:ring-2 focus:ring-blue-900/10 disabled:opacity-60 sm:text-base"
-            />
-            <button
-              type="submit"
-              disabled={sending || !input.trim()}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-900 text-white transition-colors hover:bg-[#152a63] disabled:opacity-40"
-            >
-              <Send size={18} />
-            </button>
-          </form>
-          <p className="mt-2.5 flex items-center gap-1.5 text-[13px] text-slate-500 sm:text-sm">
-            <AlertTriangle size={12} className="shrink-0" />
-            {t("ai.disclaimer")}
-          </p>
-        </div>
-      </footer>
+      {!session ? (
+        <footer className="shrink-0 border-t border-slate-200/70 bg-white/95 backdrop-blur">
+          <div className="mx-auto w-full max-w-[1040px] px-4 py-4 sm:px-6">
+            <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={t("ai.placeholderNew")}
+                disabled={sending}
+                className="min-h-[48px] flex-1 rounded-xl border border-slate-200 bg-[#faf8f5]/60 px-4 py-2.5 text-[15px] outline-none transition-colors focus:border-blue-900/30 focus:bg-white focus:ring-2 focus:ring-blue-900/10 disabled:opacity-60 sm:text-base"
+              />
+              <button
+                type="submit"
+                disabled={sending || !input.trim()}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-900 text-white transition-colors hover:bg-[#152a63] disabled:opacity-40"
+              >
+                <Send size={18} />
+              </button>
+            </form>
+            <p className="mt-2.5 flex items-center gap-1.5 text-[13px] text-slate-500 sm:text-sm">
+              <AlertTriangle size={12} className="shrink-0" />
+              {t("ai.disclaimer")}
+            </p>
+          </div>
+        </footer>
+      ) : null}
     </main>
   );
 }

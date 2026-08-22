@@ -26,3 +26,7 @@ export function getTrcArticleByIntent(intentId: ArticleIntentId) {
 export function isTrcService(serviceType: string): boolean {
   return serviceType === "trc";
 }
+
+export function isWpService(serviceType: string): boolean {
+  return serviceType === "wp";
+}

@@ -24,8 +24,6 @@ import { getQuoteFunnelHref, getQuoteNextLinks } from "@/lib/quoteReviewLinks";
 import { CostMetricCard } from "@/components/result/CostMetricCard";
 import { CostComparisonBar } from "@/components/result/CostComparisonBar";
 import { SourceSection } from "@/components/result/SourceSection";
-import { RelatedQuestions } from "@/components/result/RelatedQuestions";
-import { NextStep } from "@/components/result/NextStep";
 
 export type CostCheckQuoteResult = {
   quotedAmount: number;
@@ -294,10 +292,7 @@ export function CostCheckCard({
               <p className="text-[13px] leading-relaxed text-slate-500">출처: {service.source}</p>
             </SourceSection>
           )}
-          <RelatedQuestions links={nextLinks} />
         </div>
-
-        <NextStep funnelHref={funnelHref} />
       </div>
     );
   }
