@@ -75,7 +75,7 @@ function SectionWrap({
     return <section className={className}>{children}</section>;
   }
   return (
-    <div className={`rounded-xl border border-slate-200 bg-white p-4 ${className}`}>{children}</div>
+    <div className={`rounded-xl border border-blue-200 bg-white p-4 shadow-[0_0_0_3px_rgba(30,64,175,0.04),0_2px_8px_rgba(15,23,42,0.04)] ${className}`}>{children}</div>
   );
 }
 
@@ -299,19 +299,19 @@ export function CostCheckCard({
 
   const costBasis = (
     <>
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">비용 확인</p>
-      <p className="mt-1 text-base font-semibold text-slate-900">{service.label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">비용 확인</p>
+      <p className="mt-1 text-base font-semibold text-blue-900">{service.label}</p>
 
-      <div className="mt-4 space-y-2 border-y border-slate-100 py-4 text-sm">
+      <div className="mt-4 space-y-2 border-y border-blue-100 py-4 text-sm">
         <div className="flex items-start justify-between gap-4">
           <span className="shrink-0 text-slate-600">정부 공식 수수료</span>
-          <span className="text-right font-medium text-slate-900">{service.governmentFee}</span>
+          <span className="text-right font-semibold text-blue-900">{service.governmentFee}</span>
         </div>
         <p className="text-right text-xs leading-snug text-slate-500">출처: {service.source}</p>
         {regionalOfficialFee}
         <div className="flex items-start justify-between gap-4">
           <span className="shrink-0 text-slate-600">일반 시장 범위</span>
-          <span className="text-right font-medium text-slate-900">
+          <span className="text-right font-semibold text-blue-900">
             {formatCostAmount(service.marketMin, service.currency)} ~{" "}
             {formatCostAmount(service.marketMax, service.currency)}
           </span>
@@ -320,7 +320,7 @@ export function CostCheckCard({
 
       <p className="mt-4 text-xs text-slate-500">다른곳에서 받은 견적</p>
       {hasQuote ? (
-        <p className="mt-1 text-2xl font-bold text-slate-900">
+        <p className="mt-1 text-2xl font-bold text-blue-900">
           {formatCostAmount(quote.quotedAmount, service.currency)}
         </p>
       ) : onQuoteSubmit ? (
@@ -330,12 +330,12 @@ export function CostCheckCard({
             value={quoteInput}
             onChange={(e) => setQuoteInput(e.target.value)}
             placeholder="예: 1,000달러, 500만동"
-            className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
+            className="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-400/16"
           />
           <button
             type="submit"
             disabled={!quoteInput.trim()}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+            className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-600 disabled:opacity-40"
           >
             확인
           </button>
@@ -378,16 +378,16 @@ export function CostCheckCard({
 
   const compareBlock = !hasQuote ? (
     <>
-      <p className="text-sm font-medium text-slate-800">{QUOTE_COMPARE_SUGGESTION}</p>
+      <p className="text-sm font-semibold text-blue-900">{QUOTE_COMPARE_SUGGESTION}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={onCompareYes}
-          className="rounded-lg border border-blue-900 bg-blue-900 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-950"
+          className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-amber-600"
         >
           네, 비교할게요
         </button>
-        <span className="inline-flex items-center rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-500">
+        <span className="inline-flex items-center rounded-xl border border-blue-100 bg-white px-4 py-2 text-xs font-medium text-slate-500">
           괜찮아요
         </span>
       </div>
@@ -414,9 +414,9 @@ export function CostCheckCard({
   );
 
   const funnelBlock = (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 text-center">
-      <p className="text-sm font-semibold text-slate-900">비용은 확인했습니다.</p>
-      <p className="mt-1 text-sm font-semibold text-slate-900">이제 내 상황을 정확히 확인해보세요.</p>
+    <div className="rounded-xl border border-blue-200 bg-white p-5 text-center shadow-[0_0_0_3px_rgba(30,64,175,0.04),0_2px_8px_rgba(15,23,42,0.04)]">
+      <p className="text-sm font-semibold text-blue-900">비용은 확인했습니다.</p>
+      <p className="mt-1 text-sm font-semibold text-blue-900">이제 내 상황을 정확히 확인해보세요.</p>
       <p className="mt-3 text-xs leading-relaxed text-slate-500">
         같은 업무라도 사람마다 필요한 절차와 조건이 다를 수 있습니다.
         <br />
@@ -426,7 +426,7 @@ export function CostCheckCard({
       </p>
       <Link
         href={funnelHref}
-        className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-900 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-950"
+        className="mt-4 inline-flex items-center justify-center rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
       >
         내 상황 무료 진단받기 →
       </Link>
@@ -437,7 +437,7 @@ export function CostCheckCard({
   return (
     <div className="space-y-5">
       <SectionWrap variant={variant}>{costBasis}</SectionWrap>
-      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">{adequacySection}</div>
+      <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-5">{adequacySection}</div>
       {!hasQuote && compareBlock ? <SectionWrap variant={variant}>{compareBlock}</SectionWrap> : null}
       {hasQuote ? (
         <ReviewJudgmentDetails
