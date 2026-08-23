@@ -1,0 +1,17 @@
+{
+  "name": "vfbc-platform",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "next-dev",
+      "command": "npm run dev",
+      "description": "Next.js dev server (http://localhost:3000). Requires Supabase/Resend env vars provided via Cloud Agent Secrets."
+    }
+  ],
+  "ports": [
+    {
+      "name": "next-dev",
+      "port": 3000
+    }
+  ]
+}
