@@ -52,8 +52,8 @@ export function OfficialSourceList({
         {regionLabel ?? "지역별 공식 확인 자료"}
       </p>
       {Object.entries(byRegion).map(([region, entries]) => (
-        <div key={region} className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm font-semibold text-slate-900">{region}</p>
+        <div key={region} className="rounded-xl border border-blue-200 bg-white p-4">
+          <p className="text-sm font-semibold text-blue-900">{region}</p>
           <ul className="mt-2 space-y-2">
             {entries.map((entry, idx) => (
               <li key={`${region}-${entry.applicationType}-${idx}`} className="text-sm">

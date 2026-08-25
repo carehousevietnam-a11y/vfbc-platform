@@ -2,18 +2,22 @@
 
 import { CostCheckCard, quoteReviewToCostCheckQuote } from "@/components/cost-check/CostCheckCard";
 import { ChatAnswerContent } from "@/components/chat/ChatAnswerContent";
-import { parseCostEnrichedReply } from "@/lib/aiCostSection";
+import { matchCostCheckService, parseCostEnrichedReply } from "@/lib/aiCostSection";
 import type { QuoteReviewPayload } from "@/lib/aiQuoteReview";
 import { ResultHeader } from "@/components/result/ResultHeader";
 import { QuestionCard } from "@/components/result/QuestionCard";
 import { ResultSummary } from "@/components/result/ResultSummary";
 import { EvidenceSection } from "@/components/result/EvidenceSection";
 import { SourceSection } from "@/components/result/SourceSection";
-import { RelatedQuestions } from "@/components/result/RelatedQuestions";
 import { NextStep } from "@/components/result/NextStep";
 import { extractDirectAnswer } from "@/components/result/parseReplyPresentation";
 import { getQuoteFunnelHref } from "@/lib/quoteReviewLinks";
 import { getCostCheckService, type CostCheckServiceId } from "@/lib/costCheck";
+import { getTrcArticleByIntent, isTrcService, resolveTrcArticleIntent } from "@/lib/contentPacks/intentRouter";
+import { guidePath } from "@/lib/contentPacks/paths";
+import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
+import { WP_GUIDE_SLUG } from "@/lib/contentPacks/wpArticles";
+import { getAnonymousGuideFacets, getAnonymousProcessLine } from "@/lib/anonymousLegalGuide";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type NavigatorAction = { label: string; href: string };
@@ -33,7 +37,7 @@ export type AiReportData = {
 };
 
 const NAVIGATOR_LINE_PATTERN =
-  /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation|answers)\S*)\s*$/;
+  /\n\n📍 (.+?): (\/(?:check|verify|register|mypage|consultation|answers|guide)\S*)\s*$/;
 
 function parseAssistantContent(content: string): {
   mainText: string;
@@ -45,6 +49,13 @@ function parseAssistantContent(content: string): {
     mainText: content.slice(0, match.index).trimEnd(),
     nav: { label: match[1], href: match[2] },
   };
+}
+
+function publishedGuideHref(href: string | undefined): string | null {
+  if (!href) return null;
+  const match = href.match(/^\/guide\/([a-z0-9-]+)\/?$/i);
+  if (!match) return null;
+  return getPublishedArticleBySlug(match[1]) ? guidePath(match[1]) : null;
 }
 
 function resolveDirectAnswer(
@@ -79,20 +90,39 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
   const mainText = parsed.mainText;
   const hasQuote = Boolean(report.quoteReview);
   const { directAnswer, remainder } = resolveDirectAnswer(mainText, hasQuote, report.quoteReview);
+  const facets = getAnonymousGuideFacets(report.question);
 
-  const resolvedActions: NavigatorAction[] = hasCostPanel
-    ? []
-    : Array.isArray(report.actions) && report.actions.length > 0
-      ? report.actions
-      : parsed.nav
-        ? [parsed.nav]
-        : [];
-
-  const serviceId = (report.quoteReview?.serviceId ?? parsedCost.serviceId) as
+  const matchedService = matchCostCheckService(report.question);
+  const serviceId = (report.quoteReview?.serviceId ?? parsedCost.serviceId ?? matchedService?.id) as
     | CostCheckServiceId
     | undefined;
-  const funnelHref = serviceId ? getQuoteFunnelHref(serviceId) : "/check";
   const service = serviceId ? getCostCheckService(serviceId) : null;
+
+  let displayDirectAnswer = directAnswer;
+  if (!hasQuote && serviceId === "wp" && service) {
+    if (hasCostPanel && facets.cost && !facets.process && !facets.documents) {
+      displayDirectAnswer = `${service.label} 비용은 정부 수수료 ${service.governmentFee}(${service.source})와 대행·번역 비용을 함께 확인하는 것이 좋습니다. ${service.lookupGuide}`;
+    } else if (!hasCostPanel && facets.process && !facets.documents && !facets.cost) {
+      displayDirectAnswer = getAnonymousProcessLine("wp");
+    }
+  }
+
+  const actionGuideHref = publishedGuideHref(
+    (report.actions ?? []).find((item) => item.href.startsWith("/guide/"))?.href
+  );
+  const actionCheckHref = (report.actions ?? []).find((item) =>
+    item.href.startsWith("/check")
+  )?.href;
+  const trcGuideHref =
+    serviceId && isTrcService(serviceId)
+      ? publishedGuideHref(
+          guidePath(getTrcArticleByIntent(resolveTrcArticleIntent(report.question)).slug)
+        )
+      : null;
+  const wpGuideHref = serviceId === "wp" ? guidePath(WP_GUIDE_SLUG) : null;
+  const guideHref = actionGuideHref ?? trcGuideHref ?? wpGuideHref;
+  const checkHref =
+    actionCheckHref ?? (serviceId ? getQuoteFunnelHref(serviceId) : parsed.nav?.href ?? "/check");
 
   return (
     <article className="mx-auto w-full min-w-0 max-w-[960px]">
@@ -109,7 +139,7 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
           />
         }
       />
-      <ResultSummary directAnswer={directAnswer} />
+      <ResultSummary directAnswer={displayDirectAnswer} guideHref={guideHref ?? undefined} />
 
       {hasCostPanel && serviceId ? (
         <CostCheckCard
@@ -138,11 +168,11 @@ export function AiReportView({ report, onCompareYes, onQuoteSubmit, onReset }: A
                 Vietnam · {service?.label ?? t("result.adminLegal")}
               </p>
             </SourceSection>
-            <RelatedQuestions links={resolvedActions} />
           </div>
-          <NextStep funnelHref={funnelHref} />
         </>
       )}
+
+      <NextStep compact showExpertCta={false} funnelHref={checkHref} />
     </article>
   );
 }

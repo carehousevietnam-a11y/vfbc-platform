@@ -510,7 +510,7 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
           <p className="text-sm font-bold text-gray-900">AI 분석 근거</p>
         </div>
         <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500">
-          공개 법령·행정 기준·체크리스트를 종합하여 분석했습니다.
+          베트남 공식 행정 기준·체크리스트를 참고하여 분석했습니다.
         </p>
         <div className="mt-4">
           {aiReasonSections.map((section, idx) => (
@@ -526,7 +526,7 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
           ))}
         </div>
         <p className="mt-1 border-t border-gray-100 pt-3 text-[10px] text-gray-400">
-          분석 기준: 공개 법령 · 행정 기준 · 체크리스트 · 유사 사례
+          분석 기준: 공식 행정 기준 · 체크리스트 · 유사 사례
         </p>
       </div>
 
@@ -1375,7 +1375,7 @@ export default function DrivingLicenseCheckPage() {
             </div>
 
             <p className="mt-2 text-xs leading-relaxed text-gray-400">
-              * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다.
+              * 위 결과는 입력하신 조건을 기준으로 한 1차 확인 결과입니다.
               정확한 전환 가능 여부는 서류 검토 후 전문가 상담을 통해
               확정됩니다.
             </p>

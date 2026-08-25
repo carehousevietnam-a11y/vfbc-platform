@@ -4,14 +4,20 @@ import { Fragment, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  AlertTriangle,
   ArrowRight,
-  CheckCircle2,
+  BarChart3,
+  Briefcase,
+  Building2,
+  Calculator,
+  Check,
   ChevronRight,
   CircleDollarSign,
   Clock,
   FileText,
   Files,
   GitCompare,
+  HeartPulse,
   Lock,
   Scale,
   Search,
@@ -19,6 +25,7 @@ import {
 } from "lucide-react";
 import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
 import { routeByKeywords } from "@/lib/smartRouter";
+import { evaluateCostQuoteReview, formatCostAmount, getCostCheckService, type ReviewVerdict } from "@/lib/costCheck";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 type PopularChip = {
@@ -86,6 +93,73 @@ const COMPOSER_GUIDES = [
   { titleKey: "hero.badges.compare", lineKey: "hero.preview.compareLabel", icon: GitCompare },
 ] as const;
 
+const GOV_SOURCE_AGENCIES = [
+  { icon: Scale, labelKey: "hero.trust.agency.moj.label", viKey: "hero.trust.agency.moj.vi" },
+  { icon: Building2, labelKey: "hero.trust.agency.mpi.label", viKey: "hero.trust.agency.mpi.vi" },
+  { icon: Briefcase, labelKey: "hero.trust.agency.molisa.label", viKey: "hero.trust.agency.molisa.vi" },
+  { icon: ShieldCheck, labelKey: "hero.trust.agency.mps.label", viKey: "hero.trust.agency.mps.vi" },
+  { icon: CircleDollarSign, labelKey: "hero.trust.agency.gdt.label", viKey: "hero.trust.agency.gdt.vi" },
+  { icon: HeartPulse, labelKey: "hero.trust.agency.moh.label", viKey: "hero.trust.agency.moh.vi" },
+] as const;
+
+const PREVIEW_TRUST_BADGE_KEYS = [
+  "hero.preview.trust.govCompare",
+  "hero.preview.trust.marketRange",
+  "hero.preview.trust.quoteReview",
+] as const;
+
+function HeroTrustVisuals() {
+  const { t } = useLocale();
+
+  return (
+    <div className="mt-6 hidden max-w-[36rem] lg:block">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {GOV_SOURCE_AGENCIES.map(({ icon: Icon, labelKey, viKey }) => (
+          <div
+            key={labelKey}
+            className="flex h-[70px] flex-col items-center justify-center gap-1 rounded-xl border border-blue-100 bg-blue-50/50 px-1.5 py-1.5 text-center"
+          >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-blue-100/80 bg-white">
+              <Icon size={14} className="text-blue-800" strokeWidth={2.15} aria-hidden />
+            </span>
+            <span className="flex h-[26px] w-full flex-col items-center justify-start">
+              <span className="line-clamp-2 w-full text-[9.5px] font-semibold leading-[1.2] text-blue-900">
+                {t(labelKey)}
+              </span>
+              <span className="mt-0.5 line-clamp-1 w-full text-[8px] font-medium leading-tight tracking-wide text-slate-500">
+                {t(viKey)}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2.5 whitespace-nowrap text-[11px] leading-none text-slate-500">{t("hero.trust.sourceNote")}</p>
+    </div>
+  );
+}
+
+function PreviewTrustBadge() {
+  const { t } = useLocale();
+
+  return (
+    <div
+      className="pointer-events-none absolute -bottom-7 -right-[5.25rem] z-10 hidden size-[104px] rounded-full border border-blue-200 bg-white shadow-[0_0_0_3px_rgba(191,219,254,0.45),0_4px_12px_rgba(30,58,138,0.08)] sm:block"
+      aria-hidden
+    >
+      <div className="flex h-full w-full items-center justify-center px-2 py-3.5">
+        <div className="flex flex-col justify-center gap-[0.3rem]">
+          {PREVIEW_TRUST_BADGE_KEYS.map((key) => (
+            <div key={key} className="flex items-center gap-1">
+              <Check size={8.5} className="shrink-0 text-blue-700" strokeWidth={2.75} aria-hidden />
+              <span className="text-[7.5px] font-semibold leading-[1.2] text-blue-900">{t(key)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HeroToPreviewArrow() {
   return (
     <svg
@@ -111,44 +185,112 @@ function HeroToPreviewArrow() {
   );
 }
 
-function ExamplePreviewCard() {
+const PREVIEW_VERDICT_KEYS: Record<ReviewVerdict, string> = {
+  very_low: "hero.preview.verdict.very_low",
+  fair: "hero.preview.verdict.fair",
+  caution: "hero.preview.verdict.caution",
+  risk: "hero.preview.verdict.risk",
+};
+
+const PREVIEW_VERDICT_TONE: Record<ReviewVerdict, string> = {
+  very_low: "text-slate-700",
+  fair: "text-emerald-700",
+  caution: "text-amber-700",
+  risk: "text-red-700",
+};
+
+function CostCheckPreviewCard() {
   const { t } = useLocale();
+  const wp = getCostCheckService("wp");
+  const exampleQuote = 3000;
+  const review = evaluateCostQuoteReview(wp, exampleQuote);
+  const marketRange = `${formatCostAmount(wp.marketMin, wp.currency)} ~ ${formatCostAmount(
+    wp.marketMax,
+    wp.currency
+  )}`;
+  const govFeeAmount = wp.governmentFee.replace(/\s*\(.+\)\s*$/, "");
+
   return (
-    <div className="w-full max-w-[420px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] lg:ml-auto">
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
-        <CheckCircle2 size={13} strokeWidth={2.4} aria-hidden />
-        {t("hero.preview.tag")}
-      </span>
-      <p className="mt-3 break-keep text-[13.5px] font-medium leading-snug text-slate-700">
+    <div className="w-full rounded-2xl border border-blue-200 bg-white p-4 shadow-[0_0_0_3px_rgba(30,64,175,0.05),0_6px_18px_rgba(15,23,42,0.06)] sm:p-[18px] lg:ml-auto lg:max-w-[360px]">
+      <div className="flex items-start gap-2.5">
+        <span
+          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50"
+          aria-hidden
+        >
+          <Calculator size={15} className="text-blue-800" strokeWidth={2.25} />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[12.5px] font-semibold leading-tight text-blue-900 sm:text-[13px]">
+            {t("hero.preview.calcTitleLine1")}
+          </p>
+          <p className="mt-0.5 text-[16px] font-bold leading-tight text-blue-900 sm:text-[17px]">
+            <span className="text-amber-600">{t("hero.preview.calcTitleHighlight")}</span>
+            {t("hero.preview.calcTitleSuffix")}
+          </p>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-slate-500 sm:text-[11.5px]">
+            {t("hero.preview.calcLead")}
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-3 rounded-xl border border-blue-100/80 bg-blue-50/40 px-3 py-2 text-[12px] font-medium leading-snug text-slate-700 sm:text-[12.5px]">
         {t("hero.preview.question")}
       </p>
-      <dl className="mt-4 space-y-2.5">
-        <div className="flex items-center justify-between gap-3 text-[13px]">
-          <dt className="text-slate-500">{t("hero.preview.costLabel")}</dt>
-          <dd className="font-semibold text-blue-900">{t("hero.preview.costValue")}</dd>
+
+      <dl className="mt-3 space-y-2 border-t border-slate-100 pt-3">
+        <div className="flex items-start justify-between gap-3">
+          <dt className="flex min-w-0 items-center gap-1.5 text-[11.5px] text-slate-500 sm:text-[12px]">
+            <Building2 size={13} className="shrink-0 text-blue-800" strokeWidth={2.25} aria-hidden />
+            <span>{t("hero.preview.govFeeLabel")}</span>
+          </dt>
+          <dd className="text-right">
+            <span className="block text-[12px] font-semibold leading-snug text-blue-900 sm:text-[12.5px]">
+              {govFeeAmount}
+            </span>
+            <span className="mt-0.5 block text-[10.5px] text-slate-400">{t("hero.preview.govFeeNote")}</span>
+          </dd>
         </div>
-        <div className="flex items-center justify-between gap-3 text-[13px]">
-          <dt className="text-slate-500">{t("hero.preview.stepsLabel")}</dt>
-          <dd className="font-semibold text-blue-900">{t("hero.preview.stepsValue")}</dd>
+        <div className="flex items-start justify-between gap-3">
+          <dt className="flex min-w-0 items-center gap-1.5 text-[11.5px] text-slate-500 sm:text-[12px]">
+            <BarChart3 size={13} className="shrink-0 text-blue-800" strokeWidth={2.25} aria-hidden />
+            <span>{t("hero.preview.marketLabel")}</span>
+          </dt>
+          <dd className="text-right">
+            <span className="block text-[12px] font-semibold leading-snug text-blue-900 sm:text-[12.5px]">
+              {marketRange}
+            </span>
+            <span className="mt-0.5 block text-[10.5px] text-slate-400">{t("hero.preview.marketNote")}</span>
+          </dd>
         </div>
-        <div className="flex items-center justify-between gap-3 text-[13px]">
-          <dt className="text-slate-500">{t("hero.preview.docsLabel")}</dt>
-          <dd className="font-semibold text-blue-900">{t("hero.preview.docsValue")}</dd>
+        <div className="flex items-start justify-between gap-3">
+          <dt className="flex min-w-0 items-center gap-1.5 text-[11.5px] text-slate-500 sm:text-[12px]">
+            <FileText size={13} className="shrink-0 text-blue-800" strokeWidth={2.25} aria-hidden />
+            <span>{t("hero.preview.quoteLabel")}</span>
+          </dt>
+          <dd className="text-[12px] font-semibold leading-snug text-blue-900 sm:text-[12.5px]">
+            {formatCostAmount(exampleQuote, wp.currency)}
+          </dd>
         </div>
-        <div className="flex items-center justify-between gap-3 text-[13px]">
-          <dt className="shrink-0 text-slate-500">{t("hero.preview.compareLabel")}</dt>
-          <dd className="flex flex-wrap items-center justify-end gap-1.5 font-semibold">
-            <span className="text-emerald-600">{t("hero.preview.compareGood")}</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-amber-600">{t("hero.preview.compareCaution")}</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-red-500">{t("hero.preview.compareBad")}</span>
+        <div className="flex items-start justify-between gap-3 border-t border-slate-100/80 pt-2">
+          <dt className="flex min-w-0 items-center gap-1.5 text-[11.5px] text-slate-500 sm:text-[12px]">
+            <AlertTriangle size={13} className="shrink-0 text-red-600" strokeWidth={2.25} aria-hidden />
+            <span>{t("hero.preview.verdictLabel")}</span>
+          </dt>
+          <dd
+            className={`text-right text-[12px] font-semibold leading-snug sm:text-[12.5px] ${PREVIEW_VERDICT_TONE[review.verdict]}`}
+          >
+            {t(PREVIEW_VERDICT_KEYS[review.verdict])}
           </dd>
         </div>
       </dl>
-      <p className="mt-4 break-keep text-[11px] leading-relaxed text-slate-400">
-        {t("hero.preview.disclaimer")}
-      </p>
+
+      <Link
+        href={`/cost-check?tab=review&q=${encodeURIComponent(t("hero.preview.reviewQuery"))}`}
+        className="mt-3 inline-flex w-full items-center justify-center gap-1 rounded-xl bg-amber-500 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+      >
+        {t("hero.preview.cta")}
+        <ArrowRight size={15} aria-hidden />
+      </Link>
     </div>
   );
 }
@@ -247,7 +389,7 @@ function EnginePillars() {
 }
 
 export default function MyVietCheckHero() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -285,10 +427,10 @@ export default function MyVietCheckHero() {
   return (
     <>
       <section className="bg-white">
-        <div className={`${ENGINE_CONTAINER} pb-10 pt-10 sm:pb-14 sm:pt-14`}>
+        <div className={`${ENGINE_CONTAINER} pb-8 pt-8 sm:pb-12 sm:pt-12`}>
           <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-start">
-            <div className="order-1 min-w-0 w-full lg:w-7/12 lg:pr-12">
-              <span className="mb-5 inline-flex max-w-full items-center gap-1.5 break-keep rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[12px] font-medium tracking-[0.02em] text-blue-800 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:text-[12.5px]">
+            <div className="order-1 min-w-0 w-full lg:w-7/12 lg:pr-10">
+              <span className="mb-4 inline-flex max-w-full items-center gap-1.5 break-keep rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[12px] font-medium tracking-[0.02em] text-blue-800 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:text-[12.5px]">
                 {t("hero.eyebrow")}
               </span>
               <h1 className="break-keep text-[1.75rem] font-bold leading-[1.22] tracking-tight text-blue-900 sm:text-[2.5rem] lg:text-[2.25rem] lg:leading-[1.2]">
@@ -298,19 +440,21 @@ export default function MyVietCheckHero() {
                 <span className="text-amber-600">{t("hero.titleHighlight")}</span>
                 {t("hero.titleAfterHighlight")}
               </h1>
-              <p className="mt-5 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
+              <p className="mt-4 max-w-[36rem] break-keep text-[15px] leading-relaxed text-slate-600 sm:text-[16px]">
                 {t("hero.subtitle")}
               </p>
+              <HeroTrustVisuals />
             </div>
 
-            <div className="relative order-3 mt-6 min-w-0 w-full lg:order-2 lg:mt-1 lg:w-5/12">
-              <div className="relative lg:ml-auto lg:max-w-[420px]">
+            <div className="relative order-3 mt-5 min-w-0 w-full overflow-visible pb-10 lg:order-2 lg:mt-0 lg:w-5/12 lg:pb-10 lg:pr-[5.25rem]">
+              <div className="relative w-full overflow-visible lg:ml-auto lg:max-w-[360px]">
                 <HeroToPreviewArrow />
-                <ExamplePreviewCard />
+                <CostCheckPreviewCard />
+                <PreviewTrustBadge />
               </div>
             </div>
 
-            <form id="hero-query" onSubmit={handleSubmit} className="order-2 mt-8 w-full lg:order-3 lg:mt-10">
+            <form id="hero-query" onSubmit={handleSubmit} className="order-2 mt-6 w-full lg:order-3 lg:mt-8">
               <div className="rounded-[1.5rem] border border-blue-200 bg-white px-5 py-7 shadow-[0_0_0_4px_rgba(30,64,175,0.06)] sm:px-8 sm:py-8">
                 <label htmlFor="hero-query-input" className="flex items-start gap-2.5 text-blue-900">
                   <span
@@ -360,10 +504,11 @@ export default function MyVietCheckHero() {
                   />
                   <button
                     type="submit"
-                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-blue-900 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:min-h-12 sm:px-5 sm:text-[14px]"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-blue-900 px-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#152a63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 sm:min-h-12 sm:px-5 sm:text-[14px]"
                   >
-                    {t("hero.homeSubmit")}
-                    <ArrowRight size={15} />
+                    <span className="sm:hidden">{locale === "ko" ? "확인" : t("hero.homeSubmit")}</span>
+                    <span className="hidden sm:inline">{t("hero.homeSubmit")}</span>
+                    <ArrowRight size={15} aria-hidden />
                   </button>
                 </div>
 

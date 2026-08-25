@@ -39,7 +39,9 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isAiPage = pathname === "/ai";
-  const useHomeStyleHeader = isHome || isAiPage;
+  const isCostCheckPage = pathname === "/cost-check" || pathname.startsWith("/cost-check/");
+  const useHomeStyleHeader = isHome || isAiPage || isCostCheckPage;
+  const diagnoseHref = isAiPage || isCostCheckPage ? "/check" : "#hero-query";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -160,7 +162,7 @@ export default function SiteHeader() {
             </div>
 
             <Link
-              href={isAiPage ? "/check" : "#hero-query"}
+              href={diagnoseHref}
               className="hidden rounded-xl border border-blue-900/10 bg-blue-900 px-3.5 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-[#152a63] sm:inline-flex lg:px-3 lg:py-1.5 lg:text-[11px]"
             >
               {t("header.diagnose")}
@@ -193,7 +195,7 @@ export default function SiteHeader() {
                 </Link>
               ))}
               <Link
-                href={isAiPage ? "/check" : "#hero-query"}
+                href={diagnoseHref}
                 onClick={() => setMobileOpen(false)}
                 className="mt-1 rounded-xl bg-blue-900 px-3 py-2.5 text-center text-[13px] font-semibold text-white"
               >

@@ -102,8 +102,8 @@ export function WpRegionalOfficialFee({ sources, question }: WpRegionalOfficialF
         <p className="text-[11px] leading-relaxed text-slate-500">
           ※ 정부 공식 수수료는 신청 지역에 따라 달라질 수 있습니다.
         </p>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm font-medium text-slate-900">
+        <div className="rounded-xl border border-blue-200 bg-white p-4">
+          <p className="text-sm font-semibold text-blue-900">
             내 지역의 정확한 정부 비용을 확인하고 싶으신가요?
           </p>
           <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
@@ -112,7 +112,7 @@ export function WpRegionalOfficialFee({ sources, question }: WpRegionalOfficialF
           </p>
           <Link
             href={leadCaptureHref}
-            className="mt-3 inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-slate-800"
+            className="mt-3 inline-flex items-center justify-center rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-amber-600"
           >
             내 정보 확인
           </Link>

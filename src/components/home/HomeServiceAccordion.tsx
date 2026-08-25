@@ -64,7 +64,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
     expertLabel: "베트남 행정전문 AI",
     expertLabelClass: "text-blue-900",
     description:
-      "비용·자격·등록 가능 여부를 1분 만에 스스로 확인합니다. 거주증·노동허가·운전면허·법인설립까지 4개 서비스를 지원합니다.",
+      "비용·자격·신청 요건을 1분 만에 스스로 확인합니다. 거주증·노동허가·임시거주·운전면허 4개 업무를 지원합니다.",
     toggleLabel: "전체 확인",
     icon: Landmark,
     iconClass: "bg-blue-50 text-blue-900",
@@ -171,7 +171,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
     expertLabel: "베트남 인허가전문 AI",
     expertLabelClass: "text-amber-700",
     description:
-      "법인설립부터 업종별 인허가까지 실제 행정·법률 업무를 진행합니다. 식당·소방·위생 등 8개 업종을 지원합니다.",
+      "법인설립부터 업종별 인허가까지 필요한 절차·요건·서류를 확인합니다. 식당·소방·위생 등 8개 업종을 지원합니다.",
     toggleLabel: "전체 허가",
     icon: Stamp,
     iconClass: "bg-amber-50 text-amber-700",
