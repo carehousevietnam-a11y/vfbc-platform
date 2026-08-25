@@ -13,3 +13,41 @@ export { default as EmptyState } from "./EmptyState";
 export { default as StatusBadge } from "./StatusBadge";
 export { default as InfoBox } from "./InfoBox";
 export { default as Divider } from "./Divider";
+export { default as VerifyAnswerGrid } from "./VerifyAnswerGrid";
+export { default as OfficialTrustZone } from "./OfficialTrustZone";
+export { default as VerifyStepLayout } from "./VerifyStepLayout";
+export {
+  VERIFY_STEP4_ATTACHMENT_LABEL_CLASS,
+  VERIFY_STEP4_ATTACHED_CARD_CLASS,
+  VERIFY_STEP4_TEXTAREA_CLASS,
+  VerifyAttachedFileNote,
+  VerifyAttachmentHint,
+  VerifyStep4InputStack,
+  VerifyTextareaHint,
+} from "./verifyStep4Ui";
+export {
+  VERIFY_AI_REVIEW_CARD_DESC,
+  VERIFY_AI_REVIEW_CTA_FOOTNOTE,
+  VERIFY_DIAGNOSIS_LIMIT_NOTICE,
+  VERIFY_DIAGNOSIS_NEXT_SUBTITLE,
+  VERIFY_DIAGNOSIS_NEXT_TITLE,
+  VERIFY_DIRECT_CARD_DESC,
+  VERIFY_EXPERT_CARD_DESC,
+  VERIFY_EXPERT_CTA_FOOTNOTE,
+  VERIFY_EXPERT_GUIDANCE_DESC,
+  VerifyDiagnosisContextLine,
+  VerifyDiagnosisHeader,
+  VerifyDiagnosisPipelineHint,
+  VerifyFormFieldsIntro,
+  VerifyFormFieldsSection,
+  VerifyFormPageHeader,
+  VerifyFormPreviewPanel,
+  getVerifyFormConsentText,
+  getVerifyFormPrivacyText,
+} from "./verifyFunnelCopy";
+export {
+  RiskGauge,
+  VerifyDiagnosisNextSteps,
+  VerifyResultOverviewCards,
+  VerifyResultSummaryCard,
+} from "./VerifyDiagnosisUi";

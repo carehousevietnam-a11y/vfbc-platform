@@ -20,7 +20,7 @@ import {
   Receipt,
   FileQuestion,
 } from "lucide-react";
-import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox } from "@/components/ui";
+import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard, VERIFY_EXPERT_GUIDANCE_DESC } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
 import {
@@ -37,8 +37,10 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
+import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
 
 const CATEGORY = "admin" as const;
+const VERIFY_QUESTION_CONTEXT = "행정문서 검토";
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -340,7 +342,7 @@ function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
       </div>
 
       <div className="mt-4">
-        <p className="text-xs font-semibold text-gray-700">VFBCAI 1차 검토 의견</p>
+        <p className="text-xs font-semibold text-gray-700">VFBCAI 1차 분석 의견</p>
         <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.analysisOpinion}</p>
       </div>
 
@@ -561,238 +563,6 @@ const REVIEW_FOCUS_TONES: Record<string, SelectionCardTone> = {
   "기타": "cyan",
 };
 
-// 위험도(riskLevel: low/medium/high) 3단계를 CHECK(TRC)의 ResultHeaderGauge와 동일한
-// SVG-native rotate 원형 배지로 표시. VERIFY 진단(verifyDiagnosis.ts)에는 CHECK의
-// feasibilityScore(0~100) 같은 수치 점수가 없으므로, 없는 점수를 임의로 만들어 표시하지
-// 않고 실제로 존재하는 riskLevel 값을 그대로 사용한다(허위 데이터 금지 원칙).
-function RiskGauge({
-  riskLevel,
-  size = 104,
-}: {
-  riskLevel: "low" | "medium" | "high";
-  size?: number;
-}) {
-  const isLow = riskLevel === "low";
-  const ringColor = isLow ? "#059669" : riskLevel === "medium" ? "#D97706" : "#DC2626";
-  const label = isLow ? "낮음" : riskLevel === "medium" ? "보통" : "높음";
-  // 실제 수치 점수가 아니라 위험도 3단계를 시각적으로 구분하기 위한 채움 비율.
-  const fillRatio = isLow ? 1 / 3 : riskLevel === "medium" ? 2 / 3 : 1;
-  const scale = size / 104;
-  const strokeWidth = 7 * scale;
-  const r = 46 * scale;
-  const cx = size / 2;
-  const circumference = 2 * Math.PI * r;
-
-  return (
-    <div className="relative shrink-0" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <g transform={`rotate(-90 ${cx} ${cx})`}>
-          <circle cx={cx} cy={cx} r={r} fill="none" stroke="#E5E7EB" strokeWidth={strokeWidth} />
-          <circle
-            cx={cx}
-            cy={cx}
-            r={r}
-            fill="none"
-            stroke={ringColor}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - fillRatio)}
-          />
-        </g>
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span
-          className={`flex items-center justify-center rounded-full ${
-            isLow ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-          }`}
-          style={{ width: 20 * scale, height: 20 * scale }}
-        >
-          {isLow ? <CheckCircle2 size={12 * scale} /> : <AlertTriangle size={12 * scale} />}
-        </span>
-        <strong className="mt-0.5 font-black leading-none text-gray-900" style={{ fontSize: 15 * scale }}>
-          위험도
-        </strong>
-        <span
-          className={`mt-0.5 font-bold ${
-            isLow ? "text-emerald-600" : riskLevel === "medium" ? "text-amber-600" : "text-red-600"
-          }`}
-          style={{ fontSize: 12 * scale }}
-        >
-          {label}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// CHECK(TRC)의 ResultOverviewCards와 동일한 PC 5칸 그리드 / 모바일 세로 리스트
-// wrapper(className 동일)를 그대로 재사용하고, 내용만 VERIFY 진단에 실제로 존재하는
-// 필드(riskLevel/checklist/report.riskFactors)로 채운다. TRC의 feasibilityScore·
-// estimatedDays처럼 VERIFY에 없는 수치는 만들어내지 않고, 자료가 없으면 "서류 확인
-// 필요"/"서류 확인 후 안내"로 표시한다.
-function VerifyResultOverviewCards({
-  diagnosis,
-  docCount,
-}: {
-  diagnosis: DiagnosisResult;
-  docCount: number;
-}) {
-  const { riskLevel } = diagnosis.expertBrief;
-  const riskLabel = riskLevel === "low" ? "낮음" : riskLevel === "medium" ? "보통" : "높음";
-  const topRiskFactor =
-    diagnosis.report?.riskFactors?.[0]?.label ??
-    diagnosis.checklist.find((c) => c.level === "critical")?.label ??
-    diagnosis.checklist[0]?.label ??
-    "확인된 주요 위험요인이 아직 없습니다";
-
-  const riskPillTone =
-    riskLevel === "low"
-      ? "bg-emerald-50 text-emerald-700"
-      : riskLevel === "medium"
-      ? "bg-amber-50 text-amber-700"
-      : "bg-red-50 text-red-700";
-
-  const aiOpinionText = riskLevel === "low" ? "정상" : "확인필요";
-  const aiOpinionTone =
-    riskLevel === "low"
-      ? "bg-emerald-50 text-emerald-700"
-      : riskLevel === "medium"
-      ? "bg-amber-50 text-amber-700"
-      : "bg-red-50 text-red-700";
-
-  const items = [
-    {
-      n: 1,
-      label: "위험도",
-      visual: <RiskGauge riskLevel={riskLevel} size={64} />,
-      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${riskPillTone}`}>{riskLabel}</span>,
-      caption: "입력하신 내용을 기준으로 분석한 1차 위험도입니다.",
-    },
-    {
-      n: 2,
-      label: "주요 위험요인",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
-          <AlertTriangle className="text-amber-600" size={26} />
-        </div>
-      ),
-      pill: (
-        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700">
-          {topRiskFactor}
-        </span>
-      ),
-      caption: "우선적으로 확인이 필요한 항목입니다.",
-    },
-    {
-      n: 3,
-      label: "추가 확인자료",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
-          <FileText className="text-blue-700" size={26} />
-        </div>
-      ),
-      pill: (
-        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">
-          {docCount > 0 ? `필요 서류 ${docCount}개` : "서류 확인 필요"}
-        </span>
-      ),
-      caption: "정확한 검토를 위해 필요한 자료입니다.",
-    },
-    {
-      n: 4,
-      label: "예상 검토기간",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50">
-          <Clock className="text-violet-600" size={26} />
-        </div>
-      ),
-      pill: (
-        <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">
-          서류 확인 후 안내
-        </span>
-      ),
-      caption: "서류 제출 후 정밀 리포트에서 안내드립니다.",
-    },
-    {
-      n: 5,
-      label: "AI 1차 의견",
-      visual: (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-          <UserCheck className="text-gray-700" size={26} />
-        </div>
-      ),
-      pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
-      caption: "베트남 행정 전문가 AI의 1차 검토 의견입니다.",
-    },
-  ];
-
-  return (
-    <>
-      {/* PC — 5칸 가로 배치 */}
-      <div className="mt-6 hidden overflow-hidden rounded-2xl border border-gray-100 bg-white sm:grid sm:grid-cols-5 sm:divide-x sm:divide-gray-100">
-        {items.map((item) => (
-          <div key={item.n} className="flex flex-col items-center gap-2.5 p-5 text-center">
-            <div className="flex items-center gap-1.5 self-start">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
-                {item.n}
-              </span>
-              <span className="text-xs font-semibold text-gray-700">{item.label}</span>
-            </div>
-            <div className="mt-1">{item.visual}</div>
-            {item.pill}
-            <p className="text-[11px] leading-relaxed text-gray-500">{item.caption}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* 모바일 — 세로형 요약 리스트 */}
-      <div className="mt-6 divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white sm:hidden">
-        {items.map((item) => (
-          <div key={item.n} className="flex items-center justify-between gap-3 p-4">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
-                {item.n}
-              </span>
-              <span className="truncate text-sm font-medium text-gray-700">{item.label}</span>
-            </div>
-            <div className="shrink-0">{item.pill}</div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-// CHECK(TRC)의 buildResultSummaryText/ResultSummaryCard와 동일한 구조 — 기존
-// 진단 데이터(riskLevel, report.analysisOpinion/expertBrief.summary)만으로 2~3문장
-// 요약을 구성한다. 새로운 판단이나 점수를 만들지 않는다.
-function buildVerifyResultSummaryText(diagnosis: DiagnosisResult): string {
-  const { riskLevel, summary } = diagnosis.expertBrief;
-  const riskLabel = riskLevel === "low" ? "낮은" : riskLevel === "medium" ? "보통" : "높은";
-  const sentence1 = `입력하신 사건유형·설명을 기준으로 위험도는 '${riskLabel}' 수준으로 1차 분류되었습니다.`;
-  const sentence2 = diagnosis.report?.analysisOpinion ?? summary;
-  const sentence3 =
-    "실제 서류를 확인하기 전까지는 참고용 1차 결과이며, 정확한 판단은 서류 제출 후 전문가 검토를 통해 확정됩니다.";
-  return `${sentence1} ${sentence2} ${sentence3}`;
-}
-
-function VerifyResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
-  const summaryText = buildVerifyResultSummaryText(diagnosis);
-
-  return (
-    <div className="mt-3 rounded-2xl bg-white border border-gray-100 p-5">
-      <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-          AI
-        </span>
-        <p className="text-sm font-bold text-gray-900">AI 분석 결과 요약</p>
-      </div>
-      <p className="mt-3 text-sm leading-relaxed text-gray-700">{summaryText}</p>
-    </div>
-  );
-}
-
 // CHECK(TRC)의 PremiumLeadCapture와 동일한 JSX/className 구조 — 1번째 화면(가입 전),
 // 결과 미리보기 + 개인정보 입력. TRC는 feasibilityScore(0~100)로 possible/conditional을
 // 가르지만, VERIFY는 그런 점수가 없으므로 riskLevel(low/medium/high)로 대체한다.
@@ -843,48 +613,11 @@ function VerifyAdminLeadCapture({
 
   return (
     <div>
-      <div
-        className={`mt-8 rounded-3xl border bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${
-          isLow ? "border-gray-100" : "border-amber-100"
-        }`}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            {isLow ? (
-              <CheckCircle2 className="text-emerald-600" size={28} />
-            ) : (
-              <AlertTriangle className="text-amber-600" size={28} />
-            )}
+      <VerifyFormPageHeader />
+      <VerifyFormPreviewPanel isLow={isLow} riskGauge={<RiskGauge riskLevel={riskLevel} />} />
 
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              {isLow
-                ? "특별한 위험요인이 확인되지 않았습니다"
-                : "확인이 필요한 위험요인이 있습니다"}
-            </p>
-
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              {isLow
-                ? "입력하신 사건유형·설명 기준으로 1차 분석한 결과, 우선 확인이 필요한 치명적 위험요인은 확인되지 않았습니다."
-                : "입력하신 사건유형·설명 기준으로 1차 분석한 결과, 반려·손해로 이어질 수 있는 위험요인이 확인되어 서류 확인이 필요합니다."}
-            </p>
-          </div>
-
-          <RiskGauge riskLevel={riskLevel} />
-        </div>
-
-        <p className="mt-2 text-xs leading-relaxed text-gray-400">
-          * 위 결과는 입력하신 사건유형·설명을 기준으로 한 1차 자가진단입니다. 정확한
-          검토는 서류 확인 후 전문가 검토를 통해 확정됩니다.
-        </p>
-
-        <div className="mt-4">
-          <NoticeCard tone={isLow ? "success" : "warning"}>
-            이름·연락처·주소만 남기시면 AI가 입력하신 내용을 바탕으로 1차 검토
-            리포트를 바로 보여드립니다.
-          </NoticeCard>
-        </div>
-
-        <form onSubmit={onSubmit} className="mt-5 space-y-3">
+      <VerifyFormFieldsSection lang={lang}>
+        <form onSubmit={onSubmit} className="mt-4 space-y-3">
           <input
             type="text"
             name="name"
@@ -990,7 +723,7 @@ function VerifyAdminLeadCapture({
                 }}
                 className="mt-0.5"
               />
-              <span>(필수) {LEAD_FORM_MESSAGES[lang].consentSummary}</span>
+              <span>(필수) {getVerifyFormConsentText(lang)}</span>
             </label>
             <ConsentDetails
               open={consentOpen}
@@ -1004,12 +737,12 @@ function VerifyAdminLeadCapture({
           {error && <p className="text-xs text-red-600">{error}</p>}
 
           <PrimaryButton type="submit" variant={isLow ? "primary" : "amber"} loading={submitting} disabled={!canSubmit}>
-            {submitting ? LEAD_FORM_MESSAGES[lang].submitLoadingLabel : LEAD_FORM_MESSAGES[lang].submitLabel}
+            {submitting ? LEAD_FORM_MESSAGES[lang].submitLoadingLabel : lang === "ko" ? "AI 1차 분석 결과 보기" : LEAD_FORM_MESSAGES[lang].submitLabel}
           </PrimaryButton>
         </form>
 
         <div className="mt-3">
-          <InfoBox>{LEAD_FORM_MESSAGES[lang].privacyNoticeLine}</InfoBox>
+          <InfoBox>{getVerifyFormPrivacyText(lang)}</InfoBox>
         </div>
 
         <button
@@ -1019,7 +752,7 @@ function VerifyAdminLeadCapture({
         >
           {LEAD_FORM_MESSAGES[lang].resetLabel}
         </button>
-      </div>
+      </VerifyFormFieldsSection>
     </div>
   );
 }
@@ -1075,6 +808,12 @@ export default function VerifyAdminPage() {
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
+  const incidentQuestionStep = !reviewStage ? 1 : !incidentType ? 2 : !reviewFocus ? 3 : 4;
+  const verifyQuestionProps = {
+    variant: "verify" as const,
+    contextLabel: VERIFY_QUESTION_CONTEXT,
+    totalSteps: 4,
+  };
 
   // 질문3(사건유형+설명+선택 파일)이 채워지는 즉시, 아직 리드가 생성되기 전이라도
   // CHECK(TRC)와 동일하게 1번째 화면(개인정보 입력)에 미리보기 결과를 보여주기 위해
@@ -1333,7 +1072,7 @@ export default function VerifyAdminPage() {
     }
   }
 
-  // "AI 검토 요청하기" — handleExpertRequest와 동일한 Auto-login → /r → /documents
+  // "AI Review 진행하기" — handleExpertRequest와 동일한 Auto-login → /r → /documents
   // 흐름을 타되, next 값만 "documents_ai_report"로 달라 /documents가 mode=ai_report로
   // 열린다. 신규 CRM action은 만들지 않는다(핸드오프 문서 결정 유지) — CHECK(TRC)의
   // "AI 리포트 요청하기" 버튼도 이 시점에는 CRM을 기록하지 않는 것과 동일하게 맞춘 것.
@@ -1375,21 +1114,13 @@ export default function VerifyAdminPage() {
   const activeGuidance = selectedAgency ? ADMIN_AGENCY_GUIDANCE[selectedAgency] : null;
 
   return (
-    <main className="min-h-screen bg-[#fafafa]">
+    <main className="min-h-screen overflow-x-hidden bg-white">
       <div className="h-[3px] bg-blue-900" />
-      <div
-        className={`mx-auto px-6 py-10 ${
-          step === "diagnosis"
-            ? "max-w-4xl"
-            : step === "incident" && reviewStage && !incidentType
-            ? "max-w-[920px]"
-            : "max-w-xl"
-        }`}
-      >
+      <div className={`${ENGINE_CONTAINER} py-8 sm:py-9`}>
         {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
         <Link
           href="/"
-          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
+          className="relative -mx-4 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
         >
           <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
             <ArrowLeft size={14} /> 홈으로
@@ -1412,24 +1143,33 @@ export default function VerifyAdminPage() {
           <ArrowLeft size={14} /> 홈으로
         </Link>
 
-        <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+        <p className="mt-3 text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
           직접검토하기 · 베트남 법률전문 AI
         </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">행정문서 검토</h1>
-        <p className="mt-1 text-sm text-gray-500">제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지</p>
+        <h1 className="mt-1.5 text-[19px] font-semibold tracking-tight text-gray-900 sm:text-xl">행정문서 검토</h1>
+        <p className="mt-0.5 break-keep text-[12.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지</p>
 
         {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
         {step === "incident" && (
-          <>
+          <div className="w-full">
             {/* 질문 1 — Prevent Review / Case Review */}
             {!reviewStage && (
-              <div className="mt-8">
-                <QuestionSection step={1} title="어떤 검토가 필요하신가요?" description="현재 상황에 맞는 검토 방식을 선택해주세요.">
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="mt-4 sm:mt-5">
+                <VerifyStepLayout
+                  step={1}
+                  question={
+                <QuestionSection
+                  step={incidentQuestionStep}
+                  title="어떤 검토가 필요하신가요?"
+                  description="현재 상황에 맞는 검토 방식을 선택해주세요."
+                  {...verifyQuestionProps}
+                >
+                  <VerifyAnswerGrid step={1}>
                     {REVIEW_STAGE_OPTIONS.map((opt) => (
                       <SelectionCard
                         key={opt.value}
+                        variant="quiet"
                         title={opt.title}
                         description={opt.desc}
                         selected={selectedKey === opt.value}
@@ -1444,8 +1184,10 @@ export default function VerifyAdminPage() {
                         }}
                       />
                     ))}
-                  </div>
+                  </VerifyAnswerGrid>
                 </QuestionSection>
+                  }
+                />
               </div>
             )}
 
@@ -1453,17 +1195,22 @@ export default function VerifyAdminPage() {
                 문제가 발생했나요?" — 선택지는 기존 incidentTypes 7종을 그대로 재사용해
                 verifyDiagnosis.ts에 전달되는 incidentType 값과 진단 로직을 바꾸지 않는다. */}
             {reviewStage && !incidentType && (
-              <div className="mt-8">
-                <QuestionSection
+              <div className="mt-4 sm:mt-5">
+                <VerifyStepLayout
                   step={2}
+                  question={
+                <QuestionSection
+                  step={incidentQuestionStep}
                   title={reviewStage === "pre" ? "어떤 서류를 검토하시나요?" : "어떤 문제가 발생했나요?"}
+                  {...verifyQuestionProps}
                 >
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <VerifyAnswerGrid step={2}>
                     {(reviewStage === "pre" ? PREVENT_DOCUMENT_OPTIONS : CASE_ISSUE_OPTIONS).map((opt, index) => {
                       const selectionKey = `${opt.value}-${index}`;
                       return (
                         <SelectionCard
                           key={selectionKey}
+                          variant="quiet"
                           title={opt.title}
                           description={opt.desc}
                           selected={selectedKey === selectionKey}
@@ -1487,19 +1234,22 @@ export default function VerifyAdminPage() {
                         />
                       );
                     })}
-                  </div>
+                  </VerifyAnswerGrid>
                 </QuestionSection>
-
+                  }
+                  actions={
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedKey(null);
                     setReviewStage(null);
                   }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                  className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]"
                 >
                   <ArrowLeft size={14} /> 이전 단계로
                 </button>
+                  }
+                />
               </div>
             )}
 
@@ -1507,12 +1257,20 @@ export default function VerifyAdminPage() {
                 "현재 어느 단계인가요?" — 참고 정보로 CRM meta(review_focus)에만 저장되며
                 진단 로직(verifyDiagnosis.ts)에는 전달하지 않는다. */}
             {reviewStage && incidentType && !reviewFocus && (
-              <div className="mt-8">
-                <QuestionSection step={3} title={reviewStage === "pre" ? "무엇을 확인하고 싶으신가요?" : "현재 어느 단계인가요?"}>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-4 sm:mt-5">
+                <VerifyStepLayout
+                  step={3}
+                  question={
+                <QuestionSection
+                  step={incidentQuestionStep}
+                  title={reviewStage === "pre" ? "무엇을 확인하고 싶으신가요?" : "현재 어느 단계인가요?"}
+                  {...verifyQuestionProps}
+                >
+                  <VerifyAnswerGrid step={3}>
                     {(reviewStage === "pre" ? PREVENT_FOCUS_OPTIONS : CASE_STAGE_OPTIONS).map((opt) => (
                       <SelectionCard
                         key={opt}
+                        variant="quiet"
                         title={opt}
                         selected={selectedKey === opt}
                         icon={REVIEW_FOCUS_ICONS[opt] ?? FileQuestion}
@@ -1526,19 +1284,22 @@ export default function VerifyAdminPage() {
                         }}
                       />
                     ))}
-                  </div>
+                  </VerifyAnswerGrid>
                 </QuestionSection>
-
+                  }
+                  actions={
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedKey(null);
                     setIncidentType(null);
                   }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                  className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]"
                 >
                   <ArrowLeft size={14} /> 이전 단계로
                 </button>
+                  }
+                />
               </div>
             )}
 
@@ -1546,16 +1307,22 @@ export default function VerifyAdminPage() {
                 Prevent Review는 "검토 대상 서류", Case Review는 "핵심 문서 및 증거자료"
                 중심 안내 문구로 분기한다. */}
             {reviewStage && incidentType && reviewFocus && (
-              <div className="mt-8">
-                <QuestionSection
+              <div className="mt-4 w-full sm:mt-5">
+                <VerifyStepLayout
                   step={4}
+                  question={
+                <QuestionSection
+                  step={incidentQuestionStep}
+                  fullWidthHeader
                   title={
                     reviewStage === "pre"
                       ? "검토가 필요한 내용을 간단히 알려주세요."
                       : "무슨 일이 있었는지 간단히 알려주세요."
                   }
                   error={incidentError}
+                  {...verifyQuestionProps}
                 >
+                  <VerifyStep4InputStack>
                   <textarea
                     value={incidentDescription}
                     onChange={(e) => setIncidentDescription(e.target.value)}
@@ -1564,16 +1331,14 @@ export default function VerifyAdminPage() {
                         ? "예: 베트남 노동허가 신청 예정입니다. 원본과 번역본이 일치하는지, 추가로 필요한 서류가 있는지 확인받고 싶습니다."
                         : "예: 행정기관에서 보완 요청을 받았습니다. 어떤 내용을 보완해야 하는지와 대응 방법을 확인받고 싶습니다."
                     }
-                    rows={5}
-                    className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-gray-900 focus:outline-none resize-none"
+                    rows={4}
+                    className={VERIFY_STEP4_TEXTAREA_CLASS}
                   />
-                  <p className="mt-2 text-[11px] text-gray-400">
-                    현재 상황과 확인이 필요한 내용을 중심으로 작성해주세요.
-                  </p>
+                  <VerifyTextareaHint />
 
                   {!attachedFile ? (
                     <>
-                      <label className="mt-4 flex items-center gap-2 h-11 rounded-lg border border-dashed border-gray-300 px-4 text-sm text-gray-500 cursor-pointer hover:border-gray-900 transition-colors">
+                      <label className={VERIFY_STEP4_ATTACHMENT_LABEL_CLASS}>
                         <Paperclip size={16} className="shrink-0" />
                         <span className="truncate">
                           {reviewStage === "pre"
@@ -1590,12 +1355,10 @@ export default function VerifyAdminPage() {
                           }}
                         />
                       </label>
-                      <p className="mt-1.5 text-[11px] leading-relaxed text-gray-400">
-                        첫 화면에서는 대표 서류만 제출해주세요. 접수 후 /documents에서 원본·번역본·공증본·기관 안내문 또는 추가 증거자료를 계속 제출할 수 있습니다.
-                      </p>
+                      <VerifyAttachmentHint />
                     </>
                   ) : (
-                    <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                    <div className={VERIFY_STEP4_ATTACHED_CARD_CLASS}>
                       <p className="text-[11px] font-semibold text-gray-500">선택한 자료</p>
                       <div className="mt-1.5 flex items-center justify-between gap-3">
                         <span className="flex min-w-0 items-center gap-1.5 truncate text-sm text-gray-800">
@@ -1618,14 +1381,15 @@ export default function VerifyAdminPage() {
                           {reviewStage === "pre" ? "Prevent Review" : "Case Review"}
                         </span>
                       </div>
-                      <p className="mt-2 text-[11px] leading-relaxed text-gray-400">
-                        개인정보 입력과 접수가 완료되면 이 자료가 함께 제출됩니다.
-                      </p>
+                      <VerifyAttachedFileNote />
                     </div>
                   )}
+                  </VerifyStep4InputStack>
                 </QuestionSection>
-
-                <PrimaryButton onClick={handleIncidentNext} className="mt-6">
+                  }
+                  actions={
+                <>
+                <PrimaryButton onClick={handleIncidentNext} className="mt-5">
                   다음
                 </PrimaryButton>
 
@@ -1635,13 +1399,16 @@ export default function VerifyAdminPage() {
                     setSelectedKey(null);
                     setReviewFocus(null);
                   }}
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                  className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]"
                 >
                   <ArrowLeft size={14} /> 이전 단계로
                 </button>
+                </>
+                  }
+                />
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* STEP4: 개인정보 입력 — CHECK(TRC)의 PremiumLeadCapture와 동일한 구조 */}
@@ -1665,9 +1432,7 @@ export default function VerifyAdminPage() {
         {/* STEP5: 진단 리포트 + 진행방식 선택 CTA 3개 — CHECK(TRC)와 동일한 구조 */}
         {step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              행정문서 검토 · AI 분석 리포트
-            </p>
+            <VerifyDiagnosisHeader serviceName={VERIFY_QUESTION_CONTEXT} />
 
             <VerifyResultOverviewCards
               diagnosis={diagnosis}
@@ -1676,81 +1441,18 @@ export default function VerifyAdminPage() {
 
             <VerifyResultSummaryCard diagnosis={diagnosis} />
 
-            <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
-            <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-              {/* 1) AI 검토 요청하기 — CHECK(TRC) NextStepOptions의 AI 리포트 카드와 동일한
-                  스타일(연한 블루 배경 + 아웃라인 버튼) 및 "필수" 배지 */}
-              <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
-                <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
-                  필수
-                </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">AI 검토 요청하기</p>
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  자료를 제출하시면 AI가 정밀 검토 리포트를 준비합니다.
-                </p>
-                <div className="mt-auto pt-4">
-                  <button
-                    type="button"
-                    onClick={handleAiReportRequest}
-                    disabled={aiReportRequesting}
-                    className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors disabled:opacity-60"
-                  >
-                    {aiReportRequesting ? "이동 중..." : "AI 검토 요청하기"}
-                  </button>
-                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-                    {aiReportError ? (
-                      <span className="text-red-600">{aiReportError}</span>
-                    ) : (
-                      "이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다."
-                    )}
-                  </p>
-                </div>
-              </div>
+            <VerifyDiagnosisPipelineHint />
+            <OfficialTrustZone variant="strip" context="diagnosis" className="mt-4" />
 
-              {/* 2) 전문가 검토 요청하기 — 가장 강한 파란색 CTA */}
-              <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
-                  추천
-                </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">전문가 검토 요청하기</p>
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  AI 사전진단 내용과 첨부하신 서류를 전문가가 함께 확인한 뒤
-                  결과를 안내드립니다.
-                </p>
-                <div className="mt-auto pt-4">
-                  <PrimaryButton onClick={handleExpertRequest} loading={expertRequesting}>
-                    전문가 검토 요청하기
-                  </PrimaryButton>
-                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
-                    {expertError ? (
-                      <span className="text-red-600">{expertError}</span>
-                    ) : (
-                      "이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다."
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* 3) 직접 검토 진행하기 — 흰색 테두리 보조 옵션 */}
-              <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
-                <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
-                  신중
-                </span>
-                <p className="mt-1 text-sm font-bold text-gray-900">직접 검토 진행하기</p>
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  관할기관·공식 확인 경로·절차 안내를 참고해 스스로 진행할
-                  수 있습니다.
-                </p>
-                <div className="mt-auto pt-4">
-                  <PrimaryButton variant="outline" onClick={() => setStep("guidanceSelect")}>
-                    직접 검토 진행하기
-                  </PrimaryButton>
-                  <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-                    이미 입력하신 정보로 바로 진행되며, 다시 입력하실 필요 없습니다.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <VerifyDiagnosisNextSteps
+              onAiReview={handleAiReportRequest}
+              aiReportRequesting={aiReportRequesting}
+              aiReportError={aiReportError}
+              onExpert={handleExpertRequest}
+              expertRequesting={expertRequesting}
+              expertError={expertError}
+              onDirect={() => setStep("guidanceSelect")}
+            />
           </div>
         )}
 
@@ -1893,8 +1595,8 @@ export default function VerifyAdminPage() {
             <p className="mt-2 text-lg font-bold text-gray-900 text-center">
               전문가 검토 요청이 접수되었습니다
             </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              전문가가 첨부하신 서류와 AI 사전진단 내용을 함께 확인한 뒤,
+            <p className="mt-2 break-keep text-sm leading-[1.55] text-gray-600 [overflow-wrap:normal]">
+              전문가가 첨부하신 서류와 AI 1차 분석 내용을 함께 확인한 뒤,
               가입하신 이메일 또는 {messengers.primary.label}/{messengers.secondary.label}로
               결과를 안내드립니다.
             </p>

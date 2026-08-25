@@ -410,7 +410,7 @@ function HygieneResultOverviewCards({
         </div>
       ),
       pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
-      caption: "베트남 인허가 전문 AI의 종합 검토 의견입니다.",
+      caption: "베트남 인허가전문 AI의 종합 검토 의견입니다.",
     },
   ];
 
@@ -646,7 +646,7 @@ function HygieneNextStepOptions({
           </p>
           <ul className="mt-3 space-y-1.5">
             <li className="text-[11px] text-gray-600 pl-1">· 대행 비용 없이 직접 신청할 수 있습니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 베트남 행정 절차를 스스로 확인해야 합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 베트남 인허가 절차를 스스로 확인해야 합니다</li>
             <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
             <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
           </ul>
@@ -751,7 +751,7 @@ function HygieneLeadCapture({
         </div>
 
         <p className="mt-2 text-xs leading-relaxed text-gray-400">
-          * 위 결과는 입력하신 조건을 기준으로 한 1차 자가진단입니다. 정확한
+          * 위 결과는 입력하신 조건을 기준으로 한 1차 확인 결과입니다. 정확한
           진행 가능 여부는 서류 검토 후 전문가 상담을 통해 확정됩니다.
         </p>
 

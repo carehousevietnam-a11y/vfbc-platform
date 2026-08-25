@@ -22,6 +22,8 @@ interface SelectionCardProps {
   tone?: SelectionCardTone;
   disabled?: boolean;
   className?: string;
+  /** VERIFY — unselected cards stay quiet; color activates on selection */
+  variant?: "default" | "quiet";
 }
 
 // STEP12-2B/2C: VFBCAI Design System — tone은 아이콘 배경/색상(기본·선택 시 각각)과
@@ -123,30 +125,44 @@ export default function SelectionCard({
   tone = "blue",
   disabled,
   className,
+  variant = "default",
 }: SelectionCardProps) {
   const style = TONE_STYLES[tone];
+  const isQuiet = variant === "quiet";
 
   const radioIndicator = selected ? (
-    <CheckCircle2 className="shrink-0 text-blue-900" size={18} />
+    <CheckCircle2 className="shrink-0 text-[#0B2A6B]" size={16} />
   ) : (
-    <span className="h-[18px] w-[18px] shrink-0 rounded-full border border-gray-300" />
+    <span className="h-4 w-4 shrink-0 rounded-full border border-[#D1D5DB] bg-white" />
   );
 
   const iconTile = Icon && (
     <div
       className={cn(
-        "flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200",
-        selected ? style.selectedIconBg : style.iconBg
+        "flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors duration-200 sm:h-8 sm:w-8",
+        selected
+          ? style.selectedIconBg
+          : isQuiet
+            ? "bg-[#F8FAFC]"
+            : style.iconBg
       )}
     >
       <Icon
-        className={selected ? style.selectedIconText : style.iconText}
-        size={22}
+        className={selected ? style.selectedIconText : isQuiet ? "text-[#94A3B8]" : style.iconText}
+        size={isQuiet ? 16 : 20}
       />
     </div>
   );
 
-  const iconBare = Icon && <Icon className={style.iconText} size={18} />;
+  const iconBare = Icon && (
+    <Icon
+      className={cn(
+        "shrink-0",
+        selected ? style.iconText : isQuiet ? "text-[#94A3B8]" : style.iconText
+      )}
+      size={isQuiet ? 15 : 16}
+    />
+  );
 
   return (
     <button
@@ -155,44 +171,58 @@ export default function SelectionCard({
       disabled={disabled}
       aria-pressed={selected}
       className={cn(
-        "w-full rounded-xl border bg-white p-5 text-left transition-all duration-200 sm:p-6 sm:min-h-[200px]",
+        "w-full rounded-xl border bg-white text-left transition-colors duration-200",
+        isQuiet ? "h-full p-3 sm:p-3" : "p-5 sm:min-h-[200px] sm:p-6",
         selected
-          ? cn("shadow-md", style.selectedBorder, style.selectedBg, style.selectedShadow)
-          : "border-gray-200 hover:border-gray-300 hover:shadow-sm",
+          ? cn(
+              "border-[#0B2A6B] bg-[#F8FAFF] shadow-[0_1px_3px_rgba(11,42,107,0.08)]",
+              !isQuiet && cn("shadow-md", style.selectedBorder, style.selectedBg, style.selectedShadow)
+            )
+          : isQuiet
+            ? "border-[#E5E7EB] hover:border-[#CBD5E1]"
+            : "border-gray-200 hover:border-gray-300 hover:shadow-sm",
         disabled && "cursor-not-allowed opacity-50 hover:border-gray-200 hover:shadow-none",
         className
       )}
     >
-      {/* PC / 태블릿 — Premium Product Card */}
-      <div className="hidden sm:flex sm:h-full sm:flex-col">
-        <div className="flex items-start justify-between">
+      {/* PC / 태블릿 */}
+      <div className="hidden h-full sm:flex sm:flex-col">
+        <div className="flex items-start justify-between gap-1.5">
           {radioIndicator}
           {iconTile}
         </div>
-        <p className="mt-6 break-keep text-[17px] font-semibold leading-snug text-gray-900">
-          {title}
-        </p>
-        {description && (
-          <p className="mt-2 break-keep text-sm leading-relaxed text-slate-500">
-            {description}
-          </p>
-        )}
-      </div>
-
-      {/* 모바일 — 가로형 리스트(변경 없음) */}
-      <div className="flex items-start gap-3 sm:hidden">
-        <div className="flex shrink-0 flex-col items-center gap-2 pt-0.5">
-          {radioIndicator}
-          {iconBare}
-        </div>
-        <div className="min-w-0">
-          <p className="break-keep text-base font-semibold text-gray-900">
+        <div className="mt-2 flex min-h-0 flex-1 flex-col">
+          <p
+            className={cn(
+              "break-keep font-semibold leading-snug",
+              isQuiet ? "text-[14px] text-[#0F172A]" : "text-[17px] text-gray-900"
+            )}
+          >
             {title}
           </p>
           {description && (
-            <p className="mt-1.5 break-keep text-sm leading-relaxed text-slate-500">
+            <p
+              className={cn(
+                "mt-1 break-keep leading-[1.45]",
+                isQuiet ? "text-[12px] text-[#556070]" : "text-sm leading-relaxed text-slate-500"
+              )}
+            >
               {description}
             </p>
+          )}
+        </div>
+      </div>
+
+      {/* 모바일 — 가로형 리스트 */}
+      <div className="flex min-h-[40px] items-start gap-2 sm:hidden">
+        <div className="flex w-4 shrink-0 flex-col items-center gap-1 pt-0.5">
+          {radioIndicator}
+          {iconBare}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="break-keep text-[14px] font-semibold leading-snug text-[#0F172A]">{title}</p>
+          {description && (
+            <p className="mt-0.5 break-keep text-[12px] leading-[1.45] text-[#556070]">{description}</p>
           )}
         </div>
       </div>
