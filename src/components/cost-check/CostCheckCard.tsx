@@ -42,6 +42,8 @@ type CostCheckCardProps = {
   question?: string;
   onCompareYes?: () => void;
   onQuoteSubmit?: (amount: string) => void;
+  /** 같은 `/check/...` 페이지 안에서 Q1으로 이어갈 때 Link 대신 사용 */
+  onFunnelCta?: () => void;
 };
 
 export function quoteReviewToCostCheckQuote(payload: QuoteReviewPayload): CostCheckQuoteResult {
@@ -86,6 +88,7 @@ export function CostCheckCard({
   question,
   onCompareYes,
   onQuoteSubmit,
+  onFunnelCta,
 }: CostCheckCardProps) {
   const [quoteInput, setQuoteInput] = useState("");
   const service = getCostCheckService(serviceId);
@@ -413,6 +416,9 @@ export function CostCheckCard({
     </div>
   );
 
+  const funnelCtaClassName =
+    "mt-4 inline-flex items-center justify-center rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-amber-600";
+
   const funnelBlock = (
     <div className="rounded-xl border border-blue-200 bg-white p-5 text-center shadow-[0_0_0_3px_rgba(30,64,175,0.04),0_2px_8px_rgba(15,23,42,0.04)]">
       <p className="text-sm font-semibold text-blue-900">비용은 확인했습니다.</p>
@@ -424,12 +430,15 @@ export function CostCheckCard({
         <br />
         무료 진단 리포트로 받아보세요.
       </p>
-      <Link
-        href={funnelHref}
-        className="mt-4 inline-flex items-center justify-center rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
-      >
-        내 상황 무료 진단받기 →
-      </Link>
+      {onFunnelCta ? (
+        <button type="button" onClick={onFunnelCta} className={funnelCtaClassName}>
+          내 상황 무료 진단받기 →
+        </button>
+      ) : (
+        <Link href={funnelHref} className={funnelCtaClassName}>
+          내 상황 무료 진단받기 →
+        </Link>
+      )}
       <p className="mt-2 text-xs text-slate-400">내 상황에 필요한 절차와 조건을 확인합니다.</p>
     </div>
   );

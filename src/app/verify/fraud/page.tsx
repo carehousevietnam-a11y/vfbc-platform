@@ -37,6 +37,11 @@ import { saveLeadContact } from "@/lib/leadContact";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
+import {
+  MasterFunnelLanding,
+  MASTER_LANDING_FRAUD,
+  type MasterFunnelContextTab,
+} from "@/components/cost-check/MasterFunnelLanding";
 
 const CATEGORY = "fraud" as const;
 const VERIFY_QUESTION_CONTEXT = "사기문서 검토";
@@ -762,11 +767,20 @@ export default function VerifyFraudPage() {
   // 전문가 진행 요청 시 사용할 로그인 토큰 — TRC의 selectedKey/resultToken과 동일한 용도.
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [resultToken, setResultToken] = useState<string | null>(null);
+  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
+  const [landingDone, setLandingDone] = useState(false);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       setLang(resolveLanguage(params.get("lang")));
+      if (params.get("start") === "check") {
+        setLandingDone(true);
+      }
+      const tab = params.get("tab");
+      if (tab === "lookup" || tab === "review" || tab === "direct") {
+        setContextTab(tab);
+      }
     }
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -1112,9 +1126,18 @@ export default function VerifyFraudPage() {
         <h1 className="mt-1.5 text-[19px] font-semibold tracking-tight text-gray-900 sm:text-xl">사기문서 검토</h1>
         <p className="mt-0.5 break-keep text-[12.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">송금 전 진위 확인부터 피해 발생 후 대응 검토까지</p>
 
+        {!landingDone && (
+          <MasterFunnelLanding
+            config={MASTER_LANDING_FRAUD}
+            activeTab={contextTab}
+            onTabChange={setContextTab}
+            onContinue={() => setLandingDone(true)}
+          />
+        )}
+
         {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
-        {step === "incident" && (
+        {landingDone && step === "incident" && (
           <div className="w-full">
             {/* 질문 1 — Prevent Review / Case Review */}
             {!reviewStage && (
@@ -1375,7 +1398,7 @@ export default function VerifyFraudPage() {
         )}
 
         {/* STEP4: 개인정보 입력 — CHECK(TRC)의 PremiumLeadCapture와 동일한 구조 */}
-        {step === "form" && (
+        {landingDone && step === "form" && (
           <VerifyFraudLeadCapture
             riskLevel={previewDiagnosis?.expertBrief.riskLevel ?? "medium"}
             messengers={messengers}
@@ -1393,7 +1416,7 @@ export default function VerifyFraudPage() {
         )}
 
         {/* STEP5: 진단 리포트 + 진행방식 선택 CTA 3개 — CHECK(TRC)와 동일한 구조 */}
-        {step === "diagnosis" && diagnosis && (
+        {landingDone && step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <VerifyDiagnosisHeader serviceName={VERIFY_QUESTION_CONTEXT} />
 
@@ -1420,7 +1443,7 @@ export default function VerifyFraudPage() {
         )}
 
         {/* STEP5-a: 직접 검토 진행하기 — 관련 기관/진행 경로 선택 */}
-        {step === "guidanceSelect" && (
+        {landingDone && step === "guidanceSelect" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
@@ -1456,7 +1479,7 @@ export default function VerifyFraudPage() {
         )}
 
         {/* STEP5-b: 선택한 기관에 대한 안내 — 관할기관/공식 확인 경로/절차/서류/주의사항 */}
-        {step === "guidance" && activeGuidance && (
+        {landingDone && step === "guidance" && activeGuidance && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
@@ -1542,7 +1565,7 @@ export default function VerifyFraudPage() {
           </div>
         )}
 
-        {step === "completed" && (
+        {landingDone && step === "completed" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <div className="flex justify-center">
               <img

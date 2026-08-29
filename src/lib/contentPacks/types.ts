@@ -4,7 +4,25 @@ export type ArticleSection =
   | { type: "bullets"; title?: string; items: string[] }
   | { type: "numbered"; items: string[] };
 
-export type ArticleIntentId = "trc-documents" | "trc-guide" | "wp-guide";
+export type ArticleIntentId =
+  | "trc-documents"
+  | "trc-guide"
+  | "wp-guide"
+  | "tamtru-guide"
+  | "driving-license-guide"
+  | "register-company-guide"
+  | "register-restaurant-guide"
+  | "register-hygiene-guide"
+  | "register-fire-safety-guide"
+  | "register-cosmetics-guide"
+  | "register-environment-guide"
+  | "register-medical-device-guide"
+  | "register-franchise-guide"
+  | "verify-admin-guide"
+  | "verify-real-estate-guide"
+  | "verify-fraud-guide"
+  | "verify-tax-guide"
+  | "verify-unclear-guide";
 
 export type CaseQa = { q: string; a: string };
 
@@ -41,6 +59,9 @@ export type CaseLanding = {
   showDocuments?: boolean;
   /** true일 때만 기존 costCheck 수수료를 표시하고 Circular를 비용에만 연결한다. */
   showOfficialCost?: boolean;
+  /** 실제 고객 질문이 정제된 경우에만 설정 */
+  customerSituationSummary?: string;
+  customerReviewPoints?: string[];
 };
 
 export type PublishedArticle = {

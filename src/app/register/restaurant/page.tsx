@@ -15,7 +15,19 @@ import {
   FileWarning,
   Flame,
 } from "lucide-react";
-import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox } from "@/components/ui";
+import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
+import FunnelPageShell from "@/components/engine/FunnelPageShell";
+import { FUNNEL_QUESTION_COLUMN } from "@/components/engine/funnelTokens";
+import {
+  NoticeCard,
+  OfficialBasisPanel,
+  OfficialTrustZone,
+  PrimaryButton,
+  InfoBox,
+  QuestionSection,
+  SelectionCard,
+  VerifyStepLayout,
+} from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
 import {
@@ -31,12 +43,21 @@ import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
+import {
+  MasterFunnelLanding,
+  type MasterFunnelContextTab,
+  MASTER_LANDING_RESTAURANT,
+} from "@/components/cost-check/MasterFunnelLanding";
 
 // 베트남 공공서비스포털 (Cổng Dịch vụ công quốc gia).
 // 식당허가(위생안전·소방)는 관할 지역(성·시)에 따라 담당부서가 달라, 이 포털에서
 // 관할 지역을 선택해 안내를 받도록 연결한다. (특정 부서 URL을 직접 지정하지 않음)
 // ⚠️ 배포 전 Linda 법률 검토 필요 — URL·안내 문구 확인 후 게시할 것.
 const REGISTER_RESTAURANT_OFFICIAL_URL = "https://dichvucong.gov.vn/";
+
+const REGISTER_QUESTION_CONTEXT = "식당허가 준비 상태 확인";
+const REGISTER_BACK_BUTTON_CLASS =
+  "mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]";
 
 type RegistrationStatus = "confirmed" | "unconfirmed" | null;
 type PremisesStatus = "secured" | "unsecured" | null;
@@ -125,23 +146,23 @@ function ConsentDetails({
 // ── 질문 옵션 + 아이콘/톤 매핑(표시 전용) + CHECK/TRC 스타일의 한 줄 설명.
 // value·키는 100% 동일하게 유지한다.
 const OPERATION_OPTIONS: { key: NonNullable<OperationChoice>; label: string; desc: string; icon: typeof Store; tone: SelectionCardTone }[] = [
-  { key: "not_open", label: "아직 오픈 전입니다", desc: "영업 시작 전 허가 신청을 준비하고 있습니다.", icon: Store, tone: "blue" },
-  { key: "operating_licensed", label: "허가를 받고 정상 운영 중입니다", desc: "현재 필요한 허가를 취득하여 운영 중입니다.", icon: CheckCircle2, tone: "green" },
-  { key: "operating_unlicensed", label: "허가 없이 이미 영업 중입니다", desc: "허가를 완료하지 못한 상태에서 영업 중입니다.", icon: AlertTriangle, tone: "red" },
+  { key: "not_open", label: "아직 오픈 전입니다", desc: "영업 시작 전, 허가 신청을 준비하고 있습니다.", icon: Store, tone: "blue" },
+  { key: "operating_licensed", label: "허가를 받고 정상 운영 중입니다", desc: "필요한 허가를 갖춘 상태로 운영 중입니다.", icon: CheckCircle2, tone: "green" },
+  { key: "operating_unlicensed", label: "허가 없이 이미 영업 중입니다", desc: "허가 절차를 마치지 못한 채 영업 중입니다.", icon: AlertTriangle, tone: "red" },
 ];
 
 const REGISTRATION_OPTIONS: { key: NonNullable<RegistrationStatus>; label: string; desc: string; icon: typeof FileCheck2; tone: SelectionCardTone }[] = [
-  { key: "confirmed", label: "준비되어 있음", desc: "사업자 또는 법인 등록 관련 서류를 보유하고 있습니다.", icon: FileCheck2, tone: "green" },
-  { key: "unconfirmed", label: "아직 미확정", desc: "사업자·법인 등록 서류를 아직 준비 중입니다.", icon: FileWarning, tone: "amber" },
+  { key: "confirmed", label: "준비되어 있음", desc: "사업자·법인 등록 관련 서류를 보유하고 있습니다.", icon: FileCheck2, tone: "green" },
+  { key: "unconfirmed", label: "아직 미확정", desc: "사업자·법인 등록 서류 준비가 아직 남아 있습니다.", icon: FileWarning, tone: "amber" },
 ];
 
 const PREMISES_OPTIONS: { key: NonNullable<PremisesStatus>; label: string; desc: string; icon: typeof Store; tone: SelectionCardTone }[] = [
-  { key: "secured", label: "체결 완료", desc: "영업장 임대차 계약을 완료했습니다.", icon: Store, tone: "green" },
-  { key: "unsecured", label: "아직 미체결", desc: "영업장 계약 장소가 아직 확정되지 않았습니다.", icon: FileWarning, tone: "amber" },
+  { key: "secured", label: "체결 완료", desc: "영업장 임대차 계약을 마쳤습니다.", icon: Store, tone: "green" },
+  { key: "unsecured", label: "아직 미체결", desc: "영업장 계약·장소가 아직 확정되지 않았습니다.", icon: FileWarning, tone: "amber" },
 ];
 
 const HYGIENE_OPTIONS: { key: NonNullable<HygieneFireStatus>; label: string; desc: string; icon: typeof Flame; tone: SelectionCardTone }[] = [
-  { key: "ready", label: "예, 완료했습니다", desc: "위생·소방 시설 준비와 점검을 완료했습니다.", icon: CheckCircle2, tone: "green" },
+  { key: "ready", label: "예, 완료했습니다", desc: "위생·소방 시설 준비와 점검을 마쳤습니다.", icon: CheckCircle2, tone: "green" },
   { key: "not_ready", label: "아직입니다", desc: "위생·소방 시설 준비 또는 점검이 남아 있습니다.", icon: Flame, tone: "amber" },
 ];
 
@@ -359,11 +380,11 @@ function RestaurantResultOverviewCards({
       label: "허가 가능성",
       visual: <RestaurantScoreGauge score={feasibilityScore} tone={resultTone} />,
       pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{scoreToneLabel}</span>,
-      caption: `입력하신 정보 기준으로 허가 가능성이 ${scoreToneWord}.`,
+      caption: `입력하신 준비 상태 기준으로 허가 가능성이 ${scoreToneWord}.`,
     },
     {
       n: 2,
-      label: "위험요인",
+      label: "보완 조건",
       visual: (
         <div className={`flex h-16 w-16 items-center justify-center rounded-full ${riskIconBg}`}>
           {failedCount > 0 ? (
@@ -376,8 +397,8 @@ function RestaurantResultOverviewCards({
       pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${riskPillTone}`}>{riskPillText}</span>,
       caption:
         failedCount > 0
-          ? "보완이 필요한 항목이 확인되었습니다."
-          : "현재 확인된 위험요인이 없습니다.",
+          ? "신청 전 보완이 필요한 조건이 확인되었습니다."
+          : "현재 입력 기준에서 확인된 보완 조건은 없습니다.",
     },
     {
       n: 3,
@@ -388,7 +409,7 @@ function RestaurantResultOverviewCards({
         </div>
       ),
       pill: <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{docsPillText}</span>,
-      caption: "현재 조건에 맞는 필수 서류 목록입니다.",
+      caption: "식당허가 신청에 맞춰 안내하는 필수 서류입니다.",
     },
     {
       n: 4,
@@ -399,18 +420,18 @@ function RestaurantResultOverviewCards({
         </div>
       ),
       pill: <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">{daysPillText}</span>,
-      caption: "신청부터 발급까지 예상 기간 안내입니다.",
+      caption: "유사 사례 기준의 통상 소요 기간 안내입니다.",
     },
     {
       n: 5,
-      label: "AI 검토 의견",
+      label: "AI 확인 의견",
       visual: (
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
           <UserCheck className="text-gray-700" size={26} />
         </div>
       ),
       pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
-      caption: "베트남 인허가전문 AI의 종합 검토 의견입니다.",
+      caption: "공식 절차·요건을 참고한 인허가전문 AI 확인 의견입니다.",
     },
   ];
 
@@ -491,7 +512,7 @@ function RestaurantDesktopResultHeader({
         </div>
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
-            입력값 기준 1차 진단 결과
+            입력 조건 기준 확인 결과
           </p>
           <h2 className="mt-1 text-xl font-bold tracking-tight text-gray-900">
             {isPossible
@@ -502,7 +523,7 @@ function RestaurantDesktopResultHeader({
             {diagnosis.note}
           </p>
           <p className="mt-2 text-xs leading-relaxed text-gray-400">
-            실제 진행 가능 여부는 제출 서류와 관할기관 확인 후 최종 확정됩니다.
+            최종 진행 가능 여부는 제출 서류와 관할기관 확인 후 확정됩니다.
           </p>
         </div>
       </div>
@@ -520,22 +541,15 @@ function RestaurantResultSummaryCard({ diagnosis }: { diagnosis: RestaurantDiagn
     diagnosis.estimatedDays
   );
 
+  const sectionTitles = ["현재 판단", "준비·보완 조건", "예상 소요"];
   return (
-    <div className="mt-3 rounded-2xl bg-white border border-gray-100 p-5">
-      <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-          AI
-        </span>
-        <p className="text-sm font-bold text-gray-900">AI 분석 결과 요약</p>
-      </div>
-      <div className="mt-3 space-y-1.5">
-        {bullets.map((b, i) => (
-          <p key={i} className="text-sm leading-relaxed text-gray-700">
-            · {b}
-          </p>
-        ))}
-      </div>
-    </div>
+    <OfficialBasisPanel
+      engine="register"
+      sections={bullets.map((description, index) => ({
+        title: sectionTitles[index] ?? `확인 항목 ${index + 1}`,
+        description,
+      }))}
+    />
   );
 }
 
@@ -566,25 +580,29 @@ function RestaurantNextStepOptions({
 }) {
   return (
     <div>
-      <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
+      <p className="mt-5 text-sm font-bold text-gray-900">다음으로 진행할 방법을 선택하세요</p>
+      <p className="mt-1 break-keep text-xs leading-[1.55] text-[#64748B]">
+        확인 결과를 바탕으로, 분석 정리 · 전문가 진행 · 정부 사이트 직접 신청 중 선택합니다.
+      </p>
       <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) AI 리포트 진행하기 — "필수" 강조 */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
+        {/* 1) AI 리포트 — 핸들러·목적지 변경 없음 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-[#0B2A6B] bg-white p-4 shadow-[0_1px_3px_rgba(11,42,107,0.08)]">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-[#0B2A6B] px-2.5 py-0.5 text-[10px] font-bold text-white">
             필수
           </span>
           <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 진행하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
+            입력 정보와 서류를 바탕으로, 공식 기준에 맞춰 확인 결과를 정리한 리포트(PDF)를
+            받을 수 있습니다.
           </p>
           <ul className="mt-3 space-y-1.5">
             <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 점검</li>
             <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
             <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
           </ul>
-          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-blue-700">
-            아는 것과 모르는 것의 차이는 큽니다. 무료로 먼저 점검하세요.
+          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-[#0B2A6B]">
+            서류 기준으로 먼저 정리하면 이후 진행이 수월해집니다.
           </p>
           <div className="mt-auto pt-4">
             <button
@@ -599,60 +617,59 @@ function RestaurantNextStepOptions({
               {aiReportError ? (
                 <span className="text-red-600">{aiReportError}</span>
               ) : (
-                "결과는 My Page에서 PDF로 다운로드할 수 있습니다."
+                "결과는 My Page에서 PDF로 확인할 수 있습니다."
               )}
             </p>
           </div>
         </div>
 
-        {/* 2) 전문가 진행하기 — 가장 강한 파란색 CTA */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+        {/* 2) 전문가 진행하기 — 핸들러·목적지 변경 없음 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
           <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
             추천
           </span>
           <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            최신 법령과 실제 제출 서류를 전문가가 최종 확인하여 안전하게
-            진행합니다.
+            VFBCAI 전문가팀이 실제 절차와 제출 서류를 확인하며 함께 진행합니다.
           </p>
           <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 최신 법령 및 정책 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 공식 절차·요건 기준 확인</li>
             <li className="text-[11px] text-gray-600 pl-1">· 제출 서류 검토 및 보완 안내</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 방향 정리</li>
             <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
           </ul>
           <div className="mt-auto pt-4">
             <PrimaryButton onClick={onExpert} loading={expertPending}>
               전문가 진행하기
             </PrimaryButton>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
+            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
               {expertError ? (
                 <span className="text-red-600">{expertError}</span>
               ) : (
-                "전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수 있습니다."
+                "확인 결과 + 제출 서류 → 전문가 진행으로 이어집니다."
               )}
             </p>
           </div>
         </div>
 
-        {/* 3) 직접 진행하기 — 흰색 테두리, "신중" 주의 배지 */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
+        {/* 3) 직접 진행하기 — "신중" */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-gray-100 bg-[#FAFBFC] p-4">
           <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
             신중
           </span>
           <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
           <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            정부 공식 사이트에서 직접 신청할 수 있습니다.
+            정부 공식 사이트에서 관할·절차를 확인한 뒤 식당허가를 직접 신청합니다.
           </p>
           <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 대행 비용 없이 직접 신청할 수 있습니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 베트남 인허가 절차를 스스로 확인해야 합니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 대행 없이 공식 경로로 직접 신청</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 인허가 절차·요건을 스스로 확인</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행</li>
+            <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 확인</li>
           </ul>
           <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
-            개인 진행 시 신중하게 진행하셔야 합니다. 한 번 반려된 서류는
-            다시 제출할 때 더 까다롭게 검토될 수 있습니다.
+            직접 진행 시 제출·보완도 직접 처리합니다. 반려 이력은 이후 심사에 영향을 줄 수
+            있습니다.
           </div>
           <div className="mt-auto pt-4">
             <a
@@ -665,7 +682,7 @@ function RestaurantNextStepOptions({
               정부 공식 사이트 이동 <ExternalLink size={13} />
             </a>
             <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-              신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
+              신청 절차·제출 서류는 정부 사이트에서 직접 확인해야 합니다.
             </p>
           </div>
         </div>
@@ -742,8 +759,8 @@ function RestaurantLeadCapture({
 
             <p className="mt-2 text-sm leading-relaxed text-gray-600">
               {isPossible
-                ? "현재 사업자등록·영업장 준비 상태 기준으로 식당허가(위생안전·소방) 신청 요건을 충족합니다."
-                : "현재 사업자등록 또는 영업장 준비 상태만으로는 식당허가 신청이 자동으로 진행되지 않습니다. 준비 서류를 보완하면 진행할 수 있는 경우가 많습니다."}
+                ? "현재 사업자등록·영업장 준비 상태 기준으로 식당허가(위생안전·소방) 신청 요건에 가깝습니다."
+                : "현재 사업자등록 또는 영업장 준비 상태만으로는 신청이 바로 이어지기 어렵습니다. 준비 서류를 보완하면 진행할 수 있는 경우가 많습니다."}
             </p>
           </div>
 
@@ -751,14 +768,14 @@ function RestaurantLeadCapture({
         </div>
 
         <p className="mt-2 text-xs leading-relaxed text-gray-400">
-          * 위 결과는 입력하신 조건을 기준으로 한 1차 확인 결과입니다. 정확한
-          진행 가능 여부는 서류 검토 후 전문가 상담을 통해 확정됩니다.
+          * 위 결과는 입력하신 조건을 기준으로 한 확인 안내입니다. 정확한
+          진행 가능 여부는 서류 검토와 관할기관 확인 후 확정됩니다.
         </p>
 
         <div className="mt-4">
           <NoticeCard tone={isPossible ? "success" : "warning"}>
-            이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를
-            바로 보여드립니다.
+            이름·연락처·주소만 남기시면 다음 단계에서 서류 기준 확인 리포트를
+            이어갈 수 있습니다.
           </NoticeCard>
         </div>
 
@@ -903,6 +920,8 @@ function RestaurantLeadCapture({
 }
 
 export default function RegisterRestaurantPage() {
+  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
+  const [costEntryDone, setCostEntryDone] = useState(false);
   const [operationChoice, setOperationChoice] = useState<OperationChoice>(null);
   const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus>(null);
   const [premisesStatus, setPremisesStatus] = useState<PremisesStatus>(null);
@@ -939,10 +958,19 @@ export default function RegisterRestaurantPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       setLang(resolveLanguage(params.get("lang")));
+      // Guide 「내 상황 확인하기」 → 기존 질문 플로우(Q1) 직행 (랜딩 스킵)
+      if (params.get("start") === "check") {
+        setCostEntryDone(true);
+      }
     }
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
+  const registerQuestionProps = {
+    variant: "verify" as const,
+    contextLabel: REGISTER_QUESTION_CONTEXT,
+    totalSteps: 5,
+  };
 
   const isUnlicensedOperating = operationChoice === "operating_unlicensed";
 
@@ -1016,6 +1044,7 @@ export default function RegisterRestaurantPage() {
   }
 
   function reset() {
+    setCostEntryDone(false);
     setOperationChoice(null);
     setRegistrationStatus(null);
     setPremisesStatus(null);
@@ -1277,102 +1306,105 @@ export default function RegisterRestaurantPage() {
     setLeadSubmitted(true);
   }
 
+  // 3-tab / Cost / Review / Guide 는 초기 랜딩(!costEntryDone)에서만.
+  // Q1 진입(costEntryDone) 이후에는 절대 렌더하지 않는다.
+  const showLandingChrome = !costEntryDone;
+  const headerTitle = showLandingChrome
+    ? contextTab === "review"
+      ? "인허가 적정성 검토"
+      : contextTab === "direct"
+        ? "식당 인허가 안내"
+        : "식당허가 비용 확인"
+    : "식당허가 준비 상태 확인";
+  const headerDescription = showLandingChrome
+    ? contextTab === "review"
+      ? "현재 받은 안내나 견적이 식당 인허가에 필요한 절차와 비용 기준에 맞는지 확인합니다."
+      : contextTab === "direct"
+        ? "식당 인허가의 기본 절차·준비 항목·추가 절차 가능성을 확인합니다."
+        : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인합니다."
+    : "사업자·영업장·위생·소방 준비 상태를 기준으로 신청 방향을 안내합니다.";
+
+  function startSituationCheck() {
+    setContextTab("lookup");
+    setCostEntryDone(true);
+  }
+
   return (
-    <main className="min-h-screen bg-[#fafafa]">
-      <div className="h-[3px] bg-blue-900" />
-      {/* CHECK(TRC)와 동일하게 결과 화면은 법인설립 Master Size인 max-w-4xl을 사용한다.
-          질문/개인정보 입력 단계는 기존과 동일한 max-w-xl을 유지한다. */}
-      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
-        {/* 모바일 전용 — CHECK(TRC)/VERIFY(admin)와 동일한 브랜드 헤더 */}
-        <Link
-          href="/"
-          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
-        >
-          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
-            <ArrowLeft size={14} /> 홈으로
-          </span>
-          <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={34} height={34} className="shrink-0" />
-          <div>
-            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
-            <p className="text-[11px] leading-tight text-gray-400">베트남 인허가전문 AI</p>
-          </div>
-        </Link>
-
-        <Link href="/" className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex">
-          <ArrowLeft size={14} /> 홈으로
-        </Link>
-
-        <div className="mt-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              직접허가받기 · 베트남 인허가전문 AI
-            </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-              식당허가 가능성 진단
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              현재 운영·등록 상태에 따라 필요서류가 달라집니다.
-            </p>
-          </div>
-
-          {/* 모바일 전용 — 결과 화면 단계에서만 우측 상단에 원형 점수표 표시(TRC와 동일) */}
-          {resultScreenActive && diagnosis && (
-            <div className="shrink-0 sm:hidden">
-              <ResultHeaderGauge diagnosis={diagnosis} size={76} />
-            </div>
-          )}
-        </div>
-
-        {/* 질문 1 — 타 기관 거절이력. CHECK(TRC)와 동일하게 selectedKey를 쓰지 않고
-            previousRejection 값 자체로 선택 상태를 판정한다(충돌·소실 방지). */}
-        {!rejectionStepDone && (
-          <div className="mt-8">
-            <QuestionSection
-              step={1}
-              title="이전에 다른 곳(정부기관 또는 타 대행사)에서 식당허가를 신청하셨다가 거절·반려되신 적이 있나요?"
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <SelectionCard
-                  title="네, 있습니다"
-                  description="이전 신청에서 거절 또는 반려된 경험이 있습니다."
-                  selected={previousRejection === true}
-                  tone="amber"
-                  onClick={() => {
-                    setPreviousRejection(true);
-                    recordRejectionAnonymously();
-                  }}
-                />
-                <SelectionCard
-                  title="아니요"
-                  description="이번이 첫 신청이거나 거절·반려 이력이 없습니다."
-                  selected={previousRejection === false}
-                  tone="blue"
-                  onClick={() => {
-                    setPreviousRejection(false);
-                    setRejectionStepDone(true);
-                  }}
-                />
+    <FunnelPageShell
+      engine="register"
+      width={showLandingChrome || resultScreenActive ? "wide" : "default"}
+    >
+        <FunnelPageHeader
+          engine="register"
+          title={headerTitle}
+          description={headerDescription}
+          headerExtra={
+            resultScreenActive && diagnosis ? (
+              <div className="sm:hidden">
+                <ResultHeaderGauge diagnosis={diagnosis} size={76} />
               </div>
-            </QuestionSection>
+            ) : undefined
+          }
+        />
 
-            {/* CHECK(TRC)와 동일한 AI 안내카드 + textarea — 선택은 사항이며, 카드
-                선택 상태(previousRejection===true)는 입력 중에도 계속 유지된다. */}
+        {showLandingChrome && (
+          <MasterFunnelLanding
+            config={MASTER_LANDING_RESTAURANT}
+            activeTab={contextTab}
+            onTabChange={setContextTab}
+            onContinue={startSituationCheck}
+          />
+        )}
+
+        {costEntryDone && !rejectionStepDone && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={1}
+              question={
+                <>
+                  <QuestionSection
+                    step={1}
+                    title="이전에 식당허가를 신청했다가 거절·반려된 적이 있나요?"
+                    description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 이력이 있으면 보완 포인트를 더 정확히 짚을 수 있습니다."
+                    {...registerQuestionProps}
+                  >
+                    <div className="grid grid-cols-2 gap-3">
+                      <SelectionCard
+                        variant="quiet"
+                        title="네, 있습니다"
+                        description="이전 신청에서 거절 또는 반려된 경험이 있습니다."
+                        selected={previousRejection === true}
+                        tone="amber"
+                        onClick={() => {
+                          setPreviousRejection(true);
+                          recordRejectionAnonymously();
+                        }}
+                      />
+                      <SelectionCard
+                        variant="quiet"
+                        title="아니요"
+                        description="이번이 첫 신청이거나 거절·반려 이력이 없습니다."
+                        selected={previousRejection === false}
+                        tone="blue"
+                        onClick={() => {
+                          setPreviousRejection(false);
+                          setRejectionStepDone(true);
+                        }}
+                      />
+                    </div>
+                  </QuestionSection>
+
             {previousRejection === true && (
               <div className="mt-4">
-                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    AI
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">
-                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
-                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
-                      작성해주세요. 작성하지 않으셔도 다음 단계로 진행할 수
-                      있습니다.
-                    </p>
-                  </div>
+                <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-3">
+                  <p className="text-sm font-semibold text-[#0B2A6B]">
+                    거절·반려 사유를 알려주시면 공식 기준 확인에 반영됩니다.
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#556070]">
+                    이전에 들으셨던 사유나 안내를 자유롭게 적어 주세요. 비워 두셔도
+                    다음 단계로 진행할 수 있습니다.
+                  </p>
                 </div>
 
                 <textarea
@@ -1385,8 +1417,7 @@ export default function RegisterRestaurantPage() {
                   className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
                 />
                 <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
-                  높이는 데 활용됩니다.
+                  작성해주신 내용은 공식 기준 확인·거절 원인 점검에 활용됩니다.
                 </p>
 
                 <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
@@ -1394,52 +1425,80 @@ export default function RegisterRestaurantPage() {
                 </PrimaryButton>
               </div>
             )}
+                </>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviousRejection(null);
+                    setRejectionReason("");
+                    setCostEntryDone(false);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 비용·기준으로 돌아가기
+                </button>
+              }
+            />
           </div>
         )}
 
-        {/* 질문 2 — 현재 운영 상태. CHECK Master UI의 3개 선택지 실제 배열 기준
-            그대로(grid-cols-1, 반응형 2열 강제 없음) 적용. */}
-        {rejectionStepDone && !operationChoice && (
-          <div className="mt-8">
-            <QuestionSection step={2} title="현재 식당을 어떻게 운영하고 계신가요?">
-              <div className="grid grid-cols-1 gap-3">
-                {OPERATION_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setOperationChoice(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setRejectionStepDone(false);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
+        {/* 질문 2 — 현재 운영 상태 */}
+        {costEntryDone && rejectionStepDone && !operationChoice && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={2}
+              question={
+                <QuestionSection
+                  step={2}
+                  title="현재 식당을 어떻게 운영하고 계신가요?"
+                  description="운영 단계에 따라 확인해야 할 허가·준비 항목이 달라집니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-1 gap-3">
+                    {OPERATION_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setOperationChoice(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setRejectionStepDone(false);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
         {/* 무허가 영업 경고 — 정상 옵션과 동급으로 취급하지 않고 즉시 경고 화면으로
             분기. 문구·동작 전부 기존과 동일, 수정 없음. */}
-        {rejectionStepDone && isUnlicensedOperating && (
-          <div className="mt-8">
+        {costEntryDone && rejectionStepDone && isUnlicensedOperating && (
+          <div className={`mt-8 ${FUNNEL_QUESTION_COLUMN}`}>
             <NoticeCard tone="danger" title="무허가 영업은 즉시 폐쇄될 수 있습니다">
               허가 없이 영업 중인 경우 단속 시 즉시 영업정지 또는 폐쇄 조치될
               수 있으며, 이후 정식 허가 신청에도 불이익이 있을 수 있습니다.
@@ -1465,123 +1524,161 @@ export default function RegisterRestaurantPage() {
           </div>
         )}
 
-        {/* 질문 3 — 사업자·법인 등록 서류 준비 (모바일 2열 유지 — Restaurant 확정 요구사항) */}
-        {rejectionStepDone && operationChoice && !isUnlicensedOperating && !registrationStatus && (
-          <div className="mt-8">
-            <QuestionSection step={3} title="사업자·법인 등록 서류가 준비되어 있나요?">
-              <div className="grid grid-cols-2 gap-3">
-                {REGISTRATION_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setRegistrationStatus(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setOperationChoice(null);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
+        {/* 질문 3 — 사업자·법인 등록 서류 준비 (모바일 2열 유지) */}
+        {costEntryDone && rejectionStepDone && operationChoice && !isUnlicensedOperating && !registrationStatus && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={3}
+              question={
+                <QuestionSection
+                  step={3}
+                  title="사업자·법인 등록 서류가 준비되어 있나요?"
+                  description="식당허가 신청에 앞서 확인하는 기본 등록 서류입니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    {REGISTRATION_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setRegistrationStatus(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setOperationChoice(null);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
         {/* 질문 4 — 영업장 임대차 계약 (모바일 2열 유지) */}
-        {rejectionStepDone && registrationStatus && !premisesStatus && (
-          <div className="mt-8">
-            <QuestionSection step={4} title="영업장(매장) 임대차 계약을 체결하셨나요?">
-              <div className="grid grid-cols-2 gap-3">
-                {PREMISES_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setPremisesStatus(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setRegistrationStatus(null);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
+        {costEntryDone && rejectionStepDone && registrationStatus && !premisesStatus && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={2}
+              question={
+                <QuestionSection
+                  step={4}
+                  title="영업장(매장) 임대차 계약을 체결하셨나요?"
+                  description="허가 신청 시 확인할 영업장 확보 상태입니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    {PREMISES_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setPremisesStatus(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setRegistrationStatus(null);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
         {/* 질문 5 — 위생·소방 안전시설 점검 (모바일 2열 유지) */}
-        {rejectionStepDone && registrationStatus && premisesStatus && !hygieneFireStatus && (
-          <div className="mt-8">
-            <QuestionSection step={5} title="위생·소방 안전시설 점검을 마치셨나요?">
-              <div className="grid grid-cols-2 gap-3">
-                {HYGIENE_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setHygieneFireStatus(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setPremisesStatus(null);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
+        {costEntryDone && rejectionStepDone && registrationStatus && premisesStatus && !hygieneFireStatus && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={4}
+              question={
+                <QuestionSection
+                  step={5}
+                  title="위생·소방 안전시설 점검을 마치셨나요?"
+                  description="식당허가(위생안전·소방) 관련 시설 준비 상태를 확인합니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    {HYGIENE_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setHygieneFireStatus(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setPremisesStatus(null);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
-        {/* 결과 미리보기 + 개인정보 입력 (가입 전) — CHECK(TRC)의 PremiumLeadCapture와
-            동일한 구조. possible/conditional 공통. */}
-        {showResult && diagnosis && !leadSubmitted && (
+        {/* 결과 미리보기 + 개인정보 입력 (가입 전) */}
+        {costEntryDone && showResult && diagnosis && !leadSubmitted && (
           <RestaurantLeadCapture
             diagnosis={diagnosis}
             messengers={messengers}
@@ -1598,14 +1695,15 @@ export default function RegisterRestaurantPage() {
           />
         )}
 
-        {/* 가입 직후 — CHECK(TRC)와 동일한 카드 셸(제목 라벨 → 5칸 개요 → 요약카드 →
-            3버튼 CTA → 안내문 → 처음부터 다시 확인하기) 순서 그대로. 별도의 긴
-            중간 확인화면은 두지 않는다(TRC 실제 흐름과 동일 — 위 handleExpertRequest
-            주석 참고). */}
-        {showResult && diagnosis && leadSubmitted && (
+        {/* 가입 직후 — judgment → official basis → conditions → prep → next actions */}
+        {costEntryDone && showResult && diagnosis && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              식당허가 · AI 분석 리포트
+            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
+              식당허가
+            </p>
+            <p className="mt-1 text-[11px] font-semibold text-[#2563EB]">확인 결과</p>
+            <p className="mt-1.5 break-keep text-[13px] leading-[1.55] text-[#556070]">
+              입력하신 준비 상태를 공식 인허가 절차·요건에 맞춰 정리한 결과입니다.
             </p>
 
             <RestaurantDesktopResultHeader diagnosis={diagnosis} />
@@ -1613,6 +1711,8 @@ export default function RegisterRestaurantPage() {
             <RestaurantResultOverviewCards diagnosis={diagnosis} docCount={requiredDocs.documents.length} />
 
             <RestaurantResultSummaryCard diagnosis={diagnosis} />
+
+            <OfficialTrustZone engine="register" variant="strip" context="diagnosis" className="mt-4" />
 
             {diagnosis.resultTone === "conditional" && (
               <div className="mt-3">
@@ -1652,7 +1752,6 @@ export default function RegisterRestaurantPage() {
             </button>
           </div>
         )}
-      </div>
-    </main>
+    </FunnelPageShell>
   );
 }

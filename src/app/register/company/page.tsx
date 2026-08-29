@@ -19,7 +19,7 @@ import {
   MapPin,
   Landmark,
 } from "lucide-react";
-import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox } from "@/components/ui";
+import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyStepLayout } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
 import {
@@ -36,6 +36,13 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import {
+  MasterFunnelLanding,
+  type MasterFunnelContextTab,
+  MASTER_LANDING_COMPANY,
+} from "@/components/cost-check/MasterFunnelLanding";
+import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
+import FunnelPageShell from "@/components/engine/FunnelPageShell";
+import {
   getCheckDiagnosis,
   computePermitCompanyResultTone,
   type DiagnosisResult,
@@ -49,6 +56,10 @@ import {
 // 국가기업등록포털 (Cổng Thông tin quốc gia về đăng ký doanh nghiệp).
 // IRC/ERC 신청 메뉴 및 관할 기관 안내로 연결됩니다.
 const REGISTER_COMPANY_OFFICIAL_URL = "https://dangkykinhdoanh.gov.vn/";
+
+const REGISTER_QUESTION_CONTEXT = "법인설립 가능성 진단";
+const REGISTER_BACK_BUTTON_CLASS =
+  "mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]";
 
 type InvestorChoice = PermitInvestorType | "local_nominee";
 type Capital = PermitCapital;
@@ -978,6 +989,8 @@ export default function PermitCompanyCheckPage() {
   const [previousRejection, setPreviousRejection] = useState<boolean | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionStepDone, setRejectionStepDone] = useState(false);
+  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
+  const [costEntryDone, setCostEntryDone] = useState(false);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const selfNotifySentRef = useRef(false);
@@ -993,10 +1006,19 @@ export default function PermitCompanyCheckPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       setLang(resolveLanguage(params.get("lang")));
+      // Guide 「내 상황 확인하기」 → 기존 질문 플로우(Q1) 직행 (랜딩 스킵)
+      if (params.get("start") === "check") {
+        setCostEntryDone(true);
+      }
     }
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
+  const registerQuestionProps = {
+    variant: "verify" as const,
+    contextLabel: REGISTER_QUESTION_CONTEXT,
+    totalSteps: 5,
+  };
   const isLocalNominee = investorChoice === "local_nominee";
   const investorType: PermitInvestorType =
     investorChoice === "corporate" || investorChoice === "individual"
@@ -1344,153 +1366,185 @@ export default function PermitCompanyCheckPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fafafa]">
-      <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
-        <Link
-          href="/"
-          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
-        >
-          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
-            <ArrowLeft size={14} /> 홈으로
-          </span>
-          <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={34} height={34} className="shrink-0" />
-          <div>
-            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
-            <p className="text-[11px] leading-tight text-gray-400">베트남 인허가전문 AI</p>
+    <FunnelPageShell
+      engine="register"
+      width={!costEntryDone || resultScreenActive ? "wide" : "default"}
+    >
+      <FunnelPageHeader
+        engine="register"
+        title={
+          !costEntryDone
+            ? contextTab === "review"
+              ? "법인설립 견적·조건 검토"
+              : contextTab === "direct"
+                ? "법인설립 안내"
+                : "법인설립 비용 확인"
+            : "법인설립 가능성 진단"
+        }
+        description={
+          !costEntryDone
+            ? contextTab === "review"
+              ? "받은 안내나 견적이 법인설립에 필요한 절차와 비용 기준에 맞는지 확인합니다."
+              : contextTab === "direct"
+                ? "법인설립의 기본 절차·준비 항목·직접 진행 시 참고 비용을 확인합니다."
+                : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인합니다."
+            : "개인 투자와 법인 투자에 따라 질문과 필요서류가 달라집니다."
+        }
+        headerExtra={resultScreenActive && diagnosis ? (
+          <div className="sm:hidden">
+            <ResultHeaderGauge diagnosis={diagnosis} size={76} />
           </div>
-        </Link>
+        ) : undefined}
+      />
 
-        <Link href="/" className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex">
-          <ArrowLeft size={14} /> 홈으로
-        </Link>
+        {!costEntryDone && (
+          <MasterFunnelLanding
+            config={MASTER_LANDING_COMPANY}
+            activeTab={contextTab}
+            onTabChange={setContextTab}
+            onContinue={() => setCostEntryDone(true)}
+          />
+        )}
 
-        <div className="mt-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              직접허가받기 · 베트남 인허가전문 AI
-            </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-              법인설립 가능성 진단
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              개인 투자와 법인 투자에 따라 질문과 필요서류가 달라집니다.
-            </p>
-          </div>
-
-          {resultScreenActive && diagnosis && (
-            <div className="shrink-0 sm:hidden">
-              <ResultHeaderGauge diagnosis={diagnosis} size={76} />
-            </div>
-          )}
-        </div>
-
-        {!rejectionStepDone && (
-          <div className="mt-8">
-            <QuestionSection
+        {costEntryDone && !rejectionStepDone && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
               step={1}
-              title="이전에 다른 곳(정부기관 또는 타 대행사)에서 법인설립을 신청하셨다가 거절·반려되신 적이 있나요?"
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <SelectionCard
-                  title="네, 있습니다"
-                  description="이전 신청에서 거절 또는 반려된 경험이 있습니다."
-                  selected={previousRejection === true}
-                  tone="amber"
-                  onClick={() => {
-                    setPreviousRejection(true);
-                    recordRejectionAnonymously();
-                  }}
-                />
-                <SelectionCard
-                  title="아니요"
-                  description="이번이 첫 신청이거나 거절·반려 이력이 없습니다."
-                  selected={previousRejection === false}
-                  tone="blue"
-                  onClick={() => {
-                    setPreviousRejection(false);
-                    setRejectionStepDone(true);
-                  }}
-                />
-              </div>
-            </QuestionSection>
+              question={
+                <>
+                  <QuestionSection
+                    step={1}
+                    title="이전에 다른 곳(정부기관 또는 타 대행사)에서 법인설립을 신청하셨다가 거절·반려되신 적이 있나요?"
+                    description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 이력이 있으면 보완 포인트를 더 정확히 짚을 수 있습니다."
+                    {...registerQuestionProps}
+                  >
+                    <div className="grid grid-cols-2 gap-3">
+                      <SelectionCard
+                        variant="quiet"
+                        title="네, 있습니다"
+                        description="이전 신청에서 거절 또는 반려된 경험이 있습니다."
+                        selected={previousRejection === true}
+                        tone="amber"
+                        onClick={() => {
+                          setPreviousRejection(true);
+                          recordRejectionAnonymously();
+                        }}
+                      />
+                      <SelectionCard
+                        variant="quiet"
+                        title="아니요"
+                        description="이번이 첫 신청이거나 거절·반려 이력이 없습니다."
+                        selected={previousRejection === false}
+                        tone="blue"
+                        onClick={() => {
+                          setPreviousRejection(false);
+                          setRejectionStepDone(true);
+                        }}
+                      />
+                    </div>
+                  </QuestionSection>
 
-            {previousRejection === true && (
-              <div className="mt-4">
-                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    AI
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">
-                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
-                      이전에 들으셨던 거절 사유나 보완 요청 내용을 자유롭게
-                      작성해주세요. 작성하지 않으셔도 다음 단계로 진행할 수 있습니다.
-                    </p>
+                  {previousRejection === true && (
+                    <div className="mt-4">
+                      <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-3">
+                        <p className="text-sm font-semibold text-[#0B2A6B]">
+                          거절·반려 사유를 알려주시면 공식 기준 확인에 반영됩니다.
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-[#556070]">
+                          이전에 들으셨던 사유나 안내를 자유롭게 적어 주세요. 비워 두셔도
+                          다음 단계로 진행할 수 있습니다.
+                        </p>
+                      </div>
+
+                      <textarea
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        placeholder={
+                          "예)\n- 투자금 증빙이 부족하다고 안내받았습니다.\n- 임대차계약 또는 사업장 용도 문제로 보완 요청을 받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요(선택)."
+                        }
+                        rows={6}
+                        className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
+                      />
+                      <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                        작성해주신 내용은 공식 기준 확인·거절 원인 점검에 활용됩니다.
+                      </p>
+
+                      <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
+                        다음
+                      </PrimaryButton>
+                    </div>
+                  )}
+                </>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviousRejection(null);
+                    setRejectionReason("");
+                    setCostEntryDone(false);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 비용·기준으로 돌아가기
+                </button>
+              }
+            />
+          </div>
+        )}
+
+        {costEntryDone && rejectionStepDone && !investorChoice && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={2}
+              question={
+                <QuestionSection
+                  step={2}
+                  title="어떤 방식으로 투자하시나요?"
+                  description="투자자 유형에 따라 필요 서류와 진행 절차가 달라집니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-1 gap-3">
+                    {INVESTOR_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setInvestorChoice(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
                   </div>
-                </div>
-
-                <textarea
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder={
-                    "예)\n- 투자금 증빙이 부족하다고 안내받았습니다.\n- 임대차계약 또는 사업장 용도 문제로 보완 요청을 받았습니다.\n- 정확한 이유를 듣지 못했습니다.\n\n자유롭게 작성해주세요(선택)."
-                  }
-                  rows={6}
-                  className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
-                />
-                <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을 높이는 데 활용됩니다.
-                </p>
-
-                <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
-                  다음
-                </PrimaryButton>
-              </div>
-            )}
+                </QuestionSection>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setRejectionStepDone(false);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
-        {rejectionStepDone && !investorChoice && (
-          <div className="mt-8">
-            <QuestionSection step={2} title="어떤 방식으로 투자하시나요?">
-              <div className="grid grid-cols-1 gap-3">
-                {INVESTOR_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setInvestorChoice(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setRejectionStepDone(false);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
-          </div>
-        )}
-
-        {rejectionStepDone && isLocalNominee && (
+        {costEntryDone && rejectionStepDone && isLocalNominee && (
           <div className="mt-8">
             <NoticeCard tone="danger" title="현지인 명의 방식은 법적 보호가 어렵습니다">
               명의자와의 분쟁이나 투자금 손실 위험이 있어 개인 투자 또는 법인
@@ -1516,121 +1570,157 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {rejectionStepDone && investorType && !capital && (
-          <div className="mt-8">
-            <QuestionSection
+        {costEntryDone && rejectionStepDone && investorType && !capital && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
               step={3}
-              title={
-                isCorporate
-                  ? "감사보고서 또는 은행 잔고증명서가 준비되어 있나요?"
-                  : "투자금 이상의 개인 은행 잔고증명서가 있나요?"
+              question={
+                <QuestionSection
+                  step={3}
+                  title={
+                    isCorporate
+                      ? "감사보고서 또는 은행 잔고증명서가 준비되어 있나요?"
+                      : "투자금 이상의 개인 은행 잔고증명서가 있나요?"
+                  }
+                  description="투자금 증빙 여부는 법인설립 심사의 핵심 확인 항목입니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    {CAPITAL_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setCapital(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
               }
-            >
-              <div className="grid grid-cols-2 gap-3">
-                {CAPITAL_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setCapital(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setInvestorChoice(null);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setInvestorChoice(null);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
-        {rejectionStepDone && investorType && capital && !office && (
-          <div className="mt-8">
-            <QuestionSection step={4} title="본점 또는 사업장 임대차 계약을 체결하셨나요?">
-              <div className="grid grid-cols-2 gap-3">
-                {OFFICE_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setOffice(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setCapital(null);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
+        {costEntryDone && rejectionStepDone && investorType && capital && !office && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={4}
+              question={
+                <QuestionSection
+                  step={4}
+                  title="본점 또는 사업장 임대차 계약을 체결하셨나요?"
+                  description="사업장 확보 여부는 등록 주소와 영업 준비 상태 확인에 필요합니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    {OFFICE_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setOffice(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setCapital(null);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
-        {rejectionStepDone && investorType && capital && office && !residentRep && (
-          <div className="mt-8">
-            <QuestionSection step={5} title="법정대표자가 베트남에 상주하며 근무할 예정인가요?">
-              <div className="grid grid-cols-2 gap-3">
-                {RESIDENT_OPTIONS.map((opt) => (
-                  <SelectionCard
-                    key={opt.key}
-                    title={opt.label}
-                    description={opt.desc}
-                    selected={selectedKey === opt.key}
-                    icon={opt.icon}
-                    tone={opt.tone}
-                    onClick={() => {
-                      setSelectedKey(opt.key);
-                      setTimeout(() => {
-                        setResidentRep(opt.key);
-                        setSelectedKey(null);
-                      }, 300);
-                    }}
-                  />
-                ))}
-              </div>
-            </QuestionSection>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedKey(null);
-                setOffice(null);
-              }}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 이전 단계로
-            </button>
+        {costEntryDone && rejectionStepDone && investorType && capital && office && !residentRep && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="register"
+              step={4}
+              question={
+                <QuestionSection
+                  step={5}
+                  title="법정대표자가 베트남에 상주하며 근무할 예정인가요?"
+                  description="법정대표자 상주 여부는 등록 요건과 후속 비자·거주 절차에 영향을 줍니다."
+                  {...registerQuestionProps}
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    {RESIDENT_OPTIONS.map((opt) => (
+                      <SelectionCard
+                        key={opt.key}
+                        variant="quiet"
+                        title={opt.label}
+                        description={opt.desc}
+                        selected={selectedKey === opt.key}
+                        icon={opt.icon}
+                        tone={opt.tone}
+                        onClick={() => {
+                          setSelectedKey(opt.key);
+                          setTimeout(() => {
+                            setResidentRep(opt.key);
+                            setSelectedKey(null);
+                          }, 300);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </QuestionSection>
+              }
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setOffice(null);
+                  }}
+                  className={REGISTER_BACK_BUTTON_CLASS}
+                >
+                  <ArrowLeft size={14} /> 이전 단계로
+                </button>
+              }
+            />
           </div>
         )}
 
@@ -1706,7 +1796,6 @@ export default function PermitCompanyCheckPage() {
             </button>
           </div>
         )}
-      </div>
-    </main>
+    </FunnelPageShell>
   );
 }

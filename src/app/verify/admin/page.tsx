@@ -20,6 +20,13 @@ import {
   Receipt,
   FileQuestion,
 } from "lucide-react";
+import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
+import FunnelPageShell from "@/components/engine/FunnelPageShell";
+import {
+  MasterFunnelLanding,
+  MASTER_LANDING_ADMIN,
+  type MasterFunnelContextTab,
+} from "@/components/cost-check/MasterFunnelLanding";
 import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard, VERIFY_EXPERT_GUIDANCE_DESC } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
@@ -37,7 +44,6 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
-import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
 
 const CATEGORY = "admin" as const;
 const VERIFY_QUESTION_CONTEXT = "행정문서 검토";
@@ -799,11 +805,20 @@ export default function VerifyAdminPage() {
   // 전문가 진행 요청 시 사용할 로그인 토큰 — TRC의 selectedKey/resultToken과 동일한 용도.
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [resultToken, setResultToken] = useState<string | null>(null);
+  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
+  const [landingDone, setLandingDone] = useState(false);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       setLang(resolveLanguage(params.get("lang")));
+      if (params.get("start") === "check") {
+        setLandingDone(true);
+      }
+      const tab = params.get("tab");
+      if (tab === "lookup" || tab === "review" || tab === "direct") {
+        setContextTab(tab);
+      }
     }
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -1114,44 +1129,41 @@ export default function VerifyAdminPage() {
   const activeGuidance = selectedAgency ? ADMIN_AGENCY_GUIDANCE[selectedAgency] : null;
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-white">
-      <div className="h-[3px] bg-blue-900" />
-      <div className={`${ENGINE_CONTAINER} py-8 sm:py-9`}>
-        {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
-        <Link
-          href="/"
-          className="relative -mx-4 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
-        >
-          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
-            <ArrowLeft size={14} /> 홈으로
-          </span>
-          <img
-            src="/vfbcai-shield-logo.png"
-            alt="VFBCAI"
-            width={34}
-            height={34}
-            className="shrink-0"
+    <FunnelPageShell engine="verify">
+        <FunnelPageHeader
+          engine="verify"
+          title={
+            !landingDone
+              ? contextTab === "review"
+                ? "행정문서 검토 안내"
+                : contextTab === "direct"
+                  ? "행정문서 검토 가이드"
+                  : "행정문서 검토 시작"
+              : "행정문서 검토"
+          }
+          description={
+            !landingDone
+              ? contextTab === "review"
+                ? "행정문서 검토에서 확인하는 항목과 사전·사후 검토 흐름을 안내합니다."
+                : contextTab === "direct"
+                  ? "행정문서 검토의 확인 항목·검토 범위·대응 흐름을 확인합니다."
+                  : "제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지, 내 상황을 먼저 확인합니다."
+              : "제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지"
+          }
+        />
+
+        {!landingDone && (
+          <MasterFunnelLanding
+            config={MASTER_LANDING_ADMIN}
+            activeTab={contextTab}
+            onTabChange={setContextTab}
+            onContinue={() => setLandingDone(true)}
           />
-          <div>
-            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
-            <p className="text-[11px] leading-tight text-gray-400">베트남 법률전문 AI</p>
-          </div>
-        </Link>
-
-        {/* 데스크톱 전용 — 기존 텍스트 링크 */}
-        <Link href="/" className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex">
-          <ArrowLeft size={14} /> 홈으로
-        </Link>
-
-        <p className="mt-3 text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
-          직접검토하기 · 베트남 법률전문 AI
-        </p>
-        <h1 className="mt-1.5 text-[19px] font-semibold tracking-tight text-gray-900 sm:text-xl">행정문서 검토</h1>
-        <p className="mt-0.5 break-keep text-[12.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지</p>
+        )}
 
         {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
-        {step === "incident" && (
+        {landingDone && step === "incident" && (
           <div className="w-full">
             {/* 질문 1 — Prevent Review / Case Review */}
             {!reviewStage && (
@@ -1412,7 +1424,7 @@ export default function VerifyAdminPage() {
         )}
 
         {/* STEP4: 개인정보 입력 — CHECK(TRC)의 PremiumLeadCapture와 동일한 구조 */}
-        {step === "form" && (
+        {landingDone && step === "form" && (
           <VerifyAdminLeadCapture
             riskLevel={previewDiagnosis?.expertBrief.riskLevel ?? "medium"}
             messengers={messengers}
@@ -1430,7 +1442,7 @@ export default function VerifyAdminPage() {
         )}
 
         {/* STEP5: 진단 리포트 + 진행방식 선택 CTA 3개 — CHECK(TRC)와 동일한 구조 */}
-        {step === "diagnosis" && diagnosis && (
+        {landingDone && step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <VerifyDiagnosisHeader serviceName={VERIFY_QUESTION_CONTEXT} />
 
@@ -1457,7 +1469,7 @@ export default function VerifyAdminPage() {
         )}
 
         {/* STEP5-a: 직접 검토 진행하기 — 관련 기관/진행 경로 선택 */}
-        {step === "guidanceSelect" && (
+        {landingDone && step === "guidanceSelect" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
@@ -1493,7 +1505,7 @@ export default function VerifyAdminPage() {
         )}
 
         {/* STEP5-b: 선택한 기관에 대한 안내 — 관할기관/공식 확인 경로/절차/서류/주의사항 */}
-        {step === "guidance" && activeGuidance && (
+        {landingDone && step === "guidance" && activeGuidance && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <FileText className="text-gray-900" size={28} />
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
@@ -1579,7 +1591,7 @@ export default function VerifyAdminPage() {
           </div>
         )}
 
-        {step === "completed" && (
+        {landingDone && step === "completed" && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <div className="flex justify-center">
               <img
@@ -1612,7 +1624,6 @@ export default function VerifyAdminPage() {
             </div>
           </div>
         )}
-      </div>
-    </main>
+    </FunnelPageShell>
   );
 }
