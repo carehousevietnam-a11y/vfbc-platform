@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import type { FunnelEngine } from "@/components/engine/funnelTokens";
 import OfficialTrustZone from "./OfficialTrustZone";
 import { cn } from "@/lib/cn";
 
 interface VerifyStepLayoutProps {
+  engine?: FunnelEngine;
   step: 1 | 2 | 3 | 4;
   question: ReactNode;
   actions?: ReactNode;
@@ -12,12 +14,19 @@ interface VerifyStepLayoutProps {
  * VERIFY 질문 단계별 레이아웃 — Step 1·4는 desktop에서 Trust Zone sidebar,
  * Step 2·3는 질문 아래 얇은 공식 기준 strip.
  */
-export default function VerifyStepLayout({ step, question, actions }: VerifyStepLayoutProps) {
+export default function VerifyStepLayout({
+  engine = "verify",
+  step,
+  question,
+  actions,
+}: VerifyStepLayoutProps) {
   const isSidebar = step === 1 || step === 4;
 
   if (isSidebar) {
     const trustContext = step === 4 ? "step4" : "default";
-    const trustPanel = <OfficialTrustZone variant="panel" context={trustContext} />;
+    const trustPanel = (
+      <OfficialTrustZone engine={engine} variant="panel" context={trustContext} />
+    );
 
     return (
       <div className="lg:flex lg:items-start lg:gap-5">
@@ -36,7 +45,7 @@ export default function VerifyStepLayout({ step, question, actions }: VerifyStep
   return (
     <div>
       {question}
-      <OfficialTrustZone variant="strip" className="mt-4 sm:mt-5" />
+      <OfficialTrustZone engine={engine} variant="strip" className="mt-4 sm:mt-5" />
       {actions}
     </div>
   );

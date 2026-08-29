@@ -1,4 +1,21 @@
-export type CostCheckServiceId = "tamtru" | "trc" | "wp" | "company" | "notary";
+export type CostCheckServiceId =
+  | "tamtru"
+  | "trc"
+  | "wp"
+  | "driving-license"
+  | "company"
+  | "restaurant"
+  | "hygiene"
+  | "fire-safety"
+  | "cosmetics"
+  | "environment"
+  | "medical-device"
+  | "franchise"
+  | "admin"
+  | "real-estate"
+  | "fraud"
+  | "tax"
+  | "notary";
 
 export type CostCheckTab = "lookup" | "review" | "direct";
 
@@ -119,6 +136,36 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
       "임시거주 신고 자체는 정부 수수료가 없지만, 대행·이동·서류 준비 비용은 별도로 발생할 수 있습니다.",
     ctaLabel: "땀주 가능성 진단 (CHECK)",
     ctaHref: "/check/tamtru",
+  },
+  {
+    id: "driving-license",
+    label: "운전면허 전환",
+    shortLabel: "운전면허",
+    description: "외국인 운전면허 교환·전환",
+    currency: "VND",
+    governmentFee: "135,000 VND",
+    source: "국가공공서비스 포털 — 외국인 운전면허 교환 절차",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 135_000,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "외국인 운전면허 교환 정부 수수료는 국가공공서비스 포털 기준입니다. 번역·공증 등 추가 비용은 별도로 발생할 수 있습니다.",
+    ctaLabel: "운전면허 가능성 진단 (CHECK)",
+    ctaHref: "/check/driving-license",
+    officialSources: [
+      {
+        region: "외국인 운전면허 교환",
+        applicationType: "new",
+        amount: 135_000,
+        currency: "VND",
+        source: "국가공공서비스 포털 — 외국인 운전면허 교환 절차",
+        sourceType: "official_government_document",
+        checkedDate: "2026-08-23",
+        status: "VERIFIED",
+      },
+    ],
   },
   {
     id: "trc",
@@ -307,6 +354,78 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
     ctaHref: "/register/company",
   },
   {
+    id: "admin",
+    label: "행정문서 리뷰",
+    shortLabel: "행정문서",
+    description: "출입국·노동·세무 공문서 검토",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "행정문서 검토는 문서 유형·분량·긴급 여부에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "행정문서 검토 (VERIFY)",
+    ctaHref: "/verify/admin",
+  },
+  {
+    id: "real-estate",
+    label: "부동산 문서 리뷰",
+    shortLabel: "부동산",
+    description: "임대·매매 계약서",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "부동산 문서 검토는 계약 유형·특약·보증금 조건에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "부동산 문서 검토 (VERIFY)",
+    ctaHref: "/verify/real-estate",
+  },
+  {
+    id: "fraud",
+    label: "사기문서 리뷰",
+    shortLabel: "사기문서",
+    description: "투자·거래 사기 의심 문서",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "사기 의심 문서 검토는 문서 유형·피해 정황·긴급 여부에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "사기문서 검토 (VERIFY)",
+    ctaHref: "/verify/fraud",
+  },
+  {
+    id: "tax",
+    label: "세무문서 리뷰",
+    shortLabel: "세무문서",
+    description: "세금 고지서·신고서",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "세무문서 검토는 고지·신고 유형과 대응 범위에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "세무문서 검토 (VERIFY)",
+    ctaHref: "/verify/tax",
+  },
+  {
     id: "notary",
     label: "서류 공증·번역",
     shortLabel: "공증번역",
@@ -326,8 +445,140 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
   },
 ];
 
+/** REGISTER 7종 — 공식 수수료·시장가 미연결. COST_CHECK_SERVICES에 넣지 않아 cost-check 카탈로그 라우팅을 바꾸지 않음. */
+export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
+  {
+    id: "restaurant",
+    label: "식당허가",
+    shortLabel: "식당허가",
+    description: "요식업 영업허가",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "식당허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "식당허가 가능성 진단 (REGISTER)",
+    ctaHref: "/register/restaurant",
+  },
+  {
+    id: "hygiene",
+    label: "위생허가",
+    shortLabel: "위생허가",
+    description: "식품·위생 안전 인증",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "위생허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "위생허가 가능성 진단 (REGISTER)",
+    ctaHref: "/register/hygiene",
+  },
+  {
+    id: "fire-safety",
+    label: "소방허가",
+    shortLabel: "소방허가",
+    description: "소방시설 안전 인증",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "소방허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "소방허가 가능성 진단 (REGISTER)",
+    ctaHref: "/register/fire-safety",
+  },
+  {
+    id: "cosmetics",
+    label: "화장품허가",
+    shortLabel: "화장품허가",
+    description: "화장품 제조·유통 허가",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "화장품허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "화장품허가 가능성 진단 (REGISTER)",
+    ctaHref: "/register/cosmetics",
+  },
+  {
+    id: "environment",
+    label: "환경허가",
+    shortLabel: "환경허가",
+    description: "환경영향평가·배출허가",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "환경허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "환경허가 가능성 진단 (REGISTER)",
+    ctaHref: "/register/environment",
+  },
+  {
+    id: "medical-device",
+    label: "의료기기 수입·유통허가",
+    shortLabel: "의료기기허가",
+    description: "의료기기 수입·유통 허가",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "의료기기허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "의료기기허가 가능성 진단 (REGISTER)",
+    ctaHref: "/register/medical-device",
+  },
+  {
+    id: "franchise",
+    label: "프랜차이즈 등록",
+    shortLabel: "프랜차이즈",
+    description: "가맹사업 등록·계약 허가",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "프랜차이즈 등록 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+    ctaLabel: "프랜차이즈 등록 가능성 진단 (REGISTER)",
+    ctaHref: "/register/franchise",
+  },
+];
+
 export function getCostCheckService(id: CostCheckServiceId): CostCheckService {
-  const service = COST_CHECK_SERVICES.find((item) => item.id === id);
+  const service =
+    COST_CHECK_SERVICES.find((item) => item.id === id) ??
+    REGISTER_PENDING_COST_SERVICES.find((item) => item.id === id);
   if (!service) throw new Error(`Unknown cost check service: ${id}`);
   return service;
 }

@@ -30,6 +30,11 @@ import {
   ChevronDown,
   UserCheck,
 } from "lucide-react";
+import {
+  MasterFunnelLanding,
+  type MasterFunnelContextTab,
+  MASTER_LANDING_TRC,
+} from "@/components/cost-check/MasterFunnelLanding";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
 import {
   resolveLanguage,
@@ -44,7 +49,19 @@ import { recordAgencyUpgradeAndNotify } from "@/lib/agencyUpgradeRequest";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
-import { NoticeCard, PrimaryButton, InfoBox, QuestionSection, SelectionCard } from "@/components/ui";
+import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
+import FunnelPageShell from "@/components/engine/FunnelPageShell";
+import {
+  NoticeCard,
+  OfficialBasisPanel,
+  OfficialTrustZone,
+  PrimaryButton,
+  InfoBox,
+  QuestionSection,
+  SelectionCard,
+  VerifyAnswerGrid,
+  VerifyStepLayout,
+} from "@/components/ui";
 import {
   getCheckDiagnosis,
   computeTrcResultTone,
@@ -68,6 +85,10 @@ const TRC_REQUIRED_DOCUMENTS = [
   "재직증명서 또는 노동계약서",
   "회사 사업자등록증 사본",
 ];
+
+const CHECK_QUESTION_CONTEXT = "거주증 (TRC) 가능성 진단";
+const CHECK_BACK_BUTTON_CLASS =
+  "mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]";
 
 type Nationality = TrcNationality;
 type Visa = TrcVisa;
@@ -272,14 +293,14 @@ function ResultOverviewCards({
     },
     {
       n: 5,
-      label: "AI 검토 의견",
+      label: "종합 확인 의견",
       visual: (
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
           <UserCheck className="text-gray-700" size={26} />
         </div>
       ),
       pill: <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${aiOpinionTone}`}>{aiOpinionText}</span>,
-      caption: "베트남 행정 전문가 AI의 종합 검토 의견입니다.",
+      caption: "공식 행정 기준을 참고한 1차 확인 의견입니다.",
     },
   ];
 
@@ -515,36 +536,7 @@ function DiagnosisReportCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </div>
       )}
 
-      {/* STEP10-8: AI 분석 근거 카드 UI 개선 — 파란 원형 AI 배지, 실제로 보이는 구분선(border-t),
-          체크리스트 기반 실제 요약 문구, 분석 기준 푸터. buildAiReasonBullets()는 "확인이 필요한 사항"에만
-          그대로 사용하며 함수 자체는 변경하지 않음. */}
-      <div className="mt-3 rounded-2xl bg-white border-2 border-blue-100 shadow-sm px-5 py-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-            AI
-          </span>
-          <p className="text-sm font-bold text-gray-900">AI 분석 근거</p>
-        </div>
-        <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500">
-          베트남 공식 행정 기준·체크리스트를 참고하여 분석했습니다.
-        </p>
-        <div className="mt-4">
-          {aiReasonSections.map((section, idx) => (
-            <div
-              key={section.title}
-              className={idx === 0 ? "pb-4" : "border-t border-gray-200 py-4"}
-            >
-              <p className="text-xs font-bold text-gray-900">{section.title}</p>
-              <p className="mt-1.5 text-[11px] leading-relaxed text-gray-600">
-                {section.description}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-1 border-t border-gray-100 pt-3 text-[10px] text-gray-400">
-          분석 기준: 공식 행정 기준 · 체크리스트 · 유사 사례
-        </p>
-      </div>
+      <OfficialBasisPanel engine="check" sections={aiReasonSections} />
 
       <div className={`mt-3 rounded-xl ${boxBg} px-4 py-3 text-xs ${boxText}`}>
         <p className="font-bold">💡 안내사항</p>
@@ -569,7 +561,7 @@ function buildResultSummaryText(
       : "낮은";
   const failed = checklist.filter((c) => !c.passed);
 
-  const sentence1 = `입력하신 정보를 기준으로 거주증 발급 가능성은 ${toneText} 것으로 분석되었습니다.`;
+  const sentence1 = `입력하신 정보를 기준으로 거주증 발급 가능성은 ${toneText} 것으로 확인되었습니다.`;
 
   let sentence2: string;
   if (failed.length > 0) {
@@ -589,22 +581,78 @@ function buildResultSummaryText(
   return `${sentence1} ${sentence2} ${sentence3}`;
 }
 
-// AI 분석 결과 요약 카드 — 기존 1~5번 결과 영역을 대체하지 않고 그 아래에 추가.
-// 흰 배경 · 얇은 테두리 · 작은 아이콘의 차분한 톤.
-function ResultSummaryCard({ diagnosis }: { diagnosis: DiagnosisResult }) {
+function buildCheckOfficialBasisSections(diagnosis: DiagnosisResult) {
+  const { feasibilityScore, resultTone, checklist, estimatedDays } = diagnosis.customerView;
+  const aiReasonBullets = buildAiReasonBullets(
+    feasibilityScore,
+    resultTone,
+    checklist,
+    estimatedDays,
+  );
+  const passedItems = checklist.filter((c) => c.passed).map((c) => c.label);
+  const metRequirementsText =
+    passedItems.length > 0
+      ? `${passedItems.join(", ")} 항목을 충족하셨습니다.`
+      : "현재 입력하신 정보 기준으로 충족된 항목이 없습니다.";
+  const processingTimeText = estimatedDays
+    ? `예상 처리기간은 ${estimatedDays.min}~${estimatedDays.max}일이며, 준비 서류와 관할 기관에 따라 달라질 수 있습니다.`
+    : null;
+
+  return [
+    { title: "기본 요건 충족", description: metRequirementsText },
+    { title: "확인이 필요한 사항", description: aiReasonBullets[1] ?? aiReasonBullets[0] },
+    ...(processingTimeText
+      ? [{ title: "처리기간 참고", description: processingTimeText }]
+      : []),
+  ];
+}
+
+function CheckDiagnosisHeader() {
+  return (
+    <div>
+      <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
+        거주증 (TRC)
+      </p>
+      <p className="mt-1 text-[11px] font-semibold text-[#2563EB]">1차 확인</p>
+      <p className="mt-1.5 break-keep text-[13px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
+        입력하신 조건을 베트남 공식 행정 기준으로 확인한 결과입니다.
+      </p>
+    </div>
+  );
+}
+
+function CheckResultOfficialSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
+  const sections = buildCheckOfficialBasisSections(diagnosis);
   const { resultTone, checklist, estimatedDays } = diagnosis.customerView;
   const summaryText = buildResultSummaryText(resultTone, checklist, estimatedDays);
+  const failed = checklist.filter((c) => !c.passed);
+  const conditionsText =
+    failed.length > 0
+      ? failed.length > 2
+        ? `${failed
+            .slice(0, 2)
+            .map((c) => c.label)
+            .join(", ")} 등 ${failed.length}개 항목은 제출 전 추가 확인이 필요합니다.`
+        : `${failed.map((c) => c.label).join(", ")} 항목은 제출 전 추가 확인이 필요합니다.`
+      : "현재 입력 조건 기준으로 추가 확인이 필요한 항목은 확인되지 않았습니다.";
 
   return (
-    <div className="mt-3 rounded-2xl bg-white border border-gray-100 p-5">
-      <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-          AI
-        </span>
-        <p className="text-sm font-bold text-gray-900">AI 분석 결과 요약</p>
+    <>
+      {/* 결과 위계: 판단 → 공식 기준 → 확인 조건 */}
+      <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-5">
+        <p className="text-[11px] font-semibold tracking-tight text-[#0B2A6B]">현재 판단</p>
+        <p className="mt-1.5 break-keep text-[13px] leading-[1.55] text-gray-700 [overflow-wrap:normal]">
+          {summaryText}
+        </p>
+        <div className="mt-3 border-t border-gray-200 pt-3">
+          <p className="text-[11px] font-semibold tracking-tight text-[#0B2A6B]">확인이 필요한 조건</p>
+          <p className="mt-1.5 break-keep text-[13px] leading-[1.55] text-[#64748B] [overflow-wrap:normal]">
+            {conditionsText}
+          </p>
+        </div>
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-gray-700">{summaryText}</p>
-    </div>
+      <OfficialBasisPanel engine="check" sections={sections} className="mt-4" />
+    </>
   );
 }
 
@@ -632,93 +680,78 @@ function NextStepOptions({
 }) {
   return (
     <div>
-      <p className="mt-5 text-sm font-bold text-gray-900">다음 단계 선택</p>
+      <p className="mt-5 break-keep text-sm font-bold text-gray-900">다음으로 진행할 방법을 선택하세요</p>
+      <p className="mt-1 break-keep text-xs leading-[1.55] text-[#64748B] [overflow-wrap:normal]">
+        확인 결과를 바탕으로, 분석 정리 · 전문가 진행 · 정부 사이트 직접 신청 중 선택합니다.
+      </p>
+
       <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        {/* 1) AI 리포트 요청하기 — "필수" 강조 */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
+        {/* 1) AI 리포트 — 핸들러·목적지 변경 없음 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-[#0B2A6B] bg-white p-4 shadow-[0_1px_3px_rgba(11,42,107,0.08)]">
+          <span className="absolute -top-2.5 left-4 rounded-full bg-[#0B2A6B] px-2.5 py-0.5 text-[10px] font-bold text-white">
             필수
           </span>
-          <p className="mt-1 text-sm font-bold text-gray-900">AI 리포트 요청하기</p>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            서류를 업로드하면 AI가 분석하여 정밀 AI 리포트(PDF)를 제공합니다.
+          <p className="mt-1 min-h-[40px] text-sm font-bold leading-[1.4] text-gray-900">
+            AI 리포트 요청하기
           </p>
-          <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 서류 누락 여부 확인</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 반려 가능 항목 분석</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 보완 권장 사항</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 예상 처리기간 및 준비 방향</li>
-          </ul>
-          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-blue-700">
-            아는 것과 모르는 것의 차이는 큽니다. 무료로 먼저 점검하세요.
+          <p className="mt-2 min-h-[54px] break-keep text-xs leading-[1.55] text-gray-500 [overflow-wrap:normal]">
+            입력 정보와 서류를 바탕으로, 공식 행정 기준에 맞춰 확인 결과를 정리한
+            리포트(PDF)를 받을 수 있습니다.
           </p>
           <div className="mt-auto pt-4">
-            <button
-              type="button"
-              onClick={onAiReport}
-              disabled={aiReportPending}
-              className="flex h-[52px] w-full items-center justify-center gap-1 rounded-xl border border-blue-300 bg-white text-[13px] font-semibold text-blue-800 hover:bg-blue-50 transition-colors disabled:opacity-60"
-            >
+            <PrimaryButton onClick={onAiReport} loading={aiReportPending}>
               {aiReportPending ? "이동 중..." : "AI 리포트 요청하기"}
-            </button>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
+            </PrimaryButton>
+            <p className="mt-2 min-h-[32px] text-center text-[11px] leading-[1.5] text-slate-500">
               {aiReportError ? (
                 <span className="text-red-600">{aiReportError}</span>
               ) : (
-                "결과는 My Page에서 PDF로 다운로드할 수 있습니다."
+                "서류 제출 → 리포트 정리 → My Page PDF 순으로 이어집니다."
               )}
             </p>
           </div>
         </div>
 
-        {/* 2) 전문가 진행하기 — 가장 강한 파란색 CTA */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-blue-300 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+        {/* 2) 전문가 진행 — 핸들러·목적지 변경 없음 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
           <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
             추천
           </span>
-          <p className="mt-1 text-sm font-bold text-gray-900">전문가 진행하기</p>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            최신 법령과 실제 제출 서류를 전문가가 최종 확인하여 안전하게
-            진행합니다.
+          <p className="mt-1 min-h-[40px] text-sm font-bold leading-[1.4] text-gray-900">
+            전문가 진행하기
           </p>
-          <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 최신 법령 및 정책 확인</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 제출 서류 검토 및 보완 안내</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 관할 기관 확인 및 진행 전략 수립</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 진행 대행 및 결과 안내</li>
-          </ul>
+          <p className="mt-2 min-h-[54px] break-keep text-xs leading-[1.55] text-gray-500 [overflow-wrap:normal]">
+            VFBCAI 전문가팀이 실제 절차와 제출 서류를 확인하며 함께 진행합니다.
+          </p>
           <div className="mt-auto pt-4">
-            <PrimaryButton onClick={onExpert} loading={expertPending}>
+            <PrimaryButton variant="outline" onClick={onExpert} loading={expertPending}>
               전문가 진행 요청하기
             </PrimaryButton>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] text-blue-700">
+            <p className="mt-2 min-h-[32px] text-center text-[11px] leading-[1.5] text-slate-500">
               {expertError ? (
                 <span className="text-red-600">{expertError}</span>
               ) : (
-                "전문가가 함께하면 서류 준비 시간을 줄이고 반려 위험도 낮출 수 있습니다."
+                "확인 결과 + 제출 서류 → 전문가 진행으로 이어집니다."
               )}
             </p>
           </div>
         </div>
 
-        {/* 3) 직접 진행하기 — 흰색 테두리, "신중" 주의 배지 */}
-        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
+        {/* 3) 직접 진행 — 핸들러·URL 변경 없음 */}
+        <div className="relative flex h-full flex-col rounded-2xl border border-gray-100 bg-[#FAFBFC] p-4">
           <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
             신중
           </span>
-          <p className="mt-1 text-sm font-bold text-gray-900">직접 진행하기</p>
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            정부 공식 사이트에서 직접 신청할 수 있습니다.
+          <p className="mt-1 min-h-[40px] text-sm font-bold leading-[1.4] text-gray-900">
+            직접 진행하기
           </p>
-          <ul className="mt-3 space-y-1.5">
-            <li className="text-[11px] text-gray-600 pl-1">· 대행 비용 없이 직접 신청할 수 있습니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 베트남 행정 절차를 스스로 확인해야 합니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 서류 반려 시 재제출도 직접 진행해야 합니다</li>
-            <li className="text-[11px] text-gray-600 pl-1">· 진행 상황은 정부 사이트에서 직접 확인합니다</li>
-          </ul>
+          <p className="mt-2 min-h-[54px] break-keep text-xs leading-[1.55] text-gray-500 [overflow-wrap:normal]">
+            정부 공식 사이트(공안부 공공서비스포털)에서 거주증(TRC) 신청을 직접
+            진행합니다.
+          </p>
           <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
-            개인 진행 시 신중하게 진행하셔야 합니다. 한 번 반려된 서류는
-            다시 제출할 때 더 까다롭게 검토될 수 있습니다.
+            직접 진행 시 제출·보완도 직접 처리합니다. 반려 이력은 이후 심사에 영향을 줄 수
+            있습니다.
           </div>
           <div className="mt-auto pt-4">
             <a
@@ -726,12 +759,12 @@ function NextStepOptions({
               target="_blank"
               rel="noopener noreferrer"
               onClick={onSelf}
-              className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 text-[13px] font-semibold text-gray-600 shadow-none transition-colors hover:bg-gray-50"
             >
               정부 공식 사이트 이동 <ExternalLink size={13} />
             </a>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] text-slate-500">
-              신청 절차와 제출 서류는 정부 사이트에서 직접 확인해야 합니다.
+            <p className="mt-2 min-h-[32px] text-center text-[11px] leading-[1.5] text-slate-500">
+              신청 절차·제출 서류는 정부 사이트에서 직접 확인합니다.
             </p>
           </div>
         </div>
@@ -791,9 +824,21 @@ function PremiumLeadCapture({
 
   return (
     <div>
-      {/* 3. WP 단순형 단일 카드 — 결과 + 입력폼 */}
+      <div className="mt-8">
+        <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
+          1차 확인 결과
+        </p>
+        <h2 className="mt-1.5 break-keep text-[17px] font-semibold tracking-tight text-[#0B2A6B] sm:text-[18px]">
+          입력하신 조건을 공식 행정 기준으로 확인했습니다
+        </h2>
+        <p className="mt-1 break-keep text-[12.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
+          아래 판단·공식 기준을 먼저 확인하신 뒤, 상세 결과 저장·안내를 위한 연락 정보를
+          입력해주세요.
+        </p>
+      </div>
+
       <div
-        className={`mt-8 rounded-3xl border bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${
+        className={`mt-4 rounded-3xl border bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] sm:p-7 ${
           isPossible ? "border-gray-100" : "border-amber-100"
         }`}
       >
@@ -805,62 +850,48 @@ function PremiumLeadCapture({
               <AlertTriangle className="text-amber-600" size={28} />
             )}
 
-            <p className="mt-4 text-lg font-bold text-gray-900">
+            <p className="mt-3 break-keep text-[16px] font-bold leading-snug text-gray-900 sm:text-[17px]">
               {isPossible ? "거주증 발급이 가능합니다" : "보완이 필요할 수 있습니다"}
             </p>
 
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+            <p className="mt-2 break-keep text-[13px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
               {isPossible
                 ? "현재 입력하신 국적·비자유형·직책·회사형태 기준으로 거주증(TRC) 신청 요건을 충족합니다."
                 : "현재 조건만으로는 거주증(TRC) 발급이 자동으로 보장되지 않습니다. 추가 서류로 요건을 충족시킬 수 있는 경우가 많습니다."}
             </p>
           </div>
 
-          <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
-            <svg width="104" height="104" viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
-              <circle cx="52" cy="52" r="46" fill="none" stroke="#E5E7EB" strokeWidth="7" />
-              <circle
-                cx="52"
-                cy="52"
-                r="46"
-                fill="none"
-                stroke={isPossible ? "#059669" : "#D97706"}
-                strokeWidth="7"
-                strokeLinecap="round"
-                strokeDasharray={2 * Math.PI * 46}
-                strokeDashoffset={2 * Math.PI * 46 * (1 - score / 100)}
-              />
-            </svg>
-            <div className="relative flex flex-col items-center">
-              <span
-                className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                  isPossible ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-                }`}
-              >
-                {isPossible ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
-              </span>
-              <strong className="mt-0.5 text-[22px] font-black leading-none text-gray-900">{score}%</strong>
-              <span className={`mt-0.5 text-[10px] font-bold ${isPossible ? "text-emerald-600" : "text-amber-600"}`}>
-                {status}
-              </span>
+          {diagnosis ? (
+            <ResultHeaderGauge diagnosis={diagnosis} size={76} />
+          ) : (
+            <div className="relative flex h-[76px] w-[76px] shrink-0 items-center justify-center">
+              <strong className="text-[18px] font-black leading-none text-gray-900">{score}%</strong>
             </div>
-          </div>
+          )}
         </div>
 
-        <p className="mt-2 text-xs leading-relaxed text-gray-400">
+        <p className="mt-3 break-keep text-[11px] leading-[1.55] text-[#94A3B8] [overflow-wrap:normal]">
           * 위 결과는 입력하신 조건을 기준으로 한 1차 확인 결과입니다. 정확한
           발급 가능 여부는 서류 검토 후 전문가 상담을 통해 확정됩니다.
         </p>
 
-        {/* 4. 연한 초록(가능)/노랑(조건부) 안내 박스 */}
+        {diagnosis ? (
+          <>
+            <OfficialBasisPanel
+              engine="check"
+              sections={buildCheckOfficialBasisSections(diagnosis)}
+              className="mt-4"
+            />
+            <OfficialTrustZone engine="check" variant="strip" context="diagnosis" className="mt-3" />
+          </>
+        ) : null}
+
         <div className="mt-4">
           <NoticeCard tone={isPossible ? "success" : "warning"}>
-            이름·연락처·주소만 남기시면 AI가 서류를 상세 분석한 리포트를 바로
-            보여드립니다.
+            연락 정보를 남기시면 상세 확인 결과를 저장·안내해 드립니다.
           </NoticeCard>
         </div>
 
-        {/* 5. 입력폼 — 기존 필드·name·검증·submit 로직 그대로 유지, 스타일만 WP 기준으로 단순화 */}
         <form onSubmit={onSubmit} className="mt-5 space-y-3">
           <input
             type="text"
@@ -1008,6 +1039,8 @@ function PremiumLeadCapture({
 
 export default function TrcCheckPage() {
   const router = useRouter();
+  const [costEntryDone, setCostEntryDone] = useState(false);
+  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
   const [nationality, setNationality] = useState<Nationality>(null);
   const [visa, setVisa] = useState<Visa>(null);
   const [role, setRole] = useState<Role>(null);
@@ -1031,10 +1064,19 @@ export default function TrcCheckPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       setLang(resolveLanguage(params.get("lang")));
+      // Guide 「내 상황 확인하기」 → 기존 질문 플로우(Q1) 직행 (랜딩/비용 탭 스킵)
+      if (params.get("start") === "check") {
+        setCostEntryDone(true);
+      }
     }
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
+  const checkQuestionProps = {
+    variant: "verify" as const,
+    contextLabel: CHECK_QUESTION_CONTEXT,
+    totalSteps: 5,
+  };
   const selfNotifySentRef = useRef(false);
   // /api/lead-submit 응답의 result_tokens.token — "전문가 진행 요청하기" 클릭 시
   // /api/auto-login에 전달해 로그인 세션을 만든 뒤 /documents로 이동시키는 데 쓴다.
@@ -1205,6 +1247,7 @@ export default function TrcCheckPage() {
   }
 
   function reset() {
+    setCostEntryDone(false);
     setNationality(null);
     setVisa(null);
     setRole(null);
@@ -1371,102 +1414,95 @@ export default function TrcCheckPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fafafa]">
-      <div className="h-[3px] bg-blue-900" />
-      <div className={`mx-auto px-6 py-10 ${resultScreenActive ? "max-w-4xl" : "max-w-xl"}`}>
-        {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
-        <Link
-          href="/"
-          className="relative -mx-6 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
-        >
-          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
-            <ArrowLeft size={14} /> 홈으로
-          </span>
-          <img
-            src="/vfbcai-shield-logo.png"
-            alt="VFBCAI"
-            width={34}
-            height={34}
-            className="shrink-0"
-          />
-          <div>
-            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
-            <p className="text-[11px] leading-tight text-gray-400">베트남 행정전문 AI</p>
-          </div>
-        </Link>
-
-        {/* 데스크톱 전용 — 기존 텍스트 링크 */}
-        <Link
-          href="/"
-          className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex"
-        >
-          <ArrowLeft size={14} /> 홈으로
-        </Link>
-
-        <div className="mt-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              직접확인하기 · 베트남 행정전문 AI
-            </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-              거주증 (TRC) 가능성 진단
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              국적·비자·직책·회사 형태에 따라 거주증 발급 가능 여부가 달라집니다.
-            </p>
-          </div>
-
-          {/* 모바일 전용 — 결과 화면 단계에서만 우측 상단에 원형 점수표 표시 */}
-          {resultScreenActive && diagnosis && (
-            <div className="shrink-0 sm:hidden">
-              <ResultHeaderGauge diagnosis={diagnosis} size={76} />
-            </div>
-          )}
-        </div>
-
-        {!rejectionStepDone && (
-          <div className="mt-8">
-            <QuestionSection
-              step={1}
-              title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
-            >
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <SelectionCard
-                  title="네, 있습니다"
-                  selected={previousRejection === true}
-                  tone="amber"
-                  onClick={() => {
-                    setPreviousRejection(true);
-                    recordRejectionAnonymously();
-                  }}
-                />
-                <SelectionCard
-                  title="아니요"
-                  selected={previousRejection === false}
-                  tone="blue"
-                  onClick={() => {
-                    setPreviousRejection(false);
-                    setRejectionStepDone(true);
-                  }}
-                />
+    <FunnelPageShell
+      engine="check"
+      width={!costEntryDone || resultScreenActive ? "wide" : "default"}
+    >
+        <FunnelPageHeader
+          engine="check"
+          title={
+            !costEntryDone
+              ? contextTab === "review"
+                ? "거주증 (TRC) 견적 적정성 검토"
+                : contextTab === "direct"
+                  ? "거주증 (TRC) 안내"
+                  : "거주증 (TRC) 비용 확인"
+              : "거주증 (TRC) 가능성 진단"
+          }
+          description={
+            !costEntryDone
+              ? contextTab === "review"
+                ? "받은 견적이 정부 수수료 + 시장 일반 대행료 기준 대비 어느 정도인지 확인합니다."
+                : contextTab === "direct"
+                  ? "거주증 절차·서류·공식 자료 확인 방법을 안내합니다."
+                  : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 내 상황을 직접 확인합니다."
+              : "국적·비자·직책·회사 형태를 순서대로 확인하면, 거주증 가능 여부를 공식 행정 기준으로 확인할 수 있습니다."
+          }
+          headerExtra={
+            resultScreenActive && diagnosis ? (
+              <div className="sm:hidden">
+                <ResultHeaderGauge diagnosis={diagnosis} size={76} />
               </div>
-            </QuestionSection>
+            ) : undefined
+          }
+        />
 
-            {previousRejection === true && (
+        {!costEntryDone && (
+          <MasterFunnelLanding
+            config={MASTER_LANDING_TRC}
+            activeTab={contextTab}
+            onTabChange={setContextTab}
+            onContinue={() => setCostEntryDone(true)}
+          />
+        )}
+
+        {costEntryDone && !rejectionStepDone && (
+          <div className="mt-4 sm:mt-5">
+            <VerifyStepLayout
+              engine="check"
+              step={1}
+              question={
+                <>
+                  <QuestionSection
+                    step={1}
+                    title="이전에 다른 곳(정부기관 또는 타 대행사)에서 신청하셨다가 거절·반려되신 적이 있나요?"
+                    description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 이력이 있으면 보완 포인트를 더 정확히 짚을 수 있습니다."
+                    {...checkQuestionProps}
+                  >
+                    <VerifyAnswerGrid step={1}>
+                      <SelectionCard
+                        variant="quiet"
+                        title="네, 있습니다"
+                        selected={previousRejection === true}
+                        tone="amber"
+                        onClick={() => {
+                          setPreviousRejection(true);
+                          recordRejectionAnonymously();
+                        }}
+                      />
+                      <SelectionCard
+                        variant="quiet"
+                        title="아니요"
+                        selected={previousRejection === false}
+                        tone="blue"
+                        onClick={() => {
+                          setPreviousRejection(false);
+                          setRejectionStepDone(true);
+                        }}
+                      />
+                    </VerifyAnswerGrid>
+                  </QuestionSection>
+
+                  {previousRejection === true && (
               <div className="mt-4">
-                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/60 px-4 py-3.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    AI
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">
-                      거절 사유를 알려주시면 AI가 더 정확하게 분석합니다.
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-600">
-                      이전에 들으셨던 거절 사유나 안내받은 내용을 자유롭게
-                      작성해주세요. 작성할수록 진단 정확도가 높아집니다.
-                    </p>
-                  </div>
+                <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-3">
+                  <p className="text-sm font-semibold text-[#0B2A6B]">
+                    거절·반려 사유를 알려주시면 공식 기준 확인에 반영됩니다.
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#556070]">
+                    이전에 들으셨던 사유나 안내를 자유롭게 적어 주세요. 비워 두셔도
+                    다음 단계로 진행할 수 있습니다.
+                  </p>
                 </div>
 
                 <textarea
@@ -1479,179 +1515,246 @@ export default function TrcCheckPage() {
                   className="mt-3 min-h-[160px] w-full resize-none rounded-xl border-2 border-gray-300 bg-white px-4 py-3.5 text-sm leading-relaxed placeholder:text-gray-400 focus:border-[#1D4EDB] focus:outline-none"
                 />
                 <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                  작성해주신 내용은 AI가 거절 원인을 분석하고 해결 가능성을
-                  높이는 데 활용됩니다.
+                  작성해주신 내용은 공식 기준 확인·거절 원인 점검에 활용됩니다.
                 </p>
 
                 <PrimaryButton onClick={finalizeRejectionStep} className="mt-3">
                   다음
                 </PrimaryButton>
               </div>
-            )}
-          </div>
-        )}
-
-        {rejectionStepDone && !showResult && (
-          <>
-            {!nationality && (
-              <div className="mt-8">
-                <QuestionSection step={2} title="국적이 어떻게 되시나요?">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {[
-                      { key: "korea", label: "대한민국", desc: "가장 많이 선택되는 국적입니다." },
-                      { key: "china", label: "중국", desc: "중국 국적 신청자에게 적용됩니다." },
-                      { key: "japan", label: "일본", desc: "일본 국적 신청자에게 적용됩니다." },
-                      { key: "other", label: "기타 국가", desc: "위 국가에 해당하지 않는 경우입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setNationality(opt.key as Nationality);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
+                  )}
+                </>
+              }
+              actions={
                 <button
                   type="button"
                   onClick={() => {
-                    setSelectedKey(null);
-                    setRejectionStepDone(false);
+                    setPreviousRejection(null);
+                    setRejectionReason("");
+                    setCostEntryDone(false);
                   }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                  className={CHECK_BACK_BUTTON_CLASS}
                 >
-                  <ArrowLeft size={14} /> 이전 단계로
+                  <ArrowLeft size={14} /> 비용·기준으로 돌아가기
                 </button>
+              }
+            />
+          </div>
+        )}
+
+        {costEntryDone && rejectionStepDone && !showResult && (
+          <>
+            {!nationality && (
+              <div className="mt-4 sm:mt-5">
+                <VerifyStepLayout
+                  engine="check"
+                  step={2}
+                  question={
+                    <QuestionSection
+                      step={2}
+                      title="국적이 어떻게 되시나요?"
+                      description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 국적에 따라 적용 기준이 달라질 수 있습니다."
+                      {...checkQuestionProps}
+                    >
+                      <VerifyAnswerGrid step={2}>
+                        {[
+                          { key: "korea", label: "대한민국", desc: "가장 많이 선택되는 국적입니다." },
+                          { key: "china", label: "중국", desc: "중국 국적 신청자에게 적용됩니다." },
+                          { key: "japan", label: "일본", desc: "일본 국적 신청자에게 적용됩니다." },
+                          { key: "other", label: "기타 국가", desc: "위 국가에 해당하지 않는 경우입니다." },
+                        ].map((opt) => (
+                          <SelectionCard
+                            key={opt.key}
+                            variant="quiet"
+                            title={opt.label}
+                            description={opt.desc}
+                            selected={selectedKey === opt.key}
+                            tone="blue"
+                            onClick={() => {
+                              setSelectedKey(opt.key);
+                              setTimeout(() => {
+                                setNationality(opt.key as Nationality);
+                                setSelectedKey(null);
+                              }, 300);
+                            }}
+                          />
+                        ))}
+                      </VerifyAnswerGrid>
+                    </QuestionSection>
+                  }
+                  actions={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedKey(null);
+                        setRejectionStepDone(false);
+                      }}
+                      className={CHECK_BACK_BUTTON_CLASS}
+                    >
+                      <ArrowLeft size={14} /> 이전 단계로
+                    </button>
+                  }
+                />
               </div>
             )}
 
             {nationality && !visa && (
-              <div className="mt-8">
-                <QuestionSection step={3} title="현재 어떤 비자를 소지하고 있나요?">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {[
-                      { key: "invest", label: "투자비자 (DT)", desc: "출자·투자 목적으로 발급된 비자입니다." },
-                      { key: "work", label: "노동허가부 비자 (LD)", desc: "노동허가 취득을 완료한 경우입니다." },
-                      { key: "tourist", label: "관광·단기비자 (DL 등)", desc: "단기 체류 목적으로 발급된 비자입니다." },
-                      { key: "other", label: "기타 비자", desc: "위 항목에 해당하지 않는 경우입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setVisa(opt.key as Visa);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setNationality(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
+              <div className="mt-4 sm:mt-5">
+                <VerifyStepLayout
+                  engine="check"
+                  step={2}
+                  question={
+                    <QuestionSection
+                      step={3}
+                      title="현재 어떤 비자를 소지하고 있나요?"
+                      description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 비자 유형은 거주증 가능 여부를 가르는 핵심 조건입니다."
+                      {...checkQuestionProps}
+                    >
+                      <VerifyAnswerGrid step={2}>
+                        {[
+                          { key: "invest", label: "투자비자 (DT)", desc: "출자·투자 목적으로 발급된 비자입니다." },
+                          { key: "work", label: "노동허가부 비자 (LD)", desc: "노동허가 취득을 완료한 경우입니다." },
+                          { key: "tourist", label: "관광·단기비자 (DL 등)", desc: "단기 체류 목적으로 발급된 비자입니다." },
+                          { key: "other", label: "기타 비자", desc: "위 항목에 해당하지 않는 경우입니다." },
+                        ].map((opt) => (
+                          <SelectionCard
+                            key={opt.key}
+                            variant="quiet"
+                            title={opt.label}
+                            description={opt.desc}
+                            selected={selectedKey === opt.key}
+                            tone="blue"
+                            onClick={() => {
+                              setSelectedKey(opt.key);
+                              setTimeout(() => {
+                                setVisa(opt.key as Visa);
+                                setSelectedKey(null);
+                              }, 300);
+                            }}
+                          />
+                        ))}
+                      </VerifyAnswerGrid>
+                    </QuestionSection>
+                  }
+                  actions={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedKey(null);
+                        setNationality(null);
+                      }}
+                      className={CHECK_BACK_BUTTON_CLASS}
+                    >
+                      <ArrowLeft size={14} /> 이전 단계로
+                    </button>
+                  }
+                />
               </div>
             )}
 
             {nationality && visa && !role && (
-              <div className="mt-8">
-                <QuestionSection step={4} title="회사 내 직책이 어떻게 되시나요?">
-                  <div className="grid grid-cols-1 gap-3">
-                    {[
-                      { key: "legal-rep", label: "법인장 · 법정대표자", desc: "법인의 대표 권한을 가진 경우입니다." },
-                      { key: "manager", label: "매니저 · 관리직", desc: "관리 업무를 담당하는 경우입니다." },
-                      { key: "staff", label: "일반 직원", desc: "일반 실무를 담당하는 경우입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setRole(opt.key as Role);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setVisa(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
+              <div className="mt-4 sm:mt-5">
+                <VerifyStepLayout
+                  engine="check"
+                  step={3}
+                  question={
+                    <QuestionSection
+                      step={4}
+                      title="회사 내 직책이 어떻게 되시나요?"
+                      description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 직책에 따라 필요한 증빙·요건이 달라질 수 있습니다."
+                      {...checkQuestionProps}
+                    >
+                      <VerifyAnswerGrid step={3}>
+                        {[
+                          { key: "legal-rep", label: "법인장 · 법정대표자", desc: "법인의 대표 권한을 가진 경우입니다." },
+                          { key: "manager", label: "매니저 · 관리직", desc: "관리 업무를 담당하는 경우입니다." },
+                          { key: "staff", label: "일반 직원", desc: "일반 실무를 담당하는 경우입니다." },
+                        ].map((opt) => (
+                          <SelectionCard
+                            key={opt.key}
+                            variant="quiet"
+                            title={opt.label}
+                            description={opt.desc}
+                            selected={selectedKey === opt.key}
+                            tone="blue"
+                            onClick={() => {
+                              setSelectedKey(opt.key);
+                              setTimeout(() => {
+                                setRole(opt.key as Role);
+                                setSelectedKey(null);
+                              }, 300);
+                            }}
+                          />
+                        ))}
+                      </VerifyAnswerGrid>
+                    </QuestionSection>
+                  }
+                  actions={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedKey(null);
+                        setVisa(null);
+                      }}
+                      className={CHECK_BACK_BUTTON_CLASS}
+                    >
+                      <ArrowLeft size={14} /> 이전 단계로
+                    </button>
+                  }
+                />
               </div>
             )}
 
             {nationality && visa && role && !company && (
-              <div className="mt-8">
-                <QuestionSection step={5} title="소속 회사의 법인 형태는 무엇인가요?">
-                  <div className="grid grid-cols-1 gap-3">
-                    {[
-                      { key: "fdi", label: "외국인투자법인 (FDI)", desc: "외국인 투자 지분이 있는 법인입니다." },
-                      { key: "local", label: "현지 법인", desc: "베트남 현지 자본으로 설립된 법인입니다." },
-                      { key: "unregistered", label: "아직 미등록 · 준비 중", desc: "법인 등록 절차가 아직 진행 중입니다." },
-                    ].map((opt) => (
-                      <SelectionCard
-                        key={opt.key}
-                        title={opt.label}
-                        description={opt.desc}
-                        selected={selectedKey === opt.key}
-                        tone="blue"
-                        onClick={() => {
-                          setSelectedKey(opt.key);
-                          setTimeout(() => {
-                            setCompany(opt.key as Company);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </QuestionSection>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setRole(null);
-                  }}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
+              <div className="mt-4 sm:mt-5">
+                <VerifyStepLayout
+                  engine="check"
+                  step={4}
+                  question={
+                    <QuestionSection
+                      step={5}
+                      title="소속 회사의 법인 형태는 무엇인가요?"
+                      description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 법인 형태·등록 여부는 마지막 확인 조건입니다."
+                      {...checkQuestionProps}
+                    >
+                      <VerifyAnswerGrid step={3}>
+                        {[
+                          { key: "fdi", label: "외국인투자법인 (FDI)", desc: "외국인 투자 지분이 있는 법인입니다." },
+                          { key: "local", label: "현지 법인", desc: "베트남 현지 자본으로 설립된 법인입니다." },
+                          { key: "unregistered", label: "아직 미등록 · 준비 중", desc: "법인 등록 절차가 아직 진행 중입니다." },
+                        ].map((opt) => (
+                          <SelectionCard
+                            key={opt.key}
+                            variant="quiet"
+                            title={opt.label}
+                            description={opt.desc}
+                            selected={selectedKey === opt.key}
+                            tone="blue"
+                            onClick={() => {
+                              setSelectedKey(opt.key);
+                              setTimeout(() => {
+                                setCompany(opt.key as Company);
+                                setSelectedKey(null);
+                              }, 300);
+                            }}
+                          />
+                        ))}
+                      </VerifyAnswerGrid>
+                    </QuestionSection>
+                  }
+                  actions={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedKey(null);
+                        setRole(null);
+                      }}
+                      className={CHECK_BACK_BUTTON_CLASS}
+                    >
+                      <ArrowLeft size={14} /> 이전 단계로
+                    </button>
+                  }
+                />
               </div>
             )}
           </>
@@ -1659,7 +1762,7 @@ export default function TrcCheckPage() {
 
 
         {/* 1번째 화면 (가입 전) — Premium SaaS lead capture */}
-        {showResult && result === "possible" && !leadSubmitted && (
+        {costEntryDone && showResult && result === "possible" && !leadSubmitted && (
           <PremiumLeadCapture
             tone="possible"
             diagnosis={diagnosis}
@@ -1678,17 +1781,33 @@ export default function TrcCheckPage() {
         )}
 
         {/* 2번째 화면 (가입 직후) — AI 리포트 + 직접등록/전문가 진행요청 선택 */}
-        {showResult && result === "possible" && leadSubmitted && (
+        {costEntryDone && showResult && result === "possible" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              거주증(TRC) · AI 분석 리포트
-            </p>
+            <CheckDiagnosisHeader />
 
             {diagnosis && (
               <ResultOverviewCards diagnosis={diagnosis} docCount={TRC_REQUIRED_DOCUMENTS.length} />
             )}
 
-            {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
+            {diagnosis && <CheckResultOfficialSection diagnosis={diagnosis} />}
+
+            <OfficialTrustZone engine="check" variant="strip" context="diagnosis" className="mt-4" />
+
+            <div className="mt-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+              <p className="break-keep text-[11px] leading-[1.55] text-[#64748B] [overflow-wrap:normal]">
+                <span className="font-medium text-[#94A3B8]">지금</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">1차 확인</span>
+                <span className="mx-2 text-[#CBD5E1]">→</span>
+                <span className="font-medium text-[#94A3B8]">다음</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">AI 리포트 / 전문가</span>
+                <span className="mx-2 text-[#CBD5E1]">→</span>
+                <span className="font-medium text-[#94A3B8]">최종</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">정부 신청·발급</span>
+              </p>
+            </div>
 
             <NextStepOptions
               onSelf={handleSelfPortalClick}
@@ -1715,7 +1834,7 @@ export default function TrcCheckPage() {
         )}
 
         {/* 조건부 가능 — 1번째 화면 (가입 전, Premium SaaS lead capture) */}
-        {showResult && result === "conditional" && !leadSubmitted && (
+        {costEntryDone && showResult && result === "conditional" && !leadSubmitted && (
           <PremiumLeadCapture
             tone="conditional"
             diagnosis={diagnosis}
@@ -1734,15 +1853,15 @@ export default function TrcCheckPage() {
         )}
 
         {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 + 직접등록/전문가 진행요청 선택) */}
-        {showResult && result === "conditional" && leadSubmitted && (
+        {costEntryDone && showResult && result === "conditional" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              거주증(TRC) · AI 분석 리포트
-            </p>
+            <CheckDiagnosisHeader />
 
             {diagnosis && (
               <ResultOverviewCards diagnosis={diagnosis} docCount={TRC_REQUIRED_DOCUMENTS.length} />
             )}
+
+            {diagnosis && <CheckResultOfficialSection diagnosis={diagnosis} />}
 
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
               <AlertTriangle size={16} className="mt-0.5 shrink-0" />
@@ -1752,7 +1871,23 @@ export default function TrcCheckPage() {
               있습니다.
             </div>
 
-            {diagnosis && <ResultSummaryCard diagnosis={diagnosis} />}
+            <OfficialTrustZone engine="check" variant="strip" context="diagnosis" className="mt-4" />
+
+            <div className="mt-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+              <p className="break-keep text-[11px] leading-[1.55] text-[#64748B] [overflow-wrap:normal]">
+                <span className="font-medium text-[#94A3B8]">지금</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">1차 확인</span>
+                <span className="mx-2 text-[#CBD5E1]">→</span>
+                <span className="font-medium text-[#94A3B8]">다음</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">AI 리포트 / 전문가</span>
+                <span className="mx-2 text-[#CBD5E1]">→</span>
+                <span className="font-medium text-[#94A3B8]">최종</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">정부 신청·발급</span>
+              </p>
+            </div>
 
             <NextStepOptions
               onSelf={handleSelfPortalClick}
@@ -1788,7 +1923,7 @@ export default function TrcCheckPage() {
           </div>
         )}
 
-        {showResult && result === "impossible" && (
+        {costEntryDone && showResult && result === "impossible" && (
           <div className="mt-8 rounded-3xl bg-white border border-red-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <XCircle className="text-red-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
@@ -1796,7 +1931,8 @@ export default function TrcCheckPage() {
             </p>
             <p className="mt-2 text-sm text-gray-600 leading-relaxed">
               법인이 아직 등록되지 않은 상태에서는 거주증 신청 자체가
-              불가능합니다. 먼저 법인설립(IRC/ERC) 절차를 진행해야 합니다.
+              어렵습니다. 먼저 법인설립(IRC/ERC) 절차를 진행한 뒤 다시
+              확인해 주세요.
             </p>
             <Link
               href="/register/company"
@@ -1812,7 +1948,6 @@ export default function TrcCheckPage() {
             </button>
           </div>
         )}
-      </div>
-    </main>
+    </FunnelPageShell>
   );
 }

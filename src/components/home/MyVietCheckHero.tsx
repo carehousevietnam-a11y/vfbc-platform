@@ -285,7 +285,7 @@ function CostCheckPreviewCard() {
       </dl>
 
       <Link
-        href={`/cost-check?tab=review&q=${encodeURIComponent(t("hero.preview.reviewQuery"))}`}
+        href="/check/trc"
         className="mt-3 inline-flex w-full items-center justify-center gap-1 rounded-xl bg-amber-500 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
       >
         {t("hero.preview.cta")}

@@ -15,6 +15,7 @@ export { default as InfoBox } from "./InfoBox";
 export { default as Divider } from "./Divider";
 export { default as VerifyAnswerGrid } from "./VerifyAnswerGrid";
 export { default as OfficialTrustZone } from "./OfficialTrustZone";
+export { default as OfficialBasisPanel } from "./OfficialBasisPanel";
 export { default as VerifyStepLayout } from "./VerifyStepLayout";
 export {
   VERIFY_STEP4_ATTACHMENT_LABEL_CLASS,

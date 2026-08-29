@@ -1,6 +1,11 @@
 import type { PublishedArticle } from "@/lib/contentPacks/types";
 import { getAnonymousDocumentList, PROCESS_BY_GROUP } from "@/lib/anonymousLegalGuide";
 import { getCostCheckService } from "@/lib/costCheck";
+import {
+  buildCaseOrientedQa,
+  buildCaseOrientedSections,
+  WP_NARRATIVE,
+} from "@/lib/contentPacks/guideCaseNarrative";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 export const WP_GUIDE_SLUG = "wp-process-and-cost";
@@ -32,7 +37,7 @@ export const WP_GUIDE_ARTICLE: PublishedArticle = {
   updatedAt: UPDATED,
   articleType: "info",
   funnelHref: "/check/wp",
-  funnelCtaLabel: "내 상황 확인하기",
+  funnelCtaLabel: "내 상황을 직접 확인하기",
   caseLanding: {
     question:
       "베트남 노동허가 진행이 어떻게 되고 서류는 무엇이 필요하며 비용은 얼마나 드나요?",
@@ -81,7 +86,7 @@ export const WP_GUIDE_ARTICLE: PublishedArticle = {
       "정부 수수료 없이 대행료만 보고 비교하는 경우",
       "관할 지역 수수료 차이를 확인하지 않고 견적을 단정하는 경우",
     ],
-    qa: [
+    qa: buildCaseOrientedQa(WP_REQUIRED.serviceLabel, WP_NARRATIVE, [
       {
         q: "노동허가 진행 순서는 어떻게 되나요?",
         a: PROCESS_BY_GROUP.check,
@@ -94,7 +99,7 @@ export const WP_GUIDE_ARTICLE: PublishedArticle = {
         q: "비용은 어디까지가 정부 수수료인가요?",
         a: `${WP_COST.lookupGuide} 참고 정부 수수료는 ${WP_COST.governmentFee}이며, 출처는 ${WP_COST.source}입니다.`,
       },
-    ],
+    ]),
     relatedQuestions: [],
     sources: [
       {
@@ -111,21 +116,11 @@ export const WP_GUIDE_ARTICLE: PublishedArticle = {
       },
     ],
   },
-  sections: [
-    {
-      type: "p",
-      text: "베트남 노동허가(Work Permit, WP)를 준비할 때 진행 순서, 필요 서류, 비용을 한꺼번에 정리하고 싶은 경우가 많습니다. 아래는 VFBCAI가 같은 플랫폼 데이터를 바탕으로 정리한 참고용 가이드입니다.",
-    },
+  sections: buildCaseOrientedSections(WP_NARRATIVE, [
     { type: "h2", text: "진행 순서" },
-    {
-      type: "p",
-      text: PROCESS_BY_GROUP.check,
-    },
+    { type: "p", text: PROCESS_BY_GROUP.check },
     { type: "h2", text: "필요 서류 (참고)" },
-    {
-      type: "bullets",
-      items: WP_DOCS,
-    },
+    { type: "bullets", items: WP_DOCS },
     {
       type: "p",
       text: "학력·경력·직무 형태에 따라 추가 요청이 있을 수 있습니다. 위 목록을 기준으로 먼저 모아 두시면 보완 대응이 수월합니다.",
@@ -140,7 +135,7 @@ export const WP_GUIDE_ARTICLE: PublishedArticle = {
       type: "p",
       text: "노동허가와 관련해 자주 언급되는 법령으로 152/2020/NĐ-CP, 11/2020/TT-BLĐTBXH 등이 있습니다. 다만 구체 조항(Điều/Khoản)은 사례마다 달라, 이 글만으로 법적 확정을 내리기는 어렵습니다.",
     },
-  ],
+  ]),
 };
 
 export const WP_ARTICLES_BY_SLUG: Record<string, PublishedArticle> = {

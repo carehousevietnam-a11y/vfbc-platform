@@ -1,6 +1,12 @@
 import type { PublishedArticle } from "@/lib/contentPacks/types";
 import { getAnonymousDocumentList } from "@/lib/anonymousLegalGuide";
 import { guidePath } from "@/lib/contentPacks/paths";
+import {
+  buildCaseOrientedQa,
+  buildCaseOrientedSections,
+  TRC_DOCUMENTS_NARRATIVE,
+  TRC_GUIDE_NARRATIVE,
+} from "@/lib/contentPacks/guideCaseNarrative";
 
 const UPDATED = "2026-08-21";
 const TRC_DOCS = getAnonymousDocumentList("trc");
@@ -29,7 +35,7 @@ export const TRC_DOCUMENTS_ARTICLE: PublishedArticle = {
   updatedAt: UPDATED,
   articleType: "info",
   funnelHref: "/check/trc",
-  funnelCtaLabel: "내 상황 확인하기",
+  funnelCtaLabel: "내 상황을 직접 확인하기",
   relatedSlug: "trc-how-to-apply",
   caseLanding: {
     question: "베트남 거주증(TRC) 신청에 어떤 서류를 준비하면 되나?",
@@ -76,7 +82,7 @@ export const TRC_DOCUMENTS_ARTICLE: PublishedArticle = {
       "커뮤니티에서 들은 임대계약서를 모든 경우에 필수라고 단정하는 경우",
       "한곳의 목록만 보고 확정 제출 목록이라고 단정하는 경우",
     ],
-    qa: [
+    qa: buildCaseOrientedQa("거주증(TRC)", TRC_DOCUMENTS_NARRATIVE, [
       {
         q: "임대계약서는 항상 필요한가요?",
         a: "아닙니다. 거주지 증빙이 추가로 요청되는 경우는 있지만, 모든 비자·고용 형태에 동일하게 필수라고 단정하기는 어렵습니다.",
@@ -89,7 +95,7 @@ export const TRC_DOCUMENTS_ARTICLE: PublishedArticle = {
         q: "주소지 관련 자료는 꼭 내야 하나요?",
         a: "참고 목록에서는 ‘있으면 제출’입니다. 추가로 요청될 수는 있으나, 모든 경우에 필수라고 단정하지는 않습니다.",
       },
-    ],
+    ]),
     relatedQuestions: [
       { question: "신청 순서가 제각각으로 들릴 때는 어떻게 하면 되나?", href: guidePath("trc-how-to-apply") },
     ],
@@ -104,16 +110,9 @@ export const TRC_DOCUMENTS_ARTICLE: PublishedArticle = {
       },
     ],
   },
-  sections: [
-    {
-      type: "p",
-      text: "베트남에서 거주증(Thẻ tạm thường trú, TRC)을 준비하실 때 가장 먼저 궁금한 것이 서류 목록인 경우가 많습니다. 아래는 외국인 직장인·체류자 기준으로 일반적으로 요구되는 서류를 VFBCAI가 정리한 참고용 가이드입니다. 비자 종류·회사 형태에 따라 추가 요청이 있을 수 있습니다.",
-    },
+  sections: buildCaseOrientedSections(TRC_DOCUMENTS_NARRATIVE, [
     { type: "h2", text: "필요 서류 (참고)" },
-    {
-      type: "bullets",
-      items: TRC_DOCS,
-    },
+    { type: "bullets", items: TRC_DOCS },
     {
       type: "p",
       text: "한곳에서 “이것만 내면 된다”고 단정하기는 어렵지만, 위 목록 순서로 준비하시면 대부분의 경우 심사·보완 대응이 훨씬 수월합니다.",
@@ -124,11 +123,8 @@ export const TRC_DOCUMENTS_ARTICLE: PublishedArticle = {
       text: "보통 ① 서류 준비 → ② 관할 출입국·거주 관리 기관(공안) 신청 → ③ 심사 후 발급 순입니다. 유형에 따라 면접·추가 서류 요청이 있을 수 있으니, 일정에 여유를 두시는 것이 좋습니다.",
     },
     { type: "h2", text: "관련 법령 (참고)" },
-    {
-      type: "p",
-      text: TRC_LAW_LINE,
-    },
-  ],
+    { type: "p", text: TRC_LAW_LINE },
+  ]),
 };
 
 export const TRC_GUIDE_ARTICLE: PublishedArticle = {
@@ -143,7 +139,7 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
   updatedAt: UPDATED,
   articleType: "story",
   funnelHref: "/check/trc",
-  funnelCtaLabel: "내 상황 확인하기",
+  funnelCtaLabel: "내 상황을 직접 확인하기",
   relatedSlug: "trc-required-documents",
   caseLanding: {
     question: "거주증 신청, 말이 제각각일 때 어떻게 하면 되나?",
@@ -189,7 +185,7 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
       "신청 관할을 확인하지 않고 진행하는 경우",
       "이 글의 법령 번호만으로 구체 조항 적용을 확정하려는 경우",
     ],
-    qa: [
+    qa: buildCaseOrientedQa("거주증(TRC)", TRC_GUIDE_NARRATIVE, [
       {
         q: "회사 말과 커뮤니티 말이 다르면 어떤 절차를 따라야 하나요?",
         a: "절차 자체는 같고 준비물만 상황마다 달라지는 경우가 많습니다. 공통 서류를 먼저 모은 뒤, 내 비자·고용 형태에 따른 추가분을 확인하세요.",
@@ -202,7 +198,7 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
         q: "다음에 무엇을 하면 되나요?",
         a: "공통 서류를 먼저 모으고, 내 비자·고용 형태를 한 줄로 정리한 뒤, 추가로 필요한 항목만 확인하면 됩니다.",
       },
-    ],
+    ]),
     relatedQuestions: [
       { question: "어떤 서류를 먼저 준비하면 되나?", href: guidePath("trc-required-documents") },
     ],
@@ -213,29 +209,15 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
       },
     ],
   },
-  sections: [
-    {
-      type: "p",
-      text: "거주증(TRC) 준비를 시작하면 회사에서는 “회사 서류만 있으면 된다”고 하고, 커뮤니티에서는 “임대계약서가 꼭 필요하다”고 하며, AI에게 물어보면 또 다른 목록이 나옵니다. 헷갈리는 것이 이상한 상황이 아닙니다. 거주증은 현재 비자 종류, 고용 형태, 거주지, 이전 신청 이력에 따라 요구 서류가 달라지기 때문입니다.",
-    },
-    {
-      type: "p",
-      text: "정리하면, 공통으로 많이 요구되는 것과 나의 경우에만 추가로 필요한 것을 나누어 생각하면 됩니다.",
-    },
+  sections: buildCaseOrientedSections(TRC_GUIDE_NARRATIVE, [
     { type: "h2", text: "Step 1 — 필요 서류 정리" },
-    {
-      type: "bullets",
-      items: TRC_DOCS,
-    },
+    { type: "bullets", items: TRC_DOCS },
     {
       type: "p",
       text: "비자·고용 형태에 따라 추가 요청이 있을 수 있습니다. 위 목록을 기준으로 먼저 모아 두시면 보완 대응이 수월합니다.",
     },
     { type: "h2", text: "Step 2 — 진행 순서" },
-    {
-      type: "numbered",
-      items: TRC_PROCESS_STEPS,
-    },
+    { type: "numbered", items: TRC_PROCESS_STEPS },
     {
       type: "p",
       text: "“어디서 신청하나요?”가 헷갈리시면, 현재 거주 지역을 관할하는 공안(출입국·거주 관리)을 기준으로 보시면 됩니다. 회사 HR이 대행하는 경우도 있고, 본인이 직접 가는 경우도 있습니다.",
@@ -243,22 +225,13 @@ export const TRC_GUIDE_ARTICLE: PublishedArticle = {
     { type: "h2", text: "Step 3 — 법령은 방향만 잡으면 충분합니다" },
     {
       type: "p",
-      text: "자주 언급되는 근거로 04/2016/TT-BNG(외국인 체류·거주 관련 행정 통달), 47/2014/QH13(입출국·체류법) 등이 있습니다. 다만 “제 비자에는 정확히 몇 조가 적용되나요?”까지는 개별 사건 확인이 필요합니다. 커뮤니티 말과 AI 말이 엇갈릴 때는, 서류를 먼저 정리한 뒤 맞춤 확인 도구로 한 번 더 맞춰 보는 것이 가장 덜 헷갈리는 방법입니다.",
-    },
-    { type: "h2", text: "지금 당장 무엇을 하면 될까요?" },
-    {
-      type: "numbered",
-      items: [
-        "필요 서류를 위 목록 기준으로 먼저 정리",
-        "내 비자·고용 형태를 한 줄로 정리 (예: E비자, 현지 법인 재직)",
-        "맞춤 확인으로 내 경우에 추가로 필요한 것만 짚어 보기",
-      ],
+      text: "자주 언급되는 근거로 04/2016/TT-BNG(외국인 체류·거주 관련 행정 통달), 47/2014/QH13(입출국·체류법) 등이 있습니다. 다만 “제 비자에는 정확히 몇 조가 적용되나요?”까지는 개별 사건 확인이 필요합니다.",
     },
     {
       type: "p",
       text: "말이 다르다고 해서 절차가 여러 개 있는 것은 아닙니다. 같은 절차인데, 준비물만 사람마다 다르게 느껴지는 것에 가깝습니다.",
     },
-  ],
+  ]),
 };
 
 export const TRC_ARTICLES_BY_SLUG: Record<string, PublishedArticle> = {
