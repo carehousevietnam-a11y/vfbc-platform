@@ -4,7 +4,18 @@ const CRM_AGENCY_REQUEST_ACTION = "agency_upgrade_request";
 
 // CHECK 결과화면 "전문가 진행 요청하기" — CRM 기록 + 접수 확인 이메일 트리거.
 // documents/page.tsx의 recordAgencyRequest()와 동일한 중복 방지 패턴을 사용한다.
-export async function recordAgencyUpgradeAndNotify(params: {
+// redirect(auto-login)을 막지 않도록 비동기 fire-and-forget으로 실행한다.
+export function recordAgencyUpgradeAndNotify(params: {
+  leadId: string;
+  tag: string;
+  token?: string;
+}): void {
+  void recordAgencyUpgradeAndNotifyAsync(params).catch((err) => {
+    console.error("agency upgrade notify failed:", err);
+  });
+}
+
+async function recordAgencyUpgradeAndNotifyAsync(params: {
   leadId: string;
   tag: string;
   token?: string;

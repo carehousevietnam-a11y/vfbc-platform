@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -34,12 +34,20 @@ import {
 import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
+import {
+  loadVerifyMemberEntryState,
+  insertMemberVerifyLead,
+  isLoggedInMember,
+  type RestoredVerifyLead,
+} from "@/lib/restoreVerifyLead";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
-import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
+import FunnelPageShell from "@/components/engine/FunnelPageShell";
+import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
 import {
   MasterFunnelLanding,
   MASTER_LANDING_UNCLEAR,
+  getMasterLandingPageHeader,
   type MasterFunnelContextTab,
 } from "@/components/cost-check/MasterFunnelLanding";
 
@@ -767,6 +775,10 @@ export default function VerifyUnclearPage() {
   // 전문가 진행 요청 시 사용할 로그인 토큰 — TRC의 selectedKey/resultToken과 동일한 용도.
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [resultToken, setResultToken] = useState<string | null>(null);
+  const [restoreVerifyPending, setRestoreVerifyPending] = useState(true);
+  const [skipSignup, setSkipSignup] = useState(false);
+  const [restoredLeadActive, setRestoredLeadActive] = useState(false);
+  const memberSubmitStartedRef = useRef(false);
   const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
   const [landingDone, setLandingDone] = useState(false);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
@@ -777,11 +789,82 @@ export default function VerifyUnclearPage() {
       if (params.get("start") === "check") {
         setLandingDone(true);
       }
-      const tab = params.get("tab");
-      if (tab === "lookup" || tab === "review" || tab === "direct") {
-        setContextTab(tab);
+    }
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function applyRestoredVerify(restored: RestoredVerifyLead) {
+      const meta = restored.verifyMeta;
+      if (meta) {
+        if (meta.review_stage === "pre" || meta.review_stage === "post") {
+          setReviewStage(meta.review_stage);
+        }
+        if (typeof meta.review_focus === "string") setReviewFocus(meta.review_focus);
+        if (typeof meta.incident_type === "string") setIncidentType(meta.incident_type);
+        if (typeof meta.incident_description === "string") {
+          setIncidentDescription(meta.incident_description);
+        }
+      }
+      setLandingDone(true);
+      setLeadId(restored.leadId);
+      setResultToken(restored.resultToken);
+      setRestoredLeadActive(true);
+
+      const fileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
+      const fileName = typeof meta?.file_name === "string" ? meta.file_name : null;
+      const incidentTypeVal =
+        typeof meta?.incident_type === "string" ? meta.incident_type : undefined;
+      const incidentDescVal =
+        typeof meta?.incident_description === "string"
+          ? meta.incident_description
+          : undefined;
+
+      setDiagnosing(true);
+      const diag = await getDiagnosis(CATEGORY, {
+        fileUrl,
+        fileName,
+        incidentType: incidentTypeVal,
+        incidentDescription: incidentDescVal,
+      });
+      if (!cancelled) {
+        setDiagnosis(diag);
+        setDiagnosing(false);
+        setStep("diagnosis");
       }
     }
+
+    async function applyMemberEntryState() {
+      const params = new URLSearchParams(window.location.search);
+      const allowRestore = params.get("restore") === "1";
+      const { loggedIn, restored } = await loadVerifyMemberEntryState("verify_unclear", {
+        allowRestore,
+      });
+      if (cancelled) return;
+      if (loggedIn) setSkipSignup(true);
+      if (restored) await applyRestoredVerify(restored);
+    }
+
+    async function initMemberState() {
+      try {
+        await applyMemberEntryState();
+      } finally {
+        if (!cancelled) setRestoreVerifyPending(false);
+      }
+    }
+
+    void initMemberState();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN") return;
+      void applyMemberEntryState();
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
@@ -833,15 +916,117 @@ export default function VerifyUnclearPage() {
     setConsentOpen(false);
     setConsentHighlight(false);
     setSelectedAgency(null);
+    setRestoredLeadActive(false);
+    setSkipSignup(false);
+    void isLoggedInMember().then((loggedIn) => {
+      if (loggedIn) setSkipSignup(true);
+    });
+    memberSubmitStartedRef.current = false;
   }
 
   function handleIncidentNext() {
+    if (restoredLeadActive) return;
     if (incidentDescription.trim().length === 0) {
       setIncidentError("사건 설명을 입력해주세요.");
       return;
     }
     setIncidentError(null);
+    if (skipSignup) {
+      void submitAsMember();
+      return;
+    }
     setStep("form");
+  }
+
+  async function submitAsMember() {
+    if (memberSubmitStartedRef.current) return;
+    memberSubmitStartedRef.current = true;
+
+    setSubmitting(true);
+    setError(null);
+    const newLeadId = crypto.randomUUID();
+
+    let fileUrl: string | null = null;
+    if (attachedFile && attachedFile.size > 0) {
+      const rawExt = attachedFile.name.split(".").pop() || "";
+      const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+      const path = `verify-unclear/${newLeadId}.${safeExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("documents")
+        .upload(path, attachedFile);
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
+        fileUrl = urlData.publicUrl;
+      } else {
+        console.error(uploadError);
+      }
+    }
+
+    const verifyMeta = {
+      review_stage: reviewStage,
+      review_focus: reviewFocus,
+      incident_type: incidentType,
+      incident_description: incidentDescription.trim(),
+      ...(fileUrl
+        ? {
+            file_url: fileUrl,
+            file_name: attachedFile?.name,
+            submitted_document: {
+              document_type: incidentType,
+              review_stage: reviewStage,
+              file_url: fileUrl,
+              file_name: attachedFile?.name,
+            },
+          }
+        : {}),
+    };
+
+    const created = await insertMemberVerifyLead({
+      serviceType: "verify_unclear",
+      sourcePage: "/verify/unclear",
+      tag: "VERIFY_UNCLEAR",
+      verifyMeta,
+      lang,
+      primaryMessengerKey: messengers.primary.key,
+      secondaryMessengerKey: messengers.secondary.key,
+      leadId: newLeadId,
+    });
+
+    if (!created.ok) {
+      memberSubmitStartedRef.current = false;
+      if (created.reason === "no_contact") {
+        setSkipSignup(false);
+        setStep("form");
+      } else {
+        setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      }
+      setSubmitting(false);
+      return;
+    }
+
+    saveLeadContact({
+      name: created.contact.name,
+      phone: created.contact.phone,
+      address: created.contact.address,
+      kakao_id: created.contact.kakao_id,
+      zalo_id: created.contact.zalo_id,
+    });
+    setEmailProvided(!!created.contact.email);
+    setLeadId(created.leadId);
+    setResultToken(created.resultToken);
+    setSubmitting(false);
+
+    setDiagnosing(true);
+    const diag = await getDiagnosis(CATEGORY, {
+      fileUrl,
+      fileName: attachedFile?.name || null,
+      incidentType: incidentType || undefined,
+      incidentDescription: incidentDescription.trim() || undefined,
+    });
+    setDiagnosis(diag);
+    setDiagnosing(false);
+    setStep("diagnosis");
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -1090,41 +1275,21 @@ export default function VerifyUnclearPage() {
 
   const activeGuidance = selectedAgency ? UNCLEAR_AGENCY_GUIDANCE[selectedAgency] : null;
 
+  const pageHeader = getMasterLandingPageHeader(
+    MASTER_LANDING_UNCLEAR,
+    contextTab,
+    landingDone
+      ? { inQuestions: true, questionDescription: "발신처가 불분명한 서류 확인부터 대응 방향 검토까지" }
+      : undefined
+  );
+
   return (
-    <main className="min-h-screen overflow-x-hidden bg-white">
-      <div className="h-[3px] bg-blue-900" />
-      <div className={`${ENGINE_CONTAINER} py-8 sm:py-9`}>
-        {/* 모바일 전용 — 좌측 홈 아이콘 + 실제 로고 이미지(가로 배치) 중앙 정렬, 전체 탭하면 홈으로 이동 */}
-        <Link
-          href="/"
-          className="relative -mx-4 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
-        >
-          <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
-            <ArrowLeft size={14} /> 홈으로
-          </span>
-          <img
-            src="/vfbcai-shield-logo.png"
-            alt="VFBCAI"
-            width={34}
-            height={34}
-            className="shrink-0"
-          />
-          <div>
-            <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
-            <p className="text-[11px] leading-tight text-gray-400">베트남 법률전문 AI</p>
-          </div>
-        </Link>
-
-        {/* 데스크톱 전용 — 기존 텍스트 링크 */}
-        <Link href="/" className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex">
-          <ArrowLeft size={14} /> 홈으로
-        </Link>
-
-        <p className="mt-3 text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
-          직접검토하기 · 베트남 법률전문 AI
-        </p>
-        <h1 className="mt-1.5 text-[19px] font-semibold tracking-tight text-gray-900 sm:text-xl">불확실한 서류 검토</h1>
-        <p className="mt-0.5 break-keep text-[12.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">발신처가 불분명한 서류 확인부터 대응 방향 검토까지</p>
+    <FunnelPageShell engine="verify" width={!landingDone ? "wide" : "default"}>
+        <FunnelPageHeader
+          engine="verify"
+          title={pageHeader.title}
+          description={pageHeader.description}
+        />
 
         {!landingDone && (
           <MasterFunnelLanding
@@ -1137,7 +1302,7 @@ export default function VerifyUnclearPage() {
 
         {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
-        {landingDone && step === "incident" && (
+        {landingDone && !restoreVerifyPending && step === "incident" && (
           <div className="w-full">
             {/* 질문 1 — Prevent Review / Case Review */}
             {!reviewStage && (
@@ -1398,7 +1563,7 @@ export default function VerifyUnclearPage() {
         )}
 
         {/* STEP4: 개인정보 입력 — CHECK(TRC)의 PremiumLeadCapture와 동일한 구조 */}
-        {landingDone && step === "form" && (
+        {landingDone && step === "form" && !skipSignup && (
           <VerifyUnclearLeadCapture
             riskLevel={previewDiagnosis?.expertBrief.riskLevel ?? "medium"}
             messengers={messengers}
@@ -1598,7 +1763,6 @@ export default function VerifyUnclearPage() {
             </div>
           </div>
         )}
-      </div>
-    </main>
+    </FunnelPageShell>
   );
 }

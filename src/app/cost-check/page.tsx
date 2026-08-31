@@ -41,11 +41,17 @@ import { WpRegionalOfficialFee } from "@/components/cost-check/WpRegionalOfficia
 import SiteHeader from "@/components/home/SiteHeader";
 import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
 import { hasCostSignal, matchCostCheckService } from "@/lib/aiCostSection";
+import {
+  buildMasterFunnelServiceHref,
+  extractAmountFromQuery,
+  resolveMasterFunnelTabForService,
+  resolveMasterFunnelTabFromQuery,
+  type MasterFunnelContextTab,
+} from "@/lib/masterFunnelEntry";
 import { getTrcArticleByIntent, resolveTrcArticleIntent } from "@/lib/contentPacks/intentRouter";
 import { guidePath } from "@/lib/contentPacks/paths";
 import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
 import { WP_GUIDE_SLUG } from "@/lib/contentPacks/wpArticles";
-import { routeByKeywords } from "@/lib/smartRouter";
 import { getQuoteFunnelHref } from "@/lib/quoteReviewLinks";
 import { getVerifyMasterLanding } from "@/components/cost-check/MasterFunnelLanding";
 import { GuideCaseFunnelSummary } from "@/components/answers/GuideCaseFunnelSummary";
@@ -102,13 +108,30 @@ function inferServiceFromQuery(q: string): CostCheckServiceId | "" {
 }
 
 function resolveTabFromQuery(q: string, preferredTab?: CostCheckTab): CostCheckTab {
-  if (preferredTab) return preferredTab;
-  return extractAmountFromQuery(q) ? "review" : "lookup";
+  return resolveMasterFunnelTabFromQuery(q, preferredTab as MasterFunnelContextTab | undefined);
 }
 
-function extractAmountFromQuery(q: string): string {
-  const match = q.replace(/,/g, "").match(/(\d[\d.]*)/);
-  return match ? match[1] : "";
+function masterServiceHref(
+  serviceId: CostCheckServiceId,
+  query: string,
+  tab?: MasterFunnelContextTab
+): string {
+  const service = getCostCheckService(serviceId);
+  const resolvedTab = resolveMasterFunnelTabForService(service.ctaHref, query, tab ?? null);
+  return buildMasterFunnelServiceHref(service.ctaHref, query, resolvedTab);
+}
+
+function tabForPickerCategory(
+  serviceId: CostCheckServiceId,
+  category: ServiceCategory
+): MasterFunnelContextTab {
+  if (category === "review") {
+    return usesCostCheckLookupTab(serviceId, category) ? "lookup" : "review";
+  }
+  if (category === "direct") {
+    return serviceId === "company" ? "lookup" : "direct";
+  }
+  return "lookup";
 }
 
 function applyQueryToCostCheck(
@@ -748,6 +771,18 @@ function CostCheckPageContent() {
 
     setTab(tabParam);
     if (qParam) {
+      const matchedService = matchCostCheckService(qParam);
+      if (matchedService) {
+        router.replace(
+          masterServiceHref(
+            matchedService.id,
+            qParam,
+            resolveMasterFunnelTabForService(matchedService.ctaHref, qParam, tabParam)
+          )
+        );
+        return;
+      }
+
       const result = applyQueryToCostCheck(qParam, {
         tabParam,
         setTab,
@@ -766,7 +801,7 @@ function CostCheckPageContent() {
         }
       }
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -816,21 +851,8 @@ function CostCheckPageContent() {
     inputLabel?: string
   ) {
     const service = getCostCheckService(id);
-    setSelectedServiceId(id);
-    setServiceInput(inputLabel ?? service.label);
-    setPickerOpen(false);
-    setPickerCategory(null);
-    setQueryNotice("");
-    setShowMarketPreview(false);
-    setReviewSubmitted(false);
-
-    if (category === "review") {
-      setTab(usesCostCheckLookupTab(id, category) ? "lookup" : "review");
-    } else if (category === "direct") {
-      setTab(id === "company" ? "lookup" : "direct");
-    } else {
-      setTab("lookup");
-    }
+    const label = inputLabel ?? service.label;
+    router.push(masterServiceHref(id, label, tabForPickerCategory(id, category)));
   }
 
   function handlePickCatalogItem(item: CatalogServiceItem, category: ServiceCategory) {
@@ -845,7 +867,13 @@ function CostCheckPageContent() {
     }
     setPickerOpen(false);
     setPickerCategory(null);
-    router.push(item.href);
+    router.push(
+      buildMasterFunnelServiceHref(
+        item.href,
+        item.title,
+        category === "review" ? "review" : category === "direct" ? "direct" : "lookup"
+      )
+    );
   }
 
   function handleUnifiedSubmit(e: React.FormEvent) {
@@ -857,6 +885,12 @@ function CostCheckPageContent() {
     }
 
     setQueryNotice("");
+    const matchedService = matchCostCheckService(trimmed);
+    if (matchedService) {
+      router.push(masterServiceHref(matchedService.id, trimmed));
+      return;
+    }
+
     const result = applyQueryToCostCheck(trimmed, {
       setTab,
       setInitialQuery,
@@ -869,7 +903,9 @@ function CostCheckPageContent() {
     if (result.matched) return;
 
     if (result.routedToAi) {
-      router.push(routeByKeywords(trimmed).href);
+      setQueryNotice(
+        "등록된 비용 확인 서비스가 아닙니다. 카테고리에서 서비스를 선택하거나 질문을 다시 입력해 주세요."
+      );
       return;
     }
 

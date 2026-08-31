@@ -40,6 +40,11 @@ import {
 import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
+import {
+  isLoggedInMember,
+  loadRegisterMemberEntryState,
+  submitMemberRegisterLead,
+} from "@/lib/restoreRegisterLead";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import {
   MasterFunnelLanding,
@@ -946,6 +951,11 @@ export default function RegisterCosmeticsPage() {
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const selfNotifySentRef = useRef(false);
+  const [restoreRegisterPending, setRestoreRegisterPending] = useState(true);
+  const [skipSignup, setSkipSignup] = useState(false);
+  const [restoredLeadActive, setRestoredLeadActive] = useState(false);
+  const [restoredResultTone, setRestoredResultTone] = useState<ResultTone | null>(null);
+  const memberLeadStartedRef = useRef(false);
 
   // CHECK(TRC)와 동일한 용도의 state — Q2~Q5(2개 이상 선택형 질문) 공용 클릭
   // 피드백(300ms) 키, /api/lead-submit이 발급하는 resultToken(auto-login용),
@@ -967,6 +977,69 @@ export default function RegisterCosmeticsPage() {
       }
     }
   }, []);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function applyMemberEntryState() {
+      const params = new URLSearchParams(window.location.search);
+      const allowRestore = params.get("restore") === "1";
+      const { loggedIn, restored } = await loadRegisterMemberEntryState(
+        "register_cosmetics",
+        "register_cosmetics_diagnosis_lead",
+        { allowRestore }
+      );
+      if (cancelled) return;
+      if (loggedIn) setSkipSignup(true);
+      if (restored) {
+        setCostEntryDone(true);
+        setRejectionStepDone(true);
+        setLeadSubmitted(true);
+        setLeadId(restored.leadId);
+        setResultToken(restored.resultToken);
+        setRestoredResultTone(restored.resultTone as ResultTone);
+        setRestoredLeadActive(true);
+        const meta = restored.meta;
+        if (meta) {
+          if (meta.distributionChoice) setDistributionChoice(meta.distributionChoice as DistributionChoice);
+          if (meta.registrationStatus) setRegistrationStatus(meta.registrationStatus as RegistrationStatus);
+          if (meta.facilityStatus) setFacilityStatus(meta.facilityStatus as FacilityStatus);
+          if (meta.safetyDataStatus) setSafetyDataStatus(meta.safetyDataStatus as SafetyDataStatus);
+          const pr = meta.previousRejection;
+          if (pr && typeof pr === "object" && "rejected" in pr) {
+            const rejected = (pr as { rejected: boolean }).rejected;
+            if (rejected === true) {
+              setPreviousRejection(true);
+              const reason = (pr as { reason?: string | null }).reason;
+              if (typeof reason === "string") setRejectionReason(reason);
+            } else if (rejected === false) {
+              setPreviousRejection(false);
+            }
+          }
+        }
+      }
+    }
+
+    async function initMemberState() {
+      try {
+        await applyMemberEntryState();
+      } finally {
+        if (!cancelled) setRestoreRegisterPending(false);
+      }
+    }
+
+    void initMemberState();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN") return;
+      void applyMemberEntryState();
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const registerQuestionProps = {
@@ -985,10 +1058,12 @@ export default function RegisterCosmeticsPage() {
         : "conditional"
       : null;
   const showResult = Boolean(distributionChoice && !isUnlicensedDistributing && registrationStatus && facilityStatus && safetyDataStatus);
+  const canShowResults = restoredLeadActive || showResult;
+  const activeResult: ResultTone = restoredLeadActive ? restoredResultTone : result;
 
   // 순수 함수 기반 자체 진단이라 비동기 조회가 필요 없으므로, useEffect 없이
   // 렌더링 중 직접 계산한다.
-  const diagnosis = showResult
+  const diagnosis = canShowResults
     ? computeCosmeticsDiagnosis(registrationStatus, facilityStatus, safetyDataStatus)
     : null;
 
@@ -997,7 +1072,84 @@ export default function RegisterCosmeticsPage() {
   // CHECK(TRC)의 resultScreenActive와 동일한 판정 — 결과 화면(가입 직후)에서만
   // 컨테이너 폭을 넓히기 위한 표시 전용 값. showResult/leadSubmitted 자체의
   // 계산 로직은 그대로다.
-  const resultScreenActive = Boolean(showResult && diagnosis && leadSubmitted);
+  const resultScreenActive = Boolean(canShowResults && diagnosis && leadSubmitted);
+
+  useEffect(() => {
+    if (
+      !skipSignup ||
+      restoredLeadActive ||
+      leadSubmitted ||
+      !showResult ||
+      !diagnosis ||
+      (result !== "possible" && result !== "conditional") ||
+      memberLeadStartedRef.current
+    ) {
+      return;
+    }
+    memberLeadStartedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      setSubmitting(true);
+      setLeadError(null);
+      const created = await submitMemberRegisterLead({
+        serviceType: "register_cosmetics",
+        sourcePage: "/register/cosmetics",
+        result,
+        diagnosisAction: "register_cosmetics_diagnosis_lead",
+        tag: "REGISTER_COSMETICS",
+        meta: {
+          feasibilityScore: diagnosis.feasibilityScore,
+          distributionChoice,
+          registrationStatus,
+          facilityStatus,
+          safetyDataStatus,
+          previousRejection:
+            previousRejection === true
+              ? { rejected: true, reason: rejectionReason || null }
+              : previousRejection === false
+              ? { rejected: false }
+              : null,
+        },
+        lang,
+        primaryMessengerKey: messengers.primary.key,
+        secondaryMessengerKey: messengers.secondary.key,
+        rejectionRecordId: rejectionRecordIdRef.current,
+        pendingRejectionInsert: pendingRejectionInsertRef.current,
+      });
+      if (cancelled) return;
+      if (!created.ok) {
+        memberLeadStartedRef.current = false;
+        if (created.reason === "no_contact" && !(await isLoggedInMember())) {
+          setSkipSignup(false);
+        } else {
+          setLeadError("결과 준비 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        }
+        setSubmitting(false);
+        return;
+      }
+      setLeadId(created.leadId);
+      setResultToken(created.resultToken);
+      setLeadSubmitted(true);
+      setSubmitting(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    skipSignup,
+    restoredLeadActive,
+    leadSubmitted,
+    showResult,
+    diagnosis,
+    result,
+    distributionChoice, registrationStatus, facilityStatus, safetyDataStatus,
+    previousRejection,
+    rejectionReason,
+    lang,
+    messengers.primary.key,
+    messengers.secondary.key,
+  ]);
+
 
   // "네, 있습니다" 클릭 즉시 익명으로 저장 — 기존과 동일, 수정 없음.
   function recordRejectionAnonymously() {
@@ -1069,6 +1221,13 @@ export default function RegisterCosmeticsPage() {
     setResultToken(null);
     setAiReportPending(false);
     setAiReportError(null);
+    setRestoredLeadActive(false);
+    setRestoredResultTone(null);
+    setSkipSignup(false);
+    void isLoggedInMember().then((loggedIn) => {
+      if (loggedIn) setSkipSignup(true);
+    });
+    memberLeadStartedRef.current = false;
   }
 
   // CHECK(TRC)의 실제 최신 코드를 직접 확인한 결과, TRC는 handleAgencyRequest(CRM
@@ -1340,7 +1499,13 @@ export default function RegisterCosmeticsPage() {
         ) : undefined}
       />
 
-        {!costEntryDone && (
+        {restoreRegisterPending && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            이전 결과를 확인하는 중…
+          </div>
+        )}
+
+        {!restoreRegisterPending && !costEntryDone && (
           <MasterFunnelLanding
             config={MASTER_LANDING_COSMETICS}
             activeTab={contextTab}
@@ -1349,7 +1514,7 @@ export default function RegisterCosmeticsPage() {
           />
         )}
 
-        {costEntryDone && !rejectionStepDone && (
+        {!restoreRegisterPending && costEntryDone && !rejectionStepDone && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1439,7 +1604,7 @@ export default function RegisterCosmeticsPage() {
 
         {/* 질문 2 — 현재 운영 상태. CHECK Master UI의 3개 선택지 실제 배열 기준
             그대로(grid-cols-1, 반응형 2열 강제 없음) 적용. */}
-        {costEntryDone && rejectionStepDone && !distributionChoice && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && !distributionChoice && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1489,7 +1654,7 @@ export default function RegisterCosmeticsPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && isUnlicensedDistributing && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && isUnlicensedDistributing && (
           <div className={`mt-8 ${FUNNEL_QUESTION_COLUMN}`}>
             <NoticeCard tone="danger" title="무허가 영업은 즉시 폐쇄될 수 있습니다">
               허가 없이 영업 중인 경우 단속 시 즉시 영업정지 또는 폐쇄 조치될
@@ -1516,7 +1681,7 @@ export default function RegisterCosmeticsPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && distributionChoice && !isUnlicensedDistributing && !registrationStatus && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && distributionChoice && !isUnlicensedDistributing && !registrationStatus && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1566,7 +1731,7 @@ export default function RegisterCosmeticsPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && registrationStatus && !facilityStatus && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && registrationStatus && !facilityStatus && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1616,7 +1781,7 @@ export default function RegisterCosmeticsPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && registrationStatus && facilityStatus && !safetyDataStatus && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && registrationStatus && facilityStatus && !safetyDataStatus && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1668,7 +1833,18 @@ export default function RegisterCosmeticsPage() {
 
         {/* 결과 미리보기 + 개인정보 입력 (가입 전) — CHECK(TRC)의 PremiumLeadCapture와
             동일한 구조. possible/conditional 공통. */}
-        {showResult && diagnosis && !leadSubmitted && (
+        {!restoreRegisterPending &&
+          costEntryDone &&
+          canShowResults &&
+          (activeResult === "possible" || activeResult === "conditional") &&
+          !leadSubmitted &&
+          skipSignup && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            기존 회원 정보로 결과를 준비하는 중…
+          </div>
+        )}
+
+        {!restoreRegisterPending && costEntryDone && showResult && diagnosis && !leadSubmitted && !skipSignup && (
           <CosmeticsLeadCapture
             diagnosis={diagnosis}
             messengers={messengers}
@@ -1689,7 +1865,7 @@ export default function RegisterCosmeticsPage() {
             3버튼 CTA → 안내문 → 처음부터 다시 확인하기) 순서 그대로. 별도의 긴
             중간 확인화면은 두지 않는다(TRC 실제 흐름과 동일 — 위 handleExpertRequest
             주석 참고). */}
-        {showResult && diagnosis && leadSubmitted && (
+        {!restoreRegisterPending && costEntryDone && canShowResults && diagnosis && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               화장품허가 · AI 분석 리포트

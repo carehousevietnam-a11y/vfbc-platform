@@ -22,8 +22,13 @@ import {
   type CostCheckService,
   type CostCheckServiceId,
 } from "@/lib/costCheck";
-import { matchCostCheckService } from "@/lib/aiCostSection";
-import { routeByKeywords } from "@/lib/smartRouter";
+import { matchCostCheckService, hasCostSignal } from "@/lib/aiCostSection";
+import {
+  buildMasterFunnelServiceHref,
+  readMasterFunnelEntryParams,
+  resolveMasterFunnelTabForService,
+  resolveMasterFunnelTabFromQuery,
+} from "@/lib/masterFunnelEntry";
 import type { FunnelEngine } from "@/components/engine/funnelTokens";
 import {
   MASTER_FUNNEL_STEPS_CHECK,
@@ -168,25 +173,39 @@ function getTrcCatalogServices(category: TrcServiceCategory) {
   return getRegisterServiceItems();
 }
 
-/**
- * `/cost-check` 카탈로그 선택과 동일:
- * VERIFY(직접 검토하기)는 질문 페이지(`/verify/...`)로 바로 가지 않고
- * cost-check VERIFY 랜딩(lookup)으로 먼저 진입한다.
- */
-function resolveTrcCatalogHref(item: { href: string }, category: TrcServiceCategory): string {
-  if (category !== "review") return item.href;
-  const service = COST_CHECK_SERVICES.find((s) => s.ctaHref === item.href);
-  if (!service) return item.href;
-  return `/cost-check?tab=lookup&q=${encodeURIComponent(service.label)}`;
+function resolveTrcCatalogHref(
+  item: { href: string; title?: string },
+  category: TrcServiceCategory
+): string {
+  const label = item.title ?? item.href;
+  if (category === "lookup") {
+    return buildMasterFunnelServiceHref(item.href, label, "lookup");
+  }
+  if (category === "review") {
+    return buildMasterFunnelServiceHref(item.href, label, "review");
+  }
+  return buildMasterFunnelServiceHref(item.href, label, "direct");
 }
 
-function MasterTrcServiceEntry() {
+function MasterServiceQueryEntry({
+  currentServiceId,
+  initialQuery = "",
+  onLocalTabChange,
+}: {
+  currentServiceId?: CostCheckServiceId;
+  initialQuery?: string;
+  onLocalTabChange: (tab: MasterFunnelContextTab) => void;
+}) {
   const router = useRouter();
   const pickerRef = useRef<HTMLDivElement>(null);
-  const [serviceInput, setServiceInput] = useState("");
+  const [serviceInput, setServiceInput] = useState(initialQuery);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerCategory, setPickerCategory] = useState<TrcServiceCategory | null>(null);
   const [queryNotice, setQueryNotice] = useState("");
+
+  useEffect(() => {
+    setServiceInput(initialQuery);
+  }, [initialQuery]);
 
   useEffect(() => {
     function onDocMouseDown(e: MouseEvent) {
@@ -211,26 +230,43 @@ function MasterTrcServiceEntry() {
     setPickerCategory(null);
 
     const matched = matchCostCheckService(trimmed);
+    const tab = matched
+      ? resolveMasterFunnelTabForService(matched.ctaHref, trimmed)
+      : resolveMasterFunnelTabFromQuery(trimmed);
+
     if (matched) {
-      router.push(matched.ctaHref);
+      if (matched.id === currentServiceId) {
+        onLocalTabChange(tab);
+        return;
+      }
+      router.push(buildMasterFunnelServiceHref(matched.ctaHref, trimmed, tab));
       return;
     }
-    // CheckLandingClient / cost-check 와 동일 — 기존 smartRouter 연결 유지
-    router.push(routeByKeywords(trimmed).href);
+
+    if (currentServiceId && (hasCostSignal(trimmed) || tab === "direct" || tab === "review")) {
+      onLocalTabChange(tab);
+      return;
+    }
+
+    onLocalTabChange(tab);
   }
+
+  const inputId = currentServiceId
+    ? `master-service-input-${currentServiceId}`
+    : "master-service-input";
 
   return (
     <form onSubmit={handleDirectSubmit} className="space-y-2.5">
       <label
-        htmlFor="trc-check-service-input"
+        htmlFor={inputId}
         className="block text-[13px] font-semibold text-[#0F172A] sm:text-[14px]"
       >
-        서비스를 직접 입력하거나 선택하세요
+        원하는 내용을 입력하거나 아래 항목에서 선택해주세요
       </label>
       <div ref={pickerRef} className="relative min-w-0">
         <div className="relative min-w-0">
           <input
-            id="trc-check-service-input"
+            id={inputId}
             type="text"
             value={serviceInput}
             onChange={(e) => {
@@ -312,9 +348,13 @@ function MasterTrcServiceEntry() {
 function MasterCostBasisEntry({
   config,
   onContinue,
+  onTabChange,
+  entryQuery,
 }: {
   config: MasterLandingConfig;
   onContinue: () => void;
+  onTabChange: (tab: MasterFunnelContextTab) => void;
+  entryQuery?: string;
 }) {
   const steps =
     config.persuasionSteps ??
@@ -324,13 +364,17 @@ function MasterCostBasisEntry({
         ? MASTER_FUNNEL_STEPS_VERIFY
         : MASTER_FUNNEL_STEPS_CHECK);
   const cost = config.costServiceId ? getCostCheckService(config.costServiceId) : null;
-  /** TRC 확인하기만: 안내문을 예상 비용 구조 아래 · MASTER 퍼널 바로 위로 둔다 */
-  const hookAfterCostStructure = config.costServiceId === "trc";
+  /** TRC Master UI — 비용 카드 아래 · 4단계 퍼널 바로 위에 안내 문구 */
+  const hookAfterCostStructure = true;
 
   return (
     <div className="mt-4 space-y-5 sm:mt-5 sm:space-y-6">
       <div className="min-w-0 space-y-3.5 rounded-[16px] border border-[#E5E7EB] bg-white p-4 sm:p-5 lg:p-6">
-        {config.costServiceId === "trc" ? <MasterTrcServiceEntry /> : null}
+        <MasterServiceQueryEntry
+          currentServiceId={config.costServiceId}
+          initialQuery={entryQuery}
+          onLocalTabChange={onTabChange}
+        />
         {!hookAfterCostStructure ? (
           <MasterFunnelHook title={config.hookTitle} body={config.hookBody} />
         ) : null}
@@ -738,12 +782,17 @@ function MasterServiceGuidePanel({
 }
 
 /** 초기 랜딩 전용 — 3-tab + Cost / Review / Guide. Q1 이후에는 호출하지 말 것. */
-/** CHECK 4 + REGISTER 8 — MASTER 「견적 적정성 검토」(TRC 기준 UI 재사용) */
+/** CHECK 4 + VERIFY 5 + REGISTER 8 — MASTER 「견적 적정성 검토」(TRC 기준 UI) */
 const MASTER_QUOTE_REVIEW_SERVICE_IDS: CostCheckServiceId[] = [
   "trc",
   "wp",
   "tamtru",
   "driving-license",
+  "admin",
+  "real-estate",
+  "fraud",
+  "tax",
+  "notary",
   "company",
   "restaurant",
   "hygiene",
@@ -769,10 +818,30 @@ export function MasterFunnelLanding({
   onTabChange: (tab: MasterFunnelContextTab) => void;
   onContinue: () => void;
 }) {
+  const urlSyncedRef = useRef(false);
+  const [entryQuery, setEntryQuery] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined" || urlSyncedRef.current) return;
+    urlSyncedRef.current = true;
+    const { tab, query } = readMasterFunnelEntryParams(window.location.search);
+    if (window.location.search.includes("tab=") || query) {
+      onTabChange(tab);
+    }
+    if (query) setEntryQuery(query);
+  }, [onTabChange]);
+
   return (
     <>
       <MasterFunnelContextTabs active={activeTab} onChange={onTabChange} />
-      {activeTab === "lookup" && <MasterCostBasisEntry config={config} onContinue={onContinue} />}
+      {activeTab === "lookup" && (
+        <MasterCostBasisEntry
+          config={config}
+          onContinue={onContinue}
+          onTabChange={onTabChange}
+          entryQuery={entryQuery}
+        />
+      )}
       {activeTab === "review" &&
         (usesMasterQuoteReview(config.costServiceId) ? (
           <MasterTrcQuoteReviewPanel
@@ -1345,4 +1414,111 @@ const VERIFY_MASTER_LANDINGS: Partial<Record<CostCheckServiceId, MasterLandingCo
 
 export function getVerifyMasterLanding(id: CostCheckServiceId): MasterLandingConfig | null {
   return VERIFY_MASTER_LANDINGS[id] ?? null;
+}
+
+function engineGuideItems(serviceLabel: string): MasterLandingGuideItem[] {
+  return [
+    {
+      title: "기본 절차",
+      body: `${serviceLabel} 관련 기본 절차와 준비 항목을 확인합니다. 서비스를 선택하면 상세 안내로 이어집니다.`,
+    },
+    {
+      title: "필요 서류",
+      body: "서비스·상황에 따라 필요 서류가 달라질 수 있습니다. 목록에서 서비스를 선택해 주세요.",
+    },
+  ];
+}
+
+/** 엔진 진입 — 서비스 미선택 시 MasterFunnelLanding (홈 CHECK/VERIFY/REGISTER) */
+export const MASTER_LANDING_ENGINE_CHECK: MasterLandingConfig = {
+  engine: "check",
+  serviceLabel: "CHECK",
+  specialtyLine: "거주증·노동허가·땀주·운전면허 등 베트남 행정 절차",
+  hookTitle: "먼저 직접 확인하세요.",
+  hookBody:
+    "서비스를 입력하거나 선택하면 정부 수수료·시장 대행료·필요 서류를 같은 화면에서 확인할 수 있습니다.",
+  persuasionHeadline: "내 상황에 맞는 절차와 비용을 먼저 확인하면 불필요한 비용을 줄일 수 있습니다.",
+  pendingStructureNote:
+    "서비스를 선택하면 정부 수수료와 시장 대행료 기준을 이 화면에서 바로 확인할 수 있습니다.",
+  reviewTitle: "견적·비용 검토",
+  reviewIntro: "받은 견적이 정부 수수료와 시장 일반 대행료 기준에 맞는지 확인합니다.",
+  reviewChecks: checkReviewChecks("선택한 서비스"),
+  guideTitle: "절차·서류 안내",
+  guideIntro: "진행 절차와 필요 서류 확인 방법을 안내합니다.",
+  guideItems: engineGuideItems("CHECK"),
+  officialUrl: "https://dichvucong.gov.vn/",
+  officialNote: "국가공공서비스포털에서 관할·업무별 안내를 확인할 수 있습니다.",
+};
+
+export const MASTER_LANDING_ENGINE_VERIFY: MasterLandingConfig = {
+  engine: "verify",
+  serviceLabel: "VERIFY",
+  specialtyLine: "행정·부동산·세무·사기·불확실한 서류 검토",
+  hookTitle: "먼저 직접 검토하세요.",
+  hookBody:
+    "서류·계약·견적을 입력하거나 선택하면 검토 기준과 다음 단계를 같은 화면에서 확인할 수 있습니다.",
+  persuasionHeadline: "계약·서류를 먼저 검토하면 불필요한 비용과 리스크를 줄일 수 있습니다.",
+  persuasionSteps: MASTER_FUNNEL_STEPS_VERIFY,
+  pendingStructureNote:
+    "서비스를 선택하면 검토 기준과 참고 비용 범위를 이 화면에서 확인할 수 있습니다.",
+  reviewTitle: "문서·견적 검토",
+  reviewIntro: "받은 문서·계약·견적이 일반 기준과 맞는지 확인합니다.",
+  reviewChecks: checkReviewChecks("선택한 서비스"),
+  guideTitle: "검토·대응 안내",
+  guideIntro: "문서 검토 절차와 필요 준비 사항을 안내합니다.",
+  guideItems: engineGuideItems("VERIFY"),
+  officialUrl: "https://dichvucong.gov.vn/",
+  officialNote: "관련 공식 자료는 서비스 선택 후 안내됩니다.",
+};
+
+export const MASTER_LANDING_ENGINE_REGISTER: MasterLandingConfig = {
+  engine: "register",
+  serviceLabel: "REGISTER",
+  specialtyLine: "법인설립·식당·소방·위생 등 인허가",
+  hookTitle: "먼저 직접 확인하세요.",
+  hookBody:
+    "인허가 종류를 입력하거나 선택하면 절차·비용·필요 서류를 같은 화면에서 확인할 수 있습니다.",
+  persuasionHeadline: "필요한 절차를 먼저 확인하면 재신청과 불필요한 비용을 줄일 수 있습니다.",
+  persuasionSteps: MASTER_FUNNEL_STEPS_REGISTER,
+  pendingStructureNote:
+    "서비스를 선택하면 정부 수수료·시장 대행료·절차 개요를 이 화면에서 확인할 수 있습니다.",
+  reviewTitle: "인허가 견적 검토",
+  reviewIntro: "받은 안내·견적이 해당 인허가 기준에 맞는지 확인합니다.",
+  reviewChecks: registerReviewChecks("선택한 인허가"),
+  guideTitle: "인허가 절차 안내",
+  guideIntro: "설립·허가 절차와 필요 서류를 안내합니다.",
+  guideItems: engineGuideItems("REGISTER"),
+  officialUrl: "https://dichvucong.gov.vn/",
+  officialNote: "국가공공서비스포털에서 업종·관할별 안내를 확인할 수 있습니다.",
+};
+
+/** 2번째 화면(Master landing) · 질문 단계 공통 헤더 — TRC FunnelPageHeader 위계와 동일 */
+export function getMasterLandingPageHeader(
+  config: MasterLandingConfig,
+  activeTab: MasterFunnelContextTab,
+  options?: { inQuestions?: boolean; questionDescription?: string }
+): { title: string; description: string } {
+  if (options?.inQuestions) {
+    return {
+      title: config.serviceLabel,
+      description: options.questionDescription ?? config.specialtyLine,
+    };
+  }
+  if (activeTab === "review") {
+    return { title: config.reviewTitle, description: config.reviewIntro };
+  }
+  if (activeTab === "direct") {
+    return { title: config.guideTitle, description: config.guideIntro };
+  }
+  const lookupTitle =
+    config.engine === "verify"
+      ? `${config.serviceLabel} 검토 시작`
+      : `${config.serviceLabel} 비용 확인`;
+  const lookupDesc =
+    config.engine === "verify"
+      ? "제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지, 내 상황을 먼저 확인합니다."
+      : config.engine === "register"
+        ? "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인합니다."
+        : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 내 상황을 직접 확인합니다.";
+  return { title: lookupTitle, description: lookupDesc };
 }

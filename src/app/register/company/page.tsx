@@ -34,6 +34,11 @@ import {
 import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
+import {
+  isLoggedInMember,
+  loadRegisterMemberEntryState,
+  submitMemberRegisterLead,
+} from "@/lib/restoreRegisterLead";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import {
   MasterFunnelLanding,
@@ -994,6 +999,11 @@ export default function PermitCompanyCheckPage() {
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const selfNotifySentRef = useRef(false);
+  const [restoreRegisterPending, setRestoreRegisterPending] = useState(true);
+  const [skipSignup, setSkipSignup] = useState(false);
+  const [restoredLeadActive, setRestoredLeadActive] = useState(false);
+  const [restoredResultTone, setRestoredResultTone] = useState<Result | null>(null);
+  const memberLeadStartedRef = useRef(false);
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [resultToken, setResultToken] = useState<string | null>(null);
@@ -1012,6 +1022,71 @@ export default function PermitCompanyCheckPage() {
       }
     }
   }, []);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function applyMemberEntryState() {
+      const params = new URLSearchParams(window.location.search);
+      const allowRestore = params.get("restore") === "1";
+      const { loggedIn, restored } = await loadRegisterMemberEntryState(
+        "permit_company",
+        "permit_company_diagnosis_lead",
+        { allowRestore }
+      );
+      if (cancelled) return;
+      if (loggedIn) setSkipSignup(true);
+      if (restored) {
+        setCostEntryDone(true);
+        setRejectionStepDone(true);
+        setLeadSubmitted(true);
+        setLeadId(restored.leadId);
+        setResultToken(restored.resultToken);
+        setRestoredResultTone(restored.resultTone);
+        setRestoredLeadActive(true);
+        const meta = restored.meta;
+        if (meta) {
+          if (meta.investorType === "corporate" || meta.investorType === "individual") {
+            setInvestorChoice(meta.investorType as InvestorChoice);
+          }
+          if (meta.capital) setCapital(meta.capital as Capital);
+          if (meta.office) setOffice(meta.office as Office);
+          if (meta.residentRep) setResidentRep(meta.residentRep as ResidentRep);
+          const pr = meta.previousRejection;
+          if (pr && typeof pr === "object" && "rejected" in pr) {
+            const rejected = (pr as { rejected: boolean }).rejected;
+            if (rejected === true) {
+              setPreviousRejection(true);
+              const reason = (pr as { reason?: string | null }).reason;
+              if (typeof reason === "string") setRejectionReason(reason);
+            } else if (rejected === false) {
+              setPreviousRejection(false);
+            }
+          }
+        }
+      }
+    }
+
+    async function initMemberState() {
+      try {
+        await applyMemberEntryState();
+      } finally {
+        if (!cancelled) setRestoreRegisterPending(false);
+      }
+    }
+
+    void initMemberState();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN") return;
+      void applyMemberEntryState();
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const registerQuestionProps = {
@@ -1028,6 +1103,8 @@ export default function PermitCompanyCheckPage() {
 
   const result: Result = computePermitCompanyResultTone(capital, office);
   const showResult = Boolean(investorType && capital && office && residentRep);
+  const canShowResults = restoredLeadActive || showResult;
+  const activeResult: Result = restoredLeadActive ? restoredResultTone : result;
 
   useEffect(() => {
     let cancelled = false;
@@ -1041,13 +1118,13 @@ export default function PermitCompanyCheckPage() {
       }).then((res) => {
         if (!cancelled) setDiagnosis(res);
       });
-    } else {
+    } else if (!restoredLeadActive) {
       setDiagnosis(null);
     }
     return () => {
       cancelled = true;
     };
-  }, [investorType, capital, office, residentRep, showResult]);
+  }, [investorType, capital, office, residentRep, showResult, restoredLeadActive]);
 
   const documentService =
     investorType === "corporate"
@@ -1056,7 +1133,91 @@ export default function PermitCompanyCheckPage() {
       ? "permit_company_individual"
       : "permit_company";
   const requiredDocs = getRequiredDocuments(documentService);
-  const resultScreenActive = Boolean(showResult && diagnosis && leadSubmitted);
+  const resultScreenActive = Boolean(canShowResults && diagnosis && leadSubmitted);
+
+  useEffect(() => {
+    if (
+      !skipSignup ||
+      restoredLeadActive ||
+      leadSubmitted ||
+      !showResult ||
+      !diagnosis ||
+      (result !== "possible" && result !== "conditional") ||
+      memberLeadStartedRef.current
+    ) {
+      return;
+    }
+    memberLeadStartedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      setSubmitting(true);
+      setLeadError(null);
+      const created = await submitMemberRegisterLead({
+        serviceType: "permit_company",
+        sourcePage: "/register/company",
+        result,
+        diagnosisAction: "permit_company_diagnosis_lead",
+        tag: "PERMIT_COMPANY",
+        meta: diagnosis
+          ? {
+              feasibilityScore: diagnosis.customerView.feasibilityScore,
+              expertBrief: diagnosis.expertBrief,
+              investorType,
+              capital,
+              office,
+              residentRep,
+              documentService,
+              previousRejection:
+                previousRejection === true
+                  ? { rejected: true, reason: rejectionReason || null }
+                  : previousRejection === false
+                  ? { rejected: false }
+                  : null,
+            }
+          : null,
+        lang,
+        primaryMessengerKey: messengers.primary.key,
+        secondaryMessengerKey: messengers.secondary.key,
+        rejectionRecordId: rejectionRecordIdRef.current,
+        pendingRejectionInsert: pendingRejectionInsertRef.current,
+      });
+      if (cancelled) return;
+      if (!created.ok) {
+        memberLeadStartedRef.current = false;
+        if (created.reason === "no_contact" && !(await isLoggedInMember())) {
+          setSkipSignup(false);
+        } else {
+          setLeadError("결과 준비 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        }
+        setSubmitting(false);
+        return;
+      }
+      setLeadId(created.leadId);
+      setResultToken(created.resultToken);
+      setLeadSubmitted(true);
+      setSubmitting(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    skipSignup,
+    restoredLeadActive,
+    leadSubmitted,
+    showResult,
+    diagnosis,
+    result,
+    investorType,
+    capital,
+    office,
+    residentRep,
+    documentService,
+    previousRejection,
+    rejectionReason,
+    lang,
+    messengers.primary.key,
+    messengers.secondary.key,
+  ]);
 
   function recordRejectionAnonymously() {
     const id = crypto.randomUUID();
@@ -1129,6 +1290,13 @@ export default function PermitCompanyCheckPage() {
     setAiReportPending(false);
     setAiReportError(null);
     setDiagnosis(null);
+    setRestoredLeadActive(false);
+    setRestoredResultTone(null);
+    setSkipSignup(false);
+    void isLoggedInMember().then((loggedIn) => {
+      if (loggedIn) setSkipSignup(true);
+    });
+    memberLeadStartedRef.current = false;
   }
 
   function rememberInvestorType() {
@@ -1397,7 +1565,13 @@ export default function PermitCompanyCheckPage() {
         ) : undefined}
       />
 
-        {!costEntryDone && (
+        {restoreRegisterPending && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            이전 결과를 확인하는 중…
+          </div>
+        )}
+
+        {!restoreRegisterPending && !costEntryDone && (
           <MasterFunnelLanding
             config={MASTER_LANDING_COMPANY}
             activeTab={contextTab}
@@ -1406,7 +1580,7 @@ export default function PermitCompanyCheckPage() {
           />
         )}
 
-        {costEntryDone && !rejectionStepDone && (
+        {!restoreRegisterPending && costEntryDone && !rejectionStepDone && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1494,7 +1668,7 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && !investorChoice && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && !investorChoice && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1544,7 +1718,7 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && isLocalNominee && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && isLocalNominee && (
           <div className="mt-8">
             <NoticeCard tone="danger" title="현지인 명의 방식은 법적 보호가 어렵습니다">
               명의자와의 분쟁이나 투자금 손실 위험이 있어 개인 투자 또는 법인
@@ -1570,7 +1744,7 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && investorType && !capital && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && investorType && !capital && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1624,7 +1798,7 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && investorType && capital && !office && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && investorType && capital && !office && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1674,7 +1848,7 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {costEntryDone && rejectionStepDone && investorType && capital && office && !residentRep && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && investorType && capital && office && !residentRep && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1724,7 +1898,18 @@ export default function PermitCompanyCheckPage() {
           </div>
         )}
 
-        {showResult && diagnosis && !leadSubmitted && (
+        {!restoreRegisterPending &&
+          costEntryDone &&
+          canShowResults &&
+          (activeResult === "possible" || activeResult === "conditional") &&
+          !leadSubmitted &&
+          skipSignup && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            기존 회원 정보로 결과를 준비하는 중…
+          </div>
+        )}
+
+        {!restoreRegisterPending && costEntryDone && showResult && diagnosis && !leadSubmitted && !skipSignup && (
           <CompanyLeadCapture
             diagnosis={diagnosis}
             investorType={investorType}
@@ -1742,7 +1927,7 @@ export default function PermitCompanyCheckPage() {
           />
         )}
 
-        {showResult && diagnosis && leadSubmitted && (
+        {!restoreRegisterPending && costEntryDone && canShowResults && diagnosis && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
               법인설립 · AI 분석 리포트

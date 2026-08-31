@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
 
     const { data: leadsRaw, error: leadsError } = await supabaseAdmin
       .from("leads")
-      .select("id, service_type, result, created_at")
+      .select("id, service_type, result, created_at, name, phone, address, email, kakao_id, zalo_id")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -246,6 +246,43 @@ export async function POST(req: NextRequest) {
     }
     const leads = leadsRaw ?? [];
     const leadIds = leads.map((l) => l.id);
+
+    // CHECK 재방문/타 서비스 lead 생성용 — 최신 lead 연락처(기존 컬럼만).
+    // 새 테이블/컬럼 없음. anon client leads select 없이 서버에서만 내려준다.
+    const latestLead = leads[0] ?? null;
+    const authEmail =
+      typeof userData.user.email === "string" && userData.user.email.trim()
+        ? userData.user.email.trim()
+        : null;
+    const memberContactName =
+      (typeof latestLead?.name === "string" && latestLead.name.trim()) ||
+      (typeof profile?.name === "string" && profile.name.trim()) ||
+      null;
+    const memberContactPhone =
+      (typeof latestLead?.phone === "string" && latestLead.phone.trim()) ||
+      (typeof profile?.phone === "string" && profile.phone.trim()) ||
+      null;
+    const memberContact =
+      memberContactName && memberContactPhone
+        ? {
+            name: memberContactName,
+            phone: memberContactPhone,
+            address:
+              (typeof latestLead?.address === "string" && latestLead.address.trim()) ||
+              null,
+            email:
+              (typeof latestLead?.email === "string" && latestLead.email.trim()) ||
+              authEmail,
+            kakao_id:
+              typeof latestLead?.kakao_id === "string" && latestLead.kakao_id.trim()
+                ? latestLead.kakao_id
+                : null,
+            zalo_id:
+              typeof latestLead?.zalo_id === "string" && latestLead.zalo_id.trim()
+                ? latestLead.zalo_id
+                : null,
+          }
+        : null;
 
     const { data: activitiesRaw } = leadIds.length
       ? await supabaseAdmin
@@ -381,6 +418,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       name: profile?.name ?? null,
+      phone: profile?.phone ?? null,
+      memberContact,
       items,
     });
   } catch (err) {

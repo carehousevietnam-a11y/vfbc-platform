@@ -40,6 +40,12 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { supabase } from "@/lib/supabase";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
+  establishBrowserSessionFromResultToken,
+  isLoggedInMember,
+  loadCheckMemberEntryState,
+  submitMemberCheckLead,
+} from "@/lib/restoreCheckLead";
+import {
   MasterFunnelLanding,
   type MasterFunnelContextTab,
   MASTER_LANDING_TAMTRU,
@@ -50,6 +56,7 @@ import {
   getCheckDiagnosis,
   computeTamtruResultTone,
   type DiagnosisResult,
+  type ResultTone,
   type TamtruTiming,
 } from "@/lib/checkDiagnosis";
 
@@ -682,28 +689,25 @@ function NextStepOptions({
 }) {
   return (
     <div>
-      <p className="mt-5 break-keep text-sm font-bold text-gray-900">다음으로 진행할 방법을 선택하세요</p>
-      <p className="mt-1 break-keep text-xs leading-[1.55] text-[#64748B] [overflow-wrap:normal]">
+      <p className="mt-5 text-sm font-bold text-gray-900">다음으로 진행할 방법을 선택하세요</p>
+      <p className="mt-1 text-xs leading-snug text-[#64748B]">
         확인 결과를 바탕으로, 분석 정리 · 전문가 진행 · 정부 사이트 직접 신청 중 선택합니다.
       </p>
 
-      <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:items-stretch">
-        <div className="relative flex h-full flex-col rounded-2xl border border-[#0B2A6B] bg-white p-4 shadow-[0_1px_3px_rgba(11,42,107,0.08)]">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-[#0B2A6B] px-2.5 py-0.5 text-[10px] font-bold text-white">
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:items-stretch">
+        <div className="relative flex h-full min-w-0 flex-col rounded-2xl border border-[#0B2A6B] bg-white px-3 py-3 shadow-[0_1px_3px_rgba(11,42,107,0.08)] sm:px-3.5 sm:py-3.5">
+          <span className="absolute -top-2.5 left-3 rounded-full bg-[#0B2A6B] px-2.5 py-0.5 text-[10px] font-bold text-white sm:left-3.5">
             필수
           </span>
-          <p className="mt-1 min-h-[40px] text-sm font-bold leading-[1.4] text-gray-900">
-            AI 리포트 요청하기
+          <p className="mt-0.5 text-sm font-bold leading-snug text-gray-900">AI 리포트 요청하기</p>
+          <p className="mt-1.5 flex-1 text-xs leading-snug text-gray-500">
+            입력 정보와 서류를 바탕으로, 공식 행정 기준에 맞춰 확인 결과를 정리한 리포트(PDF)를 받을 수 있습니다.
           </p>
-          <p className="mt-2 min-h-[54px] break-keep text-xs leading-[1.55] text-gray-500 [overflow-wrap:normal]">
-            입력 정보와 서류를 바탕으로, 공식 행정 기준에 맞춰 확인 결과를 정리한
-            리포트(PDF)를 받을 수 있습니다.
-          </p>
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-3">
             <PrimaryButton onClick={onAiReport} loading={aiReportPending}>
               {aiReportPending ? "이동 중..." : "AI 리포트 요청하기"}
             </PrimaryButton>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] leading-[1.5] text-slate-500">
+            <p className="mt-1.5 text-center text-[11px] leading-snug text-slate-500">
               {aiReportError ? (
                 <span className="text-red-600">{aiReportError}</span>
               ) : (
@@ -713,21 +717,19 @@ function NextStepOptions({
           </div>
         </div>
 
-        <div className="relative flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+        <div className="relative flex h-full min-w-0 flex-col rounded-2xl border border-gray-200 bg-white px-3 py-3 sm:px-3.5 sm:py-3.5">
+          <span className="absolute -top-2.5 left-3 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white sm:left-3.5">
             추천
           </span>
-          <p className="mt-1 min-h-[40px] text-sm font-bold leading-[1.4] text-gray-900">
-            전문가 진행하기
-          </p>
-          <p className="mt-2 min-h-[54px] break-keep text-xs leading-[1.55] text-gray-500 [overflow-wrap:normal]">
+          <p className="mt-0.5 text-sm font-bold leading-snug text-gray-900">전문가 진행하기</p>
+          <p className="mt-1.5 flex-1 text-xs leading-snug text-gray-500">
             VFBCAI 전문가팀이 실제 절차와 제출 서류를 확인하며 함께 진행합니다.
           </p>
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-3">
             <PrimaryButton variant="outline" onClick={onExpert} loading={expertPending}>
               전문가 진행 요청하기
             </PrimaryButton>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] leading-[1.5] text-slate-500">
+            <p className="mt-1.5 text-center text-[11px] leading-snug text-slate-500">
               {expertError ? (
                 <span className="text-red-600">{expertError}</span>
               ) : (
@@ -737,32 +739,28 @@ function NextStepOptions({
           </div>
         </div>
 
-        <div className="relative flex h-full flex-col rounded-2xl border border-gray-100 bg-[#FAFBFC] p-4">
-          <span className="absolute -top-2.5 left-4 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+        <div className="relative flex h-full min-w-0 flex-col rounded-2xl border border-gray-100 bg-[#FAFBFC] px-3 py-3 sm:px-3.5 sm:py-3.5">
+          <span className="absolute -top-2.5 left-3 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white sm:left-3.5">
             신중
           </span>
-          <p className="mt-1 min-h-[40px] text-sm font-bold leading-[1.4] text-gray-900">
-            직접 진행하기
+          <p className="mt-0.5 text-sm font-bold leading-snug text-gray-900">직접 진행하기</p>
+          <p className="mt-1.5 flex-1 text-xs leading-snug text-gray-500">
+            정부 공식 사이트(출입국 전자포털)에서 임시거주(땀주) 신고를 직접 진행합니다.
           </p>
-          <p className="mt-2 min-h-[54px] break-keep text-xs leading-[1.55] text-gray-500 [overflow-wrap:normal]">
-            정부 공식 사이트(출입국 전자포털)에서 임시거주(땀주) 신고를 직접
-            진행합니다.
-          </p>
-          <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
-            직접 진행 시 제출·보완도 직접 처리합니다. 반려 이력은 이후 심사에 영향을 줄 수
-            있습니다.
+          <div className="mt-2 rounded-xl bg-amber-50 px-2.5 py-2 text-[11px] leading-snug text-amber-800">
+            직접 진행 시 제출·보완도 직접 처리합니다. 반려 이력은 이후 심사에 영향을 줄 수 있습니다.
           </div>
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-3">
             <a
               href={officialUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={onSelf}
-              className="flex h-[52px] w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 text-[13px] font-semibold text-gray-600 shadow-none transition-colors hover:bg-gray-50"
+              className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 text-[13px] font-semibold text-gray-600 shadow-none transition-colors hover:bg-gray-50"
             >
               정부 공식 사이트 이동 <ExternalLink size={13} />
             </a>
-            <p className="mt-2 min-h-[32px] text-center text-[11px] leading-[1.5] text-slate-500">
+            <p className="mt-1.5 text-center text-[11px] leading-snug text-slate-500">
               신청 절차·제출 서류는 정부 사이트에서 직접 확인합니다.
             </p>
           </div>
@@ -1067,6 +1065,11 @@ export default function TamTruCheckPage() {
   const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
   const [costEntryDone, setCostEntryDone] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [restoreCheckPending, setRestoreCheckPending] = useState(true);
+  const [restoredLeadActive, setRestoredLeadActive] = useState(false);
+  const [restoredResultTone, setRestoredResultTone] = useState<ResultTone | null>(null);
+  const [skipSignup, setSkipSignup] = useState(false);
+  const memberLeadStartedRef = useRef(false);
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
 
@@ -1080,6 +1083,55 @@ export default function TamTruCheckPage() {
         setCostEntryDone(true);
       }
     }
+  }, []);
+  // 1) 로그인 회원 → 회원가입만 생략
+  // 2) ?restore=1(기존 Case 재방문)일 때만 현재 service_type 결과 복원
+  // 3) 그 외(홈·cost-check·start=check 등) → 복원 없이 새 CHECK 시작
+  useEffect(() => {
+    let cancelled = false;
+
+    async function applyMemberEntryState() {
+      const params = new URLSearchParams(window.location.search);
+      const allowRestore = params.get("restore") === "1";
+      const { loggedIn, restored } = await loadCheckMemberEntryState(
+        "tamtru",
+        "tamtru_diagnosis_lead",
+        { allowRestore }
+      );
+      if (cancelled) return;
+      if (loggedIn) setSkipSignup(true);
+      if (restored) {
+        setCostEntryDone(true);
+        setRejectionStepDone(true);
+        setLeadSubmitted(true);
+        setLeadId(restored.leadId);
+        setResultToken(restored.resultToken);
+        setRestoredResultTone(restored.resultTone);
+        setRestoredLeadActive(true);
+        if (restored.diagnosis) setDiagnosis(restored.diagnosis);
+      }
+    }
+
+    async function initMemberState() {
+      try {
+        await applyMemberEntryState();
+      } finally {
+        if (!cancelled) setRestoreCheckPending(false);
+      }
+    }
+
+    void initMemberState();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN") return;
+      void applyMemberEntryState();
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
@@ -1097,12 +1149,93 @@ export default function TamTruCheckPage() {
   const [expertLoginError, setExpertLoginError] = useState<string | null>(null);
   const [aiReportPending, setAiReportPending] = useState(false);
   const [aiReportError, setAiReportError] = useState<string | null>(null);
+  const documentsActionLinkRef = useRef<string | null>(null);
+  const aiReportActionLinkRef = useRef<string | null>(null);
+  const documentsAutoLoginPromiseRef = useRef<Promise<string | null> | null>(null);
+  const aiReportAutoLoginPromiseRef = useRef<Promise<string | null> | null>(null);
+
+  function clearAutoLoginCache() {
+    documentsActionLinkRef.current = null;
+    aiReportActionLinkRef.current = null;
+    documentsAutoLoginPromiseRef.current = null;
+    aiReportAutoLoginPromiseRef.current = null;
+  }
+
+  async function requestAutoLoginActionLink(
+    token: string,
+    next: "documents" | "documents_ai_report"
+  ): Promise<string | null> {
+    const res = await fetch("/api/auto-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, next }),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data?.actionLink) {
+      console.error("auto-login failed:", data);
+      return null;
+    }
+    return data.actionLink as string;
+  }
+
+  function prefetchAutoLoginActionLink(
+    token: string,
+    next: "documents" | "documents_ai_report",
+    linkRef: { current: string | null },
+    promiseRef: { current: Promise<string | null> | null }
+  ) {
+    if (linkRef.current || promiseRef.current) return;
+    promiseRef.current = requestAutoLoginActionLink(token, next).then((link) => {
+      if (link) linkRef.current = link;
+      return link;
+    });
+  }
+
+  async function resolveAutoLoginActionLink(
+    token: string,
+    next: "documents" | "documents_ai_report",
+    linkRef: { current: string | null },
+    promiseRef: { current: Promise<string | null> | null }
+  ): Promise<string | null> {
+    if (linkRef.current) return linkRef.current;
+    if (promiseRef.current) {
+      const prefetched = await promiseRef.current;
+      if (prefetched) return prefetched;
+    }
+    const link = await requestAutoLoginActionLink(token, next);
+    if (link) linkRef.current = link;
+    return link;
+  }
+
+  useEffect(() => {
+    if (!resultToken) {
+      clearAutoLoginCache();
+      return;
+    }
+    prefetchAutoLoginActionLink(
+      resultToken,
+      "documents",
+      documentsActionLinkRef,
+      documentsAutoLoginPromiseRef
+    );
+    prefetchAutoLoginActionLink(
+      resultToken,
+      "documents_ai_report",
+      aiReportActionLinkRef,
+      aiReportAutoLoginPromiseRef
+    );
+  }, [resultToken]);
 
   const result: Result = computeTamtruResultTone(timing);
   const showResult = housing === "personal" && landlordIssue === false && !!timing;
+  const activeResult: Result = restoredLeadActive ? restoredResultTone : result;
+  const canShowResults = restoredLeadActive || showResult;
   // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
   // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
-  const resultScreenActive = showResult && leadSubmitted;
+  const resultScreenActive =
+    canShowResults &&
+    (activeResult === "possible" || activeResult === "conditional") &&
+    leadSubmitted;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
   useEffect(() => {
@@ -1111,13 +1244,79 @@ export default function TamTruCheckPage() {
       getCheckDiagnosis({ service: "tamtru", timing }).then((res) => {
         if (!cancelled) setDiagnosis(res);
       });
-    } else {
+    } else if (!restoredLeadActive) {
       setDiagnosis(null);
     }
     return () => {
       cancelled = true;
     };
-  }, [timing, showResult]);
+  }, [timing, showResult, restoredLeadActive]);
+
+  // 로그인 회원 + 해당 서비스 lead 없음 → 회원가입 폼 없이 기존 연락처로 lead 생성
+  useEffect(() => {
+    if (
+      !skipSignup ||
+      restoredLeadActive ||
+      leadSubmitted ||
+      !showResult ||
+      !diagnosis ||
+      (result !== "possible" && result !== "conditional") ||
+      memberLeadStartedRef.current
+    ) {
+      return;
+    }
+    memberLeadStartedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      setSubmitting(true);
+      setLeadError(null);
+      const created = await submitMemberCheckLead({
+        serviceType: "tamtru",
+        sourcePage: "/check/tamtru",
+        result,
+        diagnosisAction: "tamtru_diagnosis_lead",
+        tag: "TAMTRU",
+        diagnosis,
+        previousRejection,
+        rejectionReason,
+        lang,
+        primaryMessengerKey: messengers.primary.key,
+        secondaryMessengerKey: messengers.secondary.key,
+        rejectionRecordId: rejectionRecordIdRef.current,
+        pendingRejectionInsert: pendingRejectionInsertRef.current,
+      });
+      if (cancelled) return;
+      if (!created.ok) {
+        memberLeadStartedRef.current = false;
+        if (created.reason === "no_contact" && !(await isLoggedInMember())) {
+          setSkipSignup(false);
+        } else {
+          setLeadError("결과 준비 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        }
+        setSubmitting(false);
+        return;
+      }
+      setLeadId(created.leadId);
+      setResultToken(created.resultToken);
+      setLeadSubmitted(true);
+      setSubmitting(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    skipSignup,
+    restoredLeadActive,
+    leadSubmitted,
+    showResult,
+    diagnosis,
+    result,
+    previousRejection,
+    rejectionReason,
+    lang,
+    messengers.primary.key,
+    messengers.secondary.key,
+  ]);
 
   // "네, 있습니다" 클릭 즉시 익명으로 저장 — 회원가입 여부와 무관하게 데이터가 남는다.
   // 삽입 Promise를 ref에 저장해두고, "다음" 클릭 시 이 Promise가 끝날 때까지
@@ -1177,36 +1376,44 @@ export default function TamTruCheckPage() {
   // denied로 조용히 실패하므로, 토큰이 없는 경우 이동하지 않고 오류만 표시한다.
   async function handleExpertRequestClick() {
     if (!leadId) return;
-    if (!resultToken) {
-      setExpertLoginError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
-      return;
-    }
     setExpertLoginPending(true);
     setExpertLoginError(null);
     try {
-      try {
-        await recordAgencyUpgradeAndNotify({
-          leadId,
-          tag: "TAMTRU",
-          token: resultToken,
-        });
-      } catch (agencyErr) {
-        console.error("agency upgrade notify failed:", agencyErr);
+      const { data: sessionData } = await supabase.auth.getSession();
+      // 로컬 개발은 Magic Link Site URL 불일치로 vercel.app로 떨어질 수 있어
+      // 세션이 있거나 localhost면 /documents로 직접 이동한다. Production은 기존과 동일.
+      const isLocalDev =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+      const canGoDocumentsDirect = !!sessionData.session || isLocalDev;
+      if (!resultToken && !canGoDocumentsDirect) {
+        setExpertLoginError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
+        setExpertLoginPending(false);
+        return;
+      }
+      recordAgencyUpgradeAndNotify({
+        leadId,
+        tag: "TAMTRU",
+        token: resultToken ?? undefined,
+      });
+
+      if (canGoDocumentsDirect) {
+        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=tamtru&mode=expert`;
+        return;
       }
 
-      const res = await fetch("/api/auto-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resultToken, next: "documents" }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.actionLink) {
-        console.error("auto-login failed:", data);
+      const actionLink = await resolveAutoLoginActionLink(
+        resultToken as string,
+        "documents",
+        documentsActionLinkRef,
+        documentsAutoLoginPromiseRef
+      );
+      if (!actionLink) {
         setExpertLoginError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
         setExpertLoginPending(false);
         return;
       }
-      window.location.href = data.actionLink;
+      window.location.href = actionLink;
     } catch (err) {
       console.error("auto-login request failed:", err);
       setExpertLoginError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
@@ -1222,7 +1429,14 @@ export default function TamTruCheckPage() {
     setAiReportPending(true);
     setAiReportError(null);
     try {
-      if (!resultToken) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      // 로컬 개발은 Magic Link Site URL 불일치로 vercel.app로 떨어질 수 있어
+      // 세션이 있거나 localhost면 /documents로 직접 이동한다. Production은 기존과 동일.
+      const isLocalDev =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+      const canGoDocumentsDirect = !!sessionData.session || isLocalDev;
+      if (!resultToken && !canGoDocumentsDirect) {
         setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
         setAiReportPending(false);
         return;
@@ -1230,22 +1444,26 @@ export default function TamTruCheckPage() {
       recordAiReportRequestAndNotify({
           leadId,
           tag: "TAMTRU",
-          token: resultToken,
+          token: resultToken ?? undefined,
         });
 
-      const res = await fetch("/api/auto-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resultToken, next: "documents_ai_report" }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.actionLink) {
-        console.error("auto-login failed:", data);
+      if (canGoDocumentsDirect) {
+        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=tamtru&mode=ai_report`;
+        return;
+      }
+
+      const actionLink = await resolveAutoLoginActionLink(
+        resultToken as string,
+        "documents_ai_report",
+        aiReportActionLinkRef,
+        aiReportAutoLoginPromiseRef
+      );
+      if (!actionLink) {
         setAiReportError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
         setAiReportPending(false);
         return;
       }
-      window.location.href = data.actionLink;
+      window.location.href = actionLink;
     } catch {
       setAiReportError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
       setAiReportPending(false);
@@ -1270,6 +1488,14 @@ export default function TamTruCheckPage() {
     setRejectionStepDone(false);
     setSelectedKey(null);
     setResultToken(null);
+    setRestoredLeadActive(false);
+    setRestoredResultTone(null);
+    setSkipSignup(false);
+    void isLoggedInMember().then((loggedIn) => {
+      if (loggedIn) setSkipSignup(true);
+    });
+    memberLeadStartedRef.current = false;
+    clearAutoLoginCache();
     setExpertLoginPending(false);
     setExpertLoginError(null);
     setAiReportPending(false);
@@ -1390,7 +1616,11 @@ export default function TamTruCheckPage() {
         console.error("lead-submit API error:", errBody);
       } else {
         const okBody = await res.json().catch(() => null);
-        if (okBody?.token) setResultToken(okBody.token);
+        if (okBody?.token) {
+          setResultToken(okBody.token);
+          // 최초 가입 직후 브라우저 세션을 만들어 다른 CHECK 서비스에서 회원가입을 다시 묻지 않는다.
+          await establishBrowserSessionFromResultToken(okBody.token);
+        }
       }
     } catch (apiErr) {
       console.error("lead-submit fetch failed:", apiErr);
@@ -1453,7 +1683,13 @@ export default function TamTruCheckPage() {
         }
       />
 
-        {!costEntryDone && (
+        {restoreCheckPending && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            이전 결과를 확인하는 중…
+          </div>
+        )}
+
+        {!restoreCheckPending && !costEntryDone && (
           <MasterFunnelLanding
             config={MASTER_LANDING_TAMTRU}
             activeTab={contextTab}
@@ -1462,7 +1698,7 @@ export default function TamTruCheckPage() {
           />
         )}
 
-        {costEntryDone && !rejectionStepDone && (
+        {!restoreCheckPending && costEntryDone && !rejectionStepDone && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="check"
@@ -1549,7 +1785,7 @@ export default function TamTruCheckPage() {
         )}
 
         {/* 법률 긴급 에스컬레이션 (최우선 처리) */}
-        {costEntryDone && rejectionStepDone && showLegalEscalation ? (
+        {!restoreCheckPending && costEntryDone && rejectionStepDone && showLegalEscalation ? (
           <div className="mt-8 rounded-3xl bg-white border border-red-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <ShieldAlert className="text-red-600" size={28} />
             <p className="mt-4 text-lg font-bold text-gray-900">
@@ -1573,7 +1809,7 @@ export default function TamTruCheckPage() {
               {LEAD_FORM_MESSAGES[lang].resetLabel}
             </button>
           </div>
-        ) : costEntryDone && rejectionStepDone && !showResult ? (
+        ) : !restoreCheckPending && costEntryDone && rejectionStepDone && !showResult && !restoredLeadActive ? (
           <>
             {/* STEP 1: 숙소 형태 */}
             {!housing && (
@@ -1783,9 +2019,25 @@ export default function TamTruCheckPage() {
         ) : null}
 
         {/* 1번째 화면 (가입 전) — Premium lead capture */}
-        {costEntryDone && showResult && (result === "possible" || result === "conditional") && !leadSubmitted && (
+        {!restoreCheckPending &&
+          costEntryDone &&
+          canShowResults &&
+          (activeResult === "possible" || activeResult === "conditional") &&
+          !leadSubmitted &&
+          skipSignup && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            기존 회원 정보로 결과를 준비하는 중…
+          </div>
+        )}
+
+        {!restoreCheckPending &&
+          costEntryDone &&
+          canShowResults &&
+          (activeResult === "possible" || activeResult === "conditional") &&
+          !leadSubmitted &&
+          !skipSignup && (
           <PremiumLeadCapture
-            tone={result}
+            tone={activeResult}
             diagnosis={diagnosis}
             messengers={messengers}
             lang={lang}
@@ -1802,7 +2054,7 @@ export default function TamTruCheckPage() {
         )}
 
         {/* 2번째 화면 (가입 직후) — 공식 결과 + 다음 단계 */}
-        {costEntryDone && showResult && result === "possible" && leadSubmitted && (
+        {!restoreCheckPending && costEntryDone && canShowResults && activeResult === "possible" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckDiagnosisHeader />
 
@@ -1857,7 +2109,7 @@ export default function TamTruCheckPage() {
           </div>
         )}
 
-        {costEntryDone && showResult && result === "conditional" && leadSubmitted && (
+        {!restoreCheckPending && costEntryDone && canShowResults && activeResult === "conditional" && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <CheckDiagnosisHeader />
 

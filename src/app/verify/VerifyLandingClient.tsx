@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Building2, FileQuestion, FileText, Receipt, Scale } from "lucide-react";
 import { getVerifyServiceItems } from "@/components/home/HomeServiceAccordion";
@@ -17,7 +17,11 @@ import {
   EngineTopSection,
   type EngineServiceVisual,
 } from "@/components/engine/EngineLandingChrome";
-import { routeByKeywords } from "@/lib/smartRouter";
+import {
+  buildEngineServicePickHref,
+  getMasterFunnelRedirectForQuery,
+  routeHeroToMasterFunnel,
+} from "@/lib/masterFunnelEntry";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 const VERIFY_CHIPS = [
@@ -58,6 +62,17 @@ export default function VerifyLandingClient() {
   const [showError, setShowError] = useState(false);
   const services = getVerifyServiceItems();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q")?.trim() ?? "";
+    const redirectHref = getMasterFunnelRedirectForQuery(q, "verify");
+    if (redirectHref) {
+      router.replace(redirectHref);
+      return;
+    }
+    if (q) setQuery(q);
+  }, [router]);
+
   function focusInput() {
     const el = document.getElementById("verify-query-input");
     el?.focus();
@@ -78,8 +93,7 @@ export default function VerifyLandingClient() {
       return;
     }
     setShowError(false);
-    const { href } = routeByKeywords(trimmed);
-    router.push(href);
+    router.push(routeHeroToMasterFunnel(trimmed, "verify"));
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -124,17 +138,20 @@ export default function VerifyLandingClient() {
       </EngineTopSection>
 
       <EngineServiceSection engine="VERIFY" lead={t("verify.selectLead")}>
-        {services.map((item) => (
+        {services.map((item) => {
+          const title = serviceLabel(item.key, "title", item.title);
+          return (
           <EngineServiceCard
             key={item.key}
-            href={item.href}
-            title={serviceLabel(item.key, "title", item.title)}
+            href={buildEngineServicePickHref(item.href, title)}
+            title={title}
             desc={serviceLabel(item.key, "desc", item.desc)}
             cta={t("pillar.verify.cta")}
             hook={VERIFY_HOOKS[item.key]}
             visual={VERIFY_SERVICE_VISUAL[item.key]}
           />
-        ))}
+          );
+        })}
       </EngineServiceSection>
 
       <EngineChecklistSection lead={t("verify.checklistLead")} items={VERIFY_CHECKLIST_ITEMS} />

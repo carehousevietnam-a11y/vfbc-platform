@@ -24,7 +24,11 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { ENGINE_CONTAINER } from "@/components/engine/EngineLandingChrome";
-import { routeByKeywords } from "@/lib/smartRouter";
+import {
+  buildMasterFunnelServiceHref,
+  routeHeroToMasterFunnel,
+  MASTER_FUNNEL_ENGINE_HREFS,
+} from "@/lib/masterFunnelEntry";
 import { evaluateCostQuoteReview, formatCostAmount, getCostCheckService, type ReviewVerdict } from "@/lib/costCheck";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -48,7 +52,7 @@ const ENGINE_PILLARS = [
   {
     key: "check",
     label: "CHECK",
-    href: "/check",
+    href: MASTER_FUNNEL_ENGINE_HREFS.check,
     icon: ShieldCheck,
     tone: "blue",
     desc: "베트남 행정절차·비용·필요서류를 직접 확인합니다.",
@@ -56,7 +60,7 @@ const ENGINE_PILLARS = [
   {
     key: "verify",
     label: "VERIFY",
-    href: "/verify",
+    href: MASTER_FUNNEL_ENGINE_HREFS.verify,
     icon: Scale,
     tone: "emerald",
     desc: "계약·부동산·세무·사기 관련 내용을 직접 검토합니다.",
@@ -64,7 +68,7 @@ const ENGINE_PILLARS = [
   {
     key: "register",
     label: "REGISTER",
-    href: "/register",
+    href: MASTER_FUNNEL_ENGINE_HREFS.register,
     icon: FileText,
     tone: "amber",
     desc: "법인·식당·소방·위생 등 인허가를 직접 확인합니다.",
@@ -202,6 +206,8 @@ const PREVIEW_VERDICT_TONE: Record<ReviewVerdict, string> = {
 function CostCheckPreviewCard() {
   const { t } = useLocale();
   const wp = getCostCheckService("wp");
+  const previewQuestion = t("hero.preview.question");
+  const previewHref = buildMasterFunnelServiceHref(wp.ctaHref, previewQuestion);
   const exampleQuote = 3000;
   const review = evaluateCostQuoteReview(wp, exampleQuote);
   const marketRange = `${formatCostAmount(wp.marketMin, wp.currency)} ~ ${formatCostAmount(
@@ -285,7 +291,7 @@ function CostCheckPreviewCard() {
       </dl>
 
       <Link
-        href="/check/trc"
+        href={previewHref}
         className="mt-3 inline-flex w-full items-center justify-center gap-1 rounded-xl bg-amber-500 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
       >
         {t("hero.preview.cta")}
@@ -415,8 +421,7 @@ export default function MyVietCheckHero() {
       return;
     }
     setShowError(false);
-    const { href } = routeByKeywords(trimmed);
-    router.push(href);
+    router.push(routeHeroToMasterFunnel(trimmed));
   }
 
   function handleSubmit(e: React.FormEvent) {

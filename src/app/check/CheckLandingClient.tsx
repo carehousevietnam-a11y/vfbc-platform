@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Briefcase, Car, CreditCard, Home, ShieldCheck } from "lucide-react";
 import { getCheckServiceItems } from "@/components/home/HomeServiceAccordion";
@@ -17,7 +17,11 @@ import {
   EngineTopSection,
   type EngineServiceVisual,
 } from "@/components/engine/EngineLandingChrome";
-import { routeByKeywords } from "@/lib/smartRouter";
+import {
+  buildEngineServicePickHref,
+  getMasterFunnelRedirectForQuery,
+  routeHeroToMasterFunnel,
+} from "@/lib/masterFunnelEntry";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 const CHECK_CHIPS = [
@@ -56,6 +60,17 @@ export default function CheckLandingClient() {
   const [showError, setShowError] = useState(false);
   const services = getCheckServiceItems();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q")?.trim() ?? "";
+    const redirectHref = getMasterFunnelRedirectForQuery(q, "check");
+    if (redirectHref) {
+      router.replace(redirectHref);
+      return;
+    }
+    if (q) setQuery(q);
+  }, [router]);
+
   function focusInput() {
     const el = document.getElementById("check-query-input");
     el?.focus();
@@ -76,8 +91,7 @@ export default function CheckLandingClient() {
       return;
     }
     setShowError(false);
-    const { href } = routeByKeywords(trimmed);
-    router.push(href);
+    router.push(routeHeroToMasterFunnel(trimmed, "check"));
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -122,17 +136,20 @@ export default function CheckLandingClient() {
       </EngineTopSection>
 
       <EngineServiceSection engine="CHECK" lead={t("check.selectLead")}>
-        {services.map((item) => (
+        {services.map((item) => {
+          const title = serviceLabel(item.key, "title", item.title);
+          return (
           <EngineServiceCard
             key={item.key}
-            href={item.href}
-            title={serviceLabel(item.key, "title", item.title)}
+            href={buildEngineServicePickHref(item.href, title)}
+            title={title}
             desc={serviceLabel(item.key, "desc", item.desc)}
             cta={t("pillar.check.cta")}
             hook={CHECK_HOOKS[item.key]}
             visual={CHECK_SERVICE_VISUAL[item.key]}
           />
-        ))}
+          );
+        })}
       </EngineServiceSection>
 
       <EngineChecklistSection lead={t("check.checklistLead")} items={CHECKLIST_ITEMS} />

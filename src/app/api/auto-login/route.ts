@@ -45,11 +45,9 @@ export async function POST(req: NextRequest) {
     }
 
     const email = authUserData.user.email;
-    // 환경변수가 없으면 현재 정상 작동 중인 배포주소로 폴백.
-    // env 값 끝에 "/"가 붙어 있어도 "//r?..." 형태로 중복되지 않도록 제거 후 조합.
-    const rawSiteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "https://vfbc-platform.vercel.app";
-    const siteUrl = rawSiteUrl.replace(/\/+$/, "");
+    // redirectTo는 항상 이 요청의 origin 기준(로컬이면 localhost:3010,
+    // Production이면 해당 배포 origin). Site URL env/fallback에 묶지 않는다.
+    const siteUrl = req.nextUrl.origin.replace(/\/+$/, "");
     // next="mypage"가 오면 로그인 왕복(magiclink → Supabase → 우리 사이트) 후
     // 다시 /r로 돌아왔을 때도 이 값을 유지해야 /r 페이지가 진단결과 카드 대신
     // 마이페이지로 즉시 리다이렉트할 수 있다. (STEP6 단계변경 이메일 전용)
@@ -71,8 +69,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // generateLink가 Site URL로 redirect_to를 덮어쓸 수 있어,
+    // 반환 actionLink의 redirect_to를 우리가 만든 redirectTo로 강제 일치시킨다.
+    const actionUrl = new URL(linkData.properties.action_link);
+    actionUrl.searchParams.set("redirect_to", redirectTo);
+
+    // hashed_token은 브라우저에서 verifyOtp로 세션만 만들 때 사용한다
+    // (페이지 이동 없는 회원 재사용). actionLink 흐름은 기존과 동일.
+    const hashedToken =
+      typeof linkData.properties.hashed_token === "string"
+        ? linkData.properties.hashed_token
+        : null;
+
     return NextResponse.json({
-      actionLink: linkData.properties.action_link,
+      actionLink: actionUrl.toString(),
+      hashedToken,
     });
   } catch (err) {
     console.error("auto-login route error:", err);

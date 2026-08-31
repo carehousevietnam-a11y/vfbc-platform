@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -27,7 +27,11 @@ import {
   EngineTopSection,
   type EngineServiceVisual,
 } from "@/components/engine/EngineLandingChrome";
-import { routeByKeywords } from "@/lib/smartRouter";
+import {
+  buildEngineServicePickHref,
+  getMasterFunnelRedirectForQuery,
+  routeHeroToMasterFunnel,
+} from "@/lib/masterFunnelEntry";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 const REGISTER_CHIPS = [
@@ -74,6 +78,17 @@ export default function RegisterLandingClient() {
   const [showError, setShowError] = useState(false);
   const services = getRegisterServiceItems();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q")?.trim() ?? "";
+    const redirectHref = getMasterFunnelRedirectForQuery(q, "register");
+    if (redirectHref) {
+      router.replace(redirectHref);
+      return;
+    }
+    if (q) setQuery(q);
+  }, [router]);
+
   function focusInput() {
     const el = document.getElementById("register-query-input");
     el?.focus();
@@ -94,8 +109,7 @@ export default function RegisterLandingClient() {
       return;
     }
     setShowError(false);
-    const { href } = routeByKeywords(trimmed);
-    router.push(href);
+    router.push(routeHeroToMasterFunnel(trimmed, "register"));
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -140,17 +154,20 @@ export default function RegisterLandingClient() {
       </EngineTopSection>
 
       <EngineServiceSection engine="REGISTER" lead={t("register.selectLead")}>
-        {services.map((item) => (
+        {services.map((item) => {
+          const title = serviceLabel(item.key, "title", item.title);
+          return (
           <EngineServiceCard
             key={item.key}
-            href={item.href}
-            title={serviceLabel(item.key, "title", item.title)}
+            href={buildEngineServicePickHref(item.href, title)}
+            title={title}
             desc={serviceLabel(item.key, "desc", item.desc)}
             cta={t("pillar.register.cta")}
             hook={REGISTER_HOOKS[item.key]}
             visual={REGISTER_SERVICE_VISUAL[item.key]}
           />
-        ))}
+          );
+        })}
       </EngineServiceSection>
 
       <EngineChecklistSection lead={t("register.checklistLead")} items={REGISTER_CHECKLIST_ITEMS} />

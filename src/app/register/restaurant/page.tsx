@@ -42,6 +42,11 @@ import {
 import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
+import {
+  isLoggedInMember,
+  loadRegisterMemberEntryState,
+  submitMemberRegisterLead,
+} from "@/lib/restoreRegisterLead";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import {
   MasterFunnelLanding,
@@ -943,6 +948,11 @@ export default function RegisterRestaurantPage() {
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const selfNotifySentRef = useRef(false);
+  const [restoreRegisterPending, setRestoreRegisterPending] = useState(true);
+  const [skipSignup, setSkipSignup] = useState(false);
+  const [restoredLeadActive, setRestoredLeadActive] = useState(false);
+  const [restoredResultTone, setRestoredResultTone] = useState<ResultTone | null>(null);
+  const memberLeadStartedRef = useRef(false);
 
   // CHECK(TRC)와 동일한 용도의 state — Q2~Q5(2개 이상 선택형 질문) 공용 클릭
   // 피드백(300ms) 키, /api/lead-submit이 발급하는 resultToken(auto-login용),
@@ -964,6 +974,69 @@ export default function RegisterRestaurantPage() {
       }
     }
   }, []);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function applyMemberEntryState() {
+      const params = new URLSearchParams(window.location.search);
+      const allowRestore = params.get("restore") === "1";
+      const { loggedIn, restored } = await loadRegisterMemberEntryState(
+        "register_restaurant",
+        "register_restaurant_diagnosis_lead",
+        { allowRestore }
+      );
+      if (cancelled) return;
+      if (loggedIn) setSkipSignup(true);
+      if (restored) {
+        setCostEntryDone(true);
+        setRejectionStepDone(true);
+        setLeadSubmitted(true);
+        setLeadId(restored.leadId);
+        setResultToken(restored.resultToken);
+        setRestoredResultTone(restored.resultTone as ResultTone);
+        setRestoredLeadActive(true);
+        const meta = restored.meta;
+        if (meta) {
+          if (meta.operationChoice) setOperationChoice(meta.operationChoice as OperationChoice);
+          if (meta.registrationStatus) setRegistrationStatus(meta.registrationStatus as RegistrationStatus);
+          if (meta.premisesStatus) setPremisesStatus(meta.premisesStatus as PremisesStatus);
+          if (meta.hygieneFireStatus) setHygieneFireStatus(meta.hygieneFireStatus as HygieneFireStatus);
+          const pr = meta.previousRejection;
+          if (pr && typeof pr === "object" && "rejected" in pr) {
+            const rejected = (pr as { rejected: boolean }).rejected;
+            if (rejected === true) {
+              setPreviousRejection(true);
+              const reason = (pr as { reason?: string | null }).reason;
+              if (typeof reason === "string") setRejectionReason(reason);
+            } else if (rejected === false) {
+              setPreviousRejection(false);
+            }
+          }
+        }
+      }
+    }
+
+    async function initMemberState() {
+      try {
+        await applyMemberEntryState();
+      } finally {
+        if (!cancelled) setRestoreRegisterPending(false);
+      }
+    }
+
+    void initMemberState();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN") return;
+      void applyMemberEntryState();
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const registerQuestionProps = {
@@ -982,10 +1055,12 @@ export default function RegisterRestaurantPage() {
         : "conditional"
       : null;
   const showResult = Boolean(operationChoice && !isUnlicensedOperating && registrationStatus && premisesStatus && hygieneFireStatus);
+  const canShowResults = restoredLeadActive || showResult;
+  const activeResult: ResultTone = restoredLeadActive ? restoredResultTone : result;
 
   // 순수 함수 기반 자체 진단이라 비동기 조회가 필요 없으므로, useEffect 없이
   // 렌더링 중 직접 계산한다.
-  const diagnosis = showResult
+  const diagnosis = canShowResults
     ? computeRestaurantDiagnosis(registrationStatus, premisesStatus, hygieneFireStatus)
     : null;
 
@@ -994,7 +1069,86 @@ export default function RegisterRestaurantPage() {
   // CHECK(TRC)의 resultScreenActive와 동일한 판정 — 결과 화면(가입 직후)에서만
   // 컨테이너 폭을 넓히기 위한 표시 전용 값. showResult/leadSubmitted 자체의
   // 계산 로직은 그대로다.
-  const resultScreenActive = Boolean(showResult && diagnosis && leadSubmitted);
+  const resultScreenActive = Boolean(canShowResults && diagnosis && leadSubmitted);
+
+  useEffect(() => {
+    if (
+      !skipSignup ||
+      restoredLeadActive ||
+      leadSubmitted ||
+      !showResult ||
+      !diagnosis ||
+      (result !== "possible" && result !== "conditional") ||
+      memberLeadStartedRef.current
+    ) {
+      return;
+    }
+    memberLeadStartedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      setSubmitting(true);
+      setLeadError(null);
+      const created = await submitMemberRegisterLead({
+        serviceType: "register_restaurant",
+        sourcePage: "/register/restaurant",
+        result,
+        diagnosisAction: "register_restaurant_diagnosis_lead",
+        tag: "REGISTER_RESTAURANT",
+        meta: {
+          feasibilityScore: diagnosis.feasibilityScore,
+          operationChoice,
+          registrationStatus,
+          premisesStatus,
+          hygieneFireStatus,
+          previousRejection:
+            previousRejection === true
+              ? { rejected: true, reason: rejectionReason || null }
+              : previousRejection === false
+              ? { rejected: false }
+              : null,
+        },
+        lang,
+        primaryMessengerKey: messengers.primary.key,
+        secondaryMessengerKey: messengers.secondary.key,
+        rejectionRecordId: rejectionRecordIdRef.current,
+        pendingRejectionInsert: pendingRejectionInsertRef.current,
+      });
+      if (cancelled) return;
+      if (!created.ok) {
+        memberLeadStartedRef.current = false;
+        if (created.reason === "no_contact" && !(await isLoggedInMember())) {
+          setSkipSignup(false);
+        } else {
+          setLeadError("결과 준비 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        }
+        setSubmitting(false);
+        return;
+      }
+      setLeadId(created.leadId);
+      setResultToken(created.resultToken);
+      setLeadSubmitted(true);
+      setSubmitting(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    skipSignup,
+    restoredLeadActive,
+    leadSubmitted,
+    showResult,
+    diagnosis,
+    result,
+    operationChoice,
+    registrationStatus,
+    premisesStatus,
+    hygieneFireStatus,
+    previousRejection,
+    rejectionReason,
+    lang,
+    messengers.primary.key,
+    messengers.secondary.key,
+  ]);
 
   // "네, 있습니다" 클릭 즉시 익명으로 저장 — 기존과 동일, 수정 없음.
   function recordRejectionAnonymously() {
@@ -1067,6 +1221,13 @@ export default function RegisterRestaurantPage() {
     setResultToken(null);
     setAiReportPending(false);
     setAiReportError(null);
+    setRestoredLeadActive(false);
+    setRestoredResultTone(null);
+    setSkipSignup(false);
+    void isLoggedInMember().then((loggedIn) => {
+      if (loggedIn) setSkipSignup(true);
+    });
+    memberLeadStartedRef.current = false;
   }
 
   // CHECK(TRC)의 실제 최신 코드를 직접 확인한 결과, TRC는 handleAgencyRequest(CRM
@@ -1347,7 +1508,13 @@ export default function RegisterRestaurantPage() {
           }
         />
 
-        {showLandingChrome && (
+        {restoreRegisterPending && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            이전 결과를 확인하는 중…
+          </div>
+        )}
+
+        {!restoreRegisterPending && showLandingChrome && (
           <MasterFunnelLanding
             config={MASTER_LANDING_RESTAURANT}
             activeTab={contextTab}
@@ -1356,7 +1523,7 @@ export default function RegisterRestaurantPage() {
           />
         )}
 
-        {costEntryDone && !rejectionStepDone && (
+        {!restoreRegisterPending && costEntryDone && !rejectionStepDone && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1445,7 +1612,7 @@ export default function RegisterRestaurantPage() {
         )}
 
         {/* 질문 2 — 현재 운영 상태 */}
-        {costEntryDone && rejectionStepDone && !operationChoice && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && !operationChoice && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1497,7 +1664,7 @@ export default function RegisterRestaurantPage() {
 
         {/* 무허가 영업 경고 — 정상 옵션과 동급으로 취급하지 않고 즉시 경고 화면으로
             분기. 문구·동작 전부 기존과 동일, 수정 없음. */}
-        {costEntryDone && rejectionStepDone && isUnlicensedOperating && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && isUnlicensedOperating && (
           <div className={`mt-8 ${FUNNEL_QUESTION_COLUMN}`}>
             <NoticeCard tone="danger" title="무허가 영업은 즉시 폐쇄될 수 있습니다">
               허가 없이 영업 중인 경우 단속 시 즉시 영업정지 또는 폐쇄 조치될
@@ -1525,7 +1692,7 @@ export default function RegisterRestaurantPage() {
         )}
 
         {/* 질문 3 — 사업자·법인 등록 서류 준비 (모바일 2열 유지) */}
-        {costEntryDone && rejectionStepDone && operationChoice && !isUnlicensedOperating && !registrationStatus && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && operationChoice && !isUnlicensedOperating && !registrationStatus && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1576,7 +1743,7 @@ export default function RegisterRestaurantPage() {
         )}
 
         {/* 질문 4 — 영업장 임대차 계약 (모바일 2열 유지) */}
-        {costEntryDone && rejectionStepDone && registrationStatus && !premisesStatus && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && registrationStatus && !premisesStatus && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1627,7 +1794,7 @@ export default function RegisterRestaurantPage() {
         )}
 
         {/* 질문 5 — 위생·소방 안전시설 점검 (모바일 2열 유지) */}
-        {costEntryDone && rejectionStepDone && registrationStatus && premisesStatus && !hygieneFireStatus && (
+        {!restoreRegisterPending && costEntryDone && rejectionStepDone && !restoredLeadActive && registrationStatus && premisesStatus && !hygieneFireStatus && (
           <div className="mt-4 sm:mt-5">
             <VerifyStepLayout
               engine="register"
@@ -1678,7 +1845,18 @@ export default function RegisterRestaurantPage() {
         )}
 
         {/* 결과 미리보기 + 개인정보 입력 (가입 전) */}
-        {costEntryDone && showResult && diagnosis && !leadSubmitted && (
+        {!restoreRegisterPending &&
+          costEntryDone &&
+          canShowResults &&
+          (activeResult === "possible" || activeResult === "conditional") &&
+          !leadSubmitted &&
+          skipSignup && (
+          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 text-center text-sm text-gray-500">
+            기존 회원 정보로 결과를 준비하는 중…
+          </div>
+        )}
+
+        {!restoreRegisterPending && costEntryDone && showResult && diagnosis && !leadSubmitted && !skipSignup && (
           <RestaurantLeadCapture
             diagnosis={diagnosis}
             messengers={messengers}
@@ -1696,7 +1874,7 @@ export default function RegisterRestaurantPage() {
         )}
 
         {/* 가입 직후 — judgment → official basis → conditions → prep → next actions */}
-        {costEntryDone && showResult && diagnosis && leadSubmitted && (
+        {!restoreRegisterPending && costEntryDone && canShowResults && diagnosis && leadSubmitted && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
               식당허가
