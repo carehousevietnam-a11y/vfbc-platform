@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   Bell,
   BookUser,
-  Bot,
   Building2,
   CalendarCheck,
   CalendarDays,
@@ -51,6 +50,7 @@ import {
   User,
   UserCheck,
   WalletCards,
+  Bot,
   X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -169,6 +169,60 @@ function getEstimate(category: CategoryKey, serviceType: string | null) {
 function nextStepLabel(steps: ProcessStep[]) {
   const next = steps.find((step) => !step.done);
   return next ? `${next.label} 준비` : "안내 대기";
+}
+
+type CaseTracks = { ai: boolean; expert: boolean };
+
+function resolveCaseTracks(item: MyPageItem): CaseTracks {
+  const ai =
+    item.hasDiagnosis ||
+    item.result != null ||
+    typeof item.feasibilityScore === "number";
+  const expert = item.hasAgency || item.hasExpertReview;
+  return { ai, expert };
+}
+
+function getAiAnalysisStatus(item: MyPageItem): string {
+  if (item.hasDiagnosis) return "분석 완료";
+  if (item.result || typeof item.feasibilityScore === "number") return "결과 확인 가능";
+  return "분석 준비 중";
+}
+
+function getAiKeyPoints(item: MyPageItem): string[] {
+  const points: string[] = [];
+  const resultInfo = item.result ? RESULT_LABELS[item.result] : null;
+  if (resultInfo) points.push(`진단 결과: ${resultInfo.label}`);
+  if (typeof item.feasibilityScore === "number") {
+    points.push(`가능성 점수 ${item.feasibilityScore}% 기준으로 분석했습니다.`);
+  }
+  points.push("제출하신 정보를 공식 행정 기준과 대조해 1차 분석했습니다.");
+  return points;
+}
+
+function getAiCautions(item: MyPageItem): string[] {
+  if (item.confidence.level === "yellow" || item.confidence.level === "red") {
+    return [item.confidence.message];
+  }
+  if (item.result === "conditional") {
+    return ["조건부 가능 항목을 충족하지 않으면 진행이 지연될 수 있습니다."];
+  }
+  if (item.result === "impossible") {
+    return ["현재 정보 기준으로는 허가 진행이 어렵습니다. 조건 변경 후 재확인이 필요합니다."];
+  }
+  return ["AI 분석은 참고용이며, 최종 판단은 제출 서류·현지 규정 확인이 필요합니다."];
+}
+
+function getAiNextAction(item: MyPageItem): string {
+  if (item.result === "possible") {
+    return "AI 리포트 PDF에서 상세 내용을 확인한 뒤, 필요 서류 준비 또는 전문가 진행을 검토하세요.";
+  }
+  if (item.result === "conditional") {
+    return "AI 리포트의 조건 항목을 확인하고, 충족 가능 여부를 검토하세요.";
+  }
+  if (item.result === "impossible") {
+    return "AI 리포트에서 대안 절차와 보완 가능 항목을 먼저 확인하세요.";
+  }
+  return "AI 리포트 PDF에서 분석 결과와 권장 행동을 확인하세요.";
 }
 
 const CONFIDENCE_STYLE: Record<
@@ -316,6 +370,7 @@ function TopHeader({ name }: { name: string | null }) {
 
 function ProgressRing({ value }: { value: number }) {
   const safeValue = Math.max(0, Math.min(100, value));
+
   return (
     <div
       className="relative flex h-[108px] w-[108px] items-center justify-center rounded-full"
@@ -327,8 +382,273 @@ function ProgressRing({ value }: { value: number }) {
         <p className="text-[31px] font-extrabold leading-none tracking-[-0.04em] text-white">
           {safeValue}%
         </p>
-        <p className="mt-1 text-[10px] font-semibold text-blue-200">전체 진행률</p>
+        <p className="mt-0.5 text-[9px] font-semibold text-blue-200">전체 진행률</p>
       </div>
+    </div>
+  );
+}
+
+/** 일반 고객(AI 리포트) 전용 — 최근 확인 결과 중심. 전문가 진행 UI와 구조 분리. */
+function GeneralCustomerResultView({
+  item,
+  rootId,
+}: {
+  item: MyPageItem;
+  rootId?: string;
+}) {
+  const badge = CATEGORY_BADGE[item.category];
+  const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
+  const analysisStatus = getAiAnalysisStatus(item);
+  const keyPoints = getAiKeyPoints(item);
+  const cautions = getAiCautions(item);
+  const nextAction = getAiNextAction(item);
+
+  const resultTone =
+    item.result === "possible"
+      ? "text-emerald-700"
+      : item.result === "conditional"
+      ? "text-amber-700"
+      : item.result === "impossible"
+      ? "text-red-700"
+      : "text-[#0d2a6b]";
+
+  return (
+    <section
+      id={rootId}
+      className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-slate-400">
+          최근 확인한 결과
+        </p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.className}`}>
+            {badge.label}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            {analysisStatus}
+          </span>
+        </div>
+      </div>
+
+      <h2 className="mt-2.5 break-keep text-[19px] font-bold tracking-[-0.03em] text-slate-950 sm:text-[22px]">
+        {item.serviceLabel}
+      </h2>
+      <p className="mt-0.5 text-[11px] text-slate-400">
+        {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
+      </p>
+
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+        {resultInfo ? (
+          <p className={`text-[22px] font-bold tracking-[-0.04em] sm:text-[26px] ${resultTone}`}>
+            {resultInfo.label}
+          </p>
+        ) : (
+          <p className="text-[20px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
+        )}
+        {typeof item.feasibilityScore === "number" && (
+          <p className="text-[15px] font-semibold tabular-nums text-emerald-600/90 sm:text-[17px]">
+            {item.feasibilityScore}%
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 sm:gap-5">
+        <div>
+          <p className="text-[11px] font-semibold text-slate-900">주요 확인사항</p>
+          <ul className="mt-2 space-y-1.5">
+            {keyPoints.map((point) => (
+              <li key={point} className="flex gap-2 text-[12px] leading-5 text-slate-600">
+                <Check size={13} className="mt-0.5 shrink-0 text-[#0d2a6b]" strokeWidth={2.5} />
+                <span className="break-keep">{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold text-slate-900">주의사항</p>
+          <ul className="mt-2 space-y-1.5">
+            {cautions.map((caution) => (
+              <li key={caution} className="flex gap-2 text-[12px] leading-5 text-slate-600">
+                <AlertTriangle size={13} className="mt-0.5 shrink-0 text-amber-500" />
+                <span className="break-keep">{caution}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/70 px-4 py-3 sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0 sm:flex-1">
+          <p className="text-[11px] font-semibold text-slate-900">다음에 할 일</p>
+          <p className="mt-1 break-keep text-[13px] leading-5 text-slate-700">{nextAction}</p>
+        </div>
+        <div className="mt-3 shrink-0 sm:mt-0">
+          <PdfDownloadButton leadId={item.id} variant="refined" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PastApplicationsToggle({
+  items,
+  activeId,
+  onSelect,
+}: {
+  items: MyPageItem[];
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const pastItems = items.filter((entry) => entry.id !== activeId);
+
+  if (pastItems.length === 0) return null;
+
+  return (
+    <div className="overflow-hidden rounded-[16px] border border-slate-200 bg-white shadow-sm">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left sm:px-5"
+        aria-expanded={open}
+      >
+        <span className="text-[12px] font-semibold text-slate-700">
+          내 과거 신청 보기 {open ? "−" : "+"}
+        </span>
+        <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+          {pastItems.length}건
+        </span>
+      </button>
+
+      {open && (
+        <ul className="max-h-56 divide-y divide-slate-100 overflow-y-auto border-t border-slate-100">
+          {pastItems.map((entry) => {
+            const entryResult = entry.result ? RESULT_LABELS[entry.result] ?? null : null;
+            const tracks = resolveCaseTracks(entry);
+            return (
+              <li key={entry.id}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(entry.id)}
+                  className="flex w-full items-center justify-between gap-2.5 px-4 py-2.5 text-left transition hover:bg-slate-50/80 sm:px-5"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-[12px] font-semibold text-slate-900">
+                      {entry.serviceLabel}
+                    </p>
+                    <p className="mt-0.5 truncate text-[10px] text-slate-500">
+                      {formatIsoDate(entry.createdAt)}
+                      {entryResult ? ` · ${entryResult.label}` : ""}
+                      {tracks.expert ? " · 전문가" : tracks.ai ? " · AI" : ""}
+                    </p>
+                  </div>
+                  <ChevronRight size={14} className="shrink-0 text-slate-300" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function GeneralCustomerMainSupport({ item }: { item: MyPageItem }) {
+  return (
+    <div className="space-y-4 [&_#wallet]:rounded-[20px] [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm [&_section_.grid]:xl:grid-cols-2">
+      <WalletSection leadId={item.id} compact />
+      <RecommendedServices />
+    </div>
+  );
+}
+
+function GeneralCustomerPublicLinksPanel() {
+  const renderLink = (link: (typeof PUBLIC_LINKS)[number] | (typeof VN_PUBLIC_LINKS)[number]) => (
+    <a
+      key={link.label}
+      href={link.href}
+      target="_blank"
+      rel="noreferrer"
+      className="flex min-h-[48px] items-center justify-between py-2 transition hover:bg-slate-50"
+    >
+      <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white">
+          <img
+            src={link.iconSrc}
+            alt={`${link.label} 기관 아이콘`}
+            className="block max-h-6 max-w-6 object-contain object-center"
+            loading="lazy"
+            draggable={false}
+          />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[11px] font-bold text-slate-900">{link.label}</p>
+          {"sub" in link && link.sub ? (
+            <p className="mt-0.5 truncate text-[9px] text-slate-400">{link.sub}</p>
+          ) : null}
+        </div>
+      </div>
+      <ExternalLink size={12} className="shrink-0 text-slate-300" />
+    </a>
+  );
+
+  return (
+    <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm">
+      <p className="text-[14px] font-extrabold text-slate-950">정부기관 바로가기</p>
+      <div className="mt-3">
+        <p className="text-[10px] font-semibold text-slate-400">한국</p>
+        <div className="mt-1 divide-y divide-slate-100">{PUBLIC_LINKS.map(renderLink)}</div>
+      </div>
+      <div className="mt-3 border-t border-slate-100 pt-3">
+        <p className="text-[10px] font-semibold text-slate-400">베트남</p>
+        <div className="mt-1 divide-y divide-slate-100">{VN_PUBLIC_LINKS.map(renderLink)}</div>
+      </div>
+    </section>
+  );
+}
+
+function GeneralCustomerAsideSupport({ item }: { item: MyPageItem }) {
+  return (
+    <div className="space-y-3">
+      <NotificationCard item={item} compact />
+      <div id="admin-center">
+        <GeneralCustomerPublicLinksPanel />
+      </div>
+      <VietnamLifeCard item={item} compact />
+      <EmergencyHelpCard item={item} compact />
+      <div id="profile">
+        <HelpCard compact />
+      </div>
+      <PermitDocuments item={item} compact />
+    </div>
+  );
+}
+
+function ExpertAsideSupport({ item }: { item: MyPageItem }) {
+  return (
+    <div className="space-y-4 [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
+      <NotificationCard item={item} />
+      <div id="admin-center">
+        <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
+      </div>
+      <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
+      <VietnamLifeCard item={item} />
+      <EmergencyHelpCard item={item} />
+      <div id="profile">
+        <HelpCard />
+      </div>
+      <PermitDocuments item={item} />
+    </div>
+  );
+}
+
+function ExpertMainSupport({ item }: { item: MyPageItem }) {
+  return (
+    <div className="space-y-4 [&_#wallet]:rounded-[20px] [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
+      <WalletSection leadId={item.id} />
+      <RecommendedServices />
     </div>
   );
 }
@@ -464,7 +784,7 @@ function StepProgress({ stage }: { stage: StageInfo }) {
                           : "bg-slate-100 text-slate-400"
                       }`}
                     >
-                      {step.done ? <Check size={19} strokeWidth={3} /> : current ? <UserCheck size={18} /> : <Circle size={17} />}
+                      {step.done ? <Check size={18} strokeWidth={3} /> : current ? <UserCheck size={17} /> : <Circle size={16} />}
                     </div>
                     {index < stage.steps.length - 1 && (
                       <div className={`h-px flex-1 ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />
@@ -486,7 +806,13 @@ function StepProgress({ stage }: { stage: StageInfo }) {
   );
 }
 
-function PdfDownloadButton({ leadId }: { leadId: string }) {
+function PdfDownloadButton({
+  leadId,
+  variant = "default",
+}: {
+  leadId: string;
+  variant?: "default" | "refined";
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -531,6 +857,32 @@ function PdfDownloadButton({ leadId }: { leadId: string }) {
     }
   }
 
+  if (variant === "refined") {
+    return (
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={loading}
+          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] disabled:opacity-60 sm:min-w-[148px]"
+        >
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+          {loading ? "준비 중..." : "AI 리포트 보기"}
+        </button>
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={loading}
+          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#0d2a6b] disabled:opacity-60"
+        >
+          <Download size={14} />
+          PDF 다운로드
+        </button>
+        {error && <p className="text-[12px] text-red-600 sm:basis-full">{error}</p>}
+      </div>
+    );
+  }
+
   return (
     <div>
       <button
@@ -564,7 +916,8 @@ function AiResultCard({ item }: { item: MyPageItem }) {
         <div>
           {typeof item.feasibilityScore === "number" && (
             <p className="text-[46px] font-extrabold leading-none tracking-[-0.05em] text-emerald-700">
-              {item.feasibilityScore}<span className="text-[22px]">%</span>
+              {item.feasibilityScore}
+              <span className="text-[22px]">%</span>
             </p>
           )}
           {resultInfo && (
@@ -610,7 +963,9 @@ function CurrentStatusCard({ item }: { item: MyPageItem }) {
       </p>
 
       <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm"><UserCheck size={22} /></div>
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm">
+          <UserCheck size={22} />
+        </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-[14px] font-extrabold text-slate-950">{expertTeamLabel}</p>
@@ -682,7 +1037,7 @@ function TimelineCard({ item }: { item: MyPageItem }) {
           <p className="mt-2 text-[12px] text-slate-500">아직 기록된 처리 이력이 없습니다.</p>
         </div>
       ) : (
-        <div className="mt-6 grid gap-5 md:grid-cols-[1fr_210px]">
+        <div className="mt-5 grid gap-5 md:grid-cols-[1fr_210px]">
           <div className="space-y-0">
             {recent.map((entry, index) => (
               <div key={`${entry.label}-${entry.createdAt}-${index}`} className="flex gap-4">
@@ -698,7 +1053,7 @@ function TimelineCard({ item }: { item: MyPageItem }) {
                   />
                   {index < recent.length - 1 && <div className="min-h-[56px] w-px flex-1 bg-slate-200" />}
                 </div>
-                <div className="pb-6">
+                <div className="pb-5">
                   <p className="text-[13px] font-extrabold text-slate-900">{entry.label}</p>
                   <p className="mt-1 text-[11px] leading-5 text-slate-500">신청 진행상황이 업데이트되었습니다.</p>
                 </div>
@@ -1199,7 +1554,7 @@ function WalletAllDocumentsModal({
   );
 }
 
-function WalletSection({ leadId }: { leadId: string }) {
+function WalletSection({ leadId, compact = false }: { leadId: string; compact?: boolean }) {
   const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -1360,11 +1715,22 @@ function WalletSection({ leadId }: { leadId: string }) {
   }
 
   return (
-    <section id="wallet" className="w-full rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section
+      id="wallet"
+      className={`w-full rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+        compact ? "p-4 sm:p-5" : "p-5 sm:p-6"
+      }`}
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">내 서류 지갑</p>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p
+            className={`font-extrabold tracking-[-0.02em] text-slate-950 ${
+              compact ? "text-[16px]" : "text-[18px]"
+            }`}
+          >
+            내 서류 지갑
+          </p>
+          <p className="mt-0.5 text-[11px] text-slate-500">
             자주 사용하는 행정서류를 안전하게 보관하고 다시 사용할 수 있습니다.
           </p>
         </div>
@@ -1403,20 +1769,28 @@ function WalletSection({ leadId }: { leadId: string }) {
           항상 카드가 표시된다. 순서는 항상 여권→비자→거주증→증명사진→건강검진서→서류추가로
           고정. 모바일 1열 → sm 2열 → lg 3열(3열×2행, PC 가로 스크롤 없음). */}
       {!loading && !loadError && (
-        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          className={`mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${
+            compact ? "lg:grid-cols-3" : "lg:grid-cols-3"
+          }`}
+        >
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
+            const slotHeight = compact ? "h-[248px]" : "h-[320px]";
+            const previewHeight = compact ? "h-[132px]" : "h-[190px]";
 
             if (!doc) {
               return (
                 <div
                   key={slot.key}
-                  className="flex h-[320px] w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
+                  className={`flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${slotHeight}`}
                 >
-                  <p className="truncate text-[15px] font-extrabold text-slate-900">{slot.label}</p>
-                  <p className="mt-1 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
+                  <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                  <p className="mt-0.5 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
 
-                  <div className="relative mt-2.5 h-[190px] overflow-hidden rounded-[10px] border border-dashed border-slate-200 bg-slate-50 p-2">
+                  <div
+                    className={`relative mt-2 overflow-hidden rounded-[10px] border border-dashed border-slate-200 bg-slate-50 p-2 ${previewHeight}`}
+                  >
                     <img
                       src={slot.sampleImageSrc}
                       alt={`${slot.label} 예시 이미지`}
@@ -1450,12 +1824,14 @@ function WalletSection({ leadId }: { leadId: string }) {
             return (
               <div
                 key={slot.key}
-                className="group flex h-[320px] w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+                className={`group flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md ${slotHeight}`}
               >
-                <p className="truncate text-[15px] font-extrabold text-slate-900">{slot.label}</p>
-                <p className="mt-1 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
+                <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                <p className="mt-0.5 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
 
-                <div className="relative mt-2.5 h-[190px] overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner">
+                <div
+                  className={`relative mt-2 overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner ${previewHeight}`}
+                >
                   {isImage && doc.viewUrl ? (
                     <img
                       src={doc.viewUrl}
@@ -1517,7 +1893,9 @@ function WalletSection({ leadId }: { leadId: string }) {
           <button
             type="button"
             onClick={() => openUploadModal()}
-            className="flex h-[320px] w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50"
+            className={`flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+              compact ? "h-[248px]" : "h-[320px]"
+            }`}
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
               <Plus size={24} />
@@ -1748,7 +2126,7 @@ function PublicLinksCard({
 }
 
 
-function NotificationCard({ item }: { item: MyPageItem }) {
+function NotificationCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
   const entries = [
     {
       icon: MessageCircle,
@@ -1771,21 +2149,39 @@ function NotificationCard({ item }: { item: MyPageItem }) {
   ];
 
   return (
-    <section id="notifications" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section
+      id="notifications"
+      className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+        compact ? "p-4" : "p-5"
+      }`}
+    >
       <div className="flex items-center justify-between">
-        <p className="text-[16px] font-extrabold text-slate-950">알림 센터</p>
+        <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+          알림 센터
+        </p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
       </div>
 
-      <div className="mt-3 space-y-1">
+      <div className={compact ? "mt-2 space-y-0.5" : "mt-3 space-y-1"}>
         {entries.map((entry) => (
-          <div key={entry.title} className="flex gap-3 rounded-xl p-2.5 hover:bg-slate-50">
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${entry.tone}`}>
-              <entry.icon size={15} />
+          <div
+            key={entry.title}
+            className={`flex gap-2.5 rounded-xl hover:bg-slate-50 ${compact ? "p-2" : "gap-3 p-2.5"}`}
+          >
+            <div
+              className={`flex shrink-0 items-center justify-center rounded-full ${entry.tone} ${
+                compact ? "h-8 w-8" : "h-9 w-9"
+              }`}
+            >
+              <entry.icon size={compact ? 14 : 15} />
             </div>
-            <div>
-              <p className="text-[11px] font-extrabold text-slate-900">{entry.title}</p>
-              <p className="mt-1 text-[10px] leading-4 text-slate-500">{entry.sub}</p>
+            <div className="min-w-0">
+              <p className={`font-extrabold text-slate-900 ${compact ? "text-[10px]" : "text-[11px]"}`}>
+                {entry.title}
+              </p>
+              <p className={`leading-4 text-slate-500 ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}>
+                {entry.sub}
+              </p>
             </div>
           </div>
         ))}
@@ -1896,7 +2292,7 @@ function formatClock(value: string | null) {
   }).format(date);
 }
 
-function VietnamLifeCard({ item }: { item: MyPageItem }) {
+function VietnamLifeCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
   const [detail, setDetail] = useState<VietnamLifeDetailKey | null>(null);
   const [krwAmount, setKrwAmount] = useState("100000");
   const [usdAmount, setUsdAmount] = useState("100");
@@ -2115,22 +2511,32 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
       key={lifeItem.key}
       type="button"
       onClick={() => setDetail(lifeItem.key)}
-      className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-slate-50 hover:shadow-sm"
+      className={`flex w-full items-center justify-between gap-2.5 rounded-xl border border-slate-200 bg-white text-left transition hover:border-blue-200 hover:bg-slate-50 ${
+        compact ? "px-3 py-2" : "gap-3 px-3.5 py-3 hover:-translate-y-0.5 hover:shadow-sm"
+      }`}
     >
-      <span className="flex min-w-0 items-center gap-3">
+      <span className="flex min-w-0 items-center gap-2.5">
         <span
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${lifeItem.iconClass}`}
+          className={`flex shrink-0 items-center justify-center rounded-full ${lifeItem.iconClass} ${
+            compact ? "h-8 w-8" : "h-10 w-10"
+          }`}
         >
-          <lifeItem.icon size={18} strokeWidth={2} />
+          <lifeItem.icon size={compact ? 15 : 18} strokeWidth={2} />
         </span>
         <span className="min-w-0">
-          <span className="block text-[12px] font-extrabold text-slate-900">{lifeItem.label}</span>
-          <span className="mt-0.5 block truncate text-[10px] font-medium text-slate-500">
+          <span className={`block font-extrabold text-slate-900 ${compact ? "text-[11px]" : "text-[12px]"}`}>
+            {lifeItem.label}
+          </span>
+          <span
+            className={`mt-0.5 block truncate font-medium text-slate-500 ${
+              compact ? "text-[9px]" : "text-[10px]"
+            }`}
+          >
             {lifeItem.desc}
           </span>
         </span>
       </span>
-      <ChevronRight size={15} className="shrink-0 text-slate-400" />
+      <ChevronRight size={compact ? 13 : 15} className="shrink-0 text-slate-400" />
     </button>
   );
 
@@ -2138,18 +2544,25 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
 
   return (
     <>
-      <section id="vietnam-life" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+      <section
+        id="vietnam-life"
+        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
+      >
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[16px] font-extrabold text-slate-950">🇻🇳 베트남 생활 정보</p>
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
+          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+            🇻🇳 베트남 생활 정보
+          </p>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
             LIVE
           </span>
         </div>
-        <p className="mt-1 text-[11px] leading-5 text-slate-500">
-          생활에 필요한 주요 정보를 빠르게 확인하세요.
-        </p>
+        {!compact && (
+          <p className="mt-1 text-[11px] leading-5 text-slate-500">
+            생활에 필요한 주요 정보를 빠르게 확인하세요.
+          </p>
+        )}
 
-        <div className="mt-4 space-y-2">{lifeItems.map(renderLifeItem)}</div>
+        <div className={compact ? "mt-2.5 space-y-1.5" : "mt-4 space-y-2"}>{lifeItems.map(renderLifeItem)}</div>
       </section>
 
       {detail && (
@@ -2679,28 +3092,38 @@ function VietnamLifeCard({ item }: { item: MyPageItem }) {
   );
 }
 
-function EmergencyHelpCard({ item }: { item: MyPageItem }) {
+function EmergencyHelpCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <section className="rounded-[20px] border border-red-100 bg-white p-5 shadow-sm">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600">
-                <ShieldAlert size={18} />
-              </div>
-              <div>
-                <p className="text-[16px] font-extrabold text-slate-950">베트남 긴급 도움</p>
+      <section
+        className={`rounded-[20px] border border-red-100 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
+      >
+        <div className="flex items-start justify-between gap-2.5">
+          <div className="flex items-center gap-2">
+            <div
+              className={`flex items-center justify-center rounded-xl bg-red-50 text-red-600 ${
+                compact ? "h-8 w-8" : "h-9 w-9"
+              }`}
+            >
+              <ShieldAlert size={compact ? 16 : 18} />
+            </div>
+            <div>
+              <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+                베트남 긴급 도움
+              </p>
+              {!compact && (
                 <p className="mt-0.5 text-[10px] text-slate-500">응급 상황 발생 시 즉시 연락하세요.</p>
-              </div>
+              )}
             </div>
           </div>
-          <span className="rounded-full bg-red-50 px-2.5 py-1 text-[9px] font-extrabold text-red-600">24시간</span>
+          <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-extrabold text-red-600">
+            24시간
+          </span>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2"}`}>
           {[
             { label: "경찰", number: "113", tone: "bg-blue-50 text-blue-800" },
             { label: "소방", number: "114", tone: "bg-orange-50 text-orange-700" },
@@ -2709,52 +3132,68 @@ function EmergencyHelpCard({ item }: { item: MyPageItem }) {
             <a
               key={contact.number}
               href={`tel:${contact.number}`}
-              className={`flex min-w-0 flex-col items-center justify-center rounded-xl px-2 py-3 transition hover:-translate-y-0.5 ${contact.tone}`}
+              className={`flex min-w-0 flex-col items-center justify-center rounded-xl transition hover:-translate-y-0.5 ${contact.tone} ${
+                compact ? "px-1.5 py-2" : "px-2 py-3"
+              }`}
             >
-              <span className="text-[10px] font-bold">{contact.label}</span>
-              <span className="mt-1 text-[17px] font-extrabold tracking-[-0.03em]">{contact.number}</span>
+              <span className="text-[9px] font-bold">{contact.label}</span>
+              <span
+                className={`mt-0.5 font-extrabold tracking-[-0.03em] ${
+                  compact ? "text-[15px]" : "text-[17px]"
+                }`}
+              >
+                {contact.number}
+              </span>
             </a>
           ))}
         </div>
 
         <a
           href="tel:+82232100404"
-          className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 transition hover:bg-slate-100"
+          className={`mt-2.5 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 transition hover:bg-slate-100 ${
+            compact ? "px-3 py-2" : "mt-3 px-3.5 py-3"
+          }`}
         >
           <div className="min-w-0">
-            <p className="text-[10px] font-bold text-slate-500">대한민국 영사콜센터 · 24시간</p>
-            <p className="mt-1 text-[13px] font-extrabold text-slate-900">+82-2-3210-0404</p>
+            <p className="text-[9px] font-bold text-slate-500">대한민국 영사콜센터 · 24시간</p>
+            <p className={`mt-0.5 font-extrabold text-slate-900 ${compact ? "text-[12px]" : "text-[13px]"}`}>
+              +82-2-3210-0404
+            </p>
           </div>
-          <Phone size={17} className="shrink-0 text-[#0f3279]" />
+          <Phone size={compact ? 15 : 17} className="shrink-0 text-[#0f3279]" />
         </a>
 
-        <div className="mt-3 hidden grid-cols-2 gap-1.5 xl:grid">
-          {[
-            "여권 분실 대응",
-            "교통사고 긴급 지원",
-            "체포·조사 영사 지원",
-            "응급 의료 안내",
-            "긴급 귀국 지원",
-            "VFBCAI 긴급 법률 상담",
-          ].map((label) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => setOpen(true)}
-              className="truncate rounded-lg bg-red-50/70 px-2.5 py-2 text-left text-[10px] font-semibold text-red-800 hover:bg-red-100"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {!compact && (
+          <div className="mt-3 hidden grid-cols-2 gap-1.5 xl:grid">
+            {[
+              "여권 분실 대응",
+              "교통사고 긴급 지원",
+              "체포·조사 영사 지원",
+              "응급 의료 안내",
+              "긴급 귀국 지원",
+              "VFBCAI 긴급 법률 상담",
+            ].map((label) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setOpen(true)}
+                className="truncate rounded-lg bg-red-50/70 px-2.5 py-2 text-left text-[10px] font-semibold text-red-800 hover:bg-red-100"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white text-[11px] font-bold text-red-700 transition hover:bg-red-50"
+          className={`flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-white text-[10px] font-bold text-red-700 transition hover:bg-red-50 ${
+            compact ? "mt-2.5" : "mt-3 h-10 text-[11px]"
+          }`}
         >
           긴급 연락처·지원 보기
-          <ChevronRight size={14} />
+          <ChevronRight size={13} />
         </button>
       </section>
 
@@ -2861,7 +3300,7 @@ function EmergencyHelpCard({ item }: { item: MyPageItem }) {
   );
 }
 
-function HelpCard() {
+function HelpCard({ compact = false }: { compact?: boolean }) {
   const items = [
     { label: "채팅 상담", icon: MessageSquare, tone: "bg-blue-50 text-blue-700" },
     { label: "전화 상담", icon: HelpCircle, tone: "bg-emerald-50 text-emerald-700" },
@@ -2869,19 +3308,33 @@ function HelpCard() {
   ];
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm xl:p-6">
-      <p className="text-[16px] font-extrabold text-slate-950">도움이 필요하신가요?</p>
-      <div className="mt-4 grid grid-cols-3 gap-2 xl:mt-6 xl:gap-3">
+    <section
+      className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+        compact ? "p-4" : "p-5 xl:p-6"
+      }`}
+    >
+      <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+        도움이 필요하신가요?
+      </p>
+      <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2 xl:mt-6 xl:gap-3"}`}>
         {items.map((item) => (
           <Link
             key={item.label}
             href="/consultation"
-            className="flex min-h-[92px] flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-center transition hover:-translate-y-0.5 hover:shadow-sm xl:min-h-[108px] xl:gap-3.5 xl:p-4"
+            className={`flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white text-center transition hover:-translate-y-0.5 hover:shadow-sm ${
+              compact
+                ? "min-h-[76px] gap-2 p-2"
+                : "min-h-[92px] gap-3 p-3 xl:min-h-[108px] xl:gap-3.5 xl:p-4"
+            }`}
           >
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${item.tone}`}>
-              <item.icon size={17} />
+            <div
+              className={`flex items-center justify-center rounded-full ${item.tone} ${
+                compact ? "h-8 w-8" : "h-10 w-10"
+              }`}
+            >
+              <item.icon size={compact ? 15 : 17} />
             </div>
-            <span className="whitespace-nowrap text-[10px] font-bold leading-none text-slate-700">
+            <span className="whitespace-nowrap text-[9px] font-bold leading-none text-slate-700 xl:text-[10px]">
               {item.label}
             </span>
           </Link>
@@ -2912,13 +3365,19 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
   );
 }
 
-function PermitDocuments({ item }: { item: MyPageItem }) {
+function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
   if (!item.governmentSubmittedAt && !item.permitCompletedAt && !item.fileUrl) return null;
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-[16px] font-extrabold text-slate-950">제출 및 결과 문서</p>
-      <div className="mt-4 space-y-3">
+    <section
+      className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+        compact ? "p-4" : "p-5"
+      }`}
+    >
+      <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+        제출 및 결과 문서
+      </p>
+      <div className={`space-y-2 ${compact ? "mt-3" : "mt-4 space-y-3"}`}>
         {item.governmentSubmittedAt && (
           <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
             <div>
@@ -3031,6 +3490,8 @@ function Dashboard({
     [activeId, items]
   );
 
+  const tracks = activeItem ? resolveCaseTracks(activeItem) : null;
+
   if (!activeItem) {
     return (
       <div className="rounded-[20px] border border-slate-200 bg-white p-8 text-center shadow-sm">
@@ -3046,61 +3507,116 @@ function Dashboard({
     );
   }
 
-  return (
-    <>
-      <div className="mb-5 xl:hidden">
-        <p className="text-[18px] font-extrabold text-slate-950">
-          안녕하세요, {name ?? "고객"}님 👋
-        </p>
-        <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
-      </div>
+  const aiOnly = Boolean(tracks?.ai && !tracks?.expert);
+  const expertFlow = Boolean(tracks?.expert);
 
-      <HeroCard
-        item={activeItem}
-        selector={
-          <ApplicationSelector
+  if (aiOnly) {
+    return (
+      <>
+        <div className="space-y-4">
+          <div>
+            <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950 xl:text-[19px]">
+              안녕하세요, {name ?? "고객"}님
+            </p>
+            <p className="mt-0.5 text-[12px] text-slate-500">
+              최근 확인하신 결과를 먼저 보여드립니다.
+            </p>
+          </div>
+
+          <GeneralCustomerResultView item={activeItem} rootId="applications" />
+
+          <PastApplicationsToggle
             items={items}
             activeId={activeItem.id}
-            onChange={onChangeActive}
+            onSelect={onChangeActive}
           />
-        }
-      />
 
-      <div className="mt-5">
+          {activeItem.publicNotes.length > 0 && (
+            <PublicNotes notes={activeItem.publicNotes} />
+          )}
+
+          <GeneralCustomerMainSupport item={activeItem} />
+        </div>
+
+        <div className="mt-4 space-y-3 xl:hidden">
+          <GeneralCustomerAsideSupport item={activeItem} />
+        </div>
+      </>
+    );
+  }
+
+  if (expertFlow) {
+    return (
+      <>
+        <div className="space-y-4">
+          <div className="xl:hidden">
+            <p className="text-[18px] font-extrabold text-slate-950">
+              안녕하세요, {name ?? "고객"}님 👋
+            </p>
+            <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
+          </div>
+
+          <HeroCard
+            item={activeItem}
+            selector={
+              <ApplicationSelector
+                items={items}
+                activeId={activeItem.id}
+                onChange={onChangeActive}
+              />
+            }
+          />
+
+          <StepProgress stage={activeItem.stage} />
+
+          <div className="grid gap-5 lg:grid-cols-2">
+            <AiResultCard item={activeItem} />
+            <CurrentStatusCard item={activeItem} />
+          </div>
+
+          <ConfidenceBanner confidence={activeItem.confidence} />
+
+          <TimelineCard item={activeItem} />
+
+          <PublicNotes notes={activeItem.publicNotes} />
+
+          <ExpertMainSupport item={activeItem} />
+        </div>
+
+        <div className="mt-4 grid gap-5 xl:hidden">
+          <NotificationCard item={activeItem} />
+          <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
+          <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
+          <VietnamLifeCard item={activeItem} />
+          <PermitDocuments item={activeItem} />
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="space-y-4">
+        <div className="xl:hidden">
+          <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">
+            안녕하세요, {name ?? "고객"}님
+          </p>
+          <p className="mt-0.5 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
+        </div>
+
         <StepProgress stage={activeItem.stage} />
-      </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <AiResultCard item={activeItem} />
-        <CurrentStatusCard item={activeItem} />
-      </div>
-
-      <div className="mt-5">
         <ConfidenceBanner confidence={activeItem.confidence} />
+
+        {activeItem.publicNotes.length > 0 && (
+          <PublicNotes notes={activeItem.publicNotes} />
+        )}
+
+        <ExpertMainSupport item={activeItem} />
       </div>
 
-      <div className="mt-5">
-        <TimelineCard item={activeItem} />
-      </div>
-
-      <div className="mt-5">
-        <PublicNotes notes={activeItem.publicNotes} />
-      </div>
-
-      <div className="mt-5">
-        <WalletSection leadId={activeItem.id} />
-      </div>
-
-      <div className="mt-5">
-        <RecommendedServices />
-      </div>
-
-      <div className="mt-5 grid gap-5 xl:hidden">
-        <NotificationCard item={activeItem} />
-        <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
-        <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-        <VietnamLifeCard item={activeItem} />
-        <PermitDocuments item={activeItem} />
+      <div className="mt-4 space-y-4 xl:hidden">
+        <ExpertAsideSupport item={activeItem} />
       </div>
     </>
   );
@@ -3186,6 +3702,15 @@ export default function MyPage() {
   const messageActiveId = activeId || firstItem?.id || null;
   const messageHref = messageActiveId ? `/mypage/chat?leadId=${messageActiveId}` : "/mypage/chat";
 
+  const activeLayoutItem =
+    items.find((item) => item.id === activeId) ?? firstItem ?? null;
+  const generalLayoutTracks = activeLayoutItem
+    ? resolveCaseTracks(activeLayoutItem)
+    : null;
+  const isGeneralCustomerLayout = Boolean(
+    generalLayoutTracks?.ai && !generalLayoutTracks?.expert
+  );
+
   return (
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
       <DesktopSidebar messageHref={messageHref} />
@@ -3195,11 +3720,14 @@ export default function MyPage() {
       <div className="min-w-0">
         <TopHeader name={name} />
 
-        <div className="w-full px-4 py-5 pb-28 sm:px-5 xl:px-5 xl:py-6 xl:pb-8">
-          {/* 중앙 column과 오른쪽 보조패널(280px)을 나누는 유일한 grid — 바깥 padding은
-              위 wrapper 한 곳에서만 적용되고, 중앙 column 자체에는 별도 좌우 padding을
-              주지 않는다(중복 padding 방지). gap은 20px(기본) / 24px(xl 이상)로 고정. */}
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
+        <div
+          className={`w-full pb-28 sm:px-5 xl:pb-8 ${
+            isGeneralCustomerLayout
+              ? "px-4 py-4 xl:px-6 xl:py-5"
+              : "px-4 py-4 xl:px-6 xl:py-5"
+          }`}
+        >
+          <div className="mx-auto grid w-full max-w-[1380px] items-start gap-4 xl:grid-cols-[minmax(0,1fr)_272px] xl:gap-5">
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
@@ -3234,19 +3762,15 @@ export default function MyPage() {
             )}
           </div>
 
-          {state === "ready" && firstItem && (
-            <aside className="hidden space-y-5 xl:block xl:space-y-6">
-              <NotificationCard item={firstItem} />
-              <div id="admin-center">
-                <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
-              </div>
-              <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-              <VietnamLifeCard item={firstItem} />
-              <EmergencyHelpCard item={firstItem} />
-              <div id="profile">
-                <HelpCard />
-              </div>
-              <PermitDocuments item={firstItem} />
+          {state === "ready" && activeLayoutItem && isGeneralCustomerLayout && (
+            <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
+              <GeneralCustomerAsideSupport item={activeLayoutItem} />
+            </aside>
+          )}
+
+          {state === "ready" && firstItem && !isGeneralCustomerLayout && (
+            <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
+              <ExpertAsideSupport item={firstItem} />
             </aside>
           )}
           </div>
