@@ -1195,23 +1195,36 @@ export default function TrcCheckPage() {
     return link;
   }
 
+  // resultToken만으로 즉시 prefetch하면, 가입 직후 establishBrowserSessionFromResultToken과
+  // 동시에 generateLink가 호출되어 magic link race가 난다. 브라우저 세션이 이미 있으면
+  // 전문가/AI 버튼은 /documents로 직행하므로 actionLink prefetch(추가 generateLink)는 불필요하다.
+  // 세션이 없을 때만(복원·폴백) documents / documents_ai_report actionLink를 prefetch한다.
   useEffect(() => {
     if (!resultToken) {
       clearAutoLoginCache();
       return;
     }
-    prefetchAutoLoginActionLink(
-      resultToken,
-      "documents",
-      documentsActionLinkRef,
-      documentsAutoLoginPromiseRef
-    );
-    prefetchAutoLoginActionLink(
-      resultToken,
-      "documents_ai_report",
-      aiReportActionLinkRef,
-      aiReportAutoLoginPromiseRef
-    );
+    let cancelled = false;
+    (async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (sessionData.session) return;
+      prefetchAutoLoginActionLink(
+        resultToken,
+        "documents",
+        documentsActionLinkRef,
+        documentsAutoLoginPromiseRef
+      );
+      prefetchAutoLoginActionLink(
+        resultToken,
+        "documents_ai_report",
+        aiReportActionLinkRef,
+        aiReportAutoLoginPromiseRef
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [resultToken]);
 
   const result: Result = computeTrcResultTone(visa, role, company);
@@ -1608,9 +1621,15 @@ export default function TrcCheckPage() {
       } else {
         const okBody = await res.json().catch(() => null);
         if (okBody?.token) {
+          // 세션 확립을 resultToken set(→ prefetch useEffect)보다 먼저 끝낸다.
+          // 이후 setResultToken 시점에 세션이 있으면 prefetch는 generateLink를 호출하지 않는다.
+          const sessionReady = await establishBrowserSessionFromResultToken(okBody.token);
+          if (!sessionReady) {
+            setLeadError("로그인 세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            setSubmitting(false);
+            return;
+          }
           setResultToken(okBody.token);
-          // 최초 가입 직후 브라우저 세션을 만들어 다른 CHECK 서비스에서 회원가입을 다시 묻지 않는다.
-          await establishBrowserSessionFromResultToken(okBody.token);
         }
       }
     } catch (apiErr) {
