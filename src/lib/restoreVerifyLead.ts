@@ -18,14 +18,21 @@ export type VerifyServiceType =
   | "verify_tax"
   | "verify_unclear";
 
+const SERVICE_TYPE_ALIASES: Record<string, string> = {
+  register_company: "permit_company",
+};
+
+function normalizeServiceTypeKey(value: string): string {
+  const key = value.trim().toLowerCase().replace(/-/g, "_");
+  return SERVICE_TYPE_ALIASES[key] ?? key;
+}
+
 function isSameServiceType(
   stored: string | null | undefined,
   expected: string
 ): boolean {
   if (!stored) return false;
-  const a = stored.trim().toLowerCase().replace(/-/g, "_");
-  const b = expected.trim().toLowerCase().replace(/-/g, "_");
-  return a === b;
+  return normalizeServiceTypeKey(stored) === normalizeServiceTypeKey(expected);
 }
 
 type MypageItem = {

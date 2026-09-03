@@ -40,6 +40,10 @@ import {
   isLoggedInMember,
   type RestoredVerifyLead,
 } from "@/lib/restoreVerifyLead";
+import {
+  establishBrowserSessionFromResultToken,
+  ensureBrowserSessionForResultToken,
+} from "@/lib/restoreCheckLead";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import FunnelPageShell from "@/components/engine/FunnelPageShell";
@@ -770,48 +774,59 @@ export default function VerifyTaxPage() {
       }
     }
   }, []);
-  useEffect(() => {
-    let cancelled = false;
 
-    async function applyRestoredVerify(restored: RestoredVerifyLead) {
-      const meta = restored.verifyMeta;
-      if (meta) {
-        if (meta.review_stage === "pre" || meta.review_stage === "post") {
-          setReviewStage(meta.review_stage);
-        }
-        if (typeof meta.review_focus === "string") setReviewFocus(meta.review_focus);
-        if (typeof meta.incident_type === "string") setIncidentType(meta.incident_type);
-        if (typeof meta.incident_description === "string") {
-          setIncidentDescription(meta.incident_description);
-        }
+  async function applyRestoredVerify(restored: RestoredVerifyLead) {
+    const meta = restored.verifyMeta;
+    if (meta) {
+      if (meta.review_stage === "pre" || meta.review_stage === "post") {
+        setReviewStage(meta.review_stage);
       }
-      setLandingDone(true);
-      setLeadId(restored.leadId);
-      setResultToken(restored.resultToken);
-      setRestoredLeadActive(true);
-
-      const fileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
-      const fileName = typeof meta?.file_name === "string" ? meta.file_name : null;
-      const incidentTypeVal =
-        typeof meta?.incident_type === "string" ? meta.incident_type : undefined;
-      const incidentDescVal =
-        typeof meta?.incident_description === "string"
-          ? meta.incident_description
-          : undefined;
-
-      setDiagnosing(true);
-      const diag = await getDiagnosis(CATEGORY, {
-        fileUrl,
-        fileName,
-        incidentType: incidentTypeVal,
-        incidentDescription: incidentDescVal,
-      });
-      if (!cancelled) {
-        setDiagnosis(diag);
-        setDiagnosing(false);
-        setStep("diagnosis");
+      if (typeof meta.review_focus === "string") setReviewFocus(meta.review_focus);
+      if (typeof meta.incident_type === "string") setIncidentType(meta.incident_type);
+      if (typeof meta.incident_description === "string") {
+        setIncidentDescription(meta.incident_description);
       }
     }
+    setLandingDone(true);
+    setLeadId(restored.leadId);
+    setResultToken(restored.resultToken);
+    setRestoredLeadActive(true);
+
+    const fileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
+    const fileName = typeof meta?.file_name === "string" ? meta.file_name : null;
+    const incidentTypeVal =
+      typeof meta?.incident_type === "string" ? meta.incident_type : undefined;
+    const incidentDescVal =
+      typeof meta?.incident_description === "string"
+        ? meta.incident_description
+        : undefined;
+
+    setDiagnosing(true);
+    const diag = await getDiagnosis(CATEGORY, {
+      fileUrl,
+      fileName,
+      incidentType: incidentTypeVal,
+      incidentDescription: incidentDescVal,
+    });
+    setDiagnosis(diag);
+    setDiagnosing(false);
+    setStep("diagnosis");
+  }
+
+  async function handleLandingContinue() {
+    const { loggedIn, restored } = await loadVerifyMemberEntryState("verify_tax", {
+      allowRestore: true,
+    });
+    if (loggedIn) setSkipSignup(true);
+    if (restored) {
+      await applyRestoredVerify(restored);
+      return;
+    }
+    setLandingDone(true);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
 
     async function applyMemberEntryState() {
       const params = new URLSearchParams(window.location.search);
@@ -837,7 +852,10 @@ export default function VerifyTaxPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN") return;
-      void applyMemberEntryState();
+      // 세션 확립 시 회원가입 생략만 — mount restore(?restore=1)와 분리
+      void isLoggedInMember().then((loggedIn) => {
+        if (!cancelled && loggedIn) setSkipSignup(true);
+      });
     });
 
     return () => {
@@ -1148,12 +1166,34 @@ export default function VerifyTaxPage() {
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
         console.error("lead-submit API error:", errBody);
-      } else {
-        const okBody = await res.json().catch(() => null);
-        if (okBody?.token) setResultToken(okBody.token);
+        setError(
+          (typeof errBody?.message === "string" && errBody.message) ||
+            "접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      const okBody = await res.json().catch(() => null);
+      if (typeof okBody?.token !== "string") {
+        setError("로그인 세션을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+
+      setResultToken(okBody.token);
+
+      const sessionReady = await establishBrowserSessionFromResultToken(okBody.token);
+      if (!sessionReady) {
+        setError("로그인 세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
       }
     } catch (apiErr) {
       console.error("lead-submit fetch failed:", apiErr);
+      setError("접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitting(false);
+      return;
     }
 
     saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
@@ -1186,12 +1226,18 @@ export default function VerifyTaxPage() {
       });
       if (error) throw error;
 
-      // CHECK(TRC)와 동일한 흐름 — resultToken으로 /api/auto-login을 호출해 실제
-      // 로그인 세션을 만든 뒤(/r?...&next=documents 경유) /documents로 이동시킨다.
-      // 검토 대상 서류는 이 다음 화면(/documents)에서 업로드가 이어진다.
-      if (!resultToken) {
+      if (restoredLeadActive) {
+        window.location.href = "/mypage";
+        return;
+      }
+      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
+      if (!resultToken && !hasSession) {
         setExpertError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
         setExpertRequesting(false);
+        return;
+      }
+      if (hasSession) {
+        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_tax&mode=expert`;
         return;
       }
       const res = await fetch("/api/auto-login", {
@@ -1222,7 +1268,12 @@ export default function VerifyTaxPage() {
     setAiReportRequesting(true);
     setAiReportError(null);
     try {
-      if (!resultToken) {
+      if (restoredLeadActive) {
+        window.location.href = "/mypage";
+        return;
+      }
+      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
+      if (!resultToken && !hasSession) {
         setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
         setAiReportRequesting(false);
         return;
@@ -1230,8 +1281,13 @@ export default function VerifyTaxPage() {
       recordAiReportRequestAndNotify({
           leadId,
           tag: "VERIFY_TAX",
-          token: resultToken,
+          token: resultToken ?? undefined,
         });
+
+      if (hasSession) {
+        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_tax&mode=ai_report`;
+        return;
+      }
 
       const res = await fetch("/api/auto-login", {
         method: "POST",
@@ -1275,7 +1331,7 @@ export default function VerifyTaxPage() {
             config={MASTER_LANDING_TAX}
             activeTab={contextTab}
             onTabChange={setContextTab}
-            onContinue={() => setLandingDone(true)}
+            onContinue={() => void handleLandingContinue()}
           />
         )}
 

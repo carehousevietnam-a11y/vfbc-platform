@@ -6,7 +6,7 @@
 // 기존 인증·API·PDF·진행단계·CRM 데이터 구조는 그대로 유지하고,
 // 화면 구조와 반응형 UI만 재설계한다.
 
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -169,6 +169,49 @@ function getEstimate(category: CategoryKey, serviceType: string | null) {
 function nextStepLabel(steps: ProcessStep[]) {
   const next = steps.find((step) => !step.done);
   return next ? `${next.label} 준비` : "안내 대기";
+}
+
+/** 기존 퍼널 ?restore=1 진입 URL — restoreCheckLead / restoreVerifyLead / restoreRegisterLead와 동일 경로 */
+function buildCaseRestoreHref(item: MyPageItem): string | null {
+  const serviceType = item.serviceType?.trim();
+  if (!serviceType || item.category === "consultation") return null;
+
+  const checkPaths: Record<string, string> = {
+    wp: "/check/wp",
+    trc: "/check/trc",
+    tamtru: "/check/tamtru",
+    "driving-license": "/check/driving-license",
+  };
+  if (checkPaths[serviceType]) {
+    return `${checkPaths[serviceType]}?restore=1`;
+  }
+
+  const verifyPaths: Record<string, string> = {
+    verify_admin: "/verify/admin",
+    "verify_real-estate": "/verify/real-estate",
+    verify_fraud: "/verify/fraud",
+    verify_tax: "/verify/tax",
+    verify_unclear: "/verify/unclear",
+  };
+  if (verifyPaths[serviceType]) {
+    return `${verifyPaths[serviceType]}?restore=1`;
+  }
+
+  const registerPaths: Record<string, string> = {
+    permit_company: "/register/company",
+    register_restaurant: "/register/restaurant",
+    register_hygiene: "/register/hygiene",
+    register_fire_safety: "/register/fire-safety",
+    register_cosmetics: "/register/cosmetics",
+    register_environment: "/register/environment",
+    register_medical_device: "/register/medical-device",
+    register_franchise: "/register/franchise",
+  };
+  if (registerPaths[serviceType]) {
+    return `${registerPaths[serviceType]}?restore=1`;
+  }
+
+  return null;
 }
 
 type CaseTracks = { ai: boolean; expert: boolean };
@@ -400,7 +443,6 @@ function GeneralCustomerResultView({
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
   const analysisStatus = getAiAnalysisStatus(item);
   const keyPoints = getAiKeyPoints(item);
-  const cautions = getAiCautions(item);
   const nextAction = getAiNextAction(item);
 
   const resultTone =
@@ -415,11 +457,11 @@ function GeneralCustomerResultView({
   return (
     <section
       id={rootId}
-      className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6"
+      className="rounded-[20px] border border-blue-100 bg-gradient-to-br from-white via-white to-blue-50/40 px-5 py-5 shadow-sm sm:px-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-slate-400">
-          최근 확인한 결과
+        <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-blue-700/80">
+          최근 확인 결과
         </p>
         <div className="flex flex-wrap items-center gap-1.5">
           <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.className}`}>
@@ -432,57 +474,36 @@ function GeneralCustomerResultView({
         </div>
       </div>
 
-      <h2 className="mt-2.5 break-keep text-[19px] font-bold tracking-[-0.03em] text-slate-950 sm:text-[22px]">
+      <h2 className="mt-2.5 break-keep text-[20px] font-bold tracking-[-0.03em] text-slate-950 sm:text-[23px]">
         {item.serviceLabel}
       </h2>
       <p className="mt-0.5 text-[11px] text-slate-400">
         {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
       </p>
 
-      <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         {resultInfo ? (
-          <p className={`text-[22px] font-bold tracking-[-0.04em] sm:text-[26px] ${resultTone}`}>
+          <p className={`text-[24px] font-bold tracking-[-0.04em] sm:text-[28px] ${resultTone}`}>
             {resultInfo.label}
           </p>
         ) : (
-          <p className="text-[20px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
+          <p className="text-[22px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
         )}
         {typeof item.feasibilityScore === "number" && (
-          <p className="text-[15px] font-semibold tabular-nums text-emerald-600/90 sm:text-[17px]">
+          <p className="text-[16px] font-semibold tabular-nums text-emerald-600 sm:text-[18px]">
             {item.feasibilityScore}%
           </p>
         )}
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 sm:gap-5">
-        <div>
-          <p className="text-[11px] font-semibold text-slate-900">주요 확인사항</p>
-          <ul className="mt-2 space-y-1.5">
-            {keyPoints.map((point) => (
-              <li key={point} className="flex gap-2 text-[12px] leading-5 text-slate-600">
-                <Check size={13} className="mt-0.5 shrink-0 text-[#0d2a6b]" strokeWidth={2.5} />
-                <span className="break-keep">{point}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="text-[11px] font-semibold text-slate-900">주의사항</p>
-          <ul className="mt-2 space-y-1.5">
-            {cautions.map((caution) => (
-              <li key={caution} className="flex gap-2 text-[12px] leading-5 text-slate-600">
-                <AlertTriangle size={13} className="mt-0.5 shrink-0 text-amber-500" />
-                <span className="break-keep">{caution}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      {keyPoints[0] ? (
+        <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
+      ) : null}
 
-      <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/70 px-4 py-3 sm:flex sm:items-center sm:justify-between sm:gap-4">
+      <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
         <div className="min-w-0 sm:flex-1">
-          <p className="text-[11px] font-semibold text-slate-900">다음에 할 일</p>
-          <p className="mt-1 break-keep text-[13px] leading-5 text-slate-700">{nextAction}</p>
+          <p className="text-[11px] font-semibold text-slate-500">다음에 할 일</p>
+          <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
         </div>
         <div className="mt-3 shrink-0 sm:mt-0">
           <PdfDownloadButton leadId={item.id} variant="refined" />
@@ -496,10 +517,12 @@ function PastApplicationsToggle({
   items,
   activeId,
   onSelect,
+  asideStyle = false,
 }: {
   items: MyPageItem[];
   activeId: string;
   onSelect: (id: string) => void;
+  asideStyle?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const pastItems = items.filter((entry) => entry.id !== activeId);
@@ -507,7 +530,11 @@ function PastApplicationsToggle({
   if (pastItems.length === 0) return null;
 
   return (
-    <div className="overflow-hidden rounded-[16px] border border-slate-200 bg-white shadow-sm">
+    <div
+      className={`overflow-hidden border border-slate-200 bg-white shadow-sm ${
+        asideStyle ? "rounded-[20px]" : "rounded-[16px]"
+      }`}
+    >
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -527,12 +554,13 @@ function PastApplicationsToggle({
           {pastItems.map((entry) => {
             const entryResult = entry.result ? RESULT_LABELS[entry.result] ?? null : null;
             const tracks = resolveCaseTracks(entry);
+            const restoreHref = buildCaseRestoreHref(entry);
             return (
-              <li key={entry.id}>
+              <li key={entry.id} className="flex items-stretch">
                 <button
                   type="button"
                   onClick={() => onSelect(entry.id)}
-                  className="flex w-full items-center justify-between gap-2.5 px-4 py-2.5 text-left transition hover:bg-slate-50/80 sm:px-5"
+                  className="flex min-w-0 flex-1 items-center justify-between gap-2.5 px-4 py-2.5 text-left transition hover:bg-slate-50/80 sm:px-5"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-[12px] font-semibold text-slate-900">
@@ -546,6 +574,18 @@ function PastApplicationsToggle({
                   </div>
                   <ChevronRight size={14} className="shrink-0 text-slate-300" />
                 </button>
+                {restoreHref ? (
+                  <Link
+                    href={restoreHref}
+                    className="mr-3 flex shrink-0 items-center self-center sm:mr-4"
+                    aria-label={`${entry.serviceLabel} 원본 결과 화면 열기`}
+                    title="원본 결과 화면"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
+                      <ExternalLink size={14} strokeWidth={2.25} />
+                    </span>
+                  </Link>
+                ) : null}
               </li>
             );
           })}
@@ -2022,6 +2062,327 @@ function RecommendedServices() {
         ))}
       </div>
     </section>
+  );
+}
+
+function GeneralCustomerCompactAccordion({
+  title,
+  hint,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  hint?: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:px-5"
+      >
+        <span className="text-[13px] font-semibold text-slate-800">{title}</span>
+        <span className="flex shrink-0 items-center gap-2">
+          {hint ? (
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+              {hint}
+            </span>
+          ) : null}
+          <ChevronDown
+            size={16}
+            className={`text-slate-400 transition ${open ? "rotate-180" : ""}`}
+          />
+        </span>
+      </button>
+      {open ? (
+        <div className="border-t border-slate-100 px-4 py-3 sm:px-5 sm:py-4">{children}</div>
+      ) : null}
+    </div>
+  );
+}
+
+function GeneralCustomerWalletCore({
+  leadId,
+  placement = "main",
+}: {
+  leadId: string;
+  placement?: "main" | "aside";
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDocuments() {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
+          if (!cancelled) {
+            setLoadError("로그인이 필요합니다.");
+            setDocuments([]);
+          }
+          return;
+        }
+        const response = await fetch("/api/mypage-documents", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accessToken, leadId }),
+        });
+        const data = await response.json();
+        if (cancelled) return;
+        if (!response.ok) {
+          setLoadError(data?.error ?? "서류 목록을 불러오지 못했습니다.");
+          setDocuments([]);
+          return;
+        }
+        setDocuments(Array.isArray(data.documents) ? data.documents : []);
+      } catch (error) {
+        console.error("wallet preview fetch failed:", error);
+        if (!cancelled) {
+          setLoadError("서류 목록을 불러오지 못했습니다.");
+          setDocuments([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadDocuments();
+    return () => {
+      cancelled = true;
+    };
+  }, [leadId]);
+
+  if (expanded) {
+    return (
+      <div className="space-y-3">
+        <WalletSection leadId={leadId} compact />
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
+        >
+          간략히 보기
+        </button>
+      </div>
+    );
+  }
+
+  const recent = documents.slice(0, 3);
+
+  if (placement === "aside") {
+    return (
+      <section
+        id="wallet"
+        className="rounded-[20px] border border-blue-200 bg-gradient-to-b from-blue-50/90 to-white p-4 shadow-sm"
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-[#0d2a6b]">
+            <FolderLock size={18} strokeWidth={1.75} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-extrabold text-slate-950">내 서류 보관함</p>
+            <p className="mt-1 text-[15px] font-bold tracking-[-0.02em] text-slate-900">
+              등록 서류 {loading ? "…" : `${documents.length}건`}
+            </p>
+            <p className="mt-2 text-[11px] leading-5 text-slate-600">
+              여권 · 비자 · 거주증 등 중요한 서류를 안전하게 보관하세요.
+            </p>
+          </div>
+        </div>
+
+        {loadError ? (
+          <p className="mt-2 text-[11px] text-red-600">{loadError}</p>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="mt-3 flex h-9 w-full items-center justify-center gap-1 rounded-xl border border-blue-200 bg-white text-[12px] font-semibold text-blue-900 transition hover:bg-blue-50"
+        >
+          전체 서류 보기
+          <ChevronRight size={14} className="shrink-0" />
+        </button>
+      </section>
+    );
+  }
+
+  return (
+    <section className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-slate-400">
+            내 서류 보관함
+          </p>
+          <p className="mt-1 text-[18px] font-bold tracking-[-0.02em] text-slate-950 sm:text-[20px]">
+            등록 서류 {loading ? "…" : `${documents.length}건`}
+          </p>
+        </div>
+        <FolderLock size={20} className="shrink-0 text-[#0d2a6b]" strokeWidth={1.75} />
+      </div>
+
+      {loading ? (
+        <p className="mt-4 text-[12px] text-slate-500">서류를 불러오는 중…</p>
+      ) : loadError ? (
+        <p className="mt-4 text-[12px] text-red-600">{loadError}</p>
+      ) : recent.length === 0 ? (
+        <p className="mt-4 text-[12px] leading-5 text-slate-500">
+          등록된 서류가 없습니다. 아래 버튼에서 업로드·관리할 수 있습니다.
+        </p>
+      ) : (
+        <ul className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-100">
+          {recent.map((doc) => (
+            <li key={doc.activityId} className="flex items-center justify-between gap-3 px-3 py-2.5">
+              <div className="min-w-0">
+                <p className="truncate text-[12px] font-semibold text-slate-900">{doc.docType}</p>
+                <p className="mt-0.5 truncate text-[10px] text-slate-500">{doc.fileName}</p>
+              </div>
+              <span className="shrink-0 text-[10px] text-slate-400">{formatWalletDate(doc.createdAt)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <button
+        type="button"
+        onClick={() => setExpanded(true)}
+        className="mt-4 flex h-10 w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-[13px] font-semibold text-blue-900 transition hover:bg-blue-100"
+      >
+        전체 서류 보기
+      </button>
+    </section>
+  );
+}
+
+const GENERAL_CUSTOMER_EXPERT_NOTIFICATION_LABELS = new Set([
+  "전문가 검토 시작",
+  "전문가 진행요청 접수",
+  "정부 제출 완료",
+  "허가 완료",
+]);
+
+function getGeneralCustomerNotificationTone(label: string) {
+  if (label.includes("AI")) return "bg-blue-50 text-blue-600";
+  if (label.includes("상담")) return "bg-emerald-50 text-emerald-600";
+  return "bg-slate-100 text-slate-600";
+}
+
+function getGeneralCustomerNotificationIcon(label: string) {
+  if (label.includes("AI")) return FileCheck2;
+  if (label.includes("상담")) return MessageCircle;
+  return Bell;
+}
+
+function GeneralCustomerNotificationCard({ item }: { item: MyPageItem }) {
+  const entries = item.activityLog
+    .filter((entry) => !GENERAL_CUSTOMER_EXPERT_NOTIFICATION_LABELS.has(entry.label))
+    .slice(-3)
+    .reverse();
+
+  return (
+    <section
+      id="notifications"
+      className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm"
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-[14px] font-extrabold text-slate-950">알림 센터</p>
+        {entries.length > 0 ? (
+          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+            {entries.length}건
+          </span>
+        ) : null}
+      </div>
+
+      {entries.length === 0 ? (
+        <p className="mt-3 text-[11px] leading-5 text-slate-500">새로운 알림이 없습니다.</p>
+      ) : (
+        <div className="mt-2 space-y-0.5">
+          {entries.map((entry) => {
+            const Icon = getGeneralCustomerNotificationIcon(entry.label);
+            const tone = getGeneralCustomerNotificationTone(entry.label);
+            return (
+              <div
+                key={`${entry.label}-${entry.createdAt}`}
+                className="flex gap-2.5 rounded-xl p-2 hover:bg-slate-50"
+              >
+                <div
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${tone}`}
+                >
+                  <Icon size={14} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-extrabold text-slate-900">{entry.label}</p>
+                  <p className="mt-0.5 text-[9px] leading-4 text-slate-500">
+                    {formatShortDate(entry.createdAt)} · {formatTime(entry.createdAt)}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function GeneralCustomerExtrasPanel({
+  item,
+  items,
+  activeId,
+  onSelect,
+}: {
+  item: MyPageItem;
+  items: MyPageItem[];
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  const pastCount = items.filter((entry) => entry.id !== activeId).length;
+
+  return (
+    <div className="space-y-4">
+      <GeneralCustomerWalletCore leadId={item.id} placement="aside" />
+
+      <GeneralCustomerNotificationCard item={item} />
+
+      {pastCount > 0 ? (
+        <PastApplicationsToggle
+          items={items}
+          activeId={activeId}
+          onSelect={onSelect}
+          asideStyle
+        />
+      ) : null}
+
+      <GeneralCustomerCompactAccordion title="정부기관 바로가기">
+        <GeneralCustomerPublicLinksPanel />
+      </GeneralCustomerCompactAccordion>
+
+      <GeneralCustomerCompactAccordion title="베트남 생활정보">
+        <VietnamLifeCard item={item} compact />
+      </GeneralCustomerCompactAccordion>
+
+      <GeneralCustomerCompactAccordion title="긴급 도움 · 상담">
+        <div className="space-y-3">
+          <EmergencyHelpCard item={item} compact />
+          <HelpCard compact />
+        </div>
+      </GeneralCustomerCompactAccordion>
+
+      <GeneralCustomerCompactAccordion title="추천 서비스">
+        <RecommendedServices />
+      </GeneralCustomerCompactAccordion>
+    </div>
   );
 }
 
@@ -3514,32 +3875,16 @@ function Dashboard({
     return (
       <>
         <div className="space-y-4">
-          <div>
-            <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950 xl:text-[19px]">
-              안녕하세요, {name ?? "고객"}님
-            </p>
-            <p className="mt-0.5 text-[12px] text-slate-500">
-              최근 확인하신 결과를 먼저 보여드립니다.
-            </p>
-          </div>
-
           <GeneralCustomerResultView item={activeItem} rootId="applications" />
+        </div>
 
-          <PastApplicationsToggle
+        <div className="mt-4 space-y-3 xl:hidden">
+          <GeneralCustomerExtrasPanel
+            item={activeItem}
             items={items}
             activeId={activeItem.id}
             onSelect={onChangeActive}
           />
-
-          {activeItem.publicNotes.length > 0 && (
-            <PublicNotes notes={activeItem.publicNotes} />
-          )}
-
-          <GeneralCustomerMainSupport item={activeItem} />
-        </div>
-
-        <div className="mt-4 space-y-3 xl:hidden">
-          <GeneralCustomerAsideSupport item={activeItem} />
         </div>
       </>
     );
@@ -3565,6 +3910,12 @@ function Dashboard({
                 onChange={onChangeActive}
               />
             }
+          />
+
+          <PastApplicationsToggle
+            items={items}
+            activeId={activeItem.id}
+            onSelect={onChangeActive}
           />
 
           <StepProgress stage={activeItem.stage} />
@@ -3727,7 +4078,22 @@ export default function MyPage() {
               : "px-4 py-4 xl:px-6 xl:py-5"
           }`}
         >
-          <div className="mx-auto grid w-full max-w-[1380px] items-start gap-4 xl:grid-cols-[minmax(0,1fr)_272px] xl:gap-5">
+          <div
+            className={`mx-auto grid w-full max-w-[1380px] items-start gap-4 ${
+              isGeneralCustomerLayout
+                ? "xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-6"
+                : "xl:grid-cols-[minmax(0,1fr)_272px] xl:gap-5"
+            }`}
+          >
+          {state === "ready" && isGeneralCustomerLayout && (
+            <div className="col-span-full min-w-0">
+              <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">My Page</p>
+              <p className="mt-0.5 text-[13px] text-slate-600">
+                {name ?? "고객"}님 · 확인 결과와 서류를 한곳에서 관리합니다.
+              </p>
+            </div>
+          )}
+
           <div className="min-w-0">
             {state === "checking" && <LoadingCard message="로그인 정보를 확인하고 있습니다." />}
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
@@ -3762,9 +4128,14 @@ export default function MyPage() {
             )}
           </div>
 
-          {state === "ready" && activeLayoutItem && isGeneralCustomerLayout && (
-            <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
-              <GeneralCustomerAsideSupport item={activeLayoutItem} />
+          {state === "ready" && isGeneralCustomerLayout && activeLayoutItem && (
+            <aside className="hidden min-w-0 w-full xl:sticky xl:top-6 xl:block xl:self-start">
+              <GeneralCustomerExtrasPanel
+                item={activeLayoutItem}
+                items={items}
+                activeId={activeId}
+                onSelect={setActiveId}
+              />
             </aside>
           )}
 

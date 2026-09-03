@@ -44,7 +44,12 @@ import {
   isLoggedInMember,
   loadRegisterMemberEntryState,
   submitMemberRegisterLead,
+  type RestoredRegisterLead,
 } from "@/lib/restoreRegisterLead";
+import {
+  establishBrowserSessionFromResultToken,
+  ensureBrowserSessionForResultToken,
+} from "@/lib/restoreCheckLead";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import {
   MasterFunnelLanding,
@@ -975,6 +980,49 @@ export default function RegisterHygienePage() {
       }
     }
   }, []);
+
+  function applyRestoredRegister(restored: RestoredRegisterLead) {
+    setCostEntryDone(true);
+    setRejectionStepDone(true);
+    setLeadSubmitted(true);
+    setLeadId(restored.leadId);
+    setResultToken(restored.resultToken);
+    setRestoredResultTone(restored.resultTone as ResultTone);
+    setRestoredLeadActive(true);
+    const meta = restored.meta;
+    if (meta) {
+      if (meta.hygieneChoice) setHygieneChoice(meta.hygieneChoice as HygieneChoice);
+      if (meta.registrationStatus) setRegistrationStatus(meta.registrationStatus as RegistrationStatus);
+      if (meta.facilityStatus) setFacilityStatus(meta.facilityStatus as FacilityStatus);
+      if (meta.staffHygieneStatus) setStaffHygieneStatus(meta.staffHygieneStatus as StaffHygieneStatus);
+      const pr = meta.previousRejection;
+      if (pr && typeof pr === "object" && "rejected" in pr) {
+        const rejected = (pr as { rejected: boolean }).rejected;
+        if (rejected === true) {
+          setPreviousRejection(true);
+          const reason = (pr as { reason?: string | null }).reason;
+          if (typeof reason === "string") setRejectionReason(reason);
+        } else if (rejected === false) {
+          setPreviousRejection(false);
+        }
+      }
+    }
+  }
+
+  async function handleLandingContinue() {
+    const { loggedIn, restored } = await loadRegisterMemberEntryState(
+      "register_hygiene",
+      "register_hygiene_diagnosis_lead",
+      { allowRestore: true }
+    );
+    if (loggedIn) setSkipSignup(true);
+    if (restored) {
+      applyRestoredRegister(restored);
+      return;
+    }
+    setCostEntryDone(true);
+  }
+
   useEffect(() => {
     let cancelled = false;
 
@@ -988,33 +1036,7 @@ export default function RegisterHygienePage() {
       );
       if (cancelled) return;
       if (loggedIn) setSkipSignup(true);
-      if (restored) {
-        setCostEntryDone(true);
-        setRejectionStepDone(true);
-        setLeadSubmitted(true);
-        setLeadId(restored.leadId);
-        setResultToken(restored.resultToken);
-        setRestoredResultTone(restored.resultTone as ResultTone);
-        setRestoredLeadActive(true);
-        const meta = restored.meta;
-        if (meta) {
-          if (meta.hygieneChoice) setHygieneChoice(meta.hygieneChoice as HygieneChoice);
-          if (meta.registrationStatus) setRegistrationStatus(meta.registrationStatus as RegistrationStatus);
-          if (meta.facilityStatus) setFacilityStatus(meta.facilityStatus as FacilityStatus);
-          if (meta.staffHygieneStatus) setStaffHygieneStatus(meta.staffHygieneStatus as StaffHygieneStatus);
-          const pr = meta.previousRejection;
-          if (pr && typeof pr === "object" && "rejected" in pr) {
-            const rejected = (pr as { rejected: boolean }).rejected;
-            if (rejected === true) {
-              setPreviousRejection(true);
-              const reason = (pr as { reason?: string | null }).reason;
-              if (typeof reason === "string") setRejectionReason(reason);
-            } else if (rejected === false) {
-              setPreviousRejection(false);
-            }
-          }
-        }
-      }
+      if (restored) applyRestoredRegister(restored);
     }
 
     async function initMemberState() {
@@ -1030,7 +1052,10 @@ export default function RegisterHygienePage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN") return;
-      void applyMemberEntryState();
+      // 세션 확립 시 회원가입 생략만 — mount restore(?restore=1)와 분리
+      void isLoggedInMember().then((loggedIn) => {
+        if (!cancelled && loggedIn) setSkipSignup(true);
+      });
     });
 
     return () => {
@@ -1259,9 +1284,18 @@ export default function RegisterHygienePage() {
         console.error("agency-confirm email trigger failed:", emailErr);
       }
 
-      if (!resultToken) {
+      if (restoredLeadActive) {
+        window.location.href = "/mypage";
+        return;
+      }
+      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
+      if (!resultToken && !hasSession) {
         setAgencyError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
         setAgencySaving(false);
+        return;
+      }
+      if (hasSession) {
+        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=register_hygiene&mode=expert`;
         return;
       }
       const res = await fetch("/api/auto-login", {
@@ -1291,7 +1325,12 @@ export default function RegisterHygienePage() {
     setAiReportPending(true);
     setAiReportError(null);
     try {
-      if (!resultToken) {
+      if (restoredLeadActive) {
+        window.location.href = "/mypage";
+        return;
+      }
+      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
+      if (!resultToken && !hasSession) {
         setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
         setAiReportPending(false);
         return;
@@ -1299,8 +1338,13 @@ export default function RegisterHygienePage() {
       recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_HYGIENE",
-          token: resultToken,
+          token: resultToken ?? undefined,
         });
+
+      if (hasSession) {
+        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=register_hygiene&mode=ai_report`;
+        return;
+      }
 
       const res = await fetch("/api/auto-login", {
         method: "POST",
@@ -1436,12 +1480,34 @@ export default function RegisterHygienePage() {
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
         console.error("lead-submit API error:", errBody);
-      } else {
-        const okBody = await res.json().catch(() => null);
-        if (okBody?.token) setResultToken(okBody.token);
+        setLeadError(
+          (typeof errBody?.message === "string" && errBody.message) ||
+            "접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      const okBody = await res.json().catch(() => null);
+      if (typeof okBody?.token !== "string") {
+        setLeadError("로그인 세션을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+
+      setResultToken(okBody.token);
+
+      const sessionReady = await establishBrowserSessionFromResultToken(okBody.token);
+      if (!sessionReady) {
+        setLeadError("로그인 세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
       }
     } catch (apiErr) {
       console.error("lead-submit fetch failed:", apiErr);
+      setLeadError("접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitting(false);
+      return;
     }
 
     if (pendingRejectionInsertRef.current) {
@@ -1508,7 +1574,7 @@ export default function RegisterHygienePage() {
             config={MASTER_LANDING_HYGIENE}
             activeTab={contextTab}
             onTabChange={setContextTab}
-            onContinue={() => setCostEntryDone(true)}
+            onContinue={() => void handleLandingContinue()}
           />
         )}
 
