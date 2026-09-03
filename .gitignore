@@ -13,6 +13,13 @@
 # testing
 /coverage
 
+# Playwright QA auth snapshots (session tokens — never commit)
+/tests/qa/.auth/
+
+# Playwright run artifacts
+/test-results/
+/playwright-report/
+
 # next.js
 /.next/
 /out/
