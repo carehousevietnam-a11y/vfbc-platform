@@ -982,9 +982,40 @@ export default function WpCheckPage() {
       }
     }
   }, []);
+  function applyRestoredLead(restored: {
+    leadId: string;
+    resultTone: ResultTone;
+    resultToken: string | null;
+    diagnosis: DiagnosisResult | null;
+  }) {
+    setCostEntryDone(true);
+    setRejectionStepDone(true);
+    setLeadSubmitted(true);
+    setLeadId(restored.leadId);
+    setResultToken(restored.resultToken);
+    setRestoredResultTone(restored.resultTone);
+    setRestoredLeadActive(true);
+    if (restored.diagnosis) setDiagnosis(restored.diagnosis);
+  }
+
+  async function handleLandingContinue() {
+    const { loggedIn, restored } = await loadCheckMemberEntryState(
+      "wp",
+      "wp_diagnosis_lead",
+      { allowRestore: true }
+    );
+    if (loggedIn) setSkipSignup(true);
+    if (restored) {
+      applyRestoredLead(restored);
+      return;
+    }
+    setCostEntryDone(true);
+  }
+
   // 1) 로그인 회원 → 회원가입만 생략
-  // 2) ?restore=1(기존 Case 재방문)일 때만 현재 service_type 결과 복원
-  // 3) 그 외(홈·cost-check·start=check 등) → 복원 없이 새 CHECK 시작
+  // 2) ?restore=1 → mount 시 기존 WP Case 복원 (?start=check 는 랜딩 스킵만, 복원 안 함)
+  // 3) 랜딩 「내 상황 확인하기」 → handleLandingContinue 에서 Case 복원 시도
+  // 4) 그 외(홈·cost-check 등) → 복원 없이 새 CHECK 시작
   useEffect(() => {
     let cancelled = false;
 
@@ -998,16 +1029,7 @@ export default function WpCheckPage() {
       );
       if (cancelled) return;
       if (loggedIn) setSkipSignup(true);
-      if (restored) {
-        setCostEntryDone(true);
-        setRejectionStepDone(true);
-        setLeadSubmitted(true);
-        setLeadId(restored.leadId);
-        setResultToken(restored.resultToken);
-        setRestoredResultTone(restored.resultTone);
-        setRestoredLeadActive(true);
-        if (restored.diagnosis) setDiagnosis(restored.diagnosis);
-      }
+      if (restored) applyRestoredLead(restored);
     }
 
     async function initMemberState() {
@@ -1023,7 +1045,10 @@ export default function WpCheckPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN") return;
-      void applyMemberEntryState();
+      // 세션 확립 시 회원가입 생략만 — mount restore(?restore=1)와 분리
+      void isLoggedInMember().then((loggedIn) => {
+        if (!cancelled && loggedIn) setSkipSignup(true);
+      });
     });
 
     return () => {
@@ -1042,6 +1067,7 @@ export default function WpCheckPage() {
   // /api/lead-submit 응답의 result_tokens.token — "전문가 진행 요청하기" 클릭 시
   // /api/auto-login에 전달해 로그인 세션을 만든 뒤 /documents로 이동시키는 데 쓴다.
   const [resultToken, setResultToken] = useState<string | null>(null);
+  const [resultUserId, setResultUserId] = useState<string | null>(null);
   const [expertLoginPending, setExpertLoginPending] = useState(false);
   const [expertLoginError, setExpertLoginError] = useState<string | null>(null);
   const [aiReportPending, setAiReportPending] = useState(false);
@@ -1111,23 +1137,36 @@ export default function WpCheckPage() {
     setReturnHref(sanitizeReturnHref(params.get("next")));
   }, []);
 
+  // resultToken만으로 즉시 prefetch하면, 가입 직후 establishBrowserSessionFromResultToken과
+  // 동시에 generateLink가 호출되어 magic link race가 난다. 브라우저 세션이 이미 있으면
+  // 전문가/AI 버튼은 /documents로 직행하므로 actionLink prefetch(추가 generateLink)는 불필요하다.
+  // 세션이 없을 때만(복원·폴백) documents / documents_ai_report actionLink를 prefetch한다.
   useEffect(() => {
     if (!resultToken) {
       clearAutoLoginCache();
       return;
     }
-    prefetchAutoLoginActionLink(
-      resultToken,
-      "documents",
-      documentsActionLinkRef,
-      documentsAutoLoginPromiseRef
-    );
-    prefetchAutoLoginActionLink(
-      resultToken,
-      "documents_ai_report",
-      aiReportActionLinkRef,
-      aiReportAutoLoginPromiseRef
-    );
+    let cancelled = false;
+    (async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (sessionData.session) return;
+      prefetchAutoLoginActionLink(
+        resultToken,
+        "documents",
+        documentsActionLinkRef,
+        documentsAutoLoginPromiseRef
+      );
+      prefetchAutoLoginActionLink(
+        resultToken,
+        "documents_ai_report",
+        aiReportActionLinkRef,
+        aiReportAutoLoginPromiseRef
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [resultToken]);
 
   const result: Result = computeWpResultTone(education, experience, job, priorityField);
@@ -1278,6 +1317,17 @@ export default function WpCheckPage() {
     });
   }
 
+  async function ensureBrowserSessionForDocuments(): Promise<boolean> {
+    if (!resultToken) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      return Boolean(sessionData.session);
+    }
+    return await establishBrowserSessionFromResultToken(
+      resultToken,
+      resultUserId ?? undefined
+    );
+  }
+
   // "전문가 진행 요청하기" 클릭 시 — resultToken이 있으면 /api/auto-login으로
   // 실제 로그인 세션을 발급받은 뒤(magic link 왕복, /r?...&next=documents 경유)
   // /documents로 이동한다. 세션이 없으면 이후 업로드/삭제가 RLS에서 permission
@@ -1287,14 +1337,12 @@ export default function WpCheckPage() {
     setExpertLoginPending(true);
     setExpertLoginError(null);
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      // 로컬 개발은 Magic Link Site URL 불일치로 vercel.app로 떨어질 수 있어
-      // 세션이 있거나 localhost면 /documents로 직접 이동한다. Production은 기존과 동일.
-      const isLocalDev =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1";
-      const canGoDocumentsDirect = !!sessionData.session || isLocalDev;
-      if (!resultToken && !canGoDocumentsDirect) {
+      if (restoredLeadActive) {
+        window.location.href = "/mypage";
+        return;
+      }
+      const hasSession = await ensureBrowserSessionForDocuments();
+      if (!resultToken && !hasSession) {
         setExpertLoginError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
         setExpertLoginPending(false);
         return;
@@ -1305,7 +1353,7 @@ export default function WpCheckPage() {
         token: resultToken ?? undefined,
       });
 
-      if (canGoDocumentsDirect) {
+      if (hasSession) {
         window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=wp&mode=expert`;
         return;
       }
@@ -1337,14 +1385,12 @@ export default function WpCheckPage() {
     setAiReportPending(true);
     setAiReportError(null);
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      // 로컬 개발은 Magic Link Site URL 불일치로 vercel.app로 떨어질 수 있어
-      // 세션이 있거나 localhost면 /documents로 직접 이동한다. Production은 기존과 동일.
-      const isLocalDev =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1";
-      const canGoDocumentsDirect = !!sessionData.session || isLocalDev;
-      if (!resultToken && !canGoDocumentsDirect) {
+      if (restoredLeadActive) {
+        window.location.href = "/mypage";
+        return;
+      }
+      const hasSession = await ensureBrowserSessionForDocuments();
+      if (!resultToken && !hasSession) {
         setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
         setAiReportPending(false);
         return;
@@ -1355,7 +1401,7 @@ export default function WpCheckPage() {
           token: resultToken ?? undefined,
         });
 
-      if (canGoDocumentsDirect) {
+      if (hasSession) {
         window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=wp&mode=ai_report`;
         return;
       }
@@ -1396,6 +1442,7 @@ export default function WpCheckPage() {
     setRejectionStepDone(false);
     setSelectedKey(null);
     setResultToken(null);
+    setResultUserId(null);
     setRestoredLeadActive(false);
     setRestoredResultTone(null);
     setSkipSignup(false);
@@ -1522,16 +1569,41 @@ export default function WpCheckPage() {
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
         console.error("lead-submit API error:", errBody);
-      } else {
-        const okBody = await res.json().catch(() => null);
-        if (okBody?.token) {
-          setResultToken(okBody.token);
-          // 최초 가입 직후 브라우저 세션을 만들어 다른 CHECK 서비스에서 회원가입을 다시 묻지 않는다.
-          await establishBrowserSessionFromResultToken(okBody.token);
-        }
+        setLeadError(
+          (typeof errBody?.message === "string" && errBody.message) ||
+            "접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        );
+        setSubmitting(false);
+        return;
       }
+
+      const okBody = await res.json().catch(() => null);
+      if (typeof okBody?.token !== "string") {
+        setLeadError("로그인 세션을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+
+      // 세션 확립을 resultToken set(→ prefetch useEffect)보다 먼저 끝낸다.
+      // 이후 setResultToken 시점에 세션이 있으면 prefetch는 generateLink를 호출하지 않는다.
+      const expectedUserId =
+        typeof okBody.userId === "string" ? okBody.userId : undefined;
+      const sessionReady = await establishBrowserSessionFromResultToken(
+        okBody.token,
+        expectedUserId
+      );
+      if (!sessionReady) {
+        setLeadError("로그인 세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+      setResultToken(okBody.token);
+      setResultUserId(expectedUserId ?? null);
     } catch (apiErr) {
       console.error("lead-submit fetch failed:", apiErr);
+      setLeadError("접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitting(false);
+      return;
     }
 
     // 익명으로 미리 저장해둔 거절 이력 기록이 있으면 이번 리드와 연결
@@ -1602,7 +1674,7 @@ export default function WpCheckPage() {
             config={MASTER_LANDING_WP}
             activeTab={contextTab}
             onTabChange={setContextTab}
-            onContinue={() => setCostEntryDone(true)}
+            onContinue={() => void handleLandingContinue()}
           />
         )}
 

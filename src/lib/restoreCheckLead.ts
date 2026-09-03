@@ -10,14 +10,21 @@ import type { DiagnosisResult, ResultTone } from "@/lib/checkDiagnosis";
 
 export type CheckServiceType = "wp" | "trc" | "tamtru" | "driving-license";
 
+const SERVICE_TYPE_ALIASES: Record<string, string> = {
+  register_company: "permit_company",
+};
+
+function normalizeServiceTypeKey(value: string): string {
+  const key = value.trim().toLowerCase().replace(/-/g, "_");
+  return SERVICE_TYPE_ALIASES[key] ?? key;
+}
+
 function isSameServiceType(
   stored: string | null | undefined,
   expected: string
 ): boolean {
   if (!stored) return false;
-  const a = stored.trim().toLowerCase().replace(/-/g, "_");
-  const b = expected.trim().toLowerCase().replace(/-/g, "_");
-  return a === b;
+  return normalizeServiceTypeKey(stored) === normalizeServiceTypeKey(expected);
 }
 
 export type RestoredCheckLead = {
@@ -435,16 +442,32 @@ export async function submitMemberCheckLead(
   return { ok: true, leadId, resultToken };
 }
 
+function sessionUserIdMatches(
+  session: { user?: { id?: string } | null } | null | undefined,
+  expectedUserId: string | undefined
+): boolean {
+  if (!session) return false;
+  if (!expectedUserId) return true;
+  return session.user?.id === expectedUserId;
+}
+
 /**
  * result_tokens.token으로 브라우저 Supabase 세션을 만든다(리다이렉트 없음).
  * 최초 회원가입(/api/lead-submit) 직후 호출해, 이후 CHECK 다른 서비스에서
  * 회원가입 폼 없이 skipSignup + restore/submitMember가 동작하게 한다.
+ *
+ * expectedUserId가 있으면 기존 세션이 그 user와 같을 때만 early-return한다.
+ * 다르면 기존 세션을 유지하지 않고 token으로 전환한다(verifyOtp → _saveSession 교체).
+ * expectedUserId가 없으면 기존처럼 세션 존재 시 early-return한다.
  */
 export async function establishBrowserSessionFromResultToken(
-  token: string
+  token: string,
+  expectedUserId?: string
 ): Promise<boolean> {
   const { data: existing } = await supabase.auth.getSession();
-  if (existing.session) return true;
+  if (existing.session && sessionUserIdMatches(existing.session, expectedUserId)) {
+    return true;
+  }
 
   try {
     const res = await fetch("/api/auto-login", {
@@ -466,9 +489,26 @@ export async function establishBrowserSessionFromResultToken(
       console.error("establishBrowserSession verifyOtp failed:", error);
       return false;
     }
+
+    const { data: afterVerify } = await supabase.auth.getSession();
+    if (!afterVerify.session) return false;
+    if (!sessionUserIdMatches(afterVerify.session, expectedUserId)) return false;
     return true;
   } catch (err) {
     console.error("establishBrowserSession failed:", err);
     return false;
   }
+}
+
+/** documents 이동 전 세션 확인 — 없으면 resultToken으로 establishBrowserSessionFromResultToken 재시도 */
+export async function ensureBrowserSessionForResultToken(
+  resultToken: string | null | undefined,
+  expectedUserId?: string
+): Promise<boolean> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (sessionData.session && sessionUserIdMatches(sessionData.session, expectedUserId)) {
+    return true;
+  }
+  if (!resultToken) return false;
+  return establishBrowserSessionFromResultToken(resultToken, expectedUserId);
 }
