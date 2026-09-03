@@ -30,6 +30,7 @@ export default function HeaderUserMenu({
   loginHref,
   onSignOut,
   compactPc = false,
+  align = "right",
 }: {
   isSignedIn: boolean;
   name: string | null;
@@ -37,6 +38,7 @@ export default function HeaderUserMenu({
   loginHref: string;
   onSignOut: () => void;
   compactPc?: boolean;
+  align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -84,7 +86,9 @@ export default function HeaderUserMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-12 z-50 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+          className={`absolute top-12 z-50 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${
+            align === "left" ? "left-0" : "right-0"
+          }`}
         >
           <div className="border-b border-gray-100 px-3.5 py-2.5">
             <p className="text-[13px] font-bold text-gray-900">{displayName}님</p>

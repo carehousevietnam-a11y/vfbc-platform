@@ -209,6 +209,7 @@ export default function SiteHeader() {
                   messageHref={messageHref}
                   loginHref={loginHref}
                   onSignOut={handleSignOut}
+                  align="left"
                 />
               </div>
             </nav>
