@@ -293,7 +293,8 @@ export async function POST(req: NextRequest) {
       : { data: [] as ActivityRow[] };
     const activities = (activitiesRaw ?? []) as ActivityRow[];
 
-    const items = leads.map((lead) => {
+    const items = await Promise.all(
+      leads.map(async (lead) => {
       const leadActivities = activities.filter((a) => a.lead_id === lead.id);
       const actions = new Set(leadActivities.map((a) => a.action));
 
@@ -316,15 +317,33 @@ export async function POST(req: NextRequest) {
       let fileUrl: string | null = null;
       let fileName: string | null = null;
       for (const a of leadActivities) {
-        // "허가 완료"에 첨부되는 결과파일(허가증)은 아래에서 permitFileUrl로
-        // 따로 뽑는다 — 고객이 접수 시 직접 올린 첨부서류(fileUrl)와 섞이면
-        // 안 되므로 이 루프에서는 제외한다.
-        if (a.action === "process_permit_completed") continue;
+        // "허가 완료" 결과파일·Document Center(document_upload)는 아래에서/별도 API로
+        // 다룬다 — VERIFY 질문단계 첨부(file_name/file_url)와 섞이면 안 된다.
+        if (a.action === "process_permit_completed" || a.action === "document_upload") continue;
         const meta = asMeta(a.meta);
         if (typeof meta?.feasibilityScore === "number") {
           feasibilityScore = meta.feasibilityScore as number;
         }
-        if (typeof meta?.file_url === "string") {
+        // VERIFY 첨부는 file_name(snake) 관례. Document Center는 fileName(camel)만 씀.
+        const isVerifyAttachment =
+          typeof meta?.file_name === "string" ||
+          Boolean(meta?.submitted_document) ||
+          typeof meta?.file_url === "string";
+        if (!isVerifyAttachment) continue;
+        if (typeof meta?.storagePath === "string") {
+          try {
+            const { data: signedData, error: signedError } = await supabaseAdmin.storage
+              .from("documents")
+              .createSignedUrl(meta.storagePath as string, 3600);
+            if (!signedError && signedData?.signedUrl) {
+              fileUrl = signedData.signedUrl;
+              fileName = (meta.file_name as string | undefined) ?? null;
+            }
+          } catch (err) {
+            console.error("mypage-data verify attachment Signed URL failed:", err);
+          }
+        } else if (typeof meta?.file_url === "string") {
+          // 과거 public URL 데이터 fallback (신규 저장에는 사용하지 않음)
           fileUrl = meta.file_url as string;
           fileName = (meta.file_name as string | undefined) ?? null;
         }
@@ -336,8 +355,22 @@ export async function POST(req: NextRequest) {
       const governmentSubmittedAt = governmentSubmittedActivity?.created_at ?? null;
       const permitCompletedAt = permitCompletedActivity?.created_at ?? null;
       const permitMeta = asMeta(permitCompletedActivity?.meta);
-      const permitFileUrl = (permitMeta?.file_url as string | undefined) ?? null;
+      let permitFileUrl: string | null = null;
       const permitFileName = (permitMeta?.file_name as string | undefined) ?? null;
+      if (typeof permitMeta?.storagePath === "string") {
+        try {
+          const { data: signedData, error: signedError } = await supabaseAdmin.storage
+            .from("documents")
+            .createSignedUrl(permitMeta.storagePath as string, 3600);
+          if (!signedError && signedData?.signedUrl) {
+            permitFileUrl = signedData.signedUrl;
+          }
+        } catch (err) {
+          console.error("mypage-data permit Signed URL failed:", err);
+        }
+      } else if (typeof permitMeta?.file_url === "string") {
+        permitFileUrl = permitMeta.file_url as string;
+      }
 
       // STEP5: 관리자가 "고객 공개"로 체크한 메모만 골라서 내려준다.
       // 작성자·내부 메모는 절대 포함하지 않는다(전문가 메모는 기본값이 비공개).
@@ -414,7 +447,8 @@ export async function POST(req: NextRequest) {
         publicNotes,
         createdAt: lead.created_at,
       };
-    });
+      })
+    );
 
     return NextResponse.json({
       name: profile?.name ?? null,

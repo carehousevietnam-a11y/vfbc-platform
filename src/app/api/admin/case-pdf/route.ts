@@ -440,7 +440,8 @@ export async function POST(req: NextRequest) {
       if (verifyCategory) {
         const incidentType = asStringField(diagMeta, "incident_type") ?? undefined;
         const incidentDescription = asStringField(diagMeta, "incident_description") ?? undefined;
-        const fileUrl = asStringField(diagMeta, "file_url");
+        const fileUrl =
+          asStringField(diagMeta, "storagePath") ?? asStringField(diagMeta, "file_url");
         const fileName = asStringField(diagMeta, "file_name");
 
         const diag = await getVerifyDiagnosis(verifyCategory, { fileUrl, fileName, incidentType, incidentDescription });

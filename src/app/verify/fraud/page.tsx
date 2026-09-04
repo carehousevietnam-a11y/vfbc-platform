@@ -813,7 +813,9 @@ export default function VerifyFraudPage() {
     setResultToken(restored.resultToken);
     setRestoredLeadActive(true);
 
-    const fileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
+    const storagePath =
+      typeof meta?.storagePath === "string" ? meta.storagePath : null;
+    const legacyFileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
     const fileName = typeof meta?.file_name === "string" ? meta.file_name : null;
     const incidentTypeVal =
       typeof meta?.incident_type === "string" ? meta.incident_type : undefined;
@@ -824,7 +826,7 @@ export default function VerifyFraudPage() {
 
     setDiagnosing(true);
     const diag = await getDiagnosis(CATEGORY, {
-      fileUrl,
+      fileUrl: storagePath || legacyFileUrl,
       fileName,
       incidentType: incidentTypeVal,
       incidentDescription: incidentDescVal,
@@ -964,7 +966,7 @@ export default function VerifyFraudPage() {
     setError(null);
     const newLeadId = crypto.randomUUID();
 
-    let fileUrl: string | null = null;
+    let storagePath: string | null = null;
     if (attachedFile && attachedFile.size > 0) {
       const rawExt = attachedFile.name.split(".").pop() || "";
       const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
@@ -974,8 +976,7 @@ export default function VerifyFraudPage() {
         .from("documents")
         .upload(path, attachedFile);
       if (!uploadError) {
-        const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
-        fileUrl = urlData.publicUrl;
+        storagePath = path;
       } else {
         console.error(uploadError);
       }
@@ -986,14 +987,14 @@ export default function VerifyFraudPage() {
       review_focus: reviewFocus,
       incident_type: incidentType,
       incident_description: incidentDescription.trim(),
-      ...(fileUrl
+      ...(storagePath
         ? {
-            file_url: fileUrl,
+            storagePath,
             file_name: attachedFile?.name,
             submitted_document: {
               document_type: incidentType,
               review_stage: reviewStage,
-              file_url: fileUrl,
+              storagePath,
               file_name: attachedFile?.name,
             },
           }
@@ -1037,7 +1038,7 @@ export default function VerifyFraudPage() {
 
     setDiagnosing(true);
     const diag = await getDiagnosis(CATEGORY, {
-      fileUrl,
+      fileUrl: storagePath,
       fileName: attachedFile?.name || null,
       incidentType: incidentType || undefined,
       incidentDescription: incidentDescription.trim() || undefined,
@@ -1108,10 +1109,9 @@ export default function VerifyFraudPage() {
     }
 
     // 질문3에서 선택한 서류(선택 사항)를 기존 VERIFY Storage 구조 그대로 재사용해
-    // 업로드한다 — verify/real-estate 등 다른 VERIFY 페이지와 동일한 패턴
-    // (documents 버킷, verify-{category}/{leadId}.{ext} 경로, getPublicUrl).
-    // 새로운 Storage 구조를 추측하거나 만들지 않는다.
-    let fileUrl: string | null = null;
+    // 업로드한다 — documents 버킷 + verify-{category}/{leadId}.{ext} 경로.
+    // Private bucket: getPublicUrl 미사용, storagePath만 meta에 저장.
+    let storagePath: string | null = null;
     if (attachedFile && attachedFile.size > 0) {
       const rawExt = attachedFile.name.split(".").pop() || "";
       const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
@@ -1121,8 +1121,7 @@ export default function VerifyFraudPage() {
         .from("documents")
         .upload(path, attachedFile);
       if (!uploadError) {
-        const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
-        fileUrl = urlData.publicUrl;
+        storagePath = path;
       } else {
         console.error(uploadError);
       }
@@ -1141,14 +1140,14 @@ export default function VerifyFraudPage() {
         // 함께 태깅해 저장 — 기존 meta(jsonb) 구조를 확장한 것일 뿐 새 DB 컬럼은
         // 없다. 향후 /documents 등에서 "이미 제출된 자료"를 조회할 때 이 값으로
         // 어떤 서류가 이미 제출됐는지 식별할 수 있도록 준비해두는 용도.
-        ...(fileUrl
+        ...(storagePath
           ? {
-              file_url: fileUrl,
+              storagePath,
               file_name: attachedFile?.name,
               submitted_document: {
                 document_type: incidentType,
                 review_stage: reviewStage,
-                file_url: fileUrl,
+                storagePath,
                 file_name: attachedFile?.name,
               },
             }
@@ -1224,7 +1223,7 @@ export default function VerifyFraudPage() {
 
     setDiagnosing(true);
     const diag = await getDiagnosis(CATEGORY, {
-      fileUrl,
+      fileUrl: storagePath,
       fileName: attachedFile?.name || null,
       incidentType: incidentType || undefined,
       incidentDescription: incidentDescription.trim() || undefined,

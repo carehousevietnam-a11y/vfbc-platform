@@ -409,8 +409,8 @@ async function respondToConsultation(formData: FormData) {
 //
 // STEP4: "허가 완료" 단계에서만 결과파일(허가증)을 함께 첨부할 수 있다.
 // 새 Storage 버킷을 만들지 않고, verify/*/page.tsx가 이미 쓰는 "documents"
-// 버킷·업로드 방식을 그대로 재사용한다. meta.file_url/file_name도 기존
-// VERIFY 첨부파일과 동일한 필드명 관례를 따른다.
+// 버킷·업로드 방식을 그대로 재사용한다. Private bucket이므로 storagePath만
+// 저장하고, 열람이 필요할 때 Signed URL을 서버에서 발급한다.
 async function setProcessStage(formData: FormData) {
   "use server";
   const leadId = String(formData.get("leadId") || "");
@@ -439,8 +439,7 @@ async function setProcessStage(formData: FormData) {
         .upload(storagePath, file, { upsert: true });
 
       if (!uploadError) {
-        const { data: urlData } = supabaseAdmin.storage.from("documents").getPublicUrl(storagePath);
-        meta.file_url = urlData.publicUrl;
+        meta.storagePath = storagePath;
         meta.file_name = file.name;
       } else {
         console.error("permit file upload failed:", uploadError);
@@ -461,8 +460,26 @@ async function setProcessStage(formData: FormData) {
   // 보낸다. notifyStageChange 내부에서 모든 에러를 catch하므로 여기서
   // 실패해도 단계 저장(위 insert) 자체는 이미 완료된 상태로 유지된다.
   if (!stageInsertError) {
+    let permitNotifyUrl: string | null = null;
+    const savedPath =
+      typeof meta.storagePath === "string" ? (meta.storagePath as string) : null;
+    if (savedPath) {
+      try {
+        const { data: signedData, error: signedError } = await supabaseAdmin.storage
+          .from("documents")
+          .createSignedUrl(savedPath, 3600);
+        if (!signedError && signedData?.signedUrl) {
+          permitNotifyUrl = signedData.signedUrl;
+        }
+      } catch (signedCatchErr) {
+        console.error("[admin/cases] permit Signed URL for notify failed:", signedCatchErr);
+      }
+    } else if (typeof meta.file_url === "string") {
+      // 과거 public URL 데이터 fallback (신규 저장에는 사용하지 않음)
+      permitNotifyUrl = meta.file_url as string;
+    }
     await notifyStageChange(leadId, action as StageChangeAction, {
-      permitFileUrl: (meta.file_url as string | undefined) ?? null,
+      permitFileUrl: permitNotifyUrl,
     });
   }
 
@@ -639,14 +656,57 @@ export default async function AdminLeadDetailPage({
 
   // STEP4: "허가 완료" 단계에 첨부된 결과파일(허가증)이 있으면 표시용으로 조회
   const permitActivity = activities.find((a) => a.action === "process_permit_completed");
-  const permitFileUrl = (asMeta(permitActivity?.meta)?.file_url as string | undefined) ?? null;
-  const permitFileName = (asMeta(permitActivity?.meta)?.file_name as string | undefined) ?? null;
+  const permitMeta = asMeta(permitActivity?.meta);
+  const permitFileName = (permitMeta?.file_name as string | undefined) ?? null;
+  let permitFileUrl: string | null = null;
+  {
+    const storagePath = (permitMeta?.storagePath as string | undefined) ?? null;
+    const legacyUrl = (permitMeta?.file_url as string | undefined) ?? null;
+    if (storagePath) {
+      try {
+        const { data: signedData, error: signedError } = await supabaseAdmin.storage
+          .from("documents")
+          .createSignedUrl(storagePath, 3600);
+        if (!signedError && signedData?.signedUrl) permitFileUrl = signedData.signedUrl;
+      } catch (err) {
+        console.error("[admin/cases] permit Signed URL failed:", err);
+      }
+    } else if (legacyUrl) {
+      permitFileUrl = legacyUrl;
+    }
+  }
 
-  // 첨부 서류 (VERIFY STEP2에서 저장되는 meta.file_url / file_name — 특정
-  // action명에 묶지 않고 파일이 첨부된 첫 활동을 찾는다)
-  const uploadActivity = activities.find((a) => asMeta(a.meta)?.file_url);
-  const fileUrl = (asMeta(uploadActivity?.meta)?.file_url as string | undefined) ?? null;
-  const fileName = (asMeta(uploadActivity?.meta)?.file_name as string | undefined) ?? null;
+  // 첨부 서류 (VERIFY 질문단계 — 신규 storagePath / 과거 file_url fallback)
+  // document_upload·허가증과 구분: VERIFY는 file_name(snake) / submitted_document 관례.
+  const uploadActivity = activities.find((a) => {
+    if (a.action === "document_upload" || a.action === "process_permit_completed") return false;
+    const meta = asMeta(a.meta);
+    if (!meta) return false;
+    if (typeof meta.file_url === "string") return true;
+    return (
+      typeof meta.storagePath === "string" &&
+      (typeof meta.file_name === "string" || Boolean(meta.submitted_document))
+    );
+  });
+  const uploadMeta = asMeta(uploadActivity?.meta);
+  const fileName = (uploadMeta?.file_name as string | undefined) ?? null;
+  let fileUrl: string | null = null;
+  {
+    const storagePath = (uploadMeta?.storagePath as string | undefined) ?? null;
+    const legacyUrl = (uploadMeta?.file_url as string | undefined) ?? null;
+    if (storagePath) {
+      try {
+        const { data: signedData, error: signedError } = await supabaseAdmin.storage
+          .from("documents")
+          .createSignedUrl(storagePath, 3600);
+        if (!signedError && signedData?.signedUrl) fileUrl = signedData.signedUrl;
+      } catch (err) {
+        console.error("[admin/cases] verify attachment Signed URL failed:", err);
+      }
+    } else if (legacyUrl) {
+      fileUrl = legacyUrl;
+    }
+  }
 
   // "고객 추가 제출 자료" — /documents 페이지에서 업로드된 문서(action="document_upload").
   // storagePath만 저장되어 있으므로(공개 URL 미사용 원칙) 서버 컴포넌트 내부에서
