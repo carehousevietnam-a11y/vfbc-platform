@@ -44,8 +44,8 @@ export type MemberLeadContact = {
 };
 
 export type SubmitMemberCheckLeadResult =
-  | { ok: true; leadId: string; resultToken: string | null }
-  | { ok: false; reason: "no_contact" | "create_failed" };
+  | { ok: true; leadId: string; resultToken: string | null; userId: string | null }
+  | { ok: false; reason: "no_contact" | "create_failed" | "session_failed" };
 
 const RESULT_TONES = new Set<string>(["possible", "conditional", "impossible"]);
 
@@ -374,6 +374,7 @@ export async function submitMemberCheckLead(
   });
 
   let resultToken: string | null = null;
+  let resultUserId: string | null = null;
   try {
     const { data: existingActivity } = await supabase
       .from("crm_activities")
@@ -417,12 +418,26 @@ export async function submitMemberCheckLead(
     if (res.ok) {
       const okBody = await res.json().catch(() => null);
       if (typeof okBody?.token === "string") resultToken = okBody.token;
+      if (typeof okBody?.userId === "string") resultUserId = okBody.userId;
     } else {
       const errBody = await res.json().catch(() => null);
       console.error("member lead-submit API error:", errBody);
     }
   } catch (apiErr) {
     console.error("member lead-submit fetch failed:", apiErr);
+  }
+
+  // Signup 경로와 동일: Case owner(userId)와 브라우저 세션 identity를 맞춘다.
+  // 같은 user면 establishBrowserSessionFromResultToken이 early-return(불필요한 signOut 없음).
+  // 다르면 token으로 전환한다. restore(?restore=1) 경로는 이 함수를 쓰지 않는다.
+  if (resultToken) {
+    const sessionReady = await establishBrowserSessionFromResultToken(
+      resultToken,
+      resultUserId ?? undefined
+    );
+    if (!sessionReady) {
+      return { ok: false, reason: "session_failed" };
+    }
   }
 
   if (params.pendingRejectionInsert) {
@@ -439,7 +454,7 @@ export async function submitMemberCheckLead(
     }
   }
 
-  return { ok: true, leadId, resultToken };
+  return { ok: true, leadId, resultToken, userId: resultUserId };
 }
 
 function sessionUserIdMatches(

@@ -1299,6 +1299,7 @@ export default function DrivingLicenseCheckPage() {
       }
       setLeadId(created.leadId);
       setResultToken(created.resultToken);
+      setResultUserId(created.userId ?? null);
       setLeadSubmitted(true);
       setSubmitting(false);
     })();
