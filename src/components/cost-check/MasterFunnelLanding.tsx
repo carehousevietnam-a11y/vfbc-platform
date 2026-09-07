@@ -42,7 +42,15 @@ import {
   MasterPriceOverview,
   hasMarketPriceData,
 } from "@/components/cost-check/MasterCostFunnel";
+import {
+  MasterTrcContextTabs,
+  MasterTrcQuotationReport,
+} from "@/components/cost-check/MasterTrcQuotationReport";
+import { MasterWpQuotationReport } from "@/components/cost-check/MasterWpQuotationReport";
+import { MasterTamtruQuotationReport } from "@/components/cost-check/MasterTamtruQuotationReport";
+import { MasterDrivingQuotationReport } from "@/components/cost-check/MasterDrivingQuotationReport";
 import { GuideCaseFunnelSummary } from "@/components/answers/GuideCaseFunnelSummary";
+import { MasterQuotationGuidePanel } from "@/components/cost-check/MasterQuotationGuidePanel";
 import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
 import { TRC_GUIDE_ARTICLE } from "@/lib/contentPacks/trcArticles";
 import { WP_GUIDE_SLUG } from "@/lib/contentPacks/wpArticles";
@@ -191,10 +199,13 @@ function MasterServiceQueryEntry({
   currentServiceId,
   initialQuery = "",
   onLocalTabChange,
+  onQueryCommit,
 }: {
   currentServiceId?: CostCheckServiceId;
   initialQuery?: string;
   onLocalTabChange: (tab: MasterFunnelContextTab) => void;
+  /** 제출된 질문을 상위(자세히 보기 → intent)에 유지 */
+  onQueryCommit?: (query: string) => void;
 }) {
   const router = useRouter();
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -228,6 +239,7 @@ function MasterServiceQueryEntry({
     setQueryNotice("");
     setPickerOpen(false);
     setPickerCategory(null);
+    onQueryCommit?.(trimmed);
 
     const matched = matchCostCheckService(trimmed);
     const tab = matched
@@ -257,12 +269,21 @@ function MasterServiceQueryEntry({
 
   return (
     <form onSubmit={handleDirectSubmit} className="space-y-2.5">
-      <label
-        htmlFor={inputId}
-        className="block text-[13px] font-semibold text-[#0F172A] sm:text-[14px]"
-      >
-        원하는 내용을 입력하거나 아래 항목에서 선택해주세요
-      </label>
+      {currentServiceId === "trc" ||
+      currentServiceId === "wp" ||
+      currentServiceId === "tamtru" ||
+      currentServiceId === "driving-license" ? (
+        <label htmlFor={inputId} className="sr-only">
+          원하는 내용을 입력하거나 아래에서 선택하세요
+        </label>
+      ) : (
+        <label
+          htmlFor={inputId}
+          className="block text-[13px] font-semibold text-[#0F172A] sm:text-[14px]"
+        >
+          원하는 내용을 입력하거나 아래 항목에서 선택해주세요
+        </label>
+      )}
       <div ref={pickerRef} className="relative min-w-0">
         <div className="relative min-w-0">
           <input
@@ -277,8 +298,15 @@ function MasterServiceQueryEntry({
             }}
             onFocus={() => setPickerOpen(true)}
             onClick={() => setPickerOpen(true)}
-            placeholder="예) 세무기장 비용은 얼마인가요?"
-            className="min-h-11 w-full min-w-0 rounded-[12px] border border-[#D1D5DB] bg-white py-2.5 pl-3.5 pr-10 text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/15 sm:min-h-12"
+            placeholder={
+              currentServiceId === "trc" ||
+              currentServiceId === "wp" ||
+              currentServiceId === "tamtru" ||
+              currentServiceId === "driving-license"
+                ? "원하는 내용을 입력하거나 아래에서 선택하세요"
+                : "예) 세무기장 비용은 얼마인가요?"
+            }
+            className="min-h-11 w-full min-w-0 rounded-[12px] border border-[#D1D5DB] bg-white py-2.5 pl-3.5 pr-10 text-[14px] text-[#0F172A] placeholder:text-[13px] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/15 sm:min-h-12 sm:placeholder:text-[14px]"
             autoComplete="off"
             aria-haspopup="listbox"
             aria-expanded={pickerOpen}
@@ -350,11 +378,13 @@ function MasterCostBasisEntry({
   onContinue,
   onTabChange,
   entryQuery,
+  onQueryCommit,
 }: {
   config: MasterLandingConfig;
   onContinue: () => void;
   onTabChange: (tab: MasterFunnelContextTab) => void;
   entryQuery?: string;
+  onQueryCommit?: (query: string) => void;
 }) {
   const steps =
     config.persuasionSteps ??
@@ -374,6 +404,7 @@ function MasterCostBasisEntry({
           currentServiceId={config.costServiceId}
           initialQuery={entryQuery}
           onLocalTabChange={onTabChange}
+          onQueryCommit={onQueryCommit}
         />
         {!hookAfterCostStructure ? (
           <MasterFunnelHook title={config.hookTitle} body={config.hookBody} />
@@ -678,10 +709,18 @@ function MasterServiceReviewPanel({
 function MasterServiceGuidePanel({
   config,
   onGoLookup,
+  query = "",
 }: {
   config: MasterLandingConfig;
   onGoLookup: () => void;
+  query?: string;
 }) {
+  if (isMasterQuotationLanding(config)) {
+    return (
+      <MasterQuotationGuidePanel config={config} onGoLookup={onGoLookup} query={query} />
+    );
+  }
+
   const guideArticle = config.guideSlug ? getPublishedArticleBySlug(config.guideSlug) : null;
 
   return (
@@ -807,6 +846,15 @@ function usesMasterQuoteReview(id?: CostCheckServiceId): id is CostCheckServiceI
   return Boolean(id && MASTER_QUOTE_REVIEW_SERVICE_IDS.includes(id));
 }
 
+function isMasterQuotationLanding(config: MasterLandingConfig): boolean {
+  return (
+    config.costServiceId === "trc" ||
+    config.costServiceId === "wp" ||
+    config.costServiceId === "tamtru" ||
+    config.costServiceId === "driving-license"
+  );
+}
+
 export function MasterFunnelLanding({
   config,
   activeTab,
@@ -820,16 +868,57 @@ export function MasterFunnelLanding({
 }) {
   const urlSyncedRef = useRef(false);
   const [entryQuery, setEntryQuery] = useState("");
+  const masterQuotation = isMasterQuotationLanding(config);
 
   useEffect(() => {
     if (typeof window === "undefined" || urlSyncedRef.current) return;
     urlSyncedRef.current = true;
     const { tab, query } = readMasterFunnelEntryParams(window.location.search);
     if (window.location.search.includes("tab=") || query) {
-      onTabChange(tab);
+      // Master 견적서 UI는 확인하기/자세히 보기만 — review URL은 확인하기(견적서)로 합침
+      if (masterQuotation && tab === "review") onTabChange("lookup");
+      else onTabChange(tab);
     }
     if (query) setEntryQuery(query);
-  }, [onTabChange]);
+  }, [onTabChange, masterQuotation]);
+
+  if (masterQuotation) {
+    const masterTab: "lookup" | "direct" = activeTab === "direct" ? "direct" : "lookup";
+    const quotationServiceId = config.costServiceId;
+    const queryEntry = (
+      <MasterServiceQueryEntry
+        currentServiceId={quotationServiceId}
+        initialQuery={entryQuery}
+        onLocalTabChange={onTabChange}
+        onQueryCommit={setEntryQuery}
+      />
+    );
+    return (
+      <>
+        <MasterTrcContextTabs
+          active={masterTab}
+          onChange={(tab) => onTabChange(tab)}
+        />
+        {masterTab === "lookup" &&
+          (quotationServiceId === "wp" ? (
+            <MasterWpQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
+          ) : quotationServiceId === "tamtru" ? (
+            <MasterTamtruQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
+          ) : quotationServiceId === "driving-license" ? (
+            <MasterDrivingQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
+          ) : (
+            <MasterTrcQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
+          ))}
+        {masterTab === "direct" && (
+          <MasterServiceGuidePanel
+            config={config}
+            onGoLookup={onContinue}
+            query={entryQuery}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>
@@ -840,6 +929,7 @@ export function MasterFunnelLanding({
           onContinue={onContinue}
           onTabChange={onTabChange}
           entryQuery={entryQuery}
+          onQueryCommit={setEntryQuery}
         />
       )}
       {activeTab === "review" &&
@@ -851,7 +941,9 @@ export function MasterFunnelLanding({
         ) : (
           <MasterServiceReviewPanel config={config} onGoLookup={onContinue} />
         ))}
-      {activeTab === "direct" && <MasterServiceGuidePanel config={config} onGoLookup={onContinue} />}
+      {activeTab === "direct" && (
+        <MasterServiceGuidePanel config={config} onGoLookup={onContinue} query={entryQuery} />
+      )}
     </>
   );
 }
@@ -974,12 +1066,12 @@ export const MASTER_LANDING_TRC: MasterLandingConfig = {
   reviewTitle: "견적 적정성 검토",
   reviewIntro: "받은 견적이 정부 수수료 + 시장 일반 대행료 기준 대비 어느 정도인지 확인합니다.",
   reviewChecks: checkReviewChecks("거주증(TRC)"),
-  guideTitle: "거주증(TRC) 안내",
-  guideIntro: "거주증 신청의 기본 확인 항목과 비용·공식 자료 확인 방법을 안내합니다.",
+  guideTitle: "거주증 안내",
+  guideIntro: "신청 순서, 준비 서류, 공식 자료 확인 방법을 정리했습니다.",
   guideItems: checkGuideItems("거주증(TRC)"),
   guideSlug: TRC_GUIDE_ARTICLE.slug,
   officialUrl: "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26285",
-  officialNote: "공안부 공공서비스포털의 거주증(TRC) 발급 절차 안내를 확인할 수 있습니다.",
+  officialNote: "공안부 공공서비스포털에서 거주증 발급 절차를 확인할 수 있습니다.",
 };
 
 export const MASTER_LANDING_WP: MasterLandingConfig = {
@@ -994,12 +1086,12 @@ export const MASTER_LANDING_WP: MasterLandingConfig = {
   reviewTitle: "견적·조건 적정성 검토",
   reviewIntro: "받은 안내나 견적이 노동허가 기준과 비용 구조에 맞는지 확인합니다.",
   reviewChecks: checkReviewChecks("노동허가(WP)"),
-  guideTitle: "노동허가(WP) 안내",
-  guideIntro: "노동허가 신청의 기본 확인 항목과 비용·공식 자료 확인 방법을 안내합니다.",
+  guideTitle: "노동허가증 안내",
+  guideIntro: "신청 순서, 준비 서류, 비용·공식 자료 확인 방법을 정리했습니다.",
   guideItems: checkGuideItems("노동허가(WP)"),
   guideSlug: WP_GUIDE_SLUG,
   officialUrl: "https://dichvucong.gov.vn/",
-  officialNote: "외국인노동자 관리 관련 공공서비스 안내는 국가공공서비스포털에서 확인할 수 있습니다.",
+  officialNote: "국가공공서비스포털에서 외국인노동자 관련 안내를 확인할 수 있습니다.",
 };
 
 export const MASTER_LANDING_TAMTRU: MasterLandingConfig = {
@@ -1014,12 +1106,12 @@ export const MASTER_LANDING_TAMTRU: MasterLandingConfig = {
   reviewTitle: "견적·조건 적정성 검토",
   reviewIntro: "받은 안내나 견적이 땀주 등록 기준과 비용 구조에 맞는지 확인합니다.",
   reviewChecks: checkReviewChecks("임시거주등록(땀주)"),
-  guideTitle: "임시거주등록(땀주) 안내",
-  guideIntro: "땀주 신고의 기본 확인 항목과 비용·공식 자료 확인 방법을 안내합니다.",
+  guideTitle: "임시거주 안내",
+  guideIntro: "신고 순서, 숙소별 준비, 공식 자료 확인 방법을 정리했습니다.",
   guideItems: checkGuideItems("임시거주등록(땀주)"),
   guideSlug: TAMTRU_GUIDE_SLUG,
   officialUrl: "https://evisa.gov.vn/khai-bao-tam-tru",
-  officialNote: "임시거주 신고 관련 공식 안내는 evisa 포털에서 확인할 수 있습니다.",
+  officialNote: "evisa 포털에서 임시거주 신고 안내를 확인할 수 있습니다.",
 };
 
 export const MASTER_LANDING_DRIVING: MasterLandingConfig = {
@@ -1034,12 +1126,12 @@ export const MASTER_LANDING_DRIVING: MasterLandingConfig = {
   reviewTitle: "견적·조건 적정성 검토",
   reviewIntro: "받은 안내나 견적이 운전면허 전환 기준과 비용 구조에 맞는지 확인합니다.",
   reviewChecks: checkReviewChecks("운전면허 전환"),
-  guideTitle: "운전면허 전환 안내",
-  guideIntro: "외국인 운전면허 교환의 기본 확인 항목과 비용·공식 자료 확인 방법을 안내합니다.",
+  guideTitle: "운전면허 안내",
+  guideIntro: "교환 순서, 준비 서류, 공식 자료 확인 방법을 정리했습니다.",
   guideItems: checkGuideItems("운전면허 전환"),
   guideSlug: DRIVING_LICENSE_GUIDE_SLUG,
   officialUrl: "https://dvc-gplx.csgt.bocongan.gov.vn/",
-  officialNote: "외국인 운전면허 교환 관련 공식 안내는 교통경찰 공공서비스 포털에서 확인할 수 있습니다.",
+  officialNote: "교통경찰 공공서비스 포털에서 외국인 운전면허 교환 안내를 확인할 수 있습니다.",
 };
 
 export const MASTER_LANDING_COMPANY: MasterLandingConfig = {

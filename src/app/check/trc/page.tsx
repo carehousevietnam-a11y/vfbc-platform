@@ -1713,27 +1713,26 @@ export default function TrcCheckPage() {
   return (
     <FunnelPageShell
       engine="check"
-      width={!costEntryDone || resultScreenActive ? "wide" : "default"}
+      width={!costEntryDone ? "master" : resultScreenActive ? "wide" : "default"}
     >
         <FunnelPageHeader
           engine="check"
           title={
             !costEntryDone
-              ? contextTab === "review"
-                ? "거주증 (TRC) 견적 적정성 검토"
-                : contextTab === "direct"
-                  ? "거주증 (TRC) 안내"
-                  : "거주증 (TRC) 비용 확인"
+              ? "거주증"
               : "거주증 (TRC) 가능성 진단"
           }
           description={
             !costEntryDone
-              ? contextTab === "review"
-                ? "받은 견적이 정부 수수료 + 시장 일반 대행료 기준 대비 어느 정도인지 확인합니다."
-                : contextTab === "direct"
-                  ? "거주증 절차·서류·공식 자료 확인 방법을 안내합니다."
-                  : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 내 상황을 직접 확인합니다."
+              ? contextTab === "direct"
+                ? "신청 순서·서류·공식 자료를 확인합니다."
+                : "공식비용·시장가격·추가 비용과 위험을 순서대로 확인합니다."
               : "국적·비자·직책·회사 형태를 순서대로 확인하면, 거주증 가능 여부를 공식 행정 기준으로 확인할 수 있습니다."
+          }
+          descriptionClassName={
+            !costEntryDone
+              ? "break-keep pl-2.5 text-[11.5px] font-normal leading-[1.4] tracking-tight text-[#94A3B8] [overflow-wrap:normal] sm:pl-4 sm:text-[11px] sm:leading-[1.45] sm:tracking-normal sm:text-[#64748B]"
+              : undefined
           }
           headerExtra={
             resultScreenActive && diagnosis ? (

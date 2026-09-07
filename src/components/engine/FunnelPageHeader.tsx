@@ -15,6 +15,8 @@ type FunnelPageHeaderProps = {
   description: string;
   headerExtra?: ReactNode;
   className?: string;
+  /** TRC Master 등 — Mobile 전용 description Typography override */
+  descriptionClassName?: string;
 };
 
 /**
@@ -26,6 +28,7 @@ export default function FunnelPageHeader({
   description,
   headerExtra,
   className,
+  descriptionClassName,
 }: FunnelPageHeaderProps) {
   const copy = FUNNEL_ENGINE_COPY[engine];
 
@@ -68,7 +71,7 @@ export default function FunnelPageHeader({
         <div className="min-w-0">
           <p className={FUNNEL_EYEBROW}>{copy.eyebrow}</p>
           <h1 className={cn("mt-1.5", FUNNEL_H1)}>{title}</h1>
-          <p className={cn("mt-0.5", FUNNEL_DESC)}>{description}</p>
+          <p className={cn("mt-0.5", descriptionClassName ?? FUNNEL_DESC)}>{description}</p>
         </div>
         {headerExtra ? <div className="shrink-0">{headerExtra}</div> : null}
       </div>

@@ -2,13 +2,24 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/home/SiteHeader";
 import { GuideCaseBody } from "@/components/answers/GuideCaseBody";
+import {
+  MASTER_CHECK_GUIDE_SLUGS,
+  MasterCheckGuideDetail,
+} from "@/components/cost-check/MasterCheckGuideDetail";
+import { parseCheckGuideIntent } from "@/lib/contentPacks/checkGuideIntent";
 import { getPublishedArticleBySlug, listPublishedArticleSlugs } from "@/lib/contentPacks/registry";
 import { guidePath } from "@/lib/contentPacks/paths";
 import { getSiteOrigin } from "@/lib/siteOrigin";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ intent?: string | string[]; q?: string | string[] }>;
 };
+
+function firstSearchParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
 
 export async function generateStaticParams() {
   return listPublishedArticleSlugs().map((slug) => ({ slug }));
@@ -48,8 +59,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function GuideCasePage({ params }: PageProps) {
+export default async function GuideCasePage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const sp = await searchParams;
   const article = getPublishedArticleBySlug(slug);
   if (!article) {
     notFound();
@@ -57,6 +69,9 @@ export default async function GuideCasePage({ params }: PageProps) {
 
   const origin = getSiteOrigin();
   const canonicalUrl = `${origin}${guidePath(slug)}`;
+  const isMasterCheckGuide = MASTER_CHECK_GUIDE_SLUGS.has(slug);
+  const intent = parseCheckGuideIntent(firstSearchParam(sp.intent));
+  const question = firstSearchParam(sp.q)?.trim() || null;
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -87,12 +102,20 @@ export default async function GuideCasePage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-full min-w-0 overflow-x-hidden bg-[#fafafa]">
+    <div
+      className={`min-h-full min-w-0 overflow-x-hidden ${
+        isMasterCheckGuide ? "bg-white" : "bg-[#fafafa]"
+      }`}
+    >
       <div className="h-[3px] bg-blue-900" />
       <SiteHeader />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
-      <GuideCaseBody article={article} />
+      {isMasterCheckGuide ? (
+        <MasterCheckGuideDetail article={article} intent={intent} question={question} />
+      ) : (
+        <GuideCaseBody article={article} />
+      )}
     </div>
   );
 }

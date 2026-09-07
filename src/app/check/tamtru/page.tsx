@@ -1725,27 +1725,26 @@ export default function TamTruCheckPage() {
   return (
     <FunnelPageShell
       engine="check"
-      width={!costEntryDone || resultScreenActive ? "wide" : "default"}
+      width={!costEntryDone ? "master" : resultScreenActive ? "wide" : "default"}
     >
       <FunnelPageHeader
         engine="check"
         title={
           !costEntryDone
-            ? contextTab === "review"
-              ? "임시거주등록 (땀주) 견적·조건 검토"
-              : contextTab === "direct"
-                ? "임시거주등록 (땀주) 안내"
-                : "임시거주등록 (땀주) 비용 확인"
+            ? "임시거주"
             : "땀주 (임시거주등록) 확인"
         }
         description={
           !costEntryDone
-            ? contextTab === "review"
-              ? "받은 안내·견적이 기준과 비용 구조에 맞는지 확인합니다."
-              : contextTab === "direct"
-                ? "절차·서류·공식 자료 확인 방법을 안내합니다."
-                : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 내 상황을 직접 확인합니다."
+            ? contextTab === "direct"
+              ? "신고 순서·서류·공식 자료를 확인합니다."
+              : "공식비용·시장가격·추가 비용과 위험을 순서대로 확인합니다."
             : "숙소 형태에 따라 등록 방법이 다릅니다. 몇 가지만 확인할게요."
+        }
+        descriptionClassName={
+          !costEntryDone
+            ? "break-keep pl-2.5 text-[11.5px] font-normal leading-[1.4] tracking-tight text-[#94A3B8] [overflow-wrap:normal] sm:pl-4 sm:text-[11px] sm:leading-[1.45] sm:tracking-normal sm:text-[#64748B]"
+            : undefined
         }
         headerExtra={
           resultScreenActive && diagnosis ? (

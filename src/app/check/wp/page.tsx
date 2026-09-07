@@ -1633,27 +1633,26 @@ export default function WpCheckPage() {
   return (
     <FunnelPageShell
       engine="check"
-      width={!costEntryDone || resultScreenActive ? "wide" : "default"}
+      width={!costEntryDone ? "master" : resultScreenActive ? "wide" : "default"}
     >
       <FunnelPageHeader
         engine="check"
         title={
           !costEntryDone
-            ? contextTab === "review"
-              ? "노동허가 견적·조건 검토"
-              : contextTab === "direct"
-                ? "노동허가 안내"
-                : "노동허가 비용 확인"
+            ? "노동허가증"
             : "노동허가 가능성 확인"
         }
         description={
           !costEntryDone
-            ? contextTab === "review"
-              ? "받은 안내·견적이 기준과 비용 구조에 맞는지 확인합니다."
-              : contextTab === "direct"
-                ? "절차·서류·공식 자료 확인 방법을 안내합니다."
-                : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 내 상황을 직접 확인합니다."
+            ? contextTab === "direct"
+              ? "신청 순서·서류·공식 자료를 확인합니다."
+              : "공식비용·시장가격·추가 비용과 위험을 순서대로 확인합니다."
             : "간단한 질문 몇 가지만 확인합니다. 학력·경력·직무 형태에 따라 노동허가 발급 가능 여부가 달라집니다."
+        }
+        descriptionClassName={
+          !costEntryDone
+            ? "break-keep text-[13px] font-normal leading-[1.45] text-[#64748B] [overflow-wrap:normal] sm:pl-1 sm:text-[12px] sm:leading-[1.5] sm:text-[#556070]"
+            : undefined
         }
         headerExtra={
           resultScreenActive && diagnosis ? (

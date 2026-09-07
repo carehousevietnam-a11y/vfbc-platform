@@ -12,7 +12,11 @@ export const FUNNEL_CONTAINER =
 /** 질문 단계 inner column — outer shell(960px)과 분리해 카드 밀도 유지 */
 export const FUNNEL_QUESTION_COLUMN = "mx-auto w-full max-w-xl";
 
-export function funnelContainerClass(width: "default" | "wide" = "default") {
+export function funnelContainerClass(width: "default" | "wide" | "master" = "default") {
+  if (width === "master") {
+    // TRC Master UI — 기존 TRC 기준폭 960px (확대 폭 사용 금지)
+    return FUNNEL_CONTAINER;
+  }
   if (width === "wide") return `${FUNNEL_CONTAINER} max-w-4xl`;
   return FUNNEL_CONTAINER;
 }
@@ -49,6 +53,6 @@ export const FUNNEL_ENGINE_COPY: Record<
 
 export type FunnelPageShellProps = {
   engine: FunnelEngine;
-  width?: "default" | "wide";
+  width?: "default" | "wide" | "master";
   children: ReactNode;
 };
