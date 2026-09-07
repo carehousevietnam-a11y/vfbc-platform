@@ -1228,14 +1228,15 @@ export default function DrivingLicenseCheckPage() {
   }, [resultToken]);
 
   const result: Result = computeLicenseResultTone(trc, license);
-  const showResult = trc === "yes" && !!license;
+  // possible/impossible: TRC+면허 답변 완료 / conditional: TRC 없음만으로 판단 확정
+  const showResult = result !== null;
   const activeResult: Result = restoredLeadActive ? restoredResultTone : result;
   const canShowResults = restoredLeadActive || showResult;
   // 승인된 목업의 5개 카드 가로 배치를 위해 결과 화면(가입 직후, 진행방법
   // 선택 전 단계)에서만 컨테이너 폭을 넓힌다. 질문/입력 화면은 기존 폭 그대로.
   const resultScreenActive =
     canShowResults &&
-    activeResult === "possible" &&
+    (activeResult === "possible" || activeResult === "conditional") &&
     leadSubmitted;
 
   // 진단 완료 시 AI 리포트(customerView + expertBrief) 계산.
@@ -1261,7 +1262,7 @@ export default function DrivingLicenseCheckPage() {
       leadSubmitted ||
       !showResult ||
       !diagnosis ||
-      result !== "possible" ||
+      (result !== "possible" && result !== "conditional") ||
       memberLeadStartedRef.current
     ) {
       return;
@@ -1936,31 +1937,6 @@ export default function DrivingLicenseCheckPage() {
           </div>
         )}
 
-        {!restoreCheckPending && trc === "no" && (
-          <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <AlertTriangle className="text-amber-600" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              거주증(TRC) 취득이 먼저 필요합니다
-            </p>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              베트남 운전면허 전환은 거주증(TRC) 보유자만 신청할 수 있습니다.
-              먼저 거주증 발급 가능 여부를 확인해보세요.
-            </p>
-            <Link
-              href="/check/trc"
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 transition-colors"
-            >
-              거주증(TRC) 가능성 먼저 확인하기
-            </Link>
-            <button
-              onClick={reset}
-              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
-            >
-              {LEAD_FORM_MESSAGES[lang].resetLabel}
-            </button>
-          </div>
-        )}
-
         {/* 1번째 화면 (가입 전) — Premium SaaS lead capture */}
         {!restoreCheckPending &&
           costEntryDone &&
@@ -2006,6 +1982,102 @@ export default function DrivingLicenseCheckPage() {
             )}
 
             {diagnosis && <CheckResultOfficialSection diagnosis={diagnosis} />}
+
+            <OfficialTrustZone engine="check" variant="strip" context="diagnosis" className="mt-4" />
+
+            <div className="mt-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+              <p className="break-keep text-[11px] leading-[1.55] text-[#64748B] [overflow-wrap:normal]">
+                <span className="font-medium text-[#94A3B8]">지금</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">1차 확인</span>
+                <span className="mx-2 text-[#CBD5E1]">→</span>
+                <span className="font-medium text-[#94A3B8]">다음</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">AI 리포트 / 전문가</span>
+                <span className="mx-2 text-[#CBD5E1]">→</span>
+                <span className="font-medium text-[#94A3B8]">최종</span>
+                <span className="mx-1 text-[#CBD5E1]">·</span>
+                <span className="font-medium text-[#0B2A6B]">정부 신청·발급</span>
+              </p>
+            </div>
+
+            <NextStepOptions
+              onSelf={handleSelfPortalClick}
+              onExpert={handleExpertRequestClick}
+              onAiReport={handleAiReportRequest}
+              expertPending={expertLoginPending}
+              expertError={expertLoginError}
+              aiReportPending={aiReportPending}
+              aiReportError={aiReportError}
+              officialUrl={LICENSE_OFFICIAL_URL}
+            />
+            <p className="mt-2 text-[11px] text-gray-400">
+              성/시별 정확한 관할 경찰서(CSGT)를 찾기 위해 국가가 운영하는
+              통합 시스템으로 연결됩니다. 지역만 선택하면 바로 연결됩니다.
+            </p>
+
+            <button
+              onClick={reset}
+              className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+            >
+              처음부터 다시 확인하기
+            </button>
+          </div>
+        )}
+
+        {/* 조건부 가능 — 1번째 화면 (가입 전, Premium SaaS lead capture) */}
+        {!restoreCheckPending &&
+          costEntryDone &&
+          canShowResults &&
+          activeResult === "conditional" &&
+          !leadSubmitted &&
+          skipSignup && (
+          <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 text-center text-sm text-gray-500">
+            기존 회원 정보로 결과를 준비하는 중…
+          </div>
+        )}
+
+        {!restoreCheckPending &&
+          costEntryDone &&
+          canShowResults &&
+          activeResult === "conditional" &&
+          !leadSubmitted &&
+          !skipSignup && (
+          <PremiumLeadCapture
+            tone="conditional"
+            diagnosis={diagnosis}
+            messengers={messengers}
+            lang={lang}
+            fieldErrors={fieldErrors}
+            submitting={submitting}
+            leadError={leadError}
+            consentOpen={consentOpen}
+            consentHighlight={consentHighlight}
+            onConsentToggle={() => setConsentOpen((v) => !v)}
+            onConsentChecked={() => setConsentHighlight(false)}
+            onSubmit={handleLeadSubmit}
+            onReset={reset}
+          />
+        )}
+
+        {/* 조건부 가능 — 2번째 화면 (가입 직후, AI 리포트 + 직접등록/전문가 진행요청 선택) */}
+        {!restoreCheckPending && costEntryDone && canShowResults && activeResult === "conditional" && leadSubmitted && (
+          <div className="mt-8 rounded-3xl bg-white border border-amber-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckDiagnosisHeader />
+
+            {diagnosis && (
+              <ResultOverviewCards diagnosis={diagnosis} docCount={LICENSE_REQUIRED_DOCUMENTS.length} />
+            )}
+
+            {diagnosis && <CheckResultOfficialSection diagnosis={diagnosis} />}
+
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+              현재 조건으로는 자격 요건이 완전히 충족되지 않아, 직접
+              진행하실 경우 서류 준비나 절차에서 어려움을 겪으실 가능성이
+              높습니다. 그래도 직접 진행을 원하신다면 아래에서 선택하실 수
+              있습니다.
+            </div>
 
             <OfficialTrustZone engine="check" variant="strip" context="diagnosis" className="mt-4" />
 
