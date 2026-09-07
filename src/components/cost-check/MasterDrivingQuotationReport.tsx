@@ -299,7 +299,7 @@ export function MasterDrivingQuotationReport({
                 </ul>
 
                 {/* PC: 기존 견적표 */}
-                <div className="hidden sm:block">
+                <div className="check-pc-only hidden sm:block">
                   <table className="w-full table-fixed border-collapse border border-[#D8DEE8] text-[12px]">
                     <colgroup>
                       <col className="w-[28%]" />

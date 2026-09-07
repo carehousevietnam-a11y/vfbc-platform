@@ -294,8 +294,8 @@ export function MasterTrcQuotationReport({
                 </ul>
 
                 {/* PC: 기존 견적표 */}
-                <div className="hidden overflow-x-auto sm:block">
-                  <table className="w-full min-w-[34rem] table-fixed border-collapse border border-[#D8DEE8] text-[12px]">
+                <div className="check-pc-only hidden overflow-x-auto sm:block">
+                  <table className="w-full table-fixed border-collapse border border-[#D8DEE8] text-[12px]">
                     <colgroup>
                       <col className="w-[26%]" />
                       <col className="w-[18%]" />

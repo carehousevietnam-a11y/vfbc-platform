@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { getServerLocale } from "@/lib/i18n/getServerLocale";
@@ -20,6 +20,21 @@ export const metadata: Metadata = {
     "확인하고, 검증하고, 등록하고, 보호합니다. Check. Verify. Register. Protect. 베트남 체류·사업을 위한 AI 행정 진단 플랫폼, VFBCAI.",
 };
 
+/** Mobile: device-width로 렌더 (PC 레이아웃 축소 표시 방지) */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+/**
+ * CSS 로드 전 PC 전용 넓은 표가 잠깐 보이면 iOS가 페이지를 축소함.
+ * Tailwind `hidden sm:block`만으로는 FOUC 구간에 숨김이 보장되지 않음.
+ */
+const CRITICAL_MOBILE_CSS = `
+html,body{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+@media (max-width:639.98px){.check-pc-only{display:none!important}}
+`;
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +46,9 @@ export default async function RootLayout({
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: CRITICAL_MOBILE_CSS }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <LocaleProvider initialLocale={locale}>{children}</LocaleProvider>
       </body>

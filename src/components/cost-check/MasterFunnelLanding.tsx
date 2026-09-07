@@ -888,7 +888,8 @@ export function MasterFunnelLanding({
     const queryEntry = (
       <MasterServiceQueryEntry
         currentServiceId={quotationServiceId}
-        initialQuery={entryQuery}
+        // CHECK Master 질문란: URL ?q= 예시/서비스라벨을 value로 넣지 않음 (placeholder만)
+        initialQuery=""
         onLocalTabChange={onTabChange}
         onQueryCommit={setEntryQuery}
       />
