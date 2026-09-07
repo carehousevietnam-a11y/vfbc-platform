@@ -63,7 +63,7 @@ export const DRIVING_CHECK_MARKET_CASES: readonly CheckMarketCase[] = [
   },
   {
     name: "Doanh Nhân Việt",
-    summary: "운전면허 교환 서비스 from 1.500.000 VND",
-    url: "https://doibanglaixenuocngoai.vn/doi-bang-lai-xe-thai-lan-sang-viet-nam.html",
+    summary: "외국인 운전면허 교환 서비스 from 1.500.000 VND",
+    url: "https://doibanglaixenuocngoai.vn/doi-gplx-cho-nguoi-nuoc-ngoai.html",
   },
 ] as const;
