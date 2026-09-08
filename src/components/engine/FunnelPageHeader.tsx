@@ -5,6 +5,8 @@ import {
   FUNNEL_DESC,
   FUNNEL_EYEBROW,
   FUNNEL_H1,
+  FUNNEL_REGISTER_DESC,
+  FUNNEL_REGISTER_H1,
   FUNNEL_ENGINE_COPY,
   type FunnelEngine,
 } from "./funnelTokens";
@@ -81,11 +83,13 @@ export default function FunnelPageHeader({
       >
         <div className="min-w-0">
           <p className={FUNNEL_EYEBROW}>{copy.eyebrow}</p>
-          <h1 className={cn("mt-1.5", FUNNEL_H1)}>{title}</h1>
+          <h1 className={cn("mt-1.5", isRegister ? FUNNEL_REGISTER_H1 : FUNNEL_H1)}>
+            {title}
+          </h1>
           <p
             className={cn(
-              isRegister ? "mt-3" : "mt-0.5",
-              descriptionClassName ?? FUNNEL_DESC
+              isRegister ? "mt-2.5 sm:mt-3" : "mt-0.5",
+              descriptionClassName ?? (isRegister ? FUNNEL_REGISTER_DESC : FUNNEL_DESC)
             )}
           >
             {description}

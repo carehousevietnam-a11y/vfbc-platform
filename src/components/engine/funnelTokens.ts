@@ -30,6 +30,13 @@ export const FUNNEL_H1 =
 export const FUNNEL_DESC =
   "break-keep text-[12.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]";
 
+/** REGISTER Mobile hero only — 공용 FUNNEL_H1/DESC는 CHECK·VERIFY용으로 유지 */
+export const FUNNEL_REGISTER_H1 =
+  "text-[22px] font-semibold tracking-tight text-gray-900 sm:text-xl";
+
+export const FUNNEL_REGISTER_DESC =
+  "break-keep text-[15px] leading-[1.55] text-[#556070] [overflow-wrap:normal] sm:text-[12.5px] sm:leading-[1.55]";
+
 export const FUNNEL_ENGINE_COPY: Record<
   FunnelEngine,
   { action: string; expert: string; eyebrow: string }
