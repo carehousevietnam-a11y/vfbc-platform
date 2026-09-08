@@ -922,7 +922,7 @@ export function MasterFunnelLanding({
           onChange={(tab) => onTabChange(tab)}
           {...(isRegisterMasterQuotation(quotationServiceId)
             ? {
-                lookupLabel: "인허가 견적",
+                lookupLabel: "인허가 받기",
                 lookupDesc: "비용,견적,위험 확인",
                 balancedInset: true,
               }
@@ -1649,7 +1649,9 @@ export function getMasterLandingPageHeader(
   const lookupTitle =
     config.engine === "verify"
       ? `${config.serviceLabel} 검토 시작`
-      : `${config.serviceLabel} 비용 확인`;
+      : config.engine === "register"
+        ? config.serviceLabel
+        : `${config.serviceLabel} 비용 확인`;
   const lookupDesc =
     config.engine === "verify"
       ? "제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지, 내 상황을 먼저 확인합니다."

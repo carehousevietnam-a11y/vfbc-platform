@@ -1512,7 +1512,7 @@ export default function RegisterFireSafetyPage() {
               ? "소방허가 견적·조건 검토"
               : contextTab === "direct"
                 ? "소방허가 안내"
-                : "소방허가 비용 확인"
+                : "소방허가"
             : "소방허가 가능성 진단"
         }
         description={

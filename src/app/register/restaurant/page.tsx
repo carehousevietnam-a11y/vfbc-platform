@@ -1510,7 +1510,7 @@ export default function RegisterRestaurantPage() {
       ? "인허가 적정성 검토"
       : contextTab === "direct"
         ? "식당 인허가 안내"
-        : "식당허가 비용 확인"
+        : "식당허가"
     : "식당허가 준비 상태 확인";
   const headerDescription = showLandingChrome
     ? contextTab === "review"

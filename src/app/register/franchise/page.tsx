@@ -1513,7 +1513,7 @@ export default function RegisterFranchisePage() {
               ? "프랜차이즈 등록 견적·조건 검토"
               : contextTab === "direct"
                 ? "프랜차이즈 등록 안내"
-                : "프랜차이즈 등록 비용 확인"
+                : "프랜차이즈 등록"
             : "프랜차이즈 등록 가능성 진단"
         }
         description={

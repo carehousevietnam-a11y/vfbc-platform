@@ -521,11 +521,11 @@ export function MasterCompanyQuotationReport({
                   <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mb-1.5 sm:text-[13px]">
                     {detail.additionalCostIntro}
                   </p>
-                  <ul className="grid grid-cols-2 items-start gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4">
+                  <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4">
                     {detail.additionalCostItems.map((item) => (
                       <li
                         key={item.label}
-                        className="h-auto self-start rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2.5 sm:px-2 sm:py-2"
+                        className="min-w-0 rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2.5 sm:px-2 sm:py-2"
                       >
                         <p className="break-keep text-pretty text-[12px] font-medium leading-snug text-[#0B2A6B] sm:text-[11.5px]">
                           {item.label}

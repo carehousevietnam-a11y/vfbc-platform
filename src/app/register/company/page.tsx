@@ -1580,7 +1580,7 @@ export default function PermitCompanyCheckPage() {
               ? "법인설립 견적·조건 검토"
               : contextTab === "direct"
                 ? "법인설립 안내"
-                : "법인설립 비용 확인"
+                : "법인설립"
             : "법인설립 가능성 진단"
         }
         description={

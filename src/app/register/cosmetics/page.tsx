@@ -1514,7 +1514,7 @@ export default function RegisterCosmeticsPage() {
               ? "화장품허가 견적·조건 검토"
               : contextTab === "direct"
                 ? "화장품허가 안내"
-                : "화장품허가 비용 확인"
+                : "화장품허가"
             : "화장품허가 가능성 진단"
         }
         description={

@@ -1512,7 +1512,7 @@ export default function RegisterHygienePage() {
               ? "위생허가 견적·조건 검토"
               : contextTab === "direct"
                 ? "위생허가 안내"
-                : "위생허가 비용 확인"
+                : "위생허가"
             : "위생허가 가능성 진단"
         }
         description={

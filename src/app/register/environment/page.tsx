@@ -1513,7 +1513,7 @@ export default function RegisterEnvironmentPage() {
               ? "환경허가 견적·조건 검토"
               : contextTab === "direct"
                 ? "환경허가 안내"
-                : "환경허가 비용 확인"
+                : "환경허가"
             : "환경허가 가능성 진단"
         }
         description={

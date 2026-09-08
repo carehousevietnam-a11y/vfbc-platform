@@ -712,18 +712,14 @@ export function MasterRegisterQuotationReport({
                       detail.additionalCostItems.length <= 1
                         ? "grid grid-cols-1 gap-2 sm:max-w-xl"
                         : detail.additionalCostItems.length === 2
-                          ? "grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] sm:items-stretch sm:gap-1.5"
-                          : "grid grid-cols-2 items-start gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4"
+                          ? "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-1.5"
+                          : "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4"
                     }
                   >
                     {detail.additionalCostItems.map((item) => (
                       <li
                         key={item.label}
-                        className={
-                          detail.additionalCostItems.length === 2
-                            ? "flex h-full min-w-0 flex-col rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2.5 sm:px-2 sm:py-2"
-                            : "h-auto self-start rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2.5 sm:px-2 sm:py-2"
-                        }
+                        className="min-w-0 rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2.5 sm:px-2 sm:py-2"
                       >
                         <p className="break-keep text-pretty text-[12px] font-medium leading-snug text-[#0B2A6B] sm:text-[11.5px]">
                           {item.label}
