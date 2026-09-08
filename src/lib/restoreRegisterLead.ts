@@ -10,6 +10,7 @@ import {
   isLoggedInMember,
   loadMemberLeadContact,
 } from "@/lib/restoreCheckLead";
+import { useEffect, useRef, useState } from "react";
 
 const SERVICE_TYPE_ALIASES: Record<string, string> = {
   register_company: "permit_company",
@@ -74,21 +75,132 @@ export type RegisterMemberEntryState = {
   restored: RestoredRegisterLead | null;
 };
 
+/** Auth getSession hang 방지 — restore=1 경로 전용 */
+const REGISTER_AUTH_TIMEOUT_MS = 3_000;
+/** mypage/lead 복원 hang 방지 — restore=1 경로 전용 */
+const REGISTER_RESTORE_TIMEOUT_MS = 5_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      resolve(fallback);
+    }, ms);
+    promise.then(
+      (value) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(fallback);
+      }
+    );
+  });
+}
+
 /**
  * REGISTER 진입 시 회원가입 생략(로그인)과 서비스별 결과 복원을 분리한다.
+ *
+ * - allowRestore=false (기본 랜딩): Auth getSession을 기다리지 않는다.
+ *   Master UI가 `이전 결과를 확인하는 중…`에 고정되지 않도록 즉시 반환한다.
+ *   로그인 생략은 페이지 onAuthStateChange(SIGNED_IN) 및 랜딩 continue에서 처리한다.
+ * - allowRestore=true (?restore=1 / 랜딩 continue): 기존 복원을 유지하되
+ *   Auth·복원이 지연·실패해도 영구 hang하지 않고 skip한다.
  */
 export async function loadRegisterMemberEntryState(
   serviceType: string,
   diagnosisAction: string,
   options?: { allowRestore?: boolean }
 ): Promise<RegisterMemberEntryState> {
-  const loggedIn = await isLoggedInMember();
   const allowRestore = options?.allowRestore ?? false;
-  const restored =
-    loggedIn && allowRestore
-      ? await restoreLatestRegisterLead(serviceType, diagnosisAction)
-      : null;
-  return { loggedIn, restored };
+
+  if (!allowRestore) {
+    return { loggedIn: false, restored: null };
+  }
+
+  const loggedIn = await withTimeout(
+    isLoggedInMember(),
+    REGISTER_AUTH_TIMEOUT_MS,
+    false
+  );
+  if (!loggedIn) {
+    return { loggedIn: false, restored: null };
+  }
+
+  const restored = await withTimeout(
+    restoreLatestRegisterLead(serviceType, diagnosisAction),
+    REGISTER_RESTORE_TIMEOUT_MS,
+    null
+  );
+  return { loggedIn: true, restored };
+}
+
+/**
+ * REGISTER 페이지 공통 진입 게이트.
+ * - 기본 랜딩: pending=false로 시작해 Auth를 기다리지 않고 Master UI를 즉시 표시한다.
+ * - ?restore=1: 복원 중에만 pending=true. Auth/network 지연·실패 시 skip 후 pending 해제.
+ * - Strict Mode cleanup 후에도 pending이 영구 true로 남지 않도록 finally에서 항상 해제한다.
+ * - 로그인 생략(skipSignup)은 getSession 없이 onAuthStateChange 세션으로 처리한다.
+ */
+export function useRegisterRestoreGate(
+  serviceType: string,
+  diagnosisAction: string,
+  handlers: {
+    onLoggedIn: () => void;
+    onRestored: (restored: RestoredRegisterLead) => void;
+  }
+): boolean {
+  const [pending, setPending] = useState(false);
+  const handlersRef = useRef(handlers);
+  handlersRef.current = handlers;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function runRestoreIfRequested() {
+      const allowRestore =
+        new URLSearchParams(window.location.search).get("restore") === "1";
+      if (!allowRestore) return;
+
+      setPending(true);
+      try {
+        const { loggedIn, restored } = await loadRegisterMemberEntryState(
+          serviceType,
+          diagnosisAction,
+          { allowRestore: true }
+        );
+        if (cancelled) return;
+        if (loggedIn) handlersRef.current.onLoggedIn();
+        if (restored) handlersRef.current.onRestored(restored);
+      } finally {
+        // cancelled여도 해제 — Strict Mode 첫 mount cleanup 후 hang 방지
+        setPending(false);
+      }
+    }
+
+    void runRestoreIfRequested();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event !== "SIGNED_IN" && event !== "INITIAL_SESSION") return;
+      if (!cancelled && session) handlersRef.current.onLoggedIn();
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [serviceType, diagnosisAction]);
+
+  return pending;
 }
 
 /**

@@ -44,6 +44,7 @@ import {
   isLoggedInMember,
   loadRegisterMemberEntryState,
   submitMemberRegisterLead,
+  useRegisterRestoreGate,
   type RestoredRegisterLead,
 } from "@/lib/restoreRegisterLead";
 import {
@@ -954,7 +955,6 @@ export default function RegisterHygienePage() {
   const rejectionRecordIdRef = useRef<string | null>(null);
   const pendingRejectionInsertRef = useRef<PromiseLike<void> | null>(null);
   const selfNotifySentRef = useRef(false);
-  const [restoreRegisterPending, setRestoreRegisterPending] = useState(true);
   const [skipSignup, setSkipSignup] = useState(false);
   const [restoredLeadActive, setRestoredLeadActive] = useState(false);
   const [restoredResultTone, setRestoredResultTone] = useState<ResultTone | null>(null);
@@ -1023,46 +1023,14 @@ export default function RegisterHygienePage() {
     setCostEntryDone(true);
   }
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function applyMemberEntryState() {
-      const params = new URLSearchParams(window.location.search);
-      const allowRestore = params.get("restore") === "1";
-      const { loggedIn, restored } = await loadRegisterMemberEntryState(
-        "register_hygiene",
-        "register_hygiene_diagnosis_lead",
-        { allowRestore }
-      );
-      if (cancelled) return;
-      if (loggedIn) setSkipSignup(true);
-      if (restored) applyRestoredRegister(restored);
+  const restoreRegisterPending = useRegisterRestoreGate(
+    "register_hygiene",
+    "register_hygiene_diagnosis_lead",
+    {
+      onLoggedIn: () => setSkipSignup(true),
+      onRestored: applyRestoredRegister,
     }
-
-    async function initMemberState() {
-      try {
-        await applyMemberEntryState();
-      } finally {
-        if (!cancelled) setRestoreRegisterPending(false);
-      }
-    }
-
-    void initMemberState();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN") return;
-      // 세션 확립 시 회원가입 생략만 — mount restore(?restore=1)와 분리
-      void isLoggedInMember().then((loggedIn) => {
-        if (!cancelled && loggedIn) setSkipSignup(true);
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      subscription.unsubscribe();
-    };
-  }, []);
+  );
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const registerQuestionProps = {

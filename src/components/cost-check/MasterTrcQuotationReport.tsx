@@ -691,21 +691,32 @@ export function MasterTrcQuotationReport({
 export function MasterTrcContextTabs({
   active,
   onChange,
+  lookupLabel = "확인하기",
+  lookupDesc = "비용,견적,위험 확인",
+  directLabel = "자세히 보기",
+  directDesc = "절차 · 서류 · 안내",
+  /** REGISTER: 탭 박스 안 텍스트 상·하 여백을 균형 있게 */
+  balancedInset = false,
 }: {
   active: "lookup" | "direct";
   onChange: (tab: "lookup" | "direct") => void;
+  lookupLabel?: string;
+  lookupDesc?: string;
+  directLabel?: string;
+  directDesc?: string;
+  balancedInset?: boolean;
 }) {
   const tabs = [
     {
       id: "lookup" as const,
-      label: "확인하기",
-      desc: "비용,견적,위험 확인",
+      label: lookupLabel,
+      desc: lookupDesc,
       icon: Search,
     },
     {
       id: "direct" as const,
-      label: "자세히 보기",
-      desc: "절차 · 서류 · 안내",
+      label: directLabel,
+      desc: directDesc,
       icon: BookOpen,
     },
   ];
@@ -720,9 +731,11 @@ export function MasterTrcContextTabs({
             key={t.id}
             type="button"
             onClick={() => onChange(t.id)}
-            className={`flex min-h-[46px] min-w-0 items-center justify-center gap-2 py-1.5 px-2 text-center transition sm:min-h-[50px] sm:gap-2.5 sm:py-2 sm:px-4 ${
-              index === 0 ? "border-r border-[#D8DEE8]" : ""
-            } ${
+            className={`flex min-w-0 items-center justify-center gap-2 px-2 text-center transition sm:gap-2.5 sm:px-4 ${
+              balancedInset
+                ? "min-h-[52px] py-2.5 sm:min-h-[56px] sm:py-3"
+                : "min-h-[46px] py-1.5 sm:min-h-[50px] sm:py-2"
+            } ${index === 0 ? "border-r border-[#D8DEE8]" : ""} ${
               isActive
                 ? "bg-[#EEF2F7] text-[#0B2A6B] shadow-[inset_0_-2px_0_0_#0B2A6B]"
                 : "bg-white text-[#0B2A6B] hover:bg-[#F8FAFC]"
@@ -735,7 +748,7 @@ export function MasterTrcContextTabs({
               }`}
               aria-hidden
             />
-            <span className="min-w-0">
+            <span className="flex min-w-0 flex-col items-center justify-center">
               <span
                 className={`block whitespace-nowrap text-[12.5px] leading-none sm:text-[13.5px] sm:leading-snug ${
                   isActive ? "font-semibold" : "font-medium"

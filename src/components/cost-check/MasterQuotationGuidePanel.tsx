@@ -9,6 +9,27 @@ import { resolveGuideView } from "@/lib/contentPacks/parseGuideArticleView";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
 import { buildCheckGuideDetailHref } from "@/lib/contentPacks/checkGuideIntent";
 import { COST_CHECK_DISCLAIMER } from "@/lib/costCheck";
+import {
+  COMPANY_GUIDE_SLUG,
+  COSMETICS_GUIDE_SLUG,
+  ENVIRONMENT_GUIDE_SLUG,
+  FIRE_SAFETY_GUIDE_SLUG,
+  FRANCHISE_GUIDE_SLUG,
+  HYGIENE_GUIDE_SLUG,
+  MEDICAL_DEVICE_GUIDE_SLUG,
+  RESTAURANT_GUIDE_SLUG,
+} from "@/lib/contentPacks/registerArticles";
+
+const REGISTER_MASTER_GUIDE_SLUGS = new Set<string>([
+  COMPANY_GUIDE_SLUG,
+  RESTAURANT_GUIDE_SLUG,
+  HYGIENE_GUIDE_SLUG,
+  FIRE_SAFETY_GUIDE_SLUG,
+  ENVIRONMENT_GUIDE_SLUG,
+  COSMETICS_GUIDE_SLUG,
+  MEDICAL_DEVICE_GUIDE_SLUG,
+  FRANCHISE_GUIDE_SLUG,
+]);
 
 type GuidePanelConfig = {
   engine: FunnelEngine;
@@ -83,6 +104,200 @@ export function MasterQuotationGuidePanel({
   const afterItems = view.afterAction.slice(0, 3);
   const detailHref = buildCheckGuideDetailHref(article.slug, query);
   const cautionItems = landing.cautions.slice(0, 3);
+  /** REGISTER Master 「자세히 보기」 — CHECK 4개·다른 서비스 레이아웃 유지 */
+  const isCompanyRegisterGuide = Boolean(
+    config.guideSlug && REGISTER_MASTER_GUIDE_SLUGS.has(config.guideSlug)
+  );
+
+  const processSection =
+    processSteps.length > 0 ? (
+      <section aria-labelledby="mq-guide-process">
+        <SectionHeading id="mq-guide-process" number="2" title="진행 순서" />
+        <ol className="space-y-0">
+          {processSteps.map((step, index) => (
+            <li
+              key={step}
+              className="flex gap-2.5 border-b border-[#EEF2F7] py-2 last:border-b-0 last:pb-0 first:pt-0"
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EEF2F7] text-[10px] font-semibold tabular-nums text-[#0B2A6B]">
+                {index + 1}
+              </span>
+              <span className="min-w-0 break-keep pt-0.5 text-[12.5px] leading-snug text-[#334155] sm:text-[13px]">
+                {step}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ) : null;
+
+  const checkpointsSection =
+    checkpoints.length > 0 ? (
+      <section aria-labelledby="mq-guide-check">
+        <SectionHeading id="mq-guide-check" number="3" title="먼저 확인할 항목" />
+        <ul className="divide-y divide-[#EEF2F7]">
+          {checkpoints.map((item) => (
+            <li key={item.title} className="py-2 first:pt-0 last:pb-0">
+              <p className="break-keep text-[12.5px] font-medium leading-snug text-[#0B2A6B] sm:text-[13px]">
+                {item.title}
+              </p>
+              {item.body ? (
+                <p className="mt-0.5 break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]">
+                  {item.body}
+                </p>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ) : null;
+
+  const restBody = (
+    <>
+      {(beforeItems.length > 0 || afterItems.length > 0) && (
+        <section
+          aria-labelledby="mq-guide-timing"
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4"
+        >
+          {beforeItems.length > 0 ? (
+            <div className="min-w-0">
+              <h3
+                id="mq-guide-timing"
+                className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
+              >
+                진행 전
+              </h3>
+              <ul className="mt-1.5 space-y-1.5">
+                {beforeItems.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-2 break-keep text-[11.5px] leading-relaxed text-[#475569] sm:text-[12px]"
+                  >
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#94A3B8]" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {afterItems.length > 0 ? (
+            <div className="min-w-0">
+              <h3 className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]">
+                보완·추가 확인
+              </h3>
+              <ul className="mt-1.5 space-y-1.5">
+                {afterItems.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-2 break-keep text-[11.5px] leading-relaxed text-[#475569] sm:text-[12px]"
+                  >
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#94A3B8]" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </section>
+      )}
+
+      {(cautionItems.length > 0 || materials.length > 0) && (
+        <section
+          aria-labelledby="mq-guide-notes"
+          className="grid grid-cols-1 gap-3 border-t border-[#E5E7EB] pt-4 sm:grid-cols-2 sm:gap-4"
+        >
+          {cautionItems.length > 0 ? (
+            <div className="min-w-0">
+              <h3
+                id="mq-guide-notes"
+                className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
+              >
+                주의할 점
+              </h3>
+              <ul className="mt-1.5 space-y-1.5">
+                {cautionItems.map((item) => (
+                  <li
+                    key={item}
+                    className="break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]"
+                  >
+                    · {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {materials.length > 0 ? (
+            <div className="min-w-0">
+              <h3 className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]">
+                준비하면 좋은 자료
+              </h3>
+              <ul className="mt-1.5 space-y-1.5">
+                {materials.map((item) => (
+                  <li
+                    key={item}
+                    className="break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]"
+                  >
+                    · {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </section>
+      )}
+
+      <section
+        aria-labelledby="mq-guide-official"
+        className="rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-3.5 py-3 sm:px-4 sm:py-3"
+      >
+        <h3
+          id="mq-guide-official"
+          className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
+        >
+          공식 자료
+        </h3>
+        <p className="mt-1 break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]">
+          {config.officialNote}
+        </p>
+        <a
+          href={config.officialUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-flex items-center gap-1 text-[11.5px] font-medium text-[#2563EB] hover:underline sm:text-[12px]"
+        >
+          공식 포털 열기
+          <ExternalLink className="h-3 w-3" aria-hidden />
+        </a>
+      </section>
+
+      <section aria-labelledby="mq-guide-next" className="border-t border-[#E5E7EB] pt-4 sm:pt-5">
+        <h3
+          id="mq-guide-next"
+          className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
+        >
+          다음 단계
+        </h3>
+        <div className="mt-2.5 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:gap-2.5">
+          <Link
+            href={detailHref}
+            className="inline-flex min-h-10 flex-1 items-center justify-center rounded-[8px] border border-[#D8DEE8] bg-white px-4 text-[12.5px] font-medium text-[#0B2A6B] transition hover:bg-[#F8FAFC]"
+          >
+            더 자세히 보기 →
+          </Link>
+          <button
+            type="button"
+            onClick={onGoLookup}
+            className="inline-flex min-h-10 flex-1 items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#082258]"
+          >
+            내 상황 확인하기 →
+          </button>
+        </div>
+        <p className="mt-2.5 break-keep text-[11px] leading-relaxed text-[#94A3B8]">
+          가이드 전문은 「더 자세히 보기」에서, 맞춤 확인은 「내 상황 확인하기」에서 이어갑니다.
+        </p>
+      </section>
+    </>
+  );
 
   return (
     <div className="mt-3 space-y-3">
@@ -108,194 +323,38 @@ export function MasterQuotationGuidePanel({
               </p>
             </section>
 
-            {processSteps.length > 0 ? (
-              <section aria-labelledby="mq-guide-process">
-                <SectionHeading id="mq-guide-process" number="2" title="진행 순서" />
-                <ol className="space-y-0">
-                  {processSteps.map((step, index) => (
-                    <li
-                      key={step}
-                      className="flex gap-2.5 border-b border-[#EEF2F7] py-2 last:border-b-0 last:pb-0 first:pt-0"
-                    >
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EEF2F7] text-[10px] font-semibold tabular-nums text-[#0B2A6B]">
-                        {index + 1}
-                      </span>
-                      <span className="min-w-0 break-keep pt-0.5 text-[12.5px] leading-snug text-[#334155] sm:text-[13px]">
-                        {step}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            ) : null}
-
-            {checkpoints.length > 0 ? (
-              <section aria-labelledby="mq-guide-check">
-                <SectionHeading id="mq-guide-check" number="3" title="먼저 확인할 항목" />
-                <ul className="divide-y divide-[#EEF2F7]">
-                  {checkpoints.map((item) => (
-                    <li key={item.title} className="py-2 first:pt-0 last:pb-0">
-                      <p className="break-keep text-[12.5px] font-medium leading-snug text-[#0B2A6B] sm:text-[13px]">
-                        {item.title}
-                      </p>
-                      {item.body ? (
-                        <p className="mt-0.5 break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]">
-                          {item.body}
-                        </p>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {(beforeItems.length > 0 || afterItems.length > 0) && (
-              <section
-                aria-labelledby="mq-guide-timing"
-                className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4"
-              >
-                {beforeItems.length > 0 ? (
-                  <div className="min-w-0">
-                    <h3
-                      id="mq-guide-timing"
-                      className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
-                    >
-                      진행 전
-                    </h3>
-                    <ul className="mt-1.5 space-y-1.5">
-                      {beforeItems.map((item) => (
-                        <li
-                          key={item}
-                          className="flex gap-2 break-keep text-[11.5px] leading-relaxed text-[#475569] sm:text-[12px]"
-                        >
-                          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#94A3B8]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-                {afterItems.length > 0 ? (
-                  <div className="min-w-0">
-                    <h3 className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]">
-                      보완·추가 확인
-                    </h3>
-                    <ul className="mt-1.5 space-y-1.5">
-                      {afterItems.map((item) => (
-                        <li
-                          key={item}
-                          className="flex gap-2 break-keep text-[11.5px] leading-relaxed text-[#475569] sm:text-[12px]"
-                        >
-                          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#94A3B8]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </section>
-            )}
-
-            {(cautionItems.length > 0 || materials.length > 0) && (
-              <section
-                aria-labelledby="mq-guide-notes"
-                className="grid grid-cols-1 gap-3 border-t border-[#E5E7EB] pt-4 sm:grid-cols-2 sm:gap-4"
-              >
-                {cautionItems.length > 0 ? (
-                  <div className="min-w-0">
-                    <h3
-                      id="mq-guide-notes"
-                      className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
-                    >
-                      주의할 점
-                    </h3>
-                    <ul className="mt-1.5 space-y-1.5">
-                      {cautionItems.map((item) => (
-                        <li
-                          key={item}
-                          className="break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]"
-                        >
-                          · {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-                {materials.length > 0 ? (
-                  <div className="min-w-0">
-                    <h3 className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]">
-                      준비하면 좋은 자료
-                    </h3>
-                    <ul className="mt-1.5 space-y-1.5">
-                      {materials.map((item) => (
-                        <li
-                          key={item}
-                          className="break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]"
-                        >
-                          · {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </section>
-            )}
-
-            <section
-              aria-labelledby="mq-guide-official"
-              className="rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-3.5 py-3 sm:px-4 sm:py-3"
-            >
-              <h3
-                id="mq-guide-official"
-                className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
-              >
-                공식 자료
-              </h3>
-              <p className="mt-1 break-keep text-[11.5px] leading-relaxed text-[#64748B] sm:text-[12px]">
-                {config.officialNote}
-              </p>
-              <a
-                href={config.officialUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-1 text-[11.5px] font-medium text-[#2563EB] hover:underline sm:text-[12px]"
-              >
-                공식 포털 열기
-                <ExternalLink className="h-3 w-3" aria-hidden />
-              </a>
-            </section>
-
-            <section aria-labelledby="mq-guide-next" className="border-t border-[#E5E7EB] pt-4 sm:pt-5">
-              <h3
-                id="mq-guide-next"
-                className="text-[12px] font-semibold text-[#0B2A6B] sm:text-[12.5px]"
-              >
-                다음 단계
-              </h3>
-              <div className="mt-2.5 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:gap-2.5">
-                <Link
-                  href={detailHref}
-                  className="inline-flex min-h-10 flex-1 items-center justify-center rounded-[8px] border border-[#D8DEE8] bg-white px-4 text-[12.5px] font-medium text-[#0B2A6B] transition hover:bg-[#F8FAFC]"
-                >
-                  더 자세히 보기 →
-                </Link>
-                <button
-                  type="button"
-                  onClick={onGoLookup}
-                  className="inline-flex min-h-10 flex-1 items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#082258]"
-                >
-                  내 상황 확인하기 →
-                </button>
+            {isCompanyRegisterGuide ? (
+              /*
+                REGISTER Company only: single OfficialTrustZone.
+                PC md+: left = 진행 순서 + 먼저 확인할 항목, right = OFFICIAL SOURCES.
+                Mobile: flex order — rest body + CTA first, sources last.
+              */
+              <div className="flex flex-col gap-5 md:grid md:grid-cols-[minmax(0,1fr)_minmax(200px,240px)] md:items-start md:gap-x-6 md:gap-y-5">
+                <div className="max-md:contents min-w-0 md:col-start-1 md:row-span-2 md:row-start-1 md:flex md:flex-col md:gap-5">
+                  <div className="max-md:order-1 min-w-0">{processSection}</div>
+                  <div className="max-md:order-2 min-w-0">{checkpointsSection}</div>
+                </div>
+                <div className="max-md:order-4 min-w-0 md:col-start-2 md:row-span-2 md:row-start-1 md:self-start">
+                  <OfficialTrustZone engine={config.engine} variant="panel" className="mt-0 w-full" />
+                </div>
+                <div className="max-md:order-3 min-w-0 space-y-5 md:col-span-2 md:col-start-1 md:row-start-3">
+                  {restBody}
+                </div>
               </div>
-              <p className="mt-2.5 break-keep text-[11px] leading-relaxed text-[#94A3B8]">
-                가이드 전문은 「더 자세히 보기」에서, 맞춤 확인은 「내 상황 확인하기」에서 이어갑니다.
-              </p>
-            </section>
+            ) : (
+              <>
+                {processSection}
+                {checkpointsSection}
+                {restBody}
+              </>
+            )}
           </div>
         </article>
       </div>
 
-      <OfficialTrustZone engine={config.engine} variant="panel" className="mt-0" />
+      {!isCompanyRegisterGuide ? (
+        <OfficialTrustZone engine={config.engine} variant="panel" className="mt-0" />
+      ) : null}
 
       <p className="mx-auto max-w-3xl break-keep px-1 text-center text-[11px] leading-[1.7] text-[#94A3B8] sm:text-[11.5px]">
         {COST_CHECK_DISCLAIMER}

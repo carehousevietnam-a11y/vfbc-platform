@@ -3,7 +3,6 @@ import { getAnonymousDocumentList, PROCESS_BY_GROUP } from "@/lib/anonymousLegal
 import {
   DIRECT_PERMIT_COMPANY_GUIDE,
   DIRECT_PERMIT_COMPANY_ITEMS,
-  getCostCheckService,
 } from "@/lib/costCheck";
 import {
   buildCaseOrientedQa,
@@ -11,6 +10,8 @@ import {
   type CaseNarrativeSpec,
 } from "@/lib/contentPacks/guideCaseNarrative";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
+import { COMPANY_FDI_REVIEW_SERVICE, RESTAURANT_REVIEW_SERVICE } from "@/lib/registerCostCheck";
+import type { CostCheckService } from "@/lib/costCheck";
 
 const UPDATED = "2026-08-28";
 
@@ -23,6 +24,24 @@ const REGISTER_PROCESS_STEPS = [
 const REGISTER_DURATION_NOTE =
   "업종·관할·준비 상태에 따라 추가 서류·현장 확인이 있을 수 있으니, 일정에 여유를 두시는 것이 좋습니다.";
 
+const COMPANY_PROCESS_STEPS = [
+  "투자 형태·업종·주소 자료 준비",
+  "투자등록(IRC)·기업등록(ERC) 신청",
+  "심사·승인 후 인감·세무 등 후속 준비",
+];
+
+const COMPANY_DURATION_NOTE =
+  "예상 처리기간은 관할·업종·보완 여부에 따라 달라지며 확정 일수는 단정하지 않습니다. 일정에 여유를 두세요.";
+
+const RESTAURANT_PROCESS_STEPS = [
+  "영업장·사업자·건강검진 등 서류 준비",
+  "관할 기관에 식품안전(ATTP) 신청",
+  "심사·현장 확인 후 승인 — 사업등록·소방 등은 별도일 수 있음",
+];
+
+const RESTAURANT_DURATION_NOTE =
+  "예상 처리기간은 관할·시설 준비·보완 여부에 따라 달라지며 확정 일수는 단정하지 않습니다. 일정에 여유를 두세요.";
+
 type RegisterGuideSpec = {
   slug: string;
   intentId: ArticleIntentId;
@@ -34,36 +53,52 @@ type RegisterGuideSpec = {
   metaDescription: string;
   question: string;
   why: string;
-  /** true면 costCheck `company` 수수료 표시. 그 외는 미연결 안내만. */
-  showOfficialCost: boolean;
+  /** true면 company 수수료. "restaurant"면 식당 ATTP 수수료. */
+  showOfficialCost: boolean | "restaurant";
   costLookupNote: string;
   narrative: CaseNarrativeSpec;
   conditions: string[];
   cases: { title: string; body: string }[];
   cautions: string[];
+  process?: readonly string[];
+  durationNote?: string;
+  directAnswer?: string;
+  officialBasis?: readonly string[];
 };
+
+function resolveRegisterOfficialCost(
+  showOfficialCost: boolean | "restaurant"
+): CostCheckService | null {
+  if (showOfficialCost === "restaurant") return RESTAURANT_REVIEW_SERVICE;
+  if (showOfficialCost === true) return COMPANY_FDI_REVIEW_SERVICE;
+  return null;
+}
 
 function buildRegisterGuide(spec: RegisterGuideSpec): PublishedArticle {
   const required = getRequiredDocuments(spec.docServiceType);
   const docs = getAnonymousDocumentList(spec.docServiceType);
-  const companyCost = spec.showOfficialCost ? getCostCheckService("company") : null;
+  const officialCost = resolveRegisterOfficialCost(spec.showOfficialCost);
+  const processSteps = spec.process ? [...spec.process] : REGISTER_PROCESS_STEPS;
+  const durationNote = spec.durationNote ?? REGISTER_DURATION_NOTE;
 
-  const directAnswer = companyCost
-    ? `진행은 ${REGISTER_PROCESS_STEPS[0]} → ${REGISTER_PROCESS_STEPS[1]} → ${REGISTER_PROCESS_STEPS[2].replace(
-        / —.*/,
-        ""
-      )} 순으로 보시면 되고, 핵심 서류는 ${required.documents.join(", ")}입니다. 비용은 정부 수수료와 대행·번역·후속 비용을 함께 확인하는 것이 좋습니다.`
-    : `진행은 ${REGISTER_PROCESS_STEPS[0]} → ${REGISTER_PROCESS_STEPS[1]} → ${REGISTER_PROCESS_STEPS[2].replace(
-        / —.*/,
-        ""
-      )} 순으로 보시면 되고, 핵심 서류는 ${required.documents.join(", ")}입니다. ${spec.costLookupNote}`;
+  const directAnswer =
+    spec.directAnswer ??
+    (officialCost
+      ? `진행은 ${processSteps[0]} → ${processSteps[1]} → ${processSteps[2].replace(
+          / —.*/,
+          ""
+        )} 순으로 보시면 되고, 핵심 서류는 ${required.documents.join(", ")}입니다. 비용은 정부 수수료와 대행·후속 비용을 함께 확인하는 것이 좋습니다.`
+      : `진행은 ${processSteps[0]} → ${processSteps[1]} → ${processSteps[2].replace(
+          / —.*/,
+          ""
+        )} 순으로 보시면 되고, 핵심 서류는 ${required.documents.join(", ")}입니다. ${spec.costLookupNote}`);
 
-  const costNote = companyCost
-    ? `${companyCost.lookupGuide} 정부 수수료 참고: ${companyCost.governmentFee} (출처: ${companyCost.source}).`
+  const costNote = officialCost
+    ? `${officialCost.lookupGuide} 정부 수수료 참고: ${officialCost.governmentFee} (출처: ${officialCost.source}).`
     : spec.costLookupNote;
 
-  const costComparison = companyCost
-    ? `${companyCost.governmentFee} (출처: ${companyCost.source}). 견적 비교 시 대행·번역·후속 포함 여부를 확인하세요.`
+  const costComparison = officialCost
+    ? `${officialCost.governmentFee} (출처: ${officialCost.source}). 시장 일반가격 ${officialCost.marketNote}. 견적 비교 시 포함 항목을 확인하세요.`
     : spec.costLookupNote;
 
   const sources: PublishedArticle["caseLanding"]["sources"] = [
@@ -72,10 +107,23 @@ function buildRegisterGuide(spec: RegisterGuideSpec): PublishedArticle {
       detail: `같은 플랫폼의 ${required.serviceLabel} 서류 항목(우선 제출·있으면 제출). 법령 조항에서 추출한 확정 목록이 아닙니다.`,
     },
   ];
-  if (companyCost) {
+  if (officialCost?.id === "company") {
+    sources.unshift({
+      label: "국가기업등록포털",
+      detail: "IRC/ERC 관련 안내 — https://dangkykinhdoanh.gov.vn/",
+    });
     sources.push({
-      label: companyCost.source,
-      detail: `정부 수수료 ${companyCost.governmentFee} — 비용 안내에만 사용`,
+      label: officialCost.source,
+      detail: `정부 수수료 ${officialCost.governmentFee} — 비용 안내에만 사용`,
+    });
+  } else if (officialCost?.id === "restaurant") {
+    sources.unshift({
+      label: "국가공공서비스포털",
+      detail: "식당·식품안전 관련 안내 — https://dichvucong.gov.vn/",
+    });
+    sources.push({
+      label: officialCost.source,
+      detail: `정부 수수료 ${officialCost.governmentFee} — 비용 안내에만 사용`,
     });
   }
 
@@ -92,7 +140,7 @@ function buildRegisterGuide(spec: RegisterGuideSpec): PublishedArticle {
     { type: "p", text: costNote },
   ];
 
-  if (companyCost) {
+  if (officialCost?.id === "company") {
     middleSections.push(
       { type: "h2", text: "직접 진행 시 참고 항목" },
       { type: "p", text: DIRECT_PERMIT_COMPANY_GUIDE },
@@ -121,16 +169,16 @@ function buildRegisterGuide(spec: RegisterGuideSpec): PublishedArticle {
       question: spec.question,
       directAnswer,
       why: spec.why,
-      officialBasis: [],
+      officialBasis: spec.officialBasis ? [...spec.officialBasis] : [],
       costNote,
-      durationNote: REGISTER_DURATION_NOTE,
-      process: REGISTER_PROCESS_STEPS,
+      durationNote,
+      process: processSteps,
       showDocuments: true,
-      showOfficialCost: spec.showOfficialCost,
+      showOfficialCost: Boolean(officialCost),
       conditions: spec.conditions,
       cases: spec.cases,
       comparison: [
-        { label: "진행", text: PROCESS_BY_GROUP.register },
+        { label: "진행", text: processSteps.join(" → ") },
         {
           label: "서류",
           text: `우선 제출: ${required.documents.join(", ")}. 있으면 제출: ${(required.optionalDocuments ?? []).join(", ")}.`,
@@ -141,7 +189,7 @@ function buildRegisterGuide(spec: RegisterGuideSpec): PublishedArticle {
       qa: buildCaseOrientedQa(required.serviceLabel, spec.narrative, [
         {
           q: `${required.serviceLabel} 진행 순서는 어떻게 되나요?`,
-          a: PROCESS_BY_GROUP.register,
+          a: processSteps.join(" → "),
         },
         {
           q: "어떤 서류를 먼저 준비하면 되나요?",
@@ -176,37 +224,45 @@ export const COMPANY_GUIDE_ARTICLE = buildRegisterGuide({
   intentId: "register-company-guide",
   docServiceType: "register_company_individual",
   funnelHref: "/register/company",
-  title: "베트남 법인설립 진행·서류·비용, 한눈에 보기",
-  subtitle: "진행 순서, 준비 서류, 비용 확인 방법을 참고용으로 정리합니다.",
+  title: "베트남 FDI 법인설립 진행·서류·비용, 한눈에 보기",
+  subtitle: "외국인 투자 법인설립의 절차·조건·서류를 참고용으로 정리합니다.",
   metaDescription:
-    "법인설립은 서류 준비 → 관할 등록 신청 → 심사 후 승인 순으로 진행됩니다. 개인 투자 기준으로 여권·잔고증명·주소 자료가 핵심이며, 정부 고시 수수료와 인감·전자서명 등 실무 비용을 함께 확인하세요.",
-  question: "베트남 법인설립 진행이 어떻게 되고 서류는 무엇이 필요하며 비용은 얼마나 드나요?",
-  why: "투자 형태(개인·법인), 주소·자본 준비, 후속 인허가에 따라 준비물과 견적 구성이 달라질 수 있기 때문입니다. 한 항목만 보고 확정하기 어렵습니다.",
+    "FDI 법인설립은 투자등록(IRC)·기업등록(ERC) 흐름으로 진행됩니다. 정부 공식비용(VND)과 시장 일반가격(USD)은 별개이며, 투자자본은 설립비용이 아닙니다.",
+  question: "베트남 FDI 법인설립은 어떻게 진행되고 서류·비용은 어떻게 보나요?",
+  why: "외국인 투자자(개인 또는 외국법인)가 신청합니다. 투자 형태·업종·주소·자본 준비에 따라 서류와 후속 인허가가 달라질 수 있으니, 정부 공식비용과 시장 일반가격을 구분해 확인하세요.",
   showOfficialCost: true,
   costLookupNote: "",
+  directAnswer:
+    "외국인 투자 법인설립은 투자등록(IRC)과 기업등록(ERC)을 거쳐 진행합니다. 정부 공식비용은 VND 수수료이고, FDI 시장 일반가격은 USD 대행 범위로 별도입니다. 투자자본은 설립비용이 아닙니다.",
+  process: COMPANY_PROCESS_STEPS,
+  durationNote: COMPANY_DURATION_NOTE,
+  officialBasis: ["Thông tư 47/2019/TT-BTC", "Thông tư 64/2025/TT-BTC"],
   narrative: {
     anxieties: [
-      "법인 없이 사업하면 나중에 문제가 생길까?",
-      "서류가 빠져서 반려되면 시간과 돈을 다시 써야 하나?",
-      "정부 수수료만 보면 싼데, 실제로는 얼마나 더 드는 걸까?",
-      "개인 투자와 법인 투자 중 내 경우에 맞는 서류가 뭔지 헷갈린다.",
+      "IRC·ERC 순서를 모르고 진행하면 반려될까?",
+      "정부 수수료만 보고 견적이 싸다고 착각할까?",
+      "번역·공증·후속 인허가가 견적에 빠져 있나?",
+      "개인 투자와 법인 투자 서류 차이를 놓칠까?",
     ],
     caseCheckpoints: [
+      {
+        title: "신청 주체",
+        body: "외국인 투자자(개인 또는 외국법인)가 진행합니다.",
+      },
       { title: "투자 형태", body: "개인·법인 투자에 따라 필요 서류가 달라집니다." },
-      { title: "본점·자본 증빙", body: "주소·잔고증명·자본금 관련 자료를 점검합니다." },
-      { title: "핵심 제출 서류", body: "여권·정관·위임 등 우선 제출 항목을 모읍니다." },
-      { title: "후속 인허가", body: "업종에 따라 추가 허가가 이어질 수 있습니다." },
-      { title: "비용 구성", body: "정부 수수료와 대행·인감·후속 비용을 나눠 봅니다." },
+      { title: "업종·조건", body: "조건부 업종이면 추가 인허가가 이어질 수 있습니다." },
+      { title: "주소·자본 증빙", body: "본점 주소·잔고증명 등 기본 자료를 점검합니다." },
+      { title: "비용 구분", body: "정부 수수료(VND)와 FDI 시장가격(USD)을 합산하지 않습니다." },
     ],
     beforeAction: [
-      "개인·법인 투자 형태를 정하고 필요 서류 목록을 맞춥니다.",
+      "투자 형태·업종을 정하고 서류 목록을 맞춥니다.",
       "본점 주소·자본 증빙을 준비합니다.",
-      "정부 수수료와 대행·번역·후속 비용을 함께 견적 봅니다.",
-      "신청 전에 서류 누락·형식 오류를 점검합니다.",
+      "정부 공식비용과 시장 일반가격을 구분해 견적을 봅니다.",
+      "번역·공증·후속 포함 여부를 확인합니다.",
     ],
     afterAction: [
       "반려·보완 요청 사유를 정리하고 추가 서류를 준비합니다.",
-      "등록 후 세무·인허가 등 후속 절차 일정을 잡습니다.",
+      "등록 후 인감·세무·업종 인허가 일정을 잡습니다.",
       "제출본과 기관 요구를 다시 대조합니다.",
     ],
     evidenceWhenProblem: [
@@ -216,24 +272,24 @@ export const COMPANY_GUIDE_ARTICLE = buildRegisterGuide({
     ],
   },
   conditions: [
-    "아래 서류 목록은 VFBCAI 플랫폼의 법인설립·개인 투자 참고 항목입니다.",
-    "법인 투자인 경우 투자법인 등록증·정관·재무자료 등 추가 항목이 안내됩니다.",
-    "정부 고시 수수료 외 인감·전자서명·세무 초기설정 등 실무 비용이 함께 발생할 수 있습니다.",
+    "외국인 투자자(개인·외국법인)가 신청 대상입니다.",
+    "조건부 업종은 추가 인허가·일정이 필요할 수 있습니다.",
+    "정부 공식비용과 시장 일반가격·투자자본은 성격이 다릅니다.",
   ],
   cases: [
     {
       title: "대표적인 상황: 진행·서류·비용을 한꺼번에 물어보는 경우",
-      body: "절차는 같은 흐름이고, 서류와 실비만 투자 형태마다 달라집니다. 먼저 공통 순서와 핵심 서류를 정리한 뒤, 정부 수수료와 대행·후속 비용을 나눠 보는 것이 덜 헷갈립니다.",
+      body: "IRC·ERC 흐름과 핵심 서류를 먼저 정리한 뒤, 정부 수수료와 FDI 대행 견적을 구분해 보는 것이 덜 헷갈립니다.",
     },
     {
       title: "대표적인 상황: 정부 수수료만 보고 견적이 싸다고 느끼는 경우",
-      body: "등록·공고 수수료는 상대적으로 낮을 수 있으나, 번역·공증·대행·후속 인허가가 견적에 크게 반영되는 경우가 많습니다. 포함 항목을 구분해서 보세요.",
+      body: "관공서 수수료는 상대적으로 낮을 수 있으나, 시장가격에는 법률·행정 대행과 번역·공증이 포함될 수 있습니다. 포함 항목을 확인하세요.",
     },
   ],
   cautions: [
     "개인 투자와 법인 투자 서류 차이를 확인하지 않는 경우",
-    "정부 수수료만 보고 대행·후속 비용을 빠뜨리는 경우",
-    "본점 주소·자본 증빙 준비를 확인하지 않고 진행을 단정하는 경우",
+    "정부 수수료와 시장가격을 합산·환율 환산하는 경우",
+    "번역·공증·후속 인허가 포함 여부를 확인하지 않는 경우",
   ],
 });
 
@@ -243,34 +299,42 @@ export const RESTAURANT_GUIDE_ARTICLE = buildRegisterGuide({
   docServiceType: "register_restaurant",
   funnelHref: "/register/restaurant",
   title: "베트남 식당허가 진행·서류·비용, 한눈에 보기",
-  subtitle: "진행 순서, 준비 서류, 비용 확인 방법을 참고용으로 정리합니다.",
+  subtitle: "식당·요식업 식품안전(ATTP) 등록의 절차·조건·서류를 참고용으로 정리합니다.",
   metaDescription:
-    "식당허가는 서류 준비 → 관할 신청 → 심사·현장 확인 후 승인 순으로 진행됩니다. 사업자·임대차·건강검진서가 핵심이며, 위생·소방 등 추가 절차 가능성을 함께 확인하세요.",
+    "식당허가는 서류 준비 → 관할 신청 → 심사·현장 확인 후 승인 순으로 진행됩니다. 정부 심사비(VND)와 시장 대행가격은 별개이며, 사업등록·소방은 별도일 수 있습니다.",
   question: "베트남 식당허가 진행이 어떻게 되고 서류는 무엇이 필요하며 비용은 얼마나 드나요?",
-  why: "영업장 준비 상태, 위생·소방 연계, 관할·업종에 따라 준비물과 절차가 달라질 수 있기 때문입니다. 한 항목만 보고 확정하기 어렵습니다.",
-  showOfficialCost: false,
-  costLookupNote: `식당허가 ${PENDING_COST}`,
+  why: "영업장 준비 상태, 규모, 관할·업종에 따라 준비물과 절차가 달라질 수 있습니다. 정부 공식비용과 시장 대행가격을 구분해 확인하세요.",
+  showOfficialCost: "restaurant",
+  costLookupNote: "",
+  directAnswer:
+    "식당·요식업 등록은 식품안전(ATTP) 심사를 중심으로 진행합니다. 정부 공식비용은 제공 규모에 따른 심사비(VND)이고, 시장 일반가격은 대행 공개 사례 범위로 별도입니다. 사업등록·소방·시설 보완은 별도일 수 있습니다.",
+  process: RESTAURANT_PROCESS_STEPS,
+  durationNote: RESTAURANT_DURATION_NOTE,
+  officialBasis: ["Thông tư 67/2021/TT-BTC", "Thông tư 64/2025/TT-BTC"],
   narrative: {
     anxieties: [
       "인허가 없이 영업했다가 단속당할까?",
-      "식당허가만 되면 끝인 줄 알았는데 위생·소방도 필요한가?",
-      "영업장 임대·건강검진을 안 해두면 반려될까?",
-      "견적이 제각각인데 뭘 기준으로 봐야 하지?",
+      "정부 심사비만 보고 견적이 싸다고 착각할까?",
+      "사업등록·소방·건강검진이 견적에 빠져 있나?",
+      "규모가 다른 시장가격과 단순 비교해도 될까?",
     ],
     caseCheckpoints: [
       { title: "영업장 준비", body: "임대차·사업장 주소·시설 상태를 봅니다." },
       { title: "사업자·건강검진", body: "사업자등록·종사자 건강검진서 등 핵심 서류를 모읍니다." },
-      { title: "연계 인허가", body: "위생·소방 등 추가 절차 가능성을 확인합니다." },
-      { title: "관할·업종", body: "관할 기관과 업종 분류에 맞는 서류를 준비합니다." },
+      { title: "연계 인허가", body: "사업등록·소방 등 추가 절차 가능성을 확인합니다." },
+      { title: "관할·규모", body: "관할 기관과 제공 규모(200인 기준)에 맞는 서류를 준비합니다." },
+      { title: "비용 구분", body: "정부 심사비와 시장 대행가격을 합산하지 않습니다." },
     ],
     beforeAction: [
       "영업장 임대·건강검진·사업자 자료를 먼저 모읍니다.",
-      "위생·소방 연계 필요 여부를 확인합니다.",
-      "확인된 비용만 비교하고 임의 금액에 단정하지 않습니다.",
+      "사업등록·소방 연계 필요 여부를 확인합니다.",
+      "정부 공식비용과 시장 대행가격을 구분해 견적을 봅니다.",
+      "포함 범위(시설 보완·교육·대행)를 확인합니다.",
     ],
     afterAction: [
       "반려·현장 확인 보완 요청에 맞춰 추가 서류를 준비합니다.",
       "영업 개시 전 연계 허가 완료 여부를 점검합니다.",
+      "제출본과 기관 요구를 다시 대조합니다.",
     ],
     evidenceWhenProblem: [
       "반려·보완 통지, 제출 서류 사본",
@@ -280,23 +344,23 @@ export const RESTAURANT_GUIDE_ARTICLE = buildRegisterGuide({
   },
   conditions: [
     "아래 서류 목록은 VFBCAI 플랫폼의 식당허가 참고 항목입니다.",
-    "위생·소방 관련 자료는 있으면 제출·연계 확인이 필요한 경우가 많습니다.",
-    "사업 조건에 따라 한 번의 신청으로 끝나지 않을 수 있습니다.",
+    "사업등록·소방 관련 자료는 있으면 제출·연계 확인이 필요한 경우가 많습니다.",
+    "정부 공식비용과 시장 대행가격·시설 보완은 성격이 다릅니다.",
   ],
   cases: [
     {
       title: "대표적인 상황: 진행·서류·비용을 한꺼번에 물어보는 경우",
-      body: "절차는 같은 흐름이고, 서류와 실비만 영업장·관할마다 달라집니다. 먼저 공통 서류와 준비 상태를 정리한 뒤, 확인된 비용만 비교하는 것이 안전합니다.",
+      body: "절차와 핵심 서류를 먼저 정리한 뒤, 정부 심사비와 대행 견적을 구분해 보는 것이 덜 헷갈립니다.",
     },
     {
-      title: "대표적인 상황: 식당허가만 되면 끝이라고 듣는 경우",
-      body: "위생·소방 등 추가 확인이 이어질 수 있습니다. 확인되지 않은 2·3차 절차·비용은 표시하지 않으며, 준비 상태를 먼저 확인하세요.",
+      title: "대표적인 상황: 정부 심사비만 보고 견적이 싸다고 느끼는 경우",
+      body: "관공서 심사비는 상대적으로 낮을 수 있으나, 시장가격에는 서류·현장 준비·대행이 포함될 수 있습니다. 포함 항목을 확인하세요.",
     },
   ],
   cautions: [
-    "위생·소방 연계 가능성을 확인하지 않는 경우",
-    "확인되지 않은 금액을 단정하는 경우",
-    "영업장 임대·건강검진 준비를 빠뜨리는 경우",
+    "사업등록·소방 연계 가능성을 확인하지 않는 경우",
+    "정부 심사비와 시장가격을 합산하는 경우",
+    "서비스 범위가 다른 시장가격과 받은 견적을 단순 비교하는 경우",
   ],
 });
 

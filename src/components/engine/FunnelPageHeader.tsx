@@ -31,13 +31,17 @@ export default function FunnelPageHeader({
   descriptionClassName,
 }: FunnelPageHeaderProps) {
   const copy = FUNNEL_ENGINE_COPY[engine];
+  const isRegister = engine === "register";
 
   return (
-    <div className={cn(className)}>
+    <div className={cn(isRegister && "pt-5 sm:pt-6", className)}>
       <Link
         href="/"
         prefetch={false}
-        className="relative -mx-4 -mt-10 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden"
+        className={cn(
+          "relative -mx-4 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden",
+          isRegister ? "mt-0" : "-mt-10"
+        )}
       >
         <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
           <span aria-hidden>←</span>
@@ -67,11 +71,25 @@ export default function FunnelPageHeader({
         </span>
       </Link>
 
-      <div className="mt-3 flex items-start justify-between gap-3 sm:mt-4">
+      <div
+        className={cn(
+          "flex items-start justify-between gap-3",
+          isRegister
+            ? "mt-4 pt-5 pb-2.5 sm:mt-5 sm:pt-6 sm:pb-3.5"
+            : "mt-3 sm:mt-4"
+        )}
+      >
         <div className="min-w-0">
           <p className={FUNNEL_EYEBROW}>{copy.eyebrow}</p>
           <h1 className={cn("mt-1.5", FUNNEL_H1)}>{title}</h1>
-          <p className={cn("mt-0.5", descriptionClassName ?? FUNNEL_DESC)}>{description}</p>
+          <p
+            className={cn(
+              isRegister ? "mt-3" : "mt-0.5",
+              descriptionClassName ?? FUNNEL_DESC
+            )}
+          >
+            {description}
+          </p>
         </div>
         {headerExtra ? <div className="shrink-0">{headerExtra}</div> : null}
       </div>

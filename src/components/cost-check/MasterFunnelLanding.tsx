@@ -49,6 +49,9 @@ import {
 import { MasterWpQuotationReport } from "@/components/cost-check/MasterWpQuotationReport";
 import { MasterTamtruQuotationReport } from "@/components/cost-check/MasterTamtruQuotationReport";
 import { MasterDrivingQuotationReport } from "@/components/cost-check/MasterDrivingQuotationReport";
+import { MasterCompanyQuotationReport } from "@/components/cost-check/MasterCompanyQuotationReport";
+import { MasterRestaurantQuotationReport } from "@/components/cost-check/MasterRestaurantQuotationReport";
+import { MasterRegisterQuotationReport } from "@/components/cost-check/MasterRegisterQuotationReport";
 import { GuideCaseFunnelSummary } from "@/components/answers/GuideCaseFunnelSummary";
 import { MasterQuotationGuidePanel } from "@/components/cost-check/MasterQuotationGuidePanel";
 import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
@@ -267,12 +270,17 @@ function MasterServiceQueryEntry({
     ? `master-service-input-${currentServiceId}`
     : "master-service-input";
 
+  /** CHECK Master · REGISTER 8개 — 확인 시작 입력은 placeholder만 노출 */
+  const compactQueryEntry =
+    currentServiceId === "trc" ||
+    currentServiceId === "wp" ||
+    currentServiceId === "tamtru" ||
+    currentServiceId === "driving-license" ||
+    isRegisterMasterQuotation(currentServiceId);
+
   return (
     <form onSubmit={handleDirectSubmit} className="space-y-2.5">
-      {currentServiceId === "trc" ||
-      currentServiceId === "wp" ||
-      currentServiceId === "tamtru" ||
-      currentServiceId === "driving-license" ? (
+      {compactQueryEntry ? (
         <label htmlFor={inputId} className="sr-only">
           원하는 내용을 입력하거나 아래에서 선택하세요
         </label>
@@ -299,10 +307,7 @@ function MasterServiceQueryEntry({
             onFocus={() => setPickerOpen(true)}
             onClick={() => setPickerOpen(true)}
             placeholder={
-              currentServiceId === "trc" ||
-              currentServiceId === "wp" ||
-              currentServiceId === "tamtru" ||
-              currentServiceId === "driving-license"
+              compactQueryEntry
                 ? "원하는 내용을 입력하거나 아래에서 선택하세요"
                 : "예) 세무기장 비용은 얼마인가요?"
             }
@@ -846,12 +851,28 @@ function usesMasterQuoteReview(id?: CostCheckServiceId): id is CostCheckServiceI
   return Boolean(id && MASTER_QUOTE_REVIEW_SERVICE_IDS.includes(id));
 }
 
+const REGISTER_MASTER_QUOTATION_IDS: CostCheckServiceId[] = [
+  "company",
+  "restaurant",
+  "hygiene",
+  "fire-safety",
+  "environment",
+  "cosmetics",
+  "medical-device",
+  "franchise",
+];
+
+function isRegisterMasterQuotation(id?: CostCheckServiceId): boolean {
+  return Boolean(id && REGISTER_MASTER_QUOTATION_IDS.includes(id));
+}
+
 function isMasterQuotationLanding(config: MasterLandingConfig): boolean {
   return (
     config.costServiceId === "trc" ||
     config.costServiceId === "wp" ||
     config.costServiceId === "tamtru" ||
-    config.costServiceId === "driving-license"
+    config.costServiceId === "driving-license" ||
+    isRegisterMasterQuotation(config.costServiceId)
   );
 }
 
@@ -899,9 +920,31 @@ export function MasterFunnelLanding({
         <MasterTrcContextTabs
           active={masterTab}
           onChange={(tab) => onTabChange(tab)}
+          {...(isRegisterMasterQuotation(quotationServiceId)
+            ? {
+                lookupLabel: "인허가 견적",
+                lookupDesc: "비용,견적,위험 확인",
+                balancedInset: true,
+              }
+            : {})}
         />
         {masterTab === "lookup" &&
-          (quotationServiceId === "wp" ? (
+          (quotationServiceId === "company" ? (
+            <MasterCompanyQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
+          ) : quotationServiceId === "restaurant" ? (
+            <MasterRestaurantQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
+          ) : quotationServiceId === "hygiene" ||
+            quotationServiceId === "fire-safety" ||
+            quotationServiceId === "environment" ||
+            quotationServiceId === "cosmetics" ||
+            quotationServiceId === "medical-device" ||
+            quotationServiceId === "franchise" ? (
+            <MasterRegisterQuotationReport
+              serviceId={quotationServiceId}
+              onContinue={onContinue}
+              queryEntry={queryEntry}
+            />
+          ) : quotationServiceId === "wp" ? (
             <MasterWpQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
           ) : quotationServiceId === "tamtru" ? (
             <MasterTamtruQuotationReport onContinue={onContinue} queryEntry={queryEntry} />
