@@ -757,9 +757,11 @@ export function MasterTrcContextTabs({
                 {t.label}
               </span>
               <span
-                className={`mt-0.5 block break-keep text-center font-normal tracking-tight text-[9px] leading-[1.25] sm:tracking-normal sm:text-[10.5px] sm:leading-snug ${
-                  isActive ? "text-[#64748B]" : "text-[#94A3B8]"
-                }`}
+                className={`mt-0.5 block break-keep text-center font-normal tracking-tight sm:tracking-normal sm:text-[10.5px] sm:leading-snug ${
+                  balancedInset
+                    ? "text-[10px] leading-[1.35]"
+                    : "text-[9px] leading-[1.25]"
+                } ${isActive ? "text-[#64748B]" : "text-[#94A3B8]"}`}
               >
                 {t.desc}
               </span>

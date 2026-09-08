@@ -138,18 +138,18 @@ export function MasterRestaurantQuotationReport({
               <header className="border-b border-[#E5E7EB] px-3.5 py-3 sm:px-4 sm:py-3">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-medium tracking-[0.1em] text-[#64748B]">
+                    <p className="text-[10.5px] font-medium tracking-[0.08em] text-[#64748B] sm:text-[10px] sm:tracking-[0.1em]">
                       VFBCAI · REGISTER
                     </p>
                     <h2 className="mt-1 text-[16px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:mt-0.5 sm:text-[17px]">
                       식당허가 비용 확인서
                     </h2>
-                    <p className="mt-1 break-words text-[10px] font-normal leading-relaxed tracking-[0.04em] text-[#64748B] sm:mt-0.5 sm:tracking-[0.06em]">
+                    <p className="mt-1 break-words text-[10.5px] font-normal leading-relaxed tracking-[0.03em] text-[#64748B] sm:mt-0.5 sm:text-[10px] sm:tracking-[0.06em]">
                       QUOTATION REPORT · RESTAURANT PERMIT
                     </p>
                   </div>
                   <div className="min-w-0 text-left sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
-                    <p className="break-keep text-[11px] leading-relaxed text-[#64748B]">
+                    <p className="break-keep text-[11.5px] leading-[1.55] text-[#64748B] sm:text-[11px] sm:leading-relaxed">
                       출처: Thông tư 67/2021/TT-BTC, Thông tư 64/2025/TT-BTC
                     </p>
                   </div>
@@ -165,7 +165,7 @@ export function MasterRestaurantQuotationReport({
                     >
                       <span className="tabular-nums font-medium text-[#64748B]">1.</span> 예상 비용
                     </h3>
-                    <p className="max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:text-[13px]">
+                    <p className="max-w-[40rem] break-keep text-[12.5px] leading-[1.7] text-[#475569] sm:text-[13px] sm:leading-[1.65]">
                       관공서 공식 자료와 시장 정보를 기준으로 분석한 예상 비용입니다.
                     </p>
                   </div>
@@ -178,25 +178,25 @@ export function MasterRestaurantQuotationReport({
                           <p className="text-[12.5px] font-medium leading-snug text-[#0B2A6B]">
                             관공서 공식비용
                           </p>
-                          <p className="mt-0.5 break-keep text-[10.5px] leading-relaxed text-[#64748B]">
+                          <p className="mt-0.5 break-keep text-[11px] leading-[1.55] text-[#64748B]">
                             (정부기관 납부 공식 수수료)
                           </p>
                         </div>
                       </div>
                       <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-[#EEF2F7] pt-2">
                         <div>
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (VND)</dt>
+                          <dt className="text-[10.5px] font-medium text-[#94A3B8]">금액 (VND)</dt>
                           <dd className="mt-0.5 break-keep text-[12.5px] font-bold leading-snug text-[#0B2A6B]">
                             {model.governmentSummary}
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
+                          <dt className="text-[10.5px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
                           <dd className="mt-0.5 text-[12px] tabular-nums text-[#94A3B8]">—</dd>
                         </div>
                         <div className="col-span-2">
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">비고</dt>
-                          <dd className="mt-0.5 break-keep text-[11px] leading-relaxed text-[#475569]">
+                          <dt className="text-[10.5px] font-medium text-[#94A3B8]">비고</dt>
+                          <dd className="mt-0.5 break-keep text-[11.5px] leading-[1.55] text-[#475569]">
                             {model.governmentHint}
                           </dd>
                         </div>
@@ -209,25 +209,25 @@ export function MasterRestaurantQuotationReport({
                           <p className="text-[12.5px] font-medium leading-snug text-[#0B2A6B]">
                             시장 일반가격
                           </p>
-                          <p className="mt-0.5 break-keep text-[10.5px] leading-relaxed text-[#64748B]">
+                          <p className="mt-0.5 break-keep text-[11px] leading-[1.55] text-[#64748B]">
                             (대행 포함)
                           </p>
                         </div>
                       </div>
                       <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-[#EEF2F7] pt-2">
                         <div className="col-span-2 min-w-0">
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (VND)</dt>
+                          <dt className="text-[10.5px] font-medium text-[#94A3B8]">금액 (VND)</dt>
                           <dd className="mt-0.5 break-keep text-[12.5px] font-semibold tabular-nums leading-snug text-[#0B2A6B]">
                             {marketVndRange}
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
+                          <dt className="text-[10.5px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
                           <dd className="mt-0.5 text-[12px] tabular-nums text-[#94A3B8]">—</dd>
                         </div>
                         <div className="col-span-2">
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">비고</dt>
-                          <dd className="mt-0.5 break-keep text-[11px] leading-relaxed text-[#475569]">
+                          <dt className="text-[10.5px] font-medium text-[#94A3B8]">비고</dt>
+                          <dd className="mt-0.5 break-keep text-[11.5px] leading-[1.55] text-[#475569]">
                             {model.marketHint}
                           </dd>
                         </div>
@@ -241,25 +241,25 @@ export function MasterRestaurantQuotationReport({
                             <p className="text-[12.5px] font-medium leading-snug text-[#0B2A6B]">
                               받은 견적
                             </p>
-                            <p className="mt-0.5 break-keep text-[10.5px] leading-relaxed text-[#64748B]">
+                            <p className="mt-0.5 break-keep text-[11px] leading-[1.55] text-[#64748B]">
                               (사용자 입력)
                             </p>
                           </div>
                         </div>
                         <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-[#EEF2F7] pt-2">
                           <div>
-                            <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (VND)</dt>
+                            <dt className="text-[10.5px] font-medium text-[#94A3B8]">금액 (VND)</dt>
                             <dd className="mt-0.5 text-[13px] font-semibold tabular-nums leading-snug text-[#0B2A6B]">
                               {formatCostAmount(review.quotedAmount, "VND")}
                             </dd>
                           </div>
                           <div>
-                            <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
+                            <dt className="text-[10.5px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
                             <dd className="mt-0.5 text-[12px] tabular-nums text-[#94A3B8]">—</dd>
                           </div>
                           <div className="col-span-2">
-                            <dt className="text-[10px] font-medium text-[#94A3B8]">비고</dt>
-                            <dd className="mt-0.5 break-keep text-[11px] leading-relaxed text-[#475569]">
+                            <dt className="text-[10.5px] font-medium text-[#94A3B8]">비고</dt>
+                            <dd className="mt-0.5 break-keep text-[11.5px] leading-[1.55] text-[#475569]">
                               사용자가 받은 견적 금액
                             </dd>
                           </div>
@@ -407,7 +407,7 @@ export function MasterRestaurantQuotationReport({
                   {!hasQuote ? (
                     <div className="mt-3 border-t border-[#D8DEE8] pt-2.5 sm:mt-2.5">
                       <div className="flex items-baseline justify-between gap-3">
-                        <p className="shrink-0 text-[11px] font-normal leading-relaxed text-[#64748B]">
+                        <p className="shrink-0 text-[11.5px] font-normal leading-relaxed text-[#64748B] sm:text-[11px]">
                           시장 일반가격 범위
                         </p>
                         <p className="min-w-0 text-right text-[14px] font-semibold tabular-nums leading-none tracking-tight text-[#0B2A6B] sm:text-[15px]">
@@ -421,7 +421,7 @@ export function MasterRestaurantQuotationReport({
 
                 <section aria-labelledby="restaurant-cost-analysis">
                   <SectionTitle id="restaurant-cost-analysis" number="2" title="비용 분석 결과" />
-                  <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mb-1.5 sm:text-[13px]">
+                  <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.7] text-[#475569] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65]">
                     입력한 견적을 공식비용·시장 참고 범위와 비교한 결과입니다.
                   </p>
                   {hasQuote && grade ? (
@@ -454,13 +454,13 @@ export function MasterRestaurantQuotationReport({
                               <p className="mt-1 text-[12.5px] font-medium leading-snug text-[#334155] sm:mt-0.5 sm:text-[12px]">
                                 {review.title}
                               </p>
-                              <p className="mt-1 break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
+                              <p className="mt-1 break-keep text-[12.5px] leading-[1.7] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
                                 {review.summary}
                               </p>
-                              <p className="mt-1 break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
+                              <p className="mt-1 break-keep text-[12.5px] leading-[1.7] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
                                 {review.detail}
                               </p>
-                              <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#64748B] sm:mt-1">
+                              <p className="mt-1.5 text-[11.5px] leading-[1.55] text-[#64748B] sm:mt-1 sm:leading-relaxed">
                                 참고 적정 범위:{" "}
                                 {formatCostAmount(review.fairReference, "VND")}
                                 {displayBubble !== 0 ? (
@@ -507,7 +507,7 @@ export function MasterRestaurantQuotationReport({
                           <p className="text-[14px] font-semibold leading-snug text-[#0B2A6B]">
                             견적 입력 후 확인할 수 있습니다.
                           </p>
-                          <p className="mt-1 break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:text-[12px]">
+                          <p className="mt-1 break-keep text-[12.5px] leading-[1.7] text-[#475569] sm:text-[12px] sm:leading-relaxed">
                             시장 일반가격(VND)과 같은 통화로 입력한 견적을 비교합니다.
                           </p>
                         </div>
@@ -518,7 +518,7 @@ export function MasterRestaurantQuotationReport({
 
                 <section aria-labelledby="restaurant-extra-costs">
                   <SectionTitle id="restaurant-extra-costs" number="3" title="추가 발생 가능 비용" />
-                  <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mb-1.5 sm:text-[13px]">
+                  <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.7] text-[#475569] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65]">
                     {detail.additionalCostIntro}
                   </p>
                   <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4">
@@ -530,7 +530,7 @@ export function MasterRestaurantQuotationReport({
                         <p className="break-keep text-pretty text-[12px] font-medium leading-snug text-[#0B2A6B] sm:text-[11.5px]">
                           {item.label}
                         </p>
-                        <p className="mt-1 break-keep text-pretty text-[11px] leading-relaxed text-[#64748B] sm:mt-0.5 sm:text-[10.5px]">
+                        <p className="mt-1 break-keep text-pretty text-[11.5px] leading-[1.55] text-[#64748B] sm:mt-0.5 sm:text-[10.5px] sm:leading-relaxed">
                           {item.note}
                         </p>
                       </li>
@@ -544,7 +544,7 @@ export function MasterRestaurantQuotationReport({
                     number="4"
                     title="이런 경우 추가 비용과 문제가 발생할 수 있습니다"
                   />
-                  <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mb-1.5 sm:text-[13px]">
+                  <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.7] text-[#475569] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65]">
                     {detail.riskIntro}
                   </p>
                   <div className="grid grid-cols-1 items-start gap-2.5 lg:grid-cols-2 lg:gap-2">
@@ -561,7 +561,7 @@ export function MasterRestaurantQuotationReport({
                         {detail.selfProceedRisks.map((text, index) => (
                           <li
                             key={text}
-                            className="flex gap-1.5 break-keep text-pretty text-[12px] leading-[1.55] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
+                            className="flex gap-1.5 break-keep text-pretty text-[12px] leading-[1.6] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
                           >
                             <span className="shrink-0 tabular-nums text-[#94A3B8]" aria-hidden>
                               {index === 0 ? "①" : "②"}
@@ -584,7 +584,7 @@ export function MasterRestaurantQuotationReport({
                         {detail.badAgencyRisks.map((text, index) => (
                           <li
                             key={text}
-                            className="flex gap-1.5 break-keep text-pretty text-[12px] leading-[1.55] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
+                            className="flex gap-1.5 break-keep text-pretty text-[12px] leading-[1.6] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
                           >
                             <span className="shrink-0 tabular-nums text-[#94A3B8]" aria-hidden>
                               {index === 0 ? "①" : "②"}
@@ -595,7 +595,7 @@ export function MasterRestaurantQuotationReport({
                       </ul>
                     </div>
                   </div>
-                  <p className="mt-2 break-keep text-[11px] leading-relaxed text-[#64748B] sm:mt-1.5">
+                  <p className="mt-2 break-keep text-[11.5px] leading-[1.55] text-[#64748B] sm:mt-1.5 sm:text-[11px] sm:leading-relaxed">
                     {detail.riskFooterNote}
                   </p>
                 </section>
@@ -630,10 +630,10 @@ export function MasterRestaurantQuotationReport({
               </div>
 
               <footer className="border-t border-[#E5E7EB] bg-[#F8FAFC] px-3.5 py-2.5 sm:px-4 sm:py-2">
-                <p className="break-keep text-center text-[10px] leading-relaxed text-[#94A3B8]">
+                <p className="break-keep text-center text-[10.5px] leading-relaxed text-[#94A3B8] sm:text-[10px]">
                   VFBCAI · www.vfbcai.com · Check. Verify. Register. Protect.
                 </p>
-                <p className="mt-1.5 break-keep text-center text-[10.5px] leading-relaxed text-[#64748B] sm:mt-1">
+                <p className="mt-1.5 break-keep text-center text-[11px] leading-[1.55] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed">
                   {detail.footerDisclaimer}
                 </p>
               </footer>
