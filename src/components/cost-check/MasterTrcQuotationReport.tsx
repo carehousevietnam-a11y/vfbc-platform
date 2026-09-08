@@ -733,7 +733,7 @@ export function MasterTrcContextTabs({
             onClick={() => onChange(t.id)}
             className={`flex min-w-0 items-center justify-center gap-2 px-2 text-center transition sm:gap-2.5 sm:px-4 ${
               balancedInset
-                ? "min-h-[52px] py-2.5 sm:min-h-[56px] sm:py-3"
+                ? "min-h-[52px] py-2 sm:min-h-[56px] sm:py-3"
                 : "min-h-[46px] py-1.5 sm:min-h-[50px] sm:py-2"
             } ${index === 0 ? "border-r border-[#D8DEE8]" : ""} ${
               isActive
@@ -750,16 +750,16 @@ export function MasterTrcContextTabs({
             />
             <span className="flex min-w-0 flex-col items-center justify-center">
               <span
-                className={`block whitespace-nowrap text-[12.5px] leading-none sm:text-[13.5px] sm:leading-snug ${
-                  isActive ? "font-semibold" : "font-medium"
-                }`}
+                className={`block whitespace-nowrap leading-none sm:text-[13.5px] sm:leading-snug ${
+                  balancedInset ? "text-[14px]" : "text-[12.5px]"
+                } ${isActive ? "font-semibold" : "font-medium"}`}
               >
                 {t.label}
               </span>
               <span
                 className={`mt-0.5 block break-keep text-center font-normal tracking-tight sm:tracking-normal sm:text-[10.5px] sm:leading-snug ${
                   balancedInset
-                    ? "text-[10px] leading-[1.35]"
+                    ? "text-[12px] leading-snug"
                     : "text-[9px] leading-[1.25]"
                 } ${isActive ? "text-[#64748B]" : "text-[#94A3B8]"}`}
               >
