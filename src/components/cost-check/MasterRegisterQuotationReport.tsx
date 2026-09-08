@@ -341,7 +341,13 @@ export function MasterRegisterQuotationReport({
                         <div className={isAmountUnavailable ? "min-w-0" : "col-span-2 min-w-0"}>
                           <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (VND)</dt>
                           <dd className="mt-0.5">
-                            <AmountCell value={marketDisplay} emphasize="semibold" />
+                            {canCompare ? (
+                              <span className="break-keep text-[13px] font-medium tabular-nums leading-snug text-[#B45353]">
+                                {marketDisplay}
+                              </span>
+                            ) : (
+                              <AmountCell value={marketDisplay} emphasize="semibold" />
+                            )}
                           </dd>
                         </div>
                         {!isAmountUnavailable ? (
@@ -582,7 +588,13 @@ export function MasterRegisterQuotationReport({
                         <p className="shrink-0 text-[13px] font-normal leading-snug text-[#64748B] sm:text-[11px] sm:leading-relaxed">
                           시장 일반가격 범위
                         </p>
-                        <p className="min-w-0 text-right text-[15px] font-semibold tabular-nums leading-none tracking-tight text-[#0B2A6B] sm:text-[15px]">
+                        <p
+                          className={`min-w-0 text-right tabular-nums leading-none tracking-tight ${
+                            canCompare
+                              ? "text-[13px] font-medium text-[#B45353] sm:text-[15px] sm:font-semibold sm:text-[#0B2A6B]"
+                              : "text-[15px] font-semibold text-[#0B2A6B] sm:text-[15px]"
+                          }`}
+                        >
                           {marketDisplay}
                         </p>
                       </div>

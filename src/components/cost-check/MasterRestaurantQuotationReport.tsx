@@ -217,7 +217,7 @@ export function MasterRestaurantQuotationReport({
                       <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-[#EEF2F7] pt-1.5">
                         <div className="col-span-2 min-w-0">
                           <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (VND)</dt>
-                          <dd className="mt-0.5 break-keep text-[15px] font-semibold tabular-nums leading-snug text-[#0B2A6B]">
+                          <dd className="mt-0.5 break-keep text-[13px] font-medium tabular-nums leading-snug text-[#B45353]">
                             {marketVndRange}
                           </dd>
                         </div>
@@ -410,7 +410,7 @@ export function MasterRestaurantQuotationReport({
                         <p className="shrink-0 text-[13px] font-normal leading-snug text-[#64748B] sm:text-[11px] sm:leading-relaxed">
                           시장 일반가격 범위
                         </p>
-                        <p className="min-w-0 text-right text-[15px] font-semibold tabular-nums leading-none tracking-tight text-[#0B2A6B] sm:text-[15px]">
+                        <p className="min-w-0 text-right text-[13px] font-medium tabular-nums leading-none tracking-tight text-[#B45353] sm:text-[15px] sm:font-semibold sm:text-[#0B2A6B]">
                           {marketVndRange}
                         </p>
                       </div>
