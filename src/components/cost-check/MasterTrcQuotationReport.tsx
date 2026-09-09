@@ -48,6 +48,51 @@ const TRC_BAD_AGENCY_RISKS = [
   "진행 지연이나 업체 변경으로 체류 일정에 차질이 생기고 비용이 중복될 수 있습니다.",
 ] as const;
 
+/** Mobile — TRC_CHECK_MARKET_CASES 전체 (2건). */
+const TRC_MOBILE_MARKET_CASE_PICKS = TRC_CHECK_MARKET_CASES;
+
+/** Mobile 시장 사례 — 가격 구간만 한 줄 표기 */
+function mobileMarketCasePriceLine(summary: string): string {
+  const first = summary.split(" · ")[0]?.trim() || summary;
+  const usd = first.match(/USD\s*[\d,]+(?:\s*~\s*[\d,]+)?/i);
+  if (usd) return usd[0].replace(/\s+/g, "");
+  const vndRange = first.match(/(\d[\d,]*(?:\s*[–-]\s*\d[\d,]*|\s*~\s*\d[\d,]*)+)\s*VND/i);
+  if (vndRange) return `${vndRange[1].replace(/\s+/g, "")} VND`;
+  const fromUsd = first.match(/from\s+(USD\s*[\d,]+)/i);
+  if (fromUsd) return fromUsd[1].replace(/\s+/g, "");
+  return first;
+}
+
+const MOBILE_AMOUNT_LABEL = "text-[11px] font-medium tracking-[0.02em] text-[#94A3B8]";
+const MOBILE_PRICE_OFFICIAL =
+  "break-keep text-[13px] font-normal tabular-nums leading-[1.45] tracking-normal text-[#0B2A6B]";
+const MOBILE_PRICE_MARKET =
+  "break-keep text-[13px] font-normal tabular-nums leading-[1.45] tracking-normal text-[#B45353]";
+const MOBILE_PRICE_RANGE =
+  "break-keep text-[14px] font-semibold tabular-nums leading-[1.4] tracking-normal text-[#B45353]";
+const MOBILE_SECTION_INTRO =
+  "mb-2 max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
+const MOBILE_SUBHEAD =
+  "text-[13px] font-medium leading-snug text-[#334155] sm:text-[14px] sm:font-semibold sm:text-[#0B2A6B]";
+const MOBILE_BODY =
+  "break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-relaxed sm:text-[#475569]";
+const MOBILE_BODY_TIGHT =
+  "text-[13px] font-normal leading-snug text-[#64748B] sm:mt-0.5 sm:text-[12px] sm:font-medium sm:text-[#334155]";
+const MOBILE_META =
+  "mt-1.5 text-[12px] font-normal leading-[1.5] text-[#94A3B8] sm:mt-1 sm:text-[11.5px] sm:leading-relaxed sm:text-[#64748B]";
+const MOBILE_CARD_LABEL =
+  "break-keep text-pretty text-[13px] font-medium leading-snug text-[#475569] sm:text-[11.5px] sm:font-medium sm:text-[#0B2A6B]";
+const MOBILE_CARD_NOTE =
+  "mt-0.5 break-keep text-pretty text-[12px] font-normal leading-[1.5] text-[#94A3B8] sm:mt-0.5 sm:text-[10.5px] sm:leading-relaxed sm:text-[#64748B]";
+const MOBILE_CALLOUT =
+  "min-w-0 max-w-[40rem] break-keep text-pretty text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-[1.65] sm:text-[#334155]";
+const MOBILE_GRADE_LABEL =
+  "mt-1 text-[13px] font-medium leading-snug text-[#475569] sm:mt-0.5 sm:text-[15px] sm:font-semibold sm:leading-none sm:text-[#0B2A6B]";
+const MOBILE_COST_SUMMARY_INTRO =
+  "max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
+const MOBILE_REPORT_SOURCE =
+  "break-keep max-sm:text-[10px] max-[389px]:text-[9.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed sm:whitespace-normal";
+
 function excessGrade(verdict: ReviewVerdict): { label: string; filled: number; tone: string } {
   if (verdict === "fair") return { label: "낮음", filled: 1, tone: "bg-emerald-500" };
   if (verdict === "caution") return { label: "주의", filled: 3, tone: "bg-amber-500" };
@@ -65,17 +110,29 @@ function SectionTitle({
   id,
   number,
   title,
+  emphasized = false,
 }: {
   id: string;
   number: string;
   title: string;
+  emphasized?: boolean;
 }) {
   return (
     <h3
       id={id}
-      className="mb-1.5 flex items-baseline gap-1.5 border-b border-[#E5E7EB] pb-1.5 text-[12.5px] font-semibold leading-snug text-[#0B2A6B] sm:mb-1 sm:pb-1 sm:text-[13.5px] sm:leading-relaxed"
+      className={`mb-2 flex items-baseline gap-1 border-b border-[#E5E7EB] pb-1.5 text-[14px] sm:mb-1 sm:gap-1.5 sm:pb-1 sm:text-[13.5px] sm:font-semibold sm:leading-relaxed sm:tracking-normal sm:text-[#0B2A6B] ${
+        emphasized
+          ? "font-medium leading-snug tracking-tight text-[#334155]"
+          : "font-medium leading-[1.45] text-[#64748B]"
+      }`}
     >
-      <span className="tabular-nums font-medium text-[#64748B]">{number}.</span>
+      <span
+        className={`tabular-nums sm:font-medium sm:text-[#64748B] ${
+          emphasized ? "font-medium text-[#64748B]" : "font-normal text-[#94A3B8]"
+        }`}
+      >
+        {number}.
+      </span>
       <span className="min-w-0 break-keep">{title}</span>
     </h3>
   );
@@ -130,15 +187,15 @@ export function MasterTrcQuotationReport({
   const grade = hasQuote ? excessGrade(review.verdict) : null;
 
   return (
-    <div className="mt-3 space-y-3">
+    <div className="mt-2.5 space-y-2.5 sm:mt-3 sm:space-y-3">
       {queryEntry ? (
         <section
           aria-labelledby="trc-query-start"
-          className="rounded-[4px] border border-[#D8DEE8] bg-white px-3.5 py-3 sm:px-4 sm:py-3.5"
+          className="rounded-[4px] border border-[#D8DEE8] bg-white px-3.5 py-2.5 sm:px-4 sm:py-3.5"
         >
           <h3
             id="trc-query-start"
-            className="mb-2 text-[12px] font-medium tracking-tight text-[#0B2A6B] sm:mb-1.5"
+            className="mb-1.5 text-[14px] font-medium tracking-tight text-[#0B2A6B] sm:mb-1.5 sm:text-[12px]"
           >
             확인 시작
           </h3>
@@ -150,141 +207,133 @@ export function MasterTrcQuotationReport({
         <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_270px] lg:items-stretch">
           <div className="flex min-w-0 flex-col border-[#E5E7EB] lg:border-r">
             <article className="flex h-full min-h-0 flex-col">
-            <header className="border-b border-[#E5E7EB] px-3.5 py-3 sm:px-4 sm:py-3">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+            <header className="border-b border-[#E5E7EB] px-3.5 py-2.5 sm:px-4 sm:py-3">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-medium tracking-[0.1em] text-[#64748B]">
+                  <p className="text-[12px] font-medium tracking-[0.06em] text-[#64748B] sm:text-[10px] sm:tracking-[0.1em]">
                     VFBCAI · CHECK
                   </p>
-                  <h2 className="mt-1 text-[16px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:mt-0.5 sm:text-[17px]">
+                  <h2 className="mt-1 text-[18px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:mt-0.5 sm:text-[17px]">
                     거주증 비용 확인서
                   </h2>
-                  <p className="mt-1 break-words text-[10px] font-normal leading-relaxed tracking-[0.04em] text-[#64748B] sm:mt-0.5 sm:tracking-[0.06em]">
-                    QUOTATION REPORT · TEMPORARY RESIDENCE CARD
+                  <p className="mt-0.5 break-words text-[12px] font-normal leading-snug tracking-[0.02em] text-[#64748B] sm:mt-0.5 sm:text-[10px] sm:leading-relaxed sm:tracking-[0.06em]">
+                    QUOTATION REPORT · TRC
                   </p>
                 </div>
-                <div className="min-w-0 text-left sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
-                  <p className="break-keep text-[11px] leading-relaxed text-[#64748B]">
+                <div className="min-w-0 text-left max-sm:w-full sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
+                  <p className={MOBILE_REPORT_SOURCE}>
                     출처: {service.source}
                   </p>
                 </div>
               </div>
             </header>
 
-            <div className="flex-1 space-y-4 px-3.5 py-3.5 sm:space-y-4 sm:px-4 sm:py-3.5">
+            <div className="flex-1 space-y-4 px-3.5 py-3 sm:space-y-4 sm:px-4 sm:py-3.5">
               <section aria-labelledby="trc-cost-summary">
-                <div className="mb-2.5 flex flex-col gap-1 border-b border-[#E5E7EB] pb-1.5 sm:mb-2 sm:flex-row sm:items-baseline sm:gap-2.5 sm:pb-1">
+                <div className="mb-2 flex flex-col gap-0.5 border-b border-[#E5E7EB] pb-1 sm:mb-2 sm:flex-row sm:items-baseline sm:gap-2.5 sm:pb-1">
                   <h3
                     id="trc-cost-summary"
-                    className="shrink-0 text-[12.5px] font-semibold leading-snug text-[#0B2A6B] sm:text-[13.5px] sm:leading-relaxed"
+                    className="shrink-0 text-[17px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:text-[13.5px] sm:font-semibold sm:leading-relaxed sm:tracking-normal"
                   >
                     <span className="tabular-nums font-medium text-[#64748B]">1.</span> 예상 비용
                   </h3>
-                  <p className="max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:text-[13px]">
+                  <p className={MOBILE_COST_SUMMARY_INTRO}>
                     관공서 공식 자료와 시장 정보를 기준으로 분석한 예상 비용입니다.
                   </p>
                 </div>
 
-                {/* Mobile: 카드형 — 가로 스크롤 없이 전체 정보 표시 */}
+                {/* Mobile: 카드형 — REGISTER master UI (세로 스택) */}
                 <ul className="space-y-2 sm:hidden">
-                  <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3 py-2.5">
+                  <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3.5 py-2.5">
                     <div className="flex items-start gap-1.5">
                       <Building2
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0B2A6B]"
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#94A3B8]"
                         aria-hidden
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[12.5px] font-medium leading-snug text-[#0B2A6B]">
+                        <p className="text-[14px] font-medium leading-snug text-[#334155]">
                           관공서 공식비용
                         </p>
-                        <p className="mt-0.5 break-keep text-[10.5px] leading-relaxed text-[#64748B]">
+                        <p className="mt-0.5 break-keep text-[12px] leading-[1.45] text-[#64748B]">
                           (정부기관 납부 공식 수수료)
                         </p>
                       </div>
                     </div>
-                    <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-[#EEF2F7] pt-2">
-                      <div>
-                        <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (VND)</dt>
-                        <dd className="mt-0.5 text-[12px] tabular-nums text-[#94A3B8]">—</dd>
-                      </div>
-                      <div>
-                        <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
-                        <dd className="mt-0.5 break-keep text-[12.5px] font-semibold tabular-nums leading-snug text-[#0B2A6B]">
+                    <dl className="mt-2 space-y-2 border-t border-[#EEF2F7] pt-2">
+                      <div className="min-w-0">
+                        <dt className={MOBILE_AMOUNT_LABEL}>금액 (USD, 참고)</dt>
+                        <dd className={`mt-1 ${MOBILE_PRICE_OFFICIAL}`}>
                           {service.governmentFee}
                         </dd>
                       </div>
-                      <div className="col-span-2">
-                        <dt className="text-[10px] font-medium text-[#94A3B8]">비고</dt>
-                        <dd className="mt-0.5 break-keep text-[11px] leading-relaxed text-[#475569]">
+                      <div>
+                        <dt className={MOBILE_AMOUNT_LABEL}>비고</dt>
+                        <dd className="mt-1 break-keep text-[13px] font-normal leading-[1.5] text-[#64748B]">
                           정부기관 납부 수수료
                         </dd>
                       </div>
                     </dl>
                   </li>
-                  <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3 py-2.5">
+                  <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3.5 py-2.5">
                     <div className="flex items-start gap-1.5">
                       <BarChart3
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0B2A6B]"
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#94A3B8]"
                         aria-hidden
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[12.5px] font-medium leading-snug text-[#0B2A6B]">
+                        <p className="text-[14px] font-medium leading-snug text-[#334155]">
                           시장 일반가격
                         </p>
-                        <p className="mt-0.5 break-keep text-[10.5px] leading-relaxed text-[#64748B]">
+                        <p className="mt-0.5 break-keep text-[12px] leading-[1.45] text-[#64748B]">
                           (대행 포함)
                         </p>
                       </div>
                     </div>
-                    <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-[#EEF2F7] pt-2">
-                      <div>
-                        <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (VND)</dt>
-                        <dd className="mt-0.5 text-[12px] tabular-nums text-[#94A3B8]">—</dd>
-                      </div>
-                      <div>
-                        <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
-                        <dd className="mt-0.5 break-keep text-[12.5px] font-semibold tabular-nums leading-snug text-[#0B2A6B]">
+                    <dl className="mt-2 space-y-2 border-t border-[#EEF2F7] pt-2">
+                      <div className="min-w-0">
+                        <dt className={MOBILE_AMOUNT_LABEL}>금액 (USD, 참고)</dt>
+                        <dd className={`mt-1 ${MOBILE_PRICE_MARKET}`}>
                           {marketUsdRange}
                         </dd>
                       </div>
-                      <div className="col-span-2">
-                        <dt className="text-[10px] font-medium text-[#94A3B8]">비고</dt>
-                        <dd className="mt-0.5 break-keep text-[11px] leading-relaxed text-[#475569]">
-                          일반적인 대행 업체의 평균 범위 (지역·업체별 차이 있음)
+                      <div>
+                        <dt className={MOBILE_AMOUNT_LABEL}>비고</dt>
+                        <dd className="mt-1 break-keep text-[13px] font-normal leading-[1.5] text-[#64748B]">
+                          일반적인 시장가격 범위
                         </dd>
                       </div>
                     </dl>
                   </li>
                   {hasQuote ? (
-                    <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3 py-2.5">
+                    <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3 py-2">
                       <div className="flex items-start gap-1.5">
                         <FileText
                           className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0B2A6B]"
                           aria-hidden
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="text-[12.5px] font-medium leading-snug text-[#0B2A6B]">
+                          <p className="text-[15px] font-semibold leading-snug text-[#0B2A6B]">
                             받은 견적
                           </p>
-                          <p className="mt-0.5 break-keep text-[10.5px] leading-relaxed text-[#64748B]">
+                          <p className="mt-0.5 break-keep text-[13px] leading-snug text-[#64748B]">
                             (사용자 입력)
                           </p>
                         </div>
                       </div>
-                      <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-[#EEF2F7] pt-2">
+                      <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-[#EEF2F7] pt-1.5">
                         <div>
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (VND)</dt>
-                          <dd className="mt-0.5 text-[12px] tabular-nums text-[#94A3B8]">—</dd>
+                          <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (VND)</dt>
+                          <dd className="mt-0.5 text-[14px] tabular-nums text-[#94A3B8]">—</dd>
                         </div>
                         <div>
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
-                          <dd className="mt-0.5 text-[13px] font-semibold tabular-nums leading-snug text-[#0B2A6B]">
+                          <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
+                          <dd className="mt-0.5 text-[15px] font-semibold tabular-nums leading-snug text-[#0B2A6B]">
                             {formatCostAmount(review.quotedAmount, service.currency)}
                           </dd>
                         </div>
                         <div className="col-span-2">
-                          <dt className="text-[10px] font-medium text-[#94A3B8]">비고</dt>
-                          <dd className="mt-0.5 break-keep text-[11px] leading-relaxed text-[#475569]">
+                          <dt className="text-[12px] font-medium text-[#94A3B8]">비고</dt>
+                          <dd className="mt-0.5 break-keep text-[14px] leading-[1.45] text-[#475569]">
                             사용자가 받은 견적 금액
                           </dd>
                         </div>
@@ -370,9 +419,7 @@ export function MasterTrcQuotationReport({
                           {marketUsdRange}
                         </td>
                         <td className="border border-[#D8DEE8] px-1.5 py-1.5 align-middle break-keep text-[11px] leading-relaxed text-[#475569] sm:px-2 sm:py-2">
-                          일반적인 대행 업체의 평균 범위
-                          <br />
-                          (지역·업체별 차이 있음)
+                          일반적인 시장가격 범위
                         </td>
                       </tr>
                       {hasQuote ? (
@@ -409,11 +456,11 @@ export function MasterTrcQuotationReport({
                 {!hasQuote ? (
                   <form
                     onSubmit={handleQuoteSubmit}
-                    className="mt-3 flex flex-col gap-2 border-t border-dashed border-[#E5E7EB] pt-3 sm:mt-2.5 sm:flex-row sm:items-end sm:gap-1.5 sm:pt-2.5"
+                    className="mt-2.5 flex flex-col gap-1.5 border-t border-dashed border-[#E5E7EB] pt-2.5 sm:mt-2.5 sm:flex-row sm:items-end sm:gap-1.5 sm:pt-2.5"
                   >
                     <label className="min-w-0 flex-1">
-                      <span className="block text-[12px] font-normal leading-relaxed text-[#475569] sm:text-[11.5px]">
-                        받은 견적이 있다면 입력해 비교할 수 있습니다.
+                      <span className="block text-[14px] font-normal leading-snug text-[#475569] sm:text-[11.5px] sm:leading-relaxed">
+                        받은 견적 입력 시 비교 ({service.currency})
                       </span>
                       <input
                         type="text"
@@ -421,13 +468,13 @@ export function MasterTrcQuotationReport({
                         value={quoteInput}
                         onChange={(e) => setQuoteInput(e.target.value)}
                         placeholder={`예: ${service.marketUsualFeeAmount}`}
-                        className="mt-1.5 min-h-10 w-full rounded-[6px] border border-[#CBD5E1] bg-white px-3 text-[14px] text-[#0F172A] outline-none focus:border-[#0B2A6B] focus:ring-2 focus:ring-[#0B2A6B]/12 sm:mt-1 sm:min-h-9 sm:px-2.5 sm:text-[13px]"
+                        className="mt-1.5 min-h-10 w-full rounded-[6px] border border-[#CBD5E1] bg-white px-3 text-[15px] text-[#0F172A] outline-none focus:border-[#0B2A6B] focus:ring-2 focus:ring-[#0B2A6B]/12 sm:mt-1 sm:min-h-9 sm:px-2.5 sm:text-[13px]"
                       />
                     </label>
                     <button
                       type="submit"
                       disabled={!quoteInput.trim()}
-                      className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-[6px] bg-[#0B2A6B] px-3.5 text-[13px] font-medium text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:w-auto sm:text-[12px]"
+                      className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-[6px] bg-[#0B2A6B] px-3.5 text-[14px] font-medium text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:w-auto sm:text-[12px]"
                     >
                       견적 반영
                     </button>
@@ -440,7 +487,7 @@ export function MasterTrcQuotationReport({
                         setSubmittedAmount(null);
                         setQuoteInput("");
                       }}
-                      className="text-[12px] font-normal text-[#64748B] underline-offset-2 hover:text-[#0B2A6B] hover:underline sm:text-[11.5px]"
+                      className="text-[14px] font-normal text-[#64748B] underline-offset-2 hover:text-[#0B2A6B] hover:underline sm:text-[11.5px]"
                     >
                       받은 견적 다시 입력
                     </button>
@@ -448,28 +495,55 @@ export function MasterTrcQuotationReport({
                 )}
 
                 {!hasQuote ? (
-                  <div className="mt-3 border-t border-[#D8DEE8] pt-2.5 sm:mt-2.5">
+                  <div className="mt-2.5 border-t border-[#D8DEE8] pt-2 sm:mt-2.5">
                     <div className="flex items-baseline justify-between gap-3">
-                      <p className="shrink-0 text-[11px] font-normal leading-relaxed text-[#64748B] sm:text-[11px]">
+                      <p className="shrink-0 text-[13px] font-normal leading-snug text-[#64748B] sm:text-[11px] sm:leading-relaxed">
                         시장 일반가격 범위
                       </p>
-                      <p className="min-w-0 text-right text-[14px] font-semibold tabular-nums leading-none tracking-tight text-[#0B2A6B] sm:text-[15px]">
+                      <p className={`min-w-0 text-right sm:text-[15px] sm:font-semibold sm:text-[#0B2A6B] ${MOBILE_PRICE_RANGE}`}>
                         {marketUsdRange}
                       </p>
                     </div>
-                    <CheckMarketCaseRefs cases={TRC_CHECK_MARKET_CASES} className="mt-1.5" />
+                    <div className="mt-1.5 sm:hidden">
+                      <p className="text-[13px] font-medium leading-snug text-[#94A3B8]">시장 사례 참고</p>
+                      <ul className="mt-1 space-y-0.5">
+                        {TRC_MOBILE_MARKET_CASE_PICKS.map((item) => (
+                          <li
+                            key={item.name}
+                            className="truncate text-[12px] leading-tight text-[#94A3B8]"
+                          >
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-[#64748B] underline-offset-2 hover:underline"
+                            >
+                              {item.name}
+                            </a>
+                            <span className="tabular-nums">
+                              {" · "}
+                              {mobileMarketCasePriceLine(item.summary)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <CheckMarketCaseRefs
+                      cases={TRC_CHECK_MARKET_CASES}
+                      className="mt-1.5 hidden sm:block"
+                    />
                   </div>
                 ) : null}
               </section>
 
               {hasQuote && grade ? (
                 <section aria-labelledby="trc-cost-analysis">
-                  <SectionTitle id="trc-cost-analysis" number="2" title="비용 분석 결과" />
-                  <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mb-1.5 sm:text-[13px]">
+                  <SectionTitle id="trc-cost-analysis" number="2" title="비용 분석 결과" emphasized />
+                  <p className={MOBILE_SECTION_INTRO}>
                     입력한 견적을 공식비용·시장 참고 범위와 비교한 결과입니다.
                   </p>
                   <div
-                    className={`rounded-[6px] border px-3.5 py-3 sm:px-3 sm:py-2.5 ${
+                    className={`rounded-[6px] border px-3 py-2.5 sm:px-3 sm:py-2.5 ${
                       review.verdict === "fair"
                         ? "border-emerald-200 bg-emerald-50/60"
                         : review.verdict === "very_low"
@@ -477,7 +551,7 @@ export function MasterTrcQuotationReport({
                           : "border-red-200 bg-red-50/50"
                     }`}
                   >
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-2.5">
+                    <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between lg:gap-2.5">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start gap-2.5">
                           <AlertTriangle
@@ -491,19 +565,19 @@ export function MasterTrcQuotationReport({
                             aria-hidden
                           />
                           <div className="min-w-0">
-                            <p className="text-[14px] font-semibold leading-snug text-[#0B2A6B] sm:text-[14px]">
+                            <p className={MOBILE_SUBHEAD}>
                               {analysisHeadline(review.verdict)}
                             </p>
-                            <p className="mt-1 text-[12.5px] font-medium leading-snug text-[#334155] sm:mt-0.5 sm:text-[12px]">
+                            <p className={`mt-1 ${MOBILE_BODY_TIGHT}`}>
                               {review.title}
                             </p>
-                            <p className="mt-1 break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
+                            <p className={`mt-1 ${MOBILE_BODY}`}>
                               {review.summary}
                             </p>
-                            <p className="mt-1 break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
+                            <p className={`mt-1 ${MOBILE_BODY}`}>
                               {review.detail}
                             </p>
-                            <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#64748B] sm:mt-1">
+                            <p className={MOBILE_META}>
                               참고 적정 범위:{" "}
                               {formatCostAmount(review.fairReference, service.currency)}
                               {displayBubble !== 0 ? (
@@ -522,9 +596,11 @@ export function MasterTrcQuotationReport({
                           </div>
                         </div>
                       </div>
-                      <div className="shrink-0 rounded-[6px] border border-white/80 bg-white/80 px-3.5 py-2.5 sm:px-3 sm:py-2 lg:min-w-[8.5rem]">
-                        <p className="text-[10.5px] font-normal text-[#64748B] sm:text-[10px]">과다 가능성 등급</p>
-                        <p className="mt-1 text-[14px] font-semibold leading-none text-[#0B2A6B] sm:mt-0.5 sm:text-[15px]">{grade.label}</p>
+                      <div className="shrink-0 rounded-[6px] border border-white/80 bg-white/80 px-3 py-2 sm:px-3 sm:py-2 lg:min-w-[8.5rem]">
+                        <p className="text-[12px] font-normal text-[#64748B] sm:text-[10px]">
+                          과다 가능성 등급
+                        </p>
+                        <p className={MOBILE_GRADE_LABEL}>{grade.label}</p>
                         <div className="mt-1.5 flex gap-0.5 sm:mt-1" aria-hidden>
                           {Array.from({ length: 5 }).map((_, i) => (
                             <span
@@ -542,21 +618,20 @@ export function MasterTrcQuotationReport({
               ) : null}
 
               <section aria-labelledby="trc-extra-costs">
-                <SectionTitle id="trc-extra-costs" number="3" title="추가 발생 가능 비용" />
-                <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mb-1.5 sm:text-[13px]">
-                  대행 과정에서는 공식 수수료 외에 아래와 같은 비용이 추가로 발생할 수 있습니다.
-                  받은 견적에 포함되어 있는지 확인해 보세요.
+                <SectionTitle id="trc-extra-costs" number="3" title="추가 발생 가능 비용" emphasized />
+                <p className={MOBILE_SECTION_INTRO}>
+                  공식 수수료 외에 아래 비용이 추가로 발생할 수 있습니다.
                 </p>
                 <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-5">
                   {TRC_ADDITIONAL_COST_ITEMS.map((item) => (
                     <li
                       key={item.label}
-                      className="rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2.5 sm:px-2 sm:py-2"
+                      className="min-w-0 rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 sm:px-2 sm:py-2"
                     >
-                      <p className="break-keep text-[12px] font-medium leading-snug text-[#0B2A6B] sm:text-[11.5px]">
+                      <p className={MOBILE_CARD_LABEL}>
                         {item.label}
                       </p>
-                      <p className="mt-1 break-keep text-[11px] leading-relaxed text-[#64748B] sm:mt-0.5 sm:text-[10.5px]">
+                      <p className={MOBILE_CARD_NOTE}>
                         {item.note}
                       </p>
                     </li>
@@ -569,17 +644,18 @@ export function MasterTrcQuotationReport({
                   id="trc-risk-compare"
                   number="4"
                   title="이런 경우 추가 비용과 문제가 발생할 수 있습니다"
+                  emphasized
                 />
-                <p className="mb-2 max-w-[40rem] break-keep text-[12.5px] leading-[1.65] text-[#475569] sm:mb-1.5 sm:text-[13px]">
-                  직접 진행과 대행 선택 모두에서 흔히 확인하는 참고 안내입니다.
+                <p className={MOBILE_SECTION_INTRO}>
+                  직접 진행과 대행 선택에서 흔히 확인하는 참고 안내입니다.
                 </p>
-                <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-2">
-                  <div className="rounded-[6px] border border-[#FECACA] bg-[#FEF2F2]/60 px-3.5 py-3 sm:px-3 sm:py-2.5">
-                    <div className="mb-2 flex items-start gap-2 sm:mb-1.5 sm:items-center sm:gap-1.5">
+                <div className="grid grid-cols-1 items-start gap-2 lg:grid-cols-2 lg:gap-2">
+                  <div className="h-auto self-start rounded-[6px] border border-[#FECACA] bg-[#FEF2F2]/60 px-3 py-2.5 sm:px-3 sm:py-2.5">
+                    <div className="mb-1.5 flex items-start gap-2 sm:mb-1.5 sm:gap-1.5">
                       <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700">
                         <UserRound className="h-3.5 w-3.5" aria-hidden />
                       </span>
-                      <p className="min-w-0 break-keep text-[12.5px] font-semibold leading-snug text-[#0B2A6B] sm:text-[12px]">
+                      <p className={`min-w-0 ${MOBILE_CARD_LABEL}`}>
                         직접 진행하다 문제가 생기는 경우
                       </p>
                     </div>
@@ -587,7 +663,7 @@ export function MasterTrcQuotationReport({
                       {TRC_SELF_PROCEED_RISKS.map((text, index) => (
                         <li
                           key={text}
-                          className="flex gap-1.5 break-keep text-[12px] leading-[1.55] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
+                          className={`flex gap-1.5 ${MOBILE_BODY}`}
                         >
                           <span className="shrink-0 tabular-nums text-[#94A3B8]" aria-hidden>
                             {index === 0 ? "①" : "②"}
@@ -597,12 +673,12 @@ export function MasterTrcQuotationReport({
                       ))}
                     </ul>
                   </div>
-                  <div className="rounded-[6px] border border-[#BFDBFE] bg-[#EFF6FF]/70 px-3.5 py-3 sm:px-3 sm:py-2.5">
-                    <div className="mb-2 flex items-start gap-2 sm:mb-1.5 sm:items-center sm:gap-1.5">
+                  <div className="h-auto self-start rounded-[6px] border border-[#BFDBFE] bg-[#EFF6FF]/70 px-3 py-2.5 sm:px-3 sm:py-2.5">
+                    <div className="mb-1.5 flex items-start gap-2 sm:mb-1.5 sm:gap-1.5">
                       <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#0B2A6B]">
                         <Building2 className="h-3.5 w-3.5" aria-hidden />
                       </span>
-                      <p className="min-w-0 break-keep text-[12.5px] font-semibold leading-snug text-[#0B2A6B] sm:text-[12px]">
+                      <p className={`min-w-0 ${MOBILE_CARD_LABEL}`}>
                         잘못된 컨설팅·대행 업체를 선택한 경우
                       </p>
                     </div>
@@ -610,7 +686,7 @@ export function MasterTrcQuotationReport({
                       {TRC_BAD_AGENCY_RISKS.map((text, index) => (
                         <li
                           key={text}
-                          className="flex gap-1.5 break-keep text-[12px] leading-[1.55] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
+                          className={`flex gap-1.5 ${MOBILE_BODY}`}
                         >
                           <span className="shrink-0 tabular-nums text-[#94A3B8]" aria-hidden>
                             {index === 0 ? "①" : "②"}
@@ -621,7 +697,7 @@ export function MasterTrcQuotationReport({
                     </ul>
                   </div>
                 </div>
-                <p className="mt-2 break-keep text-[11px] leading-relaxed text-[#64748B] sm:mt-1.5">
+                <p className={`mt-1.5 ${MOBILE_META} sm:mt-1.5`}>
                   확정된 법률·벌금 금액이 아니라, 거주증 진행에서 확인하는 참고 안내입니다.
                 </p>
               </section>
@@ -631,11 +707,12 @@ export function MasterTrcQuotationReport({
                   id="trc-market-why"
                   number="5"
                   title="시장가격이 관공서 공식비용보다 높은 이유"
+                  emphasized
                 />
-                <div className="rounded-[6px] border border-[#BBF7D0] bg-[#F0FDF4] px-3.5 py-3 sm:px-3 sm:py-2.5">
+                <div className="rounded-[6px] border border-[#BBF7D0] bg-[#F0FDF4] px-3 py-2.5 sm:px-3 sm:py-2.5">
                   <div className="flex items-start gap-2.5 sm:gap-2">
                     <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-[#059669]" aria-hidden />
-                    <p className="min-w-0 max-w-[40rem] break-keep text-[12.5px] leading-[1.7] text-[#334155] sm:text-[12px] sm:leading-[1.65]">
+                    <p className={MOBILE_CALLOUT}>
                       관공서 공식비용은 정부기관에 납부하는 수수료입니다. 시장가격에는 공식 수수료
                       외에도 서류 준비, 번역·공증, 행정기관 대응 등 대행 업무 비용이 포함될 수
                       있습니다. 따라서 가격 차이만으로 비싸다고 판단하기보다, 견적에 어떤 업무와
@@ -646,28 +723,28 @@ export function MasterTrcQuotationReport({
               </section>
 
               {/* Mobile(<lg): 녹색 설명 카드 바로 아래 · 하단 면책보다 위 */}
-              <div className="mt-3 flex flex-col gap-2 lg:hidden">
+              <div className="mt-2.5 flex flex-col gap-1.5 lg:hidden">
                 <button
                   type="button"
                   onClick={onContinue}
-                  className="inline-flex min-h-10 w-full items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#082258]"
+                  className="inline-flex min-h-10 w-full items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[14px] font-semibold text-white transition hover:bg-[#082258]"
                 >
                   내 상황 자세히 확인하기 →
                 </button>
                 <button
                   type="button"
-                  className="inline-flex min-h-9 w-full items-center justify-center rounded-[8px] border border-[#D8DEE8] bg-white px-4 text-[12.5px] font-medium text-[#0B2A6B]"
+                  className="inline-flex min-h-9 w-full items-center justify-center rounded-[8px] border border-[#D8DEE8] bg-white px-4 text-[14px] font-medium text-[#0B2A6B]"
                 >
                   이 결과 공유하기
                 </button>
               </div>
             </div>
 
-            <footer className="mt-auto border-t border-[#E5E7EB] bg-[#F8FAFC] px-3.5 py-2.5 sm:px-4 sm:py-2">
-              <p className="break-keep text-center text-[10px] leading-relaxed text-[#94A3B8]">
+            <footer className="mt-auto border-t border-[#E5E7EB] bg-[#F8FAFC] px-3.5 py-2 sm:px-4 sm:py-2">
+              <p className="break-keep text-center text-[11px] leading-snug text-[#94A3B8] sm:text-[10px] sm:leading-relaxed">
                 VFBCAI · www.vfbcai.com · Check. Verify. Register. Protect.
               </p>
-              <p className="mt-1.5 break-keep text-center text-[10.5px] leading-relaxed text-[#64748B] sm:mt-1">
+              <p className="mt-1 break-keep text-center text-[11px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed">
                 거주증 정부 수수료는 체류 기간과 관할기관에 따라 달라질 수 있습니다. 본 정보는
                 조사 시점 기준이며, 실제 비용은 진행 시점에 반드시 재확인하시기 바랍니다.
               </p>
