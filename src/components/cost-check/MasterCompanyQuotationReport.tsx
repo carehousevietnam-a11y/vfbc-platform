@@ -27,6 +27,50 @@ import {
 } from "@/components/cost-check/ReviewScoreGauge";
 import { CompanySummarySidebar } from "@/components/cost-check/CompanySummarySidebar";
 
+/** Mobile — 업계 최저/최고 근처 공개 사례 각 1건 (전체 목록은 PC CheckMarketCaseRefs 유지). */
+const COMPANY_MOBILE_MARKET_CASE_PICKS = [
+  COMPANY_REGISTER_MARKET_CASES[0],
+  COMPANY_REGISTER_MARKET_CASES[5],
+] as const;
+
+/** Mobile 시장 사례 — 가격 구간만 한 줄 표기 */
+function mobileMarketCasePriceLine(summary: string): string {
+  const first = summary.split(" · ")[0]?.trim() || summary;
+  const usd = first.match(/USD\s*[\d,]+(?:\s*~\s*[\d,]+)?/i);
+  if (usd) return usd[0].replace(/\s+/g, "");
+  const vndRange = first.match(/(\d[\d,]*(?:\s*[–-]\s*\d[\d,]*|\s*~\s*\d[\d,]*)+)\s*VND/i);
+  if (vndRange) return `${vndRange[1].replace(/\s+/g, "")} VND`;
+  const fromUsd = first.match(/from\s+(USD\s*[\d,]+)/i);
+  if (fromUsd) return fromUsd[1].replace(/\s+/g, "");
+  return first;
+}
+
+const MOBILE_AMOUNT_LABEL = "text-[11px] font-medium tracking-[0.02em] text-[#94A3B8]";
+const MOBILE_PRICE_OFFICIAL =
+  "break-keep text-[13px] font-normal tabular-nums leading-[1.45] tracking-normal text-[#0B2A6B]";
+const MOBILE_PRICE_MARKET =
+  "break-keep text-[13px] font-normal tabular-nums leading-[1.45] tracking-normal text-[#B45353]";
+const MOBILE_PRICE_RANGE =
+  "break-keep text-[14px] font-semibold tabular-nums leading-[1.4] tracking-normal text-[#B45353]";
+const MOBILE_SECTION_INTRO =
+  "mb-2 max-w-[40rem] break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569]";
+const MOBILE_SUBHEAD =
+  "text-[13px] font-medium leading-snug text-[#334155] sm:text-[14px] sm:font-semibold sm:text-[#0B2A6B]";
+const MOBILE_BODY =
+  "break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-relaxed sm:text-[#475569]";
+const MOBILE_BODY_TIGHT =
+  "text-[13px] font-normal leading-snug text-[#64748B] sm:mt-0.5 sm:text-[12px] sm:font-medium sm:text-[#334155]";
+const MOBILE_META =
+  "mt-1.5 text-[12px] font-normal leading-[1.5] text-[#94A3B8] sm:mt-1 sm:text-[11.5px] sm:leading-relaxed sm:text-[#64748B]";
+const MOBILE_CARD_LABEL =
+  "break-keep text-pretty text-[13px] font-medium leading-snug text-[#475569] sm:text-[11.5px] sm:font-medium sm:text-[#0B2A6B]";
+const MOBILE_CARD_NOTE =
+  "mt-0.5 break-keep text-pretty text-[12px] font-normal leading-[1.5] text-[#94A3B8] sm:mt-0.5 sm:text-[10.5px] sm:leading-relaxed sm:text-[#64748B]";
+const MOBILE_CALLOUT =
+  "min-w-0 max-w-[40rem] break-keep text-pretty text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-[1.65] sm:text-[#334155]";
+const MOBILE_GRADE_LABEL =
+  "mt-1 text-[13px] font-medium leading-snug text-[#475569] sm:mt-0.5 sm:text-[15px] sm:font-semibold sm:leading-none sm:text-[#0B2A6B]";
+
 function excessGrade(verdict: ReviewVerdict): { label: string; filled: number; tone: string } {
   if (verdict === "fair") return { label: "낮음", filled: 1, tone: "bg-emerald-500" };
   if (verdict === "caution") return { label: "주의", filled: 3, tone: "bg-amber-500" };
@@ -52,9 +96,9 @@ function SectionTitle({
   return (
     <h3
       id={id}
-      className="mb-1 flex items-baseline gap-1.5 border-b border-[#E5E7EB] pb-1 text-[15px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:mb-1 sm:pb-1 sm:text-[13.5px] sm:leading-relaxed sm:tracking-normal"
+      className="mb-2 flex items-baseline gap-1 border-b border-[#E5E7EB] pb-1.5 text-[14px] font-medium leading-[1.45] text-[#64748B] sm:mb-1 sm:gap-1.5 sm:pb-1 sm:text-[13.5px] sm:font-semibold sm:leading-relaxed sm:tracking-normal sm:text-[#0B2A6B]"
     >
-      <span className="tabular-nums font-medium text-[#64748B]">{number}.</span>
+      <span className="tabular-nums font-normal text-[#94A3B8] sm:font-medium sm:text-[#64748B]">{number}.</span>
       <span className="min-w-0 break-keep">{title}</span>
     </h3>
   );
@@ -156,78 +200,70 @@ export function MasterCompanyQuotationReport({
                 </div>
               </header>
 
-              <div className="space-y-3 px-3.5 py-3 sm:space-y-4 sm:px-4 sm:py-3.5">
+              <div className="space-y-4 px-3.5 py-3 sm:space-y-4 sm:px-4 sm:py-3.5">
                 <section aria-labelledby="company-cost-summary">
                   <div className="mb-2 flex flex-col gap-0.5 border-b border-[#E5E7EB] pb-1 sm:mb-2 sm:flex-row sm:items-baseline sm:gap-2.5 sm:pb-1">
                     <h3
                       id="company-cost-summary"
-                      className="shrink-0 text-[15px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:text-[13.5px] sm:leading-relaxed sm:tracking-normal"
+                      className="shrink-0 text-[17px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:text-[13.5px] sm:font-semibold sm:leading-relaxed sm:tracking-normal"
                     >
                       <span className="tabular-nums font-medium text-[#64748B]">1.</span> 예상 비용
                     </h3>
-                    <p className="max-w-[40rem] break-keep text-[15px] leading-[1.5] text-[#475569] sm:text-[13px] sm:leading-[1.65]">
+                    <p className="max-w-[40rem] break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569]">
                       관공서 공식 자료와 시장 정보를 기준으로 분석한 예상 비용입니다.
                     </p>
                   </div>
 
-                  <ul className="space-y-1.5 sm:hidden">
-                    <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3 py-2">
+                  <ul className="space-y-2 sm:hidden">
+                    <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3.5 py-2.5">
                       <div className="flex items-start gap-1.5">
-                        <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0B2A6B]" aria-hidden />
+                        <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#94A3B8]" aria-hidden />
                         <div className="min-w-0 flex-1">
-                          <p className="text-[15px] font-semibold leading-snug text-[#0B2A6B]">
+                          <p className="text-[14px] font-medium leading-snug text-[#334155]">
                             관공서 공식비용
                           </p>
-                          <p className="mt-0.5 break-keep text-[13px] leading-snug text-[#64748B]">
+                          <p className="mt-0.5 break-keep text-[12px] leading-[1.45] text-[#64748B]">
                             (정부기관 납부 공식 수수료)
                           </p>
                         </div>
                       </div>
-                      <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-[#EEF2F7] pt-1.5">
-                        <div>
-                          <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (VND)</dt>
-                          <dd className="mt-0.5 break-keep text-[15px] font-bold leading-snug text-[#0B2A6B]">
+                      <dl className="mt-2 space-y-2 border-t border-[#EEF2F7] pt-2">
+                        <div className="min-w-0">
+                          <dt className={MOBILE_AMOUNT_LABEL}>금액 (VND)</dt>
+                          <dd className={`mt-1 ${MOBILE_PRICE_OFFICIAL}`}>
                             {model.governmentSummary}
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
-                          <dd className="mt-0.5 text-[14px] tabular-nums text-[#94A3B8]">—</dd>
-                        </div>
-                        <div className="col-span-2">
-                          <dt className="text-[12px] font-medium text-[#94A3B8]">비고</dt>
-                          <dd className="mt-0.5 break-keep text-[14px] leading-[1.45] text-[#475569]">
+                          <dt className={MOBILE_AMOUNT_LABEL}>비고</dt>
+                          <dd className="mt-1 break-keep text-[13px] font-normal leading-[1.5] text-[#64748B]">
                             {model.governmentHint}
                           </dd>
                         </div>
                       </dl>
                     </li>
-                    <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3 py-2">
+                    <li className="rounded-[6px] border border-[#D8DEE8] bg-white px-3.5 py-2.5">
                       <div className="flex items-start gap-1.5">
-                        <BarChart3 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0B2A6B]" aria-hidden />
+                        <BarChart3 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#94A3B8]" aria-hidden />
                         <div className="min-w-0 flex-1">
-                          <p className="text-[15px] font-semibold leading-snug text-[#0B2A6B]">
+                          <p className="text-[14px] font-medium leading-snug text-[#334155]">
                             시장 일반가격
                           </p>
-                          <p className="mt-0.5 break-keep text-[13px] leading-snug text-[#64748B]">
+                          <p className="mt-0.5 break-keep text-[12px] leading-[1.45] text-[#64748B]">
                             (대행 포함)
                           </p>
                         </div>
                       </div>
-                      <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-[#EEF2F7] pt-1.5">
-                        <div>
-                          <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (VND)</dt>
-                          <dd className="mt-0.5 text-[14px] tabular-nums text-[#94A3B8]">—</dd>
-                        </div>
-                        <div>
-                          <dt className="text-[12px] font-medium text-[#94A3B8]">금액 (USD, 참고)</dt>
-                          <dd className="mt-0.5 break-keep text-[13px] font-medium tabular-nums leading-snug text-[#B45353]">
+                      <dl className="mt-2 space-y-2 border-t border-[#EEF2F7] pt-2">
+                        <div className="min-w-0">
+                          <dt className={MOBILE_AMOUNT_LABEL}>금액 (USD, 참고)</dt>
+                          <dd className={`mt-1 ${MOBILE_PRICE_MARKET}`}>
                             {marketUsdRange}
                           </dd>
                         </div>
-                        <div className="col-span-2">
-                          <dt className="text-[12px] font-medium text-[#94A3B8]">비고</dt>
-                          <dd className="mt-0.5 break-keep text-[14px] leading-[1.45] text-[#475569]">
+                        <div>
+                          <dt className={MOBILE_AMOUNT_LABEL}>비고</dt>
+                          <dd className="mt-1 break-keep text-[13px] font-normal leading-[1.5] text-[#64748B]">
                             {model.marketHint}
                           </dd>
                         </div>
@@ -410,18 +446,45 @@ export function MasterCompanyQuotationReport({
                         <p className="shrink-0 text-[13px] font-normal leading-snug text-[#64748B] sm:text-[11px] sm:leading-relaxed">
                           시장 일반가격 범위
                         </p>
-                        <p className="min-w-0 text-right text-[13px] font-medium tabular-nums leading-none tracking-tight text-[#B45353] sm:text-[15px] sm:font-semibold sm:text-[#0B2A6B]">
+                        <p className={`min-w-0 text-right sm:text-[15px] sm:font-semibold sm:text-[#0B2A6B] ${MOBILE_PRICE_RANGE}`}>
                           {marketUsdRange}
                         </p>
                       </div>
-                      <CheckMarketCaseRefs cases={COMPANY_REGISTER_MARKET_CASES} className="mt-1.5" />
+                      <div className="mt-1.5 sm:hidden">
+                        <p className="text-[13px] font-medium leading-snug text-[#94A3B8]">시장 사례 참고</p>
+                        <ul className="mt-1 space-y-0.5">
+                          {COMPANY_MOBILE_MARKET_CASE_PICKS.map((item) => (
+                            <li
+                              key={item.name}
+                              className="truncate text-[12px] leading-tight text-[#94A3B8]"
+                            >
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-[#64748B] underline-offset-2 hover:underline"
+                              >
+                                {item.name}
+                              </a>
+                              <span className="tabular-nums">
+                                {" · "}
+                                {mobileMarketCasePriceLine(item.summary)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <CheckMarketCaseRefs
+                        cases={COMPANY_REGISTER_MARKET_CASES}
+                        className="mt-1.5 hidden sm:block"
+                      />
                     </div>
                   ) : null}
                 </section>
 
                 <section aria-labelledby="company-cost-analysis">
                   <SectionTitle id="company-cost-analysis" number="2" title="비용 분석 결과" />
-                  <p className="mb-1.5 max-w-[40rem] break-keep text-[15px] leading-[1.5] text-[#475569] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65]">
+                  <p className={MOBILE_SECTION_INTRO}>
                     입력한 견적을 공식비용·시장 참고 범위와 비교한 결과입니다.
                   </p>
                   {hasQuote && grade ? (
@@ -448,19 +511,19 @@ export function MasterCompanyQuotationReport({
                               aria-hidden
                             />
                             <div className="min-w-0">
-                              <p className="text-[16px] font-semibold leading-snug text-[#0B2A6B] sm:text-[14px]">
+                              <p className={MOBILE_SUBHEAD}>
                                 {analysisHeadline(review.verdict)}
                               </p>
-                              <p className="mt-1 text-[14px] font-medium leading-snug text-[#334155] sm:mt-0.5 sm:text-[12px]">
+                              <p className={`mt-1 ${MOBILE_BODY_TIGHT}`}>
                                 {review.title}
                               </p>
-                              <p className="mt-1 break-keep text-[15px] leading-[1.5] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
+                              <p className={`mt-1 ${MOBILE_BODY}`}>
                                 {review.summary}
                               </p>
-                              <p className="mt-1 break-keep text-[15px] leading-[1.5] text-[#475569] sm:mt-0.5 sm:text-[12px] sm:leading-relaxed">
+                              <p className={`mt-1 ${MOBILE_BODY}`}>
                                 {review.detail}
                               </p>
-                              <p className="mt-1.5 text-[13px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[11.5px] sm:leading-relaxed">
+                              <p className={MOBILE_META}>
                                 참고 적정 범위:{" "}
                                 {formatCostAmount(review.fairReference, "USD")}
                                 {displayBubble !== 0 ? (
@@ -483,7 +546,7 @@ export function MasterCompanyQuotationReport({
                           <p className="text-[12px] font-normal text-[#64748B] sm:text-[10px]">
                             과다 가능성 등급
                           </p>
-                          <p className="mt-1 text-[15px] font-semibold leading-none text-[#0B2A6B] sm:mt-0.5 sm:text-[15px]">
+                          <p className={MOBILE_GRADE_LABEL}>
                             {grade.label}
                           </p>
                           <div className="mt-1.5 flex gap-0.5 sm:mt-1" aria-hidden>
@@ -504,10 +567,10 @@ export function MasterCompanyQuotationReport({
                       <div className="flex items-start gap-2.5">
                         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden />
                         <div className="min-w-0">
-                          <p className="text-[16px] font-semibold leading-snug text-[#0B2A6B] sm:text-[14px]">
+                          <p className={MOBILE_SUBHEAD}>
                             견적 입력 후 확인할 수 있습니다.
                           </p>
-                          <p className="mt-1 break-keep text-[15px] leading-[1.5] text-[#475569] sm:text-[12px] sm:leading-relaxed">
+                          <p className={`mt-1 ${MOBILE_BODY}`}>
                             FDI 시장 일반가격(USD)과 같은 통화로 입력한 견적을 비교합니다.
                           </p>
                         </div>
@@ -518,19 +581,19 @@ export function MasterCompanyQuotationReport({
 
                 <section aria-labelledby="company-extra-costs">
                   <SectionTitle id="company-extra-costs" number="3" title="추가 발생 가능 비용" />
-                  <p className="mb-1.5 max-w-[40rem] break-keep text-[15px] leading-[1.5] text-[#475569] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65]">
+                  <p className={MOBILE_SECTION_INTRO}>
                     {detail.additionalCostIntro}
                   </p>
-                  <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4">
+                  <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4">
                     {detail.additionalCostItems.map((item) => (
                       <li
                         key={item.label}
                         className="min-w-0 rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 sm:px-2 sm:py-2"
                       >
-                        <p className="break-keep text-pretty text-[14px] font-semibold leading-snug text-[#0B2A6B] sm:text-[11.5px] sm:font-medium">
+                        <p className={MOBILE_CARD_LABEL}>
                           {item.label}
                         </p>
-                        <p className="mt-0.5 break-keep text-pretty text-[13px] leading-[1.4] text-[#64748B] sm:mt-0.5 sm:text-[10.5px] sm:leading-relaxed">
+                        <p className={MOBILE_CARD_NOTE}>
                           {item.note}
                         </p>
                       </li>
@@ -544,7 +607,7 @@ export function MasterCompanyQuotationReport({
                     number="4"
                     title="이런 경우 추가 비용과 문제가 발생할 수 있습니다"
                   />
-                  <p className="mb-1.5 max-w-[40rem] break-keep text-[15px] leading-[1.5] text-[#475569] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65]">
+                  <p className={MOBILE_SECTION_INTRO}>
                     {detail.riskIntro}
                   </p>
                   <div className="grid grid-cols-1 items-start gap-2 lg:grid-cols-2 lg:gap-2">
@@ -553,7 +616,7 @@ export function MasterCompanyQuotationReport({
                         <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700">
                           <UserRound className="h-3.5 w-3.5" aria-hidden />
                         </span>
-                        <p className="min-w-0 break-keep text-pretty text-[15px] font-semibold leading-snug text-[#0B2A6B] sm:text-[12px]">
+                        <p className={`min-w-0 ${MOBILE_CARD_LABEL}`}>
                           {detail.selfProceedTitle}
                         </p>
                       </div>
@@ -561,7 +624,7 @@ export function MasterCompanyQuotationReport({
                         {detail.selfProceedRisks.map((text, index) => (
                           <li
                             key={text}
-                            className="flex gap-1.5 break-keep text-pretty text-[14px] leading-[1.45] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
+                            className={`flex gap-1.5 ${MOBILE_BODY}`}
                           >
                             <span className="shrink-0 tabular-nums text-[#94A3B8]" aria-hidden>
                               {index === 0 ? "①" : "②"}
@@ -576,7 +639,7 @@ export function MasterCompanyQuotationReport({
                         <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#0B2A6B]">
                           <Building2 className="h-3.5 w-3.5" aria-hidden />
                         </span>
-                        <p className="min-w-0 break-keep text-pretty text-[15px] font-semibold leading-snug text-[#0B2A6B] sm:text-[12px]">
+                        <p className={`min-w-0 ${MOBILE_CARD_LABEL}`}>
                           {detail.badAgencyTitle}
                         </p>
                       </div>
@@ -584,7 +647,7 @@ export function MasterCompanyQuotationReport({
                         {detail.badAgencyRisks.map((text, index) => (
                           <li
                             key={text}
-                            className="flex gap-1.5 break-keep text-pretty text-[14px] leading-[1.45] text-[#475569] sm:text-[11.5px] sm:leading-relaxed"
+                            className={`flex gap-1.5 ${MOBILE_BODY}`}
                           >
                             <span className="shrink-0 tabular-nums text-[#94A3B8]" aria-hidden>
                               {index === 0 ? "①" : "②"}
@@ -595,7 +658,7 @@ export function MasterCompanyQuotationReport({
                       </ul>
                     </div>
                   </div>
-                  <p className="mt-1.5 break-keep text-[13px] leading-[1.45] text-[#64748B] sm:mt-1.5 sm:text-[11px] sm:leading-relaxed">
+                  <p className={`mt-1.5 ${MOBILE_META} sm:mt-1.5`}>
                     {detail.riskFooterNote}
                   </p>
                 </section>
@@ -605,7 +668,7 @@ export function MasterCompanyQuotationReport({
                   <div className="rounded-[6px] border border-[#BBF7D0] bg-[#F0FDF4] px-3 py-2.5 sm:px-3 sm:py-2.5">
                     <div className="flex items-start gap-2.5 sm:gap-2">
                       <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-[#059669]" aria-hidden />
-                      <p className="min-w-0 max-w-[40rem] break-keep text-pretty text-[15px] leading-[1.5] text-[#334155] sm:text-[12px] sm:leading-[1.65]">
+                      <p className={MOBILE_CALLOUT}>
                         {detail.marketWhyBody}
                       </p>
                     </div>
@@ -630,10 +693,10 @@ export function MasterCompanyQuotationReport({
               </div>
 
               <footer className="border-t border-[#E5E7EB] bg-[#F8FAFC] px-3.5 py-2 sm:px-4 sm:py-2">
-                <p className="break-keep text-center text-[12px] leading-snug text-[#94A3B8] sm:text-[10px] sm:leading-relaxed">
+                <p className="break-keep text-center text-[11px] leading-snug text-[#94A3B8] sm:text-[10px] sm:leading-relaxed">
                   VFBCAI · www.vfbcai.com · Check. Verify. Register. Protect.
                 </p>
-                <p className="mt-1 break-keep text-center text-[12.5px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed">
+                <p className="mt-1 break-keep text-center text-[11px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed">
                   {detail.footerDisclaimer}
                 </p>
               </footer>
