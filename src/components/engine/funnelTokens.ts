@@ -37,6 +37,13 @@ export const FUNNEL_REGISTER_H1 =
 export const FUNNEL_REGISTER_DESC =
   "break-keep text-[15px] leading-[1.55] text-[#556070] [overflow-wrap:normal] sm:text-[12.5px] sm:leading-[1.55]";
 
+/** REGISTER 인허가 받기(lookup) 상단 설명 — Mobile 한 줄·보조 텍스트 */
+export const REGISTER_LOOKUP_HERO_DESCRIPTION =
+  "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인하세요.";
+
+export const FUNNEL_REGISTER_LOOKUP_DESC =
+  "max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:text-[#64748B] max-sm:whitespace-nowrap sm:text-[12.5px] sm:leading-[1.55] sm:text-[#556070] sm:whitespace-normal";
+
 export const FUNNEL_ENGINE_COPY: Record<
   FunnelEngine,
   { action: string; expert: string; eyebrow: string }

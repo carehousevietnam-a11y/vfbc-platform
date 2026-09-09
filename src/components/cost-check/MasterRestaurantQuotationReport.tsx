@@ -53,7 +53,7 @@ const MOBILE_PRICE_MARKET =
 const MOBILE_PRICE_RANGE =
   "break-keep text-[14px] font-semibold tabular-nums leading-[1.4] tracking-normal text-[#B45353]";
 const MOBILE_SECTION_INTRO =
-  "mb-2 max-w-[40rem] break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569]";
+  "mb-2 max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
 const MOBILE_SUBHEAD =
   "text-[13px] font-medium leading-snug text-[#334155] sm:text-[14px] sm:font-semibold sm:text-[#0B2A6B]";
 const MOBILE_BODY =
@@ -70,6 +70,10 @@ const MOBILE_CALLOUT =
   "min-w-0 max-w-[40rem] break-keep text-pretty text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-[1.65] sm:text-[#334155]";
 const MOBILE_GRADE_LABEL =
   "mt-1 text-[13px] font-medium leading-snug text-[#475569] sm:mt-0.5 sm:text-[15px] sm:font-semibold sm:leading-none sm:text-[#0B2A6B]";
+const MOBILE_COST_SUMMARY_INTRO =
+  "max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
+const MOBILE_REPORT_SOURCE =
+  "break-keep max-sm:text-[10px] max-[389px]:text-[9.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed sm:whitespace-normal";
 
 function excessGrade(verdict: ReviewVerdict): { label: string; filled: number; tone: string } {
   if (verdict === "fair") return { label: "낮음", filled: 1, tone: "bg-emerald-500" };
@@ -192,8 +196,8 @@ export function MasterRestaurantQuotationReport({
                       QUOTATION REPORT · RESTAURANT PERMIT
                     </p>
                   </div>
-                  <div className="min-w-0 text-left sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
-                    <p className="break-keep text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed">
+                  <div className="min-w-0 text-left max-sm:w-full sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
+                    <p className={MOBILE_REPORT_SOURCE}>
                       출처: Thông tư 67/2021/TT-BTC, Thông tư 64/2025/TT-BTC
                     </p>
                   </div>
@@ -209,7 +213,7 @@ export function MasterRestaurantQuotationReport({
                     >
                       <span className="tabular-nums font-medium text-[#64748B]">1.</span> 예상 비용
                     </h3>
-                    <p className="max-w-[40rem] break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569]">
+                    <p className={MOBILE_COST_SUMMARY_INTRO}>
                       관공서 공식 자료와 시장 정보를 기준으로 분석한 예상 비용입니다.
                     </p>
                   </div>
@@ -406,7 +410,7 @@ export function MasterRestaurantQuotationReport({
                     >
                       <label className="min-w-0 flex-1">
                         <span className="block text-[14px] font-normal leading-snug text-[#475569] sm:text-[11.5px] sm:leading-relaxed">
-                          받은 견적이 있다면 입력해 비교할 수 있습니다. (VND)
+                          받은 견적 입력 시 비교 (VND)
                         </span>
                         <input
                           type="text"

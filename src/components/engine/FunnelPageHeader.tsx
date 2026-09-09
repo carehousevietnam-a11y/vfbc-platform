@@ -7,7 +7,9 @@ import {
   FUNNEL_H1,
   FUNNEL_REGISTER_DESC,
   FUNNEL_REGISTER_H1,
+  FUNNEL_REGISTER_LOOKUP_DESC,
   FUNNEL_ENGINE_COPY,
+  REGISTER_LOOKUP_HERO_DESCRIPTION,
   type FunnelEngine,
 } from "./funnelTokens";
 
@@ -34,15 +36,17 @@ export default function FunnelPageHeader({
 }: FunnelPageHeaderProps) {
   const copy = FUNNEL_ENGINE_COPY[engine];
   const isRegister = engine === "register";
+  const isRegisterLookupDesc =
+    isRegister && description === REGISTER_LOOKUP_HERO_DESCRIPTION;
 
   return (
-    <div className={cn(isRegister && "pt-5 sm:pt-6", className)}>
+    <div className={cn(isRegister && "sm:pt-6", className)}>
       <Link
         href="/"
         prefetch={false}
         className={cn(
           "relative -mx-4 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden",
-          isRegister ? "mt-0" : "-mt-10"
+          "-mt-10"
         )}
       >
         <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
@@ -89,7 +93,12 @@ export default function FunnelPageHeader({
           <p
             className={cn(
               isRegister ? "mt-2.5 sm:mt-3" : "mt-0.5",
-              descriptionClassName ?? (isRegister ? FUNNEL_REGISTER_DESC : FUNNEL_DESC)
+              descriptionClassName ??
+                (isRegisterLookupDesc
+                  ? FUNNEL_REGISTER_LOOKUP_DESC
+                  : isRegister
+                    ? FUNNEL_REGISTER_DESC
+                    : FUNNEL_DESC)
             )}
           >
             {description}

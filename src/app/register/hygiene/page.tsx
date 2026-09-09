@@ -1521,7 +1521,7 @@ export default function RegisterHygienePage() {
               ? "현재 받은 안내나 견적이 위생허가에 필요한 절차와 비용 기준에 맞는지 확인합니다."
               : contextTab === "direct"
                 ? "위생허가의 기본 절차·준비 항목·추가 절차 가능성을 확인합니다."
-                : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인합니다."
+                : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인하세요."
             : "현재 운영·등록 상태에 따라 필요서류가 달라집니다."
         }
         headerExtra={resultScreenActive && diagnosis ? (

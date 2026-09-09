@@ -1656,7 +1656,7 @@ export function getMasterLandingPageHeader(
     config.engine === "verify"
       ? "제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지, 내 상황을 먼저 확인합니다."
       : config.engine === "register"
-        ? "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인합니다."
+        ? "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인하세요."
         : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 내 상황을 직접 확인합니다.";
   return { title: lookupTitle, description: lookupDesc };
 }

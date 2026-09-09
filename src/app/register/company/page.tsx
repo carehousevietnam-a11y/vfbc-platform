@@ -1589,7 +1589,7 @@ export default function PermitCompanyCheckPage() {
               ? "받은 안내나 견적이 법인설립에 필요한 절차와 비용 기준에 맞는지 확인합니다."
               : contextTab === "direct"
                 ? "법인설립의 기본 절차·준비 항목·직접 진행 시 참고 비용을 확인합니다."
-                : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인합니다."
+                : "정부 수수료와 시장 대행료를 먼저 확인한 뒤, 준비 상태를 직접 확인하세요."
             : "개인 투자와 법인 투자에 따라 질문과 필요서류가 달라집니다."
         }
         headerExtra={resultScreenActive && diagnosis ? (

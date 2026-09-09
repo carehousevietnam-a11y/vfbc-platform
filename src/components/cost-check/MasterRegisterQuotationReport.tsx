@@ -54,7 +54,7 @@ const MOBILE_PRICE_MARKET =
 const MOBILE_PRICE_RANGE =
   "break-keep text-[14px] font-semibold tabular-nums leading-[1.4] tracking-normal text-[#B45353]";
 const MOBILE_SECTION_INTRO =
-  "mb-2 max-w-[40rem] break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569]";
+  "mb-2 max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
 const MOBILE_SUBHEAD =
   "text-[13px] font-medium leading-snug text-[#334155] sm:text-[14px] sm:font-semibold sm:text-[#0B2A6B]";
 const MOBILE_BODY =
@@ -71,6 +71,10 @@ const MOBILE_CALLOUT =
   "min-w-0 max-w-[40rem] break-keep text-pretty text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-[1.65] sm:text-[#334155]";
 const MOBILE_GRADE_LABEL =
   "mt-1 text-[13px] font-medium leading-snug text-[#475569] sm:mt-0.5 sm:text-[15px] sm:font-semibold sm:leading-none sm:text-[#0B2A6B]";
+const MOBILE_COST_SUMMARY_INTRO =
+  "max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
+const MOBILE_REPORT_SOURCE =
+  "break-keep max-sm:text-[10px] max-[389px]:text-[9.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed sm:whitespace-normal";
 
 function excessGrade(verdict: ReviewVerdict): { label: string; filled: number; tone: string } {
   if (verdict === "fair") return { label: "낮음", filled: 1, tone: "bg-emerald-500" };
@@ -83,6 +87,36 @@ function analysisHeadline(verdict: ReviewVerdict): string {
   if (verdict === "fair") return "참고 범위와 비슷한 수준입니다.";
   if (verdict === "very_low") return "포함 항목을 확인해 보세요.";
   return "재검토를 권장합니다.";
+}
+
+/** Mobile 카드 비고 — Company Master와 동일한 짧은 밀도 */
+function mobileCardHint(
+  serviceId: CostCheckServiceId,
+  kind: "government" | "market",
+  fallback: string
+): string {
+  const hints: Partial<
+    Record<CostCheckServiceId, { government?: string; market?: string }>
+  > = {
+    hygiene: { government: "규모에 따라 다름 · 50% 감면" },
+    "fire-safety": {
+      government: "시설·규모에 따라 달라짐",
+      market: "업무 범위에 따라 달라짐",
+    },
+    environment: {
+      government: "유형·규모·관할에 따라 달라짐",
+      market: "절차·범위에 따라 달라짐",
+    },
+    "medical-device": {
+      government: "등급별 공식 심사비 · 50% 감면",
+      market: "등급·범위에 따라 달라짐",
+    },
+    franchise: {
+      government: "현행 공개 수수료 확인 어려움",
+      market: "업무 범위에 따라 달라짐",
+    },
+  };
+  return hints[serviceId]?.[kind] ?? fallback;
 }
 
 function SectionTitle({
@@ -306,8 +340,8 @@ export function MasterRegisterQuotationReport({
                     </p>
                   </div>
                   {sourceLine ? (
-                    <div className="min-w-0 text-left sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
-                      <p className="break-keep text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed">
+                    <div className="min-w-0 text-left max-sm:w-full sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
+                      <p className={MOBILE_REPORT_SOURCE}>
                         출처: {sourceLine}
                       </p>
                     </div>
@@ -324,7 +358,7 @@ export function MasterRegisterQuotationReport({
                     >
                       <span className="tabular-nums font-medium text-[#64748B]">1.</span> 예상 비용
                     </h3>
-                    <p className="max-w-[40rem] break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569]">
+                    <p className={MOBILE_COST_SUMMARY_INTRO}>
                       관공서 공식 자료와 시장 정보를 기준으로 분석한 예상 비용입니다.
                     </p>
                   </div>
@@ -345,14 +379,14 @@ export function MasterRegisterQuotationReport({
                       <dl className="mt-2 space-y-2 border-t border-[#EEF2F7] pt-2">
                         <div className="min-w-0">
                           <dt className={MOBILE_AMOUNT_LABEL}>금액 (VND)</dt>
-                          <dd className="mt-1">
-                            <AmountCell value={model.governmentSummary} emphasize="bold" />
+                          <dd className={`mt-1 ${MOBILE_PRICE_OFFICIAL}`}>
+                            {model.governmentSummary}
                           </dd>
                         </div>
                         <div>
                           <dt className={MOBILE_AMOUNT_LABEL}>비고</dt>
                           <dd className="mt-1 break-keep text-[13px] font-normal leading-[1.5] text-[#64748B]">
-                            {model.governmentHint}
+                            {mobileCardHint(serviceId, "government", model.governmentHint)}
                           </dd>
                         </div>
                       </dl>
@@ -372,20 +406,14 @@ export function MasterRegisterQuotationReport({
                       <dl className="mt-2 space-y-2 border-t border-[#EEF2F7] pt-2">
                         <div className="min-w-0">
                           <dt className={MOBILE_AMOUNT_LABEL}>금액 (VND)</dt>
-                          <dd className="mt-1">
-                            {canCompare ? (
-                              <span className={MOBILE_PRICE_MARKET}>
-                                {marketDisplay}
-                              </span>
-                            ) : (
-                              <AmountCell value={marketDisplay} emphasize="semibold" tone="market" />
-                            )}
+                          <dd className={`mt-1 ${MOBILE_PRICE_MARKET}`}>
+                            {marketDisplay}
                           </dd>
                         </div>
                         <div>
                           <dt className={MOBILE_AMOUNT_LABEL}>비고</dt>
                           <dd className="mt-1 break-keep text-[13px] font-normal leading-[1.5] text-[#64748B]">
-                            {model.marketHint}
+                            {mobileCardHint(serviceId, "market", model.marketHint)}
                           </dd>
                         </div>
                       </dl>
@@ -573,7 +601,7 @@ export function MasterRegisterQuotationReport({
                     >
                       <label className="min-w-0 flex-1">
                         <span className="block text-[14px] font-normal leading-snug text-[#475569] sm:text-[11.5px] sm:leading-relaxed">
-                          받은 견적이 있다면 입력해 비교할 수 있습니다. (VND)
+                          받은 견적 입력 시 비교 (VND)
                         </span>
                         <input
                           type="text"
@@ -615,10 +643,8 @@ export function MasterRegisterQuotationReport({
                           시장 일반가격 범위
                         </p>
                         <p
-                          className={`min-w-0 text-right ${
-                            canCompare
-                              ? `${MOBILE_PRICE_RANGE} sm:text-[15px] sm:font-semibold sm:leading-snug sm:text-[#0B2A6B]`
-                              : "text-[15px] font-semibold tabular-nums leading-snug text-[#0B2A6B] sm:text-[15px]"
+                          className={`min-w-0 text-right sm:text-[15px] sm:font-semibold sm:leading-snug sm:text-[#0B2A6B] ${
+                            canCompare ? MOBILE_PRICE_RANGE : MOBILE_PRICE_MARKET
                           }`}
                         >
                           {marketDisplay}
@@ -665,7 +691,7 @@ export function MasterRegisterQuotationReport({
                   <p className={MOBILE_SECTION_INTRO}>
                     {canCompare
                       ? "입력한 견적을 공식비용·시장 참고 범위와 비교한 결과입니다."
-                      : "시장 비교 범위가 확정되지 않아 견적 점수 비교는 제공하지 않습니다."}
+                      : "공식비용·시장 정보를 기준으로 안내합니다."}
                   </p>
                   {hasQuote && grade ? (
                     <div
@@ -750,12 +776,12 @@ export function MasterRegisterQuotationReport({
                           <p className={MOBILE_SUBHEAD}>
                             {canCompare
                               ? "견적 입력 후 확인할 수 있습니다."
-                              : "조건 확인 후 안내됩니다."}
+                              : "견적 비교는 제공하지 않습니다."}
                           </p>
                           <p className={`mt-1 ${MOBILE_BODY}`}>
                             {canCompare
                               ? "시장 일반가격(VND)과 같은 통화로 입력한 견적을 비교합니다."
-                              : model.marketHint}
+                              : "시장 일반가격 범위가 확정되면 비교 기능을 제공합니다."}
                           </p>
                         </div>
                       </div>
@@ -768,15 +794,7 @@ export function MasterRegisterQuotationReport({
                   <p className={MOBILE_SECTION_INTRO}>
                     {detail.additionalCostIntro}
                   </p>
-                  <ul
-                    className={
-                      detail.additionalCostItems.length <= 1
-                        ? "grid grid-cols-1 gap-1.5 sm:max-w-xl"
-                        : detail.additionalCostItems.length === 2
-                          ? "grid grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-1.5"
-                          : "grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4"
-                    }
-                  >
+                  <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-1.5 lg:grid-cols-4">
                     {detail.additionalCostItems.map((item) => (
                       <li
                         key={item.label}
