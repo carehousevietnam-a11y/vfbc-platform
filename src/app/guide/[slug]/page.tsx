@@ -7,6 +7,7 @@ import {
   MasterCheckGuideDetail,
 } from "@/components/cost-check/MasterCheckGuideDetail";
 import { parseCheckGuideIntent } from "@/lib/contentPacks/checkGuideIntent";
+import { ADMIN_GUIDE_SLUG } from "@/lib/contentPacks/verifyArticles";
 import { getPublishedArticleBySlug, listPublishedArticleSlugs } from "@/lib/contentPacks/registry";
 import { guidePath } from "@/lib/contentPacks/paths";
 import { getSiteOrigin } from "@/lib/siteOrigin";
@@ -69,7 +70,8 @@ export default async function GuideCasePage({ params, searchParams }: PageProps)
 
   const origin = getSiteOrigin();
   const canonicalUrl = `${origin}${guidePath(slug)}`;
-  const isMasterCheckGuide = MASTER_CHECK_GUIDE_SLUGS.has(slug);
+  const isMasterCheckGuide =
+    MASTER_CHECK_GUIDE_SLUGS.has(slug) || slug === ADMIN_GUIDE_SLUG;
   const intent = parseCheckGuideIntent(firstSearchParam(sp.intent));
   const question = firstSearchParam(sp.q)?.trim() || null;
 

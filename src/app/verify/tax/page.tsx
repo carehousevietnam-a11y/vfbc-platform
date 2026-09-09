@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   FileText,
@@ -54,6 +55,13 @@ import {
   getMasterLandingPageHeader,
   type MasterFunnelContextTab,
 } from "@/components/cost-check/MasterFunnelLanding";
+import {
+  buildReviewPage1Meta,
+  mapReviewPage1StageToVerifyStage,
+  restoreReviewPage1Answers,
+  type ReviewPage1Answers,
+} from "@/components/cost-check/MasterReviewQuotationReport";
+import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
 
 const CATEGORY = "tax" as const;
 const VERIFY_QUESTION_CONTEXT = "세무문서 검토";
@@ -762,8 +770,14 @@ export default function VerifyTaxPage() {
   const [skipSignup, setSkipSignup] = useState(false);
   const [restoredLeadActive, setRestoredLeadActive] = useState(false);
   const memberSubmitStartedRef = useRef(false);
-  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
+  const searchParams = useSearchParams();
+  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>(
+    () => parseExplicitMasterFunnelTab(searchParams.get("tab")) ?? "lookup"
+  );
   const [landingDone, setLandingDone] = useState(false);
+  const [page1ReviewAnswers, setPage1ReviewAnswers] = useState<ReviewPage1Answers | null>(
+    null
+  );
   const [lang, setLang] = useState<SupportedLanguage>("ko");
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -772,14 +786,21 @@ export default function VerifyTaxPage() {
       if (params.get("start") === "check") {
         setLandingDone(true);
       }
+      const urlTab = parseExplicitMasterFunnelTab(params.get("tab"));
+      if (urlTab) setContextTab(urlTab);
     }
   }, []);
 
   async function applyRestoredVerify(restored: RestoredVerifyLead) {
     const meta = restored.verifyMeta;
     if (meta) {
+      const restoredPage1 = restoreReviewPage1Answers(meta);
+      if (restoredPage1) setPage1ReviewAnswers(restoredPage1);
       if (meta.review_stage === "pre" || meta.review_stage === "post") {
         setReviewStage(meta.review_stage);
+      } else if (restoredPage1?.stage) {
+        const mapped = mapReviewPage1StageToVerifyStage(restoredPage1.stage);
+        if (mapped) setReviewStage(mapped);
       }
       if (typeof meta.review_focus === "string") setReviewFocus(meta.review_focus);
       if (typeof meta.incident_type === "string") setIncidentType(meta.incident_type);
@@ -815,7 +836,7 @@ export default function VerifyTaxPage() {
     setStep("diagnosis");
   }
 
-  async function handleLandingContinue() {
+  async function handleLandingContinue(page1Answers?: Record<string, string>) {
     const { loggedIn, restored } = await loadVerifyMemberEntryState("verify_tax", {
       allowRestore: true,
     });
@@ -823,6 +844,17 @@ export default function VerifyTaxPage() {
     if (restored) {
       await applyRestoredVerify(restored);
       return;
+    }
+    if (page1Answers?.stage) {
+      const page1: ReviewPage1Answers = {
+        stage: page1Answers.stage,
+        docs: page1Answers.docs,
+        translation: page1Answers.translation,
+        deadline: page1Answers.deadline,
+      };
+      setPage1ReviewAnswers(page1);
+      const mapped = mapReviewPage1StageToVerifyStage(page1Answers.stage);
+      if (mapped) setReviewStage(mapped);
     }
     setLandingDone(true);
   }
@@ -867,11 +899,25 @@ export default function VerifyTaxPage() {
   }, []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
-  const incidentQuestionStep = !reviewStage ? 1 : !incidentType ? 2 : !reviewFocus ? 3 : 4;
+  const page2FromPage1 = page1ReviewAnswers != null;
+  const page2TotalSteps = page2FromPage1 ? 3 : 4;
+  const incidentQuestionStep = page2FromPage1
+    ? !incidentType
+      ? 1
+      : !reviewFocus
+        ? 2
+        : 3
+    : !reviewStage
+      ? 1
+      : !incidentType
+        ? 2
+        : !reviewFocus
+          ? 3
+          : 4;
   const verifyQuestionProps = {
     variant: "verify" as const,
     contextLabel: VERIFY_QUESTION_CONTEXT,
-    totalSteps: 4,
+    totalSteps: page2TotalSteps,
   };
 
   // 질문3(사건유형+설명+선택 파일)이 채워지는 즉시, 아직 리드가 생성되기 전이라도
@@ -917,6 +963,7 @@ export default function VerifyTaxPage() {
     setSelectedAgency(null);
     setRestoredLeadActive(false);
     setSkipSignup(false);
+    setPage1ReviewAnswers(null);
     void isLoggedInMember().then((loggedIn) => {
       if (loggedIn) setSkipSignup(true);
     });
@@ -966,6 +1013,7 @@ export default function VerifyTaxPage() {
       review_focus: reviewFocus,
       incident_type: incidentType,
       incident_description: incidentDescription.trim(),
+      ...buildReviewPage1Meta(page1ReviewAnswers),
       ...(storagePath
         ? {
             storagePath,
@@ -1115,6 +1163,7 @@ export default function VerifyTaxPage() {
         review_focus: reviewFocus,
         incident_type: incidentType,
         incident_description: incidentDescription.trim(),
+        ...buildReviewPage1Meta(page1ReviewAnswers),
         // 질문 단계에서 제출한 파일에 document_type(incidentType)과 review_stage를
         // 함께 태깅해 저장 — 기존 meta(jsonb) 구조를 확장한 것일 뿐 새 DB 컬럼은
         // 없다. 향후 /documents 등에서 "이미 제출된 자료"를 조회할 때 이 값으로
@@ -1309,6 +1358,8 @@ export default function VerifyTaxPage() {
 
   const activeGuidance = selectedAgency ? TAX_AGENCY_GUIDANCE[selectedAgency] : null;
 
+  const isReviewMaster =
+    !landingDone && (contextTab === "review" || contextTab === "direct");
   const pageHeader = getMasterLandingPageHeader(
     MASTER_LANDING_TAX,
     contextTab,
@@ -1318,11 +1369,25 @@ export default function VerifyTaxPage() {
   );
 
   return (
-    <FunnelPageShell engine="verify" width={!landingDone ? "wide" : "default"}>
+    <FunnelPageShell
+      engine="verify"
+      width={isReviewMaster ? "master" : !landingDone ? "wide" : "default"}
+    >
         <FunnelPageHeader
-          engine="verify"
-          title={pageHeader.title}
-          description={pageHeader.description}
+          engine={isReviewMaster ? "check" : "verify"}
+          title={isReviewMaster ? MASTER_LANDING_TAX.shortServiceLabel ?? MASTER_LANDING_TAX.serviceLabel : pageHeader.title}
+          description={
+            isReviewMaster
+              ? contextTab === "direct"
+                ? "신청 순서·서류·공식 자료를 확인합니다."
+                : "공식비용·시장가격·추가 비용과 위험을 순서대로 확인합니다."
+              : pageHeader.description
+          }
+          descriptionClassName={
+            isReviewMaster
+              ? "break-keep pl-2.5 text-[11.5px] font-normal leading-[1.4] tracking-tight text-[#94A3B8] [overflow-wrap:normal] sm:pl-4 sm:text-[11px] sm:leading-[1.45] sm:tracking-normal sm:text-[#64748B]"
+              : undefined
+          }
         />
 
         {!landingDone && (
@@ -1330,7 +1395,7 @@ export default function VerifyTaxPage() {
             config={MASTER_LANDING_TAX}
             activeTab={contextTab}
             onTabChange={setContextTab}
-            onContinue={() => void handleLandingContinue()}
+            onContinue={(page1Answers) => void handleLandingContinue(page1Answers)}
           />
         )}
 
@@ -1339,7 +1404,7 @@ export default function VerifyTaxPage() {
         {landingDone && !restoreVerifyPending && step === "incident" && (
           <div className="w-full">
             {/* 질문 1 — Prevent Review / Case Review */}
-            {!reviewStage && (
+            {!reviewStage && !page2FromPage1 && (
               <div className="mt-4 sm:mt-5">
                 <VerifyStepLayout
                   step={1}
@@ -1382,7 +1447,7 @@ export default function VerifyTaxPage() {
             {reviewStage && !incidentType && (
               <div className="mt-4 sm:mt-5">
                 <VerifyStepLayout
-                  step={2}
+                  step={page2FromPage1 ? 1 : 2}
                   question={
                 <QuestionSection
                   step={incidentQuestionStep}
@@ -1423,6 +1488,7 @@ export default function VerifyTaxPage() {
                 </QuestionSection>
                   }
                   actions={
+                !page2FromPage1 ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -1433,6 +1499,7 @@ export default function VerifyTaxPage() {
                 >
                   <ArrowLeft size={14} /> 이전 단계로
                 </button>
+                ) : null
                   }
                 />
               </div>
@@ -1444,7 +1511,7 @@ export default function VerifyTaxPage() {
             {reviewStage && incidentType && !reviewFocus && (
               <div className="mt-4 sm:mt-5">
                 <VerifyStepLayout
-                  step={3}
+                  step={page2FromPage1 ? 2 : 3}
                   question={
                 <QuestionSection
                   step={incidentQuestionStep}
@@ -1494,7 +1561,7 @@ export default function VerifyTaxPage() {
             {reviewStage && incidentType && reviewFocus && (
               <div className="mt-4 w-full sm:mt-5">
                 <VerifyStepLayout
-                  step={4}
+                  step={page2FromPage1 ? 3 : 4}
                   question={
                 <QuestionSection
                   step={incidentQuestionStep}

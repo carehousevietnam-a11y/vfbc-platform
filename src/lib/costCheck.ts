@@ -367,7 +367,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "행정문서 검토는 문서 유형·분량·긴급 여부에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+      "행정문서 검토는 서류 유형·검토 범위에 따라 상담 비용이 발생할 수 있습니다.",
     ctaLabel: "행정문서 검토 (VERIFY)",
     ctaHref: "/verify/admin",
   },
@@ -385,7 +385,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "부동산 문서 검토는 계약 유형·특약·보증금 조건에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+      "부동산 문서 검토는 계약 유형·특약·보증금 조건에 따라 상담 비용이 발생할 수 있습니다.",
     ctaLabel: "부동산 문서 검토 (VERIFY)",
     ctaHref: "/verify/real-estate",
   },
@@ -403,7 +403,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "사기 의심 문서 검토는 문서 유형·피해 정황·긴급 여부에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+      "사기·분쟁 검토는 사건 내용·증거·대응 범위에 따라 상담 비용이 발생할 수 있습니다.",
     ctaLabel: "사기문서 검토 (VERIFY)",
     ctaHref: "/verify/fraud",
   },
@@ -421,7 +421,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "세무문서 검토는 고지·신고 유형과 대응 범위에 따라 상담 비용이 달라질 수 있습니다. 확인된 상담가격이 확보되면 이 화면에 안내됩니다.",
+      "세무 검토는 세금 유형·거래 내용·신고 범위에 따라 상담 비용이 발생할 수 있습니다.",
     ctaLabel: "세무문서 검토 (VERIFY)",
     ctaHref: "/verify/tax",
   },

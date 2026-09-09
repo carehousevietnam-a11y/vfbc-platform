@@ -3,9 +3,8 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Briefcase, ClipboardPen, ExternalLink, Search, type LucideIcon } from "lucide-react";
+import { BookOpen, ClipboardPen, ExternalLink, Search, type LucideIcon } from "lucide-react";
 import OfficialTrustZone from "@/components/ui/OfficialTrustZone";
-import { CostCheckCard } from "@/components/cost-check/CostCheckCard";
 import {
   getCheckServiceItems,
   getRegisterServiceItems,
@@ -16,7 +15,6 @@ import {
   COST_CHECK_SERVICES,
   DIRECT_PERMIT_COMPANY_GUIDE,
   DIRECT_PERMIT_COMPANY_ITEMS,
-  evaluateCostQuoteReview,
   formatCostAmount,
   getCostCheckService,
   type CostCheckService,
@@ -52,7 +50,7 @@ import { MasterDrivingQuotationReport } from "@/components/cost-check/MasterDriv
 import { MasterCompanyQuotationReport } from "@/components/cost-check/MasterCompanyQuotationReport";
 import { MasterRestaurantQuotationReport } from "@/components/cost-check/MasterRestaurantQuotationReport";
 import { MasterRegisterQuotationReport } from "@/components/cost-check/MasterRegisterQuotationReport";
-import { GuideCaseFunnelSummary } from "@/components/answers/GuideCaseFunnelSummary";
+import { MasterReviewQuotationReport } from "@/components/cost-check/MasterReviewQuotationReport";
 import { MasterQuotationGuidePanel } from "@/components/cost-check/MasterQuotationGuidePanel";
 import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
 import { TRC_GUIDE_ARTICLE } from "@/lib/contentPacks/trcArticles";
@@ -139,6 +137,12 @@ export function MasterFunnelContextTabs({
 
 export type MasterLandingGuideItem = { title: string; body: string };
 
+/** VERIFY 결과 화면 「4. 확인이 필요한 사항」 카드 */
+export type MasterReviewNeedsCard = {
+  title: string;
+  items: string[];
+};
+
 type MasterFunnelStep = {
   step: number;
   title: string;
@@ -149,6 +153,8 @@ type MasterFunnelStep = {
 export type MasterLandingConfig = {
   engine: FunnelEngine;
   serviceLabel: string;
+  /** VERIFY Master 상단·확인서 제목용 짧은 서비스명 */
+  shortServiceLabel?: string;
   costServiceId?: CostCheckServiceId;
   specialtyLine: string;
   hookTitle: string;
@@ -160,6 +166,10 @@ export type MasterLandingConfig = {
   reviewTitle: string;
   reviewIntro: string;
   reviewChecks: MasterLandingGuideItem[];
+  /** VERIFY 결과 「4. 확인이 필요한 사항」 — 서비스별 3카드 */
+  reviewNeeds?: MasterReviewNeedsCard[];
+  /** VERIFY 결과 「5. 권장 대응」 — 미지정 시 reviewIntro 사용 */
+  reviewRecommendation?: string;
   guideTitle: string;
   guideIntro: string;
   guideItems: MasterLandingGuideItem[];
@@ -276,6 +286,7 @@ function MasterServiceQueryEntry({
     currentServiceId === "wp" ||
     currentServiceId === "tamtru" ||
     currentServiceId === "driving-license" ||
+    currentServiceId === "admin" ||
     isRegisterMasterQuotation(currentServiceId);
 
   return (
@@ -438,193 +449,13 @@ function MasterCostBasisEntry({
       />
 
       <p className="mx-auto max-w-3xl break-keep px-1 text-center text-[12.5px] leading-[1.75] text-[#575F6A] sm:text-[13px]">
-        {cost ? `${cost.lookupGuide} ` : ""}
-        {COST_CHECK_DISCLAIMER}
-      </p>
-    </div>
-  );
-}
-
-/** MASTER `/cost-check` 검토하기와 동일 UI — TRC(거주증) Landing 검토 탭 전용 */
-function MasterTrcQuoteReviewPanel({
-  service,
-  onContinue,
-}: {
-  service: CostCheckService;
-  onContinue: () => void;
-}) {
-  const [reviewAmount, setReviewAmount] = useState("");
-  const [reviewPrep, setReviewPrep] = useState<"yes" | "no" | "">("");
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [showMarketPreview, setShowMarketPreview] = useState(false);
-
-  const reviewResult = useMemo(() => {
-    if (!reviewSubmitted || !reviewPrep) return null;
-    const amount = Number(reviewAmount.replace(/,/g, ""));
-    if (!Number.isFinite(amount) || amount <= 0) return null;
-    return {
-      quotedAmount: amount,
-      ...evaluateCostQuoteReview(service, amount),
-    };
-  }, [reviewSubmitted, reviewPrep, reviewAmount, service]);
-
-  function handleReviewSubmit(e: FormEvent) {
-    e.preventDefault();
-    setReviewSubmitted(true);
-  }
-
-  return (
-    <div className="mt-4 space-y-5 sm:mt-5 sm:space-y-6">
-      <div className="min-w-0 space-y-6 rounded-[16px] border border-[#E5E7EB] bg-white p-4 sm:p-5 lg:p-6">
-        <div>
-          <h2 className="text-lg font-semibold text-blue-900">견적 적정성 검토</h2>
-          <p className="mt-1 text-sm text-slate-600">
-            받은 견적이 정부 수수료 + 시장 일반 대행료 기준 대비 어느 정도인지 확인합니다.
-          </p>
-        </div>
-
-        <div>
-          <p className="text-sm font-medium text-blue-900">검토 대상 서비스</p>
-          <div className="mt-2 flex min-w-0 items-center gap-2.5 rounded-xl border border-blue-200 bg-blue-50/40 px-4 py-3">
-            <Briefcase size={18} className="shrink-0 text-blue-800" aria-hidden />
-            <span className="min-w-0 break-words font-semibold text-blue-900">{service.label}</span>
-          </div>
-        </div>
-
-        <form onSubmit={handleReviewSubmit} className="space-y-5 rounded-xl border border-blue-100 bg-blue-50/20 p-4 sm:p-5">
-          <div>
-            <p className="text-sm font-semibold text-blue-900">받은 견적이 있다면</p>
-            <p className="mt-1 text-xs text-slate-500">받은 견적 금액을 입력해주세요.</p>
-            <div className="mt-3 flex min-w-0 flex-col gap-2 sm:flex-row">
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="예: 3,000"
-                value={reviewAmount}
-                onChange={(e) => {
-                  setReviewAmount(e.target.value);
-                  setReviewSubmitted(false);
-                }}
-                className="min-h-11 w-full min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-400/16"
-              />
-              <span className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-600">
-                {service.currency}
-              </span>
-            </div>
-          </div>
-
-          <fieldset>
-            <legend className="text-sm font-medium text-blue-900">서류 준비·번역 포함 여부</legend>
-            <div className="mt-2 flex flex-wrap gap-3">
-              {(
-                [
-                  { v: "yes", l: "포함" },
-                  { v: "no", l: "미포함" },
-                ] as const
-              ).map(({ v, l }) => (
-                <label
-                  key={v}
-                  className={`flex min-h-11 min-w-[5.5rem] flex-1 cursor-pointer items-center justify-center rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors sm:flex-none ${
-                    reviewPrep === v
-                      ? "border-blue-900 bg-blue-900 text-white"
-                      : "border-blue-100 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/40"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={`checkReviewPrep-${service.id}`}
-                    value={v}
-                    checked={reviewPrep === v}
-                    onChange={() => {
-                      setReviewPrep(v);
-                      setReviewSubmitted(false);
-                    }}
-                    className="sr-only"
-                  />
-                  {l}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <button
-            type="submit"
-            disabled={!reviewAmount.trim() || !reviewPrep}
-            className="w-full min-h-11 rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            견적 적정성 검토하기 →
-          </button>
-        </form>
-
-        <div className="relative py-1">
-          <div className="border-t border-dashed border-blue-200" />
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-slate-400">
-            또는
-          </span>
-        </div>
-
-        <div className="rounded-xl border border-blue-100 bg-white p-4">
-          <p className="text-sm font-semibold text-blue-900">견적이 없다면</p>
-          <p className="mt-1 text-xs text-slate-500">현재 시장가격을 확인해보세요.</p>
-          <button
-            type="button"
-            onClick={() => setShowMarketPreview(true)}
-            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-blue-200 bg-white px-4 py-2.5 text-sm font-semibold text-blue-900 transition-colors hover:bg-blue-50/60 sm:w-auto"
-          >
-            시장가격 확인하기 →
-          </button>
-        </div>
-
-        {showMarketPreview ? (
-          <div className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
-            <p className="text-xs font-medium text-blue-700">정부 공식 비용 · 시장 범위</p>
-            <div className="rounded-xl border border-blue-100 bg-white p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-blue-700">정부 수수료</p>
-              <p className="mt-1 break-words text-lg font-bold text-blue-900">{service.governmentFee}</p>
-              <p className="mt-2 text-xs text-slate-600">출처: {service.source}</p>
-            </div>
-            <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4">
-              <p className="text-xs font-medium text-blue-800">
-                시장 일반 대행료 (참고)
-                <span className="ml-1 font-normal text-slate-500">· {service.currency}</span>
-              </p>
-              <p className="mt-1 break-words text-lg font-semibold text-blue-900">
-                {formatCostAmount(service.marketUsualFeeAmount, service.currency)} 전후
-              </p>
-              <p className="mt-1 break-words text-xs text-slate-500">
-                범위 {formatCostAmount(service.marketMin, service.currency)} ~{" "}
-                {formatCostAmount(service.marketMax, service.currency)}
-              </p>
-            </div>
-            <MasterCostStructureSummary service={service} serviceId={service.id} />
-          </div>
-        ) : null}
-
-        <p className="rounded-xl border border-blue-100 bg-blue-50/40 px-4 py-3 text-xs leading-relaxed text-slate-600">
-          받은 견적이 있는 경우 입력하시면 정부 기준 및 시장가격 대비 적정성을 분석해드립니다.
-          견적이 없는 경우에도 정부 수수료 및 시장 일반 대행료 범위를 미리 확인할 수 있습니다.
-        </p>
-
-        {reviewResult ? (
-          <div className="border-t border-blue-100 pt-6">
-            <CostCheckCard
-              serviceId={service.id}
-              quote={{
-                quotedAmount: reviewResult.quotedAmount,
-                verdict: reviewResult.verdict,
-                title: reviewResult.title,
-                summary: reviewResult.summary,
-                detail: reviewResult.detail,
-                fairReference: reviewResult.fairReference,
-                bubblePercent: reviewResult.bubblePercent,
-              }}
-              onFunnelCta={onContinue}
-            />
-          </div>
-        ) : null}
-      </div>
-
-      <p className="mx-auto max-w-3xl break-keep px-1 text-center text-[12.5px] leading-[1.75] text-[#575F6A] sm:text-[13px]">
+        {cost
+          ? `${
+              config.engine === "verify" && config.costServiceId === "notary"
+                ? "불확실한 서류 검토는 문서 성격·진위 확인·대응 범위에 따라 상담 비용이 발생할 수 있습니다."
+                : cost.lookupGuide
+            } `
+          : ""}
         {COST_CHECK_DISCLAIMER}
       </p>
     </div>
@@ -720,29 +551,23 @@ function MasterServiceGuidePanel({
   onGoLookup: () => void;
   query?: string;
 }) {
-  if (isMasterQuotationLanding(config)) {
+  const guideArticle = config.guideSlug ? getPublishedArticleBySlug(config.guideSlug) : null;
+
+  if (isMasterQuotationLanding(config) || guideArticle) {
     return (
       <MasterQuotationGuidePanel config={config} onGoLookup={onGoLookup} query={query} />
     );
   }
 
-  const guideArticle = config.guideSlug ? getPublishedArticleBySlug(config.guideSlug) : null;
-
   return (
     <div className="mt-4 space-y-5 sm:mt-5 sm:space-y-6">
       <div className="min-w-0 space-y-6 rounded-[16px] border border-[#E5E7EB] bg-white p-4 sm:p-5 lg:p-6">
         <div>
-          <h2 className="text-lg font-semibold text-blue-900">
-            {guideArticle?.title ?? config.guideTitle}
-          </h2>
-          <p className="mt-1 text-sm text-slate-600">
-            {guideArticle?.subtitle ?? config.guideIntro}
-          </p>
+          <h2 className="text-lg font-semibold text-blue-900">{config.guideTitle}</h2>
+          <p className="mt-1 text-sm text-slate-600">{config.guideIntro}</p>
         </div>
 
-        {guideArticle ? (
-          <GuideCaseFunnelSummary article={guideArticle} onFunnelClick={onGoLookup} showHero={false} />
-        ) : (
+        {
           <>
             <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4">
               <p className="text-xs font-medium text-blue-700">{config.serviceLabel}</p>
@@ -769,7 +594,7 @@ function MasterServiceGuidePanel({
               ))}
             </div>
           </>
-        )}
+        }
 
         {config.costServiceId === "company" && (
           <div className="rounded-xl border border-blue-100 bg-white p-4">
@@ -885,7 +710,7 @@ export function MasterFunnelLanding({
   config: MasterLandingConfig;
   activeTab: MasterFunnelContextTab;
   onTabChange: (tab: MasterFunnelContextTab) => void;
-  onContinue: () => void;
+  onContinue: (page1Answers?: Record<string, string>) => void;
 }) {
   const urlSyncedRef = useRef(false);
   const [entryQuery, setEntryQuery] = useState("");
@@ -964,6 +789,45 @@ export function MasterFunnelLanding({
     );
   }
 
+  if (activeTab === "review" || activeTab === "direct") {
+    const reviewMasterTab: "lookup" | "direct" = activeTab === "direct" ? "direct" : "lookup";
+    const reviewQueryEntry =
+      config.engine === "verify"
+        ? (
+            <MasterServiceQueryEntry
+              currentServiceId={config.costServiceId}
+              initialQuery=""
+              onLocalTabChange={onTabChange}
+              onQueryCommit={setEntryQuery}
+            />
+          )
+        : undefined;
+    return (
+      <>
+        <MasterTrcContextTabs
+          active={reviewMasterTab}
+          onChange={(tab) => onTabChange(tab === "direct" ? "direct" : "review")}
+          lookupLabel="검토하기"
+          lookupDesc="직접 검토하기"
+        />
+        {activeTab === "review" &&
+          (usesMasterQuoteReview(config.costServiceId) ? (
+            <MasterReviewQuotationReport
+              service={getCostCheckService(config.costServiceId)}
+              config={config}
+              onContinue={onContinue}
+              queryEntry={reviewQueryEntry}
+            />
+          ) : (
+            <MasterServiceReviewPanel config={config} onGoLookup={onContinue} />
+          ))}
+        {activeTab === "direct" && (
+          <MasterServiceGuidePanel config={config} onGoLookup={onContinue} query={entryQuery} />
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       <MasterFunnelContextTabs active={activeTab} onChange={onTabChange} />
@@ -975,18 +839,6 @@ export function MasterFunnelLanding({
           entryQuery={entryQuery}
           onQueryCommit={setEntryQuery}
         />
-      )}
-      {activeTab === "review" &&
-        (usesMasterQuoteReview(config.costServiceId) ? (
-          <MasterTrcQuoteReviewPanel
-            service={getCostCheckService(config.costServiceId)}
-            onContinue={onContinue}
-          />
-        ) : (
-          <MasterServiceReviewPanel config={config} onGoLookup={onContinue} />
-        ))}
-      {activeTab === "direct" && (
-        <MasterServiceGuidePanel config={config} onGoLookup={onContinue} query={entryQuery} />
       )}
     </>
   );
@@ -1285,17 +1137,21 @@ export const MASTER_LANDING_FRANCHISE = makePendingRegisterLanding(
 
 function makeVerifyLanding(
   serviceLabel: string,
+  shortServiceLabel: string,
   costServiceId: CostCheckServiceId,
   hookBody: string,
   reviewChecks: MasterLandingGuideItem[],
   guideItems: MasterLandingGuideItem[],
   officialUrl: string,
   officialNote: string,
-  guideSlug?: string
+  guideSlug: string | undefined,
+  reviewNeeds: MasterReviewNeedsCard[],
+  reviewRecommendation: string
 ): MasterLandingConfig {
   return {
     engine: "verify",
     serviceLabel,
+    shortServiceLabel,
     costServiceId,
     specialtyLine: "직접 검토하기 · 베트남 법률전문 AI",
     hookTitle: "서류만 보고 서명·송금하지 마세요.",
@@ -1306,6 +1162,8 @@ function makeVerifyLanding(
     reviewTitle: "검토 항목 안내",
     reviewIntro: "받은 서류·문제 상황을 아래 기준으로 확인한 뒤, 내 상황에 맞는 검토를 진행합니다.",
     reviewChecks,
+    reviewNeeds,
+    reviewRecommendation,
     guideTitle: `${serviceLabel} 안내`,
     guideIntro: `${serviceLabel}에서 확인하는 항목과 사전·사후 검토 흐름을 안내합니다.`,
     guideItems,
@@ -1317,6 +1175,7 @@ function makeVerifyLanding(
 
 export const MASTER_LANDING_ADMIN = makeVerifyLanding(
   "행정문서 리뷰",
+  "행정문서",
   "admin",
   "출입국·노동·세무·투자 관련 공문서는 서명·제출 전에 요건과 위험요인을 먼저 확인해야 합니다. 이미 반려·보완 요청을 받은 경우에도 대응 방향을 점검할 수 있습니다.",
   [
@@ -1357,11 +1216,39 @@ export const MASTER_LANDING_ADMIN = makeVerifyLanding(
   ],
   "https://dichvucong.gov.vn/",
   "출입국·노동·세무 등 행정 서류 관련 안내는 국가공공서비스포털에서 확인할 수 있습니다.",
-  ADMIN_GUIDE_SLUG
+  ADMIN_GUIDE_SLUG,
+  [
+    {
+      title: "① 서류",
+      items: [
+        "필요한 서류가 모두 준비되었는지",
+        "원본·사본 및 서류 형식이 맞는지",
+        "번역·공증·인증이 필요한지",
+      ],
+    },
+    {
+      title: "② 내용",
+      items: [
+        "이름·주소·기간 등 내용이 일치하는지",
+        "누락·오기가 없는지",
+        "서류 간 내용이 일치하는지",
+      ],
+    },
+    {
+      title: "③ 절차",
+      items: [
+        "제출 기관·관할이 맞는지",
+        "제출 방법·기한이 맞는지",
+        "추가 서류가 필요한지",
+      ],
+    },
+  ],
+  "서류의 내용과 형식, 제출 조건을 확인하고 필요한 대응을 결정합니다. 단순한 확인은 직접 진행할 수 있지만, 중요한 행정 절차는 임의로 처리하지 말고 전문가와 함께 확인하는 것이 안전합니다."
 );
 
 export const MASTER_LANDING_REAL_ESTATE = makeVerifyLanding(
   "부동산 문서 리뷰",
+  "부동산 문서",
   "real-estate",
   "임대·매매 계약서는 보증금·소유권·특약 조항을 서명 전에 확인해야 합니다. 이미 분쟁이 시작된 경우에도 현재 단계에 맞는 대응을 점검할 수 있습니다.",
   [
@@ -1402,11 +1289,39 @@ export const MASTER_LANDING_REAL_ESTATE = makeVerifyLanding(
   ],
   "https://dichvucong.gov.vn/",
   "부동산 거래·등록 관련 안내는 국가공공서비스포털에서 관할 지역별로 확인할 수 있습니다.",
-  REAL_ESTATE_GUIDE_SLUG
+  REAL_ESTATE_GUIDE_SLUG,
+  [
+    {
+      title: "① 계약",
+      items: [
+        "계약 당사자와 권한이 맞는지",
+        "계약 조건과 특약이 명확한지",
+        "계약 내용과 실제 조건이 일치하는지",
+      ],
+    },
+    {
+      title: "② 권리",
+      items: [
+        "소유권 및 권리관계를 확인했는지",
+        "담보·제한 등 확인할 사항이 없는지",
+        "등기 관련 서류가 일치하는지",
+      ],
+    },
+    {
+      title: "③ 비용·절차",
+      items: [
+        "세금·수수료 부담 주체가 명확한지",
+        "필요한 신고·등기 절차를 확인했는지",
+        "추가 비용이나 절차가 있는지",
+      ],
+    },
+  ],
+  "계약 내용과 권리관계, 비용·절차를 확인하고 거래를 진행합니다. 단순한 확인은 직접 진행할 수 있지만, 중요한 계약이나 권리 문제는 임의로 처리하지 말고 전문가와 함께 확인하는 것이 안전합니다."
 );
 
 export const MASTER_LANDING_FRAUD = makeVerifyLanding(
   "사기문서 리뷰",
+  "사기문서",
   "fraud",
   "투자·대출·온라인 거래 제안은 송금·계약 전에 진위를 확인해야 합니다. 이미 피해가 발생한 경우에도 즉시 대응 단계를 점검할 수 있습니다.",
   [
@@ -1447,11 +1362,39 @@ export const MASTER_LANDING_FRAUD = makeVerifyLanding(
   ],
   "https://dichvucong.gov.vn/",
   "사기·분쟁 관련 공식 신고·안내는 관할 기관·국가공공서비스포털에서 확인할 수 있습니다.",
-  FRAUD_GUIDE_SLUG
+  FRAUD_GUIDE_SLUG,
+  [
+    {
+      title: "① 상대방",
+      items: [
+        "상대방 신원·연락처가 확인되는지",
+        "공식 채널로 연락했는지",
+        "허위·과장 소지가 없는지",
+      ],
+    },
+    {
+      title: "② 거래",
+      items: [
+        "거래 조건이 명확한지",
+        "선입금·긴급 송금 요구가 없는지",
+        "수익률·조건이 비정상인지",
+      ],
+    },
+    {
+      title: "③ 증거",
+      items: [
+        "대화·이체 내역을 보관했는지",
+        "계약·제안서 원본이 있는지",
+        "추가 송금 전 증거를 확보했는지",
+      ],
+    },
+  ],
+  "상대방과 거래 내용을 확인하고 관련 증거를 확보한 후 대응합니다. 단순한 확인은 직접 진행할 수 있지만, 피해가 의심되거나 법적 대응이 필요한 경우 임의로 처리하지 말고 전문가와 함께 확인하는 것이 안전합니다."
 );
 
 export const MASTER_LANDING_TAX = makeVerifyLanding(
   "세무문서 리뷰",
+  "세무문서",
   "tax",
   "세금 고지서·계좌동결 통지는 납부·이의 기한을 놓치면 가산세·계좌 사용 제한으로 이어질 수 있습니다. 통지를 받은 즉시 내용과 대응 기한을 확인하세요.",
   [
@@ -1492,11 +1435,39 @@ export const MASTER_LANDING_TAX = makeVerifyLanding(
   ],
   "https://dichvucong.gov.vn/",
   "세무 관련 공식 안내·신고는 국가공공서비스포털·관할 세무서 기준으로 확인할 수 있습니다.",
-  TAX_GUIDE_SLUG
+  TAX_GUIDE_SLUG,
+  [
+    {
+      title: "① 세금",
+      items: [
+        "세금 종류·금액이 맞는지",
+        "납부 기한이 맞는지",
+        "관할·명의가 일치하는지",
+      ],
+    },
+    {
+      title: "② 신고",
+      items: [
+        "신고 의무를 확인했는지",
+        "신고 기한·방법이 맞는지",
+        "누락·오류 소지가 없는지",
+      ],
+    },
+    {
+      title: "③ 증빙",
+      items: [
+        "고지서·통지서가 있는지",
+        "관련 증빙이 갖춰졌는지",
+        "제출 서류가 일치하는지",
+      ],
+    },
+  ],
+  "세금과 신고·납부 의무, 관련 증빙을 확인한 후 대응합니다. 단순한 확인은 직접 진행할 수 있지만, 세금 의무나 신고 문제가 중요한 경우 임의로 처리하지 말고 전문가와 함께 확인하는 것이 안전합니다."
 );
 
 export const MASTER_LANDING_UNCLEAR = makeVerifyLanding(
   "불확실한 서류 검토",
+  "불확실한 문서",
   "notary",
   "어떤 서류인지 모르거나 기한이 불분명한 통지는 그대로 두면 불이익이 커질 수 있습니다. 발신처·내용·대응 기한부터 확인하세요.",
   [
@@ -1537,7 +1508,34 @@ export const MASTER_LANDING_UNCLEAR = makeVerifyLanding(
   ],
   "https://dichvucong.gov.vn/",
   "서류 성격·제출 창구는 발신 기관·관할에 따라 다르므로 공식 포털에서 추가 확인이 필요할 수 있습니다.",
-  UNCLEAR_GUIDE_SLUG
+  UNCLEAR_GUIDE_SLUG,
+  [
+    {
+      title: "① 문서",
+      items: [
+        "문서 종류·성격을 파악했는지",
+        "요구 사항이 명확한지",
+        "대응 기한이 있는지",
+      ],
+    },
+    {
+      title: "② 발행처",
+      items: [
+        "발행 기관·명의가 맞는지",
+        "연락처·도장이 정상적인지",
+        "공식 경로인지 확인했는지",
+      ],
+    },
+    {
+      title: "③ 효력",
+      items: [
+        "진위·효력을 확인했는지",
+        "번역·공증이 필요한지",
+        "추가 확인이 필요한지",
+      ],
+    },
+  ],
+  "문서의 성격과 발행처를 확인하고, 내용·진위·효력을 검토한 후 대응을 결정합니다. 단순한 확인은 직접 진행할 수 있지만, 법적 효력이나 행정 대응이 중요한 경우에는 임의로 처리하지 말고 전문가와 함께 확인하는 것이 안전합니다."
 );
 
 const VERIFY_MASTER_LANDINGS: Partial<Record<CostCheckServiceId, MasterLandingConfig>> = {
@@ -1634,9 +1632,10 @@ export function getMasterLandingPageHeader(
   activeTab: MasterFunnelContextTab,
   options?: { inQuestions?: boolean; questionDescription?: string }
 ): { title: string; description: string } {
+  const displayName = config.shortServiceLabel || config.serviceLabel;
   if (options?.inQuestions) {
     return {
-      title: config.serviceLabel,
+      title: displayName,
       description: options.questionDescription ?? config.specialtyLine,
     };
   }
@@ -1648,7 +1647,7 @@ export function getMasterLandingPageHeader(
   }
   const lookupTitle =
     config.engine === "verify"
-      ? `${config.serviceLabel} 검토 시작`
+      ? `${displayName} 검토 시작`
       : config.engine === "register"
         ? config.serviceLabel
         : `${config.serviceLabel} 비용 확인`;

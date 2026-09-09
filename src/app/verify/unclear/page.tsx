@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   FileText,
@@ -54,6 +55,7 @@ import {
   getMasterLandingPageHeader,
   type MasterFunnelContextTab,
 } from "@/components/cost-check/MasterFunnelLanding";
+import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
 
 const CATEGORY = "unclear" as const;
 const VERIFY_QUESTION_CONTEXT = "불확실한 서류 검토";
@@ -783,7 +785,10 @@ export default function VerifyUnclearPage() {
   const [skipSignup, setSkipSignup] = useState(false);
   const [restoredLeadActive, setRestoredLeadActive] = useState(false);
   const memberSubmitStartedRef = useRef(false);
-  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>("lookup");
+  const searchParams = useSearchParams();
+  const [contextTab, setContextTab] = useState<MasterFunnelContextTab>(
+    () => parseExplicitMasterFunnelTab(searchParams.get("tab")) ?? "lookup"
+  );
   const [landingDone, setLandingDone] = useState(false);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
   useEffect(() => {
@@ -793,6 +798,8 @@ export default function VerifyUnclearPage() {
       if (params.get("start") === "check") {
         setLandingDone(true);
       }
+      const urlTab = parseExplicitMasterFunnelTab(params.get("tab"));
+      if (urlTab) setContextTab(urlTab);
     }
   }, []);
 
@@ -1330,6 +1337,8 @@ export default function VerifyUnclearPage() {
 
   const activeGuidance = selectedAgency ? UNCLEAR_AGENCY_GUIDANCE[selectedAgency] : null;
 
+  const isReviewMaster =
+    !landingDone && (contextTab === "review" || contextTab === "direct");
   const pageHeader = getMasterLandingPageHeader(
     MASTER_LANDING_UNCLEAR,
     contextTab,
@@ -1339,11 +1348,25 @@ export default function VerifyUnclearPage() {
   );
 
   return (
-    <FunnelPageShell engine="verify" width={!landingDone ? "wide" : "default"}>
+    <FunnelPageShell
+      engine="verify"
+      width={isReviewMaster ? "master" : !landingDone ? "wide" : "default"}
+    >
         <FunnelPageHeader
-          engine="verify"
-          title={pageHeader.title}
-          description={pageHeader.description}
+          engine={isReviewMaster ? "check" : "verify"}
+          title={isReviewMaster ? MASTER_LANDING_UNCLEAR.shortServiceLabel ?? MASTER_LANDING_UNCLEAR.serviceLabel : pageHeader.title}
+          description={
+            isReviewMaster
+              ? contextTab === "direct"
+                ? "신청 순서·서류·공식 자료를 확인합니다."
+                : "공식비용·시장가격·추가 비용과 위험을 순서대로 확인합니다."
+              : pageHeader.description
+          }
+          descriptionClassName={
+            isReviewMaster
+              ? "break-keep pl-2.5 text-[11.5px] font-normal leading-[1.4] tracking-tight text-[#94A3B8] [overflow-wrap:normal] sm:pl-4 sm:text-[11px] sm:leading-[1.45] sm:tracking-normal sm:text-[#64748B]"
+              : undefined
+          }
         />
 
         {!landingDone && (

@@ -123,7 +123,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
     items: [
       {
         key: "admin",
-        title: "행정문서 리뷰",
+        title: "행정문서",
         hook: "서명 전 필수 확인",
         desc: "출입국·노동·세무 공문서",
         icon: FileText,
@@ -131,7 +131,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
       },
       {
         key: "real-estate",
-        title: "부동산 문서 리뷰",
+        title: "부동산 문서",
         hook: "보증금 미반환 주의",
         desc: "임대·매매 계약서",
         icon: Building2,
@@ -139,7 +139,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
       },
       {
         key: "fraud",
-        title: "사기문서 리뷰",
+        title: "사기문서",
         hook: "투자사기 사전탐지",
         desc: "투자·거래 사기 의심 문서",
         icon: AlertTriangle,
@@ -148,7 +148,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
       },
       {
         key: "tax",
-        title: "세무문서 리뷰",
+        title: "세무문서",
         hook: "계좌동결 위험",
         desc: "세금 고지서·신고서",
         icon: Receipt,
@@ -156,7 +156,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
       },
       {
         key: "unclear",
-        title: "불확실한 서류 검토",
+        title: "불확실한 문서",
         hook: "기한 놓치면 위험",
         desc: "어떤 서류인지 모를 때",
         icon: FileQuestion,
