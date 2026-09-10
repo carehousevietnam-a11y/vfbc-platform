@@ -87,7 +87,7 @@ const MOBILE_GRADE_LABEL =
 const MOBILE_COST_SUMMARY_INTRO =
   "max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
 const MOBILE_REPORT_SOURCE =
-  "break-keep max-sm:text-[10px] max-[389px]:text-[9.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed sm:whitespace-normal";
+  "break-keep max-sm:text-[9px] max-[389px]:text-[8.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed sm:whitespace-normal";
 type YesNo = "yes" | "no";
 type ReviewStage = "prevent" | "case";
 
@@ -654,6 +654,21 @@ export function MasterReviewQuotationReport({
     : service.source?.trim()
       ? `출처: ${service.source}`
       : service.lookupGuide || config.officialNote;
+  /** VERIFY 상담 안내 — 모바일 1줄용 짧은 문구 */
+  const reportSourceNoteMobile =
+    config.engine === "verify" && verifyConsultationCostGuide
+      ? service.id === "admin"
+        ? "서류 유형·범위에 따라 상담 비용이 발생할 수 있습니다."
+        : service.id === "real-estate"
+          ? "계약 유형·조건에 따라 상담 비용이 발생할 수 있습니다."
+          : service.id === "fraud"
+            ? "사건·증거 범위에 따라 상담 비용이 발생할 수 있습니다."
+            : service.id === "tax"
+              ? "세금 유형·범위에 따라 상담 비용이 발생할 수 있습니다."
+              : service.id === "notary"
+                ? "문서 성격·범위에 따라 상담 비용이 발생할 수 있습니다."
+                : verifyConsultationCostGuide
+      : null;
   const footerNote =
     verifyConsultationCostGuide || service.lookupGuide?.trim() || COST_CHECK_DISCLAIMER;
 
@@ -1020,7 +1035,7 @@ export function MasterReviewQuotationReport({
           }`}
         >
           <div
-            className={`flex min-w-0 flex-col ${showRightColumn ? "border-[#E5E7EB] lg:border-r" : ""}`}
+            className={`flex min-w-0 flex-col bg-white ${showRightColumn ? "border-[#E5E7EB] lg:border-r" : ""}`}
           >
             <article className="flex h-full min-h-0 flex-col">
               <header className="border-b border-[#E5E7EB] px-3.5 py-2.5 sm:px-4 sm:py-3">
@@ -1037,7 +1052,16 @@ export function MasterReviewQuotationReport({
                     </p>
                   </div>
                   <div className="min-w-0 text-left max-sm:w-full sm:max-w-[14rem] sm:pt-0.5 sm:text-right">
-                    <p className={MOBILE_REPORT_SOURCE}>{reportSourceNote}</p>
+                    <p className={MOBILE_REPORT_SOURCE}>
+                      {reportSourceNoteMobile ? (
+                        <>
+                          <span className="sm:hidden">{reportSourceNoteMobile}</span>
+                          <span className="hidden sm:inline">{reportSourceNote}</span>
+                        </>
+                      ) : (
+                        reportSourceNote
+                      )}
+                    </p>
                   </div>
                 </div>
               </header>
@@ -1065,7 +1089,11 @@ export function MasterReviewQuotationReport({
                         setSection1Collapsed(false);
                         setEditingId(null);
                       }}
-                      className="w-full rounded-[6px] border border-[#D8DEE8] bg-[#F8FAFC] px-3.5 py-2.5 text-left"
+                      className={`w-full rounded-[6px] border border-[#D8DEE8] px-3.5 py-2.5 text-left ${
+                        config.engine === "verify"
+                          ? "bg-[#F8FAFC] lg:bg-white"
+                          : "bg-[#F8FAFC]"
+                      }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -1096,7 +1124,7 @@ export function MasterReviewQuotationReport({
                       onClick={handleContinueClick}
                       className="inline-flex min-h-11 w-full items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-10 sm:text-[12.5px]"
                     >
-                      내 상황 자세히 확인하기 →
+                      {config.engine === "verify" ? "검토하기 →" : "내 상황 자세히 확인하기 →"}
                     </button>
                     <button
                       type="button"
@@ -1205,7 +1233,11 @@ export function MasterReviewQuotationReport({
                     {riskCards.map((item) => (
                       <li
                         key={item.label}
-                        className="min-w-0 rounded-[6px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 sm:px-2 sm:py-2"
+                        className={`min-w-0 rounded-[6px] border border-[#E5E7EB] px-2.5 py-2 sm:px-2 sm:py-2 ${
+                          config.engine === "verify"
+                            ? "bg-[#F8FAFC] lg:bg-white"
+                            : "bg-[#F8FAFC]"
+                        }`}
                       >
                         <p className={MOBILE_CARD_LABEL}>{item.label}</p>
                         <p className={MOBILE_CARD_NOTE}>{item.note}</p>
@@ -1233,7 +1265,7 @@ export function MasterReviewQuotationReport({
                         return (
                           <div
                             key={title}
-                            className="h-full rounded-[6px] border border-[#D6E4FB] bg-[#F5F8FF] px-3 py-1.5 sm:px-3 sm:py-1.5"
+                            className="h-full rounded-[6px] border border-[#D6E4FB] bg-[#F5F8FF] px-3 py-1.5 sm:px-3 sm:py-1.5 lg:bg-white"
                           >
                             <div className="mb-0.5 flex items-start gap-2 sm:gap-1.5">
                               <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#0B2A6B]">
@@ -1329,7 +1361,7 @@ export function MasterReviewQuotationReport({
                       onClick={handleContinueClick}
                       className="inline-flex min-h-10 w-full items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[14px] font-semibold text-white transition hover:bg-[#082258]"
                     >
-                      내 상황 자세히 확인하기 →
+                      {config.engine === "verify" ? "검토하기 →" : "내 상황 자세히 확인하기 →"}
                     </button>
                     <button
                       type="button"
@@ -1341,12 +1373,31 @@ export function MasterReviewQuotationReport({
                 ) : null}
               </div>
 
-              <footer className="mt-auto border-t border-[#E5E7EB] bg-[#F8FAFC] px-3.5 py-2 sm:px-4 sm:py-2">
+              <footer
+                className={`mt-auto border-t border-[#E5E7EB] px-3.5 py-2 sm:px-4 sm:py-2 ${
+                  config.engine === "verify"
+                    ? "bg-[#F8FAFC] lg:bg-white"
+                    : "bg-[#F8FAFC]"
+                }`}
+              >
                 <p className="break-keep text-center text-[11px] leading-snug text-[#94A3B8] sm:text-[10px] sm:leading-relaxed">
                   VFBCAI · www.vfbcai.com · Check. Verify. Register. Protect.
                 </p>
-                <p className="mt-1 break-keep text-center text-[11px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed">
-                  {footerNote}
+                <p
+                  className={`mt-1 break-keep text-center text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed ${
+                    reportSourceNoteMobile
+                      ? "text-[9px] leading-none tracking-tight whitespace-nowrap sm:text-[10.5px] sm:leading-relaxed sm:tracking-normal sm:whitespace-normal"
+                      : "text-[11px] leading-[1.45]"
+                  }`}
+                >
+                  {reportSourceNoteMobile ? (
+                    <>
+                      <span className="sm:hidden">{reportSourceNoteMobile}</span>
+                      <span className="hidden sm:inline">{footerNote}</span>
+                    </>
+                  ) : (
+                    footerNote
+                  )}
                 </p>
               </footer>
             </article>
@@ -1377,7 +1428,7 @@ export function MasterReviewQuotationReport({
                   onClick={handleContinueClick}
                   className="inline-flex min-h-11 w-full items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-10 sm:text-[12.5px]"
                 >
-                  내 상황 자세히 확인하기 →
+                  {config.engine === "verify" ? "검토하기 →" : "내 상황 자세히 확인하기 →"}
                 </button>
                 <button
                   type="button"

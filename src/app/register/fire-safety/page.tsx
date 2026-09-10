@@ -1506,6 +1506,7 @@ export default function RegisterFireSafetyPage() {
     >
       <FunnelPageHeader
         engine="register"
+        hideHomeChrome
         title={
           !costEntryDone
             ? contextTab === "review"

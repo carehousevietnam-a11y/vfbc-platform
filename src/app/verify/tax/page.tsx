@@ -64,7 +64,7 @@ import {
 import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
 
 const CATEGORY = "tax" as const;
-const VERIFY_QUESTION_CONTEXT = "세무문서 검토";
+const VERIFY_QUESTION_CONTEXT = "세무문서";
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -772,7 +772,7 @@ export default function VerifyTaxPage() {
   const memberSubmitStartedRef = useRef(false);
   const searchParams = useSearchParams();
   const [contextTab, setContextTab] = useState<MasterFunnelContextTab>(
-    () => parseExplicitMasterFunnelTab(searchParams.get("tab")) ?? "lookup"
+    () => parseExplicitMasterFunnelTab(searchParams.get("tab")) ?? "review"
   );
   const [landingDone, setLandingDone] = useState(false);
   const [page1ReviewAnswers, setPage1ReviewAnswers] = useState<ReviewPage1Answers | null>(
@@ -1358,11 +1358,9 @@ export default function VerifyTaxPage() {
 
   const activeGuidance = selectedAgency ? TAX_AGENCY_GUIDANCE[selectedAgency] : null;
 
-  const isReviewMaster =
-    !landingDone && (contextTab === "review" || contextTab === "direct");
   const pageHeader = getMasterLandingPageHeader(
     MASTER_LANDING_TAX,
-    contextTab,
+    landingDone ? contextTab : "lookup",
     landingDone
       ? { inQuestions: true, questionDescription: "신고·납부 전 검토부터 고지·통지 수령 후 대응 검토까지" }
       : undefined
@@ -1371,22 +1369,19 @@ export default function VerifyTaxPage() {
   return (
     <FunnelPageShell
       engine="verify"
-      width={isReviewMaster ? "master" : !landingDone ? "wide" : "default"}
+      width={!landingDone ? "master" : "default"}
     >
         <FunnelPageHeader
-          engine={isReviewMaster ? "check" : "verify"}
-          title={isReviewMaster ? MASTER_LANDING_TAX.shortServiceLabel ?? MASTER_LANDING_TAX.serviceLabel : pageHeader.title}
-          description={
-            isReviewMaster
-              ? contextTab === "direct"
-                ? "신청 순서·서류·공식 자료를 확인합니다."
-                : "공식비용·시장가격·추가 비용과 위험을 순서대로 확인합니다."
-              : pageHeader.description
+          engine="verify"
+          hideHomeChrome
+          title={
+            landingDone
+              ? pageHeader.title
+              : MASTER_LANDING_TAX.shortServiceLabel ?? MASTER_LANDING_TAX.serviceLabel
           }
-          descriptionClassName={
-            isReviewMaster
-              ? "break-keep pl-2.5 text-[11.5px] font-normal leading-[1.4] tracking-tight text-[#94A3B8] [overflow-wrap:normal] sm:pl-4 sm:text-[11px] sm:leading-[1.45] sm:tracking-normal sm:text-[#64748B]"
-              : undefined
+          description={pageHeader.description}
+          descriptionMobile={
+            !landingDone ? "제출 전·사후 검토를 먼저 확인합니다." : undefined
           }
         />
 

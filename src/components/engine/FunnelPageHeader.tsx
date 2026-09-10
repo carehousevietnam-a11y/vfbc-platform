@@ -17,7 +17,13 @@ type FunnelPageHeaderProps = {
   engine: FunnelEngine;
   title: string;
   description: string;
+  /** 모바일에서만 표시할 짧은 설명 (미지정 시 description 사용) */
+  descriptionMobile?: string;
   headerExtra?: ReactNode;
+  /** VERIFY 등 — 기본 「홈으로」 대신 상단 네비 슬롯 */
+  topNav?: ReactNode;
+  /** SiteHeader 2단 네비가 있을 때 중복 「홈으로」/브랜드 바 숨김 */
+  hideHomeChrome?: boolean;
   className?: string;
   /** TRC Master 등 — Mobile 전용 description Typography override */
   descriptionClassName?: string;
@@ -30,7 +36,10 @@ export default function FunnelPageHeader({
   engine,
   title,
   description,
+  descriptionMobile,
   headerExtra,
+  topNav,
+  hideHomeChrome = false,
   className,
   descriptionClassName,
 }: FunnelPageHeaderProps) {
@@ -41,48 +50,58 @@ export default function FunnelPageHeader({
 
   return (
     <div className={cn(isRegister && "sm:pt-6", className)}>
-      <Link
-        href="/"
-        prefetch={false}
-        className={cn(
-          "relative -mx-4 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden",
-          "-mt-10"
-        )}
-      >
-        <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
-          <span aria-hidden>←</span>
-          <span>홈으로</span>
-        </span>
-        <img
-          src="/vfbcai-shield-logo.png"
-          alt="VFBCAI"
-          width={34}
-          height={34}
-          className="shrink-0"
-        />
-        <span className="text-center">
-          <span className="block text-[15px] font-bold leading-tight text-gray-900">VFBCAI</span>
-          <span className="block text-[11px] leading-tight text-gray-400">{copy.expert}</span>
-        </span>
-      </Link>
+      {hideHomeChrome ? null : topNav ? (
+        <div className="relative -mx-4 mb-4 border-b border-gray-100 bg-white px-4 py-2.5 sm:mx-0 sm:mb-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+          {topNav}
+        </div>
+      ) : (
+        <>
+          <Link
+            href="/"
+            prefetch={false}
+            className={cn(
+              "relative -mx-4 mb-6 flex items-center justify-center gap-2.5 border-b border-gray-100 bg-white px-4 py-3 sm:hidden",
+              "-mt-10"
+            )}
+          >
+            <span className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-400">
+              <span aria-hidden>←</span>
+              <span>홈으로</span>
+            </span>
+            <img
+              src="/vfbcai-shield-logo.png"
+              alt="VFBCAI"
+              width={34}
+              height={34}
+              className="shrink-0"
+            />
+            <span className="text-center">
+              <span className="block text-[15px] font-bold leading-tight text-gray-900">VFBCAI</span>
+              <span className="block text-[11px] leading-tight text-gray-400">{copy.expert}</span>
+            </span>
+          </Link>
 
-      <Link
-        href="/"
-        prefetch={false}
-        className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex"
-      >
-        <span className="inline-flex items-center gap-1">
-          <span aria-hidden>←</span>
-          <span>홈으로</span>
-        </span>
-      </Link>
+          <Link
+            href="/"
+            prefetch={false}
+            className="hidden items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 sm:inline-flex"
+          >
+            <span className="inline-flex items-center gap-1">
+              <span aria-hidden>←</span>
+              <span>홈으로</span>
+            </span>
+          </Link>
+        </>
+      )}
 
       <div
         className={cn(
           "flex items-start justify-between gap-3",
           isRegister
             ? "mt-4 pt-5 pb-2.5 sm:mt-5 sm:pt-6 sm:pb-3.5"
-            : "mt-3 sm:mt-4"
+            : hideHomeChrome || topNav
+              ? "mt-1 sm:mt-2"
+              : "mt-3 sm:mt-4"
         )}
       >
         <div className="min-w-0">
@@ -101,7 +120,14 @@ export default function FunnelPageHeader({
                     : FUNNEL_DESC)
             )}
           >
-            {description}
+            {descriptionMobile ? (
+              <>
+                <span className="sm:hidden">{descriptionMobile}</span>
+                <span className="hidden sm:inline">{description}</span>
+              </>
+            ) : (
+              description
+            )}
           </p>
         </div>
         {headerExtra ? <div className="shrink-0">{headerExtra}</div> : null}

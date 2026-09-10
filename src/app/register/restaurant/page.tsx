@@ -1531,6 +1531,7 @@ export default function RegisterRestaurantPage() {
     >
         <FunnelPageHeader
           engine="register"
+          hideHomeChrome
           title={headerTitle}
           description={headerDescription}
           headerExtra={

@@ -25,7 +25,7 @@ const ADMIN_RESULT_SUMMARY = "검토 결과 확인";
 
 const NEXT_STEPS = [
   {
-    title: "내 상황 자세히 확인하기",
+    title: "검토하기",
     body: "추가 질문을 통해 내 상황에 맞는 검토·절차·위험을 확인합니다.",
   },
   {
@@ -204,7 +204,7 @@ export function AdminSummarySidebar({
             onClick={onContinue}
             className="inline-flex min-h-11 w-full items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-10 sm:text-[12.5px]"
           >
-            내 상황 자세히 확인하기 →
+            검토하기 →
           </button>
           <button
             type="button"

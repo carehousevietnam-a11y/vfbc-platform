@@ -1717,6 +1717,7 @@ export default function TrcCheckPage() {
     >
         <FunnelPageHeader
           engine="check"
+          hideHomeChrome
           title={
             !costEntryDone
               ? "거주증"

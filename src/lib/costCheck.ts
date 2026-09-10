@@ -355,7 +355,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
   },
   {
     id: "admin",
-    label: "행정문서 리뷰",
+    label: "행정문서",
     shortLabel: "행정문서",
     description: "출입국·노동·세무 공문서 검토",
     currency: "VND",
@@ -373,8 +373,8 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
   },
   {
     id: "real-estate",
-    label: "부동산 문서 리뷰",
-    shortLabel: "부동산",
+    label: "부동산 문서",
+    shortLabel: "부동산 문서",
     description: "임대·매매 계약서",
     currency: "VND",
     governmentFee: "",
@@ -391,7 +391,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
   },
   {
     id: "fraud",
-    label: "사기문서 리뷰",
+    label: "사기문서",
     shortLabel: "사기문서",
     description: "투자·거래 사기 의심 문서",
     currency: "VND",
@@ -409,7 +409,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
   },
   {
     id: "tax",
-    label: "세무문서 리뷰",
+    label: "세무문서",
     shortLabel: "세무문서",
     description: "세금 고지서·신고서",
     currency: "VND",

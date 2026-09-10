@@ -1574,6 +1574,7 @@ export default function PermitCompanyCheckPage() {
     >
       <FunnelPageHeader
         engine="register"
+        hideHomeChrome
         title={
           !costEntryDone
             ? contextTab === "review"

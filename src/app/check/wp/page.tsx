@@ -1637,6 +1637,7 @@ export default function WpCheckPage() {
     >
       <FunnelPageHeader
         engine="check"
+        hideHomeChrome
         title={
           !costEntryDone
             ? "노동허가증"

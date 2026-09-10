@@ -1506,6 +1506,7 @@ export default function RegisterHygienePage() {
     >
       <FunnelPageHeader
         engine="register"
+        hideHomeChrome
         title={
           !costEntryDone
             ? contextTab === "review"

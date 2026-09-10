@@ -723,10 +723,12 @@ export function MasterFunnelLanding({
     if (window.location.search.includes("tab=") || query) {
       // Master 견적서 UI는 확인하기/자세히 보기만 — review URL은 확인하기(견적서)로 합침
       if (masterQuotation && tab === "review") onTabChange("lookup");
+      // VERIFY는 lookup(비용 UI)으로 떨어지지 않음
+      else if (config.engine === "verify" && tab === "lookup") onTabChange("review");
       else onTabChange(tab);
     }
     if (query) setEntryQuery(query);
-  }, [onTabChange, masterQuotation]);
+  }, [onTabChange, masterQuotation, config.engine]);
 
   if (masterQuotation) {
     const masterTab: "lookup" | "direct" = activeTab === "direct" ? "direct" : "lookup";
@@ -789,19 +791,26 @@ export function MasterFunnelLanding({
     );
   }
 
+  /** VERIFY Master — CHECK 3탭/검색/비용 UI로 떨어지지 않도록 전용 경로 */
+  if (config.engine === "verify") {
+    if (activeTab === "direct") {
+      return (
+        <MasterServiceGuidePanel config={config} onGoLookup={onContinue} query={entryQuery} />
+      );
+    }
+    return usesMasterQuoteReview(config.costServiceId) ? (
+      <MasterReviewQuotationReport
+        service={getCostCheckService(config.costServiceId)}
+        config={config}
+        onContinue={onContinue}
+      />
+    ) : (
+      <MasterServiceReviewPanel config={config} onGoLookup={onContinue} />
+    );
+  }
+
   if (activeTab === "review" || activeTab === "direct") {
     const reviewMasterTab: "lookup" | "direct" = activeTab === "direct" ? "direct" : "lookup";
-    const reviewQueryEntry =
-      config.engine === "verify"
-        ? (
-            <MasterServiceQueryEntry
-              currentServiceId={config.costServiceId}
-              initialQuery=""
-              onLocalTabChange={onTabChange}
-              onQueryCommit={setEntryQuery}
-            />
-          )
-        : undefined;
     return (
       <>
         <MasterTrcContextTabs
@@ -816,7 +825,6 @@ export function MasterFunnelLanding({
               service={getCostCheckService(config.costServiceId)}
               config={config}
               onContinue={onContinue}
-              queryEntry={reviewQueryEntry}
             />
           ) : (
             <MasterServiceReviewPanel config={config} onGoLookup={onContinue} />
@@ -1174,7 +1182,7 @@ function makeVerifyLanding(
 }
 
 export const MASTER_LANDING_ADMIN = makeVerifyLanding(
-  "행정문서 리뷰",
+  "행정문서",
   "행정문서",
   "admin",
   "출입국·노동·세무·투자 관련 공문서는 서명·제출 전에 요건과 위험요인을 먼저 확인해야 합니다. 이미 반려·보완 요청을 받은 경우에도 대응 방향을 점검할 수 있습니다.",
@@ -1247,7 +1255,7 @@ export const MASTER_LANDING_ADMIN = makeVerifyLanding(
 );
 
 export const MASTER_LANDING_REAL_ESTATE = makeVerifyLanding(
-  "부동산 문서 리뷰",
+  "부동산 문서",
   "부동산 문서",
   "real-estate",
   "임대·매매 계약서는 보증금·소유권·특약 조항을 서명 전에 확인해야 합니다. 이미 분쟁이 시작된 경우에도 현재 단계에 맞는 대응을 점검할 수 있습니다.",
@@ -1320,7 +1328,7 @@ export const MASTER_LANDING_REAL_ESTATE = makeVerifyLanding(
 );
 
 export const MASTER_LANDING_FRAUD = makeVerifyLanding(
-  "사기문서 리뷰",
+  "사기문서",
   "사기문서",
   "fraud",
   "투자·대출·온라인 거래 제안은 송금·계약 전에 진위를 확인해야 합니다. 이미 피해가 발생한 경우에도 즉시 대응 단계를 점검할 수 있습니다.",
@@ -1393,7 +1401,7 @@ export const MASTER_LANDING_FRAUD = makeVerifyLanding(
 );
 
 export const MASTER_LANDING_TAX = makeVerifyLanding(
-  "세무문서 리뷰",
+  "세무문서",
   "세무문서",
   "tax",
   "세금 고지서·계좌동결 통지는 납부·이의 기한을 놓치면 가산세·계좌 사용 제한으로 이어질 수 있습니다. 통지를 받은 즉시 내용과 대응 기한을 확인하세요.",
@@ -1466,7 +1474,7 @@ export const MASTER_LANDING_TAX = makeVerifyLanding(
 );
 
 export const MASTER_LANDING_UNCLEAR = makeVerifyLanding(
-  "불확실한 서류 검토",
+  "불확실한 문서",
   "불확실한 문서",
   "notary",
   "어떤 서류인지 모르거나 기한이 불분명한 통지는 그대로 두면 불이익이 커질 수 있습니다. 발신처·내용·대응 기한부터 확인하세요.",
@@ -1647,7 +1655,7 @@ export function getMasterLandingPageHeader(
   }
   const lookupTitle =
     config.engine === "verify"
-      ? `${displayName} 검토 시작`
+      ? displayName
       : config.engine === "register"
         ? config.serviceLabel
         : `${config.serviceLabel} 비용 확인`;

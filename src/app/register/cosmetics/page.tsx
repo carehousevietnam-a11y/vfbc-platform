@@ -1508,6 +1508,7 @@ export default function RegisterCosmeticsPage() {
     >
       <FunnelPageHeader
         engine="register"
+        hideHomeChrome
         title={
           !costEntryDone
             ? contextTab === "review"

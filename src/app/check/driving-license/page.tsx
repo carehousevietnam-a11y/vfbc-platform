@@ -1690,6 +1690,7 @@ export default function DrivingLicenseCheckPage() {
     >
       <FunnelPageHeader
         engine="check"
+        hideHomeChrome
         title={
           !costEntryDone
             ? "운전면허"

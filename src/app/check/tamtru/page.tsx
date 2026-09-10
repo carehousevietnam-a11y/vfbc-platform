@@ -1729,6 +1729,7 @@ export default function TamTruCheckPage() {
     >
       <FunnelPageHeader
         engine="check"
+        hideHomeChrome
         title={
           !costEntryDone
             ? "임시거주"

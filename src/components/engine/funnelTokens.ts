@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 
 export type FunnelEngine = "check" | "verify" | "register";
 
-export const FUNNEL_TOP_BAR = "h-[3px] bg-blue-900";
+/** SiteHeader 아래 구분선 — 얇고 subtle (굵은 Deep Navy bar 사용 금지) */
+export const FUNNEL_TOP_BAR = "h-px bg-slate-200";
 
 export const FUNNEL_PAGE = "min-h-screen overflow-x-hidden bg-white";
 

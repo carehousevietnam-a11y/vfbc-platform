@@ -1507,6 +1507,7 @@ export default function RegisterMedicalDevicePage() {
     >
       <FunnelPageHeader
         engine="register"
+        hideHomeChrome
         title={
           !costEntryDone
             ? contextTab === "review"
