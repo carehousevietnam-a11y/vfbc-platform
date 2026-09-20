@@ -1,0 +1,60 @@
+---
+description: VFBCAI UI / DESIGN / RESPONSIVE / TYPOGRAPHY FINAL QA — PC Full vs Mobile Focused, L1–L5, 한글 줄바꿈, overflow. 미충족 시 UI QA PASS 금지.
+alwaysApply: true
+---
+
+# UI / DESIGN / RESPONSIVE / TYPOGRAPHY FINAL QA
+
+이 기준을 만족하지 못하면 **UI QA PASS로 판정하지 않는다.**
+상세 체크리스트·Agent 적용: Master Skill § **UI / DESIGN / RESPONSIVE / TYPOGRAPHY FINAL QA**.
+
+## Responsive (불변)
+
+PC와 Mobile은 **동일 화면의 단순 축소 관계가 아니다.**
+**Business logic과 정보의 의미는 동일**하게 유지한다. 표현 방식만 달라야 한다.
+
+| | PC | Mobile |
+|---|---|---|
+| 목적 | Full Information Experience | Focused / Simplified Experience |
+| 구성 | 넓은 화면 활용 · 2-column / rail / 상세 정보 허용 | 핵심 정보·핵심 행동 중심 · 세로 재구성 허용 |
+| 금지 | 정보가 너무 작거나 content가 과하게 넓음 | PC 전 요소 복제 · 중요 글자 무조건 축소 |
+
+## Mobile — 축약 vs 절대 숨김 금지
+
+**축약 검토**: 중복 설명 · 긴 helper · 반복 metadata · 장식 · PC-only side rail · 과한 card 폭 · 불필요 secondary.
+
+**절대 숨기지 않음**: 현재 단계 · 핵심 질문 · 선택지 · 핵심 결과 · 중요 위험/확인 사항 · 다음 행동 · Evidence 핵심 · AI Report · Expert CTA.
+
+## Typography L1–L5
+
+화면마다 **독립 설계**. 숫자 차이보다 **무엇이 중요한지 즉시 이해**되게 한다.
+
+- **L1** Page / Main Title — 가장 큰 정보
+- **L2** Section Title — 주요 section
+- **L3** Question / Important Heading — 현재 질문·핵심 정보
+- **L4** Body / Answer / Main Content — 실제 읽는 내용
+- **L5** Helper / Metadata / Secondary — 보조 정보
+
+Mobile: 질문·선택지·결과 핵심·CTA는 **읽기 쉬운 크기 유지**. metadata/helper/secondary만 상대적으로 낮춘다.
+
+## 줄바꿈 · Overflow · Font-size
+
+한글: 의미 단위로 자연스럽게. 어색한 분절 · 제목 마지막 단어만 낙오 · CTA 2줄 깨짐 · 한영숫자 wrapping · card 밖 overflow = **FAIL**.
+제목 1~2줄 · 질문 2~3줄 · CTA 1줄 우선. 한 줄 맞추려 **font-size 과축소 금지**.
+
+**FAIL**: card/button/heading overflow · horizontal scrollbar · 긴 단어로 폭 증가 · badge 깨짐 · 숫자 잘림 · 의미 훼손 ellipsis · 고정 높이로 잘림. **375px 엄격.**
+
+Font-size는 **최후**. 우선: container width → padding → line-height → letter-spacing → text width → 그다음 font-size.
+
+## Visual density
+
+PC: 정보 충분 + 과한 공백 금지.
+Mobile: PC 정보량을 그대로 압축하지 않음.
+
+`[Title] [핵심] [핵심 Card] [필요 보조] [CTA]` — 1차/2차 결과는 **시각적으로 구분**.
+
+## PASS 금지
+
+- 깨지지 않음만으로 PASS
+- Mobile에서 글자를 줄여 넣은 것을 성공으로 판정
+- 확인하지 않은 Beauty Check를 PASS
