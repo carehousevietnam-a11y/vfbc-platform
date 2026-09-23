@@ -267,4 +267,66 @@ export async function insertMemberVerifyLead(
   return { ok: true, leadId, resultToken, contact };
 }
 
+export type PersistRealEstateVerifyLeadMetaResult =
+  | { ok: true }
+  | { ok: false; reason: "no_session" | "no_activity" | "rls_denied" | "update_failed" };
+
+/**
+ * Phase 2 progress — merge into latest verify_lead crm_activities.meta (no schema change).
+ * Mirrors signup socialContacts merge update pattern in verify pages.
+ */
+export async function persistRealEstateVerifyLeadMeta(
+  leadId: string,
+  partialMeta: Record<string, string>,
+): Promise<PersistRealEstateVerifyLeadMetaResult> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session?.user?.id) {
+    return { ok: false, reason: "no_session" };
+  }
+
+  const { data: activity, error: fetchError } = await supabase
+    .from("crm_activities")
+    .select("id, meta")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (fetchError || !activity?.id) {
+    return { ok: false, reason: "no_activity" };
+  }
+
+  const existingMeta =
+    activity.meta && typeof activity.meta === "object"
+      ? (activity.meta as Record<string, unknown>)
+      : {};
+
+  const { error: updateError } = await supabase
+    .from("crm_activities")
+    .update({
+      meta: {
+        ...existingMeta,
+        ...partialMeta,
+      },
+    })
+    .eq("id", activity.id);
+
+  if (updateError) {
+    const code = updateError.code ?? "";
+    const message = (updateError.message ?? "").toLowerCase();
+    if (
+      code === "42501" ||
+      message.includes("row-level security") ||
+      message.includes("permission denied") ||
+      message.includes("policy")
+    ) {
+      return { ok: false, reason: "rls_denied" };
+    }
+    console.error("persistRealEstateVerifyLeadMeta failed:", updateError);
+    return { ok: false, reason: "update_failed" };
+  }
+
+  return { ok: true };
+}
+
 export { isLoggedInMember, loadMemberLeadContact };

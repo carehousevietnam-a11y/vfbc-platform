@@ -16,6 +16,34 @@ const VERIFY_FORM_KO = {
     "이름·연락처·주소·이메일과 메신저 ID를 입력해주세요.",
 } as const;
 
+export const VERIFY_FORM_STEP_SHELL =
+  "mx-auto w-full max-w-[640px] sm:max-w-[680px]";
+
+/** PC(sm+) 2차 회원가입 — 테두리·보조텍스트 선명도 (Mobile 미적용) */
+const VERIFY_FORM_PC_CRISP_FIELDS =
+  "sm:border-[#E2E8F0] sm:[&_input]:border-[#CBD5E1] sm:[&_label]:text-[#556070] sm:[&_p.-mt-1]:text-[#556070] sm:[&_.text-xs]:text-[#556070] sm:[&_.mt-2.space-y-3]:text-[#556070] sm:[&_button.mt-3.block]:text-[#556070] sm:[&_button.font-medium]:text-gray-800";
+
+/** 2차 폼 — FunnelPageHeader 설명선명도 (font-size 유지) */
+export const VERIFY_FORM_FUNNEL_HEADER_DESC =
+  "break-keep text-[12.5px] leading-[1.55] text-[#475569] [overflow-wrap:normal]";
+
+export function getVerifyFormFunnelHeaderAlignProps(
+  landingDone: boolean,
+  step: string,
+  skipSignup: boolean,
+): {
+  className?: string;
+  descriptionClassName?: string;
+  verifyEyebrowClassName?: string;
+} {
+  if (!landingDone || step !== "form" || skipSignup) return {};
+  return {
+    className: VERIFY_FORM_STEP_SHELL,
+    descriptionClassName: VERIFY_FORM_FUNNEL_HEADER_DESC,
+    verifyEyebrowClassName: "text-[#475569]",
+  };
+}
+
 export function getVerifyFormConsentText(lang: SupportedLanguage): string {
   return lang === "ko" ? VERIFY_FORM_KO.consentSummary : LEAD_FORM_MESSAGES[lang].consentSummary;
 }
@@ -24,20 +52,13 @@ export function getVerifyFormPrivacyText(lang: SupportedLanguage): string {
   return lang === "ko" ? VERIFY_FORM_KO.privacyNoticeLine : LEAD_FORM_MESSAGES[lang].privacyNoticeLine;
 }
 
-/** Form step — Step 4 이후 분석 전환 헤더 */
+/** Form step — 2차 회원가입 상단 후킹 */
 export function VerifyFormPageHeader() {
   return (
-    <div className="mt-8">
-      <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
-        AI 1차 분석 준비
-      </p>
-      <h2 className="mt-1.5 break-keep text-[17px] font-semibold tracking-tight text-[#0B2A6B] sm:text-[18px]">
-        입력하신 상황을 분석합니다
+    <div className={cn(VERIFY_FORM_STEP_SHELL, "mt-6 sm:mt-7")}>
+      <h2 className="break-keep text-[19px] font-bold leading-snug tracking-tight text-[#0B2A6B] sm:text-[20px]">
+        내 상황이 달라지면, 검토 결과도 달라집니다.
       </h2>
-      <p className="mt-1 break-keep text-[12.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
-        아래에서 확인이 필요한 부분을 먼저 살펴보신 뒤, 결과를 저장·안내할 연락 정보를
-        입력해주세요.
-      </p>
     </div>
   );
 }
@@ -53,43 +74,45 @@ export function VerifyFormPreviewPanel({
   return (
     <div
       className={cn(
-        "mt-4 rounded-3xl border bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] sm:p-7",
-        isLow ? "border-gray-100" : "border-amber-100",
+        VERIFY_FORM_STEP_SHELL,
+        "mt-3 rounded-2xl border bg-white px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] sm:px-5 sm:py-4",
+        isLow ? "border-gray-100 sm:border-[#E2E8F0]" : "border-amber-100 sm:border-amber-200",
       )}
     >
-      <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#2563EB]">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2563EB]">
         미리 확인
       </p>
 
-      <div className="mt-3 flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          {isLow ? (
-            <CheckCircle2 className="text-emerald-600" size={28} />
-          ) : (
-            <AlertTriangle className="text-amber-600" size={28} />
-          )}
+      <div className="mt-2.5 flex items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-2.5">
+            {isLow ? (
+              <CheckCircle2 className="mt-0.5 shrink-0 text-emerald-600" size={22} aria-hidden />
+            ) : (
+              <AlertTriangle className="mt-0.5 shrink-0 text-amber-600" size={22} aria-hidden />
+            )}
+            <p className="break-keep text-[15px] font-bold leading-snug text-gray-900 sm:text-[16px]">
+              {isLow ? "우선 확인할 위험 신호가 낮습니다" : "우선 확인할 위험 신호가 있습니다"}
+            </p>
+          </div>
 
-          <p className="mt-3 break-keep text-[16px] font-bold leading-snug text-gray-900 sm:text-[17px]">
-            {isLow ? "우선 확인할 위험 신호가 낮습니다" : "우선 확인할 위험 신호가 있습니다"}
-          </p>
-
-          <p className="mt-2 break-keep text-[13px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
+          <p className="mt-1.5 break-keep pl-[34px] text-[13px] leading-[1.5] text-[#475569] sm:text-[13.5px] sm:text-[#334155] [overflow-wrap:normal]">
             {isLow
               ? "입력하신 사건유형·설명을 바탕으로 미리 확인한 결과, 우선 대응이 필요한 치명적 위험요인은 보이지 않습니다."
               : "입력하신 사건유형·설명을 바탕으로 미리 확인한 결과, 반려·손해로 이어질 수 있는 위험요인이 있어 서류 확인이 필요합니다."}
           </p>
         </div>
 
-        {riskGauge}
+        <div className="shrink-0 self-center">{riskGauge}</div>
       </div>
 
-      <p className="mt-3 break-keep text-[11px] leading-[1.55] text-[#94A3B8] [overflow-wrap:normal]">
+      <p className="mt-2.5 break-keep text-[11.5px] leading-[1.5] text-[#64748B] sm:text-[12px] sm:text-[#556070] [overflow-wrap:normal]">
         * 입력 정보 기준 미리 확인입니다. 아래 정보를 제출하시면 정리된{" "}
         <span className="whitespace-nowrap">AI 1차 분석 결과</span>를 확인할 수 있습니다.
       </p>
 
-      <div className="mt-4">
-        <NoticeCard tone={isLow ? "success" : "warning"}>
+      <div className="mt-2.5">
+        <NoticeCard tone={isLow ? "success" : "warning"} className="[&_.opacity-90]:opacity-100">
           연락 정보를 입력하시면 입력하신 내용을 바탕으로 AI 1차 분석 결과를 확인할 수
           있습니다.
         </NoticeCard>
@@ -107,7 +130,13 @@ export function VerifyFormFieldsSection({
   children: ReactNode;
 }) {
   return (
-    <div className="mt-4 rounded-3xl border border-gray-100 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] sm:p-7">
+    <div
+      className={cn(
+        VERIFY_FORM_STEP_SHELL,
+        "mt-3 rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] sm:px-5 sm:py-5",
+        VERIFY_FORM_PC_CRISP_FIELDS,
+      )}
+    >
       <VerifyFormFieldsIntro lang={lang} />
       {children}
     </div>
@@ -117,15 +146,15 @@ export function VerifyFormFieldsSection({
 /** Form step — 개인정보 입력 섹션 소개 */
 export function VerifyFormFieldsIntro({ lang }: { lang: SupportedLanguage }) {
   return (
-    <div>
-      <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#94A3B8]">
+    <div className="border-b border-[#EEF2F6] pb-3 sm:border-[#E2E8F0]">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#64748B] sm:text-[#556070]">
         결과 확인을 위한 정보
       </p>
-      <p className="mt-1.5 break-keep text-[13px] font-semibold text-[#0B2A6B]">
+      <p className="mt-1 break-keep text-[14px] font-bold leading-snug text-[#0B2A6B] sm:text-[15px]">
         {lang === "ko" ? VERIFY_FORM_KO.fieldsIntro : "Information needed to save and deliver your results"}
       </p>
       {lang === "ko" ? (
-        <p className="mt-1 break-keep text-[12px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
+        <p className="mt-1 break-keep text-[12.5px] leading-[1.5] text-[#556070] sm:text-[13px] sm:text-[#475569] [overflow-wrap:normal]">
           {VERIFY_FORM_KO.fieldsHint}
         </p>
       ) : null}

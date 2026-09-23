@@ -48,9 +48,15 @@ import { MasterWpQuotationReport } from "@/components/cost-check/MasterWpQuotati
 import { MasterTamtruQuotationReport } from "@/components/cost-check/MasterTamtruQuotationReport";
 import { MasterDrivingQuotationReport } from "@/components/cost-check/MasterDrivingQuotationReport";
 import { MasterCompanyQuotationReport } from "@/components/cost-check/MasterCompanyQuotationReport";
+import { selectionIconTabClasses } from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
 import { MasterRestaurantQuotationReport } from "@/components/cost-check/MasterRestaurantQuotationReport";
 import { MasterRegisterQuotationReport } from "@/components/cost-check/MasterRegisterQuotationReport";
-import { MasterReviewQuotationReport } from "@/components/cost-check/MasterReviewQuotationReport";
+import {
+  MasterReviewQuotationReport,
+  type AdminVerifyMasterGateProps,
+  type RealEstateVerifyMasterGateProps,
+} from "@/components/cost-check/MasterReviewQuotationReport";
 import { MasterQuotationGuidePanel } from "@/components/cost-check/MasterQuotationGuidePanel";
 import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
 import { TRC_GUIDE_ARTICLE } from "@/lib/contentPacks/trcArticles";
@@ -96,7 +102,7 @@ export function MasterFunnelContextTabs({
   onChange: (tab: MasterFunnelContextTab) => void;
 }) {
   return (
-    <div className="mb-4 flex min-w-0 rounded-[14px] border border-[#E5E7EB] bg-white p-1 sm:mb-5 sm:p-1.5">
+    <div className="mb-4 grid min-w-0 grid-cols-3 gap-2 sm:mb-5">
       {FUNNEL_COST_CONTEXT_TABS.map((t) => {
         const TabIcon = t.icon;
         const isActive = t.id === active;
@@ -105,25 +111,30 @@ export function MasterFunnelContextTabs({
             key={t.id}
             type="button"
             onClick={() => onChange(t.id)}
-            className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[10px] px-1 py-2 text-center transition sm:gap-2 sm:px-3 sm:py-2.5 ${
-              isActive
-                ? "bg-[#0B2A6B] text-white"
-                : "text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0B2A6B]"
-            }`}
+            className={cn(
+              "flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[10px] px-1 py-2 text-center sm:gap-2 sm:px-3 sm:py-2.5",
+              selectionIconTabClasses(isActive),
+            )}
             aria-current={isActive ? "page" : undefined}
           >
             <TabIcon
-              className={`h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 ${isActive ? "text-white" : "text-[#64748B]"}`}
+              className={`h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 ${isActive ? "text-[#0B2A6B]/85" : "text-[#64748B]"}`}
               aria-hidden
             />
             <span className="min-w-0">
-              <span className="block break-keep text-[12px] font-semibold leading-tight sm:text-[13.5px]">
+              <span
+                className={cn(
+                  "block break-keep text-[12px] font-medium leading-tight sm:text-[13.5px]",
+                  isActive ? "text-[#0B2A6B]/85" : "text-[#475569]",
+                )}
+              >
                 {t.label}
               </span>
               <span
-                className={`mt-0.5 block break-keep text-[10px] leading-tight sm:text-[11px] ${
-                  isActive ? "text-white/80" : "text-[#64748B]"
-                }`}
+                className={cn(
+                  "mt-0.5 block break-keep text-[10px] leading-tight sm:text-[11px]",
+                  isActive ? "text-[#64748B]/85" : "text-[#64748B]",
+                )}
               >
                 {t.desc}
               </span>
@@ -280,6 +291,10 @@ function MasterServiceQueryEntry({
     ? `master-service-input-${currentServiceId}`
     : "master-service-input";
 
+  /** CHECK/REGISTER 랜딩 검색 — 375px placeholder clip 방지 (의미 동일·짧은 표현) */
+  const compactQueryPlaceholder =
+    "원하는 내용 입력 또는 아래에서 선택하세요";
+
   /** CHECK Master · REGISTER 8개 — 확인 시작 입력은 placeholder만 노출 */
   const compactQueryEntry =
     currentServiceId === "trc" ||
@@ -319,10 +334,10 @@ function MasterServiceQueryEntry({
             onClick={() => setPickerOpen(true)}
             placeholder={
               compactQueryEntry
-                ? "원하는 내용을 입력하거나 아래에서 선택하세요"
+                ? compactQueryPlaceholder
                 : "예) 세무기장 비용은 얼마인가요?"
             }
-            className="min-h-11 w-full min-w-0 rounded-[12px] border border-[#D1D5DB] bg-white py-2.5 pl-3.5 pr-10 text-[14px] text-[#0F172A] placeholder:text-[13px] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/15 sm:min-h-12 sm:placeholder:text-[14px]"
+            className="min-h-11 w-full min-w-0 rounded-[12px] border border-[#D1D5DB] bg-white py-2.5 pl-3.5 pr-12 text-[14px] text-[#0F172A] placeholder:break-keep placeholder:text-[12.5px] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/15 sm:min-h-12 sm:pr-11 sm:placeholder:text-[13px] lg:placeholder:text-[14px]"
             autoComplete="off"
             aria-haspopup="listbox"
             aria-expanded={pickerOpen}
@@ -449,13 +464,7 @@ function MasterCostBasisEntry({
       />
 
       <p className="mx-auto max-w-3xl break-keep px-1 text-center text-[12.5px] leading-[1.75] text-[#575F6A] sm:text-[13px]">
-        {cost
-          ? `${
-              config.engine === "verify" && config.costServiceId === "notary"
-                ? "불확실한 서류 검토는 문서 성격·진위 확인·대응 범위에 따라 상담 비용이 발생할 수 있습니다."
-                : cost.lookupGuide
-            } `
-          : ""}
+        {cost ? `${cost.lookupGuide} ` : ""}
         {COST_CHECK_DISCLAIMER}
       </p>
     </div>
@@ -706,11 +715,20 @@ export function MasterFunnelLanding({
   activeTab,
   onTabChange,
   onContinue,
+  adminVerifyGate,
+  realEstateVerifyGate,
+  verifyMasterSeedAnswers,
 }: {
   config: MasterLandingConfig;
   activeTab: MasterFunnelContextTab;
   onTabChange: (tab: MasterFunnelContextTab) => void;
   onContinue: (page1Answers?: Record<string, string>) => void;
+  /** VERIFY 행정문서 Master — 2차 완료 후 회원가입 게이트 */
+  adminVerifyGate?: AdminVerifyMasterGateProps;
+  /** VERIFY 부동산 Master — Profiling STOP 후 회원가입 게이트 */
+  realEstateVerifyGate?: RealEstateVerifyMasterGateProps;
+  /** VERIFY 부동산 Master — 랜딩/복원 값을 Profiling seed로 전달 */
+  verifyMasterSeedAnswers?: Record<string, string>;
 }) {
   const urlSyncedRef = useRef(false);
   const [entryQuery, setEntryQuery] = useState("");
@@ -791,21 +809,56 @@ export function MasterFunnelLanding({
     );
   }
 
-  /** VERIFY Master — CHECK 3탭/검색/비용 UI로 떨어지지 않도록 전용 경로 */
+  /** VERIFY Master — CHECK 3탭/비용 UI 제외, 검토하기·자세히 보기 2단만 복원 */
   if (config.engine === "verify") {
-    if (activeTab === "direct") {
-      return (
-        <MasterServiceGuidePanel config={config} onGoLookup={onContinue} query={entryQuery} />
-      );
-    }
-    return usesMasterQuoteReview(config.costServiceId) ? (
-      <MasterReviewQuotationReport
-        service={getCostCheckService(config.costServiceId)}
-        config={config}
-        onContinue={onContinue}
-      />
-    ) : (
-      <MasterServiceReviewPanel config={config} onGoLookup={onContinue} />
+    const reviewMasterTab: "lookup" | "direct" = activeTab === "direct" ? "direct" : "lookup";
+    const isAdminVerifyMaster = config.costServiceId === "admin";
+    const isRealEstateVerifyMaster = config.costServiceId === "real-estate";
+    const isVerifyMasterInline = isAdminVerifyMaster || isRealEstateVerifyMaster;
+    const adminVerifyGoToReview = () => onTabChange("review");
+    const verifyGuideGoLookup = isVerifyMasterInline ? adminVerifyGoToReview : onContinue;
+    return (
+      <>
+        {isVerifyMasterInline && !isRealEstateVerifyMaster ? (
+          <div className="mb-6 hidden lg:block">
+            <MasterTrcContextTabs
+              active={reviewMasterTab}
+              onChange={(tab) => onTabChange(tab === "direct" ? "direct" : "review")}
+              lookupLabel="내 상황 검토하기"
+              lookupDesc="직접 검토하기"
+              directLabel="자세히 보기"
+              directDesc="관련 가이드 상세"
+              variant={isAdminVerifyMaster ? "stitch" : undefined}
+            />
+          </div>
+        ) : !isVerifyMasterInline ? (
+          <MasterTrcContextTabs
+            active={reviewMasterTab}
+            onChange={(tab) => onTabChange(tab === "direct" ? "direct" : "review")}
+            lookupLabel="검토하기"
+            lookupDesc="직접 검토하기"
+          />
+        ) : null}
+        {activeTab === "direct" ? (
+          <MasterServiceGuidePanel config={config} onGoLookup={verifyGuideGoLookup} query={entryQuery} />
+        ) : usesMasterQuoteReview(config.costServiceId) ? (
+          <MasterReviewQuotationReport
+            service={getCostCheckService(config.costServiceId)}
+            config={config}
+            onContinue={onContinue}
+            onLearnMore={
+              isVerifyMasterInline ? () => onTabChange("direct") : undefined
+            }
+            {...(isAdminVerifyMaster && adminVerifyGate ? adminVerifyGate : {})}
+            {...(isRealEstateVerifyMaster && realEstateVerifyGate ? realEstateVerifyGate : {})}
+            {...(isVerifyMasterInline && verifyMasterSeedAnswers
+              ? { verifyMasterSeedAnswers }
+              : {})}
+          />
+        ) : (
+          <MasterServiceReviewPanel config={config} onGoLookup={verifyGuideGoLookup} />
+        )}
+      </>
     );
   }
 
@@ -1161,7 +1214,7 @@ function makeVerifyLanding(
     serviceLabel,
     shortServiceLabel,
     costServiceId,
-    specialtyLine: "직접 검토하기 · 베트남 법률전문 AI",
+    specialtyLine: "베트남 법률전문 AI",
     hookTitle: "서류만 보고 서명·송금하지 마세요.",
     hookBody,
     persuasionHeadline: "내 상황을 먼저 확인하면 불필요한 손실과 잘못된 대응을 줄일 수 있습니다.",
@@ -1188,20 +1241,20 @@ export const MASTER_LANDING_ADMIN = makeVerifyLanding(
   "출입국·노동·세무·투자 관련 공문서는 서명·제출 전에 요건과 위험요인을 먼저 확인해야 합니다. 이미 반려·보완 요청을 받은 경우에도 대응 방향을 점검할 수 있습니다.",
   [
     {
-      title: "사전 검토 (Prevent Review)",
-      body: "제출·계약 전 — 행정기관 제출서류, 계약서, 법인·투자·노동·인허가·세무·번역·공증 서류의 요건·누락·위험 조항을 확인합니다.",
+      title: "사전 검토",
+      body: "제출·계약 전 — 행정·계약·법인·노동·세무 등 서류의 요건·누락·위험 조항을 확인합니다.",
     },
     {
-      title: "사후 검토 (Case Review)",
-      body: "문제 발생 후 — 기관 반려·보완 요구, 계약 분쟁, 투자·노동·인허가·세무 문제, 소송·사기 피해 등 대응 단계를 점검합니다.",
+      title: "사후 검토",
+      body: "반려·보완·분쟁·투자·노동·세무 문제 등 발생 후 대응 단계를 점검합니다.",
     },
     {
       title: "확인 포인트",
-      body: "제출 요건과 형식, 누락 서류, 불리한 조항, 원본·번역 일치, 공증·인증·영사확인 필요 여부를 확인합니다.",
+      body: "제출 요건·누락 서류·불리한 조항, 원본·번역·공증 필요 여부를 확인합니다.",
     },
     {
       title: "관할 기관 안내",
-      body: "출입국·노동·세무·투자등록·사업자등록 등 선택한 기관별 제출 절차·필요 서류를 결과 화면에서 안내합니다.",
+      body: "출입국·노동·세무 등 기관별 제출 절차·필요 서류를 안내합니다.",
     },
   ],
   [
@@ -1262,19 +1315,19 @@ export const MASTER_LANDING_REAL_ESTATE = makeVerifyLanding(
   [
     {
       title: "사전 검토",
-      body: "매매·임대차 계약서, 계약금·중도금 서류, 소유권 증빙, 인허가·분쟁 소지 서류의 조항·누락·위험을 확인합니다.",
+      body: "매매·임대 계약·소유권 증빙 등 조항·누락·위험을 확인합니다.",
     },
     {
       title: "사후 검토",
-      body: "매매대금 미지급, 임대료·보증금 반환 거부, 소유권·명의 분쟁, 인허가 문제 등 발생 후 대응 방향을 점검합니다.",
+      body: "보증금·명의 분쟁·인허가 문제 등 발생 후 대응 방향을 점검합니다.",
     },
     {
       title: "보증금·특약 확인",
-      body: "보증금 반환 조건, 해지·위약 조항, 임대인·매도인 의무가 계약서에 어떻게 적혀 있는지 확인합니다.",
+      body: "보증금 반환·해지·위약 조항과 임대인·매도인 의무를 확인합니다.",
     },
     {
       title: "서류 진위·완전성",
-      body: "등기부등본 등 소유권 서류와 계약 조건이 서로 일치하는지, 누락·불일치가 없는지 확인합니다.",
+      body: "등기부등본과 계약 조건 일치, 누락·불일치 여부를 확인합니다.",
     },
   ],
   [
@@ -1335,19 +1388,19 @@ export const MASTER_LANDING_FRAUD = makeVerifyLanding(
   [
     {
       title: "사전 검토",
-      body: "투자·대출·온라인 거래·결혼·연애·사업제휴 제안서·계약서의 비정상 조건·허위 수익·선입금 요구를 확인합니다.",
+      body: "투자·대출·온라인 거래 제안의 허위 수익·선입금 요구 등을 확인합니다.",
     },
     {
       title: "사후 검토",
-      body: "투자금 미회수, 선입금 편취, 먹튀, 신뢰 이용 피해 등 발생 후 신고·증거 보전·대응 순서를 점검합니다.",
+      body: "투자금 미회수·선입금 편취 등 발생 후 신고·증거·대응 순서를 점검합니다.",
     },
     {
       title: "위험 신호",
-      body: "비현실적 수익률, 긴급 송금 압박, 공식 채널이 아닌 연락, 서류·계좌 정보 불일치 등을 확인합니다.",
+      body: "비현실적 수익·긴급 송금 압박·정보 불일치 등 위험 신호를 확인합니다.",
     },
     {
       title: "증거 보전",
-      body: "대화·이체 내역·계약서 원본을 보존하고, 추가 송금 전에 대응 방향을 확인합니다.",
+      body: "대화·이체·계약 원본을 보존하고 추가 송금 전 대응을 확인합니다.",
     },
   ],
   [
@@ -1408,19 +1461,19 @@ export const MASTER_LANDING_TAX = makeVerifyLanding(
   [
     {
       title: "사전 검토",
-      body: "세금 고지서·신고서류·계좌동결·가산세 통지·세무조사 자료 요청의 내용·근거·기한을 확인합니다.",
+      body: "세금 고지·신고·계좌동결 통지의 내용·근거·기한을 확인합니다.",
     },
     {
       title: "사후 검토",
-      body: "고지 금액 이의, 신고 누락·오류, 계좌동결 해제, 가산세·세무조사 대응 단계를 점검합니다.",
+      body: "이의·신고 오류·계좌동결·가산세·세무조사 대응 단계를 점검합니다.",
     },
     {
       title: "기한 확인",
-      body: "납부·이의신청·자료 제출 기한을 놓치면 불이익이 커질 수 있어 우선 확인합니다.",
+      body: "납부·이의·자료 제출 기한을 놓치면 불이익이 커질 수 있습니다.",
     },
     {
       title: "관할·명의 일치",
-      body: "사업자번호·납세자 명의·관할 세무서가 서류와 일치하는지 확인합니다.",
+      body: "사업자번호·납세자 명의·관할 세무서 일치 여부를 확인합니다.",
     },
   ],
   [
@@ -1481,19 +1534,19 @@ export const MASTER_LANDING_UNCLEAR = makeVerifyLanding(
   [
     {
       title: "사전 검토",
-      body: "정부·법원·경찰·회사·개인·출처불명 서류의 성격·요구 사항·위험 신호를 확인합니다.",
+      body: "정부·법원·회사·출처불명 서류의 성격·요구·위험 신호를 확인합니다.",
     },
     {
       title: "사후 검토",
-      body: "이미 기한을 넘겼거나 대응 중인 경우, 현재 단계에 맞는 보완·이의·신고 방향을 점검합니다.",
+      body: "기한 경과·대응 중인 경우 보완·이의·신고 방향을 점검합니다.",
     },
     {
       title: "발신처 확인",
-      body: "공식 기관·회사 명의 여부, 연락처·도장·서식의 정상 여부를 확인합니다.",
+      body: "공식 기관·회사 명의, 연락처·도장·서식 정상 여부를 확인합니다.",
     },
     {
       title: "번역·공증 필요성",
-      body: "제출·소송·행정 대응에 번역·공증·영사확인이 필요한지 확인합니다.",
+      body: "제출·소송·행정 대응에 번역·공증·영사확인 필요 여부를 확인합니다.",
     },
   ],
   [

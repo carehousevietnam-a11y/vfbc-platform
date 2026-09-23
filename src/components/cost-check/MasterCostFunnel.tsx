@@ -34,7 +34,7 @@ export function isVerifyCostCheckService(id: CostCheckServiceId): boolean {
 }
 
 export function isVerifyConsultationService(id: CostCheckServiceId): boolean {
-  return isVerifyCostCheckService(id) && id !== "notary";
+  return isVerifyCostCheckService(id);
 }
 
 export function hasConsultationPriceData(service: CostCheckService): boolean {
