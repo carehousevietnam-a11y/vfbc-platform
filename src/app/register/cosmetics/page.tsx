@@ -1305,7 +1305,7 @@ export default function RegisterCosmeticsPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_COSMETICS",
           token: resultToken ?? undefined,

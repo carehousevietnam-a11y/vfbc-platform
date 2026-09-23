@@ -1304,7 +1304,7 @@ export default function RegisterMedicalDevicePage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_MEDICAL_DEVICE",
           token: resultToken ?? undefined,

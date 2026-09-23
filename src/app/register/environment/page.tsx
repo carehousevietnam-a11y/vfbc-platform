@@ -1304,7 +1304,7 @@ export default function RegisterEnvironmentPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_ENVIRONMENT",
           token: resultToken ?? undefined,

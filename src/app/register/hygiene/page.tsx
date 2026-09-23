@@ -1303,7 +1303,7 @@ export default function RegisterHygienePage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_HYGIENE",
           token: resultToken ?? undefined,

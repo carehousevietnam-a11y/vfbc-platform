@@ -1306,7 +1306,7 @@ export default function RegisterRestaurantPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_RESTAURANT",
           token: resultToken ?? undefined,

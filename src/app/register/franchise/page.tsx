@@ -1304,7 +1304,7 @@ export default function RegisterFranchisePage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_FRANCHISE",
           token: resultToken ?? undefined,

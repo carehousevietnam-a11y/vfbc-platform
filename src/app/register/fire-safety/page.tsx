@@ -1303,7 +1303,7 @@ export default function RegisterFireSafetyPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "REGISTER_FIRE_SAFETY",
           token: resultToken ?? undefined,

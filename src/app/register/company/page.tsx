@@ -1374,7 +1374,7 @@ export default function PermitCompanyCheckPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "PERMIT_COMPANY",
           token: resultToken ?? undefined,
@@ -1628,7 +1628,7 @@ export default function PermitCompanyCheckPage() {
                     description="현재 상황에 맞춰 확인하기 위해 필요한 항목입니다. 이력이 있으면 보완 포인트를 더 정확히 짚을 수 있습니다."
                     {...registerQuestionProps}
                   >
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <SelectionCard
                         variant="quiet"
                         title="네, 있습니다"
