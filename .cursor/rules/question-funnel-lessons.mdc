@@ -1,0 +1,177 @@
+---
+description: 질문 퍼널 개발 중 발생한 시행착오와 교훈. 같은 실수를 반복하지 않기 위한 규칙
+globs: ["**/funnel/**", "**/check/**", "**/question*/**", "**/*Funnel*", "**/*funnel*"]
+alwaysApply: false
+---
+
+# 질문 퍼널 Lessons Learned
+
+**Verified / LOCK 교훈의 Canonical store는 아님.** cross-domain·CASE LOCK 교훈은 `.cursor/skills/vfbcai-master-development/SKILL.md` § **Verified Lessons — Admin Master**에 기록한다 (`05-vfbcai-ai-dev-team.mdc` LESSON → GOVERNANCE LOOP). 본 파일은 질문 퍼널 작업 시 보조 체크리스트·CASE_01 표현 이슈 메모용.
+
+## 핵심 원칙
+
+- 사용자가 브라우저에서 발견한 문제를 수정할 때는 요청한 부분만 최소한으로 고친다.
+- 관련 없는 리팩토링을 하지 않는다.
+- 한 번에 여러 기능을 추가하지 말고 요청한 한 가지 수정만 처리한다.
+- 스펙 문서가 있으면 스펙을 최우선으로 따른다.
+- 기존 코드 구조와 이미 검증된 비즈니스 로직을 먼저 조사한 후 수정한다.
+- 기존에 이미 존재하는 value, Profile key, Gate, Predicate, Branch, helper가 있는지 먼저 확인한다.
+- 기존 기능을 재사용할 수 있는데 새로운 value나 구조를 임의로 만들지 않는다.
+
+## 기존 VFBCAI 구조 보호
+
+- 기존 프로젝트의 상태관리 구조가 이미 존재하는 경우 이를 Zustand 등으로 임의 변경하지 않는다.
+- 기존 상태관리 구조를 먼저 조사하고 유지한다.
+- 기존 컴포넌트 구조, Profile 구조, Gate, Predicate, Branch, 결과 판정 로직을 임의로 재설계하지 않는다.
+- 새로운 기술이나 구조를 도입하기 전에 기존 구조로 해결할 수 있는지 먼저 확인한다.
+- VFBCAI 개발헌법 및 최신 확정 설계가 이 규칙보다 우선한다.
+
+## 상태 관리
+
+- 사용자의 답변은 Step 이동 후에도 유지되어야 한다.
+- 뒤로 가기 / 다음 단계 이동 시 이전 답변이 초기화되면 안 된다.
+- 답변 상태를 컴포넌트 로컬 useState에만 저장하여 Step 이동 시 초기화시키는 구현을 하지 않는다.
+- 기존 프로젝트의 공식 상태관리 방식을 사용한다.
+- 상태관리 구조를 변경해야 하는 경우에는 별도 Mission으로 분리하고 먼저 조사 결과를 보고한다.
+
+## 질문 퍼널 개발
+
+- 질문은 단순한 문구가 아니라 Situation Profile과 연결되는 데이터 수집 구조다.
+- 질문을 추가하기 전에 해당 질문이 어떤 Profile field, Case, Gate, Branch, Evidence, Result 또는 Expert Handoff에 영향을 주는지 확인한다.
+- 기존 질문과 동일한 정보를 다시 묻지 않는다.
+- 이미 확보된 정보는 다시 질문하지 않는다.
+- 질문 수를 인위적으로 고정하지 않는다.
+- 필요한 정보가 확보되면 조기에 종료할 수 있어야 한다.
+- 추가 질문은 실제 판단에 필요한 정보가 있을 때만 adaptive하게 추가한다.
+
+## 선택지 개발
+
+- 선택지는 사용자가 자신의 실제 상황을 정확히 구분할 수 있어야 한다.
+- 서로 다른 실제 상황을 하나의 선택지로 뭉개지 않는다.
+- 의미가 중복되는 선택지를 만들지 않는다.
+- 기존 answer value가 이미 존재하는지 먼저 확인한다.
+- 기존 answer value가 Profile / Gate / Predicate / Branch에 연결되어 있다면 가능한 한 재사용한다.
+- 새로운 value를 추가하기 전에 기존 value로 표현할 수 없는지 확인한다.
+- 직접 입력은 실패 경로가 아니라 정식 데이터 입력 경로로 취급한다.
+- Direct Input의 확정 문구는 최신 VFBCAI 확정 기준을 따른다.
+
+## 분기 및 결과 로직
+
+- 조건부 분기 로직은 명확하게 작성한다.
+- 하드코딩된 매직 스트링을 최소화한다.
+- 결과 판정 로직은 별도의 함수로 분리한다.
+- 이미 존재하는 Gate / Predicate / Branch를 먼저 재사용한다.
+- UI 선택지를 수정한다고 해서 Gate / Predicate / Profile mapping을 불필요하게 변경하지 않는다.
+- 결과 페이지 문구와 판정 기준은 확정 스펙에 정의된 기준을 정확히 따른다.
+- 스펙에 없는 결과나 판정을 임의로 추가하지 않는다.
+
+## UI / UX
+
+- 단계 진행률(Progress)을 표시한다.
+- 이전 / 다음 버튼의 동작이 명확해야 한다.
+- 로딩 상태와 데이터가 없는 상태를 고려한다.
+- 외국인 사용자가 행정문서를 직접 읽거나 전문용어를 이해한다고 가정하지 않는다.
+- 질문과 선택지는 실제로 들은 설명, 통역, 구두 안내 등을 바탕으로도 답할 수 있어야 한다.
+- 사용자가 "모름" 또는 "설명을 이해하지 못함"과 "실제 상황이 다름"을 구분할 수 있도록 표현한다.
+
+## 수정 순서
+
+질문 또는 선택지 문제를 발견하면 다음 순서로 처리한다.
+
+1. 현재 UI 확인
+2. 기존 answer value 확인
+3. 기존 Profile mapping 확인
+4. 기존 Gate / Predicate / Branch 확인
+5. 기존 QA seed / 테스트 확인
+6. 기존 구조로 해결 가능한지 판단
+7. 최소 수정
+8. TypeScript 검사
+9. 변경 범위 확인
+
+UI 문제라고 판단하여 바로 새 value를 만들지 않는다.
+
+## 시행착오 재발 방지
+
+다음과 같은 행동을 하지 않는다.
+
+- 기존 value를 확인하지 않고 새로운 value를 만드는 것
+- UI 선택지 하나가 빠졌다는 이유로 Gate를 변경하는 것
+- 표현 문제를 해결하기 위해 Profile 구조를 변경하는 것
+- 선택지 의미가 겹친다고 임의로 기존 value를 삭제하는 것
+- 질문 하나를 수정하면서 관련 없는 CASE까지 함께 수정하는 것
+- 하나의 Mission에서 여러 문제를 동시에 해결하는 것
+- 기존 구조를 확인하지 않고 Zustand 등 새로운 상태관리 구조로 변경하는 것
+- 사용자가 요청하지 않은 대규모 리팩토링
+- 스펙에 없는 기능을 임의로 추가하는 것
+- 검증하지 않은 상태를 PASS / 완료라고 단정하는 것
+
+## QA
+
+변경 후 반드시 다음을 확인한다.
+
+- npx tsc --noEmit
+- 실제 수정 파일
+- 변경된 로직 범위
+- 기존 Gate / Predicate / Profile mapping의 변경 여부
+- 관련 CASE에 대한 영향 여부
+
+검증하지 않은 항목은 PASS라고 표현하지 않는다.
+
+## 변경 보고 형식
+
+작업 완료 후 다음 형식으로 짧게 보고한다.
+
+1. 생성/수정 파일
+2. 추가한 규칙
+3. 기존 규칙과의 충돌 여부
+4. 코드 변경 여부
+5. 검증 결과
+
+이번 작업에서는 규칙 파일만 생성한다.
+코드 수정, 리팩토링, 테스트 로직 수정, DB/API/CRM/Storage 변경은 하지 않는다.
+
+## 확인된 Lessons Learned
+
+### CASE_01 factRelationship — positive `match` UI 부재 (2026-09, VERIFY 행정문서)
+
+- 문제: `verify_applicability` 등에서 “교통국 설명과 실제 상황이 대체로 같다”는 사용자가 정식 선택지를 고를 수 없었다. `hard_to_explain` 등 불확실·불일치 축만 있어 Profile이 왜곡되었다.
+- 원인: `match` answer value는 `inferCase01ActualSituationFromFactRelationship`·QA seed에 이미 존재했으나 `CASE01_FACT_RELATIONSHIP_OPTIONS` UI에 없었다. CASE_03은 `match` UI가 있으나 CASE_01만 누락된 불일치.
+- 해결 방법: 신규 value 생성 없이 기존 `match`를 `CASE01_FACT_RELATIONSHIP_OPTIONS`에 복원. infer(`match` → `accept_facts`)·Gate·Profile mapping은 변경하지 않음.
+- 앞으로 절대 하지 말 것: infer/seed에만 있고 UI에 없는 value를 “없는 값”으로 취급해 새 value를 만들거나, positive 일치 사용자를 `hard_to_explain`로 보내는 것.
+
+### CASE_01 factRelationship — `unknown`과 `hard_to_explain` 의미 혼동 (2026-09)
+
+- 문제: “같은지 다른지 판단할 정보가 부족하다”(User B)와 “설명은 들었지만 실제와 어떻게 연결되는지 모르겠다”(User C)가 같은 선택지로 수렴할 수 있었다.
+- 원인: `unknown`·`hard_to_judge`는 infer·`collectCase01Unknowns`·Gate에 연결되어 있었으나 UI에 없었고, `hard_to_explain`만 노출되어 서로 다른 불확실성 축이 하나로 뭉개졌다.
+- 해결 방법: 기존 `unknown` value를 UI에 복원하고, `hard_to_explain`은 “연결·차이 설명 곤란” 축으로 유지. Gate·Profile mapping 변경 없음.
+- 앞으로 절대 하지 말 것: “모름” 계열을 하나의 `hard_to_explain`로 합치거나, 백엔드에 이미 있는 `unknown`/`hard_to_judge`를 확인하지 않고 신규 value를 추가하는 것.
+
+### UI 선택지 누락을 Gate/Profile 변경으로 해결 (2026-09)
+
+- 문제: Phase2가 얕게 느껴져 Gate 순서·Predicate를 먼저 손대려는 압력이 있었다.
+- 원인: 실제 원인은 Gate가 아니라 UI에 없는 기존 value(`match`, `unknown`)와 positive/불확실 축 미분리였다. `authorityDemand`+`blockage`만으로 STOP되는 것은 gate 설계 이슈였고, 표현·선택지 이슈와 혼동되기 쉬웠다.
+- 해결 방법: Architecture Gap Design으로 infer·Gate·Profile·QA seed를 먼저 조사 → UI 복원만 수행. Gate/Profile mapping 변경은 별도 Mission으로 분리.
+- 앞으로 절대 하지 말 것: 선택지가 빠졌다는 이유로 Gate·Predicate·Profile mapping을 먼저 바꾸거나, 표현 Mission에서 선택지를 임의 삭제·재배치해 5+direct 규칙을 맞추려는 것(재배치는 Expression Mission으로 분리).
+
+### `no_stated_demand` UI 제거와 `unclear` 오탐 (2026-09, CASE_01 authorityDemand)
+
+- 문제: “기관이 구체적으로 무엇을 하라고 하지 않았다”와 “들었지만 이해하지 못했다”가 같은 `unclear`로 들어가 `collectCase01Unknowns`에 “기관이 요구한 행동”이 오탐될 수 있었다.
+- 원인: `no_stated_demand`는 UI에서 제거되었으나 answer value·`CASE01_OPTION_LABELS` legacy는 남아 있었고, Gate는 `unclear`만 unknown 트리거로 사용했다.
+- 해결 방법: 별도 Mission으로 `no_stated_demand` UI 복원 검토. 이번에는 조사·설계만 하고 infer/Gate 변경 없음.
+- 앞으로 절대 하지 말 것: 의미가 다른 기존 value를 UI에서만 제거하고 `unclear` 하나로 흡수하는 것. UI 축소 시 Profile·unknown 수집 의미 변화를 반드시 확인할 것.
+
+### CASE_06 (LOCK) — Canonical 위치
+
+CASE_06 LOCK 교훈(원칙 2 시딩, 브릿지 Phase1, DQ11, snapshot, persist, CHAIN_05 harness)은 **Master Skill** § Verified Lessons 항목 **12–17**으로 이관됨. 여기에 중복 기록하지 않음.
+
+## 앞으로 Lessons Learned를 추가할 때
+
+새로운 시행착오가 실제로 확인되고 해결된 경우에만 이 규칙에 추가한다.
+각 교훈은 다음 형식으로 기록한다.
+
+- 문제:
+- 원인:
+- 해결 방법:
+- 앞으로 절대 하지 말 것:
+
+추측이나 아직 검증되지 않은 내용을 Lessons Learned로 추가하지 않는다.

@@ -127,18 +127,41 @@ Mission 완료 = 아래 **범위 내** 실제 검증 후에만:
 | 충돌 | 기존 Governance와 충돌 시 **최신 검증 Lesson** 우선 정리 |
 | 구조 | 새 Question Architecture **생성 금지** — 기존 Master에 Lesson **누적** |
 
-### Verified Lessons — Admin Master (2026-09, cross-domain)
+### Verified Lessons — Admin Master (2026-09+)
 
-아래는 **실제 수정·Playwright PASS** 확인된 교정 원칙 (추측 아님):
+**Canonical store (권위)**: `05-vfbcai-ai-dev-team.mdc` LESSON → GOVERNANCE LOOP는 **본 섹션**을 기록·사전검사 기준으로 사용한다. `.cursor/rules/question-funnel-lessons.mdc`는 보조(질문 퍼널·CASE_01 표현 이슈)이며, **LOCK·cross-domain 교훈은 반드시 여기에 먼저 반영**한다.
+
+아래는 **실제 수정·strict QA PASS** 확인된 교정 원칙 (추측 아님).
+
+#### Cross-domain (Admin Master funnel)
 
 1. **Phase1 evidence gate** — 질문 완료 후 signup **직전** optional gate; continue = answers snapshot + File|null terminal transition.
 2. **Phase2 evidence gate** — `Phase2 questions complete` **이후에만** upload panel; Phase1 `storagePath` **덮어쓰기 금지**.
 3. **Member handoff** — `is*MemberProfilingHandoff`는 `*MemberSubmitting===true` 동안만; page-level **45s bounded timeout** + `releaseMemberHandoffToSignupRetry` backup.
 4. **AI Report / Expert handoff** — fresh path: `/documents?leadId=…&mode=ai_report|expert` (+ auto-login when needed); **동일 leadId** 유지.
 5. **E2E harness (QA)** — Phase1 runner에 evidence skip **필수**; 1차 CTA `개인화 상세검토 하기`; `/documents` assertion은 **실제 h1** (`… · AI 리포트 진행`) 기준 — MODE_COPY heading과 혼동 금지.
-6. **Product vs Harness** — evidence gate 추가 후 E2E가 questions→signup 직행 가정하면 **Harness FAIL** — Product 되돌리지 않음.
+6. **Product vs Harness** — evidence gate 추가 후 E2E가 questions→signup 직행 가정하면 **Harness FAIL** — Product 되돌리지 않음. Label assert 실패 시 DOM/캡처로 (a) harness (b) product 구분 후 수정.
 
-다음 Mission **Architect 사전 검사**: 위 6항 해당 여부 + Canonical Funnel 12단계 순서 위반 여부.
+#### CASE_02 — 비용·납부 (LOCK, 2026-09, domain-specific)
+
+7. **Phase2 종단 builder 연결** — `case02_blockage` / `case02_evidence` / `case02_finalGoal`는 FOCUS_ORDER·needs*만 있으면 **STOP 불가**. `appendCase02Phase2Questions` + `case02PathFieldsComplete`에 **반드시** 연결. (옵션·문구는 확정 라이브러리만 재사용.)
+8. **Direct Input → Profile** — `case02_authorityResponse`(및 동일 패턴 필드)가 `other`일 때 note는 `getCase02FieldLabelFromAnswers` 경로로 Profile fact에 반영. `CASE01_OPTION_LABELS`만 참조하면 Profile 단절.
+9. **Raw vs effective (`situationMatch`)** — `case02_situationMatch === "other"`는 `case02EffectiveSituationMatch` → `"unknown"`으로 signals·unknowns에 쓰일 수 있음. Phase2 result append 등 **raw-only 분기**와 **effective 분기**가 동시에 있으면 의도를 코드·QA에서 명시적으로 대조. DI `other`를 legacy value(`other_disposition` 등)와 혼동하지 않음.
+10. **정규화·legacy value** — `case02_paymentAmount` / `case02_nonPaymentNotice` 등은 normalize helper·UI 옵션 set과 **동일 slug**만 게이트/Result에 사용. UI에 없는 `unclear`/`procedure_unknown` 참조는 끊어진 분기 — 수정 시 옵션 배열을 SoT.
+11. **Strict harness SoT** — CASE_02 Phase1 timeout 등 harness 이슈는 **엔진 question id·option label**을 SoT로 맞춤. 제품 질문/선택 문구 변경으로 “통과”시키지 않음 (`admin-verify-strict-full-v2` — `LOCK_READINESS.coreCases.CASE_02`).
+
+#### CASE_06 — 불명확 문서·재분류 (LOCK, 2026-09-23, domain-specific)
+
+12. **재분류 원칙 2 — handoff 시딩 금지** — `seedCase02AnswersFromCase06Handoff` 등이 target CASE **값-질문**(`case02_deadline` 등)을 채워 질문 push를 생략하면 **원칙 2 위반**. CASE_06 맥락은 힌트만; target 값은 사용자 raw answers로 확보.
+13. **브릿지 후 target Phase1 선행** — `isCase06BridgedToNativeCase`일 때 `appendCase03/04/05PathQuestions`는 Phase2 전 **네이티브 Phase1** 먼저. Phase2만 append하면 `case*PathFieldsComplete` Phase1 gate **영구 false** (CASE_02 reclass Phase1-first와 동일 클래스).
+14. **Classification ≠ active question case (DQ11)** — Q1=`CASE_06` 유지. `isCase06Phase2ChainComplete` + `getAdminVerifyActiveQuestionCase`로 체인 STOP·브릿지 전 CASE_06 질문 유지. 재분류 확정만으로 target 네이티브 Phase2 UI 점프 금지.
+15. **브릿지 snapshot 체크포인트** — `applyCase06BridgeSnapshot` / `isCase06BridgeSnapshotCommitted` 후에만 handoff·네이티브 진입. CSS/setTimeout masking 금지.
+16. **CASE_06 persist (DQ1)** — `CASE06_V11_PERSIST_ANSWER_KEYS`(+ note keys)가 `buildAdminVerifyAnswersPersistMeta`에 포함; strict `persistSlugPassAll` LOCK 조건.
+17. **CASE_06 CHAIN_05 — Harness DI (LOCK QA)** — `LABEL_ASSERT_FAIL` on recheck DQ2: 패널만 열고 note 미커밋·`다음` disabled인데 sim 진행 = **harness** (`tests/qa/_chain05-capture/label-fail-case06_unclearFactRelation.json`). 제품 recheck stuck으로 단정 금지.
+
+다음 Mission **Architect 사전 검사**: 위 cross-domain 1–6 + 해당 CASE LOCK 블록(7–11 / 12–17) + Canonical Funnel 12단계 순서 위반 여부.
+
+**CASE LOCK 시 Governance (필수)**: Ace LOCK 승인 전에 교훈이 **본 섹션에 반영**되고 `git`에 **커밋**되었는지 확인 (`docs/master/*_LOCK_DECISION_LOG*` 체크리스트 · `VFBCAI_CASE_AUDIT_CHECKLIST_v1` LOCK 항목). 미반영·미커밋이면 LOCK 불완료.
 
 ## 불변 원칙 (요약)
 
@@ -521,3 +544,57 @@ Mobile 성공 = **읽기 좋은 크기로 자연스럽게 배치**. 글자를 �
 - Funnel QA: `.cursor/skills/vfbcai-funnel-qa/SKILL.md`
 - Team: `.cursor/skills/vfbcai-team-orchestrator/SKILL.md`
 - UI QA Rule: `.cursor/rules/06-ui-design-responsive-typography-qa.mdc`
+
+[INVESTIGATION BEFORE IMPLEMENTATION — 상시 적용]
+
+CASE 조사 단계에서는 구현하지 않는다.
+
+먼저:
+
+현재 코드 구조 확인
+MASTER 기준과 비교
+질문/선택지 차이 확인
+Direct Input 연결 확인
+raw/effective 경로 확인
+dead/legacy code 확인
+Result 연결 확인
+공용 경로 영향 확인
+
+이후 [DESIGN QUESTION]을 확정하고, 사용자 결정 후에만 구현한다. 조사 중 발견한 문제를 Cursor가 임의로 설계 변경하거나 추가 구현하지 않는다.
+
+[QA LANGUAGE — 상시 적용]
+
+QA 판단 표현으로 PASS / FAIL / 완료 / 정상 / 문제없음을 사용하지 않는다.
+
+허용 어휘:
+
+코드 확인함
+실행함
+브라우저 확인함
+미확인
+
+단, 코드·로그·브라우저에 실제로 존재하는 문자열을 인용하는 경우에는 원문을 그대로 인용할 수 있다.
+
+[VALIDATION SEPARATION — 상시 적용]
+
+함수를 직접 호출한 결과를 "브라우저 확인함"으로 표기하지 않는다. Playwright 등 실제 브라우저 DOM/textContent 근거가 있을 때만 브라우저 확인함으로 표기한다.
+
+[DIRECT INPUT — 상시 적용]
+
+모든 Direct Input(기타+메모) 답변은 raw → normalization/effective value → Situation Profile → CASE 분류 → branching → Result 전체 경로 연결을 조사 없이 "UI 존재"만으로 완료 처리하지 않는다.
+
+[RAW/EFFECTIVE VALUE — 상시 적용]
+
+조건문/게이트가 raw value와 effective value 중 무엇을 사용해야 하는지 해당 CASE의 설계 의도와 비교해서 확인한다. 모든 조건문이 반드시 effective value를 써야 한다는 뜻은 아니다.
+
+[RESULT CONNECTION — 상시 적용]
+
+답변이 Profile에 저장되는 것만으로 "연결 완료"로 보지 않는다. 1차 기본 패널과 2차 개인화 패널 각각에서 실제 표시 여부를 별도로 확인한다.
+
+[REGRESSION — 상시 적용]
+
+공용 함수/공용 UI를 수정하면 다른 CASE에 대한 영향 범위를 반드시 조사·보고한다.
+
+[CASE AUDIT CHECKLIST 참조]
+
+CASE 조사·구현·감사는 docs/master/VFBCAI_CASE_AUDIT_CHECKLIST_v1.md를 기준으로 한다. 개별 지시문에 체크리스트 항목이 없어도 이 문서를 항상 적용한다.
