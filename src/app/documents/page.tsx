@@ -38,7 +38,14 @@ import {
 } from "lucide-react";
 import { NoticeCard, PrimaryButton, StatusBadge } from "@/components/ui";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
+import {
+  VERIFY_ADMIN_EXTRA_EXPLANATION_LABEL,
+  getVerifyAdminDocumentSpecByLabel,
+  getVerifyAdminRequiredDocumentConfig,
+} from "@/lib/verifyAdminDocumentCatalog";
 import { supabase } from "@/lib/supabase";
+
+const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 
 type SubmitMode = "ai_report" | "expert";
 type DocInputMode = "upload" | "manual";
@@ -379,10 +386,17 @@ const DOC_DESCRIPTION_BY_LABEL: Record<string, string> = {
     "기존 접수증, 보완요청서 또는 반려 통지서가 있다면 제출해주세요.",
 };
 
+type DocumentCardDetail = {
+  whyNeeded: string;
+  uploadGuide: string;
+  examples: string[];
+};
+
 function DocumentCard({
   index,
   doc,
   requirementLabel,
+  detailContent,
   onModeChange,
   onFileChange,
   onFileClear,
@@ -393,6 +407,7 @@ function DocumentCard({
   index: number;
   doc: DocState;
   requirementLabel: "선택" | "우선 제출" | "있으면 제출";
+  detailContent?: DocumentCardDetail | null;
   onModeChange: (mode: DocInputMode) => void;
   onFileChange: (file: File | null) => void;
   onFileClear: () => void;
@@ -402,9 +417,10 @@ function DocumentCard({
 }) {
   const inputId = `doc-file-${index}`;
   const ready = isDocReady(doc);
-  const isExtraDoc = doc.label === "추가 서류 (선택)";
+  const isExtraDoc =
+    doc.label === "추가 서류 (선택)" || doc.label === VERIFY_ADMIN_EXTRA_EXPLANATION_LABEL;
   const schema = getFieldSchema(doc.label);
-  const description = DOC_DESCRIPTION_BY_LABEL[doc.label];
+  const description = detailContent?.whyNeeded ?? DOC_DESCRIPTION_BY_LABEL[doc.label];
 
   // Accordion — 기본은 접힌 상태이며 헤더를 누르면 펼쳐진다(PC·모바일 공통, 동시에 여러 개
   // 펼쳐질 수 있음).
@@ -428,8 +444,8 @@ function DocumentCard({
                 requirementLabel === "우선 제출"
                   ? "bg-blue-50 text-blue-700"
                   : requirementLabel === "있으면 제출"
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-blue-50 text-blue-700"
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-slate-100 text-slate-600"
               }`}
             >
               {requirementLabel}
@@ -451,6 +467,36 @@ function DocumentCard({
       </button>
 
       <div className={expanded ? "block" : "hidden"}>
+        {detailContent ? (
+          <div className="mt-3 space-y-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3.5">
+            <div>
+              <p className="text-[11px] font-bold text-gray-700">왜 필요한가</p>
+              <p className="mt-1 break-keep text-xs leading-relaxed text-gray-600">
+                {detailContent.whyNeeded}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-gray-700">어떤 자료를 올리면 되나요?</p>
+              <p className="mt-1 break-keep text-xs leading-relaxed text-gray-600">
+                {detailContent.uploadGuide}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-gray-700">예시</p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {detailContent.examples.map((example) => (
+                  <span
+                    key={example}
+                    className="rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-medium text-gray-600"
+                  >
+                    {example}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {/* 업로드 / 직접 입력 탭 */}
         <div className="mt-3 inline-flex rounded-xl bg-gray-100 p-1">
           <button
@@ -699,10 +745,24 @@ function DocumentUploadContent() {
     return `${prefix}_company_${investorType}`;
   }, [isCompanyService, investorType, rawServiceParam]);
 
-  const config = useMemo(
-    () => getRequiredDocuments(serviceParam, mode),
-    [serviceParam, mode]
+  const isVerifyAdmin = serviceParam === "verify_admin";
+  const [verifyAdminAuthorityDemand, setVerifyAdminAuthorityDemand] = useState<string | null>(
+    null,
   );
+
+  const config = useMemo(() => {
+    if (isVerifyAdmin) {
+      const verifyAdminLists = getVerifyAdminRequiredDocumentConfig(verifyAdminAuthorityDemand);
+      const base = getRequiredDocuments(serviceParam, mode);
+      return {
+        ...base,
+        documents: verifyAdminLists.documents,
+        optionalDocuments: verifyAdminLists.optionalDocuments,
+      };
+    }
+    return getRequiredDocuments(serviceParam, mode);
+  }, [isVerifyAdmin, serviceParam, mode, verifyAdminAuthorityDemand]);
+
   const requiredLabels = useMemo(() => config.documents, [config]);
   const optionalLabels = useMemo(() => config.optionalDocuments ?? [], [config]);
   const allDocumentLabels = useMemo(
@@ -710,6 +770,40 @@ function DocumentUploadContent() {
     [requiredLabels, optionalLabels]
   );
   const copy = MODE_COPY[mode];
+
+  const verifyAdminPageCopy = useMemo(() => {
+    if (!isVerifyAdmin) return null;
+    return {
+      description:
+        "2차 검토에서 확인된 내용을 기준으로, 담당 전문가가 사건을 확인하는 데 필요한 자료를 정리했습니다.",
+      progressNote: "2차 검토에서 확인된 내용을 기준으로 필요한 자료를 정리했습니다.",
+      listGuidance:
+        "모든 자료가 있는 것은 아닙니다. 현재 가지고 있는 자료만 제출해 주세요. 없는 자료를 새로 만들 필요는 없습니다.",
+    };
+  }, [isVerifyAdmin]);
+
+  function resolveRequirementLabel(label: string): "우선 제출" | "있으면 제출" | "선택" {
+    if (isVerifyAdmin) {
+      const spec = getVerifyAdminDocumentSpecByLabel(label, verifyAdminAuthorityDemand);
+      if (spec) return spec.priority;
+    }
+    if (requiredLabels.includes(label)) return "우선 제출";
+    if (label === VERIFY_ADMIN_EXTRA_EXPLANATION_LABEL || label === "추가 서류 (선택)") {
+      return isVerifyAdmin ? "선택" : "있으면 제출";
+    }
+    return "있으면 제출";
+  }
+
+  function resolveDocumentDetail(label: string): DocumentCardDetail | null {
+    if (!isVerifyAdmin) return null;
+    const spec = getVerifyAdminDocumentSpecByLabel(label, verifyAdminAuthorityDemand);
+    if (!spec) return null;
+    return {
+      whyNeeded: spec.whyNeeded,
+      uploadGuide: spec.uploadGuide,
+      examples: spec.examples,
+    };
+  }
 
   function selectInvestorType(type: "individual" | "corporate") {
     setInvestorType(type);
@@ -721,7 +815,10 @@ function DocumentUploadContent() {
     router.replace(`/documents?${nextParams.toString()}`, { scroll: false });
   }
 
+  const extraDocLabel = isVerifyAdmin ? VERIFY_ADMIN_EXTRA_EXPLANATION_LABEL : "추가 서류 (선택)";
+
   const [docs, setDocs] = useState<DocState[]>(() => allDocumentLabels.map(createDocState));
+  const [extraDoc, setExtraDoc] = useState<DocState>(() => createDocState(extraDocLabel));
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -744,14 +841,16 @@ function DocumentUploadContent() {
     setDocs(allDocumentLabels.map(createDocState));
   }, [config.serviceKey, mode, allDocumentLabels]);
 
+  useEffect(() => {
+    setExtraDoc(createDocState(extraDocLabel));
+  }, [extraDocLabel]);
+
   const requiredDocs = docs.filter((doc) => requiredLabels.includes(doc.label));
   const readyCount = requiredDocs.filter(isDocReady).length;
   const totalCount = requiredDocs.length;
   const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
 
-  // 마지막 순번에 추가되는 "추가 서류 (선택)" 카드 — 서비스별 필수 서류 목록(docs)과는
-  // 별개의 자유 제출용 카드라 기존 docs 배열/진행률 계산에는 포함하지 않는다.
-  const [extraDoc, setExtraDoc] = useState<DocState>(() => createDocState("추가 서류 (선택)"));
+  // 마지막 순번에 추가되는 선택 자료 카드 — docs 배열/진행률(우선 제출) 계산에는 포함하지 않는다.
 
   // 질문 단계(VERIFY admin)에서 이미 제출된 자료 — crm_activities(action="verify_lead")의
   // meta.submitted_document를 읽기 전용으로만 표시한다. 기존 필수서류 슬롯(docs)과는 완전히
@@ -843,7 +942,19 @@ function DocumentUploadContent() {
           review_stage?: string;
           file_name?: string;
         };
+        [ADMIN_VERIFY_ANSWERS_META_JSON_KEY]?: string;
       };
+      const answersRaw = meta[ADMIN_VERIFY_ANSWERS_META_JSON_KEY];
+      if (answersRaw) {
+        try {
+          const parsed = JSON.parse(answersRaw) as { case01_authorityDemand?: string };
+          if (typeof parsed.case01_authorityDemand === "string") {
+            setVerifyAdminAuthorityDemand(parsed.case01_authorityDemand);
+          }
+        } catch {
+          /* ignore malformed answers */
+        }
+      }
       const submittedDocument = meta.submitted_document;
       if (!submittedDocument) {
         setQuestionSubmittedDoc(null);
@@ -1201,8 +1312,8 @@ function DocumentUploadContent() {
   }
 
   function handleReset() {
-    setDocs(config.documents.map(createDocState));
-    setExtraDoc(createDocState("추가 서류 (선택)"));
+    setDocs(allDocumentLabels.map(createDocState));
+    setExtraDoc(createDocState(extraDocLabel));
     setSubmitted(false);
     setSubmitError(null);
   }
@@ -1258,7 +1369,9 @@ function DocumentUploadContent() {
                 <h1 className="text-lg font-bold tracking-tight text-gray-900 lg:text-xl">
                   {config.serviceLabel} · {copy.badgeLabel}
                 </h1>
-                <p className="mt-1 text-xs text-gray-500">{copy.description}</p>
+                <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                  {verifyAdminPageCopy?.description ?? copy.description}
+                </p>
                 {leadId && (
                   <p className="mt-1 text-[11px] text-gray-300">접수번호 {leadId.slice(0, 8)}</p>
                 )}
@@ -1379,8 +1492,9 @@ function DocumentUploadContent() {
               <p className="mt-3 text-xl font-bold text-blue-900 lg:mt-2.5 lg:text-lg">
                 {readyCount} / {totalCount} <span className="text-sm font-semibold text-gray-500">완료</span>
               </p>
-              <p className="mt-0.5 text-xs text-gray-400">
-                우선 제출 자료 {totalCount}개 · 있으면 제출 자료는 진행률에 포함되지 않습니다.
+              <p className="mt-0.5 text-xs leading-relaxed text-gray-400">
+                {verifyAdminPageCopy?.progressNote ??
+                  `우선 제출 자료 ${totalCount}개 · 있으면 제출 자료는 진행률에 포함되지 않습니다.`}
               </p>
             </div>
               </>
@@ -1544,8 +1658,9 @@ function DocumentUploadContent() {
 
               <div>
                 <p className="text-base font-bold text-gray-900">제출 자료</p>
-                <p className="mt-1 text-xs leading-relaxed text-gray-500">
-                  우선 제출 자료를 먼저 준비해주세요. 있으면 제출 자료는 현재 보유한 경우에만 올리시면 됩니다.
+                <p className="mt-1 break-keep text-xs leading-relaxed text-gray-500">
+                  {verifyAdminPageCopy?.listGuidance ??
+                    "우선 제출 자료를 먼저 준비해주세요. 있으면 제출 자료는 현재 보유한 경우에만 올리시면 됩니다."}
                 </p>
                 {mode === "ai_report" && (
                   <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/50 px-3.5 py-3">
@@ -1564,11 +1679,8 @@ function DocumentUploadContent() {
                   key={doc.label}
                   index={i}
                   doc={doc}
-                  requirementLabel={
-                    requiredLabels.includes(doc.label)
-                      ? "우선 제출"
-                      : "있으면 제출"
-                  }
+                  requirementLabel={resolveRequirementLabel(doc.label)}
+                  detailContent={resolveDocumentDetail(doc.label)}
                   onModeChange={(inputMode) => updateDoc(i, { inputMode })}
                   onFileChange={(file) => handleDocFileSelect(i, file)}
                   onFileClear={() => handleDocFileClear(i)}
@@ -1585,7 +1697,8 @@ function DocumentUploadContent() {
               <DocumentCard
                 index={docs.length}
                 doc={extraDoc}
-                requirementLabel="있으면 제출"
+                requirementLabel={resolveRequirementLabel(extraDoc.label)}
+                detailContent={resolveDocumentDetail(extraDoc.label)}
                 onModeChange={(inputMode) => setExtraDoc((prev) => ({ ...prev, inputMode }))}
                 onFileChange={handleExtraFileSelect}
                 onFileClear={handleExtraFileClear}
@@ -1615,9 +1728,7 @@ function DocumentUploadContent() {
             <div className="mt-6 hidden lg:sticky lg:top-6 lg:mt-0 lg:block">
               <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
                 <p className="text-sm font-bold text-gray-900">제출 현황</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  `${totalCount}개 우선 제출 자료`
-                </p>
+                <p className="mt-1 text-xs text-gray-500">{totalCount}개 우선 제출 자료</p>
                 <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
                     className="h-full rounded-full bg-blue-900 transition-all duration-300"
@@ -1629,7 +1740,7 @@ function DocumentUploadContent() {
                 </p>
 
                 <ul className="mt-3 space-y-1.5">
-                  {docs.map((doc) => (
+                  {[...docs, extraDoc].map((doc) => (
                     <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
                       {isDocReady(doc) ? (
                         <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
