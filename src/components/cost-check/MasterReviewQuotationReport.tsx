@@ -2452,9 +2452,10 @@ export function MasterReviewQuotationReport({
     !isRealEstateQuestionScreenSuppressed &&
     (isRealEstatePhase2Screen || !isRealEstatePhase2Review);
   const showRightColumn = showSidebar || showVerifyQuestionActions;
-  /** RE Master question rail — no duplicate funnel CTAs (guide/trust only). */
-  const hideRealEstateQuestionRailCtas =
-    isRealEstateVerifyMasterLayout && showVerifyQuestionActions;
+  /** VERIFY Master question rail (Admin + RE) — guide/trust only; no landing CTAs while answering. */
+  const hideVerifyMasterQuestionRailCtas =
+    showVerifyQuestionActions &&
+    (isRealEstateVerifyMasterLayout || isAdminVerifyStitchLayout);
 
   const grade = review ? excessGrade(review.verdict) : null;
   const score =
@@ -2938,6 +2939,9 @@ export function MasterReviewQuotationReport({
       const directDraft =
         caseEntryDirectExplainDraft || answers[ADMIN_CASE_ENTRY_Q1_OTHER_KEY] || "";
       const directValid = directDraft.trim().length > 0;
+      const entryQ1GridOptions = ADMIN_CASE_ENTRY_Q1_OPTIONS.filter(
+        (opt) => !isAdminDirectExplainOption(opt),
+      );
 
       return (
         <li key={question.id} className="list-none">
@@ -2953,7 +2957,7 @@ export function MasterReviewQuotationReport({
                   step={1}
                   className={useStitchQuestionLayout ? "max-w-none grid-cols-1 gap-3" : undefined}
                 >
-                  {ADMIN_CASE_ENTRY_Q1_OPTIONS.map((opt, index) => (
+                  {entryQ1GridOptions.map((opt, index) => (
                     <SelectionCard
                       key={opt.value}
                       variant={useStitchQuestionLayout ? "stitch" : "quiet"}
@@ -4947,7 +4951,7 @@ export function MasterReviewQuotationReport({
                   layout="stitch"
                   className="w-full"
                 />
-                {hideRealEstateQuestionRailCtas ? null : (
+                {hideVerifyMasterQuestionRailCtas ? null : (
                 <div className="flex flex-col gap-2">
                   <button
                     type="button"
