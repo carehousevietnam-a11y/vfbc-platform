@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>행정문서 1차 종합 결과 | MY VIET CHECK by VFBCAI</title>
+<!-- Tailwind CSS v3 CDN with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#0f172a',
+              slate: '#1e293b',
+              accent: '#2563eb'
+            }
+          },
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<!-- Typography and Custom Layout Styles -->
+<style data-purpose="custom-typography">
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: -0.015em;
+    }
+  </style>
+<style data-purpose="ui-decorations">
+    .segment-meter {
+      display: flex;
+      gap: 3px;
+    }
+    .segment-meter-bar {
+      height: 6px;
+      flex: 1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900 min-h-screen flex flex-col antialiased">
+<!-- BEGIN: MasterNavigation -->
+<!-- 3-Tier Navigation Header adhering to VFBCAI Brand Identity -->
+<header class="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
+<!-- Tier 1: System Title & User Status -->
+<div class="border-b border-slate-100">
+<div class="max-w-[950px] mx-auto px-4 h-12 flex items-center justify-between text-xs sm:text-sm">
+<div class="flex items-center gap-2 font-bold text-slate-900 tracking-tight">
+<svg class="w-4 h-4 text-brand-navy" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+<span>MY VIET CHECK <span class="text-slate-400 font-normal text-xs">BY VFBCAI</span></span>
+</div>
+<div class="flex items-center gap-4 text-slate-600 text-xs">
+<span class="flex items-center gap-1.5 font-medium">
+<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+            실시간 공식 검토 시스템
+          </span>
+<div class="w-px h-3 bg-slate-200"></div>
+<button class="flex items-center gap-1 text-slate-700 hover:text-slate-900 font-medium">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>내 계정</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Tier 2: Primary Module Navigation -->
+<div class="border-b border-slate-100">
+<div class="max-w-[950px] mx-auto px-4 flex items-center gap-6 sm:gap-8 text-sm font-semibold text-slate-500">
+<a class="py-3 hover:text-slate-900 transition-colors" href="#">CHECK(확인)</a>
+<a class="py-3 text-brand-navy border-b-2 border-brand-navy font-bold flex items-center gap-1" href="#">
+          VERIFY(검토)
+        </a>
+<a class="py-3 hover:text-slate-900 transition-colors" href="#">REGISTER(인허가)</a>
+<a class="py-3 hover:text-slate-900 transition-colors" href="#">PROTECT(진단)</a>
+</div>
+</div>
+<!-- Tier 3: Domain Category Navigation -->
+<div class="bg-slate-50/75">
+<div class="max-w-[950px] mx-auto px-4 flex items-center gap-3 sm:gap-5 text-xs sm:text-sm py-2 overflow-x-auto">
+<a class="px-2.5 py-1 rounded bg-white font-bold text-slate-900 shadow-sm border border-slate-200" href="#">행정문서</a>
+<a class="px-2 py-1 text-slate-600 hover:text-slate-900 transition-colors" href="#">부동산 문서</a>
+<a class="px-2 py-1 text-slate-600 hover:text-slate-900 transition-colors" href="#">사기문서</a>
+<a class="px-2 py-1 text-slate-600 hover:text-slate-900 transition-colors" href="#">세무문서</a>
+<a class="px-2 py-1 text-slate-600 hover:text-slate-900 transition-colors" href="#">불확실한 문서</a>
+</div>
+</div>
+</header>
+<!-- END: MasterNavigation -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 w-full max-w-[950px] mx-auto px-4 py-10 flex flex-col gap-10">
+<!-- Subheader Breadcrumb & Meta Section -->
+<section class="flex flex-col gap-3">
+<div class="flex flex-wrap items-center justify-between text-xs text-slate-500 border-b border-slate-200 pb-3">
+<div class="flex items-center gap-1.5">
+<span>VERIFY</span>
+<span>·</span>
+<span>사전 검토</span>
+<span>&gt;</span>
+<span class="text-slate-800 font-medium">행정문서 1차 종합 결과</span>
+</div>
+<div class="flex items-center gap-3 font-mono text-[11px] text-slate-400">
+<span>DOC-ID: VN-2024-8842</span>
+<span>|</span>
+<span>기준일: 2024.11</span>
+</div>
+</div>
+<div class="mt-1">
+<h1 class="text-2xl sm:text-[28px] font-bold text-slate-900 tracking-tight leading-snug">행정문서 1차 종합 결과</h1>
+<p class="text-sm sm:text-[15px] text-slate-600 mt-2 leading-relaxed">작성해주신 6개 사전 문항 답변을 분석한 1차 진단 결과입니다. 고객이 직접 확인하고 판단할 수 있도록 핵심 요점을 정돈했습니다.</p>
+</div>
+</section>
+<!-- 01 / 종합 판단 (Hero Status Section) -->
+<section data-purpose="hero-status-section"><div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<h2 class="text-xs sm:text-sm font-bold text-slate-900 tracking-wide uppercase">01 / 종합 판단</h2>
+<span class="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">1차 판정 결과</span>
+</div>
+<span class="text-xs font-medium text-slate-500 font-mono">ANALYSIS VERDICT</span>
+</div>
+<div class="bg-gradient-to-r from-amber-50/90 via-[#fffbeb] to-white border border-amber-200/90 rounded-xl p-6 sm:p-8 shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex-1">
+<div class="flex items-center gap-3 text-slate-900 font-bold text-xl sm:text-2xl tracking-tight">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 border border-amber-300 text-amber-700 text-lg leading-none shrink-0">⚠️</span>
+<h3>확인이 필요한 부분이 있습니다</h3>
+</div>
+<p class="text-slate-700 text-sm sm:text-[15px] mt-3 leading-relaxed font-normal">
+제출 전 기본적인 서류 내용은 확인했지만, <span class="font-semibold text-slate-900">형식·증빙</span>과 <span class="font-semibold text-slate-900">제출기한</span>은 제출 전 추가 확인이 필요합니다.
+</p>
+</div>
+<div class="bg-white border border-amber-200/80 rounded-lg p-5 min-w-[220px] shadow-sm flex flex-col justify-center shrink-0">
+<div class="flex items-center justify-between text-xs mb-2.5">
+<span class="text-slate-500 font-medium">주의 판독 등급</span>
+<span class="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded border border-amber-200 text-xs">주의 요망 (2단계)</span>
+</div>
+<div class="segment-meter py-1" title="주의 레벨 2/5">
+<div class="segment-meter-bar bg-amber-500"></div>
+<div class="segment-meter-bar bg-amber-500"></div>
+<div class="segment-meter-bar bg-slate-200"></div>
+<div class="segment-meter-bar bg-slate-200"></div>
+<div class="segment-meter-bar bg-slate-200"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] text-slate-400 mt-2.5 pt-2.5 border-t border-slate-100">
+<span>사전 문항 6개 분석</span>
+<span class="font-mono font-medium text-slate-600">Q1~Q6 대조</span>
+</div>
+</div>
+</div>
+</div></section>
+<!-- 02 / 핵심 확인 결과 (Visual Status Cards) -->
+<section data-purpose="key-metrics-grid"><div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<h2 class="text-xs sm:text-sm font-bold text-slate-900 tracking-wide uppercase">02 / 핵심 확인 결과</h2>
+<span class="text-xs text-slate-400 font-normal">| 총 4개 핵심 영역 진단</span>
+</div>
+<span class="text-xs text-slate-500 font-mono">Q2~Q6 응답 기반 판독</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+<!-- Card 1 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-all min-h-[148px]">
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider">01. 현황 대조</span>
+<span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+✓ 확인 완료
+</span>
+</div>
+<h4 class="font-bold text-slate-900 text-sm sm:text-base tracking-tight">실제 상황과 서류</h4>
+</div>
+<p class="text-xs text-slate-500 mt-3.5 pt-2.5 border-t border-slate-100 leading-normal">
+명의자·발급 목적 및 신청 정보 일치
+</p>
+</div>
+<!-- Card 2 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-all min-h-[148px]">
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider">02. 내용 기재</span>
+<span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+✓ 확인 완료
+</span>
+</div>
+<h4 class="font-bold text-slate-900 text-sm sm:text-base tracking-tight">서류 내용 및 기재</h4>
+</div>
+<p class="text-xs text-slate-500 mt-3.5 pt-2.5 border-t border-slate-100 leading-normal">
+필수 기재사항 및 기본 항목 정상
+</p>
+</div>
+<!-- Card 3 -->
+<div class="bg-white border-2 border-amber-300 bg-amber-50/20 rounded-lg p-5 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-all min-h-[148px]">
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="text-[11px] font-mono font-semibold text-amber-800 uppercase tracking-wider">03. 공증 및 영사</span>
+<span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded">
+⚠️ 확인 필요
+</span>
+</div>
+<h4 class="font-bold text-slate-900 text-sm sm:text-base tracking-tight">형식 · 증빙</h4>
+</div>
+<p class="text-xs text-slate-700 mt-3.5 pt-2.5 border-t border-amber-200/60 leading-normal font-medium">
+공증 간인 및 영사인증 요건 대조 요망
+</p>
+</div>
+<!-- Card 4 -->
+<div class="bg-white border-2 border-amber-300 bg-amber-50/20 rounded-lg p-5 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-all min-h-[148px]">
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="text-[11px] font-mono font-semibold text-amber-800 uppercase tracking-wider">04. 접수처 기준</span>
+<span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded">
+⚠️ 확인 필요
+</span>
+</div>
+<h4 class="font-bold text-slate-900 text-sm sm:text-base tracking-tight">제출처 · 기한</h4>
+</div>
+<p class="text-xs text-slate-700 mt-3.5 pt-2.5 border-t border-amber-200/60 leading-normal font-medium">
+관할기관 유효기간 규정 재확인 필요
+</p>
+</div>
+</div></section>
+<!-- 03 / 주요 위험 요인 (Real Experience-based Alerts) -->
+<section data-purpose="risk-factors"><div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<h2 class="text-xs sm:text-sm font-bold text-slate-900 tracking-wide uppercase">03 / 주요 위험 요인</h2>
+<span class="text-xs text-slate-400 font-normal">| 반려 방지 핵심 포인트</span>
+</div>
+<span class="text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">현지 실무 경험</span>
+</div>
+<div class="flex flex-col gap-3.5">
+<!-- Item 1 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 sm:p-6 flex items-start gap-4 shadow-sm hover:border-slate-300 transition-colors">
+<div class="w-8 h-8 rounded-full bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 font-bold text-sm">
+!
+</div>
+<div class="flex-1">
+<h4 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+서류 내용이 실제 상황과 다르면 제출 단계에서 추가 확인이 필요할 수 있습니다.
+</h4>
+<p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+내용이 맞더라도 현지 담당자 심사 시 여권 영문명 한 글자나 생년월일 불일치로 반려되는 사례가 빈번합니다.
+</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 sm:p-6 flex items-start gap-4 shadow-sm hover:border-slate-300 transition-colors">
+<div class="w-8 h-8 rounded-full bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 font-bold text-sm">
+!
+</div>
+<div class="flex-1">
+<h4 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+번역·공증 등이 필요한 서류는 내용이 맞아도 형식 요건에서 문제가 생길 수 있습니다.
+</h4>
+<p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+서류 원본과 번역본 간 직인 누락이나 주한 베트남 대사관 영사확인 효력 범위 요건을 사전에 점검해야 합니다.
+</p>
+</div>
+</div>
+</div></section>
+<!-- 04 / 확인이 필요한 사항 (Unconfirmed / Uncertain Items Only) -->
+<section data-purpose="unconfirmed-items"><div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<h2 class="text-xs sm:text-sm font-bold text-slate-900 tracking-wide uppercase">04 / 확인이 필요한 사항</h2>
+<span class="text-xs text-slate-400 font-normal">| 아직 서류상 확정되지 않은 항목</span>
+</div>
+<span class="text-xs text-slate-600 font-medium bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">미확인 항목 정리</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+<!-- Box 1 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-colors min-h-[110px]">
+<div>
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2 text-slate-900 font-bold text-sm sm:text-base">
+<span class="w-4 h-4 rounded border-2 border-slate-400 flex items-center justify-center shrink-0"></span>
+<span>필요한 증빙</span>
+</div>
+<span class="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">미체크</span>
+</div>
+<p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed mt-2 pl-6">
+첨부 증빙 및 번역본 간인 누락 여부 점검 필요
+</p>
+</div>
+</div>
+<!-- Box 2 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-colors min-h-[110px]">
+<div>
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2 text-slate-900 font-bold text-sm sm:text-base">
+<span class="w-4 h-4 rounded border-2 border-slate-400 flex items-center justify-center shrink-0"></span>
+<span>제출 방법</span>
+</div>
+<span class="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">미체크</span>
+</div>
+<p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed mt-2 pl-6">
+현지 오프라인 접수 창구 vs 공공포털 온라인 사전 신청
+</p>
+</div>
+</div>
+<!-- Box 3 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-colors min-h-[110px]">
+<div>
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2 text-slate-900 font-bold text-sm sm:text-base">
+<span class="w-4 h-4 rounded border-2 border-slate-400 flex items-center justify-center shrink-0"></span>
+<span>제출기한</span>
+</div>
+<span class="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">미체크</span>
+</div>
+<p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed mt-2 pl-6">
+발급일로부터 관할 관공서 유효기간 3~6개월 기준 부합 여부
+</p>
+</div>
+</div>
+</div></section>
+<!-- 05 / 지금 확인해 보세요 (Self-Verification Steps) -->
+<section data-purpose="action-checklist"><div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<h2 class="text-xs sm:text-sm font-bold text-slate-900 tracking-wide uppercase">05 / 지금 확인해 보세요</h2>
+<span class="text-xs text-slate-400 font-normal">| 대행 전 자가 확인 권장</span>
+</div>
+<span class="text-xs font-semibold text-brand-navy bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded">먼저 직접 확인</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+<!-- Step 01 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all min-h-[180px]">
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="font-mono font-bold text-brand-navy bg-slate-100 border border-slate-200 text-[11px] px-2 py-0.5 rounded">STEP 01</span>
+<span class="text-[11px] text-slate-400 font-mono">대조율 100%</span>
+</div>
+<h4 class="text-sm sm:text-base font-bold text-slate-900 mt-1 tracking-tight">실제 상황과 서류 내용 일치 대조</h4>
+<p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+여권 원본 영문 성명, 번호와 구비 서류 철자 100% 일치 확인
+</p>
+</div>
+<div class="mt-4 pt-3.5 border-t border-slate-100 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+<svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>스펠링·띄어쓰기 엄격 대조</span>
+</div>
+</div>
+<!-- Step 02 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all min-h-[180px]">
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="font-mono font-bold text-brand-navy bg-slate-100 border border-slate-200 text-[11px] px-2 py-0.5 rounded">STEP 02</span>
+<span class="text-[11px] text-slate-400 font-mono">필수 구비목록</span>
+</div>
+<h4 class="text-sm sm:text-base font-bold text-slate-900 mt-1 tracking-tight">필수 증빙 패키지 일괄 점검</h4>
+<p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+원본 서류와 함께 제출해야 하는 필수 첨부 서류 및 공증 확인
+</p>
+</div>
+<div class="mt-4 pt-3.5 border-t border-slate-100 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+<svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>공증 간인·직인 누락 점검</span>
+</div>
+</div>
+<!-- Step 03 -->
+<div class="bg-white border border-slate-200 rounded-lg p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all min-h-[180px]">
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="font-mono font-bold text-brand-navy bg-slate-100 border border-slate-200 text-[11px] px-2 py-0.5 rounded">STEP 03</span>
+<span class="text-[11px] text-slate-400 font-mono">접수 창구 요건</span>
+</div>
+<h4 class="text-sm sm:text-base font-bold text-slate-900 mt-1 tracking-tight">제출기한과 접수 방법 확인</h4>
+<p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+온라인 사전 접수 대상 여부 및 관할 행정청 방문 예약 규정 확인
+</p>
+</div>
+<div class="mt-4 pt-3.5 border-t border-slate-100 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+<svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>발급 유효기간 3~6개월 이내</span>
+</div>
+</div>
+</div></section>
+<!-- 06 / 다음 단계 (Action Card & CTAs) -->
+<section class="mt-1" data-purpose="next-step-actions"><div class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm">
+<div class="max-w-2xl">
+<span class="inline-block text-xs font-bold text-brand-navy tracking-wider uppercase bg-slate-100 border border-slate-200 px-2 py-0.5 rounded mb-1.5">진행 액션</span>
+<h3 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1 tracking-tight">검토 결과 적용 및 다음 단계</h3>
+<p class="text-sm sm:text-[15px] text-slate-600 mt-2.5 leading-relaxed font-normal">
+1차 종합 결과를 바탕으로 내 상황에 맞춘 정밀 분석을 확인하거나, 공통 실무 가이드를 열람할 수 있습니다.
+</p>
+</div>
+<!-- Action Buttons -->
+<div class="mt-6 flex flex-wrap items-center gap-3">
+<button class="inline-flex items-center justify-center bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-sm px-7 py-3.5 rounded-lg shadow-sm transition-all" type="button">
+내 상황 검토하기 →
+</button>
+<button class="inline-flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-6 py-3.5 rounded-lg border border-slate-300 shadow-sm transition-all" type="button">
+자세히 보기
+</button>
+</div>
+<!-- Fee Disclaimer Notice -->
+<div class="mt-5 pt-3.5 border-t border-slate-100 flex items-center gap-2">
+<span class="text-[11px] text-slate-400 font-medium">안내:</span>
+<p class="text-xs text-slate-400">
+행정문서 검토는 서류 유형·검토 범위에 따라 비용이 발생할 수 있습니다.
+</p>
+</div>
+</div></section>
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: MasterFooter -->
+<footer class="w-full border-t border-slate-200 bg-white py-8 mt-12 text-xs text-slate-500">
+<div class="max-w-[950px] mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+<div>
+<p class="text-slate-600">© 2024 VFBCAI. All rights reserved. Vietnam Foreign Business &amp; Compliance AI Center.</p>
+<p class="text-[11px] text-slate-400 mt-0.5">본 시스템의 1차 진단은 자가 점검 지원용 정보이며, 최종 효력 및 접수 승인은 베트남 정부 관할 기관의 고유 권한입니다.</p>
+</div>
+<nav class="flex items-center gap-4 text-slate-600">
+<a class="hover:text-slate-900 transition-colors underline-offset-4 hover:underline" href="#">VFBCAI 공식 웹사이트</a>
+<span class="text-slate-300">|</span>
+<a class="hover:text-slate-900 transition-colors underline-offset-4 hover:underline" href="#">이용약관</a>
+<span class="text-slate-300">|</span>
+<a class="hover:text-slate-900 transition-colors underline-offset-4 hover:underline" href="#">개인정보처리방침</a>
+</nav>
+</div>
+</footer>
+<!-- END: MasterFooter -->
+</body></html>

@@ -1,0 +1,37 @@
+---
+description: VFBCAI core development constitution
+alwaysApply: true
+---
+
+# VFBCAI / CURSOR DEVELOPMENT CONSTITUTION
+
+`#최적지시문` 작업 방식과 개발 헌법을 모든 세션에 적용한다.
+
+## Engine / 불변 원칙
+
+- Engine 순서: CHECK → VERIFY → REGISTER → PROTECT. 이름·순서를 바꾸지 않는다.
+- 고객 UI 가격은 COST CHECK 참고용만. 가격 추측·환율 계산·새 금액 생성 금지.
+- 고객-facing 전문가 라벨은 `VFBCAI 전문가팀`만. 실명·외부 기관명 금지.
+- AI가 법률 판단을 확정 표현하지 않는다. `정부 데이터베이스` 과장을 쓰지 않는다.
+- 법령·사실·기사를 만들지 않는다. 인용은 확인된 출처만.
+
+## #최적지시문 작업 방식
+
+지시문이 `[VFBCAI / … / #최적지시문]`이면 아래를 그대로 따른다.
+
+1. 목표 한 가지만 수행한다. 한 번에 하나의 기능만 작업한다.
+2. 실제 코드를 먼저 조사한다. 추측하지 않는다.
+3. 최소 파일만 수정한다. 기존 구조·비즈니스 로직을 재사용한다.
+4. 불필요한 리팩터링·UI redesign·새 컴포넌트 생성을 하지 않는다.
+5. DB / API / CRM / Storage / RLS를 임의로 변경하지 않는다.
+6. PC와 Mobile(375px)을 항상 함께 수정·검수한다. PC = Full Information · Mobile = Focused / Simplified (단순 축소 아님). UI QA는 `06-ui-design-responsive-typography-qa.mdc` 미충족 시 PASS 금지.
+7. 구현과 QA를 가능한 경우 분리한다. QA ONLY면 코드를 수정하지 않는다.
+8. 코드 수정 후 `npx tsc --noEmit`을 실행한다.
+9. 목표를 달성하면 추가 수정하지 않는다. Cursor 사용량을 최소화한다.
+10. commit / push / deploy는 별도 지시가 있을 때만 수행한다.
+
+## 금지 (기본)
+
+- 존재하지 않는 경로·가격·법령을 추측하거나 생성하지 않는다.
+- 지시되지 않은 서비스·화면·파일을 수정하지 않는다.
+- 작업 범위 밖의 탐색·리팩터링·기능 확장을 하지 않는다.

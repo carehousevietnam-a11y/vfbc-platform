@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "stitch": {
+      "command": "node",
+      "args": ["C:/vfbcai-platform/.cursor/stitch-mcp-proxy.mjs"],
+      "env": {
+        "STITCH_API_KEY": "",
+        "STITCH_MCP_URL": "https://stitch.googleapis.com/mcp"
+      }
+    }
+  }
+}

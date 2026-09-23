@@ -1,0 +1,34 @@
+---
+description: VERIFY 퍼널 — 고객 질문·CASE·직접 설명·Situation Profile 분리
+globs: src/app/verify/**,src/components/cost-check/**,src/components/ui/**,src/lib/adminVerifyProfiling.ts
+alwaysApply: false
+---
+
+# VFBCAI Funnel / Profile Rule
+
+권위: `docs/VFBCAI_CONSTITUTION.md` 및 `.cursor/rules/vfbcai-authority.mdc`. 충돌 시 최신 헌법·확정 설계 우선.
+
+## 질문 vs Situation Profile
+
+- Situation Profile은 **내부 구조화 데이터**. 고객-facing 프로파일링·내부 수집용·이미 답한 사실 재질문 **금지**.
+- 모든 질문은 **현재 사건 해결에 필요한 사실**만 확인. 질문 수를 늘리기 위한 추가 **금지**.
+
+## Context Lock · CASE 독립성
+
+- CASE 결정 후 **다른 CASE 질문·선택지 혼합 금지**. 무관 도메인(세금·노동·법원 등) 자동 삽입 **금지**.
+- VERIFY 행정문서 CASE: `CASE_01` 위반·문제 통지 · `CASE_02` 납부 요구 · `CASE_03` 출석·소명 · `CASE_04` 보완 · `CASE_05` 처분·조치 · `CASE_06` 불명확.
+- CASE별 질문·선택지는 **해당 사건 논리로 독립** 유지. 범용 배열로 의미 다른 선택지 합치기 **금지**.
+
+## Known / Unknown · 1차 / 2차
+
+- 제공된 사실 **재질문 금지**. Unknown 중 사건 해결에 **필요한 것만** 다음 질문.
+- **1차**: 최소 핵심 사실 → 1차 결과. **2차**: 1차 미확인 개인화만(필요 시). 1차 확인 사실 2차 **반복 금지**.
+
+## 직접 설명하기
+
+일반 선택지가 **아님**: 번호 없음 · SelectionCard 일반 배열에 넣지 않음 · **별도 UI** · 클릭 시 텍스트 입력 · 미입력 시 완료 처리 **금지** · 저장 후 다음 질문.
+
+## 흐름 · 결과
+
+선택 → **답변 저장** → CASE 상태 갱신 → 다음 미완료 질문. 선택만 되고 미저장 **금지**.
+결과는 질문·답변 근거만. 답변 없는 사실 생성 · Unknown→Risk 자동 해석 · 답변만으로 법률 결론 확정 **금지**.

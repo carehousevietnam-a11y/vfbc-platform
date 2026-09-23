@@ -1,0 +1,23 @@
+---
+description: VFBCAI 규칙 버전 우선순위 및 최신 헌법 권위
+alwaysApply: true
+---
+
+# VFBCAI 규칙 권위 (Authority)
+
+## 최우선 기준
+
+1. **VFBCAI 최신 개발헌법이 최우선**이다.
+2. **버전 충돌 시 최신 버전을 따른다.** 최신 버전은 이전 시행착오를 반영해 압축·정리된 기준이므로, 과거 문서를 자동으로 우선하지 않는다.
+3. **현재 최신 기준 파일**: `docs/VFBCAI_CONSTITUTION.md`
+
+## 보조·하위 규칙
+
+4. Legacy `.cursorrules`는 **삭제·수정하지 않고** 보조 규칙으로 취급한다. 헌법과 충돌하면 헌법이 우선한다.
+5. `.cursor/rules/`의 다른 규칙(예: `vfbcai-core.mdc`)과 충돌하면 **최신 헌법 기준**에 맞춰 판단한다.
+   UI QA는 헌법 §10 + `.cursor/rules/06-ui-design-responsive-typography-qa.mdc`가 최신 확정이다.
+
+## 작업 원칙
+
+6. 실제 최신 코드·문서를 확인하지 않고 **추측하지 않는다.**
+7. 기존 git 작업 트리를 **임의로 정리·revert·reset·삭제하지 않는다.**

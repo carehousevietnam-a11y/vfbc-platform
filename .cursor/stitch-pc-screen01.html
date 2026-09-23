@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MY VIET CHECK - VERIFY / 행정문서</title>
+<!-- Tailwind CSS CDN with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Custom Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandNavy: '#0f172a',
+            ctaNavy: '#3b5278',
+            subtleBorder: '#e2e8f0',
+            lightBg: '#fbfcfd'
+          },
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+<!-- Custom Styles for Precise Optical Baseline and Micro-Details -->
+<style data-purpose="custom-layout">
+    body {
+      background-color: #ffffff;
+      color: #0f172a;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .active-nav-indicator {
+      position: relative;
+    }
+    .active-nav-indicator::after {
+      content: '';
+      position: absolute;
+      bottom: -11px;
+      left: 0;
+      right: 0;
+      height: 2.5px;
+      background-color: #0f172a;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-slate-900 font-sans selection:bg-slate-200">
+<!-- BEGIN: GlobalHeader -->
+<header class="w-full border-b border-slate-100 bg-white" data-purpose="global-header"><div class="max-w-[1200px] mx-auto px-6 h-[72px] flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 shadow-sm">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+<path d="m9 12 2 2 4-4"></path>
+</svg>
+</div>
+<div class="flex flex-col justify-center"><h1 class="text-[18px] font-bold tracking-tight text-slate-900 leading-none">MY VIET CHECK</h1>
+<p class="text-[11.5px] font-medium text-slate-400 tracking-wider mt-1 leading-none">by VFBCAI</p></div>
+</div>
+<nav class="flex items-center gap-9"><div class="flex flex-col items-center cursor-pointer group py-2">
+<span class="text-[14px] font-semibold tracking-wide text-slate-600 group-hover:text-slate-900 leading-none transition-colors">CHECK</span>
+<span class="text-[11px] font-medium text-slate-400 mt-1.5 leading-none">확인</span>
+</div>
+<div class="flex flex-col items-center cursor-pointer active-nav-indicator py-2 relative">
+<span class="text-[14px] font-bold tracking-wide text-slate-900 leading-none">VERIFY</span>
+<span class="text-[11px] font-semibold text-slate-700 mt-1.5 leading-none">검토</span>
+</div>
+<div class="flex flex-col items-center cursor-pointer group py-2">
+<span class="text-[14px] font-semibold tracking-wide text-slate-600 group-hover:text-slate-900 leading-none transition-colors">REGISTER</span>
+<span class="text-[11px] font-medium text-slate-400 mt-1.5 leading-none">인허가</span>
+</div>
+<div class="flex flex-col items-center cursor-pointer group py-2">
+<span class="text-[14px] font-semibold tracking-wide text-slate-600 group-hover:text-slate-900 leading-none transition-colors">PROTECT</span>
+<span class="text-[11px] font-medium text-slate-400 mt-1.5 leading-none">진단</span>
+</div></nav>
+<div aria-hidden="true" class="w-9 invisible"></div>
+</div></header>
+<!-- END: GlobalHeader -->
+<!-- BEGIN: MainContentContainer -->
+<main class="max-w-[975px] mx-auto px-6 pt-5 pb-5"><!-- BEGIN: SubCategoryTabs -->
+<div class="flex justify-center mb-6" data-purpose="category-navigation"><div class="inline-flex items-center gap-2">
+<button aria-current="page" class="px-4 py-1.5 rounded-lg border-[1.5px] border-slate-900 bg-white text-[12.5px] font-semibold text-slate-900 shadow-sm">
+          행정문서
+        </button>
+<button class="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-[12.5px] font-normal text-slate-600 hover:border-slate-300 transition-colors">
+          부동산 문서
+        </button>
+<button class="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-[12.5px] font-normal text-slate-600 hover:border-slate-300 transition-colors">
+          사기문서
+        </button>
+<button class="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-[12.5px] font-normal text-slate-600 hover:border-slate-300 transition-colors">
+          세무문서
+        </button>
+<button class="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-[12.5px] font-normal text-slate-600 hover:border-slate-300 transition-colors">
+          불확실한 문서
+        </button>
+</div></div>
+<!-- END: SubCategoryTabs -->
+<!-- BEGIN: PageTitleArea -->
+<div class="mb-5" data-purpose="page-title-section">
+<div class="text-[11px] font-bold tracking-widest text-slate-400 uppercase mb-1">VERIFY</div>
+<h2 class="text-[25px] font-bold text-slate-900 tracking-tight leading-tight">
+    행정문서
+  </h2>
+<p class="text-[13px] text-slate-500 mt-1.5 leading-relaxed">
+    베트남 행정문서를 제출하거나 처리하기 전에<br/>중요한 부분을 직접 확인해보세요.
+  </p>
+</div>
+<!-- END: PageTitleArea -->
+<!-- BEGIN: MainReviewCard -->
+<div class="border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden" data-purpose="interactive-review-panel">
+<!-- Top Grid: Left Questions & Right Reference Info -->
+<div class="grid grid-cols-12">
+<!-- Left Column: Verification Flow Form -->
+<div class="col-span-8 p-8 border-r border-slate-100 flex flex-col justify-between" data-purpose="survey-flow-column">
+<div>
+<div class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+              VFBCAI · VERIFY
+            </div>
+<h3 class="text-[18px] font-bold text-slate-900 mt-1 tracking-tight">
+              행정문서 리뷰 확인서
+            </h3>
+<div class="text-[10px] tracking-widest text-slate-400 font-semibold mt-0.5 uppercase">
+              QUOTATION REPORT
+            </div>
+<div class="h-[1px] bg-slate-100 my-5"></div>
+<div class="flex items-center gap-3 mb-5">
+<span class="text-[12px] font-bold text-slate-900 leading-none">01 / 06</span>
+<div class="w-[100px] h-[3.5px] bg-slate-100 rounded-full overflow-hidden flex items-center">
+<div class="w-[16.6%] h-full bg-slate-900 rounded-full"></div>
+</div>
+</div>
+<div class="mb-6">
+<h4 class="text-[24px] font-bold text-slate-900 tracking-tight leading-snug">
+    어떤 검토가 필요하신가요?
+  </h4>
+</div>
+<!-- Vertical stack for choice cards -->
+<div class="space-y-3">
+<div class="group border border-slate-200 hover:border-slate-900 rounded-xl p-4 cursor-pointer bg-white hover:bg-slate-50/50 transition-all flex items-center justify-between shadow-sm" data-purpose="option-card-1">
+<div class="flex items-start gap-3.5">
+<span class="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-bold text-slate-700 bg-slate-100 rounded mt-0.5">01</span>
+<div>
+<div class="text-[16px] font-bold text-slate-900 leading-snug">
+          제출·계약 전 서류 검토
+        </div>
+<div class="text-[13.5px] text-slate-600 font-normal leading-normal mt-1">
+          서류를 제출하거나 계약하기 전에 확인하고 싶어요.
+        </div>
+</div>
+</div>
+<div class="text-slate-400 group-hover:text-slate-900 text-[18px] font-medium transition-colors ml-4">
+      →
+    </div>
+</div>
+<div class="group border border-slate-200 hover:border-slate-900 rounded-xl p-4 cursor-pointer bg-white hover:bg-slate-50/50 transition-all flex items-center justify-between shadow-sm" data-purpose="option-card-2">
+<div class="flex items-start gap-3.5">
+<span class="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-bold text-slate-700 bg-slate-100 rounded mt-0.5">02</span>
+<div>
+<div class="text-[16px] font-bold text-slate-900 leading-snug">
+          문제 발생 후 대응 검토
+        </div>
+<div class="text-[13.5px] text-slate-600 font-normal leading-normal mt-1">
+          서류와 관련해 문제가 생겨 어떻게 대응해야 할지 확인하고 싶어요.
+        </div>
+</div>
+</div>
+<div class="text-slate-400 group-hover:text-slate-900 text-[18px] font-medium transition-colors ml-4">
+      →
+    </div>
+</div>
+</div>
+<div class="mt-5 text-[12px] text-slate-400 font-normal">
+  공식 법령·행정자료를 기준으로 검토합니다.
+</div>
+</div>
+</div>
+<!-- Right Column: Official Sources and Actions -->
+<div class="col-span-4 p-6 bg-slate-50/40 flex flex-col justify-between" data-purpose="sidebar-actions-column"><div class="bg-[#fbfcfd] border border-[#eef2f6] rounded-xl p-4 shadow-sm" data-purpose="official-sources-card">
+<span class="text-[10px] tracking-widest font-bold text-slate-400 block uppercase">OFFICIAL SOURCES</span>
+<h5 class="text-[13px] font-bold text-slate-900 mt-1 leading-snug">공식 법령·법률자료 기준 확인</h5>
+<p class="text-[11.5px] text-slate-500 leading-normal mt-1 mb-3.5">
+              베트남 공식 법령·법률자료를 검토 기준으로 참고합니다.
+            </p>
+<ul class="space-y-2 mb-3.5">
+<li class="flex items-center text-[12px] font-semibold text-slate-800">
+<span class="w-1 h-1 rounded-full bg-slate-400 mr-2 inline-block flex-shrink-0"></span>
+                Bộ Tư pháp <span class="font-normal text-slate-500 text-[11px] ml-1.5">법무부</span>
+</li>
+<li class="flex items-center text-[12px] font-semibold text-slate-800">
+<span class="w-1 h-1 rounded-full bg-slate-400 mr-2 inline-block flex-shrink-0"></span>
+                Quốc hội <span class="font-normal text-slate-500 text-[11px] ml-1.5">베트남 국회</span>
+</li>
+<li class="flex items-center text-[12px] font-semibold text-slate-800">
+<span class="w-1 h-1 rounded-full bg-slate-400 mr-2 inline-block flex-shrink-0"></span>
+                Tòa án nhân dân tối cao <span class="font-normal text-slate-500 text-[11px] ml-1.5">최고인민법원</span>
+</li>
+</ul>
+<div class="text-[10.5px] text-slate-400 border-t border-slate-100/80 pt-2.5 leading-tight">
+              출처는 검토 시점의 공식 자료를 기준으로 합니다.
+            </div>
+</div>
+<div class="mt-6" data-purpose="cta-group"><div class="p-3.5 bg-white border border-slate-200 rounded-xl text-center shadow-sm"><div class="text-[12px] font-medium text-slate-700 leading-snug">원하시는 검토 유형을 선택해 주세요</div><p class="text-[11px] text-slate-400 mt-1 leading-tight">카드를 선택하면 다음 검토 질문(02/06)으로 자동 진행됩니다.</p></div></div></div>
+</div>
+<!-- Card Footer / Legal Notice -->
+<footer class="border-t border-slate-100 bg-white py-3.5 px-6 text-center" data-purpose="report-card-footer"><div class="text-[10.5px] text-slate-400 font-medium tracking-wide leading-tight">
+          VFBCAI · www.vfbcai.com · Check. Verify. Register. Protect.
+        </div>
+<div class="text-[11.5px] text-slate-500 font-normal mt-1 leading-tight">
+          행정문서 검토는 서류 유형·검토 범위에 따라 상담 비용이 발생할 수 있습니다.
+        </div></footer>
+</div>
+<!-- END: MainReviewCard -->
+</main>
+<!-- END: MainContentContainer -->
+</body></html>

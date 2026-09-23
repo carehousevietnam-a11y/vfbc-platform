@@ -1,0 +1,62 @@
+---
+description: VFBCAI 개발 실행 규칙 — 조사·범위·재사용·엔진 분리
+alwaysApply: true
+---
+
+# VFBCAI Development Rules
+
+## 작업 순서
+
+모든 개발 작업은 다음 순서를 따른다.
+
+1. **조사** — 프로젝트 루트, 관련 파일, 기존 구현, 영향 범위 확인
+2. **영향 범위 확인** — 수정 파일·연관 서비스·회귀 가능성 파악
+3. **계획** — 목표 한 가지, 최소 변경 경로 정리
+4. **구현** — 필요한 파일만 수정
+5. **자율 QA** — `03-qa-self-loop.mdc` 프로토콜 실행
+6. **결과 보고** — 변경 내용·검증·남은 문제
+
+## 구현 원칙
+
+- **필요한 파일만 수정한다.** 지정되지 않은 파일은 건드리지 않는다.
+- **기존 컴포넌트·로직·타입·패턴을 우선 재사용한다.**
+- UI 작업이면 PC = Full Information · Mobile = Focused / Simplified. PC 레이아웃을 Mobile에 축소 복제하지 않는다.
+- 새 구조를 만들기 전에 **기존 구조에 적용 가능한지** 확인한다.
+- 사용자가 명시하지 않은 기능·화면·API를 추가하지 않는다.
+- 디자인 개선을 이유로 **확정된 UX·비즈니스 로직**을 변경하지 않는다.
+- 한 곳의 문제를 해결하기 위해 **다른 서비스 코드를 임의 변경**하지 않는다.
+- 작업 중 발견한 별도 문제는 현재 작업에 섞지 않고 **별도 이슈**로 분리한다.
+
+## Engine / 서비스 분리
+
+- **CHECK / VERIFY / REGISTER / PROTECT** 역할을 혼용하지 않는다.
+- 서비스 간 코드가 비슷하다는 이유만으로 **복사·동기화하지 않는다.** 각 서비스 실제 구현을 확인 후 최소 변경한다.
+- **Government-first, AI-second** 원칙을 유지한다.
+
+### 서비스 구조 (참고)
+
+- CHECK: `trc`, `wp`, `tamtru`, `driving-license` (`src/app/check/*`)
+- VERIFY: `admin`, `real-estate`, `fraud`, `tax`, `unclear` (`src/app/verify/*`)
+- REGISTER: `company`, `restaurant`, `fire-safety`, `hygiene`, `environment`, `cosmetics`, `medical-device`, `franchise` (`src/app/register/*`)
+- PROTECT: `src/app/protect/*`
+
+## 질문·프로파일링
+
+- 질문은 단순 UX 설문이 아니라 **실제 사건 해결에 필요한 사실**을 확보하기 위한 것이다.
+- Situation Profile은 **별도 설문이 아니라** 기존 질문 과정에 자연스럽게 통합한다.
+- 고객-facing 프로파일링·이미 답한 사실 재질문은 금지한다. (`vfbcai-funnel-profile.mdc`)
+
+## #최적지시문
+
+지시문에 `#최적지시문`이 포함되면 `vfbcai-core.mdc`의 작업 방식을 그대로 따른다.
+
+## 변경 승인 필요 (사전 확인)
+
+다음은 사용자 승인 없이 진행하지 않는다.
+
+- DB schema / Supabase migration / RLS 변경
+- 인증·권한 구조 변경
+- 외부 API 계약 변경
+- 기존 핵심 비즈니스 로직 변경
+- 대규모 구조 변경
+- 요구사항 상호 충돌로 판단이 필요한 경우

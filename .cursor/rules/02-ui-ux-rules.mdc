@@ -1,0 +1,68 @@
+---
+description: VFBCAI UI/UX 규칙 — 확정 구조 보존·PC Full vs Mobile Focused·Master Funnel
+alwaysApply: true
+---
+
+# VFBCAI UI/UX Rules
+
+## 기본 원칙
+
+- **기존 확정 UI 구조를 우선 보존한다.**
+- **시각 개선**과 **구조 변경**을 구분한다. 구조 변경은 명시 요청이 있을 때만.
+- 정보 위계, 가독성, 신뢰성, 직관성을 우선한다.
+- 불필요한 설명·장식·마케팅 문구를 추가하지 않는다.
+- 기존 브랜드 및 서비스 구조(MY VIET CHECK / VFBCAI)를 유지한다.
+
+## Desktop / Mobile
+
+- **Desktop 레이아웃**은 요청 없이 변경하지 않는다.
+- **Mobile(375px)** 수정은 요청된 범위 안에서만 수행한다.
+- PC와 Mobile을 함께 수정·검수하는 작업이면 **양쪽 모두** 확인한다.
+- PC ≠ Mobile 단순 축소. **PC = Full Information** · **Mobile = Focused / Simplified**. 의미·비즈니스 로직은 동일, 표현은 달라야 한다.
+- UI QA는 `.cursor/rules/06-ui-design-responsive-typography-qa.mdc` FINAL 기준을 충족해야 한다. 깨지지 않음만으로 PASS 금지.
+
+## Master Funnel / 퍼널 UX
+
+- **Master Funnel 구조**를 임의 변경하지 않는다.
+- CHECK Master UI(TRC) 및 QA 완료된 확정 UX를 회귀시키지 않는다.
+- 결과 화면의 핵심 섹션을 **답변 내용이 없다는 이유로 임의 제거**하지 않는다.
+- 직접 설명하기는 일반 numbered choice가 아닌 **별도 UX**로 유지한다. (`vfbcai-funnel-profile.mdc`)
+
+## Re-entry / 사용자 상태
+
+VFBCAI CHECK / VERIFY / REGISTER의 재진입 정책(NEW CASE, EXISTING CASE, `?start=check`, `?restore=1` 등)은 `docs/VFBCAI_CONSTITUTION.md` 확정 기준을 따르고 임의 변경하지 않는다.
+
+## UI 작업 시 금지
+
+- 확정된 선택지·질문 문구·CASE 분기를 요청 없이 변경
+- 다른 CASE 선택지·문구 혼입
+- Master Funnel Landing·Quotation Report 핵심 흐름 재설계
+- 가격·실명·외부 기관명 노출
+
+## Result CTA (1차/2차)
+
+- 1차 종합 결과 하단 CTA는 inline button 나열이 아닌 **선택 박스 구조** (`VerifyResultDualActionCards` 계열).
+- 1차·2차 CTA는 **디자인 언어만 통일**, route·handler·목적은 분리.
+- 하단 CTA / 안내 / footer는 container 구조상 **시각적 단절 없이** 연결.
+- 상세: `.cursor/skills/vfbcai-master-development/SKILL.md` § RESULT CTA ARCHITECTURE — FINAL
+
+## Master Funnel state transition
+
+- Phase1 evidence gate → signup → 1차 결과는 **단방향**; continue 이후 질문/Q1 복귀 금지.
+- RE Master side rail: QUESTION GUIDE / OFFICIAL SOURCES만 — 「내 상황 검토하기」/「자세히 보기」 **중복 CTA 금지**.
+- 상세: `.cursor/skills/vfbcai-master-development/SKILL.md` § MASTER RESULT FUNNEL STATE TRANSITION — FINAL
+- 상세: `.cursor/skills/vfbcai-master-development/SKILL.md` § MASTER FUNNEL UI / STATE CONTINUITY — FINAL
+- 상세: `.cursor/skills/vfbcai-master-development/SKILL.md` § MASTER FUNNEL TRANSITION INTEGRITY — FINAL
+- Evidence → Signup → Result 전환 중 질문 UI 재노출 = Funnel Regression; CSS/setTimeout masking 금지.
+- Real Estate 1차 Result 전용 제거: 미리보기, 비용/진행 방식 안내, duplicate 「검토 항목 안내」 header.
+- member handoff(`skipSignup=true`) / `submitAsMember()` async 구간: question fallback 금지 — `isRealEstateMemberProfilingHandoff` + `isRealEstateQuestionScreenSuppressed` 적용.
+- parallel gate vacuum state는 명시 suppression으로 차단; Browser E2E transition 중간 화면 0회 = PASS 조건.
+- MEMBER_HANDOFF async: UI loading은 pending promise resolve만으로 해제되면 안 됨 — SUCCESS / FAILURE / EXCEPTION / TIMEOUT terminal exit 필수 (상세: Master Skill § MASTER MEMBER HANDOFF ASYNC TERMINAL EXIT — FINAL).
+- member attach hang 시 infinite loading 금지 — 기존 SIGNUP RETRY UX로 복귀; 실패 경로에서 질문 UI flash 금지.
+- Real Estate · Admin 등 Master funnel 간 동일 terminal-exit 원칙 적용 — 한쪽만 guard 추가 금지.
+
+## 관련 경로 (참고)
+
+- 공통 퍼널: `src/components/cost-check/`, `src/components/engine/`, `src/components/ui/`
+- 엔진 랜딩: `src/app/check/`, `src/app/verify/`, `src/app/register/`, `src/app/protect/`
+- UI FINAL QA: `.cursor/rules/06-ui-design-responsive-typography-qa.mdc` · Master Skill 동명 섹션

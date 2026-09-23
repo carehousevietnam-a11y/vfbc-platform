@@ -1,0 +1,62 @@
+---
+description: VFBCAI 질문 퍼널 및 Situation Profiling 작업 전용 규칙
+globs:
+  - "src/lib/*Profiling*.ts"
+  - "src/components/**/*Funnel*.tsx"
+  - "src/app/**/verify/**"
+alwaysApply: false
+---
+# VFBCAI QUESTION FUNNEL RULE
+
+## Mission
+질문을 survey처럼 만들지 않는다.
+사용자의 실제 상황을 재구성하고 전문가가 판단 가능한 Situation Profile을 만드는 것이 목적이다.
+
+## 작업 순서
+1. 기존 Question Library 조사
+2. 기존 Profile 구조 조사
+3. 기존 Gate / Predicate 조사
+4. Investigation Axis 확인
+5. P1 → P2 정보 중복 확인
+6. 필요한 Gate/Branch 설계
+7. 질문 표현 고도화
+8. 선택지 의미 중복 검사
+9. 외국인 사용자 이해도 검사
+10. Profile 연결 확인
+11. Adaptive Branch 확인
+12. TypeScript QA
+
+## P1
+- 상황의 기본 골격을 확보한다.
+- 사용자가 처음부터 지나치게 많은 정보를 입력하도록 만들지 않는다.
+
+## P2
+- P1 답변에 따라 달라지는 개인화 조사다.
+- P1의 표현을 바꿔 반복하지 않는다.
+- 사건의 실제 사실관계, 기관의 주장/요구, 관계, 대응, 후속 반응, 현재 상태, 증거 등을 필요한 만큼 조사한다.
+- 질문 수 자체보다 조사 깊이와 정보 완성도를 우선한다.
+- P2가 단순히 P1의 카테고리를 반복하는 구조가 되면 수정한다.
+
+## STOP
+STOP은 질문 개수로 결정하지 않는다.
+
+STOP 조건:
+- 해당 CASE의 MINIMUM PROFILE을 충족하고
+- 전문가가 사건을 처음부터 다시 질문하지 않아도 이해할 수 있으며
+- 남은 Unknown이 판단에 의미 있는 정보를 추가하지 않는 경우
+
+## 표현 고도화
+질문과 선택지를 작성할 때 반드시 확인한다.
+- 실제 상황을 사용자가 스스로 판단할 수 있는가?
+- 선택지들이 서로 다른 상황인가?
+- 선택지 간 의미가 겹치지 않는가?
+- 외국인이 행정용어를 몰라도 답할 수 있는가?
+- "모르겠습니다" 대신 상황에 맞는 불확실성 표현인가?
+- 직접 입력 경로가 있는가?
+- 답변이 실제 Profile/Gate/Branch에 영향을 주는가?
+
+## 기존 구조 보존
+- 기존 Question ID를 우선 재사용한다.
+- 신규 질문은 기존 Library로 필요한 정보를 확보할 수 없는 경우에만 검토한다.
+- 질문을 추가하기 전에 기존 Gate가 잘못 닫혀 있는지 먼저 확인한다.
+- Profile 문제를 UI 문구 수정으로 해결하지 않는다.
