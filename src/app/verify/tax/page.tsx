@@ -20,7 +20,7 @@ import {
   Receipt,
   FileQuestion,
 } from "lucide-react";
-import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard } from "@/components/ui";
+import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormFunnelHeaderAlignProps, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
 import {
@@ -208,7 +208,7 @@ function ConsentDetails({
       )}
 
       {open && (
-        <div className="mt-2 space-y-3 text-gray-600">
+        <div className="mt-2 space-y-3 text-[#64748B]">
           <div>
             <p className="font-semibold text-gray-700">🇻🇳 Việt Nam (nguyên văn)</p>
             <p>
@@ -581,10 +581,10 @@ function VerifyTaxLeadCapture({
   return (
     <div>
       <VerifyFormPageHeader />
-      <VerifyFormPreviewPanel isLow={isLow} riskGauge={<RiskGauge riskLevel={riskLevel} />} />
+      <VerifyFormPreviewPanel isLow={isLow} riskGauge={<RiskGauge riskLevel={riskLevel} size={76} />} />
 
       <VerifyFormFieldsSection lang={lang}>
-        <form onSubmit={onSubmit} className="mt-4 space-y-3">
+        <form onSubmit={onSubmit} className="mt-3 space-y-2.5">
           <input
             type="text"
             name="name"
@@ -675,12 +675,12 @@ function VerifyTaxLeadCapture({
               }`}
             />
           </div>
-          <p className={`-mt-1 text-[11px] ${(touched.kakao_id || touched.zalo_id) && liveErrors.sns ? "text-red-600" : "text-gray-400"}`}>
+          <p className={`-mt-1 text-[12px] leading-[1.45] ${(touched.kakao_id || touched.zalo_id) && liveErrors.sns ? "text-red-600" : "text-[#64748B]"}`}>
             {LEAD_FORM_MESSAGES[lang].sns.required}
           </p>
 
           <div>
-            <label className="flex items-start gap-2 text-xs text-gray-600">
+            <label className="flex items-start gap-2 text-[12px] leading-[1.5] text-[#64748B]">
               <input
                 type="checkbox"
                 name="agreeTerms"
@@ -708,14 +708,14 @@ function VerifyTaxLeadCapture({
           </PrimaryButton>
         </form>
 
-        <div className="mt-3">
-          <InfoBox>{getVerifyFormPrivacyText(lang)}</InfoBox>
+        <div className="mt-2.5">
+          <InfoBox className="text-[#64748B]">{getVerifyFormPrivacyText(lang)}</InfoBox>
         </div>
 
         <button
           type="button"
           onClick={onReset}
-          className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+          className="mt-3 block text-[12px] text-[#64748B] hover:text-[#475569]"
         >
           {LEAD_FORM_MESSAGES[lang].resetLabel}
         </button>
@@ -855,6 +855,8 @@ export default function VerifyTaxPage() {
       setPage1ReviewAnswers(page1);
       const mapped = mapReviewPage1StageToVerifyStage(page1Answers.stage);
       if (mapped) setReviewStage(mapped);
+      setLandingDone(true);
+      return;
     }
     setLandingDone(true);
   }
@@ -1326,7 +1328,7 @@ export default function VerifyTaxPage() {
         setAiReportRequesting(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "VERIFY_TAX",
           token: resultToken ?? undefined,
@@ -1374,6 +1376,7 @@ export default function VerifyTaxPage() {
         <FunnelPageHeader
           engine="verify"
           hideHomeChrome
+          {...getVerifyFormFunnelHeaderAlignProps(landingDone, step, skipSignup)}
           title={
             landingDone
               ? pageHeader.title
@@ -1398,7 +1401,7 @@ export default function VerifyTaxPage() {
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
         {landingDone && !restoreVerifyPending && step === "incident" && (
           <div className="w-full">
-            {/* 질문 1 — Prevent Review / Case Review */}
+            {/* 질문 1 — Prevent Review / Case Review (Page 1에서 이미 받은 경우 생략) */}
             {!reviewStage && !page2FromPage1 && (
               <div className="mt-4 sm:mt-5">
                 <VerifyStepLayout
