@@ -1488,7 +1488,7 @@ export default function TamTruCheckPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "TAMTRU",
           token: resultToken ?? undefined,

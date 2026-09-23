@@ -24,6 +24,8 @@ import {
   computeReviewScore,
 } from "@/components/cost-check/ReviewScoreGauge";
 import { TrcSummarySidebar } from "@/components/cost-check/TrcSummarySidebar";
+import { selectionIconTabClasses } from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
 
 /** TRC 확인하기 Master UI — 견적서 문서형. 다른 서비스에서는 사용하지 않음. */
 const TRC_SERVICE = getCostCheckService("trc");
@@ -774,6 +776,7 @@ export function MasterTrcContextTabs({
   directDesc = "절차 · 서류 · 안내",
   /** REGISTER: 탭 박스 안 텍스트 상·하 여백을 균형 있게 */
   balancedInset = false,
+  variant = "default",
 }: {
   active: "lookup" | "direct";
   onChange: (tab: "lookup" | "direct") => void;
@@ -782,6 +785,8 @@ export function MasterTrcContextTabs({
   directLabel?: string;
   directDesc?: string;
   balancedInset?: boolean;
+  /** VERIFY Stitch SCREEN — Action Card 행 */
+  variant?: "default" | "stitch";
 }) {
   const tabs = [
     {
@@ -798,9 +803,56 @@ export function MasterTrcContextTabs({
     },
   ];
 
+  if (variant === "stitch") {
+    return (
+      <div className="mb-6 grid grid-cols-2 gap-4">
+        {tabs.map((t) => {
+          const TabIcon = t.icon;
+          const isActive = active === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onChange(t.id)}
+              className={cn(
+                "flex h-16 items-center justify-center gap-3 rounded-xl px-5 text-left transition-all",
+                isActive
+                  ? "border-[1.5px] border-slate-400 bg-slate-50/50"
+                  : "border border-[#e2e8f0] bg-white hover:border-slate-300",
+              )}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <TabIcon
+                className={cn(
+                  "h-4 w-4 shrink-0",
+                  isActive ? "text-slate-700" : "text-slate-500",
+                )}
+                strokeWidth={1.5}
+                aria-hidden
+              />
+              <span className="min-w-0">
+                <span
+                  className={cn(
+                    "block text-[14px] leading-snug",
+                    isActive ? "font-semibold text-slate-900" : "font-medium text-slate-700",
+                  )}
+                >
+                  {t.label}
+                </span>
+                <span className="mt-0.5 block text-[11.5px] font-normal leading-tight text-slate-500">
+                  {t.desc}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
-    <div className="mb-2 grid grid-cols-2 overflow-hidden rounded-[8px] border border-[#D8DEE8] sm:mb-3">
-      {tabs.map((t, index) => {
+    <div className="mt-3 grid grid-cols-2 gap-2.5 sm:mt-4 sm:mb-3 sm:gap-3">
+      {tabs.map((t) => {
         const TabIcon = t.icon;
         const isActive = active === t.id;
         return (
@@ -808,37 +860,38 @@ export function MasterTrcContextTabs({
             key={t.id}
             type="button"
             onClick={() => onChange(t.id)}
-            className={`flex min-w-0 items-center justify-center gap-2 px-2 text-center transition sm:gap-2.5 sm:px-4 ${
+            className={cn(
+              "flex min-w-0 items-center justify-center gap-2 rounded-[10px] px-3 py-3 text-center sm:gap-2.5 sm:px-4 sm:py-3.5",
               balancedInset
-                ? "min-h-[52px] py-2 sm:min-h-[56px] sm:py-3"
-                : "min-h-[46px] py-1.5 sm:min-h-[50px] sm:py-2"
-            } ${index === 0 ? "border-r border-[#D8DEE8]" : ""} ${
-              isActive
-                ? "bg-[#EEF2F7] text-[#0B2A6B] shadow-[inset_0_-2px_0_0_#0B2A6B]"
-                : "bg-white text-[#0B2A6B] hover:bg-[#F8FAFC]"
-            }`}
+                ? "min-h-[54px] sm:min-h-[58px]"
+                : "min-h-[52px] sm:min-h-[56px]",
+              selectionIconTabClasses(isActive),
+            )}
             aria-current={isActive ? "page" : undefined}
           >
             <TabIcon
-              className={`h-3.5 w-3.5 shrink-0 sm:h-[15px] sm:w-[15px] ${
-                isActive ? "text-[#0B2A6B]" : "text-[#94A3B8]"
-              }`}
+              className={cn(
+                "h-4 w-4 shrink-0 sm:h-4 sm:w-4",
+                isActive ? "text-[#0B2A6B]/85" : "text-[#94A3B8]",
+              )}
               aria-hidden
             />
             <span className="flex min-w-0 flex-col items-center justify-center">
               <span
-                className={`block whitespace-nowrap leading-none sm:text-[13.5px] sm:leading-snug ${
-                  balancedInset ? "text-[14px]" : "text-[12.5px]"
-                } ${isActive ? "font-semibold" : "font-medium"}`}
+                className={cn(
+                  "block whitespace-nowrap font-medium leading-tight",
+                  balancedInset ? "text-[14px] sm:text-[13.5px]" : "text-[13px] sm:text-[13.5px]",
+                  isActive ? "text-[#0B2A6B]/85" : "text-[#475569]",
+                )}
               >
                 {t.label}
               </span>
               <span
-                className={`mt-0.5 block break-keep text-center font-normal tracking-tight sm:tracking-normal sm:text-[10.5px] sm:leading-snug ${
-                  balancedInset
-                    ? "text-[12px] leading-snug"
-                    : "text-[9px] leading-[1.25]"
-                } ${isActive ? "text-[#64748B]" : "text-[#94A3B8]"}`}
+                className={cn(
+                  "mt-0.5 block break-keep text-center font-normal leading-tight",
+                  balancedInset ? "text-[11px] sm:text-[10.5px]" : "text-[10.5px] sm:text-[10.5px]",
+                  isActive ? "text-[#64748B]/85" : "text-[#94A3B8]",
+                )}
               >
                 {t.desc}
               </span>

@@ -1451,7 +1451,7 @@ export default function DrivingLicenseCheckPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "DRIVING_LICENSE",
           token: resultToken ?? undefined,

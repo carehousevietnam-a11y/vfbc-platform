@@ -1476,7 +1476,7 @@ export default function TrcCheckPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
         leadId,
         tag: "TRC",
         token: resultToken ?? undefined,

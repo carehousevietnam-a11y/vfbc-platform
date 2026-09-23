@@ -1396,7 +1396,7 @@ export default function WpCheckPage() {
         setAiReportPending(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "WORK_PERMIT",
           token: resultToken ?? undefined,
