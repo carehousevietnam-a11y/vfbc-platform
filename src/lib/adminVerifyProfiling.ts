@@ -3921,10 +3921,7 @@ export const CASE04_ANSWER_KEYS = [
   "case04_evidenceDetail",
   "case04_unclearFocus",
   "case04_authorityFollowUp",
-  "case04_submitResponse",
-  "case04_inquiryResponse",
   "case04_repeatSupplement",
-  "case04_actualCore",
   "case04_blockage",
   "case04_evidence",
   "case04_finalGoal",
@@ -3991,13 +3988,10 @@ const CASE04_CONFIRM_GOAL_OPTIONS = [
     label: "이미 보완했는데 다시 요구하는 이유를 확인하고 싶습니다.",
   },
   {
-    value: "deadline",
-    label: "언제까지 보완해야 하는지 확인하고 싶습니다.",
-  },
-  {
     value: "unsure",
     label: "지금 무엇부터 준비하고 대응해야 할지 모르겠습니다.",
   },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_SUPPLEMENT_REASON_OPTIONS = [
@@ -4159,38 +4153,13 @@ const CASE04_AUTHORITY_FOLLOWUP_OPTIONS = [
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
-const CASE04_SUBMIT_RESPONSE_OPTIONS = [
-  { value: "confirmed", label: "보완 내용을 확인했다고 했어요" },
-  { value: "more_docs", label: "다시 추가 서류를 요구했어요" },
-  { value: "more_modify", label: "다시 수정/보완하라고 했어요" },
-  { value: "more_explanation", label: "추가 설명을 요구했어요" },
-  { value: "no_response", label: "아직 답변이 없어요" },
-  { value: "unsure", label: "기관의 답변 내용을 정확히 이해하지 못했습니다." },
-];
-
-const CASE04_INQUIRY_RESPONSE_OPTIONS = [
-  { value: "clarified", label: "보완 내용을 안내해 주었어요" },
-  { value: "more_docs", label: "추가 서류를 요구했어요" },
-  { value: "more_modify", label: "수정/보완을 요구했어요" },
-  { value: "unclear", label: "안내가 불명확했어요" },
-  { value: "unsure", label: "기관이 안내한 보완 내용을 정확히 이해하지 못했습니다." },
-];
-
 const CASE04_REPEAT_SUPPLEMENT_OPTIONS = [
   { value: "more_docs", label: "추가 서류를 다시 요구했습니다" },
   { value: "more_modify", label: "수정/보완을 다시 요구했습니다" },
   { value: "more_explanation", label: "추가 설명을 다시 요구했습니다" },
   { value: "multiple", label: "여러 가지를 다시 요구했습니다" },
   { value: "not_applicable", label: "해당 없음 / 아직 모름" },
-];
-
-const CASE04_ACTUAL_CORE_OPTIONS = [
-  { value: "supplement", label: "보완·추가 제출이 핵심입니다" },
-  { value: "payment", label: "납부가 실제 핵심입니다" },
-  { value: "attendance", label: "출석·소명이 실제 핵심입니다" },
-  { value: "disposition", label: "처분·조치가 이미 내려진 것이 핵심입니다" },
-  { value: "unclear", label: "보완 요구 내용이 불명확합니다" },
-  { value: "unsure", label: "보완 요구의 핵심이 무엇인지 정확히 파악하지 못했습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_DEADLINE_OPTIONS = [
@@ -4223,33 +4192,24 @@ const CASE04_BLOCKAGE_OPTIONS = [
   { value: "format", label: "어떤 형식·방법으로 제출해야 하는지 모르겠습니다" },
   { value: "deadline", label: "언제까지 제출해야 하는지 모르겠습니다" },
   { value: "after_submit", label: "보완 제출 후 다음 절차가 무엇인지 모르겠습니다" },
-  { value: "demand_unclear", label: "보완 요구 전체가 문서만으로는 이해되지 않습니다" },
-  { value: "unsure", label: "가장 막힌 부분을 정확히 말하기 어렵습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_EVIDENCE_OPTIONS = [
   { value: "supplement_notice", label: "보완 요구서·안내문" },
-  { value: "email", label: "기관 이메일" },
   { value: "message", label: "기관 문자·메신저·전화 안내 내역" },
   { value: "original_submission", label: "처음 제출했던 서류" },
   { value: "supplement_submission", label: "보완해서 제출한 서류" },
-  { value: "receipt", label: "접수증·제출 확인서" },
-  { value: "portal_screen", label: "온라인 접수·신고 시스템 화면" },
-  { value: "evidence_other", label: "위에 없는 다른 확인 자료" },
   { value: "none", label: "지금 확인할 수 있는 자료가 없습니다" },
-  { value: "unsure", label: "어떤 자료가 필요한지 모르겠습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_FINAL_GOAL_OPTIONS = [
   { value: "what_supplement", label: "무엇을 보완해야 하는지 확인하고 싶습니다" },
   { value: "why_supplement", label: "왜 보완이 필요한지 확인하고 싶습니다" },
   { value: "how_supplement", label: "어떻게 보완·제출해야 하는지 확인하고 싶습니다" },
-  { value: "deadline", label: "보완 제출 기한을 확인하고 싶습니다" },
   { value: "next_step", label: "제출 후 다음 절차를 확인하고 싶습니다" },
-  { value: "repeat_reason", label: "반복 보완이 요구된 이유를 확인하고 싶습니다" },
-  { value: "expert", label: "전문가에게 상황을 전달하고 싶습니다" },
-  { value: "goal_other", label: "위에 없는 다른 목표가 있습니다" },
-  { value: "unsure", label: "무엇부터 확인해야 할지 모르겠습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 export const CASE04_OPTION_LABELS: Record<string, string> = {
@@ -4264,10 +4224,7 @@ export const CASE04_OPTION_LABELS: Record<string, string> = {
   ...Object.fromEntries(CASE04_UNCLEAR_FOCUS_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE04_CUSTOMER_RESPONSE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE04_AUTHORITY_FOLLOWUP_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE04_SUBMIT_RESPONSE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE04_INQUIRY_RESPONSE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE04_REPEAT_SUPPLEMENT_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE04_ACTUAL_CORE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE04_DEADLINE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE04_BLOCKAGE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE04_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
@@ -4293,10 +4250,7 @@ const CASE04_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]
   case04_unclearFocus: CASE04_UNCLEAR_FOCUS_OPTIONS,
   case04_customerResponse: CASE04_CUSTOMER_RESPONSE_OPTIONS,
   case04_authorityFollowUp: CASE04_AUTHORITY_FOLLOWUP_OPTIONS,
-  case04_submitResponse: CASE04_SUBMIT_RESPONSE_OPTIONS,
-  case04_inquiryResponse: CASE04_INQUIRY_RESPONSE_OPTIONS,
   case04_repeatSupplement: CASE04_REPEAT_SUPPLEMENT_OPTIONS,
-  case04_actualCore: CASE04_ACTUAL_CORE_OPTIONS,
   case04_deadline: CASE04_DEADLINE_OPTIONS,
   case04_blockage: CASE04_BLOCKAGE_OPTIONS,
   case04_evidence: CASE04_EVIDENCE_OPTIONS,
@@ -4317,26 +4271,12 @@ const CASE04_REPEAT_RESPONSE_VALUES = new Set([
 ]);
 
 function getCase04AuthorityResponseValue(answers: ReviewAnswers): string | undefined {
-  if (answers.case04_authorityFollowUp) return answers.case04_authorityFollowUp;
-  const response = answers.case04_customerResponse;
-  if (response === "submitted") return answers.case04_submitResponse;
-  if (response === "inquired") return answers.case04_inquiryResponse;
-  return undefined;
+  return answers.case04_authorityFollowUp;
 }
 
 function case04HasResponded(answers: ReviewAnswers): boolean {
   const response = answers.case04_customerResponse?.trim() ?? "";
   return Boolean(response && response !== "not_started");
-}
-
-function case04NeedsTargetDetailPhase2(answers: ReviewAnswers): boolean {
-  const target = answers.case04_supplementTarget;
-  return (
-    target === "additional_docs" ||
-    target === "modify_existing" ||
-    target === "add_content_evidence" ||
-    target === "unclear"
-  );
 }
 
 function case04NeedsInitialSubmissionPhase2(answers: ReviewAnswers): boolean {
@@ -4384,15 +4324,6 @@ function case04NeedsRepeatSupplement(answers: ReviewAnswers): boolean {
   const value = getCase04AuthorityResponseValue(answers);
   if (value && CASE04_REPEAT_RESPONSE_VALUES.has(value)) return true;
   return false;
-}
-
-function case04NeedsActualCore(answers: ReviewAnswers): boolean {
-  if (answers.case04_actualCore) return false;
-  return (
-    answers.case04_supplementTarget === "unclear" ||
-    answers.case04_blockage === "demand_unclear" ||
-    answers.case04_unclearFocus === "whole_unclear"
-  );
 }
 
 function case04NeedsBlockage(answers: ReviewAnswers): boolean {
@@ -4511,11 +4442,18 @@ function appendCase04Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case04_confirmGoal",
     kind: "choice",
-    label:
-      "교통국에서는 처음 제출한 내용의 어떤 부분을 다시 확인하거나 보완해야 한다고 했나요?",
+    label: "지금 이 보완 요구에서 가장 확인하고 싶은 것은 무엇인가요?",
     options: CASE04_CONFIRM_GOAL_OPTIONS,
   });
-  if (!answers.case04_confirmGoal) return;
+  if (
+    !isAdminVerifyChoiceFieldComplete(
+      "case04_confirmGoal",
+      answers,
+      CASE04_CONFIRM_GOAL_OPTIONS,
+    )
+  ) {
+    return;
+  }
 
   pushUnique(questions, {
     id: "case04_customerResponse",
@@ -4878,7 +4816,14 @@ function case04PathFieldsComplete(answers: ReviewAnswers): boolean {
   ) {
     return false;
   }
-  if (case04NeedsFinalGoal(answers) && !answers.case04_finalGoal) {
+  if (
+    case04NeedsFinalGoal(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case04_finalGoal",
+      answers,
+      CASE04_FINAL_GOAL_OPTIONS,
+    )
+  ) {
     return false;
   }
   return true;
@@ -4926,13 +4871,7 @@ function deriveSupplementSignals(answers: ReviewAnswers): SupplementSignalCode[]
     signals.push("SUPPLEMENT_DEADLINE_UNCLEAR");
   }
   const authorityFollowUp = getCase04AuthorityResponseValue(answers);
-  if (
-    authorityFollowUp === "unsure" ||
-    authorityFollowUp === "no_response" ||
-    answers.case04_submitResponse === "unsure" ||
-    answers.case04_inquiryResponse === "unsure" ||
-    answers.case04_inquiryResponse === "unclear"
-  ) {
+  if (authorityFollowUp === "unsure" || authorityFollowUp === "no_response") {
     signals.push("SUPPLEMENT_RESPONSE_UNCLEAR");
   }
   if (
@@ -4974,7 +4913,7 @@ function collectCase04RiskSignals(answers: ReviewAnswers): string[] {
     risks.push("추가 보완 요구가 있음 — 동일 사건 내 재보완 확인 필요");
   }
   const authorityFollowUp = getCase04AuthorityResponseValue(answers);
-  if (authorityFollowUp === "no_response" || answers.case04_submitResponse === "no_response") {
+  if (authorityFollowUp === "no_response") {
     risks.push("보완 제출 후 기관 반응 미확인 — 확인 필요");
   }
   return risks;
@@ -4988,37 +4927,9 @@ function classifyFromCase04Answers(answers: ReviewAnswers): {
 } | null {
   if (!shouldActivateCase04Path(answers) && !answers.case04_supplementTarget) return null;
 
-  const core = answers.case04_actualCore;
-  if (core === "payment") {
-    return {
-      id: "CASE_02",
-      status: "inferred",
-      confidence: 0.8,
-      reason: "실제 해결 중심이 납부 요구로 확인됨",
-    };
-  }
-  if (core === "attendance") {
-    return {
-      id: "CASE_03",
-      status: "inferred",
-      confidence: 0.78,
-      reason: "실제 해결 중심이 출석·소명으로 확인됨",
-    };
-  }
-  if (core === "disposition") {
-    return {
-      id: "CASE_05",
-      status: "inferred",
-      confidence: 0.76,
-      reason: "실제 해결 중심이 처분·조치로 확인됨",
-    };
-  }
   if (
-    core === "unclear" ||
-    core === "unsure" ||
-    (answers.case04_supplementTarget === "unclear" &&
-      answers.case04_unclearFocus === "whole_unclear" &&
-      !core)
+    answers.case04_supplementTarget === "unclear" &&
+    answers.case04_unclearFocus === "whole_unclear"
   ) {
     return {
       id: "CASE_06",
@@ -10839,22 +10750,19 @@ export function runCase04QaScenario(
       ...base,
       [CASE_CUSTOMER_INPUT_KEY]: "보완 요구라고 생각했지만 실제 핵심은 납부 요구입니다",
       ...case04Base,
-      case04_actualCore: "payment",
-      case04_blockage: "demand_unclear",
+      case04_blockage: "why_submit",
     },
     F: {
       ...base,
       [CASE_CUSTOMER_INPUT_KEY]: "보완 요구를 받았지만 실제 핵심은 출석·소명입니다",
       ...case04Base,
-      case04_actualCore: "attendance",
-      case04_blockage: "demand_unclear",
+      case04_blockage: "why_submit",
     },
     G: {
       ...base,
       [CASE_CUSTOMER_INPUT_KEY]: "보완 요구였지만 이미 처분이 내려진 것 같습니다",
       ...case04Base,
-      case04_actualCore: "disposition",
-      case04_blockage: "demand_unclear",
+      case04_blockage: "why_submit",
     },
     H: {
       ...base,
@@ -10862,8 +10770,7 @@ export function runCase04QaScenario(
       ...case04Base,
       case04_supplementTarget: "unclear",
       case04_unclearFocus: "whole_unclear",
-      case04_actualCore: "unclear",
-      case04_blockage: "demand_unclear",
+      case04_blockage: "why_submit",
       case04_finalGoal: "what_supplement",
     },
   };
