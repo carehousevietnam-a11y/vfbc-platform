@@ -1,0 +1,428 @@
+{
+  "capturedAt": "2026-09-19T02:55:49.532Z",
+  "base": "http://localhost:3010",
+  "scenarios": [
+    {
+      "name": "WAIT_AUTH_3s",
+      "waitAuthMs": 3000
+    },
+    {
+      "name": "WAIT_AUTH_0s_race",
+      "waitAuthMs": 0
+    }
+  ],
+  "re": [
+    {
+      "scenario": "WAIT_AUTH_3s",
+      "sessionBefore": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "sessionAtEvidence": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "domBefore": {
+        "loadingRe": false,
+        "loadingAdmin": false,
+        "loadingText": false,
+        "firstResultRe": false,
+        "firstResultAdmin": false,
+        "signupVisible": false,
+        "questionCheck": true,
+        "evidenceContinue": false,
+        "errorText": null
+      },
+      "timeline": [
+        {
+          "ms": 82,
+          "dom": {
+            "loadingRe": true,
+            "loadingAdmin": false,
+            "loadingText": true,
+            "firstResultRe": false,
+            "firstResultAdmin": false,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        },
+        {
+          "ms": 3542,
+          "dom": {
+            "loadingRe": false,
+            "loadingAdmin": false,
+            "loadingText": false,
+            "firstResultRe": true,
+            "firstResultAdmin": false,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        }
+      ],
+      "submitEvents": [
+        {
+          "ms": 7865,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/storage/v1/object/documents/verify-real-estate/1525474e-4a61-4a58-86ad-67bf43fe0ace.pdf"
+        },
+        {
+          "ms": 9385,
+          "phase": "RES",
+          "status": 400,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/storage/v1/object/documents/verify-real-estate/1525474e-4a61-4a58-86ad-67bf43fe0ace.pdf"
+        },
+        {
+          "ms": 10006,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads"
+        },
+        {
+          "ms": 10281,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 10281,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads",
+          "bodySnippet": ""
+        },
+        {
+          "ms": 10481,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 10870,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "/api/lead-submit"
+        },
+        {
+          "ms": 11136,
+          "phase": "RES",
+          "status": 200,
+          "method": "POST",
+          "url": "/api/lead-submit"
+        }
+      ],
+      "outcome": {
+        "loadingSeen": true,
+        "loadingFirstMs": 82,
+        "loadingLastMs": 82,
+        "firstResultMs": 3542,
+        "signupMs": null,
+        "stuckLoading": false
+      }
+    },
+    {
+      "scenario": "WAIT_AUTH_0s_race",
+      "sessionBefore": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "sessionAtEvidence": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "domBefore": {
+        "loadingRe": false,
+        "loadingAdmin": false,
+        "loadingText": false,
+        "firstResultRe": false,
+        "firstResultAdmin": false,
+        "signupVisible": false,
+        "questionCheck": true,
+        "evidenceContinue": false,
+        "errorText": null
+      },
+      "timeline": [
+        {
+          "ms": 94,
+          "dom": {
+            "loadingRe": true,
+            "loadingAdmin": false,
+            "loadingText": true,
+            "firstResultRe": false,
+            "firstResultAdmin": false,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        },
+        {
+          "ms": 1907,
+          "dom": {
+            "loadingRe": false,
+            "loadingAdmin": false,
+            "loadingText": false,
+            "firstResultRe": true,
+            "firstResultAdmin": false,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        }
+      ],
+      "submitEvents": [
+        {
+          "ms": 4781,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/storage/v1/object/documents/verify-real-estate/bd1bb65a-e390-4e71-900b-5e9eb20f1ea0.pdf"
+        },
+        {
+          "ms": 4961,
+          "phase": "RES",
+          "status": 400,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/storage/v1/object/documents/verify-real-estate/bd1bb65a-e390-4e71-900b-5e9eb20f1ea0.pdf"
+        },
+        {
+          "ms": 5382,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads"
+        },
+        {
+          "ms": 5548,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 5549,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads",
+          "bodySnippet": ""
+        },
+        {
+          "ms": 5704,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 6129,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "/api/lead-submit"
+        },
+        {
+          "ms": 6403,
+          "phase": "RES",
+          "status": 200,
+          "method": "POST",
+          "url": "/api/lead-submit"
+        }
+      ],
+      "outcome": {
+        "loadingSeen": true,
+        "loadingFirstMs": 94,
+        "loadingLastMs": 94,
+        "firstResultMs": 1907,
+        "signupMs": null,
+        "stuckLoading": false
+      }
+    }
+  ],
+  "admin": [
+    {
+      "scenario": "WAIT_AUTH_3s",
+      "sessionBefore": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "sessionAtEnd": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "timeline": [
+        {
+          "ms": 3,
+          "dom": {
+            "loadingRe": false,
+            "loadingAdmin": true,
+            "loadingText": true,
+            "firstResultRe": false,
+            "firstResultAdmin": false,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        },
+        {
+          "ms": 1610,
+          "dom": {
+            "loadingRe": false,
+            "loadingAdmin": false,
+            "loadingText": false,
+            "firstResultRe": false,
+            "firstResultAdmin": true,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        }
+      ],
+      "submitEvents": [
+        {
+          "ms": 8469,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads"
+        },
+        {
+          "ms": 8640,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 8643,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads",
+          "bodySnippet": ""
+        },
+        {
+          "ms": 8843,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 9234,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "/api/lead-submit"
+        },
+        {
+          "ms": 9504,
+          "phase": "RES",
+          "status": 200,
+          "method": "POST",
+          "url": "/api/lead-submit"
+        }
+      ],
+      "outcome": {
+        "loadingSeen": true,
+        "loadingFirstMs": 3,
+        "firstResultMs": 1610,
+        "signupMs": null,
+        "stuckLoading": false
+      }
+    },
+    {
+      "scenario": "WAIT_AUTH_0s_race",
+      "sessionBefore": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "sessionAtEnd": {
+        "hasSupabaseToken": true,
+        "authKeys": 1
+      },
+      "timeline": [
+        {
+          "ms": 4,
+          "dom": {
+            "loadingRe": false,
+            "loadingAdmin": true,
+            "loadingText": true,
+            "firstResultRe": false,
+            "firstResultAdmin": false,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        },
+        {
+          "ms": 1494,
+          "dom": {
+            "loadingRe": false,
+            "loadingAdmin": false,
+            "loadingText": false,
+            "firstResultRe": false,
+            "firstResultAdmin": true,
+            "signupVisible": false,
+            "questionCheck": false,
+            "evidenceContinue": false,
+            "errorText": null
+          }
+        }
+      ],
+      "submitEvents": [
+        {
+          "ms": 5908,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads"
+        },
+        {
+          "ms": 6135,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 6135,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/leads",
+          "bodySnippet": ""
+        },
+        {
+          "ms": 6341,
+          "phase": "RES",
+          "status": 201,
+          "method": "POST",
+          "url": "https://pbzfqiiuojzsjvbllczy.supabase.co/rest/v1/crm_activities"
+        },
+        {
+          "ms": 6754,
+          "phase": "REQ",
+          "method": "POST",
+          "url": "/api/lead-submit"
+        },
+        {
+          "ms": 7037,
+          "phase": "RES",
+          "status": 200,
+          "method": "POST",
+          "url": "/api/lead-submit"
+        }
+      ],
+      "outcome": {
+        "loadingSeen": true,
+        "loadingFirstMs": 4,
+        "firstResultMs": 1494,
+        "signupMs": null,
+        "stuckLoading": false
+      }
+    }
+  ]
+}

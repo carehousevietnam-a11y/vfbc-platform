@@ -1,0 +1,14 @@
+﻿node.exe : npm warn Unknown env config "devdir". This will stop working in the next major version of npm.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...version of npm.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+{
+  "script": "admin-verify-strict-full-v2.mjs",
+  "productCodeChanged": false,
+  "CASE_06_CHAIN_05_EXPERT": {
+    "error": "locator.waitFor: Timeout 120000ms exceeded.\nCall log:\n  - waiting for getByRole('heading', { name: 'φûë∞áòδ¼╕∞ä£ 1∞░¿ ∞óàφò⌐ Ω▓░Ω│╝' }) to be visible\n"
+  }
+}

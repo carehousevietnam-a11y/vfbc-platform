@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:3010",
+      "localStorage": [
+        {
+          "name": "sb-pbzfqiiuojzsjvbllczy-auth-token",
+          "value": "{\"access_token\":\"eyJhbGciOiJFUzI1NiIsImtpZCI6ImY2NzI1ZDQ2LTdlMDYtNDBlNy04ZTRmLWU2Y2JkNmZmZDRkOSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3BiemZxaWl1b2p6c2p2YmxsY3p5LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJiMGJhMzBiNi03ZTVhLTRkYWEtYmFkNi04MGFjMGNhOTEwNzEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg5NzkwNDQxLCJpYXQiOjE3ODk3ODY4NDEsImVtYWlsIjoib25lLXJvb3QtMTc4OTc4NjgzODczOEB0ZXN0LnZmYmNhaS5sb2NhbCIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWxfdmVyaWZpZWQiOnRydWV9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6Im90cCIsInRpbWVzdGFtcCI6MTc4OTc4Njg0MX1dLCJzZXNzaW9uX2lkIjoiNDY2MGNmYjUtZmQ1OS00ODU3LWIxODQtMWMzZjg0MTM2OWMxIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.m-t16vMM5SmMIVQAG2RFLFzULK1QlafG222Eg33H7IHSpt3YwIv1k9lkWpbF7nq6EM83Omeqmxt8A9_zCwWEWA\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1789790441,\"refresh_token\":\"oodw3qldgvgd\",\"user\":{\"id\":\"b0ba30b6-7e5a-4daa-bad6-80ac0ca91071\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"one-root-1789786838738@test.vfbcai.local\",\"email_confirmed_at\":\"2026-09-19T03:00:40.595844Z\",\"phone\":\"\",\"confirmed_at\":\"2026-09-19T03:00:40.595844Z\",\"recovery_sent_at\":\"2026-09-19T03:00:41.207504Z\",\"last_sign_in_at\":\"2026-09-19T03:00:41.36705883Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"email_verified\":true},\"identities\":[{\"identity_id\":\"a6ec87cb-2e9b-48db-b428-405fc39322a5\",\"id\":\"b0ba30b6-7e5a-4daa-bad6-80ac0ca91071\",\"user_id\":\"b0ba30b6-7e5a-4daa-bad6-80ac0ca91071\",\"identity_data\":{\"email\":\"one-root-1789786838738@test.vfbcai.local\",\"email_verified\":false,\"phone_verified\":false,\"sub\":\"b0ba30b6-7e5a-4daa-bad6-80ac0ca91071\"},\"provider\":\"email\",\"last_sign_in_at\":\"2026-09-19T03:00:40.587044Z\",\"created_at\":\"2026-09-19T03:00:40.5871Z\",\"updated_at\":\"2026-09-19T03:00:40.5871Z\",\"email\":\"one-root-1789786838738@test.vfbcai.local\"}],\"created_at\":\"2026-09-19T03:00:40.570558Z\",\"updated_at\":\"2026-09-19T03:00:41.376062Z\",\"is_anonymous\":false}}"
+        }
+      ]
+    }
+  ]
+}

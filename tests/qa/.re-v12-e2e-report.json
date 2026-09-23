@@ -1,0 +1,59 @@
+{
+  "rows": [
+    {
+      "path": "PRE_CONTRACT",
+      "phase1": "FAIL",
+      "freeResult": "NOT VERIFIED",
+      "phase2": "NOT VERIFIED",
+      "secondResult": "NOT VERIFIED",
+      "expert": "NOT VERIFIED",
+      "verdict": "FAIL",
+      "evidence": {},
+      "error": "locator.waitFor: Timeout 90000ms exceeded.\nCall log:\n  - waiting for locator('input[name=\"name\"]') to be visible\n"
+    },
+    {
+      "path": "POST_DISPUTE",
+      "phase1": "FAIL",
+      "freeResult": "NOT VERIFIED",
+      "phase2": "NOT VERIFIED",
+      "secondResult": "NOT VERIFIED",
+      "expert": "SKIP",
+      "verdict": "FAIL",
+      "evidence": {},
+      "error": "locator.waitFor: Timeout 90000ms exceeded.\nCall log:\n  - waiting for locator('input[name=\"name\"]') to be visible\n"
+    },
+    {
+      "path": "DOCUMENT_REVIEW",
+      "phase1": "FAIL",
+      "freeResult": "NOT VERIFIED",
+      "phase2": "NOT VERIFIED",
+      "secondResult": "NOT VERIFIED",
+      "expert": "SKIP",
+      "verdict": "FAIL",
+      "evidence": {},
+      "error": "locator.waitFor: Timeout 90000ms exceeded.\nCall log:\n  - waiting for locator('input[name=\"name\"]') to be visible\n"
+    },
+    {
+      "path": "UNCLEAR",
+      "phase1": "FAIL",
+      "freeResult": "NOT VERIFIED",
+      "phase2": "NOT VERIFIED",
+      "secondResult": "NOT VERIFIED",
+      "expert": "SKIP",
+      "verdict": "FAIL",
+      "evidence": {},
+      "error": "locator.waitFor: Timeout 90000ms exceeded.\nCall log:\n  - waiting for locator('input[name=\"name\"]') to be visible\n"
+    }
+  ],
+  "regression": {
+    "admin": {
+      "loaded": true,
+      "questionFlow": true
+    },
+    "trc": {
+      "loaded": true,
+      "questionFlow": true
+    }
+  },
+  "executedAt": "2026-09-18T11:28:49.540Z"
+}

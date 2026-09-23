@@ -1,0 +1,1365 @@
+﻿{
+  "cases": {
+    "CASE_01": {
+      "scenarioA": {
+        "phase1": {
+          "adminCaseDocumentKind": "violation_notice",
+          "situation": "received_document",
+          "stage": "case",
+          "case01_violationContent": "situation_mismatch",
+          "case01_confirmGoal": "fact_difference",
+          "case01_customerResponded": "explained_unresolved",
+          "case01_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_01",
+        "q1Case": "CASE_01",
+        "chainIds": [
+          "case01_factRelationship",
+          "case01_authorityDemand",
+          "case01_authorityResponse",
+          "case01_blockage",
+          "case01_evidence"
+        ],
+        "steps": [
+          {
+            "id": "case01_factRelationship",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞äñδ¬àφò£ δé┤∞Ü⌐Ω│╝ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ φÖò∞¥╕∞¥┤ φòä∞Üöφò£ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "date_place_wrong",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case01_factRelationship",
+            "focusAfter": "case01_authorityDemand",
+            "classification": "CASE_01"
+          },
+          {
+            "id": "case01_authorityDemand",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞¥┤ φå╡∞ºÇδÑ╝ δ░¢∞¥Ç δÆñ δ¼┤∞ùç∞¥ä φòÿδ¥╝Ω│á ∞òêδé┤φûêδéÿ∞Üö?",
+            "value": "payment",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case01_authorityDemand",
+            "focusAfter": "case01_authorityResponse",
+            "classification": "CASE_01"
+          },
+          {
+            "id": "case01_authorityResponse",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ δîÇ∞¥æφò£ δÆñ∞ùÉδèö ∞û┤δûñ δï╡δ│Ç∞¥┤δéÿ ∞╢öΩ░Ç ∞òêδé┤δÑ╝ δ░¢∞òÿδéÿ∞Üö?",
+            "value": "explained_no_reply",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case01_authorityResponse",
+            "focusAfter": "case01_blockage",
+            "classification": "CASE_01"
+          },
+          {
+            "id": "case01_blockage",
+            "label": "∞ºÇΩ╕ê Ω░Ç∞₧Ñ φÖò∞¥╕φòÿΩ╕░ ∞û┤δáñ∞Ü┤ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "facts_why",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case01_blockage",
+            "focusAfter": "case01_evidence",
+            "classification": "CASE_01"
+          },
+          {
+            "id": "case01_evidence",
+            "label": "∞ºÇΩ╕ê φÖò∞¥╕φòá ∞êÿ ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞₧êδéÿ∞Üö?",
+            "value": "notice",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case01_evidence",
+            "classification": "CASE_01"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_01",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "δ▓îΩ╕ê┬╖Ω│╝φâ£δúî δô▒∞¥ä δé⌐δ╢Çφòÿδ¥╝Ω│á φûê∞è╡δïêδïñ.",
+          "customerAction": "Ω╕░Ω┤Ç∞ùÉ δ¼╕∞¥ÿφòÿΩ▒░δéÿ ∞âüφÖ⌐∞¥ä ∞äñδ¬àφûê∞ºÇδºî, ∞òä∞ºü φò┤Ω▓░δÉÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ.",
+          "actualSituation": "δ¼╕∞á£Ω░Ç ∞₧ê∞ùêδïñδèö δéá∞º£δéÿ ∞₧Ñ∞åîΩ░Ç ∞ïñ∞á£ ∞á£Ω░Ç ∞₧ê∞ùêδìÿ ∞âüφÖ⌐Ω│╝ δïñδªàδïêδïñ.",
+          "currentBlockage": "∞Ö£ ∞¥┤δƒ░ φå╡∞ºÇδÑ╝ δ░¢∞òÿδèö∞ºÇ δ¬¿δÑ┤Ω▓á∞û┤∞Üö.",
+          "evidence": "Ω╕░Ω┤Ç∞ùÉ∞ä£ δ░¢∞¥Ç φå╡∞ºÇ∞ä£Ω░Ç ∞₧ê∞û┤∞Üö.",
+          "goal": "δé┤Ω░Ç ∞òîΩ│á ∞₧êδèö ∞é¼∞ïñΩ│╝ Ω╕░Ω┤Ç∞ùÉ∞ä£ φÖò∞¥╕φò£ δé┤∞Ü⌐ ∞ñæ ∞û┤δèÉ δ╢Çδ╢ä∞¥┤ δïñδÑ╕∞ºÇ φÖò∞¥╕φòÿΩ│á ∞ï╢∞è╡δïêδïñ."
+        }
+      },
+      "scenarioB": {
+        "phase1": {
+          "adminCaseDocumentKind": "violation_notice",
+          "situation": "received_document",
+          "stage": "case",
+          "case01_violationContent": "traffic",
+          "case01_confirmGoal": "verify_applicability",
+          "case01_customerResponded": "none",
+          "case01_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_01",
+        "q1Case": "CASE_01",
+        "chainIds": [
+          "case01_authorityDemand",
+          "case01_blockage"
+        ],
+        "steps": [
+          {
+            "id": "case01_authorityDemand",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞¥┤ φå╡∞ºÇδÑ╝ δ░¢∞¥Ç δÆñ δ¼┤∞ùç∞¥ä φòÿδ¥╝Ω│á ∞òêδé┤φûêδéÿ∞Üö?",
+            "value": "payment",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case01_factRelationship",
+            "focusAfter": "case01_factRelationship",
+            "classification": "CASE_01"
+          },
+          {
+            "id": "case01_blockage",
+            "label": "∞ºÇΩ╕ê Ω░Ç∞₧Ñ φÖò∞¥╕φòÿΩ╕░ ∞û┤δáñ∞Ü┤ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "facts_why",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case01_factRelationship",
+            "classification": "CASE_01"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_01",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "δ▓îΩ╕ê┬╖Ω│╝φâ£δúî δô▒∞¥ä δé⌐δ╢Çφòÿδ¥╝Ω│á φûê∞è╡δïêδïñ.",
+          "customerAction": "φÿä∞₧¼ Ω░Ç∞ºÇΩ│á ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞ùå∞û┤∞Üö.",
+          "actualSituation": null,
+          "currentBlockage": "∞Ö£ ∞¥┤δƒ░ φå╡∞ºÇδÑ╝ δ░¢∞òÿδèö∞ºÇ δ¬¿δÑ┤Ω▓á∞û┤∞Üö.",
+          "evidence": null,
+          "goal": "Ω╕░Ω┤Ç∞ùÉ∞ä£ δºÉφòÿδèö δ¼╕∞á£Ω░Ç ∞ïñ∞á£δí£ δé┤ ∞âüφÖ⌐∞ùÉ φò┤δï╣φòÿδèö∞ºÇ φÖò∞¥╕φòÿΩ│á ∞ï╢∞è╡δïêδïñ."
+        }
+      },
+      "adaptiveDiff": true,
+      "phase1RepeatInChain": false,
+      "allStepsProfileChange": false,
+      "unknownReduced": false
+    },
+    "CASE_02": {
+      "scenarioA": {
+        "phase1": {
+          "adminCaseDocumentKind": "payment_demand",
+          "situation": "received_document",
+          "stage": "case",
+          "profileDocumentSource": "traffic",
+          "case02_paymentSubject": "traffic_fine",
+          "case02_confirmGoal": "verify_obligation",
+          "case02_paymentStatus": "not_paid",
+          "case02_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_02",
+        "q1Case": "CASE_02",
+        "chainIds": [
+          "case02_demandAuthority",
+          "case02_situationMatch",
+          "case02_paymentBasis",
+          "case02_paymentMethod",
+          "case02_nonPaymentNotice",
+          "case02_blockage",
+          "case02_evidence"
+        ],
+        "steps": [
+          {
+            "id": "case02_demandAuthority",
+            "label": "δé⌐δ╢ÇδÑ╝ ∞ÜöΩ╡¼φò£ Ω╕░Ω┤Ç∞¥Ç ∞û┤δöö∞¥╕Ω░Ç∞Üö?",
+            "value": "traffic",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_demandAuthority",
+            "focusAfter": "case02_situationMatch",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_situationMatch",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞äñδ¬àφò£ δ╣ä∞Ü⌐ ∞ÜöΩ╡¼∞ÖÇ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ δïñδÑ╕ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "match",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_situationMatch",
+            "focusAfter": "case02_paymentBasis",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_paymentBasis",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö Ω╖╕ Ω╕ê∞òí∞¥ä ∞Ö£ δé┤∞ò╝ φò£δïñΩ│á ∞äñδ¬àφûêδéÿ∞Üö?",
+            "value": "violation_stated",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_paymentBasis",
+            "focusAfter": "case02_paymentMethod",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_paymentMethod",
+            "label": "∞ïñ∞á£δí£ δé⌐δ╢Çφò┤∞ò╝ φò£δïñδ⌐┤, ∞û┤δûñ δ░⌐δ▓ò∞£╝δí£ δé┤δ¥╝Ω│á ∞òêδé┤δ░¢∞£╝∞à¿δéÿ∞Üö?",
+            "value": "bank_transfer",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_paymentMethod",
+            "focusAfter": "case02_nonPaymentNotice",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_nonPaymentNotice",
+            "label": "Ω╕░φò£ δé┤ δé⌐δ╢Çφòÿ∞ºÇ ∞òè∞£╝δ⌐┤ ∞û┤δû╗Ω▓î δÉ£δïñΩ│á ∞òêδé┤δÉÿ∞ùêδéÿ∞Üö?",
+            "value": "penalty_stated",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_nonPaymentNotice",
+            "focusAfter": "case02_blockage",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_blockage",
+            "label": "∞ºÇΩ╕ê ∞¥┤ δé⌐δ╢Ç ∞é¼Ω▒┤∞ùÉ∞ä£ Ω░Ç∞₧Ñ δºëφÿÇ ∞₧êδèö δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "obligation",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_blockage",
+            "focusAfter": "case02_evidence",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_evidence",
+            "label": "∞ºÇΩ╕ê φÖò∞¥╕φòá ∞êÿ ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞₧êδéÿ∞Üö?",
+            "value": "yes",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_evidence",
+            "classification": "CASE_02"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_02",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "δé⌐δ╢Ç ∞ÜöΩ╡¼: Ω╡Éφå╡∞£äδ░ÿ∞ùÉ δîÇφò£ δ▓îΩ╕ê┬╖Ω│╝φâ£δúîδÑ╝ δé┤δ¥╝Ω│á ∞òêδé┤δ░¢∞¥Ç Ω▓â Ω░Ö∞è╡δïêδïñ.",
+          "customerAction": "∞òä∞ºü ∞¥┤ δé⌐δ╢Ç ∞ÜöΩ╡¼∞ùÉ δîÇφò┤ δé⌐δ╢Çφòÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ.",
+          "actualSituation": "∞¥┤ δé⌐δ╢Ç ∞ÜöΩ╡¼δèö ∞ïñ∞á£ ∞âüφÖ⌐Ω│╝ δîÇ∞▓┤δí£ δº₧∞è╡δïêδïñ.",
+          "currentBlockage": "∞á£Ω░Ç ∞áòδºÉ δé⌐δ╢Çφò┤∞ò╝ φòÿδèö∞ºÇδ╢Çφä░ φÖò∞ïá∞¥┤ ∞ùå∞è╡δïêδïñ",
+          "evidence": "δé⌐δ╢Ç ∞ÜöΩ╡¼∞ä£┬╖∞ÿü∞êÿ∞ª¥┬╖φå╡∞ºÇ∞ä£ δô▒ φÖò∞¥╕φòá ∞₧ÉδúîΩ░Ç ∞₧ê∞è╡δïêδïñ",
+          "goal": "δé⌐δ╢Ç ∞¥ÿδ¼┤ ∞ù¼δ╢Çδ╢Çφä░ φÖò∞¥╕φòÿΩ│á ∞ï╢∞û┤∞Üö"
+        }
+      },
+      "scenarioB": {
+        "phase1": {
+          "adminCaseDocumentKind": "payment_demand",
+          "situation": "received_document",
+          "stage": "case",
+          "profileDocumentSource": "traffic",
+          "case02_paymentSubject": "traffic_fine",
+          "case02_confirmGoal": "verify_amount",
+          "case02_paymentStatus": "partial",
+          "case02_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_02",
+        "q1Case": "CASE_02",
+        "chainIds": [
+          "case02_demandAuthority",
+          "case02_situationMatch",
+          "case02_paymentAmount",
+          "case02_authorityResponse",
+          "case02_paymentMethod",
+          "case02_blockage",
+          "case02_evidence"
+        ],
+        "steps": [
+          {
+            "id": "case02_demandAuthority",
+            "label": "δé⌐δ╢ÇδÑ╝ ∞ÜöΩ╡¼φò£ Ω╕░Ω┤Ç∞¥Ç ∞û┤δöö∞¥╕Ω░Ç∞Üö?",
+            "value": "traffic",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_demandAuthority",
+            "focusAfter": "case02_situationMatch",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_situationMatch",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞äñδ¬àφò£ δ╣ä∞Ü⌐ ∞ÜöΩ╡¼∞ÖÇ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ δïñδÑ╕ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "match",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_situationMatch",
+            "focusAfter": "case02_paymentAmount",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_paymentAmount",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞òêδé┤φò£ Ω╕ê∞òí∞ùÉ δîÇφò┤, ∞ºÇΩ╕ê δ│╕∞¥╕∞¥┤ ∞òîΩ│á ∞₧êδèö ∞âüφÖ⌐∞¥Ç ∞û┤δûñ Ω▓╜∞Ü░∞ùÉ Ω░Ç∞₧Ñ Ω░ÇΩ╣î∞Ü┤Ω░Ç∞Üö?",
+            "value": "reason_unclear",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_paymentAmount",
+            "focusAfter": "case02_authorityResponse",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_authorityResponse",
+            "label": "δ╣ä∞Ü⌐∞ùÉ δîÇφò┤ Ω╡Éφå╡Ω╡¡∞ùÉ φÖò∞¥╕φò£ δÆñ, ∞û┤δûñ δï╡δ│Ç∞¥ä δ░¢∞£╝∞à¿δéÿ∞Üö?",
+            "value": "explained_no_reply",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_authorityResponse",
+            "focusAfter": "case02_paymentMethod",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_paymentMethod",
+            "label": "∞û┤δûñ δ░⌐δ▓ò∞£╝δí£ δé⌐δ╢Çφòÿ∞à¿δéÿ∞Üö?",
+            "value": "bank_transfer",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_paymentMethod",
+            "focusAfter": "case02_nonPaymentNotice",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_blockage",
+            "label": "∞ºÇΩ╕ê ∞¥┤ δé⌐δ╢Ç ∞é¼Ω▒┤∞ùÉ∞ä£ Ω░Ç∞₧Ñ δºëφÿÇ ∞₧êδèö δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "obligation",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_nonPaymentNotice",
+            "focusAfter": "case02_nonPaymentNotice",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_evidence",
+            "label": "δé⌐δ╢Ç ∞ÿü∞êÿ∞ª¥┬╖∞¥┤∞▓┤ ∞ª¥δ╣Ö δô▒ φÖò∞¥╕φòá ∞₧ÉδúîΩ░Ç ∞₧êδéÿ∞Üö?",
+            "value": "yes",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_nonPaymentNotice",
+            "classification": "CASE_02"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_02",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "δé⌐δ╢Ç ∞ÜöΩ╡¼: Ω╡Éφå╡∞£äδ░ÿ∞ùÉ δîÇφò£ δ▓îΩ╕ê┬╖Ω│╝φâ£δúîδÑ╝ δé┤δ¥╝Ω│á ∞òêδé┤δ░¢∞¥Ç Ω▓â Ω░Ö∞è╡δïêδïñ.",
+          "customerAction": "∞¥╝δ╢Ç Ω╕ê∞òíδºî δé⌐δ╢ÇφûêΩ│á, δéÿδ¿╕∞ºÇδèö ∞òä∞ºü δé⌐δ╢Çφòÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ.",
+          "actualSituation": "∞¥┤ δé⌐δ╢Ç ∞ÜöΩ╡¼δèö ∞ïñ∞á£ ∞âüφÖ⌐Ω│╝ δîÇ∞▓┤δí£ δº₧∞è╡δïêδïñ.",
+          "currentBlockage": "∞á£Ω░Ç ∞áòδºÉ δé⌐δ╢Çφò┤∞ò╝ φòÿδèö∞ºÇδ╢Çφä░ φÖò∞ïá∞¥┤ ∞ùå∞è╡δïêδïñ",
+          "evidence": "δé⌐δ╢Ç ∞ÜöΩ╡¼∞ä£┬╖∞ÿü∞êÿ∞ª¥┬╖φå╡∞ºÇ∞ä£ δô▒ φÖò∞¥╕φòá ∞₧ÉδúîΩ░Ç ∞₧ê∞è╡δïêδïñ",
+          "goal": "Ω╕ê∞òí∞¥┤ δº₧δèö∞ºÇ φÖò∞¥╕φòÿΩ│á ∞ï╢∞û┤∞Üö"
+        }
+      },
+      "adaptiveDiff": true,
+      "phase1RepeatInChain": false,
+      "allStepsProfileChange": false,
+      "unknownReduced": false
+    },
+    "CASE_03": {
+      "scenarioA": {
+        "phase1": {
+          "adminCaseDocumentKind": "attendance_demand",
+          "situation": "received_document",
+          "stage": "case",
+          "case03_authorityDemand": "reason_unclear",
+          "case03_confirmGoal": "deadline_attendance",
+          "case03_customerResponse": "none",
+          "case03_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_03",
+        "q1Case": "CASE_03",
+        "chainIds": [
+          "case03_factRelationship",
+          "case03_inquiryFocus",
+          "case03_prepRequired",
+          "case03_blockage",
+          "case03_finalGoal"
+        ],
+        "steps": [
+          {
+            "id": "case03_factRelationship",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ φÖò∞¥╕φòÿδáñδèö δé┤∞Ü⌐Ω│╝ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ φÖò∞¥╕∞¥┤ φòä∞Üöφò£ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "match",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case03_factRelationship",
+            "focusAfter": "case03_inquiryFocus",
+            "classification": "CASE_03"
+          },
+          {
+            "id": "case03_inquiryFocus",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞╢£∞ä¥φòÿΩ▒░δéÿ ∞äñδ¬à┬╖∞₧ÉδúîδÑ╝ ∞á£∞╢£φòÿδ¥╝Ω│á φò£ δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞ùÉ Ω░Ç∞₧Ñ Ω░ÇΩ╣¥δéÿ∞Üö?",
+            "value": "action_facts",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case03_inquiryFocus",
+            "focusAfter": "case03_prepRequired",
+            "classification": "CASE_03"
+          },
+          {
+            "id": "case03_prepRequired",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ ∞ºü∞áæ Ω░Ç∞ò╝ φò£δïñδ⌐┤, δ¼┤∞ùç∞¥ä ∞ñÇδ╣äφòÿδ¥╝Ω│á ∞òêδé┤δ░¢∞£╝∞à¿δéÿ∞Üö?",
+            "value": "documents",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case03_prepRequired",
+            "focusAfter": "case03_blockage",
+            "classification": "CASE_03"
+          },
+          {
+            "id": "case03_blockage",
+            "label": "∞ºÇΩ╕ê ∞¥┤ ∞╢£∞ä¥┬╖∞åîδ¬à ∞é¼Ω▒┤∞ùÉ∞ä£ Ω░Ç∞₧Ñ δºëφÿÇ ∞₧êδèö δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "what_explain",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case03_blockage",
+            "focusAfter": "case03_finalGoal",
+            "classification": "CASE_03"
+          },
+          {
+            "id": "case03_finalGoal",
+            "label": "∞¥┤ ∞╢£∞ä¥┬╖∞åîδ¬à ∞é¼Ω▒┤∞ùÉ∞ä£ ∞û┤δûñ Ω▓░Ω│╝δÑ╝ ∞¢Éφòÿ∞ï£δéÿ∞Üö?",
+            "value": "understand_demand",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case03_finalGoal",
+            "classification": "CASE_03"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_03",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "∞Ö£ ∞╢£∞ä¥φòÿΩ▒░δéÿ ∞äñδ¬àφò┤∞ò╝ φòÿδèö∞ºÇ ∞òä∞ºü ∞áòφÖòφ₧ê ∞¥┤φò┤φòÿ∞ºÇ δ¬╗φò£ ∞âüφÖ⌐∞₧àδïêδïñ.",
+          "customerAction": "∞ºÇΩ╕ê φÖò∞¥╕φòá ∞êÿ ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞ùå∞è╡δïêδïñ",
+          "actualSituation": "Ω╕░Ω┤Ç∞¥┤ φÖò∞¥╕φòÿδáñδèö δé┤∞Ü⌐Ω│╝ ∞ïñ∞á£ ∞âüφÖ⌐∞¥┤ δîÇ∞▓┤δí£ δº₧∞è╡δïêδïñ.",
+          "currentBlockage": "Ω╕░Ω┤Ç∞ùÉ δ¼┤∞ùç∞¥ä ∞û┤δû╗Ω▓î ∞äñδ¬àφò┤∞ò╝ φòÿδèö∞ºÇ δ¬¿δÑ┤Ω▓á∞è╡δïêδïñ",
+          "evidence": null,
+          "goal": "∞áòφò┤∞ºä δéá∞º£∞ùÉ δ░ÿδô£∞ï£ ∞╢£∞ä¥φò┤∞ò╝ φòÿδèö∞ºÇ∞ÖÇ Ω╕░φò£∞¥ä φÖò∞¥╕φòÿΩ│á ∞ï╢∞è╡δïêδïñ."
+        }
+      },
+      "scenarioB": {
+        "phase1": {
+          "adminCaseDocumentKind": "attendance_demand",
+          "situation": "received_document",
+          "stage": "case",
+          "case03_authorityDemand": "specific_incident",
+          "case03_confirmGoal": "understand_agency_intent",
+          "case03_customerResponse": "attendance",
+          "case03_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_03",
+        "q1Case": "CASE_03",
+        "chainIds": [
+          "case03_factRelationship",
+          "case03_inquiryFocus",
+          "case03_explanationDetail",
+          "case03_authorityFollowUp"
+        ],
+        "steps": [
+          {
+            "id": "case03_factRelationship",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ φÖò∞¥╕φòÿδáñδèö δé┤∞Ü⌐Ω│╝ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ φÖò∞¥╕∞¥┤ φòä∞Üöφò£ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "match",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case03_factRelationship",
+            "focusAfter": "case03_inquiryFocus",
+            "classification": "CASE_03"
+          },
+          {
+            "id": "case03_inquiryFocus",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞╢£∞ä¥φòÿΩ▒░δéÿ ∞äñδ¬à┬╖∞₧ÉδúîδÑ╝ ∞á£∞╢£φòÿδ¥╝Ω│á φò£ δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞ùÉ Ω░Ç∞₧Ñ Ω░ÇΩ╣¥δéÿ∞Üö?",
+            "value": "action_facts",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case03_inquiryFocus",
+            "focusAfter": "case03_explanationDetail",
+            "classification": "CASE_03"
+          },
+          {
+            "id": "case03_explanationDetail",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ ∞äñδ¬àφòÿΩ▒░δéÿ ∞á£∞╢£φò£ δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "full_explanation",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case03_explanationDetail",
+            "focusAfter": "case03_authorityFollowUp",
+            "classification": "CASE_03"
+          },
+          {
+            "id": "case03_authorityFollowUp",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ δîÇ∞¥æφò£ δÆñ∞ùÉδèö ∞û┤δûñ δï╡δ│Ç∞¥┤δéÿ ∞╢öΩ░Ç ∞òêδé┤δÑ╝ δ░¢∞òÿδéÿ∞Üö?",
+            "value": "no_further_action",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case03_authorityFollowUp",
+            "classification": "CASE_03"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_03",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "φè╣∞áò ∞é¼Ω▒┤∞¥┤δéÿ φûëδÅÖ∞ùÉ δîÇφò┤ ∞äñδ¬àφò┤ δï¼δ¥╝δèö ∞Üö∞▓¡∞¥ä δ░¢∞¥Ç ∞âüφÖ⌐∞₧àδïêδïñ.",
+          "customerAction": "∞ºÇ∞áòδÉ£ ∞₧Ñ∞åî∞ùÉ ∞ºü∞áæ δ░⌐δ¼╕φò┤ ∞âüφÖ⌐∞¥ä ∞äñδ¬àφûê∞è╡δïêδïñ.",
+          "actualSituation": "Ω╕░Ω┤Ç∞¥┤ φÖò∞¥╕φòÿδáñδèö δé┤∞Ü⌐Ω│╝ ∞ïñ∞á£ ∞âüφÖ⌐∞¥┤ δîÇ∞▓┤δí£ δº₧∞è╡δïêδïñ.",
+          "currentBlockage": null,
+          "evidence": null,
+          "goal": "Ω╕░Ω┤Ç∞ùÉ∞ä£ ∞áòφÖòφ₧ê δ¼┤∞ùç∞¥ä φÖò∞¥╕φòÿδáñδèö∞ºÇ ∞òîΩ│á ∞ï╢∞è╡δïêδïñ."
+        }
+      },
+      "adaptiveDiff": true,
+      "phase1RepeatInChain": false,
+      "allStepsProfileChange": false,
+      "unknownReduced": false
+    },
+    "CASE_04": {
+      "scenarioA": {
+        "phase1": {
+          "adminCaseDocumentKind": "supplement_demand",
+          "situation": "received_document",
+          "stage": "case",
+          "profileDocumentSource": "immigration",
+          "case04_supplementTarget": "additional_docs",
+          "case04_confirmGoal": "understand_materials",
+          "case04_customerResponse": "not_started",
+          "case04_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_04",
+        "q1Case": "CASE_04",
+        "chainIds": [
+          "case04_initialSubmission",
+          "case04_submissionRelation",
+          "case04_addDocDetail"
+        ],
+        "steps": [
+          {
+            "id": "case04_initialSubmission",
+            "label": "∞▓ÿ∞¥î Ω╡Éφå╡Ω╡¡∞ùÉ ∞û┤δûñ ∞ä£δÑÿδéÿ δé┤∞Ü⌐∞¥ä ∞á£∞╢£φòÿ∞à¿δéÿ∞Üö?",
+            "value": "complete",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case04_initialSubmission",
+            "focusAfter": "case04_submissionRelation",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_submissionRelation",
+            "label": "∞¥┤δ▓ê δ│┤∞Öä ∞ÜöΩ╡¼δèö ∞▓ÿ∞¥î ∞á£∞╢£φò£ δé┤∞Ü⌐Ω│╝ δ╣äΩ╡Éφòÿδ⌐┤ ∞û┤δûñ ∞âüφÖ⌐∞¥╕Ω░Ç∞Üö?",
+            "value": "add_missing",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case04_submissionRelation",
+            "focusAfter": "case04_addDocDetail",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_addDocDetail",
+            "label": "∞û┤δûñ ∞ä£δÑÿδÑ╝ ∞╢öΩ░Çδí£ ∞á£∞╢£φòÿδ¥╝Ω│á ∞ÜöΩ╡¼δ░¢∞òÿδéÿ∞Üö?",
+            "value": "id_doc",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case04_addDocDetail",
+            "classification": "CASE_04"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_04",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "∞▓ÿ∞¥î ∞á£∞╢£φò£ ∞ä£δÑÿ∞ùÉ∞ä£ δ╣á∞ºä ∞₧ÉδúîδÑ╝ ∞╢öΩ░Çφòÿδ¥╝δèö ∞âüφÖ⌐∞₧àδïêδïñ.",
+          "customerAction": "∞òä∞ºü δ│┤∞Öä ∞₧ÉδúîδÑ╝ ∞ñÇδ╣äφòÿΩ▒░δéÿ δïñ∞ï£ ∞á£∞╢£φòÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ.",
+          "actualSituation": "∞▓ÿ∞¥î ∞á£∞╢£φòÿ∞ºÇ ∞òè∞òÿδìÿ ∞âêδí£∞Ü┤ ∞₧ÉδúîδÑ╝ ∞╢öΩ░Çφòÿδ¥╝Ω│á ∞ÜöΩ╡¼δ░¢∞òÿ∞è╡δïêδïñ.",
+          "currentBlockage": null,
+          "evidence": null,
+          "goal": null
+        }
+      },
+      "scenarioB": {
+        "phase1": {
+          "adminCaseDocumentKind": "supplement_demand",
+          "situation": "received_document",
+          "stage": "case",
+          "profileDocumentSource": "immigration",
+          "case04_supplementTarget": "repeat_demand",
+          "case04_confirmGoal": "repeat_reason",
+          "case04_customerResponse": "submitted",
+          "case04_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_04",
+        "q1Case": "CASE_04",
+        "chainIds": [
+          "case04_initialSubmission",
+          "case04_submissionRelation",
+          "case04_supplementReason",
+          "case04_authorityFollowUp",
+          "case04_repeatSupplement",
+          "case04_blockage",
+          "case04_evidence"
+        ],
+        "steps": [
+          {
+            "id": "case04_initialSubmission",
+            "label": "∞▓ÿ∞¥î Ω╡Éφå╡Ω╡¡∞ùÉ ∞û┤δûñ ∞ä£δÑÿδéÿ δé┤∞Ü⌐∞¥ä ∞á£∞╢£φòÿ∞à¿δéÿ∞Üö?",
+            "value": "complete",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case04_initialSubmission",
+            "focusAfter": "case04_submissionRelation",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_submissionRelation",
+            "label": "∞¥┤δ▓ê δ│┤∞Öä ∞ÜöΩ╡¼δèö ∞▓ÿ∞¥î ∞á£∞╢£φò£ δé┤∞Ü⌐Ω│╝ δ╣äΩ╡Éφòÿδ⌐┤ ∞û┤δûñ ∞âüφÖ⌐∞¥╕Ω░Ç∞Üö?",
+            "value": "add_missing",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case04_submissionRelation",
+            "focusAfter": "case04_supplementReason",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_supplementReason",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞¥┤δ▓ê∞ùÉ δ¼┤∞ùç∞¥ä δ│┤∞Öäφòÿδ⌐┤ δÉ£δïñΩ│á ∞äñδ¬àφûêδéÿ∞Üö?",
+            "value": "missing_info",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case04_supplementReason",
+            "focusAfter": "case04_authorityFollowUp",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_authorityFollowUp",
+            "label": "δ│┤∞Öäφò£ δé┤∞Ü⌐∞¥ä ∞á£∞╢£φò£ δÆñ, Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞û┤δû╗Ω▓î δï╡δ│Çφûêδéÿ∞Üö?",
+            "value": "accepted",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case04_authorityFollowUp",
+            "focusAfter": "case04_repeatSupplement",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_repeatSupplement",
+            "label": "∞¥┤δ▓ê δ│┤∞Öä ∞ÜöΩ╡¼δèö ∞¥┤∞áä∞ùÉ ∞á£∞╢£φûêδìÿ δ│┤∞Öä δé┤∞Ü⌐Ω│╝ δ╣äΩ╡Éφòÿδ⌐┤ ∞û┤δûñ ∞âüφÖ⌐∞¥╕Ω░Ç∞Üö?",
+            "value": "more_docs",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case04_repeatSupplement",
+            "focusAfter": "case04_blockage",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_blockage",
+            "label": "∞ºÇΩ╕ê ∞¥┤ δ│┤∞Öä ∞ÜöΩ╡¼ ∞é¼Ω▒┤∞ùÉ∞ä£ Ω░Ç∞₧Ñ δºëφÿÇ ∞₧êδèö δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "what_submit",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case04_blockage",
+            "focusAfter": "case04_evidence",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_evidence",
+            "label": "∞ºÇΩ╕ê φÖò∞¥╕φòá ∞êÿ ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞₧êδéÿ∞Üö?",
+            "value": "supplement_notice",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case04_evidence",
+            "classification": "CASE_04"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_04",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "∞¥┤δ»╕ δ│┤∞Öäφò┤∞ä£ ∞á£∞╢£φûêδèöδì░ δïñ∞ï£ ∞╢öΩ░Ç ∞₧ÉδúîδÑ╝ ∞ÜöΩ╡¼δ░¢∞¥Ç ∞âüφÖ⌐∞₧àδïêδïñ.",
+          "customerAction": "δ│┤∞Öä ∞₧ÉδúîδÑ╝ ∞¥┤δ»╕ ∞á£∞╢£φûê∞è╡δïêδïñ.",
+          "actualSituation": "∞▓ÿ∞¥î ∞á£∞╢£φòÿ∞ºÇ ∞òè∞òÿδìÿ ∞âêδí£∞Ü┤ ∞₧ÉδúîδÑ╝ ∞╢öΩ░Çφòÿδ¥╝Ω│á ∞ÜöΩ╡¼δ░¢∞òÿ∞è╡δïêδïñ.",
+          "currentBlockage": "δ¼┤∞ùç∞¥ä ∞╢öΩ░Ç┬╖∞êÿ∞áòφò┤∞ä£ ∞á£∞╢£φò┤∞ò╝ φòÿδèö∞ºÇ δ¬¿δÑ┤Ω▓á∞è╡δïêδïñ",
+          "evidence": "δ│┤∞Öä ∞ÜöΩ╡¼∞ä£┬╖∞òêδé┤δ¼╕",
+          "goal": null
+        }
+      },
+      "adaptiveDiff": true,
+      "phase1RepeatInChain": false,
+      "allStepsProfileChange": false,
+      "unknownReduced": false
+    },
+    "CASE_05": {
+      "scenarioA": {
+        "phase1": {
+          "adminCaseDocumentKind": "disposition_notice",
+          "situation": "received_document",
+          "stage": "case",
+          "profileDocumentSource": "immigration",
+          "case05_dispositionType": "license_revoked",
+          "case05_confirmGoal": "understand_reason",
+          "case05_customerResponse": "none",
+          "case05_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_05",
+        "q1Case": "CASE_05",
+        "chainIds": [
+          "case05_factRelationship",
+          "case05_dispositionReason"
+        ],
+        "steps": [
+          {
+            "id": "case05_factRelationship",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞äñδ¬àφò£ ∞í░∞╣ÿ ∞¥┤∞£á∞ÖÇ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ δïñδÑ╕ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "match",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case05_factRelationship",
+            "focusAfter": "case05_dispositionReason",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_dispositionReason",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞û┤δûñ ∞¥┤∞£áδí£ ∞¥┤δƒ░ ∞í░∞╣ÿδÑ╝ ∞òêδé┤φûêδéÿ∞Üö?",
+            "value": "violation_claimed",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionReason",
+            "classification": "CASE_05"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_05",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "Ω╕░∞í┤∞ùÉ Ω░Ç∞ºÇΩ│á ∞₧êδìÿ φùêΩ░Ç┬╖∞₧ÉΩ▓⌐┬╖Ω╢îδª¼Ω░Ç ∞ñæδï¿δÉÿΩ▒░δéÿ ∞╖¿∞åîδÉÿ∞ùêδïñδèö ∞í░∞╣ÿδÑ╝ δ░¢∞¥Ç ∞âüφÖ⌐∞₧àδïêδïñ.",
+          "customerAction": "∞òä∞ºü Ω╕░Ω┤Ç∞ùÉ ∞äñδ¬àφòÿΩ▒░δéÿ ∞₧ÉδúîδÑ╝ ∞á£∞╢£φòÿΩ▒░δéÿ ∞₧¼Ω▓ÇφåáδÑ╝ ∞Üö∞▓¡φòÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ.",
+          "actualSituation": "∞▓ÿδ╢ä φå╡∞ºÇ∞ùÉ ∞áüφ₧î δé┤∞Ü⌐Ω│╝ ∞á£Ω░Ç ∞òîΩ│á ∞₧êδèö ∞ïñ∞á£ ∞âüφÖ⌐∞¥┤ Ω▒░∞¥ÿ Ω░Ö∞è╡δïêδïñ.",
+          "currentBlockage": null,
+          "evidence": null,
+          "goal": null
+        }
+      },
+      "scenarioB": {
+        "phase1": {
+          "adminCaseDocumentKind": "disposition_notice",
+          "situation": "received_document",
+          "stage": "case",
+          "profileDocumentSource": "immigration",
+          "case05_dispositionType": "unclear",
+          "case05_confirmGoal": "understand_reason",
+          "case05_customerResponse": "explanation_submitted",
+          "case05_deadline": "uncertain"
+        },
+        "effectiveCase": "CASE_05",
+        "q1Case": "CASE_05",
+        "chainIds": [
+          "case05_factRelationship",
+          "case05_dispositionReason",
+          "case05_dispositionDetail",
+          "case05_explanationDetail",
+          "case05_authorityFollowUp",
+          "case05_dispositionOutcome",
+          "case05_repeatFollowUp",
+          "case05_blockage",
+          "case05_evidence",
+          "case05_finalGoal"
+        ],
+        "steps": [
+          {
+            "id": "case05_factRelationship",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞äñδ¬àφò£ ∞í░∞╣ÿ ∞¥┤∞£á∞ÖÇ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ δïñδÑ╕ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "match",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case05_factRelationship",
+            "focusAfter": "case05_dispositionReason",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_dispositionReason",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞û┤δûñ ∞¥┤∞£áδí£ ∞¥┤δƒ░ ∞í░∞╣ÿδÑ╝ ∞òêδé┤φûêδéÿ∞Üö?",
+            "value": "violation_claimed",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionReason",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_dispositionDetail",
+            "label": "∞¥┤ ∞í░∞╣ÿ δòîδ¼╕∞ùÉ ∞ïñ∞á£δí£ ∞û┤δûñ ∞á£φò£∞¥┤δéÿ δ│ÇφÖöΩ░Ç ∞â¥Ω▓╝δïñΩ│á ∞òêδé┤δ░¢∞£╝∞à¿δéÿ∞Üö?",
+            "value": "wording_unclear",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_explanationDetail",
+            "label": "Ω╕░Ω┤Ç∞ùÉ ∞á£∞╢£φò£ ∞åîδ¬à┬╖∞¥ÿΩ▓¼∞¥Ç ∞û┤δûñ δ░⌐∞ï¥∞¥┤∞ùêδéÿ∞Üö?",
+            "value": "written",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_authorityFollowUp",
+            "label": "∞¥┤ ∞í░∞╣ÿ∞ùÉ δîÇφò┤ Ω╡Éφå╡Ω╡¡∞ùÉ δîÇ∞¥æφò£ δÆñ, ∞û┤δûñ δï╡δ│Ç∞¥┤δéÿ ∞╢öΩ░Ç ∞òêδé┤δÑ╝ δ░¢∞£╝∞à¿δéÿ∞Üö?",
+            "value": "maintained",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_dispositionOutcome",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞¥┤ ∞í░∞╣ÿ∞ùÉ δîÇφò£ φ¢ä∞åì Ω▓░Ω│╝δéÿ ∞óàδúî┬╖φò┤∞á£ ∞òêδé┤δÑ╝ ∞û┤δû╗Ω▓î δ░¢∞òÿδéÿ∞Üö?",
+            "value": "maintained",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_repeatFollowUp",
+            "label": "∞▓ÿδ╢ä φ¢ä ∞╢öΩ░Ç δîÇ∞¥æ∞¥┤ δ░ÿδ│╡δÉÿ∞ùêδéÿ∞Üö?",
+            "value": "more_explanation",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_blockage",
+            "label": "∞ºÇΩ╕ê ∞¥┤ ∞▓ÿδ╢ä┬╖∞í░∞╣ÿ ∞é¼Ω▒┤∞ùÉ∞ä£ Ω░Ç∞₧Ñ δºëφÿÇ ∞₧êδèö δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "why_disposition",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_evidence",
+            "label": "∞ºÇΩ╕ê φÖò∞¥╕φòá ∞êÿ ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞₧êδéÿ∞Üö?",
+            "value": "disposition_notice",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "focusAfter": "case05_dispositionSource",
+            "classification": "CASE_05"
+          },
+          {
+            "id": "case05_finalGoal",
+            "label": "∞ºÇΩ╕ê δ¼┤∞ùç∞¥ä φÖò∞¥╕φòÿΩ│á ∞ï╢∞£╝∞ïáΩ░Ç∞Üö?",
+            "value": "why_disposition",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case05_dispositionSource",
+            "classification": "CASE_05"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_05",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "∞û┤δûñ ∞▓ÿδ╢ä┬╖∞í░∞╣ÿ∞¥╕∞ºÇ ∞₧É∞▓┤δÑ╝ ∞áòφÖòφ₧ê ∞¥┤φò┤φòÿΩ╕░ ∞û┤δáñ∞Ü┤ ∞âüφÖ⌐∞₧àδïêδïñ.",
+          "customerAction": "∞åîδ¬à┬╖∞¥ÿΩ▓¼∞¥ä ∞á£∞╢£φûê∞è╡δïêδïñ.",
+          "actualSituation": "∞▓ÿδ╢ä φå╡∞ºÇ∞ùÉ ∞áüφ₧î δé┤∞Ü⌐Ω│╝ ∞á£Ω░Ç ∞òîΩ│á ∞₧êδèö ∞ïñ∞á£ ∞âüφÖ⌐∞¥┤ Ω▒░∞¥ÿ Ω░Ö∞è╡δïêδïñ.",
+          "currentBlockage": "∞▓ÿδ╢ä∞¥┤ ∞Ö£ δé┤δáñ∞íîδèö∞ºÇ ∞¥┤φò┤φòÿ∞ºÇ δ¬╗φûê∞è╡δïêδïñ.",
+          "evidence": "∞▓ÿδ╢ä φå╡∞ºÇ∞ä£",
+          "goal": "∞▓ÿδ╢ä∞¥┤ ∞Ö£ δé┤δáñ∞íîδèö∞ºÇ φÖò∞¥╕φòÿΩ│á ∞ï╢∞û┤∞Üö"
+        }
+      },
+      "adaptiveDiff": true,
+      "phase1RepeatInChain": false,
+      "allStepsProfileChange": false,
+      "unknownReduced": false
+    },
+    "CASE_06": {
+      "scenarioA": {
+        "phase1": {
+          "adminCaseDocumentKind": "unclear",
+          "situation": "received_document",
+          "stage": "case",
+          "case06_documentNature": "hard_to_classify",
+          "profilePerceivedIssue": "overall_unclear",
+          "profileDocumentSource": "unknown_agency",
+          "profileCurrentGoal": "hard_to_tell",
+          "profileAuthorityGuidance": "not_stated"
+        },
+        "effectiveCase": "CASE_04",
+        "q1Case": "CASE_06",
+        "chainIds": [
+          "case06_exactSource",
+          "case06_keyPhrase",
+          "case06_requiredAction",
+          "case04_submissionRelation"
+        ],
+        "steps": [
+          {
+            "id": "case06_exactSource",
+            "label": "∞¥┤ δ¼╕∞ä£┬╖φå╡∞ºÇδèö ∞û┤δöö∞ùÉ∞ä£ δ│┤δé╕ Ω▓â∞£╝δí£ ∞òîΩ│á Ω│ä∞ïáΩ░Ç∞Üö?",
+            "value": "traffic",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case06_exactSource",
+            "focusAfter": "case06_keyPhrase",
+            "classification": "CASE_06"
+          },
+          {
+            "id": "case06_keyPhrase",
+            "label": "δ¼╕∞ä£δéÿ ∞äñδ¬à∞ùÉ∞ä£ Ω╕░∞û╡δéÿδèö φò╡∞ï¼ δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "title_header",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case06_keyPhrase",
+            "focusAfter": "case06_requiredAction",
+            "classification": "CASE_06"
+          },
+          {
+            "id": "case06_requiredAction",
+            "label": "∞¥┤ δ¼╕∞ä£δÑ╝ δ░¢∞¥Ç δÆñ ∞ïñ∞á£δí£ δ¼┤∞ùç∞¥ä φò┤∞ò╝ φò£δïñΩ│á ∞¥┤φò┤φòÿ∞à¿δéÿ∞Üö?",
+            "value": "submit_docs",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case06_requiredAction",
+            "focusAfter": "case04_supplementTarget",
+            "classification": "CASE_04"
+          },
+          {
+            "id": "case04_submissionRelation",
+            "label": "∞¥┤δ▓ê δ│┤∞Öä ∞ÜöΩ╡¼δèö ∞▓ÿ∞¥î ∞á£∞╢£φò£ δé┤∞Ü⌐Ω│╝ δ╣äΩ╡Éφòÿδ⌐┤ ∞û┤δûñ ∞âüφÖ⌐∞¥╕Ω░Ç∞Üö?",
+            "value": "add_missing",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case04_supplementTarget",
+            "focusAfter": "case04_supplementTarget",
+            "classification": "CASE_04"
+          }
+        ],
+        "pathComplete": false,
+        "finalProfile": {
+          "classification": "CASE_04",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "∞ä£δÑÿδéÿ ∞ª¥δ╣Ö∞¥ä ∞á£∞╢£φò┤∞ò╝ φòÿδèö Ω▓â∞£╝δí£ δ│┤∞₧àδïêδïñ.",
+          "customerAction": null,
+          "actualSituation": "∞▓ÿ∞¥î ∞á£∞╢£φòÿ∞ºÇ ∞òè∞òÿδìÿ ∞âêδí£∞Ü┤ ∞₧ÉδúîδÑ╝ ∞╢öΩ░Çφòÿδ¥╝Ω│á ∞ÜöΩ╡¼δ░¢∞òÿ∞è╡δïêδïñ.",
+          "currentBlockage": null,
+          "evidence": null,
+          "goal": "hard_to_tell"
+        }
+      },
+      "scenarioB": {
+        "phase1": {
+          "adminCaseDocumentKind": "unclear",
+          "situation": "received_document",
+          "stage": "case",
+          "case06_documentNature": "payment_demand",
+          "profilePerceivedIssue": "what_to_do",
+          "profileDocumentSource": "specific_agency",
+          "profileCurrentGoal": "pay_fee",
+          "profileAuthorityGuidance": "uncertain"
+        },
+        "effectiveCase": "CASE_02",
+        "q1Case": "CASE_06",
+        "chainIds": [
+          "case02_paymentSubject",
+          "case02_confirmGoal",
+          "case02_paymentStatus",
+          "case02_demandAuthority",
+          "case02_situationMatch",
+          "case02_paymentBasis",
+          "case02_paymentMethod",
+          "case02_nonPaymentNotice",
+          "case02_blockage",
+          "case02_evidence"
+        ],
+        "steps": [
+          {
+            "id": "case02_paymentSubject",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞û┤δûñ ∞¥┤∞£áδí£ δÅê∞¥ä δé⌐δ╢Çφòÿδ¥╝Ω│á ∞òêδé┤φûêδéÿ∞Üö?",
+            "value": "traffic_fine",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_paymentSubject",
+            "focusAfter": "case02_confirmGoal",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_confirmGoal",
+            "label": "∞ºÇΩ╕ê ∞¥┤ δ╣ä∞Ü⌐ δ¼╕∞á£∞ùÉ∞ä£ Ω░Ç∞₧Ñ φÖò∞¥╕φòÿΩ│á ∞ï╢∞¥Ç Ω▓â∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "verify_obligation",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_confirmGoal",
+            "focusAfter": "case02_paymentStatus",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_paymentStatus",
+            "label": "∞¥┤ δ╣ä∞Ü⌐∞ùÉ δîÇφò┤∞ä£δèö ∞ºÇΩ╕êΩ╣î∞ºÇ ∞û┤δû╗Ω▓î δîÇ∞¥æφòÿ∞à¿δéÿ∞Üö?",
+            "value": "not_paid",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_paymentStatus",
+            "focusAfter": "case02_deadline",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_demandAuthority",
+            "label": "δé⌐δ╢ÇδÑ╝ ∞ÜöΩ╡¼φò£ Ω╕░Ω┤Ç∞¥Ç ∞û┤δöö∞¥╕Ω░Ç∞Üö?",
+            "value": "traffic",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_deadline",
+            "focusAfter": "case02_deadline",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_situationMatch",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞äñδ¬àφò£ δ╣ä∞Ü⌐ ∞ÜöΩ╡¼∞ÖÇ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ δïñδÑ╕ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "match",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_deadline",
+            "focusAfter": "case02_deadline",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_paymentBasis",
+            "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö Ω╖╕ Ω╕ê∞òí∞¥ä ∞Ö£ δé┤∞ò╝ φò£δïñΩ│á ∞äñδ¬àφûêδéÿ∞Üö?",
+            "value": "violation_stated",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_deadline",
+            "focusAfter": "case02_deadline",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_paymentMethod",
+            "label": "∞ïñ∞á£δí£ δé⌐δ╢Çφò┤∞ò╝ φò£δïñδ⌐┤, ∞û┤δûñ δ░⌐δ▓ò∞£╝δí£ δé┤δ¥╝Ω│á ∞òêδé┤δ░¢∞£╝∞à¿δéÿ∞Üö?",
+            "value": "bank_transfer",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_deadline",
+            "focusAfter": "case02_deadline",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_nonPaymentNotice",
+            "label": "Ω╕░φò£ δé┤ δé⌐δ╢Çφòÿ∞ºÇ ∞òè∞£╝δ⌐┤ ∞û┤δû╗Ω▓î δÉ£δïñΩ│á ∞òêδé┤δÉÿ∞ùêδéÿ∞Üö?",
+            "value": "penalty_stated",
+            "phase1FieldRepeat": false,
+            "profileChanged": false,
+            "unknownDelta": 0,
+            "focusBefore": "case02_deadline",
+            "focusAfter": "case02_deadline",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_blockage",
+            "label": "∞ºÇΩ╕ê ∞¥┤ δé⌐δ╢Ç ∞é¼Ω▒┤∞ùÉ∞ä£ Ω░Ç∞₧Ñ δºëφÿÇ ∞₧êδèö δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+            "value": "obligation",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_deadline",
+            "focusAfter": "case02_deadline",
+            "classification": "CASE_02"
+          },
+          {
+            "id": "case02_evidence",
+            "label": "∞ºÇΩ╕ê φÖò∞¥╕φòá ∞êÿ ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞₧êδéÿ∞Üö?",
+            "value": "yes",
+            "phase1FieldRepeat": false,
+            "profileChanged": true,
+            "unknownDelta": 0,
+            "focusBefore": "case02_deadline",
+            "classification": "CASE_02"
+          }
+        ],
+        "pathComplete": true,
+        "finalProfile": {
+          "classification": "CASE_02",
+          "unknownCount": 0,
+          "unknowns": [],
+          "authorityClaim": "δÅê∞¥ä δé⌐δ╢ÇφòÿΩ▒░δéÿ δ╣ä∞Ü⌐∞¥ä ∞▓ÿδª¼φò┤∞ò╝ φòÿδèö Ω▓â∞£╝δí£ δ│┤∞₧àδïêδïñ.",
+          "customerAction": "∞òä∞ºü ∞¥┤ δé⌐δ╢Ç ∞ÜöΩ╡¼∞ùÉ δîÇφò┤ δé⌐δ╢Çφòÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ.",
+          "actualSituation": "∞¥┤ δé⌐δ╢Ç ∞ÜöΩ╡¼δèö ∞ïñ∞á£ ∞âüφÖ⌐Ω│╝ δîÇ∞▓┤δí£ δº₧∞è╡δïêδïñ.",
+          "currentBlockage": "∞á£Ω░Ç ∞áòδºÉ δé⌐δ╢Çφò┤∞ò╝ φòÿδèö∞ºÇδ╢Çφä░ φÖò∞ïá∞¥┤ ∞ùå∞è╡δïêδïñ",
+          "evidence": "δé⌐δ╢Ç ∞ÜöΩ╡¼∞ä£┬╖∞ÿü∞êÿ∞ª¥┬╖φå╡∞ºÇ∞ä£ δô▒ φÖò∞¥╕φòá ∞₧ÉδúîΩ░Ç ∞₧ê∞è╡δïêδïñ",
+          "goal": "δé⌐δ╢Ç ∞¥ÿδ¼┤ ∞ù¼δ╢Çδ╢Çφä░ φÖò∞¥╕φòÿΩ│á ∞ï╢∞û┤∞Üö"
+        }
+      },
+      "adaptiveDiff": true,
+      "phase1RepeatInChain": false,
+      "allStepsProfileChange": false,
+      "unknownReduced": false
+    }
+  },
+  "directInput": {
+    "partialChain": [
+      "case02_demandAuthority",
+      "case02_paymentAmount",
+      "case02_paymentBasis",
+      "case02_paymentMethod",
+      "case02_nonPaymentNotice",
+      "case02_blockage",
+      "case02_evidence"
+    ],
+    "directChain": [
+      "case02_demandAuthority",
+      "case02_paymentBasis",
+      "case02_paymentMethod",
+      "case02_nonPaymentNotice",
+      "case02_blockage",
+      "case02_evidence"
+    ],
+    "directNoteStored": true,
+    "profileDiffers": true,
+    "nextQuestionAfterMatch": {}
+  },
+  "reclass": {
+    "E_payment": {
+      "classification": "CASE_02",
+      "pathComplete": false
+    },
+    "F_attendance": {
+      "classification": "CASE_03"
+    },
+    "B_supplement": {
+      "classification": "CASE_04"
+    },
+    "simB": {
+      "phase1": {
+        "adminCaseDocumentKind": "unclear",
+        "situation": "received_document",
+        "stage": "case",
+        "case06_documentNature": "payment_demand",
+        "profilePerceivedIssue": "what_to_do",
+        "profileDocumentSource": "specific_agency",
+        "profileCurrentGoal": "pay_fee",
+        "profileAuthorityGuidance": "uncertain"
+      },
+      "effectiveCase": "CASE_02",
+      "q1Case": "CASE_06",
+      "chainIds": [
+        "case02_paymentSubject",
+        "case02_confirmGoal",
+        "case02_paymentStatus",
+        "case02_demandAuthority",
+        "case02_situationMatch",
+        "case02_paymentBasis",
+        "case02_paymentMethod",
+        "case02_nonPaymentNotice",
+        "case02_blockage",
+        "case02_evidence"
+      ],
+      "steps": [
+        {
+          "id": "case02_paymentSubject",
+          "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö ∞û┤δûñ ∞¥┤∞£áδí£ δÅê∞¥ä δé⌐δ╢Çφòÿδ¥╝Ω│á ∞òêδé┤φûêδéÿ∞Üö?",
+          "value": "traffic_fine",
+          "phase1FieldRepeat": false,
+          "profileChanged": false,
+          "unknownDelta": 0,
+          "focusBefore": "case02_paymentSubject",
+          "focusAfter": "case02_confirmGoal",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_confirmGoal",
+          "label": "∞ºÇΩ╕ê ∞¥┤ δ╣ä∞Ü⌐ δ¼╕∞á£∞ùÉ∞ä£ Ω░Ç∞₧Ñ φÖò∞¥╕φòÿΩ│á ∞ï╢∞¥Ç Ω▓â∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+          "value": "verify_obligation",
+          "phase1FieldRepeat": false,
+          "profileChanged": true,
+          "unknownDelta": 0,
+          "focusBefore": "case02_confirmGoal",
+          "focusAfter": "case02_paymentStatus",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_paymentStatus",
+          "label": "∞¥┤ δ╣ä∞Ü⌐∞ùÉ δîÇφò┤∞ä£δèö ∞ºÇΩ╕êΩ╣î∞ºÇ ∞û┤δû╗Ω▓î δîÇ∞¥æφòÿ∞à¿δéÿ∞Üö?",
+          "value": "not_paid",
+          "phase1FieldRepeat": false,
+          "profileChanged": true,
+          "unknownDelta": 0,
+          "focusBefore": "case02_paymentStatus",
+          "focusAfter": "case02_deadline",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_demandAuthority",
+          "label": "δé⌐δ╢ÇδÑ╝ ∞ÜöΩ╡¼φò£ Ω╕░Ω┤Ç∞¥Ç ∞û┤δöö∞¥╕Ω░Ç∞Üö?",
+          "value": "traffic",
+          "phase1FieldRepeat": false,
+          "profileChanged": false,
+          "unknownDelta": 0,
+          "focusBefore": "case02_deadline",
+          "focusAfter": "case02_deadline",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_situationMatch",
+          "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£ ∞äñδ¬àφò£ δ╣ä∞Ü⌐ ∞ÜöΩ╡¼∞ÖÇ ∞ïñ∞á£ ∞âüφÖ⌐∞¥ä δ╣äΩ╡Éφòÿδ⌐┤, Ω░Ç∞₧Ñ δïñδÑ╕ δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+          "value": "match",
+          "phase1FieldRepeat": false,
+          "profileChanged": true,
+          "unknownDelta": 0,
+          "focusBefore": "case02_deadline",
+          "focusAfter": "case02_deadline",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_paymentBasis",
+          "label": "Ω╡Éφå╡Ω╡¡∞ùÉ∞ä£δèö Ω╖╕ Ω╕ê∞òí∞¥ä ∞Ö£ δé┤∞ò╝ φò£δïñΩ│á ∞äñδ¬àφûêδéÿ∞Üö?",
+          "value": "violation_stated",
+          "phase1FieldRepeat": false,
+          "profileChanged": false,
+          "unknownDelta": 0,
+          "focusBefore": "case02_deadline",
+          "focusAfter": "case02_deadline",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_paymentMethod",
+          "label": "∞ïñ∞á£δí£ δé⌐δ╢Çφò┤∞ò╝ φò£δïñδ⌐┤, ∞û┤δûñ δ░⌐δ▓ò∞£╝δí£ δé┤δ¥╝Ω│á ∞òêδé┤δ░¢∞£╝∞à¿δéÿ∞Üö?",
+          "value": "bank_transfer",
+          "phase1FieldRepeat": false,
+          "profileChanged": false,
+          "unknownDelta": 0,
+          "focusBefore": "case02_deadline",
+          "focusAfter": "case02_deadline",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_nonPaymentNotice",
+          "label": "Ω╕░φò£ δé┤ δé⌐δ╢Çφòÿ∞ºÇ ∞òè∞£╝δ⌐┤ ∞û┤δû╗Ω▓î δÉ£δïñΩ│á ∞òêδé┤δÉÿ∞ùêδéÿ∞Üö?",
+          "value": "penalty_stated",
+          "phase1FieldRepeat": false,
+          "profileChanged": false,
+          "unknownDelta": 0,
+          "focusBefore": "case02_deadline",
+          "focusAfter": "case02_deadline",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_blockage",
+          "label": "∞ºÇΩ╕ê ∞¥┤ δé⌐δ╢Ç ∞é¼Ω▒┤∞ùÉ∞ä£ Ω░Ç∞₧Ñ δºëφÿÇ ∞₧êδèö δ╢Çδ╢ä∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+          "value": "obligation",
+          "phase1FieldRepeat": false,
+          "profileChanged": true,
+          "unknownDelta": 0,
+          "focusBefore": "case02_deadline",
+          "focusAfter": "case02_deadline",
+          "classification": "CASE_02"
+        },
+        {
+          "id": "case02_evidence",
+          "label": "∞ºÇΩ╕ê φÖò∞¥╕φòá ∞êÿ ∞₧êδèö ∞₧ÉδúîΩ░Ç ∞₧êδéÿ∞Üö?",
+          "value": "yes",
+          "phase1FieldRepeat": false,
+          "profileChanged": true,
+          "unknownDelta": 0,
+          "focusBefore": "case02_deadline",
+          "classification": "CASE_02"
+        }
+      ],
+      "pathComplete": true,
+      "finalProfile": {
+        "classification": "CASE_02",
+        "unknownCount": 0,
+        "unknowns": [],
+        "authorityClaim": "δÅê∞¥ä δé⌐δ╢ÇφòÿΩ▒░δéÿ δ╣ä∞Ü⌐∞¥ä ∞▓ÿδª¼φò┤∞ò╝ φòÿδèö Ω▓â∞£╝δí£ δ│┤∞₧àδïêδïñ.",
+        "customerAction": "∞òä∞ºü ∞¥┤ δé⌐δ╢Ç ∞ÜöΩ╡¼∞ùÉ δîÇφò┤ δé⌐δ╢Çφòÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ.",
+        "actualSituation": "∞¥┤ δé⌐δ╢Ç ∞ÜöΩ╡¼δèö ∞ïñ∞á£ ∞âüφÖ⌐Ω│╝ δîÇ∞▓┤δí£ δº₧∞è╡δïêδïñ.",
+        "currentBlockage": "∞á£Ω░Ç ∞áòδºÉ δé⌐δ╢Çφò┤∞ò╝ φòÿδèö∞ºÇδ╢Çφä░ φÖò∞ïá∞¥┤ ∞ùå∞è╡δïêδïñ",
+        "evidence": "δé⌐δ╢Ç ∞ÜöΩ╡¼∞ä£┬╖∞ÿü∞êÿ∞ª¥┬╖φå╡∞ºÇ∞ä£ δô▒ φÖò∞¥╕φòá ∞₧ÉδúîΩ░Ç ∞₧ê∞è╡δïêδïñ",
+        "goal": "δé⌐δ╢Ç ∞¥ÿδ¼┤ ∞ù¼δ╢Çδ╢Çφä░ φÖò∞¥╕φòÿΩ│á ∞ï╢∞û┤∞Üö"
+      }
+    }
+  },
+  "qaScenarios": {
+    "case01A": "CASE_01",
+    "case01D": "CASE_02",
+    "case06E": "CASE_02"
+  }
+}

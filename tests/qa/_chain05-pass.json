@@ -1,0 +1,345 @@
+﻿{
+  "script": "admin-verify-strict-full-v2.mjs",
+  "productCodeChanged": false,
+  "CASE_06_CHAIN_05_EXPERT": {
+    "caseKey": "CASE_06_CHAIN_05_EXPERT",
+    "phase1Trace": [
+      {
+        "step": "Q1",
+        "label": "δ¼┤∞è¿ δé┤∞Ü⌐∞¥╕∞ºÇ ∞₧ÿ δ¬¿δÑ┤Ω▓á∞è╡δïêδïñ.",
+        "value": "unclear"
+      },
+      {
+        "id": "case06_requiredActionCandidate",
+        "browserLabel": "δ¼╕∞ä£∞ùÉ∞ä£ ∞ïñ∞á£δí£ φòÿδ¥╝Ω│á ∞áüφÿÇ ∞₧êΩ▒░δéÿ, ∞âüδîÇδ░⌐∞ùÉΩ▓î ∞äñδ¬àδ░¢∞¥Ç δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+        "engineLabel": "δ¼╕∞ä£∞ùÉ∞ä£ ∞ïñ∞á£δí£ φòÿδ¥╝Ω│á ∞áüφÿÇ ∞₧êΩ▒░δéÿ, ∞âüδîÇδ░⌐∞ùÉΩ▓î ∞äñδ¬àδ░¢∞¥Ç δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+        "labelMatch": true,
+        "pick": "δ¼╕∞á£┬╖∞£äδ░ÿ∞¥┤ ∞₧êδïñΩ│á φûê∞ºÇδºî δ¼┤∞ùç∞¥ä φò┤∞ò╝ φòÿδèö∞ºÇδèö ∞áòφÖòφ₧ê δ¬¿δªàδïêδïñ",
+        "progress": [
+          "02 / 06"
+        ]
+      },
+      {
+        "id": "case06_knowledgeSource",
+        "browserLabel": "∞¥┤ δé┤∞Ü⌐∞¥ä ∞ïñ∞á£δí£ ∞û┤δû╗Ω▓î φÖò∞¥╕φòÿ∞à¿δéÿ∞Üö?",
+        "engineLabel": "∞¥┤ δé┤∞Ü⌐∞¥ä ∞ïñ∞á£δí£ ∞û┤δû╗Ω▓î φÖò∞¥╕φòÿ∞à¿δéÿ∞Üö?",
+        "labelMatch": true,
+        "pick": "δ¼╕∞ä£δÑ╝ δ┤ñδèö∞ºÇ δêäΩ╡¼∞ùÉΩ▓î δôñ∞ùêδèö∞ºÇ δô▒ Ω▓╜δí£Ω░Ç δ╢êδ╢äδ¬àφò⌐δïêδïñ",
+        "progress": [
+          "03 / 06"
+        ]
+      },
+      {
+        "id": "case06_sourceChannel",
+        "browserLabel": "∞¥┤ δé┤∞Ü⌐∞¥Ç ∞û┤δöö∞ùÉ∞ä£ ∞û┤δû╗Ω▓î ∞áäδï¼δ░¢∞£╝∞à¿δéÿ∞Üö?",
+        "engineLabel": "∞¥┤ δé┤∞Ü⌐∞¥Ç ∞û┤δöö∞ùÉ∞ä£ ∞û┤δû╗Ω▓î ∞áäδï¼δ░¢∞£╝∞à¿δéÿ∞Üö?",
+        "labelMatch": true,
+        "pick": "∞û┤δèÉ Ω╕░Ω┤Ç┬╖δêäΩ╡¼∞ùÉΩ▓î∞ä£ δéÿ∞ÿ¿ δé┤∞Ü⌐∞¥╕∞ºÇ ∞òî ∞êÿ ∞ùå∞è╡δïêδïñ",
+        "progress": [
+          "04 / 06"
+        ]
+      },
+      {
+        "id": "case06_deadlineActionPair",
+        "browserLabel": "Ω╕░Ω┤Ç∞ùÉ∞ä£δèö ∞û╕∞á£Ω╣î∞ºÇ δ¼┤∞ùç∞¥ä φòÿδ¥╝Ω│á ∞òêδé┤φûêδéÿ∞Üö?",
+        "engineLabel": "Ω╕░Ω┤Ç∞ùÉ∞ä£δèö ∞û╕∞á£Ω╣î∞ºÇ δ¼┤∞ùç∞¥ä φòÿδ¥╝Ω│á ∞òêδé┤φûêδéÿ∞Üö?",
+        "labelMatch": true,
+        "pick": "φò┤∞ò╝ φòá ∞¥╝∞¥Ç ∞₧ê∞£╝δéÿ ∞û╕∞á£┬╖δ¼┤∞ùç∞¥╕∞ºÇ ∞áòφÖòφ₧ê δ¬¿δªàδïêδïñ",
+        "progress": [
+          "05 / 06"
+        ]
+      },
+      {
+        "id": "case06_customerResponse",
+        "browserLabel": "Ω╖╕ ∞òêδé┤δÑ╝ δ░¢∞¥Ç δÆñ ∞ºÇΩ╕êΩ╣î∞ºÇ ∞ïñ∞á£δí£ ∞û┤δû╗Ω▓î δîÇ∞¥æφòÿ∞à¿δéÿ∞Üö?",
+        "engineLabel": "Ω╖╕ ∞òêδé┤δÑ╝ δ░¢∞¥Ç δÆñ ∞ºÇΩ╕êΩ╣î∞ºÇ ∞ïñ∞á£δí£ ∞û┤δû╗Ω▓î δîÇ∞¥æφòÿ∞à¿δéÿ∞Üö?",
+        "labelMatch": true,
+        "pick": "∞òä∞ºü ∞òäδ¼┤ δîÇ∞¥æδÅä φòÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ",
+        "progress": [
+          "06 / 06"
+        ]
+      }
+    ],
+    "firstResult": {
+      "dualCta": true,
+      "heading": true
+    },
+    "profileSnapshots": {
+      "A_phase2Entry": {
+        "point": "A_PHASE2_ENTRY_SIM",
+        "note": "engine sim after phase1 plan ΓÇö browser phase2 entry uses live answers",
+        "profile": {
+          "classification": "CASE_06",
+          "reclassificationHistory": [],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": null,
+            "customerAction": null,
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case06_unclearContentRecheck",
+            "focus": "caseClassification"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        }
+      },
+      "B_midPhase2": {
+        "classification": "CASE_06",
+        "reclassificationHistory": [],
+        "unknowns": [],
+        "knownFacts": {
+          "authorityClaim": null,
+          "customerAction": null,
+          "actualSituation": null,
+          "currentBlockage": null,
+          "evidence": null,
+          "goal": null
+        },
+        "nextFocus": {
+          "questionId": "case06_unclearFactRelation",
+          "focus": "caseClassification"
+        },
+        "pathComplete": false,
+        "phase1Complete": true
+      },
+      "C_preEvidence": {
+        "classification": "CASE_06",
+        "reclassificationHistory": [],
+        "unknowns": [],
+        "knownFacts": {
+          "authorityClaim": null,
+          "customerAction": null,
+          "actualSituation": null,
+          "currentBlockage": null,
+          "evidence": null,
+          "goal": null
+        },
+        "nextFocus": null,
+        "pathComplete": true,
+        "phase1Complete": true
+      }
+    },
+    "phase2Trace": [
+      {
+        "event": "QUESTION",
+        "browserLabel": "Ω╖╕ δ¼╕∞ä£δéÿ ∞òêδé┤∞ùÉ∞ä£ Ω╕░Ω┤Ç∞¥┤ ∞ïñ∞á£δí£ ∞û╕Ω╕ëφò£ δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+        "engineId": "case06_unclearContentRecheck",
+        "engineLabel": "Ω╖╕ δ¼╕∞ä£δéÿ ∞òêδé┤∞ùÉ∞ä£ Ω╕░Ω┤Ç∞¥┤ ∞ïñ∞á£δí£ ∞û╕Ω╕ëφò£ δé┤∞Ü⌐∞¥Ç δ¼┤∞ùç∞¥╕Ω░Ç∞Üö?",
+        "labelMatch": true,
+        "optionValue": "other",
+        "optionLabel": "∞£ä∞ùÉ δé┤∞Ü⌐∞¥┤ ∞ùåΩ▒░δéÿ ∞äñδ¬à∞¥┤ φòä∞Üöφò⌐δïêδïñ ΓåÆ ∞ºü∞áæ ∞₧àδáÑ",
+        "progress": [
+          "01 / 01"
+        ],
+        "profile": {
+          "classification": "CASE_06",
+          "reclassificationHistory": [],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": null,
+            "customerAction": null,
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case06_unclearContentRecheck",
+            "focus": "caseClassification"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        }
+      },
+      {
+        "event": "POST_DI_COMMIT",
+        "engineId": "case06_unclearContentRecheck",
+        "browserLabel": "Ω╕░Ω┤Ç∞¥┤ ∞ºÇ∞áüφò£ δé┤∞Ü⌐∞¥┤ ∞ïñ∞á£ δ│╕∞¥╕ ∞âüφÖ⌐Ω│╝ ∞û┤δûñ Ω┤ÇΩ│äΩ░Ç ∞₧êδïñΩ│á ∞â¥Ω░üφòÿ∞ï£δéÿ∞Üö?",
+        "progress": [
+          "02 / 02"
+        ]
+      },
+      {
+        "event": "AFTER_ANSWER",
+        "engineId": "case06_unclearContentRecheck",
+        "profile": {
+          "classification": "CASE_06",
+          "reclassificationHistory": [],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": null,
+            "customerAction": null,
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case06_unclearFactRelation",
+            "focus": "caseClassification"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        },
+        "nextFocus": {
+          "questionId": "case06_unclearFactRelation",
+          "focus": "caseClassification"
+        },
+        "pathComplete": false
+      },
+      {
+        "event": "QUESTION",
+        "browserLabel": "Ω╕░Ω┤Ç∞¥┤ ∞ºÇ∞áüφò£ δé┤∞Ü⌐∞¥┤ ∞ïñ∞á£ δ│╕∞¥╕ ∞âüφÖ⌐Ω│╝ ∞û┤δûñ Ω┤ÇΩ│äΩ░Ç ∞₧êδïñΩ│á ∞â¥Ω░üφòÿ∞ï£δéÿ∞Üö?",
+        "engineId": "case06_unclearFactRelation",
+        "engineLabel": "Ω╕░Ω┤Ç∞¥┤ ∞ºÇ∞áüφò£ δé┤∞Ü⌐∞¥┤ ∞ïñ∞á£ δ│╕∞¥╕ ∞âüφÖ⌐Ω│╝ ∞û┤δûñ Ω┤ÇΩ│äΩ░Ç ∞₧êδïñΩ│á ∞â¥Ω░üφòÿ∞ï£δéÿ∞Üö?",
+        "labelMatch": true,
+        "optionValue": "insufficient_info",
+        "optionLabel": "φîÉδï¿ ∞áòδ│┤ ∞ùå∞¥î",
+        "progress": [
+          "02 / 02"
+        ],
+        "profile": {
+          "classification": "CASE_06",
+          "reclassificationHistory": [],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": null,
+            "customerAction": null,
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case06_unclearFactRelation",
+            "focus": "caseClassification"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        }
+      },
+      {
+        "event": "AFTER_ANSWER",
+        "engineId": "case06_unclearFactRelation",
+        "profile": {
+          "classification": "CASE_06",
+          "reclassificationHistory": [],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": null,
+            "customerAction": null,
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case06_unclearResponse",
+            "focus": "caseClassification"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        },
+        "nextFocus": {
+          "questionId": "case06_unclearResponse",
+          "focus": "caseClassification"
+        },
+        "pathComplete": false
+      },
+      {
+        "event": "QUESTION",
+        "browserLabel": "∞ºÇΩ╕êΩ╣î∞ºÇ ∞¥┤ Ω▒┤∞ùÉ δîÇφò┤ ∞ïñ∞á£δí£ δ¼┤∞ùç∞¥ä φòÿ∞à¿δéÿ∞Üö?",
+        "engineId": "case06_unclearResponse",
+        "engineLabel": "∞ºÇΩ╕êΩ╣î∞ºÇ ∞¥┤ Ω▒┤∞ùÉ δîÇφò┤ ∞ïñ∞á£δí£ δ¼┤∞ùç∞¥ä φòÿ∞à¿δéÿ∞Üö?",
+        "labelMatch": true,
+        "optionValue": "no_action",
+        "optionLabel": "∞òäδ¼┤Ω▓âδÅä ∞òê φò¿",
+        "progress": [
+          "03 / 03"
+        ],
+        "profile": {
+          "classification": "CASE_06",
+          "reclassificationHistory": [],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": null,
+            "customerAction": null,
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case06_unclearResponse",
+            "focus": "caseClassification"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        }
+      },
+      {
+        "event": "AFTER_ANSWER",
+        "engineId": "case06_unclearResponse",
+        "profile": {
+          "classification": "CASE_06",
+          "reclassificationHistory": [],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": null,
+            "customerAction": null,
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": null,
+          "pathComplete": false,
+          "phase1Complete": true
+        },
+        "nextFocus": null,
+        "pathComplete": false
+      },
+      {
+        "event": "BRIDGE_SNAPSHOT",
+        "committed": true
+      }
+    ],
+    "browserIds": [
+      "case06_unclearContentRecheck",
+      "case06_unclearFactRelation",
+      "case06_unclearResponse"
+    ],
+    "phase2Count": 3,
+    "allLabelMatch": true,
+    "evidence": true,
+    "evidenceDetail": {
+      "component": "AdminVerifyPhase2EvidencePanel",
+      "isExistingPanel": true,
+      "isSeparateDocumentsPage": false,
+      "adminCopy": true,
+      "referencePageImplemented": false,
+      "note": "A=Panel in MasterReviewQuotationReport; B=standalone /documents upload UX not at this step"
+    },
+    "personalized": true,
+    "documentsAi": null,
+    "documentsExpert": null,
+    "consoleSnippet": [],
+    "reclassificationHistory": [],
+    "reclassToCase02": false,
+    "case02Phase2InBrowser": false,
+    "case06Phase2InBrowser": true,
+    "expertHandoff": true,
+    "finalPathComplete": true,
+    "finalClassification": "CASE_06",
+    "progressUx": [
+      "01 / 01",
+      "02 / 02",
+      "03 / 03"
+    ]
+  }
+}

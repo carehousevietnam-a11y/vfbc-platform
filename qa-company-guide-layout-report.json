@@ -1,0 +1,69 @@
+{
+  "pc": {
+    "innerWidth": 1280,
+    "outerWidth": 1280,
+    "matchMd": true,
+    "parentDisplay": "grid",
+    "parentCols": "452px 260px",
+    "parentClass": "mt-8 flex flex-col gap-8 sm:mt-9 md:grid md:grid-cols-[minmax(0,1fr)_minmax(220px,260px)] md:items-start md:gap-x-8 md:gap-y-8",
+    "sourcesCount": 1,
+    "process": {
+      "left": 276,
+      "top": 465,
+      "right": 728
+    },
+    "check": {
+      "left": 276,
+      "top": 713
+    },
+    "sources": {
+      "left": 760,
+      "top": 465,
+      "right": 1020,
+      "width": 260
+    },
+    "docsTop": 1059,
+    "ctaBottom": 3650,
+    "sideBySide": true,
+    "sourcesBelowDocs": false,
+    "sourcesAfterCta": false,
+    "siblings": [
+      {
+        "i": 0,
+        "tag": "DIV",
+        "order": "0",
+        "className": "max-md:contents min-w-0 md:col-start-1 md:row-span-2 md:row-start-1 md:flex md:flex-col md:gap-8",
+        "text": "진행 순서1투자 형태·업종·주소 자료 준비2투자등록(IRC)·기업등록(ERC) 신청3심사·",
+        "left": 276,
+        "top": 465
+      },
+      {
+        "i": 1,
+        "tag": "DIV",
+        "order": "0",
+        "className": "max-md:order-4 min-w-0 md:col-start-2 md:row-span-2 md:row-start-1 md:self-start",
+        "text": "OFFICIAL SOURCES인허가 절차·요건 확인베트남 공식 인허가 절차·요건을 참고하여",
+        "left": 760,
+        "top": 465
+      },
+      {
+        "i": 2,
+        "tag": "DIV",
+        "order": "0",
+        "className": "max-md:order-3 min-w-0 md:col-span-2 md:col-start-1 md:row-start-3",
+        "text": "준비 서류플랫폼 참고 목록입니다. 투자 형태·업종·관할에 따라 추가 요청이 있을 수 있습니",
+        "left": 276,
+        "top": 1023
+      }
+    ]
+  },
+  "mobile": {
+    "innerWidth": 375,
+    "parentDisplay": "flex",
+    "sourcesAfterCta": true,
+    "processTop": 559,
+    "ctaBottom": 4418,
+    "sourcesTop": 4450,
+    "sourcesCount": 1
+  }
+}

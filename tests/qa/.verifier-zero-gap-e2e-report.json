@@ -1,0 +1,69 @@
+{
+  "executedAt": "2026-09-18T11:29:22.183Z",
+  "paths": {
+    "PRE": {
+      "phase1Evidence": "PASS",
+      "phase1Result": "PASS",
+      "phase2Questions": "PASS",
+      "phase2Evidence": "PASS",
+      "phase2Result": "PASS",
+      "evidenceSeparation": "NOT VERIFIED",
+      "storagePhase1": [],
+      "storagePhase2": [],
+      "aiMypage": true,
+      "aiNotDocuments": true
+    },
+    "POST": {
+      "phase1Evidence": "PASS",
+      "phase1Result": "PASS",
+      "phase2Questions": "PASS",
+      "phase2Evidence": "PASS",
+      "phase2Result": "PASS",
+      "evidenceSeparation": "NOT VERIFIED",
+      "storagePhase1": [],
+      "storagePhase2": []
+    },
+    "DOC": {
+      "phase1Evidence": "NOT VERIFIED",
+      "phase1Result": "NOT VERIFIED",
+      "phase2Questions": "NOT VERIFIED",
+      "phase2Evidence": "NOT VERIFIED",
+      "phase2Result": "NOT VERIFIED",
+      "evidenceSeparation": "NOT VERIFIED",
+      "error": "page.waitForFunction: Timeout 25000ms exceeded."
+    },
+    "UNCLEAR": {
+      "phase1Evidence": "PASS",
+      "phase1Result": "NOT VERIFIED",
+      "phase2Questions": "NOT VERIFIED",
+      "phase2Evidence": "NOT VERIFIED",
+      "phase2Result": "NOT VERIFIED",
+      "evidenceSeparation": "NOT VERIFIED",
+      "error": "page.waitForFunction: Timeout 25000ms exceeded.",
+      "materialStop": "NOT VERIFIED"
+    },
+    "PRE_EVIDENCE_CHAIN": {
+      "phase1Evidence": "PASS",
+      "phase1Result": "PASS",
+      "phase2Questions": "PASS",
+      "phase2Evidence": "PASS",
+      "phase2Result": "PASS",
+      "evidenceSeparation": "PASS",
+      "phase1Filename": true,
+      "phase2Filename": false,
+      "storagePhase1": [
+        "https://pbzfqiiuojzsjvbllczy.supabase.co/storage/v1/object/documents/verify-real-estate/366d8ba0-7cf9-44b3-ac04-b2748360bfe9.pdf"
+      ],
+      "storagePhase2": [
+        "https://pbzfqiiuojzsjvbllczy.supabase.co/storage/v1/object/documents/verify-real-estate/366d8ba0-7cf9-44b3-ac04-b2748360bfe9-phase2.pdf"
+      ]
+    }
+  },
+  "regression": {
+    "admin": "FAIL",
+    "trc": "PASS"
+  },
+  "storage": {},
+  "cta": {},
+  "expert": {}
+}

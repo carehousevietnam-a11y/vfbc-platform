@@ -1,0 +1,2067 @@
+{
+  "A": {
+    "description": "match + 아직 대응 안 함 + payment(included)",
+    "renderedCount": 6,
+    "pathComplete": true,
+    "phase2UnitsInternal": 5,
+    "steps": [
+      {
+        "order": 1,
+        "questionId": "case01_authorityDemand",
+        "questionText": "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+        "choices": [
+          {
+            "value": "attendance",
+            "label": "추가 설명이나 출석을 하라고 안내했습니다."
+          },
+          {
+            "value": "supplement",
+            "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+          },
+          {
+            "value": "payment",
+            "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+          },
+          {
+            "value": "correct_record",
+            "label": "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다."
+          },
+          {
+            "value": "no_stated_demand",
+            "label": "구체적으로 무엇을 하라는지 안내하지 않았습니다."
+          },
+          {
+            "value": "understanding_unknown",
+            "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "payment",
+          "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+        },
+        "profileField": "authorityClaim",
+        "informationAxis": "required action (what authority demanded)",
+        "axisAligned": true,
+        "axisNote": "required action axis separate from deadline",
+        "nextQuestionId": "case01_paymentDemandScope",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 2,
+        "questionId": "case01_paymentDemandScope",
+        "questionText": "이 비용 납부가 이번 문제의 핵심인가요, 아니면 교통국에서 받은 안내에 포함된 추가 요구인가요?",
+        "choices": [
+          {
+            "value": "core_case",
+            "label": "이번 문제의 핵심입니다."
+          },
+          {
+            "value": "included_with_other",
+            "label": "다른 문제와 함께 포함된 요구입니다."
+          },
+          {
+            "value": "additional_guidance",
+            "label": "추가로 안내받은 내용입니다."
+          },
+          {
+            "value": "unsure",
+            "label": "잘 모르겠습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "included_with_other",
+          "label": "다른 문제와 함께 포함된 요구입니다."
+        },
+        "profileField": "case01_paymentDemandScope (classification)",
+        "informationAxis": "payment demand scope",
+        "axisAligned": true,
+        "axisNote": "payment demand scope",
+        "nextQuestionId": "case01_actualSituation",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 3,
+        "questionId": "case01_actualSituation",
+        "questionText": "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "accept_facts",
+            "label": "실제로 그런 행동이나 상황이 있었습니다."
+          },
+          {
+            "value": "partial_similar",
+            "label": "비슷한 일이 있었지만 중요한 부분이 다릅니다."
+          },
+          {
+            "value": "deny",
+            "label": "그런 행동이나 상황이 실제로는 없었습니다."
+          },
+          {
+            "value": "partial",
+            "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+          },
+          {
+            "value": "unsure",
+            "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "accept_facts",
+          "label": "실제로 그런 행동이나 상황이 있었습니다."
+        },
+        "profileField": "actualSituation",
+        "informationAxis": "what actually happened (factual occurrence)",
+        "axisAligned": true,
+        "axisNote": "factual occurrence separate from relationship comparison (Phase1)",
+        "nextQuestionId": "case01_deadline",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 4,
+        "questionId": "case01_deadline",
+        "questionText": "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+        "choices": [
+          {
+            "value": "confirmed",
+            "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+          },
+          {
+            "value": "uncertain",
+            "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+          },
+          {
+            "value": "asap",
+            "label": "가능한 한 빨리 대응하라는 안내만 받았습니다."
+          },
+          {
+            "value": "no_stated",
+            "label": "별도의 기한은 안내받지 않았습니다."
+          },
+          {
+            "value": "unknown",
+            "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "confirmed",
+          "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+        },
+        "profileField": "deadline",
+        "informationAxis": "deadline guidance state (not required action)",
+        "axisAligned": true,
+        "axisNote": "deadline guidance state only; action from authorityDemand",
+        "nextQuestionId": "case01_deadlineDate",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 5,
+        "questionId": "case01_deadlineDate",
+        "questionText": "안내받은 대응 기한은 언제인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "2026-10-15",
+          "label": "2026-10-15"
+        },
+        "profileField": "deadline (confirmed date detail)",
+        "informationAxis": "confirmed deadline date",
+        "axisAligned": true,
+        "axisNote": "confirmed deadline date",
+        "nextQuestionId": "case01_evidence",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 6,
+        "questionId": "case01_evidence",
+        "questionText": "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "notice",
+            "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+          },
+          {
+            "value": "message",
+            "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+          },
+          {
+            "value": "submitted_docs",
+            "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+          },
+          {
+            "value": "photo_video",
+            "label": "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다."
+          },
+          {
+            "value": "none",
+            "label": "현재 가지고 있는 관련 자료가 없습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "notice",
+          "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+        },
+        "profileField": "evidence",
+        "informationAxis": "evidence type held (not interpretation)",
+        "axisAligned": true,
+        "axisNote": "evidence type only",
+        "nextQuestionId": null,
+        "nextRendered": false,
+        "skipReason": null
+      }
+    ],
+    "skipped": [
+      {
+        "questionId": "case01_supplementDemandScope",
+        "reason": "authorityDemand !== supplement"
+      },
+      {
+        "questionId": "case01_factDifferenceDetail",
+        "reason": "factRelationship does not imply difference"
+      },
+      {
+        "questionId": "case01_factRelationshipNote",
+        "reason": "factRelationship !== unknown gap"
+      },
+      {
+        "questionId": "case01_datePlaceDetail",
+        "reason": "factRelationship !== date_place_wrong"
+      },
+      {
+        "questionId": "case01_responseDetail",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityResponse",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityDemandDetail",
+        "reason": "authorityDemand is clear"
+      },
+      {
+        "questionId": "case01_authorityDemandNote",
+        "reason": "authorityDemand note not required"
+      },
+      {
+        "questionId": "case01_authorityResponseNote",
+        "reason": "authorityResponse follow-up not required"
+      },
+      {
+        "questionId": "case01_blockage",
+        "reason": "blockage gate not met"
+      },
+      {
+        "questionId": "case01_finalGoal",
+        "reason": "confirmGoal is clear"
+      }
+    ]
+  },
+  "B": {
+    "description": "unknown relationship + understanding_unknown demand",
+    "renderedCount": 7,
+    "pathComplete": true,
+    "phase2UnitsInternal": 6,
+    "steps": [
+      {
+        "order": 1,
+        "questionId": "case01_authorityDemand",
+        "questionText": "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+        "choices": [
+          {
+            "value": "attendance",
+            "label": "추가 설명이나 출석을 하라고 안내했습니다."
+          },
+          {
+            "value": "supplement",
+            "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+          },
+          {
+            "value": "payment",
+            "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+          },
+          {
+            "value": "correct_record",
+            "label": "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다."
+          },
+          {
+            "value": "no_stated_demand",
+            "label": "구체적으로 무엇을 하라는지 안내하지 않았습니다."
+          },
+          {
+            "value": "understanding_unknown",
+            "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "understanding_unknown",
+          "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+        },
+        "profileField": "authorityClaim",
+        "informationAxis": "required action (what authority demanded)",
+        "axisAligned": true,
+        "axisNote": "required action axis separate from deadline",
+        "nextQuestionId": "case01_actualSituation",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 2,
+        "questionId": "case01_actualSituation",
+        "questionText": "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "accept_facts",
+            "label": "실제로 그런 행동이나 상황이 있었습니다."
+          },
+          {
+            "value": "partial_similar",
+            "label": "비슷한 일이 있었지만 중요한 부분이 다릅니다."
+          },
+          {
+            "value": "deny",
+            "label": "그런 행동이나 상황이 실제로는 없었습니다."
+          },
+          {
+            "value": "partial",
+            "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+          },
+          {
+            "value": "unsure",
+            "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "unsure",
+          "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+        },
+        "profileField": "actualSituation",
+        "informationAxis": "what actually happened (factual occurrence)",
+        "axisAligned": true,
+        "axisNote": "factual occurrence separate from relationship comparison (Phase1)",
+        "nextQuestionId": "case01_deadline",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 3,
+        "questionId": "case01_deadline",
+        "questionText": "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+        "choices": [
+          {
+            "value": "confirmed",
+            "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+          },
+          {
+            "value": "uncertain",
+            "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+          },
+          {
+            "value": "asap",
+            "label": "가능한 한 빨리 대응하라는 안내만 받았습니다."
+          },
+          {
+            "value": "no_stated",
+            "label": "별도의 기한은 안내받지 않았습니다."
+          },
+          {
+            "value": "unknown",
+            "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "unknown",
+          "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+        },
+        "profileField": "deadline",
+        "informationAxis": "deadline guidance state (not required action)",
+        "axisAligned": true,
+        "axisNote": "deadline guidance state only; action from authorityDemand",
+        "nextQuestionId": "case01_factRelationshipNote",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 4,
+        "questionId": "case01_factRelationshipNote",
+        "questionText": "설명받은 내용과 실제 상황이 같은지 다른지 판단하려면, 지금 어떤 정보가 더 필요하다고 생각하시나요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "날짜와 장소를 더 확인해야 합니다",
+          "label": "날짜와 장소를 더 확인해야 합니다"
+        },
+        "profileField": "factRelationship (unknown gap)",
+        "informationAxis": "missing info to compare notice vs reality",
+        "axisAligned": true,
+        "axisNote": "missing info to compare notice vs reality",
+        "nextQuestionId": "case01_evidence",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 5,
+        "questionId": "case01_evidence",
+        "questionText": "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "notice",
+            "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+          },
+          {
+            "value": "message",
+            "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+          },
+          {
+            "value": "submitted_docs",
+            "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+          },
+          {
+            "value": "photo_video",
+            "label": "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다."
+          },
+          {
+            "value": "none",
+            "label": "현재 가지고 있는 관련 자료가 없습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "none",
+          "label": "현재 가지고 있는 관련 자료가 없습니다."
+        },
+        "profileField": "evidence",
+        "informationAxis": "evidence type held (not interpretation)",
+        "axisAligned": true,
+        "axisNote": "evidence type only",
+        "nextQuestionId": "case01_authorityDemandNote",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 6,
+        "questionId": "case01_authorityDemandNote",
+        "questionText": "교통국에서 무엇을 하라고 했는지, 설명받은 내용 중 가장 이해하기 어려운 부분은 무엇인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "무엇을 해야 하는지 모르겠습니다",
+          "label": "무엇을 해야 하는지 모르겠습니다"
+        },
+        "profileField": "authorityClaim (unclear demand note)",
+        "informationAxis": "unclear authority demand (text)",
+        "axisAligned": true,
+        "axisNote": "unclear authority demand (text)",
+        "nextQuestionId": "case01_blockage",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 7,
+        "questionId": "case01_blockage",
+        "questionText": "지금 이 문제에서 다음 대응을 하기 가장 어려운 이유는 무엇인가요?",
+        "choices": [
+          {
+            "value": "content_unclear",
+            "label": "받은 안내를 제 상황에 맞게 이해·정리하기 어렵습니다."
+          },
+          {
+            "value": "how_respond",
+            "label": "기관에 어떻게 대응해야 할지 다음 조치가 불분명합니다."
+          },
+          {
+            "value": "next_step",
+            "label": "이미 문의·제출을 했지만, 다음에 무엇을 해야 할지 불분명합니다."
+          },
+          {
+            "value": "facts_why",
+            "label": "어떤 사실을 어떤 순서로 설명·소명해야 할지 정리되지 않았습니다."
+          },
+          {
+            "value": "evidence",
+            "label": "확인·제출에 필요한 자료를 무엇으로 준비해야 할지 막혀 있습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "content_unclear",
+          "label": "받은 안내를 제 상황에 맞게 이해·정리하기 어렵습니다."
+        },
+        "profileField": "currentBlockage",
+        "informationAxis": "current blockage reason",
+        "axisAligned": true,
+        "axisNote": "current blockage reason",
+        "nextQuestionId": null,
+        "nextRendered": false,
+        "skipReason": null
+      }
+    ],
+    "skipped": [
+      {
+        "questionId": "case01_paymentDemandScope",
+        "reason": "authorityDemand !== payment"
+      },
+      {
+        "questionId": "case01_supplementDemandScope",
+        "reason": "authorityDemand !== supplement"
+      },
+      {
+        "questionId": "case01_deadlineDate",
+        "reason": "deadline !== confirmed"
+      },
+      {
+        "questionId": "case01_factDifferenceDetail",
+        "reason": "factRelationship does not imply difference"
+      },
+      {
+        "questionId": "case01_datePlaceDetail",
+        "reason": "factRelationship !== date_place_wrong"
+      },
+      {
+        "questionId": "case01_responseDetail",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityResponse",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityDemandDetail",
+        "reason": "comprehension uncertainty already captured on authorityDemand"
+      },
+      {
+        "questionId": "case01_authorityResponseNote",
+        "reason": "authorityResponse follow-up not required"
+      },
+      {
+        "questionId": "case01_finalGoal",
+        "reason": "confirmGoal is clear"
+      }
+    ]
+  },
+  "C": {
+    "description": "partial + has_responded + explained_situation",
+    "renderedCount": 8,
+    "pathComplete": true,
+    "phase2UnitsInternal": 8,
+    "steps": [
+      {
+        "order": 1,
+        "questionId": "case01_authorityDemand",
+        "questionText": "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+        "choices": [
+          {
+            "value": "attendance",
+            "label": "추가 설명이나 출석을 하라고 안내했습니다."
+          },
+          {
+            "value": "supplement",
+            "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+          },
+          {
+            "value": "payment",
+            "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+          },
+          {
+            "value": "correct_record",
+            "label": "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다."
+          },
+          {
+            "value": "no_stated_demand",
+            "label": "구체적으로 무엇을 하라는지 안내하지 않았습니다."
+          },
+          {
+            "value": "understanding_unknown",
+            "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "attendance",
+          "label": "추가 설명이나 출석을 하라고 안내했습니다."
+        },
+        "profileField": "authorityClaim",
+        "informationAxis": "required action (what authority demanded)",
+        "axisAligned": true,
+        "axisNote": "required action axis separate from deadline",
+        "nextQuestionId": "case01_actualSituation",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 2,
+        "questionId": "case01_actualSituation",
+        "questionText": "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "accept_facts",
+            "label": "실제로 그런 행동이나 상황이 있었습니다."
+          },
+          {
+            "value": "partial_similar",
+            "label": "비슷한 일이 있었지만 중요한 부분이 다릅니다."
+          },
+          {
+            "value": "deny",
+            "label": "그런 행동이나 상황이 실제로는 없었습니다."
+          },
+          {
+            "value": "partial",
+            "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+          },
+          {
+            "value": "unsure",
+            "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "partial",
+          "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+        },
+        "profileField": "actualSituation",
+        "informationAxis": "what actually happened (factual occurrence)",
+        "axisAligned": true,
+        "axisNote": "factual occurrence separate from relationship comparison (Phase1)",
+        "nextQuestionId": "case01_deadline",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 3,
+        "questionId": "case01_deadline",
+        "questionText": "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+        "choices": [
+          {
+            "value": "confirmed",
+            "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+          },
+          {
+            "value": "uncertain",
+            "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+          },
+          {
+            "value": "asap",
+            "label": "가능한 한 빨리 대응하라는 안내만 받았습니다."
+          },
+          {
+            "value": "no_stated",
+            "label": "별도의 기한은 안내받지 않았습니다."
+          },
+          {
+            "value": "unknown",
+            "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "uncertain",
+          "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+        },
+        "profileField": "deadline",
+        "informationAxis": "deadline guidance state (not required action)",
+        "axisAligned": true,
+        "axisNote": "deadline guidance state only; action from authorityDemand",
+        "nextQuestionId": "case01_factDifferenceDetail",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 4,
+        "questionId": "case01_factDifferenceDetail",
+        "questionText": "교통국의 설명과 실제 상황이 다른 부분은 구체적으로 무엇인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "날짜가 다릅니다",
+          "label": "날짜가 다릅니다"
+        },
+        "profileField": "factRelationship / actualSituation (difference detail)",
+        "informationAxis": "specific fact difference",
+        "axisAligned": true,
+        "axisNote": "specific fact difference",
+        "nextQuestionId": "case01_responseDetail",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 5,
+        "questionId": "case01_responseDetail",
+        "questionText": "교통국에 대응했다면, 실제로 무엇을 하셨나요?",
+        "choices": [
+          {
+            "value": "explained_situation",
+            "label": "당시 상황을 설명했습니다."
+          },
+          {
+            "value": "submitted_materials",
+            "label": "관련 서류나 자료를 제출했습니다."
+          },
+          {
+            "value": "disputed_facts",
+            "label": "설명받은 내용과 실제 상황이 다르다고 이야기했습니다."
+          },
+          {
+            "value": "fulfilled_demand",
+            "label": "안내받은 내용을 처리했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "explained_situation",
+          "label": "당시 상황을 설명했습니다."
+        },
+        "profileField": "case01_responseDetail (customer action detail)",
+        "informationAxis": "customer action taken",
+        "axisAligned": true,
+        "axisNote": "customer action only",
+        "nextQuestionId": "case01_authorityResponse",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 6,
+        "questionId": "case01_authorityResponse",
+        "questionText": "그 뒤 교통국에서는 어떻게 답변하거나 다시 안내했나요?",
+        "choices": [
+          {
+            "value": "completed",
+            "label": "추가 요구 없이 처리되었다고 들었습니다."
+          },
+          {
+            "value": "more_required",
+            "label": "추가 서류나 자료를 요청했습니다."
+          },
+          {
+            "value": "re_attendance",
+            "label": "다시 출석하거나 설명하라고 했습니다."
+          },
+          {
+            "value": "payment_demand",
+            "label": "비용 납부나 다른 조치를 안내했습니다."
+          },
+          {
+            "value": "no_reply_yet",
+            "label": "아직 답변을 받지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "more_required",
+          "label": "추가 서류나 자료를 요청했습니다."
+        },
+        "profileField": "authorityResponse",
+        "informationAxis": "authority reply after customer action",
+        "axisAligned": true,
+        "axisNote": "authority response only",
+        "nextQuestionId": "case01_evidence",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 7,
+        "questionId": "case01_evidence",
+        "questionText": "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "notice",
+            "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+          },
+          {
+            "value": "message",
+            "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+          },
+          {
+            "value": "submitted_docs",
+            "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+          },
+          {
+            "value": "photo_video",
+            "label": "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다."
+          },
+          {
+            "value": "none",
+            "label": "현재 가지고 있는 관련 자료가 없습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "submitted_docs",
+          "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+        },
+        "profileField": "evidence",
+        "informationAxis": "evidence type held (not interpretation)",
+        "axisAligned": true,
+        "axisNote": "evidence type only",
+        "nextQuestionId": "case01_authorityResponseNote",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 8,
+        "questionId": "case01_authorityResponseNote",
+        "questionText": "교통국에서 다시 요구한 자료나 설명은 무엇인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "추가 서류를 요구했습니다",
+          "label": "추가 서류를 요구했습니다"
+        },
+        "profileField": "authorityResponse (follow-up note)",
+        "informationAxis": "authority response detail (text)",
+        "axisAligned": true,
+        "axisNote": "authority response detail (text)",
+        "nextQuestionId": null,
+        "nextRendered": false,
+        "skipReason": null
+      }
+    ],
+    "skipped": [
+      {
+        "questionId": "case01_paymentDemandScope",
+        "reason": "authorityDemand !== payment"
+      },
+      {
+        "questionId": "case01_supplementDemandScope",
+        "reason": "authorityDemand !== supplement"
+      },
+      {
+        "questionId": "case01_deadlineDate",
+        "reason": "deadline !== confirmed"
+      },
+      {
+        "questionId": "case01_factRelationshipNote",
+        "reason": "factRelationship !== unknown gap"
+      },
+      {
+        "questionId": "case01_datePlaceDetail",
+        "reason": "factRelationship !== date_place_wrong"
+      },
+      {
+        "questionId": "case01_authorityDemandDetail",
+        "reason": "authorityDemand is clear"
+      },
+      {
+        "questionId": "case01_authorityDemandNote",
+        "reason": "authorityDemand note not required"
+      },
+      {
+        "questionId": "case01_blockage",
+        "reason": "blockage gate not met"
+      },
+      {
+        "questionId": "case01_finalGoal",
+        "reason": "confirmGoal is clear"
+      }
+    ]
+  },
+  "D": {
+    "description": "deny_action + has_responded + disputed_facts",
+    "renderedCount": 8,
+    "pathComplete": true,
+    "phase2UnitsInternal": 7,
+    "steps": [
+      {
+        "order": 1,
+        "questionId": "case01_authorityDemand",
+        "questionText": "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+        "choices": [
+          {
+            "value": "attendance",
+            "label": "추가 설명이나 출석을 하라고 안내했습니다."
+          },
+          {
+            "value": "supplement",
+            "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+          },
+          {
+            "value": "payment",
+            "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+          },
+          {
+            "value": "correct_record",
+            "label": "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다."
+          },
+          {
+            "value": "no_stated_demand",
+            "label": "구체적으로 무엇을 하라는지 안내하지 않았습니다."
+          },
+          {
+            "value": "understanding_unknown",
+            "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "attendance",
+          "label": "추가 설명이나 출석을 하라고 안내했습니다."
+        },
+        "profileField": "authorityClaim",
+        "informationAxis": "required action (what authority demanded)",
+        "axisAligned": true,
+        "axisNote": "required action axis separate from deadline",
+        "nextQuestionId": "case01_actualSituation",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 2,
+        "questionId": "case01_actualSituation",
+        "questionText": "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "accept_facts",
+            "label": "실제로 그런 행동이나 상황이 있었습니다."
+          },
+          {
+            "value": "partial_similar",
+            "label": "비슷한 일이 있었지만 중요한 부분이 다릅니다."
+          },
+          {
+            "value": "deny",
+            "label": "그런 행동이나 상황이 실제로는 없었습니다."
+          },
+          {
+            "value": "partial",
+            "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+          },
+          {
+            "value": "unsure",
+            "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "deny",
+          "label": "그런 행동이나 상황이 실제로는 없었습니다."
+        },
+        "profileField": "actualSituation",
+        "informationAxis": "what actually happened (factual occurrence)",
+        "axisAligned": true,
+        "axisNote": "factual occurrence separate from relationship comparison (Phase1)",
+        "nextQuestionId": "case01_deadline",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 3,
+        "questionId": "case01_deadline",
+        "questionText": "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+        "choices": [
+          {
+            "value": "confirmed",
+            "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+          },
+          {
+            "value": "uncertain",
+            "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+          },
+          {
+            "value": "asap",
+            "label": "가능한 한 빨리 대응하라는 안내만 받았습니다."
+          },
+          {
+            "value": "no_stated",
+            "label": "별도의 기한은 안내받지 않았습니다."
+          },
+          {
+            "value": "unknown",
+            "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "confirmed",
+          "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+        },
+        "profileField": "deadline",
+        "informationAxis": "deadline guidance state (not required action)",
+        "axisAligned": true,
+        "axisNote": "deadline guidance state only; action from authorityDemand",
+        "nextQuestionId": "case01_deadlineDate",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 4,
+        "questionId": "case01_deadlineDate",
+        "questionText": "안내받은 대응 기한은 언제인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "2026-11-01",
+          "label": "2026-11-01"
+        },
+        "profileField": "deadline (confirmed date detail)",
+        "informationAxis": "confirmed deadline date",
+        "axisAligned": true,
+        "axisNote": "confirmed deadline date",
+        "nextQuestionId": "case01_factDifferenceDetail",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 5,
+        "questionId": "case01_factDifferenceDetail",
+        "questionText": "교통국의 설명과 실제 상황이 다른 부분은 구체적으로 무엇인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "그 행동을 하지 않았습니다",
+          "label": "그 행동을 하지 않았습니다"
+        },
+        "profileField": "factRelationship / actualSituation (difference detail)",
+        "informationAxis": "specific fact difference",
+        "axisAligned": true,
+        "axisNote": "specific fact difference",
+        "nextQuestionId": "case01_responseDetail",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 6,
+        "questionId": "case01_responseDetail",
+        "questionText": "교통국에 대응했다면, 실제로 무엇을 하셨나요?",
+        "choices": [
+          {
+            "value": "explained_situation",
+            "label": "당시 상황을 설명했습니다."
+          },
+          {
+            "value": "submitted_materials",
+            "label": "관련 서류나 자료를 제출했습니다."
+          },
+          {
+            "value": "disputed_facts",
+            "label": "설명받은 내용과 실제 상황이 다르다고 이야기했습니다."
+          },
+          {
+            "value": "fulfilled_demand",
+            "label": "안내받은 내용을 처리했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "disputed_facts",
+          "label": "설명받은 내용과 실제 상황이 다르다고 이야기했습니다."
+        },
+        "profileField": "case01_responseDetail (customer action detail)",
+        "informationAxis": "customer action taken",
+        "axisAligned": true,
+        "axisNote": "customer action only",
+        "nextQuestionId": "case01_authorityResponse",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 7,
+        "questionId": "case01_authorityResponse",
+        "questionText": "그 뒤 교통국에서는 어떻게 답변하거나 다시 안내했나요?",
+        "choices": [
+          {
+            "value": "completed",
+            "label": "추가 요구 없이 처리되었다고 들었습니다."
+          },
+          {
+            "value": "more_required",
+            "label": "추가 서류나 자료를 요청했습니다."
+          },
+          {
+            "value": "re_attendance",
+            "label": "다시 출석하거나 설명하라고 했습니다."
+          },
+          {
+            "value": "payment_demand",
+            "label": "비용 납부나 다른 조치를 안내했습니다."
+          },
+          {
+            "value": "no_reply_yet",
+            "label": "아직 답변을 받지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "re_attendance",
+          "label": "다시 출석하거나 설명하라고 했습니다."
+        },
+        "profileField": "authorityResponse",
+        "informationAxis": "authority reply after customer action",
+        "axisAligned": true,
+        "axisNote": "authority response only",
+        "nextQuestionId": "case01_evidence",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 8,
+        "questionId": "case01_evidence",
+        "questionText": "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "notice",
+            "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+          },
+          {
+            "value": "message",
+            "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+          },
+          {
+            "value": "submitted_docs",
+            "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+          },
+          {
+            "value": "photo_video",
+            "label": "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다."
+          },
+          {
+            "value": "none",
+            "label": "현재 가지고 있는 관련 자료가 없습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "notice",
+          "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+        },
+        "profileField": "evidence",
+        "informationAxis": "evidence type held (not interpretation)",
+        "axisAligned": true,
+        "axisNote": "evidence type only",
+        "nextQuestionId": null,
+        "nextRendered": false,
+        "skipReason": null
+      }
+    ],
+    "skipped": [
+      {
+        "questionId": "case01_paymentDemandScope",
+        "reason": "authorityDemand !== payment"
+      },
+      {
+        "questionId": "case01_supplementDemandScope",
+        "reason": "authorityDemand !== supplement"
+      },
+      {
+        "questionId": "case01_factRelationshipNote",
+        "reason": "factRelationship !== unknown gap"
+      },
+      {
+        "questionId": "case01_datePlaceDetail",
+        "reason": "factRelationship !== date_place_wrong"
+      },
+      {
+        "questionId": "case01_authorityDemandDetail",
+        "reason": "authorityDemand is clear"
+      },
+      {
+        "questionId": "case01_authorityDemandNote",
+        "reason": "authorityDemand note not required"
+      },
+      {
+        "questionId": "case01_authorityResponseNote",
+        "reason": "authorityResponse follow-up not required"
+      },
+      {
+        "questionId": "case01_blockage",
+        "reason": "blockage gate not met"
+      },
+      {
+        "questionId": "case01_finalGoal",
+        "reason": "confirmGoal is clear"
+      }
+    ]
+  },
+  "E": {
+    "description": "date_place_wrong + none response",
+    "renderedCount": 6,
+    "pathComplete": true,
+    "phase2UnitsInternal": 6,
+    "steps": [
+      {
+        "order": 1,
+        "questionId": "case01_authorityDemand",
+        "questionText": "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+        "choices": [
+          {
+            "value": "attendance",
+            "label": "추가 설명이나 출석을 하라고 안내했습니다."
+          },
+          {
+            "value": "supplement",
+            "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+          },
+          {
+            "value": "payment",
+            "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+          },
+          {
+            "value": "correct_record",
+            "label": "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다."
+          },
+          {
+            "value": "no_stated_demand",
+            "label": "구체적으로 무엇을 하라는지 안내하지 않았습니다."
+          },
+          {
+            "value": "understanding_unknown",
+            "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "attendance",
+          "label": "추가 설명이나 출석을 하라고 안내했습니다."
+        },
+        "profileField": "authorityClaim",
+        "informationAxis": "required action (what authority demanded)",
+        "axisAligned": true,
+        "axisNote": "required action axis separate from deadline",
+        "nextQuestionId": "case01_actualSituation",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 2,
+        "questionId": "case01_actualSituation",
+        "questionText": "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "accept_facts",
+            "label": "실제로 그런 행동이나 상황이 있었습니다."
+          },
+          {
+            "value": "partial_similar",
+            "label": "비슷한 일이 있었지만 중요한 부분이 다릅니다."
+          },
+          {
+            "value": "deny",
+            "label": "그런 행동이나 상황이 실제로는 없었습니다."
+          },
+          {
+            "value": "partial",
+            "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+          },
+          {
+            "value": "unsure",
+            "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "deny",
+          "label": "그런 행동이나 상황이 실제로는 없었습니다."
+        },
+        "profileField": "actualSituation",
+        "informationAxis": "what actually happened (factual occurrence)",
+        "axisAligned": true,
+        "axisNote": "factual occurrence separate from relationship comparison (Phase1)",
+        "nextQuestionId": "case01_deadline",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 3,
+        "questionId": "case01_deadline",
+        "questionText": "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+        "choices": [
+          {
+            "value": "confirmed",
+            "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+          },
+          {
+            "value": "uncertain",
+            "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+          },
+          {
+            "value": "asap",
+            "label": "가능한 한 빨리 대응하라는 안내만 받았습니다."
+          },
+          {
+            "value": "no_stated",
+            "label": "별도의 기한은 안내받지 않았습니다."
+          },
+          {
+            "value": "unknown",
+            "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "uncertain",
+          "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+        },
+        "profileField": "deadline",
+        "informationAxis": "deadline guidance state (not required action)",
+        "axisAligned": true,
+        "axisNote": "deadline guidance state only; action from authorityDemand",
+        "nextQuestionId": "case01_factDifferenceDetail",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 4,
+        "questionId": "case01_factDifferenceDetail",
+        "questionText": "교통국의 설명과 실제 상황이 다른 부분은 구체적으로 무엇인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "날짜와 장소가 다릅니다",
+          "label": "날짜와 장소가 다릅니다"
+        },
+        "profileField": "factRelationship / actualSituation (difference detail)",
+        "informationAxis": "specific fact difference",
+        "axisAligned": true,
+        "axisNote": "specific fact difference",
+        "nextQuestionId": "case01_datePlaceDetail",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 5,
+        "questionId": "case01_datePlaceDetail",
+        "questionText": "실제로 일이 있었던 날짜와 장소를 확인할 수 있나요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "2024년 3월, 다른 지역에 있었습니다",
+          "label": "2024년 3월, 다른 지역에 있었습니다"
+        },
+        "profileField": "factRelationship (date/place detail)",
+        "informationAxis": "actual date/place",
+        "axisAligned": true,
+        "axisNote": "actual date/place",
+        "nextQuestionId": "case01_evidence",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 6,
+        "questionId": "case01_evidence",
+        "questionText": "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "notice",
+            "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+          },
+          {
+            "value": "message",
+            "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+          },
+          {
+            "value": "submitted_docs",
+            "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+          },
+          {
+            "value": "photo_video",
+            "label": "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다."
+          },
+          {
+            "value": "none",
+            "label": "현재 가지고 있는 관련 자료가 없습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "message",
+          "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+        },
+        "profileField": "evidence",
+        "informationAxis": "evidence type held (not interpretation)",
+        "axisAligned": true,
+        "axisNote": "evidence type only",
+        "nextQuestionId": null,
+        "nextRendered": false,
+        "skipReason": null
+      }
+    ],
+    "skipped": [
+      {
+        "questionId": "case01_paymentDemandScope",
+        "reason": "authorityDemand !== payment"
+      },
+      {
+        "questionId": "case01_supplementDemandScope",
+        "reason": "authorityDemand !== supplement"
+      },
+      {
+        "questionId": "case01_deadlineDate",
+        "reason": "deadline !== confirmed"
+      },
+      {
+        "questionId": "case01_factRelationshipNote",
+        "reason": "factRelationship !== unknown gap"
+      },
+      {
+        "questionId": "case01_responseDetail",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityResponse",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityDemandDetail",
+        "reason": "authorityDemand is clear"
+      },
+      {
+        "questionId": "case01_authorityDemandNote",
+        "reason": "authorityDemand note not required"
+      },
+      {
+        "questionId": "case01_authorityResponseNote",
+        "reason": "authorityResponse follow-up not required"
+      },
+      {
+        "questionId": "case01_blockage",
+        "reason": "blockage gate not met"
+      },
+      {
+        "questionId": "case01_finalGoal",
+        "reason": "confirmGoal is clear"
+      }
+    ]
+  },
+  "F": {
+    "description": "payment included (payment scenario)",
+    "renderedCount": 6,
+    "pathComplete": true,
+    "phase2UnitsInternal": 5,
+    "steps": [
+      {
+        "order": 1,
+        "questionId": "case01_authorityDemand",
+        "questionText": "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+        "choices": [
+          {
+            "value": "attendance",
+            "label": "추가 설명이나 출석을 하라고 안내했습니다."
+          },
+          {
+            "value": "supplement",
+            "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+          },
+          {
+            "value": "payment",
+            "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+          },
+          {
+            "value": "correct_record",
+            "label": "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다."
+          },
+          {
+            "value": "no_stated_demand",
+            "label": "구체적으로 무엇을 하라는지 안내하지 않았습니다."
+          },
+          {
+            "value": "understanding_unknown",
+            "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "payment",
+          "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+        },
+        "profileField": "authorityClaim",
+        "informationAxis": "required action (what authority demanded)",
+        "axisAligned": true,
+        "axisNote": "required action axis separate from deadline",
+        "nextQuestionId": "case01_paymentDemandScope",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 2,
+        "questionId": "case01_paymentDemandScope",
+        "questionText": "이 비용 납부가 이번 문제의 핵심인가요, 아니면 교통국에서 받은 안내에 포함된 추가 요구인가요?",
+        "choices": [
+          {
+            "value": "core_case",
+            "label": "이번 문제의 핵심입니다."
+          },
+          {
+            "value": "included_with_other",
+            "label": "다른 문제와 함께 포함된 요구입니다."
+          },
+          {
+            "value": "additional_guidance",
+            "label": "추가로 안내받은 내용입니다."
+          },
+          {
+            "value": "unsure",
+            "label": "잘 모르겠습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "included_with_other",
+          "label": "다른 문제와 함께 포함된 요구입니다."
+        },
+        "profileField": "case01_paymentDemandScope (classification)",
+        "informationAxis": "payment demand scope",
+        "axisAligned": true,
+        "axisNote": "payment demand scope",
+        "nextQuestionId": "case01_actualSituation",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 3,
+        "questionId": "case01_actualSituation",
+        "questionText": "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "accept_facts",
+            "label": "실제로 그런 행동이나 상황이 있었습니다."
+          },
+          {
+            "value": "partial_similar",
+            "label": "비슷한 일이 있었지만 중요한 부분이 다릅니다."
+          },
+          {
+            "value": "deny",
+            "label": "그런 행동이나 상황이 실제로는 없었습니다."
+          },
+          {
+            "value": "partial",
+            "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+          },
+          {
+            "value": "unsure",
+            "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "accept_facts",
+          "label": "실제로 그런 행동이나 상황이 있었습니다."
+        },
+        "profileField": "actualSituation",
+        "informationAxis": "what actually happened (factual occurrence)",
+        "axisAligned": true,
+        "axisNote": "factual occurrence separate from relationship comparison (Phase1)",
+        "nextQuestionId": "case01_deadline",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 4,
+        "questionId": "case01_deadline",
+        "questionText": "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+        "choices": [
+          {
+            "value": "confirmed",
+            "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+          },
+          {
+            "value": "uncertain",
+            "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+          },
+          {
+            "value": "asap",
+            "label": "가능한 한 빨리 대응하라는 안내만 받았습니다."
+          },
+          {
+            "value": "no_stated",
+            "label": "별도의 기한은 안내받지 않았습니다."
+          },
+          {
+            "value": "unknown",
+            "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "confirmed",
+          "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+        },
+        "profileField": "deadline",
+        "informationAxis": "deadline guidance state (not required action)",
+        "axisAligned": true,
+        "axisNote": "deadline guidance state only; action from authorityDemand",
+        "nextQuestionId": "case01_deadlineDate",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 5,
+        "questionId": "case01_deadlineDate",
+        "questionText": "안내받은 대응 기한은 언제인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "2026-12-01",
+          "label": "2026-12-01"
+        },
+        "profileField": "deadline (confirmed date detail)",
+        "informationAxis": "confirmed deadline date",
+        "axisAligned": true,
+        "axisNote": "confirmed deadline date",
+        "nextQuestionId": "case01_evidence",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 6,
+        "questionId": "case01_evidence",
+        "questionText": "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "notice",
+            "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+          },
+          {
+            "value": "message",
+            "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+          },
+          {
+            "value": "submitted_docs",
+            "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+          },
+          {
+            "value": "photo_video",
+            "label": "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다."
+          },
+          {
+            "value": "none",
+            "label": "현재 가지고 있는 관련 자료가 없습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "notice",
+          "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+        },
+        "profileField": "evidence",
+        "informationAxis": "evidence type held (not interpretation)",
+        "axisAligned": true,
+        "axisNote": "evidence type only",
+        "nextQuestionId": null,
+        "nextRendered": false,
+        "skipReason": null
+      }
+    ],
+    "skipped": [
+      {
+        "questionId": "case01_supplementDemandScope",
+        "reason": "authorityDemand !== supplement"
+      },
+      {
+        "questionId": "case01_factDifferenceDetail",
+        "reason": "factRelationship does not imply difference"
+      },
+      {
+        "questionId": "case01_factRelationshipNote",
+        "reason": "factRelationship !== unknown gap"
+      },
+      {
+        "questionId": "case01_datePlaceDetail",
+        "reason": "factRelationship !== date_place_wrong"
+      },
+      {
+        "questionId": "case01_responseDetail",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityResponse",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityDemandDetail",
+        "reason": "authorityDemand is clear"
+      },
+      {
+        "questionId": "case01_authorityDemandNote",
+        "reason": "authorityDemand note not required"
+      },
+      {
+        "questionId": "case01_authorityResponseNote",
+        "reason": "authorityResponse follow-up not required"
+      },
+      {
+        "questionId": "case01_blockage",
+        "reason": "blockage gate not met"
+      },
+      {
+        "questionId": "case01_finalGoal",
+        "reason": "confirmGoal is clear"
+      }
+    ]
+  },
+  "G": {
+    "description": "supplement included",
+    "renderedCount": 6,
+    "pathComplete": true,
+    "phase2UnitsInternal": 5,
+    "steps": [
+      {
+        "order": 1,
+        "questionId": "case01_authorityDemand",
+        "questionText": "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+        "choices": [
+          {
+            "value": "attendance",
+            "label": "추가 설명이나 출석을 하라고 안내했습니다."
+          },
+          {
+            "value": "supplement",
+            "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+          },
+          {
+            "value": "payment",
+            "label": "비용·벌금·과태료를 납부하라고 안내했습니다."
+          },
+          {
+            "value": "correct_record",
+            "label": "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다."
+          },
+          {
+            "value": "no_stated_demand",
+            "label": "구체적으로 무엇을 하라는지 안내하지 않았습니다."
+          },
+          {
+            "value": "understanding_unknown",
+            "label": "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "supplement",
+          "label": "추가 서류나 자료를 제출하라고 안내했습니다."
+        },
+        "profileField": "authorityClaim",
+        "informationAxis": "required action (what authority demanded)",
+        "axisAligned": true,
+        "axisNote": "required action axis separate from deadline",
+        "nextQuestionId": "case01_supplementDemandScope",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 2,
+        "questionId": "case01_supplementDemandScope",
+        "questionText": "이 보완 요구가 이번 문제의 핵심인가요, 아니면 교통국 안내에 포함된 추가 요구인가요?",
+        "choices": [
+          {
+            "value": "core_case",
+            "label": "이번 보완 요구가 문제의 핵심입니다."
+          },
+          {
+            "value": "included_with_notice",
+            "label": "통지 안내에 포함된 보완 요구입니다."
+          },
+          {
+            "value": "additional_guidance",
+            "label": "추가로 안내받은 보완 요구입니다."
+          },
+          {
+            "value": "unsure",
+            "label": "잘 모르겠습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "included_with_notice",
+          "label": "통지 안내에 포함된 보완 요구입니다."
+        },
+        "profileField": "case01_supplementDemandScope (classification)",
+        "informationAxis": "supplement demand scope",
+        "axisAligned": true,
+        "axisNote": "supplement demand scope",
+        "nextQuestionId": "case01_actualSituation",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 3,
+        "questionId": "case01_actualSituation",
+        "questionText": "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "accept_facts",
+            "label": "실제로 그런 행동이나 상황이 있었습니다."
+          },
+          {
+            "value": "partial_similar",
+            "label": "비슷한 일이 있었지만 중요한 부분이 다릅니다."
+          },
+          {
+            "value": "deny",
+            "label": "그런 행동이나 상황이 실제로는 없었습니다."
+          },
+          {
+            "value": "partial",
+            "label": "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다."
+          },
+          {
+            "value": "unsure",
+            "label": "당시 상황을 정확히 정리하거나 설명하기 어렵습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "accept_facts",
+          "label": "실제로 그런 행동이나 상황이 있었습니다."
+        },
+        "profileField": "actualSituation",
+        "informationAxis": "what actually happened (factual occurrence)",
+        "axisAligned": true,
+        "axisNote": "factual occurrence separate from relationship comparison (Phase1)",
+        "nextQuestionId": "case01_deadline",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 4,
+        "questionId": "case01_deadline",
+        "questionText": "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+        "choices": [
+          {
+            "value": "confirmed",
+            "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+          },
+          {
+            "value": "uncertain",
+            "label": "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다."
+          },
+          {
+            "value": "asap",
+            "label": "가능한 한 빨리 대응하라는 안내만 받았습니다."
+          },
+          {
+            "value": "no_stated",
+            "label": "별도의 기한은 안내받지 않았습니다."
+          },
+          {
+            "value": "unknown",
+            "label": "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "confirmed",
+          "label": "대응해야 하는 날짜를 구체적으로 안내받았습니다."
+        },
+        "profileField": "deadline",
+        "informationAxis": "deadline guidance state (not required action)",
+        "axisAligned": true,
+        "axisNote": "deadline guidance state only; action from authorityDemand",
+        "nextQuestionId": "case01_deadlineDate",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 5,
+        "questionId": "case01_deadlineDate",
+        "questionText": "안내받은 대응 기한은 언제인가요?",
+        "choices": [],
+        "selectedAnswer": {
+          "value": "2026-09-30",
+          "label": "2026-09-30"
+        },
+        "profileField": "deadline (confirmed date detail)",
+        "informationAxis": "confirmed deadline date",
+        "axisAligned": true,
+        "axisNote": "confirmed deadline date",
+        "nextQuestionId": "case01_evidence",
+        "nextRendered": true,
+        "skipReason": null
+      },
+      {
+        "order": 6,
+        "questionId": "case01_evidence",
+        "questionText": "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+        "choices": [
+          {
+            "value": "notice",
+            "label": "교통국에서 받은 통지·안내 문서가 있습니다."
+          },
+          {
+            "value": "message",
+            "label": "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다."
+          },
+          {
+            "value": "submitted_docs",
+            "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+          },
+          {
+            "value": "photo_video",
+            "label": "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다."
+          },
+          {
+            "value": "none",
+            "label": "현재 가지고 있는 관련 자료가 없습니다."
+          },
+          {
+            "value": "other",
+            "label": "위에 내용이 없거나 설명이 필요합니다 → 직접 입력"
+          }
+        ],
+        "selectedAnswer": {
+          "value": "submitted_docs",
+          "label": "제출한 서류나 접수·납부 증빙이 있습니다."
+        },
+        "profileField": "evidence",
+        "informationAxis": "evidence type held (not interpretation)",
+        "axisAligned": true,
+        "axisNote": "evidence type only",
+        "nextQuestionId": null,
+        "nextRendered": false,
+        "skipReason": null
+      }
+    ],
+    "skipped": [
+      {
+        "questionId": "case01_paymentDemandScope",
+        "reason": "authorityDemand !== payment"
+      },
+      {
+        "questionId": "case01_factDifferenceDetail",
+        "reason": "factRelationship does not imply difference"
+      },
+      {
+        "questionId": "case01_factRelationshipNote",
+        "reason": "factRelationship !== unknown gap"
+      },
+      {
+        "questionId": "case01_datePlaceDetail",
+        "reason": "factRelationship !== date_place_wrong"
+      },
+      {
+        "questionId": "case01_responseDetail",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityResponse",
+        "reason": "customerResponded implies no action"
+      },
+      {
+        "questionId": "case01_authorityDemandDetail",
+        "reason": "authorityDemand is clear"
+      },
+      {
+        "questionId": "case01_authorityDemandNote",
+        "reason": "authorityDemand note not required"
+      },
+      {
+        "questionId": "case01_authorityResponseNote",
+        "reason": "authorityResponse follow-up not required"
+      },
+      {
+        "questionId": "case01_blockage",
+        "reason": "blockage gate not met"
+      },
+      {
+        "questionId": "case01_finalGoal",
+        "reason": "confirmGoal is clear"
+      }
+    ]
+  }
+}

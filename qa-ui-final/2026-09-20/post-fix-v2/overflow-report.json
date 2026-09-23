@@ -1,0 +1,152 @@
+[
+  {
+    "screen": "check-trc-landing",
+    "viewport": "pc-1440",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-landing",
+    "viewport": "pc-1440",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-admin-landing",
+    "viewport": "pc-1440",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-re-landing",
+    "viewport": "pc-1440",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-q1",
+    "viewport": "pc-1440",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "check-trc-landing",
+    "viewport": "pc-1280",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-landing",
+    "viewport": "pc-1280",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-admin-landing",
+    "viewport": "pc-1280",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-re-landing",
+    "viewport": "pc-1280",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-q1",
+    "viewport": "pc-1280",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "check-trc-landing",
+    "viewport": "mobile-430",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-landing",
+    "viewport": "mobile-430",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-admin-landing",
+    "viewport": "mobile-430",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-re-landing",
+    "viewport": "mobile-430",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-q1",
+    "viewport": "mobile-430",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "check-trc-landing",
+    "viewport": "mobile-390",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-landing",
+    "viewport": "mobile-390",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-admin-landing",
+    "viewport": "mobile-390",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-re-landing",
+    "viewport": "mobile-390",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-q1",
+    "viewport": "mobile-390",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "check-trc-landing",
+    "viewport": "mobile-375",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-landing",
+    "viewport": "mobile-375",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-admin-landing",
+    "viewport": "mobile-375",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "verify-re-landing",
+    "viewport": "mobile-375",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  },
+  {
+    "screen": "register-company-q1",
+    "viewport": "mobile-375",
+    "horizontalScrollbar": false,
+    "overflowing": []
+  }
+]

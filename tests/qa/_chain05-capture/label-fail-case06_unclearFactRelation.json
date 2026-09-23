@@ -1,0 +1,23 @@
+{
+  "event": "LABEL_ASSERT_FAIL",
+  "browserLabel": "그 문서나 안내에서 기관이 실제로 언급한 내용은 무엇인가요?",
+  "engineLabel": "기관이 지적한 내용이 실제 본인 상황과 어떤 관계가 있다고 생각하시나요?",
+  "engineId": "case06_unclearFactRelation",
+  "progress": [
+    "01 / 01"
+  ],
+  "screenshot": "C:\\vfbcai-platform\\tests\\qa\\_chain05-capture\\label-fail-case06_unclearFactRelation.png",
+  "dom": {
+    "url": "http://localhost:3010/verify/admin",
+    "headings": [
+      "2. 추가 상황 확인",
+      "그 문서나 안내에서 기관이 실제로 언급한 내용은 무엇인가요?"
+    ],
+    "progress": [
+      "01 / 01"
+    ],
+    "nextButtonDisabled": true,
+    "textareaValueLen": 0,
+    "snippet": "MY VIET CHECK\n\nby VFBCAI\n\nCHECK\n확인\nVERIFY\n검토\nREGISTER\n인허가\nPROTECT\n진단\n행정문서\n- 베트남 법률전문 AI\n\n베트남 행정문서를 제출하거나 처리하기 전에 중요한 부분을 직접 확인해보세요.\n\n2차 · 개인화 검토\n1차에서 확인한 내용을 바탕으로 필요한 부분만 추가 확인합니다\n\n설문을 다시 시작하는 단계가 아니라, 내 상황을 함께 정리하는 검토 단계입니다.\n\nVFBCAI · VERIFY\n\n행정문서 리뷰 확인서\n\nQUOTATION REPORT\n\n2. 추가 상황 확인\n\n1차에서 확인한 내용을 바탕으로, 현재 상황만 추가로 확인합니다.\n\n01 / 01\n그 문서나 안내에서 기관이 실제로 언급한 내용은 무엇인가요?\n\n선택지에 없는 내용이 있다면 편하게 설명해 주세요.\n\n현재 상황과 확인이 필요한 내용을 중심으로 작성해주세요.\n\n다음\n선택지로 돌아가기\n\nQUOTATION REPORT\n\nQUESTION GUIDE\n\n이제 내 상황을 조금 더 깊게 확인합니다.\n\n1차 답변을 바탕으로 놓치기 쉬운 부분을 추가로 확인합니다. 자세히 답해주실수록 더 정확한 개인화 결과를 받을 수 있습니다.\n\nOFFICIAL SOURCES\n\n공식 법령·법률자료 기준 확인\n\n베트남 공식 법령·법률자료를 검토 기준으로 참고합니다.\n\nBộ Tư pháp\n법무부\nQuốc hội\n베트남 국회\nTòa án nhân dân tối cao\n최고인민법원\n\n출처는 검토 시점의 공식 자료를 기준으로 합니다.\n\n내 상황 검토하기 →\n이 결과 공유하기\n\n모든 질문에 답하면 결과를 확인할 수 있습니다.\n\nVFBCAI · www.vfbcai.com · Check. Verify. Register. Protect.\n\n행정문서 검토는 서류 유형·검토 범위에 따라 비용이 발생할 수 있습니다."
+  }
+}
