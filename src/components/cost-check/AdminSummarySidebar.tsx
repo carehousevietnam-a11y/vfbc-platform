@@ -2,6 +2,10 @@
 
 import type { ReactNode } from "react";
 import {
+  selectionPrimaryActionClasses,
+  selectionSecondaryActionClasses,
+} from "@/components/ui/selectionInteraction";
+import {
   AlertTriangle,
   ClipboardList,
   ExternalLink,
@@ -202,13 +206,13 @@ export function AdminSummarySidebar({
             type="button"
             disabled={!continueEnabled}
             onClick={onContinue}
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-[8px] bg-[#0B2A6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-10 sm:text-[12.5px]"
+            className={selectionPrimaryActionClasses(!continueEnabled)}
           >
-            검토하기 →
+            내 상황 검토하기 →
           </button>
           <button
             type="button"
-            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-[8px] border border-[#D8DEE8] bg-white px-4 text-[12.5px] font-medium text-[#0B2A6B] sm:mt-1.5 sm:min-h-9 sm:text-[12px]"
+            className={`mt-2 sm:mt-1.5 ${selectionSecondaryActionClasses()}`}
           >
             이 결과 공유하기
           </button>

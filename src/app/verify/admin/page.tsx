@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { cn } from "@/lib/cn";
 import {
   ArrowLeft,
   FileText,
@@ -30,13 +31,24 @@ import {
   type MasterFunnelContextTab,
 } from "@/components/cost-check/MasterFunnelLanding";
 import {
+  buildAdminVerifyPageMeta,
   buildReviewPage1Meta,
   mapReviewPage1StageToVerifyStage,
+  restoreAdminCaseResolutionProfile,
   restoreReviewPage1Answers,
   type ReviewPage1Answers,
 } from "@/components/cost-check/MasterReviewQuotationReport";
+import {
+  buildCaseResolutionProfile,
+  buildAdminExpertHandoffMeta,
+  buildAdminPhase2PersistMeta,
+  CASE_CUSTOMER_INPUT_KEY,
+  restoreAdminProfilingAnswersFromMeta,
+  type CaseResolutionProfile,
+  type AdminVerifyProfilePhase,
+} from "@/lib/adminVerifyProfiling";
 import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
-import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard, VERIFY_EXPERT_GUIDANCE_DESC } from "@/components/ui";
+import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormFunnelHeaderAlignProps, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard, VERIFY_EXPERT_GUIDANCE_DESC } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
 import {
@@ -57,6 +69,7 @@ import {
   isLoggedInMember,
   type RestoredVerifyLead,
 } from "@/lib/restoreVerifyLead";
+import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
 import {
   establishBrowserSessionFromResultToken,
   ensureBrowserSessionForResultToken,
@@ -66,6 +79,29 @@ import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 const CATEGORY = "admin" as const;
 const VERIFY_QUESTION_CONTEXT = "행정문서";
+/** 행정문서 admin — Master Funnel(CASE_01~06)만 사용. 레거시 4단계 incident 퍼널 비활성. */
+const SHOW_LEGACY_VERIFY_FUNNEL = false;
+
+/** Member handoff — insertMemberVerifyLead pending 시 loading 영구 고정 방지 */
+const MEMBER_VERIFY_LEAD_TIMEOUT_MS = 45_000;
+
+function awaitMemberVerifyLeadInsert<T>(promise: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("insertMemberVerifyLead_timeout"));
+    }, MEMBER_VERIFY_LEAD_TIMEOUT_MS);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -818,6 +854,7 @@ export default function VerifyAdminPage() {
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [expertError, setExpertError] = useState<string | null>(null);
   const [aiReportRequesting, setAiReportRequesting] = useState(false);
+  const [aiSummaryNavigating, setAiSummaryNavigating] = useState(false);
   const [aiReportError, setAiReportError] = useState<string | null>(null);
   const [selectedAgency, setSelectedAgency] = useState<AdminAgency | null>(null);
   // CHECK(TRC)와 동일한 Step 방식 질문 화면의 선택 카드 클릭 피드백(300ms) 및
@@ -828,6 +865,7 @@ export default function VerifyAdminPage() {
   const [skipSignup, setSkipSignup] = useState(false);
   const [restoredLeadActive, setRestoredLeadActive] = useState(false);
   const memberSubmitStartedRef = useRef(false);
+  const caseResolutionAnswersRef = useRef<Record<string, string> | null>(null);
   const searchParams = useSearchParams();
   const [contextTab, setContextTab] = useState<MasterFunnelContextTab>(
     () => parseExplicitMasterFunnelTab(searchParams.get("tab")) ?? "review"
@@ -836,12 +874,27 @@ export default function VerifyAdminPage() {
   const [page1ReviewAnswers, setPage1ReviewAnswers] = useState<ReviewPage1Answers | null>(
     null
   );
+  /** Screen 01 profiling answers + Case Resolution snapshot for Page2 boundary */
+  const [caseResolutionAnswers, setCaseResolutionAnswers] = useState<Record<string, string> | null>(
+    null,
+  );
+  const [caseResolutionProfile, setCaseResolutionProfile] = useState<CaseResolutionProfile | null>(
+    null,
+  );
+  const [adminProfilingSeedAnswers, setAdminProfilingSeedAnswers] = useState<
+    Record<string, string>
+  >({});
+  /** Master Funnel — 2차 질문 완료 후 회원가입 게이트 */
+  const [adminMasterSignupPending, setAdminMasterSignupPending] = useState(false);
+  const [adminMasterSignupComplete, setAdminMasterSignupComplete] = useState(false);
+  const [adminVerifyPhase1EvidenceComplete, setAdminVerifyPhase1EvidenceComplete] =
+    useState(false);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       setLang(resolveLanguage(params.get("lang")));
-      if (params.get("start") === "check") {
+      if (params.get("start") === "check" && SHOW_LEGACY_VERIFY_FUNNEL) {
         setLandingDone(true);
       }
       const urlTab = parseExplicitMasterFunnelTab(params.get("tab"));
@@ -865,34 +918,57 @@ export default function VerifyAdminPage() {
       if (typeof meta.incident_description === "string") {
         setIncidentDescription(meta.incident_description);
       }
+      const restoredCaseProfile = restoreAdminCaseResolutionProfile(meta);
+      if (restoredCaseProfile) setCaseResolutionProfile(restoredCaseProfile);
+      const restoredProfiling = restoreAdminProfilingAnswersFromMeta(meta);
+      if (restoredProfiling && Object.keys(restoredProfiling).length > 0) {
+        setAdminProfilingSeedAnswers(restoredProfiling);
+        setCaseResolutionAnswers(restoredProfiling);
+      }
+      const restoredCustomerInput =
+        typeof meta.case_customer_input === "string" ? meta.case_customer_input.trim() : "";
+      if (restoredCustomerInput) {
+        setIncidentDescription((prev) => prev || restoredCustomerInput);
+      }
     }
-    setLandingDone(true);
     setLeadId(restored.leadId);
     setResultToken(restored.resultToken);
     setRestoredLeadActive(true);
+    setAdminMasterSignupComplete(true);
+    setAdminMasterSignupPending(false);
+    if (
+      typeof meta?.storagePath === "string" ||
+      typeof meta?.file_name === "string" ||
+      typeof meta?.file_url === "string"
+    ) {
+      setAdminVerifyPhase1EvidenceComplete(true);
+    }
 
-    // Private bucket: 신규는 storagePath, 과거 데이터는 file_url fallback (진단은 URL fetch 없이 존재 여부만 사용)
-    const storagePath =
-      typeof meta?.storagePath === "string" ? meta.storagePath : null;
-    const legacyFileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
-    const fileName = typeof meta?.file_name === "string" ? meta.file_name : null;
-    const incidentTypeVal =
-      typeof meta?.incident_type === "string" ? meta.incident_type : undefined;
-    const incidentDescVal =
-      typeof meta?.incident_description === "string"
-        ? meta.incident_description
-        : undefined;
+    if (SHOW_LEGACY_VERIFY_FUNNEL) {
+      setLandingDone(true);
+      // Private bucket: 신규는 storagePath, 과거 데이터는 file_url fallback (진단은 URL fetch 없이 존재 여부만 사용)
+      const storagePath =
+        typeof meta?.storagePath === "string" ? meta.storagePath : null;
+      const legacyFileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
+      const fileName = typeof meta?.file_name === "string" ? meta.file_name : null;
+      const incidentTypeVal =
+        typeof meta?.incident_type === "string" ? meta.incident_type : undefined;
+      const incidentDescVal =
+        typeof meta?.incident_description === "string"
+          ? meta.incident_description
+          : undefined;
 
-    setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, {
-      fileUrl: storagePath || legacyFileUrl,
-      fileName,
-      incidentType: incidentTypeVal,
-      incidentDescription: incidentDescVal,
-    });
-    setDiagnosis(diag);
-    setDiagnosing(false);
-    setStep("diagnosis");
+      setDiagnosing(true);
+      const diag = await getDiagnosis(CATEGORY, {
+        fileUrl: storagePath || legacyFileUrl,
+        fileName,
+        incidentType: incidentTypeVal,
+        incidentDescription: incidentDescVal,
+      });
+      setDiagnosis(diag);
+      setDiagnosing(false);
+      setStep("diagnosis");
+    }
   }
 
   async function handleLandingContinue(page1Answers?: Record<string, string>) {
@@ -904,20 +980,42 @@ export default function VerifyAdminPage() {
       await applyRestoredVerify(restored);
       return;
     }
+    if (page1Answers && Object.keys(page1Answers).length > 0) {
+      setCaseResolutionAnswers(page1Answers);
+      const profile = buildCaseResolutionProfile(page1Answers);
+      setCaseResolutionProfile(profile);
+      if (
+        !incidentDescription.trim() &&
+        typeof page1Answers[CASE_CUSTOMER_INPUT_KEY] === "string"
+      ) {
+        setIncidentDescription(page1Answers[CASE_CUSTOMER_INPUT_KEY].trim());
+      }
+    }
     if (page1Answers?.stage) {
       const page1: ReviewPage1Answers = {
         stage: page1Answers.stage,
         docs: page1Answers.docs,
-        translation: page1Answers.translation,
+        contentCheck: page1Answers.contentCheck,
+        contentCheckFollowUp: page1Answers.contentCheckFollowUp,
+        docsFollowUp: page1Answers.docsFollowUp,
+        formatProofCheck: page1Answers.formatProofCheck,
+        formatProofFollowUp: page1Answers.formatProofFollowUp,
+        submissionCheck: page1Answers.submissionCheck,
+        submissionFollowUp: page1Answers.submissionFollowUp,
         deadline: page1Answers.deadline,
+        deadlineFollowUp: page1Answers.deadlineFollowUp,
       };
       setPage1ReviewAnswers(page1);
       const mapped = mapReviewPage1StageToVerifyStage(page1Answers.stage);
       if (mapped) setReviewStage(mapped);
-      setLandingDone(true);
+      if (SHOW_LEGACY_VERIFY_FUNNEL) {
+        setLandingDone(true);
+      }
       return;
     }
-    setLandingDone(true);
+    if (SHOW_LEGACY_VERIFY_FUNNEL) {
+      setLandingDone(true);
+    }
   }
 
   useEffect(() => {
@@ -958,6 +1056,25 @@ export default function VerifyAdminPage() {
       subscription.unsubscribe();
     };
   }, []);
+  /** Member handoff UI — submitAsMember catch와 동일 45s 상한 (UI stuck 방지) */
+  useEffect(() => {
+    if (!skipSignup || adminMasterSignupComplete || !submitting) return;
+    const timer = window.setTimeout(() => {
+      if (!memberSubmitStartedRef.current) return;
+      memberSubmitStartedRef.current = false;
+      setSkipSignup(false);
+      setAdminMasterSignupPending(true);
+      setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitting(false);
+    }, MEMBER_VERIFY_LEAD_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [skipSignup, submitting, adminMasterSignupComplete]);
+  const verifyMasterSeedAnswers = useMemo(() => {
+    if (Object.keys(adminProfilingSeedAnswers).length > 0) {
+      return adminProfilingSeedAnswers;
+    }
+    return undefined;
+  }, [adminProfilingSeedAnswers]);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const page2FromPage1 = page1ReviewAnswers != null;
@@ -1025,11 +1142,104 @@ export default function VerifyAdminPage() {
     setRestoredLeadActive(false);
     setSkipSignup(false);
     setPage1ReviewAnswers(null);
+    setAdminMasterSignupPending(false);
+    setAdminMasterSignupComplete(false);
+    setAdminVerifyPhase1EvidenceComplete(false);
     void isLoggedInMember().then((loggedIn) => {
       if (loggedIn) setSkipSignup(true);
     });
     memberSubmitStartedRef.current = false;
   }
+
+  const handleAdminVerifyPhase1Complete = useCallback(
+    (answers: Record<string, string>, evidenceFile?: File | null) => {
+      setAdminVerifyPhase1EvidenceComplete(true);
+      caseResolutionAnswersRef.current = answers;
+      setCaseResolutionAnswers(answers);
+      setCaseResolutionProfile(buildCaseResolutionProfile(answers));
+      const customerInput = answers[CASE_CUSTOMER_INPUT_KEY];
+      if (typeof customerInput === "string" && customerInput.trim() && !incidentDescription.trim()) {
+        setIncidentDescription(customerInput.trim());
+      }
+      if (evidenceFile && evidenceFile.size > 0) {
+        setAttachedFile(evidenceFile);
+      }
+      if (skipSignup) {
+        void submitAsMember(answers, evidenceFile ?? null);
+        return;
+      }
+      setAdminMasterSignupPending(true);
+    },
+    [skipSignup, incidentDescription],
+  );
+
+  const handleAdminVerifyMetaPersist = useCallback(
+    async (answers: Record<string, string>, profilePhase: AdminVerifyProfilePhase) => {
+      if (!leadId || profilePhase !== 2) return;
+      const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
+      const partialMeta = buildAdminPhase2PersistMeta(answers, profilePhase, page1Meta);
+      const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
+      if (!result.ok) {
+        console.error("[verify/admin] Phase 2 meta persist failed:", {
+          reason: result.reason,
+          message: result.message,
+          serverError: result.serverError,
+          leadId,
+        });
+        setError(result.message);
+      }
+    },
+    [leadId, page1ReviewAnswers],
+  );
+
+  const handleAdminVerifyPhase2Complete = useCallback(
+    async (answers: Record<string, string>, evidenceFile?: File | null) => {
+      caseResolutionAnswersRef.current = answers;
+      setCaseResolutionAnswers(answers);
+      setCaseResolutionProfile(buildCaseResolutionProfile(answers));
+      const customerInput = answers[CASE_CUSTOMER_INPUT_KEY];
+      if (typeof customerInput === "string" && customerInput.trim() && !incidentDescription.trim()) {
+        setIncidentDescription(customerInput.trim());
+      }
+
+      if (!leadId) return;
+
+      let phase2StoragePath: string | null = null;
+      if (evidenceFile && evidenceFile.size > 0) {
+        setAttachedFile(evidenceFile);
+        const rawExt = evidenceFile.name.split(".").pop() || "";
+        const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+        const path = `verify-admin/${leadId}-phase2.${safeExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("documents")
+          .upload(path, evidenceFile);
+        if (!uploadError) {
+          phase2StoragePath = path;
+        } else {
+          console.error("[verify/admin] Phase 2 evidence upload failed:", uploadError);
+        }
+      }
+
+      const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
+      const partialMeta = buildAdminPhase2PersistMeta(
+        answers,
+        2,
+        page1Meta,
+        phase2StoragePath,
+      );
+      const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
+      if (!result.ok) {
+        console.error("[verify/admin] Phase 2 evidence meta persist failed:", {
+          reason: result.reason,
+          message: result.message,
+          serverError: result.serverError,
+          leadId,
+        });
+        setError(result.message);
+      }
+    },
+    [incidentDescription, leadId, page1ReviewAnswers],
+  );
 
   function handleIncidentNext() {
     if (restoredLeadActive) return;
@@ -1045,95 +1255,136 @@ export default function VerifyAdminPage() {
     setStep("form");
   }
 
-  async function submitAsMember() {
+  async function submitAsMember(
+    overrideCaseAnswers?: Record<string, string> | null,
+    overrideAttachedFile?: File | null,
+  ) {
     if (memberSubmitStartedRef.current) return;
     memberSubmitStartedRef.current = true;
 
+    function releaseMemberHandoffToSignupRetry(errorMessage?: string | null) {
+      memberSubmitStartedRef.current = false;
+      setSkipSignup(false);
+      if (!SHOW_LEGACY_VERIFY_FUNNEL) {
+        setAdminMasterSignupPending(true);
+      } else {
+        setStep("form");
+      }
+      setError(errorMessage ?? null);
+      setSubmitting(false);
+    }
+
+    const resolutionAnswers = overrideCaseAnswers ?? caseResolutionAnswersRef.current ?? caseResolutionAnswers;
+    const fileToUpload = overrideAttachedFile ?? attachedFile;
+
     setSubmitting(true);
     setError(null);
-    const newLeadId = crypto.randomUUID();
 
-    let storagePath: string | null = null;
-    if (attachedFile && attachedFile.size > 0) {
-      const rawExt = attachedFile.name.split(".").pop() || "";
-      const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-      const path = `verify-admin/${newLeadId}.${safeExt}`;
+    const handoffFailureMessage =
+      "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+    let handoffTerminalExit = false;
 
-      const { error: uploadError } = await supabase.storage
-        .from("documents")
-        .upload(path, attachedFile);
-      if (!uploadError) {
-        storagePath = path;
-      } else {
-        console.error(uploadError);
+    try {
+      const newLeadId = crypto.randomUUID();
+
+      let storagePath: string | null = null;
+      if (fileToUpload && fileToUpload.size > 0) {
+        const rawExt = fileToUpload.name.split(".").pop() || "";
+        const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+        const path = `verify-admin/${newLeadId}.${safeExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("documents")
+          .upload(path, fileToUpload);
+        if (!uploadError) {
+          storagePath = path;
+        } else {
+          console.error(uploadError);
+        }
       }
-    }
 
-    const verifyMeta = {
-      review_stage: reviewStage,
-      review_focus: reviewFocus,
-      incident_type: incidentType,
-      incident_description: incidentDescription.trim(),
-      ...buildReviewPage1Meta(page1ReviewAnswers),
-      ...(storagePath
-        ? {
-            storagePath,
-            file_name: attachedFile?.name,
-            submitted_document: {
-              document_type: incidentType,
-              review_stage: reviewStage,
+      const verifyMeta = {
+        review_stage: reviewStage,
+        review_focus: reviewFocus,
+        incident_type: incidentType,
+        incident_description: incidentDescription.trim(),
+        ...buildAdminVerifyPageMeta(page1ReviewAnswers, resolutionAnswers),
+        ...(storagePath
+          ? {
               storagePath,
-              file_name: attachedFile?.name,
-            },
-          }
-        : {}),
-    };
+              file_name: fileToUpload?.name,
+              submitted_document: {
+                document_type: incidentType,
+                review_stage: reviewStage,
+                storagePath,
+                file_name: fileToUpload?.name,
+              },
+            }
+          : {}),
+      };
 
-    const created = await insertMemberVerifyLead({
-      serviceType: "verify_admin",
-      sourcePage: "/verify/admin",
-      tag: "VERIFY_ADMIN",
-      verifyMeta,
-      lang,
-      primaryMessengerKey: messengers.primary.key,
-      secondaryMessengerKey: messengers.secondary.key,
-      leadId: newLeadId,
-    });
+      const created = await awaitMemberVerifyLeadInsert(
+        insertMemberVerifyLead({
+        serviceType: "verify_admin",
+        sourcePage: "/verify/admin",
+        tag: "VERIFY_ADMIN",
+        verifyMeta,
+        lang,
+        primaryMessengerKey: messengers.primary.key,
+        secondaryMessengerKey: messengers.secondary.key,
+        leadId: newLeadId,
+        }),
+      );
 
-    if (!created.ok) {
-      memberSubmitStartedRef.current = false;
-      if (created.reason === "no_contact") {
-        setSkipSignup(false);
-        setStep("form");
-      } else {
-        setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      if (!created.ok) {
+        if (created.reason === "no_contact") {
+          releaseMemberHandoffToSignupRetry();
+        } else {
+          releaseMemberHandoffToSignupRetry(handoffFailureMessage);
+        }
+        handoffTerminalExit = true;
+        return;
       }
+
+      saveLeadContact({
+        name: created.contact.name,
+        phone: created.contact.phone,
+        address: created.contact.address,
+        kakao_id: created.contact.kakao_id,
+        zalo_id: created.contact.zalo_id,
+      });
+      setEmailProvided(!!created.contact.email);
+      setLeadId(created.leadId);
+      setResultToken(created.resultToken);
       setSubmitting(false);
-      return;
+
+      if (!SHOW_LEGACY_VERIFY_FUNNEL) {
+        setAdminMasterSignupComplete(true);
+        setAdminMasterSignupPending(false);
+        handoffTerminalExit = true;
+        return;
+      }
+
+      setDiagnosing(true);
+      const diag = await getDiagnosis(CATEGORY, {
+        fileUrl: storagePath,
+        fileName: attachedFile?.name || null,
+        incidentType: incidentType || undefined,
+        incidentDescription: incidentDescription.trim() || undefined,
+      });
+      setDiagnosis(diag);
+      setDiagnosing(false);
+      setStep("diagnosis");
+      handoffTerminalExit = true;
+    } catch (submitErr) {
+      console.error("[verify/admin] submitAsMember failed:", submitErr);
+      releaseMemberHandoffToSignupRetry(handoffFailureMessage);
+      handoffTerminalExit = true;
+    } finally {
+      if (!handoffTerminalExit) {
+        releaseMemberHandoffToSignupRetry(handoffFailureMessage);
+      }
     }
-
-    saveLeadContact({
-      name: created.contact.name,
-      phone: created.contact.phone,
-      address: created.contact.address,
-      kakao_id: created.contact.kakao_id,
-      zalo_id: created.contact.zalo_id,
-    });
-    setEmailProvided(!!created.contact.email);
-    setLeadId(created.leadId);
-    setResultToken(created.resultToken);
-    setSubmitting(false);
-
-    setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, {
-      fileUrl: storagePath,
-      fileName: attachedFile?.name || null,
-      incidentType: incidentType || undefined,
-      incidentDescription: incidentDescription.trim() || undefined,
-    });
-    setDiagnosis(diag);
-    setDiagnosing(false);
-    setStep("diagnosis");
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -1224,7 +1475,10 @@ export default function VerifyAdminPage() {
         review_focus: reviewFocus,
         incident_type: incidentType,
         incident_description: incidentDescription.trim(),
-        ...buildReviewPage1Meta(page1ReviewAnswers),
+        ...buildAdminVerifyPageMeta(
+          page1ReviewAnswers,
+          caseResolutionAnswersRef.current ?? caseResolutionAnswers,
+        ),
         // 질문 단계에서 제출한 파일에 document_type(incidentType)과 review_stage를
         // 함께 태깅해 저장 — 기존 meta(jsonb) 구조를 확장한 것일 뿐 새 DB 컬럼은
         // 없다. 향후 /documents 등에서 "이미 제출된 자료"를 조회할 때 이 값으로
@@ -1310,6 +1564,12 @@ export default function VerifyAdminPage() {
     setLeadId(newLeadId);
     setSubmitting(false);
 
+    if (!SHOW_LEGACY_VERIFY_FUNNEL) {
+      setAdminMasterSignupComplete(true);
+      setAdminMasterSignupPending(false);
+      return;
+    }
+
     setDiagnosing(true);
     const diag = await getDiagnosis(CATEGORY, {
       fileUrl: storagePath,
@@ -1322,16 +1582,63 @@ export default function VerifyAdminPage() {
     setStep("diagnosis");
   }
 
-  async function handleExpertRequest() {
+  async function handleFreeAiSummaryNavigate() {
+    setAiSummaryNavigating(true);
+    try {
+      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
+      if (hasSession) {
+        window.location.href = "/mypage";
+        return;
+      }
+      if (!resultToken) {
+        setAiSummaryNavigating(false);
+        return;
+      }
+      const res = await fetch("/api/auto-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: resultToken, next: "mypage" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.actionLink) {
+        console.error("auto-login failed:", data);
+        setAiSummaryNavigating(false);
+        return;
+      }
+      window.location.href = data.actionLink;
+    } catch {
+      setAiSummaryNavigating(false);
+    }
+  }
+
+  async function handleExpertRequest(expertAnswers?: Record<string, string>) {
     if (!leadId) return;
     setExpertRequesting(true);
     setExpertError(null);
     try {
+      const profilingAnswers =
+        expertAnswers && Object.keys(expertAnswers).length > 0
+          ? expertAnswers
+          : caseResolutionAnswersRef.current ?? caseResolutionAnswers ?? {};
+      if (expertAnswers && Object.keys(expertAnswers).length > 0) {
+        caseResolutionAnswersRef.current = expertAnswers;
+        setCaseResolutionAnswers(expertAnswers);
+      }
+      const caseHandoffMeta =
+        Object.keys(profilingAnswers).length > 0
+          ? buildAdminExpertHandoffMeta(
+              profilingAnswers,
+              buildAdminVerifyPageMeta(page1ReviewAnswers, profilingAnswers),
+            )
+          : null;
       const { error } = await supabase.from("crm_activities").insert({
         lead_id: leadId,
         action: "expert_review_request",
         tag: "VERIFY_ADMIN",
-        meta: diagnosis ? { expert_brief: diagnosis.expertBrief } : null,
+        meta: {
+          ...(diagnosis ? { expert_brief: diagnosis.expertBrief } : {}),
+          ...(caseHandoffMeta ?? {}),
+        },
       });
       if (error) throw error;
 
@@ -1387,7 +1694,7 @@ export default function VerifyAdminPage() {
         setAiReportRequesting(false);
         return;
       }
-      recordAiReportRequestAndNotify({
+      await recordAiReportRequestAndNotify({
           leadId,
           tag: "VERIFY_ADMIN",
           token: resultToken ?? undefined,
@@ -1419,10 +1726,11 @@ export default function VerifyAdminPage() {
 
   const activeGuidance = selectedAgency ? ADMIN_AGENCY_GUIDANCE[selectedAgency] : null;
 
+  const showMasterFunnel = !SHOW_LEGACY_VERIFY_FUNNEL || !landingDone;
   const pageHeader = getMasterLandingPageHeader(
     MASTER_LANDING_ADMIN,
-    landingDone ? contextTab : "lookup",
-    landingDone
+    SHOW_LEGACY_VERIFY_FUNNEL && landingDone ? contextTab : contextTab,
+    SHOW_LEGACY_VERIFY_FUNNEL && landingDone
       ? {
           inQuestions: true,
           questionDescription: "제출·계약 전 서류 검토부터 문제 발생 후 대응 검토까지",
@@ -1431,32 +1739,97 @@ export default function VerifyAdminPage() {
   );
 
   return (
-    <FunnelPageShell
-      engine="verify"
-      width={!landingDone ? "master" : "default"}
-    >
+    <FunnelPageShell engine="verify" width={showMasterFunnel ? "verify" : "default"}>
+        {showMasterFunnel ? (
+          <div
+            data-screen01-content
+            className={cn(
+              "mx-auto w-full max-w-[960px] -mx-4 px-4 lg:mx-auto lg:px-0",
+              // SCREEN 01 PC — 질문 선택 버튼 grid만 세로 1열 (2차 결과 02 grid 제외)
+              "lg:[&_.grid.gap-3:has(>button)]:!grid-cols-1 lg:[&_.grid.gap-3:has(>button)]:!max-w-none lg:[&_.grid.gap-3:has(>button)>button]:!h-auto",
+            )}
+          >
+            <FunnelPageHeader
+              engine="verify"
+              hideHomeChrome
+              {...getVerifyFormFunnelHeaderAlignProps(
+                SHOW_LEGACY_VERIFY_FUNNEL && landingDone,
+                step,
+                skipSignup,
+              )}
+              title={
+                MASTER_LANDING_ADMIN.shortServiceLabel ?? MASTER_LANDING_ADMIN.serviceLabel
+              }
+              description={
+                "베트남 행정문서를 제출하거나 처리하기 전에 중요한 부분을 직접 확인해보세요."
+              }
+              titleClassName="font-bold lg:text-[25px]"
+              verifyEyebrowClassName="font-normal"
+              descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"
+              className="mb-5 [&>div:last-child]:mt-0 lg:pl-[33px]"
+            />
+            <div className="lg:[&>div:first-child]:hidden">
+              {!restoreVerifyPending ? (
+              <MasterFunnelLanding
+                key={restoredLeadActive ? `restored-${leadId ?? "lead"}` : "fresh"}
+                config={MASTER_LANDING_ADMIN}
+                activeTab={contextTab}
+                onTabChange={setContextTab}
+                onContinue={(page1Answers) => void handleLandingContinue(page1Answers)}
+                verifyMasterSeedAnswers={verifyMasterSeedAnswers}
+                adminVerifyGate={{
+                  adminVerifySkipSignup: skipSignup,
+                  adminVerifySignupComplete: adminMasterSignupComplete,
+                  adminVerifyPhase1EvidenceComplete,
+                  adminVerifyMemberSubmitting: submitting,
+                  onAdminVerifyPhase1Complete: handleAdminVerifyPhase1Complete,
+                  onAdminVerifyMetaPersist: (answers, phase) =>
+                    void handleAdminVerifyMetaPersist(answers, phase),
+                  onAdminVerifyPhase2Complete: (answers, evidenceFile) =>
+                    void handleAdminVerifyPhase2Complete(answers, evidenceFile),
+                  onAdminVerifyPersonalizedContinue: () => void handleAiReportRequest(),
+                  onAdminVerifyAiReport: () => void handleAiReportRequest(),
+                  onAdminVerifyExpert: (answers) => void handleExpertRequest(answers),
+                  onAdminVerifyAiSummary: () => void handleFreeAiSummaryNavigate(),
+                  adminVerifyAiSummaryNavigating: aiSummaryNavigating,
+                  onAdminVerifyDirect: () => setContextTab("direct"),
+                  adminVerifyAiReportRequesting: aiReportRequesting,
+                  adminVerifyExpertRequesting: expertRequesting,
+                  adminVerifyAiReportError: aiReportError,
+                  adminVerifyExpertError: expertError,
+                  adminVerifyLeadCaptureSlot:
+                    !skipSignup && !adminMasterSignupComplete ? (
+                      <VerifyAdminLeadCapture
+                        riskLevel={previewDiagnosis?.expertBrief.riskLevel ?? "medium"}
+                        messengers={messengers}
+                        lang={lang}
+                        fieldErrors={fieldErrors}
+                        submitting={submitting || diagnosing}
+                        error={error}
+                        consentOpen={consentOpen}
+                        consentHighlight={consentHighlight}
+                        onConsentToggle={() => setConsentOpen((v) => !v)}
+                        onConsentChecked={() => setConsentHighlight(false)}
+                        onSubmit={handleSubmit}
+                        onReset={reset}
+                      />
+                    ) : null,
+                }}
+              />
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        {SHOW_LEGACY_VERIFY_FUNNEL && landingDone ? (
+          <>
         <FunnelPageHeader
           engine="verify"
           hideHomeChrome
-          title={
-            landingDone
-              ? pageHeader.title
-              : MASTER_LANDING_ADMIN.shortServiceLabel ?? MASTER_LANDING_ADMIN.serviceLabel
-          }
+          {...getVerifyFormFunnelHeaderAlignProps(landingDone, step, skipSignup)}
+          title={pageHeader.title}
           description={pageHeader.description}
-          descriptionMobile={
-            !landingDone ? "제출 전·사후 검토를 먼저 확인합니다." : undefined
-          }
         />
-
-        {!landingDone && (
-          <MasterFunnelLanding
-            config={MASTER_LANDING_ADMIN}
-            activeTab={contextTab}
-            onTabChange={setContextTab}
-            onContinue={(page1Answers) => void handleLandingContinue(page1Answers)}
-          />
-        )}
 
         {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
@@ -1759,7 +2132,7 @@ export default function VerifyAdminPage() {
               onAiReview={handleAiReportRequest}
               aiReportRequesting={aiReportRequesting}
               aiReportError={aiReportError}
-              onExpert={handleExpertRequest}
+              onExpert={() => void handleExpertRequest()}
               expertRequesting={expertRequesting}
               expertError={expertError}
               onDirect={() => setStep("guidanceSelect")}
@@ -1875,7 +2248,7 @@ export default function VerifyAdminPage() {
             <p className="mt-5 text-xs font-semibold text-gray-700">
               직접 진행이 부담되신다면 전문가에게 맡기실 수도 있습니다.
             </p>
-            <PrimaryButton onClick={handleExpertRequest} loading={expertRequesting} className="mt-3">
+            <PrimaryButton onClick={() => void handleExpertRequest()} loading={expertRequesting} className="mt-3">
               전문가 검토 진행하기
             </PrimaryButton>
             {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
@@ -1923,6 +2296,8 @@ export default function VerifyAdminPage() {
             </div>
           </div>
         )}
+          </>
+        ) : null}
     </FunnelPageShell>
   );
 }
