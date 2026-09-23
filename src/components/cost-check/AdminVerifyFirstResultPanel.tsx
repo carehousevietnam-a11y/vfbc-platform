@@ -836,6 +836,7 @@ function appendCase03Phase1ResultSignals(
   if (!isCase03Phase1Complete(answers)) return;
 
   const demand = answers.case03_authorityDemand;
+  const focus = answers.case03_inquiryFocus;
   const goal = answers.case03_confirmGoal;
   const response = answers.case03_customerResponse;
   const deadline = answers.case03_deadline;
@@ -847,8 +848,14 @@ function appendCase03Phase1ResultSignals(
     actions.push("이전에 설명·출석한 내용과 이번 추가 요구를 함께 확인해 보세요.");
   }
 
-  if (goal === "understand_agency_intent" || goal === "prepare_materials") {
+  if (focus === "unclear" || focus === "unsure") {
+    unconfirmed.push("기관이 확인하려는 내용");
+  } else if (focus === "submitted_docs" || focus === "action_facts") {
     actions.push("기관이 확인하려는 내용과 준비할 자료를 먼저 정리해 보세요.");
+  }
+
+  if (goal === "understand_agency_intent" || goal === "prepare_materials") {
+    actions.push("준비할 자료와 우선 확인할 항목을 정리해 보세요.");
   } else if (goal === "sufficient_explanation" || goal === "repeat_response") {
     cautions.push("이전 대응 내용 확인이 우선 목표로 선택됨");
     actions.push("이전에 전달한 설명·자료와 기관 반응을 함께 확인해 보세요.");

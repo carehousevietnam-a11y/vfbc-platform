@@ -1915,8 +1915,9 @@ export const CASE06_PHASE1_FIELD_ORDER = CASE06_V11_PHASE1_FIELD_ORDER;
 
 export const CASE03_PHASE1_FIELD_ORDER = [
   "case03_authorityDemand",
-  "case03_confirmGoal",
+  "case03_inquiryFocus",
   "case03_customerResponse",
+  "case03_confirmGoal",
   "case03_deadline",
 ] as const;
 
@@ -2941,10 +2942,6 @@ const CASE03_AUTHORITY_DEMAND_OPTIONS = [
 
 const CASE03_CONFIRM_GOAL_OPTIONS = [
   {
-    value: "understand_agency_intent",
-    label: "기관에서 정확히 무엇을 확인하려는지 알고 싶습니다.",
-  },
-  {
     value: "prepare_materials",
     label: "어떤 자료나 내용을 준비해야 하는지 알고 싶습니다.",
   },
@@ -2964,6 +2961,7 @@ const CASE03_CONFIRM_GOAL_OPTIONS = [
     value: "unsure",
     label: "지금 무엇부터 준비하고 대응해야 할지 모르겠습니다.",
   },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_INQUIRY_FOCUS_OPTIONS = [
@@ -3103,10 +3101,6 @@ const CASE03_PREP_REQUIRED_OPTIONS = [
     label: "무엇을 준비해야 하는지 아직 정확히 알기 어렵습니다.",
   },
   {
-    value: "prep_other",
-    label: "위에 없는 다른 준비가 필요한 것 같습니다.",
-  },
-  {
     value: "unsure",
     label: "준비해야 할 것을 정확히 모르겠습니다.",
   },
@@ -3134,6 +3128,7 @@ const CASE03_REPEAT_FOLLOWUP_OPTIONS = [
     value: "not_applicable",
     label: "반복 요구는 없었거나 아직 확인하지 못했습니다.",
   },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_DEADLINE_OPTIONS = [
@@ -3166,20 +3161,16 @@ const CASE03_BLOCKAGE_OPTIONS = [
   { value: "why_attend", label: "왜 출석·소명을 요구하는지 이해하지 못했습니다" },
   { value: "when_attend", label: "언제까지 출석·제출해야 하는지 모르겠습니다" },
   { value: "after_explain", label: "설명·제출 후 다음에 무엇을 해야 하는지 모르겠습니다" },
-  { value: "demand_unclear", label: "기관 요구 전체가 문서만으로는 이해되지 않습니다" },
-  { value: "unsure", label: "가장 막힌 부분을 정확히 말하기 어렵습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_EVIDENCE_OPTIONS = [
   { value: "notice", label: "출석·소명 요구 통지서·안내문" },
   { value: "attendance_notice", label: "출석 일시·장소가 적힌 별도 안내" },
-  { value: "email", label: "기관 이메일" },
   { value: "message", label: "기관 문자·메신저·전화 안내 내역" },
   { value: "submitted_docs", label: "이미 제출한 서류·소명서" },
-  { value: "receipt", label: "접수증·제출 확인서" },
-  { value: "evidence_other", label: "위에 없는 다른 자료" },
   { value: "none", label: "지금 확인할 수 있는 자료가 없습니다" },
-  { value: "unsure", label: "어떤 자료가 필요한지 모르겠습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_FINAL_GOAL_OPTIONS = [
@@ -3187,13 +3178,14 @@ const CASE03_FINAL_GOAL_OPTIONS = [
   { value: "prepare_response", label: "대응 준비가 필요합니다" },
   { value: "verify_facts", label: "사실관계를 확인하고 싶습니다" },
   { value: "expert", label: "전문가 확인이 필요합니다" },
-  { value: "goal_other", label: "위에 없는 다른 확인 목표가 있습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> = {
   case03_authorityDemand: CASE03_AUTHORITY_DEMAND_OPTIONS,
-  case03_confirmGoal: CASE03_CONFIRM_GOAL_OPTIONS,
+  case03_inquiryFocus: CASE03_INQUIRY_FOCUS_OPTIONS,
   case03_customerResponse: CASE03_CUSTOMER_RESPONSE_OPTIONS,
+  case03_confirmGoal: CASE03_CONFIRM_GOAL_OPTIONS,
   case03_deadline: CASE03_DEADLINE_OPTIONS,
 };
 
@@ -3296,7 +3288,17 @@ function case03NeedsFactRelationshipPhase2(answers: ReviewAnswers): boolean {
   return false;
 }
 
+function case03IsInquiryFocusAnswered(answers: ReviewAnswers): boolean {
+  return isAdminVerifyChoiceFieldComplete(
+    "case03_inquiryFocus",
+    answers,
+    CASE03_INQUIRY_FOCUS_OPTIONS,
+  );
+}
+
+/** Phase2 inquiryFocus — legacy restore only (P1 now owns MASTER Q2). */
 function case03NeedsInquiryFocusPhase2(answers: ReviewAnswers): boolean {
+  if (case03IsInquiryFocusAnswered(answers)) return false;
   const goal = answers.case03_confirmGoal;
   const demand = answers.case03_authorityDemand;
   if (
@@ -3389,6 +3391,7 @@ export function shouldActivateCase03Path(answers: ReviewAnswers): boolean {
   if (answers.case04_supplementTarget || answers._case04Active === "1") return false;
   if (answers._case03Active === "1") return true;
   if (answers.case03_authorityDemand) return true;
+  if (answers.case03_inquiryFocus) return true;
   if (answers.case03_confirmGoal) return true;
   if (shouldActivateCase02Path(answers)) return false;
 
@@ -3437,12 +3440,20 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   pushUnique(questions, {
-    id: "case03_confirmGoal",
+    id: "case03_inquiryFocus",
     kind: "choice",
     label: "교통국에서는 무엇을 확인하려는 것 같나요?",
-    options: CASE03_CONFIRM_GOAL_OPTIONS,
+    options: CASE03_INQUIRY_FOCUS_OPTIONS,
   });
-  if (!answers.case03_confirmGoal) return;
+  if (
+    !isAdminVerifyChoiceFieldComplete(
+      "case03_inquiryFocus",
+      answers,
+      CASE03_INQUIRY_FOCUS_OPTIONS,
+    )
+  ) {
+    return;
+  }
 
   pushUnique(questions, {
     id: "case03_customerResponse",
@@ -3455,6 +3466,22 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
       "case03_customerResponse",
       answers,
       CASE03_CUSTOMER_RESPONSE_OPTIONS,
+    )
+  ) {
+    return;
+  }
+
+  pushUnique(questions, {
+    id: "case03_confirmGoal",
+    kind: "choice",
+    label: "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+    options: CASE03_CONFIRM_GOAL_OPTIONS,
+  });
+  if (
+    !isAdminVerifyChoiceFieldComplete(
+      "case03_confirmGoal",
+      answers,
+      CASE03_CONFIRM_GOAL_OPTIONS,
     )
   ) {
     return;
@@ -3492,7 +3519,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_inquiryFocus",
       kind: "choice",
-      label: "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
+      label: "교통국에서는 무엇을 확인하려는 것 같나요?",
       options: CASE03_INQUIRY_FOCUS_OPTIONS,
     });
     if (
@@ -3721,7 +3748,14 @@ function case03PathFieldsComplete(answers: ReviewAnswers): boolean {
   ) {
     return false;
   }
-  if (case03NeedsFinalGoal(answers) && !answers.case03_finalGoal) {
+  if (
+    case03NeedsFinalGoal(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case03_finalGoal",
+      answers,
+      CASE03_FINAL_GOAL_OPTIONS,
+    )
+  ) {
     return false;
   }
   return true;
@@ -9253,11 +9287,11 @@ const CASE04_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank
 
 const CASE03_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank: number; reason: string }[] = [
   { id: "case03_authorityDemand", focus: "authorityClaim", rank: 1, reason: "기관 요구 확인" },
-  { id: "case03_confirmGoal", focus: "goal", rank: 2, reason: "확인 목표" },
+  { id: "case03_inquiryFocus", focus: "authorityReason", rank: 2, reason: "기관이 확인하려는 사실" },
   { id: "case03_customerResponse", focus: "customerAction", rank: 3, reason: "고객의 기존 대응" },
-  { id: "case03_deadline", focus: "deadline", rank: 4, reason: "출석·소명 기한" },
-  { id: "case03_factRelationship", focus: "actualSituation", rank: 5, reason: "사실관계" },
-  { id: "case03_inquiryFocus", focus: "authorityReason", rank: 6, reason: "기관이 확인하려는 사실" },
+  { id: "case03_confirmGoal", focus: "goal", rank: 4, reason: "고객 확인 목표" },
+  { id: "case03_deadline", focus: "deadline", rank: 5, reason: "출석·소명 기한" },
+  { id: "case03_factRelationship", focus: "actualSituation", rank: 6, reason: "사실관계" },
   { id: "case03_explanationDetail", focus: "customerAction", rank: 7, reason: "설명한 내용" },
   { id: "case03_authorityFollowUp", focus: "authorityResponse", rank: 8, reason: "기관 후속 반응" },
   { id: "case03_prepRequired", focus: "authorityClaim", rank: 9, reason: "준비 사항" },
@@ -9493,7 +9527,11 @@ function selectCase03ResolutionFocus(answers: ReviewAnswers): CaseResolutionQues
     if (item.id === "case03_factRelationship" && !case03NeedsFactRelationshipPhase2(answers)) {
       continue;
     }
-    if (item.id === "case03_inquiryFocus" && !case03NeedsInquiryFocusPhase2(answers)) {
+    if (
+      item.id === "case03_inquiryFocus" &&
+      !case03NeedsInquiryFocusPhase2(answers) &&
+      !case03IsInquiryFocusAnswered(answers)
+    ) {
       continue;
     }
     if (item.id === "case03_explanationDetail" && !case03HasResponded(answers)) continue;

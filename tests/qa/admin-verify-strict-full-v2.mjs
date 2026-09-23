@@ -32,7 +32,6 @@ const EMPTY_DOCS = { mismatch: [], unknown: [], other: [] };
 
 const CASE03_REGRESSION_IDS = [
   "case03_factRelationship",
-  "case03_inquiryFocus",
   "case03_prepRequired",
   "case03_blockage",
   "case03_evidence",
@@ -41,7 +40,6 @@ const CASE03_REGRESSION_IDS = [
 
 const CASE03_REGRESSION_IDS_WITHOUT_EVIDENCE = [
   "case03_factRelationship",
-  "case03_inquiryFocus",
   "case03_prepRequired",
   "case03_blockage",
   "case03_finalGoal",
@@ -194,13 +192,13 @@ const CASE_CONFIGS = {
     seed: baseAnswers(),
     phase1Overrides: {
       case03_authorityDemand: "reason_unclear",
-      case03_confirmGoal: "deadline_attendance",
+      case03_inquiryFocus: "specific_event",
       case03_customerResponse: "none",
+      case03_confirmGoal: "deadline_attendance",
       case03_deadline: "uncertain",
     },
     phase2Overrides: {
       case03_factRelationship: "mismatch",
-      case03_inquiryFocus: "specific_event",
       case03_prepRequired: "attendance_only",
       case03_blockage: "what_explain",
       case03_evidence: "notice",
@@ -285,13 +283,13 @@ const CASE_CONFIGS = {
     },
     targetPhase1Overrides: {
       case03_authorityDemand: "reason_unclear",
-      case03_confirmGoal: "deadline_attendance",
+      case03_inquiryFocus: "specific_event",
       case03_customerResponse: "none",
+      case03_confirmGoal: "deadline_attendance",
       case03_deadline: "uncertain",
     },
     phase2Overrides: {
       case03_factRelationship: "mismatch",
-      case03_inquiryFocus: "specific_event",
       case03_prepRequired: "attendance_only",
       case03_blockage: "what_explain",
       case03_evidence: "notice",
