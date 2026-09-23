@@ -27,6 +27,9 @@
 # production
 /build
 
+# Cursor MCP local credentials (use .cursor/mcp.json.example as template)
+.cursor/mcp.json
+
 # misc
 .DS_Store
 *.pem
