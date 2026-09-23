@@ -3,15 +3,17 @@ import { supabase } from "@/lib/supabase";
 const CRM_AI_REPORT_REQUEST_ACTION = "ai_report_request";
 
 // 결과화면 "AI 리포트 요청하기" — CRM 기록 + 접수 확인 이메일 트리거.
-// redirect(auto-login)을 막지 않도록 비동기 fire-and-forget으로 실행한다.
-export function recordAiReportRequestAndNotify(params: {
+// redirect 전에 await하여 page unload로 INSERT가 취소되지 않도록 한다.
+export async function recordAiReportRequestAndNotify(params: {
   leadId: string;
   tag: string;
   token?: string;
-}): void {
-  void recordAiReportRequestAndNotifyAsync(params).catch((err) => {
+}): Promise<void> {
+  try {
+    await recordAiReportRequestAndNotifyAsync(params);
+  } catch (err) {
     console.error("ai report notify failed:", err);
-  });
+  }
 }
 
 async function recordAiReportRequestAndNotifyAsync(params: {

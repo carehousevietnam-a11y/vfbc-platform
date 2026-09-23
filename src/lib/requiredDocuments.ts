@@ -82,11 +82,15 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
   verify_admin: {
     serviceKey: "verify_admin",
     serviceLabel: "행정문서 검토",
-    documents: ["사건 내용 정리", "계약서·공문·통지서"],
+    documents: [
+      "교통국에서 받은 안내·통지 문서",
+      "교통국에 제출했던 서류·자료",
+    ],
     optionalDocuments: [
-      "카카오톡·Zalo·이메일 대화 캡처",
-      "사진·영수증·송금증 등 증거자료",
-      "기타 참고자료",
+      "교통국과 주고받은 답변·대화",
+      "실제 상황을 확인할 수 있는 자료",
+      "날짜·장소를 확인할 수 있는 자료",
+      "추가 참고자료",
     ],
   },
   "verify_real-estate": {
