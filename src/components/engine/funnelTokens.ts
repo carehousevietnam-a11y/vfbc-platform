@@ -10,10 +10,19 @@ export const FUNNEL_PAGE = "min-h-screen overflow-x-hidden bg-white";
 export const FUNNEL_CONTAINER =
   "mx-auto w-full max-w-[960px] px-4 py-8 sm:px-6 sm:py-9";
 
+/** VERIFY Master SCREEN — Stitch Final Polish 기준 콘텐츠 폭 */
+export const VERIFY_FUNNEL_CONTAINER =
+  "mx-auto w-full max-w-[1200px] px-4 pt-5 pb-5 lg:px-6";
+
 /** 질문 단계 inner column — outer shell(960px)과 분리해 카드 밀도 유지 */
 export const FUNNEL_QUESTION_COLUMN = "mx-auto w-full max-w-xl";
 
-export function funnelContainerClass(width: "default" | "wide" | "master" = "default") {
+export function funnelContainerClass(
+  width: "default" | "wide" | "master" | "verify" = "default",
+) {
+  if (width === "verify") {
+    return VERIFY_FUNNEL_CONTAINER;
+  }
   if (width === "master") {
     // TRC Master UI — 기존 TRC 기준폭 960px (확대 폭 사용 금지)
     return FUNNEL_CONTAINER;
@@ -57,7 +66,7 @@ export const FUNNEL_ENGINE_COPY: Record<
   verify: {
     action: "직접검토하기",
     expert: "베트남 법률전문 AI",
-    eyebrow: "직접검토하기 · 베트남 법률전문 AI",
+    eyebrow: "베트남 법률전문 AI",
   },
   register: {
     action: "직접허가받기",
@@ -68,6 +77,6 @@ export const FUNNEL_ENGINE_COPY: Record<
 
 export type FunnelPageShellProps = {
   engine: FunnelEngine;
-  width?: "default" | "wide" | "master";
+  width?: "default" | "wide" | "master" | "verify";
   children: ReactNode;
 };

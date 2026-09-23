@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  selectionIconNavClasses,
+  selectionIconNavCtaClasses,
+  selectionIconNavDescClasses,
+  selectionIconNavTitleClasses,
+} from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
+import {
   AlertTriangle,
   ArrowRight,
   Briefcase,
@@ -303,14 +310,17 @@ function AccordionItemCard({
 }) {
   const ItemIcon = item.icon;
   const checkClass = compact
-    ? "group flex flex-col rounded-xl border border-slate-200/80 bg-white p-3"
-    : "group flex flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:p-5";
+    ? cn("group flex flex-col", selectionIconNavClasses("rounded-xl p-3"))
+    : cn("group flex flex-col sm:p-5", selectionIconNavClasses("rounded-2xl p-4"));
   const verifyClass = compact
-    ? "group flex flex-col items-center rounded-xl border border-slate-200/80 bg-white px-2.5 py-3.5 text-center"
-    : "group flex flex-col items-center rounded-2xl border border-gray-100 bg-white px-3 py-5 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:px-4 sm:py-6";
+    ? cn("group flex flex-col items-center text-center", selectionIconNavClasses("rounded-xl px-2.5 py-3.5"))
+    : cn(
+        "group flex flex-col items-center text-center sm:px-4 sm:py-6",
+        selectionIconNavClasses("rounded-2xl px-3 py-5"),
+      );
   const registerClass = compact
-    ? "group flex flex-col rounded-xl border border-slate-200/80 bg-white p-3"
-    : "group flex flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] sm:p-5";
+    ? cn("group flex flex-col", selectionIconNavClasses("rounded-xl p-3"))
+    : cn("group flex flex-col sm:p-5", selectionIconNavClasses("rounded-2xl p-4"));
 
   if (variant === "check") {
     return (
@@ -319,9 +329,9 @@ function AccordionItemCard({
           {item.hook}
         </span>
         <ItemIcon className="mt-3 text-blue-900" size={24} strokeWidth={1.75} />
-        <p className="mt-2 text-base font-bold tracking-tight text-gray-900">{item.title}</p>
-        <p className="mt-1 text-[12px] leading-snug text-gray-500">{item.desc}</p>
-        <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-blue-900 transition-all group-hover:gap-1.5">
+        <p className={cn("mt-2 text-base tracking-tight", selectionIconNavTitleClasses())}>{item.title}</p>
+        <p className={cn("mt-1 text-[12px] leading-snug", selectionIconNavDescClasses())}>{item.desc}</p>
+        <span className={cn("mt-4 inline-flex items-center gap-1 transition-all group-hover:gap-1.5", selectionIconNavCtaClasses())}>
           지금 확인 <ArrowRight size={12} />
         </span>
       </Link>
@@ -343,8 +353,8 @@ function AccordionItemCard({
           size={22}
           strokeWidth={1.75}
         />
-        <p className="mt-2 text-[13px] font-bold leading-snug text-gray-900">{item.title}</p>
-        <p className="mt-1 text-[11px] leading-snug text-gray-500">{item.desc}</p>
+        <p className={cn("mt-2 text-[13px] leading-snug", selectionIconNavTitleClasses())}>{item.title}</p>
+        <p className={cn("mt-1 text-[11px] leading-snug", selectionIconNavDescClasses())}>{item.desc}</p>
       </Link>
     );
   }
@@ -355,9 +365,9 @@ function AccordionItemCard({
         {item.hook}
       </span>
       <ItemIcon className="mt-3 text-amber-700" size={24} strokeWidth={1.75} />
-      <p className="mt-2 text-base font-bold tracking-tight text-gray-900">{item.title}</p>
-      <p className="mt-1 text-[12px] leading-snug text-gray-500">{item.desc}</p>
-      <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-amber-700 transition-all group-hover:gap-1.5">
+      <p className={cn("mt-2 text-base tracking-tight", selectionIconNavTitleClasses())}>{item.title}</p>
+      <p className={cn("mt-1 text-[12px] leading-snug", selectionIconNavDescClasses())}>{item.desc}</p>
+      <span className={cn("mt-4 inline-flex items-center gap-1 transition-all group-hover:gap-1.5", selectionIconNavCtaClasses("text-amber-700/85"))}>
         허가 절차 확인 <ArrowRight size={12} />
       </span>
     </Link>

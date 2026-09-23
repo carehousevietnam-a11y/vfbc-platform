@@ -9,6 +9,12 @@ import {
   FileQuestion,
   LucideIcon,
 } from "lucide-react";
+import {
+  selectionIconNavClasses,
+  selectionIconNavDescClasses,
+  selectionIconNavTitleClasses,
+} from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
 
 type DocItem = {
   key: string;
@@ -92,7 +98,10 @@ export default function DocumentReviewSection() {
             <Link
               key={item.key}
               href={item.href}
-              className="group flex flex-col items-center rounded-2xl bg-white border border-gray-100 px-4 py-6 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200"
+              className={cn(
+                "group flex flex-col items-center px-4 py-6 text-center",
+                selectionIconNavClasses("rounded-2xl"),
+              )}
             >
               <span
                 className={`inline-block rounded-full px-2.5 py-1 text-[10px] font-bold ${
@@ -106,10 +115,10 @@ export default function DocumentReviewSection() {
                 size={22}
                 strokeWidth={1.75}
               />
-              <p className="mt-2 text-[13px] font-bold text-gray-900 leading-snug">
+              <p className={cn("mt-2 text-[13px] leading-snug", selectionIconNavTitleClasses())}>
                 {item.title}
               </p>
-              <p className="mt-1 text-[11px] text-gray-500 leading-snug">
+              <p className={cn("mt-1 text-[11px] leading-snug", selectionIconNavDescClasses())}>
                 {item.desc}
               </p>
             </Link>

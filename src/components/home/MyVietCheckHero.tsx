@@ -4,6 +4,13 @@ import { Fragment, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  selectionIconNavClasses,
+  selectionIconNavCtaClasses,
+  selectionIconNavDescClasses,
+  selectionIconNavTitleClasses,
+} from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
+import {
   AlertTriangle,
   ArrowRight,
   BarChart3,
@@ -361,7 +368,11 @@ function EnginePillars() {
             key={pillar.key}
             id={pillar.key}
             href={pillar.href}
-            className={`group scroll-mt-24 flex flex-row items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left no-underline shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,58,138,0.10)] lg:flex-col lg:items-start lg:border-t-[3px] lg:p-6 lg:hover:-translate-y-1 ${tone.accent}`}
+            className={cn(
+              "scroll-mt-24 flex flex-row items-center gap-3 rounded-2xl p-4 text-left lg:flex-col lg:items-start lg:border-t-[3px] lg:p-6",
+              selectionIconNavClasses(),
+              tone.accent,
+            )}
           >
             <span
               className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl lg:h-12 lg:w-12 ${tone.bg}`}
@@ -370,14 +381,14 @@ function EnginePillars() {
               <Icon size={22} className={tone.text} strokeWidth={2.25} />
             </span>
             <span className="min-w-0 flex-1">
-              <h2 className="text-[11px] font-bold tracking-[0.18em] text-blue-900">{pillar.label}</h2>
-              <p className="mt-0.5 text-[14px] font-semibold leading-snug text-slate-800 lg:mt-1 lg:text-[15px]">
+              <h2 className="text-[11px] font-medium tracking-[0.18em] text-blue-900">{pillar.label}</h2>
+              <p className={cn("mt-0.5 text-[14px] leading-snug lg:mt-1 lg:text-[15px]", selectionIconNavTitleClasses())}>
                 {t(`pillar.${pillar.key}.subtitle`)}
               </p>
-              <p className="mt-1.5 break-keep text-[13px] leading-relaxed text-slate-500">
+              <p className={cn("mt-1.5 break-keep text-[13px] leading-relaxed", selectionIconNavDescClasses())}>
                 {pillar.desc}
               </p>
-              <span className="mt-4 hidden items-center gap-1 text-[12.5px] font-semibold text-blue-900 transition-colors group-hover:text-[#152a63] lg:inline-flex">
+              <span className={cn("mt-4 hidden items-center gap-1 lg:inline-flex", selectionIconNavCtaClasses())}>
                 {t(`hero.engineCta.${pillar.key}`)}
                 <ArrowRight
                   size={14}

@@ -12,6 +12,13 @@ import {
   Store,
   LucideIcon,
 } from "lucide-react";
+import {
+  selectionIconNavClasses,
+  selectionIconNavCtaClasses,
+  selectionIconNavDescClasses,
+  selectionIconNavTitleClasses,
+} from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
 
 type PermitItem = {
   key: string;
@@ -117,19 +124,19 @@ export default function PermitSection() {
             <Link
               key={item.key}
               href={item.href}
-              className="group flex flex-col rounded-2xl bg-white border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200"
+              className={cn("group flex flex-col p-5", selectionIconNavClasses("rounded-2xl"))}
             >
               <span className="inline-block self-start rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
                 {item.hook}
               </span>
               <Icon className="mt-3 text-amber-700" size={24} strokeWidth={1.75} />
-              <p className="mt-2 text-base font-bold tracking-tight text-gray-900">
+              <p className={cn("mt-2 text-base tracking-tight", selectionIconNavTitleClasses())}>
                 {item.title}
               </p>
-              <p className="mt-1 text-[12px] text-gray-500 leading-snug">
+              <p className={cn("mt-1 text-[12px] leading-snug", selectionIconNavDescClasses())}>
                 {item.desc}
               </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-amber-700 group-hover:gap-1.5 transition-all">
+              <span className={cn("mt-4 inline-flex items-center gap-1 transition-all group-hover:gap-1.5", selectionIconNavCtaClasses("text-amber-700/85"))}>
                 허가 절차 확인 →
               </span>
             </Link>

@@ -15,6 +15,12 @@ import {
 import LanguageMenu from "./LanguageMenu";
 import NotificationBell from "./NotificationBell";
 import HeaderUserMenu from "./HeaderUserMenu";
+import {
+  selectionHeaderEngineClasses,
+  selectionHeaderServiceClasses,
+  selectionNavLinkClasses,
+} from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
 
 const DEFAULT_MESSAGE_HREF = "/mypage/chat";
 const DEFAULT_LOGIN_HREF = "/login";
@@ -36,6 +42,22 @@ const PROTECT_SERVICE_ITEMS = [
 
 type EngineKey = "check" | "verify" | "register" | "protect";
 
+/** PC(sm+) 헤더 스케일 — Mobile 기본값은 변경하지 않음 */
+const HEADER_PC_SHELL = "sm:pt-3 sm:pb-2";
+const HEADER_PC_ROW =
+  "sm:min-h-[42px] sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-2";
+const HEADER_PC_BRAND_LINK = "sm:shrink-0 sm:justify-self-start sm:gap-2";
+const HEADER_PC_SHIELD_BOX = "sm:h-8 sm:w-8 sm:rounded-lg";
+const HEADER_PC_SHIELD_ICON = "sm:h-4 sm:w-4";
+const HEADER_PC_BRAND_TITLE =
+  "sm:whitespace-nowrap sm:text-[14px] sm:font-bold sm:tracking-tight sm:text-[#0B2A6B]";
+const HEADER_PC_BRAND_SUB = "sm:whitespace-nowrap sm:text-[10px] sm:font-medium sm:text-slate-500";
+const HEADER_PC_GNB_NAV = "sm:col-start-2 sm:justify-self-center sm:flex-none";
+const HEADER_PC_GNB_GAP = "sm:gap-4";
+const HEADER_PC_GNB_BTN = "sm:px-2 sm:py-0.5";
+const HEADER_PC_GNB_EN = "sm:text-[12px] sm:font-medium sm:tracking-[0.1em]";
+const HEADER_PC_GNB_KO = "sm:text-[10px] sm:font-medium sm:text-slate-600";
+
 function resolveActiveEngine(pathname: string): EngineKey | null {
   if (pathname === "/check" || pathname.startsWith("/check/")) return "check";
   if (pathname === "/verify" || pathname.startsWith("/verify/")) return "verify";
@@ -49,6 +71,19 @@ function isServiceActive(pathname: string, href: string): boolean {
   if (pathname === pathOnly) return true;
   if (pathOnly !== "/" && pathname.startsWith(`${pathOnly}/`)) return true;
   return false;
+}
+
+/** 모바일 상단 2단 네비 — VERIFY 불확실 항목만 짧은 라벨 */
+function level2NavLabel(title: string, href: string) {
+  if (href === "/verify/unclear") {
+    return (
+      <>
+        <span className="whitespace-nowrap sm:hidden">불확실 문서</span>
+        <span className="hidden sm:inline">{title}</span>
+      </>
+    );
+  }
+  return title;
 }
 
 export default function SiteHeader() {
@@ -170,35 +205,43 @@ export default function SiteHeader() {
     return (
       <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur">
         <div
-          className={`${ENGINE_CONTAINER} ${
+          className={`${ENGINE_CONTAINER} ${HEADER_PC_SHELL} ${
             useTwoLevelEngineNav
-              ? "flex flex-col gap-0 py-1.5 sm:py-2"
+              ? "flex flex-col gap-0 py-1.5"
               : "flex h-[3.75rem] items-center justify-between gap-3 lg:h-14"
           }`}
         >
           {useTwoLevelEngineNav ? (
             <>
-              <div className="flex min-h-[40px] items-center gap-2 sm:min-h-[42px] sm:gap-3">
+              <div className={`flex flex-col gap-1 sm:min-h-[42px] sm:flex-row sm:items-center ${HEADER_PC_ROW}`}>
                 <Link
                   href="/"
-                  className="flex w-[7.25rem] shrink-0 items-center gap-1.5 sm:w-[8.5rem] sm:gap-2"
+                  className={`flex w-fit shrink-0 items-center gap-2 ${HEADER_PC_BRAND_LINK}`}
                 >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-900/[0.06] ring-1 ring-blue-900/10 sm:h-8 sm:w-8 sm:rounded-xl">
-                    <ShieldCheck size={15} className="text-blue-900 sm:h-4 sm:w-4" />
+                  <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-900/[0.06] ring-1 ring-blue-900/10 sm:rounded-xl ${HEADER_PC_SHIELD_BOX}`}
+                  >
+                    <ShieldCheck
+                      className={`h-4 w-4 shrink-0 text-blue-900 ${HEADER_PC_SHIELD_ICON}`}
+                    />
                   </div>
                   <div className="min-w-0 leading-tight">
-                    <p className="truncate text-[11px] font-bold tracking-tight text-[#0B2A6B] sm:text-[12px]">
-                      MY VIET CHECK
-                    </p>
-                    <p className="truncate text-[9px] font-medium text-slate-400 sm:text-[10px]">
-                      by VFBCAI
-                    </p>
+                    <div className="sm:hidden">
+                      <p className="truncate text-[13px] font-semibold tracking-tight text-[#0B2A6B]">
+                        MY VIET CHECK
+                      </p>
+                      <p className="truncate text-[10px] font-medium text-slate-500">by VFBCAI</p>
+                    </div>
+                    <div className="hidden sm:block">
+                      <p className={HEADER_PC_BRAND_TITLE}>MY VIET CHECK</p>
+                      <p className={HEADER_PC_BRAND_SUB}>by VFBCAI</p>
+                    </div>
                   </div>
                 </Link>
 
                 <nav
                   aria-label="엔진 이동"
-                  className="flex min-w-0 flex-1 items-center justify-center gap-0.5 sm:gap-2"
+                  className={`flex w-full min-w-0 items-stretch justify-center gap-0 sm:-mb-2 sm:flex-1 sm:self-stretch ${HEADER_PC_GNB_NAV} ${HEADER_PC_GNB_GAP}`}
                 >
                   {HOME_NAV_ITEMS.map((item) => {
                     const isHighlighted = expandedEngine
@@ -212,25 +255,22 @@ export default function SiteHeader() {
                         aria-expanded={isExpanded}
                         aria-controls="engine-level2-nav"
                         onClick={() => toggleEngineNav(item.engine)}
-                        className={`flex min-h-[40px] min-w-0 flex-1 flex-col items-center justify-center px-0.5 py-1 text-center transition-colors sm:min-h-0 sm:flex-none sm:px-3 sm:py-1 ${
-                          isHighlighted
-                            ? "text-[#0B2A6B]"
-                            : "text-slate-400 hover:text-slate-600"
-                        }`}
+                        className={cn(
+                          "flex min-h-[42px] min-w-0 flex-1 flex-col items-center justify-center px-0.5 py-1 text-center sm:min-h-0 sm:flex-none sm:justify-center sm:pb-2",
+                          HEADER_PC_GNB_BTN,
+                          selectionHeaderEngineClasses(isHighlighted),
+                        )}
                       >
                         <span
-                          className={`block text-[10px] tracking-[0.1em] sm:text-[10.5px] sm:tracking-[0.12em] ${
-                            isHighlighted ? "font-bold" : "font-medium"
-                          }`}
+                          className={cn("block text-[11px] font-medium tracking-[0.08em]", HEADER_PC_GNB_EN)}
                         >
                           {item.label}
                         </span>
                         <span
-                          className={`mt-px block text-[10px] leading-none ${
-                            isHighlighted
-                              ? "font-semibold text-slate-600"
-                              : "font-normal text-slate-400"
-                          }`}
+                          className={cn(
+                            "mt-0.5 block text-[11px] font-medium leading-none text-inherit opacity-85 sm:mt-px",
+                            HEADER_PC_GNB_KO,
+                          )}
                         >
                           {t(item.subKey)}
                         </span>
@@ -239,20 +279,16 @@ export default function SiteHeader() {
                   })}
                 </nav>
 
-                {/* PC 중앙 정렬용 — 브랜드와 동일 폭 spacer */}
-                <div
-                  className="hidden w-[8.5rem] shrink-0 sm:block"
-                  aria-hidden
-                />
+                <div className="hidden sm:block" aria-hidden />
               </div>
 
               {expandedEngine && level2Items.length > 0 ? (
                 <nav
                   id="engine-level2-nav"
                   aria-label="서비스 이동"
-                  className="mt-1 border-t border-slate-100 pt-1.5 sm:mt-1.5 sm:pt-2"
+                  className="mt-0.5 border-t border-slate-100 pt-1 sm:mt-1.5 sm:pt-2"
                 >
-                  <div className="grid grid-cols-4 gap-x-1 gap-y-1 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-1.5">
+                  <div className="flex flex-wrap justify-center gap-x-1.5 gap-y-1 sm:gap-x-3 sm:gap-y-1.5">
                     {level2Items.map((item) => {
                       const active = isServiceActive(pathname, item.href);
                       return (
@@ -262,13 +298,12 @@ export default function SiteHeader() {
                           prefetch={false}
                           aria-current={active ? "page" : undefined}
                           onClick={() => setExpandedEngine(null)}
-                          className={`inline-flex min-h-[36px] items-center justify-center px-1 text-center text-[11px] leading-snug transition-colors sm:min-h-[32px] sm:px-2.5 sm:text-[12.5px] ${
-                            active
-                              ? "font-semibold text-[#0B2A6B]"
-                              : "font-medium text-slate-400 hover:text-slate-600"
-                          }`}
+                          className={cn(
+                            "w-auto min-w-0 shrink-0",
+                            selectionHeaderServiceClasses(active),
+                          )}
                         >
-                          {item.title}
+                          {level2NavLabel(item.title, item.href)}
                         </Link>
                       );
                     })}
@@ -278,22 +313,30 @@ export default function SiteHeader() {
             </>
           ) : (
             <>
-              <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2.5 lg:gap-2">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-900/[0.06] ring-1 ring-blue-900/10 lg:h-8 lg:w-8">
-                  <ShieldCheck size={18} className="text-blue-900 lg:h-4 lg:w-4" />
+              <Link
+                href="/"
+                className={`flex min-w-0 shrink-0 items-center gap-2.5 lg:gap-2 ${HEADER_PC_BRAND_LINK}`}
+              >
+                <div
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-900/[0.06] ring-1 ring-blue-900/10 ${HEADER_PC_SHIELD_BOX}`}
+                >
+                  <ShieldCheck size={18} className={`text-blue-900 ${HEADER_PC_SHIELD_ICON}`} />
                 </div>
                 <div className="min-w-0 leading-tight">
-                  <p className="truncate text-[13px] font-bold tracking-tight text-blue-900 lg:text-[12px]">
-                    MY VIET CHECK
-                  </p>
-                  <p className="truncate text-[10px] font-medium text-slate-500">by VFBCAI</p>
+                  <div className="sm:hidden">
+                    <p className="truncate text-[13px] font-bold tracking-tight text-blue-900">
+                      MY VIET CHECK
+                    </p>
+                    <p className="truncate text-[10px] font-medium text-slate-500">by VFBCAI</p>
+                  </div>
+                  <div className="hidden sm:block">
+                    <p className={`${HEADER_PC_BRAND_TITLE} sm:text-blue-900`}>MY VIET CHECK</p>
+                    <p className={HEADER_PC_BRAND_SUB}>by VFBCAI</p>
+                  </div>
                 </div>
               </Link>
 
-              <nav
-                aria-label="엔진 이동"
-                className="hidden items-center gap-0.5 lg:flex"
-              >
+              <nav aria-label="엔진 이동" className={`hidden items-center lg:flex ${HEADER_PC_GNB_GAP}`}>
                 {HOME_NAV_ITEMS.map((item) => {
                   const active = activeEngine === item.engine;
                   return (
@@ -301,17 +344,20 @@ export default function SiteHeader() {
                       key={item.href}
                       href={item.href}
                       aria-current={active ? "page" : undefined}
-                      className={`shrink-0 rounded-lg px-2 py-1 text-center transition-colors sm:px-2.5 sm:py-1.5 ${
-                        active
-                          ? "text-blue-900 underline decoration-blue-900 decoration-2 underline-offset-[5px]"
-                          : "text-blue-900/70 hover:bg-[#faf8f5] hover:text-blue-900"
-                      }`}
+                      className={cn(
+                        "shrink-0 flex flex-col text-center rounded-lg sm:px-2.5 sm:py-1.5",
+                        HEADER_PC_GNB_BTN,
+                        selectionNavLinkClasses(active),
+                        active ? "text-blue-900" : "text-blue-900/70",
+                      )}
                     >
-                      <span className="block text-[10px] font-bold tracking-[0.14em]">{item.label}</span>
+                      <span className={cn("block text-[10px] font-medium tracking-[0.14em]", HEADER_PC_GNB_EN)}>
+                        {item.label}
+                      </span>
                       <span
                         className={`mt-0.5 block text-[10px] font-medium ${
                           active ? "text-slate-600" : "text-slate-500"
-                        }`}
+                        } ${HEADER_PC_GNB_KO}`}
                       >
                         {t(item.subKey)}
                       </span>
@@ -366,11 +412,12 @@ export default function SiteHeader() {
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center justify-between rounded-xl px-3 py-2.5 hover:bg-slate-50 ${
-                      active ? "bg-slate-50" : ""
-                    }`}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-xl px-3 py-2.5",
+                      selectionNavLinkClasses(active),
+                    )}
                   >
-                    <span className="text-[13px] font-semibold text-slate-800">{item.label}</span>
+                    <span className="text-[13px] font-medium text-slate-800">{item.label}</span>
                     <span className="text-[12px] text-slate-500">{t(item.subKey)}</span>
                   </Link>
                 );

@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ShieldCheck, PenLine, Lock, Landmark, Scale, Stamp, ArrowRight } from "lucide-react";
+import {
+  selectionIconNavClasses,
+  selectionIconNavCtaClasses,
+  selectionIconNavDescClasses,
+  selectionIconNavTitleClasses,
+} from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
 
 const ENGINE_STEPS = [
   { key: "check", label: "CHECK", desc: "가능 여부 확인", icon: Search },
@@ -63,17 +70,17 @@ export default function Hero() {
           {/* 킬러 1: 직접확인하기 */}
           <a
             href="#check"
-            className="group rounded-3xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-gray-100 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200"
+            className={cn("group block", selectionIconNavClasses("rounded-3xl p-7"))}
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-900 text-white">
               <Landmark size={20} />
             </div>
-            <p className="mt-4 text-lg font-bold tracking-tight text-gray-900">직접확인하기</p>
-            <p className="mt-0.5 text-xs font-semibold text-blue-900">베트남 행정전문 AI</p>
-            <p className="mt-3 text-[13px] text-gray-500 leading-relaxed">
+            <p className={cn("mt-4 text-lg tracking-tight", selectionIconNavTitleClasses())}>직접확인하기</p>
+            <p className="mt-0.5 text-xs font-medium text-blue-900/85">베트남 행정전문 AI</p>
+            <p className={cn("mt-3 text-[13px] leading-relaxed", selectionIconNavDescClasses())}>
               거주증·노동허가·땀주·운전면허 — 지금 놓치면 벌금이나 강제출국까지 갈 수 있습니다.
             </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-900 group-hover:gap-2 transition-all">
+            <span className={cn("mt-4 inline-flex items-center gap-1.5 transition-all group-hover:gap-2", selectionIconNavCtaClasses())}>
               1분 만에 확인하기 <ArrowRight size={13} />
             </span>
           </a>
@@ -81,17 +88,17 @@ export default function Hero() {
           {/* 킬러 2: 직접검토하기 */}
           <a
             href="#verify"
-            className="group rounded-3xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-gray-100 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200"
+            className={cn("group block", selectionIconNavClasses("rounded-3xl p-7"))}
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-900 text-white">
               <Scale size={20} />
             </div>
-            <p className="mt-4 text-lg font-bold tracking-tight text-gray-900">직접검토하기</p>
-            <p className="mt-0.5 text-xs font-semibold text-gray-600">베트남 법률전문 AI</p>
-            <p className="mt-3 text-[13px] text-gray-500 leading-relaxed">
+            <p className={cn("mt-4 text-lg tracking-tight", selectionIconNavTitleClasses())}>직접검토하기</p>
+            <p className="mt-0.5 text-xs font-medium text-gray-600/85">베트남 법률전문 AI</p>
+            <p className={cn("mt-3 text-[13px] leading-relaxed", selectionIconNavDescClasses())}>
               행정·부동산·세무 문서와 의심스러운 계약서 — 서명 전에 AI가 먼저 검토해드립니다.
             </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-gray-900 group-hover:gap-2 transition-all">
+            <span className={cn("mt-4 inline-flex items-center gap-1.5 transition-all group-hover:gap-2", selectionIconNavCtaClasses("text-[#0F172A]/85"))}>
               무료로 검토받기 <ArrowRight size={13} />
             </span>
           </a>
@@ -99,17 +106,17 @@ export default function Hero() {
           {/* 킬러 3: 직접허가받기 */}
           <a
             href="#register"
-            className="group rounded-3xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-gray-100 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200"
+            className={cn("group block", selectionIconNavClasses("rounded-3xl p-7"))}
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-700 text-white">
               <Stamp size={20} />
             </div>
-            <p className="mt-4 text-lg font-bold tracking-tight text-gray-900">직접허가받기</p>
-            <p className="mt-0.5 text-xs font-semibold text-amber-700">베트남 인허가전문 AI</p>
-            <p className="mt-3 text-[13px] text-gray-500 leading-relaxed">
+            <p className={cn("mt-4 text-lg tracking-tight", selectionIconNavTitleClasses())}>직접허가받기</p>
+            <p className="mt-0.5 text-xs font-medium text-amber-700/85">베트남 인허가전문 AI</p>
+            <p className={cn("mt-3 text-[13px] leading-relaxed", selectionIconNavDescClasses())}>
               법인설립부터 식당·소방·위생·환경·화장품·의료기기 허가까지 한 번에 안내받으세요.
             </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 group-hover:gap-2 transition-all">
+            <span className={cn("mt-4 inline-flex items-center gap-1.5 transition-all group-hover:gap-2", selectionIconNavCtaClasses("text-amber-700/85"))}>
               허가 절차 확인하기 <ArrowRight size={13} />
             </span>
           </a>

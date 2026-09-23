@@ -27,6 +27,12 @@ type FunnelPageHeaderProps = {
   className?: string;
   /** TRC Master 등 — Mobile 전용 description Typography override */
   descriptionClassName?: string;
+  /** VERIFY 2차 폼 — h1 부제(전문영역) 색상만 조정 */
+  verifyEyebrowClassName?: string;
+  /** VERIFY Master SCREEN — Stitch 타이틀 타이포 */
+  titleClassName?: string;
+  /** VERIFY SCREEN 01 — VERIFY eyebrow + 단일 타이틀 (인라인 부제 없음) */
+  verifyTitleMode?: "default" | "stitch";
 };
 
 /**
@@ -42,6 +48,9 @@ export default function FunnelPageHeader({
   hideHomeChrome = false,
   className,
   descriptionClassName,
+  verifyEyebrowClassName,
+  titleClassName,
+  verifyTitleMode = "default",
 }: FunnelPageHeaderProps) {
   const copy = FUNNEL_ENGINE_COPY[engine];
   const isRegister = engine === "register";
@@ -105,13 +114,50 @@ export default function FunnelPageHeader({
         )}
       >
         <div className="min-w-0">
-          <p className={FUNNEL_EYEBROW}>{copy.eyebrow}</p>
-          <h1 className={cn("mt-1.5", isRegister ? FUNNEL_REGISTER_H1 : FUNNEL_H1)}>
-            {title}
-          </h1>
+          {engine === "verify" ? (
+            verifyTitleMode === "stitch" ? (
+              <>
+                <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  VERIFY
+                </p>
+                <h1
+                  className={cn(
+                    "mt-0 break-keep font-bold tracking-tight text-slate-900",
+                    titleClassName ?? "text-[22px] leading-tight sm:text-[24px] lg:text-[25px]",
+                  )}
+                >
+                  {title}
+                </h1>
+              </>
+            ) : (
+              <h1
+                className={cn(
+                  "mt-0 flex flex-wrap items-baseline gap-x-1.5 break-keep",
+                  titleClassName ?? FUNNEL_H1,
+                )}
+              >
+                <span>{title}</span>
+                <span
+                  className={cn(
+                    "text-[12px] font-semibold tracking-wide text-gray-600",
+                    verifyEyebrowClassName,
+                  )}
+                >
+                  - {copy.eyebrow}
+                </span>
+              </h1>
+            )
+          ) : (
+            <>
+              <p className={FUNNEL_EYEBROW}>{copy.eyebrow}</p>
+              <h1 className={cn("mt-1.5", isRegister ? FUNNEL_REGISTER_H1 : FUNNEL_H1)}>
+                {title}
+              </h1>
+            </>
+          )}
           <p
             className={cn(
-              isRegister ? "mt-2.5 sm:mt-3" : "mt-0.5",
+              isRegister ? "mt-2.5 sm:mt-3" : engine === "verify" ? "mt-1" : "mt-0.5",
               descriptionClassName ??
                 (isRegisterLookupDesc
                   ? FUNNEL_REGISTER_LOOKUP_DESC

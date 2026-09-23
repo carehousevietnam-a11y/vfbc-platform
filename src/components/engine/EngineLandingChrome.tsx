@@ -15,6 +15,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import {
+  selectionIconNavClasses,
+  selectionIconNavCtaClasses,
+  selectionIconNavDescClasses,
+  selectionIconNavTitleClasses,
+} from "@/components/ui/selectionInteraction";
+import { cn } from "@/lib/cn";
 
 export const ENGINE_CONTAINER = "mx-auto w-full max-w-[960px] px-4 sm:px-6";
 const ENGINE_SECTION_PAD = "py-10 sm:py-12 lg:py-5";
@@ -322,7 +329,11 @@ export function EngineServiceCard({
     <Link
       href={href}
       aria-label={`${title} ${cta}`}
-      className={`group flex flex-row items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left no-underline shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,58,138,0.10)] lg:flex-col lg:items-start lg:border-t-[3px] lg:p-4 lg:hover:-translate-y-1 ${visual?.accent ?? ""}`}
+      className={cn(
+        "flex flex-row items-center gap-3 rounded-2xl p-4 text-left lg:flex-col lg:items-start lg:border-t-[3px] lg:p-4",
+        selectionIconNavClasses(),
+        visual?.accent,
+      )}
     >
       {Icon ? (
         <span
@@ -333,7 +344,7 @@ export function EngineServiceCard({
         </span>
       ) : null}
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold leading-snug text-slate-800 lg:mt-1 lg:text-[15px]">
+        <span className={cn("block text-[15px] leading-snug lg:mt-1 lg:text-[15px]", selectionIconNavTitleClasses())}>
           {title}
         </span>
         {hook ? (
@@ -341,8 +352,8 @@ export function EngineServiceCard({
             {hook}
           </span>
         ) : null}
-        <span className="mt-1.5 block break-keep text-[13px] leading-relaxed text-slate-500">{desc}</span>
-        <span className="mt-4 hidden items-center gap-1 text-[12.5px] font-semibold text-blue-900 transition-colors group-hover:text-[#152a63] lg:mt-3 lg:inline-flex">
+        <span className={cn("mt-1.5 block break-keep text-[13px] leading-relaxed", selectionIconNavDescClasses())}>{desc}</span>
+        <span className={cn("mt-4 hidden items-center gap-1 lg:mt-3 lg:inline-flex", selectionIconNavCtaClasses())}>
           {cta}
           <ArrowRight size={14} aria-hidden className="transition-transform group-hover:translate-x-0.5" />
         </span>

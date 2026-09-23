@@ -9,7 +9,7 @@ import {
 
 type FunnelPageShellProps = {
   engine: FunnelEngine;
-  width?: "default" | "wide" | "master";
+  width?: "default" | "wide" | "master" | "verify";
   children: ReactNode;
   className?: string;
 };
