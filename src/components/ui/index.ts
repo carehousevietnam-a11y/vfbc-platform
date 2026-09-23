@@ -44,6 +44,7 @@ export {
   VerifyFormPageHeader,
   VerifyFormPreviewPanel,
   getVerifyFormConsentText,
+  getVerifyFormFunnelHeaderAlignProps,
   getVerifyFormPrivacyText,
 } from "./verifyFunnelCopy";
 export {

@@ -75,9 +75,27 @@ interface OfficialTrustZoneProps {
   context?: "default" | "step4" | "diagnosis";
   className?: string;
   sources?: OfficialTrustSource[];
+  /** VERIFY Stitch SCREEN — PC 패널 / Mobile 약식 칩 행 */
+  layout?: "default" | "stitch" | "stitch-mobile";
 }
 
-function SourceItem({ source }: { source: OfficialTrustSource }) {
+function SourceItem({
+  source,
+  layout = "default",
+}: {
+  source: OfficialTrustSource;
+  layout?: "default" | "stitch";
+}) {
+  if (layout === "stitch") {
+    return (
+      <li className="flex items-center text-[12px] font-semibold text-slate-800">
+        <span className="mr-2 inline-block h-1 w-1 shrink-0 rounded-full bg-slate-400" aria-hidden />
+        {source.vi}
+        <span className="ml-1.5 text-[11px] font-normal text-slate-500">{source.ko}</span>
+      </li>
+    );
+  }
+
   return (
     <li className="flex gap-2">
       <span className="mt-[0.4rem] h-1 w-1 shrink-0 rounded-full bg-[#2563EB]" aria-hidden />
@@ -98,10 +116,45 @@ export default function OfficialTrustZone({
   context = "default",
   className,
   sources,
+  layout = "default",
 }: OfficialTrustZoneProps) {
   const copy = ENGINE_TRUST_COPY[engine];
   const panelSources = sources ?? copy.sources;
+  const isStitchLayout = layout === "stitch";
+  const isStitchMobileLayout = layout === "stitch-mobile";
   const stripSources = sources ?? copy.sources.slice(0, 3);
+
+  if (isStitchMobileLayout && variant === "panel") {
+    const stitchMobileLabels = ["Bộ Tư pháp", "Quốc hội", "Tòa án"];
+    const mobileSources = panelSources.map((source, index) => ({
+      ...source,
+      vi: stitchMobileLabels[index] ?? source.vi,
+    }));
+
+    return (
+      <div className={cn("mt-4 border-t border-slate-100 pt-3.5", className)} aria-label="공식 기준 안내">
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
+            OFFICIAL SOURCES
+          </span>
+          <span className="shrink-0 text-[10px] text-slate-400">최신 공식 법률 기준</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px] text-slate-600">
+          {mobileSources.map((source, index) => (
+            <span key={source.vi} className="inline-flex items-center gap-1">
+              {index > 0 ? <span className="text-slate-300" aria-hidden>·</span> : null}
+              <span
+                className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-slate-700"
+              >
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400" aria-hidden />
+                {source.vi}
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (variant === "strip") {
     if (context === "diagnosis") {
@@ -169,26 +222,54 @@ export default function OfficialTrustZone({
   return (
     <aside
       className={cn(
-        "rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-3.5",
+        isStitchLayout
+          ? "rounded-xl border border-[#eef2f6] bg-[#fbfcfd] p-4 shadow-sm"
+          : "rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-3.5",
         className,
       )}
       aria-label="공식 기준 안내"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#94A3B8]">
+      <p
+        className={cn(
+          "font-bold uppercase tracking-widest text-slate-400",
+          isStitchLayout ? "text-[10px]" : "text-[10px] font-semibold text-[#94A3B8]",
+        )}
+      >
         OFFICIAL SOURCES
       </p>
-      <p className="mt-1.5 break-keep text-[12.5px] font-semibold text-[#0B2A6B]">{copy.panelTitle}</p>
-      <p className="mt-1 break-keep text-[11.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
+      <p
+        className={cn(
+          "break-keep font-bold leading-snug text-[#0f172a]",
+          isStitchLayout ? "mt-1 text-[13px]" : "mt-1.5 text-[12.5px] font-semibold text-[#0B2A6B]",
+        )}
+      >
+        {copy.panelTitle}
+      </p>
+      <p
+        className={cn(
+          "break-keep leading-normal [overflow-wrap:normal]",
+          isStitchLayout
+            ? "mt-1 text-[11.5px] text-slate-500"
+            : "mt-1 text-[11.5px] leading-[1.55] text-[#556070]",
+        )}
+      >
         {bodyText}
       </p>
 
-      <ul className="mt-3 space-y-2">
+      <ul className={cn(isStitchLayout ? "mb-3.5 mt-3.5 space-y-2" : "mt-3 space-y-2")}>
         {panelSources.map((source) => (
-          <SourceItem key={source.vi} source={source} />
+          <SourceItem key={source.vi} source={source} layout={isStitchLayout ? "stitch" : "default"} />
         ))}
       </ul>
 
-      <p className="mt-3 break-keep text-[10.5px] leading-[1.55] text-[#94A3B8] [overflow-wrap:normal]">
+      <p
+        className={cn(
+          "break-keep leading-tight [overflow-wrap:normal]",
+          isStitchLayout
+            ? "border-t border-slate-100/80 pt-2.5 text-[10.5px] text-slate-400"
+            : "mt-3 text-[10.5px] leading-[1.55] text-[#94A3B8]",
+        )}
+      >
         {copy.footer}
       </p>
     </aside>
