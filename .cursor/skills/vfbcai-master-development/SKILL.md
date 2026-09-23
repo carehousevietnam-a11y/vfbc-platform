@@ -159,7 +159,13 @@ Mission 완료 = 아래 **범위 내** 실제 검증 후에만:
 16. **CASE_06 persist (DQ1)** — `CASE06_V11_PERSIST_ANSWER_KEYS`(+ note keys)가 `buildAdminVerifyAnswersPersistMeta`에 포함; strict `persistSlugPassAll` LOCK 조건.
 17. **CASE_06 CHAIN_05 — Harness DI (LOCK QA)** — `LABEL_ASSERT_FAIL` on recheck DQ2: 패널만 열고 note 미커밋·`다음` disabled인데 sim 진행 = **harness** (`tests/qa/_chain05-capture/label-fail-case06_unclearFactRelation.json`). 제품 recheck stuck으로 단정 금지.
 
-다음 Mission **Architect 사전 검사**: 위 cross-domain 1–6 + 해당 CASE LOCK 블록(7–11 / 12–17) + Canonical Funnel 12단계 순서 위반 여부.
+#### CASE_05 — 처분·조치 (STEP1 DQ-C05-04/05/06, 2026-09-23, domain-specific)
+
+18. **DQ-C05-04 `other` vs `other_disposition`** — UI persist는 `other` + note; restore·legacy seed는 `other_disposition`. `getCase05FieldLabelFromAnswers` · `isCase05DispositionTypeUnclear` · 1차 Result/signals가 **둘 다** 분기. DI `other`만 쓰면 Result 미타격 회귀.
+19. **DQ-C05-05 `confirmGoal` DI** — MASTER 1차 전 필드에 `ADMIN_DIRECT_EXPLAIN_CHOICE` 필수. `goalValue`/Profile `case05_confirmGoal`에 DI note 경로 연결 (`getCase05FieldLabelFromAnswers`). Browser LEVEL 3: `tests/qa/case05-phase1-di-browser.mjs` — `confirmGoal_DI`.
+20. **DQ-C05-06 Phase1 5+DI + legacy** — SoT `docs/master/VFBCAI_CASE05_PHASE1_REDESIGN_v1.md`. UI: `rights_ended` · `disposition_unclear` 등 canonical slug; `license_revoked`/`registration_cancelled`/`reason_hard_to_understand`/`unclear`/`understand_effective`/`other_method`/`past_possible` 등 **persist·fixture·signals**는 `case05Effective*` · `CASE05_OPTION_LABELS`로 회귀 없음. Browser LEVEL 3: 동일 스크립트 — `dispositionType_DI`.
+
+다음 Mission **Architect 사전 검사**: 위 cross-domain 1–6 + 해당 CASE LOCK 블록(7–11 / 12–17 / 18–20) + Canonical Funnel 12단계 순서 위반 여부.
 
 **CASE LOCK 시 Governance (필수)**: Ace LOCK 승인 전에 교훈이 **본 섹션에 반영**되고 `git`에 **커밋**되었는지 확인 (`docs/master/*_LOCK_DECISION_LOG*` 체크리스트 · `VFBCAI_CASE_AUDIT_CHECKLIST_v1` LOCK 항목). 미반영·미커밋이면 LOCK 불완료.
 
