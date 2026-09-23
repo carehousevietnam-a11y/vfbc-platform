@@ -12,6 +12,7 @@ disable-model-invocation: true
 # VFBCAI MASTER Development Skill (v1.4)
 
 **권위**: `docs/VFBCAI_CONSTITUTION.md` — 모든 Agent·Skill·Rule보다 우선.
+**개발 인계 (Adapter·정합성·4분류)**: `docs/master/VFBCAI_MASTER_HANDOFF_PRINCIPLES_v1.md` — CASE_03/04/05 및 타 VERIFY 서비스 Mission 상위 원칙.
 **v1.4 확정**: `LESSON → GOVERNANCE LOOP` + `VERIFY MASTER CANONICAL FUNNEL — FINAL` (Admin Master 2026-09 검증 반영) + `UI / DESIGN / RESPONSIVE / TYPOGRAPHY FINAL QA — FINAL` (Ace 2026-09-20).
 **v1.3 유지**: `EXPERT INVESTIGATIVE PROFILING / QUESTION-FIRST` + `MASTER QUESTION ARCHITECTURE — FINAL / PERMANENT`. v1.2·v1.1 원칙 유지·강화.
 
