@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -21,7 +21,7 @@ import {
   Receipt,
   FileQuestion,
 } from "lucide-react";
-import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard } from "@/components/ui";
+import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormFunnelHeaderAlignProps, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard } from "@/components/ui";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
 import {
@@ -40,6 +40,7 @@ import {
   loadVerifyMemberEntryState,
   insertMemberVerifyLead,
   isLoggedInMember,
+  persistRealEstateVerifyLeadMeta,
   type RestoredVerifyLead,
 } from "@/lib/restoreVerifyLead";
 import {
@@ -63,9 +64,40 @@ import {
   type ReviewPage1Answers,
 } from "@/components/cost-check/MasterReviewQuotationReport";
 import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
+import { cn } from "@/lib/cn";
+import {
+  buildRealEstateExpertHandoffMeta,
+  buildRealEstatePhase2PersistMeta,
+  buildRealEstateVerifyPageMeta,
+  mapRealEstateAnswersToLegacyState,
+  restoreRealEstateProfilingAnswersFromMeta,
+  type RealEstateVerifyProfilePhase,
+} from "@/lib/realEstateVerifyProfiling";
 
 const CATEGORY = "real-estate" as const;
 const VERIFY_QUESTION_CONTEXT = "부동산 문서";
+/** Member handoff — insertMemberVerifyLead pending 시 loading 영구 고정 방지 */
+const MEMBER_VERIFY_LEAD_TIMEOUT_MS = 45_000;
+
+function awaitMemberVerifyLeadInsert<T>(promise: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("insertMemberVerifyLead_timeout"));
+    }, MEMBER_VERIFY_LEAD_TIMEOUT_MS);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+/** 부동산 — Master Profiling 경로 사용. 레거시 4단계 incident 퍼널은 보존·비활성. */
+const SHOW_LEGACY_VERIFY_FUNNEL = false;
 
 const CONSENT_SUMMARY =
   "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
@@ -251,7 +283,7 @@ function ConsentDetails({
       )}
 
       {open && (
-        <div className="mt-2 space-y-3 text-gray-600">
+        <div className="mt-2 space-y-3 text-[#64748B]">
           <div>
             <p className="font-semibold text-gray-700">🇻🇳 Việt Nam (nguyên văn)</p>
             <p>
@@ -628,10 +660,10 @@ function VerifyRealEstateLeadCapture({
   return (
     <div>
       <VerifyFormPageHeader />
-      <VerifyFormPreviewPanel isLow={isLow} riskGauge={<RiskGauge riskLevel={riskLevel} />} />
+      <VerifyFormPreviewPanel isLow={isLow} riskGauge={<RiskGauge riskLevel={riskLevel} size={76} />} />
 
       <VerifyFormFieldsSection lang={lang}>
-        <form onSubmit={onSubmit} className="mt-4 space-y-3">
+        <form onSubmit={onSubmit} className="mt-3 space-y-2.5">
           <input
             type="text"
             name="name"
@@ -722,12 +754,12 @@ function VerifyRealEstateLeadCapture({
               }`}
             />
           </div>
-          <p className={`-mt-1 text-[11px] ${(touched.kakao_id || touched.zalo_id) && liveErrors.sns ? "text-red-600" : "text-gray-400"}`}>
+          <p className={`-mt-1 text-[12px] leading-[1.45] ${(touched.kakao_id || touched.zalo_id) && liveErrors.sns ? "text-red-600" : "text-[#64748B]"}`}>
             {LEAD_FORM_MESSAGES[lang].sns.required}
           </p>
 
           <div>
-            <label className="flex items-start gap-2 text-xs text-gray-600">
+            <label className="flex items-start gap-2 text-[12px] leading-[1.5] text-[#64748B]">
               <input
                 type="checkbox"
                 name="agreeTerms"
@@ -755,14 +787,14 @@ function VerifyRealEstateLeadCapture({
           </PrimaryButton>
         </form>
 
-        <div className="mt-3">
-          <InfoBox>{getVerifyFormPrivacyText(lang)}</InfoBox>
+        <div className="mt-2.5">
+          <InfoBox className="text-[#64748B]">{getVerifyFormPrivacyText(lang)}</InfoBox>
         </div>
 
         <button
           type="button"
           onClick={onReset}
-          className="mt-4 block text-xs text-gray-400 hover:text-gray-600"
+          className="mt-3 block text-[12px] text-[#64748B] hover:text-[#475569]"
         >
           {LEAD_FORM_MESSAGES[lang].resetLabel}
         </button>
@@ -807,6 +839,7 @@ export default function VerifyRealEstatePage() {
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [expertError, setExpertError] = useState<string | null>(null);
   const [aiReportRequesting, setAiReportRequesting] = useState(false);
+  const [aiSummaryNavigating, setAiSummaryNavigating] = useState(false);
   const [aiReportError, setAiReportError] = useState<string | null>(null);
   const [selectedAgency, setSelectedAgency] = useState<RealEstateAgency | null>(null);
   // CHECK(TRC)와 동일한 Step 방식 질문 화면의 선택 카드 클릭 피드백(300ms) 및
@@ -825,6 +858,13 @@ export default function VerifyRealEstatePage() {
   const [page1ReviewAnswers, setPage1ReviewAnswers] = useState<ReviewPage1Answers | null>(
     null
   );
+  const [realEstateProfilingAnswers, setRealEstateProfilingAnswers] = useState<
+    Record<string, string>
+  >({});
+  const [realEstateMasterSignupPending, setRealEstateMasterSignupPending] = useState(false);
+  const [realEstateMasterSignupComplete, setRealEstateMasterSignupComplete] = useState(false);
+  const [realEstateVerifyPhase1EvidenceComplete, setRealEstateVerifyPhase1EvidenceComplete] =
+    useState(false);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -854,6 +894,17 @@ export default function VerifyRealEstatePage() {
       if (typeof meta.incident_description === "string") {
         setIncidentDescription(meta.incident_description);
       }
+      const restoredProfiling = restoreRealEstateProfilingAnswersFromMeta(meta);
+      if (restoredProfiling && Object.keys(restoredProfiling).length > 0) {
+        setRealEstateProfilingAnswers(restoredProfiling);
+        const legacyFromProfile = mapRealEstateAnswersToLegacyState(restoredProfiling);
+        if (legacyFromProfile.reviewStage) setReviewStage(legacyFromProfile.reviewStage);
+        if (legacyFromProfile.incidentType) setIncidentType(legacyFromProfile.incidentType);
+        if (legacyFromProfile.reviewFocus) setReviewFocus(legacyFromProfile.reviewFocus);
+        if (legacyFromProfile.incidentDescription.trim()) {
+          setIncidentDescription(legacyFromProfile.incidentDescription.trim());
+        }
+      }
     }
     setLandingDone(true);
     setLeadId(restored.leadId);
@@ -880,7 +931,7 @@ export default function VerifyRealEstatePage() {
     });
     setDiagnosis(diag);
     setDiagnosing(false);
-    setStep("diagnosis");
+    setRealEstateMasterSignupComplete(true);
   }
 
   async function handleLandingContinue(page1Answers?: Record<string, string>) {
@@ -902,9 +953,122 @@ export default function VerifyRealEstatePage() {
       setPage1ReviewAnswers(page1);
       const mapped = mapReviewPage1StageToVerifyStage(page1Answers.stage);
       if (mapped) setReviewStage(mapped);
+      if (SHOW_LEGACY_VERIFY_FUNNEL) {
+        setLandingDone(true);
+      }
+      return;
     }
-    setLandingDone(true);
+    if (SHOW_LEGACY_VERIFY_FUNNEL) {
+      setLandingDone(true);
+    }
   }
+
+  const verifyMasterSeedAnswers = useMemo(() => {
+    if (Object.keys(realEstateProfilingAnswers).length > 0) {
+      return realEstateProfilingAnswers;
+    }
+    if (!page1ReviewAnswers && !reviewStage && !incidentDescription.trim()) {
+      return undefined;
+    }
+    return {
+      ...(page1ReviewAnswers?.stage ? { stage: page1ReviewAnswers.stage } : {}),
+      ...(reviewStage ? { _seedReviewStage: reviewStage } : {}),
+      ...(incidentType ? { _seedIncidentType: incidentType } : {}),
+      ...(reviewFocus ? { _seedReviewFocus: reviewFocus } : {}),
+      ...(incidentDescription.trim()
+        ? { realEstateCustomerInput: incidentDescription.trim() }
+        : {}),
+    };
+  }, [
+    realEstateProfilingAnswers,
+    page1ReviewAnswers,
+    reviewStage,
+    incidentType,
+    reviewFocus,
+    incidentDescription,
+  ]);
+
+  const handleRealEstateVerifyComplete = useCallback(
+    (answers: Record<string, string>, evidenceFile?: File | null) => {
+      setRealEstateVerifyPhase1EvidenceComplete(true);
+      setRealEstateProfilingAnswers(answers);
+      const legacy = mapRealEstateAnswersToLegacyState(answers);
+      if (legacy.reviewStage) setReviewStage(legacy.reviewStage);
+      if (legacy.incidentType) setIncidentType(legacy.incidentType);
+      if (legacy.reviewFocus) setReviewFocus(legacy.reviewFocus);
+      if (legacy.incidentDescription.trim()) {
+        setIncidentDescription(legacy.incidentDescription.trim());
+      }
+      if (evidenceFile && evidenceFile.size > 0) {
+        setAttachedFile(evidenceFile);
+      }
+      if (skipSignup) {
+        void submitAsMember(answers, evidenceFile ?? null);
+        return;
+      }
+      setRealEstateMasterSignupPending(true);
+    },
+    [skipSignup],
+  );
+
+  const handleRealEstateVerifyMetaPersist = useCallback(
+    async (answers: Record<string, string>, profilePhase: RealEstateVerifyProfilePhase) => {
+      if (!leadId || profilePhase !== 2) return;
+      const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
+      const partialMeta = buildRealEstatePhase2PersistMeta(answers, profilePhase, page1Meta);
+      const result = await persistRealEstateVerifyLeadMeta(leadId, partialMeta);
+      if (!result.ok) {
+        console.error("[verify/real-estate] Phase 2 meta persist failed:", result.reason);
+        if (result.reason === "rls_denied") {
+          setError(
+            "Phase 2 진행 상태를 저장할 수 없습니다. VFBCAI 전문가팀에 문의해 주세요.",
+          );
+        }
+      }
+    },
+    [leadId, page1ReviewAnswers],
+  );
+
+  const handleRealEstateVerifyPhase2EvidenceComplete = useCallback(
+    async (answers: Record<string, string>, evidenceFile?: File | null) => {
+      setRealEstateProfilingAnswers(answers);
+
+      if (!leadId) return;
+
+      let phase2StoragePath: string | null = null;
+      if (evidenceFile && evidenceFile.size > 0) {
+        const rawExt = evidenceFile.name.split(".").pop() || "";
+        const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+        const path = `verify-real-estate/${leadId}-phase2.${safeExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("documents")
+          .upload(path, evidenceFile);
+        if (!uploadError) {
+          phase2StoragePath = path;
+        } else {
+          console.error("[verify/real-estate] Phase 2 evidence upload failed:", uploadError);
+        }
+      }
+
+      const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
+      const partialMeta = buildRealEstatePhase2PersistMeta(
+        answers,
+        2,
+        page1Meta,
+        phase2StoragePath,
+      );
+      const result = await persistRealEstateVerifyLeadMeta(leadId, partialMeta);
+      if (!result.ok) {
+        console.error("[verify/real-estate] Phase 2 evidence meta persist failed:", result.reason);
+        if (result.reason === "rls_denied") {
+          setError(
+            "Phase 2 진행 상태를 저장할 수 없습니다. VFBCAI 전문가팀에 문의해 주세요.",
+          );
+        }
+      }
+    },
+    [leadId, page1ReviewAnswers],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -944,6 +1108,19 @@ export default function VerifyRealEstatePage() {
       subscription.unsubscribe();
     };
   }, []);
+  /** Member handoff UI — submitAsMember catch와 동일 45s 상한 (UI stuck 방지) */
+  useEffect(() => {
+    if (!skipSignup || realEstateMasterSignupComplete || !submitting) return;
+    const timer = window.setTimeout(() => {
+      if (!memberSubmitStartedRef.current) return;
+      memberSubmitStartedRef.current = false;
+      setSkipSignup(false);
+      setRealEstateMasterSignupPending(true);
+      setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitting(false);
+    }, MEMBER_VERIFY_LEAD_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [skipSignup, submitting, realEstateMasterSignupComplete]);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const page2FromPage1 = page1ReviewAnswers != null;
@@ -1010,6 +1187,9 @@ export default function VerifyRealEstatePage() {
     setSelectedAgency(null);
     setRestoredLeadActive(false);
     setSkipSignup(false);
+    setRealEstateMasterSignupComplete(false);
+    setRealEstateMasterSignupPending(false);
+    setRealEstateVerifyPhase1EvidenceComplete(false);
     setPage1ReviewAnswers(null);
     void isLoggedInMember().then((loggedIn) => {
       if (loggedIn) setSkipSignup(true);
@@ -1031,23 +1211,55 @@ export default function VerifyRealEstatePage() {
     setStep("form");
   }
 
-  async function submitAsMember() {
+  async function submitAsMember(
+    overrideProfilingAnswers?: Record<string, string> | null,
+    overrideAttachedFile?: File | null,
+  ) {
     if (memberSubmitStartedRef.current) return;
     memberSubmitStartedRef.current = true;
 
+    function releaseMemberHandoffToSignupRetry(errorMessage?: string | null) {
+      memberSubmitStartedRef.current = false;
+      setSkipSignup(false);
+      if (!SHOW_LEGACY_VERIFY_FUNNEL) {
+        setRealEstateMasterSignupPending(true);
+      } else {
+        setStep("form");
+      }
+      setError(errorMessage ?? null);
+      setSubmitting(false);
+    }
+
+    const profilingAnswers = overrideProfilingAnswers ?? realEstateProfilingAnswers;
+    const legacyFromProfile = profilingAnswers
+      ? mapRealEstateAnswersToLegacyState(profilingAnswers)
+      : null;
+    const effectiveReviewStage = legacyFromProfile?.reviewStage ?? reviewStage;
+    const effectiveIncidentType = legacyFromProfile?.incidentType ?? incidentType;
+    const effectiveReviewFocus = legacyFromProfile?.reviewFocus ?? reviewFocus;
+    const effectiveDescription =
+      legacyFromProfile?.incidentDescription?.trim() || incidentDescription.trim();
+    const fileToUpload = overrideAttachedFile ?? attachedFile;
+
     setSubmitting(true);
     setError(null);
+
+    const handoffFailureMessage =
+      "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+    let handoffTerminalExit = false;
+
+    try {
     const newLeadId = crypto.randomUUID();
 
     let storagePath: string | null = null;
-    if (attachedFile && attachedFile.size > 0) {
-      const rawExt = attachedFile.name.split(".").pop() || "";
+    if (fileToUpload && fileToUpload.size > 0) {
+      const rawExt = fileToUpload.name.split(".").pop() || "";
       const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
       const path = `verify-real-estate/${newLeadId}.${safeExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("documents")
-        .upload(path, attachedFile);
+        .upload(path, fileToUpload);
       if (!uploadError) {
         storagePath = path;
       } else {
@@ -1055,27 +1267,32 @@ export default function VerifyRealEstatePage() {
       }
     }
 
+    const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
     const verifyMeta = {
-      review_stage: reviewStage,
-      review_focus: reviewFocus,
-      incident_type: incidentType,
-      incident_description: incidentDescription.trim(),
-      ...buildReviewPage1Meta(page1ReviewAnswers),
+      review_stage: effectiveReviewStage,
+      review_focus: effectiveReviewFocus,
+      incident_type: effectiveIncidentType,
+      incident_description: effectiveDescription,
+      ...page1Meta,
+      ...(profilingAnswers && Object.keys(profilingAnswers).length > 0
+        ? buildRealEstateVerifyPageMeta(page1Meta, profilingAnswers)
+        : {}),
       ...(storagePath
         ? {
             storagePath,
-            file_name: attachedFile?.name,
+            file_name: fileToUpload?.name,
             submitted_document: {
-              document_type: incidentType,
-              review_stage: reviewStage,
+              document_type: effectiveIncidentType,
+              review_stage: effectiveReviewStage,
               storagePath,
-              file_name: attachedFile?.name,
+              file_name: fileToUpload?.name,
             },
           }
         : {}),
     };
 
-    const created = await insertMemberVerifyLead({
+    const created = await awaitMemberVerifyLeadInsert(
+      insertMemberVerifyLead({
       serviceType: "verify_real-estate",
       sourcePage: "/verify/real-estate",
       tag: "VERIFY_REAL_ESTATE",
@@ -1084,17 +1301,16 @@ export default function VerifyRealEstatePage() {
       primaryMessengerKey: messengers.primary.key,
       secondaryMessengerKey: messengers.secondary.key,
       leadId: newLeadId,
-    });
+      }),
+    );
 
     if (!created.ok) {
-      memberSubmitStartedRef.current = false;
       if (created.reason === "no_contact") {
-        setSkipSignup(false);
-        setStep("form");
+        releaseMemberHandoffToSignupRetry();
       } else {
-        setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        releaseMemberHandoffToSignupRetry(handoffFailureMessage);
       }
-      setSubmitting(false);
+      handoffTerminalExit = true;
       return;
     }
 
@@ -1109,17 +1325,20 @@ export default function VerifyRealEstatePage() {
     setLeadId(created.leadId);
     setResultToken(created.resultToken);
     setSubmitting(false);
+    setRealEstateMasterSignupPending(false);
 
-    setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, {
-      fileUrl: storagePath,
-      fileName: attachedFile?.name || null,
-      incidentType: incidentType || undefined,
-      incidentDescription: incidentDescription.trim() || undefined,
-    });
-    setDiagnosis(diag);
-    setDiagnosing(false);
-    setStep("diagnosis");
+    setLandingDone(true);
+    setRealEstateMasterSignupComplete(true);
+    handoffTerminalExit = true;
+    } catch (submitErr) {
+      console.error("[verify/real-estate] submitAsMember failed:", submitErr);
+      releaseMemberHandoffToSignupRetry(handoffFailureMessage);
+      handoffTerminalExit = true;
+    } finally {
+      if (!handoffTerminalExit) {
+        releaseMemberHandoffToSignupRetry(handoffFailureMessage);
+      }
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -1201,6 +1420,7 @@ export default function VerifyRealEstatePage() {
       }
     }
 
+    const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
     await supabase.from("crm_activities").insert({
       lead_id: newLeadId,
       action: "verify_lead",
@@ -1210,7 +1430,10 @@ export default function VerifyRealEstatePage() {
         review_focus: reviewFocus,
         incident_type: incidentType,
         incident_description: incidentDescription.trim(),
-        ...buildReviewPage1Meta(page1ReviewAnswers),
+        ...page1Meta,
+        ...(Object.keys(realEstateProfilingAnswers).length > 0
+          ? buildRealEstateVerifyPageMeta(page1Meta, realEstateProfilingAnswers)
+          : {}),
         // 질문 단계에서 제출한 파일에 document_type(incidentType)과 review_stage를
         // 함께 태깅해 저장 — 기존 meta(jsonb) 구조를 확장한 것일 뿐 새 DB 컬럼은
         // 없다. 향후 /documents 등에서 "이미 제출된 자료"를 조회할 때 이 값으로
@@ -1295,29 +1518,65 @@ export default function VerifyRealEstatePage() {
     setEmailProvided(!!email);
     setLeadId(newLeadId);
     setSubmitting(false);
-
-    setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, {
-      fileUrl: storagePath,
-      fileName: attachedFile?.name || null,
-      incidentType: incidentType || undefined,
-      incidentDescription: incidentDescription.trim() || undefined,
-    });
-    setDiagnosis(diag);
-    setDiagnosing(false);
-    setStep("diagnosis");
+    setRealEstateMasterSignupPending(false);
+    setLandingDone(true);
+    setRealEstateMasterSignupComplete(true);
   }
 
-  async function handleExpertRequest() {
+  async function handleFreeAiSummaryNavigate() {
+    setAiSummaryNavigating(true);
+    try {
+      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
+      if (hasSession) {
+        window.location.href = "/mypage";
+        return;
+      }
+      if (!resultToken) {
+        setAiSummaryNavigating(false);
+        return;
+      }
+      const res = await fetch("/api/auto-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: resultToken, next: "mypage" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.actionLink) {
+        console.error("auto-login failed:", data);
+        setAiSummaryNavigating(false);
+        return;
+      }
+      window.location.href = data.actionLink;
+    } catch {
+      setAiSummaryNavigating(false);
+    }
+  }
+
+  async function handleExpertRequest(expertAnswers?: Record<string, string>) {
     if (!leadId) return;
     setExpertRequesting(true);
     setExpertError(null);
     try {
+      const profilingAnswers =
+        expertAnswers && Object.keys(expertAnswers).length > 0
+          ? expertAnswers
+          : realEstateProfilingAnswers;
+      if (expertAnswers && Object.keys(expertAnswers).length > 0) {
+        setRealEstateProfilingAnswers(expertAnswers);
+      }
+      const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
+      const caseHandoffMeta =
+        Object.keys(profilingAnswers).length > 0
+          ? buildRealEstateExpertHandoffMeta(profilingAnswers, page1Meta)
+          : buildRealEstateVerifyPageMeta(page1Meta, profilingAnswers);
       const { error } = await supabase.from("crm_activities").insert({
         lead_id: leadId,
         action: "expert_review_request",
         tag: "VERIFY_REAL_ESTATE",
-        meta: diagnosis ? { expert_brief: diagnosis.expertBrief } : null,
+        meta: {
+          ...(diagnosis ? { expert_brief: diagnosis.expertBrief } : {}),
+          ...caseHandoffMeta,
+        },
       });
       if (error) throw error;
 
@@ -1373,11 +1632,11 @@ export default function VerifyRealEstatePage() {
         setAiReportRequesting(false);
         return;
       }
-      recordAiReportRequestAndNotify({
-          leadId,
-          tag: "VERIFY_REAL_ESTATE",
-          token: resultToken ?? undefined,
-        });
+      await recordAiReportRequestAndNotify({
+        leadId,
+        tag: "VERIFY_REAL_ESTATE",
+        token: resultToken ?? undefined,
+      });
 
       if (hasSession) {
         window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_real-estate&mode=ai_report`;
@@ -1405,47 +1664,110 @@ export default function VerifyRealEstatePage() {
 
   const activeGuidance = selectedAgency ? REAL_ESTATE_AGENCY_GUIDANCE[selectedAgency] : null;
 
+  const showMasterFunnel = !SHOW_LEGACY_VERIFY_FUNNEL || !landingDone;
   const pageHeader = getMasterLandingPageHeader(
     MASTER_LANDING_REAL_ESTATE,
-    landingDone ? contextTab : "lookup",
-    landingDone
+    SHOW_LEGACY_VERIFY_FUNNEL && landingDone ? contextTab : contextTab,
+    SHOW_LEGACY_VERIFY_FUNNEL && landingDone
       ? { inQuestions: true, questionDescription: "임대·매매 계약 전 검토부터 분쟁 발생 후 대응 검토까지" }
       : undefined
   );
 
   return (
-    <FunnelPageShell
-      engine="verify"
-      width={!landingDone ? "master" : "default"}
-    >
+    <FunnelPageShell engine="verify" width={showMasterFunnel ? "verify" : "default"}>
+        {showMasterFunnel ? (
+          <div
+            data-screen01-content
+            className={cn(
+              "mx-auto w-full max-w-[960px] -mx-4 px-4 lg:mx-auto lg:px-0",
+              "lg:[&_.grid.gap-3:has(>button)]:!grid-cols-1 lg:[&_.grid.gap-3:has(>button)]:!max-w-none lg:[&_.grid.gap-3:has(>button)>button]:!h-auto",
+            )}
+          >
+            <FunnelPageHeader
+              engine="verify"
+              hideHomeChrome
+              {...getVerifyFormFunnelHeaderAlignProps(
+                SHOW_LEGACY_VERIFY_FUNNEL && landingDone,
+                step,
+                skipSignup,
+              )}
+              title={
+                MASTER_LANDING_REAL_ESTATE.shortServiceLabel ?? MASTER_LANDING_REAL_ESTATE.serviceLabel
+              }
+              description="임대·매매 계약 전 검토부터 분쟁 발생 후 대응 검토까지"
+              descriptionMobile="제출 전·사후 검토를 먼저 확인합니다."
+              titleClassName="font-bold lg:text-[25px]"
+              verifyEyebrowClassName="font-normal"
+              descriptionClassName="mt-1.5 text-[13px] leading-relaxed text-slate-500"
+              className="mb-5 [&>div:last-child]:mt-0 lg:pl-[33px]"
+            />
+            <div>
+              {!restoreVerifyPending ? (
+              <MasterFunnelLanding
+                key={restoredLeadActive ? `restored-${leadId ?? "lead"}` : "fresh"}
+                config={MASTER_LANDING_REAL_ESTATE}
+                activeTab={contextTab}
+                onTabChange={setContextTab}
+                onContinue={(page1Answers) => void handleLandingContinue(page1Answers)}
+                verifyMasterSeedAnswers={verifyMasterSeedAnswers}
+                realEstateVerifyGate={{
+                  realEstateVerifySkipSignup: skipSignup,
+                  realEstateVerifySignupComplete: realEstateMasterSignupComplete,
+                  realEstateVerifyPhase1EvidenceComplete,
+                  realEstateVerifyMemberSubmitting: submitting,
+                  onRealEstateVerifyComplete: handleRealEstateVerifyComplete,
+                  onRealEstateVerifyPhase2EvidenceComplete: (answers, evidenceFile) =>
+                    void handleRealEstateVerifyPhase2EvidenceComplete(answers, evidenceFile),
+                  onRealEstateVerifyMetaPersist: (answers, phase) =>
+                    void handleRealEstateVerifyMetaPersist(answers, phase),
+                  onRealEstateVerifyAiReport: () => void handleAiReportRequest(),
+                  onRealEstateVerifyExpert: (answers) => void handleExpertRequest(answers),
+                  onRealEstateVerifyAiSummary: () => void handleFreeAiSummaryNavigate(),
+                  realEstateVerifyAiSummaryNavigating: aiSummaryNavigating,
+                  onRealEstateVerifyDirect: () => setContextTab("direct"),
+                  realEstateVerifyAiReportRequesting: aiReportRequesting,
+                  realEstateVerifyExpertRequesting: expertRequesting,
+                  realEstateVerifyAiReportError: aiReportError,
+                  realEstateVerifyExpertError: expertError,
+                  realEstateVerifyLeadCaptureSlot:
+                    !skipSignup && !realEstateMasterSignupComplete ? (
+                      <VerifyRealEstateLeadCapture
+                        riskLevel={previewDiagnosis?.expertBrief.riskLevel ?? "medium"}
+                        messengers={messengers}
+                        lang={lang}
+                        fieldErrors={fieldErrors}
+                        submitting={submitting || diagnosing}
+                        error={error}
+                        consentOpen={consentOpen}
+                        consentHighlight={consentHighlight}
+                        onConsentToggle={() => setConsentOpen((v) => !v)}
+                        onConsentChecked={() => setConsentHighlight(false)}
+                        onSubmit={handleSubmit}
+                        onReset={reset}
+                      />
+                    ) : null,
+                }}
+              />
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        {SHOW_LEGACY_VERIFY_FUNNEL && landingDone ? (
+          <>
         <FunnelPageHeader
           engine="verify"
           hideHomeChrome
-          title={
-            landingDone
-              ? pageHeader.title
-              : MASTER_LANDING_REAL_ESTATE.shortServiceLabel ?? MASTER_LANDING_REAL_ESTATE.serviceLabel
-          }
+          {...getVerifyFormFunnelHeaderAlignProps(landingDone, step, skipSignup)}
+          title={pageHeader.title}
           description={pageHeader.description}
-          descriptionMobile={
-            !landingDone ? "제출 전·사후 검토를 먼저 확인합니다." : undefined
-          }
         />
-
-        {!landingDone && (
-          <MasterFunnelLanding
-            config={MASTER_LANDING_REAL_ESTATE}
-            activeTab={contextTab}
-            onTabChange={setContextTab}
-            onContinue={(page1Answers) => void handleLandingContinue(page1Answers)}
-          />
-        )}
 
         {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
             검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
-        {landingDone && !restoreVerifyPending && step === "incident" && (
+        {!restoreVerifyPending && step === "incident" && (
           <div className="w-full">
-            {/* 질문 1 — Prevent Review / Case Review */}
+            {/* 질문 1 — Prevent Review / Case Review (Page 1에서 이미 받은 경우 생략) */}
             {!reviewStage && !page2FromPage1 && (
               <div className="mt-4 sm:mt-5">
                 <VerifyStepLayout
@@ -1706,7 +2028,7 @@ export default function VerifyRealEstatePage() {
         )}
 
         {/* STEP4: 개인정보 입력 — CHECK(TRC)의 PremiumLeadCapture와 동일한 구조 */}
-        {landingDone && step === "form" && !skipSignup && (
+        {step === "form" && !skipSignup && (
           <VerifyRealEstateLeadCapture
             riskLevel={previewDiagnosis?.expertBrief.riskLevel ?? "medium"}
             messengers={messengers}
@@ -1722,9 +2044,11 @@ export default function VerifyRealEstatePage() {
             onReset={reset}
           />
         )}
+          </>
+        ) : null}
 
         {/* STEP5: 진단 리포트 + 진행방식 선택 CTA 3개 — CHECK(TRC)와 동일한 구조 */}
-        {landingDone && step === "diagnosis" && diagnosis && (
+        {SHOW_LEGACY_VERIFY_FUNNEL && landingDone && step === "diagnosis" && diagnosis && (
           <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <VerifyDiagnosisHeader serviceName={VERIFY_QUESTION_CONTEXT} />
 
@@ -1742,7 +2066,7 @@ export default function VerifyRealEstatePage() {
               onAiReview={handleAiReportRequest}
               aiReportRequesting={aiReportRequesting}
               aiReportError={aiReportError}
-              onExpert={handleExpertRequest}
+              onExpert={() => void handleExpertRequest()}
               expertRequesting={expertRequesting}
               expertError={expertError}
               onDirect={() => setStep("guidanceSelect")}
@@ -1858,7 +2182,7 @@ export default function VerifyRealEstatePage() {
             <p className="mt-5 text-xs font-semibold text-gray-700">
               직접 진행이 부담되신다면 전문가에게 맡기실 수도 있습니다.
             </p>
-            <PrimaryButton onClick={handleExpertRequest} loading={expertRequesting} className="mt-3">
+            <PrimaryButton onClick={() => void handleExpertRequest()} loading={expertRequesting} className="mt-3">
               전문가 검토 진행하기
             </PrimaryButton>
             {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
