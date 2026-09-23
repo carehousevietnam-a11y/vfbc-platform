@@ -11,6 +11,7 @@ Ace가 CASE **LOCK**을 확정할 때, 아래를 **LOCK 조건**에 포함한다
 - [ ] **LOCK 결정 로그** — `docs/master/VFBCAI_CASE0X_LOCK_DECISION_LOG_v*.md` (검증 근거·핵심 결정·frozen scope)
 - [ ] **Lesson 반영 완료 (파일)** — 해당 CASE·cross-domain 교훈이 `.cursor/skills/vfbcai-master-development/SKILL.md` § **Verified Lessons — Admin Master**에 추가·갱신됨 (보조: `.cursor/rules/question-funnel-lessons.mdc`는 Canonical 아님)
 - [ ] **Lesson 반영 완료 (git)** — 위 Skill( 및 결정 로그·관련 `.cursor/rules` 변경)이 **`git commit`으로 저장소에 기록**됨 (`git log` / `git status`로 확인). untracked·working tree only = **LOCK 불완료**
+- [ ] **코드 변경분 git commit 완료** — 해당 CASE(및 연동 VERIFY 엔진·Result·API 등 **필수 의존 파일**)의 제품 코드 변경이 LOCK 시점에 **별도 또는 동봉된 `git commit`으로 추적**됨. 로컬에만 존재하고 `git log`에 없는 핵심 `src/**` = **LOCK 불완료** (거버넌스·문서만 커밋한 상태 금지)
 - [ ] **LESSON SYNC** — `05-vfbcai-ai-dev-team.mdc` LESSON → GOVERNANCE LOOP: 수정 + QA PASS 확인된 항목만 기록
 
 ## A. 설계 기준 비교 (v1.0 대비)
