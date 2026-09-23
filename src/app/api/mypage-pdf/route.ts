@@ -146,6 +146,164 @@ function asStringField(meta: Record<string, unknown> | null, key: string): strin
   return typeof v === "string" ? v : null;
 }
 
+const REAL_ESTATE_SITUATION_META_JSON_KEY = "real_estate_situation_profile_json";
+const REAL_ESTATE_PHASE2_ANSWERS_META_JSON_KEY = "real_estate_phase2_answers_json";
+const CASE_RESOLUTION_META_JSON_KEY = "case_resolution_json";
+const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
+
+type PdfActivityRow = { action: string | null; meta: unknown; created_at: string };
+
+function findLatestMetaString(activities: PdfActivityRow[], key: string): string | null {
+  for (let i = activities.length - 1; i >= 0; i -= 1) {
+    const raw = asStringField(asMeta(activities[i]?.meta), key);
+    if (raw?.trim()) return raw.trim();
+  }
+  return null;
+}
+
+function profileFieldValue(field: unknown): string | null {
+  if (!field || typeof field !== "object") return null;
+  const value = (field as { value?: unknown }).value;
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function buildVerifyMasterReportContent(
+  normalizedType: string,
+  activities: PdfActivityRow[],
+): {
+  execSummary: string[];
+  keyFindings: string[];
+  keyRisks: string[];
+  recommendedAction: string[];
+  riskCount: number;
+  reviewedCount: number;
+  satisfiedCount: number;
+} | null {
+  const typeKey = normalizedType.replace(/-/g, "_");
+
+  if (typeKey === "verify_real_estate") {
+    const profileRaw = findLatestMetaString(activities, REAL_ESTATE_SITUATION_META_JSON_KEY);
+    if (!profileRaw) return null;
+    try {
+      const profile = JSON.parse(profileRaw) as Record<string, unknown>;
+      const headline =
+        profileFieldValue(profile.risk) ??
+        profileFieldValue(profile.goal) ??
+        profileFieldValue(profile.claims) ??
+        "1차 종합 검토 결과";
+      const execSummary = [
+        `결론 · ${headline}`,
+        profileFieldValue(profile.documents)
+          ? `서류 · ${profileFieldValue(profile.documents)}`
+          : "서류 · 제출 정보 기준으로 1차 확인했습니다.",
+      ];
+      const keyFindings: string[] = ["■ 1차 확인 사항"];
+      for (const [label, key] of [
+        ["거래·물건", "property"],
+        ["확인 목적", "goal"],
+        ["핵심 사안", "claims"],
+        ["서류 상태", "documents"],
+        ["차이·문제", "facts"],
+      ] as const) {
+        const val = profileFieldValue(profile[key]);
+        if (val) keyFindings.push(`✓ ${label} · ${val}`);
+      }
+      const phase2Raw = findLatestMetaString(activities, REAL_ESTATE_PHASE2_ANSWERS_META_JSON_KEY);
+      if (phase2Raw && phase2Raw !== "{}") {
+        keyFindings.push("■ 2차 확인");
+        try {
+          const phase2 = JSON.parse(phase2Raw) as Record<string, string>;
+          for (const [key, value] of Object.entries(phase2).slice(0, 8)) {
+            if (value?.trim()) keyFindings.push(`✓ ${key} · ${value.trim()}`);
+          }
+        } catch {
+          /* ignore malformed phase2 */
+        }
+      }
+      const keyRisks = profileFieldValue(profile.risk)
+        ? [`[주의] ${profileFieldValue(profile.risk)}`]
+        : ["확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다."];
+      const recommendedAction = profileFieldValue(profile.goal)
+        ? [`① 다음 조치 · ${profileFieldValue(profile.goal)}`]
+        : ["① 다음 조치 · My Page에서 AI 리포트를 확인해 주세요."];
+      const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
+      return {
+        execSummary,
+        keyFindings,
+        keyRisks,
+        recommendedAction,
+        riskCount: keyRisks.length,
+        reviewedCount: keyFindings.length,
+        satisfiedCount,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeKey === "verify_admin") {
+    const profileRaw = findLatestMetaString(activities, CASE_RESOLUTION_META_JSON_KEY);
+    if (!profileRaw) return null;
+    try {
+      const profile = JSON.parse(profileRaw) as Record<string, unknown>;
+      const headline =
+        profileFieldValue(profile.goal) ??
+        profileFieldValue(profile.caseAnchor) ??
+        "1차 종합 검토 결과";
+      const execSummary = [
+        `결론 · ${headline}`,
+        profileFieldValue(profile.document)
+          ? `문서 · ${profileFieldValue(profile.document)}`
+          : "문서 · 제출 정보 기준으로 1차 확인했습니다.",
+      ];
+      const keyFindings: string[] = ["■ 1차 확인 사항"];
+      for (const [label, key] of [
+        ["사건 앵커", "caseAnchor"],
+        ["관련 기관", "authority"],
+        ["문서", "document"],
+        ["확인 목적", "goal"],
+        ["현재 단계", "currentStage"],
+      ] as const) {
+        const val = profileFieldValue(profile[key]);
+        if (val) keyFindings.push(`✓ ${label} · ${val}`);
+      }
+      const answersRaw = findLatestMetaString(activities, ADMIN_VERIFY_ANSWERS_META_JSON_KEY);
+      if (answersRaw && answersRaw !== "{}") {
+        keyFindings.push("■ 2차 확인");
+        try {
+          const phase2 = JSON.parse(answersRaw) as Record<string, string>;
+          for (const [key, value] of Object.entries(phase2).slice(0, 8)) {
+            if (value?.trim()) keyFindings.push(`✓ ${key} · ${value.trim()}`);
+          }
+        } catch {
+          /* ignore malformed answers */
+        }
+      }
+      const keyRisks =
+        Array.isArray(profile.riskSignals) && profile.riskSignals.length > 0
+          ? (profile.riskSignals as string[]).slice(0, 3).map((r) => `[주의] ${r}`)
+          : ["확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다."];
+      const recommendedAction = profileFieldValue(profile.goal)
+        ? [`① 다음 조치 · ${profileFieldValue(profile.goal)}`]
+        : ["① 다음 조치 · My Page에서 AI 리포트를 확인해 주세요."];
+      const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
+      return {
+        execSummary,
+        keyFindings,
+        keyRisks,
+        recommendedAction,
+        riskCount: keyRisks.length,
+        reviewedCount: keyFindings.length,
+        satisfiedCount,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
 function formatDateDot(iso: string) {
   const d = new Date(iso);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
@@ -730,7 +888,17 @@ export async function POST(req: NextRequest) {
       requiredDocsCount = requiredDocs.documents.length;
       requiredDocsList = requiredDocs.documents;
 
-      if (verifyCategory) {
+      const masterContent = buildVerifyMasterReportContent(normalizedType, activities);
+      if (masterContent) {
+        execSummary = masterContent.execSummary;
+        keyFindings = masterContent.keyFindings;
+        keyRisks = masterContent.keyRisks;
+        recommendedAction = masterContent.recommendedAction;
+        riskCount = masterContent.riskCount;
+        reviewedCount = masterContent.reviewedCount;
+        satisfiedCount = masterContent.satisfiedCount;
+        cautionLines = buildCautionLinesFromRiskFactors([]);
+      } else if (verifyCategory) {
         const incidentType = asStringField(diagMeta, "incident_type") ?? undefined;
         const incidentDescription = asStringField(diagMeta, "incident_description") ?? undefined;
         const fileUrl =

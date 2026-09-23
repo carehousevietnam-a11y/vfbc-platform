@@ -156,7 +156,8 @@ function buildStageInfo(
   hasExpertReview: boolean,
   hasAgency: boolean,
   hasGovernmentSubmitted: boolean,
-  hasPermitCompleted: boolean
+  hasPermitCompleted: boolean,
+  hasAiReportRequest = false,
 ): StageInfo {
   if (category === "verify") {
     const raw = [true, hasDiagnosis, hasExpertReview, false];
@@ -168,14 +169,15 @@ function buildStageInfo(
       { label: "전문가 안내 대기", done: done[3] },
     ];
     const doneCount = done.filter(Boolean).length;
-    // 화면(StepProgress)의 "현재 단계" 표시는 '첫 번째 미완료 단계'를 기준으로
-    // 하이라이트한다(마지막 완료 단계가 아님). currentStepLabel도 동일한 기준으로
-    // 맞춰야 카드 상단 텍스트와 진행단계 그래프가 서로 다른 단계를 가리키지 않는다.
     const idx = Math.min(doneCount, steps.length - 1);
+    let currentStepLabel = steps[idx]?.label ?? steps[0].label;
+    if (hasAiReportRequest && !hasExpertReview && done[1] && !done[2]) {
+      currentStepLabel = "AI 리포트 확인";
+    }
     return {
       steps,
       progressPercent: Math.round((doneCount / steps.length) * 100),
-      currentStepLabel: steps[idx]?.label ?? steps[0].label,
+      currentStepLabel,
     };
   }
   if (category === "consultation") {
@@ -210,6 +212,95 @@ function buildStageInfo(
     steps,
     progressPercent: SIX_STEP_PERCENTS[doneCount - 1] ?? SIX_STEP_PERCENTS[0],
     currentStepLabel: steps[idx]?.label ?? steps[0].label,
+  };
+}
+
+const REAL_ESTATE_SITUATION_META_JSON_KEY = "real_estate_situation_profile_json";
+const REAL_ESTATE_PHASE2_ANSWERS_META_JSON_KEY = "real_estate_phase2_answers_json";
+const REAL_ESTATE_VERIFY_PROFILE_PHASE_META_KEY = "real_estate_verify_profile_phase";
+const CASE_RESOLUTION_META_JSON_KEY = "case_resolution_json";
+const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
+
+function findLatestMetaString(activities: ActivityRow[], key: string): string | null {
+  for (let i = activities.length - 1; i >= 0; i -= 1) {
+    const raw = asMeta(activities[i]?.meta)?.[key];
+    if (typeof raw === "string" && raw.trim()) return raw.trim();
+  }
+  return null;
+}
+
+function profileFieldValue(field: unknown): string | null {
+  if (!field || typeof field !== "object") return null;
+  const value = (field as { value?: unknown }).value;
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function extractVerifyCaseSummary(
+  normalizedType: string | null,
+  leadActivities: ActivityRow[],
+): {
+  verifyProfilePhase?: 1 | 2;
+  caseSummaryHeadline?: string | null;
+  caseSummaryBullets?: string[];
+} {
+  if (!normalizedType || getCategory(normalizedType) !== "verify") return {};
+
+  const typeKey = normalizedType.replace(/-/g, "_");
+  let verifyProfilePhase: 1 | 2 | undefined;
+  let caseSummaryHeadline: string | null = null;
+  const caseSummaryBullets: string[] = [];
+
+  if (typeKey === "verify_real_estate") {
+    for (let i = leadActivities.length - 1; i >= 0; i -= 1) {
+      const meta = asMeta(leadActivities[i]?.meta);
+      if (!meta) continue;
+      if (meta[REAL_ESTATE_VERIFY_PROFILE_PHASE_META_KEY] === "2") verifyProfilePhase = 2;
+      const phase2 = meta[REAL_ESTATE_PHASE2_ANSWERS_META_JSON_KEY];
+      if (typeof phase2 === "string" && phase2.trim() && phase2.trim() !== "{}") {
+        verifyProfilePhase = 2;
+      }
+    }
+    const profileRaw = findLatestMetaString(leadActivities, REAL_ESTATE_SITUATION_META_JSON_KEY);
+    if (profileRaw) {
+      try {
+        const profile = JSON.parse(profileRaw) as Record<string, unknown>;
+        caseSummaryHeadline =
+          profileFieldValue(profile.risk) ??
+          profileFieldValue(profile.goal) ??
+          profileFieldValue(profile.claims);
+        for (const key of ["property", "goal", "documents"] as const) {
+          const val = profileFieldValue(profile[key]);
+          if (val) caseSummaryBullets.push(val);
+        }
+      } catch {
+        /* ignore malformed profile */
+      }
+    }
+  } else if (typeKey === "verify_admin") {
+    const answersRaw = findLatestMetaString(leadActivities, ADMIN_VERIFY_ANSWERS_META_JSON_KEY);
+    if (answersRaw && answersRaw !== "{}") verifyProfilePhase = 2;
+    const profileRaw = findLatestMetaString(leadActivities, CASE_RESOLUTION_META_JSON_KEY);
+    if (profileRaw) {
+      try {
+        const profile = JSON.parse(profileRaw) as Record<string, unknown>;
+        caseSummaryHeadline =
+          profileFieldValue(profile.goal) ?? profileFieldValue(profile.caseAnchor);
+        for (const key of ["caseAnchor", "document", "goal"] as const) {
+          const val = profileFieldValue(profile[key]);
+          if (val) caseSummaryBullets.push(val);
+        }
+      } catch {
+        /* ignore malformed profile */
+      }
+    }
+  }
+
+  return {
+    ...(verifyProfilePhase ? { verifyProfilePhase } : {}),
+    ...(caseSummaryHeadline ? { caseSummaryHeadline } : {}),
+    ...(caseSummaryBullets.length > 0
+      ? { caseSummaryBullets: caseSummaryBullets.slice(0, 3) }
+      : {}),
   };
 }
 
@@ -389,13 +480,17 @@ export async function POST(req: NextRequest) {
         leadActivities.map((a) => a.action).filter((a): a is string => Boolean(a))
       );
 
+      const hasAiReportRequest = actions.has("ai_report_request");
+      const caseSummary = extractVerifyCaseSummary(normalizedType, leadActivities);
+
       const stage = buildStageInfo(
         category,
         hasDiagnosis,
         hasExpertReview,
         hasAgency,
         hasGovernmentSubmitted,
-        hasPermitCompleted
+        hasPermitCompleted,
+        hasAiReportRequest,
       );
 
       // ── STEP2: 고객 타임라인 ──
@@ -446,6 +541,8 @@ export async function POST(req: NextRequest) {
         permitFileName,
         publicNotes,
         createdAt: lead.created_at,
+        hasAiReportRequest,
+        ...caseSummary,
       };
       })
     );

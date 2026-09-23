@@ -123,6 +123,10 @@ type MyPageItem = {
   permitFileName: string | null;
   publicNotes: PublicNote[];
   createdAt: string;
+  hasAiReportRequest?: boolean;
+  verifyProfilePhase?: 1 | 2;
+  caseSummaryHeadline?: string | null;
+  caseSummaryBullets?: string[];
 };
 
 type LoadState = "checking" | "signed-out" | "loading" | "ready" | "error";
@@ -435,14 +439,19 @@ function ProgressRing({ value }: { value: number }) {
 function GeneralCustomerResultView({
   item,
   rootId,
+  applicantName,
 }: {
   item: MyPageItem;
   rootId?: string;
+  applicantName?: string | null;
 }) {
   const badge = CATEGORY_BADGE[item.category];
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
   const analysisStatus = getAiAnalysisStatus(item);
-  const keyPoints = getAiKeyPoints(item);
+  const keyPoints =
+    item.caseSummaryBullets && item.caseSummaryBullets.length > 0
+      ? item.caseSummaryBullets
+      : getAiKeyPoints(item);
   const nextAction = getAiNextAction(item);
 
   const resultTone =
@@ -475,7 +484,7 @@ function GeneralCustomerResultView({
       </div>
 
       <h2 className="mt-2.5 break-keep text-[20px] font-bold tracking-[-0.03em] text-slate-950 sm:text-[23px]">
-        {item.serviceLabel}
+        {item.caseSummaryHeadline ?? item.serviceLabel}
       </h2>
       <p className="mt-0.5 text-[11px] text-slate-400">
         {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
@@ -506,7 +515,12 @@ function GeneralCustomerResultView({
           <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
         </div>
         <div className="mt-3 shrink-0 sm:mt-0">
-          <PdfDownloadButton leadId={item.id} variant="refined" />
+          <PdfDownloadButton
+            leadId={item.id}
+            serviceLabel={item.serviceLabel}
+            applicantName={applicantName}
+            variant="refined"
+          />
         </div>
       </div>
     </section>
@@ -846,11 +860,31 @@ function StepProgress({ stage }: { stage: StageInfo }) {
   );
 }
 
+function buildMypagePdfDownloadFilename(
+  serviceLabel: string | undefined,
+  applicantName: string | null | undefined,
+  leadId: string
+): string {
+  const fallback = `vfbcai-report-${leadId.slice(0, 8)}.pdf`;
+  const trimmedName = typeof applicantName === "string" ? applicantName.trim() : "";
+  if (!trimmedName) return fallback;
+
+  const trimmedLabel = typeof serviceLabel === "string" ? serviceLabel.trim() : "";
+  const itemLabel = trimmedLabel.replace(/ 검토$/, "");
+  if (!itemLabel) return fallback;
+
+  return `${itemLabel} ${trimmedName}.pdf`;
+}
+
 function PdfDownloadButton({
   leadId,
+  serviceLabel,
+  applicantName,
   variant = "default",
 }: {
   leadId: string;
+  serviceLabel?: string;
+  applicantName?: string | null;
   variant?: "default" | "refined";
 }) {
   const [loading, setLoading] = useState(false);
@@ -884,7 +918,7 @@ function PdfDownloadButton({
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `vfbcai-report-${leadId.slice(0, 8)}.pdf`;
+      anchor.download = buildMypagePdfDownloadFilename(serviceLabel, applicantName, leadId);
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -939,7 +973,13 @@ function PdfDownloadButton({
   );
 }
 
-function AiResultCard({ item }: { item: MyPageItem }) {
+function AiResultCard({
+  item,
+  applicantName,
+}: {
+  item: MyPageItem;
+  applicantName?: string | null;
+}) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
 
   return (
@@ -983,7 +1023,11 @@ function AiResultCard({ item }: { item: MyPageItem }) {
       </div>
 
       <div className="mt-4">
-        <PdfDownloadButton leadId={item.id} />
+        <PdfDownloadButton
+          leadId={item.id}
+          serviceLabel={item.serviceLabel}
+          applicantName={applicantName}
+        />
       </div>
     </section>
   );
@@ -3875,7 +3919,11 @@ function Dashboard({
     return (
       <>
         <div className="space-y-4">
-          <GeneralCustomerResultView item={activeItem} rootId="applications" />
+          <GeneralCustomerResultView
+            item={activeItem}
+            rootId="applications"
+            applicantName={name}
+          />
         </div>
 
         <div className="mt-4 space-y-3 xl:hidden">
@@ -3921,7 +3969,7 @@ function Dashboard({
           <StepProgress stage={activeItem.stage} />
 
           <div className="grid gap-5 lg:grid-cols-2">
-            <AiResultCard item={activeItem} />
+            <AiResultCard item={activeItem} applicantName={name} />
             <CurrentStatusCard item={activeItem} />
           </div>
 
