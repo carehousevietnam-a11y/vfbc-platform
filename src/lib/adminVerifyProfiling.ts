@@ -4955,7 +4955,6 @@ function classifyFromCase04Answers(answers: ReviewAnswers): {
 
 export const CASE05_ANSWER_KEYS = [
   ...CASE05_PHASE1_FIELD_ORDER,
-  "case05_dispositionSource",
   "case05_dispositionReason",
   "case05_factRelationship",
   "case05_authorityFollowUp",
@@ -4966,7 +4965,6 @@ export const CASE05_ANSWER_KEYS = [
   "case05_appealDetail",
   "case05_dispositionOutcome",
   "case05_repeatFollowUp",
-  "case05_actualCore",
   "case05_blockage",
   "case05_evidence",
   "case05_finalGoal",
@@ -4975,7 +4973,6 @@ export const CASE05_ANSWER_KEYS = [
 export type DispositionSignalCode =
   | "DISPOSITION_TYPE_UNCLEAR"
   | "DISPOSITION_REASON_UNCLEAR"
-  | "DISPOSITION_AUTHORITY_UNCLEAR"
   | "FACT_MISMATCH_PARTIAL"
   | "FACT_MISMATCH"
   | "FACT_UNVERIFIED"
@@ -4986,7 +4983,6 @@ export type DispositionSignalCode =
 const DISPOSITION_SIGNAL_LABELS: Record<DispositionSignalCode, string> = {
   DISPOSITION_TYPE_UNCLEAR: "처분·조치 내용 확인이 필요합니다",
   DISPOSITION_REASON_UNCLEAR: "처분 사유 확인이 필요합니다",
-  DISPOSITION_AUTHORITY_UNCLEAR: "처분 기관·출처 확인이 필요합니다",
   FACT_MISMATCH_PARTIAL: "처분 내용과 실제 상황이 일부 다를 수 있음 — 확인 필요",
   FACT_MISMATCH: "처분 내용과 실제 상황이 다를 수 있음 — 확인 필요",
   FACT_UNVERIFIED: "처분 후 기관 반응이 불명확합니다",
@@ -5079,18 +5075,6 @@ const CASE05_CONFIRM_GOAL_OPTIONS = [
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
-const CASE05_DISPOSITION_SOURCE_OPTIONS = [
-  { value: "immigration", label: "출입국·외국인등록·거주 관련 기관" },
-  { value: "traffic", label: "교통국·경찰·지자체 등 교통·운전 관련 기관" },
-  { value: "tax", label: "국세청·지자체 등 세무·조세 관련 기관" },
-  { value: "local_admin", label: "시·군·구 등 지방 행정기관" },
-  { value: "police", label: "경찰·검찰·수사 관련 기관" },
-  { value: "public_agency", label: "위에 없는 다른 정부·공공기관" },
-  { value: "business_agency", label: "회사·사업장·거래 관련 기관·담당자" },
-  { value: "personal_delivery", label: "우편·대리인·개인 전달 등으로 받았습니다" },
-  { value: "unsure", label: "처분 통지가 어디서 왔는지 모르겠습니다" },
-];
-
 const CASE05_DISPOSITION_REASON_OPTIONS = [
   { value: "violation_claimed", label: "특정 위반·규정 위반이 이유로 적혀 있습니다" },
   { value: "document_issue", label: "제출 서류·신청 정보의 문제가 이유로 적혀 있습니다" },
@@ -5179,16 +5163,6 @@ const CASE05_REPEAT_FOLLOWUP_OPTIONS = [
     value: "not_applicable",
     label: "아직 추가 대응이 반복되었다고 느끼지 않습니다.",
   },
-];
-
-const CASE05_ACTUAL_CORE_OPTIONS = [
-  { value: "disposition", label: "처분·조치 자체가 핵심입니다" },
-  { value: "payment", label: "납부가 현재 핵심입니다" },
-  { value: "attendance", label: "출석·소명이 현재 핵심입니다" },
-  { value: "supplement", label: "보완·추가 제출이 현재 핵심입니다" },
-  { value: "violation_notice", label: "위반·문제 통지가 현재 핵심입니다" },
-  { value: "unclear", label: "처분 문서 내용이 불명확합니다" },
-  { value: "unsure", label: "지금 해결해야 하는 핵심이 무엇인지 정확히 파악하지 못했습니다." },
 ];
 
 const CASE05_DEADLINE_OPTIONS = [
@@ -5307,14 +5281,12 @@ export const CASE05_OPTION_LABELS: Record<string, string> = {
   past_possible: "이미 기한이 지났을 가능성이 있어 보입니다.",
   ...Object.fromEntries(CASE05_DISPOSITION_TYPE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_CONFIRM_GOAL_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE05_DISPOSITION_SOURCE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_DISPOSITION_REASON_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_FACT_RELATIONSHIP_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_CUSTOMER_RESPONSE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_AUTHORITY_FOLLOWUP_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_DISPOSITION_OUTCOME_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_REPEAT_FOLLOWUP_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE05_ACTUAL_CORE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_DEADLINE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_BLOCKAGE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
@@ -5331,14 +5303,12 @@ const CASE05_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> =
 const CASE05_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
   case05_dispositionType: CASE05_DISPOSITION_TYPE_OPTIONS,
   case05_confirmGoal: CASE05_CONFIRM_GOAL_OPTIONS,
-  case05_dispositionSource: CASE05_DISPOSITION_SOURCE_OPTIONS,
   case05_dispositionReason: CASE05_DISPOSITION_REASON_OPTIONS,
   case05_factRelationship: CASE05_FACT_RELATIONSHIP_OPTIONS,
   case05_customerResponse: CASE05_CUSTOMER_RESPONSE_OPTIONS,
   case05_authorityFollowUp: CASE05_AUTHORITY_FOLLOWUP_OPTIONS,
   case05_dispositionOutcome: CASE05_DISPOSITION_OUTCOME_OPTIONS,
   case05_repeatFollowUp: CASE05_REPEAT_FOLLOWUP_OPTIONS,
-  case05_actualCore: CASE05_ACTUAL_CORE_OPTIONS,
   case05_deadline: CASE05_DEADLINE_OPTIONS,
   case05_blockage: CASE05_BLOCKAGE_OPTIONS,
   case05_evidence: CASE05_EVIDENCE_OPTIONS,
@@ -5524,10 +5494,6 @@ function case05NeedsRepeatFollowUp(answers: ReviewAnswers): boolean {
   const followUp = answers.case05_authorityFollowUp;
   if (!followUp) return false;
   return CASE05_REPEAT_FOLLOWUP_VALUES.has(followUp) || followUp === "under_review";
-}
-
-function case05NeedsActualCore(_answers: ReviewAnswers): boolean {
-  return false;
 }
 
 function case05NeedsBlockage(answers: ReviewAnswers): boolean {
@@ -5967,9 +5933,6 @@ function deriveDispositionSignals(answers: ReviewAnswers): DispositionSignalCode
   ) {
     signals.push("DISPOSITION_REASON_UNCLEAR");
   }
-  if (answers.case05_dispositionSource === "unsure") {
-    signals.push("DISPOSITION_AUTHORITY_UNCLEAR");
-  }
   if (answers.case05_factRelationship === "partial") {
     signals.push("FACT_MISMATCH_PARTIAL");
   }
@@ -6045,19 +6008,9 @@ function classifyFromCase05Answers(answers: ReviewAnswers): {
 } | null {
   if (!shouldActivateCase05Path(answers) && !answers.case05_dispositionType) return null;
 
-  const core = answers.case05_actualCore;
   const followUp = answers.case05_authorityFollowUp;
 
-  if (core === "disposition") {
-    return {
-      id: "CASE_05",
-      status: answers.case05_dispositionReason ? "inferred" : "candidate",
-      confidence: answers.case05_dispositionReason ? 0.75 : 0.5,
-      reason: "처분·조치 통지 사건 경로",
-    };
-  }
-
-  if (core === "payment" || followUp === "payment_demand") {
+  if (followUp === "payment_demand") {
     return {
       id: "CASE_02",
       status: "inferred",
@@ -6065,7 +6018,7 @@ function classifyFromCase05Answers(answers: ReviewAnswers): {
       reason: "현재 해결 중심이 납부 요구로 확인됨",
     };
   }
-  if (core === "attendance" || followUp === "attendance_explanation") {
+  if (followUp === "attendance_explanation") {
     return {
       id: "CASE_03",
       status: "inferred",
@@ -6073,7 +6026,7 @@ function classifyFromCase05Answers(answers: ReviewAnswers): {
       reason: "현재 해결 중심이 출석·소명으로 확인됨",
     };
   }
-  if (core === "supplement" || followUp === "more_docs") {
+  if (followUp === "more_docs") {
     return {
       id: "CASE_04",
       status: "inferred",
@@ -6081,19 +6034,8 @@ function classifyFromCase05Answers(answers: ReviewAnswers): {
       reason: "현재 해결 중심이 보완·추가 제출로 확인됨",
     };
   }
-  if (core === "violation_notice") {
-    return {
-      id: "CASE_01",
-      status: "inferred",
-      confidence: 0.75,
-      reason: "현재 해결 중심이 위반·문제 통지로 확인됨",
-    };
-  }
-  if (
-    core === "unclear" ||
-    core === "unsure" ||
-    (answers.case05_dispositionType === "unclear" && !core)
-  ) {
+  // Legacy slug only. Canonical disposition_unclear stays on CASE_05.
+  if (answers.case05_dispositionType === "unclear") {
     return {
       id: "CASE_06",
       status: "inferred",
@@ -8320,8 +8262,6 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
   const authority = fact(
     answers.case06_exactSource
       ? getCase06FieldOptionLabel("case06_exactSource", answers.case06_exactSource)
-      : answers.case05_dispositionSource
-      ? getCase05FieldOptionLabel("case05_dispositionSource", answers.case05_dispositionSource)
       : answers.case02_demandAuthority
         ? getCase02FieldLabelFromAnswers("case02_demandAuthority", answers)?.label ??
           getCase02FieldOptionLabel("case02_demandAuthority", answers.case02_demandAuthority)
@@ -8331,7 +8271,6 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
             ? getCase06FieldOptionLabel("profileDocumentSource", answers.profileDocumentSource)
             : null,
     answers.case06_exactSource ||
-      answers.case05_dispositionSource ||
       answers.case02_demandAuthority ||
       case01TrafficNotice ||
       answers.profileDocumentSource
@@ -8341,8 +8280,6 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       : "unknown",
     answers.case06_exactSource
       ? "case06_exactSource"
-      : answers.case05_dispositionSource
-      ? "case05_dispositionSource"
       : answers.case02_demandAuthority
         ? "case02_demandAuthority"
         : case01TrafficNotice
@@ -9253,8 +9190,7 @@ const CASE05_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank
   { id: "case05_deadline", focus: "deadline", rank: 4, reason: "처분 관련 기한" },
   { id: "case05_factRelationship", focus: "actualSituation", rank: 5, reason: "실제 상황과 처분 내용 관계" },
   { id: "case05_dispositionReason", focus: "authorityReason", rank: 6, reason: "처분 사유" },
-  { id: "case05_dispositionSource", focus: "authorityClaim", rank: 7, reason: "처분 기관" },
-  { id: "case05_authorityFollowUp", focus: "authorityResponse", rank: 8, reason: "기관 후속 반응" },
+  { id: "case05_authorityFollowUp", focus: "authorityResponse", rank: 7, reason: "기관 후속 반응" },
   { id: "case05_dispositionDetail", focus: "authorityClaim", rank: 8, reason: "처분 문구 확인" },
   { id: "case05_factDetail", focus: "actualSituation", rank: 9, reason: "실제 사건 확인" },
   { id: "case05_explanationDetail", focus: "customerAction", rank: 10, reason: "소명 내용" },
@@ -9262,10 +9198,9 @@ const CASE05_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank
   { id: "case05_appealDetail", focus: "customerAction", rank: 12, reason: "이의·재검토" },
   { id: "case05_dispositionOutcome", focus: "authorityResponse", rank: 13, reason: "처분 후속 결과" },
   { id: "case05_repeatFollowUp", focus: "authorityResponse", rank: 14, reason: "반복 대응" },
-  { id: "case05_actualCore", focus: "caseClassification", rank: 15, reason: "사건 재분류" },
-  { id: "case05_blockage", focus: "currentBlockage", rank: 16, reason: "막힌 지점" },
-  { id: "case05_evidence", focus: "evidence", rank: 17, reason: "증빙" },
-  { id: "case05_finalGoal", focus: "goal", rank: 18, reason: "목표" },
+  { id: "case05_blockage", focus: "currentBlockage", rank: 15, reason: "막힌 지점" },
+  { id: "case05_evidence", focus: "evidence", rank: 16, reason: "증빙" },
+  { id: "case05_finalGoal", focus: "goal", rank: 17, reason: "목표" },
 ];
 
 const CASE01_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank: number; reason: string }[] = [
@@ -9517,7 +9452,6 @@ function selectCase05ResolutionFocus(answers: ReviewAnswers): CaseResolutionQues
     if (item.id === "case05_appealDetail" && !case05NeedsAppealDetail(answers)) continue;
     if (item.id === "case05_dispositionOutcome" && !case05NeedsDispositionOutcome(answers)) continue;
     if (item.id === "case05_repeatFollowUp" && !case05NeedsRepeatFollowUp(answers)) continue;
-    if (item.id === "case05_actualCore" && !case05NeedsActualCore(answers)) continue;
     if (item.id === "case05_blockage" && !case05NeedsBlockage(answers)) continue;
     if (item.id === "case05_evidence" && !case05NeedsEvidence(answers)) continue;
     if (item.id === "case05_finalGoal" && !case05NeedsFinalGoal(answers)) continue;
@@ -9927,6 +9861,9 @@ export function restoreAdminProfilingAnswersFromMeta(
       parsed[ADMIN_PHASE2_EVIDENCE_FILE_NAME_ANSWERS_KEY] = phase2FileName;
     }
   }
+
+  delete parsed.case05_actualCore;
+  delete parsed.case05_dispositionSource;
 
   if (Object.keys(parsed).length === 0) return null;
 
@@ -10809,7 +10746,6 @@ export function runCase05QaScenario(
 
   const case05Base = {
     case05_confirmGoal: "understand_reason",
-    case05_dispositionSource: "immigration",
     case05_dispositionReason: "violation_claimed",
     case05_factRelationship: "match",
     case05_customerResponse: "none",
@@ -10831,7 +10767,6 @@ export function runCase05QaScenario(
       [CASE_CUSTOMER_INPUT_KEY]: "기관에서 업무정지 처분을 받았습니다",
       ...case05Base,
       case05_dispositionType: "business_suspended",
-      case05_dispositionSource: "business_agency",
     },
     C: {
       ...base,
@@ -10850,7 +10785,6 @@ export function runCase05QaScenario(
       case05_authorityFollowUp: "maintained",
       case05_dispositionOutcome: "maintained",
       case05_repeatFollowUp: "maintained_again",
-      case05_actualCore: "disposition",
       case05_blockage: "next_action",
     },
     E: {
@@ -10862,7 +10796,6 @@ export function runCase05QaScenario(
       case05_authorityFollowUp: "payment_demand",
       case05_dispositionOutcome: "more_docs_required",
       case05_repeatFollowUp: "not_applicable",
-      case05_actualCore: "payment",
       case05_blockage: "what_to_do",
     },
     F: {
@@ -10874,7 +10807,6 @@ export function runCase05QaScenario(
       case05_authorityFollowUp: "attendance_explanation",
       case05_dispositionOutcome: "no_result",
       case05_repeatFollowUp: "not_applicable",
-      case05_actualCore: "attendance",
       case05_blockage: "appeal_method",
     },
     G: {
@@ -10886,7 +10818,6 @@ export function runCase05QaScenario(
       case05_authorityFollowUp: "more_docs",
       case05_dispositionOutcome: "more_docs_required",
       case05_repeatFollowUp: "not_applicable",
-      case05_actualCore: "supplement",
       case05_blockage: "evidence",
       case05_evidence: "submitted_docs",
     },
@@ -10897,7 +10828,6 @@ export function runCase05QaScenario(
       case05_dispositionType: "unclear",
       case05_dispositionReason: "no_clear_reason",
       case05_factRelationship: "hard_to_judge",
-      case05_actualCore: "unclear",
       case05_blockage: "what_disposition",
       case05_evidence: "none",
       case05_finalGoal: "what_disposition",

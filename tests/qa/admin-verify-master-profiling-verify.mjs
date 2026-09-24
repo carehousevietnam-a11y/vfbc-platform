@@ -141,7 +141,6 @@ function case05ScenarioAnswers(variant) {
     [ADMIN_CASE_ENTRY_Q1_KEY]: "disposition_notice",
     [CUSTOMER_KEY]: "출입국에서 허가가 취소되었다는 처분 통지를 받았습니다",
     case05_confirmGoal: "understand_reason",
-    case05_dispositionSource: "immigration",
     case05_dispositionReason: "violation_claimed",
     case05_factRelationship: "match",
     case05_customerResponse: "none",

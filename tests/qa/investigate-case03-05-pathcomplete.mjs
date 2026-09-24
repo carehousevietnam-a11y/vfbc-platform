@@ -99,7 +99,6 @@ const case05A = {
   stage: "case",
   caseCustomerInput: "출입국에서 허가가 취소되었다는 처분 통지를 받았습니다",
   case05_confirmGoal: "understand_reason",
-  case05_dispositionSource: "immigration",
   case05_dispositionReason: "violation_claimed",
   case05_factRelationship: "match",
   case05_customerResponse: "none",
