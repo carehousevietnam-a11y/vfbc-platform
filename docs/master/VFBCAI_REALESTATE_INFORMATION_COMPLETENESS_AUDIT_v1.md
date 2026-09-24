@@ -279,7 +279,7 @@ Admin CASE_03/04/05/06 `specific_date` / `exact_*` **동종**: choice는 했는�
 
 ### 8.3 권장 후속 (구현 없음)
 
-1. **RE Phase2 리메디 STEP2-0** — CASE_06 유형: GAP-RE-DL-01~08 우선순위·RE-native text 키·`needs*`·result 문장 (Admin deadline 체인 **복사 금지**, §11.2).  
+1. **완료 (설계):** `VFBCAI_REALESTATE_PHASE2_REMEDIATION_STEP2-0_v1.md` — GAP-RE-DL-01~11, DQ-RE-R01~R06. STEP2-1 PASS 후 Brief LOCK → 구현.  
 2. STEP2-1 PASS 후 **본 문서 v1.1** 또는 재감사 — 경로별 실질 축 표·비율 **VERIFIER 확정**.  
 3. DQ-RE-08 — `buildActions` goal 반영; ②·④와 별도.  
 
