@@ -512,13 +512,9 @@
       "note": "A=Panel in MasterReviewQuotationReport; B=standalone /documents upload UX not at this step"
     },
     "personalized": true,
-    "documentsAi": "http://localhost:3010/documents?leadId=2a971018-ef9d-4db3-a51c-8f950c073758&service=verify_admin&mode=ai_report",
+    "documentsAi": "http://localhost:3010/documents?leadId=6604d234-87a1-4f88-b585-774130d36067&service=verify_admin&mode=ai_report",
     "documentsExpert": null,
     "consoleSnippet": [
-      "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 1878ms",
-      "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 492ms",
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
     "reclassificationHistory": [
@@ -640,7 +636,7 @@
     "regressionPass": true
   },
   "J_documents_expert_desktop": {
-    "documentsExpert": "http://localhost:3010/documents?leadId=72154b99-b798-4062-b7e7-fa79d9bbd5b8&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=706952d2-1b6b-4933-a3f7-d1eeae315587&service=verify_admin&mode=expert",
     "personalized": true,
     "regressionIds": [
       "case03_factRelationship",
@@ -10134,7 +10130,7 @@
     },
     "personalized": true,
     "documentsAi": null,
-    "documentsExpert": "http://localhost:3010/documents?leadId=a2b25ab1-7ffb-47f3-a3f2-0bd4c8d9bb71&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=681c261f-b331-420a-8450-de71ad812117&service=verify_admin&mode=expert",
     "consoleSnippet": [
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
@@ -10263,11 +10259,11 @@
     "r04ReasonGate": true,
     "substantiveCatalogGte10": true,
     "periodStatedSignal": true,
-    "factDetailSignalsDiffer": false,
-    "pass": false
+    "factDetailSignalsDiffer": true,
+    "pass": true
   },
   "LOCK_READINESS": {
-    "generatedAt": "2026-09-24T16:48:41.625Z",
+    "generatedAt": "2026-09-24T17:05:05.614Z",
     "coreCases": {
       "CASE_01": {
         "present": true,
