@@ -189,7 +189,7 @@ const SCENARIOS = {
       situation: "received_document",
       stage: "case",
       case03_authorityDemand: "specific_incident",
-      case03_confirmGoal: "understand_agency_intent",
+      case03_confirmGoal: "prepare_materials",
       case03_customerResponse: "attendance",
       case03_deadline: "uncertain",
     },

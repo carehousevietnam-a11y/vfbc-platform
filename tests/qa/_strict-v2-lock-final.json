@@ -16,17 +16,17 @@
         "labelMatch": true,
         "pick": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
         "progress": [
-          "02 / 05"
+          "02 / 06"
         ]
       },
       {
-        "id": "case03_confirmGoal",
+        "id": "case03_inquiryFocus",
         "browserLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
         "engineLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
         "labelMatch": true,
-        "pick": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "pick": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
         "progress": [
-          "03 / 05"
+          "03 / 06"
         ]
       },
       {
@@ -36,7 +36,17 @@
         "labelMatch": true,
         "pick": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
         "progress": [
-          "04 / 05"
+          "04 / 06"
+        ]
+      },
+      {
+        "id": "case03_confirmGoal",
+        "browserLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "engineLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "labelMatch": true,
+        "pick": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "progress": [
+          "05 / 06"
         ]
       },
       {
@@ -46,7 +56,7 @@
         "labelMatch": true,
         "pick": "기한이 있다는 것은 알지만 정확한 날짜는 아직 확인하지 못했습니다.",
         "progress": [
-          "05 / 05"
+          "06 / 06"
         ]
       }
     ],
@@ -103,8 +113,8 @@
           "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
         },
         "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
+          "questionId": "case03_prepRequired",
+          "focus": "authorityClaim"
         },
         "pathComplete": false,
         "phase1Complete": true
@@ -192,77 +202,6 @@
             "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        },
-        "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
-        },
-        "pathComplete": false
-      },
-      {
-        "event": "QUESTION",
-        "browserLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "engineId": "case03_inquiryFocus",
-        "engineLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "labelMatch": true,
-        "optionValue": "specific_event",
-        "optionLabel": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
-        "progress": [
-          "02 / 02"
-        ],
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "Q1 사건 좁히기 응답"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        }
-      },
-      {
-        "event": "AFTER_ANSWER",
-        "engineId": "case03_inquiryFocus",
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "Q1 사건 좁히기 응답"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
             "questionId": "case03_prepRequired",
             "focus": "authorityClaim"
           },
@@ -284,7 +223,7 @@
         "optionValue": "attendance_only",
         "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
         "progress": [
-          "03 / 03"
+          "02 / 02"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -355,7 +294,7 @@
         "optionValue": "what_explain",
         "optionLabel": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
         "progress": [
-          "04 / 04"
+          "03 / 03"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -426,7 +365,7 @@
         "optionValue": "notice",
         "optionLabel": "출석·소명 요구 통지서·안내문",
         "progress": [
-          "05 / 05"
+          "04 / 04"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -497,7 +436,7 @@
         "optionValue": "understand_demand",
         "optionLabel": "기관 요구를 이해하고 싶습니다",
         "progress": [
-          "06 / 06"
+          "05 / 05"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -556,13 +495,12 @@
     ],
     "browserIds": [
       "case03_factRelationship",
-      "case03_inquiryFocus",
       "case03_prepRequired",
       "case03_blockage",
       "case03_evidence",
       "case03_finalGoal"
     ],
-    "phase2Count": 6,
+    "phase2Count": 5,
     "allLabelMatch": true,
     "evidence": true,
     "evidenceDetail": {
@@ -574,13 +512,13 @@
       "note": "A=Panel in MasterReviewQuotationReport; B=standalone /documents upload UX not at this step"
     },
     "personalized": true,
-    "documentsAi": "http://localhost:3010/documents?leadId=edf5c4b3-0fe4-4e20-8f3f-f5121567b838&service=verify_admin&mode=ai_report",
+    "documentsAi": "http://localhost:3010/documents?leadId=588775ac-a9c6-47b6-97a2-14f56fef0c57&service=verify_admin&mode=ai_report",
     "documentsExpert": null,
     "consoleSnippet": [
       "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 588ms",
+      "[Fast Refresh] done in 374ms",
       "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 731ms",
+      "[Fast Refresh] done in 301ms",
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
     "reclassificationHistory": [
@@ -601,8 +539,7 @@
       "02 / 02",
       "03 / 03",
       "04 / 04",
-      "05 / 05",
-      "06 / 06"
+      "05 / 05"
     ],
     "persistAudit": {
       "persistSlugPass": true,
@@ -617,10 +554,10 @@
           "ok": true
         },
         {
-          "field": "case03_confirmGoal",
-          "actualSlug": "deadline_attendance",
-          "persistRaw": "deadline_attendance",
-          "restoredRaw": "deadline_attendance",
+          "field": "case03_inquiryFocus",
+          "actualSlug": "specific_event",
+          "persistRaw": "specific_event",
+          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -630,6 +567,15 @@
           "actualSlug": "none",
           "persistRaw": "none",
           "restoredRaw": "none",
+          "effectiveLabel": null,
+          "effectiveOk": true,
+          "ok": true
+        },
+        {
+          "field": "case03_confirmGoal",
+          "actualSlug": "deadline_attendance",
+          "persistRaw": "deadline_attendance",
+          "restoredRaw": "deadline_attendance",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -648,15 +594,6 @@
           "actualSlug": "mismatch",
           "persistRaw": "mismatch",
           "restoredRaw": "mismatch",
-          "effectiveLabel": null,
-          "effectiveOk": true,
-          "ok": true
-        },
-        {
-          "field": "case03_inquiryFocus",
-          "actualSlug": "specific_event",
-          "persistRaw": "specific_event",
-          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -703,11 +640,10 @@
     "regressionPass": true
   },
   "J_documents_expert_desktop": {
-    "documentsExpert": "http://localhost:3010/documents?leadId=e23d4122-05c6-42d7-9490-d105714be2b1&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=5cfd0736-6f81-4100-8e52-b1da1bf1604f&service=verify_admin&mode=expert",
     "personalized": true,
     "regressionIds": [
       "case03_factRelationship",
-      "case03_inquiryFocus",
       "case03_prepRequired",
       "case03_blockage",
       "case03_evidence",
@@ -2121,17 +2057,17 @@
         "labelMatch": true,
         "pick": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
         "progress": [
-          "02 / 05"
+          "02 / 06"
         ]
       },
       {
-        "id": "case03_confirmGoal",
+        "id": "case03_inquiryFocus",
         "browserLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
         "engineLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
         "labelMatch": true,
-        "pick": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "pick": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
         "progress": [
-          "03 / 05"
+          "03 / 06"
         ]
       },
       {
@@ -2141,7 +2077,17 @@
         "labelMatch": true,
         "pick": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
         "progress": [
-          "04 / 05"
+          "04 / 06"
+        ]
+      },
+      {
+        "id": "case03_confirmGoal",
+        "browserLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "engineLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "labelMatch": true,
+        "pick": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "progress": [
+          "05 / 06"
         ]
       },
       {
@@ -2151,7 +2097,7 @@
         "labelMatch": true,
         "pick": "기한이 있다는 것은 알지만 정확한 날짜는 아직 확인하지 못했습니다.",
         "progress": [
-          "05 / 05"
+          "06 / 06"
         ]
       }
     ],
@@ -2208,8 +2154,8 @@
           "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
         },
         "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
+          "questionId": "case03_prepRequired",
+          "focus": "authorityClaim"
         },
         "pathComplete": false,
         "phase1Complete": true
@@ -2297,77 +2243,6 @@
             "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        },
-        "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
-        },
-        "pathComplete": false
-      },
-      {
-        "event": "QUESTION",
-        "browserLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "engineId": "case03_inquiryFocus",
-        "engineLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "labelMatch": true,
-        "optionValue": "specific_event",
-        "optionLabel": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
-        "progress": [
-          "02 / 02"
-        ],
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "Q1 사건 좁히기 응답"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        }
-      },
-      {
-        "event": "AFTER_ANSWER",
-        "engineId": "case03_inquiryFocus",
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "Q1 사건 좁히기 응답"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
             "questionId": "case03_prepRequired",
             "focus": "authorityClaim"
           },
@@ -2389,7 +2264,7 @@
         "optionValue": "attendance_only",
         "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
         "progress": [
-          "03 / 03"
+          "02 / 02"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -2460,7 +2335,7 @@
         "optionValue": "what_explain",
         "optionLabel": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
         "progress": [
-          "04 / 04"
+          "03 / 03"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -2531,7 +2406,7 @@
         "optionValue": "notice",
         "optionLabel": "출석·소명 요구 통지서·안내문",
         "progress": [
-          "05 / 05"
+          "04 / 04"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -2602,7 +2477,7 @@
         "optionValue": "understand_demand",
         "optionLabel": "기관 요구를 이해하고 싶습니다",
         "progress": [
-          "06 / 06"
+          "05 / 05"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -2661,13 +2536,12 @@
     ],
     "browserIds": [
       "case03_factRelationship",
-      "case03_inquiryFocus",
       "case03_prepRequired",
       "case03_blockage",
       "case03_evidence",
       "case03_finalGoal"
     ],
-    "phase2Count": 6,
+    "phase2Count": 5,
     "allLabelMatch": true,
     "evidence": true,
     "evidenceDetail": {
@@ -2700,8 +2574,7 @@
       "02 / 02",
       "03 / 03",
       "04 / 04",
-      "05 / 05",
-      "06 / 06"
+      "05 / 05"
     ],
     "persistAudit": {
       "persistSlugPass": true,
@@ -2716,10 +2589,10 @@
           "ok": true
         },
         {
-          "field": "case03_confirmGoal",
-          "actualSlug": "deadline_attendance",
-          "persistRaw": "deadline_attendance",
-          "restoredRaw": "deadline_attendance",
+          "field": "case03_inquiryFocus",
+          "actualSlug": "specific_event",
+          "persistRaw": "specific_event",
+          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -2729,6 +2602,15 @@
           "actualSlug": "none",
           "persistRaw": "none",
           "restoredRaw": "none",
+          "effectiveLabel": null,
+          "effectiveOk": true,
+          "ok": true
+        },
+        {
+          "field": "case03_confirmGoal",
+          "actualSlug": "deadline_attendance",
+          "persistRaw": "deadline_attendance",
+          "restoredRaw": "deadline_attendance",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -2747,15 +2629,6 @@
           "actualSlug": "mismatch",
           "persistRaw": "mismatch",
           "restoredRaw": "mismatch",
-          "effectiveLabel": null,
-          "effectiveOk": true,
-          "ok": true
-        },
-        {
-          "field": "case03_inquiryFocus",
-          "actualSlug": "specific_event",
-          "persistRaw": "specific_event",
-          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -2820,8 +2693,8 @@
       },
       {
         "id": "case04_confirmGoal",
-        "browserLabel": "교통국에서는 처음 제출한 내용의 어떤 부분을 다시 확인하거나 보완해야 한다고 했나요?",
-        "engineLabel": "교통국에서는 처음 제출한 내용의 어떤 부분을 다시 확인하거나 보완해야 한다고 했나요?",
+        "browserLabel": "지금 이 보완 요구 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "engineLabel": "지금 이 보완 요구 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
         "labelMatch": true,
         "pick": "기관이 실제로 어떤 자료를 더 원하는지 알고 싶습니다.",
         "progress": [
@@ -3234,15 +3107,15 @@
         "browserLabel": "교통국에서 받은 안내는 어떤 조치에 관한 것이라고 들으셨나요?",
         "engineLabel": "교통국에서 받은 안내는 어떤 조치에 관한 것이라고 들으셨나요?",
         "labelMatch": true,
-        "pick": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은",
+        "pick": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허",
         "progress": [
           "02 / 05"
         ]
       },
       {
         "id": "case05_confirmGoal",
-        "browserLabel": "지금 이 조치와 관련해 가장 먼저 확인하고 싶은 것은 무엇인가요?",
-        "engineLabel": "지금 이 조치와 관련해 가장 먼저 확인하고 싶은 것은 무엇인가요?",
+        "browserLabel": "지금 이 처분·조치 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "engineLabel": "지금 이 처분·조치 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
         "labelMatch": true,
         "pick": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다.",
         "progress": [
@@ -3289,12 +3162,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_factRelationship",
@@ -3315,12 +3188,12 @@
         ],
         "unknowns": [],
         "knownFacts": {
-          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
           "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
           "actualSituation": "처분 통지에 적힌 내용과 제가 알고 있는 실제 상황이 거의 같습니다.",
           "currentBlockage": null,
           "evidence": null,
-          "goal": null
+          "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
         },
         "nextFocus": {
           "questionId": "case05_dispositionReason",
@@ -3340,12 +3213,12 @@
         ],
         "unknowns": [],
         "knownFacts": {
-          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
           "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
           "actualSituation": "처분 통지에 적힌 내용과 제가 알고 있는 실제 상황이 거의 같습니다.",
           "currentBlockage": null,
           "evidence": null,
-          "goal": null
+          "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
         },
         "nextFocus": null,
         "pathComplete": true,
@@ -3375,12 +3248,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_factRelationship",
@@ -3404,12 +3277,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "처분 통지에 적힌 내용과 제가 알고 있는 실제 상황이 거의 같습니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_dispositionReason",
@@ -3446,12 +3319,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "처분 통지에 적힌 내용과 제가 알고 있는 실제 상황이 거의 같습니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_dispositionReason",
@@ -3475,12 +3348,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "처분 통지에 적힌 내용과 제가 알고 있는 실제 상황이 거의 같습니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": null,
           "pathComplete": true,
@@ -3531,9 +3404,9 @@
       "slugChecks": [
         {
           "field": "case05_dispositionType",
-          "actualSlug": "license_revoked",
-          "persistRaw": "license_revoked",
-          "restoredRaw": "license_revoked",
+          "actualSlug": "rights_ended",
+          "persistRaw": "rights_ended",
+          "restoredRaw": "rights_ended",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -5456,8 +5329,8 @@
           "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
         },
         "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
+          "questionId": "case03_prepRequired",
+          "focus": "authorityClaim"
         },
         "pathComplete": false,
         "phase1Complete": true
@@ -5833,26 +5706,26 @@
             "goal": null
           },
           "nextFocus": {
-            "questionId": "case03_confirmGoal",
-            "focus": "goal"
+            "questionId": "case03_inquiryFocus",
+            "focus": "authorityReason"
           },
           "pathComplete": false,
           "phase1Complete": true
         },
         "nextFocus": {
-          "questionId": "case03_confirmGoal",
-          "focus": "goal"
+          "questionId": "case03_inquiryFocus",
+          "focus": "authorityReason"
         },
         "pathComplete": false
       },
       {
         "event": "QUESTION",
         "browserLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
-        "engineId": "case03_confirmGoal",
+        "engineId": "case03_inquiryFocus",
         "engineLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
         "labelMatch": true,
-        "optionValue": "deadline_attendance",
-        "optionLabel": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "optionValue": "specific_event",
+        "optionLabel": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
         "progress": [
           "02 / 02"
         ],
@@ -5875,8 +5748,8 @@
             "goal": null
           },
           "nextFocus": {
-            "questionId": "case03_confirmGoal",
-            "focus": "goal"
+            "questionId": "case03_inquiryFocus",
+            "focus": "authorityReason"
           },
           "pathComplete": false,
           "phase1Complete": true
@@ -5884,7 +5757,7 @@
       },
       {
         "event": "AFTER_ANSWER",
-        "engineId": "case03_confirmGoal",
+        "engineId": "case03_inquiryFocus",
         "profile": {
           "classification": "CASE_03",
           "reclassificationHistory": [
@@ -5901,7 +5774,7 @@
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+            "goal": null
           },
           "nextFocus": {
             "questionId": "case03_customerResponse",
@@ -5943,7 +5816,7 @@
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+            "goal": null
           },
           "nextFocus": {
             "questionId": "case03_customerResponse",
@@ -5956,6 +5829,77 @@
       {
         "event": "AFTER_ANSWER",
         "engineId": "case03_customerResponse",
+        "profile": {
+          "classification": "CASE_03",
+          "reclassificationHistory": [
+            {
+              "from": "CASE_06",
+              "to": "CASE_03",
+              "reason": "classificationEngine"
+            }
+          ],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
+            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case03_confirmGoal",
+            "focus": "goal"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        },
+        "nextFocus": {
+          "questionId": "case03_confirmGoal",
+          "focus": "goal"
+        },
+        "pathComplete": false
+      },
+      {
+        "event": "QUESTION",
+        "browserLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "engineId": "case03_confirmGoal",
+        "engineLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "labelMatch": true,
+        "optionValue": "deadline_attendance",
+        "optionLabel": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "progress": [
+          "04 / 04"
+        ],
+        "profile": {
+          "classification": "CASE_03",
+          "reclassificationHistory": [
+            {
+              "from": "CASE_06",
+              "to": "CASE_03",
+              "reason": "classificationEngine"
+            }
+          ],
+          "unknowns": [],
+          "knownFacts": {
+            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
+            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "actualSituation": null,
+            "currentBlockage": null,
+            "evidence": null,
+            "goal": null
+          },
+          "nextFocus": {
+            "questionId": "case03_confirmGoal",
+            "focus": "goal"
+          },
+          "pathComplete": false,
+          "phase1Complete": true
+        }
+      },
+      {
+        "event": "AFTER_ANSWER",
+        "engineId": "case03_confirmGoal",
         "profile": {
           "classification": "CASE_03",
           "reclassificationHistory": [
@@ -5996,7 +5940,7 @@
         "optionValue": "uncertain",
         "optionLabel": "기한이 있다는 것은 알지만 정확한 날짜는 아직 확인하지 못했습니다.",
         "progress": [
-          "04 / 04"
+          "05 / 05"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -6117,77 +6061,6 @@
             "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        },
-        "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
-        },
-        "pathComplete": false
-      },
-      {
-        "event": "QUESTION",
-        "browserLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "engineId": "case03_inquiryFocus",
-        "engineLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "labelMatch": true,
-        "optionValue": "specific_event",
-        "optionLabel": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
-        "progress": [
-          "02 / 02"
-        ],
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "classificationEngine"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        }
-      },
-      {
-        "event": "AFTER_ANSWER",
-        "engineId": "case03_inquiryFocus",
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "classificationEngine"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
             "questionId": "case03_prepRequired",
             "focus": "authorityClaim"
           },
@@ -6209,7 +6082,7 @@
         "optionValue": "attendance_only",
         "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
         "progress": [
-          "03 / 03"
+          "02 / 02"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -6280,7 +6153,7 @@
         "optionValue": "what_explain",
         "optionLabel": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
         "progress": [
-          "04 / 04"
+          "03 / 03"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -6351,7 +6224,7 @@
         "optionValue": "notice",
         "optionLabel": "출석·소명 요구 통지서·안내문",
         "progress": [
-          "05 / 05"
+          "04 / 04"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -6422,7 +6295,7 @@
         "optionValue": "understand_demand",
         "optionLabel": "기관 요구를 이해하고 싶습니다",
         "progress": [
-          "06 / 06"
+          "05 / 05"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -6485,11 +6358,11 @@
       "case06_attendanceNoticeDetail",
       "case06_attendanceResponse",
       "case03_authorityDemand",
-      "case03_confirmGoal",
+      "case03_inquiryFocus",
       "case03_customerResponse",
+      "case03_confirmGoal",
       "case03_deadline",
       "case03_factRelationship",
-      "case03_inquiryFocus",
       "case03_prepRequired",
       "case03_blockage",
       "case03_evidence",
@@ -6528,8 +6401,7 @@
       "02 / 02",
       "03 / 03",
       "04 / 04",
-      "05 / 05",
-      "06 / 06"
+      "05 / 05"
     ],
     "persistAudit": {
       "persistSlugPass": true,
@@ -6625,10 +6497,10 @@
           "ok": true
         },
         {
-          "field": "case03_confirmGoal",
-          "actualSlug": "deadline_attendance",
-          "persistRaw": "deadline_attendance",
-          "restoredRaw": "deadline_attendance",
+          "field": "case03_inquiryFocus",
+          "actualSlug": "specific_event",
+          "persistRaw": "specific_event",
+          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -6638,6 +6510,15 @@
           "actualSlug": "none",
           "persistRaw": "none",
           "restoredRaw": "none",
+          "effectiveLabel": null,
+          "effectiveOk": true,
+          "ok": true
+        },
+        {
+          "field": "case03_confirmGoal",
+          "actualSlug": "deadline_attendance",
+          "persistRaw": "deadline_attendance",
+          "restoredRaw": "deadline_attendance",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -6656,15 +6537,6 @@
           "actualSlug": "mismatch",
           "persistRaw": "mismatch",
           "restoredRaw": "mismatch",
-          "effectiveLabel": null,
-          "effectiveOk": true,
-          "ok": true
-        },
-        {
-          "field": "case03_inquiryFocus",
-          "actualSlug": "specific_event",
-          "persistRaw": "specific_event",
-          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -7354,9 +7226,9 @@
       },
       {
         "event": "QUESTION",
-        "browserLabel": "교통국에서는 처음 제출한 내용의 어떤 부분을 다시 확인하거나 보완해야 한다고 했나요?",
+        "browserLabel": "지금 이 보완 요구 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
         "engineId": "case04_confirmGoal",
-        "engineLabel": "교통국에서는 처음 제출한 내용의 어떤 부분을 다시 확인하거나 보완해야 한다고 했나요?",
+        "engineLabel": "지금 이 보완 요구 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
         "labelMatch": true,
         "optionValue": "understand_materials",
         "optionLabel": "기관이 실제로 어떤 자료를 더 원하는지 알고 싶습니다.",
@@ -8070,12 +7942,12 @@
         ],
         "unknowns": [],
         "knownFacts": {
-          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
           "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
           "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
           "currentBlockage": null,
           "evidence": null,
-          "goal": null
+          "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
         },
         "nextFocus": {
           "questionId": "case05_dispositionReason",
@@ -8095,12 +7967,12 @@
         ],
         "unknowns": [],
         "knownFacts": {
-          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+          "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
           "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
           "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
           "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
           "evidence": "처분 통지서",
-          "goal": null
+          "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
         },
         "nextFocus": null,
         "pathComplete": true,
@@ -8473,8 +8345,8 @@
         "engineId": "case05_dispositionType",
         "engineLabel": "교통국에서 받은 안내는 어떤 조치에 관한 것이라고 들으셨나요?",
         "labelMatch": true,
-        "optionValue": "license_revoked",
-        "optionLabel": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+        "optionValue": "rights_ended",
+        "optionLabel": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
         "progress": [
           "01 / 01"
         ],
@@ -8518,7 +8390,7 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": null,
             "actualSituation": null,
             "currentBlockage": null,
@@ -8540,9 +8412,9 @@
       },
       {
         "event": "QUESTION",
-        "browserLabel": "지금 이 조치와 관련해 가장 먼저 확인하고 싶은 것은 무엇인가요?",
+        "browserLabel": "지금 이 처분·조치 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
         "engineId": "case05_confirmGoal",
-        "engineLabel": "지금 이 조치와 관련해 가장 먼저 확인하고 싶은 것은 무엇인가요?",
+        "engineLabel": "지금 이 처분·조치 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
         "labelMatch": true,
         "optionValue": "understand_reason",
         "optionLabel": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다.",
@@ -8560,7 +8432,7 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": null,
             "actualSituation": null,
             "currentBlockage": null,
@@ -8589,12 +8461,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": null,
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_customerResponse",
@@ -8631,12 +8503,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": null,
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_customerResponse",
@@ -8660,12 +8532,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_deadline",
@@ -8702,12 +8574,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_deadline",
@@ -8731,12 +8603,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_factRelationship",
@@ -8773,12 +8645,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_factRelationship",
@@ -8802,12 +8674,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_dispositionReason",
@@ -8844,12 +8716,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
             "questionId": "case05_dispositionReason",
@@ -8873,23 +8745,23 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case05_dispositionSource",
-            "focus": "authorityClaim"
+            "questionId": "case05_factDetail",
+            "focus": "actualSituation"
           },
           "pathComplete": false,
           "phase1Complete": true
         },
         "nextFocus": {
-          "questionId": "case05_dispositionSource",
-          "focus": "authorityClaim"
+          "questionId": "case05_factDetail",
+          "focus": "actualSituation"
         },
         "pathComplete": false
       },
@@ -8915,16 +8787,16 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case05_dispositionSource",
-            "focus": "authorityClaim"
+            "questionId": "case05_factDetail",
+            "focus": "actualSituation"
           },
           "pathComplete": false,
           "phase1Complete": true
@@ -8944,23 +8816,23 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case05_dispositionSource",
-            "focus": "authorityClaim"
+            "questionId": "case05_blockage",
+            "focus": "currentBlockage"
           },
           "pathComplete": false,
           "phase1Complete": true
         },
         "nextFocus": {
-          "questionId": "case05_dispositionSource",
-          "focus": "authorityClaim"
+          "questionId": "case05_blockage",
+          "focus": "currentBlockage"
         },
         "pathComplete": false
       },
@@ -8986,16 +8858,16 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case05_dispositionSource",
-            "focus": "authorityClaim"
+            "questionId": "case05_blockage",
+            "focus": "currentBlockage"
           },
           "pathComplete": false,
           "phase1Complete": true
@@ -9015,23 +8887,23 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case05_dispositionSource",
-            "focus": "authorityClaim"
+            "questionId": "case05_evidence",
+            "focus": "evidence"
           },
           "pathComplete": false,
           "phase1Complete": true
         },
         "nextFocus": {
-          "questionId": "case05_dispositionSource",
-          "focus": "authorityClaim"
+          "questionId": "case05_evidence",
+          "focus": "evidence"
         },
         "pathComplete": false
       },
@@ -9057,16 +8929,16 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
             "evidence": null,
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case05_dispositionSource",
-            "focus": "authorityClaim"
+            "questionId": "case05_evidence",
+            "focus": "evidence"
           },
           "pathComplete": false,
           "phase1Complete": true
@@ -9086,12 +8958,12 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단되거나 취소되었다는 조치를 받은 상황입니다.",
+            "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
             "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
             "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
             "evidence": "처분 통지서",
-            "goal": null
+            "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
           },
           "nextFocus": null,
           "pathComplete": true,
@@ -9247,9 +9119,9 @@
         },
         {
           "field": "case05_dispositionType",
-          "actualSlug": "license_revoked",
-          "persistRaw": "license_revoked",
-          "restoredRaw": "license_revoked",
+          "actualSlug": "rights_ended",
+          "persistRaw": "rights_ended",
+          "restoredRaw": "rights_ended",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -9298,11 +9170,6 @@
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
-        },
-        {
-          "field": "case05_dispositionSource",
-          "skipped": true,
-          "reason": "not_in_sim_answers"
         },
         {
           "field": "case05_authorityFollowUp",
@@ -9770,17 +9637,17 @@
         "labelMatch": true,
         "pick": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
         "progress": [
-          "02 / 05"
+          "02 / 06"
         ]
       },
       {
-        "id": "case03_confirmGoal",
+        "id": "case03_inquiryFocus",
         "browserLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
         "engineLabel": "교통국에서는 무엇을 확인하려는 것 같나요?",
         "labelMatch": true,
-        "pick": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "pick": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
         "progress": [
-          "03 / 05"
+          "03 / 06"
         ]
       },
       {
@@ -9790,7 +9657,17 @@
         "labelMatch": true,
         "pick": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
         "progress": [
-          "04 / 05"
+          "04 / 06"
+        ]
+      },
+      {
+        "id": "case03_confirmGoal",
+        "browserLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "engineLabel": "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+        "labelMatch": true,
+        "pick": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
+        "progress": [
+          "05 / 06"
         ]
       },
       {
@@ -9800,7 +9677,7 @@
         "labelMatch": true,
         "pick": "기한이 있다는 것은 알지만 정확한 날짜는 아직 확인하지 못했습니다.",
         "progress": [
-          "05 / 05"
+          "06 / 06"
         ]
       }
     ],
@@ -9857,8 +9734,8 @@
           "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
         },
         "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
+          "questionId": "case03_prepRequired",
+          "focus": "authorityClaim"
         },
         "pathComplete": false,
         "phase1Complete": true
@@ -9946,77 +9823,6 @@
             "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
           },
           "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        },
-        "nextFocus": {
-          "questionId": "case03_inquiryFocus",
-          "focus": "authorityReason"
-        },
-        "pathComplete": false
-      },
-      {
-        "event": "QUESTION",
-        "browserLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "engineId": "case03_inquiryFocus",
-        "engineLabel": "교통국에서 출석하거나 설명·자료를 제출하라고 한 내용은 무엇에 가장 가깝나요?",
-        "labelMatch": true,
-        "optionValue": "specific_event",
-        "optionLabel": "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
-        "progress": [
-          "02 / 02"
-        ],
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "Q1 사건 좁히기 응답"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
-            "questionId": "case03_inquiryFocus",
-            "focus": "authorityReason"
-          },
-          "pathComplete": false,
-          "phase1Complete": true
-        }
-      },
-      {
-        "event": "AFTER_ANSWER",
-        "engineId": "case03_inquiryFocus",
-        "profile": {
-          "classification": "CASE_03",
-          "reclassificationHistory": [
-            {
-              "from": "CASE_06",
-              "to": "CASE_03",
-              "reason": "Q1 사건 좁히기 응답"
-            }
-          ],
-          "unknowns": [],
-          "knownFacts": {
-            "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
-            "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-            "currentBlockage": null,
-            "evidence": null,
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
-          },
-          "nextFocus": {
             "questionId": "case03_prepRequired",
             "focus": "authorityClaim"
           },
@@ -10038,7 +9844,7 @@
         "optionValue": "attendance_only",
         "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
         "progress": [
-          "03 / 03"
+          "02 / 02"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -10109,7 +9915,7 @@
         "optionValue": "what_explain",
         "optionLabel": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
         "progress": [
-          "04 / 04"
+          "03 / 03"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -10180,7 +9986,7 @@
         "optionValue": "notice",
         "optionLabel": "출석·소명 요구 통지서·안내문",
         "progress": [
-          "05 / 05"
+          "04 / 04"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -10251,7 +10057,7 @@
         "optionValue": "understand_demand",
         "optionLabel": "기관 요구를 이해하고 싶습니다",
         "progress": [
-          "06 / 06"
+          "05 / 05"
         ],
         "profile": {
           "classification": "CASE_03",
@@ -10310,13 +10116,12 @@
     ],
     "browserIds": [
       "case03_factRelationship",
-      "case03_inquiryFocus",
       "case03_prepRequired",
       "case03_blockage",
       "case03_evidence",
       "case03_finalGoal"
     ],
-    "phase2Count": 6,
+    "phase2Count": 5,
     "allLabelMatch": true,
     "evidence": true,
     "evidenceDetail": {
@@ -10329,7 +10134,7 @@
     },
     "personalized": true,
     "documentsAi": null,
-    "documentsExpert": "http://localhost:3010/documents?leadId=5f1dfd1a-6f76-4e78-aee7-1987cb20e029&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=3c28a97a-5e13-484e-b133-da965e8d0e59&service=verify_admin&mode=expert",
     "consoleSnippet": [
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
@@ -10351,8 +10156,7 @@
       "02 / 02",
       "03 / 03",
       "04 / 04",
-      "05 / 05",
-      "06 / 06"
+      "05 / 05"
     ],
     "persistAudit": {
       "persistSlugPass": true,
@@ -10367,10 +10171,10 @@
           "ok": true
         },
         {
-          "field": "case03_confirmGoal",
-          "actualSlug": "deadline_attendance",
-          "persistRaw": "deadline_attendance",
-          "restoredRaw": "deadline_attendance",
+          "field": "case03_inquiryFocus",
+          "actualSlug": "specific_event",
+          "persistRaw": "specific_event",
+          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -10380,6 +10184,15 @@
           "actualSlug": "none",
           "persistRaw": "none",
           "restoredRaw": "none",
+          "effectiveLabel": null,
+          "effectiveOk": true,
+          "ok": true
+        },
+        {
+          "field": "case03_confirmGoal",
+          "actualSlug": "deadline_attendance",
+          "persistRaw": "deadline_attendance",
+          "restoredRaw": "deadline_attendance",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -10398,15 +10211,6 @@
           "actualSlug": "mismatch",
           "persistRaw": "mismatch",
           "restoredRaw": "mismatch",
-          "effectiveLabel": null,
-          "effectiveOk": true,
-          "ok": true
-        },
-        {
-          "field": "case03_inquiryFocus",
-          "actualSlug": "specific_event",
-          "persistRaw": "specific_event",
-          "restoredRaw": "specific_event",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -10454,7 +10258,7 @@
     "regressionPass": true
   },
   "LOCK_READINESS": {
-    "generatedAt": "2026-09-23T03:45:53.810Z",
+    "generatedAt": "2026-09-24T15:23:20.877Z",
     "coreCases": {
       "CASE_01": {
         "present": true,

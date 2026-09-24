@@ -1508,6 +1508,10 @@ function appendCase01PathQuestions(
     appendCase01Phase1Questions(questions, answers);
     return;
   }
+  if (isCase06BridgedToNativeCase(answers, "CASE_01") && !isCase01Phase1Complete(answers)) {
+    appendCase01Phase1Questions(questions, answers);
+    if (!isCase01Phase1Complete(answers)) return;
+  }
   appendCase01Phase2Questions(questions, answers);
 }
 
@@ -3263,7 +3267,6 @@ function case03NeedsFactRelationshipPhase2(answers: ReviewAnswers): boolean {
   const demand = answers.case03_authorityDemand;
   const response = answers.case03_customerResponse;
   if (
-    goal === "understand_agency_intent" ||
     goal === "sufficient_explanation" ||
     goal === "repeat_response" ||
     goal === "unsure"
@@ -3301,11 +3304,7 @@ function case03NeedsInquiryFocusPhase2(answers: ReviewAnswers): boolean {
   if (case03IsInquiryFocusAnswered(answers)) return false;
   const goal = answers.case03_confirmGoal;
   const demand = answers.case03_authorityDemand;
-  if (
-    goal === "understand_agency_intent" ||
-    goal === "prepare_materials" ||
-    goal === "unsure"
-  ) {
+  if (goal === "prepare_materials" || goal === "unsure") {
     return true;
   }
   if (
@@ -4442,7 +4441,7 @@ function appendCase04Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case04_confirmGoal",
     kind: "choice",
-    label: "지금 이 보완 요구에서 가장 확인하고 싶은 것은 무엇인가요?",
+    label: "지금 이 보완 요구 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
     options: CASE04_CONFIRM_GOAL_OPTIONS,
   });
   if (
@@ -4925,6 +4924,8 @@ function classifyFromCase04Answers(answers: ReviewAnswers): {
   confidence: number;
   reason: string;
 } | null {
+  // DQ-E: CASE_04 does not cross-classify to CASE_02/03/05 (except CASE_06 unclear whole).
+  // Cross-case uses CASE_06 bridge / other CASE classifiers — not actualCore revival.
   if (!shouldActivateCase04Path(answers) && !answers.case04_supplementTarget) return null;
 
   if (
@@ -5641,7 +5642,7 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case05_confirmGoal",
     kind: "choice",
-    label: "지금 이 조치와 관련해 가장 먼저 확인하고 싶은 것은 무엇인가요?",
+    label: "지금 이 처분·조치 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
     options: CASE05_CONFIRM_GOAL_OPTIONS,
   });
   if (!answers.case05_confirmGoal) return;
@@ -9904,6 +9905,22 @@ export function restoreAdminProfilingAnswersFromMeta(
 
   delete parsed.case05_actualCore;
   delete parsed.case05_dispositionSource;
+  delete parsed.case04_actualCore;
+  delete parsed.case04_submitResponse;
+  delete parsed.case04_inquiryResponse;
+
+  if (parsed.case03_confirmGoal === "understand_agency_intent") {
+    if (!parsed.case03_inquiryFocus?.trim()) {
+      parsed.case03_inquiryFocus = "unsure";
+    }
+    parsed.case03_confirmGoal = "prepare_materials";
+  }
+  if (parsed.case04_confirmGoal === "deadline") {
+    parsed.case04_confirmGoal = "unsure";
+    if (!parsed.case04_deadline?.trim()) {
+      parsed.case04_deadline = "uncertain";
+    }
+  }
 
   if (Object.keys(parsed).length === 0) return null;
 
@@ -10596,7 +10613,7 @@ export function runCase03QaScenario(
       [CASE_CUSTOMER_INPUT_KEY]: "출석 요구를 받았는데 무엇을 소명해야 하는지 모르겠습니다",
       ...case03Base,
       case03_authorityDemand: "reason_unclear",
-      case03_confirmGoal: "understand_agency_intent",
+      case03_confirmGoal: "prepare_materials",
       case03_inquiryFocus: "unsure",
     },
     C: {
@@ -10604,7 +10621,7 @@ export function runCase03QaScenario(
       [CASE_CUSTOMER_INPUT_KEY]: "기관이 문제 삼는 내용이 실제 상황과 다릅니다",
       ...case03Base,
       case03_authorityDemand: "specific_incident",
-      case03_confirmGoal: "understand_agency_intent",
+      case03_confirmGoal: "prepare_materials",
       case03_factRelationship: "mismatch",
     },
     D: {
@@ -10623,7 +10640,7 @@ export function runCase03QaScenario(
       [CASE_CUSTOMER_INPUT_KEY]: "출석 요구 통지를 받았는데 내용을 확인해 보니 납부 안내가 핵심입니다",
       ...case03Base,
       case03_authorityDemand: "reason_unclear",
-      case03_confirmGoal: "understand_agency_intent",
+      case03_confirmGoal: "prepare_materials",
       case03_authorityFollowUp: "other_procedure",
     },
     F: {

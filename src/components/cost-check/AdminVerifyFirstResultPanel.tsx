@@ -519,8 +519,6 @@ function appendCase04Phase1ResultSignals(
   } else if (goal === "understand_insufficient" || goal === "repeat_reason") {
     cautions.push("기존 제출 내용 확인이 우선 목표로 선택됨");
     actions.push("처음 제출한 자료와 보완 요구 내용을 함께 확인해 보세요.");
-  } else if (goal === "deadline") {
-    actions.push("보완 제출 기한을 먼저 확인해 보세요.");
   } else if (goal === "unsure") {
     unconfirmed.push("우선 확인할 항목");
   }
@@ -612,8 +610,6 @@ function case04ActionsFromAnswers(answers: ReviewAnswers, profile: CaseResolutio
     actions.push("기관이 요구한 자료와 준비할 내용을 먼저 정리해 보세요.");
   } else if (goal === "understand_insufficient" || goal === "repeat_reason") {
     actions.push("처음 제출한 자료와 보완 요구 내용을 함께 확인해 보세요.");
-  } else if (goal === "deadline") {
-    actions.push("보완 제출 기한을 먼저 확인해 보세요.");
   }
   if (
     answers.case04_submissionRelation === "mismatch_request" ||
@@ -663,7 +659,7 @@ function case03ActionsFromAnswers(answers: ReviewAnswers, profile: CaseResolutio
   if (demand === "repeat_demand") {
     actions.push("이전에 설명·출석한 내용과 이번 추가 요구를 함께 확인해 보세요.");
   }
-  if (goal === "understand_agency_intent" || goal === "prepare_materials") {
+  if (goal === "prepare_materials") {
     actions.push("기관이 확인하려는 내용과 준비할 자료를 먼저 정리해 보세요.");
   } else if (goal === "sufficient_explanation" || goal === "repeat_response") {
     actions.push("이전에 전달한 설명·자료와 기관 반응을 함께 확인해 보세요.");
@@ -854,7 +850,7 @@ function appendCase03Phase1ResultSignals(
     actions.push("기관이 확인하려는 내용과 준비할 자료를 먼저 정리해 보세요.");
   }
 
-  if (goal === "understand_agency_intent" || goal === "prepare_materials") {
+  if (goal === "prepare_materials") {
     actions.push("준비할 자료와 우선 확인할 항목을 정리해 보세요.");
   } else if (goal === "sufficient_explanation" || goal === "repeat_response") {
     cautions.push("이전 대응 내용 확인이 우선 목표로 선택됨");
@@ -1933,7 +1929,7 @@ function buildCase03IntegratedSituation(answers: ReviewAnswers): string {
   const deadline = answers.case03_deadline;
 
   let opening = "현재는 출석·소명 요구와 관련해 상황을 정리한 상태입니다.";
-  if (goal === "understand_agency_intent" || demand === "reason_unclear" || demand === "prep_unclear") {
+  if (demand === "reason_unclear" || demand === "prep_unclear") {
     opening =
       "현재는 기관이 확인하려는 내용과 실제 상황의 관계를 먼저 확인할 필요가 있는 상태입니다.";
   } else if (goal === "sufficient_explanation" || goal === "repeat_response" || demand === "repeat_demand") {

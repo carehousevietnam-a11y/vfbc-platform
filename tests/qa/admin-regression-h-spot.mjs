@@ -58,12 +58,15 @@ async function spotCase(page, name, q1Needle, p1Needle) {
 
 try {
   const p02 = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const p03 = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const p04 = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const ok02 = await spotCase(p02, "CASE_02", "벌금이나 비용", "납부");
+  const ok03 = await spotCase(p03, "CASE_03", "출석하거나 설명", "교통국");
   const ok04 = await spotCase(p04, "CASE_04", "추가 서류", "다시 하라고");
   await p02.close();
+  await p03.close();
   await p04.close();
-  report.pass = ok02 && ok04;
+  report.pass = ok02 && ok03 && ok04;
 } catch (e) {
   report.error = String(e.message ?? e);
   report.pass = false;

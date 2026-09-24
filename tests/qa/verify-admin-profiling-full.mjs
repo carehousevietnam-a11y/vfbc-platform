@@ -85,7 +85,7 @@ const case03CBase = {
   ...case03ABase,
   caseCustomerInput: "기관이 문제 삼는 내용이 실제 상황과 다릅니다",
   case03_authorityDemand: "specific_incident",
-  case03_confirmGoal: "understand_agency_intent",
+  case03_confirmGoal: "prepare_materials",
   case03_factRelationship: "mismatch",
 };
 

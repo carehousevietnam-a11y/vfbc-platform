@@ -85,7 +85,7 @@ const case03C = {
   stage: "case",
   caseCustomerInput: "기관이 문제 삼는 내용이 실제 상황과 다릅니다",
   case03_authorityDemand: "specific_incident",
-  case03_confirmGoal: "understand_agency_intent",
+  case03_confirmGoal: "prepare_materials",
   case03_customerResponse: "none",
   case03_prepRequired: "attendance_only",
   case03_deadline: "uncertain",
