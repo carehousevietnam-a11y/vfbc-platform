@@ -41,6 +41,18 @@ import {
   type CaseResolutionProfile,
   type FieldAssessment,
 } from "@/lib/adminVerifyProfiling";
+import {
+  buildCase06PrincipleFStateLines,
+  CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
+  CASE06_DEADLINE_DATE_KEY,
+  CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY,
+  CASE06_PAYMENT_AMOUNT_TEXT_KEY,
+  case06DeadlineActionIsByDateSlug,
+  case06NeedsDeadlineDate,
+  getCase06RequiredActionCandidateLabel,
+  isCase06LegacyRestorePath,
+  resolveCase06Phase2ChainId,
+} from "@/lib/adminVerifyCase06Redesign";
 import { PrimaryButton } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import {
@@ -81,6 +93,8 @@ export type AdminVerifyFirstResultData = {
   caseClassificationLabel: string;
   personalizedContext?: AdminVerifyPersonalizedContext;
   case06ExpertHandoffRequired?: boolean;
+  /** R03=C — CASE_06 bridge hints above situation summary (same text as question L5). */
+  case06PrincipleFStateLines?: string[];
 };
 
 function metricFootnote(
@@ -228,6 +242,32 @@ function case06ActionsFromAnswers(answers: ReviewAnswers, profile: CaseResolutio
   return actions;
 }
 
+function appendCase06V11Phase1ResultSignals(
+  answers: ReviewAnswers,
+  cautions: string[],
+  unconfirmed: string[],
+  actions: string[],
+): void {
+  if (!isCase06Phase1Complete(answers) || isCase06LegacyRestorePath(answers)) return;
+
+  const deadlineText = answers[CASE06_DEADLINE_DATE_KEY]?.trim();
+  if (case06NeedsDeadlineDate(answers)) {
+    unconfirmed.push("대응·제출 기한");
+    actions.push("안내에 적힌 날짜·기한을 직접 적어 두세요.");
+  } else if (deadlineText) {
+    cautions.push(`적어 둔 기한: ${deadlineText}`);
+  } else if (case06DeadlineActionIsByDateSlug(answers.case06_deadlineActionPair)) {
+    unconfirmed.push("대응·제출 기한");
+  }
+
+  const response = answers.case06_customerResponse;
+  if (response === "no_response_yet") {
+    cautions.push("아직 기관 안내에 대한 별도 대응이 없는 상태로 응답함");
+  } else if (response === "paid_or_attempted_pay") {
+    cautions.push("납부 또는 납부 시도가 있었던 상태 — 기관 반응 확인이 필요함");
+  }
+}
+
 function appendCase06Phase1ResultSignals(
   answers: ReviewAnswers,
   cautions: string[],
@@ -235,6 +275,11 @@ function appendCase06Phase1ResultSignals(
   actions: string[],
 ): void {
   if (!isCase06Phase1Complete(answers)) return;
+
+  if (!isCase06LegacyRestorePath(answers)) {
+    appendCase06V11Phase1ResultSignals(answers, cautions, unconfirmed, actions);
+    return;
+  }
 
   const issue = answers.profilePerceivedIssue;
   const goal = answers.profileCurrentGoal;
@@ -281,12 +326,109 @@ function appendCase06Phase1ResultSignals(
   }
 }
 
+function appendCase06V11Phase2ResultSignals(
+  answers: ReviewAnswers,
+  cautions: string[],
+  unconfirmed: string[],
+  actions: string[],
+): void {
+  if (isCase06LegacyRestorePath(answers)) return;
+
+  const chain = resolveCase06Phase2ChainId(answers);
+  if (chain === 1) {
+    const nature = answers.case06_paymentNature;
+    if (nature === "not_explained") unconfirmed.push("납부 요구 성격");
+    if (answers.case06_paymentAmountKnown === "exact_amount_known") {
+      const amount = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
+      if (amount) cautions.push(`안내받은 금액: ${amount}`);
+      else unconfirmed.push("납부 금액");
+    } else if (answers.case06_paymentAmountKnown === "conflicting_amounts") {
+      cautions.push("납부 금액이 여러 번 다르게 안내된 상태로 응답함");
+    }
+    const match = answers.case06_paymentSituationMatch;
+    if (match === "amount_or_reason_mismatch" || match === "redemand_after_paid") {
+      cautions.push("납부 금액·사유가 실제 상황과 다르게 느껴지는 상태로 응답함");
+    }
+    if (answers.case06_paymentResponse === "dispute_or_recheck") {
+      actions.push("납부 요구에 대한 이의·재확인 요청 내용을 정리해 보세요.");
+    }
+    if (answers.case06_paymentNonPaymentNotice === "enforcement_warning") {
+      cautions.push("미납 시 제재·강제징수 안내를 받은 상태로 응답함");
+    }
+    return;
+  }
+  if (chain === 2) {
+    if (answers.case06_attendanceFactMatch === "mismatch") {
+      cautions.push("출석·설명 요구 내용이 실제 상황과 다르게 느껴지는 상태로 응답함");
+    }
+    if (answers.case06_attendanceNoticeDetail === "date_place_method_known") {
+      const notice = answers[CASE06_ATTENDANCE_NOTICE_TEXT_KEY]?.trim();
+      if (notice) cautions.push(`출석·통지 안내: ${notice}`);
+      else unconfirmed.push("출석 일시·장소·방식");
+    }
+    if (answers.case06_attendanceResponse === "no_response") {
+      cautions.push("아직 출석·설명하지 않은 상태로 응답함");
+    }
+    return;
+  }
+  if (chain === 3) {
+    if (answers.case06_submissionReason === "reason_not_explained") unconfirmed.push("보완 요구 사유");
+    const rel = answers.case06_submissionRelation;
+    if (rel === "insufficient_info" || rel === "mismatch") {
+      cautions.push("보완 요구 설명이 실제 상황과 연결되기 어렵다고 응답함");
+    }
+    if (answers.case06_submissionResponse === "not_submitted_yet") {
+      cautions.push("아직 보완·추가 제출을 하지 않은 상태로 응답함");
+    }
+    return;
+  }
+  if (chain === 4) {
+    const type = answers.case06_dispositionTypeCandidate;
+    if (type === "business_suspension" || type === "license_or_registration_revoked") {
+      cautions.push("권리·자격에 영향을 주는 처분으로 응답함");
+    }
+    if (answers.case06_dispositionFactMatch === "mismatch") {
+      cautions.push("처분 사유가 실제 상황과 맞지 않는다고 응답함");
+    }
+    if (answers.case06_dispositionEffectiveDate === "exact_effective_date") {
+      const effective = answers[CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY]?.trim();
+      if (effective) cautions.push(`발효일: ${effective}`);
+      else unconfirmed.push("처분 발효일");
+    }
+    if (answers.case06_dispositionResponse === "appeal_or_review_requested") {
+      actions.push("이의·재검토 요청 내용과 기관 반응을 함께 확인해 보세요.");
+    }
+    return;
+  }
+  if (chain === 5) {
+    const recheck = answers.case06_unclearContentRecheck?.trim();
+    if (recheck === "signal_violation") {
+      const relation = answers.case06_unclearFactRelation;
+      if (relation === "unrelated") {
+        cautions.push("기관 지적 내용이 실제와 무관하다고 응답함");
+      } else if (relation === "partially_related") {
+        cautions.push("기관 지적과 실제 상황이 일부만 연결된다고 응답함");
+      }
+      const response = answers.case06_unclearResponse;
+      if (response === "no_action") {
+        cautions.push("아직 별도 대응이 없는 상태로 응답함");
+      } else if (response === "prepared_docs") {
+        cautions.push("설명·자료를 준비한 상태 — 제출·기관 반응 확인이 필요함");
+      }
+    }
+  }
+}
+
 function appendCase06Phase2ResultSignals(
   answers: ReviewAnswers,
   cautions: string[],
   unconfirmed: string[],
   actions: string[],
 ): void {
+  if (!isCase06LegacyRestorePath(answers)) {
+    appendCase06V11Phase2ResultSignals(answers, cautions, unconfirmed, actions);
+    return;
+  }
   if (answers.case06_exactSource === "cannot_tell") {
     unconfirmed.push("정확한 발신처");
   }
@@ -1604,9 +1746,10 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
   const case06Active =
     q1Case === "CASE_06" ||
     Boolean(
-      (answers.profilePerceivedIssue &&
-        answers.profileDocumentSource &&
-        answers.case06_documentNature) ||
+      answers.case06_requiredActionCandidate ||
+        (answers.profilePerceivedIssue &&
+          answers.profileDocumentSource &&
+          answers.case06_documentNature) ||
         answers._case06Active === "1",
     );
 
@@ -1842,6 +1985,10 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     stage === "prevent" ? "사전 검토" : stage === "case" ? "사후 검토" : "검토";
 
   const caseClassId = profile.caseClassification.value ?? "UNIVERSAL";
+  const case06PrincipleFStateLines =
+    q1Case === "CASE_06" && !isCase06LegacyRestorePath(answers)
+      ? buildCase06PrincipleFStateLines(answers)
+      : undefined;
 
   return {
     stageLabel,
@@ -1858,6 +2005,10 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     actions: [...new Set(actions)].slice(0, 3),
     referenceDateLabel: formatReferenceDateLabel(),
     caseClassificationLabel: MASTER_CASE_LABELS[caseClassId],
+    case06PrincipleFStateLines:
+      case06PrincipleFStateLines && case06PrincipleFStateLines.length > 0
+        ? case06PrincipleFStateLines
+        : undefined,
   };
 }
 
@@ -2116,6 +2267,27 @@ function buildCase05IntegratedSituation(answers: ReviewAnswers): string {
 }
 
 function buildCase06IntegratedSituation(answers: ReviewAnswers, profile: CaseResolutionProfile): string {
+  if (!isCase06LegacyRestorePath(answers) && answers.case06_requiredActionCandidate) {
+    const actionLabel = getCase06RequiredActionCandidateLabel(answers);
+    const deadlineText = answers[CASE06_DEADLINE_DATE_KEY]?.trim();
+    const response = answers.case06_customerResponse;
+    let opening = actionLabel
+      ? `문서·안내에서 들은 요구는 「${actionLabel}」 쪽으로 파악됩니다.`
+      : "현재는 문서·안내에서 요구 내용을 정리하는 단계입니다.";
+    const middle =
+      response === "no_response_yet"
+        ? "아직 기관 안내에 대한 별도 대응은 진행되지 않은 상태입니다."
+        : profile.customerAction.value
+          ? `현재까지 ${profile.customerAction.value} 상태이며`
+          : null;
+    const closing = deadlineText
+      ? `적어 둔 기한·날짜는 ${deadlineText} 입니다.`
+      : case06NeedsDeadlineDate(answers)
+        ? describeDeadlineUncertain()
+        : null;
+    return joinNarrative([opening, middle, closing]);
+  }
+
   const issue = answers.profilePerceivedIssue;
   const goal = answers.profileCurrentGoal;
   const deadline = answers.profileAuthorityGuidance;
@@ -3733,6 +3905,21 @@ export function AdminVerifyFirstResultPanel({
                 </span>
                 <h3 className={FIRST_RESULT_READABLE_CLASS}>{displayStatusHeadline}</h3>
               </div>
+              {data.case06PrincipleFStateLines && data.case06PrincipleFStateLines.length > 0 ? (
+                <div className="mt-3 space-y-1">
+                  {data.case06PrincipleFStateLines.map((line) => (
+                    <p
+                      key={line}
+                      className={cn(
+                        "text-[12px] font-normal leading-snug text-slate-500 sm:text-[13px]",
+                        FIRST_RESULT_READABLE_CLASS,
+                      )}
+                    >
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
               <p
                 className={cn(
                   "mt-3 text-sm font-normal text-slate-700 sm:mt-3.5 sm:text-[15px] lg:mt-2.5 lg:text-[13px] lg:text-slate-600",

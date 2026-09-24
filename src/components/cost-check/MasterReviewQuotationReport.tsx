@@ -126,6 +126,15 @@ import {
   wasFieldAsked,
 } from "@/lib/adminVerifyProfiling";
 import {
+  buildCase06PrincipleFStateLines,
+  CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
+  CASE06_DEADLINE_DATE_KEY,
+  CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY,
+  CASE06_PAYMENT_AMOUNT_TEXT_KEY,
+  case06DeadlineActionIsByDateSlug,
+  isCase06LegacyRestorePath,
+} from "@/lib/adminVerifyCase06Redesign";
+import {
   REAL_ESTATE_ENTRY_Q1_KEY,
   REAL_ESTATE_OPTION_LABELS,
   applyRealEstateCustomerInputSeed,
@@ -1252,6 +1261,26 @@ function formatCollapsedAnswerLabel(
     if (value === "other") {
       const note = answers[getAdminChoiceNoteKey(question.id)]?.trim() ?? "";
       return note.length > 48 ? `${note.slice(0, 45)}…` : note || ADMIN_DIRECT_EXPLAIN_LABEL;
+    }
+    if (question.id === "case06_deadlineActionPair" && case06DeadlineActionIsByDateSlug(value)) {
+      const date = answers[CASE06_DEADLINE_DATE_KEY]?.trim() ?? "";
+      if (date) return date.length > 48 ? `${date.slice(0, 45)}…` : date;
+    }
+    if (question.id === "case06_paymentAmountKnown" && value === "exact_amount_known") {
+      const amount = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim() ?? "";
+      if (amount) return amount.length > 48 ? `${amount.slice(0, 45)}…` : amount;
+    }
+    if (question.id === "case06_attendanceNoticeDetail" && value === "date_place_method_known") {
+      const notice = answers[CASE06_ATTENDANCE_NOTICE_TEXT_KEY]?.trim() ?? "";
+      if (notice) return notice.length > 48 ? `${notice.slice(0, 45)}…` : notice;
+    }
+    if (question.id === "case06_dispositionEffectiveDate" && value === "exact_effective_date") {
+      const effective = answers[CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY]?.trim() ?? "";
+      if (effective) return effective.length > 48 ? `${effective.slice(0, 45)}…` : effective;
+    }
+    if (question.id === "profileAuthorityGuidance" && value === "specific_date") {
+      const date = answers[CASE06_DEADLINE_DATE_KEY]?.trim() ?? "";
+      if (date) return date.length > 48 ? `${date.slice(0, 45)}…` : date;
     }
     return getCase06FieldOptionLabel(question.id, value);
   }
@@ -2774,6 +2803,7 @@ export function MasterReviewQuotationReport({
           className={useStitchQuestionLayout ? "lg:[&_h3]:!text-[20px]" : undefined}
           {...questionProps}
         >
+          {renderCase06PrincipleFBlock(question.id)}
           {!directExplainActive ? (
             <>
               <VerifyAnswerGrid
@@ -2891,6 +2921,33 @@ export function MasterReviewQuotationReport({
     );
   }
 
+  function shouldShowCase06PrincipleFOnQuestion(questionId: string): boolean {
+    if (getQ1ResolvedCase(answers) !== "CASE_06" || isCase06LegacyRestorePath(answers)) {
+      return false;
+    }
+    const lines = buildCase06PrincipleFStateLines(answers);
+    if (lines.length === 0) return false;
+    const flowQuestions = adminVerifyQuestionFlowQuestions;
+    const flowFirstIncomplete = adminVerifyQuestionFlowFirstIncompleteIndex;
+    if (flowFirstIncomplete < 0) return false;
+    const firstOpenId = flowQuestions[flowFirstIncomplete]?.id;
+    return firstOpenId === questionId;
+  }
+
+  function renderCase06PrincipleFBlock(questionId: string): ReactNode {
+    if (!shouldShowCase06PrincipleFOnQuestion(questionId)) return null;
+    const lines = buildCase06PrincipleFStateLines(answers);
+    return (
+      <div className="mb-3 space-y-1">
+        {lines.map((line) => (
+          <p key={line} className={MOBILE_META}>
+            {line}
+          </p>
+        ))}
+      </div>
+    );
+  }
+
   function renderVerifyStyleActiveQuestion(question: ReviewQuestion): ReactNode {
     const value = answers[question.id] ?? "";
     const questionProps = {
@@ -2898,6 +2955,7 @@ export function MasterReviewQuotationReport({
       totalSteps: stitchProgressTotal,
       step: activeStepNumber,
     };
+    const case06PrincipleF = renderCase06PrincipleFBlock(question.id);
 
     if (question.kind === "text") {
       const minLength = question.id.startsWith("re2_") ? 20 : 1;
@@ -2911,6 +2969,7 @@ export function MasterReviewQuotationReport({
             className={useStitchQuestionLayout ? "lg:[&_h3]:!text-[20px]" : undefined}
             {...questionProps}
           >
+            {case06PrincipleF}
             <VerifyStep4InputStack>
               <textarea
                 value={value}
@@ -3232,6 +3291,7 @@ export function MasterReviewQuotationReport({
             className={useStitchQuestionLayout ? "lg:[&_h3]:!text-[20px]" : undefined}
             {...questionProps}
           >
+            {renderCase06PrincipleFBlock(question.id)}
             <VerifyAnswerGrid
               step={1}
               className={useStitchQuestionLayout ? "max-w-none grid-cols-1 gap-3" : undefined}

@@ -55,6 +55,25 @@ function isAdminDirectExplainOption(opt: { value: string; label: string }): bool
 export const CASE06_BRIDGE_SNAPSHOT_COMMITTED_KEY = "case06_bridgeSnapshotCommitted";
 export const CASE06_BRIDGE_TARGET_CASE_KEY = "case06_bridgeTargetCase";
 
+export const CASE06_DEADLINE_DATE_KEY = "case06_deadlineDate";
+export const CASE06_PAYMENT_AMOUNT_TEXT_KEY = "case06_paymentAmountText";
+export const CASE06_ATTENDANCE_NOTICE_TEXT_KEY = "case06_attendanceNoticeText";
+export const CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY = "case06_dispositionEffectiveDateText";
+
+const CASE06_DEADLINE_BY_DATE_SLUGS = new Set([
+  "deadline_pay_by_date",
+  "deadline_submit_by_date",
+  "deadline_attend_by_date",
+]);
+
+const CASE06_BRIDGE_TARGET_LABELS: Record<string, string> = {
+  CASE_02: "납부",
+  CASE_03: "출석",
+  CASE_04: "보완",
+  CASE_05: "처분",
+  CASE_06: "불명확",
+};
+
 export const CASE06_V11_PHASE1_FIELD_ORDER = [
   "case06_requiredActionCandidate",
   "case06_knowledgeSource",
@@ -366,7 +385,147 @@ export const CASE06_V11_PERSIST_ANSWER_KEYS: readonly string[] = [
   ...CASE06_V11_PHASE1_FIELD_ORDER,
   ...CASE06_V11_CHAIN_FIELD_KEYS,
   ...CASE06_V11_ANSWER_NOTE_KEYS,
+  CASE06_DEADLINE_DATE_KEY,
+  CASE06_PAYMENT_AMOUNT_TEXT_KEY,
+  CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
+  CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY,
 ];
+
+export function case06DeadlineActionIsByDateSlug(value: string | undefined): boolean {
+  const slug = value?.trim();
+  return Boolean(slug && CASE06_DEADLINE_BY_DATE_SLUGS.has(slug));
+}
+
+export function case06NeedsDeadlineDate(answers: ReviewAnswers): boolean {
+  const pair = answers.case06_deadlineActionPair?.trim();
+  if (pair && CASE06_DEADLINE_BY_DATE_SLUGS.has(pair)) {
+    return !answers[CASE06_DEADLINE_DATE_KEY]?.trim();
+  }
+  if (
+    isCase06LegacyRestorePath(answers) &&
+    answers.profileAuthorityGuidance === "specific_date"
+  ) {
+    return !answers[CASE06_DEADLINE_DATE_KEY]?.trim();
+  }
+  return false;
+}
+
+export function case06NeedsPaymentAmountText(answers: ReviewAnswers): boolean {
+  return (
+    answers.case06_paymentAmountKnown === "exact_amount_known" &&
+    !answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim()
+  );
+}
+
+export function case06NeedsAttendanceNoticeText(answers: ReviewAnswers): boolean {
+  return (
+    answers.case06_attendanceNoticeDetail === "date_place_method_known" &&
+    !answers[CASE06_ATTENDANCE_NOTICE_TEXT_KEY]?.trim()
+  );
+}
+
+export function case06NeedsDispositionEffectiveDateText(answers: ReviewAnswers): boolean {
+  return (
+    answers.case06_dispositionEffectiveDate === "exact_effective_date" &&
+    !answers[CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY]?.trim()
+  );
+}
+
+export function getCase06RequiredActionCandidateLabel(answers: ReviewAnswers): string | null {
+  const value = answers.case06_requiredActionCandidate?.trim();
+  if (!value) return null;
+  if (value === "other") {
+    const note = answers[getAdminChoiceNoteKey("case06_requiredActionCandidate")]?.trim();
+    return note || ADMIN_DIRECT_EXPLAIN_LABEL;
+  }
+  const opt = CASE06_REQUIRED_ACTION_CANDIDATE_OPTIONS.find((o) => o.value === value);
+  return opt?.label ?? value;
+}
+
+/** R03=C — read-only state lines (question screen + 1st result). No case02~05 keys. */
+export function buildCase06PrincipleFStateLines(answers: ReviewAnswers): string[] {
+  const lines: string[] = [];
+  const target = answers[CASE06_BRIDGE_TARGET_CASE_KEY]?.trim();
+  if (target && CASE06_BRIDGE_TARGET_LABELS[target]) {
+    lines.push(`앞서 분류: ${CASE06_BRIDGE_TARGET_LABELS[target]}`);
+  }
+  const actionLabel = getCase06RequiredActionCandidateLabel(answers);
+  if (actionLabel) {
+    lines.push(`문서에서 들은 요구: ${actionLabel}`);
+  }
+  const deadlineText = answers[CASE06_DEADLINE_DATE_KEY]?.trim();
+  if (deadlineText) {
+    lines.push(`적어 둔 날짜·기한: ${deadlineText}`);
+  }
+  const amountText = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
+  if (amountText) {
+    lines.push(`적어 둔 금액: ${amountText}`);
+  }
+  if (isCase06LegacyRestorePath(answers)) {
+    if (answers.profileDocumentSource) {
+      lines.push(
+        `문서 출처(복원): ${answers.profileDocumentSource}`,
+      );
+    }
+    if (answers.profileCurrentGoal) {
+      lines.push(`확인 목표(복원): ${answers.profileCurrentGoal}`);
+    }
+    if (answers.profileAuthorityGuidance && answers.profileAuthorityGuidance !== "specific_date") {
+      lines.push(`기한 인식(복원): ${answers.profileAuthorityGuidance}`);
+    }
+    if (answers.profilePerceivedIssue) {
+      lines.push(`이해 어려운 부분(복원): ${answers.profilePerceivedIssue}`);
+    }
+    if (answers.case06_documentNature) {
+      lines.push(`문서 성격(복원): ${answers.case06_documentNature}`);
+    }
+  }
+  return lines;
+}
+
+function textFieldComplete(key: string, answers: ReviewAnswers): boolean {
+  return Boolean(answers[key]?.trim());
+}
+
+function pushDeadlineDateText(questions: ProfileQuestion[], answers: ReviewAnswers): void {
+  if (!case06NeedsDeadlineDate(answers)) return;
+  pushUnique(questions, {
+    id: CASE06_DEADLINE_DATE_KEY,
+    kind: "text",
+    label: "그 날짜·기한을 적어 주세요.",
+    placeholder: "기억나는 날짜·기한을 적어 주세요.",
+  });
+}
+
+function pushPaymentAmountText(questions: ProfileQuestion[], answers: ReviewAnswers): void {
+  if (!case06NeedsPaymentAmountText(answers)) return;
+  pushUnique(questions, {
+    id: CASE06_PAYMENT_AMOUNT_TEXT_KEY,
+    kind: "text",
+    label: "안내받은 금액을 적어 주세요.",
+    placeholder: "금액·통화를 적어 주세요.",
+  });
+}
+
+function pushAttendanceNoticeText(questions: ProfileQuestion[], answers: ReviewAnswers): void {
+  if (!case06NeedsAttendanceNoticeText(answers)) return;
+  pushUnique(questions, {
+    id: CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
+    kind: "text",
+    label: "출석·설명 날짜·장소·방식을 적어 주세요.",
+    placeholder: "날짜·장소·방식을 적어 주세요.",
+  });
+}
+
+function pushDispositionEffectiveDateText(questions: ProfileQuestion[], answers: ReviewAnswers): void {
+  if (!case06NeedsDispositionEffectiveDateText(answers)) return;
+  pushUnique(questions, {
+    id: CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY,
+    kind: "text",
+    label: "처분 발효일을 적어 주세요.",
+    placeholder: "기억나는 발효일을 적어 주세요.",
+  });
+}
 
 const CASE06_CANDIDATE_TO_CHAIN: Record<string, 1 | 2 | 3 | 4 | 5> = {
   pay_demand: 1,
@@ -420,7 +579,16 @@ export function isCase06RedesignPhase1Complete(answers: ReviewAnswers): boolean 
     const options = CASE06_V11_FIELD_OPTIONS[fieldId];
     if (!options || !choiceComplete(fieldId, answers, options)) return false;
   }
+  if (case06NeedsDeadlineDate(answers)) return false;
   return true;
+}
+
+/** Legacy Phase1 or v1.1 — single deadline text gate (R04). */
+export function appendCase06DeadlineDateTextIfNeeded(
+  questions: ProfileQuestion[],
+  answers: ReviewAnswers,
+): void {
+  pushDeadlineDateText(questions, answers);
 }
 
 export function resolveCase06Phase2ChainId(answers: ReviewAnswers): 1 | 2 | 3 | 4 | 5 {
@@ -474,6 +642,7 @@ function isChainPaymentComplete(answers: ReviewAnswers): boolean {
       return false;
     }
   }
+  if (case06NeedsPaymentAmountText(answers)) return false;
   return true;
 }
 
@@ -498,6 +667,7 @@ function isChainAttendanceComplete(answers: ReviewAnswers): boolean {
       return false;
     }
   }
+  if (case06NeedsAttendanceNoticeText(answers)) return false;
   return true;
 }
 
@@ -531,6 +701,7 @@ function isChainDispositionComplete(answers: ReviewAnswers): boolean {
   for (const [id, opts] of base) {
     if (!choiceComplete(id, answers, opts)) return false;
   }
+  if (case06NeedsDispositionEffectiveDateText(answers)) return false;
   return true;
 }
 
@@ -540,7 +711,15 @@ function isChainUnclearExpertComplete(answers: ReviewAnswers): boolean {
   }
   const recheck = answers.case06_unclearContentRecheck?.trim();
   if (recheck === "signal_violation") {
-    return true;
+    if (
+      !choiceComplete("case06_unclearFactRelation", answers, CASE06_UNCLEAR_FACT_RELATION_OPTIONS)
+    ) {
+      return false;
+    }
+    if (!choiceComplete("case06_unclearResponse", answers, CASE06_UNCLEAR_RESPONSE_OPTIONS)) {
+      return false;
+    }
+    return isCase06ExpertTerminal(answers);
   }
   if (recheck && recheck !== "other" && CASE06_RECHECK_SIGNAL_TO_CHAIN[recheck]) {
     return false;
@@ -634,6 +813,8 @@ export function applyCase06BridgeSnapshot(
 function appendPaymentChain(questions: ProfileQuestion[], answers: ReviewAnswers): void {
   if (!pushChoice(questions, answers, "case06_paymentNature", "무엇에 대한 비용이라고 안내받았나요?", CASE06_PAYMENT_NATURE_OPTIONS)) return;
   if (!pushChoice(questions, answers, "case06_paymentAmountKnown", "얼마를 내라고 안내받았나요?", CASE06_PAYMENT_AMOUNT_KNOWN_OPTIONS)) return;
+  pushPaymentAmountText(questions, answers);
+  if (case06NeedsPaymentAmountText(answers)) return;
   if (!pushChoice(questions, answers, "case06_paymentSituationMatch", "그 금액이 실제 본인 상황과 맞다고 생각하시나요?", CASE06_PAYMENT_SITUATION_MATCH_OPTIONS)) return;
   if (!pushChoice(questions, answers, "case06_paymentAuthorityCheck", "기관에 직접 확인해 보셨나요?", CASE06_PAYMENT_AUTHORITY_CHECK_OPTIONS)) return;
   if (!pushChoice(questions, answers, "case06_paymentResponse", "지금까지 실제로 어떻게 하셨나요?", CASE06_PAYMENT_RESPONSE_OPTIONS)) return;
@@ -652,6 +833,8 @@ function appendAttendanceChain(questions: ProfileQuestion[], answers: ReviewAnsw
   if (!pushChoice(questions, answers, "case06_attendanceSubject", "무엇에 대해 출석하거나 설명하라고 했나요?", CASE06_ATTENDANCE_SUBJECT_OPTIONS)) return;
   if (!pushChoice(questions, answers, "case06_attendanceFactMatch", "기관이 문제 삼는 내용이 실제 상황과 맞다고 생각하시나요?", CASE06_ATTENDANCE_FACT_MATCH_OPTIONS)) return;
   if (!pushChoice(questions, answers, "case06_attendanceNoticeDetail", "언제, 어디서, 어떤 방식으로 통지받았나요?", CASE06_ATTENDANCE_NOTICE_DETAIL_OPTIONS)) return;
+  pushAttendanceNoticeText(questions, answers);
+  if (case06NeedsAttendanceNoticeText(answers)) return;
   if (!pushChoice(questions, answers, "case06_attendanceResponse", "지금까지 실제로 어떻게 대응하셨나요?", CASE06_ATTENDANCE_RESPONSE_OPTIONS)) return;
   if (case06NeedsAttendanceAuthorityReaction(answers)) {
     pushChoice(
@@ -686,6 +869,8 @@ function appendDispositionChain(questions: ProfileQuestion[], answers: ReviewAns
   if (!pushChoice(questions, answers, "case06_dispositionReason", "그 처분의 이유를 기관에서는 어떻게 설명했나요?", CASE06_DISPOSITION_REASON_OPTIONS)) return;
   if (!pushChoice(questions, answers, "case06_dispositionFactMatch", "그 이유가 실제 본인 상황과 맞다고 생각하시나요?", CASE06_DISPOSITION_FACT_MATCH_OPTIONS)) return;
   if (!pushChoice(questions, answers, "case06_dispositionEffectiveDate", "이 처분은 언제부터 효력이 생긴다고 안내받았나요?", CASE06_DISPOSITION_EFFECTIVE_DATE_OPTIONS)) return;
+  pushDispositionEffectiveDateText(questions, answers);
+  if (case06NeedsDispositionEffectiveDateText(answers)) return;
   pushChoice(questions, answers, "case06_dispositionResponse", "지금까지 실제로 어떻게 대응하셨나요?", CASE06_DISPOSITION_RESPONSE_OPTIONS);
 }
 
@@ -702,10 +887,7 @@ function appendUnclearChain(questions: ProfileQuestion[], answers: ReviewAnswers
     return;
   }
   const recheck = answers.case06_unclearContentRecheck?.trim();
-  if (recheck === "signal_violation") {
-    return;
-  }
-  if (recheck && recheck !== "other" && CASE06_RECHECK_SIGNAL_TO_CHAIN[recheck]) {
+  if (recheck && recheck !== "other" && recheck !== "signal_violation" && CASE06_RECHECK_SIGNAL_TO_CHAIN[recheck]) {
     const chain = CASE06_RECHECK_SIGNAL_TO_CHAIN[recheck];
     if (chain === 1) appendPaymentChain(questions, answers);
     else if (chain === 2) appendAttendanceChain(questions, answers);
@@ -739,6 +921,10 @@ export function appendCase06RedesignPhase1Questions(questions: ProfileQuestion[]
     const options = CASE06_V11_FIELD_OPTIONS[field.id];
     if (!options) return;
     if (!pushChoice(questions, answers, field.id, field.label, options)) return;
+    if (field.id === "case06_deadlineActionPair") {
+      pushDeadlineDateText(questions, answers);
+      if (case06NeedsDeadlineDate(answers)) return;
+    }
   }
 }
 
@@ -799,6 +985,13 @@ export function selectCase06RedesignResolutionFocus(
       if (!options || choiceComplete(fieldId, answers, options)) continue;
       return { questionId: fieldId, focus: "caseClassification", reason: "CASE_06 Phase1" };
     }
+    if (case06NeedsDeadlineDate(answers)) {
+      return {
+        questionId: CASE06_DEADLINE_DATE_KEY,
+        focus: "deadline",
+        reason: "CASE_06 Phase1 deadline date",
+      };
+    }
   }
   const chain = resolveCase06Phase2ChainId(answers);
   const chainFieldOrder: Record<number, string[]> = {
@@ -849,6 +1042,30 @@ export function selectCase06RedesignResolutionFocus(
     if (!choiceComplete(fieldId, answers, options)) {
       return { questionId: fieldId, focus: "caseClassification", reason: "CASE_06 Phase2 chain" };
     }
+    if (fieldId === "case06_paymentAmountKnown" && case06NeedsPaymentAmountText(answers)) {
+      return {
+        questionId: CASE06_PAYMENT_AMOUNT_TEXT_KEY,
+        focus: "authorityClaim",
+        reason: "CASE_06 payment amount text",
+      };
+    }
+    if (fieldId === "case06_attendanceNoticeDetail" && case06NeedsAttendanceNoticeText(answers)) {
+      return {
+        questionId: CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
+        focus: "actualSituation",
+        reason: "CASE_06 attendance notice text",
+      };
+    }
+    if (
+      fieldId === "case06_dispositionEffectiveDate" &&
+      case06NeedsDispositionEffectiveDateText(answers)
+    ) {
+      return {
+        questionId: CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY,
+        focus: "deadline",
+        reason: "CASE_06 disposition effective date text",
+      };
+    }
   }
   return null;
 }
@@ -860,7 +1077,8 @@ export function maybeApplyCase06ExpertTerminalOnAnswer(
 ): ReviewAnswers {
   if (questionId !== "case06_unclearResponse") return answers;
   if (resolveCase06Phase2ChainId(answers) !== 5) return answers;
-  if (answers.case06_unclearContentRecheck !== "other") return answers;
+  const recheck = answers.case06_unclearContentRecheck?.trim();
+  if (recheck !== "other" && recheck !== "signal_violation") return answers;
   if (
     !choiceComplete("case06_unclearFactRelation", answers, CASE06_UNCLEAR_FACT_RELATION_OPTIONS) ||
     !choiceComplete("case06_unclearResponse", answers, CASE06_UNCLEAR_RESPONSE_OPTIONS)

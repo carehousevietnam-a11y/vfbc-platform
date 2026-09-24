@@ -29,7 +29,15 @@ import {
   case05Phase2SubstantiveAxisCatalogCount,
   deriveCase05DispositionSignals,
   isCase05Phase1Complete,
+  isCase06Phase1Complete,
 } from "../../src/lib/adminVerifyProfiling.ts";
+import {
+  CASE06_DEADLINE_DATE_KEY,
+  CASE06_PAYMENT_AMOUNT_TEXT_KEY,
+  case06NeedsDeadlineDate,
+  case06NeedsPaymentAmountText,
+  isCase06RedesignPhase1Complete,
+} from "../../src/lib/adminVerifyCase06Redesign.ts";
 
 const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3010";
 const EMPTY_FOLLOW = {};
@@ -49,6 +57,57 @@ const CASE03_REGRESSION_IDS_WITHOUT_EVIDENCE = [
   "case03_blockage",
   "case03_finalGoal",
 ];
+
+function case06Step21EngineChecks() {
+  const v11Base = {
+    situation: "received_document",
+    stage: "case",
+    [ADMIN_CASE_ENTRY_Q1_KEY]: "unclear",
+    case06_requiredActionCandidate: "pay_demand",
+    case06_knowledgeSource: "doc_read_understood",
+    case06_sourceChannel: "gov_document_direct",
+    case06_deadlineActionPair: "deadline_pay_by_date",
+    case06_customerResponse: "no_response_yet",
+  };
+  const withDate = attachCaseResolutionSnapshot({
+    ...v11Base,
+    [CASE06_DEADLINE_DATE_KEY]: "2026-09-20",
+  });
+  const profile = buildCaseResolutionProfile(withDate);
+  const missingDate = attachCaseResolutionSnapshot({ ...v11Base });
+  const legacyR04 = attachCaseResolutionSnapshot({
+    situation: "received_document",
+    stage: "case",
+    case06_documentNature: "payment_demand",
+    profilePerceivedIssue: "what_to_do",
+    profileDocumentSource: "specific_agency",
+    profileCurrentGoal: "pay_fee",
+    profileAuthorityGuidance: "specific_date",
+  });
+  const paymentNeedsText = attachCaseResolutionSnapshot({
+    ...withDate,
+    case06_paymentNature: "violation_fine",
+    case06_paymentAmountKnown: "exact_amount_known",
+  });
+  const signalQs = buildAdminVerifyProfileQuestions(
+    attachCaseResolutionSnapshot({
+      ...withDate,
+      case06_requiredActionCandidate: "problem_action_unclear",
+      case06_unclearContentRecheck: "signal_violation",
+    }),
+    EMPTY_FOLLOW,
+    EMPTY_DOCS,
+    2,
+  );
+  const signalViolationFactQuestion = signalQs.some((q) => q.id === "case06_unclearFactRelation");
+  return {
+    deadlineInProfile: (profile.deadline.value ?? "").includes("2026-09-20"),
+    deadlinePairIncomplete: !isCase06RedesignPhase1Complete(missingDate),
+    r04LegacyGate: case06NeedsDeadlineDate(legacyR04) && !isCase06Phase1Complete(legacyR04),
+    paymentAmountTextGate: case06NeedsPaymentAmountText(paymentNeedsText),
+    signalViolationFactQuestion,
+  };
+}
 
 function case05Step21EngineChecks() {
   const withDate = attachCaseResolutionSnapshot({
@@ -142,6 +201,10 @@ function nextPendingQuestion(answers, phase) {
   for (const q of qs) {
     if (q.id === ADMIN_CASE_ENTRY_Q1_KEY && isAdminCaseEntryQ1Complete(answers)) continue;
     if (phase === 2 && (q.id === ADMIN_CASE_ENTRY_Q1_KEY || p1Ids.has(q.id))) continue;
+    if (q.kind === "text") {
+      if (!answers[q.id]?.trim()) return q;
+      continue;
+    }
     if (!answers[q.id]?.trim()) return q;
   }
   return null;
@@ -161,6 +224,18 @@ function buildClickPlan(initialAnswers, phase, valueOverrides = {}) {
   for (let guard = 0; guard < 40; guard++) {
     const q = nextPendingQuestion(answers, phase);
     if (!q) break;
+    if (q.kind === "text") {
+      const textVal = valueOverrides[q.id] ?? "2026-06-01";
+      steps.push({
+        id: q.id,
+        kind: "text",
+        label: q.label,
+        optionValue: textVal,
+        optionLabel: textVal,
+      });
+      answers = attachCaseResolutionSnapshot({ ...answers, [q.id]: textVal });
+      continue;
+    }
     const opt = pickOption(q, valueOverrides[q.id]);
     const noteKey = getAdminChoiceNoteKey(q.id);
     const noteOverride = valueOverrides[noteKey];
@@ -293,7 +368,7 @@ const CASE_CONFIGS = {
       case06_requiredActionCandidate: "pay_demand",
       case06_knowledgeSource: "doc_read_understood",
       case06_sourceChannel: "gov_document_direct",
-      case06_deadlineActionPair: "deadline_pay_by_date",
+      case06_deadlineActionPair: "no_deadline_stated",
       case06_customerResponse: "no_response_yet",
     },
     case06ChainOverrides: {
@@ -330,7 +405,7 @@ const CASE_CONFIGS = {
       case06_requiredActionCandidate: "attend_explain",
       case06_knowledgeSource: "doc_read_not_understood",
       case06_sourceChannel: "gov_contact_direct",
-      case06_deadlineActionPair: "deadline_attend_by_date",
+      case06_deadlineActionPair: "action_unclear_timing",
       case06_customerResponse: "inquired_authority",
     },
     case06ChainOverrides: {
@@ -363,7 +438,7 @@ const CASE_CONFIGS = {
       case06_requiredActionCandidate: "submit_supplement",
       case06_knowledgeSource: "explained_without_doc",
       case06_sourceChannel: "via_agent_or_company",
-      case06_deadlineActionPair: "deadline_submit_by_date",
+      case06_deadlineActionPair: "no_deadline_stated",
       case06_customerResponse: "prepared_or_submitted_docs",
     },
     case06ChainOverrides: {
@@ -478,9 +553,9 @@ async function getActiveQuestionLabel(page) {
 
 async function fillReactTextarea(page, textarea, text) {
   await textarea.click();
-  await page.keyboard.press("Control+A");
-  await page.keyboard.press("Backspace");
-  await page.keyboard.type(text, { delay: 3 });
+  await textarea.fill(text);
+  await textarea.dispatchEvent("input", { bubbles: true });
+  await textarea.dispatchEvent("change", { bubbles: true });
 }
 
 async function captureLabelAssertEvidence(page, tag, meta) {
@@ -619,7 +694,23 @@ async function runQuestionSteps(page, steps, simAnswers, phase) {
       });
       break;
     }
-    if (step.noteValue) {
+    if (step.kind === "text") {
+      await page.waitForTimeout(500);
+      const textarea = page.getByPlaceholder(/기억나는 날짜|금액|발효일|날짜·장소/).first();
+      await textarea.waitFor({ state: "visible", timeout: 15_000 });
+      await fillReactTextarea(page, textarea, step.optionValue);
+      const nextBtn = page.getByRole("button", { name: "다음" });
+      await page
+        .waitForFunction(() => {
+          const btn = [...document.querySelectorAll("button")].find(
+            (b) => (b.textContent ?? "").trim() === "다음",
+          );
+          return btn && !btn.disabled;
+        })
+        .catch(() => undefined);
+      await nextBtn.click();
+      await page.waitForTimeout(400);
+    } else if (step.noteValue) {
       await commitAdminDirectExplainNote(page, step);
       trace.push({
         event: "POST_DI_COMMIT",
@@ -861,7 +952,7 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
   let phase1LabelFail = null;
   for (const s of phase1Plan.steps.filter((x) => x.id !== ADMIN_CASE_ENTRY_Q1_KEY)) {
     const browserLabel = await getActiveQuestionLabel(page);
-    const ok = labelsMatch(browserLabel, s.label);
+    const ok = s.kind === "text" ? true : labelsMatch(browserLabel, s.label);
     const progress = await readProgressUx(page);
     phase1Trace.push({
       id: s.id,
@@ -875,7 +966,27 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
       phase1LabelFail = { id: s.id, browserLabel, engineLabel: s.label };
       break;
     }
-    await clickChoice(page, s.optionLabel.slice(0, 28));
+    if (s.kind === "text") {
+      await page.waitForTimeout(500);
+      const textarea = page.getByPlaceholder(/기억나는 날짜|금액|발효일|날짜·장소/).first();
+      await textarea.waitFor({ state: "visible", timeout: 15_000 });
+      await fillReactTextarea(page, textarea, s.optionValue);
+      const nextBtn = page.getByRole("button", { name: "다음" });
+      await page
+        .waitForFunction(() => {
+          const btn = [...document.querySelectorAll("button")].find(
+            (b) => (b.textContent ?? "").trim() === "다음",
+          );
+          return btn && !btn.disabled;
+        })
+        .catch(() => undefined);
+      await nextBtn.click();
+      await page.waitForTimeout(400);
+    } else if (s.noteValue) {
+      await commitAdminDirectExplainNote(page, s);
+    } else {
+      await clickChoice(page, s.optionLabel.slice(0, 28));
+    }
     sim = attachCaseResolutionSnapshot({ ...sim, [s.id]: s.optionValue });
   }
   if (phase1LabelFail) {
@@ -1154,6 +1265,9 @@ try {
 
 report.CASE05_STEP21_ENGINE = case05Step21EngineChecks();
 report.CASE05_STEP21_ENGINE.pass = Object.values(report.CASE05_STEP21_ENGINE).every(Boolean);
+
+report.CASE06_STEP21_ENGINE = case06Step21EngineChecks();
+report.CASE06_STEP21_ENGINE.pass = Object.values(report.CASE06_STEP21_ENGINE).every(Boolean);
 
 report.LOCK_READINESS = buildLockReadiness(report);
 const lockPath = join(process.cwd(), "tests", "qa", "_strict-v2-lock-final.json");

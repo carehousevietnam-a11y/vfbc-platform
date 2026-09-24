@@ -10,6 +10,10 @@ import {
   CASE06_V11_PHASE1_FIELD_ORDER,
   isCase06BridgeSnapshotCommitted,
   isCase06ExpertTerminal,
+  appendCase06DeadlineDateTextIfNeeded,
+  CASE06_DEADLINE_DATE_KEY,
+  case06NeedsDeadlineDate,
+  getCase06RequiredActionCandidateLabel,
   isCase06LegacyRestorePath,
   isCase06Phase2ChainComplete,
   isCase06RedesignPhase1Complete,
@@ -6873,6 +6877,7 @@ export function isCase06Phase1Complete(answers: ReviewAnswers): boolean {
       return false;
     }
   }
+  if (case06NeedsDeadlineDate(answers)) return false;
   return true;
 }
 
@@ -6917,6 +6922,10 @@ function appendCase06Phase1Questions(questions: ProfileQuestion[], answers: Revi
       options: field.options,
     });
     if (!answers[field.id]) return;
+    if (field.id === "profileAuthorityGuidance") {
+      appendCase06DeadlineDateTextIfNeeded(questions, answers);
+      if (case06NeedsDeadlineDate(answers)) return;
+    }
   }
 }
 
@@ -7019,6 +7028,7 @@ function appendCase06PathQuestions(
 
 function case06PathFieldsComplete(answers: ReviewAnswers): boolean {
   if (!isCase06Phase1Complete(answers)) return false;
+  if (case06NeedsDeadlineDate(answers)) return false;
   if (case06NeedsExactSource(answers) && !answers.case06_exactSource) return false;
   if (case06NeedsKeyPhrase(answers) && !answers.case06_keyPhrase) return false;
   if (case06NeedsRequiredAction(answers) && !answers.case06_requiredAction) return false;
@@ -7058,7 +7068,13 @@ function deriveUnclearSignals(answers: ReviewAnswers): UnclearSignalCode[] {
   ) {
     signals.push("UNCLEAR_ACTION");
   }
+  const case06DeadlineText = answers[CASE06_DEADLINE_DATE_KEY]?.trim();
   if (
+    answers.profileAuthorityGuidance === "specific_date" &&
+    !case06DeadlineText
+  ) {
+    signals.push("UNCLEAR_DEADLINE");
+  } else if (
     answers.profileAuthorityGuidance === "not_stated" ||
     answers.profileAuthorityGuidance === "uncertain" ||
     answers.profileAuthorityGuidance === "past_possible" ||
@@ -8617,7 +8633,13 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       ? `${case05AuthorityBase} — ${case05AuthoritySuffix}`
       : case05AuthorityBase;
 
-  const authorityClaimLabel = answers.case06_requiredAction
+  const case06V11ActionLabel =
+    case06Active && !isCase06LegacyRestorePath(answers) && answers.case06_requiredActionCandidate
+      ? getCase06RequiredActionCandidateLabel(answers)
+      : null;
+  const authorityClaimLabel = case06V11ActionLabel
+    ? case06V11ActionLabel
+    : answers.case06_requiredAction
     ? getCase06FieldOptionLabel("case06_requiredAction", answers.case06_requiredAction)
     : answers.case05_dispositionType
       ? case05AuthorityLabel
@@ -8657,7 +8679,8 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
 
   const authorityClaim = fact(
     authorityClaimLabel,
-    answers.case06_requiredAction ||
+    case06V11ActionLabel ||
+      answers.case06_requiredAction ||
       answers.case05_dispositionType ||
       (case06Active && answers.profileCurrentGoal) ||
       answers.case04_supplementTarget ||
@@ -8669,7 +8692,9 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       answers.profileAuthorityGuidance
       ? "confirmed"
       : "unknown",
-    answers.case06_requiredAction
+    case06V11ActionLabel
+      ? "case06_requiredActionCandidate"
+      : answers.case06_requiredAction
       ? "case06_requiredAction"
       : answers.case05_dispositionType
       ? "case05_dispositionType"
@@ -9008,8 +9033,16 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
   const effectiveDate = fact<string>(null, "unknown");
 
   const deadlineAssessment = assessLegacyField(answers, "deadline", answers.deadline);
+  const case06V11DeadlineText =
+    case06Active && !isCase06LegacyRestorePath(answers)
+      ? answers[CASE06_DEADLINE_DATE_KEY]?.trim()
+      : "";
   const deadline = fact(
-    case06Active && answers.profileAuthorityGuidance
+    case06V11DeadlineText
+      ? `대응·제출 기한: ${case06V11DeadlineText}`
+      : case06Active &&
+          answers.profileAuthorityGuidance &&
+          answers.profileAuthorityGuidance !== "specific_date"
       ? getCase06FieldOptionLabel("profileAuthorityGuidance", answers.profileAuthorityGuidance)
       : answers.case05_deadline
       ? case05EffectiveDeadline(answers.case05_deadline) === "specific_date" &&
@@ -9034,7 +9067,10 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
           : deadlineAssessment === "unknown"
             ? "기한·유효기간 미확인"
             : null,
-    (case06Active && answers.profileAuthorityGuidance) ||
+    case06V11DeadlineText ||
+      (case06Active &&
+        answers.profileAuthorityGuidance &&
+        answers.profileAuthorityGuidance !== "specific_date") ||
       answers.case05_deadline ||
       answers.case04_deadline ||
       answers.case03_deadline ||
@@ -9046,7 +9082,9 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
         : deadlineAssessment === "ok"
           ? "confirmed"
           : "inferred",
-    case06Active && answers.profileAuthorityGuidance
+    case06V11DeadlineText
+      ? CASE06_DEADLINE_DATE_KEY
+      : case06Active && answers.profileAuthorityGuidance
       ? "profileAuthorityGuidance"
       : answers.case05_deadline
       ? case05EffectiveDeadline(answers.case05_deadline) === "specific_date" &&
