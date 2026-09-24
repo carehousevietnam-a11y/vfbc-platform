@@ -5,8 +5,9 @@
 | **전제** | STEP1 DQ-RE-01 ~ DQ-RE-07 **권장안 Ace 승인** (2026-09-24). DQ-RE-08은 DQ-RE-03 반영 후 재검토 — **이번 매핑·STEP2-1 범위 밖** |
 | **SoT** | 제품: `src/lib/realEstateVerifyProfiling.ts`. 원칙: `VFBCAI_MASTER_DEVELOPMENT_SKILL_v1.2.md` §43–§44·§51, `VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` §1~§8, `VFBCAI_MASTER_HANDOFF_PRINCIPLES_v1.md` |
 | **패턴** | Admin CASE_06 함수를 RE에 복사하지 않는다. DI 헬퍼(`ADMIN_DIRECT_EXPLAIN_CHOICE`, `getAdminChoiceNoteKey`, `isAdminVerifyChoiceFieldComplete`)는 **호출만** 재사용 |
-| **구현** | **STEP2-1 보류** — 2번창 CASE_05, 1번창 CASE_03/04 정합성 수정이 끝난 뒤 |
+| **구현** | **STEP2-1 보류** — Admin VERIFY **CASE_01~06** STEP2-1이 순서대로 끝난 뒤 (현재 CASE_06 진행 중). `adminVerifyProfiling.ts` 단일-writer 해제 후 |
 | **검증** | LEVEL 1 (코드·문서 정합 설계만). 브라우저 QA 없음 |
+| **완결성 LOCK** | `VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md` (`fa4cce9`) — §11 재검토 (2026-09-25) |
 
 ---
 
@@ -339,12 +340,66 @@ phase2 JSON에 브릿지 답이 완료 조건과 같은데 플래그가 없으�
 
 ## 10. STEP2-1 착수 조건
 
-1. 2번창 CASE_05 STEP2 완료  
-2. 1번창 CASE_03/04 정합성 수정 완료  
-3. 그 다음에만 이 문서 §1→§7 순으로 **한 번** 구현  
+1. Admin VERIFY **CASE_01~06** STEP2-1이 Ace 지시 순서대로 **전부** 완료  
+2. `adminVerifyProfiling.ts` 등 공유 파일 **단일-writer** 해제  
+3. 그 다음에만 이 문서 §1→§7 순으로 **한 번** 구현 (§11 갭은 본 STEP2-1 **필수 범위가 아님** — 별도 리메디 Mission 후보)  
 4. DQ-RE-08은 §3이 코드에 반영된 뒤 별도 검토  
 5. `npx tsc --noEmit` + product 브라우저 (LEVEL 3). harness 단독 PASS로 완료 선언 금지  
 
 ---
 
-*2026-09-24. STEP2-0 — 구현 없음. STEP2-1은 CASE_05·CASE_03/04 창 이후.*
+## 11. 정보완결성 LOCK 재검토 (`fa4cce9`, 2026-09-25)
+
+**성격:** 코드 미변경. 승인된 §0~§7 STEP2-1 범위와 LOCK 감사 기준의 **정합·갭**만 기록한다. 별도 `VFBCAI_REALESTATE_INFORMATION_COMPLETENESS_AUDIT_v1.md`는 **미작성** — CASE_05/06 감사 수준의 경로별 표 추적은 STEP2-1 이후 Mission 권장.
+
+### 11.1 LOCK 기준 적용 요약
+
+| 축 | 승인 STEP2-0(§1~§7)만 구현했을 때 | 비고 |
+|----|----------------------------------|------|
+| **① 정보 완결성** | **부분 개선** — DI `other`+note 정규화(§1), `not_checked_yet`→`re2_registrationDetail`(§6.3)은 유지. 날짜·금액·장소 **구조화 값**은 §11.3 갭 다수 **미해결** | Admin `specific_date`류와 **동종** slug-only 남음 |
+| **②~④** | **본 Mission 범위 밖** — CASE_05/06 Phase2 리메디처럼 기존 choice를 Profile·result·`needs*`에 **실질 연결**하는 작업은 §1~§7에 **없음** | 옵션·DI 정리만으로 장식 축이 사라지지 않음 |
+| **⑤ 직접입력** | **PASS 방향** — §1이 `*Detail` 임시 경로를 `other`+note로 정식화. Entry `unsure`는 `customerInput` text(20자+) | 핵심 축이 note만인 설계는 §11.3에서 별도 표시 |
+| **1차 = 2차 / 1차 > 2차** | **FAIL 위험 유지** — `selectMinimumPhase2DeepeningMissing`: Phase2 답이 **1개**만 있으면 추가 심화를 열지 않고 `null` 반환 (`realEstateVerifyProfiling.ts`). 1차는 경로당 choice **다수** | 비율은 **질문 개수가 아니라 실질 축**(②~④ 통과)으로 센다 |
+| **3:7~4:6 하한** | **NOT VERIFIED** (본 문서) — 실질 축 경로별 카운트·표 추적 없음. 1차 다수 vs 2차 조기 종료 경로가 있어 **하한 미달 후보** | STEP2-1 후 전용 감사 Mission에서 확정 |
+
+**결론:** Ace 승인 §1~§7은 **패턴·DI·STOP·브릿지·레거시 읽기** Mission이다. LOCK ①·②~④·비율을 **전 경로 PASS**로 만드는 것은 **추가 리메디 STEP2-0** (CASE_05/06 유형)이 필요할 수 있다. §11.3 갭은 그 후보 입력이다.
+
+### 11.2 CASE-native vs Admin (deadline·금액)
+
+RE는 Admin `caseNN_deadline` / CASE_06 `case06_deadlineActionPair`를 **복사하지 않는다**(§0·§7). 날짜·금액 text 후속이 필요하면 **`realEstateVerifyProfiling.ts` 안 RE 전용 키·게이트**로만 추가한다 (CASE_06 Brief §2.1.1과 동일 원칙). R01=A 승인은 Admin에 적용된 것이며 RE에는 **별도 DQ·키 이름**이 필요한다.
+
+### 11.3 데이터 손실 패턴 점검 — 갭 (slug만 저장, 값 칸 없음)
+
+Admin CASE_03/04/05/06에서 본 **`specific_date` / `exact_*`류**: choice는 했는데 **날짜·금액·장소 문자열 키가 없어** Profile·결과가 slug 라벨만 쓰는 지점.
+
+| 갭 ID | 위치 (현행 코드) | 패턴 | 승인 STEP2-0(§1~§7) | STEP2-1 이후 권고 |
+|-------|------------------|------|---------------------|-------------------|
+| **GAP-RE-DL-01** | Phase1 `re_situationGap` — `amount_diff`, `deadline_dispute` | 금액·기한 불일치를 고르지만 **`re_situationGapAmountText` / `re_situationGapDeadlineText` 없음**. `dates`는 `deadline_dispute`일 때 「기한·인도 시점 분쟁」 고정 문구만 (`buildRealEstateSituationProfile`) | **미포함** | RE-native `kind:text` 후속 + 결과에 문자열 없으면 「확인됨」류 문장 금지 |
+| **GAP-RE-DL-02** | Phase2 `re2_translationIssue` — `amount_diff`, `date_diff` | 번역 불일치 slug만. 금액·날짜 원문 키 없음 | **미포함** | translation 경로 전용 text 또는 DI note를 Profile `facts`/`dates`에 반영 |
+| **GAP-RE-DL-03** | Phase2 `re2_conflictFocus` — `amount_written_diff`, `timeline_written_diff` | 금액·시점 초점 slug만 | §6.3 **`needsConflictDetailPhase2` 삭제** → mismatch+gap 강제 서술도 제거. **구현 후 slug만으로 완료 가능(악화)** | 값별 text 후속 또는 downstream result 실질화 (질문 id 추가 없이 서술 1개를 조건부로 유지할지 **별도 DQ**) |
+| **GAP-RE-DL-04** | `re2_timelineStage`(4 slug), `re2_moneyRecovery`=`deadline_passed`, `re2_authorityStage`=`hearing_scheduled` | **시점·일정·출석**을 암시하나 구체 **날짜·장소** 키 없음 | §6.3 **`needsTimelineDetailPhase2` 삭제** → stage slug만으로 `dates` 채움 **악화** | `re2_timelineDateText` / `re2_hearingScheduleText` 등 RE-native 게이트 |
+| **GAP-RE-DL-05** | `re2_moneySituation` — `verbal_vs_written`, `return_unclear`, `extra_demand` | 현행: 네 값 모두 `re2_moneyDetail` 강제. 승인 §6.3: **`amount_unclear`만** 서술 | **의도적 변경** — 나머지 세 slug는 detail 없이 완료. **금액 숫자 키는 여전히 없음** | 금액·반환 조건 text가 필요하면 slug별 `needs*` + text (Admin `exact_amount_known` 유형) |
+| **GAP-RE-DL-06** | `re2_registrationConcern`=`not_checked_yet` → `re2_registrationDetail` | slug + text — **양호 패턴** | §6.3 **유지** | STEP2-1에서 깨지지 않게 회귀만 |
+| **GAP-RE-DL-07** | `re2_clauseFocus` — `delivery_handover` 등 | 인도·장소 불명 slug. **주소·물건 위치** 키 없음 | §6.3 **clause detail 삭제** | 인도·장소 text는 별도 DQ |
+| **GAP-RE-DL-08** | Phase1 `re_situationGap` / `re2_docReliability` `party_name_diff` | 당사자·주소 표기 차이 slug. **주소 문자열** 키 없음 | **미포함** | 필요 시 text 또는 DI note만 Profile에 연결 |
+
+**§1 DI 통합과의 관계:** `re_situationGap` 등 Phase1 choice에 하단 DI가 있으면 `re_situationGapNote`에 원문이 갈 수 있다(§1.3). 그러나 **`amount_diff` / `deadline_dispute` 등 numbered choice만 고른 정상 경로**는 여전히 값 칸 없이 완료될 수 있다 → ①·⑤ **FAIL 후보**는 유지된다.
+
+### 11.4 STEP2-1 IMPLEMENTER 체크 (승인 범위 내)
+
+| 항목 | 지시 |
+|------|------|
+| §6.3 detail 축소 | 구현 시 GAP-RE-DL-03~05 **회귀** 확인. slug-only로 `dates`/`money`가 「확인됨」처럼 보이면 **금지** (문구는 결과 파일에서 grep) |
+| §2.3 `partial` | 신규 slug — `needsSituationGap`·result·Profile이 `mismatch`와 **갈라지는지** 코드 추적 (②~④) |
+| §7 브릿지 | `re2_unclearBridgeCommitted` 전 native Phase2 미개방 — UNCLEAR 경로 **2차 깊이**에 영향 (비율 감사 시 별도 경로) |
+| §11.3 갭 | **이번 STEP2-1에 넣지 않음** — Ace 별도 Mission·DQ 후 `RE_PHASE2_REMEDIATION_STEP2-0` 유형으로 |
+
+### 11.5 권장 후속 (구현 대기)
+
+1. RE 전용 **정보완결성 감사** 문서 (CASE_05 audit 형식, 경로별 실질 축·비율 표)  
+2. 갭 **GAP-RE-DL-01~08** 중 Ace가 우선순위를 정한 뒤 RE-native text 키·게이트 STEP2-0 리메디  
+3. DQ-RE-08 (1차 `buildActions`) — 기존 §3 일정 유지  
+
+---
+
+*2026-09-24. STEP2-0 — 구현 없음. 2026-09-25 §10·§11 — LOCK 재검토·갭·착수 조건 갱신 (CASE_01~06 후 RE STEP2-1).*
