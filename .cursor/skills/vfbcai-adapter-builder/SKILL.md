@@ -12,6 +12,8 @@ disable-model-invocation: true
 
 ## 시작 시 읽을 순서
 
+`VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`는 LOCK 상태다. 이 원칙을 임의로 완화, 재해석, 축소하지 않는다. 질문/선택지 작업 시 이 기준을 그대로 적용하고, 예외가 필요하면 코드를 작성하지 말고 먼저 사용자에게 확인을 요청한다.
+
 1. `docs/VFBCAI_CONSTITUTION.md` §16 — 1차/2차 정보밀도 원칙
 2. `docs/master/VFBCAI_행정문서_질문_MASTER_최종합의본_v1.0.md` — 질문개수 비고정, Situation Skeleton vs 심화추적 원칙
 3. `docs/master/VFBCAI_MASTER_HANDOFF_PRINCIPLES_v1.md` — Adapter 원칙 A–P, §4–§5

@@ -416,6 +416,7 @@ VFBCAI의 핵심 시스템 목적이다.
 중요한 기준: 1차 < 2차 의 정보 깊이와 개인화 수준.
 2차 질문은 1차 답변과 제출 증거를 기반으로
 실제 사건 해결에 필요한 정보를 추가 확보해야 한다.
+이 절의 세부 감사 기준은 [`docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`](master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md)에서 LOCK 상태로 관리됨.
 
 16.7 질문 품질 GATE
 모든 질문은 구현·설계 전에 다음을 통과해야 한다.
