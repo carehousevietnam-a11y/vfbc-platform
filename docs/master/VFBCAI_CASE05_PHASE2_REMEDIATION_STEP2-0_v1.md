@@ -308,15 +308,19 @@ LOCK `[신규 확정 — 2026-09-25]` (`VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CR
 
 ---
 
-## 5. DESIGN QUESTIONS (Ace 승인 전 IMPLEMENTER 착수 금지)
+## 5. DESIGN QUESTIONS — **승인 완료 (LOCK)**
 
-| ID | 모호점 | 권장안 | 근거 |
-|----|--------|--------|------|
-| **DQ-C05-R03** | `submittedDocsDetail.doc_other` | `ADMIN_DIRECT_EXPLAIN_CHOICE`로 통합, slug `doc_other` legacy 읽기만 | REUSABLE §1 |
-| **DQ-C05-R04** | 사유 질문을 거부·권리종료·활동제한 경로에서도 열까 | **열기** (goal이 understand_impact 등일 때) | 감사 ①·권장안 1 |
-| **DQ-C05-R05** | `finalGoal` 옵션 슬림화 | **B 우선** (값별 result만) — slug 삭제는 LOCK 문구 영향 | MASTER § CASE_05 chain 유지 |
-| **DQ-C05-R06** | 3:7 vs 4:6 운영 기준 | 감사·LOCK **둘 다 만족**을 STEP2-1 PASS 조건 (실질 ≥10) | 신규 가드레일 138–142 |
-| **DQ-C05-R07** | `dispositionDetail` FOCUS `authorityClaim` 중복 | Profile **합성 라벨**만; FOCUS rank는 type 우선 | FOCUS_ORDER ~9231 |
+**SoT:** `VFBCAI_CASE05_PHASE2_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md` §1. 재오픈은 Ace만.
+
+| ID | 결정 (2026-09-25) |
+|----|-------------------|
+| R01 | A — text input, CASE_01 동형 |
+| R02 | B — normalize only, 신규 입력만 |
+| R03 | A — `ADMIN_DIRECT_EXPLAIN_CHOICE`; `doc_other` legacy read-only |
+| R04 | B — 사유 질문 경로 확장 |
+| R05 | B — `finalGoal` chain 유지, result/action/profile override |
+| R06 | B — P2 실질 ≥10 (§6.3) |
+| R07 | B — Profile 합성 라벨; FOCUS `dispositionType` 우선 |
 
 ---
 
@@ -333,4 +337,4 @@ LOCK `[신규 확정 — 2026-09-25]` (`VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CR
 
 ---
 
-*2026-09-25. CASE_05 Phase2 실질화 STEP2-0. 코드 미변경. 1번창 배치 종료 후 STEP2-1 Mission Brief로 승격.*
+*2026-09-25. STEP2-0 설계. DQ 승인 → STEP2-1 Mission Brief LOCK. 코드는 배치 종료 후 Brief 기준 구현.*
