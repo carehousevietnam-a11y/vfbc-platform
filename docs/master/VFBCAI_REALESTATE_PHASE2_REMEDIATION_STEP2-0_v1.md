@@ -4,7 +4,7 @@
 |------|------|
 | **버전** | v1 |
 | **성격** | STEP2-0 설계만. **코드 수정 없음** |
-| **선행** | `VFBCAI_REALESTATE_STEP2-0_DESIGN_MAPPING_v1.md` **§1~§7 STEP2-1** 구현·PASS 후 착수 |
+| **선행** | `VFBCAI_REALESTATE_STEP2-0_DESIGN_MAPPING_v1.md` **§1~§7 STEP2-1** 구현·PASS 후 착수. DQ R01~R06 → `VFBCAI_REALESTATE_PHASE2_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md` **LOCK** |
 | **범위** | `/verify/real-estate` RE **adapter** — `realEstateVerifyProfiling.ts`, `realEstateVerifyFirstResult.ts`, `realEstateVerifyPersonalizedResult.ts`, `MasterReviewQuotationReport.tsx` RE 분기 |
 | **금지** | Admin Master·CASE_01~07·`adminVerifyProfiling.ts`·`adminVerifyCase06Redesign.ts` 틀/STOP/bridge 복사. `caseNN_*` / `case06_*` 키 이름 이식 |
 | **SoT 감사** | `VFBCAI_REALESTATE_INFORMATION_COMPLETENESS_AUDIT_v1.md` |
@@ -235,7 +235,9 @@ Phase1 실질 축 **보수 카운트** (리메디 설계용, VERIFIER가 경로 
 
 ---
 
-## 6. DESIGN QUESTIONS (승인 전 구현 없음)
+## 6. DESIGN QUESTIONS — Ace 승인 LOCK (2026-09-25)
+
+**R01=A, R02=A, R03=A, R04=A, R05=A, R06=A.** 구현 SoT는 Mission Brief. 아래는 결정 기록.
 
 ### DQ-RE-R01 — text 입력
 
@@ -308,7 +310,7 @@ Phase1 실질 축 **보수 카운트** (리메디 설계용, VERIFIER가 경로 
 ## 7. STEP2-1 착수 조건 (리메디)
 
 1. RE STEP2-1 (DQ-RE-01~07) Ace 완료·`tsc` PASS  
-2. §6 DQ 승인 → Mission Brief LOCK (CASE_05/06 패턴)  
+2. §6 DQ LOCK — `VFBCAI_REALESTATE_PHASE2_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md`  
 3. `npx tsc --noEmit` + product `/verify/real-estate` 브라우저 (LEVEL 3). harness는 제품 우선  
 4. 감사 v1.1 또는 VERIFIER 표 — 실질 축·비율 **증거**  
 
@@ -349,4 +351,4 @@ Phase1 실질 축 **보수 카운트** (리메디 설계용, VERIFIER가 경로 
 
 ---
 
-*2026-09-25. STEP2-0 설계만. RE STEP2-1(§1~§7) 직후 리메디 Mission 입력용. LOCK 재해석 없음.*
+*2026-09-25. DQ-RE-R01~R06 승인 LOCK. 구현 SoT는 STEP2-1 Mission Brief. RE STEP2-1(§1~§7) PASS 후 리메디 착수. 코드 미착수.*
