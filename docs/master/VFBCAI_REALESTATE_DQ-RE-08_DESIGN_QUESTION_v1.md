@@ -2,7 +2,7 @@
 
 | 항목 | 내용 |
 |------|------|
-| **상태** | Ace **결정 대기** (옵션·권장안만 정리). **코드 미구현** |
+| **상태** | Ace **§5 결정 완료 (2026-09-25)** — 옵션 **C** 승인. **코드 미구현** (RE STEP2-1 **범위 밖**; `buildActions` 유지) |
 | **선행** | `VFBCAI_REALESTATE_STEP2-0_DESIGN_MAPPING_v1.md` §3 **DQ-RE-03**이 STEP2-1에 반영된 **이후** 검토 (STEP2-0 §10.4) |
 | **범위** | 1차 ONE RESULT의 **`actions`** — `realEstateVerifyFirstResult.ts` `buildActions` (**121–147**) |
 | **범위 밖 (본 DQ에서 다루지 않음)** | §3의 `buildSituationSummary` / `keyMetrics` / `buildUnconfirmed` 라벨 — STEP2-1에서 이미 처리 예정. `statusHeadline`·`gradeLabel`·`stageLabel` 전면 개편 |
@@ -152,11 +152,15 @@ UI 소비: `MasterReviewQuotationReport.tsx` → `buildRealEstateFirstResult` �
 
 ## 5. Ace 결정 체크리스트 (한 줄씩)
 
-1. **옵션:** A / B / C / D / E  
-2. **POST actions에 「대응 단계」라는 말을 문장에 넣을까?** 예/아니오  
-3. **UNCLEAR fallback 3문장:** 유지 / 브릿지 전용 축소 / 브릿지 후 native path와 동일  
-4. **DI(`re_goal=other`) actions[0]:** note 첫 문장 인용 / 고정 fallback / 생략  
-5. **구현 시점:** RE STEP2-1 **직후 별도 커밋** (Admin 5-item 배치와 **독립** 권장)
+| # | 항목 | 결정 (2026-09-25) |
+|---|------|-------------------|
+| 1 | **옵션** | **C — 하이브리드** (`actions[0]` = `re_goal` 연동, `[1–2]` = 경로 고정 2줄) |
+| 2 | POST actions에 「대응 단계」 명시 | **구현 Mission에서 문구 확정** (옵션 C 톤: 대응 단계와 연결된 첫 줄) |
+| 3 | UNCLEAR fallback 3문장 | **구현 Mission에서 확정** (브릿지 전 과도한 구체 행동 금지 원칙 유지) |
+| 4 | DI `re_goal=other` → `actions[0]` | **구현 Mission에서 확정** (note 인용 vs 고정 fallback) |
+| 5 | **구현 시점** | **RE STEP2-1 완료 직후 별도 Mission** — STEP2-1에 `buildActions` 변경 **포함하지 않음** |
+
+**잠금:** 현재 RE STEP2-1 진행 중에는 `realEstateVerifyFirstResult.ts` `buildActions` **그대로 유지**.
 
 ---
 
