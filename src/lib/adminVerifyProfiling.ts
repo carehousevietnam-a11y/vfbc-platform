@@ -5082,6 +5082,7 @@ const CASE05_DISPOSITION_REASON_OPTIONS = [
   { value: "deadline_procedure", label: "기한·절차·제출 의무를 지키지 않았다는 이유가 적혀 있습니다" },
   { value: "no_clear_reason", label: "처분 사유에 대한 설명이 충분하지 않습니다" },
   { value: "unsure", label: "처분 사유를 정확히 파악하지 못했습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_FACT_RELATIONSHIP_OPTIONS = [
@@ -5142,6 +5143,7 @@ const CASE05_AUTHORITY_FOLLOWUP_OPTIONS = [
   { value: "payment_demand", label: "납부를 요구받았습니다" },
   { value: "no_response", label: "아직 답변을 받지 못했습니다" },
   { value: "unsure", label: "어떤 답변이나 조치가 있었는지 모르겠습니다" },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_DISPOSITION_OUTCOME_OPTIONS = [
@@ -5163,6 +5165,7 @@ const CASE05_REPEAT_FOLLOWUP_OPTIONS = [
     value: "not_applicable",
     label: "아직 추가 대응이 반복되었다고 느끼지 않습니다.",
   },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_DEADLINE_OPTIONS = [
@@ -5241,6 +5244,7 @@ const CASE05_BLOCKAGE_OPTIONS = [
   { value: "evidence", label: "어떤 서류·증빙이 필요한지 모르겠습니다." },
   { value: "next_response", label: "기관의 다음 답변·조치를 기다리거나 이해하지 못했습니다." },
   { value: "unsure", label: "가장 막힌 부분을 정확히 말하기 어렵습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_EVIDENCE_OPTIONS = [
@@ -5250,9 +5254,9 @@ const CASE05_EVIDENCE_OPTIONS = [
   { value: "payment_proof", label: "영수증/납부 증빙" },
   { value: "photo_video", label: "사진/영상" },
   { value: "contract", label: "계약서" },
-  { value: "evidence_other", label: "기타 증빙" },
   { value: "none", label: "없음" },
   { value: "unsure", label: "지금 확인할 수 있는 자료가 있는지 아직 확인하지 못했습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_FINAL_GOAL_OPTIONS = [
@@ -5264,6 +5268,7 @@ const CASE05_FINAL_GOAL_OPTIONS = [
   { value: "evidence", label: "필요한 서류·증빙을 확인하고 싶어요" },
   { value: "expert", label: "전문가에게 상황을 전달하고 싶어요" },
   { value: "unsure", label: "지금 가장 먼저 확인하고 싶은 것이 무엇인지 정확히 말하기 어렵습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 export const CASE05_OPTION_LABELS: Record<string, string> = {
@@ -5279,6 +5284,7 @@ export const CASE05_OPTION_LABELS: Record<string, string> = {
   maintain_reason: "이미 대응했는데도 처분이 유지되는 이유를 확인하고 싶습니다.",
   other_method: "위에 없는 다른 방법으로 대응했습니다.",
   past_possible: "이미 기한이 지났을 가능성이 있어 보입니다.",
+  evidence_other: "기타 증빙",
   ...Object.fromEntries(CASE05_DISPOSITION_TYPE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_CONFIRM_GOAL_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_DISPOSITION_REASON_OPTIONS.map((o) => [o.value, o.label])),
@@ -5371,6 +5377,12 @@ export function getCase05FieldLabelFromAnswers(
   if (fieldId === "case05_dispositionType" && value === "other_disposition") {
     return {
       label: CASE05_OPTION_LABELS.other_disposition,
+      factStatus: "confirmed",
+    };
+  }
+  if (fieldId === "case05_evidence" && value === "evidence_other") {
+    return {
+      label: CASE05_OPTION_LABELS.evidence_other,
       factStatus: "confirmed",
     };
   }
@@ -5784,7 +5796,15 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
       label: "처분 후 추가 대응이 반복되었나요?",
       options: CASE05_REPEAT_FOLLOWUP_OPTIONS,
     });
-    if (!answers.case05_repeatFollowUp) return;
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case05_repeatFollowUp",
+        answers,
+        CASE05_REPEAT_FOLLOWUP_OPTIONS,
+      )
+    ) {
+      return;
+    }
   }
 
   if (case05NeedsBlockage(answers)) {
@@ -5888,7 +5908,16 @@ function case05PathFieldsComplete(answers: ReviewAnswers): boolean {
     return false;
   }
   if (case05NeedsDispositionOutcome(answers) && !answers.case05_dispositionOutcome) return false;
-  if (case05NeedsRepeatFollowUp(answers) && !answers.case05_repeatFollowUp) return false;
+  if (
+    case05NeedsRepeatFollowUp(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_repeatFollowUp",
+      answers,
+      CASE05_REPEAT_FOLLOWUP_OPTIONS,
+    )
+  ) {
+    return false;
+  }
   if (
     case05NeedsBlockage(answers) &&
     !isAdminVerifyChoiceFieldComplete(
@@ -5909,7 +5938,14 @@ function case05PathFieldsComplete(answers: ReviewAnswers): boolean {
   ) {
     return false;
   }
-  if (case05NeedsFinalGoal(answers) && !answers.case05_finalGoal) {
+  if (
+    case05NeedsFinalGoal(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_finalGoal",
+      answers,
+      CASE05_FINAL_GOAL_OPTIONS,
+    )
+  ) {
     return false;
   }
   return true;
@@ -9435,7 +9471,11 @@ function selectCase04ResolutionFocus(answers: ReviewAnswers): CaseResolutionQues
 function selectCase05ResolutionFocus(answers: ReviewAnswers): CaseResolutionQuestionPriority | null {
   if (case05PathFieldsComplete(answers)) return null;
   for (const item of CASE05_FOCUS_ORDER) {
-    if (answers[item.id]?.trim()) continue;
+    const options = CASE05_FIELD_OPTION_MAP[item.id];
+    const answered = options
+      ? isAdminVerifyChoiceFieldComplete(item.id, answers, options)
+      : Boolean(answers[item.id]?.trim());
+    if (answered) continue;
     if (item.id === "case05_factRelationship" && !case05NeedsFactRelationshipPhase2(answers)) {
       continue;
     }
