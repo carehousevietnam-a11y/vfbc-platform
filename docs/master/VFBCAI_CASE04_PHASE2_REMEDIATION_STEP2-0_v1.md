@@ -3,8 +3,8 @@
 | 항목 | 내용 |
 |------|------|
 | **코드** | 수정 없음 |
-| **승인** | DQ-C04-R1·R2 Ace 승인 2026-09-25. R3는 권장안이며 미승인 |
-| **구현 SoT** | `VFBCAI_CASE04_PHASE2_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md` — 착수 범위는 R1·R2만 |
+| **승인** | DQ-C04-R1·R2·R3=A. Ace 승인 2026-09-25. 완료 기준 실질 축 4:9 |
+| **구현 SoT** | `VFBCAI_CASE04_PHASE2_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md` |
 | **기준** | 정보완결성 LOCK (fa4cce9). 1차<2차는 밀도 PASS 후보였고, 실질 축 4:5는 하한 4:6 미달 |
 | **범위** | CASE_04 Adapter. Admin Master 질문 틀·공통 엔진 재설계 없음 |
 | **본보기** | CASE_05 `case05_deadlineDate`, `getCase05FieldLabelFromAnswers`의 `other` note |
@@ -71,4 +71,4 @@ CASE_04의 `other`는 기한만이 아니다. 보완 대상·목표·대응·사
 
 ---
 
-*2026-09-25. R1·R2 승인. R3 미승인. 구현 SoT는 STEP2-1 Mission Brief. 코드 미착수.*
+*2026-09-25. R1·R2·R3=A 승인. 구현 SoT는 STEP2-1 Mission Brief. 코드 미착수.*
