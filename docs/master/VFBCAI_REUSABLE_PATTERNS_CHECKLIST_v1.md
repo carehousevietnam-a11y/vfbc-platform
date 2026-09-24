@@ -111,6 +111,8 @@ VERIFY → 행정문서(`/verify/admin`) Master funnel에서 **CASE_01~06** 구�
 
 **STEP2 체크:** 필드별 before/after 옵션 수 + DI 유무를 매핑표 부록에 포함.
 
+각주: 이분법 라우팅 필드(예: Fraud `fraud_reviewStage` 사전/사후)는 §8 내용 선택지 개수 대상이 아니며 DI가 필요 없다. Ace 승인 2026-09-24.
+
 ---
 
 ## 사용 방법 (CASE 작업 시)
