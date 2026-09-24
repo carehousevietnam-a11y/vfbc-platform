@@ -16,6 +16,8 @@ disable-model-invocation: true
 2. `docs/master/VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` — 패턴 8개
 3. `docs/master/VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` — LEVEL 1–4 증거 기준
 4. `.cursor/skills/vfbcai-master-development/SKILL.md` — 기존 마스터 스킬
+5. `docs/master/VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md`
+6. `docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`
 
 ## 절차
 

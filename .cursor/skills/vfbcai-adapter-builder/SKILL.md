@@ -16,7 +16,9 @@ disable-model-invocation: true
 2. `docs/master/VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` — 패턴 8개. §8 각주: 이분법 라우팅 필드는 내용 개수 대상이 아니고 DI 불요
 3. `docs/master/VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` — LEVEL 1–4 증거 기준
 4. `.cursor/skills/vfbcai-master-development/SKILL.md` — 기존 마스터 스킬
-5. 해당 서비스의 승인된 STEP1·STEP2-0 (`docs/master/`)
+5. `docs/master/VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md`
+6. `docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`
+7. 해당 서비스의 승인된 STEP1·STEP2-0 (`docs/master/`)
 
 역할이 조사면 `vfbcai-architect`, 구현이면 `vfbcai-implementer`, 검증이면 `vfbcai-verifier`를 같이 따른다.
 

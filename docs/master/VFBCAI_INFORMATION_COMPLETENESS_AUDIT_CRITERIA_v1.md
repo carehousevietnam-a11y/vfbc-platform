@@ -1,0 +1,89 @@
+# VFBCAI INFORMATION COMPLETENESS AUDIT CRITERIA v1
+
+| 항목 | 내용 |
+|------|------|
+| **버전** | v1 |
+| **성격** | Phase1+Phase2 질문·선택지 **감사** 시 공통 판정 축 (코드 수정 지시 아님) |
+| **상위** | `docs/master/VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md`, `VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` |
+| **파일럿** | `docs/master/VFBCAI_CASE05_INFORMATION_COMPLETENESS_AUDIT_v1.md` (CASE_05, 2026-09-25) |
+| **증거** | LEVEL 1 — `adminVerifyProfiling.ts` 등에서 선택지 → Profile → needs/FOCUS → result 신호 **코드 추적**. LEVEL 3은 별도 Browser QA |
+
+감사는 질문마다 선택지별로 downstream 연결을 표로 남긴 뒤, 아래 5개 기준으로 판정한다.
+
+권장 표:
+
+| 선택지 | Profile 변화 | 다음 질문 영향 | 증거 요구 변화 | 결과 문장 변화 |
+|---|---|---|---|---|
+
+---
+
+## ① 정보 완결성
+
+Phase1+Phase2 완료 후 판단에 필요한 **핵심 사실관계**가 **선택값**으로 구조화되어야 한다.
+
+질문을 다 답했는데도 "그래서 무슨 일이 있었나요?"를 다시 물어야 하면 **FAIL**.
+
+**감사 시 확인**
+
+- 해당 CASE·경로에서 판단에 필요한 축(예: 사건 시작/원인, 목표/주장, 당사자, 상대방 행동, 현재 상태, 시간/기한, 핵심 증거, 사용자 조치, 상대방 대응, 핵심 쟁점 — CASE별로 STEP2-0·MASTER에서 정의된 축)이 Profile·분기·결과에 실제로 반영되는지
+- Phase2가 Phase1을 **같은 의미로 반복**해 빈 축을 메우지 못하는지
+- 정상 경로(직접입력 없이 대표 선택지만 사용)로도 핵심 축이 채워지는지
+
+---
+
+## ② 다중 신호성
+
+선택값은 단일 label 저장에 그치지 않고 Situation Profile / 다음질문 / 증거요구 / 위험도 / 전문가판단축 / 결과 중 **복수**에 downstream effect를 만들어야 한다.
+
+**감사 시 확인**
+
+- 선택지가 Profile 한 필드만 갱신하고 branching·evidence gate·result signal이 동일하면 **주의 또는 FAIL** (질문·CASE 맥락에 따라)
+- 표의 열(다음 질문·증거·결과) 중 **2개 이상**이 선택지마다 달라지는 사례가 있는지
+
+---
+
+## ③ 선택지 판별력
+
+동일 질문의 선택지들은 서로 다른 **실제 상황**을 의미하고, 선택 결과가 후속 질문·프로파일·증거·판단·결과 중 **하나 이상**에 실질적 차이를 만들어야 한다.
+
+**감사 시 확인**
+
+- 같은 질문에서 A/B/C를 바꿨을 때 다음 `needs*`·FOCUS skip·열리는 Phase2 질문·result 문장이 **실제로 갈라지는지**
+- 서로 다른 label이 같은 canonical·같은 다음 질문·같은 결과로 **합쳐지면** 판별력 **FAIL** 후보
+
+---
+
+## ④ 비장식성
+
+선택지를 바꿔도 후속 흐름·결과가 사실상 동일하면 **고도화 실패**로 판정.
+
+③에서 갈라지지 않는 선택지가 있으면 **장식**으로 판정한다.
+
+**감사 시 확인**
+
+- semantic overlap(표현만 다른 동일 상황) 여부
+- Profile·classify·result가 choice와 무관하게 고정되는 분기
+
+---
+
+## ⑤ 직접입력 의존성 최소화
+
+직접입력은 예외/보완 수단이다. 정상 사례의 핵심 사실관계를 **자유텍스트**에 의존하면 **FAIL**.
+
+**감사 시 확인**
+
+- 대표 numbered choice만으로 핵심 축이 채워지는 **정상 시나리오**가 있는지
+- Direct Input이 정식 데이터 경로(`other` + note → Profile → branch → result)로 연결되는지 (`VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` §1)
+- 핵심 사실이 **선택지 없이** note만으로만 확보되도록 설계된 필드가 있는지
+
+---
+
+## 판정·보고
+
+- 기준별 **PASS / FAIL / NOT VERIFIED** (코드 추적 없이 단정 금지)
+- FAIL·장식 선택지는 **권장안**만 기록. 구현은 Ace 승인 후 별도 Mission
+- 자동화 PASS와 코드·브라우저 증거를 혼동하지 않는다 (`VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` §F)
+
+---
+
+*2026-09-25. Ace 지시 5개 감사 기준 정식 문서화.*
