@@ -25,7 +25,7 @@
 
 | ID | 결정 | 구현 요약 |
 |----|------|-----------|
-| **R01** | **A** | 네 값 모두 `kind: "text"`. date picker·금액 숫자 칸 없음. CASE_05 R01 · CASE_01 `case01_deadlineDate` 동형 |
+| **R01** | **A** | 네 값 모두 `kind: "text"`. date picker·금액 숫자 칸 없음. **입력 컨트롤만** CASE_01 `case01_deadlineDate` / CASE_05 `case05_deadlineDate`와 같음. 게이트·키·질문 삽입은 **CASE_06-native** (`adminVerifyCase06Redesign.ts`만. §2.1.1) |
 | **R02** | **A** | `knowledgeSource` · `sourceChannel` · `deadlineActionPair` · `customerResponse`는 결과 분기 **없음**. 1차 실질 축은 `requiredActionCandidate` **1** 고정. 날짜 text는 같은 질문의 밀도 (축 +1 아님) |
 | **R03** | **C** | 상태 줄은 타겟 **질문 화면**(첫 Phase1 질문 위 L5) **과** 타겟 **1차 결과**(상황 요약 첫 단락 위) **같은 문장**. `case0N_*` 미기입. rail CTA 정책 유지 |
 | **R04** | **A** | 레거시 `profileAuthorityGuidance = specific_date`이고 날짜 키가 없으면 `case06_deadlineDate`를 **한 번** 묻는다. 비어 있으면 「기한 확인됨」 금지. 자동 backfill 없음 |
@@ -40,6 +40,20 @@
 ### 2.1 P0 — 날짜·금액 text (R01, R04)
 
 **파일:** `src/lib/adminVerifyCase06Redesign.ts`
+
+#### 2.1.1 CASE-native deadline — CASE_03/04/05와 다른 구조 (LOCK)
+
+R01은 **text 입력 방식**만 공유한다. deadline **질문 모델**은 CASE_06 전용이며 CASE_03/04/05의 `caseNN_deadline` + `specific_date` 패턴을 **이식하지 않는다.**
+
+| | CASE_03 / 04 / 05 (네이티브) | CASE_06 v1.1 (네이티브) |
+|--|------------------------------|-------------------------|
+| 기한 질문 | 각 CASE Phase1(또는 해당 CASE)의 `caseNN_deadline` 등 **단일 기한 축** | Phase1 **`case06_deadlineActionPair`**: 납부·제출·출석 **역할별** `deadline_*_by_date` slug가 **한 choice 질문**에 묶임 (`CASE06_DEADLINE_ACTION_PAIR_OPTIONS`) |
+| text 후속 | CASE별 `caseNN_deadlineDate` + 해당 CASE의 `NeedsDeadline*` (`adminVerifyProfiling.ts`) | **`case06_deadlineDate` 하나**가 위 세 slug 중 하나일 때만. `customerResponse` **앞**에 삽입 |
+| 그 외 R01 | — | Phase2 체인별 **`case06_paymentAmountText`**, **`case06_attendanceNoticeText`**, **`case06_dispositionEffectiveDateText`** (각 choice 직후). CASE_05와 **키·게이트·삽입 위치가 다름** |
+
+**IMPLEMENTER 금지:** `case05NeedsDeadlineDateDetail` / `appendCase05Phase1Questions`를 CASE_06에 복사·공통화. `case02_deadline` Phase2 게이트를 bridge로 CASE_06에 연결. `case06_deadlineActionPair`를 `case05_deadline`로 rename·매핑.
+
+**허용:** 동일 Master 질문 렌더의 `kind: "text"` · persist를 `CASE06_V11_PERSIST_ANSWER_KEYS`에 넣는 패턴 · slug만으로 완료 금지(밀도 text).
 
 | 키 | 게이트 |
 |----|--------|
