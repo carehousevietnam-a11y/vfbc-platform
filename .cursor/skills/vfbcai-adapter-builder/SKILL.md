@@ -12,13 +12,15 @@ disable-model-invocation: true
 
 ## 시작 시 읽을 순서
 
-1. `docs/master/VFBCAI_MASTER_HANDOFF_PRINCIPLES_v1.md` — Adapter 원칙 A–P, §4–§5
-2. `docs/master/VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` — 패턴 8개. §8 각주: 이분법 라우팅 필드는 내용 개수 대상이 아니고 DI 불요
-3. `docs/master/VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` — LEVEL 1–4 증거 기준
-4. `.cursor/skills/vfbcai-master-development/SKILL.md` — 기존 마스터 스킬
-5. `docs/master/VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md`
-6. `docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`
-7. 해당 서비스의 승인된 STEP1·STEP2-0 (`docs/master/`)
+1. `docs/VFBCAI_CONSTITUTION.md` §16 — 1차/2차 정보밀도 원칙
+2. `docs/master/VFBCAI_행정문서_질문_MASTER_최종합의본_v1.0.md` — 질문개수 비고정, Situation Skeleton vs 심화추적 원칙
+3. `docs/master/VFBCAI_MASTER_HANDOFF_PRINCIPLES_v1.md` — Adapter 원칙 A–P, §4–§5
+4. `docs/master/VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` — 패턴 8개. §8 각주: 이분법 라우팅 필드는 내용 개수 대상이 아니고 DI 불요
+5. `docs/master/VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` — LEVEL 1–4 증거 기준
+6. `.cursor/skills/vfbcai-master-development/SKILL.md` — 기존 마스터 스킬
+7. `docs/master/VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md`
+8. `docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`
+9. 해당 서비스의 승인된 STEP1·STEP2-0 (`docs/master/`)
 
 역할이 조사면 `vfbcai-architect`, 구현이면 `vfbcai-implementer`, 검증이면 `vfbcai-verifier`를 같이 따른다.
 

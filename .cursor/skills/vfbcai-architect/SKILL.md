@@ -12,12 +12,14 @@ disable-model-invocation: true
 
 ## 시작 시 읽을 순서
 
-1. `docs/master/VFBCAI_MASTER_HANDOFF_PRINCIPLES_v1.md` — Adapter 원칙 A–P, 절대 금지
-2. `docs/master/VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` — 패턴 8개
-3. `docs/master/VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` — LEVEL 1–4 증거 기준
-4. `.cursor/skills/vfbcai-master-development/SKILL.md` — 기존 마스터 스킬
-5. `docs/master/VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md`
-6. `docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`
+1. `docs/VFBCAI_CONSTITUTION.md` §16 — 1차/2차 정보밀도 원칙
+2. `docs/master/VFBCAI_행정문서_질문_MASTER_최종합의본_v1.0.md` — 질문개수 비고정, Situation Skeleton vs 심화추적 원칙
+3. `docs/master/VFBCAI_MASTER_HANDOFF_PRINCIPLES_v1.md` — Adapter 원칙 A–P, 절대 금지
+4. `docs/master/VFBCAI_REUSABLE_PATTERNS_CHECKLIST_v1.md` — 패턴 8개
+5. `docs/master/VFBCAI_CASE_AUDIT_CHECKLIST_v1.md` — LEVEL 1–4 증거 기준
+6. `.cursor/skills/vfbcai-master-development/SKILL.md` — 기존 마스터 스킬
+7. `docs/master/VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md`
+8. `docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`
 
 ## 절차
 
