@@ -141,17 +141,19 @@
 
 ---
 
-## 6. DQ
+## 6. DQ — **승인 완료 (LOCK)**
 
-| ID | 질문 | 권장안 |
-|----|------|--------|
-| **DQ-C02-M01** | `amount_unknown`에도 text 요구? | **아니오** — slug 「모름」 유지 (최소 범위) |
-| **DQ-C02-M02** | 금액 detail을 `authorityClaim` vs 별도 Profile 필드 | **authorityClaim suffix** (기존 `other` 패턴) |
-| **DQ-C02-M03** | `paymentInfoSource` → evidence만 vs result만 | **Profile event + evidence needs + Phase1 result** (감사 3축 최소 충족) |
+**SoT:** `VFBCAI_CASE02_MINIMAL_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md` §1.
+
+| ID | 결정 (2026-09-25) |
+|----|-------------------|
+| M01 | A — `amount_unknown` text 없음 |
+| M02 | A — `authorityClaim` suffix |
+| M03 | A — event + evidence needs + Phase1 result |
 
 ---
 
-## 7. 우선순위 (구현 순서)
+## 7. 우선순위 (CASE_02 Mission 내부)
 
 1. **P0** G1 `case02_deadlineDate`  
 2. **P1** G2 `case02_paymentAmountDetail`  
@@ -159,4 +161,4 @@
 
 ---
 
-*2026-09-25. LOCK CASE_02 최소 리메디에이션 STEP2-0. 코드 미변경.*
+*2026-09-25. STEP2-0. 플랫폼 구현 순서: CASE_05→06→03→04→01→**02**. DQ LOCK → STEP2-1 Brief.*

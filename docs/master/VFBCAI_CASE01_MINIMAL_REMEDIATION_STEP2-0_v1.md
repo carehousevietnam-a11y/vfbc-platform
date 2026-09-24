@@ -104,13 +104,15 @@
 
 ---
 
-## 4. DQ
+## 4. DQ — **승인 완료 (LOCK)**
 
-| ID | 질문 | 권장안 |
-|----|------|--------|
-| **DQ-C01-M01** | text를 `actualSituation`만 합성 vs `factRelationship` 라벨도 합성 | **actualSituation만** (감사 Profile 칸 일치) |
-| **DQ-C01-M02** | result에 text 전문 vs 120자 truncate | **120자** (UI overflow 방지, `06-ui-design` ) |
+**SoT:** `VFBCAI_CASE01_MINIMAL_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md` §1.
+
+| ID | 결정 (2026-09-25) |
+|----|-------------------|
+| M01 | A — `actualSituation`만 합성 |
+| M02 | A — result 120자 truncate |
 
 ---
 
-*2026-09-25. LOCK CASE_01 최소 리메디에이션 STEP2-0. 코드 미변경.*
+*2026-09-25. STEP2-0. DQ LOCK → STEP2-1 Mission Brief. 코드는 플랫폼 순서 05→06→03→04→01 후 구현.*
