@@ -32,6 +32,8 @@ import {
   isCase05Phase1Complete,
   isCase05DispositionTypeUnclear,
   case05DispositionTypeIsRightsEnded,
+  case05EffectiveDeadline,
+  CASE05_DEADLINE_DATE_KEY,
   isCase06Phase1Complete,
   isCase06ExpertTerminal,
   MASTER_CASE_LABELS,
@@ -359,20 +361,31 @@ function appendCase05Phase1ResultSignals(
     cautions.push("이미 대응 자료를 제출한 상태 — 기관 반응 확인이 필요함");
   } else if (response === "appeal_requested") {
     cautions.push("이의·재검토를 요청한 상태 — 진행 결과 확인이 필요함");
+  } else if (response === "inquired") {
+    actions.push("기관 문의 내용과 답변·접수 여부를 확인해 보세요.");
+  } else if (response === "other_method") {
+    unconfirmed.push("기관에 한 대응 방식");
+    actions.push("지금까지 한 대응 내용을 정리해 두세요.");
   }
 
-  if (deadline === "specific_date" || deadline === "known_date") {
+  const effectiveDeadline = case05EffectiveDeadline(deadline);
+  const deadlineDate = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
+  if (effectiveDeadline === "specific_date" && deadlineDate) {
     cautions.push("처분 관련 대응 기한이 확인된 상태 — 기한 내 대응이 필요함");
-    actions.push("처분 관련 대응 기한을 다시 확인해 보세요.");
+    actions.push(`확인한 대응 기한(${deadlineDate})을 통지서와 대조해 보세요.`);
+  } else if (effectiveDeadline === "specific_date" || deadline === "known_date") {
+    unconfirmed.push("처분 관련 대응 기한(날짜)");
+    actions.push("처분 관련 대응 기한을 적어 두고 통지서와 대조해 보세요.");
   } else if (deadline === "past_possible") {
     cautions.push("기한이 지났을 가능성이 있음 — 즉시 확인이 필요함");
     actions.push("처분 관련 기한과 현재 날짜를 대조해 보세요.");
-  } else if (
-    deadline === "uncertain" ||
-    deadline === "unsure" ||
-    deadline === "not_stated" ||
-    deadline === "period_stated"
-  ) {
+  } else if (effectiveDeadline === "period_stated") {
+    unconfirmed.push("처분 관련 대응 기한(날짜 미상)");
+    actions.push("통지서에 적힌 기한 기간·날짜를 다시 확인해 보세요.");
+  } else if (effectiveDeadline === "not_stated") {
+    unconfirmed.push("처분 통지의 기한 표기");
+    actions.push("처분 통지에 기한이 명시되어 있는지 확인해 보세요.");
+  } else if (effectiveDeadline === "uncertain" || deadline === "unsure") {
     unconfirmed.push("처분 관련 대응 기한");
     actions.push("처분과 관련한 기한이 적혀 있는지 확인해 보세요.");
   }
@@ -385,16 +398,45 @@ function appendCase05Phase2ResultSignals(
   actions: string[],
 ): void {
   const rel = answers.case05_factRelationship;
-  if (rel === "partial" || rel === "mismatch") {
+  const factDetail = answers.case05_factDetail;
+  if (rel === "partial") {
+    cautions.push("처분 내용과 실제 상황이 일부 다를 수 있음 — 사실관계 확인 필요");
+    actions.push(
+      factDetail === "date_place"
+        ? "처분 내용과 당시 날짜·장소를 대조해 보세요."
+        : "처분 내용과 실제 상황의 다른 부분을 구체적으로 대조해 보세요.",
+    );
+  } else if (rel === "mismatch") {
     cautions.push("처분 내용과 실제 상황이 다를 수 있음 — 사실관계 확인 필요");
-    actions.push("처분 내용과 실제 상황을 대조해 보세요.");
+    actions.push(
+      factDetail === "content_differs"
+        ? "처분 사유와 실제 사실관계가 다른 부분을 정리해 보세요."
+        : "처분 내용과 실제 상황을 대조해 보세요.",
+    );
   } else if (rel === "hard_to_judge" || rel === "unknown") {
     unconfirmed.push("처분 내용과 실제 상황의 관계");
+  }
+
+  const dispositionDetail = answers.case05_dispositionDetail;
+  if (dispositionDetail === "wording_unclear") {
+    unconfirmed.push("처분 문구·범위");
+    actions.push("통지서 제목·핵심 문구를 다시 확인해 보세요.");
+  } else if (dispositionDetail === "scope_unclear") {
+    unconfirmed.push("처분 영향 범위·기간");
+    actions.push("정지·제한 범위와 기간이 적힌 부분을 확인해 보세요.");
   }
 
   const reason = answers.case05_dispositionReason;
   if (reason === "no_clear_reason" || reason === "unsure") {
     unconfirmed.push("처분 사유");
+  } else if (reason === "violation_claimed") {
+    actions.push("위반·규정 위반으로 적힌 부분과 실제 상황을 대조해 보세요.");
+  } else if (reason === "document_issue") {
+    actions.push("서류·신청 정보 문제로 지적된 부분을 확인해 보세요.");
+  } else if (reason === "requirement_not_met") {
+    actions.push("요건·자격 관련 지적 내용을 확인해 보세요.");
+  } else if (reason === "deadline_procedure") {
+    actions.push("기한·절차 관련 지적 내용과 대응 기한을 함께 확인해 보세요.");
   }
 
   const followUp = answers.case05_authorityFollowUp;
@@ -413,17 +455,67 @@ function appendCase05Phase2ResultSignals(
   const outcome = answers.case05_dispositionOutcome;
   if (outcome === "maintained") {
     cautions.push("처분이 유지된 상태로 응답함");
+  } else if (outcome === "modified") {
+    cautions.push("처분 내용이 변경된 안내를 받은 상태임");
+    actions.push("변경된 처분 내용이 통지서·안내에 어떻게 반영되었는지 확인해 보세요.");
+  } else if (outcome === "revoked") {
+    cautions.push("처분이 철회·취소된 안내를 받은 상태임");
+    actions.push("철회·취소 안내 문구와 후속 절차를 확인해 보세요.");
   } else if (outcome === "no_result") {
     unconfirmed.push("기관 후속 결과");
   }
 
   const repeat = answers.case05_repeatFollowUp;
-  if (repeat && repeat !== "not_applicable") {
+  if (repeat && repeat !== "not_applicable" && repeat !== "unsure") {
     cautions.push("처분 후 추가 대응이 반복됨 — 동일 사건 내 후속 확인 필요");
     actions.push("이전 대응 내용과 기관의 후속 안내를 함께 확인해 보세요.");
+  } else if (repeat === "other") {
+    unconfirmed.push("반복 대응 내용");
+    actions.push("기관이 반복 요구한 내용을 정리해 보세요.");
   }
 
-  if (answers.case05_blockage) {
+  const evidence = answers.case05_evidence;
+  if (evidence === "disposition_notice") {
+    actions.push("처분 통지서 원본을 준비해 두세요.");
+  } else if (evidence === "message_email") {
+    actions.push("기관 문자·이메일 안내를 확인해 보세요.");
+  } else if (evidence === "submitted_docs") {
+    actions.push("이미 제출한 서류 목록과 접수 여부를 확인해 보세요.");
+  } else if (evidence === "payment_proof") {
+    actions.push("납부·영수 증빙과 처분 내용의 연결을 확인해 보세요.");
+  } else if (evidence === "photo_video") {
+    actions.push("현장·상황 사진·영상과 처분 사유를 대조해 보세요.");
+  } else if (evidence === "contract") {
+    actions.push("계약·관계 서류와 처분 내용을 함께 확인해 보세요.");
+  }
+
+  const finalGoal = answers.case05_finalGoal;
+  if (finalGoal === "expert") {
+    actions.push("확인한 처분 통지·대응 내역을 정리해 전문가 상담에 활용해 보세요.");
+  } else if (finalGoal === "next_action") {
+    actions.push("이의·소명 등 다음 대응 절차 안내가 있는지 확인해 보세요.");
+  } else if (finalGoal === "evidence") {
+    actions.push("필요한 서류·증빙 종류를 통지서와 대조해 보세요.");
+  }
+
+  const blockage = answers.case05_blockage;
+  if (blockage === "why_disposition") {
+    actions.push("처분 사유가 적힌 문구를 확인해 보세요.");
+  } else if (blockage === "what_disposition") {
+    actions.push("처분·조치 내용이 무엇인지 통지서에서 확인해 보세요.");
+  } else if (blockage === "fact_match") {
+    actions.push("실제 상황과 처분 사유를 나란히 대조해 보세요.");
+  } else if (blockage === "what_to_do") {
+    actions.push("통지서에 안내된 우선 조치를 확인해 보세요.");
+  } else if (blockage === "appeal_method") {
+    actions.push("이의·재검토 신청 방법·기한 안내를 확인해 보세요.");
+  } else if (blockage === "deadline") {
+    actions.push("대응 기한이 적힌 부분을 확인해 보세요.");
+  } else if (blockage === "evidence") {
+    actions.push("요구·권장 서류·증빙 종류를 확인해 보세요.");
+  } else if (blockage === "next_response") {
+    unconfirmed.push("기관의 다음 답변·조치");
+  } else if (blockage === "unsure" || blockage === "other") {
     unconfirmed.push("현재 막힌 부분");
   }
 }

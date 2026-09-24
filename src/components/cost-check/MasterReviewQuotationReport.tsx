@@ -99,6 +99,8 @@ import {
   CASE05_ANSWER_KEYS,
   CASE06_ANSWER_KEYS,
   getCase05FieldOptionLabel,
+  case05EffectiveDeadline,
+  CASE05_DEADLINE_DATE_KEY,
   getCase06FieldOptionLabel,
   CASE_CUSTOMER_INPUT_KEY,
   applyCustomerInputToAnswers,
@@ -1229,6 +1231,13 @@ function formatCollapsedAnswerLabel(
     if (value === "other") {
       const note = answers[getAdminChoiceNoteKey(question.id)]?.trim() ?? "";
       return note.length > 48 ? `${note.slice(0, 45)}…` : note || ADMIN_DIRECT_EXPLAIN_LABEL;
+    }
+    if (
+      question.id === "case05_deadline" &&
+      case05EffectiveDeadline(value) === "specific_date"
+    ) {
+      const date = answers[CASE05_DEADLINE_DATE_KEY]?.trim() ?? "";
+      if (date) return date.length > 48 ? `${date.slice(0, 45)}…` : date;
     }
     return getCase05FieldOptionLabel(question.id, value);
   }

@@ -24,6 +24,11 @@ import {
   maybeApplyCase06ExpertTerminalOnAnswer,
   restoreAdminProfilingAnswersFromMeta,
   selectNextCaseResolutionFocus,
+  CASE05_DEADLINE_DATE_KEY,
+  case05NeedsDispositionReasonPhase2,
+  case05Phase2SubstantiveAxisCatalogCount,
+  deriveCase05DispositionSignals,
+  isCase05Phase1Complete,
 } from "../../src/lib/adminVerifyProfiling.ts";
 
 const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3010";
@@ -44,6 +49,59 @@ const CASE03_REGRESSION_IDS_WITHOUT_EVIDENCE = [
   "case03_blockage",
   "case03_finalGoal",
 ];
+
+function case05Step21EngineChecks() {
+  const withDate = attachCaseResolutionSnapshot({
+    case05_dispositionType: "application_denied",
+    case05_confirmGoal: "what_to_do",
+    case05_customerResponse: "none",
+    case05_deadline: "specific_date",
+    [CASE05_DEADLINE_DATE_KEY]: "2026-11-20",
+  });
+  const profile = buildCaseResolutionProfile(withDate);
+  const missingDate = attachCaseResolutionSnapshot({
+    ...withDate,
+    [CASE05_DEADLINE_DATE_KEY]: "",
+  });
+  const r04 = attachCaseResolutionSnapshot({
+    case05_dispositionType: "business_suspended",
+    case05_confirmGoal: "appeal_possibility",
+    case05_customerResponse: "none",
+    case05_deadline: "uncertain",
+  });
+  const rich = attachCaseResolutionSnapshot({
+    case05_dispositionType: "disposition_unclear",
+    case05_confirmGoal: "unsure",
+    case05_customerResponse: "explanation_submitted",
+    case05_deadline: "period_stated",
+    case05_factRelationship: "mismatch",
+  });
+  const factSigBase = attachCaseResolutionSnapshot({
+    case05_dispositionType: "application_denied",
+    case05_confirmGoal: "what_to_do",
+    case05_customerResponse: "none",
+    case05_deadline: "period_stated",
+    case05_factRelationship: "partial",
+  });
+  const sigA = deriveCase05DispositionSignals({
+    ...factSigBase,
+    case05_factDetail: "date_place",
+  });
+  const sigB = deriveCase05DispositionSignals({
+    ...factSigBase,
+    case05_factDetail: "content_differs",
+  });
+  return {
+    deadlineInProfile: (profile.deadline.value ?? "").includes("2026-11-20"),
+    specificDateIncomplete: !isCase05Phase1Complete(missingDate),
+    r04ReasonGate: case05NeedsDispositionReasonPhase2(r04),
+    substantiveCatalogGte10: case05Phase2SubstantiveAxisCatalogCount() >= 10,
+    periodStatedSignal: deriveCase05DispositionSignals(rich).includes(
+      "DISPOSITION_DEADLINE_PERIOD_ONLY",
+    ),
+    factDetailSignalsDiffer: JSON.stringify([...sigA].sort()) !== JSON.stringify([...sigB].sort()),
+  };
+}
 
 function case03RegressionPass(browserIds) {
   const serialized = JSON.stringify(browserIds);
@@ -1093,6 +1151,9 @@ try {
 } finally {
   await browser.close();
 }
+
+report.CASE05_STEP21_ENGINE = case05Step21EngineChecks();
+report.CASE05_STEP21_ENGINE.pass = Object.values(report.CASE05_STEP21_ENGINE).every(Boolean);
 
 report.LOCK_READINESS = buildLockReadiness(report);
 const lockPath = join(process.cwd(), "tests", "qa", "_strict-v2-lock-final.json");

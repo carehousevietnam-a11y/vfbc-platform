@@ -512,13 +512,13 @@
       "note": "A=Panel in MasterReviewQuotationReport; B=standalone /documents upload UX not at this step"
     },
     "personalized": true,
-    "documentsAi": "http://localhost:3010/documents?leadId=588775ac-a9c6-47b6-97a2-14f56fef0c57&service=verify_admin&mode=ai_report",
+    "documentsAi": "http://localhost:3010/documents?leadId=2a971018-ef9d-4db3-a51c-8f950c073758&service=verify_admin&mode=ai_report",
     "documentsExpert": null,
     "consoleSnippet": [
       "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 374ms",
+      "[Fast Refresh] done in 1878ms",
       "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 301ms",
+      "[Fast Refresh] done in 492ms",
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
     "reclassificationHistory": [
@@ -640,7 +640,7 @@
     "regressionPass": true
   },
   "J_documents_expert_desktop": {
-    "documentsExpert": "http://localhost:3010/documents?leadId=5cfd0736-6f81-4100-8e52-b1da1bf1604f&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=72154b99-b798-4062-b7e7-fa79d9bbd5b8&service=verify_admin&mode=expert",
     "personalized": true,
     "regressionIds": [
       "case03_factRelationship",
@@ -7969,7 +7969,7 @@
         "knownFacts": {
           "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
           "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
-          "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
+          "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다. — 날짜·장소·상황 불일치",
           "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
           "evidence": "처분 통지서",
           "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
@@ -8818,7 +8818,7 @@
           "knownFacts": {
             "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
-            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
+            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다. — 날짜·장소·상황 불일치",
             "currentBlockage": null,
             "evidence": null,
             "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
@@ -8860,7 +8860,7 @@
           "knownFacts": {
             "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
-            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
+            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다. — 날짜·장소·상황 불일치",
             "currentBlockage": null,
             "evidence": null,
             "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
@@ -8889,7 +8889,7 @@
           "knownFacts": {
             "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
-            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
+            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다. — 날짜·장소·상황 불일치",
             "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
             "evidence": null,
             "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
@@ -8931,7 +8931,7 @@
           "knownFacts": {
             "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
-            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
+            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다. — 날짜·장소·상황 불일치",
             "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
             "evidence": null,
             "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
@@ -8960,7 +8960,7 @@
           "knownFacts": {
             "authorityClaim": "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
             "customerAction": "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
-            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
+            "actualSituation": "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다. — 날짜·장소·상황 불일치",
             "currentBlockage": "처분이 왜 내려졌는지 이해하지 못했습니다.",
             "evidence": "처분 통지서",
             "goal": "처분이 왜 내려졌는지 먼저 확인하고 싶습니다."
@@ -10134,7 +10134,7 @@
     },
     "personalized": true,
     "documentsAi": null,
-    "documentsExpert": "http://localhost:3010/documents?leadId=3c28a97a-5e13-484e-b133-da965e8d0e59&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=a2b25ab1-7ffb-47f3-a3f2-0bd4c8d9bb71&service=verify_admin&mode=expert",
     "consoleSnippet": [
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
@@ -10257,8 +10257,17 @@
     "overflow": false,
     "regressionPass": true
   },
+  "CASE05_STEP21_ENGINE": {
+    "deadlineInProfile": true,
+    "specificDateIncomplete": true,
+    "r04ReasonGate": true,
+    "substantiveCatalogGte10": true,
+    "periodStatedSignal": true,
+    "factDetailSignalsDiffer": false,
+    "pass": false
+  },
   "LOCK_READINESS": {
-    "generatedAt": "2026-09-24T15:23:20.877Z",
+    "generatedAt": "2026-09-24T16:48:41.625Z",
     "coreCases": {
       "CASE_01": {
         "present": true,
