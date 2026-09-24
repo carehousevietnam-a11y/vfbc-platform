@@ -396,7 +396,7 @@ Admin CASE_03/04/05/06에서 본 **`specific_date` / `exact_*`류**: choice는 �
 
 ### 11.5 권장 후속 (구현 대기)
 
-1. RE 전용 **정보완결성 감사** 문서 (CASE_05 audit 형식, 경로별 실질 축·비율 표)  
+1. **완료:** `VFBCAI_REALESTATE_INFORMATION_COMPLETENESS_AUDIT_v1.md` (LOCK 감사, GAP-RE-DL-01~11). STEP2-1 후 v1.1 재감사 또는 리메디 STEP2-0에서 경로별 표 확장  
 2. 갭 **GAP-RE-DL-01~08** 중 Ace가 우선순위를 정한 뒤 RE-native text 키·게이트 STEP2-0 리메디  
 3. DQ-RE-08 (1차 `buildActions`) — 기존 §3 일정 유지  
 
