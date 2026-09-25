@@ -164,18 +164,38 @@ export const LAYER_J_JUDGMENT_FIELD_SPECS: LayerJJudgmentFieldSpec[] = [
   },
   {
     caseCode: "01",
-    outlet: "§03·2차",
-    fieldId: "case01_demandFulfillmentFact",
-    questionLabel:
-      "기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요?",
-    otherItemLabel: "이행·증빙",
-  },
-  {
-    caseCode: "01",
     outlet: "§01·integrated",
     fieldId: "case01_customerResponded",
     questionLabel: "이 안내를 받은 뒤 교통국에 대응한 경험이 있나요?",
     otherItemLabel: "대응 여부",
+  },
+  {
+    caseCode: "02",
+    outlet: "§01·integrated",
+    fieldId: "case02_paymentStatus",
+    questionLabel: "지금까지 이 납부 요구에 대해 실제로 어떻게 하셨나요?",
+    otherItemLabel: "납부 상태",
+  },
+  {
+    caseCode: "03",
+    outlet: "§01·integrated",
+    fieldId: "case03_customerResponse",
+    questionLabel: "출석·소명 요구에 대해 지금까지 어떻게 하셨나요?",
+    otherItemLabel: "대응 상태",
+  },
+  {
+    caseCode: "04",
+    outlet: "§01·integrated",
+    fieldId: "case04_customerResponse",
+    questionLabel: "보완 요구에 대해 지금까지 어떻게 하셨나요?",
+    otherItemLabel: "대응 상태",
+  },
+  {
+    caseCode: "05",
+    outlet: "§01·integrated",
+    fieldId: "case05_customerResponse",
+    questionLabel: "처분·통지에 대해 지금까지 어떻게 하셨나요?",
+    otherItemLabel: "대응 상태",
   },
   {
     caseCode: "02",
