@@ -451,3 +451,37 @@ export const LAYER_J_CLAUSE_MAP: Record<string, string> = {
   "06|§03·2차|case06_unclearFactRelation|insufficient_info": "2차 추가 확인에서는 문서와 사실 관계를 판단할 정보가 부족하다는 점이 핵심입니다.",
   "06|§03·2차|case06_unclearFactRelation|other": "내용·사실 관계: {case06_unclearFactRelationNote 또는 DI 원문}"
 };
+
+export const LAYER_J_CLAUSE_POLARITY_MAP: Record<string, "positive" | "negative" | "neutral"> = {
+  "01|§03·2차|case01_noticeDeliveryFact|del_in_person": "neutral",
+  "01|§03·2차|case01_noticeDeliveryFact|del_phone_message": "neutral",
+  "01|§03·2차|case01_noticeDeliveryFact|del_written": "neutral",
+  "01|§03·2차|case01_noticeDeliveryFact|del_not_received_yet": "negative",
+  "04|§03·2차|case04_unclearFocus|what_submit_list": "negative",
+  "04|§03·2차|case04_unclearFocus|what_submit_apply": "negative",
+  "04|§03·2차|case04_unclearFocus|why_submit_reason": "negative",
+  "04|§03·2차|case04_unclearFocus|why_submit_apply": "negative",
+  "04|§03·2차|case04_unclearFocus|format_how": "negative",
+  "04|§03·2차|case04_unclearFocus|format_where": "negative",
+  "04|§03·2차|case04_repeatSupplement|more_docs_same_kind": "negative",
+  "04|§03·2차|case04_repeatSupplement|more_docs_new_kind": "negative",
+  "04|§03·2차|case04_repeatSupplement|more_modify_reject_prior": "negative",
+  "04|§03·2차|case04_repeatSupplement|more_modify_new_field": "negative",
+  "05|§03·2차|case05_explanationDetail|written_no_receipt": "neutral",
+  "05|§03·2차|case05_explanationDetail|written_receipt_ok": "positive",
+  "05|§03·2차|case05_explanationDetail|verbal_no_record": "neutral",
+  "05|§03·2차|case05_explanationDetail|verbal_with_record": "positive",
+  "05|§03·2차|case05_explanationDetail|both_unverified": "negative",
+  "05|§03·2차|case05_explanationDetail|both_aligned": "positive",
+  "05|§03·2차|case05_factDetail|date_place_certain": "negative",
+  "05|§03·2차|case05_factDetail|date_place_fuzzy": "negative",
+  "05|§03·2차|case05_factDetail|content_differs_clear": "negative",
+  "05|§03·2차|case05_factDetail|content_differs_vague": "negative",
+  "05|§03·2차|case05_appealDetail|filed_no_schedule": "neutral",
+  "05|§03·2차|case05_appealDetail|filed_no_receipt": "negative",
+  "05|§03·2차|case05_appealDetail|filed_schedule_known": "positive",
+  "05|§03·2차|case05_appealDetail|preparing_deadline_unknown": "neutral",
+  "05|§03·2차|case05_appealDetail|preparing_deadline_known": "neutral",
+  "05|§03·2차|case05_appealDetail|considering_rules_unread": "neutral",
+  "05|§03·2차|case05_appealDetail|considering_rules_read": "neutral"
+};

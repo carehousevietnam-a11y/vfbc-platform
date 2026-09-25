@@ -1,4 +1,7 @@
-import { LAYER_J_CLAUSE_MAP } from "@/lib/adminVerifyJudgmentClauses.data";
+import {
+  LAYER_J_CLAUSE_MAP,
+  LAYER_J_CLAUSE_POLARITY_MAP,
+} from "@/lib/adminVerifyJudgmentClauses.data";
 import {
   ADMIN_VERIFY_CHOICE_SPACE_METADATA,
   type ChoiceSpaceQuestionMeta,
@@ -38,12 +41,6 @@ function comboCovered(meta: ChoiceSpaceQuestionMeta, combo: Record<string, strin
   return meta.options.some((opt) =>
     Object.entries(opt.facts).every(([k, v]) => combo[k] === v),
   );
-}
-
-function clausePolarity(clause: string): "positive" | "negative" | "neutral" {
-  if (/없|불명|어렵|모르|미확인|막힌|차이|다를/.test(clause)) return "negative";
-  if (/확인|일치|있는 상태|받았|제출/.test(clause)) return "positive";
-  return "neutral";
 }
 
 export type ChoiceSpaceAuditFailure = {
@@ -104,15 +101,32 @@ export function runAdminVerifyChoiceSpaceAudit(): ChoiceSpaceAuditFailure[] {
       const clauseKey = Object.keys(LAYER_J_CLAUSE_MAP).find((k) =>
         k.endsWith(`|${fieldId}|${opt.slug}`),
       );
-      if (!clauseKey) continue;
+      if (!clauseKey) {
+        failures.push({
+          caseCode,
+          fieldId,
+          test: "META",
+          detail: `slug ${opt.slug}: Layer J clause missing for polarity tag compare`,
+        });
+        continue;
+      }
+      const clauseTag = LAYER_J_CLAUSE_POLARITY_MAP[clauseKey];
+      if (!clauseTag) {
+        failures.push({
+          caseCode,
+          fieldId,
+          test: "META",
+          detail: `slug ${opt.slug}: judgment clause polarity tag missing (${clauseKey})`,
+        });
+        continue;
+      }
       const clause = LAYER_J_CLAUSE_MAP[clauseKey] ?? "";
-      const inferred = clausePolarity(clause);
-      if (opt.polarity !== inferred && !(opt.polarity === "neutral" && inferred === "negative")) {
+      if (opt.polarity !== clauseTag) {
         failures.push({
           caseCode,
           fieldId,
           test: "B",
-          detail: `slug ${opt.slug}: meta polarity ${opt.polarity} vs clause ${inferred} — "${clause}"`,
+          detail: `slug ${opt.slug}: choice polarity ${opt.polarity} vs judgment tag ${clauseTag} — "${clause}"`,
         });
       }
     }
