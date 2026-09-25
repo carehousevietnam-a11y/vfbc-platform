@@ -19,6 +19,8 @@ import {
   getAdminVerifyPhase1VisibleFields,
   CASE02_NON_PAYMENT_SANCTION_STATED,
   CASE02_PAYMENT_AMOUNT_STATED_BASIS_UNCLEAR,
+  CASE02_DEADLINE_DATE_KEY,
+  CASE02_PAYMENT_AMOUNT_DETAIL_KEY,
   case02EffectivePaymentAmount,
   case02NormalizeNonPaymentNoticeValue,
   getCase02FieldOptionLabel,
@@ -1006,6 +1008,13 @@ function appendCase02Phase1ResultSignals(
   const goal = answers.case02_confirmGoal;
   const status = answers.case02_paymentStatus;
   const deadline = answers.case02_deadline;
+  const infoSource = answers.case02_paymentInfoSource;
+
+  if (infoSource === "third_party") {
+    cautions.push("다른 사람을 통해 납부 안내를 알게 된 상태임");
+  } else if (infoSource === "recall_unclear") {
+    unconfirmed.push("납부 안내를 받은 경로");
+  }
 
   if (subject === "unclear") {
     unconfirmed.push("납부 요구 사유");
@@ -1059,6 +1068,16 @@ function appendCase02Phase2ResultSignals(
   unconfirmed: string[],
   actions: string[],
 ): void {
+  const deadlineDate = answers[CASE02_DEADLINE_DATE_KEY]?.trim();
+  if (answers.case02_deadline === "confirmed" && deadlineDate) {
+    actions.push(`확인한 납부 기한: ${case01TruncateResultDetailText(deadlineDate)}`);
+  }
+
+  const amountDetail = answers[CASE02_PAYMENT_AMOUNT_DETAIL_KEY]?.trim();
+  if (amountDetail) {
+    actions.push(`안내 금액(기억): ${case01TruncateResultDetailText(amountDetail)}`);
+  }
+
   const match = answers.case02_situationMatch;
   if (match === "partial" || match === "not_applicable") {
     cautions.push("납부 요구와 실제 상황이 다르다고 응답함");

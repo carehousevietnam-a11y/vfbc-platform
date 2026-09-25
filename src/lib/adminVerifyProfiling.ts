@@ -1592,15 +1592,20 @@ export function isCase01PathComplete(answers: ReviewAnswers): boolean {
 
 // ─── CASE_02 납부 요구 Resolution Path ───
 
+export const CASE02_DEADLINE_DATE_KEY = "case02_deadlineDate";
+export const CASE02_PAYMENT_AMOUNT_DETAIL_KEY = "case02_paymentAmountDetail";
+
 export const CASE02_ANSWER_KEYS = [
   "case02_confirmGoal",
   "case02_demandAuthority",
   "case02_paymentSubject",
   "case02_paymentInfoSource",
   "case02_paymentAmount",
+  CASE02_PAYMENT_AMOUNT_DETAIL_KEY,
   "case02_paymentBasis",
   "case02_situationMatch",
   "case02_deadline",
+  CASE02_DEADLINE_DATE_KEY,
   "case02_paymentStatus",
   "case02_authorityResponse",
   "case02_paymentMethod",
@@ -2221,6 +2226,10 @@ export function case02EffectivePaymentAmount(value: string | undefined): string 
 
 function appendCase02DirectInputAuthorityClaimParts(base: string, answers: ReviewAnswers): string {
   let result = base;
+  const amountDetail = answers[CASE02_PAYMENT_AMOUNT_DETAIL_KEY]?.trim();
+  if (amountDetail) {
+    result += ` / 안내 금액: ${amountDetail}`;
+  }
   if (answers.case02_paymentAmount === "other") {
     const amount = getCase02FieldLabelFromAnswers("case02_paymentAmount", answers);
     if (amount) result += ` / 금액: ${amount.label}`;
@@ -2304,6 +2313,33 @@ function case02NeedsSituationMatchPhase2(answers: ReviewAnswers): boolean {
   return false;
 }
 
+export function case02NeedsDeadlineDateDetail(answers: ReviewAnswers): boolean {
+  if (answers.case02_deadline !== "confirmed") return false;
+  return !answers[CASE02_DEADLINE_DATE_KEY]?.trim();
+}
+
+export function case02NeedsPaymentAmountDetail(answers: ReviewAnswers): boolean {
+  if (
+    !isAdminVerifyChoiceFieldComplete(
+      "case02_paymentAmount",
+      answers,
+      CASE02_PAYMENT_AMOUNT_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (answers.case02_paymentAmount === "other") return false;
+  const amount = case02EffectivePaymentAmount(answers.case02_paymentAmount);
+  if (
+    amount !== "amount_differs" &&
+    amount !== "paid_redemand" &&
+    amount !== CASE02_PAYMENT_AMOUNT_STATED_BASIS_UNCLEAR
+  ) {
+    return false;
+  }
+  return !answers[CASE02_PAYMENT_AMOUNT_DETAIL_KEY]?.trim();
+}
+
 function case02NeedsPaymentAmountPhase2(answers: ReviewAnswers): boolean {
   if (
     isAdminVerifyChoiceFieldComplete(
@@ -2337,7 +2373,13 @@ function case02NeedsBlockage(_answers: ReviewAnswers): boolean {
   return true;
 }
 
-function case02NeedsEvidence(answers: ReviewAnswers): boolean {
+export function case02NeedsEvidence(answers: ReviewAnswers): boolean {
+  if (
+    answers.case02_paymentInfoSource === "third_party" ||
+    answers.case02_paymentInfoSource === "recall_unclear"
+  ) {
+    return true;
+  }
   if (case02HasPaidStatus(answers)) return true;
   const goal = answers.case02_confirmGoal;
   if (goal === "verify_obligation" || goal === "verify_amount") {
@@ -2561,6 +2603,18 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     }
   }
 
+  if (case02NeedsPaymentAmountDetail(answers)) {
+    pushUnique(questions, {
+      id: CASE02_PAYMENT_AMOUNT_DETAIL_KEY,
+      kind: "text",
+      label: "안내 받은 금액을 기억나는 대로 적어 주세요.",
+      placeholder: "통지서·메시지에 적힌 금액·단위를 적어 주세요.",
+    });
+    if (case02NeedsPaymentAmountDetail(answers)) {
+      return;
+    }
+  }
+
   if (case02NeedsPaymentBasisPhase2(answers)) {
     pushUnique(questions, {
       id: "case02_paymentBasis",
@@ -2593,6 +2647,18 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
         CASE02_DEADLINE_OPTIONS,
       )
     ) {
+      return;
+    }
+  }
+
+  if (case02NeedsDeadlineDateDetail(answers)) {
+    pushUnique(questions, {
+      id: CASE02_DEADLINE_DATE_KEY,
+      kind: "text",
+      label: "안내받은 납부 기한은 언제인가요?",
+      placeholder: "기억나는 날짜·기한을 적어 주세요.",
+    });
+    if (case02NeedsDeadlineDateDetail(answers)) {
       return;
     }
   }
@@ -2746,6 +2812,9 @@ function case02PathFieldsComplete(answers: ReviewAnswers): boolean {
   ) {
     return false;
   }
+
+  if (case02NeedsPaymentAmountDetail(answers)) return false;
+  if (case02NeedsDeadlineDateDetail(answers)) return false;
 
   if (case02HasPaidStatus(answers)) {
     if (
@@ -8856,7 +8925,17 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       getCase04FieldOptionLabel("case04_initialSubmission", answers.case04_initialSubmission);
     eventStatus = "confirmed";
   } else if (answers.case02_paymentSubject) {
-    eventLabel = getCase02FieldOptionLabel("case02_paymentSubject", answers.case02_paymentSubject);
+    const subjectLabel = getCase02FieldOptionLabel(
+      "case02_paymentSubject",
+      answers.case02_paymentSubject,
+    );
+    const infoSourceLabel = answers.case02_paymentInfoSource
+      ? getCase02FieldOptionLabel("case02_paymentInfoSource", answers.case02_paymentInfoSource)
+      : null;
+    eventLabel =
+      subjectLabel && infoSourceLabel
+        ? `${subjectLabel} (안내 인지: ${infoSourceLabel})`
+        : subjectLabel;
     eventStatus = "confirmed";
   } else if (case06Active && answers.profileCurrentGoal) {
     eventLabel = getCase06FieldOptionLabel("profileCurrentGoal", answers.profileCurrentGoal);
@@ -9341,7 +9420,10 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
           : getCase03FieldLabelFromAnswers("case03_deadline", answers)?.label ??
             getCase03FieldOptionLabel("case03_deadline", answers.case03_deadline)
         : answers.case02_deadline
-        ? getCase02FieldOptionLabel("case02_deadline", answers.case02_deadline)
+        ? answers.case02_deadline === "confirmed" &&
+          answers[CASE02_DEADLINE_DATE_KEY]?.trim()
+          ? `납부 기한: ${answers[CASE02_DEADLINE_DATE_KEY].trim()}`
+          : getCase02FieldOptionLabel("case02_deadline", answers.case02_deadline)
         : answers.case01_deadline
           ? answers.case01_deadline === "confirmed" && answers[CASE01_DEADLINE_DATE_KEY]
             ? `대응 기한: ${answers[CASE01_DEADLINE_DATE_KEY]}`
@@ -9388,7 +9470,10 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
           ? CASE03_DEADLINE_DATE_KEY
           : "case03_deadline"
         : answers.case02_deadline
-        ? "case02_deadline"
+        ? answers.case02_deadline === "confirmed" &&
+          answers[CASE02_DEADLINE_DATE_KEY]?.trim()
+          ? CASE02_DEADLINE_DATE_KEY
+          : "case02_deadline"
         : answers.case01_deadline
           ? "case01_deadline"
           : "deadline",
@@ -10651,6 +10736,15 @@ function case01Phase2SkipReason(
   }
   if (fieldId === CASE04_DEADLINE_DATE_KEY && answers.case04_deadline !== "specific_date") {
     return "deadline !== specific_date";
+  }
+  if (fieldId === CASE02_DEADLINE_DATE_KEY && answers.case02_deadline !== "confirmed") {
+    return "deadline !== confirmed";
+  }
+  if (
+    fieldId === CASE02_PAYMENT_AMOUNT_DETAIL_KEY &&
+    !case02NeedsPaymentAmountDetail(answers)
+  ) {
+    return "paymentAmount does not need detail text";
   }
   if (
     fieldId === CASE03_ATTENDANCE_PLACE_KEY &&

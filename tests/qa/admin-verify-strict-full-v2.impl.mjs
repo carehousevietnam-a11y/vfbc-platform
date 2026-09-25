@@ -29,6 +29,10 @@ import {
   CASE04_DEADLINE_DATE_KEY,
   CASE01_FACT_DIFFERENCE_DETAIL_KEY,
   CASE01_DATE_PLACE_DETAIL_KEY,
+  CASE02_DEADLINE_DATE_KEY,
+  CASE02_PAYMENT_AMOUNT_DETAIL_KEY,
+  case02NeedsEvidence,
+  case02NeedsPaymentAmountDetail,
   case05NeedsDispositionReasonPhase2,
   case05Phase2SubstantiveAxisCatalogCount,
   deriveCase05DispositionSignals,
@@ -156,6 +160,57 @@ function case04Step21EngineChecks() {
     substantiveAxesOnRichPath: case04ListPhase2SubstantiveAxesOnPath(rich).length >= 5,
     detailInProfile: (buildCaseResolutionProfile(rich).authorityClaim.value ?? "").includes(
       "추가 서류",
+    ),
+  };
+}
+
+function case02Step21EngineChecks() {
+  const phase1Base = {
+    situation: "received_document",
+    stage: "case",
+    profileDocumentSource: "traffic",
+    [ADMIN_CASE_ENTRY_Q1_KEY]: "payment_demand",
+    case02_paymentSubject: "traffic_fine",
+    case02_paymentInfoSource: "written_notice",
+    case02_confirmGoal: "verify_amount",
+    case02_paymentStatus: "not_paid",
+    case02_deadline: "uncertain",
+  };
+  const withDeadline = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    case02_deadline: "confirmed",
+    [CASE02_DEADLINE_DATE_KEY]: "2026-09-30",
+    case02_paymentAmount: "amount_unknown",
+    case02_blockage: "amount_unclear",
+    case02_evidence: "notice",
+  });
+  const withAmountDetail = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    case02_paymentAmount: "amount_differs",
+    [CASE02_PAYMENT_AMOUNT_DETAIL_KEY]: "900,000 VND",
+    case02_blockage: "amount_unclear",
+    case02_evidence: "notice",
+  });
+  const recallUnclear = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    case02_paymentInfoSource: "recall_unclear",
+  });
+  return {
+    deadlineInProfile: (buildCaseResolutionProfile(withDeadline).deadline.value ?? "").includes(
+      "2026-09-30",
+    ),
+    amountDetailInAuthorityClaim: (
+      buildCaseResolutionProfile(withAmountDetail).authorityClaim.value ?? ""
+    ).includes("900,000"),
+    recallUnclearNeedsEvidence: case02NeedsEvidence(recallUnclear),
+    amountDiffersNeedsDetail: case02NeedsPaymentAmountDetail(
+      attachCaseResolutionSnapshot({
+        ...phase1Base,
+        case02_paymentAmount: "amount_differs",
+      }),
+    ),
+    eventHasInfoSource: (buildCaseResolutionProfile(recallUnclear).event.value ?? "").includes(
+      "안내 인지:",
     ),
   };
 }
@@ -436,14 +491,15 @@ const CASE_CONFIGS = {
     seed: baseAnswers({ profileDocumentSource: "traffic" }),
     phase1Overrides: {
       case02_paymentSubject: "traffic_fine",
+      case02_paymentInfoSource: "written_notice",
+      case02_situationMatch: "partial",
+      case02_paymentAmount: "amount_unknown",
       case02_confirmGoal: "verify_obligation",
       case02_paymentStatus: "not_paid",
-      case02_deadline: "uncertain",
     },
     phase2Overrides: {
       case02_demandAuthority: "traffic",
-      case02_situationMatch: "partial",
-      case02_paymentAmount: "reason_unclear",
+      case02_deadline: "uncertain",
       case02_paymentBasis: "violation_stated",
       case02_paymentMethod: "online_portal",
       case02_nonPaymentNotice: "no_notice",
@@ -513,9 +569,9 @@ const CASE_CONFIGS = {
     },
     phase2Overrides: {
       case02_paymentSubject: "traffic_fine",
-      case02_paymentInfoSource: "notice_letter",
+      case02_paymentInfoSource: "written_notice",
       case02_situationMatch: "partial",
-      case02_paymentAmount: "reason_unclear",
+      case02_paymentAmount: "amount_unknown",
       case02_paymentStatus: "not_paid",
       case02_confirmGoal: "verify_obligation",
       case02_demandAuthority: "traffic",
@@ -1401,6 +1457,11 @@ try {
 
 report.CASE01_STEP21_ENGINE = case01Step21EngineChecks();
 report.CASE01_STEP21_ENGINE.pass = Object.values(report.CASE01_STEP21_ENGINE).every(
+  (v) => v !== false,
+);
+
+report.CASE02_STEP21_ENGINE = case02Step21EngineChecks();
+report.CASE02_STEP21_ENGINE.pass = Object.values(report.CASE02_STEP21_ENGINE).every(
   (v) => v !== false,
 );
 
