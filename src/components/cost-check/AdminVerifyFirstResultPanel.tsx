@@ -38,6 +38,8 @@ import {
   CASE04_DEADLINE_DATE_KEY,
   getCase05FieldOptionLabel,
   getCase05FieldLabelFromAnswers,
+  effectiveAdminVerifyChoiceSlug,
+  adminVerifyFieldHasSlug,
   getCase06FieldOptionLabel,
   CASE03_OPTION_LABELS,
   isCase01Phase1Complete,
@@ -598,28 +600,28 @@ function appendCase05Phase2ResultSignals(
   actions: string[],
 ): void {
   const rel = answers.case05_factRelationship;
-  const factDetail = answers.case05_factDetail;
+  const factDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_factDetail");
   if (rel === "partial") {
     cautions.push("처분 내용과 실제 상황이 일부 다를 수 있음 — 사실관계 확인 필요");
     actions.push(
-      factDetail === "date_place"
+      factDetail === "date_place_certain" || factDetail === "date_place_fuzzy"
         ? "처분 내용과 당시 날짜·장소를 대조해 보세요."
         : "처분 내용과 실제 상황의 다른 부분을 구체적으로 대조해 보세요.",
     );
   } else if (rel === "mismatch") {
     cautions.push("처분 내용과 실제 상황이 다를 수 있음 — 사실관계 확인 필요");
     actions.push(
-      factDetail === "content_differs"
+      factDetail === "content_differs_clear" || factDetail === "content_differs_vague"
         ? "처분 사유와 실제 사실관계가 다른 부분을 정리해 보세요."
         : "처분 내용과 실제 상황을 대조해 보세요.",
     );
   } else if (rel === "hard_to_judge" || rel === "unknown") {
     unconfirmed.push("처분 내용과 실제 상황의 관계");
   }
-  if (factDetail === "hard_to_verify") {
+  if (factDetail === "date_place_fuzzy") {
     unconfirmed.push("당시 상황 재구성");
     cautions.push("과거 사실 확인이 어려운 상태 — 증빙·기억 정리가 필요함");
-  } else if (factDetail === "unsure") {
+  } else if (factDetail === "content_differs_vague") {
     unconfirmed.push("처분 사유와 실제 상황의 차이");
     actions.push("알고 있는 사실만 목록으로 적어 보세요.");
   }
@@ -639,24 +641,30 @@ function appendCase05Phase2ResultSignals(
     actions.push("통지서와 함께 영향 요약을 적어 두세요.");
   }
 
-  const explanationDetail = answers.case05_explanationDetail;
+  const explanationDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_explanationDetail");
   if (answers.case05_customerResponse === "explanation_submitted" && explanationDetail) {
-    if (explanationDetail === "written") {
+    if (
+      explanationDetail === "written_no_receipt" ||
+      explanationDetail === "written_receipt_ok"
+    ) {
       cautions.push("서면 소명·의견 제출 — 접수·기한 확인 필요");
       actions.push("제출본·접수 확인을 해 보세요.");
-    } else if (explanationDetail === "verbal") {
+    } else if (
+      explanationDetail === "verbal_no_record" ||
+      explanationDetail === "verbal_with_record"
+    ) {
       cautions.push("구두·방문 설명 — 기록·확인서 부재 시 재확인 필요");
       actions.push("설명 요지 메모·기관 확인을 해 보세요.");
-    } else if (explanationDetail === "both") {
+    } else if (
+      explanationDetail === "both_unverified" ||
+      explanationDetail === "both_aligned"
+    ) {
       cautions.push("서면·구두 병행 — 내용 일치 여부 확인");
       actions.push("서면과 구두 설명을 대조해 보세요.");
-    } else if (explanationDetail === "unsure") {
-      unconfirmed.push("제출한 소명·의견의 형태");
-      actions.push("제출 경로·일자부터 정리해 보세요.");
     }
   }
 
-  const submittedDocsDetail = answers.case05_submittedDocsDetail;
+  const submittedDocsDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_submittedDocsDetail");
   if (answers.case05_customerResponse === "documents_submitted" && submittedDocsDetail) {
     if (submittedDocsDetail === "identity") {
       actions.push("신분·인적 서류 제출 — 통지 요구 항목과 대조해 보세요.");
@@ -672,20 +680,27 @@ function appendCase05Phase2ResultSignals(
     }
   }
 
-  const appealDetail = answers.case05_appealDetail;
+  const appealDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_appealDetail");
   if (answers.case05_customerResponse === "appeal_requested" && appealDetail) {
-    if (appealDetail === "filed") {
+    if (
+      appealDetail === "filed_no_schedule" ||
+      appealDetail === "filed_no_receipt" ||
+      appealDetail === "filed_schedule_known"
+    ) {
       cautions.push("이의·재검토 신청 완료 — 접수·기한·번호 확인");
       actions.push("신청 접수증·기한을 확인해 보세요.");
-    } else if (appealDetail === "preparing") {
+    } else if (
+      appealDetail === "preparing_deadline_unknown" ||
+      appealDetail === "preparing_deadline_known"
+    ) {
       cautions.push("신청 준비 중 — 기한 초과 위험");
       actions.push("신청 기한·서류 체크리스트를 확인해 보세요.");
-    } else if (appealDetail === "considering") {
+    } else if (
+      appealDetail === "considering_rules_unread" ||
+      appealDetail === "considering_rules_read"
+    ) {
       unconfirmed.push("신청 여부·시기");
       actions.push("이의 가능 기한·요건을 통지서에서 확인해 보세요.");
-    } else if (appealDetail === "unsure") {
-      unconfirmed.push("이의·재검토 신청 상태");
-      actions.push("기관 안내·접수 여부를 문의해 보세요.");
     }
   }
 
@@ -2321,8 +2336,8 @@ function applyCase05KeyMetrics(
       ...metrics[2],
       footnote: evidenceParts.join(" · "),
       status:
-        answers.case05_evidence === "none" ||
-        answers.case05_evidence === "unsure" ||
+        adminVerifyFieldHasSlug(answers, "case05_evidence", "none") ||
+        adminVerifyFieldHasSlug(answers, "case05_evidence", "unsure") ||
         answers.case05_dispositionReason === "unsure"
           ? "caution"
           : "ok",
@@ -3185,10 +3200,22 @@ function buildCase05IntegratedSituation(answers: ReviewAnswers): string {
   const explanationMiddle =
     response === "explanation_submitted"
       ? (() => {
-          const detail = answers.case05_explanationDetail;
-          if (detail === "written") return "서면으로 소명·의견을 제출한 경험이 있는 상태입니다.";
-          if (detail === "verbal") return "전화·방문으로 설명한 경험이 있는 상태입니다.";
-          if (detail === "both") return "서면과 구두로 모두 설명한 경험이 있는 상태입니다.";
+          const detail = effectiveAdminVerifyChoiceSlug(answers, "case05_explanationDetail");
+          if (
+            detail === "written_no_receipt" ||
+            detail === "written_receipt_ok"
+          ) {
+            return "서면으로 소명·의견을 제출한 경험이 있는 상태입니다.";
+          }
+          if (
+            detail === "verbal_no_record" ||
+            detail === "verbal_with_record"
+          ) {
+            return "전화·방문으로 설명한 경험이 있는 상태입니다.";
+          }
+          if (detail === "both_unverified" || detail === "both_aligned") {
+            return "서면과 구두로 모두 설명한 경험이 있는 상태입니다.";
+          }
           return describeCustomerResponseActive("소명·의견 제출");
         })()
       : null;

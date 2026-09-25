@@ -244,5 +244,86 @@ export function buildLayerJCase0206ClauseMap(): ClauseMap {
   add(m, "06", "§03·2차", "case06_unclearFactRelation", "unrelated", `${P2} 문서가 실제 상황과 무관할 수 있다는 점이 핵심입니다.`);
   add(m, "06", "§03·2차", "case06_unclearFactRelation", "insufficient_info", `${P2} 문서와 사실 관계를 판단할 정보가 부족하다는 점이 핵심입니다.`);
 
+  // ── §7 v3 목록형·상황형 (CASE_03~05) ──
+  const chip = (cc: string, field: string, slug: string, clause: string) =>
+    add(m, cc, "§03·2차", field, slug, clause);
+
+  chip("03", "case03_evidence", "notice", `${P2} 출석·소명 통지서를 확보한 상태로 정리됩니다.`);
+  chip("03", "case03_evidence", "attendance_notice", `${P2} 출석 일시·장소 안내를 확보한 상태로 정리됩니다.`);
+  chip("03", "case03_evidence", "message", `${P2} 문자·연락 안내를 확보한 상태로 정리됩니다.`);
+  chip("03", "case03_evidence", "submitted_docs", `${P2} 제출·소명 서류를 확보한 상태로 정리됩니다.`);
+  chip("03", "case03_evidence", "none", `${P2} 관련 자료가 없는 상태로 정리됩니다.`);
+  chip("03", "case03_evidence", "unsure", `${P2} 확보 가능 자료가 아직 정리되지 않은 상태입니다.`);
+
+  chip("04", "case04_evidence", "supplement_notice", `${P2} 보완 요구 안내문을 확보한 상태로 정리됩니다.`);
+  chip("04", "case04_evidence", "message", `${P2} 연락·메신저 안내를 확보한 상태로 정리됩니다.`);
+  chip("04", "case04_evidence", "original_submission", `${P2} 최초 제출 서류를 확보한 상태로 정리됩니다.`);
+  chip("04", "case04_evidence", "supplement_submission", `${P2} 보완 제출 서류를 확보한 상태로 정리됩니다.`);
+  chip("04", "case04_evidence", "none", `${P2} 관련 자료가 없는 상태로 정리됩니다.`);
+  chip("04", "case04_evidence", "unsure", `${P2} 확보 가능 자료가 아직 정리되지 않은 상태입니다.`);
+
+  chip("04", "case04_addDocDetail", "id_doc", `${P2} 추가 제출 대상에 신분·인적 서류가 포함됩니다.`);
+  chip("04", "case04_addDocDetail", "financial_doc", `${P2} 추가 제출 대상에 재무·금액 서류가 포함됩니다.`);
+  chip("04", "case04_addDocDetail", "certificate", `${P2} 추가 제출 대상에 증명서·확인서가 포함됩니다.`);
+  chip("04", "case04_addDocDetail", "translation", `${P2} 추가 제출 대상에 번역·공증 서류가 포함됩니다.`);
+  chip("04", "case04_addDocDetail", "unsure", `${P2} 추가 서류 범위가 아직 정리되지 않은 상태입니다.`);
+
+  chip("04", "case04_modifyDetail", "name_info", `${P2} 수정 대상에 인적사항이 포함됩니다.`);
+  chip("04", "case04_modifyDetail", "date_info", `${P2} 수정 대상에 날짜·기간이 포함됩니다.`);
+  chip("04", "case04_modifyDetail", "amount_info", `${P2} 수정 대상에 금액·수치가 포함됩니다.`);
+  chip("04", "case04_modifyDetail", "content_info", `${P2} 수정 대상에 기재 내용이 포함됩니다.`);
+  chip("04", "case04_modifyDetail", "unsure", `${P2} 수정 항목이 아직 정리되지 않은 상태입니다.`);
+
+  chip("04", "case04_evidenceDetail", "proof_doc", `${P2} 추가 증빙에 서류가 포함됩니다.`);
+  chip("04", "case04_evidenceDetail", "photo", `${P2} 추가 증빙에 사진·이미지가 포함됩니다.`);
+  chip("04", "case04_evidenceDetail", "statement", `${P2} 추가 증빙에 설명·소명서가 포함됩니다.`);
+  chip("04", "case04_evidenceDetail", "unsure", `${P2} 추가 증빙 범위가 아직 정리되지 않은 상태입니다.`);
+
+  add(m, "04", "§03·2차", "case04_unclearFocus", "what_submit_list", `${P2} 제출 범위 자체가 가장 막힌 점으로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_unclearFocus", "what_submit_apply", `${P2} 제출 항목의 적용 여부가 막힌 점으로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_unclearFocus", "why_submit_reason", `${P2} 보완 사유 이해가 막힌 점으로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_unclearFocus", "why_submit_apply", `${P2} 사유의 본인 해당 여부가 막힌 점으로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_unclearFocus", "format_how", `${P2} 제출 형식이 막힌 점으로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_unclearFocus", "format_where", `${P2} 제출 경로·채널이 막힌 점으로 정리됩니다.`);
+
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_docs_new_kind", `${P2} 반복 보완에서 서류 종류가 확대된 것으로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_docs_same_kind", `${P2} 반복 보완에서 유사 서류가 다시 요구된 것으로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_modify_reject_prior", `${P2} 이미 수정한 항목을 다시 고치라는 요구로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_modify_new_field", `${P2} 새 수정 항목이 추가된 요구로 정리됩니다.`);
+
+  chip("05", "case05_evidence", "disposition_notice", `${P2} 처분 통지서를 확보한 상태로 정리됩니다.`);
+  chip("05", "case05_evidence", "message_email", `${P2} 기관 연락·이메일을 확보한 상태로 정리됩니다.`);
+  chip("05", "case05_evidence", "submitted_docs", `${P2} 제출 서류를 확보한 상태로 정리됩니다.`);
+  chip("05", "case05_evidence", "payment_proof", `${P2} 납부·영수 증빙을 확보한 상태로 정리됩니다.`);
+  chip("05", "case05_evidence", "photo_video", `${P2} 사진·영상을 확보한 상태로 정리됩니다.`);
+  chip("05", "case05_evidence", "contract", `${P2} 계약·관계 서류를 확보한 상태로 정리됩니다.`);
+  chip("05", "case05_evidence", "none", `${P2} 관련 자료가 없는 상태로 정리됩니다.`);
+  chip("05", "case05_evidence", "unsure", `${P2} 확보 가능 자료가 아직 정리되지 않은 상태입니다.`);
+
+  chip("05", "case05_submittedDocsDetail", "identity", `${P2} 제출 서류에 신분·인적 서류가 포함됩니다.`);
+  chip("05", "case05_submittedDocsDetail", "financial", `${P2} 제출 서류에 재무·금액 서류가 포함됩니다.`);
+  chip("05", "case05_submittedDocsDetail", "certificate", `${P2} 제출 서류에 증명서·확인서가 포함됩니다.`);
+  chip("05", "case05_submittedDocsDetail", "unsure", `${P2} 제출 서류 종류가 아직 정리되지 않은 상태입니다.`);
+
+  add(m, "05", "§03·2차", "case05_explanationDetail", "written_no_receipt", `${P2} 서면 소명은 했으나 접수 확인이 없는 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_explanationDetail", "written_receipt_ok", `${P2} 서면 소명과 접수 확인이 있는 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_explanationDetail", "verbal_no_record", `${P2} 구두 설명만 있고 기록이 없는 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_explanationDetail", "verbal_with_record", `${P2} 구두 설명과 메모·기록이 있는 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_explanationDetail", "both_unverified", `${P2} 서면·구두 병행이나 내용 대조가 안 된 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_explanationDetail", "both_aligned", `${P2} 서면·구두 내용이 일치한다고 보는 상태입니다.`);
+
+  add(m, "05", "§03·2차", "case05_factDetail", "date_place_certain", `${P2} 시점·장소 차이에 확신이 있는 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_factDetail", "date_place_fuzzy", `${P2} 시점·장소 차이가 있으나 불명확한 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_factDetail", "content_differs_clear", `${P2} 내용 차이가 정리된 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_factDetail", "content_differs_vague", `${P2} 내용 차이가 있으나 항목이 불명한 상태입니다.`);
+
+  add(m, "05", "§03·2차", "case05_appealDetail", "filed_no_schedule", `${P2} 이의·재검토 신청 후 일정이 불명한 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "filed_no_receipt", `${P2} 이의·재검토 신청 후 접수 확인이 없는 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "filed_schedule_known", `${P2} 이의·재검토 신청과 일정 인지가 있는 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "preparing_deadline_unknown", `${P2} 신청 준비 중이며 기한 미확인 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "preparing_deadline_known", `${P2} 신청 준비 중이며 기한을 확인한 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "considering_rules_unread", `${P2} 신청 검토 중이며 요건·기한 미확인 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "considering_rules_read", `${P2} 신청 검토 중이며 요건·기한을 읽은 상태입니다.`);
+
   return m;
 }

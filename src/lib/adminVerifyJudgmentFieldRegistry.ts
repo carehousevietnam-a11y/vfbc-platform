@@ -89,8 +89,17 @@ export const LAYER_J_JUDGMENT_FIELD_SPECS: LayerJJudgmentFieldSpec[] = [
     caseCode: "01",
     outlet: "§03·2차",
     fieldId: "case01_compareRecordGap",
-    questionLabel: "통지 내용과 비교하려면 지금 무엇이 가장 부족한가요?",
+    questionLabel:
+      "통지·안내 내용과 비교·대조하려면, 지금 특히 없거나 부족한 것을 골라 주세요. (여러 개 선택 가능)",
     otherItemLabel: "비교 자료",
+  },
+  {
+    caseCode: "01",
+    outlet: "§03·2차",
+    fieldId: "case01_evidence",
+    questionLabel:
+      "지금 이 교통·행정 안내와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "확보 자료",
   },
   {
     caseCode: "01",
@@ -296,6 +305,14 @@ export const LAYER_J_JUDGMENT_FIELD_SPECS: LayerJJudgmentFieldSpec[] = [
     otherItemLabel: "소명 후 반응",
   },
   {
+    caseCode: "03",
+    outlet: "§03·2차",
+    fieldId: "case03_evidence",
+    questionLabel:
+      "지금 출석·소명 요구와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "확보 자료",
+  },
+  {
     caseCode: "04",
     outlet: "§03·1차",
     fieldId: "case04_supplementTarget",
@@ -329,6 +346,52 @@ export const LAYER_J_JUDGMENT_FIELD_SPECS: LayerJJudgmentFieldSpec[] = [
     fieldId: "case04_submissionRelation",
     questionLabel: "보완 요구 내용과 실제 제출·준비 상황은 어떻게 다른가요?",
     otherItemLabel: "제출 관계",
+  },
+  {
+    caseCode: "04",
+    outlet: "§03·2차",
+    fieldId: "case04_addDocDetail",
+    questionLabel:
+      "보완 안내에서 추가로 제출해야 하는 서류 종류를 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "추가 서류",
+  },
+  {
+    caseCode: "04",
+    outlet: "§03·2차",
+    fieldId: "case04_modifyDetail",
+    questionLabel:
+      "보완 안내에서 수정·고쳐 써야 하는 항목을 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "수정 항목",
+  },
+  {
+    caseCode: "04",
+    outlet: "§03·2차",
+    fieldId: "case04_evidenceDetail",
+    questionLabel:
+      "안내에서 더 요구하는 증빙·자료 종류를 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "추가 증빙",
+  },
+  {
+    caseCode: "04",
+    outlet: "§03·2차",
+    fieldId: "case04_unclearFocus",
+    questionLabel: "보완 요구 안내에서 가장 막힌 점은 무엇에 가깝나요?",
+    otherItemLabel: "막힌 점",
+  },
+  {
+    caseCode: "04",
+    outlet: "§03·2차",
+    fieldId: "case04_repeatSupplement",
+    questionLabel: "이번 보완 요구는 이전에 제출했던 보완 내용과 비교하면 어떤 상황인가요?",
+    otherItemLabel: "반복 보완",
+  },
+  {
+    caseCode: "04",
+    outlet: "§03·2차",
+    fieldId: "case04_evidence",
+    questionLabel:
+      "지금 보완 요구와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "확보 자료",
   },
   {
     caseCode: "05",
@@ -378,6 +441,42 @@ export const LAYER_J_JUDGMENT_FIELD_SPECS: LayerJJudgmentFieldSpec[] = [
     fieldId: "case05_dispositionOutcome",
     questionLabel: "현재 처분 결과·유지 여부는 어떻게 이해하시나요?",
     otherItemLabel: "처분 결과",
+  },
+  {
+    caseCode: "05",
+    outlet: "§03·2차",
+    fieldId: "case05_explanationDetail",
+    questionLabel: "기관에 제출한 소명·의견은 어떤 방식이었나요?",
+    otherItemLabel: "소명 경로",
+  },
+  {
+    caseCode: "05",
+    outlet: "§03·2차",
+    fieldId: "case05_factDetail",
+    questionLabel: "실제 상황과 처분 사유는 어떤 점에서 다른가요?",
+    otherItemLabel: "사실 차이",
+  },
+  {
+    caseCode: "05",
+    outlet: "§03·2차",
+    fieldId: "case05_appealDetail",
+    questionLabel: "이의제기·재검토 요청은 어떤 상태인가요?",
+    otherItemLabel: "이의·재검토",
+  },
+  {
+    caseCode: "05",
+    outlet: "§03·2차",
+    fieldId: "case05_submittedDocsDetail",
+    questionLabel: "이번에 기관에 제출한 서류 종류를 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "제출 서류",
+  },
+  {
+    caseCode: "05",
+    outlet: "§03·2차",
+    fieldId: "case05_evidence",
+    questionLabel:
+      "지금 처분·조치와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
+    otherItemLabel: "확보 자료",
   },
   {
     caseCode: "06",

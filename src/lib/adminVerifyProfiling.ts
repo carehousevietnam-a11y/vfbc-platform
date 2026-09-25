@@ -37,6 +37,18 @@ import {
   case01IsPhase2FacetOnPath,
 } from "./adminVerifyCase01Ratio";
 import {
+  adminVerifyAnswerIncludesSlug,
+  formatAdminVerifyMultiChoiceAnswerLabel,
+  getAdminVerifyEffectiveChoiceSlugs,
+  isAdminVerifyMultiChoiceField,
+  isAdminVerifyMultiChoiceFieldComplete,
+  normalizeAdminVerifyMultiChoiceRaw,
+} from "./adminVerifyChoiceMultiValue";
+import {
+  canonicalizeAdminVerifyChoiceAnswer,
+  canonicalizeAdminVerifyChoiceSlug,
+} from "./adminVerifyChoiceSlugCanonical";
+import {
   CASE01_PHASE2_FACET_FIELD_OPTION_MAP,
   CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS,
   CASE01_FACT_CONFLICT_FACET_OPTIONS,
@@ -835,26 +847,11 @@ const CASE01_BLOCKAGE_UI_OPTIONS = [
 ];
 
 const CASE01_EVIDENCE_OPTIONS = [
-  {
-    value: "notice",
-    label: "교통국에서 받은 통지·안내 문서가 있습니다.",
-  },
-  {
-    value: "message",
-    label: "교통국 또는 상대방과 주고받은 문자·메시지·이메일이 있습니다.",
-  },
-  {
-    value: "submitted_docs",
-    label: "제출한 서류나 접수·납부 증빙이 있습니다.",
-  },
-  {
-    value: "photo_video",
-    label: "당시 상황을 확인할 수 있는 사진·영상·기타 자료가 있습니다.",
-  },
-  {
-    value: "none",
-    label: "현재 가지고 있는 관련 자료가 없습니다.",
-  },
+  { value: "notice", label: "교통국 통지·안내문" },
+  { value: "message", label: "문자·메시지·이메일" },
+  { value: "submitted_docs", label: "제출·접수·납부 증빙" },
+  { value: "photo_video", label: "사진·영상·기타 자료" },
+  { value: "none", label: "관련 자료 없음" },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -1198,7 +1195,8 @@ const CASE01_PHASE2_FACET_QUESTION_SPECS: {
   },
   {
     id: "case01_compareRecordGap",
-    label: "통지 내용과 비교하려면 지금 무엇이 가장 부족한가요?",
+    label:
+      "통지·안내 내용과 비교·대조하려면, 지금 특히 없거나 부족한 것을 골라 주세요. (여러 개 선택 가능)",
     options: CASE01_COMPARE_RECORD_GAP_OPTIONS,
   },
   {
@@ -1931,7 +1929,8 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case01_evidence",
     kind: "choice",
-    label: "지금 가지고 있는 자료 중 이 상황과 관련된 것은 무엇인가요?",
+    label:
+      "지금 이 교통·행정 안내와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
     options: CASE01_EVIDENCE_OPTIONS,
   });
   if (
@@ -2412,6 +2411,27 @@ const CASE02_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> =
   case02_deadline: CASE02_DEADLINE_OPTIONS,
 };
 
+export function effectiveAdminVerifyChoiceSlug(
+  answers: ReviewAnswers,
+  fieldId: string,
+): string | undefined {
+  const raw = answers[fieldId as keyof ReviewAnswers]?.trim();
+  if (!raw) return undefined;
+  if (isAdminVerifyMultiChoiceField(fieldId)) {
+    return getAdminVerifyEffectiveChoiceSlugs(fieldId, raw)[0];
+  }
+  return canonicalizeAdminVerifyChoiceSlug(fieldId, raw);
+}
+
+export function adminVerifyFieldHasSlug(
+  answers: ReviewAnswers,
+  fieldId: string,
+  slug: string,
+): boolean {
+  const raw = answers[fieldId as keyof ReviewAnswers]?.trim();
+  return adminVerifyAnswerIncludesSlug(fieldId, raw, slug);
+}
+
 export function isAdminVerifyChoiceFieldComplete(
   questionId: string,
   answers: ReviewAnswers,
@@ -2419,6 +2439,9 @@ export function isAdminVerifyChoiceFieldComplete(
 ): boolean {
   const value = answers[questionId]?.trim() ?? "";
   if (!value) return false;
+  if (isAdminVerifyMultiChoiceField(questionId)) {
+    return isAdminVerifyMultiChoiceFieldComplete(questionId, value, options);
+  }
   if (value !== "other") return true;
   const otherOption = options.find((opt) => opt.value === "other");
   if (!otherOption) return true;
@@ -3935,11 +3958,12 @@ const CASE03_BLOCKAGE_OPTIONS = [
 ];
 
 const CASE03_EVIDENCE_OPTIONS = [
-  { value: "notice", label: "출석·소명 요구 통지서·안내문" },
-  { value: "attendance_notice", label: "출석 일시·장소가 적힌 별도 안내" },
-  { value: "message", label: "기관 문자·메신저·전화 안내 내역" },
-  { value: "submitted_docs", label: "이미 제출한 서류·소명서" },
-  { value: "none", label: "지금 확인할 수 있는 자료가 없습니다" },
+  { value: "notice", label: "출석·소명 통지서" },
+  { value: "attendance_notice", label: "출석 일시·장소 안내" },
+  { value: "message", label: "문자·전화·메신저 안내" },
+  { value: "submitted_docs", label: "제출한 서류·소명서" },
+  { value: "none", label: "관련 자료 없음" },
+  { value: "unsure", label: "지금 확인할 수 있는 자료가 있는지 아직 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -4004,6 +4028,13 @@ export function getCase03FieldLabelFromAnswers(
 ): { label: string; factStatus: FactStatus } | null {
   const value = answers[fieldId as keyof ReviewAnswers]?.trim();
   if (!value) return null;
+  if (isAdminVerifyMultiChoiceField(fieldId)) {
+    const joined = formatAdminVerifyMultiChoiceAnswerLabel(fieldId, value, (slug) =>
+      getCase03FieldOptionLabel(fieldId, slug),
+    );
+    if (!joined) return null;
+    return { label: joined, factStatus: "confirmed" };
+  }
   if (value === "other") {
     const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
     const fallback = getCase03FieldOptionLabel(fieldId, "other");
@@ -4029,7 +4060,7 @@ function case03NeedsAttendancePlaceText(answers: ReviewAnswers): boolean {
 }
 
 function case03NeedsAttendanceWhenWhereText(answers: ReviewAnswers): boolean {
-  if (answers.case03_evidence !== "attendance_notice") return false;
+  if (!adminVerifyFieldHasSlug(answers, "case03_evidence", "attendance_notice")) return false;
   return !answers[CASE03_ATTENDANCE_WHEN_WHERE_KEY]?.trim();
 }
 
@@ -4632,7 +4663,8 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_evidence",
       kind: "choice",
-      label: "지금 확인할 수 있는 자료가 있나요?",
+      label:
+        "지금 출석·소명 요구와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
       options: CASE03_EVIDENCE_OPTIONS,
     });
     if (
@@ -5083,12 +5115,12 @@ const CASE04_SUBMISSION_RELATION_OPTIONS = [
 ];
 
 const CASE04_ADD_DOC_DETAIL_OPTIONS = [
-  { value: "id_doc", label: "신분·인적 관련 서류" },
-  { value: "financial_doc", label: "재무·금액 관련 서류" },
+  { value: "id_doc", label: "신분·인적 서류" },
+  { value: "financial_doc", label: "재무·금액 서류" },
   { value: "certificate", label: "증명서·확인서" },
-  { value: "translation", label: "번역·공증 관련 서류" },
-  { value: "doc_other", label: "위에 없는 다른 서류 유형입니다" },
-  { value: "unsure", label: "어떤 서류를 추가해야 하는지 모르겠습니다" },
+  { value: "translation", label: "번역·공증 서류" },
+  { value: "unsure", label: "어떤 서류를 추가해야 하는지 모르겠습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_MODIFY_DETAIL_OPTIONS = [
@@ -5096,29 +5128,44 @@ const CASE04_MODIFY_DETAIL_OPTIONS = [
   { value: "date_info", label: "날짜·기간" },
   { value: "amount_info", label: "금액·수치" },
   { value: "content_info", label: "내용·기재사항" },
-  { value: "modify_other", label: "위에 없는 다른 수정 항목입니다" },
-  { value: "unsure", label: "무엇을 수정해야 하는지 모르겠습니다" },
+  { value: "unsure", label: "무엇을 수정해야 하는지 모르겠습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_EVIDENCE_DETAIL_OPTIONS = [
   { value: "proof_doc", label: "증빙 서류" },
   { value: "photo", label: "사진·이미지" },
   { value: "statement", label: "설명서·소명서" },
-  { value: "evidence_detail_other", label: "위에 없는 다른 증빙·자료입니다" },
-  { value: "unsure", label: "어떤 증빙을 더 넣어야 하는지 모르겠습니다" },
+  { value: "unsure", label: "어떤 증빙을 더 넣어야 하는지 모르겠습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_UNCLEAR_FOCUS_OPTIONS = [
-  { value: "what_submit", label: "무엇을 제출해야 하는지" },
-  { value: "why_submit", label: "왜 제출해야 하는지" },
-  { value: "format", label: "어떤 형식이어야 하는지" },
-  { value: "deadline", label: "언제까지 제출해야 하는지" },
-  { value: "connection", label: "기존 제출 내용과 어떻게 연결되는지" },
-  { value: "whole_unclear", label: "전체 요구가 이해되지 않음" },
   {
-    value: "unsure",
-    label: "보완 요구 내용 중 무엇이 가장 이해하기 어려운지 정확히 말하기 어렵습니다.",
+    value: "what_submit_list",
+    label: "무엇을 제출해야 하는지 자체가 가장 막막합니다.",
   },
+  {
+    value: "what_submit_apply",
+    label: "무엇을 내야 하는지는 대략 보이지만, 제 상황에 맞는지 모르겠습니다.",
+  },
+  {
+    value: "why_submit_reason",
+    label: "왜 보완이 필요한지가 가장 이해하기 어렵습니다.",
+  },
+  {
+    value: "why_submit_apply",
+    label: "사유는 읽었지만, 제 경우에도 해당하는지 모르겠습니다.",
+  },
+  {
+    value: "format_how",
+    label: "어떤 형식으로 제출해야 하는지가 가장 어렵습니다.",
+  },
+  {
+    value: "format_where",
+    label: "형식은 알겠는데, 어디로(온라인·방문) 제출해야 하는지 모르겠습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE04_CUSTOMER_RESPONSE_OPTIONS = [
@@ -5178,11 +5225,22 @@ const CASE04_AUTHORITY_FOLLOWUP_OPTIONS = [
 ];
 
 const CASE04_REPEAT_SUPPLEMENT_OPTIONS = [
-  { value: "more_docs", label: "추가 서류를 다시 요구했습니다" },
-  { value: "more_modify", label: "수정/보완을 다시 요구했습니다" },
-  { value: "more_explanation", label: "추가 설명을 다시 요구했습니다" },
-  { value: "multiple", label: "여러 가지를 다시 요구했습니다" },
-  { value: "not_applicable", label: "해당 없음 / 아직 모름" },
+  {
+    value: "more_docs_new_kind",
+    label: "추가 서류를 다시 요구했고, 처음과 다른 종류라고 이해했습니다.",
+  },
+  {
+    value: "more_docs_same_kind",
+    label: "추가 서류를 다시 요구했고, 비슷한 종류를 또 요구한 것 같습니다.",
+  },
+  {
+    value: "more_modify_reject_prior",
+    label: "수정·보완을 다시 요구했고, 이미 고친 부분을 또 고치라고 들었습니다.",
+  },
+  {
+    value: "more_modify_new_field",
+    label: "수정·보완을 다시 요구했고, 처음과 다른 항목을 고치라고 들었습니다.",
+  },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -5221,10 +5279,11 @@ const CASE04_BLOCKAGE_OPTIONS = [
 
 const CASE04_EVIDENCE_OPTIONS = [
   { value: "supplement_notice", label: "보완 요구서·안내문" },
-  { value: "message", label: "기관 문자·메신저·전화 안내 내역" },
+  { value: "message", label: "문자·전화·메신저 안내" },
   { value: "original_submission", label: "처음 제출했던 서류" },
   { value: "supplement_submission", label: "보완해서 제출한 서류" },
-  { value: "none", label: "지금 확인할 수 있는 자료가 없습니다" },
+  { value: "none", label: "관련 자료 없음" },
+  { value: "unsure", label: "지금 확인할 수 있는 자료가 있는지 아직 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -5294,6 +5353,13 @@ export function getCase04FieldLabelFromAnswers(
 ): { label: string; factStatus: FactStatus } | null {
   const value = answers[fieldId as keyof ReviewAnswers]?.trim();
   if (!value) return null;
+  if (isAdminVerifyMultiChoiceField(fieldId)) {
+    const joined = formatAdminVerifyMultiChoiceAnswerLabel(fieldId, value, (slug) =>
+      getCase04FieldOptionLabel(fieldId, slug),
+    );
+    if (!joined) return null;
+    return { label: joined, factStatus: "confirmed" };
+  }
   if (value === "other") {
     const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
     const fallback = getCase04FieldOptionLabel(fieldId, "other");
@@ -5799,7 +5865,8 @@ function appendCase04Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case04_addDocDetail",
       kind: "choice",
-      label: "어떤 서류를 추가로 제출하라고 요구받았나요?",
+      label:
+        "보완 안내에서 추가로 제출해야 하는 서류 종류를 골라 주세요. (여러 개 선택 가능)",
       options: CASE04_ADD_DOC_DETAIL_OPTIONS,
     });
     if (
@@ -5815,7 +5882,8 @@ function appendCase04Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case04_modifyDetail",
       kind: "choice",
-      label: "어떤 내용을 수정하거나 다시 제출하라고 요구받았나요?",
+      label:
+        "보완 안내에서 수정·고쳐 써야 하는 항목을 골라 주세요. (여러 개 선택 가능)",
       options: CASE04_MODIFY_DETAIL_OPTIONS,
     });
     if (
@@ -5831,7 +5899,8 @@ function appendCase04Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case04_evidenceDetail",
       kind: "choice",
-      label: "어떤 내용이나 증빙을 추가하라고 요구받았나요?",
+      label:
+        "안내에서 더 요구하는 증빙·자료 종류를 골라 주세요. (여러 개 선택 가능)",
       options: CASE04_EVIDENCE_DETAIL_OPTIONS,
     });
     if (
@@ -5847,7 +5916,7 @@ function appendCase04Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case04_unclearFocus",
       kind: "choice",
-      label: "보완 요구 안내에서 무엇이 가장 이해하기 어렵나요?",
+      label: "보완 요구 안내에서 가장 막힌 점은 무엇에 가깝나요?",
       options: CASE04_UNCLEAR_FOCUS_OPTIONS,
     });
     if (
@@ -5919,7 +5988,8 @@ function appendCase04Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case04_evidence",
       kind: "choice",
-      label: "지금 확인할 수 있는 자료가 있나요?",
+      label:
+        "지금 보완 요구와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
       options: CASE04_EVIDENCE_OPTIONS,
     });
     if (
@@ -6098,18 +6168,20 @@ function deriveSupplementSignals(answers: ReviewAnswers): SupplementSignalCode[]
   if (!shouldActivateCase04Path(answers) && !answers.case04_supplementTarget) return [];
   const signals: SupplementSignalCode[] = [];
 
+  const case04UnclearFocus = effectiveAdminVerifyChoiceSlug(answers, "case04_unclearFocus");
   if (
     answers.case04_supplementTarget === "unclear" ||
     answers.case04_supplementTarget === "repeat_demand" ||
-    answers.case04_unclearFocus === "what_submit" ||
-    answers.case04_unclearFocus === "whole_unclear"
+    case04UnclearFocus === "what_submit_list" ||
+    case04UnclearFocus === "what_submit_apply"
   ) {
     signals.push("SUPPLEMENT_TARGET_UNCLEAR");
   }
   if (
     answers.case04_supplementReason === "no_reason" ||
     answers.case04_supplementReason === "unsure" ||
-    answers.case04_unclearFocus === "why_submit"
+    case04UnclearFocus === "why_submit_reason" ||
+    case04UnclearFocus === "why_submit_apply"
   ) {
     signals.push("SUPPLEMENT_REASON_UNCLEAR");
   }
@@ -6119,14 +6191,17 @@ function deriveSupplementSignals(answers: ReviewAnswers): SupplementSignalCode[]
   ) {
     signals.push("SUPPLEMENT_CONTENT_MISMATCH");
   }
-  if (answers.case04_unclearFocus === "format" || answers.case04_blockage === "format") {
+  if (
+    case04UnclearFocus === "format_how" ||
+    case04UnclearFocus === "format_where" ||
+    answers.case04_blockage === "format"
+  ) {
     signals.push("SUPPLEMENT_FORMAT_UNCLEAR");
   }
   if (
     answers.case04_deadline === "uncertain" ||
     answers.case04_deadline === "unsure" ||
-    answers.case04_deadline === "not_stated" ||
-    answers.case04_unclearFocus === "deadline"
+    answers.case04_deadline === "not_stated"
   ) {
     signals.push("SUPPLEMENT_DEADLINE_UNCLEAR");
   }
@@ -6191,7 +6266,7 @@ function classifyFromCase04Answers(answers: ReviewAnswers): {
 
   if (
     answers.case04_supplementTarget === "unclear" &&
-    answers.case04_unclearFocus === "whole_unclear"
+    effectiveAdminVerifyChoiceSlug(answers, "case04_unclearFocus") === "what_submit_list"
   ) {
     return {
       id: "CASE_06",
@@ -6498,35 +6573,91 @@ const CASE05_DISPOSITION_DETAIL_OPTIONS = [
 ];
 
 const CASE05_FACT_DETAIL_OPTIONS = [
-  { value: "date_place", label: "날짜·장소·상황이 다릅니다" },
-  { value: "content_differs", label: "내용·사실관계가 다릅니다" },
-  { value: "hard_to_verify", label: "그때 상황을 확인하기 어렵습니다" },
   {
-    value: "unsure",
-    label: "실제 상황과 처분 사유의 차이를 정확히 말하기 어렵습니다.",
+    value: "date_place_certain",
+    label: "처분에 적힌 날짜·장소·상황은 제가 기억하는 것과 다르다고 확신합니다.",
   },
+  {
+    value: "date_place_fuzzy",
+    label: "날짜·장소·상황이 다를 수는 있지만, 정확히 말하기 어렵습니다.",
+  },
+  {
+    value: "content_differs_clear",
+    label: "처분 내용·사유는 제 사실과 다르고, 차이는 정리해 두었습니다.",
+  },
+  {
+    value: "content_differs_vague",
+    label: "처분 내용·사유가 다른 것 같지만, 무엇이 다른지는 아직 못 정했습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_EXPLANATION_DETAIL_OPTIONS = [
-  { value: "written", label: "서면으로 소명·의견을 제출했습니다" },
-  { value: "verbal", label: "전화·방문 등으로 설명했습니다" },
-  { value: "both", label: "서면과 구두 설명을 함께 했습니다" },
-  { value: "unsure", label: "제출한 소명·의견의 형태를 정확히 구분하기 어렵습니다." },
+  {
+    value: "written_no_receipt",
+    label: "서면으로 소명·의견을 제출했고, 접수 확인은 아직 받지 못했습니다.",
+  },
+  {
+    value: "written_receipt_ok",
+    label: "서면으로 소명·의견을 제출했고, 접수·접수번호 안내를 받았습니다.",
+  },
+  {
+    value: "verbal_no_record",
+    label: "전화·방문으로만 설명했고, 메모·확인서는 없습니다.",
+  },
+  {
+    value: "verbal_with_record",
+    label: "전화·방문으로 설명했고, 내용을 메모해 두었습니다.",
+  },
+  {
+    value: "both_unverified",
+    label: "서면과 구두 모두 했는데, 내용이 같은지는 아직 맞춰 보지 못했습니다.",
+  },
+  {
+    value: "both_aligned",
+    label: "서면과 구두 모두 했고, 말한 내용은 같다고 생각합니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS = [
-  { value: "identity", label: "신분·인적 관련 서류" },
-  { value: "financial", label: "재무·금액 관련 서류" },
+  { value: "identity", label: "신분·인적 서류" },
+  { value: "financial", label: "재무·금액 서류" },
   { value: "certificate", label: "증명서·확인서" },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
   { value: "unsure", label: "제출한 서류 종류를 정확히 구분하기 어렵습니다." },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_APPEAL_DETAIL_OPTIONS = [
-  { value: "filed", label: "이의제기·재검토를 신청했습니다" },
-  { value: "preparing", label: "신청을 준비하고 있습니다" },
-  { value: "considering", label: "신청 여부를 검토하고 있습니다" },
-  { value: "unsure", label: "이의제기·재검토 신청 상태를 정확히 확인하지 못했습니다." },
+  {
+    value: "filed_no_schedule",
+    label: "이의·재검토를 신청했고, 접수 안내는 받았지만 결과 일정은 모릅니다.",
+  },
+  {
+    value: "filed_no_receipt",
+    label: "이의·재검토를 신청했지만, 접수 확인이나 접수번호는 아직 받지 못했습니다.",
+  },
+  {
+    value: "filed_schedule_known",
+    label: "이의·재검토를 신청했고, 결과·다음 안내 일정을 알고 있습니다.",
+  },
+  {
+    value: "preparing_deadline_unknown",
+    label: "신청을 준비 중이고, 신청 기한은 아직 확인하지 못했습니다.",
+  },
+  {
+    value: "preparing_deadline_known",
+    label: "신청을 준비 중이고, 신청 기한은 확인했습니다.",
+  },
+  {
+    value: "considering_rules_unread",
+    label: "신청 여부를 검토 중이고, 가능 여부·기한은 아직 못 읽었습니다.",
+  },
+  {
+    value: "considering_rules_read",
+    label: "신청 여부를 검토 중이고, 통지서에 기한·요건을 읽었습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE05_BLOCKAGE_OPTIONS = [
@@ -6544,12 +6675,12 @@ const CASE05_BLOCKAGE_OPTIONS = [
 
 const CASE05_EVIDENCE_OPTIONS = [
   { value: "disposition_notice", label: "처분 통지서" },
-  { value: "message_email", label: "기관 문자/이메일" },
-  { value: "submitted_docs", label: "제출 서류" },
-  { value: "payment_proof", label: "영수증/납부 증빙" },
-  { value: "photo_video", label: "사진/영상" },
-  { value: "contract", label: "계약서" },
-  { value: "none", label: "없음" },
+  { value: "message_email", label: "기관 문자·이메일" },
+  { value: "submitted_docs", label: "제출한 서류" },
+  { value: "payment_proof", label: "납부·영수 증빙" },
+  { value: "photo_video", label: "사진·영상" },
+  { value: "contract", label: "계약·관계 서류" },
+  { value: "none", label: "관련 자료 없음" },
   { value: "unsure", label: "지금 확인할 수 있는 자료가 있는지 아직 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
@@ -6726,6 +6857,13 @@ export function getCase05FieldLabelFromAnswers(
 ): { label: string; factStatus: FactStatus } | null {
   const value = answers[fieldId as keyof ReviewAnswers]?.trim();
   if (!value) return null;
+  if (isAdminVerifyMultiChoiceField(fieldId)) {
+    const joined = formatAdminVerifyMultiChoiceAnswerLabel(fieldId, value, (slug) =>
+      getCase05FieldOptionLabel(fieldId, slug),
+    );
+    if (!joined) return null;
+    return { label: joined, factStatus: "confirmed" };
+  }
   if (value === "other") {
     const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
     const fallback = getCase05FieldOptionLabel(fieldId, "other");
@@ -7308,7 +7446,8 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_submittedDocsDetail",
       kind: "choice",
-      label: "기관에 제출한 서류는 어떤 유형에 가깝나요?",
+      label:
+        "이번에 기관에 제출한 서류 종류를 골라 주세요. (여러 개 선택 가능)",
       options: CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS,
     });
     if (
@@ -7424,7 +7563,8 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_evidence",
       kind: "choice",
-      label: "지금 확인할 수 있는 자료가 있나요?",
+      label:
+        "지금 처분·조치와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
       options: CASE05_EVIDENCE_OPTIONS,
     });
     if (
@@ -7607,13 +7747,8 @@ function case05DetailProfileLabel(
     | "case05_appealDetail",
   answers: ReviewAnswers,
 ): string | null {
-  const detail = answers[fieldId];
-  if (!detail) return null;
-  if (detail === "other") {
-    const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
-    return note || getCase05FieldOptionLabel(fieldId, detail);
-  }
-  return getCase05FieldOptionLabel(fieldId, detail);
+  const fromAnswers = getCase05FieldLabelFromAnswers(fieldId, answers);
+  return fromAnswers?.label ?? null;
 }
 
 function case05DispositionDetailProfileSuffix(answers: ReviewAnswers): string | null {
@@ -7634,21 +7769,35 @@ function appendCase05DetailDispositionSignals(
       signals.push("DISPOSITION_TYPE_UNCLEAR");
     }
   }
-  const factDetail = answers.case05_factDetail;
-  if (factDetail === "content_differs" && answers.case05_factRelationship === "partial") {
+  const factDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_factDetail");
+  if (
+    (factDetail === "content_differs_clear" || factDetail === "content_differs_vague") &&
+    answers.case05_factRelationship === "partial"
+  ) {
     const idx = signals.indexOf("FACT_MISMATCH_PARTIAL");
     if (idx >= 0) signals.splice(idx, 1);
     if (!signals.includes("FACT_MISMATCH")) signals.push("FACT_MISMATCH");
   }
-  if (factDetail === "hard_to_verify" && !signals.includes("FACT_UNVERIFIED")) {
+  if (
+    (factDetail === "date_place_fuzzy" || factDetail === "content_differs_vague") &&
+    !signals.includes("FACT_UNVERIFIED")
+  ) {
     signals.push("FACT_UNVERIFIED");
   }
-  const explanationDetail = answers.case05_explanationDetail;
-  if (explanationDetail === "verbal" && !signals.includes("DISPOSITION_EVIDENCE_UNCLEAR")) {
+  const explanationDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_explanationDetail");
+  if (
+    (explanationDetail === "verbal_no_record" || explanationDetail === "verbal_with_record") &&
+    !signals.includes("DISPOSITION_EVIDENCE_UNCLEAR")
+  ) {
     if (case05NeedsEvidence(answers)) signals.push("DISPOSITION_EVIDENCE_UNCLEAR");
   }
-  const appealDetail = answers.case05_appealDetail;
-  if (appealDetail === "filed" && !signals.includes("DISPOSITION_RESPONSE_UNCLEAR")) {
+  const appealDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_appealDetail");
+  if (
+    (appealDetail === "filed_no_schedule" ||
+      appealDetail === "filed_no_receipt" ||
+      appealDetail === "filed_schedule_known") &&
+    !signals.includes("DISPOSITION_RESPONSE_UNCLEAR")
+  ) {
     signals.push("DISPOSITION_RESPONSE_UNCLEAR");
   }
 }
@@ -7769,7 +7918,10 @@ function deriveDispositionSignals(answers: ReviewAnswers): DispositionSignalCode
   ) {
     signals.push("DISPOSITION_RESPONSE_UNCLEAR");
   }
-  if (answers.case05_evidence === "none" || answers.case05_evidence === "unsure") {
+  if (
+    adminVerifyFieldHasSlug(answers, "case05_evidence", "none") ||
+    adminVerifyFieldHasSlug(answers, "case05_evidence", "unsure")
+  ) {
     if (case05NeedsEvidence(answers)) {
       signals.push("DISPOSITION_EVIDENCE_UNCLEAR");
     }
@@ -7796,16 +7948,23 @@ function collectCase05RiskSignals(answers: ReviewAnswers): string[] {
   if (answers.case05_factRelationship === "partial" || answers.case05_factRelationship === "mismatch") {
     risks.push("처분 내용과 실제 상황이 다를 수 있음 — 사실관계 확인 필요");
   }
-  if (answers.case05_factDetail === "content_differs") {
+  const factDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_factDetail");
+  if (factDetail === "content_differs_clear" || factDetail === "content_differs_vague") {
     risks.push("처분 사유와 실제 사실관계가 다를 수 있음 — 내용 대조 필요");
   }
   if (answers.case05_dispositionDetail === "scope_unclear") {
     risks.push("정지·제한 범위가 불명확함 — 영향 범위 확인 필요");
   }
-  if (answers.case05_explanationDetail === "verbal") {
+  const explanationDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_explanationDetail");
+  if (explanationDetail === "verbal_no_record") {
     risks.push("구두 소명만 있는 경우 — 기록·접수 확인 필요");
   }
-  if (answers.case05_appealDetail === "filed") {
+  const appealDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_appealDetail");
+  if (
+    appealDetail === "filed_no_schedule" ||
+    appealDetail === "filed_no_receipt" ||
+    appealDetail === "filed_schedule_known"
+  ) {
     risks.push("이의·재검토 신청 후 결과·기한 확인 필요");
   }
   const rounds = deriveCase05Rounds(answers);
@@ -9966,9 +10125,9 @@ function collectCase01Unknowns(answers: ReviewAnswers): string[] {
     unknowns.push("통지서 기한");
   }
   if (
-    answers.case01_evidence === "no" ||
-    answers.case01_evidence === "unsure" ||
-    answers.case01_evidence === "none"
+    adminVerifyFieldHasSlug(answers, "case01_evidence", "no") ||
+    adminVerifyFieldHasSlug(answers, "case01_evidence", "unsure") ||
+    adminVerifyFieldHasSlug(answers, "case01_evidence", "none")
   ) {
     unknowns.push("확인 가능한 자료");
   }

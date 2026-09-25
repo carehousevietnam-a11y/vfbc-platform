@@ -131,6 +131,13 @@ import {
   wasFieldAsked,
 } from "@/lib/adminVerifyProfiling";
 import {
+  getAdminVerifyEffectiveChoiceSlugs,
+  isAdminVerifyMultiChoiceField,
+  normalizeAdminVerifyMultiChoiceRaw,
+  toggleAdminVerifyMultiChoiceSlug,
+} from "@/lib/adminVerifyChoiceMultiValue";
+import { canonicalizeAdminVerifyChoiceAnswer } from "@/lib/adminVerifyChoiceSlugCanonical";
+import {
   buildCase06PrincipleFStateLines,
   CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
   CASE06_DEADLINE_DATE_KEY,
@@ -1177,6 +1184,27 @@ function formatCollapsedAnswerLabel(
   value: string,
   answers: ReviewAnswers,
 ): string {
+  if (question.kind === "choice" && isAdminVerifyMultiChoiceField(question.id)) {
+    const slugs = getAdminVerifyEffectiveChoiceSlugs(question.id, value);
+    if (slugs.length === 0) return value;
+    const labels = slugs.map((slug) => {
+      if (question.id.startsWith("case05_")) {
+        return getCase05FieldOptionLabel(question.id, slug);
+      }
+      if (question.id.startsWith("case04_")) {
+        return getCase04FieldOptionLabel(question.id, slug);
+      }
+      if (question.id.startsWith("case03_")) {
+        return getCase03FieldOptionLabel(question.id, slug);
+      }
+      if (question.id.startsWith("case01_")) {
+        return CASE01_OPTION_LABELS[slug] ?? formatAnswerLabel(question, slug);
+      }
+      return slug;
+    });
+    const joined = labels.join(" · ");
+    return joined.length > 72 ? `${joined.slice(0, 69)}…` : joined;
+  }
   if (question.kind === "choice" && question.id === ADMIN_CASE_ENTRY_Q1_KEY) {
     const entry = value;
     if (entry === "other") {
@@ -2647,7 +2675,13 @@ export function MasterReviewQuotationReport({
       } else if (questionId === "situation" && prev.situation !== value) {
         next = clearAdminProfileDependentAnswers({ ...prev, situation: value });
       } else {
-        next = { ...prev, [questionId]: value };
+        let stored = value;
+        if (isAdminVerifyMultiChoiceField(questionId)) {
+          stored = normalizeAdminVerifyMultiChoiceRaw(questionId, value) ?? value;
+        } else {
+          stored = canonicalizeAdminVerifyChoiceAnswer(questionId, value) ?? value;
+        }
+        next = { ...prev, [questionId]: stored };
       }
       next = markFieldAsked(next, questionId);
       if (questionId === "situation") {
@@ -2821,6 +2855,8 @@ export function MasterReviewQuotationReport({
     const directDraft = followUpOtherDraft[question.id] ?? answers[noteKey] ?? "";
     const directValid = directDraft.trim().length > 0;
     const gridOptions = question.options.filter((opt) => !isAdminDirectExplainOption(opt));
+    const isMulti = isAdminVerifyMultiChoiceField(question.id);
+    const selectedSlugs = isMulti ? getAdminVerifyEffectiveChoiceSlugs(question.id, value) : [];
 
     return (
       <li key={question.id} className="list-none">
@@ -2846,7 +2882,11 @@ export function MasterReviewQuotationReport({
                     badgeNumber={
                       useStitchQuestionLayout ? String(index + 1).padStart(2, "0") : undefined
                     }
-                    selected={selectedKey === opt.value || value === opt.value}
+                    selected={
+                      isMulti
+                        ? selectedSlugs.includes(opt.value)
+                        : selectedKey === opt.value || value === opt.value
+                    }
                     icon={FileText}
                     tone="blue"
                     className={
@@ -2854,7 +2894,18 @@ export function MasterReviewQuotationReport({
                         ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
                         : undefined
                     }
-                    onClick={() => selectAnswer(question.id, opt.value)}
+                    onClick={() => {
+                      if (isMulti) {
+                        const next = toggleAdminVerifyMultiChoiceSlug(
+                          question.id,
+                          value,
+                          opt.value,
+                        );
+                        commitAnswer(question.id, next);
+                        return;
+                      }
+                      selectAnswer(question.id, opt.value);
+                    }}
                   />
                 ))}
               </VerifyAnswerGrid>
