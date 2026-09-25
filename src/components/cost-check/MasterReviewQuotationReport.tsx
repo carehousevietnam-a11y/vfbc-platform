@@ -93,6 +93,8 @@ import {
   CASE03_ANSWER_KEYS,
   CASE03_OPTION_LABELS,
   getCase03FieldOptionLabel,
+  getCase03FieldLabelFromAnswers,
+  CASE03_DEADLINE_DATE_KEY,
   CASE04_ANSWER_KEYS,
   CASE04_OPTION_LABELS,
   getCase04FieldOptionLabel,
@@ -1229,9 +1231,19 @@ function formatCollapsedAnswerLabel(
       const note = answers[getAdminChoiceNoteKey(question.id)]?.trim() ?? "";
       return note.length > 48 ? `${note.slice(0, 45)}…` : note || ADMIN_DIRECT_EXPLAIN_LABEL;
     }
+    if (
+      question.id === "case03_deadline" &&
+      value === "specific_date"
+    ) {
+      const date = answers[CASE03_DEADLINE_DATE_KEY]?.trim() ?? "";
+      if (date) return date.length > 48 ? `${date.slice(0, 45)}…` : date;
+    }
     const fromQuestion = formatAnswerLabel(question, value);
     if (fromQuestion !== value) return fromQuestion;
-    return getCase03FieldOptionLabel(question.id, value);
+    return (
+      getCase03FieldLabelFromAnswers(question.id, answers)?.label ??
+      getCase03FieldOptionLabel(question.id, value)
+    );
   }
   if (question.kind === "choice" && question.id.startsWith("case04_")) {
     return getCase04FieldOptionLabel(question.id, value);

@@ -21,6 +21,10 @@ import {
   case02NormalizeNonPaymentNoticeValue,
   getCase02FieldOptionLabel,
   getCase03FieldOptionLabel,
+  getCase03FieldLabelFromAnswers,
+  CASE03_DEADLINE_DATE_KEY,
+  CASE03_ATTENDANCE_WHEN_WHERE_KEY,
+  CASE03_PREP_ATTENDANCE_DATE_KEY,
   getCase04FieldOptionLabel,
   getCase05FieldOptionLabel,
   getCase06FieldOptionLabel,
@@ -1104,8 +1108,14 @@ function appendCase03Phase1ResultSignals(
   }
 
   if (deadline === "specific_date") {
-    cautions.push("출석·소명 기한이 확인된 상태 — 기한 내 대응이 필요함");
-    actions.push("출석·소명 기한을 다시 확인해 보세요.");
+    const dateText = answers[CASE03_DEADLINE_DATE_KEY]?.trim();
+    if (dateText) {
+      cautions.push("출석·소명 기한이 확인된 상태 — 기한 내 대응이 필요함");
+      actions.push(`확인한 출석·소명 기한(${dateText})을 다시 한번 점검해 보세요.`);
+    } else {
+      unconfirmed.push("출석·소명 기한 (날짜)");
+      actions.push("출석·소명 기한 날짜를 먼저 확인해 보세요.");
+    }
   } else if (
     deadline === "uncertain" ||
     deadline === "period_stated" ||
@@ -1160,12 +1170,60 @@ function appendCase03Phase2ResultSignals(
   const prep = answers.case03_prepRequired;
   if (prep === "unknown" || prep === "unsure") {
     unconfirmed.push("준비해야 할 내용");
+  } else if (prep === "attendance_only") {
+    const prepDate = answers[CASE03_PREP_ATTENDANCE_DATE_KEY]?.trim();
+    if (prepDate) {
+      actions.push(`준비한 출석·소명 예정일(${prepDate})과 기관 안내를 대조해 보세요.`);
+    }
   }
 
   const repeat = answers.case03_repeatFollowUp;
   if (repeat && repeat !== "not_applicable") {
     cautions.push("추가 설명·출석·자료 요구가 있음 — 반복 대응 확인 필요");
     actions.push("이전 설명·출석 내용과 기관의 추가 요구를 함께 확인해 보세요.");
+  }
+
+  const blockage = answers.case03_blockage;
+  if (blockage === "what_explain") {
+    actions.push("기관에 설명해야 할 내용이 적힌 부분을 확인해 보세요.");
+  } else if (blockage === "what_docs") {
+    actions.push("요구·권장 서류·증빙 종류를 통지서와 대조해 보세요.");
+  } else if (blockage === "why_attend") {
+    unconfirmed.push("출석·소명 요구 사유");
+    actions.push("출석·소명을 요구한 사유가 적힌 문구를 확인해 보세요.");
+  } else if (blockage === "when_attend") {
+    actions.push("출석·제출 기한이 적힌 부분을 확인해 보세요.");
+  } else if (blockage === "after_explain") {
+    unconfirmed.push("설명·제출 후 다음 조치");
+    actions.push("설명·제출 후 기관이 안내한 다음 단계를 확인해 보세요.");
+  }
+
+  const evidence = answers.case03_evidence;
+  if (evidence === "none") {
+    unconfirmed.push("확인 가능한 자료·증빙");
+  } else if (evidence === "notice") {
+    actions.push("출석·소명 요구 통지서 원본을 준비해 두세요.");
+  } else if (evidence === "attendance_notice") {
+    actions.push("출석 일시·장소 안내를 다시 확인해 보세요.");
+    const whenWhere = answers[CASE03_ATTENDANCE_WHEN_WHERE_KEY]?.trim();
+    if (whenWhere) {
+      actions.push(`확인한 출석 일시·장소: ${whenWhere}`);
+    }
+  } else if (evidence === "message") {
+    actions.push("기관 문자·메신저·전화 안내 내역을 확인해 보세요.");
+  } else if (evidence === "submitted_docs") {
+    actions.push("이미 제출한 서류·소명서와 접수 여부를 확인해 보세요.");
+  }
+
+  const finalGoal = answers.case03_finalGoal;
+  if (finalGoal === "understand_demand") {
+    actions.push("기관 요구 문구와 본인 상황을 나란히 정리해 보세요.");
+  } else if (finalGoal === "prepare_response") {
+    actions.push("준비할 설명·서류 목록을 통지서와 대조해 보세요.");
+  } else if (finalGoal === "verify_facts") {
+    actions.push("기관이 확인하려는 사실과 실제 상황을 대조해 보세요.");
+  } else if (finalGoal === "expert") {
+    actions.push("확인한 출석·소명 요구와 대응 내역을 정리해 전문가 상담에 활용해 보세요.");
   }
 }
 
@@ -1272,7 +1330,18 @@ function classifiedFieldOptionLabel(
     case "CASE_02":
       return getCase02FieldOptionLabel(fieldId, value);
     case "CASE_03":
-      return getCase03FieldOptionLabel(fieldId, value);
+      if (value === "other" && answers) {
+        const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
+        return (
+          note ||
+          getCase03FieldLabelFromAnswers(fieldId, answers)?.label ||
+          getCase03FieldOptionLabel(fieldId, "other")
+        );
+      }
+      return (
+        getCase03FieldLabelFromAnswers(fieldId, answers ?? {})?.label ??
+        getCase03FieldOptionLabel(fieldId, value)
+      );
     case "CASE_04":
       return getCase04FieldOptionLabel(fieldId, value);
     case "CASE_05":

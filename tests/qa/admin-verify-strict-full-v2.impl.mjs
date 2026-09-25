@@ -25,10 +25,14 @@ import {
   restoreAdminProfilingAnswersFromMeta,
   selectNextCaseResolutionFocus,
   CASE05_DEADLINE_DATE_KEY,
+  CASE03_DEADLINE_DATE_KEY,
   case05NeedsDispositionReasonPhase2,
   case05Phase2SubstantiveAxisCatalogCount,
   deriveCase05DispositionSignals,
   isCase05Phase1Complete,
+  isCase03Phase1Complete,
+  case03ListPhase2SubstantiveAxesOnPath,
+  case03Phase2SubstantiveAxisCatalogCount,
   isCase06Phase1Complete,
 } from "../../src/lib/adminVerifyProfiling.ts";
 import {
@@ -106,6 +110,46 @@ function case06Step21EngineChecks() {
     r04LegacyGate: case06NeedsDeadlineDate(legacyR04) && !isCase06Phase1Complete(legacyR04),
     paymentAmountTextGate: case06NeedsPaymentAmountText(paymentNeedsText),
     signalViolationFactQuestion,
+  };
+}
+
+function case03Step21EngineChecks() {
+  const phase1Base = {
+    situation: "received_document",
+    profileDocumentSource: "court",
+    stage: "case",
+    [ADMIN_CASE_ENTRY_Q1_KEY]: "attendance_demand",
+    case03_authorityDemand: "reason_unclear",
+    case03_inquiryFocus: "action_facts",
+    case03_customerResponse: "attendance",
+    case03_confirmGoal: "unsure",
+    case03_deadline: "specific_date",
+  };
+  const withDate = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    [CASE03_DEADLINE_DATE_KEY]: "2026-07-20",
+  });
+  const profile = buildCaseResolutionProfile(withDate);
+  const missingDate = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    case03_deadline: "specific_date",
+  });
+  const rich = attachCaseResolutionSnapshot({
+    ...withDate,
+    case03_factRelationship: "partial",
+    case03_explanationDetail: "partial_explanation",
+    case03_authorityFollowUp: "more_explanation",
+    case03_repeatFollowUp: "more_explanation",
+    case03_blockage: "what_explain",
+    case03_evidence: "notice",
+    case03_finalGoal: "expert",
+  });
+  return {
+    deadlineInProfile: (profile.deadline.value ?? "").includes("2026-07-20"),
+    specificDateIncomplete: !isCase03Phase1Complete(missingDate),
+    substantiveCatalogIs8: case03Phase2SubstantiveAxisCatalogCount() === 8,
+    substantiveAxesOnRichPath: case03ListPhase2SubstantiveAxesOnPath(rich).length >= 7,
+    finalGoalInProfile: (buildCaseResolutionProfile(rich).goal.value ?? "").includes("전문가"),
   };
 }
 
@@ -1262,6 +1306,11 @@ try {
 } finally {
   await browser.close();
 }
+
+report.CASE03_STEP21_ENGINE = case03Step21EngineChecks();
+report.CASE03_STEP21_ENGINE.pass = Object.values(report.CASE03_STEP21_ENGINE).every(
+  (v) => v !== false,
+);
 
 report.CASE05_STEP21_ENGINE = case05Step21EngineChecks();
 report.CASE05_STEP21_ENGINE.pass = Object.values(report.CASE05_STEP21_ENGINE).every(Boolean);
