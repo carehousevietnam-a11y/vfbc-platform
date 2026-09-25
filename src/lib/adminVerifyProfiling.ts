@@ -2781,7 +2781,7 @@ export function getCase02FieldOptionLabel(fieldId: string, value: string): strin
 }
 
 /** CASE_02 Direct Input — CASE_05 dispositionType "other" + note 패턴과 동일 */
-function getCase02FieldLabelFromAnswers(
+export function getCase02FieldLabelFromAnswers(
   fieldId: string,
   answers: ReviewAnswers,
 ): { label: string; factStatus: FactStatus } | null {

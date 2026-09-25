@@ -71,6 +71,7 @@ import {
   ADMIN_VERIFY_KEY_METRIC_MANIFEST,
   shortenKeyMetricFootnote,
 } from "@/lib/adminVerifyKeyMetricManifest";
+import { buildAdminVerifyClassifiedKeyMetrics } from "@/lib/adminVerifyKeyMetricsBuild";
 import {
   CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
   CASE06_DEADLINE_DATE_KEY,
@@ -147,7 +148,7 @@ function metricFromAssessment(
   if (assessment === "ok") return { footnote: okText, status: "ok" };
   if (assessment === "issue") return { footnote: issueText, status: "caution" };
   if (assessment === "unknown") return { footnote: unknownText, status: "caution" };
-  return { footnote: skippedText, status: "ok" };
+  return { footnote: skippedText.trim(), status: "ok" };
 }
 
 const FOLLOW_UP_VALUE_LABELS: Record<string, string> = {
@@ -2679,7 +2680,12 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
   const case01FactMetric: FieldAssessment =
     answers.case01_factRelationship === "match"
       ? "ok"
-      : answers.case01_factRelationship === "mismatch" || answers.case01_factRelationship === "partial"
+      : answers.case01_factRelationship === "mismatch" ||
+          answers.case01_factRelationship === "partial" ||
+          answers.case01_factRelationship === "date_place_wrong" ||
+          answers.case01_factRelationship === "deny_action" ||
+          answers.case01_factRelationship === "partial_situation" ||
+          answers.case01_factRelationship === "info_mismatch"
         ? "issue"
         : answers.case01_factRelationship
           ? "unknown"
@@ -2734,21 +2740,21 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     docsOkText,
     docsIssueText,
     docsUnknownText,
-    "이번 상황에서는 별도 확인하지 않았습니다",
+    "",
   );
   const contentMetric = metricFromAssessment(
     contentAssessment,
     "기본 서류 내용 확인",
     "서류 내용 누락·오류 확인 필요",
     "서류 내용 추가 확인 필요",
-    "이번 상황에서는 별도 확인하지 않았습니다",
+    "",
   );
   const formatMetric = metricFromAssessment(
     formatAssessment,
     "형식·증빙 확인",
     "일부 증빙 확인 필요",
     "형식·증빙 추가 확인 필요",
-    "이번 상황에서는 별도 확인하지 않았습니다",
+    "",
   );
   const submissionDeadlineAssessment: FieldAssessment =
     submissionAssessment === "not_assessed" && deadlineAssessment === "not_assessed"
@@ -2765,7 +2771,7 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     "제출기관·방법·기한 확인",
     "제출 경로·기한 추가 확인 필요",
     "제출 경로·기한 추가 확인 필요",
-    "이번 상황에서는 별도 확인하지 않았습니다",
+    "",
   );
 
   let keyMetrics: AdminVerifyKeyMetric[] = [
@@ -2795,35 +2801,15 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     },
   ];
 
-  if (case01Active && isCase01Phase1Complete(answers)) {
-    keyMetrics = applyCase01KeyMetrics(answers, keyMetrics);
-    if (isAdminVerifyPhase2PathComplete(answers) || answers.case01_evidence?.trim()) {
-      keyMetrics = applyCase01Phase2KeyMetrics(answers, keyMetrics);
-    }
-  } else if (q1Case === "CASE_03" && isCase03Phase1Complete(answers)) {
-    keyMetrics = applyCase03KeyMetrics(answers, keyMetrics);
-  } else if (q1Case === "CASE_04" && isCase04Phase1Complete(answers)) {
-    keyMetrics = applyCase04KeyMetrics(answers, keyMetrics);
-  } else if (q1Case === "CASE_05" && isCase05Phase1Complete(answers)) {
-    keyMetrics = applyCase05KeyMetrics(answers, keyMetrics);
-  } else if (
+  if (
     q1Case &&
     q1Case !== "UNIVERSAL" &&
     isClassifiedCasePhase1CompleteForResult(q1Case, answers)
   ) {
-    keyMetrics = applyGenericClassifiedCaseKeyMetrics(q1Case, answers, keyMetrics);
+    keyMetrics = buildAdminVerifyClassifiedKeyMetrics(q1Case as MasterCaseId, answers);
   }
 
-  if (
-    q1Case &&
-    q1Case !== "UNIVERSAL" &&
-    q1Case !== "CASE_06" &&
-    (q1Case === "CASE_01"
-      ? isCase01Phase1Complete(answers)
-      : isClassifiedCasePhase1CompleteForResult(q1Case, answers))
-  ) {
-    keyMetrics = applyKeyMetricManifestSlots(q1Case, keyMetrics);
-  }
+  keyMetrics = keyMetrics.filter((metric) => metric.footnote?.trim());
 
   if (
     q1Case &&
@@ -3609,9 +3595,6 @@ function formatMetricFootnoteForDisplay(
 ): string {
   const trimmed = footnote.trim();
   if (!trimmed) return trimmed;
-  if (trimmed === "이번 상황에서는 별도 확인하지 않았습니다") {
-    return refinePhrase("이번 상황에서는 별도 확인하지 않았습니다.");
-  }
   const parts = trimmed
     .split(" · ")
     .map((part) => refinePhrase(part.trim()))
@@ -3629,6 +3612,7 @@ function KeyMetricCard({
 }) {
   const isOk = metric.status === "ok";
   const displayFootnote = formatMetricFootnoteForDisplay(metric.footnote, refinePhrase);
+  if (!displayFootnote.trim()) return null;
   return (
     <div
       className={cn(
@@ -4808,7 +4792,8 @@ export function AdminVerifyFirstResultPanel({
                 <h3 className={FIRST_RESULT_READABLE_CLASS}>{displayStatusHeadline}</h3>
               </div>
               {data.adminResponseSummaryLines?.length ? (
-                <div className="mt-3 space-y-1">
+                <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
+                  <p className="text-xs font-semibold text-slate-700">응답 요약</p>
                   {data.adminResponseSummaryLines.map((line) => (
                     <p
                       key={line}
