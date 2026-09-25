@@ -38,6 +38,7 @@
 | **D03** | **선택 공간 빈틈** — 고객이 자기 상태를 **고를 수 없음** (조합·축 미커버) | 과거 v2: 「1 choice = 1 fact」로 **고밀도 목표와 충돌** · facet 혼합 slug (속도+금액 등) · 빈틈을 **질문 추가**로 메우려 함 | CASE_01 — 2026-09 · **CASE_05** 화면 확인 — 2026-09-26 | **선택지 하나에 여러 사실을 담는 것은 목표.** 금지는 **사실 조합의 선택 공간에 빈틈**이 생겨 고객이 자기 상태를 고를 수 없는 것. 해결은 **질문 추가가 아니라** 같은 질문 안의 **선택지 구성**. 목록형 예외는 「어떤 종류」 질문만 (`EXPRESSION_MASTER` §3.1). 상황형은 `fact_dimensions` + **choice_facts**로 커버리지 증명 (`VFBCAI_CASE05_QUESTION_CHOICE_REWRITE_MASTER_v1.md`) | **만들 수 있음** | **선택 공간 커버리지** — dimensions Cartesian vs choice facts · 미커버 셀 FAIL · `conflict_speed_amount` 등 **모순 조합** 금지 |
 | **D04** | **fixture 몇 개**만 보고 「전 경로 통과」 | QA harness **대표 경로**만 · 조합 **미전수** | CASE_01 — 2026-09 | **2×5×3 등 조합 표** + 코드 `*OnPath(answers)` **일치** (Brief LOCK). 미달 **표시** | **만들 수 있음** | `case01-phase2-substantive-depth-combinations.impl.mjs` · CASE_02 v2 §5 미달 6건 |
 | **D05** | **CASE마다 따로 패치** → 공통 원인 **미수정** | Layer A·persist·note **CASE별 if**만 수정 | CASE_01~06 — 2026-09 | **COM-01~** 공통 레이어 먼저 · `VFBCAI_ADMIN_VERIFY_COMMON_RESULT_AUDIT_v1.md` §5 | **부분 있음** | `admin-verify-pipeline-af-check.mjs` · Mission Brief **cross-domain** 절 |
+| **D06** | **선택지 개수 초과** — 밀도·커버리지를 이유로 **6개 이상** 내용 선택지 | 대표 마스터 「4~5개 대표 상황」 미적용 · trajectory·목록형 **chip 폭증** | CASE_01~05 재작성 v1 — **2026-09-26** | **LOCK:** 내용 선택지 **≤5** + DI 1개(고정 문구). 희소·2차 축 → **DI + 이유**. SoT: `VFBCAI_QUESTION_CHOICE_MAX_FIVE_RULE_v1_1.md` · `VFBCAI_QUESTION_CHOICE_FIVE_CAP_INVENTORY_v1_1.md` | **만들 수 있음** | 질문 id별 choice count ≤5 · manifest/Layer J slug 집계 |
 
 ---
 
@@ -57,6 +58,7 @@
 | **P10** | **수동 검사**가 **수정 중인 작업 폴더**·동일 dev 서버를 사용 | 구현 창이 **미커밋·반쯤 고친 코드**를 HMR로 서빙하는데, 다른 창(VERIFIER·수동 QA)이 **같은 `npm run dev`** 로 브라우저 검사 → **원인 불명** 오류·질문 초기화 등 | **CASE_04** 질문 초기화 — **2026-09-25** | **수동·브라우저 검사**는 **커밋된 코드**로 띄운 **별도 git worktree** 서버에서만. 구현 중인 트리·포트 **공유 금지**. QA·VERIFIER **보고에 검사한 커밋 해시 필수** (`git rev-parse HEAD`). 구현 창 dev 중 타 창 **동일 폴더 수동 검사 금지** | **불가** (프로세스) · worktree 스크립트는 **만들 수 있음** | `git worktree` · Cursor `best-of-n-runner` · `03-qa-self-loop.mdc` · Mission 완료 보고 **검증 커밋** 필드 |
 | **P11** | 분류 판정(**「양호」**)을 **화면 확인 없이** 수용 | §7·감사 표에서 **문장 수·slug만** 보고 PASS · 실제 UI는 **단일 사실 문장** | **CASE_05** 대표 화면 확인 — **2026-09-26** | **의미·밀도 판정**은 **5번창 독립 검증** + **자동 검사**(선택 공간·fact_dimensions)만. 보고서에 **「양호」·「PASS」** 표현 **금지** (통합 PASS 미달 시). 화면 원문 캡처·커밋 해시 없으면 **검증 미완료** | **부분 있음** | choice-space coverage · 5번창 체크리스트 · 보고서 금지어 lint |
 | **P12** | **LOCK된 원칙**을 사용자에게 **재확인 요청** | Agent가 LOCK을 「승인 받기」로 오인 · 설계 책임 회피 | 2번창 지시 — **2026-09-26** | LOCK 원칙 **적용 책임**은 설계·구현·검증(2·1·5번창). 사용자 개입은 **새로운 사업 판단**에만. 재확인 문구 **금지** | **불가** (프로세스) | Mission 템플릿 · `vfbcai-authority.mdc` |
+| **P14** | **대표 마스터 LOCK 누락** — 선택지 5개·DI 문구 등 **재작성·검토에서 미적용** | v1 재작성이 D03·QG만 보고 **EXPRESSION_MASTER §3 상한** 생략 | 2번창 — **2026-09-26** | **재작성 전 체크리스트:** `VFBCAI_QUESTION_CHOICE_MAX_FIVE_RULE_v1_1.md` · D03 · QG-01~04 · **FIVE_CAP_INVENTORY** §1 질문별 count | **만들 수 있음** | rewrite master front-matter checklist · choice count CI |
 
 ---
 
@@ -88,6 +90,7 @@
 | P2 | F04 | **`result-signal-diff`**: 동일 질문에서 slug A vs B → signals **집합 diff non-empty** | CASE signal fns |
 | P2 | F11 | **`stitch-progress-consistency`**: questions[] vs progress total | profiling + UI harness |
 | P2 | D03 | **`choice-space-coverage`**: `fact_dimensions` × choice `facts` 미커버 셀 0 · 모순 조합 fixture FAIL | CASE `*_QUESTION_CHOICE_REWRITE_MASTER_v1.md` |
+| P2 | D06 | **`choice-count-max-five`**: 질문별 내용 slug ≤5 (DI 제외) | `VFBCAI_QUESTION_CHOICE_FIVE_CAP_INVENTORY_v1_1.md` · Layer J manifest |
 
 **이미 있음 (확장 권장):** `admin-verify-pipeline-af-check.mjs`, `case01-phase2-substantive-depth-combinations.mjs`, `admin-verify-strict-full-v2.impl.mjs`, `chain05-label-capture.mjs`.
 

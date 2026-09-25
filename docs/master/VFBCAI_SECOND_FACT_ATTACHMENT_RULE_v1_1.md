@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | **적용** | `VFBCAI_CASE0x_QUESTION_CHOICE_REWRITE_MASTER_v1_1.md` 및 이후 재작성안 |
-| **관계** | `VFBCAI_FAILURE_PATTERN_REGISTRY.md` D03 · `VFBCAI_QUESTION_CHOICE_REWRITE_CROSS_CASE_QUALITY_GATES_v1.md` |
+| **관계** | D03 · D06 (`VFBCAI_QUESTION_CHOICE_MAX_FIVE_RULE_v1_1.md`) · QG |
 
 ## LOCK
 
@@ -12,6 +12,8 @@
 1. **같은 경로의 다른 질문**이 이미 묻는 사실이 **아니다**.
 2. **판단·다음 행동·위험도**를 실제로 **바꾼다**.
 3. 그 사실의 **가능한 값**을 **같은 질문 안** 선택지가 **모두 덮는다**.
+
+**D06:** 내용 선택지 **최대 5** + DI. 5개로 dimension을 덮지 못하면 **제2 사실 붙이지 않음** · 미커버 값은 **DI + 이유** (`VFBCAI_QUESTION_CHOICE_FIVE_CAP_INVENTORY_v1_1.md` §4).
 
 ## 자동 검사 (1번창)
 

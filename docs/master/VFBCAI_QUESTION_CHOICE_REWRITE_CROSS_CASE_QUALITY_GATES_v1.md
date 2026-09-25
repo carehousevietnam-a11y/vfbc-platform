@@ -158,6 +158,7 @@
 | **QG-02** | 대응 질문 선택지 pairwise **의미 중복 0** (04/05 유형) |
 | **QG-03** | date 필수 slug 표 + text 키 · 모순 문안 없음 |
 | **QG-04** | recall/compare/interpret **경로당 1질문** · skip 규칙 표 |
+| **QG-05** | 질문별 **내용 선택지 ≤5** + DI(고정 문구) · `VFBCAI_QUESTION_CHOICE_FIVE_CAP_INVENTORY_v1_1.md` §1 일치 · §4 DI 빈틈 **이유** |
 
 **미충족 시:** 통합 PASS **금지** (레지스트리 §3.1) — 「재작성안 초안」으로만 기록.
 
@@ -171,6 +172,7 @@
 | `qg02-response-overlap` | customerResponse options embedding cluster | same cluster >1 choice |
 | `qg03-date-text-gate` | slug set + fixtures empty text | phase complete true |
 | `qg04-recall-singleton` | on-path question ids per signal | same signal ≥2 ids |
+| `qg05-choice-count-max-five` | rewrite master / manifest per question id | content choices >5 |
 
 ---
 
@@ -179,6 +181,7 @@
 | 일자 | 내용 |
 |------|------|
 | 2026-09-26 | v1 — QG-01~04 · CASE_01~06 스캔 · QG-03 append `return` 갭 문서화 |
+| 2026-09-26 | QG-05 — D06 · `VFBCAI_QUESTION_CHOICE_MAX_FIVE_RULE_v1_1.md` |
 
 ---
 

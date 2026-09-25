@@ -56,8 +56,16 @@
 ## B. QG (v1.1)
 
 | D03 | **해소함** (§A) |
+| QG-05 | **해소함** — §C |
 
 **미패치:** v1 본문.
+
+---
+
+## C. D06
+
+- `customerResponse` **6→5:** `phone_inquired` (phone_no_reply + phone_replied 흡수) — §2.3  
+- `explanationTrajectory` **8→5:** `proceed_no_more` · `demands_more` · `other_procedure` · `repeat_multiple` · `no_response_or_unclear` — §2.4
 
 ---
 

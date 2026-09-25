@@ -2,7 +2,8 @@
 
 | 항목 | 내용 |
 |------|------|
-| **기준** | v1 (`87b7a91`) + **D03 제2 사실 부착** (`VFBCAI_SECOND_FACT_ATTACHMENT_RULE_v1_1.md`) |
+| **기준** | v1 (`87b7a91`) + **D03** + **D06** (`VFBCAI_QUESTION_CHOICE_MAX_FIVE_RULE_v1_1.md`) |
+| **D06 SoT** | `VFBCAI_QUESTION_CHOICE_FIVE_CAP_INVENTORY_v1_1.md` §1 CASE_05 · §2.9~2.17 |
 | **유지** | trajectory 합침 · 기한 4+DI · customerResponse 접수 확인/미확인 분기 |
 | **삭제** | `case05_plannedNextStep` (의향 질문 금지) |
 
@@ -161,7 +162,26 @@
 | QG-02 | **해소함** (confirmGoal 대응 이력 제거) |
 | QG-03 | **해당 없음** |
 | QG-04 | **해당 없음** |
+| **QG-05** | **해소함** — §D · 인벤토리 §2.9~2.17 |
 | D03 제2사실 | **해소함** (§A) |
+
+---
+
+## D. D06 — 선택지 최대 5 (v1.1 확정 slug)
+
+인벤토리 **§2.9~2.17** 원문·뺀 목록·DI 빈틈. 요약 slug만:
+
+| 질문 | v1.1 내용 5 |
+|------|-------------|
+| `customerResponse` | none · inquired_no_answer · explanation_submitted · documents_submitted · appeal_requested |
+| `dispositionReason` | violation_claimed · document_issue · requirement_not_met · deadline_procedure · no_clear_reason |
+| `explanationDetail` | written_no_receipt · written_receipt_ok · verbal_explanation · both_channels · partial_explanation |
+| `submittedDocsDetail` | identity · financial · certificate · application_form · photo_evidence |
+| `appealDetail` | filed_no_receipt · filed_pending_result · filed_schedule_known · preparing · considering |
+| `authorityTrajectory` | outcome_maintained · outcome_changed · authority_wants_more · review_in_progress · no_clear_followup |
+| `blockage` | why_disposition · what_disposition · fact_match · what_to_do · next_response |
+| `evidence` | disposition_notice · message_email · submitted_docs · photo_video · none |
+| `finalGoal` | why_disposition · what_disposition · fact_match · what_to_do · next_action |
 
 ---
 

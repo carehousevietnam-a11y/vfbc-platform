@@ -58,8 +58,15 @@
 |--------|------|
 | QG-02 | **해소함** (confirmGoal 대응·읽음 고정 제거) |
 | D03 | **해소함** (§A) |
+| QG-05 | **해소함** — §C |
 
 **미패치 질문:** v1 본문 동일.
+
+---
+
+## C. D06
+
+인벤토리 §2.5~2.8: `customerResponse` · `unclearFocus` · `supplementTrajectory` · `evidence`.
 
 ---
 
