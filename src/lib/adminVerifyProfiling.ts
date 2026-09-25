@@ -37,6 +37,7 @@ import {
   case01IsPhase2FacetOnPath,
 } from "./adminVerifyCase01Ratio";
 import {
+  ADMIN_VERIFY_MULTI_CHOICE_FIELD_IDS,
   adminVerifyAnswerIncludesSlug,
   formatAdminVerifyMultiChoiceAnswerLabel,
   getAdminVerifyEffectiveChoiceSlugs,
@@ -6806,7 +6807,7 @@ const CASE05_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]
   case05_appealDetail: CASE05_APPEAL_DETAIL_OPTIONS,
 };
 
-const ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
+export const ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
   case01_violationContent: CASE01_VIOLATION_CONTENT_OPTIONS,
   case01_factRelationship: CASE01_FACT_RELATIONSHIP_OPTIONS,
   case01_factCompareGap: CASE01_FACT_COMPARE_GAP_OPTIONS,
@@ -6832,6 +6833,13 @@ const ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP: Record<string, { value: string; labe
   ...CASE05_FIELD_OPTION_MAP,
   ...CASE06_V11_FIELD_OPTIONS,
 };
+
+/** §3 choice-space audit — situation형 choice field ids (list형 multi 제외). */
+export function getAdminVerifySituationalChoiceFieldIds(): string[] {
+  return Object.keys(ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP).filter(
+    (fieldId) => !ADMIN_VERIFY_MULTI_CHOICE_FIELD_IDS.has(fieldId),
+  );
+}
 
 export function getCase05FieldOptionLabel(fieldId: string, value: string): string {
   const legacy = getLegacyChoiceLabel(fieldId, value);
