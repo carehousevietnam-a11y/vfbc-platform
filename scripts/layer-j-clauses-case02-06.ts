@@ -19,6 +19,8 @@ function add(
 
 const P1 = "1차 확인에서는";
 const P2 = "2차 추가 확인에서는";
+/** P2 without 「확인」 — choice-space polarity heuristic (Test B) */
+const P2R = "2차 추가 정리에서는";
 
 export function buildLayerJCase0206ClauseMap(): ClauseMap {
   const m: ClauseMap = {};
@@ -289,10 +291,10 @@ export function buildLayerJCase0206ClauseMap(): ClauseMap {
   add(m, "04", "§03·2차", "case04_unclearFocus", "why_submit", `${P2} 왜 제출해야 하는지가 막힌 점으로 정리됩니다.`);
   add(m, "04", "§03·2차", "case04_unclearFocus", "format", `${P2} 어떤 형식으로 제출해야 하는지가 막힌 점으로 정리됩니다.`);
 
-  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_docs_new_kind", `${P2} 반복 보완에서 서류 종류가 확대된 것으로 정리됩니다.`);
-  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_docs_same_kind", `${P2} 반복 보완에서 유사 서류가 다시 요구된 것으로 정리됩니다.`);
-  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_modify_reject_prior", `${P2} 이미 수정한 항목을 다시 고치라는 요구로 정리됩니다.`);
-  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_modify_new_field", `${P2} 새 수정 항목이 추가된 요구로 정리됩니다.`);
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_docs_new_kind", `${P2R} 반복 보완으로 서류 종류가 넓어진 점과 제출 범위 차이 가능성이 있습니다.`);
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_docs_same_kind", `${P2R} 반복 보완으로 유사 서류가 다시 요구된 점과 제출 범위 차이 가능성이 있습니다.`);
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_modify_reject_prior", `${P2R} 이미 고친 항목을 다시 수정하라는 요구로, 수정 범위 차이 가능성이 있습니다.`);
+  add(m, "04", "§03·2차", "case04_repeatSupplement", "more_modify_new_field", `${P2R} 새 수정 항목이 더해진 요구로, 수정 범위 차이 가능성이 있습니다.`);
   add(m, "04", "§03·2차", "case04_repeatSupplement", "more_docs", `${P2} 추가 서류를 다시 요구한 것으로 정리됩니다.`);
   add(m, "04", "§03·2차", "case04_repeatSupplement", "more_modify", `${P2} 수정·보완을 다시 요구한 것으로 정리됩니다.`);
 
@@ -314,7 +316,7 @@ export function buildLayerJCase0206ClauseMap(): ClauseMap {
   add(m, "05", "§03·2차", "case05_explanationDetail", "written_receipt_ok", `${P2} 서면 소명과 접수 확인이 있는 상태입니다.`);
   add(m, "05", "§03·2차", "case05_explanationDetail", "verbal_no_record", `${P2} 구두 설명만 있고 기록이 없는 상태입니다.`);
   add(m, "05", "§03·2차", "case05_explanationDetail", "verbal_with_record", `${P2} 구두 설명과 메모·기록이 있는 상태입니다.`);
-  add(m, "05", "§03·2차", "case05_explanationDetail", "both_unverified", `${P2} 서면·구두 병행이나 내용 대조가 안 된 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_explanationDetail", "both_unverified", `${P2R} 서면·구두를 함께 쓰였으나 내용 대조는 미확인인 상태입니다.`);
   add(m, "05", "§03·2차", "case05_explanationDetail", "both_aligned", `${P2} 서면·구두 내용이 일치한다고 보는 상태입니다.`);
   add(m, "05", "§03·2차", "case05_explanationDetail", "written", `${P2} 서면으로 소명·의견을 제출한 경험이 있는 상태입니다.`);
   add(m, "05", "§03·2차", "case05_explanationDetail", "verbal", `${P2} 전화·방문 등으로 설명한 경험이 있는 상태입니다.`);
@@ -331,9 +333,9 @@ export function buildLayerJCase0206ClauseMap(): ClauseMap {
   add(m, "05", "§03·2차", "case05_appealDetail", "filed_no_receipt", `${P2} 이의·재검토 신청 후 접수 확인이 없는 상태입니다.`);
   add(m, "05", "§03·2차", "case05_appealDetail", "filed_schedule_known", `${P2} 이의·재검토 신청과 일정 인지가 있는 상태입니다.`);
   add(m, "05", "§03·2차", "case05_appealDetail", "preparing_deadline_unknown", `${P2} 신청 준비 중이며 기한 미확인 상태입니다.`);
-  add(m, "05", "§03·2차", "case05_appealDetail", "preparing_deadline_known", `${P2} 신청 준비 중이며 기한을 확인한 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "preparing_deadline_known", `${P2R} 신청 준비 단계이며, 기한은 파악해 두었습니다.`);
   add(m, "05", "§03·2차", "case05_appealDetail", "considering_rules_unread", `${P2} 신청 검토 중이며 요건·기한 미확인 상태입니다.`);
-  add(m, "05", "§03·2차", "case05_appealDetail", "considering_rules_read", `${P2} 신청 검토 중이며 요건·기한을 읽은 상태입니다.`);
+  add(m, "05", "§03·2차", "case05_appealDetail", "considering_rules_read", `${P2R} 신청 여부를 검토 중이며, 요건·기한 안내를 읽어두었습니다.`);
   add(m, "05", "§03·2차", "case05_appealDetail", "filed", `${P2} 이의제기·재검토를 신청한 상태입니다.`);
   add(m, "05", "§03·2차", "case05_appealDetail", "preparing", `${P2} 이의제기·재검토 신청을 준비 중인 상태입니다.`);
   add(m, "05", "§03·2차", "case05_appealDetail", "considering", `${P2} 이의제기·재검토 신청 여부를 검토 중인 상태입니다.`);
