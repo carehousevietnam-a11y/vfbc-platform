@@ -297,9 +297,8 @@ P2 **렌더 스텝 10** (`phase2WalkCount`): 장식·text 질문 포함 화면 w
 | 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
 |---------|-----------|----|----|----------|----------|----------|----------|
 | C03-attendance-tail | spot: 출석·`specific_date`+text · Phase2 tail 완료 (`case03-step2-1-spot`) | 5 | 8 | 8 | 0 | 12 | 4 |
-| C03-prep-branch | `customerResponse` 미대응 계열 · `case03_prepRequired` on-path | 5 | 9 | 8 | 0 | 12 | 3 |
 
-카탈로그 실질 축 상한: **9** (`case03Phase2SubstantiveAxisCatalogCount()`).
+카탈로그 실질 축 상한: **9** (`case03Phase2SubstantiveAxisCatalogCount()`). `case03_prepRequired` on-path 최대 **9** — spot 외 경로는 `case03ListPhase2SubstantiveAxesOnPath`로 Mission 전 재실측.
 
 #### CASE_04
 
