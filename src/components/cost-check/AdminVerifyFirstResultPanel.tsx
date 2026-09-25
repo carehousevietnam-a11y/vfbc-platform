@@ -2491,6 +2491,27 @@ function situationSummaryFromProfile(
     : "입력하신 내용을 바탕으로 1차 자가진단한 결과, 현재 확인한 범위에서는 특별히 걸리는 부분이 보이지 않습니다.";
 }
 
+const DEADLINE_UNCONFIRMED_CANONICAL = "처분·대응 기한(날짜 확인 필요)";
+
+function dedupeAdminVerifyResultUnconfirmed(items: string[]): string[] {
+  const out: string[] = [];
+  let deadlineClusterUsed = false;
+  const isDeadlineCluster = (item: string) =>
+    /기한/.test(item) &&
+    (/불명|미상|날짜가 불명확|날짜\)/.test(item) || item.includes(DEADLINE_UNCONFIRMED_CANONICAL));
+
+  for (const item of items) {
+    if (isDeadlineCluster(item)) {
+      if (deadlineClusterUsed) continue;
+      deadlineClusterUsed = true;
+      out.push(DEADLINE_UNCONFIRMED_CANONICAL);
+      continue;
+    }
+    if (!out.includes(item)) out.push(item);
+  }
+  return out;
+}
+
 export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerifyFirstResultData {
   const profile = buildCaseResolutionProfile(answers);
   const stage = answers.stage || deriveStageFromSituation(answers.situation);
@@ -2881,7 +2902,7 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     gradeLabel: hasIssues ? "주의 요망 (2단계)" : "양호 (1단계)",
     keyMetrics,
     cautions: [...new Set(cautions)].slice(0, 4),
-    unconfirmed: [...new Set(unconfirmed)].slice(0, 4),
+    unconfirmed: dedupeAdminVerifyResultUnconfirmed([...new Set(unconfirmed)]).slice(0, 4),
     actions: [...new Set(actions)].slice(0, 3),
     referenceDateLabel: formatReferenceDateLabel(),
     caseClassificationLabel: MASTER_CASE_LABELS[caseClassId],

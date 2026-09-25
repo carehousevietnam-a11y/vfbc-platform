@@ -2615,6 +2615,7 @@ export function getAdminVerifyStitchProgress(
   questions: { id: string }[],
   activeQuestionIndex: number,
   profilePhase: AdminVerifyProfilePhase,
+  phase2PathQuestionIds?: readonly string[],
 ): { current: number; total: number } {
   const q1Case = getQ1ResolvedCase(answers);
   const activeQuestion = questions[activeQuestionIndex];
@@ -2642,13 +2643,13 @@ export function getAdminVerifyStitchProgress(
   }
 
   if (profilePhase === 2 && q1Case && q1Case !== "UNIVERSAL") {
-    const phase2Ids = questions
-      .map((question) => question.id)
-      .filter((id) => id !== ADMIN_CASE_ENTRY_Q1_KEY);
-    const total = phase2Ids.length;
-    if (total === 0) {
-      return { current: 1, total: 1 };
-    }
+    const phase2Ids =
+      phase2PathQuestionIds && phase2PathQuestionIds.length > 0
+        ? [...phase2PathQuestionIds]
+        : questions
+            .map((question) => question.id)
+            .filter((id) => id !== ADMIN_CASE_ENTRY_Q1_KEY);
+    const total = Math.max(phase2Ids.length, 1);
     if (activeId === ADMIN_CASE_ENTRY_Q1_KEY) {
       return { current: 1, total };
     }
@@ -2656,8 +2657,12 @@ export function getAdminVerifyStitchProgress(
     if (phase2Index >= 0) {
       return { current: phase2Index + 1, total };
     }
+    const answeredOnPath = phase2Ids.filter((id) => {
+      const v = answers[id as keyof ReviewAnswers]?.trim();
+      return Boolean(v);
+    }).length;
     return {
-      current: Math.min(activeQuestionIndex >= 0 ? activeQuestionIndex : 0, total),
+      current: Math.min(Math.max(answeredOnPath, 1), total),
       total,
     };
   }

@@ -1127,6 +1127,61 @@ function buildAdminVerifyQuestions(
   return questions;
 }
 
+function syntheticAnswerForAdminPhase2Path(
+  question: ReviewQuestion,
+  answers: ReviewAnswers,
+): ReviewAnswers {
+  if (question.kind === "choice" && question.options.length > 0) {
+    const pick =
+      question.options.find(
+        (opt) => opt.value !== "other" && !isAdminDirectExplainOption(opt),
+      ) ?? question.options[0];
+    const value = pick?.value ?? "unsure";
+    let next: ReviewAnswers = { ...answers, [question.id]: value };
+    if (isAdminVerifyMultiChoiceField(question.id)) {
+      next = {
+        ...answers,
+        [question.id]: normalizeAdminVerifyMultiChoiceRaw(question.id, value) ?? value,
+      };
+    }
+    return markFieldAsked(next, question.id);
+  }
+  const placeholder = question.kind === "text" ? "path-simulation" : "1";
+  return markFieldAsked({ ...answers, [question.id]: placeholder }, question.id);
+}
+
+function simulateAdminVerifyPhase2PathQuestionIds(
+  seedAnswers: ReviewAnswers,
+  phase1QuestionIds: ReadonlySet<string>,
+): string[] {
+  let working = { ...seedAnswers };
+  const path: string[] = [];
+  for (let guard = 0; guard < 96; guard += 1) {
+    const batch = buildAdminVerifyProfileQuestions(
+      working,
+      ADMIN_PROFILE_FOLLOW_UP_DEFS,
+      {
+        mismatch: ADMIN_DOCS_FOLLOWUP_MISMATCH_OPTIONS,
+        unknown: ADMIN_DOCS_FOLLOWUP_UNKNOWN_OPTIONS,
+        other: ADMIN_DOCS_FOLLOWUP_OTHER_OPTIONS,
+      },
+      2,
+    )
+      .map(profileQuestionToReview)
+      .filter(
+        (question) =>
+          question.id !== ADMIN_CASE_ENTRY_Q1_KEY && !phase1QuestionIds.has(question.id),
+      );
+    const next = batch.find((question) => !isQuestionAnswered(question, working));
+    if (!next) break;
+    if (path.includes(next.id)) break;
+    path.push(next.id);
+    working = syntheticAnswerForAdminPhase2Path(next, working);
+    working = attachCaseResolutionSnapshot(working);
+  }
+  return path;
+}
+
 function isQuestionAnswered(question: ReviewQuestion, answers: ReviewAnswers): boolean {
   if (question.id === ADMIN_CASE_ENTRY_Q1_KEY) {
     return isAdminCaseEntryQ1Complete(answers);
@@ -2014,6 +2069,24 @@ export function MasterReviewQuotationReport({
     ).map(profileQuestionToReview);
   }, [answers, isAdminVerifyStitchLayout]);
 
+  const [adminPhase2PathIds, setAdminPhase2PathIds] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!isAdminVerifyStitchLayout || adminVerifyProfilePhase !== 2) {
+      setAdminPhase2PathIds(null);
+      return;
+    }
+    setAdminPhase2PathIds((prev) => {
+      if (prev !== null) return prev;
+      const phase1Ids = new Set(adminVerifyPhase1Questions.map((question) => question.id));
+      return simulateAdminVerifyPhase2PathQuestionIds(answers, phase1Ids);
+    });
+  }, [
+    answers,
+    adminVerifyPhase1Questions,
+    adminVerifyProfilePhase,
+    isAdminVerifyStitchLayout,
+  ]);
+
   const adminVerifyPhase2OnlyQuestions = useMemo(() => {
     if (!isAdminVerifyStitchLayout) return [];
     const phase1Ids = new Set(adminVerifyPhase1Questions.map((question) => question.id));
@@ -2103,12 +2176,14 @@ export function MasterReviewQuotationReport({
       adminVerifyQuestionFlowQuestions,
       activeQuestionIndex >= 0 ? activeQuestionIndex : 0,
       adminVerifyProfilePhase,
+      adminVerifyProfilePhase === 2 ? adminPhase2PathIds ?? undefined : undefined,
     );
   }, [
     answers,
     adminVerifyQuestionFlowQuestions,
     activeQuestionIndex,
     adminVerifyProfilePhase,
+    adminPhase2PathIds,
     isRealEstateVerifyMasterLayout,
     realEstateVerifyProfilePhase,
     realEstatePhase2Questions.length,
@@ -2923,6 +2998,18 @@ export function MasterReviewQuotationReport({
                     {ADMIN_DIRECT_EXPLAIN_LABEL}
                   </button>
                 </div>
+              ) : null}
+              {isMulti && selectedSlugs.length > 0 ? (
+                <PrimaryButton
+                  type="button"
+                  className="mt-4 w-full sm:w-auto"
+                  onClick={() => {
+                    setSelectedKey(null);
+                    setEditingId(null);
+                  }}
+                >
+                  다음
+                </PrimaryButton>
               ) : null}
             </>
           ) : (
@@ -4653,7 +4740,9 @@ export function MasterReviewQuotationReport({
                             <p className={MOBILE_COST_SUMMARY_INTRO}>
                               {hasMarket
                                 ? "짧은 질문에 답하면 검토 결과를 확인할 수 있습니다."
-                                : "4개 질문에 답하면 검토 결과가 표시됩니다."}
+                                : adminVerifyPhase1Questions.length > 0
+                                  ? `${(isAdminCaseEntryQ1Complete(answers) ? 0 : 1) + adminVerifyPhase1Questions.length}개 질문에 답하면 검토 결과가 표시됩니다.`
+                                  : "짧은 질문에 답하면 검토 결과를 확인할 수 있습니다."}
                             </p>
                           ) : null}
                         </>
