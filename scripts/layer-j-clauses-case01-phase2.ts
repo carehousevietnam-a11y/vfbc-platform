@@ -71,7 +71,7 @@ export function buildLayerJCase01Phase2ClauseMap(): Record<string, string> {
   put("case01_noticeDeliveryFact", "del_written", "문서·서면으로 안내를 받은 것으로 정리됩니다.");
   put("case01_noticeDeliveryFact", "del_written_only", "문서·서면으로 안내를 받은 것으로 정리됩니다.");
   put("case01_noticeDeliveryFact", "del_written_read", "문서·서면으로 안내를 받은 것으로 정리됩니다.");
-  put("case01_noticeDeliveryFact", "del_not_received_yet", "아직 통지·안내 수령이 없는 상태입니다.");
+  put("case01_noticeDeliveryFact", "del_not_received_yet", "아직 통지·안내를 받지 못한 상태입니다.");
 
   put("case01_procedureStageFact", "stage_first_notice", "최초 통지 단계로 정리됩니다.");
   put("case01_procedureStageFact", "stage_followup_notice", "추가·재통지 단계로 정리됩니다.");
