@@ -9,8 +9,10 @@ import {
   LAYER_J_JUDGMENT_FIELD_SPECS,
   LAYER_J_LEGACY_SLUGS,
 } from "../src/lib/adminVerifyJudgmentFieldRegistry";
+import { buildLayerJCase0206ClauseMap } from "./layer-j-clauses-case02-06";
 
 const ROOT = path.join(__dirname, "..");
+const CASE0206_CLAUSES = buildLayerJCase0206ClauseMap();
 
 function key(caseCode: string, outlet: string, fieldId: string, slug: string): string {
   return `${caseCode}|${outlet}|${fieldId}|${slug}`;
@@ -118,117 +120,14 @@ function clauseFor(
       "이미 교통국에 일부 대응을 한 상태이며",
   };
   if (CASE01[k]) return CASE01[k];
+  if (CASE0206_CLAUSES[k]) return CASE0206_CLAUSES[k];
 
   if (slug === "other" || slug === "direct_explain") {
     return null;
   }
 
-  return inferLayerJClause(caseCode, outlet, fieldId, slug, otherItemLabel);
+  return null;
 }
-
-/** CASE_02~06 — slug별 판단 문장 (라벨 전문 반복 금지). */
-function inferLayerJClause(
-  caseCode: string,
-  outlet: string,
-  fieldId: string,
-  slug: string,
-  otherItemLabel: string,
-): string {
-  const phase1 = outlet.includes("2차") ? "2차 추가 확인에서는" : "1차 확인에서는";
-  const fieldMap = LAYER_J_FIELD_SLUG_CLAUSES[fieldId];
-  if (fieldMap?.[slug]) return fieldMap[slug];
-
-  if (
-    slug === "unsure" ||
-    slug === "uncertain" ||
-    slug === "unknown" ||
-    slug === "unclear" ||
-    slug.endsWith("_unclear")
-  ) {
-    return `${phase1} ${otherItemLabel} 관련 내용이 아직 명확히 정리되지 않은 상태입니다.`;
-  }
-  if (slug === "match" || slug === "align_minor_gap") {
-    return `${phase1} ${otherItemLabel}이 대체로 일치하는 방향으로 정리됩니다.`;
-  }
-  if (slug === "partial" || slug === "partial_situation" || slug === "mismatch" || slug === "not_applicable") {
-    return `${phase1} ${otherItemLabel}에서 차이·불일치 가능성이 있는 상태입니다.`;
-  }
-  if (slug === "confirmed" || slug === "deadline_day_known" || slug === "specific_date") {
-    return `${phase1} ${otherItemLabel}에 대한 구체 일자·기한을 확인한 상태입니다.`;
-  }
-  if (slug === "none" || slug === "no_contact_yet" || slug === "not_paid" || slug === "not_started") {
-    return `${phase1} ${otherItemLabel} 관련 공식 대응·처리가 아직 진행되지 않은 상태입니다.`;
-  }
-  return `${phase1} ${otherItemLabel} 관련 응답을 바탕으로 추가 대조·확인이 필요합니다.`;
-}
-
-const LAYER_J_FIELD_SLUG_CLAUSES: Record<string, Record<string, string>> = {
-  case02_paymentSubject: {
-    traffic_fine: "1차 확인에서는 납부 요구가 교통위반 벌금·과태료 성격으로 파악됩니다.",
-    license_fee: "1차 확인에서는 납부 요구가 면허 발급·갱신·변경 비용으로 파악됩니다.",
-    vehicle_reg_fee: "1차 확인에서는 납부 요구가 차량 등록·검사 관련 비용으로 파악됩니다.",
-    additional_related: "1차 확인에서는 이전 처리와 연결된 추가 납부 요구로 파악됩니다.",
-    unclear: "1차 확인에서는 납부 사유·근거가 아직 명확히 정리되지 않은 상태입니다.",
-  },
-  case02_confirmGoal: {
-    verify_obligation: "1차 확인에서는 납부 의무가 실제 상황에 해당하는지부터 짚어볼 필요가 있습니다.",
-    verify_amount: "1차 확인에서는 통지 금액·산정 근거를 우선 대조할 필요가 있습니다.",
-    how_when_where: "1차 확인에서는 납부 시기·장소·방법을 우선 확인할 필요가 있습니다.",
-    payment_processed: "1차 확인에서는 기납부 처리 여부와 재요구 사유를 우선 확인할 필요가 있습니다.",
-    unsure: "1차 확인에서는 무엇부터 확인할지 방향이 아직 정리되지 않은 상태입니다.",
-  },
-  case02_demandAuthority: {
-    traffic: "1차 확인에서는 교통·교통국 계열 기관의 납부 요구로 파악됩니다.",
-    police: "1차 확인에서는 경찰 등 교통 관련 기관의 납부 요구로 파악됩니다.",
-    vehicle_reg: "1차 확인에서는 차량 등록·검사 관련 기관의 납부 요구로 파악됩니다.",
-    other_agency: "1차 확인에서는 특정 기관명이 불분명한 납부 요구로 파악됩니다.",
-  },
-  case02_paymentStatus: {
-    not_paid: "1차 확인에서는 아직 납부가 이루어지지 않은 상태로 정리됩니다.",
-    partial: "1차 확인에서는 일부만 납부된 상태로 정리됩니다.",
-    full: "1차 확인에서는 요구 금액 전액 납부가 완료된 상태로 정리됩니다.",
-    paid_unverified: "1차 확인에서는 납부는 했으나 기관 처리 확인이 되지 않은 상태입니다.",
-    paid_by_other: "1차 확인에서는 대리 납부가 있었으나 본인 처리 여부 확인이 필요합니다.",
-  },
-  case02_deadline: {
-    confirmed: "1차 확인에서는 납부 기한 일자를 확인한 상태입니다.",
-    uncertain: "1차 확인에서는 납부 기한이 있으나 구체 일자 확인이 필요합니다.",
-    deadline_mentioned: "1차 확인에서는 기한 안내는 있으나 구체 일자 확인이 필요합니다.",
-    not_stated: "1차 확인에서는 납부 기한 안내가 확인되지 않은 상태입니다.",
-    unsure: "1차 확인에서는 납부 기한 정보가 거의 없는 상태입니다.",
-  },
-  case02_situationMatch: {
-    match: "2차 추가 확인에서는 납부 요구와 실제 상황이 대체로 맞는 방향으로 정리됩니다.",
-    partial: "2차 추가 확인에서는 납부 요구와 실제 상황이 다르게 느껴진다는 점이 핵심입니다.",
-    not_applicable: "2차 추가 확인에서는 납부 의무 자체가 내 상황과 맞지 않을 수 있다는 점이 핵심입니다.",
-    hard_to_judge: "2차 추가 확인에서는 문서와 실제 상황을 대조하기 어렵다는 점이 핵심입니다.",
-    unknown: "2차 추가 확인에서는 판단에 필요한 정보가 부족하다는 점이 핵심입니다.",
-  },
-  case02_paymentAmount: {
-    amount_known: "2차 추가 확인에서는 안내 금액 자체를 기준으로 대조하는 것이 핵심입니다.",
-    amount_differs: "2차 추가 확인에서는 안내 금액과 알고 있는 금액의 차이가 핵심입니다.",
-    paid_redemand: "2차 추가 확인에서는 납부 후 재요구 가능성이 핵심입니다.",
-    amount_unclear: "2차 추가 확인에서는 금액이 불명확하다는 점이 핵심입니다.",
-  },
-  case02_nonPaymentNotice: {
-    sanction_enforcement_stated: "2차 추가 확인에서는 미납 시 추가 제재·강제징수 안내가 핵심입니다.",
-    interest_stated: "2차 추가 확인에서는 이자·가산금 안내가 핵심입니다.",
-    no_notice: "2차 추가 확인에서는 미납 시 결과 안내가 없어 재확인이 필요합니다.",
-  },
-  case04_supplementTarget: {
-    additional_docs: "1차 확인에서는 빠진 자료 추가 제출 요구로 정리됩니다.",
-    add_content_evidence: "1차 확인에서는 제출 내용·정보 부족을 이유로 한 보완 요구로 정리됩니다.",
-    modify_existing: "1차 확인에서는 형식·작성 방법 문제로 인한 재제출 요구로 정리됩니다.",
-    repeat_demand: "1차 확인에서는 이미 보완 후 재요구된 상황으로 정리됩니다.",
-    unclear: "1차 확인에서는 보완 대상이 아직 명확하지 않은 상태입니다.",
-  },
-  case04_submissionRelation: {
-    match: "2차 추가 확인에서는 보완 요구와 제출 준비가 대체로 맞는 방향입니다.",
-    partial: "2차 추가 확인에서는 보완 요구와 실제 제출 상황의 차이가 핵심입니다.",
-    mismatch: "2차 추가 확인에서는 보완 요구와 실제 제출 상황의 차이가 핵심입니다.",
-    not_prepared: "2차 추가 확인에서는 아직 준비·제출이 되지 않은 상태가 핵심입니다.",
-  },
-};
 
 function main(): void {
   const map: Record<string, string> = {};
