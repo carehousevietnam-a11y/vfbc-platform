@@ -2399,8 +2399,12 @@ export const CASE04_PHASE1_FIELD_ORDER = [
   "case04_deadline",
 ] as const;
 
-function getCase04Phase1VisibleFields(_answers: ReviewAnswers): string[] {
-  return [...CASE04_PHASE1_FIELD_ORDER];
+function getCase04Phase1VisibleFields(answers: ReviewAnswers): string[] {
+  const fields: string[] = [...CASE04_PHASE1_FIELD_ORDER];
+  if (case04NeedsDeadlineDateDetail(answers)) {
+    fields.push(CASE04_DEADLINE_DATE_KEY);
+  }
+  return fields;
 }
 
 export const CASE05_PHASE1_FIELD_ORDER = [
@@ -2476,6 +2480,25 @@ export function seedCase02AnswersFromCustomerInput(answers: ReviewAnswers): Revi
   };
 }
 
+function resolveAdminVerifyPhase1ProgressFieldId(
+  q1Case: MasterCaseId,
+  activeId: string,
+): string {
+  if (q1Case === "CASE_01" && activeId === CASE01_DEADLINE_DATE_KEY) {
+    return "case01_deadline";
+  }
+  if (q1Case === "CASE_03" && activeId === CASE03_DEADLINE_DATE_KEY) {
+    return "case03_deadline";
+  }
+  if (q1Case === "CASE_04" && activeId === CASE04_DEADLINE_DATE_KEY) {
+    return "case04_deadline";
+  }
+  if (q1Case === "CASE_05" && activeId === CASE05_DEADLINE_DATE_KEY) {
+    return "case05_deadline";
+  }
+  return activeId;
+}
+
 export function getAdminVerifyStitchProgress(
   answers: ReviewAnswers,
   questions: { id: string }[],
@@ -2485,6 +2508,10 @@ export function getAdminVerifyStitchProgress(
   const q1Case = getQ1ResolvedCase(answers);
   const activeQuestion = questions[activeQuestionIndex];
   const activeId = activeQuestion?.id ?? "";
+  const progressFieldId =
+    q1Case && q1Case !== "UNIVERSAL"
+      ? resolveAdminVerifyPhase1ProgressFieldId(q1Case, activeId)
+      : activeId;
 
   if (profilePhase === 1 && q1Case && q1Case !== "UNIVERSAL") {
     const phase1Fields = getAdminVerifyPhase1VisibleFields(answers, q1Case);
@@ -2493,7 +2520,7 @@ export function getAdminVerifyStitchProgress(
     if (!q1Complete || activeId === ADMIN_CASE_ENTRY_Q1_KEY) {
       return { current: 1, total };
     }
-    const phase1Index = phase1Fields.indexOf(activeId);
+    const phase1Index = phase1Fields.indexOf(progressFieldId);
     if (phase1Index >= 0) {
       return { current: 1 + phase1Index + 1, total };
     }
@@ -5722,9 +5749,9 @@ function appendCase04PathQuestions(
     appendCase04Phase1Questions(questions, answers);
     return;
   }
-  if (isCase06BridgedToNativeCase(answers, "CASE_04") && !isCase04Phase1Complete(answers)) {
+  if (!isCase04Phase1Complete(answers)) {
     appendCase04Phase1Questions(questions, answers);
-    if (!isCase04Phase1Complete(answers)) return;
+    return;
   }
   appendCase04Phase2Questions(questions, answers);
 }
@@ -9752,7 +9779,10 @@ function collectCase01RiskSignals(answers: ReviewAnswers): string[] {
     risks.push("통지 내용과 실제 상황이 다르다고 응답 — 사실관계 확인 필요");
   }
   const case01ActualSituation = getCase01ActualSituation(answers);
-  if (case01ActualSituation === "deny") {
+  if (
+    case01ActualSituation === "deny" &&
+    answers.case01_factRelationship !== "date_place_wrong"
+  ) {
     risks.push("위반 사실을 인정하지 않음 — 통지 내용과 대조 필요");
   }
   if (
