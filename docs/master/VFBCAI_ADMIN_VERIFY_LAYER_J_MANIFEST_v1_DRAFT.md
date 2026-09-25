@@ -115,15 +115,34 @@
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `payment_demand` | 비용 납부나 다른 조치를 안내했습니다. | 기관이 납부 등 다른 조치를 안내했습니다. |  |
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `no_reply_yet` | 아직 답변을 받지 못했습니다. | 기관 답변을 아직 받지 못했습니다. |  |
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **기관 회신: {case01_authorityFollowUpKindNote 또는 DI 원문}** |  |
-| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_complete_with_proof` | 요구 조치를 완료했고 영수증·접수증 등 증빙이 있습니다. | 요구 조치를 완료했고 증빙이 있는 상태입니다. |  |
-| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_complete_no_proof` | 완료했으나 증빙이 없습니다. | 요구 조치는 완료했으나 증빙이 없는 상태입니다. |  |
-| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_partial` | 일부만 이행했습니다. | 요구 조치를 일부만 이행한 상태입니다. |  |
-| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_not_yet` | 아직 이행하지 않았습니다. | 요구 조치를 아직 이행하지 않은 상태입니다. |  |
-| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **이행·증빙: {case01_demandFulfillmentFactNote 또는 DI 원문}** |  |
 | 01 | case01_customerResponded | 이 안내를 받은 뒤 교통국에 대응한 경험이 있나요? | `no_contact_yet` | 아직 교통국에 연락·출석·제출을 하지 않았고, 통지만 받은 상태입니다. 무엇부터 할지 확인이 필요합니다. | 아직 교통국에 설명하거나 자료를 제출한 대응은 없으며 |  |
 | 01 | case01_customerResponded | 이 안내를 받은 뒤 교통국에 대응한 경험이 있나요? | `none` | 아직 교통국에 별도로 대응하지 않았습니다. | 아직 교통국에 설명하거나 자료를 제출한 대응은 없으며 | 예 |
 | 01 | case01_customerResponded | 이 안내를 받은 뒤 교통국에 대응한 경험이 있나요? | `has_responded` | 교통국에 어떤 형태로든 대응한 경험이 있습니다. | 이미 교통국에 일부 대응을 한 상태이며 |  |
 | 01 | case01_customerResponded | 이 안내를 받은 뒤 교통국에 대응한 경험이 있나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **대응 여부: {case01_customerRespondedNote 또는 DI 원문}** |  |
+| 02 | case02_paymentStatus | 지금까지 이 납부 요구에 대해 실제로 어떻게 하셨나요? | `not_paid` | 아직 이 납부 요구에 대해 납부하지 않았습니다. | 아직 이 납부 요구에 대해 납부하지 않은 상태이며 |  |
+| 02 | case02_paymentStatus | 지금까지 이 납부 요구에 대해 실제로 어떻게 하셨나요? | `partial` | 일부 금액만 납부했고, 나머지는 아직 납부하지 않았습니다. | 일부만 납부한 상태이며 | 예 |
+| 02 | case02_paymentStatus | 지금까지 이 납부 요구에 대해 실제로 어떻게 하셨나요? | `full` | 요구된 금액을 모두 납부했습니다. | 요구 금액을 납부한 상태이며 |  |
+| 02 | case02_paymentStatus | 지금까지 이 납부 요구에 대해 실제로 어떻게 하셨나요? | `paid_unverified` | 납부했다고 생각하지만, 기관에서 처리됐는지 확인하지 못했습니다. | 납부했으나 기관 처리 여부가 확인되지 않은 상태이며 |  |
+| 02 | case02_paymentStatus | 지금까지 이 납부 요구에 대해 실제로 어떻게 하셨나요? | `paid_by_other` | 본인이 아닌 다른 사람이 대신 납부했습니다. | 다른 사람이 대신 납부한 상태이며 |  |
+| 02 | case02_paymentStatus | 지금까지 이 납부 요구에 대해 실제로 어떻게 하셨나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **납부 상태: {case02_paymentStatusNote 또는 DI 원문}** |  |
+| 03 | case03_customerResponse | 출석·소명 요구에 대해 지금까지 어떻게 하셨나요? | `none` | 아직 기관에 설명하거나 직접 방문하지 않았습니다. | 아직 출석·소명 등 공식 대응을 하지 않은 상태이며 | 예 |
+| 03 | case03_customerResponse | 출석·소명 요구에 대해 지금까지 어떻게 하셨나요? | `phone_message` | 전화·메시지 등으로 기관에 문의하거나 상황을 설명했습니다. | 전화·메시지 등으로 기관에 문의·설명한 상태이며 |  |
+| 03 | case03_customerResponse | 출석·소명 요구에 대해 지금까지 어떻게 하셨나요? | `attendance` | 지정된 장소에 직접 방문해 상황을 설명했습니다. | 직접 방문해 설명한 상태이며 | 예 |
+| 03 | case03_customerResponse | 출석·소명 요구에 대해 지금까지 어떻게 하셨나요? | `explanation_with_docs` | 상황을 설명하면서 관련 서류나 자료도 함께 제출했습니다. | 설명과 함께 자료를 제출한 상태이며 |  |
+| 03 | case03_customerResponse | 출석·소명 요구에 대해 지금까지 어떻게 하셨나요? | `other_method` | 전화나 방문과 다른 방법으로 기관에 대응했습니다. | 다른 방법으로 기관에 대응한 상태이며 |  |
+| 03 | case03_customerResponse | 출석·소명 요구에 대해 지금까지 어떻게 하셨나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **대응 상태: {case03_customerResponseNote 또는 DI 원문}** |  |
+| 04 | case04_customerResponse | 보완 요구에 대해 지금까지 어떻게 하셨나요? | `not_started` | 아직 보완 자료를 준비하거나 다시 제출하지 않았습니다. | 아직 보완 제출을 시작하지 않은 상태이며 |  |
+| 04 | case04_customerResponse | 보완 요구에 대해 지금까지 어떻게 하셨나요? | `preparing` | 보완할 자료를 준비하고 있는 중입니다. | 보완 자료를 준비 중인 상태이며 |  |
+| 04 | case04_customerResponse | 보완 요구에 대해 지금까지 어떻게 하셨나요? | `submitted` | 보완 자료를 이미 제출했습니다. | 보완 자료를 제출한 상태이며 |  |
+| 04 | case04_customerResponse | 보완 요구에 대해 지금까지 어떻게 하셨나요? | `inquired` | 전화·메시지 등으로 기관에 문의하거나 확인했습니다. | 기관에 문의·확인한 상태이며 |  |
+| 04 | case04_customerResponse | 보완 요구에 대해 지금까지 어떻게 하셨나요? | `other_method` | 전화나 재제출과 다른 방법으로 대응했습니다. | 다른 방법으로 보완에 대응한 상태이며 |  |
+| 04 | case04_customerResponse | 보완 요구에 대해 지금까지 어떻게 하셨나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **대응 상태: {case04_customerResponseNote 또는 DI 원문}** |  |
+| 05 | case05_customerResponse | 처분·통지에 대해 지금까지 어떻게 하셨나요? | `none` | 아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다. | 아직 처분·통지에 대한 공식 대응을 하지 않은 상태이며 | 예 |
+| 05 | case05_customerResponse | 처분·통지에 대해 지금까지 어떻게 하셨나요? | `inquired` | 기관에 문의하거나 상황을 확인했습니다. | 기관에 문의·확인한 상태이며 |  |
+| 05 | case05_customerResponse | 처분·통지에 대해 지금까지 어떻게 하셨나요? | `explanation_submitted` | 소명·의견을 제출했습니다. | 소명·의견을 제출한 상태이며 |  |
+| 05 | case05_customerResponse | 처분·통지에 대해 지금까지 어떻게 하셨나요? | `documents_submitted` | 서류나 증빙을 제출했습니다. | 서류·증빙을 제출한 상태이며 |  |
+| 05 | case05_customerResponse | 처분·통지에 대해 지금까지 어떻게 하셨나요? | `appeal_requested` | 이의제기·재검토 등을 요청했습니다. | 이의·재검토를 요청한 상태이며 |  |
+| 05 | case05_customerResponse | 처분·통지에 대해 지금까지 어떻게 하셨나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **대응 상태: {case05_customerResponseNote 또는 DI 원문}** |  |
 | 02 | case02_paymentSubject | 어떤 내용에 대한 납부 안내를 받으셨나요? | `traffic_fine` | 교통위반에 대한 벌금·과태료를 내라고 안내받은 것 같습니다. | 1차 확인에서는 납부 요구가 교통위반 벌금·과태료 성격으로 파악됩니다. |  |
 | 02 | case02_paymentSubject | 어떤 내용에 대한 납부 안내를 받으셨나요? | `license_fee` | 운전면허 발급·갱신·변경과 관련된 비용을 내라고 안내받은 것 같습니다. | 1차 확인에서는 납부 요구가 면허 발급·갱신·변경 비용으로 파악됩니다. |  |
 | 02 | case02_paymentSubject | 어떤 내용에 대한 납부 안내를 받으셨나요? | `vehicle_reg_fee` | 차량 등록·검사 등 차량 관련 비용을 내라고 안내받은 것 같습니다. | 1차 확인에서는 납부 요구가 차량 등록·검사 관련 비용으로 파악됩니다. |  |

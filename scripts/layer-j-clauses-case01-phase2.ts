@@ -90,18 +90,5 @@ export function buildLayerJCase01Phase2ClauseMap(): Record<string, string> {
   put("case01_authorityFollowUpKind", "payment_demand", "기관이 납부 등 다른 조치를 안내했습니다.");
   put("case01_authorityFollowUpKind", "no_reply_yet", "기관 답변을 아직 받지 못했습니다.");
 
-  put(
-    "case01_demandFulfillmentFact",
-    "fulfill_complete_with_proof",
-    "요구 조치를 완료했고 증빙이 있는 상태입니다.",
-  );
-  put(
-    "case01_demandFulfillmentFact",
-    "fulfill_complete_no_proof",
-    "요구 조치는 완료했으나 증빙이 없는 상태입니다.",
-  );
-  put("case01_demandFulfillmentFact", "fulfill_partial", "요구 조치를 일부만 이행한 상태입니다.");
-  put("case01_demandFulfillmentFact", "fulfill_not_yet", "요구 조치를 아직 이행하지 않은 상태입니다.");
-
   return m;
 }
