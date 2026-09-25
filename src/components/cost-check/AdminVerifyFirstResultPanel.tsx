@@ -35,11 +35,17 @@ import {
   getCase04FieldLabelFromAnswers,
   CASE04_DEADLINE_DATE_KEY,
   getCase05FieldOptionLabel,
+  getCase05FieldLabelFromAnswers,
   getCase06FieldOptionLabel,
   CASE03_OPTION_LABELS,
   isCase01Phase1Complete,
   isCase02Phase1Complete,
   isCase03Phase1Complete,
+  buildCase01PrincipleFStateLines,
+  buildCase03PrincipleFStateLines,
+  buildCase04PrincipleFStateLines,
+  buildCase05PrincipleFStateLines,
+  isAdminVerifyPhase2PathComplete,
   isCase04Phase1Complete,
   isCase05Phase1Complete,
   isCase05DispositionTypeUnclear,
@@ -107,6 +113,10 @@ export type AdminVerifyFirstResultData = {
   case06ExpertHandoffRequired?: boolean;
   /** R03=C — CASE_06 bridge hints above situation summary (same text as question L5). */
   case06PrincipleFStateLines?: string[];
+  case03PrincipleFStateLines?: string[];
+  case04PrincipleFStateLines?: string[];
+  case05PrincipleFStateLines?: string[];
+  case01PrincipleFStateLines?: string[];
 };
 
 function metricFootnote(
@@ -584,6 +594,20 @@ function appendCase05Phase2ResultSignals(
   } else if (dispositionDetail === "scope_unclear") {
     unconfirmed.push("처분 영향 범위·기간");
     actions.push("정지·제한 범위와 기간이 적힌 부분을 확인해 보세요.");
+  }
+
+  const plannedNext = answers.case05_plannedNextStep;
+  if (plannedNext === "appeal_or_review") {
+    cautions.push("이의·재검토를 검토하거나 진행할 계획으로 응답함");
+    actions.push("이의·재검토 신청 방법·기한 안내를 통지서에서 확인해 보세요.");
+  } else if (plannedNext === "prepare_explanation") {
+    actions.push("소명·의견 또는 보완 서류에 필요한 항목을 통지서와 대조해 보세요.");
+  } else if (plannedNext === "inquire_authority") {
+    actions.push("기관 문의 전에 통지서·처분 사유를 정리해 두세요.");
+  } else if (plannedNext === "wait_for_deadline") {
+    actions.push("대응 기한까지 남은 일정과 필요한 준비를 확인해 보세요.");
+  } else if (plannedNext === "no_concrete_plan" || plannedNext === "unsure") {
+    unconfirmed.push("다음 조치 계획");
   }
 
   const reason = answers.case05_dispositionReason;
@@ -1618,21 +1642,38 @@ function appendCase01Phase2ResultSignals(
   unconfirmed: string[],
   actions: string[],
 ): void {
-  const diffDetail = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
-  const datePlace = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
-  if (diffDetail) {
-    actions.push(
-      `응답 기준 차이: ${case01TruncateResultDetailText(diffDetail)}`,
-    );
+  const demand = answers.case01_authorityDemand;
+  if (demand === "pay_core_traffic" || demand === "pay_bundled") {
+    cautions.push("이번 건 핵심이 납부·벌금 요구로 확인됨");
+    actions.push("납부 고지·금액·기한이 이번 위반 통지와 맞는지 대조해 보세요.");
+    actions.push("납부 요구 사건(CASE_02) 검토 흐름과 비교해 보세요.");
+  } else if (demand === "attend_explain" || demand === "attendance") {
+    cautions.push("출석·소명·추가 설명 요구가 핵심으로 확인됨");
+    actions.push("출석 일시·장소·준비 자료를 통지·문자와 대조해 보세요.");
+    actions.push("출석·소명 사건(CASE_03) 검토 흐름과 비교해 보세요.");
+  } else if (demand === "supplement_core" || demand === "supplement") {
+    actions.push("보완·재제출 요구가 핵심인지 통지 문구와 대조해 보세요.");
   }
-  if (datePlace) {
-    actions.push(
-      `확인한 날짜·장소: ${case01TruncateResultDetailText(datePlace)}`,
-    );
+
+  const actual = answers.case01_actualSituation;
+  if (actual === "deny") {
+    cautions.push("실제로 해당 행동·상황이 없었다고 정리됨");
+    actions.push("반박 단서(일정·사진·동행)와 통지 내용을 함께 대조해 보세요.");
+  } else if (actual === "partial" || actual === "partial_similar") {
+    cautions.push("일부는 맞지만 전체 상황은 통지·안내와 다르게 정리됨");
+    actions.push("어느 부분이 같고 다른지 통지서 문구와 나란히 적어 보세요.");
+  } else if (actual === "accept_facts") {
+    actions.push("인정한 사실과 기관 안내의 차이가 있는지 통지서와 대조해 보세요.");
+  } else if (actual === "unsure") {
+    unconfirmed.push("당시 실제 상황 정리");
   }
 
   const rel = answers.case01_factRelationship;
-  if (rel === "deny_action") {
+  if (rel === "deny_with_alibi") {
+    cautions.push("지적 행동 부인·알리바이 단서가 Phase2에서도 유지됨");
+  } else if (rel === "partial_core_dispute") {
+    cautions.push("핵심 사실(누가·무엇·언제) 불일치가 Phase2에서도 유지됨");
+  } else if (rel === "deny_action") {
     cautions.push("기관에서 문제라고 보는 행동을 실제로 하지 않았다고 응답함");
     actions.push("당시 상황을 확인할 수 있는 자료와 통지 내용을 대조해 보세요.");
   } else if (rel === "partial_situation" || rel === "partial") {
@@ -1645,15 +1686,105 @@ function appendCase01Phase2ResultSignals(
     unconfirmed.push("실제 상황과 기관 안내의 차이");
   }
 
+  const compareGap = answers[CASE01_FACT_COMPARE_GAP_KEY];
+  if (compareGap === "gap_notice_incomplete") {
+    actions.push("통지·안내의 핵심 문구(날짜·행동·대상)를 다시 확인해 보세요.");
+  } else if (compareGap === "gap_memory_timeline") {
+    actions.push("기억나는 일정·장소를 메모한 뒤 통지 내용과 맞춰 보세요.");
+  } else if (compareGap === "gap_records_not_found") {
+    actions.push("접수·제출·등록 기록을 찾아 통지 내용과 대조해 보세요.");
+  }
+
+  const evidence = answers.case01_evidence;
+  if (evidence === "photo_video") {
+    cautions.push("사진·영상 등 확인 자료가 응답에 있습니다.");
+    actions.push("사진·영상 자료로 당시 일정·장소·행동을 통지 내용과 대조해 보세요.");
+  } else if (evidence === "notice") {
+    actions.push("보유한 통지·안내 문서의 날짜·행동·요구 문구를 확인해 보세요.");
+  } else if (evidence === "message") {
+    actions.push("문자·메시지 기록으로 안내 경로와 내용을 대조해 보세요.");
+  } else if (evidence === "submitted_docs") {
+    actions.push("제출·접수 증빙과 기관이 말하는 내용이 같은지 대조해 보세요.");
+  } else if (evidence === "none") {
+    unconfirmed.push("확인 가능한 자료");
+    cautions.push("관련 자료가 없다고 응답함 — 확보 가능한 증빙을 먼저 정리하는 것이 좋음");
+  }
+
+  const blockage = answers.case01_blockage;
+  if (blockage === "facts_why") {
+    cautions.push("어떤 사실을 어떤 순서로 설명·소명할지 정리가 필요한 상태임");
+    actions.push("통지 쟁점·당시 일정·반박 포인트를 순서대로 메모해 보세요.");
+  } else if (blockage === "content_unclear") {
+    cautions.push("안내 내용을 제 상황에 맞게 이해·정리하기 어려운 상태임");
+    actions.push("통지 원문·통역·핵심 문장을 다시 확인해 보세요.");
+  } else if (blockage === "how_respond") {
+    unconfirmed.push("다음 대응 방법");
+    actions.push("통지에 적힌 요구(출석·제출·납부)와 기한을 먼저 확인해 보세요.");
+  } else if (blockage === "evidence") {
+    unconfirmed.push("준비할 자료 종류");
+  }
+
+  const responseDetail = answers.case01_responseDetail;
+  if (responseDetail === "disputed_facts") {
+    cautions.push("기관에 사실관계 차이를 이미 설명한 경험이 있음");
+  } else if (responseDetail === "submitted_materials") {
+    actions.push("이전에 제출한 자료와 현재 통지·요구를 대조해 보세요.");
+  }
+
   const authorityResponse = answers.case01_authorityResponse;
   if (authorityResponse === "more_required") {
-    cautions.push("기관에서 추가 자료·설명을 요구함");
-    unconfirmed.push("기관이 요구한 추가 자료·설명");
+    const responseNote = answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim();
+    if (responseNote) {
+      cautions.push("교통국에서 추가 자료·설명을 요구한 상태입니다.");
+      unconfirmed.push(
+        `추가 요구 내용: ${case01TruncateResultDetailText(responseNote)}`,
+      );
+    } else {
+      cautions.push("기관에서 추가 자료·설명을 요구함");
+      unconfirmed.push("기관이 요구한 추가 자료·설명");
+    }
   } else if (authorityResponse === "no_reply_yet") {
     unconfirmed.push("기관 답변");
   } else if (authorityResponse === "procedure_unknown") {
     unconfirmed.push("현재 진행 중인 절차");
+  } else if (authorityResponse === "re_attendance") {
+    cautions.push("기관에서 다시 출석·소명을 요구한 상태임");
+  } else if (authorityResponse === "payment_demand") {
+    cautions.push("기관 답변에 납부·비용 안내가 포함된 상태임");
   }
+
+  const finalGoal = answers.case01_finalGoal;
+  if (finalGoal === "what_deadline" || finalGoal === "situation_fit") {
+    actions.push("기한·대응 방법과 상황 해당 여부를 통지서와 함께 확인해 보세요.");
+  }
+}
+
+function applyCase01PersonalizedKeyMetricTitles(
+  keyMetrics: AdminVerifyKeyMetric[],
+): AdminVerifyKeyMetric[] {
+  return keyMetrics.map((metric, index) => ({
+    ...metric,
+    label:
+      index === 0
+        ? "01. 통지·상황"
+        : index === 1
+          ? "02. 확인 목표"
+          : index === 2
+            ? "03. 대응·자료"
+            : index === 3
+              ? "04. 기한·사실관계"
+              : metric.label,
+    title:
+      index === 0
+        ? "통지 내용과 실제 상황"
+        : index === 1
+          ? "우선 확인 목표"
+          : index === 2
+            ? "대응 이력과 보유 자료"
+            : index === 3
+              ? "기한·날짜·장소 정리"
+              : metric.title,
+  }));
 }
 
 function applyCase01KeyMetrics(
@@ -1737,6 +1868,385 @@ function applyCase01KeyMetrics(
             : "ok",
       };
     }
+  }
+
+  return metrics;
+}
+
+function applyCase01Phase2KeyMetrics(
+  answers: ReviewAnswers,
+  keyMetrics: AdminVerifyKeyMetric[],
+): AdminVerifyKeyMetric[] {
+  const metrics = keyMetrics.map((metric) => ({ ...metric }));
+  const evidence = answers.case01_evidence?.trim();
+  if (evidence) {
+    const priorFootnote = metrics[2].footnote?.trim();
+    const evidenceNote =
+      evidence === "none"
+        ? "확인 가능한 자료가 없다고 응답했습니다."
+        : "대응 이력과 함께 확인 가능한 자료가 응답에 있습니다.";
+    metrics[2] = {
+      ...metrics[2],
+      footnote: priorFootnote ? `${priorFootnote} · ${evidenceNote}` : evidenceNote,
+      status: evidence === "none" ? "caution" : "ok",
+    };
+  }
+  const datePlace = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
+  const diffDetail = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
+  const deadlineDate = answers[CASE01_DEADLINE_DATE_KEY]?.trim();
+  const rel = answers.case01_factRelationship;
+  if (datePlace || diffDetail || rel === "date_place_wrong") {
+    metrics[3] = {
+      ...metrics[3],
+      footnote:
+        "날짜·장소·사실관계 관련 추가 답변이 정리되었습니다. 통지 내용과의 대조가 필요합니다.",
+      status: "caution",
+    };
+  } else if (deadlineDate) {
+    metrics[3] = {
+      ...metrics[3],
+      footnote: "대응 기한 관련 답변이 정리되었습니다.",
+      status: "ok",
+    };
+  }
+  return metrics;
+}
+
+function applyCase03KeyMetrics(
+  answers: ReviewAnswers,
+  keyMetrics: AdminVerifyKeyMetric[],
+): AdminVerifyKeyMetric[] {
+  if (!isCase03Phase1Complete(answers)) return keyMetrics;
+
+  const metrics = keyMetrics.map((metric, index) => ({
+    ...metric,
+    label:
+      index === 0
+        ? "01. 요구·확인 초점"
+        : index === 1
+          ? "02. 대응·사실관계"
+          : index === 2
+            ? "03. 증빙·준비"
+            : index === 3
+              ? "04. 기한·목표"
+              : metric.label,
+    title:
+      index === 0
+        ? "기관 요구와 확인 초점"
+        : index === 1
+          ? "대응 이력·사실관계"
+          : index === 2
+            ? "자료·준비 상태"
+            : index === 3
+              ? "기한·검토 목표"
+              : metric.title,
+  }));
+
+  const demandLabel = getCase03FieldLabelFromAnswers("case03_authorityDemand", answers);
+  const focusLabel = getCase03FieldLabelFromAnswers("case03_inquiryFocus", answers);
+  if (demandLabel?.label || focusLabel?.label) {
+    metrics[0] = {
+      ...metrics[0],
+      footnote: [demandLabel?.label, focusLabel?.label].filter(Boolean).join(" · "),
+      status:
+        answers.case03_authorityDemand === "reason_unclear" ||
+        answers.case03_authorityDemand === "prep_unclear" ||
+        answers.case03_inquiryFocus === "unclear" ||
+        answers.case03_inquiryFocus === "unsure"
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  const responseLabel = getCase03FieldLabelFromAnswers("case03_customerResponse", answers);
+  const relLabel = getCase03FieldLabelFromAnswers("case03_factRelationship", answers);
+  const relParts = [responseLabel?.label, relLabel?.label].filter(Boolean);
+  if (relParts.length > 0) {
+    metrics[1] = {
+      ...metrics[1],
+      footnote: relParts.join(" · "),
+      status:
+        answers.case03_customerResponse === "none" ||
+        answers.case03_factRelationship === "partial" ||
+        answers.case03_factRelationship === "mismatch" ||
+        answers.case03_factRelationship === "hard_to_judge"
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  const evidenceLabel = getCase03FieldLabelFromAnswers("case03_evidence", answers);
+  const prepLabel = getCase03FieldLabelFromAnswers("case03_prepRequired", answers);
+  const evidenceParts = [evidenceLabel?.label, prepLabel?.label].filter(Boolean);
+  if (evidenceParts.length > 0) {
+    metrics[2] = {
+      ...metrics[2],
+      footnote: evidenceParts.join(" · "),
+      status:
+        answers.case03_evidence === "none" ||
+        answers.case03_prepRequired === "unknown" ||
+        answers.case03_prepRequired === "unsure"
+          ? "caution"
+          : "ok",
+    };
+  } else if (answers.case03_explanationDetail) {
+    const explanationLabel = getCase03FieldLabelFromAnswers("case03_explanationDetail", answers);
+    if (explanationLabel?.label) {
+      metrics[2] = {
+        ...metrics[2],
+        footnote: explanationLabel.label,
+        status:
+          answers.case03_explanationDetail === "partial_explanation" ||
+          answers.case03_explanationDetail === "attended_insufficient" ||
+          answers.case03_explanationDetail === "agency_redemand"
+            ? "caution"
+            : "ok",
+      };
+    }
+  }
+
+  const deadlineText = answers[CASE03_DEADLINE_DATE_KEY]?.trim();
+  const deadlineLabel = getCase03FieldLabelFromAnswers("case03_deadline", answers);
+  const goalLabel = getCase03FieldLabelFromAnswers("case03_finalGoal", answers);
+  const deadlineParts = [
+    deadlineText ? `기한 ${deadlineText}` : deadlineLabel?.label,
+    goalLabel?.label,
+  ].filter(Boolean);
+  if (deadlineParts.length > 0) {
+    metrics[3] = {
+      ...metrics[3],
+      footnote: deadlineParts.join(" · "),
+      status:
+        !deadlineText &&
+        (answers.case03_deadline === "uncertain" ||
+          answers.case03_deadline === "unsure" ||
+          answers.case03_deadline === "not_stated")
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  return metrics;
+}
+
+function applyCase04KeyMetrics(
+  answers: ReviewAnswers,
+  keyMetrics: AdminVerifyKeyMetric[],
+): AdminVerifyKeyMetric[] {
+  if (!isCase04Phase1Complete(answers)) return keyMetrics;
+
+  const metrics = keyMetrics.map((metric, index) => ({
+    ...metric,
+    label:
+      index === 0
+        ? "01. 보완 요구·목표"
+        : index === 1
+          ? "02. 제출·대응 이력"
+          : index === 2
+            ? "03. 자료·증빙"
+            : index === 3
+              ? "04. 기한·검토 목표"
+              : metric.label,
+    title:
+      index === 0
+        ? "보완 요구와 확인 목표"
+        : index === 1
+          ? "제출·대응 상황"
+          : index === 2
+            ? "보완 자료·증빙"
+            : index === 3
+              ? "기한·검토 목표"
+              : metric.title,
+  }));
+
+  const targetLabel = getCase04FieldLabelFromAnswers("case04_supplementTarget", answers);
+  const goalLabel = getCase04FieldLabelFromAnswers("case04_confirmGoal", answers);
+  if (targetLabel?.label || goalLabel?.label) {
+    metrics[0] = {
+      ...metrics[0],
+      footnote: [targetLabel?.label, goalLabel?.label].filter(Boolean).join(" · "),
+      status:
+        answers.case04_supplementTarget === "unclear" ||
+        answers.case04_confirmGoal === "unsure"
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  const responseLabel = getCase04FieldLabelFromAnswers("case04_customerResponse", answers);
+  const relationLabel = getCase04FieldLabelFromAnswers("case04_submissionRelation", answers);
+  const initialLabel = getCase04FieldLabelFromAnswers("case04_initialSubmission", answers);
+  const responseParts = [responseLabel?.label, relationLabel?.label, initialLabel?.label].filter(
+    Boolean,
+  );
+  if (responseParts.length > 0) {
+    metrics[1] = {
+      ...metrics[1],
+      footnote: responseParts.join(" · "),
+      status:
+        answers.case04_customerResponse === "not_started" ||
+        answers.case04_submissionRelation === "mismatch_request" ||
+        answers.case04_submissionRelation === "hard_to_judge"
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  const evidenceLabel = getCase04FieldLabelFromAnswers("case04_evidence", answers);
+  const addDocLabel = getCase04FieldLabelFromAnswers("case04_addDocDetail", answers);
+  const modifyLabel = getCase04FieldLabelFromAnswers("case04_modifyDetail", answers);
+  const evidenceDetailLabel = getCase04FieldLabelFromAnswers("case04_evidenceDetail", answers);
+  const evidenceParts = [
+    evidenceLabel?.label,
+    addDocLabel?.label,
+    modifyLabel?.label,
+    evidenceDetailLabel?.label,
+  ].filter(Boolean);
+  if (evidenceParts.length > 0) {
+    metrics[2] = {
+      ...metrics[2],
+      footnote: evidenceParts.join(" · "),
+      status:
+        answers.case04_evidence === "none" || answers.case04_evidence === "unsure"
+          ? "caution"
+          : "ok",
+    };
+  } else if (answers.case04_supplementReason) {
+    const reasonLabel = getCase04FieldLabelFromAnswers("case04_supplementReason", answers);
+    if (reasonLabel?.label) {
+      metrics[2] = {
+        ...metrics[2],
+        footnote: reasonLabel.label,
+        status:
+          answers.case04_supplementReason === "no_reason" ||
+          answers.case04_supplementReason === "unsure"
+            ? "caution"
+            : "ok",
+      };
+    }
+  }
+
+  const deadlineText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
+  const deadlineLabel = getCase04FieldLabelFromAnswers("case04_deadline", answers);
+  const finalGoalLabel = getCase04FieldLabelFromAnswers("case04_finalGoal", answers);
+  const deadlineParts = [
+    deadlineText ? `기한 ${deadlineText}` : deadlineLabel?.label,
+    finalGoalLabel?.label,
+  ].filter(Boolean);
+  if (deadlineParts.length > 0) {
+    metrics[3] = {
+      ...metrics[3],
+      footnote: deadlineParts.join(" · "),
+      status:
+        !deadlineText &&
+        (answers.case04_deadline === "uncertain" ||
+          answers.case04_deadline === "unsure" ||
+          answers.case04_deadline === "not_stated")
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  return metrics;
+}
+
+function applyCase05KeyMetrics(
+  answers: ReviewAnswers,
+  keyMetrics: AdminVerifyKeyMetric[],
+): AdminVerifyKeyMetric[] {
+  if (!isCase05Phase1Complete(answers)) return keyMetrics;
+
+  const metrics = keyMetrics.map((metric, index) => ({
+    ...metric,
+    label:
+      index === 0
+        ? "01. 처분·확인 목표"
+        : index === 1
+          ? "02. 대응·사실관계"
+          : index === 2
+            ? "03. 자료·처분 이유"
+            : index === 3
+              ? "04. 기한·검토 목표"
+              : metric.label,
+    title:
+      index === 0
+        ? "처분 유형과 확인 목표"
+        : index === 1
+          ? "대응 이력·사실관계"
+          : index === 2
+            ? "증빙·처분 사유"
+            : index === 3
+              ? "기한·검토 목표"
+              : metric.title,
+  }));
+
+  const typeLabel = getCase05FieldLabelFromAnswers("case05_dispositionType", answers);
+  const confirmGoalLabel = getCase05FieldLabelFromAnswers("case05_confirmGoal", answers);
+  if (typeLabel?.label || confirmGoalLabel?.label) {
+    metrics[0] = {
+      ...metrics[0],
+      footnote: [typeLabel?.label, confirmGoalLabel?.label].filter(Boolean).join(" · "),
+      status:
+        answers.case05_dispositionType === "unclear" ||
+        answers.case05_dispositionType === "unsure" ||
+        answers.case05_confirmGoal === "unsure"
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  const responseLabel = getCase05FieldLabelFromAnswers("case05_customerResponse", answers);
+  const relLabel = getCase05FieldLabelFromAnswers("case05_factRelationship", answers);
+  const plannedLabel = getCase05FieldLabelFromAnswers("case05_plannedNextStep", answers);
+  const relParts = [responseLabel?.label, relLabel?.label, plannedLabel?.label].filter(Boolean);
+  if (relParts.length > 0) {
+    metrics[1] = {
+      ...metrics[1],
+      footnote: relParts.join(" · "),
+      status:
+        answers.case05_customerResponse === "none" ||
+        answers.case05_factRelationship === "partial" ||
+        answers.case05_factRelationship === "mismatch"
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  const evidenceLabel = getCase05FieldLabelFromAnswers("case05_evidence", answers);
+  const reasonLabel = getCase05FieldLabelFromAnswers("case05_dispositionReason", answers);
+  const evidenceParts = [evidenceLabel?.label, reasonLabel?.label].filter(Boolean);
+  if (evidenceParts.length > 0) {
+    metrics[2] = {
+      ...metrics[2],
+      footnote: evidenceParts.join(" · "),
+      status:
+        answers.case05_evidence === "none" ||
+        answers.case05_evidence === "unsure" ||
+        answers.case05_dispositionReason === "unsure"
+          ? "caution"
+          : "ok",
+    };
+  }
+
+  const deadlineText = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
+  const deadlineLabel = getCase05FieldLabelFromAnswers("case05_deadline", answers);
+  const finalGoalLabel = getCase05FieldLabelFromAnswers("case05_finalGoal", answers);
+  const deadlineParts = [
+    deadlineText ? `기한 ${deadlineText}` : deadlineLabel?.label,
+    finalGoalLabel?.label,
+  ].filter(Boolean);
+  if (deadlineParts.length > 0) {
+    metrics[3] = {
+      ...metrics[3],
+      footnote: deadlineParts.join(" · "),
+      status:
+        !deadlineText &&
+        (case05EffectiveDeadline(answers.case05_deadline) === "uncertain" ||
+          answers.case05_deadline === "unsure" ||
+          answers.case05_deadline === "not_stated")
+          ? "caution"
+          : "ok",
+    };
   }
 
   return metrics;
@@ -2173,6 +2683,18 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
 
   if (case01Active && isCase01Phase1Complete(answers)) {
     keyMetrics = applyCase01KeyMetrics(answers, keyMetrics);
+    if (isAdminVerifyPhase2PathComplete(answers) || answers.case01_evidence?.trim()) {
+      keyMetrics = applyCase01Phase2KeyMetrics(answers, keyMetrics);
+    }
+    if (isAdminVerifyPhase2PathComplete(answers)) {
+      keyMetrics = applyCase01PersonalizedKeyMetricTitles(keyMetrics);
+    }
+  } else if (q1Case === "CASE_03" && isCase03Phase1Complete(answers)) {
+    keyMetrics = applyCase03KeyMetrics(answers, keyMetrics);
+  } else if (q1Case === "CASE_04" && isCase04Phase1Complete(answers)) {
+    keyMetrics = applyCase04KeyMetrics(answers, keyMetrics);
+  } else if (q1Case === "CASE_05" && isCase05Phase1Complete(answers)) {
+    keyMetrics = applyCase05KeyMetrics(answers, keyMetrics);
   } else if (
     q1Case &&
     q1Case !== "UNIVERSAL" &&
@@ -2208,6 +2730,24 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     q1Case === "CASE_06" && !isCase06LegacyRestorePath(answers)
       ? buildCase06PrincipleFStateLines(answers)
       : undefined;
+  const case03PrincipleFStateLines =
+    q1Case === "CASE_03" && isCase03Phase1Complete(answers)
+      ? buildCase03PrincipleFStateLines(answers)
+      : undefined;
+  const case04PrincipleFStateLines =
+    q1Case === "CASE_04" && isCase04Phase1Complete(answers)
+      ? buildCase04PrincipleFStateLines(answers)
+      : undefined;
+  const case05PrincipleFStateLines =
+    q1Case === "CASE_05" && isCase05Phase1Complete(answers)
+      ? buildCase05PrincipleFStateLines(answers)
+      : undefined;
+  const case01PrincipleFStateLines =
+    q1Case === "CASE_01" &&
+    isCase01Phase1Complete(answers) &&
+    isAdminVerifyPhase2PathComplete(answers)
+      ? buildCase01PrincipleFStateLines(answers)
+      : undefined;
 
   return {
     stageLabel,
@@ -2228,7 +2768,32 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
       case06PrincipleFStateLines && case06PrincipleFStateLines.length > 0
         ? case06PrincipleFStateLines
         : undefined,
+    case03PrincipleFStateLines:
+      case03PrincipleFStateLines && case03PrincipleFStateLines.length > 0
+        ? case03PrincipleFStateLines
+        : undefined,
+    case04PrincipleFStateLines:
+      case04PrincipleFStateLines && case04PrincipleFStateLines.length > 0
+        ? case04PrincipleFStateLines
+        : undefined,
+    case05PrincipleFStateLines:
+      case05PrincipleFStateLines && case05PrincipleFStateLines.length > 0
+        ? case05PrincipleFStateLines
+        : undefined,
+    case01PrincipleFStateLines:
+      case01PrincipleFStateLines && case01PrincipleFStateLines.length > 0
+        ? case01PrincipleFStateLines
+        : undefined,
   };
+}
+
+function adminVerifyPrincipleFStateLines(data: AdminVerifyFirstResultData): string[] {
+  return [
+    ...(data.case06PrincipleFStateLines ?? []),
+    ...(data.case03PrincipleFStateLines ?? []),
+    ...(data.case04PrincipleFStateLines ?? []),
+    ...(data.case05PrincipleFStateLines ?? []),
+  ];
 }
 
 const CASE01_PHASE1_SUMMARY_FIELDS: { key: string; label: string }[] = [
@@ -2335,7 +2900,7 @@ function buildCase01IntegratedSituation(answers: ReviewAnswers): string {
               : null;
 
   const closing =
-    deadline === "confirmed"
+    deadline === "confirmed" || deadline === "deadline_day_known"
       ? describeDeadlineConfirmed()
       : deadline === "overdue_concern"
         ? describeDeadlineOverdueConcern()
@@ -2344,11 +2909,19 @@ function buildCase01IntegratedSituation(answers: ReviewAnswers): string {
             deadline === "unknown" ||
             deadline === "unsure" ||
             deadline === "not_stated" ||
-            deadline === "not_advised"
+            deadline === "not_advised" ||
+            deadline === "deadline_window_only"
           ? describeDeadlineUncertain()
           : null;
 
-  return joinNarrative([opening, middle, closing]);
+  const phase2Tail =
+    isAdminVerifyPhase2PathComplete(answers) &&
+    (answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim() ||
+      answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim())
+      ? "2차에서 정리한 사실 차이·날짜·장소 답변을 통지 내용과 대조할 필요가 있습니다."
+      : null;
+
+  return joinNarrative([opening, middle, phase2Tail, closing]);
 }
 
 function buildCase02IntegratedSituation(answers: ReviewAnswers): string {
@@ -2407,14 +2980,20 @@ function buildCase03IntegratedSituation(answers: ReviewAnswers): string {
           ? describeCustomerResponseActive("설명과 자료 제출")
           : null;
 
-  const closing =
-    deadline === "specific_date"
-      ? "출석·소명 기한은 확인된 상태입니다."
-      : deadline === "uncertain" || deadline === "period_stated" || deadline === "not_stated" || deadline === "unsure"
-        ? "출석·소명 기한은 아직 명확히 확인되지 않았습니다."
-        : null;
+  const deadlineText = answers[CASE03_DEADLINE_DATE_KEY]?.trim();
+  const deadlineClause =
+    deadline === "specific_date" && deadlineText
+      ? `적어 둔 출석·소명 기한은 ${deadlineText} 입니다.`
+      : deadline === "specific_date"
+        ? "출석·소명 기한 날짜는 아직 적어 두지 않았습니다."
+        : deadline === "uncertain" ||
+            deadline === "period_stated" ||
+            deadline === "not_stated" ||
+            deadline === "unsure"
+          ? "출석·소명 기한은 아직 명확히 확인되지 않았습니다."
+          : null;
 
-  return joinNarrative([opening, middle, closing]);
+  return joinNarrative([opening, middle, deadlineClause]);
 }
 
 function buildCase04IntegratedSituation(answers: ReviewAnswers): string {
@@ -2439,12 +3018,15 @@ function buildCase04IntegratedSituation(answers: ReviewAnswers): string {
         ? describeCustomerResponseActive("일부 또는 전체 보완 제출")
         : null;
 
+  const deadlineText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
   const closing =
-    deadline === "confirmed" || deadline === "specific_date"
-      ? "보완 제출 기한은 확인된 상태입니다."
-      : deadline === "uncertain" || deadline === "not_stated" || deadline === "unsure"
-        ? "보완 제출 기한은 아직 명확히 확인되지 않았습니다."
-        : null;
+    (deadline === "confirmed" || deadline === "specific_date") && deadlineText
+      ? `적어 둔 보완 제출 기한은 ${deadlineText} 입니다.`
+      : deadline === "confirmed" || deadline === "specific_date"
+        ? "보완 제출 기한 날짜는 아직 적어 두지 않았습니다."
+        : deadline === "uncertain" || deadline === "not_stated" || deadline === "unsure"
+          ? "보완 제출 기한은 아직 명확히 확인되지 않았습니다."
+          : null;
 
   return joinNarrative([opening, middle, closing]);
 }
@@ -2473,14 +3055,20 @@ function buildCase05IntegratedSituation(answers: ReviewAnswers): string {
           ? describeCustomerResponseActive("이의·재검토 요청")
           : null;
 
+  const deadlineText = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
   const closing =
-    deadline === "specific_date" || deadline === "known_date"
-      ? "처분 관련 대응 기한은 확인된 상태입니다."
-      : deadline === "past_possible"
-        ? describeDeadlineOverdueConcern()
-        : deadline === "uncertain" || deadline === "unsure" || deadline === "not_stated" || deadline === "period_stated"
-          ? "처분 관련 대응 기한은 아직 명확히 확인되지 않았습니다."
-          : null;
+    (deadline === "specific_date" || deadline === "known_date") && deadlineText
+      ? `적어 둔 처분 관련 대응 기한은 ${deadlineText} 입니다.`
+      : deadline === "specific_date" || deadline === "known_date"
+        ? "처분 관련 대응 기한 날짜는 아직 적어 두지 않았습니다."
+        : deadline === "past_possible"
+          ? describeDeadlineOverdueConcern()
+          : deadline === "uncertain" ||
+              deadline === "unsure" ||
+              deadline === "not_stated" ||
+              deadline === "period_stated"
+            ? "처분 관련 대응 기한은 아직 명확히 확인되지 않았습니다."
+            : null;
 
   return joinNarrative([opening, middle, closing]);
 }
@@ -2577,8 +3165,57 @@ function buildIntegratedSituationFromProfile(
   return "1차에서 확인한 내용과 2차에서 추가로 확인한 내용을 함께 정리했습니다.";
 }
 
+function buildCase01Phase1RiskSummary(
+  answers: ReviewAnswers,
+  profile: CaseResolutionProfile,
+): string {
+  const parts: string[] = [];
+
+  if (profile.event.value) {
+    parts.push("통지·안내의 핵심은 날짜·장소·행동 관련 쟁점으로 파악됩니다.");
+  }
+  if (profile.authorityClaim.value && profile.authorityClaim.status === "confirmed") {
+    if (answers.case01_authorityDemand === "payment") {
+      parts.push("기관 요구는 비용·납부 관련 안내로 정리됩니다.");
+    } else if (answers.case01_authorityDemand === "attend_explain" || answers.case01_authorityDemand === "attendance") {
+      parts.push("기관 요구는 출석·소명·추가 설명 관련 안내로 정리됩니다.");
+    } else {
+      parts.push("기관 요구 방향이 확인되었습니다.");
+    }
+  }
+  if (profile.customerAction.value && profile.customerAction.status === "confirmed") {
+    if (answers.case01_customerResponded === "none") {
+      parts.push("아직 별도 대응은 진행되지 않은 상태입니다.");
+    } else if (answers.case01_responseDetail === "disputed_facts") {
+      parts.push(
+        "교통국에 대응한 이력이 있으며, 사실관계 차이를 전달한 상태로 확인됩니다.",
+      );
+    } else {
+      parts.push("교통국에 일부 대응한 이력이 있는 상태로 확인됩니다.");
+    }
+  }
+  if (
+    profile.deadline.value?.includes("확인 완료") ||
+    ["confirmed", "specific_date", "known_date", "deadline_day_known"].includes(
+      answers.case01_deadline ?? "",
+    )
+  ) {
+    parts.push("대응 기한은 확인된 범위 안에서 추적할 수 있습니다.");
+  } else if (answers.case01_deadline === "deadline_window_only") {
+    parts.push("대응 기한은 기간만 안내된 상태로, 구체 일자 확인이 필요합니다.");
+  }
+
+  if (parts.length === 0) {
+    return "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
+  }
+  return parts.join(" ");
+}
+
 function buildPhase1RiskSummary(answers: ReviewAnswers, profile: CaseResolutionProfile): string {
   const q1Case = getQ1ResolvedCase(answers);
+  if (q1Case === "CASE_01") {
+    return buildCase01Phase1RiskSummary(answers, profile);
+  }
   const parts: string[] = [];
 
   if (profile.event.value) {
@@ -2614,7 +3251,14 @@ function buildPhase2RiskSummary(answers: ReviewAnswers, profile: CaseResolutionP
   const blockage = profile.currentBlockage.value;
   const evidence = profile.evidence.value;
 
-  if (q1Case === "CASE_01" && answers.case01_factRelationship) {
+  if (q1Case === "CASE_01") {
+    const diffDetail = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
+    const datePlace = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
+    const responseNote = answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim();
+    const evidenceValue = answers.case01_evidence?.trim();
+    if (diffDetail || datePlace || responseNote || (evidenceValue && evidenceValue !== "other")) {
+      return "2차 추가 확인에서는 사실 차이·날짜·장소·대응 이력·보유 자료·교통국 추가 요구 답변을 함께 대조하는 것이 핵심입니다.";
+    }
     const relValue = answers.case01_factRelationship;
     if (relValue === "deny_action") {
       return "2차 추가 확인에서는 기관이 문제라고 보는 행동을 실제로 하지 않았다는 점이 핵심입니다. 통지 내용과 실제 상황을 대조할 필요가 있습니다.";
@@ -2656,7 +3300,11 @@ function buildPhase2RiskSummary(answers: ReviewAnswers, profile: CaseResolutionP
     }
   }
 
-  if (q1Case === "CASE_03" && answers.case03_factRelationship) {
+  if (q1Case === "CASE_03") {
+    const deadlineText = answers[CASE03_DEADLINE_DATE_KEY]?.trim();
+    if (deadlineText) {
+      return `2차 추가 확인에서는 응답에 정리한 출석·소명 기한(${deadlineText})이 핵심입니다.`;
+    }
     if (answers.case03_factRelationship === "partial" || answers.case03_factRelationship === "mismatch") {
       return "2차 추가 확인에서는 기관이 확인하려는 내용과 실제 상황이 다르게 느껴진다는 점이 핵심입니다.";
     }
@@ -2665,9 +3313,20 @@ function buildPhase2RiskSummary(answers: ReviewAnswers, profile: CaseResolutionP
     }
   }
 
-  if (q1Case === "CASE_04" && answers.case04_submissionRelation) {
+  if (q1Case === "CASE_04") {
+    const deadlineText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
+    if (deadlineText) {
+      return `2차 추가 확인에서는 응답에 정리한 보완 제출 기한(${deadlineText})이 핵심입니다.`;
+    }
     if (answers.case04_submissionRelation === "partial" || answers.case04_submissionRelation === "mismatch") {
       return "2차 추가 확인에서는 보완 요구 내용과 실제 제출 상황의 차이가 핵심입니다.";
+    }
+  }
+
+  if (q1Case === "CASE_05") {
+    const deadlineText = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
+    if (deadlineText) {
+      return `2차 추가 확인에서는 응답에 정리한 처분 관련 대응 기한(${deadlineText})이 핵심입니다.`;
     }
   }
 
@@ -3224,7 +3883,11 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
             </div>
             <span className="mt-1.5 text-sm font-bold text-slate-800">{data.caseClassificationLabel}</span>
           </div>
-          <span className="text-[11px] text-slate-400">호치민·하노이 심사 기준</span>
+          <span className="text-[11px] text-slate-400">
+            {data.caseClassificationLabel?.includes("출석")
+              ? "출석·소명 사건 기준"
+              : "사건 유형 기준"}
+          </span>
         </div>
 
         <div className={cn(metricCardClass, STITCH_CARD_SUBTLE_SHADOW)}>
@@ -3308,6 +3971,12 @@ function stitchPersonalizedKeyConfirmationBadge(
   index: number,
   total: number,
 ): { label: string; className: string } {
+  if (!metric.footnote?.trim()) {
+    return {
+      label: "미확인",
+      className: "bg-slate-50 text-slate-600 border border-slate-200",
+    };
+  }
   if (metric.status === "ok") {
     if (index === total - 1) {
       return {
@@ -3348,6 +4017,11 @@ function StitchPersonalizedKeyConfirmationCard({
       <div className="min-w-0 space-y-0.5">
         <span className="block text-[11px] font-medium text-slate-400">{metric.label}</span>
         <span className="text-sm font-bold text-slate-800">{metric.title}</span>
+        {metric.footnote?.trim() ? (
+          <span className="block text-[11px] font-normal leading-snug text-slate-500">
+            {metric.footnote}
+          </span>
+        ) : null}
       </div>
       <span className={cn("shrink-0 px-2.5 py-1 text-xs font-semibold rounded", badge.className)}>
         {badge.label}
@@ -3917,11 +4591,25 @@ export function AdminVerifyFirstResultPanel({
                 >
                   {personalized.integratedSituation}
                 </p>
-                {!isRealEstate &&
-                data.case06PrincipleFStateLines &&
-                data.case06PrincipleFStateLines.length > 0 ? (
+                {!isRealEstate && data.case01PrincipleFStateLines?.length ? (
                   <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
-                    {data.case06PrincipleFStateLines.map((line) => (
+                    <p className="text-xs font-semibold text-slate-700">응답 요약</p>
+                    {data.case01PrincipleFStateLines.map((line) => (
+                      <p
+                        key={line}
+                        className={cn(
+                          "text-xs font-normal leading-snug text-slate-600 sm:text-[13px]",
+                          FIRST_RESULT_READABLE_CLASS,
+                        )}
+                      >
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                ) : null}
+                {!isRealEstate && adminVerifyPrincipleFStateLines(data).length > 0 ? (
+                  <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
+                    {adminVerifyPrincipleFStateLines(data).map((line) => (
                       <p
                         key={line}
                         className={cn(
@@ -4158,9 +4846,9 @@ export function AdminVerifyFirstResultPanel({
                 </span>
                 <h3 className={FIRST_RESULT_READABLE_CLASS}>{displayStatusHeadline}</h3>
               </div>
-              {data.case06PrincipleFStateLines && data.case06PrincipleFStateLines.length > 0 ? (
+              {adminVerifyPrincipleFStateLines(data).length > 0 ? (
                 <div className="mt-3 space-y-1">
-                  {data.case06PrincipleFStateLines.map((line) => (
+                  {adminVerifyPrincipleFStateLines(data).map((line) => (
                     <p
                       key={line}
                       className={cn(

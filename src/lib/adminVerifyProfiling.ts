@@ -422,6 +422,7 @@ function appendLegacyFollowUps(
 export const CASE01_FACT_DIFFERENCE_DETAIL_KEY = "case01_factDifferenceDetail";
 export const CASE01_DATE_PLACE_DETAIL_KEY = "case01_datePlaceDetail";
 export const CASE01_FACT_COMPARE_GAP_KEY = "case01_factCompareGap";
+export const CASE01_DEADLINE_DATE_KEY = "case01_deadlineDate";
 
 export const CASE01_ANSWER_KEYS = [
   "case01_confirmGoal",
@@ -439,12 +440,12 @@ export const CASE01_ANSWER_KEYS = [
   "case01_responseDetail",
   "case01_authorityResponse",
   "case01_deadline",
+  CASE01_DEADLINE_DATE_KEY,
   "case01_blockage",
   "case01_evidence",
   "case01_finalGoal",
 ] as const;
 
-export const CASE01_DEADLINE_DATE_KEY = "case01_deadlineDate";
 export const CASE05_DEADLINE_DATE_KEY = "case05_deadlineDate";
 export const CASE01_RESPONSE_DETAIL_NOTE_KEY = "case01_responseDetailNote";
 
@@ -879,7 +880,7 @@ function case01NeedsFactCompareGap(answers: ReviewAnswers): boolean {
   );
 }
 
-function case01DeadlineRequiresDateText(deadline: string | undefined): boolean {
+export function case01DeadlineRequiresDateText(deadline: string | undefined): boolean {
   return deadline === "confirmed" || deadline === "deadline_day_known";
 }
 
@@ -1182,6 +1183,13 @@ function case01NeedsUnclearDemandDetail(answers: ReviewAnswers): boolean {
   if (!case01AuthorityDemandIsUnclear(demand)) {
     return false;
   }
+  if (
+    demand === "demand_unclear" ||
+    demand === "understanding_unknown" ||
+    demand === "no_stated_demand"
+  ) {
+    return false;
+  }
   if (case01NeedsAuthorityDemandDetailChoice(answers)) return false;
   return !answers[getAdminChoiceNoteKey("case01_authorityDemand")]?.trim();
 }
@@ -1216,7 +1224,7 @@ function case01NeedsFinalGoal(answers: ReviewAnswers): boolean {
   return case01ConfirmGoalIsUnclear(answers);
 }
 
-function case01NeedsDeadlineDateDetail(answers: ReviewAnswers): boolean {
+export function case01NeedsDeadlineDateDetail(answers: ReviewAnswers): boolean {
   if (!case01DeadlineRequiresDateText(answers.case01_deadline)) return false;
   return !answers[CASE01_DEADLINE_DATE_KEY]?.trim();
 }
@@ -2143,8 +2151,10 @@ export function isAdminVerifyChoiceFieldComplete(
 export const CASE01_PHASE1_FIELD_ORDER = [
   "case01_violationContent",
   "case01_factRelationship",
+  CASE01_FACT_COMPARE_GAP_KEY,
   "case01_customerResponded",
   "case01_deadline",
+  CASE01_DEADLINE_DATE_KEY,
   "case01_confirmGoal",
 ] as const;
 
@@ -3611,11 +3621,127 @@ function case03NeedsPrepDetail(answers: ReviewAnswers): boolean {
 }
 
 function case03NeedsRepeatFollowUp(answers: ReviewAnswers): boolean {
+  if (case03IsPhase2CoreBranchComplete(answers)) return true;
   const authorityValue = getCase03AuthorityResponseValue(answers);
   if (authorityValue && CASE03_REPEAT_RESPONSE_VALUES.has(authorityValue)) {
     return true;
   }
   return answers.case03_explanationDetail === "agency_redemand";
+}
+
+function case03IsFactRelationshipPhase2Complete(answers: ReviewAnswers): boolean {
+  if (!case03NeedsFactRelationshipPhase2(answers)) return true;
+  return isAdminVerifyChoiceFieldComplete(
+    "case03_factRelationship",
+    answers,
+    CASE03_FACT_RELATIONSHIP_OPTIONS,
+  );
+}
+
+/** Phase2 — 설명·기관 반응 또는 미대응 시 준비 분기 완료 */
+function case03IsPhase2CoreBranchComplete(answers: ReviewAnswers): boolean {
+  if (case03HasResponded(answers)) {
+    return (
+      isAdminVerifyChoiceFieldComplete(
+        "case03_explanationDetail",
+        answers,
+        CASE03_EXPLANATION_DETAIL_OPTIONS,
+      ) &&
+      isAdminVerifyChoiceFieldComplete(
+        "case03_authorityFollowUp",
+        answers,
+        CASE03_AUTHORITY_FOLLOWUP_OPTIONS,
+      )
+    );
+  }
+  if (!case03NeedsPrepDetail(answers)) return false;
+  if (
+    !isAdminVerifyChoiceFieldComplete(
+      "case03_prepRequired",
+      answers,
+      CASE03_PREP_REQUIRED_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (case03NeedsPrepAttendanceDateText(answers)) return false;
+  return true;
+}
+
+/** ②~④ 축 이후 blockage·evidence·finalGoal 실질 축 연쇄 개방 */
+function case03Phase2TailAxesUnlocked(answers: ReviewAnswers): boolean {
+  return isCase03Phase1Complete(answers) && case03IsPhase2CoreBranchComplete(answers);
+}
+
+/** CASE_01 개인화 결과 §01 「응답 요약」 — 입력 원문은 여기에만 (항목명: 원문). */
+export function buildCase01PrincipleFStateLines(answers: ReviewAnswers): string[] {
+  const lines: string[] = [];
+  const diffDetail = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
+  if (diffDetail) {
+    lines.push(`사실 차이: ${diffDetail}`);
+  }
+  const datePlace = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
+  if (datePlace) {
+    lines.push(`날짜·장소: ${datePlace}`);
+  }
+  const authorityResponseNote = answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim();
+  if (authorityResponseNote) {
+    lines.push(`교통국 추가 요구: ${authorityResponseNote}`);
+  }
+  const evidence = answers.case01_evidence?.trim();
+  if (evidence && evidence !== "other") {
+    const evidenceLabel = CASE01_OPTION_LABELS[evidence] ?? evidence;
+    lines.push(`보유 자료: ${evidenceLabel}`);
+  }
+  const responseDetail = answers.case01_responseDetail?.trim();
+  if (responseDetail && responseDetail !== "other") {
+    const responseLabel = CASE01_OPTION_LABELS[responseDetail] ?? responseDetail;
+    lines.push(`대응 이력: ${responseLabel}`);
+  }
+  return lines;
+}
+
+export function buildCase04PrincipleFStateLines(answers: ReviewAnswers): string[] {
+  const lines: string[] = [];
+  const deadlineText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
+  if (deadlineText) {
+    lines.push(`적어 둔 보완 제출 기한: ${deadlineText}`);
+  }
+  const supplementSuffix = case04SupplementDetailSuffix(answers);
+  if (supplementSuffix) {
+    lines.push(supplementSuffix);
+  }
+  return lines;
+}
+
+export function buildCase05PrincipleFStateLines(answers: ReviewAnswers): string[] {
+  const lines: string[] = [];
+  const deadlineText = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
+  if (deadlineText) {
+    lines.push(`적어 둔 처분 관련 대응 기한: ${deadlineText}`);
+  }
+  return lines;
+}
+
+export function buildCase03PrincipleFStateLines(answers: ReviewAnswers): string[] {
+  const lines: string[] = [];
+  const deadlineText = answers[CASE03_DEADLINE_DATE_KEY]?.trim();
+  if (deadlineText) {
+    lines.push(`적어 둔 출석·소명 기한: ${deadlineText}`);
+  }
+  const place = answers[CASE03_ATTENDANCE_PLACE_KEY]?.trim();
+  if (place) {
+    lines.push(`적어 둔 출석·소명 장소: ${place}`);
+  }
+  const whenWhere = answers[CASE03_ATTENDANCE_WHEN_WHERE_KEY]?.trim();
+  if (whenWhere) {
+    lines.push(`적어 둔 출석 일시·장소: ${whenWhere}`);
+  }
+  const prepDate = answers[CASE03_PREP_ATTENDANCE_DATE_KEY]?.trim();
+  if (prepDate) {
+    lines.push(`적어 둔 출석 예정일: ${prepDate}`);
+  }
+  return lines;
 }
 
 function case03NeedsFactRelationshipPhase2(answers: ReviewAnswers): boolean {
@@ -3660,7 +3786,7 @@ function case03NeedsInquiryFocusPhase2(answers: ReviewAnswers): boolean {
   if (case03IsInquiryFocusAnswered(answers)) return false;
   const goal = answers.case03_confirmGoal;
   const demand = answers.case03_authorityDemand;
-  if (goal === "prepare_materials" || goal === "unsure") {
+  if (goal === "prepare_materials" || goal === "unsure" || goal === "deadline_attendance") {
     return true;
   }
   if (
@@ -3671,10 +3797,12 @@ function case03NeedsInquiryFocusPhase2(answers: ReviewAnswers): boolean {
   ) {
     return true;
   }
+  if (case03IsPhase2CoreBranchComplete(answers)) return true;
   return false;
 }
 
 function case03NeedsBlockage(answers: ReviewAnswers): boolean {
+  if (case03Phase2TailAxesUnlocked(answers)) return true;
   const rel = answers.case03_factRelationship;
   const focus = answers.case03_inquiryFocus;
   const demand = answers.case03_authorityDemand;
@@ -3694,6 +3822,16 @@ function case03NeedsBlockage(answers: ReviewAnswers): boolean {
 }
 
 function case03NeedsEvidence(answers: ReviewAnswers): boolean {
+  if (
+    case03NeedsBlockage(answers) &&
+    isAdminVerifyChoiceFieldComplete(
+      "case03_blockage",
+      answers,
+      CASE03_BLOCKAGE_OPTIONS,
+    )
+  ) {
+    return true;
+  }
   const rel = answers.case03_factRelationship;
   const focus = answers.case03_inquiryFocus;
   return (
@@ -3707,6 +3845,16 @@ function case03NeedsEvidence(answers: ReviewAnswers): boolean {
 }
 
 function case03NeedsFinalGoal(answers: ReviewAnswers): boolean {
+  if (
+    case03NeedsEvidence(answers) &&
+    isAdminVerifyChoiceFieldComplete(
+      "case03_evidence",
+      answers,
+      CASE03_EVIDENCE_OPTIONS,
+    )
+  ) {
+    return true;
+  }
   const demand = answers.case03_authorityDemand;
   const focus = answers.case03_inquiryFocus;
   return (
@@ -3728,6 +3876,7 @@ export const CASE03_PHASE2_SUBSTANTIVE_AXIS_IDS = [
   "case03_blockage",
   "case03_evidence",
   "case03_finalGoal",
+  CASE03_ATTENDANCE_PLACE_KEY,
 ] as const;
 
 export function case03Phase2SubstantiveAxisCatalogCount(): number {
@@ -3750,9 +3899,30 @@ export function case03ListPhase2SubstantiveAxesOnPath(answers: ReviewAnswers): s
   maybe("case03_blockage", case03NeedsBlockage(answers));
   maybe("case03_evidence", case03NeedsEvidence(answers));
   maybe("case03_finalGoal", case03NeedsFinalGoal(answers));
+  maybe(
+    CASE03_ATTENDANCE_PLACE_KEY,
+    case03NeedsAttendancePlaceText(answers) ||
+      Boolean(answers[CASE03_ATTENDANCE_PLACE_KEY]?.trim()),
+  );
   return axes.filter((id) =>
     (CASE03_PHASE2_SUBSTANTIVE_AXIS_IDS as readonly string[]).includes(id),
   );
+}
+
+/** 실측·비율 감사 — 2차에서 실제 답이 채워진 실질 축 개수 */
+export function case03CountAnsweredPhase2SubstantiveAxes(answers: ReviewAnswers): number {
+  let count = 0;
+  for (const id of CASE03_PHASE2_SUBSTANTIVE_AXIS_IDS) {
+    if (id === CASE03_ATTENDANCE_PLACE_KEY) {
+      if (answers[id]?.trim()) count += 1;
+      continue;
+    }
+    const options = CASE03_FIELD_OPTION_MAP[id];
+    if (options && isAdminVerifyChoiceFieldComplete(id, answers, options)) {
+      count += 1;
+    }
+  }
+  return count;
 }
 
 function deriveCase03Rounds(answers: ReviewAnswers): { explanationRound: number; responseRound: number } {
@@ -4793,12 +4963,91 @@ function case04NeedsSubmissionRelationPhase2(_answers: ReviewAnswers): boolean {
   return true;
 }
 
-function case04NeedsSupplementReasonPhase2(answers: ReviewAnswers): boolean {
-  const goal = answers.case04_confirmGoal;
+function case04NeedsSupplementReasonPhase2(_answers: ReviewAnswers): boolean {
+  return true;
+}
+
+function case04IsTargetDetailPhase2Complete(answers: ReviewAnswers): boolean {
   const target = answers.case04_supplementTarget;
-  if (target === "unclear") return true;
-  if (goal === "understand_insufficient" || goal === "repeat_reason") return true;
-  return false;
+  if (target === "additional_docs") {
+    return isAdminVerifyChoiceFieldComplete(
+      "case04_addDocDetail",
+      answers,
+      CASE04_ADD_DOC_DETAIL_OPTIONS,
+    );
+  }
+  if (target === "modify_existing") {
+    return isAdminVerifyChoiceFieldComplete(
+      "case04_modifyDetail",
+      answers,
+      CASE04_MODIFY_DETAIL_OPTIONS,
+    );
+  }
+  if (target === "add_content_evidence") {
+    return isAdminVerifyChoiceFieldComplete(
+      "case04_evidenceDetail",
+      answers,
+      CASE04_EVIDENCE_DETAIL_OPTIONS,
+    );
+  }
+  if (target === "unclear") {
+    return isAdminVerifyChoiceFieldComplete(
+      "case04_unclearFocus",
+      answers,
+      CASE04_UNCLEAR_FOCUS_OPTIONS,
+    );
+  }
+  return true;
+}
+
+/** Phase2 — 제출·보완 상세 분기 완료 */
+function case04IsPhase2CoreBranchComplete(answers: ReviewAnswers): boolean {
+  if (
+    case04NeedsInitialSubmissionPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case04_initialSubmission",
+      answers,
+      CASE04_INITIAL_SUBMISSION_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
+    case04NeedsSubmissionRelationPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case04_submissionRelation",
+      answers,
+      CASE04_SUBMISSION_RELATION_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
+    case04NeedsSupplementReasonPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case04_supplementReason",
+      answers,
+      CASE04_SUPPLEMENT_REASON_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (!case04IsTargetDetailPhase2Complete(answers)) return false;
+  if (
+    case04NeedsAuthorityFollowUpPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case04_authorityFollowUp",
+      answers,
+      CASE04_AUTHORITY_FOLLOWUP_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function case04Phase2TailAxesUnlocked(answers: ReviewAnswers): boolean {
+  return isCase04Phase1Complete(answers) && case04IsPhase2CoreBranchComplete(answers);
 }
 
 function case04NeedsAuthorityFollowUpPhase2(answers: ReviewAnswers): boolean {
@@ -4809,6 +5058,7 @@ function case04NeedsAuthorityFollowUpPhase2(answers: ReviewAnswers): boolean {
 }
 
 function case04NeedsRepeatSupplement(answers: ReviewAnswers): boolean {
+  if (case04IsPhase2CoreBranchComplete(answers)) return true;
   if (answers.case04_supplementTarget === "repeat_demand") return true;
   if (answers.case04_confirmGoal === "repeat_reason") return true;
   const value = getCase04AuthorityResponseValue(answers);
@@ -4817,6 +5067,7 @@ function case04NeedsRepeatSupplement(answers: ReviewAnswers): boolean {
 }
 
 function case04NeedsBlockage(answers: ReviewAnswers): boolean {
+  if (case04Phase2TailAxesUnlocked(answers)) return true;
   const target = answers.case04_supplementTarget;
   const reason = answers.case04_supplementReason;
   const rel = answers.case04_submissionRelation;
@@ -4831,6 +5082,16 @@ function case04NeedsBlockage(answers: ReviewAnswers): boolean {
 }
 
 function case04NeedsEvidence(answers: ReviewAnswers): boolean {
+  if (
+    case04NeedsBlockage(answers) &&
+    isAdminVerifyChoiceFieldComplete(
+      "case04_blockage",
+      answers,
+      CASE04_BLOCKAGE_OPTIONS,
+    )
+  ) {
+    return true;
+  }
   const target = answers.case04_supplementTarget;
   const rel = answers.case04_submissionRelation;
   return (
@@ -4843,12 +5104,22 @@ function case04NeedsEvidence(answers: ReviewAnswers): boolean {
 }
 
 function case04NeedsFinalGoal(answers: ReviewAnswers): boolean {
+  if (
+    case04NeedsEvidence(answers) &&
+    isAdminVerifyChoiceFieldComplete(
+      "case04_evidence",
+      answers,
+      CASE04_EVIDENCE_OPTIONS,
+    )
+  ) {
+    return true;
+  }
   return (
     answers.case04_supplementTarget === "unclear" || answers.case04_supplementReason === "unsure"
   );
 }
 
-/** STEP2-1 R3 — Phase2 실질 축 9 (상세 3 + evidence; blockage·finalGoal·unclearFocus 제외) */
+/** STEP2-1 — Phase2 실질 축 (상세 3 중 경로 1 + tail blockage·evidence·finalGoal) */
 export const CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS = [
   "case04_initialSubmission",
   "case04_submissionRelation",
@@ -4858,7 +5129,9 @@ export const CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS = [
   "case04_evidenceDetail",
   "case04_authorityFollowUp",
   "case04_repeatSupplement",
+  "case04_blockage",
   "case04_evidence",
+  "case04_finalGoal",
 ] as const;
 
 export function case04Phase2SubstantiveAxisCatalogCount(): number {
@@ -4879,10 +5152,43 @@ export function case04ListPhase2SubstantiveAxesOnPath(answers: ReviewAnswers): s
   maybe("case04_evidenceDetail", target === "add_content_evidence");
   maybe("case04_authorityFollowUp", case04NeedsAuthorityFollowUpPhase2(answers));
   maybe("case04_repeatSupplement", case04NeedsRepeatSupplement(answers));
+  maybe("case04_blockage", case04NeedsBlockage(answers));
   maybe("case04_evidence", case04NeedsEvidence(answers));
+  maybe("case04_finalGoal", case04NeedsFinalGoal(answers));
   return axes.filter((id) =>
     (CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS as readonly string[]).includes(id),
   );
+}
+
+function case04Phase2SubstantiveAxisAnswered(id: string, answers: ReviewAnswers): boolean {
+  const target = answers.case04_supplementTarget;
+  if (id === "case04_addDocDetail" && target !== "additional_docs") return false;
+  if (id === "case04_modifyDetail" && target !== "modify_existing") return false;
+  if (id === "case04_evidenceDetail" && target !== "add_content_evidence") return false;
+  if (id === "case04_initialSubmission" && !case04NeedsInitialSubmissionPhase2(answers)) {
+    return false;
+  }
+  if (id === "case04_supplementReason" && !case04NeedsSupplementReasonPhase2(answers)) {
+    return false;
+  }
+  if (id === "case04_authorityFollowUp" && !case04NeedsAuthorityFollowUpPhase2(answers)) {
+    return false;
+  }
+  if (id === "case04_repeatSupplement" && !case04NeedsRepeatSupplement(answers)) return false;
+  if (id === "case04_blockage" && !case04NeedsBlockage(answers)) return false;
+  if (id === "case04_evidence" && !case04NeedsEvidence(answers)) return false;
+  if (id === "case04_finalGoal" && !case04NeedsFinalGoal(answers)) return false;
+  const options = CASE04_FIELD_OPTION_MAP[id];
+  return Boolean(options && isAdminVerifyChoiceFieldComplete(id, answers, options));
+}
+
+/** 실측·비율 감사 — 2차에서 실제 답이 채워진 실질 축 개수 */
+export function case04CountAnsweredPhase2SubstantiveAxes(answers: ReviewAnswers): number {
+  let count = 0;
+  for (const id of CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS) {
+    if (case04Phase2SubstantiveAxisAnswered(id, answers)) count += 1;
+  }
+  return count;
 }
 
 function deriveCase04Rounds(answers: ReviewAnswers): {
@@ -5508,6 +5814,7 @@ export const CASE05_ANSWER_KEYS = [
   "case05_submittedDocsDetail",
   "case05_appealDetail",
   "case05_dispositionOutcome",
+  "case05_plannedNextStep",
   "case05_repeatFollowUp",
   "case05_blockage",
   "case05_evidence",
@@ -5545,13 +5852,16 @@ export const CASE05_PHASE2_SUBSTANTIVE_AXIS_IDS = [
   "case05_dispositionReason",
   "case05_authorityFollowUp",
   "case05_dispositionOutcome",
-  "case05_repeatFollowUp",
-  "case05_evidence",
   "case05_dispositionDetail",
   "case05_factDetail",
   "case05_explanationDetail",
   "case05_submittedDocsDetail",
   "case05_appealDetail",
+  "case05_plannedNextStep",
+  "case05_repeatFollowUp",
+  "case05_blockage",
+  "case05_evidence",
+  "case05_finalGoal",
 ] as const;
 
 export function case05Phase2SubstantiveAxisCatalogCount(): number {
@@ -5831,6 +6141,41 @@ const CASE05_EVIDENCE_OPTIONS = [
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
+const CASE05_CONFIRM_GOAL_TO_FINAL_GOAL_DUPE: Record<string, string> = {
+  understand_reason: "why_disposition",
+  understand_impact: "what_disposition",
+  appeal_possibility: "next_action",
+  what_to_do: "what_to_do",
+};
+
+const CASE05_PLANNED_NEXT_STEP_OPTIONS = [
+  {
+    value: "inquire_authority",
+    label: "기관에 문의하거나 상황을 먼저 확인할 계획입니다.",
+  },
+  {
+    value: "prepare_explanation",
+    label: "소명·의견이나 보완 서류를 준비하려고 합니다.",
+  },
+  {
+    value: "appeal_or_review",
+    label: "이의제기·재검토를 검토하거나 진행할 계획입니다.",
+  },
+  {
+    value: "wait_for_deadline",
+    label: "대응 기한을 확인한 뒤 그때 조치할 계획입니다.",
+  },
+  {
+    value: "no_concrete_plan",
+    label: "아직 구체적인 조치 계획은 없습니다.",
+  },
+  {
+    value: "unsure",
+    label: "무엇부터 해야 할지 아직 정하지 못했습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
+];
+
 const CASE05_FINAL_GOAL_OPTIONS = [
   { value: "why_disposition", label: "처분이 왜 내려졌는지 확인하고 싶어요" },
   { value: "what_disposition", label: "처분 내용이 정확히 무엇인지 알고 싶어요" },
@@ -5870,6 +6215,7 @@ export const CASE05_OPTION_LABELS: Record<string, string> = {
   ...Object.fromEntries(CASE05_BLOCKAGE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_FINAL_GOAL_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE05_PLANNED_NEXT_STEP_OPTIONS.map((o) => [o.value, o.label])),
 };
 
 const CASE05_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> = {
@@ -5892,6 +6238,7 @@ const CASE05_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]
   case05_blockage: CASE05_BLOCKAGE_OPTIONS,
   case05_evidence: CASE05_EVIDENCE_OPTIONS,
   case05_finalGoal: CASE05_FINAL_GOAL_OPTIONS,
+  case05_plannedNextStep: CASE05_PLANNED_NEXT_STEP_OPTIONS,
   case05_dispositionDetail: CASE05_DISPOSITION_DETAIL_OPTIONS,
   case05_factDetail: CASE05_FACT_DETAIL_OPTIONS,
   case05_explanationDetail: CASE05_EXPLANATION_DETAIL_OPTIONS,
@@ -6067,6 +6414,25 @@ function case05NeedsDispositionDetail(answers: ReviewAnswers): boolean {
   );
 }
 
+function case05NeedsPlannedNextStepPhase2(answers: ReviewAnswers): boolean {
+  return answers.case05_customerResponse === "none";
+}
+
+export function case05FinalGoalOptionsForAnswers(answers: ReviewAnswers): {
+  value: string;
+  label: string;
+}[] {
+  const goal = case05EffectiveConfirmGoal(answers.case05_confirmGoal);
+  const dupe = goal ? CASE05_CONFIRM_GOAL_TO_FINAL_GOAL_DUPE[goal] : undefined;
+  return CASE05_FINAL_GOAL_OPTIONS.filter((option) => !dupe || option.value !== dupe);
+}
+
+function case05HasSelectableFinalGoalOptions(answers: ReviewAnswers): boolean {
+  return case05FinalGoalOptionsForAnswers(answers).some(
+    (option) => !isAdminDirectExplainOption(option),
+  );
+}
+
 function case05NeedsFactDetail(answers: ReviewAnswers): boolean {
   const rel = answers.case05_factRelationship;
   return rel === "partial" || rel === "mismatch" || rel === "hard_to_judge";
@@ -6088,7 +6454,120 @@ function case05NeedsDispositionOutcome(answers: ReviewAnswers): boolean {
   return case05NeedsAuthorityFollowUpPhase2(answers) && Boolean(answers.case05_authorityFollowUp);
 }
 
+function case05IsPhase2CoreBranchComplete(answers: ReviewAnswers): boolean {
+  if (
+    case05NeedsFactRelationshipPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_factRelationship",
+      answers,
+      CASE05_FACT_RELATIONSHIP_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
+    case05NeedsDispositionReasonPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_dispositionReason",
+      answers,
+      CASE05_DISPOSITION_REASON_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
+    case05NeedsDispositionDetail(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_dispositionDetail",
+      answers,
+      CASE05_DISPOSITION_DETAIL_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
+    case05NeedsFactDetail(answers) &&
+    !isAdminVerifyChoiceFieldComplete("case05_factDetail", answers, CASE05_FACT_DETAIL_OPTIONS)
+  ) {
+    return false;
+  }
+  if (
+    case05NeedsExplanationDetail(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_explanationDetail",
+      answers,
+      CASE05_EXPLANATION_DETAIL_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
+    case05NeedsSubmittedDocsDetail(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_submittedDocsDetail",
+      answers,
+      CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
+    case05NeedsAppealDetail(answers) &&
+    !isAdminVerifyChoiceFieldComplete("case05_appealDetail", answers, CASE05_APPEAL_DETAIL_OPTIONS)
+  ) {
+    return false;
+  }
+  if (
+    case05NeedsAuthorityFollowUpPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_authorityFollowUp",
+      answers,
+      CASE05_AUTHORITY_FOLLOWUP_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (case05NeedsDispositionOutcome(answers)) {
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case05_dispositionOutcome",
+        answers,
+        CASE05_DISPOSITION_OUTCOME_OPTIONS,
+      )
+    ) {
+      return false;
+    }
+  }
+  if (
+    case05NeedsPlannedNextStepPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_plannedNextStep",
+      answers,
+      CASE05_PLANNED_NEXT_STEP_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function case05Phase2TailAxesUnlocked(answers: ReviewAnswers): boolean {
+  return isCase05Phase1Complete(answers) && case05IsPhase2CoreBranchComplete(answers);
+}
+
+function case05ConfirmGoalSkipsTailFinalGoal(answers: ReviewAnswers): boolean {
+  const goal = case05EffectiveConfirmGoal(answers.case05_confirmGoal);
+  if (!case05HasResponded(answers)) return false;
+  return (
+    goal === "understand_reason" ||
+    goal === "understand_impact" ||
+    goal === "appeal_possibility" ||
+    goal === "what_to_do"
+  );
+}
+
 function case05NeedsRepeatFollowUp(answers: ReviewAnswers): boolean {
+  if (case05IsPhase2CoreBranchComplete(answers)) return true;
   const goal = answers.case05_confirmGoal;
   if (goal === "maintain_reason") return true;
   if (answers.case05_dispositionType === "situation_mismatch") return true;
@@ -6098,6 +6577,7 @@ function case05NeedsRepeatFollowUp(answers: ReviewAnswers): boolean {
 }
 
 function case05NeedsBlockage(answers: ReviewAnswers): boolean {
+  if (case05Phase2TailAxesUnlocked(answers)) return true;
   const goal = answers.case05_confirmGoal;
   const type = answers.case05_dispositionType;
   const rel = answers.case05_factRelationship;
@@ -6120,6 +6600,16 @@ function case05NeedsBlockage(answers: ReviewAnswers): boolean {
 }
 
 function case05NeedsEvidence(answers: ReviewAnswers): boolean {
+  if (
+    case05NeedsBlockage(answers) &&
+    isAdminVerifyChoiceFieldComplete(
+      "case05_blockage",
+      answers,
+      CASE05_BLOCKAGE_OPTIONS,
+    )
+  ) {
+    return true;
+  }
   const rel = answers.case05_factRelationship;
   const type = answers.case05_dispositionType;
   if (isCase05DispositionTypeUnclear(type) || type === "unsure" || type === "reason_hard_to_understand") {
@@ -6140,6 +6630,18 @@ function case05NeedsEvidence(answers: ReviewAnswers): boolean {
 }
 
 function case05NeedsFinalGoal(answers: ReviewAnswers): boolean {
+  if (
+    case05NeedsEvidence(answers) &&
+    isAdminVerifyChoiceFieldComplete(
+      "case05_evidence",
+      answers,
+      CASE05_EVIDENCE_OPTIONS,
+    )
+  ) {
+    if (case05ConfirmGoalSkipsTailFinalGoal(answers)) return false;
+    return case05HasSelectableFinalGoalOptions(answers);
+  }
+  if (case05ConfirmGoalSkipsTailFinalGoal(answers)) return false;
   const type = answers.case05_dispositionType;
   const reason = answers.case05_dispositionReason;
   return (
@@ -6424,6 +6926,24 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     if (!answers.case05_dispositionOutcome) return;
   }
 
+  if (case05NeedsPlannedNextStepPhase2(answers)) {
+    pushUnique(questions, {
+      id: "case05_plannedNextStep",
+      kind: "choice",
+      label: "처분 통지를 받은 후, 지금 어떤 조치를 검토하거나 준비하고 있나요?",
+      options: CASE05_PLANNED_NEXT_STEP_OPTIONS,
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case05_plannedNextStep",
+        answers,
+        CASE05_PLANNED_NEXT_STEP_OPTIONS,
+      )
+    ) {
+      return;
+    }
+  }
+
   if (case05NeedsRepeatFollowUp(answers)) {
     pushUnique(questions, {
       id: "case05_repeatFollowUp",
@@ -6483,7 +7003,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case05_finalGoal",
       kind: "choice",
       label: "지금 무엇을 확인하고 싶으신가요?",
-      options: CASE05_FINAL_GOAL_OPTIONS,
+      options: case05FinalGoalOptionsForAnswers(answers),
     });
   }
 }
@@ -6581,6 +7101,16 @@ function case05PathFieldsComplete(answers: ReviewAnswers): boolean {
   }
   if (case05NeedsDispositionOutcome(answers) && !answers.case05_dispositionOutcome) return false;
   if (
+    case05NeedsPlannedNextStepPhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case05_plannedNextStep",
+      answers,
+      CASE05_PLANNED_NEXT_STEP_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
     case05NeedsRepeatFollowUp(answers) &&
     !isAdminVerifyChoiceFieldComplete(
       "case05_repeatFollowUp",
@@ -6615,7 +7145,7 @@ function case05PathFieldsComplete(answers: ReviewAnswers): boolean {
     !isAdminVerifyChoiceFieldComplete(
       "case05_finalGoal",
       answers,
-      CASE05_FINAL_GOAL_OPTIONS,
+      case05FinalGoalOptionsForAnswers(answers),
     )
   ) {
     return false;
@@ -6695,11 +7225,51 @@ export function case05ListPhase2SubstantiveAxesOnPath(answers: ReviewAnswers): s
   maybe("case05_submittedDocsDetail", case05NeedsSubmittedDocsDetail(answers));
   maybe("case05_appealDetail", case05NeedsAppealDetail(answers));
   maybe("case05_dispositionOutcome", case05NeedsDispositionOutcome(answers));
+  maybe("case05_plannedNextStep", case05NeedsPlannedNextStepPhase2(answers));
   maybe("case05_repeatFollowUp", case05NeedsRepeatFollowUp(answers));
+  maybe("case05_blockage", case05NeedsBlockage(answers));
   maybe("case05_evidence", case05NeedsEvidence(answers));
+  maybe("case05_finalGoal", case05NeedsFinalGoal(answers));
   return axes.filter((id) =>
     (CASE05_PHASE2_SUBSTANTIVE_AXIS_IDS as readonly string[]).includes(id),
   );
+}
+
+function case05Phase2SubstantiveAxisAnswered(id: string, answers: ReviewAnswers): boolean {
+  if (id === "case05_factRelationship" && !case05NeedsFactRelationshipPhase2(answers)) {
+    return false;
+  }
+  if (id === "case05_dispositionReason" && !case05NeedsDispositionReasonPhase2(answers)) {
+    return false;
+  }
+  if (id === "case05_authorityFollowUp" && !case05NeedsAuthorityFollowUpPhase2(answers)) {
+    return false;
+  }
+  if (id === "case05_dispositionDetail" && !case05NeedsDispositionDetail(answers)) return false;
+  if (id === "case05_factDetail" && !case05NeedsFactDetail(answers)) return false;
+  if (id === "case05_explanationDetail" && !case05NeedsExplanationDetail(answers)) return false;
+  if (id === "case05_submittedDocsDetail" && !case05NeedsSubmittedDocsDetail(answers)) {
+    return false;
+  }
+  if (id === "case05_appealDetail" && !case05NeedsAppealDetail(answers)) return false;
+  if (id === "case05_dispositionOutcome" && !case05NeedsDispositionOutcome(answers)) return false;
+  if (id === "case05_plannedNextStep" && !case05NeedsPlannedNextStepPhase2(answers)) {
+    return false;
+  }
+  if (id === "case05_repeatFollowUp" && !case05NeedsRepeatFollowUp(answers)) return false;
+  if (id === "case05_blockage" && !case05NeedsBlockage(answers)) return false;
+  if (id === "case05_evidence" && !case05NeedsEvidence(answers)) return false;
+  if (id === "case05_finalGoal" && !case05NeedsFinalGoal(answers)) return false;
+  const options = CASE05_FIELD_OPTION_MAP[id];
+  return Boolean(options && isAdminVerifyChoiceFieldComplete(id, answers, options));
+}
+
+export function case05CountAnsweredPhase2SubstantiveAxes(answers: ReviewAnswers): number {
+  let count = 0;
+  for (const id of CASE05_PHASE2_SUBSTANTIVE_AXIS_IDS) {
+    if (case05Phase2SubstantiveAxisAnswered(id, answers)) count += 1;
+  }
+  return count;
 }
 
 export function deriveCase05DispositionSignals(answers: ReviewAnswers): DispositionSignalCode[] {
@@ -8710,6 +9280,14 @@ function classifyFromCase01Answers(answers: ReviewAnswers): {
       reason: "납부·벌금이 이번 사건의 핵심으로 확인됨",
     };
   }
+  if (demand === "attend_explain" || demand === "attendance") {
+    return {
+      id: "CASE_03",
+      status: "inferred",
+      confidence: 0.76,
+      reason: "출석·소명이 이번 건 핵심으로 확인됨",
+    };
+  }
   if (
     demand === "supplement_core" ||
     (demand === "supplement" && answers.case01_supplementDemandScope === "core_case")
@@ -8822,7 +9400,9 @@ function classificationFromProfileSignals(answers: ReviewAnswers, text: string):
   if (
     case01CrossCaseSignal &&
     shouldActivateCase01Path(answers) &&
-    (case01CrossCaseSignal.id === "CASE_02" || case01CrossCaseSignal.id === "CASE_04")
+    (case01CrossCaseSignal.id === "CASE_02" ||
+      case01CrossCaseSignal.id === "CASE_03" ||
+      case01CrossCaseSignal.id === "CASE_04")
   ) {
     return case01CrossCaseSignal;
   }
@@ -9504,6 +10084,11 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
   if (answers.case05_appealDetail) {
     case05CustomerActionExtras.push(
       getCase05FieldOptionLabel("case05_appealDetail", answers.case05_appealDetail),
+    );
+  }
+  if (answers.case05_plannedNextStep) {
+    case05CustomerActionExtras.push(
+      getCase05FieldOptionLabel("case05_plannedNextStep", answers.case05_plannedNextStep),
     );
   }
   const case05CustomerActionLabel =
@@ -10213,10 +10798,16 @@ const CASE05_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank
   { id: "case05_submittedDocsDetail", focus: "evidence", rank: 11, reason: "제출 자료" },
   { id: "case05_appealDetail", focus: "customerAction", rank: 12, reason: "이의·재검토" },
   { id: "case05_dispositionOutcome", focus: "authorityResponse", rank: 13, reason: "처분 후속 결과" },
-  { id: "case05_repeatFollowUp", focus: "authorityResponse", rank: 14, reason: "반복 대응" },
-  { id: "case05_blockage", focus: "currentBlockage", rank: 15, reason: "막힌 지점" },
-  { id: "case05_evidence", focus: "evidence", rank: 16, reason: "증빙" },
-  { id: "case05_finalGoal", focus: "goal", rank: 17, reason: "목표" },
+  {
+    id: "case05_plannedNextStep",
+    focus: "customerAction",
+    rank: 14,
+    reason: "검토 중인 조치",
+  },
+  { id: "case05_repeatFollowUp", focus: "authorityResponse", rank: 15, reason: "반복 대응" },
+  { id: "case05_blockage", focus: "currentBlockage", rank: 16, reason: "막힌 지점" },
+  { id: "case05_evidence", focus: "evidence", rank: 17, reason: "증빙" },
+  { id: "case05_finalGoal", focus: "goal", rank: 18, reason: "목표" },
 ];
 
 const CASE01_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank: number; reason: string }[] = [
@@ -10471,6 +11062,9 @@ function selectCase05ResolutionFocus(answers: ReviewAnswers): CaseResolutionQues
     if (item.id === "case05_submittedDocsDetail" && !case05NeedsSubmittedDocsDetail(answers)) continue;
     if (item.id === "case05_appealDetail" && !case05NeedsAppealDetail(answers)) continue;
     if (item.id === "case05_dispositionOutcome" && !case05NeedsDispositionOutcome(answers)) continue;
+    if (item.id === "case05_plannedNextStep" && !case05NeedsPlannedNextStepPhase2(answers)) {
+      continue;
+    }
     if (item.id === "case05_repeatFollowUp" && !case05NeedsRepeatFollowUp(answers)) continue;
     if (item.id === "case05_blockage" && !case05NeedsBlockage(answers)) continue;
     if (item.id === "case05_evidence" && !case05NeedsEvidence(answers)) continue;
