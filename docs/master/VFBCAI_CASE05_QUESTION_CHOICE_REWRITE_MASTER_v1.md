@@ -238,11 +238,26 @@
 
 ---
 
-### 2.7 `case05_appealDetail` (상황형 · 조건부)
+### 2.7 `case05_appealDetail` (상황형 · 조건부 · `customerResponse=appeal_requested`)
 
 **질문:** **이의·재검토·심판** 신청 상태를 골라 주세요.
 
-(기존 7선택 — 신청·기한·검토 단계 복합 유지, 1인칭 「제가」)
+| slug | 고객 1인칭 원문 |
+|------|-----------------|
+| `filed_no_schedule` | 이의·재검토를 **신청했고**, 접수 안내는 받았지만 **결과 일정은 모릅니다**. |
+| `filed_no_receipt` | 이의·재검토를 **신청했지만**, 접수 확인·접수번호는 **아직 받지 못했습니다**. |
+| `filed_schedule_known` | 이의·재검토를 **신청했고**, 결과·다음 안내 **일정을 알고 있습니다**. |
+| `preparing_deadline_unknown` | 신청을 **준비 중**이고, 신청 **기한은 아직 확인하지 못했습니다**. |
+| `preparing_deadline_known` | 신청을 **준비 중**이고, 신청 **기한은 확인했습니다**. |
+| `considering_rules_unread` | 신청 여부를 **검토 중**이고, 가능 여부·기한은 **아직 못 읽었습니다**. |
+| `considering_rules_read` | 신청 여부를 **검토 중**이고, 통지서에 **기한·요건을 읽었습니다**. |
+| (DI) | 직접 설명 |
+
+**fact_dimensions:** `appeal_stage` (filed \| preparing \| considering) · `receipt` · `schedule_known` · `deadline_known`
+
+**impossible_combinations:** `appeal_stage=filed` + `receipt=none` + `filed_schedule_known` slug — 접수 미확인이면 `filed_no_receipt` 또는 `filed_no_schedule`만
+
+**choice_facts:** slug별 위 dimension 값 1:1
 
 ---
 
@@ -370,10 +385,43 @@ Phase2: factRelationship → dispositionReason → dispositionDetail → factDet
 
 | 게이트 | CASE_05 본 문서 반영 |
 |--------|----------------------|
-| QG-01 | §1.4 deadline `window_only` / `exists_unknown` / `not_checked` (**uncertain·period_stated·unsure 제거**) |
-| QG-02 | §1.3 `inquired` 분리 · authority 합침으로 대응·후속 중복 제거 |
-| QG-03 | `specific_date` → `case05_deadlineDate` 필수 (§1.4 표) |
-| QG-04 | `hard_to_judge` 시 `factDetail` fuzzy/vague **skip 규칙** — §2.4 노출 조건에 명시: relationship ∈ {partial, mismatch} 만 |
+| QG-01 | **해소함** — §1.4 `uncertain`·`period_stated`·`unsure` 통합 |
+| QG-02 | **해소함** — §1.3 `inquired` 분리 · §2.8 authority 3합1 |
+| QG-03 | **해소함(문서)** — `specific_date`→`case05_deadlineDate` · IMPLEMENTER append `return` 정렬 **남음(코드)** |
+| QG-04 | **해소함** — §2.4 `factDetail` partial/mismatch만 |
+
+---
+
+## 6. 옛 slug → 새 slug (CASE_05)
+
+| 구분 | 옛 (field.slug) | 새 | 비고 |
+|------|-----------------|-----|------|
+| deadline | `uncertain` | `exists_date_unknown` | 원문 표시로 처리 가능 |
+| deadline | `period_stated` | `window_only` | |
+| deadline | `unsure` | `not_checked` | |
+| customerResponse | `inquired` | `inquired_no_answer` 또는 `inquired_answered` | 답변 여부로 분기 |
+| authority | `case05_authorityFollowUp.*` | `case05_authorityTrajectory.*` | 아래 세부 |
+| authority | `maintained` | `maintained_once` | |
+| authority | `modified` | `modified` | 동일 |
+| authority | `revoked` | `revoked` | 동일 |
+| authority | `more_docs` | `more_docs_open` | |
+| authority | `attendance_explanation` | `attend_explain` | |
+| authority | `under_review` | `review_ongoing` | |
+| authority | `payment_demand` | `payment_demand` | 동일 |
+| authority | `no_response` | `no_reply_yet` | |
+| authority | `unsure` | `reply_unclear` | |
+| outcome | `dispositionOutcome.maintained` | `maintained_once` / `maintained_repeated` | repeat 여부로 |
+| outcome | `dispositionOutcome.additional_action` | `additional_action` | |
+| outcome | `dispositionOutcome.more_docs_required` | `more_docs_open` | |
+| outcome | `dispositionOutcome.no_result` | `no_reply_yet` | |
+| repeat | `repeatFollowUp.maintained_again` | `maintained_repeated` | |
+| repeat | `repeatFollowUp.more_explanation` | `more_docs_open` 또는 `attend_explain` | 원문 표시로 처리 |
+| repeat | `repeatFollowUp.more_docs` | `more_docs_open` | |
+| repeat | `repeatFollowUp.under_review_again` | `review_repeat_notice` | |
+| repeat | `repeatFollowUp.not_applicable` | (질문 삭제) | trajectory 미노출 경로 |
+| **삭제 질문** | `case05_dispositionOutcome` | — | §2.8 합침 |
+| **삭제 질문** | `case05_repeatFollowUp` | — | §2.8 합침 |
+| **삭제 질문** | `case05_authorityFollowUp` | — | §2.8 합침 |
 
 ---
 
