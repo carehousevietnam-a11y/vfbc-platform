@@ -191,6 +191,8 @@
 
 ### 2.4 `case05_factDetail` (상황형 · 조건부)
 
+**노출 (QG-04):** `case05_factRelationship` ∈ **`partial` · `mismatch` 만**. `hard_to_judge` · `unknown` 이면 **본 질문 skip** (기억·해석 어려움은 relationship 한 곳에서만 수집).
+
 **질문:** 통지와 다른 부분을 **사실·날짜·내용** 중심으로 골라 주세요.
 
 | slug | 고객向 선택지 |
@@ -362,6 +364,19 @@ Phase2: factRelationship → dispositionReason → dispositionDetail → factDet
 
 ---
 
+## 3.1 전 CASE 공통 품질 게이트 (필수)
+
+`VFBCAI_QUESTION_CHOICE_REWRITE_CROSS_CASE_QUALITY_GATES_v1.md` — 재작성안 제출 전 **QG-01~04** PASS.
+
+| 게이트 | CASE_05 본 문서 반영 |
+|--------|----------------------|
+| QG-01 | §1.4 deadline `window_only` / `exists_unknown` / `not_checked` (**uncertain·period_stated·unsure 제거**) |
+| QG-02 | §1.3 `inquired` 분리 · authority 합침으로 대응·후속 중복 제거 |
+| QG-03 | `specific_date` → `case05_deadlineDate` 필수 (§1.4 표) |
+| QG-04 | `hard_to_judge` 시 `factDetail` fuzzy/vague **skip 규칙** — §2.4 노출 조건에 명시: relationship ∈ {partial, mismatch} 만 |
+
+---
+
 ## 4. 1번창 자동 검사 체크리스트 (CASE_05)
 
 | 검사 | 입력 |
@@ -378,6 +393,7 @@ Phase2: factRelationship → dispositionReason → dispositionDetail → factDet
 | 일자 | 내용 |
 |------|------|
 | 2026-09-26 | v1 — CASE_05 전 질문 재작성 · authority 3합1 · deadline 축소 · customerResponse 분기 |
+| 2026-09-26 | §3.1 — `VFBCAI_QUESTION_CHOICE_REWRITE_CROSS_CASE_QUALITY_GATES_v1.md` 연동 · QG-04 factDetail 노출 |
 
 ---
 
