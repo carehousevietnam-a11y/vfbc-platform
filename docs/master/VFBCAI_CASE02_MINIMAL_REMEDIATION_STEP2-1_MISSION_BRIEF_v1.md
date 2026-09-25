@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | **버전** | v1 |
-| **상태** | **LOCK** — Ace 승인 2026-09-25 (DQ-C02-M01=A, M02=A, M03=A). §1 재오픈 금지 |
+| **상태** | **폐기** — `VFBCAI_CASE02_RATIO_REMEDIATION_QUESTION_BRIEF_v1.md`로 대체. 아래 LOCK **해제·참고용만** |
 | **플랫폼 구현 순서** | **CASE_05 → CASE_06 → CASE_03 → CASE_04 → CASE_01 → CASE_02** (본 Mission = **마지막**) |
 | **IMPLEMENTER 착수** | 위 순서 완료 후 CASE_02 차례일 때만 |
 | **Mission** | G1 `case02_deadlineDate` · G2 `case02_paymentAmountDetail` · G3 `paymentInfoSource` Profile/needs/result |

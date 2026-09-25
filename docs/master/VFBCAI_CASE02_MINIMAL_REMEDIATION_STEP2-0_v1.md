@@ -3,6 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | **버전** | v1 |
+| **상태** | **폐기** — `VFBCAI_CASE02_RATIO_REMEDIATION_QUESTION_BRIEF_v1.md` (전면 고도화)로 대체. IMPLEMENTER 착수 금지 |
 | **성격** | STEP2-0 설계만. **코드 수정 없음** |
 | **전제** | **LOCK CASE_02** — 감사 SoT: `VFBCAI_CASE02_INFORMATION_COMPLETENESS_AUDIT_v1.md` |
 | **범위** | 감사 **핵심 갭 3건:** (1) `deadline=confirmed` 날짜 미저장 (2) 금액이 `other`+note 외 Profile에 없음 (3) `paymentInfoSource` Profile/needs 단절 |

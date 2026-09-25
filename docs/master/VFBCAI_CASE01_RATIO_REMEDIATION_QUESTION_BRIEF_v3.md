@@ -232,11 +232,31 @@ v2 §2 동일 (S1~S4).
 **요약:** 30조합 중 **PASS 24** · **미달 6** (전부 `has_responded` × `match` × payment/attend/supplement/correct — **#1·4·7·10**).  
 **v2 오류 정정:** `has_responded` 행에 **L 없음** · #2 등 **9축은 9로 표기** · Cmp+unclear **10축은 10 표기**.
 
-### 5.1 미달 6조합 — 후속 (사실 질문만)
+### 5.1 미달 4조합 — 후속 (Ace 승인 2026-09-25)
 
-| 조합 | 부족 | 방향 (Brief만, 구현 별도 승인) |
-|------|------|--------------------------------|
-| HR × Pay/Att/Sup/Cor × Mat | P2=7, 하한 8 (**1축**) | `has_responded` **AND** `match` 전용 **사실** 1축 추가 (예: `case01_authorityReplyChannelFact` — 기관 **회신 채널** 사실, **의향 금지**) — **비율 게이트 아님**, 노출=`has_responded` |
+**승인:** Brief v3 전체 승인 (`6a57075`). **정확한 축 개수**는 IMPLEMENTER가 `case01Phase2SubstantiveAxisIdsOnPath` 등으로 **코드 전수 계산** · VERIFIER가 §5 표와 대조. **본 문서 §5 표·개수는 더 수정하지 않음.**
+
+| 조합 (#1·4·7·10) | 부족 |
+|------------------|------|
+| `has_responded` × payment / attend / supplement / correct × `match` | P2=7, P1=5, 하한 8 (**1축**) |
+
+**추가 질문 (LOCK):** `case01_demandFulfillmentFact` — 「기관이 요구한 조치를 **이행했는지**, 그리고 **남아 있는 증빙**은 무엇인가요?」(요구 **이행 완료 여부와 증빙**)
+
+| 항목 | 내용 |
+|------|------|
+| **노출 (사실만)** | `case01_customerResponded` = `has_responded` **AND** `case01_factRelationship` = `match` **AND** `case01_authorityDemand` ∈ {`payment`, `pay_core_traffic`, `pay_bundled`, `attend_explain`, `attendance`, `supplement`, `supplement_core`, `correct_record`} |
+| **비율 게이트** | **없음** — 위 사실 조건일 때만 노출 |
+
+**선택지 (slug · 효과 요약):**
+
+| slug | 판단 | 다음 행동 | 위험도 |
+|------|------|-----------|--------|
+| `fulfill_complete_with_proof` | 요구 조치 **완료**, 영수증·접수증 등 **증빙 있음** | 기관 제출·대조 | 이중 납부·재부과 **상대적 낮음** |
+| `fulfill_complete_no_proof` | 완료했으나 **증빙 없음** | 영수증·접수증·처리 확인서 **확보** | **이중 납부·재부과** |
+| `fulfill_partial` | **일부만** 이행 | 미이행 항목·기한·범위 확인 | **기한 경과·재부과** |
+| `fulfill_not_yet` | **아직 이행 안 함** | 요구 범위·기한 정리 후 대응 | **미이행·기한 경과** |
+
+**역할 구분 (1줄):** `case01_responseDetail`의 `fulfilled_demand` = 교통국에 **어떤 형태로 대응했는지**(설명·제출·이의·「안내 처리」 등 **행동 유형**). `case01_demandFulfillmentFact` = 그 요구에 대해 **실제 이행이 어디까지 됐고 증빙이 있는지**(완료/부분/미이행 × 증빙). **동시 노출 가능**, 문항·Profile·결과에서 **역할 혼합 금지**.
 
 **금지 (v3):** 미달을 **Q/O/L 강제 노출**로 메우기 · P2 산출 후 질문 추가.
 
