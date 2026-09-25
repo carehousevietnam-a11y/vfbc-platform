@@ -1,12 +1,13 @@
-# CASE_01 질문 보강 Brief — LOCK 비율 4:6 (DQ-V04 = C) v3
+# CASE_01 질문 보강 Brief — LOCK (DQ-V04 = C) v3
 
 | 항목 | 내용 |
 |------|------|
 | **버전** | v3 |
-| **상태** | **Brief** — Ace 승인 전 IMPLEMENTER 착수 금지 |
+| **상태** | **LOCK** — Ace 승인 (비율 `VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md` 2026-09-25 개정) |
 | **선행** | v2(`4364373`) **대체** |
-| **Mission** | 사실 기반 노출만으로 Phase2 실질 축·4:6 **측정·표시** (미달 조합 **숨기지 않음**) |
+| **Mission** | 사실 기반 노출 · Phase2 실질 **>** Phase1 실질 **측정·표시** |
 | **승인 방식** | **DQ-V04 = C** |
+| **비율 SoT** | P2 실질 **>** P1 실질 (⌈P×6/4⌉ **폐기**) |
 | **감사·표현·결과** | v2와 동일 SoT |
 
 **v3 변경:** (1) **비율 보정 게이트 전면 삭제** (2) **노출 조건 1줄 확정 + 30조합 표** (3) **선택지별 효과 표** · **제3자/간접 청취 신호 K 단일화**
@@ -15,7 +16,7 @@
 
 ## 0. Mission 한 줄
 
-질문 노출은 **고객 답(사실)만**으로 결정한다. P2 개수로 질문을 **끼워 넣지 않는다**. 30개 조합마다 실질 축을 **정확히 세어** 4:6 **PASS/미달**을 표시하고, 미달은 **추가 사실 질문 설계**로만 해소한다.
+질문 노출은 **고객 답(사실)만**으로 결정한다. P2 개수로 질문을 **끼워 넣지 않는다**. 30개 조합마다 실질 축을 **정확히 세어** **P2 &gt; P1** **PASS/미달**을 표시한다. **정확 전수**는 구현 코드 산출이 최종 SoT.
 
 ---
 
@@ -24,7 +25,7 @@
 | ID | 결정 |
 |----|------|
 | **DQ-V04** | **C** |
-| **DQ-C01-R01~R06** | v2 동일 |
+| **DQ-C01-R01~R06** | v2 동일 (**R02** = P2&gt;P1) |
 | **DQ-C01-R07 (v3)** | **P2&lt;N 보정 노출·자동 L/Q/O·violationContent로 D 강제 on** 등 **금지** |
 | **DQ-C01-R08 (v3)** | **간접 청취·제3자 전달** 신호 = **`case01_languageAccessFact`(K) 단일** (L·P1 gap과 **역할 분리**) |
 
@@ -194,71 +195,56 @@ v2 §2 동일 (S1~S4).
 **집계 규칙:** 각 행은 §3 노출 조건을 적용해 **나타나는 축만** 기호로 나열하고 **개수 = P2**.  
 **NC 행 Q 포함:** 표준 완료 답에서 `noticeDelivery` = `del_phone_message` (Q 노출). **Cmp 행 P1=6:** `factCompareGap` 답 완료. **Cmp+K:** `factCompareGap` = `gap_hearsay_channel` (표준).
 
-**4:6:** P2 ≥ ⌈P1×6/4⌉ → P1=5 하한 **8**, P1=6 하한 **9**.
+**판정:** P2 **>** P1 (실질 축). 본 표 산수: **최소 P1=5 · P2=7** (#1·4·7·10).
 
-| # | R | D | F | P1 | Phase2 실질 축 (기호 순) | P2 | 하한 | 4:6 |
-|---|-----|-----|-----|-----|---------------------------|-----|------|-----|
-| 1 | has_responded | payment | match | 5 | A,B,G,H,E,Ff,P | 7 | 8 | **미달** |
-| 2 | has_responded | payment | date_place | 5 | A,B,C,D,G,H,E,Ff,P | 9 | 8 | PASS |
-| 3 | has_responded | payment | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,P | 9 | 9 | PASS |
-| 4 | has_responded | attend | match | 5 | A,B,G,H,E,Ff,M | 7 | 8 | **미달** |
-| 5 | has_responded | attend | date_place | 5 | A,B,C,D,G,H,E,Ff,M | 9 | 8 | PASS |
-| 6 | has_responded | attend | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,M | 9 | 9 | PASS |
-| 7 | has_responded | supplement | match | 5 | A,B,G,H,E,Ff,S | 7 | 8 | **미달** |
-| 8 | has_responded | supplement | date_place | 5 | A,B,C,D,G,H,E,Ff,S | 9 | 8 | PASS |
-| 9 | has_responded | supplement | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,S | 9 | 9 | PASS |
-| 10 | has_responded | correct | match | 5 | A,B,G,H,E,Ff,T | 7 | 8 | **미달** |
-| 11 | has_responded | correct | date_place | 5 | A,B,C,D,G,H,E,Ff,T | 9 | 8 | PASS |
-| 12 | has_responded | correct | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,T | 9 | 9 | PASS |
-| 13 | has_responded | unclear | match | 5 | A,B,G,H,E,Ff,U,K | 8 | 8 | PASS |
-| 14 | has_responded | unclear | date_place | 5 | A,B,C,D,G,H,E,Ff,U,K | 10 | 8 | PASS |
-| 15 | has_responded | unclear | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,U | 10 | 9 | PASS |
-| 16 | no_contact | payment | match | 5 | A,B,G,H,L,Q,O,P | 8 | 8 | PASS |
-| 17 | no_contact | payment | date_place | 5 | A,B,C,D,G,H,L,Q,P | 8 | 8 | PASS |
-| 18 | no_contact | payment | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,P | 9 | 9 | PASS |
-| 19 | no_contact | attend | match | 5 | A,B,G,H,L,Q,O,M | 8 | 8 | PASS |
-| 20 | no_contact | attend | date_place | 5 | A,B,C,D,G,H,L,Q,M | 8 | 8 | PASS |
-| 21 | no_contact | attend | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,M | 9 | 9 | PASS |
-| 22 | no_contact | supplement | match | 5 | A,B,G,H,L,Q,O,S | 8 | 8 | PASS |
-| 23 | no_contact | supplement | date_place | 5 | A,B,C,D,G,H,L,Q,S | 8 | 8 | PASS |
-| 24 | no_contact | supplement | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,S | 9 | 9 | PASS |
-| 25 | no_contact | correct | match | 5 | A,B,G,H,L,Q,O,T | 8 | 8 | PASS |
-| 26 | no_contact | correct | date_place | 5 | A,B,C,D,G,H,L,Q,T | 8 | 8 | PASS |
-| 27 | no_contact | correct | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,T | 9 | 9 | PASS |
-| 28 | no_contact | unclear | match | 5 | A,B,G,H,L,Q,U,K | 8 | 8 | PASS |
-| 29 | no_contact | unclear | date_place | 5 | A,B,C,D,G,H,L,Q,U,K | 9 | 8 | PASS |
-| 30 | no_contact | unclear | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,U | 9 | 9 | PASS |
+| # | R | D | F | P1 | Phase2 실질 축 (기호 순) | P2 | P2&gt;P1 |
+|---|-----|-----|-----|-----|---------------------------|-----|--------|
+| 1 | has_responded | payment | match | 5 | A,B,G,H,E,Ff,P | 7 | PASS |
+| 2 | has_responded | payment | date_place | 5 | A,B,C,D,G,H,E,Ff,P | 9 | PASS |
+| 3 | has_responded | payment | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,P | 9 | PASS |
+| 4 | has_responded | attend | match | 5 | A,B,G,H,E,Ff,M | 7 | PASS |
+| 5 | has_responded | attend | date_place | 5 | A,B,C,D,G,H,E,Ff,M | 9 | PASS |
+| 6 | has_responded | attend | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,M | 9 | PASS |
+| 7 | has_responded | supplement | match | 5 | A,B,G,H,E,Ff,S | 7 | PASS |
+| 8 | has_responded | supplement | date_place | 5 | A,B,C,D,G,H,E,Ff,S | 9 | PASS |
+| 9 | has_responded | supplement | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,S | 9 | PASS |
+| 10 | has_responded | correct | match | 5 | A,B,G,H,E,Ff,T | 7 | PASS |
+| 11 | has_responded | correct | date_place | 5 | A,B,C,D,G,H,E,Ff,T | 9 | PASS |
+| 12 | has_responded | correct | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,T | 9 | PASS |
+| 13 | has_responded | unclear | match | 5 | A,B,G,H,E,Ff,U,K | 8 | PASS |
+| 14 | has_responded | unclear | date_place | 5 | A,B,C,D,G,H,E,Ff,U,K | 10 | PASS |
+| 15 | has_responded | unclear | cannot_compare | 6 | A,B,D,G,H,J,K,E,Ff,U | 10 | PASS |
+| 16 | no_contact | payment | match | 5 | A,B,G,H,L,Q,O,P | 8 | PASS |
+| 17 | no_contact | payment | date_place | 5 | A,B,C,D,G,H,L,Q,P | 8 | PASS |
+| 18 | no_contact | payment | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,P | 9 | PASS |
+| 19 | no_contact | attend | match | 5 | A,B,G,H,L,Q,O,M | 8 | PASS |
+| 20 | no_contact | attend | date_place | 5 | A,B,C,D,G,H,L,Q,M | 8 | PASS |
+| 21 | no_contact | attend | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,M | 9 | PASS |
+| 22 | no_contact | supplement | match | 5 | A,B,G,H,L,Q,O,S | 8 | PASS |
+| 23 | no_contact | supplement | date_place | 5 | A,B,C,D,G,H,L,Q,S | 8 | PASS |
+| 24 | no_contact | supplement | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,S | 9 | PASS |
+| 25 | no_contact | correct | match | 5 | A,B,G,H,L,Q,O,T | 8 | PASS |
+| 26 | no_contact | correct | date_place | 5 | A,B,C,D,G,H,L,Q,T | 8 | PASS |
+| 27 | no_contact | correct | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,T | 9 | PASS |
+| 28 | no_contact | unclear | match | 5 | A,B,G,H,L,Q,U,K | 8 | PASS |
+| 29 | no_contact | unclear | date_place | 5 | A,B,C,D,G,H,L,Q,U,K | 9 | PASS |
+| 30 | no_contact | unclear | cannot_compare | 6 | A,B,D,G,H,J,K,L,Q,U | 9 | PASS |
 
-**요약:** 30조합 중 **PASS 24** · **미달 6** (전부 `has_responded` × `match` × payment/attend/supplement/correct — **#1·4·7·10**).  
-**v2 오류 정정:** `has_responded` 행에 **L 없음** · #2 등 **9축은 9로 표기** · Cmp+unclear **10축은 10 표기**.
+**요약 (신규 기준 P2&gt;P1):** **30/30 PASS**. 표상 최소 **P1=5 · P2=7** (#1·4·7·10).  
+**v2 오류 정정:** `has_responded` 행에 **L 없음** · 축 개수는 **코드 전수**가 최종.
 
-### 5.1 미달 4조합 — 후속 (Ace 승인 2026-09-25)
+### 5.1 `case01_demandFulfillmentFact` — **이번 범위 제외**
 
-**승인:** Brief v3 전체 승인 (`6a57075`). **정확한 축 개수**는 IMPLEMENTER가 `case01Phase2SubstantiveAxisIdsOnPath` 등으로 **코드 전수 계산** · VERIFIER가 §5 표와 대조. **본 문서 §5 표·개수는 더 수정하지 않음.**
+구 ⌈P×6/4⌉ 미달(#1·4·7·10) 대응으로 설계했으나, **2026-09-25 비율 규칙 개정** 후 §5 **30조합 전부 PASS** — **IMPLEMENTER 이번 Mission에 포함하지 않음**. 아래는 **후속 Mission 참고용**만 보관.
 
-| 조합 (#1·4·7·10) | 부족 |
-|------------------|------|
-| `has_responded` × payment / attend / supplement / correct × `match` | P2=7, P1=5, 하한 8 (**1축**) |
+| 항목 | 참고 (미구현) |
+|------|----------------|
+| id | `case01_demandFulfillmentFact` |
+| 노출 | `has_responded` + `match` + payment/attend/supplement/correct |
+| 역할 | `responseDetail`/`fulfilled_demand`=**대응 형태** vs 본 축=**이행·증빙** (혼합 금지) |
+| 선택지 | `fulfill_complete_with_proof` · `fulfill_complete_no_proof` · `fulfill_partial` · `fulfill_not_yet` |
 
-**추가 질문 (LOCK):** `case01_demandFulfillmentFact` — 「기관이 요구한 조치를 **이행했는지**, 그리고 **남아 있는 증빙**은 무엇인가요?」(요구 **이행 완료 여부와 증빙**)
-
-| 항목 | 내용 |
-|------|------|
-| **노출 (사실만)** | `case01_customerResponded` = `has_responded` **AND** `case01_factRelationship` = `match` **AND** `case01_authorityDemand` ∈ {`payment`, `pay_core_traffic`, `pay_bundled`, `attend_explain`, `attendance`, `supplement`, `supplement_core`, `correct_record`} |
-| **비율 게이트** | **없음** — 위 사실 조건일 때만 노출 |
-
-**선택지 (slug · 효과 요약):**
-
-| slug | 판단 | 다음 행동 | 위험도 |
-|------|------|-----------|--------|
-| `fulfill_complete_with_proof` | 요구 조치 **완료**, 영수증·접수증 등 **증빙 있음** | 기관 제출·대조 | 이중 납부·재부과 **상대적 낮음** |
-| `fulfill_complete_no_proof` | 완료했으나 **증빙 없음** | 영수증·접수증·처리 확인서 **확보** | **이중 납부·재부과** |
-| `fulfill_partial` | **일부만** 이행 | 미이행 항목·기한·범위 확인 | **기한 경과·재부과** |
-| `fulfill_not_yet` | **아직 이행 안 함** | 요구 범위·기한 정리 후 대응 | **미이행·기한 경과** |
-
-**역할 구분 (1줄):** `case01_responseDetail`의 `fulfilled_demand` = 교통국에 **어떤 형태로 대응했는지**(설명·제출·이의·「안내 처리」 등 **행동 유형**). `case01_demandFulfillmentFact` = 그 요구에 대해 **실제 이행이 어디까지 됐고 증빙이 있는지**(완료/부분/미이행 × 증빙). **동시 노출 가능**, 문항·Profile·결과에서 **역할 혼합 금지**.
-
-**금지 (v3):** 미달을 **Q/O/L 강제 노출**로 메우기 · P2 산출 후 질문 추가.
+**금지 (LOCK):** 비율 맞추기 위해 본 축 **추가 구현 금지**.
 
 ### 5.2 커버리지 규칙 (v3)
 
@@ -271,7 +257,7 @@ v2 §2 동일 (S1~S4).
 
 ## 6. Layer A~J · VERIFIER · IMPLEMENTER
 
-v2 §7~9 동일. VERIFIER 추가: **30행 표와 산출 함수 일치** · **미달 6건 회귀 테스트** (PASS로 오표기 금지).
+v2 §7~9 동일. VERIFIER: **30행·P2&gt;P1** · 코드 전수 일치 · `demandFulfillmentFact` **미구현** 회귀.
 
 ---
 

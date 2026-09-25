@@ -3,7 +3,7 @@
 ---
 **LOCK 상태: 확정 (2026-09-25)**
 
-이 문서의 원칙(①~⑤ 감사 기준, 1차<2차 부등식, 신규 최소비율 가드레일 3:7~4:6)은 Ace의 명시적 승인 없이 AI가 스스로 수정, 완화, 재해석, 삭제할 수 없다.
+이 문서의 원칙(①~⑤ 감사 기준, 1차&lt;2차 부등식, **최소 비율 가드레일** §「최소 비율 가드레일」)은 Ace의 명시적 승인 없이 AI가 스스로 수정, 완화, 재해석, 삭제할 수 없다.
 
 이 원칙을 다시 논의하거나 "상황에 따라 다르다"는 이유로 축소 해석하지 않는다.
 
@@ -135,11 +135,37 @@ Phase1+Phase2 완료 후 판단에 필요한 **핵심 사실관계**가 **선택
 
 ---
 
-## [신규 확정 — 2026-09-25] 최소 비율 가드레일
+## 최소 비율 가드레일 (LOCK)
 
-**신규 추가** (위 MASTER 원문 인용과 별도. 원문을 대체·수정하지 않는다.)
+**MASTER 원문 인용(§16.6 등)과 별도.** 원문을 대체·수정하지 않는다.
 
-기존 MASTER 원칙("1차<2차 정보 깊이", "질문 개수 비고정")은 유지하되, 실무에서 2차가 형식적으로만 1차보다 많은 것(예: 1차4:2차5)을 막기 위해 최소 비율을 둔다. 1차:2차(실질 축 기준, 장식 질문 제외)는 최소 3:7~4:6을 하한선으로 한다. 이는 상한이 아니라 하한이다 — 상황이 복잡하면 2차는 이보다 더 늘어날 수 있고 늘어나야 하지만, 이 하한 아래로는 내려갈 수 없다. 질문 개수를 세는 기준은 겉으로 보이는 전체 질문 수가 아니라, 감사 기준 ②~④(다중신호성·판별력·비장식성)를 통과한 "실질 축" 개수로 센다. 장식 질문은 이 비율 계산에서 제외한다.
+| 항목 | 규칙 |
+|------|------|
+| **판정** | Phase2 **실질 축 수** **>** Phase1 **실질 축 수** (엄격 부등식) |
+| **질문 개수** | 사건 **복잡도**가 정함. 단순 사건은 1차·2차 모두 **적어도 됨** (예: 1차 **3** · 2차 **4** → 4&gt;3 **PASS**) |
+| **금지** | **비율을 맞추기 위한** 질문·축 **추가** |
+| **밀도** | 질문 수가 줄면 **선택지 하나**의 정보 밀도(② 다중신호·③ 판별력·④ 비장식)는 **더 높아야** 함 |
+| **집계** | ②~④ 통과 **실질 축**만. 장식 질문 **제외** |
+| **유지 (LOCK)** | ①~⑤ 원칙 · `VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md` · 헌법 **§16.6** 「2차 정보 밀도 &gt; 1차」 · 위 **핵심 판정** 표(1차=2차 FAIL, 1차&gt;2차 FAIL, 1차&lt;2차 PASS 후보) |
+
+**구 공식 (폐기 — 참고만):** Phase2 ≥ ⌈Phase1 × 6/4⌉ 및 3:7 ⌈N×7/3⌉ — **2026-09-25 Ace 승인으로 대체** (아래 변경 이력).
+
+### 부록 — 구 4:6·3:7 공식 참조 위치 (목록만, 자동 수정 안 함)
+
+| 위치 | 비고 |
+|------|------|
+| `docs/master/VFBCAI_ADMIN_VERIFY_COMMON_RESULT_AUDIT_v1.md` §6 | 경로별 표 — **신규 판정 열** 추가 (본 개정) |
+| `docs/master/VFBCAI_CASE01_FULL_ENHANCEMENT_STEP2-1_MISSION_BRIEF_v1.md` | DQ-C01-E04 · §2.6 8~9축 목표 |
+| `docs/master/VFBCAI_CASE01_RATIO_REMEDIATION_QUESTION_BRIEF_v1.md` ~ `v2.md` | 구 하한 표 |
+| `docs/master/VFBCAI_CASE03_PHASE2_REMEDIATION_STEP2-0_v1.md` · STEP2-1 | 5:8 목표 |
+| `docs/master/VFBCAI_CASE04_PHASE2_REMEDIATION_STEP2-0_v1.md` | 4:6 산수 |
+| `docs/master/VFBCAI_CASE05_PHASE2_REMEDIATION_STEP2-1_MISSION_BRIEF_v1.md` | R06 ≥10 |
+| `docs/master/VFBCAI_CASE06_PHASE2_REMEDIATION_STEP2-0_v1.md` | 3:7~4:6 절 |
+| `docs/master/VFBCAI_REALESTATE_PHASE2_REMEDIATION_STEP2-0_v1.md` | DQ-RE-R04 |
+| `docs/master/VFBCAI_UNCLEAR_STEP1_INVESTIGATION_v1.md` §6 | 하한 FAIL |
+| `docs/master/VFBCAI_CASE0x_INFORMATION_COMPLETENESS_AUDIT_v1.md` (01~06) | ⑥ 절·예시 산수 |
+| `docs/master/VFBCAI_ADMIN_CASE0506_AUDIT_FINDINGS_HANDOFF_v2.md` | 4:6 경계 |
+| `.cursor/rules/05-vfbcai-ai-dev-team.mdc` | Master Skill 교차 참조 (비율은 **본 문서** 우선) |
 
 ---
 
@@ -151,4 +177,13 @@ Phase1+Phase2 완료 후 판단에 필요한 **핵심 사실관계**가 **선택
 
 ---
 
-*2026-09-25. Ace 지시 5개 감사 기준 정식 문서화. 2026-09-25 MASTER 원문 인용·1차/2차 판정·신규 비율 가드레일 반영.*
+## 변경 이력
+
+| 일자 | 내용 | 승인 |
+|------|------|------|
+| 2026-09-25 | v1 LOCK — ①~⑤ · MASTER 인용 · 1차/2차 판정 · 구 가드레일 3:7~4:6 | Ace |
+| **2026-09-25** | **최소 비율 가드레일** → **P2 실질 &gt; P1 실질** · 비율 맞추기 질문 추가 금지 · 단순 사건 예시(3:4) | **Ace 승인** |
+
+---
+
+*2026-09-25. Ace 지시 5개 감사 기준 정식 문서화. 2026-09-25 비율 가드레일 개정 (Ace 승인).*

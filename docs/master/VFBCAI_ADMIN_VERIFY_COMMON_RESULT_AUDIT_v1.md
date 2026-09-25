@@ -28,7 +28,7 @@
 
 **Profile에 안 들어가는 Phase2 답.** CASE_05 `dispositionDetail`·`factDetail`·`explanationDetail`·`submittedDocsDetail`·`appealDetail`은 persist 키로만 존재하고 **Profile 칸 미갱신** (감사 18행). CASE_06 `case06_payment*` 등 체인 답은 persist되나 **Profile·통합문·principleF에 미연결**; caution/Phase2 요약 일부만 반영 (`appendCase06V11Phase2ResultSignals` ~351–386). 정보는 “답했는데 결과에 없다”로 보인다.
 
-**비율·장식은 결과 문장 수정만으로 해결 불가.** LOCK 하한(실질 축 3:7~4:6)에서 CASE_05는 **4:6 경계**, CASE_06은 **signal_violation 1:1**·체인 **1:1/1:0** FAIL (handoff v2, CASE_06 감사 §3). 이는 **CASE별 질문 보강** 트랙이며, Layer J(문장 매핑)와 분리한다.
+**비율·장식은 결과 문장 수정만으로 해결 불가.** **2026-09-25** LOCK 가드레일 = **P2 실질 &gt; P1 실질** (`VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`). §6 표에 **신규 판정 열** 추가. 구 3:7~4:6 열은 **참고(폐기 공식)**. CASE별 질문 보강은 Layer J와 분리.
 
 ---
 
@@ -266,70 +266,71 @@
 - **CASE_02 Phase1:** 감사 정의 **5** (`paymentInfoSource` 제외). 코드 `CASE02_PHASE1_FIELD_ORDER`는 6필드 — 비율 표는 **감사 실질 5** 기준.
 - **CASE_06 v1.1:** `VFBCAI_CASE06_INFORMATION_COMPLETENESS_AUDIT_v1.md` §3 — 1차 실질 **1** (`case06_requiredActionCandidate`만), 2차는 결과·다음 질문을 갈라는 필드만.
 
-**하한 (4:6):** P2 ≥ ⌈N×6/4⌉ · **부족:** max(0, ⌈N×6/4⌉ − M)  
-**하한 (3:7):** P2 ≥ ⌈N×7/3⌉ · **부족:** max(0, ⌈N×7/3⌉ − M)
+**판정 (LOCK 2026-09-25):** P2 **>** P1 (실질 축, 장식 제외). **금지:** 비율 맞추기 질문 추가.
+
+**구 하한 (참고·폐기):** P2 ≥ ⌈N×6/4⌉ · P2 ≥ ⌈N×7/3⌉ — Ace 승인 개정으로 **대체**.
 
 ### 6.1 경로별 실측표
 
 #### CASE_01
 
-| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
-|---------|-----------|----|----|----------|----------|----------|----------|
-| C01-P1-typical | `FULL_CHAIN` / `fullChainResponded` — 대응함·날짜장소 불일치·납부 demand | 5 | 6 | 8 | 2 | 12 | 6 |
-| C01-P1-gap | `fullChainGapUnclear` / `V4-B` — `cannot_compare_yet` + `case01_factCompareGap` | 6 | 6 | 9 | 3 | 14 | 8 |
-| C01-P1-brief | `briefV1A` — 미대응·출석 demand·Phase2 4스텝 | 5 | 4 | 8 | 4 | 12 | 8 |
+| 경로 ID | 조건 요약 | P1 | P2 | P2&gt;P1 ('25) | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|--------------|----------|----------|----------|----------|
+| C01-P1-typical | `FULL_CHAIN` / `fullChainResponded` — 대응함·날짜장소 불일치·납부 demand | 5 | 6 | **PASS** | 8 | 2 | 12 | 6 |
+| C01-P1-gap | `fullChainGapUnclear` / `V4-B` — `cannot_compare_yet` + `case01_factCompareGap` | 6 | 6 | **FAIL** (=) | 9 | 3 | 14 | 8 |
+| C01-P1-brief | `briefV1A` — 미대응·출석 demand·Phase2 4스텝 | 5 | 4 | **FAIL** | 8 | 4 | 12 | 8 |
 
 P2 **6** (C01-P1-typical): `authorityDemand` · `actualSituation` · `responseDetail` · `authorityResponse` · `evidence` · `blockage` (장식 4문항·scope·note text 제외).  
 P2 **렌더 스텝 10** (`phase2WalkCount`): 장식·text 질문 포함 화면 walk — **LOCK 실질 축과 다름** (§6.3).
 
 #### CASE_02 (LEVEL1 감사 경로명)
 
-| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
-|---------|-----------|----|----|----------|----------|----------|----------|
-| C02-paid-short | `paymentStatus=paid` · match · basis·demandAuthority 스킵 | 5 | 5 | 8 | 3 | 12 | 7 |
-| C02-unpaid-mid | 미납 · match · `paymentBasis` 포함 | 5 | 6 | 8 | 2 | 12 | 6 |
-| C02-unpaid-full | 미납 · mismatch · basis · `authorityResponse` · evidence · `finalGoal`(조건부) | 5 | 7 | 8 | 1 | 12 | 5 |
+| 경로 ID | 조건 요약 | P1 | P2 | P2&gt;P1 ('25) | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|--------------|----------|----------|----------|----------|
+| C02-paid-short | `paymentStatus=paid` · match · basis·demandAuthority 스킵 | 5 | 5 | **FAIL** (=) | 8 | 3 | 12 | 7 |
+| C02-unpaid-mid | 미납 · match · `paymentBasis` 포함 | 5 | 6 | **PASS** | 8 | 2 | 12 | 6 |
+| C02-unpaid-full | 미납 · mismatch · basis · `authorityResponse` · evidence · `finalGoal`(조건부) | 5 | 7 | **PASS** | 8 | 1 | 12 | 5 |
 
 `paymentStatus=paid` vs `unpaid`는 Phase2 체인 on/off — **실질 축** 기준 (화면 필드 수 6 ≠ 실질 5).
 
 #### CASE_03
 
-| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
-|---------|-----------|----|----|----------|----------|----------|----------|
-| C03-attendance-tail | spot: 출석·`specific_date`+text · Phase2 tail 완료 (`case03-step2-1-spot`) | 5 | 8 | 8 | 0 | 12 | 4 |
+| 경로 ID | 조건 요약 | P1 | P2 | P2&gt;P1 ('25) | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|--------------|----------|----------|----------|----------|
+| C03-attendance-tail | spot: 출석·`specific_date`+text · Phase2 tail 완료 (`case03-step2-1-spot`) | 5 | 8 | **PASS** | 8 | 0 | 12 | 4 |
 
 카탈로그 실질 축 상한: **9** (`case03Phase2SubstantiveAxisCatalogCount()`). `case03_prepRequired` on-path 최대 **9** — spot 외 경로는 `case03ListPhase2SubstantiveAxesOnPath`로 Mission 전 재실측.
 
 #### CASE_04
 
-| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
-|---------|-----------|----|----|----------|----------|----------|----------|
-| C04-add-spot | `additional_docs` · 미시작 · spot tail (`authorityFollowUp` **없음**) | 4 | 8 | 6 | 0 | 10 | 2 |
-| C04-add-followup | 동일 + `case04_authorityFollowUp` 답변 | 4 | 9 | 6 | 0 | 10 | 1 |
-| C04-modify-tail | `supplementTarget=modify_existing` · `case04_modifyDetail` on-path | 4 | 8 | 6 | 0 | 10 | 2 |
-| C04-evidence-tail | `supplementTarget=add_content_evidence` · `case04_evidenceDetail` on-path | 4 | 8 | 6 | 0 | 10 | 2 |
+| 경로 ID | 조건 요약 | P1 | P2 | P2&gt;P1 ('25) | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|--------------|----------|----------|----------|----------|
+| C04-add-spot | `additional_docs` · 미시작 · spot tail (`authorityFollowUp` **없음**) | 4 | 8 | **PASS** | 6 | 0 | 10 | 2 |
+| C04-add-followup | 동일 + `case04_authorityFollowUp` 답변 | 4 | 9 | **PASS** | 6 | 0 | 10 | 1 |
+| C04-modify-tail | `supplementTarget=modify_existing` · `case04_modifyDetail` on-path | 4 | 8 | **PASS** | 6 | 0 | 10 | 2 |
+| C04-evidence-tail | `supplementTarget=add_content_evidence` · `case04_evidenceDetail` on-path | 4 | 8 | **PASS** | 6 | 0 | 10 | 2 |
 
 카탈로그 실질 축 상한: **11** (`case04Phase2SubstantiveAxisCatalogCount()`, STEP2-1). (구 LEVEL1 감사 **4:5** 표는 STEP2-1 이전 장식 분류 — §6.3.)
 
 #### CASE_05
 
-| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
-|---------|-----------|----|----|----------|----------|----------|----------|
-| C05-none-tail | `customerResponse=none` · spot tail (`case05-step2-1-spot`) | 4 | 8 | 6 | 0 | 10 | 2 |
-| C05-explanation | `explanation_submitted` · spot `explanationAxisCount` | 4 | 9 | 6 | 0 | 10 | 1 |
+| 경로 ID | 조건 요약 | P1 | P2 | P2&gt;P1 ('25) | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|--------------|----------|----------|----------|----------|
+| C05-none-tail | `customerResponse=none` · spot tail (`case05-step2-1-spot`) | 4 | 8 | **PASS** | 6 | 0 | 10 | 2 |
+| C05-explanation | `explanation_submitted` · spot `explanationAxisCount` | 4 | 9 | **PASS** | 6 | 0 | 10 | 1 |
 
 카탈로그 실질 축 상한: **14** (`case05Phase2SubstantiveAxisCatalogCount()`, detail 5 실질화 포함).
 
 #### CASE_06 (v1.1 redesign, legacy 제외)
 
-| 경로 ID | 체인 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
-|---------|------|----|----|----------|----------|----------|----------|
-| C06-pay | 납부 | 1 | 1 | 2 | 1 | 3 | 2 |
-| C06-attend | 출석 | 1 | 1 | 2 | 1 | 3 | 2 |
-| C06-submit | 보완 | 1 | 1 | 2 | 1 | 3 | 2 |
-| C06-disposition | 처분 | 1 | 0 | 2 | 2 | 3 | 3 |
-| C06-unclear-sv | 불명확 + `signal_violation` (현행 조기 STOP) | 1 | 1 | 2 | 1 | 3 | 2 |
-| C06-unclear-r05 | 불명확 + R05 적용 후 (`unclearFactRelation`+`unclearResponse`) | 1 | 3 | 2 | 0 | 3 | 0 |
+| 경로 ID | 체인 | P1 | P2 | P2&gt;P1 ('25) | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|------|----|----|--------------|----------|----------|----------|----------|
+| C06-pay | 납부 | 1 | 1 | **FAIL** (=) | 2 | 1 | 3 | 2 |
+| C06-attend | 출석 | 1 | 1 | **FAIL** (=) | 2 | 1 | 3 | 2 |
+| C06-submit | 보완 | 1 | 1 | **FAIL** (=) | 2 | 1 | 3 | 2 |
+| C06-disposition | 처분 | 1 | 0 | **FAIL** | 2 | 2 | 3 | 3 |
+| C06-unclear-sv | 불명확 + `signal_violation` (현행 조기 STOP) | 1 | 1 | **FAIL** (=) | 2 | 1 | 3 | 2 |
+| C06-unclear-r05 | 불명확 + R05 적용 후 (`unclearFactRelation`+`unclearResponse`) | 1 | 3 | **PASS** | 2 | 0 | 3 | 0 |
 
 P2 **1** (납부·출석·보완): 감사 §3 — `paymentResponse` / `attendanceResponse` / `submissionResponse` / `unclearContentRecheck`만 결과·분기 실질. 나머지 체인 문항은 장식(부록).
 

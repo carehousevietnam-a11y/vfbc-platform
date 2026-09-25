@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | **버전** | v1 |
-| **상태** | **Brief** — Ace 승인 전 IMPLEMENTER 착수 금지 |
+| **상태** | **폐기** — `VFBCAI_CASE02_RATIO_REMEDIATION_QUESTION_BRIEF_v2.md` (구 4:6 기준) |
 | **Mission** | 납부·금액·기한 CASE **사실 기반 노출만**으로 Phase2 실질 축·4:6 **측정·표시** (미달 **숨기지 않음**) |
 | **승인 방식** | **DQ-V04 = C** (CASE_01 v3 동형) |
 | **감사 SoT** | `VFBCAI_CASE02_INFORMATION_COMPLETENESS_AUDIT_v1.md` |
