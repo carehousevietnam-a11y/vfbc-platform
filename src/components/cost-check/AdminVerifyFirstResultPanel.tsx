@@ -47,6 +47,7 @@ import {
   isCase04Phase1Complete,
   isCase05Phase1Complete,
   isCase05DispositionTypeUnclear,
+  CASE05_DISPOSITION_TYPE_UNCLEAR,
   case05DispositionTypeIsRightsEnded,
   case05EffectiveDeadline,
   CASE05_DEADLINE_DATE_KEY,
@@ -78,6 +79,8 @@ import {
   getCase06RequiredActionCandidateLabel,
   isCase06LegacyRestorePath,
   resolveCase06Phase2ChainId,
+  buildCase06PrincipleFStateLines,
+  isCase06LaunchSimplifiedSession,
 } from "@/lib/adminVerifyCase06Redesign";
 import { PrimaryButton } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -276,6 +279,9 @@ function appendCase06V11Phase1ResultSignals(
   actions: string[],
 ): void {
   if (!isCase06Phase1Complete(answers) || isCase06LegacyRestorePath(answers)) return;
+  if (isCase06ExpertTerminal(answers) && isCase06LaunchSimplifiedSession(answers)) {
+    return;
+  }
 
   const deadlineText = answers[CASE06_DEADLINE_DATE_KEY]?.trim();
   if (case06NeedsDeadlineDate(answers)) {
@@ -515,7 +521,22 @@ function appendCase05Phase1ResultSignals(
   } else if (type === "situation_mismatch") {
     cautions.push("통지 내용과 실제 상황이 다르게 느껴지는 상태로 응답함");
     actions.push("처분 통지 내용과 실제 상황을 대조해 보세요.");
-  } else if (isCase05DispositionTypeUnclear(type) || type === "unsure") {
+  } else if (type === "disposition_unclear" || type === CASE05_DISPOSITION_TYPE_UNCLEAR) {
+    unconfirmed.push("처분·조치 내용");
+    actions.push("처분 통지서 제목·발신·주요 문구를 확인해 보세요.");
+  } else if (type === "other") {
+    const otherNote = answers[getAdminChoiceNoteKey("case05_dispositionType")]?.trim();
+    if (otherNote) {
+      cautions.push("통지와 직접 설명이 일치하는지 확인이 필요함");
+      actions.push(`${otherNote} — 통지서와 대조해 보세요.`);
+    } else {
+      unconfirmed.push("직접 설명한 조치 내용");
+      actions.push("고객이 적은 조치 설명과 통지서를 대조해 보세요.");
+    }
+  } else if (type === "unsure") {
+    unconfirmed.push("처분·조치 내용");
+    actions.push("처분 통지서 제목·발신 기관·주요 문구를 먼저 확인해 보세요.");
+  } else if (isCase05DispositionTypeUnclear(type)) {
     unconfirmed.push("처분·조치 내용");
     actions.push("처분 통지서 제목·발신 기관·주요 문구를 먼저 확인해 보세요.");
   }
@@ -537,6 +558,7 @@ function appendCase05Phase1ResultSignals(
   } else if (response === "appeal_requested") {
     cautions.push("이의·재검토를 요청한 상태 — 진행 결과 확인이 필요함");
   } else if (response === "inquired") {
+    cautions.push("문의만 진행 — 접수·답변 내용 확인이 필요함");
     actions.push("기관 문의 내용과 답변·접수 여부를 확인해 보세요.");
   } else if (response === "other_method") {
     unconfirmed.push("기관에 한 대응 방식");
@@ -560,9 +582,12 @@ function appendCase05Phase1ResultSignals(
   } else if (effectiveDeadline === "not_stated") {
     unconfirmed.push("처분 통지의 기한 표기");
     actions.push("처분 통지에 기한이 명시되어 있는지 확인해 보세요.");
-  } else if (effectiveDeadline === "uncertain" || deadline === "unsure") {
+  } else if (effectiveDeadline === "uncertain" || deadline === "uncertain") {
+    unconfirmed.push("처분 관련 대응 기한(날짜)");
+    actions.push("통지서에서 날짜를 확인해 보세요.");
+  } else if (deadline === "unsure") {
     unconfirmed.push("처분 관련 대응 기한");
-    actions.push("처분과 관련한 기한이 적혀 있는지 확인해 보세요.");
+    actions.push("기한이 적혀 있는지 확인해 보세요.");
   }
 }
 
@@ -591,6 +616,13 @@ function appendCase05Phase2ResultSignals(
   } else if (rel === "hard_to_judge" || rel === "unknown") {
     unconfirmed.push("처분 내용과 실제 상황의 관계");
   }
+  if (factDetail === "hard_to_verify") {
+    unconfirmed.push("당시 상황 재구성");
+    cautions.push("과거 사실 확인이 어려운 상태 — 증빙·기억 정리가 필요함");
+  } else if (factDetail === "unsure") {
+    unconfirmed.push("처분 사유와 실제 상황의 차이");
+    actions.push("알고 있는 사실만 목록으로 적어 보세요.");
+  }
 
   const dispositionDetail = answers.case05_dispositionDetail;
   if (dispositionDetail === "wording_unclear") {
@@ -598,7 +630,63 @@ function appendCase05Phase2ResultSignals(
     actions.push("통지서 제목·핵심 문구를 다시 확인해 보세요.");
   } else if (dispositionDetail === "scope_unclear") {
     unconfirmed.push("처분 영향 범위·기간");
-    actions.push("정지·제한 범위와 기간이 적힌 부분을 확인해 보세요.");
+    actions.push("정지·제한 범위·기간을 확인해 보세요.");
+  } else if (dispositionDetail === "partially_understood") {
+    cautions.push("처분 영향을 일부만 이해한 상태");
+    actions.push("이해한 부분과 불명확한 부분을 통지서에 표시해 구분해 보세요.");
+  } else if (dispositionDetail === "unsure") {
+    unconfirmed.push("처분이 주는 실제 영향");
+    actions.push("통지서와 함께 영향 요약을 적어 두세요.");
+  }
+
+  const explanationDetail = answers.case05_explanationDetail;
+  if (answers.case05_customerResponse === "explanation_submitted" && explanationDetail) {
+    if (explanationDetail === "written") {
+      cautions.push("서면 소명·의견 제출 — 접수·기한 확인 필요");
+      actions.push("제출본·접수 확인을 해 보세요.");
+    } else if (explanationDetail === "verbal") {
+      cautions.push("구두·방문 설명 — 기록·확인서 부재 시 재확인 필요");
+      actions.push("설명 요지 메모·기관 확인을 해 보세요.");
+    } else if (explanationDetail === "both") {
+      cautions.push("서면·구두 병행 — 내용 일치 여부 확인");
+      actions.push("서면과 구두 설명을 대조해 보세요.");
+    } else if (explanationDetail === "unsure") {
+      unconfirmed.push("제출한 소명·의견의 형태");
+      actions.push("제출 경로·일자부터 정리해 보세요.");
+    }
+  }
+
+  const submittedDocsDetail = answers.case05_submittedDocsDetail;
+  if (answers.case05_customerResponse === "documents_submitted" && submittedDocsDetail) {
+    if (submittedDocsDetail === "identity") {
+      actions.push("신분·인적 서류 제출 — 통지 요구 항목과 대조해 보세요.");
+    } else if (submittedDocsDetail === "financial") {
+      actions.push("재무·금액 서류 제출 — 금액·기간 표기와 통지를 대조해 보세요.");
+    } else if (submittedDocsDetail === "certificate") {
+      actions.push("증명서·확인서 제출 — 발급 기관·유효기간을 확인해 보세요.");
+    } else if (submittedDocsDetail === "doc_other") {
+      actions.push("기타 제출 서류 목록·접수 여부를 확인해 보세요.");
+    } else if (submittedDocsDetail === "unsure") {
+      unconfirmed.push("제출 서류 종류");
+      actions.push("제출한 파일·접수증부터 정리해 보세요.");
+    }
+  }
+
+  const appealDetail = answers.case05_appealDetail;
+  if (answers.case05_customerResponse === "appeal_requested" && appealDetail) {
+    if (appealDetail === "filed") {
+      cautions.push("이의·재검토 신청 완료 — 접수·기한·번호 확인");
+      actions.push("신청 접수증·기한을 확인해 보세요.");
+    } else if (appealDetail === "preparing") {
+      cautions.push("신청 준비 중 — 기한 초과 위험");
+      actions.push("신청 기한·서류 체크리스트를 확인해 보세요.");
+    } else if (appealDetail === "considering") {
+      unconfirmed.push("신청 여부·시기");
+      actions.push("이의 가능 기한·요건을 통지서에서 확인해 보세요.");
+    } else if (appealDetail === "unsure") {
+      unconfirmed.push("이의·재검토 신청 상태");
+      actions.push("기관 안내·접수 여부를 문의해 보세요.");
+    }
   }
 
   const plannedNext = answers.case05_plannedNextStep;
@@ -2756,6 +2844,33 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
   const adminResponseSummaryLines =
     responseSummaryBlock.length > 0 ? responseSummaryBlock : undefined;
 
+  if (
+    q1Case === "CASE_06" &&
+    isCase06ExpertTerminal(answers) &&
+    isCase06LaunchSimplifiedSession(answers)
+  ) {
+    const stateLines = buildCase06PrincipleFStateLines(answers);
+    const expertReason =
+      "안내·문서에 여러 종류의 요구가 섞여 있거나, 무엇을 먼저 해야 할지 한 가지로 특정하기 어렵다고 응답하셨습니다. 이 상태에서는 자동 판단 대신 VFBCAI 전문가팀이 자료와 입력 내용을 함께 확인하는 것이 안전합니다.";
+    return {
+      stageLabel,
+      statusHeadline: "입력하신 내용을 바탕으로 정리했습니다",
+      statusTone: "caution" as const,
+      situationSummary:
+        stateLines.length > 0 ? stateLines.join(" ") : expertReason,
+      gradeFilled: 2,
+      gradeLabel: "전문가 확인 권장",
+      keyMetrics,
+      cautions: [expertReason],
+      unconfirmed: [],
+      actions: [],
+      referenceDateLabel: formatReferenceDateLabel(),
+      caseClassificationLabel: MASTER_CASE_LABELS[caseClassId],
+      adminResponseSummaryLines,
+      case06ExpertHandoffRequired: true,
+    };
+  }
+
   return {
     stageLabel,
     statusHeadline: hasIssues
@@ -3051,7 +3166,14 @@ function buildCase05IntegratedSituation(answers: ReviewAnswers): string {
   const deadline = answers.case05_deadline;
 
   let opening = "현재는 처분·조치 통지를 바탕으로 상황을 정리한 상태입니다.";
-  if (type === "situation_mismatch" || goal === "understand_impact") {
+  if (type === "disposition_unclear" || type === CASE05_DISPOSITION_TYPE_UNCLEAR) {
+    opening = "현재는 어떤 처분·조치인지부터 파악할 필요가 있는 상태입니다.";
+  } else if (type === "other") {
+    const typeNote = answers[getAdminChoiceNoteKey("case05_dispositionType")]?.trim();
+    opening = typeNote
+      ? `현재는 확인 목표(${typeNote})를 중심으로 통지서와 대조할 필요가 있는 상태입니다.`
+      : "현재는 고객이 설명한 조치 내용을 통지서와 대조할 필요가 있는 상태입니다.";
+  } else if (type === "situation_mismatch" || goal === "understand_impact") {
     opening = "현재는 처분 내용이 실제 상황에 어떤 영향을 주는지 먼저 확인할 필요가 있는 상태입니다.";
   } else if (type === "reason_hard_to_understand" || goal === "understand_reason") {
     opening = "현재는 처분 사유를 먼저 이해할 필요가 있는 상태입니다.";
@@ -3060,17 +3182,29 @@ function buildCase05IntegratedSituation(answers: ReviewAnswers): string {
   }
 
   const integratedMiddle = resolveIntegratedSituationFragment(answers, "05", "case05_customerResponse");
+  const explanationMiddle =
+    response === "explanation_submitted"
+      ? (() => {
+          const detail = answers.case05_explanationDetail;
+          if (detail === "written") return "서면으로 소명·의견을 제출한 경험이 있는 상태입니다.";
+          if (detail === "verbal") return "전화·방문으로 설명한 경험이 있는 상태입니다.";
+          if (detail === "both") return "서면과 구두로 모두 설명한 경험이 있는 상태입니다.";
+          return describeCustomerResponseActive("소명·의견 제출");
+        })()
+      : null;
   const middle =
     integratedMiddle ??
     (response === "none"
       ? describeCustomerResponseNone()
-      : response === "explanation_submitted" || response === "documents_submitted"
-        ? describeCustomerResponseActive("설명·자료 제출")
-        : response === "appeal_requested"
-          ? describeCustomerResponseActive("이의·재검토 요청")
-          : response === "inquired"
-            ? describeCustomerResponseActive("기관 문의·확인")
-            : null);
+      : explanationMiddle
+        ? explanationMiddle
+        : response === "documents_submitted"
+          ? describeCustomerResponseActive("설명·자료 제출")
+          : response === "appeal_requested"
+            ? describeCustomerResponseActive("이의·재검토 요청")
+            : response === "inquired"
+              ? "기관에 문의하거나 상황을 확인한 상태이며, 아직 소명·자료 제출이나 이의·재검토 신청까지는 진행하지 않은 것으로 응답했습니다."
+              : null);
 
   const deadlineText = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
   const closing =
@@ -3080,12 +3214,15 @@ function buildCase05IntegratedSituation(answers: ReviewAnswers): string {
         ? "처분 관련 대응 기한 날짜는 아직 적어 두지 않았습니다."
         : deadline === "past_possible"
           ? describeDeadlineOverdueConcern()
-          : deadline === "uncertain" ||
-              deadline === "unsure" ||
-              deadline === "not_stated" ||
-              deadline === "period_stated"
-            ? "처분 관련 대응 기한은 아직 명확히 확인되지 않았습니다."
-            : null;
+          : deadline === "uncertain"
+            ? "처분 관련 대응 기한이 있다는 것은 알고 있으나, 정확한 날짜는 아직 확인하지 못한 상태입니다."
+            : deadline === "period_stated"
+              ? "기한이 있다는 안내는 받았으나, 통지서에 적힌 기간·일자를 아직 확인하지 못한 상태입니다."
+              : deadline === "not_stated"
+                ? "처분 통지에 기한이 적혀 있는지부터 아직 확인하지 못한 상태입니다."
+                : deadline === "unsure"
+                  ? "처분과 관련한 대응 기한 전반을 아직 확인하지 못한 상태입니다."
+                  : null;
 
   return joinNarrative([opening, middle, closing]);
 }

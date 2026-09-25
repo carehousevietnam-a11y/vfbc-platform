@@ -20,6 +20,7 @@ import {
   getAdminChoiceNoteKey,
   resolveAdminPhase2EvidenceFileName,
   getQ1ResolvedCase,
+  getCase05FieldOptionLabel,
 } from "@/lib/adminVerifyProfiling";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 import {
@@ -45,6 +46,22 @@ function pushNoteLine(
 ): void {
   const note = answers[getAdminChoiceNoteKey(questionId)]?.trim();
   if (note) lines.push(`${label}: ${note}`);
+}
+
+function pushDetailSummaryLine(
+  lines: string[],
+  answers: ReviewAnswers,
+  questionId: string,
+  label: string,
+): void {
+  const value = answers[questionId]?.trim();
+  if (!value) return;
+  if (value === "other") {
+    pushNoteLine(lines, answers, questionId, label);
+    return;
+  }
+  const optionLabel = getCase05FieldOptionLabel(questionId, value);
+  if (optionLabel) lines.push(`${label}: ${optionLabel}`);
 }
 
 function pushCase01OriginalTextLine(
@@ -132,9 +149,11 @@ function buildCase05ResponseSummaryLines(answers: ReviewAnswers): string[] {
   pushTextLine(lines, answers, CASE05_DEADLINE_DATE_KEY, "처분 관련 대응 기한");
   pushNoteLine(lines, answers, "case05_dispositionType", "처분·조치 내용");
   pushNoteLine(lines, answers, "case05_customerResponse", "대응 내용");
-  pushNoteLine(lines, answers, "case05_dispositionDetail", "처분 상세");
-  pushNoteLine(lines, answers, "case05_factDetail", "사실 관련");
-  pushNoteLine(lines, answers, "case05_explanationDetail", "소명·설명");
+  pushDetailSummaryLine(lines, answers, "case05_dispositionDetail", "처분 이해 상세");
+  pushDetailSummaryLine(lines, answers, "case05_factDetail", "사실 대조 상세");
+  pushDetailSummaryLine(lines, answers, "case05_explanationDetail", "소명·의견 형태");
+  pushDetailSummaryLine(lines, answers, "case05_submittedDocsDetail", "제출 서류 유형");
+  pushDetailSummaryLine(lines, answers, "case05_appealDetail", "이의·재검토 단계");
   return lines;
 }
 
