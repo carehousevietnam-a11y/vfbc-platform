@@ -2500,8 +2500,12 @@ export const CASE03_PHASE1_FIELD_ORDER = [
   "case03_deadline",
 ] as const;
 
-function getCase03Phase1VisibleFields(_answers: ReviewAnswers): string[] {
-  return [...CASE03_PHASE1_FIELD_ORDER];
+function getCase03Phase1VisibleFields(answers: ReviewAnswers): string[] {
+  const fields: string[] = [...CASE03_PHASE1_FIELD_ORDER];
+  if (case03NeedsDeadlineDateDetail(answers)) {
+    fields.push(CASE03_DEADLINE_DATE_KEY);
+  }
+  return fields;
 }
 
 export const CASE04_PHASE1_FIELD_ORDER = [
@@ -2526,8 +2530,12 @@ export const CASE05_PHASE1_FIELD_ORDER = [
   "case05_deadline",
 ] as const;
 
-function getCase05Phase1VisibleFields(_answers: ReviewAnswers): string[] {
-  return [...CASE05_PHASE1_FIELD_ORDER];
+function getCase05Phase1VisibleFields(answers: ReviewAnswers): string[] {
+  const fields: string[] = [...CASE05_PHASE1_FIELD_ORDER];
+  if (case05NeedsDeadlineDateDetail(answers)) {
+    fields.push(CASE05_DEADLINE_DATE_KEY);
+  }
+  return fields;
 }
 
 export function getAdminVerifyPhase1VisibleFields(
@@ -4527,6 +4535,9 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
       label: "확인한 출석·소명 기한은 언제인가요?",
       placeholder: "기억나는 날짜·기한을 적어 주세요.",
     });
+    if (case03NeedsDeadlineDateDetail(answers)) {
+      return;
+    }
   }
 }
 
@@ -5819,6 +5830,9 @@ function appendCase04Phase1Questions(questions: ProfileQuestion[], answers: Revi
       label: "확인한 보완 제출 기한은 언제인가요?",
       placeholder: "기억나는 날짜·기한을 적어 주세요.",
     });
+    if (case04NeedsDeadlineDateDetail(answers)) {
+      return;
+    }
   }
 }
 
@@ -7376,6 +7390,9 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
       label: "확인한 대응 기한은 언제인가요?",
       placeholder: "기억나는 날짜·기한을 적어 주세요.",
     });
+    if (case05NeedsDeadlineDateDetail(answers)) {
+      return;
+    }
   }
 }
 
