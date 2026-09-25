@@ -80,7 +80,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -106,7 +106,7 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": null,
           "evidence": null,
@@ -131,11 +131,11 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
           "evidence": "출석·소명 요구 통지서·안내문",
-          "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+          "goal": "기관 요구를 이해하고 싶습니다"
         },
         "nextFocus": null,
         "pathComplete": true,
@@ -166,7 +166,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -195,7 +195,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -220,8 +220,8 @@
         "engineId": "case03_prepRequired",
         "engineLabel": "교통국에 직접 가야 한다면, 무엇을 준비하라고 안내받으셨나요?",
         "labelMatch": true,
-        "optionValue": "attendance_only",
-        "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
+        "optionValue": "documents",
+        "optionLabel": "관련 서류나 증빙을 준비해서 가야 할 것 같습니다.",
         "progress": [
           "02 / 02"
         ],
@@ -237,7 +237,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -266,7 +266,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -308,7 +308,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -337,7 +337,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -379,7 +379,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -408,7 +408,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -450,7 +450,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -479,11 +479,11 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+            "goal": "기관 요구를 이해하고 싶습니다"
           },
           "nextFocus": null,
           "pathComplete": true,
@@ -512,9 +512,12 @@
       "note": "A=Panel in MasterReviewQuotationReport; B=standalone /documents upload UX not at this step"
     },
     "personalized": true,
-    "documentsAi": "http://localhost:3010/documents?leadId=97dd9cbd-aad5-460a-a4fb-d5cb30750b76&service=verify_admin&mode=ai_report",
+    "documentsAi": "http://localhost:3010/documents?leadId=b0ae56fd-372d-4f77-afca-38df20231651&service=verify_admin&mode=ai_report",
     "documentsExpert": null,
     "consoleSnippet": [
+      "[Fast Refresh] rebuilding",
+      "[Fast Refresh] done in 378ms",
+      "[Fast Refresh] rebuilding",
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
     "reclassificationHistory": [
@@ -596,9 +599,9 @@
         },
         {
           "field": "case03_prepRequired",
-          "actualSlug": "attendance_only",
-          "persistRaw": "attendance_only",
-          "restoredRaw": "attendance_only",
+          "actualSlug": "documents",
+          "persistRaw": "documents",
+          "restoredRaw": "documents",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -636,7 +639,7 @@
     "regressionPass": true
   },
   "J_documents_expert_desktop": {
-    "documentsExpert": "http://localhost:3010/documents?leadId=37f850f4-25db-4ad3-8b51-4b567fe55fe9&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=e620da74-f85d-4f4c-9464-a982958b109a&service=verify_admin&mode=expert",
     "personalized": true,
     "regressionIds": [
       "case03_factRelationship",
@@ -2117,7 +2120,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -2143,7 +2146,7 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": null,
           "evidence": null,
@@ -2168,11 +2171,11 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
           "evidence": "출석·소명 요구 통지서·안내문",
-          "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+          "goal": "기관 요구를 이해하고 싶습니다"
         },
         "nextFocus": null,
         "pathComplete": true,
@@ -2203,7 +2206,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -2232,7 +2235,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -2257,8 +2260,8 @@
         "engineId": "case03_prepRequired",
         "engineLabel": "교통국에 직접 가야 한다면, 무엇을 준비하라고 안내받으셨나요?",
         "labelMatch": true,
-        "optionValue": "attendance_only",
-        "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
+        "optionValue": "documents",
+        "optionLabel": "관련 서류나 증빙을 준비해서 가야 할 것 같습니다.",
         "progress": [
           "02 / 02"
         ],
@@ -2274,7 +2277,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -2303,7 +2306,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -2345,7 +2348,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -2374,7 +2377,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -2416,7 +2419,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -2445,7 +2448,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -2487,7 +2490,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -2516,11 +2519,11 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+            "goal": "기관 요구를 이해하고 싶습니다"
           },
           "nextFocus": null,
           "pathComplete": true,
@@ -2631,9 +2634,9 @@
         },
         {
           "field": "case03_prepRequired",
-          "actualSlug": "attendance_only",
-          "persistRaw": "attendance_only",
-          "restoredRaw": "attendance_only",
+          "actualSlug": "documents",
+          "persistRaw": "documents",
+          "restoredRaw": "documents",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -5318,7 +5321,7 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": null,
           "evidence": null,
@@ -5343,11 +5346,11 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
           "evidence": "출석·소명 요구 통지서·안내문",
-          "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+          "goal": "기관 요구를 이해하고 싶습니다"
         },
         "nextFocus": null,
         "pathComplete": true,
@@ -5837,7 +5840,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -5879,7 +5882,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -5908,7 +5911,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -5950,7 +5953,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -5979,7 +5982,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -6021,7 +6024,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -6050,7 +6053,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -6075,8 +6078,8 @@
         "engineId": "case03_prepRequired",
         "engineLabel": "교통국에 직접 가야 한다면, 무엇을 준비하라고 안내받으셨나요?",
         "labelMatch": true,
-        "optionValue": "attendance_only",
-        "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
+        "optionValue": "documents",
+        "optionLabel": "관련 서류나 증빙을 준비해서 가야 할 것 같습니다.",
         "progress": [
           "02 / 02"
         ],
@@ -6092,7 +6095,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -6121,7 +6124,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -6163,7 +6166,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -6192,7 +6195,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -6234,7 +6237,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -6263,7 +6266,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -6305,7 +6308,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -6334,11 +6337,11 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "어디로 가거나 출석해서 설명하라고 했습니다",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+            "goal": "기관 요구를 이해하고 싶습니다"
           },
           "nextFocus": null,
           "pathComplete": true,
@@ -6539,9 +6542,9 @@
         },
         {
           "field": "case03_prepRequired",
-          "actualSlug": "attendance_only",
-          "persistRaw": "attendance_only",
-          "restoredRaw": "attendance_only",
+          "actualSlug": "documents",
+          "persistRaw": "documents",
+          "restoredRaw": "documents",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -9697,7 +9700,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -9723,7 +9726,7 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": null,
           "evidence": null,
@@ -9748,11 +9751,11 @@
         "unknowns": [],
         "knownFacts": {
           "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-          "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+          "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
           "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
           "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
           "evidence": "출석·소명 요구 통지서·안내문",
-          "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+          "goal": "기관 요구를 이해하고 싶습니다"
         },
         "nextFocus": null,
         "pathComplete": true,
@@ -9783,7 +9786,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": null,
             "currentBlockage": null,
             "evidence": null,
@@ -9812,7 +9815,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -9837,8 +9840,8 @@
         "engineId": "case03_prepRequired",
         "engineLabel": "교통국에 직접 가야 한다면, 무엇을 준비하라고 안내받으셨나요?",
         "labelMatch": true,
-        "optionValue": "attendance_only",
-        "optionLabel": "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
+        "optionValue": "documents",
+        "optionLabel": "관련 서류나 증빙을 준비해서 가야 할 것 같습니다.",
         "progress": [
           "02 / 02"
         ],
@@ -9854,7 +9857,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -9883,7 +9886,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -9925,7 +9928,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": null,
             "evidence": null,
@@ -9954,7 +9957,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -9996,7 +9999,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": null,
@@ -10025,7 +10028,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -10067,7 +10070,7 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
@@ -10096,11 +10099,11 @@
           "unknowns": [],
           "knownFacts": {
             "authorityClaim": "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-            "customerAction": "지금 확인할 수 있는 자료가 없습니다",
+            "customerAction": "아직 기관에 설명하거나 직접 방문하지 않았습니다.",
             "actualSituation": "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
             "currentBlockage": "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다",
             "evidence": "출석·소명 요구 통지서·안내문",
-            "goal": "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다."
+            "goal": "기관 요구를 이해하고 싶습니다"
           },
           "nextFocus": null,
           "pathComplete": true,
@@ -10130,7 +10133,7 @@
     },
     "personalized": true,
     "documentsAi": null,
-    "documentsExpert": "http://localhost:3010/documents?leadId=d91865f7-e62a-4f8f-b5a4-c578574330a1&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=a3d019ef-0884-4e8b-bb9f-09fe94a780e5&service=verify_admin&mode=expert",
     "consoleSnippet": [
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
@@ -10213,9 +10216,9 @@
         },
         {
           "field": "case03_prepRequired",
-          "actualSlug": "attendance_only",
-          "persistRaw": "attendance_only",
-          "restoredRaw": "attendance_only",
+          "actualSlug": "documents",
+          "persistRaw": "documents",
+          "restoredRaw": "documents",
           "effectiveLabel": null,
           "effectiveOk": true,
           "ok": true
@@ -10253,6 +10256,14 @@
     "overflow": false,
     "regressionPass": true
   },
+  "CASE03_STEP21_ENGINE": {
+    "deadlineInProfile": true,
+    "specificDateIncomplete": true,
+    "substantiveCatalogIs8": true,
+    "substantiveAxesOnRichPath": true,
+    "finalGoalInProfile": true,
+    "pass": true
+  },
   "CASE05_STEP21_ENGINE": {
     "deadlineInProfile": true,
     "specificDateIncomplete": true,
@@ -10271,7 +10282,7 @@
     "pass": true
   },
   "LOCK_READINESS": {
-    "generatedAt": "2026-09-24T17:50:17.655Z",
+    "generatedAt": "2026-09-25T00:23:26.186Z",
     "coreCases": {
       "CASE_01": {
         "present": true,

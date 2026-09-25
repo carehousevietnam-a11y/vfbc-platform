@@ -376,7 +376,7 @@ const CASE_CONFIGS = {
     },
     phase2Overrides: {
       case03_factRelationship: "mismatch",
-      case03_prepRequired: "attendance_only",
+      case03_prepRequired: "documents",
       case03_blockage: "what_explain",
       case03_evidence: "notice",
       case03_finalGoal: "understand_demand",
@@ -467,7 +467,7 @@ const CASE_CONFIGS = {
     },
     phase2Overrides: {
       case03_factRelationship: "mismatch",
-      case03_prepRequired: "attendance_only",
+      case03_prepRequired: "documents",
       case03_blockage: "what_explain",
       case03_evidence: "notice",
       case03_finalGoal: "understand_demand",
@@ -600,6 +600,12 @@ async function fillReactTextarea(page, textarea, text) {
   await textarea.fill(text);
   await textarea.dispatchEvent("input", { bubbles: true });
   await textarea.dispatchEvent("change", { bubbles: true });
+}
+
+async function getAdminVerifyTextStepTextarea(page) {
+  const visibleTextarea = page.locator("textarea:visible").first();
+  await visibleTextarea.waitFor({ state: "visible", timeout: 30_000 });
+  return visibleTextarea;
 }
 
 async function captureLabelAssertEvidence(page, tag, meta) {
@@ -740,8 +746,7 @@ async function runQuestionSteps(page, steps, simAnswers, phase) {
     }
     if (step.kind === "text") {
       await page.waitForTimeout(500);
-      const textarea = page.getByPlaceholder(/기억나는 날짜|금액|발효일|날짜·장소/).first();
-      await textarea.waitFor({ state: "visible", timeout: 15_000 });
+      const textarea = await getAdminVerifyTextStepTextarea(page);
       await fillReactTextarea(page, textarea, step.optionValue);
       const nextBtn = page.getByRole("button", { name: "다음" });
       await page
@@ -1012,8 +1017,7 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
     }
     if (s.kind === "text") {
       await page.waitForTimeout(500);
-      const textarea = page.getByPlaceholder(/기억나는 날짜|금액|발효일|날짜·장소/).first();
-      await textarea.waitFor({ state: "visible", timeout: 15_000 });
+      const textarea = await getAdminVerifyTextStepTextarea(page);
       await fillReactTextarea(page, textarea, s.optionValue);
       const nextBtn = page.getByRole("button", { name: "다음" });
       await page
