@@ -54,8 +54,18 @@ import {
   wasFieldAsked,
   type CaseResolutionProfile,
   type FieldAssessment,
+  type MasterCaseId,
 } from "@/lib/adminVerifyProfiling";
 import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
+import {
+  buildPhase1RiskSummaryFromManifest,
+  buildPhase2RiskSummaryFromManifest,
+  resolveIntegratedSituationFragment,
+} from "@/lib/adminVerifyJudgmentRuntime";
+import {
+  ADMIN_VERIFY_KEY_METRIC_MANIFEST,
+  shortenKeyMetricFootnote,
+} from "@/lib/adminVerifyKeyMetricManifest";
 import {
   CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
   CASE06_DEADLINE_DATE_KEY,
@@ -1752,6 +1762,20 @@ function appendCase01Phase2ResultSignals(
   }
 }
 
+function applyKeyMetricManifestSlots(
+  caseId: MasterCaseId,
+  keyMetrics: AdminVerifyKeyMetric[],
+): AdminVerifyKeyMetric[] {
+  const slots = ADMIN_VERIFY_KEY_METRIC_MANIFEST[caseId];
+  if (!slots) return keyMetrics;
+  return keyMetrics.map((metric, index) => ({
+    ...metric,
+    label: slots[index]?.label ?? metric.label,
+    title: slots[index]?.title ?? metric.title,
+    footnote: metric.footnote ? shortenKeyMetricFootnote(metric.footnote) : metric.footnote,
+  }));
+}
+
 function applyCase01PersonalizedKeyMetricTitles(
   keyMetrics: AdminVerifyKeyMetric[],
 ): AdminVerifyKeyMetric[] {
@@ -1813,7 +1837,7 @@ function applyCase01KeyMetrics(
     if (goalLabel) {
       metrics[1] = {
         ...metrics[1],
-        footnote: `우선 확인 목표: ${goalLabel}`,
+        footnote: shortenKeyMetricFootnote(`우선 확인 목표: ${goalLabel}`),
         status: goal === "unsure" ? "caution" : "ok",
       };
     }
@@ -2703,6 +2727,16 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     q1Case !== "CASE_06" &&
     isClassifiedCasePhase1CompleteForResult(q1Case, answers)
   ) {
+    keyMetrics = applyKeyMetricManifestSlots(q1Case, keyMetrics);
+  }
+
+  if (
+    q1Case &&
+    q1Case !== "UNIVERSAL" &&
+    q1Case !== "CASE_01" &&
+    q1Case !== "CASE_06" &&
+    isClassifiedCasePhase1CompleteForResult(q1Case, answers)
+  ) {
     appendGenericClassifiedPhase1ResultSignals(q1Case, answers, cautions, unconfirmed);
   }
 
@@ -2832,8 +2866,10 @@ function buildCase01IntegratedSituation(answers: ReviewAnswers): string {
     opening = "현재는 이 통지 후 필요한 대응과 기한을 먼저 확인할 필요가 있는 상태입니다.";
   }
 
+  const integratedMiddle = resolveIntegratedSituationFragment(answers, "01", "case01_customerResponded");
   const middle =
-    responded === "none"
+    integratedMiddle ??
+    (responded === "none" || responded === "no_contact_yet"
       ? describeCustomerResponseNone()
       : responded === "contacted" || responded === "attended"
         ? describeCustomerResponseActive("기관에 문의하거나 설명·출석")
@@ -2843,7 +2879,7 @@ function buildCase01IntegratedSituation(answers: ReviewAnswers): string {
             ? "이미 일부 대응을 했으나 기관 답변·후속 안내 확인이 필요한 상태이며"
             : responded === "more_demand"
               ? "기관에서 추가 대응을 요구한 상태이며"
-              : null;
+              : null);
 
   const closing =
     deadline === "confirmed" || deadline === "deadline_day_known"
@@ -2884,14 +2920,16 @@ function buildCase02IntegratedSituation(answers: ReviewAnswers): string {
     opening = "현재는 이미 납부했으나 기관 처리 여부를 확인할 필요가 있는 상태입니다.";
   }
 
+  const integratedMiddle = resolveIntegratedSituationFragment(answers, "02", "case02_paymentStatus");
   const middle =
-    status === "not_paid"
+    integratedMiddle ??
+    (status === "not_paid"
       ? describeCustomerResponseNone().replace("설명하거나 자료를 제출", "납부")
       : status === "paid_unverified"
         ? "이미 납부했으나 기관 처리 여부가 확인되지 않은 상태이며"
         : status === "partial"
           ? "일부만 납부한 상태이며"
-          : null;
+          : null);
 
   const closing =
     deadline === "confirmed"
@@ -2917,14 +2955,16 @@ function buildCase03IntegratedSituation(answers: ReviewAnswers): string {
     opening = "현재는 이전 대응 내용과 기관의 추가 요구를 함께 확인할 필요가 있는 상태입니다.";
   }
 
+  const integratedMiddle = resolveIntegratedSituationFragment(answers, "03", "case03_customerResponse");
   const middle =
-    response === "none"
+    integratedMiddle ??
+    (response === "none"
       ? describeCustomerResponseNone().replace("설명하거나 자료를 제출", "설명하거나 방문")
       : response === "phone_message" || response === "attendance"
         ? describeCustomerResponseActive("일부 문의·출석")
         : response === "explanation_with_docs"
           ? describeCustomerResponseActive("설명과 자료 제출")
-          : null;
+          : null);
 
   const deadlineText = answers[CASE03_DEADLINE_DATE_KEY]?.trim();
   const deadlineClause =
@@ -2957,12 +2997,16 @@ function buildCase04IntegratedSituation(answers: ReviewAnswers): string {
     opening = "현재는 이미 보완했는데 다시 요구받은 이유를 먼저 확인할 필요가 있는 상태입니다.";
   }
 
+  const integratedMiddle = resolveIntegratedSituationFragment(answers, "04", "case04_customerResponse");
   const middle =
-    response === "none"
+    integratedMiddle ??
+    (response === "not_started"
       ? describeCustomerResponseNone()
-      : response === "partial_submitted" || response === "resubmitted"
-        ? describeCustomerResponseActive("일부 또는 전체 보완 제출")
-        : null;
+      : response === "preparing"
+        ? "보완 자료를 준비 중인 상태이며"
+        : response === "submitted"
+          ? describeCustomerResponseActive("보완 제출")
+          : null);
 
   const deadlineText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
   const closing =
@@ -2992,14 +3036,18 @@ function buildCase05IntegratedSituation(answers: ReviewAnswers): string {
     opening = "현재는 이의·재검토 가능 여부를 먼저 확인할 필요가 있는 상태입니다.";
   }
 
+  const integratedMiddle = resolveIntegratedSituationFragment(answers, "05", "case05_customerResponse");
   const middle =
-    response === "none"
+    integratedMiddle ??
+    (response === "none"
       ? describeCustomerResponseNone()
       : response === "explanation_submitted" || response === "documents_submitted"
         ? describeCustomerResponseActive("설명·자료 제출")
         : response === "appeal_requested"
           ? describeCustomerResponseActive("이의·재검토 요청")
-          : null;
+          : response === "inquired"
+            ? describeCustomerResponseActive("기관 문의·확인")
+            : null);
 
   const deadlineText = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
   const closing =
@@ -3111,215 +3159,12 @@ function buildIntegratedSituationFromProfile(
   return "1차에서 확인한 내용과 2차에서 추가로 확인한 내용을 함께 정리했습니다.";
 }
 
-function buildCase01Phase1RiskSummary(
-  answers: ReviewAnswers,
-  profile: CaseResolutionProfile,
-): string {
-  const parts: string[] = [];
-
-  if (profile.event.value) {
-    parts.push("통지·안내의 핵심은 날짜·장소·행동 관련 쟁점으로 파악됩니다.");
-  }
-  if (profile.authorityClaim.value && profile.authorityClaim.status === "confirmed") {
-    if (answers.case01_authorityDemand === "payment") {
-      parts.push("기관 요구는 비용·납부 관련 안내로 정리됩니다.");
-    } else if (answers.case01_authorityDemand === "attend_explain" || answers.case01_authorityDemand === "attendance") {
-      parts.push("기관 요구는 출석·소명·추가 설명 관련 안내로 정리됩니다.");
-    } else {
-      parts.push("기관 요구 방향이 확인되었습니다.");
-    }
-  }
-  if (profile.customerAction.value && profile.customerAction.status === "confirmed") {
-    if (answers.case01_customerResponded === "none") {
-      parts.push("아직 별도 대응은 진행되지 않은 상태입니다.");
-    } else if (answers.case01_responseDetail === "disputed_facts") {
-      parts.push(
-        "교통국에 대응한 이력이 있으며, 사실관계 차이를 전달한 상태로 확인됩니다.",
-      );
-    } else {
-      parts.push("교통국에 일부 대응한 이력이 있는 상태로 확인됩니다.");
-    }
-  }
-  if (
-    profile.deadline.value?.includes("확인 완료") ||
-    ["confirmed", "specific_date", "known_date", "deadline_day_known"].includes(
-      answers.case01_deadline ?? "",
-    )
-  ) {
-    parts.push("대응 기한은 확인된 범위 안에서 추적할 수 있습니다.");
-  } else if (answers.case01_deadline === "deadline_window_only") {
-    parts.push("대응 기한은 기간만 안내된 상태로, 구체 일자 확인이 필요합니다.");
-  }
-
-  if (parts.length === 0) {
-    return "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
-  }
-  return parts.join(" ");
-}
-
 function buildPhase1RiskSummary(answers: ReviewAnswers, profile: CaseResolutionProfile): string {
-  const q1Case = getQ1ResolvedCase(answers);
-  if (q1Case === "CASE_01") {
-    return buildCase01Phase1RiskSummary(answers, profile);
-  }
-  const parts: string[] = [];
-
-  if (profile.event.value) {
-    parts.push(`통지·안내의 핵심은 ${profile.event.value} 쪽으로 파악됩니다.`);
-  }
-  if (profile.authorityClaim.value && profile.authorityClaim.status === "confirmed") {
-    parts.push(`기관 요구는 ${profile.authorityClaim.value} 흐름으로 정리됩니다.`);
-  }
-  if (profile.customerAction.value && profile.customerAction.status === "confirmed") {
-    const action = profile.customerAction.value;
-    if (action.includes("아직") || action.includes("없음") || answers.case01_customerResponded === "none" || answers.case03_customerResponse === "none" || answers.case05_customerResponse === "none") {
-      parts.push("아직 별도 대응은 진행되지 않은 상태입니다.");
-    } else {
-      parts.push(`현재까지의 대응은 ${action} 상태로 확인됩니다.`);
-    }
-  }
-  if (profile.deadline.value?.includes("확인 완료") || ["confirmed", "specific_date", "known_date"].includes(answers.case01_deadline ?? answers.case02_deadline ?? answers.case03_deadline ?? "")) {
-    parts.push("대응 기한은 확인된 범위 안에서 추적할 수 있습니다.");
-  }
-
-  if (parts.length === 0) {
-    if (q1Case === "CASE_06") {
-      return "1차 확인에서는 문서의 기본 성격과 현재 이해 수준을 정리한 상태입니다.";
-    }
-    return "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
-  }
-  return parts.join(" ");
+  return buildPhase1RiskSummaryFromManifest(answers, profile);
 }
 
 function buildPhase2RiskSummary(answers: ReviewAnswers, profile: CaseResolutionProfile): string {
-  const q1Case = getQ1ResolvedCase(answers);
-  const rel = profile.actualSituation.value;
-  const blockage = profile.currentBlockage.value;
-  const evidence = profile.evidence.value;
-
-  if (q1Case === "CASE_01") {
-    const diffDetail = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
-    const datePlace = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
-    const responseNote = answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim();
-    const evidenceValue = answers.case01_evidence?.trim();
-    if (diffDetail || datePlace || responseNote || (evidenceValue && evidenceValue !== "other")) {
-      return "2차 추가 확인에서는 사실 차이·날짜·장소·대응 이력·보유 자료·교통국 추가 요구 답변을 함께 대조하는 것이 핵심입니다.";
-    }
-    const relValue = answers.case01_factRelationship;
-    if (relValue === "deny_action") {
-      return "2차 추가 확인에서는 기관이 문제라고 보는 행동을 실제로 하지 않았다는 점이 핵심입니다. 통지 내용과 실제 상황을 대조할 필요가 있습니다.";
-    }
-    if (relValue === "partial_situation" || relValue === "partial") {
-      return "2차 추가 확인에서는 행동 자체는 맞지만 기관이 알고 있는 상황과 차이가 있을 수 있다는 점이 핵심입니다.";
-    }
-    if (relValue === "date_place_wrong") {
-      return "2차 추가 확인에서는 날짜·장소 정보가 실제와 다를 수 있다는 점이 핵심입니다.";
-    }
-    if (relValue === "info_mismatch") {
-      return "2차 추가 확인에서는 제출·등록 정보와 기관 확인 내용의 불일치 가능성이 핵심입니다.";
-    }
-  }
-
-  if (q1Case === "CASE_02") {
-    if (answers.case02_situationMatch) {
-      if (
-        answers.case02_situationMatch === "partial" ||
-        answers.case02_situationMatch === "not_applicable"
-      ) {
-        return "2차 추가 확인에서는 납부 요구와 실제 상황이 다르게 느껴진다는 점이 핵심입니다.";
-      }
-      if (
-        answers.case02_paymentAmount === "amount_differs" ||
-        answers.case02_paymentAmount === "paid_redemand"
-      ) {
-        return "2차 추가 확인에서는 안내 금액과 알고 있는 금액의 차이, 또는 재요구 가능성이 핵심입니다.";
-      }
-    }
-    const noticeForPhase2Summary = case02NormalizeNonPaymentNoticeValue(
-      answers.case02_nonPaymentNotice,
-    );
-    if (
-      noticeForPhase2Summary === "interest_stated" ||
-      noticeForPhase2Summary === CASE02_NON_PAYMENT_SANCTION_STATED
-    ) {
-      return "2차 추가 확인에서는 미납 시 추가 조치 안내가 있음 — 기한·내용 확인이 필요합니다.";
-    }
-  }
-
-  if (q1Case === "CASE_03") {
-    const deadlineText = answers[CASE03_DEADLINE_DATE_KEY]?.trim();
-    if (deadlineText) {
-      return `2차 추가 확인에서는 응답에 정리한 출석·소명 기한(${deadlineText})이 핵심입니다.`;
-    }
-    if (answers.case03_factRelationship === "partial" || answers.case03_factRelationship === "mismatch") {
-      return "2차 추가 확인에서는 기관이 확인하려는 내용과 실제 상황이 다르게 느껴진다는 점이 핵심입니다.";
-    }
-    if (answers.case03_explanationDetail === "agency_redemand") {
-      return "2차 추가 확인에서는 설명 후 기관이 다시 다른 내용을 요구했다는 점이 핵심입니다.";
-    }
-  }
-
-  if (q1Case === "CASE_04") {
-    const deadlineText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
-    if (deadlineText) {
-      return `2차 추가 확인에서는 응답에 정리한 보완 제출 기한(${deadlineText})이 핵심입니다.`;
-    }
-    if (answers.case04_submissionRelation === "partial" || answers.case04_submissionRelation === "mismatch") {
-      return "2차 추가 확인에서는 보완 요구 내용과 실제 제출 상황의 차이가 핵심입니다.";
-    }
-  }
-
-  if (q1Case === "CASE_05") {
-    const deadlineText = answers[CASE05_DEADLINE_DATE_KEY]?.trim();
-    if (deadlineText) {
-      return `2차 추가 확인에서는 응답에 정리한 처분 관련 대응 기한(${deadlineText})이 핵심입니다.`;
-    }
-  }
-
-  if (q1Case === "CASE_05" && answers.case05_factRelationship) {
-    if (answers.case05_factRelationship === "partial" || answers.case05_factRelationship === "mismatch") {
-      return "2차 추가 확인에서는 처분 내용과 실제 상황의 차이 가능성이 핵심입니다.";
-    }
-    if (answers.case05_authorityFollowUp === "maintained" || answers.case05_dispositionOutcome === "maintained") {
-      return "2차 추가 확인에서는 처분 유지 또는 추가 요구가 이어지고 있다는 점이 핵심입니다.";
-    }
-  }
-
-  if (q1Case === "CASE_06") {
-    if (!isCase06LegacyRestorePath(answers) && resolveCase06Phase2ChainId(answers) === 1) {
-      const amountText = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
-      if (amountText) {
-        return `2차 추가 확인에서는 응답에 정리한 납부 금액(${amountText})이 핵심입니다.`;
-      }
-      if (answers.case06_paymentAmountKnown === "conflicting_amounts") {
-        return "2차 추가 확인에서는 납부 금액이 여러 번 다르게 안내된 상태가 핵심입니다.";
-      }
-      if (
-        answers.case06_paymentSituationMatch === "amount_or_reason_mismatch" ||
-        answers.case06_paymentSituationMatch === "redemand_after_paid"
-      ) {
-        return "2차 추가 확인에서는 납부 금액·사유가 실제 상황과 다르게 느껴진다는 점이 핵심입니다.";
-      }
-    }
-    if (answers.case06_actualCore === "still_unclear") {
-      return "2차 추가 확인에서는 문서의 핵심 내용이 아직 명확하지 않다는 점이 핵심입니다.";
-    }
-    if (answers.case06_requiredAction === "hard_to_tell") {
-      return "2차 추가 확인에서는 기관이 요구하는 조치가 아직 명확하지 않다는 점이 핵심입니다.";
-    }
-  }
-
-  if (rel && rel !== "서류 내용과 실제 상황이 일치한다고 응답") {
-    return `2차 추가 확인에서는 ${rel} 쪽으로 정리됩니다.`;
-  }
-  if (blockage) {
-    return `2차 추가 확인에서는 ${blockage} 부분이 현재 가장 막혀 있는 상태입니다.`;
-  }
-  if (evidence && (evidence.includes("없") || evidence.includes("부족"))) {
-    return "2차 추가 확인에서는 확인 가능한 자료가 제한적인 상태입니다.";
-  }
-
-  return "2차 답변에서 추가로 확인된 위험 요인은 현재 보이지 않습니다.";
+  return buildPhase2RiskSummaryFromManifest(answers, profile);
 }
 
 export function buildAdminVerifyPersonalizedContext(
