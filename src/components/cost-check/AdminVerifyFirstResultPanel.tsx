@@ -664,17 +664,15 @@ function appendCase05Phase2ResultSignals(
     }
   }
 
-  const submittedDocsDetail = effectiveAdminVerifyChoiceSlug(answers, "case05_submittedDocsDetail");
-  if (answers.case05_customerResponse === "documents_submitted" && submittedDocsDetail) {
-    if (submittedDocsDetail === "identity") {
+  const submittedDocsRaw = answers.case05_submittedDocsDetail;
+  if (answers.case05_customerResponse === "documents_submitted" && submittedDocsRaw) {
+    if (adminVerifyFieldHasSlug(answers, "case05_submittedDocsDetail", "identity")) {
       actions.push("신분·인적 서류 제출 — 통지 요구 항목과 대조해 보세요.");
-    } else if (submittedDocsDetail === "financial") {
+    } else if (adminVerifyFieldHasSlug(answers, "case05_submittedDocsDetail", "financial")) {
       actions.push("재무·금액 서류 제출 — 금액·기간 표기와 통지를 대조해 보세요.");
-    } else if (submittedDocsDetail === "certificate") {
+    } else if (adminVerifyFieldHasSlug(answers, "case05_submittedDocsDetail", "certificate")) {
       actions.push("증명서·확인서 제출 — 발급 기관·유효기간을 확인해 보세요.");
-    } else if (submittedDocsDetail === "doc_other") {
-      actions.push("기타 제출 서류 목록·접수 여부를 확인해 보세요.");
-    } else if (submittedDocsDetail === "unsure") {
+    } else if (adminVerifyFieldHasSlug(answers, "case05_submittedDocsDetail", "unsure")) {
       unconfirmed.push("제출 서류 종류");
       actions.push("제출한 파일·접수증부터 정리해 보세요.");
     }
