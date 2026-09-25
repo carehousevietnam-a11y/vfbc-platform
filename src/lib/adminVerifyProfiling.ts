@@ -419,10 +419,15 @@ function appendLegacyFollowUps(
 
 // ─── CASE_01 위반·문제 통지 Resolution Path ───
 
+export const CASE01_FACT_DIFFERENCE_DETAIL_KEY = "case01_factDifferenceDetail";
+export const CASE01_DATE_PLACE_DETAIL_KEY = "case01_datePlaceDetail";
+
 export const CASE01_ANSWER_KEYS = [
   "case01_confirmGoal",
   "case01_violationContent",
   "case01_actualSituation",
+  CASE01_FACT_DIFFERENCE_DETAIL_KEY,
+  CASE01_DATE_PLACE_DETAIL_KEY,
   "case01_factRelationship",
   "case01_authorityDemand",
   "case01_authorityDemandDetail",
@@ -437,8 +442,6 @@ export const CASE01_ANSWER_KEYS = [
   "case01_finalGoal",
 ] as const;
 
-export const CASE01_FACT_DIFFERENCE_DETAIL_KEY = "case01_factDifferenceDetail";
-export const CASE01_DATE_PLACE_DETAIL_KEY = "case01_datePlaceDetail";
 export const CASE01_DEADLINE_DATE_KEY = "case01_deadlineDate";
 export const CASE05_DEADLINE_DATE_KEY = "case05_deadlineDate";
 export const CASE01_RESPONSE_DETAIL_NOTE_KEY = "case01_responseDetailNote";
@@ -768,6 +771,18 @@ function getCase01ActualSituationLabel(answers: ReviewAnswers): string | null {
   const inferred = inferCase01ActualSituationFromFactRelationship(answers.case01_factRelationship);
   if (!inferred) return null;
   return getCase01ChoiceLabel(CASE01_ACTUAL_SITUATION_OPTIONS, inferred) ?? inferred;
+}
+
+/** CASE_01 M01 — Profile `actualSituation` only (factRelationship slug 칸 미합성) */
+export function case01ActualSituationProfileLabel(answers: ReviewAnswers): string | null {
+  const core = getCase01ActualSituationLabel(answers);
+  const diff = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
+  const dp = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
+  const extras = [diff, dp].filter(Boolean);
+  if (!core && extras.length === 0) return null;
+  if (!core) return extras.join(" · ");
+  if (extras.length === 0) return core;
+  return `${core} — ${extras.join(" · ")}`;
 }
 
 function getCase01FactRelationshipLabel(answers: ReviewAnswers): string | null {
@@ -9008,7 +9023,7 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
   );
 
   const docsAssessment = assessLegacyField(answers, "docs", answers.docs);
-  const case01ActualSituationLabel = getCase01ActualSituationLabel(answers);
+  const case01ActualSituationLabel = case01ActualSituationProfileLabel(answers);
   const case01FactRelationshipLabel = getCase01FactRelationshipLabel(answers);
   const case05FactDetailSuffix = case05FactDetailProfileSuffix(answers);
   const case05ActualSituationCore = answers.case05_factRelationship
@@ -9042,6 +9057,8 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       answers.case03_factRelationship ||
       answers.case02_situationMatch ||
       answers.case01_actualSituation ||
+      answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim() ||
+      answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim() ||
       case01ActualSituationLabel
       ? "confirmed"
       : docsAssessment === "not_assessed"
@@ -9057,9 +9074,13 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
         ? "case03_factRelationship"
         : answers.case02_situationMatch
         ? "case02_situationMatch"
-        : answers.case01_actualSituation
-          ? "case01_actualSituation"
-          : "docs",
+        : answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim()
+          ? CASE01_FACT_DIFFERENCE_DETAIL_KEY
+          : answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim()
+            ? CASE01_DATE_PLACE_DETAIL_KEY
+            : answers.case01_actualSituation
+              ? "case01_actualSituation"
+              : "docs",
   );
 
   const factRelationship = fact(

@@ -27,6 +27,8 @@ import {
   CASE05_DEADLINE_DATE_KEY,
   CASE03_DEADLINE_DATE_KEY,
   CASE04_DEADLINE_DATE_KEY,
+  CASE01_FACT_DIFFERENCE_DETAIL_KEY,
+  CASE01_DATE_PLACE_DETAIL_KEY,
   case05NeedsDispositionReasonPhase2,
   case05Phase2SubstantiveAxisCatalogCount,
   deriveCase05DispositionSignals,
@@ -39,6 +41,7 @@ import {
   case04Phase2SubstantiveAxisCatalogCount,
   isCase06Phase1Complete,
 } from "../../src/lib/adminVerifyProfiling.ts";
+import { buildAdminVerifyPersonalizedResult } from "../../src/components/cost-check/AdminVerifyFirstResultPanel.tsx";
 import {
   CASE06_DEADLINE_DATE_KEY,
   CASE06_PAYMENT_AMOUNT_TEXT_KEY,
@@ -154,6 +157,47 @@ function case04Step21EngineChecks() {
     detailInProfile: (buildCaseResolutionProfile(rich).authorityClaim.value ?? "").includes(
       "추가 서류",
     ),
+  };
+}
+
+function case01Step21EngineChecks() {
+  const phase1Base = {
+    situation: "received_document",
+    stage: "case",
+    [ADMIN_CASE_ENTRY_Q1_KEY]: "violation_notice",
+    case01_violationContent: "traffic",
+    case01_confirmGoal: "fact_difference",
+    case01_customerResponded: "has_responded",
+    case01_deadline: "uncertain",
+    case01_authorityDemand: "attendance",
+  };
+  const partialDiff = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    case01_factRelationship: "partial_situation",
+    case01_actualSituation: "partial",
+    [CASE01_FACT_DIFFERENCE_DETAIL_KEY]: "차이 상세 텍스트",
+  });
+  const datePlace = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    case01_factRelationship: "date_place_wrong",
+    case01_actualSituation: "deny",
+    [CASE01_DATE_PLACE_DETAIL_KEY]: "날짜·장소 상세",
+  });
+  const longAnswers = attachCaseResolutionSnapshot({
+    ...partialDiff,
+    [CASE01_FACT_DIFFERENCE_DETAIL_KEY]: "X".repeat(140),
+  });
+  const action = buildAdminVerifyPersonalizedResult(longAnswers).actions.find((a) =>
+    a.startsWith("응답 기준 차이:"),
+  );
+  return {
+    partialTextInProfile: (buildCaseResolutionProfile(partialDiff).actualSituation.value ?? "").includes(
+      "차이 상세",
+    ),
+    datePlaceTextInProfile: (buildCaseResolutionProfile(datePlace).actualSituation.value ?? "").includes(
+      "날짜·장소",
+    ),
+    resultTruncatesLongDetail: Boolean(action?.includes("…") && !action?.includes("X".repeat(140))),
   };
 }
 
@@ -1354,6 +1398,11 @@ try {
 } finally {
   await browser.close();
 }
+
+report.CASE01_STEP21_ENGINE = case01Step21EngineChecks();
+report.CASE01_STEP21_ENGINE.pass = Object.values(report.CASE01_STEP21_ENGINE).every(
+  (v) => v !== false,
+);
 
 report.CASE03_STEP21_ENGINE = case03Step21EngineChecks();
 report.CASE03_STEP21_ENGINE.pass = Object.values(report.CASE03_STEP21_ENGINE).every(

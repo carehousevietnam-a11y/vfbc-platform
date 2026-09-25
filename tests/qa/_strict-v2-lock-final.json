@@ -512,13 +512,13 @@
       "note": "A=Panel in MasterReviewQuotationReport; B=standalone /documents upload UX not at this step"
     },
     "personalized": true,
-    "documentsAi": "http://localhost:3010/documents?leadId=e35d3afc-361b-4853-83a3-8e0319ea9acf&service=verify_admin&mode=ai_report",
+    "documentsAi": "http://localhost:3010/documents?leadId=8a73b53c-e581-42ee-b652-191b7ba4329b&service=verify_admin&mode=ai_report",
     "documentsExpert": null,
     "consoleSnippet": [
       "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 226ms",
+      "[Fast Refresh] done in 210ms",
       "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 428ms",
+      "[Fast Refresh] done in 370ms",
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
     "reclassificationHistory": [
@@ -640,7 +640,7 @@
     "regressionPass": true
   },
   "J_documents_expert_desktop": {
-    "documentsExpert": "http://localhost:3010/documents?leadId=f9cd9893-6381-424d-8348-c41b600ab1fb&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=a08125fb-4d47-4646-bf42-25bfc31c4490&service=verify_admin&mode=expert",
     "personalized": true,
     "regressionIds": [
       "case03_factRelationship",
@@ -10134,7 +10134,7 @@
     },
     "personalized": true,
     "documentsAi": null,
-    "documentsExpert": "http://localhost:3010/documents?leadId=1f8e420e-f948-4169-9a59-a6912aec0989&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=aaafb55c-f7d0-4b15-9713-8314a24e05c9&service=verify_admin&mode=expert",
     "consoleSnippet": [
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
@@ -10257,6 +10257,12 @@
     "overflow": false,
     "regressionPass": true
   },
+  "CASE01_STEP21_ENGINE": {
+    "partialTextInProfile": true,
+    "datePlaceTextInProfile": true,
+    "resultTruncatesLongDetail": true,
+    "pass": true
+  },
   "CASE03_STEP21_ENGINE": {
     "deadlineInProfile": true,
     "specificDateIncomplete": true,
@@ -10291,7 +10297,7 @@
     "pass": true
   },
   "LOCK_READINESS": {
-    "generatedAt": "2026-09-25T01:25:08.205Z",
+    "generatedAt": "2026-09-25T01:35:14.776Z",
     "coreCases": {
       "CASE_01": {
         "present": true,

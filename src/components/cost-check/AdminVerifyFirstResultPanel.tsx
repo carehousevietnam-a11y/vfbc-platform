@@ -11,6 +11,8 @@ import {
   buildCaseResolutionProfile,
   CASE01_OPTION_LABELS,
   CASE01_VIOLATION_CONTENT_NOTE_KEY,
+  CASE01_FACT_DIFFERENCE_DETAIL_KEY,
+  CASE01_DATE_PLACE_DETAIL_KEY,
   deriveStageFromSituation,
   getQ1ResolvedCase,
   getAdminChoiceNoteKey,
@@ -1536,12 +1538,31 @@ function appendCase01Phase1ResultSignals(
   }
 }
 
+function case01TruncateResultDetailText(text: string, maxLen = 120): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= maxLen) return trimmed;
+  return `${trimmed.slice(0, maxLen)}…`;
+}
+
 function appendCase01Phase2ResultSignals(
   answers: ReviewAnswers,
   cautions: string[],
   unconfirmed: string[],
   actions: string[],
 ): void {
+  const diffDetail = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
+  const datePlace = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
+  if (diffDetail) {
+    actions.push(
+      `응답 기준 차이: ${case01TruncateResultDetailText(diffDetail)}`,
+    );
+  }
+  if (datePlace) {
+    actions.push(
+      `확인한 날짜·장소: ${case01TruncateResultDetailText(datePlace)}`,
+    );
+  }
+
   const rel = answers.case01_factRelationship;
   if (rel === "deny_action") {
     cautions.push("기관에서 문제라고 보는 행동을 실제로 하지 않았다고 응답함");
