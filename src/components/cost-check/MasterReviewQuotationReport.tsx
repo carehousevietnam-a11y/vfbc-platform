@@ -122,6 +122,7 @@ import {
   isCase06AwaitingBridgeSnapshot,
   isCase06ExpertTerminal,
   maybeApplyCase06ExpertTerminalOnAnswer,
+  maybeApplyCase06LaunchExpertHandoff,
   isAdminCaseEntryQ1Complete,
   markFieldAsked,
   mergeCustomerCaseInput,
@@ -2702,6 +2703,7 @@ export function MasterReviewQuotationReport({
       }
       if (service.id === "admin" && config.engine === "verify" && !hasMarket) {
         next = maybeApplyCase06ExpertTerminalOnAnswer(next, questionId);
+        next = maybeApplyCase06LaunchExpertHandoff(next);
         next = attachCaseResolutionSnapshot(next);
       }
       if (service.id === "real-estate" && config.engine === "verify" && !hasMarket) {

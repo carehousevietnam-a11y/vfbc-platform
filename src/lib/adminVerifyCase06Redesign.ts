@@ -446,7 +446,11 @@ export function getCase06RequiredActionCandidateLabel(answers: ReviewAnswers): s
 export function buildCase06PrincipleFStateLines(answers: ReviewAnswers): string[] {
   const lines: string[] = [];
   const target = answers[CASE06_BRIDGE_TARGET_CASE_KEY]?.trim();
-  if (target && CASE06_BRIDGE_TARGET_LABELS[target]) {
+  if (
+    target &&
+    CASE06_BRIDGE_TARGET_LABELS[target] &&
+    !(isCase06LaunchSimplifiedSession(answers) && target === "CASE_06")
+  ) {
     lines.push(`앞서 분류: ${CASE06_BRIDGE_TARGET_LABELS[target]}`);
   }
   const actionLabel = getCase06RequiredActionCandidateLabel(answers);
@@ -457,9 +461,11 @@ export function buildCase06PrincipleFStateLines(answers: ReviewAnswers): string[
   if (deadlineText) {
     lines.push(`적어 둔 날짜·기한: ${deadlineText}`);
   }
-  const amountText = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
-  if (amountText) {
-    lines.push(`적어 둔 금액: ${amountText}`);
+  if (!isCase06LaunchSimplifiedSession(answers)) {
+    const amountText = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
+    if (amountText) {
+      lines.push(`적어 둔 금액: ${amountText}`);
+    }
   }
   if (isCase06LegacyRestorePath(answers)) {
     if (answers.profileDocumentSource) {
@@ -757,6 +763,7 @@ export function isCase06BridgeSnapshotCommitted(answers: ReviewAnswers): boolean
 }
 
 export function isCase06AwaitingBridgeSnapshot(answers: ReviewAnswers): boolean {
+  if (isCase06LaunchSimplifiedSession(answers)) return false;
   return isCase06Phase2ChainComplete(answers) && !isCase06BridgeSnapshotCommitted(answers);
 }
 
@@ -777,12 +784,31 @@ function pushChoice(
   return choiceComplete(id, answers, options);
 }
 
-function applyExpertTerminalFields(answers: ReviewAnswers): ReviewAnswers {
+export function applyExpertTerminalFields(answers: ReviewAnswers): ReviewAnswers {
   return {
     ...answers,
     case06_classificationStatus: "unresolved",
     case06_unresolvedReason: "document_action_nature_unclear",
     case06_expertHandoffRequired: "true",
+  };
+}
+
+/** 출시 간소화 — 신규 CASE_06은 Phase1만, Phase2·브릿지 타 CASE 미사용. */
+export const CASE06_LAUNCH_SIMPLIFIED_ENABLED = true;
+
+export function isCase06LaunchSimplifiedSession(answers: ReviewAnswers): boolean {
+  return CASE06_LAUNCH_SIMPLIFIED_ENABLED && !isCase06LegacyRestorePath(answers);
+}
+
+export function maybeApplyCase06LaunchExpertHandoff(answers: ReviewAnswers): ReviewAnswers {
+  if (!isCase06LaunchSimplifiedSession(answers)) return answers;
+  if (!isCase06RedesignPhase1Complete(answers)) return answers;
+  if (isCase06ExpertTerminal(answers)) return answers;
+  let next = applyExpertTerminalFields(answers);
+  return {
+    ...next,
+    [CASE06_BRIDGE_SNAPSHOT_COMMITTED_KEY]: "1",
+    [CASE06_BRIDGE_TARGET_CASE_KEY]: "CASE_06",
   };
 }
 
@@ -958,6 +984,9 @@ export function appendCase06RedesignPathQuestions(
 ): void {
   if (phase === 1) {
     appendCase06RedesignPhase1Questions(questions, answers);
+    return;
+  }
+  if (isCase06LaunchSimplifiedSession(answers)) {
     return;
   }
   appendCase06RedesignPhase2Questions(questions, answers);
