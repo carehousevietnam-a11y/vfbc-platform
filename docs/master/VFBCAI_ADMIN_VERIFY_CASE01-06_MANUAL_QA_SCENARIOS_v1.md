@@ -1,7 +1,8 @@
-# Admin VERIFY CASE_01~06 — 통합 수동 검사 고정 시나리오
+# Admin VERIFY CASE_01~06 — 통합 수동 검사 고정 시나리오 (v1 — 폐기)
 
 | 항목 | 내용 |
 |------|------|
+| **대체** | **`VFBCAI_ADMIN_VERIFY_CASE01-06_MANUAL_QA_SCENARIOS_v2.md`** 사용 |
 | **용도** | 사람이 브라우저로 **직접 클릭** 검사. 자동화·스크립트 **금지** |
 | **환경** | 로컬 또는 스테이징. 로그인 가능한 테스트 회원 1계정 준비 |
 | **기본 URL** | `https://<HOST>/verify/admin` (엔진: VERIFY · 행정문서 Master) |
