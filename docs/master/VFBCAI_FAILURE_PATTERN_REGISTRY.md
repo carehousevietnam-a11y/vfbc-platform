@@ -35,7 +35,7 @@
 |----|------|-----------|----------------|--------------|-----------|-----------|
 | **D01** | **비율 공식**과 **비장식성** 충돌 → 질문 **채우기·삭제 순환** | ⌈P×6/4⌉이 **질문 수**를 목표로 삼음 · 장식 전환 없이 **축만 증가** | CASE_01·02 — 2026-09-25 | **2026-09-25 Ace:** P2 실질 **>** P1 실질만. **비율 맞추기 질문 추가 금지**. 밀도는 **선택지**에서 (`VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`) | **만들 수 있음** | `case01-phase2-substantive-depth-combinations.mjs` · Brief 30조합 · 감사 §6 `P2>P1` 열 |
 | **D02** | **질문 수·P2&lt;N**을 조건으로 질문 **띄우는 보정 게이트** | Ratio remediation Brief v2 §5.2 · `procedureStageFact` **보정 노출** | CASE_01 — 2026-09-25 | **노출 = 고객 답(사실)만**. DQ-C01-R07 · DQ-C02-R07 **금지** | **만들 수 있음** | `case01Needs*` / `case02Needs*` grep `P2`·`ratio`·`보정` · Brief §3 only |
-| **D03** | **선택지 하나**에 **서로 다른 사실 두 개** | 압축 과다 · facet **혼합 slug** (속도+금액 등) · F12 §7 v2에서 **1인칭 장문 + 제2 사실을 한 방향만 고정**(예: 「신분 서류가 적혀 있고 **발급 방법도 안다**」→ 모르는 고객 무주) | CASE_01 — 2026-09 · **CASE_05 Brief §7 v2** — 2026-09-25 | **1 choice = 1 fact** (단일 선택 상황형). **다중 신호**는 (a) **목록형** = 질문 문장 + **multi-select** short chip (`EXPRESSION_MASTER` §3.1) (b) **상황형** = 행동이 갈라지는 축만 **양쪽 선택지**로 분리 (`VFBCAI_CASE05_PROFILE_LINK_FIX_BRIEF_v1.md` §7 v3) | **만들 수 있음** | Option label lint · `conflict_speed_amount` 금지 · Brief §7 v3 coverage 행 |
+| **D03** | **선택 공간 빈틈** — 고객이 자기 상태를 **고를 수 없음** (조합·축 미커버) | 과거 v2: 「1 choice = 1 fact」로 **고밀도 목표와 충돌** · facet 혼합 slug (속도+금액 등) · 빈틈을 **질문 추가**로 메우려 함 | CASE_01 — 2026-09 · **CASE_05** 화면 확인 — 2026-09-26 | **선택지 하나에 여러 사실을 담는 것은 목표.** 금지는 **사실 조합의 선택 공간에 빈틈**이 생겨 고객이 자기 상태를 고를 수 없는 것. 해결은 **질문 추가가 아니라** 같은 질문 안의 **선택지 구성**. 목록형 예외는 「어떤 종류」 질문만 (`EXPRESSION_MASTER` §3.1). 상황형은 `fact_dimensions` + **choice_facts**로 커버리지 증명 (`VFBCAI_CASE05_QUESTION_CHOICE_REWRITE_MASTER_v1.md`) | **만들 수 있음** | **선택 공간 커버리지** — dimensions Cartesian vs choice facts · 미커버 셀 FAIL · `conflict_speed_amount` 등 **모순 조합** 금지 |
 | **D04** | **fixture 몇 개**만 보고 「전 경로 통과」 | QA harness **대표 경로**만 · 조합 **미전수** | CASE_01 — 2026-09 | **2×5×3 등 조합 표** + 코드 `*OnPath(answers)` **일치** (Brief LOCK). 미달 **표시** | **만들 수 있음** | `case01-phase2-substantive-depth-combinations.impl.mjs` · CASE_02 v2 §5 미달 6건 |
 | **D05** | **CASE마다 따로 패치** → 공통 원인 **미수정** | Layer A·persist·note **CASE별 if**만 수정 | CASE_01~06 — 2026-09 | **COM-01~** 공통 레이어 먼저 · `VFBCAI_ADMIN_VERIFY_COMMON_RESULT_AUDIT_v1.md` §5 | **부분 있음** | `admin-verify-pipeline-af-check.mjs` · Mission Brief **cross-domain** 절 |
 
@@ -55,6 +55,22 @@
 | **P08** | 문서 **표 숫자** 손계산 오류 | 조합표 **P2·하한** 오타 (CASE_01 v2 #2=9 표기 8) | CASE_01 — 2026-09-25 | 표는 **구현 함수**와 대조 · 「코드 전수 계산」 (`Brief v3` LOCK) | **만들 수 있음** | `*combinations.impl.mjs` vs markdown table codegen |
 | **P09** | **LOCK 규칙**을 대표 승인 없이 **해석·변경** | Agent **완화**·구 기준 혼용 | CRITERIA 4:6 — 2026-09-25 | **Ace 승인 + 변경 이력**만 (`VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`) | **불가** | Authority chain · `P09` Human Boundary |
 | **P10** | **수동 검사**가 **수정 중인 작업 폴더**·동일 dev 서버를 사용 | 구현 창이 **미커밋·반쯤 고친 코드**를 HMR로 서빙하는데, 다른 창(VERIFIER·수동 QA)이 **같은 `npm run dev`** 로 브라우저 검사 → **원인 불명** 오류·질문 초기화 등 | **CASE_04** 질문 초기화 — **2026-09-25** | **수동·브라우저 검사**는 **커밋된 코드**로 띄운 **별도 git worktree** 서버에서만. 구현 중인 트리·포트 **공유 금지**. QA·VERIFIER **보고에 검사한 커밋 해시 필수** (`git rev-parse HEAD`). 구현 창 dev 중 타 창 **동일 폴더 수동 검사 금지** | **불가** (프로세스) · worktree 스크립트는 **만들 수 있음** | `git worktree` · Cursor `best-of-n-runner` · `03-qa-self-loop.mdc` · Mission 완료 보고 **검증 커밋** 필드 |
+| **P11** | 분류 판정(**「양호」**)을 **화면 확인 없이** 수용 | §7·감사 표에서 **문장 수·slug만** 보고 PASS · 실제 UI는 **단일 사실 문장** | **CASE_05** 대표 화면 확인 — **2026-09-26** | **의미·밀도 판정**은 **5번창 독립 검증** + **자동 검사**(선택 공간·fact_dimensions)만. 보고서에 **「양호」·「PASS」** 표현 **금지** (통합 PASS 미달 시). 화면 원문 캡처·커밋 해시 없으면 **검증 미완료** | **부분 있음** | choice-space coverage · 5번창 체크리스트 · 보고서 금지어 lint |
+| **P12** | **LOCK된 원칙**을 사용자에게 **재확인 요청** | Agent가 LOCK을 「승인 받기」로 오인 · 설계 책임 회피 | 2번창 지시 — **2026-09-26** | LOCK 원칙 **적용 책임**은 설계·구현·검증(2·1·5번창). 사용자 개입은 **새로운 사업 판단**에만. 재확인 문구 **금지** | **불가** (프로세스) | Mission 템플릿 · `vfbcai-authority.mdc` |
+
+---
+
+## 3.1 통합 PASS 정의 (2026-09-26 LOCK)
+
+**「통합 PASS」** = 아래 **A~E 전부**가 **동일 검사 커밋 기준** (`git rev-parse HEAD` 하나)으로 충족된 경우만. **하나라도 없으면 「검증 미완료」** — 문서만·코드만·QA만 PASS를 **통합 PASS로 부르지 않음**.
+
+| 축 | 내용 | 증거 |
+|----|------|------|
+| **A 구조** | 자동 테스트 (persist·clause·pipeline 등) | CI / `tests/qa/*.mjs` 로그 + 커밋 해시 |
+| **B 선택 공간** | 자동 검사(커버리지·모순) + **5번창** 독립 검증 | coverage 리포트 · 5번창 서명 |
+| **C 데이터** | 화면 **원문** (답·Profile·Layer A substring) | 캡처 또는 harness export + 커밋 해시 |
+| **D 화면** | 화면 **원문** (PC + 375px UI FINAL QA) | VERIFIER Beauty Check + 커밋 해시 |
+| **E 의미** | 자동 검사(밀도·합침·NEVER ASK) + **5번창** 독립 검증 | Brief rewrite master · 5번창 |
 
 ---
 
@@ -71,7 +87,7 @@
 | P1 | F06 | **`summary-dedup`**: Layer A vs principleF **n-gram overlap** threshold | panel builders |
 | P2 | F04 | **`result-signal-diff`**: 동일 질문에서 slug A vs B → signals **집합 diff non-empty** | CASE signal fns |
 | P2 | F11 | **`stitch-progress-consistency`**: questions[] vs progress total | profiling + UI harness |
-| P2 | D03 | **`one-fact-per-choice`**: 금지 혼합 slug list | CASE Brief §4 |
+| P2 | D03 | **`choice-space-coverage`**: `fact_dimensions` × choice `facts` 미커버 셀 0 · 모순 조합 fixture FAIL | CASE `*_QUESTION_CHOICE_REWRITE_MASTER_v1.md` |
 
 **이미 있음 (확장 권장):** `admin-verify-pipeline-af-check.mjs`, `case01-phase2-substantive-depth-combinations.mjs`, `admin-verify-strict-full-v2.impl.mjs`, `chain05-label-capture.mjs`.
 
@@ -124,6 +140,7 @@
 | 2026-09-25 | 초판 — F01~F11, D01~D05, P01~P09 · 자동검사 제안 · CAT 공통 · Brief 템플릿 |
 | 2026-09-25 | **P10** — 수정 중 작업 폴더·공유 dev 서버 수동 검사 (CASE_04, 2026-09-25) |
 | 2026-09-25 | **F12** — 선택지 표현 퇴보 (CASE_02 Brief v2) |
+| 2026-09-26 | **D03** 정정 (고밀도·선택 공간) · **P11** · **P12** · **§3.1 통합 PASS** |
 
 ---
 
