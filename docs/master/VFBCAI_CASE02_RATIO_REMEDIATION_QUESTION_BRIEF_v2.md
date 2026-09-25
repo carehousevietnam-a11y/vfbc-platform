@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | **버전** | v2 |
-| **상태** | **Brief** — Ace 승인 전 IMPLEMENTER 착수 금지 |
+| **상태** | **폐기** — `VFBCAI_CASE02_RATIO_REMEDIATION_QUESTION_BRIEF_v3.md` |
 | **선행** | v1(`1812272`) **대체** |
 | **Mission** | 납부 CASE — 사실 기반 노출 · **P2 &gt; P1** 측정 (미달 **숨기지 않음**) |
 | **비율 SoT** | `VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md` (2026-09-25 Ace 승인) |

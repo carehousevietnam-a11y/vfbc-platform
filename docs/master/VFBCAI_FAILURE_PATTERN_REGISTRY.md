@@ -25,6 +25,7 @@
 | **F09** | **같은 신호**(통역·제3자)를 **여러 질문**에서 반복 | hearsay·language를 L·gap·K·blockage에 **분산** | CASE_01 — 2026-09 (Brief v3 R08) | **신호 유형당 단일 질문 id** (예: K `lang_indirect_hearsay`, CASE_02 Nc) | **만들 수 있음** | Brief §3 · grep 동의어 slug across `case0x_` ids |
 | **F10** | context에 값 있는데 **화면 미렌더** (`evidenceNote` 등) | `buildAdminVerifyPersonalizedContext` **설정만** · JSX **미참조** | 전 CASE — 2026-09 (COM-01) | Layer H: **`첨부 자료: {파일명}`** Layer A **내부** (감사 v1.1 LOCK) | **만들 수 있음** | `AdminVerifyFirstResultPanel.tsx` ~3379·~4500 · `admin-regression-h-spot.mjs` |
 | **F11** | **진행 표시 카운터** 불일치 (질문 수·단계 vs 실제 화면) | `getAdminVerifyStitchProgress` vs **suppressed**·handoff·Phase2 **동적 체인** 불일치 | CASE_01·RE — 2026-09 (백로그) | progress **표시 필드** = 사용자가 보는 question id 집합과 **동일 소스** · suppression 시 total **재계산** | **만들 수 있음** | `adminVerifyProfiling.ts` `getAdminVerifyStitchProgress` · `pilot-question-guide-count.mjs` · E2E step assert |
+| **F12** | **선택지 표현 퇴보** — 질문 수 축소·신규 질문 추가 과정에서 choice가 **단답·요약 라벨**만 남음 (`method_stated`, `official_notice` 등 **코드 slug 불일치**) | Brief·manifest에 **신호 표 없이** slug·한 줄 요약만 기재 · IMPLEMENTER가 **카테고리 라벨**로 UI 축소 | **CASE_02** Brief v2 §4 — **2026-09-25** | 모든 Brief §4 = **고객向 원문 전체** + **slug(footnote)** + **선택별 판단·다음 행동·위험** · 요약 라벨은 **UI footnote 열만** · slug는 **`adminVerifyProfiling` OPTIONS와 1:1** | **만들 수 있음** | Brief↔`CASE0x_*_OPTIONS` diff · `VFBCAI_QUESTION_CHOICE_EXPRESSION_MASTER_EXECUTION_RULE_v1.md` · Layer J manifest |
 
 ---
 
@@ -64,6 +65,7 @@
 | P0 | F01·F10 | **`profile-layer-a-roundtrip`**: answers fixture → Profile → Layer A/H 문자열 → **필수 키 substring assert** | `answerFixtures[]`, `requiredKeys[]`, `layerABuilder` id |
 | P0 | F02 | **`judgment-clause-grammar`**: clause 텍스트 **중복 종결·깨진 조사** regex FAIL | `adminVerifyJudgmentClauses.data.ts` 또는 manifest export |
 | P0 | F03·F07 | **`choice-clause-alignment`**: (caseId, fieldId, slug) → clause 존재 · **negation consistency** (no_contact ⊄ responded) | slug map, clause registry |
+| P0 | **F12** | **`brief-choice-label-parity`**: Brief §4 slug 집합 = 코드 OPTIONS value 집합 · label 길이·금지 단답 목록 | per-CASE Brief §4, `adminVerifyProfiling.ts` |
 | P1 | D01·D04 | **`substantive-depth-combinations`**: Cartesian 조합 → `*SubstantiveAxisIdsOnPath` → **P2>P1** | exposure table §3, axis counter fn |
 | P1 | D02 | **`no-ratio-gates`**: needs* / append* **금지 패턴** grep CI | repo scan rules |
 | P1 | F06 | **`summary-dedup`**: Layer A vs principleF **n-gram overlap** threshold | panel builders |
@@ -121,6 +123,7 @@
 |------|------|
 | 2026-09-25 | 초판 — F01~F11, D01~D05, P01~P09 · 자동검사 제안 · CAT 공통 · Brief 템플릿 |
 | 2026-09-25 | **P10** — 수정 중 작업 폴더·공유 dev 서버 수동 검사 (CASE_04, 2026-09-25) |
+| 2026-09-25 | **F12** — 선택지 표현 퇴보 (CASE_02 Brief v2) |
 
 ---
 
