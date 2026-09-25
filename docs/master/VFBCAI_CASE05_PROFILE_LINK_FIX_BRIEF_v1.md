@@ -196,64 +196,134 @@
 
 ---
 
-## 7. F12 점검 v2 — CASE_03·04·05 (단답 39건)
+## 7. F12 §7 v3 — CASE_03·04·05 (39 slug · Ace 2026-09-25)
 
-**v1 §7 표(꼬리 붙이기·3인칭 응답형) 폐기.** 본 절만 SoT.
+**v1·v2 §7 폐기.** v2는 **D03** 유발(제2 사실을 한 방향만 label에 고정 → 맞는 선택지 없음).
 
-**재작성 기준 (LOCK)**
+| 유형 | 문항 수 | slug 수 | 규칙 |
+|------|---------|---------|------|
+| **A 목록형** | 7 | **26** | **짧은 이름** · **복수 선택** · 밀도 = **질문 문장** (`EXPRESSION_MASTER` §3.1) |
+| **B 상황형** | 5 | **13→22 choice** | **1인칭** · **1 choice = 1 fact** · 행동이 갈라지는 축은 **양쪽 선택지** · 행동 무관 사실 **label에 붙이지 않음** |
 
-1. **1인칭 사실** (`~했습니다` · `~가 있습니다` · `~인지 모르겠습니다`). 결과 화면용 「~라고 응답했습니다」 **금지**.
-2. **카테고리 + 신호 ≥2** — 보유(원본/사본/없음) · 기관 명시 여부 · 기한 인지 · 불확실성 · 이미 한 행동 중 **해당 질문에 가장 영향 큰** 축.
-3. **선택지 개수 고정** (39 slug 유지). slug 분할·합침 없음.
-4. 표 열 **담은 신호(v2)** = 내부 신호 id(footnote용 약어). **downstream** = 판단 · 다음 행동 · 위험도 중 **무엇이 갈라지는지** 한 줄.
+**코드 반영:** 별도 Mission — 목록형 multi-value · 상황형 slug 분할 · 질문 문장 7개 · signal/registry.
 
-**코드 반영:** Ace §7 v2 승인 후 **별도 Mission** (OPTIONS label 교체 + Layer J·result signal diff).
+---
 
-**단답형 개수:** CASE_05 **17** · CASE_04 **18** · CASE_03 **4** · 합계 **39**.
+### A. 목록형 — 질문 문장 7개 (LOCK)
 
-| CASE | 질문 id | slug | 현재 선택지 원문 | 담은 신호(현재) | 수정 문구 제안 v2 (1인칭) | 담은 신호(v2) | downstream |
-|------|---------|------|------------------|-----------------|---------------------------|---------------|--------------|
-| 05 | `case05_evidence` | `disposition_notice` | 처분 통지서 | 증거 종류 1개 | 처분 통지서 **원본**을 갖고 있고, 처분 사유와 대응 기한이 적혀 있습니다. | `hold_original` · `authority_stated_reason_deadline` | **다음 행동:** 통지서·기한·사유 대조 |
-| 05 | | `message_email` | 기관 문자/이메일 | 동상 | 기관에서 온 **문자·이메일**을 저장해 두었지만, 공식 통지와 같은 내용인지는 확실하지 않습니다. | `hold_informal_copy` · `uncertain_official_match` | **위험:** 비공식 안내·오해 |
-| 05 | | `submitted_docs` | 제출 서류 | 동상 | **이미 제출한 서류**는 정리해 두었지만, 기관 **접수·열람** 여부는 아직 확인하지 못했습니다. | `action_submitted` · `receipt_unknown` | **다음 행동:** 접수·목록 확인 |
-| 05 | | `payment_proof` | 영수증/납부 증빙 | 동상 | **납부·영수 증빙**은 있지만, 그 금액이 **이번 처분**과 직접 연결되는지는 모르겠습니다. | `hold_payment_proof` · `link_to_disposition_uncertain` | **판단:** 처분·납부 연결 |
-| 05 | | `photo_video` | 사진/영상 | 동상 | **사진·영상**을 갖고 있지만, 처분에 적힌 **사건·시점**과 같은 때·장소인지는 확실하지 않습니다. | `hold_media` · `match_to_notice_uncertain` | **다음 행동:** 시점·장소 대조 |
-| 05 | | `contract` | 계약서 | 동상 | **계약·관계 서류**를 갖고 있고, 처분 사유가 그와 관련된다고는 이해했지만 **아직 대조하지 못했습니다**. | `hold_contract` · `relation_claimed_not_verified` | **다음 행동:** 사유·계약 대조 |
-| 05 | `case05_submittedDocsDetail` | `identity` | 신분·인적 관련 서류 | 저장만 | **신분·인적 서류**를 제출했고, 통지에 적힌 **요구 항목명**은 확인했습니다. | `submitted_id` · `authority_named_items` | **판단:** 요구·제출 일치 |
-| 05 | | `financial` | 재무·금액 관련 서류 | 동상 | **재무·금액 서류**를 제출했는데, 금액·기간이 **통지 내용과 맞는지**는 아직 확인하지 못했습니다. | `submitted_financial` · `amount_period_unverified` | **다음 행동:** 금액·기간 대조 |
-| 05 | | `certificate` | 증명서·확인서 | 동상 | **증명서·확인서**를 제출했고, **발급일·유효기간**은 봤지만 기관이 받아들였는지는 모르겠습니다. | `submitted_cert` · `validity_checked` · `acceptance_unknown` | **다음 행동:** 유효기간·접수 |
-| 05 | `case05_explanationDetail` | `written` | 서면으로 소명·의견을 제출했습니다 | 저장만 | **서면**으로 소명·의견을 제출했고, **제출일**은 기억하지만 **접수 확인**은 받지 못했습니다. | `channel_written` · `submitted` · `no_receipt` | **다음 행동:** 접수·기한 |
-| 05 | | `verbal` | 전화·방문 등으로 설명했습니다 | 동상 | **전화·방문**으로 설명했지만, 그때 말한 내용을 **적어 둔 메모나 확인서**는 없습니다. | `channel_verbal` · `no_written_record` | **위험:** 구두만·재확인 필요 |
-| 05 | | `both` | 서면과 구두 설명을 함께 했습니다 | 동상 | **서면과 구두**로 모두 설명했는데, 두 경로에서 말한 내용이 **같은지**는 아직 맞춰 보지 못했습니다. | `channel_both` · `consistency_unverified` | **다음 행동:** 서면·구두 대조 |
-| 05 | `case05_factDetail` | `date_place` | 날짜·장소·상황이 다릅니다 | 행동 1개 | 처분에 적힌 **날짜·장소·상황**은 제가 기억하는 그때와 **다르다고 확신**합니다. | `mismatch_datetime_place` · `customer_certain` | **판단:** 사실관계 쟁점·기한 |
-| 05 | | `content_differs` | 내용·사실관계가 다릅니다 | 동상 | 처분 **사유·내용**은 제가 아는 사실과 다르고, **차이가 무엇인지**는 정리해 두었습니다. | `mismatch_substance` · `diff_articulated` | **다음 행동:** 차이 목록·증빙 |
-| 05 | `case05_appealDetail` | `filed` | 이의제기·재검토를 신청했습니다 | 신호 1개 | **이의·재검토를 신청**했고, **접수·번호** 안내는 받았지만 **결과 일정**은 모르겠습니다. | `appeal_filed` · `receipt_ok` · `outcome_schedule_unknown` | **다음 행동:** 일정·기한 |
-| 05 | | `preparing` | 신청을 준비하고 있습니다 | 없음 | **이의제기를 준비**하고 있지만, **신청 기한**이 언제까지인지는 아직 확인하지 못했습니다. | `appeal_in_prep` · `deadline_unknown` | **위험:** 기한 초과 |
-| 05 | | `considering` | 신청 여부를 검토하고 있습니다 | 없음 | **신청 여부를 검토** 중이고, 통지서에 **가능 여부·기한**을 읽었는지는 확실하지 않습니다. | `appeal_undecided` · `rules_read_uncertain` | **다음 행동:** 이의 요건·기한 확인 |
-| 04 | `case04_addDocDetail` | `id_doc` | 신분·인적 관련 서류 | 저장·suffix | 보완 안내에 **신분·인적 서류**가 적혀 있고, **무엇을 새로 발급**받아야 하는지도 알고 있습니다. | `demand_id_doc` · `issuance_known` | **다음 행동:** 발급·제출 |
-| 04 | | `financial_doc` | 재무·금액 관련 서류 | 동상 | **재무·금액 서류**를 더 내야 한다고 이해했지만, **어느 연도·항목**인지는 아직 특정하지 못했습니다. | `demand_financial` · `scope_unspecified` | **판단:** 보완 범위 |
-| 04 | | `certificate` | 증명서·확인서 | 동상 | **증명서·확인서**를 추가로 요구하는 것으로 이해했고, **어디서 발급**받는지는 알고 있습니다. | `demand_cert` · `issuance_channel_known` | **다음 행동:** 발급·첨부 |
-| 04 | | `translation` | 번역·공증 관련 서류 | 동상 | **번역·공증**이 필요하다고 안내에 나와 있지만, **공증까지 마쳤는지**는 아직입니다. | `demand_translation` · `notarization_incomplete` | **다음 행동:** 공증·번역 완료 |
-| 04 | `case04_modifyDetail` | `name_info` | 이름·인적사항 | 저장·suffix | **이름·인적사항**을 고쳐서 다시 내야 한다고 이해했고, **잘못된 항목**이 무엇인지도 확인했습니다. | `modify_identity` · `error_field_known` | **다음 행동:** 수정본 작성 |
-| 04 | | `date_info` | 날짜·기간 | 동상 | **날짜·기간**을 수정해야 한다고 이해했지만, **올바른 날짜**가 무엇인지는 아직 확정하지 못했습니다. | `modify_dates` · `correct_value_unknown` | **판단:** 기한·사실 |
-| 04 | | `amount_info` | 금액·수치 | 동상 | **금액·수치**를 고쳐야 한다고 이해했고, 안내 **금액과 제 서류 금액이 다릅니다**. | `modify_amount` · `amount_mismatch_seen` | **다음 행동:** 금액 대조·수정 |
-| 04 | | `content_info` | 내용·기재사항 | 동상 | **내용·기재**를 바꿔야 한다고 이해했지만, **어떤 문장을 어떻게** 바꿀지는 아직 정리하지 못했습니다. | `modify_content` · `edit_plan_unknown` | **다음 행동:** 수정안 작성 |
-| 04 | `case04_evidenceDetail` | `proof_doc` | 증빙 서류 | 저장 | **추가 증빙**이 필요하다고 이해했고, 비슷한 서류는 있지만 **안내 명칭과 같은지**는 모르겠습니다. | `need_proof` · `hold_similar` · `name_match_uncertain` | **판단:** 증빙 적합 |
-| 04 | | `photo` | 사진·이미지 | 동상 | **사진·이미지**를 더 내야 한다고 이해했고, **당시 사진은 있지만** 제출 **형식·매수**는 모르겠습니다. | `need_photo` · `hold_photo` · `format_unknown` | **다음 행동:** 형식·제출 경로 |
-| 04 | | `statement` | 설명서·소명서 | 동상 | **설명서·소명서**를 더 써야 한다고 이해했지만, **어떤 항목을 써야 하는지**는 아직 못 정했습니다. | `need_statement` · `outline_unknown` | **다음 행동:** 항목·초안 |
-| 04 | `case04_unclearFocus` | `what_submit` | 무엇을 제출해야 하는지 | 분기만 | **무엇을 제출해야 하는지**가 가장 막막하고, 목록은 있지만 **제 상황에 해당하는지**는 모르겠습니다. | `block_what` · `list_not_mapped_to_self` | **판단:** 보완 범위 |
-| 04 | | `why_submit` | 왜 제출해야 하는지 | 동상 | **왜 보완이 필요한지**가 가장 어렵고, 사유 문구를 읽었지만 **제 경우에 맞는지**는 확실하지 않습니다. | `block_why` · `reason_applicability_uncertain` | **판단:** 사유·요건 |
-| 04 | | `format` | 어떤 형식이어야 하는지 | 동상 | **형식·제출 방법**이 가장 어렵고, **온라인·방문** 중 어디로 내야 하는지도 모르겠습니다. | `block_format` · `channel_unknown` | **다음 행동:** 제출 채널 확인 |
-| 04 | `case04_repeatSupplement` | `more_docs` | 추가 서류를 다시 요구했습니다 | 반복 공통 | 기관이 **추가 서류를 다시** 요구했고, **처음과 다른 종류**라고 이해했습니다. | `repeat_docs` · `diff_from_first_round` | **위험:** 반복 보완·기한 |
-| 04 | | `more_modify` | 수정/보완을 다시 요구했습니다 | 동상 | **수정·보완을 다시** 요구했고, **이미 한 번 고쳐 냈는데도** 같은 부분이라고 들었습니다. | `repeat_modify` · `prior_fix_rejected` | **판단:** 재수정 범위 |
-| 04 | `case04_evidence` | `supplement_notice` | 보완 요구서·안내문 | 증거 1종 | **보완 요구서·안내문 원본**을 갖고 있고, **제출 기한**이 적혀 있습니다. | `hold_notice` · `deadline_on_doc` | **다음 행동:** 기한·항목 대조 |
-| 04 | | `message` | 기관 문자·메신저·전화 안내 내역 | 동상 | **문자·전화 안내**는 있지만, **요구서 원본**과 내용이 같은지는 확인하지 못했습니다. | `hold_message` · `parity_with_notice_unverified` | **위험:** 안내 불일치 |
-| 03 | `case03_evidence` | `notice` | 출석·소명 요구 통지서·안내문 | 증거 1종 | **출석·소명 요구 통지서**를 갖고 있고, **출석·제출 기한**이 적혀 있습니다. | `hold_notice` · `deadline_on_doc` | **다음 행동:** 기한·장소 |
-| 03 | | `attendance_notice` | 출석 일시·장소가 적힌 별도 안내 | 동상 | **출석 일시·장소 안내**를 따로 받았고, **통지서와 날짜가 같은지**는 맞춰 보지 못했습니다. | `hold_schedule_notice` · `cross_doc_unverified` | **다음 행동:** 일시·장소 대조 |
-| 03 | | `message` | 기관 문자·메신저·전화 안내 내역 | 동상 | **문자·전화 안내**는 저장해 두었지만, **공식 통지와 같은 요구**인지는 확실하지 않습니다. | `hold_informal` · `uncertain_official` | **위험:** 비공식·오해 |
-| 03 | | `submitted_docs` | 이미 제출한 서류·소명서 | 동상 | **이미 제출한 서류·소명서**는 있지만, 기관이 **받고 검토 중인지**는 모르겠습니다. | `action_submitted` · `review_status_unknown` | **다음 행동:** 접수·검토 확인 |
+| # | 질문 id | 질문 문장 (고객向) |
+|---|---------|-------------------|
+| 1 | `case05_evidence` | 지금 **처분·조치**와 관련해, 확인하거나 제출에 활용할 **수 있는 자료**를 골라 주세요. **(여러 개 선택 가능)** |
+| 2 | `case05_submittedDocsDetail` | 이번에 기관에 **제출한 서류 종류**를 골라 주세요. **(여러 개 선택 가능)** |
+| 3 | `case04_addDocDetail` | 보완 안내에서 **추가로 제출해야 하는 서류 종류**를 골라 주세요. **(여러 개 선택 가능)** |
+| 4 | `case04_modifyDetail` | 보완 안내에서 **수정·고쳐 써야 하는 항목**을 골라 주세요. **(여러 개 선택 가능)** |
+| 5 | `case04_evidenceDetail` | 안내에서 **더 요구하는 증빙·자료 종류**를 골라 주세요. **(여러 개 선택 가능)** |
+| 6 | `case04_evidence` | 지금 **보완 요구**와 관련해, 확인하거나 제출에 활용할 **수 있는 자료**를 골라 주세요. **(여러 개 선택 가능)** |
+| 7 | `case03_evidence` | 지금 **출석·소명 요구**와 관련해, 확인하거나 제출에 활용할 **수 있는 자료**를 골라 주세요. **(여러 개 선택 가능)** |
 
-**양호(39건 외):** CASE_03 `finalGoal` · CASE_05 `authorityFollowUp`·`repeatFollowUp`(more_docs) · 기타 CASE_03/04/05 주요 Phase1·Phase2 문장형 선택지 — F12 충족 또는 C05-04 별도.
+**선택지 chip (slug · 짧은 이름)** — 기존 value **유지**, label만 짧게.
+
+| 질문 id | slug | chip label |
+|---------|------|------------|
+| `case05_evidence` | `disposition_notice` | 처분 통지서 |
+| | `message_email` | 기관 문자·이메일 |
+| | `submitted_docs` | 제출한 서류 |
+| | `payment_proof` | 납부·영수 증빙 |
+| | `photo_video` | 사진·영상 |
+| | `contract` | 계약·관계 서류 |
+| `case05_submittedDocsDetail` | `identity` | 신분·인적 서류 |
+| | `financial` | 재무·금액 서류 |
+| | `certificate` | 증명서·확인서 |
+| `case04_addDocDetail` | `id_doc` | 신분·인적 서류 |
+| | `financial_doc` | 재무·금액 서류 |
+| | `certificate` | 증명서·확인서 |
+| | `translation` | 번역·공증 서류 |
+| `case04_modifyDetail` | `name_info` | 이름·인적사항 |
+| | `date_info` | 날짜·기간 |
+| | `amount_info` | 금액·수치 |
+| | `content_info` | 내용·기재사항 |
+| `case04_evidenceDetail` | `proof_doc` | 증빙 서류 |
+| | `photo` | 사진·이미지 |
+| | `statement` | 설명서·소명서 |
+| `case04_evidence` | `supplement_notice` | 보완 요구서·안내문 |
+| | `message` | 문자·전화·메신저 안내 |
+| `case03_evidence` | `notice` | 출석·소명 통지서 |
+| | `attendance_notice` | 출석 일시·장소 안내 |
+| | `message` | 문자·전화·메신저 안내 |
+| | `submitted_docs` | 제출한 서류·소명서 |
+
+각 목록형: `unsure`·`none`(해당 시)·**Direct Input** 기존 패턴 유지. 접수·기한·발급 방법 등은 **chip에 넣지 않음** — 상황형·결과·별도 축.
+
+---
+
+### B. 상황형 — 5문항 · 선택지 전체 (단일 선택)
+
+#### B1 `case05_explanationDetail` (소명·의견 제출 경로)
+
+| slug (v3) | 선택지 (1인칭) | 신호 | downstream |
+|-----------|----------------|------|------------|
+| `written_no_receipt` | **서면**으로 소명·의견을 제출했고, **접수 확인은 아직** 받지 못했습니다. | `channel_written` · `no_receipt` | **다음 행동:** 접수 확인 |
+| `written_receipt_ok` | **서면**으로 소명·의견을 제출했고, **접수·접수번호** 안내를 받았습니다. | `channel_written` · `receipt_ok` | **판단:** 후속 일정 |
+| `verbal_no_record` | **전화·방문**으로만 설명했고, **메모·확인서는 없습니다**. | `channel_verbal` · `no_record` | **위험:** 구두만 |
+| `verbal_with_record` | **전화·방문**으로 설명했고, **내용을 메모**해 두었습니다. | `channel_verbal` · `has_memo` | **다음 행동:** 메모·기관 대조 |
+| `both_unverified` | **서면과 구두** 모두 했는데, **내용이 같은지**는 아직 맞춰 보지 못했습니다. | `channel_both` · `consistency_unverified` | **다음 행동:** 대조 |
+| `both_aligned` | **서면과 구두** 모두 했고, **말한 내용은 같다**고 생각합니다. | `channel_both` · `consistency_ok` | **판단:** 일관성 |
+
+**coverage:** 서면/구두/병행 × 접수·기록 분기 — 제출 안 한 경로는 본 질문 **미노출**(needs).
+
+#### B2 `case05_factDetail` (처분 vs 실제 차이)
+
+| slug (v3) | 선택지 (1인칭) | 신호 | downstream |
+|-----------|----------------|------|------------|
+| `date_place_certain` | 처분에 적힌 **날짜·장소·상황**은 제가 기억하는 것과 **다르다고 확신**합니다. | `mismatch_when_where` · `certain` | **판단:** 쟁점·기한 |
+| `date_place_fuzzy` | **날짜·장소·상황**이 다를 **수는 있지만**, 정확히 말하기 **어렵습니다**. | `mismatch_when_where` · `uncertain` | **다음 행동:** 증빙·정리 |
+| `content_differs_clear` | 처분 **내용·사유**는 제 사실과 다르고, **차이는 정리**해 두었습니다. | `mismatch_substance` · `articulated` | **다음 행동:** 차이·증빙 |
+| `content_differs_vague` | 처분 **내용·사유**가 다른 **것 같지만**, **무엇이 다른지**는 아직 못 정했습니다. | `mismatch_substance` · `vague` | **다음 행동:** 항목 나누기 |
+
+**coverage:** 시점·장소 vs 내용 쟁점 × 확신도.
+
+#### B3 `case05_appealDetail` (이의·재검토)
+
+| slug (v3) | 선택지 (1인칭) | 신호 | downstream |
+|-----------|----------------|------|------------|
+| `filed_no_schedule` | **이의·재검토를 신청**했고, **접수 안내는** 받았지만 **결과 일정은 모릅니다**. | `appeal_filed` · `schedule_unknown` | **다음 행동:** 일정 문의 |
+| `filed_schedule_known` | **이의·재검토를 신청**했고, **결과·다음 안내 일정**을 알고 있습니다. | `appeal_filed` · `schedule_known` | **판단:** 대기·준비 |
+| `preparing_deadline_unknown` | **신청을 준비** 중이고, **신청 기한은 아직** 확인하지 못했습니다. | `appeal_prep` · `deadline_unknown` | **위험:** 기한 |
+| `preparing_deadline_known` | **신청을 준비** 중이고, **신청 기한은 확인**했습니다. | `appeal_prep` · `deadline_known` | **다음 행동:** 서류·제출 |
+| `considering_rules_unread` | **신청 여부를 검토** 중이고, **가능 여부·기한**은 아직 **못 읽었습니다**. | `appeal_undecided` · `rules_unread` | **다음 행동:** 통지서 확인 |
+| `considering_rules_read` | **신청 여부를 검토** 중이고, 통지서에 **기한·요건을 읽었습니다**. | `appeal_undecided` · `rules_read` | **판단:** go/no-go |
+
+**coverage:** 단계(신청/준비/검토) × 기한·일정 인지.
+
+#### B4 `case04_unclearFocus` (가장 막힌 점 — 단일 선택)
+
+| slug (v3) | 선택지 (1인칭) | 신호 | downstream |
+|-----------|----------------|------|------------|
+| `what_submit_list` | **무엇을 제출해야 하는지** 자체가 가장 막막합니다. | `block_what` | **판단:** 범위 |
+| `what_submit_apply` | **무엇을 내야 하는지는 대략 보이지만**, **제 상황에 맞는지** 모르겠습니다. | `block_what` · `applicability` | **다음 행동:** 항목 대조 |
+| `why_submit_reason` | **왜 보완이 필요한지**가 가장 이해하기 어렵습니다. | `block_why` | **판단:** 사유 |
+| `why_submit_apply` | **사유는 읽었지만**, **제 경우에도 해당하는지** 모르겠습니다. | `block_why` · `applicability` | **다음 행동:** 사유·사실 대조 |
+| `format_how` | **어떤 형식**으로 제출해야 하는지가 가장 어렵습니다. | `block_format` | **다음 행동:** 형식 확인 |
+| `format_where` | **형식은 알겠는데**, **어디로(온라인·방문)** 제출해야 하는지 모르겠습니다. | `block_format` · `channel` | **다음 행동:** 제출 경로 |
+
+**coverage:** what/why/format × 목록 자체 vs 적용·채널.
+
+#### B5 `case04_repeatSupplement` (반복 보완)
+
+| slug (v3) | 선택지 (1인칭) | 신호 | downstream |
+|-----------|----------------|------|------------|
+| `more_docs_new_kind` | **추가 서류**를 다시 요구했고, **처음과 다른 종류**라고 이해했습니다. | `repeat_docs` · `new_kind` | **위험:** 범위 확대 |
+| `more_docs_same_kind` | **추가 서류**를 다시 요구했고, **비슷한 종류**를 또 요구한 것 같습니다. | `repeat_docs` · `same_kind` | **판단:** 누락·오류 |
+| `more_modify_reject_prior` | **수정·보완**을 다시 요구했고, **이미 고친 부분**을 또 고치라고 들었습니다. | `repeat_modify` · `reject_prior` | **판단:** 재수정 |
+| `more_modify_new_field` | **수정·보완**을 다시 요구했고, **처음과 다른 항목**을 고치라고 들었습니다. | `repeat_modify` · `new_field` | **다음 행동:** 항목 확인 |
+
+**coverage:** 서류 vs 수정 × 동종 반복 vs 신규 항목.
+
+**legacy slug 매핑 (IMPLEMENTER):** v2 `written`→`written_*` 등 **분기**; 읽기 전용 meta에 canonical v3 slug 저장.
+
+---
+
+**양호(본 Mission 외):** CASE_03 `finalGoal` · CASE_05 `authorityFollowUp` · 기타 문장형 Phase1/2 — F12 충족 또는 §2~5 C05 연결.
 
 ---
 
@@ -261,7 +331,7 @@
 
 - [x] Ace **v1 승인** (2026-09-25)
 - [ ] 1번창 IMPLEMENTER — §2~5 구현 · §6 검증
-- [ ] F12 **§7 v2** — Ace 승인 후 별도 Mission(OPTIONS label · signal diff)
+- [ ] F12 **§7 v3** — Ace 승인 후 별도 Mission (목록 multi · 상황형 slug · 질문 7문장)
 
 ---
 
@@ -270,4 +340,4 @@
 | 날짜 | 내용 |
 |------|------|
 | 2026-09-25 | v1 초안 — C05-01~04 연결 설계 + CASE_03/04/05 F12 목록 |
-| 2026-09-25 | **§7 v2** — 1인칭·다중신호 수정 문구 39건 (v1 §7 폐기) |
+| 2026-09-25 | **§7 v2** — 1인칭·다중신호 (v1 폐기) → **§7 v3** 목록형 26 + 상황형 22 choice (v2 D03 폐기) |
