@@ -13,6 +13,8 @@ import {
   CASE01_VIOLATION_CONTENT_NOTE_KEY,
   CASE01_FACT_DIFFERENCE_DETAIL_KEY,
   CASE01_DATE_PLACE_DETAIL_KEY,
+  CASE01_FACT_COMPARE_GAP_KEY,
+  CASE01_DEADLINE_DATE_KEY,
   deriveStageFromSituation,
   getQ1ResolvedCase,
   getAdminChoiceNoteKey,
@@ -352,8 +354,14 @@ function appendCase06V11Phase2ResultSignals(
       const amount = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
       if (amount) cautions.push(`안내받은 금액: ${amount}`);
       else unconfirmed.push("납부 금액");
+    } else if (answers.case06_paymentAmountKnown === "approx_amount_known") {
+      const amount = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
+      if (amount) cautions.push(`기억나는 대략 금액: ${amount}`);
+      else unconfirmed.push("납부 금액");
     } else if (answers.case06_paymentAmountKnown === "conflicting_amounts") {
-      cautions.push("납부 금액이 여러 번 다르게 안내된 상태로 응답함");
+      const amount = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
+      if (amount) cautions.push(`안내 받은 금액(정리): ${amount}`);
+      else cautions.push("납부 금액이 여러 번 다르게 안내된 상태로 응답함");
     }
     const match = answers.case06_paymentSituationMatch;
     if (match === "amount_or_reason_mismatch" || match === "redemand_after_paid") {
@@ -1519,16 +1527,47 @@ function appendCase01Phase1ResultSignals(
     if (label) actions.push(`응답 기준: ${label}`);
   }
 
-  if (goal === "fact_difference" || goal === "verify_violation") {
+  if (
+    goal === "fact_difference" ||
+    goal === "verify_violation" ||
+    goal === "fit_and_facts"
+  ) {
     cautions.push("사실관계 차이 확인이 우선 목표로 선택됨");
     actions.push("알고 있는 사실과 기관 확인 내용을 대조해 보세요.");
-  } else if (goal === "what_when") {
+  } else if (goal === "what_when" || goal === "what_to_do_now") {
     actions.push("이 통지 후 필요한 대응과 기한을 먼저 확인해 보세요.");
+  } else if (goal === "why_and_basis") {
+    actions.push("통지·문서에 적힌 근거와 문제라고 하는 부분을 확인해 보세요.");
   } else if (goal === "unsure") {
     unconfirmed.push("우선 확인할 항목");
   }
 
-  if (responded === "none") {
+  const compareGap = answers[CASE01_FACT_COMPARE_GAP_KEY];
+  if (compareGap === "gap_notice_incomplete") {
+    unconfirmed.push("통지 핵심 문구");
+    actions.push("통지서·안내에 적힌 날짜·행동·대상 문구를 다시 확인해 보세요.");
+  } else if (compareGap === "gap_memory_timeline") {
+    cautions.push("당시 일정·장소 기억이 흐려 사실 대조가 어려운 상태임");
+    actions.push("기억나는 일정·장소를 메모하고 통지 내용과 맞춰 보세요.");
+  } else if (compareGap === "gap_hearsay_channel") {
+    cautions.push("다른 사람을 통해 안내를 알게 된 상태임");
+    actions.push("직접 받은 통지·문자·대화가 있는지 확인해 보세요.");
+  } else if (compareGap === "gap_records_not_found") {
+    actions.push("제출·접수·등록 증빙을 찾아 통지 내용과 대조해 보세요.");
+  } else if (compareGap === "gap_language_access") {
+    unconfirmed.push("안내 문구 확인");
+    actions.push("통지 원문·통역·핵심 문장을 다시 확인해 보세요.");
+  }
+
+  const rel = answers.case01_factRelationship;
+  if (rel === "deny_with_alibi") {
+    cautions.push("지적한 행동을 하지 않았다고 응답함 — 반박 단서 확인이 필요함");
+    actions.push("당시 일정·장소·증빙과 통지 내용을 대조해 보세요.");
+  } else if (rel === "partial_core_dispute") {
+    cautions.push("핵심 사실관계가 다르게 안내된 것으로 응답함");
+  }
+
+  if (responded === "none" || responded === "no_contact_yet") {
     cautions.push("아직 기관에 설명하거나 자료를 제출하지 않은 상태임");
     actions.push("통지서 원문과 요구 내용을 먼저 확인해 보세요.");
   } else if (responded === "more_demand") {
@@ -1538,9 +1577,19 @@ function appendCase01Phase1ResultSignals(
     unconfirmed.push("기관 답변·후속 안내");
   }
 
-  if (deadline === "confirmed") {
+  const deadlineDate = answers[CASE01_DEADLINE_DATE_KEY]?.trim();
+  if (
+    (deadline === "confirmed" || deadline === "deadline_day_known") &&
+    deadlineDate
+  ) {
+    cautions.push("대응 기한이 확인된 상태 — 기한 내 확인이 필요함");
+    actions.push(`확인한 대응 기한(${case01TruncateResultDetailText(deadlineDate)})을 통지서와 대조해 보세요.`);
+  } else if (deadline === "confirmed" || deadline === "deadline_day_known") {
     cautions.push("대응 기한이 확인된 상태 — 기한 내 확인이 필요함");
     actions.push("통지서에 적힌 대응 기한을 다시 확인해 보세요.");
+  } else if (deadline === "deadline_window_only") {
+    unconfirmed.push("대응 기한(구체 일자)");
+    actions.push("안내에 적힌 기간·날짜를 다시 확인해 보세요.");
   } else if (deadline === "overdue_concern") {
     cautions.push("기한 경과 가능성에 대한 우려가 있음");
     actions.push("통지서의 기한과 현재 날짜를 대조해 보세요.");
@@ -2450,12 +2499,14 @@ function buildCase06IntegratedSituation(answers: ReviewAnswers, profile: CaseRes
         : profile.customerAction.value
           ? `현재까지 ${profile.customerAction.value} 상태이며`
           : null;
+    const amountText = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
+    const amountClause = amountText ? `적어 둔 금액은 ${amountText} 입니다.` : null;
     const closing = deadlineText
       ? `적어 둔 기한·날짜는 ${deadlineText} 입니다.`
       : case06NeedsDeadlineDate(answers)
         ? describeDeadlineUncertain()
         : null;
-    return joinNarrative([opening, middle, closing]);
+    return joinNarrative([opening, middle, amountClause, closing]);
   }
 
   const issue = answers.profilePerceivedIssue;
@@ -2630,6 +2681,21 @@ function buildPhase2RiskSummary(answers: ReviewAnswers, profile: CaseResolutionP
   }
 
   if (q1Case === "CASE_06") {
+    if (!isCase06LegacyRestorePath(answers) && resolveCase06Phase2ChainId(answers) === 1) {
+      const amountText = answers[CASE06_PAYMENT_AMOUNT_TEXT_KEY]?.trim();
+      if (amountText) {
+        return `2차 추가 확인에서는 응답에 정리한 납부 금액(${amountText})이 핵심입니다.`;
+      }
+      if (answers.case06_paymentAmountKnown === "conflicting_amounts") {
+        return "2차 추가 확인에서는 납부 금액이 여러 번 다르게 안내된 상태가 핵심입니다.";
+      }
+      if (
+        answers.case06_paymentSituationMatch === "amount_or_reason_mismatch" ||
+        answers.case06_paymentSituationMatch === "redemand_after_paid"
+      ) {
+        return "2차 추가 확인에서는 납부 금액·사유가 실제 상황과 다르게 느껴진다는 점이 핵심입니다.";
+      }
+    }
     if (answers.case06_actualCore === "still_unclear") {
       return "2차 추가 확인에서는 문서의 핵심 내용이 아직 명확하지 않다는 점이 핵심입니다.";
     }
@@ -3851,6 +3917,23 @@ export function AdminVerifyFirstResultPanel({
                 >
                   {personalized.integratedSituation}
                 </p>
+                {!isRealEstate &&
+                data.case06PrincipleFStateLines &&
+                data.case06PrincipleFStateLines.length > 0 ? (
+                  <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
+                    {data.case06PrincipleFStateLines.map((line) => (
+                      <p
+                        key={line}
+                        className={cn(
+                          "text-xs font-normal leading-snug text-slate-600 sm:text-[13px]",
+                          FIRST_RESULT_READABLE_CLASS,
+                        )}
+                      >
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
 

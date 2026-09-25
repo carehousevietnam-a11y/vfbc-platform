@@ -421,6 +421,7 @@ function appendLegacyFollowUps(
 
 export const CASE01_FACT_DIFFERENCE_DETAIL_KEY = "case01_factDifferenceDetail";
 export const CASE01_DATE_PLACE_DETAIL_KEY = "case01_datePlaceDetail";
+export const CASE01_FACT_COMPARE_GAP_KEY = "case01_factCompareGap";
 
 export const CASE01_ANSWER_KEYS = [
   "case01_confirmGoal",
@@ -428,6 +429,7 @@ export const CASE01_ANSWER_KEYS = [
   "case01_actualSituation",
   CASE01_FACT_DIFFERENCE_DETAIL_KEY,
   CASE01_DATE_PLACE_DETAIL_KEY,
+  CASE01_FACT_COMPARE_GAP_KEY,
   "case01_factRelationship",
   "case01_authorityDemand",
   "case01_authorityDemandDetail",
@@ -446,7 +448,53 @@ export const CASE01_DEADLINE_DATE_KEY = "case01_deadlineDate";
 export const CASE05_DEADLINE_DATE_KEY = "case05_deadlineDate";
 export const CASE01_RESPONSE_DETAIL_NOTE_KEY = "case01_responseDetailNote";
 
+const CASE01_FACT_COMPARE_GAP_OPTIONS = [
+  {
+    value: "gap_notice_incomplete",
+    label:
+      "통지서·안내를 봤지만, 문제가 된 날짜·장소·행동·누구에 대한 내용이 빠져 있거나 적혀 있지 않아, 지금은 교통국 설명과 제 상황을 대조할 수 없습니다.",
+  },
+  {
+    value: "gap_memory_timeline",
+    label:
+      "무엇이 문제라고 들은 것은 대략 기억나지만, 그때가 언제·어디였는지 일정과 장소가 흐려져, 설명받은 내용과 제가 한 일을 맞춰 보기 어렵습니다.",
+  },
+  {
+    value: "gap_hearsay_channel",
+    label:
+      "교통국에서 직접 설명을 듣거나 문서를 받지 못했고, 지인·대행·통역 등 다른 경로로만 들었기 때문에, 통지 내용과 사실이 같은지 확인하기 어렵습니다.",
+  },
+  {
+    value: "gap_records_not_found",
+    label:
+      "교통국이 말하는 내용과 제 제출·등록·접수 기록이 맞는지 보려면 자료가 필요한데, 아직 접수증·등록 내역·제출 증빙을 찾지 못했습니다.",
+  },
+  {
+    value: "gap_language_access",
+    label:
+      "안내를 받은 것은 기억나지만, 한국어·통역으로 문구를 제대로 이해하지 못했거나, 무엇이 문제라고 하는지 핵심 문장을 확인하지 못해 비교할 수 없습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
+];
+
 const CASE01_CONFIRM_GOAL_OPTIONS = [
+  {
+    value: "fit_and_facts",
+    label:
+      "내 상황에 해당하는지와 사실·날짜·행동이 맞는지를 먼저 확인하고 싶습니다.",
+  },
+  {
+    value: "why_and_basis",
+    label: "왜 이런 통지·문제 판단이 나왔는지와 근거·기록을 확인하고 싶습니다.",
+  },
+  {
+    value: "what_to_do_now",
+    label: "지금 무엇을·언제까지·어떻게 해야 하는지(출석·제출·납부 등)를 확인하고 싶습니다.",
+  },
+  {
+    value: "after_my_response",
+    label: "이미 한 대응의 결과와 다음 절차·재요구를 확인하고 싶습니다.",
+  },
   {
     value: "verify_applicability",
     label: "실제로 제 상황에 해당하는지 확인하고 싶습니다.",
@@ -475,6 +523,21 @@ export const CASE01_FACT_RELATIONSHIP_NOTE_KEY = "case01_factRelationshipNote";
 export const CASE01_CUSTOMER_RESPONDED_NOTE_KEY = "case01_customerRespondedNote";
 
 const CASE01_VIOLATION_CONTENT_OPTIONS = [
+  {
+    value: "traffic_spatiotemporal_dispute",
+    label:
+      "특정 날짜·장소·행동을 문제라고 들었고, 그날 제가 있었던 곳·한 일과 겹치거나 충돌합니다. 통지·문자에 날짜·장소가 적혀 있어 대조할 자료가 있습니다.",
+  },
+  {
+    value: "conduct_denied_or_partial",
+    label:
+      "제가 하지 않았거나, 일부만 맞는 행동·상황을 문제라고 들었습니다. 당시 다른 일·다른 장소를 기억하고 있고, 이를 설명할 메모·증빙이 있을 수 있습니다.",
+  },
+  {
+    value: "authority_explanation_missing",
+    label:
+      "무엇이 문제인지 설명을 못 받았거나 통역·구두만으로 들어 내용이 불명확합니다. 안내를 받은 경로는 있으나 쟁점 문구를 확인하지 못했습니다.",
+  },
   {
     value: "other_stated",
     label: "실제 행동이나 상황을 문제라고 설명받은 것 같습니다.",
@@ -524,6 +587,26 @@ const CASE01_ACTUAL_SITUATION_OPTIONS = [
 
 const CASE01_FACT_RELATIONSHIP_OPTIONS = [
   {
+    value: "align_minor_gap",
+    label:
+      "대체로 같으나 날짜·시간·장소·행동 한두 가지가 다르거나 기억이 흐립니다. 통지서 날짜·장소 문구와 대조할 예정입니다.",
+  },
+  {
+    value: "deny_with_alibi",
+    label:
+      "지적한 행동은 하지 않았고, 그 시각·장소에 다른 일을 했습니다. 일정·사진·동행 등 반박 단서가 있을 수 있습니다.",
+  },
+  {
+    value: "partial_core_dispute",
+    label:
+      "일부는 맞지만, 문제의 핵심(누가·무엇을·언제)이 다르게 기록·안내된 것 같습니다. 어디가 핵심인지 정리가 필요합니다.",
+  },
+  {
+    value: "cannot_compare_yet",
+    label:
+      "설명은 들었지만, 지금은 교통국 안내와 제가 아는 사실을 같은 기준으로 비교하기 어렵습니다. (다음에서 이유를 선택합니다.)",
+  },
+  {
     value: "match",
     label:
       "교통국에서 설명받은 내용과 제가 알고 있는 실제 상황이 대체로 같습니다.",
@@ -549,6 +632,26 @@ const CASE01_FACT_RELATIONSHIP_OPTIONS = [
 ];
 
 const CASE01_AUTHORITY_DEMAND_OPTIONS = [
+  {
+    value: "pay_core_traffic",
+    label:
+      "이번 교통·위반 문제의 핵심으로 납부·벌금을 요구했고, 다른 안내와 섞여 있지 않습니다.",
+  },
+  {
+    value: "pay_bundled",
+    label:
+      "납부 요구가 다른 문제·다른 안내와 함께 나왔고, 어느 금액이 이번 건인지 불분명합니다.",
+  },
+  {
+    value: "supplement_core",
+    label:
+      "이번 건 핵심이 서류 보완·재제출이고, 납부·출석 요구는 아직 아닙니다.",
+  },
+  {
+    value: "attend_explain",
+    label:
+      "출석·소명·추가 설명을 요구했고, 제출만으로 끝나지 않습니다.",
+  },
   { value: "attendance", label: "추가 설명이나 출석을 하라고 안내했습니다." },
   { value: "supplement", label: "추가 서류나 자료를 제출하라고 안내했습니다." },
   { value: "payment", label: "비용·벌금·과태료를 납부하라고 안내했습니다." },
@@ -581,6 +684,11 @@ const CASE01_SUPPLEMENT_DEMAND_SCOPE_OPTIONS = [
 ];
 
 const CASE01_CUSTOMER_RESPONDED_OPTIONS = [
+  {
+    value: "no_contact_yet",
+    label:
+      "아직 교통국에 연락·출석·제출을 하지 않았고, 통지만 받은 상태입니다. 무엇부터 할지 확인이 필요합니다.",
+  },
   { value: "none", label: "아직 교통국에 별도로 대응하지 않았습니다." },
   {
     value: "has_responded",
@@ -617,6 +725,20 @@ const CASE01_AUTHORITY_RESPONSE_OPTIONS = [
 ];
 
 const CASE01_DEADLINE_OPTIONS = [
+  {
+    value: "deadline_day_known",
+    label:
+      "연·월·일이 적힌 기한을 확인했고, 그 날짜 전에 무엇을 해야 하는지도 대략 압니다. 통지·문자에 날짜 문구가 있습니다.",
+  },
+  {
+    value: "deadline_window_only",
+    label:
+      "‘이번 달 말’·‘2주 내’ 등 구체 일자는 없고 기간만 들었습니다. 언제까지인지 재확인이 필요합니다.",
+  },
+  {
+    value: "no_deadline_stated",
+    label: "기한 언급이 없었거나 기억나지 않습니다. 기한 없이 요구만 받은 것 같습니다.",
+  },
   {
     value: "confirmed",
     label: "대응해야 하는 날짜를 구체적으로 안내받았습니다.",
@@ -744,14 +866,45 @@ function normalizeCase01FinalGoal(value: string | undefined): string | undefined
   return value;
 }
 
+function case01FactRelationshipUsesCompareGap(relationship: string | undefined): boolean {
+  return relationship === "cannot_compare_yet";
+}
+
+function case01NeedsFactCompareGap(answers: ReviewAnswers): boolean {
+  if (!case01FactRelationshipUsesCompareGap(answers.case01_factRelationship)) return false;
+  return !isAdminVerifyChoiceFieldComplete(
+    CASE01_FACT_COMPARE_GAP_KEY,
+    answers,
+    CASE01_FACT_COMPARE_GAP_OPTIONS,
+  );
+}
+
+function case01DeadlineRequiresDateText(deadline: string | undefined): boolean {
+  return deadline === "confirmed" || deadline === "deadline_day_known";
+}
+
 function inferCase01ActualSituationFromFactRelationship(
   relationship: string | undefined,
 ): string | undefined {
   if (!relationship) return undefined;
   if (relationship === "match") return "accept_facts";
-  if (relationship === "partial_situation") return "partial";
-  if (relationship === "deny_action" || relationship === "date_place_wrong") return "deny";
-  if (relationship === "unknown" || relationship === "hard_to_explain" || relationship === "hard_to_judge") {
+  if (relationship === "align_minor_gap") return "partial_similar";
+  if (relationship === "partial_situation" || relationship === "partial_core_dispute") {
+    return "partial";
+  }
+  if (
+    relationship === "deny_action" ||
+    relationship === "date_place_wrong" ||
+    relationship === "deny_with_alibi"
+  ) {
+    return "deny";
+  }
+  if (
+    relationship === "unknown" ||
+    relationship === "cannot_compare_yet" ||
+    relationship === "hard_to_explain" ||
+    relationship === "hard_to_judge"
+  ) {
     return "unsure";
   }
   return undefined;
@@ -776,9 +929,13 @@ function getCase01ActualSituationLabel(answers: ReviewAnswers): string | null {
 /** CASE_01 M01 — Profile `actualSituation` only (factRelationship slug 칸 미합성) */
 export function case01ActualSituationProfileLabel(answers: ReviewAnswers): string | null {
   const core = getCase01ActualSituationLabel(answers);
+  const gapLabel = answers[CASE01_FACT_COMPARE_GAP_KEY]
+    ? CASE01_OPTION_LABELS[answers[CASE01_FACT_COMPARE_GAP_KEY]] ??
+      answers[CASE01_FACT_COMPARE_GAP_KEY]
+    : null;
   const diff = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
   const dp = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
-  const extras = [diff, dp].filter(Boolean);
+  const extras = [gapLabel, diff, dp].filter(Boolean);
   if (!core && extras.length === 0) return null;
   if (!core) return extras.join(" · ");
   if (extras.length === 0) return core;
@@ -815,6 +972,7 @@ export const CASE01_OPTION_LABELS: Record<string, string> = {
   ...Object.fromEntries(CASE01_VIOLATION_CONTENT_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE01_ACTUAL_SITUATION_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE01_FACT_RELATIONSHIP_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_FACT_COMPARE_GAP_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE01_AUTHORITY_DEMAND_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE01_PAYMENT_DEMAND_SCOPE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE01_SUPPLEMENT_DEMAND_SCOPE_OPTIONS.map((o) => [o.value, o.label])),
@@ -895,7 +1053,10 @@ function case01FactRelationshipImpliesDifference(relationship: string | undefine
   return (
     relationship === "date_place_wrong" ||
     relationship === "deny_action" ||
+    relationship === "deny_with_alibi" ||
     relationship === "partial_situation" ||
+    relationship === "partial_core_dispute" ||
+    relationship === "align_minor_gap" ||
     relationship === "info_mismatch" ||
     relationship === "mismatch" ||
     relationship === "partial" ||
@@ -904,13 +1065,17 @@ function case01FactRelationshipImpliesDifference(relationship: string | undefine
 }
 
 function case01CustomerRespondedImpliesAction(value: string | undefined): boolean {
-  if (!value || value === "none" || value === "response_unknown") return false;
+  if (!value || value === "none" || value === "no_contact_yet" || value === "response_unknown") {
+    return false;
+  }
   if (value === "has_responded") return true;
   return CASE01_LEGACY_CUSTOMER_RESPONDED_ACTION_VALUES.has(value);
 }
 
 function case01NeedsPaymentDemandScope(answers: ReviewAnswers): boolean {
-  if (answers.case01_authorityDemand !== "payment") return false;
+  const demand = answers.case01_authorityDemand;
+  if (demand === "pay_core_traffic" || demand === "pay_bundled") return false;
+  if (demand !== "payment") return false;
   return !isAdminVerifyChoiceFieldComplete(
     "case01_paymentDemandScope",
     answers,
@@ -919,7 +1084,9 @@ function case01NeedsPaymentDemandScope(answers: ReviewAnswers): boolean {
 }
 
 function case01NeedsSupplementDemandScope(answers: ReviewAnswers): boolean {
-  if (answers.case01_authorityDemand !== "supplement") return false;
+  const demand = answers.case01_authorityDemand;
+  if (demand === "supplement_core") return false;
+  if (demand !== "supplement") return false;
   return !isAdminVerifyChoiceFieldComplete(
     "case01_supplementDemandScope",
     answers,
@@ -937,12 +1104,23 @@ function case01NeedsActualSituationQuestion(answers: ReviewAnswers): boolean {
 
 function case01NeedsFactDifferenceDetail(answers: ReviewAnswers): boolean {
   const relationship = answers.case01_factRelationship;
-  if (!relationship || relationship === "match" || relationship === "unknown") return false;
+  if (
+    !relationship ||
+    relationship === "match" ||
+    relationship === "unknown" ||
+    relationship === "cannot_compare_yet" ||
+    relationship === "deny_with_alibi" ||
+    relationship === "partial_core_dispute" ||
+    relationship === "align_minor_gap"
+  ) {
+    return false;
+  }
   if (!case01FactRelationshipImpliesDifference(relationship)) return false;
   return !answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
 }
 
 function case01NeedsUnknownInfoGap(answers: ReviewAnswers): boolean {
+  if (case01FactRelationshipUsesCompareGap(answers.case01_factRelationship)) return false;
   if (answers.case01_factRelationship !== "unknown") return false;
   if (answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim()) return false;
   return !answers[CASE01_FACT_RELATIONSHIP_NOTE_KEY]?.trim();
@@ -1039,15 +1217,19 @@ function case01NeedsFinalGoal(answers: ReviewAnswers): boolean {
 }
 
 function case01NeedsDeadlineDateDetail(answers: ReviewAnswers): boolean {
-  if (answers.case01_deadline !== "confirmed") return false;
+  if (!case01DeadlineRequiresDateText(answers.case01_deadline)) return false;
   return !answers[CASE01_DEADLINE_DATE_KEY]?.trim();
 }
 
 function case01NeedsBlockage(answers: ReviewAnswers): boolean {
   const rel = answers.case01_factRelationship;
-  if (rel === "unknown") return true;
+  const gap = answers[CASE01_FACT_COMPARE_GAP_KEY];
+  if (rel === "unknown" || gap === "gap_memory_timeline" || gap === "gap_language_access") {
+    return true;
+  }
   if (
     answers.case01_deadline === "asap" ||
+    answers.case01_deadline === "deadline_window_only" ||
     answers.case01_deadline === "overdue_concern"
   ) {
     return true;
@@ -1078,6 +1260,13 @@ function case01Phase2FieldAnswered(
     fieldId === CASE01_DEADLINE_DATE_KEY
   ) {
     return Boolean(answers[fieldId as keyof ReviewAnswers]?.trim());
+  }
+  if (fieldId === CASE01_FACT_COMPARE_GAP_KEY) {
+    return isAdminVerifyChoiceFieldComplete(
+      CASE01_FACT_COMPARE_GAP_KEY,
+      answers,
+      CASE01_FACT_COMPARE_GAP_OPTIONS,
+    );
   }
   if (fieldId === getAdminChoiceNoteKey("case01_authorityDemand")) {
     return Boolean(answers[getAdminChoiceNoteKey("case01_authorityDemand")]?.trim());
@@ -1202,12 +1391,14 @@ export function isCase01Phase1Complete(answers: ReviewAnswers): boolean {
       answers,
       CASE01_FACT_RELATIONSHIP_OPTIONS,
     ) &&
+    !case01NeedsFactCompareGap(answers) &&
     isAdminVerifyChoiceFieldComplete(
       "case01_customerResponded",
       answers,
       CASE01_CUSTOMER_RESPONDED_OPTIONS,
     ) &&
     isAdminVerifyChoiceFieldComplete("case01_deadline", answers, CASE01_DEADLINE_OPTIONS) &&
+    !case01NeedsDeadlineDateDetail(answers) &&
     isAdminVerifyChoiceFieldComplete("case01_confirmGoal", answers, CASE01_CONFIRM_GOAL_OPTIONS)
   );
 }
@@ -1247,6 +1438,19 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
     return;
   }
 
+  if (case01NeedsFactCompareGap(answers)) {
+    pushUnique(questions, {
+      id: CASE01_FACT_COMPARE_GAP_KEY,
+      kind: "choice",
+      label:
+        "설명받은 내용과 실제 상황을 지금 바로 비교하기 어려운 가장 큰 이유는 무엇에 가깝나요?",
+      options: CASE01_FACT_COMPARE_GAP_OPTIONS,
+    });
+    if (case01NeedsFactCompareGap(answers)) {
+      return;
+    }
+  }
+
   pushUnique(questions, {
     id: "case01_customerResponded",
     kind: "choice",
@@ -1273,6 +1477,18 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
     !isAdminVerifyChoiceFieldComplete("case01_deadline", answers, CASE01_DEADLINE_OPTIONS)
   ) {
     return;
+  }
+
+  if (case01NeedsDeadlineDateDetail(answers)) {
+    pushUnique(questions, {
+      id: CASE01_DEADLINE_DATE_KEY,
+      kind: "text",
+      label: "확인한 대응 기한은 언제인가요?",
+      placeholder: "기억나는 날짜·기한을 적어 주세요.",
+    });
+    if (case01NeedsDeadlineDateDetail(answers)) {
+      return;
+    }
   }
 
   pushUnique(questions, {
@@ -1537,6 +1753,7 @@ function appendCase01PathQuestions(
 
 function case01PathFieldsComplete(answers: ReviewAnswers): boolean {
   if (!isCase01Phase1Complete(answers)) return false;
+  if (case01NeedsFactCompareGap(answers)) return false;
   if (case01NeedsPaymentDemandScope(answers)) return false;
   if (case01NeedsSupplementDemandScope(answers)) return false;
   if (case01NeedsActualSituationQuestion(answers)) return false;
@@ -8446,8 +8663,20 @@ function classifyFromCase01Answers(answers: ReviewAnswers): {
   const violation = answers.case01_violationContent;
   const confirmGoal = answers.case01_confirmGoal;
 
+  const gap = answers[CASE01_FACT_COMPARE_GAP_KEY];
+  if (gap === "gap_hearsay_channel") {
+    return {
+      id: "CASE_06",
+      status: "candidate",
+      confidence: 0.6,
+      reason: "간접 경로로만 안내를 알게 되었다고 응답",
+    };
+  }
+
   if (
-    (violation === "explanation_unknown" || violation === "unsure") &&
+    (violation === "explanation_unknown" ||
+      violation === "authority_explanation_missing" ||
+      violation === "unsure") &&
     (case01ConfirmGoalIsUnclear(answers) ||
       demand === "understanding_unknown" ||
       demand === "no_stated_demand" ||
@@ -8470,7 +8699,10 @@ function classifyFromCase01Answers(answers: ReviewAnswers): {
     };
   }
 
-  if (demand === "payment" && answers.case01_paymentDemandScope === "core_case") {
+  if (
+    demand === "pay_core_traffic" ||
+    (demand === "payment" && answers.case01_paymentDemandScope === "core_case")
+  ) {
     return {
       id: "CASE_02",
       status: "inferred",
@@ -8478,7 +8710,10 @@ function classifyFromCase01Answers(answers: ReviewAnswers): {
       reason: "납부·벌금이 이번 사건의 핵심으로 확인됨",
     };
   }
-  if (demand === "supplement" && answers.case01_supplementDemandScope === "core_case") {
+  if (
+    demand === "supplement_core" ||
+    (demand === "supplement" && answers.case01_supplementDemandScope === "core_case")
+  ) {
     return {
       id: "CASE_04",
       status: "inferred",
@@ -8668,12 +8903,18 @@ function collectCase01Unknowns(answers: ReviewAnswers): string[] {
   if (!answers.case01_confirmGoal) return unknowns;
   if (
     answers.case01_violationContent === "explanation_unknown" ||
+    answers.case01_violationContent === "authority_explanation_missing" ||
     answers.case01_violationContent === "unsure"
   ) {
     unknowns.push("통지서에 적힌 위반·문제 내용");
   }
   if (answers.case01_actualSituation === "unsure") unknowns.push("실제 상황 설명");
-  if (answers.case01_factRelationship === "unknown") {
+  const compareGap = answers[CASE01_FACT_COMPARE_GAP_KEY];
+  if (compareGap === "gap_notice_incomplete") {
+    unknowns.push("통지 핵심 문구");
+  } else if (compareGap === "gap_language_access") {
+    unknowns.push("안내 문구 확인");
+  } else if (answers.case01_factRelationship === "unknown") {
     unknowns.push("통지 내용과 실제 상황 비교");
   }
   if (
@@ -9425,8 +9666,9 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
           ? `납부 기한: ${answers[CASE02_DEADLINE_DATE_KEY].trim()}`
           : getCase02FieldOptionLabel("case02_deadline", answers.case02_deadline)
         : answers.case01_deadline
-          ? answers.case01_deadline === "confirmed" && answers[CASE01_DEADLINE_DATE_KEY]
-            ? `대응 기한: ${answers[CASE01_DEADLINE_DATE_KEY]}`
+          ? case01DeadlineRequiresDateText(answers.case01_deadline) &&
+            answers[CASE01_DEADLINE_DATE_KEY]?.trim()
+            ? `대응 기한: ${answers[CASE01_DEADLINE_DATE_KEY].trim()}`
             : CASE01_OPTION_LABELS[answers.case01_deadline] ?? answers.case01_deadline
           : deadlineAssessment === "ok"
         ? "기한·유효기간 확인 완료 응답"
@@ -10722,8 +10964,17 @@ function case01Phase2SkipReason(
   ) {
     return "authorityDemand !== supplement";
   }
-  if (fieldId === CASE01_DEADLINE_DATE_KEY && answers.case01_deadline !== "confirmed") {
-    return "deadline !== confirmed";
+  if (
+    fieldId === CASE01_DEADLINE_DATE_KEY &&
+    !case01DeadlineRequiresDateText(answers.case01_deadline)
+  ) {
+    return "deadline !== date-required slug";
+  }
+  if (
+    fieldId === CASE01_FACT_COMPARE_GAP_KEY &&
+    !case01FactRelationshipUsesCompareGap(answers.case01_factRelationship)
+  ) {
+    return "factRelationship !== cannot_compare_yet";
   }
   if (
     fieldId === CASE05_DEADLINE_DATE_KEY &&
