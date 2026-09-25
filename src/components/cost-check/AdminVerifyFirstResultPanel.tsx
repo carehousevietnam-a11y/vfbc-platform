@@ -41,10 +41,6 @@ import {
   isCase01Phase1Complete,
   isCase02Phase1Complete,
   isCase03Phase1Complete,
-  buildCase01PrincipleFStateLines,
-  buildCase03PrincipleFStateLines,
-  buildCase04PrincipleFStateLines,
-  buildCase05PrincipleFStateLines,
   isAdminVerifyPhase2PathComplete,
   isCase04Phase1Complete,
   isCase05Phase1Complete,
@@ -59,8 +55,8 @@ import {
   type CaseResolutionProfile,
   type FieldAssessment,
 } from "@/lib/adminVerifyProfiling";
+import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
 import {
-  buildCase06PrincipleFStateLines,
   CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
   CASE06_DEADLINE_DATE_KEY,
   CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY,
@@ -112,11 +108,8 @@ export type AdminVerifyFirstResultData = {
   personalizedContext?: AdminVerifyPersonalizedContext;
   case06ExpertHandoffRequired?: boolean;
   /** R03=C — CASE_06 bridge hints above situation summary (same text as question L5). */
-  case06PrincipleFStateLines?: string[];
-  case03PrincipleFStateLines?: string[];
-  case04PrincipleFStateLines?: string[];
-  case05PrincipleFStateLines?: string[];
-  case01PrincipleFStateLines?: string[];
+  /** Layer A — §01 「응답 요약」 (DI·note·첨부만) */
+  adminResponseSummaryLines?: string[];
 };
 
 function metricFootnote(
@@ -2726,28 +2719,9 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     stage === "prevent" ? "사전 검토" : stage === "case" ? "사후 검토" : "검토";
 
   const caseClassId = profile.caseClassification.value ?? "UNIVERSAL";
-  const case06PrincipleFStateLines =
-    q1Case === "CASE_06" && !isCase06LegacyRestorePath(answers)
-      ? buildCase06PrincipleFStateLines(answers)
-      : undefined;
-  const case03PrincipleFStateLines =
-    q1Case === "CASE_03" && isCase03Phase1Complete(answers)
-      ? buildCase03PrincipleFStateLines(answers)
-      : undefined;
-  const case04PrincipleFStateLines =
-    q1Case === "CASE_04" && isCase04Phase1Complete(answers)
-      ? buildCase04PrincipleFStateLines(answers)
-      : undefined;
-  const case05PrincipleFStateLines =
-    q1Case === "CASE_05" && isCase05Phase1Complete(answers)
-      ? buildCase05PrincipleFStateLines(answers)
-      : undefined;
-  const case01PrincipleFStateLines =
-    q1Case === "CASE_01" &&
-    isCase01Phase1Complete(answers) &&
-    isAdminVerifyPhase2PathComplete(answers)
-      ? buildCase01PrincipleFStateLines(answers)
-      : undefined;
+  const responseSummaryBlock = buildAdminVerifyResponseSummaryBlock(answers);
+  const adminResponseSummaryLines =
+    responseSummaryBlock.length > 0 ? responseSummaryBlock : undefined;
 
   return {
     stageLabel,
@@ -2764,36 +2738,8 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     actions: [...new Set(actions)].slice(0, 3),
     referenceDateLabel: formatReferenceDateLabel(),
     caseClassificationLabel: MASTER_CASE_LABELS[caseClassId],
-    case06PrincipleFStateLines:
-      case06PrincipleFStateLines && case06PrincipleFStateLines.length > 0
-        ? case06PrincipleFStateLines
-        : undefined,
-    case03PrincipleFStateLines:
-      case03PrincipleFStateLines && case03PrincipleFStateLines.length > 0
-        ? case03PrincipleFStateLines
-        : undefined,
-    case04PrincipleFStateLines:
-      case04PrincipleFStateLines && case04PrincipleFStateLines.length > 0
-        ? case04PrincipleFStateLines
-        : undefined,
-    case05PrincipleFStateLines:
-      case05PrincipleFStateLines && case05PrincipleFStateLines.length > 0
-        ? case05PrincipleFStateLines
-        : undefined,
-    case01PrincipleFStateLines:
-      case01PrincipleFStateLines && case01PrincipleFStateLines.length > 0
-        ? case01PrincipleFStateLines
-        : undefined,
+    adminResponseSummaryLines,
   };
-}
-
-function adminVerifyPrincipleFStateLines(data: AdminVerifyFirstResultData): string[] {
-  return [
-    ...(data.case06PrincipleFStateLines ?? []),
-    ...(data.case03PrincipleFStateLines ?? []),
-    ...(data.case04PrincipleFStateLines ?? []),
-    ...(data.case05PrincipleFStateLines ?? []),
-  ];
 }
 
 const CASE01_PHASE1_SUMMARY_FIELDS: { key: string; label: string }[] = [
@@ -4591,25 +4537,10 @@ export function AdminVerifyFirstResultPanel({
                 >
                   {personalized.integratedSituation}
                 </p>
-                {!isRealEstate && data.case01PrincipleFStateLines?.length ? (
+                {!isRealEstate && data.adminResponseSummaryLines?.length ? (
                   <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
                     <p className="text-xs font-semibold text-slate-700">응답 요약</p>
-                    {data.case01PrincipleFStateLines.map((line) => (
-                      <p
-                        key={line}
-                        className={cn(
-                          "text-xs font-normal leading-snug text-slate-600 sm:text-[13px]",
-                          FIRST_RESULT_READABLE_CLASS,
-                        )}
-                      >
-                        {line}
-                      </p>
-                    ))}
-                  </div>
-                ) : null}
-                {!isRealEstate && adminVerifyPrincipleFStateLines(data).length > 0 ? (
-                  <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
-                    {adminVerifyPrincipleFStateLines(data).map((line) => (
+                    {data.adminResponseSummaryLines.map((line) => (
                       <p
                         key={line}
                         className={cn(
@@ -4846,9 +4777,9 @@ export function AdminVerifyFirstResultPanel({
                 </span>
                 <h3 className={FIRST_RESULT_READABLE_CLASS}>{displayStatusHeadline}</h3>
               </div>
-              {adminVerifyPrincipleFStateLines(data).length > 0 ? (
+              {data.adminResponseSummaryLines?.length ? (
                 <div className="mt-3 space-y-1">
-                  {adminVerifyPrincipleFStateLines(data).map((line) => (
+                  {data.adminResponseSummaryLines.map((line) => (
                     <p
                       key={line}
                       className={cn(

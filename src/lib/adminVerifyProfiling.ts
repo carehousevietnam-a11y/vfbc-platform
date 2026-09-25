@@ -423,22 +423,32 @@ export const CASE01_FACT_DIFFERENCE_DETAIL_KEY = "case01_factDifferenceDetail";
 export const CASE01_DATE_PLACE_DETAIL_KEY = "case01_datePlaceDetail";
 export const CASE01_FACT_COMPARE_GAP_KEY = "case01_factCompareGap";
 export const CASE01_DEADLINE_DATE_KEY = "case01_deadlineDate";
+export const CASE01_RESPONSE_DETAIL_NOTE_KEY = "case01_responseDetailNote";
+export const CASE01_VIOLATION_CONTENT_NOTE_KEY = "case01_violationContentNote";
+export const CASE01_FACT_RELATIONSHIP_NOTE_KEY = "case01_factRelationshipNote";
+export const CASE01_CUSTOMER_RESPONDED_NOTE_KEY = "case01_customerRespondedNote";
 
 export const CASE01_ANSWER_KEYS = [
   "case01_confirmGoal",
   "case01_violationContent",
+  CASE01_VIOLATION_CONTENT_NOTE_KEY,
   "case01_actualSituation",
   CASE01_FACT_DIFFERENCE_DETAIL_KEY,
   CASE01_DATE_PLACE_DETAIL_KEY,
   CASE01_FACT_COMPARE_GAP_KEY,
   "case01_factRelationship",
+  CASE01_FACT_RELATIONSHIP_NOTE_KEY,
   "case01_authorityDemand",
+  "case01_authorityDemandNote",
   "case01_authorityDemandDetail",
   "case01_paymentDemandScope",
   "case01_supplementDemandScope",
   "case01_customerResponded",
+  CASE01_CUSTOMER_RESPONDED_NOTE_KEY,
   "case01_responseDetail",
+  CASE01_RESPONSE_DETAIL_NOTE_KEY,
   "case01_authorityResponse",
+  "case01_authorityResponseNote",
   "case01_deadline",
   CASE01_DEADLINE_DATE_KEY,
   "case01_blockage",
@@ -447,7 +457,6 @@ export const CASE01_ANSWER_KEYS = [
 ] as const;
 
 export const CASE05_DEADLINE_DATE_KEY = "case05_deadlineDate";
-export const CASE01_RESPONSE_DETAIL_NOTE_KEY = "case01_responseDetailNote";
 
 const CASE01_FACT_COMPARE_GAP_OPTIONS = [
   {
@@ -518,10 +527,6 @@ const CASE01_CONFIRM_GOAL_OPTIONS = [
   },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
-
-export const CASE01_VIOLATION_CONTENT_NOTE_KEY = "case01_violationContentNote";
-export const CASE01_FACT_RELATIONSHIP_NOTE_KEY = "case01_factRelationshipNote";
-export const CASE01_CUSTOMER_RESPONDED_NOTE_KEY = "case01_customerRespondedNote";
 
 const CASE01_VIOLATION_CONTENT_OPTIONS = [
   {
@@ -3673,34 +3678,6 @@ function case03Phase2TailAxesUnlocked(answers: ReviewAnswers): boolean {
   return isCase03Phase1Complete(answers) && case03IsPhase2CoreBranchComplete(answers);
 }
 
-/** CASE_01 개인화 결과 §01 「응답 요약」 — 입력 원문은 여기에만 (항목명: 원문). */
-export function buildCase01PrincipleFStateLines(answers: ReviewAnswers): string[] {
-  const lines: string[] = [];
-  const diffDetail = answers[CASE01_FACT_DIFFERENCE_DETAIL_KEY]?.trim();
-  if (diffDetail) {
-    lines.push(`사실 차이: ${diffDetail}`);
-  }
-  const datePlace = answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
-  if (datePlace) {
-    lines.push(`날짜·장소: ${datePlace}`);
-  }
-  const authorityResponseNote = answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim();
-  if (authorityResponseNote) {
-    lines.push(`교통국 추가 요구: ${authorityResponseNote}`);
-  }
-  const evidence = answers.case01_evidence?.trim();
-  if (evidence && evidence !== "other") {
-    const evidenceLabel = CASE01_OPTION_LABELS[evidence] ?? evidence;
-    lines.push(`보유 자료: ${evidenceLabel}`);
-  }
-  const responseDetail = answers.case01_responseDetail?.trim();
-  if (responseDetail && responseDetail !== "other") {
-    const responseLabel = CASE01_OPTION_LABELS[responseDetail] ?? responseDetail;
-    lines.push(`대응 이력: ${responseLabel}`);
-  }
-  return lines;
-}
-
 export function buildCase04PrincipleFStateLines(answers: ReviewAnswers): string[] {
   const lines: string[] = [];
   const deadlineText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
@@ -6244,6 +6221,32 @@ const CASE05_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]
   case05_explanationDetail: CASE05_EXPLANATION_DETAIL_OPTIONS,
   case05_submittedDocsDetail: CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS,
   case05_appealDetail: CASE05_APPEAL_DETAIL_OPTIONS,
+};
+
+const ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
+  case01_violationContent: CASE01_VIOLATION_CONTENT_OPTIONS,
+  case01_factRelationship: CASE01_FACT_RELATIONSHIP_OPTIONS,
+  case01_factCompareGap: CASE01_FACT_COMPARE_GAP_OPTIONS,
+  case01_authorityDemand: CASE01_AUTHORITY_DEMAND_OPTIONS,
+  case01_paymentDemandScope: CASE01_PAYMENT_DEMAND_SCOPE_OPTIONS,
+  case01_supplementDemandScope: CASE01_SUPPLEMENT_DEMAND_SCOPE_OPTIONS,
+  case01_customerResponded: CASE01_CUSTOMER_RESPONDED_OPTIONS,
+  case01_responseDetail: CASE01_RESPONSE_DETAIL_OPTIONS,
+  case01_authorityResponse: CASE01_AUTHORITY_RESPONSE_OPTIONS,
+  case01_deadline: CASE01_DEADLINE_OPTIONS,
+  case01_actualSituation: CASE01_ACTUAL_SITUATION_OPTIONS,
+  case01_confirmGoal: CASE01_CONFIRM_GOAL_OPTIONS,
+  case01_blockage: CASE01_BLOCKAGE_UI_OPTIONS,
+  case01_evidence: CASE01_EVIDENCE_OPTIONS,
+  case01_finalGoal: CASE01_FINAL_GOAL_UI_OPTIONS,
+  ...CASE02_FIELD_OPTIONS,
+  case02_nonPaymentNotice: CASE02_NON_PAYMENT_NOTICE_OPTIONS,
+  case02_paymentMethod: CASE02_PAYMENT_METHOD_OPTIONS,
+  case02_authorityResponse: CASE01_AUTHORITY_RESPONSE_OPTIONS,
+  ...CASE03_FIELD_OPTION_MAP,
+  ...CASE04_FIELD_OPTION_MAP,
+  ...CASE05_FIELD_OPTION_MAP,
+  ...CASE06_V11_FIELD_OPTIONS,
 };
 
 export function getCase05FieldOptionLabel(fieldId: string, value: string): string {
@@ -12787,4 +12790,14 @@ export function buildAdminExpertHandoffMeta(
       caseClassification: profile.caseClassification.value,
     }),
   };
+}
+
+/** Layer J catalog — judgment field별 선택지 목록 (자동 추출 입력). */
+export function getAdminVerifyChoiceOptionsForField(
+  fieldId: string,
+): readonly { value: string; label: string }[] | undefined {
+  if (fieldId === "case06_documentNature") {
+    return CASE06_DOCUMENT_NATURE_OPTIONS;
+  }
+  return ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP[fieldId];
 }
