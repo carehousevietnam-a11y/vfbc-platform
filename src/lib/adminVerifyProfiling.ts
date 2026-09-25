@@ -17,6 +17,8 @@ import {
   isCase06LegacyRestorePath,
   isCase06Phase2ChainComplete,
   isCase06RedesignPhase1Complete,
+  isCase06LaunchSimplifiedSession,
+  maybeApplyCase06LaunchExpertHandoff,
   selectCase06RedesignResolutionFocus,
 } from "./adminVerifyCase06Redesign";
 
@@ -26,6 +28,8 @@ export {
   isCase06ExpertTerminal,
   isCase06Phase2ChainComplete,
   maybeApplyCase06ExpertTerminalOnAnswer,
+  maybeApplyCase06LaunchExpertHandoff,
+  isCase06LaunchSimplifiedSession,
   CASE06_BRIDGE_SNAPSHOT_COMMITTED_KEY,
   CASE06_BRIDGE_TARGET_CASE_KEY,
 } from "./adminVerifyCase06Redesign";
@@ -2039,6 +2043,9 @@ export const CASE02_ANSWER_KEYS = [
   "case02_paymentAmount",
   CASE02_PAYMENT_AMOUNT_DETAIL_KEY,
   "case02_paymentBasis",
+  "case02_noticeAccessFact",
+  "case02_paymentConfirmationFact",
+  "case02_paidProcessingFact",
   "case02_situationMatch",
   "case02_deadline",
   CASE02_DEADLINE_DATE_KEY,
@@ -2221,22 +2228,94 @@ const CASE02_PAYMENT_AMOUNT_OPTIONS = [
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
+const CASE02_PAYMENT_BASIS_LEGACY_VALUES: Record<string, string> = {
+  violation_stated: "basis_violation_cited",
+  license_admin: "basis_fee_schedule",
+  vehicle_related: "basis_prior_case",
+  unclear: "basis_not_explained",
+};
+
+export function case02NormalizePaymentBasisValue(value: string | undefined): string | undefined {
+  if (!value) return value;
+  return CASE02_PAYMENT_BASIS_LEGACY_VALUES[value] ?? value;
+}
+
 const CASE02_PAYMENT_BASIS_OPTIONS = [
   {
-    value: "violation_stated",
-    label: "특정 교통위반이나 과태료·벌금 사유가 적혀 있다고 안내받은 것 같습니다.",
+    value: "basis_violation_cited",
+    label: "위반 사실·행위를 이유로 납부하라고 구체적으로 말하거나 적어 주었습니다.",
   },
   {
-    value: "license_admin",
-    label: "운전면허 관련 행정 비용이라고 안내받은 것 같습니다.",
+    value: "basis_fee_schedule",
+    label: "수수료·고시·항목 번호 등 규정·고시를 들거나 적어 주었습니다.",
   },
   {
-    value: "vehicle_related",
-    label: "차량이나 이전 처리와 관련된 비용이라고 안내받은 것 같습니다.",
+    value: "basis_prior_case",
+    label: "이전에 처리한 건과 연결해 추가 납부하라고 했습니다.",
   },
   {
-    value: "unclear",
-    label: "왜 납부해야 하는지·납부 사유를 정확히 파악하지 못했습니다.",
+    value: "basis_not_explained",
+    label: "왜 이 금액을 내야 하는지 설명이 없거나 이해하지 못했습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
+];
+
+const CASE02_NOTICE_ACCESS_FACT_OPTIONS = [
+  {
+    value: "access_have_copy",
+    label: "간접으로 들었지만, 지금 안내 문서·메시지 사본을 가지고 있습니다.",
+  },
+  {
+    value: "access_no_copy",
+    label: "안내를 들었지만 사본·스크린샷을 남기지 못했습니다.",
+  },
+  {
+    value: "access_sender_unknown",
+    label: "누가·어떤 경로로 전달했는지 확실하지 않습니다.",
+  },
+  {
+    value: "access_language_barrier",
+    label: "언어·통역 때문에 안내 내용을 제대로 확인하지 못했습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
+];
+
+const CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS = [
+  {
+    value: "cf_receipt_official",
+    label: "영수증·접수증·전자 확인번호로 확인하라고 안내했습니다.",
+  },
+  {
+    value: "cf_portal_status",
+    label: "인터넷·앱에서 납부·처리 상태를 보라고 안내했습니다.",
+  },
+  {
+    value: "cf_call_office",
+    label: "전화·방문으로 처리 여부를 확인하라고 안내했습니다.",
+  },
+  {
+    value: "cf_no_instruction",
+    label: "납부 후 어떻게 확인하라는 안내를 받지 못했습니다.",
+  },
+  ADMIN_DIRECT_EXPLAIN_CHOICE,
+];
+
+const CASE02_PAID_PROCESSING_FACT_OPTIONS = [
+  {
+    value: "proc_receipt_pending",
+    label: "납부는 했지만 접수·처리가 됐는지 아직 확인하지 못했습니다.",
+  },
+  {
+    value: "proc_partial_credit",
+    label: "일부만 처리된 것으로 보이거나 나머지가 남아 있습니다.",
+  },
+  {
+    value: "proc_other_case",
+    label: "다른 건·다른 금액으로 처리된 것 같습니다.",
+  },
+  {
+    value: "proc_unknown",
+    label: "처리 여부를 전혀 확인하지 못했습니다.",
   },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
@@ -2595,6 +2674,9 @@ export const CASE02_OPTION_LABELS: Record<string, string> = {
   ...Object.fromEntries(CASE02_PAYMENT_SUBJECT_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE02_PAYMENT_AMOUNT_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE02_PAYMENT_BASIS_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_NOTICE_ACCESS_FACT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAID_PROCESSING_FACT_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE02_SITUATION_MATCH_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE02_PAYMENT_STATUS_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE02_PAYMENT_METHOD_OPTIONS.map((o) => [o.value, o.label])),
@@ -2627,6 +2709,9 @@ const CASE02_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]
   case02_paymentInfoSource: CASE02_PAYMENT_INFO_SOURCE_OPTIONS,
   case02_paymentSubject: CASE02_PAYMENT_SUBJECT_OPTIONS,
   case02_paymentBasis: CASE02_PAYMENT_BASIS_OPTIONS,
+  case02_noticeAccessFact: CASE02_NOTICE_ACCESS_FACT_OPTIONS,
+  case02_paymentConfirmationFact: CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS,
+  case02_paidProcessingFact: CASE02_PAID_PROCESSING_FACT_OPTIONS,
   case02_paymentAmount: CASE02_PAYMENT_AMOUNT_OPTIONS,
   case02_situationMatch: CASE02_SITUATION_MATCH_OPTIONS,
   case02_deadline: CASE02_DEADLINE_OPTIONS,
@@ -2648,6 +2733,12 @@ export function getCase02FieldOptionLabel(fieldId: string, value: string): strin
   }
   if (fieldId === "case02_nonPaymentNotice") {
     const normalized = case02NormalizeNonPaymentNoticeValue(value);
+    if (normalized && normalized !== value) {
+      return getCase02FieldOptionLabel(fieldId, normalized);
+    }
+  }
+  if (fieldId === "case02_paymentBasis") {
+    const normalized = case02NormalizePaymentBasisValue(value);
     if (normalized && normalized !== value) {
       return getCase02FieldOptionLabel(fieldId, normalized);
     }
@@ -2838,7 +2929,29 @@ function case02NeedsBlockage(_answers: ReviewAnswers): boolean {
   return true;
 }
 
+function case02NeedsNoticeAccessFact(answers: ReviewAnswers): boolean {
+  const src = answers.case02_paymentInfoSource;
+  return src === "third_party" || src === "recall_unclear";
+}
+
+function case02NeedsPaymentConfirmationFact(answers: ReviewAnswers): boolean {
+  return answers.case02_confirmGoal === "how_when_where";
+}
+
+function case02NeedsPaidProcessingFact(answers: ReviewAnswers): boolean {
+  const status = answers.case02_paymentStatus;
+  if (status === "paid_unverified" || status === "paid_by_other") return true;
+  const ar = answers.case02_authorityResponse?.trim();
+  return (
+    ar === "more_required" ||
+    ar === "no_reply_yet" ||
+    ar === "procedure_unknown" ||
+    ar === "unclear"
+  );
+}
+
 export function case02NeedsEvidence(answers: ReviewAnswers): boolean {
+  if (answers.case02_confirmGoal === "how_when_where") return true;
   if (
     answers.case02_paymentInfoSource === "third_party" ||
     answers.case02_paymentInfoSource === "recall_unclear"
@@ -3030,6 +3143,25 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     if (!seeded.case02_demandAuthority) return;
   }
 
+  if (case02NeedsNoticeAccessFact(answers)) {
+    pushUnique(questions, {
+      id: "case02_noticeAccessFact",
+      kind: "choice",
+      label:
+        "납부 안내를 간접적으로 들었을 때, 지금 어떤 자료·확인 상태에 가깝나요?",
+      options: CASE02_NOTICE_ACCESS_FACT_OPTIONS,
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case02_noticeAccessFact",
+        answers,
+        CASE02_NOTICE_ACCESS_FACT_OPTIONS,
+      )
+    ) {
+      return;
+    }
+  }
+
   if (case02NeedsSituationMatchPhase2(answers)) {
     pushUnique(questions, {
       id: "case02_situationMatch",
@@ -3139,6 +3271,25 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       if (!answers.case02_authorityResponse) return;
     }
 
+    if (case02NeedsPaidProcessingFact(answers)) {
+      pushUnique(questions, {
+        id: "case02_paidProcessingFact",
+        kind: "choice",
+        label:
+          "납부한 뒤 기관에서 처리·접수됐는지와 관련해, 지금 어떤 상태에 가깝나요?",
+        options: CASE02_PAID_PROCESSING_FACT_OPTIONS,
+      });
+      if (
+        !isAdminVerifyChoiceFieldComplete(
+          "case02_paidProcessingFact",
+          answers,
+          CASE02_PAID_PROCESSING_FACT_OPTIONS,
+        )
+      ) {
+        return;
+      }
+    }
+
     pushUnique(questions, {
       id: "case02_paymentMethod",
       kind: "choice",
@@ -3162,6 +3313,25 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       options: CASE02_NON_PAYMENT_NOTICE_OPTIONS,
     });
     if (!answers.case02_nonPaymentNotice) return;
+  }
+
+  if (case02NeedsPaymentConfirmationFact(answers)) {
+    pushUnique(questions, {
+      id: "case02_paymentConfirmationFact",
+      kind: "choice",
+      label:
+        "납부한 뒤 기관에서 처리·접수됐는지 어떻게 확인하라고 안내했나요?",
+      options: CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS,
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case02_paymentConfirmationFact",
+        answers,
+        CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS,
+      )
+    ) {
+      return;
+    }
   }
 
   if (case02NeedsBlockage(answers)) {
@@ -3237,6 +3407,16 @@ function case02PathFieldsComplete(answers: ReviewAnswers): boolean {
     return false;
   }
   if (
+    case02NeedsNoticeAccessFact(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case02_noticeAccessFact",
+      answers,
+      CASE02_NOTICE_ACCESS_FACT_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  if (
     case02NeedsSituationMatchPhase2(answers) &&
     !isAdminVerifyChoiceFieldComplete(
       "case02_situationMatch",
@@ -3288,10 +3468,31 @@ function case02PathFieldsComplete(answers: ReviewAnswers): boolean {
     ) {
       return false;
     }
+    if (
+      case02NeedsPaidProcessingFact(answers) &&
+      !isAdminVerifyChoiceFieldComplete(
+        "case02_paidProcessingFact",
+        answers,
+        CASE02_PAID_PROCESSING_FACT_OPTIONS,
+      )
+    ) {
+      return false;
+    }
     if (!answers.case02_paymentMethod) return false;
   } else if (case02NeedsNonPaymentNotice(answers)) {
     if (!answers.case02_paymentMethod) return false;
     if (!answers.case02_nonPaymentNotice) return false;
+  }
+
+  if (
+    case02NeedsPaymentConfirmationFact(answers) &&
+    !isAdminVerifyChoiceFieldComplete(
+      "case02_paymentConfirmationFact",
+      answers,
+      CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS,
+    )
+  ) {
+    return false;
   }
 
   if (
@@ -3340,13 +3541,14 @@ function derivePaymentSignals(answers: ReviewAnswers): PaymentSignalCode[] {
   const signals: PaymentSignalCode[] = [];
   const situationMatch = case02EffectiveSituationMatch(answers.case02_situationMatch);
   const paymentAmount = case02EffectivePaymentAmount(answers.case02_paymentAmount);
-  const paymentBasisValue = answers.case02_paymentBasis;
+  const paymentBasisRaw = answers.case02_paymentBasis;
+  const paymentBasisNormalized = case02NormalizePaymentBasisValue(paymentBasisRaw) ?? paymentBasisRaw;
   const paymentBasis =
-    paymentBasisValue === "other"
+    paymentBasisRaw === "other"
       ? answers[getAdminChoiceNoteKey("case02_paymentBasis")]?.trim()
-        ? "unclear"
-        : paymentBasisValue
-      : paymentBasisValue;
+        ? "basis_not_explained"
+        : paymentBasisRaw
+      : paymentBasisNormalized;
 
   if (
     situationMatch === "match" &&
@@ -3375,6 +3577,7 @@ function derivePaymentSignals(answers: ReviewAnswers): PaymentSignalCode[] {
     signals.push("PAYMENT_OBLIGATION_UNCLEAR");
   }
   if (
+    paymentBasis === "basis_not_explained" ||
     paymentBasis === "unclear" ||
     paymentBasis === "unsure" ||
     answers.case02_confirmGoal === "why_pay"
@@ -7395,28 +7598,30 @@ export function isCase05PathComplete(answers: ReviewAnswers): boolean {
   return case05PathFieldsComplete(answers);
 }
 
-function case05DispositionDetailProfileSuffix(answers: ReviewAnswers): string | null {
-  const detail = answers.case05_dispositionDetail;
+function case05DetailProfileLabel(
+  fieldId:
+    | "case05_dispositionDetail"
+    | "case05_factDetail"
+    | "case05_explanationDetail"
+    | "case05_submittedDocsDetail"
+    | "case05_appealDetail",
+  answers: ReviewAnswers,
+): string | null {
+  const detail = answers[fieldId];
   if (!detail) return null;
-  const map: Record<string, string> = {
-    wording_unclear: "문구 불명확",
-    scope_unclear: "범위·기간 불명확",
-    partially_understood: "부분 이해",
-    unsure: "영향 미이해",
-  };
-  return map[detail] ?? getCase05FieldOptionLabel("case05_dispositionDetail", detail);
+  if (detail === "other") {
+    const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
+    return note || getCase05FieldOptionLabel(fieldId, detail);
+  }
+  return getCase05FieldOptionLabel(fieldId, detail);
+}
+
+function case05DispositionDetailProfileSuffix(answers: ReviewAnswers): string | null {
+  return case05DetailProfileLabel("case05_dispositionDetail", answers);
 }
 
 function case05FactDetailProfileSuffix(answers: ReviewAnswers): string | null {
-  const detail = answers.case05_factDetail;
-  if (!detail) return null;
-  const map: Record<string, string> = {
-    date_place: "날짜·장소·상황 불일치",
-    content_differs: "내용·사실관계 차이",
-    hard_to_verify: "당시 상황 확인 곤란",
-    unsure: "차이 설명 곤란",
-  };
-  return map[detail] ?? getCase05FieldOptionLabel("case05_factDetail", detail);
+  return case05DetailProfileLabel("case05_factDetail", answers);
 }
 
 function appendCase05DetailDispositionSignals(
@@ -8387,6 +8592,9 @@ function case06PathFieldsComplete(answers: ReviewAnswers): boolean {
 export function isCase06PathComplete(answers: ReviewAnswers): boolean {
   if (!shouldActivateCase06Path(answers)) return false;
   if (!isCase06LegacyRestorePath(answers)) {
+    if (isCase06LaunchSimplifiedSession(answers)) {
+      return isCase06RedesignPhase1Complete(answers) && isCase06ExpertTerminal(answers);
+    }
     return isCase06Phase2ChainComplete(answers);
   }
   return case06PathFieldsComplete(answers);
@@ -10311,30 +10519,34 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       ? "case01_customerResponded"
       : null;
 
-  const case05CustomerActionCore = answers.case05_customerResponse
+  const case05CustomerResponseCore = answers.case05_customerResponse
     ? getCase05FieldLabelFromAnswers("case05_customerResponse", answers)?.label ??
       getCase05FieldOptionLabel("case05_customerResponse", answers.case05_customerResponse)
     : null;
-  const case05CustomerActionExtras: string[] = [];
-  if (answers.case05_explanationDetail) {
-    case05CustomerActionExtras.push(
-      getCase05FieldOptionLabel("case05_explanationDetail", answers.case05_explanationDetail),
+  const case05ExplanationDetail = case05DetailProfileLabel("case05_explanationDetail", answers);
+  const case05SubmittedDocsDetail = case05DetailProfileLabel("case05_submittedDocsDetail", answers);
+  const case05AppealDetail = case05DetailProfileLabel("case05_appealDetail", answers);
+  let case05CustomerActionLabel: string | null = case05CustomerResponseCore;
+  if (answers.case05_customerResponse === "explanation_submitted" && case05ExplanationDetail) {
+    case05CustomerActionLabel = `${case05ExplanationDetail} (${case05CustomerResponseCore ?? "소명·의견 제출"})`;
+  } else if (answers.case05_customerResponse === "documents_submitted" && case05SubmittedDocsDetail) {
+    case05CustomerActionLabel = case05CustomerResponseCore
+      ? `${case05CustomerResponseCore} — ${case05SubmittedDocsDetail}`
+      : case05SubmittedDocsDetail;
+  } else if (answers.case05_customerResponse === "appeal_requested" && case05AppealDetail) {
+    case05CustomerActionLabel = case05CustomerResponseCore
+      ? `${case05CustomerResponseCore} — ${case05AppealDetail}`
+      : case05AppealDetail;
+  } else if (answers.case05_plannedNextStep) {
+    const planned = getCase05FieldOptionLabel(
+      "case05_plannedNextStep",
+      answers.case05_plannedNextStep,
     );
+    case05CustomerActionLabel =
+      case05CustomerResponseCore && planned
+        ? `${case05CustomerResponseCore} · ${planned}`
+        : case05CustomerResponseCore ?? planned;
   }
-  if (answers.case05_appealDetail) {
-    case05CustomerActionExtras.push(
-      getCase05FieldOptionLabel("case05_appealDetail", answers.case05_appealDetail),
-    );
-  }
-  if (answers.case05_plannedNextStep) {
-    case05CustomerActionExtras.push(
-      getCase05FieldOptionLabel("case05_plannedNextStep", answers.case05_plannedNextStep),
-    );
-  }
-  const case05CustomerActionLabel =
-    case05CustomerActionCore && case05CustomerActionExtras.length > 0
-      ? `${case05CustomerActionCore} · ${case05CustomerActionExtras.join(" · ")}`
-      : case05CustomerActionCore;
 
   const case03CustomerActionCore = answers.case03_customerResponse
     ? getCase03FieldLabelFromAnswers("case03_customerResponse", answers)?.label ??
@@ -10993,16 +11205,19 @@ const CASE03_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank
 const CASE02_FOCUS_ORDER: { id: string; focus: CaseResolutionQuestionFocus; rank: number; reason: string }[] = [
   { id: "case02_paymentSubject", focus: "caseClassification", rank: 1, reason: "납부 대상·상황" },
   { id: "case02_paymentInfoSource", focus: "actualSituation", rank: 2, reason: "납부 안내 인지 경로" },
-  { id: "case02_situationMatch", focus: "actualSituation", rank: 3, reason: "실제 상황과의 관계" },
-  { id: "case02_paymentAmount", focus: "authorityClaim", rank: 4, reason: "납부 금액 확인" },
+  { id: "case02_noticeAccessFact", focus: "actualSituation", rank: 3, reason: "간접 안내 확인 상태" },
+  { id: "case02_situationMatch", focus: "actualSituation", rank: 4, reason: "실제 상황과의 관계" },
+  { id: "case02_paymentAmount", focus: "authorityClaim", rank: 5, reason: "납부 금액 확인" },
   { id: "case02_paymentStatus", focus: "customerAction", rank: 5, reason: "납부 여부" },
   { id: "case02_confirmGoal", focus: "goal", rank: 6, reason: "납부 관련 확인 목표" },
   { id: "case02_demandAuthority", focus: "authorityClaim", rank: 7, reason: "납부 요구 주체" },
   { id: "case02_paymentBasis", focus: "authorityReason", rank: 8, reason: "납부 사유·근거" },
   { id: "case02_deadline", focus: "deadline", rank: 9, reason: "납부 기한" },
   { id: "case02_authorityResponse", focus: "authorityResponse", rank: 10, reason: "납부 후 기관 반응" },
+  { id: "case02_paidProcessingFact", focus: "customerAction", rank: 10.5, reason: "납부 처리 확인" },
   { id: "case02_paymentMethod", focus: "authorityClaim", rank: 11, reason: "납부 방법" },
   { id: "case02_nonPaymentNotice", focus: "authorityReason", rank: 12, reason: "미납 시 안내" },
+  { id: "case02_paymentConfirmationFact", focus: "authorityClaim", rank: 12.5, reason: "납부 후 확인 방법" },
   { id: "case02_blockage", focus: "currentBlockage", rank: 13, reason: "막힌 지점" },
   { id: "case02_evidence", focus: "evidence", rank: 14, reason: "증빙" },
   { id: "case02_finalGoal", focus: "goal", rank: 15, reason: "목표" },
@@ -11125,6 +11340,9 @@ export function isAdminVerifyPhase2PathComplete(answers: ReviewAnswers): boolean
   if (!q1Case || q1Case === "UNIVERSAL") return false;
 
   if (q1Case === "CASE_06" && !isCase06LegacyRestorePath(answers)) {
+    if (isCase06LaunchSimplifiedSession(answers)) {
+      return isCase06RedesignPhase1Complete(answers) && isCase06ExpertTerminal(answers);
+    }
     if (!isCase06Phase2ChainComplete(answers)) return false;
     if (!isCase06BridgeSnapshotCommitted(answers)) return false;
     if (answers.case06_expertHandoffRequired === "true") return true;
@@ -11171,6 +11389,9 @@ function selectCase02ResolutionFocus(answers: ReviewAnswers): CaseResolutionQues
     if (item.id === "case02_demandAuthority" && !case02ShouldAskDemandAuthority(seeded)) {
       continue;
     }
+    if (item.id === "case02_noticeAccessFact" && !case02NeedsNoticeAccessFact(answers)) {
+      continue;
+    }
     if (item.id === "case02_situationMatch" && !case02NeedsSituationMatchPhase2(answers)) {
       continue;
     }
@@ -11198,6 +11419,12 @@ function selectCase02ResolutionFocus(answers: ReviewAnswers): CaseResolutionQues
       continue;
     }
     if (item.id === "case02_nonPaymentNotice" && !case02NeedsNonPaymentNotice(answers)) {
+      continue;
+    }
+    if (item.id === "case02_paidProcessingFact" && !case02NeedsPaidProcessingFact(answers)) {
+      continue;
+    }
+    if (item.id === "case02_paymentConfirmationFact" && !case02NeedsPaymentConfirmationFact(answers)) {
       continue;
     }
     if (item.id === "case02_blockage" && !case02NeedsBlockage(answers)) continue;
