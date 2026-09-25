@@ -1,10 +1,10 @@
-# VFBCAI Admin VERIFY — 공통 결과 파이프라인 통합 감사 v1
+# VFBCAI Admin VERIFY — 공통 결과 파이프라인 통합 감사 v1.1
 
 | 항목 | 내용 |
 |------|------|
 | **범위** | `/verify/admin` Master funnel · CASE_01~06 · 1차/2차 종합·개인화 결과 |
 | **성격** | 감사·설계만. **코드 수정 지시 아님** (별도 Mission에서 구현) |
-| **증거** | LEVEL 1 코드 추적 + LEVEL 3 브라우저 (CASE_04, 3번창 2026-09-25) |
+| **증거** | LEVEL 1 코드 추적 + LEVEL 3 브라우저 (CASE_04, 3번창 2026-09-25) · STEP2-1 spot QA (`case0x-step2-1-spot.mjs`, `case01-phase2-chain-count.mjs`, 2026-09-25 재실행) |
 | **기준** | `VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md` (LOCK), `docs/VFBCAI_CONSTITUTION.md` §5·§16 |
 | **입력** | 2번창 통합 감사, `VFBCAI_ADMIN_CASE0506_AUDIT_FINDINGS_HANDOFF_v2.md` (a27a5fc), CASE_01~06 LEVEL1 감사 문서, 3번창 CASE_04 수동 QA |
 
@@ -156,7 +156,13 @@
 
 ### Layer A — `buildAdminResponseSummaryBlock(answers)`
 
-**정의:** Phase1/2·CASE 무관, **입력된 text·note·choice 중 하나라도 있으면** §01 하단에 「응답 요약」을 한 블록으로 렌더. 형식: `항목명: 값` (Layer J2).
+**정의:** Phase1/2·CASE 무관 §01 하단 「응답 요약」 단일 블록.
+
+| 계층 | 규칙 |
+|------|------|
+| **응답 요약 본문** | **직접 입력(DI)·note 원문** + **첨부 파일명**만. 선택지 full label은 **넣지 않음** |
+| **선택지 표시** | 해당 keyMetrics 카드 **footnote에 1회**, 짧은 요약 라벨만 (Layer B와 동일) |
+| **형식** | DI·note: `항목명: 원문` (Layer J2). 파일명은 Layer H와 동일 문장 (`첨부 자료: 파일명`) |
 
 **해결:** C01-06, C04-02, C04-03, COM-01, C05-01(부분), C06-01(부분).
 
@@ -198,7 +204,7 @@
 
 ### Layer H — `evidenceNote` / attachment UI
 
-**정의:** personalized context의 `evidenceNote`를 §01 또는 §04에 **필수 노출**.
+**정의:** `buildAdminVerifyPersonalizedContext`의 `evidenceNote`(파일명)를 **Layer A 응답 요약 안**에 반드시 포함. 형식: `첨부 자료: {파일명}` (별도 고아 블록·context-only 금지).
 
 **해결:** COM-01, C04-03.
 
@@ -222,6 +228,7 @@
 ### 5.1 공통으로 한 번 고칠 것
 
 - Layer A + J2/J4 (응답 요약·DI 표시)
+- **판단 문장 목록은 코드 반영 전 대표 검토** — CASE별 slug→clause manifest 초안을 Ace·검토자가 먼저 합의한 뒤 IMPLEMENTER가 `buildPhase1RiskSummary` / `buildCase01Phase1RiskSummary`에 반영 (코드 선반영 금지)
 - Layer J manifest + `buildPhase1RiskSummary` / `buildCase01Phase1RiskSummary` 통합
 - Layer G integrated slug registry (6 CASE)
 - Layer H evidenceNote
@@ -250,21 +257,120 @@
 
 ## 6. 비율 (LOCK — 실질 축, 장식 제외)
 
-**하한:** 4:6 → Phase2 ≥ ⌈N×6/4⌉ · 3:7 → Phase2 ≥ ⌈N×7/3⌉  
-**부족 (4:6):** max(0, ⌈N×6/4⌉ − M)
+**산정 규칙 (v1.1)**
 
-| CASE | 경로(요약) | P1 실질 N | P2 실질 M (현재) | 4:6 최소 | 4:6 부족 | 3:7 최소 | 조치 트랙 |
-|------|------------|-----------|------------------|----------|----------|----------|-----------|
-| **01** | 전형 rich | 5 | 7~9 | 8 | 0 | 12 | 결과 Layer J; **질문 보강 필수 아님** (감사 §6) |
-| **02** | LEVEL1 6필드 | 6 (코드) | 경로 trace | 9 | NOT VERIFIED | 14 | 별도 감사·Mission |
-| **03** | spot QA | ~5 | ≥8 axes (QA) | 8 | 0~3 | 12 | 질문·신호 Mission 별도 |
-| **04** | spot QA | ~4 | catalog 11 | 6 | NOT VERIFIED | 10 | slug·결과 공통 + 보강 |
-| **05** | none·소명 등 | 4 | 6~8 (detail 전) | 6 | **0 (경계)** | 10 | **CASE별 질문 보강** R06 ≥10 |
-| **06** | 납부·출석·보완 | 1 | 1 | 2 | **1** | 3 | **질문 보강** |
-| **06** | 처분 | 1 | 0 | 2 | **2** | 3 | **질문 보강** |
-| **06** | unclear+`signal_violation` | 1 | 1 | 2 | **1** | 3 | **질문 보강** R05 |
+- **실질 축:** `VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md` ②~④ + CASE별 LEVEL1 감사 (`VFBCAI_CASE0x_INFORMATION_COMPLETENESS_AUDIT_v1.md`).
+- **CASE_03~05 Phase2:** 코드 `CASE0x_PHASE2_SUBSTANTIVE_AXIS_IDS` + `case0xListPhase2SubstantiveAxesOnPath(answers)` (STEP2-1). **R3:** `case0x_deadlineDate` 등 text follow-up은 **별도 축으로 세지 않음** (날짜는 `deadline` 축 밀도).
+- **CASE_01 Phase2:** `buildCase01Phase2RenderedChainAudit`의 **고유 `informationAxis`** 중 LOCK 장식 질문 축 제외 (§6.2·부록).
+- **CASE_01 Phase1:** `violationContent` · `factRelationship` · (`case01_factCompareGap` — `cannot_compare_yet` 경로만) · `customerResponded` · `deadline` · `confirmGoal`. `case01_deadlineDate`는 R3 동형(축 미포함).
+- **CASE_02 Phase1:** 감사 정의 **5** (`paymentInfoSource` 제외). 코드 `CASE02_PHASE1_FIELD_ORDER`는 6필드 — 비율 표는 **감사 실질 5** 기준.
+- **CASE_06 v1.1:** `VFBCAI_CASE06_INFORMATION_COMPLETENESS_AUDIT_v1.md` §3 — 1차 실질 **1** (`case06_requiredActionCandidate`만), 2차는 결과·다음 질문을 갈라는 필드만.
 
-표의 **「CASE별 질문 보강」**은 Layer A~J 범위 밖 — `VFBCAI_CASE05/06_PHASE2_REMEDIATION_STEP2-0_v1.md` Brief LOCK 후 Mission.
+**하한 (4:6):** P2 ≥ ⌈N×6/4⌉ · **부족:** max(0, ⌈N×6/4⌉ − M)  
+**하한 (3:7):** P2 ≥ ⌈N×7/3⌉ · **부족:** max(0, ⌈N×7/3⌉ − M)
+
+### 6.1 경로별 실측표
+
+#### CASE_01
+
+| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|----------|----------|----------|----------|
+| C01-P1-typical | `FULL_CHAIN` / `fullChainResponded` — 대응함·날짜장소 불일치·납부 demand | 5 | 6 | 8 | 2 | 12 | 6 |
+| C01-P1-gap | `fullChainGapUnclear` / `V4-B` — `cannot_compare_yet` + `case01_factCompareGap` | 6 | 6 | 9 | 3 | 14 | 8 |
+| C01-P1-brief | `briefV1A` — 미대응·출석 demand·Phase2 4스텝 | 5 | 4 | 8 | 4 | 12 | 8 |
+
+P2 **6** (C01-P1-typical): `authorityDemand` · `actualSituation` · `responseDetail` · `authorityResponse` · `evidence` · `blockage` (장식 4문항·scope·note text 제외).  
+P2 **렌더 스텝 10** (`phase2WalkCount`): 장식·text 질문 포함 화면 walk — **LOCK 실질 축과 다름** (§6.3).
+
+#### CASE_02 (LEVEL1 감사 경로명)
+
+| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|----------|----------|----------|----------|
+| C02-paid-short | `paymentStatus=paid` · match · basis·demandAuthority 스킵 | 5 | 5 | 8 | 3 | 12 | 7 |
+| C02-unpaid-mid | 미납 · match · `paymentBasis` 포함 | 5 | 6 | 8 | 2 | 12 | 6 |
+| C02-unpaid-full | 미납 · mismatch · basis · `authorityResponse` · evidence · `finalGoal`(조건부) | 5 | 7 | 8 | 1 | 12 | 5 |
+
+`paymentStatus=paid` vs `unpaid`는 Phase2 체인 on/off — **실질 축** 기준 (화면 필드 수 6 ≠ 실질 5).
+
+#### CASE_03
+
+| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|----------|----------|----------|----------|
+| C03-attendance-tail | spot: 출석·`specific_date`+text · Phase2 tail 완료 (`case03-step2-1-spot`) | 5 | 8 | 8 | 0 | 12 | 4 |
+| C03-prep-branch | `customerResponse` 미대응 계열 · `case03_prepRequired` on-path | 5 | 9 | 8 | 0 | 12 | 3 |
+
+카탈로그 실질 축 상한: **9** (`case03Phase2SubstantiveAxisCatalogCount()`).
+
+#### CASE_04
+
+| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|----------|----------|----------|----------|
+| C04-add-spot | `additional_docs` · 미시작 · spot tail (`authorityFollowUp` **없음**) | 4 | 8 | 6 | 0 | 10 | 2 |
+| C04-add-followup | 동일 + `case04_authorityFollowUp` 답변 | 4 | 9 | 6 | 0 | 10 | 1 |
+| C04-modify-tail | `supplementTarget=modify_existing` · `case04_modifyDetail` on-path | 4 | 8 | 6 | 0 | 10 | 2 |
+| C04-evidence-tail | `supplementTarget=add_content_evidence` · `case04_evidenceDetail` on-path | 4 | 8 | 6 | 0 | 10 | 2 |
+
+카탈로그 실질 축 상한: **11** (`case04Phase2SubstantiveAxisCatalogCount()`, STEP2-1). (구 LEVEL1 감사 **4:5** 표는 STEP2-1 이전 장식 분류 — §6.3.)
+
+#### CASE_05
+
+| 경로 ID | 조건 요약 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|-----------|----|----|----------|----------|----------|----------|
+| C05-none-tail | `customerResponse=none` · spot tail (`case05-step2-1-spot`) | 4 | 8 | 6 | 0 | 10 | 2 |
+| C05-explanation | `explanation_submitted` · spot `explanationAxisCount` | 4 | 9 | 6 | 0 | 10 | 1 |
+
+카탈로그 실질 축 상한: **14** (`case05Phase2SubstantiveAxisCatalogCount()`, detail 5 실질화 포함).
+
+#### CASE_06 (v1.1 redesign, legacy 제외)
+
+| 경로 ID | 체인 | P1 | P2 | 4:6 최소 | 4:6 부족 | 3:7 최소 | 3:7 부족 |
+|---------|------|----|----|----------|----------|----------|----------|
+| C06-pay | 납부 | 1 | 1 | 2 | 1 | 3 | 2 |
+| C06-attend | 출석 | 1 | 1 | 2 | 1 | 3 | 2 |
+| C06-submit | 보완 | 1 | 1 | 2 | 1 | 3 | 2 |
+| C06-disposition | 처분 | 1 | 0 | 2 | 2 | 3 | 3 |
+| C06-unclear-sv | 불명확 + `signal_violation` (현행 조기 STOP) | 1 | 1 | 2 | 1 | 3 | 2 |
+| C06-unclear-r05 | 불명확 + R05 적용 후 (`unclearFactRelation`+`unclearResponse`) | 1 | 3 | 2 | 0 | 3 | 0 |
+
+P2 **1** (납부·출석·보완): 감사 §3 — `paymentResponse` / `attendanceResponse` / `submissionResponse` / `unclearContentRecheck`만 결과·분기 실질. 나머지 체인 문항은 장식(부록).
+
+표의 **「CASE별 질문 보강」**은 Layer A~J 범위 밖 — `VFBCAI_CASE05/06_PHASE2_REMEDIATION_STEP2-0_v1.md` · STEP2-1 Mission.
+
+### 6.2 장식으로 제외한 질문 (대표)
+
+| CASE | 질문·선택 (대표) | 장식 판정 이유 |
+|------|------------------|----------------|
+| **01** | `case01_factDifferenceDetail`, `case01_datePlaceDetail` | text 수집 후 Profile·결과 분기 없음 (CASE_01 감사 §2.4) |
+| **01** | `case01_paymentDemandScope`, `case01_supplementDemandScope` | `core_case` 재분류 1값만 실질, 그 외 downstream 동일 |
+| **01** | `case01_authorityDemandDetail`, `case01_blockage` 값, `case01_evidence` 종류 | needs*·결과 문장 미분화 |
+| **01** | deadline `uncertain`/`no_stated`/`unknown` 묶음 | 동일 신호·문장 |
+| **02** | `case02_paymentInfoSource` | FOCUS만, Profile·Phase2·결과 분기 없음 |
+| **02** | `case02_blockage`, evidence 종류, deadline 미확인 묶음 | 결과 동일 unconfirmed |
+| **03** | (STEP2-1 이전) `prepRequired` 등 일부 | R4에서 실질화된 축은 표에서 **제외** — 카탈로그에 포함 |
+| **04** | (STEP2-1 이전 감사) `blockage`·`evidence`·`finalGoal` 등 7문항 | 구 감사 장식; **현행 코드**는 `CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS` 11축에 포함 |
+| **05** | `dispositionDetail`·`factDetail`·`explanationDetail`·`submittedDocsDetail`·`appealDetail` (STEP2-1 **전**) | persist만; STEP2-1 후 카탈로그 **실질 축**으로 승격 |
+| **05** | `dispositionReason` 4값 묶음 (`violation_claimed`~`deadline_procedure`) | 라벨만 상이 |
+| **06** | `knowledgeSource`, `sourceChannel`, `deadlineActionPair`, `customerResponse` | 체인·결과·타겟 필드 분기 없음 (감사 §3) |
+| **06** | 납부 체인 `paymentNature`~`paymentAuthorityCheck`, 처분 4문항 | 동일 — `paymentResponse` 등 1필드만 실질 |
+
+### 6.3 3번창 실측과의 차이 (CASE_01 · CASE_04)
+
+| 3번창 (보고) | v1.1 코드·LOCK 재측정 | 차이 이유 |
+|--------------|----------------------|-----------|
+| CASE_01 **1차 6** | **5** (typical) 또는 **6** (`factCompareGap` 경로) | 3번창이 **`cannot_compare_yet`+gap** 또는 **진입 Q1·문서종류를 1차 실질에 합산**한 경우 6이 됨. `FULL_CHAIN` rich(날짜·장소 불일치)만이면 LOCK **5** |
+| CASE_01 **2차 10** | **6** (실질) / **10** (렌더 walk) | 10 = `fullChainResponded.phase2WalkCount` (장식 text·scope·note 포함). LOCK 비율은 **6** |
+| CASE_04 **1차 6** | **4** | 3번창이 **4 Phase1 + `specific_date` + `deadlineDate` 텍스트** 또는 **Q1·문서종류**를 각각 축으로 센 경우. STEP2-1 R3는 날짜 text **축 제외** |
+| CASE_04 **2차 9** | **8** (spot) / **9** (`authorityFollowUp` 포함) | spot fixture는 follow-up 미답 **8**; L3 전체 tail에 기관 후속 1축 추가 시 **9** — 3번창과 일치 가능 |
+
+### 6.4 CASE_06 — 1차 실질 1개인 이유와 설계 의견
+
+**이유 (LOCK):** v1.1 Phase1 5문항 중 **`case06_requiredActionCandidate`만**이 Phase2 체인 선택·결과 narrative를 바꾼다. `knowledgeSource` · `sourceChannel` · `deadlineActionPair` · `customerResponse`는 완료 게이트·라벨만 채우고 Profile·`AdminVerifyFirstResultPanel` 분기·타겟 시드에 연결되지 않는다 (`VFBCAI_CASE06_INFORMATION_COMPLETENESS_AUDIT_v1.md` §3).
+
+**질문 추가만으로 충분한가?**  
+- **부분적으로 예.** R05(`signal_violation` 두 질문)·STEP2-1 text 키·detail 실질화는 **같은 1차 골격** 안에서 2차 깊이를 올린다.  
+- **전면 재설계는 아님.** 1차를 5→N으로 늘리기만 하면 장식 필드가 더 생길 위험이 있다. 우선순위는 (1) 체인 답→Profile·integrated·principleF 연동, (2) 장식 4필드를 **실질화하거나 축으로 합치기**, (3) `requiredActionCandidate` 외 1차 축을 늘리는 것은 **브릿지·재분류 정책**과 함께 Ace 승인 후.
+
+**판정:** 현행 **1:0~1:1 FAIL**은 질문 **개수**가 아니라 **실질 축 정의** 문제. Mission은 `CASE06_PHASE2_REMEDIATION` + 결과 Layer F·연동이 선행; 1차 질문 수만 늘리는 것으로 LOCK PASS 기대 **금지**.
 
 ---
 
@@ -321,4 +427,4 @@
 
 ---
 
-*2026-09-25. 2번창 통합 감사 v1. 문서만; 구현은 Ace Mission 승인 후.*
+*2026-09-25. 2번창 통합 감사 v1.1 (v1 승인 + Layer A/H·§6 경로별 재측정). 문서만; 구현은 Ace Mission 승인 후.*
