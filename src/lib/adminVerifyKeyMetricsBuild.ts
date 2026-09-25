@@ -30,7 +30,8 @@ import {
 import {
   CASE06_DEADLINE_DATE_KEY,
   CASE06_PAYMENT_AMOUNT_TEXT_KEY,
-  getCase06RequiredActionCandidateLabel,
+  isCase06LaunchSimplifiedSession,
+  isCase06LegacyRestorePath,
 } from "@/lib/adminVerifyCase06Redesign";
 import {
   ADMIN_VERIFY_KEY_METRIC_MANIFEST,
@@ -74,32 +75,27 @@ export const ADMIN_VERIFY_KEY_METRIC_BODY_FIELD_IDS: Partial<
   ],
   CASE_03: [
     ["case03_authorityDemand", "case03_inquiryFocus"],
-    ["case03_confirmGoal"],
+    ["case03_confirmGoal", "case03_finalGoal"],
     ["case03_customerResponse", "case03_evidence", "case03_explanationDetail"],
-    ["case03_deadline", CASE03_DEADLINE_DATE_KEY, "case03_factRelationship", "case03_finalGoal"],
+    ["case03_deadline", CASE03_DEADLINE_DATE_KEY, "case03_factRelationship"],
   ],
   CASE_04: [
     ["case04_supplementTarget", "case04_supplementReason"],
-    ["case04_confirmGoal"],
+    ["case04_confirmGoal", "case04_finalGoal"],
     ["case04_customerResponse", "case04_submissionRelation", "case04_initialSubmission"],
-    ["case04_deadline", CASE04_DEADLINE_DATE_KEY, "case04_finalGoal"],
+    ["case04_deadline", CASE04_DEADLINE_DATE_KEY],
   ],
   CASE_05: [
     ["case05_dispositionType"],
-    ["case05_confirmGoal"],
+    ["case05_confirmGoal", "case05_finalGoal"],
     ["case05_customerResponse", "case05_evidence", "case05_dispositionReason"],
-    [
-      "case05_deadline",
-      CASE05_DEADLINE_DATE_KEY,
-      "case05_factRelationship",
-      "case05_finalGoal",
-    ],
+    ["case05_deadline", CASE05_DEADLINE_DATE_KEY, "case05_factRelationship"],
   ],
   CASE_06: [
-    ["case06_documentNature", "case06_exactSource"],
-    ["profileCurrentGoal", "case06_finalGoal"],
-    ["case06_requiredActionCandidate", "case06_customerResponse"],
-    [CASE06_DEADLINE_DATE_KEY, CASE06_PAYMENT_AMOUNT_TEXT_KEY, "case06_blockage"],
+    ["case06_requiredActionCandidate"],
+    ["case06_knowledgeSource", "case06_sourceChannel"],
+    ["case06_deadlineActionPair", "case06_customerResponse"],
+    [CASE06_DEADLINE_DATE_KEY],
   ],
 };
 
@@ -208,9 +204,6 @@ function case06FieldLabel(fieldId: string, answers: ReviewAnswers): string | nul
     const raw = answers[fieldId]?.trim();
     return raw ? `금액 ${raw}` : null;
   }
-  if (fieldId === "case06_requiredActionCandidate") {
-    return getCase06RequiredActionCandidateLabel(answers);
-  }
   const raw = answers[fieldId as keyof ReviewAnswers]?.trim();
   if (!raw) return null;
   if (raw === "other") {
@@ -310,6 +303,13 @@ export function buildAdminVerifyClassifiedKeyMetrics(
   caseId: MasterCaseId,
   answers: ReviewAnswers,
 ): BuiltKeyMetric[] {
+  if (
+    caseId === "CASE_06" &&
+    isCase06LaunchSimplifiedSession(answers) &&
+    !isCase06LegacyRestorePath(answers)
+  ) {
+    return [];
+  }
   const slots: KeyMetricSlot[] = ADMIN_VERIFY_KEY_METRIC_MANIFEST[caseId] ?? [];
   const bodyFields = ADMIN_VERIFY_KEY_METRIC_BODY_FIELD_IDS[caseId] ?? [];
   const metrics: BuiltKeyMetric[] = [];
