@@ -98,6 +98,8 @@ import {
   CASE04_ANSWER_KEYS,
   CASE04_OPTION_LABELS,
   getCase04FieldOptionLabel,
+  getCase04FieldLabelFromAnswers,
+  CASE04_DEADLINE_DATE_KEY,
   CASE05_ANSWER_KEYS,
   CASE06_ANSWER_KEYS,
   getCase05FieldOptionLabel,
@@ -1246,7 +1248,18 @@ function formatCollapsedAnswerLabel(
     );
   }
   if (question.kind === "choice" && question.id.startsWith("case04_")) {
-    return getCase04FieldOptionLabel(question.id, value);
+    if (value === "other") {
+      const note = answers[getAdminChoiceNoteKey(question.id)]?.trim() ?? "";
+      return note.length > 48 ? `${note.slice(0, 45)}…` : note || ADMIN_DIRECT_EXPLAIN_LABEL;
+    }
+    if (question.id === "case04_deadline" && value === "specific_date") {
+      const date = answers[CASE04_DEADLINE_DATE_KEY]?.trim() ?? "";
+      if (date) return date.length > 48 ? `${date.slice(0, 45)}…` : date;
+    }
+    return (
+      getCase04FieldLabelFromAnswers(question.id, answers)?.label ??
+      getCase04FieldOptionLabel(question.id, value)
+    );
   }
   if (question.kind === "choice" && question.id.startsWith("case05_")) {
     if (value === "other") {

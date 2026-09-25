@@ -26,6 +26,7 @@ import {
   selectNextCaseResolutionFocus,
   CASE05_DEADLINE_DATE_KEY,
   CASE03_DEADLINE_DATE_KEY,
+  CASE04_DEADLINE_DATE_KEY,
   case05NeedsDispositionReasonPhase2,
   case05Phase2SubstantiveAxisCatalogCount,
   deriveCase05DispositionSignals,
@@ -33,6 +34,9 @@ import {
   isCase03Phase1Complete,
   case03ListPhase2SubstantiveAxesOnPath,
   case03Phase2SubstantiveAxisCatalogCount,
+  isCase04Phase1Complete,
+  case04ListPhase2SubstantiveAxesOnPath,
+  case04Phase2SubstantiveAxisCatalogCount,
   isCase06Phase1Complete,
 } from "../../src/lib/adminVerifyProfiling.ts";
 import {
@@ -110,6 +114,46 @@ function case06Step21EngineChecks() {
     r04LegacyGate: case06NeedsDeadlineDate(legacyR04) && !isCase06Phase1Complete(legacyR04),
     paymentAmountTextGate: case06NeedsPaymentAmountText(paymentNeedsText),
     signalViolationFactQuestion,
+  };
+}
+
+function case04Step21EngineChecks() {
+  const phase1Base = {
+    situation: "received_document",
+    profileDocumentSource: "immigration",
+    stage: "case",
+    [ADMIN_CASE_ENTRY_Q1_KEY]: "supplement_demand",
+    case04_supplementTarget: "additional_docs",
+    case04_confirmGoal: "understand_materials",
+    case04_customerResponse: "submitted",
+    case04_deadline: "specific_date",
+  };
+  const withDate = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    [CASE04_DEADLINE_DATE_KEY]: "2026-08-12",
+  });
+  const rich = attachCaseResolutionSnapshot({
+    ...withDate,
+    case04_initialSubmission: "complete",
+    case04_submissionRelation: "hard_to_judge",
+    case04_addDocDetail: "certificate",
+    case04_authorityFollowUp: "no_response",
+    case04_evidence: "supplement_notice",
+  });
+  const missingDate = attachCaseResolutionSnapshot({
+    ...phase1Base,
+    case04_deadline: "specific_date",
+  });
+  return {
+    deadlineInProfile: (buildCaseResolutionProfile(withDate).deadline.value ?? "").includes(
+      "2026-08-12",
+    ),
+    specificDateIncomplete: !isCase04Phase1Complete(missingDate),
+    substantiveCatalogIs9: case04Phase2SubstantiveAxisCatalogCount() === 9,
+    substantiveAxesOnRichPath: case04ListPhase2SubstantiveAxesOnPath(rich).length >= 5,
+    detailInProfile: (buildCaseResolutionProfile(rich).authorityClaim.value ?? "").includes(
+      "추가 서류",
+    ),
   };
 }
 
@@ -1313,6 +1357,11 @@ try {
 
 report.CASE03_STEP21_ENGINE = case03Step21EngineChecks();
 report.CASE03_STEP21_ENGINE.pass = Object.values(report.CASE03_STEP21_ENGINE).every(
+  (v) => v !== false,
+);
+
+report.CASE04_STEP21_ENGINE = case04Step21EngineChecks();
+report.CASE04_STEP21_ENGINE.pass = Object.values(report.CASE04_STEP21_ENGINE).every(
   (v) => v !== false,
 );
 

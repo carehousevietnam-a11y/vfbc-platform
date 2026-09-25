@@ -512,12 +512,13 @@
       "note": "A=Panel in MasterReviewQuotationReport; B=standalone /documents upload UX not at this step"
     },
     "personalized": true,
-    "documentsAi": "http://localhost:3010/documents?leadId=b0ae56fd-372d-4f77-afca-38df20231651&service=verify_admin&mode=ai_report",
+    "documentsAi": "http://localhost:3010/documents?leadId=e35d3afc-361b-4853-83a3-8e0319ea9acf&service=verify_admin&mode=ai_report",
     "documentsExpert": null,
     "consoleSnippet": [
       "[Fast Refresh] rebuilding",
-      "[Fast Refresh] done in 378ms",
+      "[Fast Refresh] done in 226ms",
       "[Fast Refresh] rebuilding",
+      "[Fast Refresh] done in 428ms",
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
     "reclassificationHistory": [
@@ -639,7 +640,7 @@
     "regressionPass": true
   },
   "J_documents_expert_desktop": {
-    "documentsExpert": "http://localhost:3010/documents?leadId=e620da74-f85d-4f4c-9464-a982958b109a&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=f9cd9893-6381-424d-8348-c41b600ab1fb&service=verify_admin&mode=expert",
     "personalized": true,
     "regressionIds": [
       "case03_factRelationship",
@@ -2791,7 +2792,7 @@
         ],
         "unknowns": [],
         "knownFacts": {
-          "authorityClaim": "처음 제출한 서류에서 빠진 자료를 추가하라는 상황입니다.",
+          "authorityClaim": "처음 제출한 서류에서 빠진 자료를 추가하라는 상황입니다. (추가 서류: 신분·인적 관련 서류)",
           "customerAction": "아직 보완 자료를 준비하거나 다시 제출하지 않았습니다.",
           "actualSituation": "처음 제출하지 않았던 새로운 자료를 추가하라고 요구받았습니다.",
           "currentBlockage": null,
@@ -2997,7 +2998,7 @@
           ],
           "unknowns": [],
           "knownFacts": {
-            "authorityClaim": "처음 제출한 서류에서 빠진 자료를 추가하라는 상황입니다.",
+            "authorityClaim": "처음 제출한 서류에서 빠진 자료를 추가하라는 상황입니다. (추가 서류: 신분·인적 관련 서류)",
             "customerAction": "아직 보완 자료를 준비하거나 다시 제출하지 않았습니다.",
             "actualSituation": "처음 제출하지 않았던 새로운 자료를 추가하라고 요구받았습니다.",
             "currentBlockage": null,
@@ -10133,7 +10134,7 @@
     },
     "personalized": true,
     "documentsAi": null,
-    "documentsExpert": "http://localhost:3010/documents?leadId=a3d019ef-0884-4e8b-bb9f-09fe94a780e5&service=verify_admin&mode=expert",
+    "documentsExpert": "http://localhost:3010/documents?leadId=1f8e420e-f948-4169-9a59-a6912aec0989&service=verify_admin&mode=expert",
     "consoleSnippet": [
       "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
     ],
@@ -10264,6 +10265,14 @@
     "finalGoalInProfile": true,
     "pass": true
   },
+  "CASE04_STEP21_ENGINE": {
+    "deadlineInProfile": true,
+    "specificDateIncomplete": true,
+    "substantiveCatalogIs9": true,
+    "substantiveAxesOnRichPath": true,
+    "detailInProfile": true,
+    "pass": true
+  },
   "CASE05_STEP21_ENGINE": {
     "deadlineInProfile": true,
     "specificDateIncomplete": true,
@@ -10282,7 +10291,7 @@
     "pass": true
   },
   "LOCK_READINESS": {
-    "generatedAt": "2026-09-25T00:23:26.186Z",
+    "generatedAt": "2026-09-25T01:25:08.205Z",
     "coreCases": {
       "CASE_01": {
         "present": true,

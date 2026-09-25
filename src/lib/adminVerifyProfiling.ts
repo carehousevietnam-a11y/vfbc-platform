@@ -4048,8 +4048,11 @@ function classifyFromCase03Answers(answers: ReviewAnswers): {
 
 // ─── CASE_04 보완 요구 Resolution Path ───
 
+export const CASE04_DEADLINE_DATE_KEY = "case04_deadlineDate";
+
 export const CASE04_ANSWER_KEYS = [
   ...CASE04_PHASE1_FIELD_ORDER,
+  CASE04_DEADLINE_DATE_KEY,
   "case04_supplementReason",
   "case04_initialSubmission",
   "case04_submissionRelation",
@@ -4400,6 +4403,55 @@ export function getCase04FieldOptionLabel(fieldId: string, value: string): strin
   return matched?.label ?? value;
 }
 
+/** CASE_04 Direct Input — CASE_02 `getCase02FieldLabelFromAnswers` 동형 */
+export function getCase04FieldLabelFromAnswers(
+  fieldId: string,
+  answers: ReviewAnswers,
+): { label: string; factStatus: FactStatus } | null {
+  const value = answers[fieldId as keyof ReviewAnswers]?.trim();
+  if (!value) return null;
+  if (value === "other") {
+    const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
+    const fallback = getCase04FieldOptionLabel(fieldId, "other");
+    return {
+      label: note || fallback,
+      factStatus: note ? "confirmed" : "candidate",
+    };
+  }
+  return {
+    label: getCase04FieldOptionLabel(fieldId, value),
+    factStatus: "confirmed",
+  };
+}
+
+export function case04NeedsDeadlineDateDetail(answers: ReviewAnswers): boolean {
+  if (answers.case04_deadline !== "specific_date") return false;
+  return !answers[CASE04_DEADLINE_DATE_KEY]?.trim();
+}
+
+function case04SupplementDetailSuffix(answers: ReviewAnswers): string | null {
+  const target = answers.case04_supplementTarget;
+  if (target === "additional_docs" && answers.case04_addDocDetail) {
+    const label =
+      getCase04FieldLabelFromAnswers("case04_addDocDetail", answers)?.label ??
+      getCase04FieldOptionLabel("case04_addDocDetail", answers.case04_addDocDetail);
+    return `추가 서류: ${label}`;
+  }
+  if (target === "modify_existing" && answers.case04_modifyDetail) {
+    const label =
+      getCase04FieldLabelFromAnswers("case04_modifyDetail", answers)?.label ??
+      getCase04FieldOptionLabel("case04_modifyDetail", answers.case04_modifyDetail);
+    return `수정 항목: ${label}`;
+  }
+  if (target === "add_content_evidence" && answers.case04_evidenceDetail) {
+    const label =
+      getCase04FieldLabelFromAnswers("case04_evidenceDetail", answers)?.label ??
+      getCase04FieldOptionLabel("case04_evidenceDetail", answers.case04_evidenceDetail);
+    return `추가 증빙: ${label}`;
+  }
+  return null;
+}
+
 const CASE04_REPEAT_RESPONSE_VALUES = new Set([
   "more_supplement",
   "more_docs",
@@ -4495,6 +4547,43 @@ function case04NeedsFinalGoal(answers: ReviewAnswers): boolean {
   );
 }
 
+/** STEP2-1 R3 — Phase2 실질 축 9 (상세 3 + evidence; blockage·finalGoal·unclearFocus 제외) */
+export const CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS = [
+  "case04_initialSubmission",
+  "case04_submissionRelation",
+  "case04_supplementReason",
+  "case04_addDocDetail",
+  "case04_modifyDetail",
+  "case04_evidenceDetail",
+  "case04_authorityFollowUp",
+  "case04_repeatSupplement",
+  "case04_evidence",
+] as const;
+
+export function case04Phase2SubstantiveAxisCatalogCount(): number {
+  return CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS.length;
+}
+
+export function case04ListPhase2SubstantiveAxesOnPath(answers: ReviewAnswers): string[] {
+  const axes: string[] = [];
+  const maybe = (id: string, needs: boolean) => {
+    if (needs) axes.push(id);
+  };
+  const target = answers.case04_supplementTarget;
+  maybe("case04_initialSubmission", case04NeedsInitialSubmissionPhase2(answers));
+  maybe("case04_submissionRelation", case04NeedsSubmissionRelationPhase2(answers));
+  maybe("case04_supplementReason", case04NeedsSupplementReasonPhase2(answers));
+  maybe("case04_addDocDetail", target === "additional_docs");
+  maybe("case04_modifyDetail", target === "modify_existing");
+  maybe("case04_evidenceDetail", target === "add_content_evidence");
+  maybe("case04_authorityFollowUp", case04NeedsAuthorityFollowUpPhase2(answers));
+  maybe("case04_repeatSupplement", case04NeedsRepeatSupplement(answers));
+  maybe("case04_evidence", case04NeedsEvidence(answers));
+  return axes.filter((id) =>
+    (CASE04_PHASE2_SUBSTANTIVE_AXIS_IDS as readonly string[]).includes(id),
+  );
+}
+
 function deriveCase04Rounds(answers: ReviewAnswers): {
   supplementRound: number;
   supplementResponseRound: number;
@@ -4556,6 +4645,7 @@ export function isCase04Phase1Complete(answers: ReviewAnswers): boolean {
       return false;
     }
   }
+  if (case04NeedsDeadlineDateDetail(answers)) return false;
   return true;
 }
 
@@ -4614,6 +4704,19 @@ function appendCase04Phase1Questions(questions: ProfileQuestion[], answers: Revi
     label: "교통국에서는 언제까지 보완해야 한다고 안내했나요?",
     options: CASE04_DEADLINE_OPTIONS,
   });
+  if (
+    !isAdminVerifyChoiceFieldComplete("case04_deadline", answers, CASE04_DEADLINE_OPTIONS)
+  ) {
+    return;
+  }
+  if (case04NeedsDeadlineDateDetail(answers)) {
+    pushUnique(questions, {
+      id: CASE04_DEADLINE_DATE_KEY,
+      kind: "text",
+      label: "확인한 보완 제출 기한은 언제인가요?",
+      placeholder: "기억나는 날짜·기한을 적어 주세요.",
+    });
+  }
 }
 
 function appendCase04Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
@@ -8779,7 +8882,16 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       : case06Active && answers.profileCurrentGoal
       ? getCase06FieldOptionLabel("profileCurrentGoal", answers.profileCurrentGoal)
       : answers.case04_supplementTarget
-      ? getCase04FieldOptionLabel("case04_supplementTarget", answers.case04_supplementTarget)
+      ? (() => {
+          const core =
+            getCase04FieldLabelFromAnswers("case04_supplementTarget", answers)?.label ??
+            getCase04FieldOptionLabel(
+              "case04_supplementTarget",
+              answers.case04_supplementTarget,
+            );
+          const suffix = case04SupplementDetailSuffix(answers);
+          return suffix ? `${core} (${suffix})` : core;
+        })()
       : answers.case03_authorityDemand
       ? CASE03_OPTION_LABELS[answers.case03_authorityDemand] ?? answers.case03_authorityDemand
       : answers.case02_paymentSubject
@@ -8852,7 +8964,8 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
     answers.case05_dispositionReason
       ? getCase05FieldOptionLabel("case05_dispositionReason", answers.case05_dispositionReason)
       : answers.case04_supplementReason
-        ? getCase04FieldOptionLabel("case04_supplementReason", answers.case04_supplementReason)
+        ? getCase04FieldLabelFromAnswers("case04_supplementReason", answers)?.label ??
+          getCase04FieldOptionLabel("case04_supplementReason", answers.case04_supplementReason)
         : answers.case03_inquiryFocus
         ? CASE03_OPTION_LABELS[answers.case03_inquiryFocus] ?? answers.case03_inquiryFocus
         : answers.case02_paymentBasis
@@ -9071,7 +9184,8 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
     case05CustomerActionLabel
       ? case05CustomerActionLabel
       : answers.case04_customerResponse
-        ? getCase04FieldOptionLabel("case04_customerResponse", answers.case04_customerResponse)
+        ? getCase04FieldLabelFromAnswers("case04_customerResponse", answers)?.label ??
+          getCase04FieldOptionLabel("case04_customerResponse", answers.case04_customerResponse)
         : case03CustomerActionLabel
         ? case03CustomerActionLabel
         : answers.case02_paymentStatus
@@ -9194,7 +9308,11 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
         : getCase05FieldLabelFromAnswers("case05_deadline", answers)?.label ??
           getCase05FieldOptionLabel("case05_deadline", answers.case05_deadline)
         : answers.case04_deadline
-        ? getCase04FieldOptionLabel("case04_deadline", answers.case04_deadline)
+        ? answers.case04_deadline === "specific_date" &&
+          answers[CASE04_DEADLINE_DATE_KEY]?.trim()
+          ? `보완 제출 기한: ${answers[CASE04_DEADLINE_DATE_KEY].trim()}`
+          : getCase04FieldLabelFromAnswers("case04_deadline", answers)?.label ??
+            getCase04FieldOptionLabel("case04_deadline", answers.case04_deadline)
         : answers.case03_deadline
         ? answers.case03_deadline === "specific_date" &&
           answers[CASE03_DEADLINE_DATE_KEY]?.trim()
@@ -9239,7 +9357,10 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
         ? CASE05_DEADLINE_DATE_KEY
         : "case05_deadline"
       : answers.case04_deadline
-        ? "case04_deadline"
+        ? answers.case04_deadline === "specific_date" &&
+          answers[CASE04_DEADLINE_DATE_KEY]?.trim()
+          ? CASE04_DEADLINE_DATE_KEY
+          : "case04_deadline"
         : answers.case03_deadline
         ? answers.case03_deadline === "specific_date" &&
           answers[CASE03_DEADLINE_DATE_KEY]?.trim()
@@ -9333,8 +9454,9 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       ? getCase06FieldOptionLabel("case06_evidence", answers.case06_evidence)
       : case05EvidenceLabel
       ? case05EvidenceLabel
-      : answers.case04_evidence
-        ? getCase04FieldOptionLabel("case04_evidence", answers.case04_evidence)
+        : answers.case04_evidence
+        ? getCase04FieldLabelFromAnswers("case04_evidence", answers)?.label ??
+          getCase04FieldOptionLabel("case04_evidence", answers.case04_evidence)
         : case03EvidenceLabel
         ? case03EvidenceLabel
         : answers.case02_evidence
@@ -10504,6 +10626,9 @@ function case01Phase2SkipReason(
     return "deadline !== specific_date";
   }
   if (fieldId === CASE03_DEADLINE_DATE_KEY && answers.case03_deadline !== "specific_date") {
+    return "deadline !== specific_date";
+  }
+  if (fieldId === CASE04_DEADLINE_DATE_KEY && answers.case04_deadline !== "specific_date") {
     return "deadline !== specific_date";
   }
   if (

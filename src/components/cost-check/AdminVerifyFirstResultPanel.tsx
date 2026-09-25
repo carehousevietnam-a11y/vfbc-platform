@@ -26,6 +26,8 @@ import {
   CASE03_ATTENDANCE_WHEN_WHERE_KEY,
   CASE03_PREP_ATTENDANCE_DATE_KEY,
   getCase04FieldOptionLabel,
+  getCase04FieldLabelFromAnswers,
+  CASE04_DEADLINE_DATE_KEY,
   getCase05FieldOptionLabel,
   getCase06FieldOptionLabel,
   CASE03_OPTION_LABELS,
@@ -770,8 +772,14 @@ function appendCase04Phase1ResultSignals(
   }
 
   if (deadline === "specific_date") {
-    cautions.push("보완 제출 기한이 확인된 상태 — 기한 내 대응이 필요함");
-    actions.push("보완 제출 기한을 다시 확인해 보세요.");
+    const dateText = answers[CASE04_DEADLINE_DATE_KEY]?.trim();
+    if (dateText) {
+      cautions.push("보완 제출 기한이 확인된 상태 — 기한 내 대응이 필요함");
+      actions.push(`확인한 보완 제출 기한(${dateText})을 다시 한번 점검해 보세요.`);
+    } else {
+      unconfirmed.push("보완 제출 기한 (날짜)");
+      actions.push("보완 제출 기한 날짜를 먼저 확인해 보세요.");
+    }
   } else if (
     deadline === "uncertain" ||
     deadline === "period_stated" ||
@@ -822,6 +830,48 @@ function appendCase04Phase2ResultSignals(
 
   if (answers.case04_initialSubmission === "hard_to_confirm") {
     unconfirmed.push("처음 제출한 내용");
+  }
+
+  const addDoc = answers.case04_addDocDetail;
+  if (addDoc === "id_doc" || addDoc === "certificate") {
+    actions.push("요구된 신분·증명 관련 서류를 통지서와 대조해 보세요.");
+  } else if (addDoc === "financial_doc") {
+    actions.push("요구된 재무·금액 관련 서류를 준비해 보세요.");
+  } else if (addDoc === "translation") {
+    actions.push("번역·공증 관련 요구 문구를 확인해 보세요.");
+  } else if (addDoc === "unsure") {
+    unconfirmed.push("추가로 제출할 서류 종류");
+  }
+
+  const modify = answers.case04_modifyDetail;
+  if (modify === "name_info" || modify === "date_info" || modify === "amount_info") {
+    actions.push("기관이 지적한 수정 항목이 적힌 부분을 기존 서류와 대조해 보세요.");
+  } else if (modify === "content_info") {
+    actions.push("내용·기재사항 수정 요구를 기존 제출본과 나란히 확인해 보세요.");
+  } else if (modify === "unsure") {
+    unconfirmed.push("수정해야 할 항목");
+  }
+
+  const evidenceDetail = answers.case04_evidenceDetail;
+  if (evidenceDetail === "proof_doc" || evidenceDetail === "statement") {
+    actions.push("요구된 증빙·소명 자료를 정리해 보세요.");
+  } else if (evidenceDetail === "photo") {
+    actions.push("요구된 사진·이미지 증빙을 준비해 보세요.");
+  } else if (evidenceDetail === "unsure") {
+    unconfirmed.push("추가로 제출할 증빙 종류");
+  }
+
+  const evidence = answers.case04_evidence;
+  if (evidence === "none") {
+    unconfirmed.push("확인 가능한 자료·증빙");
+  } else if (evidence === "supplement_notice") {
+    actions.push("보완 요구서·안내문 원본을 준비해 두세요.");
+  } else if (evidence === "original_submission") {
+    actions.push("처음 제출했던 서류와 보완 요구 내용을 함께 확인해 보세요.");
+  } else if (evidence === "supplement_submission") {
+    actions.push("보완 제출본과 기관 반응을 함께 확인해 보세요.");
+  } else if (evidence === "message") {
+    actions.push("기관 문자·메신저·전화 안내 내역을 확인해 보세요.");
   }
 }
 
@@ -1343,7 +1393,18 @@ function classifiedFieldOptionLabel(
         getCase03FieldOptionLabel(fieldId, value)
       );
     case "CASE_04":
-      return getCase04FieldOptionLabel(fieldId, value);
+      if (value === "other" && answers) {
+        const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
+        return (
+          note ||
+          getCase04FieldLabelFromAnswers(fieldId, answers)?.label ||
+          getCase04FieldOptionLabel(fieldId, "other")
+        );
+      }
+      return (
+        getCase04FieldLabelFromAnswers(fieldId, answers ?? {})?.label ??
+        getCase04FieldOptionLabel(fieldId, value)
+      );
     case "CASE_05":
       if (value === "other" && answers) {
         const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
