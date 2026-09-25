@@ -10,9 +10,11 @@ import {
   LAYER_J_LEGACY_SLUGS,
 } from "../src/lib/adminVerifyJudgmentFieldRegistry";
 import { buildLayerJCase0206ClauseMap } from "./layer-j-clauses-case02-06";
+import { buildLayerJCase01Phase2ClauseMap } from "./layer-j-clauses-case01-phase2";
 
 const ROOT = path.join(__dirname, "..");
 const CASE0206_CLAUSES = buildLayerJCase0206ClauseMap();
+const CASE01_PHASE2_CLAUSES = buildLayerJCase01Phase2ClauseMap();
 
 function key(caseCode: string, outlet: string, fieldId: string, slug: string): string {
   return `${caseCode}|${outlet}|${fieldId}|${slug}`;
@@ -120,6 +122,7 @@ function clauseFor(
       "이미 교통국에 일부 대응을 한 상태이며",
   };
   if (CASE01[k]) return CASE01[k];
+  if (CASE01_PHASE2_CLAUSES[k]) return CASE01_PHASE2_CLAUSES[k];
   if (CASE0206_CLAUSES[k]) return CASE0206_CLAUSES[k];
 
   if (slug === "other" || slug === "direct_explain") {

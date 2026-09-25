@@ -49,6 +49,77 @@
 | 01 | case01_factRelationship | 교통국에서 설명받은 내용과, 제가 알고 있는 실제 상황을 비교하면 어떤가요? | `partial_situation` | 일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다. | 2차 추가 확인에서는 일부는 맞지만 전체 상황이 다르게 정리될 수 있다는 점이 핵심입니다. |  |
 | 01 | case01_factRelationship | 교통국에서 설명받은 내용과, 제가 알고 있는 실제 상황을 비교하면 어떤가요? | `unknown` | 설명은 들었지만 실제 상황과 같은지 다른지 판단하기 어렵습니다. | 2차 추가 확인에서는 통지와 실제 상황이 같은지 아직 판단하기 어렵다는 점이 핵심입니다. |  |
 | 01 | case01_factRelationship | 교통국에서 설명받은 내용과, 제가 알고 있는 실제 상황을 비교하면 어떤가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **사실 관계: {case01_factRelationshipNote 또는 DI 원문}** |  |
+| 01 | case01_factConflictFacet | 교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요? | `conflict_time` | 쟁점이 시각(날짜·시간) 불일치에 가깝습니다. | 쟁점이 시각 불일치로 정리됩니다. |  |
+| 01 | case01_factConflictFacet | 교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요? | `conflict_place` | 쟁점이 장소·위치 불일치에 가깝습니다. | 쟁점이 장소 불일치로 정리됩니다. |  |
+| 01 | case01_factConflictFacet | 교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요? | `conflict_violation_action` | 쟁점이 행동·위반 유무 불일치에 가깝습니다. | 쟁점이 행동·위반 유무 불일치로 정리됩니다. |  |
+| 01 | case01_factConflictFacet | 교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요? | `conflict_vehicle_driver` | 쟁점이 차량·운전자 귀속 불일치에 가깝습니다. | 쟁점이 차량·운전자 귀속 불일치로 정리됩니다. |  |
+| 01 | case01_factConflictFacet | 교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요? | `conflict_other` | 기타 차이 항목이 있습니다. | 쟁점이 기타 차이 항목으로 정리됩니다. |  |
+| 01 | case01_factConflictFacet | 교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **사실 차이: {case01_factConflictFacetNote 또는 DI 원문}** |  |
+| 01 | case01_spatiotemporalFacet | 그 날짜·장소·상황을 지금 어떤 방식으로 확인할 수 있나요? | `st_has_records` | 기록·자료로 확인할 수 있습니다. | 날짜·장소·상황을 기록으로 확인할 수 있는 상태입니다. |  |
+| 01 | case01_spatiotemporalFacet | 그 날짜·장소·상황을 지금 어떤 방식으로 확인할 수 있나요? | `st_witness_only` | 증인·동행자 확인만 가능합니다. | 증인·동행 확인에 의존하는 상태입니다. |  |
+| 01 | case01_spatiotemporalFacet | 그 날짜·장소·상황을 지금 어떤 방식으로 확인할 수 있나요? | `st_memory_only` | 기억·추정에 의존합니다. | 기억·추정에 의존하는 상태입니다. |  |
+| 01 | case01_spatiotemporalFacet | 그 날짜·장소·상황을 지금 어떤 방식으로 확인할 수 있나요? | `st_cannot_verify` | 지금은 확인할 수 없습니다. | 지금은 확인할 수 없는 상태입니다. |  |
+| 01 | case01_spatiotemporalFacet | 그 날짜·장소·상황을 지금 어떤 방식으로 확인할 수 있나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **시공간 확인: {case01_spatiotemporalFacetNote 또는 DI 원문}** |  |
+| 01 | case01_compareRecordGap | 통지 내용과 비교하려면 지금 무엇이 가장 부족한가요? | `cmp_missing_notice` | 통지·안내 사본이 없습니다. | 통지 사본이 없어 비교가 어렵습니다. |  |
+| 01 | case01_compareRecordGap | 통지 내용과 비교하려면 지금 무엇이 가장 부족한가요? | `cmp_missing_calendar` | 일정·캘린더 기록이 없습니다. | 일정 기록이 없어 시간 입증이 약합니다. |  |
+| 01 | case01_compareRecordGap | 통지 내용과 비교하려면 지금 무엇이 가장 부족한가요? | `cmp_missing_receipt` | 접수·제출 증빙이 없습니다. | 접수·제출 기록이 없습니다. |  |
+| 01 | case01_compareRecordGap | 통지 내용과 비교하려면 지금 무엇이 가장 부족한가요? | `cmp_missing_messages` | 연락·메시지 기록이 없습니다. | 연락·메시지 기록이 없습니다. |  |
+| 01 | case01_compareRecordGap | 통지 내용과 비교하려면 지금 무엇이 가장 부족한가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **비교 자료: {case01_compareRecordGapNote 또는 DI 원문}** |  |
+| 01 | case01_languageAccessFact | 안내를 이해하거나 확인할 때 언어·통역 때문에 막힌 부분이 있나요? | `lang_none` | 언어·통역 장벽은 없었습니다. | 언어·통역 장벽은 없는 것으로 정리됩니다. |  |
+| 01 | case01_languageAccessFact | 안내를 이해하거나 확인할 때 언어·통역 때문에 막힌 부분이 있나요? | `lang_partial_understanding` | 부분적으로만 이해했습니다. | 안내를 부분적으로만 이해한 상태입니다. |  |
+| 01 | case01_languageAccessFact | 안내를 이해하거나 확인할 때 언어·통역 때문에 막힌 부분이 있나요? | `lang_need_interpreter` | 통역·공식 안내가 필요합니다. | 통역·공식 안내가 필요한 상태입니다. |  |
+| 01 | case01_languageAccessFact | 안내를 이해하거나 확인할 때 언어·통역 때문에 막힌 부분이 있나요? | `lang_indirect_hearsay` | 제3자·대행·통역 등 간접 경로로만 들었습니다. | 제3자·간접 경로로만 안내를 알게 된 상태입니다. |  |
+| 01 | case01_languageAccessFact | 안내를 이해하거나 확인할 때 언어·통역 때문에 막힌 부분이 있나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **언어·통역: {case01_languageAccessFactNote 또는 DI 원문}** |  |
+| 01 | case01_unclearDemandFact | 기관 요구에서 가장 불명확한 부분은 무엇인가요? | `unclear_what_violation` | 위반·문제 내용이 불명합니다. | 위반·문제 내용이 불명한 상태입니다. |  |
+| 01 | case01_unclearDemandFact | 기관 요구에서 가장 불명확한 부분은 무엇인가요? | `unclear_what_action` | 해야 할 행동이 불명합니다. | 해야 할 행동이 불명한 상태입니다. |  |
+| 01 | case01_unclearDemandFact | 기관 요구에서 가장 불명확한 부분은 무엇인가요? | `unclear_deadline` | 기한이 불명합니다. | 기한이 불명한 상태입니다. |  |
+| 01 | case01_unclearDemandFact | 기관 요구에서 가장 불명확한 부분은 무엇인가요? | `unclear_who_authority` | 기관·담당이 불명합니다. | 기관·담당이 불명한 상태입니다. |  |
+| 01 | case01_unclearDemandFact | 기관 요구에서 가장 불명확한 부분은 무엇인가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **요구 불명: {case01_unclearDemandFactNote 또는 DI 원문}** |  |
+| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_in_person` | 대면으로 안내를 받았습니다. | 안내를 대면으로 받은 것으로 정리됩니다. |  |
+| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_phone_message` | 전화·문자로 안내를 받았습니다. | 안내를 전화·문자로 받은 것으로 정리됩니다. |  |
+| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_written_only` | 문서·서면으로만 받았습니다. | 안내를 문서로만 받은 것으로 정리됩니다. |  |
+| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_not_received_yet` | 아직 통지·안내를 받지 못했습니다. | 아직 통지·안내를 받지 못한 상태입니다. |  |
+| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **안내 수신: {case01_noticeDeliveryFactNote 또는 DI 원문}** |  |
+| 01 | case01_procedureStageFact | 이 안내가 처음 통지에 가깝나요, 추가·재통지에 가깝나요? | `stage_first_notice` | 최초 통지에 가깝습니다. | 최초 통지 단계로 정리됩니다. |  |
+| 01 | case01_procedureStageFact | 이 안내가 처음 통지에 가깝나요, 추가·재통지에 가깝나요? | `stage_followup_notice` | 추가·재통지에 가깝습니다. | 추가·재통지 단계로 정리됩니다. |  |
+| 01 | case01_procedureStageFact | 이 안내가 처음 통지에 가깝나요, 추가·재통지에 가깝나요? | `stage_unsure` | 통지 단계가 불명합니다. | 통지 단계가 불명한 상태입니다. |  |
+| 01 | case01_procedureStageFact | 이 안내가 처음 통지에 가깝나요, 추가·재통지에 가깝나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **통지 단계: {case01_procedureStageFactNote 또는 DI 원문}** |  |
+| 01 | case01_officeIdentityFact | 안내를 준 기관·부서·담당을 어떻게 확인하고 있나요? | `office_named_clear` | 기관·부서가 명확합니다. | 기관·부서가 명확한 상태입니다. |  |
+| 01 | case01_officeIdentityFact | 안내를 준 기관·부서·담당을 어떻게 확인하고 있나요? | `office_name_only` | 이름만 알고 있습니다. | 담당 이름만 알고 있는 상태입니다. |  |
+| 01 | case01_officeIdentityFact | 안내를 준 기관·부서·담당을 어떻게 확인하고 있나요? | `office_unknown` | 기관을 확인할 수 없습니다. | 기관을 확인할 수 없는 상태입니다. |  |
+| 01 | case01_officeIdentityFact | 안내를 준 기관·부서·담당을 어떻게 확인하고 있나요? | `office_wrong_suspect` | 다른 기관일 수 있습니다. | 다른 기관일 수 있다는 의심이 있습니다. |  |
+| 01 | case01_officeIdentityFact | 안내를 준 기관·부서·담당을 어떻게 확인하고 있나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **기관 확인: {case01_officeIdentityFactNote 또는 DI 원문}** |  |
+| 01 | case01_correctTargetFact | 수정·확인하라고 한 대상은 무엇에 가깝나요? | `tgt_identity_record` | 신원·등록 수정이 대상입니다. | 신원·등록 수정이 요구 대상입니다. |  |
+| 01 | case01_correctTargetFact | 수정·확인하라고 한 대상은 무엇에 가깝나요? | `tgt_submission_content` | 제출 내용 수정이 대상입니다. | 제출 내용 수정이 요구 대상입니다. |  |
+| 01 | case01_correctTargetFact | 수정·확인하라고 한 대상은 무엇에 가깝나요? | `tgt_vehicle_record` | 차량·운전 기록이 대상입니다. | 차량·운전 기록 수정이 요구 대상입니다. |  |
+| 01 | case01_correctTargetFact | 수정·확인하라고 한 대상은 무엇에 가깝나요? | `tgt_other` | 기타 수정 대상입니다. | 기타 수정 대상으로 정리됩니다. |  |
+| 01 | case01_correctTargetFact | 수정·확인하라고 한 대상은 무엇에 가깝나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **수정 대상: {case01_correctTargetFactNote 또는 DI 원문}** |  |
+| 01 | case01_attendInstructionFact | 출석·소명 안내에서 가장 분명한 내용은 무엇인가요? | `att_date_place_stated` | 출석 일시·장소가 명시되었습니다. | 출석 일시·장소가 명시된 안내입니다. |  |
+| 01 | case01_attendInstructionFact | 출석·소명 안내에서 가장 분명한 내용은 무엇인가요? | `att_window_only` | 기간만 명시되었습니다. | 출석 기간만 명시된 안내입니다. |  |
+| 01 | case01_attendInstructionFact | 출석·소명 안내에서 가장 분명한 내용은 무엇인가요? | `att_place_unknown` | 장소가 불명합니다. | 출석 장소가 불명한 안내입니다. |  |
+| 01 | case01_attendInstructionFact | 출석·소명 안내에서 가장 분명한 내용은 무엇인가요? | `att_content_unclear` | 출석 요지가 불명합니다. | 출석 요지가 불명한 안내입니다. |  |
+| 01 | case01_attendInstructionFact | 출석·소명 안내에서 가장 분명한 내용은 무엇인가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **출석 안내: {case01_attendInstructionFactNote 또는 DI 원문}** |  |
+| 01 | case01_supplementInstructionFact | 보완·재제출 안내의 핵심은 무엇인가요? | `sup_missing_docs_list` | 누락 서류 목록이 있습니다. | 누락 서류 목록이 있는 보완 요구입니다. |  |
+| 01 | case01_supplementInstructionFact | 보완·재제출 안내의 핵심은 무엇인가요? | `sup_replace_docs` | 교체·정정 제출이 필요합니다. | 교체·정정 제출이 필요한 보완 요구입니다. |  |
+| 01 | case01_supplementInstructionFact | 보완·재제출 안내의 핵심은 무엇인가요? | `sup_content_add` | 내용 추가가 필요합니다. | 내용 추가가 필요한 보완 요구입니다. |  |
+| 01 | case01_supplementInstructionFact | 보완·재제출 안내의 핵심은 무엇인가요? | `sup_scope_unclear` | 보완 범위가 불명합니다. | 보완 범위가 불명한 요구입니다. |  |
+| 01 | case01_supplementInstructionFact | 보완·재제출 안내의 핵심은 무엇인가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **보완 안내: {case01_supplementInstructionFactNote 또는 DI 원문}** |  |
+| 01 | case01_paymentInstructionFact | 납부 안내의 성격은 무엇에 가깝나요? | `pay_type_fine` | 벌금·과태료 성격으로 이해합니다. | 벌금·과태료 성격의 납부 안내로 정리됩니다. |  |
+| 01 | case01_paymentInstructionFact | 납부 안내의 성격은 무엇에 가깝나요? | `pay_type_fee` | 수수료 성격으로 이해합니다. | 수수료 성격의 납부 안내로 정리됩니다. |  |
+| 01 | case01_paymentInstructionFact | 납부 안내의 성격은 무엇에 가깝나요? | `pay_type_mixed` | 항목이 혼재되어 있습니다. | 항목이 혼재된 납부 안내로 정리됩니다. |  |
+| 01 | case01_paymentInstructionFact | 납부 안내의 성격은 무엇에 가깝나요? | `pay_type_unclear` | 납부 종류가 불명합니다. | 납부 종류가 불명한 안내입니다. |  |
+| 01 | case01_paymentInstructionFact | 납부 안내의 성격은 무엇에 가깝나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **납부 안내: {case01_paymentInstructionFactNote 또는 DI 원문}** |  |
+| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `completed` | 추가 요구 없이 처리되었다고 들었습니다. | 기관 회신은 추가 요구 없이 처리된 것으로 들었습니다. |  |
+| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `more_required` | 추가 서류나 자료를 요청했습니다. | 기관이 추가 서류·자료를 요청했습니다. |  |
+| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `re_attendance` | 다시 출석하거나 설명하라고 했습니다. | 기관이 다시 출석·설명을 요구했습니다. |  |
+| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `payment_demand` | 비용 납부나 다른 조치를 안내했습니다. | 기관이 납부 등 다른 조치를 안내했습니다. |  |
+| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `no_reply_yet` | 아직 답변을 받지 못했습니다. | 기관 답변을 아직 받지 못했습니다. |  |
+| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **기관 회신: {case01_authorityFollowUpKindNote 또는 DI 원문}** |  |
+| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_complete_with_proof` | 요구 조치를 완료했고 영수증·접수증 등 증빙이 있습니다. | 요구 조치를 완료했고 증빙이 있는 상태입니다. |  |
+| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_complete_no_proof` | 완료했으나 증빙이 없습니다. | 요구 조치는 완료했으나 증빙이 없는 상태입니다. |  |
+| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_partial` | 일부만 이행했습니다. | 요구 조치를 일부만 이행한 상태입니다. |  |
+| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `fulfill_not_yet` | 아직 이행하지 않았습니다. | 요구 조치를 아직 이행하지 않은 상태입니다. |  |
+| 01 | case01_demandFulfillmentFact | 기관이 요구한 조치를 이행했는지, 그리고 남아 있는 증빙은 무엇인가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **이행·증빙: {case01_demandFulfillmentFactNote 또는 DI 원문}** |  |
 | 01 | case01_customerResponded | 이 안내를 받은 뒤 교통국에 대응한 경험이 있나요? | `no_contact_yet` | 아직 교통국에 연락·출석·제출을 하지 않았고, 통지만 받은 상태입니다. 무엇부터 할지 확인이 필요합니다. | 아직 교통국에 설명하거나 자료를 제출한 대응은 없으며 |  |
 | 01 | case01_customerResponded | 이 안내를 받은 뒤 교통국에 대응한 경험이 있나요? | `none` | 아직 교통국에 별도로 대응하지 않았습니다. | 아직 교통국에 설명하거나 자료를 제출한 대응은 없으며 | 예 |
 | 01 | case01_customerResponded | 이 안내를 받은 뒤 교통국에 대응한 경험이 있나요? | `has_responded` | 교통국에 어떤 형태로든 대응한 경험이 있습니다. | 이미 교통국에 일부 대응을 한 상태이며 |  |
