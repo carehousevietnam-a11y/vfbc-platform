@@ -29,7 +29,25 @@ export {
   CASE06_BRIDGE_SNAPSHOT_COMMITTED_KEY,
   CASE06_BRIDGE_TARGET_CASE_KEY,
 } from "./adminVerifyCase06Redesign";
-import { CASE01_PHASE2_FACET_FIELD_OPTION_MAP } from "./adminVerifyCase01Phase2FacetOptions";
+import {
+  case01IsPhase2FacetOnPath,
+} from "./adminVerifyCase01Ratio";
+import {
+  CASE01_PHASE2_FACET_FIELD_OPTION_MAP,
+  CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS,
+  CASE01_FACT_CONFLICT_FACET_OPTIONS,
+  CASE01_SPATIOTEMPORAL_FACET_OPTIONS,
+  CASE01_COMPARE_RECORD_GAP_OPTIONS,
+  CASE01_LANGUAGE_ACCESS_FACT_OPTIONS,
+  CASE01_UNCLEAR_DEMAND_FACT_OPTIONS,
+  CASE01_NOTICE_DELIVERY_FACT_OPTIONS,
+  CASE01_PROCEDURE_STAGE_FACT_OPTIONS,
+  CASE01_OFFICE_IDENTITY_FACT_OPTIONS,
+  CASE01_PAYMENT_INSTRUCTION_FACT_OPTIONS,
+  CASE01_ATTEND_INSTRUCTION_FACT_OPTIONS,
+  CASE01_SUPPLEMENT_INSTRUCTION_FACT_OPTIONS,
+  CASE01_CORRECT_TARGET_FACT_OPTIONS,
+} from "./adminVerifyCase01Phase2FacetOptions";
 
 /** VERIFY 행정문서 — 1차(핵심) / 2차(개인화) 질문 단계 */
 export type AdminVerifyProfilePhase = 1 | 2;
@@ -455,6 +473,19 @@ export const CASE01_ANSWER_KEYS = [
   "case01_blockage",
   "case01_evidence",
   "case01_finalGoal",
+  "case01_factConflictFacet",
+  "case01_spatiotemporalFacet",
+  "case01_compareRecordGap",
+  "case01_languageAccessFact",
+  "case01_unclearDemandFact",
+  "case01_noticeDeliveryFact",
+  "case01_procedureStageFact",
+  "case01_officeIdentityFact",
+  "case01_paymentInstructionFact",
+  "case01_attendInstructionFact",
+  "case01_supplementInstructionFact",
+  "case01_correctTargetFact",
+  "case01_authorityFollowUpKind",
 ] as const;
 
 export const CASE05_DEADLINE_DATE_KEY = "case05_deadlineDate";
@@ -1110,6 +1141,7 @@ function case01NeedsActualSituationQuestion(answers: ReviewAnswers): boolean {
 }
 
 function case01NeedsFactDifferenceDetail(answers: ReviewAnswers): boolean {
+  if (case01IsPhase2FacetOnPath("case01_factConflictFacet", answers)) return false;
   const relationship = answers.case01_factRelationship;
   if (
     !relationship ||
@@ -1134,8 +1166,118 @@ function case01NeedsUnknownInfoGap(answers: ReviewAnswers): boolean {
 }
 
 function case01NeedsDatePlaceDetail(answers: ReviewAnswers): boolean {
+  if (case01IsPhase2FacetOnPath("case01_spatiotemporalFacet", answers)) return false;
   if (answers.case01_factRelationship !== "date_place_wrong") return false;
   return !answers[CASE01_DATE_PLACE_DETAIL_KEY]?.trim();
+}
+
+const CASE01_PHASE2_FACET_QUESTION_SPECS: {
+  id: string;
+  label: string;
+  options: readonly { value: string; label: string }[];
+}[] = [
+  {
+    id: "case01_factConflictFacet",
+    label: "교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요?",
+    options: CASE01_FACT_CONFLICT_FACET_OPTIONS,
+  },
+  {
+    id: "case01_spatiotemporalFacet",
+    label: "그 날짜·장소·상황을 지금 어떤 방식으로 확인할 수 있나요?",
+    options: CASE01_SPATIOTEMPORAL_FACET_OPTIONS,
+  },
+  {
+    id: "case01_compareRecordGap",
+    label: "통지 내용과 비교하려면 지금 무엇이 가장 부족한가요?",
+    options: CASE01_COMPARE_RECORD_GAP_OPTIONS,
+  },
+  {
+    id: "case01_languageAccessFact",
+    label: "안내를 이해하거나 확인할 때 언어·통역 때문에 막힌 부분이 있나요?",
+    options: CASE01_LANGUAGE_ACCESS_FACT_OPTIONS,
+  },
+  {
+    id: "case01_unclearDemandFact",
+    label: "기관 요구에서 가장 불명확한 부분은 무엇인가요?",
+    options: CASE01_UNCLEAR_DEMAND_FACT_OPTIONS,
+  },
+  {
+    id: "case01_noticeDeliveryFact",
+    label: "교통국 안내를 처음 어떤 방식으로 받았나요?",
+    options: CASE01_NOTICE_DELIVERY_FACT_OPTIONS,
+  },
+  {
+    id: "case01_procedureStageFact",
+    label: "이 안내가 처음 통지에 가깝나요, 추가·재통지에 가깝나요?",
+    options: CASE01_PROCEDURE_STAGE_FACT_OPTIONS,
+  },
+  {
+    id: "case01_officeIdentityFact",
+    label: "안내를 준 기관·부서·담당을 어떻게 확인하고 있나요?",
+    options: CASE01_OFFICE_IDENTITY_FACT_OPTIONS,
+  },
+  {
+    id: "case01_paymentInstructionFact",
+    label: "납부 안내의 성격은 무엇에 가깝나요?",
+    options: CASE01_PAYMENT_INSTRUCTION_FACT_OPTIONS,
+  },
+  {
+    id: "case01_attendInstructionFact",
+    label: "출석·소명 안내에서 가장 분명한 내용은 무엇인가요?",
+    options: CASE01_ATTEND_INSTRUCTION_FACT_OPTIONS,
+  },
+  {
+    id: "case01_supplementInstructionFact",
+    label: "보완·재제출 안내의 핵심은 무엇인가요?",
+    options: CASE01_SUPPLEMENT_INSTRUCTION_FACT_OPTIONS,
+  },
+  {
+    id: "case01_correctTargetFact",
+    label: "수정·확인하라고 한 대상은 무엇에 가깝나요?",
+    options: CASE01_CORRECT_TARGET_FACT_OPTIONS,
+  },
+  {
+    id: "case01_authorityFollowUpKind",
+    label: "대응 후 교통국에서 어떤 회신·재요구를 받았나요?",
+    options: CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS,
+  },
+];
+
+function case01Phase2FacetFieldsComplete(answers: ReviewAnswers): boolean {
+  for (const spec of CASE01_PHASE2_FACET_QUESTION_SPECS) {
+    if (!case01IsPhase2FacetOnPath(spec.id, answers)) continue;
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        spec.id,
+        answers,
+        [...spec.options] as { value: string; label: string }[],
+      )
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/** Brief v3 §3 facet choice — 노출 경로에만 질문 추가. false = 체인 중단. */
+function appendCase01Phase2FacetQuestions(
+  questions: ProfileQuestion[],
+  answers: ReviewAnswers,
+): boolean {
+  for (const spec of CASE01_PHASE2_FACET_QUESTION_SPECS) {
+    if (!case01IsPhase2FacetOnPath(spec.id, answers)) continue;
+    const options = [...spec.options] as { value: string; label: string }[];
+    pushUnique(questions, {
+      id: spec.id,
+      kind: "choice",
+      label: spec.label,
+      options,
+    });
+    if (!isAdminVerifyChoiceFieldComplete(spec.id, answers, options)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function case01NeedsResponseDetail(answers: ReviewAnswers): boolean {
@@ -1150,6 +1292,9 @@ function case01NeedsResponseDetail(answers: ReviewAnswers): boolean {
 function case01NeedsAuthorityResponse(answers: ReviewAnswers): boolean {
   if (!case01CustomerRespondedImpliesAction(answers.case01_customerResponded)) return false;
   if (case01NeedsResponseDetail(answers)) return false;
+  if (case01IsPhase2FacetOnPath("case01_authorityFollowUpKind", answers)) {
+    return false;
+  }
   return !isAdminVerifyChoiceFieldComplete(
     "case01_authorityResponse",
     answers,
@@ -1631,6 +1776,10 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     return;
   }
 
+  if (!appendCase01Phase2FacetQuestions(questions, answers)) {
+    return;
+  }
+
   if (case01NeedsDeadlinePhase2(answers)) {
     pushUnique(questions, {
       id: "case01_deadline",
@@ -1707,14 +1856,16 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   if (case01NeedsAuthorityResponse(answers)) {
-    pushUnique(questions, {
-      id: "case01_authorityResponse",
-      kind: "choice",
-      label: "그 뒤 교통국에서는 어떻게 답변하거나 다시 안내했나요?",
-      options: CASE01_AUTHORITY_RESPONSE_OPTIONS,
-    });
-    if (case01NeedsAuthorityResponse(answers)) {
-      return;
+    if (!case01IsPhase2FacetOnPath("case01_authorityFollowUpKind", answers)) {
+      pushUnique(questions, {
+        id: "case01_authorityResponse",
+        kind: "choice",
+        label: "그 뒤 교통국에서는 어떻게 답변하거나 다시 안내했나요?",
+        options: CASE01_AUTHORITY_RESPONSE_OPTIONS,
+      });
+      if (case01NeedsAuthorityResponse(answers)) {
+        return;
+      }
     }
   }
 
@@ -1781,6 +1932,7 @@ function case01PathFieldsComplete(answers: ReviewAnswers): boolean {
   if (case01NeedsAuthorityDemandDetailChoice(answers)) return false;
   if (case01NeedsUnclearDemandDetail(answers)) return false;
   if (case01NeedsAuthorityResponseFollowUp(answers)) return false;
+  if (!case01Phase2FacetFieldsComplete(answers)) return false;
   if (
     !isAdminVerifyChoiceFieldComplete(
       "case01_authorityDemand",
@@ -1823,10 +1975,9 @@ export function isCase01PathComplete(answers: ReviewAnswers): boolean {
 
 export {
   CASE01_PHASE2_SUBSTANTIVE_AXIS_CATALOG,
-  case01NeedsDemandFulfillmentFact,
+  case01IsPhase2FacetOnPath,
   case01Phase1SubstantiveAxisCount,
-  case01Phase2MeetsRatio46,
-  case01Phase2Ratio46MinimumP2,
+  case01Phase2ExceedsPhase1SubstantiveDepth,
   case01Phase2SubstantiveAxisCountOnPath,
   case01Phase2SubstantiveAxisIdsOnPath,
   case01Phase2SubstantiveAxisSymbolsOnPath,

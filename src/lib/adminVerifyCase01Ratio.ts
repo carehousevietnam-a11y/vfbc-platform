@@ -1,5 +1,6 @@
 /**
- * CASE_01 Phase2 실질 축·4:6 — Brief v3 §3·§5 (DQ-V04 = C, 비율 보정 게이트 없음).
+ * CASE_01 Phase2 실질 축 — Brief v3 §3 (DQ-V04 = C, 비율 보정 게이트 없음).
+ * 비율 PASS: Phase2 실질 축 수 > Phase1 실질 축 수 (대표 승인 2026-09-25).
  */
 
 import type { ReviewAnswers } from "../components/cost-check/MasterReviewQuotationReport";
@@ -46,6 +47,11 @@ function case01CustomerRespondedIsNoContact(answers: ReviewAnswers): boolean {
 
 function case01CustomerRespondedIsHasResponded(answers: ReviewAnswers): boolean {
   return answers.case01_customerResponded === "has_responded";
+}
+
+/** Brief v3 §3 — 해당 Phase2 facet 질문 노출 여부 (A/B/G/H 등 기존 축 제외). */
+export function case01IsPhase2FacetOnPath(fieldId: string, answers: ReviewAnswers): boolean {
+  return case01Phase2AxisExposed(fieldId, answers);
 }
 
 function case01Phase2AxisExposed(fieldId: string, answers: ReviewAnswers): boolean {
@@ -100,7 +106,7 @@ function case01Phase2AxisExposed(fieldId: string, answers: ReviewAnswers): boole
   }
 }
 
-/** §3 조건 충족 Phase2 실질 축 id (기호 순). §5.1 demandFulfillmentFact는 4:6 집계에 포함하지 않음. */
+/** §3 조건 충족 Phase2 실질 축 id (기호 순). */
 export function case01Phase2SubstantiveAxisIdsOnPath(answers: ReviewAnswers): string[] {
   const ids: string[] = [];
   for (const row of CASE01_PHASE2_SUBSTANTIVE_AXIS_CATALOG) {
@@ -126,30 +132,14 @@ export function case01Phase1SubstantiveAxisCount(answers: ReviewAnswers): number
   return 5;
 }
 
-export function case01Phase2Ratio46MinimumP2(p1: number): number {
-  if (p1 <= 0) return 0;
-  return Math.ceil((p1 * 6) / 4);
-}
-
 export function case01Phase2SubstantiveAxisCountOnPath(answers: ReviewAnswers): number {
   return case01Phase2SubstantiveAxisIdsOnPath(answers).length;
 }
 
-export function case01Phase2MeetsRatio46(answers: ReviewAnswers): boolean {
+/** Phase2 실질 축 수 > Phase1 실질 축 수 */
+export function case01Phase2ExceedsPhase1SubstantiveDepth(answers: ReviewAnswers): boolean {
   const p1 = case01Phase1SubstantiveAxisCount(answers);
   const p2 = case01Phase2SubstantiveAxisCountOnPath(answers);
-  return p2 >= case01Phase2Ratio46MinimumP2(p1);
-}
-
-/** §5.1 — 별도 노출 질문 (4:6 축 집계 제외) */
-export function case01NeedsDemandFulfillmentFact(answers: ReviewAnswers): boolean {
-  if (!case01CustomerRespondedIsHasResponded(answers)) return false;
-  if (answers.case01_factRelationship !== "match") return false;
-  const demand = answers.case01_authorityDemand ?? "";
-  return (
-    CASE01_PAYMENT_DEMANDS.has(demand) ||
-    CASE01_ATTEND_DEMANDS.has(demand) ||
-    CASE01_SUPPLEMENT_DEMANDS.has(demand) ||
-    demand === "correct_record"
-  );
+  if (p1 <= 0) return false;
+  return p2 > p1;
 }

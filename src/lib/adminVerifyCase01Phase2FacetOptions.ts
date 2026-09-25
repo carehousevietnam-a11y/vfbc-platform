@@ -119,20 +119,6 @@ export const CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS = [
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
-export const CASE01_DEMAND_FULFILLMENT_FACT_OPTIONS = [
-  {
-    value: "fulfill_complete_with_proof",
-    label: "요구 조치를 완료했고 영수증·접수증 등 증빙이 있습니다.",
-  },
-  {
-    value: "fulfill_complete_no_proof",
-    label: "완료했으나 증빙이 없습니다.",
-  },
-  { value: "fulfill_partial", label: "일부만 이행했습니다." },
-  { value: "fulfill_not_yet", label: "아직 이행하지 않았습니다." },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
 export const CASE01_PHASE2_FACET_FIELD_OPTION_MAP: Record<
   string,
   readonly { value: string; label: string }[]
@@ -150,5 +136,4 @@ export const CASE01_PHASE2_FACET_FIELD_OPTION_MAP: Record<
   case01_supplementInstructionFact: CASE01_SUPPLEMENT_INSTRUCTION_FACT_OPTIONS,
   case01_paymentInstructionFact: CASE01_PAYMENT_INSTRUCTION_FACT_OPTIONS,
   case01_authorityFollowUpKind: CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS,
-  case01_demandFulfillmentFact: CASE01_DEMAND_FULFILLMENT_FACT_OPTIONS,
 };
