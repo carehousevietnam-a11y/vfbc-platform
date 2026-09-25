@@ -2,6 +2,9 @@ import {
   CASE01_DATE_PLACE_DETAIL_KEY,
   CASE01_DEADLINE_DATE_KEY,
   CASE01_FACT_DIFFERENCE_DETAIL_KEY,
+  CASE01_FACT_DIFFERENCE_AUX_KEY,
+  CASE01_DATE_PLACE_AUX_KEY,
+  CASE01_AUTHORITY_FOLLOW_UP_AUX_KEY,
   CASE01_FACT_RELATIONSHIP_NOTE_KEY,
   CASE01_RESPONSE_DETAIL_NOTE_KEY,
   CASE01_VIOLATION_CONTENT_NOTE_KEY,
@@ -44,15 +47,48 @@ function pushNoteLine(
   if (note) lines.push(`${label}: ${note}`);
 }
 
+function pushCase01OriginalTextLine(
+  lines: string[],
+  answers: ReviewAnswers,
+  primaryKey: string,
+  legacyKey: string,
+  label: string,
+): void {
+  const primary = answers[primaryKey]?.trim();
+  if (primary) {
+    lines.push(`${label}: ${primary}`);
+    return;
+  }
+  pushTextLine(lines, answers, legacyKey, label);
+}
+
 function buildCase01ResponseSummaryLines(answers: ReviewAnswers): string[] {
   const lines: string[] = [];
-  pushTextLine(lines, answers, CASE01_FACT_DIFFERENCE_DETAIL_KEY, "사실 차이");
-  pushTextLine(lines, answers, CASE01_DATE_PLACE_DETAIL_KEY, "날짜·장소");
+  pushCase01OriginalTextLine(
+    lines,
+    answers,
+    CASE01_FACT_DIFFERENCE_AUX_KEY,
+    CASE01_FACT_DIFFERENCE_DETAIL_KEY,
+    "사실 차이 원문",
+  );
+  pushCase01OriginalTextLine(
+    lines,
+    answers,
+    CASE01_DATE_PLACE_AUX_KEY,
+    CASE01_DATE_PLACE_DETAIL_KEY,
+    "날짜·장소 원문",
+  );
   pushTextLine(lines, answers, CASE01_VIOLATION_CONTENT_NOTE_KEY, "통지 내용");
   pushNoteLine(lines, answers, "case01_authorityDemand", "기관 요구");
   pushTextLine(lines, answers, CASE01_CUSTOMER_RESPONDED_NOTE_KEY, "대응 여부");
   pushTextLine(lines, answers, CASE01_RESPONSE_DETAIL_NOTE_KEY, "대응 내용");
-  pushNoteLine(lines, answers, "case01_authorityResponse", "교통국 추가 요구");
+  pushCase01OriginalTextLine(
+    lines,
+    answers,
+    CASE01_AUTHORITY_FOLLOW_UP_AUX_KEY,
+    getAdminChoiceNoteKey("case01_authorityResponse"),
+    "기관 추가 요구 원문",
+  );
   pushTextLine(lines, answers, CASE01_FACT_RELATIONSHIP_NOTE_KEY, "사실 비교 보충");
   pushTextLine(lines, answers, CASE01_DEADLINE_DATE_KEY, "대응 기한");
   return lines;

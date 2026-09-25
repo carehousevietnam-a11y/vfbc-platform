@@ -439,7 +439,10 @@ function appendLegacyFollowUps(
 // ─── CASE_01 위반·문제 통지 Resolution Path ───
 
 export const CASE01_FACT_DIFFERENCE_DETAIL_KEY = "case01_factDifferenceDetail";
+export const CASE01_FACT_DIFFERENCE_AUX_KEY = "case01_factDifferenceAux";
 export const CASE01_DATE_PLACE_DETAIL_KEY = "case01_datePlaceDetail";
+export const CASE01_DATE_PLACE_AUX_KEY = "case01_datePlaceAux";
+export const CASE01_AUTHORITY_FOLLOW_UP_AUX_KEY = "case01_authorityFollowUpAux";
 export const CASE01_FACT_COMPARE_GAP_KEY = "case01_factCompareGap";
 export const CASE01_DEADLINE_DATE_KEY = "case01_deadlineDate";
 export const CASE01_RESPONSE_DETAIL_NOTE_KEY = "case01_responseDetailNote";
@@ -453,7 +456,9 @@ export const CASE01_ANSWER_KEYS = [
   CASE01_VIOLATION_CONTENT_NOTE_KEY,
   "case01_actualSituation",
   CASE01_FACT_DIFFERENCE_DETAIL_KEY,
+  CASE01_FACT_DIFFERENCE_AUX_KEY,
   CASE01_DATE_PLACE_DETAIL_KEY,
+  CASE01_DATE_PLACE_AUX_KEY,
   CASE01_FACT_COMPARE_GAP_KEY,
   "case01_factRelationship",
   CASE01_FACT_RELATIONSHIP_NOTE_KEY,
@@ -486,6 +491,7 @@ export const CASE01_ANSWER_KEYS = [
   "case01_supplementInstructionFact",
   "case01_correctTargetFact",
   "case01_authorityFollowUpKind",
+  CASE01_AUTHORITY_FOLLOW_UP_AUX_KEY,
 ] as const;
 
 export const CASE05_DEADLINE_DATE_KEY = "case05_deadlineDate";
@@ -1243,6 +1249,31 @@ const CASE01_PHASE2_FACET_QUESTION_SPECS: {
   },
 ];
 
+/** Brief v3 §4 R3 — facet on-path 시 선택 직후 보조 원문 (Layer A). */
+const CASE01_PHASE2_FACET_AUX_SPECS: Partial<
+  Record<
+    string,
+    { key: string; label: string; placeholder: string }
+  >
+> = {
+  case01_factConflictFacet: {
+    key: CASE01_FACT_DIFFERENCE_AUX_KEY,
+    label: "교통국의 설명과 실제 상황이 다른 부분을 원문으로 적어 주세요.",
+    placeholder:
+      "날짜·장소·행동·당사자·제출 내용 등, 기억나는 차이를 적어 주세요.",
+  },
+  case01_spatiotemporalFacet: {
+    key: CASE01_DATE_PLACE_AUX_KEY,
+    label: "실제로 일이 있었던 날짜·장소·상황을 원문으로 적어 주세요.",
+    placeholder: "기억나는 날짜·장소·당시 있었던 곳을 적어 주세요.",
+  },
+  case01_authorityFollowUpKind: {
+    key: CASE01_AUTHORITY_FOLLOW_UP_AUX_KEY,
+    label: "교통국의 회신·추가 요구 내용을 원문으로 적어 주세요.",
+    placeholder: "기억나는 교통국 답변·요구·진행 상황을 적어 주세요.",
+  },
+};
+
 function case01Phase2FacetFieldsComplete(answers: ReviewAnswers): boolean {
   for (const spec of CASE01_PHASE2_FACET_QUESTION_SPECS) {
     if (!case01IsPhase2FacetOnPath(spec.id, answers)) continue;
@@ -1275,6 +1306,15 @@ function appendCase01Phase2FacetQuestions(
     });
     if (!isAdminVerifyChoiceFieldComplete(spec.id, answers, options)) {
       return false;
+    }
+    const aux = CASE01_PHASE2_FACET_AUX_SPECS[spec.id];
+    if (aux) {
+      pushUnique(questions, {
+        id: aux.key,
+        kind: "text",
+        label: aux.label,
+        placeholder: aux.placeholder,
+      });
     }
   }
   return true;
@@ -1346,6 +1386,9 @@ function case01NeedsUnclearDemandDetail(answers: ReviewAnswers): boolean {
 }
 
 function case01NeedsAuthorityResponseFollowUp(answers: ReviewAnswers): boolean {
+  if (case01IsPhase2FacetOnPath("case01_authorityFollowUpKind", answers)) {
+    return false;
+  }
   const response = answers.case01_authorityResponse;
   if (!response) return false;
   if (answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim()) return false;
