@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * §3 선택 공간 자동 검사 A/B/C — 실패만 출력.
+ * §3 선택 공간 자동 검사 A/B/C/D — 실패만 출력.
  * Run: npx tsx tests/qa/admin-verify-choice-space-audit.mjs
  */
 import { runAdminVerifyChoiceSpaceAudit } from "../../src/lib/adminVerifyChoiceSpaceAudit.ts";
@@ -12,12 +12,12 @@ if (failures.length === 0) {
   process.exit(0);
 }
 
-const byTest = { META: [], A: [], B: [], C: [] };
+const byTest = { META: [], A: [], B: [], C: [], D: [] };
 for (const row of failures) {
   byTest[row.test].push(row);
 }
 
-for (const test of ["META", "A", "B", "C"]) {
+for (const test of ["META", "A", "B", "C", "D"]) {
   const rows = byTest[test];
   if (rows.length === 0) continue;
   console.log(`\n## Test ${test} (${rows.length})`);

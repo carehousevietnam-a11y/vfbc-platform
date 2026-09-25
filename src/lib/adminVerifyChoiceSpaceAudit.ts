@@ -6,7 +6,41 @@ import {
   ADMIN_VERIFY_CHOICE_SPACE_METADATA,
   type ChoiceSpaceQuestionMeta,
 } from "@/lib/adminVerifyChoiceSpaceMetadata";
-import { getAdminVerifySituationalChoiceFieldIds } from "@/lib/adminVerifyProfiling";
+import {
+  ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP,
+  getAdminVerifySituationalChoiceFieldIds,
+  isAdminDirectExplainOption,
+} from "@/lib/adminVerifyProfiling";
+
+const MAX_CONTENT_CHOICES_PER_QUESTION = 5;
+
+export function getAdminVerifyCase0106ChoiceFieldIds(): string[] {
+  return Object.keys(ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP)
+    .filter((fieldId) => /^case0[1-6]_/.test(fieldId))
+    .sort();
+}
+
+function isDirectInputChoiceOption(opt: { value: string; label: string }): boolean {
+  if (opt.value === "direct_explain") return true;
+  return isAdminDirectExplainOption(opt);
+}
+
+export function countAdminVerifyContentChoices(
+  options: readonly { value: string; label: string }[],
+): number {
+  return options.filter((opt) => !isDirectInputChoiceOption(opt)).length;
+}
+
+function comboDelegatedToDirectInput(
+  meta: ChoiceSpaceQuestionMeta,
+  combo: Record<string, string>,
+): boolean {
+  const key = comboKey(combo);
+  const delegations = meta.directInputDelegations ?? [];
+  return delegations.some(
+    (row) => row.reason.trim().length > 0 && row.comboKeys.includes(key),
+  );
+}
 
 function cartesianProduct(
   dimensions: ChoiceSpaceQuestionMeta["dimensions"],
@@ -46,17 +80,36 @@ function comboCovered(meta: ChoiceSpaceQuestionMeta, combo: Record<string, strin
 export type ChoiceSpaceAuditFailure = {
   caseCode: string;
   fieldId: string;
-  test: "A" | "B" | "C" | "META";
+  test: "A" | "B" | "C" | "D" | "META";
   detail: string;
 };
 
+function fieldCaseCode(fieldId: string): string {
+  return fieldId.match(/^case(\d+)/)?.[1]?.padStart(2, "0") ?? "??";
+}
+
 export function runAdminVerifyChoiceSpaceAudit(): ChoiceSpaceAuditFailure[] {
   const failures: ChoiceSpaceAuditFailure[] = [];
+
+  for (const fieldId of getAdminVerifyCase0106ChoiceFieldIds()) {
+    const options = ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP[fieldId];
+    if (!options?.length) continue;
+    const contentCount = countAdminVerifyContentChoices(options);
+    if (contentCount > MAX_CONTENT_CHOICES_PER_QUESTION) {
+      failures.push({
+        caseCode: fieldCaseCode(fieldId),
+        fieldId,
+        test: "D",
+        detail: `content choices ${contentCount} > ${MAX_CONTENT_CHOICES_PER_QUESTION} (DI excluded)`,
+      });
+    }
+  }
+
   const situationalIds = getAdminVerifySituationalChoiceFieldIds();
 
   for (const fieldId of situationalIds) {
     const meta = ADMIN_VERIFY_CHOICE_SPACE_METADATA[fieldId];
-    const caseCode = fieldId.match(/^case(\d+)/)?.[1]?.padStart(2, "0") ?? "??";
+    const caseCode = fieldCaseCode(fieldId);
     if (!meta) {
       failures.push({
         caseCode,
@@ -70,11 +123,14 @@ export function runAdminVerifyChoiceSpaceAudit(): ChoiceSpaceAuditFailure[] {
     const feasible = cartesianProduct(meta.dimensions).filter((c) => !isInfeasible(meta, c));
     const missing = feasible.filter((c) => !comboCovered(meta, c));
     for (const combo of missing) {
+      if (comboDelegatedToDirectInput(meta, combo)) {
+        continue;
+      }
       failures.push({
         caseCode,
         fieldId,
         test: "A",
-        detail: `uncovered feasible combo: ${comboKey(combo)}`,
+        detail: `uncovered feasible combo (no DI delegation+reason): ${comboKey(combo)}`,
       });
     }
 

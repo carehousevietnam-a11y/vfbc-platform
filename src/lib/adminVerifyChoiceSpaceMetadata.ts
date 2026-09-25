@@ -20,11 +20,20 @@ export type ChoiceOptionFactSpec = {
   polarity?: "positive" | "negative" | "neutral";
 };
 
+/** Test A — feasible combo not covered by slug; covered only via DI when listed here with reason. */
+export type ChoiceDirectInputDelegation = {
+  /** `comboKey(facts)` for each intentionally DI-only feasible combo */
+  comboKeys: readonly string[];
+  reason: string;
+};
+
 export type ChoiceSpaceQuestionMeta = {
   fieldId: string;
   dimensions: ChoiceDimensionSpec[];
   infeasible: ChoiceInfeasibleCombo[];
   options: ChoiceOptionFactSpec[];
+  /** Explicit DI delegation for uncovered feasible combos (Test A). Empty/absent = fail on gap. */
+  directInputDelegations?: readonly ChoiceDirectInputDelegation[];
 };
 
 export const ADMIN_VERIFY_CHOICE_SPACE_METADATA: Record<string, ChoiceSpaceQuestionMeta> = {
