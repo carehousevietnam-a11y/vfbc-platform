@@ -53,6 +53,7 @@
 | **P07** | 보고에 **전문 없이** 「파일 참조」만 | 토큰 절약 · 검토 **불가** | 2번창 지시 — 2026-09-25 | Ace 명시 시 **해시+요약**; LOCK Brief 승인 시 **§핵심 전문** 또는 diff 범위 | **불가** | Cursor user rule · Mission 보고 형식 |
 | **P08** | 문서 **표 숫자** 손계산 오류 | 조합표 **P2·하한** 오타 (CASE_01 v2 #2=9 표기 8) | CASE_01 — 2026-09-25 | 표는 **구현 함수**와 대조 · 「코드 전수 계산」 (`Brief v3` LOCK) | **만들 수 있음** | `*combinations.impl.mjs` vs markdown table codegen |
 | **P09** | **LOCK 규칙**을 대표 승인 없이 **해석·변경** | Agent **완화**·구 기준 혼용 | CRITERIA 4:6 — 2026-09-25 | **Ace 승인 + 변경 이력**만 (`VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md`) | **불가** | Authority chain · `P09` Human Boundary |
+| **P10** | **수동 검사**가 **수정 중인 작업 폴더**·동일 dev 서버를 사용 | 구현 창이 **미커밋·반쯤 고친 코드**를 HMR로 서빙하는데, 다른 창(VERIFIER·수동 QA)이 **같은 `npm run dev`** 로 브라우저 검사 → **원인 불명** 오류·질문 초기화 등 | **CASE_04** 질문 초기화 — **2026-09-25** | **수동·브라우저 검사**는 **커밋된 코드**로 띄운 **별도 git worktree** 서버에서만. 구현 중인 트리·포트 **공유 금지**. QA·VERIFIER **보고에 검사한 커밋 해시 필수** (`git rev-parse HEAD`). 구현 창 dev 중 타 창 **동일 폴더 수동 검사 금지** | **불가** (프로세스) · worktree 스크립트는 **만들 수 있음** | `git worktree` · Cursor `best-of-n-runner` · `03-qa-self-loop.mdc` · Mission 완료 보고 **검증 커밋** 필드 |
 
 ---
 
@@ -119,6 +120,7 @@
 | 일자 | 내용 |
 |------|------|
 | 2026-09-25 | 초판 — F01~F11, D01~D05, P01~P09 · 자동검사 제안 · CAT 공통 · Brief 템플릿 |
+| 2026-09-25 | **P10** — 수정 중 작업 폴더·공유 dev 서버 수동 검사 (CASE_04, 2026-09-25) |
 
 ---
 
