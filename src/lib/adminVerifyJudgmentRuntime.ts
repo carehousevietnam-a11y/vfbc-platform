@@ -132,6 +132,15 @@ export function buildPhase1RiskSummaryFromManifest(
   const fields = PHASE1_FIELD_ORDER[q1] ?? [];
   const parts: string[] = [];
   for (const fieldId of fields) {
+    if (fieldId === "case01_customerResponded") {
+      const responseDetailClause = buildManifestClauseForField(
+        answers,
+        caseCode,
+        "§03·1차",
+        "case01_responseDetail",
+      );
+      if (responseDetailClause) continue;
+    }
     if (fieldId === "case01_responseDetail") {
       const responded = effectiveAdminVerifyJudgmentSlug(
         "case01_customerResponded",

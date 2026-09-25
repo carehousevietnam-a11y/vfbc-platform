@@ -2,8 +2,14 @@ import type { MasterCaseId } from "@/lib/adminVerifyProfiling";
 
 export type KeyMetricSlot = { label: string; title: string };
 
-/** Layer D — CASE별 4칸 카드 제목 (CASE_02~06; CASE_01은 기존 전용 함수 유지). */
+/** Layer D — CASE별 4칸 카드 제목 (1차·2차 결과 공통). */
 export const ADMIN_VERIFY_KEY_METRIC_MANIFEST: Partial<Record<MasterCaseId, KeyMetricSlot[]>> = {
+  CASE_01: [
+    { label: "01. 통지·상황", title: "통지 내용과 실제 상황" },
+    { label: "02. 확인 목표", title: "우선 확인 목표" },
+    { label: "03. 대응·자료", title: "대응 이력과 보유 자료" },
+    { label: "04. 기한·사실관계", title: "기한·날짜·장소 정리" },
+  ],
   CASE_02: [
     { label: "01. 납부 안내", title: "납부 요구 내용" },
     { label: "02. 확인 목표", title: "우선 확인 목표" },

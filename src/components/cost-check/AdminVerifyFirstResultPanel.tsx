@@ -15,6 +15,8 @@ import {
   CASE01_DATE_PLACE_DETAIL_KEY,
   CASE01_FACT_COMPARE_GAP_KEY,
   CASE01_DEADLINE_DATE_KEY,
+  CASE01_CUSTOMER_RESPONDED_NOTE_KEY,
+  CASE01_FACT_RELATIONSHIP_NOTE_KEY,
   deriveStageFromSituation,
   getQ1ResolvedCase,
   getAdminChoiceNoteKey,
@@ -1480,33 +1482,21 @@ function applyGenericClassifiedCaseKeyMetrics(
   keyMetrics: AdminVerifyKeyMetric[],
 ): AdminVerifyKeyMetric[] {
   const fields = getAdminVerifyPhase1VisibleFields(answers, q1Case);
-  const footnotes = fields
-    .map((fieldId) => {
-      const value = answers[fieldId]?.trim();
-      if (!value) return null;
-      const label = classifiedFieldOptionLabel(q1Case, fieldId, value, answers);
-      return label;
-    })
-    .filter((item): item is string => Boolean(item));
-
-  if (footnotes.length === 0) return keyMetrics;
-
   const metrics = keyMetrics.map((metric) => ({ ...metric }));
-  const chunkSize = Math.max(1, Math.ceil(footnotes.length / 4));
-  for (let index = 0; index < 4; index += 1) {
-    const chunk = footnotes.slice(index * chunkSize, (index + 1) * chunkSize);
-    if (chunk.length === 0) continue;
-    const hasCaution = fields
-      .slice(index * chunkSize, (index + 1) * chunkSize)
-      .some((fieldId) => {
-        const value = answers[fieldId]?.trim();
-        return value ? CLASSIFIED_CAUTION_ANSWER_VALUES.has(value) : false;
-      });
+  for (let index = 0; index < 4 && index < fields.length; index += 1) {
+    const fieldId = fields[index];
+    const value = answers[fieldId]?.trim();
+    if (!value) continue;
+    const noteKey = getAdminChoiceNoteKey(fieldId);
+    const note = answers[noteKey]?.trim();
+    const hasCaution = CLASSIFIED_CAUTION_ANSWER_VALUES.has(value);
     metrics[index] = {
       ...metrics[index],
-      footnote: chunk.join(" · "),
-      status: hasCaution ? "caution" : "ok",
+      status: hasCaution ? "caution" : metrics[index].status,
     };
+    if (value === "other" && note) {
+      metrics[index] = { ...metrics[index], footnote: note };
+    }
   }
   return metrics;
 }
@@ -1818,72 +1808,78 @@ function applyCase01KeyMetrics(
   const deadline = answers.case01_deadline;
 
   if (violation) {
-    const violationLabel =
-      violation === "other"
-        ? answers[CASE01_VIOLATION_CONTENT_NOTE_KEY]?.trim() || "직접 설명한 상황"
-        : case01Label(violation);
-    if (violationLabel) {
-      metrics[0] = {
-        ...metrics[0],
-        footnote: violationLabel,
-        status:
-          violation === "unsure" || violation === "situation_mismatch" ? "caution" : "ok",
-      };
+    const violationNote = answers[CASE01_VIOLATION_CONTENT_NOTE_KEY]?.trim();
+    metrics[0] = {
+      ...metrics[0],
+      status:
+        violation === "unsure" || violation === "situation_mismatch" ? "caution" : "ok",
+    };
+    if (violation === "other" && violationNote) {
+      metrics[0] = { ...metrics[0], footnote: violationNote };
     }
   }
 
   if (goal) {
-    const goalLabel = case01Label(goal);
-    if (goalLabel) {
-      metrics[1] = {
-        ...metrics[1],
-        footnote: shortenKeyMetricFootnote(`우선 확인 목표: ${goalLabel}`),
-        status: goal === "unsure" ? "caution" : "ok",
-      };
+    const goalNote = answers[getAdminChoiceNoteKey("case01_confirmGoal")]?.trim();
+    metrics[1] = {
+      ...metrics[1],
+      status: goal === "unsure" || goal === "other" ? "caution" : "ok",
+    };
+    if (goal === "other" && goalNote) {
+      metrics[1] = { ...metrics[1], footnote: goalNote };
     }
   }
 
   const progressParts: string[] = [];
-  if (responded === "none") progressParts.push("아직 설명·자료 제출 전");
-  else if (responded) {
-    const label = case01Label(responded);
-    if (label) progressParts.push(label);
+  const respondedNote = answers[CASE01_CUSTOMER_RESPONDED_NOTE_KEY]?.trim();
+  if (responded === "other" && respondedNote) {
+    progressParts.push(respondedNote);
   }
-  if (deadline === "confirmed") progressParts.push("대응 기한 확인됨");
-  else if (deadline) {
-    const label = case01Label(deadline);
-    if (label) progressParts.push(label);
-  }
+  const deadlineDate = answers[CASE01_DEADLINE_DATE_KEY]?.trim();
+  if (deadlineDate) progressParts.push(deadlineDate);
   if (progressParts.length > 0) {
-    const needsCaution =
-      responded === "none" ||
-      responded === "more_demand" ||
-      deadline === "overdue_concern" ||
-      deadline === "not_checked" ||
-      deadline === "unknown";
     metrics[2] = {
       ...metrics[2],
       footnote: progressParts.join(" · "),
-      status: needsCaution ? "caution" : "ok",
+      status:
+        responded === "none" ||
+        responded === "more_demand" ||
+        deadline === "overdue_concern" ||
+        deadline === "not_checked" ||
+        deadline === "unknown"
+          ? "caution"
+          : metrics[2].status,
+    };
+  } else if (responded || deadline) {
+    metrics[2] = {
+      ...metrics[2],
+      status:
+        responded === "none" ||
+        responded === "more_demand" ||
+        deadline === "overdue_concern" ||
+        deadline === "not_checked" ||
+        deadline === "unknown"
+          ? "caution"
+          : metrics[2].status,
     };
   }
 
   if (rel) {
-    const relLabel = case01Label(rel);
-    if (relLabel) {
-      metrics[3] = {
-        ...metrics[3],
-        footnote: relLabel,
-        status:
-          rel === "deny_action" ||
-          rel === "partial_situation" ||
-          rel === "date_place_wrong" ||
-          rel === "info_mismatch" ||
-          rel === "hard_to_explain" ||
-          rel === "other"
-            ? "caution"
-            : "ok",
-      };
+    const relNote = answers[CASE01_FACT_RELATIONSHIP_NOTE_KEY]?.trim();
+    metrics[3] = {
+      ...metrics[3],
+      status:
+        rel === "deny_action" ||
+        rel === "partial_situation" ||
+        rel === "date_place_wrong" ||
+        rel === "info_mismatch" ||
+        rel === "hard_to_explain" ||
+        rel === "other"
+          ? "caution"
+          : "ok",
+    };
+    if (rel === "other" && relNote) {
+      metrics[3] = { ...metrics[3], footnote: relNote };
     }
   }
 
@@ -2703,9 +2699,6 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     if (isAdminVerifyPhase2PathComplete(answers) || answers.case01_evidence?.trim()) {
       keyMetrics = applyCase01Phase2KeyMetrics(answers, keyMetrics);
     }
-    if (isAdminVerifyPhase2PathComplete(answers)) {
-      keyMetrics = applyCase01PersonalizedKeyMetricTitles(keyMetrics);
-    }
   } else if (q1Case === "CASE_03" && isCase03Phase1Complete(answers)) {
     keyMetrics = applyCase03KeyMetrics(answers, keyMetrics);
   } else if (q1Case === "CASE_04" && isCase04Phase1Complete(answers)) {
@@ -2723,9 +2716,10 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
   if (
     q1Case &&
     q1Case !== "UNIVERSAL" &&
-    q1Case !== "CASE_01" &&
     q1Case !== "CASE_06" &&
-    isClassifiedCasePhase1CompleteForResult(q1Case, answers)
+    (q1Case === "CASE_01"
+      ? isCase01Phase1Complete(answers)
+      : isClassifiedCasePhase1CompleteForResult(q1Case, answers))
   ) {
     keyMetrics = applyKeyMetricManifestSlots(q1Case, keyMetrics);
   }
@@ -2742,12 +2736,17 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
 
   const hasMetricCaution = keyMetrics.some((metric) => metric.status === "caution");
   const hasIssues = cautions.length > 0 || unconfirmed.length > 0 || hasMetricCaution;
-  const situationSummary = situationSummaryFromProfile(
-    profile,
-    situation,
-    situationNote,
-    hasIssues,
-  );
+  const classifiedPhase1ManifestSummary =
+    q1Case &&
+    q1Case !== "UNIVERSAL" &&
+    (q1Case === "CASE_01"
+      ? isCase01Phase1Complete(answers)
+      : isClassifiedCasePhase1CompleteForResult(q1Case, answers))
+      ? buildPhase1RiskSummaryFromManifest(answers, profile)
+      : null;
+  const situationSummary =
+    classifiedPhase1ManifestSummary ??
+    situationSummaryFromProfile(profile, situation, situationNote, hasIssues);
 
   const stageLabel =
     stage === "prevent" ? "사전 검토" : stage === "case" ? "사후 검토" : "검토";
@@ -2844,6 +2843,29 @@ function describeDeadlineOverdueConcern(): string {
   return "기한 경과 가능성에 대한 우려가 있는 상태입니다.";
 }
 
+const CASE01_CONFIRM_GOAL_OPENING: Record<string, string> = {
+  fit_and_facts:
+    "현재는 내 상황에 해당하는지와 사실·날짜·행동이 맞는지부터 확인할 필요가 있는 상태입니다.",
+  why_and_basis:
+    "현재는 왜 이런 통지·판단이 나왔는지와 근거·기록을 먼저 확인할 필요가 있는 상태입니다.",
+  what_to_do_now:
+    "현재는 지금 무엇을·언제까지·어떻게 해야 하는지부터 확인할 필요가 있는 상태입니다.",
+  after_my_response:
+    "현재는 이미 한 대응의 결과와 다음 절차·재요구를 먼저 확인할 필요가 있는 상태입니다.",
+  verify_applicability:
+    "현재는 이 통지가 실제 본인 상황에 해당하는지 먼저 확인할 필요가 있는 상태입니다.",
+  why_notice:
+    "현재는 왜 이런 문제라고 판단했는지와 통지 근거를 먼저 확인할 필요가 있는 상태입니다.",
+  fact_difference:
+    "현재는 실제 상황과 교통국 설명 중 무엇이 다른지부터 확인할 필요가 있는 상태입니다.",
+  what_when:
+    "현재는 이 통지 후 필요한 대응과 기한을 먼저 확인할 필요가 있는 상태입니다.",
+  verify_violation:
+    "현재는 통지에서 지적한 위반·문제 내용이 실제와 맞는지 먼저 확인할 필요가 있는 상태입니다.",
+  verify_payment: "현재는 납부·비용 요구가 실제 상황에 맞는지 먼저 확인할 필요가 있는 상태입니다.",
+  unsure: "현재는 무엇부터 확인할지 방향을 먼저 정리할 필요가 있는 상태입니다.",
+};
+
 function buildCase01IntegratedSituation(answers: ReviewAnswers): string {
   const violation = answers.case01_violationContent;
   const goal = answers.case01_confirmGoal;
@@ -2852,18 +2874,19 @@ function buildCase01IntegratedSituation(answers: ReviewAnswers): string {
 
   let opening =
     "현재는 받은 통지 내용을 바탕으로 상황을 정리한 상태입니다.";
-  if (
-    violation === "situation_mismatch" ||
-    goal === "verify_violation" ||
-    goal === "fact_difference"
-  ) {
+  if (goal === "other") {
+    const goalNote = answers[getAdminChoiceNoteKey("case01_confirmGoal")]?.trim();
+    if (goalNote) {
+      opening = `현재는 확인 목표(${goalNote})를 중심으로 상황을 정리할 필요가 있는 상태입니다.`;
+    }
+  } else if (goal && CASE01_CONFIRM_GOAL_OPENING[goal]) {
+    opening = CASE01_CONFIRM_GOAL_OPENING[goal];
+  } else if (violation === "situation_mismatch") {
     opening =
-      "현재는 통지에서 지적한 내용이 실제 본인의 상황에 해당하는지 먼저 확인할 필요가 있는 상태입니다.";
+      "현재는 통지 내용과 알고 있는 상황이 다르다고 보이므로, 어느 부분이 다른지부터 확인할 필요가 있는 상태입니다.";
   } else if (violation === "unsure") {
     opening =
       "현재는 통지에서 어떤 부분이 문제라고 지적되었는지 먼저 파악할 필요가 있는 상태입니다.";
-  } else if (goal === "what_when") {
-    opening = "현재는 이 통지 후 필요한 대응과 기한을 먼저 확인할 필요가 있는 상태입니다.";
   }
 
   const integratedMiddle = resolveIntegratedSituationFragment(answers, "01", "case01_customerResponded");
