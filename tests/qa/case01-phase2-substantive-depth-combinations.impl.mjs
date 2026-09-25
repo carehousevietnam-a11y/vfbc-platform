@@ -30,7 +30,7 @@ const RESPONSE = [
 const NOTICE_DELIVERY = [
   "del_in_person",
   "del_phone_message",
-  "del_written_only",
+  "del_written",
   "del_not_received_yet",
 ];
 

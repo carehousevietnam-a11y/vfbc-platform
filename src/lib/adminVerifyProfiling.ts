@@ -47,6 +47,9 @@ import {
 import {
   canonicalizeAdminVerifyChoiceAnswer,
   canonicalizeAdminVerifyChoiceSlug,
+  getLegacyChoiceLabel,
+  resolveAdminVerifyChoiceSlugForJudgment,
+  slugMatchesChoiceValue,
 } from "./adminVerifyChoiceSlugCanonical";
 import {
   CASE01_PHASE2_FACET_FIELD_OPTION_MAP,
@@ -2420,7 +2423,7 @@ export function effectiveAdminVerifyChoiceSlug(
   if (isAdminVerifyMultiChoiceField(fieldId)) {
     return getAdminVerifyEffectiveChoiceSlugs(fieldId, raw)[0];
   }
-  return canonicalizeAdminVerifyChoiceSlug(fieldId, raw);
+  return resolveAdminVerifyChoiceSlugForJudgment(fieldId, raw);
 }
 
 export function adminVerifyFieldHasSlug(
@@ -2429,8 +2432,14 @@ export function adminVerifyFieldHasSlug(
   slug: string,
 ): boolean {
   const raw = answers[fieldId as keyof ReviewAnswers]?.trim();
-  return adminVerifyAnswerIncludesSlug(fieldId, raw, slug);
+  if (!raw) return false;
+  if (isAdminVerifyMultiChoiceField(fieldId)) {
+    return adminVerifyAnswerIncludesSlug(fieldId, raw, slug);
+  }
+  return slugMatchesChoiceValue(fieldId, raw, slug);
 }
+
+export { slugMatchesChoiceValue, getLegacyChoiceLabel } from "./adminVerifyChoiceSlugCanonical";
 
 export function isAdminVerifyChoiceFieldComplete(
   questionId: string,
@@ -5341,6 +5350,8 @@ const CASE04_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]
 };
 
 export function getCase04FieldOptionLabel(fieldId: string, value: string): string {
+  const legacy = getLegacyChoiceLabel(fieldId, value);
+  if (legacy) return legacy;
   const options = CASE04_FIELD_OPTION_MAP[fieldId];
   const matched = options?.find((option) => option.value === value);
   return matched?.label ?? value;
@@ -6818,6 +6829,8 @@ const ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP: Record<string, { value: string; labe
 };
 
 export function getCase05FieldOptionLabel(fieldId: string, value: string): string {
+  const legacy = getLegacyChoiceLabel(fieldId, value);
+  if (legacy) return legacy;
   if (fieldId === "case05_dispositionType") {
     const fromLabels = CASE05_OPTION_LABELS[value];
     if (fromLabels) return fromLabels;

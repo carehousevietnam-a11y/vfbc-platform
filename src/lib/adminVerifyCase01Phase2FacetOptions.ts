@@ -112,14 +112,7 @@ export const CASE01_UNCLEAR_DEMAND_FACT_OPTIONS = [
 export const CASE01_NOTICE_DELIVERY_FACT_OPTIONS = [
   { value: "del_in_person", label: "대면으로 안내를 받았습니다." },
   { value: "del_phone_message", label: "전화·문자로 안내를 받았습니다." },
-  {
-    value: "del_written_only",
-    label: "문서·서면만 받았고, 내용은 일부만 이해했습니다.",
-  },
-  {
-    value: "del_written_read",
-    label: "문서·서면을 받았고, 요지는 읽었습니다.",
-  },
+  { value: "del_written", label: "문서·서면으로 안내를 받았습니다." },
   { value: "del_not_received_yet", label: "아직 통지·안내를 받지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
@@ -224,7 +217,7 @@ export const CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS = [
     label: "추가 서류·자료를 요청했지만 무엇인지 모르겠습니다.",
   },
   { value: "re_attendance", label: "다시 출석·설명하라고 했습니다." },
-  { value: "payment_demand", label: "납부·다른 조치를 안내했습니다." },
+  { value: "payment_demand", label: "납부를 안내했습니다." },
   { value: "no_reply_yet", label: "아직 답변을 받지 못했습니다." },
   {
     value: "reply_unclear",

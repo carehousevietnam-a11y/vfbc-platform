@@ -87,7 +87,10 @@ function case01Phase2AxisExposed(fieldId: string, answers: ReviewAnswers): boole
     case "case01_procedureStageFact":
       return (
         case01CustomerRespondedIsNoContact(answers) &&
-        (notice === "del_phone_message" || notice === "del_written_only")
+        (notice === "del_phone_message" ||
+          notice === "del_written" ||
+          notice === "del_written_only" ||
+          notice === "del_written_read")
       );
     case "case01_officeIdentityFact":
       return case01CustomerRespondedIsNoContact(answers) && rel === "match";

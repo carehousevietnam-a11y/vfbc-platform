@@ -1,68 +1,183 @@
 /**
- * F07 — 옛 slug → v3 canonical slug (읽기·복원·판단·결과 공통).
- * 저장 시 canonicalize는 multi normalize / 단일 필드 라벨 조회 전에 적용.
+ * F07 / F03 — legacy slug 정책 (단일 출구).
+ * - 저장 시 canonicalize: CANONICALIZE_ON_SAVE 만
+ * - 판단·신호: JUDGMENT_SUPPRESSED_LEGACY → skip
+ * - 요약·라벨: LEGACY_CHOICE_LABELS 원문 표시
  */
 
-const GLOBAL_LEGACY: Record<string, string> = {};
+const CANONICALIZE_ON_SAVE: Record<string, Record<string, string>> = {
+  case01_noticeDeliveryFact: {
+    del_written_only: "del_written",
+    del_written_read: "del_written",
+  },
+};
 
-function fieldMap(fieldId: string, map: Record<string, string>): void {
-  for (const [legacy, canonical] of Object.entries(map)) {
-    GLOBAL_LEGACY[`${fieldId}|${legacy}`] = canonical;
+/** 판단 문장·Profile 신호에 쓰지 않음 — 응답 요약에만 원문 라벨 */
+const JUDGMENT_SUPPRESSED_LEGACY = new Set<string>([
+  "case05_explanationDetail|unsure",
+  "case05_factDetail|unsure",
+  "case05_factDetail|hard_to_verify",
+  "case05_appealDetail|unsure",
+  "case04_unclearFocus|deadline",
+  "case04_unclearFocus|connection",
+  "case04_unclearFocus|whole_unclear",
+  "case04_repeatSupplement|more_explanation",
+  "case04_repeatSupplement|multiple",
+  "case04_repeatSupplement|not_applicable",
+]);
+
+/** 분기·신호용 — 저장값을 새 slug로 바꾸지 않고, equals 시 양쪽 인정 */
+const BRANCH_EQUIVALENT_ALIASES: Record<string, Record<string, string[]>> = {
+  case05_explanationDetail: {
+    written_no_receipt: ["written"],
+    written_receipt_ok: ["written"],
+    verbal_no_record: ["verbal"],
+    verbal_with_record: ["verbal"],
+    both_unverified: ["both"],
+    both_aligned: ["both"],
+  },
+  case05_factDetail: {
+    date_place_certain: ["date_place"],
+    content_differs_clear: ["content_differs"],
+  },
+  case05_appealDetail: {
+    filed_no_schedule: ["filed"],
+    filed_no_receipt: ["filed"],
+    filed_schedule_known: ["filed"],
+    preparing_deadline_unknown: ["preparing"],
+    preparing_deadline_known: ["preparing"],
+    considering_rules_unread: ["considering"],
+    considering_rules_read: ["considering"],
+  },
+  case04_unclearFocus: {
+    what_submit_list: ["what_submit"],
+    what_submit_apply: ["deadline", "connection"],
+    why_submit_reason: ["why_submit"],
+    format_how: ["format"],
+  },
+  case04_repeatSupplement: {
+    more_docs_same_kind: ["more_docs"],
+    more_modify_reject_prior: ["more_modify"],
+  },
+};
+
+const LEGACY_CHOICE_LABELS: Record<string, string> = {
+  "case05_explanationDetail|unsure":
+    "제출한 소명·의견의 형태를 정확히 구분하기 어렵습니다.",
+  "case05_explanationDetail|written": "서면으로 소명·의견을 제출했습니다",
+  "case05_explanationDetail|verbal": "전화·방문 등으로 설명했습니다",
+  "case05_explanationDetail|both": "서면과 구두 설명을 함께 했습니다",
+  "case05_factDetail|date_place": "날짜·장소·상황이 다릅니다",
+  "case05_factDetail|content_differs": "내용·사실관계가 다릅니다",
+  "case05_factDetail|hard_to_verify": "그때 상황을 확인하기 어렵습니다",
+  "case05_factDetail|unsure":
+    "실제 상황과 처분 사유의 차이를 정확히 말하기 어렵습니다.",
+  "case05_appealDetail|filed": "이의제기·재검토를 신청했습니다",
+  "case05_appealDetail|preparing": "신청을 준비하고 있습니다",
+  "case05_appealDetail|considering": "신청 여부를 검토하고 있습니다",
+  "case05_appealDetail|unsure":
+    "이의제기·재검토 신청 상태를 정확히 확인하지 못했습니다.",
+  "case04_unclearFocus|what_submit": "무엇을 제출해야 하는지",
+  "case04_unclearFocus|why_submit": "왜 제출해야 하는지",
+  "case04_unclearFocus|format": "어떤 형식이어야 하는지",
+  "case04_unclearFocus|deadline": "언제까지 제출해야 하는지",
+  "case04_unclearFocus|connection": "기존 제출 내용과 어떻게 연결되는지",
+  "case04_unclearFocus|whole_unclear": "전체 요구가 이해되지 않음",
+  "case04_repeatSupplement|more_docs": "추가 서류를 다시 요구했습니다",
+  "case04_repeatSupplement|more_modify": "수정/보완을 다시 요구했습니다",
+  "case04_repeatSupplement|more_explanation": "추가 설명을 다시 요구했습니다",
+  "case04_repeatSupplement|multiple": "여러 가지를 다시 요구했습니다",
+  "case04_repeatSupplement|not_applicable": "해당 없음 / 아직 모름",
+  "case01_noticeDeliveryFact|del_written_only":
+    "문서·서면만 받았고, 내용은 일부만 이해했습니다.",
+  "case01_noticeDeliveryFact|del_written_read":
+    "문서·서면을 받았고, 요지는 읽었습니다.",
+};
+
+export type LegacySlugPolicyRow = {
+  legacy: string;
+  policy: "1:1 동일" | "원문 표시로 처리";
+  note?: string;
+};
+
+/** F03 보고용 — fieldId별 legacy 정책 */
+export function getLegacySlugPolicyReport(fieldId: string): LegacySlugPolicyRow[] {
+  const rows: LegacySlugPolicyRow[] = [];
+  const add = (legacy: string, policy: LegacySlugPolicyRow["policy"], note?: string) => {
+    rows.push({ legacy, policy, note });
+  };
+
+  if (fieldId === "case01_noticeDeliveryFact") {
+    add("del_written_only", "1:1 동일", "→ del_written");
+    add("del_written_read", "1:1 동일", "→ del_written");
   }
+  if (fieldId === "case05_explanationDetail") {
+    add("written", "1:1 동일", "판단·신호: 접수 여부 미언급");
+    add("verbal", "1:1 동일", "판단·신호: 기록 여부 미언급");
+    add("both", "1:1 동일", "판단·신호: 일치 검증 미언급");
+    add("unsure", "원문 표시로 처리");
+  }
+  if (fieldId === "case05_factDetail") {
+    add("date_place", "1:1 동일", "→ date_place_certain");
+    add("content_differs", "1:1 동일", "→ content_differs_clear");
+    add("hard_to_verify", "원문 표시로 처리");
+    add("unsure", "원문 표시로 처리");
+  }
+  if (fieldId === "case05_appealDetail") {
+    add("filed", "1:1 동일", "판단·신호: 일정·접수 세부 미언급");
+    add("preparing", "1:1 동일", "판단·신호: 기한 인지 미언급");
+    add("considering", "1:1 동일", "판단·신호: 요건 읽음 미언급");
+    add("unsure", "원문 표시로 처리");
+  }
+  if (fieldId === "case04_unclearFocus") {
+    add("what_submit", "1:1 동일", "→ what_submit_list");
+    add("why_submit", "1:1 동일", "→ why_submit_reason");
+    add("format", "1:1 동일", "→ format_how");
+    add("deadline", "원문 표시로 처리");
+    add("connection", "원문 표시로 처리");
+    add("whole_unclear", "원문 표시로 처리");
+  }
+  if (fieldId === "case04_repeatSupplement") {
+    add("more_docs", "1:1 동일", "→ more_docs_same_kind");
+    add("more_modify", "1:1 동일", "→ more_modify_reject_prior");
+    add("more_explanation", "원문 표시로 처리");
+    add("multiple", "원문 표시로 처리");
+    add("not_applicable", "원문 표시로 처리");
+  }
+  return rows;
 }
 
-fieldMap("case01_procedureStageFact", {
-  stage_unsure: "stage_unsure_first",
-});
-
-fieldMap("case01_spatiotemporalFacet", {
-  st_has_records: "st_has_records",
-  st_witness_only: "st_witness_only",
-  st_memory_only: "st_memory_only",
-  st_cannot_verify: "st_cannot_verify",
-});
-
-fieldMap("case05_explanationDetail", {
-  written: "written_no_receipt",
-  verbal: "verbal_no_record",
-  both: "both_unverified",
-  unsure: "written_no_receipt",
-});
-
-fieldMap("case05_factDetail", {
-  date_place: "date_place_certain",
-  content_differs: "content_differs_clear",
-  hard_to_verify: "date_place_fuzzy",
-  unsure: "content_differs_vague",
-});
-
-fieldMap("case05_appealDetail", {
-  filed: "filed_no_schedule",
-  preparing: "preparing_deadline_unknown",
-  considering: "considering_rules_unread",
-  unsure: "considering_rules_unread",
-});
-
-fieldMap("case04_unclearFocus", {
-  what_submit: "what_submit_list",
-  whole_unclear: "what_submit_list",
-  why_submit: "why_submit_reason",
-  format: "format_how",
-  deadline: "what_submit_apply",
-  connection: "what_submit_apply",
-});
-
-fieldMap("case04_repeatSupplement", {
-  more_docs: "more_docs_same_kind",
-  more_modify: "more_modify_reject_prior",
-  more_explanation: "more_modify_new_field",
-  multiple: "more_docs_new_kind",
-  not_applicable: "more_docs_same_kind",
-});
-
-/** 공개 대응표 (보고용) — fieldId|legacy → canonical */
 export function getAdminVerifyChoiceSlugLegacyMap(): Record<string, string> {
-  return { ...GLOBAL_LEGACY };
+  const out: Record<string, string> = {};
+  for (const [fieldId, map] of Object.entries(CANONICALIZE_ON_SAVE)) {
+    for (const [legacy, canonical] of Object.entries(map)) {
+      out[`${fieldId}|${legacy}`] = canonical;
+    }
+  }
+  return out;
+}
+
+export function isLegacySlugJudgmentSuppressed(fieldId: string, slug: string): boolean {
+  return JUDGMENT_SUPPRESSED_LEGACY.has(`${fieldId}|${slug}`);
+}
+
+export function getLegacyChoiceLabel(fieldId: string, slug: string): string | undefined {
+  return LEGACY_CHOICE_LABELS[`${fieldId}|${slug}`];
+}
+
+export function slugMatchesChoiceValue(
+  fieldId: string,
+  raw: string | undefined,
+  targetSlug: string,
+): boolean {
+  if (!raw?.trim()) return false;
+  const slug = raw.trim();
+  if (isLegacySlugJudgmentSuppressed(fieldId, slug)) {
+    return slug === targetSlug;
+  }
+  if (slug === targetSlug) return true;
+  const aliases = BRANCH_EQUIVALENT_ALIASES[fieldId]?.[targetSlug];
+  return aliases?.includes(slug) ?? false;
 }
 
 export function canonicalizeAdminVerifyChoiceSlug(
@@ -70,7 +185,7 @@ export function canonicalizeAdminVerifyChoiceSlug(
   slug: string,
 ): string {
   if (!slug) return slug;
-  return GLOBAL_LEGACY[`${fieldId}|${slug}`] ?? slug;
+  return CANONICALIZE_ON_SAVE[fieldId]?.[slug] ?? slug;
 }
 
 export function canonicalizeAdminVerifyChoiceAnswer(
@@ -79,8 +194,18 @@ export function canonicalizeAdminVerifyChoiceAnswer(
 ): string | undefined {
   if (!raw?.trim()) return undefined;
   const trimmed = raw.trim();
-  if (trimmed.startsWith("[")) {
-    return trimmed;
-  }
+  if (trimmed.startsWith("[")) return trimmed;
   return canonicalizeAdminVerifyChoiceSlug(fieldId, trimmed);
+}
+
+/** 판단·신호·분기용 — suppressed legacy는 undefined */
+export function resolveAdminVerifyChoiceSlugForJudgment(
+  fieldId: string,
+  raw: string | undefined,
+): string | undefined {
+  if (!raw?.trim()) return undefined;
+  const slug = raw.trim();
+  if (slug.startsWith("[")) return slug;
+  if (isLegacySlugJudgmentSuppressed(fieldId, slug)) return undefined;
+  return canonicalizeAdminVerifyChoiceSlug(fieldId, slug);
 }

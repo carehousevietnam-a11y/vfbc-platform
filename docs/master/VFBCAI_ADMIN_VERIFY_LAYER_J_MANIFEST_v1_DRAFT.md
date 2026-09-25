@@ -89,8 +89,7 @@
 | 01 | case01_unclearDemandFact | 기관 요구에서 가장 불명확한 부분은 무엇인가요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **요구 불명: {case01_unclearDemandFactNote 또는 DI 원문}** |  |
 | 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_in_person` | 대면으로 안내를 받았습니다. | 안내를 대면으로 받은 것으로 정리됩니다. |  |
 | 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_phone_message` | 전화·문자로 안내를 받았습니다. | 안내를 전화·문자로 받은 것으로 정리됩니다. |  |
-| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_written_only` | 문서·서면만 받았고, 내용은 일부만 이해했습니다. | 안내를 문서로만 받은 것으로 정리됩니다. |  |
-| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_written_read` | 문서·서면을 받았고, 요지는 읽었습니다. | 문서를 받고 요지를 읽은 것으로 정리됩니다. |  |
+| 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_written` | 문서·서면으로 안내를 받았습니다. | 문서·서면으로 안내를 받은 것으로 정리됩니다. |  |
 | 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `del_not_received_yet` | 아직 통지·안내를 받지 못했습니다. | 아직 통지·안내를 받지 못한 상태입니다. |  |
 | 01 | case01_noticeDeliveryFact | 교통국 안내를 처음 어떤 방식으로 받았나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **안내 수신: {case01_noticeDeliveryFactNote 또는 DI 원문}** |  |
 | 01 | case01_procedureStageFact | 이 안내가 처음 통지에 가깝나요, 추가·재통지에 가깝나요? | `stage_first_notice` | 처음 받는 안내에 가깝습니다. | 최초 통지 단계로 정리됩니다. |  |
@@ -129,7 +128,7 @@
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `more_required` | 추가 서류·자료를 요청했고, 무엇인지 대략 알겠습니다. | 기관이 추가 서류·자료를 요청했습니다. |  |
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `more_required_vague` | 추가 서류·자료를 요청했지만 무엇인지 모르겠습니다. | 추가 자료 요청이 있으나 항목이 불명한 상태입니다. |  |
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `re_attendance` | 다시 출석·설명하라고 했습니다. | 기관이 다시 출석·설명을 요구했습니다. |  |
-| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `payment_demand` | 납부·다른 조치를 안내했습니다. | 기관이 납부 등 다른 조치를 안내했습니다. |  |
+| 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `payment_demand` | 납부를 안내했습니다. | 기관이 납부 등 다른 조치를 안내했습니다. |  |
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `no_reply_yet` | 아직 답변을 받지 못했습니다. | 기관 답변을 아직 받지 못했습니다. |  |
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `reply_unclear` | 답변·연락은 있었지만 무슨 뜻인지 모르겠습니다. | 기관 회신이 있으나 의미가 불명한 상태입니다. |  |
 | 01 | case01_authorityFollowUpKind | 대응 후 교통국에서 어떤 회신·재요구를 받았나요? | `other` | 위에 내용이 없거나 설명이 필요합니다 → 직접 입력 | **기관 회신: {case01_authorityFollowUpKindNote 또는 DI 원문}** |  |
