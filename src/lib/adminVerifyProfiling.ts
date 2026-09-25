@@ -29,6 +29,7 @@ export {
   CASE06_BRIDGE_SNAPSHOT_COMMITTED_KEY,
   CASE06_BRIDGE_TARGET_CASE_KEY,
 } from "./adminVerifyCase06Redesign";
+import { CASE01_PHASE2_FACET_FIELD_OPTION_MAP } from "./adminVerifyCase01Phase2FacetOptions";
 
 /** VERIFY 행정문서 — 1차(핵심) / 2차(개인화) 질문 단계 */
 export type AdminVerifyProfilePhase = 1 | 2;
@@ -1819,6 +1820,17 @@ export function isCase01PathComplete(answers: ReviewAnswers): boolean {
   if (!shouldActivateCase01Path(answers)) return false;
   return case01PathFieldsComplete(answers);
 }
+
+export {
+  CASE01_PHASE2_SUBSTANTIVE_AXIS_CATALOG,
+  case01NeedsDemandFulfillmentFact,
+  case01Phase1SubstantiveAxisCount,
+  case01Phase2MeetsRatio46,
+  case01Phase2Ratio46MinimumP2,
+  case01Phase2SubstantiveAxisCountOnPath,
+  case01Phase2SubstantiveAxisIdsOnPath,
+  case01Phase2SubstantiveAxisSymbolsOnPath,
+} from "./adminVerifyCase01Ratio";
 
 // ─── CASE_02 납부 요구 Resolution Path ───
 
@@ -6239,6 +6251,7 @@ const ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP: Record<string, { value: string; labe
   case01_blockage: CASE01_BLOCKAGE_UI_OPTIONS,
   case01_evidence: CASE01_EVIDENCE_OPTIONS,
   case01_finalGoal: CASE01_FINAL_GOAL_UI_OPTIONS,
+  ...CASE01_PHASE2_FACET_FIELD_OPTION_MAP,
   ...CASE02_FIELD_OPTIONS,
   case02_nonPaymentNotice: CASE02_NON_PAYMENT_NOTICE_OPTIONS,
   case02_paymentMethod: CASE02_PAYMENT_METHOD_OPTIONS,
