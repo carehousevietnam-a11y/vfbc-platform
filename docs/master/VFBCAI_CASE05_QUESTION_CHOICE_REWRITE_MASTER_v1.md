@@ -1,4 +1,6 @@
 # VFBCAI CASE_05 질문·선택지 재작성 마스터 v1
+> **최종본:** `VFBCAI_CASE05_QUESTION_CHOICE_FINAL_v1_2.md` 로 대체.
+
 
 | 항목 | 내용 |
 |------|------|
@@ -381,7 +383,7 @@ Phase2: factRelationship → dispositionReason → dispositionDetail → factDet
 
 ## 3.1 전 CASE 공통 품질 게이트 (필수)
 
-`VFBCAI_QUESTION_CHOICE_REWRITE_CROSS_CASE_QUALITY_GATES_v1.md` — 재작성안 제출 전 **QG-01~04** PASS.
+`VFBCAI_QUESTION_CHOICE_REWRITE_CROSS_CASE_QUALITY_GATES_v1.md` — 재작성안 제출 전 **QG-01~04** 점검 (§3.1 표).
 
 | 게이트 | CASE_05 본 문서 반영 |
 |--------|----------------------|

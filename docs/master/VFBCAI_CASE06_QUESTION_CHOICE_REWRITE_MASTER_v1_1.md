@@ -1,4 +1,6 @@
 # VFBCAI CASE_06 질문·선택지 재작성 마스터 v1.1
+> **최종본:** `VFBCAI_CASE06_QUESTION_CHOICE_FINAL_v1_2.md` 로 대체.
+
 
 | 항목 | 내용 |
 |------|------|
