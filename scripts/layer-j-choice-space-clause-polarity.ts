@@ -48,4 +48,8 @@ export const LAYER_J_CHOICE_SPACE_CLAUSE_POLARITY: Record<string, LayerJClausePo
   [k("05", "case05_appealDetail", "preparing_deadline_known")]: "neutral",
   [k("05", "case05_appealDetail", "considering_rules_unread")]: "neutral",
   [k("05", "case05_appealDetail", "considering_rules_read")]: "neutral",
+  [k("05", "case05_appealDetail", "considering")]: "neutral",
+
+  [k("05", "case05_authorityFollowUp", "changed")]: "positive",
+  [k("05", "case05_authorityFollowUp", "wants_more")]: "negative",
 };

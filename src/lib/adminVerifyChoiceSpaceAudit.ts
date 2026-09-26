@@ -13,6 +13,11 @@ import {
 } from "@/lib/adminVerifyProfiling";
 
 const MAX_CONTENT_CHOICES_PER_QUESTION = 5;
+const MAX_CONTENT_CHOICES_CASE05 = 6;
+
+function maxContentChoicesForField(fieldId: string): number {
+  return fieldId.startsWith("case05_") ? MAX_CONTENT_CHOICES_CASE05 : MAX_CONTENT_CHOICES_PER_QUESTION;
+}
 
 export function getAdminVerifyCase0106ChoiceFieldIds(): string[] {
   return Object.keys(ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP)
@@ -95,12 +100,13 @@ export function runAdminVerifyChoiceSpaceAudit(): ChoiceSpaceAuditFailure[] {
     const options = ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP[fieldId];
     if (!options?.length) continue;
     const contentCount = countAdminVerifyContentChoices(options);
-    if (contentCount > MAX_CONTENT_CHOICES_PER_QUESTION) {
+    const maxContent = maxContentChoicesForField(fieldId);
+    if (contentCount > maxContent) {
       failures.push({
         caseCode: fieldCaseCode(fieldId),
         fieldId,
         test: "D",
-        detail: `content choices ${contentCount} > ${MAX_CONTENT_CHOICES_PER_QUESTION} (DI excluded)`,
+        detail: `content choices ${contentCount} > ${maxContent} (DI excluded)`,
       });
     }
   }

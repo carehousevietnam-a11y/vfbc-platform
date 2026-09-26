@@ -4,12 +4,25 @@
  * - 판단·신호: JUDGMENT_SUPPRESSED_LEGACY → skip
  * - 요약·라벨: LEGACY_CHOICE_LABELS 원문 표시
  */
+import {
+  CASE05_APPEAL_DETAIL_LEGACY_TO_CANONICAL,
+  CASE05_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
+  CASE05_BLOCKAGE_LEGACY_TO_CANONICAL,
+  CASE05_LEGACY_APPEAL_DETAIL_LABELS,
+  CASE05_LEGACY_AUTHORITY_FOLLOWUP_LABELS,
+  CASE05_LEGACY_BLOCKAGE_LABELS,
+  CASE05_LEGACY_EVIDENCE_LABELS,
+  CASE05_LEGACY_FINAL_GOAL_LABELS,
+} from "./adminVerifyCase05ChoiceFinalV2";
 
 const CANONICALIZE_ON_SAVE: Record<string, Record<string, string>> = {
   case01_noticeDeliveryFact: {
     del_written_only: "del_written",
     del_written_read: "del_written",
   },
+  case05_authorityFollowUp: CASE05_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
+  case05_appealDetail: CASE05_APPEAL_DETAIL_LEGACY_TO_CANONICAL,
+  case05_blockage: CASE05_BLOCKAGE_LEGACY_TO_CANONICAL,
 };
 
 /** 판단 문장·Profile 신호에 쓰지 않음 — 응답 요약에만 원문 라벨 */
@@ -18,6 +31,13 @@ const JUDGMENT_SUPPRESSED_LEGACY = new Set<string>([
   "case05_factDetail|unsure",
   "case05_factDetail|hard_to_verify",
   "case05_appealDetail|unsure",
+  "case05_authorityFollowUp|payment_demand",
+  "case05_blockage|deadline",
+  "case05_blockage|unsure",
+  "case05_evidence|contract",
+  "case05_evidence|unsure",
+  "case05_finalGoal|expert",
+  "case05_finalGoal|unsure",
   "case04_unclearFocus|deadline",
   "case04_unclearFocus|connection",
   "case04_unclearFocus|whole_unclear",
@@ -46,8 +66,11 @@ const BRANCH_EQUIVALENT_ALIASES: Record<string, Record<string, string[]>> = {
     filed_schedule_known: ["filed"],
     preparing_deadline_unknown: ["preparing"],
     preparing_deadline_known: ["preparing"],
-    considering_rules_unread: ["considering"],
-    considering_rules_read: ["considering"],
+    considering: ["considering_rules_unread", "considering_rules_read"],
+  },
+  case05_authorityFollowUp: {
+    changed: ["modified", "revoked"],
+    wants_more: ["more_docs", "attendance_explanation"],
   },
   case04_unclearFocus: {
     what_submit_list: ["what_submit"],
@@ -77,6 +100,36 @@ const LEGACY_CHOICE_LABELS: Record<string, string> = {
   "case05_appealDetail|considering": "신청 여부를 검토하고 있습니다",
   "case05_appealDetail|unsure":
     "이의제기·재검토 신청 상태를 정확히 확인하지 못했습니다.",
+  ...Object.fromEntries(
+    Object.entries(CASE05_LEGACY_AUTHORITY_FOLLOWUP_LABELS).map(([slug, label]) => [
+      `case05_authorityFollowUp|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE05_LEGACY_BLOCKAGE_LABELS).map(([slug, label]) => [
+      `case05_blockage|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE05_LEGACY_EVIDENCE_LABELS).map(([slug, label]) => [
+      `case05_evidence|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE05_LEGACY_FINAL_GOAL_LABELS).map(([slug, label]) => [
+      `case05_finalGoal|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE05_LEGACY_APPEAL_DETAIL_LABELS).map(([slug, label]) => [
+      `case05_appealDetail|${slug}`,
+      label,
+    ]),
+  ),
   "case04_unclearFocus|what_submit": "무엇을 제출해야 하는지",
   "case04_unclearFocus|why_submit": "왜 제출해야 하는지",
   "case04_unclearFocus|format": "어떤 형식이어야 하는지",
@@ -127,6 +180,28 @@ export function getLegacySlugPolicyReport(fieldId: string): LegacySlugPolicyRow[
     add("filed", "1:1 동일", "판단·신호: 일정·접수 세부 미언급");
     add("preparing", "1:1 동일", "판단·신호: 기한 인지 미언급");
     add("considering", "1:1 동일", "판단·신호: 요건 읽음 미언급");
+    add("considering_rules_unread", "1:1 동일", "→ considering");
+    add("considering_rules_read", "1:1 동일", "→ considering");
+    add("unsure", "원문 표시로 처리");
+  }
+  if (fieldId === "case05_authorityFollowUp") {
+    add("modified", "1:1 동일", "→ changed");
+    add("revoked", "1:1 동일", "→ changed");
+    add("more_docs", "1:1 동일", "→ wants_more");
+    add("attendance_explanation", "1:1 동일", "→ wants_more");
+    add("payment_demand", "원문 표시로 처리");
+  }
+  if (fieldId === "case05_blockage") {
+    add("appeal_method", "1:1 동일", "→ what_to_do");
+    add("deadline", "원문 표시로 처리");
+    add("unsure", "원문 표시로 처리");
+  }
+  if (fieldId === "case05_evidence") {
+    add("contract", "원문 표시로 처리");
+    add("unsure", "원문 표시로 처리");
+  }
+  if (fieldId === "case05_finalGoal") {
+    add("expert", "원문 표시로 처리");
     add("unsure", "원문 표시로 처리");
   }
   if (fieldId === "case04_unclearFocus") {

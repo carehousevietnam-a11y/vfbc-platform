@@ -53,6 +53,33 @@ import {
   slugMatchesChoiceValue,
 } from "./adminVerifyChoiceSlugCanonical";
 import {
+  CASE05_APPEAL_DETAIL_OPTIONS_V2,
+  CASE05_AUTHORITY_FOLLOWUP_OPTIONS_V2,
+  CASE05_BLOCKAGE_OPTIONS_V2,
+  CASE05_CONFIRM_GOAL_OPTIONS_V2,
+  CASE05_CUSTOMER_RESPONSE_OPTIONS_V2,
+  CASE05_DEADLINE_OPTIONS_V2,
+  CASE05_DISPOSITION_DETAIL_OPTIONS_V2,
+  CASE05_DISPOSITION_REASON_OPTIONS_V2,
+  CASE05_DISPOSITION_TYPE_OPTIONS_V2,
+  CASE05_EVIDENCE_OPTIONS_V2,
+  CASE05_EXPLANATION_DETAIL_OPTIONS_V2,
+  CASE05_FACT_DETAIL_OPTIONS_V2,
+  CASE05_FACT_RELATIONSHIP_OPTIONS_V2,
+  CASE05_FINAL_GOAL_OPTIONS_V2,
+  CASE05_LEGACY_APPEAL_DETAIL_LABELS,
+  CASE05_LEGACY_AUTHORITY_FOLLOWUP_LABELS,
+  CASE05_LEGACY_BLOCKAGE_LABELS,
+  CASE05_LEGACY_EVIDENCE_LABELS,
+  CASE05_LEGACY_FINAL_GOAL_LABELS,
+  CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS_V2,
+  CASE05_V2_FIELD_OPTION_MAP,
+  CASE05_V2_QUESTION_LABELS,
+  case05EffectiveAppealDetail,
+  case05EffectiveAuthorityFollowUp,
+  case05EffectiveBlockageSlug,
+} from "./adminVerifyCase05ChoiceFinalV2";
+import {
   CASE01_PHASE2_FACET_FIELD_OPTION_MAP,
   CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS,
   CASE01_FACT_CONFLICT_FACET_OPTIONS,
@@ -6370,14 +6397,11 @@ export const CASE05_PHASE2_SUBSTANTIVE_AXIS_IDS = [
   "case05_factRelationship",
   "case05_dispositionReason",
   "case05_authorityFollowUp",
-  "case05_dispositionOutcome",
   "case05_dispositionDetail",
   "case05_factDetail",
   "case05_explanationDetail",
   "case05_submittedDocsDetail",
   "case05_appealDetail",
-  "case05_plannedNextStep",
-  "case05_repeatFollowUp",
   "case05_blockage",
   "case05_evidence",
   "case05_finalGoal",
@@ -6427,125 +6451,12 @@ export function case05NeedsDeadlineDateDetail(answers: ReviewAnswers): boolean {
   return !answers[CASE05_DEADLINE_DATE_KEY]?.trim();
 }
 
-const CASE05_DISPOSITION_TYPE_OPTIONS = [
-  {
-    value: "application_denied",
-    label: "신청이나 요청이 받아들여지지 않았다는 조치를 받은 상황입니다.",
-  },
-  {
-    value: CASE05_DISPOSITION_TYPE_RIGHTS_ENDED,
-    label:
-      "기존에 가지고 있던 허가·자격·권리가 중단·취소되었거나, 등록·자격·면허가 말소·실효되었다는 조치를 받은 상황입니다.",
-  },
-  {
-    value: "business_suspended",
-    label: "일정 기간 동안 특정 행동이나 활동이 제한되었다는 조치를 받은 상황입니다.",
-  },
-  {
-    value: "situation_mismatch",
-    label: "통지 내용과 실제 본인의 상황이 서로 다르게 느껴지는 상황입니다.",
-  },
-  {
-    value: CASE05_DISPOSITION_TYPE_UNCLEAR,
-    label: "어떤 처분·조치인지 자체를 정확히 이해하기 어려운 상황입니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_CONFIRM_GOAL_OPTIONS = [
-  {
-    value: "understand_reason",
-    label: "처분이 왜 내려졌는지 먼저 확인하고 싶습니다.",
-  },
-  {
-    value: "understand_impact",
-    label: "이 처분이 실제로 어떤 영향을 주는지 확인하고 싶습니다.",
-  },
-  {
-    value: "appeal_possibility",
-    label: "이의제기나 재검토가 가능한지 확인하고 싶습니다.",
-  },
-  {
-    value: "what_to_do",
-    label: "지금 무엇을 해야 하는지 먼저 확인하고 싶습니다.",
-  },
-  {
-    value: "unsure",
-    label: "지금 무엇부터 확인하고 준비해야 할지 모르겠습니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_DISPOSITION_REASON_OPTIONS = [
-  { value: "violation_claimed", label: "특정 위반·규정 위반이 이유로 적혀 있습니다" },
-  { value: "document_issue", label: "제출 서류·신청 정보의 문제가 이유로 적혀 있습니다" },
-  { value: "requirement_not_met", label: "요건·조건·자격을 충족하지 못했다는 이유가 적혀 있습니다" },
-  { value: "deadline_procedure", label: "기한·절차·제출 의무를 지키지 않았다는 이유가 적혀 있습니다" },
-  { value: "no_clear_reason", label: "처분 사유에 대한 설명이 충분하지 않습니다" },
-  { value: "unsure", label: "처분 사유를 정확히 파악하지 못했습니다" },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_FACT_RELATIONSHIP_OPTIONS = [
-  {
-    value: "match",
-    label: "처분 통지에 적힌 내용과 제가 알고 있는 실제 상황이 거의 같습니다.",
-  },
-  {
-    value: "partial",
-    label: "일부는 맞지만 날짜·사실·내용 등이 실제와 다릅니다.",
-  },
-  {
-    value: "mismatch",
-    label: "처분 통지 내용과 제가 알고 있는 실제 상황이 크게 다릅니다.",
-  },
-  {
-    value: "hard_to_judge",
-    label: "그때 무슨 일이 있었는지부터 대조하기 어렵습니다.",
-  },
-  {
-    value: "unknown",
-    label: "처분 통지가 무엇을 말하는지부터 이해하기 어렵습니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_CUSTOMER_RESPONSE_OPTIONS = [
-  {
-    value: "none",
-    label: "아직 기관에 설명하거나 자료를 제출하거나 재검토를 요청하지 않았습니다.",
-  },
-  {
-    value: "inquired",
-    label: "기관에 문의하거나 상황을 확인했습니다.",
-  },
-  {
-    value: "explanation_submitted",
-    label: "소명·의견을 제출했습니다.",
-  },
-  {
-    value: "documents_submitted",
-    label: "서류나 증빙을 제출했습니다.",
-  },
-  {
-    value: "appeal_requested",
-    label: "이의제기·재검토 등을 요청했습니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_AUTHORITY_FOLLOWUP_OPTIONS = [
-  { value: "maintained", label: "처분이 그대로 유지된다고 안내받았습니다" },
-  { value: "modified", label: "처분 내용이 변경되었다고 안내받았습니다" },
-  { value: "revoked", label: "처분이 철회·취소되었다고 안내받았습니다" },
-  { value: "more_docs", label: "추가 서류·증빙을 요구받았습니다" },
-  { value: "attendance_explanation", label: "추가 설명이나 출석을 요구받았습니다" },
-  { value: "under_review", label: "재검토 중이라고 안내받았습니다" },
-  { value: "payment_demand", label: "납부를 요구받았습니다" },
-  { value: "no_response", label: "아직 답변을 받지 못했습니다" },
-  { value: "unsure", label: "어떤 답변이나 조치가 있었는지 모르겠습니다" },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
+const CASE05_DISPOSITION_TYPE_OPTIONS = CASE05_DISPOSITION_TYPE_OPTIONS_V2;
+const CASE05_CONFIRM_GOAL_OPTIONS = CASE05_CONFIRM_GOAL_OPTIONS_V2;
+const CASE05_DISPOSITION_REASON_OPTIONS = CASE05_DISPOSITION_REASON_OPTIONS_V2;
+const CASE05_FACT_RELATIONSHIP_OPTIONS = CASE05_FACT_RELATIONSHIP_OPTIONS_V2;
+const CASE05_CUSTOMER_RESPONSE_OPTIONS = CASE05_CUSTOMER_RESPONSE_OPTIONS_V2;
+const CASE05_AUTHORITY_FOLLOWUP_OPTIONS = CASE05_AUTHORITY_FOLLOWUP_OPTIONS_V2;
 
 const CASE05_DISPOSITION_OUTCOME_OPTIONS = [
   { value: "maintained", label: "처분이 그대로 유지되었다는 안내를 받았습니다." },
@@ -6569,152 +6480,14 @@ const CASE05_REPEAT_FOLLOWUP_OPTIONS = [
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
-const CASE05_DEADLINE_OPTIONS = [
-  {
-    value: "specific_date",
-    label: "처분과 관련해 대응해야 하는 날짜를 확인했습니다.",
-  },
-  {
-    value: "uncertain",
-    label: "기한은 있다는 것은 알지만 정확한 날짜는 아직 확인하지 못했습니다.",
-  },
-  {
-    value: "period_stated",
-    label: "기한이 있다는 안내만 받았고, 정확한 날짜는 확인하지 못했습니다.",
-  },
-  {
-    value: "not_stated",
-    label: "기한이 있는지 자체를 아직 확인하지 못했습니다.",
-  },
-  {
-    value: "unsure",
-    label: "처분 관련 기한을 아직 확인하지 못했습니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_DISPOSITION_DETAIL_OPTIONS = [
-  { value: "wording_unclear", label: "어떤 제한이나 변화가 생기는지 문구가 불명확합니다" },
-  { value: "scope_unclear", label: "제한·조치 범위와 기간이 불명확합니다" },
-  { value: "partially_understood", label: "일부 영향은 이해했지만 전체는 확실하지 않습니다" },
-  {
-    value: "unsure",
-    label: "이 조치가 어떤 영향을 주는지 정확히 이해하지 못했습니다.",
-  },
-];
-
-const CASE05_FACT_DETAIL_OPTIONS = [
-  {
-    value: "date_place_certain",
-    label: "처분에 적힌 날짜·장소·상황은 제가 기억하는 것과 다르다고 확신합니다.",
-  },
-  {
-    value: "date_place_fuzzy",
-    label: "날짜·장소·상황이 다를 수는 있지만, 정확히 말하기 어렵습니다.",
-  },
-  {
-    value: "content_differs_clear",
-    label: "처분 내용·사유는 제 사실과 다르고, 차이는 정리해 두었습니다.",
-  },
-  {
-    value: "content_differs_vague",
-    label: "처분 내용·사유가 다른 것 같지만, 무엇이 다른지는 아직 못 정했습니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_EXPLANATION_DETAIL_OPTIONS = [
-  {
-    value: "written_no_receipt",
-    label: "서면으로 소명·의견을 제출했고, 접수 확인은 아직 받지 못했습니다.",
-  },
-  {
-    value: "written_receipt_ok",
-    label: "서면으로 소명·의견을 제출했고, 접수·접수번호 안내를 받았습니다.",
-  },
-  {
-    value: "verbal_no_record",
-    label: "전화·방문으로만 설명했고, 메모·확인서는 없습니다.",
-  },
-  {
-    value: "verbal_with_record",
-    label: "전화·방문으로 설명했고, 내용을 메모해 두었습니다.",
-  },
-  {
-    value: "both_unverified",
-    label: "서면과 구두 모두 했는데, 내용이 같은지는 아직 맞춰 보지 못했습니다.",
-  },
-  {
-    value: "both_aligned",
-    label: "서면과 구두 모두 했고, 말한 내용은 같다고 생각합니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS = [
-  { value: "identity", label: "신분·인적 서류" },
-  { value: "financial", label: "재무·금액 서류" },
-  { value: "certificate", label: "증명서·확인서" },
-  { value: "unsure", label: "제출한 서류 종류를 정확히 구분하기 어렵습니다." },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_APPEAL_DETAIL_OPTIONS = [
-  {
-    value: "filed_no_schedule",
-    label: "이의·재검토를 신청했고, 접수 안내는 받았지만 결과 일정은 모릅니다.",
-  },
-  {
-    value: "filed_no_receipt",
-    label: "이의·재검토를 신청했지만, 접수 확인이나 접수번호는 아직 받지 못했습니다.",
-  },
-  {
-    value: "filed_schedule_known",
-    label: "이의·재검토를 신청했고, 결과·다음 안내 일정을 알고 있습니다.",
-  },
-  {
-    value: "preparing_deadline_unknown",
-    label: "신청을 준비 중이고, 신청 기한은 아직 확인하지 못했습니다.",
-  },
-  {
-    value: "preparing_deadline_known",
-    label: "신청을 준비 중이고, 신청 기한은 확인했습니다.",
-  },
-  {
-    value: "considering_rules_unread",
-    label: "신청 여부를 검토 중이고, 가능 여부·기한은 아직 못 읽었습니다.",
-  },
-  {
-    value: "considering_rules_read",
-    label: "신청 여부를 검토 중이고, 통지서에 기한·요건을 읽었습니다.",
-  },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_BLOCKAGE_OPTIONS = [
-  { value: "why_disposition", label: "처분이 왜 내려졌는지 이해하지 못했습니다." },
-  { value: "what_disposition", label: "처분·조치 내용이 정확히 무엇인지 모르겠습니다." },
-  { value: "fact_match", label: "실제 상황과 처분 사유가 맞는지 확인하기 어렵습니다." },
-  { value: "what_to_do", label: "지금 무엇을 해야 하는지 모르겠습니다." },
-  { value: "appeal_method", label: "이의제기·재검토·소명 방법을 모르겠습니다." },
-  { value: "deadline", label: "대응 기한이 언제인지 모르겠습니다." },
-  { value: "evidence", label: "어떤 서류·증빙이 필요한지 모르겠습니다." },
-  { value: "next_response", label: "기관의 다음 답변·조치를 기다리거나 이해하지 못했습니다." },
-  { value: "unsure", label: "가장 막힌 부분을 정확히 말하기 어렵습니다." },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
-
-const CASE05_EVIDENCE_OPTIONS = [
-  { value: "disposition_notice", label: "처분 통지서" },
-  { value: "message_email", label: "기관 문자·이메일" },
-  { value: "submitted_docs", label: "제출한 서류" },
-  { value: "payment_proof", label: "납부·영수 증빙" },
-  { value: "photo_video", label: "사진·영상" },
-  { value: "contract", label: "계약·관계 서류" },
-  { value: "none", label: "관련 자료 없음" },
-  { value: "unsure", label: "지금 확인할 수 있는 자료가 있는지 아직 확인하지 못했습니다." },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
+const CASE05_DEADLINE_OPTIONS = CASE05_DEADLINE_OPTIONS_V2;
+const CASE05_DISPOSITION_DETAIL_OPTIONS = CASE05_DISPOSITION_DETAIL_OPTIONS_V2;
+const CASE05_FACT_DETAIL_OPTIONS = CASE05_FACT_DETAIL_OPTIONS_V2;
+const CASE05_EXPLANATION_DETAIL_OPTIONS = CASE05_EXPLANATION_DETAIL_OPTIONS_V2;
+const CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS = CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS_V2;
+const CASE05_APPEAL_DETAIL_OPTIONS = CASE05_APPEAL_DETAIL_OPTIONS_V2;
+const CASE05_BLOCKAGE_OPTIONS = CASE05_BLOCKAGE_OPTIONS_V2;
+const CASE05_EVIDENCE_OPTIONS = CASE05_EVIDENCE_OPTIONS_V2;
 
 const CASE05_CONFIRM_GOAL_TO_FINAL_GOAL_DUPE: Record<string, string> = {
   understand_reason: "why_disposition",
@@ -6751,17 +6524,7 @@ const CASE05_PLANNED_NEXT_STEP_OPTIONS = [
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
-const CASE05_FINAL_GOAL_OPTIONS = [
-  { value: "why_disposition", label: "처분이 왜 내려졌는지 확인하고 싶어요" },
-  { value: "what_disposition", label: "처분 내용이 정확히 무엇인지 알고 싶어요" },
-  { value: "fact_match", label: "실제 상황과 처분 내용이 맞는지 확인하고 싶어요" },
-  { value: "what_to_do", label: "지금 무엇을 해야 하는지 알고 싶어요" },
-  { value: "next_action", label: "이의제기·소명 등 다음 대응을 알고 싶어요" },
-  { value: "evidence", label: "필요한 서류·증빙을 확인하고 싶어요" },
-  { value: "expert", label: "전문가에게 상황을 전달하고 싶어요" },
-  { value: "unsure", label: "지금 가장 먼저 확인하고 싶은 것이 무엇인지 정확히 말하기 어렵습니다." },
-  ADMIN_DIRECT_EXPLAIN_CHOICE,
-];
+const CASE05_FINAL_GOAL_OPTIONS = CASE05_FINAL_GOAL_OPTIONS_V2;
 
 export const CASE05_OPTION_LABELS: Record<string, string> = {
   other_disposition: "위에 없는 다른 처분·조치가 안내되어 있습니다",
@@ -6791,6 +6554,11 @@ export const CASE05_OPTION_LABELS: Record<string, string> = {
   ...Object.fromEntries(CASE05_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_FINAL_GOAL_OPTIONS.map((o) => [o.value, o.label])),
   ...Object.fromEntries(CASE05_PLANNED_NEXT_STEP_OPTIONS.map((o) => [o.value, o.label])),
+  ...CASE05_LEGACY_AUTHORITY_FOLLOWUP_LABELS,
+  ...CASE05_LEGACY_BLOCKAGE_LABELS,
+  ...CASE05_LEGACY_EVIDENCE_LABELS,
+  ...CASE05_LEGACY_FINAL_GOAL_LABELS,
+  ...CASE05_LEGACY_APPEAL_DETAIL_LABELS,
 };
 
 const CASE05_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> = {
@@ -6801,24 +6569,7 @@ const CASE05_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> =
 };
 
 const CASE05_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
-  case05_dispositionType: CASE05_DISPOSITION_TYPE_OPTIONS,
-  case05_confirmGoal: CASE05_CONFIRM_GOAL_OPTIONS,
-  case05_dispositionReason: CASE05_DISPOSITION_REASON_OPTIONS,
-  case05_factRelationship: CASE05_FACT_RELATIONSHIP_OPTIONS,
-  case05_customerResponse: CASE05_CUSTOMER_RESPONSE_OPTIONS,
-  case05_authorityFollowUp: CASE05_AUTHORITY_FOLLOWUP_OPTIONS,
-  case05_dispositionOutcome: CASE05_DISPOSITION_OUTCOME_OPTIONS,
-  case05_repeatFollowUp: CASE05_REPEAT_FOLLOWUP_OPTIONS,
-  case05_deadline: CASE05_DEADLINE_OPTIONS,
-  case05_blockage: CASE05_BLOCKAGE_OPTIONS,
-  case05_evidence: CASE05_EVIDENCE_OPTIONS,
-  case05_finalGoal: CASE05_FINAL_GOAL_OPTIONS,
-  case05_plannedNextStep: CASE05_PLANNED_NEXT_STEP_OPTIONS,
-  case05_dispositionDetail: CASE05_DISPOSITION_DETAIL_OPTIONS,
-  case05_factDetail: CASE05_FACT_DETAIL_OPTIONS,
-  case05_explanationDetail: CASE05_EXPLANATION_DETAIL_OPTIONS,
-  case05_submittedDocsDetail: CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS,
-  case05_appealDetail: CASE05_APPEAL_DETAIL_OPTIONS,
+  ...CASE05_V2_FIELD_OPTION_MAP,
 };
 
 export const ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
@@ -6884,6 +6635,38 @@ export function getCase05FieldOptionLabel(fieldId: string, value: string): strin
   }
   if (fieldId === "case05_customerResponse" && value === "other_method") {
     return CASE05_OPTION_LABELS.other_method;
+  }
+  if (fieldId === "case05_authorityFollowUp") {
+    const legacyLabel = CASE05_LEGACY_AUTHORITY_FOLLOWUP_LABELS[value];
+    if (legacyLabel) return legacyLabel;
+    const canonical = case05EffectiveAuthorityFollowUp(value);
+    if (canonical && canonical !== value) {
+      return getCase05FieldOptionLabel(fieldId, canonical);
+    }
+  }
+  if (fieldId === "case05_appealDetail") {
+    const legacyLabel = CASE05_LEGACY_APPEAL_DETAIL_LABELS[value];
+    if (legacyLabel) return legacyLabel;
+    const canonical = case05EffectiveAppealDetail(value);
+    if (canonical && canonical !== value) {
+      return getCase05FieldOptionLabel(fieldId, canonical);
+    }
+  }
+  if (fieldId === "case05_blockage") {
+    const legacyLabel = CASE05_LEGACY_BLOCKAGE_LABELS[value];
+    if (legacyLabel) return legacyLabel;
+    const canonical = case05EffectiveBlockageSlug(value);
+    if (canonical && canonical !== value) {
+      return getCase05FieldOptionLabel(fieldId, canonical);
+    }
+  }
+  if (fieldId === "case05_evidence") {
+    const legacyLabel = CASE05_LEGACY_EVIDENCE_LABELS[value];
+    if (legacyLabel) return legacyLabel;
+  }
+  if (fieldId === "case05_finalGoal") {
+    const legacyLabel = CASE05_LEGACY_FINAL_GOAL_LABELS[value];
+    if (legacyLabel) return legacyLabel;
   }
   const options = CASE05_FIELD_OPTION_MAP[fieldId];
   const matched = options?.find((option) => option.value === value);
@@ -6952,13 +6735,16 @@ export function case05DispositionTypeIsRightsEnded(type: string | undefined): bo
   return case05EffectiveDispositionType(type) === CASE05_DISPOSITION_TYPE_RIGHTS_ENDED;
 }
 
-const CASE05_REPEAT_FOLLOWUP_VALUES = new Set([
+const CASE05_AUTHORITY_FOLLOWUP_DEPTH_VALUES = new Set([
   "maintained",
+  "changed",
+  "wants_more",
   "more_docs",
   "attendance_explanation",
   "payment_demand",
   "modified",
   "revoked",
+  "under_review",
 ]);
 
 function case05HasResponded(answers: ReviewAnswers): boolean {
@@ -7032,8 +6818,8 @@ function case05NeedsDispositionDetail(answers: ReviewAnswers): boolean {
   );
 }
 
-function case05NeedsPlannedNextStepPhase2(answers: ReviewAnswers): boolean {
-  return answers.case05_customerResponse === "none";
+function case05NeedsPlannedNextStepPhase2(_answers: ReviewAnswers): boolean {
+  return false;
 }
 
 export function case05FinalGoalOptionsForAnswers(answers: ReviewAnswers): {
@@ -7068,8 +6854,8 @@ function case05NeedsAppealDetail(answers: ReviewAnswers): boolean {
   return answers.case05_customerResponse === "appeal_requested";
 }
 
-function case05NeedsDispositionOutcome(answers: ReviewAnswers): boolean {
-  return case05NeedsAuthorityFollowUpPhase2(answers) && Boolean(answers.case05_authorityFollowUp);
+function case05NeedsDispositionOutcome(_answers: ReviewAnswers): boolean {
+  return false;
 }
 
 function case05IsPhase2CoreBranchComplete(answers: ReviewAnswers): boolean {
@@ -7145,27 +6931,6 @@ function case05IsPhase2CoreBranchComplete(answers: ReviewAnswers): boolean {
   ) {
     return false;
   }
-  if (case05NeedsDispositionOutcome(answers)) {
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case05_dispositionOutcome",
-        answers,
-        CASE05_DISPOSITION_OUTCOME_OPTIONS,
-      )
-    ) {
-      return false;
-    }
-  }
-  if (
-    case05NeedsPlannedNextStepPhase2(answers) &&
-    !isAdminVerifyChoiceFieldComplete(
-      "case05_plannedNextStep",
-      answers,
-      CASE05_PLANNED_NEXT_STEP_OPTIONS,
-    )
-  ) {
-    return false;
-  }
   return true;
 }
 
@@ -7184,14 +6949,17 @@ function case05ConfirmGoalSkipsTailFinalGoal(answers: ReviewAnswers): boolean {
   );
 }
 
-function case05NeedsRepeatFollowUp(answers: ReviewAnswers): boolean {
-  if (case05IsPhase2CoreBranchComplete(answers)) return true;
+function case05NeedsRepeatFollowUpQuestion(_answers: ReviewAnswers): boolean {
+  return false;
+}
+
+function case05AuthorityFollowUpDepthSignal(answers: ReviewAnswers): boolean {
   const goal = answers.case05_confirmGoal;
   if (goal === "maintain_reason") return true;
   if (answers.case05_dispositionType === "situation_mismatch") return true;
-  const followUp = answers.case05_authorityFollowUp;
+  const followUp = case05EffectiveAuthorityFollowUp(answers.case05_authorityFollowUp);
   if (!followUp) return false;
-  return CASE05_REPEAT_FOLLOWUP_VALUES.has(followUp) || followUp === "under_review";
+  return CASE05_AUTHORITY_FOLLOWUP_DEPTH_VALUES.has(followUp);
 }
 
 function case05NeedsBlockage(answers: ReviewAnswers): boolean {
@@ -7214,7 +6982,7 @@ function case05NeedsBlockage(answers: ReviewAnswers): boolean {
   ) {
     return true;
   }
-  return case05NeedsRepeatFollowUp(answers) && Boolean(answers.case05_authorityFollowUp);
+  return case05AuthorityFollowUpDepthSignal(answers) && Boolean(answers.case05_authorityFollowUp);
 }
 
 function case05NeedsEvidence(answers: ReviewAnswers): boolean {
@@ -7244,7 +7012,7 @@ function case05NeedsEvidence(answers: ReviewAnswers): boolean {
   if (answers.case05_customerResponse === "documents_submitted") {
     return true;
   }
-  return case05NeedsRepeatFollowUp(answers);
+  return case05AuthorityFollowUpDepthSignal(answers);
 }
 
 function case05NeedsFinalGoal(answers: ReviewAnswers): boolean {
@@ -7335,7 +7103,7 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case05_dispositionType",
     kind: "choice",
-    label: "교통국에서 받은 안내는 어떤 조치에 관한 것이라고 들으셨나요?",
+    label: CASE05_V2_QUESTION_LABELS.case05_dispositionType,
     options: CASE05_DISPOSITION_TYPE_OPTIONS,
   });
   if (
@@ -7351,7 +7119,7 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case05_confirmGoal",
     kind: "choice",
-    label: "지금 이 처분·조치 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+    label: CASE05_V2_QUESTION_LABELS.case05_confirmGoal,
     options: CASE05_CONFIRM_GOAL_OPTIONS,
   });
   if (!answers.case05_confirmGoal) return;
@@ -7359,7 +7127,7 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case05_customerResponse",
     kind: "choice",
-    label: "이 조치에 대해 지금까지 어떤 대응을 하셨나요?",
+    label: CASE05_V2_QUESTION_LABELS.case05_customerResponse,
     options: CASE05_CUSTOMER_RESPONSE_OPTIONS,
   });
   if (
@@ -7375,7 +7143,7 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case05_deadline",
     kind: "choice",
-    label: "이 처분에 대해 언제까지 대응해야 하는지 현재 확인할 수 있는 상태인가요?",
+    label: CASE05_V2_QUESTION_LABELS.case05_deadline,
     options: CASE05_DEADLINE_OPTIONS,
   });
   if (
@@ -7387,8 +7155,8 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: CASE05_DEADLINE_DATE_KEY,
       kind: "text",
-      label: "확인한 대응 기한은 언제인가요?",
-      placeholder: "기억나는 날짜·기한을 적어 주세요.",
+      label: CASE05_V2_QUESTION_LABELS.case05_deadlineDate,
+      placeholder: CASE05_V2_QUESTION_LABELS.case05_deadlineDatePlaceholder,
     });
     if (case05NeedsDeadlineDateDetail(answers)) {
       return;
@@ -7401,8 +7169,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_factRelationship",
       kind: "choice",
-      label:
-        "교통국에서 설명한 조치 이유와 실제 상황을 비교하면, 가장 다른 부분은 무엇인가요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_factRelationship,
       options: CASE05_FACT_RELATIONSHIP_OPTIONS,
     });
     if (
@@ -7420,7 +7187,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_dispositionReason",
       kind: "choice",
-      label: "교통국에서는 어떤 이유로 이런 조치를 안내했나요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_dispositionReason,
       options: CASE05_DISPOSITION_REASON_OPTIONS,
     });
     if (
@@ -7438,8 +7205,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_dispositionDetail",
       kind: "choice",
-      label:
-        "이 조치 때문에 실제로 어떤 제한이나 변화가 생겼다고 안내받으셨나요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_dispositionDetail,
       options: CASE05_DISPOSITION_DETAIL_OPTIONS,
     });
     if (
@@ -7457,7 +7223,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_factDetail",
       kind: "choice",
-      label: "실제 상황과 처분 사유는 어떤 점에서 다른가요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_factDetail,
       options: CASE05_FACT_DETAIL_OPTIONS,
     });
     if (
@@ -7471,7 +7237,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_explanationDetail",
       kind: "choice",
-      label: "기관에 제출한 소명·의견은 어떤 방식이었나요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_explanationDetail,
       options: CASE05_EXPLANATION_DETAIL_OPTIONS,
     });
     if (
@@ -7489,8 +7255,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_submittedDocsDetail",
       kind: "choice",
-      label:
-        "이번에 기관에 제출한 서류 종류를 골라 주세요. (여러 개 선택 가능)",
+      label: CASE05_V2_QUESTION_LABELS.case05_submittedDocsDetail,
       options: CASE05_SUBMITTED_DOCS_DETAIL_OPTIONS,
     });
     if (
@@ -7508,7 +7273,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_appealDetail",
       kind: "choice",
-      label: "이의제기·재검토 요청은 어떤 상태인가요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_appealDetail,
       options: CASE05_APPEAL_DETAIL_OPTIONS,
     });
     if (
@@ -7522,8 +7287,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_authorityFollowUp",
       kind: "choice",
-      label:
-        "이 조치에 대해 교통국에 대응한 뒤, 어떤 답변이나 추가 안내를 받으셨나요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_authorityFollowUp,
       options: CASE05_AUTHORITY_FOLLOWUP_OPTIONS,
     });
     if (
@@ -7566,7 +7330,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     }
   }
 
-  if (case05NeedsRepeatFollowUp(answers)) {
+  if (case05NeedsRepeatFollowUpQuestion(answers)) {
     pushUnique(questions, {
       id: "case05_repeatFollowUp",
       kind: "choice",
@@ -7588,7 +7352,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_blockage",
       kind: "choice",
-      label: "지금 이 처분·조치 사건에서 가장 막혀 있는 부분은 무엇인가요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_blockage,
       options: CASE05_BLOCKAGE_OPTIONS,
     });
     if (
@@ -7606,8 +7370,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_evidence",
       kind: "choice",
-      label:
-        "지금 처분·조치와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
+      label: CASE05_V2_QUESTION_LABELS.case05_evidence,
       options: CASE05_EVIDENCE_OPTIONS,
     });
     if (
@@ -7625,7 +7388,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case05_finalGoal",
       kind: "choice",
-      label: "지금 무엇을 확인하고 싶으신가요?",
+      label: CASE05_V2_QUESTION_LABELS.case05_finalGoal,
       options: case05FinalGoalOptionsForAnswers(answers),
     });
   }
@@ -7718,27 +7481,6 @@ function case05PathFieldsComplete(answers: ReviewAnswers): boolean {
       "case05_authorityFollowUp",
       answers,
       CASE05_AUTHORITY_FOLLOWUP_OPTIONS,
-    )
-  ) {
-    return false;
-  }
-  if (case05NeedsDispositionOutcome(answers) && !answers.case05_dispositionOutcome) return false;
-  if (
-    case05NeedsPlannedNextStepPhase2(answers) &&
-    !isAdminVerifyChoiceFieldComplete(
-      "case05_plannedNextStep",
-      answers,
-      CASE05_PLANNED_NEXT_STEP_OPTIONS,
-    )
-  ) {
-    return false;
-  }
-  if (
-    case05NeedsRepeatFollowUp(answers) &&
-    !isAdminVerifyChoiceFieldComplete(
-      "case05_repeatFollowUp",
-      answers,
-      CASE05_REPEAT_FOLLOWUP_OPTIONS,
     )
   ) {
     return false;
@@ -7860,7 +7602,7 @@ export function case05ListPhase2SubstantiveAxesOnPath(answers: ReviewAnswers): s
   maybe("case05_appealDetail", case05NeedsAppealDetail(answers));
   maybe("case05_dispositionOutcome", case05NeedsDispositionOutcome(answers));
   maybe("case05_plannedNextStep", case05NeedsPlannedNextStepPhase2(answers));
-  maybe("case05_repeatFollowUp", case05NeedsRepeatFollowUp(answers));
+  maybe("case05_repeatFollowUp", case05NeedsRepeatFollowUpQuestion(answers));
   maybe("case05_blockage", case05NeedsBlockage(answers));
   maybe("case05_evidence", case05NeedsEvidence(answers));
   maybe("case05_finalGoal", case05NeedsFinalGoal(answers));
@@ -7890,7 +7632,7 @@ function case05Phase2SubstantiveAxisAnswered(id: string, answers: ReviewAnswers)
   if (id === "case05_plannedNextStep" && !case05NeedsPlannedNextStepPhase2(answers)) {
     return false;
   }
-  if (id === "case05_repeatFollowUp" && !case05NeedsRepeatFollowUp(answers)) return false;
+  if (id === "case05_repeatFollowUp" && !case05NeedsRepeatFollowUpQuestion(answers)) return false;
   if (id === "case05_blockage" && !case05NeedsBlockage(answers)) return false;
   if (id === "case05_evidence" && !case05NeedsEvidence(answers)) return false;
   if (id === "case05_finalGoal" && !case05NeedsFinalGoal(answers)) return false;
@@ -8028,9 +7770,9 @@ function classifyFromCase05Answers(answers: ReviewAnswers): {
 } | null {
   if (!shouldActivateCase05Path(answers) && !answers.case05_dispositionType) return null;
 
-  const followUp = answers.case05_authorityFollowUp;
+  const followUp = case05EffectiveAuthorityFollowUp(answers.case05_authorityFollowUp);
 
-  if (followUp === "payment_demand") {
+  if (answers.case05_authorityFollowUp === "payment_demand") {
     return {
       id: "CASE_02",
       status: "inferred",
@@ -8046,12 +7788,15 @@ function classifyFromCase05Answers(answers: ReviewAnswers): {
       reason: "현재 해결 중심이 출석·소명으로 확인됨",
     };
   }
-  if (followUp === "more_docs") {
+  if (followUp === "more_docs" || followUp === "wants_more") {
     return {
       id: "CASE_04",
       status: "inferred",
-      confidence: 0.78,
-      reason: "현재 해결 중심이 보완·추가 제출로 확인됨",
+      confidence: followUp === "wants_more" ? 0.76 : 0.78,
+      reason:
+        followUp === "wants_more"
+          ? "기관이 추가 서류·설명을 요구한 상태로 확인됨"
+          : "현재 해결 중심이 보완·추가 제출로 확인됨",
     };
   }
   // Legacy slug only. Canonical disposition_unclear stays on CASE_05.
@@ -11734,7 +11479,7 @@ function selectCase05ResolutionFocus(answers: ReviewAnswers): CaseResolutionQues
     if (item.id === "case05_plannedNextStep" && !case05NeedsPlannedNextStepPhase2(answers)) {
       continue;
     }
-    if (item.id === "case05_repeatFollowUp" && !case05NeedsRepeatFollowUp(answers)) continue;
+    if (item.id === "case05_repeatFollowUp" && !case05NeedsRepeatFollowUpQuestion(answers)) continue;
     if (item.id === "case05_blockage" && !case05NeedsBlockage(answers)) continue;
     if (item.id === "case05_evidence" && !case05NeedsEvidence(answers)) continue;
     if (item.id === "case05_finalGoal" && !case05NeedsFinalGoal(answers)) continue;

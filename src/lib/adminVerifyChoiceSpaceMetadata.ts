@@ -163,12 +163,7 @@ export const ADMIN_VERIFY_CHOICE_SPACE_METADATA: Record<string, ChoiceSpaceQuest
         polarity: "neutral",
       },
       {
-        slug: "considering_rules_unread",
-        facts: { appeal_stage: "considering", schedule_known: "na", receipt_known: "na" },
-        polarity: "neutral",
-      },
-      {
-        slug: "considering_rules_read",
+        slug: "considering",
         facts: { appeal_stage: "considering", schedule_known: "na", receipt_known: "na" },
         polarity: "neutral",
       },

@@ -176,6 +176,8 @@ export function buildLayerJCase0206ClauseMap(): ClauseMap {
   add(m, "05", "§03·2차", "case05_authorityFollowUp", "payment_demand", `${P2} 비용·납부 관련 추가 안내가 핵심입니다.`);
   add(m, "05", "§03·2차", "case05_authorityFollowUp", "no_response", `${P2} 아직 기관 답변·반응이 없는 상태가 핵심입니다.`);
   add(m, "05", "§03·2차", "case05_authorityFollowUp", "unsure", `${P2} 기관 후속 반응이 아직 명확하지 않은 상태가 핵심입니다.`);
+  add(m, "05", "§03·2차", "case05_authorityFollowUp", "changed", `${P2} 기관이 처분·결정을 변경하거나 취소한 상태가 핵심입니다.`);
+  add(m, "05", "§03·2차", "case05_authorityFollowUp", "wants_more", `${P2} 추가 서류·직접 설명 요구가 이어지는 상태가 핵심입니다.`);
 
   add(m, "05", "§03·2차", "case05_dispositionOutcome", "maintained", `${P2} 처분·조치가 유지된 결과로 정리됩니다.`);
   add(m, "05", "§03·2차", "case05_dispositionOutcome", "modified", `${P2} 처분·조치가 일부 변경된 결과로 정리됩니다.`);
