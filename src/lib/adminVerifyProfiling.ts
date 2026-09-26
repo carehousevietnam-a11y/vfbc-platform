@@ -5599,7 +5599,7 @@ function appendCase04Phase1Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: CASE04_DEADLINE_DATE_KEY,
       kind: "text",
-      label: "확인한 보완 제출 기한은 언제인가요?",
+      label: CASE04_V3_QUESTION_LABELS.case04_deadlineDate,
       placeholder: "기억나는 날짜·기한을 적어 주세요.",
     });
     if (case04NeedsDeadlineDateDetail(answers)) {

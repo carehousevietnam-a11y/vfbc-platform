@@ -38,7 +38,7 @@ const missingDate = attachCaseResolutionSnapshot({
 const phase1NeedsDatePass = !isCase04Phase1Complete(missingDate);
 
 const catalogCount = case04Phase2SubstantiveAxisCatalogCount();
-const catalogIs9 = catalogCount === 9;
+const catalogIs11 = catalogCount === 11;
 
 const richPath = attachCaseResolutionSnapshot({
   ...withDate,
@@ -74,13 +74,13 @@ const evidenceNone = attachCaseResolutionSnapshot({
 });
 const evidenceNoneProfile = buildCaseResolutionProfile(evidenceNone);
 const evidenceSubstantivePass =
-  (evidenceNotice.evidence.value ?? "").includes("보완") &&
+  (evidenceNotice.evidence.value ?? "").includes("안내문") &&
   (evidenceNoneProfile.evidence.value ?? "").includes("없");
 
 const pass =
   deadlineProfilePass &&
   phase1NeedsDatePass &&
-  catalogIs9 &&
+  catalogIs11 &&
   axesOnRichPathGte5 &&
   detailInAuthorityClaim &&
   detailSignalsDiffer &&
@@ -94,7 +94,7 @@ console.log(
       deadlineProfilePass,
       phase1NeedsDatePass,
       catalogCount,
-      catalogIs9,
+      catalogIs11,
       axesOnPath,
       axesOnRichPathGte5,
       detailInAuthorityClaim,
