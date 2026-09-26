@@ -20,7 +20,6 @@ export const LAYER_J_CHOICE_SPACE_CLAUSE_POLARITY: Record<string, LayerJClausePo
   [k("04", "case04_unclearFocus", "what_submit_list")]: "negative",
   [k("04", "case04_unclearFocus", "what_submit_apply")]: "negative",
   [k("04", "case04_unclearFocus", "why_submit_reason")]: "negative",
-  [k("04", "case04_unclearFocus", "why_submit_apply")]: "negative",
   [k("04", "case04_unclearFocus", "format_how")]: "negative",
   [k("04", "case04_unclearFocus", "format_where")]: "negative",
 

@@ -177,7 +177,6 @@ export const ADMIN_VERIFY_CHOICE_SPACE_METADATA: Record<string, ChoiceSpaceQuest
       { slug: "what_submit_list", facts: { unclear_axis: "what" }, polarity: "negative" },
       { slug: "what_submit_apply", facts: { unclear_axis: "apply" }, polarity: "negative" },
       { slug: "why_submit_reason", facts: { unclear_axis: "why" }, polarity: "negative" },
-      { slug: "why_submit_apply", facts: { unclear_axis: "apply" }, polarity: "negative" },
       { slug: "format_how", facts: { unclear_axis: "format" }, polarity: "negative" },
       { slug: "format_where", facts: { unclear_axis: "where" }, polarity: "negative" },
     ],

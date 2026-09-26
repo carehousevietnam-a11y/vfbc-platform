@@ -5,6 +5,14 @@
  * - 요약·라벨: LEGACY_CHOICE_LABELS 원문 표시
  */
 import {
+  CASE04_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
+  CASE04_EVIDENCE_LEGACY_TO_CANONICAL,
+  CASE04_LEGACY_AUTHORITY_FOLLOWUP_LABELS,
+  CASE04_LEGACY_EVIDENCE_LABELS,
+  CASE04_LEGACY_UNCLEAR_FOCUS_LABELS,
+  CASE04_UNCLEAR_FOCUS_LEGACY_TO_CANONICAL,
+} from "./adminVerifyCase04ChoiceFinalV3";
+import {
   CASE05_APPEAL_DETAIL_LEGACY_TO_CANONICAL,
   CASE05_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
   CASE05_BLOCKAGE_LEGACY_TO_CANONICAL,
@@ -23,6 +31,9 @@ const CANONICALIZE_ON_SAVE: Record<string, Record<string, string>> = {
   case05_authorityFollowUp: CASE05_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
   case05_appealDetail: CASE05_APPEAL_DETAIL_LEGACY_TO_CANONICAL,
   case05_blockage: CASE05_BLOCKAGE_LEGACY_TO_CANONICAL,
+  case04_unclearFocus: CASE04_UNCLEAR_FOCUS_LEGACY_TO_CANONICAL,
+  case04_authorityFollowUp: CASE04_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
+  case04_evidence: CASE04_EVIDENCE_LEGACY_TO_CANONICAL,
 };
 
 /** 판단 문장·Profile 신호에 쓰지 않음 — 응답 요약에만 원문 라벨 */
@@ -74,9 +85,16 @@ const BRANCH_EQUIVALENT_ALIASES: Record<string, Record<string, string[]>> = {
   },
   case04_unclearFocus: {
     what_submit_list: ["what_submit"],
-    what_submit_apply: ["deadline", "connection"],
+    what_submit_apply: ["deadline", "connection", "why_submit_apply"],
     why_submit_reason: ["why_submit"],
     format_how: ["format"],
+  },
+  case04_authorityFollowUp: {
+    accepted: ["awaiting_review"],
+    more_supplement: ["more_docs"],
+  },
+  case04_evidence: {
+    none: ["unsure"],
   },
   case04_repeatSupplement: {
     more_docs_same_kind: ["more_docs"],
@@ -127,6 +145,24 @@ const LEGACY_CHOICE_LABELS: Record<string, string> = {
   ...Object.fromEntries(
     Object.entries(CASE05_LEGACY_APPEAL_DETAIL_LABELS).map(([slug, label]) => [
       `case05_appealDetail|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE04_LEGACY_UNCLEAR_FOCUS_LABELS).map(([slug, label]) => [
+      `case04_unclearFocus|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE04_LEGACY_AUTHORITY_FOLLOWUP_LABELS).map(([slug, label]) => [
+      `case04_authorityFollowUp|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE04_LEGACY_EVIDENCE_LABELS).map(([slug, label]) => [
+      `case04_evidence|${slug}`,
       label,
     ]),
   ),
@@ -207,10 +243,18 @@ export function getLegacySlugPolicyReport(fieldId: string): LegacySlugPolicyRow[
   if (fieldId === "case04_unclearFocus") {
     add("what_submit", "1:1 동일", "→ what_submit_list");
     add("why_submit", "1:1 동일", "→ why_submit_reason");
+    add("why_submit_apply", "1:1 동일", "→ what_submit_apply");
     add("format", "1:1 동일", "→ format_how");
     add("deadline", "원문 표시로 처리");
     add("connection", "원문 표시로 처리");
     add("whole_unclear", "원문 표시로 처리");
+  }
+  if (fieldId === "case04_authorityFollowUp") {
+    add("awaiting_review", "1:1 동일", "→ accepted");
+    add("more_docs", "1:1 동일", "→ more_supplement");
+  }
+  if (fieldId === "case04_evidence") {
+    add("unsure", "1:1 동일", "→ none");
   }
   if (fieldId === "case04_repeatSupplement") {
     add("more_docs", "1:1 동일", "→ more_docs_same_kind");
