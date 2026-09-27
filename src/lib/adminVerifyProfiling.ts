@@ -1133,6 +1133,53 @@ const CASE01_PHASE2_FACET_AUX_SPECS: Partial<
   },
 };
 
+/**
+ * 대응함 고객 결과 fallback (B안) — 기존 authorityResponse 우선,
+ * 없으면 facet authorityFollowUpKind 값을 같은 읽기 경로에서 사용한다. (저장 구조 불변)
+ */
+const CASE01_FOLLOW_UP_KIND_LEGACY_TO_RESPONSE: Record<string, string> = {
+  more_required_vague: "more_required",
+  reply_unclear: "unclear",
+};
+
+function case01UsesFollowUpKindFallback(answers: ReviewAnswers): boolean {
+  return !answers.case01_authorityResponse?.trim() && Boolean(answers.case01_authorityFollowUpKind?.trim());
+}
+
+export function getCase01EffectiveAuthorityResponse(answers: ReviewAnswers): string | undefined {
+  const response = answers.case01_authorityResponse?.trim();
+  if (response) return response;
+  const kind = answers.case01_authorityFollowUpKind?.trim();
+  if (!kind) return undefined;
+  return CASE01_FOLLOW_UP_KIND_LEGACY_TO_RESPONSE[kind] ?? kind;
+}
+
+export function getCase01EffectiveAuthorityResponseNote(answers: ReviewAnswers): string | undefined {
+  if (answers.case01_authorityResponse?.trim()) {
+    return answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim() || undefined;
+  }
+  return (
+    answers[CASE01_AUTHORITY_FOLLOW_UP_AUX_KEY]?.trim() ||
+    answers[getAdminChoiceNoteKey("case01_authorityFollowUpKind")]?.trim() ||
+    undefined
+  );
+}
+
+function getCase01EffectiveAuthorityResponseLabel(answers: ReviewAnswers): string | undefined {
+  const response = answers.case01_authorityResponse?.trim();
+  if (response) return CASE01_OPTION_LABELS[response] ?? response;
+  const kind = answers.case01_authorityFollowUpKind?.trim();
+  if (!kind) return undefined;
+  if (kind === "other") {
+    return getCase01EffectiveAuthorityResponseNote(answers) ?? kind;
+  }
+  return (
+    CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS.find((option) => option.value === kind)?.label ??
+    CASE01_OPTION_LABELS[kind] ??
+    kind
+  );
+}
+
 function case01Phase2FacetFieldsComplete(answers: ReviewAnswers): boolean {
   for (const spec of CASE01_PHASE2_FACET_QUESTION_SPECS) {
     if (!case01IsPhase2FacetOnPath(spec.id, answers)) continue;
@@ -1356,7 +1403,12 @@ function case01HasMinimumInvestigationAxes(answers: ReviewAnswers): boolean {
   const hasResponseTrack =
     !case01CustomerRespondedImpliesAction(answers.case01_customerResponded) ||
     (case01Phase2FieldAnswered(answers, "case01_responseDetail", CASE01_RESPONSE_DETAIL_OPTIONS) &&
-      case01Phase2FieldAnswered(answers, "case01_authorityResponse", CASE01_AUTHORITY_RESPONSE_OPTIONS));
+      (case01Phase2FieldAnswered(answers, "case01_authorityResponse", CASE01_AUTHORITY_RESPONSE_OPTIONS) ||
+        isAdminVerifyChoiceFieldComplete(
+          "case01_authorityFollowUpKind",
+          answers,
+          CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS,
+        )));
   const hasEvidence = case01Phase2FieldAnswered(answers, "case01_evidence", CASE01_EVIDENCE_OPTIONS);
   return (
     hasAuthorityDemand &&
@@ -8912,7 +8964,7 @@ function collectCase01Unknowns(answers: ReviewAnswers): string[] {
   ) {
     unknowns.push("기관이 요구한 행동");
   }
-  if (answers.case01_authorityResponse === "no_reply_yet") {
+  if (getCase01EffectiveAuthorityResponse(answers) === "no_reply_yet") {
     unknowns.push("기관 답변·반응");
   }
   if (
@@ -8974,15 +9026,16 @@ function collectCase01RiskSignals(answers: ReviewAnswers): string[] {
   if (case01Blockage === "deadline") {
     risks.push("기한·절차 관련 막힘 — 우선 확인 권장");
   }
+  const case01EffectiveAuthorityResponse = getCase01EffectiveAuthorityResponse(answers);
   if (
-    answers.case01_authorityResponse === "no_response" ||
-    answers.case01_authorityResponse === "no_reply_yet" ||
-    answers.case01_authorityResponse === "more_required" ||
-    answers.case01_authorityResponse === "procedure_unknown" ||
-    answers.case01_authorityResponse === "unclear" ||
-    answers.case01_authorityResponse === "re_attendance" ||
-    answers.case01_authorityResponse === "more_docs" ||
-    answers.case01_authorityResponse === "payment_demand"
+    case01EffectiveAuthorityResponse === "no_response" ||
+    case01EffectiveAuthorityResponse === "no_reply_yet" ||
+    case01EffectiveAuthorityResponse === "more_required" ||
+    case01EffectiveAuthorityResponse === "procedure_unknown" ||
+    case01EffectiveAuthorityResponse === "unclear" ||
+    case01EffectiveAuthorityResponse === "re_attendance" ||
+    case01EffectiveAuthorityResponse === "more_docs" ||
+    case01EffectiveAuthorityResponse === "payment_demand"
   ) {
     risks.push("기관 답변·반응 확인 필요");
   }
@@ -9569,8 +9622,8 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
         : answers.case02_authorityResponse
         ? getCase02AuthorityResponseLabelFromAnswers(answers)?.label ??
           answers.case02_authorityResponse
-        : answers.case01_authorityResponse
-          ? CASE01_OPTION_LABELS[answers.case01_authorityResponse] ?? answers.case01_authorityResponse
+        : getCase01EffectiveAuthorityResponse(answers)
+          ? getCase01EffectiveAuthorityResponseLabel(answers)
           : answers.profileAuthorityGuidance
             ? authorityClaim.value
             : answers.profileProcessStage === "waiting"
@@ -9580,7 +9633,7 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
       case04ResponseLabel ||
       case03ResponseLabel ||
       answers.case02_authorityResponse ||
-      answers.case01_authorityResponse ||
+      getCase01EffectiveAuthorityResponse(answers) ||
       answers.profileAuthorityGuidance ||
       answers.profileProcessStage === "waiting"
       ? "confirmed"
@@ -9597,7 +9650,9 @@ export function buildCaseResolutionProfile(answers: ReviewAnswers): CaseResoluti
         ? "case02_authorityResponse"
         : answers.case01_authorityResponse
           ? "case01_authorityResponse"
-          : "profileAuthorityGuidance",
+          : case01UsesFollowUpKindFallback(answers)
+            ? "case01_authorityFollowUpKind"
+            : "profileAuthorityGuidance",
   );
 
   const stageDerived = answers.stage || deriveStageFromSituation(answers.situation);

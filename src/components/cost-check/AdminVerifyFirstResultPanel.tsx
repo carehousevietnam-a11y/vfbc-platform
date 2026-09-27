@@ -53,6 +53,8 @@ import {
   case05DispositionTypeIsRightsEnded,
   case05EffectiveDeadline,
   CASE05_DEADLINE_DATE_KEY,
+  getCase01EffectiveAuthorityResponse,
+  getCase01EffectiveAuthorityResponseNote,
   isCase06Phase1Complete,
   isCase06ExpertTerminal,
   MASTER_CASE_LABELS,
@@ -1826,9 +1828,9 @@ function appendCase01Phase2ResultSignals(
     actions.push("이전에 제출한 자료와 현재 통지·요구를 대조해 보세요.");
   }
 
-  const authorityResponse = answers.case01_authorityResponse;
+  const authorityResponse = getCase01EffectiveAuthorityResponse(answers);
   if (authorityResponse === "more_required") {
-    const responseNote = answers[getAdminChoiceNoteKey("case01_authorityResponse")]?.trim();
+    const responseNote = getCase01EffectiveAuthorityResponseNote(answers);
     if (responseNote) {
       cautions.push("교통국에서 추가 자료·설명을 요구한 상태입니다.");
       unconfirmed.push(
