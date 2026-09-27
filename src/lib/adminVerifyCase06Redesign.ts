@@ -571,8 +571,58 @@ export function isCase06LegacyRestorePath(answers: ReviewAnswers): boolean {
   );
 }
 
+/** 개인화 퍼널 v1 — 문서를 직접 확인하지 않은 고객에게만 전달 주체를 묻는다 */
+const CASE06_SOURCE_CHANNEL_KNOWLEDGE = new Set([
+  "explained_without_doc",
+  "memory_only_no_doc_now",
+  "path_unclear",
+]);
+
+export function case06NeedsSourceChannel(answers: ReviewAnswers): boolean {
+  return CASE06_SOURCE_CHANNEL_KNOWLEDGE.has(answers.case06_knowledgeSource?.trim() ?? "");
+}
+
+/** 개인화 퍼널 v1 — 1번(해야 할 일)과 맞는 '정해진 날짜까지 ○○' 선택지만. 저장된 값은 유지 */
+const CASE06_ACTION_TO_BY_DATE: Record<string, string> = {
+  pay_demand: "deadline_pay_by_date",
+  attend_explain: "deadline_attend_by_date",
+  submit_supplement: "deadline_submit_by_date",
+};
+
+export function case06DeadlineActionPairOptionsFor(
+  answers: ReviewAnswers,
+): { value: string; label: string }[] {
+  const options = CASE06_V11_FIELD_OPTIONS.case06_deadlineActionPair ?? [];
+  const keep = CASE06_ACTION_TO_BY_DATE[answers.case06_requiredActionCandidate?.trim() ?? ""];
+  if (!keep) return options;
+  const saved = answers.case06_deadlineActionPair?.trim();
+  return options.filter(
+    (o) => o.value === saved || !CASE06_DEADLINE_BY_DATE_SLUGS.has(o.value) || o.value === keep,
+  );
+}
+
+/** 개인화 퍼널 v1 — 1번과 명백히 맞지 않는 진행 상황만 제외. 저장된 값은 유지 */
+export function case06CustomerResponseOptionsFor(
+  answers: ReviewAnswers,
+): { value: string; label: string }[] {
+  const options = CASE06_V11_FIELD_OPTIONS.case06_customerResponse ?? [];
+  const action = answers.case06_requiredActionCandidate?.trim() ?? "";
+  const saved = answers.case06_customerResponse?.trim();
+  return options.filter((o) => {
+    if (o.value === saved) return true;
+    if (o.value === "paid_or_attempted_pay") {
+      return action !== "attend_explain" && action !== "submit_supplement";
+    }
+    if (o.value === "attended_then_redemand") {
+      return action !== "pay_demand";
+    }
+    return true;
+  });
+}
+
 export function isCase06RedesignPhase1Complete(answers: ReviewAnswers): boolean {
   for (const fieldId of CASE06_V11_PHASE1_FIELD_ORDER) {
+    if (fieldId === "case06_sourceChannel" && !case06NeedsSourceChannel(answers)) continue;
     const options = CASE06_V11_FIELD_OPTIONS[fieldId];
     if (!options || !choiceComplete(fieldId, answers, options)) return false;
   }
@@ -937,7 +987,15 @@ export function appendCase06RedesignPhase1Questions(questions: ProfileQuestion[]
   for (const field of phase1) {
     const options = CASE06_V11_FIELD_OPTIONS[field.id];
     if (!options) return;
-    if (!pushChoice(questions, answers, field.id, field.label, options)) return;
+    if (field.id === "case06_sourceChannel" && !case06NeedsSourceChannel(answers)) continue;
+    const shown =
+      field.id === "case06_deadlineActionPair"
+        ? case06DeadlineActionPairOptionsFor(answers)
+        : field.id === "case06_customerResponse"
+          ? case06CustomerResponseOptionsFor(answers)
+          : options;
+    pushUnique(questions, { id: field.id, kind: "choice", label: field.label, options: shown });
+    if (!choiceComplete(field.id, answers, options)) return;
     if (field.id === "case06_deadlineActionPair") {
       pushDeadlineDateText(questions, answers);
       if (case06NeedsDeadlineDate(answers)) return;
@@ -1001,6 +1059,7 @@ export function selectCase06RedesignResolutionFocus(
   if (isCase06Phase2ChainComplete(answers)) return null;
   if (!isCase06RedesignPhase1Complete(answers)) {
     for (const fieldId of CASE06_V11_PHASE1_FIELD_ORDER) {
+      if (fieldId === "case06_sourceChannel" && !case06NeedsSourceChannel(answers)) continue;
       const options = CASE06_V11_FIELD_OPTIONS[fieldId];
       if (!options || choiceComplete(fieldId, answers, options)) continue;
       return { questionId: fieldId, focus: "caseClassification", reason: "CASE_06 Phase1" };
