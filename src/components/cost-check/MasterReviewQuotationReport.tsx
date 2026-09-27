@@ -1172,12 +1172,19 @@ function simulateAdminVerifyPhase2PathQuestionIds(
         (question) =>
           question.id !== ADMIN_CASE_ENTRY_Q1_KEY && !phase1QuestionIds.has(question.id),
       );
-    const next = batch.find((question) => !isQuestionAnswered(question, working));
-    if (!next) break;
-    if (path.includes(next.id)) break;
-    path.push(next.id);
-    working = syntheticAnswerForAdminPhase2Path(next, working);
-    working = attachCaseResolutionSnapshot(working);
+    /** 이미 답한 질문도 경로에 포함 → 답할 때마다 다시 계산해도 번호가 실제 경로와 일치 */
+    let progressed = false;
+    for (const question of batch) {
+      if (path.includes(question.id)) continue;
+      path.push(question.id);
+      if (!isQuestionAnswered(question, working)) {
+        working = syntheticAnswerForAdminPhase2Path(question, working);
+        working = attachCaseResolutionSnapshot(working);
+        progressed = true;
+        break;
+      }
+    }
+    if (!progressed) break;
   }
   return path;
 }
@@ -2075,11 +2082,12 @@ export function MasterReviewQuotationReport({
       setAdminPhase2PathIds(null);
       return;
     }
-    setAdminPhase2PathIds((prev) => {
-      if (prev !== null) return prev;
-      const phase1Ids = new Set(adminVerifyPhase1Questions.map((question) => question.id));
-      return simulateAdminVerifyPhase2PathQuestionIds(answers, phase1Ids);
-    });
+    /** 개인화 퍼널: 답변에 따라 경로가 달라지므로 매번 다시 계산(고정하지 않음) */
+    const phase1Ids = new Set(adminVerifyPhase1Questions.map((question) => question.id));
+    const next = simulateAdminVerifyPhase2PathQuestionIds(answers, phase1Ids);
+    setAdminPhase2PathIds((prev) =>
+      prev && prev.length === next.length && prev.every((id, i) => id === next[i]) ? prev : next,
+    );
   }, [
     answers,
     adminVerifyPhase1Questions,

@@ -2201,15 +2201,23 @@ function getCase03Phase1VisibleFields(answers: ReviewAnswers): string[] {
   return fields;
 }
 
+/** 개인화 퍼널 v1 — customerResponse를 confirmGoal 앞으로(제출 여부가 뒤 질문을 좌우) */
 export const CASE04_PHASE1_FIELD_ORDER = [
   "case04_supplementTarget",
-  "case04_confirmGoal",
   "case04_customerResponse",
+  "case04_confirmGoal",
   "case04_deadline",
 ] as const;
 
+/** 이미 다시 제출한 고객에게 '제출 기한'은 묻지 않음 */
+export function case04NeedsDeadlinePhase1(answers: ReviewAnswers): boolean {
+  return answers.case04_customerResponse !== "submitted";
+}
+
 function getCase04Phase1VisibleFields(answers: ReviewAnswers): string[] {
-  const fields: string[] = [...CASE04_PHASE1_FIELD_ORDER];
+  const fields: string[] = CASE04_PHASE1_FIELD_ORDER.filter(
+    (id) => id !== "case04_deadline" || case04NeedsDeadlinePhase1(answers),
+  );
   if (case04NeedsDeadlineDateDetail(answers)) {
     fields.push(CASE04_DEADLINE_DATE_KEY);
   }
@@ -4710,32 +4718,33 @@ function case04HasResponded(answers: ReviewAnswers): boolean {
   return Boolean(response && response !== "not_started");
 }
 
+/**
+ * 개인화 퍼널 v1 — '무엇을 처음 냈는지'가 쟁점인 경우만.
+ * 수정·설명 보완 요청은 서류 내용이 쟁점이라 묻지 않음.
+ */
 function case04NeedsInitialSubmissionPhase2(answers: ReviewAnswers): boolean {
-  const goal = answers.case04_confirmGoal;
   const target = answers.case04_supplementTarget;
-  if (
-    goal === "understand_insufficient" ||
-    goal === "repeat_reason" ||
-    goal === "understand_materials" ||
-    goal === "prepare_materials" ||
-    goal === "unsure"
-  ) {
+  if (target === "additional_docs" || target === "repeat_demand" || target === "unclear") {
     return true;
   }
-  return (
-    target === "repeat_demand" ||
-    target === "additional_docs" ||
-    target === "add_content_evidence" ||
-    target === "modify_existing"
-  );
+  return answers.case04_confirmGoal === "understand_insufficient";
 }
 
-function case04NeedsSubmissionRelationPhase2(_answers: ReviewAnswers): boolean {
-  return true;
+/**
+ * 개인화 퍼널 v1 — supplementTarget이 이미 관계를 말해 주면 묻지 않음.
+ * 재요구·불명확이거나, '모두 냈다/확인 불가'인데 추가 요구를 받은 경우만.
+ */
+function case04NeedsSubmissionRelationPhase2(answers: ReviewAnswers): boolean {
+  const target = answers.case04_supplementTarget;
+  if (target === "repeat_demand" || target === "unclear") return true;
+  const initial = answers.case04_initialSubmission;
+  return initial === "complete" || initial === "hard_to_confirm";
 }
 
-function case04NeedsSupplementReasonPhase2(_answers: ReviewAnswers): boolean {
-  return true;
+/** 개인화 퍼널 v1 — 추가 서류 요청은 이유가 이미 '빠진 서류'이므로, 부족 이유를 확인하려는 고객만 */
+function case04NeedsSupplementReasonPhase2(answers: ReviewAnswers): boolean {
+  if (answers.case04_supplementTarget !== "additional_docs") return true;
+  return answers.case04_confirmGoal === "understand_insufficient";
 }
 
 function case04IsTargetDetailPhase2Complete(answers: ReviewAnswers): boolean {
@@ -4834,8 +4843,9 @@ function case04NeedsRepeatSupplement(answers: ReviewAnswers): boolean {
   return getCase04AuthorityResponseValue(answers) === "more_supplement";
 }
 
+/** 개인화 퍼널 v1 — 앞선 답변으로 막힌 지점을 알 수 없는 고객만 (tail 일괄 개방 제거) */
 function case04NeedsBlockage(answers: ReviewAnswers): boolean {
-  if (case04Phase2TailAxesUnlocked(answers)) return true;
+  if (answers.case04_confirmGoal === "unsure") return true;
   const target = answers.case04_supplementTarget;
   const reason = answers.case04_supplementReason;
   const rel = answers.case04_submissionRelation;
@@ -4849,39 +4859,13 @@ function case04NeedsBlockage(answers: ReviewAnswers): boolean {
   );
 }
 
-function case04NeedsEvidence(answers: ReviewAnswers): boolean {
-  if (
-    case04NeedsBlockage(answers) &&
-    isAdminVerifyChoiceFieldComplete(
-      "case04_blockage",
-      answers,
-      CASE04_BLOCKAGE_OPTIONS,
-    )
-  ) {
-    return true;
-  }
-  const target = answers.case04_supplementTarget;
-  const rel = answers.case04_submissionRelation;
-  return (
-    target === "unclear" ||
-    rel === "mismatch_request" ||
-    rel === "hard_to_judge" ||
-    case04NeedsRepeatSupplement(answers) ||
-    answers.case04_customerResponse === "submitted"
-  );
+/** 개인화 퍼널 v1 — 보관 자료는 모든 고객의 핵심 사실(COMMON). 선택지만 앞선 답변으로 필터 */
+function case04NeedsEvidence(_answers: ReviewAnswers): boolean {
+  return true;
 }
 
+/** 개인화 퍼널 v1 — confirmGoal로 목표를 이미 안 고객에게는 다시 묻지 않음 */
 function case04NeedsFinalGoal(answers: ReviewAnswers): boolean {
-  if (
-    case04NeedsEvidence(answers) &&
-    isAdminVerifyChoiceFieldComplete(
-      "case04_evidence",
-      answers,
-      CASE04_EVIDENCE_OPTIONS,
-    )
-  ) {
-    return true;
-  }
   return (
     answers.case04_supplementTarget === "unclear" || answers.case04_supplementReason === "unsure"
   );
@@ -5015,6 +4999,7 @@ export function shouldActivateCase04Path(answers: ReviewAnswers): boolean {
 
 export function isCase04Phase1Complete(answers: ReviewAnswers): boolean {
   for (const fieldId of CASE04_PHASE1_FIELD_ORDER) {
+    if (fieldId === "case04_deadline" && !case04NeedsDeadlinePhase1(answers)) continue;
     const options = CASE04_FIELD_OPTIONS[fieldId];
     if (!options || !isAdminVerifyChoiceFieldComplete(fieldId, answers, options)) {
       return false;
@@ -5024,64 +5009,110 @@ export function isCase04Phase1Complete(answers: ReviewAnswers): boolean {
   return true;
 }
 
+/** 개인화 퍼널 v1 — 선택지 필터. 이미 저장된 값은 항상 남김(레거시 호환) */
+function case04FilterOptions(
+  fieldId: string,
+  answers: ReviewAnswers,
+  options: { value: string; label: string }[],
+  keep: (value: string) => boolean,
+): { value: string; label: string }[] {
+  return options.filter(
+    (o) => o.value === "other" || adminVerifyFieldHasSlug(answers, fieldId, o.value) || keep(o.value),
+  );
+}
+
+function case04HasSubmitted(answers: ReviewAnswers): boolean {
+  return answers.case04_customerResponse === "submitted";
+}
+
+function case04ConfirmGoalOptionsFor(answers: ReviewAnswers) {
+  const target = answers.case04_supplementTarget;
+  return case04FilterOptions("case04_confirmGoal", answers, CASE04_CONFIRM_GOAL_OPTIONS, (v) => {
+    if (v === "repeat_reason") return target === "repeat_demand";
+    if (v === "prepare_materials") return !case04HasSubmitted(answers);
+    return true;
+  });
+}
+
+function case04SubmissionRelationOptionsFor(answers: ReviewAnswers) {
+  const target = answers.case04_supplementTarget;
+  return case04FilterOptions(
+    "case04_submissionRelation",
+    answers,
+    CASE04_SUBMISSION_RELATION_OPTIONS,
+    (v) => !(target === "additional_docs" && v === "add_missing"),
+  );
+}
+
+function case04SupplementReasonOptionsFor(answers: ReviewAnswers) {
+  const target = answers.case04_supplementTarget;
+  return case04FilterOptions("case04_supplementReason", answers, CASE04_SUPPLEMENT_REASON_OPTIONS, (v) => {
+    if (target === "modify_existing") return v !== "missing_info" && v !== "insufficient_proof";
+    if (target === "add_content_evidence") return v !== "missing_info" && v !== "incorrect_content";
+    return true;
+  });
+}
+
+function case04BlockageOptionsFor(answers: ReviewAnswers) {
+  const deadline = answers.case04_deadline;
+  return case04FilterOptions("case04_blockage", answers, CASE04_BLOCKAGE_OPTIONS, (v) => {
+    if (v === "after_submit") return case04HasSubmitted(answers);
+    if (v === "deadline") {
+      return deadline === "uncertain" || deadline === "not_stated" || deadline === "unsure";
+    }
+    return true;
+  });
+}
+
+function case04EvidenceOptionsFor(answers: ReviewAnswers) {
+  return case04FilterOptions("case04_evidence", answers, CASE04_EVIDENCE_OPTIONS, (v) => {
+    if (v === "supplement_submission") return case04HasSubmitted(answers);
+    if (v === "original_submission") return answers.case04_initialSubmission !== "hard_to_confirm";
+    return true;
+  });
+}
+
+function case04FinalGoalOptionsFor(answers: ReviewAnswers) {
+  return case04FilterOptions("case04_finalGoal", answers, CASE04_FINAL_GOAL_OPTIONS, (v) =>
+    v === "next_step" ? case04HasSubmitted(answers) : true,
+  );
+}
+
+/** 질문을 띄우고, 완료 여부는 전체 선택지 기준으로 판정(필터된 선택지는 표시용) */
+function case04Ask(
+  questions: ProfileQuestion[],
+  answers: ReviewAnswers,
+  id: string,
+  shownOptions: { value: string; label: string }[],
+  fullOptions: { value: string; label: string }[],
+): boolean {
+  pushUnique(questions, {
+    id,
+    kind: "choice",
+    label: (CASE04_V3_QUESTION_LABELS as Record<string, string>)[id],
+    options: shownOptions,
+  });
+  return isAdminVerifyChoiceFieldComplete(id, answers, fullOptions);
+}
+
 function appendCase04Phase1Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  pushUnique(questions, {
-    id: "case04_supplementTarget",
-    kind: "choice",
-    label: CASE04_V3_QUESTION_LABELS.case04_supplementTarget,
-    options: CASE04_SUPPLEMENT_TARGET_OPTIONS,
-  });
   if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case04_supplementTarget",
-      answers,
-      CASE04_SUPPLEMENT_TARGET_OPTIONS,
-    )
+    !case04Ask(questions, answers, "case04_supplementTarget", CASE04_SUPPLEMENT_TARGET_OPTIONS, CASE04_SUPPLEMENT_TARGET_OPTIONS)
   ) {
     return;
   }
-
-  pushUnique(questions, {
-    id: "case04_confirmGoal",
-    kind: "choice",
-    label: CASE04_V3_QUESTION_LABELS.case04_confirmGoal,
-    options: CASE04_CONFIRM_GOAL_OPTIONS,
-  });
   if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case04_confirmGoal",
-      answers,
-      CASE04_CONFIRM_GOAL_OPTIONS,
-    )
+    !case04Ask(questions, answers, "case04_customerResponse", CASE04_CUSTOMER_RESPONSE_OPTIONS, CASE04_CUSTOMER_RESPONSE_OPTIONS)
   ) {
     return;
   }
-
-  pushUnique(questions, {
-    id: "case04_customerResponse",
-    kind: "choice",
-    label: CASE04_V3_QUESTION_LABELS.case04_customerResponse,
-    options: CASE04_CUSTOMER_RESPONSE_OPTIONS,
-  });
   if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case04_customerResponse",
-      answers,
-      CASE04_CUSTOMER_RESPONSE_OPTIONS,
-    )
+    !case04Ask(questions, answers, "case04_confirmGoal", case04ConfirmGoalOptionsFor(answers), CASE04_CONFIRM_GOAL_OPTIONS)
   ) {
     return;
   }
-
-  pushUnique(questions, {
-    id: "case04_deadline",
-    kind: "choice",
-    label: CASE04_V3_QUESTION_LABELS.case04_deadline,
-    options: CASE04_DEADLINE_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete("case04_deadline", answers, CASE04_DEADLINE_OPTIONS)
-  ) {
+  if (!case04NeedsDeadlinePhase1(answers)) return;
+  if (!case04Ask(questions, answers, "case04_deadline", CASE04_DEADLINE_OPTIONS, CASE04_DEADLINE_OPTIONS)) {
     return;
   }
   if (case04NeedsDeadlineDateDetail(answers)) {
@@ -5091,213 +5122,51 @@ function appendCase04Phase1Questions(questions: ProfileQuestion[], answers: Revi
       label: CASE04_V3_QUESTION_LABELS.case04_deadlineDate,
       placeholder: "기억나는 날짜·기한을 적어 주세요.",
     });
-    if (case04NeedsDeadlineDateDetail(answers)) {
-      return;
-    }
   }
 }
 
+/**
+ * 개인화 퍼널 v1 — supplementTarget별 연쇄:
+ * 상세(무엇을?) → 처음 제출 → 관계 → 이유 → 교통국 답변 → 재요구 → 막힌 점 → 보관 자료 → 최종 목표.
+ * 각 질문은 앞선 답변으로 알 수 없을 때만 열린다.
+ */
 function appendCase04Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  if (case04NeedsInitialSubmissionPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case04_initialSubmission",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_initialSubmission,
-      options: CASE04_INITIAL_SUBMISSION_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_initialSubmission",
-        answers,
-        CASE04_INITIAL_SUBMISSION_OPTIONS,
-      )
-    ) {
-      return;
-    }
-  }
-
-  if (case04NeedsSubmissionRelationPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case04_submissionRelation",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_submissionRelation,
-      options: CASE04_SUBMISSION_RELATION_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_submissionRelation",
-        answers,
-        CASE04_SUBMISSION_RELATION_OPTIONS,
-      )
-    ) {
-      return;
-    }
-  }
-
-  if (case04NeedsSupplementReasonPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case04_supplementReason",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_supplementReason,
-      options: CASE04_SUPPLEMENT_REASON_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_supplementReason",
-        answers,
-        CASE04_SUPPLEMENT_REASON_OPTIONS,
-      )
-    ) {
-      return;
-    }
-  }
-
   const target = answers.case04_supplementTarget;
   if (target === "additional_docs") {
-    pushUnique(questions, {
-      id: "case04_addDocDetail",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_addDocDetail,
-      options: CASE04_ADD_DOC_DETAIL_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_addDocDetail",
-        answers,
-        CASE04_ADD_DOC_DETAIL_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_addDocDetail", CASE04_ADD_DOC_DETAIL_OPTIONS, CASE04_ADD_DOC_DETAIL_OPTIONS)) return;
   } else if (target === "modify_existing") {
-    pushUnique(questions, {
-      id: "case04_modifyDetail",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_modifyDetail,
-      options: CASE04_MODIFY_DETAIL_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_modifyDetail",
-        answers,
-        CASE04_MODIFY_DETAIL_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_modifyDetail", CASE04_MODIFY_DETAIL_OPTIONS, CASE04_MODIFY_DETAIL_OPTIONS)) return;
   } else if (target === "add_content_evidence") {
-    pushUnique(questions, {
-      id: "case04_evidenceDetail",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_evidenceDetail,
-      options: CASE04_EVIDENCE_DETAIL_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_evidenceDetail",
-        answers,
-        CASE04_EVIDENCE_DETAIL_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_evidenceDetail", CASE04_EVIDENCE_DETAIL_OPTIONS, CASE04_EVIDENCE_DETAIL_OPTIONS)) return;
+  } else if (target === "repeat_demand") {
+    if (!case04Ask(questions, answers, "case04_repeatSupplement", CASE04_REPEAT_SUPPLEMENT_OPTIONS, CASE04_REPEAT_SUPPLEMENT_OPTIONS)) return;
   } else if (target === "unclear") {
-    pushUnique(questions, {
-      id: "case04_unclearFocus",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_unclearFocus,
-      options: CASE04_UNCLEAR_FOCUS_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_unclearFocus",
-        answers,
-        CASE04_UNCLEAR_FOCUS_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_unclearFocus", CASE04_UNCLEAR_FOCUS_OPTIONS, CASE04_UNCLEAR_FOCUS_OPTIONS)) return;
   }
 
+  if (case04NeedsInitialSubmissionPhase2(answers)) {
+    if (!case04Ask(questions, answers, "case04_initialSubmission", CASE04_INITIAL_SUBMISSION_OPTIONS, CASE04_INITIAL_SUBMISSION_OPTIONS)) return;
+  }
+  if (case04NeedsSubmissionRelationPhase2(answers)) {
+    if (!case04Ask(questions, answers, "case04_submissionRelation", case04SubmissionRelationOptionsFor(answers), CASE04_SUBMISSION_RELATION_OPTIONS)) return;
+  }
+  if (case04NeedsSupplementReasonPhase2(answers)) {
+    if (!case04Ask(questions, answers, "case04_supplementReason", case04SupplementReasonOptionsFor(answers), CASE04_SUPPLEMENT_REASON_OPTIONS)) return;
+  }
   if (case04NeedsAuthorityFollowUpPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case04_authorityFollowUp",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_authorityFollowUp,
-      options: CASE04_AUTHORITY_FOLLOWUP_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_authorityFollowUp",
-        answers,
-        CASE04_AUTHORITY_FOLLOWUP_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_authorityFollowUp", CASE04_AUTHORITY_FOLLOWUP_OPTIONS, CASE04_AUTHORITY_FOLLOWUP_OPTIONS)) return;
   }
-
   if (case04NeedsRepeatSupplement(answers)) {
-    pushUnique(questions, {
-      id: "case04_repeatSupplement",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_repeatSupplement,
-      options: CASE04_REPEAT_SUPPLEMENT_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_repeatSupplement",
-        answers,
-        CASE04_REPEAT_SUPPLEMENT_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_repeatSupplement", CASE04_REPEAT_SUPPLEMENT_OPTIONS, CASE04_REPEAT_SUPPLEMENT_OPTIONS)) return;
   }
-
   if (case04NeedsBlockage(answers)) {
-    pushUnique(questions, {
-      id: "case04_blockage",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_blockage,
-      options: CASE04_BLOCKAGE_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_blockage",
-        answers,
-        CASE04_BLOCKAGE_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_blockage", case04BlockageOptionsFor(answers), CASE04_BLOCKAGE_OPTIONS)) return;
   }
-
   if (case04NeedsEvidence(answers)) {
-    pushUnique(questions, {
-      id: "case04_evidence",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_evidence,
-      options: CASE04_EVIDENCE_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case04_evidence",
-        answers,
-        CASE04_EVIDENCE_OPTIONS,
-      )
-    ) {
-      return;
-    }
+    if (!case04Ask(questions, answers, "case04_evidence", case04EvidenceOptionsFor(answers), CASE04_EVIDENCE_OPTIONS)) return;
   }
-
   if (case04NeedsFinalGoal(answers)) {
-    pushUnique(questions, {
-      id: "case04_finalGoal",
-      kind: "choice",
-      label: CASE04_V3_QUESTION_LABELS.case04_finalGoal,
-      options: CASE04_FINAL_GOAL_OPTIONS,
-    });
+    case04Ask(questions, answers, "case04_finalGoal", case04FinalGoalOptionsFor(answers), CASE04_FINAL_GOAL_OPTIONS);
   }
 }
 

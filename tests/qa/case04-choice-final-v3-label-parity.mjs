@@ -121,31 +121,50 @@ function compareLabels() {
   return mismatches;
 }
 
-/** non-repeat 고객: 2차 core 완료 후 tail(blockage) 노출 여부 */
+/** 개인화 퍼널 v1: 단순 고객은 짧게(blockage·finalGoal 생략), 복잡 고객은 깊게 */
 function assertTailAxesAfterCoreComplete() {
-  const base = attachCaseResolutionSnapshot({
+  const common = {
     situation: "received_document",
     profileDocumentSource: "immigration",
     stage: "case",
     [ADMIN_CASE_ENTRY_Q1_KEY]: "supplement_demand",
+  };
+  const ids = (a) => buildAdminVerifyProfileQuestions(attachCaseResolutionSnapshot(a), {}, {}, 2).map((q) => q.id);
+  const violations = [];
+
+  // 단순: 추가 서류, 이미 제출, 목표 분명 → 기한·막힌 점·최종 목표를 다시 묻지 않음
+  const simple = ids({
+    ...common,
     case04_supplementTarget: "additional_docs",
-    case04_confirmGoal: "prepare_materials",
     case04_customerResponse: "submitted",
-    case04_deadline: "period_stated",
-    case04_initialSubmission: "complete",
-    case04_submissionRelation: "add_missing",
-    case04_supplementReason: "missing_info",
+    case04_confirmGoal: "understand_materials",
     case04_addDocDetail: "id_doc",
+    case04_initialSubmission: "partial",
     case04_authorityFollowUp: "accepted",
   });
-  const questions = buildAdminVerifyProfileQuestions(base, {}, {}, 2);
-  const ids = questions.map((q) => q.id);
-  const violations = [];
-  if (!ids.includes("case04_blockage")) {
-    violations.push("missing case04_blockage on non-repeat tail path");
-  }
-  if (ids.includes("case04_repeatSupplement")) {
-    violations.push("case04_repeatSupplement shown without repeat trigger");
+  if (simple.includes("case04_deadline")) violations.push("simple: deadline asked after submission");
+  if (simple.includes("case04_submissionRelation")) violations.push("simple: submissionRelation asked though target already says it");
+  if (simple.includes("case04_supplementReason")) violations.push("simple: supplementReason asked for additional_docs");
+  if (simple.includes("case04_blockage")) violations.push("simple: blockage opened for everyone");
+  if (!simple.includes("case04_evidence")) violations.push("simple: evidence (COMMON) missing");
+  if (simple.includes("case04_repeatSupplement")) violations.push("simple: repeatSupplement without repeat trigger");
+
+  // 복잡: 이해 못 함 + 무엇부터 할지 모름 → 막힌 점·최종 목표까지 깊어짐
+  const complex = ids({
+    ...common,
+    case04_supplementTarget: "unclear",
+    case04_customerResponse: "not_started",
+    case04_confirmGoal: "unsure",
+    case04_deadline: "unsure",
+    case04_unclearFocus: "what_submit_list",
+    case04_initialSubmission: "hard_to_confirm",
+    case04_submissionRelation: "hard_to_judge",
+    case04_supplementReason: "unsure",
+    case04_blockage: "what_submit",
+    case04_evidence: "supplement_notice",
+  });
+  for (const id of ["case04_initialSubmission", "case04_submissionRelation", "case04_supplementReason", "case04_blockage", "case04_evidence", "case04_finalGoal"]) {
+    if (!complex.includes(id)) violations.push(`complex: ${id} missing`);
   }
   return violations;
 }
