@@ -2219,19 +2219,15 @@ function getCase04Phase1VisibleFields(answers: ReviewAnswers): string[] {
   return fields;
 }
 
+/** 개인화 퍼널 v1 — 1차 Q1 포함 4개. deadline·deadlineDate는 2차(필요한 고객만) */
 export const CASE05_PHASE1_FIELD_ORDER = [
   "case05_dispositionType",
-  "case05_confirmGoal",
   "case05_customerResponse",
-  "case05_deadline",
+  "case05_confirmGoal",
 ] as const;
 
-function getCase05Phase1VisibleFields(answers: ReviewAnswers): string[] {
-  const fields: string[] = [...CASE05_PHASE1_FIELD_ORDER];
-  if (case05NeedsDeadlineDateDetail(answers)) {
-    fields.push(CASE05_DEADLINE_DATE_KEY);
-  }
-  return fields;
+function getCase05Phase1VisibleFields(_answers: ReviewAnswers): string[] {
+  return [...CASE05_PHASE1_FIELD_ORDER];
 }
 
 export function getAdminVerifyPhase1VisibleFields(
@@ -5358,6 +5354,7 @@ function classifyFromCase04Answers(answers: ReviewAnswers): {
 
 export const CASE05_ANSWER_KEYS = [
   ...CASE05_PHASE1_FIELD_ORDER,
+  "case05_deadline",
   CASE05_DEADLINE_DATE_KEY,
   "case05_dispositionReason",
   "case05_factRelationship",
@@ -5771,29 +5768,26 @@ function case05HasResponded(answers: ReviewAnswers): boolean {
   return Boolean(response && response !== "none");
 }
 
+/** 개인화 퍼널 v1 — 통지 내용이 다르다고 했거나, 이유가 사실 주장일 때만 사실 비교 */
+const CASE05_FACT_CLAIM_REASONS = new Set([
+  "violation_claimed",
+  "document_issue",
+  "requirement_not_met",
+  "deadline_procedure",
+]);
+
 function case05NeedsFactRelationshipPhase2(answers: ReviewAnswers): boolean {
-  const goal = answers.case05_confirmGoal;
-  const type = answers.case05_dispositionType;
-  if (type === "situation_mismatch") return true;
-  if (
-    goal === "understand_impact" ||
-    goal === "maintain_reason" ||
-    goal === "understand_reason" ||
-    goal === "unsure" ||
-    goal === "what_to_do"
-  ) {
-    return true;
-  }
-  return (
-    case05DispositionTypeIsRightsEnded(type) ||
-    type === "business_suspended" ||
-    type === "application_denied" ||
-    type === "reason_hard_to_understand" ||
-    isCase05DispositionTypeUnclear(type) ||
-    type === "unsure" ||
-    type === "other" ||
-    type === "other_disposition"
-  );
+  if (answers.case05_dispositionType === "situation_mismatch") return true;
+  const reason = answers.case05_dispositionReason?.trim();
+  return Boolean(reason && CASE05_FACT_CLAIM_REASONS.has(reason));
+}
+
+/** 개인화 퍼널 v1 — 재검토 요청이 접수됐거나 결정이 변경·취소된 고객에게는 기한을 묻지 않음 */
+function case05NeedsDeadlinePhase2(answers: ReviewAnswers): boolean {
+  const appeal = answers.case05_appealDetail?.trim() ?? "";
+  if (appeal.startsWith("filed_")) return false;
+  const followUp = case05EffectiveAuthorityFollowUp(answers.case05_authorityFollowUp);
+  return followUp !== "changed";
 }
 
 export function case05NeedsDispositionReasonPhase2(answers: ReviewAnswers): boolean {
@@ -5981,57 +5975,20 @@ function case05AuthorityFollowUpDepthSignal(answers: ReviewAnswers): boolean {
   return CASE05_AUTHORITY_FOLLOWUP_DEPTH_VALUES.has(followUp);
 }
 
+/** 개인화 퍼널 v1 — 앞선 답변으로 막힌 지점을 알 수 없는 고객만 (tail 일괄 개방·교통국 답변 트리거 제거) */
 function case05NeedsBlockage(answers: ReviewAnswers): boolean {
-  if (case05Phase2TailAxesUnlocked(answers)) return true;
-  const goal = answers.case05_confirmGoal;
   const type = answers.case05_dispositionType;
-  const rel = answers.case05_factRelationship;
+  if (isCase05DispositionTypeUnclear(type)) return true;
   const reason = answers.case05_dispositionReason;
-  if (goal === "unsure" || goal === "what_to_do") return true;
-  if (isCase05DispositionTypeUnclear(type) || type === "unsure" || type === "reason_hard_to_understand") {
-    return true;
-  }
-  if (
-    reason === "no_clear_reason" ||
-    reason === "unsure" ||
-    rel === "partial" ||
-    rel === "mismatch" ||
-    rel === "hard_to_judge" ||
-    rel === "unknown"
-  ) {
-    return true;
-  }
-  return case05AuthorityFollowUpDepthSignal(answers) && Boolean(answers.case05_authorityFollowUp);
+  if (reason === "no_clear_reason" || reason === "unsure") return true;
+  const rel = answers.case05_factRelationship;
+  if (rel === "mismatch" || rel === "hard_to_judge" || rel === "unknown") return true;
+  return answers.case05_confirmGoal === "unsure";
 }
 
-function case05NeedsEvidence(answers: ReviewAnswers): boolean {
-  if (
-    case05NeedsBlockage(answers) &&
-    isAdminVerifyChoiceFieldComplete(
-      "case05_blockage",
-      answers,
-      CASE05_BLOCKAGE_OPTIONS,
-    )
-  ) {
-    return true;
-  }
-  const rel = answers.case05_factRelationship;
-  const type = answers.case05_dispositionType;
-  if (isCase05DispositionTypeUnclear(type) || type === "unsure" || type === "reason_hard_to_understand") {
-    return true;
-  }
-  if (
-    rel === "partial" ||
-    rel === "mismatch" ||
-    rel === "hard_to_judge" ||
-    rel === "unknown"
-  ) {
-    return true;
-  }
-  if (answers.case05_customerResponse === "documents_submitted") {
-    return true;
-  }
-  return case05AuthorityFollowUpDepthSignal(answers);
+/** 개인화 퍼널 v1 — 보관 자료는 모든 고객의 핵심 사실(COMMON). 선택지만 필터 */
+function case05NeedsEvidence(_answers: ReviewAnswers): boolean {
+  return true;
 }
 
 function case05NeedsFinalGoal(answers: ReviewAnswers): boolean {
@@ -6114,7 +6071,6 @@ export function isCase05Phase1Complete(answers: ReviewAnswers): boolean {
       return false;
     }
   }
-  if (case05NeedsDeadlineDateDetail(answers)) return false;
   return true;
 }
 
@@ -6136,14 +6092,6 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   pushUnique(questions, {
-    id: "case05_confirmGoal",
-    kind: "choice",
-    label: CASE05_V2_QUESTION_LABELS.case05_confirmGoal,
-    options: CASE05_CONFIRM_GOAL_OPTIONS,
-  });
-  if (!answers.case05_confirmGoal) return;
-
-  pushUnique(questions, {
     id: "case05_customerResponse",
     kind: "choice",
     label: CASE05_V2_QUESTION_LABELS.case05_customerResponse,
@@ -6160,98 +6108,58 @@ function appendCase05Phase1Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   pushUnique(questions, {
-    id: "case05_deadline",
+    id: "case05_confirmGoal",
     kind: "choice",
-    label: CASE05_V2_QUESTION_LABELS.case05_deadline,
-    options: CASE05_DEADLINE_OPTIONS,
+    label: CASE05_V2_QUESTION_LABELS.case05_confirmGoal,
+    options: case05ConfirmGoalOptionsFor(answers),
   });
-  if (
-    !isAdminVerifyChoiceFieldComplete("case05_deadline", answers, CASE05_DEADLINE_OPTIONS)
-  ) {
-    return;
-  }
-  if (case05NeedsDeadlineDateDetail(answers)) {
-    pushUnique(questions, {
-      id: CASE05_DEADLINE_DATE_KEY,
-      kind: "text",
-      label: CASE05_V2_QUESTION_LABELS.case05_deadlineDate,
-      placeholder: CASE05_V2_QUESTION_LABELS.case05_deadlineDatePlaceholder,
-    });
-    if (case05NeedsDeadlineDateDetail(answers)) {
-      return;
-    }
-  }
 }
 
+/** 개인화 퍼널 v1 — 선택지 필터. 이미 저장된 값은 항상 남김(레거시 호환) */
+function case05FilterOptions(
+  fieldId: string,
+  answers: ReviewAnswers,
+  options: { value: string; label: string }[],
+  keep: (value: string) => boolean,
+): { value: string; label: string }[] {
+  return options.filter(
+    (o) => o.value === "other" || adminVerifyFieldHasSlug(answers, fieldId, o.value) || keep(o.value),
+  );
+}
+
+function case05ConfirmGoalOptionsFor(answers: ReviewAnswers) {
+  return case05FilterOptions("case05_confirmGoal", answers, CASE05_CONFIRM_GOAL_OPTIONS, (v) =>
+    v !== "appeal_possibility" || answers.case05_customerResponse !== "appeal_requested",
+  );
+}
+
+function case05FactRelationshipOptionsFor(answers: ReviewAnswers) {
+  return case05FilterOptions("case05_factRelationship", answers, CASE05_FACT_RELATIONSHIP_OPTIONS, (v) =>
+    !(answers.case05_dispositionType === "situation_mismatch" && v === "match"),
+  );
+}
+
+function case05BlockageOptionsFor(answers: ReviewAnswers) {
+  return case05FilterOptions("case05_blockage", answers, CASE05_BLOCKAGE_OPTIONS, (v) =>
+    v !== "next_response" || case05HasResponded(answers),
+  );
+}
+
+function case05EvidenceOptionsFor(answers: ReviewAnswers) {
+  const r = answers.case05_customerResponse;
+  return case05FilterOptions("case05_evidence", answers, CASE05_EVIDENCE_OPTIONS, (v) =>
+    v !== "submitted_docs" ||
+    r === "explanation_submitted" ||
+    r === "documents_submitted" ||
+    r === "appeal_requested",
+  );
+}
+
+/**
+ * 개인화 퍼널 v1 — 대응 방식별 상세 → 교통국 답변 → 기한(필요한 고객만) → 조치 이유 → 달라지는 점
+ * → 사실 비교(사실 주장일 때만) → 다른 부분 → 막힌 점(알 수 없을 때만) → 보관 자료 → 마무리 목표.
+ */
 function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  if (case05NeedsFactRelationshipPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case05_factRelationship",
-      kind: "choice",
-      label: CASE05_V2_QUESTION_LABELS.case05_factRelationship,
-      options: CASE05_FACT_RELATIONSHIP_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case05_factRelationship",
-        answers,
-        CASE05_FACT_RELATIONSHIP_OPTIONS,
-      )
-    ) {
-      return;
-    }
-  }
-
-  if (case05NeedsDispositionReasonPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case05_dispositionReason",
-      kind: "choice",
-      label: CASE05_V2_QUESTION_LABELS.case05_dispositionReason,
-      options: CASE05_DISPOSITION_REASON_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case05_dispositionReason",
-        answers,
-        CASE05_DISPOSITION_REASON_OPTIONS,
-      )
-    ) {
-      return;
-    }
-  }
-
-  if (case05NeedsDispositionDetail(answers)) {
-    pushUnique(questions, {
-      id: "case05_dispositionDetail",
-      kind: "choice",
-      label: CASE05_V2_QUESTION_LABELS.case05_dispositionDetail,
-      options: CASE05_DISPOSITION_DETAIL_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case05_dispositionDetail",
-        answers,
-        CASE05_DISPOSITION_DETAIL_OPTIONS,
-      )
-    ) {
-      return;
-    }
-  }
-
-  if (case05NeedsFactDetail(answers)) {
-    pushUnique(questions, {
-      id: "case05_factDetail",
-      kind: "choice",
-      label: CASE05_V2_QUESTION_LABELS.case05_factDetail,
-      options: CASE05_FACT_DETAIL_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete("case05_factDetail", answers, CASE05_FACT_DETAIL_OPTIONS)
-    ) {
-      return;
-    }
-  }
-
   if (case05NeedsExplanationDetail(answers)) {
     pushUnique(questions, {
       id: "case05_explanationDetail",
@@ -6320,6 +6228,97 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
     }
   }
 
+  if (case05NeedsDeadlinePhase2(answers)) {
+    pushUnique(questions, {
+      id: "case05_deadline",
+      kind: "choice",
+      label: CASE05_V2_QUESTION_LABELS.case05_deadline,
+      options: CASE05_DEADLINE_OPTIONS,
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete("case05_deadline", answers, CASE05_DEADLINE_OPTIONS)
+    ) {
+      return;
+    }
+    if (case05NeedsDeadlineDateDetail(answers)) {
+      pushUnique(questions, {
+        id: CASE05_DEADLINE_DATE_KEY,
+        kind: "text",
+        label: CASE05_V2_QUESTION_LABELS.case05_deadlineDate,
+        placeholder: CASE05_V2_QUESTION_LABELS.case05_deadlineDatePlaceholder,
+      });
+      return;
+    }
+  }
+
+  if (case05NeedsDispositionReasonPhase2(answers)) {
+    pushUnique(questions, {
+      id: "case05_dispositionReason",
+      kind: "choice",
+      label: CASE05_V2_QUESTION_LABELS.case05_dispositionReason,
+      options: CASE05_DISPOSITION_REASON_OPTIONS,
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case05_dispositionReason",
+        answers,
+        CASE05_DISPOSITION_REASON_OPTIONS,
+      )
+    ) {
+      return;
+    }
+  }
+
+  if (case05NeedsDispositionDetail(answers)) {
+    pushUnique(questions, {
+      id: "case05_dispositionDetail",
+      kind: "choice",
+      label: CASE05_V2_QUESTION_LABELS.case05_dispositionDetail,
+      options: CASE05_DISPOSITION_DETAIL_OPTIONS,
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case05_dispositionDetail",
+        answers,
+        CASE05_DISPOSITION_DETAIL_OPTIONS,
+      )
+    ) {
+      return;
+    }
+  }
+
+  if (case05NeedsFactRelationshipPhase2(answers)) {
+    pushUnique(questions, {
+      id: "case05_factRelationship",
+      kind: "choice",
+      label: CASE05_V2_QUESTION_LABELS.case05_factRelationship,
+      options: case05FactRelationshipOptionsFor(answers),
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete(
+        "case05_factRelationship",
+        answers,
+        CASE05_FACT_RELATIONSHIP_OPTIONS,
+      )
+    ) {
+      return;
+    }
+  }
+
+  if (case05NeedsFactDetail(answers)) {
+    pushUnique(questions, {
+      id: "case05_factDetail",
+      kind: "choice",
+      label: CASE05_V2_QUESTION_LABELS.case05_factDetail,
+      options: CASE05_FACT_DETAIL_OPTIONS,
+    });
+    if (
+      !isAdminVerifyChoiceFieldComplete("case05_factDetail", answers, CASE05_FACT_DETAIL_OPTIONS)
+    ) {
+      return;
+    }
+  }
+
   if (case05NeedsDispositionOutcome(answers)) {
     pushUnique(questions, {
       id: "case05_dispositionOutcome",
@@ -6372,7 +6371,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case05_blockage",
       kind: "choice",
       label: CASE05_V2_QUESTION_LABELS.case05_blockage,
-      options: CASE05_BLOCKAGE_OPTIONS,
+      options: case05BlockageOptionsFor(answers),
     });
     if (
       !isAdminVerifyChoiceFieldComplete(
@@ -6390,7 +6389,7 @@ function appendCase05Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case05_evidence",
       kind: "choice",
       label: CASE05_V2_QUESTION_LABELS.case05_evidence,
-      options: CASE05_EVIDENCE_OPTIONS,
+      options: case05EvidenceOptionsFor(answers),
     });
     if (
       !isAdminVerifyChoiceFieldComplete(
@@ -6431,6 +6430,13 @@ function appendCase05PathQuestions(
 
 function case05PathFieldsComplete(answers: ReviewAnswers): boolean {
   if (!isCase05Phase1Complete(answers)) return false;
+  if (
+    case05NeedsDeadlinePhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete("case05_deadline", answers, CASE05_DEADLINE_OPTIONS)
+  ) {
+    return false;
+  }
+  if (case05NeedsDeadlineDateDetail(answers)) return false;
 
   if (
     case05NeedsFactRelationshipPhase2(answers) &&

@@ -2,6 +2,7 @@
  * CASE_05 STEP2-1 — engine spot (LEVEL 3): R01 deadline, R04, R06 axes, detail signals.
  */
 import {
+  ADMIN_CASE_ENTRY_Q1_KEY,
   CASE05_DEADLINE_DATE_KEY,
   attachCaseResolutionSnapshot,
   buildCaseResolutionProfile,
@@ -10,6 +11,7 @@ import {
   case05Phase2SubstantiveAxisCatalogCount,
   deriveCase05DispositionSignals,
   isCase05Phase1Complete,
+  buildAdminVerifyProfileQuestions,
 } from "../../src/lib/adminVerifyProfiling.ts";
 
 const basePhase1 = {
@@ -28,11 +30,20 @@ const withDate = attachCaseResolutionSnapshot({
 const profile = buildCaseResolutionProfile(withDate);
 const deadlineProfilePass = (profile.deadline.value ?? "").includes("2026-12-15");
 
+/** 개인화 퍼널 v1: 기한은 2차(필요한 고객만)에서 묻고, 정확한 날짜면 날짜 입력으로 이어짐 */
 const missingDate = attachCaseResolutionSnapshot({
+  situation: "received_document",
+  profileDocumentSource: "immigration",
+  stage: "case",
+  [ADMIN_CASE_ENTRY_Q1_KEY]: "disposition_notice",
   ...basePhase1,
+  case05_submittedDocsDetail: "identity",
+  case05_authorityFollowUp: "no_response",
   case05_deadline: "specific_date",
 });
-const phase1NeedsDatePass = !isCase05Phase1Complete(missingDate);
+const phase1NeedsDatePass =
+  isCase05Phase1Complete(missingDate) &&
+  buildAdminVerifyProfileQuestions(missingDate, {}, {}, 2).some((q) => q.id === CASE05_DEADLINE_DATE_KEY);
 
 const r04Answers = attachCaseResolutionSnapshot({
   case05_dispositionType: "application_denied",
@@ -42,11 +53,13 @@ const r04Answers = attachCaseResolutionSnapshot({
 });
 const r04Pass = case05NeedsDispositionReasonPhase2(r04Answers);
 
+/** 개인화 퍼널 v1: 복잡 고객(통지 내용이 실제와 다름 + 재검토 요청 + 순서 모름)은 2차가 깊어짐 */
 const richPath = attachCaseResolutionSnapshot({
-  case05_dispositionType: "reason_hard_to_understand",
-  case05_confirmGoal: "maintain_reason",
+  case05_dispositionType: "situation_mismatch",
+  case05_confirmGoal: "unsure",
   case05_customerResponse: "appeal_requested",
   case05_deadline: "uncertain",
+  case05_factRelationship: "mismatch",
 });
 const axesOnPath = case05ListPhase2SubstantiveAxesOnPath(richPath);
 const catalogCount = case05Phase2SubstantiveAxisCatalogCount();
