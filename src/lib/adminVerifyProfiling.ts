@@ -5841,7 +5841,14 @@ export function case05FinalGoalOptionsForAnswers(answers: ReviewAnswers): {
 }[] {
   const goal = case05EffectiveConfirmGoal(answers.case05_confirmGoal);
   const dupe = goal ? CASE05_CONFIRM_GOAL_TO_FINAL_GOAL_DUPE[goal] : undefined;
-  return CASE05_FINAL_GOAL_OPTIONS.filter((option) => !dupe || option.value !== dupe);
+  /** 개인화 퍼널 v1 — 이미 재검토를 요청한 고객에게 '재검토 요청 방법'을 목표로 다시 묻지 않음 */
+  const appealAlreadyRequested = answers.case05_customerResponse === "appeal_requested";
+  return CASE05_FINAL_GOAL_OPTIONS.filter((option) => {
+    if (adminVerifyFieldHasSlug(answers, "case05_finalGoal", option.value)) return true;
+    if (dupe && option.value === dupe) return false;
+    if (appealAlreadyRequested && option.value === "next_action") return false;
+    return true;
+  });
 }
 
 function case05HasSelectableFinalGoalOptions(answers: ReviewAnswers): boolean {
@@ -5951,9 +5958,9 @@ function case05Phase2TailAxesUnlocked(answers: ReviewAnswers): boolean {
   return isCase05Phase1Complete(answers) && case05IsPhase2CoreBranchComplete(answers);
 }
 
+/** 개인화 퍼널 v1 — 1차에서 목표가 명확하면(대응 여부와 관계없이) 마무리 목표를 다시 묻지 않음 */
 function case05ConfirmGoalSkipsTailFinalGoal(answers: ReviewAnswers): boolean {
   const goal = case05EffectiveConfirmGoal(answers.case05_confirmGoal);
-  if (!case05HasResponded(answers)) return false;
   return (
     goal === "understand_reason" ||
     goal === "understand_impact" ||
