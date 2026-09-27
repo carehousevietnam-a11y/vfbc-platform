@@ -184,16 +184,30 @@ export const ADMIN_SITUATION_OPTIONS: { value: AdminSituation; label: string }[]
 /** VERIFY 행정문서 — 고객-facing Q1 (홈 최초 입력 이후 사건 좁히기) */
 export const ADMIN_CASE_ENTRY_Q1_KEY = "adminCaseDocumentKind";
 export const ADMIN_CASE_ENTRY_Q1_OTHER_KEY = "adminCaseDocumentKindNote";
-export const ADMIN_CASE_ENTRY_Q1_LABEL =
-  "교통국에서 받은 안내는 어떤 내용이라고 들으셨나요?";
+/** docs/master/VFBCAI_ENTRY_Q1_CHOICE_FINAL_v1_CLAUDE.md (verbatim). 라우팅 로직 변경 없음. */
+export const ADMIN_CASE_ENTRY_Q1_LABEL = "교통국으로부터 받은 안내는 어떤 내용이었나요?";
 
 export const ADMIN_CASE_ENTRY_Q1_OPTIONS: { value: string; label: string }[] = [
-  { value: "violation_notice", label: "교통위반이나 문제를 알리는 통지라고 들었습니다." },
-  { value: "payment_demand", label: "벌금이나 비용을 납부하라는 내용이라고 들었습니다." },
-  { value: "attendance_demand", label: "출석하거나 설명하라는 내용이라고 들었습니다." },
-  { value: "supplement_demand", label: "추가 서류나 보완을 요구하는 내용이라고 들었습니다." },
-  { value: "disposition_notice", label: "면허의 정지·취소·거부 등 조치에 관한 내용이라고 들었습니다." },
-  { value: "unclear", label: "무슨 내용인지 잘 모르겠습니다." },
+  {
+    value: "violation_notice",
+    label: "교통위반이 있었다는 통지를 받았고, 아직 벌금이나 출석 요구는 받지 않았습니다.",
+  },
+  {
+    value: "payment_demand",
+    label: "위반이나 절차 문제로 벌금·비용을 납부하라는 안내를 받았습니다.",
+  },
+  {
+    value: "attendance_demand",
+    label: "교통국에 직접 방문하거나, 상황을 설명하라는 안내를 받았습니다.",
+  },
+  {
+    value: "supplement_demand",
+    label: "서류를 제출한 뒤, 추가 서류를 내거나 다시 준비하라는 안내를 받았습니다.",
+  },
+  {
+    value: "disposition_notice",
+    label: "면허나 허가가 정지·취소되었거나, 신청이 승인되지 않았다는 통지를 받았습니다.",
+  },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -208,6 +222,8 @@ const ADMIN_CASE_ENTRY_Q1_TO_CASE: Record<string, string> = {
 
 export const ADMIN_CASE_ENTRY_Q1_OPTION_LABELS: Record<string, string> = {
   ...Object.fromEntries(ADMIN_CASE_ENTRY_Q1_OPTIONS.map((o) => [o.value, o.label])),
+  /** 화면에서 제거된 옛 선택지 — 저장된 답의 요약 표시용 */
+  unclear: "무슨 내용인지 잘 모르겠습니다.",
   other: "직접 설명하기",
 };
 
