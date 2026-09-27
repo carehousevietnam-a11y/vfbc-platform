@@ -5837,6 +5837,9 @@ export function getAdminVerifySituationalChoiceFieldIds(): string[] {
 }
 
 export function getCase05FieldOptionLabel(fieldId: string, value: string): string {
+  /** 현재 화면 선택지가 있으면 항상 그 문장 — 옛 라벨·다른 질문의 같은 slug가 덮지 않도록 */
+  const current = CASE05_FIELD_OPTION_MAP[fieldId]?.find((option) => option.value === value);
+  if (current && value !== "other") return current.label;
   const legacy = getLegacyChoiceLabel(fieldId, value);
   if (legacy) return legacy;
   if (fieldId === "case05_dispositionType") {

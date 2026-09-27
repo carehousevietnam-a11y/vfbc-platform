@@ -38,7 +38,8 @@ const CANONICALIZE_ON_SAVE: Record<string, Record<string, string>> = {
   case01_customerResponded: { none: "no_contact_yet" },
   case01_deadline: { confirmed: "deadline_day_known", uncertain: "deadline_window_only", no_deadline_stated: "no_stated" },
   case01_confirmGoal: { verify_applicability: "fit_and_facts", fact_difference: "fit_and_facts", why_notice: "why_and_basis", what_when: "what_to_do_now", procedure_followup: "after_my_response" },
-  case01_authorityDemand: { pay_core_traffic: "payment", pay_bundled: "payment", supplement_core: "supplement", attend_explain: "attendance" },
+  /** pay_core_traffic·pay_bundled·supplement_core는 "요구 + 범위(scope)" 두 사실을 담고 있어 저장값을 바꾸지 않음(분류 보존). 화면에서만 대표 선택지로 대체 */
+  case01_authorityDemand: { attend_explain: "attendance" },
   case01_spatiotemporalFacet: { st_witness_only_pending: "st_witness_only", st_memory_only_fuzzy: "st_memory_only", st_cannot_verify_tried: "st_cannot_verify" },
   case01_languageAccessFact: { lang_indirect_hearsay_copy: "lang_indirect_hearsay" },
   case01_authorityFollowUpKind: { more_required_vague: "more_required", reply_unclear: "no_reply_yet" },

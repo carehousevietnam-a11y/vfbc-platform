@@ -194,6 +194,7 @@ export const LAYER_J_CLAUSE_MAP: Record<string, string> = {
   "02|§03·2차|case02_situationMatch|unknown": "2차 추가 확인에서는 판단에 필요한 정보가 부족하다는 점이 핵심입니다.",
   "02|§03·2차|case02_situationMatch|other": "상황 일치: {case02_situationMatchNote 또는 DI 원문}",
   "02|§03·2차|case02_paymentAmount|amount_stated_basis_unclear": "2차 추가 확인에서는 금액은 안내되었으나 산정 근거가 불분명하다는 점이 핵심입니다.",
+  "02|§03·2차|case02_paymentAmount|amount_clear": "2차 추가 확인에서는 안내받은 금액이 분명하고, 이전에 알고 있던 금액과도 같은 상태입니다.",
   "02|§03·2차|case02_paymentAmount|amount_differs": "2차 추가 확인에서는 안내 금액과 알고 있는 금액의 차이가 핵심입니다.",
   "02|§03·2차|case02_paymentAmount|paid_redemand": "2차 추가 확인에서는 납부 후 다시 요구받은 상황이 핵심입니다.",
   "02|§03·2차|case02_paymentAmount|amount_unknown": "2차 추가 확인에서는 요구 금액 자체가 불명확하다는 점이 핵심입니다.",
