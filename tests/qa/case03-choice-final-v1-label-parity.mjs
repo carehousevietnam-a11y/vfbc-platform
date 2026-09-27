@@ -36,7 +36,7 @@ for (const part of md.split(/^### /m).slice(1)) {
   if (!fid) continue;
   const q = part.match(/^Q:\s*(.+)$/m)?.[1]?.trim();
   const ph = part.match(/^안내\(placeholder\):\s*(.+)$/m)?.[1]?.trim();
-  if (q && !SRC.includes(`label: ${JSON.stringify(q)}`)) problems.push({ kind: "question", fid, q });
+  if (q && !SRC.includes(JSON.stringify(q))) problems.push({ kind: "question", fid, q });
   if (ph && !SRC.includes(`placeholder: ${JSON.stringify(ph)}`)) problems.push({ kind: "placeholder", fid, ph });
   const rows = [];
   for (const line of part.split("\n")) {

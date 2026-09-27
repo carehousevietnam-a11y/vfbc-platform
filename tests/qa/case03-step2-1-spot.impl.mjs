@@ -12,6 +12,7 @@ import {
   case03ListPhase2SubstantiveAxesOnPath,
   case03Phase2SubstantiveAxisCatalogCount,
   isCase03Phase1Complete,
+  buildAdminVerifyProfileQuestions,
 } from "../../src/lib/adminVerifyProfiling.ts";
 
 const phase1Base = {
@@ -36,11 +37,15 @@ const profile = buildCaseResolutionProfile(withDate);
 const deadlineProfilePass = (profile.deadline.value ?? "").includes("2026-07-20");
 const attendancePlaceInProfile = (profile.customerAction.value ?? "").includes("호찌민 교통국");
 
+/** 개인화 퍼널 v1: 방문 날짜는 2차(아직 방문 전 고객)에서 묻고, 날짜 입력으로 이어짐 */
 const missingDate = attachCaseResolutionSnapshot({
   ...phase1Base,
+  case03_customerResponse: "none",
   case03_deadline: "specific_date",
 });
-const phase1NeedsDatePass = !isCase03Phase1Complete(missingDate);
+const phase1NeedsDatePass =
+  isCase03Phase1Complete(missingDate) &&
+  buildAdminVerifyProfileQuestions(missingDate, {}, {}, 2).some((q) => q.id === CASE03_DEADLINE_DATE_KEY);
 
 const catalogCount = case03Phase2SubstantiveAxisCatalogCount();
 const catalogIs8 = catalogCount === 9; // CASE03 v1: 2차 실질 축 9개 (HEAD 기준 이미 9)

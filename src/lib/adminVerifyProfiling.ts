@@ -2185,20 +2185,15 @@ export const CASE06_LEGACY_PHASE1_FIELD_ORDER = [
 /** v1.1 redesign — active for new CASE_06 sessions (legacy restore uses CASE06_LEGACY_PHASE1_FIELD_ORDER). */
 export const CASE06_PHASE1_FIELD_ORDER = CASE06_V11_PHASE1_FIELD_ORDER;
 
+/** 개인화 퍼널 v1 — 1차 Q1 포함 4개. inquiryFocus·deadline은 2차(필요한 고객만) */
 export const CASE03_PHASE1_FIELD_ORDER = [
   "case03_authorityDemand",
-  "case03_inquiryFocus",
   "case03_customerResponse",
   "case03_confirmGoal",
-  "case03_deadline",
 ] as const;
 
-function getCase03Phase1VisibleFields(answers: ReviewAnswers): string[] {
-  const fields: string[] = [...CASE03_PHASE1_FIELD_ORDER];
-  if (case03NeedsDeadlineDateDetail(answers)) {
-    fields.push(CASE03_DEADLINE_DATE_KEY);
-  }
-  return fields;
+function getCase03Phase1VisibleFields(_answers: ReviewAnswers): string[] {
+  return [...CASE03_PHASE1_FIELD_ORDER];
 }
 
 /** 개인화 퍼널 v1 — customerResponse를 confirmGoal 앞으로(제출 여부가 뒤 질문을 좌우) */
@@ -3398,6 +3393,7 @@ export const CASE03_PREP_ATTENDANCE_DATE_KEY = "case03_prepAttendanceDate";
 
 export const CASE03_ANSWER_KEYS = [
   ...CASE03_PHASE1_FIELD_ORDER,
+  "case03_deadline",
   CASE03_DEADLINE_DATE_KEY,
   "case03_factRelationship",
   "case03_inquiryFocus",
@@ -3757,33 +3753,14 @@ export function buildCase03PrincipleFStateLines(answers: ReviewAnswers): string[
   return lines;
 }
 
+/** 개인화 퍼널 v1 — 특정 사건·행동 확인, 재요구, 설명 충분 여부를 확인하려는 고객만 */
 function case03NeedsFactRelationshipPhase2(answers: ReviewAnswers): boolean {
-  const goal = answers.case03_confirmGoal;
+  const focus = answers.case03_inquiryFocus;
+  if (focus === "action_facts" || focus === "specific_event") return true;
   const demand = answers.case03_authorityDemand;
-  const response = answers.case03_customerResponse;
-  if (
-    goal === "sufficient_explanation" ||
-    goal === "repeat_response" ||
-    goal === "unsure"
-  ) {
-    return true;
-  }
-  if (
-    demand === "reason_unclear" ||
-    demand === "specific_incident" ||
-    demand === "repeat_demand"
-  ) {
-    return true;
-  }
-  if (
-    response === "attendance" ||
-    response === "explanation_with_docs" ||
-    response === "phone_message" ||
-    response === "other_method"
-  ) {
-    return true;
-  }
-  return false;
+  if (demand === "specific_incident" || demand === "repeat_demand") return true;
+  const goal = answers.case03_confirmGoal;
+  return goal === "sufficient_explanation" || goal === "repeat_response";
 }
 
 function case03IsInquiryFocusAnswered(answers: ReviewAnswers): boolean {
@@ -3794,80 +3771,49 @@ function case03IsInquiryFocusAnswered(answers: ReviewAnswers): boolean {
   );
 }
 
-/** Phase2 inquiryFocus — legacy restore only (P1 now owns MASTER Q2). */
+/** 개인화 퍼널 v1 — authorityDemand로 확인 목적을 알 수 없는 고객만 */
 function case03NeedsInquiryFocusPhase2(answers: ReviewAnswers): boolean {
-  if (case03IsInquiryFocusAnswered(answers)) return false;
-  const goal = answers.case03_confirmGoal;
+  if (case03IsInquiryFocusAnswered(answers)) return true;
   const demand = answers.case03_authorityDemand;
-  if (goal === "prepare_materials" || goal === "unsure" || goal === "deadline_attendance") {
+  if (demand === "specific_incident" || demand === "repeat_demand" || demand === "prep_unclear") {
     return true;
   }
-  if (
-    demand === "reason_unclear" ||
-    demand === "specific_incident" ||
-    demand === "submission_review" ||
-    demand === "prep_unclear"
-  ) {
-    return true;
-  }
-  if (case03IsPhase2CoreBranchComplete(answers)) return true;
-  return false;
+  return answers.case03_confirmGoal === "unsure";
 }
 
+/** 개인화 퍼널 v1 — 이미 방문·설명한 고객에게는 방문 날짜를 묻지 않음 */
+function case03HasVisited(answers: ReviewAnswers): boolean {
+  const r = answers.case03_customerResponse;
+  return r === "attendance" || r === "explanation_with_docs";
+}
+
+function case03NeedsDeadlinePhase2(answers: ReviewAnswers): boolean {
+  return !case03HasVisited(answers);
+}
+
+/** 개인화 퍼널 v1 — 앞선 답변으로 막힌 지점을 알 수 없는 고객만 (tail 일괄 개방 제거) */
 function case03NeedsBlockage(answers: ReviewAnswers): boolean {
-  if (case03Phase2TailAxesUnlocked(answers)) return true;
   const rel = answers.case03_factRelationship;
   const focus = answers.case03_inquiryFocus;
   const demand = answers.case03_authorityDemand;
-  const goal = answers.case03_confirmGoal;
   return (
-    rel === "partial" ||
     rel === "mismatch" ||
     rel === "hard_to_judge" ||
-    rel === "unknown" ||
-    focus === "unsure" ||
     focus === "unclear" ||
+    focus === "unsure" ||
     demand === "reason_unclear" ||
     demand === "prep_unclear" ||
-    goal === "unsure" ||
-    case03NeedsRepeatFollowUp(answers)
+    answers.case03_confirmGoal === "unsure"
   );
 }
 
-function case03NeedsEvidence(answers: ReviewAnswers): boolean {
-  if (
-    case03NeedsBlockage(answers) &&
-    isAdminVerifyChoiceFieldComplete(
-      "case03_blockage",
-      answers,
-      CASE03_BLOCKAGE_OPTIONS,
-    )
-  ) {
-    return true;
-  }
-  const rel = answers.case03_factRelationship;
-  const focus = answers.case03_inquiryFocus;
-  return (
-    rel === "partial" ||
-    rel === "mismatch" ||
-    rel === "hard_to_judge" ||
-    focus === "unsure" ||
-    focus === "unclear" ||
-    case03NeedsRepeatFollowUp(answers)
-  );
+/** 개인화 퍼널 v1 — 보관 자료는 모든 고객의 핵심 사실(COMMON). 선택지만 필터 */
+function case03NeedsEvidence(_answers: ReviewAnswers): boolean {
+  return true;
 }
 
+/** 개인화 퍼널 v1 — 목표를 앞선 답변으로 알 수 없는 고객만 */
 function case03NeedsFinalGoal(answers: ReviewAnswers): boolean {
-  if (
-    case03NeedsEvidence(answers) &&
-    isAdminVerifyChoiceFieldComplete(
-      "case03_evidence",
-      answers,
-      CASE03_EVIDENCE_OPTIONS,
-    )
-  ) {
-    return true;
-  }
   const demand = answers.case03_authorityDemand;
   const focus = answers.case03_inquiryFocus;
   return (
@@ -3996,192 +3942,157 @@ export function isCase03Phase1Complete(answers: ReviewAnswers): boolean {
       return false;
     }
   }
-  if (case03NeedsDeadlineDateDetail(answers)) return false;
   return true;
 }
 
-function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  pushUnique(questions, {
-    id: "case03_authorityDemand",
-    kind: "choice",
-    label: "교통국에서 받은 방문·설명 안내는 어떤 상황인가요?",
-    options: CASE03_AUTHORITY_DEMAND_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case03_authorityDemand",
-      answers,
-      CASE03_AUTHORITY_DEMAND_OPTIONS,
-    )
-  ) {
-    return;
-  }
-
-  pushUnique(questions, {
-    id: "case03_inquiryFocus",
-    kind: "choice",
-    label: "교통국은 이번 방문이나 설명으로 무엇을 확인하려는 것 같나요?",
-    options: CASE03_INQUIRY_FOCUS_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case03_inquiryFocus",
-      answers,
-      CASE03_INQUIRY_FOCUS_OPTIONS,
-    )
-  ) {
-    return;
-  }
-
-  pushUnique(questions, {
-    id: "case03_customerResponse",
-    kind: "choice",
-    label: "안내를 받은 뒤, 현재 어디까지 진행하셨나요?",
-    options: CASE03_CUSTOMER_RESPONSE_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case03_customerResponse",
-      answers,
-      CASE03_CUSTOMER_RESPONSE_OPTIONS,
-    )
-  ) {
-    return;
-  }
-
-  pushUnique(questions, {
-    id: "case03_confirmGoal",
-    kind: "choice",
-    label: "지금 가장 먼저 확인하고 싶은 것은 무엇인가요?",
-    options: CASE03_CONFIRM_GOAL_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case03_confirmGoal",
-      answers,
-      CASE03_CONFIRM_GOAL_OPTIONS,
-    )
-  ) {
-    return;
-  }
-
-  pushUnique(questions, {
-    id: "case03_deadline",
-    kind: "choice",
-    label: "방문하거나 설명해야 하는 날짜는 어떻게 안내받으셨나요?",
-    options: CASE03_DEADLINE_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete("case03_deadline", answers, CASE03_DEADLINE_OPTIONS)
-  ) {
-    return;
-  }
-  if (case03NeedsDeadlineDateDetail(answers)) {
-    pushUnique(questions, {
-      id: CASE03_DEADLINE_DATE_KEY,
-      kind: "text",
-      label: "안내받은 방문 날짜나 마감일은 언제인가요?",
-      placeholder: "안내문에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일 오전 9시",
-    });
-    if (case03NeedsDeadlineDateDetail(answers)) {
-      return;
-    }
-  }
+/** 개인화 퍼널 v1 — 선택지 필터. 이미 저장된 값은 항상 남김(레거시 호환) */
+function case03FilterOptions(
+  fieldId: string,
+  answers: ReviewAnswers,
+  options: { value: string; label: string }[],
+  keep: (value: string) => boolean,
+): { value: string; label: string }[] {
+  return options.filter(
+    (o) => o.value === "other" || adminVerifyFieldHasSlug(answers, fieldId, o.value) || keep(o.value),
+  );
 }
 
-function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  if (case03NeedsAttendancePlaceText(answers)) {
-    pushUnique(questions, {
-      id: CASE03_ATTENDANCE_PLACE_KEY,
-      kind: "text",
-      label: "방문해서 설명한 곳은 어디인가요?",
-      placeholder: "기관 이름이나 주소를 기억나는 대로 입력해 주세요.",
-    });
+function case03ConfirmGoalOptionsFor(answers: ReviewAnswers) {
+  const demand = answers.case03_authorityDemand;
+  return case03FilterOptions("case03_confirmGoal", answers, CASE03_CONFIRM_GOAL_OPTIONS, (v) => {
+    if (v === "repeat_response") return demand === "repeat_demand";
+    if (v === "sufficient_explanation") return case03HasResponded(answers);
+    if (v === "deadline_attendance" || v === "prepare_materials") return !case03HasVisited(answers);
+    return true;
+  });
+}
+
+function case03InquiryFocusOptionsFor(answers: ReviewAnswers) {
+  const demand = answers.case03_authorityDemand;
+  return case03FilterOptions("case03_inquiryFocus", answers, CASE03_INQUIRY_FOCUS_OPTIONS, (v) =>
+    !(demand === "specific_incident" && v === "submitted_docs"),
+  );
+}
+
+function case03FactRelationshipOptionsFor(answers: ReviewAnswers) {
+  const focus = answers.case03_inquiryFocus;
+  return case03FilterOptions("case03_factRelationship", answers, CASE03_FACT_RELATIONSHIP_OPTIONS, (v) =>
+    v !== "unknown" || !focus || focus === "unclear" || focus === "unsure",
+  );
+}
+
+function case03BlockageOptionsFor(answers: ReviewAnswers) {
+  const deadline = answers.case03_deadline;
+  return case03FilterOptions("case03_blockage", answers, CASE03_BLOCKAGE_OPTIONS, (v) => {
+    if (v === "after_explain") return case03HasResponded(answers);
+    if (v === "when_attend") {
+      return deadline === "uncertain" || deadline === "not_stated" || deadline === "unsure";
+    }
+    return true;
+  });
+}
+
+function case03EvidenceOptionsFor(answers: ReviewAnswers) {
+  return case03FilterOptions("case03_evidence", answers, CASE03_EVIDENCE_OPTIONS, (v) =>
+    v !== "submitted_docs" ||
+    answers.case03_authorityDemand === "submission_review" ||
+    answers.case03_customerResponse === "explanation_with_docs" ||
+    answers.case03_explanationDetail === "with_submitted_docs",
+  );
+}
+
+function case03FinalGoalOptionsFor(answers: ReviewAnswers) {
+  return case03FilterOptions("case03_finalGoal", answers, CASE03_FINAL_GOAL_OPTIONS, (v) =>
+    v !== "prepare_response" || !case03HasVisited(answers),
+  );
+}
+
+/** 질문을 띄우고, 완료 여부는 전체 선택지 기준으로 판정(필터된 선택지는 표시용) */
+function case03Ask(
+  questions: ProfileQuestion[],
+  answers: ReviewAnswers,
+  id: string,
+  label: string,
+  shownOptions: { value: string; label: string }[],
+  fullOptions: { value: string; label: string }[],
+): boolean {
+  pushUnique(questions, { id, kind: "choice", label, options: shownOptions });
+  return isAdminVerifyChoiceFieldComplete(id, answers, fullOptions);
+}
+
+function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
+  if (
+    !case03Ask(questions, answers, "case03_authorityDemand",
+      "교통국에서 받은 방문·설명 안내는 어떤 상황인가요?",
+      CASE03_AUTHORITY_DEMAND_OPTIONS, CASE03_AUTHORITY_DEMAND_OPTIONS)
+  ) {
     return;
   }
+  if (
+    !case03Ask(questions, answers, "case03_customerResponse",
+      "안내를 받은 뒤, 현재 어디까지 진행하셨나요?",
+      CASE03_CUSTOMER_RESPONSE_OPTIONS, CASE03_CUSTOMER_RESPONSE_OPTIONS)
+  ) {
+    return;
+  }
+  case03Ask(questions, answers, "case03_confirmGoal",
+    "지금 가장 먼저 확인하고 싶은 것은 무엇인가요?",
+    case03ConfirmGoalOptionsFor(answers), CASE03_CONFIRM_GOAL_OPTIONS);
+}
 
-  if (case03NeedsFactRelationshipPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case03_factRelationship",
-      kind: "choice",
-      label:
-        "교통국이 확인하려는 내용은 실제 있었던 일과 비교하면 어떤가요?",
-      options: CASE03_FACT_RELATIONSHIP_OPTIONS,
-    });
+/**
+ * 개인화 퍼널 v1 — 대응 전: 방문 날짜 → 준비물 / 대응 후: 설명 방식 → 장소 → 교통국 답변 → 재요구,
+ * 이어서 앞선 답변으로 알 수 없을 때만 확인 목적 → 실제와 비교 → 막힌 점 → 보관 자료 → 마무리 목표.
+ */
+function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
+  if (case03NeedsDeadlinePhase2(answers)) {
     if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_factRelationship",
-        answers,
-        CASE03_FACT_RELATIONSHIP_OPTIONS,
-      )
+      !case03Ask(questions, answers, "case03_deadline",
+        "방문하거나 설명해야 하는 날짜는 어떻게 안내받으셨나요?",
+        CASE03_DEADLINE_OPTIONS, CASE03_DEADLINE_OPTIONS)
     ) {
       return;
     }
-  }
-
-  if (case03NeedsInquiryFocusPhase2(answers)) {
-    pushUnique(questions, {
-      id: "case03_inquiryFocus",
-      kind: "choice",
-      label: "교통국은 이번 방문이나 설명으로 무엇을 확인하려는 것 같나요?",
-      options: CASE03_INQUIRY_FOCUS_OPTIONS,
-    });
-    if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_inquiryFocus",
-        answers,
-        CASE03_INQUIRY_FOCUS_OPTIONS,
-      )
-    ) {
+    if (case03NeedsDeadlineDateDetail(answers)) {
+      pushUnique(questions, {
+        id: CASE03_DEADLINE_DATE_KEY,
+        kind: "text",
+        label: "안내받은 방문 날짜나 마감일은 언제인가요?",
+        placeholder: "안내문에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일 오전 9시",
+      });
       return;
     }
   }
 
   if (case03HasResponded(answers)) {
-    pushUnique(questions, {
-      id: "case03_explanationDetail",
-      kind: "choice",
-      label: "교통국에 설명할 때 어떻게 진행되었나요?",
-      options: CASE03_EXPLANATION_DETAIL_OPTIONS,
-    });
     if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_explanationDetail",
-        answers,
-        CASE03_EXPLANATION_DETAIL_OPTIONS,
-      )
+      !case03Ask(questions, answers, "case03_explanationDetail",
+        "교통국에 설명할 때 어떻게 진행되었나요?",
+        CASE03_EXPLANATION_DETAIL_OPTIONS, CASE03_EXPLANATION_DETAIL_OPTIONS)
     ) {
       return;
     }
-
-    pushUnique(questions, {
-      id: "case03_authorityFollowUp",
-      kind: "choice",
-      label: "대응한 뒤, 교통국에서는 어떤 답변이 있었나요?",
-      options: CASE03_AUTHORITY_FOLLOWUP_OPTIONS,
-    });
+    if (case03NeedsAttendancePlaceText(answers)) {
+      pushUnique(questions, {
+        id: CASE03_ATTENDANCE_PLACE_KEY,
+        kind: "text",
+        label: "방문해서 설명한 곳은 어디인가요?",
+        placeholder: "기관 이름이나 주소를 기억나는 대로 입력해 주세요.",
+      });
+      return;
+    }
     if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_authorityFollowUp",
-        answers,
-        CASE03_AUTHORITY_FOLLOWUP_OPTIONS,
-      )
+      !case03Ask(questions, answers, "case03_authorityFollowUp",
+        "대응한 뒤, 교통국에서는 어떤 답변이 있었나요?",
+        CASE03_AUTHORITY_FOLLOWUP_OPTIONS, CASE03_AUTHORITY_FOLLOWUP_OPTIONS)
     ) {
       return;
     }
   } else if (case03NeedsPrepDetail(answers)) {
-    pushUnique(questions, {
-      id: "case03_prepRequired",
-      kind: "choice",
-      label: "직접 방문해야 한다면, 무엇을 준비하라고 안내받으셨나요?",
-      options: CASE03_PREP_REQUIRED_OPTIONS,
-    });
     if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_prepRequired",
-        answers,
-        CASE03_PREP_REQUIRED_OPTIONS,
-      )
+      !case03Ask(questions, answers, "case03_prepRequired",
+        "직접 방문해야 한다면, 무엇을 준비하라고 안내받으셨나요?",
+        CASE03_PREP_REQUIRED_OPTIONS, CASE03_PREP_REQUIRED_OPTIONS)
     ) {
       return;
     }
@@ -4197,56 +4108,50 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   if (case03NeedsRepeatFollowUp(answers)) {
-    pushUnique(questions, {
-      id: "case03_repeatFollowUp",
-      kind: "choice",
-      label:
-        "다시 요구받은 내용은 무엇인가요?",
-      options: CASE03_REPEAT_FOLLOWUP_OPTIONS,
-    });
     if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_repeatFollowUp",
-        answers,
-        CASE03_REPEAT_FOLLOWUP_OPTIONS,
-      )
+      !case03Ask(questions, answers, "case03_repeatFollowUp",
+        "다시 요구받은 내용은 무엇인가요?",
+        CASE03_REPEAT_FOLLOWUP_OPTIONS, CASE03_REPEAT_FOLLOWUP_OPTIONS)
+    ) {
+      return;
+    }
+  }
+
+  if (case03NeedsInquiryFocusPhase2(answers)) {
+    if (
+      !case03Ask(questions, answers, "case03_inquiryFocus",
+        "교통국은 이번 방문이나 설명으로 무엇을 확인하려는 것 같나요?",
+        case03InquiryFocusOptionsFor(answers), CASE03_INQUIRY_FOCUS_OPTIONS)
+    ) {
+      return;
+    }
+  }
+
+  if (case03NeedsFactRelationshipPhase2(answers)) {
+    if (
+      !case03Ask(questions, answers, "case03_factRelationship",
+        "교통국이 확인하려는 내용은 실제 있었던 일과 비교하면 어떤가요?",
+        case03FactRelationshipOptionsFor(answers), CASE03_FACT_RELATIONSHIP_OPTIONS)
     ) {
       return;
     }
   }
 
   if (case03NeedsBlockage(answers)) {
-    pushUnique(questions, {
-      id: "case03_blockage",
-      kind: "choice",
-      label: "현재 이 일이 진행되지 못하는 가장 큰 이유는 무엇인가요?",
-      options: CASE03_BLOCKAGE_OPTIONS,
-    });
     if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_blockage",
-        answers,
-        CASE03_BLOCKAGE_OPTIONS,
-      )
+      !case03Ask(questions, answers, "case03_blockage",
+        "현재 이 일이 진행되지 못하는 가장 큰 이유는 무엇인가요?",
+        case03BlockageOptionsFor(answers), CASE03_BLOCKAGE_OPTIONS)
     ) {
       return;
     }
   }
 
   if (case03NeedsEvidence(answers)) {
-    pushUnique(questions, {
-      id: "case03_evidence",
-      kind: "choice",
-      label:
-        "현재 보관하고 있는 자료를 모두 선택해 주세요. (여러 개 선택 가능)",
-      options: CASE03_EVIDENCE_OPTIONS,
-    });
     if (
-      !isAdminVerifyChoiceFieldComplete(
-        "case03_evidence",
-        answers,
-        CASE03_EVIDENCE_OPTIONS,
-      )
+      !case03Ask(questions, answers, "case03_evidence",
+        "현재 보관하고 있는 자료를 모두 선택해 주세요. (여러 개 선택 가능)",
+        case03EvidenceOptionsFor(answers), CASE03_EVIDENCE_OPTIONS)
     ) {
       return;
     }
@@ -4262,12 +4167,9 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   if (case03NeedsFinalGoal(answers)) {
-    pushUnique(questions, {
-      id: "case03_finalGoal",
-      kind: "choice",
-      label: "이번 검토를 통해 이 일을 어떻게 마무리하고 싶으신가요?",
-      options: CASE03_FINAL_GOAL_OPTIONS,
-    });
+    case03Ask(questions, answers, "case03_finalGoal",
+      "이번 검토를 통해 이 일을 어떻게 마무리하고 싶으신가요?",
+      case03FinalGoalOptionsFor(answers), CASE03_FINAL_GOAL_OPTIONS);
   }
 }
 
@@ -4289,6 +4191,13 @@ function appendCase03PathQuestions(
 
 function case03PathFieldsComplete(answers: ReviewAnswers): boolean {
   if (!isCase03Phase1Complete(answers)) return false;
+  if (
+    case03NeedsDeadlinePhase2(answers) &&
+    !isAdminVerifyChoiceFieldComplete("case03_deadline", answers, CASE03_DEADLINE_OPTIONS)
+  ) {
+    return false;
+  }
+  if (case03NeedsDeadlineDateDetail(answers)) return false;
   if (case03NeedsAttendancePlaceText(answers)) return false;
 
   if (
