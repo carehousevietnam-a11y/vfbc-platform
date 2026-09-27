@@ -764,6 +764,10 @@ function breachFocusOptionsForDispute(
 }
 
 export type RealEstatePhase2MissingId =
+  | "counterparty"
+  | "docsMatch"
+  | "situationGap"
+  | "customerInput"
   | "registrationConcern"
   | "clauseFocus"
   | "moneySituation"
@@ -1038,42 +1042,37 @@ function needsCustomerInputQuestion(answers: ReviewAnswers): boolean {
   return false;
 }
 
-function hasJudgmentCore(answers: ReviewAnswers): boolean {
+/** Phase 1 skeleton — 유형·진행·목적(+ 추론 불가 시 물건). 상대·서류대조는 Phase 2 bridge. */
+function isRealEstatePhase1SkeletonComplete(answers: ReviewAnswers): boolean {
   const path = getRealEstateResolutionPath(answers);
-  const propertyType = resolvedPropertyType(answers);
-  const goal = resolvedGoal(answers);
 
-  if (!propertyType || !goal) return false;
+  if (path === "UNCLEAR") {
+    return customerText(answers).length >= 20;
+  }
+
+  if (!resolvedGoal(answers)) return false;
+
+  if (
+    !resolvedPropertyType(answers) &&
+    !inferredPropertyTypeFromPath(answers) &&
+    !answers[RE_PROPERTY_TYPE_DETAIL_KEY]?.trim()
+  ) {
+    return false;
+  }
 
   if (path === "PRE_CONTRACT") {
-    return Boolean(
-      isChoiceOrDetailAnswered(answers, RE_PRE_STAGE_KEY, RE_PRE_STAGE_DETAIL_KEY) &&
-        isChoiceOrDetailAnswered(answers, RE_COUNTERPARTY_KEY, RE_COUNTERPARTY_DETAIL_KEY) &&
-        (!needsDocsMatchQuestion(answers) ||
-          isChoiceOrDetailAnswered(answers, RE_DOCS_MATCH_KEY, RE_DOCS_MATCH_DETAIL_KEY)),
-    );
+    return isChoiceOrDetailAnswered(answers, RE_PRE_STAGE_KEY, RE_PRE_STAGE_DETAIL_KEY);
   }
 
   if (path === "POST_DISPUTE") {
-    return Boolean(
-      isChoiceOrDetailAnswered(answers, RE_DISPUTE_SUBJECT_KEY, RE_DISPUTE_SUBJECT_DETAIL_KEY) &&
-        isChoiceOrDetailAnswered(answers, RE_COUNTERPARTY_KEY, RE_COUNTERPARTY_DETAIL_KEY) &&
-        isChoiceOrDetailAnswered(answers, RE_DOCS_MATCH_KEY, RE_DOCS_MATCH_DETAIL_KEY) &&
-        (!needsSituationGapQuestion(answers) ||
-          isChoiceOrDetailAnswered(answers, RE_SITUATION_GAP_KEY, RE_SITUATION_GAP_DETAIL_KEY)),
-    );
+    return isChoiceOrDetailAnswered(answers, RE_DISPUTE_SUBJECT_KEY, RE_DISPUTE_SUBJECT_DETAIL_KEY);
   }
 
   if (path === "DOCUMENT_REVIEW") {
-    return Boolean(
-      isChoiceOrDetailAnswered(answers, RE_DOC_SUBJECT_KEY, RE_DOC_SUBJECT_DETAIL_KEY) &&
-        isChoiceOrDetailAnswered(answers, RE_DOCS_MATCH_KEY, RE_DOCS_MATCH_DETAIL_KEY) &&
-        (!needsSituationGapQuestion(answers) ||
-          isChoiceOrDetailAnswered(answers, RE_SITUATION_GAP_KEY, RE_SITUATION_GAP_DETAIL_KEY)),
-    );
+    return isChoiceOrDetailAnswered(answers, RE_DOC_SUBJECT_KEY, RE_DOC_SUBJECT_DETAIL_KEY);
   }
 
-  return customerText(answers).length >= 20;
+  return false;
 }
 
 export function selectRealEstateMissingInfo(answers: ReviewAnswers): MissingInfoId | null {
@@ -1109,14 +1108,26 @@ export function selectRealEstateMissingInfo(answers: ReviewAnswers): MissingInfo
     if (!canInfer && !answers[RE_PROPERTY_TYPE_DETAIL_KEY]?.trim()) return "propertyType";
   }
 
+  if (!resolvedGoal(answers)) return "goal";
+
+  if (!isRealEstatePhase1SkeletonComplete(answers)) {
+    return null;
+  }
+
+  return null;
+}
+
+function selectRealEstatePhase2BridgeMissing(
+  answers: ReviewAnswers,
+): RealEstatePhase2MissingId | null {
+  if (!isRealEstatePhase1Complete(answers)) return null;
+
   if (
     needsCounterpartyQuestion(answers) &&
     !isChoiceOrDetailAnswered(answers, RE_COUNTERPARTY_KEY, RE_COUNTERPARTY_DETAIL_KEY)
   ) {
     return "counterparty";
   }
-
-  if (!resolvedGoal(answers)) return "goal";
 
   if (
     needsDocsMatchQuestion(answers) &&
@@ -1132,10 +1143,8 @@ export function selectRealEstateMissingInfo(answers: ReviewAnswers): MissingInfo
     return "situationGap";
   }
 
-  if (needsCustomerInputQuestion(answers)) return "customerInput";
-
-  if (!hasJudgmentCore(answers)) {
-    return needsCustomerInputQuestion(answers) ? "customerInput" : null;
+  if (needsCustomerInputQuestion(answers) && !customerText(answers).trim()) {
+    return "customerInput";
   }
 
   return null;
@@ -1654,16 +1663,6 @@ export function buildRealEstateVerifyProfileQuestions(answers: ReviewAnswers): P
     if (missing === "propertyType") return questions;
   }
 
-  if (needsCounterpartyQuestion(answers)) {
-    pushUnique(questions, {
-      id: RE_COUNTERPARTY_KEY,
-      kind: "choice",
-      label: counterpartyQuestionLabel(answers),
-      options: RE_COUNTERPARTY_OPTIONS,
-    });
-    if (missing === "counterparty") return questions;
-  }
-
   const goalOptions =
     path === "PRE_CONTRACT" || path === "DOCUMENT_REVIEW"
       ? RE_PRE_GOAL_OPTIONS
@@ -1677,37 +1676,6 @@ export function buildRealEstateVerifyProfileQuestions(answers: ReviewAnswers): P
       options: goalOptions,
     });
     if (missing === "goal") return questions;
-  }
-
-  if (needsDocsMatchQuestion(answers) && !answers[RE_DOCS_MATCH_KEY]?.trim()) {
-    pushUnique(questions, {
-      id: RE_DOCS_MATCH_KEY,
-      kind: "choice",
-      label: docsMatchQuestionLabel(answers),
-      options: RE_DOCS_MATCH_OPTIONS,
-    });
-    if (missing === "docsMatch") return questions;
-  }
-
-  if (needsSituationGapQuestion(answers) && !answers[RE_SITUATION_GAP_KEY]?.trim()) {
-    pushUnique(questions, {
-      id: RE_SITUATION_GAP_KEY,
-      kind: "choice",
-      label: situationGapQuestionLabel(answers),
-      options: RE_SITUATION_GAP_OPTIONS,
-    });
-    if (missing === "situationGap") return questions;
-  }
-
-  if (needsCustomerInputQuestion(answers)) {
-    pushUnique(questions, {
-      id: REAL_ESTATE_CUSTOMER_INPUT_KEY,
-      kind: "text",
-      label: "아직 말씀하지 않은 핵심 사실이 있다면 적어 주세요",
-      placeholder:
-        "예: 상대가 약속한 반환일이 지났는데 연락이 두절되었습니다.",
-    });
-    if (missing === "customerInput") return questions;
   }
 
   return questions;
@@ -2259,6 +2227,9 @@ export function selectRealEstatePhase2MissingInfo(
 ): RealEstatePhase2MissingId | null {
   if (!isRealEstatePhase1Complete(answers)) return null;
 
+  const bridgeMissing = selectRealEstatePhase2BridgeMissing(answers);
+  if (bridgeMissing) return bridgeMissing;
+
   if (needsUnclearFactLockPhase2(answers)) return "unclearFactLock";
   if (needsUnclearBridgePhase2(answers)) return "unclearBridge";
   if (needsUnclearBridgeMaterialDetailPhase2(answers)) return "structuredDetail";
@@ -2308,6 +2279,8 @@ function selectMinimumPhase2DeepeningMissing(
 
 function isRealEstatePhase2PathFieldsComplete(answers: ReviewAnswers): boolean {
   if (!isRealEstatePhase1Complete(answers)) return false;
+
+  if (selectRealEstatePhase2BridgeMissing(answers)) return false;
 
   if (needsUnclearFactLockPhase2(answers)) return false;
 
@@ -2733,6 +2706,39 @@ function pushRealEstatePhase2QuestionForMissing(
   missing: RealEstatePhase2MissingId,
 ): void {
   switch (missing) {
+    case "counterparty":
+      pushUnique(questions, {
+        id: RE_COUNTERPARTY_KEY,
+        kind: "choice",
+        label: counterpartyQuestionLabel(answers),
+        options: RE_COUNTERPARTY_OPTIONS,
+      });
+      return;
+    case "docsMatch":
+      pushUnique(questions, {
+        id: RE_DOCS_MATCH_KEY,
+        kind: "choice",
+        label: docsMatchQuestionLabel(answers),
+        options: RE_DOCS_MATCH_OPTIONS,
+      });
+      return;
+    case "situationGap":
+      pushUnique(questions, {
+        id: RE_SITUATION_GAP_KEY,
+        kind: "choice",
+        label: situationGapQuestionLabel(answers),
+        options: RE_SITUATION_GAP_OPTIONS,
+      });
+      return;
+    case "customerInput":
+      pushUnique(questions, {
+        id: REAL_ESTATE_CUSTOMER_INPUT_KEY,
+        kind: "text",
+        label: "아직 말씀하지 않은 핵심 사실이 있다면 적어 주세요",
+        placeholder:
+          "예: 상대가 약속한 반환일이 지났는데 연락이 두절되었습니다.",
+      });
+      return;
     case "unclearFactLock":
       pushUnique(questions, {
         id: RE2_UNCLEAR_FACT_LOCK_KEY,
