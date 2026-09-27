@@ -983,12 +983,23 @@ function case01NeedsSupplementDemandScope(answers: ReviewAnswers): boolean {
   );
 }
 
+/**
+ * 개인화 퍼널 v1 — factRelationship과 1:1로 겹치면 묻지 않음(결과는 기존 추론 경로 사용).
+ * 날짜·장소가 다름처럼 위반 여부가 애매하거나, 추론할 수 없는 답일 때만 묻는다.
+ */
 function case01NeedsActualSituationQuestion(answers: ReviewAnswers): boolean {
-  return !isAdminVerifyChoiceFieldComplete(
-    "case01_actualSituation",
-    answers,
-    CASE01_ACTUAL_SITUATION_OPTIONS,
-  );
+  if (
+    isAdminVerifyChoiceFieldComplete(
+      "case01_actualSituation",
+      answers,
+      CASE01_ACTUAL_SITUATION_OPTIONS,
+    )
+  ) {
+    return false;
+  }
+  const rel = answers.case01_factRelationship;
+  if (rel === "date_place_wrong") return true;
+  return inferCase01ActualSituationFromFactRelationship(rel) === undefined;
 }
 
 function case01NeedsFactDifferenceDetail(answers: ReviewAnswers): boolean {
@@ -1096,6 +1107,8 @@ const CASE01_PHASE2_FACET_QUESTION_SPECS: {
 ];
 
 /** Brief v3 §4 R3 — facet on-path 시 선택 직후 보조 원문 (Layer A). */
+const CASE01_FOLLOW_UP_AUX_KINDS = new Set(["more_required", "re_attendance", "payment_demand"]);
+
 const CASE01_PHASE2_FACET_AUX_SPECS: Partial<
   Record<
     string,
@@ -1154,7 +1167,11 @@ function appendCase01Phase2FacetQuestions(
       return false;
     }
     const aux = CASE01_PHASE2_FACET_AUX_SPECS[spec.id];
-    if (aux) {
+    /** 개인화 퍼널 v1 — 교통국 답변 원문은 실제 추가 요구(서류·재방문·납부)가 있을 때만 */
+    const auxNeeded =
+      spec.id !== "case01_authorityFollowUpKind" ||
+      CASE01_FOLLOW_UP_AUX_KINDS.has(answers.case01_authorityFollowUpKind ?? "");
+    if (aux && auxNeeded) {
       pushUnique(questions, {
         id: aux.key,
         kind: "text",
@@ -1275,11 +1292,8 @@ function case01NeedsBlockage(answers: ReviewAnswers): boolean {
   if (rel === "unknown" || gap === "gap_memory_timeline" || gap === "gap_language_access") {
     return true;
   }
-  if (
-    answers.case01_deadline === "asap" ||
-    answers.case01_deadline === "deadline_window_only" ||
-    answers.case01_deadline === "overdue_concern"
-  ) {
+  /** 개인화 퍼널 v1 — '기간만 안내'·'가능한 빨리'는 이미 기한 답에서 확인된 정보라 blockage 트리거에서 제외 */
+  if (answers.case01_deadline === "overdue_concern") {
     return true;
   }
   if (case01AuthorityDemandIsUnclear(answers.case01_authorityDemand)) {
@@ -1289,12 +1303,13 @@ function case01NeedsBlockage(answers: ReviewAnswers): boolean {
   return false;
 }
 
+/** 개인화 퍼널 v1 — 아직 연락하지 않았거나 '지금 해야 할 일'을 확인하려는 고객에게만 기한을 묻는다 */
 function case01NeedsDeadlinePhase2(answers: ReviewAnswers): boolean {
-  return !isAdminVerifyChoiceFieldComplete(
-    "case01_deadline",
-    answers,
-    CASE01_DEADLINE_OPTIONS,
-  );
+  if (isAdminVerifyChoiceFieldComplete("case01_deadline", answers, CASE01_DEADLINE_OPTIONS)) {
+    return false;
+  }
+  if (answers.case01_confirmGoal === "what_to_do_now") return true;
+  return answers.case01_customerResponded !== "has_responded";
 }
 
 function case01Phase2FieldAnswered(
@@ -1329,11 +1344,10 @@ function case01HasMinimumInvestigationAxes(answers: ReviewAnswers): boolean {
     "case01_authorityDemand",
     CASE01_AUTHORITY_DEMAND_OPTIONS,
   );
-  const hasActualSituation = case01Phase2FieldAnswered(
-    answers,
-    "case01_actualSituation",
-    CASE01_ACTUAL_SITUATION_OPTIONS,
-  );
+  /** 개인화 퍼널 v1 — factRelationship으로 추론 가능해 묻지 않은 경우도 충족으로 본다 */
+  const hasActualSituation =
+    case01Phase2FieldAnswered(answers, "case01_actualSituation", CASE01_ACTUAL_SITUATION_OPTIONS) ||
+    !case01NeedsActualSituationQuestion(answers);
   const hasFactRelationship = isAdminVerifyChoiceFieldComplete(
     "case01_factRelationship",
     answers,
@@ -1435,18 +1449,10 @@ export function isCase01Phase1Complete(answers: ReviewAnswers): boolean {
       CASE01_VIOLATION_CONTENT_OPTIONS,
     ) &&
     isAdminVerifyChoiceFieldComplete(
-      "case01_factRelationship",
-      answers,
-      CASE01_FACT_RELATIONSHIP_OPTIONS,
-    ) &&
-    !case01NeedsFactCompareGap(answers) &&
-    isAdminVerifyChoiceFieldComplete(
       "case01_customerResponded",
       answers,
       CASE01_CUSTOMER_RESPONDED_OPTIONS,
     ) &&
-    isAdminVerifyChoiceFieldComplete("case01_deadline", answers, CASE01_DEADLINE_OPTIONS) &&
-    !case01NeedsDeadlineDateDetail(answers) &&
     isAdminVerifyChoiceFieldComplete("case01_confirmGoal", answers, CASE01_CONFIRM_GOAL_OPTIONS)
   );
 }
@@ -1470,36 +1476,6 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   pushUnique(questions, {
-    id: "case01_factRelationship",
-    kind: "choice",
-    label:
-      "교통국이 안내한 내용은 실제 있었던 일과 비교하면 어떤가요?",
-    options: CASE01_FACT_RELATIONSHIP_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete(
-      "case01_factRelationship",
-      answers,
-      CASE01_FACT_RELATIONSHIP_OPTIONS,
-    )
-  ) {
-    return;
-  }
-
-  if (case01NeedsFactCompareGap(answers)) {
-    pushUnique(questions, {
-      id: CASE01_FACT_COMPARE_GAP_KEY,
-      kind: "choice",
-      label:
-        "지금 실제와 비교하기 어려운 가장 큰 이유는 무엇인가요?",
-      options: CASE01_FACT_COMPARE_GAP_OPTIONS,
-    });
-    if (case01NeedsFactCompareGap(answers)) {
-      return;
-    }
-  }
-
-  pushUnique(questions, {
     id: "case01_customerResponded",
     kind: "choice",
     label: "통지를 받은 뒤, 교통국에 연락하거나 대응한 적이 있나요?",
@@ -1516,35 +1492,21 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
   }
 
   pushUnique(questions, {
-    id: "case01_deadline",
-    kind: "choice",
-    label: "대응해야 하는 기한은 어떻게 안내받으셨나요?",
-    options: CASE01_DEADLINE_OPTIONS,
-  });
-  if (
-    !isAdminVerifyChoiceFieldComplete("case01_deadline", answers, CASE01_DEADLINE_OPTIONS)
-  ) {
-    return;
-  }
-
-  if (case01NeedsDeadlineDateDetail(answers)) {
-    pushUnique(questions, {
-      id: CASE01_DEADLINE_DATE_KEY,
-      kind: "text",
-      label: "안내받은 대응 기한은 언제인가요?",
-      placeholder: "통지서에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일까지",
-    });
-    if (case01NeedsDeadlineDateDetail(answers)) {
-      return;
-    }
-  }
-
-  pushUnique(questions, {
     id: "case01_confirmGoal",
     kind: "choice",
     label: "지금 가장 먼저 확인하고 싶은 것은 무엇인가요?",
-    options: CASE01_CONFIRM_GOAL_OPTIONS,
+    options: case01ConfirmGoalOptionsFor(answers),
   });
+}
+
+/** 개인화 퍼널 v1 — 연락한 적 없는 고객에게 '이미 대응한 결과' 선택지를 보이지 않음(저장된 값은 유지) */
+function case01ConfirmGoalOptionsFor(answers: ReviewAnswers): { value: string; label: string }[] {
+  return CASE01_CONFIRM_GOAL_OPTIONS.filter(
+    (o) =>
+      o.value !== "after_my_response" ||
+      answers.case01_customerResponded === "has_responded" ||
+      adminVerifyFieldHasSlug(answers, "case01_confirmGoal", o.value),
+  );
 }
 
 function appendCase01Phase2AdaptiveQuestions(
@@ -1602,6 +1564,34 @@ function appendCase01Phase2AdaptiveQuestions(
 }
 
 function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
+  /** 개인화 퍼널 v1 — 사실 비교는 2차 첫 질문(핵심 사실, 2차 공통) */
+  pushUnique(questions, {
+    id: "case01_factRelationship",
+    kind: "choice",
+    label:
+      "교통국이 안내한 내용은 실제 있었던 일과 비교하면 어떤가요?",
+    options: CASE01_FACT_RELATIONSHIP_OPTIONS,
+  });
+  if (
+    !isAdminVerifyChoiceFieldComplete(
+      "case01_factRelationship",
+      answers,
+      CASE01_FACT_RELATIONSHIP_OPTIONS,
+    )
+  ) {
+    return;
+  }
+  if (case01NeedsFactCompareGap(answers)) {
+    pushUnique(questions, {
+      id: CASE01_FACT_COMPARE_GAP_KEY,
+      kind: "choice",
+      label:
+        "지금 실제와 비교하기 어려운 가장 큰 이유는 무엇인가요?",
+      options: CASE01_FACT_COMPARE_GAP_OPTIONS,
+    });
+    return;
+  }
+
   pushUnique(questions, {
     id: "case01_authorityDemand",
     kind: "choice",
@@ -1655,13 +1645,13 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     }
   }
 
-  pushUnique(questions, {
-    id: "case01_actualSituation",
-    kind: "choice",
-    label: "교통국의 안내와 별개로, 실제로는 어떤 일이 있었나요?",
-    options: CASE01_ACTUAL_SITUATION_OPTIONS,
-  });
   if (case01NeedsActualSituationQuestion(answers)) {
+    pushUnique(questions, {
+      id: "case01_actualSituation",
+      kind: "choice",
+      label: "교통국의 안내와 별개로, 실제로는 어떤 일이 있었나요?",
+      options: CASE01_ACTUAL_SITUATION_OPTIONS,
+    });
     return;
   }
 
@@ -1808,6 +1798,15 @@ function appendCase01PathQuestions(
 
 function case01PathFieldsComplete(answers: ReviewAnswers): boolean {
   if (!isCase01Phase1Complete(answers)) return false;
+  if (
+    !isAdminVerifyChoiceFieldComplete(
+      "case01_factRelationship",
+      answers,
+      CASE01_FACT_RELATIONSHIP_OPTIONS,
+    )
+  ) {
+    return false;
+  }
   if (case01NeedsFactCompareGap(answers)) return false;
   if (case01NeedsPaymentDemandScope(answers)) return false;
   if (case01NeedsSupplementDemandScope(answers)) return false;
@@ -2164,13 +2163,10 @@ export function isAdminVerifyChoiceFieldComplete(
   return Boolean(answers[noteKey as keyof ReviewAnswers]?.trim());
 }
 
+/** 개인화 퍼널 v1 — 1차 Q1 포함 4개. factRelationship(+비교 어려움 이유)·deadline(+날짜)은 2차 */
 export const CASE01_PHASE1_FIELD_ORDER = [
   "case01_violationContent",
-  "case01_factRelationship",
-  CASE01_FACT_COMPARE_GAP_KEY,
   "case01_customerResponded",
-  "case01_deadline",
-  CASE01_DEADLINE_DATE_KEY,
   "case01_confirmGoal",
 ] as const;
 
