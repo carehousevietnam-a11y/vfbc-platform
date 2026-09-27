@@ -118,228 +118,219 @@ export const CASE06_V11_CHAIN_FIELD_KEYS = [
 const withDi = (options: { value: string; label: string }[]) => [...options, ADMIN_DIRECT_EXPLAIN_CHOICE];
 
 export const CASE06_REQUIRED_ACTION_CANDIDATE_OPTIONS = withDi([
-  { value: "pay_demand", label: "돈을 내라고 했습니다 (벌금·과태료·비용 등)" },
-  { value: "attend_explain", label: "어디로 가거나 출석해서 설명하라고 했습니다" },
-  { value: "submit_supplement", label: "서류를 제출하거나 빠진 내용을 보완하라고 했습니다" },
-  { value: "disposition_notice", label: "이미 내려진 처분이나 제재를 통보받았습니다" },
-  {
-    value: "problem_action_unclear",
-    label: "문제·위반이 있다고 했지만 무엇을 해야 하는지는 정확히 모릅니다",
-  },
+  { value: "pay_demand", label: "벌금이나 수수료 등, 어떤 돈을 내라는 내용으로 이해했습니다." },
+  { value: "attend_explain", label: "교통국 등에 직접 가서, 상황을 설명하라는 내용으로 이해했습니다." },
+  { value: "submit_supplement", label: "서류를 새로 내거나, 빠진 내용을 채워서 다시 내라는 내용으로 이해했습니다." },
+  { value: "disposition_notice", label: "면허 정지나 제재처럼, 이미 결정된 조치를 알리는 내용으로 이해했습니다." },
+  { value: "problem_action_unclear", label: "문제가 있다는 것은 알지만, 무엇을 해야 하는지는 알 수 없었습니다." },
 ]);
 
 export const CASE06_KNOWLEDGE_SOURCE_OPTIONS = withDi([
-  { value: "doc_read_understood", label: "문서를 직접 확인했고, 적힌 내용을 어느 정도 이해하고 있습니다" },
-  { value: "doc_read_not_understood", label: "문서는 직접 봤지만, 무슨 뜻인지 정확히 이해하지 못했습니다" },
-  { value: "explained_without_doc", label: "문서는 보지 못했고, 기관이나 다른 사람이 설명해 주었습니다" },
-  {
-    value: "memory_only_no_doc_now",
-    label: "문서가 있었지만 지금은 확인할 수 없어서 기억나는 내용만 압니다",
-  },
-  { value: "path_unclear", label: "문서를 봤는지 누구에게 들었는지 등 경로가 불분명합니다" },
+  { value: "doc_read_understood", label: "문서를 직접 읽었고, 적힌 내용을 대부분 이해했습니다." },
+  { value: "doc_read_not_understood", label: "문서는 직접 봤지만, 베트남어나 행정 용어 때문에 뜻을 이해하지 못했습니다." },
+  { value: "explained_without_doc", label: "문서는 보지 못했고, 기관이나 다른 사람의 설명으로만 알게 되었습니다." },
+  { value: "memory_only_no_doc_now", label: "문서를 받았지만 지금은 가지고 있지 않아, 기억나는 내용만 알고 있습니다." },
+  { value: "path_unclear", label: "문서를 봤는지, 누구에게 들었는지 확인 경로가 분명하지 않습니다." },
 ]);
 
 export const CASE06_SOURCE_CHANNEL_OPTIONS = withDi([
-  { value: "gov_document_direct", label: "정부기관에서 받은 문서·공식 안내를 직접 확인했습니다" },
-  { value: "gov_contact_direct", label: "정부기관에서 전화·문자·방문 등으로 직접 안내받았습니다" },
-  { value: "via_agent_or_company", label: "회사·중개인·대리인이 기관 내용을 전달했습니다" },
-  { value: "via_acquaintance_relay", label: "지인이 기관에서 들은 내용을 다시 설명해 주었습니다" },
-  { value: "source_unknown", label: "어느 기관·누구에게서 나온 내용인지 알 수 없습니다" },
+  { value: "gov_document_direct", label: "교통국 등 정부기관이 보낸 문서나 공식 안내를 제가 직접 받았습니다." },
+  { value: "gov_contact_direct", label: "정부기관 담당자에게 전화·문자·방문으로 직접 안내받았습니다." },
+  { value: "via_agent_or_company", label: "회사나 대행사, 중개인이 기관 내용을 대신 전달해 주었습니다." },
+  { value: "via_acquaintance_relay", label: "지인이 기관에서 들은 내용을 다시 설명해 주었습니다." },
+  { value: "source_unknown", label: "어느 기관에서, 누구를 통해 나온 내용인지 알 수 없습니다." },
 ]);
 
 export const CASE06_DEADLINE_ACTION_PAIR_OPTIONS = withDi([
-  { value: "deadline_pay_by_date", label: "특정 날짜까지 돈을 내라고 안내했습니다" },
-  { value: "deadline_submit_by_date", label: "특정 날짜까지 서류 제출·보완을 안내했습니다" },
-  { value: "deadline_attend_by_date", label: "특정 날짜에 출석·설명을 안내했습니다" },
-  { value: "action_unclear_timing", label: "해야 할 일은 있으나 언제·무엇인지 정확히 모릅니다" },
-  { value: "no_deadline_stated", label: "기한 안내 자체를 받은 적이 없습니다" },
+  { value: "deadline_pay_by_date", label: "정해진 날짜까지 돈을 내라는 안내를 받았습니다." },
+  { value: "deadline_submit_by_date", label: "정해진 날짜까지 서류를 제출하거나 보완하라는 안내를 받았습니다." },
+  { value: "deadline_attend_by_date", label: "정해진 날짜에 직접 가서 설명하라는 안내를 받았습니다." },
+  { value: "action_unclear_timing", label: "해야 할 일은 있는 것 같지만, 무엇을 언제까지 해야 하는지 모릅니다." },
+  { value: "no_deadline_stated", label: "날짜나 기한에 대한 안내는 받지 못했습니다." },
 ]);
 
 export const CASE06_CUSTOMER_RESPONSE_OPTIONS = withDi([
-  { value: "no_response_yet", label: "아직 아무 대응도 하지 않았습니다" },
-  { value: "inquired_authority", label: "기관에 문의·재확인했습니다" },
-  { value: "prepared_or_submitted_docs", label: "요구받은 서류·자료를 준비·제출했습니다" },
-  { value: "paid_or_attempted_pay", label: "돈을 납부했거나 납부하려 했습니다" },
-  {
-    value: "attended_then_redemand",
-    label: "출석·설명했지만, 그 뒤 다시 안내·보완·추가 요구를 받았습니다",
-  },
+  { value: "no_response_yet", label: "안내만 받았고, 아직 아무 대응도 하지 않았습니다." },
+  { value: "inquired_authority", label: "기관에 연락해 내용을 다시 물어봤지만, 아직 다른 조치는 하지 않았습니다." },
+  { value: "prepared_or_submitted_docs", label: "요구받은 것으로 보이는 서류나 자료를 준비하거나 제출했습니다." },
+  { value: "paid_or_attempted_pay", label: "돈을 납부했거나, 납부하려고 시도했습니다." },
+  { value: "attended_then_redemand", label: "직접 가서 설명했지만, 그 뒤 다시 추가 요구를 받았습니다." },
 ]);
 
 const CASE06_PAYMENT_NATURE_OPTIONS = withDi([
-  { value: "violation_fine", label: "위반·과태료" },
-  { value: "application_fee", label: "신청·허가 수수료" },
-  { value: "prior_tax_or_debt", label: "기존 발생 비용(세금 등)" },
-  { value: "not_explained", label: "설명 못 받음" },
+  { value: "violation_fine", label: "교통위반에 대한 벌금이나 과태료라고 안내받았습니다." },
+  { value: "application_fee", label: "면허나 허가를 신청하면서 내야 하는 수수료라고 안내받았습니다." },
+  { value: "prior_tax_or_debt", label: "예전에 발생한 세금이나 미납 비용이라고 안내받았습니다." },
+  { value: "not_explained", label: "돈을 내라는 안내만 받았고, 무엇에 대한 비용인지는 설명받지 못했습니다." },
 ]);
 
 const CASE06_PAYMENT_AMOUNT_KNOWN_OPTIONS = withDi([
-  { value: "exact_amount_known", label: "정확한 금액 앎" },
-  { value: "approx_amount_known", label: "대략만 앎" },
-  { value: "conflicting_amounts", label: "여러 번 다르게 안내됨" },
-  { value: "amount_not_given", label: "아직 안내 못 받음" },
+  { value: "exact_amount_known", label: "정확한 금액이 문서에 적혀 있거나, 담당자에게 분명히 들었습니다." },
+  { value: "approx_amount_known", label: "대략적인 금액만 들었고, 정확한 금액은 모릅니다." },
+  { value: "conflicting_amounts", label: "안내받을 때마다 금액이 달라, 어느 금액이 맞는지 모르겠습니다." },
+  { value: "amount_not_given", label: "돈을 내라는 말은 들었지만, 금액은 아직 안내받지 못했습니다." },
 ]);
 
 const CASE06_PAYMENT_SITUATION_MATCH_OPTIONS = withDi([
-  { value: "match", label: "맞음" },
-  { value: "amount_or_reason_mismatch", label: "금액·사유가 실제와 다름" },
-  { value: "insufficient_info", label: "판단 정보 부족" },
-  { value: "redemand_after_paid", label: "이미 낸 적 있는데 재요구" },
+  { value: "match", label: "실제 있었던 일과 맞고, 내야 하는 돈이라고 생각합니다." },
+  { value: "amount_or_reason_mismatch", label: "그런 일은 있었지만, 금액이나 이유가 실제와 다릅니다." },
+  { value: "insufficient_info", label: "안내 내용이 부족해, 실제와 맞는지 판단하기 어렵습니다." },
+  { value: "redemand_after_paid", label: "이미 낸 적이 있는데, 같은 일로 다시 내라는 안내를 받았습니다." },
 ]);
 
 const CASE06_PAYMENT_AUTHORITY_CHECK_OPTIONS = withDi([
-  { value: "clear_answer", label: "확인해서 명확한 답 받음" },
-  { value: "unclear_answer", label: "확인했지만 불명확" },
-  { value: "not_checked_yet", label: "아직 확인 안 함" },
-  { value: "cannot_reach", label: "연락 안 됨" },
+  { value: "clear_answer", label: "기관에 확인했고, 무엇을 얼마나 내야 하는지 분명한 답을 받았습니다." },
+  { value: "unclear_answer", label: "기관에 확인했지만, 답변이 분명하지 않았습니다." },
+  { value: "not_checked_yet", label: "아직 기관에 확인해 보지 않았습니다." },
+  { value: "cannot_reach", label: "확인하려고 했지만, 기관과 연락이 닿지 않았습니다." },
 ]);
 
 const CASE06_PAYMENT_RESPONSE_OPTIONS = withDi([
-  { value: "already_paid", label: "이미 납부" },
-  { value: "preparing_payment", label: "납부 준비 중" },
-  { value: "dispute_or_recheck", label: "이의제기·재확인 요청" },
-  { value: "no_action", label: "아무것도 안 함" },
+  { value: "already_paid", label: "안내받은 금액을 이미 납부했습니다." },
+  { value: "preparing_payment", label: "납부하려고 준비하고 있지만, 아직 내지는 않았습니다." },
+  { value: "dispute_or_recheck", label: "내기 전에, 금액이나 이유를 다시 확인해 달라고 요청했습니다." },
+  { value: "no_action", label: "아직 아무것도 하지 않았습니다." },
 ]);
 
 const CASE06_PAYMENT_NON_PAYMENT_NOTICE_OPTIONS = withDi([
-  { value: "enforcement_warning", label: "제재·강제징수 안내" },
-  { value: "interest_surcharge_warning", label: "이자·가산금 안내" },
-  { value: "no_notice", label: "안내 못 받음" },
+  { value: "enforcement_warning", label: "제재를 받거나 강제로 징수될 수 있다는 안내를 받았습니다." },
+  { value: "interest_surcharge_warning", label: "기한이 지나면 가산금이나 이자가 붙는다는 안내를 받았습니다." },
+  { value: "no_notice", label: "미납 시 어떻게 되는지는 안내받지 못했습니다." },
 ]);
 
 const CASE06_ATTENDANCE_SUBJECT_OPTIONS = withDi([
-  { value: "specific_violation", label: "특정 위반행위 설명" },
-  { value: "submitted_docs_review", label: "제출서류·신청내용 확인" },
-  { value: "ongoing_investigation", label: "진행 중 사안 추가조사" },
-  { value: "not_explained", label: "설명 못 받음" },
+  { value: "specific_violation", label: "특정 위반 행위에 대해, 직접 설명하라고 했습니다." },
+  { value: "submitted_docs_review", label: "제출한 서류나 신청 내용에 확인할 부분이 있다고 했습니다." },
+  { value: "ongoing_investigation", label: "진행 중인 조사와 관련해, 추가로 확인할 것이 있다고 했습니다." },
+  { value: "not_explained", label: "가서 설명하라는 안내만 받았고, 무엇에 대한 것인지는 설명받지 못했습니다." },
 ]);
 
 const CASE06_ATTENDANCE_FACT_MATCH_OPTIONS = withDi([
-  { value: "match", label: "맞음(실제 있었음)" },
-  { value: "partial", label: "일부만 맞음" },
-  { value: "mismatch", label: "전혀 다름" },
-  { value: "insufficient_info", label: "판단 정보 부족" },
+  { value: "match", label: "실제 있었던 일과 거의 같습니다." },
+  { value: "partial", label: "일부는 맞지만, 중요한 부분이 실제와 다릅니다." },
+  { value: "mismatch", label: "실제 있었던 일과 전혀 다릅니다." },
+  { value: "insufficient_info", label: "무엇을 문제로 보는지 몰라, 비교하기 어렵습니다." },
 ]);
 
 const CASE06_ATTENDANCE_NOTICE_DETAIL_OPTIONS = withDi([
-  { value: "date_place_method_known", label: "정확한 날짜·장소·방식 앎" },
-  { value: "approx_time_only", label: "대략 시기만 앎" },
-  { value: "method_only", label: "통지 방식만 기억" },
-  { value: "no_memory", label: "기억 안 남" },
+  { value: "date_place_method_known", label: "날짜·장소·방법을 모두 정확히 안내받았습니다." },
+  { value: "approx_time_only", label: "대략적인 시기만 들었고, 정확한 날짜와 장소는 모릅니다." },
+  { value: "method_only", label: "어떤 방법으로 안내받았는지만 기억나고, 내용은 기억나지 않습니다." },
+  { value: "no_memory", label: "안내받은 내용이 전혀 기억나지 않습니다." },
 ]);
 
 const CASE06_ATTENDANCE_RESPONSE_OPTIONS = withDi([
-  { value: "attended_or_explained", label: "이미 출석·설명함" },
-  { value: "submitted_docs", label: "서류·자료 제출함" },
-  { value: "no_response", label: "아직 대응 안 함" },
-  { value: "cannot_due_to_unknown", label: "방법 몰라 못 함" },
+  { value: "attended_or_explained", label: "이미 직접 가서 설명했습니다." },
+  { value: "submitted_docs", label: "가는 대신, 관련 서류나 자료를 제출했습니다." },
+  { value: "no_response", label: "아직 아무 대응도 하지 않았습니다." },
+  { value: "cannot_due_to_unknown", label: "어떻게 해야 하는지 몰라, 대응하지 못하고 있습니다." },
 ]);
 
 const CASE06_ATTENDANCE_AUTHORITY_REACTION_OPTIONS = withDi([
-  { value: "no_issue_reply", label: "문제없다는 답변" },
-  { value: "more_docs_or_reattend", label: "추가자료·재출석 재요구" },
-  { value: "no_reply_yet", label: "아직 답변 없음" },
-  { value: "adverse_notice", label: "오히려 불리한 통보" },
+  { value: "no_issue_reply", label: "문제가 없다는 답변을 받았습니다." },
+  { value: "more_docs_or_reattend", label: "추가 자료를 내거나, 다시 와서 설명하라는 요구를 받았습니다." },
+  { value: "no_reply_yet", label: "아직 답변을 받지 못했습니다." },
+  { value: "adverse_notice", label: "오히려 불리한 조치를 하겠다는 통보를 받았습니다." },
 ]);
 
 const CASE06_SUBMISSION_REQUIREMENT_OPTIONS = withDi([
-  { value: "add_missing_docs", label: "빠진 서류 추가 제출" },
-  { value: "correct_existing", label: "기존 서류 잘못된 내용 수정" },
-  { value: "retranslate_or_certify", label: "번역·인증 재요구" },
-  { value: "extra_explanation_evidence", label: "추가 설명·증빙 자료" },
-  { value: "not_explained", label: "설명 못 받음" },
+  { value: "add_missing_docs", label: "처음에 내지 않은 서류를 추가로 제출하라고 했습니다." },
+  { value: "correct_existing", label: "이미 낸 서류의 잘못된 내용을 고쳐서 다시 내라고 했습니다." },
+  { value: "retranslate_or_certify", label: "번역을 다시 하거나, 공증·인증을 다시 받아 오라고 했습니다." },
+  { value: "extra_explanation_evidence", label: "내용을 뒷받침할 설명이나 증빙을 더 내라고 했습니다." },
+  { value: "not_explained", label: "다시 내라는 안내만 받았고, 무엇을 내야 하는지는 설명받지 못했습니다." },
 ]);
 
 const CASE06_SUBMISSION_REASON_OPTIONS = withDi([
-  { value: "requirements_insufficient", label: "신청 요건 자체가 원래 부족했다고 설명함" },
-  { value: "doc_error_mismatch", label: "제출한 서류에 오류·불일치가 있다고 설명함" },
-  { value: "policy_change_extra", label: "정책·규정이 바뀌어서 추가로 필요하다고 설명함" },
-  { value: "reason_not_explained", label: "이유를 구체적으로 설명받지 못함" },
+  { value: "requirements_insufficient", label: "신청할 때 필요한 조건이 처음부터 부족했다고 설명했습니다." },
+  { value: "doc_error_mismatch", label: "제출한 서류에 오류가 있거나, 서류끼리 맞지 않는다고 설명했습니다." },
+  { value: "policy_change_extra", label: "규정이 바뀌어서, 추가 서류가 필요하다고 설명했습니다." },
+  { value: "reason_not_explained", label: "이유는 구체적으로 설명하지 않았습니다." },
 ]);
 
 const CASE06_SUBMISSION_RELATION_OPTIONS = withDi([
-  { value: "match", label: "맞습니다(실제로 그 요건·서류가 부족했거나 잘못되었습니다)" },
-  { value: "partial", label: "일부만 맞습니다(지적된 것 중 일부만 실제 문제입니다)" },
-  { value: "mismatch", label: "전혀 다릅니다(이미 제출했거나 문제가 없던 내용입니다)" },
-  { value: "insufficient_info", label: "판단할 정보가 부족합니다" },
+  { value: "match", label: "맞습니다. 실제로 서류가 부족했거나 잘못된 부분이 있었습니다." },
+  { value: "partial", label: "지적받은 것 중 일부만 실제 문제입니다." },
+  { value: "mismatch", label: "이미 제출했거나 문제가 없던 내용이라, 실제와 다릅니다." },
+  { value: "insufficient_info", label: "판단할 정보가 부족해, 맞는지 알 수 없습니다." },
 ]);
 
 const CASE06_SUBMISSION_RESPONSE_OPTIONS = withDi([
-  { value: "submitted_all", label: "요구받은 서류를 모두 준비해서 제출했습니다" },
-  { value: "submitted_partial", label: "일부만 준비해서 제출했습니다" },
-  { value: "not_submitted_yet", label: "아직 아무것도 제출하지 않았습니다" },
-  { value: "blocked_unknown_how", label: "무엇을 어떻게 제출해야 할지 몰라서 못했습니다" },
+  { value: "submitted_all", label: "요구받은 서류를 모두 준비해서 제출했습니다." },
+  { value: "submitted_partial", label: "일부만 준비해서 제출했고, 나머지는 아직입니다." },
+  { value: "not_submitted_yet", label: "아직 아무것도 제출하지 않았습니다." },
+  { value: "blocked_unknown_how", label: "무엇을 어떻게 제출해야 할지 몰라, 제출하지 못했습니다." },
 ]);
 
 const CASE06_SUBMISSION_AUTHORITY_REACTION_OPTIONS = withDi([
-  { value: "no_issue_reply", label: "문제없다는 답변을 받았습니다" },
-  { value: "more_docs_requested", label: "추가 서류·보완을 다시 요구받았습니다" },
-  { value: "no_reply_yet", label: "아직 답변을 받지 못했습니다" },
-  { value: "adverse_notice", label: "오히려 불리한 통보(반려·거부 등)를 받았습니다" },
+  { value: "no_issue_reply", label: "문제가 없다는 답변을 받았습니다." },
+  { value: "more_docs_requested", label: "추가 서류를 내거나, 다시 보완하라는 요구를 받았습니다." },
+  { value: "no_reply_yet", label: "아직 답변을 받지 못했습니다." },
+  { value: "adverse_notice", label: "신청이 거절되는 등 불리한 통보를 받았습니다." },
 ]);
 
 const CASE06_SUBMISSION_EVIDENCE_OPTIONS = withDi([
-  { value: "has_original_or_copy", label: "원본 서류·사본을 가지고 있습니다" },
-  { value: "has_messages", label: "기관과 주고받은 문자·이메일·메모가 있습니다" },
-  { value: "has_call_record", label: "담당자와 통화·상담한 기록이 있습니다" },
-  { value: "no_evidence", label: "확인할 수 있는 자료가 없습니다" },
+  { value: "has_original_or_copy", label: "제출한 서류의 원본이나 사본을 가지고 있습니다." },
+  { value: "has_messages", label: "기관과 주고받은 문자·이메일이나 메모가 있습니다." },
+  { value: "has_call_record", label: "담당자와 통화하거나 상담한 기록이 있습니다." },
+  { value: "no_evidence", label: "확인할 수 있는 자료가 없습니다." },
 ]);
 
 const CASE06_DISPOSITION_TYPE_CANDIDATE_OPTIONS = withDi([
-  { value: "business_suspension", label: "영업·업무정지" },
-  { value: "license_or_registration_revoked", label: "허가·등록 취소" },
-  { value: "fine_type_disposition", label: "벌금형 처분" },
-  { value: "adverse_unnamed", label: "명칭은 모르고 안 좋은 조치라는 것만 앎" },
+  { value: "business_suspension", label: "일정 기간 운행이나 영업을 할 수 없는 정지 조치라고 들었습니다." },
+  { value: "license_or_registration_revoked", label: "면허나 허가·등록이 취소되는 조치라고 들었습니다." },
+  { value: "fine_type_disposition", label: "벌금을 부과하는 조치라고 들었습니다." },
+  { value: "adverse_unnamed", label: "조치 이름은 모르지만, 불리한 결정이라는 것만 알고 있습니다." },
 ]);
 
 const CASE06_DISPOSITION_REASON_OPTIONS = withDi([
-  { value: "specific_violation", label: "특정 위반행위 때문" },
-  { value: "docs_or_requirements_gap", label: "서류·요건 미비 때문" },
-  { value: "heard_not_understood", label: "들었지만 이해 못함" },
-  { value: "not_explained", label: "설명 못 받음" },
+  { value: "specific_violation", label: "특정 위반 행위 때문이라고 설명했습니다." },
+  { value: "docs_or_requirements_gap", label: "서류나 조건이 부족하기 때문이라고 설명했습니다." },
+  { value: "heard_not_understood", label: "이유를 설명해 주었지만, 이해하지 못했습니다." },
+  { value: "not_explained", label: "이유는 설명받지 못했습니다." },
 ]);
 
 const CASE06_DISPOSITION_FACT_MATCH_OPTIONS = withDi([
-  { value: "match", label: "맞음" },
-  { value: "partial", label: "일부만 맞음" },
-  { value: "mismatch", label: "전혀 다름" },
-  { value: "insufficient_info", label: "판단 정보 부족" },
+  { value: "match", label: "실제 있었던 일과 거의 같습니다." },
+  { value: "partial", label: "일부는 맞지만, 중요한 부분이 실제와 다릅니다." },
+  { value: "mismatch", label: "실제 있었던 일과 전혀 다릅니다." },
+  { value: "insufficient_info", label: "이유를 정확히 몰라, 비교하기 어렵습니다." },
 ]);
 
 const CASE06_DISPOSITION_EFFECTIVE_DATE_OPTIONS = withDi([
-  { value: "exact_effective_date", label: "정확한 발효일 앎" },
-  { value: "approx_effective_date", label: "대략 시기만 앎" },
-  { value: "already_effective", label: "이미 효력 시작됐다고 들음" },
-  { value: "not_stated", label: "안내 못 받음" },
+  { value: "exact_effective_date", label: "적용되는 정확한 날짜를 안내받았습니다." },
+  { value: "approx_effective_date", label: "대략적인 시기만 들었고, 정확한 날짜는 모릅니다." },
+  { value: "already_effective", label: "이미 적용이 시작되었다고 들었습니다." },
+  { value: "not_stated", label: "언제부터 적용되는지는 안내받지 못했습니다." },
 ]);
 
 const CASE06_DISPOSITION_RESPONSE_OPTIONS = withDi([
-  { value: "appeal_or_review_requested", label: "이의신청·재검토 요청" },
-  { value: "submitted_requested_docs", label: "요구자료 제출" },
-  { value: "no_action", label: "아무것도 안 함" },
-  { value: "appeal_method_unknown", label: "이의제기 방법조차 모름" },
+  { value: "appeal_or_review_requested", label: "결정을 다시 검토해 달라고 요청했습니다." },
+  { value: "submitted_requested_docs", label: "기관이 요구한 서류나 자료를 제출했습니다." },
+  { value: "no_action", label: "아직 아무것도 하지 않았습니다." },
+  { value: "appeal_method_unknown", label: "다시 검토를 요청하고 싶지만, 방법을 모릅니다." },
 ]);
 
 const CASE06_UNCLEAR_CONTENT_RECHECK_OPTIONS = withDi([
-  { value: "signal_violation", label: "위반·문제 언급" },
-  { value: "signal_payment", label: "돈 관련 언급" },
-  { value: "signal_submission", label: "서류·제출 관련 언급" },
-  { value: "signal_attendance", label: "출석·설명 요구 언급" },
-  { value: "signal_disposition", label: "이미 결정된 조치 언급" },
+  { value: "signal_violation", label: "위반이나 문제가 있다는 내용이 언급되어 있었습니다." },
+  { value: "signal_payment", label: "돈이나 금액과 관련된 내용이 언급되어 있었습니다." },
+  { value: "signal_submission", label: "서류 제출과 관련된 내용이 언급되어 있었습니다." },
+  { value: "signal_attendance", label: "직접 오거나 설명하라는 내용이 언급되어 있었습니다." },
+  { value: "signal_disposition", label: "이미 결정된 조치에 대한 내용이 언급되어 있었습니다." },
 ]);
 
 const CASE06_UNCLEAR_FACT_RELATION_OPTIONS = withDi([
-  { value: "actually_related", label: "실제 있었음" },
-  { value: "partially_related", label: "일부만 관련" },
-  { value: "unrelated", label: "전혀 무관" },
-  { value: "insufficient_info", label: "판단 정보 없음" },
+  { value: "actually_related", label: "실제로 있었던 일과 관련된 내용입니다." },
+  { value: "partially_related", label: "일부만 실제 있었던 일과 관련이 있습니다." },
+  { value: "unrelated", label: "저와는 전혀 관계없는 일입니다." },
+  { value: "insufficient_info", label: "내용을 이해하지 못해, 관계를 판단할 수 없습니다." },
 ]);
 
 const CASE06_UNCLEAR_RESPONSE_OPTIONS = withDi([
-  { value: "inquired", label: "기관에 문의" },
-  { value: "prepared_docs", label: "서류·자료 준비" },
-  { value: "no_action", label: "아무것도 안 함" },
-  { value: "blocked_unknown_action", label: "뭘 해야 할지 몰라 못 함" },
+  { value: "inquired", label: "기관에 연락해서, 무슨 내용인지 물어봤습니다." },
+  { value: "prepared_docs", label: "필요할 것 같은 서류나 자료를 준비했습니다." },
+  { value: "no_action", label: "아직 아무것도 하지 않았습니다." },
+  { value: "blocked_unknown_action", label: "무엇을 해야 할지 몰라, 아무것도 하지 못하고 있습니다." },
 ]);
 
 export const CASE06_V11_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> = {
@@ -498,8 +489,8 @@ function pushDeadlineDateText(questions: ProfileQuestion[], answers: ReviewAnswe
   pushUnique(questions, {
     id: CASE06_DEADLINE_DATE_KEY,
     kind: "text",
-    label: "그 날짜·기한을 적어 주세요.",
-    placeholder: "기억나는 날짜·기한을 적어 주세요.",
+    label: "안내받은 날짜나 기한은 언제인가요?",
+    placeholder: "문서에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일까지",
   });
 }
 
@@ -508,8 +499,8 @@ function pushPaymentAmountText(questions: ProfileQuestion[], answers: ReviewAnsw
   pushUnique(questions, {
     id: CASE06_PAYMENT_AMOUNT_TEXT_KEY,
     kind: "text",
-    label: "안내받은 금액을 적어 주세요.",
-    placeholder: "금액·통화를 적어 주세요.",
+    label: "안내받은 금액을 입력해 주세요.",
+    placeholder: "문서나 문자에 적힌 금액과 단위를 그대로 입력해 주세요. 예) 800,000동",
   });
 }
 
@@ -518,8 +509,8 @@ function pushAttendanceNoticeText(questions: ProfileQuestion[], answers: ReviewA
   pushUnique(questions, {
     id: CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
     kind: "text",
-    label: "출석·설명 날짜·장소·방식을 적어 주세요.",
-    placeholder: "날짜·장소·방식을 적어 주세요.",
+    label: "안내받은 날짜·장소·방법을 입력해 주세요.",
+    placeholder: "기억나는 날짜와 시간, 장소를 입력해 주세요.",
   });
 }
 
@@ -528,8 +519,8 @@ function pushDispositionEffectiveDateText(questions: ProfileQuestion[], answers:
   pushUnique(questions, {
     id: CASE06_DISPOSITION_EFFECTIVE_DATE_TEXT_KEY,
     kind: "text",
-    label: "처분 발효일을 적어 주세요.",
-    placeholder: "기억나는 발효일을 적어 주세요.",
+    label: "조치가 적용되는 날짜를 입력해 주세요.",
+    placeholder: "문서에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일부터",
   });
 }
 
@@ -837,67 +828,67 @@ export function applyCase06BridgeSnapshot(
 }
 
 function appendPaymentChain(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  if (!pushChoice(questions, answers, "case06_paymentNature", "무엇에 대한 비용이라고 안내받았나요?", CASE06_PAYMENT_NATURE_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_paymentAmountKnown", "얼마를 내라고 안내받았나요?", CASE06_PAYMENT_AMOUNT_KNOWN_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_paymentNature", "무엇에 대한 비용이라고 안내받으셨나요?", CASE06_PAYMENT_NATURE_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_paymentAmountKnown", "내야 할 금액은 어떻게 안내받으셨나요?", CASE06_PAYMENT_AMOUNT_KNOWN_OPTIONS)) return;
   pushPaymentAmountText(questions, answers);
   if (case06NeedsPaymentAmountText(answers)) return;
-  if (!pushChoice(questions, answers, "case06_paymentSituationMatch", "그 금액이 실제 본인 상황과 맞다고 생각하시나요?", CASE06_PAYMENT_SITUATION_MATCH_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_paymentAuthorityCheck", "기관에 직접 확인해 보셨나요?", CASE06_PAYMENT_AUTHORITY_CHECK_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_paymentResponse", "지금까지 실제로 어떻게 하셨나요?", CASE06_PAYMENT_RESPONSE_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_paymentSituationMatch", "그 금액과 이유는 실제 상황과 맞나요?", CASE06_PAYMENT_SITUATION_MATCH_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_paymentAuthorityCheck", "이 납부 안내에 대해 기관에 확인한 결과는 어땠나요?", CASE06_PAYMENT_AUTHORITY_CHECK_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_paymentResponse", "지금까지 이 납부에 대해 어떻게 하셨나요?", CASE06_PAYMENT_RESPONSE_OPTIONS)) return;
   if (case06NeedsPaymentNonPaymentNotice(answers)) {
     pushChoice(
       questions,
       answers,
       "case06_paymentNonPaymentNotice",
-      "기한 내 내지 않으면 어떻게 된다고 안내받았나요?",
+      "기한 안에 내지 않으면 어떻게 된다고 안내받으셨나요?",
       CASE06_PAYMENT_NON_PAYMENT_NOTICE_OPTIONS,
     );
   }
 }
 
 function appendAttendanceChain(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  if (!pushChoice(questions, answers, "case06_attendanceSubject", "무엇에 대해 출석하거나 설명하라고 했나요?", CASE06_ATTENDANCE_SUBJECT_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_attendanceFactMatch", "기관이 문제 삼는 내용이 실제 상황과 맞다고 생각하시나요?", CASE06_ATTENDANCE_FACT_MATCH_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_attendanceNoticeDetail", "언제, 어디서, 어떤 방식으로 통지받았나요?", CASE06_ATTENDANCE_NOTICE_DETAIL_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_attendanceSubject", "무엇에 대해 가서 설명하라고 했나요?", CASE06_ATTENDANCE_SUBJECT_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_attendanceFactMatch", "기관이 문제로 보는 내용은 실제 있었던 일과 비교하면 어떤가요?", CASE06_ATTENDANCE_FACT_MATCH_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_attendanceNoticeDetail", "언제, 어디로, 어떻게 가라는 안내를 받으셨나요?", CASE06_ATTENDANCE_NOTICE_DETAIL_OPTIONS)) return;
   pushAttendanceNoticeText(questions, answers);
   if (case06NeedsAttendanceNoticeText(answers)) return;
-  if (!pushChoice(questions, answers, "case06_attendanceResponse", "지금까지 실제로 어떻게 대응하셨나요?", CASE06_ATTENDANCE_RESPONSE_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_attendanceResponse", "지금까지 어떻게 대응하셨나요?", CASE06_ATTENDANCE_RESPONSE_OPTIONS)) return;
   if (case06NeedsAttendanceAuthorityReaction(answers)) {
     pushChoice(
       questions,
       answers,
       "case06_attendanceAuthorityReaction",
-      "대응 이후 기관은 어떻게 반응했나요?",
+      "그 뒤 기관에서는 어떤 답변이 있었나요?",
       CASE06_ATTENDANCE_AUTHORITY_REACTION_OPTIONS,
     );
   }
 }
 
 function appendSubmissionChain(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  if (!pushChoice(questions, answers, "case06_submissionRequirement", "기관에서는 어떤 서류나 내용을 다시 제출·보완하라고 했나요?", CASE06_SUBMISSION_REQUIREMENT_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_submissionReason", "그 보완을 요구받은 이유를 기관에서는 어떻게 설명했나요?", CASE06_SUBMISSION_REASON_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_submissionRelation", "그 설명이 실제 본인 상황과 어떻게 연결된다고 알고 계신가요?", CASE06_SUBMISSION_RELATION_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_submissionResponse", "안내를 받은 뒤 실제로 무엇을 제출·설명하셨나요?", CASE06_SUBMISSION_RESPONSE_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_submissionAuthorityReaction", "그 후 기관에서는 어떻게 답변하거나 다시 요구했나요?", CASE06_SUBMISSION_AUTHORITY_REACTION_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_submissionRequirement", "기관은 어떤 서류나 내용을 다시 내라고 했나요?", CASE06_SUBMISSION_REQUIREMENT_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_submissionReason", "다시 내야 하는 이유를 기관은 어떻게 설명했나요?", CASE06_SUBMISSION_REASON_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_submissionRelation", "그 설명은 실제 상황과 비교하면 어떤가요?", CASE06_SUBMISSION_RELATION_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_submissionResponse", "안내를 받은 뒤, 실제로 무엇을 제출하셨나요?", CASE06_SUBMISSION_RESPONSE_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_submissionAuthorityReaction", "그 뒤 기관에서는 어떤 답변이 있었나요?", CASE06_SUBMISSION_AUTHORITY_REACTION_OPTIONS)) return;
   if (case06NeedsSubmissionEvidence(answers)) {
     pushChoice(
       questions,
       answers,
       "case06_submissionEvidence",
-      "현재 가지고 있는 자료 중 이 내용을 확인할 수 있는 것은 무엇인가요?",
+      "이 내용을 확인할 수 있는 자료 중 가지고 계신 것은 무엇인가요?",
       CASE06_SUBMISSION_EVIDENCE_OPTIONS,
     );
   }
 }
 
 function appendDispositionChain(questions: ProfileQuestion[], answers: ReviewAnswers): void {
-  if (!pushChoice(questions, answers, "case06_dispositionTypeCandidate", "어떤 처분이라고 안내받았나요?", CASE06_DISPOSITION_TYPE_CANDIDATE_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_dispositionReason", "그 처분의 이유를 기관에서는 어떻게 설명했나요?", CASE06_DISPOSITION_REASON_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_dispositionFactMatch", "그 이유가 실제 본인 상황과 맞다고 생각하시나요?", CASE06_DISPOSITION_FACT_MATCH_OPTIONS)) return;
-  if (!pushChoice(questions, answers, "case06_dispositionEffectiveDate", "이 처분은 언제부터 효력이 생긴다고 안내받았나요?", CASE06_DISPOSITION_EFFECTIVE_DATE_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_dispositionTypeCandidate", "어떤 조치라고 안내받으셨나요?", CASE06_DISPOSITION_TYPE_CANDIDATE_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_dispositionReason", "그 조치의 이유를 기관은 어떻게 설명했나요?", CASE06_DISPOSITION_REASON_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_dispositionFactMatch", "그 이유는 실제 있었던 일과 비교하면 어떤가요?", CASE06_DISPOSITION_FACT_MATCH_OPTIONS)) return;
+  if (!pushChoice(questions, answers, "case06_dispositionEffectiveDate", "이 조치는 언제부터 적용된다고 안내받으셨나요?", CASE06_DISPOSITION_EFFECTIVE_DATE_OPTIONS)) return;
   pushDispositionEffectiveDateText(questions, answers);
   if (case06NeedsDispositionEffectiveDateText(answers)) return;
-  pushChoice(questions, answers, "case06_dispositionResponse", "지금까지 실제로 어떻게 대응하셨나요?", CASE06_DISPOSITION_RESPONSE_OPTIONS);
+  pushChoice(questions, answers, "case06_dispositionResponse", "지금까지 이 조치에 어떻게 대응하셨나요?", CASE06_DISPOSITION_RESPONSE_OPTIONS);
 }
 
 function appendUnclearChain(questions: ProfileQuestion[], answers: ReviewAnswers): void {
@@ -906,7 +897,7 @@ function appendUnclearChain(questions: ProfileQuestion[], answers: ReviewAnswers
       questions,
       answers,
       "case06_unclearContentRecheck",
-      "그 문서나 안내에서 기관이 실제로 언급한 내용은 무엇인가요?",
+      "문서나 안내에서 교통국이 언급한 내용은 무엇에 가장 가까웠나요?",
       CASE06_UNCLEAR_CONTENT_RECHECK_OPTIONS,
     )
   ) {
@@ -921,10 +912,10 @@ function appendUnclearChain(questions: ProfileQuestion[], answers: ReviewAnswers
     else if (chain === 4) appendDispositionChain(questions, answers);
     return;
   }
-  if (!pushChoice(questions, answers, "case06_unclearFactRelation", "기관이 지적한 내용이 실제 본인 상황과 어떤 관계가 있다고 생각하시나요?", CASE06_UNCLEAR_FACT_RELATION_OPTIONS)) {
+  if (!pushChoice(questions, answers, "case06_unclearFactRelation", "교통국이 지적한 내용은 실제 있었던 일과 어떤 관계가 있나요?", CASE06_UNCLEAR_FACT_RELATION_OPTIONS)) {
     return;
   }
-  if (!pushChoice(questions, answers, "case06_unclearResponse", "지금까지 이 건에 대해 실제로 무엇을 하셨나요?", CASE06_UNCLEAR_RESPONSE_OPTIONS)) {
+  if (!pushChoice(questions, answers, "case06_unclearResponse", "지금까지 이 일에 대해 어떻게 하셨나요?", CASE06_UNCLEAR_RESPONSE_OPTIONS)) {
     return;
   }
   if (answers.case06_unclearContentRecheck === "other" && isChainUnclearExpertComplete(applyExpertTerminalFields(answers))) {
@@ -936,12 +927,12 @@ export function appendCase06RedesignPhase1Questions(questions: ProfileQuestion[]
   const phase1: { id: string; label: string }[] = [
     {
       id: "case06_requiredActionCandidate",
-      label: "문서에서 실제로 하라고 적혀 있거나, 상대방에게 설명받은 내용은 무엇인가요?",
+      label: "문서나 설명을 통해, 교통국이 무엇을 하라고 한 것으로 이해하셨나요?",
     },
-    { id: "case06_knowledgeSource", label: "이 내용을 실제로 어떻게 확인하셨나요?" },
-    { id: "case06_sourceChannel", label: "이 내용은 어디에서 어떻게 전달받으셨나요?" },
-    { id: "case06_deadlineActionPair", label: "기관에서는 언제까지 무엇을 하라고 안내했나요?" },
-    { id: "case06_customerResponse", label: "그 안내를 받은 뒤 지금까지 실제로 어떻게 대응하셨나요?" },
+    { id: "case06_knowledgeSource", label: "이 내용을 어떻게 확인하셨나요?" },
+    { id: "case06_sourceChannel", label: "이 내용은 누구를 통해 전달받으셨나요?" },
+    { id: "case06_deadlineActionPair", label: "언제까지 무엇을 하라는 안내를 받으셨나요?" },
+    { id: "case06_customerResponse", label: "안내를 받은 뒤, 현재 어디까지 진행하셨나요?" },
   ];
   for (const field of phase1) {
     const options = CASE06_V11_FIELD_OPTIONS[field.id];
