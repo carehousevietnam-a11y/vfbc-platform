@@ -3812,8 +3812,8 @@ const CASE03_AUTHORITY_DEMAND_OPTIONS = [
 
 const CASE03_CONFIRM_GOAL_OPTIONS = [
   { value: "prepare_materials", label: "방문할 때 어떤 서류나 자료를 준비해야 하는지 확인하고 싶습니다." },
-  { value: "sufficient_explanation", label: "이미 설명한 내용으로 충분한지, 추가로 해야 할 일이 있는지 확인하고 싶습니다." },
-  { value: "deadline_attendance", label: "반드시 직접 가야 하는지, 언제까지 가야 하는지 확인하고 싶습니다." },
+  { value: "sufficient_explanation", label: "이미 설명한 내용으로 충분한지, 부족하다면 추가로 무엇을 해야 하는지 확인하고 싶습니다." },
+  { value: "deadline_attendance", label: "직접 가야 하는지, 만약 가야 한다면 언제까지 가야 하는지 확인하고 싶습니다." },
   { value: "repeat_response", label: "이미 대응했는데, 왜 다시 요구하는지 확인하고 싶습니다." },
   { value: "unsure", label: "상황이 복잡해서, 무엇부터 진행해야 하는지 순서를 확인하고 싶습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,

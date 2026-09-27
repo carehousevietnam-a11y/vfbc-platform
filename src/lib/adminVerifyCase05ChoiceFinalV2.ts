@@ -38,7 +38,7 @@ export const CASE05_DISPOSITION_TYPE_OPTIONS_V2 = [
 export const CASE05_CONFIRM_GOAL_OPTIONS_V2 = [
   { value: "understand_reason", label: "이런 통지를 받은 이유를 알 수 없어, 그 이유부터 확인하고 싶습니다." },
   { value: "understand_impact", label: "이 조치로 앞으로 무엇을 할 수 없게 되는지, 업무나 생활에 미치는 영향을 확인하고 싶습니다." },
-  { value: "appeal_possibility", label: "이 결정을 다시 검토해 달라고 요청할 수 있는지, 기한은 언제까지인지 확인하고 싶습니다." },
+  { value: "appeal_possibility", label: "이 결정을 다시 검토해 달라고 요청할 수 있는지, 가능하다면 언제까지 요청해야 하는지 확인하고 싶습니다." },
   { value: "what_to_do", label: "서류 제출·납부·방문 등 지금 바로 해야 할 일을 확인하고 싶습니다." },
   { value: "unsure", label: "상황이 복잡해서, 무엇부터 진행해야 하는지 순서를 확인하고 싶습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
