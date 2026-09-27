@@ -4872,7 +4872,7 @@ export function AdminVerifyFirstResultPanel({
           className="mb-3 lg:mb-3.5"
           titleTone="calm"
           title="02 / 핵심 확인 결과"
-          subtitle={`| 총 ${data.keyMetrics.length}개 핵심 영역 진단`}
+          subtitle="| 총 4개 핵심 영역 진단"
           meta={
             <span className="font-mono text-xs text-slate-500 lg:text-[10px]">입력 답변 기반 판독</span>
           }
