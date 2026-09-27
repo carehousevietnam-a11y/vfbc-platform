@@ -586,247 +586,78 @@ export const CASE01_ANSWER_KEYS = [
 export const CASE05_DEADLINE_DATE_KEY = "case05_deadlineDate";
 
 const CASE01_FACT_COMPARE_GAP_OPTIONS = [
-  {
-    value: "gap_notice_incomplete",
-    label:
-      "통지서·안내를 봤지만, 문제가 된 날짜·장소·행동·누구에 대한 내용이 빠져 있거나 적혀 있지 않아, 지금은 교통국 설명과 제 상황을 대조할 수 없습니다.",
-  },
-  {
-    value: "gap_memory_timeline",
-    label:
-      "무엇이 문제라고 들은 것은 대략 기억나지만, 그때가 언제·어디였는지 일정과 장소가 흐려져, 설명받은 내용과 제가 한 일을 맞춰 보기 어렵습니다.",
-  },
-  {
-    value: "gap_hearsay_channel",
-    label:
-      "교통국에서 직접 설명을 듣거나 문서를 받지 못했고, 지인·대행·통역 등 다른 경로로만 들었기 때문에, 통지 내용과 사실이 같은지 확인하기 어렵습니다.",
-  },
-  {
-    value: "gap_records_not_found",
-    label:
-      "교통국이 말하는 내용과 제 제출·등록·접수 기록이 맞는지 보려면 자료가 필요한데, 아직 접수증·등록 내역·제출 증빙을 찾지 못했습니다.",
-  },
-  {
-    value: "gap_language_access",
-    label:
-      "안내를 받은 것은 기억나지만, 한국어·통역으로 문구를 제대로 이해하지 못했거나, 무엇이 문제라고 하는지 핵심 문장을 확인하지 못해 비교할 수 없습니다.",
-  },
+  { value: "gap_notice_incomplete", label: "통지서에 날짜·장소·행동 등 핵심 내용이 적혀 있지 않아, 무엇과 비교해야 할지 모릅니다." },
+  { value: "gap_memory_timeline", label: "문제가 된 일은 대략 알지만, 그때의 날짜와 장소가 정확히 기억나지 않습니다." },
+  { value: "gap_hearsay_channel", label: "교통국에서 직접 받지 않고, 지인이나 대행사를 통해서만 내용을 전해 들었습니다." },
+  { value: "gap_records_not_found", label: "비교하려면 제 기록이 필요하지만, 제출 영수증이나 등록 내역을 아직 찾지 못했습니다." },
+  { value: "gap_language_access", label: "통지는 받았지만, 베트남어라서 무엇이 문제라고 하는지 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_CONFIRM_GOAL_OPTIONS = [
-  {
-    value: "fit_and_facts",
-    label:
-      "내 상황에 해당하는지와 사실·날짜·행동이 맞는지를 먼저 확인하고 싶습니다.",
-  },
-  {
-    value: "why_and_basis",
-    label: "왜 이런 통지·문제 판단이 나왔는지와 근거·기록을 확인하고 싶습니다.",
-  },
-  {
-    value: "what_to_do_now",
-    label: "지금 무엇을·언제까지·어떻게 해야 하는지(출석·제출·납부 등)를 확인하고 싶습니다.",
-  },
-  {
-    value: "after_my_response",
-    label: "이미 한 대응의 결과와 다음 절차·재요구를 확인하고 싶습니다.",
-  },
-  {
-    value: "verify_applicability",
-    label: "실제로 제 상황에 해당하는지 확인하고 싶습니다.",
-  },
-  {
-    value: "why_notice",
-    label: "왜 이런 문제라고 판단했는지 확인하고 싶습니다.",
-  },
-  {
-    value: "fact_difference",
-    label: "실제 상황과 교통국 설명 중 무엇이 다른지 확인하고 싶습니다.",
-  },
-  {
-    value: "what_when",
-    label: "지금 무엇을 해야 하는지 확인하고 싶습니다.",
-  },
-  {
-    value: "procedure_followup",
-    label: "이후 어떤 절차가 진행되는지 확인하고 싶습니다.",
-  },
+  { value: "fit_and_facts", label: "이 통지가 제 상황에 해당하는지, 해당한다면 적힌 날짜와 행동이 사실과 맞는지 확인하고 싶습니다." },
+  { value: "why_and_basis", label: "왜 이런 통지를 받았는지, 교통국이 어떤 기록을 근거로 판단했는지 확인하고 싶습니다." },
+  { value: "what_to_do_now", label: "지금 해야 할 일이 있는지, 있다면 언제까지 어떻게 해야 하는지 확인하고 싶습니다." },
+  { value: "after_my_response", label: "이미 대응한 결과가 어떻게 되었는지, 다음에 어떤 절차가 이어지는지 확인하고 싶습니다." },
+  { value: "unsure", label: "상황이 복잡해서, 무엇부터 진행해야 하는지 순서를 확인하고 싶습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_VIOLATION_CONTENT_OPTIONS = [
-  {
-    value: "traffic_spatiotemporal_dispute",
-    label:
-      "특정 날짜·장소·행동을 문제라고 들었고, 그날 제가 있었던 곳·한 일과 겹치거나 충돌합니다. 통지·문자에 날짜·장소가 적혀 있어 대조할 자료가 있습니다.",
-  },
-  {
-    value: "conduct_denied_or_partial",
-    label:
-      "제가 하지 않았거나, 일부만 맞는 행동·상황을 문제라고 들었습니다. 당시 다른 일·다른 장소를 기억하고 있고, 이를 설명할 메모·증빙이 있을 수 있습니다.",
-  },
-  {
-    value: "authority_explanation_missing",
-    label:
-      "무엇이 문제인지 설명을 못 받았거나 통역·구두만으로 들어 내용이 불명확합니다. 안내를 받은 경로는 있으나 쟁점 문구를 확인하지 못했습니다.",
-  },
-  {
-    value: "other_stated",
-    label: "실제 행동이나 상황을 문제라고 설명받은 것 같습니다.",
-  },
-  {
-    value: "traffic",
-    label: "특정 날짜나 장소의 일을 문제라고 설명받은 것 같습니다.",
-  },
-  {
-    value: "administrative",
-    label: "면허·차량·등록 관련 내용을 문제라고 설명받은 것 같습니다.",
-  },
-  {
-    value: "labor_tax",
-    label: "제출한 서류·신고·등록 내용을 문제라고 설명받은 것 같습니다.",
-  },
-  {
-    value: "explanation_unknown",
-    label: "교통국에서 무엇을 문제라고 보는지 설명받지 못했습니다.",
-  },
+  { value: "traffic", label: "특정 날짜와 장소에서 교통위반이 있었다는 안내를 받았고, 그 날짜와 장소가 적혀 있습니다." },
+  { value: "other_stated", label: "신호·속도·주차 등 제가 운전하면서 한 특정 행동이 위반이라는 안내를 받았습니다." },
+  { value: "administrative", label: "면허·차량 등록·차량 검사와 관련해 문제가 있다는 안내를 받았습니다." },
+  { value: "labor_tax", label: "제가 제출한 서류나 신고 내용에 문제가 있다는 안내를 받았습니다." },
+  { value: "explanation_unknown", label: "위반 통지는 받았지만, 무엇이 문제인지는 설명받지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_ACTUAL_SITUATION_OPTIONS = [
-  {
-    value: "accept_facts",
-    label: "실제로 그런 행동이나 상황이 있었습니다.",
-  },
-  {
-    value: "partial_similar",
-    label: "비슷한 일이 있었지만 중요한 부분이 다릅니다.",
-  },
-  {
-    value: "deny",
-    label: "그런 행동이나 상황이 실제로는 없었습니다.",
-  },
-  {
-    value: "partial",
-    label: "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다.",
-  },
-  {
-    value: "unsure",
-    label: "당시 상황을 정확히 정리하거나 설명하기 어렵습니다.",
-  },
+  { value: "accept_facts", label: "안내받은 행동이 실제로 있었고, 그 사실은 인정합니다." },
+  { value: "partial_similar", label: "비슷한 일은 있었지만, 위반이 될 만한 중요한 부분은 다릅니다." },
+  { value: "deny", label: "안내받은 행동은 실제로 없었고, 당시 상황을 설명할 수 있습니다." },
+  { value: "partial", label: "일부는 맞지만, 전체 상황은 안내받은 내용과 다릅니다." },
+  { value: "unsure", label: "시간이 오래 지났거나 기록이 없어, 당시 상황을 정확히 설명하기 어렵습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_FACT_RELATIONSHIP_OPTIONS = [
-  {
-    value: "align_minor_gap",
-    label:
-      "대체로 같으나 날짜·시간·장소·행동 한두 가지가 다르거나 기억이 흐립니다. 통지서 날짜·장소 문구와 대조할 예정입니다.",
-  },
-  {
-    value: "deny_with_alibi",
-    label:
-      "지적한 행동은 하지 않았고, 그 시각·장소에 다른 일을 했습니다. 일정·사진·동행 등 반박 단서가 있을 수 있습니다.",
-  },
-  {
-    value: "partial_core_dispute",
-    label:
-      "일부는 맞지만, 문제의 핵심(누가·무엇을·언제)이 다르게 기록·안내된 것 같습니다. 어디가 핵심인지 정리가 필요합니다.",
-  },
-  {
-    value: "cannot_compare_yet",
-    label:
-      "설명은 들었지만, 지금은 교통국 안내와 제가 아는 사실을 같은 기준으로 비교하기 어렵습니다. (다음에서 이유를 선택합니다.)",
-  },
-  {
-    value: "match",
-    label:
-      "교통국에서 설명받은 내용과 제가 알고 있는 실제 상황이 대체로 같습니다.",
-  },
-  {
-    value: "date_place_wrong",
-    label: "날짜나 장소가 제가 기억하는 실제 상황과 다릅니다.",
-  },
-  {
-    value: "deny_action",
-    label: "제가 실제로 한 행동이나 상황이 설명받은 내용과 다릅니다.",
-  },
-  {
-    value: "partial_situation",
-    label: "일부는 맞지만 전체 상황은 설명받은 내용과 다릅니다.",
-  },
-  {
-    value: "unknown",
-    label:
-      "설명은 들었지만 실제 상황과 같은지 다른지 판단하기 어렵습니다.",
-  },
+  { value: "match", label: "교통국이 안내한 내용이 실제 있었던 일과 거의 같습니다." },
+  { value: "date_place_wrong", label: "비슷한 일은 있었지만, 날짜·시간·장소가 실제와 다릅니다." },
+  { value: "deny_action", label: "안내받은 위반 행동을 저는 하지 않았고, 그 시간에는 다른 일을 하고 있었습니다." },
+  { value: "partial_situation", label: "일부는 맞지만, 누가·무엇을 했는지 등 핵심 내용이 다르게 적혀 있습니다." },
+  { value: "cannot_compare_yet", label: "안내는 받았지만, 지금은 실제와 같은지 다른지 비교하기 어렵습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_AUTHORITY_DEMAND_OPTIONS = [
-  {
-    value: "pay_core_traffic",
-    label:
-      "이번 교통·위반 문제의 핵심으로 납부·벌금을 요구했고, 다른 안내와 섞여 있지 않습니다.",
-  },
-  {
-    value: "pay_bundled",
-    label:
-      "납부 요구가 다른 문제·다른 안내와 함께 나왔고, 어느 금액이 이번 건인지 불분명합니다.",
-  },
-  {
-    value: "supplement_core",
-    label:
-      "이번 건 핵심이 서류 보완·재제출이고, 납부·출석 요구는 아직 아닙니다.",
-  },
-  {
-    value: "attend_explain",
-    label:
-      "출석·소명·추가 설명을 요구했고, 제출만으로 끝나지 않습니다.",
-  },
-  { value: "attendance", label: "추가 설명이나 출석을 하라고 안내했습니다." },
-  { value: "supplement", label: "추가 서류나 자료를 제출하라고 안내했습니다." },
-  { value: "payment", label: "비용·벌금·과태료를 납부하라고 안내했습니다." },
-  {
-    value: "correct_record",
-    label: "기존 제출 내용이나 기록을 수정하거나 확인하라고 안내했습니다.",
-  },
-  {
-    value: "demand_unclear",
-    label:
-      "구체적으로 무엇을 하라는지 안내하지 않았거나, 설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다.",
-  },
+  { value: "payment", label: "위반에 대한 벌금이나 비용을 납부하라는 안내를 받았습니다." },
+  { value: "attendance", label: "교통국에 직접 방문하거나, 상황을 설명하라는 안내를 받았습니다." },
+  { value: "supplement", label: "추가 서류를 제출하거나, 이미 낸 서류를 다시 제출하라는 안내를 받았습니다." },
+  { value: "correct_record", label: "등록 정보나 기존 기록이 맞는지 확인하고, 틀리면 수정하라는 안내를 받았습니다." },
+  { value: "demand_unclear", label: "통지는 받았지만, 구체적으로 무엇을 하라는지 안내받지 못했거나 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_PAYMENT_DEMAND_SCOPE_OPTIONS = [
-  { value: "core_case", label: "이번 문제의 핵심입니다." },
-  { value: "included_with_other", label: "다른 문제와 함께 포함된 요구입니다." },
-  { value: "additional_guidance", label: "추가로 안내받은 내용입니다." },
-  { value: "unsure", label: "잘 모르겠습니다." },
+  { value: "core_case", label: "이번 위반에 대한 벌금이고, 이번 일에서 가장 중요한 요구입니다." },
+  { value: "included_with_other", label: "다른 안내와 함께 여러 금액이 적혀 있어, 어느 금액이 이번 일인지 분명하지 않습니다." },
+  { value: "additional_guidance", label: "중요한 요구는 따로 있고, 납부는 추가로 안내받은 내용입니다." },
+  { value: "unsure", label: "납부 안내는 받았지만, 어떤 성격의 금액인지 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_SUPPLEMENT_DEMAND_SCOPE_OPTIONS = [
-  { value: "core_case", label: "이번 보완 요구가 문제의 핵심입니다." },
-  { value: "included_with_notice", label: "통지 안내에 포함된 보완 요구입니다." },
-  { value: "additional_guidance", label: "추가로 안내받은 보완 요구입니다." },
-  { value: "unsure", label: "잘 모르겠습니다." },
+  { value: "core_case", label: "서류를 다시 제출하는 것이 이번 일에서 가장 중요한 요구입니다." },
+  { value: "included_with_notice", label: "위반 통지 안에 서류 제출 요구가 함께 적혀 있습니다." },
+  { value: "additional_guidance", label: "중요한 요구는 따로 있고, 서류 제출은 추가로 안내받은 내용입니다." },
+  { value: "unsure", label: "서류 제출 안내는 받았지만, 왜 필요한지 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_CUSTOMER_RESPONDED_OPTIONS = [
-  {
-    value: "no_contact_yet",
-    label:
-      "아직 교통국에 연락·출석·제출을 하지 않았고, 통지만 받은 상태입니다. 무엇부터 할지 확인이 필요합니다.",
-  },
-  { value: "none", label: "아직 교통국에 별도로 대응하지 않았습니다." },
-  {
-    value: "has_responded",
-    label: "교통국에 어떤 형태로든 대응한 경험이 있습니다.",
-  },
+  { value: "no_contact_yet", label: "통지만 받았고, 아직 교통국에 연락하거나 방문하지 않았습니다." },
+  { value: "has_responded", label: "교통국에 연락하거나 방문해, 상황을 설명하거나 서류를 제출한 적이 있습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -838,125 +669,62 @@ const CASE01_LEGACY_CUSTOMER_RESPONDED_ACTION_VALUES = new Set([
 ]);
 
 const CASE01_RESPONSE_DETAIL_OPTIONS = [
-  { value: "explained_situation", label: "당시 상황을 설명했습니다." },
-  { value: "submitted_materials", label: "관련 서류나 자료를 제출했습니다." },
-  {
-    value: "disputed_facts",
-    label: "설명받은 내용과 실제 상황이 다르다고 이야기했습니다.",
-  },
-  { value: "fulfilled_demand", label: "안내받은 내용을 처리했습니다." },
+  { value: "explained_situation", label: "교통국에 방문하거나 연락해, 당시 상황을 직접 설명했습니다." },
+  { value: "submitted_materials", label: "관련 서류나 자료를 준비해 교통국에 제출했습니다." },
+  { value: "disputed_facts", label: "안내받은 내용이 사실과 다르다고 교통국에 분명히 말했습니다." },
+  { value: "fulfilled_demand", label: "안내받은 대로 벌금 납부나 서류 제출 등 요구를 처리했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_AUTHORITY_RESPONSE_OPTIONS = [
-  { value: "completed", label: "추가 요구 없이 처리되었다고 들었습니다." },
-  { value: "more_required", label: "추가 서류나 자료를 요청했습니다." },
-  { value: "re_attendance", label: "다시 출석하거나 설명하라고 했습니다." },
-  { value: "payment_demand", label: "비용 납부나 다른 조치를 안내했습니다." },
-  { value: "no_reply_yet", label: "아직 답변을 받지 못했습니다." },
+  { value: "completed", label: "추가로 할 일은 없고, 처리가 끝났다는 안내를 받았습니다." },
+  { value: "more_required", label: "추가 서류나 자료를 제출하라는 안내를 받았습니다." },
+  { value: "re_attendance", label: "다시 방문하거나, 추가로 설명하라는 안내를 받았습니다." },
+  { value: "payment_demand", label: "벌금이나 비용을 납부하라는 안내를 받았습니다." },
+  { value: "no_reply_yet", label: "아직 답변을 받지 못했거나, 받은 답변의 의미를 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_DEADLINE_OPTIONS = [
-  {
-    value: "deadline_day_known",
-    label:
-      "연·월·일이 적힌 기한을 확인했고, 그 날짜 전에 무엇을 해야 하는지도 대략 압니다. 통지·문자에 날짜 문구가 있습니다.",
-  },
-  {
-    value: "deadline_window_only",
-    label:
-      "‘이번 달 말’·‘2주 내’ 등 구체 일자는 없고 기간만 들었습니다. 언제까지인지 재확인이 필요합니다.",
-  },
-  {
-    value: "no_deadline_stated",
-    label: "기한 언급이 없었거나 기억나지 않습니다. 기한 없이 요구만 받은 것 같습니다.",
-  },
-  {
-    value: "confirmed",
-    label: "대응해야 하는 날짜를 구체적으로 안내받았습니다.",
-  },
-  {
-    value: "uncertain",
-    label: "기한이 있다고 들었지만 정확한 날짜는 확인하지 못했습니다.",
-  },
-  {
-    value: "asap",
-    label: "가능한 한 빨리 대응하라는 안내만 받았습니다.",
-  },
-  {
-    value: "no_stated",
-    label: "별도의 기한은 안내받지 않았습니다.",
-  },
-  {
-    value: "unknown",
-    label: "기한에 대한 설명을 받지 못했거나 정확히 이해하지 못했습니다.",
-  },
+  { value: "deadline_day_known", label: "통지서나 문자에 적힌 정확한 날짜를 확인했습니다." },
+  { value: "deadline_window_only", label: "'며칠 이내'처럼 기간만 안내받았고, 정확한 날짜는 받지 못했습니다." },
+  { value: "asap", label: "날짜 없이, 가능한 한 빨리 대응하라는 안내만 받았습니다." },
+  { value: "no_stated", label: "기한에 대해서는 별도의 안내를 받지 못했습니다." },
+  { value: "unknown", label: "통지서가 베트남어로 되어 있어, 기한이 적혀 있는지조차 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_BLOCKAGE_UI_OPTIONS = [
-  {
-    value: "content_unclear",
-    label: "받은 안내를 제 상황에 맞게 이해·정리하기 어렵습니다.",
-  },
-  {
-    value: "how_respond",
-    label: "기관에 어떻게 대응해야 할지 다음 조치가 불분명합니다.",
-  },
-  {
-    value: "next_step",
-    label: "이미 문의·제출을 했지만, 다음에 무엇을 해야 할지 불분명합니다.",
-  },
-  {
-    value: "facts_why",
-    label: "어떤 사실을 어떤 순서로 설명·소명해야 할지 정리되지 않았습니다.",
-  },
-  {
-    value: "evidence",
-    label: "확인·제출에 필요한 자료를 무엇으로 준비해야 할지 막혀 있습니다.",
-  },
+  { value: "content_unclear", label: "받은 안내를 이해하지 못해, 제 상황에 해당하는지 판단하지 못하고 있습니다." },
+  { value: "how_respond", label: "안내는 이해했지만, 어떻게 대응해야 할지 몰라 시작하지 못하고 있습니다." },
+  { value: "next_step", label: "이미 문의하거나 제출했지만, 다음에 무엇을 해야 할지 몰라 기다리고만 있습니다." },
+  { value: "facts_why", label: "무엇을 어떤 순서로 설명해야 할지 정리되지 않아, 대응을 미루고 있습니다." },
+  { value: "evidence", label: "필요한 자료를 무엇으로 준비해야 할지 몰라, 준비가 멈춰 있습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_EVIDENCE_OPTIONS = [
-  { value: "notice", label: "교통국 통지·안내문" },
-  { value: "message", label: "문자·메시지·이메일" },
-  { value: "submitted_docs", label: "제출·접수·납부 증빙" },
-  { value: "photo_video", label: "사진·영상·기타 자료" },
-  { value: "none", label: "관련 자료 없음" },
+  { value: "notice", label: "교통국에서 받은 통지서나 안내문" },
+  { value: "message", label: "교통국과 주고받은 문자·메시지·이메일" },
+  { value: "submitted_docs", label: "제출·납부 영수증이나 접수 증빙" },
+  { value: "photo_video", label: "당시 상황을 보여 주는 사진·영상(블랙박스 포함)" },
+  { value: "none", label: "보관 중인 자료가 없습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_AUTHORITY_DEMAND_DETAIL_OPTIONS = [
-  {
-    value: "clear_guidance",
-    label: "무엇을 하라는 안내가 분명하게 전달되었습니다.",
-  },
-  {
-    value: "partial_guidance",
-    label: "대략 들었지만 세부 내용이 불분명합니다.",
-  },
-  {
-    value: "understanding_unknown",
-    label: "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다.",
-  },
+  { value: "clear_guidance", label: "무엇을 해야 하는지 분명하게 안내받았고, 그대로 진행할 수 있습니다." },
+  { value: "partial_guidance", label: "대략적인 내용은 알지만, 세부 방법이나 기한은 분명하지 않습니다." },
+  { value: "understanding_unknown", label: "설명은 들었지만, 무엇을 해야 하는지 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE01_FINAL_GOAL_UI_OPTIONS = [
-  {
-    value: "situation_fit",
-    label:
-      "이 안내가 제 상황에 해당하는지, 안내 내용과 실제 상황이 맞는지 확인하고 싶어요.",
-  },
-  { value: "why_notice", label: "왜 이런 안내를 받았는지 확인하고 싶어요." },
-  {
-    value: "what_deadline",
-    label: "지금 무엇을 해야 하는지, 기한과 대응 방법을 확인하고 싶어요.",
-  },
-  { value: "followup", label: "이미 대응한 결과와 다음 단계를 확인하고 싶어요." },
-  { value: "expert", label: "전문가에게 제 상황을 정확히 전달하고 싶어요." },
+  { value: "situation_fit", label: "통지가 제 상황에 맞는지 확인하고, 맞지 않다면 바로잡고 싶습니다." },
+  { value: "why_notice", label: "통지를 받은 이유를 정확히 알고, 같은 일이 다시 생기지 않게 하고 싶습니다." },
+  { value: "what_deadline", label: "해야 할 일과 기한을 확인해, 기한 안에 처리를 마치고 싶습니다." },
+  { value: "followup", label: "이미 대응한 결과를 확인하고, 이 일을 마무리하고 싶습니다." },
+  { value: "expert", label: "제 상황을 전문가에게 정확히 전달해, 대응을 맡기고 싶습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -1076,7 +844,12 @@ function getCase01ChoiceLabel(
   value: string | undefined,
 ): string | null {
   if (!value) return null;
-  return options.find((option) => option.value === value)?.label ?? null;
+  const current = options.find((option) => option.value === value)?.label;
+  if (current) return current;
+  const fieldId = Object.entries(ADMIN_VERIFY_MERGED_FIELD_OPTION_MAP).find(
+    ([id, opts]) => id.startsWith("case01_") && opts === options,
+  )?.[0];
+  return (fieldId && getLegacyChoiceLabel(fieldId, value)) || null;
 }
 
 function isCase01TrafficNoticeContext(answers: ReviewAnswers): boolean {
@@ -1086,30 +859,12 @@ function isCase01TrafficNoticeContext(answers: ReviewAnswers): boolean {
 }
 
 export const CASE01_OPTION_LABELS: Record<string, string> = {
-  ...Object.fromEntries(CASE01_CONFIRM_GOAL_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_VIOLATION_CONTENT_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_ACTUAL_SITUATION_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_FACT_RELATIONSHIP_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_FACT_COMPARE_GAP_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_AUTHORITY_DEMAND_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_PAYMENT_DEMAND_SCOPE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_SUPPLEMENT_DEMAND_SCOPE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_CUSTOMER_RESPONDED_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_RESPONSE_DETAIL_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_AUTHORITY_RESPONSE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_DEADLINE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_BLOCKAGE_UI_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_AUTHORITY_DEMAND_DETAIL_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE01_FINAL_GOAL_UI_OPTIONS.map((o) => [o.value, o.label])),
-  explanation_unknown: "교통국에서 무엇을 문제라고 보는지 설명받지 못했습니다.",
+  /** 화면에서 제거된 옛 선택지 라벨 — 현재 선택지가 있으면 아래 spread가 덮어씀 */
   unsure: "교통국에서 무엇을 문제라고 보는지 설명받지 못했습니다.",
   understanding_unknown: "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다.",
   demand_unclear:
     "구체적으로 무엇을 하라는지 안내하지 않았거나, 설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다.",
   no_stated_demand: "구체적으로 무엇을 하라는지 안내하지 않았습니다.",
-  situation_fit:
-    "이 안내가 제 상황에 해당하는지, 안내 내용과 실제 상황이 맞는지 확인하고 싶어요.",
   what_deadline: "지금 무엇을 해야 하는지, 기한과 대응 방법을 확인하고 싶어요.",
   unclear: "설명은 들었지만 무엇을 해야 하는지 정확히 이해하지 못했습니다.",
   fact_unknown: "설명받은 내용과 실제 상황이 같은지 다른지 판단할 정보가 부족합니다.",
@@ -1165,6 +920,22 @@ export const CASE01_OPTION_LABELS: Record<string, string> = {
   waiting: "아직 기관 답변을 기다리는 중입니다",
   yes: "기관에서 받은 통지서가 있어요.",
   no: "현재 가지고 있는 자료가 없어요.",
+  ...Object.fromEntries(CASE01_CONFIRM_GOAL_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_VIOLATION_CONTENT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_ACTUAL_SITUATION_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_FACT_RELATIONSHIP_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_FACT_COMPARE_GAP_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_AUTHORITY_DEMAND_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_PAYMENT_DEMAND_SCOPE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_SUPPLEMENT_DEMAND_SCOPE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_CUSTOMER_RESPONDED_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_RESPONSE_DETAIL_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_AUTHORITY_RESPONSE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_DEADLINE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_BLOCKAGE_UI_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_AUTHORITY_DEMAND_DETAIL_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE01_FINAL_GOAL_UI_OPTIONS.map((o) => [o.value, o.label])),
 };
 
 function case01FactRelationshipImpliesDifference(relationship: string | undefined): boolean {
@@ -1258,68 +1029,68 @@ const CASE01_PHASE2_FACET_QUESTION_SPECS: {
 }[] = [
   {
     id: "case01_factConflictFacet",
-    label: "교통국이 말한 내용과 실제로 다르다고 보는 점은 무엇에 가장 가깝나요?",
+    label: "교통국이 안내한 내용과 실제가 가장 크게 다른 점은 무엇인가요?",
     options: CASE01_FACT_CONFLICT_FACET_OPTIONS,
   },
   {
     id: "case01_spatiotemporalFacet",
-    label: "그 날짜·장소·상황을 지금 어떤 방식으로 확인할 수 있나요?",
+    label: "그 날짜와 장소에서 실제로 무엇을 했는지, 지금 어떻게 확인할 수 있나요?",
     options: CASE01_SPATIOTEMPORAL_FACET_OPTIONS,
   },
   {
     id: "case01_compareRecordGap",
     label:
-      "통지·안내 내용과 비교·대조하려면, 지금 특히 없거나 부족한 것을 골라 주세요. (여러 개 선택 가능)",
+      "통지 내용과 비교하려면, 지금 없는 자료를 모두 선택해 주세요. (여러 개 선택 가능)",
     options: CASE01_COMPARE_RECORD_GAP_OPTIONS,
   },
   {
     id: "case01_languageAccessFact",
-    label: "안내를 이해하거나 확인할 때 언어·통역 때문에 막힌 부분이 있나요?",
+    label: "통지 내용을 이해하는 과정은 어땠나요?",
     options: CASE01_LANGUAGE_ACCESS_FACT_OPTIONS,
   },
   {
     id: "case01_unclearDemandFact",
-    label: "기관 요구에서 가장 불명확한 부분은 무엇인가요?",
+    label: "교통국 안내에서 가장 분명하지 않은 부분은 무엇인가요?",
     options: CASE01_UNCLEAR_DEMAND_FACT_OPTIONS,
   },
   {
     id: "case01_noticeDeliveryFact",
-    label: "교통국 안내를 처음 어떤 방식으로 받았나요?",
+    label: "교통국 안내는 처음에 어떤 방법으로 받으셨나요?",
     options: CASE01_NOTICE_DELIVERY_FACT_OPTIONS,
   },
   {
     id: "case01_procedureStageFact",
-    label: "이 안내가 처음 통지에 가깝나요, 추가·재통지에 가깝나요?",
+    label: "이번 안내는 처음 받은 것인가요, 이전에도 받은 적이 있나요?",
     options: CASE01_PROCEDURE_STAGE_FACT_OPTIONS,
   },
   {
     id: "case01_officeIdentityFact",
-    label: "안내를 준 기관·부서·담당을 어떻게 확인하고 있나요?",
+    label: "안내를 보낸 기관이나 부서는 어떻게 확인하고 있나요?",
     options: CASE01_OFFICE_IDENTITY_FACT_OPTIONS,
   },
   {
     id: "case01_paymentInstructionFact",
-    label: "납부 안내의 성격은 무엇에 가깝나요?",
+    label: "납부 안내는 어떤 금액이었나요?",
     options: CASE01_PAYMENT_INSTRUCTION_FACT_OPTIONS,
   },
   {
     id: "case01_attendInstructionFact",
-    label: "출석·소명 안내에서 가장 분명한 내용은 무엇인가요?",
+    label: "방문·설명 안내에는 무엇이 적혀 있었나요?",
     options: CASE01_ATTEND_INSTRUCTION_FACT_OPTIONS,
   },
   {
     id: "case01_supplementInstructionFact",
-    label: "보완·재제출 안내의 핵심은 무엇인가요?",
+    label: "서류 제출 안내의 핵심은 무엇이었나요?",
     options: CASE01_SUPPLEMENT_INSTRUCTION_FACT_OPTIONS,
   },
   {
     id: "case01_correctTargetFact",
-    label: "수정·확인하라고 한 대상은 무엇에 가깝나요?",
+    label: "수정하라고 한 것은 어떤 정보인가요?",
     options: CASE01_CORRECT_TARGET_FACT_OPTIONS,
   },
   {
     id: "case01_authorityFollowUpKind",
-    label: "대응 후 교통국에서 어떤 회신·재요구를 받았나요?",
+    label: "대응한 뒤, 교통국에서는 어떤 답변이나 추가 요구가 있었나요?",
     options: CASE01_AUTHORITY_FOLLOW_UP_KIND_OPTIONS,
   },
 ];
@@ -1685,7 +1456,7 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
     id: "case01_violationContent",
     kind: "choice",
     label:
-      "교통국이나 다른 사람에게 설명받은 내용으로, 무엇이 문제라고 하는지 어떻게 이해하셨나요?",
+      "교통국은 무엇이 문제라고 안내했나요?",
     options: CASE01_VIOLATION_CONTENT_OPTIONS,
   });
   if (
@@ -1702,7 +1473,7 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
     id: "case01_factRelationship",
     kind: "choice",
     label:
-      "교통국에서 설명받은 내용과, 제가 알고 있는 실제 상황을 비교하면 어떤가요?",
+      "교통국이 안내한 내용은 실제 있었던 일과 비교하면 어떤가요?",
     options: CASE01_FACT_RELATIONSHIP_OPTIONS,
   });
   if (
@@ -1720,7 +1491,7 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
       id: CASE01_FACT_COMPARE_GAP_KEY,
       kind: "choice",
       label:
-        "설명받은 내용과 실제 상황을 지금 바로 비교하기 어려운 가장 큰 이유는 무엇에 가깝나요?",
+        "지금 실제와 비교하기 어려운 가장 큰 이유는 무엇인가요?",
       options: CASE01_FACT_COMPARE_GAP_OPTIONS,
     });
     if (case01NeedsFactCompareGap(answers)) {
@@ -1731,7 +1502,7 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case01_customerResponded",
     kind: "choice",
-    label: "이 안내를 받은 뒤 교통국에 대응한 경험이 있나요?",
+    label: "통지를 받은 뒤, 교통국에 연락하거나 대응한 적이 있나요?",
     options: CASE01_CUSTOMER_RESPONDED_OPTIONS,
   });
   if (
@@ -1747,7 +1518,7 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case01_deadline",
     kind: "choice",
-    label: "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+    label: "대응해야 하는 기한은 어떻게 안내받으셨나요?",
     options: CASE01_DEADLINE_OPTIONS,
   });
   if (
@@ -1760,8 +1531,8 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: CASE01_DEADLINE_DATE_KEY,
       kind: "text",
-      label: "확인한 대응 기한은 언제인가요?",
-      placeholder: "기억나는 날짜·기한을 적어 주세요.",
+      label: "안내받은 대응 기한은 언제인가요?",
+      placeholder: "통지서에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일까지",
     });
     if (case01NeedsDeadlineDateDetail(answers)) {
       return;
@@ -1771,7 +1542,7 @@ function appendCase01Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case01_confirmGoal",
     kind: "choice",
-    label: "지금 이 문제에서 가장 먼저 확인하고 싶은 것은 무엇인가요?",
+    label: "지금 가장 먼저 확인하고 싶은 것은 무엇인가요?",
     options: CASE01_CONFIRM_GOAL_OPTIONS,
   });
 }
@@ -1806,7 +1577,7 @@ function appendCase01Phase2AdaptiveQuestions(
     pushUnique(questions, {
       id: "case01_blockage",
       kind: "choice",
-      label: "지금 이 문제에서 다음 대응을 하기 가장 어려운 이유는 무엇인가요?",
+      label: "현재 이 일이 진행되지 못하는 가장 큰 이유는 무엇인가요?",
       options: CASE01_BLOCKAGE_UI_OPTIONS,
     });
     if (
@@ -1824,7 +1595,7 @@ function appendCase01Phase2AdaptiveQuestions(
     pushUnique(questions, {
       id: "case01_finalGoal",
       kind: "choice",
-      label: "이번 검토를 통해 가장 먼저 확인하거나 해결하고 싶은 것은 무엇인가요?",
+      label: "이번 검토를 통해 이 일을 어떻게 마무리하고 싶으신가요?",
       options: CASE01_FINAL_GOAL_UI_OPTIONS,
     });
   }
@@ -1834,7 +1605,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case01_authorityDemand",
     kind: "choice",
-    label: "교통국에서는 이 안내를 받은 뒤 구체적으로 무엇을 하라고 안내했나요?",
+    label: "교통국은 이 통지와 함께 구체적으로 무엇을 하라고 안내했나요?",
     options: CASE01_AUTHORITY_DEMAND_OPTIONS,
   });
   if (
@@ -1851,7 +1622,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case01_paymentDemandScope",
       kind: "choice",
-      label: "이 비용 납부가 이번 문제의 핵심인가요, 아니면 교통국에서 받은 안내에 포함된 추가 요구인가요?",
+      label: "이번 납부 안내는 어떤 성격인가요?",
       options: CASE01_PAYMENT_DEMAND_SCOPE_OPTIONS,
     });
     if (
@@ -1870,7 +1641,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case01_supplementDemandScope",
       kind: "choice",
       label:
-        "이 보완 요구가 이번 문제의 핵심인가요, 아니면 교통국 안내에 포함된 추가 요구인가요?",
+        "이번 서류 제출 안내는 어떤 성격인가요?",
       options: CASE01_SUPPLEMENT_DEMAND_SCOPE_OPTIONS,
     });
     if (
@@ -1887,7 +1658,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case01_actualSituation",
     kind: "choice",
-    label: "교통국의 설명과 별개로, 실제로 어떤 일이 있었는지 가장 가까운 것은 무엇인가요?",
+    label: "교통국의 안내와 별개로, 실제로는 어떤 일이 있었나요?",
     options: CASE01_ACTUAL_SITUATION_OPTIONS,
   });
   if (case01NeedsActualSituationQuestion(answers)) {
@@ -1902,7 +1673,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case01_deadline",
       kind: "choice",
-      label: "교통국에서 대응해야 하는 기한에 대해 어떻게 안내받으셨나요?",
+      label: "대응해야 하는 기한은 어떻게 안내받으셨나요?",
       options: CASE01_DEADLINE_OPTIONS,
     });
     if (case01NeedsDeadlinePhase2(answers)) {
@@ -1915,7 +1686,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: CASE01_DEADLINE_DATE_KEY,
       kind: "text",
       label: "안내받은 대응 기한은 언제인가요?",
-      placeholder: "기억나는 날짜·기한을 적어 주세요.",
+      placeholder: "통지서에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일까지",
     });
     if (case01NeedsDeadlineDateDetail(answers)) {
       return;
@@ -1965,7 +1736,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case01_responseDetail",
       kind: "choice",
-      label: "교통국에 대응했다면, 실제로 무엇을 하셨나요?",
+      label: "교통국에 대응할 때 실제로 무엇을 하셨나요?",
       options: CASE01_RESPONSE_DETAIL_OPTIONS,
     });
     if (case01NeedsResponseDetail(answers)) {
@@ -1978,7 +1749,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
       pushUnique(questions, {
         id: "case01_authorityResponse",
         kind: "choice",
-        label: "그 뒤 교통국에서는 어떻게 답변하거나 다시 안내했나요?",
+        label: "대응한 뒤, 교통국에서는 어떤 답변이 있었나요?",
         options: CASE01_AUTHORITY_RESPONSE_OPTIONS,
       });
       if (case01NeedsAuthorityResponse(answers)) {
@@ -1991,7 +1762,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case01_authorityDemandDetail",
       kind: "choice",
-      label: "지금까지 들은 교통국 안내를 전체적으로 어떻게 이해하고 있나요?",
+      label: "지금까지 받은 안내를 전체적으로 얼마나 이해하고 계신가요?",
       options: CASE01_AUTHORITY_DEMAND_DETAIL_OPTIONS,
     });
     if (case01NeedsAuthorityDemandDetailChoice(answers)) {
@@ -2003,7 +1774,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     id: "case01_evidence",
     kind: "choice",
     label:
-      "지금 이 교통·행정 안내와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
+      "현재 보관하고 있는 자료를 모두 선택해 주세요. (여러 개 선택 가능)",
     options: CASE01_EVIDENCE_OPTIONS,
   });
   if (
@@ -4352,7 +4123,9 @@ export function shouldActivateCase03Path(answers: ReviewAnswers): boolean {
 
   if (
     answers.case01_authorityDemand === "attendance" &&
-    (answers.case01_confirmGoal === "what_when" || answers.case01_confirmGoal === "unsure")
+    (answers.case01_confirmGoal === "what_when" ||
+      answers.case01_confirmGoal === "what_to_do_now" ||
+      answers.case01_confirmGoal === "unsure")
   ) {
     return true;
   }
@@ -9518,6 +9291,7 @@ function collectCase01Unknowns(answers: ReviewAnswers): string[] {
   }
   if (
     answers.case01_deadline === "uncertain" ||
+    answers.case01_deadline === "deadline_window_only" ||
     answers.case01_deadline === "unsure" ||
     answers.case01_deadline === "asap" ||
     answers.case01_deadline === "no_stated" ||
@@ -9559,6 +9333,7 @@ function collectCase01RiskSignals(answers: ReviewAnswers): string[] {
   }
   if (
     answers.case01_deadline === "uncertain" ||
+    answers.case01_deadline === "deadline_window_only" ||
     answers.case01_deadline === "asap" ||
     answers.case01_deadline === "no_stated" ||
     answers.case01_deadline === "not_stated" ||
