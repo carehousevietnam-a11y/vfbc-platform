@@ -77,6 +77,7 @@ const JUDGMENT_SUPPRESSED_LEGACY = new Set<string>([
   "case04_repeatSupplement|multiple",
   "case04_repeatSupplement|not_applicable",
   "case03_repeatFollowUp|not_applicable",
+  "case02_demandAuthority|other_agency",
   "case01_factConflictFacet|conflict_other",
   "case01_correctTargetFact|tgt_other",
 ]);
@@ -191,6 +192,7 @@ const BRANCH_EQUIVALENT_ALIASES: Record<string, Record<string, string[]>> = {
 };
 
 const LEGACY_CHOICE_LABELS: Record<string, string> = {
+  "case02_demandAuthority|other_agency": "위에 없는 다른 기관에서 요구한 것으로 보입니다.",
   "case01_violationContent|traffic_spatiotemporal_dispute": "특정 날짜·장소·행동을 문제라고 들었고, 그날 제가 있었던 곳·한 일과 겹치거나 충돌합니다. 통지·문자에 날짜·장소가 적혀 있어 대조할 자료가 있습니다.",
   "case01_violationContent|conduct_denied_or_partial": "제가 하지 않았거나, 일부만 맞는 행동·상황을 문제라고 들었습니다. 당시 다른 일·다른 장소를 기억하고 있고, 이를 설명할 메모·증빙이 있을 수 있습니다.",
   "case01_violationContent|authority_explanation_missing": "무엇이 문제인지 설명을 못 받았거나 통역·구두만으로 들어 내용이 불명확합니다. 안내를 받은 경로는 있으나 쟁점 문구를 확인하지 못했습니다.",

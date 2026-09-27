@@ -1917,82 +1917,36 @@ const PAYMENT_SIGNAL_LABELS: Record<PaymentSignalCode, string> = {
 };
 
 const CASE02_CONFIRM_GOAL_OPTIONS = [
-  {
-    value: "verify_obligation",
-    label: "기관에서 말하는 납부 의무가 실제로 내 상황에 해당하는지 확인하고 싶습니다.",
-  },
-  {
-    value: "verify_amount",
-    label: "통지된 금액이 맞는지, 왜 이 금액을 내야 하는지 확인하고 싶습니다.",
-  },
-  {
-    value: "how_when_where",
-    label: "언제·어디서·어떤 방법으로 납부해야 하는지 확인하고 싶습니다.",
-  },
-  {
-    value: "payment_processed",
-    label: "이미 납부했는데 왜 다시 요구받았는지, 처리 여부를 확인하고 싶습니다.",
-  },
-  {
-    value: "unsure",
-    label: "아직은 무엇부터 확인해야 할지조차 정확히 모르겠습니다.",
-  },
+  { value: "verify_obligation", label: "이 납부 요구가 제 상황에 해당하는지, 해당한다면 꼭 내야 하는 돈인지 확인하고 싶습니다." },
+  { value: "verify_amount", label: "금액이 어떻게 계산되었는지, 그 금액이 맞는지 확인하고 싶습니다." },
+  { value: "how_when_where", label: "납부해야 한다면, 언제까지 어디서 어떤 방법으로 내야 하는지 확인하고 싶습니다." },
+  { value: "payment_processed", label: "이미 납부했는데, 정상 처리되었는지와 왜 다시 요구하는지 확인하고 싶습니다." },
+  { value: "unsure", label: "상황이 복잡해서, 무엇부터 진행해야 하는지 순서를 확인하고 싶습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_PAYMENT_INFO_SOURCE_OPTIONS = [
-  {
-    value: "written_notice",
-    label: "교통국에서 받은 통지서·안내문·문자 등 문서나 메시지로 알게 되었습니다.",
-  },
-  {
-    value: "verbal_authority",
-    label: "교통국 방문·전화·구두 안내 또는 통역을 통해 들었습니다.",
-  },
-  {
-    value: "third_party",
-    label: "지인·대행·통역 도움 등 다른 사람이 알려 주었습니다.",
-  },
-  {
-    value: "online_channel",
-    label: "인터넷·앱·전자납부 안내 등 온라인 경로로 알게 되었습니다.",
-  },
-  {
-    value: "recall_unclear",
-    label: "납부 안내를 받은 것은 기억나지만, 어떻게 알게 되었는지는 정확히 말하기 어렵습니다.",
-  },
+  { value: "written_notice", label: "교통국이 보낸 통지서나 문자를 제가 직접 받았습니다." },
+  { value: "verbal_authority", label: "교통국에 방문하거나 전화했을 때, 담당자에게 말로 안내받았습니다." },
+  { value: "third_party", label: "지인·대행사·통역을 통해 전해 들었고, 교통국 안내를 직접 보지는 못했습니다." },
+  { value: "online_channel", label: "인터넷이나 앱에서 조회하다가, 납부할 금액이 있다는 것을 알게 되었습니다." },
+  { value: "recall_unclear", label: "납부 안내를 받은 것은 기억나지만, 어떤 경로였는지는 정확히 기억나지 않습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_DEMAND_AUTHORITY_OPTIONS = [
-  { value: "traffic", label: "교통국·교통 관련 행정기관에서 요구한 것으로 보입니다." },
-  { value: "police", label: "경찰 등 교통 관련 기관에서 요구한 것으로 보입니다." },
-  { value: "vehicle_reg", label: "차량 등록·검사 관련 기관에서 요구한 것으로 보입니다." },
-  { value: "other_agency", label: "위에 없는 다른 기관에서 요구한 것으로 보입니다." },
+  { value: "traffic", label: "교통국이나 교통 관련 행정기관에서 요구했습니다." },
+  { value: "police", label: "단속한 교통경찰 등 경찰 기관에서 요구했습니다." },
+  { value: "vehicle_reg", label: "차량 등록·검사를 담당하는 기관에서 요구했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_PAYMENT_SUBJECT_OPTIONS = [
-  {
-    value: "traffic_fine",
-    label: "교통위반에 대한 벌금·과태료를 내라고 안내받은 것 같습니다.",
-  },
-  {
-    value: "license_fee",
-    label: "운전면허 발급·갱신·변경과 관련된 비용을 내라고 안내받은 것 같습니다.",
-  },
-  {
-    value: "vehicle_reg_fee",
-    label: "차량 등록·검사 등 차량 관련 비용을 내라고 안내받은 것 같습니다.",
-  },
-  {
-    value: "additional_related",
-    label: "이전에 처리한 내용과 관련해 추가 금액을 내라고 요구받은 것 같습니다.",
-  },
-  {
-    value: "unclear",
-    label: "왜 돈을 내야 하는지 설명이 없거나, 정확히 이해하지 못했습니다.",
-  },
+  { value: "traffic_fine", label: "교통위반이 적발되어, 그에 대한 벌금을 내라는 안내를 받았습니다." },
+  { value: "license_fee", label: "운전면허 발급·갱신·변경을 신청하면서, 처리 비용을 내라는 안내를 받았습니다." },
+  { value: "vehicle_reg_fee", label: "차량 등록이나 검사를 진행하면서, 관련 비용을 내라는 안내를 받았습니다." },
+  { value: "additional_related", label: "이미 처리가 끝난 일과 관련해, 추가 금액을 더 내라는 안내를 받았습니다." },
+  { value: "unclear", label: "돈을 내라는 안내는 받았지만, 왜 내야 하는지는 설명받지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -2050,24 +2004,10 @@ function getCase02AuthorityResponseLabelFromAnswers(
 }
 
 const CASE02_PAYMENT_AMOUNT_OPTIONS = [
-  {
-    value: CASE02_PAYMENT_AMOUNT_STATED_BASIS_UNCLEAR,
-    label:
-      "금액은 어느 정도 알고 있지만, 실제로 내야 하는 금액이 맞는지 확신하지 못하고, 왜 이 금액인지·어떤 기준인지도 아직 명확하지 않습니다.",
-  },
-  {
-    value: "amount_differs",
-    label: "이전에 알고 있던 금액과 지금 안내받은 금액이 서로 다릅니다.",
-  },
-  {
-    value: "paid_redemand",
-    label:
-      "이미 납부했거나 일부 납부했는데, 다른 금액을 다시 납부하라는 안내를 받았습니다.",
-  },
-  {
-    value: "amount_unknown",
-    label: "납부 금액을 아직 정확히 파악하기 어렵습니다.",
-  },
+  { value: "amount_clear", label: "정확한 금액이 적혀 있고, 이전에 알고 있던 금액과도 같습니다." },
+  { value: "amount_differs", label: "금액은 적혀 있지만, 이전에 안내받은 금액과 다릅니다." },
+  { value: "paid_redemand", label: "이미 전부 또는 일부를 납부했는데, 다른 금액을 다시 내라는 안내를 받았습니다." },
+  { value: "amount_unknown", label: "금액이 적혀 있지 않거나, 적힌 금액을 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -2084,162 +2024,75 @@ export function case02NormalizePaymentBasisValue(value: string | undefined): str
 }
 
 const CASE02_PAYMENT_BASIS_OPTIONS = [
-  {
-    value: "basis_violation_cited",
-    label: "위반 사실·행위를 이유로 납부하라고 구체적으로 말하거나 적어 주었습니다.",
-  },
-  {
-    value: "basis_fee_schedule",
-    label: "수수료·고시·항목 번호 등 규정·고시를 들거나 적어 주었습니다.",
-  },
-  {
-    value: "basis_prior_case",
-    label: "이전에 처리한 건과 연결해 추가 납부하라고 했습니다.",
-  },
-  {
-    value: "basis_not_explained",
-    label: "왜 이 금액을 내야 하는지 설명이 없거나 이해하지 못했습니다.",
-  },
+  { value: "basis_violation_cited", label: "어떤 위반 때문인지 구체적으로 말하거나 적어 주었습니다." },
+  { value: "basis_fee_schedule", label: "수수료 규정이나 고시 번호 등 근거 규정을 알려 주었습니다." },
+  { value: "basis_prior_case", label: "이전에 처리한 일과 연결해, 추가로 내야 한다고 했습니다." },
+  { value: "basis_not_explained", label: "이유에 대한 설명이 없었거나, 설명을 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_NOTICE_ACCESS_FACT_OPTIONS = [
-  {
-    value: "access_have_copy",
-    label: "간접으로 들었지만, 지금 안내 문서·메시지 사본을 가지고 있습니다.",
-  },
-  {
-    value: "access_no_copy",
-    label: "안내를 들었지만 사본·스크린샷을 남기지 못했습니다.",
-  },
-  {
-    value: "access_sender_unknown",
-    label: "누가·어떤 경로로 전달했는지 확실하지 않습니다.",
-  },
-  {
-    value: "access_language_barrier",
-    label: "언어·통역 때문에 안내 내용을 제대로 확인하지 못했습니다.",
-  },
+  { value: "access_have_copy", label: "직접 받지는 않았지만, 전달받은 문서나 메시지 사본을 가지고 있습니다." },
+  { value: "access_no_copy", label: "말로만 전해 들었고, 사본이나 캡처는 남기지 못했습니다." },
+  { value: "access_sender_unknown", label: "누가 어떤 경로로 전달한 것인지 확실하지 않습니다." },
+  { value: "access_language_barrier", label: "전달받은 안내가 베트남어라서, 내용을 제대로 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS = [
-  {
-    value: "cf_receipt_official",
-    label: "영수증·접수증·전자 확인번호로 확인하라고 안내했습니다.",
-  },
-  {
-    value: "cf_portal_status",
-    label: "인터넷·앱에서 납부·처리 상태를 보라고 안내했습니다.",
-  },
-  {
-    value: "cf_call_office",
-    label: "전화·방문으로 처리 여부를 확인하라고 안내했습니다.",
-  },
-  {
-    value: "cf_no_instruction",
-    label: "납부 후 어떻게 확인하라는 안내를 받지 못했습니다.",
-  },
+  { value: "cf_receipt_official", label: "영수증이나 접수증, 전자 확인번호로 확인하라는 안내를 받았습니다." },
+  { value: "cf_portal_status", label: "인터넷이나 앱에서 처리 상태를 조회하라는 안내를 받았습니다." },
+  { value: "cf_call_office", label: "전화하거나 방문해서 처리 여부를 확인하라는 안내를 받았습니다." },
+  { value: "cf_no_instruction", label: "납부 후 어떻게 확인하라는 안내는 받지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_PAID_PROCESSING_FACT_OPTIONS = [
-  {
-    value: "proc_receipt_pending",
-    label: "납부는 했지만 접수·처리가 됐는지 아직 확인하지 못했습니다.",
-  },
-  {
-    value: "proc_partial_credit",
-    label: "일부만 처리된 것으로 보이거나 나머지가 남아 있습니다.",
-  },
-  {
-    value: "proc_other_case",
-    label: "다른 건·다른 금액으로 처리된 것 같습니다.",
-  },
-  {
-    value: "proc_unknown",
-    label: "처리 여부를 전혀 확인하지 못했습니다.",
-  },
+  { value: "proc_receipt_pending", label: "납부는 했지만, 정상 처리되었는지는 아직 확인하지 못했습니다." },
+  { value: "proc_partial_credit", label: "일부만 처리된 것으로 보이고, 남은 금액이 있다고 합니다." },
+  { value: "proc_other_case", label: "제가 낸 돈이 다른 건이나 다른 금액으로 처리된 것 같습니다." },
+  { value: "proc_unknown", label: "처리 여부를 확인할 방법을 몰라, 전혀 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_SITUATION_MATCH_OPTIONS = [
-  { value: "match", label: "이 납부 요구는 실제 상황과 대체로 맞습니다." },
-  {
-    value: "partial",
-    label: "일부 내용이나 금액이 실제 상황과 다르다고 느껴집니다.",
-  },
-  {
-    value: "not_applicable",
-    label: "제가 이 납부 의무와 관련된 상황인지 의문이 있습니다.",
-  },
-  {
-    value: "hard_to_judge",
-    label: "실제 상황과 문서 내용을 대조하기 어렵습니다.",
-  },
-  { value: "unknown", label: "맞는지 판단할 정보가 부족합니다." },
+  { value: "match", label: "실제 있었던 일과 맞고, 납부해야 한다는 것도 인정합니다." },
+  { value: "partial", label: "그런 일은 있었지만, 금액이나 일부 내용이 실제와 다르다고 생각합니다." },
+  { value: "not_applicable", label: "저와 관련 없는 일이거나, 제가 납부할 대상이 아니라고 생각합니다." },
+  { value: "hard_to_judge", label: "관련 기록이 없어, 실제와 맞는지 비교하기 어렵습니다." },
+  { value: "unknown", label: "안내 내용을 이해하지 못해, 맞는지 판단할 수 없습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_PAYMENT_STATUS_OPTIONS = [
-  { value: "not_paid", label: "아직 이 납부 요구에 대해 납부하지 않았습니다." },
-  {
-    value: "partial",
-    label: "일부 금액만 납부했고, 나머지는 아직 납부하지 않았습니다.",
-  },
-  { value: "full", label: "요구된 금액을 모두 납부했습니다." },
-  {
-    value: "paid_unverified",
-    label: "납부했다고 생각하지만, 기관에서 처리됐는지 확인하지 못했습니다.",
-  },
-  { value: "paid_by_other", label: "본인이 아닌 다른 사람이 대신 납부했습니다." },
+  { value: "not_paid", label: "안내만 받았고, 아직 납부하지 않았습니다." },
+  { value: "partial", label: "일부 금액만 납부했고, 나머지는 아직 납부하지 않았습니다." },
+  { value: "full", label: "안내받은 금액을 모두 납부했고, 정상 처리된 것도 확인했습니다." },
+  { value: "paid_unverified", label: "모두 납부했지만, 교통국에서 처리되었는지는 확인하지 못했습니다." },
+  { value: "paid_by_other", label: "제가 직접 납부하지 않고, 대행사나 지인이 대신 납부했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_PAYMENT_METHOD_OPTIONS = [
-  { value: "bank_transfer", label: "지정 계좌 이체·은행 창구에서 납부하라고 안내받았습니다." },
-  { value: "office_visit", label: "기관 방문·창구에서 직접 납부하라고 안내받았습니다." },
-  {
-    value: "online_portal",
-    label: "인터넷·전자납부·앱 등 온라인으로 납부하라고 안내받았습니다.",
-  },
-  {
-    value: "not_stated",
-    label:
-      "어디서 어떻게 내라는 안내를 받지 못했거나, 안내를 받았어도 방법을 정확히 이해하지 못했습니다.",
-  },
+  { value: "bank_transfer", label: "지정된 은행 계좌로 이체하거나, 은행 창구에서 납부하는 방법입니다." },
+  { value: "office_visit", label: "교통국 등 기관 창구를 방문해 직접 납부하는 방법입니다." },
+  { value: "online_portal", label: "인터넷이나 앱 등 온라인으로 납부하는 방법입니다." },
+  { value: "not_stated", label: "납부 방법은 안내받지 못했거나, 안내를 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_NON_PAYMENT_NOTICE_OPTIONS = [
-  {
-    value: CASE02_NON_PAYMENT_SANCTION_STATED,
-    label:
-      "기한 내 미납 시 추가 벌금·제재가 있거나, 강제징수·추심 등 후속 조치가 있다고 안내합니다.",
-  },
-  { value: "interest_stated", label: "이자·가산금이 붙는다고 안내합니다." },
-  {
-    value: "no_notice",
-    label: "미납 시 어떻게 되는지 안내가 없거나, 결과를 정확히 모르겠습니다.",
-  },
+  { value: "interest_stated", label: "기한이 지나면 가산금이나 이자가 붙는다는 안내를 받았습니다." },
+  { value: "no_notice", label: "미납 시 어떻게 되는지 안내가 없었거나, 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_DEADLINE_OPTIONS = [
-  { value: "confirmed", label: "납부해야 하는 날짜를 확인했습니다." },
-  {
-    value: "uncertain",
-    label: "기한이 있다는 것은 알지만 정확한 날짜는 아직 확인하지 못했습니다.",
-  },
-  {
-    value: "deadline_mentioned",
-    label: "기한이 있다는 안내만 받았고, 정확한 날짜는 확인하지 못했습니다.",
-  },
-  {
-    value: "not_stated",
-    label: "기한이 있는지 자체를 아직 확인하지 못했습니다.",
-  },
-  { value: "unsure", label: "현재 기한과 관련된 내용을 전혀 알지 못합니다." },
+  { value: "confirmed", label: "통지서나 문자에 적힌 정확한 납부 기한을 확인했습니다." },
+  { value: "deadline_mentioned", label: "'며칠 이내'처럼 기간만 안내받았고, 정확한 날짜는 받지 못했습니다." },
+  { value: "uncertain", label: "기한이 있다는 말은 들었지만, 정확히 언제까지인지 확인하지 못했습니다." },
+  { value: "not_stated", label: "기한에 대해서는 별도의 안내를 받지 못했습니다." },
+  { value: "unsure", label: "안내문이 베트남어로 되어 있어, 기한이 적혀 있는지조차 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -2523,54 +2376,32 @@ export function getAdminVerifyStitchProgress(
 }
 
 const CASE02_BLOCKAGE_OPTIONS = [
-  { value: "obligation", label: "제가 정말 납부해야 하는지부터 확신이 없습니다" },
-  { value: "amount", label: "얼마를 내야 하는지가 가장 막힙니다" },
-  { value: "basis", label: "왜 납부해야 하는지 근거가 불분명합니다" },
-  { value: "method", label: "어디서 어떻게 납부해야 하는지 모르겠습니다" },
-  {
-    value: "deadline",
-    label: "언제까지 납부해야 하는지 모르거나, 이미 납부했는데 처리 여부를 확인하지 못했습니다",
-  },
+  { value: "obligation", label: "제가 정말 내야 하는 돈인지 확신이 없어, 납부를 망설이고 있습니다." },
+  { value: "amount", label: "얼마를 내야 하는지 정확히 알 수 없어, 납부하지 못하고 있습니다." },
+  { value: "basis", label: "왜 내야 하는지 근거를 이해하지 못해, 대응을 정하지 못하고 있습니다." },
+  { value: "method", label: "내야 하는 것은 알지만, 어디서 어떻게 내야 하는지 몰라 멈춰 있습니다." },
+  { value: "deadline", label: "기한을 모르거나, 이미 납부했는데 처리 여부를 확인하지 못해 멈춰 있습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_EVIDENCE_OPTIONS = [
-  { value: "yes", label: "납부 요구서·영수증·통지서 등 확인할 자료가 있습니다" },
-  { value: "partial", label: "일부 자료만 있고 무엇이 더 필요한지 모르겠습니다" },
-  { value: "no", label: "지금 확인할 수 있는 자료가 없습니다" },
-  {
-    value: "unsure",
-    label: "어떤 자료를 준비해야 하는지 모르겠습니다",
-  },
+  { value: "yes", label: "통지서·영수증 등 확인할 수 있는 자료를 모두 가지고 있습니다." },
+  { value: "partial", label: "일부 자료만 있고, 무엇이 더 필요한지는 모르겠습니다." },
+  { value: "no", label: "지금 확인할 수 있는 자료가 없습니다." },
+  { value: "unsure", label: "어떤 자료를 준비해야 하는지 모르겠습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE02_FINAL_GOAL_OPTIONS = [
-  { value: "verify_obligation", label: "납부 의무 여부부터 확인하고 싶어요" },
-  { value: "verify_amount", label: "금액이 맞는지 확인하고 싶어요" },
-  { value: "complete_payment", label: "올바른 방법으로 납부를 마치고 싶어요" },
-  { value: "expert", label: "전문가에게 제 상황을 정확히 전달하고 싶어요" },
+  { value: "verify_obligation", label: "꼭 내야 하는 돈인지 확인하고, 아니라면 납부하지 않고 정리하고 싶습니다." },
+  { value: "verify_amount", label: "금액이 맞는지 확인하고, 틀렸다면 바로잡은 뒤 납부하고 싶습니다." },
+  { value: "complete_payment", label: "올바른 방법으로 기한 안에 납부하고, 처리까지 확인하고 싶습니다." },
+  { value: "expert", label: "제 상황을 전문가에게 정확히 전달해, 대응을 맡기고 싶습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 export const CASE02_OPTION_LABELS: Record<string, string> = {
-  ...Object.fromEntries(CASE02_CONFIRM_GOAL_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAYMENT_INFO_SOURCE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_DEMAND_AUTHORITY_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAYMENT_SUBJECT_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAYMENT_AMOUNT_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAYMENT_BASIS_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_NOTICE_ACCESS_FACT_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAID_PROCESSING_FACT_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_SITUATION_MATCH_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAYMENT_STATUS_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_PAYMENT_METHOD_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_NON_PAYMENT_NOTICE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_DEADLINE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_BLOCKAGE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
-  ...Object.fromEntries(CASE02_FINAL_GOAL_OPTIONS.map((o) => [o.value, o.label])),
+  /** 옛 선택지 라벨 — 현재 선택지가 있으면 아래 spread가 덮어씀 */
   attendance_related: "출석·소명 요구로 보이고 납부 요구는 아닌 것 같습니다",
   supplement_related: "서류 보완·추가 제출 요구로 보이고 납부 요구는 아닌 것 같습니다",
   disposition_related: "면허·등록·허가 처분·조치 안내로 보이고 납부 요구는 아닌 것 같습니다",
@@ -2588,6 +2419,23 @@ export const CASE02_OPTION_LABELS: Record<string, string> = {
   unsure: "어디서 납부를 요구한 것인지 정확히 모르겠습니다.",
   verification: "이미 납부했는데 처리 여부를 확인하지 못했습니다",
   other: "위에 없는 다른 부분에서 막혀 있습니다",
+  ...Object.fromEntries(CASE02_CONFIRM_GOAL_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_INFO_SOURCE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_DEMAND_AUTHORITY_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_SUBJECT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_AMOUNT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_BASIS_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_NOTICE_ACCESS_FACT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAID_PROCESSING_FACT_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_SITUATION_MATCH_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_STATUS_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_PAYMENT_METHOD_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_NON_PAYMENT_NOTICE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_DEADLINE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_BLOCKAGE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_EVIDENCE_OPTIONS.map((o) => [o.value, o.label])),
+  ...Object.fromEntries(CASE02_FINAL_GOAL_OPTIONS.map((o) => [o.value, o.label])),
 };
 
 const CASE02_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
@@ -2920,7 +2768,7 @@ function appendCase02Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case02_paymentSubject",
     kind: "choice",
-    label: "교통국에서는 어떤 이유로 돈을 납부하라고 안내했나요?",
+    label: "교통국은 어떤 이유로 돈을 납부하라고 안내했나요?",
     options: CASE02_PAYMENT_SUBJECT_OPTIONS,
   });
   if (
@@ -2936,7 +2784,7 @@ function appendCase02Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case02_paymentInfoSource",
     kind: "choice",
-    label: "그 비용을 내야 한다는 내용은 어떻게 알게 되셨나요?",
+    label: "납부해야 한다는 내용은 어떻게 알게 되셨나요?",
     options: CASE02_PAYMENT_INFO_SOURCE_OPTIONS,
   });
   if (
@@ -2953,7 +2801,7 @@ function appendCase02Phase1Questions(questions: ProfileQuestion[], answers: Revi
     id: "case02_situationMatch",
     kind: "choice",
     label:
-      "말씀하신 비용은 실제로 있었던 일과 어떻게 연결된다고 알고 계신가요?",
+      "이 납부 요구는 실제 있었던 일과 비교하면 어떤가요?",
     options: CASE02_SITUATION_MATCH_OPTIONS,
   });
   if (
@@ -2969,7 +2817,7 @@ function appendCase02Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case02_paymentAmount",
     kind: "choice",
-    label: "얼마를 내야 한다고 안내받으셨나요?",
+    label: "납부할 금액은 어떻게 안내받으셨나요?",
     options: CASE02_PAYMENT_AMOUNT_OPTIONS,
   });
   if (
@@ -2985,7 +2833,7 @@ function appendCase02Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case02_paymentStatus",
     kind: "choice",
-    label: "이 비용에 대해서는 지금까지 어떻게 대응하셨나요?",
+    label: "이 금액에 대해 지금까지 어떻게 하셨나요?",
     options: CASE02_PAYMENT_STATUS_OPTIONS,
   });
   if (
@@ -3001,7 +2849,7 @@ function appendCase02Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case02_confirmGoal",
     kind: "choice",
-    label: "지금 이 비용 문제에서 가장 확인하고 싶은 것은 무엇인가요?",
+    label: "지금 가장 먼저 확인하고 싶은 것은 무엇인가요?",
     options: CASE02_CONFIRM_GOAL_OPTIONS,
   });
 }
@@ -3034,7 +2882,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case02_noticeAccessFact",
       kind: "choice",
       label:
-        "납부 안내를 간접적으로 들었을 때, 지금 어떤 자료·확인 상태에 가깝나요?",
+        "전해 들은 납부 안내는 지금 어떤 상태인가요?",
       options: CASE02_NOTICE_ACCESS_FACT_OPTIONS,
     });
     if (
@@ -3053,7 +2901,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case02_situationMatch",
       kind: "choice",
       label:
-        "교통국에서 설명한 비용 요구와 실제 상황을 비교하면, 가장 다른 부분은 무엇인가요?",
+        "이 납부 요구는 실제 있었던 일과 비교하면 어떤가요?",
       options: CASE02_SITUATION_MATCH_OPTIONS,
     });
     if (
@@ -3072,7 +2920,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case02_paymentAmount",
       kind: "choice",
       label:
-        "교통국에서 안내한 금액에 대해, 지금 본인이 알고 있는 상황은 어떤 경우에 가장 가까운가요?",
+        "납부할 금액은 어떻게 안내받으셨나요?",
       options: CASE02_PAYMENT_AMOUNT_OPTIONS,
     });
     if (
@@ -3090,8 +2938,8 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: CASE02_PAYMENT_AMOUNT_DETAIL_KEY,
       kind: "text",
-      label: "안내 받은 금액을 기억나는 대로 적어 주세요.",
-      placeholder: "통지서·메시지에 적힌 금액·단위를 적어 주세요.",
+      label: "안내받은 금액을 입력해 주세요.",
+      placeholder: "통지서나 문자에 적힌 금액과 단위를 그대로 입력해 주세요. 예) 800,000동",
     });
     if (case02NeedsPaymentAmountDetail(answers)) {
       return;
@@ -3102,7 +2950,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case02_paymentBasis",
       kind: "choice",
-      label: "교통국에서는 그 금액을 왜 내야 한다고 설명했나요?",
+      label: "교통국은 그 금액을 왜 내야 한다고 설명했나요?",
       options: CASE02_PAYMENT_BASIS_OPTIONS,
     });
     if (
@@ -3120,7 +2968,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case02_deadline",
       kind: "choice",
-      label: "이 납부와 관련해 언제까지 납부해야 하는지 확인할 수 있는 상태인가요?",
+      label: "납부 기한은 어떻게 안내받으셨나요?",
       options: CASE02_DEADLINE_OPTIONS,
     });
     if (
@@ -3151,7 +2999,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       pushUnique(questions, {
         id: "case02_authorityResponse",
         kind: "choice",
-        label: "비용에 대해 교통국에 확인한 뒤, 어떤 답변을 받으셨나요?",
+        label: "납부하거나 문의한 뒤, 교통국에서는 어떤 답변이 있었나요?",
         options: CASE01_AUTHORITY_RESPONSE_OPTIONS,
       });
       if (!answers.case02_authorityResponse) return;
@@ -3162,7 +3010,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
         id: "case02_paidProcessingFact",
         kind: "choice",
         label:
-          "납부한 뒤 기관에서 처리·접수됐는지와 관련해, 지금 어떤 상태에 가깝나요?",
+          "납부한 뒤, 교통국에서 처리된 상황은 어떤가요?",
         options: CASE02_PAID_PROCESSING_FACT_OPTIONS,
       });
       if (
@@ -3187,7 +3035,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case02_paymentMethod",
       kind: "choice",
-      label: "실제로 납부해야 한다면, 어떤 방법으로 내라고 안내받으셨나요?",
+      label: "납부해야 한다면, 어떤 방법으로 내라고 안내받으셨나요?",
       options: CASE02_PAYMENT_METHOD_OPTIONS,
     });
     if (!answers.case02_paymentMethod) return;
@@ -3195,7 +3043,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case02_nonPaymentNotice",
       kind: "choice",
-      label: "기한 내 납부하지 않으면 어떻게 된다고 안내되었나요?",
+      label: "기한 안에 납부하지 않으면 어떻게 된다고 안내받으셨나요?",
       options: CASE02_NON_PAYMENT_NOTICE_OPTIONS,
     });
     if (!answers.case02_nonPaymentNotice) return;
@@ -3206,7 +3054,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case02_paymentConfirmationFact",
       kind: "choice",
       label:
-        "납부한 뒤 기관에서 처리·접수됐는지 어떻게 확인하라고 안내했나요?",
+        "납부한 뒤, 처리 여부는 어떻게 확인하라고 안내받으셨나요?",
       options: CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS,
     });
     if (
@@ -3224,7 +3072,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case02_blockage",
       kind: "choice",
-      label: "지금 이 납부 사건에서 가장 막혀 있는 부분은 무엇인가요?",
+      label: "현재 이 일이 진행되지 못하는 가장 큰 이유는 무엇인가요?",
       options: CASE02_BLOCKAGE_OPTIONS,
     });
     if (
@@ -3243,8 +3091,8 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case02_evidence",
       kind: "choice",
       label: case02HasPaidStatus(answers)
-        ? "납부 영수증·이체 증빙 등 확인할 자료가 있나요?"
-        : "지금 확인할 수 있는 자료가 있나요?",
+        ? "납부 영수증이나 이체 기록 등 확인할 수 있는 자료가 있나요?"
+        : "통지서나 문자 등 확인할 수 있는 자료가 있나요?",
       options: CASE02_EVIDENCE_OPTIONS,
     });
     if (
@@ -3262,7 +3110,7 @@ function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case02_finalGoal",
       kind: "choice",
-      label: "이 납부 요구와 관련해 어떤 결과를 원하시나요?",
+      label: "이번 검토를 통해 이 일을 어떻게 마무리하고 싶으신가요?",
       options: CASE02_FINAL_GOAL_OPTIONS,
     });
   }
