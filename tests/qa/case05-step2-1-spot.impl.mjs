@@ -60,11 +60,11 @@ const factDetailBase = attachCaseResolutionSnapshot({
 });
 const sigFactA = deriveCase05DispositionSignals({
   ...factDetailBase,
-  case05_factDetail: "date_place",
+  case05_factDetail: "date_place_certain",
 });
 const sigFactB = deriveCase05DispositionSignals({
   ...factDetailBase,
-  case05_factDetail: "content_differs",
+  case05_factDetail: "content_differs_clear",
 });
 const detailSignalPass =
   JSON.stringify([...sigFactA].sort()) !== JSON.stringify([...sigFactB].sort());

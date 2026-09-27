@@ -68,6 +68,8 @@ import {
   CASE05_FACT_RELATIONSHIP_OPTIONS_V2,
   CASE05_FINAL_GOAL_OPTIONS_V2,
   CASE05_LEGACY_APPEAL_DETAIL_LABELS,
+  CASE05_LEGACY_DISPOSITION_REASON_LABELS,
+  CASE05_LEGACY_EXPLANATION_DETAIL_LABELS,
   CASE05_LEGACY_AUTHORITY_FOLLOWUP_LABELS,
   CASE05_LEGACY_BLOCKAGE_LABELS,
   CASE05_LEGACY_EVIDENCE_LABELS,
@@ -6407,6 +6409,14 @@ export function getCase05FieldOptionLabel(fieldId: string, value: string): strin
   }
   if (fieldId === "case05_finalGoal") {
     const legacyLabel = CASE05_LEGACY_FINAL_GOAL_LABELS[value];
+    if (legacyLabel) return legacyLabel;
+  }
+  if (fieldId === "case05_dispositionReason") {
+    const legacyLabel = CASE05_LEGACY_DISPOSITION_REASON_LABELS[value];
+    if (legacyLabel) return legacyLabel;
+  }
+  if (fieldId === "case05_explanationDetail") {
+    const legacyLabel = CASE05_LEGACY_EXPLANATION_DETAIL_LABELS[value];
     if (legacyLabel) return legacyLabel;
   }
   const options = CASE05_FIELD_OPTION_MAP[fieldId];

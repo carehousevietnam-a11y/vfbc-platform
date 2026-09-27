@@ -16,6 +16,11 @@ import {
   CASE05_APPEAL_DETAIL_LEGACY_TO_CANONICAL,
   CASE05_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
   CASE05_BLOCKAGE_LEGACY_TO_CANONICAL,
+  CASE05_DISPOSITION_REASON_LEGACY_TO_CANONICAL,
+  CASE05_EVIDENCE_LEGACY_TO_CANONICAL,
+  CASE05_FINAL_GOAL_LEGACY_TO_CANONICAL,
+  CASE05_LEGACY_DISPOSITION_REASON_LABELS,
+  CASE05_LEGACY_EXPLANATION_DETAIL_LABELS,
   CASE05_LEGACY_APPEAL_DETAIL_LABELS,
   CASE05_LEGACY_AUTHORITY_FOLLOWUP_LABELS,
   CASE05_LEGACY_BLOCKAGE_LABELS,
@@ -31,6 +36,9 @@ const CANONICALIZE_ON_SAVE: Record<string, Record<string, string>> = {
   case05_authorityFollowUp: CASE05_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
   case05_appealDetail: CASE05_APPEAL_DETAIL_LEGACY_TO_CANONICAL,
   case05_blockage: CASE05_BLOCKAGE_LEGACY_TO_CANONICAL,
+  case05_dispositionReason: CASE05_DISPOSITION_REASON_LEGACY_TO_CANONICAL,
+  case05_evidence: CASE05_EVIDENCE_LEGACY_TO_CANONICAL,
+  case05_finalGoal: CASE05_FINAL_GOAL_LEGACY_TO_CANONICAL,
   case04_unclearFocus: CASE04_UNCLEAR_FOCUS_LEGACY_TO_CANONICAL,
   case04_authorityFollowUp: CASE04_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
   case04_evidence: CASE04_EVIDENCE_LEGACY_TO_CANONICAL,
@@ -49,6 +57,7 @@ const JUDGMENT_SUPPRESSED_LEGACY = new Set<string>([
   "case05_evidence|unsure",
   "case05_finalGoal|expert",
   "case05_finalGoal|unsure",
+  "case05_explanationDetail|both_unverified",
   "case04_unclearFocus|deadline",
   "case04_unclearFocus|connection",
   "case04_unclearFocus|whole_unclear",
@@ -75,13 +84,26 @@ const BRANCH_EQUIVALENT_ALIASES: Record<string, Record<string, string[]>> = {
     filed_no_schedule: ["filed"],
     filed_no_receipt: ["filed"],
     filed_schedule_known: ["filed"],
-    preparing_deadline_unknown: ["preparing"],
+    preparing_deadline_unknown: ["preparing", "preparing_deadline_known"],
     preparing_deadline_known: ["preparing"],
     considering: ["considering_rules_unread", "considering_rules_read"],
   },
   case05_authorityFollowUp: {
     changed: ["modified", "revoked"],
     wants_more: ["more_docs", "attendance_explanation"],
+    no_response: ["under_review"],
+  },
+  case05_dispositionReason: {
+    no_clear_reason: ["unsure"],
+  },
+  case05_blockage: {
+    what_to_do: ["appeal_method", "evidence"],
+  },
+  case05_evidence: {
+    submitted_docs: ["payment_proof"],
+  },
+  case05_finalGoal: {
+    what_to_do: ["evidence"],
   },
   case04_unclearFocus: {
     what_submit_list: ["what_submit"],
@@ -145,6 +167,18 @@ const LEGACY_CHOICE_LABELS: Record<string, string> = {
   ...Object.fromEntries(
     Object.entries(CASE05_LEGACY_APPEAL_DETAIL_LABELS).map(([slug, label]) => [
       `case05_appealDetail|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE05_LEGACY_DISPOSITION_REASON_LABELS).map(([slug, label]) => [
+      `case05_dispositionReason|${slug}`,
+      label,
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CASE05_LEGACY_EXPLANATION_DETAIL_LABELS).map(([slug, label]) => [
+      `case05_explanationDetail|${slug}`,
       label,
     ]),
   ),

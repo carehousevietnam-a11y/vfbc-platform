@@ -13,7 +13,7 @@ import {
 } from "@/lib/adminVerifyProfiling";
 
 const MAX_CONTENT_CHOICES_PER_QUESTION = 5;
-const MAX_CONTENT_CHOICES_CASE05 = 6;
+const MAX_CONTENT_CHOICES_CASE05 = 5;
 
 function maxContentChoicesForField(fieldId: string): number {
   return fieldId.startsWith("case05_") ? MAX_CONTENT_CHOICES_CASE05 : MAX_CONTENT_CHOICES_PER_QUESTION;
