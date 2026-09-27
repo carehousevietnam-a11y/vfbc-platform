@@ -43,7 +43,7 @@ const missingDate = attachCaseResolutionSnapshot({
 const phase1NeedsDatePass = !isCase03Phase1Complete(missingDate);
 
 const catalogCount = case03Phase2SubstantiveAxisCatalogCount();
-const catalogIs8 = catalogCount === 8;
+const catalogIs8 = catalogCount === 9; // CASE03 v1: 2차 실질 축 9개 (HEAD 기준 이미 9)
 
 const richPath = attachCaseResolutionSnapshot({
   ...withDate,
@@ -90,7 +90,7 @@ const goalFinalPass = (buildCaseResolutionProfile(withFinalGoal).goal.value ?? "
   "전문가",
 );
 const goalConfirmPass = (buildCaseResolutionProfile(withConfirmOnly).goal.value ?? "").includes(
-  "출석",
+  "직접 가야",
 );
 
 const evidenceNotice = buildCaseResolutionProfile(richPath);
@@ -101,7 +101,7 @@ const evidenceNone = attachCaseResolutionSnapshot({
 });
 const evidenceNoneProfile = buildCaseResolutionProfile(evidenceNone);
 const evidenceSubstantivePass =
-  (evidenceNotice.evidence.value ?? "").includes("출석") &&
+  (evidenceNotice.evidence.value ?? "").includes("방문") &&
   (evidenceNoneProfile.evidence.value ?? "").includes("없");
 
 const pass =

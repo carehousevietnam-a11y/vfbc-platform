@@ -3802,268 +3802,116 @@ const FACT_SIGNAL_LABELS: Record<FactSignalCode, string> = {
 };
 
 const CASE03_AUTHORITY_DEMAND_OPTIONS = [
-  {
-    value: "reason_unclear",
-    label: "왜 출석하거나 설명해야 하는지 아직 정확히 이해하지 못한 상황입니다.",
-  },
-  {
-    value: "specific_incident",
-    label: "특정 사건이나 행동에 대해 설명해 달라는 요청을 받은 상황입니다.",
-  },
-  {
-    value: "submission_review",
-    label: "제출한 내용이나 신청 과정에서 확인할 부분 때문에 설명을 요구받은 상황입니다.",
-  },
-  {
-    value: "repeat_demand",
-    label: "이미 설명했는데 다시 출석하거나 추가 설명을 요구받은 상황입니다.",
-  },
-  {
-    value: "prep_unclear",
-    label: "무엇을 준비해서 가야 하는지까지는 아직 알기 어려운 상황입니다.",
-  },
+  { value: "specific_incident", label: "특정 위반이나 사고에 대해, 직접 와서 설명하라는 안내를 받았습니다." },
+  { value: "submission_review", label: "제출한 서류나 신청 내용 때문에, 방문해서 확인받으라는 안내를 받았습니다." },
+  { value: "repeat_demand", label: "이미 한 차례 방문하거나 설명했는데, 다시 오라는 안내를 받았습니다." },
+  { value: "reason_unclear", label: "방문하거나 설명하라는 안내는 받았지만, 그 이유는 설명받지 못했습니다." },
+  { value: "prep_unclear", label: "방문해야 하는 이유는 알지만, 무엇을 준비해서 가야 하는지 모릅니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_CONFIRM_GOAL_OPTIONS = [
-  {
-    value: "prepare_materials",
-    label: "어떤 자료나 내용을 준비해야 하는지 알고 싶습니다.",
-  },
-  {
-    value: "sufficient_explanation",
-    label: "이미 설명한 내용으로 충분한지 확인하고 싶습니다.",
-  },
-  {
-    value: "deadline_attendance",
-    label: "정해진 날짜에 반드시 출석해야 하는지와 기한을 확인하고 싶습니다.",
-  },
-  {
-    value: "repeat_response",
-    label: "이미 대응했는데 다시 무엇을 해야 하는지 확인하고 싶습니다.",
-  },
-  {
-    value: "unsure",
-    label: "지금 무엇부터 준비하고 대응해야 할지 모르겠습니다.",
-  },
+  { value: "prepare_materials", label: "방문할 때 어떤 서류나 자료를 준비해야 하는지 확인하고 싶습니다." },
+  { value: "sufficient_explanation", label: "이미 설명한 내용으로 충분한지, 추가로 해야 할 일이 있는지 확인하고 싶습니다." },
+  { value: "deadline_attendance", label: "반드시 직접 가야 하는지, 언제까지 가야 하는지 확인하고 싶습니다." },
+  { value: "repeat_response", label: "이미 대응했는데, 왜 다시 요구하는지 확인하고 싶습니다." },
+  { value: "unsure", label: "상황이 복잡해서, 무엇부터 진행해야 하는지 순서를 확인하고 싶습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_INQUIRY_FOCUS_OPTIONS = [
-  {
-    value: "action_facts",
-    label: "제가 한 행동이나 발생한 상황에 대해 확인하려는 것으로 이해했습니다.",
-  },
-  {
-    value: "submitted_docs",
-    label: "제출한 서류나 정보에 대해 확인하려는 것으로 이해했습니다.",
-  },
-  {
-    value: "specific_event",
-    label: "특정 날짜·사건·행동에 대해 확인하려는 것으로 이해했습니다.",
-  },
-  {
-    value: "unclear",
-    label: "무엇을 확인하려는 것인지 명확하지 않습니다.",
-  },
-  {
-    value: "unsure",
-    label: "교통국이 무엇을 확인하려는지 설명받지 못했거나 정확히 이해하지 못했습니다.",
-  },
+  { value: "action_facts", label: "제가 운전하거나 행동한 일에 대해, 당시 상황을 직접 듣고 싶어 하는 것 같습니다." },
+  { value: "specific_event", label: "특정 날짜의 위반이나 사고에 대해, 기록된 내용이 맞는지 확인하려는 것 같습니다." },
+  { value: "submitted_docs", label: "제가 제출한 서류나 신청 내용에 대해, 확인할 부분이 있다고 했습니다." },
+  { value: "unclear", label: "안내는 받았지만, 무엇을 확인하려는 것인지는 적혀 있지 않았습니다." },
+  { value: "unsure", label: "목적이 적혀 있는 것 같지만, 베트남어나 행정 용어 때문에 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_FACT_RELATIONSHIP_OPTIONS = [
-  { value: "match", label: "기관이 확인하려는 내용과 실제 상황이 대체로 맞습니다." },
-  {
-    value: "partial",
-    label: "일부 내용이 실제 상황과 다르다고 느껴집니다.",
-  },
-  {
-    value: "mismatch",
-    label: "실제 상황과 기관이 확인하려는 내용이 상당히 다릅니다.",
-  },
-  {
-    value: "hard_to_judge",
-    label: "실제 상황과 문서 내용을 대조하기 어렵습니다.",
-  },
-  { value: "unknown", label: "맞는지 판단할 정보가 부족합니다." },
+  { value: "match", label: "교통국이 확인하려는 내용이 실제 있었던 일과 거의 같습니다." },
+  { value: "partial", label: "대부분 맞지만, 날짜·장소·상황 등 일부 내용이 실제와 다릅니다." },
+  { value: "mismatch", label: "교통국이 확인하려는 일 자체가 실제 있었던 일과 크게 다릅니다." },
+  { value: "hard_to_judge", label: "기록이 없거나 시간이 오래 지나, 실제와 비교하기 어렵습니다." },
+  { value: "unknown", label: "교통국이 무엇을 확인하려는지 몰라, 비교할 수 없습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_CUSTOMER_RESPONSE_OPTIONS = [
-  { value: "none", label: "아직 기관에 설명하거나 직접 방문하지 않았습니다." },
-  {
-    value: "phone_message",
-    label: "전화·메시지 등으로 기관에 문의하거나 상황을 설명했습니다.",
-  },
-  {
-    value: "attendance",
-    label: "지정된 장소에 직접 방문해 상황을 설명했습니다.",
-  },
-  {
-    value: "explanation_with_docs",
-    label: "상황을 설명하면서 관련 서류나 자료도 함께 제출했습니다.",
-  },
-  {
-    value: "other_method",
-    label: "전화나 방문과 다른 방법으로 기관에 대응했습니다.",
-  },
+  { value: "none", label: "안내만 받았고, 아직 교통국에 연락하거나 방문하지 않았습니다." },
+  { value: "phone_message", label: "교통국에 전화나 메시지로 문의했지만, 아직 직접 방문하지는 않았습니다." },
+  { value: "attendance", label: "교통국에 직접 방문해 상황을 설명했습니다." },
+  { value: "explanation_with_docs", label: "방문하거나 설명하면서, 관련 서류나 자료도 함께 제출했습니다." },
+  { value: "other_method", label: "대행사나 회사 담당자, 지인에게 맡겨 그쪽에서 진행하고 있습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_EXPLANATION_DETAIL_OPTIONS = [
-  {
-    value: "full_explanation",
-    label: "제가 알고 있는 사실과 당시 상황을 직접 설명했습니다.",
-  },
-  {
-    value: "with_submitted_docs",
-    label: "설명하면서 관련 서류나 자료도 함께 제출했습니다.",
-  },
-  {
-    value: "partial_explanation",
-    label: "질문받은 일부 내용만 설명했고 아직 충분히 설명하지 못했습니다.",
-  },
-  {
-    value: "agency_redemand",
-    label: "설명했지만 기관에서 다시 다른 내용이나 자료를 요구했습니다.",
-  },
-  {
-    value: "attended_insufficient",
-    label: "출석은 했지만 무엇을 설명해야 하는지 정확히 몰라 충분히 대응하지 못했습니다.",
-  },
+  { value: "full_explanation", label: "당시 상황과 제가 알고 있는 사실을 직접 설명했고, 추가 질문은 받지 않았습니다." },
+  { value: "with_submitted_docs", label: "상황을 설명하면서, 이를 뒷받침할 서류나 자료도 함께 제출했습니다." },
+  { value: "partial_explanation", label: "질문받은 일부 내용만 설명했고, 아직 충분히 설명하지 못했습니다." },
+  { value: "agency_redemand", label: "설명했지만, 교통국에서 다른 내용이나 자료를 다시 요구했습니다." },
+  { value: "attended_insufficient", label: "방문은 했지만, 무엇을 설명해야 하는지 몰라 제대로 대응하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_AUTHORITY_FOLLOWUP_OPTIONS = [
-  {
-    value: "no_further_action",
-    label: "추가 대응 없이 절차가 계속 진행된다고 안내했습니다.",
-  },
-  {
-    value: "more_explanation",
-    label: "추가 설명이나 소명을 다시 요구했습니다.",
-  },
-  {
-    value: "more_docs",
-    label: "추가 자료나 서류를 다시 요구했습니다.",
-  },
-  {
-    value: "re_attendance",
-    label: "다시 방문하거나 출석하라고 안내했습니다.",
-  },
-  {
-    value: "other_procedure",
-    label: "납부·보완·처분 등 다른 절차를 안내했습니다.",
-  },
-  {
-    value: "no_response",
-    label: "아직 기관 답변을 받지 못했습니다.",
-  },
-  {
-    value: "unsure",
-    label: "받은 안내를 정확히 이해하기 어렵습니다.",
-  },
+  { value: "no_further_action", label: "추가로 할 일은 없고, 절차가 그대로 진행된다는 안내를 받았습니다." },
+  { value: "more_explanation", label: "다시 방문하거나, 추가로 설명하라는 안내를 받았습니다." },
+  { value: "more_docs", label: "추가 서류나 자료를 제출하라는 안내를 받았습니다." },
+  { value: "other_procedure", label: "벌금 납부나 서류 보완 등 다른 절차를 진행하라는 안내를 받았습니다." },
+  { value: "no_response", label: "아직 답변을 받지 못했거나, 받은 답변의 의미를 이해하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_PREP_REQUIRED_OPTIONS = [
-  {
-    value: "documents",
-    label: "관련 서류나 증빙을 준비해서 가야 할 것 같습니다.",
-  },
-  {
-    value: "explanation",
-    label: "사실관계를 정리해서 설명할 준비가 필요합니다.",
-  },
-  {
-    value: "attendance_only",
-    label: "지정된 날짜에 출석하는 것만으로 충분할 것 같습니다.",
-  },
-  {
-    value: "unknown",
-    label: "무엇을 준비해야 하는지 아직 정확히 알기 어렵습니다.",
-  },
-  {
-    value: "unsure",
-    label: "준비해야 할 것을 정확히 모르겠습니다.",
-  },
+  { value: "documents", label: "관련 서류나 증빙을 준비해서 가져오라는 안내를 받았습니다." },
+  { value: "explanation", label: "특별한 서류 없이, 당시 상황을 설명할 준비만 하면 된다고 들었습니다." },
+  { value: "attendance_only", label: "준비물 없이, 정해진 날짜에 방문만 하면 된다고 들었습니다." },
+  { value: "unknown", label: "방문하라는 안내만 받았고, 무엇을 준비해야 하는지는 듣지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_REPEAT_FOLLOWUP_OPTIONS = [
-  {
-    value: "more_explanation",
-    label: "추가 설명이나 소명을 다시 요구했습니다.",
-  },
-  {
-    value: "re_attendance",
-    label: "다시 방문하거나 출석하라고 안내했습니다.",
-  },
-  {
-    value: "more_docs",
-    label: "추가 자료나 서류를 다시 요구했습니다.",
-  },
-  {
-    value: "multiple",
-    label: "설명·출석·자료 등 여러 가지를 다시 요구했습니다.",
-  },
-  {
-    value: "not_applicable",
-    label: "반복 요구는 없었거나 아직 확인하지 못했습니다.",
-  },
+  { value: "more_explanation", label: "처음 설명한 내용이 부족하다며, 추가 설명을 요구받았습니다." },
+  { value: "re_attendance", label: "다시 날짜를 정해서, 교통국에 직접 방문하라는 요구를 받았습니다." },
+  { value: "more_docs", label: "처음에는 요구하지 않았던 서류나 자료를 추가로 요구받았습니다." },
+  { value: "multiple", label: "다시 방문하면서, 추가 설명과 서류까지 함께 요구받았습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_DEADLINE_OPTIONS = [
-  {
-    value: "specific_date",
-    label: "출석하거나 설명해야 하는 날짜를 확인했습니다.",
-  },
-  {
-    value: "uncertain",
-    label: "기한이 있다는 것은 알지만 정확한 날짜는 아직 확인하지 못했습니다.",
-  },
-  {
-    value: "period_stated",
-    label: "기한이 있다는 안내만 받았고, 정확한 날짜는 확인하지 못했습니다.",
-  },
-  {
-    value: "not_stated",
-    label: "기한이 있는지 자체를 아직 확인하지 못했습니다.",
-  },
-  {
-    value: "unsure",
-    label: "현재 기한과 관련된 내용을 전혀 알지 못합니다.",
-  },
+  { value: "specific_date", label: "안내문이나 담당자를 통해 정확한 방문 날짜나 마감일을 안내받았습니다." },
+  { value: "period_stated", label: "'며칠 이내'처럼 기간만 안내받았고, 정확한 날짜는 받지 못했습니다." },
+  { value: "uncertain", label: "날짜가 정해져 있다는 안내는 받았지만, 정확히 언제인지 확인하지 못했습니다." },
+  { value: "not_stated", label: "날짜나 기한에 대해서는 별도의 안내를 받지 못했습니다." },
+  { value: "unsure", label: "안내문이 베트남어로 되어 있어, 날짜가 적혀 있는지조차 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_BLOCKAGE_OPTIONS = [
-  { value: "what_explain", label: "기관에 무엇을 어떻게 설명해야 하는지 모르겠습니다" },
-  { value: "what_docs", label: "어떤 서류·증빙을 준비해야 하는지 모르겠습니다" },
-  { value: "why_attend", label: "왜 출석·소명을 요구하는지 이해하지 못했습니다" },
-  { value: "when_attend", label: "언제까지 출석·제출해야 하는지 모르겠습니다" },
-  { value: "after_explain", label: "설명·제출 후 다음에 무엇을 해야 하는지 모르겠습니다" },
+  { value: "what_explain", label: "교통국에 무엇을 어떻게 설명해야 할지 몰라, 방문 준비를 하지 못하고 있습니다." },
+  { value: "what_docs", label: "어떤 서류나 증빙을 가져가야 하는지 몰라, 준비가 멈춰 있습니다." },
+  { value: "why_attend", label: "왜 방문이나 설명을 요구하는지 이해하지 못해, 대응을 망설이고 있습니다." },
+  { value: "when_attend", label: "언제까지 방문하거나 제출해야 하는지 몰라, 일정을 정하지 못하고 있습니다." },
+  { value: "after_explain", label: "이미 설명하거나 제출했지만, 다음 절차를 알 수 없어 기다리고만 있습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_EVIDENCE_OPTIONS = [
-  { value: "notice", label: "출석·소명 통지서" },
-  { value: "attendance_notice", label: "출석 일시·장소 안내" },
-  { value: "message", label: "문자·전화·메신저 안내" },
-  { value: "submitted_docs", label: "제출한 서류·소명서" },
-  { value: "none", label: "관련 자료 없음" },
-  { value: "unsure", label: "지금 확인할 수 있는 자료가 있는지 아직 확인하지 못했습니다." },
+  { value: "notice", label: "교통국에서 받은 방문·설명 안내문이나 통지서" },
+  { value: "attendance_notice", label: "방문 날짜와 장소가 적힌 안내" },
+  { value: "message", label: "교통국 담당자와 주고받은 문자·메신저·통화 기록" },
+  { value: "submitted_docs", label: "제가 제출한 서류나 설명서(사본 포함)" },
+  { value: "none", label: "보관 중인 자료가 없거나, 있는지 아직 확인하지 못했습니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
 const CASE03_FINAL_GOAL_OPTIONS = [
-  { value: "understand_demand", label: "기관 요구를 이해하고 싶습니다" },
-  { value: "prepare_response", label: "대응 준비가 필요합니다" },
-  { value: "verify_facts", label: "사실관계를 확인하고 싶습니다" },
-  { value: "expert", label: "전문가 확인이 필요합니다" },
+  { value: "understand_demand", label: "교통국이 왜 요구하는지 정확히 이해하고, 그에 맞게 대응하고 싶습니다." },
+  { value: "prepare_response", label: "필요한 서류와 설명을 준비해, 한 번의 방문으로 마무리하고 싶습니다." },
+  { value: "verify_facts", label: "교통국이 확인하려는 내용이 사실과 맞는지 확인하고, 다르다면 바로잡고 싶습니다." },
+  { value: "expert", label: "방문이나 설명을 전문가와 함께 준비하거나, 대신 진행해 주기를 원합니다." },
   ADMIN_DIRECT_EXPLAIN_CHOICE,
 ];
 
@@ -4075,7 +3923,7 @@ const CASE03_FIELD_OPTIONS: Record<string, { value: string; label: string }[]> =
   case03_deadline: CASE03_DEADLINE_OPTIONS,
 };
 
-const CASE03_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
+export const CASE03_FIELD_OPTION_MAP: Record<string, { value: string; label: string }[]> = {
   case03_authorityDemand: CASE03_AUTHORITY_DEMAND_OPTIONS,
   case03_confirmGoal: CASE03_CONFIRM_GOAL_OPTIONS,
   case03_inquiryFocus: CASE03_INQUIRY_FOCUS_OPTIONS,
@@ -4110,7 +3958,7 @@ export const CASE03_OPTION_LABELS: Record<string, string> = {
 export function getCase03FieldOptionLabel(fieldId: string, value: string): string {
   const options = CASE03_FIELD_OPTION_MAP[fieldId];
   const matched = options?.find((option) => option.value === value);
-  return matched?.label ?? value;
+  return matched?.label ?? getLegacyChoiceLabel(fieldId, value) ?? value;
 }
 
 /** CASE_03 Direct Input — CASE_02 `getCase02FieldLabelFromAnswers` 동형 */
@@ -4184,8 +4032,10 @@ function case03NeedsPrepDetail(answers: ReviewAnswers): boolean {
   return !case03HasResponded(answers);
 }
 
+/** 재요구가 실제로 있었던 고객만 (docs/master/VFBCAI_CASE03_CHOICE_FINAL_v1_CLAUDE.md §D) */
 function case03NeedsRepeatFollowUp(answers: ReviewAnswers): boolean {
-  if (case03IsPhase2CoreBranchComplete(answers)) return true;
+  if (answers.case03_authorityDemand === "repeat_demand") return true;
+  if (answers.case03_confirmGoal === "repeat_response") return true;
   const authorityValue = getCase03AuthorityResponseValue(answers);
   if (authorityValue && CASE03_REPEAT_RESPONSE_VALUES.has(authorityValue)) {
     return true;
@@ -4525,7 +4375,7 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case03_authorityDemand",
     kind: "choice",
-    label: "교통국에서는 이 문제와 관련해 무엇을 하라고 안내했나요?",
+    label: "교통국에서 받은 방문·설명 안내는 어떤 상황인가요?",
     options: CASE03_AUTHORITY_DEMAND_OPTIONS,
   });
   if (
@@ -4541,7 +4391,7 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case03_inquiryFocus",
     kind: "choice",
-    label: "교통국에서는 무엇을 확인하려는 것 같나요?",
+    label: "교통국은 이번 방문이나 설명으로 무엇을 확인하려는 것 같나요?",
     options: CASE03_INQUIRY_FOCUS_OPTIONS,
   });
   if (
@@ -4557,7 +4407,7 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case03_customerResponse",
     kind: "choice",
-    label: "교통국의 설명이나 출석 요구를 받은 뒤 이미 어떤 대응을 하셨나요?",
+    label: "안내를 받은 뒤, 현재 어디까지 진행하셨나요?",
     options: CASE03_CUSTOMER_RESPONSE_OPTIONS,
   });
   if (
@@ -4573,7 +4423,7 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case03_confirmGoal",
     kind: "choice",
-    label: "지금 이 출석·소명 사건에서 가장 확인하고 싶은 것은 무엇인가요?",
+    label: "지금 가장 먼저 확인하고 싶은 것은 무엇인가요?",
     options: CASE03_CONFIRM_GOAL_OPTIONS,
   });
   if (
@@ -4589,7 +4439,7 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
   pushUnique(questions, {
     id: "case03_deadline",
     kind: "choice",
-    label: "교통국에서는 언제까지 무엇을 해야 한다고 안내했나요?",
+    label: "방문하거나 설명해야 하는 날짜는 어떻게 안내받으셨나요?",
     options: CASE03_DEADLINE_OPTIONS,
   });
   if (
@@ -4601,8 +4451,8 @@ function appendCase03Phase1Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: CASE03_DEADLINE_DATE_KEY,
       kind: "text",
-      label: "확인한 출석·소명 기한은 언제인가요?",
-      placeholder: "기억나는 날짜·기한을 적어 주세요.",
+      label: "안내받은 방문 날짜나 마감일은 언제인가요?",
+      placeholder: "안내문에 적힌 그대로 입력해 주세요. 예) 2026년 10월 15일 오전 9시",
     });
     if (case03NeedsDeadlineDateDetail(answers)) {
       return;
@@ -4615,8 +4465,8 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: CASE03_ATTENDANCE_PLACE_KEY,
       kind: "text",
-      label: "출석·소명을 하기로 한 장소는 어디인가요?",
-      placeholder: "기억나는 장소·기관명을 적어 주세요.",
+      label: "방문해서 설명한 곳은 어디인가요?",
+      placeholder: "기관 이름이나 주소를 기억나는 대로 입력해 주세요.",
     });
     return;
   }
@@ -4626,7 +4476,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case03_factRelationship",
       kind: "choice",
       label:
-        "교통국에서 확인하려는 내용과 실제 상황을 비교하면, 가장 확인이 필요한 부분은 무엇인가요?",
+        "교통국이 확인하려는 내용은 실제 있었던 일과 비교하면 어떤가요?",
       options: CASE03_FACT_RELATIONSHIP_OPTIONS,
     });
     if (
@@ -4644,7 +4494,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_inquiryFocus",
       kind: "choice",
-      label: "교통국에서는 무엇을 확인하려는 것 같나요?",
+      label: "교통국은 이번 방문이나 설명으로 무엇을 확인하려는 것 같나요?",
       options: CASE03_INQUIRY_FOCUS_OPTIONS,
     });
     if (
@@ -4662,7 +4512,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_explanationDetail",
       kind: "choice",
-      label: "교통국에 설명하거나 제출한 내용은 무엇인가요?",
+      label: "교통국에 설명할 때 어떻게 진행되었나요?",
       options: CASE03_EXPLANATION_DETAIL_OPTIONS,
     });
     if (
@@ -4678,7 +4528,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_authorityFollowUp",
       kind: "choice",
-      label: "교통국에 대응한 뒤에는 어떤 답변이나 추가 안내를 받았나요?",
+      label: "대응한 뒤, 교통국에서는 어떤 답변이 있었나요?",
       options: CASE03_AUTHORITY_FOLLOWUP_OPTIONS,
     });
     if (
@@ -4694,7 +4544,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_prepRequired",
       kind: "choice",
-      label: "교통국에 직접 가야 한다면, 무엇을 준비하라고 안내받으셨나요?",
+      label: "직접 방문해야 한다면, 무엇을 준비하라고 안내받으셨나요?",
       options: CASE03_PREP_REQUIRED_OPTIONS,
     });
     if (
@@ -4710,8 +4560,8 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
       pushUnique(questions, {
         id: CASE03_PREP_ATTENDANCE_DATE_KEY,
         kind: "text",
-        label: "출석·소명 예정일은 언제인가요?",
-        placeholder: "기억나는 날짜를 적어 주세요.",
+        label: "방문하기로 한 날짜는 언제인가요?",
+        placeholder: "기억나는 날짜와 시간을 입력해 주세요.",
       });
       return;
     }
@@ -4722,7 +4572,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case03_repeatFollowUp",
       kind: "choice",
       label:
-        "이미 설명하거나 자료를 제출했는데도 교통국에서 다시 확인하려는 내용은 무엇인가요?",
+        "다시 요구받은 내용은 무엇인가요?",
       options: CASE03_REPEAT_FOLLOWUP_OPTIONS,
     });
     if (
@@ -4740,7 +4590,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_blockage",
       kind: "choice",
-      label: "지금 이 출석·소명 사건에서 가장 막혀 있는 부분은 무엇인가요?",
+      label: "현재 이 일이 진행되지 못하는 가장 큰 이유는 무엇인가요?",
       options: CASE03_BLOCKAGE_OPTIONS,
     });
     if (
@@ -4759,7 +4609,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
       id: "case03_evidence",
       kind: "choice",
       label:
-        "지금 출석·소명 요구와 관련해, 확인하거나 제출에 활용할 수 있는 자료를 골라 주세요. (여러 개 선택 가능)",
+        "현재 보관하고 있는 자료를 모두 선택해 주세요. (여러 개 선택 가능)",
       options: CASE03_EVIDENCE_OPTIONS,
     });
     if (
@@ -4775,8 +4625,8 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
       pushUnique(questions, {
         id: CASE03_ATTENDANCE_WHEN_WHERE_KEY,
         kind: "text",
-        label: "출석 일시·장소 안내에 적힌 내용은 무엇인가요?",
-        placeholder: "기억나는 날짜·시간·장소를 적어 주세요.",
+        label: "안내에 적힌 방문 날짜와 장소는 무엇인가요?",
+        placeholder: "기억나는 날짜·시간·장소를 입력해 주세요.",
       });
       return;
     }
@@ -4786,7 +4636,7 @@ function appendCase03Phase2Questions(questions: ProfileQuestion[], answers: Revi
     pushUnique(questions, {
       id: "case03_finalGoal",
       kind: "choice",
-      label: "이 출석·소명 사건에서 어떤 결과를 원하시나요?",
+      label: "이번 검토를 통해 이 일을 어떻게 마무리하고 싶으신가요?",
       options: CASE03_FINAL_GOAL_OPTIONS,
     });
   }

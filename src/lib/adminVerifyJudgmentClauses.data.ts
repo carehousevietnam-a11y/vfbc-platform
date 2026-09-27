@@ -242,7 +242,7 @@ export const LAYER_J_CLAUSE_MAP: Record<string, string> = {
   "03|§03·2차|case03_evidence|attendance_notice": "2차 추가 확인에서는 출석 일시·장소 안내를 확보한 상태로 정리됩니다.",
   "03|§03·2차|case03_evidence|message": "2차 추가 확인에서는 문자·연락 안내를 확보한 상태로 정리됩니다.",
   "03|§03·2차|case03_evidence|submitted_docs": "2차 추가 확인에서는 제출·소명 서류를 확보한 상태로 정리됩니다.",
-  "03|§03·2차|case03_evidence|none": "2차 추가 확인에서는 관련 자료가 없는 상태로 정리됩니다.",
+  "03|§03·2차|case03_evidence|none": "2차 추가 확인에서는 보관 중인 자료가 없거나 아직 확인하지 못한 상태로 정리됩니다.",
   "03|§03·2차|case03_evidence|unsure": "2차 추가 확인에서는 확보 가능 자료가 아직 정리되지 않은 상태입니다.",
   "03|§03·2차|case03_evidence|other": "확보 자료: {case03_evidenceNote 또는 DI 원문}",
   "04|§03·1차|case04_supplementTarget|additional_docs": "1차 확인에서는 빠진 자료 추가 제출 요구로 정리됩니다.",

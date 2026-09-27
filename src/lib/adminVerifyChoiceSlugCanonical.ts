@@ -42,6 +42,9 @@ const CANONICALIZE_ON_SAVE: Record<string, Record<string, string>> = {
   case04_unclearFocus: CASE04_UNCLEAR_FOCUS_LEGACY_TO_CANONICAL,
   case04_authorityFollowUp: CASE04_AUTHORITY_FOLLOWUP_LEGACY_TO_CANONICAL,
   case04_evidence: CASE04_EVIDENCE_LEGACY_TO_CANONICAL,
+  case03_authorityFollowUp: { re_attendance: "more_explanation", unsure: "no_response" },
+  case03_prepRequired: { unsure: "unknown" },
+  case03_evidence: { unsure: "none" },
 };
 
 /** 판단 문장·Profile 신호에 쓰지 않음 — 응답 요약에만 원문 라벨 */
@@ -64,6 +67,7 @@ const JUDGMENT_SUPPRESSED_LEGACY = new Set<string>([
   "case04_repeatSupplement|more_explanation",
   "case04_repeatSupplement|multiple",
   "case04_repeatSupplement|not_applicable",
+  "case03_repeatFollowUp|not_applicable",
 ]);
 
 /** 분기·신호용 — 저장값을 새 slug로 바꾸지 않고, equals 시 양쪽 인정 */
@@ -118,6 +122,16 @@ const BRANCH_EQUIVALENT_ALIASES: Record<string, Record<string, string[]>> = {
   case04_evidence: {
     none: ["unsure"],
   },
+  case03_authorityFollowUp: {
+    more_explanation: ["re_attendance"],
+    no_response: ["unsure"],
+  },
+  case03_prepRequired: {
+    unknown: ["unsure"],
+  },
+  case03_evidence: {
+    none: ["unsure"],
+  },
   case04_repeatSupplement: {
     more_docs_same_kind: ["more_docs"],
     more_modify_reject_prior: ["more_modify"],
@@ -125,6 +139,11 @@ const BRANCH_EQUIVALENT_ALIASES: Record<string, Record<string, string[]>> = {
 };
 
 const LEGACY_CHOICE_LABELS: Record<string, string> = {
+  "case03_authorityFollowUp|re_attendance": "다시 방문하거나 출석하라고 안내했습니다.",
+  "case03_authorityFollowUp|unsure": "받은 안내를 정확히 이해하기 어렵습니다.",
+  "case03_prepRequired|unsure": "준비해야 할 것을 정확히 모르겠습니다.",
+  "case03_evidence|unsure": "지금 확인할 수 있는 자료가 있는지 아직 확인하지 못했습니다.",
+  "case03_repeatFollowUp|not_applicable": "반복 요구는 없었거나 아직 확인하지 못했습니다.",
   "case05_explanationDetail|unsure":
     "제출한 소명·의견의 형태를 정확히 구분하기 어렵습니다.",
   "case05_explanationDetail|written": "서면으로 소명·의견을 제출했습니다",
