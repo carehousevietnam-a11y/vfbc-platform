@@ -1561,6 +1561,18 @@ function case01ConfirmGoalOptionsFor(answers: ReviewAnswers): { value: string; l
   );
 }
 
+/** Q1 ↔ 2차 요구 내용 정리 — Q1 violation_notice(벌금·출석 요구 없음) 고객에게 payment·attendance 선택지를 보이지 않음(저장된 값은 유지) */
+const CASE01_DEMAND_HIDDEN_FOR_Q1_VIOLATION_NOTICE = new Set(["payment", "attendance"]);
+
+function case01AuthorityDemandOptionsFor(answers: ReviewAnswers): { value: string; label: string }[] {
+  if (answers[ADMIN_CASE_ENTRY_Q1_KEY] !== "violation_notice") return CASE01_AUTHORITY_DEMAND_OPTIONS;
+  return CASE01_AUTHORITY_DEMAND_OPTIONS.filter(
+    (o) =>
+      !CASE01_DEMAND_HIDDEN_FOR_Q1_VIOLATION_NOTICE.has(o.value) ||
+      adminVerifyFieldHasSlug(answers, "case01_authorityDemand", o.value),
+  );
+}
+
 function appendCase01Phase2AdaptiveQuestions(
   questions: ProfileQuestion[],
   answers: ReviewAnswers,
@@ -1648,7 +1660,7 @@ function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: Revi
     id: "case01_authorityDemand",
     kind: "choice",
     label: "교통국은 이 통지와 함께 구체적으로 무엇을 하라고 안내했나요?",
-    options: CASE01_AUTHORITY_DEMAND_OPTIONS,
+    options: case01AuthorityDemandOptionsFor(answers),
   });
   if (
     !isAdminVerifyChoiceFieldComplete(
