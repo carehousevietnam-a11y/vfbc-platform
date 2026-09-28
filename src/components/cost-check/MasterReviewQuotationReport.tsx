@@ -4630,6 +4630,7 @@ export function MasterReviewQuotationReport({
                 !isRealEstateFirstResult &&
                 !isRealEstatePhase2Review &&
                 !isAdminVerifyAwaitingSignup &&
+                !isAdminAwaitingPhase1Evidence &&
                 !isAdminVerifyAwaitingEvidence ? (
                   <div className="hidden lg:block">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
@@ -4698,6 +4699,7 @@ export function MasterReviewQuotationReport({
                 !isRealEstatePersonalizedResult &&
                 !isRealEstateFirstResult &&
                 !isAdminVerifyAwaitingSignup &&
+                !isAdminAwaitingPhase1Evidence &&
                 !isAdminVerifyAwaitingEvidence &&
                 !isRealEstateAwaitingSignup &&
                 !isRealEstateAwaitingPhase1Evidence &&
