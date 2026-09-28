@@ -4349,26 +4349,6 @@ function VerifyFirstResultTransitionSection({
 
   return (
     <section className="border-t border-slate-100 pt-6 lg:pt-5" data-purpose="admin-first-result-transition">
-      <div className="mb-4 max-w-2xl">
-        <span className="mb-1.5 inline-block rounded border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
-          무료 · 1차 종합 결과
-        </span>
-        <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-slate-600">
-          <li>
-            <span className="font-medium text-slate-700">왜: </span>
-            {transitionHooks.hookWhy}
-          </li>
-          <li>
-            <span className="font-medium text-slate-700">누구에게: </span>
-            {transitionHooks.hookWho}
-          </li>
-          <li>
-            <span className="font-medium text-slate-700">더 확인: </span>
-            {transitionHooks.hookWhatMore}
-          </li>
-        </ul>
-        <p className="mt-3 text-xs leading-relaxed text-slate-500">{transitionHooks.trustLine}</p>
-      </div>
       <VerifyResultDualActionCards
         sectionLabel="다음 단계"
         headline={transitionHooks.hookHeadline}
@@ -4451,6 +4431,7 @@ export function AdminVerifyFirstResultPanel({
   const isCaution = data.statusTone === "caution";
   const isPersonalized = variant === "personalized";
   const isRealEstate = domain === "real-estate";
+  const hideAdminFirstResultExtraSections = !isRealEstate && !isPersonalized;
   const personalized = data.personalizedContext;
   const resultTitle = isRealEstate
     ? isPersonalized
@@ -4958,6 +4939,9 @@ export function AdminVerifyFirstResultPanel({
         </div>
       </section>
 
+      {/* 행정문서 1차 결과는 01~03만 표시 (04·05 숨김) */}
+      {hideAdminFirstResultExtraSections ? null : (
+      <>
       <section>
         <StitchSectionHeading
           titleTone="calm"
@@ -5082,6 +5066,8 @@ export function AdminVerifyFirstResultPanel({
           ))}
         </div>
       </section>
+      </>
+      )}
 
       {transitionHooks ? (
         <VerifyFirstResultTransitionSection
