@@ -68,6 +68,7 @@ import { LAYER_J_CLAUSE_MAP } from "@/lib/adminVerifyJudgmentClauses.data";
 import {
   buildPhase1RiskSummaryFromManifest,
   buildPhase2RiskSummaryFromManifest,
+  buildPhase2RiskSummaryLinesFromManifest,
   resolveIntegratedSituationFragment,
 } from "@/lib/adminVerifyJudgmentRuntime";
 import {
@@ -3415,7 +3416,7 @@ export function buildAdminVerifyPersonalizedContext(
   const profile = buildCaseResolutionProfile(answers);
   const integratedSituation = buildIntegratedSituationFromProfile(answers, profile);
   const phase1Summary = buildPhase1RiskSummary(answers, profile);
-  const phase2Summary = buildPhase2RiskSummary(answers, profile);
+  const phase2Lines = buildPhase2RiskSummaryLinesFromManifest(answers, profile);
   const q1Case = getQ1ResolvedCase(answers);
   const case06SimplifiedNoPhase2Additions =
     q1Case === "CASE_06" &&
@@ -3423,9 +3424,7 @@ export function buildAdminVerifyPersonalizedContext(
     !isCase06LegacyRestorePath(answers);
   const phase2Additions = case06SimplifiedNoPhase2Additions
     ? []
-    : phase2Summary.trim()
-      ? [phase2Summary]
-      : [];
+    : phase2Lines.filter((line) => line.trim());
 
   return {
     integratedSituation,
