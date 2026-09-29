@@ -3552,24 +3552,37 @@ function StitchSectionHeading({
   titleTone?: keyof typeof SECTION_TITLE_TONE_CLASSES;
 }) {
   return (
-    <div className={cn("mb-3 flex items-center justify-between lg:mb-1.5", className)}>
-      <div className="flex items-center gap-2 lg:gap-1.5">
+    <div
+      className={cn(
+        "mb-3 flex flex-col gap-2 sm:gap-2.5 lg:mb-1.5 lg:flex-row lg:items-start lg:justify-between lg:gap-3",
+        className,
+      )}
+    >
+      <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2 sm:gap-y-1 lg:min-w-0 lg:flex-1 lg:gap-1.5">
         <h2
           className={cn(
             "text-xs font-bold uppercase tracking-wide text-slate-900 sm:text-sm",
+            FIRST_RESULT_READABLE_CLASS,
             SECTION_TITLE_TONE_CLASSES[titleTone],
           )}
         >
           {title}
         </h2>
-        {badge}
+        {badge ? <div className="flex shrink-0 flex-wrap items-center">{badge}</div> : null}
         {subtitle ? (
-          <span className="text-xs font-normal text-slate-400 lg:text-[11px] lg:font-normal lg:text-slate-400">
+          <span
+            className={cn(
+              "text-xs font-normal text-slate-400 lg:text-[11px] lg:font-normal lg:text-slate-400",
+              FIRST_RESULT_READABLE_CLASS,
+            )}
+          >
             {subtitle}
           </span>
         ) : null}
       </div>
-      {meta}
+      {meta ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">{meta}</div>
+      ) : null}
     </div>
   );
 }
@@ -4913,11 +4926,11 @@ export function AdminVerifyFirstResultPanel({
                 isCaution ? "border-amber-200/70 lg:border-amber-200/60" : "border-emerald-200/70 lg:border-emerald-200/60",
               )}
             >
-              <div className="mb-2.5 flex items-center justify-between text-xs lg:mb-1.5">
-                <span className="font-medium text-slate-500 lg:text-[11px]">주의 판독 등급</span>
+              <div className="mb-2.5 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between lg:mb-1.5">
+                <span className="shrink-0 font-medium text-slate-500 lg:text-[11px]">주의 판독 등급</span>
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 rounded border px-2.5 py-1 text-xs font-bold lg:px-2 lg:py-0.5 lg:text-[10px] lg:font-medium",
+                    "inline-flex w-fit max-w-full items-center gap-1 whitespace-nowrap rounded border px-2.5 py-1 text-xs font-bold lg:px-2 lg:py-0.5 lg:text-[10px] lg:font-medium",
                     isCaution
                       ? "border-amber-200 bg-amber-50 text-amber-800"
                       : "border-emerald-200 bg-emerald-50 text-emerald-800",
@@ -4965,7 +4978,7 @@ export function AdminVerifyFirstResultPanel({
           title="03 / 주요 위험 요인"
           subtitle="| 반려 방지 핵심 포인트"
           meta={
-            <span className="rounded border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 lg:border-orange-300/70 lg:bg-orange-100/45 lg:px-1.5 lg:text-[10px] lg:text-orange-800">
+            <span className="shrink-0 whitespace-nowrap rounded border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 lg:border-orange-300/70 lg:bg-orange-100/45 lg:px-1.5 lg:text-[10px] lg:text-orange-800">
               현지 실무 경험
             </span>
           }
