@@ -3576,7 +3576,14 @@ function StitchSectionHeading({
               FIRST_RESULT_READABLE_CLASS,
             )}
           >
-            {subtitle}
+            {subtitle.startsWith("|") ? (
+              <>
+                <span className="hidden sm:inline text-slate-300/90">{subtitle.charAt(0)} </span>
+                <span>{subtitle.replace(/^\|\s*/, "")}</span>
+              </>
+            ) : (
+              subtitle
+            )}
           </span>
         ) : null}
       </div>
@@ -3729,8 +3736,8 @@ function KeyMetricCard({
           : "border border-amber-200/80 bg-amber-50/15 hover:border-amber-300/90 lg:border-amber-200/60",
       )}
     >
-      <div className="flex min-h-[4.75rem] flex-col lg:min-h-[4.25rem]">
-        <div className="mb-2.5 flex items-center justify-between lg:mb-2">
+      <div className="min-w-0">
+        <div className="mb-2 flex items-center justify-between lg:mb-2">
           <span
             className={cn(
               "text-[11px] font-mono font-semibold uppercase tracking-wider lg:text-[10px] lg:font-normal",
@@ -3761,7 +3768,7 @@ function KeyMetricCard({
       </div>
       <div
         className={cn(
-          "mt-4 border-t pt-3",
+          "mt-3 border-t pt-3 lg:mt-3",
           isOk ? "border-slate-100" : "border-amber-200/60",
         )}
       >
@@ -4598,7 +4605,7 @@ export function AdminVerifyFirstResultPanel({
             data-purpose="primary-result-card"
           >
           <div className="border-b border-slate-100 pb-5">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-3 flex flex-col gap-2 sm:mb-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
               <div className="flex items-center space-x-1.5 text-xs font-semibold text-slate-500">
                 <span>{breadcrumbService}</span>
                 <span className="text-slate-300">/</span>
@@ -4617,14 +4624,23 @@ export function AdminVerifyFirstResultPanel({
           <StitchPersonalizedMetricRibbon data={data} />
 
           <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" data-purpose="ai-analysis-details">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center space-x-2.5">
-                <span className="rounded bg-slate-900 px-2 py-0.5 text-xs font-bold tracking-wide text-white">
+            <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2.5">
+                <span className="w-fit shrink-0 rounded bg-slate-900 px-2 py-0.5 text-xs font-bold tracking-wide text-white">
                   2차 검토
                 </span>
-                <h3 className="text-base font-bold text-slate-900">2차 개인화 정밀 소견</h3>
+                <h3 className={cn("text-base font-bold text-slate-900", FIRST_RESULT_READABLE_CLASS)}>
+                  2차 개인화 정밀 소견
+                </h3>
               </div>
-              <span className="text-xs font-medium text-slate-400">1차 기본 확인 + 2차 추가 조건 종합</span>
+              <span
+                className={cn(
+                  "shrink-0 text-xs font-medium text-slate-400 sm:max-w-[14rem] sm:text-right lg:max-w-none lg:text-left",
+                  FIRST_RESULT_READABLE_CLASS,
+                )}
+              >
+                1차 기본 확인 + 2차 추가 조건 종합
+              </span>
             </div>
 
             <div className="pt-5">
@@ -4700,8 +4716,8 @@ export function AdminVerifyFirstResultPanel({
                 03 주요 위험 요인
               </span>
               <div className="space-y-2.5">
-                <div className="flex items-start gap-3 rounded-lg border border-slate-200/70 bg-slate-50/60 p-3">
-                  <span className="mt-0.5 min-w-[70px] text-xs font-bold text-slate-600">1차 확인:</span>
+                <div className="flex flex-col gap-1.5 rounded-lg border border-slate-200/70 bg-slate-50/60 p-3 sm:flex-row sm:items-start sm:gap-3">
+                  <span className="shrink-0 text-xs font-bold text-slate-600 sm:min-w-[4.5rem]">1차 확인:</span>
                   <span
                     className={cn(
                       "text-xs text-slate-600 sm:text-sm",
@@ -4712,8 +4728,8 @@ export function AdminVerifyFirstResultPanel({
                   </span>
                 </div>
                 {hideCase06EmptyPhase2RiskRow ? null : (
-                <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
-                  <span className="mt-0.5 min-w-[70px] text-xs font-bold text-amber-700">2차 추가:</span>
+                <div className="flex flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50/60 p-3 sm:flex-row sm:items-start sm:gap-3">
+                  <span className="shrink-0 text-xs font-bold text-amber-700 sm:min-w-[4.5rem]">2차 추가:</span>
                   <span
                     className={cn(
                       "text-xs font-medium leading-relaxed text-slate-800 sm:text-sm",
