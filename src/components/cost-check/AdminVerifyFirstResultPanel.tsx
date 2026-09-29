@@ -4440,11 +4440,7 @@ function VerifyFirstResultTransitionSection({
             tone: "free",
             title: "AI 정보 보기",
             description: "내 상황에 맞는 핵심 내용을 AI가 정리해 드립니다.",
-            buttonLabel: aiSummaryNavigating
-              ? "이동 중..."
-              : !onAiSummaryNavigate && aiSummaryOpen
-                ? "AI 정보 접기"
-                : "AI 정보 보기",
+            buttonLabel: aiSummaryNavigating ? "이동 중..." : "AI 정보 보기",
             onClick: handleAiSummaryClick,
             loading: aiSummaryNavigating,
             loadingLabel: "이동 중...",
@@ -4461,18 +4457,6 @@ function VerifyFirstResultTransitionSection({
           },
         ]}
       />
-      {aiSummaryOpen ? <VerifyFirstResultAiSummaryPanel data={data} /> : null}
-      {onAiSummaryNavigate ? (
-        <div className="mt-2 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setAiSummaryOpen((open) => !open)}
-            className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline"
-          >
-            {aiSummaryOpen ? "AI 정리 접기" : "AI 정리 미리보기"}
-          </button>
-        </div>
-      ) : null}
       {transitionNotice}
     </section>
   );
