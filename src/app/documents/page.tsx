@@ -1394,9 +1394,9 @@ function DocumentUploadContent() {
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <div className="h-[3px] bg-blue-900" />
-      <div ref={scrollTopRef} className="mx-auto max-w-4xl px-6 py-10 pb-32 lg:pb-10">
+      <div ref={scrollTopRef} className="mx-auto max-w-4xl px-4 py-8 pb-36 sm:px-6 sm:py-10 lg:pb-10">
         {/* 모바일 전용 브랜드 헤더 — 좌측 "← 홈으로", 로고+브랜드명은 중앙 정렬 */}
-        <div className="relative -mx-6 -mt-10 mb-4 flex items-center justify-center border-b border-gray-100 bg-white px-4 py-3 lg:hidden">
+        <div className="relative -mx-4 -mt-8 mb-4 flex items-center justify-center border-b border-gray-100 bg-white px-4 py-3 sm:-mx-6 sm:-mt-10 lg:hidden">
           <Link
             href="/"
             aria-label="홈으로"
@@ -1439,7 +1439,7 @@ function DocumentUploadContent() {
                 <FileText className="text-white" size={26} />
               </div>
               <div className="min-w-0">
-                <h1 className="text-lg font-bold tracking-tight text-gray-900 lg:text-xl">
+                <h1 className="break-keep text-pretty text-lg font-bold tracking-tight text-gray-900 [word-break:keep-all] lg:text-xl">
                   {config.serviceLabel} · {copy.badgeLabel}
                 </h1>
                 <p className="mt-1 text-xs leading-relaxed text-gray-500">
@@ -1551,7 +1551,7 @@ function DocumentUploadContent() {
             </div>
 
             {/* 전체 제출 진행률 */}
-            <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-4 lg:mt-4 lg:p-3.5">
+            <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-4 lg:mt-4 lg:p-3.5">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-bold text-gray-900">핵심 자료 제출 현황</p>
                 <p className="shrink-0 text-xs font-semibold text-gray-400">{progressPercent}%</p>
@@ -1873,9 +1873,9 @@ function DocumentUploadContent() {
 
       {/* 모바일 전용 — 하단 고정 CTA */}
       {!submitted && (!isCompanyService || investorType) && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-3 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] sm:px-5 sm:pt-4 lg:hidden">
           <div className="mx-auto max-w-5xl text-center">
-            <p className="text-sm font-bold text-gray-900">
+            <p className="break-keep text-sm font-bold text-gray-900 [word-break:keep-all]">
               {readyCount} / {totalCount} 개 완료
             </p>
             <div className="mt-3">
