@@ -74,7 +74,12 @@ import {
   ADMIN_VERIFY_KEY_METRIC_MANIFEST,
   shortenKeyMetricFootnote,
 } from "@/lib/adminVerifyKeyMetricManifest";
-import { buildAdminVerifyClassifiedKeyMetrics } from "@/lib/adminVerifyKeyMetricsBuild";
+import {
+  buildAdminVerifyClassifiedKeyMetrics,
+  resolveAdminVerifyStitchRibbonState,
+  resolveKeyMetricBadgeTiers,
+  type KeyMetricBadgeTier,
+} from "@/lib/adminVerifyKeyMetricsBuild";
 import {
   CASE06_ATTENDANCE_NOTICE_TEXT_KEY,
   CASE06_DEADLINE_DATE_KEY,
@@ -133,6 +138,8 @@ export type AdminVerifyFirstResultData = {
   /** R03=C — CASE_06 bridge hints above situation summary (same text as question L5). */
   /** Layer A — §01 「응답 요약」 (DI·note·첨부만) */
   adminResponseSummaryLines?: string[];
+  /** 2차 Stitch 카드 배지 — 표시 전용 (hasIssues/statusTone 미사용) */
+  keyMetricBadgeTiers?: KeyMetricBadgeTier[];
 };
 
 function metricFootnote(
@@ -3489,6 +3496,18 @@ export function buildAdminVerifyPersonalizedResult(
       : "1차·2차 답변을 바탕으로, 아직 직접 확인할 부분이 남아 있습니다."
     : integratedSituation;
 
+  const dedupedCautions = [...new Set(cautions)].slice(0, 6);
+  const dedupedUnconfirmed = [...new Set(unconfirmed)].slice(0, 6);
+  const keyMetricBadgeTiers =
+    q1Case && q1Case !== "CASE_06"
+      ? resolveKeyMetricBadgeTiers({
+          caseId: q1Case as MasterCaseId,
+          answers,
+          unconfirmed: dedupedUnconfirmed,
+          cautions: dedupedCautions,
+        }).tiers
+      : undefined;
+
   return {
     ...base,
     statusHeadline: hasIssues ? "추가 확인이 필요한 상태입니다" : base.statusHeadline,
@@ -3496,8 +3515,8 @@ export function buildAdminVerifyPersonalizedResult(
     situationSummary: personalizedSummary,
     gradeFilled: hasIssues ? Math.max(base.gradeFilled, 2) : base.gradeFilled,
     gradeLabel: hasIssues ? "주의 요망 (2단계)" : base.gradeLabel,
-    cautions: [...new Set(cautions)].slice(0, 6),
-    unconfirmed: [...new Set(unconfirmed)].slice(0, 6),
+    cautions: dedupedCautions,
+    unconfirmed: dedupedUnconfirmed,
     actions: [...new Set(actions)].slice(0, 4),
     personalizedContext: personalizedContext ?? {
       integratedSituation,
@@ -3508,6 +3527,7 @@ export function buildAdminVerifyPersonalizedResult(
     case06ExpertHandoffRequired: q1Case === "CASE_06" && isCase06ExpertTerminal(answers),
     case06LaunchSimplifiedSession:
       q1Case === "CASE_06" && isCase06LaunchSimplifiedSession(answers),
+    keyMetricBadgeTiers,
   };
 }
 
@@ -3846,9 +3866,10 @@ function AdminVerifyPersonalizedStitchFooterSteps() {
 function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResultData }) {
   const personalized = data.personalizedContext;
   const supplementCount = data.unconfirmed.length;
-  const ribbonStateA = data.unconfirmed.length > 0;
-  const ribbonStateB = !ribbonStateA && data.cautions.length > 0;
-  const ribbonStateC = !ribbonStateA && !ribbonStateB;
+  const ribbonState = resolveAdminVerifyStitchRibbonState(data.unconfirmed, data.cautions);
+  const ribbonStateA = ribbonState === "A";
+  const ribbonStateB = ribbonState === "B";
+  const ribbonStateC = ribbonState === "C";
   const showRibbonCaution = ribbonStateA || ribbonStateB;
 
   const metricCardClass =
@@ -4018,51 +4039,43 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
   );
 }
 
-function stitchPersonalizedKeyConfirmationBadge(
-  metric: AdminVerifyKeyMetric,
-  index: number,
-  total: number,
-): { label: string; className: string } {
-  if (!metric.footnote?.trim()) {
-    return {
-      label: "미확인",
-      className: "bg-slate-50 text-slate-600 border border-slate-200",
-    };
-  }
-  if (metric.status === "ok") {
-    if (index === total - 1) {
+function stitchPersonalizedKeyConfirmationBadge(tier: KeyMetricBadgeTier): {
+  label: string;
+  className: string;
+} {
+  switch (tier) {
+    case "missing":
       return {
-        label: "적합",
+        label: "미확인",
+        className: "bg-slate-50 text-slate-600 border border-slate-200",
+      };
+    case "unconfirmed":
+      return {
+        label: "추가 확인",
+        className: "bg-blue-50 text-blue-600 border border-blue-200",
+      };
+    case "caution":
+      return {
+        label: "보완 권장",
+        className: "bg-amber-50 text-amber-700 border border-amber-200",
+      };
+    case "ok":
+    default:
+      return {
+        label: "확인 완료",
         className: "bg-emerald-50 text-emerald-600 border border-emerald-200",
       };
-    }
-    return {
-      label: "확인 완료",
-      className: "bg-emerald-50 text-emerald-600 border border-emerald-200",
-    };
   }
-  if (index === 2) {
-    return {
-      label: "보완 권장",
-      className: "bg-amber-50 text-amber-700 border border-amber-200",
-    };
-  }
-  return {
-    label: "추가 확인",
-    className: "bg-blue-50 text-blue-600 border border-blue-200",
-  };
 }
 
 function StitchPersonalizedKeyConfirmationCard({
   metric,
-  index,
-  total,
+  badgeTier,
 }: {
   metric: AdminVerifyKeyMetric;
-  index: number;
-  total: number;
+  badgeTier: KeyMetricBadgeTier;
 }) {
-  const badge = stitchPersonalizedKeyConfirmationBadge(metric, index, total);
+  const badge = stitchPersonalizedKeyConfirmationBadge(badgeTier);
 
   return (
     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5">
@@ -4677,8 +4690,10 @@ export function AdminVerifyFirstResultPanel({
                   <StitchPersonalizedKeyConfirmationCard
                     key={metric.label}
                     metric={metric}
-                    index={index}
-                    total={data.keyMetrics.length}
+                    badgeTier={
+                      data.keyMetricBadgeTiers?.[index] ??
+                      (metric.footnote?.trim() ? "ok" : "missing")
+                    }
                   />
                 ))}
               </div>
