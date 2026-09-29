@@ -3846,11 +3846,10 @@ function AdminVerifyPersonalizedStitchFooterSteps() {
 function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResultData }) {
   const personalized = data.personalizedContext;
   const supplementCount = data.unconfirmed.length;
-  const hasIssues =
-    data.cautions.length > 0 ||
-    data.unconfirmed.length > 0 ||
-    data.keyMetrics.some((metric) => metric.status === "caution");
-  const isCaution = data.statusTone === "caution";
+  const ribbonStateA = data.unconfirmed.length > 0;
+  const ribbonStateB = !ribbonStateA && data.cautions.length > 0;
+  const ribbonStateC = !ribbonStateA && !ribbonStateB;
+  const showRibbonCaution = ribbonStateA || ribbonStateB;
 
   const metricCardClass =
     "flex min-h-[160px] flex-col items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-4 text-center";
@@ -3870,12 +3869,22 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
             <span className="w-4" aria-hidden />
           </div>
           <div className="my-auto flex flex-col items-center py-1">
-            {isCaution ? (
+            {showRibbonCaution ? (
               <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-amber-500 bg-amber-50">
                 <span className="text-[10px] font-bold leading-tight text-amber-700">
-                  보완
-                  <br />
-                  <span className="text-[9px] font-normal">권장</span>
+                  {ribbonStateA ? (
+                    <>
+                      보완
+                      <br />
+                      <span className="text-[9px] font-normal">권장</span>
+                    </>
+                  ) : (
+                    <>
+                      주의
+                      <br />
+                      <span className="text-[9px] font-normal">필요</span>
+                    </>
+                  )}
                 </span>
               </div>
             ) : (
@@ -3886,10 +3895,10 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
             <span
               className={cn(
                 "mt-1.5 text-sm font-bold",
-                isCaution ? "text-amber-700" : "text-emerald-700",
+                showRibbonCaution ? "text-amber-700" : "text-emerald-700",
               )}
             >
-              {isCaution ? "주의 수준" : "양호 수준"}
+              {showRibbonCaution ? "주의 수준" : "양호 수준"}
             </span>
           </div>
           <span className="text-[11px] text-slate-400">개인별 교차 검토 반영</span>
@@ -3942,11 +3951,15 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
               </svg>
             </div>
             <span className="mt-1.5 text-sm font-bold text-slate-800">
-              {hasIssues ? "조건부 부합" : "부합"}
+              {ribbonStateC ? "부합" : "조건부 부합"}
             </span>
           </div>
           <span className="text-[11px] text-slate-400">
-            {hasIssues ? "증빙 양식 점검 필요" : "현재 입력 기준 특이사항 없음"}
+            {ribbonStateA
+              ? "원본 자료 대조 필요"
+              : ribbonStateB
+                ? "위험 요인 확인 필요"
+                : "현재 입력 기준 특이사항 없음"}
           </span>
         </div>
 
@@ -3971,7 +3984,9 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
             </span>
           </div>
           <span className="text-[11px] text-slate-400">
-            {personalized?.documentsNeededNote || "제출 전 원본·기재사항 대조"}
+            {ribbonStateA
+              ? personalized?.documentsNeededNote || "제출 전 원본·기재사항 대조"
+              : "제출 전 원본·기재사항 대조"}
           </span>
         </div>
 
