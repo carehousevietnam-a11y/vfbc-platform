@@ -4097,19 +4097,28 @@ function StitchPersonalizedKeyConfirmationCard({
   const badge = stitchPersonalizedKeyConfirmationBadge(badgeTier);
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5">
+      <div className="mb-1.5 flex items-start justify-between gap-2">
+        <span className="min-w-0 text-[11px] font-medium text-slate-400">{metric.label}</span>
+        <span className={cn("shrink-0 px-2.5 py-1 text-xs font-semibold rounded", badge.className)}>
+          {badge.label}
+        </span>
+      </div>
       <div className="min-w-0 space-y-0.5">
-        <span className="block text-[11px] font-medium text-slate-400">{metric.label}</span>
-        <span className="text-sm font-bold text-slate-800">{metric.title}</span>
+        <span className={cn("block text-sm font-bold text-slate-800", FIRST_RESULT_READABLE_CLASS)}>
+          {metric.title}
+        </span>
         {metric.footnote?.trim() ? (
-          <span className="block text-[11px] font-normal leading-snug text-slate-500">
+          <span
+            className={cn(
+              "block text-[11px] font-normal leading-snug text-slate-500",
+              FIRST_RESULT_READABLE_CLASS,
+            )}
+          >
             {metric.footnote}
           </span>
         ) : null}
       </div>
-      <span className={cn("shrink-0 px-2.5 py-1 text-xs font-semibold rounded", badge.className)}>
-        {badge.label}
-      </span>
     </div>
   );
 }
@@ -4280,10 +4289,10 @@ function AdminVerifyPersonalizedNextSteps({
     : [
         {
           tone: "report",
-          title: "AI 리포트 요청하기",
+          title: isRealEstate ? "AI 리포트 요청하기" : "최종 AI 리포트",
           description: isRealEstate
             ? "현재 확인한 내용을 바탕으로 관련 문서를 제출하면 AI 리포트로 이어집니다."
-            : "현재 2차 개인화 결과를 바탕으로 실제 문서를 확인하고 더 자세한 3차 AI 리포트로 이어집니다.",
+            : "2차까지 반영한 검토 내용을 바탕으로 AI 최종 리포트를 요청합니다. 완료 후 마이페이지에서 확인할 수 있습니다.",
           buttonLabel: "최종 리포트 보기",
           onClick: () => onAiReport?.(),
           loading: aiReportRequesting,
@@ -4320,9 +4329,10 @@ function AdminVerifyPersonalizedNextSteps({
             ? "AI 리포트 전에 전문가가 문서·안내 내용을 함께 확인하는 경로를 권장합니다."
             : isRealEstate
               ? "1차 검토 결과를 바탕으로 관련 문서를 추가 확인하거나 전문가 검토로 이어갈 수 있습니다."
-              : "1·2차 검토 데이터를 바탕으로 3차 AI 리포트 발급 또는 전담 전문가 자문으로 바로 연계됩니다."
+              : "2차 검토 데이터를 바탕으로 최종 AI 리포트를 요청하거나 전문가 검토로 연계할 수 있습니다."
         }
         cards={cards}
+        className="border-t border-slate-100 pt-5"
       />
       {onDirect ? (
         <div className="mt-4 flex justify-center border-t border-slate-100 pt-4">
@@ -4538,6 +4548,14 @@ export function AdminVerifyFirstResultPanel({
   const visibleMetricCount = data.keyMetrics.filter((metric) =>
     formatMetricFootnoteForDisplay(metric.footnote, refinePhrase).trim(),
   ).length;
+  const firstResultMetricGridColsClass =
+    visibleMetricCount <= 1
+      ? "lg:grid-cols-1"
+      : visibleMetricCount === 2
+        ? "lg:grid-cols-2"
+        : visibleMetricCount === 3
+          ? "lg:grid-cols-3"
+          : "lg:grid-cols-4";
   const refineParagraph = isPersonalized
     ? (text: string) => text
     : refineFirstResultParagraph;
@@ -4599,12 +4617,11 @@ export function AdminVerifyFirstResultPanel({
               <span className="font-semibold text-blue-600">{breadcrumbPhase}</span>
             </div>
             <h1 className="mb-1.5 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{resultTitle}</h1>
-            <p className="text-sm font-normal text-slate-500 sm:text-base">{resultIntro}</p>
           </div>
 
           <section
             className={cn(
-              "space-y-8 rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-9",
+              "space-y-6 rounded-2xl border border-slate-200/90 bg-white p-4 sm:space-y-8 sm:p-9",
               STITCH_ELEVATED_SHADOW,
             )}
             data-purpose="primary-result-card"
@@ -4628,7 +4645,7 @@ export function AdminVerifyFirstResultPanel({
 
           <StitchPersonalizedMetricRibbon data={data} />
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" data-purpose="ai-analysis-details">
+          <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-6" data-purpose="ai-analysis-details">
             <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2.5">
                 <span className="w-fit shrink-0 rounded bg-slate-900 px-2 py-0.5 text-xs font-bold tracking-wide text-white">
@@ -4648,13 +4665,20 @@ export function AdminVerifyFirstResultPanel({
               </span>
             </div>
 
-            <div className="pt-5">
-              <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 sm:p-5">
-                <div className="mb-2 flex items-center space-x-2">
-                  <span className="rounded border border-slate-200 bg-white px-2 py-0.5 text-xs font-bold text-slate-800">
+            <div className="pt-4 sm:pt-5">
+              <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 sm:p-5">
+                <div className="mb-2 flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+                  <span className="w-fit shrink-0 whitespace-nowrap rounded border border-slate-200 bg-white px-2 py-0.5 text-xs font-bold text-slate-800">
                     {section01Label}
                   </span>
-                  <span className="text-xs font-medium text-slate-500">{section01Meta}</span>
+                  <span
+                    className={cn(
+                      "text-xs font-medium text-slate-500",
+                      FIRST_RESULT_READABLE_CLASS,
+                    )}
+                  >
+                    {section01Meta}
+                  </span>
                 </div>
                 <p
                   className={cn(
@@ -4785,7 +4809,12 @@ export function AdminVerifyFirstResultPanel({
                 </div>
               ) : (
                 <div className="rounded-lg border border-slate-200 bg-slate-50/40 p-3.5">
-                  <p className={cn("leading-relaxed text-slate-500", FIRST_RESULT_READABLE_CLASS)}>
+                  <p
+                    className={cn(
+                      "text-sm leading-relaxed text-slate-500",
+                      FIRST_RESULT_READABLE_CLASS,
+                    )}
+                  >
                     현재 답변 범위에서는 별도로 확인이 필요한 항목이 보이지 않습니다.
                   </p>
                 </div>
@@ -4985,7 +5014,12 @@ export function AdminVerifyFirstResultPanel({
             <span className="font-mono text-xs text-slate-500 lg:text-[10px]">입력 답변 기반 판독</span>
           }
         />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:items-stretch lg:gap-3">
+        <div
+          className={cn(
+            "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 lg:items-stretch lg:gap-3",
+            firstResultMetricGridColsClass,
+          )}
+        >
           {data.keyMetrics.map((metric) => (
             <KeyMetricCard key={metric.label} metric={metric} refinePhrase={refinePhrase} />
           ))}
