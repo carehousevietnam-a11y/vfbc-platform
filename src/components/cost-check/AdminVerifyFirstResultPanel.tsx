@@ -4284,7 +4284,7 @@ function AdminVerifyPersonalizedNextSteps({
           description: isRealEstate
             ? "현재 확인한 내용을 바탕으로 관련 문서를 제출하면 AI 리포트로 이어집니다."
             : "현재 2차 개인화 결과를 바탕으로 실제 문서를 확인하고 더 자세한 3차 AI 리포트로 이어집니다.",
-          buttonLabel: "AI 검토 상세 리포트",
+          buttonLabel: "최종 리포트 보기",
           onClick: () => onAiReport?.(),
           loading: aiReportRequesting,
           loadingLabel: "이동 중...",
@@ -4296,7 +4296,7 @@ function AdminVerifyPersonalizedNextSteps({
           title: "전문가 진행하기",
           description:
             "현재 검토 상황과 데이터를 전담 전문가에게 전달하여 1:1 심층 상담 및 검토를 진행합니다.",
-          buttonLabel: "전문가 진행하기",
+          buttonLabel: "전문가에게 요청하기",
           onClick: () => onExpert?.(),
           loading: expertRequesting,
           loadingLabel: "요청 중...",
@@ -4562,9 +4562,14 @@ export function AdminVerifyFirstResultPanel({
       !isRealEstate &&
       Boolean(data.case06LaunchSimplifiedSession) &&
       personalized.phase2Additions.filter((line) => line.trim()).length === 0;
+    const hasPhase2UploadedDocs = Boolean(personalized.evidenceNote?.trim());
     const adminPersonalizedIntroSubtitle = hideCase06EmptyPhase2RiskRow
-      ? "1차 검토와 입력하신 내용·첨부 자료를 반영한 종합 소견입니다."
-      : "1차 검토와 2차 추가 확인 답변·첨부 자료를 반영한 종합 소견입니다.";
+      ? hasPhase2UploadedDocs
+        ? "1차 검토와 입력하신 내용·첨부 자료를 반영한 종합 소견입니다."
+        : "1차 검토와 입력하신 내용을 반영한 종합 소견입니다."
+      : hasPhase2UploadedDocs
+        ? "1차 검토와 2차 추가 확인 답변·첨부 자료를 반영한 종합 소견입니다."
+        : "1차 검토와 2차 추가 확인 답변을 반영한 종합 소견입니다.";
     const unconfirmedColumnLabels = isRealEstate
       ? ["원본 서류 대조", "추가 확인 사항", "기한·조건 확인"]
       : ["필요한 서류 원본 대조", "세부 기재사항 및 스펠링", "제출 기한 및 관할 예약"];

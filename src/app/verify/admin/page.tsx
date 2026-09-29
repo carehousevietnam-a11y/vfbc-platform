@@ -44,6 +44,12 @@ import {
   buildAdminPhase2PersistMeta,
   CASE_CUSTOMER_INPUT_KEY,
   restoreAdminProfilingAnswersFromMeta,
+  ADMIN_PROFILING_COMPLETE_META_FLAG,
+  ADMIN_RESTORED_PROFILE_PHASE_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY,
   type CaseResolutionProfile,
   type AdminVerifyProfilePhase,
 } from "@/lib/adminVerifyProfiling";
@@ -70,6 +76,8 @@ import {
   type RestoredVerifyLead,
 } from "@/lib/restoreVerifyLead";
 import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
+
+const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY = "vfbcai_admin_verify_phase2_snapshot";
 import {
   establishBrowserSessionFromResultToken,
   ensureBrowserSessionForResultToken,
@@ -889,6 +897,9 @@ export default function VerifyAdminPage() {
   const [adminMasterSignupComplete, setAdminMasterSignupComplete] = useState(false);
   const [adminVerifyPhase1EvidenceComplete, setAdminVerifyPhase1EvidenceComplete] =
     useState(false);
+  const [adminVerifyPhase2UploadComplete, setAdminVerifyPhase2UploadComplete] = useState(false);
+  const [adminVerifyPhase2DocumentsAnyUploaded, setAdminVerifyPhase2DocumentsAnyUploaded] =
+    useState(false);
   const [lang, setLang] = useState<SupportedLanguage>("ko");
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -924,6 +935,12 @@ export default function VerifyAdminPage() {
       if (restoredProfiling && Object.keys(restoredProfiling).length > 0) {
         setAdminProfilingSeedAnswers(restoredProfiling);
         setCaseResolutionAnswers(restoredProfiling);
+      }
+      if (meta[ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY] === "1") {
+        setAdminVerifyPhase2UploadComplete(true);
+      }
+      if (meta[ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY] === "1") {
+        setAdminVerifyPhase2DocumentsAnyUploaded(true);
       }
       const restoredCustomerInput =
         typeof meta.case_customer_input === "string" ? meta.case_customer_input.trim() : "";
@@ -1056,6 +1073,43 @@ export default function VerifyAdminPage() {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("phase2_upload_return") !== "1") return;
+
+    setAdminVerifyPhase2UploadComplete(true);
+    setAdminMasterSignupComplete(true);
+
+    const raw = sessionStorage.getItem(ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as {
+          leadId?: string;
+          answers?: Record<string, string>;
+          anyUploaded?: boolean;
+        };
+        if (parsed.answers && Object.keys(parsed.answers).length > 0) {
+          setAdminProfilingSeedAnswers(parsed.answers);
+          setCaseResolutionAnswers(parsed.answers);
+          caseResolutionAnswersRef.current = parsed.answers;
+          setCaseResolutionProfile(buildCaseResolutionProfile(parsed.answers));
+        }
+        if (parsed.leadId) {
+          setLeadId(parsed.leadId);
+        }
+        if (parsed.anyUploaded) {
+          setAdminVerifyPhase2DocumentsAnyUploaded(true);
+        }
+      } catch {
+        /* ignore corrupt snapshot */
+      }
+      sessionStorage.removeItem(ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY);
+    }
+
+    window.history.replaceState({}, "", "/verify/admin");
+  }, []);
   /** Member handoff UI — submitAsMember catch와 동일 45s 상한 (UI stuck 방지) */
   useEffect(() => {
     if (!skipSignup || adminMasterSignupComplete || !submitting) return;
@@ -1070,11 +1124,30 @@ export default function VerifyAdminPage() {
     return () => window.clearTimeout(timer);
   }, [skipSignup, submitting, adminMasterSignupComplete]);
   const verifyMasterSeedAnswers = useMemo(() => {
-    if (Object.keys(adminProfilingSeedAnswers).length > 0) {
-      return adminProfilingSeedAnswers;
+    if (
+      Object.keys(adminProfilingSeedAnswers).length === 0 &&
+      !adminVerifyPhase2UploadComplete
+    ) {
+      return undefined;
     }
-    return undefined;
-  }, [adminProfilingSeedAnswers]);
+    return {
+      ...adminProfilingSeedAnswers,
+      ...(adminVerifyPhase2UploadComplete
+        ? {
+            [ADMIN_RESTORED_PROFILE_PHASE_KEY]: "2",
+            [ADMIN_PROFILING_COMPLETE_META_FLAG]: "1",
+            [ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY]: "1",
+            ...(adminVerifyPhase2DocumentsAnyUploaded
+              ? { [ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY]: "1" }
+              : {}),
+          }
+        : {}),
+    };
+  }, [
+    adminProfilingSeedAnswers,
+    adminVerifyPhase2UploadComplete,
+    adminVerifyPhase2DocumentsAnyUploaded,
+  ]);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
   const page2FromPage1 = page1ReviewAnswers != null;
@@ -1193,7 +1266,7 @@ export default function VerifyAdminPage() {
   );
 
   const handleAdminVerifyPhase2Complete = useCallback(
-    async (answers: Record<string, string>, evidenceFile?: File | null) => {
+    async (answers: Record<string, string>, _evidenceFile?: File | null) => {
       caseResolutionAnswersRef.current = answers;
       setCaseResolutionAnswers(answers);
       setCaseResolutionProfile(buildCaseResolutionProfile(answers));
@@ -1204,32 +1277,11 @@ export default function VerifyAdminPage() {
 
       if (!leadId) return;
 
-      let phase2StoragePath: string | null = null;
-      if (evidenceFile && evidenceFile.size > 0) {
-        setAttachedFile(evidenceFile);
-        const rawExt = evidenceFile.name.split(".").pop() || "";
-        const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-        const path = `verify-admin/${leadId}-phase2.${safeExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from("documents")
-          .upload(path, evidenceFile);
-        if (!uploadError) {
-          phase2StoragePath = path;
-        } else {
-          console.error("[verify/admin] Phase 2 evidence upload failed:", uploadError);
-        }
-      }
-
       const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
-      const partialMeta = buildAdminPhase2PersistMeta(
-        answers,
-        2,
-        page1Meta,
-        phase2StoragePath,
-      );
+      const partialMeta = buildAdminPhase2PersistMeta(answers, 2, page1Meta, null);
       const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
       if (!result.ok) {
-        console.error("[verify/admin] Phase 2 evidence meta persist failed:", {
+        console.error("[verify/admin] Phase 2 meta persist failed:", {
           reason: result.reason,
           message: result.message,
           serverError: result.serverError,
@@ -1239,6 +1291,35 @@ export default function VerifyAdminPage() {
       }
     },
     [incidentDescription, leadId, page1ReviewAnswers],
+  );
+
+  const handleAdminVerifyPhase2DocumentsHandoff = useCallback(
+    async (answers: Record<string, string>) => {
+      if (!leadId) return;
+      caseResolutionAnswersRef.current = answers;
+      setCaseResolutionAnswers(answers);
+      setCaseResolutionProfile(buildCaseResolutionProfile(answers));
+
+      const page1Meta = buildReviewPage1Meta(page1ReviewAnswers);
+      const partialMeta = buildAdminPhase2PersistMeta(answers, 2, page1Meta, null);
+      const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
+      if (!result.ok) {
+        console.error("[verify/admin] Phase 2 pre-upload persist failed:", {
+          reason: result.reason,
+          message: result.message,
+          leadId,
+        });
+        setError(result.message);
+        return;
+      }
+
+      sessionStorage.setItem(
+        ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
+        JSON.stringify({ leadId, answers }),
+      );
+      window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_admin&mode=phase2_upload`;
+    },
+    [leadId, page1ReviewAnswers],
   );
 
   function handleIncidentNext() {
@@ -1642,52 +1723,18 @@ export default function VerifyAdminPage() {
       });
       if (error) throw error;
 
-      if (restoredLeadActive) {
-        window.location.href = "/mypage";
-        return;
-      }
-      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
-      if (!resultToken && !hasSession) {
-        setExpertError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
-        setExpertRequesting(false);
-        return;
-      }
-      if (hasSession) {
-        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_admin&mode=expert`;
-        return;
-      }
-      const res = await fetch("/api/auto-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resultToken, next: "documents" }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.actionLink) {
-        console.error("auto-login failed:", data);
-        setExpertError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
-        setExpertRequesting(false);
-        return;
-      }
-      window.location.href = data.actionLink;
+      window.location.href = "/mypage";
     } catch {
       setExpertError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
       setExpertRequesting(false);
     }
   }
 
-  // "AI Review 진행하기" — handleExpertRequest와 동일한 Auto-login → /r → /documents
-  // 흐름을 타되, next 값만 "documents_ai_report"로 달라 /documents가 mode=ai_report로
-  // 열린다. 신규 CRM action은 만들지 않는다(핸드오프 문서 결정 유지) — CHECK(TRC)의
-  // "AI 리포트 요청하기" 버튼도 이 시점에는 CRM을 기록하지 않는 것과 동일하게 맞춘 것.
   async function handleAiReportRequest() {
     if (!leadId) return;
     setAiReportRequesting(true);
     setAiReportError(null);
     try {
-      if (restoredLeadActive) {
-        window.location.href = "/mypage";
-        return;
-      }
       const hasSession = await ensureBrowserSessionForResultToken(resultToken);
       if (!resultToken && !hasSession) {
         setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
@@ -1695,29 +1742,11 @@ export default function VerifyAdminPage() {
         return;
       }
       await recordAiReportRequestAndNotify({
-          leadId,
-          tag: "VERIFY_ADMIN",
-          token: resultToken ?? undefined,
-        });
-
-      if (hasSession) {
-        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_admin&mode=ai_report`;
-        return;
-      }
-
-      const res = await fetch("/api/auto-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resultToken, next: "documents_ai_report" }),
+        leadId,
+        tag: "VERIFY_ADMIN",
+        token: resultToken ?? undefined,
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.actionLink) {
-        console.error("auto-login failed:", data);
-        setAiReportError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
-        setAiReportRequesting(false);
-        return;
-      }
-      window.location.href = data.actionLink;
+      window.location.href = "/mypage";
     } catch {
       setAiReportError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
       setAiReportRequesting(false);
@@ -1771,7 +1800,13 @@ export default function VerifyAdminPage() {
             <div className="lg:[&>div:first-child]:hidden">
               {!restoreVerifyPending ? (
               <MasterFunnelLanding
-                key={restoredLeadActive ? `restored-${leadId ?? "lead"}` : "fresh"}
+                key={
+                  adminVerifyPhase2UploadComplete
+                    ? `phase2-result-${leadId ?? "lead"}`
+                    : restoredLeadActive
+                      ? `restored-${leadId ?? "lead"}`
+                      : "fresh"
+                }
                 config={MASTER_LANDING_ADMIN}
                 activeTab={contextTab}
                 onTabChange={setContextTab}
@@ -1781,12 +1816,19 @@ export default function VerifyAdminPage() {
                   adminVerifySkipSignup: skipSignup,
                   adminVerifySignupComplete: adminMasterSignupComplete,
                   adminVerifyPhase1EvidenceComplete,
+                  adminVerifyPhase2UploadComplete,
                   adminVerifyMemberSubmitting: submitting,
                   onAdminVerifyPhase1Complete: handleAdminVerifyPhase1Complete,
                   onAdminVerifyMetaPersist: (answers, phase) =>
                     void handleAdminVerifyMetaPersist(answers, phase),
                   onAdminVerifyPhase2Complete: (answers, evidenceFile) =>
                     void handleAdminVerifyPhase2Complete(answers, evidenceFile),
+                  onAdminVerifyPhase2DocumentsHandoff: (answers) =>
+                    void handleAdminVerifyPhase2DocumentsHandoff(answers),
+                  onAdminVerifyEnterPhase2: () => {
+                    setAdminVerifyPhase2UploadComplete(false);
+                    setAdminVerifyPhase2DocumentsAnyUploaded(false);
+                  },
                   onAdminVerifyPersonalizedContinue: () => void handleAiReportRequest(),
                   onAdminVerifyAiReport: () => void handleAiReportRequest(),
                   onAdminVerifyExpert: (answers) => void handleExpertRequest(answers),

@@ -11047,6 +11047,15 @@ export const ADMIN_VERIFY_PROFILE_PHASE_META_KEY = "admin_verify_profile_phase";
 export const ADMIN_PHASE2_EVIDENCE_STORAGE_PATH_META_KEY = "admin_phase2_storage_path";
 export const ADMIN_PHASE2_EVIDENCE_FILE_NAME_META_KEY = "admin_phase2_file_name";
 export const ADMIN_PHASE2_EVIDENCE_ATTACHED_META_KEY = "admin_phase2_evidence_attached";
+/** Phase2 — 8-item /documents gate complete (skip or submit). */
+export const ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY =
+  "admin_phase2_documents_upload_complete";
+/** Phase2 — at least one required document uploaded on /documents (phase2_upload). */
+export const ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY = "admin_phase2_documents_any_uploaded";
+export const ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY =
+  "_adminPhase2DocumentsUploadComplete";
+export const ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY =
+  "_adminPhase2DocumentsAnyUploaded";
 
 const ADMIN_VERIFY_PERSIST_ANSWER_KEYS: readonly string[] = [
   ADMIN_CASE_ENTRY_Q1_KEY,
@@ -11147,6 +11156,13 @@ export function restoreAdminProfilingAnswersFromMeta(
     if (phase2FileName) {
       parsed[ADMIN_PHASE2_EVIDENCE_FILE_NAME_ANSWERS_KEY] = phase2FileName;
     }
+  }
+
+  if (meta[ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY] === "1") {
+    parsed[ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY] = "1";
+  }
+  if (meta[ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY] === "1") {
+    parsed[ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY] = "1";
   }
 
   delete parsed.case05_actualCore;

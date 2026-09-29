@@ -83,6 +83,10 @@ import {
   ADMIN_PHASE1_EVIDENCE_FILE_NAME_KEY,
   ADMIN_PHASE2_EVIDENCE_ATTACHED_ANSWERS_KEY,
   ADMIN_PHASE2_EVIDENCE_FILE_NAME_ANSWERS_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
   ADMIN_RESTORED_PROFILE_PHASE_KEY,
   resolveAdminPhase2EvidenceFileName,
   CASE01_ANSWER_KEYS,
@@ -1780,6 +1784,12 @@ export type AdminVerifyMasterGateProps = {
   adminVerifySignupComplete?: boolean;
   /** Parent latch — Phase1 evidence gate 완료 (restore 포함) */
   adminVerifyPhase1EvidenceComplete?: boolean;
+  /** Phase2 8-item /documents gate 완료 (skip 또는 제출 후 복귀) */
+  adminVerifyPhase2UploadComplete?: boolean;
+  /** Phase2 질문 완료 → /documents(phase2_upload) handoff */
+  onAdminVerifyPhase2DocumentsHandoff?: (answers: ReviewAnswers) => void;
+  /** 1차 결과 → 2차 질문 진입 시 Phase2 upload gate 리셋 */
+  onAdminVerifyEnterPhase2?: () => void;
   /** Member handoff — submitAsMember in-flight (loading panel gate) */
   adminVerifyMemberSubmitting?: boolean;
   /** Phase 1 profiling STOP + evidence 후 (회원가입 직전) */
@@ -1834,10 +1844,13 @@ export function MasterReviewQuotationReport({
   adminVerifySkipSignup = false,
   adminVerifySignupComplete = false,
   adminVerifyPhase1EvidenceComplete = false,
+  adminVerifyPhase2UploadComplete = false,
   adminVerifyMemberSubmitting = false,
   onAdminVerifyPhase1Complete,
   onAdminVerifyMetaPersist,
   onAdminVerifyPhase2Complete,
+  onAdminVerifyPhase2DocumentsHandoff,
+  onAdminVerifyEnterPhase2,
   onAdminVerifyPersonalizedContinue,
   onAdminVerifyAiReport,
   onAdminVerifyExpert,
@@ -1879,6 +1892,9 @@ export function MasterReviewQuotationReport({
   adminVerifySkipSignup?: boolean;
   adminVerifySignupComplete?: boolean;
   adminVerifyPhase1EvidenceComplete?: boolean;
+  adminVerifyPhase2UploadComplete?: boolean;
+  onAdminVerifyPhase2DocumentsHandoff?: (answers: ReviewAnswers) => void;
+  onAdminVerifyEnterPhase2?: () => void;
   adminVerifyMemberSubmitting?: boolean;
   onAdminVerifyPhase1Complete?: (answers: ReviewAnswers, evidenceFile?: File | null) => void;
   onAdminVerifyMetaPersist?: (
@@ -1941,6 +1957,7 @@ export function MasterReviewQuotationReport({
   );
   const adminVerifyPhase2CompleteNotifiedRef = useRef(false);
   const adminVerifyPhase1CompleteNotifiedRef = useRef(false);
+  const adminPhase2DocumentsHandoffStartedRef = useRef(false);
   const [adminPhase1EvidenceDone, setAdminPhase1EvidenceDone] = useState(false);
   const [adminPhase1EvidenceFile, setAdminPhase1EvidenceFile] = useState<File | null>(null);
   const [adminPhase1TerminalReached, setAdminPhase1TerminalReached] = useState(false);
@@ -2039,9 +2056,15 @@ export function MasterReviewQuotationReport({
         }
         if (verifyMasterSeedAnswers[ADMIN_RESTORED_PROFILE_PHASE_KEY] === "2") {
           setAdminVerifyProfilePhase(2);
-          setAdminVerifyPhase2EvidenceDone(
-            verifyMasterSeedAnswers[ADMIN_PHASE2_EVIDENCE_ATTACHED_ANSWERS_KEY] === "1",
-          );
+          if (
+            verifyMasterSeedAnswers[ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY] === "1"
+          ) {
+            adminPhase2DocumentsHandoffStartedRef.current = true;
+          } else {
+            setAdminVerifyPhase2EvidenceDone(
+              verifyMasterSeedAnswers[ADMIN_PHASE2_EVIDENCE_ATTACHED_ANSWERS_KEY] === "1",
+            );
+          }
         }
       }
     }
@@ -2228,14 +2251,14 @@ export function MasterReviewQuotationReport({
     isClassifiedAdminVerifyCase &&
     phase2OnlyIncompleteIndex === -1 &&
     isAdminVerifyPhase2PathComplete(answers);
-  const isAdminVerifyAwaitingEvidence =
+  const isAdminVerifyAwaitingPhase2Documents =
     isAdminVerifyStitchLayout &&
     adminVerifyProfilePhase === 2 &&
     adminVerifySignupComplete &&
     adminVerifyPhase2QuestionsOnlyComplete &&
-    !adminVerifyPhase2EvidenceDone;
+    !adminVerifyPhase2UploadComplete;
   const adminVerifyPhase2QuestionsComplete =
-    adminVerifyPhase2QuestionsOnlyComplete && adminVerifyPhase2EvidenceDone;
+    adminVerifyPhase2QuestionsOnlyComplete && adminVerifyPhase2UploadComplete;
   const adminPhase1EvidenceComplete =
     adminPhase1EvidenceDone || adminVerifyPhase1EvidenceComplete;
   const adminPhase1Stop =
@@ -2363,6 +2386,18 @@ export function MasterReviewQuotationReport({
   ]);
 
   useEffect(() => {
+    if (!isAdminVerifyAwaitingPhase2Documents) return;
+    if (!onAdminVerifyPhase2DocumentsHandoff) return;
+    if (adminPhase2DocumentsHandoffStartedRef.current) return;
+    adminPhase2DocumentsHandoffStartedRef.current = true;
+    onAdminVerifyPhase2DocumentsHandoff(answers);
+  }, [
+    answers,
+    isAdminVerifyAwaitingPhase2Documents,
+    onAdminVerifyPhase2DocumentsHandoff,
+  ]);
+
+  useEffect(() => {
     if (!adminVerifyPhase2QuestionsComplete) {
       adminVerifyPhase2CompleteNotifiedRef.current = false;
       return;
@@ -2370,14 +2405,13 @@ export function MasterReviewQuotationReport({
     if (!adminVerifySignupComplete && !adminVerifySkipSignup) return;
     if (adminVerifyPhase2CompleteNotifiedRef.current) return;
     adminVerifyPhase2CompleteNotifiedRef.current = true;
-    onAdminVerifyPhase2Complete?.(answers, adminVerifyPhase2EvidenceFile);
+    onAdminVerifyPhase2Complete?.(answers, null);
   }, [
     adminVerifyPhase2QuestionsComplete,
     adminVerifySignupComplete,
     adminVerifySkipSignup,
     onAdminVerifyPhase2Complete,
     answers,
-    adminVerifyPhase2EvidenceFile,
   ]);
 
   useEffect(() => {
@@ -2575,7 +2609,7 @@ export function MasterReviewQuotationReport({
     !adminVerifyPhase2QuestionsComplete &&
     !isAdminVerifyAwaitingSignup &&
     !isAdminAwaitingPhase1Evidence &&
-    !isAdminVerifyAwaitingEvidence &&
+    !isAdminVerifyAwaitingPhase2Documents &&
     !isAdminMemberProfilingHandoff;
   const isAdminVerifyPersonalizedResult =
     isAdminVerifyStitchLayout &&
@@ -2591,14 +2625,14 @@ export function MasterReviewQuotationReport({
     !isAdminVerifyFirstResult &&
     !isAdminVerifyAwaitingSignup &&
     !isAdminAwaitingPhase1Evidence &&
-    !isAdminVerifyAwaitingEvidence &&
+    !isAdminVerifyAwaitingPhase2Documents &&
     !isAdminVerifyPersonalizedResult;
   const adminVerifyUseStitchCards = isVerifyMasterStitchLayout;
   const hideGenericQuotationResult =
     isAdminVerifyPersonalizedResult ||
     isAdminVerifyAwaitingSignup ||
     isAdminAwaitingPhase1Evidence ||
-    isAdminVerifyAwaitingEvidence ||
+    isAdminVerifyAwaitingPhase2Documents ||
     isAdminMemberProfilingHandoff ||
     isRealEstateAwaitingSignup ||
     isRealEstateAwaitingPhase1Evidence ||
@@ -4270,6 +4304,8 @@ export function MasterReviewQuotationReport({
         setAdminVerifyProfilePhase(2);
         setAdminVerifyPhase2EvidenceDone(false);
         setAdminVerifyPhase2EvidenceFile(null);
+        adminPhase2DocumentsHandoffStartedRef.current = false;
+        onAdminVerifyEnterPhase2?.();
         onAdminVerifyMetaPersist?.(answers, 2);
         setSection1Collapsed(false);
         setEditingId(null);
@@ -4306,7 +4342,7 @@ export function MasterReviewQuotationReport({
     config.engine === "verify" &&
     (!allAnswered || isRealEstatePhase2Screen || isAdminVerifyPhase2Review) &&
     !isAdminVerifyFirstResult &&
-    !isAdminVerifyAwaitingEvidence &&
+    !isAdminVerifyAwaitingPhase2Documents &&
     !isAdminAwaitingPhase1Evidence &&
     !isAdminVerifyAwaitingSignup &&
     !isRealEstateAwaitingPhase2Evidence &&
@@ -4340,7 +4376,9 @@ export function MasterReviewQuotationReport({
     if (!isAdminVerifyPersonalizedResult) return null;
     const personalizedContext = buildAdminVerifyPersonalizedContext(
       answers,
-      adminVerifyPhase2EvidenceFile?.name ?? resolveAdminPhase2EvidenceFileName(answers) ?? undefined,
+      answers[ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY] === "1"
+        ? "제출 자료"
+        : undefined,
     );
     return buildAdminVerifyPersonalizedResult(answers, personalizedContext);
   }, [
@@ -4348,7 +4386,6 @@ export function MasterReviewQuotationReport({
     answers,
     adminVerifyPhase1Questions,
     adminVerifyPhase2OnlyQuestions,
-    adminVerifyPhase2EvidenceFile,
   ]);
   const realEstateFirstResult = useMemo(() => {
     if (!isRealEstateFirstResult) return null;
@@ -4610,17 +4647,23 @@ export function MasterReviewQuotationReport({
                 {isRealEstateAwaitingSignup && realEstateVerifyLeadCaptureSlot ? (
                   <div className="w-full">{realEstateVerifyLeadCaptureSlot}</div>
                 ) : null}
-                {isAdminVerifyPhase2Screen || isAdminVerifyAwaitingEvidence ? (
+                {isAdminVerifyPhase2Screen ? (
                   <Phase2PersonalizedReviewBanner />
                 ) : null}
-                {isAdminVerifyAwaitingEvidence ? (
-                  <AdminVerifyPhase2EvidencePanel
-                    evidenceTier="phase2"
-                    domain="admin"
-                    file={adminVerifyPhase2EvidenceFile}
-                    onFileChange={setAdminVerifyPhase2EvidenceFile}
-                    onContinue={handleAdminPhase2EvidenceContinue}
-                  />
+                {isAdminVerifyAwaitingPhase2Documents ? (
+                  <div
+                    className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white px-6 py-10 text-center shadow-sm"
+                    role="status"
+                    aria-live="polite"
+                    data-purpose="admin-phase2-documents-handoff"
+                  >
+                    <p className="text-[15px] font-semibold text-[#0B2A6B]">
+                      2차 상세 자료 제출 화면으로 이동합니다
+                    </p>
+                    <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
+                      잠시만 기다려 주세요.
+                    </p>
+                  </div>
                 ) : null}
                 {isRealEstateAwaitingPhase2Evidence ? (
                   <AdminVerifyPhase2EvidencePanel
@@ -4633,7 +4676,7 @@ export function MasterReviewQuotationReport({
                 ) : null}
                 {/* 부동산(일시 정지)은 기존 위치 유지 — 행정문서는 첨부 카드 위에서 표시 */}
                 {(isRealEstatePhase2Review || isRealEstateAwaitingPhase2Evidence) &&
-                !(isAdminVerifyPhase2Screen || isAdminVerifyAwaitingEvidence) ? (
+                !(isAdminVerifyPhase2Screen || isAdminVerifyAwaitingPhase2Documents) ? (
                   <Phase2PersonalizedReviewBanner />
                 ) : null}
                 {isAdminVerifyStitchLayout &&
@@ -4644,7 +4687,7 @@ export function MasterReviewQuotationReport({
                 !isRealEstatePhase2Review &&
                 !isAdminVerifyAwaitingSignup &&
                 !isAdminAwaitingPhase1Evidence &&
-                !isAdminVerifyAwaitingEvidence ? (
+                !isAdminVerifyAwaitingPhase2Documents ? (
                   <div className="hidden lg:block">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                       VFBCAI · VERIFY
@@ -4713,7 +4756,7 @@ export function MasterReviewQuotationReport({
                 !isRealEstateFirstResult &&
                 !isAdminVerifyAwaitingSignup &&
                 !isAdminAwaitingPhase1Evidence &&
-                !isAdminVerifyAwaitingEvidence &&
+                !isAdminVerifyAwaitingPhase2Documents &&
                 !isRealEstateAwaitingSignup &&
                 !isRealEstateAwaitingPhase1Evidence &&
                 !isRealEstateAwaitingPhase2Evidence &&
