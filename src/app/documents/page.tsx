@@ -44,10 +44,15 @@ import {
   getVerifyAdminRequiredDocumentConfig,
 } from "@/lib/verifyAdminDocumentCatalog";
 import { supabase } from "@/lib/supabase";
+import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
+import {
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+} from "@/lib/adminVerifyProfiling";
 
+const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY = "vfbcai_admin_verify_phase2_snapshot";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
-
-type SubmitMode = "ai_report" | "expert";
+type SubmitMode = "ai_report" | "expert" | "phase2_upload";
 type DocInputMode = "upload" | "manual";
 
 // 기존 VERIFY(verify-real-estate 등)·admin(permit-results) 페이지가 이미 사용 중인
@@ -292,6 +297,16 @@ const MODE_COPY: Record<
     submitCaption: "접수 후 담당 전문가가 확인하여 카카오톡 · Zalo · 이메일로 안내드립니다.",
     successTitle: "전문가 진행이 접수되었습니다",
     successBody: "담당자가 서류를 확인한 뒤 카카오톡 · Zalo · 이메일로 안내드립니다.",
+  },
+  phase2_upload: {
+    badgeLabel: "2차 상세 자료",
+    heading: "2차 검토에 필요한 자료를 제출해주세요",
+    description:
+      "현재 가지고 있는 행정·관련 자료를 제출해 주세요. 자료가 없어도 2차 종합 결과로 진행할 수 있습니다.",
+    submitLabel: "제출하고 2차 결과 보기",
+    submitCaption: "제출한 자료는 2차 종합 결과 검토에 활용됩니다.",
+    successTitle: "2차 자료 제출이 완료되었습니다",
+    successBody: "2차 종합 결과 화면으로 이동합니다.",
   },
 };
 
@@ -652,7 +667,12 @@ function DocumentUploadContent() {
   const leadId = params.get("leadId");
   const serviceFromQuery = params.get("service");
   const modeParam = params.get("mode");
-  const mode: SubmitMode = modeParam === "ai_report" ? "ai_report" : "expert";
+  const mode: SubmitMode =
+    modeParam === "phase2_upload"
+      ? "phase2_upload"
+      : modeParam === "ai_report"
+        ? "ai_report"
+        : "expert";
 
   // /r 또는 auto-login 경로에서 service 쿼리가 누락되더라도,
   // 현재 lead의 service_type을 조회해 실제 서비스별 문서 목록을 복원한다.
@@ -753,14 +773,16 @@ function DocumentUploadContent() {
   const config = useMemo(() => {
     if (isVerifyAdmin) {
       const verifyAdminLists = getVerifyAdminRequiredDocumentConfig(verifyAdminAuthorityDemand);
-      const base = getRequiredDocuments(serviceParam, mode);
+      const docListMode = mode === "phase2_upload" ? "ai_report" : mode;
+      const base = getRequiredDocuments(serviceParam, docListMode);
       return {
         ...base,
         documents: verifyAdminLists.documents,
         optionalDocuments: verifyAdminLists.optionalDocuments,
       };
     }
-    return getRequiredDocuments(serviceParam, mode);
+    const docListMode = mode === "phase2_upload" ? "ai_report" : mode;
+    return getRequiredDocuments(serviceParam, docListMode);
   }, [isVerifyAdmin, serviceParam, mode, verifyAdminAuthorityDemand]);
 
   const requiredLabels = useMemo(() => config.documents, [config]);
@@ -773,6 +795,15 @@ function DocumentUploadContent() {
 
   const verifyAdminPageCopy = useMemo(() => {
     if (!isVerifyAdmin) return null;
+    if (mode === "phase2_upload") {
+      return {
+        description:
+          "2차 질문에서 확인한 내용을 바탕으로, 추가로 제출할 수 있는 자료를 정리했습니다.",
+        progressNote: "우선 제출 자료 진행률 · 자료가 없어도 2차 결과로 진행할 수 있습니다.",
+        listGuidance:
+          "모든 자료가 있는 것은 아닙니다. 현재 가지고 있는 자료만 제출해 주세요.",
+      };
+    }
     return {
       description:
         "2차 검토에서 확인된 내용을 기준으로, 담당 전문가가 사건을 확인하는 데 필요한 자료를 정리했습니다.",
@@ -780,7 +811,7 @@ function DocumentUploadContent() {
       listGuidance:
         "모든 자료가 있는 것은 아닙니다. 현재 가지고 있는 자료만 제출해 주세요. 없는 자료를 새로 만들 필요는 없습니다.",
     };
-  }, [isVerifyAdmin]);
+  }, [isVerifyAdmin, mode]);
 
   function resolveRequirementLabel(label: string): "우선 제출" | "있으면 제출" | "선택" {
     if (isVerifyAdmin) {
@@ -849,6 +880,12 @@ function DocumentUploadContent() {
   const readyCount = requiredDocs.filter(isDocReady).length;
   const totalCount = requiredDocs.length;
   const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
+  const primarySubmitLabel =
+    mode === "phase2_upload"
+      ? readyCount > 0
+        ? "제출하고 2차 결과 보기"
+        : "건너뛰고 2차 결과 보기"
+      : copy.submitLabel;
 
   // 마지막 순번에 추가되는 선택 자료 카드 — docs 배열/진행률(우선 제출) 계산에는 포함하지 않는다.
 
@@ -1297,10 +1334,46 @@ function DocumentUploadContent() {
     return true;
   }
 
+  async function completePhase2UploadAndReturn(): Promise<boolean> {
+    if (!leadId) return false;
+    const anyUploaded = readyCount > 0;
+    const result = await persistAdminVerifyLeadMeta(leadId, {
+      [ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY]: "1",
+      [ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY]: anyUploaded ? "1" : "0",
+    });
+    if (!result.ok) {
+      console.error("[documents] phase2_upload meta persist failed:", result);
+      return false;
+    }
+    try {
+      const raw = sessionStorage.getItem(ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Record<string, unknown>;
+        parsed.anyUploaded = anyUploaded;
+        sessionStorage.setItem(
+          ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
+          JSON.stringify(parsed),
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+    window.location.href = "/verify/admin?phase2_upload_return=1";
+    return true;
+  }
+
   async function handleSubmit() {
     if (submitting || submitted) return; // 중복 클릭 방지
     setSubmitting(true);
     setSubmitError(null);
+    if (mode === "phase2_upload") {
+      const ok = await completePhase2UploadAndReturn();
+      setSubmitting(false);
+      if (!ok) {
+        setSubmitError("저장 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      }
+      return;
+    }
     const ok = await recordAgencyRequest();
     setSubmitting(false);
     if (!ok) {
@@ -1778,7 +1851,7 @@ function DocumentUploadContent() {
 
                 <div className="mt-4">
                   <PrimaryButton onClick={handleSubmit} loading={submitting} disabled={submitting}>
-                    {copy.submitLabel}
+                    {primarySubmitLabel}
                   </PrimaryButton>
                   {submitError && (
                     <p className="mt-2 text-center text-xs text-red-600">{submitError}</p>
@@ -1807,7 +1880,7 @@ function DocumentUploadContent() {
             </p>
             <div className="mt-3">
               <PrimaryButton onClick={handleSubmit} loading={submitting} disabled={submitting}>
-                {copy.submitLabel}
+                {primarySubmitLabel}
               </PrimaryButton>
             </div>
             {submitError && <p className="mt-2 text-center text-xs text-red-600">{submitError}</p>}
