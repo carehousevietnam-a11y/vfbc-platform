@@ -3729,7 +3729,7 @@ function KeyMetricCard({
           : "border border-amber-200/80 bg-amber-50/15 hover:border-amber-300/90 lg:border-amber-200/60",
       )}
     >
-      <div className="lg:min-h-[4.25rem]">
+      <div className="flex min-h-[4.75rem] flex-col lg:min-h-[4.25rem]">
         <div className="mb-2.5 flex items-center justify-between lg:mb-2">
           <span
             className={cn(
@@ -3761,7 +3761,7 @@ function KeyMetricCard({
       </div>
       <div
         className={cn(
-          "mt-4 border-t pt-3 lg:mt-auto lg:pt-3",
+          "mt-4 border-t pt-3",
           isOk ? "border-slate-100" : "border-amber-200/60",
         )}
       >
