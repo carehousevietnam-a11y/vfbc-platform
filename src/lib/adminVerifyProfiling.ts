@@ -2415,6 +2415,18 @@ export function getAdminVerifyStitchProgress(
     if (activeId === ADMIN_CASE_ENTRY_Q1_KEY) {
       return { current: 1, total };
     }
+    // 미리 계산한 경로에 없는 분기 질문(답변에 따라 새로 나타나는 질문)도 있으므로,
+    // 실제 화면 질문 순서 기준으로 번호를 매겨 같은 번호가 반복되지 않게 한다.
+    const liveIds = questions
+      .map((question) => question.id)
+      .filter((id) => id !== ADMIN_CASE_ENTRY_Q1_KEY);
+    const liveIndex = liveIds.indexOf(activeId);
+    if (liveIndex >= 0) {
+      return {
+        current: liveIndex + 1,
+        total: Math.max(total, liveIds.length, liveIndex + 1),
+      };
+    }
     const phase2Index = phase2Ids.indexOf(activeId);
     if (phase2Index >= 0) {
       return { current: phase2Index + 1, total };

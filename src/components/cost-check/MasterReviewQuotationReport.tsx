@@ -1806,6 +1806,25 @@ export type AdminVerifyMasterGateProps = {
   adminVerifyLeadCaptureSlot?: ReactNode;
 };
 
+/** 2차 개인화 검토 안내 박스 (행정문서·부동산 공용 표시) */
+function Phase2PersonalizedReviewBanner() {
+  return (
+    <div className="mb-4 rounded-xl border border-slate-200/80 bg-slate-50/60 px-4 py-3.5 lg:mb-5 lg:rounded-lg lg:px-4 lg:py-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded border border-[#0f172a]/10 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#0f172a]">
+          2차 · 개인화 검토
+        </span>
+        <span className="text-[11px] font-medium text-slate-500">
+          1차에서 확인한 내용을 바탕으로 필요한 부분만 추가 확인합니다
+        </span>
+      </div>
+      <p className="mt-2 break-keep text-[12px] leading-relaxed text-slate-600 lg:text-[11.5px]">
+        설문을 다시 시작하는 단계가 아니라, 내 상황을 함께 정리하는 검토 단계입니다.
+      </p>
+    </div>
+  );
+}
+
 export function MasterReviewQuotationReport({
   service,
   config,
@@ -4587,6 +4606,9 @@ export function MasterReviewQuotationReport({
                 {isRealEstateAwaitingSignup && realEstateVerifyLeadCaptureSlot ? (
                   <div className="w-full">{realEstateVerifyLeadCaptureSlot}</div>
                 ) : null}
+                {isAdminVerifyPhase2Screen || isAdminVerifyAwaitingEvidence ? (
+                  <Phase2PersonalizedReviewBanner />
+                ) : null}
                 {isAdminVerifyAwaitingEvidence ? (
                   <AdminVerifyPhase2EvidencePanel
                     evidenceTier="phase2"
@@ -4605,23 +4627,10 @@ export function MasterReviewQuotationReport({
                     onContinue={handleRealEstatePhase2EvidenceContinue}
                   />
                 ) : null}
-                {(isAdminVerifyPhase2Screen ||
-                  isAdminVerifyAwaitingEvidence ||
-                  isRealEstatePhase2Review ||
-                  isRealEstateAwaitingPhase2Evidence) ? (
-                  <div className="mb-4 rounded-xl border border-slate-200/80 bg-slate-50/60 px-4 py-3.5 lg:mb-5 lg:rounded-lg lg:px-4 lg:py-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded border border-[#0f172a]/10 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#0f172a]">
-                        2차 · 개인화 검토
-                      </span>
-                      <span className="text-[11px] font-medium text-slate-500">
-                        1차에서 확인한 내용을 바탕으로 필요한 부분만 추가 확인합니다
-                      </span>
-                    </div>
-                    <p className="mt-2 break-keep text-[12px] leading-relaxed text-slate-600 lg:text-[11.5px]">
-                      설문을 다시 시작하는 단계가 아니라, 내 상황을 함께 정리하는 검토 단계입니다.
-                    </p>
-                  </div>
+                {/* 부동산(일시 정지)은 기존 위치 유지 — 행정문서는 첨부 카드 위에서 표시 */}
+                {(isRealEstatePhase2Review || isRealEstateAwaitingPhase2Evidence) &&
+                !(isAdminVerifyPhase2Screen || isAdminVerifyAwaitingEvidence) ? (
+                  <Phase2PersonalizedReviewBanner />
                 ) : null}
                 {isAdminVerifyStitchLayout &&
                 !isAdminVerifyFirstResult &&

@@ -3893,13 +3893,15 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
               {hasIssues ? "조건부 부합" : "부합"}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400">증빙 양식 점검 필요</span>
+          <span className="text-[11px] text-slate-400">
+            {hasIssues ? "증빙 양식 점검 필요" : "현재 입력 기준 특이사항 없음"}
+          </span>
         </div>
 
         <div className={cn(metricCardClass, STITCH_CARD_SUBTLE_SHADOW)}>
           <div className="flex w-full items-center justify-between">
             <span className={numberBadgeClass}>4</span>
-            <span className="text-xs font-semibold text-slate-500">필수 보완 서류</span>
+            <span className="text-xs font-semibold text-slate-500">추가 확인 항목</span>
             <span className="w-4" aria-hidden />
           </div>
           <div className="my-auto flex flex-col items-center py-1">
@@ -3913,11 +3915,11 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
               </svg>
             </div>
             <span className={cn("mt-1.5 text-sm font-bold", supplementCount > 0 ? "text-red-600" : "text-slate-800")}>
-              {supplementCount > 0 ? `${supplementCount}개 서류 보완` : "보완 없음"}
+              {supplementCount > 0 ? `${supplementCount}건 확인 필요` : "추가 확인 없음"}
             </span>
           </div>
           <span className="text-[11px] text-slate-400">
-            {personalized?.documentsNeededNote || "번역공증본 및 관할양식"}
+            {personalized?.documentsNeededNote || "제출 전 원본·기재사항 대조"}
           </span>
         </div>
 
@@ -4522,7 +4524,7 @@ export function AdminVerifyFirstResultPanel({
             <p className="mt-1 text-xs font-normal text-slate-500 sm:text-sm">
               {isRealEstate
                 ? "1차 FREE 검토와 2차 추가 확인 답변을 반영한 종합 소견입니다."
-                : "입력하신 관할 지역 및 서류 세부 조건과 최신 행정청 심사 기준을 반영한 2차 종합 소견입니다."}
+                : "1차 검토와 2차 추가 확인 답변·첨부 자료를 반영한 종합 소견입니다."}
             </p>
           </div>
 

@@ -4,6 +4,7 @@
  */
 
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
+import { getLegacyChoiceLabel } from "@/lib/adminVerifyChoiceSlugCanonical";
 import {
   CASE01_OPTION_LABELS,
   CASE01_CUSTOMER_RESPONDED_NOTE_KEY,
@@ -26,6 +27,7 @@ import {
   isAdminVerifyPhase2PathComplete,
   adminVerifyFieldHasSlug,
   type MasterCaseId,
+  getCaseOptionLabel,
 } from "@/lib/adminVerifyProfiling";
 import {
   CASE06_DEADLINE_DATE_KEY,
@@ -145,14 +147,25 @@ function case01FieldLabel(fieldId: string, answers: ReviewAnswers): string | nul
     try {
       const slugs = JSON.parse(raw) as string[];
       const labels = slugs
-        .map((s) => CASE01_OPTION_LABELS[s] ?? s)
-        .filter(Boolean);
+        .map((s) => case01OptionLabel(fieldId, s))
+        .filter((label): label is string => Boolean(label));
       return labels.length ? labels.join(", ") : null;
     } catch {
       /* single */
     }
   }
-  return CASE01_OPTION_LABELS[raw] ?? raw;
+  return case01OptionLabel(fieldId, raw);
+}
+
+/** 질문별 선택지 라벨 → 공용 라벨 순으로 찾고, 끝내 못 찾은 내부 코드값은 화면에 내보내지 않는다. */
+function case01OptionLabel(fieldId: string, slug: string): string | null {
+  const perQuestion = getCaseOptionLabel("CASE_01", fieldId, slug);
+  if (perQuestion && perQuestion !== slug) return perQuestion;
+  const shared = CASE01_OPTION_LABELS[slug];
+  if (shared) return shared;
+  const legacy = getLegacyChoiceLabel(fieldId, slug);
+  if (legacy) return legacy;
+  return /^[a-z0-9_]+$/.test(slug) ? null : slug;
 }
 
 function case02FieldLabel(fieldId: string, answers: ReviewAnswers): string | null {
