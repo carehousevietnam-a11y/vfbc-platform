@@ -4696,12 +4696,20 @@ export function AdminVerifyFirstResultPanel({
                       key={item}
                       className="rounded-lg border border-slate-200 bg-slate-50/40 p-3.5"
                     >
-                      <span className="mb-1 block text-xs font-bold text-slate-800">
-                        {unconfirmedColumnLabels[index] ?? "추가 확인"}
-                      </span>
-                      <p className={cn("leading-relaxed text-slate-500", FIRST_RESULT_READABLE_CLASS)}>
-                        {item}
-                      </p>
+                      {!isRealEstate ? (
+                        <p className={cn("leading-relaxed text-slate-500", FIRST_RESULT_READABLE_CLASS)}>
+                          {item}
+                        </p>
+                      ) : (
+                        <>
+                          <span className="mb-1 block text-xs font-bold text-slate-800">
+                            {unconfirmedColumnLabels[index] ?? "추가 확인"}
+                          </span>
+                          <p className={cn("leading-relaxed text-slate-500", FIRST_RESULT_READABLE_CLASS)}>
+                            {item}
+                          </p>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
