@@ -1041,6 +1041,46 @@ export function appendCase06RedesignPathQuestions(
   appendCase06RedesignPhase2Questions(questions, answers);
 }
 
+export const CASE06_PHASE2_CHAIN_FIELD_ORDER: Record<number, readonly string[]> = {
+  1: [
+    "case06_paymentNature",
+    "case06_paymentAmountKnown",
+    "case06_paymentSituationMatch",
+    "case06_paymentAuthorityCheck",
+    "case06_paymentResponse",
+    "case06_paymentNonPaymentNotice",
+  ],
+  2: [
+    "case06_attendanceSubject",
+    "case06_attendanceFactMatch",
+    "case06_attendanceNoticeDetail",
+    "case06_attendanceResponse",
+    "case06_attendanceAuthorityReaction",
+  ],
+  3: [
+    "case06_submissionRequirement",
+    "case06_submissionReason",
+    "case06_submissionRelation",
+    "case06_submissionResponse",
+    "case06_submissionAuthorityReaction",
+    "case06_submissionEvidence",
+  ],
+  4: [
+    "case06_dispositionTypeCandidate",
+    "case06_dispositionReason",
+    "case06_dispositionFactMatch",
+    "case06_dispositionEffectiveDate",
+    "case06_dispositionResponse",
+  ],
+  5: ["case06_unclearContentRecheck", "case06_unclearFactRelation", "case06_unclearResponse"],
+};
+
+/** P1-3 — CASE_06 2차 manifest field 순서 (chainFieldOrder 재사용). */
+export function resolveCase06Phase2ManifestFieldOrder(answers: ReviewAnswers): string[] {
+  const chain = resolveCase06Phase2ChainId(answers);
+  return [...(CASE06_PHASE2_CHAIN_FIELD_ORDER[chain] ?? [])];
+}
+
 export type CaseResolutionQuestionFocus =
   | "caseClassification"
   | "authorityClaim"
@@ -1073,39 +1113,7 @@ export function selectCase06RedesignResolutionFocus(
     }
   }
   const chain = resolveCase06Phase2ChainId(answers);
-  const chainFieldOrder: Record<number, string[]> = {
-    1: [
-      "case06_paymentNature",
-      "case06_paymentAmountKnown",
-      "case06_paymentSituationMatch",
-      "case06_paymentAuthorityCheck",
-      "case06_paymentResponse",
-      "case06_paymentNonPaymentNotice",
-    ],
-    2: [
-      "case06_attendanceSubject",
-      "case06_attendanceFactMatch",
-      "case06_attendanceNoticeDetail",
-      "case06_attendanceResponse",
-      "case06_attendanceAuthorityReaction",
-    ],
-    3: [
-      "case06_submissionRequirement",
-      "case06_submissionReason",
-      "case06_submissionRelation",
-      "case06_submissionResponse",
-      "case06_submissionAuthorityReaction",
-      "case06_submissionEvidence",
-    ],
-    4: [
-      "case06_dispositionTypeCandidate",
-      "case06_dispositionReason",
-      "case06_dispositionFactMatch",
-      "case06_dispositionEffectiveDate",
-      "case06_dispositionResponse",
-    ],
-    5: ["case06_unclearContentRecheck", "case06_unclearFactRelation", "case06_unclearResponse"],
-  };
+  const chainFieldOrder = CASE06_PHASE2_CHAIN_FIELD_ORDER;
   for (const fieldId of chainFieldOrder[chain] ?? []) {
     const options = CASE06_V11_FIELD_OPTIONS[fieldId];
     if (!options) continue;

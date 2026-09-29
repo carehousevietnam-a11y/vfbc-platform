@@ -1627,6 +1627,40 @@ function appendCase01Phase2AdaptiveQuestions(
   }
 }
 
+/** P1-3 — CASE_01 2차 경로 fieldId 순서(미완료 시에도 on-path 전체). */
+export function listCase01Phase2FieldIdsOnPath(answers: ReviewAnswers): string[] {
+  const ids: string[] = [];
+  const push = (id: string) => {
+    if (!ids.includes(id)) ids.push(id);
+  };
+  push("case01_factRelationship");
+  if (case01NeedsFactCompareGap(answers)) push(CASE01_FACT_COMPARE_GAP_KEY);
+  push("case01_authorityDemand");
+  if (case01NeedsPaymentDemandScope(answers)) push("case01_paymentDemandScope");
+  if (case01NeedsSupplementDemandScope(answers)) push("case01_supplementDemandScope");
+  if (case01NeedsActualSituationQuestion(answers)) push("case01_actualSituation");
+  for (const spec of CASE01_PHASE2_FACET_QUESTION_SPECS) {
+    if (case01IsPhase2FacetOnPath(spec.id, answers)) push(spec.id);
+  }
+  if (case01NeedsDeadlinePhase2(answers)) push("case01_deadline");
+  if (case01NeedsDeadlineDateDetail(answers)) push(CASE01_DEADLINE_DATE_KEY);
+  if (case01NeedsFactDifferenceDetail(answers)) push(CASE01_FACT_DIFFERENCE_DETAIL_KEY);
+  if (case01NeedsUnknownInfoGap(answers)) push(CASE01_FACT_RELATIONSHIP_NOTE_KEY);
+  if (case01NeedsDatePlaceDetail(answers)) push(CASE01_DATE_PLACE_DETAIL_KEY);
+  if (case01NeedsResponseDetail(answers)) push("case01_responseDetail");
+  if (
+    case01NeedsAuthorityResponse(answers) &&
+    !case01IsPhase2FacetOnPath("case01_authorityFollowUpKind", answers)
+  ) {
+    push("case01_authorityResponse");
+  }
+  if (case01NeedsAuthorityDemandDetailChoice(answers)) push("case01_authorityDemandDetail");
+  push("case01_evidence");
+  if (case01NeedsBlockage(answers)) push("case01_blockage");
+  if (case01NeedsFinalGoal(answers)) push("case01_finalGoal");
+  return ids;
+}
+
 function appendCase01Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
   /** 개인화 퍼널 v1 — 사실 비교는 2차 첫 질문(핵심 사실, 2차 공통) */
   pushUnique(questions, {
@@ -2942,6 +2976,84 @@ function case02HasPaidStatus(answers: ReviewAnswers): boolean {
     status === "paid_by_other" ||
     status === "partial"
   );
+}
+
+/** P1-3 — CASE_02 2차 경로 fieldId 순서(미완료 시에도 on-path 전체). */
+export function listCase02Phase2FieldIdsOnPath(answers: ReviewAnswers): string[] {
+  const ids: string[] = [];
+  const push = (id: string) => {
+    if (!ids.includes(id)) ids.push(id);
+  };
+  const choiceOnPath = (
+    id: string,
+    needs: boolean,
+    options: { value: string; label: string }[],
+  ) => {
+    if (needs || isAdminVerifyChoiceFieldComplete(id, answers, options)) push(id);
+  };
+  const seeded = seedCase02AnswersFromCustomerInput(answers);
+  if (case02ShouldAskDemandAuthority(seeded) || seeded.case02_demandAuthority) {
+    push("case02_demandAuthority");
+  }
+  choiceOnPath(
+    "case02_paymentInfoSource",
+    case02NeedsPaymentInfoSourcePhase2(answers),
+    CASE02_PAYMENT_INFO_SOURCE_OPTIONS,
+  );
+  choiceOnPath(
+    "case02_noticeAccessFact",
+    case02NeedsNoticeAccessFact(answers),
+    CASE02_NOTICE_ACCESS_FACT_OPTIONS,
+  );
+  choiceOnPath(
+    "case02_situationMatch",
+    case02NeedsSituationMatchPhase2(answers),
+    CASE02_SITUATION_MATCH_OPTIONS,
+  );
+  choiceOnPath(
+    "case02_paymentAmount",
+    case02NeedsPaymentAmountPhase2(answers),
+    CASE02_PAYMENT_AMOUNT_OPTIONS,
+  );
+  if (case02NeedsPaymentAmountDetail(answers) || answers[CASE02_PAYMENT_AMOUNT_DETAIL_KEY]?.trim()) {
+    push(CASE02_PAYMENT_AMOUNT_DETAIL_KEY);
+  }
+  choiceOnPath(
+    "case02_paymentBasis",
+    case02NeedsPaymentBasisPhase2(answers),
+    CASE02_PAYMENT_BASIS_OPTIONS,
+  );
+  choiceOnPath("case02_deadline", case02NeedsDeadlinePhase2(answers), CASE02_DEADLINE_OPTIONS);
+  if (case02NeedsDeadlineDateDetail(answers) || answers[CASE02_DEADLINE_DATE_KEY]?.trim()) {
+    push(CASE02_DEADLINE_DATE_KEY);
+  }
+  if (case02HasPaidStatus(answers)) {
+    if (case02NeedsAuthorityResponse(answers.case02_paymentStatus) || answers.case02_authorityResponse) {
+      push("case02_authorityResponse");
+    }
+    choiceOnPath(
+      "case02_paidProcessingFact",
+      case02NeedsPaidProcessingFact(answers),
+      CASE02_PAID_PROCESSING_FACT_OPTIONS,
+    );
+  }
+  if (case02NeedsPaymentMethod(answers) || answers.case02_paymentMethod) {
+    push("case02_paymentMethod");
+  }
+  choiceOnPath(
+    "case02_nonPaymentNotice",
+    case02NeedsNonPaymentNotice(answers),
+    CASE02_NON_PAYMENT_NOTICE_OPTIONS,
+  );
+  choiceOnPath(
+    "case02_paymentConfirmationFact",
+    case02NeedsPaymentConfirmationFact(answers),
+    CASE02_PAYMENT_CONFIRMATION_FACT_OPTIONS,
+  );
+  choiceOnPath("case02_blockage", case02NeedsBlockage(answers), CASE02_BLOCKAGE_OPTIONS);
+  choiceOnPath("case02_evidence", case02NeedsEvidence(answers), CASE02_EVIDENCE_OPTIONS);
+  choiceOnPath("case02_finalGoal", case02NeedsFinalGoal(answers), CASE02_FINAL_GOAL_OPTIONS);
+  return ids;
 }
 
 function appendCase02Phase2Questions(questions: ProfileQuestion[], answers: ReviewAnswers): void {
@@ -11321,7 +11433,7 @@ const CASE01_PHASE2_AXIS_MAP: Record<string, string> = {
   case01_finalGoal: "final review goal (only when confirmGoal unclear)",
 };
 
-function getCase01Phase2ProductQuestions(working: ReviewAnswers): ProfileQuestion[] {
+export function getCase01Phase2ProductQuestions(working: ReviewAnswers): ProfileQuestion[] {
   const emptyFollow: Record<string, ProfileQuestion> = {};
   const emptyDocs = { mismatch: [] as { value: string; title: string }[], unknown: [], other: [] };
   const phase1 = buildAdminVerifyProfileQuestions(working, emptyFollow, emptyDocs, 1);
@@ -11332,6 +11444,64 @@ function getCase01Phase2ProductQuestions(working: ReviewAnswers): ProfileQuestio
       !phase1Ids.has(question.id) &&
       question.id.startsWith("case01"),
   );
+}
+
+export function getCase01Phase2ProductQuestionIds(answers: ReviewAnswers): string[] {
+  return getCase01Phase2ProductQuestions(answers).map((question) => question.id);
+}
+
+const ADMIN_VERIFY_PHASE2_PRODUCT_EMPTY_FOLLOW: Record<string, ProfileQuestion> = {};
+const ADMIN_VERIFY_PHASE2_PRODUCT_EMPTY_DOCS = {
+  mismatch: [] as { value: string; title: string }[],
+  unknown: [] as { value: string; title: string }[],
+  other: [] as { value: string; title: string }[],
+};
+
+function adminVerifyCaseAnswerIdPrefix(caseId: MasterCaseId): string {
+  return `case${caseId.replace("CASE_", "").padStart(2, "0")}`;
+}
+
+/** P1-3 — 2차 product question id 순서 (phase1에 없던 caseNN_* id만). */
+export function getAdminVerifyPhase2ProductQuestionIds(
+  answers: ReviewAnswers,
+  caseId: MasterCaseId,
+): string[] {
+  if (caseId === "CASE_01") {
+    return listCase01Phase2FieldIdsOnPath(answers);
+  }
+  if (caseId === "CASE_02") {
+    return listCase02Phase2FieldIdsOnPath(answers);
+  }
+  if (caseId === "CASE_03") {
+    return [...case03ListPhase2SubstantiveAxesOnPath(answers)];
+  }
+  if (caseId === "CASE_04") {
+    return [...case04ListPhase2SubstantiveAxesOnPath(answers)];
+  }
+  if (caseId === "CASE_05") {
+    return [...case05ListPhase2SubstantiveAxesOnPath(answers)];
+  }
+  const prefix = adminVerifyCaseAnswerIdPrefix(caseId);
+  const phase1 = buildAdminVerifyProfileQuestions(
+    answers,
+    ADMIN_VERIFY_PHASE2_PRODUCT_EMPTY_FOLLOW,
+    ADMIN_VERIFY_PHASE2_PRODUCT_EMPTY_DOCS,
+    1,
+  );
+  const phase1Ids = new Set(phase1.map((question) => question.id));
+  return buildAdminVerifyProfileQuestions(
+    answers,
+    ADMIN_VERIFY_PHASE2_PRODUCT_EMPTY_FOLLOW,
+    ADMIN_VERIFY_PHASE2_PRODUCT_EMPTY_DOCS,
+    2,
+  )
+    .filter(
+      (question) =>
+        question.id !== ADMIN_CASE_ENTRY_Q1_KEY &&
+        !phase1Ids.has(question.id) &&
+        question.id.startsWith(prefix),
+    )
+    .map((question) => question.id);
 }
 
 function getCase01ChoiceAnswerLabel(
