@@ -375,14 +375,40 @@ export async function POST(req: NextRequest) {
           }
         : null;
 
-    const { data: activitiesRaw } = leadIds.length
-      ? await supabaseAdmin
+    // lead_id가 많으면 .in() URL이 헤더 한도(약 16KB)를 넘어 조회 전체가 실패한다
+    // (403건 → 15,860자, HeadersOverflowError). 100개 단위로 나눠 조회하고,
+    // 묶음당 1000행 반환 제한에 걸리지 않도록 range로 이어 받는다. 조회 대상·필드·정렬 동일.
+    const ACTIVITY_LEAD_CHUNK = 100;
+    const ACTIVITY_PAGE_SIZE = 1000;
+    const activities: ActivityRow[] = [];
+    for (let i = 0; i < leadIds.length; i += ACTIVITY_LEAD_CHUNK) {
+      const chunk = leadIds.slice(i, i + ACTIVITY_LEAD_CHUNK);
+      for (let from = 0; ; from += ACTIVITY_PAGE_SIZE) {
+        const { data: pageRows, error: activitiesError } = await supabaseAdmin
           .from("crm_activities")
           .select("lead_id, action, meta, created_at")
-          .in("lead_id", leadIds)
+          .in("lead_id", chunk)
           .order("created_at", { ascending: true })
-      : { data: [] as ActivityRow[] };
-    const activities = (activitiesRaw ?? []) as ActivityRow[];
+          .range(from, from + ACTIVITY_PAGE_SIZE - 1);
+        if (activitiesError) {
+          console.error("mypage-data activities error:", {
+            leadCount: leadIds.length,
+            chunkStart: i,
+            code: activitiesError.code,
+            message: activitiesError.message,
+            details: activitiesError.details,
+            hint: activitiesError.hint,
+          });
+          break;
+        }
+        const rows = (pageRows ?? []) as ActivityRow[];
+        activities.push(...rows);
+        if (rows.length < ACTIVITY_PAGE_SIZE) break;
+      }
+    }
+    activities.sort((a, b) =>
+      a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0
+    );
 
     const items = await Promise.all(
       leads.map(async (lead) => {
