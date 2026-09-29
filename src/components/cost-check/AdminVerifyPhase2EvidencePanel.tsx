@@ -105,7 +105,7 @@ export function AdminVerifyPhase2EvidencePanel({
       </div>
       <h3
         id={tierCopy.titleId}
-        className="mt-2 text-base font-bold leading-snug text-slate-900 sm:text-[17px] lg:text-[16px]"
+        className="mt-2 break-keep text-pretty text-base font-bold leading-snug text-slate-900 [overflow-wrap:anywhere] [word-break:keep-all] sm:text-[17px] lg:text-[16px]"
       >
         {tierCopy.title}
       </h3>
