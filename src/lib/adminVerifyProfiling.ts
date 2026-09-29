@@ -2413,22 +2413,48 @@ export function getAdminVerifyStitchProgress(
   }
 
   if (profilePhase === 2 && q1Case && q1Case !== "UNIVERSAL") {
-    const phase2Ids =
+    const frozenPathIds =
       phase2PathQuestionIds && phase2PathQuestionIds.length > 0
         ? [...phase2PathQuestionIds]
-        : questions
-            .map((question) => question.id)
-            .filter((id) => id !== ADMIN_CASE_ENTRY_Q1_KEY);
+        : null;
+    const hasFrozenPath = frozenPathIds !== null;
+    const phase2Ids =
+      frozenPathIds ??
+      questions
+        .map((question) => question.id)
+        .filter((id) => id !== ADMIN_CASE_ENTRY_Q1_KEY);
     const total = Math.max(phase2Ids.length, 1);
     if (activeId === ADMIN_CASE_ENTRY_Q1_KEY) {
       return { current: 1, total };
     }
-    // 미리 계산한 경로에 없는 분기 질문(답변에 따라 새로 나타나는 질문)도 있으므로,
-    // 실제 화면 질문 순서 기준으로 번호를 매겨 같은 번호가 반복되지 않게 한다.
     const liveIds = questions
       .map((question) => question.id)
       .filter((id) => id !== ADMIN_CASE_ENTRY_Q1_KEY);
     const liveIndex = liveIds.indexOf(activeId);
+
+    if (hasFrozenPath) {
+      const phase2Index = phase2Ids.indexOf(activeId);
+      if (phase2Index >= 0) {
+        const current = phase2Index + 1;
+        return { current, total: Math.max(total, current) };
+      }
+      // 2차 진입 시 고정 경로(phase2Ids)에 없고, 답변에 따라 나중에 나타난 분기 질문
+      if (liveIndex >= 0) {
+        const current = liveIndex + 1;
+        return {
+          current,
+          total: Math.max(total, liveIds.length, current),
+        };
+      }
+      const answeredOnPath = phase2Ids.filter((id) => {
+        const v = answers[id as keyof ReviewAnswers]?.trim();
+        return Boolean(v);
+      }).length;
+      const current = Math.min(Math.max(answeredOnPath, 1), total);
+      return { current, total: Math.max(total, current) };
+    }
+
+    // 경로 미전달 — 기존 동작(화면 목록 위치 우선)
     if (liveIndex >= 0) {
       return {
         current: liveIndex + 1,
