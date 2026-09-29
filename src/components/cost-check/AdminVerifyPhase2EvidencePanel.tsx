@@ -176,7 +176,7 @@ export function AdminVerifyPhase2EvidencePanel({
       </VerifyStep4InputStack>
 
       <div className="mt-5 flex flex-wrap justify-start gap-2">
-        <PrimaryButton type="button" className="w-full sm:w-auto" onClick={onContinue}>
+        <PrimaryButton type="button" className="w-full max-w-none" onClick={onContinue}>
           {file
             ? "자료 포함하고 계속하기"
             : evidenceTier === "phase1"
