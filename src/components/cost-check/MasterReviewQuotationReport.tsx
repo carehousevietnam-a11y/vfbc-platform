@@ -2625,7 +2625,6 @@ export function MasterReviewQuotationReport({
     !isAdminVerifyFirstResult &&
     !isAdminVerifyAwaitingSignup &&
     !isAdminAwaitingPhase1Evidence &&
-    !isAdminVerifyAwaitingPhase2Documents &&
     !isAdminVerifyPersonalizedResult;
   const adminVerifyUseStitchCards = isVerifyMasterStitchLayout;
   const hideGenericQuotationResult =
@@ -4169,7 +4168,15 @@ export function MasterReviewQuotationReport({
       }
 
       return (
-        <ul className="space-y-1.5">
+        <ul
+          className={cn(
+            "space-y-1.5",
+            isAdminVerifyAwaitingPhase2Documents &&
+              isAdminVerifyPhase2QuestionFlow &&
+              "pointer-events-none opacity-75",
+          )}
+          aria-busy={isAdminVerifyAwaitingPhase2Documents && isAdminVerifyPhase2QuestionFlow}
+        >
           {flowQuestions.map((question, index) => {
             const answered = isQuestionAnswered(question, answers);
             const isEditing = editingId === question.id;
@@ -4342,7 +4349,6 @@ export function MasterReviewQuotationReport({
     config.engine === "verify" &&
     (!allAnswered || isRealEstatePhase2Screen || isAdminVerifyPhase2Review) &&
     !isAdminVerifyFirstResult &&
-    !isAdminVerifyAwaitingPhase2Documents &&
     !isAdminAwaitingPhase1Evidence &&
     !isAdminVerifyAwaitingSignup &&
     !isRealEstateAwaitingPhase2Evidence &&
@@ -4650,21 +4656,6 @@ export function MasterReviewQuotationReport({
                 {isAdminVerifyPhase2Screen ? (
                   <Phase2PersonalizedReviewBanner />
                 ) : null}
-                {isAdminVerifyAwaitingPhase2Documents ? (
-                  <div
-                    className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white px-6 py-10 text-center shadow-sm"
-                    role="status"
-                    aria-live="polite"
-                    data-purpose="admin-phase2-documents-handoff"
-                  >
-                    <p className="text-[15px] font-semibold text-[#0B2A6B]">
-                      2차 상세 자료 제출 화면으로 이동합니다
-                    </p>
-                    <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
-                      잠시만 기다려 주세요.
-                    </p>
-                  </div>
-                ) : null}
                 {isRealEstateAwaitingPhase2Evidence ? (
                   <AdminVerifyPhase2EvidencePanel
                     evidenceTier="phase2"
@@ -4676,7 +4667,7 @@ export function MasterReviewQuotationReport({
                 ) : null}
                 {/* 부동산(일시 정지)은 기존 위치 유지 — 행정문서는 첨부 카드 위에서 표시 */}
                 {(isRealEstatePhase2Review || isRealEstateAwaitingPhase2Evidence) &&
-                !(isAdminVerifyPhase2Screen || isAdminVerifyAwaitingPhase2Documents) ? (
+                !isAdminVerifyPhase2Screen ? (
                   <Phase2PersonalizedReviewBanner />
                 ) : null}
                 {isAdminVerifyStitchLayout &&
@@ -4686,8 +4677,7 @@ export function MasterReviewQuotationReport({
                 !isRealEstateFirstResult &&
                 !isRealEstatePhase2Review &&
                 !isAdminVerifyAwaitingSignup &&
-                !isAdminAwaitingPhase1Evidence &&
-                !isAdminVerifyAwaitingPhase2Documents ? (
+                !isAdminAwaitingPhase1Evidence ? (
                   <div className="hidden lg:block">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                       VFBCAI · VERIFY
@@ -4756,7 +4746,6 @@ export function MasterReviewQuotationReport({
                 !isRealEstateFirstResult &&
                 !isAdminVerifyAwaitingSignup &&
                 !isAdminAwaitingPhase1Evidence &&
-                !isAdminVerifyAwaitingPhase2Documents &&
                 !isRealEstateAwaitingSignup &&
                 !isRealEstateAwaitingPhase1Evidence &&
                 !isRealEstateAwaitingPhase2Evidence &&
