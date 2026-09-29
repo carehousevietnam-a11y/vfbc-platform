@@ -355,3 +355,377 @@ export function buildAdminVerifyClassifiedKeyMetrics(
 
   return dedupeFootnotesAcrossSlots(metrics);
 }
+
+/** Stitch 2차 결과 — 카드 배지 (표시 전용, metric.status와 독립). */
+export type KeyMetricBadgeTier = "missing" | "unconfirmed" | "caution" | "ok";
+
+export type AdminVerifyStitchRibbonState = "A" | "B" | "C";
+
+export type SlotSignalRule = {
+  unconfirmed?: readonly string[];
+  cautions?: readonly string[];
+};
+
+/** CASE_01~05 · manifest 슬롯 4개 순서. */
+export const ADMIN_VERIFY_KEY_METRIC_SLOT_SIGNAL_RULES: Partial<
+  Record<MasterCaseId, readonly [SlotSignalRule, SlotSignalRule, SlotSignalRule, SlotSignalRule]>
+> = {
+  CASE_01: [
+    {
+      unconfirmed: [
+        "어떤 부분이 문제",
+        "통지 핵심 문구",
+        "안내 문구 확인",
+        "당시 실제 상황 정리",
+        "실제 상황과 기관 안내의 차이",
+      ],
+      cautions: [
+        "알고 있는 상황",
+        "이번 건 핵심",
+        "출석·소명·추가 설명",
+        "실제로 해당",
+        "일부는 맞지만",
+        "지적한",
+        "핵심 사실",
+        "행동은 맞지만",
+        "날짜·장소",
+        "제출·등록",
+        "기관에서 문제",
+      ],
+    },
+    {
+      unconfirmed: ["우선 확인할 항목"],
+      cautions: ["사실관계 차이 확인이 우선", "당시 일정·장소 기억"],
+    },
+    {
+      unconfirmed: [
+        "기관이 요구한 추가 대응",
+        "기관 답변",
+        "확인 가능한 자료",
+        "준비할 자료",
+        "다음 대응 방법",
+      ],
+      cautions: [
+        "아직 기관",
+        "기관에서 추가",
+        "관련 자료가 없",
+        "사진·영상",
+        "어떤 사실",
+        "안내 내용을 제",
+        "기관에 사실관계",
+        "다른 사람을 통해",
+      ],
+    },
+    {
+      unconfirmed: ["대응 기한", "통지서 대응"],
+      cautions: ["대응 기한이 확인", "기한 경과"],
+    },
+  ],
+  CASE_02: [
+    {
+      unconfirmed: [
+        "납부 안내를 받은 경로",
+        "납부 요구 사유",
+        "납부 사유·근거",
+        "납부 금액",
+        "납부 금액·사유",
+        "납부 요구와 실제 상황의 관계",
+      ],
+      cautions: [
+        "다른 사람을 통해",
+        "이전 처리와",
+        "납부 의무",
+        "금액 확인",
+        "납부와 처리",
+        "이미 납부",
+        "안내 금액",
+        "미납 시 추가",
+      ],
+    },
+    { unconfirmed: ["우선 확인할 항목"], cautions: ["우선 목표"] },
+    {
+      unconfirmed: [
+        "기관의 납부 처리 결과",
+        "대리 납부 처리 상태",
+        "기관이 요구한 추가 대응",
+        "기관 답변",
+        "현재 진행 중인 절차",
+        "납부 방법",
+        "미납 시 기관 안내·결과",
+      ],
+      cautions: ["아직 납부", "납부했으나", "일부만 납부", "납부 후 기관"],
+    },
+    {
+      unconfirmed: ["납부 기한"],
+      cautions: ["납부 기한이 확인", "납부 요구와 실제"],
+    },
+  ],
+  CASE_03: [
+    {
+      unconfirmed: ["기관 요구 내용", "기관이 확인하려는 내용", "출석·소명 요구 사유"],
+      cautions: ["이미 대응했으나 추가 출석"],
+    },
+    { unconfirmed: ["우선 확인할 항목"], cautions: ["이전 대응 내용 확인"] },
+    {
+      unconfirmed: [
+        "기관이 요구한 추가 대응",
+        "기관 답변",
+        "기관 후속 반응",
+        "준비해야 할 내용",
+        "추가로 전달할 설명·자료",
+        "확인 가능한 자료",
+        "설명·제출 후 다음 조치",
+      ],
+      cautions: [
+        "아직 기관에 설명",
+        "이미 일부 대응",
+        "설명과 자료",
+        "설명·출석이 충분",
+        "설명 후 기관",
+        "기관에서 추가",
+        "기관이 다른 절차",
+        "추가 설명·출석",
+      ],
+    },
+    {
+      unconfirmed: ["출석·소명 기한", "기관 확인 내용과 실제 상황의 관계"],
+      cautions: ["출석·소명 기한이 확인", "기관이 확인하려는 내용과 실제"],
+    },
+  ],
+  CASE_04: [
+    {
+      unconfirmed: ["보완 요구 내용", "보완이 필요한 이유", "처음 제출 내용과 보완 요구의 관계"],
+      cautions: ["이미 보완했으나 추가"],
+    },
+    { unconfirmed: ["우선 확인할 항목"], cautions: ["기존 제출 내용 확인"] },
+    {
+      unconfirmed: [
+        "기관 답변·접수 여부",
+        "기관 후속 반응",
+        "처음 제출한 내용",
+        "추가로 제출할 서류",
+        "수정해야 할 항목",
+        "추가로 제출할 증빙",
+        "확인 가능한 자료",
+      ],
+      cautions: [
+        "아직 보완",
+        "보완 자료",
+        "보완 제출 후 기관",
+        "추가 보완",
+        "이미 제출한 자료",
+      ],
+    },
+    {
+      unconfirmed: ["보완 제출 기한"],
+      cautions: ["보완 제출 기한이 확인", "보완 제출 후 검토"],
+    },
+  ],
+  CASE_05: [
+    {
+      unconfirmed: [
+        "처분 사유",
+        "처분·조치 내용",
+        "직접 설명한 조치 내용",
+        "처분 내용과 실제 상황의 관계",
+        "당시 상황 재구성",
+        "처분 사유와 실제 상황의 차이",
+        "처분 문구·범위",
+        "처분 영향 범위·기간",
+        "처분이 주는 실제 영향",
+      ],
+      cautions: [
+        "허가·자격",
+        "일정 기간 활동",
+        "통지 내용과 실제",
+        "처분 내용과 실제",
+        "과거 사실 확인",
+      ],
+    },
+    {
+      unconfirmed: ["우선 확인할 항목", "다음 조치 계획", "신청 여부·시기"],
+      cautions: ["이의·재검토를 검토"],
+    },
+    {
+      unconfirmed: [
+        "기관에 한 대응 방식",
+        "기관 답변·접수 여부",
+        "기관 후속 결과",
+        "반복 대응 내용",
+        "기관의 다음 답변·조치",
+        "현재 막힌 부분",
+        "제출 서류 종류",
+      ],
+      cautions: [
+        "아직 기관에 설명",
+        "이미 대응 자료",
+        "이의·재검토를 요청",
+        "문의만 진행",
+        "서면 소명",
+        "구두·방문",
+        "서면·구두",
+        "이의·재검토 신청",
+        "신청 준비",
+        "기관이 처분 유지",
+        "처분 후 기관",
+        "재검토 진행",
+        "처분이 유지",
+        "처분 내용이 변경",
+        "처분이 철회",
+        "처분 후 추가",
+        "처분 영향을 일부",
+      ],
+    },
+    {
+      unconfirmed: [
+        "처분 관련 대응 기한",
+        "처분 통지의 기한 표기",
+      ],
+      cautions: ["처분 관련 대응 기한이 확인", "기한이 지났을 가능성"],
+    },
+  ],
+};
+
+const KEY_METRIC_SIGNAL_FALLBACK_SLOT_INDEX = 2;
+
+export function resolveAdminVerifyStitchRibbonState(
+  unconfirmed: readonly string[],
+  cautions: readonly string[],
+): AdminVerifyStitchRibbonState {
+  if (unconfirmed.length > 0) return "A";
+  if (cautions.length > 0) return "B";
+  return "C";
+}
+
+function signalMatchesRuleLabel(signal: string, ruleLabel: string): boolean {
+  return signal === ruleLabel || signal.startsWith(ruleLabel);
+}
+
+function findSignalSlotIndex(
+  caseId: MasterCaseId,
+  signal: string,
+  kind: "unconfirmed" | "caution",
+): number | null {
+  const rules = ADMIN_VERIFY_KEY_METRIC_SLOT_SIGNAL_RULES[caseId];
+  if (!rules) return null;
+  for (let slot = 0; slot < 4; slot += 1) {
+    const rule = rules[slot];
+    const labels = kind === "unconfirmed" ? rule.unconfirmed : rule.cautions;
+    if (!labels) continue;
+    for (const label of labels) {
+      if (signalMatchesRuleLabel(signal, label)) return slot;
+    }
+  }
+  return null;
+}
+
+export function resolveKeyMetricBadgeTier(input: {
+  hasFootnote: boolean;
+  hasUnconfirmedSignal: boolean;
+  hasCautionSignal: boolean;
+}): KeyMetricBadgeTier {
+  if (!input.hasFootnote) return "missing";
+  if (input.hasUnconfirmedSignal) return "unconfirmed";
+  if (input.hasCautionSignal) return "caution";
+  return "ok";
+}
+
+function manifestSlotHasFootnote(
+  caseId: MasterCaseId,
+  slotIndex: number,
+  answers: ReviewAnswers,
+): boolean {
+  const bodyFields = ADMIN_VERIFY_KEY_METRIC_BODY_FIELD_IDS[caseId] ?? [];
+  const fieldIds = bodyFields[slotIndex] ?? [];
+  return collectSlotFootnote(caseId, fieldIds, answers).trim().length > 0;
+}
+
+function applyRibbonBadgeTierGuarantees(
+  tiers: KeyMetricBadgeTier[],
+  ribbon: AdminVerifyStitchRibbonState,
+): void {
+  const nonMissing = tiers
+    .map((tier, index) => ({ tier, index }))
+    .filter((entry) => entry.tier !== "missing");
+  if (ribbon === "C") {
+    for (let i = 0; i < tiers.length; i += 1) {
+      if (tiers[i] !== "missing") tiers[i] = "ok";
+    }
+    return;
+  }
+  if (ribbon === "A") {
+    if (!tiers.some((t) => t === "unconfirmed")) {
+      const pick = nonMissing.find((e) => e.tier === "caution" || e.tier === "ok") ?? nonMissing[0];
+      if (pick) tiers[pick.index] = "unconfirmed";
+    }
+    return;
+  }
+  for (let i = 0; i < tiers.length; i += 1) {
+    if (tiers[i] === "unconfirmed") tiers[i] = "caution";
+  }
+  if (!tiers.some((t) => t === "caution")) {
+    const pick = nonMissing.find((e) => e.tier === "ok") ?? nonMissing[0];
+    if (pick) tiers[pick.index] = "caution";
+  }
+}
+
+export type ResolveKeyMetricBadgeTiersResult = {
+  tiers: KeyMetricBadgeTier[];
+  /** manifest 슬롯 index — keyMetrics와 동일 순서 */
+  slotIndices: number[];
+  fallbackAssigned: string[];
+  assignmentBySignal: Record<string, number>;
+};
+
+export function resolveKeyMetricBadgeTiers(input: {
+  caseId: MasterCaseId;
+  answers: ReviewAnswers;
+  unconfirmed: readonly string[];
+  cautions: readonly string[];
+}): ResolveKeyMetricBadgeTiersResult {
+  const { caseId, answers, unconfirmed, cautions } = input;
+  const ribbon = resolveAdminVerifyStitchRibbonState(unconfirmed, cautions);
+  const assignmentBySignal: Record<string, number> = {};
+  const fallbackAssigned: string[] = [];
+  const slotUnconfirmed: boolean[] = [false, false, false, false];
+  const slotCaution: boolean[] = [false, false, false, false];
+
+  const assignSignal = (signal: string, kind: "unconfirmed" | "caution") => {
+    if (assignmentBySignal[signal] !== undefined) return;
+    let slot = findSignalSlotIndex(caseId, signal, kind);
+    if (slot === null) {
+      slot = KEY_METRIC_SIGNAL_FALLBACK_SLOT_INDEX;
+      fallbackAssigned.push(signal);
+    }
+    assignmentBySignal[signal] = slot;
+    if (kind === "unconfirmed") slotUnconfirmed[slot] = true;
+    else slotCaution[slot] = true;
+  };
+
+  for (const item of unconfirmed) assignSignal(item, "unconfirmed");
+  for (const item of cautions) assignSignal(item, "caution");
+
+  const tiers4: KeyMetricBadgeTier[] = [];
+  for (let slot = 0; slot < 4; slot += 1) {
+    const hasFootnote = manifestSlotHasFootnote(caseId, slot, answers);
+    tiers4.push(
+      resolveKeyMetricBadgeTier({
+        hasFootnote,
+        hasUnconfirmedSignal: slotUnconfirmed[slot],
+        hasCautionSignal: slotCaution[slot],
+      }),
+    );
+  }
+
+  applyRibbonBadgeTierGuarantees(tiers4, ribbon);
+
+  const slotIndices: number[] = [];
+  const tiers: KeyMetricBadgeTier[] = [];
+  for (let slot = 0; slot < 4; slot += 1) {
+    if (!manifestSlotHasFootnote(caseId, slot, answers)) continue;
+    slotIndices.push(slot);
+    tiers.push(tiers4[slot]);
+  }
+
+  return { tiers, slotIndices, fallbackAssigned, assignmentBySignal };
+}
