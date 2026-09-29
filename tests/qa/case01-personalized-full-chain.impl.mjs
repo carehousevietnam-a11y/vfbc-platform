@@ -58,7 +58,14 @@ const checks = NEEDLES.map((needle) => ({
   found: blob.includes(needle),
 }));
 
-const report = { checks, pass: checks.every((c) => c.found), integratedSituation: ctx.integratedSituation, phase2: ctx.phase2Additions[0], principleF: result.case01PrincipleFStateLines };
+const report = {
+  checks,
+  pass: checks.every((c) => c.found),
+  integratedSituation: ctx.integratedSituation,
+  phase2Additions: ctx.phase2Additions,
+  phase2Text: ctx.phase2Additions.join(" "),
+  principleF: result.case01PrincipleFStateLines,
+};
 writeFileSync(join(OUT, "report.json"), JSON.stringify(report, null, 2));
 console.log(JSON.stringify({ pass: report.pass, checks }, null, 2));
 process.exitCode = report.pass ? 0 : 1;
