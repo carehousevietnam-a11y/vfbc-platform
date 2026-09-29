@@ -124,14 +124,21 @@ export function AdminVerifyPhase2EvidencePanel({
         ))}
       </div>
 
-      <VerifyStep4InputStack className="mt-4">
+      <VerifyStep4InputStack className="mt-4 px-1 sm:px-0">
         {!file ? (
-          <label className={VERIFY_STEP4_ATTACHMENT_LABEL_CLASS}>
-            <Paperclip size={16} className="shrink-0" />
-            <span className="truncate">
-              {evidenceTier === "phase2"
-                ? "대표 자료 1개 첨부 (선택 · 사진 · PDF · Word)"
-                : "대표 자료 1개 첨부 (선택 · 사진 · PDF · Word)"}
+          <label
+            className={cn(
+              VERIFY_STEP4_ATTACHMENT_LABEL_CLASS,
+              "h-auto min-h-10 items-start py-2.5",
+            )}
+          >
+            <Paperclip size={16} className="mt-0.5 shrink-0" />
+            <span
+              className={cn(
+                "min-w-0 flex-1 break-keep text-pretty leading-snug [overflow-wrap:anywhere]",
+              )}
+            >
+              대표 자료 1개 첨부 (선택 · 사진 · PDF · Word)
             </span>
             <input
               type="file"
@@ -169,7 +176,7 @@ export function AdminVerifyPhase2EvidencePanel({
       </VerifyStep4InputStack>
 
       <div className="mt-5 flex flex-wrap justify-start gap-2">
-        <PrimaryButton type="button" onClick={onContinue}>
+        <PrimaryButton type="button" className="w-full sm:w-auto" onClick={onContinue}>
           {file
             ? "자료 포함하고 계속하기"
             : evidenceTier === "phase1"

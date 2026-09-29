@@ -4393,7 +4393,8 @@ export function MasterReviewQuotationReport({
   const reportCardFooter = (
     <footer
       className={cn(
-        "border-t bg-white text-center",
+        "border-t bg-white",
+        isAdminVerifyStitchLayout ? "text-left lg:text-center" : "text-center",
         isVerifyMasterStitchLayout
           ? "border-slate-100 bg-slate-50/50 px-4 py-3 lg:bg-white lg:px-6 lg:py-3.5"
           : "mt-auto border-[#E5E7EB] px-3.5 py-2 sm:px-4 sm:py-2",
@@ -4409,16 +4410,17 @@ export function MasterReviewQuotationReport({
             : "text-[11px] sm:text-[10px] sm:leading-relaxed",
         )}
       >
-        VFBCAI · www.vfbcai.com · Check. Verify. Register. Protect.
+        VFBCAI · www.vfbcai.com ·{" "}
+        <span className="whitespace-nowrap">Check. Verify. Register. Protect.</span>
       </p>
       <p
         className={cn(
-          "mt-1 break-keep text-center leading-tight",
+          "mt-1 break-keep leading-tight",
           isAdminVerifyStitchLayout
-            ? "mt-0.5 text-[11px] font-normal text-slate-500 lg:mt-1 lg:text-[11.5px]"
+            ? "mt-0.5 text-left text-[11px] font-normal text-slate-500 lg:mt-1 lg:text-center lg:text-[11.5px]"
             : reportSourceNoteMobile
-              ? "text-[9px] leading-none tracking-tight whitespace-nowrap text-[#64748B] sm:text-[10.5px] sm:leading-relaxed sm:tracking-normal sm:whitespace-normal"
-              : "text-[11px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed",
+              ? "text-center text-[9px] leading-none tracking-tight whitespace-nowrap text-[#64748B] sm:text-[10.5px] sm:leading-relaxed sm:tracking-normal sm:whitespace-normal"
+              : "text-center text-[11px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed",
         )}
       >
         {isAdminVerifyStitchLayout ? (
@@ -4501,7 +4503,9 @@ export function MasterReviewQuotationReport({
               "flex min-w-0 flex-col bg-white",
               isAdminVerifyFirstResult || isRealEstateFirstResult
                 ? "px-5 py-6 sm:px-6 sm:py-7 lg:flex lg:flex-col lg:items-center lg:px-10 lg:py-9"
-                : showRightColumn &&
+                : isAdminAwaitingPhase1Evidence || isRealEstateAwaitingPhase1Evidence
+                  ? "border-slate-100 px-4 py-5 sm:px-5 sm:py-6 lg:border-r lg:px-8 lg:py-8"
+                  : showRightColumn &&
                   (isVerifyMasterScreen01
                     ? "border-slate-100 px-3 py-4 lg:col-span-8 lg:border-r lg:p-8"
                     : isAdminVerifyPersonalizedResult
