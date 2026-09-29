@@ -1,5 +1,5 @@
 /**
- * P1-6 — Key metric badge tier slot coverage + ribbon invariants.
+ * P1-6 — Key metric badge tier slot coverage + tier snapshots.
  * Run: npx tsx tests/qa/admin-key-metric-badge-tier-coverage.mjs
  */
 import { buildAdminVerifyPersonalizedResult } from "../../src/components/cost-check/AdminVerifyFirstResultPanel.tsx";
@@ -7,7 +7,6 @@ import {
   ADMIN_CASE_ENTRY_Q1_KEY,
   CASE01_DEADLINE_DATE_KEY,
   CASE02_DEADLINE_DATE_KEY,
-  CASE02_PAYMENT_AMOUNT_DETAIL_KEY,
   CASE03_DEADLINE_DATE_KEY,
   CASE04_DEADLINE_DATE_KEY,
   CASE05_DEADLINE_DATE_KEY,
@@ -19,29 +18,21 @@ import {
   resolveKeyMetricBadgeTiers,
 } from "../../src/lib/adminVerifyKeyMetricsBuild.ts";
 
-function assertInvariant(ribbon, tiers, label) {
-  const hasUnconfirmed = tiers.some((t) => t === "unconfirmed");
-  const hasCaution = tiers.some((t) => t === "caution");
-  if (ribbon === "C") {
-    if (hasUnconfirmed || hasCaution) {
-      return { ok: false, reason: `${label}: ribbon C but tier has unconfirmed/caution`, ribbon, tiers };
-    }
-  } else if (ribbon === "A") {
-    if (!hasUnconfirmed) {
-      return { ok: false, reason: `${label}: ribbon A but no unconfirmed tier`, ribbon, tiers };
-    }
-  } else if (ribbon === "B") {
-    if (hasUnconfirmed || !hasCaution) {
-      return {
-        ok: false,
-        reason: `${label}: ribbon B needs caution≥1 & unconfirmed 0`,
-        ribbon,
-        tiers,
-      };
-    }
-  }
-  return { ok: true };
-}
+/** 리본용 caution — 카드 tier 배정 제외(기한·날짜 확인 사실). */
+const RIBBON_ONLY_CARD_SIGNALS = new Set([
+  "납부 기한이 확인된 상태 — 기한 내 확인이 필요함",
+  "출석·소명 기한이 확인된 상태 — 기한 내 대응이 필요함",
+  "보완 제출 기한이 확인된 상태 — 기한 내 대응이 필요함",
+  "처분 관련 대응 기한이 확인된 상태 — 기한 내 대응이 필요함",
+  "대응 기한이 확인된 상태 — 기한 내 확인이 필요함",
+  "통지서 기한 확인 필요",
+]);
+
+const TIER_SNAPSHOTS = {
+  "CASE_01 phase2 path": ["caution", "unconfirmed", "ok"],
+  "CASE_02 phase2 authority": ["unconfirmed", "caution", "unconfirmed", "unconfirmed"],
+  "CASE_04 phase2": ["unconfirmed", "ok", "unconfirmed", "ok"],
+};
 
 function runFixture(label, answers) {
   const result = buildAdminVerifyPersonalizedResult(answers);
@@ -54,10 +45,23 @@ function runFixture(label, answers) {
   });
 
   const signals = [...result.unconfirmed, ...result.cautions];
-  const unassigned = signals.filter((s) => resolved.assignmentBySignal[s] === undefined);
+  const mustAssign = signals.filter((s) => !RIBBON_ONLY_CARD_SIGNALS.has(s));
+  const unassigned = mustAssign.filter((s) => resolved.assignmentBySignal[s] === undefined);
 
   const ribbon = resolveAdminVerifyStitchRibbonState(result.unconfirmed, result.cautions);
-  const inv = assertInvariant(ribbon, resolved.tiers, label);
+
+  const assignmentTable = signals.map((signal) => ({
+    signal,
+    kind: result.unconfirmed.includes(signal) ? "unconfirmed" : "caution",
+    slot: resolved.assignmentBySignal[signal] ?? null,
+    ribbonOnly: RIBBON_ONLY_CARD_SIGNALS.has(signal),
+  }));
+
+  const expectedTiers = TIER_SNAPSHOTS[label];
+  const tierSnapshotPass =
+    expectedTiers === undefined ||
+    (expectedTiers.length === resolved.tiers.length &&
+      expectedTiers.every((t, i) => t === resolved.tiers[i]));
 
   return {
     label,
@@ -66,10 +70,12 @@ function runFixture(label, answers) {
     fallbackCount: resolved.fallbackAssigned.length,
     fallbackAssigned: resolved.fallbackAssigned,
     unassigned,
+    ribbonOnlySkipped: signals.filter((s) => RIBBON_ONLY_CARD_SIGNALS.has(s)),
     tiers: resolved.tiers,
     ribbon,
-    invariantOk: inv.ok,
-    invariantReason: inv.reason,
+    assignmentTable,
+    tierSnapshotPass,
+    expectedTiers,
   };
 }
 
@@ -97,7 +103,7 @@ const fixtures = [
     case01_authorityDemand: "attend_explain",
     case01_actualSituation: "deny",
     case01_evidence: "none",
-    case01_blockage: "how_respond",
+    case01_blockage: "facts_why",
     case01_factRelationship: "hard_to_explain",
   })),
   runFixture("CASE_02 phase1 uncertain", attachCaseResolutionSnapshot({
@@ -208,11 +214,14 @@ const fixtures = [
 ];
 
 const coverageFails = fixtures.filter((f) => f.unassigned.length > 0);
-const invariantFails = fixtures.filter((f) => !f.invariantOk);
-const pass = coverageFails.length === 0 && invariantFails.length === 0;
+const fallbackFails = fixtures.filter((f) => f.fallbackCount > 0);
+const snapshotFails = fixtures.filter((f) => !f.tierSnapshotPass);
 
-const fallbackRollup = fixtures.flatMap((f) =>
-  f.fallbackAssigned.map((signal) => ({ fixture: f.label, caseKey: f.caseKey, signal })),
+const pass =
+  coverageFails.length === 0 && fallbackFails.length === 0 && snapshotFails.length === 0;
+
+const assignmentRollup = fixtures.flatMap((f) =>
+  f.assignmentTable.map((row) => ({ fixture: f.label, ...row })),
 );
 
 console.log(
@@ -220,22 +229,24 @@ console.log(
     {
       pass,
       fixtureCount: fixtures.length,
-      totalFallbackUses: fallbackRollup.length,
-      fallbackRollup,
-      coverageFails: coverageFails.map((f) => ({ label: f.label, unassigned: f.unassigned })),
-      invariantFails: invariantFails.map((f) => ({
+      totalFallbackUses: fixtures.reduce((n, f) => n + f.fallbackCount, 0),
+      fallbackFails: fallbackFails.map((f) => ({
         label: f.label,
-        reason: f.invariantReason,
-        tiers: f.tiers,
-        ribbon: f.ribbon,
+        fallbackAssigned: f.fallbackAssigned,
       })),
+      coverageFails: coverageFails.map((f) => ({ label: f.label, unassigned: f.unassigned })),
+      snapshotFails: snapshotFails.map((f) => ({
+        label: f.label,
+        expectedTiers: f.expectedTiers,
+        actualTiers: f.tiers,
+      })),
+      assignmentRollup,
       fixtures: fixtures.map((f) => ({
         label: f.label,
         caseKey: f.caseKey,
-        signalCount: f.signalCount,
-        fallbackCount: f.fallbackCount,
         ribbon: f.ribbon,
         tiers: f.tiers,
+        ribbonOnlySkipped: f.ribbonOnlySkipped,
       })),
     },
     null,

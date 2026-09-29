@@ -361,6 +361,12 @@ export type KeyMetricBadgeTier = "missing" | "unconfirmed" | "caution" | "ok";
 
 export type AdminVerifyStitchRibbonState = "A" | "B" | "C";
 
+export type KeyMetricSignalRegistryEntry = {
+  fields: readonly string[];
+  kind: "unconfirmed" | "caution";
+  prefix?: string;
+};
+
 export type SlotSignalRule = {
   unconfirmed?: readonly string[];
   cautions?: readonly string[];
@@ -586,7 +592,122 @@ export const ADMIN_VERIFY_KEY_METRIC_SLOT_SIGNAL_RULES: Partial<
   ],
 };
 
-const KEY_METRIC_SIGNAL_FALLBACK_SLOT_INDEX = 2;
+type SignalRow = readonly [string, "unconfirmed" | "caution", readonly string[]];
+
+function rowsToRegistry(rows: readonly SignalRow[]): Record<string, KeyMetricSignalRegistryEntry> {
+  const out: Record<string, KeyMetricSignalRegistryEntry> = {};
+  for (const [signal, kind, fields] of rows) {
+    out[signal] = { fields, kind };
+  }
+  return out;
+}
+
+/** Exact signal → source fieldIds (슬롯은 manifest body fieldIds strict 포함으로만 결정). */
+export const ADMIN_VERIFY_KEY_METRIC_SIGNAL_REGISTRY: Partial<
+  Record<MasterCaseId, Readonly<Record<string, KeyMetricSignalRegistryEntry>>>
+> = {
+  CASE_01: rowsToRegistry([
+    ["통지서에 적힌 위반·문제 내용", "unconfirmed", ["case01_violationContent"]],
+    ["어떤 부분이 문제라고 하는지", "unconfirmed", ["case01_violationContent"]],
+    ["통지서 기한", "unconfirmed", ["case01_deadline"]],
+    ["통지서 기한 확인 필요", "caution", ["case01_deadline"]],
+    ["우선 확인할 항목", "unconfirmed", ["case01_confirmGoal"]],
+    ["확인 가능한 자료", "unconfirmed", ["case01_evidence"]],
+    ["실제 상황과 기관 안내의 차이", "unconfirmed", ["case01_factRelationship"]],
+    ["기관이 요구한 추가 대응 내용", "unconfirmed", ["case01_customerResponded"]],
+    ["위반 사실을 인정하지 않음 — 통지 내용과 대조 필요", "caution", ["case01_factRelationship"]],
+    ["알고 있는 상황과 기관 안내 내용이 다르다고 응답함", "caution", ["case01_violationContent"]],
+    ["사실관계 차이 확인이 우선 목표로 선택됨", "caution", ["case01_confirmGoal"]],
+    ["아직 기관에 설명하거나 자료를 제출하지 않은 상태임", "caution", ["case01_customerResponded"]],
+    ["기관에서 추가 대응을 요구한 상태임", "caution", ["case01_customerResponded"]],
+    ["관련 자료가 없다고 응답함 — 확보 가능한 증빙을 먼저 정리하는 것이 좋음", "caution", ["case01_evidence"]],
+    ["출석·소명·추가 설명 요구가 핵심으로 확인됨", "caution", ["case01_violationContent"]],
+    ["실제로 해당 행동·상황이 없었다고 정리됨", "caution", ["case01_factRelationship"]],
+  ] as const),
+  CASE_02: rowsToRegistry([
+    ["납부 안내를 받은 경로", "unconfirmed", ["case02_paymentInfoSource"]],
+    ["납부 요구 사유", "unconfirmed", ["case02_paymentSubject"]],
+    ["납부 기한", "unconfirmed", ["case02_deadline"]],
+    ["우선 확인할 항목", "unconfirmed", ["case02_confirmGoal"]],
+    ["납부 처리 여부 확인이 필요합니다", "unconfirmed", ["case02_paymentStatus"]],
+    ["납부 사유·근거 확인이 필요합니다", "unconfirmed", ["case02_paymentBasis"]],
+    ["납부 요구와 실제 상황의 관계", "unconfirmed", ["case02_situationMatch"]],
+    ["기관 답변", "unconfirmed", ["case02_authorityResponse"]],
+    ["납부 방법", "unconfirmed", ["case02_paymentMethod"]],
+    ["미납 시 기관 안내·결과", "unconfirmed", ["case02_authorityResponse"]],
+    ["납부 사유·근거", "unconfirmed", ["case02_paymentBasis"]],
+    ["기관의 납부 처리 결과", "unconfirmed", ["case02_paymentStatus"]],
+    ["금액 확인이 우선 목표로 선택됨", "caution", ["case02_confirmGoal"]],
+    ["납부했으나 기관 처리 여부가 확인되지 않음", "caution", ["case02_paymentStatus"]],
+    ["납부했으나 처리 여부 미확인 — 기관 반응 확인 필요", "caution", ["case02_paymentStatus"]],
+    ["아직 납부하지 않은 상태임", "caution", ["case02_paymentStatus"]],
+    ["납부 요구와 실제 상황이 다르다고 응답함", "caution", ["case02_situationMatch"]],
+  ] as const),
+  CASE_03: rowsToRegistry([
+    ["기관 요구 내용", "unconfirmed", ["case03_authorityDemand"]],
+    ["기관이 확인하려는 내용", "unconfirmed", ["case03_inquiryFocus"]],
+    ["출석·소명 기한", "unconfirmed", ["case03_deadline"]],
+    ["우선 확인할 항목", "unconfirmed", ["case03_confirmGoal"]],
+    ["사실관계 확인이 필요합니다", "unconfirmed", ["case03_factRelationship"]],
+    ["기관 답변·접수 여부", "unconfirmed", ["case03_authorityFollowUp"]],
+    ["기관 후속 반응", "unconfirmed", ["case03_customerResponse"]],
+    ["기관 답변", "unconfirmed", ["case03_customerResponse"]],
+    ["설명·출석 후 기관 반응이 불명확합니다", "unconfirmed", ["case03_customerResponse"]],
+    ["출석·소명 요구 사유", "unconfirmed", ["case03_authorityDemand"]],
+    ["이미 일부 대응을 한 상태 — 기관 반응 확인이 필요함", "caution", ["case03_customerResponse"]],
+    ["기관이 확인하려는 내용과 실제 상황이 다르다고 응답함", "caution", ["case03_factRelationship"]],
+    ["확인 가능한 자료·증빙", "unconfirmed", ["case03_evidence"]],
+    ["아직 기관에 설명하거나 방문하지 않은 상태임", "caution", ["case03_customerResponse"]],
+    ["기관 반응이 불명확함 — 확인 필요", "caution", ["case03_customerResponse"]],
+  ] as const),
+  CASE_04: rowsToRegistry([
+    ["보완 요구 내용", "unconfirmed", ["case04_supplementTarget"]],
+    ["보완 대상 확인이 필요합니다", "unconfirmed", ["case04_supplementTarget"]],
+    ["보완 사유 확인이 필요합니다", "unconfirmed", ["case04_supplementReason"]],
+    ["보완 제출 기한", "unconfirmed", ["case04_deadline"]],
+    ["보완 제출 기한 확인이 필요합니다", "unconfirmed", ["case04_deadline"]],
+    ["우선 확인할 항목", "unconfirmed", ["case04_confirmGoal"]],
+    [
+      "보완 요구와 기존 제출 내용의 관계 확인이 필요합니다",
+      "unconfirmed",
+      ["case04_submissionRelation"],
+    ],
+    ["기관 답변·접수 여부", "unconfirmed", ["case04_customerResponse"]],
+    ["기관 후속 반응", "unconfirmed", ["case04_customerResponse"]],
+    ["보완 제출 후 기관 반응 미확인 — 확인 필요", "caution", ["case04_customerResponse"]],
+    ["보완 제출 후 기관 반응 확인이 필요합니다", "unconfirmed", ["case04_customerResponse"]],
+    ["보완이 필요한 이유", "unconfirmed", ["case04_supplementReason"]],
+    ["처음 제출 내용과 보완 요구의 관계", "unconfirmed", ["case04_submissionRelation"]],
+    ["추가로 제출할 서류 종류", "unconfirmed", ["case04_addDocDetail"]],
+    ["보완 처리 여부 확인이 필요합니다", "unconfirmed", ["case04_customerResponse"]],
+    ["아직 보완 자료를 준비하거나 제출하지 않은 상태임", "caution", ["case04_customerResponse"]],
+    ["보완 자료를 제출한 상태 — 기관 반응 확인이 필요함", "caution", ["case04_customerResponse"]],
+  ] as const),
+  CASE_05: rowsToRegistry([
+    ["처분 사유", "unconfirmed", ["case05_dispositionType"]],
+    ["처분·조치 내용 확인이 필요합니다", "unconfirmed", ["case05_dispositionType"]],
+    ["처분 관련 기한 확인이 필요합니다", "unconfirmed", ["case05_deadline"]],
+    ["우선 확인할 항목", "unconfirmed", ["case05_confirmGoal"]],
+    ["처분 내용과 실제 상황의 관계", "unconfirmed", ["case05_factRelationship"]],
+    ["처분이 주는 실제 영향", "unconfirmed", ["case05_dispositionType"]],
+    ["다음 조치 계획", "unconfirmed", ["case05_confirmGoal"]],
+    ["처분·조치 내용", "unconfirmed", ["case05_dispositionType"]],
+    ["아직 기관에 설명·자료 제출·재검토 요청을 하지 않은 상태임", "caution", ["case05_customerResponse"]],
+    ["처분 관련 대응 기한", "unconfirmed", ["case05_deadline"]],
+    ["처분 관련 대응 기한(날짜)", "unconfirmed", ["case05_deadline", CASE05_DEADLINE_DATE_KEY]],
+    ["처분 후 기관 반응 미확인 — 확인 필요", "caution", ["case05_customerResponse"]],
+    ["처분 후 기관 반응 확인이 필요합니다", "unconfirmed", ["case05_customerResponse"]],
+    ["처분 후 기관 반응이 불명확합니다", "unconfirmed", ["case05_customerResponse"]],
+    ["통지 내용과 실제 상황이 다르게 느껴지는 상태로 응답함", "caution", ["case05_dispositionType"]],
+    ["이의·재검토를 요청한 상태 — 진행 결과 확인이 필요함", "caution", ["case05_customerResponse"]],
+  ] as const),
+};
+
+const PREFIX_SIGNAL_BINDINGS: Partial<
+  Record<MasterCaseId, readonly KeyMetricSignalRegistryEntry[]>
+> = {
+  CASE_01: [{ prefix: "추가 요구 내용:", kind: "unconfirmed", fields: ["case01_customerResponded"] }],
+};
 
 export function resolveAdminVerifyStitchRibbonState(
   unconfirmed: readonly string[],
@@ -598,7 +719,33 @@ export function resolveAdminVerifyStitchRibbonState(
 }
 
 function signalMatchesRuleLabel(signal: string, ruleLabel: string): boolean {
-  return signal === ruleLabel || signal.startsWith(ruleLabel);
+  return signal === ruleLabel;
+}
+
+function slotIndexForSourceFields(
+  caseId: MasterCaseId,
+  fields: readonly string[],
+): number | null {
+  for (let slot = 0; slot < 4; slot += 1) {
+    const body = ADMIN_VERIFY_KEY_METRIC_BODY_FIELD_IDS[caseId]?.[slot] ?? [];
+    if (fields.every((fieldId) => body.includes(fieldId))) return slot;
+  }
+  return null;
+}
+
+function lookupSignalRegistryEntry(
+  caseId: MasterCaseId,
+  signal: string,
+  kind: "unconfirmed" | "caution",
+): KeyMetricSignalRegistryEntry | null {
+  const exact = ADMIN_VERIFY_KEY_METRIC_SIGNAL_REGISTRY[caseId]?.[signal];
+  if (exact && exact.kind === kind) return exact;
+  const prefixes = PREFIX_SIGNAL_BINDINGS[caseId] ?? [];
+  for (const entry of prefixes) {
+    if (entry.kind !== kind || !entry.prefix) continue;
+    if (signal.startsWith(entry.prefix)) return entry;
+  }
+  return null;
 }
 
 function findSignalSlotIndex(
@@ -606,6 +753,10 @@ function findSignalSlotIndex(
   signal: string,
   kind: "unconfirmed" | "caution",
 ): number | null {
+  const fromRegistry = lookupSignalRegistryEntry(caseId, signal, kind);
+  if (fromRegistry) {
+    return slotIndexForSourceFields(caseId, fromRegistry.fields);
+  }
   const rules = ADMIN_VERIFY_KEY_METRIC_SLOT_SIGNAL_RULES[caseId];
   if (!rules) return null;
   for (let slot = 0; slot < 4; slot += 1) {
@@ -613,7 +764,10 @@ function findSignalSlotIndex(
     const labels = kind === "unconfirmed" ? rule.unconfirmed : rule.cautions;
     if (!labels) continue;
     for (const label of labels) {
-      if (signalMatchesRuleLabel(signal, label)) return slot;
+      if (signalMatchesRuleLabel(signal, label)) {
+        const body = ADMIN_VERIFY_KEY_METRIC_BODY_FIELD_IDS[caseId]?.[slot] ?? [];
+        if (body.length > 0) return slot;
+      }
     }
   }
   return null;
@@ -640,40 +794,12 @@ function manifestSlotHasFootnote(
   return collectSlotFootnote(caseId, fieldIds, answers).trim().length > 0;
 }
 
-function applyRibbonBadgeTierGuarantees(
-  tiers: KeyMetricBadgeTier[],
-  ribbon: AdminVerifyStitchRibbonState,
-): void {
-  const nonMissing = tiers
-    .map((tier, index) => ({ tier, index }))
-    .filter((entry) => entry.tier !== "missing");
-  if (ribbon === "C") {
-    for (let i = 0; i < tiers.length; i += 1) {
-      if (tiers[i] !== "missing") tiers[i] = "ok";
-    }
-    return;
-  }
-  if (ribbon === "A") {
-    if (!tiers.some((t) => t === "unconfirmed")) {
-      const pick = nonMissing.find((e) => e.tier === "caution" || e.tier === "ok") ?? nonMissing[0];
-      if (pick) tiers[pick.index] = "unconfirmed";
-    }
-    return;
-  }
-  for (let i = 0; i < tiers.length; i += 1) {
-    if (tiers[i] === "unconfirmed") tiers[i] = "caution";
-  }
-  if (!tiers.some((t) => t === "caution")) {
-    const pick = nonMissing.find((e) => e.tier === "ok") ?? nonMissing[0];
-    if (pick) tiers[pick.index] = "caution";
-  }
-}
-
 export type ResolveKeyMetricBadgeTiersResult = {
   tiers: KeyMetricBadgeTier[];
   /** manifest 슬롯 index — keyMetrics와 동일 순서 */
   slotIndices: number[];
   fallbackAssigned: string[];
+  unassignedSignals: string[];
   assignmentBySignal: Record<string, number>;
 };
 
@@ -684,18 +810,18 @@ export function resolveKeyMetricBadgeTiers(input: {
   cautions: readonly string[];
 }): ResolveKeyMetricBadgeTiersResult {
   const { caseId, answers, unconfirmed, cautions } = input;
-  const ribbon = resolveAdminVerifyStitchRibbonState(unconfirmed, cautions);
   const assignmentBySignal: Record<string, number> = {};
   const fallbackAssigned: string[] = [];
+  const unassignedSignals: string[] = [];
   const slotUnconfirmed: boolean[] = [false, false, false, false];
   const slotCaution: boolean[] = [false, false, false, false];
 
   const assignSignal = (signal: string, kind: "unconfirmed" | "caution") => {
     if (assignmentBySignal[signal] !== undefined) return;
-    let slot = findSignalSlotIndex(caseId, signal, kind);
+    const slot = findSignalSlotIndex(caseId, signal, kind);
     if (slot === null) {
-      slot = KEY_METRIC_SIGNAL_FALLBACK_SLOT_INDEX;
-      fallbackAssigned.push(signal);
+      unassignedSignals.push(signal);
+      return;
     }
     assignmentBySignal[signal] = slot;
     if (kind === "unconfirmed") slotUnconfirmed[slot] = true;
@@ -717,8 +843,6 @@ export function resolveKeyMetricBadgeTiers(input: {
     );
   }
 
-  applyRibbonBadgeTierGuarantees(tiers4, ribbon);
-
   const slotIndices: number[] = [];
   const tiers: KeyMetricBadgeTier[] = [];
   for (let slot = 0; slot < 4; slot += 1) {
@@ -727,5 +851,5 @@ export function resolveKeyMetricBadgeTiers(input: {
     tiers.push(tiers4[slot]);
   }
 
-  return { tiers, slotIndices, fallbackAssigned, assignmentBySignal };
+  return { tiers, slotIndices, fallbackAssigned, unassignedSignals, assignmentBySignal };
 }
