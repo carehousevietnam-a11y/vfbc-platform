@@ -884,7 +884,7 @@ function DocumentUploadContent() {
     mode === "phase2_upload"
       ? readyCount > 0
         ? "제출하고 2차 결과 보기"
-        : "건너뛰고 2차 결과 보기"
+        : "2차 종합 결과보기"
       : copy.submitLabel;
 
   // 마지막 순번에 추가되는 선택 자료 카드 — docs 배열/진행률(우선 제출) 계산에는 포함하지 않는다.
