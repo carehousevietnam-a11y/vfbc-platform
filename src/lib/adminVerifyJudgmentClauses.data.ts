@@ -168,6 +168,8 @@ export const LAYER_J_CLAUSE_MAP: Record<string, string> = {
   "02|§03·1차|case02_confirmGoal|verify_amount": "1차 확인에서는 통지 금액·산정 근거를 우선 대조할 필요가 있습니다.",
   "02|§03·1차|case02_confirmGoal|how_when_where": "1차 확인에서는 납부 시기·장소·방법을 우선 확인할 필요가 있습니다.",
   "02|§03·1차|case02_confirmGoal|payment_processed": "1차 확인에서는 기납부 처리 여부와 재요구 사유를 우선 확인할 필요가 있습니다.",
+  "02|§03·1차|case02_confirmGoal|payment_processed_after_full":
+    "1차 확인에서는 납부와 처리 완료를 확인한 뒤에도 다시 요구받은 사유와 기준을 우선 확인할 필요가 있습니다.",
   "02|§03·1차|case02_confirmGoal|unsure": "1차 확인에서는 무엇부터 확인할지 방향이 아직 정리되지 않은 상태입니다.",
   "02|§03·1차|case02_confirmGoal|other": "확인 목표: {case02_confirmGoalNote 또는 DI 원문}",
   "02|§03·1차|case02_demandAuthority|traffic": "1차 확인에서는 교통·교통국 계열 기관의 납부 요구로 파악됩니다.",

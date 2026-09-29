@@ -64,6 +64,7 @@ import {
   type MasterCaseId,
 } from "@/lib/adminVerifyProfiling";
 import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
+import { LAYER_J_CLAUSE_MAP } from "@/lib/adminVerifyJudgmentClauses.data";
 import {
   buildPhase1RiskSummaryFromManifest,
   buildPhase2RiskSummaryFromManifest,
@@ -214,6 +215,28 @@ const CASE01_CONFIRM_GOAL_ACTIONS: Record<string, string> = {
   verify_payment: "납부 요구 내용과 금액·기한을 확인해 보세요.",
   unsure: "통지서 전체 내용을 한 번 더 훑어보세요.",
 };
+
+const CASE02_CONFIRM_GOAL_PAYMENT_PROCESSED_CLAUSE_KEY =
+  "02|§03·1차|case02_confirmGoal|payment_processed";
+const CASE02_CONFIRM_GOAL_PAYMENT_PROCESSED_FULL_CLAUSE_KEY =
+  "02|§03·1차|case02_confirmGoal|payment_processed_after_full";
+
+function applyCase02PaymentProcessedFullPhase1JudgmentClause(
+  answers: ReviewAnswers,
+  summary: string | null,
+): string | null {
+  if (!summary) return summary;
+  if (
+    answers.case02_confirmGoal !== "payment_processed" ||
+    answers.case02_paymentStatus !== "full"
+  ) {
+    return summary;
+  }
+  const from = LAYER_J_CLAUSE_MAP[CASE02_CONFIRM_GOAL_PAYMENT_PROCESSED_CLAUSE_KEY];
+  const to = LAYER_J_CLAUSE_MAP[CASE02_CONFIRM_GOAL_PAYMENT_PROCESSED_FULL_CLAUSE_KEY];
+  if (!from || !to || !summary.includes(from)) return summary;
+  return summary.replace(from, to);
+}
 
 const CASE02_CONFIRM_GOAL_ACTIONS: Record<string, string> = {
   verify_obligation: "납부 의무가 본인 상황에 해당하는지 통지 내용부터 확인해 보세요.",
@@ -1170,7 +1193,13 @@ function appendCase02Phase1ResultSignals(
     cautions.push("금액 확인이 우선 목표로 선택됨");
     actions.push("통지서에 적힌 금액을 다시 확인해 보세요.");
   } else if (goal === "payment_processed") {
-    cautions.push("이미 납부했으나 처리 여부 확인이 필요한 상태임");
+    if (status === "full") {
+      cautions.push(
+        "납부와 처리 완료를 확인하셨으나 다시 납부 요구를 받으셨습니다. 재요구 사유와 기준을 확인할 필요가 있습니다.",
+      );
+    } else {
+      cautions.push("이미 납부했으나 처리 여부 확인이 필요한 상태임");
+    }
     actions.push("납부 증빙과 기관 반응을 함께 확인해 보세요.");
   } else if (goal === "how_when_where") {
     actions.push("통지서에 적힌 납부 기한과 방법을 확인해 보세요.");
@@ -2852,7 +2881,10 @@ export function buildAdminVerifyFirstResult(answers: ReviewAnswers): AdminVerify
     (q1Case === "CASE_01"
       ? isCase01Phase1Complete(answers)
       : isClassifiedCasePhase1CompleteForResult(q1Case, answers))
-      ? buildPhase1RiskSummaryFromManifest(answers, profile)
+      ? applyCase02PaymentProcessedFullPhase1JudgmentClause(
+          answers,
+          buildPhase1RiskSummaryFromManifest(answers, profile),
+        )
       : null;
   const situationSummary =
     classifiedPhase1ManifestSummary ??
@@ -3077,7 +3109,10 @@ function buildCase02IntegratedSituation(answers: ReviewAnswers): string {
   } else if (goal === "verify_amount") {
     opening = "현재는 안내 금액이 맞는지 먼저 확인할 필요가 있는 상태입니다.";
   } else if (goal === "payment_processed") {
-    opening = "현재는 이미 납부했으나 기관 처리 여부를 확인할 필요가 있는 상태입니다.";
+    opening =
+      status === "full"
+        ? "현재는 납부와 처리 완료를 확인하셨으나 다시 납부 요구를 받아, 재요구 사유와 기준을 확인할 필요가 있는 상태입니다."
+        : "현재는 이미 납부했으나 기관 처리 여부를 확인할 필요가 있는 상태입니다.";
   }
 
   const integratedMiddle = resolveIntegratedSituationFragment(answers, "02", "case02_paymentStatus");
@@ -3354,7 +3389,10 @@ function buildIntegratedSituationFromProfile(
 }
 
 function buildPhase1RiskSummary(answers: ReviewAnswers, profile: CaseResolutionProfile): string {
-  return buildPhase1RiskSummaryFromManifest(answers, profile);
+  return applyCase02PaymentProcessedFullPhase1JudgmentClause(
+    answers,
+    buildPhase1RiskSummaryFromManifest(answers, profile),
+  )!;
 }
 
 function buildPhase2RiskSummary(answers: ReviewAnswers, profile: CaseResolutionProfile): string {

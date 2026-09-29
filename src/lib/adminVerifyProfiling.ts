@@ -1979,6 +1979,10 @@ const PAYMENT_SIGNAL_LABELS: Record<PaymentSignalCode, string> = {
   PAYMENT_UNVERIFIED: "납부 처리 여부 확인이 필요합니다",
 };
 
+/** full + payment_processed — collectCase02Unknowns 전용 (PAYMENT_BASIS_UNCLEAR 라벨 대체) */
+const CASE02_PAYMENT_PROCESSED_FULL_REDEMAND_UNKNOWN =
+  "다시 납부 요구를 받은 사유와 기준 확인이 필요합니다";
+
 const CASE02_CONFIRM_GOAL_OPTIONS = [
   { value: "verify_obligation", label: "이 납부 요구가 제 상황에 해당하는지, 해당한다면 꼭 내야 하는 돈인지 확인하고 싶습니다." },
   { value: "verify_amount", label: "금액이 어떻게 계산되었는지, 그 금액이 맞는지 확인하고 싶습니다." },
@@ -3383,9 +3387,16 @@ function derivePaymentSignals(answers: ReviewAnswers): PaymentSignalCode[] {
     answers.case02_authorityResponse === "no_reply_yet" ||
     answers.case02_authorityResponse === "procedure_unknown" ||
     answers.case02_authorityResponse === "unclear" ||
-    answers.case02_confirmGoal === "payment_processed"
+    (answers.case02_confirmGoal === "payment_processed" &&
+      answers.case02_paymentStatus !== "full")
   ) {
     signals.push("PAYMENT_UNVERIFIED");
+  }
+  if (
+    answers.case02_confirmGoal === "payment_processed" &&
+    answers.case02_paymentStatus === "full"
+  ) {
+    signals.push("PAYMENT_BASIS_UNCLEAR");
   }
 
   return [...new Set(signals)];
@@ -3397,7 +3408,14 @@ function collectCase02Unknowns(answers: ReviewAnswers): string[] {
 
   for (const code of derivePaymentSignals(answers)) {
     if (code === "PAYMENT_MATCH") continue;
-    const label = PAYMENT_SIGNAL_LABELS[code];
+    let label = PAYMENT_SIGNAL_LABELS[code];
+    if (
+      code === "PAYMENT_BASIS_UNCLEAR" &&
+      answers.case02_confirmGoal === "payment_processed" &&
+      answers.case02_paymentStatus === "full"
+    ) {
+      label = CASE02_PAYMENT_PROCESSED_FULL_REDEMAND_UNKNOWN;
+    }
     if (!unknowns.includes(label)) unknowns.push(label);
   }
   const paymentAmount = case02EffectivePaymentAmount(answers.case02_paymentAmount);
