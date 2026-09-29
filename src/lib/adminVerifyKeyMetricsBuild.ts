@@ -19,7 +19,7 @@ import {
   CASE04_DEADLINE_DATE_KEY,
   CASE05_DEADLINE_DATE_KEY,
   getAdminChoiceNoteKey,
-  getCase02FieldLabelFromAnswers,
+  getCase02FieldOptionLabel,
   getCase03FieldLabelFromAnswers,
   getCase04FieldLabelFromAnswers,
   getCase05FieldLabelFromAnswers,
@@ -168,6 +168,13 @@ function case01OptionLabel(fieldId: string, slug: string): string | null {
   return /^[a-z0-9_]+$/.test(slug) ? null : slug;
 }
 
+/** 질문별 선택지 라벨 → 공용 라벨 순으로 찾고, 끝내 못 찾은 내부 코드값은 화면에 내보내지 않는다. */
+function case02OptionLabel(fieldId: string, slug: string): string | null {
+  const label = getCase02FieldOptionLabel(fieldId, slug);
+  if (label !== slug) return label;
+  return /^[a-z0-9_]+$/.test(slug) ? null : slug;
+}
+
 function case02FieldLabel(fieldId: string, answers: ReviewAnswers): string | null {
   if (fieldId === CASE02_DEADLINE_DATE_KEY) {
     const raw = answers[fieldId]?.trim();
@@ -177,8 +184,14 @@ function case02FieldLabel(fieldId: string, answers: ReviewAnswers): string | nul
     const raw = answers[fieldId]?.trim();
     return raw ? `금액 ${raw}` : null;
   }
-  const fromAnswers = getCase02FieldLabelFromAnswers(fieldId, answers);
-  return fromAnswers?.label ?? null;
+  const raw = answers[fieldId as keyof ReviewAnswers]?.trim();
+  if (!raw) return null;
+  if (raw === "other") {
+    const note = answers[getAdminChoiceNoteKey(fieldId)]?.trim();
+    const fallback = getCase02FieldOptionLabel(fieldId, "other");
+    return note || fallback || null;
+  }
+  return case02OptionLabel(fieldId, raw);
 }
 
 function case03FieldLabel(fieldId: string, answers: ReviewAnswers): string | null {

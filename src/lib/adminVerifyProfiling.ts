@@ -2048,6 +2048,14 @@ const CASE02_AUTHORITY_RESPONSE_LEGACY_LABELS: Record<string, string> = {
   unclear: "기관 답변 내용을 정확히 이해하지 못했습니다.",
 };
 
+function case02AuthorityResponseOptionLabel(value: string): string {
+  return (
+    CASE01_OPTION_LABELS[value] ??
+    CASE02_AUTHORITY_RESPONSE_LEGACY_LABELS[value] ??
+    value
+  );
+}
+
 function getCase02AuthorityResponseLabelFromAnswers(
   answers: ReviewAnswers,
 ): { label: string; factStatus: FactStatus } | null {
@@ -2063,11 +2071,7 @@ function getCase02AuthorityResponseLabelFromAnswers(
       factStatus: note ? "confirmed" : "candidate",
     };
   }
-  const label =
-    CASE01_OPTION_LABELS[value] ??
-    CASE02_AUTHORITY_RESPONSE_LEGACY_LABELS[value] ??
-    value;
-  return { label, factStatus: "confirmed" };
+  return { label: case02AuthorityResponseOptionLabel(value), factStatus: "confirmed" };
 }
 
 const CASE02_PAYMENT_AMOUNT_OPTIONS = [
@@ -2552,6 +2556,9 @@ export function getCase02FieldOptionLabel(fieldId: string, value: string): strin
     if (normalized && normalized !== value) {
       return getCase02FieldOptionLabel(fieldId, normalized);
     }
+  }
+  if (fieldId === "case02_authorityResponse") {
+    return case02AuthorityResponseOptionLabel(value);
   }
   const options = CASE02_FIELD_OPTION_MAP[fieldId];
   const matched = options?.find((option) => option.value === value);
