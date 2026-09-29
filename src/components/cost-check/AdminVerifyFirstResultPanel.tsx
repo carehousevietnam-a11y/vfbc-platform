@@ -128,6 +128,8 @@ export type AdminVerifyFirstResultData = {
   caseClassificationLabel: string;
   personalizedContext?: AdminVerifyPersonalizedContext;
   case06ExpertHandoffRequired?: boolean;
+  /** 2차 결과 UI — CASE_06 출시 간소화(legacy restore 제외) */
+  case06LaunchSimplifiedSession?: boolean;
   /** R03=C — CASE_06 bridge hints above situation summary (same text as question L5). */
   /** Layer A — §01 「응답 요약」 (DI·note·첨부만) */
   adminResponseSummaryLines?: string[];
@@ -3407,11 +3409,21 @@ export function buildAdminVerifyPersonalizedContext(
   const integratedSituation = buildIntegratedSituationFromProfile(answers, profile);
   const phase1Summary = buildPhase1RiskSummary(answers, profile);
   const phase2Summary = buildPhase2RiskSummary(answers, profile);
+  const q1Case = getQ1ResolvedCase(answers);
+  const case06SimplifiedNoPhase2Additions =
+    q1Case === "CASE_06" &&
+    isCase06LaunchSimplifiedSession(answers) &&
+    !isCase06LegacyRestorePath(answers);
+  const phase2Additions = case06SimplifiedNoPhase2Additions
+    ? []
+    : phase2Summary.trim()
+      ? [phase2Summary]
+      : [];
 
   return {
     integratedSituation,
     phase1Facts: [phase1Summary],
-    phase2Additions: [phase2Summary],
+    phase2Additions,
     evidenceNote: evidenceFileName ? `첨부 자료: ${evidenceFileName}` : undefined,
     documentsNeededNote: DOCUMENTS_NEEDED_NOTE,
   };
@@ -3494,6 +3506,8 @@ export function buildAdminVerifyPersonalizedResult(
       documentsNeededNote: DOCUMENTS_NEEDED_NOTE,
     },
     case06ExpertHandoffRequired: q1Case === "CASE_06" && isCase06ExpertTerminal(answers),
+    case06LaunchSimplifiedSession:
+      q1Case === "CASE_06" && isCase06LaunchSimplifiedSession(answers),
   };
 }
 
@@ -4513,6 +4527,13 @@ export function AdminVerifyFirstResultPanel({
       personalized.phase2Additions.length > 0
         ? personalized.phase2Additions.join(" ")
         : "2차 답변에서 추가로 확인된 위험 요인은 현재 보이지 않습니다.";
+    const hideCase06EmptyPhase2RiskRow =
+      !isRealEstate &&
+      Boolean(data.case06LaunchSimplifiedSession) &&
+      personalized.phase2Additions.filter((line) => line.trim()).length === 0;
+    const adminPersonalizedIntroSubtitle = hideCase06EmptyPhase2RiskRow
+      ? "1차 검토와 입력하신 내용·첨부 자료를 반영한 종합 소견입니다."
+      : "1차 검토와 2차 추가 확인 답변·첨부 자료를 반영한 종합 소견입니다.";
     const unconfirmedColumnLabels = isRealEstate
       ? ["원본 서류 대조", "추가 확인 사항", "기한·조건 확인"]
       : ["필요한 서류 원본 대조", "세부 기재사항 및 스펠링", "제출 기한 및 관할 예약"];
@@ -4565,7 +4586,7 @@ export function AdminVerifyFirstResultPanel({
             <p className="mt-1 text-xs font-normal text-slate-500 sm:text-sm">
               {isRealEstate
                 ? "1차 FREE 검토와 2차 추가 확인 답변을 반영한 종합 소견입니다."
-                : "1차 검토와 2차 추가 확인 답변·첨부 자료를 반영한 종합 소견입니다."}
+                : adminPersonalizedIntroSubtitle}
             </p>
           </div>
 
@@ -4664,6 +4685,7 @@ export function AdminVerifyFirstResultPanel({
                     {phase1RiskText}
                   </span>
                 </div>
+                {hideCase06EmptyPhase2RiskRow ? null : (
                 <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
                   <span className="mt-0.5 min-w-[70px] text-xs font-bold text-amber-700">2차 추가:</span>
                   <span
@@ -4675,6 +4697,7 @@ export function AdminVerifyFirstResultPanel({
                     {phase2RiskText}
                   </span>
                 </div>
+                )}
               </div>
             </div>
 
