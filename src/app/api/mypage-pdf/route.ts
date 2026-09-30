@@ -152,6 +152,8 @@ const REAL_ESTATE_SITUATION_META_JSON_KEY = "real_estate_situation_profile_json"
 const REAL_ESTATE_PHASE2_ANSWERS_META_JSON_KEY = "real_estate_phase2_answers_json";
 const CASE_RESOLUTION_META_JSON_KEY = "case_resolution_json";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
+const ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY =
+  "admin_phase2_documents_upload_complete";
 
 type PdfActivityRow = { action: string | null; meta: unknown; created_at: string };
 
@@ -275,11 +277,15 @@ function buildVerifyMasterReportContent(
         if (val) keyFindings.push(`✓ ${label} · ${val}`);
       }
       const answersRaw = findLatestMetaString(activities, ADMIN_VERIFY_ANSWERS_META_JSON_KEY);
-      if (answersRaw && answersRaw !== "{}") {
+      if (
+        findLatestMetaString(activities, ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY) === "1"
+      ) {
         // 내부 필드명·코드값(예: adminCaseDocumentKind · violation_notice)을 그대로 쓰지 않고
         // 화면 §01 「응답 요약」과 같은 고객용 문장만 사용한다.
         try {
-          const answers = JSON.parse(answersRaw) as ReviewAnswers;
+          const answers = (answersRaw && answersRaw !== "{}"
+            ? (JSON.parse(answersRaw) as ReviewAnswers)
+            : {}) as ReviewAnswers;
           const summaryLines = buildAdminVerifyResponseSummaryBlock(answers)
             .map((line) => line.trim())
             .filter(Boolean)
