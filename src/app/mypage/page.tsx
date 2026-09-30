@@ -54,6 +54,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
@@ -127,6 +128,9 @@ type MyPageItem = {
   verifyProfilePhase?: 1 | 2;
   caseSummaryHeadline?: string | null;
   caseSummaryBullets?: string[];
+  phase2Complete?: boolean;
+  phase2SummaryLines?: string[];
+  phase2UploadedDocuments?: { fileName: string; fileUrl: string }[];
 };
 
 type LoadState = "checking" | "signed-out" | "loading" | "ready" | "error";
@@ -508,21 +512,44 @@ function GeneralCustomerResultView({
       {keyPoints[0] ? (
         <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
       ) : null}
+      {item.serviceType === "verify_admin" &&
+      item.phase2Complete &&
+      item.phase2SummaryLines &&
+      item.phase2SummaryLines.length > 0
+        ? item.phase2SummaryLines.map((line) => (
+            <p key={line} className="mt-2 break-keep text-[13px] leading-6 text-slate-600">
+              {line}
+            </p>
+          ))
+        : null}
 
       <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
         <div className="min-w-0 sm:flex-1">
           <p className="text-[11px] font-semibold text-slate-500">다음에 할 일</p>
           <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
         </div>
-        <div className="mt-3 shrink-0 sm:mt-0">
+        <div className="mt-3 flex shrink-0 flex-col gap-2 sm:mt-0">
           <PdfDownloadButton
             leadId={item.id}
             serviceLabel={item.serviceLabel}
             applicantName={applicantName}
             variant="refined"
+            serviceType={item.serviceType}
+            hasAiReportRequest={item.hasAiReportRequest}
           />
+          {item.serviceType === "verify_admin" ? (
+            <AdminVerifyExpertRequestButton
+              leadId={item.id}
+              alreadyRequested={item.hasExpertReview}
+            />
+          ) : null}
         </div>
       </div>
+      {item.serviceType === "verify_admin" && item.phase2Complete ? (
+        <div className="mt-4">
+          <PermitDocuments item={item} />
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -881,14 +908,19 @@ function PdfDownloadButton({
   serviceLabel,
   applicantName,
   variant = "default",
+  serviceType,
+  hasAiReportRequest,
 }: {
   leadId: string;
   serviceLabel?: string;
   applicantName?: string | null;
   variant?: "default" | "refined";
+  serviceType?: string | null;
+  hasAiReportRequest?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiRequestDone, setAiRequestDone] = useState(Boolean(hasAiReportRequest));
 
   async function handleDownload() {
     setLoading(true);
@@ -900,6 +932,14 @@ function PdfDownloadButton({
       if (!accessToken) {
         setError("로그인이 필요합니다.");
         return;
+      }
+
+      if (serviceType === "verify_admin" && !aiRequestDone) {
+        await recordAiReportRequestAndNotify({
+          leadId,
+          tag: "VERIFY_ADMIN",
+        });
+        setAiRequestDone(true);
       }
 
       const response = await fetch("/api/mypage-pdf", {
@@ -969,6 +1009,69 @@ function PdfDownloadButton({
         {loading ? "PDF 생성 중..." : "AI 리포트(PDF) 다운로드"}
       </button>
       {error && <p className="mt-2 text-[11px] text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+function AdminVerifyExpertRequestButton({
+  leadId,
+  alreadyRequested,
+}: {
+  leadId: string;
+  alreadyRequested: boolean;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [requested, setRequested] = useState(alreadyRequested);
+
+  async function handleRequest() {
+    if (requested || loading) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (!accessToken) {
+        setError("로그인이 필요합니다.");
+        return;
+      }
+      const response = await fetch("/api/mypage-expert-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken, leadId }),
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        setError(result?.error ?? "접수 중 문제가 발생했습니다.");
+        return;
+      }
+      setRequested(true);
+    } catch {
+      setError("서버와 통신 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (requested) {
+    return (
+      <p className="text-[12px] font-medium text-slate-600">
+        담당 전문가가 제출하신 자료를 검토하고 있습니다.
+      </p>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => void handleRequest()}
+        disabled={loading}
+        className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-[13px] font-semibold text-slate-800 transition hover:bg-slate-50 disabled:opacity-60"
+      >
+        {loading ? "요청 중..." : "전문가 진행하기"}
+      </button>
+      {error ? <p className="mt-1 text-[12px] text-red-600">{error}</p> : null}
     </div>
   );
 }
@@ -3771,7 +3874,15 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
 }
 
 function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
-  if (!item.governmentSubmittedAt && !item.permitCompletedAt && !item.fileUrl) return null;
+  const phase2Docs = item.serviceType === "verify_admin" ? item.phase2UploadedDocuments : undefined;
+  if (
+    !item.governmentSubmittedAt &&
+    !item.permitCompletedAt &&
+    !item.fileUrl &&
+    !phase2Docs?.length
+  ) {
+    return null;
+  }
 
   return (
     <section
@@ -3831,6 +3942,21 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
             <Download size={15} className="text-slate-400" />
           </a>
         )}
+        {phase2Docs?.map((doc) => (
+          <a
+            key={doc.fileUrl}
+            href={doc.fileUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:bg-slate-50"
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <FileText size={17} className="text-blue-900" />
+              <span className="truncate text-[11px] font-bold text-slate-800">{doc.fileName}</span>
+            </span>
+            <Download size={15} className="text-slate-400" />
+          </a>
+        ))}
       </div>
     </section>
   );
