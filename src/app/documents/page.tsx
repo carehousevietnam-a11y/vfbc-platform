@@ -45,6 +45,7 @@ import {
 } from "@/lib/verifyAdminDocumentCatalog";
 import { supabase } from "@/lib/supabase";
 import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
+import { navigateToMypageWithResultToken } from "@/lib/restoreCheckLead";
 import {
   ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
   ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
@@ -303,7 +304,7 @@ const MODE_COPY: Record<
     heading: "2차 검토에 필요한 자료를 제출해주세요",
     description:
       "현재 가지고 있는 행정·관련 자료를 제출해 주세요. 자료가 없어도 2차 종합 결과로 진행할 수 있습니다.",
-    submitLabel: "제출하고 2차 결과 보기",
+    submitLabel: "종합 결과 보기",
     submitCaption: "제출한 자료는 2차 종합 결과 검토에 활용됩니다.",
     successTitle: "2차 자료 제출이 완료되었습니다",
     successBody: "2차 종합 결과 화면으로 이동합니다.",
@@ -880,12 +881,7 @@ function DocumentUploadContent() {
   const readyCount = requiredDocs.filter(isDocReady).length;
   const totalCount = requiredDocs.length;
   const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
-  const primarySubmitLabel =
-    mode === "phase2_upload"
-      ? readyCount > 0
-        ? "제출하고 2차 결과 보기"
-        : "2차 종합 결과보기"
-      : copy.submitLabel;
+  const primarySubmitLabel = mode === "phase2_upload" ? "종합 결과 보기" : copy.submitLabel;
 
   // 마지막 순번에 추가되는 선택 자료 카드 — docs 배열/진행률(우선 제출) 계산에는 포함하지 않는다.
 
@@ -1354,11 +1350,23 @@ function DocumentUploadContent() {
           ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
           JSON.stringify(parsed),
         );
+        const token =
+          typeof parsed.resultToken === "string" && parsed.resultToken.trim()
+            ? parsed.resultToken.trim()
+            : null;
+        const navigated = await navigateToMypageWithResultToken(token);
+        if (!navigated) {
+          window.location.href = "/mypage";
+        }
+        return true;
       }
     } catch {
       /* ignore */
     }
-    window.location.href = "/verify/admin?phase2_upload_return=1";
+    const navigated = await navigateToMypageWithResultToken(null);
+    if (!navigated) {
+      window.location.href = "/mypage";
+    }
     return true;
   }
 
