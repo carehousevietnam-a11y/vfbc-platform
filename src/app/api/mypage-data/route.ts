@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  buildAdminPhase2SummaryLinesFromActivities,
+  isAdminPhase2DocumentsUploadComplete,
+  listAdminPhase2DocumentUploadRefs,
+} from "@/lib/adminVerifyMypageFields";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
 //
@@ -82,6 +87,7 @@ function getServiceLabel(serviceType: string): string {
 type ActivityRow = {
   lead_id: string;
   action: string | null;
+  tag?: string | null;
   meta: unknown;
   created_at: string;
 };
@@ -386,7 +392,7 @@ export async function POST(req: NextRequest) {
       for (let from = 0; ; from += ACTIVITY_PAGE_SIZE) {
         const { data: pageRows, error: activitiesError } = await supabaseAdmin
           .from("crm_activities")
-          .select("lead_id, action, meta, created_at")
+          .select("lead_id, action, tag, meta, created_at")
           .in("lead_id", chunk)
           .order("created_at", { ascending: true })
           .range(from, from + ACTIVITY_PAGE_SIZE - 1);
@@ -509,6 +515,39 @@ export async function POST(req: NextRequest) {
       const hasAiReportRequest = actions.has("ai_report_request");
       const caseSummary = extractVerifyCaseSummary(normalizedType, leadActivities);
 
+      const adminVerifyExtras =
+        normalizedType === "verify_admin"
+          ? {
+              phase2Complete: isAdminPhase2DocumentsUploadComplete(leadActivities),
+              phase2SummaryLines: buildAdminPhase2SummaryLinesFromActivities(leadActivities),
+            }
+          : {};
+
+      let phase2UploadedDocuments:
+        | { fileName: string; fileUrl: string }[]
+        | undefined;
+      if (
+        normalizedType === "verify_admin" &&
+        "phase2Complete" in adminVerifyExtras &&
+        adminVerifyExtras.phase2Complete
+      ) {
+        const refs = listAdminPhase2DocumentUploadRefs(leadActivities, lead.id);
+        const signed: { fileName: string; fileUrl: string }[] = [];
+        for (const ref of refs) {
+          try {
+            const { data: signedData, error: signedError } = await supabaseAdmin.storage
+              .from("documents")
+              .createSignedUrl(ref.storagePath, 3600);
+            if (!signedError && signedData?.signedUrl) {
+              signed.push({ fileName: ref.fileName, fileUrl: signedData.signedUrl });
+            }
+          } catch (err) {
+            console.error("mypage-data admin phase2 upload Signed URL failed:", err);
+          }
+        }
+        if (signed.length > 0) phase2UploadedDocuments = signed;
+      }
+
       const stage = buildStageInfo(
         category,
         hasDiagnosis,
@@ -569,6 +608,8 @@ export async function POST(req: NextRequest) {
         createdAt: lead.created_at,
         hasAiReportRequest,
         ...caseSummary,
+        ...adminVerifyExtras,
+        ...(phase2UploadedDocuments ? { phase2UploadedDocuments } : {}),
       };
       })
     );
