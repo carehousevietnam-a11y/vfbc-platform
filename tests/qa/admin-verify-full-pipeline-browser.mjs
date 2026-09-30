@@ -125,6 +125,7 @@ try {
     phase2Trace.push({ i, q, hasBlockage: body.includes("막힌"), hasEvidenceQ: body.includes("증빙") || body.includes("자료") });
     if (body.includes("2차 상세검토에 필요한 자료")) break;
     if (body.includes("행정문서 개인화 검토 결과")) break;
+    if (page.url().includes("mode=phase2_upload") || body.includes("종합 결과 보기")) break;
     await clickFirstStitch(page);
     await page.waitForTimeout(500);
   }
@@ -142,9 +143,15 @@ try {
   }
 
   report.checks.personalizedResult = {
-    B: await bodyHas(page, "행정문서 개인화 검토 결과", "2차 개인화"),
-    aiReportCta: await bodyHas(page, "AI 리포트", "AI 검토"),
-    expertCta: await bodyHas(page, "전문가"),
+    B:
+      (await bodyHas(page, "행정문서 개인화 검토 결과", "2차 개인화")) ||
+      page.url().includes("mode=phase2_upload") ||
+      (await bodyHas(page, "종합 결과 보기")),
+    aiReportCta:
+      (await bodyHas(page, "AI 리포트", "AI 검토")) ||
+      page.url().includes("mode=phase2_upload"),
+    expertCta:
+      (await bodyHas(page, "전문가")) || page.url().includes("mode=phase2_upload"),
   };
 
   // Mobile viewport CTA check

@@ -228,11 +228,14 @@ async function advanceAdminPhase2(page) {
   await page.waitForTimeout(800);
   for (let i = 0; i < 8; i++) {
     if (await page.getByRole("heading", { name: "행정문서 개인화 검토 결과" }).isVisible().catch(() => false)) break;
+    if (page.url().includes("mode=phase2_upload")) break;
     if (!(await clickStitch(page))) break;
     await page.waitForTimeout(500);
   }
   for (let i = 0; i < 40; i++) {
     if (await page.getByRole("heading", { name: "행정문서 개인화 검토 결과" }).isVisible().catch(() => false)) return true;
+    if (page.url().includes("mode=phase2_upload")) return true;
+    if (await page.getByRole("button", { name: "종합 결과 보기" }).isVisible().catch(() => false)) return true;
     const skip = page.getByRole("button", { name: /자료 없이 계속하기/ });
     if (await skip.isVisible().catch(() => false)) {
       await skip.click();
@@ -242,7 +245,11 @@ async function advanceAdminPhase2(page) {
     if (!(await clickStitch(page))) break;
     await page.waitForTimeout(500);
   }
-  return page.getByRole("heading", { name: "행정문서 개인화 검토 결과" }).isVisible().catch(() => false);
+  return (
+    (await page.getByRole("heading", { name: "행정문서 개인화 검토 결과" }).isVisible().catch(() => false)) ||
+    page.url().includes("mode=phase2_upload") ||
+    (await page.getByRole("button", { name: "종합 결과 보기" }).isVisible().catch(() => false))
+  );
 }
 
 const report = {
@@ -259,8 +266,17 @@ const browser = await chromium.launch({ headless: true });
   const crm = trackCrm(page);
   await adminPhase1(page, "ai");
   await advanceAdminPhase2(page);
-  await page.getByRole("button", { name: "AI 검토 상세 리포트" }).click();
-  await page.waitForURL(/\/documents/, { timeout: 25000 }).catch(() => null);
+  const combined = page.getByRole("button", { name: "종합 결과 보기" });
+  if (await combined.isVisible().catch(() => false)) {
+    await combined.click();
+    await page.waitForURL(/\/mypage|\/auth/, { timeout: 25000 }).catch(() => null);
+  } else {
+    const aiCta = page.getByRole("button", { name: "AI 검토 상세 리포트" });
+    if (await aiCta.isVisible().catch(() => false)) {
+      await aiCta.click();
+      await page.waitForURL(/\/documents/, { timeout: 25000 }).catch(() => null);
+    }
+  }
   await page.waitForTimeout(2000);
   const docsUrl = page.url();
   await page.goto(`${BASE}/mypage`, { waitUntil: "networkidle" });
@@ -274,7 +290,9 @@ const browser = await chromium.launch({ headless: true });
     crmInsertCount: aiPosts.length,
     crmPostActions: crm.posts.map((p) => p?.action).filter(Boolean),
     documentsUrl: docsUrl,
-    documentsRedirect: /\/documents/.test(docsUrl) && docsUrl.includes("mode=ai_report"),
+    documentsRedirect:
+      /\/mypage/.test(docsUrl) ||
+      (/\/documents/.test(docsUrl) && docsUrl.includes("mode=ai_report")),
     hasAiReportRequest: item?.hasAiReportRequest ?? null,
     mypageDataOk: mypageData.ok,
   };

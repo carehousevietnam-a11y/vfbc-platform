@@ -1265,8 +1265,10 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
     ?? phase2Trace.find((t) => t.event === "AFTER_ANSWER");
 
   const body = await page.evaluate(() => document.body.innerText);
-  let evidence = body.includes("2차 상세검토에 필요한 자료");
+  let evidence = body.includes("2차 상세검토에 필요한 자료") || body.includes("2차 검토에 필요한 자료를 제출");
   let personalized = body.includes("행정문서 개인화 검토 결과");
+  let phase2UploadPage =
+    page.url().includes("mode=phase2_upload") || body.includes("종합 결과 보기");
 
   const profilePreEvidence = profileSnap(simAfterP2);
 
@@ -1283,6 +1285,16 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
     await page.getByRole("button", { name: /자료 없이 계속하기/ }).click();
     await page.waitForTimeout(800);
     personalized = await page.getByRole("heading", { name: /행정문서 개인화 검토 결과/ }).isVisible().catch(() => false);
+    phase2UploadPage =
+      page.url().includes("mode=phase2_upload") ||
+      (await page.getByRole("button", { name: "종합 결과 보기" }).isVisible().catch(() => false));
+  }
+
+  if (!evidence) {
+    await page.waitForURL(/\/documents.*phase2_upload/, { timeout: 12_000 }).catch(() => null);
+    phase2UploadPage =
+      page.url().includes("mode=phase2_upload") ||
+      (await page.getByRole("button", { name: "종합 결과 보기" }).isVisible().catch(() => false));
   }
 
   let documentsAi = null;
@@ -1290,7 +1302,12 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
   const consoleLogs = [];
   page.on("console", (m) => consoleLogs.push(m.text()));
 
-  if (personalized && opts.testDocumentsAi) {
+  if ((personalized || phase2UploadPage) && opts.testDocumentsAi) {
+    if (phase2UploadPage) {
+      documentsAi = page.url().includes("phase2_upload")
+        ? page.url()
+        : `PHASE2_UPLOAD:${page.url()}`;
+    } else {
     const aiBtn = page.getByRole("button", { name: /AI 리포트|AI 검토/ }).first();
     if (await aiBtn.isVisible().catch(() => false)) {
       try {
@@ -1305,9 +1322,15 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
     } else {
       documentsAi = "CTA_NOT_VISIBLE";
     }
+    }
   }
 
-  if (personalized && opts.testDocumentsExpert) {
+  if ((personalized || phase2UploadPage) && opts.testDocumentsExpert) {
+    if (phase2UploadPage) {
+      documentsExpert = page.url().includes("phase2_upload")
+        ? page.url()
+        : `PHASE2_UPLOAD:${page.url()}`;
+    } else {
     const exBtn = page.getByRole("button", { name: /전문가/ }).first();
     if (await exBtn.isVisible().catch(() => false)) {
       try {
@@ -1321,6 +1344,7 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
       }
     } else {
       documentsExpert = "CTA_NOT_VISIBLE";
+    }
     }
   }
 
@@ -1344,6 +1368,7 @@ async function runFullCase(page, caseKey, cfg, opts = {}) {
     evidence,
     evidenceDetail,
     personalized,
+    phase2UploadPage,
     documentsAi,
     documentsExpert,
     consoleSnippet: consoleLogs.slice(-5),

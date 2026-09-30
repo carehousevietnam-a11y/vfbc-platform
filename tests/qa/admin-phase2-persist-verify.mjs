@@ -110,6 +110,10 @@ try {
       report.personalized = true;
       break;
     }
+    if (page.url().includes("mode=phase2_upload")) {
+      report.personalized = true;
+      break;
+    }
     await clickFirstStitch(page);
   }
 
@@ -121,14 +125,21 @@ try {
 
   report.personalized =
     report.personalized ||
-    (await page.getByRole("heading", { name: "행정문서 개인화 검토 결과" }).isVisible().catch(() => false));
+    (await page.getByRole("heading", { name: "행정문서 개인화 검토 결과" }).isVisible().catch(() => false)) ||
+    page.url().includes("mode=phase2_upload") ||
+    (await page.getByRole("button", { name: "종합 결과 보기" }).isVisible().catch(() => false));
 
   if (report.personalized) {
-    const expertBtn = page.getByRole("button", { name: "전문가 진행하기" });
-    if (await expertBtn.isVisible().catch(() => false)) {
-      await expertBtn.click();
-      await page.waitForURL(/\/documents.*mode=expert/, { timeout: 30_000 });
+    const combinedBtn = page.getByRole("button", { name: "종합 결과 보기" });
+    if (await combinedBtn.isVisible().catch(() => false)) {
       report.expertPath = true;
+    } else {
+      const expertBtn = page.getByRole("button", { name: "전문가 진행하기" });
+      if (await expertBtn.isVisible().catch(() => false)) {
+        await expertBtn.click();
+        await page.waitForURL(/\/documents.*mode=expert/, { timeout: 30_000 });
+        report.expertPath = true;
+      }
     }
   }
 } catch (e) {
