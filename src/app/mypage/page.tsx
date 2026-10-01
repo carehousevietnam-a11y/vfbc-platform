@@ -56,7 +56,6 @@ import {
 import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import {
-  buildVerifyAdminPaidPhase1SummaryLines,
   isVerifyAdminPaidMypageItem,
   shouldUseGeneralCustomerMypageLayout,
 } from "@/lib/adminVerifyMypageFields";
@@ -134,6 +133,7 @@ type MyPageItem = {
   caseSummaryHeadline?: string | null;
   caseSummaryBullets?: string[];
   phase2Complete?: boolean;
+  phase1SummaryLines?: string[];
   phase2SummaryLines?: string[];
   phase2UploadedDocuments?: { fileName: string; fileUrl: string }[];
 };
@@ -444,105 +444,127 @@ function ProgressRing({ value }: { value: number }) {
   );
 }
 
-/** 행정문서 verify_admin 유료(2차 완료) — 종합 결과 전용 레이아웃 */
-function VerifyAdminPaidResultView({
+const VERIFY_ADMIN_PAID_PHASE1_FALLBACK = "1차 검토 결과가 반영되었습니다.";
+
+function VerifyAdminPaidHeader({
   item,
-  rootId,
-  applicantName,
+  applicationsId,
 }: {
   item: MyPageItem;
-  rootId?: string;
-  applicantName?: string | null;
+  applicationsId?: string;
 }) {
   const headline = item.caseSummaryHeadline?.trim() ?? item.serviceLabel;
-  const phase1Lines = buildVerifyAdminPaidPhase1SummaryLines({
-    caseSummaryHeadline: item.caseSummaryHeadline,
-    caseSummaryBullets: item.caseSummaryBullets,
-  });
-  const phase2Lines = item.phase2SummaryLines ?? [];
-  const uploaded = item.phase2UploadedDocuments ?? [];
-
   return (
     <section
-      id={rootId}
-      className="min-w-0 overflow-hidden rounded-[20px] border border-blue-100 bg-gradient-to-br from-white via-white to-blue-50/40 px-5 py-5 shadow-sm sm:px-6"
+      id={applicationsId}
+      className="min-w-0 overflow-hidden rounded-[20px] border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 px-5 py-5 shadow-sm ring-1 ring-indigo-100/80 sm:px-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h2 className="break-keep text-[20px] font-bold tracking-[-0.03em] text-slate-950 sm:text-[23px]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-indigo-700/90">
+            행정문서 종합 결과
+          </p>
+          <h2 className="mt-1 break-keep text-[22px] font-extrabold tracking-[-0.03em] text-slate-950 sm:text-[26px]">
             종합 결과
           </h2>
-          <p className="mt-2 break-keep text-[13px] leading-6 text-slate-700">{headline}</p>
+          <p className="mt-2 break-keep text-[14px] leading-6 text-slate-800">{headline}</p>
           <p className="mt-1 text-[11px] text-slate-400">
             {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
           </p>
         </div>
-        <span className="inline-flex shrink-0 items-center rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-semibold text-indigo-800 ring-1 ring-indigo-100">
+        <span className="inline-flex shrink-0 items-center rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-bold text-white shadow-sm">
           2차 개인화 검토 완료
         </span>
       </div>
+    </section>
+  );
+}
 
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
-        <p className="text-[12px] font-bold text-slate-900">내 상황 요약</p>
+function VerifyAdminPaidSituationSummary({ item }: { item: MyPageItem }) {
+  const phase1Lines =
+    item.phase1SummaryLines && item.phase1SummaryLines.length > 0
+      ? item.phase1SummaryLines
+      : [VERIFY_ADMIN_PAID_PHASE1_FALLBACK];
+  const phase2Lines = item.phase2SummaryLines ?? [];
 
-        <div className="mt-4 rounded-lg bg-slate-50/80 px-3.5 py-3 ring-1 ring-slate-100">
-          <p className="text-[11px] font-semibold text-slate-600">1차 검토 요약</p>
-          <div className="mt-2 space-y-2">
-            {phase1Lines.length > 0 ? (
-              phase1Lines.map((line) => (
-                <p key={line} className="break-keep text-[13px] leading-6 text-slate-700">
-                  {line}
-                </p>
-              ))
-            ) : null}
-          </div>
-        </div>
-
-        <div className="mt-3 border-t border-slate-100 pt-3">
-          <div className="rounded-lg bg-blue-50/50 px-3.5 py-3 ring-1 ring-blue-100/80">
-            <p className="text-[11px] font-semibold text-blue-900/80">2차 개인화 검토 요약</p>
-            <div className="mt-2 space-y-2">
-              {phase2Lines.length > 0 ? (
-                phase2Lines.map((line) => (
-                  <p key={line} className="break-keep text-[13px] leading-6 text-slate-700">
-                    {line}
-                  </p>
-                ))
-              ) : null}
-            </div>
-          </div>
+  return (
+    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
+      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-slate-950">내 상황 요약</p>
+      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/90 px-4 py-3.5">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">1차 검토 요약</p>
+        <div className="mt-2 space-y-2 border-l-2 border-slate-300 pl-3">
+          {phase1Lines.map((line) => (
+            <p key={line} className="break-keep text-[13px] leading-6 text-slate-800">
+              {line}
+            </p>
+          ))}
         </div>
       </div>
+      <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/40 px-4 py-3.5">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-blue-900/80">
+          2차 개인화 검토 요약
+        </p>
+        <div className="mt-2 space-y-2 border-l-2 border-blue-400 pl-3">
+          {phase2Lines.length > 0 ? (
+            phase2Lines.map((line) => (
+              <p key={line} className="break-keep text-[13px] leading-6 text-slate-800">
+                {line}
+              </p>
+            ))
+          ) : (
+            <p className="break-keep text-[13px] leading-6 text-slate-700">
+              2차 질문 응답이 반영되어 있습니다.
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
-        <p className="text-[12px] font-bold text-slate-900">제출한 자료</p>
-        {uploaded.length > 0 ? (
-          <ul className="mt-3 space-y-2">
-            {uploaded.map((doc) => (
-              <li key={doc.fileUrl}>
-                <a
-                  href={doc.fileUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 hover:bg-slate-50"
-                >
-                  <span className="flex min-w-0 items-center gap-2.5">
-                    <FileText size={16} className="shrink-0 text-blue-900" />
-                    <span className="truncate text-[12px] font-semibold text-slate-800">
-                      {doc.fileName}
-                    </span>
+function VerifyAdminPaidSubmittedDocs({ item }: { item: MyPageItem }) {
+  const uploaded = item.phase2UploadedDocuments ?? [];
+  return (
+    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
+      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-slate-950">제출한 자료</p>
+      {uploaded.length > 0 ? (
+        <ul className="mt-3 space-y-2">
+          {uploaded.map((doc) => (
+            <li key={doc.fileUrl}>
+              <a
+                href={doc.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 hover:bg-slate-50"
+              >
+                <span className="flex min-w-0 items-center gap-2.5">
+                  <FileText size={16} className="shrink-0 text-blue-900" />
+                  <span className="truncate text-[12px] font-semibold text-slate-800">
+                    {doc.fileName}
                   </span>
-                  <Download size={14} className="shrink-0 text-slate-400" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-3 text-[13px] text-slate-600">제출한 자료 없음</p>
-        )}
-      </div>
+                </span>
+                <Download size={14} className="shrink-0 text-slate-400" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-[13px] text-slate-600">제출한 자료 없음</p>
+      )}
+    </section>
+  );
+}
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+function VerifyAdminPaidActionRow({
+  item,
+  applicantName,
+}: {
+  item: MyPageItem;
+  applicantName?: string | null;
+}) {
+  return (
+    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <PdfDownloadButton
           leadId={item.id}
           serviceLabel={item.serviceLabel}
@@ -552,15 +574,43 @@ function VerifyAdminPaidResultView({
           hasAiReportRequest={item.hasAiReportRequest}
         />
         {item.hasExpertReview ? (
-          <p className="text-[13px] font-medium text-slate-700 sm:min-w-0 sm:flex-1">
-            담당 전문가가 검토 중입니다
-          </p>
+          <p className="text-[13px] font-semibold text-slate-800">담당 전문가가 검토 중입니다</p>
         ) : (
           <AdminVerifyExpertRequestButton leadId={item.id} alreadyRequested={false} />
         )}
       </div>
     </section>
   );
+}
+
+function VerifyAdminPaidDashboardSections({
+  item,
+  applicantName,
+}: {
+  item: MyPageItem;
+  applicantName?: string | null;
+}) {
+  return (
+    <div className="min-w-0 space-y-4">
+      <VerifyAdminPaidHeader item={item} applicationsId="applications" />
+      <VerifyAdminPaidSituationSummary item={item} />
+      <VerifyAdminPaidSubmittedDocs item={item} />
+      <VerifyAdminPaidActionRow item={item} applicantName={applicantName} />
+    </div>
+  );
+}
+
+function resolveVerifyAdminStepDateLabel(item: MyPageItem, step: ProcessStep, index: number): string {
+  if (!step.done) return "";
+  if (index === 0) {
+    return `${formatShortDate(item.createdAt)} ${formatTime(item.createdAt)}`;
+  }
+  const labelByIndex = ["", "AI 검토 완료", "전문가 검토 시작", ""];
+  const targetLabel = labelByIndex[index];
+  if (!targetLabel) return "";
+  const log = item.activityLog.find((entry) => entry.label === targetLabel);
+  if (!log) return "";
+  return `${formatShortDate(log.createdAt)} ${formatTime(log.createdAt)}`;
 }
 
 /** 일반 고객(AI 리포트) 전용 — 최근 확인 결과 중심. 전문가 진행 UI와 구조 분리. */
@@ -816,10 +866,16 @@ function GeneralCustomerAsideSupport({ item }: { item: MyPageItem }) {
   );
 }
 
-function ExpertAsideSupport({ item }: { item: MyPageItem }) {
+function ExpertAsideSupport({
+  item,
+  hideNotificationCard = false,
+}: {
+  item: MyPageItem;
+  hideNotificationCard?: boolean;
+}) {
   return (
     <div className="space-y-4 [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
-      <NotificationCard item={item} />
+      {!hideNotificationCard ? <NotificationCard item={item} /> : null}
       <div id="admin-center">
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
       </div>
@@ -834,11 +890,17 @@ function ExpertAsideSupport({ item }: { item: MyPageItem }) {
   );
 }
 
-function ExpertMainSupport({ item }: { item: MyPageItem }) {
+function ExpertMainSupport({
+  item,
+  hideRecommended = false,
+}: {
+  item: MyPageItem;
+  hideRecommended?: boolean;
+}) {
   return (
     <div className="space-y-4 [&_#wallet]:rounded-[20px] [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
       <WalletSection leadId={item.id} />
-      <RecommendedServices />
+      {!hideRecommended ? <RecommendedServices /> : null}
     </div>
   );
 }
@@ -846,16 +908,18 @@ function ExpertMainSupport({ item }: { item: MyPageItem }) {
 function HeroCard({
   item,
   selector,
+  applicationsId = "applications",
 }: {
   item: MyPageItem;
   selector: React.ReactNode;
+  applicationsId?: string | null;
 }) {
   const estimate = getEstimate(item.category, item.serviceType);
   const badge = CATEGORY_BADGE[item.category];
 
   return (
     <section
-      id="applications"
+      id={applicationsId ?? undefined}
       className="overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.18)] sm:px-6 sm:py-6"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
@@ -936,7 +1000,13 @@ function ApplicationSelector({
   );
 }
 
-function StepProgress({ stage }: { stage: StageInfo }) {
+function StepProgress({
+  stage,
+  stepDateResolver,
+}: {
+  stage: StageInfo;
+  stepDateResolver?: (step: ProcessStep, index: number) => string;
+}) {
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
       <div className="flex items-center justify-between">
@@ -948,7 +1018,9 @@ function StepProgress({ stage }: { stage: StageInfo }) {
         <div className="flex min-w-[420px] items-start">
           {stage.steps.map((step, index) => {
             const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
-            const dateLabel = step.done
+            const dateLabel = stepDateResolver
+              ? stepDateResolver(step, index)
+              : step.done
               ? index === 0
                 ? "07.29 09:12"
                 : index === 1
@@ -4147,26 +4219,19 @@ function Dashboard({
     );
   }
 
-  const aiOnly = activeItem ? shouldUseGeneralCustomerMypageLayout(activeItem) : false;
-  const expertFlow = Boolean(tracks?.expert) && !isVerifyAdminPaidMypageItem(activeItem);
+  const verifyAdminPaid = isVerifyAdminPaidMypageItem(activeItem);
+  const aiOnly = shouldUseGeneralCustomerMypageLayout(activeItem);
+  const expertFlow = Boolean(tracks?.expert) || verifyAdminPaid;
 
   if (aiOnly) {
     return (
       <>
         <div className="space-y-4">
-          {isVerifyAdminPaidMypageItem(activeItem) ? (
-            <VerifyAdminPaidResultView
-              item={activeItem}
-              rootId="applications"
-              applicantName={name}
-            />
-          ) : (
-            <GeneralCustomerResultView
-              item={activeItem}
-              rootId="applications"
-              applicantName={name}
-            />
-          )}
+          <GeneralCustomerResultView
+            item={activeItem}
+            rootId="applications"
+            applicantName={name}
+          />
         </div>
 
         <div className="mt-4 space-y-3 xl:hidden">
@@ -4192,8 +4257,13 @@ function Dashboard({
             <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
           </div>
 
+          {verifyAdminPaid ? (
+            <VerifyAdminPaidDashboardSections item={activeItem} applicantName={name} />
+          ) : null}
+
           <HeroCard
             item={activeItem}
+            applicationsId={verifyAdminPaid ? null : "applications"}
             selector={
               <ApplicationSelector
                 items={items}
@@ -4209,12 +4279,21 @@ function Dashboard({
             onSelect={onChangeActive}
           />
 
-          <StepProgress stage={activeItem.stage} />
+          <StepProgress
+            stage={activeItem.stage}
+            stepDateResolver={
+              verifyAdminPaid
+                ? (step, index) => resolveVerifyAdminStepDateLabel(activeItem, step, index)
+                : undefined
+            }
+          />
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            <AiResultCard item={activeItem} applicantName={name} />
-            <CurrentStatusCard item={activeItem} />
-          </div>
+          {!verifyAdminPaid ? (
+            <div className="grid gap-5 lg:grid-cols-2">
+              <AiResultCard item={activeItem} applicantName={name} />
+              <CurrentStatusCard item={activeItem} />
+            </div>
+          ) : null}
 
           <ConfidenceBanner confidence={activeItem.confidence} />
 
@@ -4222,15 +4301,15 @@ function Dashboard({
 
           <PublicNotes notes={activeItem.publicNotes} />
 
-          <ExpertMainSupport item={activeItem} />
+          <ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid} />
         </div>
 
         <div className="mt-4 grid gap-5 xl:hidden">
-          <NotificationCard item={activeItem} />
+          {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
           <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
           <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
           <VietnamLifeCard item={activeItem} />
-          <PermitDocuments item={activeItem} />
+          {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
         </div>
       </>
     );
@@ -4427,9 +4506,14 @@ export default function MyPage() {
             </aside>
           )}
 
-          {state === "ready" && firstItem && !isGeneralCustomerLayout && (
+          {state === "ready" && !isGeneralCustomerLayout && (activeLayoutItem ?? firstItem) && (
             <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
-              <ExpertAsideSupport item={firstItem} />
+              <ExpertAsideSupport
+                item={(activeLayoutItem ?? firstItem)!}
+                hideNotificationCard={
+                  activeLayoutItem ? isVerifyAdminPaidMypageItem(activeLayoutItem) : false
+                }
+              />
             </aside>
           )}
           </div>
