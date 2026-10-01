@@ -303,9 +303,9 @@ const MODE_COPY: Record<
     badgeLabel: "2차 상세 자료",
     heading: "2차 검토에 필요한 자료를 제출해주세요",
     description:
-      "현재 가지고 있는 행정·관련 자료를 제출해 주세요. 자료가 없어도 2차 종합 결과로 진행할 수 있습니다.",
+      "현재 가지고 있는 행정·관련 자료를 제출해 주세요. 자료가 없어도 종합 결과를 볼 수 있습니다.",
     submitLabel: "종합 결과 보기",
-    submitCaption: "제출한 자료는 2차 종합 결과 검토에 활용됩니다.",
+    submitCaption: "제출한 자료는 종합 결과 검토에 활용됩니다.",
     successTitle: "2차 자료 제출이 완료되었습니다",
     successBody: "2차 종합 결과 화면으로 이동합니다.",
   },
@@ -800,7 +800,7 @@ function DocumentUploadContent() {
       return {
         description:
           "2차 질문에서 확인한 내용을 바탕으로, 추가로 제출할 수 있는 자료를 정리했습니다.",
-        progressNote: "우선 제출 자료 진행률 · 자료가 없어도 2차 결과로 진행할 수 있습니다.",
+        progressNote: "우선 제출 자료 진행률 · 자료가 없어도 종합 결과를 볼 수 있습니다.",
         listGuidance:
           "모든 자료가 있는 것은 아닙니다. 현재 가지고 있는 자료만 제출해 주세요.",
       };
