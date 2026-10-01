@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
+  buildAdminPhase1SummaryLinesFromActivities,
   buildAdminPhase2SummaryLinesFromActivities,
   isAdminPhase2DocumentsUploadComplete,
   listAdminPhase2DocumentUploadRefs,
@@ -520,6 +521,12 @@ export async function POST(req: NextRequest) {
           ? {
               phase2Complete: isAdminPhase2DocumentsUploadComplete(leadActivities),
               phase2SummaryLines: buildAdminPhase2SummaryLinesFromActivities(leadActivities),
+              ...(isAdminPhase2DocumentsUploadComplete(leadActivities)
+                ? {
+                    phase1SummaryLines:
+                      buildAdminPhase1SummaryLinesFromActivities(leadActivities),
+                  }
+                : {}),
             }
           : {};
 
