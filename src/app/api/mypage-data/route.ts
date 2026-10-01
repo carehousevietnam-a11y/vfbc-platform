@@ -176,8 +176,8 @@ function buildStageInfo(
       { label: "전문가 안내 대기", done: done[3] },
     ];
     const doneCount = done.filter(Boolean).length;
-    const idx = Math.min(doneCount, steps.length - 1);
-    let currentStepLabel = steps[idx]?.label ?? steps[0].label;
+    const currentIdx = Math.max(0, Math.min(doneCount - 1, steps.length - 1));
+    let currentStepLabel = steps[currentIdx]?.label ?? steps[0].label;
     if (hasAiReportRequest && !hasExpertReview && done[1] && !done[2]) {
       currentStepLabel = "AI 리포트 확인";
     }

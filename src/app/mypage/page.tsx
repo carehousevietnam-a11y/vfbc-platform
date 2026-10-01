@@ -6,7 +6,7 @@
 // 기존 인증·API·PDF·진행단계·CRM 데이터 구조는 그대로 유지하고,
 // 화면 구조와 반응형 UI만 재설계한다.
 
-import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -56,6 +56,9 @@ import {
 import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import {
+  VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
+  VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
+  buildVerifyAdminMypageTimelineRecent,
   isVerifyAdminPaidMypageItem,
   shouldUseGeneralCustomerMypageLayout,
 } from "@/lib/adminVerifyMypageFields";
@@ -555,12 +558,14 @@ function VerifyAdminPaidSubmittedDocs({ item }: { item: MyPageItem }) {
   );
 }
 
-function VerifyAdminPaidActionRow({
+function VerifyAdminMypageActionRow({
   item,
   applicantName,
+  onExpertRequested,
 }: {
   item: MyPageItem;
   applicantName?: string | null;
+  onExpertRequested?: () => void | Promise<void>;
 }) {
   return (
     <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6">
@@ -574,9 +579,13 @@ function VerifyAdminPaidActionRow({
           hasAiReportRequest={item.hasAiReportRequest}
         />
         {item.hasExpertReview ? (
-          <p className="text-[13px] font-semibold text-slate-800">담당 전문가가 검토 중입니다</p>
+          <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
         ) : (
-          <AdminVerifyExpertRequestButton leadId={item.id} alreadyRequested={false} />
+          <AdminVerifyExpertRequestButton
+            leadId={item.id}
+            alreadyRequested={false}
+            onRequested={onExpertRequested}
+          />
         )}
       </div>
     </section>
@@ -586,17 +595,18 @@ function VerifyAdminPaidActionRow({
 function VerifyAdminPaidDashboardSections({
   item,
   applicantName,
+  onExpertRequested,
 }: {
   item: MyPageItem;
   applicantName?: string | null;
+  onExpertRequested?: () => void | Promise<void>;
 }) {
   return (
-    <div className="min-w-0 space-y-4">
-      <VerifyAdminPaidHeader item={item} applicationsId="applications" />
-      <VerifyAdminPaidSituationSummary item={item} />
-      <VerifyAdminPaidSubmittedDocs item={item} />
-      <VerifyAdminPaidActionRow item={item} applicantName={applicantName} />
-    </div>
+    <VerifyAdminMypageActionRow
+      item={item}
+      applicantName={applicantName}
+      onExpertRequested={onExpertRequested}
+    />
   );
 }
 
@@ -618,10 +628,12 @@ function GeneralCustomerResultView({
   item,
   rootId,
   applicantName,
+  onExpertRequested,
 }: {
   item: MyPageItem;
   rootId?: string;
   applicantName?: string | null;
+  onExpertRequested?: () => void | Promise<void>;
 }) {
   const badge = CATEGORY_BADGE[item.category];
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
@@ -687,28 +699,32 @@ function GeneralCustomerResultView({
         <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
       ) : null}
 
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
-        <div className="min-w-0 sm:flex-1">
-          <p className="text-[11px] font-semibold text-slate-500">다음에 할 일</p>
-          <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
-        </div>
-        <div className="mt-3 flex shrink-0 flex-col gap-2 sm:mt-0">
-          <PdfDownloadButton
-            leadId={item.id}
-            serviceLabel={item.serviceLabel}
+      {item.serviceType === "verify_admin" ? (
+        <div className="mt-5">
+          <VerifyAdminMypageActionRow
+            item={item}
             applicantName={applicantName}
-            variant="refined"
-            serviceType={item.serviceType}
-            hasAiReportRequest={item.hasAiReportRequest}
+            onExpertRequested={onExpertRequested}
           />
-          {item.serviceType === "verify_admin" ? (
-            <AdminVerifyExpertRequestButton
-              leadId={item.id}
-              alreadyRequested={item.hasExpertReview}
-            />
-          ) : null}
         </div>
-      </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
+          <div className="min-w-0 sm:flex-1">
+            <p className="text-[11px] font-semibold text-slate-500">다음에 할 일</p>
+            <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
+          </div>
+          <div className="mt-3 flex shrink-0 flex-col gap-2 sm:mt-0">
+            <PdfDownloadButton
+              leadId={item.id}
+              serviceLabel={item.serviceLabel}
+              applicantName={applicantName}
+              variant="refined"
+              serviceType={item.serviceType}
+              hasAiReportRequest={item.hasAiReportRequest}
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -1153,6 +1169,12 @@ function PdfDownloadButton({
   }
 
   if (variant === "refined") {
+    const primaryLabel =
+      serviceType === "verify_admin"
+        ? VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL
+        : loading
+          ? "준비 중..."
+          : "AI 리포트 보기";
     return (
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <button
@@ -1162,21 +1184,30 @@ function PdfDownloadButton({
           className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] disabled:opacity-60 sm:min-w-[148px]"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-          {loading ? "준비 중..." : "AI 리포트 보기"}
+          {loading ? "준비 중..." : primaryLabel}
         </button>
-        <button
-          type="button"
-          onClick={handleDownload}
-          disabled={loading}
-          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#0d2a6b] disabled:opacity-60"
-        >
-          <Download size={14} />
-          PDF 다운로드
-        </button>
+        {serviceType !== "verify_admin" ? (
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={loading}
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#0d2a6b] disabled:opacity-60"
+          >
+            <Download size={14} />
+            PDF 다운로드
+          </button>
+        ) : null}
         {error && <p className="text-[12px] text-red-600 sm:basis-full">{error}</p>}
       </div>
     );
   }
+
+  const defaultLabel =
+    serviceType === "verify_admin"
+      ? VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL
+      : loading
+        ? "PDF 생성 중..."
+        : "AI 리포트(PDF) 다운로드";
 
   return (
     <div>
@@ -1187,7 +1218,7 @@ function PdfDownloadButton({
         className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white text-[13px] font-bold text-blue-900 transition hover:bg-blue-50 disabled:opacity-60"
       >
         <Download size={16} />
-        {loading ? "PDF 생성 중..." : "AI 리포트(PDF) 다운로드"}
+        {defaultLabel}
       </button>
       {error && <p className="mt-2 text-[11px] text-red-600">{error}</p>}
     </div>
@@ -1197,9 +1228,11 @@ function PdfDownloadButton({
 function AdminVerifyExpertRequestButton({
   leadId,
   alreadyRequested,
+  onRequested,
 }: {
   leadId: string;
   alreadyRequested: boolean;
+  onRequested?: () => void | Promise<void>;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1227,6 +1260,7 @@ function AdminVerifyExpertRequestButton({
         return;
       }
       setRequested(true);
+      await onRequested?.();
     } catch {
       setError("서버와 통신 중 문제가 발생했습니다.");
     } finally {
@@ -1236,9 +1270,7 @@ function AdminVerifyExpertRequestButton({
 
   if (requested) {
     return (
-      <p className="text-[12px] font-medium text-slate-600">
-        담당 전문가가 제출하신 자료를 검토하고 있습니다.
-      </p>
+      <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
     );
   }
 
@@ -1381,13 +1413,25 @@ function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
 }
 
 function TimelineCard({ item }: { item: MyPageItem }) {
-  const fallbackTimeline: ActivityLogEntry[] = [
-    { label: "신청 접수 완료", createdAt: item.createdAt },
-    { label: "AI 진단 완료", createdAt: item.createdAt },
-    { label: "전문가 배정", createdAt: item.createdAt },
-    { label: item.stage.currentStepLabel || "자료 검토중", createdAt: item.createdAt },
-  ];
-  const recent = item.activityLog.length >= 3 ? item.activityLog.slice(-4) : fallbackTimeline;
+  const recent =
+    item.category === "verify"
+      ? buildVerifyAdminMypageTimelineRecent({
+          activityLog: item.activityLog,
+          createdAt: item.createdAt,
+          hasDiagnosis: item.hasDiagnosis,
+          hasExpertReview: item.hasExpertReview,
+          currentStepLabel: item.stage.currentStepLabel,
+        })
+      : item.activityLog.length >= 3
+        ? item.activityLog.slice(-4)
+        : [
+            { label: "신청 접수 완료", createdAt: item.createdAt },
+            { label: "AI 진단 완료", createdAt: item.createdAt },
+            ...(item.hasExpertReview
+              ? [{ label: "전문가 배정", createdAt: item.createdAt }]
+              : []),
+            { label: item.stage.currentStepLabel || "자료 검토중", createdAt: item.createdAt },
+          ];
 
   return (
     <section id="timeline" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -4191,11 +4235,13 @@ function Dashboard({
   items,
   activeId,
   onChangeActive,
+  onReload,
 }: {
   name: string | null;
   items: MyPageItem[];
   activeId: string;
   onChangeActive: (id: string) => void;
+  onReload?: () => void | Promise<void>;
 }) {
   const activeItem = useMemo(
     () => items.find((item) => item.id === activeId) ?? items[0] ?? null,
@@ -4231,6 +4277,7 @@ function Dashboard({
             item={activeItem}
             rootId="applications"
             applicantName={name}
+            onExpertRequested={onReload}
           />
         </div>
 
@@ -4258,7 +4305,11 @@ function Dashboard({
           </div>
 
           {verifyAdminPaid ? (
-            <VerifyAdminPaidDashboardSections item={activeItem} applicantName={name} />
+            <VerifyAdminPaidDashboardSections
+              item={activeItem}
+              applicantName={name}
+              onExpertRequested={onReload}
+            />
           ) : null}
 
           <HeroCard
@@ -4359,6 +4410,26 @@ export default function MyPage() {
   const [name, setName] = useState<string | null>(null);
   const [items, setItems] = useState<MyPageItem[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const reloadMypageData = useCallback(async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) return;
+    try {
+      const response = await fetch("/api/mypage-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setName(data.name ?? null);
+        setItems(data.items ?? []);
+      }
+    } catch {
+      /* keep current view on refresh failure */
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -4491,7 +4562,13 @@ export default function MyPage() {
             )}
 
             {state === "ready" && (
-              <Dashboard name={name} items={items} activeId={activeId} onChangeActive={setActiveId} />
+              <Dashboard
+                name={name}
+                items={items}
+                activeId={activeId}
+                onChangeActive={setActiveId}
+                onReload={reloadMypageData}
+              />
             )}
           </div>
 

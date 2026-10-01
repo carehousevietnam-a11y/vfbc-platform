@@ -1,4 +1,5 @@
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
+import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
 import {
   ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
   ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
@@ -10,6 +11,11 @@ import {
   buildPhase1RiskSummaryLinesFromManifest,
   buildPhase2RiskSummaryLinesFromManifest,
 } from "@/lib/adminVerifyJudgmentRuntime";
+
+export const VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL = "AI 리포트 받기";
+export const VERIFY_ADMIN_EXPERT_REVIEWING_LABEL = "담당 전문가가 검토 중입니다";
+
+const EXPERT_TIMELINE_LABEL_MARKERS = ["전문가"];
 
 export type CrmActivityLike = {
   action: string | null;
@@ -146,4 +152,167 @@ export function shouldUseGeneralCustomerMypageLayout(item: MypageLayoutItemLike)
 
 export function shouldUseVerifyAdminPaidDashboard(item: MypageLayoutItemLike): boolean {
   return isVerifyAdminPaidMypageItem(item);
+}
+
+function profileFieldValueFromResolution(field: unknown): string | null {
+  if (!field || typeof field !== "object") return null;
+  const value = (field as { value?: unknown }).value;
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+export type AdminVerifyAiReportContent = {
+  execSummary: string[];
+  keyFindings: string[];
+  keyRisks: string[];
+  recommendedAction: string[];
+  riskCount: number;
+  reviewedCount: number;
+  satisfiedCount: number;
+  includesPhase2Block: boolean;
+};
+
+/** verify_admin My Page AI 리포트 PDF 본문(기존 1차/2차 섹션 구조 유지). */
+export function buildAdminVerifyAiReportContentFromActivities(
+  activities: CrmActivityLike[],
+  leadId: string,
+): AdminVerifyAiReportContent | null {
+  const profileRaw = findLatestMetaString(activities, CASE_RESOLUTION_META_JSON_KEY);
+  if (!profileRaw) return null;
+  try {
+    const profile = JSON.parse(profileRaw) as Record<string, unknown>;
+    const goal = profileFieldValueFromResolution(profile.goal);
+    const riskSignals =
+      Array.isArray(profile.riskSignals) && profile.riskSignals.length > 0
+        ? (profile.riskSignals as string[]).slice(0, 3)
+        : [];
+    const execSummary = [
+      riskSignals.length > 0
+        ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 서류 원본 검토가 필요합니다.`
+        : "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
+      goal ? `확인 목적 · ${goal}` : null,
+      profileFieldValueFromResolution(profile.document)
+        ? `문서 · ${profileFieldValueFromResolution(profile.document)}`
+        : "문서 · 제출 정보 기준으로 1차 확인했습니다.",
+    ].filter((line): line is string => Boolean(line));
+
+    const keyFindings: string[] = ["■ 1차 확인 사항"];
+    for (const [label, key] of [
+      ["사건 앵커", "caseAnchor"],
+      ["관련 기관", "authority"],
+      ["문서", "document"],
+      ["확인 목적", "goal"],
+      ["현재 단계", "currentStage"],
+    ] as const) {
+      const val = profileFieldValueFromResolution(profile[key]);
+      if (val) keyFindings.push(`✓ ${label} · ${val}`);
+    }
+
+    const answers = parseAdminVerifyAnswersFromActivities(activities);
+    const resolutionProfile =
+      deserializeCaseResolutionProfile({
+        [CASE_RESOLUTION_META_JSON_KEY]: profileRaw,
+      }) ?? buildCaseResolutionProfile(answers);
+    for (const line of buildPhase1RiskSummaryLinesFromManifest(answers, resolutionProfile)) {
+      const trimmed = line.trim();
+      if (trimmed) keyFindings.push(`✓ ${trimmed}`);
+    }
+
+    let includesPhase2Block = false;
+    const phase2Complete = isAdminPhase2DocumentsUploadComplete(activities);
+    if (phase2Complete && Object.keys(answers).length > 0) {
+      const responseLines = buildAdminVerifyResponseSummaryBlock(answers)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const phase2RiskLines = buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const uploadRefs = listAdminPhase2DocumentUploadRefs(activities, leadId);
+      if (responseLines.length > 0 || phase2RiskLines.length > 0 || uploadRefs.length > 0) {
+        includesPhase2Block = true;
+        keyFindings.push("■ 2차 확인");
+        for (const line of responseLines.slice(0, 12)) {
+          keyFindings.push(`✓ ${line}`);
+        }
+        for (const line of phase2RiskLines.slice(0, 8)) {
+          keyFindings.push(`✓ ${line}`);
+        }
+        for (const ref of uploadRefs.slice(0, 12)) {
+          keyFindings.push(`✓ 제출 자료 · ${ref.fileName}`);
+        }
+      }
+    }
+
+    const keyRisks =
+      riskSignals.length > 0
+        ? riskSignals.map((r) => `[주의] ${r}`)
+        : ["확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다."];
+    if (phase2Complete && Object.keys(answers).length > 0) {
+      for (const line of buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile).slice(0, 5)) {
+        const trimmed = line.trim();
+        if (trimmed) keyRisks.push(`[2차] ${trimmed}`);
+      }
+    }
+
+    const recommendedAction =
+      riskSignals.length > 0
+        ? ["① 다음 조치 · 위험요인으로 표시된 항목을 통지서 원본과 대조해 주세요."]
+        : ["① 다음 조치 · 통지서 원본의 기한과 요구 내용을 다시 확인해 주세요."];
+    const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
+    return {
+      execSummary,
+      keyFindings,
+      keyRisks,
+      recommendedAction,
+      riskCount: riskSignals.length,
+      reviewedCount: satisfiedCount,
+      satisfiedCount,
+      includesPhase2Block,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function verifyAdminTimelineEntryAllowed(
+  label: string,
+  hasExpertReview: boolean,
+): boolean {
+  if (hasExpertReview) return true;
+  return !EXPERT_TIMELINE_LABEL_MARKERS.some((marker) => label.includes(marker));
+}
+
+export function buildVerifyAdminMypageTimelineRecent(input: {
+  activityLog: { label: string; createdAt: string }[];
+  createdAt: string;
+  hasDiagnosis: boolean;
+  hasExpertReview: boolean;
+  currentStepLabel: string;
+}): { label: string; createdAt: string }[] {
+  const fromLog = input.activityLog.filter((entry) =>
+    verifyAdminTimelineEntryAllowed(entry.label, input.hasExpertReview),
+  );
+  if (fromLog.length >= 3) return fromLog.slice(-4);
+  const fallback: { label: string; createdAt: string }[] = [
+    { label: "신청 접수 완료", createdAt: input.createdAt },
+  ];
+  if (input.hasDiagnosis) {
+    const aiEntry = input.activityLog.find((entry) => entry.label.includes("AI"));
+    fallback.push({
+      label: "AI 검토 완료",
+      createdAt: aiEntry?.createdAt ?? input.createdAt,
+    });
+  }
+  if (input.hasExpertReview) {
+    fallback.push({
+      label: "전문가 검토 시작",
+      createdAt: input.createdAt,
+    });
+  }
+  fallback.push({
+    label: input.currentStepLabel || "진행 중",
+    createdAt: input.createdAt,
+  });
+  return fallback.filter((entry) =>
+    verifyAdminTimelineEntryAllowed(entry.label, input.hasExpertReview),
+  );
 }

@@ -14,6 +14,7 @@ import {
 } from "@/lib/checkDiagnosis";
 import { getDiagnosis as getVerifyDiagnosis, type VerifyCategory } from "@/lib/verifyDiagnosis";
 import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
+import { buildAdminVerifyAiReportContentFromActivities } from "@/lib/adminVerifyMypageFields";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
@@ -174,6 +175,7 @@ function profileFieldValue(field: unknown): string | null {
 function buildVerifyMasterReportContent(
   normalizedType: string,
   activities: PdfActivityRow[],
+  leadId?: string,
 ): {
   execSummary: string[];
   keyFindings: string[];
@@ -246,80 +248,8 @@ function buildVerifyMasterReportContent(
   }
 
   if (typeKey === "verify_admin") {
-    const profileRaw = findLatestMetaString(activities, CASE_RESOLUTION_META_JSON_KEY);
-    if (!profileRaw) return null;
-    try {
-      const profile = JSON.parse(profileRaw) as Record<string, unknown>;
-      const goal = profileFieldValue(profile.goal);
-      const riskSignals =
-        Array.isArray(profile.riskSignals) && profile.riskSignals.length > 0
-          ? (profile.riskSignals as string[]).slice(0, 3)
-          : [];
-      // 결론은 고객 질문(goal)을 반복하지 않고, 확인된 위험요인 유무로 정리한다.
-      const execSummary = [
-        riskSignals.length > 0
-          ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 서류 원본 검토가 필요합니다.`
-          : "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
-        goal ? `확인 목적 · ${goal}` : null,
-        profileFieldValue(profile.document)
-          ? `문서 · ${profileFieldValue(profile.document)}`
-          : "문서 · 제출 정보 기준으로 1차 확인했습니다.",
-      ].filter((line): line is string => Boolean(line));
-      const keyFindings: string[] = ["■ 1차 확인 사항"];
-      for (const [label, key] of [
-        ["사건 앵커", "caseAnchor"],
-        ["관련 기관", "authority"],
-        ["문서", "document"],
-        ["확인 목적", "goal"],
-        ["현재 단계", "currentStage"],
-      ] as const) {
-        const val = profileFieldValue(profile[key]);
-        if (val) keyFindings.push(`✓ ${label} · ${val}`);
-      }
-      const answersRaw = findLatestMetaString(activities, ADMIN_VERIFY_ANSWERS_META_JSON_KEY);
-      if (
-        findLatestMetaString(activities, ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY) === "1"
-      ) {
-        // 내부 필드명·코드값(예: adminCaseDocumentKind · violation_notice)을 그대로 쓰지 않고
-        // 화면 §01 「응답 요약」과 같은 고객용 문장만 사용한다.
-        try {
-          const answers = (answersRaw && answersRaw !== "{}"
-            ? (JSON.parse(answersRaw) as ReviewAnswers)
-            : {}) as ReviewAnswers;
-          const summaryLines = buildAdminVerifyResponseSummaryBlock(answers)
-            .map((line) => line.trim())
-            .filter(Boolean)
-            .slice(0, 8);
-          if (summaryLines.length > 0) {
-            keyFindings.push("■ 2차 확인");
-            for (const line of summaryLines) keyFindings.push(`✓ ${line}`);
-          }
-        } catch {
-          /* ignore malformed answers */
-        }
-      }
-      const keyRisks =
-        riskSignals.length > 0
-          ? riskSignals.map((r) => `[주의] ${r}`)
-          : ["확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다."];
-      const recommendedAction =
-        riskSignals.length > 0
-          ? ["① 다음 조치 · 위험요인으로 표시된 항목을 통지서 원본과 대조해 주세요."]
-          : ["① 다음 조치 · 통지서 원본의 기한과 요구 내용을 다시 확인해 주세요."];
-      const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
-      return {
-        execSummary,
-        keyFindings,
-        keyRisks,
-        recommendedAction,
-        // "위험요인 없음" 안내 문장은 건수에 넣지 않는다.
-        riskCount: riskSignals.length,
-        reviewedCount: satisfiedCount,
-        satisfiedCount,
-      };
-    } catch {
-      return null;
-    }
+    if (!leadId) return null;
+    return buildAdminVerifyAiReportContentFromActivities(activities, leadId);
   }
 
   return null;
@@ -909,7 +839,7 @@ export async function POST(req: NextRequest) {
       requiredDocsCount = requiredDocs.documents.length;
       requiredDocsList = requiredDocs.documents;
 
-      const masterContent = buildVerifyMasterReportContent(normalizedType, activities);
+      const masterContent = buildVerifyMasterReportContent(normalizedType, activities, leadId);
       if (masterContent) {
         execSummary = masterContent.execSummary;
         keyFindings = masterContent.keyFindings;
