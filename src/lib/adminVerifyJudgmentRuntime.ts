@@ -263,13 +263,13 @@ export function buildPhase2RiskSummaryLinesFromManifest(
   return resolvePhase2ManifestSummarySelection(answers, profile).lines;
 }
 
-export function buildPhase1RiskSummaryFromManifest(
+export function buildPhase1RiskSummaryLinesFromManifest(
   answers: ReviewAnswers,
-  _profile: CaseResolutionProfile,
-): string {
+  profile: CaseResolutionProfile,
+): string[] {
   const q1 = getQ1ResolvedCase(answers);
   if (!q1 || q1 === "UNIVERSAL") {
-    return "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
+    return ["1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다."];
   }
   const caseCode = caseCodeFromMaster(q1);
   const fields = PHASE1_FIELD_ORDER[q1] ?? [];
@@ -297,9 +297,19 @@ export function buildPhase1RiskSummaryFromManifest(
     if (clause) parts.push(clause);
   }
   if (parts.length === 0) {
-    return "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
+    return ["1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다."];
   }
-  return parts.join(" ");
+  return parts
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+export function buildPhase1RiskSummaryFromManifest(
+  answers: ReviewAnswers,
+  profile: CaseResolutionProfile,
+): string {
+  return buildPhase1RiskSummaryLinesFromManifest(answers, profile).join(" ");
 }
 
 export function buildPhase2RiskSummaryFromManifest(
