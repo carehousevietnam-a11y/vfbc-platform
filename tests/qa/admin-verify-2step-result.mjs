@@ -10,13 +10,27 @@ const {
   shouldUseGeneralCustomerMypageLayout,
   shouldUseVerifyAdminPaidDashboard,
   buildAdminPhase1SummaryLinesFromActivities,
+  buildAdminVerifyAiReportContentFromActivities,
+  buildVerifyAdminMypageTimelineRecent,
+  verifyAdminTimelineEntryAllowed,
+  VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
+  VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
+
+const caseResolutionMeta = {
+  case_resolution_json: JSON.stringify({
+    goal: { value: "행정 통지 대응" },
+    document: { value: "위반 통지서" },
+    riskSignals: [],
+  }),
+};
 
 const freeActivities = [
   {
     action: "verify_lead",
     meta: {
       admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "payment" }),
+      ...caseResolutionMeta,
     },
   },
 ];
@@ -27,6 +41,7 @@ const paidActivities = [
     meta: {
       admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "payment" }),
       admin_phase2_documents_upload_complete: "1",
+      ...caseResolutionMeta,
     },
   },
 ];
@@ -98,6 +113,17 @@ const paidDashboard = shouldUseVerifyAdminPaidDashboard(paidItem);
 const paidFlag = isVerifyAdminPaidMypageItem(paidItem);
 const phase1Lines = buildAdminPhase1SummaryLinesFromActivities(paidActivities);
 
+const freePdfContent = buildAdminVerifyAiReportContentFromActivities(freeActivities, "lead-free");
+const paidPdfContent = buildAdminVerifyAiReportContentFromActivities(paidActivities, "lead-paid");
+
+const timelineBeforeExpert = buildVerifyAdminMypageTimelineRecent({
+  activityLog: [{ label: "AI 검토 완료", createdAt: "2026-01-01T00:00:00.000Z" }],
+  createdAt: "2026-01-01T00:00:00.000Z",
+  hasDiagnosis: true,
+  hasExpertReview: false,
+  currentStepLabel: "자체 진단 완료",
+});
+
 const fail = [];
 if (freeComplete !== false) fail.push("phase2Complete free should be false");
 if (paidComplete !== true) fail.push("phase2Complete paid should be true");
@@ -119,6 +145,18 @@ if (paidDashboard !== true) fail.push("paid dashboard flag");
 if (paidFlag !== true) fail.push("paid mypage item flag");
 if (!Array.isArray(phase1Lines) || phase1Lines.length === 0)
   fail.push("phase1SummaryLines fixture must be non-empty from manifest");
+if (VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL !== "AI 리포트 받기")
+  fail.push("verify_admin AI report button label");
+if (VERIFY_ADMIN_EXPERT_REVIEWING_LABEL !== "담당 전문가가 검토 중입니다")
+  fail.push("verify_admin expert reviewing label");
+if (!freePdfContent || freePdfContent.includesPhase2Block)
+  fail.push("free PDF must not include phase2 block");
+if (!paidPdfContent || !paidPdfContent.includesPhase2Block)
+  fail.push("paid PDF must include phase2 block");
+if (timelineBeforeExpert.some((entry) => entry.label.includes("전문가")))
+  fail.push("timeline must hide expert entries before expert request");
+if (verifyAdminTimelineEntryAllowed("전문가 검토 시작", false))
+  fail.push("expert timeline labels must be blocked before request");
 
 const report = {
   freeComplete,
@@ -139,6 +177,13 @@ const report = {
   paidDashboard,
   paidFlag,
   phase1Lines,
+  freePdfContent: freePdfContent
+    ? { includesPhase2Block: freePdfContent.includesPhase2Block }
+    : null,
+  paidPdfContent: paidPdfContent
+    ? { includesPhase2Block: paidPdfContent.includesPhase2Block }
+    : null,
+  timelineBeforeExpert,
   ok: fail.length === 0,
   fail,
 };
