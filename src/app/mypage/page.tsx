@@ -55,6 +55,11 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
+import {
+  buildVerifyAdminPaidPhase1SummaryLines,
+  isVerifyAdminPaidMypageItem,
+  shouldUseGeneralCustomerMypageLayout,
+} from "@/lib/adminVerifyMypageFields";
 import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
@@ -439,6 +444,125 @@ function ProgressRing({ value }: { value: number }) {
   );
 }
 
+/** 행정문서 verify_admin 유료(2차 완료) — 종합 결과 전용 레이아웃 */
+function VerifyAdminPaidResultView({
+  item,
+  rootId,
+  applicantName,
+}: {
+  item: MyPageItem;
+  rootId?: string;
+  applicantName?: string | null;
+}) {
+  const headline = item.caseSummaryHeadline?.trim() ?? item.serviceLabel;
+  const phase1Lines = buildVerifyAdminPaidPhase1SummaryLines({
+    caseSummaryHeadline: item.caseSummaryHeadline,
+    caseSummaryBullets: item.caseSummaryBullets,
+  });
+  const phase2Lines = item.phase2SummaryLines ?? [];
+  const uploaded = item.phase2UploadedDocuments ?? [];
+
+  return (
+    <section
+      id={rootId}
+      className="min-w-0 overflow-hidden rounded-[20px] border border-blue-100 bg-gradient-to-br from-white via-white to-blue-50/40 px-5 py-5 shadow-sm sm:px-6"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="break-keep text-[20px] font-bold tracking-[-0.03em] text-slate-950 sm:text-[23px]">
+            종합 결과
+          </h2>
+          <p className="mt-2 break-keep text-[13px] leading-6 text-slate-700">{headline}</p>
+          <p className="mt-1 text-[11px] text-slate-400">
+            {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
+          </p>
+        </div>
+        <span className="inline-flex shrink-0 items-center rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-semibold text-indigo-800 ring-1 ring-indigo-100">
+          2차 개인화 검토 완료
+        </span>
+      </div>
+
+      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+        <p className="text-[12px] font-bold text-slate-900">내 상황 요약</p>
+
+        <div className="mt-4 rounded-lg bg-slate-50/80 px-3.5 py-3 ring-1 ring-slate-100">
+          <p className="text-[11px] font-semibold text-slate-600">1차 검토 요약</p>
+          <div className="mt-2 space-y-2">
+            {phase1Lines.length > 0 ? (
+              phase1Lines.map((line) => (
+                <p key={line} className="break-keep text-[13px] leading-6 text-slate-700">
+                  {line}
+                </p>
+              ))
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-3 border-t border-slate-100 pt-3">
+          <div className="rounded-lg bg-blue-50/50 px-3.5 py-3 ring-1 ring-blue-100/80">
+            <p className="text-[11px] font-semibold text-blue-900/80">2차 개인화 검토 요약</p>
+            <div className="mt-2 space-y-2">
+              {phase2Lines.length > 0 ? (
+                phase2Lines.map((line) => (
+                  <p key={line} className="break-keep text-[13px] leading-6 text-slate-700">
+                    {line}
+                  </p>
+                ))
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+        <p className="text-[12px] font-bold text-slate-900">제출한 자료</p>
+        {uploaded.length > 0 ? (
+          <ul className="mt-3 space-y-2">
+            {uploaded.map((doc) => (
+              <li key={doc.fileUrl}>
+                <a
+                  href={doc.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 hover:bg-slate-50"
+                >
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <FileText size={16} className="shrink-0 text-blue-900" />
+                    <span className="truncate text-[12px] font-semibold text-slate-800">
+                      {doc.fileName}
+                    </span>
+                  </span>
+                  <Download size={14} className="shrink-0 text-slate-400" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-3 text-[13px] text-slate-600">제출한 자료 없음</p>
+        )}
+      </div>
+
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <PdfDownloadButton
+          leadId={item.id}
+          serviceLabel={item.serviceLabel}
+          applicantName={applicantName}
+          variant="refined"
+          serviceType={item.serviceType}
+          hasAiReportRequest={item.hasAiReportRequest}
+        />
+        {item.hasExpertReview ? (
+          <p className="text-[13px] font-medium text-slate-700 sm:min-w-0 sm:flex-1">
+            담당 전문가가 검토 중입니다
+          </p>
+        ) : (
+          <AdminVerifyExpertRequestButton leadId={item.id} alreadyRequested={false} />
+        )}
+      </div>
+    </section>
+  );
+}
+
 /** 일반 고객(AI 리포트) 전용 — 최근 확인 결과 중심. 전문가 진행 UI와 구조 분리. */
 function GeneralCustomerResultView({
   item,
@@ -512,16 +636,6 @@ function GeneralCustomerResultView({
       {keyPoints[0] ? (
         <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
       ) : null}
-      {item.serviceType === "verify_admin" &&
-      item.phase2Complete &&
-      item.phase2SummaryLines &&
-      item.phase2SummaryLines.length > 0
-        ? item.phase2SummaryLines.map((line) => (
-            <p key={line} className="mt-2 break-keep text-[13px] leading-6 text-slate-600">
-              {line}
-            </p>
-          ))
-        : null}
 
       <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
         <div className="min-w-0 sm:flex-1">
@@ -545,11 +659,6 @@ function GeneralCustomerResultView({
           ) : null}
         </div>
       </div>
-      {item.serviceType === "verify_admin" && item.phase2Complete ? (
-        <div className="mt-4">
-          <PermitDocuments item={item} />
-        </div>
-      ) : null}
     </section>
   );
 }
@@ -4038,18 +4147,26 @@ function Dashboard({
     );
   }
 
-  const aiOnly = Boolean(tracks?.ai && !tracks?.expert);
-  const expertFlow = Boolean(tracks?.expert);
+  const aiOnly = activeItem ? shouldUseGeneralCustomerMypageLayout(activeItem) : false;
+  const expertFlow = Boolean(tracks?.expert) && !isVerifyAdminPaidMypageItem(activeItem);
 
   if (aiOnly) {
     return (
       <>
         <div className="space-y-4">
-          <GeneralCustomerResultView
-            item={activeItem}
-            rootId="applications"
-            applicantName={name}
-          />
+          {isVerifyAdminPaidMypageItem(activeItem) ? (
+            <VerifyAdminPaidResultView
+              item={activeItem}
+              rootId="applications"
+              applicantName={name}
+            />
+          ) : (
+            <GeneralCustomerResultView
+              item={activeItem}
+              rootId="applications"
+              applicantName={name}
+            />
+          )}
         </div>
 
         <div className="mt-4 space-y-3 xl:hidden">
@@ -4229,12 +4346,9 @@ export default function MyPage() {
 
   const activeLayoutItem =
     items.find((item) => item.id === activeId) ?? firstItem ?? null;
-  const generalLayoutTracks = activeLayoutItem
-    ? resolveCaseTracks(activeLayoutItem)
-    : null;
-  const isGeneralCustomerLayout = Boolean(
-    generalLayoutTracks?.ai && !generalLayoutTracks?.expert
-  );
+  const isGeneralCustomerLayout = activeLayoutItem
+    ? shouldUseGeneralCustomerMypageLayout(activeLayoutItem)
+    : false;
 
   return (
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">

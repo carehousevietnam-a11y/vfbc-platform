@@ -102,3 +102,40 @@ export function shouldSendAiReportConfirmEmail(
 export function shouldInsertExpertReviewRequest(alreadyHadRequest: boolean): boolean {
   return !alreadyHadRequest;
 }
+
+export type MypageLayoutItemLike = {
+  serviceType?: string | null;
+  phase2Complete?: boolean;
+  hasDiagnosis?: boolean;
+  hasAgency?: boolean;
+  hasExpertReview?: boolean;
+  result?: string | null;
+  feasibilityScore?: number | null;
+};
+
+export function isVerifyAdminPaidMypageItem(item: MypageLayoutItemLike): boolean {
+  return item.serviceType === "verify_admin" && item.phase2Complete === true;
+}
+
+/** verify_admin 유료는 전문가 요청 후에도 일반(종합 결과) 레이아웃을 유지한다. */
+export function shouldUseGeneralCustomerMypageLayout(item: MypageLayoutItemLike): boolean {
+  const ai =
+    Boolean(item.hasDiagnosis) ||
+    item.result != null ||
+    typeof item.feasibilityScore === "number";
+  const expert = Boolean(item.hasAgency) || Boolean(item.hasExpertReview);
+  if (isVerifyAdminPaidMypageItem(item)) return ai;
+  return ai && !expert;
+}
+
+export function buildVerifyAdminPaidPhase1SummaryLines(input: {
+  caseSummaryHeadline?: string | null;
+  caseSummaryBullets?: string[];
+}): string[] {
+  const headline = input.caseSummaryHeadline?.trim() ?? "";
+  const bullets =
+    input.caseSummaryBullets?.map((line) => line.trim()).filter(Boolean) ?? [];
+  const deduped = bullets.filter((line) => line !== headline);
+  if (deduped.length > 0) return deduped.slice(0, 3);
+  return [];
+}
