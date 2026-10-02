@@ -154,14 +154,31 @@ export function shouldUseVerifyAdminPaidDashboard(item: MypageLayoutItemLike): b
   return isVerifyAdminPaidMypageItem(item);
 }
 
-/** F-5: 유료 CTA는 AiResultCard 내부, 상단 ActionRow 박스 없음 */
+/** F-5/F-6: 유료 CTA — AI는 AiResultCard, 전문가는 CurrentStatusCard, 상단 ActionRow 없음 */
 export function verifyAdminPaidMypageShowsTopActionRow(): boolean {
   return false;
 }
 
-export function verifyAdminPaidMypageUsesAiResultCardActions(): boolean {
+export function verifyAdminPaidMypageUsesDualCardLayout(): boolean {
   return true;
 }
+
+export function verifyAdminPaidAiReportCtaInAiResultCard(): boolean {
+  return true;
+}
+
+export function verifyAdminPaidExpertCtaInCurrentStatusCard(): boolean {
+  return true;
+}
+
+/** @deprecated use verifyAdminPaidAiReportCtaInAiResultCard */
+export function verifyAdminPaidMypageUsesAiResultCardActions(): boolean {
+  return verifyAdminPaidAiReportCtaInAiResultCard();
+}
+
+export const VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1 = "AI 분석 결과를 바탕으로";
+export const VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2 =
+  "VFBCAI 전문가팀이 다음 대응 방향을 안내해 드립니다.";
 
 function profileFieldValueFromResolution(field: unknown): string | null {
   if (!field || typeof field !== "object") return null;

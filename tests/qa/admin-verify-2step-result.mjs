@@ -16,7 +16,11 @@ const {
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
   verifyAdminPaidMypageShowsTopActionRow,
-  verifyAdminPaidMypageUsesAiResultCardActions,
+  verifyAdminPaidMypageUsesDualCardLayout,
+  verifyAdminPaidAiReportCtaInAiResultCard,
+  verifyAdminPaidExpertCtaInCurrentStatusCard,
+  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1,
+  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
 const caseResolutionMeta = {
@@ -153,8 +157,16 @@ if (VERIFY_ADMIN_EXPERT_REVIEWING_LABEL !== "담당 전문가가 검토 중입�
   fail.push("verify_admin expert reviewing label");
 if (verifyAdminPaidMypageShowsTopActionRow() !== false)
   fail.push("paid verify_admin must not show top action row box");
-if (verifyAdminPaidMypageUsesAiResultCardActions() !== true)
-  fail.push("paid verify_admin must use AiResultCard actions");
+if (verifyAdminPaidMypageUsesDualCardLayout() !== true)
+  fail.push("paid verify_admin must use AiResultCard + CurrentStatusCard grid");
+if (verifyAdminPaidAiReportCtaInAiResultCard() !== true)
+  fail.push("paid verify_admin AI report CTA must live in AiResultCard");
+if (verifyAdminPaidExpertCtaInCurrentStatusCard() !== true)
+  fail.push("paid verify_admin expert CTA must live in CurrentStatusCard");
+if (!VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1 || !VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2)
+  fail.push("paid verify_admin expert hook copy must be defined");
+if (VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2.includes("검토 중"))
+  fail.push("expert hook must not use post-request wording");
 if (!freePdfContent || freePdfContent.includesPhase2Block)
   fail.push("free PDF must not include phase2 block");
 if (!paidPdfContent || !paidPdfContent.includesPhase2Block)

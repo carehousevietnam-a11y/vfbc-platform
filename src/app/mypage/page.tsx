@@ -58,6 +58,8 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import {
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
+  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1,
+  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2,
   buildVerifyAdminMypageTimelineRecent,
   isVerifyAdminPaidMypageItem,
   shouldUseGeneralCustomerMypageLayout,
@@ -1292,14 +1294,11 @@ function AdminVerifyExpertRequestButton({
 function AiResultCard({
   item,
   applicantName,
-  onExpertRequested,
 }: {
   item: MyPageItem;
   applicantName?: string | null;
-  onExpertRequested?: () => void | Promise<void>;
 }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
-  const isVerifyAdmin = item.serviceType === "verify_admin";
 
   return (
     <section className="rounded-[20px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
@@ -1341,7 +1340,7 @@ function AiResultCard({
         </div>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-4">
         <PdfDownloadButton
           leadId={item.id}
           serviceLabel={item.serviceLabel}
@@ -1349,23 +1348,46 @@ function AiResultCard({
           serviceType={item.serviceType}
           hasAiReportRequest={item.hasAiReportRequest}
         />
-        {isVerifyAdmin ? (
-          item.hasExpertReview ? (
-            <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
-          ) : (
-            <AdminVerifyExpertRequestButton
-              leadId={item.id}
-              alreadyRequested={false}
-              onRequested={onExpertRequested}
-            />
-          )
-        ) : null}
       </div>
     </section>
   );
 }
 
-function CurrentStatusCard({ item }: { item: MyPageItem }) {
+function CurrentStatusCard({
+  item,
+  verifyAdminPaidLayout = false,
+  onExpertRequested,
+}: {
+  item: MyPageItem;
+  verifyAdminPaidLayout?: boolean;
+  onExpertRequested?: () => void | Promise<void>;
+}) {
+  if (verifyAdminPaidLayout && item.serviceType === "verify_admin") {
+    return (
+      <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
+        {item.hasExpertReview ? (
+          <p className="mt-4 break-keep text-[14px] font-semibold leading-6 text-slate-800">
+            {VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}
+          </p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            <p className="break-keep text-[13px] leading-6 text-slate-700">
+              {VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1}
+              <br />
+              {VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2}
+            </p>
+            <AdminVerifyExpertRequestButton
+              leadId={item.id}
+              alreadyRequested={false}
+              onRequested={onExpertRequested}
+            />
+          </div>
+        )}
+      </section>
+    );
+  }
+
   const estimate = getEstimate(item.category, item.serviceType);
   const expertTeamLabel = resolveExpertTeamLabel(item.category, item.serviceType);
 
@@ -4347,13 +4369,13 @@ function Dashboard({
             }
           />
 
-          <div className={verifyAdminPaid ? "space-y-5" : "grid gap-5 lg:grid-cols-2"}>
-            <AiResultCard
+          <div className="grid gap-5 lg:grid-cols-2">
+            <AiResultCard item={activeItem} applicantName={name} />
+            <CurrentStatusCard
               item={activeItem}
-              applicantName={name}
+              verifyAdminPaidLayout={verifyAdminPaid}
               onExpertRequested={onReload}
             />
-            {!verifyAdminPaid ? <CurrentStatusCard item={activeItem} /> : null}
           </div>
 
           <ConfidenceBanner confidence={activeItem.confidence} />
