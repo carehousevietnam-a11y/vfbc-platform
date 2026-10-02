@@ -154,6 +154,15 @@ export function shouldUseVerifyAdminPaidDashboard(item: MypageLayoutItemLike): b
   return isVerifyAdminPaidMypageItem(item);
 }
 
+/** F-5: 유료 CTA는 AiResultCard 내부, 상단 ActionRow 박스 없음 */
+export function verifyAdminPaidMypageShowsTopActionRow(): boolean {
+  return false;
+}
+
+export function verifyAdminPaidMypageUsesAiResultCardActions(): boolean {
+  return true;
+}
+
 function profileFieldValueFromResolution(field: unknown): string | null {
   if (!field || typeof field !== "object") return null;
   const value = (field as { value?: unknown }).value;

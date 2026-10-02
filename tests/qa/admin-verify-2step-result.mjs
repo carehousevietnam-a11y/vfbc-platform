@@ -15,6 +15,8 @@ const {
   verifyAdminTimelineEntryAllowed,
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
+  verifyAdminPaidMypageShowsTopActionRow,
+  verifyAdminPaidMypageUsesAiResultCardActions,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
 const caseResolutionMeta = {
@@ -149,6 +151,10 @@ if (VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL !== "AI 리포트 받기")
   fail.push("verify_admin AI report button label");
 if (VERIFY_ADMIN_EXPERT_REVIEWING_LABEL !== "담당 전문가가 검토 중입니다")
   fail.push("verify_admin expert reviewing label");
+if (verifyAdminPaidMypageShowsTopActionRow() !== false)
+  fail.push("paid verify_admin must not show top action row box");
+if (verifyAdminPaidMypageUsesAiResultCardActions() !== true)
+  fail.push("paid verify_admin must use AiResultCard actions");
 if (!freePdfContent || freePdfContent.includesPhase2Block)
   fail.push("free PDF must not include phase2 block");
 if (!paidPdfContent || !paidPdfContent.includesPhase2Block)

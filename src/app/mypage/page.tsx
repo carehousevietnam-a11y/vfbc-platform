@@ -1292,11 +1292,14 @@ function AdminVerifyExpertRequestButton({
 function AiResultCard({
   item,
   applicantName,
+  onExpertRequested,
 }: {
   item: MyPageItem;
   applicantName?: string | null;
+  onExpertRequested?: () => void | Promise<void>;
 }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
+  const isVerifyAdmin = item.serviceType === "verify_admin";
 
   return (
     <section className="rounded-[20px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
@@ -1338,12 +1341,25 @@ function AiResultCard({
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 space-y-3">
         <PdfDownloadButton
           leadId={item.id}
           serviceLabel={item.serviceLabel}
           applicantName={applicantName}
+          serviceType={item.serviceType}
+          hasAiReportRequest={item.hasAiReportRequest}
         />
+        {isVerifyAdmin ? (
+          item.hasExpertReview ? (
+            <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+          ) : (
+            <AdminVerifyExpertRequestButton
+              leadId={item.id}
+              alreadyRequested={false}
+              onRequested={onExpertRequested}
+            />
+          )
+        ) : null}
       </div>
     </section>
   );
@@ -4304,14 +4320,6 @@ function Dashboard({
             <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
           </div>
 
-          {verifyAdminPaid ? (
-            <VerifyAdminPaidDashboardSections
-              item={activeItem}
-              applicantName={name}
-              onExpertRequested={onReload}
-            />
-          ) : null}
-
           <HeroCard
             item={activeItem}
             applicationsId={verifyAdminPaid ? null : "applications"}
@@ -4339,12 +4347,14 @@ function Dashboard({
             }
           />
 
-          {!verifyAdminPaid ? (
-            <div className="grid gap-5 lg:grid-cols-2">
-              <AiResultCard item={activeItem} applicantName={name} />
-              <CurrentStatusCard item={activeItem} />
-            </div>
-          ) : null}
+          <div className={verifyAdminPaid ? "space-y-5" : "grid gap-5 lg:grid-cols-2"}>
+            <AiResultCard
+              item={activeItem}
+              applicantName={name}
+              onExpertRequested={onReload}
+            />
+            {!verifyAdminPaid ? <CurrentStatusCard item={activeItem} /> : null}
+          </div>
 
           <ConfidenceBanner confidence={activeItem.confidence} />
 
