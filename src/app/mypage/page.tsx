@@ -58,8 +58,16 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import {
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
-  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1,
-  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2,
+  VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL,
+  VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
   buildVerifyAdminMypageTimelineRecent,
   isVerifyAdminPaidMypageItem,
   shouldUseGeneralCustomerMypageLayout,
@@ -1363,27 +1371,66 @@ function CurrentStatusCard({
   onExpertRequested?: () => void | Promise<void>;
 }) {
   if (verifyAdminPaidLayout && item.serviceType === "verify_admin") {
+    const afterExpert = item.hasExpertReview;
+    const guideText = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE;
+    const expertBadge = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE;
+    const nextStepText = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_BEFORE;
+    const estimateText = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE;
+
     return (
       <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
-        {item.hasExpertReview ? (
-          <p className="mt-4 break-keep text-[14px] font-semibold leading-6 text-slate-800">
-            {VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}
-          </p>
-        ) : (
-          <div className="mt-4 space-y-4">
-            <p className="break-keep text-[13px] leading-6 text-slate-700">
-              {VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1}
-              <br />
-              {VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2}
+        <p className="mt-3 text-[13px] leading-6 text-slate-600">{guideText}</p>
+
+        <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm">
+            <UserCheck size={22} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[14px] font-extrabold text-slate-950">
+                {VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL}
+              </p>
+              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800">
+                {expertBadge}
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] text-slate-500">{VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-blue-50 p-4">
+            <p className="text-[10px] font-semibold text-blue-700">다음 단계</p>
+            <p className="mt-1 text-[13px] font-extrabold text-blue-950">{nextStepText}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-[10px] font-semibold text-slate-500">예상 처리기간</p>
+            <p className="mt-1 text-[13px] font-extrabold text-slate-900">{estimateText}</p>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          {afterExpert ? (
+            <p className="text-[13px] font-semibold leading-6 text-slate-800">
+              {VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER}
             </p>
+          ) : (
             <AdminVerifyExpertRequestButton
               leadId={item.id}
               alreadyRequested={false}
               onRequested={onExpertRequested}
             />
-          </div>
-        )}
+          )}
+        </div>
       </section>
     );
   }

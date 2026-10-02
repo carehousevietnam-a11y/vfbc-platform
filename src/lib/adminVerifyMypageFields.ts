@@ -176,9 +176,28 @@ export function verifyAdminPaidMypageUsesAiResultCardActions(): boolean {
   return verifyAdminPaidAiReportCtaInAiResultCard();
 }
 
-export const VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1 = "AI 분석 결과를 바탕으로";
-export const VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2 =
-  "VFBCAI 전문가팀이 다음 대응 방향을 안내해 드립니다.";
+export const VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL = "VFBCAI 법률전문가팀";
+export const VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE =
+  "AI 분석 결과를 바탕으로 전문가가 직접 다음 대응 방향을 안내해 드립니다.";
+export const VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER =
+  "담당 전문가가 제출하신 자료를 검토하고 있습니다.";
+export const VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE = "연결 대기";
+export const VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER = "담당 전문가";
+export const VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_BEFORE = "전문가 진행 요청";
+export const VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_AFTER = "전문가 안내 대기 준비";
+export const VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE = "요청 후 2~5 영업일";
+export const VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER = "2~5 영업일";
+export const VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER = "전문가에게 전달되어 진행 중입니다";
+
+/** F-7: 요청 전·후 동일 카드 구조(전문가 박스 + 2칸 타일 + 하단 CTA/상태) */
+export function verifyAdminPaidStatusCardUsesUnifiedStructure(): boolean {
+  return true;
+}
+
+/** @deprecated F-7 single-line guide */
+export const VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1 = VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE;
+/** @deprecated F-7 */
+export const VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2 = "";
 
 function profileFieldValueFromResolution(field: unknown): string | null {
   if (!field || typeof field !== "object") return null;

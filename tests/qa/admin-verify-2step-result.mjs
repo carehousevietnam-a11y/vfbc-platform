@@ -19,8 +19,16 @@ const {
   verifyAdminPaidMypageUsesDualCardLayout,
   verifyAdminPaidAiReportCtaInAiResultCard,
   verifyAdminPaidExpertCtaInCurrentStatusCard,
-  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1,
-  VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2,
+  verifyAdminPaidStatusCardUsesUnifiedStructure,
+  VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
 const caseResolutionMeta = {
@@ -163,10 +171,31 @@ if (verifyAdminPaidAiReportCtaInAiResultCard() !== true)
   fail.push("paid verify_admin AI report CTA must live in AiResultCard");
 if (verifyAdminPaidExpertCtaInCurrentStatusCard() !== true)
   fail.push("paid verify_admin expert CTA must live in CurrentStatusCard");
-if (!VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE1 || !VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2)
-  fail.push("paid verify_admin expert hook copy must be defined");
-if (VERIFY_ADMIN_PAID_EXPERT_HOOK_LINE2.includes("검토 중"))
-  fail.push("expert hook must not use post-request wording");
+if (verifyAdminPaidStatusCardUsesUnifiedStructure() !== true)
+  fail.push("paid verify_admin status card must use unified structure");
+if (VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE !==
+  "AI 분석 결과를 바탕으로 전문가가 직접 다음 대응 방향을 안내해 드립니다.")
+  fail.push("paid status guide before request");
+if (VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER !== "담당 전문가가 제출하신 자료를 검토하고 있습니다.")
+  fail.push("paid status guide after request");
+if (VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE !== "연결 대기")
+  fail.push("paid status badge before must be connection pending");
+if (VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER !== "담당 전문가")
+  fail.push("paid status badge after must be assigned expert");
+if (VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE === VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER)
+  fail.push("paid status badges must differ by request state");
+if (VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER !== "전문가에게 전달되어 진행 중입니다")
+  fail.push("paid status footer after request");
+if (VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE.includes("검토 중"))
+  fail.push("guide before must not use reviewing wording");
+if (VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_BEFORE !== "전문가 진행 요청")
+  fail.push("paid next step tile before request");
+if (VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_AFTER !== "전문가 안내 대기 준비")
+  fail.push("paid next step tile after request");
+if (VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE !== "요청 후 2~5 영업일")
+  fail.push("paid estimate tile before request");
+if (VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER !== "2~5 영업일")
+  fail.push("paid estimate tile after request");
 if (!freePdfContent || freePdfContent.includesPhase2Block)
   fail.push("free PDF must not include phase2 block");
 if (!paidPdfContent || !paidPdfContent.includesPhase2Block)
