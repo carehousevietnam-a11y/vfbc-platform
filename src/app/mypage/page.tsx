@@ -6,7 +6,7 @@
 // 기존 인증·API·PDF·진행단계·CRM 데이터 구조는 그대로 유지하고,
 // 화면 구조와 반응형 UI만 재설계한다.
 
-import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -73,8 +73,11 @@ import {
   isVerifyAdminMypageItem,
   resolveVerifyAdminApplicationSummaryStatus,
   shouldUseVerifyAdminMypageSlimAside,
+  shouldHideVerifyAdminWalletDocumentCount,
   shouldUseGeneralCustomerMypageLayout,
 } from "@/lib/adminVerifyMypageFields";
+import { MYPAGE_PUBLIC_LINKS, MYPAGE_VN_PUBLIC_LINKS } from "@/lib/mypageLinkCatalog";
+import { VerifyAdminMypageRollingStrip } from "@/components/mypage/VerifyAdminMypageRollingStrip";
 import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
@@ -2626,12 +2629,16 @@ function GeneralCustomerCompactAccordion({
   );
 }
 
+function VerifyAdminMypageMainWalletFooter({ leadId }: { leadId: string }) {
+  return <GeneralCustomerWalletCore leadId={leadId} placement="verifyAdminMainFooter" />;
+}
+
 function GeneralCustomerWalletCore({
   leadId,
   placement = "main",
 }: {
   leadId: string;
-  placement?: "main" | "aside";
+  placement?: "main" | "aside" | "verifyAdminMainFooter";
 }) {
   const [expanded, setExpanded] = useState(false);
   const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
@@ -2700,6 +2707,41 @@ function GeneralCustomerWalletCore({
   }
 
   const recent = documents.slice(0, 3);
+
+  if (placement === "verifyAdminMainFooter") {
+    const showCount =
+      !loading && !shouldHideVerifyAdminWalletDocumentCount(documents.length);
+
+    return (
+      <section
+        id="wallet"
+        className="rounded-[20px] border border-blue-200 bg-gradient-to-b from-blue-50/90 to-white px-5 py-4 shadow-sm sm:px-6"
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-extrabold text-slate-950">내 서류 보관함</p>
+            {showCount ? (
+              <p className="mt-1 text-[15px] font-bold tracking-[-0.02em] text-slate-900">
+                등록 서류 {documents.length}건
+              </p>
+            ) : null}
+            <p className="mt-1 text-[11px] leading-5 text-slate-600 sm:mt-2">
+              여권 · 비자 · 거주증 등 중요한 서류를 안전하게 보관하세요.
+            </p>
+            {loadError ? <p className="mt-2 text-[11px] text-red-600">{loadError}</p> : null}
+          </div>
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="flex h-10 shrink-0 items-center justify-center gap-1 rounded-xl border border-blue-200 bg-white px-4 text-[12px] font-semibold text-blue-900 transition hover:bg-blue-50 sm:min-w-[140px]"
+          >
+            전체 서류 보기
+            <ChevronRight size={14} className="shrink-0" />
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   if (placement === "aside") {
     return (
@@ -2910,67 +2952,15 @@ function GeneralCustomerExtrasPanel({
   );
 }
 
-const PUBLIC_LINKS = [
-  {
-    label: "정부24",
-    sub: "주민등록등본, 가족관계증명서 등",
-    href: "https://www.gov.kr/",
-    iconSrc: "/mypage-icons/kr-gov24.webp",
-  },
-  {
-    label: "영사민원24",
-    sub: "공증, 영사확인, 여권 등",
-    href: "https://consul.mofa.go.kr/",
-    iconSrc: "/mypage-icons/kr-consul.webp",
-  },
-  {
-    label: "법무부",
-    sub: "출입국·체류·국적 관련 정보",
-    href: "https://www.moj.go.kr/",
-    iconSrc: "/mypage-icons/kr-moj.webp",
-  },
-  {
-    label: "하이코리아",
-    sub: "외국인 전자민원, 체류 신청 등",
-    href: "https://www.hikorea.go.kr/",
-    iconSrc: "/mypage-icons/kr-hikorea.webp",
-  },
-];
-
-const VN_PUBLIC_LINKS = [
-  {
-    label: "베트남 공공서비스 포털",
-    href: "https://dichvucong.gov.vn/",
-    iconSrc: "/mypage-icons/vn-portal.webp",
-  },
-  {
-    label: "출입국관리기관",
-    href: "https://xuatnhapcanh.gov.vn/",
-    iconSrc: "/mypage-icons/vn-immigration.webp",
-  },
-  {
-    label: "세무기관",
-    href: "https://www.gdt.gov.vn/",
-    iconSrc: "/mypage-icons/vn-tax.webp",
-  },
-  {
-    label: "기업등록기관",
-    href: "https://dangkykinhdoanh.gov.vn/",
-    iconSrc: "/mypage-icons/vn-business.webp",
-  },
-  {
-    label: "노동·고용 기관",
-    href: "https://moha.gov.vn/",
-    iconSrc: "/mypage-icons/vn-labor.webp",
-  },
-];
+const PUBLIC_LINKS = MYPAGE_PUBLIC_LINKS;
+const VN_PUBLIC_LINKS = MYPAGE_VN_PUBLIC_LINKS;
 
 function PublicLinksCard({
   title,
   links,
 }: {
   title: string;
-  links: { label: string; sub?: string; href: string; iconSrc: string }[];
+  links: ReadonlyArray<{ label: string; sub?: string; href: string; iconSrc: string }>;
 }) {
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -4431,6 +4421,9 @@ function Dashboard({
             applicantName={name}
             onExpertRequested={onReload}
           />
+          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+            <VerifyAdminMypageMainWalletFooter leadId={activeItem.id} />
+          ) : null}
         </div>
 
         <div className="mt-4 space-y-3 xl:hidden">
@@ -4503,6 +4496,10 @@ function Dashboard({
           <PublicNotes notes={activeItem.publicNotes} />
 
           {!verifyAdminPaid ? <ExpertMainSupport item={activeItem} hideRecommended={false} /> : null}
+
+          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+            <VerifyAdminMypageMainWalletFooter leadId={activeItem.id} />
+          ) : null}
         </div>
 
         <div className="mt-4 grid gap-5 xl:hidden">
@@ -4754,6 +4751,12 @@ export default function MyPage() {
             </aside>
           )}
           </div>
+
+          {state === "ready" &&
+          activeLayoutItem &&
+          shouldUseVerifyAdminMypageSlimAside(activeLayoutItem.serviceType) ? (
+            <VerifyAdminMypageRollingStrip />
+          ) : null}
         </div>
 
       </div>

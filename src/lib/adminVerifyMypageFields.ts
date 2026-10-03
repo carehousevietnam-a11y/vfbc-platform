@@ -162,6 +162,20 @@ export function shouldUseVerifyAdminMypageSlimAside(serviceType: string | null |
   return serviceType === "verify_admin";
 }
 
+export const VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE = "정부기관 바로가기";
+
+export function verifyAdminMypageShowsMainWalletFooter(): boolean {
+  return true;
+}
+
+export function verifyAdminMypageShowsRollingStrip(): boolean {
+  return true;
+}
+
+export function shouldHideVerifyAdminWalletDocumentCount(documentCount: number): boolean {
+  return documentCount === 0;
+}
+
 /** verify_admin 유료는 대시보드(expertFlow) 레이아웃을 사용한다. */
 export function shouldUseGeneralCustomerMypageLayout(item: MypageLayoutItemLike): boolean {
   const ai =

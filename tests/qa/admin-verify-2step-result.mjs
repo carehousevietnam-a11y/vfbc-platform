@@ -35,7 +35,15 @@ const {
   VERIFY_ADMIN_SUMMARY_STATUS_FREE,
   VERIFY_ADMIN_SUMMARY_STATUS_PAID_BEFORE,
   VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER,
+  verifyAdminMypageShowsMainWalletFooter,
+  verifyAdminMypageShowsRollingStrip,
+  shouldHideVerifyAdminWalletDocumentCount,
+  VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
+
+const { buildVerifyAdminRollingStripItems, MYPAGE_PUBLIC_LINKS } = await import(
+  "../../src/lib/mypageLinkCatalog.ts"
+);
 
 const caseResolutionMeta = {
   case_resolution_json: JSON.stringify({
@@ -222,6 +230,21 @@ if (resolveVerifyAdminApplicationSummaryStatus(paidItemBeforeExpert) !== VERIFY_
   fail.push("paid before expert summary status");
 if (resolveVerifyAdminApplicationSummaryStatus(paidItem) !== VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER)
   fail.push("paid after expert summary status");
+if (verifyAdminMypageShowsMainWalletFooter() !== true)
+  fail.push("verify_admin must show main wallet footer");
+if (verifyAdminMypageShowsRollingStrip() !== true)
+  fail.push("verify_admin must show rolling strip");
+if (shouldHideVerifyAdminWalletDocumentCount(0) !== true)
+  fail.push("wallet must hide document count when zero");
+if (shouldHideVerifyAdminWalletDocumentCount(3) !== false)
+  fail.push("wallet must show document count when N>=1");
+if (VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE !== "정부기관 바로가기")
+  fail.push("rolling strip title must reuse existing section name");
+const rollingItems = buildVerifyAdminRollingStripItems();
+if (!Array.isArray(rollingItems) || rollingItems.length < MYPAGE_PUBLIC_LINKS.length)
+  fail.push("rolling strip must include public link catalog items");
+if (rollingItems.some((item) => item.label.includes("샘플")))
+  fail.push("rolling strip must not contain sample labels");
 
 const report = {
   freeComplete,
