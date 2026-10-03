@@ -139,6 +139,29 @@ export function isVerifyAdminPaidMypageItem(item: MypageLayoutItemLike): boolean
   return item.serviceType === "verify_admin" && item.phase2Complete === true;
 }
 
+export function isVerifyAdminMypageItem(item: { serviceType?: string | null }): boolean {
+  return item.serviceType === "verify_admin";
+}
+
+export const VERIFY_ADMIN_SUMMARY_STATUS_FREE = "분석 완료";
+export const VERIFY_ADMIN_SUMMARY_STATUS_PAID_BEFORE = "전문가 연결 대기";
+export const VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER = "전문가 검토 중";
+
+export function resolveVerifyAdminApplicationSummaryStatus(item: MypageLayoutItemLike): string | null {
+  if (!isVerifyAdminMypageItem(item)) return null;
+  if (isVerifyAdminPaidMypageItem(item)) {
+    return item.hasExpertReview
+      ? VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER
+      : VERIFY_ADMIN_SUMMARY_STATUS_PAID_BEFORE;
+  }
+  return VERIFY_ADMIN_SUMMARY_STATUS_FREE;
+}
+
+/** F-8: verify_admin 마이페이지 오른쪽/모바일 보조 영역 슬림 패널 */
+export function shouldUseVerifyAdminMypageSlimAside(serviceType: string | null | undefined): boolean {
+  return serviceType === "verify_admin";
+}
+
 /** verify_admin 유료는 대시보드(expertFlow) 레이아웃을 사용한다. */
 export function shouldUseGeneralCustomerMypageLayout(item: MypageLayoutItemLike): boolean {
   const ai =

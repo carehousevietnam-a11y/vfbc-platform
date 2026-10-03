@@ -70,6 +70,9 @@ import {
   VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
   buildVerifyAdminMypageTimelineRecent,
   isVerifyAdminPaidMypageItem,
+  isVerifyAdminMypageItem,
+  resolveVerifyAdminApplicationSummaryStatus,
+  shouldUseVerifyAdminMypageSlimAside,
   shouldUseGeneralCustomerMypageLayout,
 } from "@/lib/adminVerifyMypageFields";
 import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
@@ -633,6 +636,46 @@ function resolveVerifyAdminStepDateLabel(item: MyPageItem, step: ProcessStep, in
   return `${formatShortDate(log.createdAt)} ${formatTime(log.createdAt)}`;
 }
 
+function VerifyAdminApplicationSummaryCard({ item }: { item: MyPageItem }) {
+  const status = resolveVerifyAdminApplicationSummaryStatus(item);
+  const rows: { label: string; value: string }[] = [];
+  if (item.serviceLabel.trim()) {
+    rows.push({ label: "서비스", value: item.serviceLabel });
+  }
+  if (item.id.trim()) {
+    rows.push({ label: "접수번호", value: `VF${item.id.slice(0, 8).toUpperCase()}` });
+  }
+  if (item.createdAt) {
+    rows.push({ label: "접수일", value: formatIsoDate(item.createdAt) });
+  }
+  if (status) {
+    rows.push({ label: "상태", value: status });
+  }
+
+  return (
+    <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <p className="text-[14px] font-extrabold tracking-[-0.02em] text-slate-950">내 신청 요약</p>
+      <dl className="mt-3 space-y-2.5">
+        {rows.map((row) => (
+          <div key={row.label} className="flex items-start justify-between gap-3 text-[12px]">
+            <dt className="shrink-0 font-semibold text-slate-500">{row.label}</dt>
+            <dd className="min-w-0 break-keep text-right font-semibold text-slate-900">{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function VerifyAdminMypageSidePanel({ item }: { item: MyPageItem }) {
+  return (
+    <div className="min-w-0 space-y-4">
+      <VerifyAdminApplicationSummaryCard item={item} />
+      <GeneralCustomerNotificationCard item={item} />
+    </div>
+  );
+}
+
 /** 일반 고객(AI 리포트) 전용 — 최근 확인 결과 중심. 전문가 진행 UI와 구조 분리. */
 function GeneralCustomerResultView({
   item,
@@ -663,6 +706,8 @@ function GeneralCustomerResultView({
       ? "text-red-700"
       : "text-[#0d2a6b]";
 
+  const isVerifyAdminFreeLayout = item.serviceType === "verify_admin";
+
   return (
     <section
       id={rootId}
@@ -690,32 +735,50 @@ function GeneralCustomerResultView({
         {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
       </p>
 
-      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        {resultInfo ? (
-          <p className={`text-[24px] font-bold tracking-[-0.04em] sm:text-[28px] ${resultTone}`}>
-            {resultInfo.label}
-          </p>
-        ) : (
-          <p className="text-[22px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
-        )}
-        {typeof item.feasibilityScore === "number" && (
-          <p className="text-[16px] font-semibold tabular-nums text-emerald-600 sm:text-[18px]">
-            {item.feasibilityScore}%
-          </p>
-        )}
-      </div>
+      {!isVerifyAdminFreeLayout ? (
+        <>
+          <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            {resultInfo ? (
+              <p className={`text-[24px] font-bold tracking-[-0.04em] sm:text-[28px] ${resultTone}`}>
+                {resultInfo.label}
+              </p>
+            ) : (
+              <p className="text-[22px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
+            )}
+            {typeof item.feasibilityScore === "number" && (
+              <p className="text-[16px] font-semibold tabular-nums text-emerald-600 sm:text-[18px]">
+                {item.feasibilityScore}%
+              </p>
+            )}
+          </div>
 
-      {keyPoints[0] ? (
-        <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
+          {keyPoints[0] ? (
+            <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
+          ) : null}
+        </>
       ) : null}
 
-      {item.serviceType === "verify_admin" ? (
-        <div className="mt-5">
-          <VerifyAdminMypageActionRow
-            item={item}
-            applicantName={applicantName}
-            onExpertRequested={onExpertRequested}
-          />
+      {isVerifyAdminFreeLayout ? (
+        <div className="mt-5 border-t border-slate-200/70 pt-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <PdfDownloadButton
+              leadId={item.id}
+              serviceLabel={item.serviceLabel}
+              applicantName={applicantName}
+              variant="refined"
+              serviceType={item.serviceType}
+              hasAiReportRequest={item.hasAiReportRequest}
+            />
+            {item.hasExpertReview ? (
+              <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+            ) : (
+              <AdminVerifyExpertRequestButton
+                leadId={item.id}
+                alreadyRequested={false}
+                onRequested={onExpertRequested}
+              />
+            )}
+          </div>
         </div>
       ) : (
         <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
@@ -2806,6 +2869,10 @@ function GeneralCustomerExtrasPanel({
 }) {
   const pastCount = items.filter((entry) => entry.id !== activeId).length;
 
+  if (shouldUseVerifyAdminMypageSlimAside(item.serviceType)) {
+    return <VerifyAdminMypageSidePanel item={item} />;
+  }
+
   return (
     <div className="space-y-4">
       <GeneralCustomerWalletCore leadId={item.id} placement="aside" />
@@ -4367,12 +4434,16 @@ function Dashboard({
         </div>
 
         <div className="mt-4 space-y-3 xl:hidden">
-          <GeneralCustomerExtrasPanel
-            item={activeItem}
-            items={items}
-            activeId={activeItem.id}
-            onSelect={onChangeActive}
-          />
+          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+            <VerifyAdminMypageSidePanel item={activeItem} />
+          ) : (
+            <GeneralCustomerExtrasPanel
+              item={activeItem}
+              items={items}
+              activeId={activeItem.id}
+              onSelect={onChangeActive}
+            />
+          )}
         </div>
       </>
     );
@@ -4431,15 +4502,21 @@ function Dashboard({
 
           <PublicNotes notes={activeItem.publicNotes} />
 
-          <ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid} />
+          {!verifyAdminPaid ? <ExpertMainSupport item={activeItem} hideRecommended={false} /> : null}
         </div>
 
         <div className="mt-4 grid gap-5 xl:hidden">
-          {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
-          <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
-          <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-          <VietnamLifeCard item={activeItem} />
-          {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
+          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+            <VerifyAdminMypageSidePanel item={activeItem} />
+          ) : (
+            <>
+              {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
+              <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
+              <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
+              <VietnamLifeCard item={activeItem} />
+              {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
+            </>
+          )}
         </div>
       </>
     );
@@ -4663,13 +4740,17 @@ export default function MyPage() {
           )}
 
           {state === "ready" && !isGeneralCustomerLayout && (activeLayoutItem ?? firstItem) && (
-            <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
-              <ExpertAsideSupport
-                item={(activeLayoutItem ?? firstItem)!}
-                hideNotificationCard={
-                  activeLayoutItem ? isVerifyAdminPaidMypageItem(activeLayoutItem) : false
-                }
-              />
+            <aside className="hidden min-w-0 xl:sticky xl:top-6 xl:block xl:self-start">
+              {shouldUseVerifyAdminMypageSlimAside((activeLayoutItem ?? firstItem)!.serviceType) ? (
+                <VerifyAdminMypageSidePanel item={(activeLayoutItem ?? firstItem)!} />
+              ) : (
+                <ExpertAsideSupport
+                  item={(activeLayoutItem ?? firstItem)!}
+                  hideNotificationCard={
+                    activeLayoutItem ? isVerifyAdminPaidMypageItem(activeLayoutItem) : false
+                  }
+                />
+              )}
             </aside>
           )}
           </div>

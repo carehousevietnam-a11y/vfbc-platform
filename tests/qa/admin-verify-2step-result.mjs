@@ -29,6 +29,12 @@ const {
   VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE,
   VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER,
   VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
+  isVerifyAdminMypageItem,
+  resolveVerifyAdminApplicationSummaryStatus,
+  shouldUseVerifyAdminMypageSlimAside,
+  VERIFY_ADMIN_SUMMARY_STATUS_FREE,
+  VERIFY_ADMIN_SUMMARY_STATUS_PAID_BEFORE,
+  VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
 const caseResolutionMeta = {
@@ -204,6 +210,18 @@ if (timelineBeforeExpert.some((entry) => entry.label.includes("전문가")))
   fail.push("timeline must hide expert entries before expert request");
 if (verifyAdminTimelineEntryAllowed("전문가 검토 시작", false))
   fail.push("expert timeline labels must be blocked before request");
+if (shouldUseVerifyAdminMypageSlimAside("verify_admin") !== true)
+  fail.push("verify_admin must use slim aside panel");
+if (shouldUseVerifyAdminMypageSlimAside("verify_tax") !== false)
+  fail.push("non verify_admin must keep full aside widgets");
+if (!isVerifyAdminMypageItem(freeAdminAiOnly))
+  fail.push("verify_admin item detect");
+if (resolveVerifyAdminApplicationSummaryStatus(freeAdminAiOnly) !== VERIFY_ADMIN_SUMMARY_STATUS_FREE)
+  fail.push("free summary status");
+if (resolveVerifyAdminApplicationSummaryStatus(paidItemBeforeExpert) !== VERIFY_ADMIN_SUMMARY_STATUS_PAID_BEFORE)
+  fail.push("paid before expert summary status");
+if (resolveVerifyAdminApplicationSummaryStatus(paidItem) !== VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER)
+  fail.push("paid after expert summary status");
 
 const report = {
   freeComplete,
