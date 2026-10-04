@@ -45,6 +45,7 @@ const {
   verifyAdminMypageShowsRollingStrip,
   shouldHideVerifyAdminWalletDocumentCount,
   VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
+  verifyAdminPaidMypageUsesDedicatedLayout,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
 const {
@@ -286,6 +287,24 @@ if (!mypagePageSrc.includes("freeVerifyAdminLegibilityLayout"))
   fail.push("wallet F-11 legibility must be gated by freeVerifyAdminLegibilityLayout");
 if (!mypagePageSrc.includes("ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid}"))
   fail.push("paid verify_admin must restore d2871f8 ExpertMainSupport on expert dashboard");
+if (!mypagePageSrc.includes("function VerifyAdminPaidExpertDashboard"))
+  fail.push("verify_admin paid must use isolated d2871f8 VerifyAdminPaidExpertDashboard");
+const paidDashboardBody = mypagePageSrc.slice(
+  mypagePageSrc.indexOf("function VerifyAdminPaidExpertDashboard"),
+  mypagePageSrc.indexOf("function Dashboard(")
+);
+if (paidDashboardBody.includes("VerifyAdminMypageMainWalletFooter"))
+  fail.push("paid dashboard must not include main wallet footer");
+if (paidDashboardBody.includes("VerifyAdminMypageSidePanel"))
+  fail.push("paid dashboard must not include slim side panel");
+if (paidDashboardBody.includes("VerifyAdminMypageRollingStrip"))
+  fail.push("paid dashboard must not include rolling strip");
+if (verifyAdminPaidMypageUsesDedicatedLayout(paidItem) !== true)
+  fail.push("paid item must use dedicated layout flag");
+if (verifyAdminPaidMypageUsesDedicatedLayout(freeAdminAiOnly) !== false)
+  fail.push("free verify_admin must not use paid dedicated layout flag");
+if (!mypagePageSrc.includes("verifyAdminPaidMypageUsesDedicatedLayout(activeLayoutItem)"))
+  fail.push("paid PC aside must use dedicated layout branch with ExpertAsideSupport");
 
 const report = {
   freeComplete,

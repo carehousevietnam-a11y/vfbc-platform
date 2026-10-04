@@ -179,6 +179,11 @@ export function verifyAdminMypageShowsRollingStrip(
   return shouldUseVerifyAdminMypageSlimAside(item);
 }
 
+/** F-13: verify_admin 유료는 d2871f8 전용 Dashboard·PC aside 경로 */
+export function verifyAdminPaidMypageUsesDedicatedLayout(item: MypageLayoutItemLike | null | undefined): boolean {
+  return Boolean(item && isVerifyAdminPaidMypageItem(item));
+}
+
 export function shouldHideVerifyAdminWalletDocumentCount(documentCount: number): boolean {
   return documentCount === 0;
 }
