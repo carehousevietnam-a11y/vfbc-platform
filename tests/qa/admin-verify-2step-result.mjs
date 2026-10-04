@@ -291,6 +291,25 @@ if (new Set(rollingIconSignatures).size < 2)
   fail.push("rolling strip icons must not all use the same fallback icon");
 if (!mypageWalletSlotTitleClassIsLegible(MYPAGE_WALLET_SLOT_TITLE_CLASS))
   fail.push("wallet slot title class must avoid truncate/leading-none vertical clip");
+const verifyAdminSidePanelBody = mypagePageSrc.slice(
+  mypagePageSrc.indexOf("function VerifyAdminMypageSidePanel"),
+  mypagePageSrc.indexOf("/** 일반 고객")
+);
+const sideSummaryIdx = verifyAdminSidePanelBody.indexOf("VerifyAdminApplicationSummaryCard");
+const sideNotifIdx = verifyAdminSidePanelBody.indexOf("GeneralCustomerNotificationCard");
+const sideEmergencyIdx = verifyAdminSidePanelBody.indexOf("EmergencyHelpCard");
+if (sideEmergencyIdx < 0)
+  fail.push("F-16 verify_admin aiOnly slim aside must include EmergencyHelpCard");
+if (sideSummaryIdx < 0 || sideNotifIdx < sideSummaryIdx || sideEmergencyIdx < sideNotifIdx)
+  fail.push("F-16 slim aside order must be summary → notification → emergency help");
+if (verifyAdminSidePanelBody.includes("mobileExpertAccordion"))
+  fail.push("F-16 free emergency help must not use expert mobile accordion");
+if (MYPAGE_WALLET_SLOT_TITLE_CLASS.includes("min-h-[2.75rem]"))
+  fail.push("F-16 wallet slot title must not use fixed min-h 2-line reserve");
+if (/min-h-\[(132|190)px\]\s+flex-1/.test(mypagePageSrc))
+  fail.push("F-16 free wallet preview must use fixed preview height not flex-1 stretch");
+if (!mypagePageSrc.includes('previewHeight = legacyPreviewHeight'))
+  fail.push("F-16 wallet preview height must use legacy d2871f8 fixed heights");
 if (!mypagePageSrc.includes("flex min-w-[420px] items-start"))
   fail.push("StepProgress inner track must match d2871f8 min-w-[420px] for non-free-global layout");
 if (/<main className="[^"]*overflow-x-hidden/.test(mypagePageSrc))

@@ -677,6 +677,7 @@ function VerifyAdminMypageSidePanel({ item }: { item: MyPageItem }) {
     <div className="min-w-0 space-y-4">
       <VerifyAdminApplicationSummaryCard item={item} />
       <GeneralCustomerNotificationCard item={item} />
+      <EmergencyHelpCard item={item} compact />
     </div>
   );
 }
@@ -2448,15 +2449,9 @@ function WalletSection({
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
             const slotShellClass = legibilityLayout
-              ? compact
-                ? "flex h-full min-h-[248px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
-                : "flex h-full min-h-[320px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
+              ? `flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${legacySlotHeight}`
               : `flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${legacySlotHeight}`;
-            const previewHeight = legibilityLayout
-              ? compact
-                ? "min-h-[132px] flex-1"
-                : "min-h-[190px] flex-1"
-              : legacyPreviewHeight;
+            const previewHeight = legacyPreviewHeight;
 
             if (!doc) {
               return (
@@ -2571,8 +2566,8 @@ function WalletSection({
             onClick={() => openUploadModal()}
             className={
               legibilityLayout
-                ? `flex h-full min-h-[248px] w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
-                    compact ? "" : "min-h-[320px]"
+                ? `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+                    compact ? "h-[248px]" : "h-[320px]"
                   }`
                 : `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
                     compact ? "h-[248px]" : "h-[320px]"
