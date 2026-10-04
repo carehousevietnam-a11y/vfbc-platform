@@ -1,5 +1,11 @@
 import { ensureTsxRuntime } from "./_ensure-tsx-runtime.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 ensureTsxRuntime(import.meta.url);
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const mypagePageSrc = fs.readFileSync(path.join(repoRoot, "src/app/mypage/page.tsx"), "utf8");
 
 const {
   isAdminPhase2DocumentsUploadComplete,
@@ -226,9 +232,11 @@ if (timelineBeforeExpert.some((entry) => entry.label.includes("전문가")))
   fail.push("timeline must hide expert entries before expert request");
 if (verifyAdminTimelineEntryAllowed("전문가 검토 시작", false))
   fail.push("expert timeline labels must be blocked before request");
-if (shouldUseVerifyAdminMypageSlimAside("verify_admin") !== true)
-  fail.push("verify_admin must use slim aside panel");
-if (shouldUseVerifyAdminMypageSlimAside("verify_tax") !== false)
+if (shouldUseVerifyAdminMypageSlimAside(freeAdminAiOnly) !== true)
+  fail.push("verify_admin free must use slim aside panel");
+if (shouldUseVerifyAdminMypageSlimAside(paidItem) !== false)
+  fail.push("verify_admin paid must not use slim aside panel");
+if (shouldUseVerifyAdminMypageSlimAside(otherServiceAiOnly) !== false)
   fail.push("non verify_admin must keep full aside widgets");
 if (!isVerifyAdminMypageItem(freeAdminAiOnly))
   fail.push("verify_admin item detect");
@@ -238,10 +246,14 @@ if (resolveVerifyAdminApplicationSummaryStatus(paidItemBeforeExpert) !== VERIFY_
   fail.push("paid before expert summary status");
 if (resolveVerifyAdminApplicationSummaryStatus(paidItem) !== VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER)
   fail.push("paid after expert summary status");
-if (verifyAdminMypageShowsMainWalletFooter() !== true)
-  fail.push("verify_admin must show main wallet footer");
-if (verifyAdminMypageShowsRollingStrip() !== true)
-  fail.push("verify_admin must show rolling strip");
+if (verifyAdminMypageShowsMainWalletFooter(freeAdminAiOnly) !== true)
+  fail.push("verify_admin free must show main wallet footer");
+if (verifyAdminMypageShowsMainWalletFooter(paidItem) !== false)
+  fail.push("verify_admin paid must not show main wallet footer");
+if (verifyAdminMypageShowsRollingStrip(freeAdminAiOnly) !== true)
+  fail.push("verify_admin free must show rolling strip");
+if (verifyAdminMypageShowsRollingStrip(paidItem) !== false)
+  fail.push("verify_admin paid must not show rolling strip");
 if (shouldHideVerifyAdminWalletDocumentCount(0) !== true)
   fail.push("wallet must hide document count when zero");
 if (shouldHideVerifyAdminWalletDocumentCount(3) !== false)
@@ -266,6 +278,14 @@ if (new Set(rollingIconSignatures).size < 2)
   fail.push("rolling strip icons must not all use the same fallback icon");
 if (!mypageWalletSlotTitleClassIsLegible(MYPAGE_WALLET_SLOT_TITLE_CLASS))
   fail.push("wallet slot title class must avoid truncate/leading-none vertical clip");
+if (!mypagePageSrc.includes("flex min-w-[420px] items-start"))
+  fail.push("StepProgress inner track must match d2871f8 min-w-[420px] for non-free-global layout");
+if (/<main className="[^"]*overflow-x-hidden/.test(mypagePageSrc))
+  fail.push("main must not use global overflow-x-hidden (F-12 restore)");
+if (!mypagePageSrc.includes("freeVerifyAdminLegibilityLayout"))
+  fail.push("wallet F-11 legibility must be gated by freeVerifyAdminLegibilityLayout");
+if (!mypagePageSrc.includes("ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid}"))
+  fail.push("paid verify_admin must restore d2871f8 ExpertMainSupport on expert dashboard");
 
 const report = {
   freeComplete,

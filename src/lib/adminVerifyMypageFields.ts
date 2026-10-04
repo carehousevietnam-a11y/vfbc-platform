@@ -157,19 +157,26 @@ export function resolveVerifyAdminApplicationSummaryStatus(item: MypageLayoutIte
   return VERIFY_ADMIN_SUMMARY_STATUS_FREE;
 }
 
-/** F-8: verify_admin 마이페이지 오른쪽/모바일 보조 영역 슬림 패널 */
-export function shouldUseVerifyAdminMypageSlimAside(serviceType: string | null | undefined): boolean {
-  return serviceType === "verify_admin";
+/** F-8/F-12: verify_admin 무료(phase2 미완료)만 슬림 패널·보관함 푸터·롤링 띠 */
+export function shouldUseVerifyAdminMypageSlimAside(
+  item: MypageLayoutItemLike | null | undefined
+): boolean {
+  if (!item || item.serviceType !== "verify_admin") return false;
+  return !isVerifyAdminPaidMypageItem(item);
 }
 
 export const VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE = "정부기관 바로가기";
 
-export function verifyAdminMypageShowsMainWalletFooter(): boolean {
-  return true;
+export function verifyAdminMypageShowsMainWalletFooter(
+  item: MypageLayoutItemLike | null | undefined
+): boolean {
+  return shouldUseVerifyAdminMypageSlimAside(item);
 }
 
-export function verifyAdminMypageShowsRollingStrip(): boolean {
-  return true;
+export function verifyAdminMypageShowsRollingStrip(
+  item: MypageLayoutItemLike | null | undefined
+): boolean {
+  return shouldUseVerifyAdminMypageSlimAside(item);
 }
 
 export function shouldHideVerifyAdminWalletDocumentCount(documentCount: number): boolean {

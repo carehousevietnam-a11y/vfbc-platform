@@ -387,7 +387,7 @@ function DesktopSidebar({ messageHref }: { messageHref: string }) {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
             <FolderLock size={17} className="text-[#0d2a6b]" />
           </div>
-          <p className="mt-2 break-keep text-sm font-bold leading-snug text-[#0d2a6b]">보안 안전 지갑</p>
+          <p className="mt-2 text-sm font-bold text-[#0d2a6b]">보안 안전 지갑</p>
           <p className="mt-1 text-[11px] leading-[15px] text-slate-500">
             고객님의 중요 자료는 암호화되어 안전하게 관리됩니다.
           </p>
@@ -1107,8 +1107,8 @@ function StepProgress({
         <span className="text-[10px] font-semibold text-blue-700">전체 단계 보기 ›</span>
       </div>
 
-      <div className="mt-5 min-w-0 overflow-x-auto pb-1">
-        <div className="flex w-max min-w-full items-start">
+      <div className="mt-5 overflow-x-auto pb-1">
+        <div className="flex min-w-[420px] items-start">
           {stage.steps.map((step, index) => {
             const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
             const dateLabel = stepDateResolver
@@ -2118,7 +2118,16 @@ function WalletAllDocumentsModal({
   );
 }
 
-function WalletSection({ leadId, compact = false }: { leadId: string; compact?: boolean }) {
+function WalletSection({
+  leadId,
+  compact = false,
+  freeVerifyAdminLegibilityLayout = false,
+}: {
+  leadId: string;
+  compact?: boolean;
+  /** F-11 legibility — verify_admin 무료에서 펼친 지갑만 */
+  freeVerifyAdminLegibilityLayout?: boolean;
+}) {
   const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -2278,6 +2287,16 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
     setAllOpen(true);
   }
 
+  const legibilityLayout = freeVerifyAdminLegibilityLayout;
+  const slotTitleClass = legibilityLayout
+    ? MYPAGE_WALLET_SLOT_TITLE_CLASS
+    : "truncate text-[14px] font-extrabold text-slate-900";
+  const walletGridClass = legibilityLayout
+    ? "mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch"
+    : `mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${compact ? "lg:grid-cols-3" : "lg:grid-cols-3"}`;
+  const legacySlotHeight = compact ? "h-[248px]" : "h-[320px]";
+  const legacyPreviewHeight = compact ? "h-[132px]" : "h-[190px]";
+
   return (
     <section
       id="wallet"
@@ -2333,23 +2352,25 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
           항상 카드가 표시된다. 순서는 항상 여권→비자→거주증→증명사진→건강검진서→서류추가로
           고정. 모바일 1열 → sm 2열 → lg 3열(3열×2행, PC 가로 스크롤 없음). */}
       {!loading && !loadError && (
-        <div
-          className={`mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${
-            compact ? "lg:grid-cols-3 lg:items-stretch" : "lg:grid-cols-3 lg:items-stretch"
-          }`}
-        >
+        <div className={walletGridClass}>
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
-            const slotShellClass = compact
-              ? "flex h-full min-h-[248px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
-              : "flex h-full min-h-[320px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5";
-            const previewHeight = compact ? "min-h-[132px] flex-1" : "min-h-[190px] flex-1";
+            const slotShellClass = legibilityLayout
+              ? compact
+                ? "flex h-full min-h-[248px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
+                : "flex h-full min-h-[320px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
+              : `flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${legacySlotHeight}`;
+            const previewHeight = legibilityLayout
+              ? compact
+                ? "min-h-[132px] flex-1"
+                : "min-h-[190px] flex-1"
+              : legacyPreviewHeight;
 
             if (!doc) {
               return (
                 <div key={slot.key} className={slotShellClass}>
-                  <p className={MYPAGE_WALLET_SLOT_TITLE_CLASS}>{slot.label}</p>
-                  <p className="mt-0.5 truncate text-[11px] leading-snug text-slate-400">아직 등록되지 않음</p>
+                  <p className={slotTitleClass}>{slot.label}</p>
+                  <p className="mt-0.5 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
 
                   <div
                     className={`relative mt-2 overflow-hidden rounded-[10px] border border-dashed border-slate-200 bg-slate-50 p-2 ${previewHeight}`}
@@ -2389,8 +2410,8 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
                 key={slot.key}
                 className={`group ${slotShellClass} transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md`}
               >
-                <p className={MYPAGE_WALLET_SLOT_TITLE_CLASS}>{slot.label}</p>
-                <p className="mt-0.5 truncate text-[11px] leading-snug text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
+                <p className={slotTitleClass}>{slot.label}</p>
+                <p className="mt-0.5 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
 
                 <div
                   className={`relative mt-2 overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner ${previewHeight}`}
@@ -2456,9 +2477,15 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
           <button
             type="button"
             onClick={() => openUploadModal()}
-            className={`flex h-full min-h-[248px] w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
-              compact ? "" : "min-h-[320px]"
-            }`}
+            className={
+              legibilityLayout
+                ? `flex h-full min-h-[248px] w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+                    compact ? "" : "min-h-[320px]"
+                  }`
+                : `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+                    compact ? "h-[248px]" : "h-[320px]"
+                  }`
+            }
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
               <Plus size={24} />
@@ -2694,7 +2721,11 @@ function GeneralCustomerWalletCore({
   if (expanded) {
     return (
       <div className="space-y-3">
-        <WalletSection leadId={leadId} compact />
+        <WalletSection
+          leadId={leadId}
+          compact
+          freeVerifyAdminLegibilityLayout={placement === "verifyAdminMainFooter"}
+        />
         <button
           type="button"
           onClick={() => setExpanded(false)}
@@ -2911,7 +2942,7 @@ function GeneralCustomerExtrasPanel({
 }) {
   const pastCount = items.filter((entry) => entry.id !== activeId).length;
 
-  if (shouldUseVerifyAdminMypageSlimAside(item.serviceType)) {
+  if (shouldUseVerifyAdminMypageSlimAside(item)) {
     return <VerifyAdminMypageSidePanel item={item} />;
   }
 
@@ -4412,22 +4443,23 @@ function Dashboard({
   const expertFlow = Boolean(tracks?.expert) || verifyAdminPaid;
 
   if (aiOnly) {
+    const freeVerifyAdminLayout = shouldUseVerifyAdminMypageSlimAside(activeItem);
     return (
       <>
-        <div className="space-y-4">
+        <div className={freeVerifyAdminLayout ? "min-w-0 space-y-4 overflow-x-hidden" : "space-y-4"}>
           <GeneralCustomerResultView
             item={activeItem}
             rootId="applications"
             applicantName={name}
             onExpertRequested={onReload}
           />
-          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+          {freeVerifyAdminLayout ? (
             <VerifyAdminMypageMainWalletFooter leadId={activeItem.id} />
           ) : null}
         </div>
 
         <div className="mt-4 space-y-3 xl:hidden">
-          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+          {freeVerifyAdminLayout ? (
             <VerifyAdminMypageSidePanel item={activeItem} />
           ) : (
             <GeneralCustomerExtrasPanel
@@ -4495,15 +4527,15 @@ function Dashboard({
 
           <PublicNotes notes={activeItem.publicNotes} />
 
-          {!verifyAdminPaid ? <ExpertMainSupport item={activeItem} hideRecommended={false} /> : null}
+          <ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid} />
 
-          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+          {shouldUseVerifyAdminMypageSlimAside(activeItem) ? (
             <VerifyAdminMypageMainWalletFooter leadId={activeItem.id} />
           ) : null}
         </div>
 
         <div className="mt-4 grid gap-5 xl:hidden">
-          {shouldUseVerifyAdminMypageSlimAside(activeItem.serviceType) ? (
+          {shouldUseVerifyAdminMypageSlimAside(activeItem) ? (
             <VerifyAdminMypageSidePanel item={activeItem} />
           ) : (
             <>
@@ -4654,12 +4686,12 @@ export default function MyPage() {
     : false;
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
+    <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
       <DesktopSidebar messageHref={messageHref} />
 
       {/* App Shell — Sidebar를 제외한 나머지 폭 전체를 그대로 차지한다(flex-1).
           더 이상 xl:pl-[...] 오프셋이나 mx-auto/max-w로 폭을 제한하지 않는다. */}
-      <div className="min-w-0 overflow-x-hidden">
+      <div className="min-w-0">
         <TopHeader name={name} />
 
         <div
@@ -4737,8 +4769,8 @@ export default function MyPage() {
           )}
 
           {state === "ready" && !isGeneralCustomerLayout && (activeLayoutItem ?? firstItem) && (
-            <aside className="hidden min-w-0 xl:sticky xl:top-6 xl:block xl:self-start">
-              {shouldUseVerifyAdminMypageSlimAside((activeLayoutItem ?? firstItem)!.serviceType) ? (
+            <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
+              {shouldUseVerifyAdminMypageSlimAside(activeLayoutItem ?? firstItem ?? undefined) ? (
                 <VerifyAdminMypageSidePanel item={(activeLayoutItem ?? firstItem)!} />
               ) : (
                 <ExpertAsideSupport
@@ -4753,7 +4785,7 @@ export default function MyPage() {
 
           {state === "ready" &&
           activeLayoutItem &&
-          shouldUseVerifyAdminMypageSlimAside(activeLayoutItem.serviceType) ? (
+          shouldUseVerifyAdminMypageSlimAside(activeLayoutItem) ? (
             <div className="col-span-full min-w-0">
               <VerifyAdminMypageRollingStrip />
             </div>
