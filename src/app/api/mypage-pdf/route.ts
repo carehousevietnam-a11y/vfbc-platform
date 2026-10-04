@@ -184,6 +184,8 @@ function buildVerifyMasterReportContent(
   riskCount: number;
   reviewedCount: number;
   satisfiedCount: number;
+  mandatoryDocumentLines?: string[];
+  executiveDashboardSupplementLines?: string[];
 } | null {
   const typeKey = normalizedType.replace(/-/g, "_");
 
@@ -760,6 +762,8 @@ export async function POST(req: NextRequest) {
     let cautionLines: string[] = [EXISTING_LEGAL_CHANGE_NOTICE];
     let reviewedCount: number | null = null;
     let satisfiedCount: number | null = null;
+    let verifyAdminMandatoryDocumentCardLines: string[] | undefined;
+    let verifyAdminExecutiveDashboardSupplement: string[] | undefined;
 
     if (category === "check") {
       // ⚠️ expertBrief에서 label/passed만 추출. reason/riskLevel/rejectionRisks/
@@ -849,6 +853,15 @@ export async function POST(req: NextRequest) {
         reviewedCount = masterContent.reviewedCount;
         satisfiedCount = masterContent.satisfiedCount;
         cautionLines = buildCautionLinesFromRiskFactors([]);
+        if ("mandatoryDocumentLines" in masterContent && masterContent.mandatoryDocumentLines?.length) {
+          verifyAdminMandatoryDocumentCardLines = masterContent.mandatoryDocumentLines;
+        }
+        if (
+          "executiveDashboardSupplementLines" in masterContent &&
+          masterContent.executiveDashboardSupplementLines?.length
+        ) {
+          verifyAdminExecutiveDashboardSupplement = masterContent.executiveDashboardSupplementLines;
+        }
       } else if (verifyCategory) {
         const incidentType = asStringField(diagMeta, "incident_type") ?? undefined;
         const incidentDescription = asStringField(diagMeta, "incident_description") ?? undefined;
@@ -1435,25 +1448,31 @@ export async function POST(req: NextRequest) {
       rightState.y = cardBottomY - 14;
     }
 
+    const executiveDashboardBodyLines = [
+      `최종 판단  ${executiveDecision.headline}`,
+      `평가  ${possibilityText}`,
+      `충족 요건  ${requirementsText}`,
+      `위험·보완  ${riskCardText}`,
+      `현재 단계  ${supportData.currentStageLabel}`,
+      `다음 조치  ${supportData.primaryNextAction}`,
+      ...(verifyAdminExecutiveDashboardSupplement ?? []),
+    ];
     drawRightCard(
       "EXECUTIVE DASHBOARD",
-      [
-        `최종 판단  ${executiveDecision.headline}`,
-        `평가  ${possibilityText}`,
-        `충족 요건  ${requirementsText}`,
-        `위험·보완  ${riskCardText}`,
-        `현재 단계  ${supportData.currentStageLabel}`,
-        `다음 조치  ${supportData.primaryNextAction}`,
-      ],
+      executiveDashboardBodyLines,
       148,
       9,
       false
     );
 
+    const mandatoryDocsCardSource =
+      verifyAdminMandatoryDocumentCardLines?.length
+        ? verifyAdminMandatoryDocumentCardLines
+        : requiredDocsList;
     drawRightCard(
       "MANDATORY DOCUMENTS",
-      requiredDocsList.length > 0
-        ? requiredDocsList.slice(0, 6).map((docName) => `✓ ${docName}`)
+      mandatoryDocsCardSource.length > 0
+        ? mandatoryDocsCardSource.slice(0, 6).map((docName) => `✓ ${docName}`)
         : ["아직 연결된 서류 목록이 없습니다."],
       118,
       8,

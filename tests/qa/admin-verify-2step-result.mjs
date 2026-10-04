@@ -17,6 +17,10 @@ const {
   shouldUseVerifyAdminPaidDashboard,
   buildAdminPhase1SummaryLinesFromActivities,
   buildAdminVerifyAiReportContentFromActivities,
+  formatAdminVerifyAiReportContentPlainText,
+  adminVerifyFreePdfTextContainsInternalCodes,
+  resolveAdminPhase1SimpleUploadFromActivities,
+  ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER,
   buildVerifyAdminMypageTimelineRecent,
   verifyAdminTimelineEntryAllowed,
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
@@ -159,6 +163,149 @@ const phase1Lines = buildAdminPhase1SummaryLinesFromActivities(paidActivities);
 const freePdfContent = buildAdminVerifyAiReportContentFromActivities(freeActivities, "lead-free");
 const paidPdfContent = buildAdminVerifyAiReportContentFromActivities(paidActivities, "lead-paid");
 
+const trafficGoal = "이 통지가 제 상황에 해당하는지 확인하고 싶습니다";
+const f18ScenarioTrafficUpload = [
+  {
+    action: "verify_lead",
+    meta: {
+      storagePath: "verify-admin/lead-traffic/notice.pdf",
+      submitted_document: { document_type: "통지서" },
+      admin_verify_answers_json: JSON.stringify({
+        caseCustomerInput: trafficGoal,
+        case01_authorityDemand: "traffic",
+      }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: trafficGoal },
+        authority: { value: "교통국·운전면허 관련 기관" },
+        document: { value: "위반 통지서" },
+        currentStage: { value: "통지 수령 직후" },
+        riskSignals: [],
+      }),
+    },
+  },
+];
+
+const f18ScenarioOtherNoUpload = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_verify_answers_json: JSON.stringify({
+        case01_authorityDemand: "payment",
+        caseCustomerInput: "세무 관련 안내를 받았습니다.",
+      }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "안내 내용이 제 경우에 해당하는지 확인" },
+        authority: { value: "세무·납세 관련 기관" },
+        document: { value: "납부 안내" },
+        riskSignals: [],
+      }),
+    },
+  },
+];
+
+const f18ScenarioSparse = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "payment" }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "행정 통지 대응" },
+        riskSignals: [],
+      }),
+    },
+  },
+];
+
+const f18TrafficContent = buildAdminVerifyAiReportContentFromActivities(
+  f18ScenarioTrafficUpload,
+  "lead-traffic",
+);
+const f18OtherContent = buildAdminVerifyAiReportContentFromActivities(
+  f18ScenarioOtherNoUpload,
+  "lead-other",
+);
+const f18SparseContent = buildAdminVerifyAiReportContentFromActivities(
+  f18ScenarioSparse,
+  "lead-sparse",
+);
+
+function countOccurrences(haystack, needle) {
+  if (!needle) return 0;
+  let count = 0;
+  let idx = 0;
+  while (true) {
+    const at = haystack.indexOf(needle, idx);
+    if (at < 0) break;
+    count += 1;
+    idx = at + needle.length;
+  }
+  return count;
+}
+
+function assertFreePdfGuards(label, activities, content, expectUploadLines) {
+  if (!content || content.includesPhase2Block) {
+    fail.push(`F-18 ${label}: must be free content without phase2 block`);
+    return;
+  }
+  const plain = formatAdminVerifyAiReportContentPlainText(content);
+  if (adminVerifyFreePdfTextContainsInternalCodes(plain)) {
+    fail.push(`F-18 ${label}: plain text must not contain internal codes`);
+  }
+  if (/2차|admin_phase2|phase2_upload|document-upload\//.test(plain)) {
+    fail.push(`F-18 ${label}: free PDF must not contain phase2-related strings`);
+  }
+  const goalLine = content.execSummary.find((line) => line.startsWith("확인 목적 ·"));
+  const goalText = goalLine?.replace(/^확인 목적 ·\s*/, "") ?? "";
+  const plainBeforeActions = plain.split("RECOMMENDED ACTIONS")[0] ?? plain;
+  if (goalText && countOccurrences(plainBeforeActions, goalText) > 1) {
+    fail.push(`F-18 ${label}: customer goal must appear once (exec summary only)`);
+  }
+  const hasImmediate = content.recommendedAction.some((line) => line.includes("즉시"));
+  const hasNext = content.recommendedAction.some((line) => line.includes("다음"));
+  const hasFinal = content.recommendedAction.some((line) => line.includes("최종"));
+  if (!hasImmediate || !hasNext || !hasFinal) {
+    fail.push(`F-18 ${label}: recommended actions must include immediate/next/final steps`);
+  }
+  const upload = resolveAdminPhase1SimpleUploadFromActivities(
+    activities,
+    JSON.parse(activities[0].meta.admin_verify_answers_json),
+  );
+  const hasSubmitLine = plain.includes("제출 자료 ·");
+  const hasDisclaimer = plain.includes(ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER);
+  if (expectUploadLines) {
+    if (!upload) fail.push(`F-18 ${label}: fixture must resolve phase1 upload`);
+    if (!hasSubmitLine || !hasDisclaimer) {
+      fail.push(`F-18 ${label}: upload fixture must include submit line and disclaimer`);
+    }
+  } else if (hasSubmitLine || hasDisclaimer) {
+    fail.push(`F-18 ${label}: no-upload fixture must omit submit/disclaimer lines`);
+  }
+  if (!content.mandatoryDocumentLines?.length) {
+    fail.push(`F-18 ${label}: free PDF must include mandatoryDocumentLines`);
+  }
+  if (!content.executiveDashboardSupplementLines?.length) {
+    fail.push(`F-18 ${label}: free PDF must include dashboard supplement lines`);
+  }
+}
+
+const f18SamplePlainTexts = {
+  trafficUpload: formatAdminVerifyAiReportContentPlainText(f18TrafficContent),
+  otherNoUpload: formatAdminVerifyAiReportContentPlainText(f18OtherContent),
+  sparse: formatAdminVerifyAiReportContentPlainText(f18SparseContent),
+};
+
+const paidRegressionExpected = {
+  execSummary: [
+    "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
+    "확인 목적 · 행정 통지 대응",
+    "문서 · 위반 통지서",
+  ],
+  recommendedAction: ["① 다음 조치 · 통지서 원본의 기한과 요구 내용을 다시 확인해 주세요."],
+  includesPhase2Block: true,
+  hasMandatoryOverride: false,
+  hasDashboardSupplement: false,
+};
+
 const timelineBeforeExpert = buildVerifyAdminMypageTimelineRecent({
   activityLog: [{ label: "AI 검토 완료", createdAt: "2026-01-01T00:00:00.000Z" }],
   createdAt: "2026-01-01T00:00:00.000Z",
@@ -168,6 +315,19 @@ const timelineBeforeExpert = buildVerifyAdminMypageTimelineRecent({
 });
 
 const fail = [];
+assertFreePdfGuards("traffic+upload", f18ScenarioTrafficUpload, f18TrafficContent, true);
+assertFreePdfGuards("other-no-upload", f18ScenarioOtherNoUpload, f18OtherContent, false);
+assertFreePdfGuards("sparse", f18ScenarioSparse, f18SparseContent, false);
+const paidRegressionSnapshot = {
+  execSummary: paidPdfContent?.execSummary ?? [],
+  recommendedAction: paidPdfContent?.recommendedAction ?? [],
+  includesPhase2Block: paidPdfContent?.includesPhase2Block ?? false,
+  hasMandatoryOverride: Boolean(paidPdfContent?.mandatoryDocumentLines?.length),
+  hasDashboardSupplement: Boolean(paidPdfContent?.executiveDashboardSupplementLines?.length),
+};
+if (JSON.stringify(paidRegressionSnapshot) !== JSON.stringify(paidRegressionExpected)) {
+  fail.push("F-18 paid PDF content regression guard failed");
+}
 if (freeComplete !== false) fail.push("phase2Complete free should be false");
 if (paidComplete !== true) fail.push("phase2Complete paid should be true");
 if (pdfFree !== false) fail.push("PDF phase2 section free should be false");
@@ -439,6 +599,8 @@ const report = {
   paidPdfContent: paidPdfContent
     ? { includesPhase2Block: paidPdfContent.includesPhase2Block }
     : null,
+  f18SamplePlainTexts,
+  paidRegressionSnapshot,
   timelineBeforeExpert,
   ok: fail.length === 0,
   fail,

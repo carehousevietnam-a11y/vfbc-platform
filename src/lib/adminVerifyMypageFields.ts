@@ -1,16 +1,21 @@
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
 import {
+  ADMIN_PHASE1_EVIDENCE_FILE_NAME_KEY,
   ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_EVIDENCE_STORAGE_PATH_META_KEY,
   ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  CASE_CUSTOMER_INPUT_KEY,
   CASE_RESOLUTION_META_JSON_KEY,
   buildCaseResolutionProfile,
   deserializeCaseResolutionProfile,
+  getCase06FieldOptionLabel,
 } from "@/lib/adminVerifyProfiling";
 import {
   buildPhase1RiskSummaryLinesFromManifest,
   buildPhase2RiskSummaryLinesFromManifest,
 } from "@/lib/adminVerifyJudgmentRuntime";
+import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 export const VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL = "AI 리포트 받기";
 export const VERIFY_ADMIN_EXPERT_REVIEWING_LABEL = "담당 전문가가 검토 중입니다";
@@ -266,7 +271,317 @@ export type AdminVerifyAiReportContent = {
   reviewedCount: number;
   satisfiedCount: number;
   includesPhase2Block: boolean;
+  /** F-18 free PDF — richer MANDATORY DOCUMENTS card lines (optional). */
+  mandatoryDocumentLines?: string[];
+  /** F-18 free PDF — extra lines appended under EXECUTIVE DASHBOARD card (metrics unchanged). */
+  executiveDashboardSupplementLines?: string[];
 };
+
+export const ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER =
+  "※ 이 리포트에서는 1차 입력 내용을 중심으로 정리합니다. 제출 자료의 상세 내용 비교·검토는 상세 검토에서 확인할 수 있습니다.";
+
+const VERIFY_ADMIN_MANDATORY_DOC_HINTS: Record<string, string> = {
+  "교통국에서 받은 안내·통지 문서": "발신 기관·요구 내용·기한 확인용",
+  "교통국에 제출했던 서류·자료": "이전 제출 내용·처리 결과 대조용",
+};
+
+function normalizeAdminVerifyPdfDedupKey(text: string): string {
+  return text
+    .replace(/^✓\s*/, "")
+    .replace(/^[①②③]\s*(즉시|다음|최종)\s*조치\s*·\s*/, "")
+    .replace(/^(결론|확인 목적|문서|지금 우선)\s*·\s*/, "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+}
+
+function mapSubmittedDocumentTypeLabel(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  if (/^case06_/.test(trimmed)) {
+    return getCase06FieldOptionLabel("case06_documentNature", trimmed);
+  }
+  return trimmed;
+}
+
+/** 1차 마지막 간단 업로드 — verify_lead meta storagePath (2차 document-upload 경로 제외). */
+export function resolveAdminPhase1SimpleUploadFromActivities(
+  activities: CrmActivityLike[],
+  answers: ReviewAnswers,
+): { count: number; typeLabel: string | null } | null {
+  for (let i = activities.length - 1; i >= 0; i -= 1) {
+    const row = activities[i];
+    if (row.action !== "verify_lead") continue;
+    const meta = asMeta(row.meta);
+    if (!meta) continue;
+    const storagePath =
+      typeof meta.storagePath === "string" && meta.storagePath.trim()
+        ? meta.storagePath.trim()
+        : "";
+    if (!storagePath || storagePath.includes("document-upload/")) continue;
+    if (typeof meta[ADMIN_PHASE2_EVIDENCE_STORAGE_PATH_META_KEY] === "string") continue;
+
+    let typeLabel: string | null = null;
+    const submitted = meta.submitted_document;
+    if (submitted && typeof submitted === "object") {
+      const documentType = (submitted as { document_type?: unknown }).document_type;
+      if (typeof documentType === "string") {
+        typeLabel = mapSubmittedDocumentTypeLabel(documentType);
+      }
+    }
+    return { count: 1, typeLabel };
+  }
+
+  if (answers[ADMIN_PHASE1_EVIDENCE_FILE_NAME_KEY]?.trim()) {
+    return { count: 1, typeLabel: null };
+  }
+  return null;
+}
+
+function buildAdminVerifyPaidAiReportContent(
+  profile: Record<string, unknown>,
+  activities: CrmActivityLike[],
+  leadId: string,
+  answers: ReviewAnswers,
+  resolutionProfile: ReturnType<typeof buildCaseResolutionProfile>,
+  riskSignals: string[],
+  goal: string | null,
+): AdminVerifyAiReportContent {
+  const execSummary = [
+    riskSignals.length > 0
+      ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 서류 원본 검토가 필요합니다.`
+      : "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
+    goal ? `확인 목적 · ${goal}` : null,
+    profileFieldValueFromResolution(profile.document)
+      ? `문서 · ${profileFieldValueFromResolution(profile.document)}`
+      : "문서 · 제출 정보 기준으로 1차 확인했습니다.",
+  ].filter((line): line is string => Boolean(line));
+
+  const keyFindings: string[] = ["■ 1차 확인 사항"];
+  for (const [label, key] of [
+    ["사건 앵커", "caseAnchor"],
+    ["관련 기관", "authority"],
+    ["문서", "document"],
+    ["확인 목적", "goal"],
+    ["현재 단계", "currentStage"],
+  ] as const) {
+    const val = profileFieldValueFromResolution(profile[key]);
+    if (val) keyFindings.push(`✓ ${label} · ${val}`);
+  }
+
+  for (const line of buildPhase1RiskSummaryLinesFromManifest(answers, resolutionProfile)) {
+    const trimmed = line.trim();
+    if (trimmed) keyFindings.push(`✓ ${trimmed}`);
+  }
+
+  let includesPhase2Block = false;
+  const responseLines = buildAdminVerifyResponseSummaryBlock(answers)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const phase2RiskLines = buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const uploadRefs = listAdminPhase2DocumentUploadRefs(activities, leadId);
+  if (responseLines.length > 0 || phase2RiskLines.length > 0 || uploadRefs.length > 0) {
+    includesPhase2Block = true;
+    keyFindings.push("■ 2차 확인");
+    for (const line of responseLines.slice(0, 12)) {
+      keyFindings.push(`✓ ${line}`);
+    }
+    for (const line of phase2RiskLines.slice(0, 8)) {
+      keyFindings.push(`✓ ${line}`);
+    }
+    for (const ref of uploadRefs.slice(0, 12)) {
+      keyFindings.push(`✓ 제출 자료 · ${ref.fileName}`);
+    }
+  }
+
+  const keyRisks =
+    riskSignals.length > 0
+      ? riskSignals.map((r) => `[주의] ${r}`)
+      : ["확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다."];
+  for (const line of buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile).slice(0, 5)) {
+    const trimmed = line.trim();
+    if (trimmed) keyRisks.push(`[2차] ${trimmed}`);
+  }
+
+  const recommendedAction =
+    riskSignals.length > 0
+      ? ["① 다음 조치 · 위험요인으로 표시된 항목을 통지서 원본과 대조해 주세요."]
+      : ["① 다음 조치 · 통지서 원본의 기한과 요구 내용을 다시 확인해 주세요."];
+  const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
+  return {
+    execSummary,
+    keyFindings,
+    keyRisks,
+    recommendedAction,
+    riskCount: riskSignals.length,
+    reviewedCount: satisfiedCount,
+    satisfiedCount,
+    includesPhase2Block,
+  };
+}
+
+function buildAdminVerifyFreeAiReportContent(
+  profile: Record<string, unknown>,
+  activities: CrmActivityLike[],
+  answers: ReviewAnswers,
+  resolutionProfile: ReturnType<typeof buildCaseResolutionProfile>,
+  riskSignals: string[],
+  goal: string | null,
+): AdminVerifyAiReportContent {
+  const dedupKeys = new Set<string>();
+  const registerDedup = (text: string) => {
+    dedupKeys.add(normalizeAdminVerifyPdfDedupKey(text));
+  };
+
+  const conclusionLine =
+    riskSignals.length > 0
+      ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 원본 통지서·안내의 기재 내용을 기준으로 추가 확인이 필요합니다.`
+      : "결론 · 1차 입력 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았으나, 원본 통지서·안내와의 대조 확인이 필요합니다.";
+
+  const priorityLine = goal
+    ? "지금 우선 · 입력하신 확인 목표에 맞춰 통지서·안내 원본의 발신 기관·요구 문구부터 확인해 주세요."
+    : "지금 우선 · 통지서·안내 원본에서 발신 기관·제목·기한이 적힌 부분을 먼저 확인해 주세요.";
+
+  const execSummary = [
+    conclusionLine,
+    goal ? `확인 목적 · ${goal}` : null,
+    priorityLine,
+  ].filter((line): line is string => Boolean(line));
+  for (const line of execSummary) registerDedup(line);
+
+  const keyFindings: string[] = ["■ 1차 확인 사항"];
+  const pushFinding = (line: string) => {
+    const key = normalizeAdminVerifyPdfDedupKey(line);
+    if (dedupKeys.has(key)) return;
+    dedupKeys.add(key);
+    keyFindings.push(`✓ ${line.replace(/^✓\s*/, "")}`);
+  };
+
+  for (const [label, key] of [
+    ["사건 앵커", "caseAnchor"],
+    ["관련 기관", "authority"],
+    ["문서", "document"],
+    ["현재 단계", "currentStage"],
+  ] as const) {
+    const val = profileFieldValueFromResolution(profile[key]);
+    if (!val) continue;
+    if (key === "document" && val.includes("제출 정보 기준")) continue;
+    pushFinding(`${label} · ${val}`);
+  }
+
+  const customerInput = answers[CASE_CUSTOMER_INPUT_KEY]?.trim();
+  if (customerInput) {
+    const goalNorm = goal ? normalizeAdminVerifyPdfDedupKey(goal) : "";
+    const inputNorm = normalizeAdminVerifyPdfDedupKey(customerInput);
+    if (!goalNorm || inputNorm !== goalNorm) {
+      pushFinding(`고객 상황 · ${customerInput}`);
+    }
+  }
+
+  for (const line of buildPhase1RiskSummaryLinesFromManifest(answers, resolutionProfile)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (goal && normalizeAdminVerifyPdfDedupKey(trimmed) === normalizeAdminVerifyPdfDedupKey(goal)) {
+      continue;
+    }
+    if (customerInput && trimmed.includes(customerInput)) continue;
+    pushFinding(trimmed);
+  }
+
+  const phase1Upload = resolveAdminPhase1SimpleUploadFromActivities(activities, answers);
+  if (phase1Upload) {
+    const typePart = phase1Upload.typeLabel?.trim();
+    const submitLine = typePart
+      ? `제출 자료 · ${typePart} ${phase1Upload.count}건이 제출되었습니다.`
+      : `제출 자료 · 자료 ${phase1Upload.count}건이 제출되었습니다.`;
+    pushFinding(submitLine);
+    pushFinding(ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER);
+  }
+
+  const keyRisks: string[] = [];
+  if (riskSignals.length > 0) {
+    for (const signal of riskSignals) {
+      keyRisks.push(`[주의] ${signal}`);
+    }
+  }
+  keyRisks.push(
+    "[공백] 원본 통지서·안내에 적힌 기한·요구 내용·발신 기관이 아직 교차 확인되지 않았을 수 있습니다.",
+  );
+  keyRisks.push(
+    "[공백] 현재는 1차 입력과 제출 사실만으로 사실관계를 확정할 수 없으며, 원본 통지서의 기재 내용을 기준으로 확인이 필요합니다.",
+  );
+  if (phase1Upload) {
+    keyRisks.push(
+      "[공백] 제출 자료의 상세 내용은 이 리포트 범위에서 검토하지 않으며, 종류·제출 사실만 반영했습니다.",
+    );
+  }
+
+  const recommendedAction = [
+    "① 즉시 조치 · 통지서·안내 원본에서 발신 기관·제목·기한·요구 문구가 적힌 부분을 표시해 두세요.",
+    goal
+      ? "② 다음 조치 · 확인 목표에 맞춰 아직 확인하지 못한 항목을 정리하고, 원본과 대조할 위치를 표시해 주세요."
+      : "② 다음 조치 · 1차에 정리한 상황과 원본 통지서·안내를 나란히 놓고 아직 확인하지 못한 항목을 정리해 주세요.",
+    "③ 최종 조치 · 필요하면 상세 검토를 통해 제출 자료와 답변을 함께 확인하고 다음 대응 방향을 정리해 주세요.",
+  ];
+
+  const requiredDocs = getRequiredDocuments("verify_admin");
+  const mandatoryDocumentLines = requiredDocs.documents.map((docName) => {
+    const hint = VERIFY_ADMIN_MANDATORY_DOC_HINTS[docName];
+    return hint ? `${docName} — ${hint}` : `${docName} — 제출·확인 참고`;
+  });
+
+  const executiveDashboardSupplementLines = [
+    "입력 범위 · 1차 질문 답변과 간단 업로드 제출 사실",
+    "검토 범위 · 제출 파일 내용 분석·2차 확인은 상세 검토에서 진행",
+  ];
+
+  const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
+  return {
+    execSummary,
+    keyFindings,
+    keyRisks,
+    recommendedAction,
+    riskCount: riskSignals.length,
+    reviewedCount: satisfiedCount,
+    satisfiedCount,
+    includesPhase2Block: false,
+    mandatoryDocumentLines,
+    executiveDashboardSupplementLines,
+  };
+}
+
+export function formatAdminVerifyAiReportContentPlainText(
+  content: AdminVerifyAiReportContent,
+): string {
+  const sections: string[] = [
+    "EXECUTIVE SUMMARY",
+    ...content.execSummary,
+    "",
+    "EVIDENCE & KEY FINDINGS",
+    ...content.keyFindings,
+    "",
+    "KEY RISKS & GAPS",
+    ...content.keyRisks,
+    "",
+    "RECOMMENDED ACTIONS",
+    ...content.recommendedAction,
+  ];
+  if (content.mandatoryDocumentLines?.length) {
+    sections.push("", "MANDATORY DOCUMENTS", ...content.mandatoryDocumentLines);
+  }
+  return sections.join("\n");
+}
+
+export function adminVerifyFreePdfTextContainsInternalCodes(text: string): boolean {
+  return (
+    /\bverify_admin\b/.test(text) ||
+    /\badmin_phase2\b/.test(text) ||
+    /\bphase2_upload\b/.test(text) ||
+    /\bundefined\b/.test(text) ||
+    /\bnull\b/.test(text)
+  );
+}
 
 /** verify_admin My Page AI 리포트 PDF 본문(기존 1차/2차 섹션 구조 유지). */
 export function buildAdminVerifyAiReportContentFromActivities(
@@ -282,89 +597,34 @@ export function buildAdminVerifyAiReportContentFromActivities(
       Array.isArray(profile.riskSignals) && profile.riskSignals.length > 0
         ? (profile.riskSignals as string[]).slice(0, 3)
         : [];
-    const execSummary = [
-      riskSignals.length > 0
-        ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 서류 원본 검토가 필요합니다.`
-        : "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
-      goal ? `확인 목적 · ${goal}` : null,
-      profileFieldValueFromResolution(profile.document)
-        ? `문서 · ${profileFieldValueFromResolution(profile.document)}`
-        : "문서 · 제출 정보 기준으로 1차 확인했습니다.",
-    ].filter((line): line is string => Boolean(line));
-
-    const keyFindings: string[] = ["■ 1차 확인 사항"];
-    for (const [label, key] of [
-      ["사건 앵커", "caseAnchor"],
-      ["관련 기관", "authority"],
-      ["문서", "document"],
-      ["확인 목적", "goal"],
-      ["현재 단계", "currentStage"],
-    ] as const) {
-      const val = profileFieldValueFromResolution(profile[key]);
-      if (val) keyFindings.push(`✓ ${label} · ${val}`);
-    }
 
     const answers = parseAdminVerifyAnswersFromActivities(activities);
     const resolutionProfile =
       deserializeCaseResolutionProfile({
         [CASE_RESOLUTION_META_JSON_KEY]: profileRaw,
       }) ?? buildCaseResolutionProfile(answers);
-    for (const line of buildPhase1RiskSummaryLinesFromManifest(answers, resolutionProfile)) {
-      const trimmed = line.trim();
-      if (trimmed) keyFindings.push(`✓ ${trimmed}`);
-    }
 
-    let includesPhase2Block = false;
     const phase2Complete = isAdminPhase2DocumentsUploadComplete(activities);
     if (phase2Complete && Object.keys(answers).length > 0) {
-      const responseLines = buildAdminVerifyResponseSummaryBlock(answers)
-        .map((line) => line.trim())
-        .filter(Boolean);
-      const phase2RiskLines = buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile)
-        .map((line) => line.trim())
-        .filter(Boolean);
-      const uploadRefs = listAdminPhase2DocumentUploadRefs(activities, leadId);
-      if (responseLines.length > 0 || phase2RiskLines.length > 0 || uploadRefs.length > 0) {
-        includesPhase2Block = true;
-        keyFindings.push("■ 2차 확인");
-        for (const line of responseLines.slice(0, 12)) {
-          keyFindings.push(`✓ ${line}`);
-        }
-        for (const line of phase2RiskLines.slice(0, 8)) {
-          keyFindings.push(`✓ ${line}`);
-        }
-        for (const ref of uploadRefs.slice(0, 12)) {
-          keyFindings.push(`✓ 제출 자료 · ${ref.fileName}`);
-        }
-      }
+      return buildAdminVerifyPaidAiReportContent(
+        profile,
+        activities,
+        leadId,
+        answers,
+        resolutionProfile,
+        riskSignals,
+        goal,
+      );
     }
 
-    const keyRisks =
-      riskSignals.length > 0
-        ? riskSignals.map((r) => `[주의] ${r}`)
-        : ["확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다."];
-    if (phase2Complete && Object.keys(answers).length > 0) {
-      for (const line of buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile).slice(0, 5)) {
-        const trimmed = line.trim();
-        if (trimmed) keyRisks.push(`[2차] ${trimmed}`);
-      }
-    }
-
-    const recommendedAction =
-      riskSignals.length > 0
-        ? ["① 다음 조치 · 위험요인으로 표시된 항목을 통지서 원본과 대조해 주세요."]
-        : ["① 다음 조치 · 통지서 원본의 기한과 요구 내용을 다시 확인해 주세요."];
-    const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
-    return {
-      execSummary,
-      keyFindings,
-      keyRisks,
-      recommendedAction,
-      riskCount: riskSignals.length,
-      reviewedCount: satisfiedCount,
-      satisfiedCount,
-      includesPhase2Block,
-    };
+    return buildAdminVerifyFreeAiReportContent(
+      profile,
+      activities,
+      answers,
+      resolutionProfile,
+      riskSignals,
+      goal,
+    );
   } catch {
     return null;
   }
