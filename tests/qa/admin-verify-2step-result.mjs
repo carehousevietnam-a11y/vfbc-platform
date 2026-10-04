@@ -286,6 +286,16 @@ function assertFreePdfGuards(label, activities, content, expectUploadLines) {
   if (!content.executiveDashboardSupplementLines?.length) {
     fail.push(`F-18 ${label}: free PDF must include dashboard supplement lines`);
   }
+  const detailReviewConfirmCount = (plain.match(/상세 검토에서 확인/g) ?? []).length;
+  if (detailReviewConfirmCount > 1) {
+    fail.push(`F-18b ${label}: detail-review disclaimer phrase must appear at most once`);
+  }
+  if (plain.includes("확인되지 않았으나")) {
+    fail.push(`F-18b ${label}: must not contain 확인되지 않았으나`);
+  }
+  if (plain.includes("기본적인 상황 정리가 완료")) {
+    fail.push(`F-18b ${label}: must not contain generic phase1 completion line`);
+  }
 }
 
 const f18SamplePlainTexts = {

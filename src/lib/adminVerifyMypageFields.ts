@@ -280,6 +280,15 @@ export type AdminVerifyAiReportContent = {
 export const ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER =
   "※ 이 리포트에서는 1차 입력 내용을 중심으로 정리합니다. 제출 자료의 상세 내용 비교·검토는 상세 검토에서 확인할 수 있습니다.";
 
+export const ADMIN_VERIFY_FREE_PDF_DEFAULT_CONCLUSION =
+  "결론 · 1차 입력만으로는 위험 여부를 확정할 수 없어, 원본 통지서·안내와의 대조 확인이 필요합니다.";
+
+export const ADMIN_VERIFY_FREE_PDF_SCOPE_GAP_LINE =
+  "[공백] 이 리포트는 1차 입력과 제출 사실만 반영하므로, 사실관계는 원본 문서를 기준으로 확인이 필요합니다.";
+
+const ADMIN_VERIFY_FREE_PDF_OMIT_FINDING_LINE =
+  "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
+
 const VERIFY_ADMIN_MANDATORY_DOC_HINTS: Record<string, string> = {
   "교통국에서 받은 안내·통지 문서": "발신 기관·요구 내용·기한 확인용",
   "교통국에 제출했던 서류·자료": "이전 제출 내용·처리 결과 대조용",
@@ -437,7 +446,7 @@ function buildAdminVerifyFreeAiReportContent(
   const conclusionLine =
     riskSignals.length > 0
       ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 원본 통지서·안내의 기재 내용을 기준으로 추가 확인이 필요합니다.`
-      : "결론 · 1차 입력 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았으나, 원본 통지서·안내와의 대조 확인이 필요합니다.";
+      : ADMIN_VERIFY_FREE_PDF_DEFAULT_CONCLUSION;
 
   const priorityLine = goal
     ? "지금 우선 · 입력하신 확인 목표에 맞춰 통지서·안내 원본의 발신 기관·요구 문구부터 확인해 주세요."
@@ -482,6 +491,7 @@ function buildAdminVerifyFreeAiReportContent(
   for (const line of buildPhase1RiskSummaryLinesFromManifest(answers, resolutionProfile)) {
     const trimmed = line.trim();
     if (!trimmed) continue;
+    if (trimmed === ADMIN_VERIFY_FREE_PDF_OMIT_FINDING_LINE) continue;
     if (goal && normalizeAdminVerifyPdfDedupKey(trimmed) === normalizeAdminVerifyPdfDedupKey(goal)) {
       continue;
     }
@@ -508,14 +518,7 @@ function buildAdminVerifyFreeAiReportContent(
   keyRisks.push(
     "[공백] 원본 통지서·안내에 적힌 기한·요구 내용·발신 기관이 아직 교차 확인되지 않았을 수 있습니다.",
   );
-  keyRisks.push(
-    "[공백] 현재는 1차 입력과 제출 사실만으로 사실관계를 확정할 수 없으며, 원본 통지서의 기재 내용을 기준으로 확인이 필요합니다.",
-  );
-  if (phase1Upload) {
-    keyRisks.push(
-      "[공백] 제출 자료의 상세 내용은 이 리포트 범위에서 검토하지 않으며, 종류·제출 사실만 반영했습니다.",
-    );
-  }
+  keyRisks.push(ADMIN_VERIFY_FREE_PDF_SCOPE_GAP_LINE);
 
   const recommendedAction = [
     "① 즉시 조치 · 통지서·안내 원본에서 발신 기관·제목·기한·요구 문구가 적힌 부분을 표시해 두세요.",
