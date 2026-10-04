@@ -41,9 +41,13 @@ const {
   VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
-const { buildVerifyAdminRollingStripItems, MYPAGE_PUBLIC_LINKS } = await import(
-  "../../src/lib/mypageLinkCatalog.ts"
-);
+const {
+  buildVerifyAdminRollingStripItems,
+  MYPAGE_PUBLIC_LINKS,
+  MYPAGE_VN_PUBLIC_LINKS,
+  MYPAGE_VIETNAM_LIFE_LABELS,
+  MYPAGE_RECOMMENDED_SERVICE_TITLES,
+} = await import("../../src/lib/mypageLinkCatalog.ts");
 
 const caseResolutionMeta = {
   case_resolution_json: JSON.stringify({
@@ -241,10 +245,21 @@ if (shouldHideVerifyAdminWalletDocumentCount(3) !== false)
 if (VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE !== "정부기관 바로가기")
   fail.push("rolling strip title must reuse existing section name");
 const rollingItems = buildVerifyAdminRollingStripItems();
-if (!Array.isArray(rollingItems) || rollingItems.length < MYPAGE_PUBLIC_LINKS.length)
-  fail.push("rolling strip must include public link catalog items");
+const expectedRollingCount = MYPAGE_PUBLIC_LINKS.length + MYPAGE_VN_PUBLIC_LINKS.length;
+if (!Array.isArray(rollingItems) || rollingItems.length !== expectedRollingCount)
+  fail.push("rolling strip must include only KR+VN public link catalog items");
+if (rollingItems.some((item) => !item.href))
+  fail.push("rolling strip items must all have href");
+const excludedRollingLabels = [...MYPAGE_VIETNAM_LIFE_LABELS, ...MYPAGE_RECOMMENDED_SERVICE_TITLES];
+if (rollingItems.some((item) => excludedRollingLabels.includes(item.label)))
+  fail.push("rolling strip must exclude life info and recommended service labels");
 if (rollingItems.some((item) => item.label.includes("샘플")))
   fail.push("rolling strip must not contain sample labels");
+const rollingIconSignatures = rollingItems.map(
+  (item) => item.iconSrc ?? `badge:${item.label.charAt(0)}`
+);
+if (new Set(rollingIconSignatures).size < 2)
+  fail.push("rolling strip icons must not all use the same fallback icon");
 
 const report = {
   freeComplete,

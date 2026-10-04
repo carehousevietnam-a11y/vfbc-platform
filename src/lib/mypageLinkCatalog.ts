@@ -78,8 +78,10 @@ export const MYPAGE_RECOMMENDED_SERVICE_TITLES = [
 export type MypageRollingStripItem = {
   id: string;
   label: string;
-  href?: string;
+  href: string;
   iconSrc?: string;
+  /** Reuses GeneralCustomerPublicLinksPanel region labels (한국 / 베트남). */
+  regionLabel: "한국" | "베트남";
 };
 
 export function buildVerifyAdminRollingStripItems(): MypageRollingStripItem[] {
@@ -91,6 +93,7 @@ export function buildVerifyAdminRollingStripItems(): MypageRollingStripItem[] {
       label: link.label,
       href: link.href,
       iconSrc: link.iconSrc,
+      regionLabel: "한국",
     });
   }
   for (const link of MYPAGE_VN_PUBLIC_LINKS) {
@@ -99,13 +102,8 @@ export function buildVerifyAdminRollingStripItems(): MypageRollingStripItem[] {
       label: link.label,
       href: link.href,
       iconSrc: link.iconSrc,
+      regionLabel: "베트남",
     });
-  }
-  for (const label of MYPAGE_VIETNAM_LIFE_LABELS) {
-    items.push({ id: `life-${label}`, label });
-  }
-  for (const title of MYPAGE_RECOMMENDED_SERVICE_TITLES) {
-    items.push({ id: `rec-${title}`, label: title });
   }
 
   return items;

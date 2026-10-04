@@ -4750,13 +4750,15 @@ export default function MyPage() {
               )}
             </aside>
           )}
-          </div>
 
           {state === "ready" &&
           activeLayoutItem &&
           shouldUseVerifyAdminMypageSlimAside(activeLayoutItem.serviceType) ? (
-            <VerifyAdminMypageRollingStrip />
+            <div className="col-span-full min-w-0">
+              <VerifyAdminMypageRollingStrip />
+            </div>
           ) : null}
+          </div>
         </div>
 
       </div>
