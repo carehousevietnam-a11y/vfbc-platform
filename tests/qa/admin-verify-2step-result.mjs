@@ -313,8 +313,44 @@ if (expertDashboardBody.includes("VerifyAdminMypageRollingStrip"))
   fail.push("expert dashboard must not include rolling strip");
 if (expertDashboardBody.includes("내 신청 요약"))
   fail.push("expert dashboard must not include application summary card");
-if (!expertDashboardBody.includes("ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid}"))
-  fail.push("expert dashboard must match d2871f8 ExpertMainSupport line");
+if (
+  !expertDashboardBody.includes("hideRecommended={verifyAdminPaid}") ||
+  !expertDashboardBody.includes("verifyAdminExpertMobileAccordion")
+)
+  fail.push("expert dashboard must include ExpertMainSupport with hideRecommended and mobile accordion (F-15)");
+if (!expertDashboardBody.includes("VerifyAdminExpertMobileCollapsibleSection"))
+  fail.push("expert dashboard mobile block must use VerifyAdminExpertMobileCollapsibleSection (F-15)");
+if (!mypagePageSrc.includes("function VerifyAdminExpertMobileCollapsibleSection"))
+  fail.push("F-15 mobile collapsible helper must exist");
+if (!mypagePageSrc.includes("mobileExpertAccordion"))
+  fail.push("F-15 wallet mobile accordion prop must exist");
+const f15CollapsibleHelper = mypagePageSrc.slice(
+  mypagePageSrc.indexOf("function VerifyAdminExpertMobileCollapsibleSection"),
+  mypagePageSrc.indexOf("function HeroCard")
+);
+const f15ToggleCount = (f15CollapsibleHelper.match(/aria-expanded=\{open\}/g) ?? []).length;
+if (f15ToggleCount < 1)
+  fail.push("F-15 collapsible helper must use aria-expanded on toggle button");
+const f15MobileExpertSlice = expertDashboardBody.slice(
+  expertDashboardBody.indexOf('className="mt-4 grid gap-5 xl:hidden"'),
+  expertDashboardBody.lastIndexOf("VerifyAdminExpertMobileCollapsibleSection")
+);
+if ((f15MobileExpertSlice.match(/VerifyAdminExpertMobileCollapsibleSection/g) ?? []).length < 3)
+  fail.push("F-15 expert mobile grid must wrap 3 link/life cards in collapsible sections");
+if (!f15CollapsibleHelper.includes("useState(false)"))
+  fail.push("F-15 collapsible sections must default to collapsed (useState false)");
+if (!mypagePageSrc.includes('aria-controls="verify-admin-expert-wallet-panel"'))
+  fail.push("F-15 wallet mobile toggle must use aria-controls");
+if (!mypagePageSrc.includes("min-h-[44px] w-full items-center justify-between gap-3 text-left xl:hidden"))
+  fail.push("F-15 wallet mobile toggle must use xl:hidden and min touch height");
+if (!mypagePageSrc.includes("hidden xl:flex") || !mypagePageSrc.includes("hidden xl:block"))
+  fail.push("F-15 PC wallet/content must stay visible with xl:flex / xl:block");
+if (expertDashboardBody.includes('<PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />'))
+  fail.push("F-15 must not use always-expanded PublicLinksCard in expert mobile grid");
+if (!mypagePageSrc.includes("contentOnly"))
+  fail.push("F-15 mobile accordion bodies must use contentOnly cards");
+if (!f15CollapsibleHelper.includes("className=\"flex min-h-[44px]"))
+  fail.push("F-15 collapsible toggle must meet min touch height");
 if (!mypagePageSrc.includes("ExpertAsideSupport"))
   fail.push("PC aside must include ExpertAsideSupport path for expert dashboard");
 

@@ -987,14 +987,62 @@ function ExpertAsideSupport({
 function ExpertMainSupport({
   item,
   hideRecommended = false,
+  verifyAdminExpertMobileAccordion = false,
 }: {
   item: MyPageItem;
   hideRecommended?: boolean;
+  verifyAdminExpertMobileAccordion?: boolean;
 }) {
   return (
     <div className="space-y-4 [&_#wallet]:rounded-[20px] [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
-      <WalletSection leadId={item.id} />
+      <WalletSection
+        leadId={item.id}
+        mobileExpertAccordion={verifyAdminExpertMobileAccordion}
+      />
       {!hideRecommended ? <RecommendedServices /> : null}
+    </div>
+  );
+}
+
+/** verify_admin expertFlow — 모바일(xl 미만) 전용 접기/펴기 (PC DOM·클래스 무영향) */
+function VerifyAdminExpertMobileCollapsibleSection({
+  panelId,
+  title,
+  children,
+  headerTrailing,
+}: {
+  panelId: string;
+  title: string;
+  children: ReactNode;
+  headerTrailing?: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+      <button
+        type="button"
+        id={`${panelId}-trigger`}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left"
+      >
+        <span className="min-w-0 text-[16px] font-extrabold text-slate-950">{title}</span>
+        <span className="flex shrink-0 items-center gap-2">
+          {headerTrailing}
+          <ChevronDown
+            size={18}
+            className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+              open ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          />
+        </span>
+      </button>
+      <div id={panelId} className={open ? "block border-t border-slate-100" : "hidden"}>
+        <div className="px-5 pb-5 pt-3">{children}</div>
+      </div>
     </div>
   );
 }
@@ -2123,11 +2171,14 @@ function WalletSection({
   leadId,
   compact = false,
   freeVerifyAdminLegibilityLayout = false,
+  mobileExpertAccordion = false,
 }: {
   leadId: string;
   compact?: boolean;
   /** F-11 legibility — verify_admin 무료에서 펼친 지갑만 */
   freeVerifyAdminLegibilityLayout?: boolean;
+  /** F-15 — verify_admin expertFlow 모바일 접기 (PC xl+ 항상 펼침) */
+  mobileExpertAccordion?: boolean;
 }) {
   const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -2297,6 +2348,7 @@ function WalletSection({
     : `mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${compact ? "lg:grid-cols-3" : "lg:grid-cols-3"}`;
   const legacySlotHeight = compact ? "h-[248px]" : "h-[320px]";
   const legacyPreviewHeight = compact ? "h-[132px]" : "h-[190px]";
+  const [mobileWalletOpen, setMobileWalletOpen] = useState(false);
 
   return (
     <section
@@ -2305,7 +2357,46 @@ function WalletSection({
         compact ? "p-4 sm:p-5" : "p-5 sm:p-6"
       }`}
     >
-      <div className="flex items-start justify-between gap-4">
+      {mobileExpertAccordion ? (
+        <button
+          type="button"
+          aria-expanded={mobileWalletOpen}
+          aria-controls="verify-admin-expert-wallet-panel"
+          onClick={() => setMobileWalletOpen((prev) => !prev)}
+          className="flex min-h-[44px] w-full items-center justify-between gap-3 text-left xl:hidden"
+        >
+          <span
+            className={`font-extrabold tracking-[-0.02em] text-slate-950 ${
+              compact ? "text-[16px]" : "text-[18px]"
+            }`}
+          >
+            내 서류 지갑
+          </span>
+          <ChevronDown
+            size={18}
+            className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+              mobileWalletOpen ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          />
+        </button>
+      ) : null}
+
+      <div
+        id={mobileExpertAccordion ? "verify-admin-expert-wallet-panel" : undefined}
+        className={
+          mobileExpertAccordion
+            ? mobileWalletOpen
+              ? "block xl:block"
+              : "hidden xl:block"
+            : "block"
+        }
+      >
+        <div
+          className={`items-start justify-between gap-4 ${
+            mobileExpertAccordion ? "hidden xl:flex" : "flex"
+          }`}
+        >
         <div>
           <p
             className={`font-extrabold tracking-[-0.02em] text-slate-950 ${
@@ -2508,6 +2599,7 @@ function WalletSection({
           {notice}
         </div>
       )}
+      </div>
 
       {uploadOpen && (
         <WalletUploadModal
@@ -2990,44 +3082,52 @@ const VN_PUBLIC_LINKS = MYPAGE_VN_PUBLIC_LINKS;
 function PublicLinksCard({
   title,
   links,
+  contentOnly = false,
 }: {
   title: string;
   links: ReadonlyArray<{ label: string; sub?: string; href: string; iconSrc: string }>;
+  contentOnly?: boolean;
 }) {
+  const linkList = (
+    <div className={contentOnly ? "divide-y divide-slate-100" : "mt-3 divide-y divide-slate-100"}>
+      {links.map((link) => (
+        <a
+          key={link.label}
+          href={link.href}
+          target="_blank"
+          rel="noreferrer"
+          className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
+        >
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+              <img
+                src={link.iconSrc}
+                alt={`${link.label} 기관 아이콘`}
+                className="block max-h-8 max-w-8 object-contain object-center"
+                loading="lazy"
+                draggable={false}
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
+              {link.sub ? <p className="mt-1 truncate text-[10px] text-slate-400">{link.sub}</p> : null}
+            </div>
+          </div>
+          <ExternalLink size={13} className="shrink-0 text-slate-300" />
+        </a>
+      ))}
+    </div>
+  );
+
+  if (contentOnly) return linkList;
+
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">{title}</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
       </div>
-      <div className="mt-3 divide-y divide-slate-100">
-        {links.map((link) => (
-          <a
-            key={link.label}
-            href={link.href}
-            target="_blank"
-            rel="noreferrer"
-            className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
-                <img
-                  src={link.iconSrc}
-                  alt={`${link.label} 기관 아이콘`}
-                  className="block max-h-8 max-w-8 object-contain object-center"
-                  loading="lazy"
-                  draggable={false}
-                />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
-                {link.sub ? <p className="mt-1 truncate text-[10px] text-slate-400">{link.sub}</p> : null}
-              </div>
-            </div>
-            <ExternalLink size={13} className="shrink-0 text-slate-300" />
-          </a>
-        ))}
-      </div>
+      {linkList}
     </section>
   );
 }
@@ -3199,7 +3299,15 @@ function formatClock(value: string | null) {
   }).format(date);
 }
 
-function VietnamLifeCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
+function VietnamLifeCard({
+  item,
+  compact = false,
+  contentOnly = false,
+}: {
+  item: MyPageItem;
+  compact?: boolean;
+  contentOnly?: boolean;
+}) {
   const [detail, setDetail] = useState<VietnamLifeDetailKey | null>(null);
   const [krwAmount, setKrwAmount] = useState("100000");
   const [usdAmount, setUsdAmount] = useState("100");
@@ -3449,30 +3557,20 @@ function VietnamLifeCard({ item, compact = false }: { item: MyPageItem; compact?
 
   const detailTitle = lifeItems.find((lifeItem) => lifeItem.key === detail)?.label ?? "";
 
-  return (
+  const lifeBody = (
     <>
-      <section
-        id="vietnam-life"
-        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
-      >
-        <div className="flex items-center justify-between gap-3">
-          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
-            🇻🇳 베트남 생활 정보
-          </p>
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
-            LIVE
-          </span>
-        </div>
-        {!compact && (
-          <p className="mt-1 text-[11px] leading-5 text-slate-500">
-            생활에 필요한 주요 정보를 빠르게 확인하세요.
-          </p>
-        )}
+      {!compact && (
+        <p className="mt-1 text-[11px] leading-5 text-slate-500">
+          생활에 필요한 주요 정보를 빠르게 확인하세요.
+        </p>
+      )}
 
-        <div className={compact ? "mt-2.5 space-y-1.5" : "mt-4 space-y-2"}>{lifeItems.map(renderLifeItem)}</div>
-      </section>
+      <div className={compact ? "mt-2.5 space-y-1.5" : "mt-4 space-y-2"}>{lifeItems.map(renderLifeItem)}</div>
+    </>
+  );
 
-      {detail && (
+  const detailModal =
+    detail && (
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
           onClick={() => setDetail(null)}
@@ -3994,7 +4092,34 @@ function VietnamLifeCard({ item, compact = false }: { item: MyPageItem; compact?
             </div>
           </section>
         </div>
-      )}
+      );
+
+  if (contentOnly) {
+    return (
+      <>
+        {lifeBody}
+        {detailModal}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <section
+        id="vietnam-life"
+        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+            🇻🇳 베트남 생활 정보
+          </p>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
+            LIVE
+          </span>
+        </div>
+        {lifeBody}
+      </section>
+      {detailModal}
     </>
   );
 }
@@ -4472,14 +4597,44 @@ function VerifyAdminExpertFlowDashboard({
 
         <PublicNotes notes={activeItem.publicNotes} />
 
-        <ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid} />
+        <ExpertMainSupport
+          item={activeItem}
+          hideRecommended={verifyAdminPaid}
+          verifyAdminExpertMobileAccordion
+        />
       </div>
 
       <div className="mt-4 grid gap-5 xl:hidden">
         {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
-        <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
-        <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-        <VietnamLifeCard item={activeItem} />
+        <VerifyAdminExpertMobileCollapsibleSection
+          panelId="verify-admin-expert-kr-public-links"
+          title="바로가기 (한국 공공기관)"
+          headerTrailing={
+            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+          }
+        >
+          <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} contentOnly />
+        </VerifyAdminExpertMobileCollapsibleSection>
+        <VerifyAdminExpertMobileCollapsibleSection
+          panelId="verify-admin-expert-vn-public-links"
+          title="바로가기 (베트남 공공기관)"
+          headerTrailing={
+            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+          }
+        >
+          <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} contentOnly />
+        </VerifyAdminExpertMobileCollapsibleSection>
+        <VerifyAdminExpertMobileCollapsibleSection
+          panelId="verify-admin-expert-vietnam-life"
+          title="🇻🇳 베트남 생활 정보"
+          headerTrailing={
+            <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
+              LIVE
+            </span>
+          }
+        >
+          <VietnamLifeCard item={activeItem} contentOnly />
+        </VerifyAdminExpertMobileCollapsibleSection>
         {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
       </div>
     </>
