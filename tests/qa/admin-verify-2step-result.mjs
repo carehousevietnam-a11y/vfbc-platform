@@ -322,8 +322,23 @@ if (!expertDashboardBody.includes("VerifyAdminExpertMobileCollapsibleSection"))
   fail.push("expert dashboard mobile block must use VerifyAdminExpertMobileCollapsibleSection (F-15)");
 if (!mypagePageSrc.includes("function VerifyAdminExpertMobileCollapsibleSection"))
   fail.push("F-15 mobile collapsible helper must exist");
-if (!mypagePageSrc.includes("mobileExpertAccordion"))
-  fail.push("F-15 wallet mobile accordion prop must exist");
+if (!mypagePageSrc.includes("mobileExpertAccordion={verifyAdminExpertMobileAccordion}"))
+  fail.push("F-15 wallet mobile accordion prop must be wired from ExpertMainSupport");
+if (!expertDashboardBody.includes("EmergencyHelpCard item={activeItem} mobileExpertAccordion"))
+  fail.push("F-15 expert mobile grid must include EmergencyHelpCard with mobile accordion");
+const f15FivePanelIds = [
+  "verify-admin-expert-wallet-panel",
+  "verify-admin-expert-emergency-panel",
+  "verify-admin-expert-kr-public-links",
+  "verify-admin-expert-vn-public-links",
+  "verify-admin-expert-vietnam-life",
+];
+for (const panelId of f15FivePanelIds) {
+  if (!mypagePageSrc.includes(panelId))
+    fail.push(`F-15 missing accordion panel id: ${panelId}`);
+}
+if (!mypagePageSrc.includes('aria-controls="verify-admin-expert-emergency-panel"'))
+  fail.push("F-15 emergency mobile toggle must use aria-controls");
 const f15CollapsibleHelper = mypagePageSrc.slice(
   mypagePageSrc.indexOf("function VerifyAdminExpertMobileCollapsibleSection"),
   mypagePageSrc.indexOf("function HeroCard")

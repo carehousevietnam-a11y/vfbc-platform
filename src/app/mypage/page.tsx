@@ -1026,7 +1026,7 @@ function VerifyAdminExpertMobileCollapsibleSection({
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left"
+        className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left xl:hidden"
       >
         <span className="min-w-0 text-[16px] font-extrabold text-slate-950">{title}</span>
         <span className="flex shrink-0 items-center gap-2">
@@ -4124,15 +4124,78 @@ function VietnamLifeCard({
   );
 }
 
-function EmergencyHelpCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
+function EmergencyHelpCard({
+  item,
+  compact = false,
+  mobileExpertAccordion = false,
+}: {
+  item: MyPageItem;
+  compact?: boolean;
+  /** F-15 — verify_admin expertFlow 모바일 접기 (PC xl+ 항상 펼침) */
+  mobileExpertAccordion?: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const [mobileAccordionOpen, setMobileAccordionOpen] = useState(false);
+
+  const badge24 = (
+    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-extrabold text-red-600">
+      24시간
+    </span>
+  );
 
   return (
     <>
       <section
         className={`rounded-[20px] border border-red-100 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
       >
-        <div className="flex items-start justify-between gap-2.5">
+        {mobileExpertAccordion ? (
+          <button
+            type="button"
+            aria-expanded={mobileAccordionOpen}
+            aria-controls="verify-admin-expert-emergency-panel"
+            onClick={() => setMobileAccordionOpen((prev) => !prev)}
+            className="flex min-h-[44px] w-full items-start justify-between gap-2.5 text-left xl:hidden"
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <div
+                className={`flex shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 ${
+                  compact ? "h-8 w-8" : "h-9 w-9"
+                }`}
+              >
+                <ShieldAlert size={compact ? 16 : 18} />
+              </div>
+              <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+                베트남 긴급 도움
+              </p>
+            </div>
+            <span className="flex shrink-0 items-center gap-2">
+              {badge24}
+              <ChevronDown
+                size={18}
+                className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+                  mobileAccordionOpen ? "rotate-180" : ""
+                }`}
+                aria-hidden
+              />
+            </span>
+          </button>
+        ) : null}
+
+        <div
+          id={mobileExpertAccordion ? "verify-admin-expert-emergency-panel" : undefined}
+          className={
+            mobileExpertAccordion
+              ? mobileAccordionOpen
+                ? "block xl:block"
+                : "hidden xl:block"
+              : "block"
+          }
+        >
+        <div
+          className={`items-start justify-between gap-2.5 ${
+            mobileExpertAccordion ? "hidden xl:flex" : "flex"
+          }`}
+        >
           <div className="flex items-center gap-2">
             <div
               className={`flex items-center justify-center rounded-xl bg-red-50 text-red-600 ${
@@ -4150,9 +4213,7 @@ function EmergencyHelpCard({ item, compact = false }: { item: MyPageItem; compac
               )}
             </div>
           </div>
-          <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-extrabold text-red-600">
-            24시간
-          </span>
+          {badge24}
         </div>
 
         <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2"}`}>
@@ -4227,6 +4288,7 @@ function EmergencyHelpCard({ item, compact = false }: { item: MyPageItem; compac
           긴급 연락처·지원 보기
           <ChevronRight size={13} />
         </button>
+        </div>
       </section>
 
       {open && (
@@ -4635,6 +4697,7 @@ function VerifyAdminExpertFlowDashboard({
         >
           <VietnamLifeCard item={activeItem} contentOnly />
         </VerifyAdminExpertMobileCollapsibleSection>
+        <EmergencyHelpCard item={activeItem} mobileExpertAccordion />
         {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
       </div>
     </>
