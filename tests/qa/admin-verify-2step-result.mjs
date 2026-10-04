@@ -38,6 +38,7 @@ const {
   isVerifyAdminMypageItem,
   resolveVerifyAdminApplicationSummaryStatus,
   shouldUseVerifyAdminMypageSlimAside,
+  shouldUseVerifyAdminExpertFlowDashboard,
   VERIFY_ADMIN_SUMMARY_STATUS_FREE,
   VERIFY_ADMIN_SUMMARY_STATUS_PAID_BEFORE,
   VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER,
@@ -45,7 +46,6 @@ const {
   verifyAdminMypageShowsRollingStrip,
   shouldHideVerifyAdminWalletDocumentCount,
   VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
-  verifyAdminPaidMypageUsesDedicatedLayout,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
 const {
@@ -234,9 +234,17 @@ if (timelineBeforeExpert.some((entry) => entry.label.includes("전문가")))
 if (verifyAdminTimelineEntryAllowed("전문가 검토 시작", false))
   fail.push("expert timeline labels must be blocked before request");
 if (shouldUseVerifyAdminMypageSlimAside(freeAdminAiOnly) !== true)
-  fail.push("verify_admin free must use slim aside panel");
+  fail.push("verify_admin aiOnly result must use slim aside panel");
+if (shouldUseVerifyAdminMypageSlimAside(freeAdminItem) !== false)
+  fail.push("verify_admin expert dashboard must not use slim aside (aiOnly only)");
 if (shouldUseVerifyAdminMypageSlimAside(paidItem) !== false)
-  fail.push("verify_admin paid must not use slim aside panel");
+  fail.push("verify_admin expert dashboard (paid) must not use slim aside");
+if (shouldUseVerifyAdminExpertFlowDashboard(freeAdminItem) !== true)
+  fail.push("verify_admin after expert request must use expert flow dashboard path");
+if (shouldUseVerifyAdminExpertFlowDashboard(paidItem) !== true)
+  fail.push("verify_admin paid must use expert flow dashboard path");
+if (shouldUseVerifyAdminExpertFlowDashboard(freeAdminAiOnly) !== false)
+  fail.push("verify_admin aiOnly must not use expert flow dashboard flag");
 if (shouldUseVerifyAdminMypageSlimAside(otherServiceAiOnly) !== false)
   fail.push("non verify_admin must keep full aside widgets");
 if (!isVerifyAdminMypageItem(freeAdminAiOnly))
@@ -248,13 +256,17 @@ if (resolveVerifyAdminApplicationSummaryStatus(paidItemBeforeExpert) !== VERIFY_
 if (resolveVerifyAdminApplicationSummaryStatus(paidItem) !== VERIFY_ADMIN_SUMMARY_STATUS_PAID_AFTER)
   fail.push("paid after expert summary status");
 if (verifyAdminMypageShowsMainWalletFooter(freeAdminAiOnly) !== true)
-  fail.push("verify_admin free must show main wallet footer");
+  fail.push("verify_admin aiOnly must show main wallet footer");
+if (verifyAdminMypageShowsMainWalletFooter(freeAdminItem) !== false)
+  fail.push("verify_admin expert dashboard must not show main wallet footer");
 if (verifyAdminMypageShowsMainWalletFooter(paidItem) !== false)
-  fail.push("verify_admin paid must not show main wallet footer");
+  fail.push("verify_admin expert dashboard must not show main wallet footer");
 if (verifyAdminMypageShowsRollingStrip(freeAdminAiOnly) !== true)
-  fail.push("verify_admin free must show rolling strip");
+  fail.push("verify_admin aiOnly must show rolling strip");
+if (verifyAdminMypageShowsRollingStrip(freeAdminItem) !== false)
+  fail.push("verify_admin expert dashboard must not show rolling strip");
 if (verifyAdminMypageShowsRollingStrip(paidItem) !== false)
-  fail.push("verify_admin paid must not show rolling strip");
+  fail.push("verify_admin expert dashboard must not show rolling strip");
 if (shouldHideVerifyAdminWalletDocumentCount(0) !== true)
   fail.push("wallet must hide document count when zero");
 if (shouldHideVerifyAdminWalletDocumentCount(3) !== false)
@@ -285,26 +297,26 @@ if (/<main className="[^"]*overflow-x-hidden/.test(mypagePageSrc))
   fail.push("main must not use global overflow-x-hidden (F-12 restore)");
 if (!mypagePageSrc.includes("freeVerifyAdminLegibilityLayout"))
   fail.push("wallet F-11 legibility must be gated by freeVerifyAdminLegibilityLayout");
-if (!mypagePageSrc.includes("ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid}"))
-  fail.push("paid verify_admin must restore d2871f8 ExpertMainSupport on expert dashboard");
-if (!mypagePageSrc.includes("function VerifyAdminPaidExpertDashboard"))
-  fail.push("verify_admin paid must use isolated d2871f8 VerifyAdminPaidExpertDashboard");
-const paidDashboardBody = mypagePageSrc.slice(
-  mypagePageSrc.indexOf("function VerifyAdminPaidExpertDashboard"),
+if (!mypagePageSrc.includes("function VerifyAdminExpertFlowDashboard"))
+  fail.push("verify_admin expertFlow must use VerifyAdminExpertFlowDashboard (d2871f8 block)");
+if (!mypagePageSrc.includes('activeItem.serviceType === "verify_admin"'))
+  fail.push("verify_admin expertFlow must branch on serviceType not phase2Complete alone");
+const expertDashboardBody = mypagePageSrc.slice(
+  mypagePageSrc.indexOf("function VerifyAdminExpertFlowDashboard"),
   mypagePageSrc.indexOf("function Dashboard(")
 );
-if (paidDashboardBody.includes("VerifyAdminMypageMainWalletFooter"))
-  fail.push("paid dashboard must not include main wallet footer");
-if (paidDashboardBody.includes("VerifyAdminMypageSidePanel"))
-  fail.push("paid dashboard must not include slim side panel");
-if (paidDashboardBody.includes("VerifyAdminMypageRollingStrip"))
-  fail.push("paid dashboard must not include rolling strip");
-if (verifyAdminPaidMypageUsesDedicatedLayout(paidItem) !== true)
-  fail.push("paid item must use dedicated layout flag");
-if (verifyAdminPaidMypageUsesDedicatedLayout(freeAdminAiOnly) !== false)
-  fail.push("free verify_admin must not use paid dedicated layout flag");
-if (!mypagePageSrc.includes("verifyAdminPaidMypageUsesDedicatedLayout(activeLayoutItem)"))
-  fail.push("paid PC aside must use dedicated layout branch with ExpertAsideSupport");
+if (expertDashboardBody.includes("VerifyAdminMypageMainWalletFooter"))
+  fail.push("expert dashboard must not include main wallet footer");
+if (expertDashboardBody.includes("VerifyAdminMypageSidePanel"))
+  fail.push("expert dashboard must not include slim side panel");
+if (expertDashboardBody.includes("VerifyAdminMypageRollingStrip"))
+  fail.push("expert dashboard must not include rolling strip");
+if (expertDashboardBody.includes("내 신청 요약"))
+  fail.push("expert dashboard must not include application summary card");
+if (!expertDashboardBody.includes("ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid}"))
+  fail.push("expert dashboard must match d2871f8 ExpertMainSupport line");
+if (!mypagePageSrc.includes("ExpertAsideSupport"))
+  fail.push("PC aside must include ExpertAsideSupport path for expert dashboard");
 
 const report = {
   freeComplete,

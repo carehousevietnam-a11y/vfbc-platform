@@ -70,8 +70,8 @@ import {
   VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
   buildVerifyAdminMypageTimelineRecent,
   isVerifyAdminPaidMypageItem,
-  verifyAdminPaidMypageUsesDedicatedLayout,
   isVerifyAdminMypageItem,
+  shouldUseVerifyAdminExpertFlowDashboard,
   resolveVerifyAdminApplicationSummaryStatus,
   shouldUseVerifyAdminMypageSlimAside,
   shouldHideVerifyAdminWalletDocumentCount,
@@ -4404,17 +4404,19 @@ function MobileBottomNav() {
   );
 }
 
-/** verify_admin 유료(phase2Complete) — d2871f8 Dashboard expertFlow와 동일 (F-8~11 분기 없음) */
-function VerifyAdminPaidExpertDashboard({
+/** verify_admin expertFlow — d2871f8 Dashboard 블록 (phase2·전문가 요청과 무관, 경로 기준) */
+function VerifyAdminExpertFlowDashboard({
   name,
   activeItem,
   items,
+  verifyAdminPaid,
   onChangeActive,
   onReload,
 }: {
   name: string | null;
   activeItem: MyPageItem;
   items: MyPageItem[];
+  verifyAdminPaid: boolean;
   onChangeActive: (id: string) => void;
   onReload?: () => void | Promise<void>;
 }) {
@@ -4430,7 +4432,7 @@ function VerifyAdminPaidExpertDashboard({
 
         <HeroCard
           item={activeItem}
-          applicationsId={null}
+          applicationsId={verifyAdminPaid ? null : "applications"}
           selector={
             <ApplicationSelector
               items={items}
@@ -4448,8 +4450,10 @@ function VerifyAdminPaidExpertDashboard({
 
         <StepProgress
           stage={activeItem.stage}
-          stepDateResolver={(step, index) =>
-            resolveVerifyAdminStepDateLabel(activeItem, step, index)
+          stepDateResolver={
+            verifyAdminPaid
+              ? (step, index) => resolveVerifyAdminStepDateLabel(activeItem, step, index)
+              : undefined
           }
         />
 
@@ -4457,7 +4461,7 @@ function VerifyAdminPaidExpertDashboard({
           <AiResultCard item={activeItem} applicantName={name} />
           <CurrentStatusCard
             item={activeItem}
-            verifyAdminPaidLayout
+            verifyAdminPaidLayout={verifyAdminPaid}
             onExpertRequested={onReload}
           />
         </div>
@@ -4468,13 +4472,15 @@ function VerifyAdminPaidExpertDashboard({
 
         <PublicNotes notes={activeItem.publicNotes} />
 
-        <ExpertMainSupport item={activeItem} hideRecommended />
+        <ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid} />
       </div>
 
       <div className="mt-4 grid gap-5 xl:hidden">
+        {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
         <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
         <VietnamLifeCard item={activeItem} />
+        {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
       </div>
     </>
   );
@@ -4552,12 +4558,13 @@ function Dashboard({
   }
 
   if (expertFlow) {
-    if (verifyAdminPaid) {
+    if (activeItem.serviceType === "verify_admin") {
       return (
-        <VerifyAdminPaidExpertDashboard
+        <VerifyAdminExpertFlowDashboard
           name={name}
           activeItem={activeItem}
           items={items}
+          verifyAdminPaid={verifyAdminPaid}
           onChangeActive={onChangeActive}
           onReload={onReload}
         />
@@ -4617,24 +4624,14 @@ function Dashboard({
           <PublicNotes notes={activeItem.publicNotes} />
 
           <ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid} />
-
-          {shouldUseVerifyAdminMypageSlimAside(activeItem) ? (
-            <VerifyAdminMypageMainWalletFooter leadId={activeItem.id} />
-          ) : null}
         </div>
 
         <div className="mt-4 grid gap-5 xl:hidden">
-          {shouldUseVerifyAdminMypageSlimAside(activeItem) ? (
-            <VerifyAdminMypageSidePanel item={activeItem} />
-          ) : (
-            <>
-              {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
-              <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
-              <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
-              <VietnamLifeCard item={activeItem} />
-              {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
-            </>
-          )}
+          {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
+          <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
+          <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
+          <VietnamLifeCard item={activeItem} />
+          {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
         </div>
       </>
     );
@@ -4857,47 +4854,24 @@ export default function MyPage() {
             </aside>
           )}
 
-          {state === "ready" &&
-            !isGeneralCustomerLayout &&
-            activeLayoutItem &&
-            verifyAdminPaidMypageUsesDedicatedLayout(activeLayoutItem) && (
-              <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
-                <ExpertAsideSupport item={activeLayoutItem} hideNotificationCard />
-              </aside>
-            )}
-
-          {state === "ready" &&
-            !isGeneralCustomerLayout &&
-            activeLayoutItem &&
-            !verifyAdminPaidMypageUsesDedicatedLayout(activeLayoutItem) && (
-              <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
-                {shouldUseVerifyAdminMypageSlimAside(activeLayoutItem) ? (
-                  <VerifyAdminMypageSidePanel item={activeLayoutItem} />
-                ) : (
-                  <ExpertAsideSupport
-                    item={activeLayoutItem}
-                    hideNotificationCard={isVerifyAdminPaidMypageItem(activeLayoutItem)}
-                  />
-                )}
-              </aside>
-            )}
-
-          {state === "ready" &&
-            !isGeneralCustomerLayout &&
-            !activeLayoutItem &&
-            firstItem &&
-            !verifyAdminPaidMypageUsesDedicatedLayout(firstItem) && (
-              <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
-                {shouldUseVerifyAdminMypageSlimAside(firstItem) ? (
-                  <VerifyAdminMypageSidePanel item={firstItem} />
-                ) : (
-                  <ExpertAsideSupport
-                    item={firstItem}
-                    hideNotificationCard={isVerifyAdminPaidMypageItem(firstItem)}
-                  />
-                )}
-              </aside>
-            )}
+          {state === "ready" && !isGeneralCustomerLayout && (activeLayoutItem ?? firstItem) && (
+            <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
+              {shouldUseVerifyAdminMypageSlimAside(activeLayoutItem ?? firstItem ?? undefined) ? (
+                <VerifyAdminMypageSidePanel item={(activeLayoutItem ?? firstItem)!} />
+              ) : (
+                <ExpertAsideSupport
+                  item={(activeLayoutItem ?? firstItem)!}
+                  hideNotificationCard={
+                    activeLayoutItem
+                      ? isVerifyAdminPaidMypageItem(activeLayoutItem)
+                      : firstItem
+                        ? isVerifyAdminPaidMypageItem(firstItem)
+                        : false
+                  }
+                />
+              )}
+            </aside>
+          )}
 
           {state === "ready" &&
           activeLayoutItem &&

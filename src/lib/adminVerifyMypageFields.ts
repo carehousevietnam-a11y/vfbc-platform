@@ -157,12 +157,20 @@ export function resolveVerifyAdminApplicationSummaryStatus(item: MypageLayoutIte
   return VERIFY_ADMIN_SUMMARY_STATUS_FREE;
 }
 
-/** F-8/F-12: verify_admin 무료(phase2 미완료)만 슬림 패널·보관함 푸터·롤링 띠 */
+/** F-8/F-14: verify_admin 무료 결과 화면(aiOnly)만 슬림 패널·보관함 푸터·롤링 띠 */
 export function shouldUseVerifyAdminMypageSlimAside(
   item: MypageLayoutItemLike | null | undefined
 ): boolean {
   if (!item || item.serviceType !== "verify_admin") return false;
-  return !isVerifyAdminPaidMypageItem(item);
+  return shouldUseGeneralCustomerMypageLayout(item);
+}
+
+/** verify_admin 대시보드(expertFlow) 경로 — d2871f8 레이아웃 */
+export function shouldUseVerifyAdminExpertFlowDashboard(
+  item: MypageLayoutItemLike | null | undefined
+): boolean {
+  if (!item || item.serviceType !== "verify_admin") return false;
+  return !shouldUseGeneralCustomerMypageLayout(item);
 }
 
 export const VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE = "정부기관 바로가기";
@@ -177,11 +185,6 @@ export function verifyAdminMypageShowsRollingStrip(
   item: MypageLayoutItemLike | null | undefined
 ): boolean {
   return shouldUseVerifyAdminMypageSlimAside(item);
-}
-
-/** F-13: verify_admin 유료는 d2871f8 전용 Dashboard·PC aside 경로 */
-export function verifyAdminPaidMypageUsesDedicatedLayout(item: MypageLayoutItemLike | null | undefined): boolean {
-  return Boolean(item && isVerifyAdminPaidMypageItem(item));
 }
 
 export function shouldHideVerifyAdminWalletDocumentCount(documentCount: number): boolean {
