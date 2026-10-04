@@ -15,6 +15,12 @@ import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseS
 import { buildAdminVerifyAiReportContentFromActivities } from "@/lib/adminVerifyMypageFields";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 
+/**
+ * Executive PDF render for POST /api/mypage-pdf and QA fixture harness.
+ * Layout and section structure are unchanged from the prior route implementation.
+ * Free verify_admin body text is assembled in adminVerifyMypageFields (paid/other services unchanged).
+ */
+
 // ── 서비스 분류 (다른 admin/mypage 파일들과 동일 원칙, 이 파일에도 동일하게 복제) ──
 function toPrefixKey(value: string): string {
   return value.toLowerCase().replace(/-/g, "_");
