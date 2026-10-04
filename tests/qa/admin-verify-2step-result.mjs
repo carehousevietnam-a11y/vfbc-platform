@@ -304,6 +304,18 @@ if (sideSummaryIdx < 0 || sideNotifIdx < sideSummaryIdx || sideEmergencyIdx < si
   fail.push("F-16 slim aside order must be summary → notification → emergency help");
 if (verifyAdminSidePanelBody.includes("mobileExpertAccordion"))
   fail.push("F-16 free emergency help must not use expert mobile accordion");
+if (!verifyAdminSidePanelBody.includes("collapsible"))
+  fail.push("F-16 free emergency help must use collapsible accordion on PC and mobile");
+if (!mypagePageSrc.includes("verify-admin-free-emergency-panel"))
+  fail.push("F-16 free emergency accordion must define panel id for aria-controls");
+if (!mypagePageSrc.includes("const [collapsibleOpen, setCollapsibleOpen] = useState(false)"))
+  fail.push("F-16 free emergency accordion must default to collapsed");
+const emergencyCardBody = mypagePageSrc.slice(
+  mypagePageSrc.indexOf("function EmergencyHelpCard"),
+  mypagePageSrc.indexOf("function HelpCard")
+);
+if (!/freeCollapsible[\s\S]*aria-expanded=\{accordionOpen\}/.test(emergencyCardBody))
+  fail.push("F-16 free emergency toggle must use aria-expanded on button header");
 if (MYPAGE_WALLET_SLOT_TITLE_CLASS.includes("min-h-[2.75rem]"))
   fail.push("F-16 wallet slot title must not use fixed min-h 2-line reserve");
 if (/min-h-\[(132|190)px\]\s+flex-1/.test(mypagePageSrc))
@@ -356,8 +368,8 @@ for (const panelId of f15FivePanelIds) {
   if (!mypagePageSrc.includes(panelId))
     fail.push(`F-15 missing accordion panel id: ${panelId}`);
 }
-if (!mypagePageSrc.includes('aria-controls="verify-admin-expert-emergency-panel"'))
-  fail.push("F-15 emergency mobile toggle must use aria-controls");
+if (!emergencyCardBody.includes("verify-admin-expert-emergency-panel"))
+  fail.push("F-15 emergency mobile toggle must use expert panel id for aria-controls");
 const f15CollapsibleHelper = mypagePageSrc.slice(
   mypagePageSrc.indexOf("function VerifyAdminExpertMobileCollapsibleSection"),
   mypagePageSrc.indexOf("function HeroCard")

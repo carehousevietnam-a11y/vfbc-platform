@@ -677,7 +677,7 @@ function VerifyAdminMypageSidePanel({ item }: { item: MyPageItem }) {
     <div className="min-w-0 space-y-4">
       <VerifyAdminApplicationSummaryCard item={item} />
       <GeneralCustomerNotificationCard item={item} />
-      <EmergencyHelpCard item={item} compact />
+      <EmergencyHelpCard item={item} compact collapsible />
     </div>
   );
 }
@@ -4123,14 +4123,18 @@ function EmergencyHelpCard({
   item,
   compact = false,
   mobileExpertAccordion = false,
+  collapsible = false,
 }: {
   item: MyPageItem;
   compact?: boolean;
   /** F-15 — verify_admin expertFlow 모바일 접기 (PC xl+ 항상 펼침) */
   mobileExpertAccordion?: boolean;
+  /** F-16 — verify_admin aiOnly PC·모바일 접기 (기본 접힘) */
+  collapsible?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [mobileAccordionOpen, setMobileAccordionOpen] = useState(false);
+  const [collapsibleOpen, setCollapsibleOpen] = useState(false);
 
   const badge24 = (
     <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-extrabold text-red-600">
@@ -4138,18 +4142,29 @@ function EmergencyHelpCard({
     </span>
   );
 
+  const freeCollapsible = collapsible && !mobileExpertAccordion;
+  const panelId = mobileExpertAccordion
+    ? "verify-admin-expert-emergency-panel"
+    : freeCollapsible
+      ? "verify-admin-free-emergency-panel"
+      : undefined;
+  const accordionOpen = mobileExpertAccordion ? mobileAccordionOpen : collapsibleOpen;
+  const setAccordionOpen = mobileExpertAccordion ? setMobileAccordionOpen : setCollapsibleOpen;
+
   return (
     <>
       <section
         className={`rounded-[20px] border border-red-100 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
       >
-        {mobileExpertAccordion ? (
+        {mobileExpertAccordion || freeCollapsible ? (
           <button
             type="button"
-            aria-expanded={mobileAccordionOpen}
-            aria-controls="verify-admin-expert-emergency-panel"
-            onClick={() => setMobileAccordionOpen((prev) => !prev)}
-            className="flex min-h-[44px] w-full items-start justify-between gap-2.5 text-left xl:hidden"
+            aria-expanded={accordionOpen}
+            aria-controls={panelId}
+            onClick={() => setAccordionOpen((prev) => !prev)}
+            className={`flex min-h-[44px] w-full items-start justify-between gap-2.5 text-left ${
+              mobileExpertAccordion ? "xl:hidden" : ""
+            }`}
           >
             <div className="flex min-w-0 items-center gap-2">
               <div
@@ -4168,7 +4183,7 @@ function EmergencyHelpCard({
               <ChevronDown
                 size={18}
                 className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
-                  mobileAccordionOpen ? "rotate-180" : ""
+                  accordionOpen ? "rotate-180" : ""
                 }`}
                 aria-hidden
               />
@@ -4177,18 +4192,22 @@ function EmergencyHelpCard({
         ) : null}
 
         <div
-          id={mobileExpertAccordion ? "verify-admin-expert-emergency-panel" : undefined}
+          id={panelId}
           className={
             mobileExpertAccordion
               ? mobileAccordionOpen
                 ? "block xl:block"
                 : "hidden xl:block"
-              : "block"
+              : freeCollapsible
+                ? collapsibleOpen
+                  ? "block"
+                  : "hidden"
+                : "block"
           }
         >
         <div
           className={`items-start justify-between gap-2.5 ${
-            mobileExpertAccordion ? "hidden xl:flex" : "flex"
+            mobileExpertAccordion ? "hidden xl:flex" : freeCollapsible ? "hidden" : "flex"
           }`}
         >
           <div className="flex items-center gap-2">
@@ -4210,6 +4229,10 @@ function EmergencyHelpCard({
           </div>
           {badge24}
         </div>
+
+        {freeCollapsible && collapsibleOpen && !compact ? (
+          <p className="mt-3 text-[10px] text-slate-500">응급 상황 발생 시 즉시 연락하세요.</p>
+        ) : null}
 
         <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2"}`}>
           {[
