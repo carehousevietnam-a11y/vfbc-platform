@@ -49,6 +49,10 @@ const {
   MYPAGE_RECOMMENDED_SERVICE_TITLES,
 } = await import("../../src/lib/mypageLinkCatalog.ts");
 
+const { MYPAGE_WALLET_SLOT_TITLE_CLASS, mypageWalletSlotTitleClassIsLegible } = await import(
+  "../../src/lib/mypageWalletSlotUi.ts"
+);
+
 const caseResolutionMeta = {
   case_resolution_json: JSON.stringify({
     goal: { value: "행정 통지 대응" },
@@ -260,6 +264,8 @@ const rollingIconSignatures = rollingItems.map(
 );
 if (new Set(rollingIconSignatures).size < 2)
   fail.push("rolling strip icons must not all use the same fallback icon");
+if (!mypageWalletSlotTitleClassIsLegible(MYPAGE_WALLET_SLOT_TITLE_CLASS))
+  fail.push("wallet slot title class must avoid truncate/leading-none vertical clip");
 
 const report = {
   freeComplete,

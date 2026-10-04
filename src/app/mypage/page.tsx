@@ -78,6 +78,7 @@ import {
 } from "@/lib/adminVerifyMypageFields";
 import { MYPAGE_PUBLIC_LINKS, MYPAGE_VN_PUBLIC_LINKS } from "@/lib/mypageLinkCatalog";
 import { VerifyAdminMypageRollingStrip } from "@/components/mypage/VerifyAdminMypageRollingStrip";
+import { MYPAGE_WALLET_SLOT_TITLE_CLASS } from "@/lib/mypageWalletSlotUi";
 import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
@@ -386,7 +387,7 @@ function DesktopSidebar({ messageHref }: { messageHref: string }) {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
             <FolderLock size={17} className="text-[#0d2a6b]" />
           </div>
-          <p className="mt-2 text-sm font-bold text-[#0d2a6b]">보안 안전 지갑</p>
+          <p className="mt-2 break-keep text-sm font-bold leading-snug text-[#0d2a6b]">보안 안전 지갑</p>
           <p className="mt-1 text-[11px] leading-[15px] text-slate-500">
             고객님의 중요 자료는 암호화되어 안전하게 관리됩니다.
           </p>
@@ -1106,8 +1107,8 @@ function StepProgress({
         <span className="text-[10px] font-semibold text-blue-700">전체 단계 보기 ›</span>
       </div>
 
-      <div className="mt-5 overflow-x-auto pb-1">
-        <div className="flex min-w-[420px] items-start">
+      <div className="mt-5 min-w-0 overflow-x-auto pb-1">
+        <div className="flex w-max min-w-full items-start">
           {stage.steps.map((step, index) => {
             const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
             const dateLabel = stepDateResolver
@@ -2334,22 +2335,21 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
       {!loading && !loadError && (
         <div
           className={`mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${
-            compact ? "lg:grid-cols-3" : "lg:grid-cols-3"
+            compact ? "lg:grid-cols-3 lg:items-stretch" : "lg:grid-cols-3 lg:items-stretch"
           }`}
         >
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
-            const slotHeight = compact ? "h-[248px]" : "h-[320px]";
-            const previewHeight = compact ? "h-[132px]" : "h-[190px]";
+            const slotShellClass = compact
+              ? "flex h-full min-h-[248px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5"
+              : "flex h-full min-h-[320px] flex-col rounded-[16px] border border-slate-200 bg-white p-3.5";
+            const previewHeight = compact ? "min-h-[132px] flex-1" : "min-h-[190px] flex-1";
 
             if (!doc) {
               return (
-                <div
-                  key={slot.key}
-                  className={`flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${slotHeight}`}
-                >
-                  <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
-                  <p className="mt-0.5 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
+                <div key={slot.key} className={slotShellClass}>
+                  <p className={MYPAGE_WALLET_SLOT_TITLE_CLASS}>{slot.label}</p>
+                  <p className="mt-0.5 truncate text-[11px] leading-snug text-slate-400">아직 등록되지 않음</p>
 
                   <div
                     className={`relative mt-2 overflow-hidden rounded-[10px] border border-dashed border-slate-200 bg-slate-50 p-2 ${previewHeight}`}
@@ -2387,10 +2387,10 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
             return (
               <div
                 key={slot.key}
-                className={`group flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md ${slotHeight}`}
+                className={`group ${slotShellClass} transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md`}
               >
-                <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
-                <p className="mt-0.5 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
+                <p className={MYPAGE_WALLET_SLOT_TITLE_CLASS}>{slot.label}</p>
+                <p className="mt-0.5 truncate text-[11px] leading-snug text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
 
                 <div
                   className={`relative mt-2 overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner ${previewHeight}`}
@@ -2456,8 +2456,8 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
           <button
             type="button"
             onClick={() => openUploadModal()}
-            className={`flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
-              compact ? "h-[248px]" : "h-[320px]"
+            className={`flex h-full min-h-[248px] w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+              compact ? "" : "min-h-[320px]"
             }`}
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
@@ -4654,12 +4654,12 @@ export default function MyPage() {
     : false;
 
   return (
-    <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
+    <main className="min-h-screen overflow-x-hidden bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
       <DesktopSidebar messageHref={messageHref} />
 
       {/* App Shell — Sidebar를 제외한 나머지 폭 전체를 그대로 차지한다(flex-1).
           더 이상 xl:pl-[...] 오프셋이나 mx-auto/max-w로 폭을 제한하지 않는다. */}
-      <div className="min-w-0">
+      <div className="min-w-0 overflow-x-hidden">
         <TopHeader name={name} />
 
         <div
