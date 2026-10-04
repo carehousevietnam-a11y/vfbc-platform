@@ -316,6 +316,20 @@ const emergencyCardBody = mypagePageSrc.slice(
 );
 if (!/freeCollapsible[\s\S]*aria-expanded=\{accordionOpen\}/.test(emergencyCardBody))
   fail.push("F-16 free emergency toggle must use aria-expanded on button header");
+if (!mypagePageSrc.includes("verifyAdminFreeWalletExpanded"))
+  fail.push("F-17 free wallet expanded state must be lifted to MyPage");
+if (!mypagePageSrc.includes("pcGovernmentLinksInAside"))
+  fail.push("F-17 must wire pcGovernmentLinksInAside from wallet expanded state");
+if (!mypagePageSrc.includes("function VerifyAdminFreeGovernmentLinksAsideCard"))
+  fail.push("F-17 must define PC aside government links accordion card");
+if (!mypagePageSrc.includes("verify-admin-free-government-links-panel"))
+  fail.push("F-17 government links aside card must use aria-controls panel id");
+if (!mypagePageSrc.includes("buildVerifyAdminRollingStripItems()"))
+  fail.push("F-17 aside government links must reuse buildVerifyAdminRollingStripItems");
+if (!mypagePageSrc.includes("verifyAdminFreeWalletExpanded ? \"xl:hidden\" : \"\""))
+  fail.push("F-17 PC wallet expanded must hide bottom rolling strip with xl:hidden only");
+if (!mypagePageSrc.includes("hidden xl:block"))
+  fail.push("F-17 PC government links card must be hidden on mobile (xl:block wrapper)");
 if (MYPAGE_WALLET_SLOT_TITLE_CLASS.includes("min-h-[2.75rem]"))
   fail.push("F-16 wallet slot title must not use fixed min-h 2-line reserve");
 if (/min-h-\[(132|190)px\]\s+flex-1/.test(mypagePageSrc))

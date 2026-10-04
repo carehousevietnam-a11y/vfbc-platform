@@ -76,8 +76,13 @@ import {
   shouldUseVerifyAdminMypageSlimAside,
   shouldHideVerifyAdminWalletDocumentCount,
   shouldUseGeneralCustomerMypageLayout,
+  VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
 } from "@/lib/adminVerifyMypageFields";
-import { MYPAGE_PUBLIC_LINKS, MYPAGE_VN_PUBLIC_LINKS } from "@/lib/mypageLinkCatalog";
+import {
+  buildVerifyAdminRollingStripItems,
+  MYPAGE_PUBLIC_LINKS,
+  MYPAGE_VN_PUBLIC_LINKS,
+} from "@/lib/mypageLinkCatalog";
 import { VerifyAdminMypageRollingStrip } from "@/components/mypage/VerifyAdminMypageRollingStrip";
 import { MYPAGE_WALLET_SLOT_TITLE_CLASS } from "@/lib/mypageWalletSlotUi";
 import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
@@ -672,12 +677,90 @@ function VerifyAdminApplicationSummaryCard({ item }: { item: MyPageItem }) {
   );
 }
 
-function VerifyAdminMypageSidePanel({ item }: { item: MyPageItem }) {
+function VerifyAdminMypageSidePanel({
+  item,
+  pcGovernmentLinksInAside = false,
+}: {
+  item: MyPageItem;
+  /** F-17 — PC xl+ only when free wallet expanded */
+  pcGovernmentLinksInAside?: boolean;
+}) {
   return (
     <div className="min-w-0 space-y-4">
       <VerifyAdminApplicationSummaryCard item={item} />
       <GeneralCustomerNotificationCard item={item} />
       <EmergencyHelpCard item={item} compact collapsible />
+      {pcGovernmentLinksInAside ? (
+        <div className="hidden xl:block">
+          <VerifyAdminFreeGovernmentLinksAsideCard />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** verify_admin aiOnly — PC aside when wallet expanded (F-17) */
+function VerifyAdminFreeGovernmentLinksAsideCard() {
+  const [open, setOpen] = useState(false);
+  const items = useMemo(() => buildVerifyAdminRollingStripItems(), []);
+  const panelId = "verify-admin-free-government-links-panel";
+
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left"
+      >
+        <span className="min-w-0 text-[16px] font-extrabold text-slate-950">
+          {VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE}
+        </span>
+        <ChevronDown
+          size={18}
+          className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden
+        />
+      </button>
+      <div id={panelId} className={open ? "block border-t border-slate-100" : "hidden"}>
+        <div className="divide-y divide-slate-100 px-5 pb-5 pt-3">
+          {items.map((link) => (
+            <a
+              key={link.id}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+              className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+                  {link.iconSrc ? (
+                    <img
+                      src={link.iconSrc}
+                      alt=""
+                      className="block max-h-8 max-w-8 object-contain object-center"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  ) : (
+                    <span className="text-[13px] font-extrabold text-[#0d2a6b]">
+                      {link.label.trim().charAt(0) || "?"}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-slate-400">{link.regionLabel}</p>
+                  <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
+                </div>
+              </div>
+              <ExternalLink size={13} className="shrink-0 text-slate-300" />
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -2744,18 +2827,43 @@ function GeneralCustomerCompactAccordion({
   );
 }
 
-function VerifyAdminMypageMainWalletFooter({ leadId }: { leadId: string }) {
-  return <GeneralCustomerWalletCore leadId={leadId} placement="verifyAdminMainFooter" />;
+function VerifyAdminMypageMainWalletFooter({
+  leadId,
+  expanded,
+  onExpandedChange,
+}: {
+  leadId: string;
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
+}) {
+  return (
+    <GeneralCustomerWalletCore
+      leadId={leadId}
+      placement="verifyAdminMainFooter"
+      expanded={expanded}
+      onExpandedChange={onExpandedChange}
+    />
+  );
 }
 
 function GeneralCustomerWalletCore({
   leadId,
   placement = "main",
+  expanded: expandedProp,
+  onExpandedChange,
 }: {
   leadId: string;
   placement?: "main" | "aside" | "verifyAdminMainFooter";
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
+  const isControlled = onExpandedChange != null;
+  const expanded = isControlled ? (expandedProp ?? false) : internalExpanded;
+  const setExpanded = (value: boolean) => {
+    if (isControlled) onExpandedChange(value);
+    else setInternalExpanded(value);
+  };
   const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -3022,16 +3130,23 @@ function GeneralCustomerExtrasPanel({
   items,
   activeId,
   onSelect,
+  pcGovernmentLinksInAside = false,
 }: {
   item: MyPageItem;
   items: MyPageItem[];
   activeId: string;
   onSelect: (id: string) => void;
+  pcGovernmentLinksInAside?: boolean;
 }) {
   const pastCount = items.filter((entry) => entry.id !== activeId).length;
 
   if (shouldUseVerifyAdminMypageSlimAside(item)) {
-    return <VerifyAdminMypageSidePanel item={item} />;
+    return (
+      <VerifyAdminMypageSidePanel
+        item={item}
+        pcGovernmentLinksInAside={pcGovernmentLinksInAside}
+      />
+    );
   }
 
   return (
@@ -4728,12 +4843,16 @@ function Dashboard({
   activeId,
   onChangeActive,
   onReload,
+  freeVerifyAdminWalletExpanded,
+  onFreeVerifyAdminWalletExpandedChange,
 }: {
   name: string | null;
   items: MyPageItem[];
   activeId: string;
   onChangeActive: (id: string) => void;
   onReload?: () => void | Promise<void>;
+  freeVerifyAdminWalletExpanded?: boolean;
+  onFreeVerifyAdminWalletExpandedChange?: (expanded: boolean) => void;
 }) {
   const activeItem = useMemo(
     () => items.find((item) => item.id === activeId) ?? items[0] ?? null,
@@ -4773,7 +4892,11 @@ function Dashboard({
             onExpertRequested={onReload}
           />
           {freeVerifyAdminLayout ? (
-            <VerifyAdminMypageMainWalletFooter leadId={activeItem.id} />
+            <VerifyAdminMypageMainWalletFooter
+              leadId={activeItem.id}
+              expanded={onFreeVerifyAdminWalletExpandedChange ? freeVerifyAdminWalletExpanded : undefined}
+              onExpandedChange={onFreeVerifyAdminWalletExpandedChange}
+            />
           ) : null}
         </div>
 
@@ -5006,6 +5129,17 @@ export default function MyPage() {
   const isGeneralCustomerLayout = activeLayoutItem
     ? shouldUseGeneralCustomerMypageLayout(activeLayoutItem)
     : false;
+  const isSlimFreeVerifyAdminAside =
+    activeLayoutItem != null &&
+    isGeneralCustomerLayout &&
+    shouldUseVerifyAdminMypageSlimAside(activeLayoutItem);
+  const [verifyAdminFreeWalletExpanded, setVerifyAdminFreeWalletExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!isSlimFreeVerifyAdminAside) {
+      setVerifyAdminFreeWalletExpanded(false);
+    }
+  }, [isSlimFreeVerifyAdminAside, activeLayoutItem?.id]);
 
   return (
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
@@ -5075,6 +5209,12 @@ export default function MyPage() {
                 activeId={activeId}
                 onChangeActive={setActiveId}
                 onReload={reloadMypageData}
+                freeVerifyAdminWalletExpanded={
+                  isSlimFreeVerifyAdminAside ? verifyAdminFreeWalletExpanded : undefined
+                }
+                onFreeVerifyAdminWalletExpandedChange={
+                  isSlimFreeVerifyAdminAside ? setVerifyAdminFreeWalletExpanded : undefined
+                }
               />
             )}
           </div>
@@ -5086,6 +5226,9 @@ export default function MyPage() {
                 items={items}
                 activeId={activeId}
                 onSelect={setActiveId}
+                pcGovernmentLinksInAside={
+                  isSlimFreeVerifyAdminAside ? verifyAdminFreeWalletExpanded : false
+                }
               />
             </aside>
           )}
@@ -5112,7 +5255,11 @@ export default function MyPage() {
           {state === "ready" &&
           activeLayoutItem &&
           shouldUseVerifyAdminMypageSlimAside(activeLayoutItem) ? (
-            <div className="col-span-full min-w-0">
+            <div
+              className={`col-span-full min-w-0 ${
+                verifyAdminFreeWalletExpanded ? "xl:hidden" : ""
+              }`}
+            >
               <VerifyAdminMypageRollingStrip />
             </div>
           ) : null}
