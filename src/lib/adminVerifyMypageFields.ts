@@ -15,7 +15,6 @@ import {
   buildPhase1RiskSummaryLinesFromManifest,
   buildPhase2RiskSummaryLinesFromManifest,
 } from "@/lib/adminVerifyJudgmentRuntime";
-import { getRequiredDocuments } from "@/lib/requiredDocuments";
 
 export const VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL = "AI 리포트 받기";
 export const VERIFY_ADMIN_EXPERT_REVIEWING_LABEL = "담당 전문가가 검토 중입니다";
@@ -280,19 +279,45 @@ export type AdminVerifyAiReportContent = {
 export const ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER =
   "※ 이 리포트에서는 1차 입력 내용을 중심으로 정리합니다. 제출 자료의 상세 내용 비교·검토는 상세 검토에서 확인할 수 있습니다.";
 
-export const ADMIN_VERIFY_FREE_PDF_DEFAULT_CONCLUSION =
-  "결론 · 1차 입력만으로는 위험 여부를 확정할 수 없어, 원본 통지서·안내와의 대조 확인이 필요합니다.";
-
 export const ADMIN_VERIFY_FREE_PDF_SCOPE_GAP_LINE =
   "[공백] 이 리포트는 1차 입력과 제출 사실만 반영하므로, 사실관계는 원본 문서를 기준으로 확인이 필요합니다.";
+
+export const ADMIN_VERIFY_FREE_PDF_EMPTY_FINDINGS_LINE =
+  "1차 입력에서 확인된 세부 항목이 없어, 확인 목적만 반영했습니다.";
 
 const ADMIN_VERIFY_FREE_PDF_OMIT_FINDING_LINE =
   "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
 
-const VERIFY_ADMIN_MANDATORY_DOC_HINTS: Record<string, string> = {
-  "교통국에서 받은 안내·통지 문서": "발신 기관·요구 내용·기한 확인용",
-  "교통국에 제출했던 서류·자료": "이전 제출 내용·처리 결과 대조용",
-};
+const VERIFY_ADMIN_MANDATORY_DOC_TRAFFIC_LINES = [
+  "교통국에서 받은 안내·통지 문서 — 발신 기관·요구 내용·기한 확인용",
+  "교통국에 제출했던 서류·자료 — 이전 제출 내용·처리 결과 대조용",
+] as const;
+
+const VERIFY_ADMIN_MANDATORY_DOC_GENERIC_LINES = [
+  "관련 기관에서 받은 안내·통지 문서 — 발신 기관·요구 내용·기한 확인용",
+  "관련 기관에 제출했던 서류·자료 — 이전 제출 내용·처리 결과 대조용",
+] as const;
+
+/** @deprecated F-18b — use buildAdminVerifyFreeOriginalDocumentLabel */
+export const ADMIN_VERIFY_FREE_PDF_DEFAULT_CONCLUSION =
+  "결론 · 1차 입력만으로는 위험 여부를 확정할 수 없어, 원본 문서와의 대조 확인이 필요합니다.";
+
+function buildAdminVerifyFreeOriginalDocumentLabel(documentLabel: string | null): string {
+  const trimmed = documentLabel?.trim();
+  return trimmed ? `원본 문서(${trimmed})` : "원본 문서";
+}
+
+export function isAdminVerifyFreePdfTrafficAuthority(authority: string | null): boolean {
+  if (!authority?.trim()) return false;
+  return /교통|운전\s*면허|운전면허/.test(authority);
+}
+
+function buildAdminVerifyFreeMandatoryDocumentLines(authority: string | null): string[] {
+  if (isAdminVerifyFreePdfTrafficAuthority(authority)) {
+    return [...VERIFY_ADMIN_MANDATORY_DOC_TRAFFIC_LINES];
+  }
+  return [...VERIFY_ADMIN_MANDATORY_DOC_GENERIC_LINES];
+}
 
 function normalizeAdminVerifyPdfDedupKey(text: string): string {
   return text
@@ -443,14 +468,18 @@ function buildAdminVerifyFreeAiReportContent(
     dedupKeys.add(normalizeAdminVerifyPdfDedupKey(text));
   };
 
+  const documentLabel = profileFieldValueFromResolution(profile.document);
+  const authorityLabel = profileFieldValueFromResolution(profile.authority);
+  const originalDoc = buildAdminVerifyFreeOriginalDocumentLabel(documentLabel);
+
   const conclusionLine =
     riskSignals.length > 0
-      ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 원본 통지서·안내의 기재 내용을 기준으로 추가 확인이 필요합니다.`
-      : ADMIN_VERIFY_FREE_PDF_DEFAULT_CONCLUSION;
+      ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 ${originalDoc}의 기재 내용을 기준으로 추가 확인이 필요합니다.`
+      : `결론 · 1차 입력만으로는 위험 여부를 확정할 수 없어, ${originalDoc}와의 대조 확인이 필요합니다.`;
 
   const priorityLine = goal
-    ? "지금 우선 · 입력하신 확인 목표에 맞춰 통지서·안내 원본의 발신 기관·요구 문구부터 확인해 주세요."
-    : "지금 우선 · 통지서·안내 원본에서 발신 기관·제목·기한이 적힌 부분을 먼저 확인해 주세요.";
+    ? `지금 우선 · 입력하신 확인 목표에 맞춰 ${originalDoc}의 발신 기관·요구 문구부터 확인해 주세요.`
+    : `지금 우선 · ${originalDoc}에서 발신 기관·제목·기한이 적힌 부분을 먼저 확인해 주세요.`;
 
   const execSummary = [
     conclusionLine,
@@ -504,9 +533,14 @@ function buildAdminVerifyFreeAiReportContent(
     const typePart = phase1Upload.typeLabel?.trim();
     const submitLine = typePart
       ? `제출 자료 · ${typePart} ${phase1Upload.count}건이 제출되었습니다.`
-      : `제출 자료 · 자료 ${phase1Upload.count}건이 제출되었습니다.`;
+      : `제출 자료 · ${phase1Upload.count}건이 제출되었습니다.`;
     pushFinding(submitLine);
     pushFinding(ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER);
+  }
+
+  const findingBulletCount = keyFindings.filter((line) => line.startsWith("✓")).length;
+  if (findingBulletCount === 0) {
+    pushFinding(ADMIN_VERIFY_FREE_PDF_EMPTY_FINDINGS_LINE);
   }
 
   const keyRisks: string[] = [];
@@ -516,23 +550,19 @@ function buildAdminVerifyFreeAiReportContent(
     }
   }
   keyRisks.push(
-    "[공백] 원본 통지서·안내에 적힌 기한·요구 내용·발신 기관이 아직 교차 확인되지 않았을 수 있습니다.",
+    `[공백] ${originalDoc}에 적힌 기한·요구 내용·발신 기관이 아직 교차 확인되지 않았을 수 있습니다.`,
   );
   keyRisks.push(ADMIN_VERIFY_FREE_PDF_SCOPE_GAP_LINE);
 
   const recommendedAction = [
-    "① 즉시 조치 · 통지서·안내 원본에서 발신 기관·제목·기한·요구 문구가 적힌 부분을 표시해 두세요.",
+    `① 즉시 조치 · ${originalDoc}에서 발신 기관·제목·기한·요구 문구가 적힌 부분을 표시해 두세요.`,
     goal
       ? "② 다음 조치 · 확인 목표에 맞춰 아직 확인하지 못한 항목을 정리하고, 원본과 대조할 위치를 표시해 주세요."
-      : "② 다음 조치 · 1차에 정리한 상황과 원본 통지서·안내를 나란히 놓고 아직 확인하지 못한 항목을 정리해 주세요.",
+      : `② 다음 조치 · 1차에 정리한 상황과 ${originalDoc}를 나란히 놓고 아직 확인하지 못한 항목을 정리해 주세요.`,
     "③ 최종 조치 · 필요하면 상세 검토를 통해 제출 자료와 답변을 함께 확인하고 다음 대응 방향을 정리해 주세요.",
   ];
 
-  const requiredDocs = getRequiredDocuments("verify_admin");
-  const mandatoryDocumentLines = requiredDocs.documents.map((docName) => {
-    const hint = VERIFY_ADMIN_MANDATORY_DOC_HINTS[docName];
-    return hint ? `${docName} — ${hint}` : `${docName} — 제출·확인 참고`;
-  });
+  const mandatoryDocumentLines = buildAdminVerifyFreeMandatoryDocumentLines(authorityLabel);
 
   const executiveDashboardSupplementLines = [
     "입력 범위 · 1차 질문 답변과 간단 업로드 제출 사실",

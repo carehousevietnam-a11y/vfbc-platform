@@ -21,6 +21,8 @@ const {
   adminVerifyFreePdfTextContainsInternalCodes,
   resolveAdminPhase1SimpleUploadFromActivities,
   ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER,
+  ADMIN_VERIFY_FREE_PDF_EMPTY_FINDINGS_LINE,
+  isAdminVerifyFreePdfTrafficAuthority,
   buildVerifyAdminMypageTimelineRecent,
   verifyAdminTimelineEntryAllowed,
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
@@ -229,6 +231,92 @@ const f18SparseContent = buildAdminVerifyAiReportContentFromActivities(
   "lead-sparse",
 );
 
+const f18ScenarioCustomImmigration = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "immigration" }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "체류 관련 안내 확인" },
+        authority: { value: "출입국·외국인등록·거주 관련 기관" },
+        document: { value: "체류 안내" },
+        riskSignals: [],
+      }),
+    },
+  },
+];
+
+const f18ScenarioCustomTrafficOtherDoc = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "traffic" }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "안내 내용 확인" },
+        authority: { value: "교통국·운전면허 관련 기관" },
+        document: { value: "행정 안내" },
+        riskSignals: [],
+      }),
+    },
+  },
+];
+
+const f18CustomImmigrationContent = buildAdminVerifyAiReportContentFromActivities(
+  f18ScenarioCustomImmigration,
+  "lead-custom-imm",
+);
+const f18CustomTrafficOtherDocContent = buildAdminVerifyAiReportContentFromActivities(
+  f18ScenarioCustomTrafficOtherDoc,
+  "lead-custom-traffic-doc",
+);
+
+function assertF18cInputAlignment(label, plain, { expectTrafficAuthority, forbidTongjiseo, expectEmptyFindingsLine }) {
+  if (expectTrafficAuthority && !plain.includes("교통국")) {
+    fail.push(`F-18c ${label}: traffic sample must keep 교통국 wording`);
+  }
+  if (expectTrafficAuthority === false && plain.includes("교통국")) {
+    fail.push(`F-18c ${label}: non-traffic sample must not contain 교통국`);
+  }
+  if (forbidTongjiseo && plain.includes("통지서")) {
+    fail.push(`F-18c ${label}: must not contain 통지서 substring`);
+  }
+  const hasEmptyLine = plain.includes(ADMIN_VERIFY_FREE_PDF_EMPTY_FINDINGS_LINE);
+  if (expectEmptyFindingsLine && !hasEmptyLine) {
+    fail.push(`F-18c ${label}: sparse sample must include empty-findings line`);
+  }
+  if (expectEmptyFindingsLine === false && hasEmptyLine) {
+    fail.push(`F-18c ${label}: must not include empty-findings line`);
+  }
+  if (plain.includes("이previous")) {
+    fail.push(`F-18c ${label}: must not contain 이previous typo`);
+  }
+}
+
+function assertF18cCustomSample(label, content, authorityValue, documentValue) {
+  if (!content || content.includesPhase2Block) {
+    fail.push(`F-18c ${label}: must be free content`);
+    return;
+  }
+  const plain = formatAdminVerifyAiReportContentPlainText(content);
+  if (documentValue && !plain.includes(documentValue)) {
+    fail.push(`F-18c ${label}: must reflect document input`);
+  }
+  if (authorityValue && !plain.includes(authorityValue)) {
+    fail.push(`F-18c ${label}: must reflect authority input`);
+  }
+  const traffic = isAdminVerifyFreePdfTrafficAuthority(authorityValue);
+  if (!traffic && plain.includes("교통국")) {
+    fail.push(`F-18c ${label}: must not inject 교통국 for non-traffic authority`);
+  }
+  if (traffic && !plain.includes("교통국")) {
+    fail.push(`F-18c ${label}: traffic authority must keep 교통국 mandatory lines`);
+  }
+  const docTrim = documentValue?.trim() ?? "";
+  if (docTrim && !docTrim.includes("통지서") && plain.includes("통지서")) {
+    fail.push(`F-18c ${label}: must not inject 통지서 when document input has none`);
+  }
+}
+
 function countOccurrences(haystack, needle) {
   if (!needle) return 0;
   let count = 0;
@@ -328,6 +416,33 @@ const fail = [];
 assertFreePdfGuards("traffic+upload", f18ScenarioTrafficUpload, f18TrafficContent, true);
 assertFreePdfGuards("other-no-upload", f18ScenarioOtherNoUpload, f18OtherContent, false);
 assertFreePdfGuards("sparse", f18ScenarioSparse, f18SparseContent, false);
+assertF18cInputAlignment("traffic+upload", f18SamplePlainTexts.trafficUpload, {
+  expectTrafficAuthority: true,
+  forbidTongjiseo: false,
+  expectEmptyFindingsLine: false,
+});
+assertF18cInputAlignment("other-no-upload", f18SamplePlainTexts.otherNoUpload, {
+  expectTrafficAuthority: false,
+  forbidTongjiseo: true,
+  expectEmptyFindingsLine: false,
+});
+assertF18cInputAlignment("sparse", f18SamplePlainTexts.sparse, {
+  expectTrafficAuthority: false,
+  forbidTongjiseo: true,
+  expectEmptyFindingsLine: true,
+});
+assertF18cCustomSample(
+  "custom-immigration",
+  f18CustomImmigrationContent,
+  "출입국·외국인등록·거주 관련 기관",
+  "체류 안내",
+);
+assertF18cCustomSample(
+  "custom-traffic-other-doc",
+  f18CustomTrafficOtherDocContent,
+  "교통국·운전면허 관련 기관",
+  "행정 안내",
+);
 const paidRegressionSnapshot = {
   execSummary: paidPdfContent?.execSummary ?? [],
   recommendedAction: paidPdfContent?.recommendedAction ?? [],
