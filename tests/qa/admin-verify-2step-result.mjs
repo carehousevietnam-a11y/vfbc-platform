@@ -39,6 +39,8 @@ const {
   ADMIN_VERIFY_PAID_PDF_METRIC_STATUS,
   ADMIN_VERIFY_PAID_PDF_KEY_RISK_CROSS_CHECK,
   ADMIN_VERIFY_PAID_PDF_KEY_RISK_UPLOAD_SCOPE,
+  ADMIN_VERIFY_PAID_PDF_LEGACY_EXECUTIVE_HEADLINE,
+  countAdminVerifyPaidPdfMetricGapLines,
   isVerifyAdminPaidAiReportPdfActivities,
   buildVerifyAdminMypageTimelineRecent,
   countPaidEvidenceRenderLines,
@@ -109,6 +111,7 @@ const PAID_PDF_SHELL_G2 = {
     ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS,
     ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION,
     "0건",
+    ADMIN_VERIFY_PAID_PDF_LEGACY_EXECUTIVE_HEADLINE,
   ],
 };
 
@@ -812,12 +815,48 @@ function assertG2PaidPdfGuards(label, pdfText, content, { expectUploadRefs, refs
   if (!pdfText.includes(ADMIN_VERIFY_PAID_PDF_METRIC_REQUIREMENTS)) {
     fail.push(`G-2 ${label}: missing paid metric requirements label value`);
   }
-  const riskLines = content.keyRisks.length;
-  if (!pdfText.includes(`${riskLines}건`)) {
-    fail.push(`G-2 ${label}: 보완항목 N must match KEY RISKS line count (${riskLines})`);
+  const metricGapLines = countAdminVerifyPaidPdfMetricGapLines(content.keyRisks);
+  if (!pdfText.includes(`${metricGapLines}건`)) {
+    fail.push(`G-2 ${label}: 보완항목 N must match [주의]+[공백] KEY RISKS count (${metricGapLines})`);
   }
-  if (content.riskCount !== riskLines) {
-    fail.push(`G-2 ${label}: riskCount must equal KEY RISKS line count`);
+  if (content.riskCount !== metricGapLines) {
+    fail.push(`G-2 ${label}: riskCount must equal [주의]+[공백] KEY RISKS count`);
+  }
+}
+
+function assertG3bPaidPdfGuards(label, pdfText, content, { expectUploadRefs }) {
+  if (!content?.includesPhase2Block) {
+    fail.push(`G-3b ${label}: must be paid PDF content`);
+    return;
+  }
+  if (!pdfText.includes(ADMIN_VERIFY_PAID_PDF_EXECUTIVE_HEADLINE)) {
+    fail.push(`G-3b ${label}: missing paid executive headline with 입력`);
+  }
+  if (pdfText.includes(ADMIN_VERIFY_PAID_PDF_LEGACY_EXECUTIVE_HEADLINE)) {
+    fail.push(`G-3b ${label}: must not contain legacy headline without 입력`);
+  }
+  const plain = formatAdminVerifyAiReportContentPlainText(content);
+  if (plain.includes("[공백] 제출 자료의 내용은")) {
+    fail.push(`G-3b ${label}: upload scope line must not use [공백] prefix`);
+  }
+  if (expectUploadRefs) {
+    if (!plain.includes(ADMIN_VERIFY_PAID_PDF_KEY_RISK_UPLOAD_SCOPE)) {
+      fail.push(`G-3b ${label}: must include [검토 범위] upload scope line when refs exist`);
+    }
+    if (!plain.includes("[검토 범위]")) {
+      fail.push(`G-3b ${label}: upload sample must start upload line with [검토 범위]`);
+    }
+  }
+  const metricGapLines = countAdminVerifyPaidPdfMetricGapLines(content.keyRisks);
+  const reviewScopeLines = content.keyRisks.filter((line) => line.startsWith("[검토 범위]")).length;
+  if (content.keyRisks.length !== metricGapLines + reviewScopeLines) {
+    fail.push(`G-3b ${label}: KEY RISKS must only add [검토 범위] beyond metric lines`);
+  }
+  if (content.riskCount !== metricGapLines) {
+    fail.push(`G-3b ${label}: riskCount must exclude [검토 범위] lines`);
+  }
+  if (metricGapLines < 1) {
+    fail.push(`G-3b ${label}: metric gap count must be at least 1 ([공백] cross-check always present)`);
   }
 }
 
@@ -973,6 +1012,21 @@ assertG3PaidPdfGuards("non-traffic", g1PaidNonTrafficPdf.text, g1PaidNonTrafficC
 });
 assertG3PaidPdfGuards("risk-signals", g3PaidRiskPdf.text, g3PaidRiskContent, {
   expectRiskConclusion: true,
+});
+assertG3bPaidPdfGuards("paid-default", paidPdfExtracted365.text, paidPdfContent, {
+  expectUploadRefs: true,
+});
+assertG3bPaidPdfGuards("non-traffic", g1PaidNonTrafficPdf.text, g1PaidNonTrafficContent, {
+  expectUploadRefs: true,
+});
+assertG3bPaidPdfGuards("traffic-deadline", g1PaidTrafficPdf.text, g1PaidTrafficContent, {
+  expectUploadRefs: true,
+});
+assertG3bPaidPdfGuards("no-label-upload", g1PaidNoLabelPdf.text, g1PaidNoLabelContent, {
+  expectUploadRefs: true,
+});
+assertG3bPaidPdfGuards("risk-signals", g3PaidRiskPdf.text, g3PaidRiskContent, {
+  expectUploadRefs: true,
 });
 for (const [label, pages] of [
   ["non-traffic", g1PaidNonTrafficPdf.pages],

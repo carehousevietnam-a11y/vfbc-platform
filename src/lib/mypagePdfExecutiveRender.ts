@@ -982,7 +982,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         subline: ADMIN_VERIFY_PAID_PDF_EXECUTIVE_SUBLINE,
       };
       requirementsTextForCards = ADMIN_VERIFY_PAID_PDF_METRIC_REQUIREMENTS;
-      riskCardTextForCards = `${keyRisks.length}건`;
+      riskCardTextForCards = `${riskCount ?? 0}건`;
       aiStatusTextForCards = ADMIN_VERIFY_PAID_PDF_METRIC_STATUS;
       dashboardCurrentStageLabel = ADMIN_VERIFY_PAID_PDF_METRIC_STATUS;
       const firstRec = recommendedAction[0] ?? "";

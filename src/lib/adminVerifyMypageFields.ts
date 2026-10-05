@@ -327,8 +327,9 @@ export function isVerifyAdminPaidAiReportPdfActivities(activities: CrmActivityLi
   return Object.keys(parseAdminVerifyAnswersFromActivities(activities)).length > 0;
 }
 
-/** G-2: paid verify_admin PDF 상단·Dashboard (무료·타 서비스 미적용) */
-export const ADMIN_VERIFY_PAID_PDF_EXECUTIVE_HEADLINE = "1·2차 확인 완료";
+/** G-2/G-3b: paid verify_admin PDF 상단·Dashboard (무료·타 서비스 미적용) */
+export const ADMIN_VERIFY_PAID_PDF_EXECUTIVE_HEADLINE = "1·2차 입력 확인 완료";
+export const ADMIN_VERIFY_PAID_PDF_LEGACY_EXECUTIVE_HEADLINE = "1·2차 확인 완료";
 export const ADMIN_VERIFY_PAID_PDF_EXECUTIVE_SUBLINE =
   "1차·2차 입력 내용 기준으로 정리한 결과입니다. 제출 자료의 내용 검토는 전문가 확인 단계에서 진행됩니다.";
 export const ADMIN_VERIFY_PAID_PDF_METRIC_REQUIREMENTS = "1·2차 기준";
@@ -336,7 +337,14 @@ export const ADMIN_VERIFY_PAID_PDF_METRIC_STATUS = "2차 반영";
 export const ADMIN_VERIFY_PAID_PDF_KEY_RISK_CROSS_CHECK =
   "[공백] 원본 문서와 2차 진술의 교차 확인이 필요합니다.";
 export const ADMIN_VERIFY_PAID_PDF_KEY_RISK_UPLOAD_SCOPE =
-  "[공백] 제출 자료의 내용은 이 리포트에서 검토하지 않았으며, 파일명·종류·제출 사실만 반영했습니다.";
+  "[검토 범위] 제출 자료의 내용은 이 리포트에서 검토하지 않았으며, 파일명·종류·제출 사실만 반영했습니다.";
+
+/** 5칸 보완항목 · Dashboard 위험·보완 — [주의]·[공백]만 집계 ([검토 범위] 제외). */
+export function countAdminVerifyPaidPdfMetricGapLines(keyRisks: string[]): number {
+  return keyRisks.filter(
+    (line) => line.startsWith("[주의]") || line.startsWith("[공백]"),
+  ).length;
+}
 
 export const ADMIN_VERIFY_PAID_PDF_EVIDENCE_MAX_RENDER_LINES = 7;
 /** Matches mypagePdfExecutiveRender left column width (contentWidth * 0.62). */
@@ -691,7 +699,7 @@ function buildAdminVerifyPaidAiReportContent(
     keyFindings,
     keyRisks,
     recommendedAction,
-    riskCount: keyRisks.length,
+    riskCount: countAdminVerifyPaidPdfMetricGapLines(keyRisks),
     reviewedCount: satisfiedCount,
     satisfiedCount,
     includesPhase2Block,
