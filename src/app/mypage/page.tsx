@@ -74,6 +74,9 @@ import {
   VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE,
   VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER,
   VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
+  VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE,
+  VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY,
+  mapVerifyAdminExpertMypageTimelineDisplayLabel,
   buildVerifyAdminMypageTimelineRecent,
   isVerifyAdminPaidMypageItem,
   isVerifyAdminMypageItem,
@@ -1707,14 +1710,19 @@ function CurrentStatusCard({
   const estimate = getEstimate(item.category, item.serviceType);
   const expertTeamLabel = resolveExpertTeamLabel(item.category, item.serviceType);
 
+  const statusGuideText =
+    item.serviceType === "verify_admin" &&
+    item.hasExpertReview &&
+    item.phase2Complete !== true
+      ? VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE
+      : item.hasExpertReview
+        ? "담당 전문가가 제출하신 자료를 검토하고 있습니다."
+        : "현재 신청 내용을 확인하고 다음 단계를 준비하고 있습니다.";
+
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
-      <p className="mt-3 text-[13px] leading-6 text-slate-600">
-        {item.hasExpertReview
-          ? "담당 전문가가 제출하신 자료를 검토하고 있습니다."
-          : "현재 신청 내용을 확인하고 다음 단계를 준비하고 있습니다."}
-      </p>
+      <p className="mt-3 text-[13px] leading-6 text-slate-600">{statusGuideText}</p>
 
       <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm">
@@ -3313,6 +3321,74 @@ function PublicLinksCard({
 
 
 function NotificationCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
+  if (item.serviceType === "verify_admin") {
+    const entries = item.activityLog
+      .filter((entry) => !GENERAL_CUSTOMER_EXPERT_NOTIFICATION_LABELS.has(entry.label))
+      .slice(-3)
+      .reverse()
+      .map((entry) => ({
+        ...entry,
+        label: mapVerifyAdminExpertMypageTimelineDisplayLabel(entry.label),
+      }));
+
+    return (
+      <section
+        id="notifications"
+        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+          compact ? "p-4" : "p-5"
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+            알림 센터
+          </p>
+          {entries.length > 0 ? (
+            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+          ) : null}
+        </div>
+
+        {entries.length === 0 ? (
+          <p className={`leading-5 text-slate-500 ${compact ? "mt-2 text-[10px]" : "mt-3 text-[11px]"}`}>
+            {VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY}
+          </p>
+        ) : (
+          <div className={compact ? "mt-2 space-y-0.5" : "mt-3 space-y-1"}>
+            {entries.map((entry) => {
+              const Icon = getGeneralCustomerNotificationIcon(entry.label);
+              const tone = getGeneralCustomerNotificationTone(entry.label);
+              return (
+                <div
+                  key={`${entry.label}-${entry.createdAt}`}
+                  className={`flex gap-2.5 rounded-xl hover:bg-slate-50 ${compact ? "p-2" : "gap-3 p-2.5"}`}
+                >
+                  <div
+                    className={`flex shrink-0 items-center justify-center rounded-full ${tone} ${
+                      compact ? "h-8 w-8" : "h-9 w-9"
+                    }`}
+                  >
+                    <Icon size={compact ? 14 : 15} />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className={`font-extrabold text-slate-900 ${compact ? "text-[10px]" : "text-[11px]"}`}
+                    >
+                      {entry.label}
+                    </p>
+                    <p
+                      className={`leading-4 text-slate-500 ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}
+                    >
+                      {formatShortDate(entry.createdAt)} · {formatTime(entry.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    );
+  }
+
   const entries = [
     {
       icon: MessageCircle,
@@ -4839,10 +4915,8 @@ function VerifyAdminExpertFlowDashboard({
 
         <StepProgress
           stage={activeItem.stage}
-          stepDateResolver={
-            verifyAdminPaid
-              ? (step, index) => resolveVerifyAdminStepDateLabel(activeItem, step, index)
-              : undefined
+          stepDateResolver={(step, index) =>
+            resolveVerifyAdminStepDateLabel(activeItem, step, index)
           }
         />
 
@@ -4863,7 +4937,7 @@ function VerifyAdminExpertFlowDashboard({
 
         <ExpertMainSupport
           item={activeItem}
-          hideRecommended={verifyAdminPaid}
+          hideRecommended
           verifyAdminExpertMobileAccordion
         />
       </div>

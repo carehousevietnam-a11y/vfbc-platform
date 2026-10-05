@@ -72,6 +72,9 @@ const {
   VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE,
   VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER,
   VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
+  VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE,
+  VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL,
+  VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY,
   isVerifyAdminMypageItem,
   resolveVerifyAdminApplicationSummaryStatus,
   shouldUseVerifyAdminMypageSlimAside,
@@ -1102,6 +1105,79 @@ if (VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF !== "/verify/admin?restore=1") {
   fail.push("H-3: phase2 resume href must be /verify/admin?restore=1");
 }
 
+const H9_COPY = {
+  guide: "전문가 진행 요청이 접수되었습니다. 2차 개인화 질문을 완료해 주세요.",
+  timeline: "전문가 진행 요청",
+  empty: "새로운 알림이 없습니다.",
+};
+if (VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE !== H9_COPY.guide) {
+  fail.push("H-9: incomplete status guide copy mismatch");
+}
+if (VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL !== H9_COPY.timeline) {
+  fail.push("H-9: timeline request label copy mismatch");
+}
+if (VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY !== H9_COPY.empty) {
+  fail.push("H-9: notification empty copy mismatch");
+}
+
+const h9LeadCreated = "2026-07-11T14:34:21.276291+00:00";
+const h9VerifyAt = "2026-07-11T14:34:21.709311+00:00";
+const h9ExpertAt = "2026-07-11T14:35:50.649182+00:00";
+const h9TimelineFixture = buildVerifyAdminMypageTimelineRecent({
+  activityLog: [
+    { label: "AI 검토 완료", createdAt: h9VerifyAt },
+    { label: "전문가 검토 시작", createdAt: h9ExpertAt },
+  ],
+  createdAt: h9LeadCreated,
+  hasDiagnosis: true,
+  hasExpertReview: true,
+  currentStepLabel: "전문가 검토 요청",
+});
+const h9RequestEntry = h9TimelineFixture.find(
+  (entry) => entry.label === VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL,
+);
+if (!h9RequestEntry) fail.push("H-9 timeline fixture: missing expert request entry");
+if (h9RequestEntry && h9RequestEntry.createdAt !== h9ExpertAt) {
+  fail.push("H-9 timeline fixture: expert request time must match expert_review_request activity");
+}
+if (h9TimelineFixture.some((entry) => entry.label === "전문가 검토 시작")) {
+  fail.push("H-9 timeline fixture: must not output raw expert activity label");
+}
+if (
+  h9RequestEntry &&
+  h9TimelineFixture.filter((e) => e.label === VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL).length > 1
+) {
+  fail.push("H-9 timeline fixture: duplicate expert request entries");
+}
+if (h9TimelineFixture.some((entry) => entry.label === "전문가 검토 요청")) {
+  fail.push("H-9 timeline fixture: must not duplicate currentStepLabel fallback entry");
+}
+if (
+  h9RequestEntry &&
+  h9TimelineFixture.some(
+    (entry) =>
+      entry !== h9RequestEntry &&
+      entry.createdAt === h9LeadCreated &&
+      entry.label !== "신청 접수 완료",
+  )
+) {
+  fail.push("H-9 timeline fixture: lead created_at copied to non-access entries");
+}
+
+const expertFlowBlock = mypagePageSrc.slice(
+  mypagePageSrc.indexOf("function VerifyAdminExpertFlowDashboard"),
+  mypagePageSrc.indexOf("function Dashboard("),
+);
+if (!expertFlowBlock.includes("resolveVerifyAdminStepDateLabel(activeItem, step, index)")) {
+  fail.push("H-9: VerifyAdminExpertFlowDashboard must use activity-based StepProgress dates");
+}
+if (!expertFlowBlock.includes("hideRecommended")) {
+  fail.push("H-9: VerifyAdminExpertFlowDashboard must hide RecommendedServices");
+}
+if (!mypagePageSrc.includes("VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE")) {
+  fail.push("H-9: mypage must use incomplete status guide constant");
+}
+
 const h3FreeExpert = shouldGateVerifyAdminExpertPageAiReportPdf({
   serviceType: "verify_admin",
   hasExpertReview: false,
@@ -1649,7 +1725,7 @@ if (expertDashboardBody.includes("VerifyAdminMypageRollingStrip"))
 if (expertDashboardBody.includes("내 신청 요약"))
   fail.push("expert dashboard must not include application summary card");
 if (
-  !expertDashboardBody.includes("hideRecommended={verifyAdminPaid}") ||
+  !expertDashboardBody.includes("hideRecommended") ||
   !expertDashboardBody.includes("verifyAdminExpertMobileAccordion")
 )
   fail.push("expert dashboard must include ExpertMainSupport with hideRecommended and mobile accordion (F-15)");

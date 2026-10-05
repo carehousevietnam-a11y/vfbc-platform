@@ -313,6 +313,21 @@ export const VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE = "요청 후 2~5 영업�
 export const VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER = "2~5 영업일";
 export const VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER = "전문가에게 전달되어 진행 중입니다";
 
+/** H-9 — verify_admin expertFlow (확정 문구, 변경 금지) */
+export const VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE =
+  "전문가 진행 요청이 접수되었습니다. 2차 개인화 질문을 완료해 주세요.";
+export const VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL = "전문가 진행 요청";
+export const VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY = "새로운 알림이 없습니다.";
+
+const VERIFY_ADMIN_EXPERT_REVIEW_ACTIVITY_LOG_LABEL = "전문가 검토 시작";
+
+export function mapVerifyAdminExpertMypageTimelineDisplayLabel(label: string): string {
+  if (label === VERIFY_ADMIN_EXPERT_REVIEW_ACTIVITY_LOG_LABEL) {
+    return VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL;
+  }
+  return label;
+}
+
 /** F-7: 요청 전·후 동일 카드 구조(전문가 박스 + 2칸 타일 + 하단 CTA/상태) */
 export function verifyAdminPaidStatusCardUsesUnifiedStructure(): boolean {
   return true;
@@ -1188,7 +1203,12 @@ export function buildVerifyAdminMypageTimelineRecent(input: {
   const fromLog = input.activityLog.filter((entry) =>
     verifyAdminTimelineEntryAllowed(entry.label, input.hasExpertReview),
   );
-  if (fromLog.length >= 3) return fromLog.slice(-4);
+  if (fromLog.length >= 3) {
+    return fromLog.slice(-4).map((entry) => ({
+      label: mapVerifyAdminExpertMypageTimelineDisplayLabel(entry.label),
+      createdAt: entry.createdAt,
+    }));
+  }
   const fallback: { label: string; createdAt: string }[] = [
     { label: "신청 접수 완료", createdAt: input.createdAt },
   ];
@@ -1200,16 +1220,20 @@ export function buildVerifyAdminMypageTimelineRecent(input: {
     });
   }
   if (input.hasExpertReview) {
-    fallback.push({
-      label: "전문가 검토 시작",
-      createdAt: input.createdAt,
-    });
+    const expertEntry = input.activityLog.find(
+      (entry) => entry.label === VERIFY_ADMIN_EXPERT_REVIEW_ACTIVITY_LOG_LABEL,
+    );
+    if (expertEntry) {
+      fallback.push({
+        label: VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL,
+        createdAt: expertEntry.createdAt,
+      });
+    }
   }
-  fallback.push({
-    label: input.currentStepLabel || "진행 중",
-    createdAt: input.createdAt,
-  });
-  return fallback.filter((entry) =>
-    verifyAdminTimelineEntryAllowed(entry.label, input.hasExpertReview),
-  );
+  return fallback
+    .map((entry) => ({
+      label: mapVerifyAdminExpertMypageTimelineDisplayLabel(entry.label),
+      createdAt: entry.createdAt,
+    }))
+    .filter((entry) => verifyAdminTimelineEntryAllowed(entry.label, input.hasExpertReview));
 }
