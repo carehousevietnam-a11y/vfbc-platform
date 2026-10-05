@@ -94,6 +94,7 @@ export type AdminPhase2UploadRef = {
   tag: string;
   fileName: string;
   storagePath: string;
+  documentLabel: string | null;
 };
 
 export function listAdminPhase2DocumentUploadRefs(
@@ -108,10 +109,14 @@ export function listAdminPhase2DocumentUploadRefs(
     const storagePath = typeof meta?.storagePath === "string" ? meta.storagePath : "";
     const fileName = typeof meta?.fileName === "string" ? meta.fileName : "";
     if (!storagePath.startsWith(prefix) || !fileName.trim()) continue;
+    const rawLabel = meta?.documentLabel;
+    const documentLabel =
+      typeof rawLabel === "string" && rawLabel.trim() ? rawLabel.trim() : null;
     refs.push({
       tag: typeof row.tag === "string" && row.tag.trim() ? row.tag : fileName,
       fileName,
       storagePath,
+      documentLabel,
     });
   }
   return refs;
@@ -410,13 +415,18 @@ function buildAdminVerifyPaidAiReportContent(
   riskSignals: string[],
   goal: string | null,
 ): AdminVerifyAiReportContent {
+  const documentLabel = profileFieldValueFromResolution(profile.document);
+  const authorityLabel = profileFieldValueFromResolution(profile.authority);
+  const originalDoc = buildAdminVerifyFreeOriginalDocumentLabel(documentLabel);
+  const mandatoryDocumentLines = buildAdminVerifyFreeMandatoryDocumentLines(authorityLabel);
+
   const execSummary = [
     riskSignals.length > 0
       ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 서류 원본 검토가 필요합니다.`
       : "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
     goal ? `확인 목적 · ${goal}` : null,
-    profileFieldValueFromResolution(profile.document)
-      ? `문서 · ${profileFieldValueFromResolution(profile.document)}`
+    documentLabel
+      ? `문서 · ${documentLabel}`
       : "문서 · 제출 정보 기준으로 1차 확인했습니다.",
   ].filter((line): line is string => Boolean(line));
 
@@ -429,7 +439,17 @@ function buildAdminVerifyPaidAiReportContent(
     ["현재 단계", "currentStage"],
   ] as const) {
     const val = profileFieldValueFromResolution(profile[key]);
-    if (val) keyFindings.push(`✓ ${label} · ${val}`);
+    if (!val) continue;
+    if (label === "확인 목적" && goal) {
+      const goalFinding = `확인 목적 · ${goal}`;
+      if (
+        val === goal ||
+        normalizeAdminVerifyPdfDedupKey(val) === normalizeAdminVerifyPdfDedupKey(goalFinding)
+      ) {
+        continue;
+      }
+    }
+    keyFindings.push(`✓ ${label} · ${val}`);
   }
 
   for (const line of buildPhase1RiskSummaryLinesFromManifest(answers, resolutionProfile)) {
@@ -454,8 +474,16 @@ function buildAdminVerifyPaidAiReportContent(
     for (const line of phase2RiskLines.slice(0, 8)) {
       keyFindings.push(`✓ ${line}`);
     }
+    if (uploadRefs.length > 0) {
+      keyFindings.push(`✓ 2차 제출 자료 ${uploadRefs.length}건`);
+    }
     for (const ref of uploadRefs.slice(0, 12)) {
-      keyFindings.push(`✓ 제출 자료 · ${ref.fileName}`);
+      const docKind = ref.documentLabel?.trim();
+      keyFindings.push(
+        docKind
+          ? `✓ 제출 자료 · ${docKind} · ${ref.fileName}`
+          : `✓ 제출 자료 · ${ref.fileName}`,
+      );
     }
   }
 
@@ -470,8 +498,8 @@ function buildAdminVerifyPaidAiReportContent(
 
   const recommendedAction =
     riskSignals.length > 0
-      ? ["① 다음 조치 · 위험요인으로 표시된 항목을 통지서 원본과 대조해 주세요."]
-      : ["① 다음 조치 · 통지서 원본의 기한과 요구 내용을 다시 확인해 주세요."];
+      ? [`① 다음 조치 · 위험요인으로 표시된 항목을 ${originalDoc}과 대조해 주세요.`]
+      : [`① 다음 조치 · ${originalDoc}의 기한과 요구 내용을 다시 확인해 주세요.`];
   const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;
   return {
     execSummary,
@@ -482,6 +510,7 @@ function buildAdminVerifyPaidAiReportContent(
     reviewedCount: satisfiedCount,
     satisfiedCount,
     includesPhase2Block,
+    mandatoryDocumentLines,
   };
 }
 

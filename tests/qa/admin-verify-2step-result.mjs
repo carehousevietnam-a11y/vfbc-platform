@@ -529,11 +529,125 @@ const paidRegressionExpected = {
     "확인 목적 · 행정 통지 대응",
     "문서 · 위반 통지서",
   ],
-  recommendedAction: ["① 다음 조치 · 통지서 원본의 기한과 요구 내용을 다시 확인해 주세요."],
+  recommendedAction: [
+    "① 다음 조치 · 원본 문서(위반 통지서)의 기한과 요구 내용을 다시 확인해 주세요.",
+  ],
   includesPhase2Block: true,
-  hasMandatoryOverride: false,
+  hasMandatoryOverride: true,
   hasDashboardSupplement: false,
 };
+
+const G1_PAID_LEAD_NON_TRAFFIC = "g1-paid-non-traffic";
+const g1PaidNonTrafficActivities = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_phase2_documents_upload_complete: "1",
+      admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "payment" }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "안내 내용 확인" },
+        authority: { value: "세무·납세 관련 기관" },
+        document: { value: "납부 안내" },
+        riskSignals: [],
+      }),
+    },
+  },
+  {
+    action: "document_upload",
+    meta: {
+      fileName: "payment-proof.pdf",
+      storagePath: `document-upload/${G1_PAID_LEAD_NON_TRAFFIC}/abc.pdf`,
+      documentLabel: "납부 증빙",
+    },
+  },
+];
+
+const G1_PAID_LEAD_TRAFFIC = "g1-paid-traffic";
+const g1PaidTrafficActivities = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_phase2_documents_upload_complete: "1",
+      admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "traffic" }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "통지 확인" },
+        authority: { value: "교통국·운전면허 관련 기관" },
+        document: { value: "위반 통지서" },
+        riskSignals: [],
+      }),
+    },
+  },
+];
+
+const G1_PAID_LEAD_NO_LABEL = "g1-paid-no-label";
+const g1PaidNoLabelUploadActivities = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_phase2_documents_upload_complete: "1",
+      admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "payment" }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "행정 통지 대응" },
+        document: { value: "위반 통지서" },
+        riskSignals: [],
+      }),
+    },
+  },
+  {
+    action: "document_upload",
+    meta: {
+      fileName: "scan.pdf",
+      storagePath: `document-upload/${G1_PAID_LEAD_NO_LABEL}/x.pdf`,
+    },
+  },
+];
+
+function assertG1PaidPdfGuards(label, pdfText, content, { expectTrafficAuthority, expectUploadLabel }) {
+  if (!content?.includesPhase2Block) {
+    fail.push(`G-1 ${label}: must be paid PDF content`);
+    return;
+  }
+  if (pdfText.includes("통지서 원본")) {
+    fail.push(`G-1 ${label}: paid PDF must not contain fixed phrase 통지서 원본`);
+  }
+  const plain = formatAdminVerifyAiReportContentPlainText(content);
+  const goalLine = content.execSummary.find((line) => line.startsWith("확인 목적 ·"));
+  const goalText = goalLine?.replace(/^확인 목적 ·\s*/, "") ?? "";
+  if (goalText) {
+    const plainBeforeActions = plain.split("RECOMMENDED ACTIONS")[0] ?? plain;
+    if (countOccurrences(plainBeforeActions, goalText) > 1) {
+      fail.push(`G-1 ${label}: 확인 목적 must appear once in body before actions`);
+    }
+    if (plainBeforeActions.includes(`✓ 확인 목적 · ${goalText}`)) {
+      fail.push(`G-1 ${label}: must not duplicate 확인 목적 in EVIDENCE`);
+    }
+  }
+  if (expectTrafficAuthority) {
+    if (!pdfText.includes("교통국")) {
+      fail.push(`G-1 ${label}: traffic authority paid sample must keep 교통국 mandatory wording`);
+    }
+  } else if (pdfText.includes("교통국")) {
+    fail.push(`G-1 ${label}: non-traffic paid sample must not contain 교통국`);
+  }
+  if (expectUploadLabel) {
+    if (!plain.includes("✓ 2차 제출 자료 1건")) {
+      fail.push(`G-1 ${label}: must include 2차 제출 자료 N건 line`);
+    }
+    if (!plain.includes("✓ 제출 자료 · 납부 증빙 · payment-proof.pdf")) {
+      fail.push(`G-1 ${label}: must include documentLabel in submit line`);
+    }
+  } else if (label === "no-label-upload") {
+    if (!plain.includes("✓ 2차 제출 자료 1건")) {
+      fail.push(`G-1 ${label}: must include 2차 제출 자료 N건 line`);
+    }
+    if (!plain.includes("✓ 제출 자료 · scan.pdf")) {
+      fail.push(`G-1 ${label}: must use fileName-only submit line`);
+    }
+    if (/✓ 제출 자료 · [^·]+ · scan\.pdf/.test(plain)) {
+      fail.push(`G-1 ${label}: must not inject documentLabel when absent`);
+    }
+  }
+}
 
 const timelineBeforeExpert = buildVerifyAdminMypageTimelineRecent({
   activityLog: [{ label: "AI 검토 완료", createdAt: "2026-01-01T00:00:00.000Z" }],
@@ -616,6 +730,67 @@ const paidRegressionSnapshot = {
 if (JSON.stringify(paidRegressionSnapshot) !== JSON.stringify(paidRegressionExpected)) {
   fail.push("F-18 paid PDF content regression guard failed");
 }
+
+const g1PaidNonTrafficContent = buildAdminVerifyAiReportContentFromActivities(
+  g1PaidNonTrafficActivities,
+  G1_PAID_LEAD_NON_TRAFFIC,
+);
+const g1PaidTrafficContent = buildAdminVerifyAiReportContentFromActivities(
+  g1PaidTrafficActivities,
+  G1_PAID_LEAD_TRAFFIC,
+);
+const g1PaidNoLabelContent = buildAdminVerifyAiReportContentFromActivities(
+  g1PaidNoLabelUploadActivities,
+  G1_PAID_LEAD_NO_LABEL,
+);
+const g1PaidNonTrafficPdf = await extractVerifyAdminMypagePdf(
+  g1PaidNonTrafficActivities,
+  G1_PAID_LEAD_NON_TRAFFIC,
+);
+const g1PaidTrafficPdf = await extractVerifyAdminMypagePdf(
+  g1PaidTrafficActivities,
+  G1_PAID_LEAD_TRAFFIC,
+);
+const g1PaidNoLabelPdf = await extractVerifyAdminMypagePdf(
+  g1PaidNoLabelUploadActivities,
+  G1_PAID_LEAD_NO_LABEL,
+);
+assertG1PaidPdfGuards("non-traffic", g1PaidNonTrafficPdf.text, g1PaidNonTrafficContent, {
+  expectTrafficAuthority: false,
+  expectUploadLabel: true,
+});
+assertG1PaidPdfGuards("traffic", g1PaidTrafficPdf.text, g1PaidTrafficContent, {
+  expectTrafficAuthority: true,
+  expectUploadLabel: false,
+});
+assertG1PaidPdfGuards("no-label-upload", g1PaidNoLabelPdf.text, g1PaidNoLabelContent, {
+  expectTrafficAuthority: false,
+  expectUploadLabel: false,
+});
+for (const [label, pages] of [
+  ["non-traffic", g1PaidNonTrafficPdf.pages],
+  ["traffic", g1PaidTrafficPdf.pages],
+  ["no-label", g1PaidNoLabelPdf.pages],
+]) {
+  if (pages !== 1) {
+    fail.push(`G-1 ${label}: paid PDF must stay 1 page (measured ${pages})`);
+  }
+}
+
+const freeGoldenPath = path.join(repoRoot, "tests/qa/_output/golden-free-5c5ae9d.json");
+if (fs.existsSync(freeGoldenPath)) {
+  const freeGolden = JSON.parse(fs.readFileSync(freeGoldenPath, "utf8"));
+  for (const label of ["A", "B", "C"]) {
+    if (f18dPdfPlainSamples[label] !== freeGolden[label]) {
+      fail.push(`G-1 free regression ${label}: PDF text differs from 5c5ae9d golden`);
+    }
+  }
+} else {
+  fail.push(
+    "G-1: missing tests/qa/_output/golden-free-5c5ae9d.json (capture from commit 5c5ae9d before G-1 QA)",
+  );
+}
+
 if (freeComplete !== false) fail.push("phase2Complete free should be false");
 if (paidComplete !== true) fail.push("phase2Complete paid should be true");
 if (pdfFree !== false) fail.push("PDF phase2 section free should be false");
