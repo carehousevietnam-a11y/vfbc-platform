@@ -297,8 +297,10 @@ export const ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION = "원본 문서와 대
 export const ADMIN_VERIFY_FREE_PDF_DASHBOARD_INPUT_SCOPE_WITH_UPLOAD =
   "입력 범위 · 1차 질문 답변과 간단 업로드 제출 사실";
 export const ADMIN_VERIFY_FREE_PDF_DASHBOARD_INPUT_SCOPE_NO_UPLOAD = "입력 범위 · 1차 질문 답변";
-export const ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_LINE =
-  "검토 범위 · 제출 파일 내용 분석·2차 확인은 상세 검토에서 진행";
+export const ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_WITH_UPLOAD =
+  "검토 범위 · 파일 내용·2차 확인은 상세 검토";
+export const ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_NO_UPLOAD =
+  "검토 범위 · 2차 확인은 상세 검토에서 진행";
 
 const ADMIN_VERIFY_FREE_PDF_GENERIC_CUSTOMER_SITUATION_VALUES = new Set(["행정문서", "행정 문서"]);
 
@@ -611,7 +613,9 @@ function buildAdminVerifyFreeAiReportContent(
     phase1Upload
       ? ADMIN_VERIFY_FREE_PDF_DASHBOARD_INPUT_SCOPE_WITH_UPLOAD
       : ADMIN_VERIFY_FREE_PDF_DASHBOARD_INPUT_SCOPE_NO_UPLOAD,
-    ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_LINE,
+    phase1Upload
+      ? ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_WITH_UPLOAD
+      : ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_NO_UPLOAD,
   ];
 
   const satisfiedCount = keyFindings.filter((line) => line.startsWith("✓")).length;

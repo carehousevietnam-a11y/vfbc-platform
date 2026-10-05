@@ -30,7 +30,8 @@ const {
   ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION,
   ADMIN_VERIFY_FREE_PDF_DASHBOARD_INPUT_SCOPE_WITH_UPLOAD,
   ADMIN_VERIFY_FREE_PDF_DASHBOARD_INPUT_SCOPE_NO_UPLOAD,
-  ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_LINE,
+  ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_WITH_UPLOAD,
+  ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_NO_UPLOAD,
   isAdminVerifyFreePdfTrafficAuthority,
   buildVerifyAdminMypageTimelineRecent,
   verifyAdminTimelineEntryAllowed,
@@ -160,6 +161,26 @@ function assertF18eDashboardInputScope(label, content, expectUploadInInputScope)
     }
     if (inputScopeLine.includes("업로드")) {
       fail.push(`F-18e ${label}: no-upload sample must not mention 업로드 in 입력 범위`);
+    }
+  }
+}
+
+function assertF18fReviewScopeLine(label, content, expectUpload) {
+  if (!content?.executiveDashboardSupplementLines?.[1]) {
+    fail.push(`F-18f ${label}: missing 검토 범위 supplement line`);
+    return;
+  }
+  const reviewLine = content.executiveDashboardSupplementLines[1];
+  if (expectUpload) {
+    if (reviewLine !== ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_WITH_UPLOAD) {
+      fail.push(`F-18f ${label}: upload sample must use short 검토 범위 with upload wording`);
+    }
+  } else {
+    if (reviewLine !== ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_NO_UPLOAD) {
+      fail.push(`F-18f ${label}: no-upload sample must use no-upload 검토 범위 line`);
+    }
+    if (reviewLine.includes("제출 파일")) {
+      fail.push(`F-18f ${label}: no-upload 검토 범위 must not contain 제출 파일`);
     }
   }
 }
@@ -570,6 +591,7 @@ for (const [label, scenario, content] of [
   assertF18dFreePdfShell(label, extracted.text);
   assertF18dFreeBodyGuards(label, content);
   assertF18eDashboardInputScope(label, content, label === "A");
+  assertF18fReviewScopeLine(label, content, label === "A");
 }
 
 const paidPdfExtracted365 = await extractVerifyAdminMypagePdf(paidActivities, "f18d-paid-fixture");
