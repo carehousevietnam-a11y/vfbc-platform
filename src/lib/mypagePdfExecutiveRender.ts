@@ -20,7 +20,12 @@ import {
   ADMIN_VERIFY_FREE_PDF_METRIC_GAPS,
   ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS,
   ADMIN_VERIFY_FREE_PDF_METRIC_STATUS,
+  ADMIN_VERIFY_PAID_PDF_EXECUTIVE_HEADLINE,
+  ADMIN_VERIFY_PAID_PDF_EXECUTIVE_SUBLINE,
+  ADMIN_VERIFY_PAID_PDF_METRIC_REQUIREMENTS,
+  ADMIN_VERIFY_PAID_PDF_METRIC_STATUS,
   isVerifyAdminFreeAiReportPdfActivities,
+  isVerifyAdminPaidAiReportPdfActivities,
 } from "@/lib/adminVerifyMypageFields";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 
@@ -957,6 +962,26 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       aiStatusTextForCards = ADMIN_VERIFY_FREE_PDF_METRIC_STATUS;
       dashboardCurrentStageLabel = ADMIN_VERIFY_FREE_PDF_METRIC_STATUS;
       dashboardPrimaryNextAction = ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION;
+    }
+
+    const isVerifyAdminPaidAiReportPdf =
+      normalizedType === "verify_admin" && isVerifyAdminPaidAiReportPdfActivities(activities);
+
+    if (isVerifyAdminPaidAiReportPdf && hasDiagnosis) {
+      executiveDecision = {
+        ...executiveDecision,
+        eyebrow: "EXECUTIVE DECISION",
+        headline: ADMIN_VERIFY_PAID_PDF_EXECUTIVE_HEADLINE,
+        subline: ADMIN_VERIFY_PAID_PDF_EXECUTIVE_SUBLINE,
+      };
+      requirementsTextForCards = ADMIN_VERIFY_PAID_PDF_METRIC_REQUIREMENTS;
+      riskCardTextForCards = `${keyRisks.length}건`;
+      aiStatusTextForCards = ADMIN_VERIFY_PAID_PDF_METRIC_STATUS;
+      dashboardCurrentStageLabel = ADMIN_VERIFY_PAID_PDF_METRIC_STATUS;
+      const firstRec = recommendedAction[0] ?? "";
+      dashboardPrimaryNextAction = firstRec
+        .replace(/^[①②③]\s*(즉시|다음|최종)\s*조치\s*·\s*/, "")
+        .trim();
     }
 
     const processSteps = buildProcessSteps(category, hasDiagnosis, hasExpertReview, hasAgency, hasGovSubmit, hasPermitDone);
