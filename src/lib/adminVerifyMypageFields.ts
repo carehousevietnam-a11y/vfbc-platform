@@ -438,6 +438,20 @@ function countPhase1BulletsInPacked(packed: string[]): number {
   return slice.filter((line) => line.startsWith("✓")).length;
 }
 
+type PaidEvidenceLinePhase = "phase1" | "phase2";
+
+function assemblePaidEvidenceKeyFindingLines(
+  phase1Bullets: string[],
+  phase2Bullets: string[],
+): string[] {
+  const lines: string[] = ["■ 1차 확인 사항", ...phase1Bullets];
+  const hasPhase2Item = phase2Bullets.some((line) => line.startsWith("✓"));
+  if (hasPhase2Item) {
+    lines.push("■ 2차 확인", ...phase2Bullets);
+  }
+  return lines;
+}
+
 function packLinesWithinBudget(lines: string[]): string[] | null {
   let used = 0;
   const packed: string[] = [];
@@ -555,6 +569,15 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
       phase1ExtraPool.push({ kind: "phase1_extra", text: line.replace(/^✓\s*/, "") });
     }
 
+    const phase1ExtraTexts = new Set(phase1ExtraPool.map((e) => e.text));
+
+    const classifyPackedBulletPhase = (line: string): PaidEvidenceLinePhase => {
+      if (coreSet.has(line)) return "phase1";
+      const bare = line.replace(/^✓\s*/, "");
+      if (phase1ExtraTexts.has(bare)) return "phase1";
+      return "phase2";
+    };
+
     const prefix: string[] = ["■ 1차 확인 사항", ...coreLines, "■ 2차 확인"];
     if (uploadCountLine) {
       prefix.push(uploadCountLine);
@@ -625,8 +648,18 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
       if (shown < 1) return null;
     }
 
+    const phase1Bullets: string[] = [];
+    const phase2Bullets: string[] = [];
+    for (const line of packed) {
+      if (line.startsWith("■")) continue;
+      if (classifyPackedBulletPhase(line) === "phase1") phase1Bullets.push(line);
+      else phase2Bullets.push(line);
+    }
+
+    const lines = assemblePaidEvidenceKeyFindingLines(phase1Bullets, phase2Bullets);
+
     return {
-      lines: packed,
+      lines,
       omittedItemCount: omittedItems.length,
       omittedItems,
     };

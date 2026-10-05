@@ -785,6 +785,73 @@ function extractPaidEvidenceSectionPlain(content) {
   return end >= 0 ? rest.slice(0, end).trim() : rest.trim();
 }
 
+const G5_PHASE1_EVIDENCE_MARKERS = [
+  "현재 단계 ·",
+  "통지·안내는 특정 일시·장소에서",
+  "기관 요구는 추가 서류",
+  "아직 교통국에 연락",
+];
+
+const G5_PHASE2_CUSTOMER_INPUT_MARKERS = ["대응 기한:", "납부 기한:", "납부 금액:"];
+
+function splitPaidEvidenceKeyFindingsBySection(keyFindings) {
+  const lines = keyFindings ?? [];
+  const p1Idx = lines.indexOf("■ 1차 확인 사항");
+  const p2Idx = lines.indexOf("■ 2차 확인");
+  if (p1Idx < 0) {
+    return { phase1Bullets: [], phase2Bullets: [], p2Idx: -1 };
+  }
+  const phase1End = p2Idx >= 0 ? p2Idx : lines.length;
+  const phase1Bullets = lines.slice(p1Idx + 1, phase1End).filter((l) => l.startsWith("✓"));
+  const phase2Bullets =
+    p2Idx >= 0 ? lines.slice(p2Idx + 1).filter((l) => l.startsWith("✓")) : [];
+  return { phase1Bullets, phase2Bullets, p2Idx };
+}
+
+function assertG5PaidEvidenceSectionOrder(label, content, options = {}) {
+  if (!content?.includesPhase2Block) {
+    fail.push(`G-5 ${label}: must be paid PDF content`);
+    return;
+  }
+  const keyFindings = content.keyFindings ?? [];
+  const { phase1Bullets, phase2Bullets, p2Idx } = splitPaidEvidenceKeyFindingsBySection(keyFindings);
+  if (keyFindings.indexOf("■ 1차 확인 사항") < 0) {
+    fail.push(`G-5 ${label}: missing ■ 1차 확인 사항`);
+    return;
+  }
+  if (p2Idx >= 0) {
+    if (phase2Bullets.length === 0) {
+      fail.push(`G-5 ${label}: ■ 2차 확인 must have at least one ✓ item`);
+    }
+    for (let i = p2Idx + 1; i < keyFindings.length; i += 1) {
+      const line = keyFindings[i];
+      for (const marker of G5_PHASE1_EVIDENCE_MARKERS) {
+        if (line.includes(marker)) {
+          fail.push(`G-5 ${label}: phase1 marker "${marker}" must not appear after ■ 2차 확인`);
+        }
+      }
+    }
+  }
+  for (const marker of G5_PHASE1_EVIDENCE_MARKERS) {
+    const shown = keyFindings.some((l) => l.includes(marker));
+    if (!shown) continue;
+    if (!phase1Bullets.some((l) => l.includes(marker))) {
+      fail.push(`G-5 ${label}: "${marker}" must appear under ■ 1차 확인 사항`);
+    }
+  }
+  if (options.expectDeadlineUnderPhase2) {
+    for (const marker of G5_PHASE2_CUSTOMER_INPUT_MARKERS) {
+      const shown = keyFindings.some((l) => l.includes(marker));
+      if (shown && !phase2Bullets.some((l) => l.includes(marker))) {
+        fail.push(`G-5 ${label}: customer input "${marker}" must appear under ■ 2차 확인`);
+      }
+    }
+  }
+  if (p2Idx >= 0 && p2Idx <= keyFindings.indexOf("■ 1차 확인 사항")) {
+    fail.push(`G-5 ${label}: section order must be ■ 1차 before ■ 2차`);
+  }
+}
+
 function assertG4PaidPdfGuards(label, pdfText, content, options = {}) {
   if (!content?.includesPhase2Block) {
     fail.push(`G-4 ${label}: must be paid PDF content`);
@@ -1171,14 +1238,26 @@ assertG4PaidPdfGuards("traffic-deadline", g1PaidTrafficPdf.text, g1PaidTrafficCo
   responseNeedles: ["납부 기한:"],
 });
 
-const g4DbSamples = [];
+const g5PaidSamples = [
+  ["paid-default", paidPdfContent],
+  ["g1-non-traffic", g1PaidNonTrafficContent],
+  ["g4-deadline", g4PaidDeadlineContent],
+  ["g4-multi", g4PaidMultiContent],
+  ["g1-traffic", g1PaidTrafficContent],
+  ["g1-no-label", g1PaidNoLabelContent],
+  ["g3-risk", g3PaidRiskContent],
+];
+for (const [label, content] of g5PaidSamples.map(([l, c]) => [l, c])) {
+  assertG5PaidEvidenceSectionOrder(label, content);
+}
+
+const g5DbReceipts = ["VF692F34E7", "VF6B64FFB0", "VF6BE3EC43"];
+const g5DbSamples = [];
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (supabaseUrl && supabaseServiceKey) {
   const { createClient } = await import("@supabase/supabase-js");
   const admin = createClient(supabaseUrl, supabaseServiceKey);
-  const receipt = "VF6B64FFB0";
-  const prefix = receipt.replace(/^VF/i, "").toLowerCase();
   const { data: acts } = await admin
     .from("crm_activities")
     .select("lead_id, meta")
@@ -1191,10 +1270,15 @@ if (supabaseUrl && supabaseServiceKey) {
     .select("id, service_type")
     .in("id", leadIds)
     .eq("service_type", "verify_admin");
-  const lead = (leads ?? []).find((l) =>
-    String(l.id).replace(/-/g, "").toLowerCase().startsWith(prefix),
-  );
-  if (lead) {
+  for (const receipt of g5DbReceipts) {
+    const prefix = receipt.replace(/^VF/i, "").toLowerCase();
+    const lead = (leads ?? []).find((l) =>
+      String(l.id).replace(/-/g, "").toLowerCase().startsWith(prefix),
+    );
+    if (!lead) {
+      fail.push(`G-5 db-${receipt}: lead not found (NOT VERIFIED)`);
+      continue;
+    }
     const { data: activities } = await admin
       .from("crm_activities")
       .select("action, meta, created_at")
@@ -1202,21 +1286,33 @@ if (supabaseUrl && supabaseServiceKey) {
       .order("created_at", { ascending: true });
     const dbContent = buildAdminVerifyAiReportContentFromActivities(activities ?? [], lead.id);
     const dbPdf = await extractVerifyAdminMypagePdf(activities ?? [], lead.id);
-    assertG4PaidPdfGuards("db-VF6B64FFB0", dbPdf.text, dbContent, {
+    assertG5PaidEvidenceSectionOrder(`db-${receipt}`, dbContent, {
+      expectDeadlineUnderPhase2: true,
+    });
+    assertG4PaidPdfGuards(`db-${receipt}`, dbPdf.text, dbContent, {
       expectCustomerInputInEvidence: true,
       responseNeedles: ["기한:", "대응 기한", "납부 기한"],
     });
-    g4DbSamples.push({
+    g5DbSamples.push({
       receipt,
       evidence: extractPaidEvidenceSectionPlain(dbContent),
+      keyFindings: dbContent?.keyFindings ?? [],
       omittedItems: dbContent?.paidEvidenceOmittedItems ?? [],
       omittedCount: dbContent?.paidEvidenceOmittedItemCount ?? null,
+      pdfEvidenceSnippet: (dbPdf.text ?? "").split("KEY RISKS")[0]?.split("EVIDENCE & KEY FINDINGS")[1] ?? "",
     });
-  } else {
-    fail.push("G-4 db-VF6B64FFB0: lead not found (NOT VERIFIED)");
   }
 } else {
-  g4DbSamples.push({ receipt: "VF6B64FFB0", skipped: "missing Supabase env" });
+  for (const receipt of g5DbReceipts) {
+    g5DbSamples.push({ receipt, skipped: "missing Supabase env" });
+  }
+}
+
+const g4DbSamples = g5DbSamples;
+
+const legacyG4DbOnly = g5DbSamples.find((s) => s.receipt === "VF6B64FFB0");
+if (!legacyG4DbOnly && supabaseUrl && supabaseServiceKey) {
+  fail.push("G-4 db-VF6B64FFB0: lead not found (NOT VERIFIED)");
 }
 
 for (const [label, pages] of [
