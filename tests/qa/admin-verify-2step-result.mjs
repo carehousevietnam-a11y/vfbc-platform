@@ -22,6 +22,12 @@ const {
   resolveAdminPhase1SimpleUploadFromActivities,
   ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER,
   ADMIN_VERIFY_FREE_PDF_EMPTY_FINDINGS_LINE,
+  ADMIN_VERIFY_FREE_PDF_EXECUTIVE_HEADLINE,
+  ADMIN_VERIFY_FREE_PDF_EXECUTIVE_SUBLINE,
+  ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS,
+  ADMIN_VERIFY_FREE_PDF_METRIC_GAPS,
+  ADMIN_VERIFY_FREE_PDF_METRIC_STATUS,
+  ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION,
   isAdminVerifyFreePdfTrafficAuthority,
   buildVerifyAdminMypageTimelineRecent,
   verifyAdminTimelineEntryAllowed,
@@ -53,6 +59,87 @@ const {
   shouldHideVerifyAdminWalletDocumentCount,
   VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
+
+const { buildMypagePdfBytesForQaHarness } = await import("../../src/lib/mypagePdfExecutiveRender.ts");
+const { PDFDocument } = await import("pdf-lib");
+const { createRequire } = await import("node:module");
+const require = createRequire(path.join(repoRoot, "package.json"));
+const { PDFParse } = require("pdf-parse");
+
+const F18D_FREE_SHELL_FORBIDDEN = ["문서 검토 완료", "진단 완료", "5/5", "0건"];
+const F18D_FREE_SHELL_REQUIRED = [
+  ADMIN_VERIFY_FREE_PDF_EXECUTIVE_HEADLINE,
+  ADMIN_VERIFY_FREE_PDF_EXECUTIVE_SUBLINE,
+  ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS,
+  ADMIN_VERIFY_FREE_PDF_METRIC_GAPS,
+  ADMIN_VERIFY_FREE_PDF_METRIC_STATUS,
+  ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION,
+];
+
+const PAID_PDF_SHELL_365F401 = {
+  mustInclude: [
+    "문서 검토 완료",
+    "현재 입력자료 기준으로 우선 검토가 완료되었습니다.",
+    "진단 완료",
+  ],
+  mustExclude: [
+    ADMIN_VERIFY_FREE_PDF_EXECUTIVE_HEADLINE,
+    ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS,
+    ADMIN_VERIFY_FREE_PDF_METRIC_GAPS,
+    ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION,
+  ],
+};
+
+async function extractVerifyAdminMypagePdf(activities, leadId) {
+  const bytes = await buildMypagePdfBytesForQaHarness({
+    leadId,
+    serviceType: "verify_admin",
+    result: "conditional",
+    createdAt: "2026-01-01T00:00:00.000Z",
+    activities,
+  });
+  const doc = await PDFDocument.load(bytes);
+  const pages = doc.getPageCount();
+  const parser = new PDFParse({ data: Buffer.from(bytes) });
+  const parsed = await parser.getText();
+  await parser.destroy();
+  return { pages, text: parsed.text ?? "" };
+}
+
+function assertF18dFreePdfShell(label, pdfText) {
+  for (const forbidden of F18D_FREE_SHELL_FORBIDDEN) {
+    if (pdfText.includes(forbidden)) {
+      fail.push(`F-18d ${label}: free PDF shell must not contain "${forbidden}"`);
+    }
+  }
+  for (const required of F18D_FREE_SHELL_REQUIRED) {
+    if (!pdfText.includes(required)) {
+      fail.push(`F-18d ${label}: free PDF shell must contain "${required}"`);
+    }
+  }
+}
+
+function assertF18dFreeBodyGuards(label, content) {
+  if (!content || content.includesPhase2Block) {
+    fail.push(`F-18d ${label}: must be free PDF content`);
+    return;
+  }
+  const plain = formatAdminVerifyAiReportContentPlainText(content);
+  if (plain.includes("고객 상황 · 행정문서")) {
+    fail.push(`F-18d ${label}: must not contain 고객 상황 · 행정문서`);
+  }
+  const goalLine = content.execSummary.find((line) => line.startsWith("확인 목적 ·"));
+  const goalText = goalLine?.replace(/^확인 목적 ·\s*/, "") ?? "";
+  if (goalText) {
+    const plainBeforeActions = plain.split("RECOMMENDED ACTIONS")[0] ?? plain;
+    if (countOccurrences(plainBeforeActions, goalText) > 1) {
+      fail.push(`F-18d ${label}: 확인 목적 sentence must appear once`);
+    }
+    if (plainBeforeActions.includes(`✓ 확인 목적 · ${goalText}`)) {
+      fail.push(`F-18d ${label}: must not duplicate 확인 목적 in EVIDENCE`);
+    }
+  }
+}
 
 const {
   buildVerifyAdminRollingStripItems,
@@ -443,6 +530,36 @@ assertF18cCustomSample(
   "교통국·운전면허 관련 기관",
   "행정 안내",
 );
+
+const f18dPageMeasures = {};
+const f18dPdfPlainSamples = {};
+for (const [label, scenario, content] of [
+  ["A", f18ScenarioTrafficUpload, f18TrafficContent],
+  ["B", f18ScenarioOtherNoUpload, f18OtherContent],
+  ["C", f18ScenarioSparse, f18SparseContent],
+]) {
+  const extracted = await extractVerifyAdminMypagePdf(scenario, `f18d-fixture-${label.toLowerCase()}`);
+  f18dPageMeasures[label] = extracted.pages;
+  f18dPdfPlainSamples[label] = extracted.text;
+  if (extracted.pages !== 1) {
+    fail.push(`F-18d ${label}: free PDF must be 1 page (measured ${extracted.pages})`);
+  }
+  assertF18dFreePdfShell(label, extracted.text);
+  assertF18dFreeBodyGuards(label, content);
+}
+
+const paidPdfExtracted365 = await extractVerifyAdminMypagePdf(paidActivities, "f18d-paid-fixture");
+for (const snippet of PAID_PDF_SHELL_365F401.mustInclude) {
+  if (!paidPdfExtracted365.text.includes(snippet)) {
+    fail.push(`F-18d paid PDF regression: missing 365f401 shell "${snippet}"`);
+  }
+}
+for (const snippet of PAID_PDF_SHELL_365F401.mustExclude) {
+  if (paidPdfExtracted365.text.includes(snippet)) {
+    fail.push(`F-18d paid PDF regression: must not contain free shell "${snippet}"`);
+  }
+}
+
 const paidRegressionSnapshot = {
   execSummary: paidPdfContent?.execSummary ?? [],
   recommendedAction: paidPdfContent?.recommendedAction ?? [],
@@ -725,6 +842,8 @@ const report = {
     ? { includesPhase2Block: paidPdfContent.includesPhase2Block }
     : null,
   f18SamplePlainTexts,
+  f18dPageMeasures,
+  paidPdfExtracted365: { pages: paidPdfExtracted365.pages },
   paidRegressionSnapshot,
   timelineBeforeExpert,
   ok: fail.length === 0,

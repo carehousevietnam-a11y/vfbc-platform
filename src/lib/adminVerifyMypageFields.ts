@@ -285,6 +285,28 @@ export const ADMIN_VERIFY_FREE_PDF_SCOPE_GAP_LINE =
 export const ADMIN_VERIFY_FREE_PDF_EMPTY_FINDINGS_LINE =
   "1차 입력에서 확인된 세부 항목이 없어, 확인 목적만 반영했습니다.";
 
+/** F-18d: 무료 verify_admin PDF 상단 판정·지표·Dashboard 값 (유료/타 서비스 미적용) */
+export const ADMIN_VERIFY_FREE_PDF_EXECUTIVE_HEADLINE = "1차 확인 완료";
+export const ADMIN_VERIFY_FREE_PDF_EXECUTIVE_SUBLINE =
+  "1차 입력 내용 기준으로 정리한 결과입니다. 원본 문서 대조는 포함되지 않았습니다.";
+export const ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS = "1차 기준";
+export const ADMIN_VERIFY_FREE_PDF_METRIC_GAPS = "미확정";
+export const ADMIN_VERIFY_FREE_PDF_METRIC_STATUS = "1차 확인";
+export const ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION = "원본 문서와 대조 확인";
+
+const ADMIN_VERIFY_FREE_PDF_GENERIC_CUSTOMER_SITUATION_VALUES = new Set(["행정문서", "행정 문서"]);
+
+export function isVerifyAdminFreeAiReportPdfActivities(activities: CrmActivityLike[]): boolean {
+  return !isAdminPhase2DocumentsUploadComplete(activities);
+}
+
+function isAdminVerifyFreePdfConcreteCustomerSituation(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  if (ADMIN_VERIFY_FREE_PDF_GENERIC_CUSTOMER_SITUATION_VALUES.has(trimmed)) return false;
+  return true;
+}
+
 const ADMIN_VERIFY_FREE_PDF_OMIT_FINDING_LINE =
   "1차 확인에서는 기본적인 상황 정리가 완료된 상태입니다.";
 
@@ -490,10 +512,25 @@ function buildAdminVerifyFreeAiReportContent(
 
   const keyFindings: string[] = ["■ 1차 확인 사항"];
   const pushFinding = (line: string) => {
+    const bare = line.replace(/^✓\s*/, "");
+    if (goal) {
+      const goalFinding = `확인 목적 · ${goal}`;
+      if (
+        bare === goalFinding ||
+        bare === goal ||
+        normalizeAdminVerifyPdfDedupKey(bare) === normalizeAdminVerifyPdfDedupKey(goalFinding)
+      ) {
+        return;
+      }
+    }
+    if (/^고객 상황 · /.test(bare)) {
+      const situationVal = bare.replace(/^고객 상황 ·\s*/, "");
+      if (!isAdminVerifyFreePdfConcreteCustomerSituation(situationVal)) return;
+    }
     const key = normalizeAdminVerifyPdfDedupKey(line);
     if (dedupKeys.has(key)) return;
     dedupKeys.add(key);
-    keyFindings.push(`✓ ${line.replace(/^✓\s*/, "")}`);
+    keyFindings.push(`✓ ${bare}`);
   };
 
   for (const [label, key] of [
@@ -509,7 +546,7 @@ function buildAdminVerifyFreeAiReportContent(
   }
 
   const customerInput = answers[CASE_CUSTOMER_INPUT_KEY]?.trim();
-  if (customerInput) {
+  if (customerInput && isAdminVerifyFreePdfConcreteCustomerSituation(customerInput)) {
     const goalNorm = goal ? normalizeAdminVerifyPdfDedupKey(goal) : "";
     const inputNorm = normalizeAdminVerifyPdfDedupKey(customerInput);
     if (!goalNorm || inputNorm !== goalNorm) {

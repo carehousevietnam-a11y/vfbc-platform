@@ -12,7 +12,16 @@ import {
 } from "@/lib/checkDiagnosis";
 import { getDiagnosis as getVerifyDiagnosis, type VerifyCategory } from "@/lib/verifyDiagnosis";
 import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
-import { buildAdminVerifyAiReportContentFromActivities } from "@/lib/adminVerifyMypageFields";
+import {
+  buildAdminVerifyAiReportContentFromActivities,
+  ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION,
+  ADMIN_VERIFY_FREE_PDF_EXECUTIVE_HEADLINE,
+  ADMIN_VERIFY_FREE_PDF_EXECUTIVE_SUBLINE,
+  ADMIN_VERIFY_FREE_PDF_METRIC_GAPS,
+  ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS,
+  ADMIN_VERIFY_FREE_PDF_METRIC_STATUS,
+  isVerifyAdminFreeAiReportPdfActivities,
+} from "@/lib/adminVerifyMypageFields";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 
 /**
@@ -923,7 +932,32 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       reviewedCount !== null && reviewedCount > 0 && satisfiedCount !== null
         ? `${satisfiedCount}/${reviewedCount}`
         : "확인 전";
-    const executiveDecision = getExecutiveDecision(category, resultTone, riskCount, hasDiagnosis);
+    let executiveDecision = getExecutiveDecision(category, resultTone, riskCount, hasDiagnosis);
+
+    const isVerifyAdminFreeAiReportPdf =
+      normalizedType === "verify_admin" && isVerifyAdminFreeAiReportPdfActivities(activities);
+
+    let aiStatusTextForCards = aiStatusText;
+    let requirementsTextForCards = requirementsText;
+    let riskCardTextForCards = riskCardText;
+    let dashboardCurrentStageLabel: string | null = null;
+    let dashboardPrimaryNextAction: string | null = null;
+
+    if (isVerifyAdminFreeAiReportPdf && hasDiagnosis) {
+      if ((riskCount ?? 0) === 0) {
+        executiveDecision = {
+          ...executiveDecision,
+          eyebrow: "EXECUTIVE DECISION",
+          headline: ADMIN_VERIFY_FREE_PDF_EXECUTIVE_HEADLINE,
+          subline: ADMIN_VERIFY_FREE_PDF_EXECUTIVE_SUBLINE,
+        };
+      }
+      requirementsTextForCards = ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS;
+      riskCardTextForCards = ADMIN_VERIFY_FREE_PDF_METRIC_GAPS;
+      aiStatusTextForCards = ADMIN_VERIFY_FREE_PDF_METRIC_STATUS;
+      dashboardCurrentStageLabel = ADMIN_VERIFY_FREE_PDF_METRIC_STATUS;
+      dashboardPrimaryNextAction = ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION;
+    }
 
     const processSteps = buildProcessSteps(category, hasDiagnosis, hasExpertReview, hasAgency, hasGovSubmit, hasPermitDone);
     const supportData = buildReportSupportData(
@@ -1267,10 +1301,10 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     const cardHeight = 46;
     const cards: { label: string; value: string; color: ReturnType<typeof rgb> }[] = [
       { label: category === "verify" ? "검토유형" : "평가결과", value: possibilityText, color: resultColor },
-      { label: "충족요건", value: requirementsText, color: rgb(0.09, 0.15, 0.35) },
-      { label: "보완항목", value: riskCardText, color: rgb(0.72, 0.45, 0.02) },
+      { label: "충족요건", value: requirementsTextForCards, color: rgb(0.09, 0.15, 0.35) },
+      { label: "보완항목", value: riskCardTextForCards, color: rgb(0.72, 0.45, 0.02) },
       { label: "필수서류", value: docsCardText, color: rgb(0.09, 0.15, 0.35) },
-      { label: "검토상태", value: aiStatusText, color: hasDiagnosis ? rgb(0.02, 0.45, 0.32) : rgb(0.5, 0.5, 0.5) },
+      { label: "검토상태", value: aiStatusTextForCards, color: hasDiagnosis ? rgb(0.02, 0.45, 0.32) : rgb(0.5, 0.5, 0.5) },
     ];
     cards.forEach((card, i) => {
       const cx = marginX + i * (cardWidth + cardGap);
@@ -1405,10 +1439,10 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     const executiveDashboardBodyLines = [
       `최종 판단  ${executiveDecision.headline}`,
       `평가  ${possibilityText}`,
-      `충족 요건  ${requirementsText}`,
-      `위험·보완  ${riskCardText}`,
-      `현재 단계  ${supportData.currentStageLabel}`,
-      `다음 조치  ${supportData.primaryNextAction}`,
+      `충족 요건  ${requirementsTextForCards}`,
+      `위험·보완  ${riskCardTextForCards}`,
+      `현재 단계  ${dashboardCurrentStageLabel ?? supportData.currentStageLabel}`,
+      `다음 조치  ${dashboardPrimaryNextAction ?? supportData.primaryNextAction}`,
       ...(verifyAdminExecutiveDashboardSupplement ?? []),
     ];
     drawRightCard(
