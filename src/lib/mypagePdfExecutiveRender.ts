@@ -27,6 +27,11 @@ import {
   isVerifyAdminFreeAiReportPdfActivities,
   isVerifyAdminPaidAiReportPdfActivities,
 } from "@/lib/adminVerifyMypageFields";
+import { ensureMypageExecutivePdfMeasureFonts } from "@/lib/mypagePdfExecutiveMeasureFonts";
+import {
+  mypageExecutivePdfFontForLine,
+  wrapMypageExecutiveParagraphLine,
+} from "@/lib/mypagePdfExecutiveParagraphWrap";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 
 /**
@@ -689,6 +694,8 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
   activities: MypagePdfQaActivityRow[],
   leadId: string,
 ): Promise<Uint8Array> {
+    await ensureMypageExecutivePdfMeasureFonts();
+
     const actions = new Set(activities.map((a) => a.action));
 
     const hasDiagnosis = activities.some(
@@ -1042,20 +1049,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     });
 
     function wrapLines(text: string, size: number, useFont: PDFFont, maxWidth: number): string[] {
-      const words = text.split(/\s+/).filter(Boolean);
-      const lines: string[] = [];
-      let current = "";
-      for (const word of words) {
-        const candidate = current ? `${current} ${word}` : word;
-        if (useFont.widthOfTextAtSize(candidate, size) > maxWidth && current) {
-          lines.push(current);
-          current = word;
-        } else {
-          current = candidate;
-        }
-      }
-      if (current) lines.push(current);
-      return lines.length > 0 ? lines : [""];
+      return wrapMypageExecutiveParagraphLine(text, size, useFont, maxWidth);
     }
 
     function drawBadge(cx: number, cy: number, radius: number, color: ReturnType<typeof rgb>, symbol: string) {
@@ -1081,6 +1075,10 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       if (line.startsWith("[HIGH")) return { useFont: fontBold, color: rgb(0.75, 0.15, 0.15) };
       if (line.startsWith("[MEDIUM")) return { useFont: fontBold, color: rgb(0.8, 0.45, 0.05) };
       if (line.startsWith("[LOW")) return { useFont: fontBold, color: rgb(0.45, 0.45, 0.48) };
+      const useFont = mypageExecutivePdfFontForLine(line, defaultFont, fontBold);
+      if (useFont !== defaultFont) {
+        return { useFont, color: rgb(0.09, 0.15, 0.35) };
+      }
       return { useFont: defaultFont, color: defaultColor };
     }
 

@@ -41,6 +41,8 @@ const {
   ADMIN_VERIFY_PAID_PDF_KEY_RISK_UPLOAD_SCOPE,
   isVerifyAdminPaidAiReportPdfActivities,
   buildVerifyAdminMypageTimelineRecent,
+  countPaidEvidenceRenderLines,
+  buildAdminVerifyPaidZeroRiskConclusionLine,
   verifyAdminTimelineEntryAllowed,
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
@@ -70,6 +72,11 @@ const {
   shouldHideVerifyAdminWalletDocumentCount,
   VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
+
+const { ensureMypageExecutivePdfMeasureFonts } = await import(
+  "../../src/lib/mypagePdfExecutiveMeasureFonts.ts",
+);
+await ensureMypageExecutivePdfMeasureFonts();
 
 const { buildMypagePdfBytesForQaHarness } = await import("../../src/lib/mypagePdfExecutiveRender.ts");
 const { PDFDocument } = await import("pdf-lib");
@@ -548,7 +555,7 @@ const f18SamplePlainTexts = {
 
 const paidRegressionExpected = {
   execSummary: [
-    "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
+    buildAdminVerifyPaidZeroRiskConclusionLine("원본 문서(위반 통지서)"),
     "확인 목적 · 행정 통지 대응",
     "문서 · 위반 통지서",
   ],
@@ -594,7 +601,10 @@ const g1PaidTrafficActivities = [
     action: "verify_lead",
     meta: {
       admin_phase2_documents_upload_complete: "1",
-      admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "traffic" }),
+      admin_verify_answers_json: JSON.stringify({
+        adminCaseDocumentKind: "payment_demand",
+        case02_deadlineDate: "2026-09-15",
+      }),
       case_resolution_json: JSON.stringify({
         goal: { value: "통지 확인" },
         authority: { value: "교통국·운전면허 관련 기관" },
@@ -611,6 +621,84 @@ const g1PaidTrafficActivities = [
     },
   },
 ];
+
+const G3_PAID_LEAD_RISK = "g3-paid-risk";
+const g3PaidRiskActivities = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_phase2_documents_upload_complete: "1",
+      admin_verify_answers_json: JSON.stringify({
+        adminCaseDocumentKind: "payment_demand",
+        case02_deadlineDate: "2026-06-01",
+      }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "행정 통지 대응" },
+        document: { value: "위반 통지서" },
+        riskSignals: ["통지 기한 임박"],
+      }),
+    },
+  },
+  {
+    action: "document_upload",
+    meta: {
+      fileName: "risk-scan.pdf",
+      storagePath: `document-upload/${G3_PAID_LEAD_RISK}/risk-scan.pdf`,
+    },
+  },
+];
+
+function assertG3PaidPdfGuards(label, pdfText, content, options = {}) {
+  if (!content?.includesPhase2Block) {
+    fail.push(`G-3 ${label}: must be paid PDF content`);
+    return;
+  }
+  const conclusion = content.execSummary[0] ?? "";
+  if (options.expectRiskConclusion) {
+    if (!conclusion.includes("위험요인") || !conclusion.includes("건")) {
+      fail.push(`G-3 ${label}: riskSignals sample must keep risk conclusion wording`);
+    }
+    if (conclusion.includes("위험요인은 확인되지 않았습니다")) {
+      fail.push(`G-3 ${label}: risk sample must not use zero-risk conclusion`);
+    }
+  } else {
+    if (conclusion.includes("위험요인은 확인되지 않았습니다")) {
+      fail.push(`G-3 ${label}: zero-risk paid conclusion must not use old phrase`);
+    }
+    if (!conclusion.includes("1차·2차 입력만으로")) {
+      fail.push(`G-3 ${label}: zero-risk paid conclusion must use G-3 wording`);
+    }
+  }
+  const plainEvidence = formatAdminVerifyAiReportContentPlainText(content)
+    .split("KEY RISKS")[0]
+    .split("EVIDENCE & KEY FINDINGS")[1] ?? "";
+  if (options.expectResponseBeforeTemplate) {
+    const responseIdx = Math.max(
+      plainEvidence.indexOf("대응 기한:"),
+      plainEvidence.indexOf("납부 기한:"),
+    );
+    if (responseIdx < 0) {
+      fail.push(`G-3 ${label}: must include Response Summary 대응 기한 in EVIDENCE`);
+    }
+    const templateIdx = plainEvidence.indexOf("2차 추가 확인에서는");
+    if (templateIdx >= 0 && responseIdx >= 0 && templateIdx < responseIdx) {
+      fail.push(`G-3 ${label}: template manifest must not appear before customer response line`);
+    }
+  }
+  if (options.expectCustomerInputLines) {
+    const templateCount = (plainEvidence.match(/2차 추가 확인에서는/g) ?? []).length;
+    if (templateCount > 1) {
+      fail.push(`G-3 ${label}: at most one template manifest line when customer input exists`);
+    }
+  }
+  const evidenceRenderLines = countPaidEvidenceRenderLines(content.keyFindings);
+  if (evidenceRenderLines > 7) {
+    fail.push(`G-3 ${label}: EVIDENCE render lines ${evidenceRenderLines} exceed 7-line budget`);
+  }
+  if (pdfText.includes("…")) {
+    fail.push(`G-3 ${label}: paid PDF must not contain ellipsis clipping marker`);
+  }
+}
 
 const G1_PAID_LEAD_NO_LABEL = "g1-paid-no-label";
 const g1PaidNoLabelUploadActivities = [
@@ -868,6 +956,24 @@ assertG2PaidPdfGuards("paid-default", paidPdfExtracted365.text, paidPdfContent, 
   expectUploadRefs: false,
   refsCount: 0,
 });
+const g3PaidRiskContent = buildAdminVerifyAiReportContentFromActivities(
+  g3PaidRiskActivities,
+  G3_PAID_LEAD_RISK,
+);
+const g3PaidRiskPdf = await extractVerifyAdminMypagePdf(g3PaidRiskActivities, G3_PAID_LEAD_RISK);
+assertG3PaidPdfGuards("paid-default", paidPdfExtracted365.text, paidPdfContent, {
+  expectCustomerInputLines: false,
+});
+assertG3PaidPdfGuards("traffic-deadline", g1PaidTrafficPdf.text, g1PaidTrafficContent, {
+  expectResponseBeforeTemplate: true,
+  expectCustomerInputLines: true,
+});
+assertG3PaidPdfGuards("non-traffic", g1PaidNonTrafficPdf.text, g1PaidNonTrafficContent, {
+  expectCustomerInputLines: false,
+});
+assertG3PaidPdfGuards("risk-signals", g3PaidRiskPdf.text, g3PaidRiskContent, {
+  expectRiskConclusion: true,
+});
 for (const [label, pages] of [
   ["non-traffic", g1PaidNonTrafficPdf.pages],
   ["traffic", g1PaidTrafficPdf.pages],
@@ -883,7 +989,7 @@ if (fs.existsSync(freeGoldenPath)) {
   const freeGolden = JSON.parse(fs.readFileSync(freeGoldenPath, "utf8"));
   for (const label of ["A", "B", "C"]) {
     if (normalizeMypagePdfPlainForRegression(f18dPdfPlainSamples[label]) !== normalizeMypagePdfPlainForRegression(freeGolden[label])) {
-      fail.push(`G-2 free regression ${label}: PDF text differs from 32b0231 golden`);
+      fail.push(`G-3 free regression ${label}: PDF text differs from ea0a935 golden`);
     }
   }
 } else {
@@ -901,7 +1007,7 @@ if (fs.existsSync(otherGoldenPath)) {
     const parsed = await parser.getText();
     await parser.destroy();
     if (normalizeMypagePdfPlainForRegression(parsed.text ?? "") !== normalizeMypagePdfPlainForRegression(entry.text)) {
-      fail.push(`G-2 other-service regression ${entry.key}: PDF text differs from 32b0231 golden`);
+      fail.push(`G-3 other-service regression ${entry.key}: PDF text differs from ea0a935 golden`);
     }
   }
 } else {

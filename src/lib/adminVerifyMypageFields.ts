@@ -15,6 +15,12 @@ import {
   buildPhase1RiskSummaryLinesFromManifest,
   buildPhase2RiskSummaryLinesFromManifest,
 } from "@/lib/adminVerifyJudgmentRuntime";
+import { getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
+import {
+  countMypageExecutiveParagraphListRenderLines,
+  MYPAGE_PDF_EXECUTIVE_EVIDENCE_LIST_SIZE,
+  wrapMypageExecutiveParagraphListLine,
+} from "@/lib/mypagePdfExecutiveParagraphWrap";
 
 export const VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL = "AI 리포트 받기";
 export const VERIFY_ADMIN_EXPERT_REVIEWING_LABEL = "담당 전문가가 검토 중입니다";
@@ -348,32 +354,30 @@ function paidEvidenceLineShouldOmit(text: string): boolean {
   );
 }
 
-function estimatePaidEvidenceLineRenderCount(line: string): number {
-  const maxWidth = ADMIN_VERIFY_PAID_PDF_EVIDENCE_CONTENT_WIDTH;
-  const size = 8.3;
-  const charUnit = line.startsWith("■") ? size * 0.55 : size * 0.5;
-  const words = line.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return 1;
-  let lines = 1;
-  let lineWidth = 0;
-  const spaceW = charUnit;
-  for (const word of words) {
-    let wordW = 0;
-    for (const ch of word) {
-      wordW += ch <= "\u007f" ? charUnit * 0.55 : charUnit;
-    }
-    if (lineWidth > 0 && lineWidth + spaceW + wordW > maxWidth) {
-      lines += 1;
-      lineWidth = wordW;
-    } else {
-      lineWidth = lineWidth > 0 ? lineWidth + spaceW + wordW : wordW;
-    }
-  }
-  return lines;
+function measurePaidEvidenceLineRenderCount(line: string): number {
+  const fonts = getMypageExecutivePdfMeasureFontsSync();
+  return wrapMypageExecutiveParagraphListLine(
+    line,
+    MYPAGE_PDF_EXECUTIVE_EVIDENCE_LIST_SIZE,
+    fonts.regular,
+    fonts.bold,
+    ADMIN_VERIFY_PAID_PDF_EVIDENCE_CONTENT_WIDTH,
+  ).length;
 }
 
 export function countPaidEvidenceRenderLines(lines: string[]): number {
-  return lines.reduce((sum, line) => sum + estimatePaidEvidenceLineRenderCount(line), 0);
+  const fonts = getMypageExecutivePdfMeasureFontsSync();
+  return countMypageExecutiveParagraphListRenderLines(
+    lines,
+    MYPAGE_PDF_EXECUTIVE_EVIDENCE_LIST_SIZE,
+    fonts.regular,
+    fonts.bold,
+    ADMIN_VERIFY_PAID_PDF_EVIDENCE_CONTENT_WIDTH,
+  );
+}
+
+export function buildAdminVerifyPaidZeroRiskConclusionLine(originalDoc: string): string {
+  return `결론 · 1차·2차 입력만으로는 위험 여부를 확정할 수 없어, ${originalDoc}와의 대조 확인이 필요합니다.`;
 }
 
 type PaidEvidencePackResult = {
@@ -400,17 +404,23 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
   }
   const phase1Selected = phase1Items.slice(0, 3);
 
-  const phase2Items: string[] = [];
+  const phase2ResponseItems: string[] = [];
   for (const raw of input.phase2ResponseLines) {
     const line = `✓ ${raw.trim()}`;
     if (paidEvidenceLineShouldOmit(line)) continue;
-    phase2Items.push(line);
+    phase2ResponseItems.push(line);
   }
+  const phase2ManifestItems: string[] = [];
   for (const raw of input.phase2ManifestLines) {
     const line = `✓ ${raw.trim()}`;
     if (paidEvidenceLineShouldOmit(line)) continue;
-    phase2Items.push(line);
+    phase2ManifestItems.push(line);
   }
+  const hasCustomerPhase2Input = phase2ResponseItems.length > 0;
+  const phase2ManifestForPack = hasCustomerPhase2Input
+    ? phase2ManifestItems.slice(0, 1)
+    : phase2ManifestItems;
+  const phase2Items = [...phase2ResponseItems, ...phase2ManifestForPack];
 
   const uploadCountLine =
     input.uploadRefs.length > 0 ? `✓ 2차 제출 자료 ${input.uploadRefs.length}건` : null;
@@ -442,13 +452,34 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
 
   const maxLines = ADMIN_VERIFY_PAID_PDF_EVIDENCE_MAX_RENDER_LINES;
   const packed: string[] = [];
+  const packedMandatory: boolean[] = [];
   let usedLines = 0;
-  let omittedItemCount = 0;
+  let omittedItemCount = Math.max(0, phase1Items.length - phase1Selected.length);
+  if (hasCustomerPhase2Input && phase2ManifestItems.length > 1) {
+    omittedItemCount += phase2ManifestItems.length - 1;
+  }
 
-  const tryAdd = (entry: PackEntry, force: boolean): boolean => {
-    const need = estimatePaidEvidenceLineRenderCount(entry.line);
-    if (usedLines + need <= maxLines || force) {
+  const removeLastOptionalPacked = (): boolean => {
+    for (let i = packed.length - 1; i >= 0; i -= 1) {
+      if (!packedMandatory[i]) {
+        usedLines -= measurePaidEvidenceLineRenderCount(packed[i]!);
+        packed.splice(i, 1);
+        packedMandatory.splice(i, 1);
+        omittedItemCount += 1;
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const tryAdd = (entry: PackEntry): boolean => {
+    const need = measurePaidEvidenceLineRenderCount(entry.line);
+    while (usedLines + need > maxLines && removeLastOptionalPacked()) {
+      /* make room for mandatory entries */
+    }
+    if (usedLines + need <= maxLines) {
       packed.push(entry.line);
+      packedMandatory.push(entry.mandatory);
       usedLines += need;
       return true;
     }
@@ -457,11 +488,7 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
   };
 
   for (const entry of ordered) {
-    if (entry.mandatory) {
-      tryAdd(entry, true);
-    } else {
-      tryAdd(entry, false);
-    }
+    tryAdd(entry);
   }
 
   if (hasPhase2Section) {
@@ -588,7 +615,7 @@ function buildAdminVerifyPaidAiReportContent(
   const execSummary = [
     riskSignals.length > 0
       ? `결론 · 확인이 필요한 위험요인 ${riskSignals.length}건이 있어 서류 원본 검토가 필요합니다.`
-      : "결론 · 입력하신 내용 기준으로 즉시 대응이 필요한 위험요인은 확인되지 않았습니다.",
+      : buildAdminVerifyPaidZeroRiskConclusionLine(originalDoc),
     goal ? `확인 목적 · ${goal}` : null,
     documentLabel
       ? `문서 · ${documentLabel}`
@@ -615,9 +642,14 @@ function buildAdminVerifyPaidAiReportContent(
   const responseLines = buildAdminVerifyResponseSummaryBlock(answers)
     .map((line) => line.trim())
     .filter(Boolean);
-  const phase2ManifestLines = buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile)
-    .map((line) => line.trim())
-    .filter(Boolean);
+  let phase2ManifestLines: string[] = [];
+  try {
+    phase2ManifestLines = buildPhase2RiskSummaryLinesFromManifest(answers, resolutionProfile)
+      .map((line) => line.trim())
+      .filter(Boolean);
+  } catch {
+    phase2ManifestLines = [];
+  }
   const uploadRefs = listAdminPhase2DocumentUploadRefs(activities, leadId);
 
   const evidencePack = packAdminVerifyPaidEvidenceKeyFindings({
