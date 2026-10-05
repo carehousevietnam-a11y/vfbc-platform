@@ -51,6 +51,13 @@ const {
   verifyAdminTimelineEntryAllowed,
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_ENTRY_BUTTON_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE,
+  VERIFY_ADMIN_PHASE2_AI_REPORT_RECEIVE_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE,
+  VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF,
+  shouldGateVerifyAdminExpertPageAiReportPdf,
+  shouldGateVerifyAdminExpertPageAiReportPdfFromActivities,
   verifyAdminPaidMypageShowsTopActionRow,
   verifyAdminPaidMypageUsesDualCardLayout,
   verifyAdminPaidAiReportCtaInAiResultCard,
@@ -1072,6 +1079,77 @@ for (const moduleName of forbiddenClientImportModules) {
     fail.push(`H-1: adminVerifyMypageFields.ts must not value-import ${moduleName}`);
   }
 }
+
+const H3_COPY_EXPECTED = {
+  entry: "2차 개인화 질문 이어서 진행",
+  notice: "2차 개인화 질문을 완료하면 2차 개인화 AI 리포트를 받을 수 있습니다.",
+  receive: "2차 개인화 AI 리포트 받기",
+  gateError: "2차 개인화 질문을 완료한 후 이용할 수 있습니다.",
+};
+if (VERIFY_ADMIN_EXPERT_PHASE2_ENTRY_BUTTON_LABEL !== H3_COPY_EXPECTED.entry) {
+  fail.push("H-3: entry button copy mismatch");
+}
+if (VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE !== H3_COPY_EXPECTED.notice) {
+  fail.push("H-3: locked notice copy mismatch");
+}
+if (VERIFY_ADMIN_PHASE2_AI_REPORT_RECEIVE_LABEL !== H3_COPY_EXPECTED.receive) {
+  fail.push("H-3: phase2 receive label copy mismatch");
+}
+if (VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE !== H3_COPY_EXPECTED.gateError) {
+  fail.push("H-3: gate error message copy mismatch");
+}
+if (VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF !== "/verify/admin?restore=1") {
+  fail.push("H-3: phase2 resume href must be /verify/admin?restore=1");
+}
+
+const h3FreeExpert = shouldGateVerifyAdminExpertPageAiReportPdf({
+  serviceType: "verify_admin",
+  hasExpertReview: false,
+  phase2Complete: false,
+});
+const h3Locked = shouldGateVerifyAdminExpertPageAiReportPdf({
+  serviceType: "verify_admin",
+  hasExpertReview: true,
+  phase2Complete: false,
+});
+const h3Complete = shouldGateVerifyAdminExpertPageAiReportPdf({
+  serviceType: "verify_admin",
+  hasExpertReview: true,
+  phase2Complete: true,
+});
+if (h3FreeExpert !== false) fail.push("H-3 gate: free expert-before must be false");
+if (h3Locked !== true) fail.push("H-3 gate: expert+phase2 incomplete must be true");
+if (h3Complete !== false) fail.push("H-3 gate: phase2 complete must be false");
+
+const h3ActivitiesLocked = shouldGateVerifyAdminExpertPageAiReportPdfFromActivities("verify_admin", [
+  { action: "verify_lead", meta: {} },
+  { action: "expert_review_request", meta: {} },
+]);
+const h3ActivitiesOpen = shouldGateVerifyAdminExpertPageAiReportPdfFromActivities("verify_admin", [
+  { action: "verify_lead", meta: { admin_phase2_documents_upload_complete: "1" } },
+  { action: "expert_review_request", meta: {} },
+]);
+if (h3ActivitiesLocked !== true) {
+  fail.push("H-3 activities gate: expert without phase2 must lock");
+}
+if (h3ActivitiesOpen !== false) {
+  fail.push("H-3 activities gate: expert with phase2 complete must not lock");
+}
+
+const mypagePdfRouteSrc = fs.readFileSync(
+  path.join(repoRoot, "src/app/api/mypage-pdf/route.ts"),
+  "utf8",
+);
+if (!mypagePdfRouteSrc.includes("shouldGateVerifyAdminExpertPageAiReportPdfFromActivities")) {
+  fail.push("H-3: mypage-pdf route must use shouldGateVerifyAdminExpertPageAiReportPdfFromActivities");
+}
+if (!mypagePdfRouteSrc.includes("VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE")) {
+  fail.push("H-3: mypage-pdf route must return VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE");
+}
+if (!mypagePdfRouteSrc.includes("status: 403")) {
+  fail.push("H-3: mypage-pdf route must respond 403 when gated");
+}
+
 assertFreePdfGuards("traffic+upload", f18ScenarioTrafficUpload, f18TrafficContent, true);
 assertFreePdfGuards("other-no-upload", f18ScenarioOtherNoUpload, f18OtherContent, false);
 assertFreePdfGuards("sparse", f18ScenarioSparse, f18SparseContent, false);

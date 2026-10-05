@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  shouldGateVerifyAdminExpertPageAiReportPdfFromActivities,
+  VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE,
+} from "@/lib/adminVerifyMypageFields";
 import { buildMypagePdfDocumentFromLeadAndActivities } from "@/lib/mypagePdfExecutiveRender";
 
 // 서버 전용. service role key는 브라우저에 노출되지 않습니다.
@@ -40,6 +44,14 @@ export async function POST(req: NextRequest) {
       .eq("lead_id", leadId)
       .order("created_at", { ascending: true });
     const activities = activitiesRaw ?? [];
+
+    if (shouldGateVerifyAdminExpertPageAiReportPdfFromActivities(lead.service_type, activities)) {
+      return NextResponse.json(
+        { error: VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE },
+        { status: 403 },
+      );
+    }
+
     const pdfBytes = await buildMypagePdfDocumentFromLeadAndActivities(
       { id: leadId, service_type: lead.service_type, result: lead.result, created_at: lead.created_at },
       activities,

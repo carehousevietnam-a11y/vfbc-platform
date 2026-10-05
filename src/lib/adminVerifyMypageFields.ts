@@ -46,6 +46,42 @@ function requireAdminVerifyPaidEvidenceMeasureFonts(): AdminVerifyPaidEvidenceMe
 export const VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL = "AI 리포트 받기";
 export const VERIFY_ADMIN_EXPERT_REVIEWING_LABEL = "담당 전문가가 검토 중입니다";
 
+/** H-3: expert dashboard — phase2 incomplete PDF gate + entry CTA (exact copy — do not edit). */
+export const VERIFY_ADMIN_EXPERT_PHASE2_ENTRY_BUTTON_LABEL = "2차 개인화 질문 이어서 진행";
+export const VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE =
+  "2차 개인화 질문을 완료하면 2차 개인화 AI 리포트를 받을 수 있습니다.";
+export const VERIFY_ADMIN_PHASE2_AI_REPORT_RECEIVE_LABEL = "2차 개인화 AI 리포트 받기";
+export const VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE =
+  "2차 개인화 질문을 완료한 후 이용할 수 있습니다.";
+/** Existing member restore path — same as buildCaseRestoreHref(verify_admin). */
+export const VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF = "/verify/admin?restore=1";
+
+export type VerifyAdminExpertAiReportPdfGateInput = {
+  serviceType?: string | null;
+  hasExpertReview?: boolean;
+  phase2Complete?: boolean;
+};
+
+export function shouldGateVerifyAdminExpertPageAiReportPdf(
+  input: VerifyAdminExpertAiReportPdfGateInput,
+): boolean {
+  return (
+    input.serviceType === "verify_admin" &&
+    Boolean(input.hasExpertReview) &&
+    input.phase2Complete !== true
+  );
+}
+
+export function shouldGateVerifyAdminExpertPageAiReportPdfFromActivities(
+  serviceType: string | null | undefined,
+  activities: CrmActivityLike[],
+): boolean {
+  if (serviceType !== "verify_admin") return false;
+  const hasExpertReview = activities.some((row) => row.action === "expert_review_request");
+  if (!hasExpertReview) return false;
+  return !isAdminPhase2DocumentsUploadComplete(activities);
+}
+
 const EXPERT_TIMELINE_LABEL_MARKERS = ["전문가"];
 
 export type CrmActivityLike = {

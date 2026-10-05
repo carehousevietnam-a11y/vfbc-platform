@@ -58,6 +58,12 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import {
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_ENTRY_BUTTON_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE,
+  VERIFY_ADMIN_PHASE2_AI_REPORT_RECEIVE_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE,
+  VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF,
+  shouldGateVerifyAdminExpertPageAiReportPdf,
   VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL,
   VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE,
   VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER,
@@ -1317,6 +1323,9 @@ function PdfDownloadButton({
   variant = "default",
   serviceType,
   hasAiReportRequest,
+  hasExpertReview,
+  phase2Complete,
+  expertDashboardAiReportCta = false,
 }: {
   leadId: string;
   serviceLabel?: string;
@@ -1324,10 +1333,27 @@ function PdfDownloadButton({
   variant?: "default" | "refined";
   serviceType?: string | null;
   hasAiReportRequest?: boolean;
+  hasExpertReview?: boolean;
+  phase2Complete?: boolean;
+  /** Expert-flow dashboard only — enables H-3 gate UI and phase2-complete label. */
+  expertDashboardAiReportCta?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aiRequestDone, setAiRequestDone] = useState(Boolean(hasAiReportRequest));
+
+  const pdfGateActive =
+    expertDashboardAiReportCta &&
+    shouldGateVerifyAdminExpertPageAiReportPdf({
+      serviceType,
+      hasExpertReview,
+      phase2Complete,
+    });
+
+  const verifyAdminPrimaryLabel =
+    expertDashboardAiReportCta && phase2Complete && serviceType === "verify_admin"
+      ? VERIFY_ADMIN_PHASE2_AI_REPORT_RECEIVE_LABEL
+      : VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL;
 
   async function handleDownload() {
     setLoading(true);
@@ -1357,7 +1383,16 @@ function PdfDownloadButton({
 
       if (!response.ok) {
         const result = await response.json().catch(() => null);
-        setError(result?.error ?? "PDF를 생성하지 못했습니다.");
+        const serverError =
+          typeof result?.error === "string" ? result.error : "PDF를 생성하지 못했습니다.";
+        if (
+          response.status === 403 &&
+          serverError === VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE
+        ) {
+          setError(VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE);
+        } else {
+          setError(serverError);
+        }
         return;
       }
 
@@ -1378,10 +1413,41 @@ function PdfDownloadButton({
     }
   }
 
+  if (pdfGateActive) {
+    const gateBlock = (
+      <div className="flex flex-col gap-2">
+        <Link
+          href={VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF}
+          className={
+            variant === "refined"
+              ? "inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] sm:min-w-[148px]"
+              : "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white text-[13px] font-bold text-blue-900 transition hover:bg-blue-50"
+          }
+        >
+          {variant === "refined" ? <FileText size={14} /> : null}
+          {VERIFY_ADMIN_EXPERT_PHASE2_ENTRY_BUTTON_LABEL}
+        </Link>
+        <p
+          className={
+            variant === "refined"
+              ? "break-keep text-[12px] leading-5 text-slate-600 sm:basis-full"
+              : "break-keep text-[11px] leading-5 text-slate-600"
+          }
+        >
+          {VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE}
+        </p>
+      </div>
+    );
+    if (variant === "refined") {
+      return gateBlock;
+    }
+    return gateBlock;
+  }
+
   if (variant === "refined") {
     const primaryLabel =
       serviceType === "verify_admin"
-        ? VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL
+        ? verifyAdminPrimaryLabel
         : loading
           ? "준비 중..."
           : "AI 리포트 보기";
@@ -1414,7 +1480,7 @@ function PdfDownloadButton({
 
   const defaultLabel =
     serviceType === "verify_admin"
-      ? VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL
+      ? verifyAdminPrimaryLabel
       : loading
         ? "PDF 생성 중..."
         : "AI 리포트(PDF) 다운로드";
@@ -1555,6 +1621,9 @@ function AiResultCard({
           applicantName={applicantName}
           serviceType={item.serviceType}
           hasAiReportRequest={item.hasAiReportRequest}
+          hasExpertReview={item.hasExpertReview}
+          phase2Complete={item.phase2Complete}
+          expertDashboardAiReportCta
         />
       </div>
     </section>
