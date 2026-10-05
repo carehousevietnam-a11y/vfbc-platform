@@ -45,6 +45,8 @@ const {
   buildVerifyAdminMypageTimelineRecent,
   countPaidEvidenceRenderLines,
   buildAdminVerifyPaidZeroRiskConclusionLine,
+  isAdminVerifyPaidPhase2TemplateManifestEvidenceLine,
+  ADMIN_VERIFY_PAID_PHASE2_TEMPLATE_SNIPPET,
   verifyAdminTimelineEntryAllowed,
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
   VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
@@ -726,6 +728,117 @@ const g1PaidNoLabelUploadActivities = [
   },
 ];
 
+const G4_PAID_DEADLINE = "g4-paid-deadline";
+const g4PaidDeadlineActivities = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_phase2_documents_upload_complete: "1",
+      admin_verify_answers_json: JSON.stringify({
+        adminCaseDocumentKind: "payment_demand",
+        case02_deadlineDate: "2026-04-01",
+      }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "납부 안내 확인" },
+        document: { value: "납부 안내" },
+        riskSignals: [],
+      }),
+    },
+  },
+];
+
+const G4_PAID_MULTI = "g4-paid-multi";
+const g4PaidMultiResponseActivities = [
+  {
+    action: "verify_lead",
+    meta: {
+      admin_phase2_documents_upload_complete: "1",
+      admin_verify_answers_json: JSON.stringify({
+        adminCaseDocumentKind: "payment_demand",
+        case02_deadlineDate: "2026-05-20",
+        case02_paymentAmountDetail: "1,500,000 VND",
+      }),
+      case_resolution_json: JSON.stringify({
+        goal: { value: "납부 확인" },
+        authority: { value: "세무·납세 관련 기관" },
+        document: { value: "납부 안내" },
+        riskSignals: [],
+      }),
+    },
+  },
+  {
+    action: "document_upload",
+    meta: {
+      fileName: "receipt.pdf",
+      storagePath: `document-upload/${G4_PAID_MULTI}/receipt.pdf`,
+    },
+  },
+];
+
+function extractPaidEvidenceSectionPlain(content) {
+  if (!content) return "";
+  const plain = formatAdminVerifyAiReportContentPlainText(content);
+  const start = plain.indexOf("EVIDENCE & KEY FINDINGS");
+  if (start < 0) return "";
+  const rest = plain.slice(start);
+  const end = rest.search(/\nKEY RISKS|\nRECOMMENDED/);
+  return end >= 0 ? rest.slice(0, end).trim() : rest.trim();
+}
+
+function assertG4PaidPdfGuards(label, pdfText, content, options = {}) {
+  if (!content?.includesPhase2Block) {
+    fail.push(`G-4 ${label}: must be paid PDF content`);
+    return;
+  }
+  const evidencePlain = extractPaidEvidenceSectionPlain(content);
+  const templateSnippet = ADMIN_VERIFY_PAID_PHASE2_TEMPLATE_SNIPPET;
+  if (options.expectCustomerInputInEvidence) {
+    for (const needle of options.responseNeedles ?? []) {
+      if (!evidencePlain.includes(needle)) {
+        fail.push(`G-4 ${label}: EVIDENCE must include customer input "${needle}"`);
+      }
+    }
+    if (evidencePlain.includes(templateSnippet)) {
+      fail.push(`G-4 ${label}: template manifest must not appear when customer input exists`);
+    }
+    const hasResponseLine = content.keyFindings.some((line) =>
+      options.responseNeedles?.some((n) => line.includes(n)),
+    );
+    if (!hasResponseLine) {
+      fail.push(`G-4 ${label}: keyFindings must include at least one customer response line`);
+    }
+  } else if (options.expectManifestMaxOne) {
+    const matches = evidencePlain.match(/2차 추가 확인에서는/g) ?? [];
+    if (matches.length > 1) {
+      fail.push(`G-4 ${label}: at most one template manifest when no customer input`);
+    }
+  }
+  const phase2Header = evidencePlain.indexOf("■ 2차 확인");
+  if (phase2Header >= 0) {
+    const after = evidencePlain.slice(phase2Header + "■ 2차 확인".length);
+    if (!/✓/.test(after)) {
+      fail.push(`G-4 ${label}: ■ 2차 확인 must have at least one ✓ item`);
+    }
+  }
+  const evidenceRenderLines = countPaidEvidenceRenderLines(content.keyFindings);
+  if (evidenceRenderLines > 7) {
+    fail.push(`G-4 ${label}: EVIDENCE render lines ${evidenceRenderLines} exceed budget`);
+  }
+  if (pdfText.includes("…")) {
+    fail.push(`G-4 ${label}: paid PDF must not contain ellipsis clipping marker`);
+  }
+  if (options.expectUploadCountLine && options.refsCount > 0) {
+    if (!evidencePlain.includes(`✓ 2차 제출 자료 ${options.refsCount}건`)) {
+      const omittedUploadCount = content.paidEvidenceOmittedItems?.some((item) =>
+        item.text.includes("2차 제출 자료"),
+      );
+      if (!omittedUploadCount) {
+        fail.push(`G-4 ${label}: must show 2차 제출 자료 N건 or record in omitted list`);
+      }
+    }
+  }
+}
+
 function assertG1PaidPdfGuards(label, pdfText, content, { expectTrafficAuthority, expectUploadLabel }) {
   if (!content?.includesPhase2Block) {
     fail.push(`G-1 ${label}: must be paid PDF content`);
@@ -1028,6 +1141,84 @@ assertG3bPaidPdfGuards("no-label-upload", g1PaidNoLabelPdf.text, g1PaidNoLabelCo
 assertG3bPaidPdfGuards("risk-signals", g3PaidRiskPdf.text, g3PaidRiskContent, {
   expectUploadRefs: true,
 });
+
+const g4PaidDeadlineContent = buildAdminVerifyAiReportContentFromActivities(
+  g4PaidDeadlineActivities,
+  G4_PAID_DEADLINE,
+);
+const g4PaidDeadlinePdf = await extractVerifyAdminMypagePdf(g4PaidDeadlineActivities, G4_PAID_DEADLINE);
+const g4PaidMultiContent = buildAdminVerifyAiReportContentFromActivities(
+  g4PaidMultiResponseActivities,
+  G4_PAID_MULTI,
+);
+const g4PaidMultiPdf = await extractVerifyAdminMypagePdf(g4PaidMultiResponseActivities, G4_PAID_MULTI);
+
+assertG4PaidPdfGuards("g4-deadline", g4PaidDeadlinePdf.text, g4PaidDeadlineContent, {
+  expectCustomerInputInEvidence: true,
+  responseNeedles: ["납부 기한:"],
+});
+assertG4PaidPdfGuards("g4-multi", g4PaidMultiPdf.text, g4PaidMultiContent, {
+  expectCustomerInputInEvidence: true,
+  responseNeedles: ["납부 기한:", "납부 금액:"],
+  expectUploadCountLine: true,
+  refsCount: 1,
+});
+assertG4PaidPdfGuards("paid-default-no-q1", paidPdfExtracted365.text, paidPdfContent, {
+  expectManifestMaxOne: true,
+});
+assertG4PaidPdfGuards("traffic-deadline", g1PaidTrafficPdf.text, g1PaidTrafficContent, {
+  expectCustomerInputInEvidence: true,
+  responseNeedles: ["납부 기한:"],
+});
+
+const g4DbSamples = [];
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (supabaseUrl && supabaseServiceKey) {
+  const { createClient } = await import("@supabase/supabase-js");
+  const admin = createClient(supabaseUrl, supabaseServiceKey);
+  const receipt = "VF6B64FFB0";
+  const prefix = receipt.replace(/^VF/i, "").toLowerCase();
+  const { data: acts } = await admin
+    .from("crm_activities")
+    .select("lead_id, meta")
+    .eq("action", "verify_lead")
+    .contains("meta", { admin_phase2_documents_upload_complete: "1" })
+    .limit(200);
+  const leadIds = [...new Set((acts ?? []).map((a) => a.lead_id).filter(Boolean))];
+  const { data: leads } = await admin
+    .from("leads")
+    .select("id, service_type")
+    .in("id", leadIds)
+    .eq("service_type", "verify_admin");
+  const lead = (leads ?? []).find((l) =>
+    String(l.id).replace(/-/g, "").toLowerCase().startsWith(prefix),
+  );
+  if (lead) {
+    const { data: activities } = await admin
+      .from("crm_activities")
+      .select("action, meta, created_at")
+      .eq("lead_id", lead.id)
+      .order("created_at", { ascending: true });
+    const dbContent = buildAdminVerifyAiReportContentFromActivities(activities ?? [], lead.id);
+    const dbPdf = await extractVerifyAdminMypagePdf(activities ?? [], lead.id);
+    assertG4PaidPdfGuards("db-VF6B64FFB0", dbPdf.text, dbContent, {
+      expectCustomerInputInEvidence: true,
+      responseNeedles: ["기한:", "대응 기한", "납부 기한"],
+    });
+    g4DbSamples.push({
+      receipt,
+      evidence: extractPaidEvidenceSectionPlain(dbContent),
+      omittedItems: dbContent?.paidEvidenceOmittedItems ?? [],
+      omittedCount: dbContent?.paidEvidenceOmittedItemCount ?? null,
+    });
+  } else {
+    fail.push("G-4 db-VF6B64FFB0: lead not found (NOT VERIFIED)");
+  }
+} else {
+  g4DbSamples.push({ receipt: "VF6B64FFB0", skipped: "missing Supabase env" });
+}
+
 for (const [label, pages] of [
   ["non-traffic", g1PaidNonTrafficPdf.pages],
   ["traffic", g1PaidTrafficPdf.pages],
@@ -1043,7 +1234,7 @@ if (fs.existsSync(freeGoldenPath)) {
   const freeGolden = JSON.parse(fs.readFileSync(freeGoldenPath, "utf8"));
   for (const label of ["A", "B", "C"]) {
     if (normalizeMypagePdfPlainForRegression(f18dPdfPlainSamples[label]) !== normalizeMypagePdfPlainForRegression(freeGolden[label])) {
-      fail.push(`G-3 free regression ${label}: PDF text differs from ea0a935 golden`);
+      fail.push(`G-4 free regression ${label}: PDF text differs from ad54eb6 golden`);
     }
   }
 } else {
@@ -1061,7 +1252,7 @@ if (fs.existsSync(otherGoldenPath)) {
     const parsed = await parser.getText();
     await parser.destroy();
     if (normalizeMypagePdfPlainForRegression(parsed.text ?? "") !== normalizeMypagePdfPlainForRegression(entry.text)) {
-      fail.push(`G-3 other-service regression ${entry.key}: PDF text differs from ea0a935 golden`);
+      fail.push(`G-4 other-service regression ${entry.key}: PDF text differs from ad54eb6 golden`);
     }
   }
 } else {

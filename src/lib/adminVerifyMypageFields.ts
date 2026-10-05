@@ -287,7 +287,27 @@ export type AdminVerifyAiReportContent = {
   executiveDashboardSupplementLines?: string[];
   /** G-2 QA: EVIDENCE 7-line budget에서 표시하지 못한 bullet 수 (PDF 본문 미출력). */
   paidEvidenceOmittedItemCount?: number;
+  /** G-4 QA: 누락 항목 목록 (PDF 미출력). */
+  paidEvidenceOmittedItems?: AdminVerifyPaidEvidenceOmittedItem[];
 };
+
+export type AdminVerifyPaidEvidenceOmittedKind =
+  | "phase1_extra"
+  | "phase2_customer_input"
+  | "phase2_manifest"
+  | "upload_filename";
+
+export type AdminVerifyPaidEvidenceOmittedItem = {
+  kind: AdminVerifyPaidEvidenceOmittedKind;
+  text: string;
+};
+
+export const ADMIN_VERIFY_PAID_PHASE2_TEMPLATE_SNIPPET = "다음 조치를 보는 것이";
+
+export function isAdminVerifyPaidPhase2TemplateManifestEvidenceLine(line: string): boolean {
+  const bare = line.replace(/^✓\s*/, "").trim();
+  return bare.includes(ADMIN_VERIFY_PAID_PHASE2_TEMPLATE_SNIPPET);
+}
 
 export const ADMIN_VERIFY_FREE_PDF_PHASE1_UPLOAD_DISCLAIMER =
   "※ 이 리포트에서는 1차 입력 내용을 중심으로 정리합니다. 제출 자료의 상세 내용 비교·검토는 상세 검토에서 확인할 수 있습니다.";
@@ -391,7 +411,44 @@ export function buildAdminVerifyPaidZeroRiskConclusionLine(originalDoc: string):
 type PaidEvidencePackResult = {
   lines: string[];
   omittedItemCount: number;
+  omittedItems: AdminVerifyPaidEvidenceOmittedItem[];
 };
+
+function selectPhase1CoreProfileLines(profileLines: string[], maxCore: number): string[] {
+  let authority: string | null = null;
+  let document: string | null = null;
+  let stage: string | null = null;
+  for (const line of profileLines) {
+    if (line.includes("관련 기관 ·")) authority = line;
+    else if (/^✓\s*문서 ·/.test(line)) document = line;
+    else if (line.includes("현재 단계 ·")) stage = line;
+  }
+  const picked: string[] = [];
+  if (authority) picked.push(authority);
+  if (document) picked.push(document);
+  if (picked.length === 0 && stage) picked.push(stage);
+  return picked.slice(0, maxCore);
+}
+
+function countPhase1BulletsInPacked(packed: string[]): number {
+  const start = packed.indexOf("■ 1차 확인 사항");
+  if (start < 0) return 0;
+  const end = packed.findIndex((line, idx) => idx > start && line.startsWith("■ "));
+  const slice = end >= 0 ? packed.slice(start + 1, end) : packed.slice(start + 1);
+  return slice.filter((line) => line.startsWith("✓")).length;
+}
+
+function packLinesWithinBudget(lines: string[]): string[] | null {
+  let used = 0;
+  const packed: string[] = [];
+  for (const line of lines) {
+    const need = measurePaidEvidenceLineRenderCount(line);
+    if (used + need > ADMIN_VERIFY_PAID_PDF_EVIDENCE_MAX_RENDER_LINES) return null;
+    packed.push(line);
+    used += need;
+  }
+  return packed;
+}
 
 function packAdminVerifyPaidEvidenceKeyFindings(input: {
   phase1ProfileLines: string[];
@@ -400,17 +457,13 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
   phase2ManifestLines: string[];
   uploadRefs: AdminPhase2UploadRef[];
 }): PaidEvidencePackResult {
-  const phase1Items: string[] = [];
-  for (const line of input.phase1ProfileLines) {
-    if (paidEvidenceLineShouldOmit(line)) continue;
-    phase1Items.push(line);
-  }
+  const phase1ProfileLines = input.phase1ProfileLines.filter((line) => !paidEvidenceLineShouldOmit(line));
+  const phase1ManifestItems: string[] = [];
   for (const raw of input.phase1ManifestLines) {
     const line = `✓ ${raw.trim()}`;
     if (paidEvidenceLineShouldOmit(line)) continue;
-    phase1Items.push(line);
+    phase1ManifestItems.push(line);
   }
-  const phase1Selected = phase1Items.slice(0, 3);
 
   const phase2ResponseItems: string[] = [];
   for (const raw of input.phase2ResponseLines) {
@@ -424,11 +477,6 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
     if (paidEvidenceLineShouldOmit(line)) continue;
     phase2ManifestItems.push(line);
   }
-  const hasCustomerPhase2Input = phase2ResponseItems.length > 0;
-  const phase2ManifestForPack = hasCustomerPhase2Input
-    ? phase2ManifestItems.slice(0, 1)
-    : phase2ManifestItems;
-  const phase2Items = [...phase2ResponseItems, ...phase2ManifestForPack];
 
   const uploadCountLine =
     input.uploadRefs.length > 0 ? `✓ 2차 제출 자료 ${input.uploadRefs.length}건` : null;
@@ -443,74 +491,170 @@ function packAdminVerifyPaidEvidenceKeyFindings(input: {
   }
 
   const hasPhase2Section =
-    phase2Items.length > 0 || uploadCountLine !== null || uploadFileLines.length > 0;
+    phase2ResponseItems.length > 0 ||
+    phase2ManifestItems.length > 0 ||
+    uploadCountLine !== null ||
+    uploadFileLines.length > 0;
 
-  type PackEntry = { line: string; mandatory: boolean };
-  const ordered: PackEntry[] = [{ line: "■ 1차 확인 사항", mandatory: true }];
-  for (const line of phase1Selected) ordered.push({ line, mandatory: false });
-
-  if (hasPhase2Section) {
-    ordered.push({ line: "■ 2차 확인", mandatory: true });
-    if (uploadCountLine) {
-      ordered.push({ line: uploadCountLine, mandatory: true });
-    }
-    for (const line of phase2Items) ordered.push({ line, mandatory: false });
-    for (const line of uploadFileLines) ordered.push({ line, mandatory: false });
-  }
-
-  const maxLines = ADMIN_VERIFY_PAID_PDF_EVIDENCE_MAX_RENDER_LINES;
-  const packed: string[] = [];
-  const packedMandatory: boolean[] = [];
-  let usedLines = 0;
-  let omittedItemCount = Math.max(0, phase1Items.length - phase1Selected.length);
-  if (hasCustomerPhase2Input && phase2ManifestItems.length > 1) {
-    omittedItemCount += phase2ManifestItems.length - 1;
-  }
-
-  const removeLastOptionalPacked = (): boolean => {
-    for (let i = packed.length - 1; i >= 0; i -= 1) {
-      if (!packedMandatory[i]) {
-        usedLines -= measurePaidEvidenceLineRenderCount(packed[i]!);
-        packed.splice(i, 1);
-        packedMandatory.splice(i, 1);
-        omittedItemCount += 1;
-        return true;
+  if (!hasPhase2Section) {
+    const omittedItems: AdminVerifyPaidEvidenceOmittedItem[] = [];
+    const packed: string[] = ["■ 1차 확인 사항"];
+    let usedLines = measurePaidEvidenceLineRenderCount("■ 1차 확인 사항");
+    const fullCore = selectPhase1CoreProfileLines(phase1ProfileLines, 2);
+    for (const line of fullCore) {
+      const need = measurePaidEvidenceLineRenderCount(line);
+      if (usedLines + need > ADMIN_VERIFY_PAID_PDF_EVIDENCE_MAX_RENDER_LINES) {
+        omittedItems.push({ kind: "phase1_extra", text: line.replace(/^✓\s*/, "") });
+        continue;
       }
-    }
-    return false;
-  };
-
-  const tryAdd = (entry: PackEntry): boolean => {
-    const need = measurePaidEvidenceLineRenderCount(entry.line);
-    while (usedLines + need > maxLines && removeLastOptionalPacked()) {
-      /* make room for mandatory entries */
-    }
-    if (usedLines + need <= maxLines) {
-      packed.push(entry.line);
-      packedMandatory.push(entry.mandatory);
+      packed.push(line);
       usedLines += need;
-      return true;
     }
-    omittedItemCount += 1;
-    return false;
-  };
-
-  for (const entry of ordered) {
-    tryAdd(entry);
-  }
-
-  if (hasPhase2Section) {
-    const phase2HeaderIdx = packed.indexOf("■ 2차 확인");
-    if (phase2HeaderIdx >= 0) {
-      const hasItemAfterPhase2 = packed.slice(phase2HeaderIdx + 1).some((l) => l.startsWith("✓"));
-      if (!hasItemAfterPhase2) {
-        omittedItemCount += packed.length - phase2HeaderIdx;
-        while (packed.length > phase2HeaderIdx) packed.pop();
+    const phase1ExtraPool: AdminVerifyPaidEvidenceOmittedItem[] = [];
+    const coreSet = new Set(fullCore);
+    for (const line of phase1ProfileLines) {
+      if (!coreSet.has(line)) {
+        phase1ExtraPool.push({ kind: "phase1_extra", text: line.replace(/^✓\s*/, "") });
       }
     }
+    for (const line of phase1ManifestItems) {
+      phase1ExtraPool.push({ kind: "phase1_extra", text: line.replace(/^✓\s*/, "") });
+    }
+    for (const extra of phase1ExtraPool) {
+      if (countPhase1BulletsInPacked(packed) >= 3) {
+        omittedItems.push(extra);
+        continue;
+      }
+      const line = `✓ ${extra.text}`;
+      const need = measurePaidEvidenceLineRenderCount(line);
+      if (usedLines + need > ADMIN_VERIFY_PAID_PDF_EVIDENCE_MAX_RENDER_LINES) {
+        omittedItems.push(extra);
+        continue;
+      }
+      packed.push(line);
+      usedLines += need;
+    }
+    return { lines: packed, omittedItemCount: omittedItems.length, omittedItems };
   }
 
-  return { lines: packed, omittedItemCount };
+  const attemptWithCoreCount = (coreCount: number): PaidEvidencePackResult | null => {
+    const omittedItems: AdminVerifyPaidEvidenceOmittedItem[] = [];
+    const fullCoreMax2 = selectPhase1CoreProfileLines(phase1ProfileLines, 2);
+    const coreLines = fullCoreMax2.slice(0, coreCount);
+    for (let i = coreCount; i < fullCoreMax2.length; i += 1) {
+      omittedItems.push({ kind: "phase1_extra", text: fullCoreMax2[i]!.replace(/^✓\s*/, "") });
+    }
+    const coreSet = new Set(coreLines);
+    const phase1ExtraPool: AdminVerifyPaidEvidenceOmittedItem[] = [];
+    for (const line of phase1ProfileLines) {
+      if (!coreSet.has(line)) {
+        phase1ExtraPool.push({ kind: "phase1_extra", text: line.replace(/^✓\s*/, "") });
+      }
+    }
+    for (const line of phase1ManifestItems) {
+      phase1ExtraPool.push({ kind: "phase1_extra", text: line.replace(/^✓\s*/, "") });
+    }
+
+    const prefix: string[] = ["■ 1차 확인 사항", ...coreLines, "■ 2차 확인"];
+    if (uploadCountLine) {
+      prefix.push(uploadCountLine);
+    }
+    if (phase2ResponseItems.length > 0) {
+      prefix.push(phase2ResponseItems[0]!);
+    }
+
+    const prefixPacked = packLinesWithinBudget(prefix);
+    if (!prefixPacked) return null;
+    if (phase2ResponseItems.length > 0 && !prefixPacked.includes(phase2ResponseItems[0]!)) {
+      return null;
+    }
+
+    const packed = [...prefixPacked];
+    let usedLines = countPaidEvidenceRenderLines(packed);
+
+    const tryAppend = (line: string, kind: AdminVerifyPaidEvidenceOmittedKind): void => {
+      const need = measurePaidEvidenceLineRenderCount(line);
+      if (usedLines + need <= ADMIN_VERIFY_PAID_PDF_EVIDENCE_MAX_RENDER_LINES) {
+        packed.push(line);
+        usedLines += need;
+      } else {
+        omittedItems.push({ kind, text: line.replace(/^✓\s*/, "") });
+      }
+    };
+
+    for (const line of phase2ResponseItems.slice(1)) {
+      tryAppend(line, "phase2_customer_input");
+    }
+
+    for (const extra of phase1ExtraPool) {
+      if (countPhase1BulletsInPacked(packed) >= 3) {
+        omittedItems.push(extra);
+        continue;
+      }
+      tryAppend(`✓ ${extra.text}`, "phase1_extra");
+    }
+
+    const hasCustomerInPack = phase2ResponseItems.some((line) => packed.includes(line));
+    if (!hasCustomerInPack && phase2ManifestItems.length > 0) {
+      tryAppend(phase2ManifestItems[0]!, "phase2_manifest");
+      for (const line of phase2ManifestItems.slice(1)) {
+        omittedItems.push({ kind: "phase2_manifest", text: line.replace(/^✓\s*/, "") });
+      }
+    } else {
+      for (const line of phase2ManifestItems) {
+        omittedItems.push({ kind: "phase2_manifest", text: line.replace(/^✓\s*/, "") });
+      }
+    }
+
+    for (const line of uploadFileLines) {
+      tryAppend(line, "upload_filename");
+    }
+
+    if (hasPhase2Section) {
+      const phase2HeaderIdx = packed.indexOf("■ 2차 확인");
+      if (phase2HeaderIdx >= 0) {
+        const hasItemAfterPhase2 = packed.slice(phase2HeaderIdx + 1).some((l) => l.startsWith("✓"));
+        if (!hasItemAfterPhase2) {
+          while (packed.length > phase2HeaderIdx) packed.pop();
+        }
+      }
+    }
+
+    if (phase2ResponseItems.length > 0) {
+      const shown = phase2ResponseItems.filter((line) => packed.includes(line)).length;
+      if (shown < 1) return null;
+    }
+
+    return {
+      lines: packed,
+      omittedItemCount: omittedItems.length,
+      omittedItems,
+    };
+  };
+
+  for (const coreCount of [2, 1]) {
+    const result = attemptWithCoreCount(coreCount);
+    if (result) return result;
+  }
+
+  const fallbackOmitted: AdminVerifyPaidEvidenceOmittedItem[] = [];
+  for (const line of phase1ManifestItems) {
+    fallbackOmitted.push({ kind: "phase1_extra", text: line.replace(/^✓\s*/, "") });
+  }
+  for (const line of phase2ResponseItems) {
+    fallbackOmitted.push({ kind: "phase2_customer_input", text: line.replace(/^✓\s*/, "") });
+  }
+  for (const line of phase2ManifestItems) {
+    fallbackOmitted.push({ kind: "phase2_manifest", text: line.replace(/^✓\s*/, "") });
+  }
+  for (const line of uploadFileLines) {
+    fallbackOmitted.push({ kind: "upload_filename", text: line.replace(/^✓\s*/, "") });
+  }
+  return {
+    lines: ["■ 1차 확인 사항"],
+    omittedItemCount: fallbackOmitted.length,
+    omittedItems: fallbackOmitted,
+  };
 }
 
 function isAdminVerifyFreePdfConcreteCustomerSituation(text: string): boolean {
@@ -705,6 +849,7 @@ function buildAdminVerifyPaidAiReportContent(
     includesPhase2Block,
     mandatoryDocumentLines,
     paidEvidenceOmittedItemCount: evidencePack.omittedItemCount,
+    paidEvidenceOmittedItems: evidencePack.omittedItems,
   };
 }
 
