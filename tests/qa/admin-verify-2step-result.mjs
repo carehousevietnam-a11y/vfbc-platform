@@ -16,6 +16,7 @@ const {
   shouldUseGeneralCustomerMypageLayout,
   shouldUseVerifyAdminPaidDashboard,
   buildAdminPhase1SummaryLinesFromActivities,
+  bindAdminVerifyPaidEvidenceMeasureFonts,
   buildAdminVerifyAiReportContentFromActivities,
   formatAdminVerifyAiReportContentPlainText,
   adminVerifyFreePdfTextContainsInternalCodes,
@@ -77,10 +78,11 @@ const {
   VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
 } = await import("../../src/lib/adminVerifyMypageFields.ts");
 
-const { ensureMypageExecutivePdfMeasureFonts } = await import(
+const { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } = await import(
   "../../src/lib/mypagePdfExecutiveMeasureFonts.ts",
 );
 await ensureMypageExecutivePdfMeasureFonts();
+bindAdminVerifyPaidEvidenceMeasureFonts(getMypageExecutivePdfMeasureFontsSync());
 
 const { buildMypagePdfBytesForQaHarness } = await import("../../src/lib/mypagePdfExecutiveRender.ts");
 const { PDFDocument } = await import("pdf-lib");
@@ -1049,6 +1051,27 @@ const timelineBeforeExpert = buildVerifyAdminMypageTimelineRecent({
 });
 
 const fail = [];
+
+const adminVerifyMypageFieldsSrc = fs.readFileSync(
+  path.join(repoRoot, "src/lib/adminVerifyMypageFields.ts"),
+  "utf8",
+);
+const forbiddenClientImportModules = [
+  "fs",
+  "node:fs",
+  "path",
+  "node:path",
+  "pdf-lib",
+  "@pdf-lib/fontkit",
+  "@/lib/mypagePdfExecutiveMeasureFonts",
+];
+for (const moduleName of forbiddenClientImportModules) {
+  const escaped = moduleName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const valueImport = new RegExp(`^import\\s+(?!type\\s)[^;\\n]*from\\s+["']${escaped}["']`, "m");
+  if (valueImport.test(adminVerifyMypageFieldsSrc)) {
+    fail.push(`H-1: adminVerifyMypageFields.ts must not value-import ${moduleName}`);
+  }
+}
 assertFreePdfGuards("traffic+upload", f18ScenarioTrafficUpload, f18TrafficContent, true);
 assertFreePdfGuards("other-no-upload", f18ScenarioOtherNoUpload, f18OtherContent, false);
 assertFreePdfGuards("sparse", f18ScenarioSparse, f18SparseContent, false);

@@ -14,6 +14,7 @@ import { getDiagnosis as getVerifyDiagnosis, type VerifyCategory } from "@/lib/v
 import { buildAdminVerifyResponseSummaryBlock } from "@/lib/adminVerifyResponseSummary";
 import {
   buildAdminVerifyAiReportContentFromActivities,
+  bindAdminVerifyPaidEvidenceMeasureFonts,
   ADMIN_VERIFY_FREE_PDF_DASHBOARD_NEXT_ACTION,
   ADMIN_VERIFY_FREE_PDF_EXECUTIVE_HEADLINE,
   ADMIN_VERIFY_FREE_PDF_EXECUTIVE_SUBLINE,
@@ -27,7 +28,7 @@ import {
   isVerifyAdminFreeAiReportPdfActivities,
   isVerifyAdminPaidAiReportPdfActivities,
 } from "@/lib/adminVerifyMypageFields";
-import { ensureMypageExecutivePdfMeasureFonts } from "@/lib/mypagePdfExecutiveMeasureFonts";
+import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
   mypageExecutivePdfFontForLine,
   wrapMypageExecutiveParagraphLine,
@@ -695,6 +696,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
   leadId: string,
 ): Promise<Uint8Array> {
     await ensureMypageExecutivePdfMeasureFonts();
+    bindAdminVerifyPaidEvidenceMeasureFonts(getMypageExecutivePdfMeasureFontsSync());
 
     const actions = new Set(activities.map((a) => a.action));
 

@@ -15,12 +15,33 @@ import {
   buildPhase1RiskSummaryLinesFromManifest,
   buildPhase2RiskSummaryLinesFromManifest,
 } from "@/lib/adminVerifyJudgmentRuntime";
-import { getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
+import type { PDFFont } from "pdf-lib";
 import {
   countMypageExecutiveParagraphListRenderLines,
   MYPAGE_PDF_EXECUTIVE_EVIDENCE_LIST_SIZE,
   wrapMypageExecutiveParagraphListLine,
 } from "@/lib/mypagePdfExecutiveParagraphWrap";
+
+type AdminVerifyPaidEvidenceMeasureFonts = {
+  regular: PDFFont;
+  bold: PDFFont;
+};
+
+let adminVerifyPaidEvidenceMeasureFonts: AdminVerifyPaidEvidenceMeasureFonts | null = null;
+
+/** Server/QA: call after ensureMypageExecutivePdfMeasureFonts() before paid PDF content build. */
+export function bindAdminVerifyPaidEvidenceMeasureFonts(fonts: AdminVerifyPaidEvidenceMeasureFonts): void {
+  adminVerifyPaidEvidenceMeasureFonts = fonts;
+}
+
+function requireAdminVerifyPaidEvidenceMeasureFonts(): AdminVerifyPaidEvidenceMeasureFonts {
+  if (!adminVerifyPaidEvidenceMeasureFonts) {
+    throw new Error(
+      "Admin verify paid EVIDENCE measure fonts not bound — call bindAdminVerifyPaidEvidenceMeasureFonts() after ensureMypageExecutivePdfMeasureFonts()",
+    );
+  }
+  return adminVerifyPaidEvidenceMeasureFonts;
+}
 
 export const VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL = "AI 리포트 받기";
 export const VERIFY_ADMIN_EXPERT_REVIEWING_LABEL = "담당 전문가가 검토 중입니다";
@@ -383,7 +404,7 @@ function paidEvidenceLineShouldOmit(text: string): boolean {
 }
 
 function measurePaidEvidenceLineRenderCount(line: string): number {
-  const fonts = getMypageExecutivePdfMeasureFontsSync();
+  const fonts = requireAdminVerifyPaidEvidenceMeasureFonts();
   return wrapMypageExecutiveParagraphListLine(
     line,
     MYPAGE_PDF_EXECUTIVE_EVIDENCE_LIST_SIZE,
@@ -394,7 +415,7 @@ function measurePaidEvidenceLineRenderCount(line: string): number {
 }
 
 export function countPaidEvidenceRenderLines(lines: string[]): number {
-  const fonts = getMypageExecutivePdfMeasureFontsSync();
+  const fonts = requireAdminVerifyPaidEvidenceMeasureFonts();
   return countMypageExecutiveParagraphListRenderLines(
     lines,
     MYPAGE_PDF_EXECUTIVE_EVIDENCE_LIST_SIZE,
