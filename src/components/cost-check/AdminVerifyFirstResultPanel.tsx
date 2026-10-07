@@ -96,6 +96,7 @@ import {
 } from "@/lib/adminVerifyCase06Redesign";
 import { PrimaryButton } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import type { VerifyMasterFirstResultContentSlots } from "@/lib/verifyMasterContentSlots";
 import {
   buildVerifyFirstResultAiSummary,
   type VerifyFirstResultTransition,
@@ -3640,6 +3641,11 @@ function SegmentMeter({
 const FIRST_RESULT_READABLE_CLASS =
   "break-keep text-pretty [word-break:keep-all] [overflow-wrap:anywhere]";
 
+/** Admin 기본 §03 위험 0건 문구 — contentSlots 미지정 시 (SSR 동일성 기준) */
+export const FIRST_RESULT_DEFAULT_NO_RISK_TITLE =
+  "현재 확인한 답변에서는 주의할 위험 요인이 보이지 않습니다.";
+export const FIRST_RESULT_DEFAULT_NO_RISK_BODY = "답변에 근거한 추가 주의 항목이 없습니다.";
+
 const FIRST_RESULT_PHRASE_LABELS: Record<string, string> = {
   "일부 내용이나 금액이 실제 상황과 다릅니다.": "내용·금액이 실제 상황과 다름",
   "기한은 있지만 정확한 날짜를 모르겠습니다.": "기한은 있으나 날짜 불명확",
@@ -4387,7 +4393,7 @@ function VerifyFirstResultTransitionSection({
   aiSummaryNavigating,
   ctaPrimaryClasses,
   ctaSecondaryClasses,
-  domain = "admin",
+  contentSlots,
 }: {
   transitionHooks: VerifyFirstResultTransition;
   data: AdminVerifyFirstResultData;
@@ -4396,10 +4402,12 @@ function VerifyFirstResultTransitionSection({
   aiSummaryNavigating?: boolean;
   ctaPrimaryClasses: string;
   ctaSecondaryClasses: string;
-  domain?: "admin" | "real-estate";
+  contentSlots?: VerifyMasterFirstResultContentSlots;
 }) {
   const [aiSummaryOpen, setAiSummaryOpen] = useState(false);
-  const isRealEstate = domain === "real-estate";
+  const paidCardDescription =
+    contentSlots?.paidDetailReviewDescription ??
+    "내 상황과 자료를 바탕으로 행정문서 관련 내용을 더 깊이 확인합니다.";
 
   const handleAiSummaryClick = () => {
     if (onAiSummaryNavigate) {
@@ -4418,45 +4426,6 @@ function VerifyFirstResultTransitionSection({
       </p>
     </div>
   );
-
-  if (isRealEstate) {
-    return (
-      <section className="border-t border-slate-100 pt-6 lg:pt-5" data-purpose="first-result-transition">
-        <VerifyResultDualActionCards
-          sectionLabel="다음 단계"
-          headline="지금 더 깊이 확인하면, 놓칠 수 있는 위험을 미리 줄일 수 있습니다."
-          subcopy="AI와 전문가의 관점에서 계약 조건·조항·금액을 더 꼼꼼하게 확인해 드립니다."
-          className="pt-0"
-          cards={[
-            {
-              tone: "free",
-              title: "AI 정리 보기",
-              description: "내 상황에 맞는 핵심 내용을 AI가 정리해 드립니다.",
-              buttonLabel: aiSummaryNavigating
-                ? "이동 중..."
-                : !onAiSummaryNavigate && aiSummaryOpen
-                  ? "AI 정리 접기"
-                  : "AI 정리 보기",
-              onClick: handleAiSummaryClick,
-              loading: aiSummaryNavigating,
-              loadingLabel: "이동 중...",
-              buttonVariant: "secondary",
-            },
-            {
-              tone: "paid",
-              title: "개인화 상세검토 하기",
-              description: "내 상황과 자료를 바탕으로 계약 조건을 더 깊이 확인합니다.",
-              buttonLabel: "개인화 상세검토 하기",
-              onClick: onContinue,
-              buttonVariant: "primary",
-              buttonBadge: "유료",
-            },
-          ]}
-        />
-        {aiSummaryOpen ? <VerifyFirstResultAiSummaryPanel data={data} /> : null}
-      </section>
-    );
-  }
 
   return (
     <section className="border-t border-slate-100 pt-6 lg:pt-5" data-purpose="admin-first-result-transition">
@@ -4479,7 +4448,7 @@ function VerifyFirstResultTransitionSection({
           {
             tone: "paid",
             title: "개인화 상세 검토하기",
-            description: "내 상황과 자료를 바탕으로 행정문서 관련 내용을 더 깊이 확인합니다.",
+            description: paidCardDescription,
             buttonLabel: "개인화 상세 검토하기",
             onClick: onContinue,
             buttonVariant: "primary",
@@ -4507,6 +4476,7 @@ export function AdminVerifyFirstResultPanel({
   variant = "first",
   domain = "admin",
   transitionHooks,
+  contentSlots,
 }: {
   data: AdminVerifyFirstResultData;
   onContinue: () => void;
@@ -4522,26 +4492,40 @@ export function AdminVerifyFirstResultPanel({
   variant?: "first" | "personalized";
   domain?: "admin" | "real-estate";
   transitionHooks?: VerifyFirstResultTransition;
+  contentSlots?: VerifyMasterFirstResultContentSlots;
 }) {
   const isCaution = data.statusTone === "caution";
   const isPersonalized = variant === "personalized";
   const isRealEstate = domain === "real-estate";
-  const hideAdminFirstResultExtraSections = !isRealEstate && !isPersonalized;
+  /** 1차 종합 결과(Admin·부동산 Pack) — 01~03만 표시 */
+  const hideAdminFirstResultExtraSections = !isPersonalized;
   const personalized = data.personalizedContext;
-  const resultTitle = isRealEstate
+  const defaultResultTitle = isRealEstate
     ? isPersonalized
       ? "부동산 문서 2차 개인화 결과"
       : "부동산 문서 1차 종합 결과"
     : isPersonalized
       ? "행정문서 개인화 검토 결과"
       : "행정문서 1차 종합 결과";
-  const resultIntro = isRealEstate
+  const defaultResultIntro = isRealEstate
     ? isPersonalized
       ? "1차 확인과 2차 추가 답변을 통합해 현재 상황에 맞게 정리한 검토 결과입니다."
       : "입력하신 답변과 상황 정보를 바탕으로 정리한 1차 검토 결과입니다."
     : isPersonalized
       ? "1차 기본 확인과 추가 상황을 결합한 맞춤 검토 소견입니다."
       : "입력하신 답변을 바탕으로 정리한 1차 진단 결과입니다. 핵심만 골라 직접 확인할 수 있게 정돈했습니다.";
+  const resultTitle = isPersonalized
+    ? contentSlots?.personalizedResultTitle ?? defaultResultTitle
+    : contentSlots?.firstResultTitle ?? defaultResultTitle;
+  const resultIntro = isPersonalized
+    ? contentSlots?.personalizedResultIntro ?? defaultResultIntro
+    : contentSlots?.firstResultIntro ?? defaultResultIntro;
+  const cautionsSectionSubtitle =
+    contentSlots?.firstResultCautionsSectionSubtitle ?? "| 반려 방지 핵심 포인트";
+  const noRiskTitle =
+    contentSlots?.firstResultNoRiskTitle ?? FIRST_RESULT_DEFAULT_NO_RISK_TITLE;
+  const noRiskBody =
+    contentSlots?.firstResultNoRiskBody ?? FIRST_RESULT_DEFAULT_NO_RISK_BODY;
   const refinePhrase = isPersonalized
     ? (text: string) => text
     : refineFirstResultPhrase;
@@ -5031,7 +5015,7 @@ export function AdminVerifyFirstResultPanel({
           titleTone="risk"
           className="lg:mb-2"
           title="03 / 주요 위험 요인"
-          subtitle="| 반려 방지 핵심 포인트"
+          subtitle={cautionsSectionSubtitle}
           meta={
             <span className="shrink-0 whitespace-nowrap rounded border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 lg:border-orange-300/70 lg:bg-orange-100/45 lg:px-1.5 lg:text-[10px] lg:text-orange-800">
               현지 실무 경험
@@ -5082,7 +5066,7 @@ export function AdminVerifyFirstResultPanel({
                     FIRST_RESULT_READABLE_CLASS,
                   )}
                 >
-                  현재 확인한 답변에서는 주의할 위험 요인이 보이지 않습니다.
+                  {refinePhrase(noRiskTitle)}
                 </h4>
                 <p
                   className={cn(
@@ -5090,7 +5074,7 @@ export function AdminVerifyFirstResultPanel({
                     FIRST_RESULT_READABLE_CLASS,
                   )}
                 >
-                  답변에 근거한 추가 주의 항목이 없습니다.
+                  {refinePhrase(noRiskBody)}
                 </p>
               </div>
             </div>
@@ -5237,7 +5221,7 @@ export function AdminVerifyFirstResultPanel({
           aiSummaryNavigating={aiSummaryNavigating}
           ctaPrimaryClasses={ctaPrimaryClasses}
           ctaSecondaryClasses={ctaSecondaryClasses}
-          domain={domain}
+          contentSlots={contentSlots}
         />
       ) : null}
       </div>

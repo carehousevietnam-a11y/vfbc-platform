@@ -8,6 +8,7 @@ import {
   VerifyStep4InputStack,
 } from "@/components/ui/verifyStep4Ui";
 import { cn } from "@/lib/cn";
+import type { VerifyMasterEvidenceContentSlots } from "@/lib/verifyMasterContentSlots";
 
 const PHASE1_EXAMPLE_TAGS = [
   "공문/통지서",
@@ -29,6 +30,10 @@ type AdminVerifyPhase2EvidencePanelProps = {
   /** Phase1 pre-signup vs Phase2 post-signup badge/copy — default Phase2 (unchanged). */
   evidenceTier?: VerifySimpleEvidenceTier;
   domain?: "admin" | "real-estate";
+  /** Pack 예시 칩 — 미지정 시 행정 VERIFY 기본 목록 */
+  exampleTags?: readonly string[];
+  /** 서비스 중립 내용 슬롯 — 미지정 시 Admin 기본값 */
+  contentSlots?: VerifyMasterEvidenceContentSlots;
 };
 
 const EVIDENCE_TIER_COPY: Record<
@@ -84,10 +89,20 @@ export function AdminVerifyPhase2EvidencePanel({
   className,
   evidenceTier = "phase2",
   domain = "admin",
+  exampleTags,
+  contentSlots,
 }: AdminVerifyPhase2EvidencePanelProps) {
   const tierCopy = EVIDENCE_TIER_COPY[evidenceTier];
-  const detailNote = tierCopy.detailNote[domain];
-  const footerNote = tierCopy.footerNote[domain];
+  const detailNote =
+    contentSlots?.detailNoteByTier?.[evidenceTier] ?? tierCopy.detailNote[domain];
+  const footerNote =
+    contentSlots?.footerNoteByTier?.[evidenceTier] ?? tierCopy.footerNote[domain];
+  const tagList =
+    contentSlots?.exampleTags?.length
+      ? contentSlots.exampleTags
+      : exampleTags?.length
+        ? exampleTags
+        : PHASE1_EXAMPLE_TAGS;
 
   return (
     <section
@@ -114,7 +129,7 @@ export function AdminVerifyPhase2EvidencePanel({
       </p>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {PHASE1_EXAMPLE_TAGS.map((example) => (
+        {tagList.map((example) => (
           <span
             key={example}
             className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600"
