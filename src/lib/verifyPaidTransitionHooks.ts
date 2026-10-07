@@ -200,6 +200,39 @@ const ADMIN_HOOKS: Record<
   },
 };
 
+const RE05_PACK_TRANSITION: Record<"caution" | "ok", VerifyFirstResultTransition> = {
+  caution: {
+    hookHeadline: "명의·핑크북 문제는 지급 단계와 권리자 확인이 함께 얽혀 있습니다.",
+    hookWhy: "등기·통지·지급 내역은 1차 요약만으로는 빠질 수 있습니다.",
+    hookWho: "명의 이전·핑크북·지급 단계를 함께 점검 중인 경우",
+    hookWhatMore: "명의·핑크북·지급 조건을 맞춤 정리합니다.",
+    trustLine: "1차 결과로 방향은 잡을 수 있습니다. 더 꼼꼼히 보려면 개인 상세 검토를 선택하세요.",
+  },
+  ok: {
+    hookHeadline: "지금은 급한 불이익 신호는 적지만, 권리 서류는 단계마다 다르게 진행됩니다.",
+    hookWhy: "핑크북·계약·지급 기록을 좁히면 다음 행동이 분명해집니다.",
+    hookWho: "매매·권리 서류를 마지막으로 점검하고 싶은 경우",
+    hookWhatMore: "핑크북·계약·지급 조건을 맞춤 정리합니다.",
+    trustLine: "무료 1차 결과만으로도 지금 단계의 확인은 충분할 수 있습니다.",
+  },
+};
+
+/** Clean Build RE — legacy profiling 없이 CASE id만으로 전환 훅 선택 */
+export function resolveRealEstatePackTransitionHooks(
+  caseId: string,
+  firstResultData: AdminVerifyFirstResultData,
+): VerifyFirstResultTransition {
+  const tone = toneSuffix(firstResultData.statusTone === "caution");
+  if (caseId === "RE05") return RE05_PACK_TRANSITION[tone];
+  const path =
+    caseId === "RE01"
+      ? "PRE_CONTRACT"
+      : caseId === "RE06"
+        ? "UNCLEAR"
+        : "POST_DISPUTE";
+  return RE_HOOKS[path][tone];
+}
+
 export function resolveVerifyPaidTransitionHooks({
   domain,
   answers,
