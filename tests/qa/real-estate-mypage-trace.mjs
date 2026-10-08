@@ -15,7 +15,13 @@ import { buildRealEstatePackPhase2PersistMeta } from "../../src/lib/contentPacks
 import {
   buildRealEstatePhase2SummaryLinesFromActivities,
   buildRealEstatePhase1SummaryLinesFromActivities,
+  buildRealEstateVerifyMypagePackExtras,
 } from "../../src/lib/contentPacks/realEstate/realEstatePackMypageFields.ts";
+import { isVerifyMasterPaidMypageItem } from "../../src/lib/adminVerifyMypageFields.ts";
+import {
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+} from "../../src/lib/adminVerifyProfiling.ts";
 import { tracePackPersonalizedGrades } from "../../src/lib/contentPacks/realEstate/personalizedResultBuilder.ts";
 import { ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY } from "../../src/lib/adminVerifyProfiling.ts";
 
@@ -161,6 +167,32 @@ function inspectPath(caseId, answers, stats, riskHits) {
   for (const re of FORBIDDEN) {
     if (re.test(cardText)) stats.forbidden++;
   }
+
+  for (const anyUploaded of [false, true]) {
+    const gateMeta = {
+      ...persist,
+      [ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY]: "1",
+      [ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY]: anyUploaded ? "1" : "0",
+    };
+    const gateActivities = [{ action: "verify_lead", meta: gateMeta, created_at: new Date().toISOString() }];
+    const extras = buildRealEstateVerifyMypagePackExtras(gateActivities);
+    const layoutItem = {
+      serviceType: "verify_real-estate",
+      phase2Complete: extras.phase2Complete,
+      hasDiagnosis: true,
+    };
+    if (!extras.phase2Complete) {
+      if (anyUploaded) stats.mypage_phase2_gate_with_docs++;
+      else stats.mypage_phase2_gate_zero_docs++;
+    }
+    if (!isVerifyMasterPaidMypageItem(layoutItem)) {
+      if (anyUploaded) stats.mypage_paid_layout_with_docs++;
+      else stats.mypage_paid_layout_zero_docs++;
+    }
+    if (extras.realEstatePackGrade2 !== Number.parseInt(persist.real_estate_pack_grade2, 10)) {
+      stats.mismatch_persist_grade++;
+    }
+  }
 }
 
 function fakeActivitiesFromPersist(persist) {
@@ -189,6 +221,10 @@ const stats = {
   grade_drop: 0,
   forbidden: 0,
   build_null: 0,
+  mypage_phase2_gate_zero_docs: 0,
+  mypage_phase2_gate_with_docs: 0,
+  mypage_paid_layout_zero_docs: 0,
+  mypage_paid_layout_with_docs: 0,
 };
 
 for (const caseId of CASES) {
@@ -221,6 +257,10 @@ const fail =
   stats.grade_drop > 0 ||
   stats.forbidden > 0 ||
   stats.build_null > 0 ||
+  stats.mypage_phase2_gate_zero_docs > 0 ||
+  stats.mypage_phase2_gate_with_docs > 0 ||
+  stats.mypage_paid_layout_zero_docs > 0 ||
+  stats.mypage_paid_layout_with_docs > 0 ||
   stats.risk_keys_missing > 0 ||
   CASES.some((c) => (stats.paths_per_case[c] ?? 0) < MIN_PATHS_PER_CASE)
     ? 1

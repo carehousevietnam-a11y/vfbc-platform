@@ -7,9 +7,8 @@ import {
   listAdminPhase2DocumentUploadRefs,
 } from "@/lib/adminVerifyMypageFields";
 import {
-  buildRealEstatePhase1SummaryLinesFromActivities,
   buildRealEstatePhase2SummaryLinesFromActivities,
-  isRealEstatePhase2DocumentsUploadComplete,
+  buildRealEstateVerifyMypagePackExtras,
 } from "@/lib/contentPacks/realEstate/realEstatePackMypageFields";
 import { REAL_ESTATE_PACK_HEADLINE_META_KEY } from "@/lib/contentPacks/realEstate/packPhase2Persist";
 import { ADMIN_VERIFY_PROFILE_PHASE_META_KEY } from "@/lib/adminVerifyProfiling";
@@ -531,6 +530,11 @@ export async function POST(req: NextRequest) {
       const hasAiReportRequest = actions.has("ai_report_request");
       const caseSummary = extractVerifyCaseSummary(normalizedType, leadActivities);
 
+      const rePackMypageExtras =
+        normalizedType === "verify_real-estate"
+          ? buildRealEstateVerifyMypagePackExtras(leadActivities)
+          : null;
+
       const adminVerifyExtras =
         normalizedType === "verify_admin"
           ? {
@@ -543,18 +547,17 @@ export async function POST(req: NextRequest) {
                   }
                 : {}),
             }
-          : normalizedType === "verify_real-estate"
-            ? {
-                phase2Complete: isRealEstatePhase2DocumentsUploadComplete(leadActivities),
-                phase2SummaryLines: buildRealEstatePhase2SummaryLinesFromActivities(leadActivities),
-                ...(isRealEstatePhase2DocumentsUploadComplete(leadActivities)
-                  ? {
-                      phase1SummaryLines:
-                        buildRealEstatePhase1SummaryLinesFromActivities(leadActivities),
-                    }
-                  : {}),
-              }
-            : {};
+          : rePackMypageExtras ?? {};
+
+      if (
+        rePackMypageExtras?.phase2Complete &&
+        typeof rePackMypageExtras.realEstatePackGrade2 === "number"
+      ) {
+        feasibilityScore = Math.min(
+          100,
+          Math.max(17, rePackMypageExtras.realEstatePackGrade2 * 25),
+        );
+      }
 
       let phase2UploadedDocuments:
         | { fileName: string; fileUrl: string }[]

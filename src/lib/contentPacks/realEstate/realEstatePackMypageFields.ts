@@ -11,6 +11,8 @@ import { buildFirstResultData, phase1QuestionIds } from "../runner";
 import type { AnswerMap, RealEstateCaseId } from "./types";
 import { resolveCaseFromAnswers } from "../runner";
 import {
+  REAL_ESTATE_PACK_CAUTION_COUNT_META_KEY,
+  REAL_ESTATE_PACK_GRADE2_META_KEY,
   REAL_ESTATE_PACK_HEADLINE_META_KEY,
   REAL_ESTATE_PACK_PHASE2_SUMMARY_META_KEY,
   buildRealEstatePackPhase2PersistMeta,
@@ -32,6 +34,32 @@ export function isRealEstatePhase2DocumentsUploadComplete(
   activities: CrmActivityLike[],
 ): boolean {
   return isAdminPhase2DocumentsUploadComplete(activities);
+}
+
+/** My Page API — Admin `phase2Complete` 규칙과 동일( upload gate meta ) + Pack 슬롯 */
+export function buildRealEstateVerifyMypagePackExtras(activities: CrmActivityLike[]): {
+  phase2Complete: boolean;
+  phase2SummaryLines: string[];
+  phase1SummaryLines?: string[];
+  realEstatePackGrade2?: number;
+  realEstatePackCautionCount?: number;
+} {
+  const phase2Complete = isRealEstatePhase2DocumentsUploadComplete(activities);
+  const phase2SummaryLines = buildRealEstatePhase2SummaryLinesFromActivities(activities);
+  const gradeRaw = findLatestMetaString(activities, REAL_ESTATE_PACK_GRADE2_META_KEY);
+  const cautionRaw = findLatestMetaString(activities, REAL_ESTATE_PACK_CAUTION_COUNT_META_KEY);
+  const parsedGrade = gradeRaw ? Number.parseInt(gradeRaw, 10) : Number.NaN;
+  const parsedCaution = cautionRaw ? Number.parseInt(cautionRaw, 10) : Number.NaN;
+
+  return {
+    phase2Complete,
+    phase2SummaryLines,
+    ...(phase2Complete
+      ? { phase1SummaryLines: buildRealEstatePhase1SummaryLinesFromActivities(activities) }
+      : {}),
+    ...(Number.isFinite(parsedGrade) ? { realEstatePackGrade2: parsedGrade } : {}),
+    ...(Number.isFinite(parsedCaution) ? { realEstatePackCautionCount: parsedCaution } : {}),
+  };
 }
 
 function findLatestMetaString(activities: CrmActivityLike[], key: string): string | null {

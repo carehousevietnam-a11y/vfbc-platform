@@ -171,6 +171,8 @@ type MyPageItem = {
   phase2Complete?: boolean;
   phase1SummaryLines?: string[];
   phase2SummaryLines?: string[];
+  realEstatePackGrade2?: number;
+  realEstatePackCautionCount?: number;
   phase2UploadedDocuments?: { fileName: string; fileUrl: string }[];
 };
 
@@ -1590,13 +1592,17 @@ function AiResultCard({
   applicantName?: string | null;
 }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
+  const isRePackPhase2Paid =
+    (item.serviceType === "verify_real-estate" || item.serviceType === "verify_real_estate") &&
+    item.phase2Complete === true;
+  const aiResultPhaseLabel = isRePackPhase2Paid ? "2차 종합 검토" : "제출 정보 기준 1차 분석";
 
   return (
     <section className="rounded-[20px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
-          <p className="mt-1 text-[10px] text-slate-500">제출 정보 기준 1차 분석</p>
+          <p className="mt-1 text-[10px] text-slate-500">{aiResultPhaseLabel}</p>
         </div>
         <Sparkles size={18} className="text-emerald-600" />
       </div>

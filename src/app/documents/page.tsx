@@ -53,6 +53,8 @@ import {
 import { getVerifyPhase2HandoffConfig } from "@/lib/verifyMasterPhase2Handoff";
 import type { VerifyServiceType } from "@/lib/restoreVerifyLead";
 import { REAL_ESTATE_PHASE2_DOCUMENT_LISTS } from "@/lib/contentPacks/realEstate/phase2Documents";
+import { buildRealEstatePackPhase2PersistMeta } from "@/lib/contentPacks/realEstate/packPhase2Persist";
+import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
 type DocInputMode = "upload" | "manual";
@@ -1347,26 +1349,52 @@ function DocumentUploadContent() {
   async function completePhase2UploadAndReturn(): Promise<boolean> {
     if (!leadId) return false;
     const anyUploaded = readyCount > 0;
-    const result = await persistAdminVerifyLeadMeta(leadId, {
+    const handoffService = (serviceParam ?? "verify_admin") as VerifyServiceType;
+    const handoffCfg = getVerifyPhase2HandoffConfig(handoffService);
+    const snapshotKey = handoffCfg?.snapshotStorageKey;
+
+    let snapshotParsed: Record<string, unknown> | null = null;
+    let snapshotAnswers: AnswerMap | null = null;
+    try {
+      const raw = snapshotKey ? sessionStorage.getItem(snapshotKey) : null;
+      if (raw) {
+        snapshotParsed = JSON.parse(raw) as Record<string, unknown>;
+        const answers = snapshotParsed.answers;
+        if (answers && typeof answers === "object" && !Array.isArray(answers)) {
+          snapshotAnswers = answers as AnswerMap;
+        }
+      }
+    } catch {
+      snapshotParsed = null;
+      snapshotAnswers = null;
+    }
+
+    const uploadGateMeta: Record<string, string> = {
       [ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY]: "1",
       [ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY]: anyUploaded ? "1" : "0",
-    });
+    };
+    const partialMeta =
+      handoffService === "verify_real-estate" &&
+      snapshotAnswers &&
+      Object.keys(snapshotAnswers).length > 0
+        ? {
+            ...buildRealEstatePackPhase2PersistMeta(snapshotAnswers, 2),
+            ...uploadGateMeta,
+          }
+        : uploadGateMeta;
+
+    const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {
       console.error("[documents] phase2_upload meta persist failed:", result);
       return false;
     }
     try {
-      const handoffService = (serviceParam ?? "verify_admin") as VerifyServiceType;
-      const handoffCfg = getVerifyPhase2HandoffConfig(handoffService);
-      const snapshotKey = handoffCfg?.snapshotStorageKey;
-      const raw = snapshotKey ? sessionStorage.getItem(snapshotKey) : null;
-      if (raw && snapshotKey) {
-        const parsed = JSON.parse(raw) as Record<string, unknown>;
-        parsed.anyUploaded = anyUploaded;
-        sessionStorage.setItem(snapshotKey, JSON.stringify(parsed));
+      if (snapshotParsed && snapshotKey) {
+        snapshotParsed.anyUploaded = anyUploaded;
+        sessionStorage.setItem(snapshotKey, JSON.stringify(snapshotParsed));
         const token =
-          typeof parsed.resultToken === "string" && parsed.resultToken.trim()
-            ? parsed.resultToken.trim()
+          typeof snapshotParsed.resultToken === "string" && snapshotParsed.resultToken.trim()
+            ? snapshotParsed.resultToken.trim()
             : null;
         const navigated = await navigateToMypageWithResultToken(token);
         if (!navigated) {
