@@ -200,7 +200,7 @@ function buildTwoSentenceSummary(
   return `${s1} ${s2}`;
 }
 
-function gradeLabelFromFilled(filled: number): string {
+export function gradeLabelFromFilled(filled: number): string {
   if (filled >= 4) return "VFBCAI 전문가팀 진행";
   if (filled >= 3) return "전문가 권장 (3단계)";
   if (filled >= 2) return "주의 요망 (2단계)";

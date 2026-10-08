@@ -1,10 +1,11 @@
 /**
- * C2.5 — RE Pack PDF ↔ My Page parity, Admin regression, phase2 handoff keys
+ * C2.5 / C2.5b — RE Pack PDF ↔ My Page parity, Admin 03a8e21 baseline, handoff keys
  */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "node:module";
+import { spawnSync } from "node:child_process";
 import { enumeratePhase1Combinations } from "../../src/lib/contentPacks/realEstate/exhaustivePhase1.ts";
 import { realEstatePackBundle } from "../../src/lib/contentPacks/realEstate/packBundle.ts";
 import {
@@ -23,8 +24,11 @@ import {
 } from "../../src/lib/verifyMasterPhase2Handoff.ts";
 import {
   bindAdminVerifyPaidEvidenceMeasureFonts,
+  countAdminVerifyPaidPdfMetricGapLines,
   formatAdminVerifyAiReportContentPlainText,
 } from "../../src/lib/adminVerifyMypageFields.ts";
+import { buildPackPersonalizedResult } from "../../src/lib/contentPacks/realEstate/personalizedResultBuilder.ts";
+import { findJosaViolations } from "../../src/lib/contentPacks/realEstate/koreanParticle.ts";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "../../src/lib/mypagePdfExecutiveMeasureFonts.ts";
 import { buildMypagePdfBytesForQaHarness } from "../../src/lib/mypagePdfExecutiveRender.ts";
 import { buildRealEstateVerifyAiReportContentFromActivities } from "../../src/lib/contentPacks/realEstate/realEstateVerifyPdfContent.ts";
@@ -41,6 +45,10 @@ const PDF_RENDER_FIRST_N = 3;
 const PDF_RENDER_EVERY_N = 1000;
 const bundle = realEstatePackBundle();
 const fail = [];
+
+const SAMPLE_UUID_LEAD = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+const JOSA_BAD = /\)\s*[과를은이가]/;
+const FILLER_DOC = /\(부동산 관련 서류\)/;
 
 const FORBIDDEN_RE = [
   /\bundefined\b/i,
@@ -120,39 +128,13 @@ async function pdfTextFromHarness(harness) {
 await ensureMypageExecutivePdfMeasureFonts();
 bindAdminVerifyPaidEvidenceMeasureFonts(getMypageExecutivePdfMeasureFontsSync());
 
-const adminCaseResolution = {
-  case_resolution_json: JSON.stringify({
-    goal: { value: "행정 통지 대응" },
-    document: { value: "위반 통지서" },
-    riskSignals: [],
-  }),
-};
-const adminPaidHarness = {
-  leadId: "lead-admin-paid-regression",
-  serviceType: "verify_admin",
-  result: "conditional",
-  createdAt: "2026-01-01T00:00:00.000Z",
-  activities: [
-    {
-      action: "verify_lead",
-      meta: {
-        admin_verify_answers_json: JSON.stringify({ case01_authorityDemand: "payment" }),
-        admin_phase2_documents_upload_complete: "1",
-        ...adminCaseResolution,
-      },
-    },
-    { action: "verify_lead", meta: {} },
-  ],
-};
-
-const adminA = await pdfTextFromHarness(adminPaidHarness);
-const adminB = await pdfTextFromHarness(adminPaidHarness);
-if (adminA.pages !== adminB.pages) {
-  fail.push(`admin regression: page count ${adminA.pages} vs ${adminB.pages}`);
-}
-const norm = (t) => t.replace(/\d{4}\.\d{2}\.\d{2}/g, "DATE");
-if (norm(adminA.text) !== norm(adminB.text)) {
-  fail.push("admin regression: PDF plain text differs between duplicate builds");
+const adminBaseline = spawnSync("npx", ["tsx", "tests/qa/admin-mypage-pdf-baseline-regression.mjs"], {
+  cwd: repoRoot,
+  encoding: "utf8",
+  shell: true,
+});
+if (adminBaseline.status !== 0) {
+  fail.push("admin baseline regression vs 03a8e21 failed");
 }
 
 const adminCfg = getVerifyPhase2HandoffConfig("verify_admin");
@@ -178,10 +160,15 @@ const stats = {
   paths_per_case: {},
   inspected: 0,
   summary_mismatch: 0,
-  headline_mismatch: 0,
+  grade_label_miss: 0,
+  caution_grade_miss: 0,
+  ok_grade_gap_conflict: 0,
+  josa_hits: 0,
+  filler_doc_hits: 0,
   forbidden_hits: 0,
   glyph_hits: 0,
   empty_pdf: 0,
+  hyphen_lead_glyph_note: 0,
 };
 
 const sampleSaved = { RE01: false, RE03: false, RE05: false };
@@ -204,9 +191,9 @@ for (const caseId of CASES) {
     pathIdx += 1;
     const activities = activitiesFromAnswers({ ...answers });
     const mypageP2 = buildRealEstatePhase2SummaryLinesFromActivities(activities);
-    const mypageP1 = buildRealEstatePhase1SummaryLinesFromActivities(activities);
-    const persist = activities[0].meta;
-    const headline = persist.real_estate_pack_headline ?? "";
+    const personalized = buildPackPersonalizedResult(caseId, answers);
+    const gradeFilled = personalized?.gradeFilled ?? 1;
+    const gradeLabel = personalized?.gradeLabel ?? "";
 
     const report = buildRealEstateVerifyAiReportContentFromActivities(
       activities,
@@ -222,10 +209,29 @@ for (const caseId of CASES) {
       console.error(`progress inspected=${stats.inspected} pdf=${stats.pdf_rendered ?? 0}`);
     }
 
+    if (!content.includes(gradeLabel)) stats.grade_label_miss++;
     for (const line of mypageP2) {
       if (!content.includes(line)) stats.summary_mismatch++;
     }
-    if (headline && !content.includes(headline)) stats.headline_mismatch++;
+    if (!report.execSummary[0]?.includes(gradeLabel)) stats.grade_label_miss++;
+
+    if (gradeFilled >= 2 && !report.keyRisks.some((l) => l.startsWith("[주의]"))) {
+      stats.caution_grade_miss++;
+    }
+    if (gradeFilled < 2 && (personalized?.cautions?.length ?? 0) === 0) {
+      const gap = countAdminVerifyPaidPdfMetricGapLines(report.keyRisks);
+      if (gap > 0) stats.ok_grade_gap_conflict++;
+    }
+
+    const blob = [
+      ...report.execSummary,
+      ...report.keyRisks,
+      ...report.recommendedAction,
+      content,
+    ].join("\n");
+    if (FILLER_DOC.test(blob)) stats.filler_doc_hits++;
+    if (JOSA_BAD.test(blob)) stats.josa_hits++;
+    for (const v of findJosaViolations(blob)) stats.josa_hits++;
 
     for (const re of FORBIDDEN_RE) {
       if (re.test(content)) stats.forbidden_hits++;
@@ -234,8 +240,12 @@ for (const caseId of CASES) {
     const runFullPdf = pathIdx <= PDF_RENDER_FIRST_N || pathIdx % PDF_RENDER_EVERY_N === 0;
     if (!runFullPdf) continue;
 
+    const leadId =
+      !sampleSaved[caseId] && ["RE01", "RE03", "RE05"].includes(caseId)
+        ? SAMPLE_UUID_LEAD
+        : `lead-re-pdf-${caseId}-${pathIdx}`;
     const harness = {
-      leadId: `lead-re-pdf-${caseId}-${pathIdx}`,
+      leadId,
       serviceType: "verify_real-estate",
       result: "conditional",
       createdAt: "2026-01-01T00:00:00.000Z",
@@ -244,7 +254,12 @@ for (const caseId of CASES) {
     const { pages, text, bytes } = await pdfTextFromHarness(harness);
     stats.pdf_rendered = (stats.pdf_rendered ?? 0) + 1;
     if (pages < 1 || text.trim().length < 80) stats.empty_pdf++;
-    if (headline && !text.includes(headline)) stats.pdf_headline_miss = (stats.pdf_headline_miss ?? 0) + 1;
+    if (leadId.includes("-") && leadId.startsWith("lead-") && /㏄/.test(text)) {
+      stats.hyphen_lead_glyph_note++;
+    }
+    if (leadId === SAMPLE_UUID_LEAD && !/VFA1B2C3D4/i.test(text.replace(/\s/g, ""))) {
+      fail.push(`${caseId}: UUID sample missing expected receipt prefix VFA1B2C3D4`);
+    }
     const normWs = (s) => s.replace(/\s+/g, "");
     const phase2InContent = mypageP2.filter((line) => content.includes(line));
     for (const line of phase2InContent) {
@@ -258,8 +273,8 @@ for (const caseId of CASES) {
     if (/□|\uFFFD/.test(text)) stats.glyph_hits++;
 
     if (!sampleSaved[caseId] && ["RE01", "RE03", "RE05"].includes(caseId)) {
-      const pdfPath = path.join(outDir, `c25-sample-${caseId}.pdf`);
-      const txtPath = path.join(outDir, `c25-text-${caseId}.txt`);
+      const pdfPath = path.join(outDir, `c25b-sample-${caseId}.pdf`);
+      const txtPath = path.join(outDir, `c25b-text-${caseId}.txt`);
       fs.writeFileSync(pdfPath, Buffer.from(bytes));
       fs.writeFileSync(txtPath, text, "utf8");
       sampleSaved[caseId] = true;
@@ -268,7 +283,13 @@ for (const caseId of CASES) {
 }
 
 if (stats.summary_mismatch > 0) fail.push(`mypage vs PDF body mismatch count=${stats.summary_mismatch}`);
-if (stats.headline_mismatch > 0) fail.push(`headline body mismatch count=${stats.headline_mismatch}`);
+if (stats.grade_label_miss > 0) fail.push(`grade label missing count=${stats.grade_label_miss}`);
+if (stats.caution_grade_miss > 0) fail.push(`grade>=2 without [주의] count=${stats.caution_grade_miss}`);
+if (stats.ok_grade_gap_conflict > 0) {
+  fail.push(`양호 grade with gap metric conflict count=${stats.ok_grade_gap_conflict}`);
+}
+if (stats.josa_hits > 0) fail.push(`josa violations count=${stats.josa_hits}`);
+if (stats.filler_doc_hits > 0) fail.push(`filler (부동산 관련 서류) count=${stats.filler_doc_hits}`);
 if ((stats.pdf_summary_miss ?? 0) > 0) {
   fail.push(`PDF extract missing phase2 line (in body) count=${stats.pdf_summary_miss}`);
 }
@@ -284,7 +305,10 @@ console.log(
     {
       sampling_rule: `content parity all ${MIN_PATHS_PER_CASE} paths/case; pdf-lib render first ${PDF_RENDER_FIRST_N} + every ${PDF_RENDER_EVERY_N}th`,
       stats,
-      admin_regression_pages: adminA.pages,
+      admin_baseline_commit: "03a8e21",
+      admin_baseline_status: adminBaseline.status,
+      hyphen_lead_glyph_note:
+        "non-UUID leadId with hyphens may show ㏄ in pdf-parse extract (VFLEAD㏄); UUID sample uses VFA1B2C3D4",
       handoff_admin_url_param: adminCfg?.documentsServiceParam,
       handoff_re_url_param: reCfg?.documentsServiceParam,
       fail_count: fail.length,
