@@ -24,6 +24,7 @@ import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
 import {
   ensureBrowserSessionForResultToken,
+  establishBrowserSessionFromResultToken,
   navigateToMypageWithResultToken,
   isLoggedInMember,
 } from "@/lib/restoreCheckLead";
@@ -433,6 +434,38 @@ export default function TaxVerifyMasterPage() {
           .update({ meta: { ...existingMeta, socialContacts, preferredLanguage: lang } })
           .eq("id", existingActivity.id);
       }
+      const sessionRes = await fetch("/api/lead-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadId: newLeadId,
+          name,
+          phone,
+          email,
+          address,
+          lang,
+          kakao_id: kakaoId,
+          zalo_id: zaloId,
+        }),
+      });
+      if (!sessionRes.ok) {
+        setHandoffError("접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+      const sessionBody = (await sessionRes.json().catch(() => null)) as { token?: string } | null;
+      if (typeof sessionBody?.token !== "string") {
+        setHandoffError("로그인 세션을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+      const sessionReady = await establishBrowserSessionFromResultToken(sessionBody.token);
+      if (!sessionReady) {
+        setHandoffError("로그인 세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+      setResultToken(sessionBody.token);
       saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
       setLeadId(newLeadId);
       setProfilingSeedAnswers(answers);

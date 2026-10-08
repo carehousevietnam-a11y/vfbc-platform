@@ -227,7 +227,7 @@ export function isVerifyAdminPaidMypageItem(item: MypageLayoutItemLike): boolean
 export function isVerifyMasterPaidMypageItem(item: MypageLayoutItemLike): boolean {
   if (isVerifyAdminPaidMypageItem(item)) return true;
   const st = item.serviceType?.replace(/-/g, "_");
-  return st === "verify_real_estate" && item.phase2Complete === true;
+  return (st === "verify_real_estate" || st === "verify_tax") && item.phase2Complete === true;
 }
 
 export function isVerifyAdminMypageItem(item: { serviceType?: string | null }): boolean {

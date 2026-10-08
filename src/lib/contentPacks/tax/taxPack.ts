@@ -5,6 +5,10 @@ import {
   ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
   ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
 } from "@/lib/adminVerifyProfiling";
+import {
+  isAdminPhase2DocumentsUploadComplete,
+  type CrmActivityLike,
+} from "@/lib/adminVerifyMypageFields";
 import type { VerifyMasterContentSlots } from "@/lib/verifyMasterContentSlots";
 import type { PackReviewQuestion, VerifyMasterPackBridge } from "@/lib/verifyMasterPackBridge";
 
@@ -27,18 +31,19 @@ type TaxQuestion = {
   choices: TaxChoice[];
 };
 
-const Q1_ID = "tax_q1";
-const Q2_ID = "tax_q2";
-const Q3_ID = "tax_q3";
-const Q4_ID = "tax_q4";
-const Q5_ID = "tax_q5";
-const Q6_ID = "tax_q6";
-const Q7_ID = "tax_q7";
-const Q8_ID = "tax_q8";
-const Q9_ID = "tax_q9";
-const Q10_ID = "tax_q10";
-const Q11_ID = "tax_q11";
-const Q12_ID = "tax_q12";
+/** Pack stitch·직접입력은 마스터가 reNN_ 질문 id만 연다. 값은 세금 질문이다. */
+const Q1_ID = "re11_q1";
+const Q2_ID = "re12_q2";
+const Q3_ID = "re13_q3";
+const Q4_ID = "re14_q4";
+const Q5_ID = "re15_q5";
+const Q6_ID = "re16_q6";
+const Q7_ID = "re17_q7";
+const Q8_ID = "re18_q8";
+const Q9_ID = "re19_q9";
+const Q10_ID = "re20_q10";
+const Q11_ID = "re21_q11";
+const Q12_ID = "re22_q12";
 
 const Q1: TaxQuestion = {
   id: Q1_ID,
@@ -1364,6 +1369,41 @@ export function restoreTaxAnswersFromVerifyMeta(
   } catch {
     return null;
   }
+}
+
+function latestTaxMetaString(activities: CrmActivityLike[], key: string): string | null {
+  for (let i = activities.length - 1; i >= 0; i -= 1) {
+    const meta = activities[i]?.meta;
+    if (!meta || typeof meta !== "object") continue;
+    const raw = (meta as Record<string, unknown>)[key];
+    if (typeof raw === "string" && raw.trim()) return raw.trim();
+  }
+  return null;
+}
+
+function splitTaxSummaryLines(summary: string): string[] {
+  const trimmed = summary.trim();
+  if (!trimmed) return [];
+  const parts = trimmed.split(/(?<=[.!?…])\s+/).map((part) => part.trim()).filter(Boolean);
+  if (parts.length <= 2) return parts;
+  return [parts[0], parts.slice(1).join(" ")];
+}
+
+/** My Page — 부동산 buildRealEstateVerifyMypagePackExtras와 같은 upload gate. */
+export function buildTaxVerifyMypagePackExtras(activities: CrmActivityLike[]): {
+  phase2Complete: boolean;
+  phase2SummaryLines: string[];
+  phase1SummaryLines?: string[];
+} {
+  const phase2Complete = isAdminPhase2DocumentsUploadComplete(activities);
+  const lines = splitTaxSummaryLines(
+    latestTaxMetaString(activities, TAX_PACK_PHASE2_SUMMARY_META_KEY) ?? "",
+  );
+  return {
+    phase2Complete,
+    phase2SummaryLines: lines,
+    ...(phase2Complete ? { phase1SummaryLines: lines.slice(0, 2) } : {}),
+  };
 }
 
 export function buildTaxExpertHandoffMeta(answers: Record<string, string>): Record<string, string> {

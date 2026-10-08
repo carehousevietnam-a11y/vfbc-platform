@@ -794,7 +794,9 @@ function GeneralCustomerResultView({
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
   const analysisStatus = getAiAnalysisStatus(item);
   const isRealEstatePackPhase2 =
-    (item.serviceType === "verify_real-estate" || item.serviceType === "verify_real_estate") &&
+    (item.serviceType === "verify_real-estate" ||
+      item.serviceType === "verify_real_estate" ||
+      item.serviceType === "verify_tax") &&
     (item.verifyProfilePhase === 2 || item.phase2Complete === true);
   const keyPoints =
     isRealEstatePackPhase2 && item.phase2SummaryLines && item.phase2SummaryLines.length > 0
@@ -1594,7 +1596,9 @@ function AiResultCard({
 }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
   const isRePackPhase2Paid =
-    (item.serviceType === "verify_real-estate" || item.serviceType === "verify_real_estate") &&
+    (item.serviceType === "verify_real-estate" ||
+      item.serviceType === "verify_real_estate" ||
+      item.serviceType === "verify_tax") &&
     item.phase2Complete === true;
   const aiResultPhaseLabel = isRePackPhase2Paid ? "2차 종합 검토" : "제출 정보 기준 1차 분석";
   const reGradeLabel =
@@ -1674,7 +1678,8 @@ function CurrentStatusCard({
   const verifyMasterPaidService =
     item.serviceType === "verify_admin" ||
     item.serviceType === "verify_real-estate" ||
-    item.serviceType === "verify_real_estate";
+    item.serviceType === "verify_real_estate" ||
+    item.serviceType === "verify_tax";
   if (verifyAdminPaidLayout && verifyMasterPaidService) {
     const afterExpert = item.hasExpertReview;
     const guideText = afterExpert
@@ -4772,7 +4777,9 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
 
 function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
   const phase2Docs =
-    item.serviceType === "verify_admin" || item.serviceType === "verify_real-estate"
+    item.serviceType === "verify_admin" ||
+    item.serviceType === "verify_real-estate" ||
+    item.serviceType === "verify_tax"
       ? item.phase2UploadedDocuments
       : undefined;
   if (
@@ -5098,7 +5105,8 @@ function Dashboard({
   if (expertFlow) {
     if (
       activeItem.serviceType === "verify_admin" ||
-      activeItem.serviceType === "verify_real-estate"
+      activeItem.serviceType === "verify_real-estate" ||
+      activeItem.serviceType === "verify_tax"
     ) {
       return (
         <VerifyAdminExpertFlowDashboard
