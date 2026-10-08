@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import Link from "next/link";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 import {
   ADMIN_CASE_ENTRY_Q1_KEY,
@@ -96,7 +97,10 @@ import {
 } from "@/lib/adminVerifyCase06Redesign";
 import { PrimaryButton } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { VerifyMasterFirstResultContentSlots } from "@/lib/verifyMasterContentSlots";
+import type {
+  VerifyMasterFirstResultContentSlots,
+  VerifyMasterResultServiceLink,
+} from "@/lib/verifyMasterContentSlots";
 import {
   buildVerifyFirstResultAiSummary,
   type VerifyFirstResultTransition,
@@ -4461,6 +4465,52 @@ function VerifyFirstResultTransitionSection({
   );
 }
 
+function isInternalServiceEntryPath(path: string): boolean {
+  const trimmed = path.trim();
+  return trimmed.startsWith("/") && !trimmed.startsWith("//");
+}
+
+function VerifyResultUrgentNotice({ text, className }: { text?: string; className?: string }) {
+  const message = text?.trim() ?? "";
+  if (!message) return null;
+  return (
+    <div
+      role="alert"
+      data-verify-result-slot="urgent-notice"
+      className={cn(
+        "break-keep rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium leading-snug text-amber-950 sm:text-[15px]",
+        className,
+      )}
+    >
+      {message}
+    </div>
+  );
+}
+
+function VerifyResultServiceLinks({
+  links,
+}: {
+  links?: readonly VerifyMasterResultServiceLink[];
+}) {
+  const items = (links ?? []).filter(
+    (item) => item.label.trim().length > 0 && isInternalServiceEntryPath(item.targetServiceEntryPath),
+  );
+  if (items.length === 0) return null;
+  return (
+    <div data-verify-result-slot="service-links" className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      {items.map((item) => (
+        <Link
+          key={`${item.targetServiceEntryPath}:${item.label}`}
+          href={item.targetServiceEntryPath.trim()}
+          className="inline-flex w-full items-center justify-center break-keep rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition-all hover:bg-slate-50 sm:w-auto"
+        >
+          {item.label.trim()}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export function AdminVerifyFirstResultPanel({
   data,
   onContinue,
@@ -4592,6 +4642,7 @@ export function AdminVerifyFirstResultPanel({
     return (
       <div className="w-full flex-1 py-8 sm:py-10">
         <div className="mx-auto w-full max-w-[960px] px-4 sm:px-6">
+          <VerifyResultUrgentNotice text={contentSlots?.urgentNotice} className="mb-4" />
           <div className="mb-7" data-purpose="page-title-area">
             <div className="mb-1.5 flex items-center space-x-1.5 text-xs font-medium text-slate-400">
               <span>{pageMetaLabel}</span>
@@ -4834,6 +4885,7 @@ export function AdminVerifyFirstResultPanel({
             </div>
           ) : null}
 
+          <VerifyResultServiceLinks links={contentSlots?.serviceLinks} />
           <AdminVerifyPersonalizedNextSteps
             onAiReport={onAiReport ?? onContinue}
             onExpert={onExpert}
@@ -4861,6 +4913,7 @@ export function AdminVerifyFirstResultPanel({
       )}
     >
       <section className="flex flex-col gap-3.5 lg:gap-3">
+        <VerifyResultUrgentNotice text={contentSlots?.urgentNotice} />
         <div className="flex flex-wrap items-center justify-between border-b border-slate-200/80 pb-3 text-xs text-slate-500 lg:pb-2 lg:text-[11px]">
           <div className="flex items-center gap-1.5">
             <span>VERIFY</span>
@@ -5212,6 +5265,7 @@ export function AdminVerifyFirstResultPanel({
       </>
       )}
 
+      <VerifyResultServiceLinks links={contentSlots?.serviceLinks} />
       {transitionHooks ? (
         <VerifyFirstResultTransitionSection
           transitionHooks={transitionHooks}

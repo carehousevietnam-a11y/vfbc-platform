@@ -7,6 +7,12 @@ export type VerifyMasterEvidenceContentSlots = {
   footerNoteByTier?: Partial<Record<VerifySimpleEvidenceTier, string>>;
 };
 
+/** 다른 서비스 진입 경로로 보내는 결과 화면 버튼. 대상 서비스 코드는 바꾸지 않는다. */
+export type VerifyMasterResultServiceLink = {
+  label: string;
+  targetServiceEntryPath: string;
+};
+
 export type VerifyMasterFirstResultContentSlots = {
   firstResultTitle?: string;
   firstResultIntro?: string;
@@ -20,6 +26,16 @@ export type VerifyMasterFirstResultContentSlots = {
   firstResultNoRiskTitle?: string;
   /** §03 위험 카드 0건 시 본문 — 미지정 시 Admin 기본 */
   firstResultNoRiskBody?: string;
+  /**
+   * 결과 영역 연결 버튼.
+   * Pack이 항목을 넘길 때만 표시한다. 없거나 빈 배열이면 렌더하지 않는다.
+   */
+  serviceLinks?: readonly VerifyMasterResultServiceLink[];
+  /**
+   * 결과 맨 위 긴급 안내 문구.
+   * 표시 여부는 Pack이 판정하고, 문구가 있을 때만 넘긴다.
+   */
+  urgentNotice?: string;
 };
 
 export type VerifyMasterContentSlots = {
