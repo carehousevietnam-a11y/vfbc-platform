@@ -32,6 +32,7 @@ import { findJosaViolations } from "../../src/lib/contentPacks/realEstate/korean
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "../../src/lib/mypagePdfExecutiveMeasureFonts.ts";
 import { buildMypagePdfBytesForQaHarness } from "../../src/lib/mypagePdfExecutiveRender.ts";
 import { buildRealEstateVerifyAiReportContentFromActivities } from "../../src/lib/contentPacks/realEstate/realEstateVerifyPdfContent.ts";
+import { listRealEstatePhase2RequiredDocuments } from "../../src/lib/contentPacks/realEstate/phase2Documents.ts";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const require = createRequire(path.join(repoRoot, "package.json"));
@@ -39,7 +40,7 @@ const { PDFParse } = require("pdf-parse");
 const { PDFDocument } = require("pdf-lib");
 
 const CASES = ["RE01", "RE02", "RE03", "RE04", "RE05"];
-const MIN_PATHS_PER_CASE = 300;
+const MIN_PATHS_PER_CASE = 1500;
 /** Full pdf-lib render is sampled; all paths get body builder parity (same source as PDF EVIDENCE). */
 const PDF_RENDER_FIRST_N = 3;
 const PDF_RENDER_EVERY_N = 1000;
@@ -49,6 +50,10 @@ const fail = [];
 const SAMPLE_UUID_LEAD = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
 const JOSA_BAD = /\)\s*[과를은이가]/;
 const FILLER_DOC = /\(부동산 관련 서류\)/;
+/** E1: "내용과 … 와/과 … 기재" 이중 접속 조사 */
+const ACTION_DOUBLE_CONJ_BEFORE_GIJAE = /(과|와)\s+[^\n]{0,200}?\s+(과|와)\s+기재/;
+/** E1 legacy ② template */
+const ACTION_LEGACY_COMPARE_AND = /2차에 입력하신 내용과\s+/;
 
 const FORBIDDEN_RE = [
   /\bundefined\b/i,
@@ -169,9 +174,13 @@ const stats = {
   glyph_hits: 0,
   empty_pdf: 0,
   hyphen_lead_glyph_note: 0,
+  mandatory_mismatch: 0,
+  action_double_conj: 0,
+  action_legacy_compare: 0,
+  action_doc_not_in_mandatory: 0,
 };
 
-const sampleSaved = { RE01: false, RE03: false, RE05: false };
+const sampleSaved = Object.fromEntries(CASES.map((c) => [c, false]));
 const outDir = path.join(repoRoot, "tests", "qa", "_output");
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -233,6 +242,25 @@ for (const caseId of CASES) {
     if (JOSA_BAD.test(blob)) stats.josa_hits++;
     for (const v of findJosaViolations(blob)) stats.josa_hits++;
 
+    const expectedMandatory = listRealEstatePhase2RequiredDocuments(caseId);
+    const actualMandatory = report.mandatoryDocumentLines ?? [];
+    if (JSON.stringify(expectedMandatory) !== JSON.stringify(actualMandatory)) {
+      stats.mandatory_mismatch++;
+    }
+    const primaryDoc = expectedMandatory[0] ?? "";
+    for (const action of report.recommendedAction) {
+      if (ACTION_DOUBLE_CONJ_BEFORE_GIJAE.test(action)) stats.action_double_conj++;
+      if (ACTION_LEGACY_COMPARE_AND.test(action)) stats.action_legacy_compare++;
+      if (
+        report.includesPhase2Block &&
+        action.includes("②") &&
+        primaryDoc &&
+        !action.includes(primaryDoc)
+      ) {
+        stats.action_doc_not_in_mandatory++;
+      }
+    }
+
     for (const re of FORBIDDEN_RE) {
       if (re.test(content)) stats.forbidden_hits++;
     }
@@ -240,10 +268,7 @@ for (const caseId of CASES) {
     const runFullPdf = pathIdx <= PDF_RENDER_FIRST_N || pathIdx % PDF_RENDER_EVERY_N === 0;
     if (!runFullPdf) continue;
 
-    const leadId =
-      !sampleSaved[caseId] && ["RE01", "RE03", "RE05"].includes(caseId)
-        ? SAMPLE_UUID_LEAD
-        : `lead-re-pdf-${caseId}-${pathIdx}`;
+    const leadId = !sampleSaved[caseId] ? SAMPLE_UUID_LEAD : `lead-re-pdf-${caseId}-${pathIdx}`;
     const harness = {
       leadId,
       serviceType: "verify_real-estate",
@@ -272,9 +297,9 @@ for (const caseId of CASES) {
     }
     if (/□|\uFFFD/.test(text)) stats.glyph_hits++;
 
-    if (!sampleSaved[caseId] && ["RE01", "RE03", "RE05"].includes(caseId)) {
-      const pdfPath = path.join(outDir, `c25b-sample-${caseId}.pdf`);
-      const txtPath = path.join(outDir, `c25b-text-${caseId}.txt`);
+    if (!sampleSaved[caseId]) {
+      const pdfPath = path.join(outDir, `c25c-sample-${caseId}.pdf`);
+      const txtPath = path.join(outDir, `c25c-text-${caseId}.txt`);
       fs.writeFileSync(pdfPath, Buffer.from(bytes));
       fs.writeFileSync(txtPath, text, "utf8");
       sampleSaved[caseId] = true;
@@ -290,6 +315,18 @@ if (stats.ok_grade_gap_conflict > 0) {
 }
 if (stats.josa_hits > 0) fail.push(`josa violations count=${stats.josa_hits}`);
 if (stats.filler_doc_hits > 0) fail.push(`filler (부동산 관련 서류) count=${stats.filler_doc_hits}`);
+if (stats.mandatory_mismatch > 0) {
+  fail.push(`documents list != PDF mandatory count=${stats.mandatory_mismatch}`);
+}
+if (stats.action_double_conj > 0) {
+  fail.push(`RECOMMENDED ACTIONS double 과/와 before 기재 count=${stats.action_double_conj}`);
+}
+if (stats.action_legacy_compare > 0) {
+  fail.push(`legacy ② '내용과' compare template count=${stats.action_legacy_compare}`);
+}
+if (stats.action_doc_not_in_mandatory > 0) {
+  fail.push(`② action missing pack primary doc count=${stats.action_doc_not_in_mandatory}`);
+}
 if ((stats.pdf_summary_miss ?? 0) > 0) {
   fail.push(`PDF extract missing phase2 line (in body) count=${stats.pdf_summary_miss}`);
 }

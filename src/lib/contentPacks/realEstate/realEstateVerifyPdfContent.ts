@@ -26,13 +26,12 @@ import {
   buildRealEstatePhase1SummaryLinesFromActivities,
   buildRealEstatePhase2SummaryLinesFromActivities,
 } from "./realEstatePackMypageFields";
-import { REAL_ESTATE_PHASE2_DOCUMENT_LISTS } from "./phase2Documents";
+import {
+  buildRealEstatePhase2PdfCompareAnswersLine,
+  listRealEstatePhase2RequiredDocuments,
+  primaryRealEstatePhase2DocumentLabel,
+} from "./phase2Documents";
 import { correctParticlesInSentence, withParticle } from "./koreanParticle";
-
-const REAL_ESTATE_FREE_PDF_MANDATORY_DOCUMENT_LINES = [
-  "매매·임대 계약서 및 부속 약정 — 당사자·물건·조건 확인용",
-  "등기·권리 관련 서류 — 소유·담보·제한 권리 대조용",
-] as const;
 
 const FILLER_DOC_PHRASE = "(부동산 관련 서류)";
 
@@ -51,11 +50,6 @@ function parseGrade2FromActivities(activities: CrmActivityLike[]): number | null
   if (!raw) return null;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) ? n : null;
-}
-
-function primaryPackDocumentLabel(caseId: RealEstateCaseId): string {
-  const doc = REAL_ESTATE_PHASE2_DOCUMENT_LISTS[caseId]?.documents?.[0]?.trim();
-  return doc || "원본 문서";
 }
 
 function polishPdfSentence(text: string): string {
@@ -119,7 +113,8 @@ export function buildRealEstateVerifyAiReportContentFromActivities(
     .map((c) => String(c).trim())
     .filter(Boolean);
   const cautionFallback = personalized?.personalizedContext?.coreJudgment?.trim() ?? null;
-  const primaryDoc = primaryPackDocumentLabel(caseId);
+  const primaryDoc = primaryRealEstatePhase2DocumentLabel(caseId);
+  const mandatoryDocumentLines = listRealEstatePhase2RequiredDocuments(caseId);
 
   if (isVerifyRealEstatePaidAiReportPdfActivities(activities)) {
     const phase1Lines = buildRealEstatePhase1SummaryLinesFromActivities(activities);
@@ -148,15 +143,15 @@ export function buildRealEstateVerifyAiReportContentFromActivities(
       cautionFallback,
     });
 
-    const docWithJosa = withParticle(primaryDoc, "과/와");
     const immediateBody =
       riskSignals.length > 0 || gradeFilled >= 2
-        ? `위험요인으로 표시된 항목을 ${docWithJosa} 대조해 주세요.`
+        ? `위험요인으로 표시된 항목을 ${primaryDoc}의 기재 내용과 대조해 주세요.`
         : `${primaryDoc}에 적힌 기한과 조건을 다시 확인해 주세요.`;
+    const compareAnswersLine = buildRealEstatePhase2PdfCompareAnswersLine(primaryDoc);
     const recommendedAction = includesPhase2Block
       ? [
           `① 즉시 조치 · ${polishPdfSentence(immediateBody)}`,
-          `② 다음 조치 · 2차에 입력하신 내용과 ${docWithJosa} 기재 내용을 대조해 주세요.`,
+          `② 다음 조치 · ${compareAnswersLine}`,
           "③ 최종 조치 · 제출하신 자료와 답변을 함께 확인하고 전문가 안내를 받아 다음 대응을 정리해 주세요.",
         ]
       : [
@@ -177,6 +172,7 @@ export function buildRealEstateVerifyAiReportContentFromActivities(
       includesPhase2Block,
       paidEvidenceOmittedItemCount: evidencePack.omittedItemCount,
       paidEvidenceOmittedItems: evidencePack.omittedItems,
+      mandatoryDocumentLines,
     };
   }
 
@@ -227,7 +223,7 @@ export function buildRealEstateVerifyAiReportContentFromActivities(
     reviewedCount: satisfiedCount,
     satisfiedCount,
     includesPhase2Block: false,
-    mandatoryDocumentLines: [...REAL_ESTATE_FREE_PDF_MANDATORY_DOCUMENT_LINES],
+    mandatoryDocumentLines,
     executiveDashboardSupplementLines: [
       ADMIN_VERIFY_FREE_PDF_DASHBOARD_INPUT_SCOPE_NO_UPLOAD,
       ADMIN_VERIFY_FREE_PDF_DASHBOARD_REVIEW_SCOPE_NO_UPLOAD,
