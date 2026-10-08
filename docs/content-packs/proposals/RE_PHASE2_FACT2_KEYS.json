@@ -1,0 +1,1115 @@
+[
+  {
+    "caseId": "RE01",
+    "key": "re01_sign_deadline=r1_sd_passed",
+    "label": "약속한 날짜가 이미 지났고, 상대방이 계속 진행할지 확실하지 않습니다.",
+    "field": "re01_sign_deadline",
+    "value": "r1_sd_passed"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_owner_doc_check=r1_od_refused_delay",
+    "label": "핑크북을 보여 달라고 했지만, 계속 미루거나 보여 줄 수 없다고 합니다.",
+    "field": "re01_owner_doc_check",
+    "value": "r1_od_refused_delay"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_owner_authority=r1_oa_poa_unseen",
+    "label": "위임장이 있다고 말로만 들었고, 실제 위임장은 보지 못했습니다.",
+    "field": "re01_owner_authority",
+    "value": "r1_oa_poa_unseen"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_owner_authority=r1_oa_relative_no_doc",
+    "label": "소유자의 가족이 대신 서명한다고 하며, 위임장 이야기는 없었습니다.",
+    "field": "re01_owner_authority",
+    "value": "r1_oa_relative_no_doc"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_owner_authority=r1_oa_co_owner_one",
+    "label": "핑크북에 부부 등 여러 명이 적혀 있는데, 그중 한 사람만 서명한다고 합니다.",
+    "field": "re01_owner_authority",
+    "value": "r1_oa_co_owner_one"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_transfer_account=r1_ta_third_party",
+    "label": "소유자의 가족이나 다른 사람 명의 계좌로 보내라고 했고, 그 이유는 듣지 못했습니다.",
+    "field": "re01_transfer_account",
+    "value": "r1_ta_third_party"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_payment_schedule=r1_ps_price_split",
+    "label": "계약서에 적는 금액과 실제로 주고받는 금액을 다르게 하자는 제안을 받았습니다.",
+    "field": "re01_payment_schedule",
+    "value": "r1_ps_price_split"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_payment_schedule=r1_ps_lump_sum_first",
+    "label": "명의 이전이나 핑크북 발급 전에, 대금 대부분이나 전액을 먼저 보내라고 합니다.",
+    "field": "re01_payment_schedule",
+    "value": "r1_ps_lump_sum_first"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_foreign_eligibility=r1_fe_landed_house",
+    "label": "프로젝트 밖의 개인 주택(토지가 딸린 집)이고, 외국인 명의가 가능한지 확인하지 못했습니다.",
+    "field": "re01_foreign_eligibility",
+    "value": "r1_fe_landed_house"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_commercial_use=r1_cu_sublease",
+    "label": "건물주가 아니라, 건물을 먼저 빌린 사람에게서 다시 빌리는 구조입니다.",
+    "field": "re01_commercial_use",
+    "value": "r1_cu_sublease"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_owner_doc_check=r1_od_copy_only",
+    "label": "핑크북 사본이나 사진만 받았고, 원본은 아직 보지 못했습니다.",
+    "field": "re01_owner_doc_check",
+    "value": "r1_od_copy_only"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_owner_doc_check=r1_od_signer_differs",
+    "label": "핑크북은 봤지만, 소유자와 계약서에 서명할 사람이 다릅니다.",
+    "field": "re01_owner_doc_check",
+    "value": "r1_od_signer_differs"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_owner_doc_check=r1_od_project_no_book",
+    "label": "분양 아파트라 핑크북은 아직 없고, 개발사 계약서와 사업 관련 서류만 받았습니다.",
+    "field": "re01_owner_doc_check",
+    "value": "r1_od_project_no_book"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_penalty_clause=r1_pc_one_sided",
+    "label": "제가 포기하면 계약금을 잃는다는 내용만 있고, 상대방이 어기는 경우는 적혀 있지 않습니다.",
+    "field": "re01_penalty_clause",
+    "value": "r1_pc_one_sided"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_transfer_account=r1_ta_broker_account",
+    "label": "중개인이나 중개회사 명의 계좌로 보내라고 했습니다.",
+    "field": "re01_transfer_account",
+    "value": "r1_ta_broker_account"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_deposit_paid_proof=r1_dp_transfer_only",
+    "label": "송금 내역은 있지만, 상대방이 서명한 영수증이나 약정서는 받지 못했습니다.",
+    "field": "re01_deposit_paid_proof",
+    "value": "r1_dp_transfer_only"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_residence_registration=r1_rr_refused_or_fee",
+    "label": "집주인이 신고를 꺼리거나, 신고해 주는 대신 추가 비용을 요구했습니다.",
+    "field": "re01_residence_registration",
+    "value": "r1_rr_refused_or_fee"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_commercial_use=r1_cu_use_restricted",
+    "label": "주거용 건물이거나 용도 제한이 있다는 말을 들었지만, 확인하지 못했습니다.",
+    "field": "re01_commercial_use",
+    "value": "r1_cu_use_restricted"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_foreign_eligibility=r1_fe_quota_verbal",
+    "label": "외국인도 살 수 있다고 말로만 들었고, 물량이나 프로젝트 조건은 확인하지 못했습니다.",
+    "field": "re01_foreign_eligibility",
+    "value": "r1_fe_quota_verbal"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_broker_role=r1_br_both_sides",
+    "label": "같은 중개인이 집주인 쪽과 제 쪽 일을 함께 맡고 있습니다.",
+    "field": "re01_broker_role",
+    "value": "r1_br_both_sides"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_deposit_link=r1_dl_terms_open",
+    "label": "계약금만 먼저 걸고, 금액이나 세부 조건은 나중에 정하자고 합니다.",
+    "field": "re01_deposit_link",
+    "value": "r1_dl_terms_open"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_sign_deadline=r1_sd_pressure_days",
+    "label": "'며칠 안에 결정하지 않으면 다른 사람에게 넘긴다'는 말을 들었습니다.",
+    "field": "re01_sign_deadline",
+    "value": "r1_sd_pressure_days"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_progress_stage=r1_st_deposit_requested",
+    "label": "계약서에 서명하기 전에, 계약금부터 먼저 보내라는 요청을 받았습니다.",
+    "field": "re01_progress_stage",
+    "value": "r1_st_deposit_requested"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_foreign_eligibility=r1_fe_term_unknown",
+    "label": "살 수는 있다고 들었지만, 외국인인 제가 소유할 수 있는 기간과 연장 가능 여부는 설명받지 못했습니다.",
+    "field": "re01_foreign_eligibility",
+    "value": "r1_fe_term_unknown"
+  },
+  {
+    "caseId": "RE01",
+    "key": "re01_condition_compare=r1_cc_scope_diff",
+    "label": "가구·관리비·주차 등 포함된다고 들은 항목이 빠져 있거나 다르게 적혀 있습니다.",
+    "field": "re01_condition_compare",
+    "value": "r1_cc_scope_diff"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_role=role_company_occupant",
+    "label": "계약은 회사 명의로 했고, 저는 그 집에 실제로 살았던 사람입니다.",
+    "field": "re02_role",
+    "value": "role_company_occupant"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_payment_path=pp_agent_my_side",
+    "label": "제 쪽에서는 회사·가족·지인이 대신 주고받았고, 저는 직접 관여하지 않았습니다.",
+    "field": "re02_payment_path",
+    "value": "pp_agent_my_side"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_dispute_type_holder=hd_double_demand",
+    "label": "제 사정으로 계약을 진행하지 못하게 되자, 상대방이 계약금의 두 배를 돌려달라고 요구하고 있습니다.",
+    "field": "re02_dispute_type_holder",
+    "value": "hd_double_demand"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_contract_form=cf_signer_doubt",
+    "label": "계약서는 있지만, 상대방 서명이 빠져 있거나 실제 소유자가 아닌 사람이 서명했습니다.",
+    "field": "re02_contract_form",
+    "value": "cf_signer_doubt"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_money_evidence=me_none",
+    "label": "계약서·송금 내역·받았다는 메시지 등 확인할 수 있는 자료가 없습니다.",
+    "field": "re02_money_evidence",
+    "value": "me_none"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_cash_proof=cp_nothing",
+    "label": "찾아봤지만, 돈을 주고받은 사실을 확인할 방법이 없습니다.",
+    "field": "re02_cash_proof",
+    "value": "cp_nothing"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_broker_hold=bh_still_holding",
+    "label": "중개인이 아직 돈을 보관하고 있다고 하지만, 돌려주지 않고 있습니다.",
+    "field": "re02_broker_hold",
+    "value": "bh_still_holding"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_broker_hold=bh_broker_unreachable",
+    "label": "중개인과도 연락이 잘 되지 않아, 돈이 지금 어디에 있는지 모릅니다.",
+    "field": "re02_broker_hold",
+    "value": "bh_broker_unreachable"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_contract_end=end_me_short_notice",
+    "label": "제가 먼저 계약을 끝냈지만, 미리 알린 기간이 계약서보다 짧았거나 따로 알리지 못했습니다.",
+    "field": "re02_contract_end",
+    "value": "end_me_short_notice"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_contract_end=end_not_ended",
+    "label": "계약은 아직 끝나지 않았지만, 돈 문제로 이미 다툼이 생겼습니다.",
+    "field": "re02_contract_end",
+    "value": "end_not_ended"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_dispute_type=dt_deposit_forfeited",
+    "label": "계약이 진행되지 않자, 상대방이 계약금을 모두 가져가겠다고 하고 있습니다.",
+    "field": "re02_dispute_type",
+    "value": "dt_deposit_forfeited"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_dispute_type_holder=hd_forfeit_dispute",
+    "label": "상대방이 계약을 포기해 계약금을 돌려주지 않으려 하는데, 상대방은 돌려달라고 요구하고 있습니다.",
+    "field": "re02_dispute_type_holder",
+    "value": "hd_forfeit_dispute"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_dispute_type=dt_extra_claim",
+    "label": "돌려받기는커녕, 위약금이나 추가 금액을 더 내라는 요구를 받고 있습니다.",
+    "field": "re02_dispute_type",
+    "value": "dt_extra_claim"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_dispute_type_holder=hd_extra_claim",
+    "label": "손해나 밀린 금액이 보증금보다 커서 차액을 요구했지만, 상대방이 지급하지 않고 있습니다.",
+    "field": "re02_dispute_type_holder",
+    "value": "hd_extra_claim"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_dispute_type=dt_contact_avoided",
+    "label": "돌려주겠다는 말은 들었지만, 그 뒤로 상대방이 연락을 피하거나 답이 없습니다.",
+    "field": "re02_dispute_type",
+    "value": "dt_contact_avoided"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_dispute_type_holder=hd_contact_lost",
+    "label": "상대방이 밀린 금액을 남긴 채 집을 비웠거나, 연락을 끊었습니다.",
+    "field": "re02_dispute_type_holder",
+    "value": "hd_contact_lost"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_other_reaction=rx_ignored",
+    "label": "메시지를 읽고도 답이 없거나, 연락을 피하고 있습니다.",
+    "field": "re02_other_reaction",
+    "value": "rx_ignored"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_forfeit_clause=fc_no_clause",
+    "label": "계약서는 있지만, 계약금을 어떻게 처리하는지에 대한 조항은 따로 없습니다.",
+    "field": "re02_forfeit_clause",
+    "value": "fc_no_clause"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_forfeit_clause=fc_one_side",
+    "label": "한쪽이 계약을 깰 때의 처리만 적혀 있고, 반대의 경우는 적혀 있지 않습니다.",
+    "field": "re02_forfeit_clause",
+    "value": "fc_one_side"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_money_evidence=me_cash_message",
+    "label": "현금으로 주고받았고, 받았다는 메시지나 손으로 쓴 영수증만 남아 있습니다.",
+    "field": "re02_money_evidence",
+    "value": "me_cash_message"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_cash_proof=cp_withdrawal_only",
+    "label": "현금을 인출한 은행 기록은 있지만, 상대방에게 건넨 기록은 없습니다.",
+    "field": "re02_cash_proof",
+    "value": "cp_withdrawal_only"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_payment_path=pp_via_broker",
+    "label": "중개인을 거쳐 주고받았고, 상대방에게 실제로 전달되었는지는 중개인 말로만 알고 있습니다.",
+    "field": "re02_payment_path",
+    "value": "pp_via_broker"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_broker_hold=bh_delivered_word",
+    "label": "중개인은 전달했다고 하지만, 전달한 기록은 확인하지 못했습니다.",
+    "field": "re02_broker_hold",
+    "value": "bh_delivered_word"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_other_reaction=rx_counter_claim",
+    "label": "오히려 손해나 위약금을 이유로, 저에게 돈을 더 요구했습니다.",
+    "field": "re02_other_reaction",
+    "value": "rx_counter_claim"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_deadline=dl_other_demand",
+    "label": "상대방이 정한 날짜까지 돈을 보내거나 합의하라고 요구했습니다.",
+    "field": "re02_deadline",
+    "value": "dl_other_demand"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_deadline=dl_my_schedule",
+    "label": "출국·이사·다음 계약 등 제 일정 때문에, 그 전에 정리되어야 합니다.",
+    "field": "re02_deadline",
+    "value": "dl_my_schedule"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_deduction_items=ded_no_itemization",
+    "label": "항목 설명 없이 금액만 공제된(공제한) 부분",
+    "field": "re02_deduction_items",
+    "value": "ded_no_itemization"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_extra_claim_detail=xc_unclear_basis",
+    "label": "명목이나 계산 근거가 정리되지 않은 금액이고, 서로 설명이 엇갈리고 있습니다.",
+    "field": "re02_extra_claim_detail",
+    "value": "xc_unclear_basis"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_forfeit_clause=fc_cannot_read",
+    "label": "계약서가 베트남어로만 되어 있어, 그런 조항이 있는지 확인하지 못했습니다.",
+    "field": "re02_forfeit_clause",
+    "value": "fc_cannot_read"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_contract_form=cf_vn_only",
+    "label": "베트남어로만 된 계약서에 서명했고, 내용을 모두 이해하지는 못했습니다.",
+    "field": "re02_contract_form",
+    "value": "cf_vn_only"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_handover_record=ho_not_handed",
+    "label": "아직 열쇠나 집을 넘겨주지 않았거나, 넘겨준 날짜를 두고 다툼이 있습니다.",
+    "field": "re02_handover_record",
+    "value": "ho_not_handed"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_payment_path=pp_unclear",
+    "label": "누구 명의 계좌로 오갔는지, 실제로 누가 받았는지 확실하지 않습니다.",
+    "field": "re02_payment_path",
+    "value": "pp_unclear"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_payment_path=pp_agent_other_side",
+    "label": "상대방 쪽에서는 가족이나 관리인 등 다른 사람이 대신 받거나 보냈습니다.",
+    "field": "re02_payment_path",
+    "value": "pp_agent_other_side"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_situation_match=sm_mismatch",
+    "label": "상대방이 말하는 일은 실제로 없었거나, 책임은 오히려 상대방에게 있다고 생각합니다.",
+    "field": "re02_situation_match",
+    "value": "sm_mismatch"
+  },
+  {
+    "caseId": "RE02",
+    "key": "re02_situation_match=sm_hard_to_judge",
+    "label": "기록이 남아 있지 않아, 누구 말이 맞는지 비교하기 어렵습니다.",
+    "field": "re02_situation_match",
+    "value": "sm_hard_to_judge"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_occupancy_tenant=r3_oc_locked_out",
+    "label": "상대방이 열쇠를 바꾸거나 전기·수도를 끊어, 집을 제대로 쓰지 못하고 있습니다.",
+    "field": "re03_occupancy_tenant",
+    "value": "r3_oc_locked_out"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_occupancy_tenant=r3_oc_belongings_threat",
+    "label": "정해진 날까지 나가지 않으면, 짐을 밖으로 내놓겠다는 말을 들었습니다.",
+    "field": "re03_occupancy_tenant",
+    "value": "r3_oc_belongings_threat"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_counter_reaction=r3_cr_legal_threat",
+    "label": "법원이나 공안에 신고하겠다고 했거나, 이미 절차를 시작했다고 했습니다.",
+    "field": "re03_counter_reaction",
+    "value": "r3_cr_legal_threat"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_owner_reason_fact=r3_ow_bank_issue",
+    "label": "은행 담보나 집주인의 빚 문제로, 집이 다른 사람에게 넘어갈 수 있다는 이야기를 들었습니다.",
+    "field": "re03_owner_reason_fact",
+    "value": "r3_ow_bank_issue"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_my_role=r3_role_subtenant",
+    "label": "원래 세입자에게서 다시 빌려 살고 있고, 집주인과 직접 맺은 계약은 없습니다.",
+    "field": "re03_my_role",
+    "value": "r3_role_subtenant"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_notice_period=r3_np_shorter",
+    "label": "계약서에 통지 기간 조항이 있지만, 이번 통보는 그보다 짧은 기간만 주었습니다.",
+    "field": "re03_notice_period",
+    "value": "r3_np_shorter"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_move_out_deadline=r3_md_immediate",
+    "label": "날짜 없이, 바로 또는 며칠 안에 집을 비우라는(비우겠다는) 말만 들었습니다.",
+    "field": "re03_move_out_deadline",
+    "value": "r3_md_immediate"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_deposit_status=r3_ds_forfeit",
+    "label": "계약 위반을 이유로, 보증금을 전혀 돌려주지 않겠다는 이야기가 나왔습니다.",
+    "field": "re03_deposit_status",
+    "value": "r3_ds_forfeit"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_deposit_status=r3_ds_deduct_no_list",
+    "label": "일부를 빼고 돌려준다고 했지만, 무엇을 얼마나 빼는지 내역은 받지 못했습니다.",
+    "field": "re03_deposit_status",
+    "value": "r3_ds_deduct_no_list"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_penalty_clause=r3_pc_amount_exceeds",
+    "label": "위약금 조항은 있지만, 요구받은 금액이 조항보다 크거나 다른 항목이 더 붙어 있습니다.",
+    "field": "re03_penalty_clause",
+    "value": "r3_pc_amount_exceeds"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_penalty_clause=r3_pc_no_clause",
+    "label": "계약서에 위약금 조항이 없는데, 상대방이 금액을 정해서 요구했습니다.",
+    "field": "re03_penalty_clause",
+    "value": "r3_pc_no_clause"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_penalty_clause=r3_pc_damage_claim",
+    "label": "위약금과 별도로, 수리비·공실 손해 등 손해배상을 추가로 요구받았습니다.",
+    "field": "re03_penalty_clause",
+    "value": "r3_pc_damage_claim"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_arrears_fact=r3_ar_paid_not_counted",
+    "label": "이미 송금했는데, 상대방이 받지 못했다고 하거나 반영하지 않았습니다.",
+    "field": "re03_arrears_fact",
+    "value": "r3_ar_paid_not_counted"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_conduct_fact=r3_cd_admit_ongoing",
+    "label": "그런 일이 있었던 것은 맞고, 지금도 같은 방식으로 쓰고 있습니다.",
+    "field": "re03_conduct_fact",
+    "value": "r3_cd_admit_ongoing"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_my_role=r3_role_company_staff",
+    "label": "회사 명의로 계약된 집에 살고 있고, 계약 당사자는 제가 아닌 회사입니다.",
+    "field": "re03_my_role",
+    "value": "r3_role_company_staff"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_demand_type=r3_dm_terminate",
+    "label": "계약을 끝내겠다는 통보였고, 언제 집을 비워야 하는지는 아직 정해지지 않았습니다.",
+    "field": "re03_demand_type",
+    "value": "r3_dm_terminate"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_demand_type=r3_dm_money_claim",
+    "label": "계약 위반을 이유로, 위약금이나 손해배상 명목의 돈을 내라는 요구를 받았습니다.",
+    "field": "re03_demand_type",
+    "value": "r3_dm_money_claim"
+  },
+  {
+    "caseId": "RE03",
+    "key": "re03_demand_type=r3_dm_vacate_date",
+    "label": "계약을 끝내면서, 정해진 날짜까지 집을 비우라는(또는 비우겠다는) 날짜가 적혀 있었습니다.",
+    "field": "re03_demand_type",
+    "value": "r3_dm_vacate_date"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_contract_access=ca_sublease",
+    "label": "",
+    "field": "re04_contract_access",
+    "value": "ca_sublease"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_fee_detail=fd_prior_arrears",
+    "label": "집주인이나 전 세입자가 밀린 요금 때문에, 전기·수도가 끊기거나 끊긴다는 안내를 받았습니다.",
+    "field": "re04_fee_detail",
+    "value": "fd_prior_arrears"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_threat_detail=td_cut_utilities",
+    "label": "전기·수도·인터넷을 끊거나 출입카드를 막겠다고 했고, 그중 일부는 이미 실제로 끊기거나 막혔습니다.",
+    "field": "re04_threat_detail",
+    "value": "td_cut_utilities"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_rent_status=rs_withholding",
+    "label": "상대방이 해결할 때까지, 월세나 요금의 일부 또는 전부를 내지 않고 있습니다.",
+    "field": "re04_rent_status",
+    "value": "rs_withholding"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_rent_status=rs_deducted_cost",
+    "label": "제가 쓴 수리비나 잘못 청구된 금액을 빼고, 남은 금액만 월세로 보냈습니다.",
+    "field": "re04_rent_status",
+    "value": "rs_deducted_cost"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_withhold_notice=wn_not_notified",
+    "label": "따로 알리지 않고, 월세만 덜 보내거나 보내지 않았습니다.",
+    "field": "re04_withhold_notice",
+    "value": "wn_not_notified"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_withhold_notice=wn_landlord_objected",
+    "label": "상대방이 이를 연체라고 하며, 계약 해지나 보증금 공제를 언급했습니다.",
+    "field": "re04_withhold_notice",
+    "value": "wn_landlord_objected"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_threat_detail=td_vacate_early",
+    "label": "계약 기간이 남았는데, 정해진 날까지 집을 비우라고 했습니다.",
+    "field": "re04_threat_detail",
+    "value": "td_vacate_early"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_deadline=dl_vacate_demand",
+    "label": "상대방이 정한 날짜까지 집을 비우라고 요구하고 있습니다.",
+    "field": "re04_deadline",
+    "value": "dl_vacate_demand"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_threat_detail=td_residence_registration",
+    "label": "임시거주 신고를 해 주지 않거나, 이미 한 신고를 정리하겠다고 했습니다.",
+    "field": "re04_threat_detail",
+    "value": "td_residence_registration"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_since_when=sw_over_month",
+    "label": "한 달 넘게 계속되고 있고, 그동안 생활의 불편이나 비용이 쌓이고 있습니다.",
+    "field": "re04_since_when",
+    "value": "sw_over_month"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_since_when=sw_recurring",
+    "label": "한 번 고쳤거나 정리되었는데, 얼마 지나지 않아 같은 문제가 다시 생겼습니다.",
+    "field": "re04_since_when",
+    "value": "sw_recurring"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_repair_detail=rd_electric_fault",
+    "label": "차단기가 자주 내려가거나 콘센트·조명이 작동하지 않아, 감전이나 화재가 걱정됩니다.",
+    "field": "re04_repair_detail",
+    "value": "rd_electric_fault"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_repair_detail=rd_door_window",
+    "label": "출입문 잠금장치나 창문·방범창이 고장 나, 문단속이 제대로 되지 않습니다.",
+    "field": "re04_repair_detail",
+    "value": "rd_door_window"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_defect_claim=dc_deposit_deduction",
+    "label": "이 하자 비용을 계약이 끝날 때 보증금에서 빼겠다고 이미 말했습니다.",
+    "field": "re04_defect_claim",
+    "value": "dc_deposit_deduction"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_handover_record=hr_told_verbally",
+    "label": "입주할 때 하자를 말로만 알렸고, 따로 남긴 기록은 없습니다.",
+    "field": "re04_handover_record",
+    "value": "hr_told_verbally"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_handover_record=hr_no_record",
+    "label": "입주할 때 집 상태를 따로 기록하거나 확인하지 않았습니다.",
+    "field": "re04_handover_record",
+    "value": "hr_no_record"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_contract_access=ca_verbal_only",
+    "label": "정식 계약서 없이, 메시지나 말로만 월세와 조건을 정했습니다.",
+    "field": "re04_contract_access",
+    "value": "ca_verbal_only"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_contract_access=ca_no_copy",
+    "label": "서명은 했지만 사본을 받지 못했고, 원본(공증본 포함)은 집주인이나 중개인만 가지고 있습니다.",
+    "field": "re04_contract_access",
+    "value": "ca_no_copy"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_self_repair=sr_paid_no_receipt",
+    "label": "제가 먼저 고쳤지만, 현금으로 줘서 영수증은 받지 못했습니다.",
+    "field": "re04_self_repair",
+    "value": "sr_paid_no_receipt"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_self_repair=sr_paid_no_consent",
+    "label": "상대방의 동의 없이 고쳤고, 상대방은 그 비용을 인정하지 않고 있습니다.",
+    "field": "re04_self_repair",
+    "value": "sr_paid_no_consent"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_rent_status=rs_considering_withhold",
+    "label": "아직 내고 있지만, 해결되지 않으면 월세를 멈추려고 생각하고 있습니다.",
+    "field": "re04_rent_status",
+    "value": "rs_considering_withhold"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_other_response=or_counter_threat",
+    "label": "계속 문제 삼으면 계약을 끝내거나 보증금을 돌려주지 않겠다는 말을 했습니다.",
+    "field": "re04_other_response",
+    "value": "or_counter_threat"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_entry_detail=ed_entered_absent",
+    "label": "제가 없을 때 알리지 않고 들어왔고, 물건이 옮겨져 있거나 들어온 흔적이 남아 있었습니다.",
+    "field": "re04_entry_detail",
+    "value": "ed_entered_absent"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_entry_detail=ed_unilateral_device",
+    "label": "집 안이나 현관에 카메라를 달거나 잠금장치를 바꾸는 등, 저와 상의 없이 조치했습니다.",
+    "field": "re04_entry_detail",
+    "value": "ed_unilateral_device"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_living_impact=li_staying_elsewhere",
+    "label": "계속 살기 어려워, 임시로 다른 곳에 머물고 있거나 이사를 고민하고 있습니다.",
+    "field": "re04_living_impact",
+    "value": "li_staying_elsewhere"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_fact_compare=fc_false_no_proof",
+    "label": "상대방 주장은 실제와 다르지만, 이를 보여 줄 기록이 부족합니다.",
+    "field": "re04_fact_compare",
+    "value": "fc_false_no_proof"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_evidence=ev_none",
+    "label": "보관 중인 자료가 없거나, 있는지 아직 확인하지 못했습니다.",
+    "field": "re04_evidence",
+    "value": "ev_none"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_notify_status=nt_verbal_only",
+    "label": "전화하거나 직접 만나서 말로만 알렸고, 따로 남아 있는 기록은 없습니다.",
+    "field": "re04_notify_status",
+    "value": "nt_verbal_only"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_notify_status=nt_via_agent",
+    "label": "중개인이나 관리사무소를 통해 전달했고, 상대방에게 직접 말하지는 않았습니다.",
+    "field": "re04_notify_status",
+    "value": "nt_via_agent"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_other_response=or_silent_or_relay",
+    "label": "답이 없거나, 중개인·관리사무소가 전달했다고만 하고 상대방의 답은 듣지 못했습니다.",
+    "field": "re04_other_response",
+    "value": "or_silent_or_relay"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_contract_clause=cl_tenant_clear",
+    "label": "서면 계약서에, 이 문제는 임차인이 부담한다고 적혀 있어 제가 불리할 수 있습니다.",
+    "field": "re04_contract_clause",
+    "value": "cl_tenant_clear"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_fee_detail=fd_electric_rate",
+    "label": "전기요금이 전력회사 청구 금액보다 높은 단가로 계산되어 청구되고 있습니다.",
+    "field": "re04_fee_detail",
+    "value": "fd_electric_rate"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_fee_detail=fd_unilateral_increase",
+    "label": "계약 기간 중인데, 관리비나 요금 단가를 미리 합의 없이 올렸습니다.",
+    "field": "re04_fee_detail",
+    "value": "fd_unilateral_increase"
+  },
+  {
+    "caseId": "RE04",
+    "key": "re04_living_impact=li_belongings_damaged",
+    "label": "제 가구·전자제품·옷 같은 물건이 손상되었거나, 없어진 것이 있습니다.",
+    "field": "re04_living_impact",
+    "value": "li_belongings_damaged"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_counterparty=r5_cp_owner_unclear",
+    "label": "계약은 했지만, 핑크북상 실제 권리자가 누구인지 확실하지 않습니다.",
+    "field": "re05_counterparty",
+    "value": "r5_cp_owner_unclear"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_mortgage=r5_mg_paid_not_released",
+    "label": "담보를 풀 돈을 이미 지급했지만, 은행에서 담보가 해제되었는지 확인되지 않습니다.",
+    "field": "re05_mortgage",
+    "value": "r5_mg_paid_not_released"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_mismatchDetail=r5_mm_owner_name",
+    "label": "소유자 이름(계약한 매도인과 다른 사람이거나, 공동 소유자가 더 있음)",
+    "field": "re05_mismatchDetail",
+    "value": "r5_mm_owner_name"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_mismatchDetail=r5_mm_forgery_suspect",
+    "label": "핑크북 자체가 진짜가 아닐 수 있다는 말을 들음",
+    "field": "re05_mismatchDetail",
+    "value": "r5_mm_forgery_suspect"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_nameOnDocs=r5_nm_buyer_vn_name",
+    "label": "계약서의 매수인이 제가 아니라 베트남인 지인 이름으로 되어 있습니다.",
+    "field": "re05_nameOnDocs",
+    "value": "r5_nm_buyer_vn_name"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_foreignDetail=r5_fe_nominee",
+    "label": "외국인 명의가 어렵다고 해서, 베트남인 지인 이름으로 계약하거나 등록하려고 합니다.",
+    "field": "re05_foreignDetail",
+    "value": "r5_fe_nominee"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_rejectionDetail=r5_rj_seller_side",
+    "label": "매도인 쪽의 은행 담보·압류·분쟁 기록 때문에 명의 이전을 할 수 없다고 했습니다.",
+    "field": "re05_rejectionDetail",
+    "value": "r5_rj_seller_side"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_counterpartyExplanation=r5_ex_other_dispute",
+    "label": "상속·이혼·채무 같은 다른 분쟁이 있어, 그 문제가 먼저 풀려야 한다고 했습니다.",
+    "field": "re05_counterpartyExplanation",
+    "value": "r5_ex_other_dispute"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_responseReaction=r5_rr_cancel_mentioned",
+    "label": "상대방이 계약 해제나 계약금 문제를 먼저 꺼냈습니다.",
+    "field": "re05_responseReaction",
+    "value": "r5_rr_cancel_mentioned"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_paidStage=r5_paid_via_broker",
+    "label": "매도인이 아닌 중개인이나 지인 계좌로 돈을 보냈고, 매도인이 실제로 받았는지는 확인하지 못했습니다.",
+    "field": "re05_paidStage",
+    "value": "r5_paid_via_broker"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_counterparty=r5_cp_broker_only",
+    "label": "중개인을 통해서만 진행했고, 매도인을 직접 만나거나 연락한 적은 없습니다.",
+    "field": "re05_counterparty",
+    "value": "r5_cp_broker_only"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_transferDelayDetail=r5_td_mortgage",
+    "label": "매도인의 은행 담보가 아직 풀리지 않아, 명의 이전 신청을 하지 못하고 있습니다.",
+    "field": "re05_transferDelayDetail",
+    "value": "r5_td_mortgage"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_mortgage=r5_mg_release_unclear",
+    "label": "은행 담보가 있다고 들었지만, 언제 어떻게 풀리는지는 확인하지 못했습니다.",
+    "field": "re05_mortgage",
+    "value": "r5_mg_release_unclear"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_projectBookDetail=r5_pb_project_mortgage",
+    "label": "분양 회사가 프로젝트를 은행 담보로 잡혀 두었고, 그 담보가 풀려야 발급된다고 들었습니다.",
+    "field": "re05_projectBookDetail",
+    "value": "r5_pb_project_mortgage"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_projectBookDetail=r5_pb_project_legal",
+    "label": "분양 회사가 프로젝트 전체의 법적 절차가 끝나지 않아 핑크북 발급이 늦어진다고 설명했습니다.",
+    "field": "re05_projectBookDetail",
+    "value": "r5_pb_project_legal"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_nameOnDocs=r5_nm_family_coowner",
+    "label": "핑크북에 매도인 외에 배우자나 가족도 함께 적혀 있는데, 계약서에는 매도인만 서명했습니다.",
+    "field": "re05_nameOnDocs",
+    "value": "r5_nm_family_coowner"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_nameOnDocs=r5_nm_proxy",
+    "label": "핑크북 소유자는 따로 있고, 계약은 위임장을 가진 대리인과 맺었습니다.",
+    "field": "re05_nameOnDocs",
+    "value": "r5_nm_proxy"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_nameOnDocs=r5_nm_not_seen",
+    "label": "핑크북 원본이나 사본을 직접 보지 못해, 누구 이름인지 확인하지 못했습니다.",
+    "field": "re05_nameOnDocs",
+    "value": "r5_nm_not_seen"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_foreignDetail=r5_fe_land_house",
+    "label": "분양 프로젝트가 아닌, 땅이 딸린 단독주택이나 타운하우스를 사려고 했습니다.",
+    "field": "re05_foreignDetail",
+    "value": "r5_fe_land_house"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_rejectionDetail=r5_rj_foreign_status",
+    "label": "외국인 명의로는 등록할 수 없는 집이라는 이유를 들었습니다.",
+    "field": "re05_rejectionDetail",
+    "value": "r5_rj_foreign_status"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_foreignDetail=r5_fe_quota_full",
+    "label": "분양 아파트인데, 그 건물에서 외국인이 살 수 있는 물량이 다 찼다는 말을 들었습니다.",
+    "field": "re05_foreignDetail",
+    "value": "r5_fe_quota_full"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_promisedDate=r5_pd_postponed",
+    "label": "여러 차례 날짜를 다시 미루었고, 지금은 새 날짜도 정해지지 않았습니다.",
+    "field": "re05_promisedDate",
+    "value": "r5_pd_postponed"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_promisedDate=r5_pd_written_passed",
+    "label": "계약서에 날짜가 적혀 있고, 그 날짜가 이미 지났습니다.",
+    "field": "re05_promisedDate",
+    "value": "r5_pd_written_passed"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_counterpartyExplanation=r5_ex_extra_cost",
+    "label": "급행 비용이나 명목이 분명하지 않은 추가 비용을 내야 진행된다고 했습니다.",
+    "field": "re05_counterpartyExplanation",
+    "value": "r5_ex_extra_cost"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_responseReaction=r5_rr_more_money",
+    "label": "진행하려면 추가 금액이나 세금을 더 내야 한다고 했습니다.",
+    "field": "re05_responseReaction",
+    "value": "r5_rr_more_money"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_counterpartyExplanation=r5_ex_no_explanation",
+    "label": "이유를 설명하지 않거나, 연락을 피하고 있습니다.",
+    "field": "re05_counterpartyExplanation",
+    "value": "r5_ex_no_explanation"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_responseReaction=r5_rr_no_contact",
+    "label": "답변이 없거나, 연락이 끊겼습니다.",
+    "field": "re05_responseReaction",
+    "value": "r5_rr_no_contact"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_contractForm=r5_cf_deposit_only",
+    "label": "계약금 약정서만 썼고, 정식 매매계약서는 아직 쓰지 않았습니다.",
+    "field": "re05_contractForm",
+    "value": "r5_cf_deposit_only"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_contractForm=r5_cf_informal_only",
+    "label": "직접 쓴 계약서나 메시지 약속만 있고, 공증받은 계약서는 없습니다.",
+    "field": "re05_contractForm",
+    "value": "r5_cf_informal_only"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_deadline=r5_dl_notice_period",
+    "label": "통지서나 기관 안내에 다시 신청하거나 보완할 수 있는 기간이 적혀 있습니다.",
+    "field": "re05_deadline",
+    "value": "r5_dl_notice_period"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_stage=r5_registration_rejected",
+    "label": "명의 이전이나 핑크북 발급을 신청했지만, 토지등록사무소에서 받아들이지 않는다는 통지를 받았습니다.",
+    "field": "re05_stage",
+    "value": "r5_registration_rejected"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_stage=r5_book_mismatch",
+    "label": "핑크북을 확인해 보니, 소유자 이름이나 면적이 계약 내용이나 실제 집과 다릅니다.",
+    "field": "re05_stage",
+    "value": "r5_book_mismatch"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_paidStage=r5_paid_balance",
+    "label": "잔금까지 모두 지급했지만, 아직 제 이름으로 권리가 넘어오지 않았습니다.",
+    "field": "re05_paidStage",
+    "value": "r5_paid_balance"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_counterparty=r5_cp_resale_buyer",
+    "label": "먼저 분양받은 사람에게서 분양 계약을 넘겨받았고, 분양 회사와 직접 계약하지는 않았습니다.",
+    "field": "re05_counterparty",
+    "value": "r5_cp_resale_buyer"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_mortgage=r5_mg_unknown",
+    "label": "담보 여부를 확인해 본 적이 없거나, 확인하는 방법을 모릅니다.",
+    "field": "re05_mortgage",
+    "value": "r5_mg_unknown"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_transferDelayDetail=r5_td_stage_unknown",
+    "label": "절차를 매도인이나 중개인이 맡고 있어, 지금 어느 단계인지 알지 못합니다.",
+    "field": "re05_transferDelayDetail",
+    "value": "r5_td_stage_unknown"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_transferDelayDetail=r5_td_filed_waiting",
+    "label": "토지등록사무소에 신청서는 접수되었지만, 안내받은 처리 기간이 지나도 결과가 나오지 않았습니다.",
+    "field": "re05_transferDelayDetail",
+    "value": "r5_td_filed_waiting"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_transferDelayDetail=r5_td_tax_stage",
+    "label": "세금 납부 안내까지 받았지만, 누가 세금을 납부할지 정리되지 않아 멈춰 있습니다.",
+    "field": "re05_transferDelayDetail",
+    "value": "r5_td_tax_stage"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_counterpartyExplanation=r5_ex_tax_demand",
+    "label": "명의 이전에 따른 세금을 제가 납부해야 진행된다며, 계약에 없던 금액을 요구했습니다.",
+    "field": "re05_counterpartyExplanation",
+    "value": "r5_ex_tax_demand"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_projectBookDetail=r5_pb_applied_no_proof",
+    "label": "분양 회사는 이미 신청했다고 하지만, 접수증 같은 근거는 받지 못했습니다.",
+    "field": "re05_projectBookDetail",
+    "value": "r5_pb_applied_no_proof"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_handoverCompare=r5_hc_area_diff",
+    "label": "실제 면적이 계약 면적과 달라, 금액 정산 문제가 남아 있습니다.",
+    "field": "re05_handoverCompare",
+    "value": "r5_hc_area_diff"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_mismatchDetail=r5_mm_area",
+    "label": "면적(계약서나 실제 집의 ㎡와 다름)",
+    "field": "re05_mismatchDetail",
+    "value": "r5_mm_area"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_mismatchDetail=r5_mm_address_use",
+    "label": "주소·지번·호수, 또는 토지 용도·사용 기간",
+    "field": "re05_mismatchDetail",
+    "value": "r5_mm_address_use"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_contractForm=r5_cf_notarized_vn_only",
+    "label": "공증사무소에서 공증받은 매매계약서가 있지만, 베트남어로만 되어 있어 내용을 다 이해하지 못했습니다.",
+    "field": "re05_contractForm",
+    "value": "r5_cf_notarized_vn_only"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_blockage=r5_bk_money_decision",
+    "label": "남은 돈을 지급해야 할지 멈춰야 할지 판단하지 못해, 결정을 미루고 있습니다.",
+    "field": "re05_blockage",
+    "value": "r5_bk_money_decision"
+  },
+  {
+    "caseId": "RE05",
+    "key": "re05_evidence=r5_ev_none",
+    "label": "보관 중인 자료가 없거나, 있는지 아직 확인하지 못했습니다.",
+    "field": "re05_evidence",
+    "value": "r5_ev_none"
+  }
+]

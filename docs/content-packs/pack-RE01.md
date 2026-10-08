@@ -360,3 +360,64 @@
 1. **소유자와 서명 권한 확인** — 핑크북 원본의 소유자 이름·주소·변동 사항 페이지를 상대방 신분증과 대조하고, 대리인이 서명한다면 공증된 위임장의 위임 범위를 확인하세요. (분양이면 개발사의 사업 서류와 외국인 구매 가능 물량을 서면으로 받으세요.)
 2. **돈을 보내기 전 조건 확인** — 송금 계좌가 소유자(또는 개발사) 본인 명의인지 확인하고, 계약금 몰수와 배액 반환이 양쪽 모두에게 적용된다는 문구와 서명된 영수증을 받을 수 있는지 확인하세요.
 3. **서명 전 계약서 마무리** — 계약서를 이해할 수 있는 언어로 받고 어느 언어를 우선하는지 적어 두며, 공증 여부와 함께 [임대: 임시거주 신고 책임 / 상가·사무실: 사용 용도와 회사 주소 등록 / 매매: 명의 이전 일정과 담보 해제 순서]를 계약서에 넣어 두세요.
+
+### 2차 F-path fallback (C2.1 초안)
+- phase2FallbackChain: `re01_price_terms,re01_final_goal`
+
+### 2차 개인화 결과 문구 (C2.3 초안)
+- personalizedStageLabel: `계약 전 2차 종합 검토`
+- personalizedIntegratedOk: `계약 전 확인 목표와 2차에서 추가로 확인한 조건을 함께 정리했습니다.`
+- personalizedIntegratedCaution: `1차·2차 답변을 바탕으로, 서명·송금 전에 직접 대조할 부분이 남아 있습니다.`
+- personalizedPhase2Empty: `2차 답변만으로 새로 드러난 위험 신호는 현재 보이지 않습니다.`
+- personalizedDocumentsNeededNote: `계약서·핑크북·송금 내역 등 원본을 대조하면 확인 범위를 넓힐 수 있습니다.`
+- personalizedCoreJudgmentOk: `현재까지 답변으로는 계약 전 확인 범위에서 큰 불일치가 보이지 않습니다.`
+- personalizedCoreJudgmentCaution: `일부 조항·상대방 반응은 추가 대조가 필요한 상태입니다.`
+- personalizedCoreJudgmentExpert: `복합 이슈가 겹쳐 VFBCAI 전문가팀 확인이 필요한 단계입니다.`
+- personalizedPhase2MaintainedSummary: `2차 답변에서는 1차보다 더 나쁜 사정은 확인되지 않았고, 1차에서 확인된 {phase1Core} 상태가 그대로 유지됩니다.`
+- personalizedPhase2ElevatedSummary: `1차에서 {phase1Core} 또한 2차에서는 {phase2Fact}`
+- personalizedHeadlineMaintained: `1차에서 확인된 주의 사항이 유지되는 상태입니다`
+- personalizedHeadlineElevated: `2차 답변으로 추가 확인이 필요한 부분이 더 드러났습니다`
+- personalizedHeadlineOk: `현재 확인한 범위에서는 큰 문제가 보이지 않습니다`
+- personalizedPhase2Fact: `re01_final_goal=fg_sign_safely|2차에서는 확인을 마친 뒤 문제 없으면 서명하는 것이 최종 목표로 확인되었습니다.`
+- personalizedPhase2Fact: `re01_price_terms|2차에서는 계약서에 적힌 금액·지급 조건을 다시 대조하는 단계로 확인되었습니다.`
+
+### 2차 개인화 요약 구조 (C2.3c 초안)
+- personalizedPhase2MaintainedSentence2: `2차 답변에서도 이보다 나빠진 사정은 확인되지 않아, 1차 판정이 유지됩니다.`
+- personalizedPhase2ElevatedSentence2: `2차 답변에서 {fact2}이 확인되어, 추가 확인이 필요한 부분이 더 늘었습니다.`
+- personalizedPhase2Fact2: `re01_sign_deadline=r1_sd_passed|약속한 서명·진행 일정이 이미 지난 상태라는 점`
+- personalizedPhase2Fact2: `re01_owner_doc_check=r1_od_refused_delay|핑크북 원본 확인을 계속 미루거나 거절당했다는 점`
+- personalizedPhase2Fact2: `re01_owner_authority=r1_oa_poa_unseen|위임장을 말로만 들었고 실물은 보지 못했다는 점`
+- personalizedPhase2Fact2: `re01_owner_authority=r1_oa_relative_no_doc|가족이 대신 서명한다고 했으나 위임장은 없었다는 점`
+- personalizedPhase2Fact2: `re01_owner_authority=r1_oa_co_owner_one|공동 소유자 중 한 사람만 서명한다고 했다는 점`
+- personalizedPhase2Fact2: `re01_transfer_account=r1_ta_third_party|소유자가 아닌 제3자 명의 계좌로 송금하라는 요청을 받았다는 점`
+- personalizedPhase2Fact2: `re01_payment_schedule=r1_ps_price_split|계약서 금액과 실제 주고받는 금액을 다르게 적자는 제안을 받았다는 점`
+- personalizedPhase2Fact2: `re01_payment_schedule=r1_ps_lump_sum_first|명의 이전 전 대금 대부분 선지급을 요청받았다는 점`
+- personalizedPhase2Fact2: `re01_foreign_eligibility=r1_fe_landed_house|개인 주택의 외국인 명의 가능 여부를 확인하지 못했다는 점`
+- personalizedPhase2Fact2: `re01_commercial_use=r1_cu_sublease|건물주가 아닌 전대인에게서 다시 빌린 상태라는 점`
+- personalizedPhase2Fact2: `re01_owner_doc_check=r1_od_copy_only|핑크북 원본은 보지 못하고 사본만 받았다는 점`
+- personalizedPhase2Fact2: `re01_owner_doc_check=r1_od_signer_differs|핑크북 소유자와 계약 서명자가 다르다는 점`
+- personalizedPhase2Fact2: `re01_owner_doc_check=r1_od_project_no_book|분양 단계라 핑크북 없이 개발사 서류만 받았다는 점`
+- personalizedPhase2Fact2: `re01_penalty_clause=r1_pc_one_sided|계약금 몰수 조항이 한쪽에게만 유리하게 적혀 있다는 점`
+- personalizedPhase2Fact2: `re01_transfer_account=r1_ta_broker_account|중개인·중개회사 명의 계좌로 송금하라는 요청을 받았다는 점`
+- personalizedPhase2Fact2: `re01_deposit_paid_proof=r1_dp_transfer_only|송금은 했으나 상대방 서명 영수증은 받지 못했다는 점`
+- personalizedPhase2Fact2: `re01_residence_registration=r1_rr_refused_or_fee|임시거주 신고를 거부하거나 추가 비용을 요구했다는 점`
+- personalizedPhase2Fact2: `re01_commercial_use=r1_cu_use_restricted|주거용·용도 제한 이야기를 들었으나 확인하지 못했다는 점`
+- personalizedPhase2Fact2: `re01_foreign_eligibility=r1_fe_quota_verbal|외국인 구매 가능을 말로만 들었고 문서 확인이 없다는 점`
+- personalizedPhase2Fact2: `re01_broker_role=r1_br_both_sides|같은 중개인이 양쪽 일을 함께 맡고 있다는 점`
+- personalizedPhase2Fact2: `re01_deposit_link=r1_dl_terms_open|계약금만 먼저 걸고 세부 조건은 나중에 정하자는 요청을 받았다는 점`
+- personalizedPhase2Fact2: `re01_sign_deadline=r1_sd_pressure_days|며칠 안 결정 압박과 다른 사람에게 넘기겠다는 말을 들었다는 점`
+- personalizedPhase2Fact2: `re01_progress_stage=r1_st_deposit_requested|서명 전 계약금 선지급을 요청받았다는 점`
+- personalizedPhase2Fact2: `re01_foreign_eligibility=r1_fe_term_unknown|외국인 소유 기간·연장 조건을 설명받지 못했다는 점`
+- personalizedPhase2Fact2: `re01_condition_compare=r1_cc_scope_diff|처음 들은 포함 항목이 계약서와 다르게 적혀 있다는 점`
+- personalizedPhase2Fact2: `re01_deposit_paid_proof=r1_dp_cash_no_receipt|계약금을 현금으로 보냈으나 영수증·확인 문서가 없다는 점`
+- personalizedPhase2Fact2: `re01_deposit_paid_proof=r1_dp_via_broker|계약금을 중개인 계좌로만 보냈다는 점`
+- personalizedPhase2Fact2: `sd_passed|약속한 서명·진행 일정이 이미 지난 상태라는 점`
+- personalizedPhase2Fact2: `dp_cash_no_receipt|계약금을 현금으로 보냈으나 영수증·확인 문서가 없다는 점`
+- personalizedPhase2Fact2: `dp_via_broker|계약금을 중개인 계좌로만 보냈다는 점`
+
+### 2차 자료 제출 체크리스트 (승인됨 2026-10-07)
+- phase2DocumentRequired: `계약서 초안 또는 매매·임대차 계약서`
+- phase2DocumentRequired: `등기부등본·권리 확인 서류`
+- phase2DocumentOptional: `중개 메시지·내용증명 자료`
+- phase2DocumentExampleTag: `계약서`
+- phase2DocumentExampleTag: `등기`

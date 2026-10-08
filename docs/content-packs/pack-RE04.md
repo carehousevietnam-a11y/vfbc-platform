@@ -352,6 +352,72 @@
 
 ---
 
+### 2차 F-path fallback (C2.1 초안)
+- phase2FallbackChain: `re04_repair_request,re04_final_goal`
+
+### 2차 개인화 결과 문구 (C2.3 초안)
+- personalizedStageLabel: `거주 중 문제 2차 종합 검토`
+- personalizedIntegratedOk: `거주 중 이슈와 2차에서 추가로 확인한 조치 조건을 함께 정리했습니다.`
+- personalizedIntegratedCaution: `1차·2차 답변을 바탕으로, 수리·관리·이웃 이슈를 직접 확인할 부분이 남아 있습니다.`
+- personalizedPhase2Empty: `2차 답변만으로 새로 드러난 위험 신호는 현재 보이지 않습니다.`
+- personalizedDocumentsNeededNote: `사진·대화·관리비 내역 등 원본을 대조하면 조치 범위를 넓힐 수 있습니다.`
+- personalizedCoreJudgmentOk: `현재까지 답변으로는 거주 중 대응 범위에서 큰 불일치가 보이지 않습니다.`
+- personalizedCoreJudgmentCaution: `조치 요청·상대방 반응은 추가 확인이 필요한 상태입니다.`
+- personalizedCoreJudgmentExpert: `복합 거주 이슈가 겹쳐 VFBCAI 전문가팀 확인이 필요한 단계입니다.`
+- personalizedPhase2MaintainedSummary: `2차 답변에서는 1차보다 더 나쁜 사정은 확인되지 않았고, 1차에서 확인된 {phase1Core} 상태가 그대로 유지됩니다.`
+- personalizedPhase2ElevatedSummary: `1차에서 {phase1Core} 또한 2차에서는 {phase2Fact}`
+- personalizedHeadlineMaintained: `1차에서 확인된 주의 사항이 유지되는 상태입니다`
+- personalizedHeadlineElevated: `2차 답변으로 거주 중 조치 쪽 추가 확인이 필요합니다`
+- personalizedHeadlineOk: `현재 확인한 범위에서는 큰 문제가 보이지 않습니다`
+- personalizedPhase2Fact: `re04_final_goal=fg_repair_and_stay|2차에서는 수리를 마치고 계속 거주하는 것이 목표로 확인되었습니다.`
+- personalizedPhase2Fact: `re04_issue_type=it_repair_refused|2차에서는 설비 수리 거부·지연 문제로 좁혀 확인되었습니다.`
+
+### 2차 개인화 요약 구조 (C2.3c 초안)
+- personalizedPhase2MaintainedSentence2: `2차 답변에서도 이보다 나빠진 사정은 확인되지 않아, 1차 판정이 유지됩니다.`
+- personalizedPhase2ElevatedSentence2: `2차 답변에서 {fact2}이 확인되어, 추가 확인이 필요한 부분이 더 늘었습니다.`
+- personalizedPhase2Fact2: `re04_contract_access=ca_sublease|집주인과 직접 맺지 않은 재임대로 거주하는 상황이라는 점`
+- personalizedPhase2Fact2: `re04_fee_detail=fd_prior_arrears|전기·수도가 밀려 끊기거나 끊긴다는 안내를 받았다는 점`
+- personalizedPhase2Fact2: `re04_threat_detail=td_cut_utilities|전기·수도·출입을 끊거나 막겠다고 했다는 점`
+- personalizedPhase2Fact2: `re04_rent_status=rs_withholding|월세나 요금 일부·전부를 내지 않고 있다는 점`
+- personalizedPhase2Fact2: `re04_rent_status=rs_deducted_cost|수리비 등을 빼고 남은 금액만 월세로 보냈다는 점`
+- personalizedPhase2Fact2: `re04_withhold_notice=wn_not_notified|알리지 않고 월세를 덜 보냈다는 점`
+- personalizedPhase2Fact2: `re04_withhold_notice=wn_landlord_objected|월세 삭감에 상대방이 해지·공제를 언급했다는 점`
+- personalizedPhase2Fact2: `re04_threat_detail=td_vacate_early|계약 기간 중 집을 비우라는 요구를 받았다는 점`
+- personalizedPhase2Fact2: `re04_deadline=dl_vacate_demand|상대방이 정한 날까지 집을 비우라는 요구를 받았다는 점`
+- personalizedPhase2Fact2: `re04_threat_detail=td_residence_registration|임시거주 신고를 거부하거나 정리하겠다고 했다는 점`
+- personalizedPhase2Fact2: `re04_since_when=sw_over_month|같은 문제가 한 달 넘게 이어지고 있다는 점`
+- personalizedPhase2Fact2: `re04_since_when=sw_recurring|고쳤으나 같은 문제가 다시 생겼다는 점`
+- personalizedPhase2Fact2: `re04_repair_detail=rd_electric_fault|전기·조명이 불안정해 생활이 어렵다는 점`
+- personalizedPhase2Fact2: `re04_repair_detail=rd_door_window|문·창문 잠금이 고장 나 출입이 불안하다는 점`
+- personalizedPhase2Fact2: `re04_defect_claim=dc_deposit_deduction|하자 비용을 보증금에서 빼겠다고 이미 말했다는 점`
+- personalizedPhase2Fact2: `re04_handover_record=hr_told_verbally|입주 때 하자를 말로만 알렸고 기록이 없다는 점`
+- personalizedPhase2Fact2: `re04_handover_record=hr_no_record|입주 때 집 상태를 따로 기록하지 않았다는 점`
+- personalizedPhase2Fact2: `re04_contract_access=ca_verbal_only|정식 계약서 없이 말·메시지로만 조건을 정했다는 점`
+- personalizedPhase2Fact2: `re04_contract_access=ca_no_copy|서명했으나 계약 사본을 받지 못했다는 점`
+- personalizedPhase2Fact2: `re04_self_repair=sr_paid_no_receipt|먼저 수리했으나 영수증을 받지 못했다는 점`
+- personalizedPhase2Fact2: `re04_self_repair=sr_paid_no_consent|동의 없이 수리했고 비용을 인정받지 못했다는 점`
+- personalizedPhase2Fact2: `re04_rent_status=rs_considering_withhold|월세 지급을 멈추려는 상황이라는 점`
+- personalizedPhase2Fact2: `re04_other_response=or_counter_threat|문제 제기에 계약 종료·보증금 미반환을 언급했다는 점`
+- personalizedPhase2Fact2: `re04_entry_detail=ed_entered_absent|부재 중 무단 출입 흔적이 있다는 점`
+- personalizedPhase2Fact2: `re04_entry_detail=ed_unilateral_device|상의 없이 잠금·카메라 등을 설치했다는 점`
+- personalizedPhase2Fact2: `re04_living_impact=li_staying_elsewhere|집에 살기 어려워 다른 곳에 머물고 있다는 점`
+- personalizedPhase2Fact2: `re04_fact_compare=fc_false_no_proof|상대 주장과 다르지만 입증 자료가 부족하다는 점`
+- personalizedPhase2Fact2: `re04_evidence=ev_none|문제를 보여 줄 자료가 없거나 아직 모은 상태라는 점`
+- personalizedPhase2Fact2: `re04_notify_status=nt_verbal_only|전화·대면으로만 알렸고 남은 기록이 없다는 점`
+- personalizedPhase2Fact2: `re04_notify_status=nt_via_agent|중개인·관리실을 통해 전달했고 직접 말하지 않았다는 점`
+- personalizedPhase2Fact2: `re04_other_response=or_silent_or_relay|답이 없거나 전달만 되고 상대 답은 없다는 점`
+- personalizedPhase2Fact2: `re04_contract_clause=cl_tenant_clear|계약서에 임차인 단독 부담으로 적혀 있다는 점`
+- personalizedPhase2Fact2: `re04_fee_detail=fd_electric_rate|전기요금이 단가가 높게 청구되고 있다는 점`
+- personalizedPhase2Fact2: `re04_fee_detail=fd_unilateral_increase|관리비·요금이 합의 없이 올랐다는 점`
+- personalizedPhase2Fact2: `re04_living_impact=li_belongings_damaged|가구·물건이 손상되었거나 없어졌다는 점`
+
+### 2차 자료 제출 체크리스트 (승인됨 2026-10-07)
+- phase2DocumentRequired: `문제 부분 사진·영상`
+- phase2DocumentRequired: `수리 요청·응답 메시지 기록`
+- phase2DocumentOptional: `입주·퇴거 상태 확인 자료`
+- phase2DocumentExampleTag: `사진`
+- phase2DocumentExampleTag: `메시지`
+
 ## 노드 수
 - 1차: Q1(공용) + CASE 4개 = 5
 - 2차: 23개 (항상 노출 6, 유형별 1개 노출 5, 조건부 후속 12)

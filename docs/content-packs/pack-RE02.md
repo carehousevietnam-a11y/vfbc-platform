@@ -326,6 +326,78 @@
 
 ---
 
+### 2차 F-path fallback (C2.1 초안)
+- phase2FallbackChain: `re02_amount_state,re02_money_evidence,re02_final_goal`
+
+### 2차 개인화 결과 문구 (C2.3 초안)
+- personalizedStageLabel: `보증금·계약금 2차 종합 검토`
+- personalizedIntegratedOk: `분쟁 경로와 2차에서 추가로 확인한 반환·증빙 조건을 함께 정리했습니다.`
+- personalizedIntegratedCaution: `1차·2차 답변을 바탕으로, 돈·서면 조건을 직접 대조할 부분이 남아 있습니다.`
+- personalizedPhase2Empty: `2차 답변만으로 새로 드러난 위험 신호는 현재 보이지 않습니다.`
+- personalizedDocumentsNeededNote: `계약서·송금·대화 기록 등 원본을 대조하면 반환 주장 확인 범위를 넓힐 수 있습니다.`
+- personalizedCoreJudgmentOk: `현재까지 답변으로는 반환 경로에서 큰 불일치가 보이지 않습니다.`
+- personalizedCoreJudgmentCaution: `반환 조건·상대방 반응은 추가 대조가 필요한 상태입니다.`
+- personalizedCoreJudgmentExpert: `복합 분쟁이 겹쳐 VFBCAI 전문가팀 확인이 필요한 단계입니다.`
+- personalizedPhase2MaintainedSummary: `2차 답변에서는 1차보다 더 나쁜 사정은 확인되지 않았고, 1차에서 확인된 {phase1Core} 상태가 그대로 유지됩니다.`
+- personalizedPhase2ElevatedSummary: `1차에서 {phase1Core} 또한 2차에서는 {phase2Fact}`
+- personalizedHeadlineMaintained: `1차에서 확인된 주의 사항이 유지되는 상태입니다`
+- personalizedHeadlineElevated: `2차 답변으로 반환·증빙 쪽 추가 확인이 필요합니다`
+- personalizedHeadlineOk: `현재 확인한 범위에서는 큰 문제가 보이지 않습니다`
+- personalizedPhase2Fact: `re02_amount_state=amt_clear|2차에서는 주고받은 금액과 다툼 금액이 서로 맞는 것으로 확인되었습니다.`
+- personalizedPhase2Fact: `re02_money_evidence=me_contract_transfer|2차에서는 계약서와 송금 내역으로 지급 사실을 대조할 수 있는 상태입니다.`
+- personalizedPhase2Fact: `re02_payment_path=pp_direct|2차에서는 돈이 상대방 본인과 직접 오갔다고 확인되었습니다.`
+- personalizedPhase2Fact: `re02_demand_method=dm_not_yet|2차에서는 아직 정식 요구나 대응을 시작하지 않은 상태입니다.`
+- personalizedPhase2Fact: `re02_situation_match=sm_match|2차에서는 상대방 주장이 대체로 사실과 맞고 처리 방법만 다른 것으로 확인되었습니다.`
+- personalizedPhase2Fact: `re02_deadline=dl_contract_term|2차에서는 계약서에 적힌 반환 기한을 기준으로 일정을 잡을 수 있는 상태입니다.`
+- personalizedPhase2Fact: `re02_blockage=bk_entitlement|2차에서는 받을 권리에 대한 확신이 부족해 진행이 막힌 것으로 확인되었습니다.`
+- personalizedPhase2Fact: `re02_final_goal=fg_full_settlement|2차에서는 계약 기준 금액대로 정리하는 것이 목표로 확인되었습니다.`
+
+### 2차 개인화 요약 구조 (C2.3c 초안)
+- personalizedPhase2MaintainedSentence2: `2차 답변에서도 이보다 나빠진 사정은 확인되지 않아, 1차 판정이 유지됩니다.`
+- personalizedPhase2ElevatedSentence2: `2차 답변에서 {fact2}이 확인되어, 추가 확인이 필요한 부분이 더 늘었습니다.`
+- personalizedPhase2Fact2: `re02_role=role_company_occupant|계약은 회사 명의인데 실제 거주자가 따로 있다는 점`
+- personalizedPhase2Fact2: `re02_payment_path=pp_agent_my_side|돈을 회사·가족·지인이 대신 주고받았다는 점`
+- personalizedPhase2Fact2: `re02_dispute_type_holder=hd_double_demand|계약이 무산된 뒤 계약금 두 배 반환을 요구받았다는 점`
+- personalizedPhase2Fact2: `re02_contract_form=cf_signer_doubt|계약서 서명자가 소유자와 다르거나 서명이 빠져 있다는 점`
+- personalizedPhase2Fact2: `re02_money_evidence=me_none|돈을 주고받은 사실을 확인할 자료가 없다는 점`
+- personalizedPhase2Fact2: `re02_cash_proof=cp_nothing|돈을 주고받은 사실을 확인할 방법이 없다는 점`
+- personalizedPhase2Fact2: `re02_broker_hold=bh_still_holding|중개인이 돈을 아직 보관하고 있다는 점`
+- personalizedPhase2Fact2: `re02_broker_hold=bh_broker_unreachable|중개인과 연락이 끊겨 돈 위치를 모른다는 점`
+- personalizedPhase2Fact2: `re02_contract_end=end_me_short_notice|먼저 계약을 끝냈으나 통지 기간이 짧았거나 알리지 못했다는 점`
+- personalizedPhase2Fact2: `re02_contract_end=end_not_ended|계약이 끝나지 않았는데 돈 문제로 다투고 있다는 점`
+- personalizedPhase2Fact2: `re02_dispute_type=dt_deposit_forfeited|상대방이 계약금을 모두 가져가겠다고 한다는 점`
+- personalizedPhase2Fact2: `re02_dispute_type_holder=hd_forfeit_dispute|계약금 반환을 서로 다르게 주장하고 있다는 점`
+- personalizedPhase2Fact2: `re02_dispute_type=dt_extra_claim|보증금 반환 대신 추가 금액을 요구받았다는 점`
+- personalizedPhase2Fact2: `re02_dispute_type_holder=hd_extra_claim|차액을 요구했으나 상대방이 지급하지 않는다는 점`
+- personalizedPhase2Fact2: `re02_dispute_type=dt_contact_avoided|반환 약속 후 상대방이 연락을 피한다는 점`
+- personalizedPhase2Fact2: `re02_dispute_type_holder=hd_contact_lost|상대방이 집을 비우고 연락이 끊겼다는 점`
+- personalizedPhase2Fact2: `re02_other_reaction=rx_ignored|메시지에 답이 없거나 연락을 피한다는 점`
+- personalizedPhase2Fact2: `re02_forfeit_clause=fc_no_clause|계약금 처리 조항이 계약서에 없다는 점`
+- personalizedPhase2Fact2: `re02_forfeit_clause=fc_one_side|계약금 조항이 한쪽에게만 적혀 있다는 점`
+- personalizedPhase2Fact2: `re02_money_evidence=me_cash_message|현금 거래에 메시지·손글씨 영수만 남았다는 점`
+- personalizedPhase2Fact2: `re02_cash_proof=cp_withdrawal_only|현금 인출 기록만 있고 상대방 전달 기록이 없다는 점`
+- personalizedPhase2Fact2: `re02_payment_path=pp_via_broker|중개인을 거쳐 주고받았고 전달 여부는 말로만 알고 있다는 점`
+- personalizedPhase2Fact2: `re02_broker_hold=bh_delivered_word|중개인이 전달했다고만 하고 기록은 없다는 점`
+- personalizedPhase2Fact2: `re02_other_reaction=rx_counter_claim|상대방이 손해·위약금을 이유로 돈을 더 요구했다는 점`
+- personalizedPhase2Fact2: `re02_deadline=dl_other_demand|상대방이 정한 기한까지 돈이나 합의를 요구받았다는 점`
+- personalizedPhase2Fact2: `re02_deadline=dl_my_schedule|출국·이사 등 일정 때문에 그 전에 정리가 필요하다는 점`
+- personalizedPhase2Fact2: `re02_deduction_items=ded_no_itemization|공제 항목 설명 없이 금액만 빼겠다고 한다는 점`
+- personalizedPhase2Fact2: `re02_extra_claim_detail=xc_unclear_basis|추가 요구 금액의 명목·근거가 정리되지 않았다는 점`
+- personalizedPhase2Fact2: `re02_forfeit_clause=fc_cannot_read|베트남어 계약서라 몰수 조항을 읽지 못했다는 점`
+- personalizedPhase2Fact2: `re02_contract_form=cf_vn_only|베트남어 계약서만 있고 내용을 모두 이해하지 못했다는 점`
+- personalizedPhase2Fact2: `re02_handover_record=ho_not_handed|열쇠·인도 날짜가 아직 정리되지 않았다는 점`
+- personalizedPhase2Fact2: `re02_payment_path=pp_unclear|누가 실제로 돈을 받았는지 확실하지 않다는 점`
+- personalizedPhase2Fact2: `re02_payment_path=pp_agent_other_side|상대방 쪽 대리인이 대신 받거나 보냈다는 점`
+- personalizedPhase2Fact2: `re02_situation_match=sm_mismatch|상대방 주장과 실제 경험이 다르다고 보는 상황이라는 점`
+- personalizedPhase2Fact2: `re02_situation_match=sm_hard_to_judge|날짜별 사실을 비교할 기록이 부족하다는 점`
+
+### 2차 자료 제출 체크리스트 (승인됨 2026-10-07)
+- phase2DocumentRequired: `매매·임대차 계약서`
+- phase2DocumentRequired: `보증금·계약금 송금·영수 내역`
+- phase2DocumentOptional: `주고받은 메시지·통지 자료`
+- phase2DocumentExampleTag: `계약서`
+- phase2DocumentExampleTag: `송금확인`
+
 ## 노드 수 요약
 - 1차: 5노드(공용 Q1 별도) — 경로당 Q1 + 4문항 노출(re02_role → dispute_type 또는 dispute_type_holder 중 1개 → contract_end → confirm_goal).
 - 2차: 19노드(조건부 후속 11개 포함). 상시 8문항(amount_state, money_evidence, payment_path, demand_method, situation_match, deadline, blockage, final_goal) + 경로별 조건부 3~6문항.

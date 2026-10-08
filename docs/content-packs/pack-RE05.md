@@ -340,3 +340,80 @@
 
 - 경로 A (개인 매도인·명의 이전 지연): re05_stage(transfer_delay) → re05_paidStage → re05_counterparty → re05_confirmGoal → re05_transferDelayDetail → re05_paidAmount → re05_nameOnDocs → re05_promisedDate → re05_counterpartyExplanation → re05_contractForm → re05_customerResponse → re05_responseReaction → re05_evidence → re05_blockage → re05_deadline → re05_deadlineDate → re05_finalGoal
 - 경로 B (분양·핑크북 미발급): re05_stage(project_book_pending) → re05_paidStage → re05_counterparty → re05_confirmGoal → re05_projectBookDetail → re05_paidAmount → re05_promisedDate → re05_counterpartyExplanation → re05_contractForm → re05_handoverCompare → re05_customerResponse → re05_responseReaction → re05_evidence → re05_blockage → re05_deadline → re05_finalGoal
+
+### 2차 F-path fallback (C2.1 초안)
+- phase2FallbackChain: `re05_transfer_status,re05_confirmGoal`
+
+### 2차 개인화 결과 문구 (C2.3 초안)
+- personalizedStageLabel: `매매·권리 서류 2차 종합 검토`
+- personalizedIntegratedOk: `권리 확인 경로와 2차에서 추가로 확인한 이전·서류 조건을 함께 정리했습니다.`
+- personalizedIntegratedCaution: `1차·2차 답변을 바탕으로, 명의·핑크북·담보 조건을 직접 대조할 부분이 남아 있습니다.`
+- personalizedPhase2Empty: `2차 답변만으로 새로 드러난 위험 신호는 현재 보이지 않습니다.`
+- personalizedDocumentsNeededNote: `핑크북·등기·매매 계약 등 원본을 대조하면 권리 확인 범위를 넓힐 수 있습니다.`
+- personalizedCoreJudgmentOk: `현재까지 답변으로는 권리 확인 범위에서 큰 불일치가 보이지 않습니다.`
+- personalizedCoreJudgmentCaution: `명의·담보·서류 상태는 추가 대조가 필요한 상태입니다.`
+- personalizedCoreJudgmentExpert: `복합 권리 이슈가 겹쳐 VFBCAI 전문가팀 확인이 필요한 단계입니다.`
+- personalizedPhase2MaintainedSummary: `2차 답변에서는 1차보다 더 나쁜 사정은 확인되지 않았고, 1차에서 확인된 {phase1Core} 상태가 그대로 유지됩니다.`
+- personalizedPhase2ElevatedSummary: `1차에서 {phase1Core} 또한 2차에서는 {phase2Fact}`
+- personalizedHeadlineMaintained: `1차에서 확인된 주의 사항이 유지되는 상태입니다`
+- personalizedHeadlineElevated: `2차 답변으로 권리·서류 쪽 추가 확인이 필요합니다`
+- personalizedHeadlineOk: `현재 확인한 범위에서는 큰 문제가 보이지 않습니다`
+- personalizedPhase2Fact: `re05_finalGoal=fg_complete_transfer|2차에서는 명의 이전·핑크북 발급을 끝까지 마치는 것이 목표로 확인되었습니다.`
+- personalizedPhase2Fact: `re05_blockage=bk_cause_unknown|2차에서는 멈춤 원인을 특정하지 못해 대응이 막힌 것으로 확인되었습니다.`
+
+### 2차 개인화 요약 구조 (C2.3c 초안)
+- personalizedPhase2MaintainedSentence2: `2차 답변에서도 이보다 나빠진 사정은 확인되지 않아, 1차 판정이 유지됩니다.`
+- personalizedPhase2ElevatedSentence2: `2차 답변에서 {fact2}이 확인되어, 추가 확인이 필요한 부분이 더 늘었습니다.`
+- personalizedPhase2Fact2: `re05_counterparty=r5_cp_owner_unclear|핑크북상 실제 권리자가 누구인지 확실하지 않다는 점`
+- personalizedPhase2Fact2: `re05_mortgage=r5_mg_paid_not_released|담보 해제 비용을 냈으나 해제 확인이 안 된다는 점`
+- personalizedPhase2Fact2: `re05_mismatchDetail=r5_mm_owner_name|핑크북 소유자와 계약 상대가 다르거나 공동 소유가 있다는 점`
+- personalizedPhase2Fact2: `re05_mismatchDetail=r5_mm_forgery_suspect|핑크북 위조가 의심된다는 점`
+- personalizedPhase2Fact2: `re05_nameOnDocs=r5_nm_buyer_vn_name|매수인 명의가 베트남인 지인으로 적혀 있다는 점`
+- personalizedPhase2Fact2: `re05_foreignDetail=r5_fe_nominee|지인 명의로 등록하자는 이야기가 나왔다는 점`
+- personalizedPhase2Fact2: `re05_rejectionDetail=r5_rj_seller_side|매도인 쪽 담보·압류 때문에 이전이 막혔다는 점`
+- personalizedPhase2Fact2: `re05_counterpartyExplanation=r5_ex_other_dispute|상속·이혼 등 다른 분쟁이 먼저라는 설명을 들었다는 점`
+- personalizedPhase2Fact2: `re05_responseReaction=r5_rr_cancel_mentioned|상대방이 계약 해제·계약금 문제를 먼저 꺼냈다는 점`
+- personalizedPhase2Fact2: `re05_paidStage=r5_paid_via_broker|매도인이 아닌 계좌로 돈을 보냈다는 점`
+- personalizedPhase2Fact2: `re05_counterparty=r5_cp_broker_only|매도인을 직접 만나지 않고 중개인 경로로만 진행했다는 점`
+- personalizedPhase2Fact2: `re05_transferDelayDetail=r5_td_mortgage|매도인 은행 담보 때문에 이전 신청을 못 하고 있다는 점`
+- personalizedPhase2Fact2: `re05_mortgage=r5_mg_release_unclear|담보 해제 시점·방법을 확인하지 못했다는 점`
+- personalizedPhase2Fact2: `re05_projectBookDetail=r5_pb_project_mortgage|프로젝트 담보 때문에 핑크북 발급이 지연된다는 점`
+- personalizedPhase2Fact2: `re05_projectBookDetail=r5_pb_project_legal|프로젝트 법적 절차 때문에 발급이 늦어진다는 점`
+- personalizedPhase2Fact2: `re05_nameOnDocs=r5_nm_family_coowner|공동 소유자가 있는데 한 사람만 서명했다는 점`
+- personalizedPhase2Fact2: `re05_nameOnDocs=r5_nm_proxy|대리인과 계약했고 위임 범위를 확인하지 못했다는 점`
+- personalizedPhase2Fact2: `re05_nameOnDocs=r5_nm_not_seen|핑크북을 직접 확인하지 못했다는 점`
+- personalizedPhase2Fact2: `re05_foreignDetail=r5_fe_land_house|분양이 아닌 단독·타운하우스를 사려는 상황이라는 점`
+- personalizedPhase2Fact2: `re05_rejectionDetail=r5_rj_foreign_status|외국인 명의로 등록할 수 없다는 이유를 들었다는 점`
+- personalizedPhase2Fact2: `re05_foreignDetail=r5_fe_quota_full|외국인 구매 물량이 찼다는 말을 들었다는 점`
+- personalizedPhase2Fact2: `re05_promisedDate=r5_pd_postponed|약속 날짜가 여러 번 미뤄졌다는 점`
+- personalizedPhase2Fact2: `re05_promisedDate=r5_pd_written_passed|계약서상 날짜가 이미 지났다는 점`
+- personalizedPhase2Fact2: `re05_counterpartyExplanation=r5_ex_extra_cost|명목 불명의 추가 비용 요구를 들었다는 점`
+- personalizedPhase2Fact2: `re05_responseReaction=r5_rr_more_money|추가 금액·세금 지급을 요구받았다는 점`
+- personalizedPhase2Fact2: `re05_counterpartyExplanation=r5_ex_no_explanation|이유 설명 없이 연락을 피한다는 점`
+- personalizedPhase2Fact2: `re05_responseReaction=r5_rr_no_contact|답이 없거나 연락이 끊겼다는 점`
+- personalizedPhase2Fact2: `re05_contractForm=r5_cf_deposit_only|정식 매매계약서 없이 계약금 약정만 있다는 점`
+- personalizedPhase2Fact2: `re05_contractForm=r5_cf_informal_only|공증 매매계약서 없이 글자 약정만 체결했다는 점`
+- personalizedPhase2Fact2: `re05_deadline=r5_dl_notice_period|통지서·기관 안내에 보완 기한이 적혀 있다는 점`
+- personalizedPhase2Fact2: `re05_stage=r5_registration_rejected|토지등록사무소에서 이전·발급이 거절됐다는 점`
+- personalizedPhase2Fact2: `re05_stage=r5_book_mismatch|핑크북 내용이 계약·실제와 다르다는 점`
+- personalizedPhase2Fact2: `re05_paidStage=r5_paid_balance|잔금까지 냈으나 명의가 넘어오지 않았다는 점`
+- personalizedPhase2Fact2: `re05_counterparty=r5_cp_resale_buyer|분양권을 넘겨받았고 분양사와 직접 계약하지 않았다는 점`
+- personalizedPhase2Fact2: `re05_mortgage=r5_mg_unknown|담보 여부를 확인하지 못했다는 점`
+- personalizedPhase2Fact2: `re05_transferDelayDetail=r5_td_stage_unknown|이전 절차가 어느 단계인지 모른다는 점`
+- personalizedPhase2Fact2: `re05_transferDelayDetail=r5_td_filed_waiting|신청은 했으나 결과가 나오지 않았다는 점`
+- personalizedPhase2Fact2: `re05_transferDelayDetail=r5_td_tax_stage|세금 납부 주체가 정리되지 않아 멈춰 있다는 점`
+- personalizedPhase2Fact2: `re05_counterpartyExplanation=r5_ex_tax_demand|계약에 없던 세금 지급을 요구받았다는 점`
+- personalizedPhase2Fact2: `re05_projectBookDetail=r5_pb_applied_no_proof|핑크북 신청했다는 말만 있고 접수증이 없다는 점`
+- personalizedPhase2Fact2: `re05_handoverCompare=r5_hc_area_diff|실제 면적과 계약 면적이 달라 정산 문제가 남았다는 점`
+- personalizedPhase2Fact2: `re05_mismatchDetail=r5_mm_area|핑크북·계약·실제 면적이 다르다는 점`
+- personalizedPhase2Fact2: `re05_mismatchDetail=r5_mm_address_use|주소·호수·토지 용도가 계약과 다르다는 점`
+- personalizedPhase2Fact2: `re05_contractForm=r5_cf_notarized_vn_only|베트남어 공증 계약만 있고 내용을 다 이해하지 못했다는 점`
+- personalizedPhase2Fact2: `re05_blockage=r5_bk_money_decision|추가 지급을 멈출지 결정하지 못하고 있다는 점`
+- personalizedPhase2Fact2: `re05_evidence=r5_ev_none|대조할 자료가 없거나 아직 모은 상태라는 점`
+
+### 2차 자료 제출 체크리스트 (승인됨 2026-10-07)
+- phase2DocumentRequired: `계약서·지급 영수증`
+- phase2DocumentRequired: `권리 서류(명의 이전·핑크북) 사본`
+- phase2DocumentOptional: `중개·분양 관련 메시지`
+- phase2DocumentExampleTag: `계약서`
+- phase2DocumentExampleTag: `핑크북`

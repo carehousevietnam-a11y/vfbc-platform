@@ -80,6 +80,21 @@ export function phase2QuestionIds(caseId: RealEstateCaseId, answers: AnswerMap):
   return realEstatePhase2QuestionIds(caseId, answers);
 }
 
+export function visiblePhase2QuestionIds(caseId: RealEstateCaseId, answers: AnswerMap): string[] {
+  return realEstatePhase2QuestionIds(caseId, answers);
+}
+
+export function isPhase2QuestionSetComplete(caseId: RealEstateCaseId, answers: AnswerMap): boolean {
+  const ids = visiblePhase2QuestionIds(caseId, answers);
+  if (ids.length === 0) return false;
+  return ids.every((id) => {
+    const v = answers[id];
+    if (v == null || v === "") return false;
+    if (Array.isArray(v)) return v.length > 0;
+    return String(v).trim().length > 0;
+  });
+}
+
 export function getNode(caseId: RealEstateCaseId, id: string): ContentPackNode | undefined {
   return engineGetNode(bundle, caseId, id);
 }

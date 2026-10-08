@@ -739,6 +739,29 @@ function parsePackM45(caseId) {
   return { caseId, rulesRaw, stepsRaw: stepBlock, steps, lookups, metrics, stepVariants };
 }
 
+function parsePhase2PackExtras(packText) {
+  const fb = packText.match(/phase2FallbackChain:\s*`([^`]+)`/);
+  const fallbackChain = fb
+    ? fb[1]
+        .split(/[,|]/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+  const documents = [];
+  const optionalDocuments = [];
+  const exampleTags = [];
+  for (const m of packText.matchAll(/phase2DocumentRequired:\s*`([^`]+)`/g)) {
+    documents.push(m[1].trim());
+  }
+  for (const m of packText.matchAll(/phase2DocumentOptional:\s*`([^`]+)`/g)) {
+    optionalDocuments.push(m[1].trim());
+  }
+  for (const m of packText.matchAll(/phase2DocumentExampleTag:\s*`([^`]+)`/g)) {
+    exampleTags.push(m[1].trim());
+  }
+  return { fallbackChain, documents, optionalDocuments, exampleTags };
+}
+
 function parseFirstResultPackMeta(packText) {
   const subtitleM = packText.match(/firstResultCautionsSectionSubtitle:\s*`([^`]+)`/);
   const boostBlock = packText.match(
@@ -756,12 +779,58 @@ function parseFirstResultPackMeta(packText) {
   const floorM = packText.match(/firstResultVerdictFloor:\s*(true|false)/i);
   const noRiskTitleM = packText.match(/firstResultNoRiskFloorTitle:\s*`([^`]+)`/);
   const noRiskBodyM = packText.match(/firstResultNoRiskFloorBody:\s*`([^`]+)`/);
+  const pick = (key) => {
+    const m = packText.match(new RegExp(`${key}:\\s*\`([^\`]+)\``));
+    return m?.[1]?.trim() ?? "";
+  };
+  const phase2Facts = {};
+  for (const m of packText.matchAll(/personalizedPhase2Fact:\s*`([^`]+)`/g)) {
+    const inner = m[1];
+    const pipe = inner.indexOf("|");
+    if (pipe < 0) continue;
+    phase2Facts[inner.slice(0, pipe).trim()] = inner.slice(pipe + 1).trim();
+  }
+  const phase2Fact2 = {};
+  for (const m of packText.matchAll(/personalizedPhase2Fact2:\s*`([^`]+)`/g)) {
+    const inner = m[1];
+    const pipe = inner.indexOf("|");
+    if (pipe < 0) continue;
+    phase2Fact2[inner.slice(0, pipe).trim()] = inner.slice(pipe + 1).trim();
+  }
+  const semanticConflicts = [];
+  for (const m of packText.matchAll(/personalizedSemanticConflict:\s*`([^`]+)`/g)) {
+    const parts = m[1].split("|").map((s) => s.trim());
+    if (parts.length < 3) continue;
+    semanticConflicts.push({
+      left: parts[0],
+      right: parts[1],
+      label: parts.slice(2).join("|"),
+    });
+  }
   return {
     firstResultCautionsSectionSubtitle: subtitleM?.[1]?.trim() ?? "",
     phase1VerdictBoost,
     firstResultVerdictFloor: floorM?.[1]?.toLowerCase() === "true",
     firstResultNoRiskFloorTitle: noRiskTitleM?.[1]?.trim() ?? "",
     firstResultNoRiskFloorBody: noRiskBodyM?.[1]?.trim() ?? "",
+    personalizedStageLabel: pick("personalizedStageLabel"),
+    personalizedIntegratedOk: pick("personalizedIntegratedOk"),
+    personalizedIntegratedCaution: pick("personalizedIntegratedCaution"),
+    personalizedPhase2Empty: pick("personalizedPhase2Empty"),
+    personalizedDocumentsNeededNote: pick("personalizedDocumentsNeededNote"),
+    personalizedCoreJudgmentOk: pick("personalizedCoreJudgmentOk"),
+    personalizedCoreJudgmentCaution: pick("personalizedCoreJudgmentCaution"),
+    personalizedCoreJudgmentExpert: pick("personalizedCoreJudgmentExpert"),
+    personalizedPhase2MaintainedSummary: pick("personalizedPhase2MaintainedSummary"),
+    personalizedPhase2ElevatedSummary: pick("personalizedPhase2ElevatedSummary"),
+    personalizedPhase2MaintainedSentence2: pick("personalizedPhase2MaintainedSentence2"),
+    personalizedPhase2ElevatedSentence2: pick("personalizedPhase2ElevatedSentence2"),
+    personalizedHeadlineMaintained: pick("personalizedHeadlineMaintained"),
+    personalizedHeadlineElevated: pick("personalizedHeadlineElevated"),
+    personalizedHeadlineOk: pick("personalizedHeadlineOk"),
+    phase2Facts,
+    phase2Fact2,
+    semanticConflicts,
   };
 }
 
@@ -775,9 +844,18 @@ function main() {
   const re02Aliases = parseRe02Aliases(md);
   const m45 = ["RE01", "RE02", "RE03", "RE04", "RE05"].map(parsePackM45);
   const firstResultPackMeta = {};
+  const phase2FallbackByCase = {};
+  const phase2DocumentLists = {};
   for (const caseId of ["RE01", "RE02", "RE03", "RE04", "RE05"]) {
     const packText = fs.readFileSync(path.join(PACK_DIR, `pack-${caseId}.md`), "utf8");
     firstResultPackMeta[caseId] = parseFirstResultPackMeta(packText);
+    const phase2Extras = parsePhase2PackExtras(packText);
+    phase2FallbackByCase[caseId] = phase2Extras.fallbackChain;
+    phase2DocumentLists[caseId] = {
+      documents: phase2Extras.documents,
+      optionalDocuments: phase2Extras.optionalDocuments,
+      exampleTags: phase2Extras.exampleTags,
+    };
   }
 
   const metaBody = `/* AUTO-GENERATED — scripts/parse-real-estate-meta.mjs */
@@ -809,10 +887,46 @@ export type FirstResultPackMeta = {
   firstResultVerdictFloor: boolean;
   firstResultNoRiskFloorTitle: string;
   firstResultNoRiskFloorBody: string;
+  personalizedStageLabel: string;
+  personalizedIntegratedOk: string;
+  personalizedIntegratedCaution: string;
+  personalizedPhase2Empty: string;
+  personalizedDocumentsNeededNote: string;
+  personalizedCoreJudgmentOk: string;
+  personalizedCoreJudgmentCaution: string;
+  personalizedCoreJudgmentExpert: string;
+  personalizedPhase2MaintainedSummary: string;
+  personalizedPhase2ElevatedSummary: string;
+  personalizedHeadlineMaintained: string;
+  personalizedHeadlineElevated: string;
+  personalizedHeadlineOk: string;
+  phase2Facts: Record<string, string>;
+  personalizedPhase2MaintainedSentence2: string;
+  personalizedPhase2ElevatedSentence2: string;
+  phase2Fact2: Record<string, string>;
+  semanticConflicts: { left: string; right: string; label: string }[];
 };
 
 export const REAL_ESTATE_FIRST_RESULT_PACK_META: Record<string, FirstResultPackMeta> = ${JSON.stringify(
     firstResultPackMeta,
+    null,
+    2,
+  )};
+
+export const REAL_ESTATE_PHASE2_FALLBACK_CHAIN: Record<string, string[]> = ${JSON.stringify(
+    phase2FallbackByCase,
+    null,
+    2,
+  )};
+
+export type RealEstatePhase2DocumentList = {
+  documents: string[];
+  optionalDocuments: string[];
+  exampleTags: string[];
+};
+
+export const REAL_ESTATE_PHASE2_DOCUMENT_LISTS: Record<string, RealEstatePhase2DocumentList> = ${JSON.stringify(
+    phase2DocumentLists,
     null,
     2,
   )};

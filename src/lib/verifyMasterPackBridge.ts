@@ -12,6 +12,7 @@ import {
   getNode,
   getQ1Options,
   isPhase1Complete,
+  isPhase2QuestionSetComplete,
   optionLabel,
   phase1QuestionIds,
   phase2QuestionIds,
@@ -24,6 +25,8 @@ import { REAL_ESTATE_FIRST_RESULT_PACK_META } from "@/lib/contentPacks/realEstat
 import { resolveRealEstatePackTransitionHooks } from "@/lib/verifyPaidTransitionHooks";
 import { resolveFirstResultNoRiskFloorCopy } from "@/lib/contentPacks/realEstate/firstResultNoRiskFloor";
 import { hasFirstResultVerdictFloor } from "@/lib/contentPacks/realEstate/phase1VerdictBoost";
+import { buildPackPersonalizedResult } from "@/lib/contentPacks/realEstate/personalizedResultBuilder";
+import { ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY } from "@/lib/adminVerifyProfiling";
 
 const Q1_KEY = "re_entry";
 const Q1_TITLE = "지금 어떤 상황인가요?";
@@ -56,6 +59,10 @@ export type VerifyMasterPackBridge = {
   isPhase1Complete: (answers: Record<string, string>) => boolean;
   isPhase2QuestionSetComplete: (answers: Record<string, string>) => boolean;
   buildFirstResult: (answers: Record<string, string>) => AdminVerifyFirstResultData | null;
+  buildPersonalizedResult: (
+    answers: Record<string, string>,
+    opts?: { evidenceFileName?: string },
+  ) => AdminVerifyFirstResultData | null;
   resolveFirstResultTransition: (
     answers: Record<string, string>,
     data: AdminVerifyFirstResultData,
@@ -189,13 +196,7 @@ export function createRealEstateVerifyMasterPackBridge(): VerifyMasterPackBridge
       const map = asAnswerMap(answers);
       const caseId = resolveCaseFromAnswers(map);
       if (caseId === "RE06") return true;
-      const ids = phase2QuestionIds(caseId, map);
-      return ids.every((id) => {
-        const v = map[id];
-        if (v == null || v === "") return false;
-        if (Array.isArray(v)) return v.length > 0;
-        return String(v).trim().length > 0;
-      });
+      return isPhase2QuestionSetComplete(caseId, map);
     },
 
     buildFirstResult(answers) {
@@ -203,6 +204,19 @@ export function createRealEstateVerifyMasterPackBridge(): VerifyMasterPackBridge
       const caseId = resolveCaseFromAnswers(map);
       const note = String(map[`${Q1_KEY}Note`] ?? "");
       return buildFirstResultData(caseId, map, note);
+    },
+
+    buildPersonalizedResult(answers, opts) {
+      const map = asAnswerMap(answers);
+      const caseId = resolveCaseFromAnswers(map);
+      if (caseId === "RE06") return null;
+      const note = String(map[`${Q1_KEY}Note`] ?? "");
+      const documentsAnyUploaded =
+        answers[ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY] === "1";
+      return buildPackPersonalizedResult(caseId, map, note, {
+        documentsAnyUploaded,
+        evidenceFileName: opts?.evidenceFileName,
+      });
     },
 
     resolveFirstResultTransition(answers, data) {

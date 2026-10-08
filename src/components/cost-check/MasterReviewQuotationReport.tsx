@@ -2324,21 +2324,30 @@ export function MasterReviewQuotationReport({
     isClassifiedAdminVerifyCase &&
     phase2OnlyIncompleteIndex === -1 &&
     isAdminVerifyPhase2PathComplete(answers);
-  const isAdminVerifyAwaitingPhase2Documents =
-    isAdminVerifyStitchLayout &&
-    adminVerifyProfilePhase === 2 &&
-    adminVerifySignupComplete &&
-    adminVerifyPhase2QuestionsOnlyComplete &&
-    !adminVerifyPhase2UploadComplete;
-  const adminVerifyPhase2QuestionsComplete =
-    adminVerifyPhase2QuestionsOnlyComplete && adminVerifyPhase2UploadComplete;
   const packVerifyPhase2QuestionsComplete =
     isPackVerifyStitchLayout &&
     adminVerifyProfilePhase === 2 &&
     Boolean(verifyMasterPackBridge?.isPhase2QuestionSetComplete(answers));
+  const packVerifyAwaitingPhase2Documents =
+    isPackVerifyStitchLayout &&
+    adminVerifyProfilePhase === 2 &&
+    adminVerifySignupComplete &&
+    packVerifyPhase2QuestionsComplete &&
+    !adminVerifyPhase2UploadComplete;
+  const isAdminVerifyAwaitingPhase2Documents =
+    (isAdminVerifyStitchLayout &&
+      adminVerifyProfilePhase === 2 &&
+      adminVerifySignupComplete &&
+      adminVerifyPhase2QuestionsOnlyComplete &&
+      !adminVerifyPhase2UploadComplete) ||
+    packVerifyAwaitingPhase2Documents;
+  const adminVerifyPhase2QuestionsComplete =
+    adminVerifyPhase2QuestionsOnlyComplete && adminVerifyPhase2UploadComplete;
+  const packVerifyPhase2GateComplete =
+    packVerifyPhase2QuestionsComplete && adminVerifyPhase2UploadComplete;
   const verifyAdminChainPhase2QuestionsComplete = isAdminVerifyStitchLayout
     ? adminVerifyPhase2QuestionsComplete
-    : packVerifyPhase2QuestionsComplete;
+    : packVerifyPhase2GateComplete;
   const adminPhase1EvidenceComplete =
     adminPhase1EvidenceDone || adminVerifyPhase1EvidenceComplete;
   const adminPhase1Stop =
@@ -2697,13 +2706,21 @@ export function MasterReviewQuotationReport({
     adminVerifyProfilePhase === 2 &&
     adminVerifyPhase2QuestionsComplete &&
     adminVerifySignupComplete;
+  const isPackVerifyPersonalizedResult =
+    isPackVerifyStitchLayout &&
+    adminVerifyProfilePhase === 2 &&
+    adminVerifySignupComplete &&
+    packVerifyPhase2GateComplete;
+  const isVerifyPackOrAdminPersonalizedResult =
+    isAdminVerifyPersonalizedResult || isPackVerifyPersonalizedResult;
   const isPackVerifyPhase2Review =
     isPackVerifyStitchLayout &&
     adminVerifyProfilePhase === 2 &&
     adminPhase1Stop &&
     adminVerifySignupComplete &&
     !isAdminVerifyFirstResult &&
-    !isAdminAwaitingPhase1Evidence;
+    !isAdminAwaitingPhase1Evidence &&
+    !isPackVerifyPersonalizedResult;
   const isAdminVerifyPhase2Review =
     (isAdminVerifyStitchLayout &&
       adminVerifyProfilePhase === 2 &&
@@ -2716,7 +2733,7 @@ export function MasterReviewQuotationReport({
     isPackVerifyPhase2Review;
   const adminVerifyUseStitchCards = isVerifyMasterStitchLayout;
   const hideGenericQuotationResult =
-    isAdminVerifyPersonalizedResult ||
+    isVerifyPackOrAdminPersonalizedResult ||
     isAdminVerifyAwaitingSignup ||
     isAdminAwaitingPhase1Evidence ||
     isAdminVerifyAwaitingPhase2Documents ||
@@ -2746,7 +2763,7 @@ export function MasterReviewQuotationReport({
     config.engine === "verify" &&
     (!allAnswered || isRealEstatePhase2Screen || isAdminVerifyPhase2Review) &&
     !isAdminVerifyFirstResult &&
-    !isAdminVerifyPersonalizedResult &&
+    !isVerifyPackOrAdminPersonalizedResult &&
     !isRealEstatePersonalizedResult &&
     !isRealEstateAwaitingSignup &&
     !isRealEstateAwaitingPhase1Evidence &&
@@ -4508,6 +4525,20 @@ export function MasterReviewQuotationReport({
     adminVerifyPhase1Questions,
     adminVerifyPhase2OnlyQuestions,
   ]);
+  const packPersonalizedResult = useMemo(() => {
+    if (!isPackVerifyPersonalizedResult || !verifyMasterPackBridge?.buildPersonalizedResult) {
+      return null;
+    }
+    const evidenceFileName =
+      answers[ADMIN_PHASE2_EVIDENCE_FILE_NAME_ANSWERS_KEY]?.trim() ||
+      resolveAdminPhase2EvidenceFileName(answers) ||
+      undefined;
+    return verifyMasterPackBridge.buildPersonalizedResult(answers, { evidenceFileName });
+  }, [
+    isPackVerifyPersonalizedResult,
+    answers,
+    verifyMasterPackBridge,
+  ]);
   const realEstateFirstResult = useMemo(() => {
     if (!isRealEstateFirstResult) return null;
     const phase1FileName =
@@ -4558,7 +4589,7 @@ export function MasterReviewQuotationReport({
   const isVerifyFirstOrPersonalizedResult =
     isAdminVerifyFirstResult ||
     isRealEstateFirstResult ||
-    isAdminVerifyPersonalizedResult ||
+    isVerifyPackOrAdminPersonalizedResult ||
     isRealEstatePersonalizedResult;
 
   const reportCardFooter = (
@@ -4649,7 +4680,7 @@ export function MasterReviewQuotationReport({
       <div
         className={cn(
           "overflow-hidden border bg-white",
-          isAdminVerifyPersonalizedResult
+          isVerifyPackOrAdminPersonalizedResult
             ? "overflow-visible border-0 bg-transparent shadow-none"
             : isRealEstatePersonalizedResult
               ? "overflow-visible border-0 bg-transparent shadow-none"
@@ -4679,7 +4710,7 @@ export function MasterReviewQuotationReport({
                   : showRightColumn &&
                   (isVerifyMasterScreen01
                     ? "border-slate-100 px-3 py-4 lg:col-span-8 lg:border-r lg:p-8"
-                    : isAdminVerifyPersonalizedResult
+                    : isVerifyPackOrAdminPersonalizedResult
                       ? "bg-transparent p-0 lg:items-stretch"
                       : isRealEstatePersonalizedResult
                         ? "bg-transparent p-0 lg:items-stretch"
@@ -4697,7 +4728,7 @@ export function MasterReviewQuotationReport({
             >
               {(!isVerifyLandingQuestions || !isVerifyMasterStitchLayout) &&
               !isAdminVerifyFirstResult &&
-              !isAdminVerifyPersonalizedResult &&
+              !isVerifyPackOrAdminPersonalizedResult &&
               !isRealEstatePersonalizedResult &&
               !isRealEstatePhase2Review ? (
               <header
@@ -4801,7 +4832,7 @@ export function MasterReviewQuotationReport({
                 ) : null}
                 {isVerifyAdminChainLayout &&
                 !isAdminVerifyFirstResult &&
-                !isAdminVerifyPersonalizedResult &&
+                !isVerifyPackOrAdminPersonalizedResult &&
                 !isRealEstatePersonalizedResult &&
                 !isRealEstateFirstResult &&
                 !isRealEstatePhase2Review &&
@@ -4870,8 +4901,17 @@ export function MasterReviewQuotationReport({
                     variant="personalized"
                   />
                 ) : null}
+                {isPackVerifyPersonalizedResult && packPersonalizedResult ? (
+                  <AdminVerifyFirstResultPanel
+                    data={packPersonalizedResult}
+                    onContinue={handleContinueClick}
+                    contentSlots={packFirstResultContentSlots}
+                    domain="real-estate"
+                    variant="personalized"
+                  />
+                ) : null}
                 {!isAdminVerifyFirstResult &&
-                !isAdminVerifyPersonalizedResult &&
+                !isVerifyPackOrAdminPersonalizedResult &&
                 !isRealEstatePersonalizedResult &&
                 !isRealEstateFirstResult &&
                 !isAdminVerifyAwaitingSignup &&
