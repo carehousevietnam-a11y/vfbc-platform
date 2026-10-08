@@ -1216,8 +1216,11 @@ const mypagePdfRouteSrc = fs.readFileSync(
   path.join(repoRoot, "src/app/api/mypage-pdf/route.ts"),
   "utf8",
 );
-if (!mypagePdfRouteSrc.includes("shouldGateVerifyAdminExpertPageAiReportPdfFromActivities")) {
-  fail.push("H-3: mypage-pdf route must use shouldGateVerifyAdminExpertPageAiReportPdfFromActivities");
+if (
+  !mypagePdfRouteSrc.includes("shouldGateVerifyExpertPageAiReportPdfFromActivities") &&
+  !mypagePdfRouteSrc.includes("shouldGateVerifyAdminExpertPageAiReportPdfFromActivities")
+) {
+  fail.push("H-3: mypage-pdf route must use shouldGateVerifyExpertPageAiReportPdfFromActivities");
 }
 if (!mypagePdfRouteSrc.includes("VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE")) {
   fail.push("H-3: mypage-pdf route must return VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE");

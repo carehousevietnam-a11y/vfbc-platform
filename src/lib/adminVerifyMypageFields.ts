@@ -82,6 +82,18 @@ export function shouldGateVerifyAdminExpertPageAiReportPdfFromActivities(
   return !isAdminPhase2DocumentsUploadComplete(activities);
 }
 
+/** verify_admin + verify_real-estate — expertFlow PDF gate (동일 규칙, 서비스 키만 확장). */
+export function shouldGateVerifyExpertPageAiReportPdfFromActivities(
+  serviceType: string | null | undefined,
+  activities: CrmActivityLike[],
+): boolean {
+  const key = serviceType?.replace(/-/g, "_");
+  if (key !== "verify_admin" && key !== "verify_real_estate") return false;
+  const hasExpertReview = activities.some((row) => row.action === "expert_review_request");
+  if (!hasExpertReview) return false;
+  return !isAdminPhase2DocumentsUploadComplete(activities);
+}
+
 const EXPERT_TIMELINE_LABEL_MARKERS = ["전문가"];
 
 export type CrmActivityLike = {
@@ -543,7 +555,7 @@ function packLinesWithinBudget(lines: string[]): string[] | null {
   return packed;
 }
 
-function packAdminVerifyPaidEvidenceKeyFindings(input: {
+export function packAdminVerifyPaidEvidenceKeyFindings(input: {
   phase1ProfileLines: string[];
   phase1ManifestLines: string[];
   phase2ResponseLines: string[];
@@ -793,7 +805,7 @@ const VERIFY_ADMIN_MANDATORY_DOC_GENERIC_LINES = [
 export const ADMIN_VERIFY_FREE_PDF_DEFAULT_CONCLUSION =
   "결론 · 1차 입력만으로는 위험 여부를 확정할 수 없어, 원본 문서와의 대조 확인이 필요합니다.";
 
-function buildAdminVerifyFreeOriginalDocumentLabel(documentLabel: string | null): string {
+export function buildAdminVerifyFreeOriginalDocumentLabel(documentLabel: string | null): string {
   const trimmed = documentLabel?.trim();
   return trimmed ? `원본 문서(${trimmed})` : "원본 문서";
 }

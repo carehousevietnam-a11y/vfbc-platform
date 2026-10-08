@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
-  shouldGateVerifyAdminExpertPageAiReportPdfFromActivities,
+  shouldGateVerifyExpertPageAiReportPdfFromActivities,
   VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE,
 } from "@/lib/adminVerifyMypageFields";
 import { buildMypagePdfDocumentFromLeadAndActivities } from "@/lib/mypagePdfExecutiveRender";
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       .order("created_at", { ascending: true });
     const activities = activitiesRaw ?? [];
 
-    if (shouldGateVerifyAdminExpertPageAiReportPdfFromActivities(lead.service_type, activities)) {
+    if (shouldGateVerifyExpertPageAiReportPdfFromActivities(lead.service_type, activities)) {
       return NextResponse.json(
         { error: VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE },
         { status: 403 },
