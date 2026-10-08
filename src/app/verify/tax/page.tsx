@@ -1,1327 +1,452 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
+import FunnelPageShell from "@/components/engine/FunnelPageShell";
 import {
-  ArrowLeft,
-  FileText,
-  AlertTriangle,
-  CheckCircle2,
-  Info,
-  ExternalLink,
-  ShieldCheck,
-  Paperclip,
-  Clock,
-  UserCheck,
-  FileSignature,
-  Building2,
-  Stamp,
-  Receipt,
-  FileQuestion,
-} from "lucide-react";
-import { SelectionCard, QuestionSection, PrimaryButton, NoticeCard, InfoBox, VerifyAnswerGrid, VerifyStepLayout, VERIFY_STEP4_ATTACHMENT_LABEL_CLASS, VERIFY_STEP4_ATTACHED_CARD_CLASS, VERIFY_STEP4_TEXTAREA_CLASS, VerifyAttachedFileNote, VerifyAttachmentHint, VerifyStep4InputStack, VerifyTextareaHint, VerifyFormPageHeader, VerifyFormPreviewPanel, VerifyFormFieldsSection, getVerifyFormConsentText, getVerifyFormFunnelHeaderAlignProps, getVerifyFormPrivacyText, OfficialTrustZone, RiskGauge, VerifyDiagnosisHeader, VerifyDiagnosisPipelineHint, VerifyDiagnosisNextSteps, VerifyResultOverviewCards, VerifyResultSummaryCard } from "@/components/ui";
-import type { SelectionCardTone } from "@/components/ui/SelectionCard";
-import { MESSENGERS_BY_LANGUAGE, type MessengerPair } from "@/lib/messenger";
+  MasterFunnelLanding,
+  type MasterFunnelContextTab,
+  type MasterLandingConfig,
+} from "@/components/cost-check/MasterFunnelLanding";
+import { getVerifyFormFunnelHeaderAlignProps } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import {
   resolveLanguage,
   validateLeadForm,
-  type SupportedLanguage,
-  type FieldErrors,
-  LEAD_FORM_MESSAGES,
-  getConsentTranslation,
   buildSocialContacts,
+  type FieldErrors,
+  type SupportedLanguage,
 } from "@/lib/customerRegistrationValidation";
-import { supabase } from "@/lib/supabase";
-import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
+import { MESSENGERS_BY_LANGUAGE } from "@/lib/messenger";
 import { saveLeadContact } from "@/lib/leadContact";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
+import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
 import {
-  loadVerifyMemberEntryState,
-  insertMemberVerifyLead,
+  ensureBrowserSessionForResultToken,
+  navigateToMypageWithResultToken,
   isLoggedInMember,
+} from "@/lib/restoreCheckLead";
+import {
+  awaitMemberVerifyLeadInsert,
+  insertMemberVerifyLead,
+  loadVerifyMemberEntryState,
   type RestoredVerifyLead,
 } from "@/lib/restoreVerifyLead";
+import { shouldAllowVerifyMemberRestoreOnMount } from "@/lib/verifyMemberRestorePolicy";
+import { supabase } from "@/lib/supabase";
+import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
 import {
-  establishBrowserSessionFromResultToken,
-  ensureBrowserSessionForResultToken,
-} from "@/lib/restoreCheckLead";
-import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
-import { getRequiredDocuments } from "@/lib/requiredDocuments";
-import FunnelPageShell from "@/components/engine/FunnelPageShell";
-import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY,
+  ADMIN_PROFILING_COMPLETE_META_FLAG,
+  ADMIN_RESTORED_PROFILE_PHASE_KEY,
+  type AdminVerifyProfilePhase,
+} from "@/lib/adminVerifyProfiling";
 import {
-  MasterFunnelLanding,
-  MASTER_LANDING_TAX,
-  getMasterLandingPageHeader,
-  type MasterFunnelContextTab,
-} from "@/components/cost-check/MasterFunnelLanding";
+  buildTaxExpertHandoffMeta,
+  buildTaxMemberVerifyMeta,
+  buildTaxPhase2PersistMeta,
+  createTaxVerifyMasterPackBridge,
+  restoreTaxAnswersFromVerifyMeta,
+} from "@/lib/contentPacks/tax/taxPack";
 import {
-  buildReviewPage1Meta,
-  mapReviewPage1StageToVerifyStage,
-  restoreReviewPage1Answers,
-  type ReviewPage1Answers,
-} from "@/components/cost-check/MasterReviewQuotationReport";
-import { parseExplicitMasterFunnelTab } from "@/lib/masterFunnelEntry";
+  buildPhase2DocumentsHandoffUrl,
+  clearPhase2HandoffSnapshot,
+  getVerifyPhase2HandoffConfig,
+  readPhase2HandoffSnapshot,
+  writePhase2HandoffSnapshot,
+} from "@/lib/verifyMasterPhase2Handoff";
+import RealEstateVerifyLeadCapture from "../real-estate/RealEstateVerifyLeadCapture";
 
-const CATEGORY = "tax" as const;
-const VERIFY_QUESTION_CONTEXT = "세무문서";
-
-const CONSENT_SUMMARY =
-  "입력하신 정보로 계정이 자동 생성되며, 개인정보 수집·이용에 동의합니다.";
-
-// "직접 검토 진행하기" 하위 선택지 — tax 카테고리 전용.
-// 카테고리별로 목록이 달라지므로 다른 VERIFY 페이지 확장 시 각각 별도 정의한다.
-const TAX_AGENCY_OPTIONS = [
-  "세무기관",
-  "관세기관",
-  "회계·신고 관련",
-  "기타",
-] as const;
-
-type TaxAgency = (typeof TAX_AGENCY_OPTIONS)[number];
-
-type AgencyGuidance = {
-  authority: string;
-  officialSite: { label: string; url: string };
-  submissionSteps: string[];
-  requiredDocuments: string[];
-  cautions: string[];
+const TAX_LANDING: MasterLandingConfig = {
+  engine: "verify",
+  serviceLabel: "세금",
+  shortServiceLabel: "세금",
+  costServiceId: "tax",
+  specialtyLine: "베트남 법률전문 AI",
+  hookTitle: "세금 안내만 보고 송금하거나 정보를 보내지 마세요.",
+  hookBody:
+    "급여, 개인 소득, 임대·해외 소득, 부가가치세(VAT)·전자 인보이스, 법인세 중 지금 확인이 필요한 상황을 먼저 정리합니다.",
+  persuasionHeadline: "내 상황을 먼저 확인하면 빠뜨리기 쉬운 자료와 기한을 구분할 수 있습니다.",
+  reviewTitle: "검토 항목 안내",
+  reviewIntro: "누구의 세금인지, 기한과 세무기관 연락, 가진 자료를 구분해 확인합니다.",
+  reviewChecks: [
+    { title: "개인 소득", body: "급여, 계약 소득, 임대·해외 소득과 세금 처리 자료를 확인합니다." },
+    { title: "사업 세금", body: "전자 인보이스와 법인세 신고 자료를 실제 거래·회계자료와 대조합니다." },
+    { title: "세무기관 연락", body: "안내, 제출 요청, 납부 통지, 사칭이 의심되는 연락을 구분합니다." },
+  ],
+  reviewNeeds: [
+    { title: "자료", items: ["급여·소득 자료", "MST·여권 자료", "인보이스·법인세 자료"] },
+    { title: "기한", items: ["신고·납부 기한을 알고 있는지", "이미 지난 것으로 보이는지"] },
+    { title: "연락", items: ["세무기관 연락이 있는지", "송금·정보 제공 전 확인이 필요한지"] },
+  ],
+  reviewRecommendation:
+    "세액이나 납부의무는 답변만으로 정하지 않습니다. 자료와 신고·납부 기록을 함께 확인합니다.",
+  guideTitle: "확인 방법",
+  guideIntro: "질문에 답한 뒤 1차 결과를 확인하고, 필요하면 추가 질문과 자료 확인으로 이어갑니다.",
+  guideItems: [
+    { title: "상황", body: "개인 세금인지 사업 세금인지, 어떤 소득·거래인지 확인합니다." },
+    { title: "자료", body: "지금 가진 자료와 아직 연결되지 않은 기록을 구분합니다." },
+  ],
+  officialUrl: "https://dichvucong.gov.vn/",
+  officialNote: "세무 절차 안내는 국가공공서비스포털에서 확인할 수 있습니다.",
 };
 
-// 선택한 기관에 따라 달라지는 안내 콘텐츠 — 실제 제출을 대행하는 기능이 아니라
-// VERIFY 결과 이후 참고할 수 있는 일반 안내 정보만 제공한다.
-const TAX_AGENCY_GUIDANCE: Record<TaxAgency, AgencyGuidance> = {
-  "세무기관": {
-    authority: "세금 고지·신고 관련 사항은 관할 세무서가 담당합니다.",
-    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
-    submissionSteps: [
-      "관할 세무서 확인",
-      "고지서·신고서 내용 확인",
-      "필요 서류 준비 후 제출 또는 온라인 신고",
-      "납부 또는 이의신청 기한 확인",
-    ],
-    requiredDocuments: [
-      "사업자등록증 사본 (해당 시)",
-      "세금 고지서 원본",
-      "관련 증빙 자료",
-    ],
-    cautions: [
-      "납부 기한을 넘기면 가산세가 부과될 수 있습니다.",
-      "사업자번호·명의가 정확히 일치하는지 확인이 필요합니다.",
-      "관할 세무서는 사업장 소재지에 따라 달라집니다.",
-    ],
-  },
-  "관세기관": {
-    authority: "수출입 관련 세금·통관 사항은 관할 관세청이 담당합니다.",
-    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
-    submissionSteps: [
-      "관할 세관 확인",
-      "통관·관세 관련 서류 준비",
-      "신고서 제출",
-      "관세 납부 및 통관 완료 확인",
-    ],
-    requiredDocuments: [
-      "수출입 신고서",
-      "송장·계약서 사본",
-      "관세 고지서 (해당 시)",
-    ],
-    cautions: [
-      "통관 지연 시 추가 비용이 발생할 수 있습니다.",
-      "품목 분류에 따라 관세율이 달라질 수 있습니다.",
-      "서류 불일치는 통관 거부로 이어질 수 있습니다.",
-    ],
-  },
-  "회계·신고 관련": {
-    authority: "장부 작성, 세무신고 대행 등은 공인 회계사무소 또는 세무대리인이 관련될 수 있습니다.",
-    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
-    submissionSteps: [
-      "회계·세무대리인 자격 확인",
-      "관련 장부 및 자료 준비",
-      "신고 대행 계약 또는 검토 의뢰",
-      "신고 완료 확인",
-    ],
-    requiredDocuments: [
-      "회계장부 또는 관련 자료",
-      "사업자등록증 사본",
-      "기존 신고 이력 자료 (해당 시)",
-    ],
-    cautions: [
-      "세무대리인의 자격 및 신뢰도를 사전에 확인하세요.",
-      "신고 오류는 추후 가산세로 이어질 수 있습니다.",
-      "정기적인 장부 관리가 세무 리스크를 줄입니다.",
-    ],
-  },
-  "기타": {
-    authority: "위 항목에 해당하지 않는 경우, 고지서 또는 관련 서류에 명시된 기관명으로 관할처를 확인하는 것이 가장 정확합니다.",
-    officialSite: { label: "베트남 국가 공공서비스포털", url: "https://dichvucong.gov.vn" },
-    submissionSteps: [
-      "관련 서류에 명시된 발급·관할 기관 확인",
-      "포털 또는 창구에서 안내하는 절차 확인",
-      "요구되는 첨부서류 준비 및 제출",
-      "접수증 또는 처리 예정일 확인",
-    ],
-    requiredDocuments: [
-      "관련 고지서·신고서 사본",
-      "사업자등록증 사본 (해당 시)",
-      "서류 종류별로 요구되는 추가 증빙 (기관 안내 확인 필요)",
-    ],
-    cautions: [
-      "제출·납부 기한이 있는 서류는 기한을 넘기면 불이익이 발생할 수 있습니다.",
-      "사업자번호·명의가 실제 서류와 정확히 일치하는지 확인하세요.",
-      "관할기관 및 절차는 지역·사안에 따라 달라질 수 있어, 정확한 확인은 해당 기관에 직접 문의하시기 바랍니다.",
-    ],
-  },
-};
+const VERIFY_SERVICE_TYPE = "verify_tax" as const;
+const MEMBER_VERIFY_LEAD_TIMEOUT_MS = 45_000;
+const PHASE1_ATTACH_STORAGE_FAIL_MESSAGE = "첨부 저장 실패, 다시 시도";
 
-function ConsentDetails({
-  open,
-  onToggle,
-  highlight,
-  lang = "ko",
-  messengers,
-}: {
-  open: boolean;
-  onToggle: () => void;
-  highlight?: boolean;
-  lang?: SupportedLanguage;
-  messengers: MessengerPair;
-}) {
-  const translation = getConsentTranslation(lang, messengers.primary.label, messengers.secondary.label);
-  return (
-    <div
-      className={`mt-1 rounded-lg p-3 text-[11px] leading-relaxed transition-colors ${
-        highlight ? "bg-red-50 ring-1 ring-red-200" : "bg-gray-50"
-      }`}
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full text-left font-medium text-gray-700"
-      >
-        {open ? "▾" : "▸"} 자세히 보기 (베트남 법령 원문 · 번역)
-      </button>
-
-      {highlight && (
-        <p className="mt-2 font-semibold text-red-700">
-          {LEAD_FORM_MESSAGES[lang].consentRequiredWarning}
-        </p>
-      )}
-
-      {open && (
-        <div className="mt-2 space-y-3 text-[#64748B]">
-          <div>
-            <p className="font-semibold text-gray-700">🇻🇳 Việt Nam (nguyên văn)</p>
-            <p>
-              Theo Luật Bảo vệ dữ liệu cá nhân (Luật số 91/2025/QH15, có hiệu
-              lực từ ngày 01/01/2026) và Nghị định số 356/2025/NĐ-CP hướng dẫn
-              thi hành, chúng tôi thu thập và xử lý dữ liệu cá nhân của bạn
-              sau khi có sự đồng ý rõ ràng, bao gồm: họ tên, số điện thoại,
-              địa chỉ, email, và ít nhất một ID mạng xã hội (Kakao, WeChat,
-              WhatsApp hoặc Zalo — bắt buộc chọn một), nhằm mục đích tư vấn,
-              hướng dẫn đăng ký và tạo tài khoản dịch vụ tự động. Dữ liệu được
-              lưu trữ đến khi bạn hủy tài khoản hoặc đạt được mục đích xử lý.
-              Bạn có quyền từ chối đồng ý; tuy nhiên, việc từ chối có thể
-              khiến bạn không thể sử dụng một số dịch vụ (xem kết quả chẩn
-              đoán, tư vấn, v.v.).
-            </p>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-700">{translation.heading}</p>
-            <p>{translation.body}</p>
-            <ul className="mt-1 list-disc pl-4 space-y-0.5">
-              {translation.items.map((item, idx) => (
-                <li key={idx}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <Link
-            href="/privacy"
-            target="_blank"
-            className="inline-block font-semibold text-blue-900 hover:underline"
-          >
-            개인정보처리방침 전문 보기 →
-          </Link>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function levelIcon(level: "info" | "warning" | "critical") {
-  if (level === "critical") return <AlertTriangle size={14} className="mt-0.5 shrink-0 text-red-600" />;
-  if (level === "warning") return <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600" />;
-  return <Info size={14} className="mt-0.5 shrink-0 text-gray-400" />;
-}
-
-function riskFactorBadgeClass(level: "critical" | "high" | "caution") {
-  if (level === "critical") return "bg-red-50 text-red-700 border border-red-100";
-  if (level === "high") return "bg-amber-50 text-amber-700 border border-amber-100";
-  return "bg-gray-50 text-gray-600 border border-gray-100";
-}
-
-function riskFactorLabel(level: "critical" | "high" | "caution") {
-  if (level === "critical") return "치명적 위험";
-  if (level === "high") return "높은 위험";
-  return "주의";
-}
-
-// 진단 리포트 — diagnosis.report(11개 항목)가 있으면 이걸 우선 렌더링.
-// report가 없는 경우(구버전 데이터 등)를 대비해 기존 headline/checklist/note
-// 렌더링은 그대로 보존해 폴백으로 사용한다.
-function DiagnosisReportSection({ diagnosis }: { diagnosis: DiagnosisResult }) {
-  const { report } = diagnosis;
-
-  if (!report) {
-    return (
-      <>
-        <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
-        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
-          입력하신 정보와 등록된 법령·행정자료를 기준으로 첨부하신 서류를
-          1차 분석한 결과입니다.
-        </p>
-        <ul className="mt-4 space-y-2.5">
-          {diagnosis.checklist.map((item) => (
-            <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
-              {levelIcon(item.level)}
-              <span>{item.label}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">{diagnosis.note}</p>
-      </>
-    );
+async function uploadTaxPhase1Evidence(
+  leadId: string,
+  evidenceFile: File,
+): Promise<{ ok: true; storagePath: string } | { ok: false }> {
+  const rawExt = evidenceFile.name.split(".").pop() || "";
+  const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+  const path = `verify-tax/${leadId}.${safeExt}`;
+  const { error: uploadError } = await supabase.storage.from("documents").upload(path, evidenceFile);
+  if (uploadError) {
+    console.error(uploadError);
+    return { ok: false };
   }
-
-  return (
-    <>
-      <p className="mt-3 text-lg font-bold text-gray-900">{diagnosis.headline}</p>
-
-      {/* STEP10-4: 추천 분야 — AI가 분석한 분야를 고객에게 표시 (legalAreas와 별개, 법률 검토 대상 아님) */}
-      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-800">
-        추천 분야: 세무
-      </div>
-
-      <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
-        <p className="text-xs font-semibold text-gray-700">사건 요약</p>
-        <p className="mt-1.5 whitespace-pre-line text-xs text-gray-600 leading-relaxed">
-          {report.incidentSummary}
-        </p>
-      </div>
-
-      <div className="mt-4">
-        <p className="text-xs font-semibold text-gray-700">주요 발견사항</p>
-        <ul className="mt-2 space-y-2.5">
-          {report.keyFindings.map((item) => (
-            <li key={item.id} className="flex items-start gap-2 text-sm text-gray-700">
-              {levelIcon(item.level)}
-              <span>{item.label}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="mt-4">
-        <p className="text-xs font-semibold text-gray-700">VFBCAI 1차 분석 의견</p>
-        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.analysisOpinion}</p>
-      </div>
-
-      {report.legalAreas.length > 0 && (
-        <div className="mt-4">
-          <p className="text-xs font-semibold text-gray-700">적용 가능성이 있는 법률 분야</p>
-          <ul className="mt-2 space-y-1.5">
-            {report.legalAreas.map((la) => (
-              <li key={la.area} className="text-xs text-gray-600 leading-relaxed">
-                <span className="font-semibold text-gray-800">{la.area}</span> — {la.note}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="mt-4">
-        <p className="text-xs font-semibold text-gray-700">법률 적용 가능성 설명</p>
-        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
-          {report.legalApplicabilityNote}
-        </p>
-      </div>
-
-      <div className="mt-4">
-        <p className="text-xs font-semibold text-gray-700">최신 법령 확인 안내</p>
-        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.legalUpdateNotice}</p>
-      </div>
-
-      <div className="mt-4">
-        <p className="text-xs font-semibold text-gray-700">실무 행정 관행 안내</p>
-        <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">{report.practiceNotes}</p>
-      </div>
-
-      {report.riskFactors.length > 0 && (
-        <div className="mt-4">
-          <p className="text-xs font-semibold text-gray-700">위험요인</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {report.riskFactors.map((rf, idx) => (
-              <span
-                key={`${rf.label}-${idx}`}
-                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${riskFactorBadgeClass(rf.level)}`}
-              >
-                [{riskFactorLabel(rf.level)}] {rf.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {report.recommendedActions.length > 0 && (
-        <div className="mt-4">
-          <p className="text-xs font-semibold text-gray-700">권장 조치</p>
-          <ol className="mt-2 space-y-1.5">
-            {report.recommendedActions.map((action, idx) => (
-              <li key={idx} className="text-xs text-gray-600 leading-relaxed">
-                {idx + 1}순위 {action}
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
-
-      <div className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed">
-        {report.expertReviewRecommendation}
-      </div>
-
-      <p className="mt-4 text-[11px] text-gray-400 leading-relaxed">{report.aiLimitationNotice}</p>
-    </>
-  );
+  return { ok: true, storagePath: path };
 }
 
-type ReviewQuestionOption = {
-  value: string;
-  title: string;
-  desc: string;
-};
-
-// 화면에는 합의한 VERIFY 문구를 표시하되, value는 기존 verifyDiagnosis.ts가
-// 사용하는 incidentType 값으로 유지한다. 따라서 진단·DB·CRM 로직은 변경하지 않는다.
-const PREVENT_DOCUMENT_OPTIONS: ReviewQuestionOption[] = [
-  { value: "세금고지서", title: "세금 고지서", desc: "세금 고지·통지 관련 서류" },
-  { value: "신고서류", title: "신고서류", desc: "세금 신고 관련 서류" },
-  { value: "계좌동결통지", title: "계좌동결 통지서", desc: "계좌동결 관련 통지 서류" },
-  { value: "가산세통지", title: "가산세 통지서", desc: "가산세 부과 관련 통지 서류" },
-  { value: "세무조사", title: "세무조사 관련 서류", desc: "세무조사 통지·자료 요청 서류" },
-  { value: "기타", title: "기타", desc: "위 항목에 해당하지 않는 검토 자료" },
-];
-
-const CASE_ISSUE_OPTIONS: ReviewQuestionOption[] = [
-  { value: "세금고지서", title: "세금 고지 문제", desc: "고지 금액·근거 관련 문제" },
-  { value: "신고서류", title: "신고 관련 문제", desc: "신고 누락·오류 관련 문제" },
-  { value: "계좌동결통지", title: "계좌동결 문제", desc: "계좌동결 통지를 받은 경우" },
-  { value: "가산세통지", title: "가산세 문제", desc: "가산세 부과 통지를 받은 경우" },
-  { value: "세무조사", title: "세무조사 대응", desc: "세무조사가 진행 중인 경우" },
-  { value: "기타", title: "기타", desc: "위 항목에 해당하지 않는 문제" },
-];
-
-// STEP11-1: STEP1 최상단 — 사전 검토 / 사후 사건 검토 구분 질문.
-// 화면 로컬 state로만 관리하며, DB/API/CRM/진단 결과에는 아직 연결하지 않음.
-const REVIEW_STAGE_OPTIONS = [
-  {
-    value: "pre",
-    title: "제출·계약 전 서류 검토",
-    desc: "계약·제출·신청 전에 서류와 위험요인을 미리 확인하고 싶습니다. (Prevent Review)",
-  },
-  {
-    value: "post",
-    title: "문제 발생 후 대응 검토",
-    desc: "이미 반려·통지·분쟁·손해 등 문제가 발생해 대응 방향을 확인하고 싶습니다. (Case Review)",
-  },
-] as const;
-type ReviewStage = (typeof REVIEW_STAGE_OPTIONS)[number]["value"];
-
-// 질문3 — Prevent Review(사전 검토)에서만 사용. "무엇을 확인하고 싶으신가요?"
-// 진단 로직(verifyDiagnosis.ts)에는 전달하지 않고 CRM meta에만 참고 정보로 저장한다.
-const PREVENT_FOCUS_OPTIONS = [
-  "제출 요건과 형식",
-  "누락된 내용이나 서류",
-  "불리하거나 위험한 조항",
-  "원본과 번역본의 일치 여부",
-  "공증·인증·영사확인 필요 여부",
-  "전체 검토가 필요함",
-] as const;
-
-// 질문3 — Case Review(사후 검토)에서만 사용. "현재 어느 단계인가요?"
-// 진단 로직(verifyDiagnosis.ts)에는 전달하지 않고 CRM meta에만 참고 정보로 저장한다.
-const CASE_STAGE_OPTIONS = [
-  "공식 대응 전",
-  "상대방·기관과 협의 중",
-  "이의신청·통지 준비 중",
-  "경찰·검찰·법원·행정기관 접수",
-  "판결·결정 후 후속 대응",
-  "기타",
-] as const;
-
-// STEP12-2: 공통 SelectionCard용 아이콘 매핑(표시 전용). 값/옵션 배열은 변경하지 않음.
-const REVIEW_STAGE_ICONS: Record<ReviewStage, typeof ShieldCheck> = {
-  pre: ShieldCheck,
-  post: AlertTriangle,
-};
-
-const INCIDENT_TYPE_ICONS: Record<string, typeof FileText> = {
-  "세금고지서": Receipt,
-  "신고서류": FileText,
-  "계좌동결통지": AlertTriangle,
-  "가산세통지": Stamp,
-  "세무조사": FileSignature,
-  "기타": FileQuestion,
-};
-
-// STEP12-2B: 공통 SelectionCard용 tone 매핑(표시 전용). 값/옵션 배열은 변경하지 않음.
-// 지원 tone: blue / green / amber / red / purple / cyan / slate
-// (인허가=emerald→green, 계약=indigo→blue 계열, 노동=orange→amber로 대체 적용)
-const REVIEW_STAGE_TONES: Record<ReviewStage, SelectionCardTone> = {
-  pre: "blue",
-  post: "amber",
-};
-
-const INCIDENT_TYPE_TONES: Record<string, SelectionCardTone> = {
-  "세금고지서": "blue",
-  "신고서류": "cyan",
-  "계좌동결통지": "red",
-  "가산세통지": "amber",
-  "세무조사": "purple",
-  "기타": "slate",
-};
-
-// 질문 2의 화면 표시용 제목별 아이콘·색상 매핑.
-// "소송·형사·사기"와 "기타"는 진단 호환을 위해 value가 모두 "기타"이므로,
-// 화면에서는 title 기준으로 서로 다른 아이콘과 색상을 적용한다.
-const QUESTION2_TITLE_ICONS: Record<string, typeof FileText> = {};
-
-const QUESTION2_TITLE_TONES: Record<string, SelectionCardTone> = {};
-
-
-// 질문 3 선택지의 아이콘·색상 매핑(표시 전용).
-// 선택값과 CRM meta(review_focus)는 기존 문자열을 그대로 저장하며,
-// 진단·DB·API 로직에는 영향을 주지 않는다.
-const REVIEW_FOCUS_ICONS: Record<string, typeof FileText> = {
-  "제출 요건과 형식": FileText,
-  "누락된 내용이나 서류": FileQuestion,
-  "불리하거나 위험한 조항": AlertTriangle,
-  "원본과 번역본의 일치 여부": FileSignature,
-  "공증·인증·영사확인 필요 여부": Stamp,
-  "전체 검토가 필요함": ShieldCheck,
-  "공식 대응 전": ShieldCheck,
-  "상대방·기관과 협의 중": UserCheck,
-  "이의신청·통지 준비 중": FileSignature,
-  "경찰·검찰·법원·행정기관 접수": Building2,
-  "판결·결정 후 후속 대응": Stamp,
-  "기타": Info,
-};
-
-const REVIEW_FOCUS_TONES: Record<string, SelectionCardTone> = {
-  "제출 요건과 형식": "blue",
-  "누락된 내용이나 서류": "cyan",
-  "불리하거나 위험한 조항": "amber",
-  "원본과 번역본의 일치 여부": "purple",
-  "공증·인증·영사확인 필요 여부": "green",
-  "전체 검토가 필요함": "slate",
-  "공식 대응 전": "blue",
-  "상대방·기관과 협의 중": "cyan",
-  "이의신청·통지 준비 중": "purple",
-  "경찰·검찰·법원·행정기관 접수": "amber",
-  "판결·결정 후 후속 대응": "green",
-  "기타": "cyan",
-};
-
-// CHECK(TRC)의 PremiumLeadCapture와 동일한 JSX/className 구조 — 1번째 화면(가입 전),
-// 결과 미리보기 + 개인정보 입력. TRC는 feasibilityScore(0~100)로 possible/conditional을
-// 가르지만, VERIFY는 그런 점수가 없으므로 riskLevel(low/medium/high)로 대체한다.
-function VerifyTaxLeadCapture({
-  riskLevel,
-  messengers,
-  lang,
-  fieldErrors,
-  submitting,
-  error,
-  consentOpen,
-  consentHighlight,
-  onConsentToggle,
-  onConsentChecked,
-  onSubmit,
-  onReset,
-}: {
-  riskLevel: "low" | "medium" | "high";
-  messengers: MessengerPair;
-  lang: SupportedLanguage;
-  fieldErrors: FieldErrors;
-  submitting: boolean;
-  error: string | null;
-  consentOpen: boolean;
-  consentHighlight: boolean;
-  onConsentToggle: () => void;
-  onConsentChecked: () => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  onReset: () => void;
-}) {
-
-  // [STEP22 2차] 실시간 검증 — 입력값이 바뀔 때마다 공용 검증 모듈로 재검사해서
-  // 제출 버튼의 disabled 여부를 즉시 반영한다. name 속성은 그대로 두고
-  // FormData 기반 제출도 그대로 유지하면서, 버튼 활성화 판단용으로만 별도 상태를 쓴다.
-  const [formValues, setFormValues] = useState<{
-    name: string;
-    phone: string;
-    address: string;
-    email: string;
-    kakao_id: string;
-    zalo_id: string;
-  }>({ name: "", phone: "", address: "", email: "", kakao_id: "", zalo_id: "" });
-  const [consentChecked, setConsentChecked] = useState(false);
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const { valid: formValuesValid, errors: liveErrors } = validateLeadForm(formValues, lang);
-  const canSubmit = formValuesValid && consentChecked;
-  const isLow = riskLevel === "low";
-
-  return (
-    <div>
-      <VerifyFormPageHeader />
-      <VerifyFormPreviewPanel isLow={isLow} riskGauge={<RiskGauge riskLevel={riskLevel} size={76} />} />
-
-      <VerifyFormFieldsSection lang={lang}>
-        <form onSubmit={onSubmit} className="mt-3 space-y-2.5">
-          <input
-            type="text"
-            name="name"
-            required
-            placeholder={LEAD_FORM_MESSAGES[lang].name.placeholder}
-            onChange={(e) => setFormValues((v) => ({ ...v, name: e.target.value }))}
-            onBlur={() => setTouched((t) => ({ ...t, name: true }))}
-            className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.name && liveErrors.name
-                ? "border-red-300 focus:border-red-400"
-                : "border-gray-200 focus:border-blue-900"
-            }`}
-          />
-          {touched.name && liveErrors.name && (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.name}</p>
-          )}
-          <input
-            type="tel"
-            name="phone"
-            required
-            placeholder={LEAD_FORM_MESSAGES[lang].phone.placeholder}
-            onChange={(e) => setFormValues((v) => ({ ...v, phone: e.target.value }))}
-            onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
-            className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.phone && liveErrors.phone
-                ? "border-red-300 focus:border-red-400"
-                : "border-gray-200 focus:border-blue-900"
-            }`}
-          />
-          {touched.phone && liveErrors.phone && (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.phone}</p>
-          )}
-          <input
-            type="text"
-            name="address"
-            required
-            placeholder={LEAD_FORM_MESSAGES[lang].address.placeholder}
-            onChange={(e) => setFormValues((v) => ({ ...v, address: e.target.value }))}
-            onBlur={() => setTouched((t) => ({ ...t, address: true }))}
-            className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.address && liveErrors.address
-                ? "border-red-300 focus:border-red-400"
-                : "border-gray-200 focus:border-blue-900"
-            }`}
-          />
-          {touched.address && liveErrors.address && (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.address}</p>
-          )}
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder={LEAD_FORM_MESSAGES[lang].email.placeholder}
-            onChange={(e) => setFormValues((v) => ({ ...v, email: e.target.value }))}
-            onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-            className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.email && liveErrors.email
-                ? "border-red-300 focus:border-red-400"
-                : "border-gray-200 focus:border-blue-900"
-            }`}
-          />
-          {touched.email && liveErrors.email && (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.email}</p>
-          )}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input
-              type="text"
-              name="kakao_id"
-              placeholder={`${messengers.primary.label} ID`}
-              onChange={(e) => setFormValues((v) => ({ ...v, kakao_id: e.target.value }))}
-              onBlur={() => setTouched((t) => ({ ...t, kakao_id: true }))}
-              className={`h-11 rounded-lg border px-4 text-sm focus:outline-none ${
-                (touched.kakao_id || touched.zalo_id) && liveErrors.sns
-                  ? "border-red-300 focus:border-red-400"
-                  : "border-gray-200 focus:border-blue-900"
-              }`}
-            />
-            <input
-              type="text"
-              name="zalo_id"
-              placeholder={`${messengers.secondary.label} ID`}
-              onChange={(e) => setFormValues((v) => ({ ...v, zalo_id: e.target.value }))}
-              onBlur={() => setTouched((t) => ({ ...t, zalo_id: true }))}
-              className={`h-11 rounded-lg border px-4 text-sm focus:outline-none ${
-                (touched.kakao_id || touched.zalo_id) && liveErrors.sns
-                  ? "border-red-300 focus:border-red-400"
-                  : "border-gray-200 focus:border-blue-900"
-              }`}
-            />
-          </div>
-          <p className={`-mt-1 text-[12px] leading-[1.45] ${(touched.kakao_id || touched.zalo_id) && liveErrors.sns ? "text-red-600" : "text-[#64748B]"}`}>
-            {LEAD_FORM_MESSAGES[lang].sns.required}
-          </p>
-
-          <div>
-            <label className="flex items-start gap-2 text-[12px] leading-[1.5] text-[#64748B]">
-              <input
-                type="checkbox"
-                name="agreeTerms"
-                onChange={(e) => {
-                  if (e.target.checked) onConsentChecked();
-                  setConsentChecked(e.target.checked);
-                }}
-                className="mt-0.5"
-              />
-              <span>(필수) {getVerifyFormConsentText(lang)}</span>
-            </label>
-            <ConsentDetails
-              open={consentOpen}
-              onToggle={onConsentToggle}
-              highlight={consentHighlight}
-              lang={lang}
-              messengers={messengers}
-            />
-          </div>
-
-          {error && <p className="text-xs text-red-600">{error}</p>}
-
-          <PrimaryButton type="submit" variant={isLow ? "primary" : "amber"} loading={submitting} disabled={!canSubmit}>
-            {submitting ? LEAD_FORM_MESSAGES[lang].submitLoadingLabel : lang === "ko" ? "AI 1차 분석 결과 보기" : LEAD_FORM_MESSAGES[lang].submitLabel}
-          </PrimaryButton>
-        </form>
-
-        <div className="mt-2.5">
-          <InfoBox className="text-[#64748B]">{getVerifyFormPrivacyText(lang)}</InfoBox>
-        </div>
-
-        <button
-          type="button"
-          onClick={onReset}
-          className="mt-3 block text-[12px] text-[#64748B] hover:text-[#475569]"
-        >
-          {LEAD_FORM_MESSAGES[lang].resetLabel}
-        </button>
-      </VerifyFormFieldsSection>
-    </div>
-  );
-}
-
-export default function VerifyTaxPage() {
-  // 질문(사건정보) → 개인정보 → 1차 결과(진단) → 전문가 검토 진행
-  // → Auto-login → /r → /documents(검토 대상 파일 업로드) → 마이페이지
-  // (CHECK와 동일한 순서. "completed"는 더 이상 도달하지 않지만 코드는 보존한다 —
-  // 도달 경로 제거 이력은 아래 handleExpertRequest 참고)
-  const [step, setStep] = useState<
-    "incident" | "form" | "diagnosis" | "guidanceSelect" | "guidance" | "completed"
-  >("incident");
-  const [incidentType, setIncidentType] = useState<string | null>(null);
-  const [incidentDescription, setIncidentDescription] = useState("");
-  const [incidentError, setIncidentError] = useState<string | null>(null);
-  const [reviewStage, setReviewStage] = useState<ReviewStage | null>(null);
-  const [reviewStageError, setReviewStageError] = useState<string | null>(null);
-  // 질문3 — Prevent/Case Review 분기별로 다른 선택지("무엇을 확인하고 싶으신가요?" /
-  // "현재 어느 단계인가요?")를 저장. 진단 로직에는 전달하지 않고 CRM meta 참고용.
-  const [reviewFocus, setReviewFocus] = useState<string | null>(null);
-  // 질문4 — 선택형 간단 파일 업로드(선택 사항). 실제 업로드는 handleSubmit에서
-  // 기존 VERIFY Storage 구조(documents 버킷)에 그대로 이루어진다.
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
-
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [emailProvided, setEmailProvided] = useState(false);
-  const [consentOpen, setConsentOpen] = useState(false);
-  const [consentHighlight, setConsentHighlight] = useState(false);
-  const [leadId, setLeadId] = useState<string | null>(null);
-  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
-  const [diagnosing, setDiagnosing] = useState(false);
-  // 개인정보 입력(1번째 화면)에서 CHECK(TRC)의 PremiumLeadCapture처럼 미리보기 결과를
-  // 보여주기 위한 것 — 아직 리드가 생성되기 전이므로 leadId 없이 계산만 미리 해둔다.
-  // 실제 최종 진단(handleSubmit의 getDiagnosis 호출)과는 별개이며, 여기서 계산한
-  // 값은 CRM/DB에 저장되지 않는다.
-  const [previewDiagnosis, setPreviewDiagnosis] = useState<DiagnosisResult | null>(null);
-  const [expertRequesting, setExpertRequesting] = useState(false);
-  const [expertError, setExpertError] = useState<string | null>(null);
-  const [aiReportRequesting, setAiReportRequesting] = useState(false);
-  const [aiReportError, setAiReportError] = useState<string | null>(null);
-  const [selectedAgency, setSelectedAgency] = useState<TaxAgency | null>(null);
-  // CHECK(TRC)와 동일한 Step 방식 질문 화면의 선택 카드 클릭 피드백(300ms) 및
-  // 전문가 진행 요청 시 사용할 로그인 토큰 — TRC의 selectedKey/resultToken과 동일한 용도.
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [resultToken, setResultToken] = useState<string | null>(null);
-  const [restoreVerifyPending, setRestoreVerifyPending] = useState(true);
-  const [skipSignup, setSkipSignup] = useState(false);
-  const [restoredLeadActive, setRestoredLeadActive] = useState(false);
-  const memberSubmitStartedRef = useRef(false);
+export default function TaxVerifyMasterPage() {
   const searchParams = useSearchParams();
   const [contextTab, setContextTab] = useState<MasterFunnelContextTab>(
-    () => parseExplicitMasterFunnelTab(searchParams.get("tab")) ?? "review"
+    () => parseExplicitMasterFunnelTab(searchParams.get("tab")) ?? "review",
   );
-  const [landingDone, setLandingDone] = useState(false);
-  const [page1ReviewAnswers, setPage1ReviewAnswers] = useState<ReviewPage1Answers | null>(
-    null
+  const [skipSignup, setSkipSignup] = useState(false);
+  const [adminMasterSignupComplete, setAdminMasterSignupComplete] = useState(false);
+  const [adminMasterSignupPending, setAdminMasterSignupPending] = useState(false);
+  const [adminVerifyPhase1EvidenceComplete, setAdminVerifyPhase1EvidenceComplete] = useState(false);
+  const [adminVerifyPhase2UploadComplete, setAdminVerifyPhase2UploadComplete] = useState(false);
+  const [adminVerifyPhase2DocumentsAnyUploaded, setAdminVerifyPhase2DocumentsAnyUploaded] =
+    useState(false);
+  const [signupRiskLevel, setSignupRiskLevel] = useState<"low" | "medium" | "high">("medium");
+  const [submitting, setSubmitting] = useState(false);
+  const [handoffError, setHandoffError] = useState<string | null>(null);
+  const [signupFieldErrors, setSignupFieldErrors] = useState<FieldErrors>({});
+  const [signupConsentOpen, setSignupConsentOpen] = useState(false);
+  const [aiReportRequesting, setAiReportRequesting] = useState(false);
+  const [expertRequesting, setExpertRequesting] = useState(false);
+  const [aiReportError, setAiReportError] = useState<string | null>(null);
+  const [expertError, setExpertError] = useState<string | null>(null);
+  const [phase1AttachStorageFailed, setPhase1AttachStorageFailed] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [resultToken, setResultToken] = useState<string | null>(null);
+  const [profilingSeedAnswers, setProfilingSeedAnswers] = useState<Record<string, string>>({});
+  const memberSubmitStartedRef = useRef(false);
+  const pendingMemberLeadIdRef = useRef<string | null>(null);
+  const phase1AnswersRef = useRef<Record<string, string> | null>(null);
+  const phase1EvidenceFileRef = useRef<File | null>(null);
+  const profilingAnswersRef = useRef<Record<string, string> | null>(null);
+  const verifyMasterPackBridge = useMemo(() => createTaxVerifyMasterPackBridge(), []);
+
+  const lang = useMemo<SupportedLanguage>(
+    () => resolveLanguage(searchParams.get("lang")),
+    [searchParams],
   );
-  const [lang, setLang] = useState<SupportedLanguage>("ko");
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      setLang(resolveLanguage(params.get("lang")));
-      if (params.get("start") === "check") {
-        setLandingDone(true);
+  const messengers = MESSENGERS_BY_LANGUAGE[lang];
+
+  const applyRestoredVerify = useCallback((restored: RestoredVerifyLead) => {
+    const meta = restored.verifyMeta;
+    if (meta) {
+      const restoredAnswers = restoreTaxAnswersFromVerifyMeta(meta);
+      if (restoredAnswers && Object.keys(restoredAnswers).length > 0) {
+        setProfilingSeedAnswers(restoredAnswers);
       }
-      const urlTab = parseExplicitMasterFunnelTab(params.get("tab"));
-      if (urlTab) setContextTab(urlTab);
+      if (meta[ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY] === "1") {
+        setAdminVerifyPhase2UploadComplete(true);
+      }
+      if (meta[ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY] === "1") {
+        setAdminVerifyPhase2DocumentsAnyUploaded(true);
+      }
+    }
+    setLeadId(restored.leadId);
+    setResultToken(restored.resultToken);
+    setAdminMasterSignupComplete(true);
+    setAdminMasterSignupPending(false);
+    if (typeof meta?.storagePath === "string" || typeof meta?.file_name === "string") {
+      setAdminVerifyPhase1EvidenceComplete(true);
     }
   }, []);
 
-  async function applyRestoredVerify(restored: RestoredVerifyLead) {
-    const meta = restored.verifyMeta;
-    if (meta) {
-      const restoredPage1 = restoreReviewPage1Answers(meta);
-      if (restoredPage1) setPage1ReviewAnswers(restoredPage1);
-      if (meta.review_stage === "pre" || meta.review_stage === "post") {
-        setReviewStage(meta.review_stage);
-      } else if (restoredPage1?.stage) {
-        const mapped = mapReviewPage1StageToVerifyStage(restoredPage1.stage);
-        if (mapped) setReviewStage(mapped);
-      }
-      if (typeof meta.review_focus === "string") setReviewFocus(meta.review_focus);
-      if (typeof meta.incident_type === "string") setIncidentType(meta.incident_type);
-      if (typeof meta.incident_description === "string") {
-        setIncidentDescription(meta.incident_description);
-      }
-    }
-    setLandingDone(true);
-    setLeadId(restored.leadId);
-    setResultToken(restored.resultToken);
-    setRestoredLeadActive(true);
-
-    const storagePath =
-      typeof meta?.storagePath === "string" ? meta.storagePath : null;
-    const legacyFileUrl = typeof meta?.file_url === "string" ? meta.file_url : null;
-    const fileName = typeof meta?.file_name === "string" ? meta.file_name : null;
-    const incidentTypeVal =
-      typeof meta?.incident_type === "string" ? meta.incident_type : undefined;
-    const incidentDescVal =
-      typeof meta?.incident_description === "string"
-        ? meta.incident_description
-        : undefined;
-
-    setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, {
-      fileUrl: storagePath || legacyFileUrl,
-      fileName,
-      incidentType: incidentTypeVal,
-      incidentDescription: incidentDescVal,
-    });
-    setDiagnosis(diag);
-    setDiagnosing(false);
-    setStep("diagnosis");
-  }
-
-  async function handleLandingContinue(page1Answers?: Record<string, string>) {
-    const { loggedIn, restored } = await loadVerifyMemberEntryState("verify_tax", {
-      allowRestore: true,
-    });
-    if (loggedIn) setSkipSignup(true);
-    if (restored) {
-      await applyRestoredVerify(restored);
-      return;
-    }
-    if (page1Answers?.stage) {
-      const page1: ReviewPage1Answers = {
-        stage: page1Answers.stage,
-        docs: page1Answers.docs,
-        translation: page1Answers.translation,
-        deadline: page1Answers.deadline,
-      };
-      setPage1ReviewAnswers(page1);
-      const mapped = mapReviewPage1StageToVerifyStage(page1Answers.stage);
-      if (mapped) setReviewStage(mapped);
-      setLandingDone(true);
-      return;
-    }
-    setLandingDone(true);
-  }
-
   useEffect(() => {
     let cancelled = false;
-
-    async function applyMemberEntryState() {
-      const params = new URLSearchParams(window.location.search);
-      const allowRestore = params.get("restore") === "1";
-      const { loggedIn, restored } = await loadVerifyMemberEntryState("verify_tax", {
+    async function initMemberState() {
+      const allowRestore = shouldAllowVerifyMemberRestoreOnMount(window.location.search);
+      const { loggedIn, restored } = await loadVerifyMemberEntryState(VERIFY_SERVICE_TYPE, {
         allowRestore,
       });
-      if (cancelled) return;
-      if (loggedIn) setSkipSignup(true);
-      if (restored) await applyRestoredVerify(restored);
+      if (!cancelled && loggedIn) setSkipSignup(true);
+      if (!cancelled && restored) applyRestoredVerify(restored);
     }
-
-    async function initMemberState() {
-      try {
-        await applyMemberEntryState();
-      } finally {
-        if (!cancelled) setRestoreVerifyPending(false);
-      }
-    }
-
     void initMemberState();
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN") return;
-      // 세션 확립 시 회원가입 생략만 — mount restore(?restore=1)와 분리
       void isLoggedInMember().then((loggedIn) => {
         if (!cancelled && loggedIn) setSkipSignup(true);
       });
     });
-
     return () => {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, []);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const messengers = MESSENGERS_BY_LANGUAGE[lang];
-  const page2FromPage1 = page1ReviewAnswers != null;
-  const page2TotalSteps = page2FromPage1 ? 3 : 4;
-  const incidentQuestionStep = page2FromPage1
-    ? !incidentType
-      ? 1
-      : !reviewFocus
-        ? 2
-        : 3
-    : !reviewStage
-      ? 1
-      : !incidentType
-        ? 2
-        : !reviewFocus
-          ? 3
-          : 4;
-  const verifyQuestionProps = {
-    variant: "verify" as const,
-    contextLabel: VERIFY_QUESTION_CONTEXT,
-    totalSteps: page2TotalSteps,
-  };
+  }, [applyRestoredVerify]);
 
-  // 질문3(사건유형+설명+선택 파일)이 채워지는 즉시, 아직 리드가 생성되기 전이라도
-  // CHECK(TRC)와 동일하게 1번째 화면(개인정보 입력)에 미리보기 결과를 보여주기 위해
-  // 계산해둔다. fileUrl은 실제 Storage URL이 아니라 "파일 선택 여부"만 필요하므로
-  // getDiagnosis(verifyDiagnosis.ts)가 hasFile 판단에만 쓰는 placeholder를 전달한다 —
-  // 진단 로직(verifyDiagnosis.ts) 자체는 변경하지 않고 기존 함수를 그대로 재호출한다.
   useEffect(() => {
-    let cancelled = false;
-    if (incidentType && incidentDescription.trim().length > 0) {
-      getDiagnosis(CATEGORY, {
-        fileUrl: attachedFile ? "pending" : null,
-        fileName: attachedFile?.name || null,
-        incidentType,
-        incidentDescription: incidentDescription.trim(),
-      }).then((res) => {
-        if (!cancelled) setPreviewDiagnosis(res);
-      });
-    } else {
-      setPreviewDiagnosis(null);
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("phase2_upload_return") !== "1") return;
+    setAdminVerifyPhase2UploadComplete(true);
+    setAdminMasterSignupComplete(true);
+    const snapshot = readPhase2HandoffSnapshot(VERIFY_SERVICE_TYPE);
+    if (snapshot?.answers && Object.keys(snapshot.answers).length > 0) {
+      setProfilingSeedAnswers(snapshot.answers);
     }
+    if (snapshot?.leadId) setLeadId(snapshot.leadId);
+    if (snapshot?.anyUploaded) setAdminVerifyPhase2DocumentsAnyUploaded(true);
+    clearPhase2HandoffSnapshot(VERIFY_SERVICE_TYPE);
+    const cfg = getVerifyPhase2HandoffConfig(VERIFY_SERVICE_TYPE);
+    if (cfg) window.history.replaceState({}, "", cfg.verifyReturnPath);
+  }, []);
+
+  useEffect(() => {
+    if (!adminVerifyPhase2UploadComplete) return;
+    let cancelled = false;
+    void (async () => {
+      const ok = await navigateToMypageWithResultToken(resultToken);
+      if (cancelled) return;
+      if (!ok) window.location.href = "/mypage";
+    })();
     return () => {
       cancelled = true;
     };
-  }, [incidentType, incidentDescription, attachedFile]);
+  }, [adminVerifyPhase2UploadComplete, resultToken]);
 
-  // CHECK(TRC)의 "처음부터 다시 확인하기"와 동일한 전체 초기화.
-  function reset() {
-    setStep("incident");
-    setReviewStage(null);
-    setReviewFocus(null);
-    setIncidentType(null);
-    setIncidentDescription("");
-    setAttachedFile(null);
-    setIncidentError(null);
-    setSelectedKey(null);
-    setLeadId(null);
-    setDiagnosis(null);
-    setPreviewDiagnosis(null);
-    setError(null);
-    setConsentOpen(false);
-    setConsentHighlight(false);
-    setSelectedAgency(null);
-    setRestoredLeadActive(false);
-    setSkipSignup(false);
-    setPage1ReviewAnswers(null);
-    void isLoggedInMember().then((loggedIn) => {
-      if (loggedIn) setSkipSignup(true);
-    });
-    memberSubmitStartedRef.current = false;
-  }
+  useEffect(() => {
+    if (!skipSignup || adminMasterSignupComplete || !submitting) return;
+    const timer = window.setTimeout(() => {
+      if (!memberSubmitStartedRef.current) return;
+      memberSubmitStartedRef.current = false;
+      setSkipSignup(false);
+      setAdminMasterSignupPending(true);
+      setHandoffError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitting(false);
+    }, MEMBER_VERIFY_LEAD_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [skipSignup, submitting, adminMasterSignupComplete]);
 
-  function handleIncidentNext() {
-    if (restoredLeadActive) return;
-    if (incidentDescription.trim().length === 0) {
-      setIncidentError("사건 설명을 입력해주세요.");
-      return;
+  const verifyMasterSeedAnswers = useMemo(() => {
+    if (Object.keys(profilingSeedAnswers).length === 0 && !adminVerifyPhase2UploadComplete) {
+      return undefined;
     }
-    setIncidentError(null);
-    if (skipSignup) {
-      void submitAsMember();
-      return;
-    }
-    setStep("form");
-  }
-
-  async function submitAsMember() {
-    if (memberSubmitStartedRef.current) return;
-    memberSubmitStartedRef.current = true;
-
-    setSubmitting(true);
-    setError(null);
-    const newLeadId = crypto.randomUUID();
-
-    let storagePath: string | null = null;
-    if (attachedFile && attachedFile.size > 0) {
-      const rawExt = attachedFile.name.split(".").pop() || "";
-      const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-      const path = `verify-tax/${newLeadId}.${safeExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("documents")
-        .upload(path, attachedFile);
-      if (!uploadError) {
-        storagePath = path;
-      } else {
-        console.error(uploadError);
-      }
-    }
-
-    const verifyMeta = {
-      review_stage: reviewStage,
-      review_focus: reviewFocus,
-      incident_type: incidentType,
-      incident_description: incidentDescription.trim(),
-      ...buildReviewPage1Meta(page1ReviewAnswers),
-      ...(storagePath
+    return {
+      ...profilingSeedAnswers,
+      ...(adminVerifyPhase2UploadComplete
         ? {
-            storagePath,
-            file_name: attachedFile?.name,
-            submitted_document: {
-              document_type: incidentType,
-              review_stage: reviewStage,
-              storagePath,
-              file_name: attachedFile?.name,
-            },
+            [ADMIN_RESTORED_PROFILE_PHASE_KEY]: "2",
+            [ADMIN_PROFILING_COMPLETE_META_FLAG]: "1",
+            [ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY]: "1",
+            ...(adminVerifyPhase2DocumentsAnyUploaded
+              ? { [ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_ANSWERS_KEY]: "1" }
+              : {}),
           }
         : {}),
     };
+  }, [profilingSeedAnswers, adminVerifyPhase2UploadComplete, adminVerifyPhase2DocumentsAnyUploaded]);
 
-    const created = await insertMemberVerifyLead({
-      serviceType: "verify_tax",
-      sourcePage: "/verify/tax",
-      tag: "VERIFY_TAX",
-      verifyMeta,
-      lang,
-      primaryMessengerKey: messengers.primary.key,
-      secondaryMessengerKey: messengers.secondary.key,
-      leadId: newLeadId,
-    });
-
-    if (!created.ok) {
-      memberSubmitStartedRef.current = false;
-      if (created.reason === "no_contact") {
+  const submitAsMember = useCallback(
+    async (answers: Record<string, string>, evidenceFile?: File | null) => {
+      if (memberSubmitStartedRef.current) return;
+      memberSubmitStartedRef.current = true;
+      setSubmitting(true);
+      setHandoffError(null);
+      const releaseMemberHandoffToSignupRetry = (errorMessage?: string | null) => {
+        memberSubmitStartedRef.current = false;
         setSkipSignup(false);
-        setStep("form");
-      } else {
-        setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      }
-      setSubmitting(false);
-      return;
-    }
-
-    saveLeadContact({
-      name: created.contact.name,
-      phone: created.contact.phone,
-      address: created.contact.address,
-      kakao_id: created.contact.kakao_id,
-      zalo_id: created.contact.zalo_id,
-    });
-    setEmailProvided(!!created.contact.email);
-    setLeadId(created.leadId);
-    setResultToken(created.resultToken);
-    setSubmitting(false);
-
-    setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, {
-      fileUrl: storagePath,
-      fileName: attachedFile?.name || null,
-      incidentType: incidentType || undefined,
-      incidentDescription: incidentDescription.trim() || undefined,
-    });
-    setDiagnosis(diag);
-    setDiagnosing(false);
-    setStep("diagnosis");
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-
-    if (fd.get("agreeTerms") !== "on") {
-      setConsentOpen(true);
-      setConsentHighlight(true);
-      return;
-    }
-    setConsentHighlight(false);
-
-    setSubmitting(true);
-    setError(null);
-    const newLeadId = crypto.randomUUID();
-
-    const name = String(fd.get("name") || "");
-    const phone = String(fd.get("phone") || "");
-    const address = String(fd.get("address") || "");
-    const email = (fd.get("email") as string) || "";
-    const kakaoId = (fd.get("kakao_id") as string) || null;
-    const zaloId = (fd.get("zalo_id") as string) || null;
-
-    const { valid, errors } = validateLeadForm({ name, phone, address, email, kakao_id: kakaoId, zalo_id: zaloId }, lang);
-    if (!valid) {
-      setFieldErrors(errors);
-      setError(Object.values(errors)[0] || null);
-      setSubmitting(false);
-      return;
-    }
-    setFieldErrors({});
-
-    // [STEP22] SNS는 실제 플랫폼명을 정확히 구분해 crm_activities.meta에 별도로 남긴다.
-    // 기존 kakao_id/zalo_id 컬럼(primary/secondary 슬롯)은 그대로 유지하고, DB 스키마는 바꾸지 않는다.
-    const socialContacts = buildSocialContacts({
-      kakaoValue: kakaoId,
-      zaloValue: zaloId,
-      primaryKey: messengers.primary.key,
-      secondaryKey: messengers.secondary.key,
-    });
-
-    const { error: err } = await supabase.from("leads").insert({
-      id: newLeadId,
-      name,
-      phone,
-      address,
-      email: email || null,
-      kakao_id: kakaoId,
-      zalo_id: zaloId,
-      service_type: "verify_tax",
-      result: null,
-      source_page: "/verify/tax",
-    });
-
-    if (err) {
-      console.error(err);
-      setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      setSubmitting(false);
-      return;
-    }
-
-    // 질문3에서 선택한 서류(선택 사항)를 기존 VERIFY Storage 구조 그대로 재사용해
-    // 업로드한다 — documents 버킷 + verify-{category}/{leadId}.{ext} 경로.
-    // Private bucket: getPublicUrl 미사용, storagePath만 meta에 저장.
-    let storagePath: string | null = null;
-    if (attachedFile && attachedFile.size > 0) {
-      const rawExt = attachedFile.name.split(".").pop() || "";
-      const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-      const path = `verify-tax/${newLeadId}.${safeExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("documents")
-        .upload(path, attachedFile);
-      if (!uploadError) {
-        storagePath = path;
-      } else {
-        console.error(uploadError);
-      }
-    }
-
-    await supabase.from("crm_activities").insert({
-      lead_id: newLeadId,
-      action: "verify_lead",
-      tag: "VERIFY_TAX",
-      meta: {
-        review_stage: reviewStage,
-        review_focus: reviewFocus,
-        incident_type: incidentType,
-        incident_description: incidentDescription.trim(),
-        ...buildReviewPage1Meta(page1ReviewAnswers),
-        // 질문 단계에서 제출한 파일에 document_type(incidentType)과 review_stage를
-        // 함께 태깅해 저장 — 기존 meta(jsonb) 구조를 확장한 것일 뿐 새 DB 컬럼은
-        // 없다. 향후 /documents 등에서 "이미 제출된 자료"를 조회할 때 이 값으로
-        // 어떤 서류가 이미 제출됐는지 식별할 수 있도록 준비해두는 용도.
-        ...(storagePath
-          ? {
-              storagePath,
-              file_name: attachedFile?.name,
-              submitted_document: {
-                document_type: incidentType,
-                review_stage: reviewStage,
-                storagePath,
-                file_name: attachedFile?.name,
-              },
-            }
-          : {}),
-      },
-    });
-
-    try {
-      // [STEP22 2차] 기존 crm_activities.meta를 읽어와 socialContacts/preferredLanguage만
-    // 병합한다 — 서비스마다 meta 구조가 다르므로 그 형태를 추측하지 않고, 기존 값을
-    // 그대로 읽은 뒤 spread로 덮어쓰지 않고 새 키만 추가한다. 이 시점에 이 lead_id로
-    // 남아있는 crm_activities 행은 방금 삽입한 진단 행 하나뿐이므로 lead_id로 최신
-    // 행을 찾아 병합하면 다른 서비스의 meta 구조를 알 필요가 없다.
-    const { data: existingActivity } = await supabase
-      .from("crm_activities")
-      .select("id, meta")
-      .eq("lead_id", newLeadId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (existingActivity?.id) {
-      const existingMeta =
-        existingActivity.meta && typeof existingActivity.meta === "object" ? existingActivity.meta : {};
-      await supabase
-        .from("crm_activities")
-        .update({ meta: { ...existingMeta, socialContacts, preferredLanguage: lang } })
-        .eq("id", existingActivity.id);
-    }
-
-    const res = await fetch("/api/lead-submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId: newLeadId, name, phone, email, address, lang, kakao_id: kakaoId, zalo_id: zaloId }),
-      });
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-        console.error("lead-submit API error:", errBody);
-        setError(
-          (typeof errBody?.message === "string" && errBody.message) ||
-            "접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        setAdminMasterSignupPending(true);
+        setSignupRiskLevel(verifyMasterPackBridge.getSignupRiskLevel(answers));
+        setHandoffError(errorMessage ?? null);
+        setSubmitting(false);
+      };
+      try {
+        const newLeadId = crypto.randomUUID();
+        pendingMemberLeadIdRef.current = newLeadId;
+        let storagePath: string | null = null;
+        let fileName: string | undefined;
+        if (evidenceFile && evidenceFile.size > 0) {
+          const uploaded = await uploadTaxPhase1Evidence(newLeadId, evidenceFile);
+          if (uploaded.ok) {
+            storagePath = uploaded.storagePath;
+            fileName = evidenceFile.name;
+            setPhase1AttachStorageFailed(false);
+          } else {
+            setPhase1AttachStorageFailed(true);
+          }
+        }
+        const verifyMeta = buildTaxMemberVerifyMeta(
+          answers,
+          storagePath && fileName ? { storagePath, file_name: fileName } : null,
         );
+        const created = await awaitMemberVerifyLeadInsert(
+          insertMemberVerifyLead({
+            serviceType: VERIFY_SERVICE_TYPE,
+            sourcePage: "/verify/tax",
+            tag: "VERIFY_TAX",
+            verifyMeta,
+            lang,
+            primaryMessengerKey: messengers.primary.key,
+            secondaryMessengerKey: messengers.secondary.key,
+            leadId: newLeadId,
+          }),
+        );
+        if (!created.ok) {
+          releaseMemberHandoffToSignupRetry(
+            created.reason === "no_contact"
+              ? null
+              : "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+          );
+          return;
+        }
+        setLeadId(created.leadId);
+        setResultToken(created.resultToken);
+        setProfilingSeedAnswers(answers);
+        setAdminMasterSignupComplete(true);
+        setAdminMasterSignupPending(false);
         setSubmitting(false);
-        return;
+      } catch (err) {
+        console.error(err);
+        releaseMemberHandoffToSignupRetry(
+          err instanceof Error && err.message === "insertMemberVerifyLead_timeout"
+            ? "접수가 지연되고 있습니다. 잠시 후 다시 시도해주세요."
+            : "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        );
       }
+    },
+    [lang, messengers.primary.key, messengers.secondary.key, verifyMasterPackBridge],
+  );
 
-      const okBody = await res.json().catch(() => null);
-      if (typeof okBody?.token !== "string") {
-        setError("로그인 세션을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.");
-        setSubmitting(false);
-        return;
-      }
-
-      setResultToken(okBody.token);
-
-      const sessionReady = await establishBrowserSessionFromResultToken(okBody.token);
-      if (!sessionReady) {
-        setError("로그인 세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
-        setSubmitting(false);
-        return;
-      }
-    } catch (apiErr) {
-      console.error("lead-submit fetch failed:", apiErr);
-      setError("접수 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      setSubmitting(false);
-      return;
-    }
-
-    saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
-    setEmailProvided(!!email);
-    setLeadId(newLeadId);
-    setSubmitting(false);
-
-    setDiagnosing(true);
-    const diag = await getDiagnosis(CATEGORY, {
-      fileUrl: storagePath,
-      fileName: attachedFile?.name || null,
-      incidentType: incidentType || undefined,
-      incidentDescription: incidentDescription.trim() || undefined,
+  const handleLandingContinue = useCallback(async () => {
+    const { loggedIn, restored } = await loadVerifyMemberEntryState(VERIFY_SERVICE_TYPE, {
+      allowRestore: true,
     });
-    setDiagnosis(diag);
-    setDiagnosing(false);
-    setStep("diagnosis");
-  }
+    if (loggedIn) setSkipSignup(true);
+    if (restored) applyRestoredVerify(restored);
+  }, [applyRestoredVerify]);
 
-  async function handleExpertRequest() {
-    if (!leadId) return;
-    setExpertRequesting(true);
-    setExpertError(null);
-    try {
-      const { error } = await supabase.from("crm_activities").insert({
-        lead_id: leadId,
-        action: "expert_review_request",
+  const handleSignupSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (submitting) return;
+      const fd = new FormData(e.currentTarget);
+      if (fd.get("agreeTerms") !== "on") {
+        setSignupConsentOpen(true);
+        return;
+      }
+      const answers = phase1AnswersRef.current;
+      if (!answers) return;
+      setSubmitting(true);
+      setHandoffError(null);
+      const newLeadId = crypto.randomUUID();
+      const name = String(fd.get("name") || "");
+      const phone = String(fd.get("phone") || "");
+      const address = String(fd.get("address") || "");
+      const email = (fd.get("email") as string) || "";
+      const kakaoId = (fd.get("kakao_id") as string) || null;
+      const zaloId = (fd.get("zalo_id") as string) || null;
+      const { valid, errors } = validateLeadForm(
+        { name, phone, address, email, kakao_id: kakaoId, zalo_id: zaloId },
+        lang,
+      );
+      if (!valid) {
+        setSignupFieldErrors(errors);
+        setHandoffError(Object.values(errors)[0] || null);
+        setSubmitting(false);
+        return;
+      }
+      setSignupFieldErrors({});
+      const { error: leadErr } = await supabase.from("leads").insert({
+        id: newLeadId,
+        name,
+        phone,
+        address,
+        email: email || null,
+        kakao_id: kakaoId,
+        zalo_id: zaloId,
+        service_type: VERIFY_SERVICE_TYPE,
+        result: null,
+        source_page: "/verify/tax",
+      });
+      if (leadErr) {
+        console.error(leadErr);
+        setHandoffError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        setSubmitting(false);
+        return;
+      }
+      let storagePath: string | null = null;
+      const evidenceFile = phase1EvidenceFileRef.current;
+      if (evidenceFile && evidenceFile.size > 0) {
+        const uploaded = await uploadTaxPhase1Evidence(newLeadId, evidenceFile);
+        if (uploaded.ok) {
+          storagePath = uploaded.storagePath;
+          setPhase1AttachStorageFailed(false);
+        } else {
+          setPhase1AttachStorageFailed(true);
+        }
+      }
+      const verifyMeta = buildTaxMemberVerifyMeta(
+        answers,
+        storagePath && evidenceFile ? { storagePath, file_name: evidenceFile.name } : null,
+      );
+      await supabase.from("crm_activities").insert({
+        lead_id: newLeadId,
+        action: "verify_lead",
         tag: "VERIFY_TAX",
-        meta: diagnosis ? { expert_brief: diagnosis.expertBrief } : null,
+        meta: verifyMeta,
       });
-      if (error) throw error;
-
-      if (restoredLeadActive) {
-        window.location.href = "/mypage";
-        return;
-      }
-      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
-      if (!resultToken && !hasSession) {
-        setExpertError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
-        setExpertRequesting(false);
-        return;
-      }
-      if (hasSession) {
-        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_tax&mode=expert`;
-        return;
-      }
-      const res = await fetch("/api/auto-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resultToken, next: "documents" }),
+      const socialContacts = buildSocialContacts({
+        kakaoValue: kakaoId,
+        zaloValue: zaloId,
+        primaryKey: messengers.primary.key,
+        secondaryKey: messengers.secondary.key,
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.actionLink) {
-        console.error("auto-login failed:", data);
-        setExpertError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
-        setExpertRequesting(false);
-        return;
+      const { data: existingActivity } = await supabase
+        .from("crm_activities")
+        .select("id, meta")
+        .eq("lead_id", newLeadId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (existingActivity?.id) {
+        const existingMeta =
+          existingActivity.meta && typeof existingActivity.meta === "object" ? existingActivity.meta : {};
+        await supabase
+          .from("crm_activities")
+          .update({ meta: { ...existingMeta, socialContacts, preferredLanguage: lang } })
+          .eq("id", existingActivity.id);
       }
-      window.location.href = data.actionLink;
-    } catch {
-      setExpertError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
-      setExpertRequesting(false);
-    }
-  }
+      saveLeadContact({ name, phone, address, kakao_id: kakaoId, zalo_id: zaloId });
+      setLeadId(newLeadId);
+      setProfilingSeedAnswers(answers);
+      setAdminMasterSignupComplete(true);
+      setAdminMasterSignupPending(false);
+      setSubmitting(false);
+    },
+    [lang, messengers.primary.key, messengers.secondary.key, submitting],
+  );
 
-  // "AI Review 진행하기" — handleExpertRequest와 동일한 Auto-login → /r → /documents
-  // 흐름을 타되, next 값만 "documents_ai_report"로 달라 /documents가 mode=ai_report로
-  // 열린다. 신규 CRM action은 만들지 않는다(핸드오프 문서 결정 유지) — CHECK(TRC)의
-  // "AI 리포트 요청하기" 버튼도 이 시점에는 CRM을 기록하지 않는 것과 동일하게 맞춘 것.
-  async function handleAiReportRequest() {
+  const handleAiReportRequest = useCallback(async () => {
     if (!leadId) return;
     setAiReportRequesting(true);
     setAiReportError(null);
     try {
-      if (restoredLeadActive) {
-        window.location.href = "/mypage";
-        return;
-      }
       const hasSession = await ensureBrowserSessionForResultToken(resultToken);
       if (!resultToken && !hasSession) {
         setAiReportError("로그인 정보를 준비하지 못했습니다. 다시 신청해주세요.");
@@ -1329,539 +454,205 @@ export default function VerifyTaxPage() {
         return;
       }
       await recordAiReportRequestAndNotify({
-          leadId,
-          tag: "VERIFY_TAX",
-          token: resultToken ?? undefined,
-        });
-
-      if (hasSession) {
-        window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_tax&mode=ai_report`;
-        return;
-      }
-
-      const res = await fetch("/api/auto-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resultToken, next: "documents_ai_report" }),
+        leadId,
+        tag: "VERIFY_TAX",
+        token: resultToken ?? undefined,
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.actionLink) {
-        console.error("auto-login failed:", data);
-        setAiReportError("로그인 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
-        setAiReportRequesting(false);
-        return;
-      }
-      window.location.href = data.actionLink;
+      window.location.href = "/mypage";
     } catch {
       setAiReportError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
       setAiReportRequesting(false);
     }
-  }
+  }, [leadId, resultToken]);
 
-  const activeGuidance = selectedAgency ? TAX_AGENCY_GUIDANCE[selectedAgency] : null;
+  const handleExpertRequest = useCallback(
+    async (expertAnswers?: Record<string, string>) => {
+      if (!leadId) return;
+      setExpertRequesting(true);
+      setExpertError(null);
+      try {
+        const profilingAnswers =
+          expertAnswers && Object.keys(expertAnswers).length > 0
+            ? expertAnswers
+            : profilingAnswersRef.current ?? profilingSeedAnswers;
+        if (expertAnswers && Object.keys(expertAnswers).length > 0) {
+          profilingAnswersRef.current = expertAnswers;
+          setProfilingSeedAnswers(expertAnswers);
+        }
+        const { error } = await supabase.from("crm_activities").insert({
+          lead_id: leadId,
+          action: "expert_review_request",
+          tag: "VERIFY_TAX",
+          meta: buildTaxExpertHandoffMeta(profilingAnswers),
+        });
+        if (error) throw error;
+        window.location.href = "/mypage";
+      } catch {
+        setExpertError("접수 중 문제가 발생했습니다. 다시 시도해주세요.");
+        setExpertRequesting(false);
+      }
+    },
+    [leadId, profilingSeedAnswers],
+  );
 
-  const pageHeader = getMasterLandingPageHeader(
-    MASTER_LANDING_TAX,
-    landingDone ? contextTab : "lookup",
-    landingDone
-      ? { inQuestions: true, questionDescription: "신고·납부 전 검토부터 고지·통지 수령 후 대응 검토까지" }
-      : undefined
+  const handlePhase1AttachStorageRetry = useCallback(async () => {
+    const file = phase1EvidenceFileRef.current;
+    const targetLeadId = leadId ?? pendingMemberLeadIdRef.current;
+    if (!file || file.size <= 0 || !targetLeadId) return;
+    const uploaded = await uploadTaxPhase1Evidence(targetLeadId, file);
+    if (uploaded.ok) {
+      setPhase1AttachStorageFailed(false);
+      if (leadId) {
+        const answerSnapshot = (phase1AnswersRef.current ?? profilingSeedAnswers) as Record<string, string>;
+        const verifyMeta = buildTaxMemberVerifyMeta(answerSnapshot, {
+          storagePath: uploaded.storagePath,
+          file_name: file.name,
+        });
+        await persistAdminVerifyLeadMeta(leadId, verifyMeta as Record<string, string>);
+      }
+    } else {
+      setPhase1AttachStorageFailed(true);
+    }
+  }, [leadId, profilingSeedAnswers]);
+
+  const handleAdminVerifyPhase1Complete = useCallback(
+    (answers: Record<string, string>, evidenceFile?: File | null) => {
+      phase1AnswersRef.current = answers;
+      phase1EvidenceFileRef.current = evidenceFile ?? null;
+      if (!evidenceFile?.size) setPhase1AttachStorageFailed(false);
+      setAdminVerifyPhase1EvidenceComplete(true);
+      if (skipSignup) {
+        void submitAsMember(answers, evidenceFile ?? null);
+        return;
+      }
+      setSignupRiskLevel(verifyMasterPackBridge.getSignupRiskLevel(answers));
+      setAdminMasterSignupPending(true);
+    },
+    [skipSignup, submitAsMember, verifyMasterPackBridge],
+  );
+
+  const handleAdminVerifyMetaPersist = useCallback(
+    async (answers: Record<string, string>, profilePhase: AdminVerifyProfilePhase) => {
+      if (!leadId || profilePhase !== 2) return;
+      const result = await persistAdminVerifyLeadMeta(leadId, buildTaxPhase2PersistMeta(answers, 2));
+      if (!result.ok) {
+        console.error("[verify/tax] Phase 2 meta persist failed:", result);
+        setHandoffError(result.message);
+      }
+    },
+    [leadId],
+  );
+
+  const handleAdminVerifyPhase2Complete = useCallback(
+    async (answers: Record<string, string>) => {
+      profilingAnswersRef.current = answers;
+      setProfilingSeedAnswers(answers);
+      if (!leadId) return;
+      const result = await persistAdminVerifyLeadMeta(leadId, buildTaxPhase2PersistMeta(answers, 2));
+      if (!result.ok) {
+        console.error("[verify/tax] Phase 2 meta persist failed:", result);
+        setHandoffError(result.message);
+      }
+    },
+    [leadId],
+  );
+
+  const handleAdminVerifyPhase2DocumentsHandoff = useCallback(
+    async (answers: Record<string, string>) => {
+      if (!leadId) {
+        setHandoffError("접수 정보가 없어 자료 제출 단계로 이동할 수 없습니다. 로그인 후 다시 시도해 주세요.");
+        return;
+      }
+      profilingAnswersRef.current = answers;
+      setProfilingSeedAnswers(answers);
+      const result = await persistAdminVerifyLeadMeta(leadId, buildTaxPhase2PersistMeta(answers, 2));
+      if (!result.ok) {
+        console.error("[verify/tax] Phase 2 pre-upload persist failed:", result);
+        setHandoffError(result.message);
+        return;
+      }
+      writePhase2HandoffSnapshot(VERIFY_SERVICE_TYPE, { leadId, answers, resultToken });
+      window.location.href = buildPhase2DocumentsHandoffUrl(leadId, VERIFY_SERVICE_TYPE);
+    },
+    [leadId, resultToken],
   );
 
   return (
-    <FunnelPageShell
-      engine="verify"
-      width={!landingDone ? "master" : "default"}
-    >
+    <FunnelPageShell engine="verify" width="verify">
+      <div
+        data-screen01-content
+        className={cn(
+          "mx-auto w-full max-w-[960px] -mx-4 px-4 lg:mx-auto lg:px-0",
+          "lg:[&_.grid.gap-3:has(>button)]:!grid-cols-1 lg:[&_.grid.gap-3:has(>button)]:!max-w-none lg:[&_.grid.gap-3:has(>button)>button]:!h-auto",
+        )}
+      >
         <FunnelPageHeader
           engine="verify"
           hideHomeChrome
-          {...getVerifyFormFunnelHeaderAlignProps(landingDone, step, skipSignup)}
-          title={
-            landingDone
-              ? pageHeader.title
-              : MASTER_LANDING_TAX.shortServiceLabel ?? MASTER_LANDING_TAX.serviceLabel
-          }
-          description={pageHeader.description}
-          descriptionMobile={
-            !landingDone ? "제출 전·사후 검토를 먼저 확인합니다." : undefined
-          }
+          {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
+          title={TAX_LANDING.shortServiceLabel ?? TAX_LANDING.serviceLabel}
+          description={TAX_LANDING.hookBody}
+          titleClassName="font-bold lg:text-[25px]"
+          verifyEyebrowClassName="font-normal"
+          descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"
+          className="mb-5 [&>div:last-child]:mt-0 lg:pl-[33px]"
         />
-
-        {!landingDone && (
+        {handoffError ? (
+          <p className="mb-3 text-[13px] text-red-600" role="alert">
+            {handoffError}
+          </p>
+        ) : null}
+        <div className="lg:[&>div:first-child]:hidden">
           <MasterFunnelLanding
-            config={MASTER_LANDING_TAX}
+            config={TAX_LANDING}
             activeTab={contextTab}
             onTabChange={setContextTab}
-            onContinue={(page1Answers) => void handleLandingContinue(page1Answers)}
-          />
-        )}
-
-        {/* STEP1: 질문 1~4 — CHECK(TRC)와 동일하게 질문 1개씩 진행. Prevent Review(사전
-            검토)와 Case Review(사후 검토)를 질문1에서 선택하면 질문2~4가 분기된다. */}
-        {landingDone && !restoreVerifyPending && step === "incident" && (
-          <div className="w-full">
-            {/* 질문 1 — Prevent Review / Case Review (Page 1에서 이미 받은 경우 생략) */}
-            {!reviewStage && !page2FromPage1 && (
-              <div className="mt-4 sm:mt-5">
-                <VerifyStepLayout
-                  step={1}
-                  question={
-                <QuestionSection
-                  step={incidentQuestionStep}
-                  title="어떤 검토가 필요하신가요?"
-                  description="현재 상황에 맞는 검토 방식을 선택해주세요."
-                  {...verifyQuestionProps}
-                >
-                  <VerifyAnswerGrid step={1}>
-                    {REVIEW_STAGE_OPTIONS.map((opt) => (
-                      <SelectionCard
-                        key={opt.value}
-                        variant="quiet"
-                        title={opt.title}
-                        description={opt.desc}
-                        selected={selectedKey === opt.value}
-                        icon={REVIEW_STAGE_ICONS[opt.value]}
-                        tone={REVIEW_STAGE_TONES[opt.value]}
-                        onClick={() => {
-                          setSelectedKey(opt.value);
-                          setTimeout(() => {
-                            setReviewStage(opt.value);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </VerifyAnswerGrid>
-                </QuestionSection>
-                  }
-                />
-              </div>
-            )}
-
-            {/* 질문 2 — Prevent Review: "어떤 서류를 검토하시나요?" / Case Review: "어떤
-                문제가 발생했나요?" — 선택지는 기존 incidentTypes 7종을 그대로 재사용해
-                verifyDiagnosis.ts에 전달되는 incidentType 값과 진단 로직을 바꾸지 않는다. */}
-            {reviewStage && !incidentType && (
-              <div className="mt-4 sm:mt-5">
-                <VerifyStepLayout
-                  step={page2FromPage1 ? 1 : 2}
-                  question={
-                <QuestionSection
-                  step={incidentQuestionStep}
-                  title={reviewStage === "pre" ? "어떤 서류를 검토하시나요?" : "어떤 문제가 발생했나요?"}
-                  {...verifyQuestionProps}
-                >
-                  <VerifyAnswerGrid step={2}>
-                    {(reviewStage === "pre" ? PREVENT_DOCUMENT_OPTIONS : CASE_ISSUE_OPTIONS).map((opt, index) => {
-                      const selectionKey = `${opt.value}-${index}`;
-                      return (
-                        <SelectionCard
-                          key={selectionKey}
-                          variant="quiet"
-                          title={opt.title}
-                          description={opt.desc}
-                          selected={selectedKey === selectionKey}
-                          icon={
-                            QUESTION2_TITLE_ICONS[opt.title] ??
-                            INCIDENT_TYPE_ICONS[opt.value] ??
-                            FileQuestion
-                          }
-                          tone={
-                            QUESTION2_TITLE_TONES[opt.title] ??
-                            INCIDENT_TYPE_TONES[opt.value] ??
-                            "slate"
-                          }
-                          onClick={() => {
-                            setSelectedKey(selectionKey);
-                            setTimeout(() => {
-                              setIncidentType(opt.value);
-                              setSelectedKey(null);
-                            }, 300);
-                          }}
-                        />
-                      );
-                    })}
-                  </VerifyAnswerGrid>
-                </QuestionSection>
-                  }
-                  actions={
-                !page2FromPage1 ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setReviewStage(null);
-                  }}
-                  className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-                ) : null
-                  }
-                />
-              </div>
-            )}
-
-            {/* 질문 3 — Prevent Review: "무엇을 확인하고 싶으신가요?" / Case Review:
-                "현재 어느 단계인가요?" — 참고 정보로 CRM meta(review_focus)에만 저장되며
-                진단 로직(verifyDiagnosis.ts)에는 전달하지 않는다. */}
-            {reviewStage && incidentType && !reviewFocus && (
-              <div className="mt-4 sm:mt-5">
-                <VerifyStepLayout
-                  step={page2FromPage1 ? 2 : 3}
-                  question={
-                <QuestionSection
-                  step={incidentQuestionStep}
-                  title={reviewStage === "pre" ? "무엇을 확인하고 싶으신가요?" : "현재 어느 단계인가요?"}
-                  {...verifyQuestionProps}
-                >
-                  <VerifyAnswerGrid step={3}>
-                    {(reviewStage === "pre" ? PREVENT_FOCUS_OPTIONS : CASE_STAGE_OPTIONS).map((opt) => (
-                      <SelectionCard
-                        key={opt}
-                        variant="quiet"
-                        title={opt}
-                        selected={selectedKey === opt}
-                        icon={REVIEW_FOCUS_ICONS[opt] ?? FileQuestion}
-                        tone={REVIEW_FOCUS_TONES[opt] ?? "slate"}
-                        onClick={() => {
-                          setSelectedKey(opt);
-                          setTimeout(() => {
-                            setReviewFocus(opt);
-                            setSelectedKey(null);
-                          }, 300);
-                        }}
-                      />
-                    ))}
-                  </VerifyAnswerGrid>
-                </QuestionSection>
-                  }
-                  actions={
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setIncidentType(null);
-                  }}
-                  className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-                  }
-                />
-              </div>
-            )}
-
-            {/* 질문 4 — 사건/검토 내용 설명 + 선택형 간단 파일 업로드.
-                Prevent Review는 "검토 대상 서류", Case Review는 "핵심 문서 및 증거자료"
-                중심 안내 문구로 분기한다. */}
-            {reviewStage && incidentType && reviewFocus && (
-              <div className="mt-4 w-full sm:mt-5">
-                <VerifyStepLayout
-                  step={page2FromPage1 ? 3 : 4}
-                  question={
-                <QuestionSection
-                  step={incidentQuestionStep}
-                  fullWidthHeader
-                  title={
-                    reviewStage === "pre"
-                      ? "검토가 필요한 내용을 간단히 알려주세요."
-                      : "무슨 일이 있었는지 간단히 알려주세요."
-                  }
-                  error={incidentError}
-                  {...verifyQuestionProps}
-                >
-                  <VerifyStep4InputStack>
-                  <textarea
-                    value={incidentDescription}
-                    onChange={(e) => setIncidentDescription(e.target.value)}
-                    placeholder={
-                      reviewStage === "pre"
-                        ? "예: 베트남 노동허가 신청 예정입니다. 원본과 번역본이 일치하는지, 추가로 필요한 서류가 있는지 확인받고 싶습니다."
-                        : "예: 행정기관에서 보완 요청을 받았습니다. 어떤 내용을 보완해야 하는지와 대응 방법을 확인받고 싶습니다."
-                    }
-                    rows={4}
-                    className={VERIFY_STEP4_TEXTAREA_CLASS}
+            onContinue={() => void handleLandingContinue()}
+            verifyMasterPackBridge={verifyMasterPackBridge}
+            verifyMasterSeedAnswers={verifyMasterSeedAnswers}
+            adminVerifyGate={{
+              adminVerifySkipSignup: skipSignup,
+              adminVerifySignupComplete: adminMasterSignupComplete,
+              adminVerifyPhase1EvidenceComplete,
+              adminVerifyPhase2UploadComplete,
+              adminVerifyMemberSubmitting: submitting,
+              onAdminVerifyPhase1Complete: (answers, evidenceFile) =>
+                handleAdminVerifyPhase1Complete(answers, evidenceFile ?? undefined),
+              onAdminVerifyMetaPersist: (answers, phase) => void handleAdminVerifyMetaPersist(answers, phase),
+              onAdminVerifyPhase2Complete: (answers) => void handleAdminVerifyPhase2Complete(answers),
+              onAdminVerifyPhase2DocumentsHandoff: (answers) =>
+                void handleAdminVerifyPhase2DocumentsHandoff(answers),
+              onAdminVerifyEnterPhase2: () => {
+                setAdminVerifyPhase2UploadComplete(false);
+                setAdminVerifyPhase2DocumentsAnyUploaded(false);
+              },
+              onAdminVerifyPersonalizedContinue: () => void handleAiReportRequest(),
+              onAdminVerifyAiReport: () => void handleAiReportRequest(),
+              onAdminVerifyExpert: (answers) => void handleExpertRequest(answers),
+              adminVerifyAiReportRequesting: aiReportRequesting,
+              adminVerifyExpertRequesting: expertRequesting,
+              adminVerifyAiReportError: aiReportError,
+              adminVerifyExpertError: expertError,
+              adminVerifyPhase1AttachStorageError: phase1AttachStorageFailed
+                ? PHASE1_ATTACH_STORAGE_FAIL_MESSAGE
+                : null,
+              onAdminVerifyPhase1AttachStorageRetry: () => void handlePhase1AttachStorageRetry(),
+              adminVerifyLeadCaptureSlot:
+                !skipSignup && adminMasterSignupPending && !adminMasterSignupComplete ? (
+                  <RealEstateVerifyLeadCapture
+                    riskLevel={signupRiskLevel}
+                    submitting={submitting}
+                    error={handoffError}
+                    fieldErrors={signupFieldErrors}
+                    consentOpen={signupConsentOpen}
+                    onConsentToggle={() => setSignupConsentOpen((v) => !v)}
+                    onSubmit={(ev) => void handleSignupSubmit(ev)}
                   />
-                  <VerifyTextareaHint />
-
-                  {!attachedFile ? (
-                    <>
-                      <label className={VERIFY_STEP4_ATTACHMENT_LABEL_CLASS}>
-                        <Paperclip size={16} className="shrink-0" />
-                        <span className="truncate">
-                          {reviewStage === "pre"
-                            ? "대표 검토 서류 1개 첨부 (선택 · 사진 · PDF · Word)"
-                            : "대표 핵심 문서 1개 첨부 (선택 · 사진 · PDF · Word)"}
-                        </span>
-                        <input
-                          type="file"
-                          accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                          className="hidden"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0] || null;
-                            setAttachedFile(f);
-                          }}
-                        />
-                      </label>
-                      <VerifyAttachmentHint />
-                    </>
-                  ) : (
-                    <div className={VERIFY_STEP4_ATTACHED_CARD_CLASS}>
-                      <p className="text-[11px] font-semibold text-gray-500">선택한 자료</p>
-                      <div className="mt-1.5 flex items-center justify-between gap-3">
-                        <span className="flex min-w-0 items-center gap-1.5 truncate text-sm text-gray-800">
-                          <Paperclip size={14} className="shrink-0 text-gray-400" />
-                          <span className="truncate">{attachedFile.name}</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setAttachedFile(null)}
-                          className="shrink-0 text-xs font-medium text-gray-500 hover:text-gray-700"
-                        >
-                          다른 파일로 교체
-                        </button>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-800">
-                          {incidentType}
-                        </span>
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
-                          {reviewStage === "pre" ? "Prevent Review" : "Case Review"}
-                        </span>
-                      </div>
-                      <VerifyAttachedFileNote />
-                    </div>
-                  )}
-                  </VerifyStep4InputStack>
-                </QuestionSection>
-                  }
-                  actions={
-                <>
-                <PrimaryButton onClick={handleIncidentNext} className="mt-5">
-                  다음
-                </PrimaryButton>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedKey(null);
-                    setReviewFocus(null);
-                  }}
-                  className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#0B2A6B]"
-                >
-                  <ArrowLeft size={14} /> 이전 단계로
-                </button>
-                </>
-                  }
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* STEP4: 개인정보 입력 — CHECK(TRC)의 PremiumLeadCapture와 동일한 구조 */}
-        {landingDone && step === "form" && !skipSignup && (
-          <VerifyTaxLeadCapture
-            riskLevel={previewDiagnosis?.expertBrief.riskLevel ?? "medium"}
-            messengers={messengers}
-            lang={lang}
-            fieldErrors={fieldErrors}
-            submitting={submitting || diagnosing}
-            error={error}
-            consentOpen={consentOpen}
-            consentHighlight={consentHighlight}
-            onConsentToggle={() => setConsentOpen((v) => !v)}
-            onConsentChecked={() => setConsentHighlight(false)}
-            onSubmit={handleSubmit}
-            onReset={reset}
+                ) : null,
+            }}
           />
-        )}
-
-        {/* STEP5: 진단 리포트 + 진행방식 선택 CTA 3개 — CHECK(TRC)와 동일한 구조 */}
-        {landingDone && step === "diagnosis" && diagnosis && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <VerifyDiagnosisHeader serviceName={VERIFY_QUESTION_CONTEXT} />
-
-            <VerifyResultOverviewCards
-              diagnosis={diagnosis}
-              docCount={getRequiredDocuments("verify_tax").documents.length}
-            />
-
-            <VerifyResultSummaryCard diagnosis={diagnosis} />
-
-            <VerifyDiagnosisPipelineHint />
-            <OfficialTrustZone variant="strip" context="diagnosis" className="mt-4" />
-
-            <VerifyDiagnosisNextSteps
-              onAiReview={handleAiReportRequest}
-              aiReportRequesting={aiReportRequesting}
-              aiReportError={aiReportError}
-              onExpert={handleExpertRequest}
-              expertRequesting={expertRequesting}
-              expertError={expertError}
-              onDirect={() => setStep("guidanceSelect")}
-            />
-          </div>
-        )}
-
-        {/* STEP5-a: 직접 검토 진행하기 — 관련 기관/진행 경로 선택 */}
-        {landingDone && step === "guidanceSelect" && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <FileText className="text-gray-900" size={28} />
-            <p className="mt-4 text-lg font-bold text-gray-900">
-              어떤 기관·경로와 관련된 사안인가요?
-            </p>
-            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-              선택하신 항목에 맞는 관할기관·공식 확인 경로·절차 안내를 보여드립니다.
-            </p>
-
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {TAX_AGENCY_OPTIONS.map((agency) => (
-                <SelectionCard
-                  key={agency}
-                  title={agency}
-                  selected={selectedAgency === agency}
-                  tone="blue"
-                  onClick={() => {
-                    setSelectedAgency(agency);
-                    setStep("guidance");
-                  }}
-                />
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setStep("diagnosis")}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 검토 결과로 돌아가기
-            </button>
-          </div>
-        )}
-
-        {/* STEP5-b: 선택한 기관에 대한 안내 — 관할기관/공식 확인 경로/절차/서류/주의사항 */}
-        {landingDone && step === "guidance" && activeGuidance && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <FileText className="text-gray-900" size={28} />
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              {selectedAgency}
-            </p>
-            <p className="mt-1 text-lg font-bold text-gray-900">
-              직접 진행을 위한 참고 안내
-            </p>
-            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-              아래는 일반적인 참고 정보이며, VFBCAI가 실제 신청·제출을 대신
-              처리하지는 않습니다. 정확한 절차는 관할기관에서 다시 확인해주세요.
-            </p>
-
-            <div className="mt-5 space-y-4">
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">관할기관</p>
-                <p className="mt-1.5 text-xs text-gray-600 leading-relaxed">
-                  {activeGuidance.authority}
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 px-4 py-3">
-                <p className="text-xs font-semibold text-gray-700">공식 확인 경로</p>
-                <a
-                  href={activeGuidance.officialSite.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-blue-900 hover:underline"
-                >
-                  {activeGuidance.officialSite.label} <ExternalLink size={12} />
-                </a>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold text-gray-700">기본 절차</p>
-                <ol className="mt-2 space-y-1.5">
-                  {activeGuidance.submissionSteps.map((s, idx) => (
-                    <li key={idx} className="text-xs text-gray-600 leading-relaxed">
-                      {idx + 1}. {s}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold text-gray-700">일반 준비서류</p>
-                <ul className="mt-2 space-y-1">
-                  {activeGuidance.requiredDocuments.map((d, idx) => (
-                    <li key={idx} className="text-xs text-gray-600 leading-relaxed">
-                      · {d}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="rounded-xl bg-amber-50 px-4 py-3">
-                <p className="text-xs font-semibold text-amber-800">주의사항</p>
-                <ul className="mt-1.5 space-y-1">
-                  {activeGuidance.cautions.map((c, idx) => (
-                    <li key={idx} className="text-xs text-amber-800 leading-relaxed">
-                      · {c}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <p className="mt-5 text-xs font-semibold text-gray-700">
-              직접 진행이 부담되신다면 전문가에게 맡기실 수도 있습니다.
-            </p>
-            <PrimaryButton onClick={handleExpertRequest} loading={expertRequesting} className="mt-3">
-              전문가 검토 진행하기
-            </PrimaryButton>
-            {expertError && <p className="mt-3 text-xs text-red-600">{expertError}</p>}
-
-            <button
-              type="button"
-              onClick={() => setStep("guidanceSelect")}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              <ArrowLeft size={14} /> 다른 기관 선택하기
-            </button>
-          </div>
-        )}
-
-        {landingDone && step === "completed" && (
-          <div className="mt-8 rounded-3xl bg-white border border-gray-100 p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex justify-center">
-              <img
-                src="/vfbc-seal.png"
-                alt="VFBCAI 접수완료 확인 도장"
-                width={160}
-                height={160}
-              />
-            </div>
-            <p className="mt-1 text-[10px] text-gray-400 text-center italic">
-              Vietnam Foreign Business Verification &amp; Compliance AI Center
-            </p>
-            <p className="mt-2 text-lg font-bold text-gray-900 text-center">
-              전문가 검토 요청이 접수되었습니다
-            </p>
-            <p className="mt-2 break-keep text-sm leading-[1.55] text-gray-600 [overflow-wrap:normal]">
-              전문가가 첨부하신 서류와 AI 1차 분석 내용을 함께 확인한 뒤,
-              가입하신 이메일 또는 {messengers.primary.label}/{messengers.secondary.label}로
-              결과를 안내드립니다.
-            </p>
-            {emailProvided && (
-              <p className="mt-2 text-[11px] text-gray-400">
-                메시지가 오지 않으면 알려주세요 — 이메일도 확인해주세요.
-              </p>
-            )}
-            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-600">
-              입력하신 전화번호로 계정이 생성되었습니다. 비밀번호는
-              자동 생성되며, 마이페이지에서 언제든 변경하실 수
-              있습니다.
-            </div>
-          </div>
-        )}
+        </div>
+      </div>
     </FunnelPageShell>
   );
 }

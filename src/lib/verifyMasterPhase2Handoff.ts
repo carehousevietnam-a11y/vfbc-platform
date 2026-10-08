@@ -18,6 +18,11 @@ const VERIFY_PHASE2_HANDOFF: Partial<Record<VerifyServiceType, VerifyPhase2Hando
     documentsServiceParam: "verify_real-estate",
     verifyReturnPath: "/verify/real-estate",
   },
+  verify_tax: {
+    snapshotStorageKey: "vfbcai_tax_verify_phase2_snapshot",
+    documentsServiceParam: "verify_tax",
+    verifyReturnPath: "/verify/tax",
+  },
 };
 
 export const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY =
