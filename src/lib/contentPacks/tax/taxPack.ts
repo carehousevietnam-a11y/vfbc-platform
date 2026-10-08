@@ -1291,20 +1291,65 @@ export function buildTaxMemberVerifyMeta(
   };
 }
 
+const TAX_PACK_CASE_META_KEY = "tax_pack_case_id";
+const TAX_PACK_V1_FLAG = "tax_pack_v1";
+const TAX_PACK_GRADE2_META_KEY = "tax_pack_grade2";
+const TAX_PACK_PHASE2_SUMMARY_META_KEY = "tax_pack_phase2_summary";
+const TAX_PACK_CAUTION_COUNT_META_KEY = "tax_pack_caution_count";
+const TAX_PACK_HEADLINE_META_KEY = "tax_pack_headline";
+
+/** Q1 선택값. 직접입력은 unknown. 부동산 resolveCaseFromAnswers와 같은 역할. */
+export function resolveTaxCaseFromAnswers(answers: Record<string, string>): string {
+  const q1 = String(answers[Q1_ID] ?? "");
+  if (q1 === "other" || !q1.trim()) return "unknown";
+  return q1;
+}
+
+function assertTaxPackCaseIdConsistent(answers: Record<string, string>): string {
+  const caseId = resolveTaxCaseFromAnswers(answers);
+  const fromMeta = answers[TAX_PACK_CASE_META_KEY];
+  if (fromMeta && String(fromMeta).trim() && String(fromMeta) !== caseId) {
+    throw new Error(
+      `pack case_id mismatch: tax_q1→${caseId} vs ${TAX_PACK_CASE_META_KEY}=${fromMeta}`,
+    );
+  }
+  return caseId;
+}
+
+function serializeTaxPackAnswers(answers: Record<string, string>): string {
+  const payload: Record<string, string> = {};
+  for (const [key, val] of Object.entries(answers)) {
+    if (val == null) continue;
+    const s = String(val).trim();
+    if (s) payload[key] = s;
+  }
+  return JSON.stringify(payload);
+}
+
 export function buildTaxPhase2PersistMeta(
   answers: Record<string, string>,
   profilePhase: 1 | 2,
 ): Record<string, string> {
-  const profile = buildTaxProfile(answers);
-  const result = buildResult(answers, profilePhase === 2);
-  const payload = { ...answers, ...profile };
+  const caseId = assertTaxPackCaseIdConsistent(answers);
   const meta: Record<string, string> = {
-    [ADMIN_VERIFY_ANSWERS_META_JSON_KEY]: JSON.stringify(payload),
+    [ADMIN_VERIFY_ANSWERS_META_JSON_KEY]: serializeTaxPackAnswers(answers),
     [ADMIN_VERIFY_PROFILE_PHASE_META_KEY]: String(profilePhase),
-    tax_pack_v1: "true",
-    tax_expert_summary: expertLines(profile).join(" · "),
+    [TAX_PACK_V1_FLAG]: "true",
+    [TAX_PACK_CASE_META_KEY]: caseId,
   };
-  if (result?.situationSummary) meta.tax_result_summary = result.situationSummary;
+  if (profilePhase === 2) {
+    const personalized = buildResult(answers, true);
+    if (personalized) {
+      meta[TAX_PACK_GRADE2_META_KEY] = String(personalized.gradeFilled);
+      meta[TAX_PACK_PHASE2_SUMMARY_META_KEY] = personalized.situationSummary ?? "";
+      meta[TAX_PACK_CAUTION_COUNT_META_KEY] = String(personalized.cautions?.length ?? 0);
+      const headline =
+        personalized.statusHeadline?.trim() ||
+        personalized.situationSummary?.split(/(?<=[.!?…])\s+/)[0]?.trim() ||
+        "";
+      if (headline) meta[TAX_PACK_HEADLINE_META_KEY] = headline;
+    }
+  }
   return meta;
 }
 

@@ -50,6 +50,7 @@ import {
   buildTaxMemberVerifyMeta,
   buildTaxPhase2PersistMeta,
   createTaxVerifyMasterPackBridge,
+  resolveTaxCaseFromAnswers,
   restoreTaxAnswersFromVerifyMeta,
 } from "@/lib/contentPacks/tax/taxPack";
 import {
@@ -571,8 +572,16 @@ export default function TaxVerifyMasterPage() {
         setHandoffError(result.message);
         return;
       }
-      writePhase2HandoffSnapshot(VERIFY_SERVICE_TYPE, { leadId, answers, resultToken });
-      window.location.href = buildPhase2DocumentsHandoffUrl(leadId, VERIFY_SERVICE_TYPE);
+      const packCaseId = resolveTaxCaseFromAnswers(answers);
+      writePhase2HandoffSnapshot(VERIFY_SERVICE_TYPE, {
+        leadId,
+        answers,
+        resultToken,
+        packCaseId,
+      });
+      window.location.href = buildPhase2DocumentsHandoffUrl(leadId, VERIFY_SERVICE_TYPE, {
+        packCaseId,
+      });
     },
     [leadId, resultToken],
   );

@@ -13,6 +13,7 @@ import {
 
 const ADMIN_VERIFY_SERVICE_TYPE = "verify_admin";
 const REAL_ESTATE_VERIFY_SERVICE_TYPE = "verify_real-estate";
+const TAX_VERIFY_SERVICE_TYPE = "verify_tax";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -28,6 +29,19 @@ const REAL_ESTATE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "real_estate_pack_phase2_summary",
   "real_estate_pack_caution_count",
   "real_estate_pack_headline",
+]);
+
+const TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "tax_pack_v1",
+  "tax_pack_case_id",
+  "tax_pack_grade2",
+  "tax_pack_phase2_summary",
+  "tax_pack_caution_count",
+  "tax_pack_headline",
 ]);
 
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
@@ -127,7 +141,8 @@ export async function POST(req: NextRequest) {
 
     const isAdminLead = lead.service_type === ADMIN_VERIFY_SERVICE_TYPE;
     const isRealEstateLead = lead.service_type === REAL_ESTATE_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead) {
+    const isTaxLead = lead.service_type === TAX_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -140,7 +155,9 @@ export async function POST(req: NextRequest) {
 
     const allowedKeys = isAdminLead
       ? ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS
-      : REAL_ESTATE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+      : isRealEstateLead
+        ? REAL_ESTATE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+        : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {
