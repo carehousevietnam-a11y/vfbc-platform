@@ -25,17 +25,19 @@ const paid = isVerifyMasterPaidMypageItem({
   phase2Complete: extras.phase2Complete,
   hasDiagnosis: true,
 });
-const feasibilityScore = extras.phase2Complete && extras.realEstatePackGrade2
-  ? Math.min(100, Math.max(17, extras.realEstatePackGrade2 * 25))
-  : null;
-
 console.log(
   JSON.stringify(
     {
-      note: "code derivation from V1 DB meta snapshot — HTTP mypage-data NOT VERIFIED",
+      note: "code derivation from V1 DB meta snapshot — HTTP mypage-data NOT VERIFIED (C2.9: no grade2×25; use stage.progressPercent + grade label on UI)",
       phase2Complete: extras.phase2Complete,
       realEstatePackGrade2: extras.realEstatePackGrade2,
-      feasibilityScore_derived: feasibilityScore,
+      mypage_grade_label:
+        extras.realEstatePackGrade2 != null
+          ? extras.realEstatePackGrade2 >= 2
+            ? "주의 요망"
+            : "양호"
+          : null,
+      verify_stage_progress_hint: "hasDiagnosis only → 50%; +expert_review_request → 75%",
       phase2SummaryLines: extras.phase2SummaryLines,
       isVerifyMasterPaidMypageItem: paid,
       expect_upload_complete: "1",

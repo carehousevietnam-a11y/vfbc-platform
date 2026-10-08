@@ -78,3 +78,8 @@ C1 / C1.1 / C1.2 지시서·절대 규칙에서 확정된 항목만 기록한다
 | **L-75** | Admin PDF 회귀는 동일 하니스 2회 비교가 아니라 `03a8e21` worktree baseline(`tests/qa/fixtures/admin-mypage-pdf-03a8e21`)과 HEAD 비교. RE PDF 결론은 `gradeLabel`+2차 summary 문자 동일; `(부동산 관련 서류)` filler 금지·Pack 1차 문서명+`koreanParticle`. 양호(grade&lt;2)는 [공백] 교차확인 생략. 접수번호 `VF`+UUID hex8 — `lead-re-…` 하이픈 leadId는 pdf-parse에서 ㏄ 아티팩트 가능(운영 UUID 무관). |
 | **L-76** | RE PDF MANDATORY·조치문 문서명은 `REAL_ESTATE_PHASE2_DOCUMENT_LISTS`(`phase2Documents.ts` → `generated/meta.ts`, `/documents` phase2_upload L788~794) 단일 소스. ② 조치는 `2차에 입력하신 내용을 {doc}의 기재 내용과 대조` — `내용과 {doc}와 기재` 금지. paid·free 모두 `mandatoryDocumentLines`로 렌더 카드 override. |
 | **L-77** | My Page `phase2Complete` = `admin_phase2_documents_upload_complete`(Admin 동일). RE `/documents` 종합 결과 클릭 시 upload gate meta + `buildRealEstatePackPhase2PersistMeta`(session snapshot) 단일 persist. `buildRealEstateVerifyMypagePackExtras`가 grade2·summary·paid layout 게이트 QA. 서류 0건이어도 gate `1`이면 paid·2차 슬롯. |
+| **L-78** | 1차 VERIFY 첨부 Storage 저장 실패까지 확인됨(정책 원인 미확정). 실패 시 meta `storagePath` 없이 진행(Admin·RE). RE 1차 화면: `첨부 저장 실패, 다시 시도` + 재시도(퍼널 진행은 막지 않음). 2차 `document-upload/{leadId}/`는 실측 성공 사례와 DB·Storage 일치. |
+| **L-79** | RE My Page AI 카드는 `grade2×25` 제거(C2.9). `realEstateMypageGradeDisplayLabel`로 양호/주의 요망 표시; 진행률은 Admin과 동일 `buildStageInfo`(verify 1차 진단 50%·전문가 75%). RE paid PDF: 2차 제출 0건/1건+ 각각 고지 문장(`realEstateVerifyPdfContent`). RE04 ②조치: `문제 부분 사진·영상에 표시된 내용과 2차 입력을 대조해 주세요.` |
+
+### Admin Master 개선 목록 (보고 전용 — 미수정)
+- 1차 `verify-admin/`·`verify-real-estate/` anon Storage 업로드 RLS 실패 시 고객 실패 무표시(Admin·RE 동일 패턴).
