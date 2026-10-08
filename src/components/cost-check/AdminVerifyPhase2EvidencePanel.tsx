@@ -34,6 +34,9 @@ type AdminVerifyPhase2EvidencePanelProps = {
   exampleTags?: readonly string[];
   /** 서비스 중립 내용 슬롯 — 미지정 시 Admin 기본값 */
   contentSlots?: VerifyMasterEvidenceContentSlots;
+  /** Phase1 Storage 업로드 실패 안내(부동산 1차만) */
+  attachStorageError?: string | null;
+  onAttachStorageRetry?: () => void;
 };
 
 const EVIDENCE_TIER_COPY: Record<
@@ -91,6 +94,8 @@ export function AdminVerifyPhase2EvidencePanel({
   domain = "admin",
   exampleTags,
   contentSlots,
+  attachStorageError,
+  onAttachStorageRetry,
 }: AdminVerifyPhase2EvidencePanelProps) {
   const tierCopy = EVIDENCE_TIER_COPY[evidenceTier];
   const detailNote =
@@ -188,6 +193,22 @@ export function AdminVerifyPhase2EvidencePanel({
         <p className="mt-2 break-keep text-[11px] leading-[1.55] text-slate-400">
           {footerNote}
         </p>
+        {attachStorageError ? (
+          <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+            <p className="break-keep text-[12px] font-medium leading-snug text-red-800">
+              {attachStorageError}
+            </p>
+            {onAttachStorageRetry ? (
+              <button
+                type="button"
+                onClick={onAttachStorageRetry}
+                className="mt-2 text-[12px] font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
+              >
+                다시 시도
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </VerifyStep4InputStack>
 
       <div className="mt-5 flex flex-wrap justify-start gap-2">

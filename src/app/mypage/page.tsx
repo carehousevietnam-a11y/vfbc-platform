@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { realEstateMypageGradeDisplayLabel } from "@/lib/contentPacks/realEstate/personalizedResultBuilder";
 import {
   AlertCircle,
   AlertTriangle,
@@ -1596,6 +1597,10 @@ function AiResultCard({
     (item.serviceType === "verify_real-estate" || item.serviceType === "verify_real_estate") &&
     item.phase2Complete === true;
   const aiResultPhaseLabel = isRePackPhase2Paid ? "2차 종합 검토" : "제출 정보 기준 1차 분석";
+  const reGradeLabel =
+    isRePackPhase2Paid && typeof item.realEstatePackGrade2 === "number"
+      ? realEstateMypageGradeDisplayLabel(item.realEstatePackGrade2)
+      : null;
 
   return (
     <section className="rounded-[20px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
@@ -1609,13 +1614,17 @@ function AiResultCard({
 
       <div className="mt-4 grid grid-cols-[1fr_118px] items-end gap-3">
         <div>
-          {typeof item.feasibilityScore === "number" && (
+          {reGradeLabel ? (
+            <p className="text-[32px] font-extrabold leading-none tracking-[-0.04em] text-emerald-700 sm:text-[36px]">
+              {reGradeLabel}
+            </p>
+          ) : typeof item.feasibilityScore === "number" ? (
             <p className="text-[46px] font-extrabold leading-none tracking-[-0.05em] text-emerald-700">
               {item.feasibilityScore}
               <span className="text-[22px]">%</span>
             </p>
-          )}
-          {resultInfo && (
+          ) : null}
+          {resultInfo && !reGradeLabel && (
             <p className={`mt-2 text-[15px] font-extrabold ${resultInfo.className}`}>{resultInfo.label}</p>
           )}
           <div className="mt-3 flex items-center gap-1 text-amber-400">

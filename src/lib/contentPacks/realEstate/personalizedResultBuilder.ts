@@ -207,6 +207,14 @@ export function gradeLabelFromFilled(filled: number): string {
   return "양호 (1단계)";
 }
 
+/** My Page AI 카드 — 등급 문구(퍼센트 대신) */
+export function realEstateMypageGradeDisplayLabel(grade2: number): string {
+  if (grade2 >= 4) return "VFBCAI 전문가팀 진행";
+  if (grade2 >= 3) return "전문가 권장";
+  if (grade2 >= 2) return "주의 요망";
+  return "양호";
+}
+
 function headlineForGrade(
   caseId: RealEstateCaseId,
   gradeFilled: number,

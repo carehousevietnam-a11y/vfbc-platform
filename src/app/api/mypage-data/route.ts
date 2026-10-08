@@ -549,16 +549,6 @@ export async function POST(req: NextRequest) {
             }
           : rePackMypageExtras ?? {};
 
-      if (
-        rePackMypageExtras?.phase2Complete &&
-        typeof rePackMypageExtras.realEstatePackGrade2 === "number"
-      ) {
-        feasibilityScore = Math.min(
-          100,
-          Math.max(17, rePackMypageExtras.realEstatePackGrade2 * 25),
-        );
-      }
-
       let phase2UploadedDocuments:
         | { fileName: string; fileUrl: string }[]
         | undefined;

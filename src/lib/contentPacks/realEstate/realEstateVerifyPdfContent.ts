@@ -35,6 +35,11 @@ import { correctParticlesInSentence, withParticle } from "./koreanParticle";
 
 const FILLER_DOC_PHRASE = "(부동산 관련 서류)";
 
+const RE_PACK_PDF_NO_PHASE2_UPLOAD_NOTE =
+  "제출된 자료가 없어 선택하신 답변만을 기준으로 정리했습니다. 서류 확인 후 결론이 달라질 수 있습니다.";
+const RE_PACK_PDF_UPLOAD_ANSWERS_NOT_AUTO_VERIFIED_NOTE =
+  "제출 자료의 내용이 입력하신 답변과 일치하는지는 자동으로 검증하지 않으며, 전문가 확인 대상입니다.";
+
 function findLatestMetaString(activities: CrmActivityLike[], key: string): string | null {
   for (let i = activities.length - 1; i >= 0; i -= 1) {
     const meta = activities[i]?.meta;
@@ -86,8 +91,11 @@ function buildPaidKeyRisks(input: {
   } else {
     keyRisks.push("확인된 항목 기준으로 별도 위험요인이 발견되지 않았습니다.");
   }
-  if (input.uploadRefs.length > 0) {
+  if (input.uploadRefs.length === 0) {
+    keyRisks.push(RE_PACK_PDF_NO_PHASE2_UPLOAD_NOTE);
+  } else {
     keyRisks.push(ADMIN_VERIFY_PAID_PDF_KEY_RISK_UPLOAD_SCOPE);
+    keyRisks.push(RE_PACK_PDF_UPLOAD_ANSWERS_NOT_AUTO_VERIFIED_NOTE);
   }
   return keyRisks;
 }
@@ -147,7 +155,7 @@ export function buildRealEstateVerifyAiReportContentFromActivities(
       riskSignals.length > 0 || gradeFilled >= 2
         ? `위험요인으로 표시된 항목을 ${primaryDoc}의 기재 내용과 대조해 주세요.`
         : `${primaryDoc}에 적힌 기한과 조건을 다시 확인해 주세요.`;
-    const compareAnswersLine = buildRealEstatePhase2PdfCompareAnswersLine(primaryDoc);
+    const compareAnswersLine = buildRealEstatePhase2PdfCompareAnswersLine(primaryDoc, caseId);
     const recommendedAction = includesPhase2Block
       ? [
           `① 즉시 조치 · ${polishPdfSentence(immediateBody)}`,

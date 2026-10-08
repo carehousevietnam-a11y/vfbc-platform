@@ -1840,6 +1840,9 @@ export type AdminVerifyMasterGateProps = {
   adminVerifyExpertError?: string | null;
   /** Phase 1 STOP 후 표시할 회원가입 UI (VerifyAdminLeadCapture 등) */
   adminVerifyLeadCaptureSlot?: ReactNode;
+  /** Pack 부동산 1차 Storage 업로드 실패 안내 */
+  adminVerifyPhase1AttachStorageError?: string | null;
+  onAdminVerifyPhase1AttachStorageRetry?: () => void;
 };
 
 /** 2차 개인화 검토 안내 박스 (행정문서·부동산 공용 표시) */
@@ -1888,6 +1891,8 @@ export function MasterReviewQuotationReport({
   adminVerifyAiReportError = null,
   adminVerifyExpertError = null,
   adminVerifyLeadCaptureSlot,
+  adminVerifyPhase1AttachStorageError = null,
+  onAdminVerifyPhase1AttachStorageRetry,
   realEstateVerifySkipSignup = false,
   realEstateVerifySignupComplete = false,
   realEstateVerifyPhase1EvidenceComplete = false,
@@ -1940,6 +1945,8 @@ export function MasterReviewQuotationReport({
   adminVerifyAiReportError?: string | null;
   adminVerifyExpertError?: string | null;
   adminVerifyLeadCaptureSlot?: ReactNode;
+  adminVerifyPhase1AttachStorageError?: string | null;
+  onAdminVerifyPhase1AttachStorageRetry?: () => void;
   realEstateVerifySkipSignup?: boolean;
   realEstateVerifySignupComplete?: boolean;
   realEstateVerifyPhase1EvidenceComplete?: boolean;
@@ -4800,14 +4807,20 @@ export function MasterReviewQuotationReport({
                     onFileChange={setAdminPhase1EvidenceFile}
                     onContinue={handleAdminPhase1EvidenceContinue}
                     contentSlots={packMasterContentSlots?.evidence}
+                    domain={isPackVerifyStitchLayout ? "real-estate" : "admin"}
+                    attachStorageError={adminVerifyPhase1AttachStorageError}
+                    onAttachStorageRetry={onAdminVerifyPhase1AttachStorageRetry}
                   />
                 ) : null}
                 {isRealEstateAwaitingPhase1Evidence ? (
                   <AdminVerifyPhase2EvidencePanel
                     evidenceTier="phase1"
+                    domain="real-estate"
                     file={realEstatePhase1EvidenceFile}
                     onFileChange={setRealEstatePhase1EvidenceFile}
                     onContinue={handleRealEstatePhase1EvidenceContinue}
+                    attachStorageError={adminVerifyPhase1AttachStorageError}
+                    onAttachStorageRetry={onAdminVerifyPhase1AttachStorageRetry}
                   />
                 ) : null}
                 {isRealEstateAwaitingSignup && realEstateVerifyLeadCaptureSlot ? (
@@ -4853,14 +4866,32 @@ export function MasterReviewQuotationReport({
                 ) : null}
 
                 {isAdminVerifyFirstResult && adminFirstResult ? (
-                  <AdminVerifyFirstResultPanel
-                    data={adminFirstResult}
-                    onContinue={handleContinueClick}
-                    transitionHooks={adminFirstResultTransition ?? undefined}
-                    onAiSummaryNavigate={onAdminVerifyAiSummary}
-                    aiSummaryNavigating={adminVerifyAiSummaryNavigating}
-                    contentSlots={packFirstResultContentSlots}
-                  />
+                  <>
+                    {adminVerifyPhase1AttachStorageError ? (
+                      <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+                        <p className="break-keep text-[12px] font-medium leading-snug text-red-800">
+                          {adminVerifyPhase1AttachStorageError}
+                        </p>
+                        {onAdminVerifyPhase1AttachStorageRetry ? (
+                          <button
+                            type="button"
+                            onClick={onAdminVerifyPhase1AttachStorageRetry}
+                            className="mt-2 text-[12px] font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
+                          >
+                            다시 시도
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <AdminVerifyFirstResultPanel
+                      data={adminFirstResult}
+                      onContinue={handleContinueClick}
+                      transitionHooks={adminFirstResultTransition ?? undefined}
+                      onAiSummaryNavigate={onAdminVerifyAiSummary}
+                      aiSummaryNavigating={adminVerifyAiSummaryNavigating}
+                      contentSlots={packFirstResultContentSlots}
+                    />
+                  </>
                 ) : null}
                 {isRealEstateFirstResult && realEstateFirstResult ? (
                   <AdminVerifyFirstResultPanel

@@ -18,8 +18,16 @@ export function primaryRealEstatePhase2DocumentLabel(caseId: RealEstateCaseId): 
   return listRealEstatePhase2RequiredDocuments(caseId)[0] ?? "원본 문서";
 }
 
-/** RECOMMENDED ACTIONS ② — 문서명 1회, `…내용을 {doc}의 기재 내용과` */
-export function buildRealEstatePhase2PdfCompareAnswersLine(primaryDoc: string): string {
+/** RECOMMENDED ACTIONS ② — 문서명 1회, `…내용을 {doc}의 기재 내용과` (RE04는 승인 고정 문구) */
+export function buildRealEstatePhase2PdfCompareAnswersLine(
+  primaryDoc: string,
+  caseId?: RealEstateCaseId,
+): string {
+  if (caseId === "RE04") {
+    return correctParticlesInSentence(
+      "문제 부분 사진·영상에 표시된 내용과 2차 입력을 대조해 주세요.",
+    );
+  }
   const trimmed = primaryDoc.trim() || "원본 문서";
   return correctParticlesInSentence(
     `2차에 입력하신 내용을 ${trimmed}의 기재 내용과 대조해 주세요.`,

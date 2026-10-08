@@ -67,6 +67,24 @@ const REPORT_TITLE =
 
 const VERIFY_SERVICE_TYPE = "verify_real-estate" as const;
 const MEMBER_VERIFY_LEAD_TIMEOUT_MS = 45_000;
+const PHASE1_ATTACH_STORAGE_FAIL_MESSAGE = "첨부 저장 실패, 다시 시도";
+
+async function uploadRealEstatePhase1Evidence(
+  leadId: string,
+  evidenceFile: File,
+): Promise<{ ok: true; storagePath: string } | { ok: false }> {
+  const rawExt = evidenceFile.name.split(".").pop() || "";
+  const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+  const path = `verify-real-estate/${leadId}.${safeExt}`;
+  const { error: uploadError } = await supabase.storage
+    .from("documents")
+    .upload(path, evidenceFile);
+  if (uploadError) {
+    console.error(uploadError);
+    return { ok: false };
+  }
+  return { ok: true, storagePath: path };
+}
 
 export default function RealEstateVerifyMasterPage() {
   const searchParams = useSearchParams();
@@ -90,10 +108,12 @@ export default function RealEstateVerifyMasterPage() {
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [aiReportError, setAiReportError] = useState<string | null>(null);
   const [expertError, setExpertError] = useState<string | null>(null);
+  const [phase1AttachStorageFailed, setPhase1AttachStorageFailed] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
   const [resultToken, setResultToken] = useState<string | null>(null);
   const [profilingSeedAnswers, setProfilingSeedAnswers] = useState<Record<string, string>>({});
   const memberSubmitStartedRef = useRef(false);
+  const pendingMemberLeadIdRef = useRef<string | null>(null);
   const phase1AnswersRef = useRef<Record<string, string> | null>(null);
   const phase1EvidenceFileRef = useRef<File | null>(null);
   const profilingAnswersRef = useRef<Record<string, string> | null>(null);
@@ -249,20 +269,17 @@ export default function RealEstateVerifyMasterPage() {
 
       try {
         const newLeadId = crypto.randomUUID();
+        pendingMemberLeadIdRef.current = newLeadId;
         let storagePath: string | null = null;
         let fileName: string | undefined;
         if (evidenceFile && evidenceFile.size > 0) {
-          const rawExt = evidenceFile.name.split(".").pop() || "";
-          const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-          const path = `verify-real-estate/${newLeadId}.${safeExt}`;
-          const { error: uploadError } = await supabase.storage
-            .from("documents")
-            .upload(path, evidenceFile);
-          if (!uploadError) {
-            storagePath = path;
+          const uploaded = await uploadRealEstatePhase1Evidence(newLeadId, evidenceFile);
+          if (uploaded.ok) {
+            storagePath = uploaded.storagePath;
             fileName = evidenceFile.name;
+            setPhase1AttachStorageFailed(false);
           } else {
-            console.error(uploadError);
+            setPhase1AttachStorageFailed(true);
           }
         }
 
@@ -382,14 +399,13 @@ export default function RealEstateVerifyMasterPage() {
       let storagePath: string | null = null;
       const evidenceFile = phase1EvidenceFileRef.current;
       if (evidenceFile && evidenceFile.size > 0) {
-        const rawExt = evidenceFile.name.split(".").pop() || "";
-        const safeExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-        const path = `verify-real-estate/${newLeadId}.${safeExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from("documents")
-          .upload(path, evidenceFile);
-        if (!uploadError) storagePath = path;
-        else console.error(uploadError);
+        const uploaded = await uploadRealEstatePhase1Evidence(newLeadId, evidenceFile);
+        if (uploaded.ok) {
+          storagePath = uploaded.storagePath;
+          setPhase1AttachStorageFailed(false);
+        } else {
+          setPhase1AttachStorageFailed(true);
+        }
       }
 
       const verifyMeta = buildRealEstatePackMemberVerifyMeta(
@@ -496,10 +512,36 @@ export default function RealEstateVerifyMasterPage() {
     [leadId, profilingSeedAnswers],
   );
 
+  const handlePhase1AttachStorageRetry = useCallback(async () => {
+    const file = phase1EvidenceFileRef.current;
+    const targetLeadId = leadId ?? pendingMemberLeadIdRef.current;
+    if (!file || file.size <= 0 || !targetLeadId) return;
+    const uploaded = await uploadRealEstatePhase1Evidence(targetLeadId, file);
+    if (uploaded.ok) {
+      setPhase1AttachStorageFailed(false);
+      if (leadId) {
+        const answerSnapshot = (phase1AnswersRef.current ?? profilingSeedAnswers) as Record<
+          string,
+          string
+        >;
+        const verifyMeta = buildRealEstatePackMemberVerifyMeta(answerSnapshot, {
+          storagePath: uploaded.storagePath,
+          file_name: file.name,
+        });
+        await persistAdminVerifyLeadMeta(leadId, verifyMeta as Record<string, string>);
+      }
+    } else {
+      setPhase1AttachStorageFailed(true);
+    }
+  }, [leadId, profilingSeedAnswers]);
+
   const handleAdminVerifyPhase1Complete = useCallback(
     (answers: Record<string, string>, evidenceFile?: File | null) => {
       phase1AnswersRef.current = answers;
       phase1EvidenceFileRef.current = evidenceFile ?? null;
+      if (!evidenceFile?.size) {
+        setPhase1AttachStorageFailed(false);
+      }
       setAdminVerifyPhase1EvidenceComplete(true);
       if (skipSignup) {
         void submitAsMember(answers, evidenceFile ?? null);
@@ -624,6 +666,10 @@ export default function RealEstateVerifyMasterPage() {
               adminVerifyExpertRequesting: expertRequesting,
               adminVerifyAiReportError: aiReportError,
               adminVerifyExpertError: expertError,
+              adminVerifyPhase1AttachStorageError: phase1AttachStorageFailed
+                ? PHASE1_ATTACH_STORAGE_FAIL_MESSAGE
+                : null,
+              onAdminVerifyPhase1AttachStorageRetry: () => void handlePhase1AttachStorageRetry(),
               adminVerifyLeadCaptureSlot:
                 !skipSignup && adminMasterSignupPending && !adminMasterSignupComplete ? (
                   <RealEstateVerifyLeadCapture
