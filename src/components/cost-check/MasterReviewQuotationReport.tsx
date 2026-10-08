@@ -4581,6 +4581,9 @@ export function MasterReviewQuotationReport({
     () => verifyMasterPackBridge?.getFirstResultContentSlots(answers),
     [verifyMasterPackBridge, answers],
   );
+  const packIdentityServiceId =
+    packMasterContentSlots?.identity?.serviceId ??
+    packFirstResultContentSlots?.identity?.serviceId;
   const realEstateFirstResultTransition = useMemo(() => {
     if (!realEstateFirstResult) return null;
     return resolveVerifyPaidTransitionHooks({
@@ -4806,8 +4809,20 @@ export function MasterReviewQuotationReport({
                     file={adminPhase1EvidenceFile}
                     onFileChange={setAdminPhase1EvidenceFile}
                     onContinue={handleAdminPhase1EvidenceContinue}
-                    contentSlots={packMasterContentSlots?.evidence}
-                    domain={isPackVerifyStitchLayout ? "real-estate" : "admin"}
+                    contentSlots={
+                      packMasterContentSlots?.identity
+                        ? {
+                            ...packMasterContentSlots.evidence,
+                            identity:
+                              packMasterContentSlots.evidence?.identity ??
+                              packMasterContentSlots.identity,
+                          }
+                        : packMasterContentSlots?.evidence
+                    }
+                    domain={
+                      packIdentityServiceId ??
+                      (isPackVerifyStitchLayout ? "real-estate" : "admin")
+                    }
                     attachStorageError={adminVerifyPhase1AttachStorageError}
                     onAttachStorageRetry={onAdminVerifyPhase1AttachStorageRetry}
                   />
@@ -4889,7 +4904,14 @@ export function MasterReviewQuotationReport({
                       transitionHooks={adminFirstResultTransition ?? undefined}
                       onAiSummaryNavigate={onAdminVerifyAiSummary}
                       aiSummaryNavigating={adminVerifyAiSummaryNavigating}
-                      contentSlots={packFirstResultContentSlots}
+                      contentSlots={
+                        packMasterContentSlots?.identity && !packFirstResultContentSlots?.identity
+                          ? {
+                              ...packFirstResultContentSlots,
+                              identity: packMasterContentSlots.identity,
+                            }
+                          : packFirstResultContentSlots
+                      }
                     />
                   </>
                 ) : null}
@@ -4936,8 +4958,15 @@ export function MasterReviewQuotationReport({
                   <AdminVerifyFirstResultPanel
                     data={packPersonalizedResult}
                     onContinue={handleContinueClick}
-                    contentSlots={packFirstResultContentSlots}
-                    domain="real-estate"
+                    contentSlots={
+                      packMasterContentSlots?.identity && !packFirstResultContentSlots?.identity
+                        ? {
+                            ...packFirstResultContentSlots,
+                            identity: packMasterContentSlots.identity,
+                          }
+                        : packFirstResultContentSlots
+                    }
+                    domain={packIdentityServiceId ?? "real-estate"}
                     variant="personalized"
                   />
                 ) : null}

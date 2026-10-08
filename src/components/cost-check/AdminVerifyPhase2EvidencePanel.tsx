@@ -8,7 +8,10 @@ import {
   VerifyStep4InputStack,
 } from "@/components/ui/verifyStep4Ui";
 import { cn } from "@/lib/cn";
-import type { VerifyMasterEvidenceContentSlots } from "@/lib/verifyMasterContentSlots";
+import type {
+  VerifyMasterEvidenceContentSlots,
+  VerifyServiceDomain,
+} from "@/lib/verifyMasterContentSlots";
 
 const PHASE1_EXAMPLE_TAGS = [
   "공문/통지서",
@@ -29,7 +32,7 @@ type AdminVerifyPhase2EvidencePanelProps = {
   className?: string;
   /** Phase1 pre-signup vs Phase2 post-signup badge/copy — default Phase2 (unchanged). */
   evidenceTier?: VerifySimpleEvidenceTier;
-  domain?: "admin" | "real-estate";
+  domain?: VerifyServiceDomain;
   /** Pack 예시 칩 — 미지정 시 행정 VERIFY 기본 목록 */
   exampleTags?: readonly string[];
   /** 서비스 중립 내용 슬롯 — 미지정 시 Admin 기본값 */
@@ -85,6 +88,14 @@ const EVIDENCE_TIER_COPY: Record<
   },
 };
 
+function evidenceNoteForDomain(
+  notes: Record<"admin" | "real-estate", string>,
+  domain: VerifyServiceDomain,
+): string {
+  if (domain === "real-estate") return notes["real-estate"];
+  return notes.admin;
+}
+
 export function AdminVerifyPhase2EvidencePanel({
   file,
   onFileChange,
@@ -98,10 +109,11 @@ export function AdminVerifyPhase2EvidencePanel({
   onAttachStorageRetry,
 }: AdminVerifyPhase2EvidencePanelProps) {
   const tierCopy = EVIDENCE_TIER_COPY[evidenceTier];
+  const serviceDisplayName = contentSlots?.identity?.serviceDisplayName?.trim();
   const detailNote =
-    contentSlots?.detailNoteByTier?.[evidenceTier] ?? tierCopy.detailNote[domain];
+    contentSlots?.detailNoteByTier?.[evidenceTier] ?? evidenceNoteForDomain(tierCopy.detailNote, domain);
   const footerNote =
-    contentSlots?.footerNoteByTier?.[evidenceTier] ?? tierCopy.footerNote[domain];
+    contentSlots?.footerNoteByTier?.[evidenceTier] ?? evidenceNoteForDomain(tierCopy.footerNote, domain);
   const tagList =
     contentSlots?.exampleTags?.length
       ? contentSlots.exampleTags
@@ -118,6 +130,9 @@ export function AdminVerifyPhase2EvidencePanel({
       aria-labelledby={tierCopy.titleId}
     >
       <div className="mb-1 flex items-center gap-2">
+        {serviceDisplayName ? (
+          <span className="text-[11px] font-semibold text-slate-700">{serviceDisplayName}</span>
+        ) : null}
         <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">
           {tierCopy.badge}
         </span>

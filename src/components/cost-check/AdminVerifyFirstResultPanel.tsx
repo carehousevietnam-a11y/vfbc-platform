@@ -100,6 +100,8 @@ import { cn } from "@/lib/cn";
 import type {
   VerifyMasterFirstResultContentSlots,
   VerifyMasterResultServiceLink,
+  VerifyMasterServiceIdentitySlots,
+  VerifyServiceDomain,
 } from "@/lib/verifyMasterContentSlots";
 import {
   buildVerifyFirstResultAiSummary,
@@ -4269,6 +4271,7 @@ function AdminVerifyPersonalizedNextSteps({
   expertError,
   mode = "admin",
   case06ExpertHandoffOnly = false,
+  identity,
 }: {
   onAiReport?: () => void;
   onExpert?: () => void;
@@ -4277,10 +4280,19 @@ function AdminVerifyPersonalizedNextSteps({
   expertRequesting?: boolean;
   aiReportError?: string | null;
   expertError?: string | null;
-  mode?: "admin" | "real-estate";
+  mode?: VerifyServiceDomain;
   case06ExpertHandoffOnly?: boolean;
+  identity?: VerifyMasterServiceIdentitySlots;
 }) {
   const isRealEstate = mode === "real-estate";
+  const reportTitle =
+    filledIdentityText(identity?.nextStepCard?.reportTitle) ??
+    (isRealEstate ? "AI 리포트 요청하기" : "최종 AI 리포트");
+  const reportDescription =
+    filledIdentityText(identity?.nextStepCard?.reportDescription) ??
+    (isRealEstate
+      ? "현재 확인한 내용을 바탕으로 관련 문서를 제출하면 AI 리포트로 이어집니다."
+      : "2차까지 반영한 검토 내용을 바탕으로 AI 최종 리포트를 요청합니다. 완료 후 마이페이지에서 확인할 수 있습니다.");
   const cards: VerifyResultActionCardConfig[] = case06ExpertHandoffOnly
     ? [
         {
@@ -4299,10 +4311,8 @@ function AdminVerifyPersonalizedNextSteps({
     : [
         {
           tone: "report",
-          title: isRealEstate ? "AI 리포트 요청하기" : "최종 AI 리포트",
-          description: isRealEstate
-            ? "현재 확인한 내용을 바탕으로 관련 문서를 제출하면 AI 리포트로 이어집니다."
-            : "2차까지 반영한 검토 내용을 바탕으로 AI 최종 리포트를 요청합니다. 완료 후 마이페이지에서 확인할 수 있습니다.",
+          title: reportTitle,
+          description: reportDescription,
           buttonLabel: "최종 리포트 보기",
           onClick: () => onAiReport?.(),
           loading: aiReportRequesting,
@@ -4326,20 +4336,25 @@ function AdminVerifyPersonalizedNextSteps({
   return (
     <>
       <VerifyResultDualActionCards
-        sectionLabel={isRealEstate ? "다음 검토 연계" : "05 다음 단계 액션"}
+        sectionLabel={
+          filledIdentityText(identity?.nextStepCard?.sectionLabel) ??
+          (isRealEstate ? "다음 검토 연계" : "05 다음 단계 액션")
+        }
         headline={
           case06ExpertHandoffOnly
             ? "전문가 확인이 필요한 상태입니다"
-            : isRealEstate
-              ? "AI 리포트 또는 VFBCAI 전문가팀 검토로 이어갈 수 있습니다"
-              : "상황에 맞는 검토 방식을 선택해 보세요"
+            : filledIdentityText(identity?.nextStepCard?.headline) ??
+              (isRealEstate
+                ? "AI 리포트 또는 VFBCAI 전문가팀 검토로 이어갈 수 있습니다"
+                : "상황에 맞는 검토 방식을 선택해 보세요")
         }
         subcopy={
           case06ExpertHandoffOnly
             ? "AI 리포트 전에 전문가가 문서·안내 내용을 함께 확인하는 경로를 권장합니다."
-            : isRealEstate
-              ? "1차 검토 결과를 바탕으로 관련 문서를 추가 확인하거나 전문가 검토로 이어갈 수 있습니다."
-              : "2차 검토 데이터를 바탕으로 최종 AI 리포트를 요청하거나 전문가 검토로 연계할 수 있습니다."
+            : filledIdentityText(identity?.nextStepCard?.subcopy) ??
+              (isRealEstate
+                ? "1차 검토 결과를 바탕으로 관련 문서를 추가 확인하거나 전문가 검토로 이어갈 수 있습니다."
+                : "2차 검토 데이터를 바탕으로 최종 AI 리포트를 요청하거나 전문가 검토로 연계할 수 있습니다.")
         }
         cards={cards}
         className="border-t border-slate-100 pt-5"
@@ -4470,6 +4485,11 @@ function isInternalServiceEntryPath(path: string): boolean {
   return trimmed.startsWith("/") && !trimmed.startsWith("//");
 }
 
+function filledIdentityText(value?: string): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
 function VerifyResultUrgentNotice({ text, className }: { text?: string; className?: string }) {
   const message = text?.trim() ?? "";
   if (!message) return null;
@@ -4540,13 +4560,14 @@ export function AdminVerifyFirstResultPanel({
   aiReportError?: string | null;
   expertError?: string | null;
   variant?: "first" | "personalized";
-  domain?: "admin" | "real-estate";
+  domain?: VerifyServiceDomain;
   transitionHooks?: VerifyFirstResultTransition;
   contentSlots?: VerifyMasterFirstResultContentSlots;
 }) {
   const isCaution = data.statusTone === "caution";
   const isPersonalized = variant === "personalized";
-  const isRealEstate = domain === "real-estate";
+  const identity = contentSlots?.identity;
+  const isRealEstate = (identity?.serviceId ?? domain) === "real-estate";
   /** 1차 종합 결과(Admin·부동산 Pack) — 01~03만 표시 */
   const hideAdminFirstResultExtraSections = !isPersonalized;
   const personalized = data.personalizedContext;
@@ -4622,22 +4643,46 @@ export function AdminVerifyFirstResultPanel({
       : hasPhase2UploadedDocs
         ? "1차 검토와 2차 추가 확인 답변·첨부 자료를 반영한 종합 소견입니다."
         : "1차 검토와 2차 추가 확인 답변을 반영한 종합 소견입니다.";
-    const unconfirmedColumnLabels = isRealEstate
-      ? ["원본 서류 대조", "추가 확인 사항", "기한·조건 확인"]
-      : ["필요한 서류 원본 대조", "세부 기재사항 및 스펠링", "제출 기한 및 관할 예약"];
-    const section01Label = isRealEstate ? "01 현재 상황" : "01 전체 판단";
-    const section01Meta = isRealEstate
-      ? "1차 확인 + 2차 추가 답변 통합"
-      : "1차 기본 내용 + 2차 추가 상황 결합";
-    const section02Label = isRealEstate ? "02 핵심 판단" : "02 핵심 확인 결과";
-    const section05Label = isRealEstate ? "05 지금 해야 할 일" : "05 다음 단계 액션";
-    const section05Title = isRealEstate
-      ? "지금 우선 확인·준비할 일"
-      : "상황에 맞는 검토 방식을 선택해 보세요";
-    const breadcrumbService = isRealEstate ? "부동산 VERIFY" : "베트남 행정서류";
-    const breadcrumbPhase = isRealEstate ? "2차 개인화 검토" : "2차 심화 분석";
-    const pageMetaLabel = isRealEstate ? "부동산 VERIFY" : "직접검토하기";
-    const pageMetaSuffix = isRealEstate ? "부동산 문서 검토" : "베트남 행정·법률 전용 AI";
+    const slottedUnconfirmed = identity?.sectionLabels?.unconfirmedColumns?.filter((label) => label.trim());
+    const unconfirmedColumnLabels = slottedUnconfirmed?.length
+      ? slottedUnconfirmed
+      : isRealEstate
+        ? ["원본 서류 대조", "추가 확인 사항", "기한·조건 확인"]
+        : ["필요한 서류 원본 대조", "세부 기재사항 및 스펠링", "제출 기한 및 관할 예약"];
+    const showUnconfirmedColumnHeading = isRealEstate || Boolean(slottedUnconfirmed?.length);
+    const section01Label =
+      filledIdentityText(identity?.sectionLabels?.section01) ??
+      (isRealEstate ? "01 현재 상황" : "01 전체 판단");
+    const section01Meta =
+      filledIdentityText(identity?.sectionLabels?.section01Meta) ??
+      (isRealEstate ? "1차 확인 + 2차 추가 답변 통합" : "1차 기본 내용 + 2차 추가 상황 결합");
+    const section02Label =
+      filledIdentityText(identity?.sectionLabels?.section02) ??
+      (isRealEstate ? "02 핵심 판단" : "02 핵심 확인 결과");
+    const section05Label =
+      filledIdentityText(identity?.sectionLabels?.section05) ??
+      (isRealEstate ? "05 지금 해야 할 일" : "05 다음 단계 액션");
+    const section05Title =
+      filledIdentityText(identity?.sectionLabels?.section05Title) ??
+      (isRealEstate ? "지금 우선 확인·준비할 일" : "상황에 맞는 검토 방식을 선택해 보세요");
+    const breadcrumbService =
+      filledIdentityText(identity?.breadcrumb?.service) ??
+      (isRealEstate ? "부동산 VERIFY" : "베트남 행정서류");
+    const breadcrumbPhase =
+      filledIdentityText(identity?.breadcrumb?.phase) ??
+      (isRealEstate ? "2차 개인화 검토" : "2차 심화 분석");
+    const pageMetaLabel =
+      filledIdentityText(identity?.breadcrumb?.pageMetaLabel) ??
+      filledIdentityText(identity?.serviceDisplayName) ??
+      (isRealEstate ? "부동산 VERIFY" : "직접검토하기");
+    const pageMetaSuffix =
+      filledIdentityText(identity?.breadcrumb?.pageMetaSuffix) ??
+      (isRealEstate ? "부동산 문서 검토" : "베트남 행정·법률 전용 AI");
+    const personalizedIntroSubtitle =
+      filledIdentityText(identity?.sectionLabels?.personalizedIntroSubtitle) ??
+      (isRealEstate
+        ? "1차 FREE 검토와 2차 추가 확인 답변을 반영한 종합 소견입니다."
+        : adminPersonalizedIntroSubtitle);
 
     return (
       <div className="w-full flex-1 py-8 sm:py-10">
@@ -4672,9 +4717,7 @@ export function AdminVerifyFirstResultPanel({
             </div>
             <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-[22px]">{resultIntro}</h2>
             <p className="mt-1 text-xs font-normal text-slate-500 sm:text-sm">
-              {isRealEstate
-                ? "1차 FREE 검토와 2차 추가 확인 답변을 반영한 종합 소견입니다."
-                : adminPersonalizedIntroSubtitle}
+              {personalizedIntroSubtitle}
             </p>
           </div>
 
@@ -4825,7 +4868,7 @@ export function AdminVerifyFirstResultPanel({
                       key={item}
                       className="rounded-lg border border-slate-200 bg-slate-50/40 p-3.5"
                     >
-                      {!isRealEstate ? (
+                      {!showUnconfirmedColumnHeading ? (
                         <p className={cn("leading-relaxed text-slate-500", FIRST_RESULT_READABLE_CLASS)}>
                           {item}
                         </p>
@@ -4894,7 +4937,8 @@ export function AdminVerifyFirstResultPanel({
             expertRequesting={expertRequesting}
             aiReportError={aiReportError}
             expertError={expertError}
-            mode={domain}
+            mode={identity?.serviceId ?? domain}
+            identity={identity}
             case06ExpertHandoffOnly={Boolean(data.case06ExpertHandoffRequired)}
           />
           </section>
@@ -4916,6 +4960,12 @@ export function AdminVerifyFirstResultPanel({
         <VerifyResultUrgentNotice text={contentSlots?.urgentNotice} />
         <div className="flex flex-wrap items-center justify-between border-b border-slate-200/80 pb-3 text-xs text-slate-500 lg:pb-2 lg:text-[11px]">
           <div className="flex items-center gap-1.5">
+            {filledIdentityText(identity?.serviceDisplayName) ? (
+              <>
+                <span>{filledIdentityText(identity?.serviceDisplayName)}</span>
+                <span>·</span>
+              </>
+            ) : null}
             <span>VERIFY</span>
             <span>·</span>
             <span>{data.stageLabel}</span>

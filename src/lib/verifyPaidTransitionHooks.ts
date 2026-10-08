@@ -1,3 +1,4 @@
+import type { VerifyServiceDomain } from "@/lib/verifyMasterContentSlots";
 import type { AdminVerifyFirstResultData } from "@/components/cost-check/AdminVerifyFirstResultPanel";
 import type { ReviewAnswers } from "@/components/cost-check/MasterReviewQuotationReport";
 import {
@@ -19,7 +20,7 @@ export type VerifyFirstResultTransition = {
 };
 
 type ResolveParams = {
-  domain: "admin" | "real-estate";
+  domain: VerifyServiceDomain;
   answers: ReviewAnswers;
   firstResultData: AdminVerifyFirstResultData;
 };
