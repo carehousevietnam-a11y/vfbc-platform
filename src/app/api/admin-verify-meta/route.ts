@@ -12,10 +12,24 @@ import {
 } from "@/lib/adminVerifyProfiling";
 
 const ADMIN_VERIFY_SERVICE_TYPE = "verify_admin";
+const REAL_ESTATE_VERIFY_SERVICE_TYPE = "verify_real-estate";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
 /** Keys produced by buildAdminPhase2PersistMeta / buildReviewPage1Meta / serializeCaseResolutionProfile */
+const REAL_ESTATE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "real_estate_pack_v1",
+  "real_estate_pack_case_id",
+  "real_estate_pack_grade2",
+  "real_estate_pack_phase2_summary",
+  "real_estate_pack_caution_count",
+  "real_estate_pack_headline",
+]);
+
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "review_check_stage",
   "review_check_docs",
@@ -45,6 +59,7 @@ const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
 
 function sanitizePartialMeta(
   input: unknown,
+  allowedKeys: Set<string>,
 ): { ok: true; meta: Record<string, string> } | { ok: false; message: string } {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     return { ok: false, message: "partialMeta must be an object." };
@@ -52,7 +67,7 @@ function sanitizePartialMeta(
 
   const meta: Record<string, string> = {};
   for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
-    if (!ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS.has(key)) {
+    if (!allowedKeys.has(key)) {
       return { ok: false, message: `Disallowed meta key: ${key}` };
     }
     if (typeof value !== "string") {
@@ -110,18 +125,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (lead.service_type !== ADMIN_VERIFY_SERVICE_TYPE) {
+    const isAdminLead = lead.service_type === ADMIN_VERIFY_SERVICE_TYPE;
+    const isRealEstateLead = lead.service_type === REAL_ESTATE_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead) {
       return NextResponse.json(
         {
-          error: "행정문서 검토 건이 아닙니다.",
+          error: "지원하지 않는 검토 건입니다.",
           reason: "forbidden",
-          message: "행정문서 검토 건이 아닙니다.",
+          message: "지원하지 않는 검토 건입니다.",
         },
         { status: 403 },
       );
     }
 
-    const sanitized = sanitizePartialMeta(body.partialMeta);
+    const allowedKeys = isAdminLead
+      ? ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS
+      : REAL_ESTATE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+
+    const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {
       return NextResponse.json(
         {

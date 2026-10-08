@@ -77,7 +77,11 @@ import {
 } from "@/lib/restoreVerifyLead";
 import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
 
-const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY = "vfbcai_admin_verify_phase2_snapshot";
+import {
+  ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
+  buildPhase2DocumentsHandoffUrl,
+  writePhase2HandoffSnapshot,
+} from "@/lib/verifyMasterPhase2Handoff";
 import {
   establishBrowserSessionFromResultToken,
   ensureBrowserSessionForResultToken,
@@ -1329,11 +1333,12 @@ export default function VerifyAdminPage() {
         return;
       }
 
-      sessionStorage.setItem(
-        ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
-        JSON.stringify({ leadId, answers, resultToken }),
-      );
-      window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_admin&mode=phase2_upload`;
+      writePhase2HandoffSnapshot("verify_admin", {
+        leadId,
+        answers,
+        resultToken,
+      });
+      window.location.href = buildPhase2DocumentsHandoffUrl(leadId, "verify_admin");
     },
     [leadId, page1ReviewAnswers, resultToken],
   );

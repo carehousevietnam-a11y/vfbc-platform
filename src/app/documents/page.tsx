@@ -50,8 +50,9 @@ import {
   ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
   ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
 } from "@/lib/adminVerifyProfiling";
-
-const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY = "vfbcai_admin_verify_phase2_snapshot";
+import { getVerifyPhase2HandoffConfig } from "@/lib/verifyMasterPhase2Handoff";
+import type { VerifyServiceType } from "@/lib/restoreVerifyLead";
+import { REAL_ESTATE_PHASE2_DOCUMENT_LISTS } from "@/lib/contentPacks/realEstate/phase2Documents";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
 type DocInputMode = "upload" | "manual";
@@ -767,6 +768,8 @@ function DocumentUploadContent() {
   }, [isCompanyService, investorType, rawServiceParam]);
 
   const isVerifyAdmin = serviceParam === "verify_admin";
+  const isVerifyRealEstatePack = serviceParam === "verify_real-estate";
+  const packCaseParam = params.get("packCase");
   const [verifyAdminAuthorityDemand, setVerifyAdminAuthorityDemand] = useState<string | null>(
     null,
   );
@@ -782,9 +785,20 @@ function DocumentUploadContent() {
         optionalDocuments: verifyAdminLists.optionalDocuments,
       };
     }
+    if (isVerifyRealEstatePack && mode === "phase2_upload" && packCaseParam) {
+      const fromPack = REAL_ESTATE_PHASE2_DOCUMENT_LISTS[packCaseParam];
+      if (fromPack) {
+        const base = getRequiredDocuments(serviceParam, "ai_report");
+        return {
+          ...base,
+          documents: fromPack.documents,
+          optionalDocuments: fromPack.optionalDocuments,
+        };
+      }
+    }
     const docListMode = mode === "phase2_upload" ? "ai_report" : mode;
     return getRequiredDocuments(serviceParam, docListMode);
-  }, [isVerifyAdmin, serviceParam, mode, verifyAdminAuthorityDemand]);
+  }, [isVerifyAdmin, isVerifyRealEstatePack, packCaseParam, serviceParam, mode, verifyAdminAuthorityDemand]);
 
   const requiredLabels = useMemo(() => config.documents, [config]);
   const optionalLabels = useMemo(() => config.optionalDocuments ?? [], [config]);
@@ -1342,14 +1356,14 @@ function DocumentUploadContent() {
       return false;
     }
     try {
-      const raw = sessionStorage.getItem(ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY);
-      if (raw) {
+      const handoffService = (serviceParam ?? "verify_admin") as VerifyServiceType;
+      const handoffCfg = getVerifyPhase2HandoffConfig(handoffService);
+      const snapshotKey = handoffCfg?.snapshotStorageKey;
+      const raw = snapshotKey ? sessionStorage.getItem(snapshotKey) : null;
+      if (raw && snapshotKey) {
         const parsed = JSON.parse(raw) as Record<string, unknown>;
         parsed.anyUploaded = anyUploaded;
-        sessionStorage.setItem(
-          ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
-          JSON.stringify(parsed),
-        );
+        sessionStorage.setItem(snapshotKey, JSON.stringify(parsed));
         const token =
           typeof parsed.resultToken === "string" && parsed.resultToken.trim()
             ? parsed.resultToken.trim()
