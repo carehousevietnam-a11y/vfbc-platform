@@ -73,3 +73,4 @@ C1 / C1.1 / C1.2 지시서·절대 규칙에서 확정된 항목만 기록한다
 | **L-70** | 서비스 성격(계약 전/후 문제 상태)에 따른 판정 하한은 값별 목록이 아니라 **서비스 단위** Pack 메타(`firstResultVerdictFloor`)로 둔다. |
 | **L-71** | 경로별 질문 종료·간단 자료 도달은 `show_if`로 숨긴 phase1 필드를 완료 조건에 넣지 않는다. 질문 그래프 전수 도달 검사를 기본 QA에 포함한다. |
 | **L-72** | 1차 판정 하한(주의)과 §03 위험 0건 문구가 모순되면, 하한+0건일 때만 Pack `firstResultNoRiskFloor*` 슬롯으로 「먼저 확인할 사항」을 쓴다. Admin 기본 문구는 슬롯 미지정 시 유지. |
+| **L-73** | 신규 VERIFY 서비스 페이지의 회원 lead 복원은 Admin 기준만 허용한다: 마운트 시 `?restore=1` 또는 랜딩 「계속하기」에서만 `allowRestore: true`. 마운트 시 무조건 복원 금지 — 완료 lead(`admin_phase2_documents_upload_complete=1`)가 있으면 `adminVerifyPhase2UploadComplete` 로 My Page 자동 이동이 걸려 새 검토를 시작할 수 없다. 검사: 로그인 상태에서 서비스 URL 첫 진입이 시작 화면(랜딩/Q1)인지. |
