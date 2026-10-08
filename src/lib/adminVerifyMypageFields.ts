@@ -211,6 +211,13 @@ export function isVerifyAdminPaidMypageItem(item: MypageLayoutItemLike): boolean
   return item.serviceType === "verify_admin" && item.phase2Complete === true;
 }
 
+/** verify_admin 유료 레이아웃과 동일 구조 — 부동산 Pack 2차 완료 */
+export function isVerifyMasterPaidMypageItem(item: MypageLayoutItemLike): boolean {
+  if (isVerifyAdminPaidMypageItem(item)) return true;
+  const st = item.serviceType?.replace(/-/g, "_");
+  return st === "verify_real_estate" && item.phase2Complete === true;
+}
+
 export function isVerifyAdminMypageItem(item: { serviceType?: string | null }): boolean {
   return item.serviceType === "verify_admin";
 }
@@ -270,7 +277,7 @@ export function shouldUseGeneralCustomerMypageLayout(item: MypageLayoutItemLike)
     item.result != null ||
     typeof item.feasibilityScore === "number";
   const expert = Boolean(item.hasAgency) || Boolean(item.hasExpertReview);
-  if (isVerifyAdminPaidMypageItem(item)) return false;
+  if (isVerifyMasterPaidMypageItem(item)) return false;
   return ai && !expert;
 }
 

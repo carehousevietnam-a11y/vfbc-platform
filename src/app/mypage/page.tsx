@@ -79,6 +79,7 @@ import {
   mapVerifyAdminExpertMypageTimelineDisplayLabel,
   buildVerifyAdminMypageTimelineRecent,
   isVerifyAdminPaidMypageItem,
+  isVerifyMasterPaidMypageItem,
   isVerifyAdminMypageItem,
   shouldUseVerifyAdminExpertFlowDashboard,
   resolveVerifyAdminApplicationSummaryStatus,
@@ -789,11 +790,18 @@ function GeneralCustomerResultView({
   const badge = CATEGORY_BADGE[item.category];
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
   const analysisStatus = getAiAnalysisStatus(item);
+  const isRealEstatePackPhase2 =
+    (item.serviceType === "verify_real-estate" || item.serviceType === "verify_real_estate") &&
+    (item.verifyProfilePhase === 2 || item.phase2Complete === true);
   const keyPoints =
-    item.caseSummaryBullets && item.caseSummaryBullets.length > 0
-      ? item.caseSummaryBullets
-      : getAiKeyPoints(item);
-  const nextAction = getAiNextAction(item);
+    isRealEstatePackPhase2 && item.phase2SummaryLines && item.phase2SummaryLines.length > 0
+      ? item.phase2SummaryLines
+      : item.caseSummaryBullets && item.caseSummaryBullets.length > 0
+        ? item.caseSummaryBullets
+        : getAiKeyPoints(item);
+  const nextAction = isRealEstatePackPhase2
+    ? "2차 종합 결과와 AI 리포트에서 확인 항목을 검토한 뒤, 필요 시 전문가 진행을 요청하세요."
+    : getAiNextAction(item);
 
   const resultTone =
     item.result === "possible"
@@ -805,6 +813,11 @@ function GeneralCustomerResultView({
       : "text-[#0d2a6b]";
 
   const isVerifyAdminFreeLayout = item.serviceType === "verify_admin";
+  const resultPhaseLabel = isRealEstatePackPhase2
+    ? "2차 종합 검토"
+    : isVerifyAdminFreeLayout
+      ? "제출 정보 기준 1차 분석"
+      : null;
 
   return (
     <section
@@ -831,9 +844,10 @@ function GeneralCustomerResultView({
       </h2>
       <p className="mt-0.5 text-[11px] text-slate-400">
         {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
+        {resultPhaseLabel ? ` · ${resultPhaseLabel}` : ""}
       </p>
 
-      {!isVerifyAdminFreeLayout ? (
+      {!isVerifyAdminFreeLayout && !isRealEstatePackPhase2 ? (
         <>
           <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
             {resultInfo ? (
@@ -856,7 +870,7 @@ function GeneralCustomerResultView({
         </>
       ) : null}
 
-      {isVerifyAdminFreeLayout ? (
+      {isVerifyAdminFreeLayout || isRealEstatePackPhase2 ? (
         <div className="mt-5 border-t border-slate-200/70 pt-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <PdfDownloadButton
@@ -1642,7 +1656,11 @@ function CurrentStatusCard({
   verifyAdminPaidLayout?: boolean;
   onExpertRequested?: () => void | Promise<void>;
 }) {
-  if (verifyAdminPaidLayout && item.serviceType === "verify_admin") {
+  const verifyMasterPaidService =
+    item.serviceType === "verify_admin" ||
+    item.serviceType === "verify_real-estate" ||
+    item.serviceType === "verify_real_estate";
+  if (verifyAdminPaidLayout && verifyMasterPaidService) {
     const afterExpert = item.hasExpertReview;
     const guideText = afterExpert
       ? VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER
@@ -4738,7 +4756,10 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
 }
 
 function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
-  const phase2Docs = item.serviceType === "verify_admin" ? item.phase2UploadedDocuments : undefined;
+  const phase2Docs =
+    item.serviceType === "verify_admin" || item.serviceType === "verify_real-estate"
+      ? item.phase2UploadedDocuments
+      : undefined;
   if (
     !item.governmentSubmittedAt &&
     !item.permitCompletedAt &&
@@ -5019,7 +5040,7 @@ function Dashboard({
     );
   }
 
-  const verifyAdminPaid = isVerifyAdminPaidMypageItem(activeItem);
+  const verifyAdminPaid = isVerifyMasterPaidMypageItem(activeItem);
   const aiOnly = shouldUseGeneralCustomerMypageLayout(activeItem);
   const expertFlow = Boolean(tracks?.expert) || verifyAdminPaid;
 
@@ -5060,7 +5081,10 @@ function Dashboard({
   }
 
   if (expertFlow) {
-    if (activeItem.serviceType === "verify_admin") {
+    if (
+      activeItem.serviceType === "verify_admin" ||
+      activeItem.serviceType === "verify_real-estate"
+    ) {
       return (
         <VerifyAdminExpertFlowDashboard
           name={name}
@@ -5385,9 +5409,9 @@ export default function MyPage() {
                   item={(activeLayoutItem ?? firstItem)!}
                   hideNotificationCard={
                     activeLayoutItem
-                      ? isVerifyAdminPaidMypageItem(activeLayoutItem)
+                      ? isVerifyMasterPaidMypageItem(activeLayoutItem)
                       : firstItem
-                        ? isVerifyAdminPaidMypageItem(firstItem)
+                        ? isVerifyMasterPaidMypageItem(firstItem)
                         : false
                   }
                 />

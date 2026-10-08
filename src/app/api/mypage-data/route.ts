@@ -6,6 +6,13 @@ import {
   isAdminPhase2DocumentsUploadComplete,
   listAdminPhase2DocumentUploadRefs,
 } from "@/lib/adminVerifyMypageFields";
+import {
+  buildRealEstatePhase1SummaryLinesFromActivities,
+  buildRealEstatePhase2SummaryLinesFromActivities,
+  isRealEstatePhase2DocumentsUploadComplete,
+} from "@/lib/contentPacks/realEstate/realEstatePackMypageFields";
+import { REAL_ESTATE_PACK_HEADLINE_META_KEY } from "@/lib/contentPacks/realEstate/packPhase2Persist";
+import { ADMIN_VERIFY_PROFILE_PHASE_META_KEY } from "@/lib/adminVerifyProfiling";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
 //
@@ -262,25 +269,33 @@ function extractVerifyCaseSummary(
       const meta = asMeta(leadActivities[i]?.meta);
       if (!meta) continue;
       if (meta[REAL_ESTATE_VERIFY_PROFILE_PHASE_META_KEY] === "2") verifyProfilePhase = 2;
+      if (meta[ADMIN_VERIFY_PROFILE_PHASE_META_KEY] === "2") verifyProfilePhase = 2;
       const phase2 = meta[REAL_ESTATE_PHASE2_ANSWERS_META_JSON_KEY];
       if (typeof phase2 === "string" && phase2.trim() && phase2.trim() !== "{}") {
         verifyProfilePhase = 2;
       }
     }
-    const profileRaw = findLatestMetaString(leadActivities, REAL_ESTATE_SITUATION_META_JSON_KEY);
-    if (profileRaw) {
-      try {
-        const profile = JSON.parse(profileRaw) as Record<string, unknown>;
-        caseSummaryHeadline =
-          profileFieldValue(profile.risk) ??
-          profileFieldValue(profile.goal) ??
-          profileFieldValue(profile.claims);
-        for (const key of ["property", "goal", "documents"] as const) {
-          const val = profileFieldValue(profile[key]);
-          if (val) caseSummaryBullets.push(val);
+    const packHeadline = findLatestMetaString(leadActivities, REAL_ESTATE_PACK_HEADLINE_META_KEY);
+    if (packHeadline) {
+      caseSummaryHeadline = packHeadline;
+      const phase2Lines = buildRealEstatePhase2SummaryLinesFromActivities(leadActivities);
+      caseSummaryBullets.push(...phase2Lines.slice(0, 2));
+    } else {
+      const profileRaw = findLatestMetaString(leadActivities, REAL_ESTATE_SITUATION_META_JSON_KEY);
+      if (profileRaw) {
+        try {
+          const profile = JSON.parse(profileRaw) as Record<string, unknown>;
+          caseSummaryHeadline =
+            profileFieldValue(profile.risk) ??
+            profileFieldValue(profile.goal) ??
+            profileFieldValue(profile.claims);
+          for (const key of ["property", "goal", "documents"] as const) {
+            const val = profileFieldValue(profile[key]);
+            if (val) caseSummaryBullets.push(val);
+          }
+        } catch {
+          /* ignore malformed profile */
         }
-      } catch {
-        /* ignore malformed profile */
       }
     }
   } else if (typeKey === "verify_admin") {
@@ -528,13 +543,24 @@ export async function POST(req: NextRequest) {
                   }
                 : {}),
             }
-          : {};
+          : normalizedType === "verify_real-estate"
+            ? {
+                phase2Complete: isRealEstatePhase2DocumentsUploadComplete(leadActivities),
+                phase2SummaryLines: buildRealEstatePhase2SummaryLinesFromActivities(leadActivities),
+                ...(isRealEstatePhase2DocumentsUploadComplete(leadActivities)
+                  ? {
+                      phase1SummaryLines:
+                        buildRealEstatePhase1SummaryLinesFromActivities(leadActivities),
+                    }
+                  : {}),
+              }
+            : {};
 
       let phase2UploadedDocuments:
         | { fileName: string; fileUrl: string }[]
         | undefined;
       if (
-        normalizedType === "verify_admin" &&
+        (normalizedType === "verify_admin" || normalizedType === "verify_real-estate") &&
         "phase2Complete" in adminVerifyExtras &&
         adminVerifyExtras.phase2Complete
       ) {

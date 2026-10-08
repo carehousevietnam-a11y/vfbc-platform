@@ -19,6 +19,7 @@ import {
   resolveLanguage,
   validateLeadForm,
   getConsentTranslation,
+  type FieldErrors,
   type SupportedLanguage,
 } from "@/lib/customerRegistrationValidation";
 
@@ -79,11 +80,24 @@ function ConsentDetails({
 
 type Props = {
   riskLevel: "low" | "medium" | "high";
-  onComplete: () => void;
+  submitting?: boolean;
+  error?: string | null;
+  fieldErrors?: FieldErrors;
+  consentOpen?: boolean;
+  onConsentToggle?: () => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 };
 
-/** Admin `VerifyAdminLeadCapture`와 동일 슬롯·폼 구조. C1: 제출 시 API 없이 퍼널만 진행. */
-export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: Props) {
+/** Admin `VerifyAdminLeadCapture`와 동일 슬롯·폼 구조 — 제출 시 verify_lead 저장 */
+export default function RealEstateVerifyLeadCapture({
+  riskLevel,
+  submitting = false,
+  error = null,
+  fieldErrors = {},
+  consentOpen = false,
+  onConsentToggle,
+  onSubmit,
+}: Props) {
   const searchParams = useSearchParams();
   const lang = resolveLanguage(searchParams.get("lang"));
   const messengers = MESSENGERS_BY_LANGUAGE[lang];
@@ -96,10 +110,10 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
     zalo_id: "",
   });
   const [consentChecked, setConsentChecked] = useState(false);
-  const [consentOpen, setConsentOpen] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const { valid: formValuesValid, errors: liveErrors } = validateLeadForm(formValues, lang);
-  const canSubmit = formValuesValid && consentChecked;
+  const mergedErrors = { ...liveErrors, ...fieldErrors };
+  const canSubmit = formValuesValid && consentChecked && !submitting;
   const isLow = riskLevel === "low";
   return (
     <div>
@@ -107,14 +121,7 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
       <VerifyFormPreviewPanel isLow={isLow} riskGauge={<RiskGauge riskLevel={riskLevel} />} />
 
       <VerifyFormFieldsSection lang={lang}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!canSubmit) return;
-            onComplete();
-          }}
-          className="mt-4 space-y-3"
-        >
+        <form onSubmit={onSubmit} className="mt-4 space-y-3">
           <input
             type="text"
             name="name"
@@ -123,13 +130,13 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
             onChange={(ev) => setFormValues((v) => ({ ...v, name: ev.target.value }))}
             onBlur={() => setTouched((t) => ({ ...t, name: true }))}
             className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.name && liveErrors.name
+              touched.name && mergedErrors.name
                 ? "border-red-300 focus:border-red-400"
                 : "border-gray-200 focus:border-blue-900"
             }`}
           />
-          {touched.name && liveErrors.name ? (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.name}</p>
+          {touched.name && mergedErrors.name ? (
+            <p className="-mt-2 text-xs text-red-600">{mergedErrors.name}</p>
           ) : null}
           <input
             type="tel"
@@ -139,13 +146,13 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
             onChange={(ev) => setFormValues((v) => ({ ...v, phone: ev.target.value }))}
             onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
             className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.phone && liveErrors.phone
+              touched.phone && mergedErrors.phone
                 ? "border-red-300 focus:border-red-400"
                 : "border-gray-200 focus:border-blue-900"
             }`}
           />
-          {touched.phone && liveErrors.phone ? (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.phone}</p>
+          {touched.phone && mergedErrors.phone ? (
+            <p className="-mt-2 text-xs text-red-600">{mergedErrors.phone}</p>
           ) : null}
           <input
             type="text"
@@ -155,13 +162,13 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
             onChange={(ev) => setFormValues((v) => ({ ...v, address: ev.target.value }))}
             onBlur={() => setTouched((t) => ({ ...t, address: true }))}
             className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.address && liveErrors.address
+              touched.address && mergedErrors.address
                 ? "border-red-300 focus:border-red-400"
                 : "border-gray-200 focus:border-blue-900"
             }`}
           />
-          {touched.address && liveErrors.address ? (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.address}</p>
+          {touched.address && mergedErrors.address ? (
+            <p className="-mt-2 text-xs text-red-600">{mergedErrors.address}</p>
           ) : null}
           <input
             type="email"
@@ -171,13 +178,13 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
             onChange={(ev) => setFormValues((v) => ({ ...v, email: ev.target.value }))}
             onBlur={() => setTouched((t) => ({ ...t, email: true }))}
             className={`h-11 w-full rounded-lg border px-4 text-sm focus:outline-none ${
-              touched.email && liveErrors.email
+              touched.email && mergedErrors.email
                 ? "border-red-300 focus:border-red-400"
                 : "border-gray-200 focus:border-blue-900"
             }`}
           />
-          {touched.email && liveErrors.email ? (
-            <p className="-mt-2 text-xs text-red-600">{liveErrors.email}</p>
+          {touched.email && mergedErrors.email ? (
+            <p className="-mt-2 text-xs text-red-600">{mergedErrors.email}</p>
           ) : null}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
@@ -187,7 +194,7 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
               onChange={(ev) => setFormValues((v) => ({ ...v, kakao_id: ev.target.value }))}
               onBlur={() => setTouched((t) => ({ ...t, kakao_id: true }))}
               className={`h-11 rounded-lg border px-4 text-sm focus:outline-none ${
-                (touched.kakao_id || touched.zalo_id) && liveErrors.sns
+                (touched.kakao_id || touched.zalo_id) && mergedErrors.sns
                   ? "border-red-300 focus:border-red-400"
                   : "border-gray-200 focus:border-blue-900"
               }`}
@@ -199,46 +206,47 @@ export default function RealEstateVerifyLeadCapture({ riskLevel, onComplete }: P
               onChange={(ev) => setFormValues((v) => ({ ...v, zalo_id: ev.target.value }))}
               onBlur={() => setTouched((t) => ({ ...t, zalo_id: true }))}
               className={`h-11 rounded-lg border px-4 text-sm focus:outline-none ${
-                (touched.kakao_id || touched.zalo_id) && liveErrors.sns
+                (touched.kakao_id || touched.zalo_id) && mergedErrors.sns
                   ? "border-red-300 focus:border-red-400"
                   : "border-gray-200 focus:border-blue-900"
               }`}
             />
           </div>
-          <p
-            className={`-mt-1 text-[11px] ${
-              (touched.kakao_id || touched.zalo_id) && liveErrors.sns ? "text-red-600" : "text-gray-400"
-            }`}
-          >
-            {LEAD_FORM_MESSAGES[lang].sns.required}
-          </p>
+          {(touched.kakao_id || touched.zalo_id) && mergedErrors.sns ? (
+            <p className="-mt-2 text-xs text-red-600">{mergedErrors.sns}</p>
+          ) : null}
 
-          <div>
-            <label className="flex items-start gap-2 text-xs text-gray-600">
-              <input
-                type="checkbox"
-                name="agreeTerms"
-                onChange={(ev) => setConsentChecked(ev.target.checked)}
-                className="mt-0.5"
-              />
-              <span>(필수) {getVerifyFormConsentText(lang)}</span>
-            </label>
-            <ConsentDetails
-              open={consentOpen}
-              onToggle={() => setConsentOpen((v) => !v)}
-              lang={lang}
-              messengers={messengers}
+          <label className="flex items-start gap-2 text-[11px] text-gray-600">
+            <input
+              type="checkbox"
+              name="agreeTerms"
+              checked={consentChecked}
+              onChange={(ev) => setConsentChecked(ev.target.checked)}
+              className="mt-0.5"
             />
-          </div>
-
-          <PrimaryButton type="submit" variant={isLow ? "primary" : "amber"} disabled={!canSubmit}>
-            {lang === "ko" ? "AI 1차 분석 결과 보기" : LEAD_FORM_MESSAGES[lang].submitLabel}
+            <span>{getVerifyFormConsentText(lang)}</span>
+          </label>
+          <ConsentDetails
+            open={consentOpen}
+            onToggle={() => onConsentToggle?.()}
+            lang={lang}
+            messengers={messengers}
+          />
+          <InfoBox className="text-[11px]">{getVerifyFormPrivacyText(lang)}</InfoBox>
+          {error ? <p className="text-xs text-red-600" role="alert">{error}</p> : null}
+          <PrimaryButton
+            type="submit"
+            variant={isLow ? "primary" : "amber"}
+            disabled={!canSubmit}
+            loading={submitting}
+          >
+            {submitting
+              ? LEAD_FORM_MESSAGES[lang].submitLoadingLabel
+              : lang === "ko"
+                ? "AI 1차 분석 결과 보기"
+                : LEAD_FORM_MESSAGES[lang].submitLabel}
           </PrimaryButton>
         </form>
-
-        <div className="mt-3">
-          <InfoBox>{getVerifyFormPrivacyText(lang)}</InfoBox>
-        </div>
       </VerifyFormFieldsSection>
     </div>
   );

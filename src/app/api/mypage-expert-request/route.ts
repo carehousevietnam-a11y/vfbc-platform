@@ -5,6 +5,8 @@ import {
   parseAdminVerifyAnswersFromActivities,
   shouldInsertExpertReviewRequest,
 } from "@/lib/adminVerifyMypageFields";
+import { buildRealEstatePackExpertHandoffMeta } from "@/lib/contentPacks/realEstate/realEstatePackMypageFields";
+import { parsePackAnswersFromActivities } from "@/lib/contentPacks/realEstate/packPhase2Persist";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,7 +52,8 @@ export async function POST(req: NextRequest) {
     if (leadError || !lead) {
       return NextResponse.json({ error: "해당 신청 내역을 찾을 수 없습니다." }, { status: 404 });
     }
-    if (lead.service_type !== "verify_admin") {
+    const serviceType = lead.service_type?.replace(/-/g, "_") ?? "";
+    if (serviceType !== "verify_admin" && serviceType !== "verify_real_estate") {
       return NextResponse.json({ error: "이 신청에서는 요청할 수 없습니다." }, { status: 400 });
     }
 
@@ -77,17 +80,22 @@ export async function POST(req: NextRequest) {
     }
 
     const activities = activitiesRaw ?? [];
-    const answers = parseAdminVerifyAnswersFromActivities(activities);
     const verifyLead = [...activities].reverse().find((row) => row.action === "verify_lead");
-    const caseHandoffMeta = buildAdminExpertHandoffMeta(
-      answers,
-      page1MetaFromVerifyLead(asMeta(verifyLead?.meta)),
-    );
+    const tag = serviceType === "verify_admin" ? "VERIFY_ADMIN" : "VERIFY_REAL_ESTATE";
+    const caseHandoffMeta =
+      serviceType === "verify_admin"
+        ? buildAdminExpertHandoffMeta(
+            parseAdminVerifyAnswersFromActivities(activities),
+            page1MetaFromVerifyLead(asMeta(verifyLead?.meta)),
+          )
+        : buildRealEstatePackExpertHandoffMeta(
+            (parsePackAnswersFromActivities(activities) ?? {}) as Record<string, string>,
+          );
 
     const { error: insertError } = await supabaseAdmin.from("crm_activities").insert({
       lead_id: leadId,
       action: "expert_review_request",
-      tag: "VERIFY_ADMIN",
+      tag,
       meta: caseHandoffMeta,
     });
 
