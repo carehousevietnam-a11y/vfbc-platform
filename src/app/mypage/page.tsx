@@ -6,8 +6,9 @@
 // 기존 인증·API·PDF·진행단계·CRM 데이터 구조는 그대로 유지하고,
 // 화면 구조와 반응형 UI만 재설계한다.
 
-import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { realEstateMypageGradeDisplayLabel } from "@/lib/contentPacks/realEstate/personalizedResultBuilder";
 import {
   AlertCircle,
   AlertTriangle,
@@ -54,6 +55,47 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
+import {
+  VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
+  VERIFY_ADMIN_EXPERT_REVIEWING_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_ENTRY_BUTTON_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE,
+  VERIFY_ADMIN_PHASE2_AI_REPORT_RECEIVE_LABEL,
+  VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE,
+  VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF,
+  shouldGateVerifyAdminExpertPageAiReportPdf,
+  VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL,
+  VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE,
+  VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER,
+  VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER,
+  VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE,
+  VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY,
+  mapVerifyAdminExpertMypageTimelineDisplayLabel,
+  buildVerifyAdminMypageTimelineRecent,
+  isVerifyAdminPaidMypageItem,
+  isVerifyMasterPaidMypageItem,
+  isVerifyAdminMypageItem,
+  shouldUseVerifyAdminExpertFlowDashboard,
+  resolveVerifyAdminApplicationSummaryStatus,
+  shouldUseVerifyAdminMypageSlimAside,
+  shouldHideVerifyAdminWalletDocumentCount,
+  shouldUseGeneralCustomerMypageLayout,
+  VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE,
+} from "@/lib/adminVerifyMypageFields";
+import {
+  buildVerifyAdminRollingStripItems,
+  MYPAGE_PUBLIC_LINKS,
+  MYPAGE_VN_PUBLIC_LINKS,
+} from "@/lib/mypageLinkCatalog";
+import { VerifyAdminMypageRollingStrip } from "@/components/mypage/VerifyAdminMypageRollingStrip";
+import { MYPAGE_WALLET_SLOT_TITLE_CLASS } from "@/lib/mypageWalletSlotUi";
 import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 
 type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
@@ -127,6 +169,12 @@ type MyPageItem = {
   verifyProfilePhase?: 1 | 2;
   caseSummaryHeadline?: string | null;
   caseSummaryBullets?: string[];
+  phase2Complete?: boolean;
+  phase1SummaryLines?: string[];
+  phase2SummaryLines?: string[];
+  realEstatePackGrade2?: number;
+  realEstatePackCautionCount?: number;
+  phase2UploadedDocuments?: { fileName: string; fileUrl: string }[];
 };
 
 type LoadState = "checking" | "signed-out" | "loading" | "ready" | "error";
@@ -435,24 +483,328 @@ function ProgressRing({ value }: { value: number }) {
   );
 }
 
+const VERIFY_ADMIN_PAID_PHASE1_FALLBACK = "1차 검토 결과가 반영되었습니다.";
+
+function VerifyAdminPaidHeader({
+  item,
+  applicationsId,
+}: {
+  item: MyPageItem;
+  applicationsId?: string;
+}) {
+  const headline = item.caseSummaryHeadline?.trim() ?? item.serviceLabel;
+  return (
+    <section
+      id={applicationsId}
+      className="min-w-0 overflow-hidden rounded-[20px] border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 px-5 py-5 shadow-sm ring-1 ring-indigo-100/80 sm:px-6"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-indigo-700/90">
+            행정문서 종합 결과
+          </p>
+          <h2 className="mt-1 break-keep text-[22px] font-extrabold tracking-[-0.03em] text-slate-950 sm:text-[26px]">
+            종합 결과
+          </h2>
+          <p className="mt-2 break-keep text-[14px] leading-6 text-slate-800">{headline}</p>
+          <p className="mt-1 text-[11px] text-slate-400">
+            {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
+          </p>
+        </div>
+        <span className="inline-flex shrink-0 items-center rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-bold text-white shadow-sm">
+          2차 개인화 검토 완료
+        </span>
+      </div>
+    </section>
+  );
+}
+
+function VerifyAdminPaidSituationSummary({ item }: { item: MyPageItem }) {
+  const phase1Lines =
+    item.phase1SummaryLines && item.phase1SummaryLines.length > 0
+      ? item.phase1SummaryLines
+      : [VERIFY_ADMIN_PAID_PHASE1_FALLBACK];
+  const phase2Lines = item.phase2SummaryLines ?? [];
+
+  return (
+    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
+      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-slate-950">내 상황 요약</p>
+      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/90 px-4 py-3.5">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">1차 검토 요약</p>
+        <div className="mt-2 space-y-2 border-l-2 border-slate-300 pl-3">
+          {phase1Lines.map((line) => (
+            <p key={line} className="break-keep text-[13px] leading-6 text-slate-800">
+              {line}
+            </p>
+          ))}
+        </div>
+      </div>
+      <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/40 px-4 py-3.5">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-blue-900/80">
+          2차 개인화 검토 요약
+        </p>
+        <div className="mt-2 space-y-2 border-l-2 border-blue-400 pl-3">
+          {phase2Lines.length > 0 ? (
+            phase2Lines.map((line) => (
+              <p key={line} className="break-keep text-[13px] leading-6 text-slate-800">
+                {line}
+              </p>
+            ))
+          ) : (
+            <p className="break-keep text-[13px] leading-6 text-slate-700">
+              2차 질문 응답이 반영되어 있습니다.
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function VerifyAdminPaidSubmittedDocs({ item }: { item: MyPageItem }) {
+  const uploaded = item.phase2UploadedDocuments ?? [];
+  return (
+    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
+      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-slate-950">제출한 자료</p>
+      {uploaded.length > 0 ? (
+        <ul className="mt-3 space-y-2">
+          {uploaded.map((doc) => (
+            <li key={doc.fileUrl}>
+              <a
+                href={doc.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 hover:bg-slate-50"
+              >
+                <span className="flex min-w-0 items-center gap-2.5">
+                  <FileText size={16} className="shrink-0 text-blue-900" />
+                  <span className="truncate text-[12px] font-semibold text-slate-800">
+                    {doc.fileName}
+                  </span>
+                </span>
+                <Download size={14} className="shrink-0 text-slate-400" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-[13px] text-slate-600">제출한 자료 없음</p>
+      )}
+    </section>
+  );
+}
+
+function VerifyAdminMypageActionRow({
+  item,
+  applicantName,
+  onExpertRequested,
+}: {
+  item: MyPageItem;
+  applicantName?: string | null;
+  onExpertRequested?: () => void | Promise<void>;
+}) {
+  return (
+    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <PdfDownloadButton
+          leadId={item.id}
+          serviceLabel={item.serviceLabel}
+          applicantName={applicantName}
+          variant="refined"
+          serviceType={item.serviceType}
+          hasAiReportRequest={item.hasAiReportRequest}
+        />
+        {item.hasExpertReview ? (
+          <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+        ) : (
+          <AdminVerifyExpertRequestButton
+            leadId={item.id}
+            alreadyRequested={false}
+            onRequested={onExpertRequested}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+function VerifyAdminPaidDashboardSections({
+  item,
+  applicantName,
+  onExpertRequested,
+}: {
+  item: MyPageItem;
+  applicantName?: string | null;
+  onExpertRequested?: () => void | Promise<void>;
+}) {
+  return (
+    <VerifyAdminMypageActionRow
+      item={item}
+      applicantName={applicantName}
+      onExpertRequested={onExpertRequested}
+    />
+  );
+}
+
+function resolveVerifyAdminStepDateLabel(item: MyPageItem, step: ProcessStep, index: number): string {
+  if (!step.done) return "";
+  if (index === 0) {
+    return `${formatShortDate(item.createdAt)} ${formatTime(item.createdAt)}`;
+  }
+  const labelByIndex = ["", "AI 검토 완료", "전문가 검토 시작", ""];
+  const targetLabel = labelByIndex[index];
+  if (!targetLabel) return "";
+  const log = item.activityLog.find((entry) => entry.label === targetLabel);
+  if (!log) return "";
+  return `${formatShortDate(log.createdAt)} ${formatTime(log.createdAt)}`;
+}
+
+function VerifyAdminApplicationSummaryCard({ item }: { item: MyPageItem }) {
+  const status = resolveVerifyAdminApplicationSummaryStatus(item);
+  const rows: { label: string; value: string }[] = [];
+  if (item.serviceLabel.trim()) {
+    rows.push({ label: "서비스", value: item.serviceLabel });
+  }
+  if (item.id.trim()) {
+    rows.push({ label: "접수번호", value: `VF${item.id.slice(0, 8).toUpperCase()}` });
+  }
+  if (item.createdAt) {
+    rows.push({ label: "접수일", value: formatIsoDate(item.createdAt) });
+  }
+  if (status) {
+    rows.push({ label: "상태", value: status });
+  }
+
+  return (
+    <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <p className="text-[14px] font-extrabold tracking-[-0.02em] text-slate-950">내 신청 요약</p>
+      <dl className="mt-3 space-y-2.5">
+        {rows.map((row) => (
+          <div key={row.label} className="flex items-start justify-between gap-3 text-[12px]">
+            <dt className="shrink-0 font-semibold text-slate-500">{row.label}</dt>
+            <dd className="min-w-0 break-keep text-right font-semibold text-slate-900">{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function VerifyAdminMypageSidePanel({
+  item,
+  pcGovernmentLinksInAside = false,
+}: {
+  item: MyPageItem;
+  /** F-17 — PC xl+ only when free wallet expanded */
+  pcGovernmentLinksInAside?: boolean;
+}) {
+  return (
+    <div className="min-w-0 space-y-4">
+      <VerifyAdminApplicationSummaryCard item={item} />
+      <GeneralCustomerNotificationCard item={item} />
+      <EmergencyHelpCard item={item} compact collapsible />
+      {pcGovernmentLinksInAside ? (
+        <div className="hidden xl:block">
+          <VerifyAdminFreeGovernmentLinksAsideCard />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** verify_admin aiOnly — PC aside when wallet expanded (F-17) */
+function VerifyAdminFreeGovernmentLinksAsideCard() {
+  const [open, setOpen] = useState(false);
+  const items = useMemo(() => buildVerifyAdminRollingStripItems(), []);
+  const panelId = "verify-admin-free-government-links-panel";
+
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left"
+      >
+        <span className="min-w-0 text-[16px] font-extrabold text-slate-950">
+          {VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE}
+        </span>
+        <ChevronDown
+          size={18}
+          className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden
+        />
+      </button>
+      <div id={panelId} className={open ? "block border-t border-slate-100" : "hidden"}>
+        <div className="divide-y divide-slate-100 px-5 pb-5 pt-3">
+          {items.map((link) => (
+            <a
+              key={link.id}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+              className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+                  {link.iconSrc ? (
+                    <img
+                      src={link.iconSrc}
+                      alt=""
+                      className="block max-h-8 max-w-8 object-contain object-center"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  ) : (
+                    <span className="text-[13px] font-extrabold text-[#0d2a6b]">
+                      {link.label.trim().charAt(0) || "?"}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-slate-400">{link.regionLabel}</p>
+                  <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
+                </div>
+              </div>
+              <ExternalLink size={13} className="shrink-0 text-slate-300" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** 일반 고객(AI 리포트) 전용 — 최근 확인 결과 중심. 전문가 진행 UI와 구조 분리. */
 function GeneralCustomerResultView({
   item,
   rootId,
   applicantName,
+  onExpertRequested,
 }: {
   item: MyPageItem;
   rootId?: string;
   applicantName?: string | null;
+  onExpertRequested?: () => void | Promise<void>;
 }) {
   const badge = CATEGORY_BADGE[item.category];
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
   const analysisStatus = getAiAnalysisStatus(item);
+  const isRealEstatePackPhase2 =
+    (item.serviceType === "verify_real-estate" || item.serviceType === "verify_real_estate") &&
+    (item.verifyProfilePhase === 2 || item.phase2Complete === true);
   const keyPoints =
-    item.caseSummaryBullets && item.caseSummaryBullets.length > 0
-      ? item.caseSummaryBullets
-      : getAiKeyPoints(item);
-  const nextAction = getAiNextAction(item);
+    isRealEstatePackPhase2 && item.phase2SummaryLines && item.phase2SummaryLines.length > 0
+      ? item.phase2SummaryLines
+      : item.caseSummaryBullets && item.caseSummaryBullets.length > 0
+        ? item.caseSummaryBullets
+        : getAiKeyPoints(item);
+  const nextAction = isRealEstatePackPhase2
+    ? "2차 종합 결과와 AI 리포트에서 확인 항목을 검토한 뒤, 필요 시 전문가 진행을 요청하세요."
+    : getAiNextAction(item);
 
   const resultTone =
     item.result === "possible"
@@ -462,6 +814,13 @@ function GeneralCustomerResultView({
       : item.result === "impossible"
       ? "text-red-700"
       : "text-[#0d2a6b]";
+
+  const isVerifyAdminFreeLayout = item.serviceType === "verify_admin";
+  const resultPhaseLabel = isRealEstatePackPhase2
+    ? "2차 종합 검토"
+    : isVerifyAdminFreeLayout
+      ? "제출 정보 기준 1차 분석"
+      : null;
 
   return (
     <section
@@ -488,41 +847,72 @@ function GeneralCustomerResultView({
       </h2>
       <p className="mt-0.5 text-[11px] text-slate-400">
         {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
+        {resultPhaseLabel ? ` · ${resultPhaseLabel}` : ""}
       </p>
 
-      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        {resultInfo ? (
-          <p className={`text-[24px] font-bold tracking-[-0.04em] sm:text-[28px] ${resultTone}`}>
-            {resultInfo.label}
-          </p>
-        ) : (
-          <p className="text-[22px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
-        )}
-        {typeof item.feasibilityScore === "number" && (
-          <p className="text-[16px] font-semibold tabular-nums text-emerald-600 sm:text-[18px]">
-            {item.feasibilityScore}%
-          </p>
-        )}
-      </div>
+      {!isVerifyAdminFreeLayout && !isRealEstatePackPhase2 ? (
+        <>
+          <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            {resultInfo ? (
+              <p className={`text-[24px] font-bold tracking-[-0.04em] sm:text-[28px] ${resultTone}`}>
+                {resultInfo.label}
+              </p>
+            ) : (
+              <p className="text-[22px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
+            )}
+            {typeof item.feasibilityScore === "number" && (
+              <p className="text-[16px] font-semibold tabular-nums text-emerald-600 sm:text-[18px]">
+                {item.feasibilityScore}%
+              </p>
+            )}
+          </div>
 
-      {keyPoints[0] ? (
-        <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
+          {keyPoints[0] ? (
+            <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
+          ) : null}
+        </>
       ) : null}
 
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
-        <div className="min-w-0 sm:flex-1">
-          <p className="text-[11px] font-semibold text-slate-500">다음에 할 일</p>
-          <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
+      {isVerifyAdminFreeLayout || isRealEstatePackPhase2 ? (
+        <div className="mt-5 border-t border-slate-200/70 pt-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <PdfDownloadButton
+              leadId={item.id}
+              serviceLabel={item.serviceLabel}
+              applicantName={applicantName}
+              variant="refined"
+              serviceType={item.serviceType}
+              hasAiReportRequest={item.hasAiReportRequest}
+            />
+            {item.hasExpertReview ? (
+              <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+            ) : (
+              <AdminVerifyExpertRequestButton
+                leadId={item.id}
+                alreadyRequested={false}
+                onRequested={onExpertRequested}
+              />
+            )}
+          </div>
         </div>
-        <div className="mt-3 shrink-0 sm:mt-0">
-          <PdfDownloadButton
-            leadId={item.id}
-            serviceLabel={item.serviceLabel}
-            applicantName={applicantName}
-            variant="refined"
-          />
+      ) : (
+        <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
+          <div className="min-w-0 sm:flex-1">
+            <p className="text-[11px] font-semibold text-slate-500">다음에 할 일</p>
+            <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
+          </div>
+          <div className="mt-3 flex shrink-0 flex-col gap-2 sm:mt-0">
+            <PdfDownloadButton
+              leadId={item.id}
+              serviceLabel={item.serviceLabel}
+              applicantName={applicantName}
+              variant="refined"
+              serviceType={item.serviceType}
+              hasAiReportRequest={item.hasAiReportRequest}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
@@ -680,10 +1070,16 @@ function GeneralCustomerAsideSupport({ item }: { item: MyPageItem }) {
   );
 }
 
-function ExpertAsideSupport({ item }: { item: MyPageItem }) {
+function ExpertAsideSupport({
+  item,
+  hideNotificationCard = false,
+}: {
+  item: MyPageItem;
+  hideNotificationCard?: boolean;
+}) {
   return (
     <div className="space-y-4 [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
-      <NotificationCard item={item} />
+      {!hideNotificationCard ? <NotificationCard item={item} /> : null}
       <div id="admin-center">
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
       </div>
@@ -698,11 +1094,65 @@ function ExpertAsideSupport({ item }: { item: MyPageItem }) {
   );
 }
 
-function ExpertMainSupport({ item }: { item: MyPageItem }) {
+function ExpertMainSupport({
+  item,
+  hideRecommended = false,
+  verifyAdminExpertMobileAccordion = false,
+}: {
+  item: MyPageItem;
+  hideRecommended?: boolean;
+  verifyAdminExpertMobileAccordion?: boolean;
+}) {
   return (
     <div className="space-y-4 [&_#wallet]:rounded-[20px] [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
-      <WalletSection leadId={item.id} />
-      <RecommendedServices />
+      <WalletSection
+        leadId={item.id}
+        mobileExpertAccordion={verifyAdminExpertMobileAccordion}
+      />
+      {!hideRecommended ? <RecommendedServices /> : null}
+    </div>
+  );
+}
+
+/** verify_admin expertFlow — 모바일(xl 미만) 전용 접기/펴기 (PC DOM·클래스 무영향) */
+function VerifyAdminExpertMobileCollapsibleSection({
+  panelId,
+  title,
+  children,
+  headerTrailing,
+}: {
+  panelId: string;
+  title: string;
+  children: ReactNode;
+  headerTrailing?: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+      <button
+        type="button"
+        id={`${panelId}-trigger`}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left xl:hidden"
+      >
+        <span className="min-w-0 text-[16px] font-extrabold text-slate-950">{title}</span>
+        <span className="flex shrink-0 items-center gap-2">
+          {headerTrailing}
+          <ChevronDown
+            size={18}
+            className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+              open ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          />
+        </span>
+      </button>
+      <div id={panelId} className={open ? "block border-t border-slate-100" : "hidden"}>
+        <div className="px-5 pb-5 pt-3">{children}</div>
+      </div>
     </div>
   );
 }
@@ -710,16 +1160,18 @@ function ExpertMainSupport({ item }: { item: MyPageItem }) {
 function HeroCard({
   item,
   selector,
+  applicationsId = "applications",
 }: {
   item: MyPageItem;
   selector: React.ReactNode;
+  applicationsId?: string | null;
 }) {
   const estimate = getEstimate(item.category, item.serviceType);
   const badge = CATEGORY_BADGE[item.category];
 
   return (
     <section
-      id="applications"
+      id={applicationsId ?? undefined}
       className="overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.18)] sm:px-6 sm:py-6"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
@@ -800,7 +1252,13 @@ function ApplicationSelector({
   );
 }
 
-function StepProgress({ stage }: { stage: StageInfo }) {
+function StepProgress({
+  stage,
+  stepDateResolver,
+}: {
+  stage: StageInfo;
+  stepDateResolver?: (step: ProcessStep, index: number) => string;
+}) {
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
       <div className="flex items-center justify-between">
@@ -812,7 +1270,9 @@ function StepProgress({ stage }: { stage: StageInfo }) {
         <div className="flex min-w-[420px] items-start">
           {stage.steps.map((step, index) => {
             const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
-            const dateLabel = step.done
+            const dateLabel = stepDateResolver
+              ? stepDateResolver(step, index)
+              : step.done
               ? index === 0
                 ? "07.29 09:12"
                 : index === 1
@@ -881,14 +1341,39 @@ function PdfDownloadButton({
   serviceLabel,
   applicantName,
   variant = "default",
+  serviceType,
+  hasAiReportRequest,
+  hasExpertReview,
+  phase2Complete,
+  expertDashboardAiReportCta = false,
 }: {
   leadId: string;
   serviceLabel?: string;
   applicantName?: string | null;
   variant?: "default" | "refined";
+  serviceType?: string | null;
+  hasAiReportRequest?: boolean;
+  hasExpertReview?: boolean;
+  phase2Complete?: boolean;
+  /** Expert-flow dashboard only — enables H-3 gate UI and phase2-complete label. */
+  expertDashboardAiReportCta?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiRequestDone, setAiRequestDone] = useState(Boolean(hasAiReportRequest));
+
+  const pdfGateActive =
+    expertDashboardAiReportCta &&
+    shouldGateVerifyAdminExpertPageAiReportPdf({
+      serviceType,
+      hasExpertReview,
+      phase2Complete,
+    });
+
+  const verifyAdminPrimaryLabel =
+    expertDashboardAiReportCta && phase2Complete && serviceType === "verify_admin"
+      ? VERIFY_ADMIN_PHASE2_AI_REPORT_RECEIVE_LABEL
+      : VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL;
 
   async function handleDownload() {
     setLoading(true);
@@ -902,6 +1387,14 @@ function PdfDownloadButton({
         return;
       }
 
+      if (serviceType === "verify_admin" && !aiRequestDone) {
+        await recordAiReportRequestAndNotify({
+          leadId,
+          tag: "VERIFY_ADMIN",
+        });
+        setAiRequestDone(true);
+      }
+
       const response = await fetch("/api/mypage-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -910,7 +1403,16 @@ function PdfDownloadButton({
 
       if (!response.ok) {
         const result = await response.json().catch(() => null);
-        setError(result?.error ?? "PDF를 생성하지 못했습니다.");
+        const serverError =
+          typeof result?.error === "string" ? result.error : "PDF를 생성하지 못했습니다.";
+        if (
+          response.status === 403 &&
+          serverError === VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE
+        ) {
+          setError(VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE);
+        } else {
+          setError(serverError);
+        }
         return;
       }
 
@@ -931,7 +1433,44 @@ function PdfDownloadButton({
     }
   }
 
+  if (pdfGateActive) {
+    const gateBlock = (
+      <div className="flex flex-col gap-2">
+        <Link
+          href={VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF}
+          className={
+            variant === "refined"
+              ? "inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] sm:min-w-[148px]"
+              : "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white text-[13px] font-bold text-blue-900 transition hover:bg-blue-50"
+          }
+        >
+          {variant === "refined" ? <FileText size={14} /> : null}
+          {VERIFY_ADMIN_EXPERT_PHASE2_ENTRY_BUTTON_LABEL}
+        </Link>
+        <p
+          className={
+            variant === "refined"
+              ? "break-keep text-[12px] leading-5 text-slate-600 sm:basis-full"
+              : "break-keep text-[11px] leading-5 text-slate-600"
+          }
+        >
+          {VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE}
+        </p>
+      </div>
+    );
+    if (variant === "refined") {
+      return gateBlock;
+    }
+    return gateBlock;
+  }
+
   if (variant === "refined") {
+    const primaryLabel =
+      serviceType === "verify_admin"
+        ? verifyAdminPrimaryLabel
+        : loading
+          ? "준비 중..."
+          : "AI 리포트 보기";
     return (
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <button
@@ -941,21 +1480,30 @@ function PdfDownloadButton({
           className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] disabled:opacity-60 sm:min-w-[148px]"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-          {loading ? "준비 중..." : "AI 리포트 보기"}
+          {loading ? "준비 중..." : primaryLabel}
         </button>
-        <button
-          type="button"
-          onClick={handleDownload}
-          disabled={loading}
-          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#0d2a6b] disabled:opacity-60"
-        >
-          <Download size={14} />
-          PDF 다운로드
-        </button>
+        {serviceType !== "verify_admin" ? (
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={loading}
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#0d2a6b] disabled:opacity-60"
+          >
+            <Download size={14} />
+            PDF 다운로드
+          </button>
+        ) : null}
         {error && <p className="text-[12px] text-red-600 sm:basis-full">{error}</p>}
       </div>
     );
   }
+
+  const defaultLabel =
+    serviceType === "verify_admin"
+      ? verifyAdminPrimaryLabel
+      : loading
+        ? "PDF 생성 중..."
+        : "AI 리포트(PDF) 다운로드";
 
   return (
     <div>
@@ -966,9 +1514,73 @@ function PdfDownloadButton({
         className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white text-[13px] font-bold text-blue-900 transition hover:bg-blue-50 disabled:opacity-60"
       >
         <Download size={16} />
-        {loading ? "PDF 생성 중..." : "AI 리포트(PDF) 다운로드"}
+        {defaultLabel}
       </button>
       {error && <p className="mt-2 text-[11px] text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+function AdminVerifyExpertRequestButton({
+  leadId,
+  alreadyRequested,
+  onRequested,
+}: {
+  leadId: string;
+  alreadyRequested: boolean;
+  onRequested?: () => void | Promise<void>;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [requested, setRequested] = useState(alreadyRequested);
+
+  async function handleRequest() {
+    if (requested || loading) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (!accessToken) {
+        setError("로그인이 필요합니다.");
+        return;
+      }
+      const response = await fetch("/api/mypage-expert-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken, leadId }),
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        setError(result?.error ?? "접수 중 문제가 발생했습니다.");
+        return;
+      }
+      setRequested(true);
+      await onRequested?.();
+    } catch {
+      setError("서버와 통신 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (requested) {
+    return (
+      <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => void handleRequest()}
+        disabled={loading}
+        className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-[13px] font-semibold text-slate-800 transition hover:bg-slate-50 disabled:opacity-60"
+      >
+        {loading ? "요청 중..." : "전문가 진행하기"}
+      </button>
+      {error ? <p className="mt-1 text-[12px] text-red-600">{error}</p> : null}
     </div>
   );
 }
@@ -981,26 +1593,38 @@ function AiResultCard({
   applicantName?: string | null;
 }) {
   const resultInfo = item.result ? RESULT_LABELS[item.result] ?? null : null;
+  const isRePackPhase2Paid =
+    (item.serviceType === "verify_real-estate" || item.serviceType === "verify_real_estate") &&
+    item.phase2Complete === true;
+  const aiResultPhaseLabel = isRePackPhase2Paid ? "2차 종합 검토" : "제출 정보 기준 1차 분석";
+  const reGradeLabel =
+    isRePackPhase2Paid && typeof item.realEstatePackGrade2 === "number"
+      ? realEstateMypageGradeDisplayLabel(item.realEstatePackGrade2)
+      : null;
 
   return (
     <section className="rounded-[20px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
-          <p className="mt-1 text-[10px] text-slate-500">제출 정보 기준 1차 분석</p>
+          <p className="mt-1 text-[10px] text-slate-500">{aiResultPhaseLabel}</p>
         </div>
         <Sparkles size={18} className="text-emerald-600" />
       </div>
 
       <div className="mt-4 grid grid-cols-[1fr_118px] items-end gap-3">
         <div>
-          {typeof item.feasibilityScore === "number" && (
+          {reGradeLabel ? (
+            <p className="text-[32px] font-extrabold leading-none tracking-[-0.04em] text-emerald-700 sm:text-[36px]">
+              {reGradeLabel}
+            </p>
+          ) : typeof item.feasibilityScore === "number" ? (
             <p className="text-[46px] font-extrabold leading-none tracking-[-0.05em] text-emerald-700">
               {item.feasibilityScore}
               <span className="text-[22px]">%</span>
             </p>
-          )}
-          {resultInfo && (
+          ) : null}
+          {resultInfo && !reGradeLabel && (
             <p className={`mt-2 text-[15px] font-extrabold ${resultInfo.className}`}>{resultInfo.label}</p>
           )}
           <div className="mt-3 flex items-center gap-1 text-amber-400">
@@ -1027,24 +1651,111 @@ function AiResultCard({
           leadId={item.id}
           serviceLabel={item.serviceLabel}
           applicantName={applicantName}
+          serviceType={item.serviceType}
+          hasAiReportRequest={item.hasAiReportRequest}
+          hasExpertReview={item.hasExpertReview}
+          phase2Complete={item.phase2Complete}
+          expertDashboardAiReportCta
         />
       </div>
     </section>
   );
 }
 
-function CurrentStatusCard({ item }: { item: MyPageItem }) {
+function CurrentStatusCard({
+  item,
+  verifyAdminPaidLayout = false,
+  onExpertRequested,
+}: {
+  item: MyPageItem;
+  verifyAdminPaidLayout?: boolean;
+  onExpertRequested?: () => void | Promise<void>;
+}) {
+  const verifyMasterPaidService =
+    item.serviceType === "verify_admin" ||
+    item.serviceType === "verify_real-estate" ||
+    item.serviceType === "verify_real_estate";
+  if (verifyAdminPaidLayout && verifyMasterPaidService) {
+    const afterExpert = item.hasExpertReview;
+    const guideText = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_GUIDE_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_GUIDE_BEFORE;
+    const expertBadge = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_BADGE_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_BADGE_BEFORE;
+    const nextStepText = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_NEXT_STEP_BEFORE;
+    const estimateText = afterExpert
+      ? VERIFY_ADMIN_PAID_STATUS_ESTIMATE_AFTER
+      : VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE;
+
+    return (
+      <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
+        <p className="mt-3 text-[13px] leading-6 text-slate-600">{guideText}</p>
+
+        <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm">
+            <UserCheck size={22} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[14px] font-extrabold text-slate-950">
+                {VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL}
+              </p>
+              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800">
+                {expertBadge}
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] text-slate-500">{VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-blue-50 p-4">
+            <p className="text-[10px] font-semibold text-blue-700">다음 단계</p>
+            <p className="mt-1 text-[13px] font-extrabold text-blue-950">{nextStepText}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-[10px] font-semibold text-slate-500">예상 처리기간</p>
+            <p className="mt-1 text-[13px] font-extrabold text-slate-900">{estimateText}</p>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          {afterExpert ? (
+            <p className="text-[13px] font-semibold leading-6 text-slate-800">
+              {VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER}
+            </p>
+          ) : (
+            <AdminVerifyExpertRequestButton
+              leadId={item.id}
+              alreadyRequested={false}
+              onRequested={onExpertRequested}
+            />
+          )}
+        </div>
+      </section>
+    );
+  }
+
   const estimate = getEstimate(item.category, item.serviceType);
   const expertTeamLabel = resolveExpertTeamLabel(item.category, item.serviceType);
+
+  const statusGuideText =
+    item.serviceType === "verify_admin" &&
+    item.hasExpertReview &&
+    item.phase2Complete !== true
+      ? VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE
+      : item.hasExpertReview
+        ? "담당 전문가가 제출하신 자료를 검토하고 있습니다."
+        : "현재 신청 내용을 확인하고 다음 단계를 준비하고 있습니다.";
 
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
-      <p className="mt-3 text-[13px] leading-6 text-slate-600">
-        {item.hasExpertReview
-          ? "담당 전문가가 제출하신 자료를 검토하고 있습니다."
-          : "현재 신청 내용을 확인하고 다음 단계를 준비하고 있습니다."}
-      </p>
+      <p className="mt-3 text-[13px] leading-6 text-slate-600">{statusGuideText}</p>
 
       <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm">
@@ -1097,13 +1808,25 @@ function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
 }
 
 function TimelineCard({ item }: { item: MyPageItem }) {
-  const fallbackTimeline: ActivityLogEntry[] = [
-    { label: "신청 접수 완료", createdAt: item.createdAt },
-    { label: "AI 진단 완료", createdAt: item.createdAt },
-    { label: "전문가 배정", createdAt: item.createdAt },
-    { label: item.stage.currentStepLabel || "자료 검토중", createdAt: item.createdAt },
-  ];
-  const recent = item.activityLog.length >= 3 ? item.activityLog.slice(-4) : fallbackTimeline;
+  const recent =
+    item.category === "verify"
+      ? buildVerifyAdminMypageTimelineRecent({
+          activityLog: item.activityLog,
+          createdAt: item.createdAt,
+          hasDiagnosis: item.hasDiagnosis,
+          hasExpertReview: item.hasExpertReview,
+          currentStepLabel: item.stage.currentStepLabel,
+        })
+      : item.activityLog.length >= 3
+        ? item.activityLog.slice(-4)
+        : [
+            { label: "신청 접수 완료", createdAt: item.createdAt },
+            { label: "AI 진단 완료", createdAt: item.createdAt },
+            ...(item.hasExpertReview
+              ? [{ label: "전문가 배정", createdAt: item.createdAt }]
+              : []),
+            { label: item.stage.currentStepLabel || "자료 검토중", createdAt: item.createdAt },
+          ];
 
   return (
     <section id="timeline" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -1638,7 +2361,19 @@ function WalletAllDocumentsModal({
   );
 }
 
-function WalletSection({ leadId, compact = false }: { leadId: string; compact?: boolean }) {
+function WalletSection({
+  leadId,
+  compact = false,
+  freeVerifyAdminLegibilityLayout = false,
+  mobileExpertAccordion = false,
+}: {
+  leadId: string;
+  compact?: boolean;
+  /** F-11 legibility — verify_admin 무료에서 펼친 지갑만 */
+  freeVerifyAdminLegibilityLayout?: boolean;
+  /** F-15 — verify_admin expertFlow 모바일 접기 (PC xl+ 항상 펼침) */
+  mobileExpertAccordion?: boolean;
+}) {
   const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -1798,6 +2533,17 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
     setAllOpen(true);
   }
 
+  const legibilityLayout = freeVerifyAdminLegibilityLayout;
+  const slotTitleClass = legibilityLayout
+    ? MYPAGE_WALLET_SLOT_TITLE_CLASS
+    : "truncate text-[14px] font-extrabold text-slate-900";
+  const walletGridClass = legibilityLayout
+    ? "mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch"
+    : `mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${compact ? "lg:grid-cols-3" : "lg:grid-cols-3"}`;
+  const legacySlotHeight = compact ? "h-[248px]" : "h-[320px]";
+  const legacyPreviewHeight = compact ? "h-[132px]" : "h-[190px]";
+  const [mobileWalletOpen, setMobileWalletOpen] = useState(false);
+
   return (
     <section
       id="wallet"
@@ -1805,7 +2551,46 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
         compact ? "p-4 sm:p-5" : "p-5 sm:p-6"
       }`}
     >
-      <div className="flex items-start justify-between gap-4">
+      {mobileExpertAccordion ? (
+        <button
+          type="button"
+          aria-expanded={mobileWalletOpen}
+          aria-controls="verify-admin-expert-wallet-panel"
+          onClick={() => setMobileWalletOpen((prev) => !prev)}
+          className="flex min-h-[44px] w-full items-center justify-between gap-3 text-left xl:hidden"
+        >
+          <span
+            className={`font-extrabold tracking-[-0.02em] text-slate-950 ${
+              compact ? "text-[16px]" : "text-[18px]"
+            }`}
+          >
+            내 서류 지갑
+          </span>
+          <ChevronDown
+            size={18}
+            className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+              mobileWalletOpen ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          />
+        </button>
+      ) : null}
+
+      <div
+        id={mobileExpertAccordion ? "verify-admin-expert-wallet-panel" : undefined}
+        className={
+          mobileExpertAccordion
+            ? mobileWalletOpen
+              ? "block xl:block"
+              : "hidden xl:block"
+            : "block"
+        }
+      >
+        <div
+          className={`items-start justify-between gap-4 ${
+            mobileExpertAccordion ? "hidden xl:flex" : "flex"
+          }`}
+        >
         <div>
           <p
             className={`font-extrabold tracking-[-0.02em] text-slate-950 ${
@@ -1853,23 +2638,18 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
           항상 카드가 표시된다. 순서는 항상 여권→비자→거주증→증명사진→건강검진서→서류추가로
           고정. 모바일 1열 → sm 2열 → lg 3열(3열×2행, PC 가로 스크롤 없음). */}
       {!loading && !loadError && (
-        <div
-          className={`mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${
-            compact ? "lg:grid-cols-3" : "lg:grid-cols-3"
-          }`}
-        >
+        <div className={walletGridClass}>
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
-            const slotHeight = compact ? "h-[248px]" : "h-[320px]";
-            const previewHeight = compact ? "h-[132px]" : "h-[190px]";
+            const slotShellClass = legibilityLayout
+              ? `flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${legacySlotHeight}`
+              : `flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${legacySlotHeight}`;
+            const previewHeight = legacyPreviewHeight;
 
             if (!doc) {
               return (
-                <div
-                  key={slot.key}
-                  className={`flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${slotHeight}`}
-                >
-                  <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                <div key={slot.key} className={slotShellClass}>
+                  <p className={slotTitleClass}>{slot.label}</p>
                   <p className="mt-0.5 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
 
                   <div
@@ -1908,9 +2688,9 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
             return (
               <div
                 key={slot.key}
-                className={`group flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md ${slotHeight}`}
+                className={`group ${slotShellClass} transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md`}
               >
-                <p className="truncate text-[14px] font-extrabold text-slate-900">{slot.label}</p>
+                <p className={slotTitleClass}>{slot.label}</p>
                 <p className="mt-0.5 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
 
                 <div
@@ -1977,9 +2757,15 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
           <button
             type="button"
             onClick={() => openUploadModal()}
-            className={`flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
-              compact ? "h-[248px]" : "h-[320px]"
-            }`}
+            className={
+              legibilityLayout
+                ? `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+                    compact ? "h-[248px]" : "h-[320px]"
+                  }`
+                : `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+                    compact ? "h-[248px]" : "h-[320px]"
+                  }`
+            }
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
               <Plus size={24} />
@@ -2001,6 +2787,7 @@ function WalletSection({ leadId, compact = false }: { leadId: string; compact?: 
           {notice}
         </div>
       )}
+      </div>
 
       {uploadOpen && (
         <WalletUploadModal
@@ -2150,14 +2937,43 @@ function GeneralCustomerCompactAccordion({
   );
 }
 
+function VerifyAdminMypageMainWalletFooter({
+  leadId,
+  expanded,
+  onExpandedChange,
+}: {
+  leadId: string;
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
+}) {
+  return (
+    <GeneralCustomerWalletCore
+      leadId={leadId}
+      placement="verifyAdminMainFooter"
+      expanded={expanded}
+      onExpandedChange={onExpandedChange}
+    />
+  );
+}
+
 function GeneralCustomerWalletCore({
   leadId,
   placement = "main",
+  expanded: expandedProp,
+  onExpandedChange,
 }: {
   leadId: string;
-  placement?: "main" | "aside";
+  placement?: "main" | "aside" | "verifyAdminMainFooter";
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
+  const isControlled = onExpandedChange != null;
+  const expanded = isControlled ? (expandedProp ?? false) : internalExpanded;
+  const setExpanded = (value: boolean) => {
+    if (isControlled) onExpandedChange(value);
+    else setInternalExpanded(value);
+  };
   const [documents, setDocuments] = useState<WalletDocumentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -2211,7 +3027,11 @@ function GeneralCustomerWalletCore({
   if (expanded) {
     return (
       <div className="space-y-3">
-        <WalletSection leadId={leadId} compact />
+        <WalletSection
+          leadId={leadId}
+          compact
+          freeVerifyAdminLegibilityLayout={placement === "verifyAdminMainFooter"}
+        />
         <button
           type="button"
           onClick={() => setExpanded(false)}
@@ -2224,6 +3044,41 @@ function GeneralCustomerWalletCore({
   }
 
   const recent = documents.slice(0, 3);
+
+  if (placement === "verifyAdminMainFooter") {
+    const showCount =
+      !loading && !shouldHideVerifyAdminWalletDocumentCount(documents.length);
+
+    return (
+      <section
+        id="wallet"
+        className="rounded-[20px] border border-blue-200 bg-gradient-to-b from-blue-50/90 to-white px-5 py-4 shadow-sm sm:px-6"
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-extrabold text-slate-950">내 서류 보관함</p>
+            {showCount ? (
+              <p className="mt-1 text-[15px] font-bold tracking-[-0.02em] text-slate-900">
+                등록 서류 {documents.length}건
+              </p>
+            ) : null}
+            <p className="mt-1 text-[11px] leading-5 text-slate-600 sm:mt-2">
+              여권 · 비자 · 거주증 등 중요한 서류를 안전하게 보관하세요.
+            </p>
+            {loadError ? <p className="mt-2 text-[11px] text-red-600">{loadError}</p> : null}
+          </div>
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="flex h-10 shrink-0 items-center justify-center gap-1 rounded-xl border border-blue-200 bg-white px-4 text-[12px] font-semibold text-blue-900 transition hover:bg-blue-50 sm:min-w-[140px]"
+          >
+            전체 서류 보기
+            <ChevronRight size={14} className="shrink-0" />
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   if (placement === "aside") {
     return (
@@ -2385,13 +3240,24 @@ function GeneralCustomerExtrasPanel({
   items,
   activeId,
   onSelect,
+  pcGovernmentLinksInAside = false,
 }: {
   item: MyPageItem;
   items: MyPageItem[];
   activeId: string;
   onSelect: (id: string) => void;
+  pcGovernmentLinksInAside?: boolean;
 }) {
   const pastCount = items.filter((entry) => entry.id !== activeId).length;
+
+  if (shouldUseVerifyAdminMypageSlimAside(item)) {
+    return (
+      <VerifyAdminMypageSidePanel
+        item={item}
+        pcGovernmentLinksInAside={pcGovernmentLinksInAside}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -2430,108 +3296,132 @@ function GeneralCustomerExtrasPanel({
   );
 }
 
-const PUBLIC_LINKS = [
-  {
-    label: "정부24",
-    sub: "주민등록등본, 가족관계증명서 등",
-    href: "https://www.gov.kr/",
-    iconSrc: "/mypage-icons/kr-gov24.webp",
-  },
-  {
-    label: "영사민원24",
-    sub: "공증, 영사확인, 여권 등",
-    href: "https://consul.mofa.go.kr/",
-    iconSrc: "/mypage-icons/kr-consul.webp",
-  },
-  {
-    label: "법무부",
-    sub: "출입국·체류·국적 관련 정보",
-    href: "https://www.moj.go.kr/",
-    iconSrc: "/mypage-icons/kr-moj.webp",
-  },
-  {
-    label: "하이코리아",
-    sub: "외국인 전자민원, 체류 신청 등",
-    href: "https://www.hikorea.go.kr/",
-    iconSrc: "/mypage-icons/kr-hikorea.webp",
-  },
-];
-
-const VN_PUBLIC_LINKS = [
-  {
-    label: "베트남 공공서비스 포털",
-    href: "https://dichvucong.gov.vn/",
-    iconSrc: "/mypage-icons/vn-portal.webp",
-  },
-  {
-    label: "출입국관리기관",
-    href: "https://xuatnhapcanh.gov.vn/",
-    iconSrc: "/mypage-icons/vn-immigration.webp",
-  },
-  {
-    label: "세무기관",
-    href: "https://www.gdt.gov.vn/",
-    iconSrc: "/mypage-icons/vn-tax.webp",
-  },
-  {
-    label: "기업등록기관",
-    href: "https://dangkykinhdoanh.gov.vn/",
-    iconSrc: "/mypage-icons/vn-business.webp",
-  },
-  {
-    label: "노동·고용 기관",
-    href: "https://moha.gov.vn/",
-    iconSrc: "/mypage-icons/vn-labor.webp",
-  },
-];
+const PUBLIC_LINKS = MYPAGE_PUBLIC_LINKS;
+const VN_PUBLIC_LINKS = MYPAGE_VN_PUBLIC_LINKS;
 
 function PublicLinksCard({
   title,
   links,
+  contentOnly = false,
 }: {
   title: string;
-  links: { label: string; sub?: string; href: string; iconSrc: string }[];
+  links: ReadonlyArray<{ label: string; sub?: string; href: string; iconSrc: string }>;
+  contentOnly?: boolean;
 }) {
+  const linkList = (
+    <div className={contentOnly ? "divide-y divide-slate-100" : "mt-3 divide-y divide-slate-100"}>
+      {links.map((link) => (
+        <a
+          key={link.label}
+          href={link.href}
+          target="_blank"
+          rel="noreferrer"
+          className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
+        >
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+              <img
+                src={link.iconSrc}
+                alt={`${link.label} 기관 아이콘`}
+                className="block max-h-8 max-w-8 object-contain object-center"
+                loading="lazy"
+                draggable={false}
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
+              {link.sub ? <p className="mt-1 truncate text-[10px] text-slate-400">{link.sub}</p> : null}
+            </div>
+          </div>
+          <ExternalLink size={13} className="shrink-0 text-slate-300" />
+        </a>
+      ))}
+    </div>
+  );
+
+  if (contentOnly) return linkList;
+
   return (
     <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-[16px] font-extrabold text-slate-950">{title}</p>
         <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
       </div>
-      <div className="mt-3 divide-y divide-slate-100">
-        {links.map((link) => (
-          <a
-            key={link.label}
-            href={link.href}
-            target="_blank"
-            rel="noreferrer"
-            className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
-                <img
-                  src={link.iconSrc}
-                  alt={`${link.label} 기관 아이콘`}
-                  className="block max-h-8 max-w-8 object-contain object-center"
-                  loading="lazy"
-                  draggable={false}
-                />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
-                {link.sub ? <p className="mt-1 truncate text-[10px] text-slate-400">{link.sub}</p> : null}
-              </div>
-            </div>
-            <ExternalLink size={13} className="shrink-0 text-slate-300" />
-          </a>
-        ))}
-      </div>
+      {linkList}
     </section>
   );
 }
 
 
 function NotificationCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
+  if (item.serviceType === "verify_admin") {
+    const entries = item.activityLog
+      .filter((entry) => !GENERAL_CUSTOMER_EXPERT_NOTIFICATION_LABELS.has(entry.label))
+      .slice(-3)
+      .reverse()
+      .map((entry) => ({
+        ...entry,
+        label: mapVerifyAdminExpertMypageTimelineDisplayLabel(entry.label),
+      }));
+
+    return (
+      <section
+        id="notifications"
+        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+          compact ? "p-4" : "p-5"
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+            알림 센터
+          </p>
+          {entries.length > 0 ? (
+            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+          ) : null}
+        </div>
+
+        {entries.length === 0 ? (
+          <p className={`leading-5 text-slate-500 ${compact ? "mt-2 text-[10px]" : "mt-3 text-[11px]"}`}>
+            {VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY}
+          </p>
+        ) : (
+          <div className={compact ? "mt-2 space-y-0.5" : "mt-3 space-y-1"}>
+            {entries.map((entry) => {
+              const Icon = getGeneralCustomerNotificationIcon(entry.label);
+              const tone = getGeneralCustomerNotificationTone(entry.label);
+              return (
+                <div
+                  key={`${entry.label}-${entry.createdAt}`}
+                  className={`flex gap-2.5 rounded-xl hover:bg-slate-50 ${compact ? "p-2" : "gap-3 p-2.5"}`}
+                >
+                  <div
+                    className={`flex shrink-0 items-center justify-center rounded-full ${tone} ${
+                      compact ? "h-8 w-8" : "h-9 w-9"
+                    }`}
+                  >
+                    <Icon size={compact ? 14 : 15} />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className={`font-extrabold text-slate-900 ${compact ? "text-[10px]" : "text-[11px]"}`}
+                    >
+                      {entry.label}
+                    </p>
+                    <p
+                      className={`leading-4 text-slate-500 ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}
+                    >
+                      {formatShortDate(entry.createdAt)} · {formatTime(entry.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    );
+  }
+
   const entries = [
     {
       icon: MessageCircle,
@@ -2697,7 +3587,15 @@ function formatClock(value: string | null) {
   }).format(date);
 }
 
-function VietnamLifeCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
+function VietnamLifeCard({
+  item,
+  compact = false,
+  contentOnly = false,
+}: {
+  item: MyPageItem;
+  compact?: boolean;
+  contentOnly?: boolean;
+}) {
   const [detail, setDetail] = useState<VietnamLifeDetailKey | null>(null);
   const [krwAmount, setKrwAmount] = useState("100000");
   const [usdAmount, setUsdAmount] = useState("100");
@@ -2947,30 +3845,20 @@ function VietnamLifeCard({ item, compact = false }: { item: MyPageItem; compact?
 
   const detailTitle = lifeItems.find((lifeItem) => lifeItem.key === detail)?.label ?? "";
 
-  return (
+  const lifeBody = (
     <>
-      <section
-        id="vietnam-life"
-        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
-      >
-        <div className="flex items-center justify-between gap-3">
-          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
-            🇻🇳 베트남 생활 정보
-          </p>
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
-            LIVE
-          </span>
-        </div>
-        {!compact && (
-          <p className="mt-1 text-[11px] leading-5 text-slate-500">
-            생활에 필요한 주요 정보를 빠르게 확인하세요.
-          </p>
-        )}
+      {!compact && (
+        <p className="mt-1 text-[11px] leading-5 text-slate-500">
+          생활에 필요한 주요 정보를 빠르게 확인하세요.
+        </p>
+      )}
 
-        <div className={compact ? "mt-2.5 space-y-1.5" : "mt-4 space-y-2"}>{lifeItems.map(renderLifeItem)}</div>
-      </section>
+      <div className={compact ? "mt-2.5 space-y-1.5" : "mt-4 space-y-2"}>{lifeItems.map(renderLifeItem)}</div>
+    </>
+  );
 
-      {detail && (
+  const detailModal =
+    detail && (
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
           onClick={() => setDetail(null)}
@@ -3492,20 +4380,129 @@ function VietnamLifeCard({ item, compact = false }: { item: MyPageItem; compact?
             </div>
           </section>
         </div>
-      )}
+      );
+
+  if (contentOnly) {
+    return (
+      <>
+        {lifeBody}
+        {detailModal}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <section
+        id="vietnam-life"
+        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+            🇻🇳 베트남 생활 정보
+          </p>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
+            LIVE
+          </span>
+        </div>
+        {lifeBody}
+      </section>
+      {detailModal}
     </>
   );
 }
 
-function EmergencyHelpCard({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
+function EmergencyHelpCard({
+  item,
+  compact = false,
+  mobileExpertAccordion = false,
+  collapsible = false,
+}: {
+  item: MyPageItem;
+  compact?: boolean;
+  /** F-15 — verify_admin expertFlow 모바일 접기 (PC xl+ 항상 펼침) */
+  mobileExpertAccordion?: boolean;
+  /** F-16 — verify_admin aiOnly PC·모바일 접기 (기본 접힘) */
+  collapsible?: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const [mobileAccordionOpen, setMobileAccordionOpen] = useState(false);
+  const [collapsibleOpen, setCollapsibleOpen] = useState(false);
+
+  const badge24 = (
+    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-extrabold text-red-600">
+      24시간
+    </span>
+  );
+
+  const freeCollapsible = collapsible && !mobileExpertAccordion;
+  const panelId = mobileExpertAccordion
+    ? "verify-admin-expert-emergency-panel"
+    : freeCollapsible
+      ? "verify-admin-free-emergency-panel"
+      : undefined;
+  const accordionOpen = mobileExpertAccordion ? mobileAccordionOpen : collapsibleOpen;
+  const setAccordionOpen = mobileExpertAccordion ? setMobileAccordionOpen : setCollapsibleOpen;
 
   return (
     <>
       <section
         className={`rounded-[20px] border border-red-100 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
       >
-        <div className="flex items-start justify-between gap-2.5">
+        {mobileExpertAccordion || freeCollapsible ? (
+          <button
+            type="button"
+            aria-expanded={accordionOpen}
+            aria-controls={panelId}
+            onClick={() => setAccordionOpen((prev) => !prev)}
+            className={`flex min-h-[44px] w-full items-start justify-between gap-2.5 text-left ${
+              mobileExpertAccordion ? "xl:hidden" : ""
+            }`}
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <div
+                className={`flex shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 ${
+                  compact ? "h-8 w-8" : "h-9 w-9"
+                }`}
+              >
+                <ShieldAlert size={compact ? 16 : 18} />
+              </div>
+              <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+                베트남 긴급 도움
+              </p>
+            </div>
+            <span className="flex shrink-0 items-center gap-2">
+              {badge24}
+              <ChevronDown
+                size={18}
+                className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+                  accordionOpen ? "rotate-180" : ""
+                }`}
+                aria-hidden
+              />
+            </span>
+          </button>
+        ) : null}
+
+        <div
+          id={panelId}
+          className={
+            mobileExpertAccordion
+              ? mobileAccordionOpen
+                ? "block xl:block"
+                : "hidden xl:block"
+              : freeCollapsible
+                ? collapsibleOpen
+                  ? "block"
+                  : "hidden"
+                : "block"
+          }
+        >
+        <div
+          className={`items-start justify-between gap-2.5 ${
+            mobileExpertAccordion ? "hidden xl:flex" : freeCollapsible ? "hidden" : "flex"
+          }`}
+        >
           <div className="flex items-center gap-2">
             <div
               className={`flex items-center justify-center rounded-xl bg-red-50 text-red-600 ${
@@ -3523,10 +4520,12 @@ function EmergencyHelpCard({ item, compact = false }: { item: MyPageItem; compac
               )}
             </div>
           </div>
-          <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-extrabold text-red-600">
-            24시간
-          </span>
+          {badge24}
         </div>
+
+        {freeCollapsible && collapsibleOpen && !compact ? (
+          <p className="mt-3 text-[10px] text-slate-500">응급 상황 발생 시 즉시 연락하세요.</p>
+        ) : null}
 
         <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2"}`}>
           {[
@@ -3600,6 +4599,7 @@ function EmergencyHelpCard({ item, compact = false }: { item: MyPageItem; compac
           긴급 연락처·지원 보기
           <ChevronRight size={13} />
         </button>
+        </div>
       </section>
 
       {open && (
@@ -3771,7 +4771,18 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
 }
 
 function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?: boolean }) {
-  if (!item.governmentSubmittedAt && !item.permitCompletedAt && !item.fileUrl) return null;
+  const phase2Docs =
+    item.serviceType === "verify_admin" || item.serviceType === "verify_real-estate"
+      ? item.phase2UploadedDocuments
+      : undefined;
+  if (
+    !item.governmentSubmittedAt &&
+    !item.permitCompletedAt &&
+    !item.fileUrl &&
+    !phase2Docs?.length
+  ) {
+    return null;
+  }
 
   return (
     <section
@@ -3831,6 +4842,21 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
             <Download size={15} className="text-slate-400" />
           </a>
         )}
+        {phase2Docs?.map((doc) => (
+          <a
+            key={doc.fileUrl}
+            href={doc.fileUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:bg-slate-50"
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <FileText size={17} className="text-blue-900" />
+              <span className="truncate text-[11px] font-bold text-slate-800">{doc.fileName}</span>
+            </span>
+            <Download size={15} className="text-slate-400" />
+          </a>
+        ))}
       </div>
     </section>
   );
@@ -3879,16 +4905,133 @@ function MobileBottomNav() {
   );
 }
 
+/** verify_admin expertFlow — d2871f8 Dashboard 블록 (phase2·전문가 요청과 무관, 경로 기준) */
+function VerifyAdminExpertFlowDashboard({
+  name,
+  activeItem,
+  items,
+  verifyAdminPaid,
+  onChangeActive,
+  onReload,
+}: {
+  name: string | null;
+  activeItem: MyPageItem;
+  items: MyPageItem[];
+  verifyAdminPaid: boolean;
+  onChangeActive: (id: string) => void;
+  onReload?: () => void | Promise<void>;
+}) {
+  return (
+    <>
+      <div className="space-y-4">
+        <div className="xl:hidden">
+          <p className="text-[18px] font-extrabold text-slate-950">
+            안녕하세요, {name ?? "고객"}님 👋
+          </p>
+          <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
+        </div>
+
+        <HeroCard
+          item={activeItem}
+          applicationsId={verifyAdminPaid ? null : "applications"}
+          selector={
+            <ApplicationSelector
+              items={items}
+              activeId={activeItem.id}
+              onChange={onChangeActive}
+            />
+          }
+        />
+
+        <PastApplicationsToggle
+          items={items}
+          activeId={activeItem.id}
+          onSelect={onChangeActive}
+        />
+
+        <StepProgress
+          stage={activeItem.stage}
+          stepDateResolver={(step, index) =>
+            resolveVerifyAdminStepDateLabel(activeItem, step, index)
+          }
+        />
+
+        <div className="grid gap-5 lg:grid-cols-2">
+          <AiResultCard item={activeItem} applicantName={name} />
+          <CurrentStatusCard
+            item={activeItem}
+            verifyAdminPaidLayout={verifyAdminPaid}
+            onExpertRequested={onReload}
+          />
+        </div>
+
+        <ConfidenceBanner confidence={activeItem.confidence} />
+
+        <TimelineCard item={activeItem} />
+
+        <PublicNotes notes={activeItem.publicNotes} />
+
+        <ExpertMainSupport
+          item={activeItem}
+          hideRecommended
+          verifyAdminExpertMobileAccordion
+        />
+      </div>
+
+      <div className="mt-4 grid gap-5 xl:hidden">
+        {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
+        <VerifyAdminExpertMobileCollapsibleSection
+          panelId="verify-admin-expert-kr-public-links"
+          title="바로가기 (한국 공공기관)"
+          headerTrailing={
+            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+          }
+        >
+          <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} contentOnly />
+        </VerifyAdminExpertMobileCollapsibleSection>
+        <VerifyAdminExpertMobileCollapsibleSection
+          panelId="verify-admin-expert-vn-public-links"
+          title="바로가기 (베트남 공공기관)"
+          headerTrailing={
+            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+          }
+        >
+          <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} contentOnly />
+        </VerifyAdminExpertMobileCollapsibleSection>
+        <VerifyAdminExpertMobileCollapsibleSection
+          panelId="verify-admin-expert-vietnam-life"
+          title="🇻🇳 베트남 생활 정보"
+          headerTrailing={
+            <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
+              LIVE
+            </span>
+          }
+        >
+          <VietnamLifeCard item={activeItem} contentOnly />
+        </VerifyAdminExpertMobileCollapsibleSection>
+        <EmergencyHelpCard item={activeItem} mobileExpertAccordion />
+        {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
+      </div>
+    </>
+  );
+}
+
 function Dashboard({
   name,
   items,
   activeId,
   onChangeActive,
+  onReload,
+  freeVerifyAdminWalletExpanded,
+  onFreeVerifyAdminWalletExpandedChange,
 }: {
   name: string | null;
   items: MyPageItem[];
   activeId: string;
   onChangeActive: (id: string) => void;
+  onReload?: () => void | Promise<void>;
+  freeVerifyAdminWalletExpanded?: boolean;
+  onFreeVerifyAdminWalletExpandedChange?: (expanded: boolean) => void;
 }) {
   const activeItem = useMemo(
     () => items.find((item) => item.id === activeId) ?? items[0] ?? null,
@@ -3912,33 +5055,63 @@ function Dashboard({
     );
   }
 
-  const aiOnly = Boolean(tracks?.ai && !tracks?.expert);
-  const expertFlow = Boolean(tracks?.expert);
+  const verifyAdminPaid = isVerifyMasterPaidMypageItem(activeItem);
+  const aiOnly = shouldUseGeneralCustomerMypageLayout(activeItem);
+  const expertFlow = Boolean(tracks?.expert) || verifyAdminPaid;
 
   if (aiOnly) {
+    const freeVerifyAdminLayout = shouldUseVerifyAdminMypageSlimAside(activeItem);
     return (
       <>
-        <div className="space-y-4">
+        <div className={freeVerifyAdminLayout ? "min-w-0 space-y-4 overflow-x-hidden" : "space-y-4"}>
           <GeneralCustomerResultView
             item={activeItem}
             rootId="applications"
             applicantName={name}
+            onExpertRequested={onReload}
           />
+          {freeVerifyAdminLayout ? (
+            <VerifyAdminMypageMainWalletFooter
+              leadId={activeItem.id}
+              expanded={onFreeVerifyAdminWalletExpandedChange ? freeVerifyAdminWalletExpanded : undefined}
+              onExpandedChange={onFreeVerifyAdminWalletExpandedChange}
+            />
+          ) : null}
         </div>
 
         <div className="mt-4 space-y-3 xl:hidden">
-          <GeneralCustomerExtrasPanel
-            item={activeItem}
-            items={items}
-            activeId={activeItem.id}
-            onSelect={onChangeActive}
-          />
+          {freeVerifyAdminLayout ? (
+            <VerifyAdminMypageSidePanel item={activeItem} />
+          ) : (
+            <GeneralCustomerExtrasPanel
+              item={activeItem}
+              items={items}
+              activeId={activeItem.id}
+              onSelect={onChangeActive}
+            />
+          )}
         </div>
       </>
     );
   }
 
   if (expertFlow) {
+    if (
+      activeItem.serviceType === "verify_admin" ||
+      activeItem.serviceType === "verify_real-estate"
+    ) {
+      return (
+        <VerifyAdminExpertFlowDashboard
+          name={name}
+          activeItem={activeItem}
+          items={items}
+          verifyAdminPaid={verifyAdminPaid}
+          onChangeActive={onChangeActive}
+          onReload={onReload}
+        />
+      );
+    }
+
     return (
       <>
         <div className="space-y-4">
@@ -3951,6 +5124,7 @@ function Dashboard({
 
           <HeroCard
             item={activeItem}
+            applicationsId={verifyAdminPaid ? null : "applications"}
             selector={
               <ApplicationSelector
                 items={items}
@@ -3966,11 +5140,22 @@ function Dashboard({
             onSelect={onChangeActive}
           />
 
-          <StepProgress stage={activeItem.stage} />
+          <StepProgress
+            stage={activeItem.stage}
+            stepDateResolver={
+              verifyAdminPaid
+                ? (step, index) => resolveVerifyAdminStepDateLabel(activeItem, step, index)
+                : undefined
+            }
+          />
 
           <div className="grid gap-5 lg:grid-cols-2">
             <AiResultCard item={activeItem} applicantName={name} />
-            <CurrentStatusCard item={activeItem} />
+            <CurrentStatusCard
+              item={activeItem}
+              verifyAdminPaidLayout={verifyAdminPaid}
+              onExpertRequested={onReload}
+            />
           </div>
 
           <ConfidenceBanner confidence={activeItem.confidence} />
@@ -3979,15 +5164,15 @@ function Dashboard({
 
           <PublicNotes notes={activeItem.publicNotes} />
 
-          <ExpertMainSupport item={activeItem} />
+          <ExpertMainSupport item={activeItem} hideRecommended={verifyAdminPaid} />
         </div>
 
         <div className="mt-4 grid gap-5 xl:hidden">
-          <NotificationCard item={activeItem} />
+          {!verifyAdminPaid ? <NotificationCard item={activeItem} /> : null}
           <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
           <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} />
           <VietnamLifeCard item={activeItem} />
-          <PermitDocuments item={activeItem} />
+          {!verifyAdminPaid ? <PermitDocuments item={activeItem} /> : null}
         </div>
       </>
     );
@@ -4037,6 +5222,26 @@ export default function MyPage() {
   const [name, setName] = useState<string | null>(null);
   const [items, setItems] = useState<MyPageItem[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const reloadMypageData = useCallback(async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) return;
+    try {
+      const response = await fetch("/api/mypage-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setName(data.name ?? null);
+        setItems(data.items ?? []);
+      }
+    } catch {
+      /* keep current view on refresh failure */
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -4103,12 +5308,20 @@ export default function MyPage() {
 
   const activeLayoutItem =
     items.find((item) => item.id === activeId) ?? firstItem ?? null;
-  const generalLayoutTracks = activeLayoutItem
-    ? resolveCaseTracks(activeLayoutItem)
-    : null;
-  const isGeneralCustomerLayout = Boolean(
-    generalLayoutTracks?.ai && !generalLayoutTracks?.expert
-  );
+  const isGeneralCustomerLayout = activeLayoutItem
+    ? shouldUseGeneralCustomerMypageLayout(activeLayoutItem)
+    : false;
+  const isSlimFreeVerifyAdminAside =
+    activeLayoutItem != null &&
+    isGeneralCustomerLayout &&
+    shouldUseVerifyAdminMypageSlimAside(activeLayoutItem);
+  const [verifyAdminFreeWalletExpanded, setVerifyAdminFreeWalletExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!isSlimFreeVerifyAdminAside) {
+      setVerifyAdminFreeWalletExpanded(false);
+    }
+  }, [isSlimFreeVerifyAdminAside, activeLayoutItem?.id]);
 
   return (
     <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
@@ -4172,7 +5385,19 @@ export default function MyPage() {
             )}
 
             {state === "ready" && (
-              <Dashboard name={name} items={items} activeId={activeId} onChangeActive={setActiveId} />
+              <Dashboard
+                name={name}
+                items={items}
+                activeId={activeId}
+                onChangeActive={setActiveId}
+                onReload={reloadMypageData}
+                freeVerifyAdminWalletExpanded={
+                  isSlimFreeVerifyAdminAside ? verifyAdminFreeWalletExpanded : undefined
+                }
+                onFreeVerifyAdminWalletExpandedChange={
+                  isSlimFreeVerifyAdminAside ? setVerifyAdminFreeWalletExpanded : undefined
+                }
+              />
             )}
           </div>
 
@@ -4183,15 +5408,43 @@ export default function MyPage() {
                 items={items}
                 activeId={activeId}
                 onSelect={setActiveId}
+                pcGovernmentLinksInAside={
+                  isSlimFreeVerifyAdminAside ? verifyAdminFreeWalletExpanded : false
+                }
               />
             </aside>
           )}
 
-          {state === "ready" && firstItem && !isGeneralCustomerLayout && (
+          {state === "ready" && !isGeneralCustomerLayout && (activeLayoutItem ?? firstItem) && (
             <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
-              <ExpertAsideSupport item={firstItem} />
+              {shouldUseVerifyAdminMypageSlimAside(activeLayoutItem ?? firstItem ?? undefined) ? (
+                <VerifyAdminMypageSidePanel item={(activeLayoutItem ?? firstItem)!} />
+              ) : (
+                <ExpertAsideSupport
+                  item={(activeLayoutItem ?? firstItem)!}
+                  hideNotificationCard={
+                    activeLayoutItem
+                      ? isVerifyMasterPaidMypageItem(activeLayoutItem)
+                      : firstItem
+                        ? isVerifyMasterPaidMypageItem(firstItem)
+                        : false
+                  }
+                />
+              )}
             </aside>
           )}
+
+          {state === "ready" &&
+          activeLayoutItem &&
+          shouldUseVerifyAdminMypageSlimAside(activeLayoutItem) ? (
+            <div
+              className={`col-span-full min-w-0 ${
+                verifyAdminFreeWalletExpanded ? "xl:hidden" : ""
+              }`}
+            >
+              <VerifyAdminMypageRollingStrip />
+            </div>
+          ) : null}
           </div>
         </div>
 

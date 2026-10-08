@@ -77,10 +77,15 @@ import {
 } from "@/lib/restoreVerifyLead";
 import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
 
-const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY = "vfbcai_admin_verify_phase2_snapshot";
+import {
+  ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
+  buildPhase2DocumentsHandoffUrl,
+  writePhase2HandoffSnapshot,
+} from "@/lib/verifyMasterPhase2Handoff";
 import {
   establishBrowserSessionFromResultToken,
   ensureBrowserSessionForResultToken,
+  navigateToMypageWithResultToken,
 } from "@/lib/restoreCheckLead";
 import { getDiagnosis, DiagnosisResult } from "@/lib/verifyDiagnosis";
 import { getRequiredDocuments } from "@/lib/requiredDocuments";
@@ -1110,6 +1115,21 @@ export default function VerifyAdminPage() {
 
     window.history.replaceState({}, "", "/verify/admin");
   }, []);
+
+  useEffect(() => {
+    if (!adminVerifyPhase2UploadComplete) return;
+    let cancelled = false;
+    void (async () => {
+      const ok = await navigateToMypageWithResultToken(resultToken);
+      if (cancelled) return;
+      if (!ok) {
+        window.location.href = "/mypage";
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [adminVerifyPhase2UploadComplete, resultToken]);
   /** Member handoff UI — submitAsMember catch와 동일 45s 상한 (UI stuck 방지) */
   useEffect(() => {
     if (!skipSignup || adminMasterSignupComplete || !submitting) return;
@@ -1313,13 +1333,14 @@ export default function VerifyAdminPage() {
         return;
       }
 
-      sessionStorage.setItem(
-        ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
-        JSON.stringify({ leadId, answers }),
-      );
-      window.location.href = `/documents?leadId=${encodeURIComponent(leadId)}&service=verify_admin&mode=phase2_upload`;
+      writePhase2HandoffSnapshot("verify_admin", {
+        leadId,
+        answers,
+        resultToken,
+      });
+      window.location.href = buildPhase2DocumentsHandoffUrl(leadId, "verify_admin");
     },
-    [leadId, page1ReviewAnswers],
+    [leadId, page1ReviewAnswers, resultToken],
   );
 
   function handleIncidentNext() {
@@ -1666,27 +1687,8 @@ export default function VerifyAdminPage() {
   async function handleFreeAiSummaryNavigate() {
     setAiSummaryNavigating(true);
     try {
-      const hasSession = await ensureBrowserSessionForResultToken(resultToken);
-      if (hasSession) {
-        window.location.href = "/mypage";
-        return;
-      }
-      if (!resultToken) {
-        setAiSummaryNavigating(false);
-        return;
-      }
-      const res = await fetch("/api/auto-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resultToken, next: "mypage" }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.actionLink) {
-        console.error("auto-login failed:", data);
-        setAiSummaryNavigating(false);
-        return;
-      }
-      window.location.href = data.actionLink;
+      const ok = await navigateToMypageWithResultToken(resultToken);
+      if (!ok) setAiSummaryNavigating(false);
     } catch {
       setAiSummaryNavigating(false);
     }

@@ -150,6 +150,27 @@ export type InsertMemberVerifyLeadResult =
   | { ok: true; leadId: string; resultToken: string | null; contact: MemberLeadContact }
   | { ok: false; reason: "no_contact" | "create_failed" };
 
+/** Member handoff — insertMemberVerifyLead pending 시 loading 영구 고정 방지 */
+export const MEMBER_VERIFY_LEAD_TIMEOUT_MS = 45_000;
+
+export function awaitMemberVerifyLeadInsert<T>(promise: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("insertMemberVerifyLead_timeout"));
+    }, MEMBER_VERIFY_LEAD_TIMEOUT_MS);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
 /**
  * 로그인 회원용 — 회원가입 폼 없이 해당 service_type의 새 VERIFY lead만 생성한다.
  * crm_activities(verify_lead) 삽입은 각 페이지가 verifyMeta를 넘긴 뒤 이 함수가 처리한다.

@@ -57,6 +57,7 @@ import {
   type AdminVerifyMasterGateProps,
   type RealEstateVerifyMasterGateProps,
 } from "@/components/cost-check/MasterReviewQuotationReport";
+import type { VerifyMasterPackBridge } from "@/lib/verifyMasterPackBridge";
 import { MasterQuotationGuidePanel } from "@/components/cost-check/MasterQuotationGuidePanel";
 import { getPublishedArticleBySlug } from "@/lib/contentPacks/registry";
 import { TRC_GUIDE_ARTICLE } from "@/lib/contentPacks/trcArticles";
@@ -718,6 +719,7 @@ export function MasterFunnelLanding({
   adminVerifyGate,
   realEstateVerifyGate,
   verifyMasterSeedAnswers,
+  verifyMasterPackBridge,
 }: {
   config: MasterLandingConfig;
   activeTab: MasterFunnelContextTab;
@@ -729,6 +731,8 @@ export function MasterFunnelLanding({
   realEstateVerifyGate?: RealEstateVerifyMasterGateProps;
   /** VERIFY 부동산 Master — 랜딩/복원 값을 Profiling seed로 전달 */
   verifyMasterSeedAnswers?: Record<string, string>;
+  /** Content Pack 주입 — Admin 마스터 체인과 동일 경로 */
+  verifyMasterPackBridge?: VerifyMasterPackBridge;
 }) {
   const urlSyncedRef = useRef(false);
   const [entryQuery, setEntryQuery] = useState("");
@@ -814,12 +818,16 @@ export function MasterFunnelLanding({
     const reviewMasterTab: "lookup" | "direct" = activeTab === "direct" ? "direct" : "lookup";
     const isAdminVerifyMaster = config.costServiceId === "admin";
     const isRealEstateVerifyMaster = config.costServiceId === "real-estate";
-    const isVerifyMasterInline = isAdminVerifyMaster || isRealEstateVerifyMaster;
+    const usesPackVerifyMasterChain = Boolean(verifyMasterPackBridge);
+    const isVerifyMasterInline =
+      isAdminVerifyMaster || isRealEstateVerifyMaster || usesPackVerifyMasterChain;
     const adminVerifyGoToReview = () => onTabChange("review");
     const verifyGuideGoLookup = isVerifyMasterInline ? adminVerifyGoToReview : onContinue;
+    const showVerifyMasterStitchTabs =
+      isVerifyMasterInline && (!isRealEstateVerifyMaster || usesPackVerifyMasterChain);
     return (
       <>
-        {isVerifyMasterInline && !isRealEstateVerifyMaster ? (
+        {showVerifyMasterStitchTabs ? (
           <div className="mb-6 hidden lg:block">
             <MasterTrcContextTabs
               active={reviewMasterTab}
@@ -828,7 +836,7 @@ export function MasterFunnelLanding({
               lookupDesc="직접 검토하기"
               directLabel="자세히 보기"
               directDesc="관련 가이드 상세"
-              variant={isAdminVerifyMaster ? "stitch" : undefined}
+              variant={isAdminVerifyMaster || usesPackVerifyMasterChain ? "stitch" : undefined}
             />
           </div>
         ) : !isVerifyMasterInline ? (
@@ -849,11 +857,18 @@ export function MasterFunnelLanding({
             onLearnMore={
               isVerifyMasterInline ? () => onTabChange("direct") : undefined
             }
-            {...(isAdminVerifyMaster && adminVerifyGate ? adminVerifyGate : {})}
-            {...(isRealEstateVerifyMaster && realEstateVerifyGate ? realEstateVerifyGate : {})}
+            {...((isAdminVerifyMaster || usesPackVerifyMasterChain) && adminVerifyGate
+              ? adminVerifyGate
+              : {})}
+            {...(isRealEstateVerifyMaster &&
+            !usesPackVerifyMasterChain &&
+            realEstateVerifyGate
+              ? realEstateVerifyGate
+              : {})}
             {...(isVerifyMasterInline && verifyMasterSeedAnswers
               ? { verifyMasterSeedAnswers }
               : {})}
+            {...(verifyMasterPackBridge ? { verifyMasterPackBridge } : {})}
           />
         ) : (
           <MasterServiceReviewPanel config={config} onGoLookup={verifyGuideGoLookup} />

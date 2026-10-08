@@ -45,12 +45,16 @@ import {
 } from "@/lib/verifyAdminDocumentCatalog";
 import { supabase } from "@/lib/supabase";
 import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
+import { navigateToMypageWithResultToken } from "@/lib/restoreCheckLead";
 import {
   ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
   ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
 } from "@/lib/adminVerifyProfiling";
-
-const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY = "vfbcai_admin_verify_phase2_snapshot";
+import { getVerifyPhase2HandoffConfig } from "@/lib/verifyMasterPhase2Handoff";
+import type { VerifyServiceType } from "@/lib/restoreVerifyLead";
+import { REAL_ESTATE_PHASE2_DOCUMENT_LISTS } from "@/lib/contentPacks/realEstate/phase2Documents";
+import { buildRealEstatePackPhase2PersistMeta } from "@/lib/contentPacks/realEstate/packPhase2Persist";
+import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
 type DocInputMode = "upload" | "manual";
@@ -302,9 +306,9 @@ const MODE_COPY: Record<
     badgeLabel: "2차 상세 자료",
     heading: "2차 검토에 필요한 자료를 제출해주세요",
     description:
-      "현재 가지고 있는 행정·관련 자료를 제출해 주세요. 자료가 없어도 2차 종합 결과로 진행할 수 있습니다.",
-    submitLabel: "제출하고 2차 결과 보기",
-    submitCaption: "제출한 자료는 2차 종합 결과 검토에 활용됩니다.",
+      "현재 가지고 있는 행정·관련 자료를 제출해 주세요. 자료가 없어도 종합 결과를 볼 수 있습니다.",
+    submitLabel: "종합 결과 보기",
+    submitCaption: "제출한 자료는 종합 결과 검토에 활용됩니다.",
     successTitle: "2차 자료 제출이 완료되었습니다",
     successBody: "2차 종합 결과 화면으로 이동합니다.",
   },
@@ -766,6 +770,8 @@ function DocumentUploadContent() {
   }, [isCompanyService, investorType, rawServiceParam]);
 
   const isVerifyAdmin = serviceParam === "verify_admin";
+  const isVerifyRealEstatePack = serviceParam === "verify_real-estate";
+  const packCaseParam = params.get("packCase");
   const [verifyAdminAuthorityDemand, setVerifyAdminAuthorityDemand] = useState<string | null>(
     null,
   );
@@ -781,9 +787,20 @@ function DocumentUploadContent() {
         optionalDocuments: verifyAdminLists.optionalDocuments,
       };
     }
+    if (isVerifyRealEstatePack && mode === "phase2_upload" && packCaseParam) {
+      const fromPack = REAL_ESTATE_PHASE2_DOCUMENT_LISTS[packCaseParam];
+      if (fromPack) {
+        const base = getRequiredDocuments(serviceParam, "ai_report");
+        return {
+          ...base,
+          documents: fromPack.documents,
+          optionalDocuments: fromPack.optionalDocuments,
+        };
+      }
+    }
     const docListMode = mode === "phase2_upload" ? "ai_report" : mode;
     return getRequiredDocuments(serviceParam, docListMode);
-  }, [isVerifyAdmin, serviceParam, mode, verifyAdminAuthorityDemand]);
+  }, [isVerifyAdmin, isVerifyRealEstatePack, packCaseParam, serviceParam, mode, verifyAdminAuthorityDemand]);
 
   const requiredLabels = useMemo(() => config.documents, [config]);
   const optionalLabels = useMemo(() => config.optionalDocuments ?? [], [config]);
@@ -799,7 +816,7 @@ function DocumentUploadContent() {
       return {
         description:
           "2차 질문에서 확인한 내용을 바탕으로, 추가로 제출할 수 있는 자료를 정리했습니다.",
-        progressNote: "우선 제출 자료 진행률 · 자료가 없어도 2차 결과로 진행할 수 있습니다.",
+        progressNote: "우선 제출 자료 진행률 · 자료가 없어도 종합 결과를 볼 수 있습니다.",
         listGuidance:
           "모든 자료가 있는 것은 아닙니다. 현재 가지고 있는 자료만 제출해 주세요.",
       };
@@ -880,12 +897,7 @@ function DocumentUploadContent() {
   const readyCount = requiredDocs.filter(isDocReady).length;
   const totalCount = requiredDocs.length;
   const progressPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
-  const primarySubmitLabel =
-    mode === "phase2_upload"
-      ? readyCount > 0
-        ? "제출하고 2차 결과 보기"
-        : "2차 종합 결과보기"
-      : copy.submitLabel;
+  const primarySubmitLabel = mode === "phase2_upload" ? "종합 결과 보기" : copy.submitLabel;
 
   // 마지막 순번에 추가되는 선택 자료 카드 — docs 배열/진행률(우선 제출) 계산에는 포함하지 않는다.
 
@@ -1337,28 +1349,66 @@ function DocumentUploadContent() {
   async function completePhase2UploadAndReturn(): Promise<boolean> {
     if (!leadId) return false;
     const anyUploaded = readyCount > 0;
-    const result = await persistAdminVerifyLeadMeta(leadId, {
+    const handoffService = (serviceParam ?? "verify_admin") as VerifyServiceType;
+    const handoffCfg = getVerifyPhase2HandoffConfig(handoffService);
+    const snapshotKey = handoffCfg?.snapshotStorageKey;
+
+    let snapshotParsed: Record<string, unknown> | null = null;
+    let snapshotAnswers: AnswerMap | null = null;
+    try {
+      const raw = snapshotKey ? sessionStorage.getItem(snapshotKey) : null;
+      if (raw) {
+        snapshotParsed = JSON.parse(raw) as Record<string, unknown>;
+        const answers = snapshotParsed.answers;
+        if (answers && typeof answers === "object" && !Array.isArray(answers)) {
+          snapshotAnswers = answers as AnswerMap;
+        }
+      }
+    } catch {
+      snapshotParsed = null;
+      snapshotAnswers = null;
+    }
+
+    const uploadGateMeta: Record<string, string> = {
       [ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY]: "1",
       [ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY]: anyUploaded ? "1" : "0",
-    });
+    };
+    const partialMeta =
+      handoffService === "verify_real-estate" &&
+      snapshotAnswers &&
+      Object.keys(snapshotAnswers).length > 0
+        ? {
+            ...buildRealEstatePackPhase2PersistMeta(snapshotAnswers, 2),
+            ...uploadGateMeta,
+          }
+        : uploadGateMeta;
+
+    const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {
       console.error("[documents] phase2_upload meta persist failed:", result);
       return false;
     }
     try {
-      const raw = sessionStorage.getItem(ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Record<string, unknown>;
-        parsed.anyUploaded = anyUploaded;
-        sessionStorage.setItem(
-          ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY,
-          JSON.stringify(parsed),
-        );
+      if (snapshotParsed && snapshotKey) {
+        snapshotParsed.anyUploaded = anyUploaded;
+        sessionStorage.setItem(snapshotKey, JSON.stringify(snapshotParsed));
+        const token =
+          typeof snapshotParsed.resultToken === "string" && snapshotParsed.resultToken.trim()
+            ? snapshotParsed.resultToken.trim()
+            : null;
+        const navigated = await navigateToMypageWithResultToken(token);
+        if (!navigated) {
+          window.location.href = "/mypage";
+        }
+        return true;
       }
     } catch {
       /* ignore */
     }
-    window.location.href = "/verify/admin?phase2_upload_return=1";
+    const navigated = await navigateToMypageWithResultToken(null);
+    if (!navigated) {
+      window.location.href = "/mypage";
+    }
     return true;
   }
 

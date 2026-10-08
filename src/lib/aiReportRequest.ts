@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { shouldSendAiReportConfirmEmail } from "@/lib/adminVerifyMypageFields";
 
 const CRM_AI_REPORT_REQUEST_ACTION = "ai_report_request";
 
@@ -44,6 +45,10 @@ async function recordAiReportRequestAndNotifyAsync(params: {
     if (insertErr) {
       console.error("ai_report_request insert failed:", insertErr);
     }
+  }
+
+  if (!shouldSendAiReportConfirmEmail(tag, Boolean(existing))) {
+    return;
   }
 
   try {

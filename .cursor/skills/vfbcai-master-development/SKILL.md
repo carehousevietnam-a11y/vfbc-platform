@@ -166,7 +166,29 @@ Mission 완료 = 아래 **범위 내** 실제 검증 후에만:
 19. **DQ-C05-05 `confirmGoal` DI** — MASTER 1차 전 필드에 `ADMIN_DIRECT_EXPLAIN_CHOICE` 필수. `goalValue`/Profile `case05_confirmGoal`에 DI note 경로 연결 (`getCase05FieldLabelFromAnswers`). Browser LEVEL 3: `tests/qa/case05-phase1-di-browser.mjs` — `confirmGoal_DI`.
 20. **DQ-C05-06 Phase1 5+DI + legacy** — SoT `docs/master/VFBCAI_CASE05_PHASE1_REDESIGN_v1.md`. UI: `rights_ended` · `disposition_unclear` 등 canonical slug; `license_revoked`/`registration_cancelled`/`reason_hard_to_understand`/`unclear`/`understand_effective`/`other_method`/`past_possible` 등 **persist·fixture·signals**는 `case05Effective*` · `CASE05_OPTION_LABELS`로 회귀 없음. Browser LEVEL 3: 동일 스크립트 — `dispositionType_DI`.
 
-다음 Mission **Architect 사전 검사**: 위 cross-domain 1–6 + 해당 CASE LOCK 블록(7–11 / 12–17 / 18–20) + Canonical Funnel 12단계 순서 위반 여부.
+#### verify_admin VERIFY MASTER — PDF · Mypage · LOCK (2026-10, cross-domain)
+
+**Master**: `verify_admin` only. Other VERIFY/CHECK services **port from this baseline** (see replication rules 28–34 below). **LOCK** — product changes require new Mission + Ace approval.
+
+21. **Client bundle / server-only imports (H-1, `ed7b7b7`)** — Any `src/lib` module imported by `"use client"` pages (e.g. `adminVerifyMypageFields.ts`) must **not** value-import `fs`, `path`, `pdf-lib`, `@pdf-lib/fontkit`, or PDF font measurement tied to Node. `tsc` and Node QA alone do **not** catch client bundle leaks — **`next build` + browser** required.
+22. **Customer-visible copy from customer input (F-18c, `6ced304`/`365f401`)** — PDF/mypage customer strings derive from **answers / case_resolution / profile fields**. No fixed institution or document-type boilerplate (e.g. generic “교통국·…” labels) unless mapped from confirmed input.
+23. **Free vs paid PDF separation (F-18d, `08cade8`/`5106585`+)** — Free and paid AI report PDFs are **separate pipelines and copy sets**. Free PDF has **no phase-2 body block**; paid includes phase-2 evidence budget (`G-1`–`G-5`).
+24. **PDF verification method (G-3–G-5, `2ead7ad`–`aa257a6`)** — Validate with **real PDF bytes** (render or `pdftotext`/QA harness). Do not trust pdf.js text alone (`:` vs `-` corruption). Paid verify_admin: **1 page**, no ellipsis (`…`), **7-line EVIDENCE budget**, include **whole items only** (G-4/G-5 ordering).
+25. **Mypage state vs payment (H-2, investigation 2026-10)** — Expert mypage layout, **`admin_phase2_documents_upload_complete` (phase2Complete)**, and **payment completed** are **three different states**. **No payment system** in product yet; paid PDF gate today is **phase2 complete**, not money — document before production open.
+26. **Access gates UI + server (H-3, `1d93ab4`)** — Expert-page AI PDF while phase2 incomplete: **UI gate** (`shouldGateVerifyAdminExpertPageAiReportPdf`) **and** **`POST /api/mypage-pdf` 403** with `VERIFY_ADMIN_EXPERT_PHASE2_PDF_GATE_ERROR_MESSAGE`. Never UI-only.
+27. **Mypage facts only — no fabricated UX (H-9, `3f49192`)** — Expert-flow status, StepProgress dates, timeline, and notifications show **recorded facts** (`crm_activities` / `activityLog` / lead `created_at` where defined). **Ban**: fixed sample notifications, fake step dates (`07.29 …`), copying lead `created_at` for expert events, ungrounded “검토 중” promises. **Copy**: Ace-approved constants only (`VERIFY_ADMIN_EXPERT_PHASE2_INCOMPLETE_STATUS_GUIDE`, `VERIFY_ADMIN_EXPERT_REQUEST_TIMELINE_LABEL`, `VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY`, etc. in `adminVerifyMypageFields.ts`).
+28. **Verification discipline (H-5–H-10)** — Use **real test leads** + Playwright/magiclink browser checks; unverified items → **NOT VERIFIED**. Do **not** commit `tests/qa/_*.mjs` scratch scripts or `tests/qa/_output/**`. **No out-of-scope file edits**; **do not delete/mutate test leads**.
+
+#### verify_admin MASTER → other services replication (LOCK governance, H-10)
+
+29. **Single master** — `verify_admin` is the **only** VERIFY MASTER implementation locked in 2026-10. Other services must **converge** to this baseline, not diverge ad hoc.
+30. **One service per Mission** — Port **one service at a time**. When touching shared files, guard with **`serviceType === "verify_admin"`** (or equivalent) so **locked admin behavior does not regress**.
+31. **Before/after golden** — Save **golden PDF + mypage captures** before port; diff after. If **verify_admin** or **untouched** service PDF/UI changes → **commit/mission FAIL**.
+32. **What copies vs what varies** — **Copy structure**: PDF pipeline, 1-page/7-line budget, free/paid split, phase2 **UI+API** gate, mypage “facts only” rules. **Vary per service**: questions, CASE branches, Ace-approved **wording and content** only.
+33. **Per-service verification bar** — Each port: `tsc`, `node tests/qa/admin-verify-2step-result.mjs` (or service harness), `next build`, **real-lead browser** 375+1280, **real PDF** inspection. Failures → NOT VERIFIED, not silent PASS.
+34. **Copy authority** — Customer-facing strings: **Ace confirms**; agents do **not** invent new marketing or status promises.
+
+다음 Mission **Architect 사전 검사**: 위 cross-domain 1–6 + 해당 CASE LOCK 블록(7–11 / 12–17 / 18–20) + **verify_admin 21–34** + Canonical Funnel 12단계 순서 위반 여부.
 
 **CASE LOCK 시 Governance (필수)**: Ace LOCK 승인 전에 교훈이 **본 섹션에 반영**되고 `git`에 **커밋**되었는지 확인 (`docs/master/*_LOCK_DECISION_LOG*` 체크리스트 · `VFBCAI_CASE_AUDIT_CHECKLIST_v1` LOCK 항목). 미반영·미커밋이면 LOCK 불완료.
 

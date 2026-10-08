@@ -527,3 +527,27 @@ export async function ensureBrowserSessionForResultToken(
   if (!resultToken) return false;
   return establishBrowserSessionFromResultToken(resultToken, expectedUserId);
 }
+
+/** handleFreeAiSummaryNavigate와 동일: 세션 있으면 /mypage, 없으면 resultToken auto-login. */
+export async function navigateToMypageWithResultToken(
+  resultToken: string | null | undefined,
+): Promise<boolean> {
+  const hasSession = await ensureBrowserSessionForResultToken(resultToken);
+  if (hasSession) {
+    window.location.href = "/mypage";
+    return true;
+  }
+  if (!resultToken) return false;
+  const res = await fetch("/api/auto-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: resultToken, next: "mypage" }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data?.actionLink) {
+    console.error("auto-login failed:", data);
+    return false;
+  }
+  window.location.href = data.actionLink;
+  return true;
+}

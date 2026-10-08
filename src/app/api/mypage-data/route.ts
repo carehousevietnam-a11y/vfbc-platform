@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  buildAdminPhase1SummaryLinesFromActivities,
+  buildAdminPhase2SummaryLinesFromActivities,
+  isAdminPhase2DocumentsUploadComplete,
+  listAdminPhase2DocumentUploadRefs,
+} from "@/lib/adminVerifyMypageFields";
+import {
+  buildRealEstatePhase2SummaryLinesFromActivities,
+  buildRealEstateVerifyMypagePackExtras,
+} from "@/lib/contentPacks/realEstate/realEstatePackMypageFields";
+import { REAL_ESTATE_PACK_HEADLINE_META_KEY } from "@/lib/contentPacks/realEstate/packPhase2Persist";
+import { ADMIN_VERIFY_PROFILE_PHASE_META_KEY } from "@/lib/adminVerifyProfiling";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
 //
@@ -82,6 +94,7 @@ function getServiceLabel(serviceType: string): string {
 type ActivityRow = {
   lead_id: string;
   action: string | null;
+  tag?: string | null;
   meta: unknown;
   created_at: string;
 };
@@ -169,8 +182,8 @@ function buildStageInfo(
       { label: "전문가 안내 대기", done: done[3] },
     ];
     const doneCount = done.filter(Boolean).length;
-    const idx = Math.min(doneCount, steps.length - 1);
-    let currentStepLabel = steps[idx]?.label ?? steps[0].label;
+    const currentIdx = Math.max(0, Math.min(doneCount - 1, steps.length - 1));
+    let currentStepLabel = steps[currentIdx]?.label ?? steps[0].label;
     if (hasAiReportRequest && !hasExpertReview && done[1] && !done[2]) {
       currentStepLabel = "AI 리포트 확인";
     }
@@ -255,25 +268,33 @@ function extractVerifyCaseSummary(
       const meta = asMeta(leadActivities[i]?.meta);
       if (!meta) continue;
       if (meta[REAL_ESTATE_VERIFY_PROFILE_PHASE_META_KEY] === "2") verifyProfilePhase = 2;
+      if (meta[ADMIN_VERIFY_PROFILE_PHASE_META_KEY] === "2") verifyProfilePhase = 2;
       const phase2 = meta[REAL_ESTATE_PHASE2_ANSWERS_META_JSON_KEY];
       if (typeof phase2 === "string" && phase2.trim() && phase2.trim() !== "{}") {
         verifyProfilePhase = 2;
       }
     }
-    const profileRaw = findLatestMetaString(leadActivities, REAL_ESTATE_SITUATION_META_JSON_KEY);
-    if (profileRaw) {
-      try {
-        const profile = JSON.parse(profileRaw) as Record<string, unknown>;
-        caseSummaryHeadline =
-          profileFieldValue(profile.risk) ??
-          profileFieldValue(profile.goal) ??
-          profileFieldValue(profile.claims);
-        for (const key of ["property", "goal", "documents"] as const) {
-          const val = profileFieldValue(profile[key]);
-          if (val) caseSummaryBullets.push(val);
+    const packHeadline = findLatestMetaString(leadActivities, REAL_ESTATE_PACK_HEADLINE_META_KEY);
+    if (packHeadline) {
+      caseSummaryHeadline = packHeadline;
+      const phase2Lines = buildRealEstatePhase2SummaryLinesFromActivities(leadActivities);
+      caseSummaryBullets.push(...phase2Lines.slice(0, 2));
+    } else {
+      const profileRaw = findLatestMetaString(leadActivities, REAL_ESTATE_SITUATION_META_JSON_KEY);
+      if (profileRaw) {
+        try {
+          const profile = JSON.parse(profileRaw) as Record<string, unknown>;
+          caseSummaryHeadline =
+            profileFieldValue(profile.risk) ??
+            profileFieldValue(profile.goal) ??
+            profileFieldValue(profile.claims);
+          for (const key of ["property", "goal", "documents"] as const) {
+            const val = profileFieldValue(profile[key]);
+            if (val) caseSummaryBullets.push(val);
+          }
+        } catch {
+          /* ignore malformed profile */
         }
-      } catch {
-        /* ignore malformed profile */
       }
     }
   } else if (typeKey === "verify_admin") {
@@ -386,7 +407,7 @@ export async function POST(req: NextRequest) {
       for (let from = 0; ; from += ACTIVITY_PAGE_SIZE) {
         const { data: pageRows, error: activitiesError } = await supabaseAdmin
           .from("crm_activities")
-          .select("lead_id, action, meta, created_at")
+          .select("lead_id, action, tag, meta, created_at")
           .in("lead_id", chunk)
           .order("created_at", { ascending: true })
           .range(from, from + ACTIVITY_PAGE_SIZE - 1);
@@ -509,6 +530,50 @@ export async function POST(req: NextRequest) {
       const hasAiReportRequest = actions.has("ai_report_request");
       const caseSummary = extractVerifyCaseSummary(normalizedType, leadActivities);
 
+      const rePackMypageExtras =
+        normalizedType === "verify_real-estate"
+          ? buildRealEstateVerifyMypagePackExtras(leadActivities)
+          : null;
+
+      const adminVerifyExtras =
+        normalizedType === "verify_admin"
+          ? {
+              phase2Complete: isAdminPhase2DocumentsUploadComplete(leadActivities),
+              phase2SummaryLines: buildAdminPhase2SummaryLinesFromActivities(leadActivities),
+              ...(isAdminPhase2DocumentsUploadComplete(leadActivities)
+                ? {
+                    phase1SummaryLines:
+                      buildAdminPhase1SummaryLinesFromActivities(leadActivities),
+                  }
+                : {}),
+            }
+          : rePackMypageExtras ?? {};
+
+      let phase2UploadedDocuments:
+        | { fileName: string; fileUrl: string }[]
+        | undefined;
+      if (
+        (normalizedType === "verify_admin" || normalizedType === "verify_real-estate") &&
+        "phase2Complete" in adminVerifyExtras &&
+        adminVerifyExtras.phase2Complete
+      ) {
+        const refs = listAdminPhase2DocumentUploadRefs(leadActivities, lead.id);
+        const signed: { fileName: string; fileUrl: string }[] = [];
+        for (const ref of refs) {
+          try {
+            const { data: signedData, error: signedError } = await supabaseAdmin.storage
+              .from("documents")
+              .createSignedUrl(ref.storagePath, 3600);
+            if (!signedError && signedData?.signedUrl) {
+              signed.push({ fileName: ref.fileName, fileUrl: signedData.signedUrl });
+            }
+          } catch (err) {
+            console.error("mypage-data admin phase2 upload Signed URL failed:", err);
+          }
+        }
+        if (signed.length > 0) phase2UploadedDocuments = signed;
+      }
+
       const stage = buildStageInfo(
         category,
         hasDiagnosis,
@@ -569,6 +634,8 @@ export async function POST(req: NextRequest) {
         createdAt: lead.created_at,
         hasAiReportRequest,
         ...caseSummary,
+        ...adminVerifyExtras,
+        ...(phase2UploadedDocuments ? { phase2UploadedDocuments } : {}),
       };
       })
     );

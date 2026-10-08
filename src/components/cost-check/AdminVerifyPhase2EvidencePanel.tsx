@@ -8,6 +8,7 @@ import {
   VerifyStep4InputStack,
 } from "@/components/ui/verifyStep4Ui";
 import { cn } from "@/lib/cn";
+import type { VerifyMasterEvidenceContentSlots } from "@/lib/verifyMasterContentSlots";
 
 const PHASE1_EXAMPLE_TAGS = [
   "공문/통지서",
@@ -29,6 +30,13 @@ type AdminVerifyPhase2EvidencePanelProps = {
   /** Phase1 pre-signup vs Phase2 post-signup badge/copy — default Phase2 (unchanged). */
   evidenceTier?: VerifySimpleEvidenceTier;
   domain?: "admin" | "real-estate";
+  /** Pack 예시 칩 — 미지정 시 행정 VERIFY 기본 목록 */
+  exampleTags?: readonly string[];
+  /** 서비스 중립 내용 슬롯 — 미지정 시 Admin 기본값 */
+  contentSlots?: VerifyMasterEvidenceContentSlots;
+  /** Phase1 Storage 업로드 실패 안내(부동산 1차만) */
+  attachStorageError?: string | null;
+  onAttachStorageRetry?: () => void;
 };
 
 const EVIDENCE_TIER_COPY: Record<
@@ -84,10 +92,22 @@ export function AdminVerifyPhase2EvidencePanel({
   className,
   evidenceTier = "phase2",
   domain = "admin",
+  exampleTags,
+  contentSlots,
+  attachStorageError,
+  onAttachStorageRetry,
 }: AdminVerifyPhase2EvidencePanelProps) {
   const tierCopy = EVIDENCE_TIER_COPY[evidenceTier];
-  const detailNote = tierCopy.detailNote[domain];
-  const footerNote = tierCopy.footerNote[domain];
+  const detailNote =
+    contentSlots?.detailNoteByTier?.[evidenceTier] ?? tierCopy.detailNote[domain];
+  const footerNote =
+    contentSlots?.footerNoteByTier?.[evidenceTier] ?? tierCopy.footerNote[domain];
+  const tagList =
+    contentSlots?.exampleTags?.length
+      ? contentSlots.exampleTags
+      : exampleTags?.length
+        ? exampleTags
+        : PHASE1_EXAMPLE_TAGS;
 
   return (
     <section
@@ -114,7 +134,7 @@ export function AdminVerifyPhase2EvidencePanel({
       </p>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {PHASE1_EXAMPLE_TAGS.map((example) => (
+        {tagList.map((example) => (
           <span
             key={example}
             className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600"
@@ -173,6 +193,22 @@ export function AdminVerifyPhase2EvidencePanel({
         <p className="mt-2 break-keep text-[11px] leading-[1.55] text-slate-400">
           {footerNote}
         </p>
+        {attachStorageError ? (
+          <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+            <p className="break-keep text-[12px] font-medium leading-snug text-red-800">
+              {attachStorageError}
+            </p>
+            {onAttachStorageRetry ? (
+              <button
+                type="button"
+                onClick={onAttachStorageRetry}
+                className="mt-2 text-[12px] font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
+              >
+                다시 시도
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </VerifyStep4InputStack>
 
       <div className="mt-5 flex flex-wrap justify-start gap-2">

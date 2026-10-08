@@ -30,6 +30,10 @@ import {
 } from "@/components/ui/selectionInteraction";
 import type { MasterLandingConfig } from "@/components/cost-check/MasterFunnelLanding";
 import { cn } from "@/lib/cn";
+import {
+  type VerifyMasterPackBridge,
+  getPackVerifyStitchProgress,
+} from "@/lib/verifyMasterPackBridge";
 import { CompanySummarySidebar } from "@/components/cost-check/CompanySummarySidebar";
 import { DrivingSummarySidebar } from "@/components/cost-check/DrivingSummarySidebar";
 import { RegisterSummarySidebar } from "@/components/cost-check/RegisterSummarySidebar";
@@ -1190,6 +1194,14 @@ function isQuestionAnswered(question: ReviewQuestion, answers: ReviewAnswers): b
   if (question.id === ADMIN_CASE_ENTRY_Q1_KEY) {
     return isAdminCaseEntryQ1Complete(answers);
   }
+  if (question.id === "re_entry") {
+    const value = answers.re_entry?.trim() ?? "";
+    if (!value) return false;
+    if (value === "other") {
+      return (answers.re_entryNote?.trim().length ?? 0) > 0;
+    }
+    return true;
+  }
   if (question.kind === "choice" && question.id.startsWith("re2_")) {
     const value = answers[question.id]?.trim() ?? "";
     if (value) return true;
@@ -1436,6 +1448,20 @@ function formatCollapsedAnswerLabel(
     const adminDeadlineLabel = ADMIN_DEADLINE_CHECK_OPTIONS.find((opt) => opt.value === value)?.title;
     if (adminDeadlineLabel) return adminDeadlineLabel;
   }
+  if (question.kind === "choice" && question.id === "re_entry") {
+    if (value === "other") {
+      const note = answers.re_entryNote?.trim() ?? "";
+      return note.length > 48 ? `${note.slice(0, 45)}…` : note || ADMIN_DIRECT_EXPLAIN_LABEL;
+    }
+    return formatAnswerLabel(question, value);
+  }
+  if (question.kind === "choice" && /^re\d{2}_/.test(question.id)) {
+    if (value === "other") {
+      const note = answers[getAdminChoiceNoteKey(question.id)]?.trim() ?? "";
+      return note.length > 48 ? `${note.slice(0, 45)}…` : note || ADMIN_DIRECT_EXPLAIN_LABEL;
+    }
+    return formatAnswerLabel(question, value);
+  }
   if (question.kind === "choice" && question.id.startsWith("re2_")) {
     const detailKey = RE2_PHASE2_DIRECT_EXPLAIN_CHOICE_TO_DETAIL[question.id];
     if (detailKey) {
@@ -1453,7 +1479,7 @@ function formatCollapsedAnswerLabel(
     }
     return label;
   }
-  if (question.kind === "choice" && question.id.startsWith("re_")) {
+  if (question.kind === "choice" && question.id.startsWith("re_") && question.id !== "re_entry") {
     const detailKey = RE_PHASE1_DIRECT_EXPLAIN_CHOICE_TO_DETAIL[question.id];
     if (detailKey) {
       const note = answers[detailKey]?.trim() ?? "";
@@ -1814,6 +1840,9 @@ export type AdminVerifyMasterGateProps = {
   adminVerifyExpertError?: string | null;
   /** Phase 1 STOP 후 표시할 회원가입 UI (VerifyAdminLeadCapture 등) */
   adminVerifyLeadCaptureSlot?: ReactNode;
+  /** Pack 부동산 1차 Storage 업로드 실패 안내 */
+  adminVerifyPhase1AttachStorageError?: string | null;
+  onAdminVerifyPhase1AttachStorageRetry?: () => void;
 };
 
 /** 2차 개인화 검토 안내 박스 (행정문서·부동산 공용 표시) */
@@ -1862,6 +1891,8 @@ export function MasterReviewQuotationReport({
   adminVerifyAiReportError = null,
   adminVerifyExpertError = null,
   adminVerifyLeadCaptureSlot,
+  adminVerifyPhase1AttachStorageError = null,
+  onAdminVerifyPhase1AttachStorageRetry,
   realEstateVerifySkipSignup = false,
   realEstateVerifySignupComplete = false,
   realEstateVerifyPhase1EvidenceComplete = false,
@@ -1880,6 +1911,7 @@ export function MasterReviewQuotationReport({
   realEstateVerifyExpertError = null,
   onRealEstateVerifyDirect,
   verifyMasterSeedAnswers,
+  verifyMasterPackBridge,
 }: {
   service: CostCheckService;
   config: MasterLandingConfig;
@@ -1913,6 +1945,8 @@ export function MasterReviewQuotationReport({
   adminVerifyAiReportError?: string | null;
   adminVerifyExpertError?: string | null;
   adminVerifyLeadCaptureSlot?: ReactNode;
+  adminVerifyPhase1AttachStorageError?: string | null;
+  onAdminVerifyPhase1AttachStorageRetry?: () => void;
   realEstateVerifySkipSignup?: boolean;
   realEstateVerifySignupComplete?: boolean;
   realEstateVerifyPhase1EvidenceComplete?: boolean;
@@ -1936,6 +1970,7 @@ export function MasterReviewQuotationReport({
   realEstateVerifyAiReportError?: string | null;
   realEstateVerifyExpertError?: string | null;
   onRealEstateVerifyDirect?: () => void;
+  verifyMasterPackBridge?: VerifyMasterPackBridge;
 }) {
   const hasMarket =
     config.engine === "verify" ? false : hasMarketPriceData(service);
@@ -2072,6 +2107,12 @@ export function MasterReviewQuotationReport({
 
   const questions = useMemo(() => {
     const base = buildReviewQuestions(service, hasMarket);
+    if (verifyMasterPackBridge && config.engine === "verify" && !hasMarket) {
+      return verifyMasterPackBridge.buildReviewQuestions(
+        answers,
+        adminVerifyProfilePhase,
+      ) as ReviewQuestion[];
+    }
     if (service.id === "admin" && !hasMarket) {
       return buildAdminVerifyProfileQuestions(
         answers,
@@ -2084,18 +2125,36 @@ export function MasterReviewQuotationReport({
         adminVerifyProfilePhase,
       ).map(profileQuestionToReview);
     }
-    if (service.id === "real-estate" && config.engine === "verify" && !hasMarket) {
+    if (
+      service.id === "real-estate" &&
+      config.engine === "verify" &&
+      !hasMarket &&
+      !verifyMasterPackBridge
+    ) {
       return buildRealEstateVerifyProfileQuestions(answers).map(profileQuestionToReview);
     }
     return base;
-  }, [service, hasMarket, answers, adminVerifyProfilePhase, config.engine]);
+  }, [
+    service,
+    hasMarket,
+    answers,
+    adminVerifyProfilePhase,
+    config.engine,
+    verifyMasterPackBridge,
+  ]);
 
+  const isPackVerifyStitchLayout =
+    Boolean(verifyMasterPackBridge) && config.engine === "verify" && !hasMarket;
   const isAdminVerifyStitchLayout =
     service.id === "admin" && config.engine === "verify" && !hasMarket;
   const isRealEstateVerifyMasterLayout =
-    service.id === "real-estate" && config.engine === "verify" && !hasMarket;
+    !verifyMasterPackBridge &&
+    service.id === "real-estate" &&
+    config.engine === "verify" &&
+    !hasMarket;
+  const isVerifyAdminChainLayout = isAdminVerifyStitchLayout || isPackVerifyStitchLayout;
   const isVerifyMasterStitchLayout =
-    isAdminVerifyStitchLayout || isRealEstateVerifyMasterLayout;
+    isVerifyAdminChainLayout || isRealEstateVerifyMasterLayout;
 
   const adminVerifyPhase1Questions = useMemo(() => {
     if (!isAdminVerifyStitchLayout) return [];
@@ -2181,16 +2240,27 @@ export function MasterReviewQuotationReport({
     isRealEstateVerifyMasterLayout &&
     realEstateVerifyProfilePhase === 2 &&
     !realEstatePhase2QuestionsComplete;
+  const isPackVerifyPhase2QuestionFlow =
+    isPackVerifyStitchLayout &&
+    adminVerifyProfilePhase === 2 &&
+    !verifyMasterPackBridge?.isPhase2QuestionSetComplete(answers);
+  const packPhase2IncompleteIndex = isPackVerifyPhase2QuestionFlow
+    ? questions.findIndex((q) => !isQuestionAnswered(q, answers))
+    : -1;
   const verifyQuestionFlowQuestions = isAdminVerifyPhase2QuestionFlow
     ? adminVerifyPhase2OnlyQuestions
-    : isRealEstateVerifyMasterLayout && realEstateVerifyProfilePhase === 2
-      ? realEstatePhase2Questions
-      : questions;
+    : isPackVerifyPhase2QuestionFlow
+      ? questions
+      : isRealEstateVerifyMasterLayout && realEstateVerifyProfilePhase === 2
+        ? realEstatePhase2Questions
+        : questions;
   const verifyQuestionFlowFirstIncompleteIndex = isAdminVerifyPhase2QuestionFlow
     ? phase2OnlyIncompleteIndex
-    : isRealEstateVerifyMasterLayout && realEstateVerifyProfilePhase === 2
-      ? realEstatePhase2IncompleteIndex
-      : firstIncompleteIndex;
+    : isPackVerifyPhase2QuestionFlow
+      ? packPhase2IncompleteIndex
+      : isRealEstateVerifyMasterLayout && realEstateVerifyProfilePhase === 2
+        ? realEstatePhase2IncompleteIndex
+        : firstIncompleteIndex;
   const adminVerifyQuestionFlowQuestions = verifyQuestionFlowQuestions;
   const adminVerifyQuestionFlowFirstIncompleteIndex = verifyQuestionFlowFirstIncompleteIndex;
   const activeQuestionIndex =
@@ -2198,6 +2268,12 @@ export function MasterReviewQuotationReport({
       ? adminVerifyQuestionFlowQuestions.findIndex((q) => q.id === editingId)
       : adminVerifyQuestionFlowFirstIncompleteIndex;
   const stitchProgress = useMemo(() => {
+    if (isPackVerifyStitchLayout) {
+      return getPackVerifyStitchProgress(
+        verifyMasterPackBridge!.buildReviewQuestions(answers, adminVerifyProfilePhase),
+        activeQuestionIndex >= 0 ? activeQuestionIndex : 0,
+      );
+    }
     if (isRealEstateVerifyMasterLayout && realEstateVerifyProfilePhase === 2) {
       const answeredCount = Object.keys(extractRealEstatePhase2Answers(answers)).length;
       const remaining = Math.max(realEstatePhase2Questions.length, 1);
@@ -2231,6 +2307,8 @@ export function MasterReviewQuotationReport({
     realEstatePhase2Questions.length,
     realEstatePhase2IncompleteIndex,
     questions.length,
+    isPackVerifyStitchLayout,
+    verifyMasterPackBridge,
   ]);
   const activeStepNumber = Math.max(1, stitchProgress.current);
   const stitchProgressTotal = Math.max(1, stitchProgress.total);
@@ -2243,7 +2321,9 @@ export function MasterReviewQuotationReport({
     classifiedQ1Case === "CASE_05" ||
     classifiedQ1Case === "CASE_06";
   const adminVerifyPhase1Complete =
-    isAdminVerifyStitchLayout && isAdminVerifyPhase1Complete(answers);
+    (isAdminVerifyStitchLayout && isAdminVerifyPhase1Complete(answers)) ||
+    (isPackVerifyStitchLayout &&
+      Boolean(verifyMasterPackBridge?.isPhase1Complete(answers)));
   const adminVerifyPhase2QuestionsOnlyComplete =
     isAdminVerifyStitchLayout &&
     adminVerifyProfilePhase === 2 &&
@@ -2251,23 +2331,39 @@ export function MasterReviewQuotationReport({
     isClassifiedAdminVerifyCase &&
     phase2OnlyIncompleteIndex === -1 &&
     isAdminVerifyPhase2PathComplete(answers);
-  const isAdminVerifyAwaitingPhase2Documents =
-    isAdminVerifyStitchLayout &&
+  const packVerifyPhase2QuestionsComplete =
+    isPackVerifyStitchLayout &&
+    adminVerifyProfilePhase === 2 &&
+    Boolean(verifyMasterPackBridge?.isPhase2QuestionSetComplete(answers));
+  const packVerifyAwaitingPhase2Documents =
+    isPackVerifyStitchLayout &&
     adminVerifyProfilePhase === 2 &&
     adminVerifySignupComplete &&
-    adminVerifyPhase2QuestionsOnlyComplete &&
+    packVerifyPhase2QuestionsComplete &&
     !adminVerifyPhase2UploadComplete;
+  const isAdminVerifyAwaitingPhase2Documents =
+    (isAdminVerifyStitchLayout &&
+      adminVerifyProfilePhase === 2 &&
+      adminVerifySignupComplete &&
+      adminVerifyPhase2QuestionsOnlyComplete &&
+      !adminVerifyPhase2UploadComplete) ||
+    packVerifyAwaitingPhase2Documents;
   const adminVerifyPhase2QuestionsComplete =
     adminVerifyPhase2QuestionsOnlyComplete && adminVerifyPhase2UploadComplete;
+  const packVerifyPhase2GateComplete =
+    packVerifyPhase2QuestionsComplete && adminVerifyPhase2UploadComplete;
+  const verifyAdminChainPhase2QuestionsComplete = isAdminVerifyStitchLayout
+    ? adminVerifyPhase2QuestionsComplete
+    : packVerifyPhase2GateComplete;
   const adminPhase1EvidenceComplete =
     adminPhase1EvidenceDone || adminVerifyPhase1EvidenceComplete;
   const adminPhase1Stop =
-    isAdminVerifyStitchLayout &&
+    isVerifyAdminChainLayout &&
     (adminVerifyPhase1Complete ||
       adminPhase1EvidenceComplete ||
       adminPhase1TerminalReached);
   const isAdminAwaitingPhase1Evidence =
-    isAdminVerifyStitchLayout &&
+    isVerifyAdminChainLayout &&
     adminPhase1Stop &&
     !adminPhase1EvidenceComplete &&
     !adminVerifySignupComplete;
@@ -2325,9 +2421,9 @@ export function MasterReviewQuotationReport({
     isRealEstatePhase2QuestionFlow;
 
   const allAnswered =
-    isAdminVerifyStitchLayout
+    isVerifyAdminChainLayout
       ? adminVerifyProfilePhase === 2
-        ? adminVerifyPhase2QuestionsComplete
+        ? verifyAdminChainPhase2QuestionsComplete
         : adminPhase1Stop && adminVerifySignupComplete
       : isRealEstateVerifyMasterLayout
         ? realEstateVerifyProfilePhase === 2
@@ -2342,7 +2438,7 @@ export function MasterReviewQuotationReport({
     !adminVerifySignupComplete;
   /** 로그인 회원 — Phase1 STOP + evidence 후 submitAsMember in-flight 중에만 */
   const isAdminMemberProfilingHandoff =
-    isAdminVerifyStitchLayout &&
+    isVerifyAdminChainLayout &&
     adminPhase1Stop &&
     adminPhase1EvidenceComplete &&
     adminVerifyProfilePhase === 1 &&
@@ -2350,7 +2446,7 @@ export function MasterReviewQuotationReport({
     !adminVerifySignupComplete &&
     adminVerifyMemberSubmitting;
   const isAdminQuestionScreenSuppressed =
-    isAdminVerifyStitchLayout &&
+    isVerifyAdminChainLayout &&
     !adminVerifySignupComplete &&
     (adminPhase1Stop ||
       adminPhase1TerminalReached ||
@@ -2602,7 +2698,7 @@ export function MasterReviewQuotationReport({
     isAdminVerifyStitchLayout &&
     (getQ1ResolvedCase(answers) === "CASE_01" || Boolean(answers.case01_violationContent));
   const isAdminVerifyFirstResult =
-    isAdminVerifyStitchLayout &&
+    isVerifyAdminChainLayout &&
     adminPhase1Stop &&
     adminVerifySignupComplete &&
     adminVerifyProfilePhase === 1 &&
@@ -2617,18 +2713,34 @@ export function MasterReviewQuotationReport({
     adminVerifyProfilePhase === 2 &&
     adminVerifyPhase2QuestionsComplete &&
     adminVerifySignupComplete;
-  const isAdminVerifyPhase2Review =
-    isAdminVerifyStitchLayout &&
+  const isPackVerifyPersonalizedResult =
+    isPackVerifyStitchLayout &&
+    adminVerifyProfilePhase === 2 &&
+    adminVerifySignupComplete &&
+    packVerifyPhase2GateComplete;
+  const isVerifyPackOrAdminPersonalizedResult =
+    isAdminVerifyPersonalizedResult || isPackVerifyPersonalizedResult;
+  const isPackVerifyPhase2Review =
+    isPackVerifyStitchLayout &&
     adminVerifyProfilePhase === 2 &&
     adminPhase1Stop &&
     adminVerifySignupComplete &&
     !isAdminVerifyFirstResult &&
-    !isAdminVerifyAwaitingSignup &&
     !isAdminAwaitingPhase1Evidence &&
-    !isAdminVerifyPersonalizedResult;
+    !isPackVerifyPersonalizedResult;
+  const isAdminVerifyPhase2Review =
+    (isAdminVerifyStitchLayout &&
+      adminVerifyProfilePhase === 2 &&
+      adminPhase1Stop &&
+      adminVerifySignupComplete &&
+      !isAdminVerifyFirstResult &&
+      !isAdminVerifyAwaitingSignup &&
+      !isAdminAwaitingPhase1Evidence &&
+      !isAdminVerifyPersonalizedResult) ||
+    isPackVerifyPhase2Review;
   const adminVerifyUseStitchCards = isVerifyMasterStitchLayout;
   const hideGenericQuotationResult =
-    isAdminVerifyPersonalizedResult ||
+    isVerifyPackOrAdminPersonalizedResult ||
     isAdminVerifyAwaitingSignup ||
     isAdminAwaitingPhase1Evidence ||
     isAdminVerifyAwaitingPhase2Documents ||
@@ -2658,7 +2770,7 @@ export function MasterReviewQuotationReport({
     config.engine === "verify" &&
     (!allAnswered || isRealEstatePhase2Screen || isAdminVerifyPhase2Review) &&
     !isAdminVerifyFirstResult &&
-    !isAdminVerifyPersonalizedResult &&
+    !isVerifyPackOrAdminPersonalizedResult &&
     !isRealEstatePersonalizedResult &&
     !isRealEstateAwaitingSignup &&
     !isRealEstateAwaitingPhase1Evidence &&
@@ -2674,7 +2786,7 @@ export function MasterReviewQuotationReport({
   /** VERIFY Master question rail (Admin + RE) — guide/trust only; no landing CTAs while answering. */
   const hideVerifyMasterQuestionRailCtas =
     showVerifyQuestionActions &&
-    (isRealEstateVerifyMasterLayout || isAdminVerifyStitchLayout);
+    (isRealEstateVerifyMasterLayout || isVerifyAdminChainLayout);
 
   const grade = review ? excessGrade(review.verdict) : null;
   const score =
@@ -3093,6 +3205,9 @@ export function MasterReviewQuotationReport({
                       if (service.id === "admin" && config.engine === "verify" && !hasMarket) {
                         next = attachCaseResolutionSnapshot(next);
                       }
+                      if (isPackVerifyStitchLayout && config.engine === "verify" && !hasMarket) {
+                        next = attachRealEstateProfileSnapshot(next);
+                      }
                       return next;
                     });
                     setFollowUpOtherDraft((prev) => {
@@ -3217,6 +3332,26 @@ export function MasterReviewQuotationReport({
       );
     }
 
+    if (
+      question.kind === "choice" &&
+      isPackVerifyStitchLayout &&
+      (question.id === "re_entry" || /^re\d{2}_/.test(question.id))
+    ) {
+      const directPlaceholder =
+        question.id === "re_entry"
+          ? "선택지에 없는 내용이 있다면"
+          : "선택지로 설명하기 어려운 상황이라면 직접 알려주세요.";
+      return renderAdminClassifiedChoiceQuestion(
+        question as ReviewQuestion & {
+          kind: "choice";
+          options: { value: string; label: string }[];
+        },
+        questionProps,
+        adminVerifyUseStitchCards,
+        directPlaceholder,
+      );
+    }
+
     if (question.kind === "choice" && question.id === ADMIN_CASE_ENTRY_Q1_KEY) {
       const useStitchQuestionLayout = adminVerifyUseStitchCards;
       const directExplainActive =
@@ -3335,6 +3470,7 @@ export function MasterReviewQuotationReport({
     if (
       question.kind === "choice" &&
       isRealEstateVerifyMasterLayout &&
+      !isPackVerifyStitchLayout &&
       (question.id === REAL_ESTATE_ENTRY_Q1_KEY ||
         question.id.startsWith("re_") ||
         question.id.startsWith("re2_"))
@@ -4369,15 +4505,18 @@ export function MasterReviewQuotationReport({
     !isRealEstatePhase2Review &&
     !isRealEstateAwaitingPhase2Evidence &&
     !isRealEstateAwaitingPhase1Evidence;
-  const isAdminVerifyScreen01 = isVerifyMasterScreen01 && isAdminVerifyStitchLayout;
+  const isAdminVerifyScreen01 = isVerifyMasterScreen01 && isVerifyAdminChainLayout;
   const isAdminVerifyPhase2Screen =
-    isAdminVerifyStitchLayout && isVerifyLandingQuestions && isAdminVerifyPhase2Review;
+    isVerifyAdminChainLayout && isVerifyLandingQuestions && isAdminVerifyPhase2Review;
   const isRealEstatePhase2QuestionScreen =
     isRealEstateVerifyMasterLayout && isVerifyLandingQuestions && isRealEstatePhase2Screen;
   const adminFirstResult = useMemo(() => {
     if (!isAdminVerifyFirstResult) return null;
+    if (isPackVerifyStitchLayout && verifyMasterPackBridge) {
+      return verifyMasterPackBridge.buildFirstResult(answers);
+    }
     return buildAdminVerifyFirstResult(answers);
-  }, [isAdminVerifyFirstResult, answers]);
+  }, [isAdminVerifyFirstResult, answers, isPackVerifyStitchLayout, verifyMasterPackBridge]);
   const adminPersonalizedResult = useMemo(() => {
     if (!isAdminVerifyPersonalizedResult) return null;
     const personalizedContext = buildAdminVerifyPersonalizedContext(
@@ -4392,6 +4531,20 @@ export function MasterReviewQuotationReport({
     answers,
     adminVerifyPhase1Questions,
     adminVerifyPhase2OnlyQuestions,
+  ]);
+  const packPersonalizedResult = useMemo(() => {
+    if (!isPackVerifyPersonalizedResult || !verifyMasterPackBridge?.buildPersonalizedResult) {
+      return null;
+    }
+    const evidenceFileName =
+      answers[ADMIN_PHASE2_EVIDENCE_FILE_NAME_ANSWERS_KEY]?.trim() ||
+      resolveAdminPhase2EvidenceFileName(answers) ||
+      undefined;
+    return verifyMasterPackBridge.buildPersonalizedResult(answers, { evidenceFileName });
+  }, [
+    isPackVerifyPersonalizedResult,
+    answers,
+    verifyMasterPackBridge,
   ]);
   const realEstateFirstResult = useMemo(() => {
     if (!isRealEstateFirstResult) return null;
@@ -4409,12 +4562,25 @@ export function MasterReviewQuotationReport({
   }, [isRealEstatePersonalizedResult, answers, realEstatePhase2EvidenceFile]);
   const adminFirstResultTransition = useMemo(() => {
     if (!adminFirstResult) return null;
+    if (isPackVerifyStitchLayout && verifyMasterPackBridge) {
+      return verifyMasterPackBridge.resolveFirstResultTransition(answers, adminFirstResult);
+    }
     return resolveVerifyPaidTransitionHooks({
       domain: "admin",
       answers,
       firstResultData: adminFirstResult,
     });
-  }, [adminFirstResult, answers]);
+  }, [
+    adminFirstResult,
+    answers,
+    isPackVerifyStitchLayout,
+    verifyMasterPackBridge,
+  ]);
+  const packMasterContentSlots = verifyMasterPackBridge?.getContentSlots();
+  const packFirstResultContentSlots = useMemo(
+    () => verifyMasterPackBridge?.getFirstResultContentSlots(answers),
+    [verifyMasterPackBridge, answers],
+  );
   const realEstateFirstResultTransition = useMemo(() => {
     if (!realEstateFirstResult) return null;
     return resolveVerifyPaidTransitionHooks({
@@ -4430,7 +4596,7 @@ export function MasterReviewQuotationReport({
   const isVerifyFirstOrPersonalizedResult =
     isAdminVerifyFirstResult ||
     isRealEstateFirstResult ||
-    isAdminVerifyPersonalizedResult ||
+    isVerifyPackOrAdminPersonalizedResult ||
     isRealEstatePersonalizedResult;
 
   const reportCardFooter = (
@@ -4521,7 +4687,7 @@ export function MasterReviewQuotationReport({
       <div
         className={cn(
           "overflow-hidden border bg-white",
-          isAdminVerifyPersonalizedResult
+          isVerifyPackOrAdminPersonalizedResult
             ? "overflow-visible border-0 bg-transparent shadow-none"
             : isRealEstatePersonalizedResult
               ? "overflow-visible border-0 bg-transparent shadow-none"
@@ -4551,7 +4717,7 @@ export function MasterReviewQuotationReport({
                   : showRightColumn &&
                   (isVerifyMasterScreen01
                     ? "border-slate-100 px-3 py-4 lg:col-span-8 lg:border-r lg:p-8"
-                    : isAdminVerifyPersonalizedResult
+                    : isVerifyPackOrAdminPersonalizedResult
                       ? "bg-transparent p-0 lg:items-stretch"
                       : isRealEstatePersonalizedResult
                         ? "bg-transparent p-0 lg:items-stretch"
@@ -4569,7 +4735,7 @@ export function MasterReviewQuotationReport({
             >
               {(!isVerifyLandingQuestions || !isVerifyMasterStitchLayout) &&
               !isAdminVerifyFirstResult &&
-              !isAdminVerifyPersonalizedResult &&
+              !isVerifyPackOrAdminPersonalizedResult &&
               !isRealEstatePersonalizedResult &&
               !isRealEstatePhase2Review ? (
               <header
@@ -4640,14 +4806,21 @@ export function MasterReviewQuotationReport({
                     file={adminPhase1EvidenceFile}
                     onFileChange={setAdminPhase1EvidenceFile}
                     onContinue={handleAdminPhase1EvidenceContinue}
+                    contentSlots={packMasterContentSlots?.evidence}
+                    domain={isPackVerifyStitchLayout ? "real-estate" : "admin"}
+                    attachStorageError={adminVerifyPhase1AttachStorageError}
+                    onAttachStorageRetry={onAdminVerifyPhase1AttachStorageRetry}
                   />
                 ) : null}
                 {isRealEstateAwaitingPhase1Evidence ? (
                   <AdminVerifyPhase2EvidencePanel
                     evidenceTier="phase1"
+                    domain="real-estate"
                     file={realEstatePhase1EvidenceFile}
                     onFileChange={setRealEstatePhase1EvidenceFile}
                     onContinue={handleRealEstatePhase1EvidenceContinue}
+                    attachStorageError={adminVerifyPhase1AttachStorageError}
+                    onAttachStorageRetry={onAdminVerifyPhase1AttachStorageRetry}
                   />
                 ) : null}
                 {isRealEstateAwaitingSignup && realEstateVerifyLeadCaptureSlot ? (
@@ -4670,9 +4843,9 @@ export function MasterReviewQuotationReport({
                 !isAdminVerifyPhase2Screen ? (
                   <Phase2PersonalizedReviewBanner />
                 ) : null}
-                {isAdminVerifyStitchLayout &&
+                {isVerifyAdminChainLayout &&
                 !isAdminVerifyFirstResult &&
-                !isAdminVerifyPersonalizedResult &&
+                !isVerifyPackOrAdminPersonalizedResult &&
                 !isRealEstatePersonalizedResult &&
                 !isRealEstateFirstResult &&
                 !isRealEstatePhase2Review &&
@@ -4693,13 +4866,32 @@ export function MasterReviewQuotationReport({
                 ) : null}
 
                 {isAdminVerifyFirstResult && adminFirstResult ? (
-                  <AdminVerifyFirstResultPanel
-                    data={adminFirstResult}
-                    onContinue={handleContinueClick}
-                    transitionHooks={adminFirstResultTransition ?? undefined}
-                    onAiSummaryNavigate={onAdminVerifyAiSummary}
-                    aiSummaryNavigating={adminVerifyAiSummaryNavigating}
-                  />
+                  <>
+                    {adminVerifyPhase1AttachStorageError ? (
+                      <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+                        <p className="break-keep text-[12px] font-medium leading-snug text-red-800">
+                          {adminVerifyPhase1AttachStorageError}
+                        </p>
+                        {onAdminVerifyPhase1AttachStorageRetry ? (
+                          <button
+                            type="button"
+                            onClick={onAdminVerifyPhase1AttachStorageRetry}
+                            className="mt-2 text-[12px] font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
+                          >
+                            다시 시도
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <AdminVerifyFirstResultPanel
+                      data={adminFirstResult}
+                      onContinue={handleContinueClick}
+                      transitionHooks={adminFirstResultTransition ?? undefined}
+                      onAiSummaryNavigate={onAdminVerifyAiSummary}
+                      aiSummaryNavigating={adminVerifyAiSummaryNavigating}
+                      contentSlots={packFirstResultContentSlots}
+                    />
+                  </>
                 ) : null}
                 {isRealEstateFirstResult && realEstateFirstResult ? (
                   <AdminVerifyFirstResultPanel
@@ -4740,8 +4932,17 @@ export function MasterReviewQuotationReport({
                     variant="personalized"
                   />
                 ) : null}
+                {isPackVerifyPersonalizedResult && packPersonalizedResult ? (
+                  <AdminVerifyFirstResultPanel
+                    data={packPersonalizedResult}
+                    onContinue={handleContinueClick}
+                    contentSlots={packFirstResultContentSlots}
+                    domain="real-estate"
+                    variant="personalized"
+                  />
+                ) : null}
                 {!isAdminVerifyFirstResult &&
-                !isAdminVerifyPersonalizedResult &&
+                !isVerifyPackOrAdminPersonalizedResult &&
                 !isRealEstatePersonalizedResult &&
                 !isRealEstateFirstResult &&
                 !isAdminVerifyAwaitingSignup &&

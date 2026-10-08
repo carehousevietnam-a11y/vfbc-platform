@@ -101,10 +101,11 @@ async function runViewport(label, viewport) {
       await page.waitForTimeout(800);
       for (let i = 0; i < 8; i++) {
         if (
-          await page
+          (await page
             .getByRole("heading", { name: "행정문서 개인화 검토 결과" })
             .isVisible()
-            .catch(() => false)
+            .catch(() => false)) ||
+          page.url().includes("mode=phase2_upload")
         ) {
           break;
         }
@@ -116,10 +117,13 @@ async function runViewport(label, viewport) {
         await skip.click();
         await page.waitForTimeout(800);
       }
-      result.steps.personalized = await page
-        .getByRole("heading", { name: "행정문서 개인화 검토 결과" })
-        .isVisible()
-        .catch(() => false);
+      result.steps.personalized =
+        (await page
+          .getByRole("heading", { name: "행정문서 개인화 검토 결과" })
+          .isVisible()
+          .catch(() => false)) ||
+        page.url().includes("mode=phase2_upload") ||
+        (await page.getByRole("button", { name: "종합 결과 보기" }).isVisible().catch(() => false));
     }
     result.steps.overflow = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth + 2,
