@@ -339,8 +339,11 @@ export function parseTaxContentFinal(md) {
   const directNoticeMatch = md.match(
     /직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다\./,
   );
-  if (!directNoticeMatch || connections.length !== 3) {
-    throw new Error("missing direct-input notice or E-3 rows");
+  const reportFixedMatch = md.match(
+    /# K\. 리포트 고정 문구[\s\S]*?(서류를 첨부하면 더 정확히 확인할 수 있습니다)/,
+  );
+  if (!directNoticeMatch || connections.length !== 3 || !reportFixedMatch) {
+    throw new Error("missing direct-input notice, E-3 rows, or K report sentence");
   }
   return {
     entry,
@@ -350,6 +353,7 @@ export function parseTaxContentFinal(md) {
     labels,
     connections,
     directNotice: directNoticeMatch[0],
+    reportFixed: { missingFileNotice: reportFixedMatch[1] },
   };
 }
 

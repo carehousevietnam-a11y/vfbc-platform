@@ -2736,5 +2736,8 @@ export const TAX_CONTENT_FINAL = {
       "sentence": "기한이 가깝거나 직접 판단하기 어려운 부분은 전문가 진행으로 이어서 도와드립니다."
     }
   ],
-  "directNotice": "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다."
+  "directNotice": "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다.",
+  "reportFixed": {
+    "missingFileNotice": "서류를 첨부하면 더 정확히 확인할 수 있습니다"
+  }
 } as const;

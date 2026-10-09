@@ -250,6 +250,18 @@ if (!taxPageSource.includes("const TAX_PHASE2_PERSONALIZED_PANEL: boolean = fals
   fail("tax personalized panel path is still called");
 }
 
+const kMatch = md.match(/# K\. 리포트 고정 문구[\s\S]*?(서류를 첨부하면 더 정확히 확인할 수 있습니다)/);
+if (!kMatch || parsed.reportFixed?.missingFileNotice !== kMatch[1]) {
+  fail("K section sentence is missing from the content parse");
+}
+if (TAX_CONTENT_FINAL.reportFixed.missingFileNotice !== kMatch?.[1]) {
+  fail("K section sentence is not in the tax content data");
+}
+const taxPackSource = fs.readFileSync(path.join(repoRoot, "src/lib/contentPacks/tax/taxPack.ts"), "utf8");
+if (!taxPackSource.includes("TAX_CONTENT_FINAL.reportFixed.missingFileNotice")) {
+  fail("K section sentence is not used by the tax PDF");
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);

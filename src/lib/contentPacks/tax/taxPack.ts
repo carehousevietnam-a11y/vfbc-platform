@@ -664,12 +664,13 @@ export function buildTaxExpertHandoffMeta(answers: Record<string, string>): Reco
   };
 }
 
-/** 지시서에 적힌 서류 미첨부 안내. 콘텐츠 파일에는 없다. */
-export const TAX_PDF_MISSING_FILE_NOTICE = "서류를 첨부하면 더 정확히 확인할 수 있습니다";
+/** K. 리포트 고정 문구. 콘텐츠 파일 문장을 그대로 읽는다. */
+export const TAX_PDF_MISSING_FILE_NOTICE = TAX_CONTENT_FINAL.reportFixed.missingFileNotice;
 
 function customerChoiceText(
   question: TaxQuestion,
   answers: Record<string, string>,
+  firstSentenceOnly: boolean,
 ): string | null {
   const value = answers[question.id]?.trim() ?? "";
   if (!value) return null;
@@ -679,7 +680,17 @@ function customerChoiceText(
   }
   const choice = question.choices.find((item) => item.value === value);
   if (!choice) return null;
-  return choice.description ? `${choice.label} ${choice.description}` : choice.label;
+  if (!firstSentenceOnly) {
+    return choice.description ? `${choice.label} ${choice.description}` : choice.label;
+  }
+  if (choice.description) return choice.label;
+  return splitChoiceSentences(choice.label).label;
+}
+
+function pushLabeledLines(target: string[], label: string, lines: string[]): void {
+  if (lines.length === 0) return;
+  target.push(`${label}: ${lines[0]}`);
+  for (const line of lines.slice(1)) target.push(line);
 }
 
 function taxAnswersFromActivities(activities: CrmActivityLike[]): Record<string, string> {
@@ -730,27 +741,27 @@ export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActiv
   const route = selectedTaxRoute(answers);
   const first = route ? buildResult(answers, false) : null;
   const files = taxAttachedFileNames(activities);
-  const entryText = customerChoiceText(ENTRY, answers);
+  const entryText = customerChoiceText(ENTRY, answers, true);
   const situation = route
     ? questionsFor(route, 1)
-        .map((question) => customerChoiceText(question, answers))
+        .map((question) => customerChoiceText(question, answers, true))
         .filter((line): line is string => Boolean(line))
     : [];
   const stage = route
     ? questionsFor(route, 2)
-        .map((question) => customerChoiceText(question, answers))
+        .map((question) => customerChoiceText(question, answers, true))
         .filter((line): line is string => Boolean(line))
     : [];
   const storedSummary = latestTaxMetaString(activities, TAX_PACK_PHASE2_SUMMARY_META_KEY) ?? "";
   const verdictBody = first?.situationSummary?.trim() ?? "";
   const execSummary: string[] = [];
   if (entryText) execSummary.push(`선택하신 사건유형: ${entryText}`);
-  if (situation.length > 0) execSummary.push(`상황: ${situation.join(" / ")}`);
+  pushLabeledLines(execSummary, "상황", situation);
   for (const line of storedSummary.split("\n").map((item) => item.trim()).filter(Boolean)) {
     if (line === verdictBody || line === first?.statusHeadline || execSummary.includes(line)) continue;
     execSummary.push(line);
   }
-  if (stage.length > 0) execSummary.push(`진행 단계: ${stage.join(" / ")}`);
+  pushLabeledLines(execSummary, "진행 단계", stage);
   const flags = route ? taxConnectionFlags(answers) : { fraud: false, adminDoc: false, expert: false };
   const recommendedAction: string[] = [];
   if (flags.fraud && FRAUD_SENTENCE) recommendedAction.push(FRAUD_SENTENCE);

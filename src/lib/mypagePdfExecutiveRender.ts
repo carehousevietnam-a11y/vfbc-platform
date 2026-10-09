@@ -1379,7 +1379,14 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     // ── Executive Summary: 결론·근거·다음 행동을 한 번에 읽는 핵심 요약 ──
     {
       const summaryTop = y;
-      const summaryHeight = taxVerifyReport ? 156 : 82;
+      const summaryTextWidth = contentWidth - 32;
+      let summaryWrappedLines = 0;
+      if (taxVerifyReport) {
+        for (const line of execSummary) {
+          summaryWrappedLines += Math.max(1, wrapLines(line, 8.9, font, summaryTextWidth).length);
+        }
+      }
+      const summaryHeight = taxVerifyReport ? 46 + summaryWrappedLines * (8.9 + 3.4) + 28 : 82;
       page.drawRectangle({
         x: marginX,
         y: summaryTop - summaryHeight,
@@ -1403,11 +1410,32 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       });
       const state = { y: summaryTop - 46 };
       const d = makeDrawers(page, marginX + 16, contentWidth - 32, state);
-      d.drawParagraphList(execSummary, 8.9, 3.4, taxVerifyReport ? 14 : 6, rgb(0.2, 0.21, 0.24), summaryTop - summaryHeight + 10);
+      d.drawParagraphList(
+        execSummary,
+        8.9,
+        3.4,
+        taxVerifyReport ? 400 : 6,
+        rgb(0.2, 0.21, 0.24),
+        summaryTop - summaryHeight + 8,
+      );
       y = summaryTop - summaryHeight - 12;
     }
 
     // ── 2단 본문: 좌측 Evidence/Risks/Actions · 우측 Decision Dashboard ──
+    // 세금 요약이 한 페이지를 채우면, 같은 2단 본문을 다음 페이지에서 이어서 그린다.
+    let bodyPage = page;
+    if (taxVerifyReport && y < BODY_MIN_Y + 280) {
+      bodyPage = doc.addPage([pageWidth, pageHeight]);
+      bodyPage.drawRectangle({ x: 0, y: pageHeight - 4, width: pageWidth, height: 4, color: rgb(0.09, 0.15, 0.35) });
+      bodyPage.drawImage(watermarkImage, {
+        x: (pageWidth - wmShieldSize) / 2,
+        y: pageHeight / 2 - wmShieldSize / 2 + 60,
+        width: wmShieldSize,
+        height: wmShieldSize,
+        opacity: 0.035,
+      });
+      y = pageHeight - 48;
+    }
     const gutter = 16;
     const leftWidth = Math.round(contentWidth * 0.62);
     const rightWidth = contentWidth - leftWidth - gutter;
@@ -1416,8 +1444,8 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
 
     const leftState = { y };
     const rightState = { y };
-    const left = makeDrawers(page, leftX, leftWidth, leftState);
-    const right = makeDrawers(page, rightX, rightWidth, rightState);
+    const left = makeDrawers(bodyPage, leftX, leftWidth, leftState);
+    const right = makeDrawers(bodyPage, rightX, rightWidth, rightState);
 
     // 좌측: Key Findings → Key Risks → Recommended Action
     if (left.drawSectionHeader("EVIDENCE & KEY FINDINGS", "확인 완료 요건과 추가 확인 항목")) {
@@ -1449,7 +1477,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       const cardContentMinY = cardBottomY + bottomPadding;
       const effectiveMinY = Math.max(BODY_MIN_Y, cardContentMinY);
 
-      page.drawRectangle({
+      bodyPage.drawRectangle({
         x: rightX,
         y: cardBottomY,
         width: rightWidth,
@@ -1460,7 +1488,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       });
 
       const localState = { y: topY - topPadding };
-      const localDrawer = makeDrawers(page, innerX, innerWidth, localState);
+      const localDrawer = makeDrawers(bodyPage, innerX, innerWidth, localState);
       localDrawer.drawCardTitle(title);
 
       const prefixed = bullet ? bodyLines.map((line) => `• ${line}`) : bodyLines;
@@ -1525,21 +1553,23 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
 
     // ── 하단 (신뢰감 있는 Footer — 발급 주체/버전/Report ID/문의/면책문구) ──
     const footerY = 58;
-    page.drawLine({ start: { x: marginX, y: footerY + 32 }, end: { x: pageWidth - marginX, y: footerY + 32 }, thickness: 0.5, color: rgb(0.88, 0.88, 0.88) });
+    const footerPages = bodyPage === page ? [page] : [page, bodyPage];
+    for (const footerPage of footerPages) {
+    footerPage.drawLine({ start: { x: marginX, y: footerY + 32 }, end: { x: pageWidth - marginX, y: footerY + 32 }, thickness: 0.5, color: rgb(0.88, 0.88, 0.88) });
     const footerLogoSize = 14;
-    page.drawImage(watermarkImage, { x: marginX, y: footerY + 15, width: footerLogoSize, height: footerLogoSize });
+    footerPage.drawImage(watermarkImage, { x: marginX, y: footerY + 15, width: footerLogoSize, height: footerLogoSize });
     // 버전/Report ID는 실제 배포 버전 관리 체계나 신청번호 컬럼이 없어 새로
     // 만들지 않고, 위 상단 정보의 접수번호(receiptNumber, 기존 마이페이지
     // 표시 방식 재사용)를 그대로 Report ID로 다시 쓴다. 버전은 이 리포트
     // 템플릿 자체의 표기용 상수(v1.0)이며 DB/배포 시스템과 연동되지 않는다.
-    page.drawText(`VFBCAI Executive Administrative Assessment  ·  대외비  ·  Report ID ${receiptNumber}`, {
+    footerPage.drawText(`VFBCAI Executive Administrative Assessment  ·  대외비  ·  Report ID ${receiptNumber}`, {
       x: marginX + footerLogoSize + 6,
       y: footerY + 18,
       size: 7.5,
       font: fontBold,
       color: rgb(0.09, 0.15, 0.35),
     });
-    page.drawText("본 문서는 입력정보와 연결된 진단자료를 기준으로 작성된 행정 평가서이며, 최종 진행 여부는 서류 원본 검토와 전문가 확인을 통해 확정됩니다.", {
+    footerPage.drawText("본 문서는 입력정보와 연결된 진단자료를 기준으로 작성된 행정 평가서이며, 최종 진행 여부는 서류 원본 검토와 전문가 확인을 통해 확정됩니다.", {
       x: marginX,
       y: footerY + 4,
       size: 7,
@@ -1547,13 +1577,14 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       color: rgb(0.55, 0.55, 0.55),
     });
     const contactLabel = "문의  ·  마이페이지 내 '메시지' 또는 전문가 상담 신청을 이용해 주세요.";
-    page.drawText(contactLabel, {
+    footerPage.drawText(contactLabel, {
       x: marginX,
       y: footerY - 8,
       size: 7,
       font,
       color: rgb(0.55, 0.55, 0.55),
     });
+    }
     // 실제 QR 자산/연결 URL이 프로젝트에 존재하지 않아 QR은 추가하지 않았다(추측 금지).
 
     const pdfBytes = await doc.save();
