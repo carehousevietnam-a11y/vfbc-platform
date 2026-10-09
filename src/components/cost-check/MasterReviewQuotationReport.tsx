@@ -2082,6 +2082,22 @@ export function MasterReviewQuotationReport({
       return;
     }
 
+    if (service.id === "tax") {
+      verifyMasterSeedAppliedRef.current = true;
+      if (verifyMasterSeedAnswers[ADMIN_PROFILING_COMPLETE_META_FLAG] === "1") {
+        setAnswers({ ...verifyMasterSeedAnswers });
+        if (verifyMasterSeedAnswers[ADMIN_RESTORED_PROFILE_PHASE_KEY] === "2") {
+          setAdminVerifyProfilePhase(2);
+          if (
+            verifyMasterSeedAnswers[ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_ANSWERS_KEY] === "1"
+          ) {
+            adminPhase2DocumentsHandoffStartedRef.current = true;
+          }
+        }
+      }
+      return;
+    }
+
     if (service.id === "admin") {
       verifyMasterSeedAppliedRef.current = true;
       if (verifyMasterSeedAnswers[ADMIN_PROFILING_COMPLETE_META_FLAG] === "1") {
@@ -2269,9 +2285,16 @@ export function MasterReviewQuotationReport({
       : adminVerifyQuestionFlowFirstIncompleteIndex;
   const stitchProgress = useMemo(() => {
     if (isPackVerifyStitchLayout) {
+      const activeIndex = activeQuestionIndex >= 0 ? activeQuestionIndex : 0;
+      const custom = verifyMasterPackBridge?.stitchProgress?.(
+        answers,
+        adminVerifyProfilePhase,
+        activeIndex,
+      );
+      if (custom) return custom;
       return getPackVerifyStitchProgress(
         verifyMasterPackBridge!.buildReviewQuestions(answers, adminVerifyProfilePhase),
-        activeQuestionIndex >= 0 ? activeQuestionIndex : 0,
+        activeIndex,
       );
     }
     if (isRealEstateVerifyMasterLayout && realEstateVerifyProfilePhase === 2) {
@@ -2310,7 +2333,7 @@ export function MasterReviewQuotationReport({
     isPackVerifyStitchLayout,
     verifyMasterPackBridge,
   ]);
-  const activeStepNumber = Math.max(1, stitchProgress.current);
+  const activeStepNumber = stitchProgress.current;
   const stitchProgressTotal = Math.max(1, stitchProgress.total);
   const classifiedQ1Case = getQ1ResolvedCase(answers);
   const isClassifiedAdminVerifyCase =

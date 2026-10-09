@@ -16,6 +16,7 @@ const {
   selectedTaxRoute,
   taxConnectionFlags,
   taxFirstResultCustomerLength,
+  taxStitchProgress,
   buildTaxProfile,
 } = await import("../../src/lib/contentPacks/tax/taxPack.ts");
 
@@ -174,6 +175,30 @@ if (directProfile.tax_route !== "unsure_default_personal" || directProfile.route
   fail("direct entry fields");
 }
 if (!directProfile.route_selection_mode_detail) fail("direct detail missing");
+
+const packSource = fs.readFileSync(
+  path.join(repoRoot, "src/lib/contentPacks/tax/taxPack.ts"),
+  "utf8",
+);
+if (packSource.includes("expert.slice(0, 4)") || packSource.includes("rest.slice(0, 4)")) {
+  fail("phase2 result is still sliced to 4");
+}
+if (/phase2Questions\([^)]*\)\.slice\(/.test(packSource)) fail("phase2Questions is sliced");
+for (const route of routes) {
+  const entry = { re_entry: route === "V" ? "o2" : route === "C" ? "o3" : "o1" };
+  const entryProgress = taxStitchProgress(entry, 1, 0);
+  const firstProgress = taxStitchProgress(entry, 1, 1);
+  const lastPhase1 = taxStitchProgress(entry, 1, 4);
+  const firstPhase2 = taxStitchProgress(entry, 2, 0);
+  const lastPhase2 = taxStitchProgress(entry, 2, 6);
+  if (entryProgress.total !== 11 || firstProgress.total !== 11 || lastPhase2.total !== 11) {
+    fail(`${route} progress total is not 11`);
+  }
+  if (entryProgress.current !== 0) fail(`${route} entry is counted in progress`);
+  if (firstProgress.current !== 1 || lastPhase1.current !== 4) fail(`${route} phase1 progress`);
+  if (firstPhase2.current !== 5 || lastPhase2.current !== 11) fail(`${route} phase2 progress`);
+  if (bridge.stitchProgress?.(entry, 2, 6)?.total !== 11) fail(`${route} bridge progress`);
+}
 
 if (failures.length) {
   console.error(failures.join("\n"));

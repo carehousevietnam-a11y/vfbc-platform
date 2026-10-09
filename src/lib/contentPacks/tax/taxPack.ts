@@ -310,6 +310,19 @@ function phase2Questions(answers: Record<string, string>): TaxQuestion[] {
   return questionsFor(route, 2);
 }
 
+/** 진입 화면은 빼고, 경로의 1차 4 + 2차 7 = 11을 진행 표시 총개수로 쓴다. */
+export function taxStitchProgress(
+  answers: Record<string, string>,
+  profilePhase: 1 | 2,
+  activeIndex: number,
+): { current: number; total: number } {
+  const total = 11;
+  const route = selectedTaxRoute(answers);
+  if (!route || (profilePhase === 1 && activeIndex <= 0)) return { current: 0, total };
+  if (profilePhase === 1) return { current: activeIndex, total };
+  return { current: questionsFor(route, 1).length + activeIndex + 1, total };
+}
+
 export function isTaxPhase1Complete(answers: Record<string, string>): boolean {
   const route = selectedTaxRoute(answers);
   if (!route || !answered(answers, ENTRY.id)) return false;
@@ -468,6 +481,7 @@ export function createTaxVerifyMasterPackBridge(): VerifyMasterPackBridge {
     getFirstResultContentSlots(answers) {
       return contentSlotsFor(answers);
     },
+    stitchProgress: taxStitchProgress,
     getSignupRiskLevel(answers) {
       const flags = taxConnectionFlags(answers);
       if (flags.fraud || flags.expert) return "high";

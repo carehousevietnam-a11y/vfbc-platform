@@ -70,6 +70,12 @@ export type VerifyMasterPackBridge = {
   getContentSlots: () => VerifyMasterContentSlots;
   getFirstResultContentSlots: (answers: Record<string, string>) => VerifyMasterContentSlots["firstResult"];
   getSignupRiskLevel: (answers: Record<string, string>) => "low" | "medium" | "high";
+  /** 있으면 Pack 진행 표시가 이 값을 쓴다. 없으면 현재 단계 질문 목록 길이를 쓴다. */
+  stitchProgress?: (
+    answers: Record<string, string>,
+    profilePhase: AdminVerifyProfilePhase,
+    activeIndex: number,
+  ) => { current: number; total: number };
 };
 
 function asAnswerMap(answers: Record<string, string>): AnswerMap {

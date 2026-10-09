@@ -220,18 +220,6 @@ export default function TaxVerifyMasterPage() {
     if (cfg) window.history.replaceState({}, "", cfg.verifyReturnPath);
   }, []);
 
-  useEffect(() => {
-    if (!adminVerifyPhase2UploadComplete) return;
-    let cancelled = false;
-    void (async () => {
-      const ok = await navigateToMypageWithResultToken(resultToken);
-      if (cancelled) return;
-      if (!ok) window.location.href = "/mypage";
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [adminVerifyPhase2UploadComplete, resultToken]);
 
   useEffect(() => {
     if (!skipSignup || adminMasterSignupComplete || !submitting) return;
