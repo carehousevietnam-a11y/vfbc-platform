@@ -247,6 +247,9 @@ export function drawTaxReportNotes(input: {
   }
 
   function drawChipLine(text: string, chips: readonly string[]) {
+    const block = chipBlockHeight(text, chips);
+    const pageRoom = input.pageHeight - 48 - input.bodyMinY;
+    if (y - block < input.bodyMinY && block <= pageRoom) nextPage();
     drawLines(text, 8, input.font, ink, input.marginX, contentWidth);
     drawLines(chipLabel(chips, labelOf), 7, input.font, gray, input.marginX, contentWidth, 2);
     y -= 3;
