@@ -1865,6 +1865,9 @@ function Phase2PersonalizedReviewBanner() {
   );
 }
 
+/** 세금 2차 개인화 결과 패널. Admin은 자료 화면에서 /mypage로 가므로 호출하지 않는다. */
+const taxPersonalizedPanelEnabled: boolean = false;
+
 export function MasterReviewQuotationReport({
   service,
   config,
@@ -2084,6 +2087,7 @@ export function MasterReviewQuotationReport({
     }
 
     if (service.id === "tax") {
+      if (!taxPersonalizedPanelEnabled) return;
       verifyMasterSeedAppliedRef.current = true;
       if (verifyMasterSeedAnswers[ADMIN_PROFILING_COMPLETE_META_FLAG] === "1") {
         setAnswers({ ...verifyMasterSeedAnswers });
@@ -4983,7 +4987,9 @@ export function MasterReviewQuotationReport({
                     variant="personalized"
                   />
                 ) : null}
-                {isPackVerifyPersonalizedResult && packPersonalizedResult ? (
+                {isPackVerifyPersonalizedResult &&
+                packPersonalizedResult &&
+                (service.id !== "tax" || taxPersonalizedPanelEnabled) ? (
                   <AdminVerifyFirstResultPanel
                     data={packPersonalizedResult}
                     onContinue={handleContinueClick}
@@ -4997,15 +5003,6 @@ export function MasterReviewQuotationReport({
                     }
                     domain={packIdentityServiceId ?? "real-estate"}
                     variant="personalized"
-                    onAiReport={service.id === "tax" ? onAdminVerifyAiReport : undefined}
-                    onExpert={
-                      service.id === "tax" ? () => onAdminVerifyExpert?.(answers) : undefined
-                    }
-                    onDirect={service.id === "tax" ? onAdminVerifyDirect : undefined}
-                    aiReportRequesting={service.id === "tax" ? adminVerifyAiReportRequesting : false}
-                    expertRequesting={service.id === "tax" ? adminVerifyExpertRequesting : false}
-                    aiReportError={service.id === "tax" ? adminVerifyAiReportError : null}
-                    expertError={service.id === "tax" ? adminVerifyExpertError : null}
                   />
                 ) : null}
                 {!isAdminVerifyFirstResult &&

@@ -1400,10 +1400,6 @@ function DocumentUploadContent() {
       if (snapshotParsed && snapshotKey) {
         snapshotParsed.anyUploaded = anyUploaded;
         sessionStorage.setItem(snapshotKey, JSON.stringify(snapshotParsed));
-        if (handoffService === "verify_tax" && handoffCfg) {
-          window.location.href = `${handoffCfg.verifyReturnPath}?phase2_upload_return=1`;
-          return true;
-        }
         const token =
           typeof snapshotParsed.resultToken === "string" && snapshotParsed.resultToken.trim()
             ? snapshotParsed.resultToken.trim()

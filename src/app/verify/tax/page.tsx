@@ -98,6 +98,8 @@ const TAX_LANDING: MasterLandingConfig = {
 };
 
 const VERIFY_SERVICE_TYPE = "verify_tax" as const;
+/** 2차 개인화 결과 패널. Admin은 자료 화면에서 /mypage로 가므로 호출하지 않는다. */
+const TAX_PHASE2_PERSONALIZED_PANEL: boolean = false;
 const MEMBER_VERIFY_LEAD_TIMEOUT_MS = 45_000;
 const PHASE1_ATTACH_STORAGE_FAIL_MESSAGE = "첨부 저장 실패, 다시 시도";
 
@@ -204,6 +206,7 @@ export default function TaxVerifyMasterPage() {
   }, [applyRestoredVerify]);
 
   useEffect(() => {
+    if (!TAX_PHASE2_PERSONALIZED_PANEL) return;
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("phase2_upload_return") !== "1") return;

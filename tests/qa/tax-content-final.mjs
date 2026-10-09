@@ -238,6 +238,18 @@ for (const route of routes) {
   }
 }
 
+const documentsSource = fs.readFileSync(path.join(repoRoot, "src/app/documents/page.tsx"), "utf8");
+if (documentsSource.includes("phase2_upload_return=1")) {
+  fail("tax documents return still opens the personalized panel");
+}
+if (!documentsSource.includes("navigateToMypageWithResultToken")) {
+  fail("documents does not go to mypage");
+}
+const taxPageSource = fs.readFileSync(path.join(repoRoot, "src/app/verify/tax/page.tsx"), "utf8");
+if (!taxPageSource.includes("const TAX_PHASE2_PERSONALIZED_PANEL: boolean = false")) {
+  fail("tax personalized panel path is still called");
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
