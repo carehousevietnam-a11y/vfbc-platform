@@ -214,6 +214,7 @@ export default function TaxVerifyMasterPage() {
       setProfilingSeedAnswers(snapshot.answers);
     }
     if (snapshot?.leadId) setLeadId(snapshot.leadId);
+    if (snapshot?.resultToken) setResultToken(snapshot.resultToken);
     if (snapshot?.anyUploaded) setAdminVerifyPhase2DocumentsAnyUploaded(true);
     clearPhase2HandoffSnapshot(VERIFY_SERVICE_TYPE);
     const cfg = getVerifyPhase2HandoffConfig(VERIFY_SERVICE_TYPE);

@@ -4997,6 +4997,15 @@ export function MasterReviewQuotationReport({
                     }
                     domain={packIdentityServiceId ?? "real-estate"}
                     variant="personalized"
+                    onAiReport={service.id === "tax" ? onAdminVerifyAiReport : undefined}
+                    onExpert={
+                      service.id === "tax" ? () => onAdminVerifyExpert?.(answers) : undefined
+                    }
+                    onDirect={service.id === "tax" ? onAdminVerifyDirect : undefined}
+                    aiReportRequesting={service.id === "tax" ? adminVerifyAiReportRequesting : false}
+                    expertRequesting={service.id === "tax" ? adminVerifyExpertRequesting : false}
+                    aiReportError={service.id === "tax" ? adminVerifyAiReportError : null}
+                    expertError={service.id === "tax" ? adminVerifyExpertError : null}
                   />
                 ) : null}
                 {!isAdminVerifyFirstResult &&
