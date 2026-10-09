@@ -144,6 +144,30 @@ export function drawTaxReportNotes(input: {
     if (y - height < input.bodyMinY) nextPage();
   }
 
+  function noteWidth(text: string, size: number, useFont: PDFFont): number {
+    let total = 0;
+    for (const part of text.split(/([-:])/)) {
+      if (part) total += useFont.widthOfTextAtSize(part, size);
+    }
+    return total;
+  }
+
+  function drawNoteText(
+    line: string,
+    textX: number,
+    textY: number,
+    size: number,
+    useFont: PDFFont,
+    color: ReturnType<typeof rgb>,
+  ) {
+    let drawX = textX;
+    for (const part of line.split(/([-:])/)) {
+      if (!part) continue;
+      page.drawText(part, { x: drawX, y: textY, size, font: useFont, color });
+      drawX += useFont.widthOfTextAtSize(part, size);
+    }
+  }
+
   function wrap(text: string, size: number, useFont: PDFFont, width: number): string[] {
     const safeWidth = Math.max(12, width);
     const lines: string[] = [];
@@ -156,7 +180,7 @@ export function drawTaxReportNotes(input: {
       let current = "";
       const pushFitted = (piece: string) => {
         const candidate = current ? `${current} ${piece}` : piece;
-        if (useFont.widthOfTextAtSize(candidate, size) <= safeWidth) {
+        if (noteWidth(candidate, size, useFont) <= safeWidth) {
           current = candidate;
           return;
         }
@@ -164,7 +188,7 @@ export function drawTaxReportNotes(input: {
           lines.push(current);
           current = "";
         }
-        if (useFont.widthOfTextAtSize(piece, size) <= safeWidth) {
+        if (noteWidth(piece, size, useFont) <= safeWidth) {
           current = piece;
           return;
         }
@@ -174,7 +198,7 @@ export function drawTaxReportNotes(input: {
           let hi = rest.length;
           while (lo < hi) {
             const mid = Math.ceil((lo + hi) / 2);
-            if (useFont.widthOfTextAtSize(rest.slice(0, mid), size) <= safeWidth) lo = mid;
+            if (noteWidth(rest.slice(0, mid), size, useFont) <= safeWidth) lo = mid;
             else hi = mid - 1;
           }
           lines.push(rest.slice(0, Math.max(1, lo)));
@@ -192,7 +216,7 @@ export function drawTaxReportNotes(input: {
     const step = size + gap;
     ensure(lines.length * step);
     for (const line of lines) {
-      page.drawText(line, { x, y: y - size, size, font: useFont, color });
+      drawNoteText(line, x, y - size, size, useFont, color);
       y -= step;
     }
   }
@@ -201,7 +225,7 @@ export function drawTaxReportNotes(input: {
     ensure(20);
     y -= 6;
     page.drawRectangle({ x: input.marginX, y: y - 2, width: 3, height: 12, color: navy });
-    page.drawText(title, { x: input.marginX + 9, y, size: 10.8, font: input.fontBold, color: navy });
+    drawNoteText(title, input.marginX + 9, y, 10.8, input.fontBold, navy);
     y -= 16;
   }
 
@@ -225,49 +249,6 @@ export function drawTaxReportNotes(input: {
     return cellPadTop + cellPadBottom + Math.max(1, ...lines) * cellStep;
   }
 
-  function drawStickyText(
-    line: string,
-    textX: number,
-    textY: number,
-    size: number,
-    useFont: PDFFont,
-    color: ReturnType<typeof rgb>,
-  ) {
-    const tokens = ["ND-CP", "TT-BTC"];
-    if (!tokens.some((token) => line.includes(token))) {
-      page.drawText(line, { x: textX, y: textY, size, font: useFont, color });
-      return;
-    }
-    let cursor = 0;
-    let drawX = textX;
-    while (cursor < line.length) {
-      let at = line.length;
-      let token = "";
-      for (const sticky of tokens) {
-        const found = line.indexOf(sticky, cursor);
-        if (found >= 0 && found < at) {
-          at = found;
-          token = sticky;
-        }
-      }
-      if (at > cursor) {
-        const chunk = line.slice(cursor, at);
-        page.drawText(chunk, { x: drawX, y: textY, size, font: useFont, color });
-        drawX += useFont.widthOfTextAtSize(chunk, size);
-        cursor = at;
-      }
-      if (!token) break;
-      const [left, right] = token.split("-");
-      page.drawText(left, { x: drawX, y: textY, size, font: useFont, color });
-      drawX += useFont.widthOfTextAtSize(left, size);
-      page.drawText("-", { x: drawX, y: textY, size, font: useFont, color });
-      drawX += 2;
-      page.drawText(right, { x: drawX, y: textY, size, font: useFont, color });
-      drawX += useFont.widthOfTextAtSize(right, size);
-      cursor += token.length;
-    }
-  }
-
   function drawRow(cells: { text: string; width: number; header?: boolean }[], height: number, fill: ReturnType<typeof rgb>) {
     let x = input.marginX;
     const top = y;
@@ -285,7 +266,7 @@ export function drawTaxReportNotes(input: {
       const lines = wrap(cell.text, cellSize, useFont, cellTextWidth(cell.width));
       let textY = top - cellPadTop - cellSize;
       for (const line of lines) {
-        drawStickyText(line, x + 6, textY, cellSize, useFont, cell.header ? navy : ink);
+        drawNoteText(line, x + 6, textY, cellSize, useFont, cell.header ? navy : ink);
         textY -= cellStep;
       }
       x += cell.width;
@@ -345,21 +326,21 @@ export function drawTaxReportNotes(input: {
     });
     let innerY = top - 14;
     for (const line of wrap(guide.notice.title, 9, input.fontBold, innerWidth)) {
-      page.drawText(line, { x: input.marginX + 10, y: innerY, size: 9, font: input.fontBold, color: navy });
+      drawNoteText(line, input.marginX + 10, innerY, 9, input.fontBold, navy);
       innerY -= 11;
     }
     for (const line of wrap(guide.notice.flow, 8, input.font, innerWidth)) {
-      page.drawText(line, { x: input.marginX + 10, y: innerY, size: 8, font: input.font, color: ink });
+      drawNoteText(line, input.marginX + 10, innerY, 8, input.font, ink);
       innerY -= 11;
     }
-    page.drawText(chipLabel(guide.notice.chips, labelOf), { x: input.marginX + 10, y: innerY, size: 7, font: input.font, color: gray });
+    drawNoteText(chipLabel(guide.notice.chips, labelOf), input.marginX + 10, innerY, 7, input.font, gray);
     innerY -= 11;
     for (const item of guide.notice.items) {
       for (const line of wrap(item.text, 8, input.font, innerWidth)) {
-        page.drawText(line, { x: input.marginX + 10, y: innerY, size: 8, font: input.font, color: ink });
+        drawNoteText(line, input.marginX + 10, innerY, 8, input.font, ink);
         innerY -= 11;
       }
-      page.drawText(chipLabel(item.chips, labelOf), { x: input.marginX + 10, y: innerY, size: 7, font: input.font, color: gray });
+      drawNoteText(chipLabel(item.chips, labelOf), input.marginX + 10, innerY, 7, input.font, gray);
       innerY -= 11;
     }
     y = top - blockHeight - 8;
