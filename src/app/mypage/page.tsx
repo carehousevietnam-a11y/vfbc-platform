@@ -817,7 +817,8 @@ function GeneralCustomerResultView({
       ? "text-red-700"
       : "text-[#0d2a6b]";
 
-  const isVerifyAdminFreeLayout = item.serviceType === "verify_admin";
+  const isVerifyAdminFreeLayout =
+    item.serviceType === "verify_admin" || item.serviceType === "verify_tax";
   const resultPhaseLabel = isRealEstatePackPhase2
     ? "2차 종합 검토"
     : isVerifyAdminFreeLayout
@@ -1468,7 +1469,7 @@ function PdfDownloadButton({
 
   if (variant === "refined") {
     const primaryLabel =
-      serviceType === "verify_admin"
+      serviceType === "verify_admin" || serviceType === "verify_tax"
         ? verifyAdminPrimaryLabel
         : loading
           ? "준비 중..."
@@ -1484,7 +1485,7 @@ function PdfDownloadButton({
           {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
           {loading ? "준비 중..." : primaryLabel}
         </button>
-        {serviceType !== "verify_admin" ? (
+        {serviceType !== "verify_admin" && serviceType !== "verify_tax" ? (
           <button
             type="button"
             onClick={handleDownload}
