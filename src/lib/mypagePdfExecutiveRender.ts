@@ -33,6 +33,7 @@ import {
   isVerifyAdminFreeAiReportPdfActivities,
   isVerifyAdminPaidAiReportPdfActivities,
 } from "@/lib/adminVerifyMypageFields";
+import { buildTaxVerifyAiReportContentFromActivities } from "@/lib/contentPacks/tax/taxPack";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
   mypageExecutivePdfFontForLine,
@@ -167,6 +168,9 @@ function buildVerifyMasterReportContent(
   satisfiedCount: number;
   mandatoryDocumentLines?: string[];
   executiveDashboardSupplementLines?: string[];
+  executiveHeadline?: string;
+  executiveBody?: string;
+  hideScoreMetrics?: boolean;
 } | null {
   const typeKey = normalizedType.replace(/-/g, "_");
 
@@ -190,6 +194,10 @@ function buildVerifyMasterReportContent(
   if (typeKey === "verify_admin") {
     if (!leadId) return null;
     return buildAdminVerifyAiReportContentFromActivities(activities, leadId);
+  }
+
+  if (typeKey === "verify_tax") {
+    return buildTaxVerifyAiReportContentFromActivities(activities);
   }
 
   return null;
@@ -682,6 +690,9 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     let satisfiedCount: number | null = null;
     let verifyAdminMandatoryDocumentCardLines: string[] | undefined;
     let verifyAdminExecutiveDashboardSupplement: string[] | undefined;
+    let taxVerifyReport = false;
+    let taxExecutiveHeadline = "";
+    let taxExecutiveBody = "";
 
     if (category === "check") {
       // ⚠️ expertBrief에서 label/passed만 추출. reason/riskLevel/rejectionRisks/
@@ -773,6 +784,14 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         cautionLines = buildCautionLinesFromRiskFactors([]);
         if ("mandatoryDocumentLines" in masterContent && masterContent.mandatoryDocumentLines?.length) {
           verifyAdminMandatoryDocumentCardLines = masterContent.mandatoryDocumentLines;
+        }
+        if (masterContent.hideScoreMetrics) {
+          taxVerifyReport = true;
+          taxExecutiveHeadline = masterContent.executiveHeadline?.trim() ?? "";
+          taxExecutiveBody = masterContent.executiveBody?.trim() ?? "";
+          requiredDocsCount = null;
+          requiredDocsList = [];
+          riskCount = 0;
         }
         if (
           "executiveDashboardSupplementLines" in masterContent &&
@@ -882,7 +901,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     const headerStatusLabel = category === "verify" ? "검토유형" : "판단결과";
     const possibilityCardLabel = category === "verify" ? "검토유형" : "가능성";
     const riskCardText = riskCount !== null ? `${riskCount}건` : "확인 전";
-    const docsCardText = requiredDocsCount !== null ? `${requiredDocsCount}종` : "확인 전";
+    let docsCardText = requiredDocsCount !== null ? `${requiredDocsCount}종` : "확인 전";
     const requirementsText =
       reviewedCount !== null && reviewedCount > 0 && satisfiedCount !== null
         ? `${satisfiedCount}/${reviewedCount}`
@@ -942,6 +961,19 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       dashboardPrimaryNextAction = firstRec
         .replace(/^[①②③]\s*(즉시|다음|최종)\s*조치\s*·\s*/, "")
         .trim();
+    }
+
+    if (taxVerifyReport) {
+      executiveDecision = {
+        ...executiveDecision,
+        eyebrow: "EXECUTIVE DECISION",
+        headline: taxExecutiveHeadline,
+        subline: taxExecutiveBody,
+      };
+      requirementsTextForCards = "";
+      riskCardTextForCards = "";
+      docsCardText = "";
+      dashboardPrimaryNextAction = recommendedAction[0]?.trim() || null;
     }
 
     const processSteps = buildProcessSteps(category, hasDiagnosis, hasExpertReview, hasAgency, hasGovSubmit, hasPermitDone);
@@ -1216,7 +1248,16 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     y -= 34;
 
     // ── Executive Decision: 10초 안에 결론을 이해하도록 가장 먼저 강조 ──
-    const decisionHeight = 58;
+    const decisionTextWidth = contentWidth - 90;
+    const decisionHeadlineLines = taxVerifyReport
+      ? wrapLines(executiveDecision.headline, 12, fontBold, decisionTextWidth).slice(0, 3)
+      : [executiveDecision.headline];
+    const decisionSublineLines = taxVerifyReport
+      ? wrapLines(executiveDecision.subline, 8, font, decisionTextWidth).slice(0, 4)
+      : [executiveDecision.subline];
+    const decisionHeight = taxVerifyReport
+      ? Math.max(58, 24 + decisionHeadlineLines.length * 15 + decisionSublineLines.length * 11)
+      : 58;
     page.drawRectangle({
       x: marginX,
       y: y - decisionHeight,
@@ -1240,20 +1281,42 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       font: fontBold,
       color: executiveDecision.color,
     });
-    page.drawText(executiveDecision.headline, {
-      x: marginX + 18,
-      y: y - 35,
-      size: 15,
-      font: fontBold,
-      color: executiveDecision.color,
-    });
-    page.drawText(executiveDecision.subline, {
-      x: marginX + 18,
-      y: y - 50,
-      size: 8,
-      font,
-      color: rgb(0.35, 0.35, 0.38),
-    });
+    if (taxVerifyReport) {
+      decisionHeadlineLines.forEach((line, index) => {
+        page.drawText(line, {
+          x: marginX + 18,
+          y: y - 32 - index * 15,
+          size: 12,
+          font: fontBold,
+          color: executiveDecision.color,
+        });
+      });
+      const sublineStart = 32 + decisionHeadlineLines.length * 15;
+      decisionSublineLines.forEach((line, index) => {
+        page.drawText(line, {
+          x: marginX + 18,
+          y: y - sublineStart - index * 11,
+          size: 8,
+          font,
+          color: rgb(0.35, 0.35, 0.38),
+        });
+      });
+    } else {
+      page.drawText(executiveDecision.headline, {
+        x: marginX + 18,
+        y: y - 35,
+        size: 15,
+        font: fontBold,
+        color: executiveDecision.color,
+      });
+      page.drawText(executiveDecision.subline, {
+        x: marginX + 18,
+        y: y - 50,
+        size: 8,
+        font,
+        color: rgb(0.35, 0.35, 0.38),
+      });
+    }
     const decisionStatus = category === "verify" ? "검토" : resultTone === "possible" ? "진행" : resultTone === "conditional" ? "보완" : "검토";
     page.drawCircle({
       x: pageWidth - marginX - 32,
@@ -1273,7 +1336,6 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
 
     // ── Executive Metrics: 단순 수치가 아니라 의사결정에 필요한 5개 지표 ──
     const cardGap = 7;
-    const cardWidth = (contentWidth - cardGap * 4) / 5;
     const cardHeight = 46;
     const cards: { label: string; value: string; color: ReturnType<typeof rgb> }[] = [
       { label: category === "verify" ? "검토유형" : "평가결과", value: possibilityText, color: resultColor },
@@ -1282,7 +1344,9 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       { label: "필수서류", value: docsCardText, color: rgb(0.09, 0.15, 0.35) },
       { label: "검토상태", value: aiStatusTextForCards, color: hasDiagnosis ? rgb(0.02, 0.45, 0.32) : rgb(0.5, 0.5, 0.5) },
     ];
-    cards.forEach((card, i) => {
+    const visibleCards = taxVerifyReport ? cards.filter((card) => card.value.trim()) : cards;
+    const cardWidth = (contentWidth - cardGap * (visibleCards.length - 1)) / visibleCards.length;
+    visibleCards.forEach((card, i) => {
       const cx = marginX + i * (cardWidth + cardGap);
       page.drawRectangle({
         x: cx,
@@ -1315,7 +1379,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     // ── Executive Summary: 결론·근거·다음 행동을 한 번에 읽는 핵심 요약 ──
     {
       const summaryTop = y;
-      const summaryHeight = 82;
+      const summaryHeight = taxVerifyReport ? 156 : 82;
       page.drawRectangle({
         x: marginX,
         y: summaryTop - summaryHeight,
@@ -1339,7 +1403,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       });
       const state = { y: summaryTop - 46 };
       const d = makeDrawers(page, marginX + 16, contentWidth - 32, state);
-      d.drawParagraphList(execSummary, 8.9, 3.4, 6, rgb(0.2, 0.21, 0.24), summaryTop - summaryHeight + 10);
+      d.drawParagraphList(execSummary, 8.9, 3.4, taxVerifyReport ? 14 : 6, rgb(0.2, 0.21, 0.24), summaryTop - summaryHeight + 10);
       y = summaryTop - summaryHeight - 12;
     }
 
@@ -1412,15 +1476,23 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       rightState.y = cardBottomY - 14;
     }
 
-    const executiveDashboardBodyLines = [
-      `최종 판단  ${executiveDecision.headline}`,
-      `평가  ${possibilityText}`,
-      `충족 요건  ${requirementsTextForCards}`,
-      `위험·보완  ${riskCardTextForCards}`,
-      `현재 단계  ${dashboardCurrentStageLabel ?? supportData.currentStageLabel}`,
-      `다음 조치  ${dashboardPrimaryNextAction ?? supportData.primaryNextAction}`,
-      ...(verifyAdminExecutiveDashboardSupplement ?? []),
-    ];
+    const executiveDashboardBodyLines = taxVerifyReport
+      ? [
+          `최종 판단  ${executiveDecision.headline}`,
+          `평가  ${possibilityText}`,
+          `현재 단계  ${dashboardCurrentStageLabel ?? supportData.currentStageLabel}`,
+          `다음 조치  ${dashboardPrimaryNextAction ?? supportData.primaryNextAction}`,
+          ...(verifyAdminExecutiveDashboardSupplement ?? []),
+        ]
+      : [
+          `최종 판단  ${executiveDecision.headline}`,
+          `평가  ${possibilityText}`,
+          `충족 요건  ${requirementsTextForCards}`,
+          `위험·보완  ${riskCardTextForCards}`,
+          `현재 단계  ${dashboardCurrentStageLabel ?? supportData.currentStageLabel}`,
+          `다음 조치  ${dashboardPrimaryNextAction ?? supportData.primaryNextAction}`,
+          ...(verifyAdminExecutiveDashboardSupplement ?? []),
+        ];
     drawRightCard(
       "EXECUTIVE DASHBOARD",
       executiveDashboardBodyLines,

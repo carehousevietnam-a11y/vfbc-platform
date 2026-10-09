@@ -592,7 +592,10 @@ export function buildTaxPhase2PersistMeta(
     const personalized = buildResult(answers, true);
     if (personalized) {
       meta[TAX_PACK_GRADE2_META_KEY] = String(personalized.gradeFilled);
-      meta[TAX_PACK_PHASE2_SUMMARY_META_KEY] = personalized.situationSummary ?? "";
+      const e2 = (personalized.personalizedContext?.phase2Additions ?? [])
+        .map((line) => line.trim())
+        .filter(Boolean);
+      meta[TAX_PACK_PHASE2_SUMMARY_META_KEY] = e2.join("\n");
       meta[TAX_PACK_CAUTION_COUNT_META_KEY] = String(personalized.cautions?.length ?? 0);
       const headline = personalized.statusHeadline?.trim() || "";
       if (headline) meta[TAX_PACK_HEADLINE_META_KEY] = headline;
@@ -658,5 +661,113 @@ export function buildTaxExpertHandoffMeta(answers: Record<string, string>): Reco
     tax_pack_v1: "true",
     tax_expert_summary: first?.situationSummary ?? "",
     ...profile,
+  };
+}
+
+/** 지시서에 적힌 서류 미첨부 안내. 콘텐츠 파일에는 없다. */
+export const TAX_PDF_MISSING_FILE_NOTICE = "서류를 첨부하면 더 정확히 확인할 수 있습니다";
+
+function customerChoiceText(
+  question: TaxQuestion,
+  answers: Record<string, string>,
+): string | null {
+  const value = answers[question.id]?.trim() ?? "";
+  if (!value) return null;
+  if (value === "other") {
+    const note = answers[getAdminChoiceNoteKey(question.id)]?.trim() ?? "";
+    return note || DIRECT_NOTICE;
+  }
+  const choice = question.choices.find((item) => item.value === value);
+  if (!choice) return null;
+  return choice.description ? `${choice.label} ${choice.description}` : choice.label;
+}
+
+function taxAnswersFromActivities(activities: CrmActivityLike[]): Record<string, string> {
+  for (let i = activities.length - 1; i >= 0; i -= 1) {
+    const meta = activities[i]?.meta;
+    if (!meta || typeof meta !== "object") continue;
+    const restored = restoreTaxAnswersFromVerifyMeta(meta as Record<string, unknown>);
+    if (restored && Object.keys(restored).length > 0) return restored;
+  }
+  return {};
+}
+
+function taxAttachedFileNames(activities: CrmActivityLike[]): string[] {
+  const names: string[] = [];
+  for (const activity of activities) {
+    const meta = activity?.meta;
+    if (!meta || typeof meta !== "object") continue;
+    const record = meta as Record<string, unknown>;
+    for (const key of ["fileName", "file_name"] as const) {
+      const value = record[key];
+      if (typeof value === "string" && value.trim()) names.push(value.trim());
+    }
+    const submitted = record.submitted_document;
+    if (submitted && typeof submitted === "object") {
+      const fileName =
+        (submitted as Record<string, unknown>).file_name ??
+        (submitted as Record<string, unknown>).fileName;
+      if (typeof fileName === "string" && fileName.trim()) names.push(fileName.trim());
+    }
+  }
+  return [...new Set(names)];
+}
+
+export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActivityLike[]): {
+  execSummary: string[];
+  keyFindings: string[];
+  keyRisks: string[];
+  recommendedAction: string[];
+  riskCount: number;
+  reviewedCount: number;
+  satisfiedCount: number;
+  mandatoryDocumentLines: string[];
+  executiveHeadline: string;
+  executiveBody: string;
+  hideScoreMetrics: true;
+} {
+  const answers = taxAnswersFromActivities(activities);
+  const route = selectedTaxRoute(answers);
+  const first = route ? buildResult(answers, false) : null;
+  const files = taxAttachedFileNames(activities);
+  const entryText = customerChoiceText(ENTRY, answers);
+  const situation = route
+    ? questionsFor(route, 1)
+        .map((question) => customerChoiceText(question, answers))
+        .filter((line): line is string => Boolean(line))
+    : [];
+  const stage = route
+    ? questionsFor(route, 2)
+        .map((question) => customerChoiceText(question, answers))
+        .filter((line): line is string => Boolean(line))
+    : [];
+  const storedSummary = latestTaxMetaString(activities, TAX_PACK_PHASE2_SUMMARY_META_KEY) ?? "";
+  const verdictBody = first?.situationSummary?.trim() ?? "";
+  const execSummary: string[] = [];
+  if (entryText) execSummary.push(`선택하신 사건유형: ${entryText}`);
+  if (situation.length > 0) execSummary.push(`상황: ${situation.join(" / ")}`);
+  for (const line of storedSummary.split("\n").map((item) => item.trim()).filter(Boolean)) {
+    if (line === verdictBody || line === first?.statusHeadline || execSummary.includes(line)) continue;
+    execSummary.push(line);
+  }
+  if (stage.length > 0) execSummary.push(`진행 단계: ${stage.join(" / ")}`);
+  const flags = route ? taxConnectionFlags(answers) : { fraud: false, adminDoc: false, expert: false };
+  const recommendedAction: string[] = [];
+  if (flags.fraud && FRAUD_SENTENCE) recommendedAction.push(FRAUD_SENTENCE);
+  if (flags.adminDoc && ADMIN_DOC_SENTENCE) recommendedAction.push(ADMIN_DOC_SENTENCE);
+  if (flags.expert && EXPERT_SENTENCE) recommendedAction.push(EXPERT_SENTENCE);
+  if (recommendedAction.length === 0 && verdictBody) recommendedAction.push(verdictBody);
+  return {
+    execSummary,
+    keyFindings: (first?.keyMetrics ?? []).map((metric) => metric.title).filter(Boolean).slice(0, 3),
+    keyRisks: (first?.cautions ?? []).filter(Boolean).slice(0, 4),
+    recommendedAction,
+    riskCount: 0,
+    reviewedCount: 0,
+    satisfiedCount: 0,
+    mandatoryDocumentLines: files.length > 0 ? files : [TAX_PDF_MISSING_FILE_NOTICE],
+    executiveHeadline: first?.statusHeadline?.trim() ?? "",
+    executiveBody: verdictBody,
+    hideScoreMetrics: true,
   };
 }
