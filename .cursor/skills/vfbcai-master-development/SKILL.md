@@ -192,6 +192,17 @@ Mission 완료 = 아래 **범위 내** 실제 검증 후에만:
 
 **CASE LOCK 시 Governance (필수)**: Ace LOCK 승인 전에 교훈이 **본 섹션에 반영**되고 `git`에 **커밋**되었는지 확인 (`docs/master/*_LOCK_DECISION_LOG*` 체크리스트 · `VFBCAI_CASE_AUDIT_CHECKLIST_v1` LOCK 항목). 미반영·미커밋이면 LOCK 불완료.
 
+#### 세금 Clean Build (2026-10, cross-domain)
+
+- [세금 Clean Build] 마스터 직접 입력은 질문 id 접두어(re_entry / reNN_)에 묶여 있다. 새 서비스는 구현 시작 전에 id 규칙을 고정하고, 기존 서비스 id(부동산 re01~re09)와 겹치지 않게 번호 대역을 정한다.
+- [세금 Clean Build] 마이페이지의 서비스별 조건은 한 곳이 아니다. 최소 (1) 유료 전환 조건(isVerifyMasterPaidMypageItem 등), (2) 무료 카드 열기와 버튼 문구, (3) 하단 슬림 패널(shouldUseVerifyAdminMypageSlimAside)로 나뉜다. 새 서비스를 연결할 때 세 곳과 mypage-data API를 한 번에 등록한다.
+- [세금 Clean Build] 신청 요약의 상태 줄은 isVerifyAdminMypageItem이 결정한다. 슬림 패널을 열어도 상태 줄은 따로 판정되므로, 하단 영역 일치를 확인할 때 함수 하나로 끝났다고 보지 않는다.
+- [세금 Clean Build] 서비스별 회원가입 화면이 같아도 세션 생성은 페이지 핸들러가 한다. 부동산 가입 핸들러를 복사하면 마스터의 /api/lead-submit과 establishBrowserSessionFromResultToken이 빠진다. 시작 전에 마스터(admin/page.tsx)의 가입 연결과 같은지 확인한다.
+- [세금 Clean Build] 무료 "AI 정보 보기"는 페이지가 onAdminVerifyAiSummary를 결과 컴포넌트에 넘길 때만 마이페이지로 간다. 서비스 연결 체크리스트에 넣는다.
+- [세금 Clean Build] 마이페이지 도착과 카드 구성은 별개다. 확인 문구는 마스터 화면에서 실제로 보이는 모습(무료 = AI 리포트 받기 + 전문가 진행하기)을 기준으로 쓴다.
+- [세금 Clean Build] 공유 화면의 서비스 조건은 "더하기만" 한다. 기존 분기의 순서와 내용은 바꾸지 않고, 유료가 무료 레이아웃 조건에서 걸러지는지 호출 위치를 먼저 확인한다.
+- [미해결·결정 대기] 부동산 무료 AI 정보 보기 → 마이페이지 연결, 2차 자료 문구(documents/page.tsx 310줄 공유 문구) 분리.
+
 ## 불변 원칙 (요약)
 
 - Engine: **CHECK → VERIFY → REGISTER → PROTECT** (이름·순서 변경 금지)

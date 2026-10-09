@@ -1614,8 +1614,10 @@ if (shouldUseVerifyAdminExpertFlowDashboard(paidItem) !== true)
   fail.push("verify_admin paid must use expert flow dashboard path");
 if (shouldUseVerifyAdminExpertFlowDashboard(freeAdminAiOnly) !== false)
   fail.push("verify_admin aiOnly must not use expert flow dashboard flag");
-if (shouldUseVerifyAdminMypageSlimAside(otherServiceAiOnly) !== false)
-  fail.push("non verify_admin must keep full aside widgets");
+if (shouldUseVerifyAdminMypageSlimAside(otherServiceAiOnly) !== true)
+  fail.push("세금 무료는 행정문서와 같은 슬림 패널을 연다");
+if (shouldUseVerifyAdminMypageSlimAside({ ...otherServiceAiOnly, phase2Complete: true }) !== false)
+  fail.push("세금 유료는 슬림 패널을 열지 않고 유료 대시보드를 유지한다");
 if (!isVerifyAdminMypageItem(freeAdminAiOnly))
   fail.push("verify_admin item detect");
 if (resolveVerifyAdminApplicationSummaryStatus(freeAdminAiOnly) !== VERIFY_ADMIN_SUMMARY_STATUS_FREE)
