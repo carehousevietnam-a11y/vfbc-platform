@@ -945,7 +945,7 @@ export const TAX_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "제가 받은 안제가 맞는지 확인하고, 맞다면 제가 해야 할 신고·납부 방법까지 알고 싶습니다.",
+          "label": "제가 받은 안내가 맞는지 확인하고, 맞다면 제가 해야 할 신고·납부 방법까지 알고 싶습니다.",
           "fields": {
             "final_goal": "guidance_validity_and_compliance_action",
             "support_scope": "action_instructions"
@@ -2717,14 +2717,17 @@ export const TAX_CONTENT_FINAL = {
   "connections": [
     {
       "name": "사기 VERIFY",
+      "condition": "안내 출처 질문(Q5)이 “세무기관이라고 안내받음(claimed_tax_authority)” 또는 “다른 사람·온라인(third_party_or_online)”인 경우",
       "sentence": "받으신 안내의 출처가 확인되지 않았습니다. 사기가 걱정되시면 “사기 VERIFY”에서 먼저 확인해 보실 수 있습니다."
     },
     {
       "name": "행정문서 VERIFY",
+      "condition": "막힌 이유(Q10)가 “서류 내용 이해(document_understanding)”이거나 V 경로에서 “인보이스 내용 이해(invoice_understanding)”인 경우, 또는 1차 계기가 “베트남어 이해 어려움(language_barrier)”인 경우",
       "sentence": "서류의 내용이나 진위를 자세히 확인하시려면 “행정문서 VERIFY”를 이용하실 수 있습니다."
     },
     {
       "name": "전문가 진행",
+      "condition": "기한 질문(Q8)이 “기한이 지났거나 임박(passed_or_imminent)” 또는 “지났거나 가까울 수 있음(possibly_passed_or_near)”, 또는 Q11 도움 범위가 “전문가 검토 및 후속 진행(expert_led_followthrough)”, 또는 세무기관 요청·검토를 받은 경우",
       "sentence": "기한이 가깝거나 직접 판단하기 어려운 부분은 전문가 진행으로 이어서 도와드립니다."
     }
   ],

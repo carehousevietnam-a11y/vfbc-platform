@@ -305,6 +305,7 @@ export function parseTaxContentFinal(md) {
   const labels = parseLabels(sliceBetween(md, "# G. 값", "# H."));
   const connections = tableRows(sliceBetween(md, "## E-3.", "## E-4.")).map((cells) => ({
     name: stripCustomerMarkup(cells[0] ?? ""),
+    condition: stripCustomerMarkup(cells[1] ?? ""),
     sentence: stripCustomerMarkup(cells[2] ?? ""),
   }));
   const directNoticeMatch = md.match(

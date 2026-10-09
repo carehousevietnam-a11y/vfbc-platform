@@ -263,7 +263,10 @@ export function taxConnectionFlags(answers: Record<string, string>): {
   const support = profile[SUPPORT_FIELD[route]] ?? "";
   return {
     fraud: notice === "claimed_tax_authority" || notice === "third_party_or_online",
-    adminDoc: block === "document_understanding" || trigger === "language_barrier",
+    adminDoc:
+      block === "document_understanding" ||
+      (route === "V" && block === "invoice_understanding") ||
+      trigger === "language_barrier",
     expert:
       deadline === "passed_or_imminent" ||
       deadline === "possibly_passed_or_near" ||
