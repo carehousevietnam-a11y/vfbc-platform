@@ -714,7 +714,7 @@ function taxAnswersFromActivities(activities: CrmActivityLike[]): Record<string,
   return {};
 }
 
-function taxAttachedFileNames(activities: CrmActivityLike[]): string[] {
+export function taxAttachedFileNames(activities: CrmActivityLike[]): string[] {
   const names: string[] = [];
   for (const activity of activities) {
     const meta = activity?.meta;

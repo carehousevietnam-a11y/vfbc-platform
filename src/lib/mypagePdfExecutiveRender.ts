@@ -34,6 +34,7 @@ import {
   isVerifyAdminPaidAiReportPdfActivities,
 } from "@/lib/adminVerifyMypageFields";
 import { buildTaxVerifyAiReportContentFromActivities } from "@/lib/contentPacks/tax/taxPack";
+import { drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
   mypageExecutivePdfFontForLine,
@@ -1554,9 +1555,29 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       false
     );
 
+    const noteExtraPages = taxVerifyReport
+      ? drawTaxReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        })
+      : [];
+
     // ── 하단 (신뢰감 있는 Footer — 발급 주체/버전/Report ID/문의/면책문구) ──
     const footerY = 58;
-    const footerPages = bodyPage === page ? [page] : [page, bodyPage];
+    const footerPages = [page];
+    if (bodyPage !== page) footerPages.push(bodyPage);
+    for (const notePage of noteExtraPages) {
+      if (!footerPages.includes(notePage)) footerPages.push(notePage);
+    }
     for (const footerPage of footerPages) {
     footerPage.drawLine({ start: { x: marginX, y: footerY + 32 }, end: { x: pageWidth - marginX, y: footerY + 32 }, thickness: 0.5, color: rgb(0.88, 0.88, 0.88) });
     const footerLogoSize = 14;

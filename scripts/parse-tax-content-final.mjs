@@ -311,6 +311,157 @@ function parseLabels(section) {
   return labels;
 }
 
+export function splitGuideChips(line) {
+  const chips = [];
+  const text = line
+    .replace(/\s*(\[(?:[1-5]|일반 실무)\])+\s*$/, (all) => {
+      for (const chip of all.match(/\[(?:[1-5]|일반 실무)\]/g) ?? []) chips.push(chip.slice(1, -1));
+      return "";
+    })
+    .trim();
+  return { text, chips };
+}
+
+function guideLines(body, pattern) {
+  return body
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => pattern.test(line));
+}
+
+function parseGuideBody(key, body) {
+  if (key === "checklist") {
+    const rows = guideLines(body, /^\d+\.\s+/).map((line) => {
+      const { text, chips } = splitGuideChips(line.replace(/^\d+\.\s+/, ""));
+      const slash = text.indexOf(" / ");
+      if (slash < 0 || chips.length === 0) throw new Error(`checklist row needs reason and chip: ${line}`);
+      return { name: text.slice(0, slash).trim(), why: text.slice(slash + 3).trim(), chips };
+    });
+    if (rows.length !== 5) throw new Error(`checklist rows ${rows.length}`);
+    return { rows };
+  }
+  if (key === "order") {
+    const raw = guideLines(body, /^흐름:/)[0];
+    if (!raw) throw new Error("missing order flow");
+    const { text, chips } = splitGuideChips(raw.replace(/^흐름:\s*/, ""));
+    if (!text.includes("→") || chips.length === 0) throw new Error("order flow needs arrows and a chip");
+    return { flow: text, chips };
+  }
+  if (key === "compare") {
+    const rows = guideLines(body, /^- /).map((line) => {
+      const { text, chips } = splitGuideChips(line.replace(/^- /, ""));
+      const slash = text.indexOf(" / ");
+      const pair = slash < 0 ? text : text.slice(0, slash);
+      const point = slash < 0 ? "" : text.slice(slash + 3).trim();
+      const sides = pair.split(" ↔ ");
+      if (sides.length !== 2 || !point || chips.length === 0) throw new Error(`compare row: ${line}`);
+      return { left: sides[0].trim(), right: sides[1].trim(), point, chips };
+    });
+    if (rows.length < 3) throw new Error("compare rows");
+    return { rows };
+  }
+  if (key === "timeline") {
+    const flowLine = guideLines(body, /^흐름:/)[0];
+    const noteLine = guideLines(body, /^표 아래:/)[0];
+    if (!flowLine || !noteLine) throw new Error("timeline needs flow and note");
+    const flow = splitGuideChips(flowLine.replace(/^흐름:\s*/, ""));
+    const note = splitGuideChips(noteLine.replace(/^표 아래:\s*/, ""));
+    if (!flow.text.includes("→") || flow.chips.length === 0 || note.chips.length === 0) {
+      throw new Error("timeline chips");
+    }
+    return { flow: flow.text, chips: flow.chips, note: note.text, noteChips: note.chips };
+  }
+  if (key === "misses") {
+    const items = guideLines(body, /^- /).map((line) => splitGuideChips(line.replace(/^- /, "")));
+    if (items.length < 3 || items.some((item) => item.chips.length === 0)) throw new Error("miss items");
+    return { items };
+  }
+  const items = guideLines(body, /^\d+\.\s+/).map((line) => splitGuideChips(line.replace(/^\d+\.\s+/, "")));
+  if (items.length !== 3 || items.some((item) => item.chips.length === 0)) throw new Error("question items");
+  return { items };
+}
+
+function parseReportGuide(md) {
+  const iStart = md.indexOf("# I. AI 리포트 참고 사항");
+  const jStart = md.indexOf("# J. 근거·출처");
+  if (iStart < 0 || jStart < 0 || jStart < iStart) throw new Error("missing report guide sections");
+  const iBlock = md.slice(iStart, jStart);
+  const jBlock = md.slice(jStart);
+  const field = (block, label) => {
+    const match = block.match(new RegExp(`^${label}:\\s*(.+)$`, "m"));
+    if (!match) throw new Error(`missing guide field ${label}`);
+    return match[1].trim();
+  };
+  const noticeStart = iBlock.indexOf("## 통지·공문 확인");
+  const routeStart = iBlock.indexOf("## 경로 1:");
+  const noticeBlock = iBlock.slice(noticeStart, routeStart);
+  const noticeItems = guideLines(noticeBlock, /^- /).map((line) => splitGuideChips(line.replace(/^- /, "")));
+  const noticeFlow = splitGuideChips(field(noticeBlock, "흐름"));
+  if (noticeItems.length !== 3 || noticeItems.some((item) => item.chips.length === 0) || noticeFlow.chips.length === 0) {
+    throw new Error("notice box items");
+  }
+  const routeKeys = ["income", "trade", "company", "unsure"];
+  const routes = {};
+  routeKeys.forEach((key, index) => {
+    const start = iBlock.indexOf(`## 경로 ${index + 1}:`);
+    const next = index < 3 ? iBlock.indexOf(`## 경로 ${index + 2}:`) : iBlock.length;
+    const block = iBlock.slice(start, next);
+    const sections = {};
+    for (const part of block.split(/\n### /).slice(1)) {
+      const nl = part.indexOf("\n");
+      const heading = part.slice(0, nl).trim();
+      const body = part.slice(nl + 1);
+      const sectionKey = heading.startsWith("①")
+        ? "checklist"
+        : heading.startsWith("②")
+          ? "order"
+          : heading.startsWith("③")
+            ? "compare"
+            : heading.startsWith("④")
+              ? "timeline"
+              : heading.startsWith("⑤")
+                ? "misses"
+                : heading.startsWith("⑥")
+                  ? "questions"
+                  : "";
+      if (!sectionKey) throw new Error(`unknown guide heading ${heading}`);
+      sections[sectionKey] = { title: heading, ...parseGuideBody(sectionKey, body) };
+    }
+    for (const sectionKey of ["checklist", "order", "compare", "timeline", "misses", "questions"]) {
+      if (!sections[sectionKey]) throw new Error(`${key} missing ${sectionKey}`);
+    }
+    routes[key] = sections;
+  });
+  const confirmedOn = field(jBlock, "확인일");
+  const sources = tableRows(jBlock)
+    .filter((cells) => cells[0] !== "번호")
+    .map((cells) => ({
+      id: cells[0],
+      name: cells[1] ?? "",
+      publisher: cells[2] ?? "",
+      kind: cells[3] ?? "",
+      urls: (cells[4] ?? "").split(",").map((url) => url.trim()).filter((url) => url.startsWith("http")),
+      note: (cells[5] ?? "").trim(),
+    }));
+  if (sources.length !== 5 || confirmedOn !== "2026.10.10") throw new Error("source table");
+  return {
+    title: field(iBlock, "제목"),
+    subtitle: field(iBlock, "부제"),
+    caption: field(iBlock, "확인 기준"),
+    disclaimer: field(iBlock, "고정 문구"),
+    firstMark: field(iBlock, "먼저 표시"),
+    fileCountTemplate: field(iBlock, "접수 건수"),
+    notice: {
+      title: field(noticeBlock, "제목"),
+      flow: noticeFlow.text,
+      chips: noticeFlow.chips,
+      items: noticeItems,
+    },
+    routes,
+    sources: { confirmedOn, rows: sources },
+  };
+}
+
 export function parseTaxContentFinal(md) {
   const entry = parseEntry(sliceBetween(md, "## A-0.", "## A-1."));
   const questions = [];
@@ -359,6 +510,7 @@ export function parseTaxContentFinal(md) {
     connections,
     directNotice: directNoticeMatch[0],
     reportFixed: { missingFileNotice: reportFixedMatch[1] },
+    reportGuide: parseReportGuide(md),
   };
 }
 

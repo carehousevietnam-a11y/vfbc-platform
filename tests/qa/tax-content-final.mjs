@@ -20,6 +20,11 @@ const {
   buildTaxProfile,
   taxRiskSentences,
 } = await import("../../src/lib/contentPacks/tax/taxPack.ts");
+const { buildTaxReportNoteModel } = await import("../../src/lib/contentPacks/tax/taxReportNotes.ts");
+const {
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+} = await import("../../src/lib/adminVerifyProfiling.ts");
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const md = fs.readFileSync(path.join(repoRoot, "docs/master/content/TAX_CONTENT_FINAL.md"), "utf8");
@@ -315,6 +320,75 @@ const noRisk = taxRiskSentences({
 });
 if (noRisk.length !== 1 || noRisk[0] !== pRules.fallback) {
   fail("empty risk match did not use the single fallback sentence");
+}
+
+const guide = TAX_CONTENT_FINAL.reportGuide;
+const sectionKeys = ["checklist", "order", "compare", "timeline", "misses", "questions"];
+const sectionMarks = ["①", "②", "③", "④", "⑤", "⑥"];
+const allowedUrls = new Set([
+  "https://www.pwc.com/vn/en/publications/news-brief/251212-new-personal-income-tax-law.html",
+  "https://en.baochinhphu.vn/law-on-personal-income-tax-approved-111251210112819468.htm",
+  "https://www.vietnam-briefing.com/news/personal-income-tax-vietnam-deadlines-requirements-preparation.html/",
+  "https://www.vietnam-briefing.com/news/vietnam-tax-compliance-mistakes-foreign-companies.html/",
+]);
+const sourceIds = new Set(guide.sources.rows.map((row) => row.id));
+const parsedUrls = guide.sources.rows.flatMap((row) => row.urls);
+if (guide.sources.confirmedOn !== "2026.10.10") fail("source date is not the stored constant");
+if (parsedUrls.some((url) => !allowedUrls.has(url)) || parsedUrls.length !== allowedUrls.size) {
+  fail("source URL list does not match the allowed URLs");
+}
+if (!guide.notice?.title || guide.notice.items.length !== 3) fail("notice box is missing");
+
+const guideSentences = [];
+function takeSentence(text, chips) {
+  guideSentences.push(text);
+  if (!chips?.length) fail(`missing source chip: ${text}`);
+  for (const chip of chips ?? []) {
+    if (chip !== "일반 실무" && !sourceIds.has(chip)) fail(`chip ${chip} is not in the source table`);
+    if (!/^[1-5]$/.test(chip) && chip !== "일반 실무") fail(`chip ${chip} is not an allowed source`);
+  }
+}
+takeSentence(guide.notice.flow, guide.notice.chips);
+for (const item of guide.notice.items) takeSentence(item.text, item.chips);
+for (const route of Object.values(guide.routes)) {
+  sectionKeys.forEach((key, index) => {
+    if (!route[key]?.title?.startsWith(sectionMarks[index])) fail(`route section ${sectionMarks[index]} missing`);
+  });
+  for (const row of route.checklist.rows) takeSentence(`${row.name} ${row.why}`, row.chips);
+  takeSentence(route.order.flow, route.order.chips);
+  for (const row of route.compare.rows) takeSentence(`${row.left} ${row.right} ${row.point}`, row.chips);
+  takeSentence(route.timeline.flow, route.timeline.chips);
+  takeSentence(route.timeline.note, route.timeline.noteChips);
+  for (const item of route.misses.items) takeSentence(item.text, item.chips);
+  for (const item of route.questions.items) takeSentence(item.text, item.chips);
+}
+for (const text of [guide.title, guide.subtitle, guide.caption, guide.disclaimer, guide.notice.title, ...guideSentences]) {
+  if ([...text].length > 110) fail(`sentence longer than 110: ${text}`);
+  if (/[A-Za-z]{2,}_[A-Za-z0-9_]+/.test(text)) fail(`english code in guide sentence: ${text}`);
+  if (/\d+\s*%/.test(text)) fail(`tax rate in guide sentence: ${text}`);
+  if (/[\u{1F000}-\u{1FAFF}\u2600-\u27BF]/u.test(text.replaceAll("✓", ""))) fail(`emoji in guide sentence: ${text}`);
+}
+if ((guide.caption.match(/\d{4}\.\d{1,2}\.\d{1,2}/g) ?? []).join() !== "2026.10.10") {
+  fail("caption date is not the stored constant");
+}
+for (const text of guideSentences) {
+  if (/\d{4}\.\d{1,2}\.\d{1,2}/.test(text)) fail(`deadline date in guide sentence: ${text}`);
+}
+
+function noteActivities(answers, paid) {
+  const meta = { [ADMIN_VERIFY_ANSWERS_META_JSON_KEY]: JSON.stringify(answers) };
+  if (paid) meta[ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY] = "1";
+  return [{ meta }];
+}
+const freeNotice = buildTaxReportNoteModel(noteActivities({ re_entry: "o1", re14_q4: "o1" }, false));
+if (!freeNotice || freeNotice.paid || !freeNotice.showNotice || freeNotice.usedSourceIds.includes("5")) {
+  fail("free income notice guide did not stay on the free sections");
+}
+const paidQuiet = buildTaxReportNoteModel(
+  noteActivities({ re_entry: "o1", re14_q4: "o5", re18_q8: "o2" }, true),
+);
+if (!paidQuiet?.paid || paidQuiet.showNotice || !paidQuiet.usedSourceIds.includes("5")) {
+  fail("paid guide without a notice trigger still opened the notice box");
 }
 
 if (failures.length) {
