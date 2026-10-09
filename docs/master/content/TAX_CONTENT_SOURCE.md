@@ -1,3 +1,4 @@
+SUPERSEDED by TAX_CONTENT_FINAL.md
 # A. 1차
 ## ■ Q1 (1차)
 고객 화면  
