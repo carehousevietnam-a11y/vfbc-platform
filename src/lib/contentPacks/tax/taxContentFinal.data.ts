@@ -1788,6 +1788,12 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [
+              {
+                "field": "notice_authenticity",
+                "value": "verified"
+              }
+            ],
             "sentence": "받은 안내가 실제 세무기관에서 온 것인지 먼저 확인하지 않으면 잘못된 안내를 따를 수 있습니다."
           },
           {
@@ -1797,8 +1803,16 @@ export const TAX_CONTENT_FINAL = {
                 "values": [
                   "filing_or_settlement_due"
                 ]
+              },
+              {
+                "field": "deadline_timing",
+                "values": [
+                  "passed_or_imminent",
+                  "possibly_passed_or_near"
+                ]
               }
             ],
+            "excludes": [],
             "sentence": "신고·정산 기한이 언제인지 정확히 확인해야 합니다."
           },
           {
@@ -1811,6 +1825,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "처리 담당이 불분명하면 같은 세금을 중복 처리하거나 빠뜨릴 수 있습니다."
           },
           {
@@ -1822,6 +1837,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "직접 처리해야 하는 부분이라면 처리 시기를 놓치지 않는지 확인이 필요합니다."
           },
           {
@@ -1833,6 +1849,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "처리 결과가 예상과 다른 이유를 확인하기 전에는 어느 쪽이 맞는지 알 수 없습니다."
           },
           {
@@ -1844,6 +1861,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "베트남어 서류를 잘못 이해하면 필요한 조치를 놓칠 수 있습니다."
           },
           {
@@ -1857,6 +1875,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "자료가 부족하거나 서로 다르면 어느 금액이 맞는지 판단할 근거가 약해집니다."
           },
           {
@@ -1868,6 +1887,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "소득 종류마다 처리 방식이 달라, 한꺼번에 정리하지 않으면 빠지는 부분이 생길 수 있습니다."
           },
           {
@@ -1879,6 +1899,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "임대·해외소득은 신고 방식이 달라 따로 확인이 필요합니다."
           }
         ],
@@ -1953,6 +1974,12 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [
+              {
+                "field": "vat_notice_authenticity",
+                "value": "verified"
+              }
+            ],
             "sentence": "받은 안내가 실제 세무기관이나 공식 시스템에서 온 것인지 먼저 확인이 필요합니다."
           },
           {
@@ -1964,6 +1991,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "기억에 없는 거래의 안내는 사실을 확인하기 전에 대응하지 않는 것이 안전합니다."
           },
           {
@@ -1973,8 +2001,16 @@ export const TAX_CONTENT_FINAL = {
                 "values": [
                   "filing_or_invoice_action_due"
                 ]
+              },
+              {
+                "field": "vat_deadline_timing",
+                "values": [
+                  "passed_or_imminent",
+                  "possibly_passed_or_near"
+                ]
               }
             ],
+            "excludes": [],
             "sentence": "인보이스 수정·발행이나 VAT 신고 기한을 정확히 확인해야 합니다."
           },
           {
@@ -1994,6 +2030,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "인보이스와 실제 거래의 차이를 확인하지 않으면 VAT 처리의 근거가 약해질 수 있습니다."
           },
           {
@@ -2005,6 +2042,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "인보이스가 없는 거래는 누가 어떻게 발행해야 하는지 확인이 필요합니다."
           },
           {
@@ -2016,6 +2054,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "수정·재발행된 인보이스는 어느 것이 최종본인지 확인해야 합니다."
           },
           {
@@ -2027,6 +2066,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "담당자가 처리한 부분은 실제 처리 내역을 직접 확인할 필요가 있습니다."
           },
           {
@@ -2038,6 +2078,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "해외 거래는 VAT와 인보이스 처리 방식이 달라 따로 확인이 필요합니다."
           },
           {
@@ -2049,6 +2090,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "여러 거래가 섞여 있어 빠지거나 겹치는 인보이스가 생길 수 있습니다."
           },
           {
@@ -2060,6 +2102,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "베트남어 인보이스·안내를 잘못 이해하면 필요한 조치를 놓칠 수 있습니다."
           }
         ],
@@ -2132,6 +2175,12 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [
+              {
+                "field": "corporate_notice_authenticity",
+                "value": "verified"
+              }
+            ],
             "sentence": "세무기관의 요청이 공식적인 것인지, 어떤 자료를 요구하는지 확인이 필요합니다."
           },
           {
@@ -2141,8 +2190,16 @@ export const TAX_CONTENT_FINAL = {
                 "values": [
                   "filing_or_payment_due"
                 ]
+              },
+              {
+                "field": "corporate_deadline_timing",
+                "values": [
+                  "passed_or_imminent",
+                  "possibly_passed_or_near"
+                ]
               }
             ],
+            "excludes": [],
             "sentence": "신고·납부 기한이 언제인지 정확히 확인해야 합니다."
           },
           {
@@ -2154,6 +2211,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "담당자의 설명과 자료가 다를 때는 기준이 되는 자료를 먼저 정해야 합니다."
           },
           {
@@ -2171,6 +2229,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "신고·납부 결과가 예상과 다른 이유를 확인하기 전에는 어느 쪽이 맞는지 알 수 없습니다."
           },
           {
@@ -2183,6 +2242,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "자료가 부족하거나 흩어져 있으면 신고의 근거를 설명하기 어렵습니다."
           },
           {
@@ -2200,6 +2260,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "자료의 기간·기준이 달라 같은 기준으로 맞추는 작업이 필요합니다."
           },
           {
@@ -2213,6 +2274,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "실제 수입·지출·거래와 신고 내용이 빠짐없이 이어지는지 확인해야 합니다."
           },
           {
@@ -2224,6 +2286,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "이미 낸 신고에 수정이 필요한지는 확인한 뒤에야 알 수 있습니다."
           },
           {
@@ -2235,6 +2298,7 @@ export const TAX_CONTENT_FINAL = {
                 ]
               }
             ],
+            "excludes": [],
             "sentence": "신고 전에 자료의 기준을 확인하지 않으면 계산 과정에서 오류가 생길 수 있습니다."
           }
         ],

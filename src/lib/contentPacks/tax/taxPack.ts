@@ -285,11 +285,22 @@ function matchingRisks(route: RouteId, profile: TaxProfile): { lines: string[]; 
       (clause.values as readonly string[]).includes(profile[clause.field] ?? ""),
     );
     if (!hit) continue;
+    const blocked = rule.excludes.some(
+      (item) => (profile[item.field] ?? "") === item.value,
+    );
+    if (blocked) continue;
     lines.push(rule.sentence);
     if (lines.length === 4) break;
   }
   if (lines.length === 0) return { lines: [spec.fallback], fallback: true };
   return { lines, fallback: false };
+}
+
+/** 1차·2차 답변을 같은 위험 규칙으로 평가한다. 2차 값이 없으면 제외 조건은 걸리지 않는다. */
+export function taxRiskSentences(answers: Record<string, string>): string[] {
+  const route = selectedTaxRoute(answers);
+  if (!route) return [];
+  return matchingRisks(route, buildTaxProfile(answers)).lines;
 }
 
 /** 두 문장 이상이면 첫 문장과 나머지를 나누고, 글자는 그대로 둔다. */

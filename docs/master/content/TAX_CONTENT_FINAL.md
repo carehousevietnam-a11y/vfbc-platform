@@ -1035,8 +1035,8 @@
 
 | 순서 | 조건(하나라도 일치) | 표시 문장 |
 |---|---|---|
-| 1 (P-R1) | `tax_issue_trigger` ∈ {notice_or_document_received} | 받은 안내가 실제 세무기관에서 온 것인지 먼저 확인하지 않으면 잘못된 안내를 따를 수 있습니다. |
-| 2 (P-R2) | `tax_issue_trigger` ∈ {filing_or_settlement_due} | 신고·정산 기한이 언제인지 정확히 확인해야 합니다. |
+| 1 (P-R1) | `tax_issue_trigger` ∈ {notice_or_document_received}. 단, `notice_authenticity` = verified 이면 제외 | 받은 안내가 실제 세무기관에서 온 것인지 먼저 확인하지 않으면 잘못된 안내를 따를 수 있습니다. |
+| 2 (P-R2) | `tax_issue_trigger` ∈ {filing_or_settlement_due} 또는 `deadline_timing` ∈ {passed_or_imminent, possibly_passed_or_near} | 신고·정산 기한이 언제인지 정확히 확인해야 합니다. |
 | 3 (P-R3) | `tax_handler` ∈ {third_party_claimed, multiple_handlers} | 처리 담당이 불분명하면 같은 세금을 중복 처리하거나 빠뜨릴 수 있습니다. |
 | 4 (P-R4) | `tax_handler` ∈ {taxpayer} | 직접 처리해야 하는 부분이라면 처리 시기를 놓치지 않는지 확인이 필요합니다. |
 | 5 (P-R5) | `tax_issue_trigger` ∈ {result_mismatch} | 처리 결과가 예상과 다른 이유를 확인하기 전에는 어느 쪽이 맞는지 알 수 없습니다. |
@@ -1091,9 +1091,9 @@
 
 | 순서 | 조건(하나라도 일치) | 표시 문장 |
 |---|---|---|
-| 1 (V-R1) | `vat_issue_trigger` ∈ {authority_or_counterparty_notice} | 받은 안내가 실제 세무기관이나 공식 시스템에서 온 것인지 먼저 확인이 필요합니다. |
+| 1 (V-R1) | `vat_issue_trigger` ∈ {authority_or_counterparty_notice}. 단, `vat_notice_authenticity` = verified 이면 제외 | 받은 안내가 실제 세무기관이나 공식 시스템에서 온 것인지 먼저 확인이 필요합니다. |
 | 2 (V-R2) | `vat_transaction_type` ∈ {unrecognized_transaction} | 기억에 없는 거래의 안내는 사실을 확인하기 전에 대응하지 않는 것이 안전합니다. |
-| 3 (V-R3) | `vat_issue_trigger` ∈ {filing_or_invoice_action_due} | 인보이스 수정·발행이나 VAT 신고 기한을 정확히 확인해야 합니다. |
+| 3 (V-R3) | `vat_issue_trigger` ∈ {filing_or_invoice_action_due} 또는 `vat_deadline_timing` ∈ {passed_or_imminent, possibly_passed_or_near} | 인보이스 수정·발행이나 VAT 신고 기한을 정확히 확인해야 합니다. |
 | 4 (V-R4) | `vat_issue_trigger` ∈ {invoice_result_mismatch} 또는 `vat_record_check` ∈ {amount_and_vat_match, date_and_party_match, invoice_vs_transaction} | 인보이스와 실제 거래의 차이를 확인하지 않으면 VAT 처리의 근거가 약해질 수 있습니다. |
 | 5 (V-R5) | `invoice_handling_actor` ∈ {not_issued_by_anyone} | 인보이스가 없는 거래는 누가 어떻게 발행해야 하는지 확인이 필요합니다. |
 | 6 (V-R6) | `invoice_handling_actor` ∈ {revised_or_reissued} | 수정·재발행된 인보이스는 어느 것이 최종본인지 확인해야 합니다. |
@@ -1146,8 +1146,8 @@
 
 | 순서 | 조건(하나라도 일치) | 표시 문장 |
 |---|---|---|
-| 1 (C-R1) | `corporate_issue_trigger` ∈ {authority_request} | 세무기관의 요청이 공식적인 것인지, 어떤 자료를 요구하는지 확인이 필요합니다. |
-| 2 (C-R2) | `corporate_issue_trigger` ∈ {filing_or_payment_due} | 신고·납부 기한이 언제인지 정확히 확인해야 합니다. |
+| 1 (C-R1) | `corporate_issue_trigger` ∈ {authority_request}. 단, `corporate_notice_authenticity` = verified 이면 제외 | 세무기관의 요청이 공식적인 것인지, 어떤 자료를 요구하는지 확인이 필요합니다. |
+| 2 (C-R2) | `corporate_issue_trigger` ∈ {filing_or_payment_due} 또는 `corporate_deadline_timing` ∈ {passed_or_imminent, possibly_passed_or_near} | 신고·납부 기한이 언제인지 정확히 확인해야 합니다. |
 | 3 (C-R3) | `corporate_issue_trigger` ∈ {internal_explanation_data_difference} | 담당자의 설명과 자료가 다를 때는 기준이 되는 자료를 먼저 정해야 합니다. |
 | 4 (C-R4) | `corporate_issue_trigger` ∈ {filed_or_paid_result_difference} 또는 `corporate_tax_stage` ∈ {tax_amount_result_issue} | 신고·납부 결과가 예상과 다른 이유를 확인하기 전에는 어느 쪽이 맞는지 알 수 없습니다. |
 | 5 (C-R5) | `corporate_record_readiness` ∈ {insufficient_records, partially_distributed} | 자료가 부족하거나 흩어져 있으면 신고의 근거를 설명하기 어렵습니다. |

@@ -214,8 +214,13 @@ function parseRiskCell(cell) {
       values: match[2].split(",").map((part) => part.trim()).filter(Boolean),
     });
   }
+  const excludes = [];
+  const excludeRe = /`([A-Za-z0-9_]+)`\s*=\s*([A-Za-z0-9_]+)/g;
+  while ((match = excludeRe.exec(cell))) {
+    excludes.push({ field: match[1], value: match[2] });
+  }
   if (clauses.length === 0) throw new Error(`unparsed risk condition: ${cell}`);
-  return { fallback: false, clauses };
+  return { fallback: false, clauses, excludes };
 }
 
 function parseCardBlocks(section) {
@@ -268,7 +273,7 @@ function parseRisks(section) {
       fallback = sentence;
       continue;
     }
-    rules.push({ clauses: parsed.clauses, sentence });
+    rules.push({ clauses: parsed.clauses, excludes: parsed.excludes ?? [], sentence });
   }
   if (!fallback) throw new Error("missing risk fallback");
   return { rules, fallback };

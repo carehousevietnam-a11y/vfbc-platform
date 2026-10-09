@@ -1543,10 +1543,13 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       false
     );
 
+    const assessmentBasisLines = taxVerifyReport
+      ? supportData.assessmentBasis.filter((line) => !line.startsWith("연결된 준비서류"))
+      : supportData.assessmentBasis;
     drawRightCard(
       "ASSESSMENT BASIS",
-      supportData.assessmentBasis.map((line) => `• ${line}`),
-      94,
+      assessmentBasisLines.map((line) => `• ${line}`),
+      taxVerifyReport ? 90 : 94,
       6,
       false
     );

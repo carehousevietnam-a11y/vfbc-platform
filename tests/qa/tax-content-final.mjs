@@ -18,6 +18,7 @@ const {
   taxFirstResultCustomerLength,
   taxStitchProgress,
   buildTaxProfile,
+  taxRiskSentences,
 } = await import("../../src/lib/contentPacks/tax/taxPack.ts");
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -260,6 +261,60 @@ if (TAX_CONTENT_FINAL.reportFixed.missingFileNotice !== kMatch?.[1]) {
 const taxPackSource = fs.readFileSync(path.join(repoRoot, "src/lib/contentPacks/tax/taxPack.ts"), "utf8");
 if (!taxPackSource.includes("TAX_CONTENT_FINAL.reportFixed.missingFileNotice")) {
   fail("K section sentence is not used by the tax PDF");
+}
+
+const pRules = TAX_CONTENT_FINAL.firstResult.P.risks;
+const vRules = TAX_CONTENT_FINAL.firstResult.V.risks;
+const cRules = TAX_CONTENT_FINAL.firstResult.C.risks;
+const pR1 = pRules.rules[0].sentence;
+const pR2 = pRules.rules[1].sentence;
+const vR1 = vRules.rules[0].sentence;
+const vR3 = vRules.rules[2].sentence;
+const cR1 = cRules.rules[0].sentence;
+const cR2 = cRules.rules[1].sentence;
+
+const incomeVerifiedDeadline = taxRiskSentences({
+  re_entry: "o1",
+  re14_q4: "o1",
+  re15_q5: "o1",
+  re18_q8: "o1",
+});
+if (incomeVerifiedDeadline.includes(pR1)) fail("verified notice still selects P-R1");
+if (!incomeVerifiedDeadline.includes(pR2)) fail("passed deadline does not select P-R2");
+
+const incomeUnverified = taxRiskSentences({ re_entry: "o1", re14_q4: "o1", re15_q5: "o2" });
+if (!incomeUnverified.includes(pR1)) fail("unverified notice lost P-R1");
+
+const incomePhase1 = taxRiskSentences({ re_entry: "o1", re14_q4: "o1" });
+if (!incomePhase1.includes(pR1)) fail("phase-1 only lost P-R1");
+
+const tradeVerifiedNear = taxRiskSentences({
+  re_entry: "o2",
+  re14_q4: "o1",
+  re15_q5: "o1",
+  re18_q8: "o3",
+});
+if (tradeVerifiedNear.includes(vR1)) fail("verified VAT notice still selects V-R1");
+if (!tradeVerifiedNear.includes(vR3)) fail("near VAT deadline does not select V-R3");
+
+const companyVerifiedPassed = taxRiskSentences({
+  re_entry: "o3",
+  re14_q4: "o1",
+  re15_q5: "o1",
+  re18_q8: "o1",
+});
+if (companyVerifiedPassed.includes(cR1)) fail("verified company notice still selects C-R1");
+if (!companyVerifiedPassed.includes(cR2)) fail("passed company deadline does not select C-R2");
+
+const noRisk = taxRiskSentences({
+  re_entry: "o1",
+  re11_q1: "o1",
+  re12_q2: "o1",
+  re13_q3: "o1",
+  re14_q4: "o5",
+});
+if (noRisk.length !== 1 || noRisk[0] !== pRules.fallback) {
+  fail("empty risk match did not use the single fallback sentence");
 }
 
 if (failures.length) {
