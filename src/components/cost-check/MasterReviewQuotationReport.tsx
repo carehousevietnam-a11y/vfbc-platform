@@ -4937,6 +4937,7 @@ export function MasterReviewQuotationReport({
                       transitionHooks={adminFirstResultTransition ?? undefined}
                       onAiSummaryNavigate={onAdminVerifyAiSummary}
                       aiSummaryNavigating={adminVerifyAiSummaryNavigating}
+                      domain={packIdentityServiceId ?? "admin"}
                       contentSlots={
                         packMasterContentSlots?.identity && !packFirstResultContentSlots?.identity
                           ? {

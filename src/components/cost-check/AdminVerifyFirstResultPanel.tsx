@@ -3729,16 +3729,25 @@ function formatMetricFootnoteForDisplay(
   return `${parts[0]} · ${parts[1]}`;
 }
 
+function metricTextKey(value: string): string {
+  return value.replace(/\s+/g, "").replace(/[.。]+$/g, "");
+}
+
 function KeyMetricCard({
   metric,
   refinePhrase,
+  hideMatchingFootnote = false,
 }: {
   metric: AdminVerifyKeyMetric;
   refinePhrase: (text: string) => string;
+  hideMatchingFootnote?: boolean;
 }) {
   const isOk = metric.status === "ok";
   const displayFootnote = formatMetricFootnoteForDisplay(metric.footnote, refinePhrase);
   if (!displayFootnote.trim()) return null;
+  const titleText = refinePhrase(metric.title);
+  const hideFootnote =
+    hideMatchingFootnote && metricTextKey(titleText) === metricTextKey(displayFootnote);
   return (
     <div
       className={cn(
@@ -3778,6 +3787,7 @@ function KeyMetricCard({
           {refinePhrase(metric.title)}
         </h4>
       </div>
+      {hideFootnote ? null : (
       <div
         className={cn(
           "mt-3 border-t pt-3 lg:mt-3",
@@ -3796,6 +3806,7 @@ function KeyMetricCard({
           {displayFootnote}
         </p>
       </div>
+      )}
     </div>
   );
 }
@@ -5108,7 +5119,12 @@ export function AdminVerifyFirstResultPanel({
           )}
         >
           {data.keyMetrics.map((metric) => (
-            <KeyMetricCard key={metric.label} metric={metric} refinePhrase={refinePhrase} />
+            <KeyMetricCard
+              key={metric.label}
+              metric={metric}
+              refinePhrase={refinePhrase}
+              hideMatchingFootnote={domain === "tax"}
+            />
           ))}
         </div>
       </section>
