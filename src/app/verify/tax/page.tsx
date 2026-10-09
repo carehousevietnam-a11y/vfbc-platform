@@ -134,6 +134,7 @@ export default function TaxVerifyMasterPage() {
   const [signupFieldErrors, setSignupFieldErrors] = useState<FieldErrors>({});
   const [signupConsentOpen, setSignupConsentOpen] = useState(false);
   const [aiReportRequesting, setAiReportRequesting] = useState(false);
+  const [aiSummaryNavigating, setAiSummaryNavigating] = useState(false);
   const [expertRequesting, setExpertRequesting] = useState(false);
   const [aiReportError, setAiReportError] = useState<string | null>(null);
   const [expertError, setExpertError] = useState<string | null>(null);
@@ -619,6 +620,16 @@ export default function TaxVerifyMasterPage() {
     [leadId, resultToken],
   );
 
+  async function handleFreeAiSummaryNavigate() {
+    setAiSummaryNavigating(true);
+    try {
+      const ok = await navigateToMypageWithResultToken(resultToken);
+      if (!ok) setAiSummaryNavigating(false);
+    } catch {
+      setAiSummaryNavigating(false);
+    }
+  }
+
   return (
     <FunnelPageShell engine="verify" width="verify">
       <div
@@ -671,6 +682,8 @@ export default function TaxVerifyMasterPage() {
               onAdminVerifyPersonalizedContinue: () => void handleAiReportRequest(),
               onAdminVerifyAiReport: () => void handleAiReportRequest(),
               onAdminVerifyExpert: (answers) => void handleExpertRequest(answers),
+              onAdminVerifyAiSummary: () => void handleFreeAiSummaryNavigate(),
+              adminVerifyAiSummaryNavigating: aiSummaryNavigating,
               adminVerifyAiReportRequesting: aiReportRequesting,
               adminVerifyExpertRequesting: expertRequesting,
               adminVerifyAiReportError: aiReportError,
