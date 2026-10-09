@@ -137,11 +137,36 @@ function parseQuestion(code, section) {
 }
 
 function parseEntry(section) {
-  const { prompt, options } = parseCustomerScreen(section);
+  const block = customerBlock(section);
+  const lines = block
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  let prompt = "";
+  const subtitleParts = [];
+  const optionTexts = [];
+  let seenOption = false;
+  for (const line of lines) {
+    const option = line.match(/^[①②③④⑤⑥⑦⑧⑨]\s+(.+)$/);
+    if (option) {
+      seenOption = true;
+      const text = stripCustomerMarkup(option[1]);
+      if (text === "직접 입력") continue;
+      optionTexts.push({ label: text, description: "" });
+      continue;
+    }
+    const text = stripCustomerMarkup(line);
+    if (!seenOption) {
+      if (!prompt) prompt = text;
+      else subtitleParts.push(text);
+    } else if (optionTexts.length > 0) {
+      const last = optionTexts[optionTexts.length - 1];
+      last.description = last.description ? `${last.description} ${text}` : text;
+    }
+  }
   const rows = tableRows(section.split("**내부 저장**")[1] ?? "");
   const choices = [];
   let directFields = null;
-  const numbered = options.filter((label) => !/^직접 입력$/.test(label));
   rows.forEach((cells) => {
     const fields = parseFieldPairs(cells[1] ?? "");
     const marker = cells[0] ?? "";
@@ -149,9 +174,11 @@ function parseEntry(section) {
       directFields = fields;
       return;
     }
+    const screen = optionTexts[choices.length] ?? { label: "", description: "" };
     choices.push({
       value: `o${choices.length + 1}`,
-      label: numbered[choices.length] ?? "",
+      label: screen.label,
+      description: screen.description,
       fields,
     });
   });
@@ -161,6 +188,7 @@ function parseEntry(section) {
     route: "ENTRY",
     phase: 0,
     prompt,
+    subtitle: subtitleParts.join(" "),
     choices,
     directFields,
   };

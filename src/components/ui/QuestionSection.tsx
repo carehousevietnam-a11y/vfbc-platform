@@ -74,7 +74,7 @@ export default function QuestionSection({
                 {title}
               </h3>
               {description ? (
-                <p className="mt-1 break-keep text-[12.5px] leading-normal text-slate-500 [overflow-wrap:normal] lg:hidden">
+                <p className="mt-1 break-keep text-[12.5px] leading-normal text-slate-500 [overflow-wrap:normal]">
                   {description}
                 </p>
               ) : null}

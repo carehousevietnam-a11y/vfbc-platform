@@ -57,7 +57,8 @@ for (const route of routes) {
     }
     question.choices.forEach((choice, index) => {
       const option = shown.options[index];
-      if (!option || option.label !== choice.label) fail(`${question.code} choice ${index + 1} label`);
+      const visible = option?.description ? `${option.label} ${option.description}` : option?.label;
+      if (!option || visible !== choice.label) fail(`${question.code} choice ${index + 1} label`);
       if (Object.keys(choice.fields).length < 2) fail(`${question.code} choice ${index + 1} fields`);
     });
     const last = shown.options[shown.options.length - 1];
@@ -98,7 +99,11 @@ for (const route of routes) {
 }
 
 const screenTexts = [];
-screenTexts.push(parsed.entry.prompt, ...parsed.entry.choices.map((choice) => choice.label));
+screenTexts.push(
+  parsed.entry.prompt,
+  parsed.entry.subtitle,
+  ...parsed.entry.choices.flatMap((choice) => [choice.label, choice.description]),
+);
 for (const question of parsed.questions) {
   screenTexts.push(question.prompt, ...question.choices.map((choice) => choice.label));
 }
@@ -184,20 +189,49 @@ if (packSource.includes("expert.slice(0, 4)") || packSource.includes("rest.slice
   fail("phase2 result is still sliced to 4");
 }
 if (/phase2Questions\([^)]*\)\.slice\(/.test(packSource)) fail("phase2Questions is sliced");
+if (parsed.entry.prompt !== "어떤 세금 문제인가요?") fail("entry title");
+if (parsed.entry.subtitle !== "가장 가까운 것을 하나 골라 주세요. 서류가 없거나 잘 몰라도 괜찮습니다.") {
+  fail("entry subtitle");
+}
+const shownEntry = bridge.buildReviewQuestions({}, 1)[0];
+if (!shownEntry || shownEntry.kind !== "choice") fail("entry question");
+if (shownEntry?.kind === "choice") {
+  if (shownEntry.label !== parsed.entry.prompt || shownEntry.description !== parsed.entry.subtitle) {
+    fail("entry title and subtitle are not separate");
+  }
+  parsed.entry.choices.forEach((choice, index) => {
+    const option = shownEntry.options[index];
+    if (option?.label !== choice.label || option?.description !== choice.description) {
+      fail(`entry choice ${index + 1} title/description`);
+    }
+  });
+}
+const q1p = parsed.questions.find((question) => question.code === "Q1-P");
+const shownQ1 = bridge.buildReviewQuestions({ re_entry: "o1" }, 1).find((question) => question.id === "re11_q1");
+if (q1p && shownQ1?.kind === "choice") {
+  const first = q1p.choices[0];
+  const option = shownQ1.options[0];
+  if (!option?.description || `${option.label} ${option.description}` !== first.label) {
+    fail("Q1-P first choice was not split into title and description");
+  }
+}
+
 for (const route of routes) {
   const entry = { re_entry: route === "V" ? "o2" : route === "C" ? "o3" : "o1" };
-  const entryProgress = taxStitchProgress(entry, 1, 0);
+  const entryProgress = taxStitchProgress({}, 1, 0);
   const firstProgress = taxStitchProgress(entry, 1, 1);
   const lastPhase1 = taxStitchProgress(entry, 1, 4);
   const firstPhase2 = taxStitchProgress(entry, 2, 0);
   const lastPhase2 = taxStitchProgress(entry, 2, 6);
-  if (entryProgress.total !== 11 || firstProgress.total !== 11 || lastPhase2.total !== 11) {
-    fail(`${route} progress total is not 11`);
+  if (entryProgress.current !== 0 || entryProgress.total !== 4) {
+    fail(`${route} entry progress is not phase-1 only`);
   }
-  if (entryProgress.current !== 0) fail(`${route} entry is counted in progress`);
-  if (firstProgress.current !== 1 || lastPhase1.current !== 4) fail(`${route} phase1 progress`);
-  if (firstPhase2.current !== 5 || lastPhase2.current !== 11) fail(`${route} phase2 progress`);
-  if (bridge.stitchProgress?.(entry, 2, 6)?.total !== 11) fail(`${route} bridge progress`);
+  if (firstProgress.current !== 1 || firstProgress.total !== 4 || lastPhase1.current !== 4 || lastPhase1.total !== 4) {
+    fail(`${route} phase1 progress is not MASTER phase-1 count`);
+  }
+  if (firstPhase2.current !== 1 || firstPhase2.total !== 7 || lastPhase2.current !== 7 || lastPhase2.total !== 7) {
+    fail(`${route} phase2 progress does not restart like MASTER`);
+  }
 }
 
 if (failures.length) {

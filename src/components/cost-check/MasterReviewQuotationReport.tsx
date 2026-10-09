@@ -649,7 +649,8 @@ type ReviewQuestion =
       id: string;
       kind: "choice";
       label: string;
-      options: { value: string; label: string }[];
+      description?: string;
+      options: { value: string; label: string; description?: string }[];
     }
   | {
       id: string;
@@ -3102,7 +3103,10 @@ export function MasterReviewQuotationReport({
   }
 
   function renderAdminClassifiedChoiceQuestion(
-    question: ReviewQuestion & { kind: "choice"; options: { value: string; label: string }[] },
+    question: ReviewQuestion & {
+      kind: "choice";
+      options: { value: string; label: string; description?: string }[];
+    },
     questionProps: { variant: "verify"; totalSteps: number; step: number },
     useStitchQuestionLayout: boolean,
     directExplainPlaceholder: string,
@@ -3124,6 +3128,7 @@ export function MasterReviewQuotationReport({
       <li key={question.id} className="list-none">
         <QuestionSection
           title={question.label}
+          description={question.description}
           layout={useStitchQuestionLayout ? "stitch" : "default"}
           className={useStitchQuestionLayout ? "lg:[&_h3]:!text-[20px]" : undefined}
           {...questionProps}
@@ -3140,6 +3145,7 @@ export function MasterReviewQuotationReport({
                     key={opt.value}
                     variant={useStitchQuestionLayout ? "stitch" : "quiet"}
                     title={opt.label}
+                    description={opt.description}
                     hideDescriptionOnMobile
                     badgeNumber={
                       useStitchQuestionLayout ? String(index + 1).padStart(2, "0") : undefined
@@ -5056,9 +5062,10 @@ export function MasterReviewQuotationReport({
                     </h3>
                   )}
 
-                  {isVerifyMasterScreen01 ||
-                  isAdminVerifyPhase2Screen ||
-                  isRealEstatePhase2QuestionScreen ? (
+                  {(isVerifyMasterScreen01 ||
+                    isAdminVerifyPhase2Screen ||
+                    isRealEstatePhase2QuestionScreen) &&
+                  activeStepNumber >= 1 ? (
                     <div className="mb-4 flex items-center justify-between gap-3 lg:mb-5 lg:justify-start">
                       <div className="flex items-center gap-2.5 lg:gap-3">
                         <span

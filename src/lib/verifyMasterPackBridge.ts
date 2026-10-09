@@ -42,7 +42,8 @@ export type PackReviewQuestion =
       id: string;
       kind: "choice";
       label: string;
-      options: { value: string; label: string }[];
+      description?: string;
+      options: { value: string; label: string; description?: string }[];
     }
   | {
       id: string;
@@ -84,8 +85,8 @@ function asAnswerMap(answers: Record<string, string>): AnswerMap {
 
 /** Admin stitch shell — 직접 입력 선택지는 Pack 옵션 목록과 무관하게 항상 주입 */
 function appendPackVerifyDirectExplainOption(
-  options: { value: string; label: string }[],
-): { value: string; label: string }[] {
+  options: { value: string; label: string; description?: string }[],
+): { value: string; label: string; description?: string }[] {
   if (options.some(isAdminDirectExplainOption)) return options;
   return [...options, ADMIN_DIRECT_EXPLAIN_CHOICE];
 }

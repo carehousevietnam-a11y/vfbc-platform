@@ -26,6 +26,7 @@ type RouteId = "P" | "V" | "C";
 type TaxChoice = {
   value: string;
   label: string;
+  description?: string;
   fields: Record<string, string>;
 };
 
@@ -35,6 +36,7 @@ type TaxQuestion = {
   route: string;
   phase: number;
   prompt: string;
+  subtitle?: string;
   choices: readonly TaxChoice[];
   directFields: Record<string, string>;
 };
@@ -290,12 +292,33 @@ function matchingRisks(route: RouteId, profile: TaxProfile): { lines: string[]; 
   return { lines, fallback: false };
 }
 
+/** 두 문장 이상이면 첫 문장과 나머지를 나누고, 글자는 그대로 둔다. */
+function splitChoiceSentences(label: string): { label: string; description?: string } {
+  const match = label.match(/^([\s\S]+?[.?!。])\s+(\S[\s\S]*)$/);
+  if (!match) return { label };
+  return { label: match[1], description: match[2] };
+}
+
 function toReview(question: TaxQuestion): PackReviewQuestion {
-  const options = question.choices.map((choice) => ({ value: choice.value, label: choice.label }));
+  const options = question.choices.map((choice) => {
+    if (choice.description) {
+      return { value: choice.value, label: choice.label, description: choice.description };
+    }
+    const split = splitChoiceSentences(choice.label);
+    return split.description
+      ? { value: choice.value, label: split.label, description: split.description }
+      : { value: choice.value, label: split.label };
+  });
   const withDirect = options.some(isAdminDirectExplainOption)
     ? options
     : [...options, ADMIN_DIRECT_EXPLAIN_CHOICE];
-  return { id: question.id, kind: "choice", label: question.prompt, options: withDirect };
+  return {
+    id: question.id,
+    kind: "choice",
+    label: question.prompt,
+    ...(question.subtitle ? { description: question.subtitle } : {}),
+    options: withDirect,
+  };
 }
 
 function phase1Questions(answers: Record<string, string>): TaxQuestion[] {
@@ -310,17 +333,23 @@ function phase2Questions(answers: Record<string, string>): TaxQuestion[] {
   return questionsFor(route, 2);
 }
 
-/** 진입 화면은 빼고, 경로의 1차 4 + 2차 7 = 11을 진행 표시 총개수로 쓴다. */
+/**
+ * Admin MASTER와 같다. 1차는 1차 개수만 세고, 2차는 2차 개수로 1부터 다시 센다.
+ * 진입 화면은 질문 수에 넣지 않는다.
+ */
 export function taxStitchProgress(
   answers: Record<string, string>,
   profilePhase: 1 | 2,
   activeIndex: number,
 ): { current: number; total: number } {
-  const total = 11;
   const route = selectedTaxRoute(answers);
-  if (!route || (profilePhase === 1 && activeIndex <= 0)) return { current: 0, total };
-  if (profilePhase === 1) return { current: activeIndex, total };
-  return { current: questionsFor(route, 1).length + activeIndex + 1, total };
+  if (profilePhase === 2 && route) {
+    const total = questionsFor(route, 2).length;
+    return { current: activeIndex + 1, total };
+  }
+  const total = route ? questionsFor(route, 1).length : 4;
+  if (!route || activeIndex <= 0) return { current: 0, total };
+  return { current: activeIndex, total };
 }
 
 export function isTaxPhase1Complete(answers: Record<string, string>): boolean {

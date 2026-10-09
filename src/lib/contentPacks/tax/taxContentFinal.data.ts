@@ -5,11 +5,13 @@ export const TAX_CONTENT_FINAL = {
     "id": "re_entry",
     "route": "ENTRY",
     "phase": 0,
-    "prompt": "어떤 세금 문제를 확인하고 싶으신가요?\n받은 서류가 있어도, 들은 이야기만 있어도, 그냥 궁금하셔도 괜찮습니다. 가장 가까운 것을 골라 주세요.",
+    "prompt": "어떤 세금 문제인가요?",
+    "subtitle": "가장 가까운 것을 하나 골라 주세요. 서류가 없거나 잘 몰라도 괜찮습니다.",
     "choices": [
       {
         "value": "o1",
-        "label": "제 소득에 대한 세금입니다. 급여, 개인 계약·프로젝트 수입, 임대료, 해외에서 받은 돈 등이 여기에 해당합니다.",
+        "label": "내 소득에 대한 세금",
+        "description": "급여, 개인 수입, 임대료, 해외에서 받은 돈",
         "fields": {
           "tax_route": "personal_income_tax",
           "route_selection_mode": "selected"
@@ -17,7 +19,8 @@ export const TAX_CONTENT_FINAL = {
       },
       {
         "value": "o2",
-        "label": "물건이나 서비스 거래에 대한 세금입니다. 부가가치세(VAT)나 전자 인보이스(전자 세금계산서) 문제가 여기에 해당합니다.",
+        "label": "물건·서비스 거래에 대한 세금",
+        "description": "부가가치세(VAT), 전자 인보이스(전자 세금계산서)",
         "fields": {
           "tax_route": "vat_einvoice",
           "route_selection_mode": "selected"
@@ -25,7 +28,8 @@ export const TAX_CONTENT_FINAL = {
       },
       {
         "value": "o3",
-        "label": "회사의 세금입니다. 회사의 매출·비용·신고·납부, 법인세 등이 여기에 해당합니다.",
+        "label": "회사의 세금",
+        "description": "회사의 매출·비용·신고·납부, 법인세",
         "fields": {
           "tax_route": "corporate_tax",
           "route_selection_mode": "selected"
@@ -33,7 +37,8 @@ export const TAX_CONTENT_FINAL = {
       },
       {
         "value": "o4",
-        "label": "어느 쪽인지 잘 모르겠습니다. 개인소득세 질문부터 시작합니다.",
+        "label": "잘 모르겠습니다",
+        "description": "개인소득세 질문부터 시작합니다",
         "fields": {
           "tax_route": "unsure_default_personal",
           "route_selection_mode": "unsure"
