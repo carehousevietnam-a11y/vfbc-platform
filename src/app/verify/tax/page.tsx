@@ -71,7 +71,7 @@ const TAX_LANDING: MasterLandingConfig = {
   specialtyLine: "베트남 법률전문 AI",
   hookTitle: "세금 안내만 보고 송금하거나 정보를 보내지 마세요.",
   hookBody:
-    "급여, 개인 소득, 임대·해외 소득, 부가가치세(VAT)·전자 인보이스, 법인세 중 지금 확인이 필요한 상황을 먼저 정리합니다.",
+    "급여, 개인 소득, 임대·해외 소득, 부가가치세·전자 인보이스, 법인세 중 지금 확인이 필요한 상황을 먼저 정리합니다.",
   persuasionHeadline: "내 상황을 먼저 확인하면 빠뜨리기 쉬운 자료와 기한을 구분할 수 있습니다.",
   reviewTitle: "검토 항목 안내",
   reviewIntro: "누구의 세금인지, 기한과 세무기관 연락, 가진 자료를 구분해 확인합니다.",

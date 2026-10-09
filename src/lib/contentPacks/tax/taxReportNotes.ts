@@ -17,8 +17,8 @@ export type TaxReportNoteModel = {
   usedSourceIds: string[];
 };
 
-function chipLabel(chips: readonly string[]): string {
-  return chips.map((chip) => `[${chip}]`).join("");
+function chipLabel(chips: readonly string[], labelOf: (chip: string) => string): string {
+  return chips.map((chip) => `[${labelOf(chip)}]`).join("");
 }
 
 function routeKeyOf(answers: Record<string, string>): RouteKey {
@@ -107,6 +107,8 @@ export function drawTaxReportNotes(input: {
   if (!model) return [];
   const guide = TAX_CONTENT_FINAL.reportGuide;
   const route = guide.routes[model.routeKey];
+  const sourceDisplay = new Map(model.usedSourceIds.map((id, index) => [id, String(index + 1)]));
+  const labelOf = (chip: string) => (chip === "일반 실무" ? chip : sourceDisplay.get(chip) ?? chip);
   const extraPages: PDFPage[] = [];
   const navy = rgb(0.09, 0.15, 0.35);
   const gray = rgb(0.52, 0.53, 0.57);
@@ -205,7 +207,7 @@ export function drawTaxReportNotes(input: {
 
   function drawChipLine(text: string, chips: readonly string[]) {
     drawLines(text, 8, input.font, ink, input.marginX, contentWidth);
-    drawLines(chipLabel(chips), 7, input.font, gray, input.marginX, contentWidth, 2);
+    drawLines(chipLabel(chips, labelOf), 7, input.font, gray, input.marginX, contentWidth, 2);
     y -= 3;
   }
 
@@ -221,6 +223,49 @@ export function drawTaxReportNotes(input: {
   function rowHeight(cells: { text: string; width: number }[]): number {
     const lines = cells.map((cell) => wrap(cell.text, cellSize, input.font, cellTextWidth(cell.width)).length);
     return cellPadTop + cellPadBottom + Math.max(1, ...lines) * cellStep;
+  }
+
+  function drawStickyText(
+    line: string,
+    textX: number,
+    textY: number,
+    size: number,
+    useFont: PDFFont,
+    color: ReturnType<typeof rgb>,
+  ) {
+    const tokens = ["ND-CP", "TT-BTC"];
+    if (!tokens.some((token) => line.includes(token))) {
+      page.drawText(line, { x: textX, y: textY, size, font: useFont, color });
+      return;
+    }
+    let cursor = 0;
+    let drawX = textX;
+    while (cursor < line.length) {
+      let at = line.length;
+      let token = "";
+      for (const sticky of tokens) {
+        const found = line.indexOf(sticky, cursor);
+        if (found >= 0 && found < at) {
+          at = found;
+          token = sticky;
+        }
+      }
+      if (at > cursor) {
+        const chunk = line.slice(cursor, at);
+        page.drawText(chunk, { x: drawX, y: textY, size, font: useFont, color });
+        drawX += useFont.widthOfTextAtSize(chunk, size);
+        cursor = at;
+      }
+      if (!token) break;
+      const [left, right] = token.split("-");
+      page.drawText(left, { x: drawX, y: textY, size, font: useFont, color });
+      drawX += useFont.widthOfTextAtSize(left, size);
+      page.drawText("-", { x: drawX, y: textY, size, font: useFont, color });
+      drawX += 2;
+      page.drawText(right, { x: drawX, y: textY, size, font: useFont, color });
+      drawX += useFont.widthOfTextAtSize(right, size);
+      cursor += token.length;
+    }
   }
 
   function drawRow(cells: { text: string; width: number; header?: boolean }[], height: number, fill: ReturnType<typeof rgb>) {
@@ -240,13 +285,7 @@ export function drawTaxReportNotes(input: {
       const lines = wrap(cell.text, cellSize, useFont, cellTextWidth(cell.width));
       let textY = top - cellPadTop - cellSize;
       for (const line of lines) {
-        page.drawText(line, {
-          x: x + 6,
-          y: textY,
-          size: cellSize,
-          font: useFont,
-          color: cell.header ? navy : ink,
-        });
+        drawStickyText(line, x + 6, textY, cellSize, useFont, cell.header ? navy : ink);
         textY -= cellStep;
       }
       x += cell.width;
@@ -313,14 +352,14 @@ export function drawTaxReportNotes(input: {
       page.drawText(line, { x: input.marginX + 10, y: innerY, size: 8, font: input.font, color: ink });
       innerY -= 11;
     }
-    page.drawText(chipLabel(guide.notice.chips), { x: input.marginX + 10, y: innerY, size: 7, font: input.font, color: gray });
+    page.drawText(chipLabel(guide.notice.chips, labelOf), { x: input.marginX + 10, y: innerY, size: 7, font: input.font, color: gray });
     innerY -= 11;
     for (const item of guide.notice.items) {
       for (const line of wrap(item.text, 8, input.font, innerWidth)) {
         page.drawText(line, { x: input.marginX + 10, y: innerY, size: 8, font: input.font, color: ink });
         innerY -= 11;
       }
-      page.drawText(chipLabel(item.chips), { x: input.marginX + 10, y: innerY, size: 7, font: input.font, color: gray });
+      page.drawText(chipLabel(item.chips, labelOf), { x: input.marginX + 10, y: innerY, size: 7, font: input.font, color: gray });
       innerY -= 11;
     }
     y = top - blockHeight - 8;
@@ -333,31 +372,34 @@ export function drawTaxReportNotes(input: {
     route.checklist.rows.map((row, index) => [
       index === 0 && model.showNotice ? `${guide.firstMark} ${row.name}` : row.name,
       row.why,
-      chipLabel(row.chips),
+      chipLabel(row.chips, labelOf),
     ]),
     checkWidths,
   );
   y -= 6;
   drawLines(guide.fileCountTemplate.replace("{n}", String(model.fileCount)), 8, input.font, ink, input.marginX, contentWidth);
-  y -= 6;
+  y -= 12;
 
   drawHeading(route.order.title);
   drawChipLine(route.order.flow, route.order.chips);
 
   if (model.paid) {
+    y -= 6;
     drawHeading(route.compare.title);
     const compareWidths = [146, 122, contentWidth - 328, 60];
     drawTable(
       ["서류", "대조", "확인할 점", "출처"],
-      route.compare.rows.map((row) => [row.left, row.right, row.point, chipLabel(row.chips)]),
+      route.compare.rows.map((row) => [row.left, row.right, row.point, chipLabel(row.chips, labelOf)]),
       compareWidths,
     );
-    y -= 6;
+    y -= 12;
     drawHeading(route.timeline.title);
     drawChipLine(route.timeline.flow, route.timeline.chips);
     drawChipLine(route.timeline.note, route.timeline.noteChips);
+    y -= 6;
     drawHeading(route.misses.title);
     for (const item of route.misses.items) drawChipLine(item.text, item.chips);
+    y -= 6;
     drawHeading(route.questions.title);
     route.questions.items.forEach((item, index) => {
       drawChipLine(`${index + 1}. ${item.text}`, item.chips);
@@ -376,6 +418,7 @@ export function drawTaxReportNotes(input: {
     kindWidth,
     dateWidth,
   ];
+  y -= 6;
   if (sourceRows.length > 0) {
     const headerProbe = ["번호", "자료", "발행처", "성격", "확인일"].map((text, index) => ({
       text,
@@ -397,7 +440,7 @@ export function drawTaxReportNotes(input: {
       ["번호", "자료", "발행처", "성격", "확인일"],
       sourceRows.map((row) => {
         const material = [row.name, ...row.urls, row.note].filter(Boolean).join("\n");
-        return [row.id, material, row.publisher, row.kind, guide.sources.confirmedOn];
+        return [sourceDisplay.get(row.id) ?? row.id, material, row.publisher, row.kind, guide.sources.confirmedOn];
       }),
       sourceWidths,
       disclaimerBlock,

@@ -126,7 +126,8 @@ for (const route of routes) {
 }
 screenTexts.push(...Object.values(parsed.labels), parsed.directNotice);
 for (const text of screenTexts) {
-  if (/[A-Za-z]/.test(text.replace(/VAT/g, ""))) fail(`english on screen: ${text.slice(0, 80)}`);
+  if (text.includes("VAT")) fail(`VAT on screen: ${text.slice(0, 80)}`);
+  if (/[A-Za-z]/.test(text)) fail(`english on screen: ${text.slice(0, 80)}`);
 }
 
 const usedValues = new Set();
@@ -330,6 +331,9 @@ const allowedUrls = new Set([
   "https://en.baochinhphu.vn/law-on-personal-income-tax-approved-111251210112819468.htm",
   "https://www.vietnam-briefing.com/news/personal-income-tax-vietnam-deadlines-requirements-preparation.html/",
   "https://www.vietnam-briefing.com/news/vietnam-tax-compliance-mistakes-foreign-companies.html/",
+  "https://english.luatvietnam.vn/aw-no-38-2019-qh14-dated-june-13-2019-of-the-national-assembly-on-tax-administration-174969-Doc1.html",
+  "https://english.luatvietnam.vn/law-on-enterprises-no-59-2020-qh14-dated-june-17-2020-of-the-national-assembly-186272-doc1.html",
+  "https://english.haiquanonline.com.vn/continue-to-warn-about-forms-of-fraud-against-taxpayers-30696.html",
 ]);
 const sourceIds = new Set(guide.sources.rows.map((row) => row.id));
 const parsedUrls = guide.sources.rows.flatMap((row) => row.urls);
@@ -345,7 +349,7 @@ function takeSentence(text, chips) {
   if (!chips?.length) fail(`missing source chip: ${text}`);
   for (const chip of chips ?? []) {
     if (chip !== "일반 실무" && !sourceIds.has(chip)) fail(`chip ${chip} is not in the source table`);
-    if (!/^[1-5]$/.test(chip) && chip !== "일반 실무") fail(`chip ${chip} is not an allowed source`);
+    if (!/^[1-7]$/.test(chip) && chip !== "일반 실무") fail(`chip ${chip} is not an allowed source`);
   }
 }
 takeSentence(guide.notice.flow, guide.notice.chips);

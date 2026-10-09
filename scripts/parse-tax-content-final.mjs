@@ -314,8 +314,8 @@ function parseLabels(section) {
 export function splitGuideChips(line) {
   const chips = [];
   const text = line
-    .replace(/\s*(\[(?:[1-5]|일반 실무)\])+\s*$/, (all) => {
-      for (const chip of all.match(/\[(?:[1-5]|일반 실무)\]/g) ?? []) chips.push(chip.slice(1, -1));
+    .replace(/\s*(\[(?:[1-7]|일반 실무)\])+\s*$/, (all) => {
+      for (const chip of all.match(/\[(?:[1-7]|일반 실무)\]/g) ?? []) chips.push(chip.slice(1, -1));
       return "";
     })
     .trim();
@@ -443,7 +443,7 @@ function parseReportGuide(md) {
       urls: (cells[4] ?? "").split(",").map((url) => url.trim()).filter((url) => url.startsWith("http")),
       note: (cells[5] ?? "").trim(),
     }));
-  if (sources.length !== 5 || confirmedOn !== "2026.10.10") throw new Error("source table");
+  if (sources.length !== 7 || confirmedOn !== "2026.10.10") throw new Error("source table");
   return {
     title: field(iBlock, "제목"),
     subtitle: field(iBlock, "부제"),

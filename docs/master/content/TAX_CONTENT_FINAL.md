@@ -17,7 +17,7 @@
 ① 내 소득에 대한 세금  
 급여, 개인 수입, 임대료, 해외에서 받은 돈  
 ② 물건·서비스 거래에 대한 세금  
-부가가치세(VAT), 전자 인보이스(전자 세금계산서)  
+부가가치세, 전자 인보이스(전자 세금계산서)  
 ③ 회사의 세금  
 회사의 매출·비용·신고·납부, 법인세  
 ④ 잘 모르겠습니다  
@@ -29,7 +29,7 @@
 | 선택 | 저장 필드 | 이동 |
 |---|---|---|
 | ① | `tax_route=personal_income_tax`, `route_selection_mode=selected` | 개인소득세 Q1-P |
-| ② | `tax_route=vat_einvoice`, `route_selection_mode=selected` | VAT·전자 인보이스 Q1-V |
+| ② | `tax_route=vat_einvoice`, `route_selection_mode=selected` | 부가가치세·전자 인보이스 Q1-V |
 | ③ | `tax_route=corporate_tax`, `route_selection_mode=selected` | 법인세 Q1-C |
 | ④ | `tax_route=unsure_default_personal`, `route_selection_mode=unsure` | 개인소득세 Q1-P (기본) |
 | ⑤ 직접 입력 | `tax_route=unsure_default_personal`, `route_selection_mode=direct_input` | 개인소득세 Q1-P (기본) |
@@ -134,18 +134,18 @@
 
 ---
 
-## A-2. VAT·전자 인보이스 — 1차
+## A-2. 부가가치세·전자 인보이스 — 1차
 
 ### Q1-V
 
 **고객 화면**
 
-**지금 확인하려는 부가가치세(VAT) 문제는 어떤 거래에서 시작되었고, 그 거래에서 무엇이 맞는지 확인하고 싶으신가요?**
+**지금 확인하려는 부가가치세 문제는 어떤 거래에서 시작되었고, 그 거래에서 무엇이 맞는지 확인하고 싶으신가요?**
 
-① 베트남에서 고객에게 물건이나 서비스를 판매한 거래입니다. 판매 금액과 VAT 처리가 맞는지 확인하고 싶습니다.  
-② 베트남에서 물건이나 서비스를 구입한 거래입니다. 받은 전자 인보이스와 VAT 처리가 맞는지 확인하고 싶습니다.  
-③ 제가 한 기억이 없는 거래이거나 어떤 거래인지 분명하지 않은데, 인보이스나 VAT 안내를 받았습니다. 어떤 거래에 대한 것인지부터 확인하고 싶습니다.  
-④ 해외 고객 또는 해외 공급자와 거래하면서 베트남 VAT와 전자 인보이스 처리가 어떻게 연결되는지 확인하고 싶습니다.  
+① 베트남에서 고객에게 물건이나 서비스를 판매한 거래입니다. 판매 금액과 부가가치세 처리가 맞는지 확인하고 싶습니다.  
+② 베트남에서 물건이나 서비스를 구입한 거래입니다. 받은 전자 인보이스와 부가가치세 처리가 맞는지 확인하고 싶습니다.  
+③ 제가 한 기억이 없는 거래이거나 어떤 거래인지 분명하지 않은데, 인보이스나 부가가치세 안내를 받았습니다. 어떤 거래에 대한 것인지부터 확인하고 싶습니다.  
+④ 해외 고객 또는 해외 공급자와 거래하면서 베트남 부가가치세와 전자 인보이스 처리가 어떻게 연결되는지 확인하고 싶습니다.  
 ⑤ **직접 입력**
 
 **내부 저장**
@@ -192,7 +192,7 @@
 
 **거래 자료와 전자 인보이스를 가지고 계신다면 어떤 자료가 있고, 서로 맞춰 볼 때 무엇이 가장 걱정되시나요?**
 
-① 인보이스와 거래·입금 자료가 모두 있고, 금액·VAT 금액·세율이 서로 맞는지 확인하고 싶습니다.  
+① 인보이스와 거래·입금 자료가 모두 있고, 금액·부가가치세 금액·세율이 서로 맞는지 확인하고 싶습니다.  
 ② 인보이스와 거래 자료가 모두 있고, 거래 날짜나 상대방 정보가 서로 맞는지 확인하고 싶습니다.  
 ③ 인보이스만 있고 실제 거래 자료는 거의 없어서, 인보이스가 실제 거래를 제대로 담고 있는지 알고 싶습니다.  
 ④ 거래 자료만 있고 인보이스가 없거나 일부만 있어서, 무엇이 빠져 있는지 알고 싶습니다.  
@@ -216,13 +216,13 @@
 
 **고객 화면**
 
-**지금 VAT 문제를 확인하게 된 계기는 무엇이었고, 현재 가장 막혀 있는 부분은 무엇인가요?**
+**지금 부가가치세 문제를 확인하게 된 계기는 무엇이었고, 현재 가장 막혀 있는 부분은 무엇인가요?**
 
 ① 세무기관이나 거래 상대방에게서 전자 인보이스 관련 안내를 받아 내용이 맞는지 확인하려고 합니다.  
-② VAT 신고나 전자 인보이스 처리를 해야 하는 시점이 되어 무엇을 해야 하는지 확인하려고 합니다.  
-③ 이미 인보이스를 발행·수령했지만 내용이나 VAT 금액이 맞지 않아 다음 처리를 결정하기 어렵습니다.  
+② 부가가치세 신고나 전자 인보이스 처리를 해야 하는 시점이 되어 무엇을 해야 하는지 확인하려고 합니다.  
+③ 이미 인보이스를 발행·수령했지만 내용이나 부가가치세 금액이 맞지 않아 다음 처리를 결정하기 어렵습니다.  
 ④ 베트남어로 된 인보이스나 안내 내용을 이해하기 어려워 실제로 어떤 조치를 해야 하는지 확인하려고 합니다.  
-⑤ 특별히 받은 안내나 막힌 일은 없고, 제 VAT·인보이스 처리에 문제가 없는지 미리 점검해 보고 싶습니다.  
+⑤ 특별히 받은 안내나 막힌 일은 없고, 제 부가가치세·인보이스 처리에 문제가 없는지 미리 점검해 보고 싶습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
@@ -524,19 +524,19 @@
 
 ---
 
-## B-2. VAT·전자 인보이스 — 2차
+## B-2. 부가가치세·전자 인보이스 — 2차
 
 ### Q5-V
 
 **고객 화면**
 
-**VAT나 전자 인보이스 문제를 알게 된 자료는 어디에서 왔고, 그 안내가 실제 세무기관이나 공식 시스템에서 나온 것인지 확인하셨나요?**
+**부가가치세나 전자 인보이스 문제를 알게 된 자료는 어디에서 왔고, 그 안내가 실제 세무기관이나 공식 시스템에서 나온 것인지 확인하셨나요?**
 
 ① 세무기관이나 공식 전자 시스템에서 직접 확인했고, 출처도 확인했습니다.  
 ② 세무기관에서 온 것으로 알고 있지만 공식 발신 경로까지는 확인하지 못했습니다.  
 ③ 거래 상대방이나 회사 담당자를 통해 전달받았고, 원래 세무기관 안내인지 확인하지 못했습니다.  
 ④ 다른 사람이나 온라인에서 전달받은 내용이라 출처와 공식 여부를 모두 확인해야 합니다.  
-⑤ 받은 VAT·인보이스 안내는 없고, 제가 먼저 확인해 보려는 것입니다.  
+⑤ 받은 부가가치세·인보이스 안내는 없고, 제가 먼저 확인해 보려는 것입니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
@@ -556,13 +556,13 @@
 
 **고객 화면**
 
-**받은 VAT·인보이스 안내와 실제 거래·전자 인보이스를 비교하면 무엇이 다르고, 그중 어떤 점이 가장 설명되지 않나요?**
+**받은 부가가치세·인보이스 안내와 실제 거래·전자 인보이스를 비교하면 무엇이 다르고, 그중 어떤 점이 가장 설명되지 않나요?**
 
-① 안내된 거래 금액과 실제 거래 금액이 다르게 보이며, 그 차이가 VAT 계산에 어떻게 반영되는지 확인하고 싶습니다.  
+① 안내된 거래 금액과 실제 거래 금액이 다르게 보이며, 그 차이가 부가가치세 계산에 어떻게 반영되는지 확인하고 싶습니다.  
 ② 안내된 인보이스 내용과 실제 전자 인보이스가 다르게 보이며, 어느 내용을 기준으로 해야 하는지 확인하고 싶습니다.  
 ③ 안내에서는 정상 처리되었다고 하지만 실제 시스템이나 인보이스에서는 그 결과가 확인되지 않으며, 반영 여부를 확인하고 싶습니다.  
 ④ 안내 내용과 실제 거래·인보이스가 모두 달라 보이며, 어떤 자료를 기준으로 비교해야 할지도 확인하고 싶습니다.  
-⑤ 받은 안내가 따로 없어서 비교할 내용은 없고, 제가 알고 있는 VAT·인보이스 처리 방식이 맞는지 확인하고 싶습니다.  
+⑤ 받은 안내가 따로 없어서 비교할 내용은 없고, 제가 알고 있는 부가가치세·인보이스 처리 방식이 맞는지 확인하고 싶습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
@@ -582,13 +582,13 @@
 
 **고객 화면**
 
-**확인하려는 VAT 금액은 어떤 금액이며, 그 금액은 거래금액·인보이스 금액·세율 중 무엇을 기준으로 계산되었다고 안내받았나요?**
+**확인하려는 부가가치세 금액은 어떤 금액이며, 그 금액은 거래금액·인보이스 금액·세율 중 무엇을 기준으로 계산되었다고 안내받았나요?**
 
-① 판매 또는 구매 금액에 VAT를 적용한 금액을 확인하고 있으며, 거래금액을 기준으로 계산되었다고 들었습니다.  
-② 전자 인보이스에 표시된 VAT 금액을 확인하고 있으며, 인보이스의 공급가액을 기준으로 계산되었다고 들었습니다.  
-③ 적용된 VAT 세율이나 계산 방식이 맞는지 확인하고 있으며, 특정 세율을 기준으로 계산되었다고 안내받았습니다.  
-④ 여러 거래의 VAT 금액이 함께 표시되어 있어 각각 어떤 거래금액과 기준으로 계산되었는지 확인이 필요합니다.  
-⑤ 아직 구체적인 VAT 금액은 모르고, 어떤 금액을 확인해야 하는지부터 알고 싶습니다.  
+① 판매 또는 구매 금액에 부가가치세를 적용한 금액을 확인하고 있으며, 거래금액을 기준으로 계산되었다고 들었습니다.  
+② 전자 인보이스에 표시된 부가가치세 금액을 확인하고 있으며, 인보이스의 공급가액을 기준으로 계산되었다고 들었습니다.  
+③ 적용된 부가가치세 세율이나 계산 방식이 맞는지 확인하고 있으며, 특정 세율을 기준으로 계산되었다고 안내받았습니다.  
+④ 여러 거래의 부가가치세 금액이 함께 표시되어 있어 각각 어떤 거래금액과 기준으로 계산되었는지 확인이 필요합니다.  
+⑤ 아직 구체적인 부가가치세 금액은 모르고, 어떤 금액을 확인해야 하는지부터 알고 싶습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
@@ -608,7 +608,7 @@
 
 **고객 화면**
 
-**전자 인보이스 수정·발행이나 VAT 신고·납부 기한이 있다면 언제쯤이고, 그 날짜는 어디에서 알게 되셨나요?**
+**전자 인보이스 수정·발행이나 부가가치세 신고·납부 기한이 있다면 언제쯤이고, 그 날짜는 어디에서 알게 되셨나요?**
 
 ① 세무기관이나 공식 전자 시스템의 안내에서 확인한 기한이 이미 지났거나 며칠 안에 다가옵니다.  
 ② 세무기관이나 공식 전자 시스템의 안내에서 기한을 확인했고, 아직 시간 여유가 있습니다.  
@@ -634,7 +634,7 @@
 
 **고객 화면**
 
-**이미 인보이스를 수정하거나 VAT 신고·납부 조치를 하셨다면, 그 뒤 어떤 답변이나 결과를 받았고 아직 해결되지 않은 부분은 무엇인가요?**
+**이미 인보이스를 수정하거나 부가가치세 신고·납부 조치를 하셨다면, 그 뒤 어떤 답변이나 결과를 받았고 아직 해결되지 않은 부분은 무엇인가요?**
 
 ① 수정이나 신고 방법을 안내받았지만, 실제로 어떤 인보이스나 자료를 처리해야 하는지는 아직 명확하지 않습니다.  
 ② 인보이스 수정이나 신고를 했지만, 시스템에 결과가 제대로 반영되었는지 확인되지 않습니다.  
@@ -658,10 +658,10 @@
 
 **고객 화면**
 
-**현재 VAT 처리를 실제로 막고 있는 이유는 무엇이며, 그 문제를 확인할 수 있는 인보이스·거래자료를 가지고 계신가요?**
+**현재 부가가치세 처리를 실제로 막고 있는 이유는 무엇이며, 그 문제를 확인할 수 있는 인보이스·거래자료를 가지고 계신가요?**
 
 ① 전자 인보이스의 내용을 이해하지 못하는 것이 가장 큰 문제이고, 해당 인보이스를 가지고 있습니다.  
-② 거래금액과 VAT 금액이 맞는지 확인하기 어려운 것이 문제이고, 거래·입금 자료를 가지고 있습니다.  
+② 거래금액과 부가가치세 금액이 맞는지 확인하기 어려운 것이 문제이고, 거래·입금 자료를 가지고 있습니다.  
 ③ 인보이스 발행·수정·신고 방법을 몰라 진행하지 못하고 있고, 관련 안내나 시스템 화면을 가지고 있습니다.  
 ④ 필요한 인보이스나 거래자료가 부족해서 진행하지 못하고 있으며, 현재 가진 자료부터 확인해야 합니다.  
 ⑤ 막혀 있는 것은 아니고 점검하는 단계이며, 가지고 있는 인보이스·거래자료를 정리해서 확인해 보고 싶습니다.  
@@ -684,13 +684,13 @@
 
 **고객 화면**
 
-**이번 확인을 통해 최종적으로 어떤 VAT·전자 인보이스 사실을 분명히 알고 싶고, 그 다음 단계에서 어디까지 도움을 받기를 원하시나요?**
+**이번 확인을 통해 최종적으로 어떤 부가가치세·전자 인보이스 사실을 분명히 알고 싶고, 그 다음 단계에서 어디까지 도움을 받기를 원하시나요?**
 
 ① 현재 전자 인보이스의 내용이 맞는지 확인하고, 필요한 수정·발행 방법까지 알고 싶습니다.  
-② VAT 금액과 계산 기준이 맞는지 확인하고, 잘못된 부분이 있다면 정정 방법까지 알고 싶습니다.  
+② 부가가치세 금액과 계산 기준이 맞는지 확인하고, 잘못된 부분이 있다면 정정 방법까지 알고 싶습니다.  
 ③ 신고·납부 또는 인보이스 처리가 실제로 완료되었는지 확인하고, 문제가 있다면 해결 절차까지 알고 싶습니다.  
 ④ 인보이스와 거래자료를 전문가가 함께 검토하고, 필요한 후속 처리까지 도움받고 싶습니다.  
-⑤ 특별한 문제가 있는지 VAT·인보이스 전체 상태를 점검하고, 확인해야 할 항목과 안내를 받고 싶습니다.  
+⑤ 특별한 문제가 있는지 부가가치세·인보이스 전체 상태를 점검하고, 확인해야 할 항목과 안내를 받고 싶습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
@@ -919,31 +919,31 @@
 | `final_goal` | `guidance_validity_and_compliance_action`(안내의 정확성과 필요한 조치) / `tax_amount_and_basis_verification`(세금 금액·계산 근거 확인) / `filing_settlement_completion_verification`(신고·정산 처리 여부 확인) / `expert_case_review`(전문가의 사안 검토) / `general_status_check`(전체 상태 점검) | Q11-P |
 | `support_scope` | `action_instructions`(신고·납부 등 다음 조치 안내) / `correction_or_followup`(정정·후속 조치) / `resolution_procedure`(문제 해결 절차) / `expert_led_followthrough`(전문가 검토 및 후속 진행) / `checklist_and_guidance`(확인 항목과 안내) | Q11-P |
 
-## C-2. VAT·전자 인보이스
+## C-2. 부가가치세·전자 인보이스
 
 | 필드 | 값 (고객 표시) | 사용 질문 |
 |---|---|---|
 | `vat_transaction_type` | `domestic_sale`(베트남에서 판매한 거래) / `domestic_purchase`(베트남에서 구입한 거래) / `unrecognized_transaction`(기억에 없거나 불분명한 거래) / `cross_border_transaction`(해외 거래) | Q1-V |
-| `vat_check_focus` | `sales_vat_treatment`(판매 VAT 처리) / `purchase_invoice_vat`(구입 인보이스와 VAT 처리) / `transaction_identification`(어떤 거래인지 확인) / `cross_border_vat_invoice_treatment`(해외 거래의 VAT·인보이스 처리) | Q1-V |
+| `vat_check_focus` | `sales_vat_treatment`(판매 부가가치세 처리) / `purchase_invoice_vat`(구입 인보이스와 부가가치세 처리) / `transaction_identification`(어떤 거래인지 확인) / `cross_border_vat_invoice_treatment`(해외 거래의 부가가치세·인보이스 처리) | Q1-V |
 | `invoice_handling_actor` | `self_issued`(직접 발행) / `counterparty_issued`(거래 상대방이 발행) / `not_issued_by_anyone`(인보이스가 아직 없음) / `revised_or_reissued`(수정·재발행됨) / `staff_or_agent_handled`(담당자·대행사가 처리) | Q2-V |
 | `invoice_handling_state` | `issued_content_check`(발행한 내용 확인) / `received_content_check`(받은 내용 확인) / `issuance_needed`(발행 필요 여부 확인) / `revision_relation_unclear`(이전 자료와의 관계 불분명) / `state_unknown`(상태를 정확히 모름) | Q2-V |
 | `vat_record_set` | `invoice_and_transaction_available`(인보이스와 거래 자료 모두 있음) / `invoice_only`(인보이스만 있음) / `transaction_only_or_partial_invoice`(거래 자료만 있거나 인보이스 일부만 있음) / `mixed_multiple_records`(여러 거래·인보이스가 섞여 있음) | Q3-V |
-| `vat_record_check` | `amount_and_vat_match`(금액·VAT·세율 일치 여부) / `date_and_party_match`(날짜·상대방 정보 일치 여부) / `invoice_vs_transaction`(인보이스와 실제 거래의 일치 여부) / `missing_invoice_scope`(빠진 인보이스 범위) / `linkage_organization`(인보이스·거래 연결 정리) | Q3-V |
+| `vat_record_check` | `amount_and_vat_match`(금액·부가가치세·세율 일치 여부) / `date_and_party_match`(날짜·상대방 정보 일치 여부) / `invoice_vs_transaction`(인보이스와 실제 거래의 일치 여부) / `missing_invoice_scope`(빠진 인보이스 범위) / `linkage_organization`(인보이스·거래 연결 정리) | Q3-V |
 | `vat_issue_trigger` | `authority_or_counterparty_notice`(세무기관·거래 상대방의 안내) / `filing_or_invoice_action_due`(신고·인보이스 처리 시점) / `invoice_result_mismatch`(처리한 인보이스의 불일치) / `language_barrier`(베트남어 이해 어려움) / `self_check`(미리 점검) | Q4-V |
 | `vat_current_blockage` | `notice_verification`(안내 내용 확인) / `required_action_unclear`(해야 할 일이 불분명) / `next_action_unclear`(다음 조치가 불분명) / `document_understanding`(서류 내용 이해) / `no_specific_blocker`(특별히 막힌 부분 없음) | Q4-V |
 | `vat_notice_source` | `tax_authority_or_official_system`(세무기관·공식 시스템) / `claimed_tax_authority`(세무기관이라고 안내받음) / `counterparty_or_internal_staff`(거래 상대방 또는 회사 담당자) / `third_party_or_online`(다른 사람·온라인) / `none_self_initiated`(받은 안내 없이 직접 확인) | Q5-V |
 | `vat_notice_authenticity` | `verified`(공식 출처 확인) / `unverified`(공식 출처 미확인) / `original_source_unverified`(원래 출처 미확인) / `source_unverified`(출처 미확인) / `not_applicable`(해당 없음) | Q5-V |
 | `vat_guidance_actual_difference` | `transaction_amount_difference`(거래 금액의 차이) / `invoice_content_difference`(인보이스 내용의 차이) / `processing_reflection_unconfirmed`(처리 반영 여부 미확인) / `overall_transaction_invoice_difference`(거래·인보이스 전반의 차이) / `self_check_no_guidance`(안내 없이 직접 점검) | Q6-V |
-| `vat_unexplained_point` | `vat_calculation_effect`(VAT 계산에 미치는 영향) / `reference_document`(기준 문서) / `system_reflection`(시스템 반영 여부) / `comparison_basis`(비교 기준) / `own_understanding_basis`(본인이 이해한 처리 방식) | Q6-V |
-| `vat_amount_type` | `transaction_based_vat`(거래 금액 기준 VAT) / `invoice_displayed_vat`(인보이스에 표시된 VAT 금액) / `rate_based_vat`(세율 기준 VAT) / `multiple_transaction_vat`(여러 거래의 VAT 금액) / `not_yet_identified`(아직 모르는 금액) | Q7-V |
-| `vat_amount_basis` | `transaction_amount`(거래 금액) / `invoice_tax_base`(인보이스의 공급가액) / `applied_vat_rate`(적용된 VAT 세율) / `multiple_transaction_bases`(여러 거래 금액) / `to_be_identified`(확인할 금액 파악 필요) | Q7-V |
+| `vat_unexplained_point` | `vat_calculation_effect`(부가가치세 계산에 미치는 영향) / `reference_document`(기준 문서) / `system_reflection`(시스템 반영 여부) / `comparison_basis`(비교 기준) / `own_understanding_basis`(본인이 이해한 처리 방식) | Q6-V |
+| `vat_amount_type` | `transaction_based_vat`(거래 금액 기준 부가가치세) / `invoice_displayed_vat`(인보이스에 표시된 부가가치세 금액) / `rate_based_vat`(세율 기준 부가가치세) / `multiple_transaction_vat`(여러 거래의 부가가치세 금액) / `not_yet_identified`(아직 모르는 금액) | Q7-V |
+| `vat_amount_basis` | `transaction_amount`(거래 금액) / `invoice_tax_base`(인보이스의 공급가액) / `applied_vat_rate`(적용된 부가가치세 세율) / `multiple_transaction_bases`(여러 거래 금액) / `to_be_identified`(확인할 금액 파악 필요) | Q7-V |
 | `vat_deadline_timing` | `passed_or_imminent`(기한이 지났거나 임박) / `upcoming_with_margin`(아직 여유 있음) / `possibly_passed_or_near`(지났거나 가까울 수 있음) / `unconfirmed_date`(날짜 미확정) / `unknown`(기한을 모름) | Q8-V |
 | `vat_deadline_source` | `official_notice`(공식 안내) / `counterparty_or_staff`(거래 상대방 또는 회사 담당자) / `online_hearsay_or_memory`(온라인·전해 들은 날짜·기억) / `none`(안내받은 날짜 없음) | Q8-V |
 | `vat_post_action_response` | `procedure_guidance`(처리 방법 안내를 받음) / `action_completed_reflection_uncertain`(조치는 했으나 반영 여부 불확실) / `explanation_received`(설명을 들음) / `no_action_yet`(아직 조치 없음) | Q9-V |
 | `vat_post_action_unresolved` | `target_document_unclear`(처리할 자료가 불분명) / `system_reflection`(시스템 반영 여부) / `explanation_invoice_conflict`(설명과 인보이스가 다름) / `pre_action_check_needed`(조치 전 확인 필요) | Q9-V |
-| `vat_blocking_reason` | `invoice_understanding`(인보이스 내용 이해) / `amount_or_vat_reconciliation`(금액과 VAT 대조) / `invoice_or_filing_procedure_unknown`(인보이스·신고 방법을 모름) / `insufficient_records`(기록·자료 부족) / `no_blockage_self_check`(막힌 것 없이 점검 중) | Q10-V |
+| `vat_blocking_reason` | `invoice_understanding`(인보이스 내용 이해) / `amount_or_vat_reconciliation`(금액과 부가가치세 대조) / `invoice_or_filing_procedure_unknown`(인보이스·신고 방법을 모름) / `insufficient_records`(기록·자료 부족) / `no_blockage_self_check`(막힌 것 없이 점검 중) | Q10-V |
 | `vat_available_evidence` | `invoice`(전자 인보이스) / `transaction_and_payment_records`(거래·입금 자료) / `instruction_or_system_screen`(안내문·시스템 화면) / `partial_invoice_or_transaction_records`(일부 인보이스·거래 자료) / `records_at_hand`(가지고 있는 자료) | Q10-V |
-| `vat_final_goal` | `invoice_validity_verification`(인보이스 내용 확인) / `vat_amount_basis_verification`(VAT 금액·계산 기준 확인) / `processing_completion_verification`(처리 완료 여부 확인) / `expert_invoice_transaction_review`(전문가의 인보이스·거래 검토) / `general_status_check`(전체 상태 점검) | Q11-V |
+| `vat_final_goal` | `invoice_validity_verification`(인보이스 내용 확인) / `vat_amount_basis_verification`(부가가치세 금액·계산 기준 확인) / `processing_completion_verification`(처리 완료 여부 확인) / `expert_invoice_transaction_review`(전문가의 인보이스·거래 검토) / `general_status_check`(전체 상태 점검) | Q11-V |
 | `vat_support_scope` | `issuance_or_correction_action`(발행·수정 방법) / `tax_correction_action`(정정 방법) / `resolution_procedure`(문제 해결 절차) / `expert_led_followthrough`(전문가 검토 및 후속 진행) / `checklist_and_guidance`(확인 항목과 안내) | Q11-V |
 
 ## C-3. 법인세
@@ -975,7 +975,7 @@
 
 # D. 라우팅
 
-1. 첫 진입에서 개인소득세 / VAT·전자 인보이스 / 법인세 중 하나를 고른다(A-0). 잘 모르겠거나 직접 입력이면 개인소득세 경로로 시작한다.
+1. 첫 진입에서 개인소득세 / 부가가치세·전자 인보이스 / 법인세 중 하나를 고른다(A-0). 잘 모르겠거나 직접 입력이면 개인소득세 경로로 시작한다.
 2. 선택한 경로의 1차 4개를 마친 뒤 같은 경로의 2차 7개로 이어진다. **질문 중간에 멈추지 않는다.**
 3. **긴급해 보이는 경우**(기한 임박, 세무기관 추가 자료 요구, 신고·납부가 막힘, 받은 서류를 이해하지 못함)에도 질문을 줄이거나 건너뛰지 않는다. 모든 질문을 마친 뒤 결과에서 **전문가 진행**으로 연결한다.
 4. 결과에서의 연결 안내(E-3)는 권유 문구이며, 고객에게 서비스 이동을 강제하지 않는다.
@@ -1046,16 +1046,16 @@
 | 9 (P-R9) | `income_source` ∈ {rental_or_foreign_income} | 임대·해외소득은 신고 방식이 달라 따로 확인이 필요합니다. |
 | 기본 | 위 조건에 하나도 해당하지 않음 | 지금 답변만으로는 눈에 띄는 위험 신호가 많지 않지만, 어떤 자료를 기준으로 할지는 확인이 필요합니다. |
 
-### E-1-V. VAT·전자 인보이스
+### E-1-V. 부가가치세·전자 인보이스
 
 **카드1 (확인하려는 것)** — Q1-V
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `vat_transaction_type=domestic_sale`, `vat_check_focus=sales_vat_treatment` | 판매 거래의 VAT 처리가 맞는지 확인합니다. | 25 |
-| ② | `vat_transaction_type=domestic_purchase`, `vat_check_focus=purchase_invoice_vat` | 구입 거래의 인보이스와 VAT 처리를 확인합니다. | 27 |
+| ① | `vat_transaction_type=domestic_sale`, `vat_check_focus=sales_vat_treatment` | 판매 거래의 부가가치세 처리가 맞는지 확인합니다. | 25 |
+| ② | `vat_transaction_type=domestic_purchase`, `vat_check_focus=purchase_invoice_vat` | 구입 거래의 인보이스와 부가가치세 처리를 확인합니다. | 27 |
 | ③ | `vat_transaction_type=unrecognized_transaction`, `vat_check_focus=transaction_identification` | 어떤 거래인지 불분명한 안내를 먼저 확인합니다. | 26 |
-| ④ | `vat_transaction_type=cross_border_transaction`, `vat_check_focus=cross_border_vat_invoice_treatment` | 해외 거래의 VAT와 인보이스 처리를 확인합니다. | 27 |
+| ④ | `vat_transaction_type=cross_border_transaction`, `vat_check_focus=cross_border_vat_invoice_treatment` | 해외 거래의 부가가치세와 인보이스 처리를 확인합니다. | 27 |
 
 **카드2 (인보이스 상태)** — Q2-V
 
@@ -1081,11 +1081,11 @@
 
 | 선택 | 저장 필드 | 판정(1줄) | 본문(2문장) |
 |---|---|---|---|
-| ① | `vat_issue_trigger=authority_or_counterparty_notice`, `vat_current_blockage=notice_verification` | 받으신 인보이스·VAT 안내의 내용을 먼저 확인해야 하는 상태입니다. | 세무기관이나 거래 상대방의 안내를 받고 확인을 시작하셨습니다. 안내의 출처와 내용이 실제 거래와 맞는지부터 살펴보겠습니다. |
-| ② | `vat_issue_trigger=filing_or_invoice_action_due`, `vat_current_blockage=required_action_unclear` | 신고·인보이스 처리 시점에 해야 할 일을 확인해야 하는 상태입니다. | VAT 신고나 인보이스 처리 시기가 되어 확인을 시작하셨습니다. 해야 할 일과 기한을 먼저 정리하는 것이 좋습니다. |
-| ③ | `vat_issue_trigger=invoice_result_mismatch`, `vat_current_blockage=next_action_unclear` | 이미 처리한 인보이스가 맞지 않는 이유를 확인해야 하는 상태입니다. | 이미 발행·수령한 인보이스의 내용이나 VAT 금액이 맞지 않아 확인을 시작하셨습니다. 어느 자료에서 차이가 생겼는지 살펴보겠습니다. |
+| ① | `vat_issue_trigger=authority_or_counterparty_notice`, `vat_current_blockage=notice_verification` | 받으신 인보이스·부가가치세 안내의 내용을 먼저 확인해야 하는 상태입니다. | 세무기관이나 거래 상대방의 안내를 받고 확인을 시작하셨습니다. 안내의 출처와 내용이 실제 거래와 맞는지부터 살펴보겠습니다. |
+| ② | `vat_issue_trigger=filing_or_invoice_action_due`, `vat_current_blockage=required_action_unclear` | 신고·인보이스 처리 시점에 해야 할 일을 확인해야 하는 상태입니다. | 부가가치세 신고나 인보이스 처리 시기가 되어 확인을 시작하셨습니다. 해야 할 일과 기한을 먼저 정리하는 것이 좋습니다. |
+| ③ | `vat_issue_trigger=invoice_result_mismatch`, `vat_current_blockage=next_action_unclear` | 이미 처리한 인보이스가 맞지 않는 이유를 확인해야 하는 상태입니다. | 이미 발행·수령한 인보이스의 내용이나 부가가치세 금액이 맞지 않아 확인을 시작하셨습니다. 어느 자료에서 차이가 생겼는지 살펴보겠습니다. |
 | ④ | `vat_issue_trigger=language_barrier`, `vat_current_blockage=document_understanding` | 베트남어 인보이스·안내의 정확한 뜻을 확인해야 하는 상태입니다. | 베트남어 내용을 이해하기 어려워 확인을 시작하셨습니다. 어떤 조치가 실제로 필요한지 쉽게 풀어서 살펴보겠습니다. |
-| ⑤ | `vat_issue_trigger=self_check`, `vat_current_blockage=no_specific_blocker` | 특별한 문제 없이 미리 점검하시는 상태입니다. | 받은 안내나 막힌 일은 없지만 VAT·인보이스 처리를 미리 점검하고 싶으셨습니다. 지금 가진 자료로 확인할 항목을 정리해 보겠습니다. |
+| ⑤ | `vat_issue_trigger=self_check`, `vat_current_blockage=no_specific_blocker` | 특별한 문제 없이 미리 점검하시는 상태입니다. | 받은 안내나 막힌 일은 없지만 부가가치세·인보이스 처리를 미리 점검하고 싶으셨습니다. 지금 가진 자료로 확인할 항목을 정리해 보겠습니다. |
 
 **03 주요 위험 요소 규칙** — 아래 순서(우선순위)대로 조건에 맞는 것을 최대 4개까지 표시. 하나도 없으면 기본 문장 1개.
 
@@ -1093,12 +1093,12 @@
 |---|---|---|
 | 1 (V-R1) | `vat_issue_trigger` ∈ {authority_or_counterparty_notice}. 단, `vat_notice_authenticity` = verified 이면 제외 | 받은 안내가 실제 세무기관이나 공식 시스템에서 온 것인지 먼저 확인이 필요합니다. |
 | 2 (V-R2) | `vat_transaction_type` ∈ {unrecognized_transaction} | 기억에 없는 거래의 안내는 사실을 확인하기 전에 대응하지 않는 것이 안전합니다. |
-| 3 (V-R3) | `vat_issue_trigger` ∈ {filing_or_invoice_action_due} 또는 `vat_deadline_timing` ∈ {passed_or_imminent, possibly_passed_or_near} | 인보이스 수정·발행이나 VAT 신고 기한을 정확히 확인해야 합니다. |
-| 4 (V-R4) | `vat_issue_trigger` ∈ {invoice_result_mismatch} 또는 `vat_record_check` ∈ {amount_and_vat_match, date_and_party_match, invoice_vs_transaction} | 인보이스와 실제 거래의 차이를 확인하지 않으면 VAT 처리의 근거가 약해질 수 있습니다. |
+| 3 (V-R3) | `vat_issue_trigger` ∈ {filing_or_invoice_action_due} 또는 `vat_deadline_timing` ∈ {passed_or_imminent, possibly_passed_or_near} | 인보이스 수정·발행이나 부가가치세 신고 기한을 정확히 확인해야 합니다. |
+| 4 (V-R4) | `vat_issue_trigger` ∈ {invoice_result_mismatch} 또는 `vat_record_check` ∈ {amount_and_vat_match, date_and_party_match, invoice_vs_transaction} | 인보이스와 실제 거래의 차이를 확인하지 않으면 부가가치세 처리의 근거가 약해질 수 있습니다. |
 | 5 (V-R5) | `invoice_handling_actor` ∈ {not_issued_by_anyone} | 인보이스가 없는 거래는 누가 어떻게 발행해야 하는지 확인이 필요합니다. |
 | 6 (V-R6) | `invoice_handling_actor` ∈ {revised_or_reissued} | 수정·재발행된 인보이스는 어느 것이 최종본인지 확인해야 합니다. |
 | 7 (V-R7) | `invoice_handling_actor` ∈ {staff_or_agent_handled} | 담당자가 처리한 부분은 실제 처리 내역을 직접 확인할 필요가 있습니다. |
-| 8 (V-R8) | `vat_transaction_type` ∈ {cross_border_transaction} | 해외 거래는 VAT와 인보이스 처리 방식이 달라 따로 확인이 필요합니다. |
+| 8 (V-R8) | `vat_transaction_type` ∈ {cross_border_transaction} | 해외 거래는 부가가치세와 인보이스 처리 방식이 달라 따로 확인이 필요합니다. |
 | 9 (V-R9) | `vat_record_set` ∈ {mixed_multiple_records} | 여러 거래가 섞여 있어 빠지거나 겹치는 인보이스가 생길 수 있습니다. |
 | 10 (V-R10) | `vat_issue_trigger` ∈ {language_barrier} | 베트남어 인보이스·안내를 잘못 이해하면 필요한 조치를 놓칠 수 있습니다. |
 | 기본 | 위 조건에 하나도 해당하지 않음 | 지금 답변만으로는 눈에 띄는 위험 신호가 많지 않지만, 어떤 자료를 기준으로 할지는 확인이 필요합니다. |
@@ -1232,7 +1232,7 @@
 | ④ | `final_goal=expert_case_review`, `support_scope=expert_led_followthrough` | 자료만으로 판단하기 어려운 부분은 전문가의 검토를 받고, 이후 조치도 함께 진행하기를 원하십니다. |
 | ⑤ | `final_goal=general_status_check`, `support_scope=checklist_and_guidance` | 특별한 문제가 있는지 전체 상태를 점검하고, 확인할 항목과 안내를 받기를 원하십니다. |
 
-### E-2-V. VAT·전자 인보이스
+### E-2-V. 부가가치세·전자 인보이스
 
 **안내 출처** — Q5-V
 
@@ -1242,27 +1242,27 @@
 | ② | `vat_notice_source=claimed_tax_authority`, `vat_notice_authenticity=unverified` | 세무기관에서 온 것으로 알고 계시지만 공식 발신 경로는 아직 확인되지 않았습니다. |
 | ③ | `vat_notice_source=counterparty_or_internal_staff`, `vat_notice_authenticity=original_source_unverified` | 거래 상대방이나 회사 담당자를 거쳐 받은 안내로, 원래 세무기관의 안내인지는 확인되지 않았습니다. |
 | ④ | `vat_notice_source=third_party_or_online`, `vat_notice_authenticity=source_unverified` | 다른 사람이나 온라인을 통해 받은 내용이라 출처와 공식 여부를 모두 확인해야 합니다. |
-| ⑤ | `vat_notice_source=none_self_initiated`, `vat_notice_authenticity=not_applicable` | 받으신 VAT·인보이스 안내는 없고 직접 먼저 확인하시는 경우라, 출처를 따질 안내는 없습니다. |
+| ⑤ | `vat_notice_source=none_self_initiated`, `vat_notice_authenticity=not_applicable` | 받으신 부가가치세·인보이스 안내는 없고 직접 먼저 확인하시는 경우라, 출처를 따질 안내는 없습니다. |
 
 **안내와 실제의 차이** — Q6-V
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `vat_guidance_actual_difference=transaction_amount_difference`, `vat_unexplained_point=vat_calculation_effect` | 안내된 거래 금액과 실제 거래 금액이 달라 보이며, 그 차이가 VAT 계산에 어떻게 반영되는지 확인이 필요합니다. |
+| ① | `vat_guidance_actual_difference=transaction_amount_difference`, `vat_unexplained_point=vat_calculation_effect` | 안내된 거래 금액과 실제 거래 금액이 달라 보이며, 그 차이가 부가가치세 계산에 어떻게 반영되는지 확인이 필요합니다. |
 | ② | `vat_guidance_actual_difference=invoice_content_difference`, `vat_unexplained_point=reference_document` | 안내된 인보이스 내용과 실제 전자 인보이스가 달라 보이며, 어느 쪽을 기준으로 할지 확인이 필요합니다. |
 | ③ | `vat_guidance_actual_difference=processing_reflection_unconfirmed`, `vat_unexplained_point=system_reflection` | 안내에는 정상 처리됐다고 되어 있지만 실제 시스템이나 인보이스에서 그 결과를 찾기 어렵습니다. |
 | ④ | `vat_guidance_actual_difference=overall_transaction_invoice_difference`, `vat_unexplained_point=comparison_basis` | 안내와 실제 거래·인보이스가 모두 달라 보여, 어떤 자료를 기준으로 비교할지부터 정해야 합니다. |
-| ⑤ | `vat_guidance_actual_difference=self_check_no_guidance`, `vat_unexplained_point=own_understanding_basis` | 비교할 안내는 없어서, 알고 계신 VAT·인보이스 처리 방식이 실제와 맞는지 확인하는 것이 중심입니다. |
+| ⑤ | `vat_guidance_actual_difference=self_check_no_guidance`, `vat_unexplained_point=own_understanding_basis` | 비교할 안내는 없어서, 알고 계신 부가가치세·인보이스 처리 방식이 실제와 맞는지 확인하는 것이 중심입니다. |
 
 **금액과 계산 기준** — Q7-V
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `vat_amount_type=transaction_based_vat`, `vat_amount_basis=transaction_amount` | 판매 또는 구매 금액에 VAT를 적용한 금액을 확인 중이며, 거래 금액이 계산 기준이라고 들으셨습니다. |
-| ② | `vat_amount_type=invoice_displayed_vat`, `vat_amount_basis=invoice_tax_base` | 전자 인보이스에 표시된 VAT 금액을 확인 중이며, 인보이스의 공급가액이 기준이라고 들으셨습니다. |
-| ③ | `vat_amount_type=rate_based_vat`, `vat_amount_basis=applied_vat_rate` | 적용된 VAT 세율과 계산 방식을 확인 중이며, 특정 세율이 기준이라고 안내받으셨습니다. |
-| ④ | `vat_amount_type=multiple_transaction_vat`, `vat_amount_basis=multiple_transaction_bases` | 여러 거래의 VAT 금액이 함께 표시되어 있어, 거래별 금액과 기준을 나누어 확인해야 합니다. |
-| ⑤ | `vat_amount_type=not_yet_identified`, `vat_amount_basis=to_be_identified` | 아직 확인할 구체적인 VAT 금액을 모르는 상태로, 어떤 금액을 봐야 하는지부터 정리가 필요합니다. |
+| ① | `vat_amount_type=transaction_based_vat`, `vat_amount_basis=transaction_amount` | 판매 또는 구매 금액에 부가가치세를 적용한 금액을 확인 중이며, 거래 금액이 계산 기준이라고 들으셨습니다. |
+| ② | `vat_amount_type=invoice_displayed_vat`, `vat_amount_basis=invoice_tax_base` | 전자 인보이스에 표시된 부가가치세 금액을 확인 중이며, 인보이스의 공급가액이 기준이라고 들으셨습니다. |
+| ③ | `vat_amount_type=rate_based_vat`, `vat_amount_basis=applied_vat_rate` | 적용된 부가가치세 세율과 계산 방식을 확인 중이며, 특정 세율이 기준이라고 안내받으셨습니다. |
+| ④ | `vat_amount_type=multiple_transaction_vat`, `vat_amount_basis=multiple_transaction_bases` | 여러 거래의 부가가치세 금액이 함께 표시되어 있어, 거래별 금액과 기준을 나누어 확인해야 합니다. |
+| ⑤ | `vat_amount_type=not_yet_identified`, `vat_amount_basis=to_be_identified` | 아직 확인할 구체적인 부가가치세 금액을 모르는 상태로, 어떤 금액을 봐야 하는지부터 정리가 필요합니다. |
 
 **기한** — Q8-V
 
@@ -1272,7 +1272,7 @@
 | ② | `vat_deadline_timing=upcoming_with_margin`, `vat_deadline_source=official_notice` | 공식 안내로 기한을 확인했고 아직 시간 여유가 있습니다. |
 | ③ | `vat_deadline_timing=possibly_passed_or_near`, `vat_deadline_source=counterparty_or_staff` | 거래 상대방이나 회사 담당자에게 들은 날짜가 지났거나 가까울 수 있어, 공식 안내와 대조가 필요합니다. |
 | ④ | `vat_deadline_timing=unconfirmed_date`, `vat_deadline_source=online_hearsay_or_memory` | 온라인이나 다른 사람에게 들은 날짜라 정확한 기한이 확정되지 않았습니다. |
-| ⑤ | `vat_deadline_timing=unknown`, `vat_deadline_source=none` | 기한 안내를 받은 적이 없어, 인보이스 수정·발행이나 VAT 신고 기한이 있는지부터 확인해야 합니다. |
+| ⑤ | `vat_deadline_timing=unknown`, `vat_deadline_source=none` | 기한 안내를 받은 적이 없어, 인보이스 수정·발행이나 부가가치세 신고 기한이 있는지부터 확인해야 합니다. |
 
 **조치 이후** — Q9-V
 
@@ -1288,7 +1288,7 @@
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
 | ① | `vat_blocking_reason=invoice_understanding`, `vat_available_evidence=invoice` | 전자 인보이스의 내용을 이해하지 못해 막혀 있고, 해당 인보이스는 가지고 계십니다. |
-| ② | `vat_blocking_reason=amount_or_vat_reconciliation`, `vat_available_evidence=transaction_and_payment_records` | 거래 금액과 VAT 금액이 맞는지 확인하기 어려워 막혀 있고, 거래·입금 자료는 가지고 계십니다. |
+| ② | `vat_blocking_reason=amount_or_vat_reconciliation`, `vat_available_evidence=transaction_and_payment_records` | 거래 금액과 부가가치세 금액이 맞는지 확인하기 어려워 막혀 있고, 거래·입금 자료는 가지고 계십니다. |
 | ③ | `vat_blocking_reason=invoice_or_filing_procedure_unknown`, `vat_available_evidence=instruction_or_system_screen` | 인보이스 발행·수정·신고 방법을 몰라 막혀 있고, 관련 안내나 시스템 화면은 가지고 계십니다. |
 | ④ | `vat_blocking_reason=insufficient_records`, `vat_available_evidence=partial_invoice_or_transaction_records` | 필요한 인보이스나 거래 자료가 부족해 막혀 있어, 지금 가진 자료부터 확인하는 것이 먼저입니다. |
 | ⑤ | `vat_blocking_reason=no_blockage_self_check`, `vat_available_evidence=records_at_hand` | 막힌 부분은 없고 점검 단계이며, 가지고 계신 인보이스·거래 자료를 정리해 확인하는 것이 중심입니다. |
@@ -1298,10 +1298,10 @@
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
 | ① | `vat_final_goal=invoice_validity_verification`, `vat_support_scope=issuance_or_correction_action` | 전자 인보이스의 내용이 맞는지 확인하고, 필요한 수정·발행 방법까지 알기를 원하십니다. |
-| ② | `vat_final_goal=vat_amount_basis_verification`, `vat_support_scope=tax_correction_action` | VAT 금액과 계산 기준이 맞는지 확인하고, 잘못된 부분이 있으면 정정 방법까지 알기를 원하십니다. |
+| ② | `vat_final_goal=vat_amount_basis_verification`, `vat_support_scope=tax_correction_action` | 부가가치세 금액과 계산 기준이 맞는지 확인하고, 잘못된 부분이 있으면 정정 방법까지 알기를 원하십니다. |
 | ③ | `vat_final_goal=processing_completion_verification`, `vat_support_scope=resolution_procedure` | 신고·납부나 인보이스 처리가 실제로 끝났는지 확인하고, 문제가 있으면 해결 절차까지 알기를 원하십니다. |
 | ④ | `vat_final_goal=expert_invoice_transaction_review`, `vat_support_scope=expert_led_followthrough` | 인보이스와 거래 자료를 전문가가 함께 검토하고, 필요한 후속 처리까지 도움받기를 원하십니다. |
-| ⑤ | `vat_final_goal=general_status_check`, `vat_support_scope=checklist_and_guidance` | 특별한 문제가 있는지 VAT·인보이스 전체 상태를 점검하고, 확인할 항목과 안내를 받기를 원하십니다. |
+| ⑤ | `vat_final_goal=general_status_check`, `vat_support_scope=checklist_and_guidance` | 특별한 문제가 있는지 부가가치세·인보이스 전체 상태를 점검하고, 확인할 항목과 안내를 받기를 원하십니다. |
 
 ### E-2-C. 법인세
 
@@ -1394,7 +1394,7 @@
 
 # F. 자동 점검 결과 (실행 결과)
 
-| 점검 항목 | 개인소득세 | VAT·전자 인보이스 | 법인세 |
+| 점검 항목 | 개인소득세 | 부가가치세·전자 인보이스 | 법인세 |
 |---|---:|---:|---:|
 | 1차 질문 수 | 4 | 4 | 4 |
 | 2차 질문 수 | 7 | 7 | 7 |
@@ -1408,7 +1408,7 @@
 |---|---|
 | 선택지마다 결과 문장 존재 | 통과(결과 문장 수 = 선택지 수, 전 질문) |
 | 모든 선택지가 서로 다른 필드 쌍 | 통과 |
-| 고객 화면 문장에 영문·코드 노출(VAT 제외) | 0건 |
+| 고객 화면 문장에 영문·코드 노출 | VAT 0건 |
 | 세액·납세의무 단정 표현(체납·과태료·추징·내야 합니다 등) | 0건 |
 | 괄호 짝·이중 공백 | 0건 |
 | 카드 문장 50자 초과 | 0건(최대 32자) |
@@ -1432,11 +1432,11 @@
 | `action_instructions` | 신고·납부 등 다음 조치 안내 |
 | `additional_document_scope` | 추가로 낼 자료 범위 |
 | `aggregate_or_period_difference` | 합계·기간의 차이 |
-| `amount_and_vat_match` | 금액·VAT·세율 일치 여부 |
+| `amount_and_vat_match` | 금액·부가가치세·세율 일치 여부 |
 | `amount_or_calculation_mismatch` | 금액·계산 방식 불일치 |
 | `amount_or_calculation_unclear` | 금액·계산 근거 불명확 |
-| `amount_or_vat_reconciliation` | 금액과 VAT 대조 |
-| `applied_vat_rate` | 적용된 VAT 세율 |
+| `amount_or_vat_reconciliation` | 금액과 부가가치세 대조 |
+| `applied_vat_rate` | 적용된 부가가치세 세율 |
 | `assessed_corporate_tax` | 신고된 법인세 금액 |
 | `authority_issue_review` | 세무기관 지적 사항 검토 |
 | `authority_or_counterparty_notice` | 세무기관·거래 상대방의 안내 |
@@ -1465,7 +1465,7 @@
 | `counterparty_or_internal_staff` | 거래 상대방 또는 회사 담당자 |
 | `counterparty_or_staff` | 거래 상대방 또는 회사 담당자 |
 | `cross_border_transaction` | 해외 거래 |
-| `cross_border_vat_invoice_treatment` | 해외 거래의 VAT·인보이스 처리 |
+| `cross_border_vat_invoice_treatment` | 해외 거래의 부가가치세·인보이스 처리 |
 | `cross_document_consistency` | 자료 간 일치 여부 |
 | `date_and_party_match` | 날짜·상대방 정보 일치 여부 |
 | `deductible_expense_linkage` | 비용 처리 범위 연결 |
@@ -1517,7 +1517,7 @@
 | `invoice` | 전자 인보이스 |
 | `invoice_and_transaction_available` | 인보이스와 거래 자료 모두 있음 |
 | `invoice_content_difference` | 인보이스 내용의 차이 |
-| `invoice_displayed_vat` | 인보이스에 표시된 VAT 금액 |
+| `invoice_displayed_vat` | 인보이스에 표시된 부가가치세 금액 |
 | `invoice_only` | 인보이스만 있음 |
 | `invoice_or_filing_procedure_unknown` | 인보이스·신고 방법을 모름 |
 | `invoice_result_mismatch` | 처리한 인보이스의 불일치 |
@@ -1543,7 +1543,7 @@
 | `multiple_payment_methods` | 여러 지급 방식 |
 | `multiple_tax_amounts` | 여러 세금 금액 |
 | `multiple_transaction_bases` | 여러 거래 금액 |
-| `multiple_transaction_vat` | 여러 거래의 VAT 금액 |
+| `multiple_transaction_vat` | 여러 거래의 부가가치세 금액 |
 | `next_action_unclear` | 다음 조치가 불분명 |
 | `no_action_yet` | 아직 조치 없음 |
 | `no_blockage_self_check` | 막힌 것 없이 점검 중 |
@@ -1584,8 +1584,8 @@
 | `procedure_unknown` | 절차를 모름 |
 | `processing_completion_verification` | 처리 완료 여부 확인 |
 | `processing_reflection_unconfirmed` | 처리 반영 여부 미확인 |
-| `purchase_invoice_vat` | 구입 인보이스와 VAT 처리 |
-| `rate_based_vat` | 세율 기준 VAT |
+| `purchase_invoice_vat` | 구입 인보이스와 부가가치세 처리 |
+| `rate_based_vat` | 세율 기준 부가가치세 |
 | `received_content_check` | 받은 내용 확인 |
 | `records_at_hand` | 가지고 있는 자료 |
 | `reference_basis` | 기준 자료 |
@@ -1611,7 +1611,7 @@
 | `salary` | 급여 |
 | `salary_or_payment_amount` | 급여 또는 지급액 |
 | `salary_tax_amount` | 급여에서 빠진 세금 금액 |
-| `sales_vat_treatment` | 판매 VAT 처리 |
+| `sales_vat_treatment` | 판매 부가가치세 처리 |
 | `scattered_or_inconsistent` | 흩어져 있거나 서로 다름 |
 | `selected` | 직접 선택 |
 | `self_check` | 미리 점검 |
@@ -1647,7 +1647,7 @@
 | `transaction_amount` | 거래 금액 |
 | `transaction_amount_difference` | 거래 금액의 차이 |
 | `transaction_and_payment_records` | 거래·입금 자료 |
-| `transaction_based_vat` | 거래 금액 기준 VAT |
+| `transaction_based_vat` | 거래 금액 기준 부가가치세 |
 | `transaction_completeness` | 거래 누락 여부 |
 | `transaction_identification` | 어떤 거래인지 확인 |
 | `transaction_only_or_partial_invoice` | 거래 자료만 있거나 인보이스 일부만 있음 |
@@ -1659,9 +1659,9 @@
 | `unsure_default_personal` | 어느 쪽인지 잘 모름(개인소득세로 시작) |
 | `unverified` | 공식 출처 미확인 |
 | `upcoming_with_margin` | 아직 여유 있음 |
-| `vat_amount_basis_verification` | VAT 금액·계산 기준 확인 |
-| `vat_calculation_effect` | VAT 계산에 미치는 영향 |
-| `vat_einvoice` | VAT·전자 인보이스 |
+| `vat_amount_basis_verification` | 부가가치세 금액·계산 기준 확인 |
+| `vat_calculation_effect` | 부가가치세 계산에 미치는 영향 |
+| `vat_einvoice` | 부가가치세·전자 인보이스 |
 | `verbal_or_written_explanation_received` | 설명을 들음 |
 | `verified` | 공식 출처 확인 |
 | `withholding_or_year_end` | 원천징수·연말 정산 |
@@ -1703,7 +1703,7 @@
 흐름: 받은 서류 원본 보관 → 날짜·기한 표시 확인 → 발신 기관·연락처 확인 → 회신 전 전문가 확인 [일반 실무]
 - 받으신 통지서나 메일에 적힌 날짜와 기한 표시를 먼저 확인해 두세요. [2]
 - 회신이나 대응 전에 받은 서류 원본과 발송 기록을 그대로 보관해 두세요. [일반 실무]
-- 발신 기관이나 연락처가 낯설다면 회신 전에 사실 여부를 먼저 확인하시는 것을 권합니다. [일반 실무]
+- 발신 기관이나 연락처가 낯설다면 회신 전에 사실 여부를 먼저 확인하시는 것을 권합니다. [7]
 
 ## 경로 1: 내 소득
 
@@ -1762,7 +1762,7 @@
 - 계약서 ↔ 인보이스 / 품목, 금액, 날짜가 같은지 [3]
 - 인보이스 ↔ 이체 내역 / 낸 금액과 시기가 맞는지 [5]
 - 인보이스의 구매자 정보 ↔ 실제 사업자 정보 / 상호와 세금 번호가 맞는지 [3]
-- 인도·완료 증빙 ↔ 인보이스 날짜 / 거래 시기가 서로 이어지는지 [일반 실무]
+- 인도·완료 증빙 ↔ 인보이스 날짜 / 거래 시기가 서로 이어지는지 [3]
 
 ### ④ 시점별 정리
 
@@ -1785,7 +1785,7 @@
 
 ### ① 준비 자료 체크
 
-1. 사업자등록·투자 관련 서류 / 상호, 번호, 대표자 정보의 기준이 됩니다. [일반 실무]
+1. 사업자등록·투자 관련 서류 / 상호, 번호, 대표자 정보의 기준이 됩니다. [6]
 2. 회계 장부와 증빙 서류 (기간별) / 신고 내용의 근거가 됩니다. [2][5]
 3. 전자 인보이스 내역 (발행·수취) / 장부와 맞는지 대조할 때 필요합니다. [3][5]
 4. 급여·외국인 직원 자료 (계약서, 수당, 체류 기간) / 직원 소득세 확인의 기준이 됩니다. [1][5]
@@ -1849,7 +1849,7 @@
 
 - 서류를 받은 날짜를 기록해 두지 않은 경우 [일반 실무]
 - 첫 안내 이후의 연락을 따로 모아 두지 않은 경우 [일반 실무]
-- 낯선 발신처의 서류를 사실 확인 없이 그대로 처리한 경우 [일반 실무]
+- 낯선 발신처의 서류를 사실 확인 없이 그대로 처리한 경우 [7]
 
 ### ⑥ 전문가에게 가져갈 질문
 
@@ -1864,7 +1864,9 @@
 | 번호 | 자료 | 발행처 | 성격 | URL | 비고 |
 |---|---|---|---|---|---|
 | 1 | 개인소득세법 제109/2025/QH15호 | 베트남 국회 (2025.12.10 승인, 대부분 조항 2026.7.1 시행) | 법령 | https://www.pwc.com/vn/en/publications/news-brief/251212-new-personal-income-tax-law.html , https://en.baochinhphu.vn/law-on-personal-income-tax-approved-111251210112819468.htm | 세부 기준은 시행령·시행규칙 확인 필요 |
-| 2 | 조세관리법 제38/2019/QH14호 | 베트남 국회 | 법령 | | |
+| 2 | 조세관리법 제38/2019/QH14호 | 베트남 국회 | 법령 | https://english.luatvietnam.vn/aw-no-38-2019-qh14-dated-june-13-2019-of-the-national-assembly-on-tax-administration-174969-Doc1.html | 제17조(납세자의 책임): 통지·요청 준수, 자료 제공, 인보이스·서류 관리 의무 |
 | 3 | 정부령 제123/2020/ND-CP호 및 재무부 통첩 제78/2021/TT-BTC호 (인보이스·증빙) | 베트남 정부·재무부 | 법령 | | 이후 개정될 수 있음 |
 | 4 | 외국인 개인소득세 신고·준비 서류 안내 (2022.3) | Vietnam Briefing | 전문기관 실무 자료 | https://www.vietnam-briefing.com/news/personal-income-tax-vietnam-deadlines-requirements-preparation.html/ | 2022년 자료로 현행 확인 필요 |
 | 5 | 외국계 기업의 베트남 세무 컴플라이언스 실수와 보관 서류 | Vietnam Briefing | 전문기관 실무 자료 | https://www.vietnam-briefing.com/news/vietnam-tax-compliance-mistakes-foreign-companies.html/ | |
+| 6 | 기업법 제59/2020/QH14호 (제28조 기업등록증의 내용) | 베트남 국회 | 법령 | https://english.luatvietnam.vn/law-on-enterprises-no-59-2020-qh14-dated-june-17-2020-of-the-national-assembly-186272-doc1.html | 투자등록증 등 투자 관련 서류는 투자법 별도 확인 필요 |
+| 7 | 세무기관 사칭 사기 주의 안내 (세무총국 공문 제1353/TCT-DNNCN호 인용) | 베트남 세무총국 (세관 신문 영문판 게재) | 공식 기관 안내 | https://english.haiquanonline.com.vn/continue-to-warn-about-forms-of-fraud-against-taxpayers-30696.html | 게재일 미표시 · 공식 앱·포털·공개 연락처로만 확인 |
