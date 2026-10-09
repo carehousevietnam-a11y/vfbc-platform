@@ -11,6 +11,8 @@ import {
 } from "@/lib/adminVerifyMypageFields";
 import type { VerifyMasterContentSlots } from "@/lib/verifyMasterContentSlots";
 import type { PackReviewQuestion, VerifyMasterPackBridge } from "@/lib/verifyMasterPackBridge";
+import { phase2QuestionIds } from "../engine/packRunner";
+import type { ContentPackBundle, ContentPackNode } from "../engine/types";
 
 /** 저장 키. 이미 tax_ 로 시작하면 한 번만 둔다. */
 export function taxStorageKey(field: string): string {
@@ -890,8 +892,69 @@ function isCit(answers: Record<string, string>, profile: TaxProfile): boolean {
   return answers[Q1_ID] === "q1_cit";
 }
 
-function skipsQ7(answers: Record<string, string>): boolean {
-  return answers[Q4_ID] === "q4_unknown";
+function taxPhase2Node(question: TaxQuestion): ContentPackNode {
+  return {
+    id: question.id,
+    phase: 2,
+    kind: "single",
+    showIf: "항상",
+    profileFields: Object.keys(question.choices[0]?.fields ?? {}),
+    question: question.prompt,
+    placeholder: "",
+    options: question.choices.map((choice) => ({
+      value: choice.value,
+      label: choice.label,
+      meaning: Object.entries(choice.fields)
+        .map(([key, value]) => `${key}=${value}`)
+        .join("; "),
+    })),
+  };
+}
+
+/** 문서 D표 경로. 문항 showIf는 항상이고, 갈래는 F-path 체인이 고른다. */
+const TAX_PHASE2_BUNDLE: ContentPackBundle = {
+  q1: [],
+  nodes: {
+    PERSONAL: [Q7, Q8, Q9, Q12].map(taxPhase2Node),
+    VAT: [Q10, Q12].map(taxPhase2Node),
+    CIT: [Q11, Q12].map(taxPhase2Node),
+  },
+  phase1Order: {},
+  risks: {},
+  fPaths: {
+    PERSONAL: [
+      {
+        pathId: "P",
+        condition: "항상",
+        label: "개인 2차",
+        chain: [Q7_ID, Q8_ID, Q9_ID, Q12_ID],
+      },
+    ],
+    VAT: [
+      {
+        pathId: "V",
+        condition: "항상",
+        label: "VAT 2차",
+        chain: [Q10_ID, Q12_ID],
+      },
+    ],
+    CIT: [
+      {
+        pathId: "C",
+        condition: "항상",
+        label: "법인세 2차",
+        chain: [Q11_ID, Q12_ID],
+      },
+    ],
+  },
+  pathAliases: {},
+};
+
+function phase2CaseId(answers: Record<string, string>, profile: TaxProfile): string | null {
+  if (isPersonal(profile)) return "PERSONAL";
+  if (isVat(answers, profile)) return "VAT";
+  if (isCit(answers, profile)) return "CIT";
+  return null;
 }
 
 function toReview(question: TaxQuestion): PackReviewQuestion {
@@ -924,15 +987,14 @@ function phase1Questions(answers: Record<string, string>): TaxQuestion[] {
 function phase2Questions(answers: Record<string, string>): TaxQuestion[] {
   const profile = buildTaxProfile(answers);
   if (isDirectQ1(answers) || isStop(profile)) return [];
-  if (isPersonal(profile)) {
-    const list: TaxQuestion[] = [];
-    if (!skipsQ7(answers)) list.push(Q7);
-    list.push(Q8, Q9, Q12);
-    return list;
-  }
-  if (isVat(answers, profile)) return [Q10, Q12];
-  if (isCit(answers, profile)) return [Q11, Q12];
-  return [];
+  const caseId = phase2CaseId(answers, profile);
+  if (!caseId) return [];
+  const ids = phase2QuestionIds(TAX_PHASE2_BUNDLE, caseId, answers);
+  const byId = new Map(QUESTIONS.map((question) => [question.id, question]));
+  return ids.flatMap((id) => {
+    const question = byId.get(id);
+    return question ? [question] : [];
+  });
 }
 
 export function isTaxPhase1Complete(answers: Record<string, string>): boolean {
