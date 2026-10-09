@@ -252,7 +252,7 @@ export function resolveVerifyAdminApplicationSummaryStatus(item: MypageLayoutIte
 export function shouldUseVerifyAdminMypageSlimAside(
   item: MypageLayoutItemLike | null | undefined
 ): boolean {
-  if (!item || item.serviceType !== "verify_admin") return false;
+  if (!item || (item.serviceType !== "verify_admin" && item.serviceType !== "verify_tax")) return false;
   return shouldUseGeneralCustomerMypageLayout(item);
 }
 
