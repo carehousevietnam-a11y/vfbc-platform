@@ -235,8 +235,11 @@ export function drawTaxReportNotes(input: {
     }
   }
 
-  function drawHeading(title: string) {
-    ensure(20);
+  function drawHeading(title: string, followHeight = 0) {
+    const headingHeight = 22;
+    const need = headingHeight + followHeight;
+    const pageRoom = input.pageHeight - 48 - input.bodyMinY;
+    if (y - need < input.bodyMinY && need <= pageRoom) nextPage();
     y -= 6;
     page.drawRectangle({ x: input.marginX, y: y - 2, width: 3, height: 12, color: navy });
     drawNoteText(title, input.marginX + 9, y, 10.8, input.fontBold, navy);
@@ -261,6 +264,20 @@ export function drawTaxReportNotes(input: {
   function rowHeight(cells: { text: string; width: number }[]): number {
     const lines = cells.map((cell) => wrap(cell.text, cellSize, input.font, cellTextWidth(cell.width)).length);
     return cellPadTop + cellPadBottom + Math.max(1, ...lines) * cellStep;
+  }
+
+  function chipBlockHeight(text: string, chips: readonly string[]): number {
+    const body = wrap(text, 8, input.font, contentWidth).length * (8 + 3);
+    const meta = wrap(chipLabel(chips, labelOf), 7, input.font, contentWidth).length * (7 + 2);
+    return body + meta + 3;
+  }
+
+  function tableOpenHeight(headers: string[], firstRow: string[], rawWidths: number[]): number {
+    const widths = rawWidths.slice();
+    widths[widths.length - 1] += contentWidth - widths.reduce((sum, width) => sum + width, 0);
+    const headerHeight = rowHeight(headers.map((text, index) => ({ text, width: widths[index] })));
+    const row = rowHeight(firstRow.map((text, index) => ({ text, width: widths[index] })));
+    return headerHeight + row;
   }
 
   function drawRow(cells: { text: string; width: number; header?: boolean }[], height: number, fill: ReturnType<typeof rgb>) {
@@ -360,42 +377,55 @@ export function drawTaxReportNotes(input: {
     y = top - blockHeight - 8;
   }
 
-  drawHeading(route.checklist.title);
   const checkWidths = [156, contentWidth - 220, 64];
+  const checkRows = route.checklist.rows.map((row, index) => [
+    index === 0 && model.showNotice ? `${guide.firstMark} ${row.name}` : row.name,
+    row.why,
+    chipLabel(row.chips, labelOf),
+  ]);
+  drawHeading(
+    route.checklist.title,
+    checkRows[0] ? tableOpenHeight(["준비 자료", "왜 필요한가", "출처"], checkRows[0], checkWidths) : 0,
+  );
   drawTable(
     ["준비 자료", "왜 필요한가", "출처"],
-    route.checklist.rows.map((row, index) => [
-      index === 0 && model.showNotice ? `${guide.firstMark} ${row.name}` : row.name,
-      row.why,
-      chipLabel(row.chips, labelOf),
-    ]),
+    checkRows,
     checkWidths,
   );
   y -= 6;
   drawLines(guide.fileCountTemplate.replace("{n}", String(model.fileCount)), 8, input.font, ink, input.marginX, contentWidth);
   y -= 12;
 
-  drawHeading(route.order.title);
+  drawHeading(route.order.title, chipBlockHeight(route.order.flow, route.order.chips));
   drawChipLine(route.order.flow, route.order.chips);
 
   if (model.paid) {
     y -= 6;
-    drawHeading(route.compare.title);
     const compareWidths = [146, 122, contentWidth - 328, 60];
+    const compareRows = route.compare.rows.map((row) => [row.left, row.right, row.point, chipLabel(row.chips, labelOf)]);
+    drawHeading(
+      route.compare.title,
+      compareRows[0] ? tableOpenHeight(["서류", "대조", "확인할 점", "출처"], compareRows[0], compareWidths) : 0,
+    );
     drawTable(
       ["서류", "대조", "확인할 점", "출처"],
-      route.compare.rows.map((row) => [row.left, row.right, row.point, chipLabel(row.chips, labelOf)]),
+      compareRows,
       compareWidths,
     );
     y -= 12;
-    drawHeading(route.timeline.title);
+    drawHeading(route.timeline.title, chipBlockHeight(route.timeline.flow, route.timeline.chips));
     drawChipLine(route.timeline.flow, route.timeline.chips);
     drawChipLine(route.timeline.note, route.timeline.noteChips);
     y -= 6;
-    drawHeading(route.misses.title);
+    const firstMiss = route.misses.items[0];
+    drawHeading(route.misses.title, firstMiss ? chipBlockHeight(firstMiss.text, firstMiss.chips) : 0);
     for (const item of route.misses.items) drawChipLine(item.text, item.chips);
     y -= 6;
-    drawHeading(route.questions.title);
+    const firstQuestion = route.questions.items[0];
+    drawHeading(
+      route.questions.title,
+      firstQuestion ? chipBlockHeight(`1. ${firstQuestion.text}`, firstQuestion.chips) : 0,
+    );
     route.questions.items.forEach((item, index) => {
       drawChipLine(`${index + 1}. ${item.text}`, item.chips);
     });
@@ -414,29 +444,23 @@ export function drawTaxReportNotes(input: {
     dateWidth,
   ];
   y -= 6;
-  if (sourceRows.length > 0) {
-    const headerProbe = ["번호", "자료", "발행처", "성격", "확인일"].map((text, index) => ({
-      text,
-      width: sourceWidths[index],
-    }));
-    const first = sourceRows[0];
-    const firstMaterial = [first.name, ...first.urls, first.note].filter(Boolean).join("\n");
-    const firstProbe = [first.id, firstMaterial, first.publisher, first.kind, guide.sources.confirmedOn].map(
-      (text, index) => ({ text, width: sourceWidths[index] }),
-    );
-    if (y - 28 - rowHeight(headerProbe) - rowHeight(firstProbe) < input.bodyMinY) nextPage();
-  }
-  drawHeading("근거·출처");
   const disclaimerStep = 7.5 + 3;
   const disclaimerLines = wrap(guide.disclaimer, 7.5, input.font, contentWidth).length;
   const disclaimerBlock = 10 + disclaimerLines * disclaimerStep;
+  const sourceHeaders = ["번호", "자료", "발행처", "성격", "확인일"];
+  const sourceTableRows = sourceRows.map((row) => {
+    const material = [row.name, ...row.urls, row.note].filter(Boolean).join("\n");
+    return [sourceDisplay.get(row.id) ?? row.id, material, row.publisher, row.kind, guide.sources.confirmedOn];
+  });
+  const sourceOpen = sourceTableRows[0]
+    ? tableOpenHeight(sourceHeaders, sourceTableRows[0], sourceWidths) +
+      (sourceTableRows.length === 1 ? disclaimerBlock : 0)
+    : disclaimerBlock;
+  drawHeading("근거·출처", sourceOpen);
   if (sourceRows.length > 0) {
     drawTable(
-      ["번호", "자료", "발행처", "성격", "확인일"],
-      sourceRows.map((row) => {
-        const material = [row.name, ...row.urls, row.note].filter(Boolean).join("\n");
-        return [sourceDisplay.get(row.id) ?? row.id, material, row.publisher, row.kind, guide.sources.confirmedOn];
-      }),
+      sourceHeaders,
+      sourceTableRows,
       sourceWidths,
       disclaimerBlock,
     );

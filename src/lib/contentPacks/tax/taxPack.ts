@@ -730,6 +730,14 @@ export function taxAttachedFileNames(activities: CrmActivityLike[]): string[] {
   return [...new Set(names)];
 }
 
+function taxGuideRouteKey(answers: Record<string, string>): "income" | "trade" | "company" | "unsure" {
+  const entry = answers[ENTRY.id]?.trim() ?? "";
+  if (entry === "o2") return "trade";
+  if (entry === "o3") return "company";
+  if (entry === "o4") return "unsure";
+  return "income";
+}
+
 export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActivityLike[]): {
   execSummary: string[];
   keyFindings: string[];
@@ -739,6 +747,7 @@ export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActiv
   reviewedCount: number;
   satisfiedCount: number;
   mandatoryDocumentLines: string[];
+  docsCardText: string;
   executiveHeadline: string;
   executiveBody: string;
   hideScoreMetrics: true;
@@ -757,8 +766,11 @@ export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActiv
   const paid = isVerifyAdminPaidAiReportPdfActivities(activities);
   const routeName = entryText || "세금 검토";
   const basis = paid ? "1차·2차 답변" : "1차 답변";
+  const unsureRoute = (answers[ENTRY.id]?.trim() ?? "") === "o4";
   const execSummary = [
-    `결론 · 선택하신 사건유형은 ${routeName}입니다. ${basis}을 기준으로 정리한 결과이며, 자료 내용 검토는 전문가 확인 단계에서 진행됩니다.`,
+    unsureRoute
+      ? `결론 · 사건유형을 아직 정하지 않으셨습니다. ${basis}을 기준으로 정리한 결과이며, 자료 내용 검토는 전문가 확인 단계에서 진행됩니다.`
+      : `결론 · 선택하신 사건유형은 ${routeName}입니다. ${basis}을 기준으로 정리한 결과이며, 자료 내용 검토는 전문가 확인 단계에서 진행됩니다.`,
   ];
   const seen = new Set<string>();
   const keyFindings: string[] = ["■ 1차 확인 사항"];
@@ -789,6 +801,15 @@ export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActiv
   if (flags.adminDoc && ADMIN_DOC_SENTENCE) recommendedAction.push(ADMIN_DOC_SENTENCE);
   if (flags.expert && EXPERT_SENTENCE) recommendedAction.push(EXPERT_SENTENCE);
   if (recommendedAction.length === 0 && verdictBody) recommendedAction.push(verdictBody);
+  const guideKey = taxGuideRouteKey(answers);
+  const priorityNames =
+    guideKey === "unsure"
+      ? []
+      : TAX_CONTENT_FINAL.reportGuide.routes[guideKey].checklist.rows
+          .slice(0, 2)
+          .map((row) => row.name.trim())
+          .filter(Boolean);
+  const priorityReady = priorityNames.length >= 2;
   return {
     execSummary,
     keyFindings,
@@ -797,7 +818,12 @@ export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActiv
     riskCount: 0,
     reviewedCount: 0,
     satisfiedCount: 0,
-    mandatoryDocumentLines: files.length > 0 ? files : [TAX_PDF_MISSING_FILE_NOTICE],
+    mandatoryDocumentLines: priorityReady
+      ? priorityNames
+      : files.length > 0
+        ? files
+        : [TAX_PDF_MISSING_FILE_NOTICE],
+    docsCardText: priorityReady ? `${priorityNames.length}종` : "미정",
     executiveHeadline: first?.statusHeadline?.trim() ?? "",
     executiveBody: verdictBody,
     hideScoreMetrics: true,

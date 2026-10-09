@@ -172,6 +172,7 @@ function buildVerifyMasterReportContent(
   executiveHeadline?: string;
   executiveBody?: string;
   hideScoreMetrics?: boolean;
+  docsCardText?: string;
 } | null {
   const typeKey = normalizedType.replace(/-/g, "_");
 
@@ -694,6 +695,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     let taxVerifyReport = false;
     let taxExecutiveHeadline = "";
     let taxExecutiveBody = "";
+    let taxDocsCardText = "";
 
     if (category === "check") {
       // ⚠️ expertBrief에서 label/passed만 추출. reason/riskLevel/rejectionRisks/
@@ -790,6 +792,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
           taxVerifyReport = true;
           taxExecutiveHeadline = masterContent.executiveHeadline?.trim() ?? "";
           taxExecutiveBody = masterContent.executiveBody?.trim() ?? "";
+          taxDocsCardText = masterContent.docsCardText?.trim() ?? "";
           requiredDocsCount = null;
           requiredDocsList = [];
           riskCount = 0;
@@ -976,7 +979,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         ? ADMIN_VERIFY_PAID_PDF_METRIC_REQUIREMENTS
         : ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS;
       riskCardTextForCards = ADMIN_VERIFY_FREE_PDF_METRIC_GAPS;
-      docsCardText = `${getRequiredDocuments(normalizedType).documents.length}종`;
+      docsCardText = taxDocsCardText || `${getRequiredDocuments(normalizedType).documents.length}종`;
       dashboardPrimaryNextAction = recommendedAction[0]?.trim() || null;
     }
 
