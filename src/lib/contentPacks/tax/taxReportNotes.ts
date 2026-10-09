@@ -1,7 +1,6 @@
 import { rgb, type PDFDocument, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { ADMIN_VERIFY_ANSWERS_META_JSON_KEY } from "@/lib/adminVerifyProfiling";
 import { isVerifyAdminPaidAiReportPdfActivities, type CrmActivityLike } from "@/lib/adminVerifyMypageFields";
-import { wrapMypageExecutiveParagraphLine } from "@/lib/mypagePdfExecutiveParagraphWrap";
 import { TAX_CONTENT_FINAL } from "./taxContentFinal.data";
 import { buildTaxProfile, selectedTaxRoute, taxAttachedFileNames } from "./taxPack";
 
@@ -144,7 +143,45 @@ export function drawTaxReportNotes(input: {
   }
 
   function wrap(text: string, size: number, useFont: PDFFont, width: number): string[] {
-    const lines = wrapMypageExecutiveParagraphLine(text, size, useFont, width);
+    const safeWidth = Math.max(12, width);
+    const lines: string[] = [];
+    for (const paragraph of text.split("\n")) {
+      const words = paragraph.split(/\s+/).filter(Boolean);
+      if (words.length === 0) {
+        lines.push("");
+        continue;
+      }
+      let current = "";
+      const pushFitted = (piece: string) => {
+        const candidate = current ? `${current} ${piece}` : piece;
+        if (useFont.widthOfTextAtSize(candidate, size) <= safeWidth) {
+          current = candidate;
+          return;
+        }
+        if (current) {
+          lines.push(current);
+          current = "";
+        }
+        if (useFont.widthOfTextAtSize(piece, size) <= safeWidth) {
+          current = piece;
+          return;
+        }
+        let rest = piece;
+        while (rest.length > 0) {
+          let lo = 1;
+          let hi = rest.length;
+          while (lo < hi) {
+            const mid = Math.ceil((lo + hi) / 2);
+            if (useFont.widthOfTextAtSize(rest.slice(0, mid), size) <= safeWidth) lo = mid;
+            else hi = mid - 1;
+          }
+          lines.push(rest.slice(0, Math.max(1, lo)));
+          rest = rest.slice(Math.max(1, lo));
+        }
+      };
+      for (const word of words) pushFitted(word);
+      if (current) lines.push(current);
+    }
     return lines.length > 0 ? lines : [""];
   }
 
@@ -172,9 +209,18 @@ export function drawTaxReportNotes(input: {
     y -= 3;
   }
 
-  function rowHeight(cells: { text: string; width: number }[], size: number): number {
-    const lines = cells.map((cell) => wrap(cell.text, size, input.font, cell.width - 8).length);
-    return 8 + Math.max(...lines) * (size + 2);
+  const cellSize = 7.2;
+  const cellStep = 10.4;
+  const cellPadTop = 7;
+  const cellPadBottom = 6;
+
+  function cellTextWidth(width: number): number {
+    return Math.max(8, width - 14);
+  }
+
+  function rowHeight(cells: { text: string; width: number }[]): number {
+    const lines = cells.map((cell) => wrap(cell.text, cellSize, input.font, cellTextWidth(cell.width)).length);
+    return cellPadTop + cellPadBottom + Math.max(1, ...lines) * cellStep;
   }
 
   function drawRow(cells: { text: string; width: number; header?: boolean }[], height: number, fill: ReturnType<typeof rgb>) {
@@ -190,42 +236,47 @@ export function drawTaxReportNotes(input: {
       borderWidth: 0.4,
     });
     for (const cell of cells) {
-      const lines = wrap(cell.text, 7.2, cell.header ? input.fontBold : input.font, cell.width - 8);
-      let textY = top - 12;
+      const useFont = cell.header ? input.fontBold : input.font;
+      const lines = wrap(cell.text, cellSize, useFont, cellTextWidth(cell.width));
+      let textY = top - cellPadTop - cellSize;
       for (const line of lines) {
         page.drawText(line, {
-          x: x + 4,
+          x: x + 6,
           y: textY,
-          size: 7.2,
-          font: cell.header ? input.fontBold : input.font,
+          size: cellSize,
+          font: useFont,
           color: cell.header ? navy : ink,
         });
-        textY -= 9.2;
+        textY -= cellStep;
       }
       x += cell.width;
     }
     y = top - height;
   }
 
-  function drawTable(headers: string[], rows: string[][], rawWidths: number[]) {
+  function drawTable(headers: string[], rows: string[][], rawWidths: number[], tailReserve = 0) {
+    if (rows.length === 0) return;
     const widths = rawWidths.slice();
     widths[widths.length - 1] += contentWidth - widths.reduce((sum, width) => sum + width, 0);
     const headerCells = headers.map((text, index) => ({ text, width: widths[index], header: true }));
+    const headerHeight = rowHeight(headerCells);
+    let headerOnPage = false;
     const paintHeader = () => {
-      const height = rowHeight(headerCells, 7.2);
-      ensure(height);
-      drawRow(headerCells, height, headFill);
+      drawRow(headerCells, headerHeight, headFill);
+      headerOnPage = true;
     };
-    paintHeader();
-    for (const row of rows) {
-      const cells = row.map((text, index) => ({ text, width: widths[index] }));
-      const height = rowHeight(cells, 7.2);
-      if (y - height < input.bodyMinY) {
+    rows.forEach((row, index) => {
+      const cells = row.map((text, cellIndex) => ({ text, width: widths[cellIndex] }));
+      const height = rowHeight(cells);
+      const reserve = index === rows.length - 1 ? tailReserve : 0;
+      const need = (headerOnPage ? 0 : headerHeight) + height + reserve;
+      if (y - need < input.bodyMinY) {
         nextPage();
-        paintHeader();
+        headerOnPage = false;
       }
+      if (!headerOnPage) paintHeader();
       drawRow(cells, height, rgb(0.992, 0.992, 0.996));
-    }
+    });
   }
 
   if (y < input.bodyMinY + 88) nextPage();
@@ -276,7 +327,7 @@ export function drawTaxReportNotes(input: {
   }
 
   drawHeading(route.checklist.title);
-  const checkWidths = [168, contentWidth - 214, 46];
+  const checkWidths = [156, contentWidth - 220, 64];
   drawTable(
     ["준비 자료", "왜 필요한가", "출처"],
     route.checklist.rows.map((row, index) => [
@@ -286,16 +337,16 @@ export function drawTaxReportNotes(input: {
     ]),
     checkWidths,
   );
-  y -= 4;
+  y -= 6;
   drawLines(guide.fileCountTemplate.replace("{n}", String(model.fileCount)), 8, input.font, ink, input.marginX, contentWidth);
-  y -= 4;
+  y -= 6;
 
   drawHeading(route.order.title);
   drawChipLine(route.order.flow, route.order.chips);
 
   if (model.paid) {
     drawHeading(route.compare.title);
-    const compareWidths = [150, 130, contentWidth - 326, 46];
+    const compareWidths = [146, 122, contentWidth - 328, 60];
     drawTable(
       ["서류", "대조", "확인할 점", "출처"],
       route.compare.rows.map((row) => [row.left, row.right, row.point, chipLabel(row.chips)]),
@@ -313,21 +364,48 @@ export function drawTaxReportNotes(input: {
     });
   }
 
-  drawHeading("근거·출처");
   const sourceRows = guide.sources.rows.filter((row) => model.usedSourceIds.includes(row.id));
-  const sourceWidths = [28, contentWidth - 246, 90, 70, 58];
+  const publisherWidth = 128;
+  const kindWidth = 72;
+  const dateWidth = 62;
+  const numberWidth = 36;
+  const sourceWidths = [
+    numberWidth,
+    contentWidth - numberWidth - publisherWidth - kindWidth - dateWidth,
+    publisherWidth,
+    kindWidth,
+    dateWidth,
+  ];
+  if (sourceRows.length > 0) {
+    const headerProbe = ["번호", "자료", "발행처", "성격", "확인일"].map((text, index) => ({
+      text,
+      width: sourceWidths[index],
+    }));
+    const first = sourceRows[0];
+    const firstMaterial = [first.name, ...first.urls, first.note].filter(Boolean).join("\n");
+    const firstProbe = [first.id, firstMaterial, first.publisher, first.kind, guide.sources.confirmedOn].map(
+      (text, index) => ({ text, width: sourceWidths[index] }),
+    );
+    if (y - 28 - rowHeight(headerProbe) - rowHeight(firstProbe) < input.bodyMinY) nextPage();
+  }
+  drawHeading("근거·출처");
+  const disclaimerStep = 7.5 + 3;
+  const disclaimerLines = wrap(guide.disclaimer, 7.5, input.font, contentWidth).length;
+  const disclaimerBlock = 10 + disclaimerLines * disclaimerStep;
   if (sourceRows.length > 0) {
     drawTable(
       ["번호", "자료", "발행처", "성격", "확인일"],
       sourceRows.map((row) => {
-        const extra = [...row.urls, row.note].filter(Boolean).join(" ");
-        return [row.id, extra ? `${row.name} ${extra}` : row.name, row.publisher, row.kind, guide.sources.confirmedOn];
+        const material = [row.name, ...row.urls, row.note].filter(Boolean).join("\n");
+        return [row.id, material, row.publisher, row.kind, guide.sources.confirmedOn];
       }),
       sourceWidths,
+      disclaimerBlock,
     );
+  } else if (y - disclaimerBlock < input.bodyMinY) {
+    nextPage();
   }
-  y -= 8;
-  ensure(28);
+  y -= 10;
   drawLines(guide.disclaimer, 7.5, input.font, gray, input.marginX, contentWidth);
   return extraPages;
 }
