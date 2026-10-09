@@ -219,15 +219,19 @@ if (q1p && shownQ1?.kind === "choice") {
 for (const route of routes) {
   const entry = { re_entry: route === "V" ? "o2" : route === "C" ? "o3" : "o1" };
   const entryProgress = taxStitchProgress({}, 1, 0);
+  const entered = taxStitchProgress(entry, 1, 0);
   const firstProgress = taxStitchProgress(entry, 1, 1);
   const lastPhase1 = taxStitchProgress(entry, 1, 4);
   const firstPhase2 = taxStitchProgress(entry, 2, 0);
   const lastPhase2 = taxStitchProgress(entry, 2, 6);
-  if (entryProgress.current !== 0 || entryProgress.total !== 4) {
-    fail(`${route} entry progress is not phase-1 only`);
+  if (entryProgress.current !== 1 || entryProgress.total !== 1) {
+    fail(`${route} entry progress is not the entry list length`);
   }
-  if (firstProgress.current !== 1 || firstProgress.total !== 4 || lastPhase1.current !== 4 || lastPhase1.total !== 4) {
-    fail(`${route} phase1 progress is not MASTER phase-1 count`);
+  if (entered.current !== 1 || entered.total !== 5) {
+    fail(`${route} entry is outside the phase-1 list`);
+  }
+  if (firstProgress.current !== 2 || firstProgress.total !== 5 || lastPhase1.current !== 5 || lastPhase1.total !== 5) {
+    fail(`${route} phase1 progress is not the phase-1 list length`);
   }
   if (firstPhase2.current !== 1 || firstPhase2.total !== 7 || lastPhase2.current !== 7 || lastPhase2.total !== 7) {
     fail(`${route} phase2 progress does not restart like MASTER`);

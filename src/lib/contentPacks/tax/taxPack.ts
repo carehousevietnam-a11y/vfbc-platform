@@ -334,8 +334,8 @@ function phase2Questions(answers: Record<string, string>): TaxQuestion[] {
 }
 
 /**
- * Admin MASTER와 같다. 1차는 1차 개수만 세고, 2차는 2차 개수로 1부터 다시 센다.
- * 진입 화면은 질문 수에 넣지 않는다.
+ * Admin MASTER와 같이 지금 단계의 질문 목록 길이를 총개수로 쓴다.
+ * 진입은 1차 목록에 포함되고, 2차는 2차 목록만으로 1부터 다시 센다.
  */
 export function taxStitchProgress(
   answers: Record<string, string>,
@@ -343,13 +343,12 @@ export function taxStitchProgress(
   activeIndex: number,
 ): { current: number; total: number } {
   const route = selectedTaxRoute(answers);
+  const index = activeIndex >= 0 ? activeIndex : 0;
   if (profilePhase === 2 && route) {
-    const total = questionsFor(route, 2).length;
-    return { current: activeIndex + 1, total };
+    return { current: index + 1, total: questionsFor(route, 2).length };
   }
-  const total = route ? questionsFor(route, 1).length : 4;
-  if (!route || activeIndex <= 0) return { current: 0, total };
-  return { current: activeIndex, total };
+  if (!route) return { current: 1, total: 1 };
+  return { current: index + 1, total: 1 + questionsFor(route, 1).length };
 }
 
 export function isTaxPhase1Complete(answers: Record<string, string>): boolean {
