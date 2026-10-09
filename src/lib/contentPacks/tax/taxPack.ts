@@ -8,6 +8,7 @@ import {
 } from "@/lib/adminVerifyProfiling";
 import {
   isAdminPhase2DocumentsUploadComplete,
+  isVerifyAdminPaidAiReportPdfActivities,
   type CrmActivityLike,
 } from "@/lib/adminVerifyMypageFields";
 import type { VerifyMasterContentSlots } from "@/lib/verifyMasterContentSlots";
@@ -698,12 +699,6 @@ function customerChoiceText(
   return splitChoiceSentences(choice.label).label;
 }
 
-function pushLabeledLines(target: string[], label: string, lines: string[]): void {
-  if (lines.length === 0) return;
-  target.push(`${label}: ${lines[0]}`);
-  for (const line of lines.slice(1)) target.push(line);
-}
-
 function taxAnswersFromActivities(activities: CrmActivityLike[]): Record<string, string> {
   for (let i = activities.length - 1; i >= 0; i -= 1) {
     const meta = activities[i]?.meta;
@@ -758,21 +753,36 @@ export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActiv
         .map((question) => customerChoiceText(question, answers, true))
         .filter((line): line is string => Boolean(line))
     : [];
-  const stage = route
-    ? questionsFor(route, 2)
-        .map((question) => customerChoiceText(question, answers, true))
-        .filter((line): line is string => Boolean(line))
-    : [];
-  const storedSummary = latestTaxMetaString(activities, TAX_PACK_PHASE2_SUMMARY_META_KEY) ?? "";
   const verdictBody = first?.situationSummary?.trim() ?? "";
-  const execSummary: string[] = [];
-  if (entryText) execSummary.push(`선택하신 사건유형: ${entryText}`);
-  pushLabeledLines(execSummary, "상황", situation);
-  for (const line of storedSummary.split("\n").map((item) => item.trim()).filter(Boolean)) {
-    if (line === verdictBody || line === first?.statusHeadline || execSummary.includes(line)) continue;
-    execSummary.push(line);
+  const paid = isVerifyAdminPaidAiReportPdfActivities(activities);
+  const routeName = entryText || "세금 검토";
+  const basis = paid ? "1차·2차 답변" : "1차 답변";
+  const execSummary = [
+    `결론 · 선택하신 사건유형은 ${routeName}입니다. ${basis}을 기준으로 정리한 결과이며, 자료 내용 검토는 전문가 확인 단계에서 진행됩니다.`,
+  ];
+  const seen = new Set<string>();
+  const keyFindings: string[] = ["■ 1차 확인 사항"];
+  const addFinding = (text: string) => {
+    const line = text.trim();
+    if (!line || seen.has(line)) return;
+    seen.add(line);
+    keyFindings.push(line.startsWith("✓") ? line : `✓ ${line}`);
+  };
+  if (situation[0]) addFinding(splitChoiceSentences(situation[0]).label);
+  for (const title of (first?.keyMetrics ?? []).map((metric) => metric.title).filter(Boolean).slice(0, 3)) {
+    addFinding(title);
   }
-  pushLabeledLines(execSummary, "진행 단계", stage);
+  if (paid && route) {
+    keyFindings.push("■ 2차 확인");
+    for (const question of questionsFor(route, 2)) {
+      const block = phase2Sentence(route, question, answers);
+      if (!block) continue;
+      const sentence = block.sentence.trim();
+      if (!sentence || seen.has(sentence)) continue;
+      seen.add(sentence);
+      keyFindings.push(`✓ ${block.title} · ${sentence}`);
+    }
+  }
   const flags = route ? taxConnectionFlags(answers) : { fraud: false, adminDoc: false, expert: false };
   const recommendedAction: string[] = [];
   if (flags.fraud && FRAUD_SENTENCE) recommendedAction.push(FRAUD_SENTENCE);
@@ -781,7 +791,7 @@ export function buildTaxVerifyAiReportContentFromActivities(activities: CrmActiv
   if (recommendedAction.length === 0 && verdictBody) recommendedAction.push(verdictBody);
   return {
     execSummary,
-    keyFindings: (first?.keyMetrics ?? []).map((metric) => metric.title).filter(Boolean).slice(0, 3),
+    keyFindings,
     keyRisks: (first?.cautions ?? []).filter(Boolean).slice(0, 4),
     recommendedAction,
     riskCount: 0,

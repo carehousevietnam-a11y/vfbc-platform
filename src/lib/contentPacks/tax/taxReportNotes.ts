@@ -17,6 +17,23 @@ export type TaxReportNoteModel = {
   usedSourceIds: string[];
 };
 
+export function drawTaxBaseGlyphText(
+  target: PDFPage,
+  line: string,
+  textX: number,
+  textY: number,
+  size: number,
+  useFont: PDFFont,
+  color: ReturnType<typeof rgb>,
+): void {
+  let drawX = textX;
+  for (const part of line.split(/([-:])/)) {
+    if (!part) continue;
+    target.drawText(part, { x: drawX, y: textY, size, font: useFont, color });
+    drawX += useFont.widthOfTextAtSize(part, size);
+  }
+}
+
 function chipLabel(chips: readonly string[], labelOf: (chip: string) => string): string {
   return chips.map((chip) => `[${labelOf(chip)}]`).join("");
 }
@@ -140,6 +157,8 @@ export function drawTaxReportNotes(input: {
     y = input.pageHeight - 48;
   }
 
+  nextPage();
+
   function ensure(height: number) {
     if (y - height < input.bodyMinY) nextPage();
   }
@@ -160,12 +179,7 @@ export function drawTaxReportNotes(input: {
     useFont: PDFFont,
     color: ReturnType<typeof rgb>,
   ) {
-    let drawX = textX;
-    for (const part of line.split(/([-:])/)) {
-      if (!part) continue;
-      page.drawText(part, { x: drawX, y: textY, size, font: useFont, color });
-      drawX += useFont.widthOfTextAtSize(part, size);
-    }
+    drawTaxBaseGlyphText(page, line, textX, textY, size, useFont, color);
   }
 
   function wrap(text: string, size: number, useFont: PDFFont, width: number): string[] {

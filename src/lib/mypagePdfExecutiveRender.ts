@@ -34,7 +34,7 @@ import {
   isVerifyAdminPaidAiReportPdfActivities,
 } from "@/lib/adminVerifyMypageFields";
 import { buildTaxVerifyAiReportContentFromActivities } from "@/lib/contentPacks/tax/taxPack";
-import { drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
+import { drawTaxBaseGlyphText, drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
   mypageExecutivePdfFontForLine,
@@ -971,9 +971,12 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         headline: taxExecutiveHeadline,
         subline: taxExecutiveBody,
       };
-      requirementsTextForCards = "";
-      riskCardTextForCards = "";
-      docsCardText = "";
+      const taxPaidPdf = isVerifyAdminPaidAiReportPdfActivities(activities);
+      requirementsTextForCards = taxPaidPdf
+        ? ADMIN_VERIFY_PAID_PDF_METRIC_REQUIREMENTS
+        : ADMIN_VERIFY_FREE_PDF_METRIC_REQUIREMENTS;
+      riskCardTextForCards = ADMIN_VERIFY_FREE_PDF_METRIC_GAPS;
+      docsCardText = `${getRequiredDocuments(normalizedType).documents.length}종`;
       dashboardPrimaryNextAction = recommendedAction[0]?.trim() || null;
     }
 
@@ -1097,7 +1100,11 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
               }
               return;
             }
-            targetPage.drawText(w, { x, y: state.y, size, font: style.useFont, color: style.color });
+            if (taxVerifyReport) {
+              drawTaxBaseGlyphText(targetPage, w, x, state.y, size, style.useFont, style.color);
+            } else {
+              targetPage.drawText(w, { x, y: state.y, size, font: style.useFont, color: style.color });
+            }
             state.y -= size + lineGap;
             used++;
           }
@@ -1284,23 +1291,11 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     });
     if (taxVerifyReport) {
       decisionHeadlineLines.forEach((line, index) => {
-        page.drawText(line, {
-          x: marginX + 18,
-          y: y - 32 - index * 15,
-          size: 12,
-          font: fontBold,
-          color: executiveDecision.color,
-        });
+        drawTaxBaseGlyphText(page, line, marginX + 18, y - 32 - index * 15, 12, fontBold, executiveDecision.color);
       });
       const sublineStart = 32 + decisionHeadlineLines.length * 15;
       decisionSublineLines.forEach((line, index) => {
-        page.drawText(line, {
-          x: marginX + 18,
-          y: y - sublineStart - index * 11,
-          size: 8,
-          font,
-          color: rgb(0.35, 0.35, 0.38),
-        });
+        drawTaxBaseGlyphText(page, line, marginX + 18, y - sublineStart - index * 11, 8, font, rgb(0.35, 0.35, 0.38));
       });
     } else {
       page.drawText(executiveDecision.headline, {
@@ -1345,7 +1340,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       { label: "필수서류", value: docsCardText, color: rgb(0.09, 0.15, 0.35) },
       { label: "검토상태", value: aiStatusTextForCards, color: hasDiagnosis ? rgb(0.02, 0.45, 0.32) : rgb(0.5, 0.5, 0.5) },
     ];
-    const visibleCards = taxVerifyReport ? cards.filter((card) => card.value.trim()) : cards;
+    const visibleCards = cards;
     const cardWidth = (contentWidth - cardGap * (visibleCards.length - 1)) / visibleCards.length;
     visibleCards.forEach((card, i) => {
       const cx = marginX + i * (cardWidth + cardGap);
@@ -1387,7 +1382,10 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
           summaryWrappedLines += Math.max(1, wrapLines(line, 8.9, font, summaryTextWidth).length);
         }
       }
-      const summaryHeight = taxVerifyReport ? 46 + summaryWrappedLines * (8.9 + 3.4) + 28 : 82;
+      const summaryLineStep = 8.9 + 3.4;
+      const summaryHeight = taxVerifyReport
+        ? 46 + Math.max(1, summaryWrappedLines) * summaryLineStep + 10
+        : 82;
       page.drawRectangle({
         x: marginX,
         y: summaryTop - summaryHeight,
@@ -1423,20 +1421,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     }
 
     // ── 2단 본문: 좌측 Evidence/Risks/Actions · 우측 Decision Dashboard ──
-    // 세금 요약이 한 페이지를 채우면, 같은 2단 본문을 다음 페이지에서 이어서 그린다.
     let bodyPage = page;
-    if (taxVerifyReport && y < BODY_MIN_Y + 280) {
-      bodyPage = doc.addPage([pageWidth, pageHeight]);
-      bodyPage.drawRectangle({ x: 0, y: pageHeight - 4, width: pageWidth, height: 4, color: rgb(0.09, 0.15, 0.35) });
-      bodyPage.drawImage(watermarkImage, {
-        x: (pageWidth - wmShieldSize) / 2,
-        y: pageHeight / 2 - wmShieldSize / 2 + 60,
-        width: wmShieldSize,
-        height: wmShieldSize,
-        opacity: 0.035,
-      });
-      y = pageHeight - 48;
-    }
     const gutter = 16;
     const leftWidth = Math.round(contentWidth * 0.62);
     const rightWidth = contentWidth - leftWidth - gutter;
@@ -1449,16 +1434,19 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     const right = makeDrawers(bodyPage, rightX, rightWidth, rightState);
 
     // 좌측: Key Findings → Key Risks → Recommended Action
+    const leftListCap = taxVerifyReport ? 48 : MAX_LINES_PER_AREA;
+    const leftGap = taxVerifyReport ? 2.4 : 3.3;
+    const leftBreak = taxVerifyReport ? 2 : 9;
     if (left.drawSectionHeader("EVIDENCE & KEY FINDINGS", "확인 완료 요건과 추가 확인 항목")) {
-      left.drawParagraphList(keyFindings, 8.3, 3.3, MAX_LINES_PER_AREA);
-      if (leftState.y > BODY_MIN_Y) leftState.y -= 9;
+      left.drawParagraphList(keyFindings, 8.3, leftGap, leftListCap);
+      if (leftState.y > BODY_MIN_Y) leftState.y -= leftBreak;
     }
     if (left.drawSectionHeader("KEY RISKS & GAPS", "위험 · 영향 · 대응 방향")) {
-      left.drawParagraphList(keyRisks, 8.3, 3.3, MAX_LINES_PER_AREA);
-      if (leftState.y > BODY_MIN_Y) leftState.y -= 9;
+      left.drawParagraphList(keyRisks, 8.3, leftGap, leftListCap);
+      if (leftState.y > BODY_MIN_Y) leftState.y -= leftBreak;
     }
     if (left.drawSectionHeader("RECOMMENDED ACTIONS", "즉시 · 다음 · 최종 조치")) {
-      left.drawParagraphList(recommendedAction, 8.3, 3.3, MAX_LINES_PER_AREA);
+      left.drawParagraphList(recommendedAction, 8.3, leftGap, leftListCap);
     }
 
     // 우측: Executive Dashboard — 필수 제출서류 / 진행 현황 / 다음 조치 (고정 카드 박스)
@@ -1525,7 +1513,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     drawRightCard(
       "EXECUTIVE DASHBOARD",
       executiveDashboardBodyLines,
-      148,
+      taxVerifyReport ? 132 : 148,
       9,
       false
     );
@@ -1539,7 +1527,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       mandatoryDocsCardSource.length > 0
         ? mandatoryDocsCardSource.slice(0, 6).map((docName) => `✓ ${docName}`)
         : ["아직 연결된 서류 목록이 없습니다."],
-      118,
+      taxVerifyReport ? 72 : 118,
       8,
       false
     );
@@ -1550,7 +1538,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     drawRightCard(
       "ASSESSMENT BASIS",
       assessmentBasisLines.map((line) => `• ${line}`),
-      taxVerifyReport ? 90 : 94,
+      94,
       6,
       false
     );
