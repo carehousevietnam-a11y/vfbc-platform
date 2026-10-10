@@ -53,15 +53,12 @@
 
 ## 1차·2차 비율
 
-지시서에 적힌 "1차 40% : 2차 60%가 기본 골격…" 문장은 `VFBCAI_FIXED_CONTEXT.md` ■9에 없다. 같은 숫자에 해당하는 원문은 아래에 그대로 둔다.
+질문 개수는 1차 40% : 2차 60%가 기본 골격이다. 상황에 따라 질문 수를 제한하거나 건너뛰지 않는다. 어떤 경우에도 2차 질문 수가 1차보다 많아야 한다. 이 비율을 서비스별 고정 개수로 바꾸지 않고 문구 그대로 적용한다. 〔출처: Ace 지시 2026-10-09(확정 기준)〕
 
-- 결과 구성 방향: 공통 40% / 개인화 60% 〔출처: docs/master/VFBCAI_FIXED_CONTEXT.md ■3〕
 - **최소 질문** = 불필요한 질문 제거 · **필요한 질문 생략 금지**. 〔출처: .cursor/skills/vfbcai-master-development/SKILL.md § Profiling Stop Condition〕
-- 비율: 2차 실질 질문 수 > 1차 실질 질문 수 (4:6 공식 폐기, 2026-09-25). 비율을 맞추기 위한 질문 추가 금지. 질문 수는 사건 복잡도가 정한다. 〔출처: .cursor/skills/vfbcai-master-development/SKILL.md § QUESTION DESIGN — 상시 적용, LOCK〕
 - **판정** | Phase2 **실질 축 수** **>** Phase1 **실질 축 수** (엄격 부등식) 〔출처: docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md § 최소 비율 가드레일 (LOCK)〕
 - **질문 개수** | 사건 **복잡도**가 정함. 단순 사건은 1차·2차 모두 **적어도 됨** (예: 1차 **3** · 2차 **4** → 4>3 **PASS**) 〔출처: docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md § 최소 비율 가드레일 (LOCK)〕
 - **금지** | **비율을 맞추기 위한** 질문·축 **추가** 〔출처: docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md § 최소 비율 가드레일 (LOCK)〕
-- **구 공식 (폐기 — 참고만):** Phase2 ≥ ⌈Phase1 × 6/4⌉ 및 3:7 ⌈N×7/3⌉ — **2026-09-25 Ace 승인으로 대체** (아래 변경 이력). 〔출처: docs/master/VFBCAI_INFORMATION_COMPLETENESS_AUDIT_CRITERIA_v1.md § 최소 비율 가드레일 (LOCK)〕
 
 ---
 
