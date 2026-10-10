@@ -36,6 +36,8 @@ import {
 import { buildTaxVerifyAiReportContentFromActivities } from "@/lib/contentPacks/tax/taxPack";
 import { buildFraudVerifyAiReportContentFromActivities } from "@/lib/contentPacks/fraud/fraudPack";
 import { drawFraudReportNotes } from "@/lib/contentPacks/fraud/fraudReportNotes";
+import { buildUnclearVerifyAiReportContentFromActivities } from "@/lib/contentPacks/unclear/unclearPack";
+import { drawUnclearReportNotes } from "@/lib/contentPacks/unclear/unclearReportNotes";
 import { drawTaxBaseGlyphText, drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
@@ -206,6 +208,10 @@ function buildVerifyMasterReportContent(
 
   if (typeKey === "verify_fraud") {
     return buildFraudVerifyAiReportContentFromActivities(activities);
+  }
+
+  if (typeKey === "verify_unclear") {
+    return buildUnclearVerifyAiReportContentFromActivities(activities);
   }
 
   return null;
@@ -1570,6 +1576,40 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     if ((normalizedType ?? "").replace(/-/g, "_") === "verify_fraud") {
       noteExtraPages.push(
         ...drawFraudReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        }),
+      );
+    }
+    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_unclear") {
+      noteExtraPages.push(
+        ...drawUnclearReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        }),
+      );
+    }
+    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_unclear") {
+      noteExtraPages.push(
+        ...drawUnclearReportNotes({
           activities,
           doc,
           font,

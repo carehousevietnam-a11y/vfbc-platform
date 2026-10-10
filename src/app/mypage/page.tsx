@@ -797,7 +797,8 @@ function GeneralCustomerResultView({
     (item.serviceType === "verify_real-estate" ||
       item.serviceType === "verify_real_estate" ||
       item.serviceType === "verify_tax" ||
-      item.serviceType === "verify_fraud") &&
+      item.serviceType === "verify_fraud" ||
+      item.serviceType === "verify_unclear") &&
     (item.verifyProfilePhase === 2 || item.phase2Complete === true);
   const keyPoints =
     isRealEstatePackPhase2 && item.phase2SummaryLines && item.phase2SummaryLines.length > 0
@@ -819,7 +820,7 @@ function GeneralCustomerResultView({
       : "text-[#0d2a6b]";
 
   const isVerifyAdminFreeLayout =
-    item.serviceType === "verify_admin" || item.serviceType === "verify_tax" || item.serviceType === "verify_fraud";
+    item.serviceType === "verify_admin" || item.serviceType === "verify_tax" || item.serviceType === "verify_fraud" || item.serviceType === "verify_unclear";
   const resultPhaseLabel = isRealEstatePackPhase2
     ? "2차 종합 검토"
     : isVerifyAdminFreeLayout
@@ -1470,7 +1471,7 @@ function PdfDownloadButton({
 
   if (variant === "refined") {
     const primaryLabel =
-      serviceType === "verify_admin" || serviceType === "verify_tax" || serviceType === "verify_fraud"
+      serviceType === "verify_admin" || serviceType === "verify_tax" || serviceType === "verify_fraud" || serviceType === "verify_unclear"
         ? verifyAdminPrimaryLabel
         : loading
           ? "준비 중..."
@@ -1486,7 +1487,7 @@ function PdfDownloadButton({
           {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
           {loading ? "준비 중..." : primaryLabel}
         </button>
-        {serviceType !== "verify_admin" && serviceType !== "verify_tax" && serviceType !== "verify_fraud" ? (
+        {serviceType !== "verify_admin" && serviceType !== "verify_tax" && serviceType !== "verify_fraud" && serviceType !== "verify_unclear" ? (
           <button
             type="button"
             onClick={handleDownload}
@@ -1601,7 +1602,8 @@ function AiResultCard({
     (item.serviceType === "verify_real-estate" ||
       item.serviceType === "verify_real_estate" ||
       item.serviceType === "verify_tax" ||
-      item.serviceType === "verify_fraud") &&
+      item.serviceType === "verify_fraud" ||
+      item.serviceType === "verify_unclear") &&
     item.phase2Complete === true;
   const aiResultPhaseLabel = isRePackPhase2Paid ? "2차 종합 검토" : "제출 정보 기준 1차 분석";
   const reGradeLabel =
@@ -1683,7 +1685,8 @@ function CurrentStatusCard({
     item.serviceType === "verify_real-estate" ||
     item.serviceType === "verify_real_estate" ||
     item.serviceType === "verify_tax" ||
-    item.serviceType === "verify_fraud";
+    item.serviceType === "verify_fraud" ||
+    item.serviceType === "verify_unclear";
   if (verifyAdminPaidLayout && verifyMasterPaidService) {
     const afterExpert = item.hasExpertReview;
     const guideText = afterExpert
@@ -4784,7 +4787,8 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
     item.serviceType === "verify_admin" ||
     item.serviceType === "verify_real-estate" ||
     item.serviceType === "verify_tax" ||
-    item.serviceType === "verify_fraud"
+    item.serviceType === "verify_fraud" ||
+    item.serviceType === "verify_unclear"
       ? item.phase2UploadedDocuments
       : undefined;
   if (
@@ -5112,7 +5116,8 @@ function Dashboard({
       activeItem.serviceType === "verify_admin" ||
       activeItem.serviceType === "verify_real-estate" ||
       activeItem.serviceType === "verify_tax" ||
-      activeItem.serviceType === "verify_fraud"
+      activeItem.serviceType === "verify_fraud" ||
+      activeItem.serviceType === "verify_unclear"
     ) {
       return (
         <VerifyAdminExpertFlowDashboard
