@@ -55,6 +55,7 @@ import type { VerifyServiceType } from "@/lib/restoreVerifyLead";
 import { REAL_ESTATE_PHASE2_DOCUMENT_LISTS } from "@/lib/contentPacks/realEstate/phase2Documents";
 import { buildRealEstatePackPhase2PersistMeta } from "@/lib/contentPacks/realEstate/packPhase2Persist";
 import { buildTaxPhase2PersistMeta } from "@/lib/contentPacks/tax/taxPack";
+import { buildFraudPhase2PersistMeta } from "@/lib/contentPacks/fraud/fraudPack";
 import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
@@ -1389,7 +1390,14 @@ function DocumentUploadContent() {
               ...buildTaxPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
               ...uploadGateMeta,
             }
-          : uploadGateMeta;
+          : handoffService === "verify_fraud" &&
+              snapshotAnswers &&
+              Object.keys(snapshotAnswers).length > 0
+            ? {
+                ...buildFraudPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                ...uploadGateMeta,
+              }
+            : uploadGateMeta;
 
     const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {

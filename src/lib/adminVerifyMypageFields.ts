@@ -227,7 +227,7 @@ export function isVerifyAdminPaidMypageItem(item: MypageLayoutItemLike): boolean
 export function isVerifyMasterPaidMypageItem(item: MypageLayoutItemLike): boolean {
   if (isVerifyAdminPaidMypageItem(item)) return true;
   const st = item.serviceType?.replace(/-/g, "_");
-  return (st === "verify_real_estate" || st === "verify_tax") && item.phase2Complete === true;
+  return (st === "verify_real_estate" || st === "verify_tax" || st === "verify_fraud") && item.phase2Complete === true;
 }
 
 export function isVerifyAdminMypageItem(item: { serviceType?: string | null }): boolean {
@@ -252,7 +252,7 @@ export function resolveVerifyAdminApplicationSummaryStatus(item: MypageLayoutIte
 export function shouldUseVerifyAdminMypageSlimAside(
   item: MypageLayoutItemLike | null | undefined
 ): boolean {
-  if (!item || (item.serviceType !== "verify_admin" && item.serviceType !== "verify_tax")) return false;
+  if (!item || (item.serviceType !== "verify_admin" && item.serviceType !== "verify_tax" && item.serviceType !== "verify_fraud")) return false;
   return shouldUseGeneralCustomerMypageLayout(item);
 }
 

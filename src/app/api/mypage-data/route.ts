@@ -12,6 +12,7 @@ import {
 } from "@/lib/contentPacks/realEstate/realEstatePackMypageFields";
 import { REAL_ESTATE_PACK_HEADLINE_META_KEY } from "@/lib/contentPacks/realEstate/packPhase2Persist";
 import { buildTaxVerifyMypagePackExtras } from "@/lib/contentPacks/tax/taxPack";
+import { buildFraudVerifyMypagePackExtras } from "@/lib/contentPacks/fraud/fraudPack";
 import { ADMIN_VERIFY_PROFILE_PHASE_META_KEY } from "@/lib/adminVerifyProfiling";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
@@ -536,7 +537,9 @@ export async function POST(req: NextRequest) {
           ? buildRealEstateVerifyMypagePackExtras(leadActivities)
           : normalizedType === "verify_tax"
             ? buildTaxVerifyMypagePackExtras(leadActivities)
-            : null;
+            : normalizedType === "verify_fraud"
+              ? buildFraudVerifyMypagePackExtras(leadActivities)
+              : null;
 
       const adminVerifyExtras =
         normalizedType === "verify_admin"
@@ -558,7 +561,8 @@ export async function POST(req: NextRequest) {
       if (
         (normalizedType === "verify_admin" ||
           normalizedType === "verify_real-estate" ||
-          normalizedType === "verify_tax") &&
+          normalizedType === "verify_tax" ||
+          normalizedType === "verify_fraud") &&
         "phase2Complete" in adminVerifyExtras &&
         adminVerifyExtras.phase2Complete
       ) {
