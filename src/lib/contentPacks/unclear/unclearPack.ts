@@ -572,6 +572,7 @@ export function buildUnclearVerifyAiReportContentFromActivities(activities: CrmA
     for (const question of questionsFor(route, 1)) {
       const text = customerChoiceText(question, answers);
       if (text) add(text);
+      if (isDirect(question, answers) && text !== DIRECT_NOTICE) add(DIRECT_NOTICE);
     }
   }
   if (paid && route) {
