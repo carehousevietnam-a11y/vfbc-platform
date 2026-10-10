@@ -1865,7 +1865,7 @@
 |---|---|---|---|---|---|
 | 1 | 개인소득세법 제109/2025/QH15호 | 베트남 국회 (2025.12.10 승인, 대부분 조항 2026.7.1 시행) | 법령 | https://www.pwc.com/vn/en/publications/news-brief/251212-new-personal-income-tax-law.html , https://en.baochinhphu.vn/law-on-personal-income-tax-approved-111251210112819468.htm | 세부 기준은 시행령·시행규칙 확인 필요 |
 | 2 | 조세관리법 제38/2019/QH14호 | 베트남 국회 | 법령 | https://english.luatvietnam.vn/aw-no-38-2019-qh14-dated-june-13-2019-of-the-national-assembly-on-tax-administration-174969-Doc1.html | 제17조(납세자의 책임): 통지·요청 준수, 자료 제공, 인보이스·서류 관리 의무 |
-| 3 | 정부령 제123/2020/ND-CP호 및 재무부 통첩 제78/2021/TT-BTC호 (인보이스·증빙) | 베트남 정부·재무부 | 법령 | | 이후 개정될 수 있음 |
+| 3 | 정부령 제123/2020/ND-CP호 및 재무부 통첩 제78/2021/TT-BTC호 (인보이스·증빙) (정부령 123/2020은 정부령 70/2025/ND-CP로 개정, 2025.6.1. 시행) | 베트남 정부·재무부 | 법령 | | 이후 개정될 수 있음 |
 | 4 | 외국인 개인소득세 신고·준비 서류 안내 (2022.3) | Vietnam Briefing | 전문기관 실무 자료 | https://www.vietnam-briefing.com/news/personal-income-tax-vietnam-deadlines-requirements-preparation.html/ | 2022년 자료로 현행 확인 필요 |
 | 5 | 외국계 기업의 베트남 세무 컴플라이언스 실수와 보관 서류 | Vietnam Briefing | 전문기관 실무 자료 | https://www.vietnam-briefing.com/news/vietnam-tax-compliance-mistakes-foreign-companies.html/ | |
 | 6 | 기업법 제59/2020/QH14호 (제28조 기업등록증의 내용) | 베트남 국회 | 법령 | https://english.luatvietnam.vn/law-on-enterprises-no-59-2020-qh14-dated-june-17-2020-of-the-national-assembly-186272-doc1.html | 투자등록증 등 투자 관련 서류는 투자법 별도 확인 필요 |
