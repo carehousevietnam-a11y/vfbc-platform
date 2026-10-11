@@ -37,6 +37,7 @@ function pageOneText(pdfPath) {
 
 const only = process.argv[2] ?? "";
 const hits = [];
+const DENSITY_MAX_LINES = 14; // actions/risks block, wrapped lines
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "vfbcai-report-layout-"));
 try {
   for (const [name, serviceType, content, build] of jobs) {
@@ -69,6 +70,15 @@ try {
           hits.push(`${tag} no-actions`);
         }
         if (/습니다입니다|다입니다\./.test(text)) hits.push(`${tag} summary-grammar`);
+        // A14 information density: key blocks must stay short (long filler loses readers).
+        const rk = lines.findIndex((l) => l === "KEY RISKS & GAPS");
+        if (rk >= 0 && at > rk && at - rk - 2 > DENSITY_MAX_LINES) hits.push(`${tag} risks-too-long`);
+        if (at >= 0) {
+          const rest = lines.slice(at + 2);
+          const stop = rest.findIndex((l) => l === "MANDATORY DOCUMENTS");
+          const tail = (stop >= 0 ? rest.slice(0, stop) : rest).filter((l) => l && !l.startsWith("EXECUTIVE DASHBOARD"));
+          if (tail.length > DENSITY_MAX_LINES) hits.push(`${tag} actions-too-long`);
+        }
       }
     }
   }

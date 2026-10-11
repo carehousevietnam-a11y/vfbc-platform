@@ -26,7 +26,7 @@
    - question-range: 콘텐츠 문서의 질문 번호 범위
    - question-standard: 사기·불확실한 문서 질문의 쉼표, 굵은 요점, 45자, 마침표, 필드 2개, 선택지 4개와 직접 입력, 문서와 팩의 개수 일치. 세금 팩은 같은 검사를 돌리되 실패해도 막지 않고 알려진 기존 실패로만 센다.
 
-- report-layout: 사기·불확실한 문서 보고서 PDF 1페이지에 KEY RISKS가 잘리지 않고(…) RECOMMENDED ACTIONS 내용이 있으며 결론 문장이 깨지지 않는지 검사한다.
+- report-layout: 사기·불확실한 문서 보고서 PDF 1페이지에 KEY RISKS가 잘리지 않고(…) RECOMMENDED ACTIONS 내용이 있으며 결론 문장이 깨지지 않는지, 핵심 블록이 14줄을 넘지 않는지(정보 밀도, STANDARDS A14) 검사한다.
 - standards-lock: STANDARDS.md와 QUESTION_STANDARD.md가 `.standards.sha256`과 같은지, 각 verify 페이지의 서비스 종류가 공용 저장 API에 허용돼 있는지 검사한다. commit-msg hook은 보호 파일(기준 문서, hook, admin, tax, real-estate)이 바뀌는 커밋에 `ACE-APPROVED: 사유` 줄이 없으면 막는다.
 
 ## 사기·불확실한 문서

@@ -123,7 +123,7 @@ function jobs() {
 }
 
 function normalize(text) {
-  return text.replace(/\r\n/g, "\n").replace(/\s+$/g, "") + "\n";
+  return text.replace(/\r\n/g, "\n").split("\n").map((l) => l.trim()).join("\n").replace(/\s+$/g, "") + "\n";
 }
 
 function extractPdf(pdfPath) {

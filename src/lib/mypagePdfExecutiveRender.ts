@@ -1130,13 +1130,15 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         if (state.y - requiredHeight < BODY_MIN_Y) return false;
 
         state.y -= 2;
-        targetPage.drawRectangle({
-          x,
-          y: state.y - 2,
-          width: accent ? 4 : 3,
-          height: accent ? 14 : 12,
-          color: accent ?? rgb(0.09, 0.15, 0.35),
-        });
+        if (!accent) {
+          targetPage.drawRectangle({
+            x,
+            y: state.y - 2,
+            width: 3,
+            height: 12,
+            color: rgb(0.09, 0.15, 0.35),
+          });
+        }
         targetPage.drawText(title, {
           x: x + 9,
           y: state.y,
@@ -1481,18 +1483,20 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     const riskAccent = rgb(0.72, 0.16, 0.16);
     const actionAccent = rgb(0.09, 0.15, 0.35);
     {
-      const top = leftState.y + 9;
+      if (leftState.y > BODY_MIN_Y + 40) leftState.y -= 6;
+      const top = leftState.y + 12;
       if (left.drawSectionHeader("KEY RISKS & GAPS", "위험 · 영향 · 대응 방향", riskAccent)) {
         left.drawParagraphList(keyRisks, 8.3, leftGap, leftListCap);
-        emphasizeBlock(top, leftState.y + 5, riskAccent);
+        emphasizeBlock(top, leftState.y + 3, riskAccent);
         if (leftState.y > BODY_MIN_Y) leftState.y -= leftBreak;
       }
     }
     {
-      const top = leftState.y + 9;
+      if (leftState.y > BODY_MIN_Y + 40) leftState.y -= 11;
+      const top = leftState.y + 12;
       if (left.drawSectionHeader("RECOMMENDED ACTIONS", "즉시 · 다음 · 최종 조치", actionAccent)) {
         left.drawParagraphList(recommendedAction, 8.3, leftGap, leftListCap);
-        emphasizeBlock(top, leftState.y + 5, actionAccent);
+        emphasizeBlock(top, leftState.y + 3, actionAccent);
       }
     }
 
