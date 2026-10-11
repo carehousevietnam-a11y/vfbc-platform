@@ -1,0 +1,9 @@
+# 여러 VERIFY 서비스가 같이 쓰는 파일. 줄 삭제가 있으면 커밋을 막는다.
+src/components/cost-check/MasterReviewQuotationReport.tsx
+src/components/cost-check/MasterFunnelLanding.tsx
+src/lib/costCheck.ts
+src/lib/quoteReviewLinks.ts
+src/lib/mypagePdfExecutiveRender.ts
+src/components/ui/SelectionCard.tsx
+src/components/ui/QuestionSection.tsx
+src/components/ui/VerifyAnswerGrid.tsx

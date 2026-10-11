@@ -1,0 +1,9 @@
+#!/bin/sh
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+node scripts/harness-shared-diff.mjs --cached || exit 1
+node ./node_modules/typescript/bin/tsc --noEmit || exit 1
+node tests/qa/tax-content-final.mjs || exit 1
+node tests/qa/fraud-content-final.mjs || exit 1
+node tests/qa/unclear-content-final.mjs || exit 1
+exit 0
