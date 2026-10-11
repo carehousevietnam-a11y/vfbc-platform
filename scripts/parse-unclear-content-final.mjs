@@ -1,5 +1,5 @@
 /**
- * Parse docs/master/content/UNCLEAR_CONTENT_FINAL.md into the unclear pack data shape.
+ * Parse docs/master/content/UNCLEAR_CONTENT_V2.md into the unclear pack data shape.
  * Run: node scripts/parse-unclear-content-final.mjs --write
  */
 import fs from "node:fs";
@@ -7,7 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const mdPath = path.join(repoRoot, "docs/master/content/UNCLEAR_CONTENT_FINAL.md");
+const mdPath = path.join(repoRoot, "docs/master/content/UNCLEAR_CONTENT_V2.md");
 const outPath = path.join(repoRoot, "src/lib/contentPacks/unclear/unclearContentFinal.data.ts");
 
 export function stripCustomerMarkup(text) {
@@ -529,7 +529,7 @@ export function parseUnclearContentFinal(md) {
 }
 
 function emit(data) {
-  return `/* Generated from docs/master/content/UNCLEAR_CONTENT_FINAL.md. Do not edit sentences. */\nexport const UNCLEAR_CONTENT_FINAL = ${JSON.stringify(data, null, 2)} as const;\n`;
+  return `/* Generated from docs/master/content/UNCLEAR_CONTENT_V2.md. Do not edit sentences. */\nexport const UNCLEAR_CONTENT_FINAL = ${JSON.stringify(data, null, 2)} as const;\n`;
 }
 
 function main() {

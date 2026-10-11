@@ -1,5 +1,5 @@
 /**
- * FRAUD_CONTENT_FINAL.md ↔ fraud pack.
+ * FRAUD_CONTENT_V2.md ↔ fraud pack.
  * Counts come from the document and the pack, not from fixed literals.
  * Run: node tests/qa/fraud-content-final.mjs
  */
@@ -21,7 +21,7 @@ const { buildMypagePdfBytesForQaHarness } = await import("../../src/lib/mypagePd
 const { ADMIN_VERIFY_ANSWERS_META_JSON_KEY, getAdminChoiceNoteKey } = await import("../../src/lib/adminVerifyProfiling.ts");
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const md = fs.readFileSync(path.join(repoRoot, "docs/master/content/FRAUD_CONTENT_FINAL.md"), "utf8");
+const md = fs.readFileSync(path.join(repoRoot, "docs/master/content/FRAUD_CONTENT_V2.md"), "utf8");
 const parsed = parseFraudContentFinal(md);
 const audit = parseFraudAuditTable(md);
 const bridge = createFraudVerifyMasterPackBridge();
@@ -29,7 +29,7 @@ const failures = [];
 const fail = (message) => failures.push(message);
 
 if (JSON.stringify(parsed) !== JSON.stringify(FRAUD_CONTENT_FINAL)) {
-  fail("fraud pack data does not match FRAUD_CONTENT_FINAL.md");
+  fail("fraud pack data does not match FRAUD_CONTENT_V2.md");
 }
 
 const routes = [...new Set(parsed.questions.map((question) => question.route))];

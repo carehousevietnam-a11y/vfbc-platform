@@ -197,10 +197,12 @@ function clauseHit(profile: FraudProfile, clause: { field: string; values: reado
 export function fraudConnectionMatches(answers: Record<string, string>) {
   const profile = buildFraudProfile(answers);
   return FRAUD_CONTENT_FINAL.connections.filter((row) => {
-    if (row.mode === "always") return true;
-    return row.mode === "and"
-      ? row.clauses.every((clause) => clauseHit(profile, clause))
-      : row.clauses.some((clause) => clauseHit(profile, clause));
+    const mode = row.mode as string;
+    const clauses = row.clauses as readonly { field: string; values: readonly string[] }[];
+    if (mode === "always") return true;
+    return mode === "and"
+      ? clauses.every((clause) => clauseHit(profile, clause))
+      : clauses.some((clause) => clauseHit(profile, clause));
   });
 }
 
