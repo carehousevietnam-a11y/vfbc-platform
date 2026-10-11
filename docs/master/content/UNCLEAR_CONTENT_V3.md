@@ -39,27 +39,25 @@
 
 **고객 화면**
 
-**받은 서류나 안내는 어떤 형태이고, 그 형태가 공식 문서처럼 갖춰져 있나요?**
+**받은 서류나 안내는 어떤 형태이고, 거기에 요구하는 내용이 얼마나 구체적으로 적혀 있나요?**
 
-① **직인과 문서번호가 있는 종이 공문**입니다. 정식 서류의 형태를 갖추고 있어 내용 확인을 이어갈 수 있습니다.  
-② **청구서나 고지서 양식**입니다. 정식 서류의 형태를 갖추고 있지만 보낸 곳과 근거는 따로 확인하고 싶습니다.  
-③ **이메일**로 받았습니다. 전자 메시지 형태라서 보낸 주소와 형식이 공식적인지 확인이 필요합니다.  
-④ **문자나 메신저**로 받았습니다. 전자 메시지 형태라서 보낸 번호와 형식이 공식적인지 확인이 필요합니다.  
-⑤ **링크나 큐알 코드**로 안내받았습니다. 전자 메시지 형태라서 연결된 곳이 공식 사이트인지 확인이 필요합니다.  
-⑥ **전화나 방문으로 말로만** 들었습니다. 서류 없이 말로만 전달되어 확인할 근거가 따로 없는 상태입니다.  
-⑦ **직접 입력**
+① **종이 서류**로 받았습니다. 해야 할 일이나 낼 돈이 항목별로 구체적으로 적혀 있습니다.  
+② **이메일**로 받았습니다. 내용이 한두 줄로 짧거나 모호해서 무엇을 요구하는지 알기 어렵습니다.  
+③ **문자나 메신저**로 받았습니다. 해야 할 일이나 낼 돈이 글로 구체적으로 적혀 있습니다.  
+④ **링크나 큐알 코드**로 안내받았습니다. 내용은 연결된 화면에서만 볼 수 있어 아직 확인하지 못했습니다.  
+⑤ **전화나 방문으로 말로만** 들었습니다. 받은 서류가 없어 확인할 글이 따로 없습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_documentForm=paper_official`, `unclear_formGroup=form_formal` |
-| ② | `unclear_documentForm=bill_form`, `unclear_formGroup=form_formal` |
-| ③ | `unclear_documentForm=email_body`, `unclear_formGroup=form_digital` |
-| ④ | `unclear_documentForm=chat_message`, `unclear_formGroup=form_digital` |
-| ⑤ | `unclear_documentForm=link_code`, `unclear_formGroup=form_digital` |
-| ⑥ | `unclear_documentForm=verbal_only`, `unclear_formGroup=form_oral` |
-| ⑦ 직접 입력 | `unclear_documentForm=direct_input`, `unclear_formGroup=direct_input_detail` |
+| ① | `unclear_documentForm=paper_doc`, `unclear_contentDetail=detail_full` |
+| ② | `unclear_documentForm=email_body`, `unclear_contentDetail=detail_brief` |
+| ③ | `unclear_documentForm=chat_message`, `unclear_contentDetail=detail_full` |
+| ④ | `unclear_documentForm=link_code`, `unclear_contentDetail=detail_linked` |
+| ⑤ | `unclear_documentForm=verbal_only`, `unclear_contentDetail=detail_none` |
+| ⑥ 직접 입력 | `unclear_documentForm=direct_input`, `unclear_contentDetail=direct_input_detail` |
 
 ---
 
@@ -67,29 +65,25 @@
 
 **고객 화면**
 
-**서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳은 어떤 성격의 기관이나 업체인가요?**
+**서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳과 제가 이전에 한 일이 있나요?**
 
-① **세무기관(세무서·세무총국)**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-② **공안·경찰·검찰·법원**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-③ **구·시·성 등 지방 행정기관**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-④ **출입국·노동 등 외국인 관련 기관**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-⑤ **은행이나 금융회사**가 보낸 것으로 적혀 있습니다. 금융회사가 보낸 것으로 되어 있어 실제 회사인지 확인하고 싶습니다.  
-⑥ **회사·통신사·택배사·쇼핑 플랫폼**이 보낸 것으로 적혀 있습니다. 민간 업체가 보낸 것으로 되어 있어 실제 업체인지 확인하고 싶습니다.  
-⑦ **보낸 곳이 적혀 있지 않거나 개인**입니다. 보낸 곳이 불분명한 상태라 누가 보냈는지부터 확인하고 싶습니다.  
-⑧ **직접 입력**
+① **세무서·구청·출입국사무소 같은 공공기관**이 보낸 것으로 적혀 있습니다. 최근 그 기관에 제가 신청하거나 신고한 일이 있습니다.  
+② **공안(경찰)·검찰·법원**이 보낸 것으로 적혀 있습니다. 그 곳과 관련될 만한 일이 제게는 전혀 없습니다.  
+③ **은행이나 금융회사**가 보낸 것으로 적혀 있습니다. 평소 제가 거래하던 은행과 이름이 같습니다.  
+④ **회사·통신사·택배사·쇼핑 플랫폼**이 보낸 것으로 적혀 있습니다. 제가 거래하거나 이용한 적이 없는 곳입니다.  
+⑤ **보낸 곳이 적혀 있지 않거나 개인**입니다. 처음 보는 이름이라 제가 한 일과 관계가 있는지 알 수 없습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_senderClaim=tax_authority`, `unclear_senderGroup=grp_public` |
-| ② | `unclear_senderClaim=police_court`, `unclear_senderGroup=grp_public` |
-| ③ | `unclear_senderClaim=local_admin`, `unclear_senderGroup=grp_public` |
-| ④ | `unclear_senderClaim=foreign_agency`, `unclear_senderGroup=grp_public` |
-| ⑤ | `unclear_senderClaim=bank_claim`, `unclear_senderGroup=grp_finance` |
-| ⑥ | `unclear_senderClaim=company_claim`, `unclear_senderGroup=grp_private` |
-| ⑦ | `unclear_senderClaim=unnamed_claim`, `unclear_senderGroup=grp_unnamed` |
-| ⑧ 직접 입력 | `unclear_senderClaim=direct_input`, `unclear_senderGroup=direct_input_detail` |
+| ① | `unclear_senderClaim=public_agency`, `unclear_senderRelation=rel_recent` |
+| ② | `unclear_senderClaim=police_court`, `unclear_senderRelation=rel_none` |
+| ③ | `unclear_senderClaim=bank_claim`, `unclear_senderRelation=rel_customer` |
+| ④ | `unclear_senderClaim=company_claim`, `unclear_senderRelation=rel_none` |
+| ⑤ | `unclear_senderClaim=unnamed_claim`, `unclear_senderRelation=rel_unknown` |
+| ⑥ 직접 입력 | `unclear_senderClaim=direct_input`, `unclear_senderRelation=direct_input_detail` |
 
 ---
 
@@ -97,27 +91,25 @@
 
 **고객 화면**
 
-**이 연락은 어떻게 이어져 왔고, 그 흐름이 제 요청과 관련이 있나요?**
+**이 연락은 몇 번, 어떤 식으로 받았고, 제가 먼저 신청하거나 문의한 일과 이어져 있나요?**
 
-① **오늘이나 어제 처음** 한 번 받았습니다. 한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다.  
-② **며칠 전에 한 번** 받았고 그 뒤 연락은 없습니다. 한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다.  
-③ **같은 내용을 여러 번 반복**해서 받았습니다. 반복해서 오는 연락이라 어떻게 대응해야 할지 확인하고 싶습니다.  
-④ **받을수록 표현이 점점 강해졌습니다.** 연락의 강도가 높아지고 있어 압박이 커지는지 확인하고 싶습니다.  
-⑤ **전화나 방문을 받은 뒤**에 이어서 받았습니다. 앞선 연락의 후속으로 온 것이라 두 연락이 이어지는지 확인하고 싶습니다.  
-⑥ **제가 신청하거나 문의한 뒤**에 받았습니다. 제 요청과 이어진 연락이라 그 요청에 대한 답인지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **오늘이나 어제 처음 한 번** 받았습니다. 제가 먼저 신청하거나 문의한 일은 없어서 갑작스럽게 받았습니다.  
+② **며칠 전에 한 번** 받았고 그 뒤 연락은 없습니다. 제가 최근에 신청하거나 문의한 일을 한 직후에 온 연락입니다.  
+③ **같은 내용을 여러 번 반복**해서 받았습니다. 제가 신청하거나 문의한 일과 이어진 연락으로 보입니다.  
+④ **여러 번 받으면서 표현이 점점 강해졌습니다.** 제가 신청하거나 문의한 적 없는 일인데 계속 옵니다.  
+⑤ **전화나 방문을 받은 뒤** 이어서 받았습니다. 그 전화나 방문은 제가 요청한 것이 아닙니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_contactPattern=first_contact`, `unclear_contactFlow=flow_single` |
-| ② | `unclear_contactPattern=once_earlier`, `unclear_contactFlow=flow_single` |
-| ③ | `unclear_contactPattern=repeated_same`, `unclear_contactFlow=flow_repeat` |
-| ④ | `unclear_contactPattern=escalating_tone`, `unclear_contactFlow=flow_escalate` |
-| ⑤ | `unclear_contactPattern=after_visit`, `unclear_contactFlow=flow_followup` |
-| ⑥ | `unclear_contactPattern=after_request`, `unclear_contactFlow=flow_expected` |
-| ⑦ 직접 입력 | `unclear_contactPattern=direct_input`, `unclear_contactFlow=direct_input_detail` |
+| ① | `unclear_contactPattern=first_contact`, `unclear_requestLink=req_none` |
+| ② | `unclear_contactPattern=once_earlier`, `unclear_requestLink=req_related` |
+| ③ | `unclear_contactPattern=repeated_same`, `unclear_requestLink=req_related` |
+| ④ | `unclear_contactPattern=escalating_tone`, `unclear_requestLink=req_none` |
+| ⑤ | `unclear_contactPattern=after_visit`, `unclear_requestLink=req_none` |
+| ⑥ 직접 입력 | `unclear_contactPattern=direct_input`, `unclear_requestLink=direct_input_detail` |
 
 ---
 
@@ -125,27 +117,25 @@
 
 **고객 화면**
 
-**지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 확인하고 싶으신가요?**
+**지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?**
 
-① **진짜 서류인지 모르겠습니다.** 돈을 내기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다.  
-② **정말 내야 하는 돈인지 모르겠습니다.** 내기 전에 먼저 돈을 내라는 법적·계약상 근거가 무엇인지 확인하고 싶습니다.  
-③ **금액이 맞는지 모르겠습니다.** 내기 전에 먼저 금액이 어떤 계산으로 나왔는지 근거부터 확인하고 싶습니다.  
-④ **기한을 놓칠까 걱정됩니다.** 불이익이 생기기 전에 먼저 기한이 정확히 언제까지인지부터 확인하고 싶습니다.  
-⑤ **이미 응했거나 알려 줘서 불안합니다.** 더 응하기 전에 일단 멈추고 지금까지의 응답이 괜찮은지 확인하고 싶습니다.  
-⑥ **크게 걱정되지는 않고 확인만** 하고 싶습니다. 서두르지 않고 서류를 보관하며 차분히 내용을 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **진짜 서류인지** 모르겠습니다. 제가 직접 확인할 수 있도록 방법을 알려 주면 좋겠습니다.  
+② **정말 내야 하는 돈인지, 금액이 맞는지** 모르겠습니다. 근거를 같이 따져 줄 전문가가 필요합니다.  
+③ **기한을 놓칠까** 걱정됩니다. 지금 무엇부터 해야 하는지 순서를 하나씩 알려 주면 좋겠습니다.  
+④ **이미 응했거나 돈을 보내** 불안합니다. 지금까지의 상황을 전문가가 함께 봐 주면 좋겠습니다.  
+⑤ **크게 걱정되지는 않습니다.** 서둘러 움직이기보다 확인하는 방법을 알아 두고 싶습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_mainConcern=doubt_genuine`, `unclear_firstAction=next_sender` |
-| ② | `unclear_mainConcern=doubt_owed`, `unclear_firstAction=next_basis` |
-| ③ | `unclear_mainConcern=doubt_amount`, `unclear_firstAction=next_basis` |
-| ④ | `unclear_mainConcern=doubt_deadline`, `unclear_firstAction=next_deadline` |
-| ⑤ | `unclear_mainConcern=doubt_done`, `unclear_firstAction=next_stop` |
-| ⑥ | `unclear_mainConcern=doubt_none`, `unclear_firstAction=next_keep` |
-| ⑦ 직접 입력 | `unclear_mainConcern=direct_input`, `unclear_firstAction=direct_input_detail` |
+| ① | `unclear_mainConcern=doubt_genuine`, `unclear_helpWanted=help_guide` |
+| ② | `unclear_mainConcern=doubt_owed`, `unclear_helpWanted=help_expert` |
+| ③ | `unclear_mainConcern=doubt_deadline`, `unclear_helpWanted=help_guide` |
+| ④ | `unclear_mainConcern=doubt_done`, `unclear_helpWanted=help_expert` |
+| ⑤ | `unclear_mainConcern=doubt_none`, `unclear_helpWanted=help_guide` |
+| ⑥ 직접 입력 | `unclear_mainConcern=direct_input`, `unclear_helpWanted=direct_input_detail` |
 
 ---
 
@@ -155,27 +145,25 @@
 
 **고객 화면**
 
-**받은 서류나 안내는 어떤 형태이고, 그 형태가 공식 문서처럼 갖춰져 있나요?**
+**받은 서류나 안내는 어떤 형태이고, 거기에 요구하는 내용이 얼마나 구체적으로 적혀 있나요?**
 
-① **직인과 문서번호가 있는 종이 공문**입니다. 정식 서류의 형태를 갖추고 있어 내용 확인을 이어갈 수 있습니다.  
-② **청구서나 고지서 양식**입니다. 정식 서류의 형태를 갖추고 있지만 보낸 곳과 근거는 따로 확인하고 싶습니다.  
-③ **이메일**로 받았습니다. 전자 메시지 형태라서 보낸 주소와 형식이 공식적인지 확인이 필요합니다.  
-④ **문자나 메신저**로 받았습니다. 전자 메시지 형태라서 보낸 번호와 형식이 공식적인지 확인이 필요합니다.  
-⑤ **링크나 큐알 코드**로 안내받았습니다. 전자 메시지 형태라서 연결된 곳이 공식 사이트인지 확인이 필요합니다.  
-⑥ **전화나 방문으로 말로만** 들었습니다. 서류 없이 말로만 전달되어 확인할 근거가 따로 없는 상태입니다.  
-⑦ **직접 입력**
+① **종이 서류**로 받았습니다. 해야 할 일이나 낼 돈이 항목별로 구체적으로 적혀 있습니다.  
+② **이메일**로 받았습니다. 내용이 한두 줄로 짧거나 모호해서 무엇을 요구하는지 알기 어렵습니다.  
+③ **문자나 메신저**로 받았습니다. 해야 할 일이나 낼 돈이 글로 구체적으로 적혀 있습니다.  
+④ **링크나 큐알 코드**로 안내받았습니다. 내용은 연결된 화면에서만 볼 수 있어 아직 확인하지 못했습니다.  
+⑤ **전화나 방문으로 말로만** 들었습니다. 받은 서류가 없어 확인할 글이 따로 없습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_documentForm=paper_official`, `unclear_formGroup=form_formal` |
-| ② | `unclear_documentForm=bill_form`, `unclear_formGroup=form_formal` |
-| ③ | `unclear_documentForm=email_body`, `unclear_formGroup=form_digital` |
-| ④ | `unclear_documentForm=chat_message`, `unclear_formGroup=form_digital` |
-| ⑤ | `unclear_documentForm=link_code`, `unclear_formGroup=form_digital` |
-| ⑥ | `unclear_documentForm=verbal_only`, `unclear_formGroup=form_oral` |
-| ⑦ 직접 입력 | `unclear_documentForm=direct_input`, `unclear_formGroup=direct_input_detail` |
+| ① | `unclear_documentForm=paper_doc`, `unclear_contentDetail=detail_full` |
+| ② | `unclear_documentForm=email_body`, `unclear_contentDetail=detail_brief` |
+| ③ | `unclear_documentForm=chat_message`, `unclear_contentDetail=detail_full` |
+| ④ | `unclear_documentForm=link_code`, `unclear_contentDetail=detail_linked` |
+| ⑤ | `unclear_documentForm=verbal_only`, `unclear_contentDetail=detail_none` |
+| ⑥ 직접 입력 | `unclear_documentForm=direct_input`, `unclear_contentDetail=direct_input_detail` |
 
 ---
 
@@ -183,29 +171,25 @@
 
 **고객 화면**
 
-**서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳은 어떤 성격의 기관이나 업체인가요?**
+**서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳과 제가 이전에 한 일이 있나요?**
 
-① **세무기관(세무서·세무총국)**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-② **공안·경찰·검찰·법원**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-③ **구·시·성 등 지방 행정기관**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-④ **출입국·노동 등 외국인 관련 기관**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-⑤ **은행이나 금융회사**가 보낸 것으로 적혀 있습니다. 금융회사가 보낸 것으로 되어 있어 실제 회사인지 확인하고 싶습니다.  
-⑥ **회사·통신사·택배사·쇼핑 플랫폼**이 보낸 것으로 적혀 있습니다. 민간 업체가 보낸 것으로 되어 있어 실제 업체인지 확인하고 싶습니다.  
-⑦ **보낸 곳이 적혀 있지 않거나 개인**입니다. 보낸 곳이 불분명한 상태라 누가 보냈는지부터 확인하고 싶습니다.  
-⑧ **직접 입력**
+① **세무서·구청·출입국사무소 같은 공공기관**이 보낸 것으로 적혀 있습니다. 최근 그 기관에 제가 신청하거나 신고한 일이 있습니다.  
+② **공안(경찰)·검찰·법원**이 보낸 것으로 적혀 있습니다. 그 곳과 관련될 만한 일이 제게는 전혀 없습니다.  
+③ **은행이나 금융회사**가 보낸 것으로 적혀 있습니다. 평소 제가 거래하던 은행과 이름이 같습니다.  
+④ **회사·통신사·택배사·쇼핑 플랫폼**이 보낸 것으로 적혀 있습니다. 제가 거래하거나 이용한 적이 없는 곳입니다.  
+⑤ **보낸 곳이 적혀 있지 않거나 개인**입니다. 처음 보는 이름이라 제가 한 일과 관계가 있는지 알 수 없습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_senderClaim=tax_authority`, `unclear_senderGroup=grp_public` |
-| ② | `unclear_senderClaim=police_court`, `unclear_senderGroup=grp_public` |
-| ③ | `unclear_senderClaim=local_admin`, `unclear_senderGroup=grp_public` |
-| ④ | `unclear_senderClaim=foreign_agency`, `unclear_senderGroup=grp_public` |
-| ⑤ | `unclear_senderClaim=bank_claim`, `unclear_senderGroup=grp_finance` |
-| ⑥ | `unclear_senderClaim=company_claim`, `unclear_senderGroup=grp_private` |
-| ⑦ | `unclear_senderClaim=unnamed_claim`, `unclear_senderGroup=grp_unnamed` |
-| ⑧ 직접 입력 | `unclear_senderClaim=direct_input`, `unclear_senderGroup=direct_input_detail` |
+| ① | `unclear_senderClaim=public_agency`, `unclear_senderRelation=rel_recent` |
+| ② | `unclear_senderClaim=police_court`, `unclear_senderRelation=rel_none` |
+| ③ | `unclear_senderClaim=bank_claim`, `unclear_senderRelation=rel_customer` |
+| ④ | `unclear_senderClaim=company_claim`, `unclear_senderRelation=rel_none` |
+| ⑤ | `unclear_senderClaim=unnamed_claim`, `unclear_senderRelation=rel_unknown` |
+| ⑥ 직접 입력 | `unclear_senderClaim=direct_input`, `unclear_senderRelation=direct_input_detail` |
 
 ---
 
@@ -213,27 +197,25 @@
 
 **고객 화면**
 
-**이 연락은 어떻게 이어져 왔고, 그 흐름이 제 요청과 관련이 있나요?**
+**이 연락은 몇 번, 어떤 식으로 받았고, 제가 먼저 신청하거나 문의한 일과 이어져 있나요?**
 
-① **오늘이나 어제 처음** 한 번 받았습니다. 한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다.  
-② **며칠 전에 한 번** 받았고 그 뒤 연락은 없습니다. 한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다.  
-③ **같은 내용을 여러 번 반복**해서 받았습니다. 반복해서 오는 연락이라 어떻게 대응해야 할지 확인하고 싶습니다.  
-④ **받을수록 표현이 점점 강해졌습니다.** 연락의 강도가 높아지고 있어 압박이 커지는지 확인하고 싶습니다.  
-⑤ **전화나 방문을 받은 뒤**에 이어서 받았습니다. 앞선 연락의 후속으로 온 것이라 두 연락이 이어지는지 확인하고 싶습니다.  
-⑥ **제가 신청하거나 문의한 뒤**에 받았습니다. 제 요청과 이어진 연락이라 그 요청에 대한 답인지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **오늘이나 어제 처음 한 번** 받았습니다. 제가 먼저 신청하거나 문의한 일은 없어서 갑작스럽게 받았습니다.  
+② **며칠 전에 한 번** 받았고 그 뒤 연락은 없습니다. 제가 최근에 신청하거나 문의한 일을 한 직후에 온 연락입니다.  
+③ **같은 내용을 여러 번 반복**해서 받았습니다. 제가 신청하거나 문의한 일과 이어진 연락으로 보입니다.  
+④ **여러 번 받으면서 표현이 점점 강해졌습니다.** 제가 신청하거나 문의한 적 없는 일인데 계속 옵니다.  
+⑤ **전화나 방문을 받은 뒤** 이어서 받았습니다. 그 전화나 방문은 제가 요청한 것이 아닙니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_contactPattern=first_contact`, `unclear_contactFlow=flow_single` |
-| ② | `unclear_contactPattern=once_earlier`, `unclear_contactFlow=flow_single` |
-| ③ | `unclear_contactPattern=repeated_same`, `unclear_contactFlow=flow_repeat` |
-| ④ | `unclear_contactPattern=escalating_tone`, `unclear_contactFlow=flow_escalate` |
-| ⑤ | `unclear_contactPattern=after_visit`, `unclear_contactFlow=flow_followup` |
-| ⑥ | `unclear_contactPattern=after_request`, `unclear_contactFlow=flow_expected` |
-| ⑦ 직접 입력 | `unclear_contactPattern=direct_input`, `unclear_contactFlow=direct_input_detail` |
+| ① | `unclear_contactPattern=first_contact`, `unclear_requestLink=req_none` |
+| ② | `unclear_contactPattern=once_earlier`, `unclear_requestLink=req_related` |
+| ③ | `unclear_contactPattern=repeated_same`, `unclear_requestLink=req_related` |
+| ④ | `unclear_contactPattern=escalating_tone`, `unclear_requestLink=req_none` |
+| ⑤ | `unclear_contactPattern=after_visit`, `unclear_requestLink=req_none` |
+| ⑥ 직접 입력 | `unclear_contactPattern=direct_input`, `unclear_requestLink=direct_input_detail` |
 
 ---
 
@@ -241,29 +223,25 @@
 
 **고객 화면**
 
-**지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 확인하고 싶으신가요?**
+**지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?**
 
-① **진짜 서류인지 모르겠습니다.** 서류를 내기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다.  
-② **무엇을 내야 하는지 모르겠습니다.** 내기 전에 먼저 요구하는 서류와 그 근거가 무엇인지 확인하고 싶습니다.  
-③ **직접 가야 하는지, 안 가면 어떻게 되는지** 걱정됩니다. 가기 전에 먼저 출석을 요구하는 근거가 무엇인지 확인하고 싶습니다.  
-④ **기한을 놓칠까 걱정됩니다.** 불이익이 생기기 전에 먼저 기한이 정확히 언제까지인지부터 확인하고 싶습니다.  
-⑤ **개인정보를 내도 되는지** 걱정됩니다. 제출하기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다.  
-⑥ **이미 일부를 냈거나 답했습니다.** 더 응하기 전에 일단 멈추고 지금까지의 응답이 괜찮은지 확인하고 싶습니다.  
-⑦ **크게 걱정되지는 않고 확인만** 하고 싶습니다. 서두르지 않고 서류를 보관하며 차분히 내용을 확인하고 싶습니다.  
-⑧ **직접 입력**
+① **진짜 서류인지, 개인정보를 내도 되는지** 모르겠습니다. 제가 직접 확인할 수 있도록 방법을 알려 주면 좋겠습니다.  
+② **무엇을, 언제까지 내야 하는지** 모르겠습니다. 요구하는 서류와 그 근거를 전문가와 함께 정리하고 싶습니다.  
+③ **직접 가야 하는지, 안 가면 어떻게 되는지** 걱정됩니다. 방문할 때 통역이나 동행이 필요할 수 있습니다.  
+④ **이미 일부를 냈거나 답했습니다.** 지금까지의 응답이 괜찮은지 전문가가 함께 봐 주면 좋겠습니다.  
+⑤ **크게 걱정되지는 않습니다.** 서둘러 움직이기보다 확인하는 방법을 알아 두고 싶습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_mainConcern=doubt_genuine`, `unclear_firstAction=next_sender` |
-| ② | `unclear_mainConcern=doubt_what`, `unclear_firstAction=next_basis` |
-| ③ | `unclear_mainConcern=doubt_appear`, `unclear_firstAction=next_basis` |
-| ④ | `unclear_mainConcern=doubt_deadline`, `unclear_firstAction=next_deadline` |
-| ⑤ | `unclear_mainConcern=doubt_privacy`, `unclear_firstAction=next_sender` |
-| ⑥ | `unclear_mainConcern=doubt_done`, `unclear_firstAction=next_stop` |
-| ⑦ | `unclear_mainConcern=doubt_none`, `unclear_firstAction=next_keep` |
-| ⑧ 직접 입력 | `unclear_mainConcern=direct_input`, `unclear_firstAction=direct_input_detail` |
+| ① | `unclear_mainConcern=doubt_genuine_privacy`, `unclear_helpWanted=help_guide` |
+| ② | `unclear_mainConcern=doubt_what`, `unclear_helpWanted=help_expert` |
+| ③ | `unclear_mainConcern=doubt_appear`, `unclear_helpWanted=help_expert` |
+| ④ | `unclear_mainConcern=doubt_done`, `unclear_helpWanted=help_expert` |
+| ⑤ | `unclear_mainConcern=doubt_none`, `unclear_helpWanted=help_guide` |
+| ⑥ 직접 입력 | `unclear_mainConcern=direct_input`, `unclear_helpWanted=direct_input_detail` |
 
 ---
 
@@ -273,27 +251,25 @@
 
 **고객 화면**
 
-**받은 서류나 안내는 어떤 형태이고, 그 형태가 공식 문서처럼 갖춰져 있나요?**
+**받은 서류나 안내는 어떤 형태이고, 거기에 요구하는 내용이 얼마나 구체적으로 적혀 있나요?**
 
-① **직인과 문서번호가 있는 종이 공문**입니다. 정식 서류의 형태를 갖추고 있어 내용 확인을 이어갈 수 있습니다.  
-② **청구서나 고지서 양식**입니다. 정식 서류의 형태를 갖추고 있지만 보낸 곳과 근거는 따로 확인하고 싶습니다.  
-③ **이메일**로 받았습니다. 전자 메시지 형태라서 보낸 주소와 형식이 공식적인지 확인이 필요합니다.  
-④ **문자나 메신저**로 받았습니다. 전자 메시지 형태라서 보낸 번호와 형식이 공식적인지 확인이 필요합니다.  
-⑤ **링크나 큐알 코드**로 안내받았습니다. 전자 메시지 형태라서 연결된 곳이 공식 사이트인지 확인이 필요합니다.  
-⑥ **전화나 방문으로 말로만** 들었습니다. 서류 없이 말로만 전달되어 확인할 근거가 따로 없는 상태입니다.  
-⑦ **직접 입력**
+① **종이 서류**로 받았습니다. 해야 할 일이나 낼 돈이 항목별로 구체적으로 적혀 있습니다.  
+② **이메일**로 받았습니다. 내용이 한두 줄로 짧거나 모호해서 무엇을 요구하는지 알기 어렵습니다.  
+③ **문자나 메신저**로 받았습니다. 해야 할 일이나 낼 돈이 글로 구체적으로 적혀 있습니다.  
+④ **링크나 큐알 코드**로 안내받았습니다. 내용은 연결된 화면에서만 볼 수 있어 아직 확인하지 못했습니다.  
+⑤ **전화나 방문으로 말로만** 들었습니다. 받은 서류가 없어 확인할 글이 따로 없습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_documentForm=paper_official`, `unclear_formGroup=form_formal` |
-| ② | `unclear_documentForm=bill_form`, `unclear_formGroup=form_formal` |
-| ③ | `unclear_documentForm=email_body`, `unclear_formGroup=form_digital` |
-| ④ | `unclear_documentForm=chat_message`, `unclear_formGroup=form_digital` |
-| ⑤ | `unclear_documentForm=link_code`, `unclear_formGroup=form_digital` |
-| ⑥ | `unclear_documentForm=verbal_only`, `unclear_formGroup=form_oral` |
-| ⑦ 직접 입력 | `unclear_documentForm=direct_input`, `unclear_formGroup=direct_input_detail` |
+| ① | `unclear_documentForm=paper_doc`, `unclear_contentDetail=detail_full` |
+| ② | `unclear_documentForm=email_body`, `unclear_contentDetail=detail_brief` |
+| ③ | `unclear_documentForm=chat_message`, `unclear_contentDetail=detail_full` |
+| ④ | `unclear_documentForm=link_code`, `unclear_contentDetail=detail_linked` |
+| ⑤ | `unclear_documentForm=verbal_only`, `unclear_contentDetail=detail_none` |
+| ⑥ 직접 입력 | `unclear_documentForm=direct_input`, `unclear_contentDetail=direct_input_detail` |
 
 ---
 
@@ -301,29 +277,25 @@
 
 **고객 화면**
 
-**서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳은 어떤 성격의 기관이나 업체인가요?**
+**서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳과 제가 이전에 한 일이 있나요?**
 
-① **세무기관(세무서·세무총국)**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-② **공안·경찰·검찰·법원**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-③ **구·시·성 등 지방 행정기관**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-④ **출입국·노동 등 외국인 관련 기관**이 보낸 것으로 적혀 있습니다. 공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다.  
-⑤ **은행이나 금융회사**가 보낸 것으로 적혀 있습니다. 금융회사가 보낸 것으로 되어 있어 실제 회사인지 확인하고 싶습니다.  
-⑥ **회사·통신사·택배사·쇼핑 플랫폼**이 보낸 것으로 적혀 있습니다. 민간 업체가 보낸 것으로 되어 있어 실제 업체인지 확인하고 싶습니다.  
-⑦ **보낸 곳이 적혀 있지 않거나 개인**입니다. 보낸 곳이 불분명한 상태라 누가 보냈는지부터 확인하고 싶습니다.  
-⑧ **직접 입력**
+① **세무서·구청·출입국사무소 같은 공공기관**이 보낸 것으로 적혀 있습니다. 최근 그 기관에 제가 신청하거나 신고한 일이 있습니다.  
+② **공안(경찰)·검찰·법원**이 보낸 것으로 적혀 있습니다. 그 곳과 관련될 만한 일이 제게는 전혀 없습니다.  
+③ **은행이나 금융회사**가 보낸 것으로 적혀 있습니다. 평소 제가 거래하던 은행과 이름이 같습니다.  
+④ **회사·통신사·택배사·쇼핑 플랫폼**이 보낸 것으로 적혀 있습니다. 제가 거래하거나 이용한 적이 없는 곳입니다.  
+⑤ **보낸 곳이 적혀 있지 않거나 개인**입니다. 처음 보는 이름이라 제가 한 일과 관계가 있는지 알 수 없습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_senderClaim=tax_authority`, `unclear_senderGroup=grp_public` |
-| ② | `unclear_senderClaim=police_court`, `unclear_senderGroup=grp_public` |
-| ③ | `unclear_senderClaim=local_admin`, `unclear_senderGroup=grp_public` |
-| ④ | `unclear_senderClaim=foreign_agency`, `unclear_senderGroup=grp_public` |
-| ⑤ | `unclear_senderClaim=bank_claim`, `unclear_senderGroup=grp_finance` |
-| ⑥ | `unclear_senderClaim=company_claim`, `unclear_senderGroup=grp_private` |
-| ⑦ | `unclear_senderClaim=unnamed_claim`, `unclear_senderGroup=grp_unnamed` |
-| ⑧ 직접 입력 | `unclear_senderClaim=direct_input`, `unclear_senderGroup=direct_input_detail` |
+| ① | `unclear_senderClaim=public_agency`, `unclear_senderRelation=rel_recent` |
+| ② | `unclear_senderClaim=police_court`, `unclear_senderRelation=rel_none` |
+| ③ | `unclear_senderClaim=bank_claim`, `unclear_senderRelation=rel_customer` |
+| ④ | `unclear_senderClaim=company_claim`, `unclear_senderRelation=rel_none` |
+| ⑤ | `unclear_senderClaim=unnamed_claim`, `unclear_senderRelation=rel_unknown` |
+| ⑥ 직접 입력 | `unclear_senderClaim=direct_input`, `unclear_senderRelation=direct_input_detail` |
 
 ---
 
@@ -331,27 +303,25 @@
 
 **고객 화면**
 
-**이 연락은 어떻게 이어져 왔고, 그 흐름이 제 요청과 관련이 있나요?**
+**이 연락은 몇 번, 어떤 식으로 받았고, 제가 먼저 신청하거나 문의한 일과 이어져 있나요?**
 
-① **오늘이나 어제 처음** 한 번 받았습니다. 한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다.  
-② **며칠 전에 한 번** 받았고 그 뒤 연락은 없습니다. 한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다.  
-③ **같은 내용을 여러 번 반복**해서 받았습니다. 반복해서 오는 연락이라 어떻게 대응해야 할지 확인하고 싶습니다.  
-④ **받을수록 표현이 점점 강해졌습니다.** 연락의 강도가 높아지고 있어 압박이 커지는지 확인하고 싶습니다.  
-⑤ **전화나 방문을 받은 뒤**에 이어서 받았습니다. 앞선 연락의 후속으로 온 것이라 두 연락이 이어지는지 확인하고 싶습니다.  
-⑥ **제가 신청하거나 문의한 뒤**에 받았습니다. 제 요청과 이어진 연락이라 그 요청에 대한 답인지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **오늘이나 어제 처음 한 번** 받았습니다. 제가 먼저 신청하거나 문의한 일은 없어서 갑작스럽게 받았습니다.  
+② **며칠 전에 한 번** 받았고 그 뒤 연락은 없습니다. 제가 최근에 신청하거나 문의한 일을 한 직후에 온 연락입니다.  
+③ **같은 내용을 여러 번 반복**해서 받았습니다. 제가 신청하거나 문의한 일과 이어진 연락으로 보입니다.  
+④ **여러 번 받으면서 표현이 점점 강해졌습니다.** 제가 신청하거나 문의한 적 없는 일인데 계속 옵니다.  
+⑤ **전화나 방문을 받은 뒤** 이어서 받았습니다. 그 전화나 방문은 제가 요청한 것이 아닙니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_contactPattern=first_contact`, `unclear_contactFlow=flow_single` |
-| ② | `unclear_contactPattern=once_earlier`, `unclear_contactFlow=flow_single` |
-| ③ | `unclear_contactPattern=repeated_same`, `unclear_contactFlow=flow_repeat` |
-| ④ | `unclear_contactPattern=escalating_tone`, `unclear_contactFlow=flow_escalate` |
-| ⑤ | `unclear_contactPattern=after_visit`, `unclear_contactFlow=flow_followup` |
-| ⑥ | `unclear_contactPattern=after_request`, `unclear_contactFlow=flow_expected` |
-| ⑦ 직접 입력 | `unclear_contactPattern=direct_input`, `unclear_contactFlow=direct_input_detail` |
+| ① | `unclear_contactPattern=first_contact`, `unclear_requestLink=req_none` |
+| ② | `unclear_contactPattern=once_earlier`, `unclear_requestLink=req_related` |
+| ③ | `unclear_contactPattern=repeated_same`, `unclear_requestLink=req_related` |
+| ④ | `unclear_contactPattern=escalating_tone`, `unclear_requestLink=req_none` |
+| ⑤ | `unclear_contactPattern=after_visit`, `unclear_requestLink=req_none` |
+| ⑥ 직접 입력 | `unclear_contactPattern=direct_input`, `unclear_requestLink=direct_input_detail` |
 
 ---
 
@@ -359,27 +329,25 @@
 
 **고객 화면**
 
-**지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 하고 싶으신가요?**
+**지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?**
 
-① **무슨 뜻인지 모르겠습니다.** 판단하기 전에 먼저 이 서류의 내용이 무엇인지부터 이해하고 싶습니다.  
-② **진짜 서류인지 모르겠습니다.** 믿기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다.  
-③ **응해야 하는지 보관만 해도 되는지** 모르겠습니다. 결정하기 전에 먼저 내용을 이해한 뒤 어떻게 할지 판단하고 싶습니다.  
-④ **놓친 내용이 있을까** 걱정됩니다. 놓치기 전에 먼저 기한이나 요구가 있는지부터 확인하고 싶습니다.  
-⑤ **이미 답장했거나 응했습니다.** 더 응하기 전에 일단 멈추고 지금까지의 응답이 괜찮은지 확인하고 싶습니다.  
-⑥ **크게 걱정되지는 않고** 무슨 서류인지만 알고 싶습니다. 서두르지 않고 서류를 보관하며 차분히 내용을 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **무슨 뜻인지, 응해야 하는지** 모르겠습니다. 내용을 쉬운 말로 번역하고 설명해 주면 좋겠습니다.  
+② **진짜 서류인지** 모르겠습니다. 제가 직접 확인할 수 있도록 방법을 알려 주면 좋겠습니다.  
+③ **놓친 내용이 있을까** 걱정됩니다. 이전 절차나 문의 기록과 함께 살펴보고 싶습니다.  
+④ **이미 답장했거나 응했습니다.** 지금까지의 응답이 괜찮은지 전문가가 함께 봐 주면 좋겠습니다.  
+⑤ **크게 걱정되지는 않습니다.** 급하지 않으니 어떤 서류인지 차근차근 분류해 보고 싶습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_mainConcern=doubt_meaning`, `unclear_firstAction=next_understand` |
-| ② | `unclear_mainConcern=doubt_genuine`, `unclear_firstAction=next_sender` |
-| ③ | `unclear_mainConcern=doubt_respond`, `unclear_firstAction=next_understand` |
-| ④ | `unclear_mainConcern=doubt_missing`, `unclear_firstAction=next_deadline` |
-| ⑤ | `unclear_mainConcern=doubt_done`, `unclear_firstAction=next_stop` |
-| ⑥ | `unclear_mainConcern=doubt_none`, `unclear_firstAction=next_keep` |
-| ⑦ 직접 입력 | `unclear_mainConcern=direct_input`, `unclear_firstAction=direct_input_detail` |
+| ① | `unclear_mainConcern=doubt_meaning`, `unclear_helpWanted=help_translate` |
+| ② | `unclear_mainConcern=doubt_genuine`, `unclear_helpWanted=help_guide` |
+| ③ | `unclear_mainConcern=doubt_missing`, `unclear_helpWanted=help_guide` |
+| ④ | `unclear_mainConcern=doubt_done`, `unclear_helpWanted=help_expert` |
+| ⑤ | `unclear_mainConcern=doubt_none`, `unclear_helpWanted=help_guide` |
+| ⑥ 직접 입력 | `unclear_mainConcern=direct_input`, `unclear_helpWanted=direct_input_detail` |
 
 ---
 
@@ -391,25 +359,25 @@
 
 **고객 화면**
 
-**서류에 적힌 내 정보는 어떻게 되어 있고, 그 서류가 저를 정확히 지목한 것으로 보이나요?**
+**서류에 적힌 내 정보는 얼마나 맞고, 같은 서류를 받은 사람이 주변에 더 있나요?**
 
-① **이름·회사명·주소가 모두 정확**합니다. 저를 정확히 지목한 서류로 보여서 내용을 자세히 확인해야 합니다.  
-② **이름은 맞지만 주소나 번호가 일부 다릅니다.** 저를 일부만 특정한 서류로 보여서 어떻게 입수한 정보인지 궁금합니다.  
-③ **이름 없이 일반 호칭**만 적혀 있습니다. 불특정 다수에게 보낸 서류일 수 있어 저와 관련이 있는지 확인하고 싶습니다.  
-④ **다른 사람이나 다른 회사 이름**이 적혀 있습니다. 엉뚱한 수신이거나 잘못 보낸 것일 수 있어 어떻게 해야 하는지 확인하고 싶습니다.  
-⑤ **적힌 정보를 아직 확인하지 않았습니다.** 제 정보와 맞는지부터 확인하고 서류가 저를 가리키는지 알고 싶습니다.  
+① **이름·회사명·주소가 모두 정확**합니다. 주변에 물어보니 이 서류를 받은 사람은 저뿐인 것 같습니다.  
+② **이름은 맞지만 주소나 번호가 일부 다릅니다.** 주변 사람들이 같은 서류를 받았는지는 아직 물어보지 못했습니다.  
+③ **이름 없이 일반 호칭**만 적혀 있습니다. 회사 동료나 지인도 똑같은 내용을 받았다고 합니다.  
+④ **다른 사람이나 다른 회사 이름**이 적혀 있습니다. 이 서류를 받은 사람은 저뿐인 것 같아 잘못 온 것인지 모르겠습니다.  
+⑤ **적힌 정보를 아직 확인하지 않았습니다.** 주변 사람들도 받았는지 알아본 적이 없어 아직 잘 모르겠습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_identityMatch=id_exact`, `unclear_aimHint=aim_specific` |
-| ② | `unclear_identityMatch=id_partial`, `unclear_aimHint=aim_partial` |
-| ③ | `unclear_identityMatch=id_generic`, `unclear_aimHint=aim_generic` |
-| ④ | `unclear_identityMatch=id_other`, `unclear_aimHint=aim_misdirected` |
-| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_aimHint=aim_unchecked` |
-| ⑥ 직접 입력 | `unclear_identityMatch=direct_input`, `unclear_aimHint=direct_input_detail` |
+| ① | `unclear_identityMatch=id_exact`, `unclear_otherRecipients=oth_only_me` |
+| ② | `unclear_identityMatch=id_partial`, `unclear_otherRecipients=oth_unknown` |
+| ③ | `unclear_identityMatch=id_generic`, `unclear_otherRecipients=oth_others` |
+| ④ | `unclear_identityMatch=id_other`, `unclear_otherRecipients=oth_only_me` |
+| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_otherRecipients=oth_unknown` |
+| ⑥ 직접 입력 | `unclear_identityMatch=direct_input`, `unclear_otherRecipients=direct_input_detail` |
 
 ---
 
@@ -417,27 +385,25 @@
 
 **고객 화면**
 
-**서류나 연락에서 확인되는 공식 요소는 무엇이고, 형식은 얼마나 갖춰져 있나요?**
+**서류나 연락에 공식 문서의 요소(기관명·문서번호·날짜·직인)가 얼마나 있고, 연락처를 공식 정보와 대조해 보셨나요?**
 
-① **기관명·문서번호·날짜·직인이 모두** 있습니다. 형식을 갖춘 서류로 보이지만 실제 발급되었는지 확인하고 싶습니다.  
-② **그중 일부만** 있습니다. 형식이 일부 부족한 서류로 보여서 어떤 요소가 빠졌는지 확인하고 싶습니다.  
-③ **모두 없고 문장만** 있습니다. 공식 서류에 있어야 할 요소가 없어서 공식 서류인지 의심됩니다.  
-④ **연락처가 개인 번호나 일반 이메일 주소**입니다. 기관의 공식 연락처가 아니어서 공식 서류인지 의심됩니다.  
-⑤ **링크나 큐알 코드로만** 안내합니다. 링크로만 연결되어 서류 형식을 확인하기 어렵고 연결된 곳이 안전한지 알고 싶습니다.  
-⑥ **문장이 번역투이거나 어색**합니다. 문체가 어색해서 공식 서류인지, 외국어를 옮긴 것인지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **기관명·문서번호·날짜·직인이 모두** 있습니다. 하지만 적힌 연락처를 공식 정보와 대조해 보지는 않았습니다.  
+② **그중 일부만** 있습니다. 공식 사이트에서 같은 기관의 연락처를 찾아 대조해 보았더니 비슷했습니다.  
+③ **공식 요소가 없고 연락처가 개인 번호나 일반 이메일**뿐입니다. 공식 사이트의 연락처와 대조해 보니 서로 달랐습니다.  
+④ **링크나 큐알 코드로만** 안내합니다. 그 링크가 공식 사이트 주소와 같은지 대조해 보지 않았습니다.  
+⑤ **문장이 번역투이거나 어색**합니다. 공식 연락처와 대조해 보니 같아서 오히려 헷갈립니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_authenticityMark=mark_full`, `unclear_formality=fm_formal` |
-| ② | `unclear_authenticityMark=mark_partial`, `unclear_formality=fm_partial` |
-| ③ | `unclear_authenticityMark=mark_none`, `unclear_formality=fm_informal` |
-| ④ | `unclear_authenticityMark=mark_personal_contact`, `unclear_formality=fm_informal` |
-| ⑤ | `unclear_authenticityMark=mark_link_only`, `unclear_formality=fm_link` |
-| ⑥ | `unclear_authenticityMark=mark_odd_text`, `unclear_formality=fm_odd` |
-| ⑦ 직접 입력 | `unclear_authenticityMark=direct_input`, `unclear_formality=direct_input_detail` |
+| ① | `unclear_authenticityMark=mark_full`, `unclear_officialCompare=cmp_unchecked` |
+| ② | `unclear_authenticityMark=mark_partial`, `unclear_officialCompare=cmp_same` |
+| ③ | `unclear_authenticityMark=mark_weak`, `unclear_officialCompare=cmp_diff` |
+| ④ | `unclear_authenticityMark=mark_link_only`, `unclear_officialCompare=cmp_unchecked` |
+| ⑤ | `unclear_authenticityMark=mark_odd_text`, `unclear_officialCompare=cmp_same` |
+| ⑥ 직접 입력 | `unclear_authenticityMark=direct_input`, `unclear_officialCompare=direct_input_detail` |
 
 ---
 
@@ -445,27 +411,25 @@
 
 **고객 화면**
 
-**서류가 요구하는 돈의 성격은 무엇이라고 적혀 있고, 어느 분야의 검토와 이어질 것 같나요?**
+**서류가 요구하는 돈은 어떤 명목이라고 적혀 있고, 그 명목에 해당하는 일을 제가 한 기억이 있나요?**
 
-① **세금이나 세무 관련 비용**이라고 적혀 있습니다. 세금 신고나 납부 내역과 이어지는지 세금 검토로 확인하고 싶습니다.  
-② **벌금·과태료·행정 수수료**라고 적혀 있습니다. 행정 처분이나 절차와 이어지는지 행정문서 검토로 확인하고 싶습니다.  
-③ **서비스 이용료나 요금**이라고 적혀 있습니다. 제가 실제로 쓴 서비스인지 계약·이용 내역과 대조하고 싶습니다.  
-④ **채무나 거래 대금**이라고 적혀 있습니다. 실제 거래가 있었는지 계약·거래 내역과 대조하고 싶습니다.  
-⑤ **보증금·선납금·예치금**이라고 적혀 있습니다. 임대나 매매 계약과 이어지는지 부동산·계약 검토로 확인하고 싶습니다.  
-⑥ **명목이 적혀 있지 않습니다.** 무슨 돈인지 알 수 없어서 어느 분야와 이어지는지부터 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **세금이나 세무 관련 비용**이라고 적혀 있습니다. 세금 신고나 납부를 한 기억이 있어 내용이 맞는지 확인하고 싶습니다.  
+② **벌금·과태료·행정 수수료**라고 적혀 있습니다. 벌금이나 수수료를 부과받을 만한 일이 기억나지 않습니다.  
+③ **서비스 이용료나 거래 대금**이라고 적혀 있습니다. 실제로 이용하거나 거래했는지 기억이 불확실합니다.  
+④ **보증금·선납금·예치금**이라고 적혀 있습니다. 임대나 매매 계약을 한 기억이 있습니다.  
+⑤ **무슨 돈인지 명목이 적혀 있지 않습니다.** 어떤 일에 대한 돈인지 짚이는 일도 전혀 없습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_moneyNature=nature_tax`, `unclear_moneyReviewLink=link_tax` |
-| ② | `unclear_moneyNature=nature_fine`, `unclear_moneyReviewLink=link_admin` |
-| ③ | `unclear_moneyNature=nature_fee`, `unclear_moneyReviewLink=link_trade` |
-| ④ | `unclear_moneyNature=nature_debt`, `unclear_moneyReviewLink=link_trade` |
-| ⑤ | `unclear_moneyNature=nature_deposit`, `unclear_moneyReviewLink=link_property` |
-| ⑥ | `unclear_moneyNature=nature_unstated`, `unclear_moneyReviewLink=link_none` |
-| ⑦ 직접 입력 | `unclear_moneyNature=direct_input`, `unclear_moneyReviewLink=direct_input_detail` |
+| ① | `unclear_moneyNature=nature_tax`, `unclear_dealMemory=mem_yes` |
+| ② | `unclear_moneyNature=nature_fine`, `unclear_dealMemory=mem_no` |
+| ③ | `unclear_moneyNature=nature_trade`, `unclear_dealMemory=mem_unsure` |
+| ④ | `unclear_moneyNature=nature_deposit`, `unclear_dealMemory=mem_yes` |
+| ⑤ | `unclear_moneyNature=nature_unstated`, `unclear_dealMemory=mem_no` |
+| ⑥ 직접 입력 | `unclear_moneyNature=direct_input`, `unclear_dealMemory=direct_input_detail` |
 
 ---
 
@@ -473,25 +437,25 @@
 
 **고객 화면**
 
-**요구하는 금액은 어느 정도이고, 그 규모는 어느 수준인가요?**
+**요구하는 금액은 어느 정도이고, 그 금액의 계산 내역이 적혀 있나요?**
 
-① **100만 동 미만**을 요구합니다. 소액에 해당하지만 적은 금액이라도 근거 없이 내지 않도록 확인하고 싶습니다.  
-② **100만 동 이상 1천만 동 미만**을 요구합니다. 중간 규모의 금액이라 내기 전에 근거를 확인하고 싶습니다.  
-③ **1천만 동 이상 1억 동 미만**을 요구합니다. 큰 금액이라 내기 전에 근거와 보낸 곳을 꼭 확인하고 싶습니다.  
-④ **1억 동 이상**을 요구합니다. 매우 큰 금액이라 내기 전에 전문가와 함께 근거를 확인하고 싶습니다.  
-⑤ **금액이 적혀 있지 않습니다.** 얼마를 내라는 것인지 알 수 없어서 금액이 정해졌는지부터 확인하고 싶습니다.  
+① **100만 동 미만**을 요구합니다. 항목별 계산 내역이 함께 적혀 있어 확인해 볼 수 있습니다.  
+② **100만 동 이상 1천만 동 미만**을 요구합니다. 총액만 적혀 있고 계산 내역은 없습니다.  
+③ **1천만 동 이상 1억 동 미만**을 요구합니다. 계산 내역이 없어 큰 금액의 근거를 알 수 없습니다.  
+④ **1억 동 이상**을 요구합니다. 항목별 내역은 있지만 그 내역이 맞는지 판단하기 어렵습니다.  
+⑤ **금액이 적혀 있지 않습니다.** 얼마를 내라는 것인지 알 수 없고 계산 내역도 없습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_amountScale=amt_under1m`, `unclear_amountTier=tier_small` |
-| ② | `unclear_amountScale=amt_1m_10m`, `unclear_amountTier=tier_medium` |
-| ③ | `unclear_amountScale=amt_10m_100m`, `unclear_amountTier=tier_large` |
-| ④ | `unclear_amountScale=amt_over100m`, `unclear_amountTier=tier_xlarge` |
-| ⑤ | `unclear_amountScale=amt_unstated`, `unclear_amountTier=tier_unknown` |
-| ⑥ 직접 입력 | `unclear_amountScale=direct_input`, `unclear_amountTier=direct_input_detail` |
+| ① | `unclear_amountScale=amt_under1m`, `unclear_amountBasis=ab_itemized` |
+| ② | `unclear_amountScale=amt_1m_10m`, `unclear_amountBasis=ab_total` |
+| ③ | `unclear_amountScale=amt_10m_100m`, `unclear_amountBasis=ab_total` |
+| ④ | `unclear_amountScale=amt_over100m`, `unclear_amountBasis=ab_itemized` |
+| ⑤ | `unclear_amountScale=amt_unstated`, `unclear_amountBasis=ab_none` |
+| ⑥ 직접 입력 | `unclear_amountScale=direct_input`, `unclear_amountBasis=direct_input_detail` |
 
 ---
 
@@ -499,27 +463,25 @@
 
 **고객 화면**
 
-**돈을 어디로 보내라고 되어 있고, 그 방식은 어떤 성격인가요?**
+**돈을 어디로 보내라고 되어 있고, 그 받는 곳의 이름이 서류의 보낸 곳과 같은가요?**
 
-① **기관 이름으로 된 계좌**로 보내라고 합니다. 계좌 이체 방식이고 받는 곳이 기관으로 되어 있어 실제 기관 계좌인지 확인하고 싶습니다.  
-② **회사 이름으로 된 계좌**로 보내라고 합니다. 계좌 이체 방식이고 받는 곳이 회사로 되어 있어 실제 회사 계좌인지 확인하고 싶습니다.  
-③ **개인 이름으로 된 계좌**로 보내라고 합니다. 계좌 이체 방식이지만 받는 곳이 개인이라 보내도 되는지 확인하고 싶습니다.  
-④ **링크·큐알 코드·앱으로 결제**하라고 합니다. 온라인 결제 방식이라 연결된 곳이 공식 결제 화면인지 확인하고 싶습니다.  
-⑤ **현금이나 상품권**으로 내라고 합니다. 기록이 남지 않을 수 있는 현금성 수단이라 이 방식이 정상인지 확인하고 싶습니다.  
-⑥ **계좌나 방법이 적혀 있지 않습니다.** 받는 곳과 방법을 알 수 없어서 어떻게 내라는 것인지부터 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **기관 이름의 계좌**로 보내라고 합니다. 계좌 이름이 서류에 적힌 보낸 곳의 이름과 같습니다.  
+② **회사 이름의 계좌**로 보내라고 합니다. 계좌 이름이 서류에 적힌 보낸 곳의 이름과 다릅니다.  
+③ **개인 이름의 계좌**로 보내라고 합니다. 계좌 주인이 보낸 곳과 어떤 관계인지 설명이 없습니다.  
+④ **링크·큐알 코드·앱**으로 결제하라고 합니다. 결제 화면의 이름이 보낸 곳과 같은지 아직 확인하지 못했습니다.  
+⑤ **현금이나 상품권**으로 내라고 합니다. 돈을 받는 곳의 이름이 서류에 따로 적혀 있지 않습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_payee=payee_institution`, `unclear_paymentGroup=pay_account` |
-| ② | `unclear_payee=payee_company`, `unclear_paymentGroup=pay_account` |
-| ③ | `unclear_payee=payee_person`, `unclear_paymentGroup=pay_account` |
-| ④ | `unclear_payee=payee_online`, `unclear_paymentGroup=pay_online` |
-| ⑤ | `unclear_payee=payee_cash`, `unclear_paymentGroup=pay_cash` |
-| ⑥ | `unclear_payee=payee_unstated`, `unclear_paymentGroup=pay_none` |
-| ⑦ 직접 입력 | `unclear_payee=direct_input`, `unclear_paymentGroup=direct_input_detail` |
+| ① | `unclear_payee=payee_institution`, `unclear_payeeMatch=pm_same` |
+| ② | `unclear_payee=payee_company`, `unclear_payeeMatch=pm_diff` |
+| ③ | `unclear_payee=payee_person`, `unclear_payeeMatch=pm_unknown` |
+| ④ | `unclear_payee=payee_online`, `unclear_payeeMatch=pm_unknown` |
+| ⑤ | `unclear_payee=payee_cash`, `unclear_payeeMatch=pm_na` |
+| ⑥ 직접 입력 | `unclear_payee=direct_input`, `unclear_payeeMatch=direct_input_detail` |
 
 ---
 
@@ -527,27 +489,25 @@
 
 **고객 화면**
 
-**서류나 연락에 어떤 압박이 있고, 그 압박은 얼마나 강하게 느껴지시나요?**
+**서류나 연락에서 어떤 압박을 받았고, 그 압박은 어떤 수단으로 전해졌나요?**
 
-① **압박 없이 안내만** 있습니다. 재촉이나 협박은 없어서 압박은 느끼지 않는 상태입니다.  
-② **기한 안에 하라는 안내**만 있습니다. 기한이 안내되어 있어 낮은 정도의 압박으로 느껴집니다.  
-③ **연체료·가산금이나 법적 조치를 예고**합니다. 불이익을 알려 와서 중간 정도의 압박으로 느껴집니다.  
-④ **지금 바로 하지 않으면 안 된다고 재촉**합니다. 생각할 시간을 주지 않아 중간 정도의 압박으로 느껴집니다.  
-⑤ **계좌 동결·체포·출국 금지 같은 강한 불이익**을 말합니다. 공포를 주는 표현이라 매우 강한 압박으로 느껴집니다.  
-⑥ **다른 사람에게 말하지 말고 비밀로** 하라고 합니다. 주변의 확인을 막으려는 듯해서 강한 압박으로 느껴집니다.  
-⑦ **직접 입력**
+① **압박 없이 안내만** 있습니다. 재촉이나 협박 없이 서류에 적힌 내용으로만 전해졌습니다.  
+② **기한 안에 하라고 재촉**합니다. 문자나 메신저로 같은 말을 반복해서 보내 오고 있습니다.  
+③ **연체료·가산금이나 법적 조치를 예고**합니다. 그런 내용이 서류에 글로 적혀 있어 확인할 수 있습니다.  
+④ **계좌 동결·체포·출국 금지 같은 강한 불이익**을 말합니다. 전화로 직접 들었습니다.  
+⑤ **다른 사람에게 말하지 말고 비밀로 하라**고 합니다. 문자나 메신저로 요구해 왔습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_pressureType=press_none`, `unclear_pressureLevel=lvl_none` |
-| ② | `unclear_pressureType=press_deadline`, `unclear_pressureLevel=lvl_low` |
-| ③ | `unclear_pressureType=press_legal`, `unclear_pressureLevel=lvl_mid` |
-| ④ | `unclear_pressureType=press_rush`, `unclear_pressureLevel=lvl_mid` |
-| ⑤ | `unclear_pressureType=press_threat`, `unclear_pressureLevel=lvl_high` |
-| ⑥ | `unclear_pressureType=press_secret`, `unclear_pressureLevel=lvl_high` |
-| ⑦ 직접 입력 | `unclear_pressureType=direct_input`, `unclear_pressureLevel=direct_input_detail` |
+| ① | `unclear_pressureType=press_none`, `unclear_pressureChannel=ch_document` |
+| ② | `unclear_pressureType=press_deadline`, `unclear_pressureChannel=ch_message` |
+| ③ | `unclear_pressureType=press_legal`, `unclear_pressureChannel=ch_document` |
+| ④ | `unclear_pressureType=press_threat`, `unclear_pressureChannel=ch_call` |
+| ⑤ | `unclear_pressureType=press_secret`, `unclear_pressureChannel=ch_message` |
+| ⑥ 직접 입력 | `unclear_pressureType=direct_input`, `unclear_pressureChannel=direct_input_detail` |
 
 ---
 
@@ -555,27 +515,25 @@
 
 **고객 화면**
 
-**서류나 안내의 기한은 어떻게 되어 있고, 그 기한은 어디에서 나온 것인가요?**
+**서류나 안내의 기한은 어떤 상태이고, 기한을 넘기면 어떻게 된다고 하나요?**
 
-① **기한이 적혀 있지 않습니다.** 기한 표시가 서류에도 말에도 어디에도 없어서 기한이 있는지부터 확인하고 싶습니다.  
-② **서류에 날짜가 적혀 있고 아직 여유**가 있습니다. 서류에 적힌 기한이고 시간이 있어서 차분히 확인할 수 있습니다.  
-③ **서류에 날짜가 적혀 있고 사흘 안**으로 가깝습니다. 서류에 적힌 기한이고 임박해서 서둘러 확인해야 합니다.  
-④ **서류에 적힌 기한이 이미 지났습니다.** 서류에 적힌 기한이고 이미 지나서 이제 어떻게 해야 하는지 확인하고 싶습니다.  
-⑤ **메시지나 말로만** 기한을 알려 줬습니다. 서류가 아니라 메시지나 말로 들은 기한이라 근거가 있는지 확인하고 싶습니다.  
-⑥ **기한이 있는 것 같은데** 정확히 모릅니다. 기한의 출처와 날짜를 알 수 없어 서류에서 찾아보고 싶습니다.  
-⑦ **직접 입력**
+① **기한이 적혀 있지 않습니다.** 기한을 넘기면 어떻게 된다는 말도 어디에도 없습니다.  
+② **서류에 날짜가 적혀 있고 아직 여유**가 있습니다. 넘기면 가산금이나 연체료가 붙는다고 합니다.  
+③ **서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다.** 넘기면 법적 조치를 한다고 합니다.  
+④ **서류에 적힌 기한이 이미 지났습니다.** 기한을 넘기면 어떤 일이 생기는지는 알지 못합니다.  
+⑤ **메시지나 말로만 기한**을 알려 줬습니다. 넘기면 법적 조치를 한다고 겁을 줬습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineSource=dls_none` |
-| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineSource=dls_doc` |
-| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineSource=dls_doc` |
-| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineSource=dls_doc` |
-| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineSource=dls_message` |
-| ⑥ | `unclear_deadlineStatus=dl_unclear`, `unclear_deadlineSource=dls_unknown` |
-| ⑦ 직접 입력 | `unclear_deadlineStatus=direct_input`, `unclear_deadlineSource=direct_input_detail` |
+| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineStake=stake_none` |
+| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineStake=stake_money` |
+| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineStake=stake_legal` |
+| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineStake=stake_unknown` |
+| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineStake=stake_legal` |
+| ⑥ 직접 입력 | `unclear_deadlineStatus=direct_input`, `unclear_deadlineStake=direct_input_detail` |
 
 ---
 
@@ -583,27 +541,25 @@
 
 **고객 화면**
 
-**지금까지 이 서류와 관련해 한 일은 무엇이고, 그로 인해 이미 생겼을 수 있는 위험은 무엇인가요?**
+**이 서류와 관련해 지금까지 한 일은 무엇이고, 그 뒤에 상대의 연락은 어떻게 되었나요?**
 
-① **아무것도 하지 않았습니다.** 노출된 정보나 금전 위험은 없다고 보고, 앞으로 할 일을 확인하고 싶습니다.  
-② **보낸 곳에 문의만** 했습니다. 연락처가 알려졌을 수 있지만 노출은 적은 상태입니다.  
-③ **링크를 열었거나 앱을 설치**했습니다. 제 기기나 정보가 노출되었을 가능성이 있는 상태입니다.  
-④ **개인정보나 서류를 이미 보냈습니다.** 제 개인정보가 노출되어 악용될 수 있는 상태입니다.  
-⑤ **돈을 일부 또는 전부 보냈습니다.** 이미 금전 피해가 생겼을 가능성이 있는 상태입니다.  
-⑥ **답장을 했거나 통화**를 했습니다. 상대와 연락이 이어진 상태라 이후 연락에 주의가 필요합니다.  
-⑦ **직접 입력**
+① **아무것도 하지 않았습니다.** 그 뒤에도 상대에게서 추가로 온 연락이나 요구는 전혀 없습니다.  
+② **문의하거나 답장·통화**를 했습니다. 그 뒤에도 상대가 계속해서 연락해 오고 있습니다.  
+③ **링크를 열었거나 앱을 설치**했습니다. 그 뒤에는 별다른 일이 없었고 상대 연락도 오지 않았습니다.  
+④ **개인정보나 서류를 이미 보냈습니다.** 그 뒤에도 정보를 더 달라는 요구가 계속 오고 있습니다.  
+⑤ **돈을 일부 또는 전부 보냈습니다.** 그 뒤에는 상대의 연락이 끊겨 더 이상 닿지 않습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_actionTaken=act_nothing`, `unclear_exposureLevel=exp_none` |
-| ② | `unclear_actionTaken=act_asked`, `unclear_exposureLevel=exp_low` |
-| ③ | `unclear_actionTaken=act_clicked`, `unclear_exposureLevel=exp_mid` |
-| ④ | `unclear_actionTaken=act_sent_info`, `unclear_exposureLevel=exp_info` |
-| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_exposureLevel=exp_money` |
-| ⑥ | `unclear_actionTaken=act_replied`, `unclear_exposureLevel=exp_contact` |
-| ⑦ 직접 입력 | `unclear_actionTaken=direct_input`, `unclear_exposureLevel=direct_input_detail` |
+| ① | `unclear_actionTaken=act_nothing`, `unclear_followUp=fu_none` |
+| ② | `unclear_actionTaken=act_contacted`, `unclear_followUp=fu_more` |
+| ③ | `unclear_actionTaken=act_clicked`, `unclear_followUp=fu_none` |
+| ④ | `unclear_actionTaken=act_sent_info`, `unclear_followUp=fu_more` |
+| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_followUp=fu_cut` |
+| ⑥ 직접 입력 | `unclear_actionTaken=direct_input`, `unclear_followUp=direct_input_detail` |
 
 ---
 
@@ -611,27 +567,25 @@
 
 **고객 화면**
 
-**남아 있는 자료는 무엇이고, 그 자료로 어디까지 확인할 수 있을 것 같나요?**
+**남아 있는 자료는 무엇이고, 그 자료로 무엇을 하고 싶으신가요?**
 
-① **서류 원본**을 가지고 있습니다. 자료가 충분해서 서류 내용을 직접 대조해 확인할 수 있을 것 같습니다.  
-② **사진이나 캡처**만 있습니다. 자료가 일부라서 서류 원본은 확인하기 어려울 수 있습니다.  
-③ **문자·메신저·통화 기록**이 남아 있습니다. 자료가 일부라서 연락이 오간 경위는 확인할 수 있습니다.  
-④ **송금 내역이나 영수증**이 있습니다. 자료가 충분해서 돈이 오간 흐름은 확인할 수 있을 것 같습니다.  
-⑤ **일부를 잃어버렸거나 지웠습니다.** 자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다.  
-⑥ **남은 자료가 없습니다.** 자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다.  
-⑦ **직접 입력**
+① **서류 원본**을 가지고 있습니다. 서류 내용을 직접 대조해서 진짜인지 확인해 보고 싶습니다.  
+② **사진·캡처나 문자·통화 기록**이 남아 있습니다. 상담이나 신고에 쓸 자료로 정리하고 싶습니다.  
+③ **송금 내역이나 영수증**이 있습니다. 낸 돈을 되찾을 수 있는 방법을 알고 싶습니다.  
+④ **일부를 잃어버렸거나 지웠습니다.** 남아 있는 자료만으로도 진짜인지 확인해 보고 싶습니다.  
+⑤ **남은 자료가 없습니다.** 앞으로 증거가 될 만한 것을 무엇부터 모아 두어야 하는지 알고 싶습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceState=evs_strong` |
-| ② | `unclear_evidenceKind=ev_photo`, `unclear_evidenceState=evs_medium` |
-| ③ | `unclear_evidenceKind=ev_chat`, `unclear_evidenceState=evs_medium` |
-| ④ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceState=evs_strong` |
-| ⑤ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceState=evs_weak` |
-| ⑥ | `unclear_evidenceKind=ev_none`, `unclear_evidenceState=evs_weak` |
-| ⑦ 직접 입력 | `unclear_evidenceKind=direct_input`, `unclear_evidenceState=direct_input_detail` |
+| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceGoal=goal_verify` |
+| ② | `unclear_evidenceKind=ev_capture`, `unclear_evidenceGoal=goal_report` |
+| ③ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceGoal=goal_recover` |
+| ④ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceGoal=goal_verify` |
+| ⑤ | `unclear_evidenceKind=ev_none`, `unclear_evidenceGoal=goal_prepare` |
+| ⑥ 직접 입력 | `unclear_evidenceKind=direct_input`, `unclear_evidenceGoal=direct_input_detail` |
 
 ---
 
@@ -641,25 +595,25 @@
 
 **고객 화면**
 
-**서류에 적힌 내 정보는 어떻게 되어 있고, 그 서류가 저를 정확히 지목한 것으로 보이나요?**
+**서류에 적힌 내 정보는 얼마나 맞고, 같은 서류를 받은 사람이 주변에 더 있나요?**
 
-① **이름·회사명·주소가 모두 정확**합니다. 저를 정확히 지목한 서류로 보여서 내용을 자세히 확인해야 합니다.  
-② **이름은 맞지만 주소나 번호가 일부 다릅니다.** 저를 일부만 특정한 서류로 보여서 어떻게 입수한 정보인지 궁금합니다.  
-③ **이름 없이 일반 호칭**만 적혀 있습니다. 불특정 다수에게 보낸 서류일 수 있어 저와 관련이 있는지 확인하고 싶습니다.  
-④ **다른 사람이나 다른 회사 이름**이 적혀 있습니다. 엉뚱한 수신이거나 잘못 보낸 것일 수 있어 어떻게 해야 하는지 확인하고 싶습니다.  
-⑤ **적힌 정보를 아직 확인하지 않았습니다.** 제 정보와 맞는지부터 확인하고 서류가 저를 가리키는지 알고 싶습니다.  
+① **이름·회사명·주소가 모두 정확**합니다. 주변에 물어보니 이 서류를 받은 사람은 저뿐인 것 같습니다.  
+② **이름은 맞지만 주소나 번호가 일부 다릅니다.** 주변 사람들이 같은 서류를 받았는지는 아직 물어보지 못했습니다.  
+③ **이름 없이 일반 호칭**만 적혀 있습니다. 회사 동료나 지인도 똑같은 내용을 받았다고 합니다.  
+④ **다른 사람이나 다른 회사 이름**이 적혀 있습니다. 이 서류를 받은 사람은 저뿐인 것 같아 잘못 온 것인지 모르겠습니다.  
+⑤ **적힌 정보를 아직 확인하지 않았습니다.** 주변 사람들도 받았는지 알아본 적이 없어 아직 잘 모르겠습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_identityMatch=id_exact`, `unclear_aimHint=aim_specific` |
-| ② | `unclear_identityMatch=id_partial`, `unclear_aimHint=aim_partial` |
-| ③ | `unclear_identityMatch=id_generic`, `unclear_aimHint=aim_generic` |
-| ④ | `unclear_identityMatch=id_other`, `unclear_aimHint=aim_misdirected` |
-| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_aimHint=aim_unchecked` |
-| ⑥ 직접 입력 | `unclear_identityMatch=direct_input`, `unclear_aimHint=direct_input_detail` |
+| ① | `unclear_identityMatch=id_exact`, `unclear_otherRecipients=oth_only_me` |
+| ② | `unclear_identityMatch=id_partial`, `unclear_otherRecipients=oth_unknown` |
+| ③ | `unclear_identityMatch=id_generic`, `unclear_otherRecipients=oth_others` |
+| ④ | `unclear_identityMatch=id_other`, `unclear_otherRecipients=oth_only_me` |
+| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_otherRecipients=oth_unknown` |
+| ⑥ 직접 입력 | `unclear_identityMatch=direct_input`, `unclear_otherRecipients=direct_input_detail` |
 
 ---
 
@@ -667,27 +621,25 @@
 
 **고객 화면**
 
-**서류나 연락에서 확인되는 공식 요소는 무엇이고, 형식은 얼마나 갖춰져 있나요?**
+**서류나 연락에 공식 문서의 요소(기관명·문서번호·날짜·직인)가 얼마나 있고, 연락처를 공식 정보와 대조해 보셨나요?**
 
-① **기관명·문서번호·날짜·직인이 모두** 있습니다. 형식을 갖춘 서류로 보이지만 실제 발급되었는지 확인하고 싶습니다.  
-② **그중 일부만** 있습니다. 형식이 일부 부족한 서류로 보여서 어떤 요소가 빠졌는지 확인하고 싶습니다.  
-③ **모두 없고 문장만** 있습니다. 공식 서류에 있어야 할 요소가 없어서 공식 서류인지 의심됩니다.  
-④ **연락처가 개인 번호나 일반 이메일 주소**입니다. 기관의 공식 연락처가 아니어서 공식 서류인지 의심됩니다.  
-⑤ **링크나 큐알 코드로만** 안내합니다. 링크로만 연결되어 서류 형식을 확인하기 어렵고 연결된 곳이 안전한지 알고 싶습니다.  
-⑥ **문장이 번역투이거나 어색**합니다. 문체가 어색해서 공식 서류인지, 외국어를 옮긴 것인지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **기관명·문서번호·날짜·직인이 모두** 있습니다. 하지만 적힌 연락처를 공식 정보와 대조해 보지는 않았습니다.  
+② **그중 일부만** 있습니다. 공식 사이트에서 같은 기관의 연락처를 찾아 대조해 보았더니 비슷했습니다.  
+③ **공식 요소가 없고 연락처가 개인 번호나 일반 이메일**뿐입니다. 공식 사이트의 연락처와 대조해 보니 서로 달랐습니다.  
+④ **링크나 큐알 코드로만** 안내합니다. 그 링크가 공식 사이트 주소와 같은지 대조해 보지 않았습니다.  
+⑤ **문장이 번역투이거나 어색**합니다. 공식 연락처와 대조해 보니 같아서 오히려 헷갈립니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_authenticityMark=mark_full`, `unclear_formality=fm_formal` |
-| ② | `unclear_authenticityMark=mark_partial`, `unclear_formality=fm_partial` |
-| ③ | `unclear_authenticityMark=mark_none`, `unclear_formality=fm_informal` |
-| ④ | `unclear_authenticityMark=mark_personal_contact`, `unclear_formality=fm_informal` |
-| ⑤ | `unclear_authenticityMark=mark_link_only`, `unclear_formality=fm_link` |
-| ⑥ | `unclear_authenticityMark=mark_odd_text`, `unclear_formality=fm_odd` |
-| ⑦ 직접 입력 | `unclear_authenticityMark=direct_input`, `unclear_formality=direct_input_detail` |
+| ① | `unclear_authenticityMark=mark_full`, `unclear_officialCompare=cmp_unchecked` |
+| ② | `unclear_authenticityMark=mark_partial`, `unclear_officialCompare=cmp_same` |
+| ③ | `unclear_authenticityMark=mark_weak`, `unclear_officialCompare=cmp_diff` |
+| ④ | `unclear_authenticityMark=mark_link_only`, `unclear_officialCompare=cmp_unchecked` |
+| ⑤ | `unclear_authenticityMark=mark_odd_text`, `unclear_officialCompare=cmp_same` |
+| ⑥ 직접 입력 | `unclear_authenticityMark=direct_input`, `unclear_officialCompare=direct_input_detail` |
 
 ---
 
@@ -695,27 +647,25 @@
 
 **고객 화면**
 
-**서류가 요구하는 것은 무엇이고, 그 요구는 어떤 종류의 자료인가요?**
+**서류가 요구하는 것은 무엇이고, 왜 그것이 필요한지 설명이 있나요?**
 
-① **신분증·여권·체류 관련 서류**를 요구합니다. 제 신분을 보여 주는 개인 신분 자료라서 내도 되는지 확인하고 싶습니다.  
-② **사업자·회사 관련 서류**를 요구합니다. 회사의 사업 자료라서 누구에게 내는 것인지 확인하고 싶습니다.  
-③ **계약서나 거래 서류**를 요구합니다. 계약·거래 자료라서 어떤 거래와 이어지는지 확인하고 싶습니다.  
-④ **경위서·설명서 같은 진술**을 요구합니다. 제가 쓴 설명이 나중에 근거가 될 수 있어서 신중히 확인하고 싶습니다.  
-⑤ **직접 출석하거나 방문**하라고 합니다. 장소와 일정을 따라야 하는 요구라서 응해야 하는지 확인하고 싶습니다.  
-⑥ **사이트 접속이나 앱 설치**를 하라고 합니다. 온라인 접속 요구라서 안전한 사이트인지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **신분증·여권·체류 관련 서류**를 요구합니다. 이유 설명 없이 낼 서류의 이름만 한 줄로 적혀 있습니다.  
+② **사업자·계약·거래 서류**를 요구합니다. 왜 필요한지 이유가 서류 안에 구체적으로 설명되어 있습니다.  
+③ **경위서·설명서 같은 진술**을 요구합니다. 그 진술이 왜 필요한지 이유가 서류에 적혀 있지 않습니다.  
+④ **직접 출석하거나 방문**하라고 합니다. 일시와 장소, 이유가 서류에 설명되어 있습니다.  
+⑤ **사이트 접속이나 앱 설치**를 하라고 합니다. 왜 접속하거나 설치해야 하는지 이유가 적혀 있지 않습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_requestTarget=tgt_id_docs`, `unclear_targetGroup=grp_personal` |
-| ② | `unclear_requestTarget=tgt_business_docs`, `unclear_targetGroup=grp_business` |
-| ③ | `unclear_requestTarget=tgt_contract_docs`, `unclear_targetGroup=grp_contract` |
-| ④ | `unclear_requestTarget=tgt_statement`, `unclear_targetGroup=grp_statement` |
-| ⑤ | `unclear_requestTarget=tgt_appear`, `unclear_targetGroup=grp_appear` |
-| ⑥ | `unclear_requestTarget=tgt_online`, `unclear_targetGroup=grp_online` |
-| ⑦ 직접 입력 | `unclear_requestTarget=direct_input`, `unclear_targetGroup=direct_input_detail` |
+| ① | `unclear_requestTarget=tgt_id_docs`, `unclear_requestReason=reason_none` |
+| ② | `unclear_requestTarget=tgt_docs_biz`, `unclear_requestReason=reason_stated` |
+| ③ | `unclear_requestTarget=tgt_statement`, `unclear_requestReason=reason_none` |
+| ④ | `unclear_requestTarget=tgt_appear`, `unclear_requestReason=reason_stated` |
+| ⑤ | `unclear_requestTarget=tgt_online`, `unclear_requestReason=reason_none` |
+| ⑥ 직접 입력 | `unclear_requestTarget=direct_input`, `unclear_requestReason=direct_input_detail` |
 
 ---
 
@@ -723,25 +673,25 @@
 
 **고객 화면**
 
-**요구 내용은 얼마나 구체적으로 적혀 있고, 무엇을 내야 하는지 알 수 있나요?**
+**요구 내용은 얼마나 구체적으로 적혀 있고, 그것을 제가 가진 것으로 준비할 수 있나요?**
 
-① **서류 목록과 제출 양식이 모두** 있습니다. 구체적이어서 무엇을 내야 하는지 알 수 있고 양식도 확인할 수 있습니다.  
-② **목록은 있지만 양식은 없습니다.** 일부만 구체적이어서 어떤 형식으로 내야 하는지 확인이 필요합니다.  
-③ **'관련 서류' 정도로만** 적혀 있습니다. 내용이 모호해서 정확히 무엇을 내야 하는지 알기 어렵습니다.  
-④ **무엇을 내야 하는지 적혀 있지 않습니다.** 요구 내용이 없어서 무엇을 요구하는 서류인지부터 확인해야 합니다.  
-⑤ **서류 요구 없이 연락하라고만** 합니다. 연락을 유도할 뿐 요구 내용이 없어서 연락해도 되는지 확인하고 싶습니다.  
+① **서류 목록과 제출 양식이 모두** 있습니다. 제가 가진 서류로 준비할 수 있을 것 같습니다.  
+② **목록은 있지만 양식은 없습니다.** 그중 일부는 제가 구하기 어려운 서류라서 걱정됩니다.  
+③ **‘관련 서류’ 정도로만** 적혀 있습니다. 그래서 무엇을 준비해야 하는지 전혀 알 수 없습니다.  
+④ **무엇을 내야 하는지 적혀 있지 않습니다.** 준비할 서류가 있는지도 알 수 없습니다.  
+⑤ **서류 요구 없이 연락하라고만** 합니다. 연락하면 그다음에 무엇을 요구할지 몰라서 불안합니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_requestSpecificity=spec_full`, `unclear_listQuality=list_clear` |
-| ② | `unclear_requestSpecificity=spec_list_only`, `unclear_listQuality=list_partial` |
-| ③ | `unclear_requestSpecificity=spec_vague`, `unclear_listQuality=list_vague` |
-| ④ | `unclear_requestSpecificity=spec_none`, `unclear_listQuality=list_none` |
-| ⑤ | `unclear_requestSpecificity=spec_contact_only`, `unclear_listQuality=list_contact` |
-| ⑥ 직접 입력 | `unclear_requestSpecificity=direct_input`, `unclear_listQuality=direct_input_detail` |
+| ① | `unclear_requestSpecificity=spec_full`, `unclear_prepState=prep_ready` |
+| ② | `unclear_requestSpecificity=spec_list_only`, `unclear_prepState=prep_hard` |
+| ③ | `unclear_requestSpecificity=spec_vague`, `unclear_prepState=prep_unknown` |
+| ④ | `unclear_requestSpecificity=spec_none`, `unclear_prepState=prep_na` |
+| ⑤ | `unclear_requestSpecificity=spec_contact_only`, `unclear_prepState=prep_unknown` |
+| ⑥ 직접 입력 | `unclear_requestSpecificity=direct_input`, `unclear_prepState=direct_input_detail` |
 
 ---
 
@@ -749,27 +699,25 @@
 
 **고객 화면**
 
-**제출이나 출석은 어떤 방법으로 하라고 되어 있고, 그 방법은 공식적인 접수 방식인가요?**
+**제출이나 출석은 어떤 방법으로 하라고 되어 있고, 그 접수처가 공식인지 확인해 보셨나요?**
 
-① **지정된 장소에 직접 방문**하라고 합니다. 대면이나 우편 같은 정식 접수 방식이라 그 장소가 실제 접수처인지 확인하고 싶습니다.  
-② **우편이나 창구 접수**라고 합니다. 대면이나 우편 같은 정식 접수 방식이라 주소와 창구가 맞는지 확인하고 싶습니다.  
-③ **이메일이나 메신저로 보내라**고 합니다. 전자 전달 방식이라 받는 주소가 실제 담당 기관인지 확인하고 싶습니다.  
-④ **웹사이트에 올리라**고 합니다. 전자 전달 방식이라 그 사이트가 공식 사이트인지 확인하고 싶습니다.  
-⑤ **전화나 화상 통화**로 하라고 합니다. 전자 전달 방식이라 통화 상대가 실제 담당자인지 확인하고 싶습니다.  
-⑥ **방법이 적혀 있지 않습니다.** 어떻게 내야 하는지 알 수 없어서 공식 접수 방법부터 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **지정된 장소에 직접 방문**하라고 합니다. 그 주소가 기관의 공식 정보와 같은 것을 확인했습니다.  
+② **우편이나 창구 접수**라고 합니다. 그 우편 주소와 창구가 공식인지는 아직 확인하지 않았습니다.  
+③ **이메일이나 메신저로 보내라**고 합니다. 받는 주소가 공식인지는 아직 확인하지 않았습니다.  
+④ **웹사이트에 올리라**고 합니다. 그 사이트가 공식 사이트인지 알아볼 방법을 몰라 확인이 어렵습니다.  
+⑤ **전화나 화상 통화**로 하라고 합니다. 통화 상대가 어느 기관의 누구인지 알려 주지 않은 채 통화하자고 합니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_deliveryMethod=deliver_visit`, `unclear_deliveryGroup=dgrp_formal` |
-| ② | `unclear_deliveryMethod=deliver_post`, `unclear_deliveryGroup=dgrp_formal` |
-| ③ | `unclear_deliveryMethod=deliver_chat`, `unclear_deliveryGroup=dgrp_digital` |
-| ④ | `unclear_deliveryMethod=deliver_upload`, `unclear_deliveryGroup=dgrp_digital` |
-| ⑤ | `unclear_deliveryMethod=deliver_call`, `unclear_deliveryGroup=dgrp_digital` |
-| ⑥ | `unclear_deliveryMethod=deliver_unstated`, `unclear_deliveryGroup=dgrp_unspecified` |
-| ⑦ 직접 입력 | `unclear_deliveryMethod=direct_input`, `unclear_deliveryGroup=direct_input_detail` |
+| ① | `unclear_deliveryMethod=deliver_visit`, `unclear_venueCheck=venue_checked` |
+| ② | `unclear_deliveryMethod=deliver_post`, `unclear_venueCheck=venue_unchecked` |
+| ③ | `unclear_deliveryMethod=deliver_chat`, `unclear_venueCheck=venue_unchecked` |
+| ④ | `unclear_deliveryMethod=deliver_upload`, `unclear_venueCheck=venue_unknown` |
+| ⑤ | `unclear_deliveryMethod=deliver_call`, `unclear_venueCheck=venue_unknown` |
+| ⑥ 직접 입력 | `unclear_deliveryMethod=direct_input`, `unclear_venueCheck=direct_input_detail` |
 
 ---
 
@@ -777,27 +725,25 @@
 
 **고객 화면**
 
-**서류나 연락에 어떤 압박이 있고, 그 압박은 얼마나 강하게 느껴지시나요?**
+**서류나 연락에서 어떤 압박을 받았고, 그 압박은 어떤 수단으로 전해졌나요?**
 
-① **압박 없이 안내만** 있습니다. 재촉이나 협박은 없어서 압박은 느끼지 않는 상태입니다.  
-② **기한 안에 하라는 안내**만 있습니다. 기한이 안내되어 있어 낮은 정도의 압박으로 느껴집니다.  
-③ **연체료·가산금이나 법적 조치를 예고**합니다. 불이익을 알려 와서 중간 정도의 압박으로 느껴집니다.  
-④ **지금 바로 하지 않으면 안 된다고 재촉**합니다. 생각할 시간을 주지 않아 중간 정도의 압박으로 느껴집니다.  
-⑤ **계좌 동결·체포·출국 금지 같은 강한 불이익**을 말합니다. 공포를 주는 표현이라 매우 강한 압박으로 느껴집니다.  
-⑥ **다른 사람에게 말하지 말고 비밀로** 하라고 합니다. 주변의 확인을 막으려는 듯해서 강한 압박으로 느껴집니다.  
-⑦ **직접 입력**
+① **압박 없이 안내만** 있습니다. 재촉이나 협박 없이 서류에 적힌 내용으로만 전해졌습니다.  
+② **기한 안에 하라고 재촉**합니다. 문자나 메신저로 같은 말을 반복해서 보내 오고 있습니다.  
+③ **연체료·가산금이나 법적 조치를 예고**합니다. 그런 내용이 서류에 글로 적혀 있어 확인할 수 있습니다.  
+④ **계좌 동결·체포·출국 금지 같은 강한 불이익**을 말합니다. 전화로 직접 들었습니다.  
+⑤ **다른 사람에게 말하지 말고 비밀로 하라**고 합니다. 문자나 메신저로 요구해 왔습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_pressureType=press_none`, `unclear_pressureLevel=lvl_none` |
-| ② | `unclear_pressureType=press_deadline`, `unclear_pressureLevel=lvl_low` |
-| ③ | `unclear_pressureType=press_legal`, `unclear_pressureLevel=lvl_mid` |
-| ④ | `unclear_pressureType=press_rush`, `unclear_pressureLevel=lvl_mid` |
-| ⑤ | `unclear_pressureType=press_threat`, `unclear_pressureLevel=lvl_high` |
-| ⑥ | `unclear_pressureType=press_secret`, `unclear_pressureLevel=lvl_high` |
-| ⑦ 직접 입력 | `unclear_pressureType=direct_input`, `unclear_pressureLevel=direct_input_detail` |
+| ① | `unclear_pressureType=press_none`, `unclear_pressureChannel=ch_document` |
+| ② | `unclear_pressureType=press_deadline`, `unclear_pressureChannel=ch_message` |
+| ③ | `unclear_pressureType=press_legal`, `unclear_pressureChannel=ch_document` |
+| ④ | `unclear_pressureType=press_threat`, `unclear_pressureChannel=ch_call` |
+| ⑤ | `unclear_pressureType=press_secret`, `unclear_pressureChannel=ch_message` |
+| ⑥ 직접 입력 | `unclear_pressureType=direct_input`, `unclear_pressureChannel=direct_input_detail` |
 
 ---
 
@@ -805,27 +751,25 @@
 
 **고객 화면**
 
-**서류나 안내의 기한은 어떻게 되어 있고, 그 기한은 어디에서 나온 것인가요?**
+**서류나 안내의 기한은 어떤 상태이고, 기한을 넘기면 어떻게 된다고 하나요?**
 
-① **기한이 적혀 있지 않습니다.** 기한 표시가 서류에도 말에도 어디에도 없어서 기한이 있는지부터 확인하고 싶습니다.  
-② **서류에 날짜가 적혀 있고 아직 여유**가 있습니다. 서류에 적힌 기한이고 시간이 있어서 차분히 확인할 수 있습니다.  
-③ **서류에 날짜가 적혀 있고 사흘 안**으로 가깝습니다. 서류에 적힌 기한이고 임박해서 서둘러 확인해야 합니다.  
-④ **서류에 적힌 기한이 이미 지났습니다.** 서류에 적힌 기한이고 이미 지나서 이제 어떻게 해야 하는지 확인하고 싶습니다.  
-⑤ **메시지나 말로만** 기한을 알려 줬습니다. 서류가 아니라 메시지나 말로 들은 기한이라 근거가 있는지 확인하고 싶습니다.  
-⑥ **기한이 있는 것 같은데** 정확히 모릅니다. 기한의 출처와 날짜를 알 수 없어 서류에서 찾아보고 싶습니다.  
-⑦ **직접 입력**
+① **기한이 적혀 있지 않습니다.** 기한을 넘기면 어떻게 된다는 말도 어디에도 없습니다.  
+② **서류에 날짜가 적혀 있고 아직 여유**가 있습니다. 넘기면 가산금이나 연체료가 붙는다고 합니다.  
+③ **서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다.** 넘기면 법적 조치를 한다고 합니다.  
+④ **서류에 적힌 기한이 이미 지났습니다.** 기한을 넘기면 어떤 일이 생기는지는 알지 못합니다.  
+⑤ **메시지나 말로만 기한**을 알려 줬습니다. 넘기면 법적 조치를 한다고 겁을 줬습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineSource=dls_none` |
-| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineSource=dls_doc` |
-| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineSource=dls_doc` |
-| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineSource=dls_doc` |
-| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineSource=dls_message` |
-| ⑥ | `unclear_deadlineStatus=dl_unclear`, `unclear_deadlineSource=dls_unknown` |
-| ⑦ 직접 입력 | `unclear_deadlineStatus=direct_input`, `unclear_deadlineSource=direct_input_detail` |
+| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineStake=stake_none` |
+| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineStake=stake_money` |
+| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineStake=stake_legal` |
+| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineStake=stake_unknown` |
+| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineStake=stake_legal` |
+| ⑥ 직접 입력 | `unclear_deadlineStatus=direct_input`, `unclear_deadlineStake=direct_input_detail` |
 
 ---
 
@@ -833,27 +777,25 @@
 
 **고객 화면**
 
-**지금까지 이 서류와 관련해 한 일은 무엇이고, 그로 인해 이미 생겼을 수 있는 위험은 무엇인가요?**
+**이 서류와 관련해 지금까지 한 일은 무엇이고, 그 뒤에 상대의 연락은 어떻게 되었나요?**
 
-① **아무것도 하지 않았습니다.** 노출된 정보나 금전 위험은 없다고 보고, 앞으로 할 일을 확인하고 싶습니다.  
-② **보낸 곳에 문의만** 했습니다. 연락처가 알려졌을 수 있지만 노출은 적은 상태입니다.  
-③ **링크를 열었거나 앱을 설치**했습니다. 제 기기나 정보가 노출되었을 가능성이 있는 상태입니다.  
-④ **개인정보나 서류를 이미 보냈습니다.** 제 개인정보가 노출되어 악용될 수 있는 상태입니다.  
-⑤ **돈을 일부 또는 전부 보냈습니다.** 이미 금전 피해가 생겼을 가능성이 있는 상태입니다.  
-⑥ **답장을 했거나 통화**를 했습니다. 상대와 연락이 이어진 상태라 이후 연락에 주의가 필요합니다.  
-⑦ **직접 입력**
+① **아무것도 하지 않았습니다.** 그 뒤에도 상대에게서 추가로 온 연락이나 요구는 전혀 없습니다.  
+② **문의하거나 답장·통화**를 했습니다. 그 뒤에도 상대가 계속해서 연락해 오고 있습니다.  
+③ **링크를 열었거나 앱을 설치**했습니다. 그 뒤에는 별다른 일이 없었고 상대 연락도 오지 않았습니다.  
+④ **개인정보나 서류를 이미 보냈습니다.** 그 뒤에도 정보를 더 달라는 요구가 계속 오고 있습니다.  
+⑤ **돈을 일부 또는 전부 보냈습니다.** 그 뒤에는 상대의 연락이 끊겨 더 이상 닿지 않습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_actionTaken=act_nothing`, `unclear_exposureLevel=exp_none` |
-| ② | `unclear_actionTaken=act_asked`, `unclear_exposureLevel=exp_low` |
-| ③ | `unclear_actionTaken=act_clicked`, `unclear_exposureLevel=exp_mid` |
-| ④ | `unclear_actionTaken=act_sent_info`, `unclear_exposureLevel=exp_info` |
-| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_exposureLevel=exp_money` |
-| ⑥ | `unclear_actionTaken=act_replied`, `unclear_exposureLevel=exp_contact` |
-| ⑦ 직접 입력 | `unclear_actionTaken=direct_input`, `unclear_exposureLevel=direct_input_detail` |
+| ① | `unclear_actionTaken=act_nothing`, `unclear_followUp=fu_none` |
+| ② | `unclear_actionTaken=act_contacted`, `unclear_followUp=fu_more` |
+| ③ | `unclear_actionTaken=act_clicked`, `unclear_followUp=fu_none` |
+| ④ | `unclear_actionTaken=act_sent_info`, `unclear_followUp=fu_more` |
+| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_followUp=fu_cut` |
+| ⑥ 직접 입력 | `unclear_actionTaken=direct_input`, `unclear_followUp=direct_input_detail` |
 
 ---
 
@@ -861,27 +803,25 @@
 
 **고객 화면**
 
-**남아 있는 자료는 무엇이고, 그 자료로 어디까지 확인할 수 있을 것 같나요?**
+**남아 있는 자료는 무엇이고, 그 자료로 무엇을 하고 싶으신가요?**
 
-① **서류 원본**을 가지고 있습니다. 자료가 충분해서 서류 내용을 직접 대조해 확인할 수 있을 것 같습니다.  
-② **사진이나 캡처**만 있습니다. 자료가 일부라서 서류 원본은 확인하기 어려울 수 있습니다.  
-③ **문자·메신저·통화 기록**이 남아 있습니다. 자료가 일부라서 연락이 오간 경위는 확인할 수 있습니다.  
-④ **송금 내역이나 영수증**이 있습니다. 자료가 충분해서 돈이 오간 흐름은 확인할 수 있을 것 같습니다.  
-⑤ **일부를 잃어버렸거나 지웠습니다.** 자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다.  
-⑥ **남은 자료가 없습니다.** 자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다.  
-⑦ **직접 입력**
+① **서류 원본**을 가지고 있습니다. 서류 내용을 직접 대조해서 진짜인지 확인해 보고 싶습니다.  
+② **사진·캡처나 문자·통화 기록**이 남아 있습니다. 상담이나 신고에 쓸 자료로 정리하고 싶습니다.  
+③ **송금 내역이나 영수증**이 있습니다. 낸 돈을 되찾을 수 있는 방법을 알고 싶습니다.  
+④ **일부를 잃어버렸거나 지웠습니다.** 남아 있는 자료만으로도 진짜인지 확인해 보고 싶습니다.  
+⑤ **남은 자료가 없습니다.** 앞으로 증거가 될 만한 것을 무엇부터 모아 두어야 하는지 알고 싶습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceState=evs_strong` |
-| ② | `unclear_evidenceKind=ev_photo`, `unclear_evidenceState=evs_medium` |
-| ③ | `unclear_evidenceKind=ev_chat`, `unclear_evidenceState=evs_medium` |
-| ④ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceState=evs_strong` |
-| ⑤ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceState=evs_weak` |
-| ⑥ | `unclear_evidenceKind=ev_none`, `unclear_evidenceState=evs_weak` |
-| ⑦ 직접 입력 | `unclear_evidenceKind=direct_input`, `unclear_evidenceState=direct_input_detail` |
+| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceGoal=goal_verify` |
+| ② | `unclear_evidenceKind=ev_capture`, `unclear_evidenceGoal=goal_report` |
+| ③ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceGoal=goal_recover` |
+| ④ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceGoal=goal_verify` |
+| ⑤ | `unclear_evidenceKind=ev_none`, `unclear_evidenceGoal=goal_prepare` |
+| ⑥ 직접 입력 | `unclear_evidenceKind=direct_input`, `unclear_evidenceGoal=direct_input_detail` |
 
 ---
 
@@ -891,25 +831,25 @@
 
 **고객 화면**
 
-**서류에 적힌 내 정보는 어떻게 되어 있고, 그 서류가 저를 정확히 지목한 것으로 보이나요?**
+**서류에 적힌 내 정보는 얼마나 맞고, 같은 서류를 받은 사람이 주변에 더 있나요?**
 
-① **이름·회사명·주소가 모두 정확**합니다. 저를 정확히 지목한 서류로 보여서 내용을 자세히 확인해야 합니다.  
-② **이름은 맞지만 주소나 번호가 일부 다릅니다.** 저를 일부만 특정한 서류로 보여서 어떻게 입수한 정보인지 궁금합니다.  
-③ **이름 없이 일반 호칭**만 적혀 있습니다. 불특정 다수에게 보낸 서류일 수 있어 저와 관련이 있는지 확인하고 싶습니다.  
-④ **다른 사람이나 다른 회사 이름**이 적혀 있습니다. 엉뚱한 수신이거나 잘못 보낸 것일 수 있어 어떻게 해야 하는지 확인하고 싶습니다.  
-⑤ **적힌 정보를 아직 확인하지 않았습니다.** 제 정보와 맞는지부터 확인하고 서류가 저를 가리키는지 알고 싶습니다.  
+① **이름·회사명·주소가 모두 정확**합니다. 주변에 물어보니 이 서류를 받은 사람은 저뿐인 것 같습니다.  
+② **이름은 맞지만 주소나 번호가 일부 다릅니다.** 주변 사람들이 같은 서류를 받았는지는 아직 물어보지 못했습니다.  
+③ **이름 없이 일반 호칭**만 적혀 있습니다. 회사 동료나 지인도 똑같은 내용을 받았다고 합니다.  
+④ **다른 사람이나 다른 회사 이름**이 적혀 있습니다. 이 서류를 받은 사람은 저뿐인 것 같아 잘못 온 것인지 모르겠습니다.  
+⑤ **적힌 정보를 아직 확인하지 않았습니다.** 주변 사람들도 받았는지 알아본 적이 없어 아직 잘 모르겠습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_identityMatch=id_exact`, `unclear_aimHint=aim_specific` |
-| ② | `unclear_identityMatch=id_partial`, `unclear_aimHint=aim_partial` |
-| ③ | `unclear_identityMatch=id_generic`, `unclear_aimHint=aim_generic` |
-| ④ | `unclear_identityMatch=id_other`, `unclear_aimHint=aim_misdirected` |
-| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_aimHint=aim_unchecked` |
-| ⑥ 직접 입력 | `unclear_identityMatch=direct_input`, `unclear_aimHint=direct_input_detail` |
+| ① | `unclear_identityMatch=id_exact`, `unclear_otherRecipients=oth_only_me` |
+| ② | `unclear_identityMatch=id_partial`, `unclear_otherRecipients=oth_unknown` |
+| ③ | `unclear_identityMatch=id_generic`, `unclear_otherRecipients=oth_others` |
+| ④ | `unclear_identityMatch=id_other`, `unclear_otherRecipients=oth_only_me` |
+| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_otherRecipients=oth_unknown` |
+| ⑥ 직접 입력 | `unclear_identityMatch=direct_input`, `unclear_otherRecipients=direct_input_detail` |
 
 ---
 
@@ -917,27 +857,25 @@
 
 **고객 화면**
 
-**서류나 연락에서 확인되는 공식 요소는 무엇이고, 형식은 얼마나 갖춰져 있나요?**
+**서류나 연락에 공식 문서의 요소(기관명·문서번호·날짜·직인)가 얼마나 있고, 연락처를 공식 정보와 대조해 보셨나요?**
 
-① **기관명·문서번호·날짜·직인이 모두** 있습니다. 형식을 갖춘 서류로 보이지만 실제 발급되었는지 확인하고 싶습니다.  
-② **그중 일부만** 있습니다. 형식이 일부 부족한 서류로 보여서 어떤 요소가 빠졌는지 확인하고 싶습니다.  
-③ **모두 없고 문장만** 있습니다. 공식 서류에 있어야 할 요소가 없어서 공식 서류인지 의심됩니다.  
-④ **연락처가 개인 번호나 일반 이메일 주소**입니다. 기관의 공식 연락처가 아니어서 공식 서류인지 의심됩니다.  
-⑤ **링크나 큐알 코드로만** 안내합니다. 링크로만 연결되어 서류 형식을 확인하기 어렵고 연결된 곳이 안전한지 알고 싶습니다.  
-⑥ **문장이 번역투이거나 어색**합니다. 문체가 어색해서 공식 서류인지, 외국어를 옮긴 것인지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **기관명·문서번호·날짜·직인이 모두** 있습니다. 하지만 적힌 연락처를 공식 정보와 대조해 보지는 않았습니다.  
+② **그중 일부만** 있습니다. 공식 사이트에서 같은 기관의 연락처를 찾아 대조해 보았더니 비슷했습니다.  
+③ **공식 요소가 없고 연락처가 개인 번호나 일반 이메일**뿐입니다. 공식 사이트의 연락처와 대조해 보니 서로 달랐습니다.  
+④ **링크나 큐알 코드로만** 안내합니다. 그 링크가 공식 사이트 주소와 같은지 대조해 보지 않았습니다.  
+⑤ **문장이 번역투이거나 어색**합니다. 공식 연락처와 대조해 보니 같아서 오히려 헷갈립니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_authenticityMark=mark_full`, `unclear_formality=fm_formal` |
-| ② | `unclear_authenticityMark=mark_partial`, `unclear_formality=fm_partial` |
-| ③ | `unclear_authenticityMark=mark_none`, `unclear_formality=fm_informal` |
-| ④ | `unclear_authenticityMark=mark_personal_contact`, `unclear_formality=fm_informal` |
-| ⑤ | `unclear_authenticityMark=mark_link_only`, `unclear_formality=fm_link` |
-| ⑥ | `unclear_authenticityMark=mark_odd_text`, `unclear_formality=fm_odd` |
-| ⑦ 직접 입력 | `unclear_authenticityMark=direct_input`, `unclear_formality=direct_input_detail` |
+| ① | `unclear_authenticityMark=mark_full`, `unclear_officialCompare=cmp_unchecked` |
+| ② | `unclear_authenticityMark=mark_partial`, `unclear_officialCompare=cmp_same` |
+| ③ | `unclear_authenticityMark=mark_weak`, `unclear_officialCompare=cmp_diff` |
+| ④ | `unclear_authenticityMark=mark_link_only`, `unclear_officialCompare=cmp_unchecked` |
+| ⑤ | `unclear_authenticityMark=mark_odd_text`, `unclear_officialCompare=cmp_same` |
+| ⑥ 직접 입력 | `unclear_authenticityMark=direct_input`, `unclear_officialCompare=direct_input_detail` |
 
 ---
 
@@ -945,25 +883,25 @@
 
 **고객 화면**
 
-**서류 내용을 얼마나 이해하셨고, 읽는 데 어려움은 무엇인가요?**
+**서류 내용을 얼마나 이해하셨고, 주변에 이 서류를 같이 봐 줄 사람이 있나요?**
 
-① **대부분 이해**했습니다. 읽는 데 큰 문제는 없고 이해하지 못한 나머지 부분만 확인하고 싶습니다.  
-② **절반쯤 이해**했습니다. 읽는 데는 큰 문제가 없지만 나머지 절반이 중요한 내용인지 확인하고 싶습니다.  
-③ **거의 이해하지 못했습니다.** 내용이 어려워서 읽기 어렵고 어떤 서류인지부터 설명이 필요합니다.  
-④ **외국어라** 읽기 어렵습니다. 언어 장벽 때문에 읽지 못해서 번역과 설명이 필요합니다.  
-⑤ **사진이 흐리거나 잘려** 읽을 수 없습니다. 화질 문제로 읽을 수 없어서 다시 확인할 방법이 필요합니다.  
+① **대부분 이해**했습니다. 회사 동료나 지인에게 나머지 부분을 물어볼 수 있어 도움받기 쉽습니다.  
+② **절반쯤 이해**했습니다. 이 서류를 같이 봐 줄 사람이 주변에 전혀 없어 혼자 판단해야 합니다.  
+③ **거의 이해하지 못했습니다.** 주변에 이 서류에 대해 물어볼 만한 사람이 없어 막막한 상태입니다.  
+④ **외국어(베트남어)라 읽기 어렵습니다.** 베트남어를 읽을 수 있는 지인이 주변에 있습니다.  
+⑤ **사진이 흐리거나 잘려 읽을 수 없습니다.** 다시 찍거나 원본을 구할 방법은 모르겠습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_understandingLevel=und_most`, `unclear_readability=read_ok` |
-| ② | `unclear_understandingLevel=und_half`, `unclear_readability=read_ok` |
-| ③ | `unclear_understandingLevel=und_little`, `unclear_readability=read_hard` |
-| ④ | `unclear_understandingLevel=und_language`, `unclear_readability=read_lang` |
-| ⑤ | `unclear_understandingLevel=und_blurry`, `unclear_readability=read_blurry` |
-| ⑥ 직접 입력 | `unclear_understandingLevel=direct_input`, `unclear_readability=direct_input_detail` |
+| ① | `unclear_understandingLevel=und_most`, `unclear_helperNearby=helper_yes` |
+| ② | `unclear_understandingLevel=und_half`, `unclear_helperNearby=helper_none` |
+| ③ | `unclear_understandingLevel=und_little`, `unclear_helperNearby=helper_none` |
+| ④ | `unclear_understandingLevel=und_language`, `unclear_helperNearby=helper_yes` |
+| ⑤ | `unclear_understandingLevel=und_blurry`, `unclear_helperNearby=helper_none` |
+| ⑥ 직접 입력 | `unclear_understandingLevel=direct_input`, `unclear_helperNearby=direct_input_detail` |
 
 ---
 
@@ -971,27 +909,25 @@
 
 **고객 화면**
 
-**서류에서 가장 눈에 띄는 것은 무엇이고, 그것은 어떤 성격의 정보인가요?**
+**서류에서 가장 눈에 띄는 것은 무엇이고, 그것이 제가 이미 알고 있는 이름이나 내용인가요?**
 
-① **법령 이름이나 조항 번호**가 눈에 띕니다. 법령과 관련된 내용이라 어떤 법을 근거로 한 것인지 확인하고 싶습니다.  
-② **기관 이름**이 눈에 띕니다. 기관과 관련된 내용이라 그 기관이 실제로 보낸 것인지 확인하고 싶습니다.  
-③ **문서번호·사건번호·세금번호** 같은 번호가 눈에 띕니다. 번호와 관련된 내용이라 그 번호가 실제 조회되는지 확인하고 싶습니다.  
-④ **금액이나 계좌번호**가 눈에 띕니다. 금전과 관련된 내용이라 내야 하는 돈인지 확인하고 싶습니다.  
-⑤ **날짜나 기한**이 눈에 띕니다. 기한과 관련된 내용이라 언제까지 무엇을 해야 하는지 확인하고 싶습니다.  
-⑥ **링크나 전화번호뿐**입니다. 연락처만 있어서 내용을 알기 어렵고 연락해도 되는지 확인하고 싶습니다.  
-⑦ **직접 입력**
+① **법령 이름이나 조항 번호**가 눈에 띕니다. 제가 처음 보는 법령이거나 낯선 내용입니다.  
+② **기관 이름이나 문서번호**가 눈에 띕니다. 제가 이미 알고 있는 기관이거나 익숙한 내용입니다.  
+③ **금액이나 계좌번호**가 눈에 띕니다. 제가 아는 거래와 관련된 금액이 아닐까 짐작됩니다.  
+④ **날짜나 기한**이 눈에 띕니다. 처음 보는 내용이라 무슨 날짜인지 도무지 모르겠습니다.  
+⑤ **링크나 전화번호뿐**입니다. 처음 보는 번호라 무엇을 하라는 것인지 전혀 모르겠습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_keyElement=key_law`, `unclear_elementGroup=eg_legal` |
-| ② | `unclear_keyElement=key_agency`, `unclear_elementGroup=eg_agency` |
-| ③ | `unclear_keyElement=key_numbers`, `unclear_elementGroup=eg_numbers` |
-| ④ | `unclear_keyElement=key_money`, `unclear_elementGroup=eg_money` |
-| ⑤ | `unclear_keyElement=key_date`, `unclear_elementGroup=eg_date` |
-| ⑥ | `unclear_keyElement=key_contact`, `unclear_elementGroup=eg_contact` |
-| ⑦ 직접 입력 | `unclear_keyElement=direct_input`, `unclear_elementGroup=direct_input_detail` |
+| ① | `unclear_keyElement=key_law`, `unclear_keyKnown=known_no` |
+| ② | `unclear_keyElement=key_agency`, `unclear_keyKnown=known_yes` |
+| ③ | `unclear_keyElement=key_money`, `unclear_keyKnown=known_yes` |
+| ④ | `unclear_keyElement=key_date`, `unclear_keyKnown=known_no` |
+| ⑤ | `unclear_keyElement=key_contact`, `unclear_keyKnown=known_no` |
+| ⑥ 직접 입력 | `unclear_keyElement=direct_input`, `unclear_keyKnown=direct_input_detail` |
 
 ---
 
@@ -999,25 +935,25 @@
 
 **고객 화면**
 
-**읽어 본 느낌으로는 무엇을 요구하는 것 같고, 그렇게 느낀 이유는 무엇인가요?**
+**읽어 본 느낌으로는 무엇을 요구하는 것 같고, 그렇게 느낀 근거는 무엇인가요?**
 
-① **돈을 내라는 것** 같습니다. 금액이나 납부 안내가 보이는 듯해서 정말 내야 하는 돈인지 확인하고 싶습니다.  
-② **서류를 내거나 출석하라는 것** 같습니다. 제출이나 방문을 요구하는 듯해서 응해야 하는지 확인하고 싶습니다.  
-③ **그냥 알려 주는 내용** 같습니다. 안내 성격으로 보여서 아무것도 하지 않아도 되는지 확인하고 싶습니다.  
-④ **연락하라는 말뿐**입니다. 연락을 유도하는 내용이라 연락해도 되는지부터 확인하고 싶습니다.  
-⑤ **판단하기 어렵습니다.** 무엇을 요구하는지 알 수 없어서 서류의 성격부터 구분해서 알고 싶습니다.  
+① **돈을 내라는 것** 같습니다. 금액이나 납부 안내가 문장 안에 직접 적혀 있어서입니다.  
+② **서류를 내거나 출석하라는 것** 같습니다. 분위기로 짐작할 뿐 정확한 문장은 이해하지 못했습니다.  
+③ **그냥 알려 주는 내용** 같습니다. 요구 문장은 없고 안내문처럼 보이는 분위기 때문입니다.  
+④ **연락하라는 말뿐**입니다. 연락처와 연락하라는 말이 문장에 직접 적혀 있어서 그렇게 느꼈습니다.  
+⑤ **판단하기 어렵습니다.** 느낌의 근거로 삼을 만한 부분조차 찾지 못해서 판단이 어렵습니다.  
 ⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_impliedRequest=imp_money`, `unclear_requestHint=hint_pay` |
-| ② | `unclear_impliedRequest=imp_submit`, `unclear_requestHint=hint_submit` |
-| ③ | `unclear_impliedRequest=imp_notice`, `unclear_requestHint=hint_notice` |
-| ④ | `unclear_impliedRequest=imp_contact`, `unclear_requestHint=hint_contact` |
-| ⑤ | `unclear_impliedRequest=imp_unknown`, `unclear_requestHint=hint_unknown` |
-| ⑥ 직접 입력 | `unclear_impliedRequest=direct_input`, `unclear_requestHint=direct_input_detail` |
+| ① | `unclear_impliedRequest=imp_money`, `unclear_impliedBasis=im_text` |
+| ② | `unclear_impliedRequest=imp_submit`, `unclear_impliedBasis=im_feel` |
+| ③ | `unclear_impliedRequest=imp_notice`, `unclear_impliedBasis=im_feel` |
+| ④ | `unclear_impliedRequest=imp_contact`, `unclear_impliedBasis=im_text` |
+| ⑤ | `unclear_impliedRequest=imp_unknown`, `unclear_impliedBasis=im_none` |
+| ⑥ 직접 입력 | `unclear_impliedRequest=direct_input`, `unclear_impliedBasis=direct_input_detail` |
 
 ---
 
@@ -1025,27 +961,25 @@
 
 **고객 화면**
 
-**서류나 연락에 어떤 압박이 있고, 그 압박은 얼마나 강하게 느껴지시나요?**
+**서류나 연락에서 어떤 압박을 받았고, 그 압박은 어떤 수단으로 전해졌나요?**
 
-① **압박 없이 안내만** 있습니다. 재촉이나 협박은 없어서 압박은 느끼지 않는 상태입니다.  
-② **기한 안에 하라는 안내**만 있습니다. 기한이 안내되어 있어 낮은 정도의 압박으로 느껴집니다.  
-③ **연체료·가산금이나 법적 조치를 예고**합니다. 불이익을 알려 와서 중간 정도의 압박으로 느껴집니다.  
-④ **지금 바로 하지 않으면 안 된다고 재촉**합니다. 생각할 시간을 주지 않아 중간 정도의 압박으로 느껴집니다.  
-⑤ **계좌 동결·체포·출국 금지 같은 강한 불이익**을 말합니다. 공포를 주는 표현이라 매우 강한 압박으로 느껴집니다.  
-⑥ **다른 사람에게 말하지 말고 비밀로** 하라고 합니다. 주변의 확인을 막으려는 듯해서 강한 압박으로 느껴집니다.  
-⑦ **직접 입력**
+① **압박 없이 안내만** 있습니다. 재촉이나 협박 없이 서류에 적힌 내용으로만 전해졌습니다.  
+② **기한 안에 하라고 재촉**합니다. 문자나 메신저로 같은 말을 반복해서 보내 오고 있습니다.  
+③ **연체료·가산금이나 법적 조치를 예고**합니다. 그런 내용이 서류에 글로 적혀 있어 확인할 수 있습니다.  
+④ **계좌 동결·체포·출국 금지 같은 강한 불이익**을 말합니다. 전화로 직접 들었습니다.  
+⑤ **다른 사람에게 말하지 말고 비밀로 하라**고 합니다. 문자나 메신저로 요구해 왔습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_pressureType=press_none`, `unclear_pressureLevel=lvl_none` |
-| ② | `unclear_pressureType=press_deadline`, `unclear_pressureLevel=lvl_low` |
-| ③ | `unclear_pressureType=press_legal`, `unclear_pressureLevel=lvl_mid` |
-| ④ | `unclear_pressureType=press_rush`, `unclear_pressureLevel=lvl_mid` |
-| ⑤ | `unclear_pressureType=press_threat`, `unclear_pressureLevel=lvl_high` |
-| ⑥ | `unclear_pressureType=press_secret`, `unclear_pressureLevel=lvl_high` |
-| ⑦ 직접 입력 | `unclear_pressureType=direct_input`, `unclear_pressureLevel=direct_input_detail` |
+| ① | `unclear_pressureType=press_none`, `unclear_pressureChannel=ch_document` |
+| ② | `unclear_pressureType=press_deadline`, `unclear_pressureChannel=ch_message` |
+| ③ | `unclear_pressureType=press_legal`, `unclear_pressureChannel=ch_document` |
+| ④ | `unclear_pressureType=press_threat`, `unclear_pressureChannel=ch_call` |
+| ⑤ | `unclear_pressureType=press_secret`, `unclear_pressureChannel=ch_message` |
+| ⑥ 직접 입력 | `unclear_pressureType=direct_input`, `unclear_pressureChannel=direct_input_detail` |
 
 ---
 
@@ -1053,27 +987,25 @@
 
 **고객 화면**
 
-**서류나 안내의 기한은 어떻게 되어 있고, 그 기한은 어디에서 나온 것인가요?**
+**서류나 안내의 기한은 어떤 상태이고, 기한을 넘기면 어떻게 된다고 하나요?**
 
-① **기한이 적혀 있지 않습니다.** 기한 표시가 서류에도 말에도 어디에도 없어서 기한이 있는지부터 확인하고 싶습니다.  
-② **서류에 날짜가 적혀 있고 아직 여유**가 있습니다. 서류에 적힌 기한이고 시간이 있어서 차분히 확인할 수 있습니다.  
-③ **서류에 날짜가 적혀 있고 사흘 안**으로 가깝습니다. 서류에 적힌 기한이고 임박해서 서둘러 확인해야 합니다.  
-④ **서류에 적힌 기한이 이미 지났습니다.** 서류에 적힌 기한이고 이미 지나서 이제 어떻게 해야 하는지 확인하고 싶습니다.  
-⑤ **메시지나 말로만** 기한을 알려 줬습니다. 서류가 아니라 메시지나 말로 들은 기한이라 근거가 있는지 확인하고 싶습니다.  
-⑥ **기한이 있는 것 같은데** 정확히 모릅니다. 기한의 출처와 날짜를 알 수 없어 서류에서 찾아보고 싶습니다.  
-⑦ **직접 입력**
+① **기한이 적혀 있지 않습니다.** 기한을 넘기면 어떻게 된다는 말도 어디에도 없습니다.  
+② **서류에 날짜가 적혀 있고 아직 여유**가 있습니다. 넘기면 가산금이나 연체료가 붙는다고 합니다.  
+③ **서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다.** 넘기면 법적 조치를 한다고 합니다.  
+④ **서류에 적힌 기한이 이미 지났습니다.** 기한을 넘기면 어떤 일이 생기는지는 알지 못합니다.  
+⑤ **메시지나 말로만 기한**을 알려 줬습니다. 넘기면 법적 조치를 한다고 겁을 줬습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineSource=dls_none` |
-| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineSource=dls_doc` |
-| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineSource=dls_doc` |
-| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineSource=dls_doc` |
-| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineSource=dls_message` |
-| ⑥ | `unclear_deadlineStatus=dl_unclear`, `unclear_deadlineSource=dls_unknown` |
-| ⑦ 직접 입력 | `unclear_deadlineStatus=direct_input`, `unclear_deadlineSource=direct_input_detail` |
+| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineStake=stake_none` |
+| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineStake=stake_money` |
+| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineStake=stake_legal` |
+| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineStake=stake_unknown` |
+| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineStake=stake_legal` |
+| ⑥ 직접 입력 | `unclear_deadlineStatus=direct_input`, `unclear_deadlineStake=direct_input_detail` |
 
 ---
 
@@ -1081,27 +1013,25 @@
 
 **고객 화면**
 
-**지금까지 이 서류와 관련해 한 일은 무엇이고, 그로 인해 이미 생겼을 수 있는 위험은 무엇인가요?**
+**이 서류와 관련해 지금까지 한 일은 무엇이고, 그 뒤에 상대의 연락은 어떻게 되었나요?**
 
-① **아무것도 하지 않았습니다.** 노출된 정보나 금전 위험은 없다고 보고, 앞으로 할 일을 확인하고 싶습니다.  
-② **보낸 곳에 문의만** 했습니다. 연락처가 알려졌을 수 있지만 노출은 적은 상태입니다.  
-③ **링크를 열었거나 앱을 설치**했습니다. 제 기기나 정보가 노출되었을 가능성이 있는 상태입니다.  
-④ **개인정보나 서류를 이미 보냈습니다.** 제 개인정보가 노출되어 악용될 수 있는 상태입니다.  
-⑤ **돈을 일부 또는 전부 보냈습니다.** 이미 금전 피해가 생겼을 가능성이 있는 상태입니다.  
-⑥ **답장을 했거나 통화**를 했습니다. 상대와 연락이 이어진 상태라 이후 연락에 주의가 필요합니다.  
-⑦ **직접 입력**
+① **아무것도 하지 않았습니다.** 그 뒤에도 상대에게서 추가로 온 연락이나 요구는 전혀 없습니다.  
+② **문의하거나 답장·통화**를 했습니다. 그 뒤에도 상대가 계속해서 연락해 오고 있습니다.  
+③ **링크를 열었거나 앱을 설치**했습니다. 그 뒤에는 별다른 일이 없었고 상대 연락도 오지 않았습니다.  
+④ **개인정보나 서류를 이미 보냈습니다.** 그 뒤에도 정보를 더 달라는 요구가 계속 오고 있습니다.  
+⑤ **돈을 일부 또는 전부 보냈습니다.** 그 뒤에는 상대의 연락이 끊겨 더 이상 닿지 않습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_actionTaken=act_nothing`, `unclear_exposureLevel=exp_none` |
-| ② | `unclear_actionTaken=act_asked`, `unclear_exposureLevel=exp_low` |
-| ③ | `unclear_actionTaken=act_clicked`, `unclear_exposureLevel=exp_mid` |
-| ④ | `unclear_actionTaken=act_sent_info`, `unclear_exposureLevel=exp_info` |
-| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_exposureLevel=exp_money` |
-| ⑥ | `unclear_actionTaken=act_replied`, `unclear_exposureLevel=exp_contact` |
-| ⑦ 직접 입력 | `unclear_actionTaken=direct_input`, `unclear_exposureLevel=direct_input_detail` |
+| ① | `unclear_actionTaken=act_nothing`, `unclear_followUp=fu_none` |
+| ② | `unclear_actionTaken=act_contacted`, `unclear_followUp=fu_more` |
+| ③ | `unclear_actionTaken=act_clicked`, `unclear_followUp=fu_none` |
+| ④ | `unclear_actionTaken=act_sent_info`, `unclear_followUp=fu_more` |
+| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_followUp=fu_cut` |
+| ⑥ 직접 입력 | `unclear_actionTaken=direct_input`, `unclear_followUp=direct_input_detail` |
 
 ---
 
@@ -1109,27 +1039,25 @@
 
 **고객 화면**
 
-**남아 있는 자료는 무엇이고, 그 자료로 어디까지 확인할 수 있을 것 같나요?**
+**남아 있는 자료는 무엇이고, 그 자료로 무엇을 하고 싶으신가요?**
 
-① **서류 원본**을 가지고 있습니다. 자료가 충분해서 서류 내용을 직접 대조해 확인할 수 있을 것 같습니다.  
-② **사진이나 캡처**만 있습니다. 자료가 일부라서 서류 원본은 확인하기 어려울 수 있습니다.  
-③ **문자·메신저·통화 기록**이 남아 있습니다. 자료가 일부라서 연락이 오간 경위는 확인할 수 있습니다.  
-④ **송금 내역이나 영수증**이 있습니다. 자료가 충분해서 돈이 오간 흐름은 확인할 수 있을 것 같습니다.  
-⑤ **일부를 잃어버렸거나 지웠습니다.** 자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다.  
-⑥ **남은 자료가 없습니다.** 자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다.  
-⑦ **직접 입력**
+① **서류 원본**을 가지고 있습니다. 서류 내용을 직접 대조해서 진짜인지 확인해 보고 싶습니다.  
+② **사진·캡처나 문자·통화 기록**이 남아 있습니다. 상담이나 신고에 쓸 자료로 정리하고 싶습니다.  
+③ **송금 내역이나 영수증**이 있습니다. 낸 돈을 되찾을 수 있는 방법을 알고 싶습니다.  
+④ **일부를 잃어버렸거나 지웠습니다.** 남아 있는 자료만으로도 진짜인지 확인해 보고 싶습니다.  
+⑤ **남은 자료가 없습니다.** 앞으로 증거가 될 만한 것을 무엇부터 모아 두어야 하는지 알고 싶습니다.  
+⑥ **직접 입력**
 
 **내부 저장**
 
 | 선택 | 저장 필드 |
 |---|---|
-| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceState=evs_strong` |
-| ② | `unclear_evidenceKind=ev_photo`, `unclear_evidenceState=evs_medium` |
-| ③ | `unclear_evidenceKind=ev_chat`, `unclear_evidenceState=evs_medium` |
-| ④ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceState=evs_strong` |
-| ⑤ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceState=evs_weak` |
-| ⑥ | `unclear_evidenceKind=ev_none`, `unclear_evidenceState=evs_weak` |
-| ⑦ 직접 입력 | `unclear_evidenceKind=direct_input`, `unclear_evidenceState=direct_input_detail` |
+| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceGoal=goal_verify` |
+| ② | `unclear_evidenceKind=ev_capture`, `unclear_evidenceGoal=goal_report` |
+| ③ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceGoal=goal_recover` |
+| ④ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceGoal=goal_verify` |
+| ⑤ | `unclear_evidenceKind=ev_none`, `unclear_evidenceGoal=goal_prepare` |
+| ⑥ 직접 입력 | `unclear_evidenceKind=direct_input`, `unclear_evidenceGoal=direct_input_detail` |
 
 ---
 
@@ -1141,94 +1069,94 @@
 
 | 필드 | 값 (고객 표시) | 사용 질문 |
 |---|---|---|
-| `unclear_documentForm` | `paper_official`(종이 공문) / `bill_form`(청구서·고지서 양식) / `email_body`(이메일) / `chat_message`(문자·메신저) / `link_code`(링크·큐알 코드 안내) / `verbal_only`(전화·방문으로 말로 들음) | Q1-M |
-| `unclear_formGroup` | `form_formal`(정식 서류 형태) / `form_digital`(전자 메시지 형태) / `form_oral`(말로만 전달됨) | Q1-M |
-| `unclear_senderClaim` | `tax_authority`(세무기관) / `police_court`(공안·경찰·검찰·법원) / `local_admin`(지방 행정기관) / `foreign_agency`(출입국·노동 관련 기관) / `bank_claim`(은행·금융회사) / `company_claim`(회사·통신·택배·플랫폼) / `unnamed_claim`(보낸 곳이 없거나 개인) | Q2-M |
-| `unclear_senderGroup` | `grp_public`(공공기관) / `grp_finance`(금융회사) / `grp_private`(민간 업체) / `grp_unnamed`(보낸 곳이 불분명) | Q2-M |
-| `unclear_contactPattern` | `first_contact`(처음 한 번 받음) / `once_earlier`(며칠 전에 한 번 받음) / `repeated_same`(같은 내용을 반복해서 받음) / `escalating_tone`(점점 강한 표현으로 바뀜) / `after_visit`(전화·방문 뒤에 받음) / `after_request`(내가 신청·문의한 뒤에 받음) | Q3-M |
-| `unclear_contactFlow` | `flow_single`(한 번만 받음) / `flow_repeat`(반복해서 받음) / `flow_escalate`(강도가 높아짐) / `flow_followup`(연락 뒤에 이어짐) / `flow_expected`(내 요청과 이어짐) | Q3-M |
-| `unclear_mainConcern` | `doubt_genuine`(진짜인지 모르겠음) / `doubt_owed`(내야 하는지 모르겠음) / `doubt_amount`(금액이 맞는지 모르겠음) / `doubt_deadline`(기한을 놓칠까 걱정함) / `doubt_done`(이미 응해서 불안함) / `doubt_none`(크게 걱정하지 않음) | Q4-M |
-| `unclear_firstAction` | `next_sender`(먼저 보낸 곳 확인) / `next_basis`(먼저 근거 확인) / `next_deadline`(먼저 기한 확인) / `next_stop`(추가 응답을 멈추고 확인) / `next_keep`(차분히 보관하고 확인) | Q4-M |
+| `unclear_documentForm` | `paper_doc`(종이 서류) / `email_body`(이메일) / `chat_message`(문자·메신저) / `link_code`(링크·큐알 코드 안내) / `verbal_only`(말로만 들음) | Q1-M |
+| `unclear_contentDetail` | `detail_full`(요구 내용이 구체적임) / `detail_brief`(요구 내용이 짧거나 모호함) / `detail_linked`(내용이 연결 화면에만 있음) / `detail_none`(받은 서류 없이 말로만 전달됨) | Q1-M |
+| `unclear_senderClaim` | `public_agency`(공공기관(세무·행정·출입국·노동)) / `police_court`(공안·경찰·검찰·법원) / `bank_claim`(은행·금융회사) / `company_claim`(회사·통신·택배·플랫폼) / `unnamed_claim`(보낸 곳이 없거나 개인) | Q2-M |
+| `unclear_senderRelation` | `rel_recent`(최근 그 곳에 신청·신고한 일이 있음) / `rel_none`(그 곳과 한 일이 없음) / `rel_customer`(평소 거래하던 곳) / `rel_unknown`(관계가 있는지 모름) | Q2-M |
+| `unclear_contactPattern` | `first_contact`(처음 한 번 받음) / `once_earlier`(며칠 전에 한 번 받음) / `repeated_same`(같은 내용을 반복해서 받음) / `escalating_tone`(반복되며 표현이 점점 강해짐) / `after_visit`(전화·방문 뒤에 이어서 받음) | Q3-M |
+| `unclear_requestLink` | `req_none`(내가 신청·문의한 일은 없음) / `req_related`(내가 신청·문의한 일 뒤에 받음) | Q3-M |
+| `unclear_mainConcern` | `doubt_genuine`(진짜인지 모르겠음) / `doubt_owed`(내야 하는 돈인지·금액이 맞는지 모르겠음) / `doubt_deadline`(기한을 놓칠까 걱정함) / `doubt_done`(이미 응해서 불안함) / `doubt_none`(크게 걱정하지 않음) | Q4-M |
+| `unclear_helpWanted` | `help_guide`(스스로 확인할 방법을 원함) / `help_expert`(전문가와 함께 확인하길 원함) | Q4-M |
 | `unclear_identityMatch` | `id_exact`(내 정보가 정확히 맞음) / `id_partial`(이름만 맞고 일부 다름) / `id_generic`(일반 호칭만 있음) / `id_other`(다른 사람·회사 이름) / `id_unchecked`(아직 확인하지 않음) | Q5-M |
-| `unclear_aimHint` | `aim_specific`(나를 특정한 서류) / `aim_partial`(일부만 특정됨) / `aim_generic`(불특정 다수 대상일 수 있음) / `aim_misdirected`(엉뚱한 수신일 수 있음) / `aim_unchecked`(확인 전) | Q5-M |
-| `unclear_authenticityMark` | `mark_full`(기관명·번호·날짜·직인이 모두 있음) / `mark_partial`(일부 요소만 있음) / `mark_none`(공식 요소가 없음) / `mark_personal_contact`(개인 번호·일반 이메일) / `mark_link_only`(링크·큐알 코드로만 안내) / `mark_odd_text`(문장이 어색함) | Q6-M |
-| `unclear_formality` | `fm_formal`(형식을 갖춤) / `fm_partial`(형식이 일부 부족함) / `fm_informal`(형식이 없음) / `fm_link`(링크로만 연결됨) / `fm_odd`(문체가 어색함) | Q6-M |
-| `unclear_moneyNature` | `nature_tax`(세금·세무 관련) / `nature_fine`(벌금·과태료·행정 수수료) / `nature_fee`(서비스 이용료·요금) / `nature_debt`(채무·거래 대금) / `nature_deposit`(보증금·선납금·예치금) / `nature_unstated`(명목이 적혀 있지 않음) | Q7-M |
-| `unclear_moneyReviewLink` | `link_tax`(세금 검토와 연결) / `link_admin`(행정문서 검토와 연결) / `link_trade`(계약·이용 내역 대조) / `link_property`(부동산·계약 검토와 연결) / `link_none`(연결할 분야가 불분명) | Q7-M |
+| `unclear_otherRecipients` | `oth_only_me`(이 서류를 받은 사람이 나뿐인 것 같음) / `oth_unknown`(주변에서 받았는지 모름) / `oth_others`(주변 사람도 같은 서류를 받음) | Q5-M |
+| `unclear_authenticityMark` | `mark_full`(기관명·번호·날짜·직인이 모두 있음) / `mark_partial`(일부 요소만 있음) / `mark_weak`(공식 요소 없이 개인 번호·일반 이메일뿐) / `mark_link_only`(링크·큐알 코드로만 안내함) / `mark_odd_text`(문장이 번역투이거나 어색함) | Q6-M |
+| `unclear_officialCompare` | `cmp_unchecked`(공식 정보와 대조해 보지 않음) / `cmp_same`(공식 연락처와 대조해 보니 같음) / `cmp_diff`(공식 연락처와 대조해 보니 다름) | Q6-M |
+| `unclear_moneyNature` | `nature_tax`(세금·세무 관련) / `nature_fine`(벌금·과태료·행정 수수료) / `nature_trade`(서비스 이용료·거래 대금) / `nature_deposit`(보증금·선납금·예치금) / `nature_unstated`(명목이 적혀 있지 않음) | Q7-M |
+| `unclear_dealMemory` | `mem_yes`(해당하는 일이 실제로 있었음) / `mem_no`(해당하는 일이 기억나지 않음) / `mem_unsure`(있었는지 불확실함) | Q7-M |
 | `unclear_amountScale` | `amt_under1m`(100만 동 미만) / `amt_1m_10m`(100만 동 이상 1천만 동 미만) / `amt_10m_100m`(1천만 동 이상 1억 동 미만) / `amt_over100m`(1억 동 이상) / `amt_unstated`(금액이 적혀 있지 않음) | Q8-M |
-| `unclear_amountTier` | `tier_small`(소액) / `tier_medium`(중간 금액) / `tier_large`(큰 금액) / `tier_xlarge`(매우 큰 금액) / `tier_unknown`(금액 불명) | Q8-M |
-| `unclear_payee` | `payee_institution`(기관 이름 계좌) / `payee_company`(회사 이름 계좌) / `payee_person`(개인 이름 계좌) / `payee_online`(링크·큐알·앱 결제) / `payee_cash`(현금·상품권) / `payee_unstated`(받는 곳이 적혀 있지 않음) | Q9-M |
-| `unclear_paymentGroup` | `pay_account`(계좌 이체) / `pay_online`(온라인 결제) / `pay_cash`(현금성 수단) / `pay_none`(방법 불명) | Q9-M |
-| `unclear_pressureType` | `press_none`(압박 없음) / `press_deadline`(기한 안내) / `press_legal`(법적 조치·가산금 예고) / `press_rush`(지금 바로 하라고 재촉) / `press_threat`(계좌 동결·체포 등 강한 불이익) / `press_secret`(비밀 유지 요구) | Q10-M |
-| `unclear_pressureLevel` | `lvl_none`(없음) / `lvl_low`(낮음) / `lvl_mid`(중간) / `lvl_high`(높음) | Q10-M |
-| `unclear_deadlineStatus` | `dl_none`(기한 표시 없음) / `dl_far`(기한이 여유 있음) / `dl_near`(기한이 가까움) / `dl_passed`(기한이 이미 지남) / `dl_verbal`(말·메시지로만 기한을 들음) / `dl_unclear`(기한이 분명하지 않음) | Q11-M |
-| `unclear_deadlineSource` | `dls_none`(어디에도 없음) / `dls_doc`(서류에 적혀 있음) / `dls_message`(메시지·구두로만 들음) / `dls_unknown`(출처를 모름) | Q11-M |
-| `unclear_actionTaken` | `act_nothing`(아무것도 하지 않음) / `act_asked`(보낸 곳에 문의함) / `act_clicked`(링크 열람·앱 설치) / `act_sent_info`(개인정보·서류 제출) / `act_sent_money`(송금함) / `act_replied`(답장·통화함) | Q12-M |
-| `unclear_exposureLevel` | `exp_none`(노출 없음) / `exp_low`(노출 적음) / `exp_mid`(정보 노출 가능성) / `exp_info`(개인정보 노출) / `exp_money`(금전 피해 가능성) / `exp_contact`(연락이 이어진 상태) | Q12-M |
-| `unclear_evidenceKind` | `ev_original`(원본 보관) / `ev_photo`(사진·캡처만 있음) / `ev_chat`(대화·통화 기록) / `ev_payment`(송금 내역·영수증) / `ev_partial`(일부를 잃어버림) / `ev_none`(남은 자료 없음) | Q13-M |
-| `unclear_evidenceState` | `evs_strong`(자료가 충분함) / `evs_medium`(자료가 일부 있음) / `evs_weak`(자료가 부족함) | Q13-M |
+| `unclear_amountBasis` | `ab_itemized`(항목별 계산 내역이 있음) / `ab_total`(총액만 적혀 있음) / `ab_none`(금액도 내역도 없음) | Q8-M |
+| `unclear_payee` | `payee_institution`(기관 이름의 계좌) / `payee_company`(회사 이름의 계좌) / `payee_person`(개인 이름의 계좌) / `payee_online`(링크·큐알 코드·앱 결제) / `payee_cash`(현금·상품권) | Q9-M |
+| `unclear_payeeMatch` | `pm_same`(계좌 이름이 보낸 곳과 같음) / `pm_diff`(계좌 이름이 보낸 곳과 다름) / `pm_unknown`(받는 곳과 보낸 곳의 관계를 모름) / `pm_na`(받는 곳 이름이 따로 없음) | Q9-M |
+| `unclear_pressureType` | `press_none`(압박 없음) / `press_deadline`(기한 안에 하라는 재촉) / `press_legal`(연체료·법적 조치 예고) / `press_threat`(계좌 동결·체포 등 강한 불이익) / `press_secret`(비밀 유지 요구) | Q10-M |
+| `unclear_pressureChannel` | `ch_document`(서류로 전해짐) / `ch_message`(문자·메신저로 전해짐) / `ch_call`(전화로 전해짐) | Q10-M |
+| `unclear_deadlineStatus` | `dl_none`(기한 표시 없음) / `dl_far`(기한이 여유 있음) / `dl_near`(기한이 가까움) / `dl_passed`(기한이 이미 지남) / `dl_verbal`(말·메시지로만 기한을 들음) | Q11-M |
+| `unclear_deadlineStake` | `stake_none`(넘겨도 된다는 불이익 설명이 없음) / `stake_money`(넘기면 가산금·연체료가 붙는다고 함) / `stake_legal`(넘기면 법적 조치를 한다고 함) / `stake_unknown`(넘기면 어떻게 되는지 모름) | Q11-M |
+| `unclear_actionTaken` | `act_nothing`(아무것도 하지 않음) / `act_contacted`(문의·답장·통화함) / `act_clicked`(링크 열람·앱 설치) / `act_sent_info`(개인정보·서류 제출) / `act_sent_money`(송금함) | Q12-M |
+| `unclear_followUp` | `fu_none`(그 뒤 추가 연락이 없음) / `fu_more`(그 뒤에도 추가 요구가 계속됨) / `fu_cut`(그 뒤 상대가 연락을 끊음) | Q12-M |
+| `unclear_evidenceKind` | `ev_original`(서류 원본 보관) / `ev_capture`(사진·캡처·대화 기록 보관) / `ev_payment`(송금 내역·영수증 보관) / `ev_partial`(일부를 잃어버림) / `ev_none`(남은 자료 없음) | Q13-M |
+| `unclear_evidenceGoal` | `goal_verify`(진짜인지 대조해 보고 싶음) / `goal_report`(상담·신고에 쓸 자료로 정리하고 싶음) / `goal_recover`(낸 돈을 되찾는 방법을 알고 싶음) / `goal_prepare`(앞으로 모아 둘 자료를 알고 싶음) | Q13-M |
 
 ## C-2. 서류 제출·출석 서류
 
 | 필드 | 값 (고객 표시) | 사용 질문 |
 |---|---|---|
-| `unclear_documentForm` | `paper_official`(종이 공문) / `bill_form`(청구서·고지서 양식) / `email_body`(이메일) / `chat_message`(문자·메신저) / `link_code`(링크·큐알 코드 안내) / `verbal_only`(전화·방문으로 말로 들음) | Q1-D |
-| `unclear_formGroup` | `form_formal`(정식 서류 형태) / `form_digital`(전자 메시지 형태) / `form_oral`(말로만 전달됨) | Q1-D |
-| `unclear_senderClaim` | `tax_authority`(세무기관) / `police_court`(공안·경찰·검찰·법원) / `local_admin`(지방 행정기관) / `foreign_agency`(출입국·노동 관련 기관) / `bank_claim`(은행·금융회사) / `company_claim`(회사·통신·택배·플랫폼) / `unnamed_claim`(보낸 곳이 없거나 개인) | Q2-D |
-| `unclear_senderGroup` | `grp_public`(공공기관) / `grp_finance`(금융회사) / `grp_private`(민간 업체) / `grp_unnamed`(보낸 곳이 불분명) | Q2-D |
-| `unclear_contactPattern` | `first_contact`(처음 한 번 받음) / `once_earlier`(며칠 전에 한 번 받음) / `repeated_same`(같은 내용을 반복해서 받음) / `escalating_tone`(점점 강한 표현으로 바뀜) / `after_visit`(전화·방문 뒤에 받음) / `after_request`(내가 신청·문의한 뒤에 받음) | Q3-D |
-| `unclear_contactFlow` | `flow_single`(한 번만 받음) / `flow_repeat`(반복해서 받음) / `flow_escalate`(강도가 높아짐) / `flow_followup`(연락 뒤에 이어짐) / `flow_expected`(내 요청과 이어짐) | Q3-D |
-| `unclear_mainConcern` | `doubt_genuine`(진짜인지 모르겠음) / `doubt_what`(무엇을 내야 하는지 모르겠음) / `doubt_appear`(출석 여부가 걱정됨) / `doubt_deadline`(기한을 놓칠까 걱정함) / `doubt_privacy`(개인정보 제출이 걱정됨) / `doubt_done`(이미 응해서 불안함) / `doubt_none`(크게 걱정하지 않음) | Q4-D |
-| `unclear_firstAction` | `next_sender`(먼저 보낸 곳 확인) / `next_basis`(먼저 근거 확인) / `next_deadline`(먼저 기한 확인) / `next_stop`(추가 응답을 멈추고 확인) / `next_keep`(차분히 보관하고 확인) | Q4-D |
+| `unclear_documentForm` | `paper_doc`(종이 서류) / `email_body`(이메일) / `chat_message`(문자·메신저) / `link_code`(링크·큐알 코드 안내) / `verbal_only`(말로만 들음) | Q1-D |
+| `unclear_contentDetail` | `detail_full`(요구 내용이 구체적임) / `detail_brief`(요구 내용이 짧거나 모호함) / `detail_linked`(내용이 연결 화면에만 있음) / `detail_none`(받은 서류 없이 말로만 전달됨) | Q1-D |
+| `unclear_senderClaim` | `public_agency`(공공기관(세무·행정·출입국·노동)) / `police_court`(공안·경찰·검찰·법원) / `bank_claim`(은행·금융회사) / `company_claim`(회사·통신·택배·플랫폼) / `unnamed_claim`(보낸 곳이 없거나 개인) | Q2-D |
+| `unclear_senderRelation` | `rel_recent`(최근 그 곳에 신청·신고한 일이 있음) / `rel_none`(그 곳과 한 일이 없음) / `rel_customer`(평소 거래하던 곳) / `rel_unknown`(관계가 있는지 모름) | Q2-D |
+| `unclear_contactPattern` | `first_contact`(처음 한 번 받음) / `once_earlier`(며칠 전에 한 번 받음) / `repeated_same`(같은 내용을 반복해서 받음) / `escalating_tone`(반복되며 표현이 점점 강해짐) / `after_visit`(전화·방문 뒤에 이어서 받음) | Q3-D |
+| `unclear_requestLink` | `req_none`(내가 신청·문의한 일은 없음) / `req_related`(내가 신청·문의한 일 뒤에 받음) | Q3-D |
+| `unclear_mainConcern` | `doubt_genuine_privacy`(진짜인지·개인정보를 내도 되는지 모르겠음) / `doubt_what`(무엇을 언제까지 내야 하는지 모르겠음) / `doubt_appear`(직접 가야 하는지 걱정함) / `doubt_done`(이미 응해서 불안함) / `doubt_none`(크게 걱정하지 않음) | Q4-D |
+| `unclear_helpWanted` | `help_guide`(스스로 확인할 방법을 원함) / `help_expert`(전문가와 함께 확인하길 원함) | Q4-D |
 | `unclear_identityMatch` | `id_exact`(내 정보가 정확히 맞음) / `id_partial`(이름만 맞고 일부 다름) / `id_generic`(일반 호칭만 있음) / `id_other`(다른 사람·회사 이름) / `id_unchecked`(아직 확인하지 않음) | Q5-D |
-| `unclear_aimHint` | `aim_specific`(나를 특정한 서류) / `aim_partial`(일부만 특정됨) / `aim_generic`(불특정 다수 대상일 수 있음) / `aim_misdirected`(엉뚱한 수신일 수 있음) / `aim_unchecked`(확인 전) | Q5-D |
-| `unclear_authenticityMark` | `mark_full`(기관명·번호·날짜·직인이 모두 있음) / `mark_partial`(일부 요소만 있음) / `mark_none`(공식 요소가 없음) / `mark_personal_contact`(개인 번호·일반 이메일) / `mark_link_only`(링크·큐알 코드로만 안내) / `mark_odd_text`(문장이 어색함) | Q6-D |
-| `unclear_formality` | `fm_formal`(형식을 갖춤) / `fm_partial`(형식이 일부 부족함) / `fm_informal`(형식이 없음) / `fm_link`(링크로만 연결됨) / `fm_odd`(문체가 어색함) | Q6-D |
-| `unclear_requestTarget` | `tgt_id_docs`(신분증·여권·체류 서류) / `tgt_business_docs`(사업자·회사 서류) / `tgt_contract_docs`(계약서·거래 서류) / `tgt_statement`(경위서·설명서) / `tgt_appear`(직접 출석·방문) / `tgt_online`(사이트 접속·앱 설치) | Q7-D |
-| `unclear_targetGroup` | `grp_personal`(개인 신분 자료) / `grp_business`(사업 자료) / `grp_contract`(계약·거래 자료) / `grp_statement`(설명·진술) / `grp_appear`(출석·방문) / `grp_online`(온라인 접속) | Q7-D |
-| `unclear_requestSpecificity` | `spec_full`(목록·양식이 모두 있음) / `spec_list_only`(목록만 있음) / `spec_vague`('관련 서류'로만 적힘) / `spec_none`(내용이 적혀 있지 않음) / `spec_contact_only`(연락만 요구) | Q8-D |
-| `unclear_listQuality` | `list_clear`(구체적) / `list_partial`(일부만 구체적) / `list_vague`(모호함) / `list_none`(없음) / `list_contact`(연락 유도) | Q8-D |
-| `unclear_deliveryMethod` | `deliver_visit`(지정 장소 방문) / `deliver_post`(우편·창구 접수) / `deliver_chat`(이메일·메신저로 전달) / `deliver_upload`(웹사이트 업로드) / `deliver_call`(전화·화상 통화) / `deliver_unstated`(방법이 적혀 있지 않음) | Q9-D |
-| `unclear_deliveryGroup` | `dgrp_formal`(대면·우편 접수) / `dgrp_digital`(전자 전달) / `dgrp_unspecified`(방법 불명) | Q9-D |
-| `unclear_pressureType` | `press_none`(압박 없음) / `press_deadline`(기한 안내) / `press_legal`(법적 조치·가산금 예고) / `press_rush`(지금 바로 하라고 재촉) / `press_threat`(계좌 동결·체포 등 강한 불이익) / `press_secret`(비밀 유지 요구) | Q10-D |
-| `unclear_pressureLevel` | `lvl_none`(없음) / `lvl_low`(낮음) / `lvl_mid`(중간) / `lvl_high`(높음) | Q10-D |
-| `unclear_deadlineStatus` | `dl_none`(기한 표시 없음) / `dl_far`(기한이 여유 있음) / `dl_near`(기한이 가까움) / `dl_passed`(기한이 이미 지남) / `dl_verbal`(말·메시지로만 기한을 들음) / `dl_unclear`(기한이 분명하지 않음) | Q11-D |
-| `unclear_deadlineSource` | `dls_none`(어디에도 없음) / `dls_doc`(서류에 적혀 있음) / `dls_message`(메시지·구두로만 들음) / `dls_unknown`(출처를 모름) | Q11-D |
-| `unclear_actionTaken` | `act_nothing`(아무것도 하지 않음) / `act_asked`(보낸 곳에 문의함) / `act_clicked`(링크 열람·앱 설치) / `act_sent_info`(개인정보·서류 제출) / `act_sent_money`(송금함) / `act_replied`(답장·통화함) | Q12-D |
-| `unclear_exposureLevel` | `exp_none`(노출 없음) / `exp_low`(노출 적음) / `exp_mid`(정보 노출 가능성) / `exp_info`(개인정보 노출) / `exp_money`(금전 피해 가능성) / `exp_contact`(연락이 이어진 상태) | Q12-D |
-| `unclear_evidenceKind` | `ev_original`(원본 보관) / `ev_photo`(사진·캡처만 있음) / `ev_chat`(대화·통화 기록) / `ev_payment`(송금 내역·영수증) / `ev_partial`(일부를 잃어버림) / `ev_none`(남은 자료 없음) | Q13-D |
-| `unclear_evidenceState` | `evs_strong`(자료가 충분함) / `evs_medium`(자료가 일부 있음) / `evs_weak`(자료가 부족함) | Q13-D |
+| `unclear_otherRecipients` | `oth_only_me`(이 서류를 받은 사람이 나뿐인 것 같음) / `oth_unknown`(주변에서 받았는지 모름) / `oth_others`(주변 사람도 같은 서류를 받음) | Q5-D |
+| `unclear_authenticityMark` | `mark_full`(기관명·번호·날짜·직인이 모두 있음) / `mark_partial`(일부 요소만 있음) / `mark_weak`(공식 요소 없이 개인 번호·일반 이메일뿐) / `mark_link_only`(링크·큐알 코드로만 안내함) / `mark_odd_text`(문장이 번역투이거나 어색함) | Q6-D |
+| `unclear_officialCompare` | `cmp_unchecked`(공식 정보와 대조해 보지 않음) / `cmp_same`(공식 연락처와 대조해 보니 같음) / `cmp_diff`(공식 연락처와 대조해 보니 다름) | Q6-D |
+| `unclear_requestTarget` | `tgt_id_docs`(신분증·여권·체류 서류) / `tgt_docs_biz`(사업자·계약·거래 서류) / `tgt_statement`(경위서·설명서 같은 진술) / `tgt_appear`(직접 출석·방문) / `tgt_online`(사이트 접속·앱 설치) | Q7-D |
+| `unclear_requestReason` | `reason_none`(왜 필요한지 설명이 없음) / `reason_stated`(왜 필요한지 서류에 설명됨) | Q7-D |
+| `unclear_requestSpecificity` | `spec_full`(목록과 양식이 모두 있음) / `spec_list_only`(목록만 있고 양식 없음) / `spec_vague`(‘관련 서류’ 정도로만 적힘) / `spec_none`(내야 할 것이 적혀 있지 않음) / `spec_contact_only`(연락하라고만 함) | Q8-D |
+| `unclear_prepState` | `prep_ready`(가진 서류로 준비할 수 있음) / `prep_hard`(일부는 구하기 어려움) / `prep_unknown`(준비할 수 있는지 모름) / `prep_na`(준비할 서류가 없음) | Q8-D |
+| `unclear_deliveryMethod` | `deliver_visit`(지정 장소에 직접 방문) / `deliver_post`(우편·창구 접수) / `deliver_chat`(이메일·메신저로 제출) / `deliver_upload`(웹사이트에 올리기) / `deliver_call`(전화·화상 통화) | Q9-D |
+| `unclear_venueCheck` | `venue_checked`(접수처가 공식 정보와 같음을 확인함) / `venue_unchecked`(접수처가 공식인지 확인하지 않음) / `venue_unknown`(접수처가 공식인지 확인할 방법을 모름) | Q9-D |
+| `unclear_pressureType` | `press_none`(압박 없음) / `press_deadline`(기한 안에 하라는 재촉) / `press_legal`(연체료·법적 조치 예고) / `press_threat`(계좌 동결·체포 등 강한 불이익) / `press_secret`(비밀 유지 요구) | Q10-D |
+| `unclear_pressureChannel` | `ch_document`(서류로 전해짐) / `ch_message`(문자·메신저로 전해짐) / `ch_call`(전화로 전해짐) | Q10-D |
+| `unclear_deadlineStatus` | `dl_none`(기한 표시 없음) / `dl_far`(기한이 여유 있음) / `dl_near`(기한이 가까움) / `dl_passed`(기한이 이미 지남) / `dl_verbal`(말·메시지로만 기한을 들음) | Q11-D |
+| `unclear_deadlineStake` | `stake_none`(넘겨도 된다는 불이익 설명이 없음) / `stake_money`(넘기면 가산금·연체료가 붙는다고 함) / `stake_legal`(넘기면 법적 조치를 한다고 함) / `stake_unknown`(넘기면 어떻게 되는지 모름) | Q11-D |
+| `unclear_actionTaken` | `act_nothing`(아무것도 하지 않음) / `act_contacted`(문의·답장·통화함) / `act_clicked`(링크 열람·앱 설치) / `act_sent_info`(개인정보·서류 제출) / `act_sent_money`(송금함) | Q12-D |
+| `unclear_followUp` | `fu_none`(그 뒤 추가 연락이 없음) / `fu_more`(그 뒤에도 추가 요구가 계속됨) / `fu_cut`(그 뒤 상대가 연락을 끊음) | Q12-D |
+| `unclear_evidenceKind` | `ev_original`(서류 원본 보관) / `ev_capture`(사진·캡처·대화 기록 보관) / `ev_payment`(송금 내역·영수증 보관) / `ev_partial`(일부를 잃어버림) / `ev_none`(남은 자료 없음) | Q13-D |
+| `unclear_evidenceGoal` | `goal_verify`(진짜인지 대조해 보고 싶음) / `goal_report`(상담·신고에 쓸 자료로 정리하고 싶음) / `goal_recover`(낸 돈을 되찾는 방법을 알고 싶음) / `goal_prepare`(앞으로 모아 둘 자료를 알고 싶음) | Q13-D |
 
 ## C-3. 내용을 모르는 서류
 
 | 필드 | 값 (고객 표시) | 사용 질문 |
 |---|---|---|
-| `unclear_documentForm` | `paper_official`(종이 공문) / `bill_form`(청구서·고지서 양식) / `email_body`(이메일) / `chat_message`(문자·메신저) / `link_code`(링크·큐알 코드 안내) / `verbal_only`(전화·방문으로 말로 들음) | Q1-N |
-| `unclear_formGroup` | `form_formal`(정식 서류 형태) / `form_digital`(전자 메시지 형태) / `form_oral`(말로만 전달됨) | Q1-N |
-| `unclear_senderClaim` | `tax_authority`(세무기관) / `police_court`(공안·경찰·검찰·법원) / `local_admin`(지방 행정기관) / `foreign_agency`(출입국·노동 관련 기관) / `bank_claim`(은행·금융회사) / `company_claim`(회사·통신·택배·플랫폼) / `unnamed_claim`(보낸 곳이 없거나 개인) | Q2-N |
-| `unclear_senderGroup` | `grp_public`(공공기관) / `grp_finance`(금융회사) / `grp_private`(민간 업체) / `grp_unnamed`(보낸 곳이 불분명) | Q2-N |
-| `unclear_contactPattern` | `first_contact`(처음 한 번 받음) / `once_earlier`(며칠 전에 한 번 받음) / `repeated_same`(같은 내용을 반복해서 받음) / `escalating_tone`(점점 강한 표현으로 바뀜) / `after_visit`(전화·방문 뒤에 받음) / `after_request`(내가 신청·문의한 뒤에 받음) | Q3-N |
-| `unclear_contactFlow` | `flow_single`(한 번만 받음) / `flow_repeat`(반복해서 받음) / `flow_escalate`(강도가 높아짐) / `flow_followup`(연락 뒤에 이어짐) / `flow_expected`(내 요청과 이어짐) | Q3-N |
-| `unclear_mainConcern` | `doubt_meaning`(무슨 뜻인지 모르겠음) / `doubt_genuine`(진짜인지 모르겠음) / `doubt_respond`(응해야 하는지 모르겠음) / `doubt_missing`(놓친 내용이 있을까 걱정함) / `doubt_done`(이미 응해서 불안함) / `doubt_none`(크게 걱정하지 않음) | Q4-N |
-| `unclear_firstAction` | `next_understand`(먼저 내용 이해) / `next_sender`(먼저 보낸 곳 확인) / `next_deadline`(먼저 기한 확인) / `next_stop`(추가 응답을 멈추고 확인) / `next_keep`(차분히 보관하고 확인) | Q4-N |
+| `unclear_documentForm` | `paper_doc`(종이 서류) / `email_body`(이메일) / `chat_message`(문자·메신저) / `link_code`(링크·큐알 코드 안내) / `verbal_only`(말로만 들음) | Q1-N |
+| `unclear_contentDetail` | `detail_full`(요구 내용이 구체적임) / `detail_brief`(요구 내용이 짧거나 모호함) / `detail_linked`(내용이 연결 화면에만 있음) / `detail_none`(받은 서류 없이 말로만 전달됨) | Q1-N |
+| `unclear_senderClaim` | `public_agency`(공공기관(세무·행정·출입국·노동)) / `police_court`(공안·경찰·검찰·법원) / `bank_claim`(은행·금융회사) / `company_claim`(회사·통신·택배·플랫폼) / `unnamed_claim`(보낸 곳이 없거나 개인) | Q2-N |
+| `unclear_senderRelation` | `rel_recent`(최근 그 곳에 신청·신고한 일이 있음) / `rel_none`(그 곳과 한 일이 없음) / `rel_customer`(평소 거래하던 곳) / `rel_unknown`(관계가 있는지 모름) | Q2-N |
+| `unclear_contactPattern` | `first_contact`(처음 한 번 받음) / `once_earlier`(며칠 전에 한 번 받음) / `repeated_same`(같은 내용을 반복해서 받음) / `escalating_tone`(반복되며 표현이 점점 강해짐) / `after_visit`(전화·방문 뒤에 이어서 받음) | Q3-N |
+| `unclear_requestLink` | `req_none`(내가 신청·문의한 일은 없음) / `req_related`(내가 신청·문의한 일 뒤에 받음) | Q3-N |
+| `unclear_mainConcern` | `doubt_meaning`(무슨 뜻인지·응해야 하는지 모르겠음) / `doubt_genuine`(진짜인지 모르겠음) / `doubt_missing`(놓친 내용이 있을까 걱정함) / `doubt_done`(이미 응해서 불안함) / `doubt_none`(크게 걱정하지 않음) | Q4-N |
+| `unclear_helpWanted` | `help_translate`(번역·설명을 원함) / `help_guide`(스스로 확인할 방법을 원함) / `help_expert`(전문가와 함께 확인하길 원함) | Q4-N |
 | `unclear_identityMatch` | `id_exact`(내 정보가 정확히 맞음) / `id_partial`(이름만 맞고 일부 다름) / `id_generic`(일반 호칭만 있음) / `id_other`(다른 사람·회사 이름) / `id_unchecked`(아직 확인하지 않음) | Q5-N |
-| `unclear_aimHint` | `aim_specific`(나를 특정한 서류) / `aim_partial`(일부만 특정됨) / `aim_generic`(불특정 다수 대상일 수 있음) / `aim_misdirected`(엉뚱한 수신일 수 있음) / `aim_unchecked`(확인 전) | Q5-N |
-| `unclear_authenticityMark` | `mark_full`(기관명·번호·날짜·직인이 모두 있음) / `mark_partial`(일부 요소만 있음) / `mark_none`(공식 요소가 없음) / `mark_personal_contact`(개인 번호·일반 이메일) / `mark_link_only`(링크·큐알 코드로만 안내) / `mark_odd_text`(문장이 어색함) | Q6-N |
-| `unclear_formality` | `fm_formal`(형식을 갖춤) / `fm_partial`(형식이 일부 부족함) / `fm_informal`(형식이 없음) / `fm_link`(링크로만 연결됨) / `fm_odd`(문체가 어색함) | Q6-N |
-| `unclear_understandingLevel` | `und_most`(대부분 이해함) / `und_half`(절반쯤 이해함) / `und_little`(거의 이해하지 못함) / `und_language`(외국어라 읽기 어려움) / `und_blurry`(사진이 흐리거나 잘림) | Q7-N |
-| `unclear_readability` | `read_ok`(읽는 데 문제 없음) / `read_hard`(읽기 어려움) / `read_lang`(언어 장벽) / `read_blurry`(화질 문제) | Q7-N |
-| `unclear_keyElement` | `key_law`(법령 이름·조항 번호) / `key_agency`(기관 이름) / `key_numbers`(문서·사건·세금번호) / `key_money`(금액·계좌번호) / `key_date`(날짜·기한) / `key_contact`(링크·전화번호뿐) | Q8-N |
-| `unclear_elementGroup` | `eg_legal`(법령 관련) / `eg_agency`(기관 관련) / `eg_numbers`(번호 관련) / `eg_money`(금전 관련) / `eg_date`(기한 관련) / `eg_contact`(연락처 관련) | Q8-N |
-| `unclear_impliedRequest` | `imp_money`(돈을 내라는 것 같음) / `imp_submit`(서류·출석 요구 같음) / `imp_notice`(알려 주는 내용 같음) / `imp_contact`(연락하라는 말뿐) / `imp_unknown`(무엇을 요구하는지 모르겠음) | Q9-N |
-| `unclear_requestHint` | `hint_pay`(납부 요구 가능성) / `hint_submit`(제출·출석 요구 가능성) / `hint_notice`(안내 성격) / `hint_contact`(연락 유도) / `hint_unknown`(판단 어려움) | Q9-N |
-| `unclear_pressureType` | `press_none`(압박 없음) / `press_deadline`(기한 안내) / `press_legal`(법적 조치·가산금 예고) / `press_rush`(지금 바로 하라고 재촉) / `press_threat`(계좌 동결·체포 등 강한 불이익) / `press_secret`(비밀 유지 요구) | Q10-N |
-| `unclear_pressureLevel` | `lvl_none`(없음) / `lvl_low`(낮음) / `lvl_mid`(중간) / `lvl_high`(높음) | Q10-N |
-| `unclear_deadlineStatus` | `dl_none`(기한 표시 없음) / `dl_far`(기한이 여유 있음) / `dl_near`(기한이 가까움) / `dl_passed`(기한이 이미 지남) / `dl_verbal`(말·메시지로만 기한을 들음) / `dl_unclear`(기한이 분명하지 않음) | Q11-N |
-| `unclear_deadlineSource` | `dls_none`(어디에도 없음) / `dls_doc`(서류에 적혀 있음) / `dls_message`(메시지·구두로만 들음) / `dls_unknown`(출처를 모름) | Q11-N |
-| `unclear_actionTaken` | `act_nothing`(아무것도 하지 않음) / `act_asked`(보낸 곳에 문의함) / `act_clicked`(링크 열람·앱 설치) / `act_sent_info`(개인정보·서류 제출) / `act_sent_money`(송금함) / `act_replied`(답장·통화함) | Q12-N |
-| `unclear_exposureLevel` | `exp_none`(노출 없음) / `exp_low`(노출 적음) / `exp_mid`(정보 노출 가능성) / `exp_info`(개인정보 노출) / `exp_money`(금전 피해 가능성) / `exp_contact`(연락이 이어진 상태) | Q12-N |
-| `unclear_evidenceKind` | `ev_original`(원본 보관) / `ev_photo`(사진·캡처만 있음) / `ev_chat`(대화·통화 기록) / `ev_payment`(송금 내역·영수증) / `ev_partial`(일부를 잃어버림) / `ev_none`(남은 자료 없음) | Q13-N |
-| `unclear_evidenceState` | `evs_strong`(자료가 충분함) / `evs_medium`(자료가 일부 있음) / `evs_weak`(자료가 부족함) | Q13-N |
+| `unclear_otherRecipients` | `oth_only_me`(이 서류를 받은 사람이 나뿐인 것 같음) / `oth_unknown`(주변에서 받았는지 모름) / `oth_others`(주변 사람도 같은 서류를 받음) | Q5-N |
+| `unclear_authenticityMark` | `mark_full`(기관명·번호·날짜·직인이 모두 있음) / `mark_partial`(일부 요소만 있음) / `mark_weak`(공식 요소 없이 개인 번호·일반 이메일뿐) / `mark_link_only`(링크·큐알 코드로만 안내함) / `mark_odd_text`(문장이 번역투이거나 어색함) | Q6-N |
+| `unclear_officialCompare` | `cmp_unchecked`(공식 정보와 대조해 보지 않음) / `cmp_same`(공식 연락처와 대조해 보니 같음) / `cmp_diff`(공식 연락처와 대조해 보니 다름) | Q6-N |
+| `unclear_understandingLevel` | `und_most`(대부분 이해함) / `und_half`(절반쯤 이해함) / `und_little`(거의 이해하지 못함) / `und_language`(외국어라 읽기 어려움) / `und_blurry`(흐리거나 잘려 읽을 수 없음) | Q7-N |
+| `unclear_helperNearby` | `helper_yes`(같이 봐 줄 사람이 있음) / `helper_none`(같이 봐 줄 사람이 없음) | Q7-N |
+| `unclear_keyElement` | `key_law`(법령 이름·조항 번호) / `key_agency`(기관 이름·문서번호) / `key_money`(금액·계좌번호) / `key_date`(날짜·기한) / `key_contact`(링크·전화번호뿐) | Q8-N |
+| `unclear_keyKnown` | `known_no`(처음 보는 이름·내용임) / `known_yes`(알고 있는 이름·내용임) | Q8-N |
+| `unclear_impliedRequest` | `imp_money`(돈을 내라는 것 같음) / `imp_submit`(서류를 내거나 출석하라는 것 같음) / `imp_notice`(알리는 내용 같음) / `imp_contact`(연락하라는 말뿐임) / `imp_unknown`(판단하기 어려움) | Q9-N |
+| `unclear_impliedBasis` | `im_text`(문장에 직접 적혀 있어서) / `im_feel`(분위기로 짐작해서) / `im_none`(근거를 찾지 못해서) | Q9-N |
+| `unclear_pressureType` | `press_none`(압박 없음) / `press_deadline`(기한 안에 하라는 재촉) / `press_legal`(연체료·법적 조치 예고) / `press_threat`(계좌 동결·체포 등 강한 불이익) / `press_secret`(비밀 유지 요구) | Q10-N |
+| `unclear_pressureChannel` | `ch_document`(서류로 전해짐) / `ch_message`(문자·메신저로 전해짐) / `ch_call`(전화로 전해짐) | Q10-N |
+| `unclear_deadlineStatus` | `dl_none`(기한 표시 없음) / `dl_far`(기한이 여유 있음) / `dl_near`(기한이 가까움) / `dl_passed`(기한이 이미 지남) / `dl_verbal`(말·메시지로만 기한을 들음) | Q11-N |
+| `unclear_deadlineStake` | `stake_none`(넘겨도 된다는 불이익 설명이 없음) / `stake_money`(넘기면 가산금·연체료가 붙는다고 함) / `stake_legal`(넘기면 법적 조치를 한다고 함) / `stake_unknown`(넘기면 어떻게 되는지 모름) | Q11-N |
+| `unclear_actionTaken` | `act_nothing`(아무것도 하지 않음) / `act_contacted`(문의·답장·통화함) / `act_clicked`(링크 열람·앱 설치) / `act_sent_info`(개인정보·서류 제출) / `act_sent_money`(송금함) | Q12-N |
+| `unclear_followUp` | `fu_none`(그 뒤 추가 연락이 없음) / `fu_more`(그 뒤에도 추가 요구가 계속됨) / `fu_cut`(그 뒤 상대가 연락을 끊음) | Q12-N |
+| `unclear_evidenceKind` | `ev_original`(서류 원본 보관) / `ev_capture`(사진·캡처·대화 기록 보관) / `ev_payment`(송금 내역·영수증 보관) / `ev_partial`(일부를 잃어버림) / `ev_none`(남은 자료 없음) | Q13-N |
+| `unclear_evidenceGoal` | `goal_verify`(진짜인지 대조해 보고 싶음) / `goal_report`(상담·신고에 쓸 자료로 정리하고 싶음) / `goal_recover`(낸 돈을 되찾는 방법을 알고 싶음) / `goal_prepare`(앞으로 모아 둘 자료를 알고 싶음) | Q13-N |
 
 # D. 라우팅
 
@@ -1255,58 +1183,53 @@
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_documentForm=paper_official`, `unclear_formGroup=form_formal` | 종이 공문 형태로 받은 납부 관련 서류입니다 | 24 |
-| ② | `unclear_documentForm=bill_form`, `unclear_formGroup=form_formal` | 청구서·고지서 양식으로 받은 납부 관련 서류입니다 | 27 |
-| ③ | `unclear_documentForm=email_body`, `unclear_formGroup=form_digital` | 이메일로 받은 납부 관련 서류입니다 | 19 |
-| ④ | `unclear_documentForm=chat_message`, `unclear_formGroup=form_digital` | 문자나 메신저로 받은 납부 관련 서류입니다 | 23 |
-| ⑤ | `unclear_documentForm=link_code`, `unclear_formGroup=form_digital` | 링크나 큐알 코드로 안내받은 납부 관련 서류입니다 | 27 |
-| ⑥ | `unclear_documentForm=verbal_only`, `unclear_formGroup=form_oral` | 말로만 전해 들은 납부 관련 서류입니다 | 21 |
+| ① | `unclear_documentForm=paper_doc`, `unclear_contentDetail=detail_full` | 종이로 받은, 요구가 구체적인 납부 관련 서류입니다 | 28 |
+| ② | `unclear_documentForm=email_body`, `unclear_contentDetail=detail_brief` | 이메일로 받은, 내용이 짧은 납부 관련 서류입니다 | 27 |
+| ③ | `unclear_documentForm=chat_message`, `unclear_contentDetail=detail_full` | 문자·메신저로 받은, 요구가 구체적인 납부 관련 서류입니다 | 32 |
+| ④ | `unclear_documentForm=link_code`, `unclear_contentDetail=detail_linked` | 링크·큐알 코드로만 안내받은 납부 관련 서류입니다 | 27 |
+| ⑤ | `unclear_documentForm=verbal_only`, `unclear_contentDetail=detail_none` | 말로만 전해 들은 납부 관련 서류입니다 | 21 |
 
 **카드2 (보낸 곳)** — Q2-M
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_senderClaim=tax_authority`, `unclear_senderGroup=grp_public` | 세무기관 이름으로 온 납부 관련 서류입니다 | 23 |
-| ② | `unclear_senderClaim=police_court`, `unclear_senderGroup=grp_public` | 공안·경찰·검찰·법원 이름으로 온 납부 관련 서류입니다 | 30 |
-| ③ | `unclear_senderClaim=local_admin`, `unclear_senderGroup=grp_public` | 지방 행정기관 이름으로 온 납부 관련 서류입니다 | 26 |
-| ④ | `unclear_senderClaim=foreign_agency`, `unclear_senderGroup=grp_public` | 출입국·노동 관련 기관 이름으로 온 납부 관련 서류입니다 | 31 |
-| ⑤ | `unclear_senderClaim=bank_claim`, `unclear_senderGroup=grp_finance` | 은행·금융회사 이름으로 온 납부 관련 서류입니다 | 26 |
-| ⑥ | `unclear_senderClaim=company_claim`, `unclear_senderGroup=grp_private` | 회사·통신·택배사 이름으로 온 납부 관련 서류입니다 | 28 |
-| ⑦ | `unclear_senderClaim=unnamed_claim`, `unclear_senderGroup=grp_unnamed` | 보낸 곳이 분명하지 않은 납부 관련 서류입니다 | 25 |
+| ① | `unclear_senderClaim=public_agency`, `unclear_senderRelation=rel_recent` | 최근 신청한 공공기관 이름으로 온 납부 관련 서류입니다 | 30 |
+| ② | `unclear_senderClaim=police_court`, `unclear_senderRelation=rel_none` | 공안·경찰·검찰·법원 이름으로 온 납부 관련 서류입니다 | 30 |
+| ③ | `unclear_senderClaim=bank_claim`, `unclear_senderRelation=rel_customer` | 평소 거래하던 은행 이름으로 온 납부 관련 서류입니다 | 29 |
+| ④ | `unclear_senderClaim=company_claim`, `unclear_senderRelation=rel_none` | 거래한 적 없는 업체 이름으로 온 납부 관련 서류입니다 | 30 |
+| ⑤ | `unclear_senderClaim=unnamed_claim`, `unclear_senderRelation=rel_unknown` | 보낸 곳이 분명하지 않은 납부 관련 서류입니다 | 25 |
 
 **카드3 (연락이 이어진 흐름)** — Q3-M
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_contactPattern=first_contact`, `unclear_contactFlow=flow_single` | 오늘이나 어제 처음 받은 납부 관련 서류입니다 | 25 |
-| ② | `unclear_contactPattern=once_earlier`, `unclear_contactFlow=flow_single` | 며칠 전 한 번 받고 연락이 끊긴 납부 관련 서류입니다 | 30 |
-| ③ | `unclear_contactPattern=repeated_same`, `unclear_contactFlow=flow_repeat` | 같은 내용이 반복해서 온 납부 관련 서류입니다 | 25 |
-| ④ | `unclear_contactPattern=escalating_tone`, `unclear_contactFlow=flow_escalate` | 표현이 점점 강해진 납부 관련 서류입니다 | 22 |
-| ⑤ | `unclear_contactPattern=after_visit`, `unclear_contactFlow=flow_followup` | 전화·방문 뒤에 이어서 받은 납부 관련 서류입니다 | 27 |
-| ⑥ | `unclear_contactPattern=after_request`, `unclear_contactFlow=flow_expected` | 내가 신청·문의한 뒤에 받은 납부 관련 서류입니다 | 27 |
+| ① | `unclear_contactPattern=first_contact`, `unclear_requestLink=req_none` | 오늘이나 어제 처음 받은, 신청한 일 없는 납부 관련 서류입니다 | 35 |
+| ② | `unclear_contactPattern=once_earlier`, `unclear_requestLink=req_related` | 내가 신청·문의한 뒤 한 번 받은 납부 관련 서류입니다 | 30 |
+| ③ | `unclear_contactPattern=repeated_same`, `unclear_requestLink=req_related` | 신청한 일과 이어져 반복해서 온 납부 관련 서류입니다 | 29 |
+| ④ | `unclear_contactPattern=escalating_tone`, `unclear_requestLink=req_none` | 표현이 점점 강해진 납부 관련 서류입니다 | 22 |
+| ⑤ | `unclear_contactPattern=after_visit`, `unclear_requestLink=req_none` | 전화·방문 뒤에 이어서 받은 납부 관련 서류입니다 | 27 |
 
 **01 판정 + 본문** — Q4-M
 
 | 선택 | 저장 필드 | 판정(1줄) | 본문(2문장) |
 |---|---|---|---|
-| ① | `unclear_mainConcern=doubt_genuine`, `unclear_firstAction=next_sender` | 진짜 여부 확인이 먼저 필요한 납부 요구입니다 | 보낸 곳이 공식 자료와 같은지 확인하기 전에는 돈을 보내지 않는 것이 안전합니다. 서류에 적힌 번호가 아니라 공식 자료의 연락처로 확인해 보세요. |
-| ② | `unclear_mainConcern=doubt_owed`, `unclear_firstAction=next_basis` | 납부 의무의 근거 확인이 필요한 요구입니다 | 내야 하는 돈인지는 서류에 적힌 근거(조항·계약·부과 내역)로 따져 볼 수 있습니다. 근거가 적혀 있지 않다면 보낸 곳에 근거를 글로 요청해 보세요. |
-| ③ | `unclear_mainConcern=doubt_amount`, `unclear_firstAction=next_basis` | 금액의 계산 근거 확인이 필요한 요구입니다 | 금액이 어떻게 계산되었는지 내역서나 계약과 대조해 보세요. 내역이 없다면 공식 경로로 산출 근거를 요청할 수 있습니다. |
-| ④ | `unclear_mainConcern=doubt_deadline`, `unclear_firstAction=next_deadline` | 기한의 근거 확인이 급한 납부 요구입니다 | 기한이 서류에 적혀 있는지, 언제까지인지부터 확인하세요. 기한이 임박해도 확인 없이 송금하는 것은 피하고 날짜를 기록해 두세요. |
-| ⑤ | `unclear_mainConcern=doubt_done`, `unclear_firstAction=next_stop` | 이미 응한 뒤라 추가 피해를 막는 것이 우선입니다 | 추가 요구가 오더라도 응하지 말고 송금·제출 내역과 대화를 그대로 보관하세요. 상황에 따라 은행·공식 기관 문의와 전문가 확인을 함께 살펴보세요. |
-| ⑥ | `unclear_mainConcern=doubt_none`, `unclear_firstAction=next_keep` | 급하지 않게 차분히 확인해 볼 수 있는 서류입니다 | 요구 사항이 있는지부터 읽어 보고, 없다면 보관해 두어도 됩니다. 나중에 필요할 수 있으니 받은 날짜와 경로를 적어 두세요. |
+| ① | `unclear_mainConcern=doubt_genuine`, `unclear_helpWanted=help_guide` | 진짜 여부 확인이 먼저 필요한 납부 요구입니다 | 보낸 곳이 공식 자료와 같은지 확인하기 전에는 돈을 보내지 않는 것이 안전합니다. 서류에 적힌 번호가 아니라 공식 자료의 연락처로 확인해 보세요. |
+| ② | `unclear_mainConcern=doubt_owed`, `unclear_helpWanted=help_expert` | 납부 의무와 금액의 근거 확인이 필요한 요구입니다 | 내야 하는 돈인지는 서류에 적힌 근거(조항·계약·부과 내역)와 금액 계산 내역으로 따져 볼 수 있습니다. 근거가 없다면 글로 요청하고, 혼자 판단하기 어렵다면 전문가와 함께 확인해 보세요. |
+| ③ | `unclear_mainConcern=doubt_deadline`, `unclear_helpWanted=help_guide` | 기한의 근거 확인이 급한 납부 요구입니다 | 기한이 서류에 적혀 있는지, 언제까지인지부터 확인하세요. 기한이 임박해도 확인 없이 송금하는 것은 피하고 날짜를 기록해 두세요. |
+| ④ | `unclear_mainConcern=doubt_done`, `unclear_helpWanted=help_expert` | 이미 응한 뒤라 추가 피해를 막는 것이 우선입니다 | 추가 요구가 오더라도 응하지 말고 송금·제출 내역과 대화를 그대로 보관하세요. 상황에 따라 은행·공식 기관 문의와 전문가 확인을 함께 살펴보세요. |
+| ⑤ | `unclear_mainConcern=doubt_none`, `unclear_helpWanted=help_guide` | 급하지 않게 차분히 확인해 볼 수 있는 서류입니다 | 요구 사항이 있는지부터 읽어 보고, 없다면 보관해 두어도 됩니다. 나중에 필요할 수 있으니 받은 날짜와 경로를 적어 두세요. |
 
 **03 주요 위험 요소 규칙** — 아래 순서(우선순위)대로 조건에 맞는 것을 최대 4개까지 표시. 하나도 없으면 기본 문장 1개.
 
 | 순서 | 조건(하나라도 일치) | 표시 문장 |
 |---|---|---|
-| 1 (m_exposed) | `unclear_actionTaken` ∈ {act_sent_money, act_sent_info, act_clicked} 또는 `unclear_exposureLevel` ∈ {exp_money, exp_info, exp_mid} 또는 `unclear_firstAction` ∈ {next_stop} | 이미 돈이나 개인정보를 보냈거나 링크를 열었다면 추가 피해를 막는 조치가 가장 급합니다 |
-| 2 (m_payee) | `unclear_payee` ∈ {payee_person, payee_online, payee_cash} 또는 `unclear_paymentGroup` ∈ {pay_online, pay_cash} | 개인 계좌·링크·현금으로 내라는 요구는 기관의 공식 납부 방법과 같은지 확인이 필요합니다 |
-| 3 (m_threat) | `unclear_pressureType` ∈ {press_threat, press_secret, press_rush} 또는 `unclear_pressureLevel` ∈ {lvl_high} 또는 `unclear_contactFlow` ∈ {flow_escalate, flow_repeat} | 강한 불이익을 말하거나 비밀·재촉을 요구하는 방식은 서두르게 만드는 신호일 수 있습니다 |
-| 4 (m_sender) | `unclear_senderGroup` ∈ {grp_unnamed} 또는 `unclear_formality` ∈ {fm_informal, fm_link} 또는 `unclear_identityMatch` ∈ {id_generic, id_other} 또는 `unclear_authenticityMark` ∈ {mark_none, mark_personal_contact} 또는 `unclear_aimHint` ∈ {aim_misdirected} | 보낸 곳이나 내 정보가 분명하지 않아 진짜 서류인지부터 확인이 필요합니다 |
-| 5 (m_deadline) | `unclear_deadlineStatus` ∈ {dl_near, dl_passed, dl_verbal} 또는 `unclear_deadlineSource` ∈ {dls_message} 또는 `unclear_mainConcern` ∈ {doubt_deadline} | 기한이 가깝거나 지났거나 말로만 전해졌다면 기한의 근거 서류부터 확인해야 합니다 |
-| 6 (m_amount) | `unclear_amountTier` ∈ {tier_large, tier_xlarge, tier_unknown} 또는 `unclear_amountScale` ∈ {amt_over100m} 또는 `unclear_moneyNature` ∈ {nature_unstated} | 금액이 크거나 적혀 있지 않아 계산 근거를 서류로 확인해야 합니다 |
-| 7 (m_evidence) | `unclear_evidenceState` ∈ {evs_weak} 또는 `unclear_evidenceKind` ∈ {ev_none, ev_partial} | 남은 자료가 부족해 지금 가진 자료를 먼저 보관해 두어야 합니다 |
+| 1 (m_exposed) | `unclear_actionTaken` ∈ {act_sent_money, act_sent_info, act_clicked} 또는 `unclear_mainConcern` ∈ {doubt_done} | 이미 돈이나 개인정보를 보냈거나 링크를 열었다면 추가 피해를 막는 조치가 가장 급합니다 |
+| 2 (m_payee) | `unclear_payee` ∈ {payee_person, payee_online, payee_cash} 또는 `unclear_payeeMatch` ∈ {pm_diff} | 개인 계좌·링크·현금으로 내라는 요구는 기관의 공식 납부 방법과 같은지 확인이 필요합니다 |
+| 3 (m_threat) | `unclear_pressureType` ∈ {press_threat, press_secret} 또는 `unclear_contactPattern` ∈ {escalating_tone, repeated_same} | 강한 불이익을 말하거나 비밀·재촉을 요구하는 방식은 서두르게 만드는 신호일 수 있습니다 |
+| 4 (m_sender) | `unclear_senderClaim` ∈ {unnamed_claim} 또는 `unclear_identityMatch` ∈ {id_generic, id_other} 또는 `unclear_authenticityMark` ∈ {mark_weak, mark_link_only, mark_odd_text} 또는 `unclear_officialCompare` ∈ {cmp_diff} | 보낸 곳이나 내 정보가 분명하지 않아 진짜 서류인지부터 확인이 필요합니다 |
+| 5 (m_deadline) | `unclear_deadlineStatus` ∈ {dl_near, dl_passed, dl_verbal} 또는 `unclear_mainConcern` ∈ {doubt_deadline} | 기한이 가깝거나 지났거나 말로만 전해졌다면 기한의 근거 서류부터 확인해야 합니다 |
+| 6 (m_amount) | `unclear_amountScale` ∈ {amt_10m_100m, amt_over100m, amt_unstated} 또는 `unclear_moneyNature` ∈ {nature_unstated} | 금액이 크거나 적혀 있지 않아 계산 근거를 서류로 확인해야 합니다 |
+| 7 (m_evidence) | `unclear_evidenceKind` ∈ {ev_none, ev_partial} | 남은 자료가 부족해 지금 가진 자료를 먼저 보관해 두어야 합니다 |
 | 기본 | 위 조건에 하나도 해당하지 않음 | 입력하신 내용에서는 뚜렷한 위험 신호가 많지 않지만, 돈을 보내기 전에 보낸 곳과 근거를 확인하세요 |
 
 ### E-1-D. 서류 제출·출석 서류
@@ -1315,59 +1238,53 @@
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_documentForm=paper_official`, `unclear_formGroup=form_formal` | 종이 공문 형태로 받은 제출·출석 관련 서류입니다 | 27 |
-| ② | `unclear_documentForm=bill_form`, `unclear_formGroup=form_formal` | 청구서·고지서 양식으로 받은 제출·출석 관련 서류입니다 | 30 |
-| ③ | `unclear_documentForm=email_body`, `unclear_formGroup=form_digital` | 이메일로 받은 제출·출석 관련 서류입니다 | 22 |
-| ④ | `unclear_documentForm=chat_message`, `unclear_formGroup=form_digital` | 문자나 메신저로 받은 제출·출석 관련 서류입니다 | 26 |
-| ⑤ | `unclear_documentForm=link_code`, `unclear_formGroup=form_digital` | 링크나 큐알 코드로 안내받은 제출·출석 관련 서류입니다 | 30 |
-| ⑥ | `unclear_documentForm=verbal_only`, `unclear_formGroup=form_oral` | 말로만 전해 들은 제출·출석 관련 서류입니다 | 24 |
+| ① | `unclear_documentForm=paper_doc`, `unclear_contentDetail=detail_full` | 종이로 받은, 요구가 구체적인 제출·출석 관련 서류입니다 | 31 |
+| ② | `unclear_documentForm=email_body`, `unclear_contentDetail=detail_brief` | 이메일로 받은, 내용이 짧은 제출·출석 관련 서류입니다 | 30 |
+| ③ | `unclear_documentForm=chat_message`, `unclear_contentDetail=detail_full` | 문자·메신저로 받은, 요구가 구체적인 제출·출석 관련 서류입니다 | 35 |
+| ④ | `unclear_documentForm=link_code`, `unclear_contentDetail=detail_linked` | 링크·큐알 코드로만 안내받은 제출·출석 관련 서류입니다 | 30 |
+| ⑤ | `unclear_documentForm=verbal_only`, `unclear_contentDetail=detail_none` | 말로만 전해 들은 제출·출석 관련 서류입니다 | 24 |
 
 **카드2 (보낸 곳)** — Q2-D
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_senderClaim=tax_authority`, `unclear_senderGroup=grp_public` | 세무기관 이름으로 온 제출·출석 관련 서류입니다 | 26 |
-| ② | `unclear_senderClaim=police_court`, `unclear_senderGroup=grp_public` | 공안·경찰·검찰·법원 이름으로 온 제출·출석 관련 서류입니다 | 33 |
-| ③ | `unclear_senderClaim=local_admin`, `unclear_senderGroup=grp_public` | 지방 행정기관 이름으로 온 제출·출석 관련 서류입니다 | 29 |
-| ④ | `unclear_senderClaim=foreign_agency`, `unclear_senderGroup=grp_public` | 출입국·노동 관련 기관 이름으로 온 제출·출석 관련 서류입니다 | 34 |
-| ⑤ | `unclear_senderClaim=bank_claim`, `unclear_senderGroup=grp_finance` | 은행·금융회사 이름으로 온 제출·출석 관련 서류입니다 | 29 |
-| ⑥ | `unclear_senderClaim=company_claim`, `unclear_senderGroup=grp_private` | 회사·통신·택배사 이름으로 온 제출·출석 관련 서류입니다 | 31 |
-| ⑦ | `unclear_senderClaim=unnamed_claim`, `unclear_senderGroup=grp_unnamed` | 보낸 곳이 분명하지 않은 제출·출석 관련 서류입니다 | 28 |
+| ① | `unclear_senderClaim=public_agency`, `unclear_senderRelation=rel_recent` | 최근 신청한 공공기관 이름으로 온 제출·출석 관련 서류입니다 | 33 |
+| ② | `unclear_senderClaim=police_court`, `unclear_senderRelation=rel_none` | 공안·경찰·검찰·법원 이름으로 온 제출·출석 관련 서류입니다 | 33 |
+| ③ | `unclear_senderClaim=bank_claim`, `unclear_senderRelation=rel_customer` | 평소 거래하던 은행 이름으로 온 제출·출석 관련 서류입니다 | 32 |
+| ④ | `unclear_senderClaim=company_claim`, `unclear_senderRelation=rel_none` | 거래한 적 없는 업체 이름으로 온 제출·출석 관련 서류입니다 | 33 |
+| ⑤ | `unclear_senderClaim=unnamed_claim`, `unclear_senderRelation=rel_unknown` | 보낸 곳이 분명하지 않은 제출·출석 관련 서류입니다 | 28 |
 
 **카드3 (연락이 이어진 흐름)** — Q3-D
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_contactPattern=first_contact`, `unclear_contactFlow=flow_single` | 오늘이나 어제 처음 받은 제출·출석 관련 서류입니다 | 28 |
-| ② | `unclear_contactPattern=once_earlier`, `unclear_contactFlow=flow_single` | 며칠 전 한 번 받고 연락이 끊긴 제출·출석 관련 서류입니다 | 33 |
-| ③ | `unclear_contactPattern=repeated_same`, `unclear_contactFlow=flow_repeat` | 같은 내용이 반복해서 온 제출·출석 관련 서류입니다 | 28 |
-| ④ | `unclear_contactPattern=escalating_tone`, `unclear_contactFlow=flow_escalate` | 표현이 점점 강해진 제출·출석 관련 서류입니다 | 25 |
-| ⑤ | `unclear_contactPattern=after_visit`, `unclear_contactFlow=flow_followup` | 전화·방문 뒤에 이어서 받은 제출·출석 관련 서류입니다 | 30 |
-| ⑥ | `unclear_contactPattern=after_request`, `unclear_contactFlow=flow_expected` | 내가 신청·문의한 뒤에 받은 제출·출석 관련 서류입니다 | 30 |
+| ① | `unclear_contactPattern=first_contact`, `unclear_requestLink=req_none` | 오늘이나 어제 처음 받은, 신청한 일 없는 제출·출석 관련 서류입니다 | 38 |
+| ② | `unclear_contactPattern=once_earlier`, `unclear_requestLink=req_related` | 내가 신청·문의한 뒤 한 번 받은 제출·출석 관련 서류입니다 | 33 |
+| ③ | `unclear_contactPattern=repeated_same`, `unclear_requestLink=req_related` | 신청한 일과 이어져 반복해서 온 제출·출석 관련 서류입니다 | 32 |
+| ④ | `unclear_contactPattern=escalating_tone`, `unclear_requestLink=req_none` | 표현이 점점 강해진 제출·출석 관련 서류입니다 | 25 |
+| ⑤ | `unclear_contactPattern=after_visit`, `unclear_requestLink=req_none` | 전화·방문 뒤에 이어서 받은 제출·출석 관련 서류입니다 | 30 |
 
 **01 판정 + 본문** — Q4-D
 
 | 선택 | 저장 필드 | 판정(1줄) | 본문(2문장) |
 |---|---|---|---|
-| ① | `unclear_mainConcern=doubt_genuine`, `unclear_firstAction=next_sender` | 진짜 여부 확인이 먼저 필요한 제출·출석 요구입니다 | 서류를 보내거나 방문하기 전에 보낸 곳이 공식 자료와 같은지 확인하세요. 서류에 적힌 연락처가 아니라 공식 자료의 연락처를 쓰는 것이 안전합니다. |
-| ② | `unclear_mainConcern=doubt_what`, `unclear_firstAction=next_basis` | 요구 내용의 범위 확인이 필요한 제출 요구입니다 | 필요한 서류가 목록으로 적혀 있는지 먼저 확인하세요. 목록이 없다면 보낸 곳에 무엇을 내야 하는지 공식 경로로 문의할 수 있습니다. |
-| ③ | `unclear_mainConcern=doubt_appear`, `unclear_firstAction=next_basis` | 출석 요구의 근거와 일정 확인이 필요한 상황입니다 | 출석 일시와 장소가 서류에 적혀 있는지, 공식 안내와 같은지 확인하세요. 안 갔을 때의 결과는 서류에 적힌 근거에 따라 달라지므로 내용을 정확히 읽어 보세요. |
-| ④ | `unclear_mainConcern=doubt_deadline`, `unclear_firstAction=next_deadline` | 기한의 근거 확인이 급한 제출·출석 요구입니다 | 제출이나 출석 기한이 서류에 적혀 있는지부터 확인하세요. 기한이 가깝다면 서류 준비와 전문가 확인을 함께 살펴보세요. |
-| ⑤ | `unclear_mainConcern=doubt_privacy`, `unclear_firstAction=next_sender` | 개인정보 제출 전에 요구가 공식인지 확인이 필요한 상황입니다 | 신분증이나 계좌 정보는 요구한 곳이 공식인지 확인하기 전에는 보내지 않는 것이 안전합니다. 꼭 필요한 항목만 내도 되는지도 문의해 보세요. |
-| ⑥ | `unclear_mainConcern=doubt_done`, `unclear_firstAction=next_stop` | 이미 응한 뒤라 추가 응답 전에 정리가 필요한 상황입니다 | 무엇을 언제 보냈는지 사본과 함께 정리하고 추가 요구에는 응하기 전에 확인하세요. 필요하면 전문가와 함께 다음 단계를 살펴보세요. |
-| ⑦ | `unclear_mainConcern=doubt_none`, `unclear_firstAction=next_keep` | 차분히 요구 내용을 확인해 볼 수 있는 서류입니다 | 무엇을 언제까지 하라는 것인지 읽어 보고 정리해 두세요. 나중에 필요하니 받은 날짜와 경로를 적어 두세요. |
+| ① | `unclear_mainConcern=doubt_genuine_privacy`, `unclear_helpWanted=help_guide` | 제출 전에 진짜 여부 확인이 필요한 서류입니다 | 서류를 내거나 개인정보를 보내기 전에 보낸 곳이 공식 자료와 같은지 확인하세요. 서류에 적힌 번호가 아니라 공식 자료의 연락처로 확인하는 것이 안전합니다. |
+| ② | `unclear_mainConcern=doubt_what`, `unclear_helpWanted=help_expert` | 요구 서류와 기한의 근거 확인이 필요한 서류입니다 | 서류에 낼 것의 목록과 기한이 적혀 있는지 먼저 확인하세요. 적혀 있지 않다면 보낸 곳에 글로 요청해 근거를 받아 두세요. |
+| ③ | `unclear_mainConcern=doubt_appear`, `unclear_helpWanted=help_expert` | 출석 요구의 근거 확인이 필요한 서류입니다 | 출석을 요구하는 근거와 장소·일정이 서류에 적혀 있는지부터 확인하세요. 근거가 확인되기 전에는 방문 약속을 서두르지 마세요. |
+| ④ | `unclear_mainConcern=doubt_done`, `unclear_helpWanted=help_expert` | 이미 응한 뒤라 추가 응답 전에 확인이 필요합니다 | 무엇을 언제 보냈는지 정리해 두고 추가 요구에는 응하기 전에 확인하세요. 보낸 내용과 대화는 그대로 보관하세요. |
+| ⑤ | `unclear_mainConcern=doubt_none`, `unclear_helpWanted=help_guide` | 차분히 확인해 볼 수 있는 서류입니다 | 요구 사항이 있는지부터 읽어 보고, 없다면 보관해 두어도 됩니다. 받은 날짜와 경로를 적어 두세요. |
 
 **03 주요 위험 요소 규칙** — 아래 순서(우선순위)대로 조건에 맞는 것을 최대 4개까지 표시. 하나도 없으면 기본 문장 1개.
 
 | 순서 | 조건(하나라도 일치) | 표시 문장 |
 |---|---|---|
-| 1 (d_exposed) | `unclear_actionTaken` ∈ {act_sent_money, act_sent_info, act_clicked} 또는 `unclear_exposureLevel` ∈ {exp_money, exp_info, exp_mid} 또는 `unclear_firstAction` ∈ {next_stop} | 이미 개인정보나 서류를 보냈거나 링크를 열었다면 추가 피해를 막는 조치가 먼저입니다 |
-| 2 (d_data) | `unclear_requestTarget` ∈ {tgt_id_docs} 또는 `unclear_targetGroup` ∈ {grp_personal} 또는 `unclear_deliveryGroup` ∈ {dgrp_digital} 또는 `unclear_deliveryMethod` ∈ {deliver_chat, deliver_call} | 신분 자료를 메신저나 온라인으로 내라는 요구라면 요구한 곳이 공식인지 먼저 확인해야 합니다 |
-| 3 (d_threat) | `unclear_pressureType` ∈ {press_threat, press_secret, press_rush} 또는 `unclear_pressureLevel` ∈ {lvl_high} 또는 `unclear_contactFlow` ∈ {flow_escalate, flow_repeat} | 강한 불이익이나 비밀·재촉이 있는 요구는 서두르게 만드는 신호일 수 있습니다 |
-| 4 (d_sender) | `unclear_senderGroup` ∈ {grp_unnamed} 또는 `unclear_formality` ∈ {fm_informal, fm_link} 또는 `unclear_identityMatch` ∈ {id_generic, id_other} 또는 `unclear_authenticityMark` ∈ {mark_none, mark_personal_contact} 또는 `unclear_aimHint` ∈ {aim_misdirected} | 보낸 곳이나 내 정보가 분명하지 않아 진짜 요구인지부터 확인이 필요합니다 |
-| 5 (d_vague) | `unclear_requestSpecificity` ∈ {spec_vague, spec_none, spec_contact_only} 또는 `unclear_listQuality` ∈ {list_vague, list_none, list_contact} 또는 `unclear_mainConcern` ∈ {doubt_what} | 무엇을 내야 하는지 분명하지 않아 공식 경로로 먼저 문의할 필요가 있습니다 |
-| 6 (d_deadline) | `unclear_deadlineStatus` ∈ {dl_near, dl_passed, dl_verbal, dl_unclear} 또는 `unclear_deadlineSource` ∈ {dls_message, dls_unknown} 또는 `unclear_mainConcern` ∈ {doubt_deadline} | 제출이나 출석 기한이 가깝거나 지났거나 불분명해 기한의 근거를 먼저 확인해야 합니다 |
-| 7 (d_appear) | `unclear_requestTarget` ∈ {tgt_appear, tgt_online} | 직접 방문이나 사이트 접속을 요구하고 있어 장소와 주소가 공식 자료와 같은지 확인이 필요합니다 |
+| 1 (d_exposed) | `unclear_actionTaken` ∈ {act_sent_money, act_sent_info, act_clicked} 또는 `unclear_mainConcern` ∈ {doubt_done} | 이미 개인정보나 서류를 보냈거나 링크를 열었다면 추가 피해를 막는 조치가 먼저입니다 |
+| 2 (d_data) | `unclear_requestTarget` ∈ {tgt_id_docs} 또는 `unclear_deliveryMethod` ∈ {deliver_chat, deliver_call} | 신분 자료를 메신저나 온라인으로 내라는 요구라면 요구한 곳이 공식인지 먼저 확인해야 합니다 |
+| 3 (d_threat) | `unclear_pressureType` ∈ {press_threat, press_secret} 또는 `unclear_contactPattern` ∈ {escalating_tone, repeated_same} | 강한 불이익이나 비밀·재촉이 있는 요구는 서두르게 만드는 신호일 수 있습니다 |
+| 4 (d_sender) | `unclear_senderClaim` ∈ {unnamed_claim} 또는 `unclear_identityMatch` ∈ {id_generic, id_other} 또는 `unclear_authenticityMark` ∈ {mark_weak, mark_link_only, mark_odd_text} 또는 `unclear_officialCompare` ∈ {cmp_diff} | 보낸 곳이나 내 정보가 분명하지 않아 진짜 요구인지부터 확인이 필요합니다 |
+| 5 (d_vague) | `unclear_requestSpecificity` ∈ {spec_vague, spec_none, spec_contact_only} 또는 `unclear_mainConcern` ∈ {doubt_what} | 무엇을 내야 하는지 분명하지 않아 공식 경로로 먼저 문의할 필요가 있습니다 |
+| 6 (d_deadline) | `unclear_deadlineStatus` ∈ {dl_near, dl_passed, dl_verbal} | 제출이나 출석 기한이 가깝거나 지났거나 불분명해 기한의 근거를 먼저 확인해야 합니다 |
+| 7 (d_appear) | `unclear_requestTarget` ∈ {tgt_appear, tgt_online} 또는 `unclear_venueCheck` ∈ {venue_unchecked} | 직접 방문이나 사이트 접속을 요구하고 있어 장소와 주소가 공식 자료와 같은지 확인이 필요합니다 |
 | 기본 | 위 조건에 하나도 해당하지 않음 | 입력하신 내용에서는 뚜렷한 위험 신호가 많지 않지만, 제출하기 전에 요구가 공식인지 확인하세요 |
 
 ### E-1-N. 내용을 모르는 서류
@@ -1376,58 +1293,53 @@
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_documentForm=paper_official`, `unclear_formGroup=form_formal` | 종이 공문 형태로 받은 내용이 불분명한 서류입니다 | 27 |
-| ② | `unclear_documentForm=bill_form`, `unclear_formGroup=form_formal` | 청구서·고지서 양식으로 받은 내용이 불분명한 서류입니다 | 30 |
-| ③ | `unclear_documentForm=email_body`, `unclear_formGroup=form_digital` | 이메일로 받은 내용이 불분명한 서류입니다 | 22 |
-| ④ | `unclear_documentForm=chat_message`, `unclear_formGroup=form_digital` | 문자나 메신저로 받은 내용이 불분명한 서류입니다 | 26 |
-| ⑤ | `unclear_documentForm=link_code`, `unclear_formGroup=form_digital` | 링크나 큐알 코드로 안내받은 내용이 불분명한 서류입니다 | 30 |
-| ⑥ | `unclear_documentForm=verbal_only`, `unclear_formGroup=form_oral` | 말로만 전해 들은 내용이 불분명한 서류입니다 | 24 |
+| ① | `unclear_documentForm=paper_doc`, `unclear_contentDetail=detail_full` | 종이로 받은, 요구가 구체적인 내용이 불분명한 서류입니다 | 31 |
+| ② | `unclear_documentForm=email_body`, `unclear_contentDetail=detail_brief` | 이메일로 받은, 내용이 짧은 내용이 불분명한 서류입니다 | 30 |
+| ③ | `unclear_documentForm=chat_message`, `unclear_contentDetail=detail_full` | 문자·메신저로 받은, 요구가 구체적인 내용이 불분명한 서류입니다 | 35 |
+| ④ | `unclear_documentForm=link_code`, `unclear_contentDetail=detail_linked` | 링크·큐알 코드로만 안내받은 내용이 불분명한 서류입니다 | 30 |
+| ⑤ | `unclear_documentForm=verbal_only`, `unclear_contentDetail=detail_none` | 말로만 전해 들은 내용이 불분명한 서류입니다 | 24 |
 
 **카드2 (보낸 곳)** — Q2-N
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_senderClaim=tax_authority`, `unclear_senderGroup=grp_public` | 세무기관 이름으로 온 내용이 불분명한 서류입니다 | 26 |
-| ② | `unclear_senderClaim=police_court`, `unclear_senderGroup=grp_public` | 공안·경찰·검찰·법원 이름으로 온 내용이 불분명한 서류입니다 | 33 |
-| ③ | `unclear_senderClaim=local_admin`, `unclear_senderGroup=grp_public` | 지방 행정기관 이름으로 온 내용이 불분명한 서류입니다 | 29 |
-| ④ | `unclear_senderClaim=foreign_agency`, `unclear_senderGroup=grp_public` | 출입국·노동 관련 기관 이름으로 온 내용이 불분명한 서류입니다 | 34 |
-| ⑤ | `unclear_senderClaim=bank_claim`, `unclear_senderGroup=grp_finance` | 은행·금융회사 이름으로 온 내용이 불분명한 서류입니다 | 29 |
-| ⑥ | `unclear_senderClaim=company_claim`, `unclear_senderGroup=grp_private` | 회사·통신·택배사 이름으로 온 내용이 불분명한 서류입니다 | 31 |
-| ⑦ | `unclear_senderClaim=unnamed_claim`, `unclear_senderGroup=grp_unnamed` | 보낸 곳이 분명하지 않은 내용이 불분명한 서류입니다 | 28 |
+| ① | `unclear_senderClaim=public_agency`, `unclear_senderRelation=rel_recent` | 최근 신청한 공공기관 이름으로 온 내용이 불분명한 서류입니다 | 33 |
+| ② | `unclear_senderClaim=police_court`, `unclear_senderRelation=rel_none` | 공안·경찰·검찰·법원 이름으로 온 내용이 불분명한 서류입니다 | 33 |
+| ③ | `unclear_senderClaim=bank_claim`, `unclear_senderRelation=rel_customer` | 평소 거래하던 은행 이름으로 온 내용이 불분명한 서류입니다 | 32 |
+| ④ | `unclear_senderClaim=company_claim`, `unclear_senderRelation=rel_none` | 거래한 적 없는 업체 이름으로 온 내용이 불분명한 서류입니다 | 33 |
+| ⑤ | `unclear_senderClaim=unnamed_claim`, `unclear_senderRelation=rel_unknown` | 보낸 곳이 분명하지 않은 내용이 불분명한 서류입니다 | 28 |
 
 **카드3 (연락이 이어진 흐름)** — Q3-N
 
 | 선택 | 저장 필드 | 카드 문장 | 글자 수 |
 |---|---|---|---:|
-| ① | `unclear_contactPattern=first_contact`, `unclear_contactFlow=flow_single` | 오늘이나 어제 처음 받은 내용이 불분명한 서류입니다 | 28 |
-| ② | `unclear_contactPattern=once_earlier`, `unclear_contactFlow=flow_single` | 며칠 전 한 번 받고 연락이 끊긴 내용이 불분명한 서류입니다 | 33 |
-| ③ | `unclear_contactPattern=repeated_same`, `unclear_contactFlow=flow_repeat` | 같은 내용이 반복해서 온 내용이 불분명한 서류입니다 | 28 |
-| ④ | `unclear_contactPattern=escalating_tone`, `unclear_contactFlow=flow_escalate` | 표현이 점점 강해진 내용이 불분명한 서류입니다 | 25 |
-| ⑤ | `unclear_contactPattern=after_visit`, `unclear_contactFlow=flow_followup` | 전화·방문 뒤에 이어서 받은 내용이 불분명한 서류입니다 | 30 |
-| ⑥ | `unclear_contactPattern=after_request`, `unclear_contactFlow=flow_expected` | 내가 신청·문의한 뒤에 받은 내용이 불분명한 서류입니다 | 30 |
+| ① | `unclear_contactPattern=first_contact`, `unclear_requestLink=req_none` | 오늘이나 어제 처음 받은, 신청한 일 없는 내용이 불분명한 서류입니다 | 38 |
+| ② | `unclear_contactPattern=once_earlier`, `unclear_requestLink=req_related` | 내가 신청·문의한 뒤 한 번 받은 내용이 불분명한 서류입니다 | 33 |
+| ③ | `unclear_contactPattern=repeated_same`, `unclear_requestLink=req_related` | 신청한 일과 이어져 반복해서 온 내용이 불분명한 서류입니다 | 32 |
+| ④ | `unclear_contactPattern=escalating_tone`, `unclear_requestLink=req_none` | 표현이 점점 강해진 내용이 불분명한 서류입니다 | 25 |
+| ⑤ | `unclear_contactPattern=after_visit`, `unclear_requestLink=req_none` | 전화·방문 뒤에 이어서 받은 내용이 불분명한 서류입니다 | 30 |
 
 **01 판정 + 본문** — Q4-N
 
 | 선택 | 저장 필드 | 판정(1줄) | 본문(2문장) |
 |---|---|---|---|
-| ① | `unclear_mainConcern=doubt_meaning`, `unclear_firstAction=next_understand` | 내용을 이해하는 것이 먼저 필요한 서류입니다 | 무슨 뜻인지 모르는 서류에는 일단 응하지 않고 내용을 이해하는 것이 먼저입니다. 제목, 보낸 곳, 날짜 세 가지부터 정리해 보세요. |
-| ② | `unclear_mainConcern=doubt_genuine`, `unclear_firstAction=next_sender` | 진짜 여부 확인이 필요한 불분명한 서류입니다 | 보낸 곳이 공식 자료와 같은지 확인하기 전에는 링크나 번호로 연락하지 않는 것이 안전합니다. 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
-| ③ | `unclear_mainConcern=doubt_respond`, `unclear_firstAction=next_understand` | 요구 사항이 있는지 구분하는 것이 필요한 서류입니다 | 서류에 해야 할 일이 적혀 있는지부터 구분해 보세요. 요구가 없다면 보관만 해도 되는 경우가 많습니다. |
-| ④ | `unclear_mainConcern=doubt_missing`, `unclear_firstAction=next_deadline` | 놓친 내용이 없는지 앞뒤 자료와 함께 확인이 필요한 상황입니다 | 이 서류와 이어지는 이전 절차나 문의 기록이 있는지 함께 놓고 보세요. 날짜와 번호가 이어지는지 확인하면 연결이 보일 수 있습니다. |
-| ⑤ | `unclear_mainConcern=doubt_done`, `unclear_firstAction=next_stop` | 이미 응한 뒤라 추가 응답 전에 확인이 필요한 상황입니다 | 무엇을 언제 보냈는지 정리해 두고 추가 연락에는 응하기 전에 확인하세요. 필요하면 전문가와 함께 살펴볼 수 있습니다. |
-| ⑥ | `unclear_mainConcern=doubt_none`, `unclear_firstAction=next_keep` | 차분히 서류를 분류해 볼 수 있는 상황입니다 | 걱정이 크지 않다면 서류를 보관하고 어떤 서류인지 차근차근 분류해 보세요. 요구 사항이 없다면 급하게 움직일 필요는 없습니다. |
+| ① | `unclear_mainConcern=doubt_meaning`, `unclear_helpWanted=help_translate` | 내용을 이해하는 것이 먼저 필요한 서류입니다 | 무슨 뜻인지 모르는 서류에는 일단 응하지 않고 내용을 이해하는 것이 먼저입니다. 제목, 보낸 곳, 날짜 세 가지부터 정리해 보세요. |
+| ② | `unclear_mainConcern=doubt_genuine`, `unclear_helpWanted=help_guide` | 진짜 여부 확인이 필요한 불분명한 서류입니다 | 보낸 곳이 공식 자료와 같은지 확인하기 전에는 링크나 번호로 연락하지 않는 것이 안전합니다. 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
+| ③ | `unclear_mainConcern=doubt_missing`, `unclear_helpWanted=help_guide` | 놓친 내용이 없는지 앞뒤 자료와 함께 확인이 필요한 상황입니다 | 이 서류와 이어지는 이전 절차나 문의 기록이 있는지 함께 놓고 보세요. 날짜와 번호가 이어지는지 확인하면 연결이 보일 수 있습니다. |
+| ④ | `unclear_mainConcern=doubt_done`, `unclear_helpWanted=help_expert` | 이미 응한 뒤라 추가 응답 전에 확인이 필요한 상황입니다 | 무엇을 언제 보냈는지 정리해 두고 추가 연락에는 응하기 전에 확인하세요. 필요하면 전문가와 함께 살펴볼 수 있습니다. |
+| ⑤ | `unclear_mainConcern=doubt_none`, `unclear_helpWanted=help_guide` | 차분히 서류를 분류해 볼 수 있는 상황입니다 | 걱정이 크지 않다면 서류를 보관하고 어떤 서류인지 차근차근 분류해 보세요. 요구 사항이 없다면 급하게 움직일 필요는 없습니다. |
 
 **03 주요 위험 요소 규칙** — 아래 순서(우선순위)대로 조건에 맞는 것을 최대 4개까지 표시. 하나도 없으면 기본 문장 1개.
 
 | 순서 | 조건(하나라도 일치) | 표시 문장 |
 |---|---|---|
-| 1 (n_exposed) | `unclear_actionTaken` ∈ {act_sent_money, act_sent_info, act_clicked} 또는 `unclear_exposureLevel` ∈ {exp_money, exp_info, exp_mid} 또는 `unclear_firstAction` ∈ {next_stop} | 이미 돈이나 정보를 보냈거나 링크를 열었다면 추가 응답 전에 상황 정리가 먼저입니다 |
-| 2 (n_sender) | `unclear_senderGroup` ∈ {grp_unnamed} 또는 `unclear_formality` ∈ {fm_informal, fm_link} 또는 `unclear_identityMatch` ∈ {id_generic, id_other} 또는 `unclear_authenticityMark` ∈ {mark_none, mark_personal_contact} 또는 `unclear_aimHint` ∈ {aim_misdirected} | 보낸 곳과 내 정보가 분명하지 않은 서류라 응하기 전에 발신처부터 확인해야 합니다 |
-| 3 (n_understand) | `unclear_understandingLevel` ∈ {und_little, und_language, und_blurry} 또는 `unclear_readability` ∈ {read_hard, read_lang, read_blurry} 또는 `unclear_mainConcern` ∈ {doubt_meaning} | 내용을 충분히 이해하지 못한 상태라 핵심 부분부터 풀이하거나 번역받을 필요가 있습니다 |
-| 4 (n_pressure) | `unclear_pressureType` ∈ {press_threat, press_secret, press_rush, press_legal} 또는 `unclear_contactFlow` ∈ {flow_escalate, flow_repeat} | 경고 문구나 재촉이 있어 서두르지 말고 근거를 확인할 필요가 있습니다 |
-| 5 (n_hidden) | `unclear_impliedRequest` ∈ {imp_money, imp_submit, imp_contact} 또는 `unclear_requestHint` ∈ {hint_pay, hint_submit, hint_contact} 또는 `unclear_elementGroup` ∈ {eg_money, eg_contact} | 안내문처럼 보여도 돈·제출·연락을 요구하는 내용이 숨어 있을 수 있어 요구 사항을 따로 확인하세요 |
-| 6 (n_deadline) | `unclear_deadlineStatus` ∈ {dl_near, dl_passed, dl_verbal, dl_unclear} | 기한이 분명하지 않거나 가깝다면 서류에서 기한의 근거부터 찾아야 합니다 |
-| 7 (n_evidence) | `unclear_evidenceState` ∈ {evs_weak} 또는 `unclear_evidenceKind` ∈ {ev_none, ev_partial} | 남은 자료가 부족해 서류의 제목·보낸 곳·날짜를 먼저 글로 정리해 두어야 합니다 |
+| 1 (n_exposed) | `unclear_actionTaken` ∈ {act_sent_money, act_sent_info, act_clicked} 또는 `unclear_mainConcern` ∈ {doubt_done} | 이미 돈이나 정보를 보냈거나 링크를 열었다면 추가 응답 전에 상황 정리가 먼저입니다 |
+| 2 (n_sender) | `unclear_senderClaim` ∈ {unnamed_claim} 또는 `unclear_identityMatch` ∈ {id_generic, id_other} 또는 `unclear_authenticityMark` ∈ {mark_weak, mark_link_only, mark_odd_text} 또는 `unclear_officialCompare` ∈ {cmp_diff} | 보낸 곳과 내 정보가 분명하지 않은 서류라 응하기 전에 발신처부터 확인해야 합니다 |
+| 3 (n_understand) | `unclear_understandingLevel` ∈ {und_little, und_language, und_blurry} 또는 `unclear_mainConcern` ∈ {doubt_meaning} | 내용을 충분히 이해하지 못한 상태라 핵심 부분부터 풀이하거나 번역받을 필요가 있습니다 |
+| 4 (n_pressure) | `unclear_pressureType` ∈ {press_threat, press_secret, press_deadline, press_legal} 또는 `unclear_contactPattern` ∈ {escalating_tone, repeated_same} | 경고 문구나 재촉이 있어 서두르지 말고 근거를 확인할 필요가 있습니다 |
+| 5 (n_hidden) | `unclear_impliedRequest` ∈ {imp_money, imp_submit, imp_contact} 또는 `unclear_keyElement` ∈ {key_money, key_contact} | 안내문처럼 보여도 돈·제출·연락을 요구하는 내용이 숨어 있을 수 있어 요구 사항을 따로 확인하세요 |
+| 6 (n_deadline) | `unclear_deadlineStatus` ∈ {dl_near, dl_passed, dl_verbal} | 기한이 분명하지 않거나 가깝다면 서류에서 기한의 근거부터 찾아야 합니다 |
+| 7 (n_evidence) | `unclear_evidenceKind` ∈ {ev_none, ev_partial} | 남은 자료가 부족해 서류의 제목·보낸 곳·날짜를 먼저 글로 정리해 두어야 합니다 |
 | 기본 | 위 조건에 하나도 해당하지 않음 | 입력하신 내용에서는 뚜렷한 위험 신호가 많지 않지만, 서류를 보관하고 어떤 서류인지 먼저 분류해 보세요 |
 
 ## E-2. 2차 결과 (경로별)
@@ -1440,98 +1352,91 @@
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_identityMatch=id_exact`, `unclear_aimHint=aim_specific` | 내 정보가 정확히 적혀 있다면 실제 절차나 거래와 이어지는지 확인해 보세요. 정확하다고 해서 진짜라는 뜻은 아니므로 보낸 곳 확인을 함께 하세요. |
-| ② | `unclear_identityMatch=id_partial`, `unclear_aimHint=aim_partial` | 일부만 맞다면 오래된 정보이거나 잘못 모은 정보일 수 있습니다. 어디서 나온 정보인지 보낸 쪽에 공식 경로로 물어볼 수 있습니다. |
-| ③ | `unclear_identityMatch=id_generic`, `unclear_aimHint=aim_generic` | 받는 사람이 특정되지 않은 서류는 여러 사람에게 같은 내용이 간 것일 수 있습니다. 내 사정과 맞는 내용인지부터 따져 보세요. |
-| ④ | `unclear_identityMatch=id_other`, `unclear_aimHint=aim_misdirected` | 다른 이름이 적혀 있다면 잘못 보낸 서류일 수 있습니다. 응하지 말고 받은 경위를 기록한 뒤 보낸 곳에 공식 경로로 확인하세요. |
-| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_aimHint=aim_unchecked` | 이름·회사명·주소·번호가 맞는지 먼저 대조해 보세요. 하나라도 다르면 그 점을 메모해 두는 것이 확인의 시작입니다. |
+| ① | `unclear_identityMatch=id_exact`, `unclear_otherRecipients=oth_only_me` | 정확히 맞는 정보가 제가 이전에 낸 정보라면 실제 절차나 거래와 이어지는지 확인해 보세요. 나만 받은 서류라면 실제 절차와 연결될 가능성을 보되, 정확하다고 진짜라는 뜻은 아니므로 보낸 곳 확인을 함께 하세요. |
+| ② | `unclear_identityMatch=id_partial`, `unclear_otherRecipients=oth_unknown` | 일부만 맞다면 오래된 정보이거나 잘못 모은 정보일 수 있습니다. 주변에 같은 서류를 받은 사람이 있는지 물어보면 여러 사람에게 보낸 서류인지 가늠할 수 있습니다. |
+| ③ | `unclear_identityMatch=id_generic`, `unclear_otherRecipients=oth_others` | 받는 사람이 특정되지 않았고 다른 사람도 같은 서류를 받았다면 여러 사람에게 같은 내용이 간 것일 가능성이 큽니다. 내 사정과 맞는 내용인지부터 따져 보세요. |
+| ④ | `unclear_identityMatch=id_other`, `unclear_otherRecipients=oth_only_me` | 다른 이름이 적혀 있다면 잘못 보낸 서류일 수 있습니다. 응하지 말고 받은 경위를 기록한 뒤 보낸 곳에 공식 경로로 확인하세요. |
+| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_otherRecipients=oth_unknown` | 이름·회사명·주소·번호가 맞는지 먼저 대조해 보세요. 하나라도 다르면 그 점을 메모하고, 주변에 같은 서류를 받은 사람이 있는지도 함께 물어보세요. |
 
 **공식 문서 요소** — Q6-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_authenticityMark=mark_full`, `unclear_formality=fm_formal` | 공식 문서의 기본 요소가 갖춰져 있으면 확인할 근거가 있다는 뜻입니다. 다만 형식은 흉내 낼 수 있으니 문서번호와 보낸 곳은 공식 자료로 대조하세요. |
-| ② | `unclear_authenticityMark=mark_partial`, `unclear_formality=fm_partial` | 빠진 요소가 무엇인지 적어 두세요. 같은 기관이 보낸 다른 문서와 비교하면 차이가 드러나는 경우가 있습니다. |
-| ③ | `unclear_authenticityMark=mark_none`, `unclear_formality=fm_informal` | 공식 요소가 하나도 없는 문서는 근거로 삼기 어렵습니다. 문서번호나 담당자를 글로 요청해 보고, 답이 없다면 응하지 않는 것이 안전합니다. |
-| ④ | `unclear_authenticityMark=mark_personal_contact`, `unclear_formality=fm_informal` | 기관 대표 번호나 공식 주소가 아니라면 같은 이름의 기관이 맞는지 확인이 필요합니다. 기관의 공식 사이트에 나온 연락처와 비교하세요. |
-| ⑤ | `unclear_authenticityMark=mark_link_only`, `unclear_formality=fm_link` | 링크나 큐알 코드는 열기 전에 확인이 먼저입니다. 같은 기관의 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
-| ⑥ | `unclear_authenticityMark=mark_odd_text`, `unclear_formality=fm_odd` | 공식 문서에는 보통 정해진 문체가 있습니다. 어색한 부분을 표시해 두고 같은 기관의 다른 안내문과 비교해 보세요. |
+| ① | `unclear_authenticityMark=mark_full`, `unclear_officialCompare=cmp_unchecked` | 공식 문서의 기본 요소가 갖춰져 있으면 확인할 근거가 있다는 뜻입니다. 다만 형식은 흉내 낼 수 있으니 문서번호와 연락처를 공식 자료와 대조해 보세요. |
+| ② | `unclear_authenticityMark=mark_partial`, `unclear_officialCompare=cmp_same` | 빠진 요소가 무엇인지 적어 두세요. 연락처가 같더라도 같은 기관이 보낸 다른 문서와 비교하면 차이가 드러나는 경우가 있습니다. |
+| ③ | `unclear_authenticityMark=mark_weak`, `unclear_officialCompare=cmp_diff` | 공식 요소가 없고 연락처도 공식 정보와 다르다면 근거로 삼기 어렵습니다. 문서번호나 담당자를 글로 요청해 보고, 답이 없다면 응하지 않는 것이 안전합니다. |
+| ④ | `unclear_authenticityMark=mark_link_only`, `unclear_officialCompare=cmp_unchecked` | 링크나 큐알 코드는 열기 전에 확인이 먼저입니다. 같은 기관의 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
+| ⑤ | `unclear_authenticityMark=mark_odd_text`, `unclear_officialCompare=cmp_same` | 연락처가 같아도 문체가 어색하다면 외국어를 옮긴 것이거나 흉내 낸 서류일 수 있습니다. 어색한 부분을 표시해 두고 같은 기관의 다른 안내문과 비교해 보세요. |
 
 **돈의 성격** — Q7-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_moneyNature=nature_tax`, `unclear_moneyReviewLink=link_tax` | 세금 명목이라면 납세 통지나 세무기관 공식 안내와 대조해 보세요. 세금 검토에서 이어서 확인할 수 있습니다. |
-| ② | `unclear_moneyNature=nature_fine`, `unclear_moneyReviewLink=link_admin` | 부과 근거와 이의 제기 방법이 서류에 있는지 확인하세요. 행정문서 검토에서 이어서 볼 수 있습니다. |
-| ③ | `unclear_moneyNature=nature_fee`, `unclear_moneyReviewLink=link_trade` | 어떤 서비스에 대한 요금인지 계약이나 이용 내역과 맞는지 확인하세요. 이용한 적이 없다면 근거를 요청할 수 있습니다. |
-| ④ | `unclear_moneyNature=nature_debt`, `unclear_moneyReviewLink=link_trade` | 거래 서류와 입금 기록을 대조해 이미 낸 돈은 없는지 확인하세요. 확인 전에 서둘러 보내지 마세요. |
-| ⑤ | `unclear_moneyNature=nature_deposit`, `unclear_moneyReviewLink=link_property` | 약속한 계약이 서류로 있는지가 우선입니다. 임대나 매매와 관련되어 보이면 부동산 검토에서 이어서 확인할 수 있습니다. |
-| ⑥ | `unclear_moneyNature=nature_unstated`, `unclear_moneyReviewLink=link_none` | 명목 없이 돈만 요구한다면 무엇에 대한 돈인지 먼저 확인이 필요합니다. 명목을 글로 요청하고 답이 없다면 응하지 않는 것이 안전합니다. |
+| ① | `unclear_moneyNature=nature_tax`, `unclear_dealMemory=mem_yes` | 세금 명목이고 신고·납부한 기억이 있다면 납세 통지나 세무기관 공식 안내와 금액을 대조해 보세요. 세금 검토에서 이어서 확인할 수 있습니다. |
+| ② | `unclear_moneyNature=nature_fine`, `unclear_dealMemory=mem_no` | 부과받을 일이 기억나지 않는다면 부과 근거와 이의 제기 방법이 서류에 있는지 확인하세요. 행정문서 검토에서 이어서 볼 수 있습니다. |
+| ③ | `unclear_moneyNature=nature_trade`, `unclear_dealMemory=mem_unsure` | 계약이나 이용 내역, 입금 기록과 대조해 실제 거래가 있었는지 확인하세요. 확인 전에 서둘러 보내지 마세요. |
+| ④ | `unclear_moneyNature=nature_deposit`, `unclear_dealMemory=mem_yes` | 약속한 계약이 서류로 있는지가 우선입니다. 임대나 매매와 관련되어 보이면 부동산 검토에서 이어서 확인할 수 있습니다. |
+| ⑤ | `unclear_moneyNature=nature_unstated`, `unclear_dealMemory=mem_no` | 명목 없이 돈만 요구한다면 무엇에 대한 돈인지 먼저 확인이 필요합니다. 명목을 글로 요청하고 답이 없다면 응하지 않는 것이 안전합니다. |
 
 **금액 규모** — Q8-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_amountScale=amt_under1m`, `unclear_amountTier=tier_small` | 금액이 크지 않아도 근거 없이 내는 습관은 피하세요. 소액으로 시작해 점점 올리는 방식도 있어 근거 확인은 같습니다. |
-| ② | `unclear_amountScale=amt_1m_10m`, `unclear_amountTier=tier_medium` | 중간 정도의 금액이라면 부과 근거와 계산 내역을 서류에서 먼저 확인하세요. 내역이 없다면 공식 경로로 요청하세요. |
-| ③ | `unclear_amountScale=amt_10m_100m`, `unclear_amountTier=tier_large` | 큰 금액은 송금 전에 근거 서류와 계약, 입금 기록을 모두 대조하는 것이 좋습니다. 확인이 끝나기 전에는 송금을 미루세요. |
-| ④ | `unclear_amountScale=amt_over100m`, `unclear_amountTier=tier_xlarge` | 매우 큰 금액은 단독으로 판단하지 말고 전문가 확인을 권합니다. 근거 서류와 상대 정보를 먼저 정리하세요. |
-| ⑤ | `unclear_amountScale=amt_unstated`, `unclear_amountTier=tier_unknown` | 금액이 없는 납부 요구는 계산 근거부터 확인이 필요합니다. 금액을 글로 요청하고 구두로 들은 금액은 날짜와 함께 기록하세요. |
+| ① | `unclear_amountScale=amt_under1m`, `unclear_amountBasis=ab_itemized` | 금액이 크지 않고 내역이 있어도 근거 없이 내는 습관은 피하세요. 내역의 각 항목이 계약이나 공식 자료와 맞는지 대조해 보세요. |
+| ② | `unclear_amountScale=amt_1m_10m`, `unclear_amountBasis=ab_total` | 중간 정도의 금액이면서 내역이 없다면 부과 근거와 계산 내역을 먼저 요청하세요. 내역이 오기 전에는 송금을 미루세요. |
+| ③ | `unclear_amountScale=amt_10m_100m`, `unclear_amountBasis=ab_total` | 큰 금액은 송금 전에 근거 서류와 계약, 입금 기록을 모두 대조하는 것이 좋습니다. 내역 없이 총액만 요구하는 점은 따로 확인이 필요합니다. |
+| ④ | `unclear_amountScale=amt_over100m`, `unclear_amountBasis=ab_itemized` | 매우 큰 금액은 단독으로 판단하지 말고 전문가 확인을 권합니다. 내역의 각 항목을 근거 서류와 대조해 정리해 두세요. |
+| ⑤ | `unclear_amountScale=amt_unstated`, `unclear_amountBasis=ab_none` | 금액이 없는 납부 요구는 계산 근거부터 확인이 필요합니다. 금액을 글로 요청하고 구두로 들은 금액은 날짜와 함께 기록하세요. |
 
 **입금 방식** — Q9-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_payee=payee_institution`, `unclear_paymentGroup=pay_account` | 계좌 명의가 보낸 기관과 같은지, 공식 안내의 납부 방법과 같은지 확인하세요. 공식 안내는 해당 기관의 사이트에서 찾을 수 있습니다. |
-| ② | `unclear_payee=payee_company`, `unclear_paymentGroup=pay_account` | 회사 계좌라면 그 회사와 실제 거래가 있었는지, 사업자 정보가 확인되는지 살펴보세요. 계약이나 청구 이력과 대조하세요. |
-| ③ | `unclear_payee=payee_person`, `unclear_paymentGroup=pay_account` | 기관이나 회사 명의가 아닌 개인 계좌로 보내라는 요구는 특히 확인이 필요합니다. 보내기 전에 보낸 곳의 공식 납부 방법을 확인하세요. |
-| ④ | `unclear_payee=payee_online`, `unclear_paymentGroup=pay_online` | 링크나 앱 결제는 열기 전에 주소와 설치 경로가 공식인지 확인이 필요합니다. 공식 사이트에 직접 접속해 같은 결제 안내가 있는지 보세요. |
-| ⑤ | `unclear_payee=payee_cash`, `unclear_paymentGroup=pay_cash` | 현금이나 상품권은 되돌리기 어렵고 기록이 남지 않아 신중해야 합니다. 보내기 전에 공식 경로로 확인하고 전문가 확인을 살펴보세요. |
-| ⑥ | `unclear_payee=payee_unstated`, `unclear_paymentGroup=pay_none` | 받는 곳이 없다면 연락을 유도하는 방식일 수 있어 주의가 필요합니다. 연락하기 전에 보낸 곳을 먼저 확인하세요. |
+| ① | `unclear_payee=payee_institution`, `unclear_payeeMatch=pm_same` | 계좌 이름이 보낸 곳과 같더라도 공식 안내의 납부 방법과 같은지 확인하세요. 공식 안내는 해당 기관의 사이트에서 찾을 수 있습니다. |
+| ② | `unclear_payee=payee_company`, `unclear_payeeMatch=pm_diff` | 보낸 곳과 계좌 이름이 다르다면 특히 확인이 필요합니다. 그 회사와 실제 거래가 있었는지, 왜 다른 이름으로 받는지 공식 경로로 물어보세요. |
+| ③ | `unclear_payee=payee_person`, `unclear_payeeMatch=pm_unknown` | 기관이나 회사 명의가 아닌 개인 계좌로 보내라는 요구는 특히 확인이 필요합니다. 보내기 전에 보낸 곳의 공식 납부 방법을 확인하세요. |
+| ④ | `unclear_payee=payee_online`, `unclear_payeeMatch=pm_unknown` | 링크나 앱 결제는 열기 전에 주소와 설치 경로가 공식인지 확인이 필요합니다. 공식 사이트에 직접 접속해 같은 결제 안내가 있는지 보세요. |
+| ⑤ | `unclear_payee=payee_cash`, `unclear_payeeMatch=pm_na` | 현금이나 상품권은 되돌리기 어렵고 기록이 남지 않아 신중해야 합니다. 보내기 전에 공식 경로로 확인하고 전문가 확인을 살펴보세요. |
 
 **압박의 방식** — Q10-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_pressureType=press_none`, `unclear_pressureLevel=lvl_none` | 압박이 없는 안내라면 급하게 움직일 이유는 서류에서 확인되지 않습니다. 요구 사항이 있는지 천천히 읽어 보세요. |
-| ② | `unclear_pressureType=press_deadline`, `unclear_pressureLevel=lvl_low` | 기한만 안내한 경우에는 그 기한의 근거가 서류에 있는지 확인하면 됩니다. 날짜를 기록해 두세요. |
-| ③ | `unclear_pressureType=press_legal`, `unclear_pressureLevel=lvl_mid` | 불이익을 예고하는 문구라면 어떤 근거로 어떤 절차가 이어지는지 서류에 적혀 있는지 확인하세요. 근거가 없다면 공식 경로로 문의가 필요합니다. |
-| ④ | `unclear_pressureType=press_rush`, `unclear_pressureLevel=lvl_mid` | 재촉은 확인할 시간을 주지 않으려는 방식일 수 있어 주의가 필요합니다. 시간이 급해 보여도 보낸 곳 확인을 먼저 하세요. |
-| ⑤ | `unclear_pressureType=press_threat`, `unclear_pressureLevel=lvl_high` | 강한 불이익을 앞세워 즉시 응하라는 연락은 그 자체로 의심할 만한 점입니다. 응하기 전에 공식 연락처로 확인하고 대화는 그대로 보관하세요. |
-| ⑥ | `unclear_pressureType=press_secret`, `unclear_pressureLevel=lvl_high` | 비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의해 보세요. |
+| ① | `unclear_pressureType=press_none`, `unclear_pressureChannel=ch_document` | 압박이 없는 안내라면 급하게 움직일 이유는 서류에서 확인되지 않습니다. 요구 사항이 있는지 천천히 읽어 보세요. |
+| ② | `unclear_pressureType=press_deadline`, `unclear_pressureChannel=ch_message` | 기한을 재촉하는 연락이라면 그 기한의 근거가 서류에 있는지 확인하세요. 메시지로만 오는 기한은 날짜와 함께 기록해 두세요. |
+| ③ | `unclear_pressureType=press_legal`, `unclear_pressureChannel=ch_document` | 불이익을 예고하는 문구라면 어떤 근거로 어떤 절차가 이어지는지 서류에 적혀 있는지 확인하세요. 근거가 없다면 공식 경로로 문의가 필요합니다. |
+| ④ | `unclear_pressureType=press_threat`, `unclear_pressureChannel=ch_call` | 강한 불이익을 앞세워 즉시 응하라는 연락은 그 자체로 의심할 만한 점입니다. 전화를 끊고 공식 연락처로 확인하며 통화 기록은 그대로 보관하세요. |
+| ⑤ | `unclear_pressureType=press_secret`, `unclear_pressureChannel=ch_message` | 비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의하고 메시지는 지우지 말고 보관하세요. |
 
 **기한** — Q11-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineSource=dls_none` | 기한이 없다면 서두를 이유가 서류에서는 확인되지 않습니다. 누군가 기한을 말한다면 그 근거를 글로 요청해 보세요. |
-| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineSource=dls_doc` | 서류에 기한이 있고 여유가 있다면 그 안에 확인을 마칠 수 있습니다. 기한 날짜를 달력에 표시해 두세요. |
-| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineSource=dls_doc` | 기한이 가깝다면 확인과 준비를 동시에 시작해야 합니다. 응하기 어려운 부분은 기한 연장이 가능한지 공식 경로로 문의하세요. |
-| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineSource=dls_doc` | 기한이 지났더라도 바로 포기하지 말고 가능한 조치를 빨리 확인하는 것이 중요합니다. 받은 날짜를 증명할 자료를 보관하세요. |
-| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineSource=dls_message` | 서류 없이 말로만 정한 기한은 근거가 확인되지 않은 상태입니다. 기한의 근거 서류를 요청하고 요청한 기록을 남기세요. |
-| ⑥ | `unclear_deadlineStatus=dl_unclear`, `unclear_deadlineSource=dls_unknown` | 기한이 분명하지 않다면 서류에서 날짜나 기간 표현을 먼저 찾아보세요. 찾을 수 없다면 보낸 곳에 기한이 있는지 확인이 필요합니다. |
+| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineStake=stake_none` | 기한이 없다면 서두를 이유가 서류에서는 확인되지 않습니다. 누군가 기한을 말한다면 그 근거를 글로 요청해 보세요. |
+| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineStake=stake_money` | 여유가 있다면 그 안에 근거 확인을 마칠 수 있습니다. 가산금이 서류의 어떤 근거에서 나오는지도 함께 확인하고 기한 날짜를 달력에 표시해 두세요. |
+| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineStake=stake_legal` | 기한이 가깝다면 확인과 준비를 동시에 시작해야 합니다. 법적 조치의 근거가 서류에 있는지 보고 연장이 가능한지 공식 경로로 문의하세요. |
+| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineStake=stake_unknown` | 기한이 지났더라도 바로 포기하지 말고 가능한 조치를 빨리 확인하는 것이 중요합니다. 받은 날짜를 증명할 자료를 보관하세요. |
+| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineStake=stake_legal` | 서류 없이 말로만 정한 기한은 근거가 확인되지 않은 상태입니다. 기한의 근거 서류를 요청하고 요청한 기록을 남기세요. |
 
 **이미 한 조치** — Q12-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_actionTaken=act_nothing`, `unclear_exposureLevel=exp_none` | 아직 아무 조치도 하지 않은 지금이 가장 안전하게 확인할 수 있는 시점입니다. 서류를 그대로 보관하고 확인부터 시작하세요. |
-| ② | `unclear_actionTaken=act_asked`, `unclear_exposureLevel=exp_low` | 문의만 했다면 문의한 날짜와 방법, 받은 답을 기록해 두세요. 서류에 적힌 연락처로 물었다면 그 연락처가 맞는지도 확인이 필요합니다. |
-| ③ | `unclear_actionTaken=act_clicked`, `unclear_exposureLevel=exp_mid` | 링크를 열었거나 앱을 설치했다면 추가 입력은 멈추고 설치한 앱은 지우는 것을 살펴보세요. 입력한 정보가 있다면 어떤 정보인지 기록하세요. |
-| ④ | `unclear_actionTaken=act_sent_info`, `unclear_exposureLevel=exp_info` | 보낸 정보의 종류와 날짜를 정리하고 추가 요구에는 응하지 마세요. 신분증이나 계좌 정보를 보냈다면 관련 기관이나 은행에 알리는 방법을 확인하세요. |
-| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_exposureLevel=exp_money` | 송금 내역과 받는 계좌 정보를 그대로 보관하고 가능한 한 빨리 은행에 문의하세요. 추가로 보내라는 요구가 와도 응하지 말고 사기 검토에서 이어서 확인할 수 있습니다. |
-| ⑥ | `unclear_actionTaken=act_replied`, `unclear_exposureLevel=exp_contact` | 무엇을 말했는지 날짜와 함께 정리해 두세요. 이후 연락이 오더라도 요구에 응하기 전에 보낸 곳 확인이 먼저입니다. |
+| ① | `unclear_actionTaken=act_nothing`, `unclear_followUp=fu_none` | 아직 아무 조치도 하지 않은 지금이 가장 안전하게 확인할 수 있는 시점입니다. 서류를 그대로 보관하고 확인부터 시작하세요. |
+| ② | `unclear_actionTaken=act_contacted`, `unclear_followUp=fu_more` | 연락이 이어지는 상태라면 무엇을 말했는지 날짜와 함께 정리하세요. 요구에 응하기 전에 보낸 곳 확인이 먼저이고, 서류에 적힌 연락처가 맞는지도 확인하세요. |
+| ③ | `unclear_actionTaken=act_clicked`, `unclear_followUp=fu_none` | 추가 입력은 멈추고 설치한 앱은 지우는 것을 살펴보세요. 입력한 정보가 있다면 어떤 정보인지 기록하고, 이후 이상한 연락이 오는지 지켜보세요. |
+| ④ | `unclear_actionTaken=act_sent_info`, `unclear_followUp=fu_more` | 보낸 정보의 종류와 날짜를 정리하고 추가 요구에는 응하지 마세요. 신분증이나 계좌 정보를 보냈다면 관련 기관이나 은행에 알리는 방법을 확인하세요. |
+| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_followUp=fu_cut` | 연락이 끊겼더라도 송금 내역과 받는 계좌 정보를 보관하고 가능한 한 빨리 은행에 문의하세요. 대화와 영수증은 지우지 말고 사기 검토에서 이어서 확인할 수 있습니다. |
 
 **남은 자료** — Q13-M
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceState=evs_strong` | 원본이 있으면 검토가 가장 정확해집니다. 원본은 훼손하지 말고 사본을 만들어 사용하세요. |
-| ② | `unclear_evidenceKind=ev_photo`, `unclear_evidenceState=evs_medium` | 사진은 글자가 모두 보이고 날짜가 확인되도록 다시 정리해 두면 좋습니다. 가능하면 원본 확보 방법도 알아보세요. |
-| ③ | `unclear_evidenceKind=ev_chat`, `unclear_evidenceState=evs_medium` | 대화와 통화 기록은 날짜와 상대 번호가 보이게 그대로 보관하세요. 삭제하지 말고 화면을 순서대로 캡처해 두면 도움이 됩니다. |
-| ④ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceState=evs_strong` | 송금 내역은 금액·날짜·받는 계좌가 보이게 보관하세요. 이 자료는 이후 확인과 문의에서 가장 중요하게 쓰입니다. |
-| ⑤ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceState=evs_weak` | 잃어버린 부분은 발급처나 통신사에 다시 요청할 수 있는지 알아보세요. 기억나는 내용은 날짜와 함께 먼저 글로 적어 두세요. |
-| ⑥ | `unclear_evidenceKind=ev_none`, `unclear_evidenceState=evs_weak` | 자료가 없어도 기억나는 경위를 날짜순으로 적어 두면 확인에 도움이 됩니다. 전문가 진행에서 함께 정리할 수 있습니다. |
+| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceGoal=goal_verify` | 원본이 있으면 검토가 가장 정확해집니다. 원본은 훼손하지 말고 사본을 만들어 대조에 사용하세요. |
+| ② | `unclear_evidenceKind=ev_capture`, `unclear_evidenceGoal=goal_report` | 글자가 모두 보이고 날짜·상대 번호가 확인되도록 순서대로 정리해 두세요. 원본 대화는 지우지 말고 화면 캡처도 함께 보관하세요. |
+| ③ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceGoal=goal_recover` | 송금 내역은 금액·날짜·받는 계좌가 보이게 보관하세요. 이 자료는 은행 문의와 이후 확인에서 가장 중요하게 쓰입니다. |
+| ④ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceGoal=goal_verify` | 잃어버린 부분은 발급처나 통신사에 다시 요청할 수 있는지 알아보세요. 기억나는 내용은 날짜와 함께 먼저 글로 적어 두세요. |
+| ⑤ | `unclear_evidenceKind=ev_none`, `unclear_evidenceGoal=goal_prepare` | 자료가 없어도 기억나는 경위를 날짜순으로 적어 두면 확인에 도움이 됩니다. 전문가 진행에서 함께 정리할 수 있습니다. |
 
 ### E-2-D. 서류 제출·출석 서류
 
@@ -1539,98 +1444,91 @@
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_identityMatch=id_exact`, `unclear_aimHint=aim_specific` | 내 정보가 정확히 적혀 있다면 실제 절차나 거래와 이어지는지 확인해 보세요. 정확하다고 해서 진짜라는 뜻은 아니므로 보낸 곳 확인을 함께 하세요. |
-| ② | `unclear_identityMatch=id_partial`, `unclear_aimHint=aim_partial` | 일부만 맞다면 오래된 정보이거나 잘못 모은 정보일 수 있습니다. 어디서 나온 정보인지 보낸 쪽에 공식 경로로 물어볼 수 있습니다. |
-| ③ | `unclear_identityMatch=id_generic`, `unclear_aimHint=aim_generic` | 받는 사람이 특정되지 않은 서류는 여러 사람에게 같은 내용이 간 것일 수 있습니다. 내 사정과 맞는 내용인지부터 따져 보세요. |
-| ④ | `unclear_identityMatch=id_other`, `unclear_aimHint=aim_misdirected` | 다른 이름이 적혀 있다면 잘못 보낸 서류일 수 있습니다. 응하지 말고 받은 경위를 기록한 뒤 보낸 곳에 공식 경로로 확인하세요. |
-| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_aimHint=aim_unchecked` | 이름·회사명·주소·번호가 맞는지 먼저 대조해 보세요. 하나라도 다르면 그 점을 메모해 두는 것이 확인의 시작입니다. |
+| ① | `unclear_identityMatch=id_exact`, `unclear_otherRecipients=oth_only_me` | 정확히 맞는 정보가 제가 이전에 낸 정보라면 실제 절차나 거래와 이어지는지 확인해 보세요. 나만 받은 서류라면 실제 절차와 연결될 가능성을 보되, 정확하다고 진짜라는 뜻은 아니므로 보낸 곳 확인을 함께 하세요. |
+| ② | `unclear_identityMatch=id_partial`, `unclear_otherRecipients=oth_unknown` | 일부만 맞다면 오래된 정보이거나 잘못 모은 정보일 수 있습니다. 주변에 같은 서류를 받은 사람이 있는지 물어보면 여러 사람에게 보낸 서류인지 가늠할 수 있습니다. |
+| ③ | `unclear_identityMatch=id_generic`, `unclear_otherRecipients=oth_others` | 받는 사람이 특정되지 않았고 다른 사람도 같은 서류를 받았다면 여러 사람에게 같은 내용이 간 것일 가능성이 큽니다. 내 사정과 맞는 내용인지부터 따져 보세요. |
+| ④ | `unclear_identityMatch=id_other`, `unclear_otherRecipients=oth_only_me` | 다른 이름이 적혀 있다면 잘못 보낸 서류일 수 있습니다. 응하지 말고 받은 경위를 기록한 뒤 보낸 곳에 공식 경로로 확인하세요. |
+| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_otherRecipients=oth_unknown` | 이름·회사명·주소·번호가 맞는지 먼저 대조해 보세요. 하나라도 다르면 그 점을 메모하고, 주변에 같은 서류를 받은 사람이 있는지도 함께 물어보세요. |
 
 **공식 문서 요소** — Q6-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_authenticityMark=mark_full`, `unclear_formality=fm_formal` | 공식 문서의 기본 요소가 갖춰져 있으면 확인할 근거가 있다는 뜻입니다. 다만 형식은 흉내 낼 수 있으니 문서번호와 보낸 곳은 공식 자료로 대조하세요. |
-| ② | `unclear_authenticityMark=mark_partial`, `unclear_formality=fm_partial` | 빠진 요소가 무엇인지 적어 두세요. 같은 기관이 보낸 다른 문서와 비교하면 차이가 드러나는 경우가 있습니다. |
-| ③ | `unclear_authenticityMark=mark_none`, `unclear_formality=fm_informal` | 공식 요소가 하나도 없는 문서는 근거로 삼기 어렵습니다. 문서번호나 담당자를 글로 요청해 보고, 답이 없다면 응하지 않는 것이 안전합니다. |
-| ④ | `unclear_authenticityMark=mark_personal_contact`, `unclear_formality=fm_informal` | 기관 대표 번호나 공식 주소가 아니라면 같은 이름의 기관이 맞는지 확인이 필요합니다. 기관의 공식 사이트에 나온 연락처와 비교하세요. |
-| ⑤ | `unclear_authenticityMark=mark_link_only`, `unclear_formality=fm_link` | 링크나 큐알 코드는 열기 전에 확인이 먼저입니다. 같은 기관의 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
-| ⑥ | `unclear_authenticityMark=mark_odd_text`, `unclear_formality=fm_odd` | 공식 문서에는 보통 정해진 문체가 있습니다. 어색한 부분을 표시해 두고 같은 기관의 다른 안내문과 비교해 보세요. |
+| ① | `unclear_authenticityMark=mark_full`, `unclear_officialCompare=cmp_unchecked` | 공식 문서의 기본 요소가 갖춰져 있으면 확인할 근거가 있다는 뜻입니다. 다만 형식은 흉내 낼 수 있으니 문서번호와 연락처를 공식 자료와 대조해 보세요. |
+| ② | `unclear_authenticityMark=mark_partial`, `unclear_officialCompare=cmp_same` | 빠진 요소가 무엇인지 적어 두세요. 연락처가 같더라도 같은 기관이 보낸 다른 문서와 비교하면 차이가 드러나는 경우가 있습니다. |
+| ③ | `unclear_authenticityMark=mark_weak`, `unclear_officialCompare=cmp_diff` | 공식 요소가 없고 연락처도 공식 정보와 다르다면 근거로 삼기 어렵습니다. 문서번호나 담당자를 글로 요청해 보고, 답이 없다면 응하지 않는 것이 안전합니다. |
+| ④ | `unclear_authenticityMark=mark_link_only`, `unclear_officialCompare=cmp_unchecked` | 링크나 큐알 코드는 열기 전에 확인이 먼저입니다. 같은 기관의 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
+| ⑤ | `unclear_authenticityMark=mark_odd_text`, `unclear_officialCompare=cmp_same` | 연락처가 같아도 문체가 어색하다면 외국어를 옮긴 것이거나 흉내 낸 서류일 수 있습니다. 어색한 부분을 표시해 두고 같은 기관의 다른 안내문과 비교해 보세요. |
 
 **요구하는 것** — Q7-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_requestTarget=tgt_id_docs`, `unclear_targetGroup=grp_personal` | 신분 자료는 요구한 곳이 공식인지 확인한 뒤 필요한 항목만 내는 것이 안전합니다. 사본에는 용도를 적어 두는 방법도 있습니다. |
-| ② | `unclear_requestTarget=tgt_business_docs`, `unclear_targetGroup=grp_business` | 사업 서류는 요구한 기관이 해당 서류를 요구할 권한이 있는지 확인하세요. 제출 전에 사본을 만들어 두세요. |
-| ③ | `unclear_requestTarget=tgt_contract_docs`, `unclear_targetGroup=grp_contract` | 계약·거래 서류 요구는 그 거래의 상대가 맞는지 확인하는 것이 먼저입니다. 부동산 거래와 관련되어 보이면 부동산 검토에서 이어서 확인할 수 있습니다. |
-| ④ | `unclear_requestTarget=tgt_statement`, `unclear_targetGroup=grp_statement` | 진술은 한번 내면 바꾸기 어려울 수 있어 내용을 신중히 정리하세요. 작성한 내용은 사본을 남기고 낼 곳을 먼저 확인하세요. |
-| ⑤ | `unclear_requestTarget=tgt_appear`, `unclear_targetGroup=grp_appear` | 일시와 장소가 공식 자료와 맞는지 확인하세요. 혼자 가기 어렵다면 동행이나 통역을 구하는 것도 방법입니다. |
-| ⑥ | `unclear_requestTarget=tgt_online`, `unclear_targetGroup=grp_online` | 접속 주소와 앱 설치 경로가 공식인지 먼저 확인하세요. 공식 사이트에 직접 접속해 같은 안내가 있는지 보세요. |
+| ① | `unclear_requestTarget=tgt_id_docs`, `unclear_requestReason=reason_none` | 신분 자료는 요구한 곳이 공식인지 확인한 뒤 필요한 항목만 내는 것이 안전합니다. 용도 설명이 없다면 용도를 글로 요청하세요. |
+| ② | `unclear_requestTarget=tgt_docs_biz`, `unclear_requestReason=reason_stated` | 설명된 이유가 공식 자료와 맞는지, 요구한 곳이 그 서류를 요구할 권한이 있는지 확인하세요. 제출 전에 사본을 만들어 두세요. |
+| ③ | `unclear_requestTarget=tgt_statement`, `unclear_requestReason=reason_none` | 진술은 한번 내면 바꾸기 어려울 수 있어 내용을 신중히 정리하세요. 작성한 내용은 사본을 남기고 낼 곳을 먼저 확인하세요. |
+| ④ | `unclear_requestTarget=tgt_appear`, `unclear_requestReason=reason_stated` | 일시와 장소가 공식 자료와 맞는지 확인하세요. 혼자 가기 어렵다면 동행이나 통역을 구하는 것도 방법입니다. |
+| ⑤ | `unclear_requestTarget=tgt_online`, `unclear_requestReason=reason_none` | 접속 주소와 앱 설치 경로가 공식인지 먼저 확인하세요. 공식 사이트에 직접 접속해 같은 안내가 있는지 보세요. |
 
 **요구의 구체성** — Q8-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_requestSpecificity=spec_full`, `unclear_listQuality=list_clear` | 목록과 양식이 갖춰져 있다면 같은 양식이 공식 자료에도 있는지 대조해 보세요. 빠진 서류가 없는지 내 보관 서류와 비교하세요. |
-| ② | `unclear_requestSpecificity=spec_list_only`, `unclear_listQuality=list_partial` | 양식이 없다면 형식을 어떻게 맞출지 보낸 곳에 공식 경로로 확인하세요. 문의 내용은 기록해 두세요. |
-| ③ | `unclear_requestSpecificity=spec_vague`, `unclear_listQuality=list_vague` | 무엇을 내야 하는지 불분명한 요구는 구체적인 목록을 글로 요청하세요. 막연한 요구에 서류를 한꺼번에 보내는 것은 피하세요. |
-| ④ | `unclear_requestSpecificity=spec_none`, `unclear_listQuality=list_none` | 요구 내용이 없다면 요구의 근거부터 확인해야 합니다. 서류의 목적과 담당자를 글로 요청해 보세요. |
-| ⑤ | `unclear_requestSpecificity=spec_contact_only`, `unclear_listQuality=list_contact` | 연락만 하라는 서류는 연락을 유도하는 방식일 수 있습니다. 서류의 번호가 아닌 공식 연락처로 사실 여부를 먼저 확인하세요. |
+| ① | `unclear_requestSpecificity=spec_full`, `unclear_prepState=prep_ready` | 목록과 양식이 갖춰져 있다면 같은 양식이 공식 자료에도 있는지 대조해 보세요. 빠진 서류가 없는지 내 보관 서류와 비교하세요. |
+| ② | `unclear_requestSpecificity=spec_list_only`, `unclear_prepState=prep_hard` | 양식이 없다면 형식을 어떻게 맞출지 공식 경로로 확인하세요. 구하기 어려운 서류는 대체 가능한지 함께 물어보고 문의 내용은 기록해 두세요. |
+| ③ | `unclear_requestSpecificity=spec_vague`, `unclear_prepState=prep_unknown` | 무엇을 내야 하는지 불분명한 요구는 구체적인 목록을 글로 요청하세요. 막연한 요구에 서류를 한꺼번에 보내는 것은 피하세요. |
+| ④ | `unclear_requestSpecificity=spec_none`, `unclear_prepState=prep_na` | 요구 내용이 없다면 요구의 근거부터 확인해야 합니다. 서류의 목적과 담당자를 글로 요청해 보세요. |
+| ⑤ | `unclear_requestSpecificity=spec_contact_only`, `unclear_prepState=prep_unknown` | 연락만 하라는 서류는 연락을 유도하는 방식일 수 있습니다. 서류의 번호가 아닌 공식 연락처로 사실 여부를 먼저 확인하세요. |
 
 **제출·출석 방법** — Q9-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_deliveryMethod=deliver_visit`, `unclear_deliveryGroup=dgrp_formal` | 방문 장소가 공식 자료에 나온 주소와 같은지 확인하세요. 방문 전에 필요한 서류와 시간을 다시 확인하세요. |
-| ② | `unclear_deliveryMethod=deliver_post`, `unclear_deliveryGroup=dgrp_formal` | 우편이나 창구 접수라면 접수 증빙을 받아 두세요. 보낸 날짜와 수령 확인 자료를 보관하는 것이 좋습니다. |
-| ③ | `unclear_deliveryMethod=deliver_chat`, `unclear_deliveryGroup=dgrp_digital` | 이메일이나 메신저 제출은 받는 주소가 공식인지 확인이 필요합니다. 공식 자료에 나온 주소와 같은지 비교하세요. |
-| ④ | `unclear_deliveryMethod=deliver_upload`, `unclear_deliveryGroup=dgrp_digital` | 접속 주소가 공식 사이트인지 먼저 확인하세요. 공식 사이트에서 직접 찾아 들어가 같은 절차가 있는지 보세요. |
-| ⑤ | `unclear_deliveryMethod=deliver_call`, `unclear_deliveryGroup=dgrp_digital` | 통화로 서류나 정보를 말하는 것은 기록이 남지 않아 신중해야 합니다. 통화 요구는 서류로 다시 받을 수 있는지 요청하세요. |
-| ⑥ | `unclear_deliveryMethod=deliver_unstated`, `unclear_deliveryGroup=dgrp_unspecified` | 방법이 없다면 공식 방법을 먼저 확인해야 합니다. 보낸 곳의 공식 연락처로 제출 방법을 문의하세요. |
+| ① | `unclear_deliveryMethod=deliver_visit`, `unclear_venueCheck=venue_checked` | 공식 정보와 주소가 같다면 방문 전에 필요한 서류와 시간을 다시 확인하세요. 방문 증빙이 될 접수 자료를 받아 두세요. |
+| ② | `unclear_deliveryMethod=deliver_post`, `unclear_venueCheck=venue_unchecked` | 우편이나 창구 접수라면 주소와 창구가 공식 자료와 같은지 먼저 확인하고 접수 증빙을 받아 두세요. 보낸 날짜와 수령 확인 자료를 보관하는 것이 좋습니다. |
+| ③ | `unclear_deliveryMethod=deliver_chat`, `unclear_venueCheck=venue_unchecked` | 이메일이나 메신저 제출은 받는 주소가 공식인지 확인이 필요합니다. 공식 자료에 나온 주소와 같은지 비교하세요. |
+| ④ | `unclear_deliveryMethod=deliver_upload`, `unclear_venueCheck=venue_unknown` | 접속 주소가 공식 사이트인지 먼저 확인하세요. 공식 사이트에서 직접 찾아 들어가 같은 절차가 있는지 보세요. |
+| ⑤ | `unclear_deliveryMethod=deliver_call`, `unclear_venueCheck=venue_unknown` | 통화로 서류나 정보를 말하는 것은 기록이 남지 않아 신중해야 합니다. 통화 요구는 서류로 다시 받을 수 있는지 요청하세요. |
 
 **압박의 방식** — Q10-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_pressureType=press_none`, `unclear_pressureLevel=lvl_none` | 압박이 없는 안내라면 급하게 움직일 이유는 서류에서 확인되지 않습니다. 요구 사항이 있는지 천천히 읽어 보세요. |
-| ② | `unclear_pressureType=press_deadline`, `unclear_pressureLevel=lvl_low` | 기한만 안내한 경우에는 그 기한의 근거가 서류에 있는지 확인하면 됩니다. 날짜를 기록해 두세요. |
-| ③ | `unclear_pressureType=press_legal`, `unclear_pressureLevel=lvl_mid` | 불이익을 예고하는 문구라면 어떤 근거로 어떤 절차가 이어지는지 서류에 적혀 있는지 확인하세요. 근거가 없다면 공식 경로로 문의가 필요합니다. |
-| ④ | `unclear_pressureType=press_rush`, `unclear_pressureLevel=lvl_mid` | 재촉은 확인할 시간을 주지 않으려는 방식일 수 있어 주의가 필요합니다. 시간이 급해 보여도 보낸 곳 확인을 먼저 하세요. |
-| ⑤ | `unclear_pressureType=press_threat`, `unclear_pressureLevel=lvl_high` | 강한 불이익을 앞세워 즉시 응하라는 연락은 그 자체로 의심할 만한 점입니다. 응하기 전에 공식 연락처로 확인하고 대화는 그대로 보관하세요. |
-| ⑥ | `unclear_pressureType=press_secret`, `unclear_pressureLevel=lvl_high` | 비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의해 보세요. |
+| ① | `unclear_pressureType=press_none`, `unclear_pressureChannel=ch_document` | 압박이 없는 안내라면 급하게 움직일 이유는 서류에서 확인되지 않습니다. 요구 사항이 있는지 천천히 읽어 보세요. |
+| ② | `unclear_pressureType=press_deadline`, `unclear_pressureChannel=ch_message` | 기한을 재촉하는 연락이라면 그 기한의 근거가 서류에 있는지 확인하세요. 메시지로만 오는 기한은 날짜와 함께 기록해 두세요. |
+| ③ | `unclear_pressureType=press_legal`, `unclear_pressureChannel=ch_document` | 불이익을 예고하는 문구라면 어떤 근거로 어떤 절차가 이어지는지 서류에 적혀 있는지 확인하세요. 근거가 없다면 공식 경로로 문의가 필요합니다. |
+| ④ | `unclear_pressureType=press_threat`, `unclear_pressureChannel=ch_call` | 강한 불이익을 앞세워 즉시 응하라는 연락은 그 자체로 의심할 만한 점입니다. 전화를 끊고 공식 연락처로 확인하며 통화 기록은 그대로 보관하세요. |
+| ⑤ | `unclear_pressureType=press_secret`, `unclear_pressureChannel=ch_message` | 비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의하고 메시지는 지우지 말고 보관하세요. |
 
 **기한** — Q11-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineSource=dls_none` | 기한이 없다면 서두를 이유가 서류에서는 확인되지 않습니다. 누군가 기한을 말한다면 그 근거를 글로 요청해 보세요. |
-| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineSource=dls_doc` | 서류에 기한이 있고 여유가 있다면 그 안에 확인을 마칠 수 있습니다. 기한 날짜를 달력에 표시해 두세요. |
-| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineSource=dls_doc` | 기한이 가깝다면 확인과 준비를 동시에 시작해야 합니다. 응하기 어려운 부분은 기한 연장이 가능한지 공식 경로로 문의하세요. |
-| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineSource=dls_doc` | 기한이 지났더라도 바로 포기하지 말고 가능한 조치를 빨리 확인하는 것이 중요합니다. 받은 날짜를 증명할 자료를 보관하세요. |
-| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineSource=dls_message` | 서류 없이 말로만 정한 기한은 근거가 확인되지 않은 상태입니다. 기한의 근거 서류를 요청하고 요청한 기록을 남기세요. |
-| ⑥ | `unclear_deadlineStatus=dl_unclear`, `unclear_deadlineSource=dls_unknown` | 기한이 분명하지 않다면 서류에서 날짜나 기간 표현을 먼저 찾아보세요. 찾을 수 없다면 보낸 곳에 기한이 있는지 확인이 필요합니다. |
+| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineStake=stake_none` | 기한이 없다면 서두를 이유가 서류에서는 확인되지 않습니다. 누군가 기한을 말한다면 그 근거를 글로 요청해 보세요. |
+| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineStake=stake_money` | 여유가 있다면 그 안에 근거 확인을 마칠 수 있습니다. 가산금이 서류의 어떤 근거에서 나오는지도 함께 확인하고 기한 날짜를 달력에 표시해 두세요. |
+| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineStake=stake_legal` | 기한이 가깝다면 확인과 준비를 동시에 시작해야 합니다. 법적 조치의 근거가 서류에 있는지 보고 연장이 가능한지 공식 경로로 문의하세요. |
+| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineStake=stake_unknown` | 기한이 지났더라도 바로 포기하지 말고 가능한 조치를 빨리 확인하는 것이 중요합니다. 받은 날짜를 증명할 자료를 보관하세요. |
+| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineStake=stake_legal` | 서류 없이 말로만 정한 기한은 근거가 확인되지 않은 상태입니다. 기한의 근거 서류를 요청하고 요청한 기록을 남기세요. |
 
 **이미 한 조치** — Q12-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_actionTaken=act_nothing`, `unclear_exposureLevel=exp_none` | 아직 아무 조치도 하지 않은 지금이 가장 안전하게 확인할 수 있는 시점입니다. 서류를 그대로 보관하고 확인부터 시작하세요. |
-| ② | `unclear_actionTaken=act_asked`, `unclear_exposureLevel=exp_low` | 문의만 했다면 문의한 날짜와 방법, 받은 답을 기록해 두세요. 서류에 적힌 연락처로 물었다면 그 연락처가 맞는지도 확인이 필요합니다. |
-| ③ | `unclear_actionTaken=act_clicked`, `unclear_exposureLevel=exp_mid` | 링크를 열었거나 앱을 설치했다면 추가 입력은 멈추고 설치한 앱은 지우는 것을 살펴보세요. 입력한 정보가 있다면 어떤 정보인지 기록하세요. |
-| ④ | `unclear_actionTaken=act_sent_info`, `unclear_exposureLevel=exp_info` | 보낸 정보의 종류와 날짜를 정리하고 추가 요구에는 응하지 마세요. 신분증이나 계좌 정보를 보냈다면 관련 기관이나 은행에 알리는 방법을 확인하세요. |
-| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_exposureLevel=exp_money` | 송금 내역과 받는 계좌 정보를 그대로 보관하고 가능한 한 빨리 은행에 문의하세요. 추가로 보내라는 요구가 와도 응하지 말고 사기 검토에서 이어서 확인할 수 있습니다. |
-| ⑥ | `unclear_actionTaken=act_replied`, `unclear_exposureLevel=exp_contact` | 무엇을 말했는지 날짜와 함께 정리해 두세요. 이후 연락이 오더라도 요구에 응하기 전에 보낸 곳 확인이 먼저입니다. |
+| ① | `unclear_actionTaken=act_nothing`, `unclear_followUp=fu_none` | 아직 아무 조치도 하지 않은 지금이 가장 안전하게 확인할 수 있는 시점입니다. 서류를 그대로 보관하고 확인부터 시작하세요. |
+| ② | `unclear_actionTaken=act_contacted`, `unclear_followUp=fu_more` | 연락이 이어지는 상태라면 무엇을 말했는지 날짜와 함께 정리하세요. 요구에 응하기 전에 보낸 곳 확인이 먼저이고, 서류에 적힌 연락처가 맞는지도 확인하세요. |
+| ③ | `unclear_actionTaken=act_clicked`, `unclear_followUp=fu_none` | 추가 입력은 멈추고 설치한 앱은 지우는 것을 살펴보세요. 입력한 정보가 있다면 어떤 정보인지 기록하고, 이후 이상한 연락이 오는지 지켜보세요. |
+| ④ | `unclear_actionTaken=act_sent_info`, `unclear_followUp=fu_more` | 보낸 정보의 종류와 날짜를 정리하고 추가 요구에는 응하지 마세요. 신분증이나 계좌 정보를 보냈다면 관련 기관이나 은행에 알리는 방법을 확인하세요. |
+| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_followUp=fu_cut` | 연락이 끊겼더라도 송금 내역과 받는 계좌 정보를 보관하고 가능한 한 빨리 은행에 문의하세요. 대화와 영수증은 지우지 말고 사기 검토에서 이어서 확인할 수 있습니다. |
 
 **남은 자료** — Q13-D
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceState=evs_strong` | 원본이 있으면 검토가 가장 정확해집니다. 원본은 훼손하지 말고 사본을 만들어 사용하세요. |
-| ② | `unclear_evidenceKind=ev_photo`, `unclear_evidenceState=evs_medium` | 사진은 글자가 모두 보이고 날짜가 확인되도록 다시 정리해 두면 좋습니다. 가능하면 원본 확보 방법도 알아보세요. |
-| ③ | `unclear_evidenceKind=ev_chat`, `unclear_evidenceState=evs_medium` | 대화와 통화 기록은 날짜와 상대 번호가 보이게 그대로 보관하세요. 삭제하지 말고 화면을 순서대로 캡처해 두면 도움이 됩니다. |
-| ④ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceState=evs_strong` | 송금 내역은 금액·날짜·받는 계좌가 보이게 보관하세요. 이 자료는 이후 확인과 문의에서 가장 중요하게 쓰입니다. |
-| ⑤ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceState=evs_weak` | 잃어버린 부분은 발급처나 통신사에 다시 요청할 수 있는지 알아보세요. 기억나는 내용은 날짜와 함께 먼저 글로 적어 두세요. |
-| ⑥ | `unclear_evidenceKind=ev_none`, `unclear_evidenceState=evs_weak` | 자료가 없어도 기억나는 경위를 날짜순으로 적어 두면 확인에 도움이 됩니다. 전문가 진행에서 함께 정리할 수 있습니다. |
+| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceGoal=goal_verify` | 원본이 있으면 검토가 가장 정확해집니다. 원본은 훼손하지 말고 사본을 만들어 대조에 사용하세요. |
+| ② | `unclear_evidenceKind=ev_capture`, `unclear_evidenceGoal=goal_report` | 글자가 모두 보이고 날짜·상대 번호가 확인되도록 순서대로 정리해 두세요. 원본 대화는 지우지 말고 화면 캡처도 함께 보관하세요. |
+| ③ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceGoal=goal_recover` | 송금 내역은 금액·날짜·받는 계좌가 보이게 보관하세요. 이 자료는 은행 문의와 이후 확인에서 가장 중요하게 쓰입니다. |
+| ④ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceGoal=goal_verify` | 잃어버린 부분은 발급처나 통신사에 다시 요청할 수 있는지 알아보세요. 기억나는 내용은 날짜와 함께 먼저 글로 적어 두세요. |
+| ⑤ | `unclear_evidenceKind=ev_none`, `unclear_evidenceGoal=goal_prepare` | 자료가 없어도 기억나는 경위를 날짜순으로 적어 두면 확인에 도움이 됩니다. 전문가 진행에서 함께 정리할 수 있습니다. |
 
 ### E-2-N. 내용을 모르는 서류
 
@@ -1638,107 +1536,101 @@
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_identityMatch=id_exact`, `unclear_aimHint=aim_specific` | 내 정보가 정확히 적혀 있다면 실제 절차나 거래와 이어지는지 확인해 보세요. 정확하다고 해서 진짜라는 뜻은 아니므로 보낸 곳 확인을 함께 하세요. |
-| ② | `unclear_identityMatch=id_partial`, `unclear_aimHint=aim_partial` | 일부만 맞다면 오래된 정보이거나 잘못 모은 정보일 수 있습니다. 어디서 나온 정보인지 보낸 쪽에 공식 경로로 물어볼 수 있습니다. |
-| ③ | `unclear_identityMatch=id_generic`, `unclear_aimHint=aim_generic` | 받는 사람이 특정되지 않은 서류는 여러 사람에게 같은 내용이 간 것일 수 있습니다. 내 사정과 맞는 내용인지부터 따져 보세요. |
-| ④ | `unclear_identityMatch=id_other`, `unclear_aimHint=aim_misdirected` | 다른 이름이 적혀 있다면 잘못 보낸 서류일 수 있습니다. 응하지 말고 받은 경위를 기록한 뒤 보낸 곳에 공식 경로로 확인하세요. |
-| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_aimHint=aim_unchecked` | 이름·회사명·주소·번호가 맞는지 먼저 대조해 보세요. 하나라도 다르면 그 점을 메모해 두는 것이 확인의 시작입니다. |
+| ① | `unclear_identityMatch=id_exact`, `unclear_otherRecipients=oth_only_me` | 정확히 맞는 정보가 제가 이전에 낸 정보라면 실제 절차나 거래와 이어지는지 확인해 보세요. 나만 받은 서류라면 실제 절차와 연결될 가능성을 보되, 정확하다고 진짜라는 뜻은 아니므로 보낸 곳 확인을 함께 하세요. |
+| ② | `unclear_identityMatch=id_partial`, `unclear_otherRecipients=oth_unknown` | 일부만 맞다면 오래된 정보이거나 잘못 모은 정보일 수 있습니다. 주변에 같은 서류를 받은 사람이 있는지 물어보면 여러 사람에게 보낸 서류인지 가늠할 수 있습니다. |
+| ③ | `unclear_identityMatch=id_generic`, `unclear_otherRecipients=oth_others` | 받는 사람이 특정되지 않았고 다른 사람도 같은 서류를 받았다면 여러 사람에게 같은 내용이 간 것일 가능성이 큽니다. 내 사정과 맞는 내용인지부터 따져 보세요. |
+| ④ | `unclear_identityMatch=id_other`, `unclear_otherRecipients=oth_only_me` | 다른 이름이 적혀 있다면 잘못 보낸 서류일 수 있습니다. 응하지 말고 받은 경위를 기록한 뒤 보낸 곳에 공식 경로로 확인하세요. |
+| ⑤ | `unclear_identityMatch=id_unchecked`, `unclear_otherRecipients=oth_unknown` | 이름·회사명·주소·번호가 맞는지 먼저 대조해 보세요. 하나라도 다르면 그 점을 메모하고, 주변에 같은 서류를 받은 사람이 있는지도 함께 물어보세요. |
 
 **공식 문서 요소** — Q6-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_authenticityMark=mark_full`, `unclear_formality=fm_formal` | 공식 문서의 기본 요소가 갖춰져 있으면 확인할 근거가 있다는 뜻입니다. 다만 형식은 흉내 낼 수 있으니 문서번호와 보낸 곳은 공식 자료로 대조하세요. |
-| ② | `unclear_authenticityMark=mark_partial`, `unclear_formality=fm_partial` | 빠진 요소가 무엇인지 적어 두세요. 같은 기관이 보낸 다른 문서와 비교하면 차이가 드러나는 경우가 있습니다. |
-| ③ | `unclear_authenticityMark=mark_none`, `unclear_formality=fm_informal` | 공식 요소가 하나도 없는 문서는 근거로 삼기 어렵습니다. 문서번호나 담당자를 글로 요청해 보고, 답이 없다면 응하지 않는 것이 안전합니다. |
-| ④ | `unclear_authenticityMark=mark_personal_contact`, `unclear_formality=fm_informal` | 기관 대표 번호나 공식 주소가 아니라면 같은 이름의 기관이 맞는지 확인이 필요합니다. 기관의 공식 사이트에 나온 연락처와 비교하세요. |
-| ⑤ | `unclear_authenticityMark=mark_link_only`, `unclear_formality=fm_link` | 링크나 큐알 코드는 열기 전에 확인이 먼저입니다. 같은 기관의 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
-| ⑥ | `unclear_authenticityMark=mark_odd_text`, `unclear_formality=fm_odd` | 공식 문서에는 보통 정해진 문체가 있습니다. 어색한 부분을 표시해 두고 같은 기관의 다른 안내문과 비교해 보세요. |
+| ① | `unclear_authenticityMark=mark_full`, `unclear_officialCompare=cmp_unchecked` | 공식 문서의 기본 요소가 갖춰져 있으면 확인할 근거가 있다는 뜻입니다. 다만 형식은 흉내 낼 수 있으니 문서번호와 연락처를 공식 자료와 대조해 보세요. |
+| ② | `unclear_authenticityMark=mark_partial`, `unclear_officialCompare=cmp_same` | 빠진 요소가 무엇인지 적어 두세요. 연락처가 같더라도 같은 기관이 보낸 다른 문서와 비교하면 차이가 드러나는 경우가 있습니다. |
+| ③ | `unclear_authenticityMark=mark_weak`, `unclear_officialCompare=cmp_diff` | 공식 요소가 없고 연락처도 공식 정보와 다르다면 근거로 삼기 어렵습니다. 문서번호나 담당자를 글로 요청해 보고, 답이 없다면 응하지 않는 것이 안전합니다. |
+| ④ | `unclear_authenticityMark=mark_link_only`, `unclear_officialCompare=cmp_unchecked` | 링크나 큐알 코드는 열기 전에 확인이 먼저입니다. 같은 기관의 공식 사이트에 직접 접속해서 같은 안내가 있는지 찾아보세요. |
+| ⑤ | `unclear_authenticityMark=mark_odd_text`, `unclear_officialCompare=cmp_same` | 연락처가 같아도 문체가 어색하다면 외국어를 옮긴 것이거나 흉내 낸 서류일 수 있습니다. 어색한 부분을 표시해 두고 같은 기관의 다른 안내문과 비교해 보세요. |
 
 **이해 정도** — Q7-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_understandingLevel=und_most`, `unclear_readability=read_ok` | 대부분 이해했다면 이해되지 않는 나머지 부분을 표시해 두세요. 그 부분이 핵심일 수 있어 확인이 필요합니다. |
-| ② | `unclear_understandingLevel=und_half`, `unclear_readability=read_ok` | 이해한 부분과 모르는 부분을 나누어 적어 보세요. 모르는 부분만 전문가에게 가져가면 시간이 줄어듭니다. |
-| ③ | `unclear_understandingLevel=und_little`, `unclear_readability=read_hard` | 이해하지 못한 서류에는 응하지 않고 먼저 내용을 풀이받는 것이 안전합니다. 제목과 번호, 날짜를 먼저 정리하세요. |
-| ④ | `unclear_understandingLevel=und_language`, `unclear_readability=read_lang` | 중요한 부분부터 번역을 받아 원본과 함께 보관하세요. 번역은 한 부분씩 나누어 받으면 확인하기 쉽습니다. |
-| ⑤ | `unclear_understandingLevel=und_blurry`, `unclear_readability=read_blurry` | 글자가 모두 보이도록 밝은 곳에서 다시 찍어 두세요. 원본이 있다면 다시 확인할 수 있게 보관하세요. |
+| ① | `unclear_understandingLevel=und_most`, `unclear_helperNearby=helper_yes` | 대부분 이해했다면 이해되지 않는 나머지 부분을 표시해 두세요. 그 부분이 핵심일 수 있어 물어볼 때 함께 보여 주면 좋습니다. |
+| ② | `unclear_understandingLevel=und_half`, `unclear_helperNearby=helper_none` | 이해한 부분과 모르는 부분을 나누어 적어 보세요. 모르는 부분만 전문가에게 가져가면 시간이 줄어듭니다. |
+| ③ | `unclear_understandingLevel=und_little`, `unclear_helperNearby=helper_none` | 이해하지 못한 서류에는 응하지 않고 먼저 내용을 풀이받는 것이 안전합니다. 제목과 번호, 날짜를 먼저 정리하세요. |
+| ④ | `unclear_understandingLevel=und_language`, `unclear_helperNearby=helper_yes` | 중요한 부분부터 번역을 받아 원본과 함께 보관하세요. 지인에게는 한 부분씩 나누어 번역을 받으면 확인하기 쉽습니다. |
+| ⑤ | `unclear_understandingLevel=und_blurry`, `unclear_helperNearby=helper_none` | 글자가 모두 보이도록 밝은 곳에서 다시 찍어 두세요. 원본이 있다면 다시 확인할 수 있게 보관하세요. |
 
 **눈에 띄는 요소** — Q8-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_keyElement=key_law`, `unclear_elementGroup=eg_legal` | 법령이나 조항 번호가 나온다면 그 조항이 무엇을 요구하는지 공식 자료로 확인해 보세요. 어떤 분야의 서류인지 분류에 도움이 됩니다. |
-| ② | `unclear_keyElement=key_agency`, `unclear_elementGroup=eg_agency` | 기관 이름이 있다면 그 기관의 공식 연락처로 서류가 맞는지 확인할 수 있습니다. 서류에 적힌 연락처는 쓰지 마세요. |
-| ③ | `unclear_keyElement=key_numbers`, `unclear_elementGroup=eg_numbers` | 번호가 무엇의 번호인지부터 구분해 표시해 두세요. 번호는 이후 확인에서 가장 큰 단서가 됩니다. |
-| ④ | `unclear_keyElement=key_money`, `unclear_elementGroup=eg_money` | 금액이나 계좌가 보이는 서류는 돈을 요구하는 내용일 수 있습니다. 송금 전에 근거를 먼저 확인하세요. |
-| ⑤ | `unclear_keyElement=key_date`, `unclear_elementGroup=eg_date` | 날짜가 보인다면 기한인지, 단순 발행일인지 구분해 보세요. 기한이라면 그 근거부터 확인하세요. |
-| ⑥ | `unclear_keyElement=key_contact`, `unclear_elementGroup=eg_contact` | 내용 없이 연락처만 있다면 연락을 유도하는 방식일 수 있습니다. 연락하기 전에 공식 자료로 먼저 확인하세요. |
+| ① | `unclear_keyElement=key_law`, `unclear_keyKnown=known_no` | 법령이나 조항 번호가 나온다면 그 조항이 무엇을 요구하는지 공식 자료로 확인해 보세요. 낯선 법령이라면 이름과 번호를 그대로 적어 두세요. |
+| ② | `unclear_keyElement=key_agency`, `unclear_keyKnown=known_yes` | 알고 있는 기관이라도 그 기관의 공식 연락처로 서류가 맞는지 확인하세요. 서류에 적힌 연락처는 쓰지 마세요. |
+| ③ | `unclear_keyElement=key_money`, `unclear_keyKnown=known_yes` | 금액이나 계좌가 보이는 서류는 돈을 요구하는 내용일 수 있습니다. 아는 거래와 이어지는지 대조하고 송금 전에 근거를 먼저 확인하세요. |
+| ④ | `unclear_keyElement=key_date`, `unclear_keyKnown=known_no` | 날짜가 보인다면 기한인지, 단순 발행일인지 구분해 보세요. 기한이라면 그 근거부터 확인하세요. |
+| ⑤ | `unclear_keyElement=key_contact`, `unclear_keyKnown=known_no` | 내용 없이 연락처만 있다면 연락을 유도하는 방식일 수 있습니다. 연락하기 전에 공식 자료로 먼저 확인하세요. |
 
 **요구의 느낌** — Q9-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_impliedRequest=imp_money`, `unclear_requestHint=hint_pay` | 돈을 요구하는 것 같다면 납부 관련 서류로 보고 보낸 곳과 근거를 먼저 확인하세요. 확인 전에는 송금하지 마세요. |
-| ② | `unclear_impliedRequest=imp_submit`, `unclear_requestHint=hint_submit` | 제출이나 출석을 요구하는 것 같다면 무엇을 언제까지 해야 하는지 서류에서 찾아보세요. 공식 연락처로 사실 여부를 확인하세요. |
-| ③ | `unclear_impliedRequest=imp_notice`, `unclear_requestHint=hint_notice` | 안내 성격이라면 요구 사항이 없는지 한 번 더 읽어 보세요. 요구가 없다면 보관해 두어도 충분합니다. |
-| ④ | `unclear_impliedRequest=imp_contact`, `unclear_requestHint=hint_contact` | 연락만 하라는 서류는 연락하기 전에 보낸 곳 확인이 먼저입니다. 서류의 연락처가 아닌 공식 연락처를 쓰세요. |
-| ⑤ | `unclear_impliedRequest=imp_unknown`, `unclear_requestHint=hint_unknown` | 판단이 어렵다면 서류를 그대로 보관하고 제목·보낸 곳·날짜부터 정리하세요. 이후 전문가 진행에서 함께 분류할 수 있습니다. |
+| ① | `unclear_impliedRequest=imp_money`, `unclear_impliedBasis=im_text` | 돈을 요구하는 것 같다면 납부 관련 서류로 보고 보낸 곳과 근거를 먼저 확인하세요. 확인 전에는 송금하지 마세요. |
+| ② | `unclear_impliedRequest=imp_submit`, `unclear_impliedBasis=im_feel` | 제출이나 출석을 요구하는 것 같다면 무엇을 언제까지 해야 하는지 서류에서 찾아보세요. 공식 연락처로 사실 여부를 확인하세요. |
+| ③ | `unclear_impliedRequest=imp_notice`, `unclear_impliedBasis=im_feel` | 안내 성격이라면 요구 사항이 없는지 한 번 더 읽어 보세요. 요구가 없다면 보관해 두어도 충분합니다. |
+| ④ | `unclear_impliedRequest=imp_contact`, `unclear_impliedBasis=im_text` | 연락만 하라는 서류는 연락하기 전에 보낸 곳 확인이 먼저입니다. 서류의 연락처가 아닌 공식 연락처를 쓰세요. |
+| ⑤ | `unclear_impliedRequest=imp_unknown`, `unclear_impliedBasis=im_none` | 판단이 어렵다면 서류를 그대로 보관하고 제목·보낸 곳·날짜부터 정리하세요. 이후 전문가 진행에서 함께 분류할 수 있습니다. |
 
 **압박의 방식** — Q10-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_pressureType=press_none`, `unclear_pressureLevel=lvl_none` | 압박이 없는 안내라면 급하게 움직일 이유는 서류에서 확인되지 않습니다. 요구 사항이 있는지 천천히 읽어 보세요. |
-| ② | `unclear_pressureType=press_deadline`, `unclear_pressureLevel=lvl_low` | 기한만 안내한 경우에는 그 기한의 근거가 서류에 있는지 확인하면 됩니다. 날짜를 기록해 두세요. |
-| ③ | `unclear_pressureType=press_legal`, `unclear_pressureLevel=lvl_mid` | 불이익을 예고하는 문구라면 어떤 근거로 어떤 절차가 이어지는지 서류에 적혀 있는지 확인하세요. 근거가 없다면 공식 경로로 문의가 필요합니다. |
-| ④ | `unclear_pressureType=press_rush`, `unclear_pressureLevel=lvl_mid` | 재촉은 확인할 시간을 주지 않으려는 방식일 수 있어 주의가 필요합니다. 시간이 급해 보여도 보낸 곳 확인을 먼저 하세요. |
-| ⑤ | `unclear_pressureType=press_threat`, `unclear_pressureLevel=lvl_high` | 강한 불이익을 앞세워 즉시 응하라는 연락은 그 자체로 의심할 만한 점입니다. 응하기 전에 공식 연락처로 확인하고 대화는 그대로 보관하세요. |
-| ⑥ | `unclear_pressureType=press_secret`, `unclear_pressureLevel=lvl_high` | 비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의해 보세요. |
+| ① | `unclear_pressureType=press_none`, `unclear_pressureChannel=ch_document` | 압박이 없는 안내라면 급하게 움직일 이유는 서류에서 확인되지 않습니다. 요구 사항이 있는지 천천히 읽어 보세요. |
+| ② | `unclear_pressureType=press_deadline`, `unclear_pressureChannel=ch_message` | 기한을 재촉하는 연락이라면 그 기한의 근거가 서류에 있는지 확인하세요. 메시지로만 오는 기한은 날짜와 함께 기록해 두세요. |
+| ③ | `unclear_pressureType=press_legal`, `unclear_pressureChannel=ch_document` | 불이익을 예고하는 문구라면 어떤 근거로 어떤 절차가 이어지는지 서류에 적혀 있는지 확인하세요. 근거가 없다면 공식 경로로 문의가 필요합니다. |
+| ④ | `unclear_pressureType=press_threat`, `unclear_pressureChannel=ch_call` | 강한 불이익을 앞세워 즉시 응하라는 연락은 그 자체로 의심할 만한 점입니다. 전화를 끊고 공식 연락처로 확인하며 통화 기록은 그대로 보관하세요. |
+| ⑤ | `unclear_pressureType=press_secret`, `unclear_pressureChannel=ch_message` | 비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의하고 메시지는 지우지 말고 보관하세요. |
 
 **기한** — Q11-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineSource=dls_none` | 기한이 없다면 서두를 이유가 서류에서는 확인되지 않습니다. 누군가 기한을 말한다면 그 근거를 글로 요청해 보세요. |
-| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineSource=dls_doc` | 서류에 기한이 있고 여유가 있다면 그 안에 확인을 마칠 수 있습니다. 기한 날짜를 달력에 표시해 두세요. |
-| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineSource=dls_doc` | 기한이 가깝다면 확인과 준비를 동시에 시작해야 합니다. 응하기 어려운 부분은 기한 연장이 가능한지 공식 경로로 문의하세요. |
-| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineSource=dls_doc` | 기한이 지났더라도 바로 포기하지 말고 가능한 조치를 빨리 확인하는 것이 중요합니다. 받은 날짜를 증명할 자료를 보관하세요. |
-| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineSource=dls_message` | 서류 없이 말로만 정한 기한은 근거가 확인되지 않은 상태입니다. 기한의 근거 서류를 요청하고 요청한 기록을 남기세요. |
-| ⑥ | `unclear_deadlineStatus=dl_unclear`, `unclear_deadlineSource=dls_unknown` | 기한이 분명하지 않다면 서류에서 날짜나 기간 표현을 먼저 찾아보세요. 찾을 수 없다면 보낸 곳에 기한이 있는지 확인이 필요합니다. |
+| ① | `unclear_deadlineStatus=dl_none`, `unclear_deadlineStake=stake_none` | 기한이 없다면 서두를 이유가 서류에서는 확인되지 않습니다. 누군가 기한을 말한다면 그 근거를 글로 요청해 보세요. |
+| ② | `unclear_deadlineStatus=dl_far`, `unclear_deadlineStake=stake_money` | 여유가 있다면 그 안에 근거 확인을 마칠 수 있습니다. 가산금이 서류의 어떤 근거에서 나오는지도 함께 확인하고 기한 날짜를 달력에 표시해 두세요. |
+| ③ | `unclear_deadlineStatus=dl_near`, `unclear_deadlineStake=stake_legal` | 기한이 가깝다면 확인과 준비를 동시에 시작해야 합니다. 법적 조치의 근거가 서류에 있는지 보고 연장이 가능한지 공식 경로로 문의하세요. |
+| ④ | `unclear_deadlineStatus=dl_passed`, `unclear_deadlineStake=stake_unknown` | 기한이 지났더라도 바로 포기하지 말고 가능한 조치를 빨리 확인하는 것이 중요합니다. 받은 날짜를 증명할 자료를 보관하세요. |
+| ⑤ | `unclear_deadlineStatus=dl_verbal`, `unclear_deadlineStake=stake_legal` | 서류 없이 말로만 정한 기한은 근거가 확인되지 않은 상태입니다. 기한의 근거 서류를 요청하고 요청한 기록을 남기세요. |
 
 **이미 한 조치** — Q12-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_actionTaken=act_nothing`, `unclear_exposureLevel=exp_none` | 아직 아무 조치도 하지 않은 지금이 가장 안전하게 확인할 수 있는 시점입니다. 서류를 그대로 보관하고 확인부터 시작하세요. |
-| ② | `unclear_actionTaken=act_asked`, `unclear_exposureLevel=exp_low` | 문의만 했다면 문의한 날짜와 방법, 받은 답을 기록해 두세요. 서류에 적힌 연락처로 물었다면 그 연락처가 맞는지도 확인이 필요합니다. |
-| ③ | `unclear_actionTaken=act_clicked`, `unclear_exposureLevel=exp_mid` | 링크를 열었거나 앱을 설치했다면 추가 입력은 멈추고 설치한 앱은 지우는 것을 살펴보세요. 입력한 정보가 있다면 어떤 정보인지 기록하세요. |
-| ④ | `unclear_actionTaken=act_sent_info`, `unclear_exposureLevel=exp_info` | 보낸 정보의 종류와 날짜를 정리하고 추가 요구에는 응하지 마세요. 신분증이나 계좌 정보를 보냈다면 관련 기관이나 은행에 알리는 방법을 확인하세요. |
-| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_exposureLevel=exp_money` | 송금 내역과 받는 계좌 정보를 그대로 보관하고 가능한 한 빨리 은행에 문의하세요. 추가로 보내라는 요구가 와도 응하지 말고 사기 검토에서 이어서 확인할 수 있습니다. |
-| ⑥ | `unclear_actionTaken=act_replied`, `unclear_exposureLevel=exp_contact` | 무엇을 말했는지 날짜와 함께 정리해 두세요. 이후 연락이 오더라도 요구에 응하기 전에 보낸 곳 확인이 먼저입니다. |
+| ① | `unclear_actionTaken=act_nothing`, `unclear_followUp=fu_none` | 아직 아무 조치도 하지 않은 지금이 가장 안전하게 확인할 수 있는 시점입니다. 서류를 그대로 보관하고 확인부터 시작하세요. |
+| ② | `unclear_actionTaken=act_contacted`, `unclear_followUp=fu_more` | 연락이 이어지는 상태라면 무엇을 말했는지 날짜와 함께 정리하세요. 요구에 응하기 전에 보낸 곳 확인이 먼저이고, 서류에 적힌 연락처가 맞는지도 확인하세요. |
+| ③ | `unclear_actionTaken=act_clicked`, `unclear_followUp=fu_none` | 추가 입력은 멈추고 설치한 앱은 지우는 것을 살펴보세요. 입력한 정보가 있다면 어떤 정보인지 기록하고, 이후 이상한 연락이 오는지 지켜보세요. |
+| ④ | `unclear_actionTaken=act_sent_info`, `unclear_followUp=fu_more` | 보낸 정보의 종류와 날짜를 정리하고 추가 요구에는 응하지 마세요. 신분증이나 계좌 정보를 보냈다면 관련 기관이나 은행에 알리는 방법을 확인하세요. |
+| ⑤ | `unclear_actionTaken=act_sent_money`, `unclear_followUp=fu_cut` | 연락이 끊겼더라도 송금 내역과 받는 계좌 정보를 보관하고 가능한 한 빨리 은행에 문의하세요. 대화와 영수증은 지우지 말고 사기 검토에서 이어서 확인할 수 있습니다. |
 
 **남은 자료** — Q13-N
 
 | 선택 | 저장 필드 | 결과 문장 |
 |---|---|---|
-| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceState=evs_strong` | 원본이 있으면 검토가 가장 정확해집니다. 원본은 훼손하지 말고 사본을 만들어 사용하세요. |
-| ② | `unclear_evidenceKind=ev_photo`, `unclear_evidenceState=evs_medium` | 사진은 글자가 모두 보이고 날짜가 확인되도록 다시 정리해 두면 좋습니다. 가능하면 원본 확보 방법도 알아보세요. |
-| ③ | `unclear_evidenceKind=ev_chat`, `unclear_evidenceState=evs_medium` | 대화와 통화 기록은 날짜와 상대 번호가 보이게 그대로 보관하세요. 삭제하지 말고 화면을 순서대로 캡처해 두면 도움이 됩니다. |
-| ④ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceState=evs_strong` | 송금 내역은 금액·날짜·받는 계좌가 보이게 보관하세요. 이 자료는 이후 확인과 문의에서 가장 중요하게 쓰입니다. |
-| ⑤ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceState=evs_weak` | 잃어버린 부분은 발급처나 통신사에 다시 요청할 수 있는지 알아보세요. 기억나는 내용은 날짜와 함께 먼저 글로 적어 두세요. |
-| ⑥ | `unclear_evidenceKind=ev_none`, `unclear_evidenceState=evs_weak` | 자료가 없어도 기억나는 경위를 날짜순으로 적어 두면 확인에 도움이 됩니다. 전문가 진행에서 함께 정리할 수 있습니다. |
+| ① | `unclear_evidenceKind=ev_original`, `unclear_evidenceGoal=goal_verify` | 원본이 있으면 검토가 가장 정확해집니다. 원본은 훼손하지 말고 사본을 만들어 대조에 사용하세요. |
+| ② | `unclear_evidenceKind=ev_capture`, `unclear_evidenceGoal=goal_report` | 글자가 모두 보이고 날짜·상대 번호가 확인되도록 순서대로 정리해 두세요. 원본 대화는 지우지 말고 화면 캡처도 함께 보관하세요. |
+| ③ | `unclear_evidenceKind=ev_payment`, `unclear_evidenceGoal=goal_recover` | 송금 내역은 금액·날짜·받는 계좌가 보이게 보관하세요. 이 자료는 은행 문의와 이후 확인에서 가장 중요하게 쓰입니다. |
+| ④ | `unclear_evidenceKind=ev_partial`, `unclear_evidenceGoal=goal_verify` | 잃어버린 부분은 발급처나 통신사에 다시 요청할 수 있는지 알아보세요. 기억나는 내용은 날짜와 함께 먼저 글로 적어 두세요. |
+| ⑤ | `unclear_evidenceKind=ev_none`, `unclear_evidenceGoal=goal_prepare` | 자료가 없어도 기억나는 경위를 날짜순으로 적어 두면 확인에 도움이 됩니다. 전문가 진행에서 함께 정리할 수 있습니다. |
 
 ## E-3. 결과에서의 연결 안내 (권유 문구, 강제 아님)
 
 | 연결 | 표시 조건 | 고객 화면 문구 |
 |---|---|---|
-| 세금 검토 | `unclear_senderClaim` ∈ {tax_authority} 또는 `unclear_moneyReviewLink` ∈ {link_tax} | 세금과 관련된 서류로 보인다면 세금 검토에서 이어서 확인해 보실 수 있습니다. |
-| 행정문서 검토 | `unclear_senderClaim` ∈ {local_admin, foreign_agency} 또는 `unclear_moneyReviewLink` ∈ {link_admin} 또는 `unclear_contactPattern` ∈ {after_request} | 행정 절차와 관련된 서류로 보인다면 행정문서 검토에서 이어서 확인해 보실 수 있습니다. |
-| 부동산 검토 | `unclear_moneyReviewLink` ∈ {link_property} 또는 `unclear_requestTarget` ∈ {tgt_contract_docs} | 부동산·계약과 관련된 서류로 보인다면 부동산 검토에서 이어서 확인해 보실 수 있습니다. |
-| 사기 검토 | `unclear_senderClaim` ∈ {police_court} 또는 `unclear_exposureLevel` ∈ {exp_money, exp_info} 또는 `unclear_pressureLevel` ∈ {lvl_high} | 사기나 사칭이 의심되는 상황일 수 있으니 사기 검토에서 이어서 확인해 보실 수 있습니다. |
-| 전문가 진행 | `unclear_deadlineStatus` ∈ {dl_passed} 또는 `unclear_amountTier` ∈ {tier_xlarge} 또는 `unclear_understandingLevel` ∈ {und_little, und_language} | 기한이 지났거나 금액이 크거나 내용을 이해하기 어렵다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요. |
+| 세금 검토 | `unclear_moneyNature` ∈ {nature_tax} | 세금과 관련된 서류로 보인다면 세금 검토에서 이어서 확인해 보실 수 있습니다. |
+| 행정문서 검토 | `unclear_senderClaim` ∈ {public_agency} 또는 `unclear_moneyNature` ∈ {nature_fine} 또는 `unclear_requestLink` ∈ {req_related} | 행정 절차와 관련된 서류로 보인다면 행정문서 검토에서 이어서 확인해 보실 수 있습니다. |
+| 부동산 검토 | `unclear_moneyNature` ∈ {nature_deposit} 또는 `unclear_requestTarget` ∈ {tgt_docs_biz} | 부동산·계약과 관련된 서류로 보인다면 부동산 검토에서 이어서 확인해 보실 수 있습니다. |
+| 사기 검토 | `unclear_senderClaim` ∈ {police_court} 또는 `unclear_actionTaken` ∈ {act_sent_money, act_sent_info, act_clicked} 또는 `unclear_pressureType` ∈ {press_threat, press_secret} | 사기나 사칭이 의심되는 상황일 수 있으니 사기 검토에서 이어서 확인해 보실 수 있습니다. |
+| 전문가 진행 | `unclear_deadlineStatus` ∈ {dl_passed} 또는 `unclear_amountScale` ∈ {amt_over100m} 또는 `unclear_understandingLevel` ∈ {und_little, und_language} | 기한이 지났거나 금액이 크거나 내용을 이해하기 어렵다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요. |
 | 서류 첨부 | 모든 결과 화면 | 받으신 서류를 첨부하면 더 정확히 확인할 수 있습니다. |
 
 - 연결 문구는 권유이며, 고객이 선택하지 않아도 결과와 리포트는 그대로 제공한다.
@@ -1762,7 +1654,7 @@
 | 2차 비율 | 69.2% | 69.2% | 69.2% |
 | 2차 ÷ 1차 | 2.25배 | 2.25배 | 2.25배 |
 | 질문 수(전체) | 13 | 13 | 13 |
-| 선택지 총수(직접 입력 포함) | 90 | 91 | 89 |
+| 선택지 총수(직접 입력 포함) | 78 | 78 | 78 |
 | 선택지별 저장 필드 수(최소) | 2 | 2 | 2 |
 
 | 자동 점검 | 결과 |
@@ -1776,7 +1668,7 @@
 | 카드 문장 50자 초과 | 0건(최대 34자) |
 | 위험 규칙의 필드·값이 실제 저장 값과 일치 | 통과 |
 | 1차 결과 문장 중복(01/02/03) | 0건 |
-| 값→고객 라벨 누락 | 0건(사용 값 209개) |
+| 값→고객 라벨 누락 | 0건(사용 값 166개) |
 | 같은 값 다른 라벨 / 같은 필드 안 라벨 중복 | 0건 |
 | 총 오류 / 경고 | 0 / 0 |
 
@@ -1788,217 +1680,172 @@
 
 | 내부 값 | 고객 화면 표시 |
 |---|---|
-| `act_asked` | 보낸 곳에 문의함 |
+| `ab_itemized` | 항목별 계산 내역이 있음 |
+| `ab_none` | 금액도 내역도 없음 |
+| `ab_total` | 총액만 적혀 있음 |
 | `act_clicked` | 링크 열람·앱 설치 |
+| `act_contacted` | 문의·답장·통화함 |
 | `act_nothing` | 아무것도 하지 않음 |
-| `act_replied` | 답장·통화함 |
 | `act_sent_info` | 개인정보·서류 제출 |
 | `act_sent_money` | 송금함 |
-| `after_request` | 내가 신청·문의한 뒤에 받음 |
-| `after_visit` | 전화·방문 뒤에 받음 |
-| `aim_generic` | 불특정 다수 대상일 수 있음 |
-| `aim_misdirected` | 엉뚱한 수신일 수 있음 |
-| `aim_partial` | 일부만 특정됨 |
-| `aim_specific` | 나를 특정한 서류 |
-| `aim_unchecked` | 확인 전 |
+| `after_visit` | 전화·방문 뒤에 이어서 받음 |
 | `amt_10m_100m` | 1천만 동 이상 1억 동 미만 |
 | `amt_1m_10m` | 100만 동 이상 1천만 동 미만 |
 | `amt_over100m` | 1억 동 이상 |
 | `amt_under1m` | 100만 동 미만 |
 | `amt_unstated` | 금액이 적혀 있지 않음 |
 | `bank_claim` | 은행·금융회사 |
-| `bill_form` | 청구서·고지서 양식 |
+| `ch_call` | 전화로 전해짐 |
+| `ch_document` | 서류로 전해짐 |
+| `ch_message` | 문자·메신저로 전해짐 |
 | `chat_message` | 문자·메신저 |
+| `cmp_diff` | 공식 연락처와 대조해 보니 다름 |
+| `cmp_same` | 공식 연락처와 대조해 보니 같음 |
+| `cmp_unchecked` | 공식 정보와 대조해 보지 않음 |
 | `company_claim` | 회사·통신·택배·플랫폼 |
 | `deliver_call` | 전화·화상 통화 |
-| `deliver_chat` | 이메일·메신저로 전달 |
+| `deliver_chat` | 이메일·메신저로 제출 |
 | `deliver_post` | 우편·창구 접수 |
-| `deliver_unstated` | 방법이 적혀 있지 않음 |
-| `deliver_upload` | 웹사이트 업로드 |
-| `deliver_visit` | 지정 장소 방문 |
-| `dgrp_digital` | 전자 전달 |
-| `dgrp_formal` | 대면·우편 접수 |
-| `dgrp_unspecified` | 방법 불명 |
+| `deliver_upload` | 웹사이트에 올리기 |
+| `deliver_visit` | 지정 장소에 직접 방문 |
+| `detail_brief` | 요구 내용이 짧거나 모호함 |
+| `detail_full` | 요구 내용이 구체적임 |
+| `detail_linked` | 내용이 연결 화면에만 있음 |
+| `detail_none` | 받은 서류 없이 말로만 전달됨 |
 | `direct_input` | 직접 입력 |
 | `direct_input_detail` | 직접 입력(상세) |
 | `dl_far` | 기한이 여유 있음 |
 | `dl_near` | 기한이 가까움 |
 | `dl_none` | 기한 표시 없음 |
 | `dl_passed` | 기한이 이미 지남 |
-| `dl_unclear` | 기한이 분명하지 않음 |
 | `dl_verbal` | 말·메시지로만 기한을 들음 |
-| `dls_doc` | 서류에 적혀 있음 |
-| `dls_message` | 메시지·구두로만 들음 |
-| `dls_none` | 어디에도 없음 |
-| `dls_unknown` | 출처를 모름 |
-| `doubt_amount` | 금액이 맞는지 모르겠음 |
-| `doubt_appear` | 출석 여부가 걱정됨 |
+| `doubt_appear` | 직접 가야 하는지 걱정함 |
 | `doubt_deadline` | 기한을 놓칠까 걱정함 |
 | `doubt_done` | 이미 응해서 불안함 |
 | `doubt_genuine` | 진짜인지 모르겠음 |
-| `doubt_meaning` | 무슨 뜻인지 모르겠음 |
+| `doubt_genuine_privacy` | 진짜인지·개인정보를 내도 되는지 모르겠음 |
+| `doubt_meaning` | 무슨 뜻인지·응해야 하는지 모르겠음 |
 | `doubt_missing` | 놓친 내용이 있을까 걱정함 |
 | `doubt_none` | 크게 걱정하지 않음 |
-| `doubt_owed` | 내야 하는지 모르겠음 |
-| `doubt_privacy` | 개인정보 제출이 걱정됨 |
-| `doubt_respond` | 응해야 하는지 모르겠음 |
-| `doubt_what` | 무엇을 내야 하는지 모르겠음 |
-| `eg_agency` | 기관 관련 |
-| `eg_contact` | 연락처 관련 |
-| `eg_date` | 기한 관련 |
-| `eg_legal` | 법령 관련 |
-| `eg_money` | 금전 관련 |
-| `eg_numbers` | 번호 관련 |
+| `doubt_owed` | 내야 하는 돈인지·금액이 맞는지 모르겠음 |
+| `doubt_what` | 무엇을 언제까지 내야 하는지 모르겠음 |
 | `email_body` | 이메일 |
-| `escalating_tone` | 점점 강한 표현으로 바뀜 |
-| `ev_chat` | 대화·통화 기록 |
+| `escalating_tone` | 반복되며 표현이 점점 강해짐 |
+| `ev_capture` | 사진·캡처·대화 기록 보관 |
 | `ev_none` | 남은 자료 없음 |
-| `ev_original` | 원본 보관 |
+| `ev_original` | 서류 원본 보관 |
 | `ev_partial` | 일부를 잃어버림 |
-| `ev_payment` | 송금 내역·영수증 |
-| `ev_photo` | 사진·캡처만 있음 |
-| `evs_medium` | 자료가 일부 있음 |
-| `evs_strong` | 자료가 충분함 |
-| `evs_weak` | 자료가 부족함 |
-| `exp_contact` | 연락이 이어진 상태 |
-| `exp_info` | 개인정보 노출 |
-| `exp_low` | 노출 적음 |
-| `exp_mid` | 정보 노출 가능성 |
-| `exp_money` | 금전 피해 가능성 |
-| `exp_none` | 노출 없음 |
+| `ev_payment` | 송금 내역·영수증 보관 |
 | `first_contact` | 처음 한 번 받음 |
-| `flow_escalate` | 강도가 높아짐 |
-| `flow_expected` | 내 요청과 이어짐 |
-| `flow_followup` | 연락 뒤에 이어짐 |
-| `flow_repeat` | 반복해서 받음 |
-| `flow_single` | 한 번만 받음 |
-| `fm_formal` | 형식을 갖춤 |
-| `fm_informal` | 형식이 없음 |
-| `fm_link` | 링크로만 연결됨 |
-| `fm_odd` | 문체가 어색함 |
-| `fm_partial` | 형식이 일부 부족함 |
-| `foreign_agency` | 출입국·노동 관련 기관 |
-| `form_digital` | 전자 메시지 형태 |
-| `form_formal` | 정식 서류 형태 |
-| `form_oral` | 말로만 전달됨 |
-| `grp_appear` | 출석·방문 |
-| `grp_business` | 사업 자료 |
-| `grp_contract` | 계약·거래 자료 |
-| `grp_finance` | 금융회사 |
-| `grp_online` | 온라인 접속 |
-| `grp_personal` | 개인 신분 자료 |
-| `grp_private` | 민간 업체 |
-| `grp_public` | 공공기관 |
-| `grp_statement` | 설명·진술 |
-| `grp_unnamed` | 보낸 곳이 불분명 |
-| `hint_contact` | 연락 유도 |
-| `hint_notice` | 안내 성격 |
-| `hint_pay` | 납부 요구 가능성 |
-| `hint_submit` | 제출·출석 요구 가능성 |
-| `hint_unknown` | 판단 어려움 |
+| `fu_cut` | 그 뒤 상대가 연락을 끊음 |
+| `fu_more` | 그 뒤에도 추가 요구가 계속됨 |
+| `fu_none` | 그 뒤 추가 연락이 없음 |
+| `goal_prepare` | 앞으로 모아 둘 자료를 알고 싶음 |
+| `goal_recover` | 낸 돈을 되찾는 방법을 알고 싶음 |
+| `goal_report` | 상담·신고에 쓸 자료로 정리하고 싶음 |
+| `goal_verify` | 진짜인지 대조해 보고 싶음 |
+| `help_expert` | 전문가와 함께 확인하길 원함 |
+| `help_guide` | 스스로 확인할 방법을 원함 |
+| `help_translate` | 번역·설명을 원함 |
+| `helper_none` | 같이 봐 줄 사람이 없음 |
+| `helper_yes` | 같이 봐 줄 사람이 있음 |
 | `id_exact` | 내 정보가 정확히 맞음 |
 | `id_generic` | 일반 호칭만 있음 |
 | `id_other` | 다른 사람·회사 이름 |
 | `id_partial` | 이름만 맞고 일부 다름 |
 | `id_unchecked` | 아직 확인하지 않음 |
-| `imp_contact` | 연락하라는 말뿐 |
+| `im_feel` | 분위기로 짐작해서 |
+| `im_none` | 근거를 찾지 못해서 |
+| `im_text` | 문장에 직접 적혀 있어서 |
+| `imp_contact` | 연락하라는 말뿐임 |
 | `imp_money` | 돈을 내라는 것 같음 |
-| `imp_notice` | 알려 주는 내용 같음 |
-| `imp_submit` | 서류·출석 요구 같음 |
-| `imp_unknown` | 무엇을 요구하는지 모르겠음 |
-| `key_agency` | 기관 이름 |
+| `imp_notice` | 알리는 내용 같음 |
+| `imp_submit` | 서류를 내거나 출석하라는 것 같음 |
+| `imp_unknown` | 판단하기 어려움 |
+| `key_agency` | 기관 이름·문서번호 |
 | `key_contact` | 링크·전화번호뿐 |
 | `key_date` | 날짜·기한 |
 | `key_law` | 법령 이름·조항 번호 |
 | `key_money` | 금액·계좌번호 |
-| `key_numbers` | 문서·사건·세금번호 |
-| `link_admin` | 행정문서 검토와 연결 |
+| `known_no` | 처음 보는 이름·내용임 |
+| `known_yes` | 알고 있는 이름·내용임 |
 | `link_code` | 링크·큐알 코드 안내 |
-| `link_none` | 연결할 분야가 불분명 |
-| `link_property` | 부동산·계약 검토와 연결 |
-| `link_tax` | 세금 검토와 연결 |
-| `link_trade` | 계약·이용 내역 대조 |
-| `list_clear` | 구체적 |
-| `list_contact` | 연락 유도 |
-| `list_none` | 없음 |
-| `list_partial` | 일부만 구체적 |
-| `list_vague` | 모호함 |
-| `local_admin` | 지방 행정기관 |
-| `lvl_high` | 높음 |
-| `lvl_low` | 낮음 |
-| `lvl_mid` | 중간 |
-| `lvl_none` | 없음 |
 | `mark_full` | 기관명·번호·날짜·직인이 모두 있음 |
-| `mark_link_only` | 링크·큐알 코드로만 안내 |
-| `mark_none` | 공식 요소가 없음 |
-| `mark_odd_text` | 문장이 어색함 |
+| `mark_link_only` | 링크·큐알 코드로만 안내함 |
+| `mark_odd_text` | 문장이 번역투이거나 어색함 |
 | `mark_partial` | 일부 요소만 있음 |
-| `mark_personal_contact` | 개인 번호·일반 이메일 |
-| `nature_debt` | 채무·거래 대금 |
+| `mark_weak` | 공식 요소 없이 개인 번호·일반 이메일뿐 |
+| `mem_no` | 해당하는 일이 기억나지 않음 |
+| `mem_unsure` | 있었는지 불확실함 |
+| `mem_yes` | 해당하는 일이 실제로 있었음 |
 | `nature_deposit` | 보증금·선납금·예치금 |
-| `nature_fee` | 서비스 이용료·요금 |
 | `nature_fine` | 벌금·과태료·행정 수수료 |
 | `nature_tax` | 세금·세무 관련 |
+| `nature_trade` | 서비스 이용료·거래 대금 |
 | `nature_unstated` | 명목이 적혀 있지 않음 |
-| `next_basis` | 먼저 근거 확인 |
-| `next_deadline` | 먼저 기한 확인 |
-| `next_keep` | 차분히 보관하고 확인 |
-| `next_sender` | 먼저 보낸 곳 확인 |
-| `next_stop` | 추가 응답을 멈추고 확인 |
-| `next_understand` | 먼저 내용 이해 |
 | `notice_only` | 알리는 내용 같음 |
 | `once_earlier` | 며칠 전에 한 번 받음 |
-| `paper_official` | 종이 공문 |
+| `oth_only_me` | 이 서류를 받은 사람이 나뿐인 것 같음 |
+| `oth_others` | 주변 사람도 같은 서류를 받음 |
+| `oth_unknown` | 주변에서 받았는지 모름 |
+| `paper_doc` | 종이 서류 |
 | `pay` | 돈을 내라는 내용 같음 |
-| `pay_account` | 계좌 이체 |
-| `pay_cash` | 현금성 수단 |
-| `pay_none` | 방법 불명 |
-| `pay_online` | 온라인 결제 |
 | `payee_cash` | 현금·상품권 |
-| `payee_company` | 회사 이름 계좌 |
-| `payee_institution` | 기관 이름 계좌 |
-| `payee_online` | 링크·큐알·앱 결제 |
-| `payee_person` | 개인 이름 계좌 |
-| `payee_unstated` | 받는 곳이 적혀 있지 않음 |
+| `payee_company` | 회사 이름의 계좌 |
+| `payee_institution` | 기관 이름의 계좌 |
+| `payee_online` | 링크·큐알 코드·앱 결제 |
+| `payee_person` | 개인 이름의 계좌 |
+| `pm_diff` | 계좌 이름이 보낸 곳과 다름 |
+| `pm_na` | 받는 곳 이름이 따로 없음 |
+| `pm_same` | 계좌 이름이 보낸 곳과 같음 |
+| `pm_unknown` | 받는 곳과 보낸 곳의 관계를 모름 |
 | `police_court` | 공안·경찰·검찰·법원 |
-| `press_deadline` | 기한 안내 |
-| `press_legal` | 법적 조치·가산금 예고 |
+| `prep_hard` | 일부는 구하기 어려움 |
+| `prep_na` | 준비할 서류가 없음 |
+| `prep_ready` | 가진 서류로 준비할 수 있음 |
+| `prep_unknown` | 준비할 수 있는지 모름 |
+| `press_deadline` | 기한 안에 하라는 재촉 |
+| `press_legal` | 연체료·법적 조치 예고 |
 | `press_none` | 압박 없음 |
-| `press_rush` | 지금 바로 하라고 재촉 |
 | `press_secret` | 비밀 유지 요구 |
 | `press_threat` | 계좌 동결·체포 등 강한 불이익 |
-| `read_blurry` | 화질 문제 |
-| `read_hard` | 읽기 어려움 |
-| `read_lang` | 언어 장벽 |
-| `read_ok` | 읽는 데 문제 없음 |
+| `public_agency` | 공공기관(세무·행정·출입국·노동) |
+| `reason_none` | 왜 필요한지 설명이 없음 |
+| `reason_stated` | 왜 필요한지 서류에 설명됨 |
+| `rel_customer` | 평소 거래하던 곳 |
+| `rel_none` | 그 곳과 한 일이 없음 |
+| `rel_recent` | 최근 그 곳에 신청·신고한 일이 있음 |
+| `rel_unknown` | 관계가 있는지 모름 |
 | `repeated_same` | 같은 내용을 반복해서 받음 |
+| `req_none` | 내가 신청·문의한 일은 없음 |
+| `req_related` | 내가 신청·문의한 일 뒤에 받음 |
 | `selected` | 직접 선택함 |
-| `spec_contact_only` | 연락만 요구 |
-| `spec_full` | 목록·양식이 모두 있음 |
-| `spec_list_only` | 목록만 있음 |
-| `spec_none` | 내용이 적혀 있지 않음 |
-| `spec_vague` | '관련 서류'로만 적힘 |
+| `spec_contact_only` | 연락하라고만 함 |
+| `spec_full` | 목록과 양식이 모두 있음 |
+| `spec_list_only` | 목록만 있고 양식 없음 |
+| `spec_none` | 내야 할 것이 적혀 있지 않음 |
+| `spec_vague` | ‘관련 서류’ 정도로만 적힘 |
+| `stake_legal` | 넘기면 법적 조치를 한다고 함 |
+| `stake_money` | 넘기면 가산금·연체료가 붙는다고 함 |
+| `stake_none` | 넘겨도 된다는 불이익 설명이 없음 |
+| `stake_unknown` | 넘기면 어떻게 되는지 모름 |
 | `submit_or_appear` | 서류 제출·출석 요구 같음 |
-| `tax_authority` | 세무기관 |
 | `tgt_appear` | 직접 출석·방문 |
-| `tgt_business_docs` | 사업자·회사 서류 |
-| `tgt_contract_docs` | 계약서·거래 서류 |
+| `tgt_docs_biz` | 사업자·계약·거래 서류 |
 | `tgt_id_docs` | 신분증·여권·체류 서류 |
 | `tgt_online` | 사이트 접속·앱 설치 |
-| `tgt_statement` | 경위서·설명서 |
-| `tier_large` | 큰 금액 |
-| `tier_medium` | 중간 금액 |
-| `tier_small` | 소액 |
-| `tier_unknown` | 금액 불명 |
-| `tier_xlarge` | 매우 큰 금액 |
-| `und_blurry` | 사진이 흐리거나 잘림 |
+| `tgt_statement` | 경위서·설명서 같은 진술 |
+| `und_blurry` | 흐리거나 잘려 읽을 수 없음 |
 | `und_half` | 절반쯤 이해함 |
 | `und_language` | 외국어라 읽기 어려움 |
 | `und_little` | 거의 이해하지 못함 |
 | `und_most` | 대부분 이해함 |
 | `unnamed_claim` | 보낸 곳이 없거나 개인 |
 | `unsure` | 잘 모르겠음 |
-| `verbal_only` | 전화·방문으로 말로 들음 |
+| `venue_checked` | 접수처가 공식 정보와 같음을 확인함 |
+| `venue_unchecked` | 접수처가 공식인지 확인하지 않음 |
+| `venue_unknown` | 접수처가 공식인지 확인할 방법을 모름 |
+| `verbal_only` | 말로만 들음 |
 
 ---
 

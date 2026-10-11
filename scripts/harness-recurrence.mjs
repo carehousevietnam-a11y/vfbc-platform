@@ -189,6 +189,23 @@ function structureHits(name, pack, doc) {
     if (choices.length < 4 || !question.directFields) {
       hits.push(`question-standard ${name} ${question.code} options`);
     }
+    if (choices.length > 5) {
+      hits.push(`question-standard ${name} ${question.code} max-5 choices ${choices.length}`);
+    }
+    const descSeen = new Map();
+    for (const choice of choices) {
+      const key = String(choice.description ?? "").trim();
+      if (key) descSeen.set(key, (descSeen.get(key) ?? 0) + 1);
+    }
+    for (const [key, n] of descSeen) {
+      if (n > 1) hits.push(`question-standard ${name} ${question.code} a16 duplicate description x${n}: ${key.slice(0, 30)}`);
+    }
+    const secondKey = Object.keys(choices[0]?.fields ?? {})[1];
+    if (secondKey) {
+      const share = new Map();
+      for (const choice of choices) share.set(choice.fields[secondKey], (share.get(choice.fields[secondKey]) ?? 0) + 1);
+      if (Math.max(...share.values()) > 3) hits.push(`question-standard ${name} ${question.code} a16 second field ${secondKey} shared over 3`);
+    }
     if (Object.keys(question.directFields ?? {}).length !== 2) {
       hits.push(`question-standard ${name} ${question.code} direct-fields`);
     }
