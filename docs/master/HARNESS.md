@@ -53,3 +53,4 @@
 그 다음부터 커밋 직전에 tsc와 content-final 테스트가 돌고, 실패하면 커밋이 막힌다.
 공통 파일의 줄 삭제도 같은 hook이 막는다. 이 브랜치는 push하지 않는다.
 새 문제가 생기면 `docs/master/LESSONS.md`에 항목을 추가하고, 자동 검사로 바꿀 수 있으면 verify에도 그 검사를 추가한다.
+- commit-msg: fix로 시작하는 커밋은 docs/master/LESSONS.md 기록이 없으면 막힌다(예외는 LESSON-SKIP: 사유 줄). 대표님 지적 사항이 항상 쌓이도록 하는 장치다.

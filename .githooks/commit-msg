@@ -11,4 +11,13 @@ if [ -n "$hit" ]; then
     exit 1
   fi
 fi
+# Every "fix" commit must add a lesson (docs/master/LESSONS.md) so the mistake is never repeated.
+if head -1 "$1" | grep -qE '^fix'; then
+  if ! printf '%s\n' "$changed" | grep -q '^docs/master/LESSONS\.md$'; then
+    if ! grep -q '^LESSON-SKIP: .\+' "$1"; then
+      echo "BLOCKED: fix commit without a LESSONS.md entry (add one, or a LESSON-SKIP: <reason> line)."
+      exit 1
+    fi
+  fi
+fi
 exit 0
