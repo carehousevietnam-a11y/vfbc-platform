@@ -15,7 +15,8 @@ export type CostCheckServiceId =
   | "real-estate"
   | "fraud"
   | "tax"
-  | "notary";
+  | "notary"
+  | "unclear";
 
 export type CostCheckTab = "lookup" | "review" | "direct";
 
@@ -427,6 +428,24 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
   },
   {
     id: "notary",
+    label: "불확실한 문서",
+    shortLabel: "불확실한 문서",
+    description: "발신처·성격이 불분명한 서류",
+    currency: "VND",
+    governmentFee: "",
+    source: "",
+    marketMin: 0,
+    marketMax: 0,
+    marketNote: "",
+    govFeeAmount: 0,
+    marketUsualFeeAmount: 0,
+    lookupGuide:
+      "불확실한 서류 검토는 문서 성격·진위 확인·대응 범위에 따라 상담 비용이 발생할 수 있습니다.",
+    ctaLabel: "불확실한 문서 검토 (VERIFY)",
+    ctaHref: "/verify/unclear",
+  },
+  {
+    id: "unclear",
     label: "불확실한 문서",
     shortLabel: "불확실한 문서",
     description: "발신처·성격이 불분명한 서류",

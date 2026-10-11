@@ -1694,7 +1694,8 @@ function ReviewSidebar({
     id === "real-estate" ||
     id === "fraud" ||
     id === "tax" ||
-    id === "notary"
+    id === "notary" ||
+    id === "unclear"
   ) {
     const verifyGlance =
       id === "admin"
@@ -2897,7 +2898,9 @@ export function MasterReviewQuotationReport({
               ? "세금 유형·범위에 따라 상담 비용이 발생할 수 있습니다."
               : service.id === "notary"
                 ? "문서 성격·범위에 따라 상담 비용이 발생할 수 있습니다."
-                : verifyConsultationCostGuide
+                : service.id === "unclear"
+                  ? "문서 성격·범위에 따라 상담 비용이 발생할 수 있습니다."
+                  : verifyConsultationCostGuide
       : null;
   const footerNote =
     verifyConsultationCostGuide || service.lookupGuide?.trim() || COST_CHECK_DISCLAIMER;
@@ -3382,6 +3385,22 @@ export function MasterReviewQuotationReport({
         questionProps,
         adminVerifyUseStitchCards,
         directPlaceholder,
+      );
+    }
+
+    if (
+      question.kind === "choice" &&
+      isPackVerifyStitchLayout &&
+      (question.id === "fraud_entry" || question.id === "unclear_entry")
+    ) {
+      return renderAdminClassifiedChoiceQuestion(
+        question as ReviewQuestion & {
+          kind: "choice";
+          options: { value: string; label: string; description?: string }[];
+        },
+        questionProps,
+        adminVerifyUseStitchCards,
+        "선택지에 없는 내용이 있다면",
       );
     }
 

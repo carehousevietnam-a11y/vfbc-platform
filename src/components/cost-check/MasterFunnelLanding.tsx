@@ -672,6 +672,7 @@ const MASTER_QUOTE_REVIEW_SERVICE_IDS: CostCheckServiceId[] = [
   "fraud",
   "tax",
   "notary",
+  "unclear",
   "company",
   "restaurant",
   "hygiene",

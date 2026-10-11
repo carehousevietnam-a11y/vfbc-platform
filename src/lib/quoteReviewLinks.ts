@@ -75,6 +75,10 @@ const NEXT_LINKS: Record<CostCheckServiceId, QuoteNextLink[]> = {
     { label: "서류 검토가 필요한지 확인해볼까요?", href: "/verify/unclear" },
     { label: "공증·번역 절차를 확인해볼까요?", href: directTabHref("/verify/admin") },
   ],
+  unclear: [
+    { label: "서류 검토가 필요한지 확인해볼까요?", href: "/verify/unclear" },
+    { label: "공증·번역 절차를 확인해볼까요?", href: directTabHref("/verify/admin") },
+  ],
 };
 
 export function getQuoteNextLinks(serviceId: CostCheckServiceId): QuoteNextLink[] {

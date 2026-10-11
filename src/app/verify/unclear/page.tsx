@@ -67,6 +67,7 @@ const UNCLEAR_LANDING: MasterLandingConfig = {
   engine: "verify",
   serviceLabel: "불확실한 문서 검토",
   shortServiceLabel: "불확실한 문서 검토",
+  costServiceId: "unclear",
   specialtyLine: "베트남 법률전문 AI",
   hookTitle: "받은 서류가 무엇을 하라는 내용인지 먼저 나눠 보세요.",
   hookBody: "돈을 내라는 서류인지, 제출·출석 서류인지, 내용을 모르는 서류인지 구분합니다.",
