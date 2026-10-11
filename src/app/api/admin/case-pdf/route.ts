@@ -136,7 +136,6 @@ const VERIFY_CATEGORY_MAP: Record<string, VerifyCategory> = {
   verify_fraud: "fraud",
   verify_tax: "tax",
   verify_unclear: "unclear",
-  verify_trc: "trc",
 };
 
 function asMeta(value: unknown): Record<string, unknown> | null {
