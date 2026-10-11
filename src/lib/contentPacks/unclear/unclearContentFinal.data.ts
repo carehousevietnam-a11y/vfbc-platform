@@ -3114,7 +3114,7 @@ export const UNCLEAR_CONTENT_FINAL = {
           "publisher": "베트남 공안부",
           "kind": "공식 기관 안내(기사 인용)",
           "urls": [],
-          "note": "인증번호 요구 등 주의 안내. 기사 URL은 Cursor가 재확인"
+          "note": "인증번호 요구 등 주의 안내. 원문 대조 필요"
         },
         {
           "id": "5",

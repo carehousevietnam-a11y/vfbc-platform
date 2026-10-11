@@ -1607,23 +1607,6 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         }),
       );
     }
-    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_unclear") {
-      noteExtraPages.push(
-        ...drawUnclearReportNotes({
-          activities,
-          doc,
-          font,
-          fontBold,
-          startPage: bodyPage,
-          startY: Math.min(leftState.y, rightState.y) - 12,
-          pageWidth,
-          pageHeight,
-          marginX,
-          bodyMinY: BODY_MIN_Y,
-          watermark: watermarkImage,
-        }),
-      );
-    }
 
     // ── 하단 (신뢰감 있는 Footer — 발급 주체/버전/Report ID/문의/면책문구) ──
     const footerY = 58;
