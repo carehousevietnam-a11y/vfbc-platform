@@ -3404,6 +3404,23 @@ export function MasterReviewQuotationReport({
       );
     }
 
+    if (
+      question.kind === "choice" &&
+      isPackVerifyStitchLayout &&
+      ((question.id.startsWith("fraud_") && question.id !== "fraud_entry") ||
+        (question.id.startsWith("unclear_") && question.id !== "unclear_entry"))
+    ) {
+      return renderAdminClassifiedChoiceQuestion(
+        question as ReviewQuestion & {
+          kind: "choice";
+          options: { value: string; label: string; description?: string }[];
+        },
+        questionProps,
+        adminVerifyUseStitchCards,
+        "선택지로 설명하기 어려운 상황이라면 직접 알려주세요.",
+      );
+    }
+
     if (question.kind === "choice" && question.id === ADMIN_CASE_ENTRY_Q1_KEY) {
       const useStitchQuestionLayout = adminVerifyUseStitchCards;
       const directExplainActive =
