@@ -4021,15 +4021,17 @@ export const UNCLEAR_CONTENT_FINAL = {
       }
     },
     "sources": {
-      "confirmedOn": "2026.10.10",
+      "confirmedOn": "2026.10.12",
       "rows": [
         {
           "id": "1",
           "name": "행정처리법 제15/2012/QH13호 제73조(결정의 이행: 받은 날부터 10일 이내)",
           "publisher": "베트남 국회",
           "kind": "법령(이차 자료로 확인)",
-          "urls": [],
-          "note": "원문 대조 필요. 제74조는 확인하지 못해 사용하지 않음"
+          "urls": [
+            "https://luatminhkhue.vn/thoi-han-thi-hanh-quyet-dinh-xu-phat-hanh-chinh-la-bao-lau.aspx"
+          ],
+          "note": "제73조(받은 날부터 10일 이내 이행)를 2차 자료로 대조 완료. 제74조는 사용하지 않음"
         },
         {
           "id": "2",
@@ -4046,8 +4048,10 @@ export const UNCLEAR_CONTENT_FINAL = {
           "name": "정부령 제30/2020/ND-CP호 제8조(공문의 구성 요소)",
           "publisher": "베트남 정부",
           "kind": "법령(이차 자료로 확인)",
-          "urls": [],
-          "note": "원문 대조 필요"
+          "urls": [
+            "https://luatvietnam.vn/hanh-chinh/the-thuc-van-ban-570-94255-article.html"
+          ],
+          "note": "제8조(문서 형식의 구성 요소)를 2차 자료로 대조 완료"
         },
         {
           "id": "4",

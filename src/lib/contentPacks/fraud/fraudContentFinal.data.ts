@@ -2813,7 +2813,7 @@ export const FRAUD_CONTENT_FINAL = {
       }
     },
     "sources": {
-      "confirmedOn": "2026.10.10",
+      "confirmedOn": "2026.10.12",
       "rows": [
         {
           "id": "1",
@@ -2842,16 +2842,20 @@ export const FRAUD_CONTENT_FINAL = {
           "name": "민법 제468조(이자 상한 연 20%) 및 형법 제201조(고리대금)",
           "publisher": "베트남 국회",
           "kind": "법령(이차 자료로 확인)",
-          "urls": [],
-          "note": "상한 초과분은 무효. 형법 제201조는 상한의 5배 이상 등 요건. 원문 대조 필요"
+          "urls": [
+            "https://thuvienphapluat.vn/hoi-dap-phap-luat/cho-vay-lai-suat-bao-nhieu-co-the-bi-phat-tu-357341.html"
+          ],
+          "note": "민법 제468조 상한 연 20%(초과분 효력 없음), 형법 제201조는 상한의 5배(연 100%) 이상일 때 적용. 2차 자료로 대조 완료(2026.10.12)"
         },
         {
           "id": "4",
           "name": "형법 제217a조(다단계 판매) 및 정부령 제40/2018/ND-CP호",
           "publisher": "베트남 국회·정부",
           "kind": "법령(이차 자료로 확인)",
-          "urls": [],
-          "note": "원문 대조 필요"
+          "urls": [
+            "https://tapchitoaan.vn/quy-dinh-moi-ve-quan-ly-hoat-dong-kinh-doanh-da-cap"
+          ],
+          "note": "정부령 제40/2018호가 다단계 관리 규정임을 대조 완료. 형법 제217a조 번호는 2차 자료에서 확인하지 못해 공식 원문 대조 필요"
         },
         {
           "id": "5",
@@ -2869,8 +2873,10 @@ export const FRAUD_CONTENT_FINAL = {
           "name": "형사소송법 제101/2015/QH13호 제144조(신고는 구두 또는 서면)",
           "publisher": "베트남 국회",
           "kind": "법령(이차 자료로 확인)",
-          "urls": [],
-          "note": "제145조 등 후속 조항은 확인하지 못해 사용하지 않음. 확인 필요"
+          "urls": [
+            "https://thuvienphapluat.vn/hoi-dap-phap-luat/quy-dinh-cua-phap-luat-ve-to-giac-toi-pham-292895.html"
+          ],
+          "note": "제144조 제4항(신고는 구두 또는 서면 가능)을 2차 자료로 대조 완료. 제145조 등 후속 조항은 사용하지 않음"
         },
         {
           "id": "7",
@@ -2885,8 +2891,11 @@ export const FRAUD_CONTENT_FINAL = {
           "name": "외국인 관련 결혼 중개·상담 규정 (정부령 제126/2014/ND-CP호 제51~52조, 정부령 제82/2020/ND-CP호 제39조)",
           "publisher": "베트남 정부",
           "kind": "법령(이차 자료로 확인)",
-          "urls": [],
-          "note": "원문 대조 필요"
+          "urls": [
+            "https://luatminhkhue.vn/quy-dinh-ve-xu-ly-hanh-vi-moi-gioi-ket-hon-co-yeu-to-nuoc-ngoai.aspx",
+            "https://hethongphapluat.com/nghi-dinh-126-2014-nd-cp-huong-dan-thi-hanh-luat-hon-nhan-va-gia-dinh/dieu-51"
+          ],
+          "note": "정부령 제126/2014호 제51조(국제결혼 상담·지원 센터)와 제52조(영리 목적 악용 금지 원칙), 정부령 제82/2020호 제39조(과태료)를 2차 자료 요약으로 대조. 조문 세부는 공식 원문 대조 필요"
         },
         {
           "id": "9",
