@@ -529,6 +529,16 @@ function customerChoiceText(question: UnclearQuestion, answers: Record<string, s
   return choice.description ? `${choice.label} ${choice.description}` : choice.label;
 }
 
+/** 보고서용: 선택지의 굵은 요점만 쓴다. 요점이 없으면 첫 문장을 쓴다. */
+function customerChoiceLead(question: UnclearQuestion, answers: Record<string, string>): string | null {
+  const value = answers[question.id]?.trim() ?? "";
+  if (!value) return null;
+  if (value === "other") return answers[getAdminChoiceNoteKey(question.id)]?.trim() || DIRECT_NOTICE;
+  const choice = question.choices.find((item) => item.value === value);
+  if (!choice) return null;
+  return choice.description ? choice.label : splitChoiceSentences(choice.label).label;
+}
+
 function answersFromActivities(activities: CrmActivityLike[]): Record<string, string> {
   for (let i = activities.length - 1; i >= 0; i -= 1) {
     const meta = activities[i]?.meta;
@@ -559,7 +569,8 @@ export function buildUnclearVerifyAiReportContentFromActivities(activities: CrmA
   const first = route ? buildResult(answers, false) : null;
   const files = unclearAttachedFileNames(activities);
   const paid = isVerifyAdminPaidAiReportPdfActivities(activities);
-  const entryText = customerChoiceText(ENTRY, answers) || "불확실한 문서 검토";
+  const entryText = customerChoiceLead(ENTRY, answers) || "불확실한 문서 검토";
+  const basis = paid ? "1차·2차 답변" : "1차 답변";
   const keyFindings: string[] = ["■ 1차 확인 사항"];
   const seen = new Set<string>();
   const add = (text: string) => {
@@ -570,16 +581,15 @@ export function buildUnclearVerifyAiReportContentFromActivities(activities: CrmA
   };
   if (route) {
     for (const question of questionsFor(route, 1)) {
-      const text = customerChoiceText(question, answers);
-      if (text) add(text);
-      if (isDirect(question, answers) && text !== DIRECT_NOTICE) add(DIRECT_NOTICE);
+      const lead = customerChoiceLead(question, answers);
+      if (lead) add(lead);
     }
   }
   if (paid && route) {
     keyFindings.push("■ 2차 확인");
     for (const question of questionsFor(route, 2)) {
       const block = phase2Sentence(route, question, answers);
-      if (block) add(`${block.title} · ${block.sentence}`);
+      if (block) add(`${block.title} · ${splitChoiceSentences(block.sentence).label}`);
     }
   }
   const guideKey = route ?? "N";
@@ -588,10 +598,14 @@ export function buildUnclearVerifyAiReportContentFromActivities(activities: CrmA
     .map((row) => row.name.trim())
     .filter(Boolean);
   return {
-    execSummary: [`결론 · 선택하신 검토는 ${entryText}입니다. 답변을 기준으로 정리한 결과이며, 서류의 진위나 법적 효력은 판단하지 않습니다.`],
+    execSummary: [`결론 · 선택하신 검토 방향은 “${entryText}”입니다. ${basis}을 기준으로 정리한 결과이며, 서류의 진위나 법적 효력은 판단하지 않습니다.`],
     keyFindings,
-    keyRisks: (first?.cautions ?? []).filter(Boolean),
-    recommendedAction: visibleConnections(answers).map((row) => row.sentence).filter(Boolean),
+    keyRisks: (first?.cautions ?? []).filter(Boolean).slice(0, 4),
+    recommendedAction: (() => {
+      const lines = visibleConnections(answers).map((row) => row.sentence).filter(Boolean);
+      const body = first?.situationSummary?.trim() ?? "";
+      return lines.length === 0 && body ? [body] : lines;
+    })(),
     riskCount: 0,
     reviewedCount: 0,
     satisfiedCount: 0,

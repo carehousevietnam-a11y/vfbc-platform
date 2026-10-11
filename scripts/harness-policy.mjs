@@ -15,6 +15,7 @@ const WATCHED = [
   ".githooks/pre-commit",
   ".githooks/commit-msg",
   "scripts/harness-standards.mjs",
+  "scripts/harness-report-layout.mjs",
   "tests/qa/tax-content-final.mjs",
   "tests/qa/fraud-content-final.mjs",
   "tests/qa/unclear-content-final.mjs",
