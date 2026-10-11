@@ -1,5 +1,11 @@
 # VFBCAI Cursor context (synced 2026-08-10)
 
+## Required reading before any work (locked)
+- Read docs/master/STANDARDS.md, docs/master/QUESTION_STANDARD.md, docs/master/LESSONS.md, docs/master/HARNESS.md first.
+- First line of every report: "읽음: <file names>".
+- Do not edit those files, .githooks, admin/tax/real-estate without an "ACE-APPROVED: <reason>" line in the commit message.
+- Run `npm run verify` before reporting done.
+
 ## Priority
 - GOAL1 first: CHECK / VERIFY / REGISTER / expert request / CRM / admin / mypage / notifications stability.
 - No large new features (payments, OCR, Digital Vault, business member) before GOAL1 ships.

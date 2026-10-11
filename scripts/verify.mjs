@@ -50,6 +50,7 @@ function run(command, args, options = {}) {
 const node = process.execPath;
 const blocking = [
   ["tsc", node, [path.join(root, "node_modules/typescript/bin/tsc"), "--noEmit"]],
+  ["standards-lock", node, [path.join(root, "scripts/harness-standards.mjs")]],
   ["tax-content-final", node, [path.join(root, "tests/qa/tax-content-final.mjs")]],
   ["fraud-content-final", node, [path.join(root, "tests/qa/fraud-content-final.mjs")]],
   ["unclear-content-final", node, [path.join(root, "tests/qa/unclear-content-final.mjs")]],

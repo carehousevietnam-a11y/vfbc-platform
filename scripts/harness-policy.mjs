@@ -13,6 +13,8 @@ const WATCHED = [
   "scripts/harness-recurrence.mjs",
   "scripts/harness-policy.mjs",
   ".githooks/pre-commit",
+  ".githooks/commit-msg",
+  "scripts/harness-standards.mjs",
   "tests/qa/tax-content-final.mjs",
   "tests/qa/fraud-content-final.mjs",
   "tests/qa/unclear-content-final.mjs",

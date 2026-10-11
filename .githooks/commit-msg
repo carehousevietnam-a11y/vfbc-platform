@@ -1,0 +1,14 @@
+#!/bin/sh
+# Protected files change only with an "ACE-APPROVED: <reason>" line in the commit message.
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+changed=$(git diff --cached --name-only)
+hit=$(printf '%s\n' "$changed" | grep -E '^(docs/master/STANDARDS\.md|docs/master/QUESTION_STANDARD\.md|docs/master/\.standards\.sha256|scripts/harness-standards\.mjs|\.githooks/|src/app/verify/admin/|src/app/verify/tax/|src/app/verify/real-estate/|src/lib/contentPacks/tax/)' | head -5)
+if [ -n "$hit" ]; then
+  if ! grep -q '^ACE-APPROVED: .\+' "$1"; then
+    echo "BLOCKED: protected files changed without ACE-APPROVED line:"
+    echo "$hit"
+    exit 1
+  fi
+fi
+exit 0
