@@ -36,6 +36,17 @@ function fail(message) {
   failures.push(message);
 }
 
+function taxAuditCount(label, route) {
+  const column = { P: 1, V: 2, C: 3 }[route];
+  const line = md.split(/\n/).find((row) => row.startsWith(`| ${label} |`));
+  if (!line || column == null) {
+    fail(`audit row missing ${label}`);
+    return 0;
+  }
+  const cells = line.split("|").slice(1, -1).map((cell) => cell.trim());
+  return Number(String(cells[column] ?? "").replace(/[^\d.]/g, ""));
+}
+
 if (JSON.stringify(parsed) !== JSON.stringify(TAX_CONTENT_FINAL)) {
   fail("taxPack data does not match TAX_CONTENT_FINAL.md");
 }
@@ -44,13 +55,15 @@ const routes = ["P", "V", "C"];
 for (const route of routes) {
   const phase1 = parsed.questions.filter((question) => question.route === route && question.phase === 1);
   const phase2 = parsed.questions.filter((question) => question.route === route && question.phase === 2);
-  if (phase1.length !== 4) fail(`${route} phase1 ${phase1.length}`);
-  if (phase2.length !== 7) fail(`${route} phase2 ${phase2.length}`);
+  const expectedPhase1 = taxAuditCount("1차 질문 수", route);
+  const expectedPhase2 = taxAuditCount("2차 질문 수", route);
+  if (phase1.length !== expectedPhase1) fail(`${route} phase1 ${phase1.length}`);
+  if (phase2.length !== expectedPhase2) fail(`${route} phase2 ${phase2.length}`);
   const answers = answersFor(route, 1);
   const shown1 = bridge.buildReviewQuestions(answers, 1).filter((question) => question.id !== "re_entry");
   const shown2 = bridge.buildReviewQuestions(answers, 2);
-  if (shown1.length !== 4) fail(`${route} bridge phase1 ${shown1.length}`);
-  if (shown2.length !== 7) fail(`${route} bridge phase2 ${shown2.length}`);
+  if (shown1.length !== expectedPhase1) fail(`${route} bridge phase1 ${shown1.length}`);
+  if (shown2.length !== expectedPhase2) fail(`${route} bridge phase2 ${shown2.length}`);
   for (const question of [...phase1, ...phase2]) {
     const shown = [...shown1, ...shown2].find((item) => item.id === question.id);
     if (!shown || shown.kind !== "choice") {
@@ -175,7 +188,9 @@ if (!taxConnectionFlags(expertAnswers).expert) fail("V imminent path did not sho
 const checkAnswers = answersFor("C", "o1", { re14_q4: "o5", re15_q5: "o5" });
 const checkPhase1 = bridge.buildReviewQuestions({ re_entry: "o3" }, 1).filter((q) => q.id !== "re_entry");
 const checkPhase2 = bridge.buildReviewQuestions(checkAnswers, 2);
-if (checkPhase1.length !== 4 || checkPhase2.length !== 7) fail("C self-check skipped questions");
+if (checkPhase1.length !== taxAuditCount("1차 질문 수", "C") || checkPhase2.length !== taxAuditCount("2차 질문 수", "C")) {
+  fail("C self-check skipped questions");
+}
 if (selectedTaxRoute({ re_entry: "other", re_entryNote: "직접 적은 세금 상황입니다." }) !== "P") {
   fail("direct entry did not start P");
 }

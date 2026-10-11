@@ -7,6 +7,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { policyViolations } from "./harness-policy.mjs";
+import {
+  duplicateParagraphHits,
+  internalTermHits,
+  questionCountHardcodeHits,
+  questionRangeHits,
+} from "./harness-recurrence.mjs";
 import { sharedDeletionFiles } from "./harness-shared-diff.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -81,6 +87,28 @@ if (policy.length) {
 } else {
   log.write("policy 0\n");
   pass += 1;
+}
+
+const recurrence = [
+  ["internal-terms", internalTermHits],
+  ["pdf-duplicate", duplicateParagraphHits],
+  ["question-count-hardcode", questionCountHardcodeHits],
+  ["question-range", questionRangeHits],
+];
+for (const [name, check] of recurrence) {
+  try {
+    const hits = check();
+    if (hits.length) {
+      log.write(`${name} ${hits.join(" | ")}\n`);
+      fail += 1;
+    } else {
+      log.write(`${name} 0\n`);
+      pass += 1;
+    }
+  } catch (error) {
+    log.write(`${name} ${error.message}\n`);
+    fail += 1;
+  }
 }
 
 const knownChecks = [

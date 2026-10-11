@@ -1,4 +1,6 @@
-# 하네스 1단계
+# 하네스
+
+작업 시작 전 `docs/master/LESSONS.md`를 먼저 읽는다.
 
 합격 기준과 `npm run verify`, 커밋 전 검사다. 행정·세금·부동산·사기·불확실한 문서의 기존 코드와 콘텐츠는 이 단계의 수정 대상이 아니다.
 
@@ -17,6 +19,11 @@
 4. 공통 파일은 줄을 지우지 않고 추가만 한다. 목록은 `tests/baseline/shared-files.txt`다.
 5. 운영 DB에 저장하지 않는다. verify와 content-final, PDF 생성은 Supabase에 쓰지 않는다.
 6. push하지 않는다.
+7. 재발 방지 검사가 통과한다. `node scripts/harness-recurrence.mjs`
+   - internal-terms: 고객 화면 문장과 PDF 추출 텍스트의 내부 용어
+   - pdf-duplicate: PDF 추출 텍스트의 같은 문단
+   - question-count-hardcode: content-final 테스트의 질문 수 숫자 고정
+   - question-range: 콘텐츠 문서의 질문 번호 범위
 
 ## 사기·불확실한 문서
 
@@ -41,3 +48,4 @@
 사용법: 이 폴더에서 `git config core.hooksPath .githooks` 를 한 번 실행한다.
 그 다음부터 커밋 직전에 tsc와 content-final 테스트가 돌고, 실패하면 커밋이 막힌다.
 공통 파일의 줄 삭제도 같은 hook이 막는다. 이 브랜치는 push하지 않는다.
+새 문제가 생기면 `docs/master/LESSONS.md`에 항목을 추가하고, 자동 검사로 바꿀 수 있으면 verify에도 그 검사를 추가한다.

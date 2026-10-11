@@ -10,6 +10,7 @@ const WATCHED = [
   "scripts/harness-screen.mjs",
   "scripts/harness-shared-diff.mjs",
   "scripts/harness-known-g4.mjs",
+  "scripts/harness-recurrence.mjs",
   "scripts/harness-policy.mjs",
   ".githooks/pre-commit",
   "tests/qa/tax-content-final.mjs",
