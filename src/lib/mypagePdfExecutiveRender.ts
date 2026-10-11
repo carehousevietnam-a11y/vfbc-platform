@@ -1125,7 +1125,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
           }
         }
       }
-      function drawSectionHeader(title: string, subtitle?: string): boolean {
+      function drawSectionHeader(title: string, subtitle?: string, accent?: ReturnType<typeof rgb>): boolean {
         const requiredHeight = subtitle ? 28 : 18;
         if (state.y - requiredHeight < BODY_MIN_Y) return false;
 
@@ -1133,16 +1133,16 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         targetPage.drawRectangle({
           x,
           y: state.y - 2,
-          width: 3,
-          height: 12,
-          color: rgb(0.09, 0.15, 0.35),
+          width: accent ? 4 : 3,
+          height: accent ? 14 : 12,
+          color: accent ?? rgb(0.09, 0.15, 0.35),
         });
         targetPage.drawText(title, {
           x: x + 9,
           y: state.y,
-          size: 10.8,
+          size: accent ? 12.4 : 10.8,
           font: fontBold,
-          color: rgb(0.1, 0.1, 0.12),
+          color: accent ?? rgb(0.1, 0.1, 0.12),
         });
 
         if (subtitle) {
@@ -1408,10 +1408,26 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
         height: summaryHeight,
         color: rgb(0.965, 0.972, 0.988),
       });
+      page.drawRectangle({
+        x: marginX,
+        y: summaryTop - summaryHeight,
+        width: contentWidth,
+        height: summaryHeight,
+        borderColor: rgb(0.09, 0.15, 0.35),
+        borderWidth: 1.1,
+        borderOpacity: 0.55,
+      });
+      page.drawRectangle({
+        x: marginX,
+        y: summaryTop - summaryHeight,
+        width: 5,
+        height: summaryHeight,
+        color: rgb(0.09, 0.15, 0.35),
+      });
       page.drawText("EXECUTIVE SUMMARY", {
         x: marginX + 16,
         y: summaryTop - 18,
-        size: 10,
+        size: 11.6,
         font: fontBold,
         color: rgb(0.09, 0.15, 0.35),
       });
@@ -1456,12 +1472,28 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       left.drawParagraphList(keyFindings, 8.3, leftGap, leftListCap);
       if (leftState.y > BODY_MIN_Y) leftState.y -= leftBreak;
     }
-    if (left.drawSectionHeader("KEY RISKS & GAPS", "위험 · 영향 · 대응 방향")) {
-      left.drawParagraphList(keyRisks, 8.3, leftGap, leftListCap);
-      if (leftState.y > BODY_MIN_Y) leftState.y -= leftBreak;
+    // 핵심 영역(위험·조치)은 색 띠와 옅은 바탕으로 다른 카드보다 강조한다. 글자 위치와 줄바꿈은 그대로다.
+    const emphasizeBlock = (top: number, bottom: number, color: ReturnType<typeof rgb>) => {
+      if (bottom >= top) return;
+      bodyPage.drawRectangle({ x: leftX - 7, y: bottom, width: leftWidth + 7, height: top - bottom, color, opacity: 0.075 });
+      bodyPage.drawRectangle({ x: leftX - 7, y: bottom, width: 3.5, height: top - bottom, color });
+    };
+    const riskAccent = rgb(0.72, 0.16, 0.16);
+    const actionAccent = rgb(0.09, 0.15, 0.35);
+    {
+      const top = leftState.y + 9;
+      if (left.drawSectionHeader("KEY RISKS & GAPS", "위험 · 영향 · 대응 방향", riskAccent)) {
+        left.drawParagraphList(keyRisks, 8.3, leftGap, leftListCap);
+        emphasizeBlock(top, leftState.y + 5, riskAccent);
+        if (leftState.y > BODY_MIN_Y) leftState.y -= leftBreak;
+      }
     }
-    if (left.drawSectionHeader("RECOMMENDED ACTIONS", "즉시 · 다음 · 최종 조치")) {
-      left.drawParagraphList(recommendedAction, 8.3, leftGap, leftListCap);
+    {
+      const top = leftState.y + 9;
+      if (left.drawSectionHeader("RECOMMENDED ACTIONS", "즉시 · 다음 · 최종 조치", actionAccent)) {
+        left.drawParagraphList(recommendedAction, 8.3, leftGap, leftListCap);
+        emphasizeBlock(top, leftState.y + 5, actionAccent);
+      }
     }
 
     // 우측: Executive Dashboard — 필수 제출서류 / 진행 현황 / 다음 조치 (고정 카드 박스)
