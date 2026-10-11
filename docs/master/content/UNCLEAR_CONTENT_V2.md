@@ -27,9 +27,9 @@
 
 | 선택 | 저장 필드 | 이동 |
 |---|---|---|
-| ① | `unclear_actionHint=pay`, `unclear_routeSelectionMode=selected` | 경로 M (Q1-M ~ Q10-M) |
-| ② | `unclear_actionHint=submit_or_appear`, `unclear_routeSelectionMode=selected` | 경로 D (Q1-D ~ Q10-D) |
-| ③ | `unclear_actionHint=notice_only`, `unclear_routeSelectionMode=selected` | 경로 N (Q1-N ~ Q10-N) |
+| ① | `unclear_actionHint=pay`, `unclear_routeSelectionMode=selected` | 경로 M (Q1-M ~ Q13-M) |
+| ② | `unclear_actionHint=submit_or_appear`, `unclear_routeSelectionMode=selected` | 경로 D (Q1-D ~ Q13-D) |
+| ③ | `unclear_actionHint=notice_only`, `unclear_routeSelectionMode=selected` | 경로 N (Q1-N ~ Q13-N) |
 | ④ | `unclear_actionHint=unsure`, `unclear_routeSelectionMode=unsure` | 경로 N (기본 경로) |
 | ⑤ 직접 입력 | `unclear_actionHint=direct_input`, `unclear_routeSelectionMode=direct_input` | 경로 N (기본 경로). 입력 원문은 `unclear_actionHint` 상세로 저장 |
 
@@ -1234,7 +1234,7 @@
 
 1. 진입 화면에서 ①은 경로 M, ②는 경로 D, ③과 ④ 잘 모르겠습니다, ⑤ 직접 입력은 경로 N으로 이동한다.
 2. ③ 알리는 내용 같습니다와 잘 모르겠습니다는 같은 경로 N이지만 선택 방식(`unclear_routeSelectionMode`)을 다르게 저장한다.
-3. 경로 안에서는 Q1부터 Q10까지 순서대로 진행하며 생략하지 않는다. 1차(Q1~Q4) 종료 시 E-1 무료 결과, 2차(Q5~Q10) 종료 시 E-2 결과를 표시한다.
+3. 경로 안에서는 Q1부터 Q13까지 순서대로 진행하며 생략하지 않는다. 1차(Q1~Q4) 종료 시 E-1 무료 결과, 2차(Q5~Q13) 종료 시 E-2 결과를 표시한다.
 4. 분류 결과는 불확실한 문서 검토의 자체 결과로 유지한다. 전문 검토로 자동 이동하지 않으며, 답변을 전달하거나 그쪽 질문을 생략시키지 않는다.
 
 ---
