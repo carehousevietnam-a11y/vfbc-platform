@@ -1483,7 +1483,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     const riskAccent = rgb(0.72, 0.16, 0.16);
     const actionAccent = rgb(0.09, 0.15, 0.35);
     {
-      if (leftState.y > BODY_MIN_Y + 40) leftState.y -= 6;
+      if (leftState.y > BODY_MIN_Y + 60) leftState.y -= 14;
       const top = leftState.y + 12;
       if (left.drawSectionHeader("KEY RISKS & GAPS", "위험 · 영향 · 대응 방향", riskAccent)) {
         left.drawParagraphList(keyRisks, 8.3, leftGap, leftListCap);
@@ -1492,7 +1492,7 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
       }
     }
     {
-      if (leftState.y > BODY_MIN_Y + 40) leftState.y -= 11;
+      if (leftState.y > BODY_MIN_Y + 60) leftState.y -= 11;
       const top = leftState.y + 12;
       if (left.drawSectionHeader("RECOMMENDED ACTIONS", "즉시 · 다음 · 최종 조치", actionAccent)) {
         left.drawParagraphList(recommendedAction, 8.3, leftGap, leftListCap);

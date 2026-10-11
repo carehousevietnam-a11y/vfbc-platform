@@ -233,6 +233,10 @@ export function unclearRiskSentences(answers: Record<string, string>): string[] 
   return matchingRisks(route, buildUnclearProfile(answers)).lines;
 }
 
+// A14 information density: keep 2nd-stage report lines few and drop filler lines.
+const REPORT_PHASE2_MAX_LINES = 5;
+const REPORT_FILLER_PATTERN = /직접 적어 주신|원본이 있으면|전문가가 함께/;
+
 function splitChoiceSentences(label: string): { label: string; description?: string } {
   const match = label.match(/^([\s\S]+?[.?!。])\s+(\S[\s\S]*)$/);
   if (!match) return { label };
@@ -587,9 +591,14 @@ export function buildUnclearVerifyAiReportContentFromActivities(activities: CrmA
   }
   if (paid && route) {
     keyFindings.push("■ 2차 확인");
+    let phase2Lines = 0;
     for (const question of questionsFor(route, 2)) {
       const block = phase2Sentence(route, question, answers);
-      if (block) add(`${block.title} · ${splitChoiceSentences(block.sentence).label}`);
+      if (!block || phase2Lines >= REPORT_PHASE2_MAX_LINES) continue;
+      const line = `${block.title} · ${splitChoiceSentences(block.sentence).label}`;
+      if (REPORT_FILLER_PATTERN.test(line)) continue;
+      add(line);
+      phase2Lines += 1;
     }
   }
   const guideKey = route ?? "N";
@@ -604,7 +613,11 @@ export function buildUnclearVerifyAiReportContentFromActivities(activities: CrmA
     recommendedAction: (() => {
       const lines = visibleConnections(answers).map((row) => row.sentence).filter(Boolean);
       const body = first?.situationSummary?.trim() ?? "";
-      return lines.length === 0 && body ? [body] : lines;
+      const now = splitChoiceSentences(body).description ?? body;
+      const out: string[] = [];
+      if (now) out.push(`즉시 · ${now}`);
+      if (lines[0]) out.push(`다음 · ${lines[0]}`);
+      return out;
     })(),
     riskCount: 0,
     reviewedCount: 0,
