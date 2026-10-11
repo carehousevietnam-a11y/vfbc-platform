@@ -1484,16 +1484,16 @@
 
 # J. 근거·출처
 
-확인일: 2026.10.10
+확인일: 2026.10.12
 
 | 번호 | 자료 | 발행처 | 성격 | URL | 비고 |
 |---|---|---|---|---|---|
 | 1 | 형법 제100/2015/QH13호(제12/2017/QH14호 개정) 제174조 사기, 제175조 신뢰 남용 | 베트남 국회 | 법령(이차 자료로 확인) | https://lawnet.vn/ngan-hang-phap-luat/en/tu-van-phap-luat/trach-nhiem-hinh-su/what-are-penalties-for-obtaining-property-by-fraud-in-vietnam-390034 , https://lawnet.vn/thong-tin-phap-luat/en/tu-van-luat/penalties-for-abuse-of-trust-to-appropriate-property-in-vietnam-120363.html | 사기죄 기준 금액 200만 동 이상, 신뢰 남용 400만 동 이상(이차 자료). 원문 대조 필요 |
 | 2 | 민법 제91/2015/QH13호 제127조(속임·위협), 제131조(무효의 효과), 제132조(청구 기간) | 베트남 국회 | 법령(이차 자료로 확인) | https://lawnet.vn/thong-tin-phap-luat/en/dan-su/time-limit-for-requesting-court-to-declare-civil-transactions-invalid-in-vietnam-128405.html , https://lawnet.vn/thong-tin-phap-luat/en/dan-su/will-civil-transactions-conducted-due-to-deception-threats-or-coercion-in-vietnam-be-invalidated-153757.html | 속임을 알았거나 알 수 있었던 때부터 2년(이차 자료). 원문 대조 필요 |
-| 3 | 민법 제468조(이자 상한 연 20%) 및 형법 제201조(고리대금) | 베트남 국회 | 법령(이차 자료로 확인) | 원문 링크 확인 중 | 상한 초과분은 무효. 형법 제201조는 상한의 5배 이상 등 요건. 원문 대조 필요 |
-| 4 | 형법 제217a조(다단계 판매) 및 정부령 제40/2018/ND-CP호 | 베트남 국회·정부 | 법령(이차 자료로 확인) | 원문 링크 확인 중 | 원문 대조 필요 |
+| 3 | 민법 제468조(이자 상한 연 20%) 및 형법 제201조(고리대금) | 베트남 국회 | 법령(이차 자료로 확인) | https://thuvienphapluat.vn/hoi-dap-phap-luat/cho-vay-lai-suat-bao-nhieu-co-the-bi-phat-tu-357341.html | 민법 제468조 상한 연 20%(초과분 효력 없음), 형법 제201조는 상한의 5배(연 100%) 이상일 때 적용. 2차 자료로 대조 완료(2026.10.12) |
+| 4 | 형법 제217a조(다단계 판매) 및 정부령 제40/2018/ND-CP호 | 베트남 국회·정부 | 법령(이차 자료로 확인) | https://tapchitoaan.vn/quy-dinh-moi-ve-quan-ly-hoat-dong-kinh-doanh-da-cap | 정부령 제40/2018호가 다단계 관리 규정임을 대조 완료. 형법 제217a조 번호는 2차 자료에서 확인하지 못해 공식 원문 대조 필요 |
 | 5 | 전자상거래법 제122/2025/QH15호(2025.12.10 통과, 2026.7.1 시행) 및 소비자권익보호법 제19/2023/QH15호 | 베트남 국회 | 법령(이차 자료로 확인) | https://kpmg.com/us/en/taxnewsflash/news/2026/06/tnf-vietnam-law-on-e-commerce-2025-effective-july-1-2026.html , https://blogs.duanemorris.com/vietnam/2026/01/16/vietnam-new-law-on-e-commerce-what-you-must-know/ | 소비자권익보호법 시행일은 이번에 확인하지 못함. 확인 필요 |
-| 6 | 형사소송법 제101/2015/QH13호 제144조(신고는 구두 또는 서면) | 베트남 국회 | 법령(이차 자료로 확인) | 원문 링크 확인 중 | 제145조 등 후속 조항은 확인하지 못해 사용하지 않음. 확인 필요 |
+| 6 | 형사소송법 제101/2015/QH13호 제144조(신고는 구두 또는 서면) | 베트남 국회 | 법령(이차 자료로 확인) | https://thuvienphapluat.vn/hoi-dap-phap-luat/quy-dinh-cua-phap-luat-ve-to-giac-toi-pham-292895.html | 제144조 제4항(신고는 구두 또는 서면 가능)을 2차 자료로 대조 완료. 제145조 등 후속 조항은 사용하지 않음 |
 | 7 | 공안부 사이버범죄 대응 부서(A05) 사기 수법 안내 (2020.10.13 기사) | 베트남 공안부 | 공식 기관 안내(기사 인용) | 원문 링크 확인 중 | 수법과 인증번호 요구 주의 안내. 원문 대조 필요 |
-| 8 | 외국인 관련 결혼 중개·상담 규정 (정부령 제126/2014/ND-CP호 제51~52조, 정부령 제82/2020/ND-CP호 제39조) | 베트남 정부 | 법령(이차 자료로 확인) | 원문 링크 확인 중 | 원문 대조 필요 |
+| 8 | 외국인 관련 결혼 중개·상담 규정 (정부령 제126/2014/ND-CP호 제51~52조, 정부령 제82/2020/ND-CP호 제39조) | 베트남 정부 | 법령(이차 자료로 확인) | https://luatminhkhue.vn/quy-dinh-ve-xu-ly-hanh-vi-moi-gioi-ket-hon-co-yeu-to-nuoc-ngoai.aspx , https://hethongphapluat.com/nghi-dinh-126-2014-nd-cp-huong-dan-thi-hanh-luat-hon-nhan-va-gia-dinh/dieu-51 | 정부령 제126/2014호 제51조(국제결혼 상담·지원 센터)와 제52조(영리 목적 악용 금지 원칙), 정부령 제82/2020호 제39조(과태료)를 2차 자료 요약으로 대조. 조문 세부는 공식 원문 대조 필요 |
 | 9 | 기업법 제59/2020/QH14호 (제28조 기업등록증의 내용) | 베트남 국회 | 법령 | https://english.luatvietnam.vn/law-on-enterprises-no-59-2020-qh14-dated-june-17-2020-of-the-national-assembly-186272-doc1.html | 세금 확정본 출처 6과 같은 자료 |
