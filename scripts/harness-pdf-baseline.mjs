@@ -191,10 +191,15 @@ function writeBaseline(texts) {
   }
 }
 
+// pypdf 버전마다 줄바꿈과 공백 추출이 달라지므로, 비교는 공백을 모두 뺀 글자만 본다.
+function compact(text) {
+  return String(text ?? "").replace(/\s+/g, "");
+}
+
 function mismatches(actual, expected) {
   const bad = [];
   for (const name of names) {
-    if (actual.get(name) !== expected.get(name)) bad.push(name);
+    if (compact(actual.get(name)) !== compact(expected.get(name))) bad.push(name);
   }
   return bad;
 }
