@@ -38,6 +38,8 @@ import { buildFraudVerifyAiReportContentFromActivities } from "@/lib/contentPack
 import { drawFraudReportNotes } from "@/lib/contentPacks/fraud/fraudReportNotes";
 import { buildUnclearVerifyAiReportContentFromActivities } from "@/lib/contentPacks/unclear/unclearPack";
 import { drawUnclearReportNotes } from "@/lib/contentPacks/unclear/unclearReportNotes";
+import { buildTrcVerifyAiReportContentFromActivities } from "@/lib/contentPacks/trc/trcPack";
+import { drawTrcReportNotes } from "@/lib/contentPacks/trc/trcReportNotes";
 import { drawTaxBaseGlyphText, drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
@@ -94,6 +96,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_fraud: "사기문서 검토",
   verify_tax: "세무문서 검토",
   verify_unclear: "불확실한 서류 검토",
+  verify_trc: "거주증 직접 확인",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",
@@ -146,6 +149,7 @@ const VERIFY_CATEGORY_MAP: Record<string, VerifyCategory> = {
   verify_fraud: "fraud",
   verify_tax: "tax",
   verify_unclear: "unclear",
+  verify_trc: "trc",
 };
 
 function asMeta(value: unknown): Record<string, unknown> | null {
@@ -212,6 +216,10 @@ function buildVerifyMasterReportContent(
 
   if (typeKey === "verify_unclear") {
     return buildUnclearVerifyAiReportContentFromActivities(activities);
+  }
+
+  if (typeKey === "verify_trc") {
+    return buildTrcVerifyAiReportContentFromActivities(activities);
   }
 
   return null;
@@ -1629,6 +1637,23 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     if ((normalizedType ?? "").replace(/-/g, "_") === "verify_unclear") {
       noteExtraPages.push(
         ...drawUnclearReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        }),
+      );
+    }
+    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_trc") {
+      noteExtraPages.push(
+        ...drawTrcReportNotes({
           activities,
           doc,
           font,

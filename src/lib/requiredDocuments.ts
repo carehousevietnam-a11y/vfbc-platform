@@ -17,6 +17,7 @@ export type DocumentServiceKey =
   | "verify_fraud"
   | "verify_tax"
   | "verify_unclear"
+  | "verify_trc"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -136,6 +137,17 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_trc: {
+    serviceKey: "verify_trc",
+    serviceLabel: "거주증 직접 확인",
+    documents: ["여권 사본", "비자 또는 기존 거주증 사본"],
+    optionalDocuments: [
+      "임시 거주 신고 확인서",
+      "회사 등록 서류·노동허가 서류",
+      "증명사진·기관 접수증",
       "기타 참고자료",
     ],
   },

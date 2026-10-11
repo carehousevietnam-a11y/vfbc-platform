@@ -244,6 +244,7 @@ function buildCaseRestoreHref(item: MyPageItem): string | null {
     verify_fraud: "/verify/fraud",
     verify_tax: "/verify/tax",
     verify_unclear: "/verify/unclear",
+    verify_trc: "/verify/trc",
   };
   if (verifyPaths[serviceType]) {
     return `${verifyPaths[serviceType]}?restore=1`;
@@ -798,7 +799,8 @@ function GeneralCustomerResultView({
       item.serviceType === "verify_real_estate" ||
       item.serviceType === "verify_tax" ||
       item.serviceType === "verify_fraud" ||
-      item.serviceType === "verify_unclear") &&
+      item.serviceType === "verify_unclear" ||
+      item.serviceType === "verify_trc") &&
     (item.verifyProfilePhase === 2 || item.phase2Complete === true);
   const keyPoints =
     isRealEstatePackPhase2 && item.phase2SummaryLines && item.phase2SummaryLines.length > 0
@@ -820,7 +822,7 @@ function GeneralCustomerResultView({
       : "text-[#0d2a6b]";
 
   const isVerifyAdminFreeLayout =
-    item.serviceType === "verify_admin" || item.serviceType === "verify_tax" || item.serviceType === "verify_fraud" || item.serviceType === "verify_unclear";
+    item.serviceType === "verify_admin" || item.serviceType === "verify_tax" || item.serviceType === "verify_fraud" || item.serviceType === "verify_unclear" || item.serviceType === "verify_trc";
   const resultPhaseLabel = isRealEstatePackPhase2
     ? "2차 종합 검토"
     : isVerifyAdminFreeLayout
@@ -1471,7 +1473,7 @@ function PdfDownloadButton({
 
   if (variant === "refined") {
     const primaryLabel =
-      serviceType === "verify_admin" || serviceType === "verify_tax" || serviceType === "verify_fraud" || serviceType === "verify_unclear"
+      serviceType === "verify_admin" || serviceType === "verify_tax" || serviceType === "verify_fraud" || serviceType === "verify_unclear" || serviceType === "verify_trc"
         ? verifyAdminPrimaryLabel
         : loading
           ? "준비 중..."
@@ -1487,7 +1489,7 @@ function PdfDownloadButton({
           {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
           {loading ? "준비 중..." : primaryLabel}
         </button>
-        {serviceType !== "verify_admin" && serviceType !== "verify_tax" && serviceType !== "verify_fraud" && serviceType !== "verify_unclear" ? (
+        {serviceType !== "verify_admin" && serviceType !== "verify_tax" && serviceType !== "verify_fraud" && serviceType !== "verify_unclear" && serviceType !== "verify_trc" ? (
           <button
             type="button"
             onClick={handleDownload}
@@ -1603,7 +1605,8 @@ function AiResultCard({
       item.serviceType === "verify_real_estate" ||
       item.serviceType === "verify_tax" ||
       item.serviceType === "verify_fraud" ||
-      item.serviceType === "verify_unclear") &&
+      item.serviceType === "verify_unclear" ||
+      item.serviceType === "verify_trc") &&
     item.phase2Complete === true;
   const aiResultPhaseLabel = isRePackPhase2Paid ? "2차 종합 검토" : "제출 정보 기준 1차 분석";
   const reGradeLabel =
@@ -1686,7 +1689,7 @@ function CurrentStatusCard({
     item.serviceType === "verify_real_estate" ||
     item.serviceType === "verify_tax" ||
     item.serviceType === "verify_fraud" ||
-    item.serviceType === "verify_unclear";
+    item.serviceType === "verify_unclear" || item.serviceType === "verify_trc";
   if (verifyAdminPaidLayout && verifyMasterPaidService) {
     const afterExpert = item.hasExpertReview;
     const guideText = afterExpert
@@ -4788,7 +4791,8 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
     item.serviceType === "verify_real-estate" ||
     item.serviceType === "verify_tax" ||
     item.serviceType === "verify_fraud" ||
-    item.serviceType === "verify_unclear"
+    item.serviceType === "verify_unclear" ||
+    item.serviceType === "verify_trc"
       ? item.phase2UploadedDocuments
       : undefined;
   if (
@@ -5117,7 +5121,8 @@ function Dashboard({
       activeItem.serviceType === "verify_real-estate" ||
       activeItem.serviceType === "verify_tax" ||
       activeItem.serviceType === "verify_fraud" ||
-      activeItem.serviceType === "verify_unclear"
+      activeItem.serviceType === "verify_unclear" ||
+      activeItem.serviceType === "verify_trc"
     ) {
       return (
         <VerifyAdminExpertFlowDashboard

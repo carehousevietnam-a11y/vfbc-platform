@@ -106,6 +106,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_real_estate: "부동산 검토",
   verify_tax: "세무 검토",
   verify_unclear: "기타·불명확 검토",
+  verify_trc: "거주증 직접 확인",
 };
 
 function getServiceLabel(serviceType: string): string {

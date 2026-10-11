@@ -14,6 +14,7 @@ ensureTsxRuntime(import.meta.url);
 const { buildMypagePdfBytesForQaHarness } = await import("../src/lib/mypagePdfExecutiveRender.ts");
 const fraud = await import("../src/lib/contentPacks/fraud/fraudPack.ts");
 const unclear = await import("../src/lib/contentPacks/unclear/unclearPack.ts");
+const trc = await import("../src/lib/contentPacks/trc/trcPack.ts");
 const { ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY } = await import("../src/lib/adminVerifyProfiling.ts");
 
 const leadId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
@@ -21,6 +22,7 @@ const createdAt = "2026-01-01T00:00:00.000Z";
 const jobs = [
   ["fraud", "verify_fraud", fraud.FRAUD_CONTENT_FINAL, fraud.buildFraudPhase2PersistMeta],
   ["unclear", "verify_unclear", unclear.UNCLEAR_CONTENT_FINAL, unclear.buildUnclearPhase2PersistMeta],
+  ["trc", "verify_trc", trc.TRC_CONTENT_FINAL, trc.buildTrcPhase2PersistMeta],
 ];
 
 function pageOneText(pdfPath) {
@@ -43,9 +45,9 @@ try {
   for (const [name, serviceType, content, build] of jobs) {
     const routes = [...new Set(content.questions.map((q) => q.route))];
     for (const route of routes) {
-      const entry = content.entry.choices.find((c) => c.route === route);
+      const entry = content.entry ? content.entry.choices.find((c) => c.route === route) : null;
       for (const paid of [false, true]) {
-        const answers = { [content.entry.id]: entry.value };
+        const answers = entry ? { [content.entry.id]: entry.value } : {};
         for (const q of content.questions) {
           if (q.route !== route) continue;
           if (!paid && q.phase !== 1) continue;

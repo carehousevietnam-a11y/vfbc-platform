@@ -16,7 +16,8 @@ export type VerifyServiceType =
   | "verify_real-estate"
   | "verify_fraud"
   | "verify_tax"
-  | "verify_unclear";
+  | "verify_unclear"
+  | "verify_trc";
 
 const SERVICE_TYPE_ALIASES: Record<string, string> = {
   register_company: "permit_company",

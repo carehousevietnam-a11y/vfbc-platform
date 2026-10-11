@@ -98,6 +98,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_fraud: "사기문서 검토",
   verify_tax: "세무문서 검토",
   verify_unclear: "불확실한 서류 검토",
+  verify_trc: "거주증 직접 확인",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",
@@ -135,6 +136,7 @@ const VERIFY_CATEGORY_MAP: Record<string, VerifyCategory> = {
   verify_fraud: "fraud",
   verify_tax: "tax",
   verify_unclear: "unclear",
+  verify_trc: "trc",
 };
 
 function asMeta(value: unknown): Record<string, unknown> | null {
