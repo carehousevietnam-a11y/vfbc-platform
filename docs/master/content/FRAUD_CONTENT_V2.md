@@ -337,8 +337,7 @@
 ③ 앱 설치나 로그인을 하라고 합니다  
 ④ 만나자거나 다른 곳으로 옮기자고 합니다  
 ⑤ 서명이나 계약을 서두르라고 합니다  
-⑥ 비밀로 하고 다른 사람에게 말하지 말라고 합니다  
-⑦ **직접 입력**
+⑥ **직접 입력**
 
 **내부 저장**
 
@@ -349,8 +348,7 @@
 | ③ | `fraud_requestedAction=install_login`, `fraud_requestGroup=rg_access` |
 | ④ | `fraud_requestedAction=meet_move`, `fraud_requestGroup=rg_meeting` |
 | ⑤ | `fraud_requestedAction=sign_now`, `fraud_requestGroup=rg_signing` |
-| ⑥ | `fraud_requestedAction=keep_secret`, `fraud_requestGroup=rg_secret` |
-| ⑦ 직접 입력 | `fraud_requestedAction=direct_input`, `fraud_requestGroup=direct_input_detail` |
+| ⑥ 직접 입력 | `fraud_requestedAction=direct_input`, `fraud_requestGroup=direct_input_detail` |
 
 ---
 
@@ -474,7 +472,7 @@
 
 ① 기꺼이 필요한 자료를 줍니다  
 ② 대답이 매번 바뀌거나 앞뒤가 맞지 않습니다  
-③ 화를 내거나 서두르라고 합니다  
+③ 오히려 서두르라고 재촉합니다  
 ④ 연락을 끊거나 차단합니다  
 ⑤ 아직 확인해 보겠다고 말해 보지 않았습니다  
 ⑥ **직접 입력**
@@ -780,8 +778,8 @@
 | `fraud_identityTrust` | `it_verified`(확인됨) / `it_partial`(일부만 확인됨) / `it_unverified`(확인되지 않음) / `it_suspect`(의심됨) / `it_unchecked`(확인 전) | Q5-B |
 | `fraud_benefitType` | `benefit_guaranteed`(원금·수익 보장) / `benefit_high_fixed`(단기간 높은 확정 수익) / `benefit_fee_first`(수수료·보증금 선납) / `benefit_ordinary`(일반적인 조건) / `benefit_unexplained`(조건 설명이 없음) | Q6-B |
 | `fraud_benefitFlag` | `bf_flag`(확인이 필요한 조건) / `bf_normal`(특이점이 적은 조건) / `bf_unclear`(조건이 불분명) | Q6-B |
-| `fraud_requestedAction` | `send_first`(먼저 돈을 보내라는 요구) / `give_info`(신분증·계좌 정보를 달라는 요구) / `install_login`(앱 설치·로그인을 하라는 요구) / `meet_move`(만나자거나 다른 곳으로 옮기자는 요구) / `sign_now`(서명·계약을 서두르라는 요구) / `keep_secret`(비밀 유지 요구) | Q7-B |
-| `fraud_requestGroup` | `rg_money`(돈 요구) / `rg_data`(정보 요구) / `rg_access`(접속 요구) / `rg_meeting`(만남·이동 요구) / `rg_signing`(서명 요구) / `rg_secret`(비밀 요구) | Q7-B |
+| `fraud_requestedAction` | `send_first`(먼저 돈을 보내라는 요구) / `give_info`(신분증·계좌 정보를 달라는 요구) / `install_login`(앱 설치·로그인을 하라는 요구) / `meet_move`(만나자거나 다른 곳으로 옮기자는 요구) / `sign_now`(서명·계약을 서두르라는 요구) | Q7-B |
+| `fraud_requestGroup` | `rg_money`(돈 요구) / `rg_data`(정보 요구) / `rg_access`(접속 요구) / `rg_meeting`(만남·이동 요구) / `rg_signing`(서명 요구) | Q7-B |
 | `fraud_accountMatch` | `matches_party`(서류의 상대 이름과 일치) / `differs_party`(상대 이름과 다름) / `personal_account`(개인 명의 계좌) / `multiple_accounts`(계좌가 여러 개이거나 바뀜) / `overseas_or_crypto`(해외 계좌·가상자산 주소) / `account_not_given`(계좌가 아직 안내되지 않음) | Q8-B |
 | `fraud_accountFlag` | `af_consistent`(일치함) / `af_mismatch`(일치하지 않음) / `af_personal`(개인 계좌) / `af_changing`(계좌가 바뀜) / `af_untraceable`(추적이 어려운 수단) / `af_unknown`(계좌 정보 불명) | Q8-B |
 | `fraud_pressureType` | `press_none`(재촉이 없음) / `press_deadline`(기한을 정해 재촉) / `press_scarcity`(한정·마감을 내세움) / `press_secret`(비밀 유지 압박) / `press_evasive`(확인을 말하면 회피·분노) / `press_third_party`(제3자를 내세운 압박) | Q9-B |
@@ -790,7 +788,7 @@
 | `fraud_recordGroup` | `rec_formal`(정식 서류) / `rec_informal`(비공식 기록) / `rec_payment`(입금 요청뿐) / `rec_none`(서류 없음) | Q10-B |
 | `fraud_actionTaken` | `nothing_yet`(아직 아무것도 하지 않음) / `asked_only`(문의만 함) / `gave_info`(개인정보·신분증을 이미 보냄) / `installed_app`(앱 설치·로그인함) / `sent_small`(소액을 먼저 보냄) / `signed_already`(서명·도장을 이미 함) | Q11-B |
 | `fraud_exposureLevel` | `exp_none`(노출 없음) / `exp_low`(노출 적음) / `exp_info`(개인정보 노출) / `exp_access`(기기·계정 접근 가능성) / `exp_money`(금전 피해 가능성) / `exp_signed`(서명으로 인한 책임 가능성) | Q11-B |
-| `fraud_verifyReaction` | `react_open`(기꺼이 자료를 줌) / `react_inconsistent`(말이 바뀜) / `react_pressure`(화를 내거나 재촉) / `react_cut`(연락을 끊음) / `react_untested`(아직 시험해 보지 않음) | Q12-B |
+| `fraud_verifyReaction` | `react_open`(기꺼이 자료를 줌) / `react_inconsistent`(말이 바뀜) / `react_pressure`(확인을 말하자 재촉) / `react_cut`(연락을 끊음) / `react_untested`(아직 시험해 보지 않음) | Q12-B |
 | `fraud_reactionFlag` | `rf_open`(협조적) / `rf_flag`(주의할 반응) / `rf_unknown`(아직 모름) | Q12-B |
 | `fraud_evidenceState` | `all_kept`(대화·서류·입금 내역을 모두 보관) / `chat_only`(대화만 보관) / `docs_only`(서류만 보관) / `deleted_some`(일부를 지웠거나 사라짐) / `none_kept`(남은 자료 없음) | Q13-B |
 | `fraud_evidenceGroup` | `eg_strong`(자료가 충분함) / `eg_medium`(자료가 일부 있음) / `eg_weak`(자료가 부족함) | Q13-B |
@@ -1009,7 +1007,6 @@
 | ③ | `fraud_requestedAction=install_login`, `fraud_requestGroup=rg_access` | 앱 설치나 로그인은 계정과 기기에 접근을 줄 수 있어 신중해야 합니다. 공식 스토어와 공식 사이트의 안내인지 확인하세요. |
 | ④ | `fraud_requestedAction=meet_move`, `fraud_requestGroup=rg_meeting` | 만남이나 장소 이동 요구는 혼자 응하지 말고 믿을 만한 사람에게 알려 두세요. 대화를 다른 앱으로 옮기자는 요구도 기록해 두세요. |
 | ⑤ | `fraud_requestedAction=sign_now`, `fraud_requestGroup=rg_signing` | 서명을 서두르는 것은 확인할 시간을 막는 방식일 수 있습니다. 서명 전에 문서를 사본으로 받아 조건을 대조하세요. |
-| ⑥ | `fraud_requestedAction=keep_secret`, `fraud_requestGroup=rg_secret` | 비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의해 보세요. |
 
 **송금 계좌의 명의** — Q8-B
 
@@ -1221,7 +1218,7 @@
 | 2차 비율 | 69.2% | 69.2% |
 | 2차 ÷ 1차 | 2.25배 | 2.25배 |
 | 질문 수(전체) | 13 | 13 |
-| 선택지 총수(직접 입력 포함) | 90 | 88 |
+| 선택지 총수(직접 입력 포함) | 89 | 88 |
 | 선택지별 저장 필드 수(최소) | 2 | 2 |
 
 | 자동 점검 | 결과 |
@@ -1235,7 +1232,7 @@
 | 카드 문장 50자 초과 | 0건(최대 34자) |
 | 위험 규칙의 필드·값이 실제 저장 값과 일치 | 통과 |
 | 1차 결과 문장 중복(01/02/03) | 0건 |
-| 값→고객 라벨 누락 | 0건(사용 값 223개) |
+| 값→고객 라벨 누락 | 0건(사용 값 221개) |
 | 같은 값 다른 라벨 / 같은 필드 안 라벨 중복 | 0건 |
 | 총 오류 / 경고 | 0 / 0 |
 
@@ -1352,7 +1349,6 @@
 | `it_unchecked` | 확인 전 |
 | `it_unverified` | 확인되지 않음 |
 | `it_verified` | 확인됨 |
-| `keep_secret` | 비밀 유지 요구 |
 | `loan` | 대출 관련 |
 | `loss_10m_100m` | 1천만 동 이상 1억 동 미만 |
 | `loss_1m_10m` | 100만 동 이상 1천만 동 미만 |
@@ -1429,7 +1425,7 @@
 | `react_cut` | 연락을 끊음 |
 | `react_inconsistent` | 말이 바뀜 |
 | `react_open` | 기꺼이 자료를 줌 |
-| `react_pressure` | 화를 내거나 재촉 |
+| `react_pressure` | 확인을 말하자 재촉 |
 | `react_untested` | 아직 시험해 보지 않음 |
 | `rec_formal` | 정식 서류 |
 | `rec_informal` | 비공식 기록 |
@@ -1443,7 +1439,6 @@
 | `rg_data` | 정보 요구 |
 | `rg_meeting` | 만남·이동 요구 |
 | `rg_money` | 돈 요구 |
-| `rg_secret` | 비밀 요구 |
 | `rg_signing` | 서명 요구 |
 | `selected` | 직접 선택함 |
 | `send_first` | 먼저 돈을 보내라는 요구 |

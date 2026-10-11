@@ -734,14 +734,6 @@ export const FRAUD_CONTENT_FINAL = {
             "fraud_requestedAction": "sign_now",
             "fraud_requestGroup": "rg_signing"
           }
-        },
-        {
-          "value": "o6",
-          "label": "비밀로 하고 다른 사람에게 말하지 말라고 합니다",
-          "fields": {
-            "fraud_requestedAction": "keep_secret",
-            "fraud_requestGroup": "rg_secret"
-          }
         }
       ],
       "directFields": {
@@ -1018,7 +1010,7 @@ export const FRAUD_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "화를 내거나 서두르라고 합니다",
+          "label": "오히려 서두르라고 재촉합니다",
           "fields": {
             "fraud_verifyReaction": "react_pressure",
             "fraud_reactionFlag": "rf_flag"
@@ -2168,8 +2160,7 @@ export const FRAUD_CONTENT_FINAL = {
           "fraud_requestedAction=give_info|fraud_requestGroup=rg_data": "신분증과 계좌 정보는 악용될 수 있어 요구가 공식인지 확인한 뒤에 제공하세요. 이미 보냈다면 그 사실을 기록해 두세요.",
           "fraud_requestedAction=install_login|fraud_requestGroup=rg_access": "앱 설치나 로그인은 계정과 기기에 접근을 줄 수 있어 신중해야 합니다. 공식 스토어와 공식 사이트의 안내인지 확인하세요.",
           "fraud_requestedAction=meet_move|fraud_requestGroup=rg_meeting": "만남이나 장소 이동 요구는 혼자 응하지 말고 믿을 만한 사람에게 알려 두세요. 대화를 다른 앱으로 옮기자는 요구도 기록해 두세요.",
-          "fraud_requestedAction=sign_now|fraud_requestGroup=rg_signing": "서명을 서두르는 것은 확인할 시간을 막는 방식일 수 있습니다. 서명 전에 문서를 사본으로 받아 조건을 대조하세요.",
-          "fraud_requestedAction=keep_secret|fraud_requestGroup=rg_secret": "비밀을 요구하는 것은 주변의 확인을 막으려는 방식일 수 있습니다. 믿을 만한 사람이나 전문가와 상의해 보세요."
+          "fraud_requestedAction=sign_now|fraud_requestGroup=rg_signing": "서명을 서두르는 것은 확인할 시간을 막는 방식일 수 있습니다. 서명 전에 문서를 사본으로 받아 조건을 대조하세요."
         }
       },
       {
@@ -2454,7 +2445,6 @@ export const FRAUD_CONTENT_FINAL = {
     "it_unchecked": "확인 전",
     "it_unverified": "확인되지 않음",
     "it_verified": "확인됨",
-    "keep_secret": "비밀 유지 요구",
     "loan": "대출 관련",
     "loss_10m_100m": "1천만 동 이상 1억 동 미만",
     "loss_1m_10m": "100만 동 이상 1천만 동 미만",
@@ -2531,7 +2521,7 @@ export const FRAUD_CONTENT_FINAL = {
     "react_cut": "연락을 끊음",
     "react_inconsistent": "말이 바뀜",
     "react_open": "기꺼이 자료를 줌",
-    "react_pressure": "화를 내거나 재촉",
+    "react_pressure": "확인을 말하자 재촉",
     "react_untested": "아직 시험해 보지 않음",
     "rec_formal": "정식 서류",
     "rec_informal": "비공식 기록",
@@ -2545,7 +2535,6 @@ export const FRAUD_CONTENT_FINAL = {
     "rg_data": "정보 요구",
     "rg_meeting": "만남·이동 요구",
     "rg_money": "돈 요구",
-    "rg_secret": "비밀 요구",
     "rg_signing": "서명 요구",
     "selected": "직접 선택함",
     "send_first": "먼저 돈을 보내라는 요구",
