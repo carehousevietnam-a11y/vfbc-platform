@@ -1,53 +1,54 @@
 # 거주증(TRC) 직접 확인하기 콘텐츠 설계서 (파일럿)
 
-작성: Claude. 확인일: 2026.10.12. 상태: 대표 확인 대기. 파일럿 이후 wp, tamtru, license 로 같은 방식으로 복제한다.
+이 문서는 scripts/trc-content-spec.mjs 에서 자동 생성된다. 직접 고치지 않는다. 확인일 2026.10.12.
 
 ## 0. 구조 요약
 
 | 항목 | 값 |
 |---|---|
 | 1차 질문 | 5개 |
-| 2차 질문 | 8개 (비율 61.5%, 2차 60% 이상 기준 충족) |
+| 2차 질문 | 8개 (2차 비율 61.5%, 기준 60% 이상) |
 | 선택지 | 질문마다 5개 + 직접 입력(개수에서 제외) |
-| 저장 필드 | 선택지마다 2개(첫째 정보, 별개의 둘째 정보) |
-| 경로 | 1개 (단계 구분은 1차 1번 답으로 저장) |
-| 2차 운영 | 8개 모두 같은 고객 경로에서 묻는다. 1차에서 이미 받은 필드와 겹치는 질문은 없다(아래 필드 표로 확인). 고객별 분기는 이번 파일럿 범위에 넣지 않는다. |
+| 저장 필드 | 선택지마다 2개(첫째 정보, 별개의 둘째 정보), 질문 13개의 필드 26개가 모두 다름 |
+| 경로 | 1개 |
 
-## 1. 기존 판정 엔진 연결 (변경 금지)
-
-기존 판정 함수 computeTrcResultTone(비자, 직위, 회사)은 바꾸지 않는다. 새 답을 아래처럼 기존 입력으로 변환해서 넣는다. 판정 결과는 유료 개인화 리포트에서만 보여 준다.
+## 1. 기존 판정 엔진 연결 (판정 함수는 바꾸지 않는다)
 
 | 새 저장값 | 기존 판정 입력 |
 |---|---|
-| visa_invest / visa_work / visa_tourist / visa_other / visa_unsure | 투자 / 노동허가 / 관광·단기 / 기타 / 기타 |
-| role_legal_rep / role_manager / role_staff / role_none | 법인장 / 관리직 / 일반 직원 / 비어 있음 |
-| company_fdi / company_local / company_unregistered / company_family / company_unsure | 외국인 투자 법인 / 현지 법인 / 미등록 / 비어 있음 / 비어 있음 |
-
-비어 있는 입력은 판정을 확정하지 않고 "추가 확인 필요" 항목으로 표시한다. 국적(2차 11번)은 판정에 쓰지 않고 안내 문장 구성에만 쓴다.
+| visa_invest | 비자: invest |
+| visa_work | 비자: work |
+| visa_tourist | 비자: tourist |
+| visa_other | 비자: other |
+| visa_unsure | 비자: other |
+| role_legal_rep | 직위: legal-rep |
+| role_manager | 직위: manager |
+| role_staff | 직위: staff |
+| role_none | 직위: 비어 있음(추가 확인 필요) |
+| company_fdi | 회사: fdi |
+| company_local | 회사: local |
+| company_unregistered | 회사: unregistered |
+| company_family | 회사: 비어 있음(추가 확인 필요) |
+| company_unsure | 회사: 비어 있음(추가 확인 필요) |
 
 ## 2. 무료·유료 경계
 
-| 구분 | 무료 1차 리포트 | 유료 개인화 리포트 |
+| 구분 | 무료 1차 | 유료 개인화 |
 |---|---|---|
-| 상황 정리 | 1차 답에서 만든 카드 문장 5개 | 1차·2차 답을 합친 상황 요약 |
-| 안내 | 2차 답에서 고른 안내 문장, 필요 서류와 절차 | 부족한 서류, 예상 일정 |
-| 비용 | 공식 수수료 구간(2년 이하 145달러, 2~5년 155달러, 5~10년 165달러)만 일반 참고로 표시 | 비용 구성(정부 수수료, 번역·공증, 대행료) |
-| 판정(가능·조건부·불가) | 표시하지 않음 | 표시 |
-| 점수 | 표시하지 않음 (현재 화면의 가능성 점수 제거 대상) | 표시하지 않음 |
+| 상황 정리 | 1차 답에서 만든 카드 문장과 상황 정리 | 1차·2차 답을 합친 요약 |
+| 안내 | 확인할 점, 다음 확인 | 2차 답에서 고른 안내, 서류·일정 |
+| 공식 수수료 구간 | 일반 참고로만 표시 | 비용 구성 |
+| 판정(가능·조건부·불가) | 표시하지 않음 | 표시(기존 판정 엔진) |
+| 점수 | 표시하지 않음 | 표시하지 않음 |
 | 서비스 단계 추천 | 표시하지 않음 | 표시 |
-| 가격 | PDF에 넣지 않음 | 상담 후 안내 |
 
-## 3. 서비스 단계 추천 규칙 (유료에서만 사용)
+## 3. 서비스 단계 추천 규칙 (유료에서만)
 
-앞에서부터 맞는 첫 규칙을 적용한다.
+1. 전 과정 대행: `trc_helpWanted` ∈ {help_full} 또는 `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} 또는 `trc_hostDocs` ∈ {host_changes, host_inactive}
+2. 작성과 제출 동행: `trc_helpWanted` ∈ {help_accompany} 또는 `trc_submitter` ∈ {sub_undecided} 또는 `trc_officeKnown` ∈ {of_unknown, of_changed}
+3. 서류 작성: 위에 해당하지 않을 때
 
-1. 전 과정 대행: `trc_helpWanted`=help_full, 또는 `trc_expiryRemain`가 exp_under_2w·exp_expired, 또는 `trc_hostDocs`가 host_changes·host_inactive
-2. 작성+제출 동행: `trc_helpWanted`=help_accompany, 또는 `trc_submitter`가 sub_undecided, 또는 `trc_officeKnown`가 of_unknown·of_changed
-3. 서류 작성: 위에 해당하지 않으면(주로 help_guide)
-
-추천 문구는 "참고용 제안"으로 쓰고 선택은 고객이 한다.
-
-## 4. 질문과 선택지 (대표 화면 확인용)
+## 4. 질문과 선택지
 
 ### 1차 1번 — Q1
 
@@ -60,7 +61,7 @@
 ⑤ **어떤 절차가 맞는지 모르겠습니다.** 체류 기간이 얼마나 남았는지도 정확히 모릅니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 카드 문장(1차 요약) |
+| 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
 | ① | `trc_stage=new_issue`, `trc_stayStatus=stay_valid` | 처음 거주증을 발급받으려는 상황입니다 |
 | ② | `trc_stage=renewal`, `trc_stayStatus=stay_expiring` | 만료가 가까워 거주증을 갱신하려는 상황입니다 |
@@ -79,7 +80,7 @@
 ⑤ **비자 종류를 정확히 모릅니다.** 회사에서 맡을 직위도 아직 정해지지 않아 함께 확인하고 싶습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 카드 문장(1차 요약) |
+| 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
 | ① | `trc_visaStatus=visa_invest`, `trc_role=role_legal_rep` | 투자 비자로 법인 대표를 맡고 있는 상황입니다 |
 | ② | `trc_visaStatus=visa_work`, `trc_role=role_manager` | 노동허가 비자로 관리직을 맡고 있는 상황입니다 |
@@ -98,7 +99,7 @@
 ⑤ **초청할 주체가 아직 정해지지 않았습니다.** 여권 남은 기간을 아직 확인해 보지 못했습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 카드 문장(1차 요약) |
+| 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
 | ① | `trc_companyStatus=company_fdi`, `trc_passportRemain=pp_over_2y` | 외국인 투자 법인이 초청하고 여권 기간이 넉넉한 상황입니다 |
 | ② | `trc_companyStatus=company_local`, `trc_passportRemain=pp_1_2y` | 현지 법인이 초청하고 여권 기간이 1~2년 남은 상황입니다 |
@@ -117,7 +118,7 @@
 ⑤ **반려되었지만 이유를 모릅니다.** 직접 신청했는데 반려 사유에 대한 자세한 안내를 받지 못했습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 카드 문장(1차 요약) |
+| 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
 | ① | `trc_rejection=rej_none`, `trc_priorHandling=ph_none` | 반려 이력이 없는 첫 신청 상황입니다 |
 | ② | `trc_rejection=rej_docs`, `trc_priorHandling=ph_self` | 직접 신청했다가 서류 보완 요구를 받은 상황입니다 |
@@ -136,7 +137,7 @@
 ⑤ **받은 견적이 적정한지** 모르겠습니다. 서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 카드 문장(1차 요약) |
+| 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
 | ① | `trc_mainConcern=concern_cost`, `trc_helpWanted=help_guide` | 총비용을 알고 직접 서류를 준비하려는 상황입니다 |
 | ② | `trc_mainConcern=concern_docs`, `trc_helpWanted=help_guide` | 필요한 서류부터 알고 싶은 상황입니다 |
@@ -155,7 +156,7 @@
 ⑤ **무엇이 필요한지 아직 모릅니다.** 준비한 서류가 하나도 없어서 번역할 서류도 아직 없는 상태입니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_docsReady=docs_all`, `trc_translationNeed=tn_none` | 기본 서류가 갖춰져 있으니 서류 이름과 사본 수를 한 번 더 맞춰 보고 제출 일정부터 잡으세요. |
 | ② | `trc_docsReady=docs_most`, `trc_translationNeed=tn_needed` | 남은 서류와 번역·공증이 필요한 서류를 나누어 적고 공증 소요 기간을 먼저 확인하세요. |
@@ -174,7 +175,7 @@
 ⑤ **신고 상태를 정확히 모릅니다.** 지금 사는 곳을 증명할 서류가 하나도 없어서 마련할 방법이 궁금합니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_tamtruStatus=tamtru_done`, `trc_residenceProof=rp_lease` | 신고 확인서와 임대차 계약서의 주소가 같은지 맞춰 보면 제출 서류가 정리됩니다. |
 | ② | `trc_tamtruStatus=tamtru_expired`, `trc_residenceProof=rp_hotel` | 기간이 지난 신고는 다시 해야 하므로 거주 신고부터 마치고 거주증 신청 일정을 잡으세요. |
@@ -193,7 +194,7 @@
 ⑤ **회사 서류가 어떤 상태인지 모릅니다.** 노동허가가 필요한 경우인지 확인하지 못했습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_hostDocs=host_current`, `trc_permitLink=wp_have` | 회사 서류와 노동허가의 기간이 거주증 기간을 감당하는지 날짜만 맞춰 보면 됩니다. |
 | ② | `trc_hostDocs=host_changes`, `trc_permitLink=wp_in_progress` | 변경이 끝나기 전에 제출하면 서류가 어긋날 수 있으니 변경 완료 시점을 기준으로 일정을 잡으세요. |
@@ -212,7 +213,7 @@
 ⑤ **이미 만료**되었습니다. 2년 이하의 짧은 카드로 우선 정리하고 나중에 다시 연장하고 싶습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_expiryRemain=exp_under_2w`, `trc_cardPeriod=cp_up_2y` | 만료가 매우 가깝다면 서류를 완성하는 날부터 접수까지 걸리는 시간을 가장 먼저 줄여야 합니다. |
 | ② | `trc_expiryRemain=exp_2w_1m`, `trc_cardPeriod=cp_2_5y` | 2~5년 카드의 공식 수수료는 155달러이며, 만료 전에 접수하도록 일정을 역산하세요. |
@@ -231,7 +232,7 @@
 ⑤ **광고에 나온 가격**만 보았습니다. 추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_quoteStatus=quote_none`, `trc_quoteScope=qs_na` | 견적을 받기 전에 정부 수수료와 대행료, 번역·공증비를 나누어 요청하세요. |
 | ② | `trc_quoteStatus=quote_one`, `trc_quoteScope=qs_clear` | 항목이 나뉘어 있으니 정부 수수료가 공식 금액과 같은지만 대조해 보세요. |
@@ -250,7 +251,7 @@
 ⑤ **그 밖의 지역** 국적입니다. 직접 제출하지만 베트남어를 몰라서 통역이 꼭 필요한 상황입니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_nationality=nat_korea`, `trc_submitter=sub_self` | 직접 제출한다면 접수 시간과 원본·사본 구분, 통역 필요 여부를 미리 확인하세요. |
 | ② | `trc_nationality=nat_china`, `trc_submitter=sub_hr` | 회사 담당자가 제출하면 위임 서류와 제출 후 진행 상황을 받는 방법을 정해 두세요. |
@@ -269,7 +270,7 @@
 ⑤ **부모님과 함께** 신청합니다. 부모님 관계를 증명하는 데 어떤 서류가 필요한지 아직 모르겠습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_applicants=ap_self_only`, `trc_familyDocs=fd_na` | 혼자 신청하는 경우라 본인 서류만 정리하면 되고, 가족 서류는 준비하지 않아도 됩니다. |
 | ② | `trc_applicants=ap_spouse`, `trc_familyDocs=fd_ready` | 인증이 끝난 결혼증명서는 번역본을 함께 준비해 부부 서류를 같은 날 접수하세요. |
@@ -288,7 +289,7 @@
 ⑤ **제출 지역이 아직 정해지지 않았습니다.** 어느 사무소로 가야 하는지도 모르고 접수 방법도 확인하지 못했습니다.  
 ⑥ **직접 입력**
 
-| 선택 | 저장 필드 | 안내 문장(2차) |
+| 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_filingArea=area_hanoi`, `trc_officeKnown=of_known` | 접수 시간과 예약 여부만 한 번 더 확인하면 헛걸음을 줄일 수 있습니다. |
 | ② | `trc_filingArea=area_hcm`, `trc_officeKnown=of_unknown` | 거주 지역에 맞는 담당 사무소를 먼저 찾아야 접수 가능 시간과 필요 서류를 알 수 있습니다. |
@@ -296,27 +297,39 @@
 | ④ | `trc_filingArea=area_other_city`, `trc_officeKnown=of_known` | 지방은 접수 요일이 제한될 수 있으니 방문 전에 전화로 일정을 확인하세요. |
 | ⑤ | `trc_filingArea=area_unsure`, `trc_officeKnown=of_unknown` | 거주지와 회사 소재지 중 어느 쪽 관할인지 확인해 제출 지역을 정하세요. |
 
-## 5. 필드 표 (1차와 2차의 겹침 점검)
+## 5. 1차 상황 정리 (1차 5번 선택별)
 
-| 질문 | 첫째 필드 | 둘째 필드 |
+| 저장 필드 | 제목 | 안내 |
 |---|---|---|
-| 1차 1 | `trc_stage` | `trc_stayStatus` |
-| 1차 2 | `trc_visaStatus` | `trc_role` |
-| 1차 3 | `trc_companyStatus` | `trc_passportRemain` |
-| 1차 4 | `trc_rejection` | `trc_priorHandling` |
-| 1차 5 | `trc_mainConcern` | `trc_helpWanted` |
-| 2차 6 | `trc_docsReady` | `trc_translationNeed` |
-| 2차 7 | `trc_tamtruStatus` | `trc_residenceProof` |
-| 2차 8 | `trc_hostDocs` | `trc_permitLink` |
-| 2차 9 | `trc_expiryRemain` | `trc_cardPeriod` |
-| 2차 10 | `trc_quoteStatus` | `trc_quoteScope` |
-| 2차 11 | `trc_nationality` | `trc_submitter` |
-| 2차 12 | `trc_applicants` | `trc_familyDocs` |
-| 2차 13 | `trc_filingArea` | `trc_officeKnown` |
+| `trc_mainConcern=concern_cost`, `trc_helpWanted=help_guide` | 총비용을 확인하고 서류는 직접 준비하려는 상황입니다 | 공식 수수료는 카드 기간에 따라 145·155·165달러로 정해져 있고, 번역·공증과 대행료는 별도로 확인해야 합니다. 서류 목록을 받아 직접 준비하는 순서로 정리하세요. |
+| `trc_mainConcern=concern_docs`, `trc_helpWanted=help_guide` | 필요한 서류부터 확인해 직접 준비하려는 상황입니다 | 거주증 신청에는 신청서, 여권과 사진, 비자, 거주지와 초청 회사 서류가 기본으로 필요합니다. 신청 유형에 따라 달라지므로 서류 목록을 단계별로 확인하세요. |
+| `trc_mainConcern=concern_time`, `trc_helpWanted=help_accompany` | 일정 지연이 걱정되어 제출 동행을 원하는 상황입니다 | 서류가 갖춰진 뒤에 접수해야 처리 기간이 시작되고, 보완 요구가 생기면 늘어날 수 있습니다. 제출 전에 서류를 한 번 더 점검하면 보완 요구를 줄일 수 있습니다. |
+| `trc_mainConcern=concern_eligibility`, `trc_helpWanted=help_full` | 발급 자격이 걱정되어 전 과정을 맡기려는 상황입니다 | 거주증은 비자 종류와 초청 주체, 체류 상태에 따라 가능 여부가 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다. |
+| `trc_mainConcern=concern_quote`, `trc_helpWanted=help_accompany` | 받은 견적을 확인하고 제출은 함께 하려는 상황입니다 | 견적은 정부 수수료, 번역·공증, 대행료가 나뉘어 있는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 어디서 생기는지 알 수 있습니다. |
 
-필드 26개가 모두 서로 다르다(겹침 0).
+## 6. 확인할 점 규칙 (최대 4개, 없으면 기본 문장)
 
-## 6. 값 → 고객 표시 문구
+| 번호 | 조건 | 문장 |
+|---|---|---|
+| 1 (stay) | `trc_stayStatus` ∈ {stay_expiring, stay_unsure, stay_outside} | 체류 기간이 가깝거나 불분명하면 만료 전에 접수하도록 일정을 먼저 정리해야 합니다 |
+| 2 (visa) | `trc_visaStatus` ∈ {visa_tourist, visa_unsure} | 관광·단기 비자이거나 비자 종류를 모르면 거주증 신청 대상인지 먼저 확인해야 합니다 |
+| 3 (company) | `trc_companyStatus` ∈ {company_unregistered, company_unsure} | 초청 회사가 등록 전이거나 정해지지 않았다면 초청 서류를 만들 수 없어 회사 상태부터 확인해야 합니다 |
+| 4 (passport) | `trc_passportRemain` ∈ {pp_under_1y, pp_unknown} | 여권 남은 기간이 짧으면 카드 기간이 짧아지거나 여권 갱신이 먼저 필요할 수 있습니다 |
+| 5 (rejection) | `trc_rejection` ∈ {rej_docs, rej_sponsor, rej_stay, rej_unknown} | 이전 반려 사유를 확인하면 같은 문제를 피할 수 있으니 반려 통지나 안내를 먼저 찾아보세요 |
+| 6 (quote) | `trc_mainConcern` ∈ {concern_quote} | 받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요 |
+| 7 (lost) | `trc_stage` ∈ {lost_reissue} | 분실 재발급은 분실 사실을 확인하는 서류가 추가로 필요할 수 있습니다 |
+
+기본 문장: 입력하신 내용에서는 뚜렷한 확인 사항이 많지 않지만, 접수 전에 서류 목록과 수수료를 한 번 더 확인하세요
+
+## 7. 다른 검토 연결
+
+| 연결 | 조건 | 문장 |
+|---|---|---|
+| 임시 거주 신고 확인 | `trc_tamtruStatus` ∈ {tamtru_expired, tamtru_changed, tamtru_not_yet, tamtru_unsure} | 거주 신고가 정리되지 않았다면 임시 거주 신고 확인에서 먼저 점검해 보실 수 있습니다. |
+| 노동허가 확인 | `trc_permitLink` ∈ {wp_in_progress, wp_unsure} | 노동허가가 아직 정리되지 않았다면 노동허가 확인에서 함께 점검해 보실 수 있습니다. |
+| 전문가 진행 | `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} 또는 `trc_hostDocs` ∈ {host_changes, host_inactive} 또는 `trc_helpWanted` ∈ {help_full} | 만료가 가깝거나 회사 정보가 바뀌는 중이라면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요. |
+
+## 8. 값 → 고객 표시 문구
 
 | 내부 값 | 고객 화면 표시 |
 |---|---|
@@ -436,20 +449,9 @@
 | `wp_na` | 노동허가 불필요 |
 | `wp_unsure` | 노동허가 필요 여부 모름 |
 
-## 7. 근거·출처 (확인일 2026.10.12)
+## 9. 근거·출처 (확인일 2026.10.12)
 
-| 번호 | 자료 | 발행처 | 비고 |
-|---|---|---|---|
-| 1 | 출입국·체류 수수료 규정 안내 (재무부 통달 28/2026/TT-BTC, 2026.4.1 시행): 거주증 수수료 2년 이하 145달러, 2~5년 155달러, 5~10년 165달러 | 베트남 재무부 / 정부 전자신문 | https://baochinhphu.vn/quy-dinh-moi-ve-thu-phi-le-phi-xuat-nhap-canh-102260331184313162.htm . 기존 화면이 이미 인용한 자료이며 구간 금액은 일치 |
-| 2 | 외국인의 입국·출국·통과·거주에 관한 법(제47/2014/QH13호, 제51/2019/QH14호 개정): 거주증 발급·유효기간 | 베트남 국회 | 조문 번호는 공식 원문 대조 필요. 본문에는 조문 번호를 쓰지 않음 |
-| 3 | 임시 거주 신고 기한(숙소 제공자가 12시간 이내 신고) | 베트남 국회 | 공식 원문 대조 필요. 본문에는 기한을 단정해 쓰지 않음 |
-
-## 8. 대표 확인 사항 / 반영 기록
-
-| 검토 의견 | 처리 |
-|---|---|
-| 기존 판정 입력(비자·직위·회사 상태)을 빠뜨리지 않는다 | 반영. 1차 2·3번에 담고 1절 표로 기존 판정에 연결 |
-| 무료에서 판정·점수·서비스 단계 추천을 뺀다 | 반영. 2절 |
-| 2차 8개를 개인별로 분기한다 | 이번 파일럿에서는 보류. 8개를 고정으로 묻고 겹침을 없앰. 분기는 효과를 본 뒤 추가 |
-| 1차 비율 40% 미달 | 해당 없음. 기준은 2차 60% 이상이며 현재 61.5% |
-| 원하는 카드 기간과 비용 구간 연결 | 1차에서 2차 9번으로 옮김. 구간 금액은 공식 자료 값만 사용 |
+| 번호 | 자료 | 발행처 | 성격 | URL | 비고 |
+|---|---|---|---|---|---|
+| 1 | 출입국·체류 수수료 규정 (재무부 통달 28/2026/TT-BTC, 2026.4.1 시행): 거주증 2년 이하 145달러, 2~5년 155달러, 5~10년 165달러 | 베트남 재무부 / 정부 전자신문 | 공식 기관 안내 | https://baochinhphu.vn/quy-dinh-moi-ve-thu-phi-le-phi-xuat-nhap-canh-102260331184313162.htm | 기존 화면이 인용한 자료와 구간 금액 일치 |
+| 2 | 외국인의 입국·출국·통과·거주에 관한 법 (제47/2014/QH13호, 제51/2019/QH14호 개정) | 베트남 국회 | 법령(이차 자료로 확인) | 원문 링크 확인 중 | 조문 번호는 공식 원문 대조 필요. 본문에는 조문 번호를 쓰지 않음 |

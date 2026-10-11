@@ -19,6 +19,7 @@ const WATCHED = [
   "tests/qa/tax-content-final.mjs",
   "tests/qa/fraud-content-final.mjs",
   "tests/qa/unclear-content-final.mjs",
+  "tests/qa/trc-content-final.mjs",
 ];
 
 const DB_WRITE = [
