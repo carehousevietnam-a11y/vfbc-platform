@@ -1,4 +1,4 @@
-/* Generated from docs/master/content/FRAUD_CONTENT_V2.md. Do not edit sentences. */
+/* Generated from docs/master/content/FRAUD_CONTENT_V3.md. Do not edit sentences. */
 export const FRAUD_CONTENT_FINAL = {
   "entry": {
     "code": "A-0",
@@ -51,47 +51,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q1_b",
       "route": "B",
       "phase": 1,
-      "prompt": "어떤 종류의 제안을 받으셨나요?",
+      "prompt": "지금 받은 제안은 어떤 방식으로 접근해 온 것이고, 그 제안에서 가장 먼저 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "투자나 수익, 사업 제휴를 내세운 제안입니다",
+          "label": "투자·수익·사업 제휴를 내세운 제안입니다.",
           "fields": {
             "fraud_scheme": "investment",
             "fraud_schemeGroup": "sg_return"
-          }
+          },
+          "description": "약속된 수익이 사실인지, 돈을 맡겨도 되는 곳인지 가장 먼저 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "대출을 내세운 제안입니다",
+          "label": "대출을 내세운 제안입니다.",
           "fields": {
             "fraud_scheme": "loan",
             "fraud_schemeGroup": "sg_finance"
-          }
+          },
+          "description": "수수료나 보증금을 먼저 내야 한다는 조건이 정상적인 절차인지 가장 먼저 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "온라인 거래나 임대 제안입니다",
+          "label": "온라인 거래나 임대 제안입니다.",
           "fields": {
             "fraud_scheme": "online_trade",
             "fraud_schemeGroup": "sg_trade"
-          }
+          },
+          "description": "상대가 실제 권리자인지, 계약금을 먼저 보내도 되는지 가장 먼저 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "기관이나 지인, 일자리, 연애를 내세운 제안입니다",
+          "label": "기관·지인·일자리·연애를 내세운 제안입니다.",
           "fields": {
             "fraud_scheme": "impersonation",
             "fraud_schemeGroup": "sg_identity"
-          }
+          },
+          "description": "상대가 말하는 신분이나 관계가 실제인지 가장 먼저 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "어떤 종류인지 잘 모르겠습니다",
+          "label": "어떤 종류인지 잘 모르겠습니다.",
           "fields": {
             "fraud_scheme": "unsure_scheme",
             "fraud_schemeGroup": "sg_unknown"
-          }
+          },
+          "description": "제안이 어떤 성격인지 구분하는 것부터 도움을 받아 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -104,71 +109,79 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q2_b",
       "route": "B",
       "phase": 1,
-      "prompt": "상대가 내세운 명목은 무엇인가요?",
+      "prompt": "상대가 내세운 명목은 무엇이고, 그 명목으로 상대가 얻으려는 것은 무엇인 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "고수익·투자·가상자산·다단계·사업 제휴입니다",
+          "label": "고수익·투자·가상자산·다단계·사업 제휴를 내세웁니다.",
           "fields": {
             "fraud_pretext": "pre_invest",
             "fraud_pretextGroup": "pg_return"
-          }
+          },
+          "description": "높은 수익을 약속하며 돈을 맡기게 하려는 것 같습니다."
         },
         {
           "value": "o2",
-          "label": "소액 과제나 구인, 아르바이트입니다",
+          "label": "소액 과제·구인·아르바이트를 내세웁니다.",
           "fields": {
             "fraud_pretext": "pre_tasks",
             "fraud_pretextGroup": "pg_work"
-          }
+          },
+          "description": "일과 보수를 약속하며 비용이나 개인정보를 먼저 요구하려는 것 같습니다."
         },
         {
           "value": "o3",
-          "label": "연애나 결혼, 소개입니다",
+          "label": "연애·결혼·소개를 내세웁니다.",
           "fields": {
             "fraud_pretext": "pre_romance",
             "fraud_pretextGroup": "pg_relation"
-          }
+          },
+          "description": "친밀한 관계를 쌓은 뒤 돈이나 개인정보를 요구하려는 것 같습니다."
         },
         {
           "value": "o4",
-          "label": "임대나 매매의 보증금·예약금입니다",
+          "label": "임대·매매의 보증금·예약금을 내세웁니다.",
           "fields": {
             "fraud_pretext": "pre_deposit",
             "fraud_pretextGroup": "pg_deposit"
-          }
+          },
+          "description": "계약을 약속하며 돈을 먼저 받아 가려는 것 같습니다."
         },
         {
           "value": "o5",
-          "label": "택배나 관세, 상품 수령입니다",
+          "label": "택배·관세·상품 수령을 내세웁니다.",
           "fields": {
             "fraud_pretext": "pre_parcel",
             "fraud_pretextGroup": "pg_parcel"
-          }
+          },
+          "description": "물품을 받으려면 비용이 필요하다며 돈을 요구하려는 것 같습니다."
         },
         {
           "value": "o6",
-          "label": "공안·세무·법원 같은 기관의 연락입니다",
+          "label": "공안·세무·법원 같은 기관의 연락을 내세웁니다.",
           "fields": {
             "fraud_pretext": "pre_authority",
             "fraud_pretextGroup": "pg_authority"
-          }
+          },
+          "description": "기관의 권위를 앞세워 돈이나 정보를 요구하려는 것 같습니다."
         },
         {
           "value": "o7",
-          "label": "비자나 체류, 행정 업무 대행입니다",
+          "label": "비자·체류·행정 업무 대행을 내세웁니다.",
           "fields": {
             "fraud_pretext": "pre_service",
             "fraud_pretextGroup": "pg_service"
-          }
+          },
+          "description": "대행 비용이나 신분 서류를 먼저 받아 가려는 것 같습니다."
         },
         {
           "value": "o8",
-          "label": "잘 모르겠습니다",
+          "label": "명목이 잘 정리되지 않습니다.",
           "fields": {
             "fraud_pretext": "pre_unsure",
             "fraud_pretextGroup": "pg_unknown"
-          }
+          },
+          "description": "상대가 무엇을 얻으려는지부터 구분해서 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -181,71 +194,79 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q3_b",
       "route": "B",
       "phase": 1,
-      "prompt": "상대와는 어떤 경로로 연락이 닿았나요?",
+      "prompt": "상대와는 어떤 경로로 연락이 닿았고, 그 연락은 누가 먼저 시작했나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "문자메시지입니다",
+          "label": "문자메시지로 연락이 왔습니다.",
           "fields": {
             "fraud_contactChannel": "text_message",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "제가 먼저 찾은 것이 아니라 상대가 제 번호로 먼저 직접 보낸 연락입니다."
         },
         {
           "value": "o2",
-          "label": "전화입니다",
+          "label": "전화로 연락이 왔습니다.",
           "fields": {
             "fraud_contactChannel": "phone_call",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "제가 먼저 찾은 것이 아니라 상대가 제 번호를 알고 먼저 직접 걸어 온 연락입니다."
         },
         {
           "value": "o3",
-          "label": "이메일입니다",
+          "label": "이메일로 연락이 왔습니다.",
           "fields": {
             "fraud_contactChannel": "email_contact",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "제가 먼저 찾은 것이 아니라 상대가 제 주소를 알고 먼저 직접 보낸 연락입니다."
         },
         {
           "value": "o4",
-          "label": "메신저나 소셜 앱입니다",
+          "label": "메신저나 소셜 앱으로 연락이 왔습니다.",
           "fields": {
             "fraud_contactChannel": "messenger",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "상대가 먼저 말을 걸어 대화가 직접 이어진 연락입니다."
         },
         {
           "value": "o5",
-          "label": "온라인 광고나 게시글입니다",
+          "label": "온라인 광고나 게시글을 보고 연락했습니다.",
           "fields": {
             "fraud_contactChannel": "online_post",
             "fraud_channelGroup": "cg_public"
-          }
+          },
+          "description": "공개된 글을 제가 먼저 보고 상대에게 접촉한 경우입니다."
         },
         {
           "value": "o6",
-          "label": "거래·임대·구인구직 플랫폼입니다",
+          "label": "거래·임대·구인구직 플랫폼에서 만났습니다.",
           "fields": {
             "fraud_contactChannel": "trade_platform",
             "fraud_channelGroup": "cg_public"
-          }
+          },
+          "description": "공개 플랫폼의 글이나 연락으로 대화가 시작된 경우입니다."
         },
         {
           "value": "o7",
-          "label": "지인의 소개입니다",
+          "label": "지인의 소개로 알게 되었습니다.",
           "fields": {
             "fraud_contactChannel": "referral",
             "fraud_channelGroup": "cg_personal"
-          }
+          },
+          "description": "아는 사람을 통해 사람 사이의 관계로 연락이 이어진 경우입니다."
         },
         {
           "value": "o8",
-          "label": "직접 만나서 시작되었습니다",
+          "label": "직접 만나서 시작되었습니다.",
           "fields": {
             "fraud_contactChannel": "in_person",
             "fraud_channelGroup": "cg_personal"
-          }
+          },
+          "description": "얼굴을 보고 사람 사이의 만남으로 관계가 이어진 경우입니다."
         }
       ],
       "directFields": {
@@ -258,55 +279,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q4_b",
       "route": "B",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇인가요?",
+      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 확인하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "상대가 진짜인지 모르겠습니다",
+          "label": "상대가 진짜인지 모르겠습니다.",
           "fields": {
             "fraud_mainConcern": "doubt_party",
             "fraud_firstAction": "next_party"
-          }
+          },
+          "description": "무엇을 하기 전에 먼저 상대와 회사의 신원부터 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "서명하거나 계약해도 되는지 모르겠습니다",
+          "label": "서명하거나 계약해도 되는지 모르겠습니다.",
           "fields": {
             "fraud_mainConcern": "doubt_sign",
             "fraud_firstAction": "next_terms"
-          }
+          },
+          "description": "서명하기 전에 먼저 조건과 서류 내용부터 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "먼저 돈을 보내라는데 괜찮은지 모르겠습니다",
+          "label": "먼저 돈을 보내라는데 괜찮은지 모르겠습니다.",
           "fields": {
             "fraud_mainConcern": "doubt_prepay",
             "fraud_firstAction": "next_hold"
-          }
+          },
+          "description": "송금은 잠시 미루고 먼저 보내도 되는 상황인지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "개인정보를 달라는데 괜찮은지 모르겠습니다",
+          "label": "개인정보를 달라는데 괜찮은지 모르겠습니다.",
           "fields": {
             "fraud_mainConcern": "doubt_data",
             "fraud_firstAction": "next_protect"
-          }
+          },
+          "description": "정보를 주기 전에 안전한지, 어떻게 보호할 수 있는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "조건이 너무 좋아 보여 걱정됩니다",
+          "label": "조건이 너무 좋아 보여 걱정됩니다.",
           "fields": {
             "fraud_mainConcern": "doubt_terms",
             "fraud_firstAction": "next_terms"
-          }
+          },
+          "description": "믿고 진행하기 전에 먼저 조건과 서류가 정상인지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "재촉이 부담스럽습니다",
+          "label": "재촉이 부담스럽습니다.",
           "fields": {
             "fraud_mainConcern": "doubt_rush",
             "fraud_firstAction": "next_hold"
-          }
+          },
+          "description": "송금은 잠시 미루고 서두르지 않고 천천히 확인할 시간을 갖고 싶습니다."
         }
       ],
       "directFields": {
@@ -319,47 +346,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q1_a",
       "route": "A",
       "phase": 1,
-      "prompt": "어떤 종류의 일을 겪으셨나요?",
+      "prompt": "겪으신 일은 어떤 종류이고, 그 일에서 지금 가장 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "투자나 수익, 사업 제휴와 관련해 문제가 생겼습니다",
+          "label": "투자·수익·사업 제휴와 관련해 문제가 생겼습니다.",
           "fields": {
             "fraud_scheme": "investment",
             "fraud_schemeGroup": "sg_return"
-          }
+          },
+          "description": "약속된 수익이 어떻게 되었는지, 낸 돈의 행방이 어떻게 되는지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "대출과 관련해 문제가 생겼습니다",
+          "label": "대출과 관련해 문제가 생겼습니다.",
           "fields": {
             "fraud_scheme": "loan",
             "fraud_schemeGroup": "sg_finance"
-          }
+          },
+          "description": "먼저 낸 수수료나 보증금을 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "온라인 거래나 임대와 관련해 문제가 생겼습니다",
+          "label": "온라인 거래나 임대와 관련해 문제가 생겼습니다.",
           "fields": {
             "fraud_scheme": "online_trade",
             "fraud_schemeGroup": "sg_trade"
-          }
+          },
+          "description": "보낸 계약금이나 대금을 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "기관이나 지인, 일자리, 연애를 내세운 상대와 문제가 생겼습니다",
+          "label": "기관·지인·일자리·연애를 내세운 상대와 문제가 생겼습니다.",
           "fields": {
             "fraud_scheme": "impersonation",
             "fraud_schemeGroup": "sg_identity"
-          }
+          },
+          "description": "그 상대의 신분과 관계가 실제였는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "어떤 종류인지 잘 모르겠습니다",
+          "label": "어떤 종류인지 잘 모르겠습니다.",
           "fields": {
             "fraud_scheme": "unsure_scheme",
             "fraud_schemeGroup": "sg_unknown"
-          }
+          },
+          "description": "겪은 일이 어떤 성격인지 구분하는 것부터 도움을 받아 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -372,71 +404,79 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q2_a",
       "route": "A",
       "phase": 1,
-      "prompt": "상대가 내세웠던 명목은 무엇이었나요?",
+      "prompt": "상대가 내세웠던 명목은 무엇이었고, 그 명목으로 상대가 얻어 간 것은 무엇인 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "고수익·투자·가상자산·다단계·사업 제휴였습니다",
+          "label": "고수익·투자·가상자산·다단계·사업 제휴를 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_invest",
             "fraud_pretextGroup": "pg_return"
-          }
+          },
+          "description": "수익을 약속하며 돈을 맡기게 한 것 같습니다."
         },
         {
           "value": "o2",
-          "label": "소액 과제나 구인, 아르바이트였습니다",
+          "label": "소액 과제·구인·아르바이트를 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_tasks",
             "fraud_pretextGroup": "pg_work"
-          }
+          },
+          "description": "일과 보수를 약속하며 비용이나 개인정보를 받아 간 것 같습니다."
         },
         {
           "value": "o3",
-          "label": "연애나 결혼, 소개였습니다",
+          "label": "연애·결혼·소개를 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_romance",
             "fraud_pretextGroup": "pg_relation"
-          }
+          },
+          "description": "친밀한 관계를 쌓은 뒤 돈이나 개인정보를 받아 간 것 같습니다."
         },
         {
           "value": "o4",
-          "label": "임대나 매매의 보증금·예약금이었습니다",
+          "label": "임대·매매의 보증금·예약금을 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_deposit",
             "fraud_pretextGroup": "pg_deposit"
-          }
+          },
+          "description": "계약을 약속하며 돈을 먼저 받아 간 것 같습니다."
         },
         {
           "value": "o5",
-          "label": "택배나 관세, 상품 수령이었습니다",
+          "label": "택배·관세·상품 수령을 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_parcel",
             "fraud_pretextGroup": "pg_parcel"
-          }
+          },
+          "description": "물품 수령에 필요하다며 비용을 받아 간 것 같습니다."
         },
         {
           "value": "o6",
-          "label": "공안·세무·법원 같은 기관의 연락이었습니다",
+          "label": "공안·세무·법원 같은 기관의 연락을 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_authority",
             "fraud_pretextGroup": "pg_authority"
-          }
+          },
+          "description": "기관의 권위를 앞세워 돈이나 정보를 받아 간 것 같습니다."
         },
         {
           "value": "o7",
-          "label": "비자나 체류, 행정 업무 대행이었습니다",
+          "label": "비자·체류·행정 업무 대행을 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_service",
             "fraud_pretextGroup": "pg_service"
-          }
+          },
+          "description": "대행 비용이나 신분 서류를 받아 간 것 같습니다."
         },
         {
           "value": "o8",
-          "label": "피해를 회복해 준다는 대행 제안이었습니다",
+          "label": "피해를 회복해 준다는 대행 제안을 내세웠습니다.",
           "fields": {
             "fraud_pretext": "pre_recovery",
             "fraud_pretextGroup": "pg_service"
-          }
+          },
+          "description": "이미 입은 피해를 이용해 다시 비용을 받아 간 것 같습니다."
         }
       ],
       "directFields": {
@@ -449,71 +489,79 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q3_a",
       "route": "A",
       "phase": 1,
-      "prompt": "상대와는 어떤 경로로 연락이 닿았나요?",
+      "prompt": "상대와는 어떤 경로로 연락이 닿았고, 그 연락은 누가 먼저 시작했나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "문자메시지였습니다",
+          "label": "문자메시지로 연락이 닿았습니다.",
           "fields": {
             "fraud_contactChannel": "text_message",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "제가 먼저 찾은 것이 아니라 상대가 제 번호로 먼저 직접 보낸 연락이었습니다."
         },
         {
           "value": "o2",
-          "label": "전화였습니다",
+          "label": "전화로 연락이 닿았습니다.",
           "fields": {
             "fraud_contactChannel": "phone_call",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "제가 먼저 찾은 것이 아니라 상대가 제 번호를 알고 먼저 직접 걸어 온 연락이었습니다."
         },
         {
           "value": "o3",
-          "label": "이메일이었습니다",
+          "label": "이메일로 연락이 닿았습니다.",
           "fields": {
             "fraud_contactChannel": "email_contact",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "제가 먼저 찾은 것이 아니라 상대가 제 주소를 알고 먼저 직접 보낸 연락이었습니다."
         },
         {
           "value": "o4",
-          "label": "메신저나 소셜 앱이었습니다",
+          "label": "메신저나 소셜 앱으로 연락이 닿았습니다.",
           "fields": {
             "fraud_contactChannel": "messenger",
             "fraud_channelGroup": "cg_direct"
-          }
+          },
+          "description": "상대가 먼저 말을 걸어 대화가 직접 이어진 연락이었습니다."
         },
         {
           "value": "o5",
-          "label": "온라인 광고나 게시글이었습니다",
+          "label": "온라인 광고나 게시글을 보고 연락했습니다.",
           "fields": {
             "fraud_contactChannel": "online_post",
             "fraud_channelGroup": "cg_public"
-          }
+          },
+          "description": "공개된 글을 제가 먼저 보고 상대에게 접촉한 경우였습니다."
         },
         {
           "value": "o6",
-          "label": "거래·임대·구인구직 플랫폼이었습니다",
+          "label": "거래·임대·구인구직 플랫폼에서 만났습니다.",
           "fields": {
             "fraud_contactChannel": "trade_platform",
             "fraud_channelGroup": "cg_public"
-          }
+          },
+          "description": "공개 플랫폼의 글이나 연락으로 대화가 시작된 경우였습니다."
         },
         {
           "value": "o7",
-          "label": "지인의 소개였습니다",
+          "label": "지인의 소개로 알게 되었습니다.",
           "fields": {
             "fraud_contactChannel": "referral",
             "fraud_channelGroup": "cg_personal"
-          }
+          },
+          "description": "아는 사람을 통해 사람 사이의 관계로 연락이 이어진 경우였습니다."
         },
         {
           "value": "o8",
-          "label": "직접 만나서 시작되었습니다",
+          "label": "직접 만나서 시작되었습니다.",
           "fields": {
             "fraud_contactChannel": "in_person",
             "fraud_channelGroup": "cg_personal"
-          }
+          },
+          "description": "얼굴을 보고 사람 사이의 만남으로 관계가 이어진 경우였습니다."
         }
       ],
       "directFields": {
@@ -526,55 +574,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q4_a",
       "route": "A",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇인가요?",
+      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "보낸 돈이 어떻게 될지 걱정됩니다",
+          "label": "보낸 돈이 어떻게 될지 걱정됩니다.",
           "fields": {
             "fraud_mainConcern": "doubt_recover",
             "fraud_firstAction": "next_bank"
-          }
+          },
+          "description": "먼저 은행에 문의해서 되돌릴 방법이 있는지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "상대가 계속 추가로 요구해 걱정됩니다",
+          "label": "상대가 계속 추가로 요구해 걱정됩니다.",
           "fields": {
             "fraud_mainConcern": "doubt_more",
             "fraud_firstAction": "next_stop"
-          }
+          },
+          "description": "더 보내지 않고 먼저 상대의 요구 내용을 기록해 두고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "상대와 연락이 끊겨 걱정됩니다",
+          "label": "상대와 연락이 끊겨 걱정됩니다.",
           "fields": {
             "fraud_mainConcern": "doubt_cut",
             "fraud_firstAction": "next_evidence"
-          }
+          },
+          "description": "더 사라지기 전에 먼저 남아 있는 자료부터 확보해 두고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "어디에 알려야 하는지 모르겠습니다",
+          "label": "어디에 알려야 하는지 모르겠습니다.",
           "fields": {
             "fraud_mainConcern": "doubt_where",
             "fraud_firstAction": "next_report"
-          }
+          },
+          "description": "먼저 신고할 수 있는 곳과 신고 방법부터 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "증거가 부족해 걱정됩니다",
+          "label": "증거가 부족해 걱정됩니다.",
           "fields": {
             "fraud_mainConcern": "doubt_proof",
             "fraud_firstAction": "next_evidence"
-          }
+          },
+          "description": "더 늦기 전에 먼저 남은 자료부터 최대한 모아 두고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "개인정보를 줘서 걱정됩니다",
+          "label": "개인정보를 줘서 걱정됩니다.",
           "fields": {
             "fraud_mainConcern": "doubt_leak",
             "fraud_firstAction": "next_protect"
-          }
+          },
+          "description": "악용되기 전에 먼저 제 정보를 보호할 조치가 무엇인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -587,47 +641,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q5_b",
       "route": "B",
       "phase": 2,
-      "prompt": "상대나 회사 이름은 어디까지 확인되었나요?",
+      "prompt": "상대나 회사의 이름은 어디까지 확인되었고, 그 정보가 실제로 연락한 사람과 이어지는지도 확인하셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "공식 조회로 이름과 등록 정보가 확인되었습니다",
+          "label": "공식 조회로 이름과 등록 정보를 확인",
           "fields": {
             "fraud_identityCheck": "checked_official",
             "fraud_identityTrust": "it_verified"
-          }
+          },
+          "description": "했고, 연락한 사람이 그 회사 소속인지도 확인했습니다."
         },
         {
           "value": "o2",
-          "label": "이름은 맞지만 연락한 사람의 소속은 확인하지 못했습니다",
+          "label": "회사 이름은 공식 조회로 확인",
           "fields": {
             "fraud_identityCheck": "checked_name_only",
             "fraud_identityTrust": "it_partial"
-          }
+          },
+          "description": "했지만, 연락한 사람이 실제 그 회사 소속인지는 확인하지 못했습니다."
         },
         {
           "value": "o3",
-          "label": "상대가 말해 준 이름만 알고 있습니다",
+          "label": "상대가 말해 준 이름만",
           "fields": {
             "fraud_identityCheck": "name_only_known",
             "fraud_identityTrust": "it_unverified"
-          }
+          },
+          "description": "알고 있고, 공식 조회나 등록 정보는 아직 확인하지 못했습니다."
         },
         {
           "value": "o4",
-          "label": "확인해 보니 정보가 맞지 않거나 가짜가 의심됩니다",
+          "label": "확인해 보니 정보가 맞지 않거나",
           "fields": {
             "fraud_identityCheck": "check_mismatch",
             "fraud_identityTrust": "it_suspect"
-          }
+          },
+          "description": "가짜로 의심되는 부분이 있어, 어떻게 판단해야 할지 알고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "아직 확인해 보지 않았습니다",
+          "label": "아직 확인해 보지 않았습니다.",
           "fields": {
             "fraud_identityCheck": "not_checked",
             "fraud_identityTrust": "it_unchecked"
-          }
+          },
+          "description": "어디서 어떻게 확인해야 하는지, 연락한 사람과 어떻게 연결해 볼지부터 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -640,47 +699,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q6_b",
       "route": "B",
       "phase": 2,
-      "prompt": "상대가 내세운 수익이나 조건은 어느 쪽에 가깝나요?",
+      "prompt": "상대는 어떤 수익이나 조건을 내세웠고, 그 조건이 현실적인지 확인이 필요하다고 느끼시나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "원금이나 수익을 보장한다고 합니다",
+          "label": "원금이나 수익을 보장한다고 합니다.",
           "fields": {
             "fraud_benefitType": "benefit_guaranteed",
             "fraud_benefitFlag": "bf_flag"
-          }
+          },
+          "description": "손실 위험 없이 이익을 약속하는 조건이라 현실적인지 확인이 필요합니다."
         },
         {
           "value": "o2",
-          "label": "짧은 기간에 아주 높은 확정 수익을 말합니다",
+          "label": "짧은 기간에 아주 높은 확정 수익을 말합니다.",
           "fields": {
             "fraud_benefitType": "benefit_high_fixed",
             "fraud_benefitFlag": "bf_flag"
-          }
+          },
+          "description": "일반적인 시장 수준을 크게 넘는 약속이라 확인이 필요합니다."
         },
         {
           "value": "o3",
-          "label": "수수료나 보증금을 먼저 내야 한다고 합니다",
+          "label": "수수료나 보증금을 먼저 내야 한다고 합니다.",
           "fields": {
             "fraud_benefitType": "benefit_fee_first",
             "fraud_benefitFlag": "bf_flag"
-          }
+          },
+          "description": "이익을 받기 전에 돈부터 요구하는 조건이라 확인이 필요합니다."
         },
         {
           "value": "o4",
-          "label": "조건은 일반적이고 특별한 보장은 없습니다",
+          "label": "조건은 일반적이고 특별한 보장은 없습니다.",
           "fields": {
             "fraud_benefitType": "benefit_ordinary",
             "fraud_benefitFlag": "bf_normal"
-          }
+          },
+          "description": "특이한 점은 적어 보이지만 서류로 한 번 더 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "조건에 대한 설명이 거의 없습니다",
+          "label": "조건에 대한 설명이 거의 없습니다.",
           "fields": {
             "fraud_benefitType": "benefit_unexplained",
             "fraud_benefitFlag": "bf_unclear"
-          }
+          },
+          "description": "무엇을 약속받았는지 불분명해서 조건부터 정리해서 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -693,47 +757,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q7_b",
       "route": "B",
       "phase": 2,
-      "prompt": "상대가 지금 요구하는 것은 무엇인가요?",
+      "prompt": "상대가 지금 요구하는 것은 무엇이고, 그 요구를 받아들였을 때 걱정되는 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "먼저 돈을 보내라고 합니다",
+          "label": "먼저 돈을 보내라고 합니다.",
           "fields": {
             "fraud_requestedAction": "send_first",
             "fraud_requestGroup": "rg_money"
-          }
+          },
+          "description": "한 번 보내면 되돌리기 어려울 수 있어 보내도 되는 상황인지 걱정됩니다."
         },
         {
           "value": "o2",
-          "label": "신분증이나 계좌 정보를 달라고 합니다",
+          "label": "신분증이나 계좌 정보를 달라고 합니다.",
           "fields": {
             "fraud_requestedAction": "give_info",
             "fraud_requestGroup": "rg_data"
-          }
+          },
+          "description": "제 신분과 계좌 정보가 다른 곳에 악용될까 걱정됩니다."
         },
         {
           "value": "o3",
-          "label": "앱 설치나 로그인을 하라고 합니다",
+          "label": "앱 설치나 로그인을 하라고 합니다.",
           "fields": {
             "fraud_requestedAction": "install_login",
             "fraud_requestGroup": "rg_access"
-          }
+          },
+          "description": "제 기기나 계정에 상대가 접근할 수 있게 될까 걱정됩니다."
         },
         {
           "value": "o4",
-          "label": "만나자거나 다른 곳으로 옮기자고 합니다",
+          "label": "만나자거나 다른 곳으로 옮기자고 합니다.",
           "fields": {
             "fraud_requestedAction": "meet_move",
             "fraud_requestGroup": "rg_meeting"
-          }
+          },
+          "description": "혼자 응했다가 안전이 위험해지거나 기록이 사라질까 걱정됩니다."
         },
         {
           "value": "o5",
-          "label": "서명이나 계약을 서두르라고 합니다",
+          "label": "서명이나 계약을 서두르라고 합니다.",
           "fields": {
             "fraud_requestedAction": "sign_now",
             "fraud_requestGroup": "rg_signing"
-          }
+          },
+          "description": "내용을 충분히 확인하기 전에 서명으로 책임이 생길까 걱정됩니다."
         }
       ],
       "directFields": {
@@ -746,55 +815,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q8_b",
       "route": "B",
       "phase": 2,
-      "prompt": "송금하라는 계좌의 명의는 어떻게 되어 있나요?",
+      "prompt": "송금하라는 계좌의 명의는 어떻게 되어 있고, 그 계좌가 상대 정보와 이어지는지 확인하셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "서류에 적힌 상대의 이름과 같습니다",
+          "label": "서류에 적힌 상대의 이름과 같습니다.",
           "fields": {
             "fraud_accountMatch": "matches_party",
             "fraud_accountFlag": "af_consistent"
-          }
+          },
+          "description": "계좌 명의와 상대 정보가 일치하는 것으로 확인했습니다."
         },
         {
           "value": "o2",
-          "label": "서류에 적힌 상대의 이름과 다릅니다",
+          "label": "서류에 적힌 상대의 이름과 다릅니다.",
           "fields": {
             "fraud_accountMatch": "differs_party",
             "fraud_accountFlag": "af_mismatch"
-          }
+          },
+          "description": "계좌 명의와 상대 정보가 일치하지 않아 그 이유가 무엇인지 알고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "개인 명의 계좌입니다",
+          "label": "개인 명의 계좌입니다.",
           "fields": {
             "fraud_accountMatch": "personal_account",
             "fraud_accountFlag": "af_personal"
-          }
+          },
+          "description": "회사나 기관이라고 했는데 개인 계좌라 상대 정보와 일치하는지 확인이 필요합니다."
         },
         {
           "value": "o4",
-          "label": "계좌가 여러 개이거나 자주 바뀝니다",
+          "label": "계좌가 여러 개이거나 자주 바뀝니다.",
           "fields": {
             "fraud_accountMatch": "multiple_accounts",
             "fraud_accountFlag": "af_changing"
-          }
+          },
+          "description": "안내받을 때마다 달라져서 어느 계좌가 맞는지 확인이 필요합니다."
         },
         {
           "value": "o5",
-          "label": "해외 계좌나 가상자산 주소입니다",
+          "label": "해외 계좌나 가상자산 주소입니다.",
           "fields": {
             "fraud_accountMatch": "overseas_or_crypto",
             "fraud_accountFlag": "af_untraceable"
-          }
+          },
+          "description": "추적이 어려운 수단이라 보내도 안전한지 확인이 필요합니다."
         },
         {
           "value": "o6",
-          "label": "계좌가 아직 안내되지 않았습니다",
+          "label": "계좌가 아직 안내되지 않았습니다.",
           "fields": {
             "fraud_accountMatch": "account_not_given",
             "fraud_accountFlag": "af_unknown"
-          }
+          },
+          "description": "보내기 전에 계좌와 명의를 어떻게 확인해야 하는지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -807,55 +882,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q9_b",
       "route": "B",
       "phase": 2,
-      "prompt": "상대는 어떤 방식으로 재촉하나요?",
+      "prompt": "상대는 어떤 방식으로 재촉하거나 압박하고, 그 압박이 얼마나 강하게 느껴지시나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "재촉은 없습니다",
+          "label": "재촉은 없습니다.",
           "fields": {
             "fraud_pressureType": "press_none",
             "fraud_pressureLevel": "pl_none"
-          }
+          },
+          "description": "압박은 느끼지 않고 충분히 확인할 시간이 있다고 느끼며, 천천히 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "기한을 정해 두고 그 안에 하라고 합니다",
+          "label": "기한을 정해 두고 그 안에 하라고 합니다.",
           "fields": {
             "fraud_pressureType": "press_deadline",
             "fraud_pressureLevel": "pl_low"
-          }
+          },
+          "description": "부담은 되지만 아직은 가벼운 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o3",
-          "label": "이번 기회만 있다며 마감이 임박했다고 합니다",
+          "label": "이번 기회만 있다며 마감이 임박했다고 합니다.",
           "fields": {
             "fraud_pressureType": "press_scarcity",
             "fraud_pressureLevel": "pl_mid"
-          }
+          },
+          "description": "놓칠까 봐 마음이 급해지는 중간 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o4",
-          "label": "비밀로 하라며 다른 사람에게 말하지 못하게 합니다",
+          "label": "비밀로 하라며 다른 사람에게 말하지 못하게 합니다.",
           "fields": {
             "fraud_pressureType": "press_secret",
             "fraud_pressureLevel": "pl_high"
-          }
+          },
+          "description": "주변의 확인을 막는 강한 압박으로 느껴집니다."
         },
         {
           "value": "o5",
-          "label": "확인해 보겠다고 하면 화를 내거나 말을 돌립니다",
+          "label": "확인해 보겠다고 하면 화를 내거나 말을 돌립니다.",
           "fields": {
             "fraud_pressureType": "press_evasive",
             "fraud_pressureLevel": "pl_high"
-          }
+          },
+          "description": "확인 자체를 막는 강한 압박으로 느껴집니다."
         },
         {
           "value": "o6",
-          "label": "지인이나 다른 사람을 내세워 압박합니다",
+          "label": "지인이나 다른 사람을 내세워 압박합니다.",
           "fields": {
             "fraud_pressureType": "press_third_party",
             "fraud_pressureLevel": "pl_mid"
-          }
+          },
+          "description": "제3자까지 끌어들여 거절하기 어려운 중간 정도의 압박으로 느껴집니다."
         }
       ],
       "directFields": {
@@ -868,55 +949,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q10_b",
       "route": "B",
       "phase": 2,
-      "prompt": "받은 서류나 기록은 어떤 것이 있나요?",
+      "prompt": "받은 서류나 기록은 어떤 것이 있고, 그 서류에 상대 정보가 얼마나 적혀 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "상대 정보가 모두 적힌 계약서나 약정서가 있습니다",
+          "label": "상대 정보가 모두 적힌 계약서나 약정서가 있습니다.",
           "fields": {
             "fraud_recordKind": "contract_full",
             "fraud_recordGroup": "rec_formal"
-          }
+          },
+          "description": "상대의 이름·주소·등록 정보를 서류로 대조할 수 있습니다."
         },
         {
           "value": "o2",
-          "label": "상대 정보가 일부만 적힌 계약서나 제안서가 있습니다",
+          "label": "상대 정보가 일부만 적힌 계약서나 제안서가 있습니다.",
           "fields": {
             "fraud_recordKind": "contract_partial",
             "fraud_recordGroup": "rec_formal"
-          }
+          },
+          "description": "정식 서류 형태지만 빠진 정보가 있어 보완이 필요합니다."
         },
         {
           "value": "o3",
-          "label": "안내문이나 광고 화면만 있습니다",
+          "label": "안내문이나 광고 화면만 있습니다.",
           "fields": {
             "fraud_recordKind": "notice_only",
             "fraud_recordGroup": "rec_informal"
-          }
+          },
+          "description": "정식 서류가 아니라서 상대 정보를 확인할 근거가 부족합니다."
         },
         {
           "value": "o4",
-          "label": "대화 내용만 있습니다",
+          "label": "대화 내용만 있습니다.",
           "fields": {
             "fraud_recordKind": "chat_log",
             "fraud_recordGroup": "rec_informal"
-          }
+          },
+          "description": "서류 없이 대화로만 이어져 상대 정보를 확인할 근거가 부족합니다."
         },
         {
           "value": "o5",
-          "label": "입금 안내만 받았습니다",
+          "label": "입금 안내만 받았습니다.",
           "fields": {
             "fraud_recordKind": "pay_request",
             "fraud_recordGroup": "rec_payment"
-          }
+          },
+          "description": "돈을 보내라는 안내뿐이어서 상대와 약속 내용을 확인할 근거가 부족합니다."
         },
         {
           "value": "o6",
-          "label": "받은 서류가 없습니다",
+          "label": "받은 서류가 없습니다.",
           "fields": {
             "fraud_recordKind": "no_record",
             "fraud_recordGroup": "rec_none"
-          }
+          },
+          "description": "확인할 근거가 없어서 무엇을 요청해야 하는지부터 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -929,55 +1016,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q11_b",
       "route": "B",
       "phase": 2,
-      "prompt": "지금까지 이 제안과 관련해 한 일이 있나요?",
+      "prompt": "이 제안과 관련해 지금까지 한 일은 무엇이고, 그로 인해 이미 생겼을 수 있는 위험은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "아무것도 하지 않았습니다",
+          "label": "아무것도 하지 않았습니다.",
           "fields": {
             "fraud_actionTaken": "nothing_yet",
             "fraud_exposureLevel": "exp_none"
-          }
+          },
+          "description": "아직 노출된 정보나 금전 위험은 없다고 보고, 앞으로 할 일을 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "문의만 해 보았습니다",
+          "label": "문의만 해 보았습니다.",
           "fields": {
             "fraud_actionTaken": "asked_only",
             "fraud_exposureLevel": "exp_low"
-          }
+          },
+          "description": "제 연락처가 상대에게 알려졌을 수 있지만 노출은 적은 상태입니다."
         },
         {
           "value": "o3",
-          "label": "개인정보나 신분증을 이미 보냈습니다",
+          "label": "개인정보나 신분증을 이미 보냈습니다.",
           "fields": {
             "fraud_actionTaken": "gave_info",
             "fraud_exposureLevel": "exp_info"
-          }
+          },
+          "description": "제 신분 정보가 상대에게 노출되어 악용될 수 있는 상태입니다."
         },
         {
           "value": "o4",
-          "label": "앱을 설치했거나 로그인했습니다",
+          "label": "앱을 설치했거나 로그인했습니다.",
           "fields": {
             "fraud_actionTaken": "installed_app",
             "fraud_exposureLevel": "exp_access"
-          }
+          },
+          "description": "제 기기나 계정에 상대가 접근했을 가능성이 있는 상태입니다."
         },
         {
           "value": "o5",
-          "label": "소액을 먼저 보냈습니다",
+          "label": "소액을 먼저 보냈습니다.",
           "fields": {
             "fraud_actionTaken": "sent_small",
             "fraud_exposureLevel": "exp_money"
-          }
+          },
+          "description": "이미 금전 피해가 생겼거나 더 보내라는 요구를 받을 가능성이 있는 상태입니다."
         },
         {
           "value": "o6",
-          "label": "서명이나 도장을 이미 했습니다",
+          "label": "서명이나 도장을 이미 했습니다.",
           "fields": {
             "fraud_actionTaken": "signed_already",
             "fraud_exposureLevel": "exp_signed"
-          }
+          },
+          "description": "서명한 내용으로 인해 제게 책임이 생겼을 가능성이 있는 상태입니다."
         }
       ],
       "directFields": {
@@ -990,47 +1083,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q12_b",
       "route": "B",
       "phase": 2,
-      "prompt": "확인해 보겠다고 하면 상대는 어떻게 반응하나요?",
+      "prompt": "확인해 보겠다고 하면 상대는 어떻게 반응하나요, 그 반응은 믿을 만하다고 느껴지시나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기꺼이 필요한 자료를 줍니다",
+          "label": "기꺼이 필요한 자료를 줍니다.",
           "fields": {
             "fraud_verifyReaction": "react_open",
             "fraud_reactionFlag": "rf_open"
-          }
+          },
+          "description": "확인을 막지 않고 협조하는 반응이라 믿을 만하다고 느껴집니다."
         },
         {
           "value": "o2",
-          "label": "대답이 매번 바뀌거나 앞뒤가 맞지 않습니다",
+          "label": "대답이 매번 바뀌거나 앞뒤가 맞지 않습니다.",
           "fields": {
             "fraud_verifyReaction": "react_inconsistent",
             "fraud_reactionFlag": "rf_flag"
-          }
+          },
+          "description": "말이 일관되지 않아 주의가 필요한 반응으로 느껴집니다."
         },
         {
           "value": "o3",
-          "label": "오히려 서두르라고 재촉합니다",
+          "label": "오히려 서두르라고 재촉합니다.",
           "fields": {
             "fraud_verifyReaction": "react_pressure",
             "fraud_reactionFlag": "rf_flag"
-          }
+          },
+          "description": "확인할 시간을 막으려는 듯해서 주의가 필요한 반응으로 느껴집니다."
         },
         {
           "value": "o4",
-          "label": "연락을 끊거나 차단합니다",
+          "label": "연락을 끊거나 차단합니다.",
           "fields": {
             "fraud_verifyReaction": "react_cut",
             "fraud_reactionFlag": "rf_flag"
-          }
+          },
+          "description": "확인 요청에 응하지 않고 사라지는 반응이라 주의가 필요하다고 느껴집니다."
         },
         {
           "value": "o5",
-          "label": "아직 확인해 보겠다고 말해 보지 않았습니다",
+          "label": "아직 확인해 보겠다고 말해 보지 않았습니다.",
           "fields": {
             "fraud_verifyReaction": "react_untested",
             "fraud_reactionFlag": "rf_unknown"
-          }
+          },
+          "description": "상대의 반응을 모르는 상태라 어떻게 말해야 할지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -1043,47 +1141,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q13_b",
       "route": "B",
       "phase": 2,
-      "prompt": "대화·서류·입금 내역은 어느 정도 남아 있나요?",
+      "prompt": "대화·서류·입금 내역은 어느 정도 남아 있고, 그 자료로 어디까지 확인할 수 있을 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "대화와 서류, 입금 내역이 모두 있습니다",
+          "label": "대화와 서류, 입금 내역이 모두 있습니다.",
           "fields": {
             "fraud_evidenceState": "all_kept",
             "fraud_evidenceGroup": "eg_strong"
-          }
+          },
+          "description": "자료가 충분해서 사실관계를 폭넓게 확인할 수 있을 것 같습니다."
         },
         {
           "value": "o2",
-          "label": "대화만 있습니다",
+          "label": "대화만 있습니다.",
           "fields": {
             "fraud_evidenceState": "chat_only",
             "fraud_evidenceGroup": "eg_medium"
-          }
+          },
+          "description": "자료가 일부라서 상대가 한 말은 확인할 수 있지만 서류 근거는 부족합니다."
         },
         {
           "value": "o3",
-          "label": "서류만 있고 대화는 남아 있지 않습니다",
+          "label": "서류만 있고 대화는 남아 있지 않습니다.",
           "fields": {
             "fraud_evidenceState": "docs_only",
             "fraud_evidenceGroup": "eg_medium"
-          }
+          },
+          "description": "자료가 일부라서 서류 내용은 확인할 수 있지만 경위는 부족합니다."
         },
         {
           "value": "o4",
-          "label": "일부를 지웠거나 잃어버렸습니다",
+          "label": "일부를 지웠거나 잃어버렸습니다.",
           "fields": {
             "fraud_evidenceState": "deleted_some",
             "fraud_evidenceGroup": "eg_weak"
-          }
+          },
+          "description": "자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "남은 자료가 없습니다",
+          "label": "남은 자료가 없습니다.",
           "fields": {
             "fraud_evidenceState": "none_kept",
             "fraud_evidenceGroup": "eg_weak"
-          }
+          },
+          "description": "자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -1096,47 +1199,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q5_a",
       "route": "A",
       "phase": 2,
-      "prompt": "문제를 알게 된 지 얼마나 되었나요?",
+      "prompt": "문제를 알게 된 지 얼마나 되었고, 그 시점에서 서둘러야 할 일이 있을 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "오늘이나 어제 알게 되었습니다",
+          "label": "오늘이나 어제 알게 되었습니다.",
           "fields": {
             "fraud_elapsedTime": "elapsed_today",
             "fraud_urgencyTier": "ut_urgent"
-          }
+          },
+          "description": "은행 요청이나 신고처럼 바로 조치해야 할 일이 있을 가능성이 큰 시점입니다."
         },
         {
           "value": "o2",
-          "label": "일주일 안입니다",
+          "label": "일주일 안에 알게 되었습니다.",
           "fields": {
             "fraud_elapsedTime": "elapsed_week",
             "fraud_urgencyTier": "ut_soon"
-          }
+          },
+          "description": "아직 빨리 움직이면 할 수 있는 조치가 남아 있을 가능성이 있는 시점입니다."
         },
         {
           "value": "o3",
-          "label": "한 달 안입니다",
+          "label": "한 달 안에 알게 되었습니다.",
           "fields": {
             "fraud_elapsedTime": "elapsed_month",
             "fraud_urgencyTier": "ut_soon"
-          }
+          },
+          "description": "빨리 움직여야 할 일이 남아 있을 가능성이 있는 시점입니다."
         },
         {
           "value": "o4",
-          "label": "반년 안입니다",
+          "label": "반년 안에 알게 되었습니다.",
           "fields": {
             "fraud_elapsedTime": "elapsed_half_year",
             "fraud_urgencyTier": "ut_late"
-          }
+          },
+          "description": "기록을 확인하기 어려워지기 시작할 수 있어 남은 자료 확인이 중요한 시점입니다."
         },
         {
           "value": "o5",
-          "label": "반년이 넘었습니다",
+          "label": "반년이 넘었습니다.",
           "fields": {
             "fraud_elapsedTime": "elapsed_over_half",
             "fraud_urgencyTier": "ut_late"
-          }
+          },
+          "description": "기록을 확인하기 어려워졌을 수 있어 남은 자료와 가능한 조치를 확인해야 하는 시점입니다."
         }
       ],
       "directFields": {
@@ -1149,55 +1257,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q6_a",
       "route": "A",
       "phase": 2,
-      "prompt": "어떻게 문제를 알게 되었나요?",
+      "prompt": "어떻게 문제를 알게 되었고, 그 계기는 상대 쪽 변화였나요, 외부 정보나 제 확인이었나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "상대와 연락이 끊겼습니다",
+          "label": "상대와 연락이 끊겼습니다.",
           "fields": {
             "fraud_discovery": "disc_contact_cut",
             "fraud_discoveryGroup": "dg_counterparty"
-          }
+          },
+          "description": "상대 쪽에서 먼저 달라지는 모습을 보고 문제를 알게 되었습니다."
         },
         {
           "value": "o2",
-          "label": "약속한 일이 지켜지지 않았습니다",
+          "label": "약속한 일이 지켜지지 않았습니다.",
           "fields": {
             "fraud_discovery": "disc_broken_promise",
             "fraud_discoveryGroup": "dg_counterparty"
-          }
+          },
+          "description": "상대가 약속을 어기는 모습을 보고 문제를 알게 되었습니다."
         },
         {
           "value": "o3",
-          "label": "추가 비용을 계속 요구했습니다",
+          "label": "추가 비용을 계속 요구했습니다.",
           "fields": {
             "fraud_discovery": "disc_more_fees",
             "fraud_discoveryGroup": "dg_counterparty"
-          }
+          },
+          "description": "상대가 계속 돈을 요구하는 모습을 보고 문제를 알게 되었습니다."
         },
         {
           "value": "o4",
-          "label": "주변이나 뉴스에서 같은 수법을 알게 되었습니다",
+          "label": "주변이나 뉴스에서 같은 수법을 알게 되었습니다.",
           "fields": {
             "fraud_discovery": "disc_heard_similar",
             "fraud_discoveryGroup": "dg_outside"
-          }
+          },
+          "description": "외부에서 들은 정보를 보고 제 경우와 같다는 것을 알게 되었습니다."
         },
         {
           "value": "o5",
-          "label": "은행이나 플랫폼에서 알려 주었습니다",
+          "label": "은행이나 플랫폼에서 알려 주었습니다.",
           "fields": {
             "fraud_discovery": "disc_bank_notice",
             "fraud_discoveryGroup": "dg_outside"
-          }
+          },
+          "description": "외부 기관의 안내를 받고 문제를 알게 되었습니다."
         },
         {
           "value": "o6",
-          "label": "스스로 의심이 들어 확인해 보다가 알게 되었습니다",
+          "label": "스스로 의심이 들어 확인해 보다가 알게 되었습니다.",
           "fields": {
             "fraud_discovery": "disc_self_check",
             "fraud_discoveryGroup": "dg_self"
-          }
+          },
+          "description": "제가 직접 확인하는 과정에서 문제를 알게 되었습니다."
         }
       ],
       "directFields": {
@@ -1210,47 +1324,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q7_a",
       "route": "A",
       "phase": 2,
-      "prompt": "지금 상대는 어떤 상태인가요?",
+      "prompt": "지금 상대는 어떤 상태이고, 연락은 아직 이어지고 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "연락이 되고 계속 추가로 요구합니다",
+          "label": "연락이 되고 계속 추가로 요구합니다.",
           "fields": {
             "fraud_counterpartyStance": "demands_more",
             "fraud_contactStatus": "contact_active"
-          }
+          },
+          "description": "연락은 이어지고 있고 요구가 더 늘어날까 걱정됩니다."
         },
         {
           "value": "o2",
-          "label": "연락은 되지만 변명하거나 미룹니다",
+          "label": "연락은 되지만 변명하거나 미룹니다.",
           "fields": {
             "fraud_counterpartyStance": "excuses",
             "fraud_contactStatus": "contact_active"
-          }
+          },
+          "description": "연락은 이어지고 있지만 해결은 계속 미뤄지는 상태입니다."
         },
         {
           "value": "o3",
-          "label": "위협하거나 협박합니다",
+          "label": "위협하거나 협박합니다.",
           "fields": {
             "fraud_counterpartyStance": "threatens",
             "fraud_contactStatus": "contact_active"
-          }
+          },
+          "description": "연락은 이어지고 있고 압박이 더 커진 상태라 안전이 걱정됩니다."
         },
         {
           "value": "o4",
-          "label": "연락이 끊겼습니다",
+          "label": "연락이 끊겼습니다.",
           "fields": {
             "fraud_counterpartyStance": "silent",
             "fraud_contactStatus": "contact_cut"
-          }
+          },
+          "description": "더 이상 연락이 닿지 않아 상대에게 직접 확인할 방법이 없습니다."
         },
         {
           "value": "o5",
-          "label": "차단되었거나 번호·계정이 바뀌었습니다",
+          "label": "차단되었거나 번호·계정이 바뀌었습니다.",
           "fields": {
             "fraud_counterpartyStance": "blocked_changed",
             "fraud_contactStatus": "contact_blocked"
-          }
+          },
+          "description": "연락 수단이 막히거나 바뀌어 상대를 찾기 어려운 상태입니다."
         }
       ],
       "directFields": {
@@ -1263,55 +1382,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q8_a",
       "route": "A",
       "phase": 2,
-      "prompt": "돈은 어떤 방식으로 보냈나요?",
+      "prompt": "돈은 어떤 방식으로 보냈고, 그 방식은 기록이 남아 추적할 수 있는 방식인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "은행 계좌 이체입니다",
+          "label": "은행 계좌 이체로 보냈습니다.",
           "fields": {
             "fraud_payMethod": "pay_bank",
             "fraud_traceability": "tr_traceable"
-          }
+          },
+          "description": "기록이 남아 있어 은행을 통해 추적할 수 있는 방식입니다."
         },
         {
           "value": "o2",
-          "label": "결제 앱이나 전자지갑입니다",
+          "label": "결제 앱이나 전자지갑으로 보냈습니다.",
           "fields": {
             "fraud_payMethod": "pay_wallet",
             "fraud_traceability": "tr_traceable"
-          }
+          },
+          "description": "기록이 남아 있어 업체를 통해 추적할 수 있는 방식입니다."
         },
         {
           "value": "o3",
-          "label": "가상자산입니다",
+          "label": "가상자산으로 보냈습니다.",
           "fields": {
             "fraud_payMethod": "pay_crypto",
             "fraud_traceability": "tr_hard"
-          }
+          },
+          "description": "받은 사람을 찾기 어렵고 되돌리기도 어려워 추적이 어려운 방식입니다."
         },
         {
           "value": "o4",
-          "label": "현금으로 직접 건넸습니다",
+          "label": "현금으로 직접 건넸습니다.",
           "fields": {
             "fraud_payMethod": "pay_cash",
             "fraud_traceability": "tr_hard"
-          }
+          },
+          "description": "영수증이나 기록이 남지 않을 수 있어 추적이 어려운 방식입니다."
         },
         {
           "value": "o5",
-          "label": "상품권이나 선불카드입니다",
+          "label": "상품권이나 선불카드로 보냈습니다.",
           "fields": {
             "fraud_payMethod": "pay_voucher",
             "fraud_traceability": "tr_hard"
-          }
+          },
+          "description": "사용 내역을 따라가기 어려워 추적이 어려운 방식입니다."
         },
         {
           "value": "o6",
-          "label": "아직 돈은 보내지 않았습니다",
+          "label": "아직 돈은 보내지 않았습니다.",
           "fields": {
             "fraud_payMethod": "pay_none",
             "fraud_traceability": "tr_none"
-          }
+          },
+          "description": "송금 기록은 없어서 앞으로 보내지 않도록 조심해야 합니다."
         }
       ],
       "directFields": {
@@ -1324,47 +1449,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q9_a",
       "route": "A",
       "phase": 2,
-      "prompt": "보낸 돈은 모두 합쳐 어느 정도인가요?",
+      "prompt": "보낸 돈은 모두 합쳐 어느 정도이고, 그 규모는 어느 수준인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "보내지 않았습니다",
+          "label": "아직 보내지 않았습니다.",
           "fields": {
             "fraud_lossScale": "loss_none",
             "fraud_lossTier": "lt_none"
-          }
+          },
+          "description": "금전 피해는 없는 상태라 앞으로 더 보내지 않는 것이 중요합니다."
         },
         {
           "value": "o2",
-          "label": "100만 동 미만입니다",
+          "label": "100만 동 미만을 보냈습니다.",
           "fields": {
             "fraud_lossScale": "loss_under_1m",
             "fraud_lossTier": "lt_small"
-          }
+          },
+          "description": "소액 피해에 해당하지만 같은 상대가 더 요구할 수 있어 주의가 필요합니다."
         },
         {
           "value": "o3",
-          "label": "100만 동 이상 1천만 동 미만입니다",
+          "label": "100만 동 이상 1천만 동 미만을 보냈습니다.",
           "fields": {
             "fraud_lossScale": "loss_1m_10m",
             "fraud_lossTier": "lt_medium"
-          }
+          },
+          "description": "중간 규모의 피해라 은행 요청과 신고를 검토해야 합니다."
         },
         {
           "value": "o4",
-          "label": "1천만 동 이상 1억 동 미만입니다",
+          "label": "1천만 동 이상 1억 동 미만을 보냈습니다.",
           "fields": {
             "fraud_lossScale": "loss_10m_100m",
             "fraud_lossTier": "lt_large"
-          }
+          },
+          "description": "큰 금액의 피해라 빠른 은행 요청과 신고 검토가 필요합니다."
         },
         {
           "value": "o5",
-          "label": "1억 동 이상입니다",
+          "label": "1억 동 이상을 보냈습니다.",
           "fields": {
             "fraud_lossScale": "loss_over_100m",
             "fraud_lossTier": "lt_xlarge"
-          }
+          },
+          "description": "매우 큰 금액의 피해라 전문가 상담과 신고를 서둘러 검토해야 합니다."
         }
       ],
       "directFields": {
@@ -1377,47 +1507,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q10_a",
       "route": "A",
       "phase": 2,
-      "prompt": "송금은 몇 번, 몇 개의 계좌로 했나요?",
+      "prompt": "송금은 몇 번, 몇 개의 계좌로 했고, 받은 계좌를 알고 계시나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 번, 한 계좌로 보냈습니다",
+          "label": "한 번, 한 계좌로 보냈습니다.",
           "fields": {
             "fraud_transferPattern": "tp_once_one",
             "fraud_accountFlag": "af_single"
-          }
+          },
+          "description": "받은 계좌가 하나뿐이라 그 계좌를 중심으로 확인할 수 있습니다."
         },
         {
           "value": "o2",
-          "label": "여러 번 같은 계좌로 보냈습니다",
+          "label": "여러 번 같은 계좌로 보냈습니다.",
           "fields": {
             "fraud_transferPattern": "tp_many_one",
             "fraud_accountFlag": "af_single"
-          }
+          },
+          "description": "받은 계좌는 하나지만 반복해서 보낸 기록이 쌓여 있습니다."
         },
         {
           "value": "o3",
-          "label": "여러 계좌로 나누어 보냈습니다",
+          "label": "여러 계좌로 나누어 보냈습니다.",
           "fields": {
             "fraud_transferPattern": "tp_many_multi",
             "fraud_accountFlag": "af_multiple"
-          }
+          },
+          "description": "받은 계좌가 여러 개라 돈의 흐름을 따라가기 어려울 수 있습니다."
         },
         {
           "value": "o4",
-          "label": "받은 계좌가 어디인지 알지 못합니다",
+          "label": "받은 계좌가 어디인지 알지 못합니다.",
           "fields": {
             "fraud_transferPattern": "tp_unknown",
             "fraud_accountFlag": "af_unknown"
-          }
+          },
+          "description": "계좌 정보부터 확인해야 은행에 요청할 수 있습니다."
         },
         {
           "value": "o5",
-          "label": "송금한 적이 없습니다",
+          "label": "송금한 적이 없습니다.",
           "fields": {
             "fraud_transferPattern": "tp_none",
             "fraud_accountFlag": "af_none"
-          }
+          },
+          "description": "해당되는 계좌가 없어서 송금 이외의 피해가 있는지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1430,47 +1565,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q11_a",
       "route": "A",
       "phase": 2,
-      "prompt": "상대에게 어떤 정보를 주었나요?",
+      "prompt": "상대에게 어떤 정보를 주었고, 그 정보로 어떤 위험이 생길 수 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "개인정보는 주지 않았습니다",
+          "label": "개인정보는 주지 않았습니다.",
           "fields": {
             "fraud_infoGiven": "info_none",
             "fraud_infoRisk": "ir_none"
-          }
+          },
+          "description": "노출된 정보가 없어서 지금은 정보 위험이 없는 상태입니다."
         },
         {
           "value": "o2",
-          "label": "이름과 연락처 정도를 알려 주었습니다",
+          "label": "이름과 연락처 정도를 알려 주었습니다.",
           "fields": {
             "fraud_infoGiven": "info_basic",
             "fraud_infoRisk": "ir_low"
-          }
+          },
+          "description": "노출은 적지만 추가 연락과 사칭 문자에 주의가 필요한 상태입니다."
         },
         {
           "value": "o3",
-          "label": "신분증이나 여권 사본을 보냈습니다",
+          "label": "신분증이나 여권 사본을 보냈습니다.",
           "fields": {
             "fraud_infoGiven": "info_id_copy",
             "fraud_infoRisk": "ir_id"
-          }
+          },
+          "description": "신분 정보가 다른 곳에 악용될 수 있는 상태입니다."
         },
         {
           "value": "o4",
-          "label": "계좌·카드 정보나 인증번호를 알려 주었습니다",
+          "label": "계좌·카드 정보나 인증번호를 알려 주었습니다.",
           "fields": {
             "fraud_infoGiven": "info_finance",
             "fraud_infoRisk": "ir_finance"
-          }
+          },
+          "description": "금융 정보가 악용되어 추가 피해가 생길 수 있는 상태입니다."
         },
         {
           "value": "o5",
-          "label": "앱을 설치했거나 원격 접속을 허용했습니다",
+          "label": "앱을 설치했거나 원격 접속을 허용했습니다.",
           "fields": {
             "fraud_infoGiven": "info_remote",
             "fraud_infoRisk": "ir_device"
-          }
+          },
+          "description": "제 기기에 상대가 접근했을 수 있는 상태입니다."
         }
       ],
       "directFields": {
@@ -1483,55 +1623,61 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q12_a",
       "route": "A",
       "phase": 2,
-      "prompt": "지금까지 어떤 조치를 해 보셨나요?",
+      "prompt": "지금까지 어떤 조치를 해 보셨고, 그 조치는 공식 경로였나요, 상대와의 직접 해결이었나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "아직 아무 조치도 하지 않았습니다",
+          "label": "아직 아무 조치도 하지 않았습니다.",
           "fields": {
             "fraud_actionTaken": "nothing_yet",
             "fraud_actionGroup": "ag_none"
-          }
+          },
+          "description": "어떤 경로로 시작하는 것이 좋은지부터 알고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "거래 은행에 문의하거나 요청했습니다",
+          "label": "거래 은행에 문의하거나 요청했습니다.",
           "fields": {
             "fraud_actionTaken": "bank_recall",
             "fraud_actionGroup": "ag_official"
-          }
+          },
+          "description": "공식 경로에 이미 알린 상태라 그 뒤 진행을 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "거래 플랫폼에 신고했습니다",
+          "label": "거래 플랫폼에 신고했습니다.",
           "fields": {
             "fraud_actionTaken": "platform_report",
             "fraud_actionGroup": "ag_official"
-          }
+          },
+          "description": "공식 경로에 이미 알린 상태라 그 뒤 진행을 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "공안이나 수사기관에 알렸습니다",
+          "label": "공안이나 수사기관에 알렸습니다.",
           "fields": {
             "fraud_actionTaken": "police_report",
             "fraud_actionGroup": "ag_official"
-          }
+          },
+          "description": "공식 경로에 이미 알린 상태라 그 뒤 진행과 필요한 자료를 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "상대에게 직접 환불이나 해결을 요청했습니다",
+          "label": "상대에게 직접 환불이나 해결을 요청했습니다.",
           "fields": {
             "fraud_actionTaken": "direct_refund",
             "fraud_actionGroup": "ag_informal"
-          }
+          },
+          "description": "공식 절차 없이 상대와 직접 해결하려 한 상태입니다."
         },
         {
           "value": "o6",
-          "label": "주변 사람에게 상담했습니다",
+          "label": "주변 사람에게 상담했습니다.",
           "fields": {
             "fraud_actionTaken": "consulted_others",
             "fraud_actionGroup": "ag_informal"
-          }
+          },
+          "description": "공식 절차는 아직 시작하지 않고 주변과만 상의한 상태입니다."
         }
       ],
       "directFields": {
@@ -1544,47 +1690,52 @@ export const FRAUD_CONTENT_FINAL = {
       "id": "fraud_q13_a",
       "route": "A",
       "phase": 2,
-      "prompt": "대화·서류·입금 내역은 어느 정도 남아 있나요?",
+      "prompt": "대화·서류·입금 내역은 어느 정도 남아 있고, 그 자료로 어디까지 증명할 수 있을 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "대화와 서류, 입금 내역이 모두 있습니다",
+          "label": "대화와 서류, 입금 내역이 모두 있습니다.",
           "fields": {
             "fraud_evidenceState": "all_kept",
             "fraud_evidenceGroup": "eg_strong"
-          }
+          },
+          "description": "자료가 충분해서 일이 벌어진 경위를 폭넓게 설명할 수 있을 것 같습니다."
         },
         {
           "value": "o2",
-          "label": "입금 내역만 있습니다",
+          "label": "입금 내역만 있습니다.",
           "fields": {
             "fraud_evidenceState": "payment_only",
             "fraud_evidenceGroup": "eg_medium"
-          }
+          },
+          "description": "자료가 일부라서 돈이 오간 흐름은 보이지만 경위를 증명하기는 부족합니다."
         },
         {
           "value": "o3",
-          "label": "대화만 있습니다",
+          "label": "대화만 있습니다.",
           "fields": {
             "fraud_evidenceState": "chat_only",
             "fraud_evidenceGroup": "eg_medium"
-          }
+          },
+          "description": "자료가 일부라서 경위는 보이지만 돈이 오간 흐름을 증명하기는 부족합니다."
         },
         {
           "value": "o4",
-          "label": "일부를 지웠거나 잃어버렸습니다",
+          "label": "일부를 지웠거나 잃어버렸습니다.",
           "fields": {
             "fraud_evidenceState": "deleted_some",
             "fraud_evidenceGroup": "eg_weak"
-          }
+          },
+          "description": "자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "남은 자료가 없습니다",
+          "label": "남은 자료가 없습니다.",
           "fields": {
             "fraud_evidenceState": "none_kept",
             "fraud_evidenceGroup": "eg_weak"
-          }
+          },
+          "description": "자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다."
         }
       ],
       "directFields": {

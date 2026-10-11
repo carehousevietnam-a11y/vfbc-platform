@@ -1,6 +1,6 @@
 /**
  * Recurrence checks: internal terms, duplicate PDF paragraphs,
- * hardcoded question counts, and question-number ranges.
+ * hardcoded question counts, question-number ranges, and question structure.
  * Run: node scripts/harness-recurrence.mjs
  * One check: node scripts/harness-recurrence.mjs internal-terms
  */
@@ -61,8 +61,8 @@ function walkStrings(value, out, key = "") {
 export function internalTermHits() {
   const hits = [];
   const packs = [
-    ["fraud", parseFraudContentFinal(read("docs/master/content/FRAUD_CONTENT_V2.md"))],
-    ["unclear", parseUnclearContentFinal(read("docs/master/content/UNCLEAR_CONTENT_V2.md"))],
+    ["fraud", parseFraudContentFinal(read("docs/master/content/FRAUD_CONTENT_V3.md"))],
+    ["unclear", parseUnclearContentFinal(read("docs/master/content/UNCLEAR_CONTENT_V3.md"))],
     ["tax", parseTaxContentFinal(read("docs/master/content/TAX_CONTENT_FINAL.md"))],
   ];
   for (const [name, pack] of packs) {
@@ -160,15 +160,103 @@ export function questionRangeHits() {
   return hits;
 }
 
+function loadGeneratedPack(rel) {
+  const source = read(rel);
+  const start = source.indexOf("{");
+  const end = source.lastIndexOf("}");
+  if (start < 0 || end < start) throw new Error(`pack json missing ${rel}`);
+  return JSON.parse(source.slice(start, end + 1));
+}
+
+function customerLine(choice) {
+  const label = String(choice.label ?? "").trim();
+  const description = String(choice.description ?? "").trim();
+  if (!description) return label;
+  if (/[.?!。]$/.test(label)) return `${label} ${description}`;
+  if (/^(했|합니|입니|이고|이며|지만)/.test(description)) return `${label}${description}`;
+  return `${label} ${description}`;
+}
+
+function structureHits(name, pack, doc) {
+  const hits = [];
+  const questions = pack.questions ?? [];
+  for (const question of questions) {
+    const prompt = String(question.prompt ?? "");
+    if (!/[,，]/.test(prompt) || [...prompt].length < 30) {
+      hits.push(`question-standard ${name} ${question.code} prompt`);
+    }
+    const choices = question.choices ?? [];
+    if (choices.length < 4 || !question.directFields) {
+      hits.push(`question-standard ${name} ${question.code} options`);
+    }
+    if (Object.keys(question.directFields ?? {}).length !== 2) {
+      hits.push(`question-standard ${name} ${question.code} direct-fields`);
+    }
+    for (const choice of choices) {
+      const line = customerLine(choice);
+      const hasPoint = Boolean(String(choice.label ?? "").trim() && String(choice.description ?? "").trim());
+      if (!hasPoint || [...line].length < 45 || !line.includes(".")) {
+        hits.push(`question-standard ${name} ${question.code} ${choice.value} choice`);
+      }
+      if (Object.keys(choice.fields ?? {}).length !== 2) {
+        hits.push(`question-standard ${name} ${question.code} ${choice.value} fields`);
+      }
+    }
+  }
+  const docQuestions = doc?.questions ?? [];
+  if (docQuestions.length !== questions.length) {
+    hits.push(`question-standard ${name} questions pack ${questions.length} doc ${docQuestions.length}`);
+  }
+  const packChoices = questions.reduce((sum, question) => sum + (question.choices?.length ?? 0), 0);
+  const docChoices = docQuestions.reduce((sum, question) => sum + (question.choices?.length ?? 0), 0);
+  if (packChoices !== docChoices) {
+    hits.push(`question-standard ${name} choices pack ${packChoices} doc ${docChoices}`);
+  }
+  return hits;
+}
+
+export function questionStandardHits() {
+  return [
+    ...structureHits(
+      "fraud",
+      loadGeneratedPack("src/lib/contentPacks/fraud/fraudContentFinal.data.ts"),
+      parseFraudContentFinal(read("docs/master/content/FRAUD_CONTENT_V3.md")),
+    ),
+    ...structureHits(
+      "unclear",
+      loadGeneratedPack("src/lib/contentPacks/unclear/unclearContentFinal.data.ts"),
+      parseUnclearContentFinal(read("docs/master/content/UNCLEAR_CONTENT_V3.md")),
+    ),
+  ];
+}
+
+export function taxQuestionStandardHits() {
+  return structureHits(
+    "tax",
+    loadGeneratedPack("src/lib/contentPacks/tax/taxContentFinal.data.ts"),
+    parseTaxContentFinal(read("docs/master/content/TAX_CONTENT_FINAL.md")),
+  );
+}
+
 const checks = [
   ["internal-terms", internalTermHits],
   ["pdf-duplicate", duplicateParagraphHits],
   ["question-count-hardcode", questionCountHardcodeHits],
   ["question-range", questionRangeHits],
+  ["question-standard", questionStandardHits],
 ];
 
 function runCli() {
   const only = process.argv[2] ?? "";
+  if (only === "tax-question-standard") {
+    const hits = taxQuestionStandardHits();
+    if (hits.length) {
+      process.stderr.write(hits.join("\n") + "\n");
+      process.exit(1);
+    }
+    process.stdout.write("PASS tax-question-standard\n");
+    return;
+  }
   const selected = only ? checks.filter(([name]) => name === only) : checks;
   if (only && selected.length === 0) {
     process.stderr.write(`unknown check ${only}\n`);

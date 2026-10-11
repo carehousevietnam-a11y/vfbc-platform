@@ -1,4 +1,4 @@
-/* Generated from docs/master/content/UNCLEAR_CONTENT_V2.md. Do not edit sentences. */
+/* Generated from docs/master/content/UNCLEAR_CONTENT_V3.md. Do not edit sentences. */
 export const UNCLEAR_CONTENT_FINAL = {
   "entry": {
     "code": "A-0",
@@ -61,55 +61,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q1_m",
       "route": "M",
       "phase": 1,
-      "prompt": "받은 서류나 안내는 어떤 형태인가요?",
+      "prompt": "받은 서류나 안내는 어떤 형태이고, 그 형태가 공식 문서처럼 갖춰져 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "직인과 문서번호가 있는 종이 공문입니다",
+          "label": "직인과 문서번호가 있는 종이 공문입니다.",
           "fields": {
             "unclear_documentForm": "paper_official",
             "unclear_formGroup": "form_formal"
-          }
+          },
+          "description": "정식 서류의 형태를 갖추고 있어 내용 확인을 이어갈 수 있습니다."
         },
         {
           "value": "o2",
-          "label": "청구서나 고지서 양식입니다",
+          "label": "청구서나 고지서 양식입니다.",
           "fields": {
             "unclear_documentForm": "bill_form",
             "unclear_formGroup": "form_formal"
-          }
+          },
+          "description": "정식 서류의 형태를 갖추고 있지만 보낸 곳과 근거는 따로 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "이메일로 받았습니다",
+          "label": "이메일로 받았습니다.",
           "fields": {
             "unclear_documentForm": "email_body",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 보낸 주소와 형식이 공식적인지 확인이 필요합니다."
         },
         {
           "value": "o4",
-          "label": "문자나 메신저로 받았습니다",
+          "label": "문자나 메신저로 받았습니다.",
           "fields": {
             "unclear_documentForm": "chat_message",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 보낸 번호와 형식이 공식적인지 확인이 필요합니다."
         },
         {
           "value": "o5",
-          "label": "링크나 큐알 코드로 안내받았습니다",
+          "label": "링크나 큐알 코드로 안내받았습니다.",
           "fields": {
             "unclear_documentForm": "link_code",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 연결된 곳이 공식 사이트인지 확인이 필요합니다."
         },
         {
           "value": "o6",
-          "label": "전화나 방문으로 말로만 들었습니다",
+          "label": "전화나 방문으로 말로만 들었습니다.",
           "fields": {
             "unclear_documentForm": "verbal_only",
             "unclear_formGroup": "form_oral"
-          }
+          },
+          "description": "서류 없이 말로만 전달되어 확인할 근거가 따로 없는 상태입니다."
         }
       ],
       "directFields": {
@@ -122,63 +128,70 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q2_m",
       "route": "M",
       "phase": 1,
-      "prompt": "서류에 보낸 곳으로 적힌 곳은 어디인가요?",
+      "prompt": "서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳은 어떤 성격의 기관이나 업체인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "세무기관(세무서·세무총국)입니다",
+          "label": "세무기관(세무서·세무총국)이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "tax_authority",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "공안·경찰·검찰·법원입니다",
+          "label": "공안·경찰·검찰·법원이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "police_court",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "구·시·성 등 지방 행정기관입니다",
+          "label": "구·시·성 등 지방 행정기관이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "local_admin",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "출입국·노동 등 외국인 관련 기관입니다",
+          "label": "출입국·노동 등 외국인 관련 기관이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "foreign_agency",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "은행이나 금융회사입니다",
+          "label": "은행이나 금융회사가 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "bank_claim",
             "unclear_senderGroup": "grp_finance"
-          }
+          },
+          "description": "금융회사가 보낸 것으로 되어 있어 실제 회사인지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "회사·통신사·택배사·쇼핑 플랫폼입니다",
+          "label": "회사·통신사·택배사·쇼핑 플랫폼이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "company_claim",
             "unclear_senderGroup": "grp_private"
-          }
+          },
+          "description": "민간 업체가 보낸 것으로 되어 있어 실제 업체인지 확인하고 싶습니다."
         },
         {
           "value": "o7",
-          "label": "보낸 곳이 적혀 있지 않거나 개인입니다",
+          "label": "보낸 곳이 적혀 있지 않거나 개인입니다.",
           "fields": {
             "unclear_senderClaim": "unnamed_claim",
             "unclear_senderGroup": "grp_unnamed"
-          }
+          },
+          "description": "보낸 곳이 불분명한 상태라 누가 보냈는지부터 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -191,55 +204,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q3_m",
       "route": "M",
       "phase": 1,
-      "prompt": "이 연락은 어떻게 이어져 왔나요?",
+      "prompt": "이 연락은 어떻게 이어져 왔고, 그 흐름이 제 요청과 관련이 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "오늘이나 어제 처음 한 번 받았습니다",
+          "label": "오늘이나 어제 처음 한 번 받았습니다.",
           "fields": {
             "unclear_contactPattern": "first_contact",
             "unclear_contactFlow": "flow_single"
-          }
+          },
+          "description": "한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다."
         },
         {
           "value": "o2",
-          "label": "며칠 전에 한 번 받고 그 뒤 연락은 없습니다",
+          "label": "며칠 전에 한 번 받았고 그 뒤 연락은 없습니다.",
           "fields": {
             "unclear_contactPattern": "once_earlier",
             "unclear_contactFlow": "flow_single"
-          }
+          },
+          "description": "한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다."
         },
         {
           "value": "o3",
-          "label": "같은 내용을 여러 번 반복해서 받았습니다",
+          "label": "같은 내용을 여러 번 반복해서 받았습니다.",
           "fields": {
             "unclear_contactPattern": "repeated_same",
             "unclear_contactFlow": "flow_repeat"
-          }
+          },
+          "description": "반복해서 오는 연락이라 어떻게 대응해야 할지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "받을수록 표현이 점점 강해졌습니다",
+          "label": "받을수록 표현이 점점 강해졌습니다.",
           "fields": {
             "unclear_contactPattern": "escalating_tone",
             "unclear_contactFlow": "flow_escalate"
-          }
+          },
+          "description": "연락의 강도가 높아지고 있어 압박이 커지는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "전화나 방문을 받은 뒤에 이어서 받았습니다",
+          "label": "전화나 방문을 받은 뒤에 이어서 받았습니다.",
           "fields": {
             "unclear_contactPattern": "after_visit",
             "unclear_contactFlow": "flow_followup"
-          }
+          },
+          "description": "앞선 연락의 후속으로 온 것이라 두 연락이 이어지는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "제가 신청하거나 문의한 뒤에 받았습니다",
+          "label": "제가 신청하거나 문의한 뒤에 받았습니다.",
           "fields": {
             "unclear_contactPattern": "after_request",
             "unclear_contactFlow": "flow_expected"
-          }
+          },
+          "description": "제 요청과 이어진 연락이라 그 요청에 대한 답인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -252,55 +271,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q4_m",
       "route": "M",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇인가요?",
+      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 확인하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "진짜 서류인지 모르겠습니다",
+          "label": "진짜 서류인지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_genuine",
             "unclear_firstAction": "next_sender"
-          }
+          },
+          "description": "돈을 내기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "정말 내야 하는 돈인지 모르겠습니다",
+          "label": "정말 내야 하는 돈인지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_owed",
             "unclear_firstAction": "next_basis"
-          }
+          },
+          "description": "내기 전에 먼저 돈을 내라는 법적·계약상 근거가 무엇인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "금액이 맞는지 모르겠습니다",
+          "label": "금액이 맞는지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_amount",
             "unclear_firstAction": "next_basis"
-          }
+          },
+          "description": "내기 전에 먼저 금액이 어떤 계산으로 나왔는지 근거부터 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "기한을 놓칠까 걱정됩니다",
+          "label": "기한을 놓칠까 걱정됩니다.",
           "fields": {
             "unclear_mainConcern": "doubt_deadline",
             "unclear_firstAction": "next_deadline"
-          }
+          },
+          "description": "불이익이 생기기 전에 먼저 기한이 정확히 언제까지인지부터 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "이미 응했거나 알려 줘서 불안합니다",
+          "label": "이미 응했거나 알려 줘서 불안합니다.",
           "fields": {
             "unclear_mainConcern": "doubt_done",
             "unclear_firstAction": "next_stop"
-          }
+          },
+          "description": "더 응하기 전에 일단 멈추고 지금까지의 응답이 괜찮은지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "크게 걱정되지는 않고 확인만 하고 싶습니다",
+          "label": "크게 걱정되지는 않고 확인만 하고 싶습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_none",
             "unclear_firstAction": "next_keep"
-          }
+          },
+          "description": "서두르지 않고 서류를 보관하며 차분히 내용을 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -313,55 +338,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q1_d",
       "route": "D",
       "phase": 1,
-      "prompt": "받은 서류나 안내는 어떤 형태인가요?",
+      "prompt": "받은 서류나 안내는 어떤 형태이고, 그 형태가 공식 문서처럼 갖춰져 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "직인과 문서번호가 있는 종이 공문입니다",
+          "label": "직인과 문서번호가 있는 종이 공문입니다.",
           "fields": {
             "unclear_documentForm": "paper_official",
             "unclear_formGroup": "form_formal"
-          }
+          },
+          "description": "정식 서류의 형태를 갖추고 있어 내용 확인을 이어갈 수 있습니다."
         },
         {
           "value": "o2",
-          "label": "청구서나 고지서 양식입니다",
+          "label": "청구서나 고지서 양식입니다.",
           "fields": {
             "unclear_documentForm": "bill_form",
             "unclear_formGroup": "form_formal"
-          }
+          },
+          "description": "정식 서류의 형태를 갖추고 있지만 보낸 곳과 근거는 따로 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "이메일로 받았습니다",
+          "label": "이메일로 받았습니다.",
           "fields": {
             "unclear_documentForm": "email_body",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 보낸 주소와 형식이 공식적인지 확인이 필요합니다."
         },
         {
           "value": "o4",
-          "label": "문자나 메신저로 받았습니다",
+          "label": "문자나 메신저로 받았습니다.",
           "fields": {
             "unclear_documentForm": "chat_message",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 보낸 번호와 형식이 공식적인지 확인이 필요합니다."
         },
         {
           "value": "o5",
-          "label": "링크나 큐알 코드로 안내받았습니다",
+          "label": "링크나 큐알 코드로 안내받았습니다.",
           "fields": {
             "unclear_documentForm": "link_code",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 연결된 곳이 공식 사이트인지 확인이 필요합니다."
         },
         {
           "value": "o6",
-          "label": "전화나 방문으로 말로만 들었습니다",
+          "label": "전화나 방문으로 말로만 들었습니다.",
           "fields": {
             "unclear_documentForm": "verbal_only",
             "unclear_formGroup": "form_oral"
-          }
+          },
+          "description": "서류 없이 말로만 전달되어 확인할 근거가 따로 없는 상태입니다."
         }
       ],
       "directFields": {
@@ -374,63 +405,70 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q2_d",
       "route": "D",
       "phase": 1,
-      "prompt": "서류에 보낸 곳으로 적힌 곳은 어디인가요?",
+      "prompt": "서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳은 어떤 성격의 기관이나 업체인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "세무기관(세무서·세무총국)입니다",
+          "label": "세무기관(세무서·세무총국)이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "tax_authority",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "공안·경찰·검찰·법원입니다",
+          "label": "공안·경찰·검찰·법원이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "police_court",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "구·시·성 등 지방 행정기관입니다",
+          "label": "구·시·성 등 지방 행정기관이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "local_admin",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "출입국·노동 등 외국인 관련 기관입니다",
+          "label": "출입국·노동 등 외국인 관련 기관이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "foreign_agency",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "은행이나 금융회사입니다",
+          "label": "은행이나 금융회사가 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "bank_claim",
             "unclear_senderGroup": "grp_finance"
-          }
+          },
+          "description": "금융회사가 보낸 것으로 되어 있어 실제 회사인지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "회사·통신사·택배사·쇼핑 플랫폼입니다",
+          "label": "회사·통신사·택배사·쇼핑 플랫폼이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "company_claim",
             "unclear_senderGroup": "grp_private"
-          }
+          },
+          "description": "민간 업체가 보낸 것으로 되어 있어 실제 업체인지 확인하고 싶습니다."
         },
         {
           "value": "o7",
-          "label": "보낸 곳이 적혀 있지 않거나 개인입니다",
+          "label": "보낸 곳이 적혀 있지 않거나 개인입니다.",
           "fields": {
             "unclear_senderClaim": "unnamed_claim",
             "unclear_senderGroup": "grp_unnamed"
-          }
+          },
+          "description": "보낸 곳이 불분명한 상태라 누가 보냈는지부터 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -443,55 +481,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q3_d",
       "route": "D",
       "phase": 1,
-      "prompt": "이 연락은 어떻게 이어져 왔나요?",
+      "prompt": "이 연락은 어떻게 이어져 왔고, 그 흐름이 제 요청과 관련이 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "오늘이나 어제 처음 한 번 받았습니다",
+          "label": "오늘이나 어제 처음 한 번 받았습니다.",
           "fields": {
             "unclear_contactPattern": "first_contact",
             "unclear_contactFlow": "flow_single"
-          }
+          },
+          "description": "한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다."
         },
         {
           "value": "o2",
-          "label": "며칠 전에 한 번 받고 그 뒤 연락은 없습니다",
+          "label": "며칠 전에 한 번 받았고 그 뒤 연락은 없습니다.",
           "fields": {
             "unclear_contactPattern": "once_earlier",
             "unclear_contactFlow": "flow_single"
-          }
+          },
+          "description": "한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다."
         },
         {
           "value": "o3",
-          "label": "같은 내용을 여러 번 반복해서 받았습니다",
+          "label": "같은 내용을 여러 번 반복해서 받았습니다.",
           "fields": {
             "unclear_contactPattern": "repeated_same",
             "unclear_contactFlow": "flow_repeat"
-          }
+          },
+          "description": "반복해서 오는 연락이라 어떻게 대응해야 할지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "받을수록 표현이 점점 강해졌습니다",
+          "label": "받을수록 표현이 점점 강해졌습니다.",
           "fields": {
             "unclear_contactPattern": "escalating_tone",
             "unclear_contactFlow": "flow_escalate"
-          }
+          },
+          "description": "연락의 강도가 높아지고 있어 압박이 커지는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "전화나 방문을 받은 뒤에 이어서 받았습니다",
+          "label": "전화나 방문을 받은 뒤에 이어서 받았습니다.",
           "fields": {
             "unclear_contactPattern": "after_visit",
             "unclear_contactFlow": "flow_followup"
-          }
+          },
+          "description": "앞선 연락의 후속으로 온 것이라 두 연락이 이어지는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "제가 신청하거나 문의한 뒤에 받았습니다",
+          "label": "제가 신청하거나 문의한 뒤에 받았습니다.",
           "fields": {
             "unclear_contactPattern": "after_request",
             "unclear_contactFlow": "flow_expected"
-          }
+          },
+          "description": "제 요청과 이어진 연락이라 그 요청에 대한 답인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -504,63 +548,70 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q4_d",
       "route": "D",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇인가요?",
+      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 확인하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "진짜 서류인지 모르겠습니다",
+          "label": "진짜 서류인지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_genuine",
             "unclear_firstAction": "next_sender"
-          }
+          },
+          "description": "서류를 내기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "무엇을 내야 하는지 모르겠습니다",
+          "label": "무엇을 내야 하는지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_what",
             "unclear_firstAction": "next_basis"
-          }
+          },
+          "description": "내기 전에 먼저 요구하는 서류와 그 근거가 무엇인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "직접 가야 하는지, 안 가면 어떻게 되는지 걱정됩니다",
+          "label": "직접 가야 하는지, 안 가면 어떻게 되는지 걱정됩니다.",
           "fields": {
             "unclear_mainConcern": "doubt_appear",
             "unclear_firstAction": "next_basis"
-          }
+          },
+          "description": "가기 전에 먼저 출석을 요구하는 근거가 무엇인지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "기한을 놓칠까 걱정됩니다",
+          "label": "기한을 놓칠까 걱정됩니다.",
           "fields": {
             "unclear_mainConcern": "doubt_deadline",
             "unclear_firstAction": "next_deadline"
-          }
+          },
+          "description": "불이익이 생기기 전에 먼저 기한이 정확히 언제까지인지부터 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "개인정보를 내도 되는지 걱정됩니다",
+          "label": "개인정보를 내도 되는지 걱정됩니다.",
           "fields": {
             "unclear_mainConcern": "doubt_privacy",
             "unclear_firstAction": "next_sender"
-          }
+          },
+          "description": "제출하기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "이미 일부를 냈거나 답했습니다",
+          "label": "이미 일부를 냈거나 답했습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_done",
             "unclear_firstAction": "next_stop"
-          }
+          },
+          "description": "더 응하기 전에 일단 멈추고 지금까지의 응답이 괜찮은지 확인하고 싶습니다."
         },
         {
           "value": "o7",
-          "label": "크게 걱정되지는 않고 확인만 하고 싶습니다",
+          "label": "크게 걱정되지는 않고 확인만 하고 싶습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_none",
             "unclear_firstAction": "next_keep"
-          }
+          },
+          "description": "서두르지 않고 서류를 보관하며 차분히 내용을 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -573,55 +624,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q1_n",
       "route": "N",
       "phase": 1,
-      "prompt": "받은 서류나 안내는 어떤 형태인가요?",
+      "prompt": "받은 서류나 안내는 어떤 형태이고, 그 형태가 공식 문서처럼 갖춰져 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "직인과 문서번호가 있는 종이 공문입니다",
+          "label": "직인과 문서번호가 있는 종이 공문입니다.",
           "fields": {
             "unclear_documentForm": "paper_official",
             "unclear_formGroup": "form_formal"
-          }
+          },
+          "description": "정식 서류의 형태를 갖추고 있어 내용 확인을 이어갈 수 있습니다."
         },
         {
           "value": "o2",
-          "label": "청구서나 고지서 양식입니다",
+          "label": "청구서나 고지서 양식입니다.",
           "fields": {
             "unclear_documentForm": "bill_form",
             "unclear_formGroup": "form_formal"
-          }
+          },
+          "description": "정식 서류의 형태를 갖추고 있지만 보낸 곳과 근거는 따로 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "이메일로 받았습니다",
+          "label": "이메일로 받았습니다.",
           "fields": {
             "unclear_documentForm": "email_body",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 보낸 주소와 형식이 공식적인지 확인이 필요합니다."
         },
         {
           "value": "o4",
-          "label": "문자나 메신저로 받았습니다",
+          "label": "문자나 메신저로 받았습니다.",
           "fields": {
             "unclear_documentForm": "chat_message",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 보낸 번호와 형식이 공식적인지 확인이 필요합니다."
         },
         {
           "value": "o5",
-          "label": "링크나 큐알 코드로 안내받았습니다",
+          "label": "링크나 큐알 코드로 안내받았습니다.",
           "fields": {
             "unclear_documentForm": "link_code",
             "unclear_formGroup": "form_digital"
-          }
+          },
+          "description": "전자 메시지 형태라서 연결된 곳이 공식 사이트인지 확인이 필요합니다."
         },
         {
           "value": "o6",
-          "label": "전화나 방문으로 말로만 들었습니다",
+          "label": "전화나 방문으로 말로만 들었습니다.",
           "fields": {
             "unclear_documentForm": "verbal_only",
             "unclear_formGroup": "form_oral"
-          }
+          },
+          "description": "서류 없이 말로만 전달되어 확인할 근거가 따로 없는 상태입니다."
         }
       ],
       "directFields": {
@@ -634,63 +691,70 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q2_n",
       "route": "N",
       "phase": 1,
-      "prompt": "서류에 보낸 곳으로 적힌 곳은 어디인가요?",
+      "prompt": "서류에 보낸 곳으로 적힌 곳은 어디이고, 그 곳은 어떤 성격의 기관이나 업체인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "세무기관(세무서·세무총국)입니다",
+          "label": "세무기관(세무서·세무총국)이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "tax_authority",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "공안·경찰·검찰·법원입니다",
+          "label": "공안·경찰·검찰·법원이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "police_court",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "구·시·성 등 지방 행정기관입니다",
+          "label": "구·시·성 등 지방 행정기관이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "local_admin",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "출입국·노동 등 외국인 관련 기관입니다",
+          "label": "출입국·노동 등 외국인 관련 기관이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "foreign_agency",
             "unclear_senderGroup": "grp_public"
-          }
+          },
+          "description": "공공기관이 보낸 것으로 되어 있어 실제 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "은행이나 금융회사입니다",
+          "label": "은행이나 금융회사가 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "bank_claim",
             "unclear_senderGroup": "grp_finance"
-          }
+          },
+          "description": "금융회사가 보낸 것으로 되어 있어 실제 회사인지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "회사·통신사·택배사·쇼핑 플랫폼입니다",
+          "label": "회사·통신사·택배사·쇼핑 플랫폼이 보낸 것으로 적혀 있습니다.",
           "fields": {
             "unclear_senderClaim": "company_claim",
             "unclear_senderGroup": "grp_private"
-          }
+          },
+          "description": "민간 업체가 보낸 것으로 되어 있어 실제 업체인지 확인하고 싶습니다."
         },
         {
           "value": "o7",
-          "label": "보낸 곳이 적혀 있지 않거나 개인입니다",
+          "label": "보낸 곳이 적혀 있지 않거나 개인입니다.",
           "fields": {
             "unclear_senderClaim": "unnamed_claim",
             "unclear_senderGroup": "grp_unnamed"
-          }
+          },
+          "description": "보낸 곳이 불분명한 상태라 누가 보냈는지부터 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -703,55 +767,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q3_n",
       "route": "N",
       "phase": 1,
-      "prompt": "이 연락은 어떻게 이어져 왔나요?",
+      "prompt": "이 연락은 어떻게 이어져 왔고, 그 흐름이 제 요청과 관련이 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "오늘이나 어제 처음 한 번 받았습니다",
+          "label": "오늘이나 어제 처음 한 번 받았습니다.",
           "fields": {
             "unclear_contactPattern": "first_contact",
             "unclear_contactFlow": "flow_single"
-          }
+          },
+          "description": "한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다."
         },
         {
           "value": "o2",
-          "label": "며칠 전에 한 번 받고 그 뒤 연락은 없습니다",
+          "label": "며칠 전에 한 번 받았고 그 뒤 연락은 없습니다.",
           "fields": {
             "unclear_contactPattern": "once_earlier",
             "unclear_contactFlow": "flow_single"
-          }
+          },
+          "description": "한 번만 받았고 제가 신청하거나 요청한 일과는 관련이 없습니다."
         },
         {
           "value": "o3",
-          "label": "같은 내용을 여러 번 반복해서 받았습니다",
+          "label": "같은 내용을 여러 번 반복해서 받았습니다.",
           "fields": {
             "unclear_contactPattern": "repeated_same",
             "unclear_contactFlow": "flow_repeat"
-          }
+          },
+          "description": "반복해서 오는 연락이라 어떻게 대응해야 할지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "받을수록 표현이 점점 강해졌습니다",
+          "label": "받을수록 표현이 점점 강해졌습니다.",
           "fields": {
             "unclear_contactPattern": "escalating_tone",
             "unclear_contactFlow": "flow_escalate"
-          }
+          },
+          "description": "연락의 강도가 높아지고 있어 압박이 커지는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "전화나 방문을 받은 뒤에 이어서 받았습니다",
+          "label": "전화나 방문을 받은 뒤에 이어서 받았습니다.",
           "fields": {
             "unclear_contactPattern": "after_visit",
             "unclear_contactFlow": "flow_followup"
-          }
+          },
+          "description": "앞선 연락의 후속으로 온 것이라 두 연락이 이어지는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "제가 신청하거나 문의한 뒤에 받았습니다",
+          "label": "제가 신청하거나 문의한 뒤에 받았습니다.",
           "fields": {
             "unclear_contactPattern": "after_request",
             "unclear_contactFlow": "flow_expected"
-          }
+          },
+          "description": "제 요청과 이어진 연락이라 그 요청에 대한 답인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -764,55 +834,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q4_n",
       "route": "N",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇인가요?",
+      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 그래서 먼저 무엇부터 하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "무슨 뜻인지 모르겠습니다",
+          "label": "무슨 뜻인지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_meaning",
             "unclear_firstAction": "next_understand"
-          }
+          },
+          "description": "판단하기 전에 먼저 이 서류의 내용이 무엇인지부터 이해하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "진짜 서류인지 모르겠습니다",
+          "label": "진짜 서류인지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_genuine",
             "unclear_firstAction": "next_sender"
-          }
+          },
+          "description": "믿기 전에 먼저 보낸 곳이 실제로 맞는지부터 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "응해야 하는지 보관만 해도 되는지 모르겠습니다",
+          "label": "응해야 하는지 보관만 해도 되는지 모르겠습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_respond",
             "unclear_firstAction": "next_understand"
-          }
+          },
+          "description": "결정하기 전에 먼저 내용을 이해한 뒤 어떻게 할지 판단하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "놓친 내용이 있을까 걱정됩니다",
+          "label": "놓친 내용이 있을까 걱정됩니다.",
           "fields": {
             "unclear_mainConcern": "doubt_missing",
             "unclear_firstAction": "next_deadline"
-          }
+          },
+          "description": "놓치기 전에 먼저 기한이나 요구가 있는지부터 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "이미 답장했거나 응했습니다",
+          "label": "이미 답장했거나 응했습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_done",
             "unclear_firstAction": "next_stop"
-          }
+          },
+          "description": "더 응하기 전에 일단 멈추고 지금까지의 응답이 괜찮은지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "크게 걱정되지는 않고 무슨 서류인지만 알고 싶습니다",
+          "label": "크게 걱정되지는 않고 무슨 서류인지만 알고 싶습니다.",
           "fields": {
             "unclear_mainConcern": "doubt_none",
             "unclear_firstAction": "next_keep"
-          }
+          },
+          "description": "서두르지 않고 서류를 보관하며 차분히 내용을 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -825,47 +901,52 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q5_m",
       "route": "M",
       "phase": 2,
-      "prompt": "서류에 적힌 내 정보는 어떻게 되어 있나요?",
+      "prompt": "서류에 적힌 내 정보는 어떻게 되어 있고, 그 서류가 저를 정확히 지목한 것으로 보이나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "이름·회사명·주소가 모두 정확합니다",
+          "label": "이름·회사명·주소가 모두 정확합니다.",
           "fields": {
             "unclear_identityMatch": "id_exact",
             "unclear_aimHint": "aim_specific"
-          }
+          },
+          "description": "저를 정확히 지목한 서류로 보여서 내용을 자세히 확인해야 합니다."
         },
         {
           "value": "o2",
-          "label": "이름은 맞지만 주소나 번호가 일부 다릅니다",
+          "label": "이름은 맞지만 주소나 번호가 일부 다릅니다.",
           "fields": {
             "unclear_identityMatch": "id_partial",
             "unclear_aimHint": "aim_partial"
-          }
+          },
+          "description": "저를 일부만 특정한 서류로 보여서 어떻게 입수한 정보인지 궁금합니다."
         },
         {
           "value": "o3",
-          "label": "이름 없이 일반 호칭만 적혀 있습니다",
+          "label": "이름 없이 일반 호칭만 적혀 있습니다.",
           "fields": {
             "unclear_identityMatch": "id_generic",
             "unclear_aimHint": "aim_generic"
-          }
+          },
+          "description": "불특정 다수에게 보낸 서류일 수 있어 저와 관련이 있는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "다른 사람이나 다른 회사 이름이 적혀 있습니다",
+          "label": "다른 사람이나 다른 회사 이름이 적혀 있습니다.",
           "fields": {
             "unclear_identityMatch": "id_other",
             "unclear_aimHint": "aim_misdirected"
-          }
+          },
+          "description": "엉뚱한 수신이거나 잘못 보낸 것일 수 있어 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "적힌 정보를 아직 확인하지 않았습니다",
+          "label": "적힌 정보를 아직 확인하지 않았습니다.",
           "fields": {
             "unclear_identityMatch": "id_unchecked",
             "unclear_aimHint": "aim_unchecked"
-          }
+          },
+          "description": "제 정보와 맞는지부터 확인하고 서류가 저를 가리키는지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -878,55 +959,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q6_m",
       "route": "M",
       "phase": 2,
-      "prompt": "서류나 연락에서 확인되는 요소는 무엇인가요?",
+      "prompt": "서류나 연락에서 확인되는 공식 요소는 무엇이고, 형식은 얼마나 갖춰져 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기관명·문서번호·날짜·직인이 모두 있습니다",
+          "label": "기관명·문서번호·날짜·직인이 모두 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_full",
             "unclear_formality": "fm_formal"
-          }
+          },
+          "description": "형식을 갖춘 서류로 보이지만 실제 발급되었는지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "그중 일부만 있습니다",
+          "label": "그중 일부만 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_partial",
             "unclear_formality": "fm_partial"
-          }
+          },
+          "description": "형식이 일부 부족한 서류로 보여서 어떤 요소가 빠졌는지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "모두 없고 문장만 있습니다",
+          "label": "모두 없고 문장만 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_none",
             "unclear_formality": "fm_informal"
-          }
+          },
+          "description": "공식 서류에 있어야 할 요소가 없어서 공식 서류인지 의심됩니다."
         },
         {
           "value": "o4",
-          "label": "연락처가 개인 번호나 일반 이메일 주소입니다",
+          "label": "연락처가 개인 번호나 일반 이메일 주소입니다.",
           "fields": {
             "unclear_authenticityMark": "mark_personal_contact",
             "unclear_formality": "fm_informal"
-          }
+          },
+          "description": "기관의 공식 연락처가 아니어서 공식 서류인지 의심됩니다."
         },
         {
           "value": "o5",
-          "label": "링크나 큐알 코드로만 안내합니다",
+          "label": "링크나 큐알 코드로만 안내합니다.",
           "fields": {
             "unclear_authenticityMark": "mark_link_only",
             "unclear_formality": "fm_link"
-          }
+          },
+          "description": "링크로만 연결되어 서류 형식을 확인하기 어렵고 연결된 곳이 안전한지 알고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "문장이 번역투이거나 어색합니다",
+          "label": "문장이 번역투이거나 어색합니다.",
           "fields": {
             "unclear_authenticityMark": "mark_odd_text",
             "unclear_formality": "fm_odd"
-          }
+          },
+          "description": "문체가 어색해서 공식 서류인지, 외국어를 옮긴 것인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -939,55 +1026,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q7_m",
       "route": "M",
       "phase": 2,
-      "prompt": "서류가 요구하는 돈의 성격은 무엇이라고 적혀 있나요?",
+      "prompt": "서류가 요구하는 돈의 성격은 무엇이라고 적혀 있고, 어느 분야의 검토와 이어질 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "세금이나 세무 관련 비용입니다",
+          "label": "세금이나 세무 관련 비용이라고 적혀 있습니다.",
           "fields": {
             "unclear_moneyNature": "nature_tax",
             "unclear_moneyReviewLink": "link_tax"
-          }
+          },
+          "description": "세금 신고나 납부 내역과 이어지는지 세금 검토로 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "벌금·과태료·행정 수수료입니다",
+          "label": "벌금·과태료·행정 수수료라고 적혀 있습니다.",
           "fields": {
             "unclear_moneyNature": "nature_fine",
             "unclear_moneyReviewLink": "link_admin"
-          }
+          },
+          "description": "행정 처분이나 절차와 이어지는지 행정문서 검토로 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "서비스 이용료나 요금입니다",
+          "label": "서비스 이용료나 요금이라고 적혀 있습니다.",
           "fields": {
             "unclear_moneyNature": "nature_fee",
             "unclear_moneyReviewLink": "link_trade"
-          }
+          },
+          "description": "제가 실제로 쓴 서비스인지 계약·이용 내역과 대조하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "채무나 거래 대금입니다",
+          "label": "채무나 거래 대금이라고 적혀 있습니다.",
           "fields": {
             "unclear_moneyNature": "nature_debt",
             "unclear_moneyReviewLink": "link_trade"
-          }
+          },
+          "description": "실제 거래가 있었는지 계약·거래 내역과 대조하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "보증금·선납금·예치금입니다",
+          "label": "보증금·선납금·예치금이라고 적혀 있습니다.",
           "fields": {
             "unclear_moneyNature": "nature_deposit",
             "unclear_moneyReviewLink": "link_property"
-          }
+          },
+          "description": "임대나 매매 계약과 이어지는지 부동산·계약 검토로 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "명목이 적혀 있지 않습니다",
+          "label": "명목이 적혀 있지 않습니다.",
           "fields": {
             "unclear_moneyNature": "nature_unstated",
             "unclear_moneyReviewLink": "link_none"
-          }
+          },
+          "description": "무슨 돈인지 알 수 없어서 어느 분야와 이어지는지부터 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1000,47 +1093,52 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q8_m",
       "route": "M",
       "phase": 2,
-      "prompt": "요구하는 금액은 어느 정도인가요?",
+      "prompt": "요구하는 금액은 어느 정도이고, 그 규모는 어느 수준인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "100만 동 미만입니다",
+          "label": "100만 동 미만을 요구합니다.",
           "fields": {
             "unclear_amountScale": "amt_under1m",
             "unclear_amountTier": "tier_small"
-          }
+          },
+          "description": "소액에 해당하지만 적은 금액이라도 근거 없이 내지 않도록 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "100만 동 이상 1천만 동 미만입니다",
+          "label": "100만 동 이상 1천만 동 미만을 요구합니다.",
           "fields": {
             "unclear_amountScale": "amt_1m_10m",
             "unclear_amountTier": "tier_medium"
-          }
+          },
+          "description": "중간 규모의 금액이라 내기 전에 근거를 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "1천만 동 이상 1억 동 미만입니다",
+          "label": "1천만 동 이상 1억 동 미만을 요구합니다.",
           "fields": {
             "unclear_amountScale": "amt_10m_100m",
             "unclear_amountTier": "tier_large"
-          }
+          },
+          "description": "큰 금액이라 내기 전에 근거와 보낸 곳을 꼭 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "1억 동 이상입니다",
+          "label": "1억 동 이상을 요구합니다.",
           "fields": {
             "unclear_amountScale": "amt_over100m",
             "unclear_amountTier": "tier_xlarge"
-          }
+          },
+          "description": "매우 큰 금액이라 내기 전에 전문가와 함께 근거를 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "금액이 적혀 있지 않습니다",
+          "label": "금액이 적혀 있지 않습니다.",
           "fields": {
             "unclear_amountScale": "amt_unstated",
             "unclear_amountTier": "tier_unknown"
-          }
+          },
+          "description": "얼마를 내라는 것인지 알 수 없어서 금액이 정해졌는지부터 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1053,55 +1151,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q9_m",
       "route": "M",
       "phase": 2,
-      "prompt": "돈을 어디로 보내라고 되어 있나요?",
+      "prompt": "돈을 어디로 보내라고 되어 있고, 그 방식은 어떤 성격인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기관 이름으로 된 계좌입니다",
+          "label": "기관 이름으로 된 계좌로 보내라고 합니다.",
           "fields": {
             "unclear_payee": "payee_institution",
             "unclear_paymentGroup": "pay_account"
-          }
+          },
+          "description": "계좌 이체 방식이고 받는 곳이 기관으로 되어 있어 실제 기관 계좌인지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "회사 이름으로 된 계좌입니다",
+          "label": "회사 이름으로 된 계좌로 보내라고 합니다.",
           "fields": {
             "unclear_payee": "payee_company",
             "unclear_paymentGroup": "pay_account"
-          }
+          },
+          "description": "계좌 이체 방식이고 받는 곳이 회사로 되어 있어 실제 회사 계좌인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "개인 이름으로 된 계좌입니다",
+          "label": "개인 이름으로 된 계좌로 보내라고 합니다.",
           "fields": {
             "unclear_payee": "payee_person",
             "unclear_paymentGroup": "pay_account"
-          }
+          },
+          "description": "계좌 이체 방식이지만 받는 곳이 개인이라 보내도 되는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "링크·큐알 코드·앱으로 결제하라고 합니다",
+          "label": "링크·큐알 코드·앱으로 결제하라고 합니다.",
           "fields": {
             "unclear_payee": "payee_online",
             "unclear_paymentGroup": "pay_online"
-          }
+          },
+          "description": "온라인 결제 방식이라 연결된 곳이 공식 결제 화면인지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "현금이나 상품권으로 내라고 합니다",
+          "label": "현금이나 상품권으로 내라고 합니다.",
           "fields": {
             "unclear_payee": "payee_cash",
             "unclear_paymentGroup": "pay_cash"
-          }
+          },
+          "description": "기록이 남지 않을 수 있는 현금성 수단이라 이 방식이 정상인지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "계좌나 방법이 적혀 있지 않습니다",
+          "label": "계좌나 방법이 적혀 있지 않습니다.",
           "fields": {
             "unclear_payee": "payee_unstated",
             "unclear_paymentGroup": "pay_none"
-          }
+          },
+          "description": "받는 곳과 방법을 알 수 없어서 어떻게 내라는 것인지부터 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1114,55 +1218,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q10_m",
       "route": "M",
       "phase": 2,
-      "prompt": "서류나 연락에 어떤 압박이 있나요?",
+      "prompt": "서류나 연락에 어떤 압박이 있고, 그 압박은 얼마나 강하게 느껴지시나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "압박 없이 안내만 있습니다",
+          "label": "압박 없이 안내만 있습니다.",
           "fields": {
             "unclear_pressureType": "press_none",
             "unclear_pressureLevel": "lvl_none"
-          }
+          },
+          "description": "재촉이나 협박은 없어서 압박은 느끼지 않는 상태입니다."
         },
         {
           "value": "o2",
-          "label": "기한 안에 하라는 안내만 있습니다",
+          "label": "기한 안에 하라는 안내만 있습니다.",
           "fields": {
             "unclear_pressureType": "press_deadline",
             "unclear_pressureLevel": "lvl_low"
-          }
+          },
+          "description": "기한이 안내되어 있어 낮은 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o3",
-          "label": "연체료·가산금이나 법적 조치를 예고합니다",
+          "label": "연체료·가산금이나 법적 조치를 예고합니다.",
           "fields": {
             "unclear_pressureType": "press_legal",
             "unclear_pressureLevel": "lvl_mid"
-          }
+          },
+          "description": "불이익을 알려 와서 중간 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o4",
-          "label": "지금 바로 하지 않으면 안 된다고 재촉합니다",
+          "label": "지금 바로 하지 않으면 안 된다고 재촉합니다.",
           "fields": {
             "unclear_pressureType": "press_rush",
             "unclear_pressureLevel": "lvl_mid"
-          }
+          },
+          "description": "생각할 시간을 주지 않아 중간 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o5",
-          "label": "계좌 동결·체포·출국 금지 같은 강한 불이익을 말합니다",
+          "label": "계좌 동결·체포·출국 금지 같은 강한 불이익을 말합니다.",
           "fields": {
             "unclear_pressureType": "press_threat",
             "unclear_pressureLevel": "lvl_high"
-          }
+          },
+          "description": "공포를 주는 표현이라 매우 강한 압박으로 느껴집니다."
         },
         {
           "value": "o6",
-          "label": "다른 사람에게 말하지 말고 비밀로 하라고 합니다",
+          "label": "다른 사람에게 말하지 말고 비밀로 하라고 합니다.",
           "fields": {
             "unclear_pressureType": "press_secret",
             "unclear_pressureLevel": "lvl_high"
-          }
+          },
+          "description": "주변의 확인을 막으려는 듯해서 강한 압박으로 느껴집니다."
         }
       ],
       "directFields": {
@@ -1175,55 +1285,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q11_m",
       "route": "M",
       "phase": 2,
-      "prompt": "서류나 안내의 기한은 어떻게 되어 있나요?",
+      "prompt": "서류나 안내의 기한은 어떻게 되어 있고, 그 기한은 어디에서 나온 것인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기한이 적혀 있지 않습니다",
+          "label": "기한이 적혀 있지 않습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_none",
             "unclear_deadlineSource": "dls_none"
-          }
+          },
+          "description": "기한 표시가 서류에도 말에도 어디에도 없어서 기한이 있는지부터 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "서류에 날짜가 적혀 있고 아직 여유가 있습니다",
+          "label": "서류에 날짜가 적혀 있고 아직 여유가 있습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_far",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 시간이 있어서 차분히 확인할 수 있습니다."
         },
         {
           "value": "o3",
-          "label": "서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다",
+          "label": "서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_near",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 임박해서 서둘러 확인해야 합니다."
         },
         {
           "value": "o4",
-          "label": "서류에 적힌 기한이 이미 지났습니다",
+          "label": "서류에 적힌 기한이 이미 지났습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_passed",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 이미 지나서 이제 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "메시지나 말로만 기한을 알려 줬습니다",
+          "label": "메시지나 말로만 기한을 알려 줬습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_verbal",
             "unclear_deadlineSource": "dls_message"
-          }
+          },
+          "description": "서류가 아니라 메시지나 말로 들은 기한이라 근거가 있는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "기한이 있는 것 같은데 정확히 모릅니다",
+          "label": "기한이 있는 것 같은데 정확히 모릅니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_unclear",
             "unclear_deadlineSource": "dls_unknown"
-          }
+          },
+          "description": "기한의 출처와 날짜를 알 수 없어 서류에서 찾아보고 싶습니다."
         }
       ],
       "directFields": {
@@ -1236,55 +1352,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q12_m",
       "route": "M",
       "phase": 2,
-      "prompt": "지금까지 이 서류와 관련해 한 일이 있나요?",
+      "prompt": "지금까지 이 서류와 관련해 한 일은 무엇이고, 그로 인해 이미 생겼을 수 있는 위험은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "아무것도 하지 않았습니다",
+          "label": "아무것도 하지 않았습니다.",
           "fields": {
             "unclear_actionTaken": "act_nothing",
             "unclear_exposureLevel": "exp_none"
-          }
+          },
+          "description": "노출된 정보나 금전 위험은 없다고 보고, 앞으로 할 일을 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "보낸 곳에 문의만 했습니다",
+          "label": "보낸 곳에 문의만 했습니다.",
           "fields": {
             "unclear_actionTaken": "act_asked",
             "unclear_exposureLevel": "exp_low"
-          }
+          },
+          "description": "연락처가 알려졌을 수 있지만 노출은 적은 상태입니다."
         },
         {
           "value": "o3",
-          "label": "링크를 열었거나 앱을 설치했습니다",
+          "label": "링크를 열었거나 앱을 설치했습니다.",
           "fields": {
             "unclear_actionTaken": "act_clicked",
             "unclear_exposureLevel": "exp_mid"
-          }
+          },
+          "description": "제 기기나 정보가 노출되었을 가능성이 있는 상태입니다."
         },
         {
           "value": "o4",
-          "label": "개인정보나 서류를 이미 보냈습니다",
+          "label": "개인정보나 서류를 이미 보냈습니다.",
           "fields": {
             "unclear_actionTaken": "act_sent_info",
             "unclear_exposureLevel": "exp_info"
-          }
+          },
+          "description": "제 개인정보가 노출되어 악용될 수 있는 상태입니다."
         },
         {
           "value": "o5",
-          "label": "돈을 일부 또는 전부 보냈습니다",
+          "label": "돈을 일부 또는 전부 보냈습니다.",
           "fields": {
             "unclear_actionTaken": "act_sent_money",
             "unclear_exposureLevel": "exp_money"
-          }
+          },
+          "description": "이미 금전 피해가 생겼을 가능성이 있는 상태입니다."
         },
         {
           "value": "o6",
-          "label": "답장을 했거나 통화를 했습니다",
+          "label": "답장을 했거나 통화를 했습니다.",
           "fields": {
             "unclear_actionTaken": "act_replied",
             "unclear_exposureLevel": "exp_contact"
-          }
+          },
+          "description": "상대와 연락이 이어진 상태라 이후 연락에 주의가 필요합니다."
         }
       ],
       "directFields": {
@@ -1297,55 +1419,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q13_m",
       "route": "M",
       "phase": 2,
-      "prompt": "남아 있는 자료는 무엇인가요?",
+      "prompt": "남아 있는 자료는 무엇이고, 그 자료로 어디까지 확인할 수 있을 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "서류 원본을 가지고 있습니다",
+          "label": "서류 원본을 가지고 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_original",
             "unclear_evidenceState": "evs_strong"
-          }
+          },
+          "description": "자료가 충분해서 서류 내용을 직접 대조해 확인할 수 있을 것 같습니다."
         },
         {
           "value": "o2",
-          "label": "사진이나 캡처만 있습니다",
+          "label": "사진이나 캡처만 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_photo",
             "unclear_evidenceState": "evs_medium"
-          }
+          },
+          "description": "자료가 일부라서 서류 원본은 확인하기 어려울 수 있습니다."
         },
         {
           "value": "o3",
-          "label": "문자·메신저·통화 기록이 남아 있습니다",
+          "label": "문자·메신저·통화 기록이 남아 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_chat",
             "unclear_evidenceState": "evs_medium"
-          }
+          },
+          "description": "자료가 일부라서 연락이 오간 경위는 확인할 수 있습니다."
         },
         {
           "value": "o4",
-          "label": "송금 내역이나 영수증이 있습니다",
+          "label": "송금 내역이나 영수증이 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_payment",
             "unclear_evidenceState": "evs_strong"
-          }
+          },
+          "description": "자료가 충분해서 돈이 오간 흐름은 확인할 수 있을 것 같습니다."
         },
         {
           "value": "o5",
-          "label": "일부를 잃어버렸거나 지웠습니다",
+          "label": "일부를 잃어버렸거나 지웠습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_partial",
             "unclear_evidenceState": "evs_weak"
-          }
+          },
+          "description": "자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "남은 자료가 없습니다",
+          "label": "남은 자료가 없습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_none",
             "unclear_evidenceState": "evs_weak"
-          }
+          },
+          "description": "자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -1358,47 +1486,52 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q5_d",
       "route": "D",
       "phase": 2,
-      "prompt": "서류에 적힌 내 정보는 어떻게 되어 있나요?",
+      "prompt": "서류에 적힌 내 정보는 어떻게 되어 있고, 그 서류가 저를 정확히 지목한 것으로 보이나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "이름·회사명·주소가 모두 정확합니다",
+          "label": "이름·회사명·주소가 모두 정확합니다.",
           "fields": {
             "unclear_identityMatch": "id_exact",
             "unclear_aimHint": "aim_specific"
-          }
+          },
+          "description": "저를 정확히 지목한 서류로 보여서 내용을 자세히 확인해야 합니다."
         },
         {
           "value": "o2",
-          "label": "이름은 맞지만 주소나 번호가 일부 다릅니다",
+          "label": "이름은 맞지만 주소나 번호가 일부 다릅니다.",
           "fields": {
             "unclear_identityMatch": "id_partial",
             "unclear_aimHint": "aim_partial"
-          }
+          },
+          "description": "저를 일부만 특정한 서류로 보여서 어떻게 입수한 정보인지 궁금합니다."
         },
         {
           "value": "o3",
-          "label": "이름 없이 일반 호칭만 적혀 있습니다",
+          "label": "이름 없이 일반 호칭만 적혀 있습니다.",
           "fields": {
             "unclear_identityMatch": "id_generic",
             "unclear_aimHint": "aim_generic"
-          }
+          },
+          "description": "불특정 다수에게 보낸 서류일 수 있어 저와 관련이 있는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "다른 사람이나 다른 회사 이름이 적혀 있습니다",
+          "label": "다른 사람이나 다른 회사 이름이 적혀 있습니다.",
           "fields": {
             "unclear_identityMatch": "id_other",
             "unclear_aimHint": "aim_misdirected"
-          }
+          },
+          "description": "엉뚱한 수신이거나 잘못 보낸 것일 수 있어 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "적힌 정보를 아직 확인하지 않았습니다",
+          "label": "적힌 정보를 아직 확인하지 않았습니다.",
           "fields": {
             "unclear_identityMatch": "id_unchecked",
             "unclear_aimHint": "aim_unchecked"
-          }
+          },
+          "description": "제 정보와 맞는지부터 확인하고 서류가 저를 가리키는지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -1411,55 +1544,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q6_d",
       "route": "D",
       "phase": 2,
-      "prompt": "서류나 연락에서 확인되는 요소는 무엇인가요?",
+      "prompt": "서류나 연락에서 확인되는 공식 요소는 무엇이고, 형식은 얼마나 갖춰져 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기관명·문서번호·날짜·직인이 모두 있습니다",
+          "label": "기관명·문서번호·날짜·직인이 모두 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_full",
             "unclear_formality": "fm_formal"
-          }
+          },
+          "description": "형식을 갖춘 서류로 보이지만 실제 발급되었는지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "그중 일부만 있습니다",
+          "label": "그중 일부만 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_partial",
             "unclear_formality": "fm_partial"
-          }
+          },
+          "description": "형식이 일부 부족한 서류로 보여서 어떤 요소가 빠졌는지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "모두 없고 문장만 있습니다",
+          "label": "모두 없고 문장만 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_none",
             "unclear_formality": "fm_informal"
-          }
+          },
+          "description": "공식 서류에 있어야 할 요소가 없어서 공식 서류인지 의심됩니다."
         },
         {
           "value": "o4",
-          "label": "연락처가 개인 번호나 일반 이메일 주소입니다",
+          "label": "연락처가 개인 번호나 일반 이메일 주소입니다.",
           "fields": {
             "unclear_authenticityMark": "mark_personal_contact",
             "unclear_formality": "fm_informal"
-          }
+          },
+          "description": "기관의 공식 연락처가 아니어서 공식 서류인지 의심됩니다."
         },
         {
           "value": "o5",
-          "label": "링크나 큐알 코드로만 안내합니다",
+          "label": "링크나 큐알 코드로만 안내합니다.",
           "fields": {
             "unclear_authenticityMark": "mark_link_only",
             "unclear_formality": "fm_link"
-          }
+          },
+          "description": "링크로만 연결되어 서류 형식을 확인하기 어렵고 연결된 곳이 안전한지 알고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "문장이 번역투이거나 어색합니다",
+          "label": "문장이 번역투이거나 어색합니다.",
           "fields": {
             "unclear_authenticityMark": "mark_odd_text",
             "unclear_formality": "fm_odd"
-          }
+          },
+          "description": "문체가 어색해서 공식 서류인지, 외국어를 옮긴 것인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1472,55 +1611,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q7_d",
       "route": "D",
       "phase": 2,
-      "prompt": "서류가 요구하는 것은 무엇인가요?",
+      "prompt": "서류가 요구하는 것은 무엇이고, 그 요구는 어떤 종류의 자료인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "신분증·여권·체류 관련 서류입니다",
+          "label": "신분증·여권·체류 관련 서류를 요구합니다.",
           "fields": {
             "unclear_requestTarget": "tgt_id_docs",
             "unclear_targetGroup": "grp_personal"
-          }
+          },
+          "description": "제 신분을 보여 주는 개인 신분 자료라서 내도 되는지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "사업자·회사 관련 서류입니다",
+          "label": "사업자·회사 관련 서류를 요구합니다.",
           "fields": {
             "unclear_requestTarget": "tgt_business_docs",
             "unclear_targetGroup": "grp_business"
-          }
+          },
+          "description": "회사의 사업 자료라서 누구에게 내는 것인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "계약서나 거래 서류입니다",
+          "label": "계약서나 거래 서류를 요구합니다.",
           "fields": {
             "unclear_requestTarget": "tgt_contract_docs",
             "unclear_targetGroup": "grp_contract"
-          }
+          },
+          "description": "계약·거래 자료라서 어떤 거래와 이어지는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "경위서·설명서 같은 진술입니다",
+          "label": "경위서·설명서 같은 진술을 요구합니다.",
           "fields": {
             "unclear_requestTarget": "tgt_statement",
             "unclear_targetGroup": "grp_statement"
-          }
+          },
+          "description": "제가 쓴 설명이 나중에 근거가 될 수 있어서 신중히 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "직접 출석하거나 방문하라는 것입니다",
+          "label": "직접 출석하거나 방문하라고 합니다.",
           "fields": {
             "unclear_requestTarget": "tgt_appear",
             "unclear_targetGroup": "grp_appear"
-          }
+          },
+          "description": "장소와 일정을 따라야 하는 요구라서 응해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "사이트 접속이나 앱 설치입니다",
+          "label": "사이트 접속이나 앱 설치를 하라고 합니다.",
           "fields": {
             "unclear_requestTarget": "tgt_online",
             "unclear_targetGroup": "grp_online"
-          }
+          },
+          "description": "온라인 접속 요구라서 안전한 사이트인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1533,47 +1678,52 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q8_d",
       "route": "D",
       "phase": 2,
-      "prompt": "요구 내용은 얼마나 구체적으로 적혀 있나요?",
+      "prompt": "요구 내용은 얼마나 구체적으로 적혀 있고, 무엇을 내야 하는지 알 수 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "서류 목록과 제출 양식이 모두 있습니다",
+          "label": "서류 목록과 제출 양식이 모두 있습니다.",
           "fields": {
             "unclear_requestSpecificity": "spec_full",
             "unclear_listQuality": "list_clear"
-          }
+          },
+          "description": "구체적이어서 무엇을 내야 하는지 알 수 있고 양식도 확인할 수 있습니다."
         },
         {
           "value": "o2",
-          "label": "목록은 있지만 양식은 없습니다",
+          "label": "목록은 있지만 양식은 없습니다.",
           "fields": {
             "unclear_requestSpecificity": "spec_list_only",
             "unclear_listQuality": "list_partial"
-          }
+          },
+          "description": "일부만 구체적이어서 어떤 형식으로 내야 하는지 확인이 필요합니다."
         },
         {
           "value": "o3",
-          "label": "'관련 서류' 정도로만 적혀 있습니다",
+          "label": "'관련 서류' 정도로만 적혀 있습니다.",
           "fields": {
             "unclear_requestSpecificity": "spec_vague",
             "unclear_listQuality": "list_vague"
-          }
+          },
+          "description": "내용이 모호해서 정확히 무엇을 내야 하는지 알기 어렵습니다."
         },
         {
           "value": "o4",
-          "label": "무엇을 내야 하는지 적혀 있지 않습니다",
+          "label": "무엇을 내야 하는지 적혀 있지 않습니다.",
           "fields": {
             "unclear_requestSpecificity": "spec_none",
             "unclear_listQuality": "list_none"
-          }
+          },
+          "description": "요구 내용이 없어서 무엇을 요구하는 서류인지부터 확인해야 합니다."
         },
         {
           "value": "o5",
-          "label": "서류 요구 없이 연락하라고만 합니다",
+          "label": "서류 요구 없이 연락하라고만 합니다.",
           "fields": {
             "unclear_requestSpecificity": "spec_contact_only",
             "unclear_listQuality": "list_contact"
-          }
+          },
+          "description": "연락을 유도할 뿐 요구 내용이 없어서 연락해도 되는지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1586,55 +1736,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q9_d",
       "route": "D",
       "phase": 2,
-      "prompt": "제출이나 출석은 어떤 방법으로 하라고 되어 있나요?",
+      "prompt": "제출이나 출석은 어떤 방법으로 하라고 되어 있고, 그 방법은 공식적인 접수 방식인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "지정된 장소에 직접 방문하는 것입니다",
+          "label": "지정된 장소에 직접 방문하라고 합니다.",
           "fields": {
             "unclear_deliveryMethod": "deliver_visit",
             "unclear_deliveryGroup": "dgrp_formal"
-          }
+          },
+          "description": "대면이나 우편 같은 정식 접수 방식이라 그 장소가 실제 접수처인지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "우편이나 창구 접수입니다",
+          "label": "우편이나 창구 접수라고 합니다.",
           "fields": {
             "unclear_deliveryMethod": "deliver_post",
             "unclear_deliveryGroup": "dgrp_formal"
-          }
+          },
+          "description": "대면이나 우편 같은 정식 접수 방식이라 주소와 창구가 맞는지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "이메일이나 메신저로 보내라는 것입니다",
+          "label": "이메일이나 메신저로 보내라고 합니다.",
           "fields": {
             "unclear_deliveryMethod": "deliver_chat",
             "unclear_deliveryGroup": "dgrp_digital"
-          }
+          },
+          "description": "전자 전달 방식이라 받는 주소가 실제 담당 기관인지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "웹사이트에 올리라는 것입니다",
+          "label": "웹사이트에 올리라고 합니다.",
           "fields": {
             "unclear_deliveryMethod": "deliver_upload",
             "unclear_deliveryGroup": "dgrp_digital"
-          }
+          },
+          "description": "전자 전달 방식이라 그 사이트가 공식 사이트인지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "전화나 화상 통화로 하라는 것입니다",
+          "label": "전화나 화상 통화로 하라고 합니다.",
           "fields": {
             "unclear_deliveryMethod": "deliver_call",
             "unclear_deliveryGroup": "dgrp_digital"
-          }
+          },
+          "description": "전자 전달 방식이라 통화 상대가 실제 담당자인지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "방법이 적혀 있지 않습니다",
+          "label": "방법이 적혀 있지 않습니다.",
           "fields": {
             "unclear_deliveryMethod": "deliver_unstated",
             "unclear_deliveryGroup": "dgrp_unspecified"
-          }
+          },
+          "description": "어떻게 내야 하는지 알 수 없어서 공식 접수 방법부터 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -1647,55 +1803,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q10_d",
       "route": "D",
       "phase": 2,
-      "prompt": "서류나 연락에 어떤 압박이 있나요?",
+      "prompt": "서류나 연락에 어떤 압박이 있고, 그 압박은 얼마나 강하게 느껴지시나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "압박 없이 안내만 있습니다",
+          "label": "압박 없이 안내만 있습니다.",
           "fields": {
             "unclear_pressureType": "press_none",
             "unclear_pressureLevel": "lvl_none"
-          }
+          },
+          "description": "재촉이나 협박은 없어서 압박은 느끼지 않는 상태입니다."
         },
         {
           "value": "o2",
-          "label": "기한 안에 하라는 안내만 있습니다",
+          "label": "기한 안에 하라는 안내만 있습니다.",
           "fields": {
             "unclear_pressureType": "press_deadline",
             "unclear_pressureLevel": "lvl_low"
-          }
+          },
+          "description": "기한이 안내되어 있어 낮은 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o3",
-          "label": "연체료·가산금이나 법적 조치를 예고합니다",
+          "label": "연체료·가산금이나 법적 조치를 예고합니다.",
           "fields": {
             "unclear_pressureType": "press_legal",
             "unclear_pressureLevel": "lvl_mid"
-          }
+          },
+          "description": "불이익을 알려 와서 중간 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o4",
-          "label": "지금 바로 하지 않으면 안 된다고 재촉합니다",
+          "label": "지금 바로 하지 않으면 안 된다고 재촉합니다.",
           "fields": {
             "unclear_pressureType": "press_rush",
             "unclear_pressureLevel": "lvl_mid"
-          }
+          },
+          "description": "생각할 시간을 주지 않아 중간 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o5",
-          "label": "계좌 동결·체포·출국 금지 같은 강한 불이익을 말합니다",
+          "label": "계좌 동결·체포·출국 금지 같은 강한 불이익을 말합니다.",
           "fields": {
             "unclear_pressureType": "press_threat",
             "unclear_pressureLevel": "lvl_high"
-          }
+          },
+          "description": "공포를 주는 표현이라 매우 강한 압박으로 느껴집니다."
         },
         {
           "value": "o6",
-          "label": "다른 사람에게 말하지 말고 비밀로 하라고 합니다",
+          "label": "다른 사람에게 말하지 말고 비밀로 하라고 합니다.",
           "fields": {
             "unclear_pressureType": "press_secret",
             "unclear_pressureLevel": "lvl_high"
-          }
+          },
+          "description": "주변의 확인을 막으려는 듯해서 강한 압박으로 느껴집니다."
         }
       ],
       "directFields": {
@@ -1708,55 +1870,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q11_d",
       "route": "D",
       "phase": 2,
-      "prompt": "서류나 안내의 기한은 어떻게 되어 있나요?",
+      "prompt": "서류나 안내의 기한은 어떻게 되어 있고, 그 기한은 어디에서 나온 것인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기한이 적혀 있지 않습니다",
+          "label": "기한이 적혀 있지 않습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_none",
             "unclear_deadlineSource": "dls_none"
-          }
+          },
+          "description": "기한 표시가 서류에도 말에도 어디에도 없어서 기한이 있는지부터 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "서류에 날짜가 적혀 있고 아직 여유가 있습니다",
+          "label": "서류에 날짜가 적혀 있고 아직 여유가 있습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_far",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 시간이 있어서 차분히 확인할 수 있습니다."
         },
         {
           "value": "o3",
-          "label": "서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다",
+          "label": "서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_near",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 임박해서 서둘러 확인해야 합니다."
         },
         {
           "value": "o4",
-          "label": "서류에 적힌 기한이 이미 지났습니다",
+          "label": "서류에 적힌 기한이 이미 지났습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_passed",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 이미 지나서 이제 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "메시지나 말로만 기한을 알려 줬습니다",
+          "label": "메시지나 말로만 기한을 알려 줬습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_verbal",
             "unclear_deadlineSource": "dls_message"
-          }
+          },
+          "description": "서류가 아니라 메시지나 말로 들은 기한이라 근거가 있는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "기한이 있는 것 같은데 정확히 모릅니다",
+          "label": "기한이 있는 것 같은데 정확히 모릅니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_unclear",
             "unclear_deadlineSource": "dls_unknown"
-          }
+          },
+          "description": "기한의 출처와 날짜를 알 수 없어 서류에서 찾아보고 싶습니다."
         }
       ],
       "directFields": {
@@ -1769,55 +1937,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q12_d",
       "route": "D",
       "phase": 2,
-      "prompt": "지금까지 이 서류와 관련해 한 일이 있나요?",
+      "prompt": "지금까지 이 서류와 관련해 한 일은 무엇이고, 그로 인해 이미 생겼을 수 있는 위험은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "아무것도 하지 않았습니다",
+          "label": "아무것도 하지 않았습니다.",
           "fields": {
             "unclear_actionTaken": "act_nothing",
             "unclear_exposureLevel": "exp_none"
-          }
+          },
+          "description": "노출된 정보나 금전 위험은 없다고 보고, 앞으로 할 일을 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "보낸 곳에 문의만 했습니다",
+          "label": "보낸 곳에 문의만 했습니다.",
           "fields": {
             "unclear_actionTaken": "act_asked",
             "unclear_exposureLevel": "exp_low"
-          }
+          },
+          "description": "연락처가 알려졌을 수 있지만 노출은 적은 상태입니다."
         },
         {
           "value": "o3",
-          "label": "링크를 열었거나 앱을 설치했습니다",
+          "label": "링크를 열었거나 앱을 설치했습니다.",
           "fields": {
             "unclear_actionTaken": "act_clicked",
             "unclear_exposureLevel": "exp_mid"
-          }
+          },
+          "description": "제 기기나 정보가 노출되었을 가능성이 있는 상태입니다."
         },
         {
           "value": "o4",
-          "label": "개인정보나 서류를 이미 보냈습니다",
+          "label": "개인정보나 서류를 이미 보냈습니다.",
           "fields": {
             "unclear_actionTaken": "act_sent_info",
             "unclear_exposureLevel": "exp_info"
-          }
+          },
+          "description": "제 개인정보가 노출되어 악용될 수 있는 상태입니다."
         },
         {
           "value": "o5",
-          "label": "돈을 일부 또는 전부 보냈습니다",
+          "label": "돈을 일부 또는 전부 보냈습니다.",
           "fields": {
             "unclear_actionTaken": "act_sent_money",
             "unclear_exposureLevel": "exp_money"
-          }
+          },
+          "description": "이미 금전 피해가 생겼을 가능성이 있는 상태입니다."
         },
         {
           "value": "o6",
-          "label": "답장을 했거나 통화를 했습니다",
+          "label": "답장을 했거나 통화를 했습니다.",
           "fields": {
             "unclear_actionTaken": "act_replied",
             "unclear_exposureLevel": "exp_contact"
-          }
+          },
+          "description": "상대와 연락이 이어진 상태라 이후 연락에 주의가 필요합니다."
         }
       ],
       "directFields": {
@@ -1830,55 +2004,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q13_d",
       "route": "D",
       "phase": 2,
-      "prompt": "남아 있는 자료는 무엇인가요?",
+      "prompt": "남아 있는 자료는 무엇이고, 그 자료로 어디까지 확인할 수 있을 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "서류 원본을 가지고 있습니다",
+          "label": "서류 원본을 가지고 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_original",
             "unclear_evidenceState": "evs_strong"
-          }
+          },
+          "description": "자료가 충분해서 서류 내용을 직접 대조해 확인할 수 있을 것 같습니다."
         },
         {
           "value": "o2",
-          "label": "사진이나 캡처만 있습니다",
+          "label": "사진이나 캡처만 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_photo",
             "unclear_evidenceState": "evs_medium"
-          }
+          },
+          "description": "자료가 일부라서 서류 원본은 확인하기 어려울 수 있습니다."
         },
         {
           "value": "o3",
-          "label": "문자·메신저·통화 기록이 남아 있습니다",
+          "label": "문자·메신저·통화 기록이 남아 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_chat",
             "unclear_evidenceState": "evs_medium"
-          }
+          },
+          "description": "자료가 일부라서 연락이 오간 경위는 확인할 수 있습니다."
         },
         {
           "value": "o4",
-          "label": "송금 내역이나 영수증이 있습니다",
+          "label": "송금 내역이나 영수증이 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_payment",
             "unclear_evidenceState": "evs_strong"
-          }
+          },
+          "description": "자료가 충분해서 돈이 오간 흐름은 확인할 수 있을 것 같습니다."
         },
         {
           "value": "o5",
-          "label": "일부를 잃어버렸거나 지웠습니다",
+          "label": "일부를 잃어버렸거나 지웠습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_partial",
             "unclear_evidenceState": "evs_weak"
-          }
+          },
+          "description": "자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "남은 자료가 없습니다",
+          "label": "남은 자료가 없습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_none",
             "unclear_evidenceState": "evs_weak"
-          }
+          },
+          "description": "자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -1891,47 +2071,52 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q5_n",
       "route": "N",
       "phase": 2,
-      "prompt": "서류에 적힌 내 정보는 어떻게 되어 있나요?",
+      "prompt": "서류에 적힌 내 정보는 어떻게 되어 있고, 그 서류가 저를 정확히 지목한 것으로 보이나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "이름·회사명·주소가 모두 정확합니다",
+          "label": "이름·회사명·주소가 모두 정확합니다.",
           "fields": {
             "unclear_identityMatch": "id_exact",
             "unclear_aimHint": "aim_specific"
-          }
+          },
+          "description": "저를 정확히 지목한 서류로 보여서 내용을 자세히 확인해야 합니다."
         },
         {
           "value": "o2",
-          "label": "이름은 맞지만 주소나 번호가 일부 다릅니다",
+          "label": "이름은 맞지만 주소나 번호가 일부 다릅니다.",
           "fields": {
             "unclear_identityMatch": "id_partial",
             "unclear_aimHint": "aim_partial"
-          }
+          },
+          "description": "저를 일부만 특정한 서류로 보여서 어떻게 입수한 정보인지 궁금합니다."
         },
         {
           "value": "o3",
-          "label": "이름 없이 일반 호칭만 적혀 있습니다",
+          "label": "이름 없이 일반 호칭만 적혀 있습니다.",
           "fields": {
             "unclear_identityMatch": "id_generic",
             "unclear_aimHint": "aim_generic"
-          }
+          },
+          "description": "불특정 다수에게 보낸 서류일 수 있어 저와 관련이 있는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "다른 사람이나 다른 회사 이름이 적혀 있습니다",
+          "label": "다른 사람이나 다른 회사 이름이 적혀 있습니다.",
           "fields": {
             "unclear_identityMatch": "id_other",
             "unclear_aimHint": "aim_misdirected"
-          }
+          },
+          "description": "엉뚱한 수신이거나 잘못 보낸 것일 수 있어 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "적힌 정보를 아직 확인하지 않았습니다",
+          "label": "적힌 정보를 아직 확인하지 않았습니다.",
           "fields": {
             "unclear_identityMatch": "id_unchecked",
             "unclear_aimHint": "aim_unchecked"
-          }
+          },
+          "description": "제 정보와 맞는지부터 확인하고 서류가 저를 가리키는지 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -1944,55 +2129,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q6_n",
       "route": "N",
       "phase": 2,
-      "prompt": "서류나 연락에서 확인되는 요소는 무엇인가요?",
+      "prompt": "서류나 연락에서 확인되는 공식 요소는 무엇이고, 형식은 얼마나 갖춰져 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기관명·문서번호·날짜·직인이 모두 있습니다",
+          "label": "기관명·문서번호·날짜·직인이 모두 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_full",
             "unclear_formality": "fm_formal"
-          }
+          },
+          "description": "형식을 갖춘 서류로 보이지만 실제 발급되었는지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "그중 일부만 있습니다",
+          "label": "그중 일부만 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_partial",
             "unclear_formality": "fm_partial"
-          }
+          },
+          "description": "형식이 일부 부족한 서류로 보여서 어떤 요소가 빠졌는지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "모두 없고 문장만 있습니다",
+          "label": "모두 없고 문장만 있습니다.",
           "fields": {
             "unclear_authenticityMark": "mark_none",
             "unclear_formality": "fm_informal"
-          }
+          },
+          "description": "공식 서류에 있어야 할 요소가 없어서 공식 서류인지 의심됩니다."
         },
         {
           "value": "o4",
-          "label": "연락처가 개인 번호나 일반 이메일 주소입니다",
+          "label": "연락처가 개인 번호나 일반 이메일 주소입니다.",
           "fields": {
             "unclear_authenticityMark": "mark_personal_contact",
             "unclear_formality": "fm_informal"
-          }
+          },
+          "description": "기관의 공식 연락처가 아니어서 공식 서류인지 의심됩니다."
         },
         {
           "value": "o5",
-          "label": "링크나 큐알 코드로만 안내합니다",
+          "label": "링크나 큐알 코드로만 안내합니다.",
           "fields": {
             "unclear_authenticityMark": "mark_link_only",
             "unclear_formality": "fm_link"
-          }
+          },
+          "description": "링크로만 연결되어 서류 형식을 확인하기 어렵고 연결된 곳이 안전한지 알고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "문장이 번역투이거나 어색합니다",
+          "label": "문장이 번역투이거나 어색합니다.",
           "fields": {
             "unclear_authenticityMark": "mark_odd_text",
             "unclear_formality": "fm_odd"
-          }
+          },
+          "description": "문체가 어색해서 공식 서류인지, 외국어를 옮긴 것인지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -2005,47 +2196,52 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q7_n",
       "route": "N",
       "phase": 2,
-      "prompt": "서류 내용을 얼마나 이해하셨나요?",
+      "prompt": "서류 내용을 얼마나 이해하셨고, 읽는 데 어려움은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "대부분 이해했습니다",
+          "label": "대부분 이해했습니다.",
           "fields": {
             "unclear_understandingLevel": "und_most",
             "unclear_readability": "read_ok"
-          }
+          },
+          "description": "읽는 데 큰 문제는 없고 이해하지 못한 나머지 부분만 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "절반쯤 이해했습니다",
+          "label": "절반쯤 이해했습니다.",
           "fields": {
             "unclear_understandingLevel": "und_half",
             "unclear_readability": "read_ok"
-          }
+          },
+          "description": "읽는 데는 큰 문제가 없지만 나머지 절반이 중요한 내용인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "거의 이해하지 못했습니다",
+          "label": "거의 이해하지 못했습니다.",
           "fields": {
             "unclear_understandingLevel": "und_little",
             "unclear_readability": "read_hard"
-          }
+          },
+          "description": "내용이 어려워서 읽기 어렵고 어떤 서류인지부터 설명이 필요합니다."
         },
         {
           "value": "o4",
-          "label": "외국어라 읽기 어렵습니다",
+          "label": "외국어라 읽기 어렵습니다.",
           "fields": {
             "unclear_understandingLevel": "und_language",
             "unclear_readability": "read_lang"
-          }
+          },
+          "description": "언어 장벽 때문에 읽지 못해서 번역과 설명이 필요합니다."
         },
         {
           "value": "o5",
-          "label": "사진이 흐리거나 잘려 읽을 수 없습니다",
+          "label": "사진이 흐리거나 잘려 읽을 수 없습니다.",
           "fields": {
             "unclear_understandingLevel": "und_blurry",
             "unclear_readability": "read_blurry"
-          }
+          },
+          "description": "화질 문제로 읽을 수 없어서 다시 확인할 방법이 필요합니다."
         }
       ],
       "directFields": {
@@ -2058,55 +2254,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q8_n",
       "route": "N",
       "phase": 2,
-      "prompt": "서류에서 가장 눈에 띄는 것은 무엇인가요?",
+      "prompt": "서류에서 가장 눈에 띄는 것은 무엇이고, 그것은 어떤 성격의 정보인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법령 이름이나 조항 번호입니다",
+          "label": "법령 이름이나 조항 번호가 눈에 띕니다.",
           "fields": {
             "unclear_keyElement": "key_law",
             "unclear_elementGroup": "eg_legal"
-          }
+          },
+          "description": "법령과 관련된 내용이라 어떤 법을 근거로 한 것인지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "기관 이름입니다",
+          "label": "기관 이름이 눈에 띕니다.",
           "fields": {
             "unclear_keyElement": "key_agency",
             "unclear_elementGroup": "eg_agency"
-          }
+          },
+          "description": "기관과 관련된 내용이라 그 기관이 실제로 보낸 것인지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "문서번호·사건번호·세금번호 같은 번호입니다",
+          "label": "문서번호·사건번호·세금번호 같은 번호가 눈에 띕니다.",
           "fields": {
             "unclear_keyElement": "key_numbers",
             "unclear_elementGroup": "eg_numbers"
-          }
+          },
+          "description": "번호와 관련된 내용이라 그 번호가 실제 조회되는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "금액이나 계좌번호입니다",
+          "label": "금액이나 계좌번호가 눈에 띕니다.",
           "fields": {
             "unclear_keyElement": "key_money",
             "unclear_elementGroup": "eg_money"
-          }
+          },
+          "description": "금전과 관련된 내용이라 내야 하는 돈인지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "날짜나 기한입니다",
+          "label": "날짜나 기한이 눈에 띕니다.",
           "fields": {
             "unclear_keyElement": "key_date",
             "unclear_elementGroup": "eg_date"
-          }
+          },
+          "description": "기한과 관련된 내용이라 언제까지 무엇을 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "링크나 전화번호뿐입니다",
+          "label": "링크나 전화번호뿐입니다.",
           "fields": {
             "unclear_keyElement": "key_contact",
             "unclear_elementGroup": "eg_contact"
-          }
+          },
+          "description": "연락처만 있어서 내용을 알기 어렵고 연락해도 되는지 확인하고 싶습니다."
         }
       ],
       "directFields": {
@@ -2119,47 +2321,52 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q9_n",
       "route": "N",
       "phase": 2,
-      "prompt": "읽어 본 느낌으로는 무엇을 요구하는 것 같나요?",
+      "prompt": "읽어 본 느낌으로는 무엇을 요구하는 것 같고, 그렇게 느낀 이유는 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "돈을 내라는 것 같습니다",
+          "label": "돈을 내라는 것 같습니다.",
           "fields": {
             "unclear_impliedRequest": "imp_money",
             "unclear_requestHint": "hint_pay"
-          }
+          },
+          "description": "금액이나 납부 안내가 보이는 듯해서 정말 내야 하는 돈인지 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "서류를 내거나 출석하라는 것 같습니다",
+          "label": "서류를 내거나 출석하라는 것 같습니다.",
           "fields": {
             "unclear_impliedRequest": "imp_submit",
             "unclear_requestHint": "hint_submit"
-          }
+          },
+          "description": "제출이나 방문을 요구하는 듯해서 응해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o3",
-          "label": "그냥 알려 주는 내용 같습니다",
+          "label": "그냥 알려 주는 내용 같습니다.",
           "fields": {
             "unclear_impliedRequest": "imp_notice",
             "unclear_requestHint": "hint_notice"
-          }
+          },
+          "description": "안내 성격으로 보여서 아무것도 하지 않아도 되는지 확인하고 싶습니다."
         },
         {
           "value": "o4",
-          "label": "연락하라는 말뿐입니다",
+          "label": "연락하라는 말뿐입니다.",
           "fields": {
             "unclear_impliedRequest": "imp_contact",
             "unclear_requestHint": "hint_contact"
-          }
+          },
+          "description": "연락을 유도하는 내용이라 연락해도 되는지부터 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "판단하기 어렵습니다",
+          "label": "판단하기 어렵습니다.",
           "fields": {
             "unclear_impliedRequest": "imp_unknown",
             "unclear_requestHint": "hint_unknown"
-          }
+          },
+          "description": "무엇을 요구하는지 알 수 없어서 서류의 성격부터 구분해서 알고 싶습니다."
         }
       ],
       "directFields": {
@@ -2172,55 +2379,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q10_n",
       "route": "N",
       "phase": 2,
-      "prompt": "서류나 연락에 어떤 압박이 있나요?",
+      "prompt": "서류나 연락에 어떤 압박이 있고, 그 압박은 얼마나 강하게 느껴지시나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "압박 없이 안내만 있습니다",
+          "label": "압박 없이 안내만 있습니다.",
           "fields": {
             "unclear_pressureType": "press_none",
             "unclear_pressureLevel": "lvl_none"
-          }
+          },
+          "description": "재촉이나 협박은 없어서 압박은 느끼지 않는 상태입니다."
         },
         {
           "value": "o2",
-          "label": "기한 안에 하라는 안내만 있습니다",
+          "label": "기한 안에 하라는 안내만 있습니다.",
           "fields": {
             "unclear_pressureType": "press_deadline",
             "unclear_pressureLevel": "lvl_low"
-          }
+          },
+          "description": "기한이 안내되어 있어 낮은 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o3",
-          "label": "연체료·가산금이나 법적 조치를 예고합니다",
+          "label": "연체료·가산금이나 법적 조치를 예고합니다.",
           "fields": {
             "unclear_pressureType": "press_legal",
             "unclear_pressureLevel": "lvl_mid"
-          }
+          },
+          "description": "불이익을 알려 와서 중간 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o4",
-          "label": "지금 바로 하지 않으면 안 된다고 재촉합니다",
+          "label": "지금 바로 하지 않으면 안 된다고 재촉합니다.",
           "fields": {
             "unclear_pressureType": "press_rush",
             "unclear_pressureLevel": "lvl_mid"
-          }
+          },
+          "description": "생각할 시간을 주지 않아 중간 정도의 압박으로 느껴집니다."
         },
         {
           "value": "o5",
-          "label": "계좌 동결·체포·출국 금지 같은 강한 불이익을 말합니다",
+          "label": "계좌 동결·체포·출국 금지 같은 강한 불이익을 말합니다.",
           "fields": {
             "unclear_pressureType": "press_threat",
             "unclear_pressureLevel": "lvl_high"
-          }
+          },
+          "description": "공포를 주는 표현이라 매우 강한 압박으로 느껴집니다."
         },
         {
           "value": "o6",
-          "label": "다른 사람에게 말하지 말고 비밀로 하라고 합니다",
+          "label": "다른 사람에게 말하지 말고 비밀로 하라고 합니다.",
           "fields": {
             "unclear_pressureType": "press_secret",
             "unclear_pressureLevel": "lvl_high"
-          }
+          },
+          "description": "주변의 확인을 막으려는 듯해서 강한 압박으로 느껴집니다."
         }
       ],
       "directFields": {
@@ -2233,55 +2446,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q11_n",
       "route": "N",
       "phase": 2,
-      "prompt": "서류나 안내의 기한은 어떻게 되어 있나요?",
+      "prompt": "서류나 안내의 기한은 어떻게 되어 있고, 그 기한은 어디에서 나온 것인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "기한이 적혀 있지 않습니다",
+          "label": "기한이 적혀 있지 않습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_none",
             "unclear_deadlineSource": "dls_none"
-          }
+          },
+          "description": "기한 표시가 서류에도 말에도 어디에도 없어서 기한이 있는지부터 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "서류에 날짜가 적혀 있고 아직 여유가 있습니다",
+          "label": "서류에 날짜가 적혀 있고 아직 여유가 있습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_far",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 시간이 있어서 차분히 확인할 수 있습니다."
         },
         {
           "value": "o3",
-          "label": "서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다",
+          "label": "서류에 날짜가 적혀 있고 사흘 안으로 가깝습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_near",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 임박해서 서둘러 확인해야 합니다."
         },
         {
           "value": "o4",
-          "label": "서류에 적힌 기한이 이미 지났습니다",
+          "label": "서류에 적힌 기한이 이미 지났습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_passed",
             "unclear_deadlineSource": "dls_doc"
-          }
+          },
+          "description": "서류에 적힌 기한이고 이미 지나서 이제 어떻게 해야 하는지 확인하고 싶습니다."
         },
         {
           "value": "o5",
-          "label": "메시지나 말로만 기한을 알려 줬습니다",
+          "label": "메시지나 말로만 기한을 알려 줬습니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_verbal",
             "unclear_deadlineSource": "dls_message"
-          }
+          },
+          "description": "서류가 아니라 메시지나 말로 들은 기한이라 근거가 있는지 확인하고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "기한이 있는 것 같은데 정확히 모릅니다",
+          "label": "기한이 있는 것 같은데 정확히 모릅니다.",
           "fields": {
             "unclear_deadlineStatus": "dl_unclear",
             "unclear_deadlineSource": "dls_unknown"
-          }
+          },
+          "description": "기한의 출처와 날짜를 알 수 없어 서류에서 찾아보고 싶습니다."
         }
       ],
       "directFields": {
@@ -2294,55 +2513,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q12_n",
       "route": "N",
       "phase": 2,
-      "prompt": "지금까지 이 서류와 관련해 한 일이 있나요?",
+      "prompt": "지금까지 이 서류와 관련해 한 일은 무엇이고, 그로 인해 이미 생겼을 수 있는 위험은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "아무것도 하지 않았습니다",
+          "label": "아무것도 하지 않았습니다.",
           "fields": {
             "unclear_actionTaken": "act_nothing",
             "unclear_exposureLevel": "exp_none"
-          }
+          },
+          "description": "노출된 정보나 금전 위험은 없다고 보고, 앞으로 할 일을 확인하고 싶습니다."
         },
         {
           "value": "o2",
-          "label": "보낸 곳에 문의만 했습니다",
+          "label": "보낸 곳에 문의만 했습니다.",
           "fields": {
             "unclear_actionTaken": "act_asked",
             "unclear_exposureLevel": "exp_low"
-          }
+          },
+          "description": "연락처가 알려졌을 수 있지만 노출은 적은 상태입니다."
         },
         {
           "value": "o3",
-          "label": "링크를 열었거나 앱을 설치했습니다",
+          "label": "링크를 열었거나 앱을 설치했습니다.",
           "fields": {
             "unclear_actionTaken": "act_clicked",
             "unclear_exposureLevel": "exp_mid"
-          }
+          },
+          "description": "제 기기나 정보가 노출되었을 가능성이 있는 상태입니다."
         },
         {
           "value": "o4",
-          "label": "개인정보나 서류를 이미 보냈습니다",
+          "label": "개인정보나 서류를 이미 보냈습니다.",
           "fields": {
             "unclear_actionTaken": "act_sent_info",
             "unclear_exposureLevel": "exp_info"
-          }
+          },
+          "description": "제 개인정보가 노출되어 악용될 수 있는 상태입니다."
         },
         {
           "value": "o5",
-          "label": "돈을 일부 또는 전부 보냈습니다",
+          "label": "돈을 일부 또는 전부 보냈습니다.",
           "fields": {
             "unclear_actionTaken": "act_sent_money",
             "unclear_exposureLevel": "exp_money"
-          }
+          },
+          "description": "이미 금전 피해가 생겼을 가능성이 있는 상태입니다."
         },
         {
           "value": "o6",
-          "label": "답장을 했거나 통화를 했습니다",
+          "label": "답장을 했거나 통화를 했습니다.",
           "fields": {
             "unclear_actionTaken": "act_replied",
             "unclear_exposureLevel": "exp_contact"
-          }
+          },
+          "description": "상대와 연락이 이어진 상태라 이후 연락에 주의가 필요합니다."
         }
       ],
       "directFields": {
@@ -2355,55 +2580,61 @@ export const UNCLEAR_CONTENT_FINAL = {
       "id": "unclear_q13_n",
       "route": "N",
       "phase": 2,
-      "prompt": "남아 있는 자료는 무엇인가요?",
+      "prompt": "남아 있는 자료는 무엇이고, 그 자료로 어디까지 확인할 수 있을 것 같나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "서류 원본을 가지고 있습니다",
+          "label": "서류 원본을 가지고 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_original",
             "unclear_evidenceState": "evs_strong"
-          }
+          },
+          "description": "자료가 충분해서 서류 내용을 직접 대조해 확인할 수 있을 것 같습니다."
         },
         {
           "value": "o2",
-          "label": "사진이나 캡처만 있습니다",
+          "label": "사진이나 캡처만 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_photo",
             "unclear_evidenceState": "evs_medium"
-          }
+          },
+          "description": "자료가 일부라서 서류 원본은 확인하기 어려울 수 있습니다."
         },
         {
           "value": "o3",
-          "label": "문자·메신저·통화 기록이 남아 있습니다",
+          "label": "문자·메신저·통화 기록이 남아 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_chat",
             "unclear_evidenceState": "evs_medium"
-          }
+          },
+          "description": "자료가 일부라서 연락이 오간 경위는 확인할 수 있습니다."
         },
         {
           "value": "o4",
-          "label": "송금 내역이나 영수증이 있습니다",
+          "label": "송금 내역이나 영수증이 있습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_payment",
             "unclear_evidenceState": "evs_strong"
-          }
+          },
+          "description": "자료가 충분해서 돈이 오간 흐름은 확인할 수 있을 것 같습니다."
         },
         {
           "value": "o5",
-          "label": "일부를 잃어버렸거나 지웠습니다",
+          "label": "일부를 잃어버렸거나 지웠습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_partial",
             "unclear_evidenceState": "evs_weak"
-          }
+          },
+          "description": "자료가 부족해서 복구하거나 보완할 수 있는 방법을 알고 싶습니다."
         },
         {
           "value": "o6",
-          "label": "남은 자료가 없습니다",
+          "label": "남은 자료가 없습니다.",
           "fields": {
             "unclear_evidenceKind": "ev_none",
             "unclear_evidenceState": "evs_weak"
-          }
+          },
+          "description": "자료가 부족해서 지금부터 무엇을 모아 두어야 하는지 알고 싶습니다."
         }
       ],
       "directFields": {

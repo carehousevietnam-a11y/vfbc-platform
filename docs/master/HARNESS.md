@@ -24,6 +24,7 @@
    - pdf-duplicate: PDF 추출 텍스트의 같은 문단
    - question-count-hardcode: content-final 테스트의 질문 수 숫자 고정
    - question-range: 콘텐츠 문서의 질문 번호 범위
+   - question-standard: 사기·불확실한 문서 질문의 쉼표, 굵은 요점, 45자, 마침표, 필드 2개, 선택지 4개와 직접 입력, 문서와 팩의 개수 일치. 세금 팩은 같은 검사를 돌리되 실패해도 막지 않고 알려진 기존 실패로만 센다.
 
 ## 사기·불확실한 문서
 

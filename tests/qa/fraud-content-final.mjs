@@ -1,5 +1,5 @@
 /**
- * FRAUD_CONTENT_V2.md ↔ fraud pack.
+ * FRAUD_CONTENT_V3.md ↔ fraud pack.
  * Counts come from the document and the pack, not from fixed literals.
  * Run: node tests/qa/fraud-content-final.mjs
  */
@@ -21,7 +21,7 @@ const { buildMypagePdfBytesForQaHarness } = await import("../../src/lib/mypagePd
 const { ADMIN_VERIFY_ANSWERS_META_JSON_KEY, getAdminChoiceNoteKey } = await import("../../src/lib/adminVerifyProfiling.ts");
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const md = fs.readFileSync(path.join(repoRoot, "docs/master/content/FRAUD_CONTENT_V2.md"), "utf8");
+const md = fs.readFileSync(path.join(repoRoot, "docs/master/content/FRAUD_CONTENT_V3.md"), "utf8");
 const parsed = parseFraudContentFinal(md);
 const audit = parseFraudAuditTable(md);
 const bridge = createFraudVerifyMasterPackBridge();
@@ -29,7 +29,7 @@ const failures = [];
 const fail = (message) => failures.push(message);
 
 if (JSON.stringify(parsed) !== JSON.stringify(FRAUD_CONTENT_FINAL)) {
-  fail("fraud pack data does not match FRAUD_CONTENT_V2.md");
+  fail("fraud pack data does not match FRAUD_CONTENT_V3.md");
 }
 
 const routes = [...new Set(parsed.questions.map((question) => question.route))];
@@ -76,9 +76,9 @@ for (const route of routes) {
   if (optionTotal !== expectedOptions) fail(`${route} options ${optionTotal} != document ${expectedOptions}`);
   for (const question of [...phase1, ...phase2]) {
     if (question.choices.length < 4) fail(`${question.code} choices ${question.choices.length}`);
-    if (Object.keys(question.directFields).length < 2) fail(`${question.code} direct fields`);
+    if (Object.keys(question.directFields).length !== 2) fail(`${question.code} direct fields`);
     for (const choice of question.choices) {
-      if (Object.keys(choice.fields).length < 2) fail(`${question.code} stored fields`);
+      if (Object.keys(choice.fields).length !== 2) fail(`${question.code} stored fields`);
     }
   }
 }
@@ -109,7 +109,10 @@ parsed.entry.choices.forEach((choice) => {
 });
 for (const question of parsed.questions) {
   pushText(question.prompt);
-  question.choices.forEach((choice) => pushText(choice.label));
+  question.choices.forEach((choice) => {
+    pushText(choice.label);
+    pushText(choice.description);
+  });
 }
 for (const route of routes) {
   const first = parsed.firstResult[route];

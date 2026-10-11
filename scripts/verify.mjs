@@ -12,6 +12,8 @@ import {
   internalTermHits,
   questionCountHardcodeHits,
   questionRangeHits,
+  questionStandardHits,
+  taxQuestionStandardHits,
 } from "./harness-recurrence.mjs";
 import { sharedDeletionFiles } from "./harness-shared-diff.mjs";
 
@@ -94,6 +96,7 @@ const recurrence = [
   ["pdf-duplicate", duplicateParagraphHits],
   ["question-count-hardcode", questionCountHardcodeHits],
   ["question-range", questionRangeHits],
+  ["question-standard", questionStandardHits],
 ];
 for (const [name, check] of recurrence) {
   try {
@@ -109,6 +112,20 @@ for (const [name, check] of recurrence) {
     log.write(`${name} ${error.message}\n`);
     fail += 1;
   }
+}
+
+try {
+  const taxHits = taxQuestionStandardHits();
+  if (taxHits.length) {
+    log.write(`tax-question-standard ${taxHits.length} ${taxHits[0]}\n`);
+    known += 1;
+  } else {
+    log.write("tax-question-standard 0\n");
+    pass += 1;
+  }
+} catch (error) {
+  log.write(`tax-question-standard ${error.message}\n`);
+  known += 1;
 }
 
 const knownChecks = [

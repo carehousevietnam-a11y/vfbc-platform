@@ -37,8 +37,8 @@ function checkPack(name, pack) {
   }
 }
 
-checkPack("fraud", parseFraudContentFinal(read("docs/master/content/FRAUD_CONTENT_V2.md")));
-checkPack("unclear", parseUnclearContentFinal(read("docs/master/content/UNCLEAR_CONTENT_V2.md")));
+checkPack("fraud", parseFraudContentFinal(read("docs/master/content/FRAUD_CONTENT_V3.md")));
+checkPack("unclear", parseUnclearContentFinal(read("docs/master/content/UNCLEAR_CONTENT_V3.md")));
 
 const report = read("src/components/cost-check/MasterReviewQuotationReport.tsx");
 const fnStart = report.indexOf("function renderAdminClassifiedChoiceQuestion");

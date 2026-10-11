@@ -1,5 +1,5 @@
 /**
- * Parse docs/master/content/FRAUD_CONTENT_V2.md into the fraud pack data shape.
+ * Parse docs/master/content/FRAUD_CONTENT_V3.md into the fraud pack data shape.
  * Run: node scripts/parse-fraud-content-final.mjs --write
  */
 import fs from "node:fs";
@@ -7,7 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const mdPath = path.join(repoRoot, "docs/master/content/FRAUD_CONTENT_V2.md");
+const mdPath = path.join(repoRoot, "docs/master/content/FRAUD_CONTENT_V3.md");
 const outPath = path.join(repoRoot, "src/lib/contentPacks/fraud/fraudContentFinal.data.ts");
 
 export function stripCustomerMarkup(text) {
@@ -66,6 +66,25 @@ function customerBlock(section) {
   return section.slice(start + "**고객 화면**".length, end).trim();
 }
 
+function splitBoldChoice(raw) {
+  const text = raw.replace(/\u00a0/g, " ").trim();
+  const plain = text.replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
+  if (plain === "직접 입력") return null;
+  const match = text.match(/\*\*([^*]+)\*\*/);
+  if (!match) return { label: plain, description: "" };
+  const point = match[1].trim();
+  const rawRest = text.slice(text.indexOf(match[0]) + match[0].length);
+  const spaced = /^\s/.test(rawRest);
+  const rest = rawRest.replace(/\s+/g, " ").trim();
+  const join = (head) => (spaced ? `${point} ${head}` : `${point}${head}`).replace(/\s+/g, " ").trim();
+  const period = rest.indexOf(".");
+  const after = period >= 0 ? rest.slice(period + 1).trim() : "";
+  if (period >= 0 && after) {
+    return { label: join(rest.slice(0, period + 1)), description: after };
+  }
+  return { label: point, description: rest };
+}
+
 function parseCustomerScreen(section) {
   const block = customerBlock(section);
   const lines = block
@@ -74,13 +93,21 @@ function parseCustomerScreen(section) {
     .filter(Boolean);
   const promptParts = [];
   const options = [];
+  let seenOption = false;
   for (const line of lines) {
     const option = line.match(/^[①②③④⑤⑥⑦⑧⑨]\s+(.+)$/);
     if (option) {
-      options.push(stripCustomerMarkup(option[1]));
+      seenOption = true;
+      const split = splitBoldChoice(option[1]);
+      if (split) options.push(split);
       continue;
     }
-    promptParts.push(stripCustomerMarkup(line));
+    const text = stripCustomerMarkup(line);
+    if (!seenOption) promptParts.push(text);
+    else if (options.length > 0) {
+      const last = options[options.length - 1];
+      last.description = last.description ? `${last.description} ${text}` : text;
+    }
   }
   return { prompt: promptParts.join("\n"), options };
 }
@@ -101,12 +128,12 @@ function parseQuestion(code, section, phase) {
     choices.push({ value: `o${choices.length + 1}`, label: "", fields });
   });
   if (!directFields) throw new Error(`missing direct input fields for ${code}`);
-  const numbered = options.filter((label) => !/^직접 입력$/.test(label));
-  if (numbered.length !== choices.length) {
-    throw new Error(`${code}: screen options ${numbered.length} != stored choices ${choices.length}`);
+  if (options.length !== choices.length) {
+    throw new Error(`${code}: screen options ${options.length} != stored choices ${choices.length}`);
   }
   choices.forEach((choice, index) => {
-    choice.label = numbered[index];
+    choice.label = options[index].label;
+    if (options[index].description) choice.description = options[index].description;
   });
   return {
     code,
@@ -531,7 +558,7 @@ export function parseFraudContentFinal(md) {
 }
 
 function emit(data) {
-  return `/* Generated from docs/master/content/FRAUD_CONTENT_V2.md. Do not edit sentences. */\nexport const FRAUD_CONTENT_FINAL = ${JSON.stringify(data, null, 2)} as const;\n`;
+  return `/* Generated from docs/master/content/FRAUD_CONTENT_V3.md. Do not edit sentences. */\nexport const FRAUD_CONTENT_FINAL = ${JSON.stringify(data, null, 2)} as const;\n`;
 }
 
 function main() {

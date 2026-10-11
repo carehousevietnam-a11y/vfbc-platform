@@ -14,6 +14,8 @@ import {
 const ADMIN_VERIFY_SERVICE_TYPE = "verify_admin";
 const REAL_ESTATE_VERIFY_SERVICE_TYPE = "verify_real-estate";
 const TAX_VERIFY_SERVICE_TYPE = "verify_tax";
+const FRAUD_VERIFY_SERVICE_TYPE = "verify_fraud";
+const UNCLEAR_VERIFY_SERVICE_TYPE = "verify_unclear";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -42,6 +44,28 @@ const TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "tax_pack_phase2_summary",
   "tax_pack_caution_count",
   "tax_pack_headline",
+]);
+
+const FRAUD_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "fraud_pack_v1",
+  "fraud_pack_case_id",
+  "fraud_pack_phase2_summary",
+  "fraud_pack_headline",
+]);
+
+const UNCLEAR_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "unclear_pack_v1",
+  "unclear_pack_case_id",
+  "unclear_pack_phase2_summary",
+  "unclear_pack_headline",
 ]);
 
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
@@ -142,7 +166,9 @@ export async function POST(req: NextRequest) {
     const isAdminLead = lead.service_type === ADMIN_VERIFY_SERVICE_TYPE;
     const isRealEstateLead = lead.service_type === REAL_ESTATE_VERIFY_SERVICE_TYPE;
     const isTaxLead = lead.service_type === TAX_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead && !isTaxLead) {
+    const isFraudLead = lead.service_type === FRAUD_VERIFY_SERVICE_TYPE;
+    const isUnclearLead = lead.service_type === UNCLEAR_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -157,7 +183,11 @@ export async function POST(req: NextRequest) {
       ? ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS
       : isRealEstateLead
         ? REAL_ESTATE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
-        : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+        : isFraudLead
+          ? FRAUD_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+          : isUnclearLead
+            ? UNCLEAR_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+            : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {
