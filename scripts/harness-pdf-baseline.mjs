@@ -193,7 +193,8 @@ function writeBaseline(texts) {
 
 // pypdf 버전마다 줄바꿈과 공백 추출이 달라지므로, 비교는 공백을 모두 뺀 글자만 본다.
 function compact(text) {
-  return String(text ?? "").replace(/\s+/g, "");
+  // 발급일은 실행한 날짜가 들어가므로 비교에서 뺀다.
+  return String(text ?? "").replace(/\s+/g, "").replace(/발급일\d{4}\.\d{2}\.\d{2}/g, "발급일");
 }
 
 function mismatches(actual, expected) {
