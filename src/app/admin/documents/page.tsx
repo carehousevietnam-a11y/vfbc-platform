@@ -109,6 +109,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_trc: "거주증 직접 확인",
   verify_wp: "노동허가 직접 확인",
   verify_tamtru: "임시 거주 신고 직접 확인",
+  verify_license: "운전면허 전환 직접 확인",
 };
 
 function getServiceLabel(serviceType: string): string {

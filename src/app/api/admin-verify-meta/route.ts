@@ -19,6 +19,7 @@ const UNCLEAR_VERIFY_SERVICE_TYPE = "verify_unclear";
 const TRC_VERIFY_SERVICE_TYPE = "verify_trc";
 const WP_VERIFY_SERVICE_TYPE = "verify_wp";
 const TAMTRU_VERIFY_SERVICE_TYPE = "verify_tamtru";
+const LICENSE_VERIFY_SERVICE_TYPE = "verify_license";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -102,6 +103,17 @@ const TAMTRU_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "tamtru_pack_case_id",
   "tamtru_pack_phase2_summary",
   "tamtru_pack_headline",
+]);
+
+const LICENSE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "license_pack_v1",
+  "license_pack_case_id",
+  "license_pack_phase2_summary",
+  "license_pack_headline",
 ]);
 
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
@@ -207,7 +219,8 @@ export async function POST(req: NextRequest) {
     const isTrcLead = lead.service_type === TRC_VERIFY_SERVICE_TYPE;
     const isWpLead = lead.service_type === WP_VERIFY_SERVICE_TYPE;
     const isTamtruLead = lead.service_type === TAMTRU_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead) {
+    const isLicenseLead = lead.service_type === LICENSE_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead && !isLicenseLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -232,7 +245,9 @@ export async function POST(req: NextRequest) {
                 ? WP_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
                 : isTamtruLead
                   ? TAMTRU_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
-                  : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+                  : isLicenseLead
+                    ? LICENSE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                    : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {

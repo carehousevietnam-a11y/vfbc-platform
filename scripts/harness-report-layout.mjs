@@ -17,6 +17,7 @@ const unclear = await import("../src/lib/contentPacks/unclear/unclearPack.ts");
 const trc = await import("../src/lib/contentPacks/trc/trcPack.ts");
 const wp = await import("../src/lib/contentPacks/wp/wpPack.ts");
 const tamtru = await import("../src/lib/contentPacks/tamtru/tamtruPack.ts");
+const license = await import("../src/lib/contentPacks/license/licensePack.ts");
 const { ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY } = await import("../src/lib/adminVerifyProfiling.ts");
 
 const leadId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
@@ -27,6 +28,7 @@ const jobs = [
   ["trc", "verify_trc", trc.TRC_CONTENT_FINAL, trc.buildTrcPhase2PersistMeta],
   ["wp", "verify_wp", wp.WP_CONTENT_FINAL, wp.buildWpPhase2PersistMeta],
   ["tamtru", "verify_tamtru", tamtru.TAMTRU_CONTENT_FINAL, tamtru.buildTamtruPhase2PersistMeta],
+  ["license", "verify_license", license.LICENSE_CONTENT_FINAL, license.buildLicensePhase2PersistMeta],
 ];
 
 function pageOneText(pdfPath) {

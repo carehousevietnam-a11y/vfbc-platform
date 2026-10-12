@@ -22,6 +22,7 @@ const WATCHED = [
   "tests/qa/trc-content-final.mjs",
   "tests/qa/wp-content-final.mjs",
   "tests/qa/tamtru-content-final.mjs",
+  "tests/qa/license-content-final.mjs",
 ];
 
 const DB_WRITE = [

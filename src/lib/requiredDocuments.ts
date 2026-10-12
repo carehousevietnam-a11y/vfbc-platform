@@ -20,6 +20,7 @@ export type DocumentServiceKey =
   | "verify_trc"
   | "verify_wp"
   | "verify_tamtru"
+  | "verify_license"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -139,6 +140,17 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_license: {
+    serviceKey: "verify_license",
+    serviceLabel: "운전면허 전환 직접 확인",
+    documents: ["본국 운전면허증 사본", "거주증 등 체류 서류 사본"],
+    optionalDocuments: [
+      "면허 번역 공증본",
+      "건강검진서",
+      "여권 사본",
       "기타 참고자료",
     ],
   },

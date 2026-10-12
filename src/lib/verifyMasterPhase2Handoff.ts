@@ -48,6 +48,11 @@ const VERIFY_PHASE2_HANDOFF: Partial<Record<VerifyServiceType, VerifyPhase2Hando
     documentsServiceParam: "verify_tamtru",
     verifyReturnPath: "/verify/tamtru",
   },
+  verify_license: {
+    snapshotStorageKey: "vfbcai_license_verify_phase2_snapshot",
+    documentsServiceParam: "verify_license",
+    verifyReturnPath: "/verify/license",
+  },
 };
 
 export const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY =
