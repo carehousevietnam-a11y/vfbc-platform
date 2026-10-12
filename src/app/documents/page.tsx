@@ -1577,8 +1577,8 @@ function DocumentUploadContent() {
           <div className="flex items-center gap-2">
             <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={32} height={32} className="shrink-0" />
             <div>
-              <p className="text-[15px] font-bold leading-tight text-[#071A33]">VFBCAI</p>
-              <p className="text-[10px] leading-tight text-[#6B7A90]">Check. Verify. Register. Protect.</p>
+              <p className="text-[15px] font-bold leading-tight text-[#071A33]">MY VIET CHECK</p>
+              <p className="text-[10px] leading-tight text-[#6B7A90]">by VFBCAI</p>
             </div>
           </div>
         </div>
@@ -1588,8 +1588,8 @@ function DocumentUploadContent() {
           <div className="flex items-center gap-2.5">
             <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={30} height={30} className="shrink-0" />
             <div>
-              <p className="text-lg font-bold leading-tight text-[#071A33]">VFBCAI</p>
-              <p className="text-[11px] leading-tight text-[#6B7A90]">Check. Verify. Register. Protect.</p>
+              <p className="text-lg font-bold leading-tight text-[#071A33]">MY VIET CHECK</p>
+              <p className="text-[11px] leading-tight text-[#6B7A90]">by VFBCAI</p>
             </div>
           </div>
           <button

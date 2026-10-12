@@ -85,8 +85,8 @@ export default function FunnelPageHeader({
               className="shrink-0"
             />
             <span className="text-center">
-              <span className="block text-[15px] font-bold leading-tight text-gray-900">VFBCAI</span>
-              <span className="block text-[11px] leading-tight text-gray-400">{copy.expert}</span>
+              <span className="block text-[15px] font-bold leading-tight text-[#071A33]">MY VIET CHECK</span>
+              <span className="block text-[11px] leading-tight text-[#6B7A90]">by VFBCAI</span>
             </span>
           </Link>
 

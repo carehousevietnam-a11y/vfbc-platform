@@ -44,7 +44,6 @@ import {
   Shield,
   ShieldAlert,
   Sparkles,
-  Star,
   Stethoscope,
   Sun,
   Upload,
@@ -363,10 +362,8 @@ function BrandLogo() {
     <Link href="/" className="flex items-center gap-3">
       <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={38} height={38} />
       <div>
-        <p className="text-[19px] font-extrabold tracking-[-0.03em] text-[#071A33]">VFBCAI</p>
-        <p className="text-[9px] font-medium tracking-[-0.01em] text-[#6B7A90]">
-          Check. Verify. Register. Protect.
-        </p>
+        <p className="text-[17px] font-extrabold leading-tight tracking-[-0.02em] text-[#071A33]">MY VIET CHECK</p>
+        <p className="mt-0.5 text-[11px] font-medium leading-tight text-[#6B7A90]">by VFBCAI</p>
       </div>
     </Link>
   );
@@ -386,12 +383,12 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar({ messageHref }: { messageHref: string }) {
   return (
-    <aside className="hidden w-[220px] shrink-0 border-r border-[#E3E8F0] bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
-      <div className="px-5 pt-4">
+    <aside className="hidden w-[240px] shrink-0 border-r border-[#E3E8F0] bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
+      <div className="px-6 pt-5">
         <BrandLogo />
       </div>
 
-      <nav className="mt-4 space-y-1 px-4">
+      <nav className="mt-6 space-y-1 px-4">
         {SIDEBAR_ITEMS.map((item) => (
           <Link
             key={item.label}
@@ -415,15 +412,15 @@ function DesktopSidebar({ messageHref }: { messageHref: string }) {
         ))}
       </nav>
 
-      <div className="mt-auto p-3">
-        <div className="rounded-[14px] bg-white p-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white">
-            <FolderLock size={17} className="text-[#071A33]" />
+      <div className="mt-auto p-4">
+        <div className="flex items-start gap-3 rounded-[14px] border border-[#E3E8F0] bg-[#F7F9FC] p-4">
+          <FolderLock size={18} className="mt-0.5 shrink-0 text-[#2563EB]" />
+          <div>
+            <p className="text-[13px] font-bold text-[#071A33]">보안 안전 지갑</p>
+            <p className="mt-1 text-[12px] leading-[18px] text-[#6B7A90]">
+              중요 자료는 암호화되어 안전하게 관리됩니다.
+            </p>
           </div>
-          <p className="mt-2 text-sm font-bold text-[#071A33]">보안 안전 지갑</p>
-          <p className="mt-1 text-[11px] leading-[15px] text-[#6B7A90]">
-            고객님의 중요 자료는 암호화되어 안전하게 관리됩니다.
-          </p>
         </div>
       </div>
     </aside>
@@ -433,7 +430,7 @@ function DesktopSidebar({ messageHref }: { messageHref: string }) {
 function TopHeader({ name }: { name: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-[#E3E8F0] bg-white/95 backdrop-blur">
-      <div className="flex h-[80px] w-full items-center justify-between px-4 sm:px-5 xl:px-5">
+      <div className="flex h-[84px] w-full items-center justify-between px-4 sm:px-5 xl:px-10">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
@@ -487,11 +484,11 @@ function ProgressRing({ value }: { value: number }) {
         background: `conic-gradient(#55d98a ${safeValue * 3.6}deg, rgba(255,255,255,0.16) 0deg)`,
       }}
     >
-      <div className="flex h-[82px] w-[82px] flex-col items-center justify-center rounded-full bg-[#2563EB]">
+      <div className="flex h-[82px] w-[82px] flex-col items-center justify-center rounded-full bg-[#163b80]">
         <p className="text-[31px] font-extrabold leading-none tracking-[-0.04em] text-white">
           {safeValue}%
         </p>
-        <p className="mt-0.5 text-[9px] font-semibold text-[#C9D9FB]">전체 진행률</p>
+        <p className="mt-0.5 text-[10px] font-semibold text-blue-200">전체 진행률</p>
       </div>
     </div>
   );
@@ -1195,7 +1192,7 @@ function HeroCard({
   return (
     <section
       id={applicationsId ?? undefined}
-      className="overflow-hidden rounded-[14px] bg-[#071A33] px-5 py-5 text-white sm:px-6 sm:py-6"
+      className="overflow-hidden rounded-[14px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white sm:px-6 sm:py-6"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
@@ -1286,11 +1283,11 @@ function StepProgress({
     <section className="rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5">
       <div className="flex items-center justify-between">
         <p className="text-[17px] font-extrabold tracking-[-0.02em] text-[#071A33]">진행 단계</p>
-        <span className="text-[10px] font-semibold text-[#2563EB]">전체 단계 보기 ›</span>
+        <span className="text-[11px] font-semibold text-[#2563EB]">전체 단계 보기 ›</span>
       </div>
 
       <div className="mt-5 overflow-x-auto pb-1">
-        <div className="flex min-w-[420px] items-start">
+        <div className="flex min-w-0 items-start">
           {stage.steps.map((step, index) => {
             const current = !step.done && stage.steps.slice(0, index).every((prev) => prev.done);
             const dateLabel = stepDateResolver
@@ -1332,7 +1329,7 @@ function StepProgress({
                   }`}>
                     {step.label}
                   </p>
-                  <p className="mt-1 min-h-[14px] text-center text-[9px] text-[#6B7A90]">{dateLabel}</p>
+                  <p className="mt-1 min-h-[14px] text-center text-[11px] text-[#6B7A90]">{dateLabel}</p>
                 </div>
               </div>
             );
@@ -1742,16 +1739,16 @@ function AiResultCard({
       : null;
 
   return (
-    <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
+    <section className="flex h-full flex-col rounded-[14px] border border-[#E3E8F0] bg-white p-5">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[17px] font-extrabold tracking-[-0.02em] text-[#071A33]">AI 분석 결과</p>
           <p className="mt-1 text-[10px] text-[#6B7A90]">{aiResultPhaseLabel}</p>
         </div>
-        <Sparkles size={18} className="text-emerald-600" />
+        <Sparkles size={18} className="text-[#2563EB]" />
       </div>
 
-      <div className="mt-4 grid grid-cols-[1fr_118px] items-end gap-3">
+      <div className="mt-2 flex flex-1 flex-col-reverse items-center justify-center gap-3 text-center">
         <div>
           {reGradeLabel ? (
             <p className="text-[32px] font-extrabold leading-none tracking-[-0.04em] text-emerald-700 sm:text-[36px]">
@@ -1766,26 +1763,21 @@ function AiResultCard({
           {resultInfo && !reGradeLabel && (
             <p className={`mt-2 text-[15px] font-extrabold ${resultInfo.className}`}>{resultInfo.label}</p>
           )}
-          <div className="mt-3 flex items-center gap-1 text-amber-400">
-            {[0, 1, 2, 3, 4].map((value) => (
-              <Star key={value} size={13} fill="currentColor" />
-            ))}
-          </div>
-          <p className="mt-2 text-[10px] font-semibold text-[#6B7A90]">AI 분석 완료</p>
+          <p className="text-[13px] font-semibold text-[#071A33]">AI 분석 완료</p>
         </div>
 
-        <div className="relative flex h-[118px] items-center justify-center">
-          <div className="absolute h-16 w-16 rounded-full bg-emerald-100 blur-xl" />
+        <div className="relative flex h-[84px] items-center justify-center">
+          
           <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#E3E8F0] bg-white">
             <Bot size={32} className="text-[#071A33]" strokeWidth={1.75} />
-            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white">
+            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-[#2563EB] text-white shadow ring-2 ring-white">
               <Check size={14} strokeWidth={3} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-auto pt-5">
         <PdfDownloadButton
           leadId={item.id}
           serviceLabel={item.serviceLabel}
@@ -2984,7 +2976,7 @@ function RecommendedServices() {
       text: "한국 면허 → 베트남 면허",
       action: "확인하기",
       className: "bg-white",
-      iconClass: "bg-emerald-100 text-emerald-700",
+      iconClass: "bg-[#F2F6FE] text-[#2563EB]",
       icon: FileCheck2,
     },
     {
@@ -2992,7 +2984,7 @@ function RecommendedServices() {
       text: "정기 점검 시기 확인하세요.",
       action: "자세히 보기",
       className: "bg-white",
-      iconClass: "bg-orange-100 text-orange-700",
+      iconClass: "bg-[#F2F6FE] text-[#2563EB]",
       icon: Building2,
     },
     {
@@ -3316,7 +3308,7 @@ const GENERAL_CUSTOMER_EXPERT_NOTIFICATION_LABELS = new Set([
 
 function getGeneralCustomerNotificationTone(label: string) {
   if (label.includes("AI")) return "bg-[#F2F6FE] text-[#2563EB]";
-  if (label.includes("상담")) return "bg-emerald-50 text-emerald-600";
+  if (label.includes("상담")) return "bg-[#F2F6FE] text-[#2563EB]";
   return "bg-[#F2F5FA] text-[#3D4B63]";
 }
 
@@ -3546,12 +3538,12 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
                   </div>
                   <div className="min-w-0">
                     <p
-                      className={`font-extrabold text-[#071A33] ${compact ? "text-[10px]" : "text-[11px]"}`}
+                      className={`font-extrabold text-[#071A33] ${compact ? "text-[11px]" : "text-[11px]"}`}
                     >
                       {entry.label}
                     </p>
                     <p
-                      className={`leading-4 text-[#6B7A90] ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}
+                      className={`leading-4 text-[#6B7A90] ${compact ? "mt-0.5 text-[11px]" : "mt-1 text-[11px]"}`}
                     >
                       {formatShortDate(entry.createdAt)} · {formatTime(entry.createdAt)}
                     </p>
@@ -3574,7 +3566,7 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
     },
     {
       icon: AlertTriangle,
-      tone: "bg-amber-50 text-amber-600",
+      tone: "bg-[#F2F6FE] text-[#2563EB]",
       title: "거주증 만료 알림",
       sub: "만료까지 87일 남았습니다.",
     },
@@ -3614,10 +3606,10 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
               <entry.icon size={compact ? 14 : 15} />
             </div>
             <div className="min-w-0">
-              <p className={`font-extrabold text-[#071A33] ${compact ? "text-[10px]" : "text-[11px]"}`}>
+              <p className={`font-extrabold text-[#071A33] ${compact ? "text-[11px]" : "text-[11px]"}`}>
                 {entry.title}
               </p>
-              <p className={`leading-4 text-[#6B7A90] ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}>
+              <p className={`leading-4 text-[#6B7A90] ${compact ? "mt-0.5 text-[11px]" : "mt-1 text-[11px]"}`}>
                 {entry.sub}
               </p>
             </div>
@@ -3907,14 +3899,14 @@ function VietnamLifeCard({
       label: "오늘 날씨",
       desc: weatherDescription,
       icon: Sun,
-      iconClass: "bg-amber-50 text-amber-600",
+      iconClass: "bg-[#F2F6FE] text-[#2563EB]",
     },
     {
       key: "exchange" as const,
       label: "환율",
       desc: exchangeDescription,
       icon: DollarSign,
-      iconClass: "bg-emerald-50 text-emerald-600",
+      iconClass: "bg-[#F2F6FE] text-[#2563EB]",
     },
     {
       key: "bank" as const,
@@ -4037,11 +4029,11 @@ function VietnamLifeCard({
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2F6FE] text-[#2563EB]">
                             <Sun size={18} />
                           </span>
                           <div>
-                            <p className="text-[11px] font-bold text-amber-800">하노이 현재 날씨</p>
+                            <p className="text-[11px] font-bold text-[#071A33]">하노이 현재 날씨</p>
                             <p className="text-[10px] text-[#6B7A90]">
                               {formatWeatherTime(weather.updatedAt)} 업데이트
                             </p>
@@ -4111,17 +4103,17 @@ function VietnamLifeCard({
                   <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2F6FE] text-[#2563EB]">
                           <DollarSign size={20} />
                         </span>
                         <div>
-                          <p className="text-[11px] font-bold text-emerald-800">기준 환율</p>
+                          <p className="text-[11px] font-bold text-[#071A33]">기준 환율</p>
                           <p className="text-[10px] text-[#6B7A90]">
                             {exchange.updatedAt ? `${exchange.updatedAt} 기준` : "최신 데이터 확인 중"}
                           </p>
                         </div>
                       </div>
-                      <span className="rounded-full bg-white px-3 py-1 text-[9px] font-extrabold text-emerald-700">
+                      <span className="rounded-full bg-white px-3 py-1 text-[9px] font-extrabold text-[#2563EB]">
                         LIVE RATE
                       </span>
                     </div>
@@ -4154,14 +4146,14 @@ function VietnamLifeCard({
                           원화 금액을 입력하면 현재 환율로 자동 계산됩니다.
                         </p>
                       </div>
-                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-bold text-emerald-700">
+                      <span className="rounded-full bg-[#F2F6FE] px-2.5 py-1 text-[9px] font-bold text-[#2563EB]">
                         KRW → VND
                       </span>
                     </div>
 
                     <div className="mt-4">
                       <label className="text-[10px] font-bold text-[#3D4B63]">대한민국 원화</label>
-                      <div className="mt-1.5 flex items-center rounded-[14px] border border-[#E3E8F0] bg-[#F7F9FC] px-4 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-50">
+                      <div className="mt-1.5 flex items-center rounded-[14px] border border-[#E3E8F0] bg-[#F7F9FC] px-4 focus-within:border-[#C9D9FB] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#C9D9FB]">
                         <span className="shrink-0 text-[15px] font-extrabold text-[#6B7A90]">₩</span>
                         <input
                           type="text"
@@ -4182,21 +4174,21 @@ function VietnamLifeCard({
                             key={amount}
                             type="button"
                             onClick={() => setKrwAmount(String(amount))}
-                            className="rounded-full border border-[#E3E8F0] bg-white px-3 py-1.5 text-[9px] font-bold text-[#3D4B63] transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                            className="rounded-full border border-[#E3E8F0] bg-white px-3 py-1.5 text-[9px] font-bold text-[#3D4B63] transition hover:border-[#C9D9FB] hover:bg-[#F2F6FE] hover:text-[#2563EB]"
                           >
                             {amount.toLocaleString("ko-KR")}원
                           </button>
                         ))}
                       </div>
 
-                      <div className="mt-4 rounded-[14px] bg-emerald-50 p-4">
-                        <p className="text-[10px] font-bold text-emerald-800">예상 베트남 동</p>
+                      <div className="mt-4 rounded-[14px] bg-[#F2F6FE] p-4">
+                        <p className="text-[10px] font-bold text-[#071A33]">예상 베트남 동</p>
                         <p className="mt-1 break-words text-[25px] font-extrabold tracking-tight text-[#071A33]">
                           {krwConvertedVnd === null
                             ? "환율 조회 중"
                             : `${krwConvertedVnd.toLocaleString("ko-KR")}동`}
                         </p>
-                        <p className="mt-1 text-[9px] text-emerald-800/70">
+                        <p className="mt-1 text-[9px] text-[#071A33]">
                           {krwNumericAmount.toLocaleString("ko-KR")}원 기준
                         </p>
                       </div>
@@ -4264,9 +4256,9 @@ function VietnamLifeCard({
                     </div>
                   </div>
 
-                  <div className="rounded-[14px] border border-amber-100 bg-amber-50 p-4">
-                    <p className="text-[11px] font-extrabold text-amber-900">환전 전 확인하세요</p>
-                    <p className="mt-1 text-[10px] leading-5 text-amber-900/75">
+                  <div className="rounded-[14px] border border-[#C9D9FB] bg-[#F2F6FE] p-4">
+                    <p className="text-[11px] font-extrabold text-[#071A33]">환전 전 확인하세요</p>
+                    <p className="mt-1 text-[10px] leading-5 text-[#071A33]">
                       계산 결과는 참고용 시장 환율을 적용한 예상 금액입니다. 실제 송금·현금 환전 시
                       은행 고시환율, 환전소 스프레드 및 수수료가 별도로 적용됩니다.
                     </p>
@@ -4381,8 +4373,8 @@ function VietnamLifeCard({
                     </div>
                   </div>
 
-                  <div className="rounded-[14px] border border-amber-100 bg-amber-50 p-4">
-                    <p className="text-[10px] leading-5 text-amber-900/80">
+                  <div className="rounded-[14px] border border-[#C9D9FB] bg-[#F2F6FE] p-4">
+                    <p className="text-[10px] leading-5 text-[#071A33]">
                       정부 발표에 따라 대체근무일·연휴 기간이 조정될 수 있습니다. 관공서 방문과
                       서류 제출 전 담당기관 일정을 다시 확인하세요.
                     </p>
@@ -4394,11 +4386,11 @@ function VietnamLifeCard({
                 <div className="space-y-4">
                   <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2F6FE] text-[#2563EB]">
                         <CheckCircle2 size={20} />
                       </span>
                       <div>
-                        <p className="text-[10px] font-bold text-emerald-700">현재 상태</p>
+                        <p className="text-[10px] font-bold text-[#2563EB]">현재 상태</p>
                         <p className="mt-0.5 text-[17px] font-extrabold text-[#071A33]">
                           긴급 행정 공지 없음
                         </p>
@@ -4544,7 +4536,7 @@ function VietnamLifeCard({
           <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
             🇻🇳 베트남 생활 정보
           </p>
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
             LIVE
           </span>
         </div>
@@ -4573,7 +4565,7 @@ function EmergencyHelpCard({
   const [collapsibleOpen, setCollapsibleOpen] = useState(false);
 
   const badge24 = (
-    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-extrabold text-red-600">
+    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-extrabold text-red-600">
       24시간
     </span>
   );
@@ -4673,7 +4665,7 @@ function EmergencyHelpCard({
         <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2"}`}>
           {[
             { label: "경찰", number: "113", tone: "bg-[#F2F6FE] text-[#071A33]" },
-            { label: "소방", number: "114", tone: "bg-orange-50 text-orange-700" },
+            { label: "소방", number: "114", tone: "bg-[#F2F6FE] text-[#2563EB]" },
             { label: "구급", number: "115", tone: "bg-emerald-50 text-emerald-700" },
           ].map((contact) => (
             <a
@@ -4683,7 +4675,7 @@ function EmergencyHelpCard({
                 compact ? "px-1.5 py-2" : "px-2 py-3"
               }`}
             >
-              <span className="text-[9px] font-bold">{contact.label}</span>
+              <span className="text-[11px] font-bold">{contact.label}</span>
               <span
                 className={`mt-0.5 font-extrabold tracking-[-0.03em] ${
                   compact ? "text-[15px]" : "text-[17px]"
@@ -4775,7 +4767,7 @@ function EmergencyHelpCard({
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { label: "경찰", number: "113", tone: "border-[#E3ECFD] bg-[#F2F6FE] text-[#071A33]" },
-                  { label: "소방", number: "114", tone: "border-orange-100 bg-orange-50 text-orange-700" },
+                  { label: "소방", number: "114", tone: "border-[#C9D9FB] bg-[#F2F6FE] text-[#2563EB]" },
                   { label: "구급", number: "115", tone: "border-emerald-100 bg-emerald-50 text-emerald-700" },
                 ].map((contact) => (
                   <a
@@ -4851,7 +4843,7 @@ function EmergencyHelpCard({
 function HelpCard({ compact = false }: { compact?: boolean }) {
   const items = [
     { label: "채팅 상담", icon: MessageSquare, tone: "bg-[#F2F6FE] text-[#2563EB]" },
-    { label: "전화 상담", icon: HelpCircle, tone: "bg-emerald-50 text-emerald-700" },
+    { label: "전화 상담", icon: HelpCircle, tone: "bg-[#F2F6FE] text-[#2563EB]" },
     { label: "1:1 문의", icon: MessageCircle, tone: "bg-[#F2F6FE] text-[#2563EB]" },
   ];
 
@@ -5104,7 +5096,7 @@ function VerifyAdminExpertFlowDashboard({
           }
         />
 
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
           <AiResultCard item={activeItem} applicantName={name} />
           <CurrentStatusCard
             item={activeItem}
@@ -5150,7 +5142,7 @@ function VerifyAdminExpertFlowDashboard({
           panelId="verify-admin-expert-vietnam-life"
           title="🇻🇳 베트남 생활 정보"
           headerTrailing={
-            <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
+            <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
               LIVE
             </span>
           }
@@ -5301,7 +5293,7 @@ function Dashboard({
             }
           />
 
-          <div className="grid gap-5 lg:grid-cols-2">
+          <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
             <AiResultCard item={activeItem} applicantName={name} />
             <CurrentStatusCard
               item={activeItem}
@@ -5476,7 +5468,7 @@ export default function MyPage() {
   }, [isSlimFreeVerifyAdminAside, activeLayoutItem?.id]);
 
   return (
-    <main className="min-h-screen bg-[#f6f8fc] text-[#071A33] xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
+    <main className="min-h-screen bg-[#F7F9FC] text-[#071A33] xl:grid xl:grid-cols-[240px_minmax(0,1fr)] xl:[&_.text-\[9px\]]:!text-[11.5px] xl:[&_.text-\[10px\]]:!text-[12px] xl:[&_.text-\[11px\]]:!text-[12.5px] xl:[&_.text-\[12px\]]:!text-[13px] xl:[&_.leading-\[15px\]]:!leading-[19px]">
       <DesktopSidebar messageHref={messageHref} />
 
       {/* App Shell — Sidebar를 제외한 나머지 폭 전체를 그대로 차지한다(flex-1).
@@ -5487,15 +5479,15 @@ export default function MyPage() {
         <div
           className={`w-full pb-28 sm:px-5 xl:pb-8 ${
             isGeneralCustomerLayout
-              ? "px-4 py-4 xl:px-6 xl:py-5"
-              : "px-4 py-4 xl:px-6 xl:py-5"
+              ? "px-4 py-4 xl:px-10 xl:py-8"
+              : "px-4 py-4 xl:px-10 xl:py-8"
           }`}
         >
           <div
             className={`mx-auto grid w-full max-w-[1380px] items-start gap-4 ${
               isGeneralCustomerLayout
-                ? "xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-6"
-                : "xl:grid-cols-[minmax(0,1fr)_272px] xl:gap-5"
+                ? "xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-8"
+                : "xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-8"
             }`}
           >
           {state === "ready" && isGeneralCustomerLayout && (

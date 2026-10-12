@@ -463,7 +463,10 @@ export default function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-[1100px] items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5">
           <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={30} height={30} />
-          <span className="text-[15px] font-extrabold tracking-tight text-blue-900">VFBCAI</span>
+          <span className="flex flex-col leading-tight">
+            <span className="text-[15px] font-extrabold tracking-tight text-[#071A33]">MY VIET CHECK</span>
+            <span className="text-[10.5px] font-medium text-[#6B7A90]">by VFBCAI</span>
+          </span>
         </Link>
 
         <div className="hidden items-center gap-1.5 sm:flex">

@@ -125,7 +125,13 @@ function CustomerLoginForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="flex flex-col items-center">
-        <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={44} height={44} />
+        <div className="flex items-center gap-2.5">
+          <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={44} height={44} />
+          <div className="text-left">
+            <p className="text-[18px] font-extrabold leading-tight tracking-[-0.02em] text-[#071A33]">MY VIET CHECK</p>
+            <p className="mt-0.5 text-[11px] font-medium leading-tight text-[#6B7A90]">by VFBCAI</p>
+          </div>
+        </div>
         <p className="mt-4 text-center text-[11px] font-semibold uppercase tracking-widest text-gray-400">
           {T.eyebrow}
         </p>
