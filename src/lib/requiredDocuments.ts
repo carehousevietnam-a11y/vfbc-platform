@@ -25,6 +25,8 @@ export type DocumentServiceKey =
   | "verify_restaurant"
   | "verify_hygiene"
   | "verify_fire"
+  | "verify_cosmetics"
+  | "verify_environment"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -144,6 +146,28 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_environment: {
+    serviceKey: "verify_environment",
+    serviceLabel: "환경 허가 직접 인허가 받기",
+    documents: ["사업자 등록증", "공장 도면·방지시설 설명서"],
+    optionalDocuments: [
+      "배출량 자료",
+      "측정·폐기물 처리 계약",
+      "환경영향평가 자료",
+      "기타 참고자료",
+    ],
+  },
+  verify_cosmetics: {
+    serviceKey: "verify_cosmetics",
+    serviceLabel: "화장품 판매 신고 직접 인허가 받기",
+    documents: ["제조사 위임장", "자유판매증명서"],
+    optionalDocuments: [
+      "성분표·안전성 자료",
+      "베트남어 표시 문안",
+      "제품 사진",
       "기타 참고자료",
     ],
   },

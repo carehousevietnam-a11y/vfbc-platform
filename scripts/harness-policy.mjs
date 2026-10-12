@@ -27,6 +27,8 @@ const WATCHED = [
   "tests/qa/restaurant-content-final.mjs",
   "tests/qa/hygiene-content-final.mjs",
   "tests/qa/fire-content-final.mjs",
+  "tests/qa/cosmetics-content-final.mjs",
+  "tests/qa/environment-content-final.mjs",
 ];
 
 const DB_WRITE = [

@@ -15,4 +15,6 @@ node tests/qa/company-content-final.mjs || exit 1
 node tests/qa/restaurant-content-final.mjs || exit 1
 node tests/qa/hygiene-content-final.mjs || exit 1
 node tests/qa/fire-content-final.mjs || exit 1
+node tests/qa/cosmetics-content-final.mjs || exit 1
+node tests/qa/environment-content-final.mjs || exit 1
 exit 0

@@ -227,7 +227,7 @@ export function isVerifyAdminPaidMypageItem(item: MypageLayoutItemLike): boolean
 export function isVerifyMasterPaidMypageItem(item: MypageLayoutItemLike): boolean {
   if (isVerifyAdminPaidMypageItem(item)) return true;
   const st = item.serviceType?.replace(/-/g, "_");
-  return (st === "verify_real_estate" || st === "verify_tax" || st === "verify_fraud" || st === "verify_unclear" || st === "verify_trc" || st === "verify_wp" || st === "verify_tamtru" || st === "verify_license" || st === "verify_company" || st === "verify_restaurant" || st === "verify_hygiene" || st === "verify_fire") && item.phase2Complete === true;
+  return (st === "verify_real_estate" || st === "verify_tax" || st === "verify_fraud" || st === "verify_unclear" || st === "verify_trc" || st === "verify_wp" || st === "verify_tamtru" || st === "verify_license" || st === "verify_company" || st === "verify_restaurant" || st === "verify_hygiene" || st === "verify_fire" || st === "verify_cosmetics" || st === "verify_environment") && item.phase2Complete === true;
 }
 
 export function isVerifyAdminMypageItem(item: { serviceType?: string | null }): boolean {
@@ -252,7 +252,7 @@ export function resolveVerifyAdminApplicationSummaryStatus(item: MypageLayoutIte
 export function shouldUseVerifyAdminMypageSlimAside(
   item: MypageLayoutItemLike | null | undefined
 ): boolean {
-  if (!item || (item.serviceType !== "verify_admin" && item.serviceType !== "verify_tax" && item.serviceType !== "verify_fraud" && item.serviceType !== "verify_unclear" && item.serviceType !== "verify_trc" && item.serviceType !== "verify_wp" && item.serviceType !== "verify_tamtru" && item.serviceType !== "verify_license" && item.serviceType !== "verify_company" && item.serviceType !== "verify_restaurant" && item.serviceType !== "verify_hygiene" && item.serviceType !== "verify_fire")) return false;
+  if (!item || (item.serviceType !== "verify_admin" && item.serviceType !== "verify_tax" && item.serviceType !== "verify_fraud" && item.serviceType !== "verify_unclear" && item.serviceType !== "verify_trc" && item.serviceType !== "verify_wp" && item.serviceType !== "verify_tamtru" && item.serviceType !== "verify_license" && item.serviceType !== "verify_company" && item.serviceType !== "verify_restaurant" && item.serviceType !== "verify_hygiene" && item.serviceType !== "verify_fire" && item.serviceType !== "verify_cosmetics" && item.serviceType !== "verify_environment")) return false;
   return shouldUseGeneralCustomerMypageLayout(item);
 }
 

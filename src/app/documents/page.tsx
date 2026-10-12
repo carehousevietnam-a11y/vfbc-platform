@@ -65,6 +65,8 @@ import { buildCompanyPhase2PersistMeta } from "@/lib/contentPacks/company/compan
 import { buildRestaurantPhase2PersistMeta } from "@/lib/contentPacks/restaurant/restaurantPack";
 import { buildHygienePhase2PersistMeta } from "@/lib/contentPacks/hygiene/hygienePack";
 import { buildFirePhase2PersistMeta } from "@/lib/contentPacks/fire/firePack";
+import { buildCosmeticsPhase2PersistMeta } from "@/lib/contentPacks/cosmetics/cosmeticsPack";
+import { buildEnvironmentPhase2PersistMeta } from "@/lib/contentPacks/environment/environmentPack";
 import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
@@ -1469,7 +1471,21 @@ function DocumentUploadContent() {
                                   ...buildFirePhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
                                   ...uploadGateMeta,
                                 }
-                              : uploadGateMeta;
+                              : handoffService === "verify_cosmetics" &&
+                                  snapshotAnswers &&
+                                  Object.keys(snapshotAnswers).length > 0
+                                ? {
+                                    ...buildCosmeticsPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                                    ...uploadGateMeta,
+                                  }
+                                : handoffService === "verify_environment" &&
+                                    snapshotAnswers &&
+                                    Object.keys(snapshotAnswers).length > 0
+                                  ? {
+                                      ...buildEnvironmentPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                                      ...uploadGateMeta,
+                                    }
+                                  : uploadGateMeta;
 
     const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {

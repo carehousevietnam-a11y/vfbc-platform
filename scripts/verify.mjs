@@ -62,6 +62,8 @@ const blocking = [
   ["restaurant-content-final", node, [path.join(root, "tests/qa/restaurant-content-final.mjs")]],
   ["hygiene-content-final", node, [path.join(root, "tests/qa/hygiene-content-final.mjs")]],
   ["fire-content-final", node, [path.join(root, "tests/qa/fire-content-final.mjs")]],
+  ["cosmetics-content-final", node, [path.join(root, "tests/qa/cosmetics-content-final.mjs")]],
+  ["environment-content-final", node, [path.join(root, "tests/qa/environment-content-final.mjs")]],
   ["fraud-unclear-screen", node, [path.join(root, "scripts/harness-screen.mjs")]],
   ["report-layout", node, [path.join(root, "scripts/harness-report-layout.mjs")]],
   ["pdf-baseline", node, [path.join(root, "scripts/harness-pdf-baseline.mjs")]],
