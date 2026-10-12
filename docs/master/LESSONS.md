@@ -234,3 +234,8 @@
     원인: 개발 중 화면이 동작하도록 anon 정책을 조건 없이(true) 열어 두고, 서버 경유로 바꾸는 후속 정리를 하지 않았음. 저장소가 "비공개"여도 RLS 정책이 열려 있으면 비공개가 아님
     재발 방지: 새 테이블·저장소 정책은 anon에게 조건 없는 읽기(true)를 만들지 않는다. 읽기는 서버(supabaseAdmin)로만 한다. 정책을 추가·변경하면 docs/master/SECURITY_RLS_AUDIT.md를 갱신한다. 새 기능 배포 전에 anon 정책 목록을 다시 조회한다.
     자동 검사: 없음 (Supabase SQL Editor의 카탈로그 조회로 정기 확인 필요)
+
+47. 문제: 새로 만든 테이블(funnel_events)에 서버 API가 저장하려 하자 "permission denied"(코드 42501)로 실패함
+    원인: 이 Supabase 프로젝트는 새 테이블에 서버용(service_role) 권한을 자동으로 주지 않음. 테이블을 만들어도 별도 GRANT가 필요함
+    재발 방지: 새 테이블 SQL에는 RLS 켜기와 함께 `grant select, insert, update, delete on public.테이블 to service_role;`을 포함한다. 브라우저용(anon, authenticated) 권한은 필요한 경우에만 따로 준다. 새 테이블 적용 후에는 서버 API로 저장 1회를 확인한다.
+    자동 검사: 없음 (새 테이블 SQL 작성 시 점검)

@@ -1,3 +1,4 @@
+import { recordFunnelSubmit } from "@/lib/funnelServer";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendResultEmail } from "@/lib/notify/email";
@@ -207,7 +208,7 @@ export async function POST(req: NextRequest) {
       .from("leads")
       .update({ user_id: userId })
       .eq("id", leadId)
-      .select("service_type, result")
+      .select("service_type, result, source_page")
       .maybeSingle();
 
     if (leadUpdateError) {
@@ -232,6 +233,9 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    // 퍼널 접수 완료 익명 기록(세션 쿠키가 있을 때만, 실패해도 접수에는 영향 없음)
+    await recordFunnelSubmit(req, leadId, (leadRow?.source_page as string | null | undefined) ?? null);
 
     // 6. 이메일 발송 여부 결정
     //    - 진단 결과 단계, 셀프 선택만 한 단계는 아직 실제 행동이 아니므로

@@ -28,7 +28,7 @@
 | session_id | 브라우저 세션별 임의 UUID(sessionStorage). 개인 식별 불가 |
 | engine | check / verify / register / consultation |
 | service | 서비스 슬러그(예: verify_trc). 페이지 경로에서 도출 |
-| step | 1~4 (랜딩은 0) |
+| step | check/register: 화면 단계 1~4. verify: 그 시점까지 답한 질문 수(0=질문 화면 진입, 최대 30). 허용 범위 0~30 |
 | event | view(단계 화면 진입) / submit(접수 완료) |
 | lead_id | submit 이벤트에만(접수 연결). 나머지는 null |
 | device | mobile / desktop |
@@ -87,7 +87,7 @@ create table public.funnel_events (
   session_id uuid not null,
   engine text not null check (engine in ('check','verify','register','consultation')),
   service text not null,
-  step smallint not null check (step between 0 and 4),
+  step smallint not null check (step between 0 and 30),
   event text not null check (event in ('view','submit')),
   lead_id uuid references public.leads(id) on delete set null,
   device text check (device in ('mobile','desktop')),
@@ -98,3 +98,10 @@ alter table public.funnel_events enable row level security; -- 정책 없음 = �
 create index funnel_events_service_step_idx on public.funnel_events (service, step, occurred_at);
 create index funnel_events_session_idx on public.funnel_events (session_id);
 ```
+
+## 9. 구현 기록 (P1, 2026-10-13)
+- 기록 지점: check(4개)·register(8개)·verify/admin은 공용 VerifyStepLayout의 단계(1~4) 진입. 나머지 VERIFY 서비스(15개)는 공용 질문 화면(MasterReviewQuotationReport)에서 "답한 질문 수"가 바뀔 때마다.
+- verify/admin은 VerifyStepLayout 기록만 쓰고 질문 수 기록은 제외(의미 혼합 방지).
+- funnel_events 접근 권한: 서버(service_role)에만 GRANT, anon/authenticated 없음 + RLS 정책 없음. 브라우저 직접 읽기·쓰기 막힘 검증 완료.
+- P2 접수 완료(submit): 모든 접수(check/register/verify 28개 화면)가 거치는 서버 /api/lead-submit 에서 한 번만 기록한다(화면 수정 없음). 브라우저가 단계 기록 때 남긴 임의 UUID 쿠키(vfbcai_fs)로 같은 세션에 이어 붙이고, 서비스는 리드의 source_page에서 도출, lead_id만 연결한다. 중복 방지: 같은 lead_id의 submit은 1회. 쿠키가 없거나 실패해도 접수에는 영향 없음. 상담(/consultation)·/r 경로는 lead-submit을 거치지 않아 아직 제외.
+- 남은 일: 첫 실제 접수로 submit 기록 확인, P3 /admin/funnel 보기 화면.

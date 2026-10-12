@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { serviceFromPathname, trackFunnelView } from "@/lib/funnelTrack";
 import {
   AlertTriangle,
   Building2,
@@ -1995,6 +1997,16 @@ export function MasterReviewQuotationReport({
 
   const [answers, setAnswers] = useState<ReviewAnswers>({});
   const [section1Collapsed, setSection1Collapsed] = useState(false);
+
+  // 퍼널 진행 익명 기록(VERIFY): step = 지금까지 답한 질문 수(0=질문 화면 진입). 답변 내용은 보내지 않는다.
+  // verify/admin 은 VerifyStepLayout 의 단계 기록을 쓰므로 여기서는 제외한다.
+  const funnelPathname = usePathname();
+  const funnelAnsweredCount = Object.values(answers).filter((v) => typeof v === "string" && v.length > 0).length;
+  useEffect(() => {
+    if (config.engine !== "verify") return;
+    if (serviceFromPathname(funnelPathname)?.service === "verify_admin") return;
+    trackFunnelView(funnelPathname, Math.min(funnelAnsweredCount, 30));
+  }, [config.engine, funnelPathname, funnelAnsweredCount]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [followUpOtherDraft, setFollowUpOtherDraft] = useState<Record<string, string>>({});

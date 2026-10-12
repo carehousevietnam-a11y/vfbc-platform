@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { FunnelEngine } from "@/components/engine/funnelTokens";
 import OfficialTrustZone from "./OfficialTrustZone";
 import { cn } from "@/lib/cn";
+import FunnelStepBeacon from "./FunnelStepBeacon";
 
 interface VerifyStepLayoutProps {
   engine?: FunnelEngine;
@@ -51,6 +52,7 @@ export default function VerifyStepLayout({
 
     return (
       <div className="lg:flex lg:items-start lg:gap-5">
+        <FunnelStepBeacon step={step} />
         <div className={cn("min-w-0 flex-1 lg:max-w-[700px]")}>
           {question}
           <div className="mt-4 lg:hidden">{mobileTrust}</div>
@@ -65,6 +67,7 @@ export default function VerifyStepLayout({
 
   return (
     <div>
+      <FunnelStepBeacon step={step} />
       {question}
       <OfficialTrustZone engine={engine} variant="strip" className="mt-4 sm:mt-5" />
       {actions}
