@@ -3414,7 +3414,9 @@ export function MasterReviewQuotationReport({
         question.id.startsWith("tamtru_q") ||
         question.id.startsWith("license_q") ||
         question.id.startsWith("company_q") ||
-        question.id.startsWith("restaurant_q"))
+        question.id.startsWith("restaurant_q") ||
+        question.id.startsWith("hygiene_q") ||
+        question.id.startsWith("fire_q"))
     ) {
       return renderAdminClassifiedChoiceQuestion(
         question as ReviewQuestion & {

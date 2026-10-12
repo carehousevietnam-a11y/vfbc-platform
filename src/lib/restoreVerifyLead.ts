@@ -22,7 +22,9 @@ export type VerifyServiceType =
   | "verify_tamtru"
   | "verify_license"
   | "verify_company"
-  | "verify_restaurant";
+  | "verify_restaurant"
+  | "verify_hygiene"
+  | "verify_fire";
 
 const SERVICE_TYPE_ALIASES: Record<string, string> = {
   register_company: "permit_company",

@@ -62,6 +62,8 @@ export const KNOWN_SERVICE_TYPES = [
   "verify_license",
   "verify_company",
   "verify_restaurant",
+  "verify_hygiene",
+  "verify_fire",
   // REGISTER
   "permit_company",
   "register_restaurant",

@@ -20,6 +20,8 @@ const tamtru = await import("../src/lib/contentPacks/tamtru/tamtruPack.ts");
 const license = await import("../src/lib/contentPacks/license/licensePack.ts");
 const company = await import("../src/lib/contentPacks/company/companyPack.ts");
 const restaurant = await import("../src/lib/contentPacks/restaurant/restaurantPack.ts");
+const hygiene = await import("../src/lib/contentPacks/hygiene/hygienePack.ts");
+const fire = await import("../src/lib/contentPacks/fire/firePack.ts");
 const { ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY } = await import("../src/lib/adminVerifyProfiling.ts");
 
 const leadId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
@@ -33,6 +35,8 @@ const jobs = [
   ["license", "verify_license", license.LICENSE_CONTENT_FINAL, license.buildLicensePhase2PersistMeta],
   ["company", "verify_company", company.COMPANY_CONTENT_FINAL, company.buildCompanyPhase2PersistMeta],
   ["restaurant", "verify_restaurant", restaurant.RESTAURANT_CONTENT_FINAL, restaurant.buildRestaurantPhase2PersistMeta],
+  ["hygiene", "verify_hygiene", hygiene.HYGIENE_CONTENT_FINAL, hygiene.buildHygienePhase2PersistMeta],
+  ["fire", "verify_fire", fire.FIRE_CONTENT_FINAL, fire.buildFirePhase2PersistMeta],
 ];
 
 function pageOneText(pdfPath) {

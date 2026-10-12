@@ -244,7 +244,7 @@ export function questionStandardHits() {
       loadGeneratedPack("src/lib/contentPacks/unclear/unclearContentFinal.data.ts"),
       parseUnclearContentFinal(read("docs/master/content/UNCLEAR_CONTENT_V3.md")),
     ),
-    ...["trc", "wp", "tamtru", "license", "company", "restaurant"].flatMap((name) => {
+    ...["trc", "wp", "tamtru", "license", "company", "restaurant", "hygiene", "fire"].flatMap((name) => {
       const pack = loadGeneratedPack(`src/lib/contentPacks/${name}/${name}ContentFinal.data.ts`);
       return structureHits(name, pack, pack);
     }),

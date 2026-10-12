@@ -13,4 +13,6 @@ node tests/qa/tamtru-content-final.mjs || exit 1
 node tests/qa/license-content-final.mjs || exit 1
 node tests/qa/company-content-final.mjs || exit 1
 node tests/qa/restaurant-content-final.mjs || exit 1
+node tests/qa/hygiene-content-final.mjs || exit 1
+node tests/qa/fire-content-final.mjs || exit 1
 exit 0

@@ -63,6 +63,8 @@ import { buildTamtruPhase2PersistMeta } from "@/lib/contentPacks/tamtru/tamtruPa
 import { buildLicensePhase2PersistMeta } from "@/lib/contentPacks/license/licensePack";
 import { buildCompanyPhase2PersistMeta } from "@/lib/contentPacks/company/companyPack";
 import { buildRestaurantPhase2PersistMeta } from "@/lib/contentPacks/restaurant/restaurantPack";
+import { buildHygienePhase2PersistMeta } from "@/lib/contentPacks/hygiene/hygienePack";
+import { buildFirePhase2PersistMeta } from "@/lib/contentPacks/fire/firePack";
 import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
@@ -1453,7 +1455,21 @@ function DocumentUploadContent() {
                               ...buildRestaurantPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
                               ...uploadGateMeta,
                             }
-                          : uploadGateMeta;
+                          : handoffService === "verify_hygiene" &&
+                              snapshotAnswers &&
+                              Object.keys(snapshotAnswers).length > 0
+                            ? {
+                                ...buildHygienePhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                                ...uploadGateMeta,
+                              }
+                            : handoffService === "verify_fire" &&
+                                snapshotAnswers &&
+                                Object.keys(snapshotAnswers).length > 0
+                              ? {
+                                  ...buildFirePhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                                  ...uploadGateMeta,
+                                }
+                              : uploadGateMeta;
 
     const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {

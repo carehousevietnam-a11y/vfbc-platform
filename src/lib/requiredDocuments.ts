@@ -23,6 +23,8 @@ export type DocumentServiceKey =
   | "verify_license"
   | "verify_company"
   | "verify_restaurant"
+  | "verify_hygiene"
+  | "verify_fire"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -142,6 +144,28 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_fire: {
+    serviceKey: "verify_fire",
+    serviceLabel: "소방 허가 직접 인허가 받기",
+    documents: ["사업자 등록증", "건물 서류·소방시설 도면"],
+    optionalDocuments: [
+      "소방 계획서·대피 계획",
+      "설계 검토 확인서",
+      "교육·점검 기록",
+      "기타 참고자료",
+    ],
+  },
+  verify_hygiene: {
+    serviceKey: "verify_hygiene",
+    serviceLabel: "식품 위생 허가 직접 인허가 받기",
+    documents: ["사업자 등록증", "시설 설명서와 도면"],
+    optionalDocuments: [
+      "종사자 건강검진서·위생 교육 확인서",
+      "제품 검사 결과서",
+      "제품 표시 문안",
       "기타 참고자료",
     ],
   },

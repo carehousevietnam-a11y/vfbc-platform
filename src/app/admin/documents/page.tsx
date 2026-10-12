@@ -112,6 +112,8 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_license: "운전면허 전환 직접 확인",
   verify_company: "법인설립 직접 인허가 받기",
   verify_restaurant: "식당 허가 직접 인허가 받기",
+  verify_hygiene: "식품 위생 허가 직접 인허가 받기",
+  verify_fire: "소방 허가 직접 인허가 받기",
 };
 
 function getServiceLabel(serviceType: string): string {

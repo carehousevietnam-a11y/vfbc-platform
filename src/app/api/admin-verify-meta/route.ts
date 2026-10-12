@@ -22,6 +22,8 @@ const TAMTRU_VERIFY_SERVICE_TYPE = "verify_tamtru";
 const LICENSE_VERIFY_SERVICE_TYPE = "verify_license";
 const COMPANY_VERIFY_SERVICE_TYPE = "verify_company";
 const RESTAURANT_VERIFY_SERVICE_TYPE = "verify_restaurant";
+const HYGIENE_VERIFY_SERVICE_TYPE = "verify_hygiene";
+const FIRE_VERIFY_SERVICE_TYPE = "verify_fire";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -140,6 +142,28 @@ const RESTAURANT_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "restaurant_pack_headline",
 ]);
 
+const HYGIENE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "hygiene_pack_v1",
+  "hygiene_pack_case_id",
+  "hygiene_pack_phase2_summary",
+  "hygiene_pack_headline",
+]);
+
+const FIRE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "fire_pack_v1",
+  "fire_pack_case_id",
+  "fire_pack_phase2_summary",
+  "fire_pack_headline",
+]);
+
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "review_check_stage",
   "review_check_docs",
@@ -246,7 +270,9 @@ export async function POST(req: NextRequest) {
     const isLicenseLead = lead.service_type === LICENSE_VERIFY_SERVICE_TYPE;
     const isCompanyLead = lead.service_type === COMPANY_VERIFY_SERVICE_TYPE;
     const isRestaurantLead = lead.service_type === RESTAURANT_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead && !isLicenseLead && !isCompanyLead && !isRestaurantLead) {
+    const isHygieneLead = lead.service_type === HYGIENE_VERIFY_SERVICE_TYPE;
+    const isFireLead = lead.service_type === FIRE_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead && !isLicenseLead && !isCompanyLead && !isRestaurantLead && !isHygieneLead && !isFireLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -277,7 +303,11 @@ export async function POST(req: NextRequest) {
                       ? COMPANY_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
                       : isRestaurantLead
                         ? RESTAURANT_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
-                        : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+                        : isHygieneLead
+                          ? HYGIENE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                          : isFireLead
+                            ? FIRE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                            : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {
