@@ -844,7 +844,7 @@ function GeneralCustomerResultView({
   return (
     <section
       id={rootId}
-      className="rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5 sm:px-6"
+      className="scroll-mt-24 rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5 sm:px-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[#2563EB]">
@@ -1192,7 +1192,7 @@ function HeroCard({
   return (
     <section
       id={applicationsId ?? undefined}
-      className="overflow-hidden rounded-[14px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white sm:px-6 sm:py-6"
+      className="scroll-mt-24 overflow-hidden rounded-[14px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white sm:px-6 sm:py-6"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
@@ -1942,7 +1942,14 @@ function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
   );
 }
 
-function TimelineCard({ item }: { item: MyPageItem }) {
+function TimelineCard({
+  item,
+  notificationsAnchor = false,
+}: {
+  item: MyPageItem;
+  /** 유료 화면은 알림 카드가 없어 하단 탭 "알림"이 이 카드로 이동 */
+  notificationsAnchor?: boolean;
+}) {
   const recent =
     item.category === "verify"
       ? buildVerifyAdminMypageTimelineRecent({
@@ -1964,7 +1971,10 @@ function TimelineCard({ item }: { item: MyPageItem }) {
           ];
 
   return (
-    <section id="timeline" className="rounded-[14px] border border-[#E3E8F0] bg-white p-5 sm:p-6">
+    <section
+      id={notificationsAnchor ? "notifications" : "timeline"}
+      className="scroll-mt-24 rounded-[14px] border border-[#E3E8F0] bg-white p-5 sm:p-6"
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[18px] font-extrabold tracking-[-0.02em] text-[#071A33]">진행 타임라인</p>
@@ -2682,7 +2692,7 @@ function WalletSection({
   return (
     <section
       id="wallet"
-      className={`w-full rounded-[14px] border border-[#E3E8F0] bg-white ${
+      className={`scroll-mt-24 w-full rounded-[14px] border border-[#E3E8F0] bg-white ${
         compact ? "p-4 sm:p-5" : "p-5 sm:p-6"
       }`}
     >
@@ -3187,7 +3197,7 @@ function GeneralCustomerWalletCore({
     return (
       <section
         id="wallet"
-        className="rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-4 sm:px-6"
+        className="scroll-mt-24 rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-4 sm:px-6"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1">
@@ -3219,7 +3229,7 @@ function GeneralCustomerWalletCore({
     return (
       <section
         id="wallet"
-        className="rounded-[14px] border border-[#E3E8F0] bg-white p-4"
+        className="scroll-mt-24 rounded-[14px] border border-[#E3E8F0] bg-white p-4"
       >
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[#E3ECFD] text-[#071A33]">
@@ -3327,7 +3337,7 @@ function GeneralCustomerNotificationCard({ item }: { item: MyPageItem }) {
   return (
     <section
       id="notifications"
-      className="rounded-[14px] border border-[#E3E8F0] bg-white p-4"
+      className="scroll-mt-24 rounded-[14px] border border-[#E3E8F0] bg-white p-4"
     >
       <div className="flex items-center justify-between">
         <p className="text-[14px] font-extrabold text-[#071A33]">알림 센터</p>
@@ -3502,7 +3512,7 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
     return (
       <section
         id="notifications"
-        className={`rounded-[14px] border border-[#E3E8F0] bg-white ${
+        className={`scroll-mt-24 rounded-[14px] border border-[#E3E8F0] bg-white ${
           compact ? "p-4" : "p-5"
         }`}
       >
@@ -3581,7 +3591,7 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
   return (
     <section
       id="notifications"
-      className={`rounded-[14px] border border-[#E3E8F0] bg-white ${
+      className={`scroll-mt-24 rounded-[14px] border border-[#E3E8F0] bg-white ${
         compact ? "p-4" : "p-5"
       }`}
     >
@@ -5009,7 +5019,7 @@ function MobileBottomNav() {
     { label: "서류지갑", icon: WalletCards, href: "#wallet" },
     { label: "신청하기", icon: Plus, href: "/", primary: true },
     { label: "알림", icon: Bell, href: "#notifications", badge: true },
-    { label: "내 정보", icon: User, href: "#profile" },
+    { label: "도움말", icon: HelpCircle, href: "/consultation" },
   ];
 
   return (
@@ -5073,7 +5083,6 @@ function VerifyAdminExpertFlowDashboard({
 
         <HeroCard
           item={activeItem}
-          applicationsId={verifyAdminPaid ? null : "applications"}
           selector={
             <ApplicationSelector
               items={items}
@@ -5107,7 +5116,7 @@ function VerifyAdminExpertFlowDashboard({
 
         <ConfidenceBanner confidence={activeItem.confidence} />
 
-        <TimelineCard item={activeItem} />
+        <TimelineCard item={activeItem} notificationsAnchor={verifyAdminPaid} />
 
         <PublicNotes notes={activeItem.publicNotes} />
 
@@ -5268,7 +5277,6 @@ function Dashboard({
 
           <HeroCard
             item={activeItem}
-            applicationsId={verifyAdminPaid ? null : "applications"}
             selector={
               <ApplicationSelector
                 items={items}
@@ -5304,7 +5312,7 @@ function Dashboard({
 
           <ConfidenceBanner confidence={activeItem.confidence} />
 
-          <TimelineCard item={activeItem} />
+          <TimelineCard item={activeItem} notificationsAnchor={verifyAdminPaid} />
 
           <PublicNotes notes={activeItem.publicNotes} />
 
