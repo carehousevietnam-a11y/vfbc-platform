@@ -1193,7 +1193,7 @@ export const MEDICAL_CONTENT_FINAL = {
     "title": "참고 사항",
     "subtitle": "고객님의 선택 내용에 맞춰 정리한 확인·준비 안내입니다.",
     "caption": "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
-    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
+    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다. 성격이 보도 기준 또는 참고인 자료는 원문 확인 전 정보이므로 관할 기관에서 최종 확인해 주세요.",
     "sources": {
       "confirmedOn": "2026.10.12",
       "rows": [
@@ -1201,7 +1201,7 @@ export const MEDICAL_CONTENT_FINAL = {
           "id": "1",
           "name": "의료기기 관리 시행령 (제98/2021/NĐ-CP호): 위험 등급별 기준 적용 신고와 판매 등록, 신청 조건(보증 거점 등)",
           "publisher": "베트남 정부",
-          "kind": "법령(해설 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [
             "https://luatvietan.vn/luu-hanh-trang-thiet-bi-y-te-loai-ab.html"
           ],
@@ -1211,7 +1211,7 @@ export const MEDICAL_CONTENT_FINAL = {
           "id": "2",
           "name": "의료기기 관리 시행령 개정 (제07/2023/NĐ-CP호, 제04/2025/NĐ-CP호)",
           "publisher": "베트남 정부",
-          "kind": "법령(원문 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [
             "https://vbpl.moj.gov.vn/TW/Lists/vbpq/Attachments/160120/07_2023_ND-CP_557403.doc",
             "https://caselaw.vn/van-ban-phap-luat/411561-nghi-dinh-so-04-2025-nd-cp-ngay-01-01-2025-cua-chinh-phu-sua-doi-nghi-dinh-98-2021-nd-cp-ve-quan-ly-thiet-bi-y-te-da-duoc-sua-doi-theo-nghi-dinh-07-2023-nd-cp"

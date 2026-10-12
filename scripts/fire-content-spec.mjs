@@ -105,8 +105,8 @@ export const afterResultGuide = ["건물 용도·규모 확인", "설계 검토 
 export const directNotice = "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다.";
 export const reportFixed = { missingFileNotice: "서류를 첨부하면 더 정확히 확인할 수 있습니다" };
 export const reportGuide = { ...K.reportBase, sources: { confirmedOn: "2026.10.12", rows: [
-  { id: "1", name: "소방·구조법 (제55/2024/QH15호)과 시행령 (제105/2025/NĐ-CP호)", publisher: "베트남 국회 / 정부", kind: "법령(해설 자료로 확인)", urls: ["https://luatvietan.vn/da-co-nghi-dinh-105-2025-huong-dan-luat-phong-chay-chua-chay-2024-moi.html"], note: "건물 용도·규모별 대상은 원문 대조 필요" },
-  { id: "2", name: "행정 절차 축소 정부 결의 (제66.18/2026/NQ-CP호): 2026.7.1부터 2027.2.28까지 한시 적용, 소방 준공 검사 등 3개 절차 폐지 보도", publisher: "베트남 변호사협회 신문", kind: "언론 보도", urls: ["https://lsvn.vn/bo-thu-tuc-nghiem-thu-phong-chay-chua-chay-tu-01-7-2026-a173592.html"], note: "설계 심사는 폐지 대상이 아니며 대체 절차는 없고 건물주 책임으로 바뀐다는 보도임. 결의 발행일은 한 곳의 보도로만 확인했으므로 원문 대조 필요" },
+  { id: "1", name: "소방·구조법 (제55/2024/QH15호)과 시행령 (제105/2025/NĐ-CP호)", publisher: "베트남 국회 / 정부", kind: "보도 기준", urls: ["https://luatvietan.vn/da-co-nghi-dinh-105-2025-huong-dan-luat-phong-chay-chua-chay-2024-moi.html"], note: "건물 용도·규모별 대상은 원문 대조 필요" },
+  { id: "2", name: "행정 절차 축소 정부 결의 (제66.18/2026/NQ-CP호): 2026.7.1부터 2027.2.28까지 한시 적용, 소방 준공 검사 등 3개 절차 폐지 보도", publisher: "베트남 변호사협회 신문", kind: "참고", urls: ["https://lsvn.vn/bo-thu-tuc-nghiem-thu-phong-chay-chua-chay-tu-01-7-2026-a173592.html"], note: "설계 심사는 폐지 대상이 아니며 대체 절차는 없고 건물주 책임으로 바뀐다는 보도임. 결의 발행일은 한 곳의 보도로만 확인했으므로 원문 대조 필요" },
 ] } };
 export const tierRules = [
   { tier: "full", label: "전 과정 대행", clauses: [...K.commonTier(p).full, [`${p}_inspection`, ["ck_failed"]]] },

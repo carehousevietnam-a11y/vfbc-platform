@@ -1214,7 +1214,7 @@ export const TAMTRU_CONTENT_FINAL = {
     "title": "참고 사항",
     "subtitle": "고객님의 선택 내용에 맞춰 정리한 확인·준비 안내입니다.",
     "caption": "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
-    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 처리 결과를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
+    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 처리 결과를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다. 성격이 보도 기준 또는 참고인 자료는 원문 확인 전 정보이므로 관할 기관에서 최종 확인해 주세요.",
     "sources": {
       "confirmedOn": "2026.10.12",
       "rows": [
@@ -1222,7 +1222,7 @@ export const TAMTRU_CONTENT_FINAL = {
           "id": "1",
           "name": "외국인의 입국·출국·통과·거주에 관한 법 (제47/2014/QH13호, 제51/2019/QH14호·2023년 개정): 숙소 운영자는 외국인 도착 후 12시간(외곽 지역 24시간) 안에 임시 거주를 신고",
           "publisher": "베트남 국회",
-          "kind": "법령(해설 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [
             "https://thuviennhadat.vn/phap-luat/quy-dinh-ve-khai-bao-tam-tru-cho-nguoi-nuoc-ngoai-nhu-the-nao-605700.html"
           ],
@@ -1232,7 +1232,7 @@ export const TAMTRU_CONTENT_FINAL = {
           "id": "2",
           "name": "치안·질서 분야 행정위반 처벌 시행령 (제144/2021/NĐ-CP호): 외국인 임시 거주 미신고 시 개인 400만에서 600만 동, 단체는 그 두 배",
           "publisher": "베트남 정부",
-          "kind": "법령(해설 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [
             "https://thuviennhadat.vn/phap-luat/quy-dinh-ve-khai-bao-tam-tru-cho-nguoi-nuoc-ngoai-nhu-the-nao-605700.html"
           ],

@@ -104,8 +104,8 @@ export const afterResultGuide = ["판매할 제품 목록 확정", "위임장과
 export const directNotice = "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다.";
 export const reportFixed = { missingFileNotice: "서류를 첨부하면 더 정확히 확인할 수 있습니다" };
 export const reportGuide = { ...K.reportBase, sources: { confirmedOn: "2026.10.12", rows: [
-  { id: "1", name: "화장품 관리 보건부 통달 (제06/2011/TT-BYT호): 판매 전 화장품 신고와 서류", publisher: "베트남 보건부", kind: "법령(원문 자료로 확인)", urls: ["https://apolatlegal.com/wp-content/uploads/2025/11/Thong-tu-06-2011-TT-BYT-1.pdf", "https://thuvienphapluat.vn/hoi-dap-phap-luat/phieu-cong-bo-san-pham-my-pham-la-gi-thoi-han-dung-cua-phieu-cong-bo-san-pham-my-pham-trong-bao-lau-138001519.html"], note: "신고 번호 유효 기간(5년)은 제10조로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요" },
-  { id: "2", name: "화장품 관리 강화 약품관리국 공문 (제1149/QLD-MP호, 2025)", publisher: "베트남 보건부 약품관리국", kind: "공식 기관 공문", urls: ["https://thuvienphapluat.vn/cong-van/The-thao-Y-te/Cong-van-1149-QLD-MP-2025-tang-cuong-cong-tac-quan-ly-my-pham-653934.aspx"], note: "점검 강화 내용은 원문 확인" },
+  { id: "1", name: "화장품 관리 보건부 통달 (제06/2011/TT-BYT호): 판매 전 화장품 신고와 서류", publisher: "베트남 보건부", kind: "보도 기준", urls: ["https://apolatlegal.com/wp-content/uploads/2025/11/Thong-tu-06-2011-TT-BYT-1.pdf", "https://thuvienphapluat.vn/hoi-dap-phap-luat/phieu-cong-bo-san-pham-my-pham-la-gi-thoi-han-dung-cua-phieu-cong-bo-san-pham-my-pham-trong-bao-lau-138001519.html"], note: "신고 번호 유효 기간(5년)은 제10조로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요" },
+  { id: "2", name: "화장품 관리 강화 약품관리국 공문 (제1149/QLD-MP호, 2025)", publisher: "베트남 보건부 약품관리국", kind: "보도 기준", urls: ["https://thuvienphapluat.vn/cong-van/The-thao-Y-te/Cong-van-1149-QLD-MP-2025-tang-cuong-cong-tac-quan-ly-my-pham-653934.aspx"], note: "점검 강화 내용은 원문 확인" },
 ] } };
 export const tierRules = [
   { tier: "full", label: "전 과정 대행", clauses: K.commonTier(p).full },

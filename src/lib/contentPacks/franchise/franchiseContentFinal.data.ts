@@ -1210,7 +1210,7 @@ export const FRANCHISE_CONTENT_FINAL = {
     "title": "참고 사항",
     "subtitle": "고객님의 선택 내용에 맞춰 정리한 확인·준비 안내입니다.",
     "caption": "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
-    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
+    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다. 성격이 보도 기준 또는 참고인 자료는 원문 확인 전 정보이므로 관할 기관에서 최종 확인해 주세요.",
     "sources": {
       "confirmedOn": "2026.10.12",
       "rows": [
@@ -1218,7 +1218,7 @@ export const FRANCHISE_CONTENT_FINAL = {
           "id": "1",
           "name": "프랜차이즈 시행령 (제35/2006/NĐ-CP호): 가맹 사업 조건(운영 1년 이상)과 해외 가맹 등록(산업무역부)",
           "publisher": "베트남 정부",
-          "kind": "법령(해설 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [
             "https://luatvietan.vn/nhuong-quyen-thuong-mai-nuoc-ngoai-tai-viet-nam.html",
             "https://luatminhkhue.vn/quy-dinh-ve-dieu-kien-nhuong-quyen-thuong-mai-moi-nhat.aspx"
@@ -1229,7 +1229,7 @@ export const FRANCHISE_CONTENT_FINAL = {
           "id": "2",
           "name": "상법 (제36/2005/QH11호): 프랜차이즈 정의와 계약",
           "publisher": "베트남 국회",
-          "kind": "법령(이차 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [],
           "note": "조문 번호는 공식 원문 대조 필요"
         }

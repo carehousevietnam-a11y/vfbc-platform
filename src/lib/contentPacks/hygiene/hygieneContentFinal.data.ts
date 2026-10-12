@@ -1186,7 +1186,7 @@ export const HYGIENE_CONTENT_FINAL = {
     "title": "참고 사항",
     "subtitle": "고객님의 선택 내용에 맞춰 정리한 확인·준비 안내입니다.",
     "caption": "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
-    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
+    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다. 성격이 보도 기준 또는 참고인 자료는 원문 확인 전 정보이므로 관할 기관에서 최종 확인해 주세요.",
     "sources": {
       "confirmedOn": "2026.10.12",
       "rows": [
@@ -1194,7 +1194,7 @@ export const HYGIENE_CONTENT_FINAL = {
           "id": "1",
           "name": "식품안전법 시행령 (제15/2018/NĐ-CP호): 식품 위생 조건 확인 증명서 대상과 예외(식품 안전 관리 인증을 받은 시설 등)",
           "publisher": "베트남 정부",
-          "kind": "법령(해설 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [
             "https://thuvienphapluat.vn/hoi-dap-phap-luat/10-truong-hop-khong-can-cap-giay-chung-nhan-an-toan-thuc-pham-269611.html"
           ],
@@ -1204,7 +1204,7 @@ export const HYGIENE_CONTENT_FINAL = {
           "id": "2",
           "name": "식품안전법 (제55/2010/QH12호)",
           "publisher": "베트남 국회",
-          "kind": "법령(이차 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [],
           "note": "조문 번호는 공식 원문 대조 필요"
         }

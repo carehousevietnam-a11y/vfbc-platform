@@ -1191,7 +1191,7 @@ export const FIRE_CONTENT_FINAL = {
     "title": "참고 사항",
     "subtitle": "고객님의 선택 내용에 맞춰 정리한 확인·준비 안내입니다.",
     "caption": "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
-    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
+    "disclaimer": "위 내용은 일반 참고 정보이며 개별 사안의 허가 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다. 성격이 보도 기준 또는 참고인 자료는 원문 확인 전 정보이므로 관할 기관에서 최종 확인해 주세요.",
     "sources": {
       "confirmedOn": "2026.10.12",
       "rows": [
@@ -1199,7 +1199,7 @@ export const FIRE_CONTENT_FINAL = {
           "id": "1",
           "name": "소방·구조법 (제55/2024/QH15호)과 시행령 (제105/2025/NĐ-CP호)",
           "publisher": "베트남 국회 / 정부",
-          "kind": "법령(해설 자료로 확인)",
+          "kind": "보도 기준",
           "urls": [
             "https://luatvietan.vn/da-co-nghi-dinh-105-2025-huong-dan-luat-phong-chay-chua-chay-2024-moi.html"
           ],
@@ -1209,7 +1209,7 @@ export const FIRE_CONTENT_FINAL = {
           "id": "2",
           "name": "행정 절차 축소 정부 결의 (제66.18/2026/NQ-CP호): 2026.7.1부터 2027.2.28까지 한시 적용, 소방 준공 검사 등 3개 절차 폐지 보도",
           "publisher": "베트남 변호사협회 신문",
-          "kind": "언론 보도",
+          "kind": "참고",
           "urls": [
             "https://lsvn.vn/bo-thu-tuc-nghiem-thu-phong-chay-chua-chay-tu-01-7-2026-a173592.html"
           ],

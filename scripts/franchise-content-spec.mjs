@@ -104,8 +104,8 @@ export const afterResultGuide = ["등록 대상 여부 확인", "운영 이력 �
 export const directNotice = "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다.";
 export const reportFixed = { missingFileNotice: "서류를 첨부하면 더 정확히 확인할 수 있습니다" };
 export const reportGuide = { ...K.reportBase, sources: { confirmedOn: "2026.10.12", rows: [
-  { id: "1", name: "프랜차이즈 시행령 (제35/2006/NĐ-CP호): 가맹 사업 조건(운영 1년 이상)과 해외 가맹 등록(산업무역부)", publisher: "베트남 정부", kind: "법령(해설 자료로 확인)", urls: ["https://luatvietan.vn/nhuong-quyen-thuong-mai-nuoc-ngoai-tai-viet-nam.html", "https://luatminhkhue.vn/quy-dinh-ve-dieu-kien-nhuong-quyen-thuong-mai-moi-nhat.aspx"], note: "영업 1년 이상 요건은 2018년 개정 후에도 유지되고 해외 가맹 등록은 산업무역부라는 점은 확인함(이차 자료 기준). 이 시행령을 대체한 새 시행령은 찾지 못함. 조문 번호는 공식 원문 대조 필요" },
-  { id: "2", name: "상법 (제36/2005/QH11호): 프랜차이즈 정의와 계약", publisher: "베트남 국회", kind: "법령(이차 자료로 확인)", urls: [], note: "조문 번호는 공식 원문 대조 필요" },
+  { id: "1", name: "프랜차이즈 시행령 (제35/2006/NĐ-CP호): 가맹 사업 조건(운영 1년 이상)과 해외 가맹 등록(산업무역부)", publisher: "베트남 정부", kind: "보도 기준", urls: ["https://luatvietan.vn/nhuong-quyen-thuong-mai-nuoc-ngoai-tai-viet-nam.html", "https://luatminhkhue.vn/quy-dinh-ve-dieu-kien-nhuong-quyen-thuong-mai-moi-nhat.aspx"], note: "영업 1년 이상 요건은 2018년 개정 후에도 유지되고 해외 가맹 등록은 산업무역부라는 점은 확인함(이차 자료 기준). 이 시행령을 대체한 새 시행령은 찾지 못함. 조문 번호는 공식 원문 대조 필요" },
+  { id: "2", name: "상법 (제36/2005/QH11호): 프랜차이즈 정의와 계약", publisher: "베트남 국회", kind: "보도 기준", urls: [], note: "조문 번호는 공식 원문 대조 필요" },
 ] } };
 export const tierRules = [
   { tier: "full", label: "전 과정 대행", clauses: [...K.commonTier(p).full, [`${p}_recruit`, ["rc_started"]]] },

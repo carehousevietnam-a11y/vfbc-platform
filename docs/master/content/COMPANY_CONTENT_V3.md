@@ -449,5 +449,5 @@
 
 | 번호 | 자료 | 발행처 | 성격 | URL | 비고 |
 |---|---|---|---|---|---|
-| 1 | 투자법 (제61/2020/QH14호): 외국인 투자자는 투자 등록 후 법인 설립 | 베트남 국회 / 하이퐁시 재무국 안내 | 법령(공식 기관 안내로 확인) | https://sotc.haiphong.gov.vn/en/services/hoi-dap-dau-tu | 처리 기간과 조문 번호는 공식 원문 대조 필요 |
-| 2 | 기업법 (제59/2020/QH14호): 기업 등록과 자본금 납입 기한 | 베트남 국회 | 법령(이차 자료로 확인) | https://thuvienphapluat.vn/hoi-dap-phap-luat/phai-gop-von-du-cho-cong-ty-trong-vong-bao-nhieu-ngay-368437.html | 자본금 납입 기한(90일)은 제47조 2항으로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요 |
+| 1 | 투자법 (제61/2020/QH14호): 외국인 투자자는 투자 등록 후 법인 설립 | 베트남 국회 / 하이퐁시 재무국 안내 | 보도 기준 | https://sotc.haiphong.gov.vn/en/services/hoi-dap-dau-tu | 처리 기간과 조문 번호는 공식 원문 대조 필요 |
+| 2 | 기업법 (제59/2020/QH14호): 기업 등록과 자본금 납입 기한 | 베트남 국회 | 보도 기준 | https://thuvienphapluat.vn/hoi-dap-phap-luat/phai-gop-von-du-cho-cong-ty-trong-vong-bao-nhieu-ngay-368437.html | 자본금 납입 기한(90일)은 제47조 2항으로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요 |

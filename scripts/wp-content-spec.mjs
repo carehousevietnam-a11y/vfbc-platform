@@ -174,10 +174,10 @@ export const reportGuide = {
   title: "참고 사항",
   subtitle: "고객님의 선택 내용에 맞춰 정리한 확인·준비 안내입니다.",
   caption: "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
-  disclaimer: "위 내용은 일반 참고 정보이며 개별 사안의 발급 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
+  disclaimer: "위 내용은 일반 참고 정보이며 개별 사안의 발급 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다. 성격이 보도 기준 또는 참고인 자료는 원문 확인 전 정보이므로 관할 기관에서 최종 확인해 주세요.",
   sources: { confirmedOn: "2026.10.12", rows: [
-    { id: "1", name: "베트남에서 일하는 외국인 근로자에 관한 정부 시행령 (제219/2025/NĐ-CP호, 2025.8.7 시행): 전문가는 대학 졸업 이상과 관련 경력 2년 이상(우선 분야는 1년), 서류 완비 후 10영업일 처리, 근무 시작 10일에서 60일 전 제출, 최대 2년", publisher: "베트남 정부 / 국가 법령 데이터베이스", kind: "법령", urls: ["https://vbpl.vn/TW/Lists/vbpq/Attachments/180273/219_2025_ND-CP_668418.doc", "https://www.vietnam-briefing.com/news/vietnam-work-permit-regulations-for-foreign-workers-from-august-2025.html"], note: "시행령 원문과 해설 자료 대조. 조문 번호는 본문에 쓰지 않음" },
-    { id: "2", name: "노동법 (제45/2019/QH14호): 외국인 근로자의 노동허가 기본 규정", publisher: "베트남 국회", kind: "법령(이차 자료로 확인)", urls: [], note: "조문 번호는 공식 원문 대조 필요" },
+    { id: "1", name: "베트남에서 일하는 외국인 근로자에 관한 정부 시행령 (제219/2025/NĐ-CP호, 2025.8.7 시행): 전문가는 대학 졸업 이상과 관련 경력 2년 이상(우선 분야는 1년), 서류 완비 후 10영업일 처리, 근무 시작 10일에서 60일 전 제출, 최대 2년", publisher: "베트남 정부 / 국가 법령 데이터베이스", kind: "보도 기준", urls: ["https://vbpl.vn/TW/Lists/vbpq/Attachments/180273/219_2025_ND-CP_668418.doc", "https://www.vietnam-briefing.com/news/vietnam-work-permit-regulations-for-foreign-workers-from-august-2025.html"], note: "시행령 원문과 해설 자료 대조. 조문 번호는 본문에 쓰지 않음" },
+    { id: "2", name: "노동법 (제45/2019/QH14호): 외국인 근로자의 노동허가 기본 규정", publisher: "베트남 국회", kind: "보도 기준", urls: [], note: "조문 번호는 공식 원문 대조 필요" },
   ] },
 };
 export const tierRules = [
