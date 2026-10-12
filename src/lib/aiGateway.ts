@@ -251,6 +251,7 @@ const HREF_TO_LEGAL_RAG: Record<string, InferredLegalRagContext> = {
   "/verify/tamtru": { service_type: "verify_tamtru", service_group: "verify" },
   "/verify/license": { service_type: "verify_license", service_group: "verify" },
   "/verify/company": { service_type: "verify_company", service_group: "verify" },
+  "/verify/restaurant": { service_type: "verify_restaurant", service_group: "verify" },
   "/register/company": { service_type: "register_company", service_group: "register" },
   "/register/restaurant": { service_type: "register_restaurant", service_group: "register" },
   "/register/cosmetics": { service_type: "register_cosmetics", service_group: "register" },

@@ -101,6 +101,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_tamtru: "임시 거주 신고 직접 확인",
   verify_license: "운전면허 전환 직접 확인",
   verify_company: "법인설립 직접 인허가 받기",
+  verify_restaurant: "식당 허가 직접 인허가 받기",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",

@@ -58,6 +58,11 @@ const VERIFY_PHASE2_HANDOFF: Partial<Record<VerifyServiceType, VerifyPhase2Hando
     documentsServiceParam: "verify_company",
     verifyReturnPath: "/verify/company",
   },
+  verify_restaurant: {
+    snapshotStorageKey: "vfbcai_restaurant_verify_phase2_snapshot",
+    documentsServiceParam: "verify_restaurant",
+    verifyReturnPath: "/verify/restaurant",
+  },
 };
 
 export const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY =

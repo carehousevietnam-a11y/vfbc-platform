@@ -24,6 +24,7 @@ const WATCHED = [
   "tests/qa/tamtru-content-final.mjs",
   "tests/qa/license-content-final.mjs",
   "tests/qa/company-content-final.mjs",
+  "tests/qa/restaurant-content-final.mjs",
 ];
 
 const DB_WRITE = [

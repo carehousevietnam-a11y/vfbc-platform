@@ -48,6 +48,8 @@ import { buildLicenseVerifyAiReportContentFromActivities } from "@/lib/contentPa
 import { drawLicenseReportNotes } from "@/lib/contentPacks/license/licenseReportNotes";
 import { buildCompanyVerifyAiReportContentFromActivities } from "@/lib/contentPacks/company/companyPack";
 import { drawCompanyReportNotes } from "@/lib/contentPacks/company/companyReportNotes";
+import { buildRestaurantVerifyAiReportContentFromActivities } from "@/lib/contentPacks/restaurant/restaurantPack";
+import { drawRestaurantReportNotes } from "@/lib/contentPacks/restaurant/restaurantReportNotes";
 import { drawTaxBaseGlyphText, drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
@@ -109,6 +111,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_tamtru: "임시 거주 신고 직접 확인",
   verify_license: "운전면허 전환 직접 확인",
   verify_company: "법인설립 직접 인허가 받기",
+  verify_restaurant: "식당 허가 직접 인허가 받기",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",
@@ -247,6 +250,10 @@ function buildVerifyMasterReportContent(
 
   if (typeKey === "verify_company") {
     return buildCompanyVerifyAiReportContentFromActivities(activities);
+  }
+
+  if (typeKey === "verify_restaurant") {
+    return buildRestaurantVerifyAiReportContentFromActivities(activities);
   }
 
   return null;
@@ -1749,6 +1756,23 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     if ((normalizedType ?? "").replace(/-/g, "_") === "verify_company") {
       noteExtraPages.push(
         ...drawCompanyReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        }),
+      );
+    }
+    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_restaurant") {
+      noteExtraPages.push(
+        ...drawRestaurantReportNotes({
           activities,
           doc,
           font,

@@ -22,6 +22,7 @@ export type DocumentServiceKey =
   | "verify_tamtru"
   | "verify_license"
   | "verify_company"
+  | "verify_restaurant"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -141,6 +142,17 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_restaurant: {
+    serviceKey: "verify_restaurant",
+    serviceLabel: "식당 허가 직접 인허가 받기",
+    documents: ["사업자 등록증", "매장 임대차 계약서"],
+    optionalDocuments: [
+      "시설 도면·사진",
+      "직원 건강검진서·위생 교육 확인서",
+      "소방 관련 서류",
       "기타 참고자료",
     ],
   },

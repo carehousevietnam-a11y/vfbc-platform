@@ -162,7 +162,7 @@ export const risks = {
 export const phase2Titles = { Q6: "신청 서류", Q7: "투자 자본 계좌와 송금", Q8: "업종별 추가 허가", Q9: "설립 일정과 영업 시작", Q10: "견적과 비용", Q11: "국적과 제출 방식", Q12: "설립 후 할 일", Q13: "지역과 담당 기관" };
 export const connections = [
   { name: "노동허가 확인", clauses: [["pc_postSetup", ["ps_hiring", "ps_visa"]], ["pc_representative", ["rep_resident"]]], sentence: "대표나 외국인 직원이 일하게 된다면 노동허가 직접 확인에서 이어서 점검해 보실 수 있습니다.", path: "/verify/wp" },
-  { name: "식당 허가 확인", clauses: [["pc_businessLine", ["bl_food"]], ["pc_subLicense", ["sl_food"]]], sentence: "식당·카페를 여신다면 식당 허가 확인에서 위생·소방 준비를 함께 점검해 보실 수 있습니다.", path: "/register/restaurant" },
+  { name: "식당 허가 확인", clauses: [["pc_businessLine", ["bl_food"]], ["pc_subLicense", ["sl_food"]]], sentence: "식당·카페를 여신다면 식당 허가 확인에서 위생·소방 준비를 함께 점검해 보실 수 있습니다.", path: "/verify/restaurant" },
   { name: "전문가 진행", clauses: [["pc_timeline", ["tl_urgent"]], ["pc_foreignDocs", ["fd_not_started"]], ["pc_helpWanted", ["help_full"]]], sentence: "일정이 급하거나 서류 인증을 시작하지 못했다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },
 ];
 export const afterResultGuide = ["투자자 형태별 서류 확인", "해외 서류 인증", "자본금과 증빙 준비", "사무실 계약 확인", "설립 후 일정 정리"];

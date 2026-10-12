@@ -59,6 +59,7 @@ const blocking = [
   ["tamtru-content-final", node, [path.join(root, "tests/qa/tamtru-content-final.mjs")]],
   ["license-content-final", node, [path.join(root, "tests/qa/license-content-final.mjs")]],
   ["company-content-final", node, [path.join(root, "tests/qa/company-content-final.mjs")]],
+  ["restaurant-content-final", node, [path.join(root, "tests/qa/restaurant-content-final.mjs")]],
   ["fraud-unclear-screen", node, [path.join(root, "scripts/harness-screen.mjs")]],
   ["report-layout", node, [path.join(root, "scripts/harness-report-layout.mjs")]],
   ["pdf-baseline", node, [path.join(root, "scripts/harness-pdf-baseline.mjs")]],

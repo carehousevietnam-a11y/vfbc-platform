@@ -1174,7 +1174,7 @@ export const COMPANY_CONTENT_FINAL = {
           ]
         }
       ],
-      "path": "/register/restaurant"
+      "path": "/verify/restaurant"
     },
     {
       "name": "전문가 진행",
