@@ -167,7 +167,7 @@ function CustomerLoginForm() {
             required
             autoFocus
             autoComplete="email"
-            className="h-11 w-full rounded-xl border border-gray-200 px-4 text-sm shadow-sm transition focus:border-blue-900 focus:outline-none"
+            className="h-11 w-full rounded-xl border border-gray-200 px-4 text-sm shadow-sm transition focus:border-[#2563EB] focus:outline-none"
           />
 
           {error && (
@@ -179,7 +179,7 @@ function CustomerLoginForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="h-12 w-full rounded-full bg-blue-900 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-950 disabled:opacity-60"
+            className="h-12 w-full rounded-full bg-[#2563EB] text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1D4ED8] disabled:opacity-60"
           >
             {submitting ? T.submitting : T.submit}
           </button>
