@@ -106,7 +106,7 @@ export const directNotice = "직접 적어 주신 내용은 전문가가 함께 
 export const reportFixed = { missingFileNotice: "서류를 첨부하면 더 정확히 확인할 수 있습니다" };
 export const reportGuide = { ...K.reportBase, sources: { confirmedOn: "2026.10.12", rows: [
   { id: "1", name: "환경보호법 (제72/2020/QH14호): 환경영향평가, 환경 허가, 환경 등록 대상 구분", publisher: "베트남 국회", kind: "법령(해설 자료로 확인)", urls: ["https://thuvienphapluat.vn/hoi-dap-phap-luat/doi-tuong-nao-can-co-giay-phep-moi-truong-138019034.html"], note: "대상 기준과 조문 번호는 공식 원문 대조 필요" },
-  { id: "2", name: "환경보호법 시행령 (제08/2022/NĐ-CP호, 2025년 개정)", publisher: "베트남 정부", kind: "법령(이차 자료로 확인)", urls: [], note: "개정 시행령 번호와 내용은 원문 대조 필요" },
+  { id: "2", name: "환경보호법 시행령 (제08/2022/NĐ-CP호, 2025년 개정)", publisher: "베트남 정부", kind: "법령(이차 자료로 확인)", urls: [], note: "제05/2025/NĐ-CP호 개정이 있는 사실은 확인함(이차 자료 기준). 개정 내용은 원문 대조 필요" },
 ] } };
 export const tierRules = [
   { tier: "full", label: "전 과정 대행", clauses: [...K.commonTier(p).full, [`${p}_neighbors`, ["nb_complaint"]]] },

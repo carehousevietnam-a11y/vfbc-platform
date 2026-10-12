@@ -1237,8 +1237,10 @@ export const COMPANY_CONTENT_FINAL = {
           "name": "기업법 (제59/2020/QH14호): 기업 등록과 자본금 납입 기한",
           "publisher": "베트남 국회",
           "kind": "법령(이차 자료로 확인)",
-          "urls": [],
-          "note": "자본금 납입 기한과 조문 번호는 공식 원문 대조 필요"
+          "urls": [
+            "https://thuvienphapluat.vn/hoi-dap-phap-luat/phai-gop-von-du-cho-cong-ty-trong-vong-bao-nhieu-ngay-368437.html"
+          ],
+          "note": "자본금 납입 기한(90일)은 제47조 2항으로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요"
         }
       ]
     }

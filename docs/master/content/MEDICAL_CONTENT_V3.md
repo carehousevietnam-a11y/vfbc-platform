@@ -452,4 +452,4 @@
 | 번호 | 자료 | 발행처 | 성격 | URL | 비고 |
 |---|---|---|---|---|---|
 | 1 | 의료기기 관리 시행령 (제98/2021/NĐ-CP호): 위험 등급별 기준 적용 신고와 판매 등록, 신청 조건(보증 거점 등) | 베트남 정부 | 법령(해설 자료로 확인) | https://luatvietan.vn/luu-hanh-trang-thiet-bi-y-te-loai-ab.html | 등급별 처리 기간과 조문 번호는 공식 원문 대조 필요 |
-| 2 | 의료기기 관리 시행령 개정 (제07/2023/NĐ-CP호, 제04/2025/NĐ-CP호) | 베트남 정부 | 법령(원문 자료로 확인) | https://vbpl.moj.gov.vn/TW/Lists/vbpq/Attachments/160120/07_2023_ND-CP_557403.doc | 2025년 개정 내용은 원문 대조 필요 |
+| 2 | 의료기기 관리 시행령 개정 (제07/2023/NĐ-CP호, 제04/2025/NĐ-CP호) | 베트남 정부 | 법령(원문 자료로 확인) | https://vbpl.moj.gov.vn/TW/Lists/vbpq/Attachments/160120/07_2023_ND-CP_557403.doc , https://caselaw.vn/van-ban-phap-luat/411561-nghi-dinh-so-04-2025-nd-cp-ngay-01-01-2025-cua-chinh-phu-sua-doi-nghi-dinh-98-2021-nd-cp-ve-quan-ly-thiet-bi-y-te-da-duoc-sua-doi-theo-nghi-dinh-07-2023-nd-cp | 제07/2023호와 제04/2025호(2025.1.1 시행)로 개정된 사실은 확인함(이차 자료 기준). 2025년 개정 세부 내용은 원문 대조 필요 |

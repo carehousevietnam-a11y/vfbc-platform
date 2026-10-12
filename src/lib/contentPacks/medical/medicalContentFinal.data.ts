@@ -1213,9 +1213,10 @@ export const MEDICAL_CONTENT_FINAL = {
           "publisher": "베트남 정부",
           "kind": "법령(원문 자료로 확인)",
           "urls": [
-            "https://vbpl.moj.gov.vn/TW/Lists/vbpq/Attachments/160120/07_2023_ND-CP_557403.doc"
+            "https://vbpl.moj.gov.vn/TW/Lists/vbpq/Attachments/160120/07_2023_ND-CP_557403.doc",
+            "https://caselaw.vn/van-ban-phap-luat/411561-nghi-dinh-so-04-2025-nd-cp-ngay-01-01-2025-cua-chinh-phu-sua-doi-nghi-dinh-98-2021-nd-cp-ve-quan-ly-thiet-bi-y-te-da-duoc-sua-doi-theo-nghi-dinh-07-2023-nd-cp"
           ],
-          "note": "2025년 개정 내용은 원문 대조 필요"
+          "note": "제07/2023호와 제04/2025호(2025.1.1 시행)로 개정된 사실은 확인함(이차 자료 기준). 2025년 개정 세부 내용은 원문 대조 필요"
         }
       ]
     }

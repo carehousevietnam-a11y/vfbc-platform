@@ -175,7 +175,7 @@ export const reportGuide = {
   disclaimer: "위 내용은 일반 참고 정보이며 개별 사안의 설립 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
   sources: { confirmedOn: "2026.10.12", rows: [
     { id: "1", name: "투자법 (제61/2020/QH14호): 외국인 투자자는 투자 등록 후 법인 설립", publisher: "베트남 국회 / 하이퐁시 재무국 안내", kind: "법령(공식 기관 안내로 확인)", urls: ["https://sotc.haiphong.gov.vn/en/services/hoi-dap-dau-tu"], note: "처리 기간과 조문 번호는 공식 원문 대조 필요" },
-    { id: "2", name: "기업법 (제59/2020/QH14호): 기업 등록과 자본금 납입 기한", publisher: "베트남 국회", kind: "법령(이차 자료로 확인)", urls: [], note: "자본금 납입 기한과 조문 번호는 공식 원문 대조 필요" },
+    { id: "2", name: "기업법 (제59/2020/QH14호): 기업 등록과 자본금 납입 기한", publisher: "베트남 국회", kind: "법령(이차 자료로 확인)", urls: ["https://thuvienphapluat.vn/hoi-dap-phap-luat/phai-gop-von-du-cho-cong-ty-trong-vong-bao-nhieu-ngay-368437.html"], note: "자본금 납입 기한(90일)은 제47조 2항으로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요" },
   ] },
 };
 export const tierRules = [

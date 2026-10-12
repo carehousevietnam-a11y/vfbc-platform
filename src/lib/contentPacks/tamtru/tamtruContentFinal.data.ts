@@ -1226,7 +1226,7 @@ export const TAMTRU_CONTENT_FINAL = {
           "urls": [
             "https://thuviennhadat.vn/phap-luat/quy-dinh-ve-khai-bao-tam-tru-cho-nguoi-nuoc-ngoai-nhu-the-nao-605700.html"
           ],
-          "note": "조문 번호는 공식 원문 대조 필요. 본문에는 조문 번호를 쓰지 않음"
+          "note": "숙소 운영자의 신고 기한(12시간, 외곽 24시간)은 제33조 2항으로 확인함. 법 개정은 제51/2019호와 제23/2023호(2023.8.15 시행)로 확인함(이차 자료 기준). 본문에는 조문 번호를 쓰지 않음"
         },
         {
           "id": "2",

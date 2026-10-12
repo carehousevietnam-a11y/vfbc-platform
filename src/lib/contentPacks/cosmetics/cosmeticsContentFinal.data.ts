@@ -1197,9 +1197,10 @@ export const COSMETICS_CONTENT_FINAL = {
           "publisher": "베트남 보건부",
           "kind": "법령(원문 자료로 확인)",
           "urls": [
-            "https://apolatlegal.com/wp-content/uploads/2025/11/Thong-tu-06-2011-TT-BYT-1.pdf"
+            "https://apolatlegal.com/wp-content/uploads/2025/11/Thong-tu-06-2011-TT-BYT-1.pdf",
+            "https://thuvienphapluat.vn/hoi-dap-phap-luat/phieu-cong-bo-san-pham-my-pham-la-gi-thoi-han-dung-cua-phieu-cong-bo-san-pham-my-pham-trong-bao-lau-138001519.html"
           ],
-          "note": "신고 번호 유효 기간과 조문 번호는 공식 원문 대조 필요"
+          "note": "신고 번호 유효 기간(5년)은 제10조로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요"
         },
         {
           "id": "2",

@@ -1228,7 +1228,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
           "publisher": "베트남 정부",
           "kind": "법령(이차 자료로 확인)",
           "urls": [],
-          "note": "개정 시행령 번호와 내용은 원문 대조 필요"
+          "note": "제05/2025/NĐ-CP호 개정이 있는 사실은 확인함(이차 자료 기준). 개정 내용은 원문 대조 필요"
         }
       ]
     }

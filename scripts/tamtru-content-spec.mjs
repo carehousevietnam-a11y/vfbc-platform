@@ -174,7 +174,7 @@ export const reportGuide = {
   caption: "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
   disclaimer: "위 내용은 일반 참고 정보이며 개별 사안의 처리 결과를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
   sources: { confirmedOn: "2026.10.12", rows: [
-    { id: "1", name: "외국인의 입국·출국·통과·거주에 관한 법 (제47/2014/QH13호, 제51/2019/QH14호·2023년 개정): 숙소 운영자는 외국인 도착 후 12시간(외곽 지역 24시간) 안에 임시 거주를 신고", publisher: "베트남 국회", kind: "법령(해설 자료로 확인)", urls: ["https://thuviennhadat.vn/phap-luat/quy-dinh-ve-khai-bao-tam-tru-cho-nguoi-nuoc-ngoai-nhu-the-nao-605700.html"], note: "조문 번호는 공식 원문 대조 필요. 본문에는 조문 번호를 쓰지 않음" },
+    { id: "1", name: "외국인의 입국·출국·통과·거주에 관한 법 (제47/2014/QH13호, 제51/2019/QH14호·2023년 개정): 숙소 운영자는 외국인 도착 후 12시간(외곽 지역 24시간) 안에 임시 거주를 신고", publisher: "베트남 국회", kind: "법령(해설 자료로 확인)", urls: ["https://thuviennhadat.vn/phap-luat/quy-dinh-ve-khai-bao-tam-tru-cho-nguoi-nuoc-ngoai-nhu-the-nao-605700.html"], note: "숙소 운영자의 신고 기한(12시간, 외곽 24시간)은 제33조 2항으로 확인함. 법 개정은 제51/2019호와 제23/2023호(2023.8.15 시행)로 확인함(이차 자료 기준). 본문에는 조문 번호를 쓰지 않음" },
     { id: "2", name: "치안·질서 분야 행정위반 처벌 시행령 (제144/2021/NĐ-CP호): 외국인 임시 거주 미신고 시 개인 400만에서 600만 동, 단체는 그 두 배", publisher: "베트남 정부", kind: "법령(해설 자료로 확인)", urls: ["https://thuviennhadat.vn/phap-luat/quy-dinh-ve-khai-bao-tam-tru-cho-nguoi-nuoc-ngoai-nhu-the-nao-605700.html"], note: "금액은 개정 여부를 시행 시점에 다시 확인" },
   ] },
 };

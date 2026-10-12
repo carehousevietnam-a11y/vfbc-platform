@@ -453,5 +453,5 @@
 
 | 번호 | 자료 | 발행처 | 성격 | URL | 비고 |
 |---|---|---|---|---|---|
-| 1 | 화장품 관리 보건부 통달 (제06/2011/TT-BYT호): 판매 전 화장품 신고와 서류 | 베트남 보건부 | 법령(원문 자료로 확인) | https://apolatlegal.com/wp-content/uploads/2025/11/Thong-tu-06-2011-TT-BYT-1.pdf | 신고 번호 유효 기간과 조문 번호는 공식 원문 대조 필요 |
+| 1 | 화장품 관리 보건부 통달 (제06/2011/TT-BYT호): 판매 전 화장품 신고와 서류 | 베트남 보건부 | 법령(원문 자료로 확인) | https://apolatlegal.com/wp-content/uploads/2025/11/Thong-tu-06-2011-TT-BYT-1.pdf , https://thuvienphapluat.vn/hoi-dap-phap-luat/phieu-cong-bo-san-pham-my-pham-la-gi-thoi-han-dung-cua-phieu-cong-bo-san-pham-my-pham-trong-bao-lau-138001519.html | 신고 번호 유효 기간(5년)은 제10조로 확인함(이차 자료 기준). 그 외 조문 번호는 공식 원문 대조 필요 |
 | 2 | 화장품 관리 강화 약품관리국 공문 (제1149/QLD-MP호, 2025) | 베트남 보건부 약품관리국 | 공식 기관 공문 | https://thuvienphapluat.vn/cong-van/The-thao-Y-te/Cong-van-1149-QLD-MP-2025-tang-cuong-cong-tac-quan-ly-my-pham-653934.aspx | 점검 강화 내용은 원문 확인 |

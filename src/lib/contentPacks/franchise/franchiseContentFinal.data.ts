@@ -1220,9 +1220,10 @@ export const FRANCHISE_CONTENT_FINAL = {
           "publisher": "베트남 정부",
           "kind": "법령(해설 자료로 확인)",
           "urls": [
-            "https://luatvietan.vn/nhuong-quyen-thuong-mai-nuoc-ngoai-tai-viet-nam.html"
+            "https://luatvietan.vn/nhuong-quyen-thuong-mai-nuoc-ngoai-tai-viet-nam.html",
+            "https://luatminhkhue.vn/quy-dinh-ve-dieu-kien-nhuong-quyen-thuong-mai-moi-nhat.aspx"
           ],
-          "note": "2018년 개정(08/2018) 반영 여부와 조문 번호는 공식 원문 대조 필요"
+          "note": "영업 1년 이상 요건은 2018년 개정 후에도 유지되고 해외 가맹 등록은 산업무역부라는 점은 확인함(이차 자료 기준). 이 시행령을 대체한 새 시행령은 찾지 못함. 조문 번호는 공식 원문 대조 필요"
         },
         {
           "id": "2",
