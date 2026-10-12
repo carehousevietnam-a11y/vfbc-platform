@@ -1,7 +1,8 @@
 # VFBCAI Cursor context (synced 2026-08-10)
 
 ## Required reading before any work (locked)
-- Read docs/master/STANDARDS.md, docs/master/QUESTION_STANDARD.md, docs/master/LESSONS.md, docs/master/HARNESS.md first.
+- Read docs/master/STANDARDS.md, docs/master/QUESTION_STANDARD.md, docs/master/LESSONS.md, docs/master/HARNESS.md, docs/master/DECISIONS.md, docs/master/SOURCE_LEDGER.md first.
+- When Ace states a new instruction, confirmation or correction, append one line to docs/master/DECISIONS.md at once (no approval needed). Lasting rules go to STANDARDS.md only after Ace approves.
 - First line of every report: "읽음: <file names>".
 - Do not edit those files, .githooks, admin/tax/real-estate without an "ACE-APPROVED: <reason>" line in the commit message.
 - Run `npm run verify` before reporting done.

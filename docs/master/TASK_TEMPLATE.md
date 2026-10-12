@@ -1,6 +1,6 @@
 # 작업 지시 템플릿
 
-필독: docs/master/STANDARDS.md, docs/master/QUESTION_STANDARD.md, docs/master/LESSONS.md, docs/master/HARNESS.md
+필독: docs/master/STANDARDS.md, docs/master/QUESTION_STANDARD.md, docs/master/LESSONS.md, docs/master/HARNESS.md, docs/master/DECISIONS.md, docs/master/SOURCE_LEDGER.md
 보고 첫 줄: 읽음: 파일명들
 
 목표:

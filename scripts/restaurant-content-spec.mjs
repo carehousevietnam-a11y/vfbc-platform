@@ -110,7 +110,7 @@ export const afterResultGuide = ["매장 계약 확인", "위생·소방 시설 
 export const directNotice = "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다.";
 export const reportFixed = { missingFileNotice: "서류를 첨부하면 더 정확히 확인할 수 있습니다" };
 export const reportGuide = { ...K.reportBase, sources: { confirmedOn: "2026.10.12", rows: [
-  { id: "1", name: "식품안전법 시행령 (제15/2018/NĐ-CP호): 식품 위생 조건 확인 증명서 대상과 예외(호텔 안 식당, 노점 등은 증명서 대신 조건 준수)", publisher: "베트남 정부", kind: "법령(해설 자료로 확인)", urls: ["https://thuvienphapluat.vn/hoi-dap-phap-luat/10-truong-hop-khong-can-cap-giay-chung-nhan-an-toan-thuc-pham-269611.html"], note: "조문 번호는 공식 원문 대조 필요" },
+  { id: "1", name: "식품안전법 시행령 (제15/2018/NĐ-CP호): 식품 위생 조건 확인 증명서 대상과 예외(호텔 안 식당, 노점 등은 증명서 대신 조건 준수)", publisher: "베트남 정부", kind: "법령(해설 자료로 확인)", urls: ["https://thuvienphapluat.vn/hoi-dap-phap-luat/10-truong-hop-khong-can-cap-giay-chung-nhan-an-toan-thuc-pham-269611.html"], note: "시행령 제46/2026/NĐ-CP호는 결의 제15/2026/NQ-CP호(2026.4.6)로 시행이 정지되어 15/2018이 계속 적용됨. 조문 번호는 공식 원문 대조 필요" },
   { id: "2", name: "소방·구조법 (제55/2024/QH15호)과 시행령 (제105/2025/NĐ-CP호)", publisher: "베트남 국회 / 정부", kind: "법령(해설 자료로 확인)", urls: ["https://luatvietan.vn/da-co-nghi-dinh-105-2025-huong-dan-luat-phong-chay-chua-chay-2024-moi.html"], note: "매장 규모별 소방 대상은 원문 대조 필요" },
 ] } };
 export const tierRules = [

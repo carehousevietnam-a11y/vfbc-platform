@@ -1212,7 +1212,7 @@ export const RESTAURANT_CONTENT_FINAL = {
           "urls": [
             "https://thuvienphapluat.vn/hoi-dap-phap-luat/10-truong-hop-khong-can-cap-giay-chung-nhan-an-toan-thuc-pham-269611.html"
           ],
-          "note": "조문 번호는 공식 원문 대조 필요"
+          "note": "시행령 제46/2026/NĐ-CP호는 결의 제15/2026/NQ-CP호(2026.4.6)로 시행이 정지되어 15/2018이 계속 적용됨. 조문 번호는 공식 원문 대조 필요"
         },
         {
           "id": "2",
