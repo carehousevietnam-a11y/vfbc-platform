@@ -11,7 +11,7 @@ STANDARDS A7·A17·A18 기준. 매달 1일 12개 서비스 법령 변경을 확�
 |---|---|---|---|---|---|---|---|
 | license | 외국 운전면허 교환 | 통달 12/2025/TT-BCA, 공안부 (제24조) | 2025.3.1 | 보도 | 이차 자료 | 2026-10-12 | 원문 대조 전 |
 | license | 운전 교육·시험·발급 | 통달 35/2024/TT-BGTVT, 교통운수부 | 2025.1.1 | 보도 | 이차 자료 | 2026-10-12 | 기관을 공안부로 잘못 적었던 것을 바로잡음 (LESSONS 37) |
-| fire | 소방 준공 검사 등 3개 절차 폐지, 한시 적용 | 결의 66.18/2026/NQ-CP, 정부 | 2026.7.1 ~ 2027.2.28 | 참고 | https://lsvn.vn/bo-thu-tuc-nghiem-thu-phong-chay-chua-chay-tu-01-7-2026-a173592.html | 2026-10-12 | 설계 심사는 폐지 대상 아님, 대체 절차 없음, 발행일은 단일 보도 |
+| fire | 소방 준공 검사 등 3개 절차 폐지, 한시 적용 | 결의 66.18/2026/NQ-CP, 정부 | 2026.7.1부터 2027.2.28까지 | 참고 | https://lsvn.vn/bo-thu-tuc-nghiem-thu-phong-chay-chua-chay-tu-01-7-2026-a173592.html | 2026-10-12 | 설계 심사는 폐지 대상 아님, 대체 절차 없음, 발행일은 단일 보도 |
 | hygiene, restaurant | 시행령 46/2026/NĐ-CP 시행 정지, 15/2018 계속 적용 | 결의 15/2026/NQ-CP, 정부 | 2026.4.6 | 보도 | 이차 자료 | 2026-10-12 | 제12조 제1항 예외는 확인함 |
 | company | 자본금 납입 90일 | 기업법 59/2020/QH14 제47조 2항 | | 보도 | https://thuvienphapluat.vn/hoi-dap-phap-luat/phai-gop-von-du-cho-cong-ty-trong-vong-bao-nhieu-ngay-368437.html | 2026-10-12 | |
 | cosmetics | 신고 번호 유효 5년 | 통달 06/2011/TT-BYT 제10조 | | 보도 | https://thuvienphapluat.vn/hoi-dap-phap-luat/phieu-cong-bo-san-pham-my-pham-la-gi-thoi-han-dung-cua-phieu-cong-bo-san-pham-my-pham-trong-bao-lau-138001519.html | 2026-10-12 | |
@@ -20,3 +20,7 @@ STANDARDS A7·A17·A18 기준. 매달 1일 12개 서비스 법령 변경을 확�
 | franchise | 영업 1년 이상, 해외 가맹은 산업무역부 | 시행령 35/2006/NĐ-CP (08/2018 개정 후 유지) | | 보도 | https://luatminhkhue.vn/quy-dinh-ve-dieu-kien-nhuong-quyen-thuong-mai-moi-nhat.aspx | 2026-10-12 | 새 시행령은 못 찾음 |
 | tamtru | 도착 후 12시간(외곽 24시간) 신고 | 외국인 출입국·거주법 제33조 2항, 개정 51/2019, 23/2023 | 2023.8.15 | 보도 | https://thuvienphapluat.vn/van-ban/EN/Quyen-dan-su/Integrated-document-30-VBHN-VPQH-2023-Law-Entry-Exit-Transit-and-Residence-of-Foreigners/604515/tieng-anh.aspx | 2026-10-12 | 통합본 30/VBHN-VPQH |
 | trc | 임시 거주 카드 | 같은 법 제36조부터 제38조 | | 보도 | 위 통합본 | 2026-10-12 | |
+| fire | 소방 시행령 개정, 사용 전 소방 데이터베이스 신고(2026.9.15부터), 설계 심사 유지 | 시행령 347/2026/NĐ-CP, 정부 (2026.9.8 공포) | 2026.9.15 | 보도 | https://lsvn.vn/chu-dau-tu-phai-khai-bao-du-lieu-phong-chay-chua-chay-truoc-khi-dua-cong-trinh-vao-hoat-dong-a178875.html , https://dhtaxlaw.com.vn/nghi-dinh-347-2026-nd-cp-sua-doi-quy-dinh-pccc-khoa-hoc-va-an-ninh | 2026-10-12 | 관할기관 완공검사 폐지와 서식 PC15·16·17 폐지는 어사이드 주장, 두 자료에서 확인 못함 (원문 대조 필요) |
+| fire | 결의 66.18/2026 공포일과 한시 적용 | 결의 66.18/2026/NQ-CP, 정부 (2026.5.18 공포) | 2026.7.1부터 2027.2.28까지 | 참고 | https://xaydungchinhsach.chinhphu.vn/nghi-quyet-so-6618-2026-nq-cp-cat-giam-don-gian-hoa-tthc-dieu-kien-kinh-doanh-nhieu-nganh-linh-vuc-119260520145049455.htm | 2026-10-12 | 정부 정책 포털 링크는 직접 열지 못해 등급 유지 |
+| wp | 불법 취업 과태료: 근로자 1,500만에서 2,500만 동, 고용주 인원별 3,000만에서 7,500만 동 | 시행령 283/2026/NĐ-CP, 정부 (2026.7.15 공포) | 2026.9.10 | 보도 | https://thuvienphapluat.vn/van-ban/EN/Bao-hiem/Decree-283-2026-ND-CP-penalties-for-administrative-violations-against-regulations-on-labour/719911/tieng-anh.aspx | 2026-10-12 | 현재 노동허가 콘텐츠 본문에는 과태료 설명이 없어 출처 표에는 넣지 않음 |
+| wp | 갱신 서류 간소화 | 결의 24/2026/NQ-CP (2026.4.29), 결정 526/QĐ-BNV | | 확인 실패 | https://haiphongnews.gov.vn/news/viet-nam-accelerates-administrative-reform-in-foreign-affairs-under-resolution-242026nq-cp-ct13011.html | 2026-10-12 | 결의 24는 외교 분야(외국 언론인·비정부기구) 내용이고 노동허가는 언급 없음. 결정 526은 못 찾음. 반영 안 함 |

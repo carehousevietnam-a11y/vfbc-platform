@@ -1214,6 +1214,17 @@ export const FIRE_CONTENT_FINAL = {
             "https://lsvn.vn/bo-thu-tuc-nghiem-thu-phong-chay-chua-chay-tu-01-7-2026-a173592.html"
           ],
           "note": "설계 심사는 폐지 대상이 아니며 대체 절차는 없고 건물주 책임으로 바뀐다는 보도임. 결의 발행일은 한 곳의 보도로만 확인했으므로 원문 대조 필요"
+        },
+        {
+          "id": "3",
+          "name": "소방 시행령 개정 (제347/2026/NĐ-CP호, 2026.9.8 공포, 2026.9.15 시행): 투자자는 건물을 사용하기 전에 소방 데이터베이스에 신고, 소방 설계 심사 의무는 유지",
+          "publisher": "베트남 정부",
+          "kind": "보도 기준",
+          "urls": [
+            "https://lsvn.vn/chu-dau-tu-phai-khai-bao-du-lieu-phong-chay-chua-chay-truoc-khi-dua-cong-trinh-vao-hoat-dong-a178875.html",
+            "https://dhtaxlaw.com.vn/nghi-dinh-347-2026-nd-cp-sua-doi-quy-dinh-pccc-khoa-hoc-va-an-ninh"
+          ],
+          "note": "관할기관 완공검사 폐지 여부(시행령 105 제10조)는 확인 못함, 원문 대조 필요"
         }
       ]
     }
