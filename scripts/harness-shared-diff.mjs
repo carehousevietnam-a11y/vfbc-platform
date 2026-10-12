@@ -60,6 +60,15 @@ export function sharedDeletionFiles(mode) {
 if (path.resolve(process.argv[1] ?? "").toLowerCase() === fileURLToPath(import.meta.url).toLowerCase()) {
   const mode = process.argv.includes("--cached") ? "cached" : "head";
   const blocked = sharedDeletionFiles(mode);
+  // 대표 승인: 커밋 메시지에 "SHARED-EDIT-APPROVED: <사유>" 줄이 있으면 공통 파일 줄 수정을 허용한다.
+  const messageIndex = process.argv.indexOf("--message");
+  if (blocked.length && messageIndex >= 0 && process.argv[messageIndex + 1]) {
+    const message = fs.readFileSync(process.argv[messageIndex + 1], "utf8");
+    if (/^SHARED-EDIT-APPROVED: .+/m.test(message)) {
+      process.stderr.write(`shared edit approved (${blocked.length} files): ${blocked.join(", ")}\n`);
+      process.exit(0);
+    }
+  }
   if (blocked.length) {
     for (const file of blocked) process.stderr.write(`BLOCK shared deletion: ${file}\n`);
     process.exit(1);

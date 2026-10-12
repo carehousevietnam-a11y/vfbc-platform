@@ -20,4 +20,6 @@ if head -1 "$1" | grep -qE '^fix'; then
     fi
   fi
 fi
+# Shared files (tests/baseline/shared-files.txt) are add-only unless the message has "SHARED-EDIT-APPROVED: <reason>".
+node scripts/harness-shared-diff.mjs --cached --message "$1" || exit 1
 exit 0

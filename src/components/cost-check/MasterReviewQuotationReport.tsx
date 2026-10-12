@@ -248,18 +248,18 @@ function VerifyQuestionReasonGuidePanel({
   return (
     <aside
       className={cn(
-        "rounded-xl border border-[#eef2f6] bg-[#fbfcfd] p-4 shadow-sm",
+        "rounded-[14px] border border-[#E3E8F0] bg-[#F7F9FC] p-5",
         className,
       )}
       aria-label="질문 이유 안내"
     >
-      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2563EB]">
         QUESTION GUIDE
       </p>
-      <p className="mt-1 break-keep text-[13px] font-bold leading-snug text-[#0f172a]">
+      <p className="mt-2 break-keep text-[14px] font-semibold leading-snug tracking-[-0.01em] text-[#071A33]">
         {copy.title}
       </p>
-      <p className="mt-1 break-keep text-[11.5px] leading-normal text-slate-500 [overflow-wrap:normal]">
+      <p className="mt-1.5 break-keep text-[12.5px] leading-[1.6] text-[#6B7A90] [overflow-wrap:normal]">
         {copy.body}
       </p>
     </aside>
@@ -3166,7 +3166,7 @@ export function MasterReviewQuotationReport({
                     tone="blue"
                     className={
                       useStitchQuestionLayout
-                        ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                        ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                         : undefined
                     }
                     onClick={() => {
@@ -3185,15 +3185,15 @@ export function MasterReviewQuotationReport({
                 ))}
               </VerifyAnswerGrid>
               {question.options.some(isAdminDirectExplainOption) ? (
-                <div className="mt-4 border-t border-[#E2E8F0] pt-4">
-                  <p className="text-[12px] text-[#64748B]">{directExplainPlaceholder}</p>
+                <div className="mt-5 border-t border-[#E3E8F0] pt-5">
+                  <p className="text-[13px] text-[#6B7A90]">{directExplainPlaceholder}</p>
                   <button
                     type="button"
                     onClick={() => {
                       setAdminDirectExplainOpenId(question.id);
                       setSelectedKey("other");
                     }}
-                    className="mt-2 inline-flex min-h-[40px] items-center rounded-[6px] border border-[#CBD5E1] bg-white px-4 text-[13px] font-medium text-[#0B2A6B] transition hover:bg-[#F8FAFC]"
+                    className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                   >
                     {ADMIN_DIRECT_EXPLAIN_LABEL}
                   </button>
@@ -3214,7 +3214,7 @@ export function MasterReviewQuotationReport({
             </>
           ) : (
             <VerifyStep4InputStack>
-              <p className="text-[12px] text-[#64748B]">{directExplainPlaceholder}</p>
+              <p className="text-[13px] text-[#6B7A90]">{directExplainPlaceholder}</p>
               <textarea
                 value={directDraft}
                 onChange={(e) =>
@@ -3472,14 +3472,14 @@ export function MasterReviewQuotationReport({
                       tone="blue"
                       className={
                         useStitchQuestionLayout
-                          ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                          ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                           : undefined
                       }
                       onClick={() => selectAnswer(question.id, opt.value)}
                     />
                   ))}
                 </VerifyAnswerGrid>
-                <div className="mt-4 border-t border-[#E2E8F0] pt-4">
+                <div className="mt-5 border-t border-[#E3E8F0] pt-5">
                   <p className="text-[12px] text-[#64748B]">선택지에 없는 내용이 있다면</p>
                   <button
                     type="button"
@@ -3487,7 +3487,7 @@ export function MasterReviewQuotationReport({
                       setCaseEntryDirectExplainOpen(true);
                       setSelectedKey("other");
                     }}
-                    className="mt-2 inline-flex min-h-[40px] items-center rounded-[6px] border border-[#CBD5E1] bg-white px-4 text-[13px] font-medium text-[#0B2A6B] transition hover:bg-[#F8FAFC]"
+                    className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                   >
                     {ADMIN_DIRECT_EXPLAIN_LABEL}
                   </button>
@@ -3586,7 +3586,7 @@ export function MasterReviewQuotationReport({
               {...questionProps}
             >
               <VerifyStep4InputStack>
-                <p className="text-[12px] text-[#64748B]">{directExplainPlaceholder}</p>
+                <p className="text-[13px] text-[#6B7A90]">{directExplainPlaceholder}</p>
                 <textarea
                   value={directExplainDraft}
                   onChange={(e) =>
@@ -3674,7 +3674,7 @@ export function MasterReviewQuotationReport({
                   tone="blue"
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -3682,12 +3682,12 @@ export function MasterReviewQuotationReport({
               ))}
             </VerifyAnswerGrid>
             {directExplainDetailKey ? (
-              <div className="mt-4 border-t border-[#E2E8F0] pt-4">
-                <p className="text-[12px] text-[#64748B]">{directExplainPlaceholder}</p>
+              <div className="mt-5 border-t border-[#E3E8F0] pt-5">
+                <p className="text-[13px] text-[#6B7A90]">{directExplainPlaceholder}</p>
                 <button
                   type="button"
                   onClick={() => setRe2DirectExplainOpenId(question.id)}
-                  className="mt-2 inline-flex min-h-[40px] items-center rounded-[6px] border border-[#CBD5E1] bg-white px-4 text-[13px] font-medium text-[#0B2A6B] transition hover:bg-[#F8FAFC]"
+                  className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                 >
                   {ADMIN_DIRECT_EXPLAIN_LABEL}
                 </button>
@@ -3744,7 +3744,7 @@ export function MasterReviewQuotationReport({
                   tone="blue"
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -3809,7 +3809,7 @@ export function MasterReviewQuotationReport({
                   tone="blue"
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -3856,7 +3856,7 @@ export function MasterReviewQuotationReport({
                   tone={opt.tone}
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -3935,7 +3935,7 @@ export function MasterReviewQuotationReport({
                   hideDescriptionOnMobile
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -3982,7 +3982,7 @@ export function MasterReviewQuotationReport({
                   hideDescriptionOnMobile
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -4052,7 +4052,7 @@ export function MasterReviewQuotationReport({
                   hideDescriptionOnMobile
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -4093,7 +4093,7 @@ export function MasterReviewQuotationReport({
                   hideDescriptionOnMobile
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -4134,7 +4134,7 @@ export function MasterReviewQuotationReport({
                   hideDescriptionOnMobile
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -4180,7 +4180,7 @@ export function MasterReviewQuotationReport({
                   hideDescriptionOnMobile
                   className={
                     useStitchQuestionLayout
-                      ? "lg:[&_p.font-bold]:!text-[14px] lg:[&_p.font-normal]:!text-[11px]"
+                      ? "lg:[&_p.font-semibold]:!text-[15px] lg:[&_p.font-normal]:!text-[13px]"
                       : undefined
                   }
                   onClick={() => selectAnswer(question.id, opt.value)}
@@ -5125,10 +5125,10 @@ export function MasterReviewQuotationReport({
                       <div className="flex items-center gap-2.5 lg:gap-3">
                         <span
                           className={cn(
-                            "font-bold tabular-nums leading-none text-[#0f172a]",
+                            "font-semibold tabular-nums leading-none text-[#071A33]",
                             activeStepNumber === 1 || activeStepNumber === 2
-                              ? "text-[12px] lg:text-[14px]"
-                              : "text-[12px]",
+                              ? "text-[13px] lg:text-[14px]"
+                              : "text-[13px]",
                           )}
                         >
                           {String(activeStepNumber).padStart(2, "0")} /{" "}
@@ -5136,17 +5136,17 @@ export function MasterReviewQuotationReport({
                         </span>
                         <div
                           className={cn(
-                            "flex items-center overflow-hidden rounded-full bg-slate-100",
-                            "h-[4px] w-[80px] lg:h-[3.5px] lg:w-[100px]",
+                            "flex items-center overflow-hidden rounded-full bg-[#E3E8F0]",
+                            "h-[4px] w-[80px] lg:w-[120px]",
                           )}
                         >
                           <div
-                            className="h-full rounded-full bg-[#0f172a] transition-[width] duration-300 ease-out"
+                            className="h-full rounded-full bg-[#2563EB] transition-[width] duration-300 ease-out"
                             style={{ width: `${stitchProgressPercent}%` }}
                           />
                         </div>
                       </div>
-                      <span className="text-[11px] font-medium text-slate-400 sm:hidden">
+                      <span className="text-[11px] font-medium text-[#6B7A90] sm:hidden">
                         {isAdminVerifyPhase2Screen || isRealEstatePhase2QuestionScreen
                           ? "2단계 · 개인화 검토"
                           : "1단계 · 검토 방향"}
@@ -5207,8 +5207,7 @@ export function MasterReviewQuotationReport({
                       </p>
                       <div
                         className={cn(
-                          "flex flex-col gap-3 lg:hidden",
-                          isRealEstateVerifyMasterLayout && "mt-6",
+                          "mt-6 flex flex-col gap-3 lg:hidden",
                         )}
                       >
                         <VerifyQuestionReasonGuidePanel phase={1} className="w-full" />

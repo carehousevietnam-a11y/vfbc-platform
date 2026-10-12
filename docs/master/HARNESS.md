@@ -16,7 +16,7 @@
    - 세금 7개: `tax-P-free`, `tax-V-free`, `tax-C-free`, `tax-P-paid`, `tax-V-paid`, `tax-C-paid`, `tax-direct`
    - 부동산: `re-RE01`
    - 행정 무료: `admin-free-basic`
-4. 공통 파일은 줄을 지우지 않고 추가만 한다. 목록은 `tests/baseline/shared-files.txt`다.
+4. 공통 파일은 줄을 지우지 않고 추가만 한다. 목록은 `tests/baseline/shared-files.txt`다. 대표가 줄 수정을 승인한 경우에만 커밋 메시지에 `SHARED-EDIT-APPROVED: <사유>` 줄을 넣어 허용한다(검사는 commit-msg에서 한다).
 5. 운영 DB에 저장하지 않는다. verify와 content-final, PDF 생성은 Supabase에 쓰지 않는다.
 6. push하지 않는다.
 7. 재발 방지 검사가 통과한다. `node scripts/harness-recurrence.mjs`

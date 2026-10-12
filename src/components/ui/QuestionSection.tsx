@@ -70,11 +70,11 @@ export default function QuestionSection({
         {isStitchLayout ? (
           <>
             <div className="mb-5 lg:mb-6">
-              <h3 className="break-keep text-[20px] font-bold leading-snug tracking-tight text-[#0f172a] sm:text-[22px] lg:text-[24px]">
+              <h3 className="break-keep text-[20px] font-bold leading-[1.3] tracking-[-0.025em] text-[#071A33] sm:text-[22px] lg:text-[24px]">
                 {title}
               </h3>
               {description ? (
-                <p className="mt-1 break-keep text-[12.5px] leading-normal text-slate-500 [overflow-wrap:normal]">
+                <p className="mt-2 break-keep text-[13.5px] leading-[1.6] text-[#6B7A90] [overflow-wrap:normal]">
                   {description}
                 </p>
               ) : null}

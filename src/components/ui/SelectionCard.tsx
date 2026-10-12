@@ -237,14 +237,14 @@ export default function SelectionCard({
       className={cn(
         "w-full text-left",
         isStitch
-          ? "rounded-xl border bg-white p-3 shadow-sm transition-all max-sm:px-3 max-sm:py-3 sm:p-3.5 lg:p-4"
+          ? "rounded-[14px] border bg-white p-4 transition-colors duration-200 max-sm:px-4 max-sm:py-3.5 lg:px-5 lg:py-[18px]"
           : isQuiet
             ? "h-full p-3 sm:p-3"
             : "p-5 sm:min-h-[200px] sm:p-6",
         isStitch
           ? selected
-            ? "border-slate-900 bg-slate-50/40 shadow-sm lg:border-slate-900"
-            : "border-slate-200 hover:border-slate-900 lg:hover:bg-slate-50/50"
+            ? "border-[#2563EB] bg-[#F2F6FE]"
+            : "border-[#E3E8F0] hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
           : selectionSurfaceClasses(selected, { disabled }),
         selected &&
           !isQuiet &&
@@ -262,10 +262,8 @@ export default function SelectionCard({
                 {badgeNumber ? (
                   <span
                     className={cn(
-                      "mt-0.5 shrink-0 rounded px-1.5 py-0.5 font-mono text-[10px] font-bold",
-                      selected
-                        ? "border border-slate-200 bg-white text-slate-900"
-                        : "bg-slate-100 text-slate-500",
+                      "mt-0.5 inline-flex min-w-6 shrink-0 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold tabular-nums",
+                      selected ? "bg-[#2563EB] text-white" : "bg-[#F2F6FE] text-[#2563EB]",
                     )}
                   >
                     {badgeNumber}
@@ -273,8 +271,7 @@ export default function SelectionCard({
                 ) : null}
                 <span
                   className={cn(
-                    "min-w-0 break-keep text-pretty text-[14px] font-bold leading-snug max-[430px]:text-[13.5px]",
-                    selected ? "text-slate-900" : "text-slate-800",
+                    "min-w-0 break-keep text-pretty text-[14px] font-semibold leading-snug tracking-[-0.01em] text-[#071A33] max-[430px]:text-[13.5px]",
                   )}
                 >
                   {formatStitchSelectionTitle(title)}
@@ -285,7 +282,7 @@ export default function SelectionCard({
                   className={cn(
                     "mt-1 break-keep text-pretty text-[12px] font-normal leading-relaxed",
                     badgeNumber ? "pl-[calc(1.5rem+0.5rem)]" : undefined,
-                    selected ? "text-slate-600" : "text-slate-500",
+                    "text-[#3D4B63]",
                   )}
                 >
                   {formatStitchSelectionTitle(description)}
@@ -294,10 +291,8 @@ export default function SelectionCard({
             </div>
             <div
               className={cn(
-                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors max-[430px]:ml-auto",
-                selected
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-500",
+                "flex h-7 w-7 shrink-0 items-center justify-center transition-colors max-[430px]:ml-auto",
+                selected ? "text-[#2563EB]" : "text-[#9AA7BA]",
               )}
               aria-hidden
             >
@@ -311,19 +306,19 @@ export default function SelectionCard({
               {badgeNumber ? (
                 <span
                   className={cn(
-                    "mt-0.5 inline-flex items-center justify-center rounded px-2 py-0.5 text-[11px] font-bold",
-                    selected ? "bg-slate-100 text-slate-700" : "bg-slate-100 text-slate-700",
+                    "mt-0.5 inline-flex min-w-7 items-center justify-center rounded-md px-2 py-0.5 text-[12px] font-semibold tabular-nums",
+                    selected ? "bg-[#2563EB] text-white" : "bg-[#F2F6FE] text-[#2563EB]",
                   )}
                 >
                   {badgeNumber}
                 </span>
               ) : null}
               <div className="min-w-0">
-                <p className="break-keep text-pretty text-[16px] font-bold leading-snug text-slate-900">
+                <p className="break-keep text-pretty text-[16px] font-semibold leading-snug tracking-[-0.015em] text-[#071A33]">
                   {formatStitchSelectionTitle(title)}
                 </p>
                 {description ? (
-                  <p className="mt-1 break-keep text-pretty text-[13.5px] font-normal leading-normal text-slate-600">
+                  <p className="mt-1 break-keep text-pretty text-[13.5px] font-normal leading-[1.6] text-[#3D4B63]">
                     {formatStitchSelectionTitle(description)}
                   </p>
                 ) : null}
@@ -332,7 +327,7 @@ export default function SelectionCard({
             <div
               className={cn(
                 "ml-4 shrink-0 text-[18px] font-medium transition-colors",
-                selected ? "text-slate-900" : "text-slate-400",
+                selected ? "text-[#2563EB]" : "text-[#9AA7BA]",
               )}
               aria-hidden
             >
