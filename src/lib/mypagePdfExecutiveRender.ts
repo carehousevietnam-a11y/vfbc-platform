@@ -40,6 +40,8 @@ import { buildUnclearVerifyAiReportContentFromActivities } from "@/lib/contentPa
 import { drawUnclearReportNotes } from "@/lib/contentPacks/unclear/unclearReportNotes";
 import { buildTrcVerifyAiReportContentFromActivities } from "@/lib/contentPacks/trc/trcPack";
 import { drawTrcReportNotes } from "@/lib/contentPacks/trc/trcReportNotes";
+import { buildWpVerifyAiReportContentFromActivities } from "@/lib/contentPacks/wp/wpPack";
+import { drawWpReportNotes } from "@/lib/contentPacks/wp/wpReportNotes";
 import { drawTaxBaseGlyphText, drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
@@ -97,6 +99,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_tax: "세무문서 검토",
   verify_unclear: "불확실한 서류 검토",
   verify_trc: "거주증 직접 확인",
+  verify_wp: "노동허가 직접 확인",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",
@@ -219,6 +222,10 @@ function buildVerifyMasterReportContent(
 
   if (typeKey === "verify_trc") {
     return buildTrcVerifyAiReportContentFromActivities(activities);
+  }
+
+  if (typeKey === "verify_wp") {
+    return buildWpVerifyAiReportContentFromActivities(activities);
   }
 
   return null;
@@ -1653,6 +1660,23 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     if ((normalizedType ?? "").replace(/-/g, "_") === "verify_trc") {
       noteExtraPages.push(
         ...drawTrcReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        }),
+      );
+    }
+    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_wp") {
+      noteExtraPages.push(
+        ...drawWpReportNotes({
           activities,
           doc,
           font,

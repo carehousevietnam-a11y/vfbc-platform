@@ -77,6 +77,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_tax: "세무 검토",
   verify_unclear: "기타·불명확 검토",
   verify_trc: "거주증 직접 확인",
+  verify_wp: "노동허가 직접 확인",
 };
 
 function getServiceLabel(serviceType: string) {
@@ -121,6 +122,7 @@ function getServiceIcon(serviceType: string) {
   if (key.startsWith("verify_tax")) return "🧾";
   if (key.startsWith("verify_unclear")) return "🔎";
   if (key.startsWith("verify_trc")) return "🪪";
+  if (key.startsWith("verify_wp")) return "💼";
   if (key === "consultation") return "💬";
   return "📌";
 }

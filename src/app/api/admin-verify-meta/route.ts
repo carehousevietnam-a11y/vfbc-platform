@@ -17,6 +17,7 @@ const TAX_VERIFY_SERVICE_TYPE = "verify_tax";
 const FRAUD_VERIFY_SERVICE_TYPE = "verify_fraud";
 const UNCLEAR_VERIFY_SERVICE_TYPE = "verify_unclear";
 const TRC_VERIFY_SERVICE_TYPE = "verify_trc";
+const WP_VERIFY_SERVICE_TYPE = "verify_wp";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -78,6 +79,17 @@ const TRC_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "trc_pack_case_id",
   "trc_pack_phase2_summary",
   "trc_pack_headline",
+]);
+
+const WP_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "wp_pack_v1",
+  "wp_pack_case_id",
+  "wp_pack_phase2_summary",
+  "wp_pack_headline",
 ]);
 
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
@@ -181,7 +193,8 @@ export async function POST(req: NextRequest) {
     const isFraudLead = lead.service_type === FRAUD_VERIFY_SERVICE_TYPE;
     const isUnclearLead = lead.service_type === UNCLEAR_VERIFY_SERVICE_TYPE;
     const isTrcLead = lead.service_type === TRC_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead) {
+    const isWpLead = lead.service_type === WP_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -202,7 +215,9 @@ export async function POST(req: NextRequest) {
             ? UNCLEAR_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
             : isTrcLead
               ? TRC_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
-              : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+              : isWpLead
+                ? WP_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {

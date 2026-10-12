@@ -58,6 +58,7 @@ import { buildTaxPhase2PersistMeta } from "@/lib/contentPacks/tax/taxPack";
 import { buildFraudPhase2PersistMeta } from "@/lib/contentPacks/fraud/fraudPack";
 import { buildUnclearPhase2PersistMeta } from "@/lib/contentPacks/unclear/unclearPack";
 import { buildTrcPhase2PersistMeta } from "@/lib/contentPacks/trc/trcPack";
+import { buildWpPhase2PersistMeta } from "@/lib/contentPacks/wp/wpPack";
 import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
@@ -1413,7 +1414,14 @@ function DocumentUploadContent() {
                     ...buildTrcPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
                     ...uploadGateMeta,
                   }
-                : uploadGateMeta;
+                : handoffService === "verify_wp" &&
+                    snapshotAnswers &&
+                    Object.keys(snapshotAnswers).length > 0
+                  ? {
+                      ...buildWpPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                      ...uploadGateMeta,
+                    }
+                  : uploadGateMeta;
 
     const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {

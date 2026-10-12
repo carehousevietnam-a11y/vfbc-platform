@@ -57,6 +57,7 @@ export const KNOWN_SERVICE_TYPES = [
   "verify_real-estate",
   "verify_unclear",
   "verify_trc",
+  "verify_wp",
   // REGISTER
   "permit_company",
   "register_restaurant",

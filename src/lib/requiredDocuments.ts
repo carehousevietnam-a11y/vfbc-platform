@@ -18,6 +18,7 @@ export type DocumentServiceKey =
   | "verify_tax"
   | "verify_unclear"
   | "verify_trc"
+  | "verify_wp"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -137,6 +138,17 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_wp: {
+    serviceKey: "verify_wp",
+    serviceLabel: "노동허가 직접 확인",
+    documents: ["여권 사본", "학위증·경력 확인서"],
+    optionalDocuments: [
+      "건강검진서",
+      "범죄경력증명서",
+      "회사 등록 서류·근로계약서",
       "기타 참고자료",
     ],
   },

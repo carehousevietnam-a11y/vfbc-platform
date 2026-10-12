@@ -20,6 +20,7 @@ const WATCHED = [
   "tests/qa/fraud-content-final.mjs",
   "tests/qa/unclear-content-final.mjs",
   "tests/qa/trc-content-final.mjs",
+  "tests/qa/wp-content-final.mjs",
 ];
 
 const DB_WRITE = [

@@ -38,6 +38,11 @@ const VERIFY_PHASE2_HANDOFF: Partial<Record<VerifyServiceType, VerifyPhase2Hando
     documentsServiceParam: "verify_trc",
     verifyReturnPath: "/verify/trc",
   },
+  verify_wp: {
+    snapshotStorageKey: "vfbcai_wp_verify_phase2_snapshot",
+    documentsServiceParam: "verify_wp",
+    verifyReturnPath: "/verify/wp",
+  },
 };
 
 export const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY =

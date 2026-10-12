@@ -55,6 +55,7 @@ const blocking = [
   ["fraud-content-final", node, [path.join(root, "tests/qa/fraud-content-final.mjs")]],
   ["unclear-content-final", node, [path.join(root, "tests/qa/unclear-content-final.mjs")]],
   ["trc-content-final", node, [path.join(root, "tests/qa/trc-content-final.mjs")]],
+  ["wp-content-final", node, [path.join(root, "tests/qa/wp-content-final.mjs")]],
   ["fraud-unclear-screen", node, [path.join(root, "scripts/harness-screen.mjs")]],
   ["report-layout", node, [path.join(root, "scripts/harness-report-layout.mjs")]],
   ["pdf-baseline", node, [path.join(root, "scripts/harness-pdf-baseline.mjs")]],
