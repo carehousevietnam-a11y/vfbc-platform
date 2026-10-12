@@ -202,7 +202,7 @@ function getFieldSchema(label: string): FieldConfig[] | null {
 // 페이지 전용으로만 최소 구현한다(공통 라이브러리는 수정하지 않음).
 // 직접 입력 폼의 세로 여백을 줄이기 위해 TextField/TextAreaField보다 촘촘한 간격을 쓴다.
 const COMPACT_FIELD_CLASS =
-  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 transition-colors duration-200 focus:border-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900/10";
+  "w-full rounded-lg border border-[#E3E8F0] bg-white px-3 py-2 text-sm text-[#071A33] placeholder:text-[#6B7A90] transition-colors duration-200 focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]";
 
 function SelectField({
   label,
@@ -217,7 +217,7 @@ function SelectField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <span className="mb-1 block text-xs font-semibold text-[#3D4B63]">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -249,7 +249,7 @@ function CompactTextField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <span className="mb-1 block text-xs font-semibold text-[#3D4B63]">{label}</span>
       <input type={type} value={value} onChange={onChange} placeholder={placeholder} className={COMPACT_FIELD_CLASS} />
     </label>
   );
@@ -272,7 +272,7 @@ function CompactTextAreaField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
+      <span className="mb-1 block text-xs font-semibold text-[#3D4B63]">{label}</span>
       <textarea
         rows={rows}
         value={value}
@@ -280,7 +280,7 @@ function CompactTextAreaField({
         placeholder={placeholder}
         className={`${COMPACT_FIELD_CLASS} resize-none`}
       />
-      {hint && <span className="mt-1 block text-[11px] text-gray-400">{hint}</span>}
+      {hint && <span className="mt-1 block text-[11px] text-[#6B7A90]">{hint}</span>}
     </label>
   );
 }
@@ -461,7 +461,7 @@ function DocumentCard({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:p-5">
+    <div className="rounded-2xl border border-[#E3E8F0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:p-5">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
@@ -469,24 +469,24 @@ function DocumentCard({
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[10px] font-bold text-white">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-[10px] font-bold text-white">
               {index + 1}
             </span>
-            <p className="text-sm font-bold text-gray-900">{doc.label}</p>
+            <p className="text-sm font-bold text-[#071A33]">{doc.label}</p>
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                 requirementLabel === "우선 제출"
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-[#F2F6FE] text-[#1D4ED8]"
                   : requirementLabel === "있으면 제출"
-                    ? "bg-gray-100 text-gray-600"
-                    : "bg-slate-100 text-slate-600"
+                    ? "bg-[#F2F5FA] text-[#3D4B63]"
+                    : "bg-[#F2F5FA] text-[#3D4B63]"
               }`}
             >
               {requirementLabel}
             </span>
           </div>
           {description && (
-            <p className="mt-1 pl-7 text-xs text-gray-500">{description}</p>
+            <p className="mt-1 pl-7 text-xs text-[#6B7A90]">{description}</p>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -495,33 +495,33 @@ function DocumentCard({
           </StatusBadge>
           <ChevronDown
             size={16}
-            className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+            className={`text-[#6B7A90] transition-transform ${expanded ? "rotate-180" : ""}`}
           />
         </div>
       </button>
 
       <div className={expanded ? "block" : "hidden"}>
         {detailContent ? (
-          <div className="mt-3 space-y-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3.5">
+          <div className="mt-3 space-y-3 rounded-xl border border-[#E3E8F0] bg-[#F7F9FC] p-3.5">
             <div>
-              <p className="text-[11px] font-bold text-gray-700">왜 필요한가</p>
-              <p className="mt-1 break-keep text-xs leading-relaxed text-gray-600">
+              <p className="text-[11px] font-bold text-[#3D4B63]">왜 필요한가</p>
+              <p className="mt-1 break-keep text-xs leading-relaxed text-[#3D4B63]">
                 {detailContent.whyNeeded}
               </p>
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-700">어떤 자료를 올리면 되나요?</p>
-              <p className="mt-1 break-keep text-xs leading-relaxed text-gray-600">
+              <p className="text-[11px] font-bold text-[#3D4B63]">어떤 자료를 올리면 되나요?</p>
+              <p className="mt-1 break-keep text-xs leading-relaxed text-[#3D4B63]">
                 {detailContent.uploadGuide}
               </p>
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-700">예시</p>
+              <p className="text-[11px] font-bold text-[#3D4B63]">예시</p>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {detailContent.examples.map((example) => (
                   <span
                     key={example}
-                    className="rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-medium text-gray-600"
+                    className="rounded-full border border-[#E3E8F0] bg-white px-2 py-0.5 text-[10px] font-medium text-[#3D4B63]"
                   >
                     {example}
                   </span>
@@ -532,12 +532,12 @@ function DocumentCard({
         ) : null}
 
         {/* 업로드 / 직접 입력 탭 */}
-        <div className="mt-3 inline-flex rounded-xl bg-gray-100 p-1">
+        <div className="mt-3 inline-flex rounded-xl bg-[#F2F5FA] p-1">
           <button
             type="button"
             onClick={() => onModeChange("upload")}
             className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-              doc.inputMode === "upload" ? "bg-white text-blue-900 shadow-sm" : "text-gray-500"
+              doc.inputMode === "upload" ? "bg-white text-[#2563EB] shadow-sm" : "text-[#6B7A90]"
             }`}
           >
             <Upload size={13} /> 파일 업로드
@@ -546,7 +546,7 @@ function DocumentCard({
             type="button"
             onClick={() => onModeChange("manual")}
             className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-              doc.inputMode === "manual" ? "bg-white text-blue-900 shadow-sm" : "text-gray-500"
+              doc.inputMode === "manual" ? "bg-white text-[#2563EB] shadow-sm" : "text-[#6B7A90]"
             }`}
           >
             <PenLine size={13} /> 직접 입력
@@ -556,17 +556,17 @@ function DocumentCard({
         <div className="mt-2.5">
           {doc.inputMode === "upload" ? (
             doc.uploading ? (
-              <div className="flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-6 text-xs font-semibold text-blue-700">
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-[#E3ECFD] bg-[#F2F6FE] px-4 py-6 text-xs font-semibold text-[#1D4ED8]">
                 <Loader2 size={16} className="animate-spin" /> 업로드 중...
               </div>
             ) : doc.storagePath ? (
               <>
-                <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3">
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-[#E3ECFD] bg-[#F2F6FE] px-4 py-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <Paperclip size={15} className="shrink-0 text-blue-700" />
+                    <Paperclip size={15} className="shrink-0 text-[#1D4ED8]" />
                     <div className="min-w-0">
-                      <p className="truncate text-xs font-semibold text-gray-900">{doc.fileName}</p>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="truncate text-xs font-semibold text-[#071A33]">{doc.fileName}</p>
+                      <p className="text-[11px] text-[#6B7A90]">
                         {doc.fileSize !== null ? formatFileSize(doc.fileSize) : ""}
                       </p>
                     </div>
@@ -575,7 +575,7 @@ function DocumentCard({
                     type="button"
                     onClick={onFileClear}
                     disabled={doc.deleting}
-                    className="shrink-0 rounded-full p-1 text-gray-400 hover:bg-white hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="shrink-0 rounded-full p-1 text-[#6B7A90] hover:bg-white hover:text-[#3D4B63] disabled:cursor-not-allowed disabled:opacity-50"
                     aria-label="파일 삭제"
                   >
                     <X size={15} />
@@ -590,24 +590,24 @@ function DocumentCard({
                 {/* PC 전용 — 파일 선택·드래그앤드롭 영역 */}
                 <label
                   htmlFor={inputId}
-                  className="hidden cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-gray-300 bg-gray-50/60 px-4 py-6 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 lg:flex"
+                  className="hidden cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#E3E8F0] bg-[#F7F9FC] px-4 py-6 text-center transition-colors hover:border-[#9DB9F7] hover:bg-[#F2F6FE] lg:flex"
                 >
-                  <Upload size={20} className="text-gray-400" />
-                  <span className="text-xs font-semibold text-gray-600">파일 업로드</span>
-                  <span className="text-[11px] text-gray-400">JPG · PNG · PDF · DOC · DOCX</span>
-                  <span className="text-[11px] text-gray-400">최대 10MB</span>
+                  <Upload size={20} className="text-[#6B7A90]" />
+                  <span className="text-xs font-semibold text-[#3D4B63]">파일 업로드</span>
+                  <span className="text-[11px] text-[#6B7A90]">JPG · PNG · PDF · DOC · DOCX</span>
+                  <span className="text-[11px] text-[#6B7A90]">최대 10MB</span>
                 </label>
 
                 {/* 모바일 전용 — 버튼형 업로드 UI */}
                 <label
                   htmlFor={inputId}
-                  className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-center transition-colors hover:bg-gray-50 lg:hidden"
+                  className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-[#E3E8F0] bg-white px-4 py-3 text-center transition-colors hover:bg-[#F7F9FC] lg:hidden"
                 >
-                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-900">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB]">
                     <Upload size={15} /> 파일 업로드
                   </span>
-                  <span className="text-[11px] text-gray-400">JPG · PNG · PDF · DOC · DOCX</span>
-                  <span className="text-[11px] text-gray-400">최대 10MB</span>
+                  <span className="text-[11px] text-[#6B7A90]">JPG · PNG · PDF · DOC · DOCX</span>
+                  <span className="text-[11px] text-[#6B7A90]">최대 10MB</span>
                 </label>
 
                 {doc.uploadError && (
@@ -1563,22 +1563,22 @@ function DocumentUploadContent() {
 
   return (
     <main className="min-h-screen bg-[#fafafa]">
-      <div className="h-[3px] bg-blue-900" />
+      <div className="h-[3px] bg-[#2563EB]" />
       <div ref={scrollTopRef} className="mx-auto max-w-4xl px-4 py-8 pb-36 sm:px-6 sm:py-10 lg:pb-10">
         {/* 모바일 전용 브랜드 헤더 — 좌측 "← 홈으로", 로고+브랜드명은 중앙 정렬 */}
-        <div className="relative -mx-4 -mt-8 mb-4 flex items-center justify-center border-b border-gray-100 bg-white px-4 py-3 sm:-mx-6 sm:-mt-10 lg:hidden">
+        <div className="relative -mx-4 -mt-8 mb-4 flex items-center justify-center border-b border-[#E3E8F0] bg-white px-4 py-3 sm:-mx-6 sm:-mt-10 lg:hidden">
           <Link
             href="/"
             aria-label="홈으로"
-            className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-gray-500"
+            className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-[#6B7A90]"
           >
             <ArrowLeft size={14} /> 홈으로
           </Link>
           <div className="flex items-center gap-2">
             <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={32} height={32} className="shrink-0" />
             <div>
-              <p className="text-[15px] font-bold leading-tight text-gray-900">VFBCAI</p>
-              <p className="text-[10px] leading-tight text-gray-400">Check. Verify. Register. Protect.</p>
+              <p className="text-[15px] font-bold leading-tight text-[#071A33]">VFBCAI</p>
+              <p className="text-[10px] leading-tight text-[#6B7A90]">Check. Verify. Register. Protect.</p>
             </div>
           </div>
         </div>
@@ -1588,14 +1588,14 @@ function DocumentUploadContent() {
           <div className="flex items-center gap-2.5">
             <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={30} height={30} className="shrink-0" />
             <div>
-              <p className="text-lg font-bold leading-tight text-gray-900">VFBCAI</p>
-              <p className="text-[11px] leading-tight text-gray-400">Check. Verify. Register. Protect.</p>
+              <p className="text-lg font-bold leading-tight text-[#071A33]">VFBCAI</p>
+              <p className="text-[11px] leading-tight text-[#6B7A90]">Check. Verify. Register. Protect.</p>
             </div>
           </div>
           <button
             type="button"
             onClick={() => router.push("/")}
-            className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#E3E8F0] px-4 py-2 text-xs font-semibold text-[#3D4B63] hover:bg-[#F7F9FC]"
           >
             <ArrowLeft size={13} /> 홈으로
           </button>
@@ -1605,31 +1605,31 @@ function DocumentUploadContent() {
           <>
             {/* 아이콘 + 서비스명 + 설명 */}
             <div className="mt-6 flex items-start gap-3.5 lg:mt-5">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-900 lg:h-12 lg:w-12">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#2563EB] lg:h-12 lg:w-12">
                 <FileText className="text-white" size={26} />
               </div>
               <div className="min-w-0">
-                <h1 className="break-keep text-pretty text-lg font-bold tracking-tight text-gray-900 [word-break:keep-all] lg:text-xl">
+                <h1 className="break-keep text-pretty text-lg font-bold tracking-tight text-[#071A33] [word-break:keep-all] lg:text-xl">
                   {config.serviceLabel} · {copy.badgeLabel}
                 </h1>
-                <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                <p className="mt-1 text-xs leading-relaxed text-[#6B7A90]">
                   {verifyAdminPageCopy?.description ?? copy.description}
                 </p>
                 {leadId && (
-                  <p className="mt-1 text-[11px] text-gray-300">접수번호 {leadId.slice(0, 8)}</p>
+                  <p className="mt-1 text-[11px] text-[#9AA7BA]">접수번호 {leadId.slice(0, 8)}</p>
                 )}
               </div>
             </div>
 
             {isCompanyService && (
-              <section className="mt-5 rounded-2xl border border-gray-200 bg-white p-4 lg:p-5">
+              <section className="mt-5 rounded-2xl border border-[#E3E8F0] bg-white p-4 lg:p-5">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50">
-                    <Building2 size={18} className="text-blue-900" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F2F6FE]">
+                    <Building2 size={18} className="text-[#2563EB]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900">투자자 유형을 선택해주세요</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                    <p className="text-sm font-bold text-[#071A33]">투자자 유형을 선택해주세요</p>
+                    <p className="mt-1 text-xs leading-relaxed text-[#6B7A90]">
                       개인 투자와 법인 투자는 제출해야 하는 서류가 다릅니다.
                     </p>
                   </div>
@@ -1641,19 +1641,19 @@ function DocumentUploadContent() {
                     onClick={() => selectInvestorType("individual")}
                     className={`rounded-2xl border p-4 text-left transition ${
                       investorType === "individual"
-                        ? "border-blue-900 bg-blue-50 ring-1 ring-blue-900"
-                        : "border-gray-200 bg-white hover:border-blue-300"
+                        ? "border-[#2563EB] bg-[#F2F6FE] ring-1 ring-[#2563EB]"
+                        : "border-[#E3E8F0] bg-white hover:border-[#9DB9F7]"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                        investorType === "individual" ? "bg-blue-900 text-white" : "bg-gray-100 text-gray-500"
+                        investorType === "individual" ? "bg-[#2563EB] text-white" : "bg-[#F2F5FA] text-[#6B7A90]"
                       }`}>
                         <UserRound size={19} />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-900">개인 투자</p>
-                        <p className="mt-0.5 text-xs text-gray-500">개인이 직접 투자자가 되는 방식</p>
+                        <p className="text-sm font-bold text-[#071A33]">개인 투자</p>
+                        <p className="mt-0.5 text-xs text-[#6B7A90]">개인이 직접 투자자가 되는 방식</p>
                       </div>
                     </div>
                   </button>
@@ -1663,19 +1663,19 @@ function DocumentUploadContent() {
                     onClick={() => selectInvestorType("corporate")}
                     className={`rounded-2xl border p-4 text-left transition ${
                       investorType === "corporate"
-                        ? "border-blue-900 bg-blue-50 ring-1 ring-blue-900"
-                        : "border-gray-200 bg-white hover:border-blue-300"
+                        ? "border-[#2563EB] bg-[#F2F6FE] ring-1 ring-[#2563EB]"
+                        : "border-[#E3E8F0] bg-white hover:border-[#9DB9F7]"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                        investorType === "corporate" ? "bg-blue-900 text-white" : "bg-gray-100 text-gray-500"
+                        investorType === "corporate" ? "bg-[#2563EB] text-white" : "bg-[#F2F5FA] text-[#6B7A90]"
                       }`}>
                         <Building2 size={19} />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-900">법인 투자</p>
-                        <p className="mt-0.5 text-xs text-gray-500">해외 법인이 투자자가 되는 방식</p>
+                        <p className="text-sm font-bold text-[#071A33]">법인 투자</p>
+                        <p className="mt-0.5 text-xs text-[#6B7A90]">해외 법인이 투자자가 되는 방식</p>
                       </div>
                     </div>
                   </button>
@@ -1690,14 +1690,14 @@ function DocumentUploadContent() {
               {MOBILE_TRUST_ITEMS.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-2.5 py-2"
+                  className="flex items-center gap-2 rounded-xl border border-[#E3E8F0] bg-white px-2.5 py-2"
                 >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50">
-                    <item.icon size={13} className="text-blue-700" />
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F2F6FE]">
+                    <item.icon size={13} className="text-[#1D4ED8]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-[11px] font-bold text-gray-900">{item.label}</p>
-                    <p className="truncate text-[10px] text-gray-400">{item.sub}</p>
+                    <p className="truncate text-[11px] font-bold text-[#071A33]">{item.label}</p>
+                    <p className="truncate text-[10px] text-[#6B7A90]">{item.sub}</p>
                   </div>
                 </div>
               ))}
@@ -1707,35 +1707,35 @@ function DocumentUploadContent() {
               {TRUST_ITEMS.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2"
+                  className="flex items-center gap-2 rounded-xl border border-[#E3E8F0] bg-white px-3 py-2"
                 >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50">
-                    <item.icon size={13} className="text-blue-700" />
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F2F6FE]">
+                    <item.icon size={13} className="text-[#1D4ED8]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-gray-900">{item.label}</p>
-                    <p className="text-[11px] text-gray-400">{item.sub}</p>
+                    <p className="text-xs font-bold text-[#071A33]">{item.label}</p>
+                    <p className="text-[11px] text-[#6B7A90]">{item.sub}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* 전체 제출 진행률 */}
-            <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-4 lg:mt-4 lg:p-3.5">
+            <div className="mt-5 rounded-2xl border border-[#E3E8F0] bg-white p-3.5 sm:p-4 lg:mt-4 lg:p-3.5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-bold text-gray-900">핵심 자료 제출 현황</p>
-                <p className="shrink-0 text-xs font-semibold text-gray-400">{progressPercent}%</p>
+                <p className="text-sm font-bold text-[#071A33]">핵심 자료 제출 현황</p>
+                <p className="shrink-0 text-xs font-semibold text-[#6B7A90]">{progressPercent}%</p>
               </div>
-              <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100 lg:mt-2">
+              <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-[#F2F5FA] lg:mt-2">
                 <div
-                  className="h-full rounded-full bg-blue-900 transition-all duration-300"
+                  className="h-full rounded-full bg-[#2563EB] transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              <p className="mt-3 text-xl font-bold text-blue-900 lg:mt-2.5 lg:text-lg">
-                {readyCount} / {totalCount} <span className="text-sm font-semibold text-gray-500">완료</span>
+              <p className="mt-3 text-xl font-bold text-[#2563EB] lg:mt-2.5 lg:text-lg">
+                {readyCount} / {totalCount} <span className="text-sm font-semibold text-[#6B7A90]">완료</span>
               </p>
-              <p className="mt-0.5 text-xs leading-relaxed text-gray-400">
+              <p className="mt-0.5 text-xs leading-relaxed text-[#6B7A90]">
                 {verifyAdminPageCopy?.progressNote ??
                   `우선 제출 자료 ${totalCount}개 · 있으면 제출 자료는 진행률에 포함되지 않습니다.`}
               </p>
@@ -1747,7 +1747,7 @@ function DocumentUploadContent() {
 
         {submitted ? (
           mode === "expert" ? (
-            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <div className="mt-8 rounded-3xl border border-[#E3E8F0] bg-white p-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
               <div className="flex justify-center">
                 <img
                   src="/vfbc-seal.png"
@@ -1756,11 +1756,11 @@ function DocumentUploadContent() {
                   height={140}
                 />
               </div>
-              <p className="mt-1 text-[10px] italic text-gray-400">
+              <p className="mt-1 text-[10px] italic text-[#6B7A90]">
                 Vietnam Foreign Business Verification &amp; Compliance AI Center
               </p>
-              <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">접수 완료</h2>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#071A33]">접수 완료</h2>
+              <p className="mt-3 text-sm leading-relaxed text-[#3D4B63]">
                 전문가 진행이 정상적으로 접수되었습니다.
                 <br />
                 제출하신 서류를 담당 전문가가 확인한 후 곧 연락드리겠습니다.
@@ -1775,20 +1775,20 @@ function DocumentUploadContent() {
                 <button
                   type="button"
                   onClick={() => router.push("/mypage")}
-                  className="flex h-11 w-full items-center justify-center rounded-xl bg-blue-900 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-950 hover:shadow-md"
+                  className="flex h-11 w-full items-center justify-center rounded-xl bg-[#2563EB] text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#1D4ED8] hover:shadow-md"
                 >
                   My Page에서 진행상황 확인하기
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push("/")}
-                  className="flex h-11 w-full items-center justify-center rounded-xl border border-blue-900 bg-white text-sm font-semibold text-blue-900 transition-all duration-200 hover:bg-blue-50"
+                  className="flex h-11 w-full items-center justify-center rounded-xl border border-[#2563EB] bg-white text-sm font-semibold text-[#2563EB] transition-all duration-200 hover:bg-[#F2F6FE]"
                 >
                   홈으로
                 </button>
               </div>
 
-              <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-gray-400">
+              <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-[#6B7A90]">
                 <Lock size={12} className="mt-0.5 shrink-0" />
                 <span>제출하신 자료는 안전하게 암호화되어 담당 전문가만 확인할 수 있습니다.</span>
               </div>
@@ -1802,7 +1802,7 @@ function DocumentUploadContent() {
               */}
             </div>
           ) : (
-            <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <div className="mt-8 rounded-3xl border border-[#E3E8F0] bg-white p-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
               <div className="flex justify-center">
                 <img
                   src="/vfbc-seal.png"
@@ -1811,14 +1811,14 @@ function DocumentUploadContent() {
                   height={140}
                 />
               </div>
-              <p className="mt-1 text-[10px] italic text-gray-400">
+              <p className="mt-1 text-[10px] italic text-[#6B7A90]">
                 Vietnam Foreign Business Verification &amp; Compliance AI Center
               </p>
 
-              <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#071A33]">
                 AI 리포트 접수 완료
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+              <p className="mt-3 text-sm leading-relaxed text-[#3D4B63]">
                 AI 리포트 요청이 정상적으로 접수되었습니다.
                 <br />
                 제출하신 자료는 안전하게 보관되며, 담당자가 확인 후 마이페이지를 통해 안내드립니다.
@@ -1833,24 +1833,24 @@ function DocumentUploadContent() {
                 <button
                   type="button"
                   onClick={() => router.push("/mypage")}
-                  className="flex h-11 w-full items-center justify-center rounded-xl bg-blue-900 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-950 hover:shadow-md"
+                  className="flex h-11 w-full items-center justify-center rounded-xl bg-[#2563EB] text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#1D4ED8] hover:shadow-md"
                 >
                   My Page에서 리포트 확인하기
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push("/")}
-                  className="flex h-11 w-full items-center justify-center rounded-xl border border-blue-900 bg-white text-sm font-semibold text-blue-900 transition-all duration-200 hover:bg-blue-50"
+                  className="flex h-11 w-full items-center justify-center rounded-xl border border-[#2563EB] bg-white text-sm font-semibold text-[#2563EB] transition-all duration-200 hover:bg-[#F2F6FE]"
                 >
                   홈으로
                 </button>
               </div>
 
-              <p className="mt-4 text-[11px] text-gray-400">
+              <p className="mt-4 text-[11px] text-[#6B7A90]">
                 3초 후 My Page로 자동 이동합니다.
               </p>
 
-              <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-gray-400">
+              <div className="mt-5 flex items-start justify-center gap-1.5 text-[11px] leading-relaxed text-[#6B7A90]">
                 <Lock size={12} className="mt-0.5 shrink-0" />
                 <span>제출하신 자료는 안전하게 보호되며 AI 리포트 작성에만 사용됩니다.</span>
               </div>
@@ -1861,27 +1861,27 @@ function DocumentUploadContent() {
             {/* 좌측 — 문서 카드 목록 */}
             <div className="space-y-4">
               {questionSubmittedDoc && (
-                <div className="rounded-2xl border border-blue-100 border-l-4 border-l-blue-900 bg-blue-50/30 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-                  <p className="text-sm font-bold text-gray-900">질문 단계에서 제출한 자료</p>
-                  <div className="mt-3 space-y-1.5 text-xs text-gray-600">
+                <div className="rounded-2xl border border-[#E3ECFD] border-l-4 border-l-blue-900 bg-[#F2F6FE] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                  <p className="text-sm font-bold text-[#071A33]">질문 단계에서 제출한 자료</p>
+                  <div className="mt-3 space-y-1.5 text-xs text-[#3D4B63]">
                     <div className="flex min-w-0 items-baseline gap-1">
-                      <span className="shrink-0 text-gray-400">파일명 </span>
+                      <span className="shrink-0 text-[#6B7A90]">파일명 </span>
                       <span className="min-w-0 flex-1 truncate">{questionSubmittedDoc.fileName ?? "-"}</span>
                     </div>
                     <p>
-                      <span className="text-gray-400">문서 종류 </span>
+                      <span className="text-[#6B7A90]">문서 종류 </span>
                       {questionSubmittedDoc.documentType ?? "-"}
                     </p>
                     <p>
-                      <span className="text-gray-400">검토 단계 </span>
+                      <span className="text-[#6B7A90]">검토 단계 </span>
                       {formatReviewStageLabel(questionSubmittedDoc.reviewStage)}
                     </p>
                     <div className="flex items-center gap-1.5 pt-0.5">
-                      <span className="text-gray-400">상태</span>
+                      <span className="text-[#6B7A90]">상태</span>
                       <StatusBadge tone="success">이미 제출됨</StatusBadge>
                     </div>
                   </div>
-                  <p className="mt-3 text-[11px] leading-relaxed text-gray-500">
+                  <p className="mt-3 text-[11px] leading-relaxed text-[#6B7A90]">
                     질문 단계에서 제출한 자료는 참고용으로 전달되었습니다. 아래에서 필요한 문서를
                     추가로 제출하실 수 있습니다.
                   </p>
@@ -1889,28 +1889,28 @@ function DocumentUploadContent() {
               )}
 
               {mode === "expert" && (
-                <div className="rounded-2xl border border-blue-100 bg-blue-50/40 px-4 py-3">
-                  <p className="text-xs font-bold text-blue-900">
+                <div className="rounded-2xl border border-[#E3ECFD] bg-[#F2F6FE] px-4 py-3">
+                  <p className="text-xs font-bold text-[#2563EB]">
                     AI 리포트 단계에서 제출한 자료는 다시 제출하지 않으셔도 됩니다.
                   </p>
-                  <p className="mt-1 text-[11px] leading-relaxed text-blue-700">
+                  <p className="mt-1 text-[11px] leading-relaxed text-[#1D4ED8]">
                     기존 업로드 자료가 자동으로 복원됩니다. 담당 전문가가 먼저 확인한 뒤 실제로 필요한 추가 자료만 안내드립니다.
                   </p>
                 </div>
               )}
 
               <div>
-                <p className="text-base font-bold text-gray-900">제출 자료</p>
-                <p className="mt-1 break-keep text-xs leading-relaxed text-gray-500">
+                <p className="text-base font-bold text-[#071A33]">제출 자료</p>
+                <p className="mt-1 break-keep text-xs leading-relaxed text-[#6B7A90]">
                   {verifyAdminPageCopy?.listGuidance ??
                     "우선 제출 자료를 먼저 준비해주세요. 있으면 제출 자료는 현재 보유한 경우에만 올리시면 됩니다."}
                 </p>
                 {mode === "ai_report" && (
-                  <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/50 px-3.5 py-3">
-                    <p className="text-xs font-bold text-blue-900">
+                  <div className="mt-3 rounded-xl border border-[#E3ECFD] bg-[#F2F6FE] px-3.5 py-3">
+                    <p className="text-xs font-bold text-[#2563EB]">
                       제출 자료는 담당자 확인 후 안내됩니다.
                     </p>
-                    <p className="mt-1 text-[11px] leading-relaxed text-blue-700">
+                    <p className="mt-1 text-[11px] leading-relaxed text-[#1D4ED8]">
                       계약서, 기존 신청자료, 반려 문서, 사진 등 현재 가지고 있는 자료를 함께 제출해 주시면 확인에 도움이 됩니다.
                     </p>
                   </div>
@@ -1969,66 +1969,66 @@ function DocumentUploadContent() {
 
             {/* 우측 — 제출 현황 Sticky 카드 (PC 전용) */}
             <div className="mt-6 hidden lg:sticky lg:top-6 lg:mt-0 lg:block">
-              <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                <p className="text-sm font-bold text-gray-900">제출 현황</p>
-                <p className="mt-1 text-xs text-gray-500">{totalCount}개 우선 제출 자료</p>
-                <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+              <div className="rounded-2xl border border-[#E3E8F0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                <p className="text-sm font-bold text-[#071A33]">제출 현황</p>
+                <p className="mt-1 text-xs text-[#6B7A90]">{totalCount}개 우선 제출 자료</p>
+                <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-[#F2F5FA]">
                   <div
-                    className="h-full rounded-full bg-blue-900 transition-all duration-300"
+                    className="h-full rounded-full bg-[#2563EB] transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-[#6B7A90]">
                   {readyCount} / {totalCount} 개 완료
                 </p>
 
                 <ul className="mt-3 space-y-1.5">
                   {[...docs, extraDoc].map((doc) => (
-                    <li key={doc.label} className="flex items-center gap-2 text-xs text-gray-600">
+                    <li key={doc.label} className="flex items-center gap-2 text-xs text-[#3D4B63]">
                       {isDocReady(doc) ? (
-                        <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                        <CheckCircle2 size={14} className="shrink-0 text-[#2563EB]" />
                       ) : (
-                        <Circle size={14} className="shrink-0 text-gray-300" />
+                        <Circle size={14} className="shrink-0 text-[#9AA7BA]" />
                       )}
                       <span className="truncate">{doc.label}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-3 space-y-2.5 border-t border-gray-100 pt-3 text-xs">
+                <div className="mt-3 space-y-2.5 border-t border-[#E3E8F0] pt-3 text-xs">
                   <div className="flex items-center gap-2">
-                    <FileText size={14} className="shrink-0 text-gray-400" />
+                    <FileText size={14} className="shrink-0 text-[#6B7A90]" />
                     <div>
-                      <p className="text-gray-400">신청 서비스</p>
-                      <p className="font-semibold text-gray-800">{config.serviceLabel}</p>
+                      <p className="text-[#6B7A90]">신청 서비스</p>
+                      <p className="font-semibold text-[#071A33]">{config.serviceLabel}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Send size={14} className="shrink-0 text-gray-400" />
+                    <Send size={14} className="shrink-0 text-[#6B7A90]" />
                     <div>
-                      <p className="text-gray-400">신청 방식</p>
-                      <p className="font-semibold text-gray-800">{copy.badgeLabel}</p>
+                      <p className="text-[#6B7A90]">신청 방식</p>
+                      <p className="font-semibold text-[#071A33]">{copy.badgeLabel}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock size={14} className="shrink-0 text-gray-400" />
+                    <Clock size={14} className="shrink-0 text-[#6B7A90]" />
                     <div>
-                      <p className="text-gray-400">예상 제출시간</p>
-                      <p className="font-semibold text-gray-800">약 3분</p>
+                      <p className="text-[#6B7A90]">예상 제출시간</p>
+                      <p className="font-semibold text-[#071A33]">약 3분</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <PrimaryButton onClick={handleSubmit} loading={submitting} disabled={submitting}>
+                  <PrimaryButton className="!rounded-[12px] !bg-[#2563EB] !shadow-none hover:!bg-[#1D4ED8]" onClick={handleSubmit} loading={submitting} disabled={submitting}>
                     {primarySubmitLabel}
                   </PrimaryButton>
                   {submitError && (
                     <p className="mt-2 text-center text-xs text-red-600">{submitError}</p>
                   )}
-                  <div className="mt-3 space-y-1 text-center text-sm leading-relaxed text-gray-600">
-                    <p className="flex items-center justify-center gap-1.5 font-semibold text-gray-800">
-                      <Lock size={14} className="shrink-0 text-gray-500" />
+                  <div className="mt-3 space-y-1 text-center text-sm leading-relaxed text-[#3D4B63]">
+                    <p className="flex items-center justify-center gap-1.5 font-semibold text-[#071A33]">
+                      <Lock size={14} className="shrink-0 text-[#6B7A90]" />
                       개인정보는 안전하게 보호됩니다.
                     </p>
                     <p>담당 전문가만 제출자료를 확인합니다.</p>
@@ -2043,18 +2043,18 @@ function DocumentUploadContent() {
 
       {/* 모바일 전용 — 하단 고정 CTA */}
       {!submitted && (!isCompanyService || investorType) && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-3 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] sm:px-5 sm:pt-4 lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-[#E3E8F0] bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-3 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] sm:px-5 sm:pt-4 lg:hidden">
           <div className="mx-auto max-w-5xl text-center">
-            <p className="break-keep text-sm font-bold text-gray-900 [word-break:keep-all]">
+            <p className="break-keep text-sm font-bold text-[#071A33] [word-break:keep-all]">
               {readyCount} / {totalCount} 개 완료
             </p>
             <div className="mt-3">
-              <PrimaryButton onClick={handleSubmit} loading={submitting} disabled={submitting}>
+              <PrimaryButton className="!rounded-[12px] !bg-[#2563EB] !shadow-none hover:!bg-[#1D4ED8]" onClick={handleSubmit} loading={submitting} disabled={submitting}>
                 {primarySubmitLabel}
               </PrimaryButton>
             </div>
             {submitError && <p className="mt-2 text-center text-xs text-red-600">{submitError}</p>}
-            <div className="mt-2 flex items-center justify-center gap-1 text-[11px] text-gray-400">
+            <div className="mt-2 flex items-center justify-center gap-1 text-[11px] text-[#6B7A90]">
               <Lock size={11} />
               <span>{copy.submitCaption}</span>
             </div>

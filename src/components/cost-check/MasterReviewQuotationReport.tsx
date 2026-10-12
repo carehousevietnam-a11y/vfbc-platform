@@ -25,8 +25,6 @@ import OfficialTrustZone from "@/components/ui/OfficialTrustZone";
 import type { SelectionCardTone } from "@/components/ui/SelectionCard";
 import {
   selectionChipClasses,
-  selectionPrimaryActionClasses,
-  selectionSecondaryActionClasses,
 } from "@/components/ui/selectionInteraction";
 import type { MasterLandingConfig } from "@/components/cost-check/MasterFunnelLanding";
 import { cn } from "@/lib/cn";
@@ -191,12 +189,12 @@ function ReviewOfficialTrustStrip({ engine }: { engine: FunnelEngine }) {
       className="mt-2 border-t border-[#EEF2F6] pt-2"
       aria-label="공식 기준 안내"
     >
-      <p className="break-keep text-[10.5px] font-normal leading-snug text-[#64748B] sm:text-[10px]">
+      <p className="break-keep text-[10.5px] font-normal leading-snug text-[#6B7A90] sm:text-[10px]">
         공식 법령·행정자료 기준 확인
       </p>
       <p className="mt-0.5 break-keep text-[10px] font-normal leading-snug text-[#94A3B8] sm:text-[10px]">
         관련 공식 기관:{" "}
-        <span className="text-[#64748B]">{agencies.join(" · ")}</span>
+        <span className="text-[#6B7A90]">{agencies.join(" · ")}</span>
       </p>
     </div>
   );
@@ -284,13 +282,13 @@ function VerifyMasterTrustRailPanel({
     <div className={cn("flex w-full flex-col gap-4", className)}>
       {showQuotationReportHeader ? (
         <div className="border-b border-[#E5E7EB] pb-2.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748B]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6B7A90]">
             QUOTATION REPORT
           </p>
         </div>
       ) : null}
       {showOfficialReviewPhrase ? (
-        <p className="mb-6 text-[12px] font-normal text-slate-400">
+        <p className="mb-6 text-[12px] font-normal text-[#6B7A90]">
           공식 법령·행정자료를 기준으로 검토합니다.
         </p>
       ) : null}
@@ -306,27 +304,27 @@ function VerifyMasterTrustRailPanel({
 }
 
 const MOBILE_SECTION_INTRO =
-  "mb-2 max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
+  "mb-2 max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#6B7A90] sm:mb-1.5 sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
 const MOBILE_SUBHEAD =
-  "text-[13px] font-medium leading-snug text-[#334155] sm:text-[14px] sm:font-semibold sm:text-[#0B2A6B]";
+  "text-[13px] font-medium leading-snug text-[#334155] sm:text-[14px] sm:font-semibold sm:text-[#071A33]";
 const MOBILE_BODY =
-  "break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-relaxed sm:text-[#475569]";
+  "break-keep text-[13px] font-normal leading-[1.55] text-[#6B7A90] sm:text-[12px] sm:leading-relaxed sm:text-[#475569]";
 const MOBILE_BODY_TIGHT =
-  "text-[13px] font-normal leading-snug text-[#64748B] sm:mt-0.5 sm:text-[12px] sm:font-medium sm:text-[#334155]";
+  "text-[13px] font-normal leading-snug text-[#6B7A90] sm:mt-0.5 sm:text-[12px] sm:font-medium sm:text-[#334155]";
 const MOBILE_META =
-  "mt-1.5 text-[12px] font-normal leading-[1.5] text-[#94A3B8] sm:mt-1 sm:text-[11.5px] sm:leading-relaxed sm:text-[#64748B]";
+  "mt-1.5 text-[12px] font-normal leading-[1.5] text-[#94A3B8] sm:mt-1 sm:text-[11.5px] sm:leading-relaxed sm:text-[#6B7A90]";
 const MOBILE_CARD_LABEL =
-  "break-keep text-pretty text-[13px] font-medium leading-snug text-[#475569] sm:text-[11.5px] sm:font-medium sm:text-[#0B2A6B]";
+  "break-keep text-pretty text-[13px] font-medium leading-snug text-[#475569] sm:text-[11.5px] sm:font-medium sm:text-[#071A33]";
 const MOBILE_CARD_NOTE =
-  "mt-0.5 line-clamp-2 break-keep text-pretty text-[12px] font-medium leading-snug text-[#64748B] sm:mt-0.5 sm:text-[10.5px] sm:leading-snug sm:text-[#475569]";
+  "mt-0.5 line-clamp-2 break-keep text-pretty text-[12px] font-medium leading-snug text-[#6B7A90] sm:mt-0.5 sm:text-[10.5px] sm:leading-snug sm:text-[#475569]";
 const MOBILE_CALLOUT =
-  "min-w-0 max-w-[40rem] break-keep text-pretty text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[12px] sm:leading-[1.65] sm:text-[#334155]";
+  "min-w-0 max-w-[40rem] break-keep text-pretty text-[13px] font-normal leading-[1.55] text-[#6B7A90] sm:text-[12px] sm:leading-[1.65] sm:text-[#334155]";
 const MOBILE_GRADE_LABEL =
-  "mt-1 text-[13px] font-medium leading-snug text-[#475569] sm:mt-0.5 sm:text-[15px] sm:font-semibold sm:leading-none sm:text-[#0B2A6B]";
+  "mt-1 text-[13px] font-medium leading-snug text-[#475569] sm:mt-0.5 sm:text-[15px] sm:font-semibold sm:leading-none sm:text-[#071A33]";
 const MOBILE_COST_SUMMARY_INTRO =
-  "max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#64748B] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
+  "max-w-[40rem] max-sm:text-[11px] max-[389px]:text-[10.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap break-keep text-[13px] font-normal leading-[1.55] text-[#6B7A90] sm:text-[13px] sm:leading-[1.65] sm:text-[#475569] sm:whitespace-normal";
 const MOBILE_REPORT_SOURCE =
-  "break-keep max-sm:text-[9px] max-[389px]:text-[8.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap text-[12.5px] leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-relaxed sm:whitespace-normal";
+  "break-keep max-sm:text-[9px] max-[389px]:text-[8.5px] max-sm:font-normal max-sm:leading-none max-sm:tracking-tight max-sm:whitespace-nowrap text-[12.5px] leading-[1.45] text-[#6B7A90] sm:text-[11px] sm:leading-relaxed sm:whitespace-normal";
 type YesNo = "yes" | "no";
 type ReviewStage = "prevent" | "case";
 
@@ -886,7 +884,7 @@ type ReviewResult = {
 function excessGrade(verdict: ReviewVerdict): { label: string; filled: number; tone: string } {
   if (verdict === "fair") return { label: "낮음", filled: 1, tone: "bg-emerald-500" };
   if (verdict === "caution") return { label: "주의", filled: 3, tone: "bg-amber-500" };
-  if (verdict === "very_low") return { label: "확인 필요", filled: 2, tone: "bg-slate-500" };
+  if (verdict === "very_low") return { label: "확인 필요", filled: 2, tone: "bg-[#071A33]" };
   return { label: "높음", filled: 4, tone: "bg-red-500" };
 }
 
@@ -910,15 +908,15 @@ function SectionTitle({
   return (
     <h3
       id={id}
-      className={`mb-2 flex items-baseline gap-1 border-b border-[#E5E7EB] pb-1.5 text-[14px] sm:mb-1 sm:gap-1.5 sm:pb-1 sm:text-[13.5px] sm:font-semibold sm:leading-relaxed sm:tracking-normal sm:text-[#0B2A6B] ${
+      className={`mb-2 flex items-baseline gap-1 border-b border-[#E5E7EB] pb-1.5 text-[14px] sm:mb-1 sm:gap-1.5 sm:pb-1 sm:text-[13.5px] sm:font-semibold sm:leading-relaxed sm:tracking-normal sm:text-[#071A33] ${
         emphasized
           ? "font-medium leading-snug tracking-tight text-[#334155]"
-          : "font-medium leading-[1.45] text-[#64748B]"
+          : "font-medium leading-[1.45] text-[#6B7A90]"
       }`}
     >
       <span
-        className={`tabular-nums sm:font-medium sm:text-[#64748B] ${
-          emphasized ? "font-medium text-[#64748B]" : "font-normal text-[#94A3B8]"
+        className={`tabular-nums sm:font-medium sm:text-[#6B7A90] ${
+          emphasized ? "font-medium text-[#6B7A90]" : "font-normal text-[#94A3B8]"
         }`}
       >
         {number}.
@@ -1847,19 +1845,33 @@ export type AdminVerifyMasterGateProps = {
   onAdminVerifyPhase1AttachStorageRetry?: () => void;
 };
 
+/** 메인 페이지 기준 CTA (파랑 #2563EB / 외곽선) */
+function verifyPrimaryActionClasses(disabled?: boolean) {
+  return cn(
+    "inline-flex min-h-[48px] w-full items-center justify-center rounded-[12px] bg-[#2563EB] px-4 text-[14px] font-semibold text-white transition-colors duration-200",
+    disabled ? "cursor-not-allowed opacity-60" : "hover:bg-[#1D4ED8]",
+  );
+}
+function verifySecondaryActionClasses(disabled?: boolean) {
+  return cn(
+    "inline-flex min-h-[44px] w-full items-center justify-center rounded-[12px] border border-[#E3E8F0] bg-white px-4 text-[13.5px] font-medium text-[#071A33] transition-colors duration-200",
+    disabled ? "cursor-not-allowed opacity-60" : "hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]",
+  );
+}
+
 /** 2차 개인화 검토 안내 박스 (행정문서·부동산 공용 표시) */
 function Phase2PersonalizedReviewBanner() {
   return (
-    <div className="mb-4 rounded-xl border border-slate-200/80 bg-slate-50/60 px-4 py-3.5 lg:mb-5 lg:rounded-lg lg:px-4 lg:py-3">
+    <div className="mb-5 rounded-[14px] border border-[#E3E8F0] bg-[#F7F9FC] px-5 py-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded border border-[#0f172a]/10 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#0f172a]">
+        <span className="rounded-md bg-[#F2F6FE] px-2 py-0.5 text-[11px] font-semibold tracking-tight text-[#2563EB]">
           2차 · 개인화 검토
         </span>
-        <span className="text-[11px] font-medium text-slate-500">
+        <span className="text-[12px] font-medium text-[#6B7A90]">
           1차에서 확인한 내용을 바탕으로 필요한 부분만 추가 확인합니다
         </span>
       </div>
-      <p className="mt-2 break-keep text-[12px] leading-relaxed text-slate-600 lg:text-[11.5px]">
+      <p className="mt-2 break-keep text-[13px] leading-[1.6] text-[#3D4B63]">
         설문을 다시 시작하는 단계가 아니라, 내 상황을 함께 정리하는 검토 단계입니다.
       </p>
     </div>
@@ -3034,7 +3046,7 @@ export function MasterReviewQuotationReport({
           onClick={() => setEditingId(question.id)}
           className="w-full rounded-[6px] border border-[#D8DEE8] bg-[#F8FAFC] px-3.5 py-2 text-left transition hover:bg-[#F1F5F9]"
         >
-          <p className="text-[12px] font-normal leading-snug text-[#64748B]">{question.label}</p>
+          <p className="text-[12px] font-normal leading-snug text-[#6B7A90]">{question.label}</p>
           <p className="mt-0.5 break-keep text-[13px] font-medium leading-snug text-[#334155]">
             {formatAnswerLabel(question, value)}
           </p>
@@ -3277,7 +3289,7 @@ export function MasterReviewQuotationReport({
                       return next;
                     });
                   }}
-                  className="inline-flex min-h-[44px] items-center px-3 text-[13px] font-medium text-[#64748B] hover:text-[#334155]"
+                  className="inline-flex min-h-[44px] items-center px-3 text-[13px] font-medium text-[#6B7A90] hover:text-[#334155]"
                 >
                   선택지로 돌아가기
                 </button>
@@ -3480,7 +3492,7 @@ export function MasterReviewQuotationReport({
                   ))}
                 </VerifyAnswerGrid>
                 <div className="mt-5 border-t border-[#E3E8F0] pt-5">
-                  <p className="text-[12px] text-[#64748B]">선택지에 없는 내용이 있다면</p>
+                  <p className="text-[12px] text-[#6B7A90]">선택지에 없는 내용이 있다면</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -3495,7 +3507,7 @@ export function MasterReviewQuotationReport({
               </>
             ) : (
               <VerifyStep4InputStack>
-                <p className="text-[12px] text-[#64748B]">선택지에 없는 내용이 있다면</p>
+                <p className="text-[12px] text-[#6B7A90]">선택지에 없는 내용이 있다면</p>
                 <textarea
                   value={directDraft}
                   onChange={(e) => setCaseEntryDirectExplainDraft(e.target.value)}
@@ -3536,7 +3548,7 @@ export function MasterReviewQuotationReport({
                       setCaseEntryDirectExplainDraft("");
                       setSelectedKey(null);
                     }}
-                    className="inline-flex min-h-[44px] items-center px-3 text-[13px] font-medium text-[#64748B] hover:text-[#334155]"
+                    className="inline-flex min-h-[44px] items-center px-3 text-[13px] font-medium text-[#6B7A90] hover:text-[#334155]"
                   >
                     선택지로 돌아가기
                   </button>
@@ -3637,7 +3649,7 @@ export function MasterReviewQuotationReport({
                       });
                       setSelectedKey(null);
                     }}
-                    className="inline-flex min-h-[44px] items-center px-3 text-[13px] font-medium text-[#64748B] hover:text-[#334155]"
+                    className="inline-flex min-h-[44px] items-center px-3 text-[13px] font-medium text-[#6B7A90] hover:text-[#334155]"
                   >
                     선택지로 돌아가기
                   </button>
@@ -3883,7 +3895,7 @@ export function MasterReviewQuotationReport({
                   onChange={(e) => {
                     setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }));
                   }}
-                  className="min-h-10 w-full min-w-0 flex-1 rounded-[6px] border border-[#CBD5E1] bg-white px-3 text-[15px] text-[#0F172A] outline-none focus:border-[#0B2A6B] focus:ring-2 focus:ring-[#0B2A6B]/12 sm:min-h-9 sm:px-2.5 sm:text-[13px]"
+                  className="min-h-10 w-full min-w-0 flex-1 rounded-[6px] border border-[#CBD5E1] bg-white px-3 text-[15px] text-[#071A33] outline-none focus:border-[#071A33] focus:ring-2 focus:ring-[#071A33]/12 sm:min-h-9 sm:px-2.5 sm:text-[13px]"
                 />
                 <span className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-[6px] border border-[#CBD5E1] bg-[#F8FAFC] px-3 text-[13px] font-medium text-[#475569] sm:min-h-9">
                   {service.currency}
@@ -3896,7 +3908,7 @@ export function MasterReviewQuotationReport({
                   if (!amountValid) return;
                   setEditingId(null);
                 }}
-                className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-[6px] bg-[#0B2A6B] px-3.5 text-[14px] font-medium text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:w-auto sm:text-[12px]"
+                className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-[6px] bg-[#071A33] px-3.5 text-[14px] font-medium text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:w-auto sm:text-[12px]"
               >
                 확인
               </button>
@@ -4160,7 +4172,7 @@ export function MasterReviewQuotationReport({
             {...questionProps}
           >
             {useStitchQuestionLayout ? (
-              <p className="mb-4 break-keep text-[11px] leading-normal text-slate-500 lg:mb-5">
+              <p className="mb-4 break-keep text-[11px] leading-normal text-[#6B7A90] lg:mb-5">
                 서명 · 날짜 · 번역 · 공증 · 인증 등
               </p>
             ) : null}
@@ -4243,7 +4255,7 @@ export function MasterReviewQuotationReport({
                 onChange={(e) => {
                   setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }));
                 }}
-                className="min-h-10 w-full min-w-0 flex-1 rounded-[6px] border border-[#CBD5E1] bg-white px-3 text-[15px] text-[#0F172A] outline-none focus:border-[#0B2A6B] focus:ring-2 focus:ring-[#0B2A6B]/12 sm:min-h-9 sm:px-2.5 sm:text-[13px]"
+                className="min-h-10 w-full min-w-0 flex-1 rounded-[6px] border border-[#CBD5E1] bg-white px-3 text-[15px] text-[#071A33] outline-none focus:border-[#071A33] focus:ring-2 focus:ring-[#071A33]/12 sm:min-h-9 sm:px-2.5 sm:text-[13px]"
               />
               <span className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-[6px] border border-[#CBD5E1] bg-[#F8FAFC] px-3 text-[13px] font-medium text-[#475569] sm:min-h-9">
                 {service.currency}
@@ -4256,7 +4268,7 @@ export function MasterReviewQuotationReport({
                 if (!amountValid) return;
                 setEditingId(null);
               }}
-              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-[6px] bg-[#0B2A6B] px-3.5 text-[14px] font-medium text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:w-auto sm:text-[12px]"
+              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-[6px] bg-[#071A33] px-3.5 text-[14px] font-medium text-white transition hover:bg-[#082258] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:w-auto sm:text-[12px]"
             >
               확인
             </button>
@@ -4367,7 +4379,7 @@ export function MasterReviewQuotationReport({
         const expertOnly = isCase06ExpertTerminal(answers);
         return (
           <div className="rounded-[12px] border border-[#CBD5E1] bg-[#F8FAFC] p-4 sm:p-5">
-            <h3 className="text-[16px] font-semibold text-[#0B2A6B] sm:text-[18px]">
+            <h3 className="text-[16px] font-semibold text-[#071A33] sm:text-[18px]">
               CASE_06 심화 검토 완료
             </h3>
             <p className="mt-2 text-[14px] leading-relaxed text-[#334155]">
@@ -4689,7 +4701,7 @@ export function MasterReviewQuotationReport({
         "border-t bg-white",
         isAdminVerifyStitchLayout ? "text-left lg:text-center" : "text-center",
         isVerifyMasterStitchLayout
-          ? "border-slate-100 bg-slate-50/50 px-4 py-3 lg:bg-white lg:px-6 lg:py-3.5"
+          ? "border-[#E3E8F0] bg-[#F7F9FC] px-4 py-3 lg:bg-white lg:px-6 lg:py-3.5"
           : "mt-auto border-[#E5E7EB] px-3.5 py-2 sm:px-4 sm:py-2",
         !isVerifyMasterStitchLayout && config.engine === "verify" && "bg-[#F8FAFC] lg:bg-white",
         !isVerifyMasterStitchLayout && config.engine !== "verify" && "bg-[#F8FAFC]",
@@ -4697,7 +4709,7 @@ export function MasterReviewQuotationReport({
     >
       <p
         className={cn(
-          "break-keep leading-tight tracking-wide text-slate-400",
+          "break-keep leading-tight tracking-wide text-[#6B7A90]",
           isVerifyMasterStitchLayout
             ? "text-[10px] font-medium lg:text-[10.5px]"
             : "text-[11px] sm:text-[10px] sm:leading-relaxed",
@@ -4710,10 +4722,10 @@ export function MasterReviewQuotationReport({
         className={cn(
           "mt-1 break-keep leading-tight",
           isAdminVerifyStitchLayout
-            ? "mt-0.5 text-left text-[11px] font-normal text-slate-500 lg:mt-1 lg:text-center lg:text-[11.5px]"
+            ? "mt-0.5 text-left text-[11px] font-normal text-[#6B7A90] lg:mt-1 lg:text-center lg:text-[11.5px]"
             : reportSourceNoteMobile
-              ? "text-center text-[9px] leading-none tracking-tight whitespace-nowrap text-[#64748B] sm:text-[10.5px] sm:leading-relaxed sm:tracking-normal sm:whitespace-normal"
-              : "text-center text-[11px] leading-[1.45] text-[#64748B] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed",
+              ? "text-center text-[9px] leading-none tracking-tight whitespace-nowrap text-[#6B7A90] sm:text-[10.5px] sm:leading-relaxed sm:tracking-normal sm:whitespace-normal"
+              : "text-center text-[11px] leading-[1.45] text-[#6B7A90] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed",
         )}
       >
         {isAdminVerifyStitchLayout ? (
@@ -4739,7 +4751,7 @@ export function MasterReviewQuotationReport({
         >
           <h3
             id="review-query-start"
-            className="mb-2 text-[12px] font-medium tracking-tight text-[#0B2A6B] sm:mb-1.5"
+            className="mb-2 text-[12px] font-medium tracking-tight text-[#071A33] sm:mb-1.5"
           >
             확인 시작
           </h3>
@@ -4760,8 +4772,8 @@ export function MasterReviewQuotationReport({
           role="status"
           aria-live="polite"
         >
-          <p className="text-[15px] font-semibold text-[#0B2A6B]">회원 정보를 확인하고 있습니다</p>
-          <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
+          <p className="text-[15px] font-semibold text-[#071A33]">회원 정보를 확인하고 있습니다</p>
+          <p className="mt-2 text-[13px] leading-relaxed text-[#6B7A90]">
             {adminVerifyMemberSubmitting || realEstateVerifyMemberSubmitting
               ? "잠시만 기다려 주세요. 완료되면 1차 종합 결과가 표시됩니다."
               : "접수를 준비하고 있습니다."}
@@ -4797,17 +4809,17 @@ export function MasterReviewQuotationReport({
               isAdminVerifyFirstResult || isRealEstateFirstResult
                 ? "px-5 py-6 sm:px-6 sm:py-7 lg:flex lg:flex-col lg:items-center lg:px-10 lg:py-9"
                 : isAdminAwaitingPhase1Evidence || isRealEstateAwaitingPhase1Evidence
-                  ? "border-slate-100 px-4 py-5 sm:px-5 sm:py-6 lg:border-r lg:px-8 lg:py-8"
+                  ? "border-[#E3E8F0] px-4 py-5 sm:px-5 sm:py-6 lg:border-r lg:px-8 lg:py-8"
                   : showRightColumn &&
                   (isVerifyMasterScreen01
-                    ? "border-slate-100 px-3 py-4 lg:col-span-8 lg:border-r lg:p-8"
+                    ? "border-[#E3E8F0] px-3 py-4 lg:col-span-8 lg:border-r lg:p-8"
                     : isVerifyPackOrAdminPersonalizedResult
                       ? "bg-transparent p-0 lg:items-stretch"
                       : isRealEstatePersonalizedResult
                         ? "bg-transparent p-0 lg:items-stretch"
                         : isAdminVerifyPhase2Screen ||
                           isRealEstatePhase2QuestionScreen
-                        ? "border-slate-100 px-3 py-4 lg:border-r lg:p-8"
+                        ? "border-[#E3E8F0] px-3 py-4 lg:border-r lg:p-8"
                         : "border-[#E5E7EB] lg:border-r"),
             )}
           >
@@ -4948,16 +4960,16 @@ export function MasterReviewQuotationReport({
                 !isAdminVerifyAwaitingSignup &&
                 !isAdminAwaitingPhase1Evidence ? (
                   <div className="hidden lg:block">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7A90]">
                       VFBCAI · VERIFY
                     </p>
-                    <h2 className="mt-1 text-[18px] font-bold tracking-tight text-slate-900">
+                    <h2 className="mt-1 text-[18px] font-bold tracking-tight text-[#071A33]">
                       {reportTitle}
                     </h2>
-                    <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                    <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#6B7A90]">
                       QUOTATION REPORT
                     </p>
-                    <div className="my-5 h-px bg-slate-100" />
+                    <div className="my-5 h-px bg-[#F2F5FA]" />
                   </div>
                 ) : null}
 
@@ -5079,9 +5091,9 @@ export function MasterReviewQuotationReport({
                         <>
                           <h3
                             id="review-check-summary"
-                            className="shrink-0 text-[17px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:text-[13.5px] sm:leading-relaxed sm:tracking-normal"
+                            className="shrink-0 text-[17px] font-semibold leading-snug tracking-tight text-[#071A33] sm:text-[13.5px] sm:leading-relaxed sm:tracking-normal"
                           >
-                            <span className="tabular-nums font-medium text-[#64748B]">2.</span>{" "}
+                            <span className="tabular-nums font-medium text-[#6B7A90]">2.</span>{" "}
                             추가 상황 확인
                           </h3>
                           <p className={MOBILE_COST_SUMMARY_INTRO}>
@@ -5092,9 +5104,9 @@ export function MasterReviewQuotationReport({
                         <>
                           <h3
                             id="review-check-summary"
-                            className="shrink-0 text-[17px] font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:text-[13.5px] sm:leading-relaxed sm:tracking-normal"
+                            className="shrink-0 text-[17px] font-semibold leading-snug tracking-tight text-[#071A33] sm:text-[13.5px] sm:leading-relaxed sm:tracking-normal"
                           >
-                            <span className="tabular-nums font-medium text-[#64748B]">1.</span>{" "}
+                            <span className="tabular-nums font-medium text-[#6B7A90]">1.</span>{" "}
                             검토 내용 체크
                           </h3>
                           {!isVerifyLandingQuestions ? (
@@ -5169,11 +5181,11 @@ export function MasterReviewQuotationReport({
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="flex items-center gap-1.5 text-[13px] font-medium text-[#0B2A6B]">
+                          <p className="flex items-center gap-1.5 text-[13px] font-medium text-[#071A33]">
                             <ClipboardCheck className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden />
                             검토 완료
                           </p>
-                          <p className="mt-1 break-keep text-[12px] leading-relaxed text-[#64748B]">
+                          <p className="mt-1 break-keep text-[12px] leading-relaxed text-[#6B7A90]">
                             {collapsedSummary}
                           </p>
                         </div>
@@ -5190,16 +5202,16 @@ export function MasterReviewQuotationReport({
                     <>
                       <div
                         className={cn(
-                          "mt-3.5 flex items-center justify-center gap-1.5 text-[11.5px] text-slate-500 sm:hidden",
+                          "mt-3.5 flex items-center justify-center gap-1.5 text-[11.5px] text-[#6B7A90] sm:hidden",
                           isRealEstateVerifyMasterLayout && "mb-0",
                         )}
                       >
-                        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+                        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-[#6B7A90]" aria-hidden />
                         <span>공식 법령·행정자료를 기준으로 검토합니다.</span>
                       </div>
                       <p
                         className={cn(
-                          "mt-5 hidden text-[12px] font-normal text-slate-400 lg:block",
+                          "mt-5 hidden text-[12px] font-normal text-[#6B7A90] lg:block",
                           isRealEstateVerifyMasterLayout && "lg:hidden",
                         )}
                       >
@@ -5245,14 +5257,14 @@ export function MasterReviewQuotationReport({
                       type="button"
                       disabled
                       onClick={handleContinueClick}
-                      className={selectionPrimaryActionClasses(true)}
+                      className={verifyPrimaryActionClasses(true)}
                     >
                       내 상황 검토하기 →
                     </button>
-                    <button type="button" disabled className={selectionSecondaryActionClasses(true)}>
+                    <button type="button" disabled className={verifySecondaryActionClasses(true)}>
                       이 결과 공유하기
                     </button>
-                    <p className="break-keep text-center text-[11px] leading-tight text-slate-400">
+                    <p className="break-keep text-center text-[11px] leading-tight text-[#6B7A90]">
                       모든 질문에 답하면 결과를 확인할 수 있습니다.
                     </p>
                   </div>
@@ -5269,7 +5281,7 @@ export function MasterReviewQuotationReport({
                           review.verdict === "fair"
                             ? "border-emerald-200 bg-emerald-50/60"
                             : review.verdict === "very_low"
-                              ? "border-slate-200 bg-slate-50"
+                              ? "border-[#E3E8F0] bg-[#F7F9FC]"
                               : "border-red-200 bg-red-50/50"
                         }`}
                       >
@@ -5281,7 +5293,7 @@ export function MasterReviewQuotationReport({
                                   review.verdict === "fair"
                                     ? "text-emerald-600"
                                     : review.verdict === "very_low"
-                                      ? "text-slate-500"
+                                      ? "text-[#6B7A90]"
                                       : "text-red-600"
                                 }`}
                                 aria-hidden
@@ -5307,7 +5319,7 @@ export function MasterReviewQuotationReport({
                                       <>
                                         {" "}
                                         · 차이{" "}
-                                        <span className="font-medium tabular-nums text-[#0F172A]">
+                                        <span className="font-medium tabular-nums text-[#071A33]">
                                           {displayBubble > 0 ? "+" : ""}
                                           {displayBubble.toFixed(0)}%
                                         </span>
@@ -5326,7 +5338,7 @@ export function MasterReviewQuotationReport({
                           </div>
                           {grade ? (
                             <div className="shrink-0 rounded-[6px] border border-white/80 bg-white/80 px-3 py-2 sm:px-3 sm:py-2 lg:min-w-[8.5rem]">
-                              <p className="text-[12px] font-normal text-[#64748B] sm:text-[10px]">
+                              <p className="text-[12px] font-normal text-[#6B7A90] sm:text-[10px]">
                                 {review.quotedAmount != null && review.fairReference > 0
                                   ? "과다 가능성 등급"
                                   : "주의 등급"}
@@ -5337,7 +5349,7 @@ export function MasterReviewQuotationReport({
                                   <span
                                     key={i}
                                     className={`h-1.5 flex-1 rounded-sm ${
-                                      i < grade.filled ? grade.tone : "bg-slate-200"
+                                      i < grade.filled ? grade.tone : "bg-[#E3E8F0]"
                                     }`}
                                   />
                                 ))}
@@ -5395,7 +5407,7 @@ export function MasterReviewQuotationReport({
                             className="h-full rounded-[6px] border border-[#D6E4FB] bg-[#F5F8FF] px-3 py-1.5 sm:px-3 sm:py-1.5 lg:bg-white"
                           >
                             <div className="mb-0.5 flex items-start gap-2 sm:gap-1.5">
-                              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#0B2A6B]">
+                              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#071A33]">
                                 <Icon className="h-3.5 w-3.5" aria-hidden />
                               </span>
                               <p className={`min-w-0 ${MOBILE_CARD_LABEL}`}>{title}</p>
@@ -5404,10 +5416,10 @@ export function MasterReviewQuotationReport({
                               {items.map((text) => (
                                 <li
                                   key={text}
-                                  className="flex items-start gap-2 break-keep text-[12.5px] font-normal leading-[1.45] text-[#64748B] sm:text-[11px] sm:leading-snug sm:text-[#475569] lg:whitespace-nowrap lg:text-[10.5px]"
+                                  className="flex items-start gap-2 break-keep text-[12.5px] font-normal leading-[1.45] text-[#6B7A90] sm:text-[11px] sm:leading-snug sm:text-[#475569] lg:whitespace-nowrap lg:text-[10.5px]"
                                 >
                                   <span
-                                    className="mt-[0.4rem] h-1.5 w-1.5 shrink-0 rounded-full bg-[#64748B] sm:mt-[0.35rem]"
+                                    className="mt-[0.4rem] h-1.5 w-1.5 shrink-0 rounded-full bg-[#6B7A90] sm:mt-[0.35rem]"
                                     aria-hidden
                                   />
                                   <span className="min-w-0">{text}</span>
@@ -5442,7 +5454,7 @@ export function MasterReviewQuotationReport({
                         </div>
                         <div className="h-auto self-start rounded-[6px] border border-[#BFDBFE] bg-[#EFF6FF]/70 px-3 py-2.5 sm:px-3 sm:py-2.5">
                           <div className="mb-1.5 flex items-start gap-2 sm:mb-1.5 sm:gap-1.5">
-                            <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#0B2A6B]">
+                            <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#071A33]">
                               <Building2 className="h-3.5 w-3.5" aria-hidden />
                             </span>
                             <p className={`min-w-0 ${MOBILE_CARD_LABEL}`}>
@@ -5486,13 +5498,13 @@ export function MasterReviewQuotationReport({
                     <button
                       type="button"
                       onClick={handleContinueClick}
-                      className={selectionPrimaryActionClasses()}
+                      className={verifyPrimaryActionClasses()}
                     >
                       {config.engine === "verify" ? "내 상황 검토하기 →" : "내 상황 자세히 확인하기 →"}
                     </button>
                     <button
                       type="button"
-                      className={selectionSecondaryActionClasses()}
+                      className={verifySecondaryActionClasses()}
                     >
                       이 결과 공유하기
                     </button>
@@ -5526,13 +5538,13 @@ export function MasterReviewQuotationReport({
               className={cn(
                 "hidden w-full min-w-0 flex-col lg:flex lg:border-t-0",
                 isVerifyMasterScreen01
-                  ? "h-full min-h-0 bg-slate-50/40 p-6 lg:col-span-4"
+                  ? "h-full min-h-0 bg-[#F7F9FC] p-6 lg:col-span-4"
                   : "h-full min-h-0 border-t border-[#E5E7EB] bg-[#F8FAFC] p-4 lg:w-auto lg:p-4",
               )}
             >
               <div className="flex w-full flex-col gap-4">
                 <div className="border-b border-[#E5E7EB] pb-2.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748B]">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6B7A90]">
                     QUOTATION REPORT
                   </p>
                 </div>
@@ -5554,16 +5566,16 @@ export function MasterReviewQuotationReport({
                     type="button"
                     disabled
                     onClick={handleContinueClick}
-                    className={selectionPrimaryActionClasses(true)}
+                    className={verifyPrimaryActionClasses(true)}
                   >
                     내 상황 검토하기 →
                   </button>
-                  <button type="button" disabled className={selectionSecondaryActionClasses(true)}>
+                  <button type="button" disabled className={verifySecondaryActionClasses(true)}>
                     {isAdminVerifyPhase2Screen || isRealEstatePhase2QuestionScreen
                       ? "이 결과 공유하기"
                       : "자세히 보기"}
                   </button>
-                  <p className="break-keep text-center text-[11.5px] leading-relaxed text-[#64748B] sm:text-[11px]">
+                  <p className="break-keep text-center text-[11.5px] leading-relaxed text-[#6B7A90] sm:text-[11px]">
                     모든 질문에 답하면 결과를 확인할 수 있습니다.
                   </p>
                 </div>
