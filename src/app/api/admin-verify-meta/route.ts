@@ -26,6 +26,8 @@ const HYGIENE_VERIFY_SERVICE_TYPE = "verify_hygiene";
 const FIRE_VERIFY_SERVICE_TYPE = "verify_fire";
 const COSMETICS_VERIFY_SERVICE_TYPE = "verify_cosmetics";
 const ENVIRONMENT_VERIFY_SERVICE_TYPE = "verify_environment";
+const MEDICAL_VERIFY_SERVICE_TYPE = "verify_medical";
+const FRANCHISE_VERIFY_SERVICE_TYPE = "verify_franchise";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -188,6 +190,28 @@ const ENVIRONMENT_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "environment_pack_headline",
 ]);
 
+const MEDICAL_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "medical_pack_v1",
+  "medical_pack_case_id",
+  "medical_pack_phase2_summary",
+  "medical_pack_headline",
+]);
+
+const FRANCHISE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "franchise_pack_v1",
+  "franchise_pack_case_id",
+  "franchise_pack_phase2_summary",
+  "franchise_pack_headline",
+]);
+
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "review_check_stage",
   "review_check_docs",
@@ -298,7 +322,9 @@ export async function POST(req: NextRequest) {
     const isFireLead = lead.service_type === FIRE_VERIFY_SERVICE_TYPE;
     const isCosmeticsLead = lead.service_type === COSMETICS_VERIFY_SERVICE_TYPE;
     const isEnvironmentLead = lead.service_type === ENVIRONMENT_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead && !isLicenseLead && !isCompanyLead && !isRestaurantLead && !isHygieneLead && !isFireLead && !isCosmeticsLead && !isEnvironmentLead) {
+    const isMedicalLead = lead.service_type === MEDICAL_VERIFY_SERVICE_TYPE;
+    const isFranchiseLead = lead.service_type === FRANCHISE_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead && !isLicenseLead && !isCompanyLead && !isRestaurantLead && !isHygieneLead && !isFireLead && !isCosmeticsLead && !isEnvironmentLead && !isMedicalLead && !isFranchiseLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -337,7 +363,11 @@ export async function POST(req: NextRequest) {
                               ? COSMETICS_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
                               : isEnvironmentLead
                                 ? ENVIRONMENT_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
-                                : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+                                : isMedicalLead
+                                  ? MEDICAL_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                                  : isFranchiseLead
+                                    ? FRANCHISE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                                    : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {

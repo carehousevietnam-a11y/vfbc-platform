@@ -27,6 +27,8 @@ export type DocumentServiceKey =
   | "verify_fire"
   | "verify_cosmetics"
   | "verify_environment"
+  | "verify_medical"
+  | "verify_franchise"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -146,6 +148,28 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_franchise: {
+    serviceKey: "verify_franchise",
+    serviceLabel: "프랜차이즈 등록 직접 인허가 받기",
+    documents: ["본사 사업자 서류", "가맹 소개서"],
+    optionalDocuments: [
+      "상표 등록 서류",
+      "가맹계약서·운영 매뉴얼",
+      "서류 인증·번역본",
+      "기타 참고자료",
+    ],
+  },
+  verify_medical: {
+    serviceKey: "verify_medical",
+    serviceLabel: "의료기기 허가 직접 인허가 받기",
+    documents: ["등급 분류 결과", "제조사 위임장"],
+    optionalDocuments: [
+      "품질 인증서·기술 자료",
+      "자유판매증명서",
+      "보증 계약서",
       "기타 참고자료",
     ],
   },

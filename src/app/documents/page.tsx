@@ -67,6 +67,8 @@ import { buildHygienePhase2PersistMeta } from "@/lib/contentPacks/hygiene/hygien
 import { buildFirePhase2PersistMeta } from "@/lib/contentPacks/fire/firePack";
 import { buildCosmeticsPhase2PersistMeta } from "@/lib/contentPacks/cosmetics/cosmeticsPack";
 import { buildEnvironmentPhase2PersistMeta } from "@/lib/contentPacks/environment/environmentPack";
+import { buildMedicalPhase2PersistMeta } from "@/lib/contentPacks/medical/medicalPack";
+import { buildFranchisePhase2PersistMeta } from "@/lib/contentPacks/franchise/franchisePack";
 import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
@@ -1485,7 +1487,21 @@ function DocumentUploadContent() {
                                       ...buildEnvironmentPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
                                       ...uploadGateMeta,
                                     }
-                                  : uploadGateMeta;
+                                  : handoffService === "verify_medical" &&
+                                      snapshotAnswers &&
+                                      Object.keys(snapshotAnswers).length > 0
+                                    ? {
+                                        ...buildMedicalPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                                        ...uploadGateMeta,
+                                      }
+                                    : handoffService === "verify_franchise" &&
+                                        snapshotAnswers &&
+                                        Object.keys(snapshotAnswers).length > 0
+                                      ? {
+                                          ...buildFranchisePhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                                          ...uploadGateMeta,
+                                        }
+                                      : uploadGateMeta;
 
     const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {

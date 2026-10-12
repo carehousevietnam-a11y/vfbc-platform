@@ -24,6 +24,8 @@ const hygiene = await import("../src/lib/contentPacks/hygiene/hygienePack.ts");
 const fire = await import("../src/lib/contentPacks/fire/firePack.ts");
 const cosmetics = await import("../src/lib/contentPacks/cosmetics/cosmeticsPack.ts");
 const environment = await import("../src/lib/contentPacks/environment/environmentPack.ts");
+const medical = await import("../src/lib/contentPacks/medical/medicalPack.ts");
+const franchise = await import("../src/lib/contentPacks/franchise/franchisePack.ts");
 const { ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY } = await import("../src/lib/adminVerifyProfiling.ts");
 
 const leadId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
@@ -41,6 +43,8 @@ const jobs = [
   ["fire", "verify_fire", fire.FIRE_CONTENT_FINAL, fire.buildFirePhase2PersistMeta],
   ["cosmetics", "verify_cosmetics", cosmetics.COSMETICS_CONTENT_FINAL, cosmetics.buildCosmeticsPhase2PersistMeta],
   ["environment", "verify_environment", environment.ENVIRONMENT_CONTENT_FINAL, environment.buildEnvironmentPhase2PersistMeta],
+  ["medical", "verify_medical", medical.MEDICAL_CONTENT_FINAL, medical.buildMedicalPhase2PersistMeta],
+  ["franchise", "verify_franchise", franchise.FRANCHISE_CONTENT_FINAL, franchise.buildFranchisePhase2PersistMeta],
 ];
 
 function pageOneText(pdfPath) {

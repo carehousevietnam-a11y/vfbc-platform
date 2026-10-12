@@ -86,6 +86,8 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_fire: "소방 허가 직접 인허가 받기",
   verify_cosmetics: "화장품 판매 신고 직접 인허가 받기",
   verify_environment: "환경 허가 직접 인허가 받기",
+  verify_medical: "의료기기 허가 직접 인허가 받기",
+  verify_franchise: "프랜차이즈 등록 직접 인허가 받기",
 };
 
 function getServiceLabel(serviceType: string) {
@@ -139,6 +141,8 @@ function getServiceIcon(serviceType: string) {
   if (key.startsWith("verify_fire")) return "🧯";
   if (key.startsWith("verify_cosmetics")) return "🧴";
   if (key.startsWith("verify_environment")) return "🌿";
+  if (key.startsWith("verify_medical")) return "🩺";
+  if (key.startsWith("verify_franchise")) return "🏪";
   if (key === "consultation") return "💬";
   return "📌";
 }

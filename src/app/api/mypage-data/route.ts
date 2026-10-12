@@ -24,6 +24,8 @@ import { buildHygieneVerifyMypagePackExtras } from "@/lib/contentPacks/hygiene/h
 import { buildFireVerifyMypagePackExtras } from "@/lib/contentPacks/fire/firePack";
 import { buildCosmeticsVerifyMypagePackExtras } from "@/lib/contentPacks/cosmetics/cosmeticsPack";
 import { buildEnvironmentVerifyMypagePackExtras } from "@/lib/contentPacks/environment/environmentPack";
+import { buildMedicalVerifyMypagePackExtras } from "@/lib/contentPacks/medical/medicalPack";
+import { buildFranchiseVerifyMypagePackExtras } from "@/lib/contentPacks/franchise/franchisePack";
 import { ADMIN_VERIFY_PROFILE_PHASE_META_KEY } from "@/lib/adminVerifyProfiling";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
@@ -90,6 +92,8 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_fire: "소방 허가 직접 인허가 받기",
   verify_cosmetics: "화장품 판매 신고 직접 인허가 받기",
   verify_environment: "환경 허가 직접 인허가 받기",
+  verify_medical: "의료기기 허가 직접 인허가 받기",
+  verify_franchise: "프랜차이즈 등록 직접 인허가 받기",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",
@@ -582,7 +586,11 @@ export async function POST(req: NextRequest) {
                                   ? buildCosmeticsVerifyMypagePackExtras(leadActivities)
                                   : normalizedType === "verify_environment"
                                     ? buildEnvironmentVerifyMypagePackExtras(leadActivities)
-                                    : null;
+                                    : normalizedType === "verify_medical"
+                                      ? buildMedicalVerifyMypagePackExtras(leadActivities)
+                                      : normalizedType === "verify_franchise"
+                                        ? buildFranchiseVerifyMypagePackExtras(leadActivities)
+                                        : null;
 
       const adminVerifyExtras =
         normalizedType === "verify_admin"
@@ -616,7 +624,9 @@ export async function POST(req: NextRequest) {
           normalizedType === "verify_hygiene" ||
           normalizedType === "verify_fire" ||
           normalizedType === "verify_cosmetics" ||
-          normalizedType === "verify_environment") &&
+          normalizedType === "verify_environment" ||
+          normalizedType === "verify_medical" ||
+          normalizedType === "verify_franchise") &&
         "phase2Complete" in adminVerifyExtras &&
         adminVerifyExtras.phase2Complete
       ) {

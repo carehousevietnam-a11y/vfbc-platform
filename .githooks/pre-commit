@@ -17,4 +17,6 @@ node tests/qa/hygiene-content-final.mjs || exit 1
 node tests/qa/fire-content-final.mjs || exit 1
 node tests/qa/cosmetics-content-final.mjs || exit 1
 node tests/qa/environment-content-final.mjs || exit 1
+node tests/qa/medical-content-final.mjs || exit 1
+node tests/qa/franchise-content-final.mjs || exit 1
 exit 0

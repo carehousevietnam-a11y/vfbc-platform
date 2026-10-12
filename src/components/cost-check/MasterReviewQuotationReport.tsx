@@ -3418,7 +3418,9 @@ export function MasterReviewQuotationReport({
         question.id.startsWith("hygiene_q") ||
         question.id.startsWith("fire_q") ||
         question.id.startsWith("cosmetics_q") ||
-        question.id.startsWith("environment_q"))
+        question.id.startsWith("environment_q") ||
+        question.id.startsWith("medical_q") ||
+        question.id.startsWith("franchise_q"))
     ) {
       return renderAdminClassifiedChoiceQuestion(
         question as ReviewQuestion & {

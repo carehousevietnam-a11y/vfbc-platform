@@ -83,6 +83,16 @@ const VERIFY_PHASE2_HANDOFF: Partial<Record<VerifyServiceType, VerifyPhase2Hando
     documentsServiceParam: "verify_environment",
     verifyReturnPath: "/verify/environment",
   },
+  verify_medical: {
+    snapshotStorageKey: "vfbcai_medical_verify_phase2_snapshot",
+    documentsServiceParam: "verify_medical",
+    verifyReturnPath: "/verify/medical",
+  },
+  verify_franchise: {
+    snapshotStorageKey: "vfbcai_franchise_verify_phase2_snapshot",
+    documentsServiceParam: "verify_franchise",
+    verifyReturnPath: "/verify/franchise",
+  },
 };
 
 export const ADMIN_VERIFY_PHASE2_SNAPSHOT_STORAGE_KEY =

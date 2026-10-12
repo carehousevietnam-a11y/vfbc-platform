@@ -58,6 +58,10 @@ import { buildCosmeticsVerifyAiReportContentFromActivities } from "@/lib/content
 import { drawCosmeticsReportNotes } from "@/lib/contentPacks/cosmetics/cosmeticsReportNotes";
 import { buildEnvironmentVerifyAiReportContentFromActivities } from "@/lib/contentPacks/environment/environmentPack";
 import { drawEnvironmentReportNotes } from "@/lib/contentPacks/environment/environmentReportNotes";
+import { buildMedicalVerifyAiReportContentFromActivities } from "@/lib/contentPacks/medical/medicalPack";
+import { drawMedicalReportNotes } from "@/lib/contentPacks/medical/medicalReportNotes";
+import { buildFranchiseVerifyAiReportContentFromActivities } from "@/lib/contentPacks/franchise/franchisePack";
+import { drawFranchiseReportNotes } from "@/lib/contentPacks/franchise/franchiseReportNotes";
 import { drawTaxBaseGlyphText, drawTaxReportNotes } from "@/lib/contentPacks/tax/taxReportNotes";
 import { ensureMypageExecutivePdfMeasureFonts, getMypageExecutivePdfMeasureFontsSync } from "@/lib/mypagePdfExecutiveMeasureFonts";
 import {
@@ -124,6 +128,8 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_fire: "소방 허가 직접 인허가 받기",
   verify_cosmetics: "화장품 판매 신고 직접 인허가 받기",
   verify_environment: "환경 허가 직접 인허가 받기",
+  verify_medical: "의료기기 허가 직접 인허가 받기",
+  verify_franchise: "프랜차이즈 등록 직접 인허가 받기",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",
@@ -282,6 +288,14 @@ function buildVerifyMasterReportContent(
 
   if (typeKey === "verify_environment") {
     return buildEnvironmentVerifyAiReportContentFromActivities(activities);
+  }
+
+  if (typeKey === "verify_medical") {
+    return buildMedicalVerifyAiReportContentFromActivities(activities);
+  }
+
+  if (typeKey === "verify_franchise") {
+    return buildFranchiseVerifyAiReportContentFromActivities(activities);
   }
 
   return null;
@@ -1869,6 +1883,40 @@ export async function buildMypagePdfDocumentFromLeadAndActivities(
     if ((normalizedType ?? "").replace(/-/g, "_") === "verify_environment") {
       noteExtraPages.push(
         ...drawEnvironmentReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        }),
+      );
+    }
+    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_medical") {
+      noteExtraPages.push(
+        ...drawMedicalReportNotes({
+          activities,
+          doc,
+          font,
+          fontBold,
+          startPage: bodyPage,
+          startY: Math.min(leftState.y, rightState.y) - 12,
+          pageWidth,
+          pageHeight,
+          marginX,
+          bodyMinY: BODY_MIN_Y,
+          watermark: watermarkImage,
+        }),
+      );
+    }
+    if ((normalizedType ?? "").replace(/-/g, "_") === "verify_franchise") {
+      noteExtraPages.push(
+        ...drawFranchiseReportNotes({
           activities,
           doc,
           font,
