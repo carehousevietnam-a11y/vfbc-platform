@@ -103,11 +103,11 @@ import { resolveExpertTeamLabel } from "@/lib/expertTeamLabel";
 type CategoryKey = "check" | "verify" | "register" | "consultation" | "unclassified";
 
 const CATEGORY_BADGE: Record<CategoryKey, { label: string; className: string }> = {
-  check: { label: "CHECK", className: "bg-blue-100 text-blue-700" },
-  verify: { label: "VERIFY", className: "bg-slate-100 text-slate-700" },
+  check: { label: "CHECK", className: "bg-[#E3ECFD] text-[#2563EB]" },
+  verify: { label: "VERIFY", className: "bg-[#F2F5FA] text-[#3D4B63]" },
   register: { label: "REGISTER", className: "bg-amber-100 text-amber-700" },
-  consultation: { label: "상담", className: "bg-teal-100 text-teal-700" },
-  unclassified: { label: "안내", className: "bg-slate-100 text-slate-500" },
+  consultation: { label: "상담", className: "bg-[#E3ECFD] text-[#2563EB]" },
+  unclassified: { label: "안내", className: "bg-[#F2F5FA] text-[#6B7A90]" },
 };
 
 const RESULT_LABELS: Record<string, { label: string; className: string }> = {
@@ -340,19 +340,19 @@ const CONFIDENCE_STYLE: Record<
 > = {
   green: {
     bg: "bg-emerald-50",
-    border: "border-emerald-100",
+    border: "border-[#E3E8F0]",
     text: "text-emerald-700",
     icon: CheckCircle2,
   },
   yellow: {
     bg: "bg-amber-50",
-    border: "border-amber-100",
+    border: "border-[#E3E8F0]",
     text: "text-amber-700",
     icon: AlertTriangle,
   },
   red: {
     bg: "bg-red-50",
-    border: "border-red-100",
+    border: "border-[#E3E8F0]",
     text: "text-red-700",
     icon: ShieldAlert,
   },
@@ -363,8 +363,8 @@ function BrandLogo() {
     <Link href="/" className="flex items-center gap-3">
       <img src="/vfbcai-shield-logo.png" alt="VFBCAI" width={38} height={38} />
       <div>
-        <p className="text-[19px] font-extrabold tracking-[-0.03em] text-[#0d2a6b]">VFBCAI</p>
-        <p className="text-[9px] font-medium tracking-[-0.01em] text-slate-400">
+        <p className="text-[19px] font-extrabold tracking-[-0.03em] text-[#071A33]">VFBCAI</p>
+        <p className="text-[9px] font-medium tracking-[-0.01em] text-[#6B7A90]">
           Check. Verify. Register. Protect.
         </p>
       </div>
@@ -386,7 +386,7 @@ const SIDEBAR_ITEMS = [
 
 function DesktopSidebar({ messageHref }: { messageHref: string }) {
   return (
-    <aside className="hidden w-[220px] shrink-0 border-r border-slate-200 bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
+    <aside className="hidden w-[220px] shrink-0 border-r border-[#E3E8F0] bg-white xl:sticky xl:top-0 xl:z-30 xl:flex xl:h-screen xl:flex-col">
       <div className="px-5 pt-4">
         <BrandLogo />
       </div>
@@ -396,10 +396,10 @@ function DesktopSidebar({ messageHref }: { messageHref: string }) {
           <Link
             key={item.label}
             href={item.label === "메시지" ? messageHref : item.href}
-            className={`flex h-11 items-center justify-between rounded-xl px-3.5 text-[13px] font-semibold transition ${
+            className={`flex h-11 items-center justify-between rounded-[12px] px-3.5 text-[13px] font-semibold transition ${
               item.active
-                ? "bg-[#0b2e77] text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                ? "bg-[#2563EB] text-white"
+                : "text-[#3D4B63] hover:bg-[#F7F9FC] hover:text-[#071A33]"
             }`}
           >
             <span className="flex items-center gap-3">
@@ -416,12 +416,12 @@ function DesktopSidebar({ messageHref }: { messageHref: string }) {
       </nav>
 
       <div className="mt-auto p-3">
-        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 p-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
-            <FolderLock size={17} className="text-[#0d2a6b]" />
+        <div className="rounded-[14px] bg-white p-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white">
+            <FolderLock size={17} className="text-[#071A33]" />
           </div>
-          <p className="mt-2 text-sm font-bold text-[#0d2a6b]">보안 안전 지갑</p>
-          <p className="mt-1 text-[11px] leading-[15px] text-slate-500">
+          <p className="mt-2 text-sm font-bold text-[#071A33]">보안 안전 지갑</p>
+          <p className="mt-1 text-[11px] leading-[15px] text-[#6B7A90]">
             고객님의 중요 자료는 암호화되어 안전하게 관리됩니다.
           </p>
         </div>
@@ -432,21 +432,21 @@ function DesktopSidebar({ messageHref }: { messageHref: string }) {
 
 function TopHeader({ name }: { name: string | null }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-[#E3E8F0] bg-white/95 backdrop-blur">
       <div className="flex h-[80px] w-full items-center justify-between px-4 sm:px-5 xl:px-5">
         <div className="xl:hidden">
           <BrandLogo />
         </div>
 
         <div className="hidden xl:block">
-          <p className="text-[20px] font-extrabold tracking-[-0.03em] text-slate-950">
+          <p className="text-[20px] font-extrabold tracking-[-0.03em] text-[#071A33]">
             안녕하세요, {name ?? "고객"}님 👋
           </p>
-          <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
+          <p className="mt-1 text-[12px] text-[#6B7A90]">오늘도 성공적인 하루 보내세요!</p>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <button className="relative flex h-10 items-center gap-2 rounded-full px-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-50">
+          <button className="relative flex h-10 items-center gap-2 rounded-full px-2 text-[12px] font-semibold text-[#3D4B63] hover:bg-[#F7F9FC]">
             <Bell size={18} />
             <span className="hidden sm:inline">알림</span>
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
@@ -454,7 +454,7 @@ function TopHeader({ name }: { name: string | null }) {
             </span>
           </button>
 
-          <button className="relative hidden h-10 items-center gap-2 rounded-full px-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-50 sm:flex">
+          <button className="relative hidden h-10 items-center gap-2 rounded-full px-2 text-[12px] font-semibold text-[#3D4B63] hover:bg-[#F7F9FC] sm:flex">
             <MessageSquare size={18} />
             메시지
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
@@ -462,14 +462,14 @@ function TopHeader({ name }: { name: string | null }) {
             </span>
           </button>
 
-          <div className="flex items-center gap-2 rounded-full px-2 py-1.5 hover:bg-slate-50">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+          <div className="flex items-center gap-2 rounded-full px-2 py-1.5 hover:bg-[#F7F9FC]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2F5FA] text-[#3D4B63]">
               <User size={18} />
             </div>
-            <span className="hidden text-[12px] font-semibold text-slate-800 sm:inline">
+            <span className="hidden text-[12px] font-semibold text-[#071A33] sm:inline">
               {name ?? "고객"}님
             </span>
-            <ChevronDown size={14} className="hidden text-slate-400 sm:block" />
+            <ChevronDown size={14} className="hidden text-[#6B7A90] sm:block" />
           </div>
         </div>
       </div>
@@ -487,11 +487,11 @@ function ProgressRing({ value }: { value: number }) {
         background: `conic-gradient(#55d98a ${safeValue * 3.6}deg, rgba(255,255,255,0.16) 0deg)`,
       }}
     >
-      <div className="flex h-[82px] w-[82px] flex-col items-center justify-center rounded-full bg-[#163b80]">
+      <div className="flex h-[82px] w-[82px] flex-col items-center justify-center rounded-full bg-[#2563EB]">
         <p className="text-[31px] font-extrabold leading-none tracking-[-0.04em] text-white">
           {safeValue}%
         </p>
-        <p className="mt-0.5 text-[9px] font-semibold text-blue-200">전체 진행률</p>
+        <p className="mt-0.5 text-[9px] font-semibold text-[#C9D9FB]">전체 진행률</p>
       </div>
     </div>
   );
@@ -510,22 +510,22 @@ function VerifyAdminPaidHeader({
   return (
     <section
       id={applicationsId}
-      className="min-w-0 overflow-hidden rounded-[20px] border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 px-5 py-5 shadow-sm ring-1 ring-indigo-100/80 sm:px-6"
+      className="min-w-0 overflow-hidden rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5 ring-1 ring-[#E3ECFD] sm:px-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-indigo-700/90">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#2563EB]">
             행정문서 종합 결과
           </p>
-          <h2 className="mt-1 break-keep text-[22px] font-extrabold tracking-[-0.03em] text-slate-950 sm:text-[26px]">
+          <h2 className="mt-1 break-keep text-[22px] font-extrabold tracking-[-0.03em] text-[#071A33] sm:text-[26px]">
             종합 결과
           </h2>
-          <p className="mt-2 break-keep text-[14px] leading-6 text-slate-800">{headline}</p>
-          <p className="mt-1 text-[11px] text-slate-400">
+          <p className="mt-2 break-keep text-[14px] leading-6 text-[#071A33]">{headline}</p>
+          <p className="mt-1 text-[11px] text-[#6B7A90]">
             {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
           </p>
         </div>
-        <span className="inline-flex shrink-0 items-center rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-bold text-white shadow-sm">
+        <span className="inline-flex shrink-0 items-center rounded-full bg-[#2563EB] px-3 py-1 text-[10px] font-bold text-white">
           2차 개인화 검토 완료
         </span>
       </div>
@@ -541,31 +541,31 @@ function VerifyAdminPaidSituationSummary({ item }: { item: MyPageItem }) {
   const phase2Lines = item.phase2SummaryLines ?? [];
 
   return (
-    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
-      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-slate-950">내 상황 요약</p>
-      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/90 px-4 py-3.5">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">1차 검토 요약</p>
-        <div className="mt-2 space-y-2 border-l-2 border-slate-300 pl-3">
+    <section className="min-w-0 rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5 sm:px-6">
+      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-[#071A33]">내 상황 요약</p>
+      <div className="mt-4 rounded-[12px] border border-[#E3E8F0] bg-[#F7F9FC] px-4 py-3.5">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-[#6B7A90]">1차 검토 요약</p>
+        <div className="mt-2 space-y-2 border-l-2 border-[#E3E8F0] pl-3">
           {phase1Lines.map((line) => (
-            <p key={line} className="break-keep text-[13px] leading-6 text-slate-800">
+            <p key={line} className="break-keep text-[13px] leading-6 text-[#071A33]">
               {line}
             </p>
           ))}
         </div>
       </div>
-      <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/40 px-4 py-3.5">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-blue-900/80">
+      <div className="mt-3 rounded-[12px] border border-[#C9D9FB] bg-[#F2F6FE] px-4 py-3.5">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-[#071A33]">
           2차 개인화 검토 요약
         </p>
-        <div className="mt-2 space-y-2 border-l-2 border-blue-400 pl-3">
+        <div className="mt-2 space-y-2 border-l-2 border-[#5B8DEF] pl-3">
           {phase2Lines.length > 0 ? (
             phase2Lines.map((line) => (
-              <p key={line} className="break-keep text-[13px] leading-6 text-slate-800">
+              <p key={line} className="break-keep text-[13px] leading-6 text-[#071A33]">
                 {line}
               </p>
             ))
           ) : (
-            <p className="break-keep text-[13px] leading-6 text-slate-700">
+            <p className="break-keep text-[13px] leading-6 text-[#3D4B63]">
               2차 질문 응답이 반영되어 있습니다.
             </p>
           )}
@@ -578,8 +578,8 @@ function VerifyAdminPaidSituationSummary({ item }: { item: MyPageItem }) {
 function VerifyAdminPaidSubmittedDocs({ item }: { item: MyPageItem }) {
   const uploaded = item.phase2UploadedDocuments ?? [];
   return (
-    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
-      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-slate-950">제출한 자료</p>
+    <section className="min-w-0 rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5 sm:px-6">
+      <p className="text-[15px] font-extrabold tracking-[-0.02em] text-[#071A33]">제출한 자료</p>
       {uploaded.length > 0 ? (
         <ul className="mt-3 space-y-2">
           {uploaded.map((doc) => (
@@ -588,21 +588,21 @@ function VerifyAdminPaidSubmittedDocs({ item }: { item: MyPageItem }) {
                 href={doc.fileUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 hover:bg-slate-50"
+                className="flex min-w-0 items-center justify-between gap-3 rounded-[12px] border border-[#E3E8F0] px-3 py-3 hover:bg-[#F7F9FC]"
               >
                 <span className="flex min-w-0 items-center gap-2.5">
-                  <FileText size={16} className="shrink-0 text-blue-900" />
-                  <span className="truncate text-[12px] font-semibold text-slate-800">
+                  <FileText size={16} className="shrink-0 text-[#071A33]" />
+                  <span className="truncate text-[12px] font-semibold text-[#071A33]">
                     {doc.fileName}
                   </span>
                 </span>
-                <Download size={14} className="shrink-0 text-slate-400" />
+                <Download size={14} className="shrink-0 text-[#6B7A90]" />
               </a>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-[13px] text-slate-600">제출한 자료 없음</p>
+        <p className="mt-3 text-[13px] text-[#3D4B63]">제출한 자료 없음</p>
       )}
     </section>
   );
@@ -618,7 +618,7 @@ function VerifyAdminMypageActionRow({
   onExpertRequested?: () => void | Promise<void>;
 }) {
   return (
-    <section className="min-w-0 rounded-[20px] border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6">
+    <section className="min-w-0 rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-4 sm:px-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <PdfDownloadButton
           leadId={item.id}
@@ -629,7 +629,7 @@ function VerifyAdminMypageActionRow({
           hasAiReportRequest={item.hasAiReportRequest}
         />
         {item.hasExpertReview ? (
-          <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+          <p className="text-[13px] font-semibold text-[#071A33]">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
         ) : (
           <AdminVerifyExpertRequestButton
             leadId={item.id}
@@ -691,13 +691,13 @@ function VerifyAdminApplicationSummaryCard({ item }: { item: MyPageItem }) {
   }
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-      <p className="text-[14px] font-extrabold tracking-[-0.02em] text-slate-950">내 신청 요약</p>
+    <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-4 sm:p-5">
+      <p className="text-[14px] font-extrabold tracking-[-0.02em] text-[#071A33]">내 신청 요약</p>
       <dl className="mt-3 space-y-2.5">
         {rows.map((row) => (
           <div key={row.label} className="flex items-start justify-between gap-3 text-[12px]">
-            <dt className="shrink-0 font-semibold text-slate-500">{row.label}</dt>
-            <dd className="min-w-0 break-keep text-right font-semibold text-slate-900">{row.value}</dd>
+            <dt className="shrink-0 font-semibold text-[#6B7A90]">{row.label}</dt>
+            <dd className="min-w-0 break-keep text-right font-semibold text-[#071A33]">{row.value}</dd>
           </div>
         ))}
       </dl>
@@ -734,7 +734,7 @@ function VerifyAdminFreeGovernmentLinksAsideCard() {
   const panelId = "verify-admin-free-government-links-panel";
 
   return (
-    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[14px] border border-[#E3E8F0] bg-white">
       <button
         type="button"
         aria-expanded={open}
@@ -742,29 +742,29 @@ function VerifyAdminFreeGovernmentLinksAsideCard() {
         onClick={() => setOpen((prev) => !prev)}
         className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left"
       >
-        <span className="min-w-0 text-[16px] font-extrabold text-slate-950">
+        <span className="min-w-0 text-[16px] font-extrabold text-[#071A33]">
           {VERIFY_ADMIN_ROLLING_STRIP_SECTION_TITLE}
         </span>
         <ChevronDown
           size={18}
-          className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+          className={`shrink-0 text-[#6B7A90] motion-safe:transition-transform ${
             open ? "rotate-180" : ""
           }`}
           aria-hidden
         />
       </button>
-      <div id={panelId} className={open ? "block border-t border-slate-100" : "hidden"}>
-        <div className="divide-y divide-slate-100 px-5 pb-5 pt-3">
+      <div id={panelId} className={open ? "block border-t border-[#E3E8F0]" : "hidden"}>
+        <div className="divide-y divide-[#E3E8F0] px-5 pb-5 pt-3">
           {items.map((link) => (
             <a
               key={link.id}
               href={link.href}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
+              className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-[#F7F9FC]"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#E3E8F0] bg-white">
                   {link.iconSrc ? (
                     <img
                       src={link.iconSrc}
@@ -774,17 +774,17 @@ function VerifyAdminFreeGovernmentLinksAsideCard() {
                       draggable={false}
                     />
                   ) : (
-                    <span className="text-[13px] font-extrabold text-[#0d2a6b]">
+                    <span className="text-[13px] font-extrabold text-[#071A33]">
                       {link.label.trim().charAt(0) || "?"}
                     </span>
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] font-semibold text-slate-400">{link.regionLabel}</p>
-                  <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
+                  <p className="text-[10px] font-semibold text-[#6B7A90]">{link.regionLabel}</p>
+                  <p className="truncate text-[12px] font-bold text-[#071A33]">{link.label}</p>
                 </div>
               </div>
-              <ExternalLink size={13} className="shrink-0 text-slate-300" />
+              <ExternalLink size={13} className="shrink-0 text-[#9AA7BA]" />
             </a>
           ))}
         </div>
@@ -834,7 +834,7 @@ function GeneralCustomerResultView({
       ? "text-amber-700"
       : item.result === "impossible"
       ? "text-red-700"
-      : "text-[#0d2a6b]";
+      : "text-[#071A33]";
 
   const isVerifyAdminFreeLayout =
     item.serviceType === "verify_admin" || item.serviceType === "verify_tax" || item.serviceType === "verify_fraud" || item.serviceType === "verify_unclear" || item.serviceType === "verify_trc" || item.serviceType === "verify_wp" || item.serviceType === "verify_tamtru" || item.serviceType === "verify_license" || item.serviceType === "verify_company" || item.serviceType === "verify_restaurant" || item.serviceType === "verify_hygiene" || item.serviceType === "verify_fire" || item.serviceType === "verify_cosmetics" || item.serviceType === "verify_environment" || item.serviceType === "verify_medical" || item.serviceType === "verify_franchise";
@@ -847,10 +847,10 @@ function GeneralCustomerResultView({
   return (
     <section
       id={rootId}
-      className="rounded-[20px] border border-blue-100 bg-gradient-to-br from-white via-white to-blue-50/40 px-5 py-5 shadow-sm sm:px-6"
+      className="rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5 sm:px-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-blue-700/80">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[#2563EB]">
           최근 확인 결과
         </p>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -864,10 +864,10 @@ function GeneralCustomerResultView({
         </div>
       </div>
 
-      <h2 className="mt-2.5 break-keep text-[20px] font-bold tracking-[-0.03em] text-slate-950 sm:text-[23px]">
+      <h2 className="mt-2.5 break-keep text-[20px] font-bold tracking-[-0.03em] text-[#071A33] sm:text-[23px]">
         {item.caseSummaryHeadline ?? item.serviceLabel}
       </h2>
-      <p className="mt-0.5 text-[11px] text-slate-400">
+      <p className="mt-0.5 text-[11px] text-[#6B7A90]">
         {formatIsoDate(item.createdAt)} · VF{item.id.slice(0, 8).toUpperCase()}
         {resultPhaseLabel ? ` · ${resultPhaseLabel}` : ""}
       </p>
@@ -880,7 +880,7 @@ function GeneralCustomerResultView({
                 {resultInfo.label}
               </p>
             ) : (
-              <p className="text-[22px] font-bold tracking-[-0.03em] text-slate-900">결과 확인</p>
+              <p className="text-[22px] font-bold tracking-[-0.03em] text-[#071A33]">결과 확인</p>
             )}
             {typeof item.feasibilityScore === "number" && (
               <p className="text-[16px] font-semibold tabular-nums text-emerald-600 sm:text-[18px]">
@@ -890,13 +890,13 @@ function GeneralCustomerResultView({
           </div>
 
           {keyPoints[0] ? (
-            <p className="mt-3 break-keep text-[13px] leading-6 text-slate-600">{keyPoints[0]}</p>
+            <p className="mt-3 break-keep text-[13px] leading-6 text-[#3D4B63]">{keyPoints[0]}</p>
           ) : null}
         </>
       ) : null}
 
       {isVerifyAdminFreeLayout || isRealEstatePackPhase2 ? (
-        <div className="mt-5 border-t border-slate-200/70 pt-4">
+        <div className="mt-5 border-t border-[#E3E8F0] pt-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <PdfDownloadButton
               leadId={item.id}
@@ -907,7 +907,7 @@ function GeneralCustomerResultView({
               hasAiReportRequest={item.hasAiReportRequest}
             />
             {item.hasExpertReview ? (
-              <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+              <p className="text-[13px] font-semibold text-[#071A33]">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
             ) : (
               <AdminVerifyExpertRequestButton
                 leadId={item.id}
@@ -919,10 +919,10 @@ function GeneralCustomerResultView({
           </div>
         </div>
       ) : (
-        <div className="mt-5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div className="mt-5 rounded-[12px] border border-[#E3E8F0] bg-white px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-4">
           <div className="min-w-0 sm:flex-1">
-            <p className="text-[11px] font-semibold text-slate-500">다음에 할 일</p>
-            <p className="mt-1 break-keep text-[13px] leading-5 text-slate-800">{nextAction}</p>
+            <p className="text-[11px] font-semibold text-[#6B7A90]">다음에 할 일</p>
+            <p className="mt-1 break-keep text-[13px] leading-5 text-[#071A33]">{nextAction}</p>
           </div>
           <div className="mt-3 flex shrink-0 flex-col gap-2 sm:mt-0">
             <PdfDownloadButton
@@ -958,8 +958,8 @@ function PastApplicationsToggle({
 
   return (
     <div
-      className={`overflow-hidden border border-slate-200 bg-white shadow-sm ${
-        asideStyle ? "rounded-[20px]" : "rounded-[16px]"
+      className={`overflow-hidden border border-[#E3E8F0] bg-white ${
+        asideStyle ? "rounded-[14px]" : "rounded-[16px]"
       }`}
     >
       <button
@@ -968,16 +968,16 @@ function PastApplicationsToggle({
         className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left sm:px-5"
         aria-expanded={open}
       >
-        <span className="text-[12px] font-semibold text-slate-700">
+        <span className="text-[12px] font-semibold text-[#3D4B63]">
           내 과거 신청 보기 {open ? "−" : "+"}
         </span>
-        <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+        <span className="shrink-0 rounded-full bg-[#F2F5FA] px-2 py-0.5 text-[10px] font-medium text-[#6B7A90]">
           {pastItems.length}건
         </span>
       </button>
 
       {open && (
-        <ul className="max-h-56 divide-y divide-slate-100 overflow-y-auto border-t border-slate-100">
+        <ul className="max-h-56 divide-y divide-[#E3E8F0] overflow-y-auto border-t border-[#E3E8F0]">
           {pastItems.map((entry) => {
             const entryResult = entry.result ? RESULT_LABELS[entry.result] ?? null : null;
             const tracks = resolveCaseTracks(entry);
@@ -987,19 +987,19 @@ function PastApplicationsToggle({
                 <button
                   type="button"
                   onClick={() => onSelect(entry.id)}
-                  className="flex min-w-0 flex-1 items-center justify-between gap-2.5 px-4 py-2.5 text-left transition hover:bg-slate-50/80 sm:px-5"
+                  className="flex min-w-0 flex-1 items-center justify-between gap-2.5 px-4 py-2.5 text-left transition hover:bg-[#F7F9FC] sm:px-5"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-[12px] font-semibold text-slate-900">
+                    <p className="truncate text-[12px] font-semibold text-[#071A33]">
                       {entry.serviceLabel}
                     </p>
-                    <p className="mt-0.5 truncate text-[10px] text-slate-500">
+                    <p className="mt-0.5 truncate text-[10px] text-[#6B7A90]">
                       {formatIsoDate(entry.createdAt)}
                       {entryResult ? ` · ${entryResult.label}` : ""}
                       {tracks.expert ? " · 전문가" : tracks.ai ? " · AI" : ""}
                     </p>
                   </div>
-                  <ChevronRight size={14} className="shrink-0 text-slate-300" />
+                  <ChevronRight size={14} className="shrink-0 text-[#9AA7BA]" />
                 </button>
                 {restoreHref ? (
                   <Link
@@ -1008,7 +1008,7 @@ function PastApplicationsToggle({
                     aria-label={`${entry.serviceLabel} 원본 결과 화면 열기`}
                     title="원본 결과 화면"
                   >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E3E8F0] bg-white text-[#6B7A90] transition hover:border-[#C9D9FB] hover:bg-[#F2F6FE] hover:text-[#2563EB]">
                       <ExternalLink size={14} strokeWidth={2.25} />
                     </span>
                   </Link>
@@ -1024,7 +1024,7 @@ function PastApplicationsToggle({
 
 function GeneralCustomerMainSupport({ item }: { item: MyPageItem }) {
   return (
-    <div className="space-y-4 [&_#wallet]:rounded-[20px] [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm [&_section_.grid]:xl:grid-cols-2">
+    <div className="space-y-4 [&_#wallet]:rounded-[14px] [&_section]:rounded-[14px] [&_section]:border-[#E3E8F0] [&_section]:shadow-sm [&_section_.grid]:xl:grid-cols-2">
       <WalletSection leadId={item.id} compact />
       <RecommendedServices />
     </div>
@@ -1038,10 +1038,10 @@ function GeneralCustomerPublicLinksPanel() {
       href={link.href}
       target="_blank"
       rel="noreferrer"
-      className="flex min-h-[48px] items-center justify-between py-2 transition hover:bg-slate-50"
+      className="flex min-h-[48px] items-center justify-between py-2 transition hover:bg-[#F7F9FC]"
     >
       <div className="flex min-w-0 items-center gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#E3E8F0] bg-white">
           <img
             src={link.iconSrc}
             alt={`${link.label} 기관 아이콘`}
@@ -1051,26 +1051,26 @@ function GeneralCustomerPublicLinksPanel() {
           />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[11px] font-bold text-slate-900">{link.label}</p>
+          <p className="truncate text-[11px] font-bold text-[#071A33]">{link.label}</p>
           {"sub" in link && link.sub ? (
-            <p className="mt-0.5 truncate text-[9px] text-slate-400">{link.sub}</p>
+            <p className="mt-0.5 truncate text-[9px] text-[#6B7A90]">{link.sub}</p>
           ) : null}
         </div>
       </div>
-      <ExternalLink size={12} className="shrink-0 text-slate-300" />
+      <ExternalLink size={12} className="shrink-0 text-[#9AA7BA]" />
     </a>
   );
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-[14px] font-extrabold text-slate-950">정부기관 바로가기</p>
+    <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+      <p className="text-[14px] font-extrabold text-[#071A33]">정부기관 바로가기</p>
       <div className="mt-3">
-        <p className="text-[10px] font-semibold text-slate-400">한국</p>
-        <div className="mt-1 divide-y divide-slate-100">{PUBLIC_LINKS.map(renderLink)}</div>
+        <p className="text-[10px] font-semibold text-[#6B7A90]">한국</p>
+        <div className="mt-1 divide-y divide-[#E3E8F0]">{PUBLIC_LINKS.map(renderLink)}</div>
       </div>
-      <div className="mt-3 border-t border-slate-100 pt-3">
-        <p className="text-[10px] font-semibold text-slate-400">베트남</p>
-        <div className="mt-1 divide-y divide-slate-100">{VN_PUBLIC_LINKS.map(renderLink)}</div>
+      <div className="mt-3 border-t border-[#E3E8F0] pt-3">
+        <p className="text-[10px] font-semibold text-[#6B7A90]">베트남</p>
+        <div className="mt-1 divide-y divide-[#E3E8F0]">{VN_PUBLIC_LINKS.map(renderLink)}</div>
       </div>
     </section>
   );
@@ -1101,7 +1101,7 @@ function ExpertAsideSupport({
   hideNotificationCard?: boolean;
 }) {
   return (
-    <div className="space-y-4 [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
+    <div className="space-y-4 [&_section]:rounded-[14px] [&_section]:border-[#E3E8F0] [&_section]:shadow-sm">
       {!hideNotificationCard ? <NotificationCard item={item} /> : null}
       <div id="admin-center">
         <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} />
@@ -1127,7 +1127,7 @@ function ExpertMainSupport({
   verifyAdminExpertMobileAccordion?: boolean;
 }) {
   return (
-    <div className="space-y-4 [&_#wallet]:rounded-[20px] [&_section]:rounded-[20px] [&_section]:border-slate-200 [&_section]:shadow-sm">
+    <div className="space-y-4 [&_#wallet]:rounded-[14px] [&_section]:rounded-[14px] [&_section]:border-[#E3E8F0] [&_section]:shadow-sm">
       <WalletSection
         leadId={item.id}
         mobileExpertAccordion={verifyAdminExpertMobileAccordion}
@@ -1152,7 +1152,7 @@ function VerifyAdminExpertMobileCollapsibleSection({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[14px] border border-[#E3E8F0] bg-white">
       <button
         type="button"
         id={`${panelId}-trigger`}
@@ -1161,19 +1161,19 @@ function VerifyAdminExpertMobileCollapsibleSection({
         onClick={() => setOpen((prev) => !prev)}
         className="flex min-h-[44px] w-full items-center justify-between gap-3 px-5 py-3 text-left xl:hidden"
       >
-        <span className="min-w-0 text-[16px] font-extrabold text-slate-950">{title}</span>
+        <span className="min-w-0 text-[16px] font-extrabold text-[#071A33]">{title}</span>
         <span className="flex shrink-0 items-center gap-2">
           {headerTrailing}
           <ChevronDown
             size={18}
-            className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+            className={`shrink-0 text-[#6B7A90] motion-safe:transition-transform ${
               open ? "rotate-180" : ""
             }`}
             aria-hidden
           />
         </span>
       </button>
-      <div id={panelId} className={open ? "block border-t border-slate-100" : "hidden"}>
+      <div id={panelId} className={open ? "block border-t border-[#E3E8F0]" : "hidden"}>
         <div className="px-5 pb-5 pt-3">{children}</div>
       </div>
     </div>
@@ -1195,12 +1195,12 @@ function HeroCard({
   return (
     <section
       id={applicationsId ?? undefined}
-      className="overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0f347f] via-[#123d91] to-[#0b2d70] px-5 py-5 text-white shadow-[0_14px_40px_rgba(18,55,126,0.18)] sm:px-6 sm:py-6"
+      className="overflow-hidden rounded-[14px] bg-[#071A33] px-5 py-5 text-white sm:px-6 sm:py-6"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-semibold text-blue-200">현재 진행 중인 서비스</span>
+            <span className="text-[11px] font-semibold text-[#C9D9FB]">현재 진행 중인 서비스</span>
             <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${badge.className}`}>
               {badge.label}
             </span>
@@ -1213,11 +1213,11 @@ function HeroCard({
 
           <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
             <div>
-              <p className="text-blue-200">신청일</p>
+              <p className="text-[#C9D9FB]">신청일</p>
               <p className="mt-1 font-semibold text-white">{formatIsoDate(item.createdAt)}</p>
             </div>
             <div>
-              <p className="text-blue-200">접수번호</p>
+              <p className="text-[#C9D9FB]">접수번호</p>
               <p className="mt-1 font-semibold text-white">VF{item.id.slice(0, 8).toUpperCase()}</p>
             </div>
           </div>
@@ -1226,9 +1226,9 @@ function HeroCard({
         <div className="flex items-center justify-between gap-5 lg:justify-end">
           <ProgressRing value={item.stage.progressPercent} />
           <div className="min-w-[150px]">
-            <p className="text-[11px] font-semibold text-blue-200">예상 완료일</p>
+            <p className="text-[11px] font-semibold text-[#C9D9FB]">예상 완료일</p>
             <p className="mt-1 text-[19px] font-extrabold tracking-[-0.02em] text-white">{estimate}</p>
-            <p className="mt-3 text-[11px] text-blue-200">현재 단계</p>
+            <p className="mt-3 text-[11px] text-[#C9D9FB]">현재 단계</p>
             <p className="mt-1 text-[14px] font-bold text-white">{item.stage.currentStepLabel}</p>
           </div>
         </div>
@@ -1259,10 +1259,10 @@ function ApplicationSelector({
       <select
         value={activeId}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full appearance-none rounded-xl border border-white/20 bg-white/10 px-4 py-3 pr-10 text-[20px] font-extrabold tracking-[-0.03em] text-white outline-none backdrop-blur"
+        className="w-full appearance-none rounded-[12px] border border-white/20 bg-white/10 px-4 py-3 pr-10 text-[20px] font-extrabold tracking-[-0.03em] text-white outline-none backdrop-blur"
       >
         {items.map((item) => (
-          <option key={item.id} value={item.id} className="text-slate-900">
+          <option key={item.id} value={item.id} className="text-[#071A33]">
             {item.serviceLabel} · {item.stage.progressPercent}%
           </option>
         ))}
@@ -1283,10 +1283,10 @@ function StepProgress({
   stepDateResolver?: (step: ProcessStep, index: number) => string;
 }) {
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
+    <section className="rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5">
       <div className="flex items-center justify-between">
-        <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">진행 단계</p>
-        <span className="text-[10px] font-semibold text-blue-700">전체 단계 보기 ›</span>
+        <p className="text-[17px] font-extrabold tracking-[-0.02em] text-[#071A33]">진행 단계</p>
+        <span className="text-[10px] font-semibold text-[#2563EB]">전체 단계 보기 ›</span>
       </div>
 
       <div className="mt-5 overflow-x-auto pb-1">
@@ -1310,29 +1310,29 @@ function StepProgress({
                 <div className="flex w-full flex-col items-center">
                   <div className="flex w-full items-center">
                     {index > 0 && (
-                      <div className={`h-px flex-1 ${step.done || current ? "bg-emerald-300" : "bg-slate-200"}`} />
+                      <div className={`h-px flex-1 ${step.done || current ? "bg-emerald-300" : "bg-[#E3E8F0]"}`} />
                     )}
                     <div
                       className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
                         step.done
                           ? "bg-emerald-100 text-emerald-700"
                           : current
-                          ? "bg-[#12398a] text-white"
-                          : "bg-slate-100 text-slate-400"
+                          ? "bg-[#2563EB] text-white"
+                          : "bg-[#F2F5FA] text-[#6B7A90]"
                       }`}
                     >
                       {step.done ? <Check size={18} strokeWidth={3} /> : current ? <UserCheck size={17} /> : <Circle size={16} />}
                     </div>
                     {index < stage.steps.length - 1 && (
-                      <div className={`h-px flex-1 ${step.done ? "bg-emerald-300" : "bg-slate-200"}`} />
+                      <div className={`h-px flex-1 ${step.done ? "bg-emerald-300" : "bg-[#E3E8F0]"}`} />
                     )}
                   </div>
                   <p className={`mt-2 text-center text-[10px] font-bold ${
-                    current ? "text-blue-800" : step.done ? "text-slate-700" : "text-slate-400"
+                    current ? "text-[#071A33]" : step.done ? "text-[#3D4B63]" : "text-[#6B7A90]"
                   }`}>
                     {step.label}
                   </p>
-                  <p className="mt-1 min-h-[14px] text-center text-[9px] text-slate-400">{dateLabel}</p>
+                  <p className="mt-1 min-h-[14px] text-center text-[9px] text-[#6B7A90]">{dateLabel}</p>
                 </div>
               </div>
             );
@@ -1463,8 +1463,8 @@ function PdfDownloadButton({
           href={VERIFY_ADMIN_PHASE2_QUESTION_RESUME_HREF}
           className={
             variant === "refined"
-              ? "inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] sm:min-w-[148px]"
-              : "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white text-[13px] font-bold text-blue-900 transition hover:bg-blue-50"
+              ? "inline-flex h-10 items-center justify-center gap-1.5 rounded-[12px] bg-[#2563EB] px-5 text-[13px] font-semibold text-white transition hover:bg-[#1D4ED8] sm:min-w-[148px]"
+              : "flex h-11 w-full items-center justify-center gap-2 rounded-[12px] border border-[#E3E8F0] bg-white text-[13px] font-bold text-[#071A33] transition hover:bg-[#F2F6FE]"
           }
         >
           {variant === "refined" ? <FileText size={14} /> : null}
@@ -1473,8 +1473,8 @@ function PdfDownloadButton({
         <p
           className={
             variant === "refined"
-              ? "break-keep text-[12px] leading-5 text-slate-600 sm:basis-full"
-              : "break-keep text-[11px] leading-5 text-slate-600"
+              ? "break-keep text-[12px] leading-5 text-[#3D4B63] sm:basis-full"
+              : "break-keep text-[11px] leading-5 text-[#3D4B63]"
           }
         >
           {VERIFY_ADMIN_EXPERT_PHASE2_PDF_LOCKED_NOTICE}
@@ -1500,7 +1500,7 @@ function PdfDownloadButton({
           type="button"
           onClick={handleDownload}
           disabled={loading}
-          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] disabled:opacity-60 sm:min-w-[148px]"
+          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[12px] bg-[#2563EB] px-5 text-[13px] font-semibold text-white transition hover:bg-[#1D4ED8] disabled:opacity-60 sm:min-w-[148px]"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
           {loading ? "준비 중..." : primaryLabel}
@@ -1510,7 +1510,7 @@ function PdfDownloadButton({
             type="button"
             onClick={handleDownload}
             disabled={loading}
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#0d2a6b] disabled:opacity-60"
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[12px] px-3 text-[13px] font-medium text-[#3D4B63] transition hover:bg-[#F7F9FC] hover:text-[#071A33] disabled:opacity-60"
           >
             <Download size={14} />
             PDF 다운로드
@@ -1534,7 +1534,7 @@ function PdfDownloadButton({
         type="button"
         onClick={handleDownload}
         disabled={loading}
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white text-[13px] font-bold text-blue-900 transition hover:bg-blue-50 disabled:opacity-60"
+        className="flex h-11 w-full items-center justify-center gap-2 rounded-[12px] border border-[#E3E8F0] bg-white text-[13px] font-bold text-[#071A33] transition hover:bg-[#F2F6FE] disabled:opacity-60"
       >
         <Download size={16} />
         {defaultLabel}
@@ -1596,7 +1596,7 @@ function AdminVerifyExpertRequestButton({
 
   if (requested) {
     return (
-      <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+      <p className="text-[13px] font-semibold text-[#071A33]">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
     );
   }
 
@@ -1607,7 +1607,7 @@ function AdminVerifyExpertRequestButton({
           type="button"
           onClick={() => setOptionsOpen(true)}
           aria-haspopup="dialog"
-          className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-[13px] font-semibold text-slate-800 transition hover:bg-slate-50"
+          className="inline-flex h-10 w-full items-center justify-center rounded-[12px] border border-[#E3E8F0] bg-white px-5 text-[13px] font-semibold text-[#071A33] transition hover:bg-[#F7F9FC]"
         >
           전문가 진행하기
         </button>
@@ -1615,7 +1615,7 @@ function AdminVerifyExpertRequestButton({
         {optionsOpen
           ? createPortal(
               <div
-                className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 p-0 sm:items-center sm:p-6"
+                className="fixed inset-0 z-[100] flex items-end justify-center bg-[#071A33] p-0 sm:items-center sm:p-6"
                 onClick={() => (loading ? undefined : setOptionsOpen(false))}
               >
                 <div
@@ -1623,14 +1623,14 @@ function AdminVerifyExpertRequestButton({
                   aria-modal="true"
                   aria-label="전문가 진행 방식 선택"
                   onClick={(event) => event.stopPropagation()}
-                  className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:max-w-3xl sm:rounded-3xl sm:p-7"
+                  className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:max-w-3xl sm:rounded-[14px] sm:p-7"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">
+                      <p className="text-[18px] font-extrabold tracking-[-0.02em] text-[#071A33]">
                         진행 방식을 선택하세요
                       </p>
-                      <p className="mt-1 text-[12px] text-slate-500">
+                      <p className="mt-1 text-[12px] text-[#6B7A90]">
                         카드를 누르면 비용이 보입니다.
                       </p>
                     </div>
@@ -1639,7 +1639,7 @@ function AdminVerifyExpertRequestButton({
                       onClick={() => setOptionsOpen(false)}
                       disabled={loading}
                       aria-label="닫기"
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 disabled:opacity-50"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#6B7A90] transition hover:bg-[#F2F5FA] disabled:opacity-50"
                     >
                       <X size={18} />
                     </button>
@@ -1653,28 +1653,28 @@ function AdminVerifyExpertRequestButton({
                           type="button"
                           onClick={() => setPickedOptionId(picked ? null : option.id)}
                           aria-pressed={picked}
-                          className={`flex min-h-[236px] w-full cursor-pointer flex-col rounded-2xl border-2 p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2a6b]/40 ${
+                          className={`flex min-h-[236px] w-full cursor-pointer flex-col rounded-[14px] border-2 p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2a6b]/40 ${
                             picked
-                              ? "border-[#0d2a6b] bg-blue-50/60 shadow-md"
-                              : "border-slate-300 bg-white hover:border-[#0d2a6b] hover:bg-slate-50 hover:shadow-md"
+                              ? "border-[#2563EB] bg-[#F2F6FE] shadow-md"
+                              : "border-[#E3E8F0] bg-white hover:border-[#2563EB] hover:bg-[#F7F9FC] hover:shadow-md"
                           }`}
                         >
-                          <span className="text-[14px] font-bold text-slate-900">{option.title}</span>
-                          <span className="mt-1.5 break-keep text-[12px] leading-5 text-slate-600">
+                          <span className="text-[14px] font-bold text-[#071A33]">{option.title}</span>
+                          <span className="mt-1.5 break-keep text-[12px] leading-5 text-[#3D4B63]">
                             {option.summary}
                           </span>
-                          <span className="mt-3 block space-y-1 border-t border-slate-100 pt-3">
+                          <span className="mt-3 block space-y-1 border-t border-[#E3E8F0] pt-3">
                             {option.includes.map((line) => (
-                              <span key={line} className="block break-keep text-[12px] leading-5 text-slate-700">
+                              <span key={line} className="block break-keep text-[12px] leading-5 text-[#3D4B63]">
                                 · {line}
                               </span>
                             ))}
                           </span>
                           <span className="mt-auto block pt-3 text-[13px] font-bold">
                             {picked ? (
-                              <span className="text-slate-900">비용 {option.priceLabel}</span>
+                              <span className="text-[#071A33]">비용 {option.priceLabel}</span>
                             ) : (
-                              <span className="text-[12px] font-semibold text-[#0d2a6b]">눌러서 비용 보기</span>
+                              <span className="text-[12px] font-semibold text-[#071A33]">눌러서 비용 보기</span>
                             )}
                           </span>
                         </button>
@@ -1686,7 +1686,7 @@ function AdminVerifyExpertRequestButton({
                     type="button"
                     onClick={() => void handleRequest(pickedOption?.id)}
                     disabled={loading || !pickedOption}
-                    className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] disabled:opacity-50"
+                    className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-[12px] bg-[#2563EB] px-5 text-[13px] font-semibold text-white transition hover:bg-[#1D4ED8] disabled:opacity-50"
                   >
                     {loading
                       ? "요청 중..."
@@ -1709,7 +1709,7 @@ function AdminVerifyExpertRequestButton({
         type="button"
         onClick={() => void handleRequest()}
         disabled={loading}
-        className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-[13px] font-semibold text-slate-800 transition hover:bg-slate-50 disabled:opacity-60"
+        className="inline-flex h-10 w-full items-center justify-center rounded-[12px] border border-[#E3E8F0] bg-white px-5 text-[13px] font-semibold text-[#071A33] transition hover:bg-[#F7F9FC] disabled:opacity-60"
       >
         {loading ? "요청 중..." : "전문가 진행하기"}
       </button>
@@ -1742,11 +1742,11 @@ function AiResultCard({
       : null;
 
   return (
-    <section className="rounded-[20px] border border-emerald-100 bg-gradient-to-br from-[#f2fff7] to-white p-5 shadow-sm">
+    <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">AI 분석 결과</p>
-          <p className="mt-1 text-[10px] text-slate-500">{aiResultPhaseLabel}</p>
+          <p className="text-[17px] font-extrabold tracking-[-0.02em] text-[#071A33]">AI 분석 결과</p>
+          <p className="mt-1 text-[10px] text-[#6B7A90]">{aiResultPhaseLabel}</p>
         </div>
         <Sparkles size={18} className="text-emerald-600" />
       </div>
@@ -1771,13 +1771,13 @@ function AiResultCard({
               <Star key={value} size={13} fill="currentColor" />
             ))}
           </div>
-          <p className="mt-2 text-[10px] font-semibold text-slate-500">AI 분석 완료</p>
+          <p className="mt-2 text-[10px] font-semibold text-[#6B7A90]">AI 분석 완료</p>
         </div>
 
         <div className="relative flex h-[118px] items-center justify-center">
           <div className="absolute h-16 w-16 rounded-full bg-emerald-100 blur-xl" />
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-slate-200 bg-white shadow-sm">
-            <Bot size={32} className="text-[#153a78]" strokeWidth={1.75} />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#E3E8F0] bg-white">
+            <Bot size={32} className="text-[#071A33]" strokeWidth={1.75} />
             <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white">
               <Check size={14} strokeWidth={3} />
             </div>
@@ -1833,41 +1833,41 @@ function CurrentStatusCard({
       : VERIFY_ADMIN_PAID_STATUS_ESTIMATE_BEFORE;
 
     return (
-      <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
-        <p className="mt-3 text-[13px] leading-6 text-slate-600">{guideText}</p>
+      <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5 sm:p-6">
+        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-[#071A33]">현재 진행 상황</p>
+        <p className="mt-3 text-[13px] leading-6 text-[#3D4B63]">{guideText}</p>
 
-        <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm">
+        <div className="mt-5 flex items-center gap-3 rounded-[14px] bg-[#F7F9FC] p-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F2F6FE] text-[#2563EB] ring-2 ring-white">
             <UserCheck size={22} />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[14px] font-extrabold text-slate-950">
+              <p className="text-[14px] font-extrabold text-[#071A33]">
                 {VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL}
               </p>
-              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800">
+              <span className="rounded-full bg-[#E3ECFD] px-2 py-0.5 text-[10px] font-bold text-[#071A33]">
                 {expertBadge}
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-slate-500">{VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL}</p>
+            <p className="mt-1 text-[11px] text-[#6B7A90]">{VERIFY_ADMIN_PAID_STATUS_TEAM_LABEL}</p>
           </div>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-blue-50 p-4">
-            <p className="text-[10px] font-semibold text-blue-700">다음 단계</p>
-            <p className="mt-1 text-[13px] font-extrabold text-blue-950">{nextStepText}</p>
+          <div className="rounded-[14px] bg-[#F2F6FE] p-4">
+            <p className="text-[10px] font-semibold text-[#2563EB]">다음 단계</p>
+            <p className="mt-1 text-[13px] font-extrabold text-[#071A33]">{nextStepText}</p>
           </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-[10px] font-semibold text-slate-500">예상 처리기간</p>
-            <p className="mt-1 text-[13px] font-extrabold text-slate-900">{estimateText}</p>
+          <div className="rounded-[14px] bg-[#F7F9FC] p-4">
+            <p className="text-[10px] font-semibold text-[#6B7A90]">예상 처리기간</p>
+            <p className="mt-1 text-[13px] font-extrabold text-[#071A33]">{estimateText}</p>
           </div>
         </div>
 
         <div className="mt-4">
           {afterExpert ? (
-            <p className="text-[13px] font-semibold leading-6 text-slate-800">
+            <p className="text-[13px] font-semibold leading-6 text-[#071A33]">
               {VERIFY_ADMIN_PAID_STATUS_FOOTER_AFTER}
             </p>
           ) : (
@@ -1896,35 +1896,35 @@ function CurrentStatusCard({
         : "현재 신청 내용을 확인하고 다음 단계를 준비하고 있습니다.";
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">현재 진행 상황</p>
-      <p className="mt-3 text-[13px] leading-6 text-slate-600">{statusGuideText}</p>
+    <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5 sm:p-6">
+      <p className="text-[18px] font-extrabold tracking-[-0.02em] text-[#071A33]">현재 진행 상황</p>
+      <p className="mt-3 text-[13px] leading-6 text-[#3D4B63]">{statusGuideText}</p>
 
-      <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f3d7c8] to-[#d9b19d] text-[#102f72] ring-2 ring-white shadow-sm">
+      <div className="mt-5 flex items-center gap-3 rounded-[14px] bg-[#F7F9FC] p-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F2F6FE] text-[#2563EB] ring-2 ring-white">
           <UserCheck size={22} />
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[14px] font-extrabold text-slate-950">{expertTeamLabel}</p>
-            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800">
+            <p className="text-[14px] font-extrabold text-[#071A33]">{expertTeamLabel}</p>
+            <span className="rounded-full bg-[#E3ECFD] px-2 py-0.5 text-[10px] font-bold text-[#071A33]">
               담당 전문가
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-slate-500">{expertTeamLabel}</p>
+          <p className="mt-1 text-[11px] text-[#6B7A90]">{expertTeamLabel}</p>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-blue-50 p-4">
-          <p className="text-[10px] font-semibold text-blue-700">다음 단계</p>
-          <p className="mt-1 text-[13px] font-extrabold text-blue-950">
+        <div className="rounded-[14px] bg-[#F2F6FE] p-4">
+          <p className="text-[10px] font-semibold text-[#2563EB]">다음 단계</p>
+          <p className="mt-1 text-[13px] font-extrabold text-[#071A33]">
             {nextStepLabel(item.stage.steps)}
           </p>
         </div>
-        <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-[10px] font-semibold text-slate-500">예상 처리기간</p>
-          <p className="mt-1 text-[13px] font-extrabold text-slate-900">{estimate}</p>
+        <div className="rounded-[14px] bg-[#F7F9FC] p-4">
+          <p className="text-[10px] font-semibold text-[#6B7A90]">예상 처리기간</p>
+          <p className="mt-1 text-[13px] font-extrabold text-[#071A33]">{estimate}</p>
         </div>
       </div>
     </section>
@@ -1936,9 +1936,9 @@ function ConfidenceBanner({ confidence }: { confidence: ConfidenceStatus }) {
   const Icon = style.icon;
 
   return (
-    <div className={`rounded-2xl border ${style.border} ${style.bg} px-4 py-3`}>
+    <div className={`rounded-[14px] border ${style.border} ${style.bg} px-4 py-3`}>
       <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
           <Icon size={16} className={style.text} />
         </div>
         <div>
@@ -1972,19 +1972,19 @@ function TimelineCard({ item }: { item: MyPageItem }) {
           ];
 
   return (
-    <section id="timeline" className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id="timeline" className="rounded-[14px] border border-[#E3E8F0] bg-white p-5 sm:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">진행 타임라인</p>
-          <p className="mt-1 text-[11px] text-slate-500">신청 처리 내역을 시간순으로 확인하세요.</p>
+          <p className="text-[18px] font-extrabold tracking-[-0.02em] text-[#071A33]">진행 타임라인</p>
+          <p className="mt-1 text-[11px] text-[#6B7A90]">신청 처리 내역을 시간순으로 확인하세요.</p>
         </div>
-        <span className="text-[11px] font-semibold text-blue-700">전체 보기</span>
+        <span className="text-[11px] font-semibold text-[#2563EB]">전체 보기</span>
       </div>
 
       {recent.length === 0 ? (
-        <div className="mt-5 rounded-2xl bg-slate-50 p-5 text-center">
-          <Clock3 size={24} className="mx-auto text-slate-300" />
-          <p className="mt-2 text-[12px] text-slate-500">아직 기록된 처리 이력이 없습니다.</p>
+        <div className="mt-5 rounded-[14px] bg-[#F7F9FC] p-5 text-center">
+          <Clock3 size={24} className="mx-auto text-[#9AA7BA]" />
+          <p className="mt-2 text-[12px] text-[#6B7A90]">아직 기록된 처리 이력이 없습니다.</p>
         </div>
       ) : (
         <div className="mt-5 grid gap-5 md:grid-cols-[1fr_210px]">
@@ -1992,40 +1992,40 @@ function TimelineCard({ item }: { item: MyPageItem }) {
             {recent.map((entry, index) => (
               <div key={`${entry.label}-${entry.createdAt}-${index}`} className="flex gap-4">
                 <div className="w-12 shrink-0 pt-0.5 text-right">
-                  <p className="text-[10px] font-semibold text-slate-400">{formatShortDate(entry.createdAt)}</p>
-                  <p className="mt-0.5 text-[10px] text-slate-400">{formatTime(entry.createdAt)}</p>
+                  <p className="text-[10px] font-semibold text-[#6B7A90]">{formatShortDate(entry.createdAt)}</p>
+                  <p className="mt-0.5 text-[10px] text-[#6B7A90]">{formatTime(entry.createdAt)}</p>
                 </div>
                 <div className="flex flex-col items-center">
                   <span
                     className={`h-3 w-3 rounded-full ring-4 ring-white ${
-                      index === recent.length - 1 ? "bg-blue-900" : "bg-emerald-500"
+                      index === recent.length - 1 ? "bg-[#2563EB]" : "bg-emerald-500"
                     }`}
                   />
-                  {index < recent.length - 1 && <div className="min-h-[56px] w-px flex-1 bg-slate-200" />}
+                  {index < recent.length - 1 && <div className="min-h-[56px] w-px flex-1 bg-[#E3E8F0]" />}
                 </div>
                 <div className="pb-5">
-                  <p className="text-[13px] font-extrabold text-slate-900">{entry.label}</p>
-                  <p className="mt-1 text-[11px] leading-5 text-slate-500">신청 진행상황이 업데이트되었습니다.</p>
+                  <p className="text-[13px] font-extrabold text-[#071A33]">{entry.label}</p>
+                  <p className="mt-1 text-[11px] leading-5 text-[#6B7A90]">신청 진행상황이 업데이트되었습니다.</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="rounded-2xl bg-blue-50 p-4">
-            <p className="text-[13px] font-extrabold text-blue-950">예상 일정 안내</p>
+          <div className="rounded-[14px] bg-[#F2F6FE] p-4">
+            <p className="text-[13px] font-extrabold text-[#071A33]">예상 일정 안내</p>
             <div className="mt-4 space-y-4">
               <div className="flex gap-3">
                 <span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" />
                 <div>
-                  <p className="text-[11px] font-bold text-slate-800">전문가 검토 완료</p>
-                  <p className="mt-1 text-[10px] text-slate-500">담당자 확인 후 안내</p>
+                  <p className="text-[11px] font-bold text-[#071A33]">전문가 검토 완료</p>
+                  <p className="mt-1 text-[10px] text-[#6B7A90]">담당자 확인 후 안내</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" />
                 <div>
-                  <p className="text-[11px] font-bold text-slate-800">정부 제출</p>
-                  <p className="mt-1 text-[10px] text-slate-500">
+                  <p className="text-[11px] font-bold text-[#071A33]">정부 제출</p>
+                  <p className="mt-1 text-[10px] text-[#6B7A90]">
                     {item.governmentSubmittedAt ? formatIsoDate(item.governmentSubmittedAt) : "예정"}
                   </p>
                 </div>
@@ -2033,8 +2033,8 @@ function TimelineCard({ item }: { item: MyPageItem }) {
               <div className="flex gap-3">
                 <span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" />
                 <div>
-                  <p className="text-[11px] font-bold text-slate-800">허가 결과 안내</p>
-                  <p className="mt-1 text-[10px] text-slate-500">
+                  <p className="text-[11px] font-bold text-[#071A33]">허가 결과 안내</p>
+                  <p className="mt-1 text-[10px] text-[#6B7A90]">
                     {getEstimate(item.category, item.serviceType)}
                   </p>
                 </div>
@@ -2100,7 +2100,7 @@ const WALLET_EXPIRY_STYLE: Record<WalletExpiryStatus, { label: string; className
   valid: { label: "유효", className: "bg-emerald-100 text-emerald-700" },
   soon: { label: "만료 임박", className: "bg-amber-100 text-amber-700" },
   expired: { label: "만료", className: "bg-red-100 text-red-700" },
-  none: { label: "만료일 없음", className: "bg-slate-100 text-slate-500" },
+  none: { label: "만료일 없음", className: "bg-[#F2F5FA] text-[#6B7A90]" },
 };
 
 function formatWalletDate(iso: string): string {
@@ -2226,7 +2226,7 @@ function WalletUploadModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#071A33] p-4 backdrop-blur-[2px]"
       role="dialog"
       aria-modal="true"
       aria-label="서류 업로드"
@@ -2234,14 +2234,14 @@ function WalletUploadModal({
         if (event.target === event.currentTarget && !uploading) onClose();
       }}
     >
-      <div className="max-h-[90vh] w-full max-w-[420px] overflow-y-auto rounded-[24px] bg-white shadow-2xl">
-        <div className="sticky top-0 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
-          <p className="text-[16px] font-extrabold text-slate-950">서류 추가</p>
+      <div className="max-h-[90vh] w-full max-w-[420px] overflow-y-auto rounded-[14px] bg-white shadow-2xl">
+        <div className="sticky top-0 flex items-center justify-between border-b border-[#E3E8F0] bg-white px-5 py-4">
+          <p className="text-[16px] font-extrabold text-[#071A33]">서류 추가</p>
           <button
             type="button"
             onClick={onClose}
             disabled={uploading}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-50"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F2F5FA] text-[#3D4B63] hover:bg-[#E3E8F0] disabled:opacity-50"
             aria-label="닫기"
           >
             <X size={16} />
@@ -2250,12 +2250,12 @@ function WalletUploadModal({
 
         <div className="space-y-4 p-5">
           <div>
-            <label className="text-[11px] font-bold text-slate-600">서류 종류</label>
+            <label className="text-[11px] font-bold text-[#3D4B63]">서류 종류</label>
             <select
               value={docType}
               onChange={(event) => onDocTypeChange(event.target.value)}
               disabled={uploading}
-              className="mt-1.5 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-800 outline-none focus:border-blue-300"
+              className="mt-1.5 h-11 w-full rounded-[12px] border border-[#E3E8F0] bg-white px-3 text-[12px] font-semibold text-[#071A33] outline-none focus:border-[#9DB9F7]"
             >
               {WALLET_DOC_TYPES.map((type) => (
                 <option key={type} value={type}>
@@ -2266,10 +2266,10 @@ function WalletUploadModal({
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-slate-600">파일 선택</label>
-            <label className="mt-1.5 flex h-24 w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-300 bg-slate-50 text-center transition hover:bg-slate-100">
-              <Upload size={18} className="text-slate-400" />
-              <span className="px-3 text-[10px] text-slate-500">PDF, JPG, JPEG, PNG (최대 10MB)</span>
+            <label className="text-[11px] font-bold text-[#3D4B63]">파일 선택</label>
+            <label className="mt-1.5 flex h-24 w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-[#E3E8F0] bg-[#F7F9FC] text-center transition hover:bg-[#F2F5FA]">
+              <Upload size={18} className="text-[#6B7A90]" />
+              <span className="px-3 text-[10px] text-[#6B7A90]">PDF, JPG, JPEG, PNG (최대 10MB)</span>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
@@ -2279,20 +2279,20 @@ function WalletUploadModal({
               />
             </label>
             {file && (
-              <p className="mt-2 truncate text-[11px] font-semibold text-slate-700">
+              <p className="mt-2 truncate text-[11px] font-semibold text-[#3D4B63]">
                 선택한 파일: {file.name} ({file.type || "형식 미확인"})
               </p>
             )}
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-slate-600">만료일 (선택)</label>
+            <label className="text-[11px] font-bold text-[#3D4B63]">만료일 (선택)</label>
             <input
               type="date"
               value={expiry}
               onChange={(event) => onExpiryChange(event.target.value)}
               disabled={uploading}
-              className="mt-1.5 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-800 outline-none focus:border-blue-300"
+              className="mt-1.5 h-11 w-full rounded-[12px] border border-[#E3E8F0] bg-white px-3 text-[12px] font-semibold text-[#071A33] outline-none focus:border-[#9DB9F7]"
             />
           </div>
 
@@ -2304,7 +2304,7 @@ function WalletUploadModal({
               type="button"
               onClick={onClose}
               disabled={uploading}
-              className="h-11 flex-1 rounded-xl border border-slate-200 bg-white text-[12px] font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              className="h-11 flex-1 rounded-[12px] border border-[#E3E8F0] bg-white text-[12px] font-bold text-[#3D4B63] hover:bg-[#F7F9FC] disabled:opacity-50"
             >
               취소
             </button>
@@ -2312,7 +2312,7 @@ function WalletUploadModal({
               type="button"
               onClick={onSubmit}
               disabled={uploading || !file}
-              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-900 text-[12px] font-bold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#2563EB] text-[12px] font-bold text-white hover:bg-[#1D4ED8] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {uploading ? (
                 <>
@@ -2344,7 +2344,7 @@ function WalletViewModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#071A33] p-4 backdrop-blur-[2px]"
       role="dialog"
       aria-modal="true"
       aria-label={`${doc.docType} 미리보기`}
@@ -2352,25 +2352,25 @@ function WalletViewModal({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="flex max-h-[90vh] w-full max-w-[560px] flex-col overflow-hidden rounded-[24px] bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div className="flex max-h-[90vh] w-full max-w-[560px] flex-col overflow-hidden rounded-[14px] bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[#E3E8F0] px-5 py-4">
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-extrabold text-slate-950">{doc.docType}</p>
-            <p className="mt-0.5 truncate text-[10px] text-slate-400">{doc.fileName}</p>
+            <p className="truncate text-[15px] font-extrabold text-[#071A33]">{doc.docType}</p>
+            <p className="mt-0.5 truncate text-[10px] text-[#6B7A90]">{doc.fileName}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F2F5FA] text-[#3D4B63] hover:bg-[#E3E8F0]"
             aria-label="닫기"
           >
             <X size={16} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-auto bg-slate-50 p-4">
+        <div className="flex-1 overflow-auto bg-[#F7F9FC] p-4">
           {!doc.viewUrl ? (
-            <div className="flex h-64 items-center justify-center text-[12px] text-slate-400">
+            <div className="flex h-64 items-center justify-center text-[12px] text-[#6B7A90]">
               미리보기를 사용할 수 없습니다.
             </div>
           ) : isImage ? (
@@ -2383,21 +2383,21 @@ function WalletViewModal({
             <iframe
               src={doc.viewUrl}
               title={doc.fileName}
-              className="h-[65vh] w-full rounded-xl border border-slate-200 bg-white"
+              className="h-[65vh] w-full rounded-[12px] border border-[#E3E8F0] bg-white"
             />
           ) : (
-            <div className="flex h-64 flex-col items-center justify-center gap-2 text-slate-400">
+            <div className="flex h-64 flex-col items-center justify-center gap-2 text-[#6B7A90]">
               <FileText size={32} />
               <span className="text-[11px]">이 형식은 미리보기를 지원하지 않습니다.</span>
             </div>
           )}
         </div>
 
-        <div className="flex gap-2 border-t border-slate-100 p-4">
+        <div className="flex gap-2 border-t border-[#E3E8F0] p-4">
           <button
             type="button"
             onClick={onClose}
-            className="h-11 flex-1 rounded-xl border border-slate-200 bg-white text-[12px] font-bold text-slate-600 hover:bg-slate-50"
+            className="h-11 flex-1 rounded-[12px] border border-[#E3E8F0] bg-white text-[12px] font-bold text-[#3D4B63] hover:bg-[#F7F9FC]"
           >
             닫기
           </button>
@@ -2405,7 +2405,7 @@ function WalletViewModal({
             type="button"
             onClick={onDownload}
             disabled={!doc.downloadUrl}
-            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-900 text-[12px] font-bold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#2563EB] text-[12px] font-bold text-white hover:bg-[#1D4ED8] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download size={15} />
             다운로드
@@ -2429,7 +2429,7 @@ function WalletAllDocumentsModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#071A33] p-4 backdrop-blur-[2px]"
       role="dialog"
       aria-modal="true"
       aria-label="전체 서류 보기"
@@ -2437,13 +2437,13 @@ function WalletAllDocumentsModal({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="flex max-h-[85vh] w-full max-w-[640px] flex-col overflow-hidden rounded-[24px] bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <p className="text-[16px] font-extrabold text-slate-950">전체 서류 ({documents.length}건)</p>
+      <div className="flex max-h-[85vh] w-full max-w-[640px] flex-col overflow-hidden rounded-[14px] bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[#E3E8F0] px-5 py-4">
+          <p className="text-[16px] font-extrabold text-[#071A33]">전체 서류 ({documents.length}건)</p>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F2F5FA] text-[#3D4B63] hover:bg-[#E3E8F0]"
             aria-label="닫기"
           >
             <X size={16} />
@@ -2452,9 +2452,9 @@ function WalletAllDocumentsModal({
 
         <div className="flex-1 overflow-y-auto p-2 sm:p-4">
           {documents.length === 0 ? (
-            <p className="p-6 text-center text-[12px] text-slate-400">등록된 서류가 없습니다.</p>
+            <p className="p-6 text-center text-[12px] text-[#6B7A90]">등록된 서류가 없습니다.</p>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-[#E3E8F0]">
               {documents.map((doc) => {
                 const status = getWalletExpiryStatus(doc.expiryDate);
                 const statusStyle = WALLET_EXPIRY_STYLE[status];
@@ -2462,16 +2462,16 @@ function WalletAllDocumentsModal({
                   <div key={doc.activityId} className="flex flex-wrap items-center justify-between gap-3 px-2 py-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-[12px] font-extrabold text-slate-900">{doc.docType}</p>
+                        <p className="text-[12px] font-extrabold text-[#071A33]">{doc.docType}</p>
                         <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${statusStyle.className}`}>
                           {statusStyle.label}
                         </span>
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">
+                        <span className="rounded-full bg-[#F2F5FA] px-2 py-0.5 text-[9px] font-bold text-[#6B7A90]">
                           {doc.fileExt.toUpperCase() || "FILE"}
                         </span>
                       </div>
-                      <p className="mt-1 truncate text-[10px] text-slate-500">{doc.fileName}</p>
-                      <p className="mt-0.5 text-[9px] text-slate-400">
+                      <p className="mt-1 truncate text-[10px] text-[#6B7A90]">{doc.fileName}</p>
+                      <p className="mt-0.5 text-[9px] text-[#6B7A90]">
                         등록일 {formatWalletDate(doc.createdAt)} · {formatWalletExpiry(doc.expiryDate)}
                       </p>
                     </div>
@@ -2480,7 +2480,7 @@ function WalletAllDocumentsModal({
                         type="button"
                         onClick={() => onView(doc)}
                         disabled={!doc.viewUrl}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                        className="rounded-lg border border-[#E3E8F0] bg-white px-2.5 py-1.5 text-[10px] font-bold text-[#3D4B63] hover:bg-[#F7F9FC] disabled:opacity-50"
                       >
                         보기
                       </button>
@@ -2488,7 +2488,7 @@ function WalletAllDocumentsModal({
                         type="button"
                         onClick={() => onDownload(doc)}
                         disabled={!doc.downloadUrl}
-                        className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+                        className="rounded-lg border border-[#C9D9FB] bg-[#F2F6FE] px-2.5 py-1.5 text-[10px] font-bold text-[#2563EB] hover:bg-[#E3ECFD] disabled:opacity-50"
                       >
                         다운로드
                       </button>
@@ -2679,7 +2679,7 @@ function WalletSection({
   const legibilityLayout = freeVerifyAdminLegibilityLayout;
   const slotTitleClass = legibilityLayout
     ? MYPAGE_WALLET_SLOT_TITLE_CLASS
-    : "truncate text-[14px] font-extrabold text-slate-900";
+    : "truncate text-[14px] font-extrabold text-[#071A33]";
   const walletGridClass = legibilityLayout
     ? "mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch"
     : `mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 ${compact ? "lg:grid-cols-3" : "lg:grid-cols-3"}`;
@@ -2690,7 +2690,7 @@ function WalletSection({
   return (
     <section
       id="wallet"
-      className={`w-full rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+      className={`w-full rounded-[14px] border border-[#E3E8F0] bg-white ${
         compact ? "p-4 sm:p-5" : "p-5 sm:p-6"
       }`}
     >
@@ -2703,7 +2703,7 @@ function WalletSection({
           className="flex min-h-[44px] w-full items-center justify-between gap-3 text-left xl:hidden"
         >
           <span
-            className={`font-extrabold tracking-[-0.02em] text-slate-950 ${
+            className={`font-extrabold tracking-[-0.02em] text-[#071A33] ${
               compact ? "text-[16px]" : "text-[18px]"
             }`}
           >
@@ -2711,7 +2711,7 @@ function WalletSection({
           </span>
           <ChevronDown
             size={18}
-            className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+            className={`shrink-0 text-[#6B7A90] motion-safe:transition-transform ${
               mobileWalletOpen ? "rotate-180" : ""
             }`}
             aria-hidden
@@ -2736,40 +2736,40 @@ function WalletSection({
         >
         <div>
           <p
-            className={`font-extrabold tracking-[-0.02em] text-slate-950 ${
+            className={`font-extrabold tracking-[-0.02em] text-[#071A33] ${
               compact ? "text-[16px]" : "text-[18px]"
             }`}
           >
             내 서류 지갑
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-500">
+          <p className="mt-0.5 text-[11px] text-[#6B7A90]">
             자주 사용하는 행정서류를 안전하게 보관하고 다시 사용할 수 있습니다.
           </p>
         </div>
         <button
           type="button"
           onClick={handleAllViewClick}
-          className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-blue-700 hover:text-blue-800"
+          className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[#2563EB] hover:text-[#071A33]"
         >
           전체 보기 <ChevronRight size={13} />
         </button>
       </div>
 
       {loading && (
-        <div className="mt-5 flex items-center gap-2 rounded-2xl bg-slate-50 p-5 text-[12px] text-slate-500">
+        <div className="mt-5 flex items-center gap-2 rounded-[14px] bg-[#F7F9FC] p-5 text-[12px] text-[#6B7A90]">
           <Loader2 size={16} className="animate-spin" />
           서류 목록을 불러오는 중입니다.
         </div>
       )}
 
       {!loading && loadError && (
-        <div className="mt-5 rounded-2xl border border-red-100 bg-red-50 p-5 text-center">
+        <div className="mt-5 rounded-[14px] border border-red-100 bg-red-50 p-5 text-center">
           <AlertTriangle size={20} className="mx-auto text-red-500" />
           <p className="mt-2 text-[12px] font-semibold text-red-700">{loadError}</p>
           <button
             type="button"
             onClick={fetchDocuments}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-[11px] font-bold text-red-700 hover:bg-red-50"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#E3E8F0] bg-white px-3 py-1.5 text-[11px] font-bold text-red-700 hover:bg-red-50"
           >
             <RefreshCw size={13} />
             다시 시도
@@ -2785,18 +2785,18 @@ function WalletSection({
           {WALLET_SLOTS.map((slot) => {
             const doc = slotDocuments[slot.key];
             const slotShellClass = legibilityLayout
-              ? `flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${legacySlotHeight}`
-              : `flex w-full flex-col rounded-[16px] border border-slate-200 bg-white p-3.5 ${legacySlotHeight}`;
+              ? `flex w-full flex-col rounded-[16px] border border-[#E3E8F0] bg-white p-3.5 ${legacySlotHeight}`
+              : `flex w-full flex-col rounded-[16px] border border-[#E3E8F0] bg-white p-3.5 ${legacySlotHeight}`;
             const previewHeight = legacyPreviewHeight;
 
             if (!doc) {
               return (
                 <div key={slot.key} className={slotShellClass}>
                   <p className={slotTitleClass}>{slot.label}</p>
-                  <p className="mt-0.5 truncate text-[11px] text-slate-400">아직 등록되지 않음</p>
+                  <p className="mt-0.5 truncate text-[11px] text-[#6B7A90]">아직 등록되지 않음</p>
 
                   <div
-                    className={`relative mt-2 overflow-hidden rounded-[10px] border border-dashed border-slate-200 bg-slate-50 p-2 ${previewHeight}`}
+                    className={`relative mt-2 overflow-hidden rounded-[10px] border border-dashed border-[#E3E8F0] bg-[#F7F9FC] p-2 ${previewHeight}`}
                   >
                     <img
                       src={slot.sampleImageSrc}
@@ -2805,17 +2805,17 @@ function WalletSection({
                       loading="lazy"
                       draggable={false}
                     />
-                    <span className="absolute left-2 top-2 rounded-md bg-slate-900/80 px-1.5 py-0.5 text-[9px] font-extrabold text-white">
+                    <span className="absolute left-2 top-2 rounded-md bg-[#071A33] px-1.5 py-0.5 text-[9px] font-extrabold text-white">
                       예시
                     </span>
                   </div>
 
-                  <p className="mt-2 text-[10px] leading-4 text-slate-400">{slot.emptyPrompt} (PDF, JPG, PNG)</p>
+                  <p className="mt-2 text-[10px] leading-4 text-[#6B7A90]">{slot.emptyPrompt} (PDF, JPG, PNG)</p>
 
                   <button
                     type="button"
                     onClick={() => openUploadModal(slot.uploadTag)}
-                    className="mt-2.5 flex h-10 items-center justify-center gap-1.5 rounded-[9px] bg-blue-900 text-[12px] font-bold text-white hover:bg-blue-800"
+                    className="mt-2.5 flex h-10 items-center justify-center gap-1.5 rounded-[9px] bg-[#2563EB] text-[12px] font-bold text-white hover:bg-[#1D4ED8]"
                   >
                     <Upload size={14} />
                     업로드
@@ -2831,13 +2831,13 @@ function WalletSection({
             return (
               <div
                 key={slot.key}
-                className={`group ${slotShellClass} transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md`}
+                className={`group ${slotShellClass} transition hover:-translate-y-0.5 hover:border-[#C9D9FB] hover:shadow-md`}
               >
                 <p className={slotTitleClass}>{slot.label}</p>
-                <p className="mt-0.5 truncate text-[11px] text-slate-400">{formatWalletExpiry(doc.expiryDate)}</p>
+                <p className="mt-0.5 truncate text-[11px] text-[#6B7A90]">{formatWalletExpiry(doc.expiryDate)}</p>
 
                 <div
-                  className={`relative mt-2 overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 p-2 shadow-inner ${previewHeight}`}
+                  className={`relative mt-2 overflow-hidden rounded-[10px] border border-[#E3E8F0] bg-[#F7F9FC] p-2 shadow-inner ${previewHeight}`}
                 >
                   {isImage && doc.viewUrl ? (
                     <img
@@ -2848,20 +2848,20 @@ function WalletSection({
                       draggable={false}
                     />
                   ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400">
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-[#6B7A90]">
                       <FileText size={38} />
                       <span className="max-w-full truncate px-2 text-[10px]">{doc.fileName}</span>
                     </div>
                   )}
                   <span
-                    className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[10px] font-extrabold shadow-sm ${
+                    className={`absolute bottom-2 right-2 rounded-md px-1.5 py-0.5 text-[10px] font-extrabold ${
                       isImage ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
                     }`}
                   >
                     {doc.fileExt.toUpperCase() || "FILE"}
                   </span>
                   <span
-                    className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[9px] font-extrabold shadow-sm ${statusStyle.className}`}
+                    className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[9px] font-extrabold ${statusStyle.className}`}
                   >
                     {statusStyle.label}
                   </span>
@@ -2872,7 +2872,7 @@ function WalletSection({
                     type="button"
                     onClick={() => setViewDoc(doc)}
                     disabled={!doc.viewUrl}
-                    className="h-10 rounded-[9px] border border-slate-200 bg-white text-[12px] font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-10 rounded-[9px] border border-[#E3E8F0] bg-white text-[12px] font-bold text-[#3D4B63] hover:bg-[#F7F9FC] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     보기
                   </button>
@@ -2880,7 +2880,7 @@ function WalletSection({
                     type="button"
                     onClick={() => triggerDownload(doc)}
                     disabled={!doc.downloadUrl}
-                    className="h-10 truncate rounded-[9px] border border-blue-200 bg-blue-50 px-1 text-[12px] font-bold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-10 truncate rounded-[9px] border border-[#C9D9FB] bg-[#F2F6FE] px-1 text-[12px] font-bold text-[#2563EB] hover:bg-[#E3ECFD] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     다운로드
                   </button>
@@ -2889,7 +2889,7 @@ function WalletSection({
                 <button
                   type="button"
                   onClick={() => openUploadModal(slot.uploadTag)}
-                  className="mt-1.5 h-10 w-full truncate rounded-[9px] border border-slate-200 bg-slate-50 px-1 text-[12px] font-bold text-slate-500 hover:bg-slate-100"
+                  className="mt-1.5 h-10 w-full truncate rounded-[9px] border border-[#E3E8F0] bg-[#F7F9FC] px-1 text-[12px] font-bold text-[#6B7A90] hover:bg-[#F2F5FA]"
                 >
                   다시 업로드
                 </button>
@@ -2902,15 +2902,15 @@ function WalletSection({
             onClick={() => openUploadModal()}
             className={
               legibilityLayout
-                ? `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+                ? `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-[#9DB9F7] bg-[#F2F6FE] px-2 text-[#2563EB] transition hover:bg-[#F2F6FE] ${
                     compact ? "h-[248px]" : "h-[320px]"
                   }`
-                : `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-blue-300 bg-blue-50/30 px-2 text-blue-700 transition hover:bg-blue-50 ${
+                : `flex w-full flex-col items-center justify-center rounded-[16px] border border-dashed border-[#9DB9F7] bg-[#F2F6FE] px-2 text-[#2563EB] transition hover:bg-[#F2F6FE] ${
                     compact ? "h-[248px]" : "h-[320px]"
                   }`
             }
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-blue-300 bg-white shadow-sm">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#9DB9F7] bg-white">
               <Plus size={24} />
             </div>
             <span className="mt-3.5 text-[12px] font-bold">서류 추가</span>
@@ -2919,14 +2919,14 @@ function WalletSection({
       )}
 
       {!loading && !loadError && (
-        <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-slate-400">
+        <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-[#6B7A90]">
           <Lock size={12} />
           등록한 서류는 본인만 확인할 수 있으며 안전한 임시 링크로 열립니다.
         </div>
       )}
 
       {notice && (
-        <div className="mt-3 rounded-xl bg-slate-900/90 px-3 py-2 text-center text-[11px] font-semibold text-white">
+        <div className="mt-3 rounded-[12px] bg-[#071A33] px-3 py-2 text-center text-[11px] font-semibold text-white">
           {notice}
         </div>
       )}
@@ -2975,15 +2975,15 @@ function RecommendedServices() {
       title: "거주증 갱신 지원",
       text: "만료 87일 전, 미리 준비하세요.",
       action: "자세히 보기",
-      className: "bg-gradient-to-br from-blue-50 to-blue-100/60",
-      iconClass: "bg-blue-100 text-blue-700",
+      className: "bg-white",
+      iconClass: "bg-[#E3ECFD] text-[#2563EB]",
       icon: CalendarDays,
     },
     {
       title: "운전면허 전환 확인",
       text: "한국 면허 → 베트남 면허",
       action: "확인하기",
-      className: "bg-gradient-to-br from-emerald-50 to-emerald-100/60",
+      className: "bg-white",
       iconClass: "bg-emerald-100 text-emerald-700",
       icon: FileCheck2,
     },
@@ -2991,7 +2991,7 @@ function RecommendedServices() {
       title: "사업자 허가 갱신",
       text: "정기 점검 시기 확인하세요.",
       action: "자세히 보기",
-      className: "bg-gradient-to-br from-orange-50 to-orange-100/60",
+      className: "bg-white",
       iconClass: "bg-orange-100 text-orange-700",
       icon: Building2,
     },
@@ -2999,17 +2999,17 @@ function RecommendedServices() {
       title: "가족 비자 확인",
       text: "가족 비자 가능성 확인",
       action: "자세히 보기",
-      className: "bg-gradient-to-br from-violet-50 to-violet-100/60",
-      iconClass: "bg-violet-100 text-violet-700",
+      className: "bg-white",
+      iconClass: "bg-[#E3ECFD] text-[#2563EB]",
       icon: UserCheck,
     },
   ];
 
   return (
-    <section className="w-full rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6 xl:px-6 xl:py-4">
+    <section className="w-full rounded-[14px] border border-[#E3E8F0] bg-white p-5 sm:p-6 xl:px-6 xl:py-4">
       <div className="flex items-center justify-between">
-        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">맞춤 추천 서비스</p>
-        <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700">
+        <p className="text-[18px] font-extrabold tracking-[-0.02em] text-[#071A33]">맞춤 추천 서비스</p>
+        <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB]">
           전체 보기 <ChevronRight size={13} />
         </button>
       </div>
@@ -3018,18 +3018,18 @@ function RecommendedServices() {
         {services.map((service) => (
           <div
             key={service.title}
-            className={`flex flex-col rounded-2xl border border-white/80 p-4 xl:p-3.5 ${service.className}`}
+            className={`flex flex-col rounded-[14px] border border-white/80 p-4 xl:p-3.5 ${service.className}`}
           >
-            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${service.iconClass}`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-[12px] ${service.iconClass}`}>
               <service.icon size={18} />
             </div>
-            <p className="mt-4 min-h-[16px] truncate text-[13px] font-extrabold leading-4 text-slate-900 xl:mt-3 xl:min-h-[16px]">
+            <p className="mt-4 min-h-[16px] truncate text-[13px] font-extrabold leading-4 text-[#071A33] xl:mt-3 xl:min-h-[16px]">
               {service.title}
             </p>
-            <p className="mt-2 line-clamp-2 min-h-[40px] text-[10px] leading-5 text-slate-500 xl:mt-1.5 xl:min-h-[32px] xl:leading-4">
+            <p className="mt-2 line-clamp-2 min-h-[40px] text-[10px] leading-5 text-[#6B7A90] xl:mt-1.5 xl:min-h-[32px] xl:leading-4">
               {service.text}
             </p>
-            <button className="mt-3 self-start rounded-lg border border-white bg-white px-3 py-2 text-[10px] font-bold text-blue-800 shadow-sm hover:shadow xl:mt-3 xl:py-1.5">
+            <button className="mt-3 self-start rounded-lg border border-white bg-white px-3 py-2 text-[10px] font-bold text-[#071A33] hover:shadow xl:mt-3 xl:py-1.5">
               {service.action}
             </button>
           </div>
@@ -3053,28 +3053,28 @@ function GeneralCustomerCompactAccordion({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[14px] border border-[#E3E8F0] bg-white">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:px-5"
       >
-        <span className="text-[13px] font-semibold text-slate-800">{title}</span>
+        <span className="text-[13px] font-semibold text-[#071A33]">{title}</span>
         <span className="flex shrink-0 items-center gap-2">
           {hint ? (
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+            <span className="rounded-full bg-[#F2F5FA] px-2 py-0.5 text-[10px] font-medium text-[#6B7A90]">
               {hint}
             </span>
           ) : null}
           <ChevronDown
             size={16}
-            className={`text-slate-400 transition ${open ? "rotate-180" : ""}`}
+            className={`text-[#6B7A90] transition ${open ? "rotate-180" : ""}`}
           />
         </span>
       </button>
       {open ? (
-        <div className="border-t border-slate-100 px-4 py-3 sm:px-5 sm:py-4">{children}</div>
+        <div className="border-t border-[#E3E8F0] px-4 py-3 sm:px-5 sm:py-4">{children}</div>
       ) : null}
     </div>
   );
@@ -3178,7 +3178,7 @@ function GeneralCustomerWalletCore({
         <button
           type="button"
           onClick={() => setExpanded(false)}
-          className="flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
+          className="flex h-10 w-full items-center justify-center rounded-[12px] border border-[#E3E8F0] bg-white text-[12px] font-semibold text-[#3D4B63] transition hover:bg-[#F7F9FC]"
         >
           간략히 보기
         </button>
@@ -3195,17 +3195,17 @@ function GeneralCustomerWalletCore({
     return (
       <section
         id="wallet"
-        className="rounded-[20px] border border-blue-200 bg-gradient-to-b from-blue-50/90 to-white px-5 py-4 shadow-sm sm:px-6"
+        className="rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-4 sm:px-6"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-extrabold text-slate-950">내 서류 보관함</p>
+            <p className="text-[13px] font-extrabold text-[#071A33]">내 서류 보관함</p>
             {showCount ? (
-              <p className="mt-1 text-[15px] font-bold tracking-[-0.02em] text-slate-900">
+              <p className="mt-1 text-[15px] font-bold tracking-[-0.02em] text-[#071A33]">
                 등록 서류 {documents.length}건
               </p>
             ) : null}
-            <p className="mt-1 text-[11px] leading-5 text-slate-600 sm:mt-2">
+            <p className="mt-1 text-[11px] leading-5 text-[#3D4B63] sm:mt-2">
               여권 · 비자 · 거주증 등 중요한 서류를 안전하게 보관하세요.
             </p>
             {loadError ? <p className="mt-2 text-[11px] text-red-600">{loadError}</p> : null}
@@ -3213,7 +3213,7 @@ function GeneralCustomerWalletCore({
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="flex h-10 shrink-0 items-center justify-center gap-1 rounded-xl border border-blue-200 bg-white px-4 text-[12px] font-semibold text-blue-900 transition hover:bg-blue-50 sm:min-w-[140px]"
+            className="flex h-10 shrink-0 items-center justify-center gap-1 rounded-[12px] border border-[#E3E8F0] bg-white px-4 text-[12px] font-semibold text-[#071A33] transition hover:bg-[#F2F6FE] sm:min-w-[140px]"
           >
             전체 서류 보기
             <ChevronRight size={14} className="shrink-0" />
@@ -3227,18 +3227,18 @@ function GeneralCustomerWalletCore({
     return (
       <section
         id="wallet"
-        className="rounded-[20px] border border-blue-200 bg-gradient-to-b from-blue-50/90 to-white p-4 shadow-sm"
+        className="rounded-[14px] border border-[#E3E8F0] bg-white p-4"
       >
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-[#0d2a6b]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[#E3ECFD] text-[#071A33]">
             <FolderLock size={18} strokeWidth={1.75} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-extrabold text-slate-950">내 서류 보관함</p>
-            <p className="mt-1 text-[15px] font-bold tracking-[-0.02em] text-slate-900">
+            <p className="text-[13px] font-extrabold text-[#071A33]">내 서류 보관함</p>
+            <p className="mt-1 text-[15px] font-bold tracking-[-0.02em] text-[#071A33]">
               등록 서류 {loading ? "…" : `${documents.length}건`}
             </p>
-            <p className="mt-2 text-[11px] leading-5 text-slate-600">
+            <p className="mt-2 text-[11px] leading-5 text-[#3D4B63]">
               여권 · 비자 · 거주증 등 중요한 서류를 안전하게 보관하세요.
             </p>
           </div>
@@ -3251,7 +3251,7 @@ function GeneralCustomerWalletCore({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="mt-3 flex h-9 w-full items-center justify-center gap-1 rounded-xl border border-blue-200 bg-white text-[12px] font-semibold text-blue-900 transition hover:bg-blue-50"
+          className="mt-3 flex h-9 w-full items-center justify-center gap-1 rounded-[12px] border border-[#E3E8F0] bg-white text-[12px] font-semibold text-[#071A33] transition hover:bg-[#F2F6FE]"
         >
           전체 서류 보기
           <ChevronRight size={14} className="shrink-0" />
@@ -3261,36 +3261,36 @@ function GeneralCustomerWalletCore({
   }
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
+    <section className="rounded-[14px] border border-[#E3E8F0] bg-white px-5 py-5 sm:px-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[#6B7A90]">
             내 서류 보관함
           </p>
-          <p className="mt-1 text-[18px] font-bold tracking-[-0.02em] text-slate-950 sm:text-[20px]">
+          <p className="mt-1 text-[18px] font-bold tracking-[-0.02em] text-[#071A33] sm:text-[20px]">
             등록 서류 {loading ? "…" : `${documents.length}건`}
           </p>
         </div>
-        <FolderLock size={20} className="shrink-0 text-[#0d2a6b]" strokeWidth={1.75} />
+        <FolderLock size={20} className="shrink-0 text-[#071A33]" strokeWidth={1.75} />
       </div>
 
       {loading ? (
-        <p className="mt-4 text-[12px] text-slate-500">서류를 불러오는 중…</p>
+        <p className="mt-4 text-[12px] text-[#6B7A90]">서류를 불러오는 중…</p>
       ) : loadError ? (
         <p className="mt-4 text-[12px] text-red-600">{loadError}</p>
       ) : recent.length === 0 ? (
-        <p className="mt-4 text-[12px] leading-5 text-slate-500">
+        <p className="mt-4 text-[12px] leading-5 text-[#6B7A90]">
           등록된 서류가 없습니다. 아래 버튼에서 업로드·관리할 수 있습니다.
         </p>
       ) : (
-        <ul className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-100">
+        <ul className="mt-4 divide-y divide-[#E3E8F0] overflow-hidden rounded-[12px] border border-[#E3E8F0]">
           {recent.map((doc) => (
             <li key={doc.activityId} className="flex items-center justify-between gap-3 px-3 py-2.5">
               <div className="min-w-0">
-                <p className="truncate text-[12px] font-semibold text-slate-900">{doc.docType}</p>
-                <p className="mt-0.5 truncate text-[10px] text-slate-500">{doc.fileName}</p>
+                <p className="truncate text-[12px] font-semibold text-[#071A33]">{doc.docType}</p>
+                <p className="mt-0.5 truncate text-[10px] text-[#6B7A90]">{doc.fileName}</p>
               </div>
-              <span className="shrink-0 text-[10px] text-slate-400">{formatWalletDate(doc.createdAt)}</span>
+              <span className="shrink-0 text-[10px] text-[#6B7A90]">{formatWalletDate(doc.createdAt)}</span>
             </li>
           ))}
         </ul>
@@ -3299,7 +3299,7 @@ function GeneralCustomerWalletCore({
       <button
         type="button"
         onClick={() => setExpanded(true)}
-        className="mt-4 flex h-10 w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-[13px] font-semibold text-blue-900 transition hover:bg-blue-100"
+        className="mt-4 flex h-10 w-full items-center justify-center rounded-[12px] border border-[#C9D9FB] bg-[#F2F6FE] text-[13px] font-semibold text-[#071A33] transition hover:bg-[#E3ECFD]"
       >
         전체 서류 보기
       </button>
@@ -3315,9 +3315,9 @@ const GENERAL_CUSTOMER_EXPERT_NOTIFICATION_LABELS = new Set([
 ]);
 
 function getGeneralCustomerNotificationTone(label: string) {
-  if (label.includes("AI")) return "bg-blue-50 text-blue-600";
+  if (label.includes("AI")) return "bg-[#F2F6FE] text-[#2563EB]";
   if (label.includes("상담")) return "bg-emerald-50 text-emerald-600";
-  return "bg-slate-100 text-slate-600";
+  return "bg-[#F2F5FA] text-[#3D4B63]";
 }
 
 function getGeneralCustomerNotificationIcon(label: string) {
@@ -3335,19 +3335,19 @@ function GeneralCustomerNotificationCard({ item }: { item: MyPageItem }) {
   return (
     <section
       id="notifications"
-      className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm"
+      className="rounded-[14px] border border-[#E3E8F0] bg-white p-4"
     >
       <div className="flex items-center justify-between">
-        <p className="text-[14px] font-extrabold text-slate-950">알림 센터</p>
+        <p className="text-[14px] font-extrabold text-[#071A33]">알림 센터</p>
         {entries.length > 0 ? (
-          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+          <span className="rounded-full bg-[#F2F6FE] px-2 py-0.5 text-[10px] font-semibold text-[#2563EB]">
             {entries.length}건
           </span>
         ) : null}
       </div>
 
       {entries.length === 0 ? (
-        <p className="mt-3 text-[11px] leading-5 text-slate-500">새로운 알림이 없습니다.</p>
+        <p className="mt-3 text-[11px] leading-5 text-[#6B7A90]">새로운 알림이 없습니다.</p>
       ) : (
         <div className="mt-2 space-y-0.5">
           {entries.map((entry) => {
@@ -3356,7 +3356,7 @@ function GeneralCustomerNotificationCard({ item }: { item: MyPageItem }) {
             return (
               <div
                 key={`${entry.label}-${entry.createdAt}`}
-                className="flex gap-2.5 rounded-xl p-2 hover:bg-slate-50"
+                className="flex gap-2.5 rounded-[12px] p-2 hover:bg-[#F7F9FC]"
               >
                 <div
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${tone}`}
@@ -3364,8 +3364,8 @@ function GeneralCustomerNotificationCard({ item }: { item: MyPageItem }) {
                   <Icon size={14} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] font-extrabold text-slate-900">{entry.label}</p>
-                  <p className="mt-0.5 text-[9px] leading-4 text-slate-500">
+                  <p className="text-[10px] font-extrabold text-[#071A33]">{entry.label}</p>
+                  <p className="mt-0.5 text-[9px] leading-4 text-[#6B7A90]">
                     {formatShortDate(entry.createdAt)} · {formatTime(entry.createdAt)}
                   </p>
                 </div>
@@ -3452,17 +3452,17 @@ function PublicLinksCard({
   contentOnly?: boolean;
 }) {
   const linkList = (
-    <div className={contentOnly ? "divide-y divide-slate-100" : "mt-3 divide-y divide-slate-100"}>
+    <div className={contentOnly ? "divide-y divide-[#E3E8F0]" : "mt-3 divide-y divide-[#E3E8F0]"}>
       {links.map((link) => (
         <a
           key={link.label}
           href={link.href}
           target="_blank"
           rel="noreferrer"
-          className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-slate-50"
+          className="flex min-h-[64px] items-center justify-between py-3 transition hover:bg-[#F7F9FC]"
         >
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#E3E8F0] bg-white">
               <img
                 src={link.iconSrc}
                 alt={`${link.label} 기관 아이콘`}
@@ -3472,11 +3472,11 @@ function PublicLinksCard({
               />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-[12px] font-bold text-slate-900">{link.label}</p>
-              {link.sub ? <p className="mt-1 truncate text-[10px] text-slate-400">{link.sub}</p> : null}
+              <p className="truncate text-[12px] font-bold text-[#071A33]">{link.label}</p>
+              {link.sub ? <p className="mt-1 truncate text-[10px] text-[#6B7A90]">{link.sub}</p> : null}
             </div>
           </div>
-          <ExternalLink size={13} className="shrink-0 text-slate-300" />
+          <ExternalLink size={13} className="shrink-0 text-[#9AA7BA]" />
         </a>
       ))}
     </div>
@@ -3485,10 +3485,10 @@ function PublicLinksCard({
   if (contentOnly) return linkList;
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
       <div className="flex items-center justify-between">
-        <p className="text-[16px] font-extrabold text-slate-950">{title}</p>
-        <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+        <p className="text-[16px] font-extrabold text-[#071A33]">{title}</p>
+        <span className="text-[10px] font-semibold text-[#2563EB]">전체 보기</span>
       </div>
       {linkList}
     </section>
@@ -3510,21 +3510,21 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
     return (
       <section
         id="notifications"
-        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+        className={`rounded-[14px] border border-[#E3E8F0] bg-white ${
           compact ? "p-4" : "p-5"
         }`}
       >
         <div className="flex items-center justify-between">
-          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+          <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
             알림 센터
           </p>
           {entries.length > 0 ? (
-            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+            <span className="text-[10px] font-semibold text-[#2563EB]">전체 보기</span>
           ) : null}
         </div>
 
         {entries.length === 0 ? (
-          <p className={`leading-5 text-slate-500 ${compact ? "mt-2 text-[10px]" : "mt-3 text-[11px]"}`}>
+          <p className={`leading-5 text-[#6B7A90] ${compact ? "mt-2 text-[10px]" : "mt-3 text-[11px]"}`}>
             {VERIFY_ADMIN_MYPAGE_NOTIFICATION_EMPTY}
           </p>
         ) : (
@@ -3535,7 +3535,7 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
               return (
                 <div
                   key={`${entry.label}-${entry.createdAt}`}
-                  className={`flex gap-2.5 rounded-xl hover:bg-slate-50 ${compact ? "p-2" : "gap-3 p-2.5"}`}
+                  className={`flex gap-2.5 rounded-[12px] hover:bg-[#F7F9FC] ${compact ? "p-2" : "gap-3 p-2.5"}`}
                 >
                   <div
                     className={`flex shrink-0 items-center justify-center rounded-full ${tone} ${
@@ -3546,12 +3546,12 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
                   </div>
                   <div className="min-w-0">
                     <p
-                      className={`font-extrabold text-slate-900 ${compact ? "text-[10px]" : "text-[11px]"}`}
+                      className={`font-extrabold text-[#071A33] ${compact ? "text-[10px]" : "text-[11px]"}`}
                     >
                       {entry.label}
                     </p>
                     <p
-                      className={`leading-4 text-slate-500 ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}
+                      className={`leading-4 text-[#6B7A90] ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}
                     >
                       {formatShortDate(entry.createdAt)} · {formatTime(entry.createdAt)}
                     </p>
@@ -3580,7 +3580,7 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
     },
     {
       icon: Building2,
-      tone: "bg-blue-50 text-blue-600",
+      tone: "bg-[#F2F6FE] text-[#2563EB]",
       title: "정부 제출 예정",
       sub: nextStepLabel(item.stage.steps),
     },
@@ -3589,22 +3589,22 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
   return (
     <section
       id="notifications"
-      className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+      className={`rounded-[14px] border border-[#E3E8F0] bg-white ${
         compact ? "p-4" : "p-5"
       }`}
     >
       <div className="flex items-center justify-between">
-        <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+        <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
           알림 센터
         </p>
-        <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+        <span className="text-[10px] font-semibold text-[#2563EB]">전체 보기</span>
       </div>
 
       <div className={compact ? "mt-2 space-y-0.5" : "mt-3 space-y-1"}>
         {entries.map((entry) => (
           <div
             key={entry.title}
-            className={`flex gap-2.5 rounded-xl hover:bg-slate-50 ${compact ? "p-2" : "gap-3 p-2.5"}`}
+            className={`flex gap-2.5 rounded-[12px] hover:bg-[#F7F9FC] ${compact ? "p-2" : "gap-3 p-2.5"}`}
           >
             <div
               className={`flex shrink-0 items-center justify-center rounded-full ${entry.tone} ${
@@ -3614,10 +3614,10 @@ function NotificationCard({ item, compact = false }: { item: MyPageItem; compact
               <entry.icon size={compact ? 14 : 15} />
             </div>
             <div className="min-w-0">
-              <p className={`font-extrabold text-slate-900 ${compact ? "text-[10px]" : "text-[11px]"}`}>
+              <p className={`font-extrabold text-[#071A33] ${compact ? "text-[10px]" : "text-[11px]"}`}>
                 {entry.title}
               </p>
-              <p className={`leading-4 text-slate-500 ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}>
+              <p className={`leading-4 text-[#6B7A90] ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}>
                 {entry.sub}
               </p>
             </div>
@@ -3923,7 +3923,7 @@ function VietnamLifeCard({
         ? holidayStatus.current?.label ?? "주말 휴무"
         : "오늘 정상 영업 예상",
       icon: Building2,
-      iconClass: "bg-blue-50 text-blue-600",
+      iconClass: "bg-[#F2F6FE] text-[#2563EB]",
     },
     {
       key: "holiday" as const,
@@ -3934,7 +3934,7 @@ function VietnamLifeCard({
           ? `다음: ${holidayStatus.next.label}`
           : "예정된 공휴일 확인",
       icon: CalendarDays,
-      iconClass: "bg-violet-50 text-violet-600",
+      iconClass: "bg-[#F2F6FE] text-[#2563EB]",
     },
     {
       key: "notice" as const,
@@ -3948,7 +3948,7 @@ function VietnamLifeCard({
       label: "내 일정",
       desc: scheduleLabel,
       icon: CalendarCheck,
-      iconClass: "bg-indigo-50 text-indigo-600",
+      iconClass: "bg-[#F2F6FE] text-[#2563EB]",
     },
   ];
 
@@ -3957,7 +3957,7 @@ function VietnamLifeCard({
       key={lifeItem.key}
       type="button"
       onClick={() => setDetail(lifeItem.key)}
-      className={`flex w-full items-center justify-between gap-2.5 rounded-xl border border-slate-200 bg-white text-left transition hover:border-blue-200 hover:bg-slate-50 ${
+      className={`flex w-full items-center justify-between gap-2.5 rounded-[12px] border border-[#E3E8F0] bg-white text-left transition hover:border-[#C9D9FB] hover:bg-[#F7F9FC] ${
         compact ? "px-3 py-2" : "gap-3 px-3.5 py-3 hover:-translate-y-0.5 hover:shadow-sm"
       }`}
     >
@@ -3970,11 +3970,11 @@ function VietnamLifeCard({
           <lifeItem.icon size={compact ? 15 : 18} strokeWidth={2} />
         </span>
         <span className="min-w-0">
-          <span className={`block font-extrabold text-slate-900 ${compact ? "text-[11px]" : "text-[12px]"}`}>
+          <span className={`block font-extrabold text-[#071A33] ${compact ? "text-[11px]" : "text-[12px]"}`}>
             {lifeItem.label}
           </span>
           <span
-            className={`mt-0.5 block truncate font-medium text-slate-500 ${
+            className={`mt-0.5 block truncate font-medium text-[#6B7A90] ${
               compact ? "text-[9px]" : "text-[10px]"
             }`}
           >
@@ -3982,7 +3982,7 @@ function VietnamLifeCard({
           </span>
         </span>
       </span>
-      <ChevronRight size={compact ? 13 : 15} className="shrink-0 text-slate-400" />
+      <ChevronRight size={compact ? 13 : 15} className="shrink-0 text-[#6B7A90]" />
     </button>
   );
 
@@ -3991,7 +3991,7 @@ function VietnamLifeCard({
   const lifeBody = (
     <>
       {!compact && (
-        <p className="mt-1 text-[11px] leading-5 text-slate-500">
+        <p className="mt-1 text-[11px] leading-5 text-[#6B7A90]">
           생활에 필요한 주요 정보를 빠르게 확인하세요.
         </p>
       )}
@@ -4003,28 +4003,28 @@ function VietnamLifeCard({
   const detailModal =
     detail && (
         <div
-          className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
+          className="fixed inset-0 z-[100] flex items-end justify-center bg-[#071A33] p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
           onClick={() => setDetail(null)}
         >
           <section
             role="dialog"
             aria-modal="true"
             aria-label={detailTitle}
-            className="max-h-[92vh] w-full overflow-y-auto rounded-t-[28px] bg-slate-50 shadow-2xl sm:max-w-xl sm:rounded-[28px]"
+            className="max-h-[92vh] w-full overflow-y-auto rounded-t-[28px] bg-[#F7F9FC] shadow-2xl sm:max-w-xl sm:rounded-[14px]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:px-7 sm:py-5">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[#E3E8F0] bg-white/95 px-5 py-4 backdrop-blur sm:px-7 sm:py-5">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#2563EB]">
                   Vietnam Life Brief
                 </p>
-                <h2 className="mt-1 text-[20px] font-extrabold text-slate-950">{detailTitle}</h2>
+                <h2 className="mt-1 text-[20px] font-extrabold text-[#071A33]">{detailTitle}</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setDetail(null)}
                 aria-label="닫기"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E3E8F0] bg-[#F7F9FC] text-[#3D4B63] transition hover:bg-[#F2F5FA]"
               >
                 <X size={18} />
               </button>
@@ -4033,7 +4033,7 @@ function VietnamLifeCard({
             <div className="p-5 sm:p-7">
               {detail === "weather" && (
                 <div className="space-y-4">
-                  <div className="overflow-hidden rounded-[22px] border border-amber-100 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 shadow-sm">
+                  <div className="overflow-hidden rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2">
@@ -4042,25 +4042,25 @@ function VietnamLifeCard({
                           </span>
                           <div>
                             <p className="text-[11px] font-bold text-amber-800">하노이 현재 날씨</p>
-                            <p className="text-[10px] text-slate-500">
+                            <p className="text-[10px] text-[#6B7A90]">
                               {formatWeatherTime(weather.updatedAt)} 업데이트
                             </p>
                           </div>
                         </div>
-                        <p className="mt-5 text-[42px] font-extrabold tracking-tight text-slate-950">
+                        <p className="mt-5 text-[42px] font-extrabold tracking-tight text-[#071A33]">
                           {weather.temperature === null ? "—" : `${Math.round(weather.temperature)}°C`}
                         </p>
-                        <p className="mt-1 text-[15px] font-bold text-slate-700">
+                        <p className="mt-1 text-[15px] font-bold text-[#3D4B63]">
                           {weather.error
                             ? "날씨 정보를 불러오지 못했습니다."
                             : weatherCodeLabel(weather.weatherCode)}
                         </p>
                       </div>
-                      <div className="rounded-2xl border border-white/80 bg-white/75 px-4 py-3 text-right shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-500">오늘 최고 / 최저</p>
-                        <p className="mt-1 text-[15px] font-extrabold text-slate-900">
+                      <div className="rounded-[14px] border border-white/80 bg-white/75 px-4 py-3 text-right">
+                        <p className="text-[10px] font-bold text-[#6B7A90]">오늘 최고 / 최저</p>
+                        <p className="mt-1 text-[15px] font-extrabold text-[#071A33]">
                           {weather.dailyHigh === null ? "—" : `${Math.round(weather.dailyHigh)}°`}
-                          <span className="mx-1 text-slate-300">/</span>
+                          <span className="mx-1 text-[#9AA7BA]">/</span>
                           {weather.dailyLow === null ? "—" : `${Math.round(weather.dailyLow)}°`}
                         </p>
                       </div>
@@ -4074,31 +4074,31 @@ function VietnamLifeCard({
                       ["풍속", weather.windSpeed === null ? "—" : `${Math.round(weather.windSpeed)} km/h`],
                       ["강수량", weather.precipitation === null ? "—" : `${weather.precipitation.toFixed(1)} mm`],
                     ].map(([label, value]) => (
-                      <div key={label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-500">{label}</p>
-                        <p className="mt-1 text-[16px] font-extrabold text-slate-950">{value}</p>
+                      <div key={label} className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                        <p className="text-[10px] font-bold text-[#6B7A90]">{label}</p>
+                        <p className="mt-1 text-[16px] font-extrabold text-[#071A33]">{value}</p>
                       </div>
                     ))}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-bold text-slate-500">일출</p>
-                      <p className="mt-1 text-[16px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                      <p className="text-[10px] font-bold text-[#6B7A90]">일출</p>
+                      <p className="mt-1 text-[16px] font-extrabold text-[#071A33]">
                         {formatClock(weather.sunrise)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-bold text-slate-500">일몰</p>
-                      <p className="mt-1 text-[16px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                      <p className="text-[10px] font-bold text-[#6B7A90]">일몰</p>
+                      <p className="mt-1 text-[16px] font-extrabold text-[#071A33]">
                         {formatClock(weather.sunset)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                    <p className="text-[11px] font-extrabold text-blue-900">정보 기준</p>
-                    <p className="mt-1 text-[10px] leading-5 text-blue-800/75">
+                  <div className="rounded-[14px] border border-[#E3ECFD] bg-[#F2F6FE] p-4">
+                    <p className="text-[11px] font-extrabold text-[#071A33]">정보 기준</p>
+                    <p className="mt-1 text-[10px] leading-5 text-[#071A33]">
                       하노이 중심 좌표를 기준으로 제공되는 실시간 참고 정보입니다. 실제 위치와
                       시간에 따라 차이가 있을 수 있습니다.
                     </p>
@@ -4108,7 +4108,7 @@ function VietnamLifeCard({
 
               {detail === "exchange" && (
                 <div className="space-y-4">
-                  <div className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
@@ -4116,28 +4116,28 @@ function VietnamLifeCard({
                         </span>
                         <div>
                           <p className="text-[11px] font-bold text-emerald-800">기준 환율</p>
-                          <p className="text-[10px] text-slate-500">
+                          <p className="text-[10px] text-[#6B7A90]">
                             {exchange.updatedAt ? `${exchange.updatedAt} 기준` : "최신 데이터 확인 중"}
                           </p>
                         </div>
                       </div>
-                      <span className="rounded-full bg-white px-3 py-1 text-[9px] font-extrabold text-emerald-700 shadow-sm">
+                      <span className="rounded-full bg-white px-3 py-1 text-[9px] font-extrabold text-emerald-700">
                         LIVE RATE
                       </span>
                     </div>
 
                     <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl bg-white/85 p-4">
-                        <p className="text-[10px] font-bold text-slate-500">대한민국 원화</p>
-                        <p className="mt-1 text-[18px] font-extrabold text-slate-950">
+                      <div className="rounded-[14px] bg-white/85 p-4">
+                        <p className="text-[10px] font-bold text-[#6B7A90]">대한민국 원화</p>
+                        <p className="mt-1 text-[18px] font-extrabold text-[#071A33]">
                           {exchange.krwToVnd === null
                             ? "조회 실패"
                             : `1,000원 = ${Math.round(exchange.krwToVnd * 1000).toLocaleString("ko-KR")}동`}
                         </p>
                       </div>
-                      <div className="rounded-2xl bg-white/85 p-4">
-                        <p className="text-[10px] font-bold text-slate-500">미국 달러</p>
-                        <p className="mt-1 text-[18px] font-extrabold text-slate-950">
+                      <div className="rounded-[14px] bg-white/85 p-4">
+                        <p className="text-[10px] font-bold text-[#6B7A90]">미국 달러</p>
+                        <p className="mt-1 text-[18px] font-extrabold text-[#071A33]">
                           {exchange.usdToVnd === null
                             ? "조회 실패"
                             : `1달러 = ${Math.round(exchange.usdToVnd).toLocaleString("ko-KR")}동`}
@@ -4146,11 +4146,11 @@ function VietnamLifeCard({
                     </div>
                   </div>
 
-                  <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[12px] font-extrabold text-slate-950">원화 → 베트남 동 계산</p>
-                        <p className="mt-1 text-[9px] text-slate-500">
+                        <p className="text-[12px] font-extrabold text-[#071A33]">원화 → 베트남 동 계산</p>
+                        <p className="mt-1 text-[9px] text-[#6B7A90]">
                           원화 금액을 입력하면 현재 환율로 자동 계산됩니다.
                         </p>
                       </div>
@@ -4160,9 +4160,9 @@ function VietnamLifeCard({
                     </div>
 
                     <div className="mt-4">
-                      <label className="text-[10px] font-bold text-slate-600">대한민국 원화</label>
-                      <div className="mt-1.5 flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-50">
-                        <span className="shrink-0 text-[15px] font-extrabold text-slate-500">₩</span>
+                      <label className="text-[10px] font-bold text-[#3D4B63]">대한민국 원화</label>
+                      <div className="mt-1.5 flex items-center rounded-[14px] border border-[#E3E8F0] bg-[#F7F9FC] px-4 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-50">
+                        <span className="shrink-0 text-[15px] font-extrabold text-[#6B7A90]">₩</span>
                         <input
                           type="text"
                           inputMode="numeric"
@@ -4171,9 +4171,9 @@ function VietnamLifeCard({
                             setKrwAmount(event.target.value.replace(/[^0-9]/g, ""))
                           }
                           placeholder="100,000"
-                          className="h-14 min-w-0 flex-1 bg-transparent px-3 text-right text-[22px] font-extrabold text-slate-950 outline-none"
+                          className="h-14 min-w-0 flex-1 bg-transparent px-3 text-right text-[22px] font-extrabold text-[#071A33] outline-none"
                         />
-                        <span className="shrink-0 text-[12px] font-bold text-slate-500">원</span>
+                        <span className="shrink-0 text-[12px] font-bold text-[#6B7A90]">원</span>
                       </div>
 
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -4182,16 +4182,16 @@ function VietnamLifeCard({
                             key={amount}
                             type="button"
                             onClick={() => setKrwAmount(String(amount))}
-                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[9px] font-bold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                            className="rounded-full border border-[#E3E8F0] bg-white px-3 py-1.5 text-[9px] font-bold text-[#3D4B63] transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                           >
                             {amount.toLocaleString("ko-KR")}원
                           </button>
                         ))}
                       </div>
 
-                      <div className="mt-4 rounded-2xl bg-emerald-50 p-4">
+                      <div className="mt-4 rounded-[14px] bg-emerald-50 p-4">
                         <p className="text-[10px] font-bold text-emerald-800">예상 베트남 동</p>
-                        <p className="mt-1 break-words text-[25px] font-extrabold tracking-tight text-slate-950">
+                        <p className="mt-1 break-words text-[25px] font-extrabold tracking-tight text-[#071A33]">
                           {krwConvertedVnd === null
                             ? "환율 조회 중"
                             : `${krwConvertedVnd.toLocaleString("ko-KR")}동`}
@@ -4203,23 +4203,23 @@ function VietnamLifeCard({
                     </div>
                   </div>
 
-                  <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[12px] font-extrabold text-slate-950">달러 → 베트남 동 계산</p>
-                        <p className="mt-1 text-[9px] text-slate-500">
+                        <p className="text-[12px] font-extrabold text-[#071A33]">달러 → 베트남 동 계산</p>
+                        <p className="mt-1 text-[9px] text-[#6B7A90]">
                           미국 달러 금액을 입력하면 현재 환율로 자동 계산됩니다.
                         </p>
                       </div>
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[9px] font-bold text-blue-700">
+                      <span className="rounded-full bg-[#F2F6FE] px-2.5 py-1 text-[9px] font-bold text-[#2563EB]">
                         USD → VND
                       </span>
                     </div>
 
                     <div className="mt-4">
-                      <label className="text-[10px] font-bold text-slate-600">미국 달러</label>
-                      <div className="mt-1.5 flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 focus-within:border-blue-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-50">
-                        <span className="shrink-0 text-[15px] font-extrabold text-slate-500">$</span>
+                      <label className="text-[10px] font-bold text-[#3D4B63]">미국 달러</label>
+                      <div className="mt-1.5 flex items-center rounded-[14px] border border-[#E3E8F0] bg-[#F7F9FC] px-4 focus-within:border-[#9DB9F7] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#F2F6FE]">
+                        <span className="shrink-0 text-[15px] font-extrabold text-[#6B7A90]">$</span>
                         <input
                           type="text"
                           inputMode="decimal"
@@ -4232,9 +4232,9 @@ function VietnamLifeCard({
                             );
                           }}
                           placeholder="100"
-                          className="h-14 min-w-0 flex-1 bg-transparent px-3 text-right text-[22px] font-extrabold text-slate-950 outline-none"
+                          className="h-14 min-w-0 flex-1 bg-transparent px-3 text-right text-[22px] font-extrabold text-[#071A33] outline-none"
                         />
-                        <span className="shrink-0 text-[12px] font-bold text-slate-500">USD</span>
+                        <span className="shrink-0 text-[12px] font-bold text-[#6B7A90]">USD</span>
                       </div>
 
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -4243,28 +4243,28 @@ function VietnamLifeCard({
                             key={amount}
                             type="button"
                             onClick={() => setUsdAmount(String(amount))}
-                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[9px] font-bold text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                            className="rounded-full border border-[#E3E8F0] bg-white px-3 py-1.5 text-[9px] font-bold text-[#3D4B63] transition hover:border-[#C9D9FB] hover:bg-[#F2F6FE] hover:text-[#2563EB]"
                           >
                             ${amount.toLocaleString("en-US")}
                           </button>
                         ))}
                       </div>
 
-                      <div className="mt-4 rounded-2xl bg-blue-50 p-4">
-                        <p className="text-[10px] font-bold text-blue-800">예상 베트남 동</p>
-                        <p className="mt-1 break-words text-[25px] font-extrabold tracking-tight text-slate-950">
+                      <div className="mt-4 rounded-[14px] bg-[#F2F6FE] p-4">
+                        <p className="text-[10px] font-bold text-[#071A33]">예상 베트남 동</p>
+                        <p className="mt-1 break-words text-[25px] font-extrabold tracking-tight text-[#071A33]">
                           {usdConvertedVnd === null
                             ? "환율 조회 중"
                             : `${usdConvertedVnd.toLocaleString("ko-KR")}동`}
                         </p>
-                        <p className="mt-1 text-[9px] text-blue-800/70">
+                        <p className="mt-1 text-[9px] text-[#071A33]">
                           {usdNumericAmount.toLocaleString("en-US")}달러 기준
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                  <div className="rounded-[14px] border border-amber-100 bg-amber-50 p-4">
                     <p className="text-[11px] font-extrabold text-amber-900">환전 전 확인하세요</p>
                     <p className="mt-1 text-[10px] leading-5 text-amber-900/75">
                       계산 결과는 참고용 시장 환율을 적용한 예상 금액입니다. 실제 송금·현금 환전 시
@@ -4276,19 +4276,19 @@ function VietnamLifeCard({
 
               {detail === "bank" && (
                 <div className="space-y-4">
-                  <div className="rounded-[22px] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-5 shadow-sm">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E3ECFD] text-[#2563EB]">
                         <Building2 size={20} />
                       </span>
                       <div>
-                        <p className="text-[11px] font-bold text-blue-800">오늘 은행 운영 예상</p>
-                        <p className="mt-0.5 text-[24px] font-extrabold text-slate-950">
+                        <p className="text-[11px] font-bold text-[#071A33]">오늘 은행 운영 예상</p>
+                        <p className="mt-0.5 text-[24px] font-extrabold text-[#071A33]">
                           {bankClosed ? "휴무 예상" : "정상 영업 예상"}
                         </p>
                       </div>
                     </div>
-                    <p className="mt-4 text-[11px] leading-5 text-slate-600">
+                    <p className="mt-4 text-[11px] leading-5 text-[#3D4B63]">
                       {holidayStatus.current
                         ? `${holidayStatus.current.label} 기간으로 공휴일 휴무가 예상됩니다.`
                         : isWeekend
@@ -4298,36 +4298,36 @@ function VietnamLifeCard({
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-bold text-slate-500">일반 창구</p>
-                      <p className="mt-1 text-[15px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                      <p className="text-[10px] font-bold text-[#6B7A90]">일반 창구</p>
+                      <p className="mt-1 text-[15px] font-extrabold text-[#071A33]">
                         평일 영업 중심
                       </p>
-                      <p className="mt-1 text-[9px] leading-4 text-slate-500">
+                      <p className="mt-1 text-[9px] leading-4 text-[#6B7A90]">
                         지점별 운영시간 상이
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-bold text-slate-500">ATM·모바일뱅킹</p>
-                      <p className="mt-1 text-[15px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                      <p className="text-[10px] font-bold text-[#6B7A90]">ATM·모바일뱅킹</p>
+                      <p className="mt-1 text-[15px] font-extrabold text-[#071A33]">
                         대부분 이용 가능
                       </p>
-                      <p className="mt-1 text-[9px] leading-4 text-slate-500">
+                      <p className="mt-1 text-[9px] leading-4 text-[#6B7A90]">
                         점검시간 제외
                       </p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="text-[11px] font-extrabold text-slate-900">방문 전 체크</p>
-                    <div className="mt-3 space-y-2 text-[10px] text-slate-600">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                    <p className="text-[11px] font-extrabold text-[#071A33]">방문 전 체크</p>
+                    <div className="mt-3 space-y-2 text-[10px] text-[#3D4B63]">
                       <p>• 현금 환전 창구 운영 여부</p>
                       <p>• 점심시간 및 번호표 마감시간</p>
                       <p>• 기업·외국인 전용 창구 운영 여부</p>
                     </div>
                   </div>
 
-                  <p className="text-[9px] leading-5 text-slate-500">
+                  <p className="text-[9px] leading-5 text-[#6B7A90]">
                     이 정보는 달력 기준 예상값입니다. 특별 휴무와 지점별 운영시간은 해당 은행에
                     직접 확인해야 합니다.
                   </p>
@@ -4337,43 +4337,43 @@ function VietnamLifeCard({
               {detail === "holiday" && (
                 <div className="space-y-4">
                   {holidayStatus.current && (
-                    <div className="rounded-[22px] border border-violet-100 bg-violet-50 p-5">
-                      <p className="text-[10px] font-bold text-violet-700">현재 공휴일</p>
-                      <p className="mt-1 text-[20px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3ECFD] bg-[#F2F6FE] p-5">
+                      <p className="text-[10px] font-bold text-[#2563EB]">현재 공휴일</p>
+                      <p className="mt-1 text-[20px] font-extrabold text-[#071A33]">
                         {holidayStatus.current.label}
                       </p>
-                      <p className="mt-1 text-[11px] text-slate-600">
+                      <p className="mt-1 text-[11px] text-[#3D4B63]">
                         {formatHolidayDate(holidayStatus.current.start, holidayStatus.current.end)}
                       </p>
                     </div>
                   )}
 
                   {holidayStatus.next && (
-                    <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-[10px] font-bold text-slate-500">다음 공휴일</p>
-                          <p className="mt-1 text-[18px] font-extrabold text-slate-950">
+                          <p className="text-[10px] font-bold text-[#6B7A90]">다음 공휴일</p>
+                          <p className="mt-1 text-[18px] font-extrabold text-[#071A33]">
                             {holidayStatus.next.label}
                           </p>
                         </div>
-                        <span className="rounded-full bg-violet-100 px-3 py-1 text-[9px] font-extrabold text-violet-700">
+                        <span className="rounded-full bg-[#E3ECFD] px-3 py-1 text-[9px] font-extrabold text-[#2563EB]">
                           UPCOMING
                         </span>
                       </div>
-                      <p className="mt-3 text-[12px] font-bold text-violet-700">
+                      <p className="mt-3 text-[12px] font-bold text-[#2563EB]">
                         {formatHolidayDate(holidayStatus.next.start, holidayStatus.next.end)}
                       </p>
                     </div>
                   )}
 
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="text-[11px] font-extrabold text-slate-900">2026 주요 공휴일</p>
-                    <div className="mt-3 divide-y divide-slate-100">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                    <p className="text-[11px] font-extrabold text-[#071A33]">2026 주요 공휴일</p>
+                    <div className="mt-3 divide-y divide-[#E3E8F0]">
                       {VIETNAM_HOLIDAYS_2026.map((holiday) => (
                         <div key={holiday.label} className="flex items-center justify-between gap-3 py-3">
-                          <p className="text-[10px] font-bold text-slate-700">{holiday.label}</p>
-                          <p className="shrink-0 text-[9px] font-semibold text-slate-500">
+                          <p className="text-[10px] font-bold text-[#3D4B63]">{holiday.label}</p>
+                          <p className="shrink-0 text-[9px] font-semibold text-[#6B7A90]">
                             {formatHolidayDate(holiday.start, holiday.end)}
                           </p>
                         </div>
@@ -4381,7 +4381,7 @@ function VietnamLifeCard({
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                  <div className="rounded-[14px] border border-amber-100 bg-amber-50 p-4">
                     <p className="text-[10px] leading-5 text-amber-900/80">
                       정부 발표에 따라 대체근무일·연휴 기간이 조정될 수 있습니다. 관공서 방문과
                       서류 제출 전 담당기관 일정을 다시 확인하세요.
@@ -4392,43 +4392,43 @@ function VietnamLifeCard({
 
               {detail === "notice" && (
                 <div className="space-y-4">
-                  <div className="rounded-[22px] border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center gap-3">
                       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                         <CheckCircle2 size={20} />
                       </span>
                       <div>
                         <p className="text-[10px] font-bold text-emerald-700">현재 상태</p>
-                        <p className="mt-0.5 text-[17px] font-extrabold text-slate-950">
+                        <p className="mt-0.5 text-[17px] font-extrabold text-[#071A33]">
                           긴급 행정 공지 없음
                         </p>
                       </div>
                     </div>
-                    <p className="mt-4 text-[10px] leading-5 text-slate-600">
+                    <p className="mt-4 text-[10px] leading-5 text-[#3D4B63]">
                       현재 고객에게 즉시 영향을 주는 긴급 출입국·노동·세무 공지는 등록되어 있지
                       않습니다.
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="text-[11px] font-extrabold text-slate-900">공지 분류</p>
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                    <p className="text-[11px] font-extrabold text-[#071A33]">공지 분류</p>
                     <div className="mt-3 grid grid-cols-3 gap-2">
                       {[
                         ["출입국", "거주증·비자"],
                         ["노동", "노동허가"],
                         ["세무", "신고·납부"],
                       ].map(([title, desc]) => (
-                        <div key={title} className="rounded-xl bg-slate-50 p-3 text-center">
-                          <p className="text-[10px] font-extrabold text-slate-800">{title}</p>
-                          <p className="mt-1 text-[8px] text-slate-500">{desc}</p>
+                        <div key={title} className="rounded-[12px] bg-[#F7F9FC] p-3 text-center">
+                          <p className="text-[10px] font-extrabold text-[#071A33]">{title}</p>
+                          <p className="mt-1 text-[8px] text-[#6B7A90]">{desc}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                    <p className="text-[11px] font-extrabold text-blue-900">확인 방법</p>
-                    <p className="mt-1 text-[10px] leading-5 text-blue-900/75">
+                  <div className="rounded-[14px] border border-[#E3ECFD] bg-[#F2F6FE] p-4">
+                    <p className="text-[11px] font-extrabold text-[#071A33]">확인 방법</p>
+                    <p className="mt-1 text-[10px] leading-5 text-[#071A33]">
                       중요 변경사항은 이 카드와 마이페이지 알림센터에 함께 표시됩니다. 공식 원문은
                       우측 베트남 공공기관 바로가기에서 다시 확인할 수 있습니다.
                     </p>
@@ -4438,29 +4438,29 @@ function VietnamLifeCard({
 
               {detail === "schedule" && (
                 <div className="space-y-4">
-                  <div className="rounded-[22px] border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-5 shadow-sm">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-5">
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-bold text-indigo-700">현재 신청</p>
-                        <p className="mt-1 text-[19px] font-extrabold text-slate-950">
+                        <p className="text-[10px] font-bold text-[#2563EB]">현재 신청</p>
+                        <p className="mt-1 text-[19px] font-extrabold text-[#071A33]">
                           {item.serviceLabel}
                         </p>
-                        <p className="mt-1 text-[10px] text-slate-500">
+                        <p className="mt-1 text-[10px] text-[#6B7A90]">
                           다음 단계: {scheduleLabel}
                         </p>
                       </div>
-                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-[6px] border-indigo-100 bg-white">
-                        <span className="text-[14px] font-extrabold text-indigo-700">
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-[6px] border-[#E3E8F0] bg-white">
+                        <span className="text-[14px] font-extrabold text-[#2563EB]">
                           {item.stage.progressPercent}%
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-[11px] font-extrabold text-slate-900">진행 현황</p>
-                      <p className="text-[9px] font-bold text-slate-500">
+                      <p className="text-[11px] font-extrabold text-[#071A33]">진행 현황</p>
+                      <p className="text-[9px] font-bold text-[#6B7A90]">
                         {completedStepCount}/{item.stage.steps.length} 단계 완료
                       </p>
                     </div>
@@ -4471,14 +4471,14 @@ function VietnamLifeCard({
                             className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
                               step.done
                                 ? "bg-emerald-100 text-emerald-700"
-                                : "bg-slate-100 text-slate-400"
+                                : "bg-[#F2F5FA] text-[#6B7A90]"
                             }`}
                           >
                             {step.done ? <Check size={13} /> : <span className="text-[9px] font-bold">{index + 1}</span>}
                           </span>
                           <p
                             className={`text-[10px] font-bold ${
-                              step.done ? "text-slate-900" : "text-slate-500"
+                              step.done ? "text-[#071A33]" : "text-[#6B7A90]"
                             }`}
                           >
                             {step.label}
@@ -4489,31 +4489,31 @@ function VietnamLifeCard({
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-bold text-slate-500">예상 처리기간</p>
-                      <p className="mt-1 text-[14px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                      <p className="text-[10px] font-bold text-[#6B7A90]">예상 처리기간</p>
+                      <p className="mt-1 text-[14px] font-extrabold text-[#071A33]">
                         {getEstimate(item.category, item.serviceType)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-bold text-slate-500">현재 단계</p>
-                      <p className="mt-1 text-[14px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                      <p className="text-[10px] font-bold text-[#6B7A90]">현재 단계</p>
+                      <p className="mt-1 text-[14px] font-extrabold text-[#071A33]">
                         {item.stage.currentStepLabel}
                       </p>
                     </div>
                   </div>
 
                   {item.governmentSubmittedAt && (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-bold text-slate-500">정부 제출일</p>
-                      <p className="mt-1 text-[14px] font-extrabold text-slate-950">
+                    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-4">
+                      <p className="text-[10px] font-bold text-[#6B7A90]">정부 제출일</p>
+                      <p className="mt-1 text-[14px] font-extrabold text-[#071A33]">
                         {formatDate(item.governmentSubmittedAt)}
                       </p>
                     </div>
                   )}
 
-                  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                    <p className="text-[10px] leading-5 text-blue-900/75">
+                  <div className="rounded-[14px] border border-[#E3ECFD] bg-[#F2F6FE] p-4">
+                    <p className="text-[10px] leading-5 text-[#071A33]">
                       일정은 담당기관 심사와 추가 보완 요청에 따라 변동될 수 있습니다. 중요한
                       변경사항은 알림센터와 담당자 메모에 표시됩니다.
                     </p>
@@ -4538,10 +4538,10 @@ function VietnamLifeCard({
     <>
       <section
         id="vietnam-life"
-        className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
+        className={`rounded-[14px] border border-[#E3E8F0] bg-white ${compact ? "p-4" : "p-5"}`}
       >
         <div className="flex items-center justify-between gap-3">
-          <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+          <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
             🇻🇳 베트남 생활 정보
           </p>
           <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
@@ -4590,7 +4590,7 @@ function EmergencyHelpCard({
   return (
     <>
       <section
-        className={`rounded-[20px] border border-red-100 bg-white shadow-sm ${compact ? "p-4" : "p-5"}`}
+        className={`rounded-[14px] border border-[#E3E8F0] bg-white ${compact ? "p-4" : "p-5"}`}
       >
         {mobileExpertAccordion || freeCollapsible ? (
           <button
@@ -4604,13 +4604,13 @@ function EmergencyHelpCard({
           >
             <div className="flex min-w-0 items-center gap-2">
               <div
-                className={`flex shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 ${
+                className={`flex shrink-0 items-center justify-center rounded-[12px] bg-red-50 text-red-600 ${
                   compact ? "h-8 w-8" : "h-9 w-9"
                 }`}
               >
                 <ShieldAlert size={compact ? 16 : 18} />
               </div>
-              <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+              <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
                 베트남 긴급 도움
               </p>
             </div>
@@ -4618,7 +4618,7 @@ function EmergencyHelpCard({
               {badge24}
               <ChevronDown
                 size={18}
-                className={`shrink-0 text-slate-500 motion-safe:transition-transform ${
+                className={`shrink-0 text-[#6B7A90] motion-safe:transition-transform ${
                   accordionOpen ? "rotate-180" : ""
                 }`}
                 aria-hidden
@@ -4648,18 +4648,18 @@ function EmergencyHelpCard({
         >
           <div className="flex items-center gap-2">
             <div
-              className={`flex items-center justify-center rounded-xl bg-red-50 text-red-600 ${
+              className={`flex items-center justify-center rounded-[12px] bg-red-50 text-red-600 ${
                 compact ? "h-8 w-8" : "h-9 w-9"
               }`}
             >
               <ShieldAlert size={compact ? 16 : 18} />
             </div>
             <div>
-              <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+              <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
                 베트남 긴급 도움
               </p>
               {!compact && (
-                <p className="mt-0.5 text-[10px] text-slate-500">응급 상황 발생 시 즉시 연락하세요.</p>
+                <p className="mt-0.5 text-[10px] text-[#6B7A90]">응급 상황 발생 시 즉시 연락하세요.</p>
               )}
             </div>
           </div>
@@ -4667,19 +4667,19 @@ function EmergencyHelpCard({
         </div>
 
         {freeCollapsible && collapsibleOpen && !compact ? (
-          <p className="mt-3 text-[10px] text-slate-500">응급 상황 발생 시 즉시 연락하세요.</p>
+          <p className="mt-3 text-[10px] text-[#6B7A90]">응급 상황 발생 시 즉시 연락하세요.</p>
         ) : null}
 
         <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2"}`}>
           {[
-            { label: "경찰", number: "113", tone: "bg-blue-50 text-blue-800" },
+            { label: "경찰", number: "113", tone: "bg-[#F2F6FE] text-[#071A33]" },
             { label: "소방", number: "114", tone: "bg-orange-50 text-orange-700" },
             { label: "구급", number: "115", tone: "bg-emerald-50 text-emerald-700" },
           ].map((contact) => (
             <a
               key={contact.number}
               href={`tel:${contact.number}`}
-              className={`flex min-w-0 flex-col items-center justify-center rounded-xl transition hover:-translate-y-0.5 ${contact.tone} ${
+              className={`flex min-w-0 flex-col items-center justify-center rounded-[12px] transition hover:-translate-y-0.5 ${contact.tone} ${
                 compact ? "px-1.5 py-2" : "px-2 py-3"
               }`}
             >
@@ -4697,17 +4697,17 @@ function EmergencyHelpCard({
 
         <a
           href="tel:+82232100404"
-          className={`mt-2.5 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 transition hover:bg-slate-100 ${
+          className={`mt-2.5 flex items-center justify-between rounded-[12px] border border-[#E3E8F0] bg-[#F7F9FC] transition hover:bg-[#F2F5FA] ${
             compact ? "px-3 py-2" : "mt-3 px-3.5 py-3"
           }`}
         >
           <div className="min-w-0">
-            <p className="text-[9px] font-bold text-slate-500">대한민국 영사콜센터 · 24시간</p>
-            <p className={`mt-0.5 font-extrabold text-slate-900 ${compact ? "text-[12px]" : "text-[13px]"}`}>
+            <p className="text-[9px] font-bold text-[#6B7A90]">대한민국 영사콜센터 · 24시간</p>
+            <p className={`mt-0.5 font-extrabold text-[#071A33] ${compact ? "text-[12px]" : "text-[13px]"}`}>
               +82-2-3210-0404
             </p>
           </div>
-          <Phone size={compact ? 15 : 17} className="shrink-0 text-[#0f3279]" />
+          <Phone size={compact ? 15 : 17} className="shrink-0 text-[#071A33]" />
         </a>
 
         {!compact && (
@@ -4735,7 +4735,7 @@ function EmergencyHelpCard({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className={`flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-white text-[10px] font-bold text-red-700 transition hover:bg-red-50 ${
+          className={`flex h-9 w-full items-center justify-center gap-1.5 rounded-[12px] border border-[#E3E8F0] bg-white text-[10px] font-bold text-red-700 transition hover:bg-red-50 ${
             compact ? "mt-2.5" : "mt-3 h-10 text-[11px]"
           }`}
         >
@@ -4747,7 +4747,7 @@ function EmergencyHelpCard({
 
       {open && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#071A33] p-4 backdrop-blur-[2px]"
           role="dialog"
           aria-modal="true"
           aria-label="베트남 긴급 연락처 및 지원 안내"
@@ -4755,16 +4755,16 @@ function EmergencyHelpCard({
             if (event.target === event.currentTarget) setOpen(false);
           }}
         >
-          <div className="max-h-[88vh] w-full max-w-[520px] overflow-y-auto rounded-[24px] bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4 sm:px-6">
+          <div className="max-h-[88vh] w-full max-w-[520px] overflow-y-auto rounded-[14px] bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3E8F0] bg-white px-5 py-4 sm:px-6">
               <div>
-                <p className="text-[18px] font-extrabold text-slate-950">긴급 연락처 및 지원</p>
-                <p className="mt-1 text-[11px] text-slate-500">상황에 맞는 기관으로 즉시 연락하세요.</p>
+                <p className="text-[18px] font-extrabold text-[#071A33]">긴급 연락처 및 지원</p>
+                <p className="mt-1 text-[11px] text-[#6B7A90]">상황에 맞는 기관으로 즉시 연락하세요.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2F5FA] text-[#3D4B63] hover:bg-[#E3E8F0]"
                 aria-label="닫기"
               >
                 <X size={17} />
@@ -4774,14 +4774,14 @@ function EmergencyHelpCard({
             <div className="space-y-4 p-5 sm:p-6">
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { label: "경찰", number: "113", tone: "border-blue-100 bg-blue-50 text-blue-800" },
+                  { label: "경찰", number: "113", tone: "border-[#E3ECFD] bg-[#F2F6FE] text-[#071A33]" },
                   { label: "소방", number: "114", tone: "border-orange-100 bg-orange-50 text-orange-700" },
                   { label: "구급", number: "115", tone: "border-emerald-100 bg-emerald-50 text-emerald-700" },
                 ].map((contact) => (
                   <a
                     key={contact.number}
                     href={`tel:${contact.number}`}
-                    className={`rounded-2xl border px-3 py-4 text-center ${contact.tone}`}
+                    className={`rounded-[14px] border px-3 py-4 text-center ${contact.tone}`}
                   >
                     <p className="text-[11px] font-bold">{contact.label}</p>
                     <p className="mt-1 text-[21px] font-extrabold">{contact.number}</p>
@@ -4790,28 +4790,28 @@ function EmergencyHelpCard({
                 ))}
               </div>
 
-              <div className="rounded-2xl border border-slate-200 p-4">
+              <div className="rounded-[14px] border border-[#E3E8F0] p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-800">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#F2F6FE] text-[#071A33]">
                     <Landmark size={17} />
                   </div>
                   <div>
-                    <p className="text-[13px] font-extrabold text-slate-950">대한민국 영사 지원</p>
-                    <p className="mt-1 text-[11px] leading-5 text-slate-500">
+                    <p className="text-[13px] font-extrabold text-[#071A33]">대한민국 영사 지원</p>
+                    <p className="mt-1 text-[11px] leading-5 text-[#6B7A90]">
                       여권 분실, 체포·조사, 응급 의료, 긴급 귀국 등 영사 지원이 필요한 경우 이용하세요.
                     </p>
                   </div>
                 </div>
                 <a
                   href="tel:+82232100404"
-                  className="mt-3 flex h-11 items-center justify-center gap-2 rounded-xl bg-[#0f3279] text-[12px] font-bold text-white"
+                  className="mt-3 flex h-11 items-center justify-center gap-2 rounded-[12px] bg-[#2563EB] text-[12px] font-bold text-white"
                 >
                   <Phone size={15} />
                   영사콜센터 +82-2-3210-0404
                 </a>
               </div>
 
-              <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+              <div className="rounded-[14px] border border-amber-100 bg-amber-50 p-4">
                 <p className="text-[13px] font-extrabold text-amber-950">분실·사고 지원 항목</p>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-semibold text-amber-900">
                   {["여권 분실", "교통사고", "체포·조사", "응급 의료", "긴급 귀국", "사기·계약 분쟁"].map((label) => (
@@ -4823,21 +4823,21 @@ function EmergencyHelpCard({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+              <div className="rounded-[14px] border border-red-100 bg-red-50 p-4">
                 <p className="text-[13px] font-extrabold text-red-950">VFBCAI 긴급 법률 지원</p>
                 <p className="mt-1 text-[11px] leading-5 text-red-800">
                   사기, 계약 분쟁, 행정 문제 등 긴급한 법률 지원이 필요한 경우 상담을 요청하세요.
                 </p>
                 <Link
                   href={`/mypage/chat?leadId=${item.id}&label=${encodeURIComponent(item.serviceLabel)}`}
-                  className="mt-3 flex h-11 items-center justify-center gap-2 rounded-xl bg-red-600 text-[12px] font-bold text-white transition hover:bg-red-700"
+                  className="mt-3 flex h-11 items-center justify-center gap-2 rounded-[12px] bg-red-600 text-[12px] font-bold text-white transition hover:bg-red-700"
                 >
                   <MessageSquare size={15} />
                   긴급 상담 요청
                 </Link>
               </div>
 
-              <p className="text-[10px] leading-5 text-slate-400">
+              <p className="text-[10px] leading-5 text-[#6B7A90]">
                 생명 또는 신체의 위험이 있는 경우 VFBCAI 상담보다 현지 긴급번호에 먼저 연락하세요.
               </p>
             </div>
@@ -4850,18 +4850,18 @@ function EmergencyHelpCard({
 
 function HelpCard({ compact = false }: { compact?: boolean }) {
   const items = [
-    { label: "채팅 상담", icon: MessageSquare, tone: "bg-blue-50 text-blue-700" },
+    { label: "채팅 상담", icon: MessageSquare, tone: "bg-[#F2F6FE] text-[#2563EB]" },
     { label: "전화 상담", icon: HelpCircle, tone: "bg-emerald-50 text-emerald-700" },
-    { label: "1:1 문의", icon: MessageCircle, tone: "bg-indigo-50 text-indigo-700" },
+    { label: "1:1 문의", icon: MessageCircle, tone: "bg-[#F2F6FE] text-[#2563EB]" },
   ];
 
   return (
     <section
-      className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+      className={`rounded-[14px] border border-[#E3E8F0] bg-white ${
         compact ? "p-4" : "p-5 xl:p-6"
       }`}
     >
-      <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+      <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
         도움이 필요하신가요?
       </p>
       <div className={`grid grid-cols-3 gap-1.5 ${compact ? "mt-3" : "mt-4 gap-2 xl:mt-6 xl:gap-3"}`}>
@@ -4869,7 +4869,7 @@ function HelpCard({ compact = false }: { compact?: boolean }) {
           <Link
             key={item.label}
             href="/consultation"
-            className={`flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white text-center transition hover:-translate-y-0.5 hover:shadow-sm ${
+            className={`flex flex-col items-center justify-center rounded-[12px] border border-[#E3E8F0] bg-white text-center transition hover:-translate-y-0.5 hover:shadow-sm ${
               compact
                 ? "min-h-[76px] gap-2 p-2"
                 : "min-h-[92px] gap-3 p-3 xl:min-h-[108px] xl:gap-3.5 xl:p-4"
@@ -4882,7 +4882,7 @@ function HelpCard({ compact = false }: { compact?: boolean }) {
             >
               <item.icon size={compact ? 15 : 17} />
             </div>
-            <span className="whitespace-nowrap text-[9px] font-bold leading-none text-slate-700 xl:text-[10px]">
+            <span className="whitespace-nowrap text-[9px] font-bold leading-none text-[#3D4B63] xl:text-[10px]">
               {item.label}
             </span>
           </Link>
@@ -4896,16 +4896,16 @@ function PublicNotes({ notes }: { notes: PublicNote[] }) {
   if (notes.length === 0) return null;
 
   return (
-    <section className="rounded-[20px] border border-blue-100 bg-blue-50/60 p-5">
+    <section className="rounded-[14px] border border-[#E3ECFD] bg-[#F2F6FE] p-5">
       <div className="flex items-center gap-2">
-        <MessageCircle size={17} className="text-blue-900" />
-        <p className="text-[15px] font-extrabold text-blue-950">담당자 안내</p>
+        <MessageCircle size={17} className="text-[#071A33]" />
+        <p className="text-[15px] font-extrabold text-[#071A33]">담당자 안내</p>
       </div>
       <div className="mt-4 space-y-3">
         {notes.map((note, index) => (
-          <div key={`${note.createdAt}-${index}`} className="rounded-2xl bg-white p-4">
-            <p className="whitespace-pre-wrap text-[12px] leading-6 text-slate-700">{note.memo}</p>
-            <p className="mt-2 text-[10px] text-slate-400">{formatDate(note.createdAt)}</p>
+          <div key={`${note.createdAt}-${index}`} className="rounded-[14px] bg-white p-4">
+            <p className="whitespace-pre-wrap text-[12px] leading-6 text-[#3D4B63]">{note.memo}</p>
+            <p className="mt-2 text-[10px] text-[#6B7A90]">{formatDate(note.createdAt)}</p>
           </div>
         ))}
       </div>
@@ -4934,19 +4934,19 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
 
   return (
     <section
-      className={`rounded-[20px] border border-slate-200 bg-white shadow-sm ${
+      className={`rounded-[14px] border border-[#E3E8F0] bg-white ${
         compact ? "p-4" : "p-5"
       }`}
     >
-      <p className={`font-extrabold text-slate-950 ${compact ? "text-[14px]" : "text-[16px]"}`}>
+      <p className={`font-extrabold text-[#071A33] ${compact ? "text-[14px]" : "text-[16px]"}`}>
         제출 및 결과 문서
       </p>
       <div className={`space-y-2 ${compact ? "mt-3" : "mt-4 space-y-3"}`}>
         {item.governmentSubmittedAt && (
-          <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
+          <div className="flex items-center justify-between rounded-[14px] bg-[#F7F9FC] p-4">
             <div>
-              <p className="text-[10px] text-slate-500">정부 제출</p>
-              <p className="mt-1 text-[12px] font-extrabold text-slate-900">
+              <p className="text-[10px] text-[#6B7A90]">정부 제출</p>
+              <p className="mt-1 text-[12px] font-extrabold text-[#071A33]">
                 {formatIsoDate(item.governmentSubmittedAt)}
               </p>
             </div>
@@ -4955,7 +4955,7 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
         )}
 
         {item.permitCompletedAt && (
-          <div className="rounded-2xl bg-emerald-50 p-4">
+          <div className="rounded-[14px] bg-emerald-50 p-4">
             <p className="text-[10px] text-emerald-700">허가 완료</p>
             <p className="mt-1 text-[12px] font-extrabold text-emerald-900">
               {formatIsoDate(item.permitCompletedAt)}
@@ -4965,7 +4965,7 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
                 href={item.permitFileUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-700 text-[11px] font-bold text-white"
+                className="mt-3 flex h-10 items-center justify-center gap-2 rounded-[12px] bg-emerald-700 text-[11px] font-bold text-white"
               >
                 <Download size={14} />
                 {item.permitFileName ?? "허가증 다운로드"}
@@ -4979,15 +4979,15 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
             href={item.fileUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:bg-slate-50"
+            className="flex items-center justify-between rounded-[14px] border border-[#E3E8F0] p-4 hover:bg-[#F7F9FC]"
           >
             <span className="flex min-w-0 items-center gap-3">
-              <FileText size={17} className="text-blue-900" />
-              <span className="truncate text-[11px] font-bold text-slate-800">
+              <FileText size={17} className="text-[#071A33]" />
+              <span className="truncate text-[11px] font-bold text-[#071A33]">
                 {item.fileName ?? "첨부서류 확인"}
               </span>
             </span>
-            <Download size={15} className="text-slate-400" />
+            <Download size={15} className="text-[#6B7A90]" />
           </a>
         )}
         {phase2Docs?.map((doc) => (
@@ -4996,13 +4996,13 @@ function PermitDocuments({ item, compact = false }: { item: MyPageItem; compact?
             href={doc.fileUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:bg-slate-50"
+            className="flex items-center justify-between rounded-[14px] border border-[#E3E8F0] p-4 hover:bg-[#F7F9FC]"
           >
             <span className="flex min-w-0 items-center gap-3">
-              <FileText size={17} className="text-blue-900" />
-              <span className="truncate text-[11px] font-bold text-slate-800">{doc.fileName}</span>
+              <FileText size={17} className="text-[#071A33]" />
+              <span className="truncate text-[11px] font-bold text-[#071A33]">{doc.fileName}</span>
             </span>
-            <Download size={15} className="text-slate-400" />
+            <Download size={15} className="text-[#6B7A90]" />
           </a>
         ))}
       </div>
@@ -5021,20 +5021,20 @@ function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur xl:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[#E3E8F0] bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur xl:hidden">
       <div className="mx-auto grid max-w-[1480px] grid-cols-6 items-end">
         {items.map((item) => (
           <Link
             key={item.label}
             href={item.href}
             className={`relative flex flex-col items-center gap-1.5 py-1.5 text-[10px] font-semibold ${
-              item.active ? "text-blue-900" : "text-slate-500"
+              item.active ? "text-[#071A33]" : "text-[#6B7A90]"
             }`}
           >
             <div
               className={`relative flex items-center justify-center ${
                 item.primary
-                  ? "-mt-5 h-14 w-14 rounded-full bg-blue-900 text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
+                  ? "-mt-5 h-14 w-14 rounded-full bg-[#2563EB] text-white shadow-[0_8px_24px_rgba(30,64,175,0.35)]"
                   : "h-7 w-7"
               }`}
             >
@@ -5045,7 +5045,7 @@ function MobileBottomNav() {
                 </span>
               ) : null}
             </div>
-            <span className={item.primary ? "mt-0.5 text-slate-600" : ""}>{item.label}</span>
+            <span className={item.primary ? "mt-0.5 text-[#3D4B63]" : ""}>{item.label}</span>
           </Link>
         ))}
       </div>
@@ -5073,10 +5073,10 @@ function VerifyAdminExpertFlowDashboard({
     <>
       <div className="space-y-4">
         <div className="xl:hidden">
-          <p className="text-[18px] font-extrabold text-slate-950">
+          <p className="text-[18px] font-extrabold text-[#071A33]">
             안녕하세요, {name ?? "고객"}님 👋
           </p>
-          <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
+          <p className="mt-1 text-[12px] text-[#6B7A90]">오늘도 성공적인 하루 보내세요!</p>
         </div>
 
         <HeroCard
@@ -5132,7 +5132,7 @@ function VerifyAdminExpertFlowDashboard({
           panelId="verify-admin-expert-kr-public-links"
           title="바로가기 (한국 공공기관)"
           headerTrailing={
-            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+            <span className="text-[10px] font-semibold text-[#2563EB]">전체 보기</span>
           }
         >
           <PublicLinksCard title="바로가기 (한국 공공기관)" links={PUBLIC_LINKS} contentOnly />
@@ -5141,7 +5141,7 @@ function VerifyAdminExpertFlowDashboard({
           panelId="verify-admin-expert-vn-public-links"
           title="바로가기 (베트남 공공기관)"
           headerTrailing={
-            <span className="text-[10px] font-semibold text-blue-700">전체 보기</span>
+            <span className="text-[10px] font-semibold text-[#2563EB]">전체 보기</span>
           }
         >
           <PublicLinksCard title="바로가기 (베트남 공공기관)" links={VN_PUBLIC_LINKS} contentOnly />
@@ -5190,12 +5190,12 @@ function Dashboard({
 
   if (!activeItem) {
     return (
-      <div className="rounded-[20px] border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <FileText size={32} className="mx-auto text-slate-300" />
-        <p className="mt-4 text-[18px] font-extrabold text-slate-900">아직 접수하신 신청 내역이 없습니다.</p>
+      <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-8 text-center">
+        <FileText size={32} className="mx-auto text-[#9AA7BA]" />
+        <p className="mt-4 text-[18px] font-extrabold text-[#071A33]">아직 접수하신 신청 내역이 없습니다.</p>
         <Link
           href="/"
-          className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-blue-900 px-5 text-[12px] font-bold text-white"
+          className="mt-5 inline-flex h-11 items-center justify-center rounded-[12px] bg-[#2563EB] px-5 text-[12px] font-bold text-white"
         >
           서비스 확인하기
         </Link>
@@ -5268,10 +5268,10 @@ function Dashboard({
       <>
         <div className="space-y-4">
           <div className="xl:hidden">
-            <p className="text-[18px] font-extrabold text-slate-950">
+            <p className="text-[18px] font-extrabold text-[#071A33]">
               안녕하세요, {name ?? "고객"}님 👋
             </p>
-            <p className="mt-1 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
+            <p className="mt-1 text-[12px] text-[#6B7A90]">오늘도 성공적인 하루 보내세요!</p>
           </div>
 
           <HeroCard
@@ -5334,10 +5334,10 @@ function Dashboard({
     <>
       <div className="space-y-4">
         <div className="xl:hidden">
-          <p className="text-[17px] font-extrabold tracking-[-0.02em] text-slate-950">
+          <p className="text-[17px] font-extrabold tracking-[-0.02em] text-[#071A33]">
             안녕하세요, {name ?? "고객"}님
           </p>
-          <p className="mt-0.5 text-[12px] text-slate-500">오늘도 성공적인 하루 보내세요!</p>
+          <p className="mt-0.5 text-[12px] text-[#6B7A90]">오늘도 성공적인 하루 보내세요!</p>
         </div>
 
         <StepProgress stage={activeItem.stage} />
@@ -5360,10 +5360,10 @@ function Dashboard({
 
 function LoadingCard({ message }: { message: string }) {
   return (
-    <div className="rounded-[20px] border border-slate-200 bg-white p-7 shadow-sm">
+    <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-7">
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 animate-pulse rounded-xl bg-blue-100" />
-        <p className="text-[13px] text-slate-500">{message}</p>
+        <div className="h-10 w-10 animate-pulse rounded-[12px] bg-[#E3ECFD]" />
+        <p className="text-[13px] text-[#6B7A90]">{message}</p>
       </div>
     </div>
   );
@@ -5476,7 +5476,7 @@ export default function MyPage() {
   }, [isSlimFreeVerifyAdminAside, activeLayoutItem?.id]);
 
   return (
-    <main className="min-h-screen bg-[#f6f8fc] text-slate-900 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
+    <main className="min-h-screen bg-[#f6f8fc] text-[#071A33] xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
       <DesktopSidebar messageHref={messageHref} />
 
       {/* App Shell — Sidebar를 제외한 나머지 폭 전체를 그대로 차지한다(flex-1).
@@ -5500,8 +5500,8 @@ export default function MyPage() {
           >
           {state === "ready" && isGeneralCustomerLayout && (
             <div className="col-span-full min-w-0">
-              <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">My Page</p>
-              <p className="mt-0.5 text-[13px] text-slate-600">
+              <p className="text-[18px] font-extrabold tracking-[-0.02em] text-[#071A33]">My Page</p>
+              <p className="mt-0.5 text-[13px] text-[#3D4B63]">
                 {name ?? "고객"}님 · 확인 결과와 서류를 한곳에서 관리합니다.
               </p>
             </div>
@@ -5512,16 +5512,16 @@ export default function MyPage() {
             {state === "loading" && <LoadingCard message="신청 내역을 불러오는 중입니다." />}
 
             {state === "signed-out" && (
-              <div className="rounded-[20px] border border-amber-200 bg-white p-8 shadow-sm">
+              <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-8">
                 <AlertCircle size={24} className="text-amber-700" />
-                <h1 className="mt-5 text-[24px] font-extrabold text-slate-950">로그인이 필요합니다</h1>
-                <p className="mt-3 max-w-xl text-[13px] leading-6 text-slate-600">
+                <h1 className="mt-5 text-[24px] font-extrabold text-[#071A33]">로그인이 필요합니다</h1>
+                <p className="mt-3 max-w-xl text-[13px] leading-6 text-[#3D4B63]">
                   결과 안내 이메일 또는 문자로 받으신 결과 확인 링크로 접속하면 자동 로그인되어
                   마이페이지를 이용할 수 있습니다.
                 </p>
                 <Link
                   href="/consultation"
-                  className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 text-[12px] font-bold text-white"
+                  className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-[12px] bg-[#2563EB] px-5 text-[12px] font-bold text-white"
                 >
                   <MessageSquare size={15} />
                   상담 문의하기
@@ -5530,7 +5530,7 @@ export default function MyPage() {
             )}
 
             {state === "error" && (
-              <div className="rounded-[20px] border border-red-200 bg-white p-7 shadow-sm">
+              <div className="rounded-[14px] border border-[#E3E8F0] bg-white p-7">
                 <AlertTriangle size={24} className="text-red-600" />
                 <p className="mt-4 text-[13px] font-semibold text-red-700">{errorMessage}</p>
               </div>
