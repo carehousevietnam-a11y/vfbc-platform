@@ -326,19 +326,41 @@ export default async function AdminDocumentsPage({
   const leadById = new Map(leads.map((l) => [l.id, l]));
   const leadIds = leads.map((l) => l.id);
 
-  const { data: activitiesRaw, error: activitiesError } = leadIds.length
-    ? await supabaseAdmin
-        .from("crm_activities")
-        .select("lead_id, action, tag, meta, created_at")
-        .in("lead_id", leadIds)
-        .order("created_at", { ascending: true })
-    : { data: [] as any[], error: null };
+  // lead id가 많으면 .in() 조회 주소가 너무 길어져 400(Bad Request)이 나므로 묶음으로 나눠 조회한다.
+  // 또 한 번에 최대 1000행만 돌려주므로(그 이상은 조용히 잘림) 묶음마다 페이지를 넘겨 모두 읽는다.
+  const ACTIVITY_LEAD_CHUNK = 100;
+  const ACTIVITY_PAGE_SIZE = 1000;
+  const leadIdChunks: string[][] = [];
+  for (let i = 0; i < leadIds.length; i += ACTIVITY_LEAD_CHUNK) {
+    leadIdChunks.push(leadIds.slice(i, i + ACTIVITY_LEAD_CHUNK));
+  }
+  const activityChunkResults = await Promise.all(
+    leadIdChunks.map(async (ids) => {
+      const rows: any[] = [];
+      for (let from = 0; ; from += ACTIVITY_PAGE_SIZE) {
+        const { data, error } = await supabaseAdmin
+          .from("crm_activities")
+          .select("lead_id, action, tag, meta, created_at")
+          .in("lead_id", ids)
+          .order("created_at", { ascending: true })
+          .range(from, from + ACTIVITY_PAGE_SIZE - 1);
+        if (error) return { rows, error };
+        rows.push(...(data ?? []));
+        if (!data || data.length < ACTIVITY_PAGE_SIZE) break;
+      }
+      return { rows, error: null as { message: string } | null };
+    })
+  );
+  const activitiesError = activityChunkResults.find((r) => r.error)?.error ?? null;
 
   if (activitiesError) {
     return <ErrorScreen message={activitiesError.message} />;
   }
 
-  const activities = activitiesRaw ?? [];
+  // 묶음별로 읽은 결과를 합친 뒤, 기존과 같이 created_at 오름차순으로 되돌린다.
+  const activities = activityChunkResults
+    .flatMap((r) => r.rows)
+    .sort((a, b) => (a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0));
 
   // 리드별 실제 action 집합 + 최신 진단 브리프(expertBrief/expert_brief) — status 필터
   // (admin/cases/page.tsx)와 동일한 근거로 계산한다.
