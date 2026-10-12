@@ -148,6 +148,8 @@ export type AdminVerifyFirstResultData = {
   adminResponseSummaryLines?: string[];
   /** 2차 Stitch 카드 배지 — 표시 전용 (hasIssues/statusTone 미사용) */
   keyMetricBadgeTiers?: KeyMetricBadgeTier[];
+  /** 무료 1차 결과에서 판정·등급 표시를 쓰지 않는 서비스(거주증 등) — 기본 undefined(기존 화면 그대로) */
+  neutralFirstResult?: boolean;
 };
 
 function metricFootnote(
@@ -5010,12 +5012,12 @@ export function AdminVerifyFirstResultPanel({
           title="01 / 현재 상황 한눈에 보기"
           badge={
             <span className="rounded border border-amber-200/80 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 lg:px-1.5 lg:text-[10px]">
-              1차 판정 결과
+              {data.neutralFirstResult ? "1차 정리" : "1차 판정 결과"}
             </span>
           }
           meta={
             <span className="font-mono text-xs font-medium text-slate-500 lg:text-[10px]">
-              ANALYSIS VERDICT
+              {data.neutralFirstResult ? "SITUATION SUMMARY" : "ANALYSIS VERDICT"}
             </span>
           }
         />
@@ -5068,6 +5070,7 @@ export function AdminVerifyFirstResultPanel({
                 {displaySituationSummary}
               </p>
             </div>
+            {data.neutralFirstResult ? null : (
             <div
               className={cn(
                 "flex min-w-[220px] shrink-0 flex-col justify-center rounded-lg border bg-white p-5 shadow-sm lg:min-w-[190px] lg:p-4 lg:shadow-none",
@@ -5093,6 +5096,7 @@ export function AdminVerifyFirstResultPanel({
                 <span className="font-mono font-medium text-slate-600 lg:font-normal">1차 요약</span>
               </div>
             </div>
+            )}
           </div>
         </div>
       </section>
@@ -5123,7 +5127,7 @@ export function AdminVerifyFirstResultPanel({
               key={metric.label}
               metric={metric}
               refinePhrase={refinePhrase}
-              hideMatchingFootnote={domain === "tax"}
+              hideMatchingFootnote={domain === "tax" || Boolean(data.neutralFirstResult)}
             />
           ))}
         </div>

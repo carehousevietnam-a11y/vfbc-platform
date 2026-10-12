@@ -286,6 +286,7 @@ function buildResult(answers: Record<string, string>, phase2: boolean): AdminVer
     actions: tier ? [`추천 서비스 단계(참고) · ${tier.label}`, ...guide] : guide,
     referenceDateLabel: "이번 답변 기준",
     caseClassificationLabel: "거주증 확인",
+    ...(phase2 ? {} : { neutralFirstResult: true }),
     personalizedContext: phase2
       ? {
           integratedSituation: `${headline} ${summary.body}`.trim(),
