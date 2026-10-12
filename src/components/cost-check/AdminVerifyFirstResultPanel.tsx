@@ -3540,9 +3540,9 @@ export function buildAdminVerifyPersonalizedResult(
 }
 
 const SECTION_TITLE_TONE_CLASSES = {
-  default: "lg:text-[15px] lg:font-extrabold lg:text-slate-950",
-  risk: "lg:text-[14px] lg:font-bold lg:text-slate-900",
-  calm: "lg:text-[13px] lg:font-bold lg:text-slate-800",
+  default: "lg:text-[15px] lg:font-extrabold lg:text-[#6B7A90]",
+  risk: "lg:text-[14px] lg:font-bold lg:text-[#071A33]",
+  calm: "lg:text-[13px] lg:font-bold lg:text-[#071A33]",
 } as const;
 
 function StitchSectionHeading({
@@ -3570,7 +3570,7 @@ function StitchSectionHeading({
       <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2 sm:gap-y-1 lg:min-w-0 lg:flex-1 lg:gap-1.5">
         <h2
           className={cn(
-            "text-xs font-bold uppercase tracking-wide text-slate-900 sm:text-sm",
+            "text-xs font-bold uppercase tracking-wide text-[#071A33] sm:text-sm",
             FIRST_RESULT_READABLE_CLASS,
             SECTION_TITLE_TONE_CLASSES[titleTone],
           )}
@@ -3581,13 +3581,13 @@ function StitchSectionHeading({
         {subtitle ? (
           <span
             className={cn(
-              "text-xs font-normal text-slate-400 lg:text-[11px] lg:font-normal lg:text-slate-400",
+              "text-xs font-normal text-[#6B7A90] lg:text-[11px] lg:font-normal lg:text-[#6B7A90]",
               FIRST_RESULT_READABLE_CLASS,
             )}
           >
             {subtitle.startsWith("|") ? (
               <>
-                <span className="hidden sm:inline text-slate-300/90">{subtitle.charAt(0)} </span>
+                <span className="hidden sm:inline text-[#6B7A90]">{subtitle.charAt(0)} </span>
                 <span>{subtitle.replace(/^\|\s*/, "")}</span>
               </>
             ) : (
@@ -3606,7 +3606,7 @@ function StitchSectionHeading({
 function StepCheckIcon() {
   return (
     <svg
-      className="h-3.5 w-3.5 shrink-0 text-slate-400 lg:h-3 lg:w-3"
+      className="h-3.5 w-3.5 shrink-0 text-[#6B7A90] lg:h-3 lg:w-3"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -3637,7 +3637,7 @@ function SegmentMeter({
           key={index}
           className={cn(
             "h-[6px] flex-1 rounded-full lg:h-[5px]",
-            index < filled ? activeClass : "bg-slate-200",
+            index < filled ? activeClass : "bg-[#E3E8F0]",
           )}
         />
       ))}
@@ -3753,9 +3753,9 @@ function KeyMetricCard({
   return (
     <div
       className={cn(
-        "flex min-h-[148px] flex-col rounded-lg border bg-white p-5 shadow-sm transition-all lg:h-full lg:min-h-[168px] lg:p-[1.125rem] lg:shadow-none",
+        "flex min-h-[96px] flex-col rounded-[14px] border bg-white p-5 transition-all lg:h-full lg:min-h-[96px]",
         isOk
-          ? "border-slate-200/80 hover:border-slate-300 lg:border-slate-200/60"
+          ? "border-[#E3E8F0] hover:border-[#E3E8F0] lg:border-[#E3E8F0]"
           : "border border-amber-200/80 bg-amber-50/15 hover:border-amber-300/90 lg:border-amber-200/60",
       )}
     >
@@ -3764,7 +3764,7 @@ function KeyMetricCard({
           <span
             className={cn(
               "text-[11px] font-mono font-semibold uppercase tracking-wider lg:text-[10px] lg:font-normal",
-              isOk ? "text-slate-400" : "text-amber-800",
+              isOk ? "text-[#6B7A90]" : "text-amber-800",
             )}
           >
             {metric.label}
@@ -3773,7 +3773,7 @@ function KeyMetricCard({
             className={cn(
               "inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] font-bold lg:px-1.5 lg:text-[10px] lg:font-medium",
               isOk
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                ? "border-[#C9D9FB] bg-[#F2F6FE] text-[#2563EB]"
                 : "border-amber-300 bg-amber-100 text-amber-800",
             )}
           >
@@ -3782,7 +3782,7 @@ function KeyMetricCard({
         </div>
         <h4
           className={cn(
-            "text-sm font-semibold tracking-tight text-slate-900 sm:text-base lg:text-[13px] lg:font-medium lg:leading-snug",
+            "text-sm font-semibold tracking-tight text-[#071A33] sm:text-base lg:text-[13px] lg:font-medium lg:leading-snug",
             FIRST_RESULT_READABLE_CLASS,
           )}
         >
@@ -3793,7 +3793,7 @@ function KeyMetricCard({
       <div
         className={cn(
           "mt-3 border-t pt-3 lg:mt-3",
-          isOk ? "border-slate-100" : "border-amber-200/60",
+          isOk ? "border-[#E3E8F0]" : "border-amber-200/60",
         )}
       >
         <p
@@ -3801,8 +3801,8 @@ function KeyMetricCard({
             "text-xs leading-normal lg:text-[11px] lg:leading-[1.45]",
             FIRST_RESULT_READABLE_CLASS,
             isOk
-              ? "text-slate-500 lg:text-slate-500"
-              : "font-medium text-slate-700 lg:font-normal lg:text-slate-600",
+              ? "text-[#6B7A90] lg:text-[#6B7A90]"
+              : "font-medium text-[#3D4B63] lg:font-normal lg:text-[#3D4B63]",
           )}
         >
           {displayFootnote}
@@ -3822,7 +3822,7 @@ function PersonalizedFactList({
 }) {
   if (items.length === 0) {
     return (
-      <p className={cn("text-[13px] text-slate-500 lg:text-[12px]", FIRST_RESULT_READABLE_CLASS)}>
+      <p className={cn("text-[13px] text-[#6B7A90] lg:text-[12px]", FIRST_RESULT_READABLE_CLASS)}>
         {emptyLabel}
       </p>
     );
@@ -3833,11 +3833,11 @@ function PersonalizedFactList({
         <li
           key={item}
           className={cn(
-            "flex gap-2 text-[13px] leading-relaxed text-slate-700 lg:text-[12px]",
+            "flex gap-2 text-[13px] leading-relaxed text-[#3D4B63] lg:text-[12px]",
             FIRST_RESULT_READABLE_CLASS,
           )}
         >
-          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400" aria-hidden />
+          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#071A33]" aria-hidden />
           <span>{item}</span>
         </li>
       ))}
@@ -3868,20 +3868,20 @@ function StitchCheckIcon({ className }: { className?: string }) {
 function AdminVerifyPersonalizedStitchHeaderSteps() {
   return (
     <div
-      className="inline-flex items-center gap-1.5 rounded-full bg-slate-100/80 px-3 py-1.5 text-xs"
+      className="inline-flex items-center gap-1.5 rounded-full bg-[#F2F5FA] px-3 py-1.5 text-xs"
       aria-label="검토 단계"
     >
-      <span className="flex items-center font-normal text-slate-400">
-        <StitchCheckIcon className="mr-1 inline-block h-3.5 w-3.5 text-emerald-500" />
+      <span className="flex items-center font-normal text-[#6B7A90]">
+        <StitchCheckIcon className="mr-1 inline-block h-3.5 w-3.5 text-[#2563EB]" />
         1차 기본 확인
       </span>
-      <span className="mx-1 text-slate-300">→</span>
-      <span className="flex items-center rounded border border-slate-200 bg-white px-2 py-0.5 font-bold text-blue-600 shadow-sm">
-        <span className="mr-1.5 h-2 w-2 rounded-full bg-blue-600" aria-hidden />
+      <span className="mx-1 text-[#6B7A90]">→</span>
+      <span className="flex items-center rounded border border-[#E3E8F0] bg-white px-2 py-0.5 font-bold text-[#2563EB]">
+        <span className="mr-1.5 h-2 w-2 rounded-full bg-[#2563EB]" aria-hidden />
         2차 개인화 검토
       </span>
-      <span className="mx-1 text-slate-300">→</span>
-      <span className="font-normal text-slate-400">3차 문서 정밀 분석</span>
+      <span className="mx-1 text-[#6B7A90]">→</span>
+      <span className="font-normal text-[#6B7A90]">3차 문서 정밀 분석</span>
     </div>
   );
 }
@@ -3889,20 +3889,20 @@ function AdminVerifyPersonalizedStitchHeaderSteps() {
 function AdminVerifyPersonalizedStitchFooterSteps() {
   return (
     <div
-      className="flex flex-wrap items-center justify-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50 px-4 py-2.5 text-xs font-medium text-slate-500"
+      className="flex flex-wrap items-center justify-center gap-2 rounded-lg border border-[#E3E8F0] bg-[#F7F9FC] px-4 py-2.5 text-xs font-medium text-[#6B7A90]"
       data-purpose="workflow-stepper"
     >
-      <span className="flex items-center font-medium text-slate-500">
-        <StitchCheckIcon className="mr-1 inline-block h-3.5 w-3.5 text-emerald-500" />
+      <span className="flex items-center font-medium text-[#6B7A90]">
+        <StitchCheckIcon className="mr-1 inline-block h-3.5 w-3.5 text-[#2563EB]" />
         완료 · 1차 기본 확인
       </span>
-      <span className="text-slate-300">→</span>
-      <span className="flex items-center rounded-md border border-slate-200 bg-white px-2.5 py-1 font-bold text-slate-900 shadow-sm">
-        <span className="mr-1.5 h-2 w-2 rounded-full bg-blue-600" aria-hidden />
+      <span className="text-[#6B7A90]">→</span>
+      <span className="flex items-center rounded-md border border-[#E3E8F0] bg-white px-2.5 py-1 font-bold text-[#071A33]">
+        <span className="mr-1.5 h-2 w-2 rounded-full bg-[#2563EB]" aria-hidden />
         지금 · 2차 개인화 검토
       </span>
-      <span className="text-slate-300">→</span>
-      <span className="flex items-center font-medium text-slate-400">다음 · 3차 문서 정밀 분석</span>
+      <span className="text-[#6B7A90]">→</span>
+      <span className="flex items-center font-medium text-[#6B7A90]">다음 · 3차 문서 정밀 분석</span>
     </div>
   );
 }
@@ -3917,20 +3917,20 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
   const showRibbonCaution = ribbonStateA || ribbonStateB;
 
   const metricCardClass =
-    "flex min-h-[160px] flex-col items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-4 text-center";
+    "flex min-h-[120px] flex-col items-center justify-between rounded-[14px] border border-[#E3E8F0] bg-white px-3.5 py-4 text-center";
   const numberBadgeClass =
-    "flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold leading-none text-white";
+    "flex h-4 w-4 items-center justify-center rounded-full bg-[#071A33] text-[10px] font-bold leading-none text-white";
 
   return (
     <div className="relative overflow-visible pt-2">
       <div
-        className="grid grid-cols-1 gap-2 overflow-visible rounded-xl border border-slate-200/70 bg-slate-50/70 p-2 sm:gap-2 sm:p-2.5 md:grid-cols-5"
+        className="grid grid-cols-1 gap-2 overflow-visible rounded-xl border border-[#E3E8F0] bg-[#F7F9FC] p-2 sm:gap-2 sm:p-2.5 md:grid-cols-5"
         data-purpose="metric-flow-ribbon"
       >
         <div className={cn(metricCardClass, STITCH_CARD_SUBTLE_SHADOW)}>
           <div className="flex w-full items-center justify-between">
             <span className={numberBadgeClass}>1</span>
-            <span className="text-xs font-semibold text-slate-500">종합 위험도</span>
+            <span className="text-xs font-semibold text-[#6B7A90]">종합 위험도</span>
             <span className="w-4" aria-hidden />
           </div>
           <div className="my-auto flex flex-col items-center py-1">
@@ -3953,7 +3953,7 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
                 </span>
               </div>
             ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600">
                 <StitchCheckIcon className="h-4 w-4" />
               </div>
             )}
@@ -3966,17 +3966,17 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
               {showRibbonCaution ? "주의 수준" : "양호 수준"}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400">개인별 교차 검토 반영</span>
+          <span className="text-[11px] text-[#6B7A90]">개인별 교차 검토 반영</span>
         </div>
 
         <div className={cn(metricCardClass, STITCH_CARD_SUBTLE_SHADOW)}>
           <div className="flex w-full items-center justify-between">
             <span className={numberBadgeClass}>2</span>
-            <span className="text-xs font-semibold text-slate-500">개인 맞춤 요인</span>
+            <span className="text-xs font-semibold text-[#6B7A90]">개인 맞춤 요인</span>
             <span className="w-4" aria-hidden />
           </div>
           <div className="my-auto flex flex-col items-center py-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#C9D9FB] bg-[#F2F6FE] text-[#2563EB]">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden>
                 <path
                   d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
@@ -3990,9 +3990,9 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
                 />
               </svg>
             </div>
-            <span className="mt-1.5 text-sm font-bold text-slate-800">{data.caseClassificationLabel}</span>
+            <span className="mt-1.5 text-sm font-bold text-[#071A33]">{data.caseClassificationLabel}</span>
           </div>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-[#6B7A90]">
             {data.caseClassificationLabel?.includes("출석")
               ? "출석·소명 사건 기준"
               : "사건 유형 기준"}
@@ -4002,11 +4002,11 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
         <div className={cn(metricCardClass, STITCH_CARD_SUBTLE_SHADOW)}>
           <div className="flex w-full items-center justify-between">
             <span className={numberBadgeClass}>3</span>
-            <span className="text-xs font-semibold text-slate-500">정밀 분석 소견</span>
+            <span className="text-xs font-semibold text-[#6B7A90]">정밀 분석 소견</span>
             <span className="w-4" aria-hidden />
           </div>
           <div className="my-auto flex flex-col items-center py-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-indigo-300 bg-indigo-50/50 text-indigo-700 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-indigo-300 bg-indigo-50/50 text-indigo-700">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden>
                 <path
                   d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
@@ -4015,11 +4015,11 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
                 />
               </svg>
             </div>
-            <span className="mt-1.5 text-sm font-bold text-slate-800">
+            <span className="mt-1.5 text-sm font-bold text-[#071A33]">
               {ribbonStateC ? "부합" : "조건부 부합"}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-[#6B7A90]">
             {ribbonStateA
               ? "원본 자료 대조 필요"
               : ribbonStateB
@@ -4031,11 +4031,11 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
         <div className={cn(metricCardClass, STITCH_CARD_SUBTLE_SHADOW)}>
           <div className="flex w-full items-center justify-between">
             <span className={numberBadgeClass}>4</span>
-            <span className="text-xs font-semibold text-slate-500">추가 확인 항목</span>
+            <span className="text-xs font-semibold text-[#6B7A90]">추가 확인 항목</span>
             <span className="w-4" aria-hidden />
           </div>
           <div className="my-auto flex flex-col items-center py-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden>
                 <path
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
@@ -4044,39 +4044,39 @@ function StitchPersonalizedMetricRibbon({ data }: { data: AdminVerifyFirstResult
                 />
               </svg>
             </div>
-            <span className={cn("mt-1.5 text-sm font-bold", supplementCount > 0 ? "text-red-600" : "text-slate-800")}>
+            <span className={cn("mt-1.5 text-sm font-bold", supplementCount > 0 ? "text-red-600" : "text-[#071A33]")}>
               {supplementCount > 0 ? `${supplementCount}건 확인 필요` : "추가 확인 없음"}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-[#6B7A90]">
             {ribbonStateA
               ? personalized?.documentsNeededNote || "제출 전 원본·기재사항 대조"
               : "제출 전 원본·기재사항 대조"}
           </span>
         </div>
 
-        <div className="flex min-h-[160px] flex-col items-center justify-between rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-3.5 py-4 text-center">
+        <div className="flex min-h-[120px] flex-col items-center justify-between rounded-xl border border-dashed border-[#E3E8F0] bg-[#F7F9FC] px-3.5 py-4 text-center">
           <div className="flex w-full items-center justify-between">
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-400 text-[10px] font-bold leading-none text-white">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#071A33] text-[10px] font-bold leading-none text-white">
               5
             </span>
             <div className="flex items-center space-x-1">
-              <span className="text-[10px] font-medium text-slate-400">다음 단계</span>
-              <span className="text-xs font-bold text-slate-600">3차 실사</span>
+              <span className="text-[10px] font-medium text-[#6B7A90]">다음 단계</span>
+              <span className="text-xs font-bold text-[#3D4B63]">3차 실사</span>
             </div>
             <span className="w-4" aria-hidden />
           </div>
           <div className="my-auto flex flex-col items-center py-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E3E8F0] bg-white text-[#6B7A90]">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden>
                 <path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <div className="mt-1.5 rounded-full border border-dashed border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
+            <div className="mt-1.5 rounded-full border border-dashed border-[#C9D9FB] bg-[#F2F6FE] px-2 py-0.5 text-[10px] font-semibold text-[#2563EB]">
               문서 원본 AI 실사
             </div>
           </div>
-          <span className="text-[11px] text-slate-400">법적 실무 리스크 대조</span>
+          <span className="text-[11px] text-[#6B7A90]">법적 실무 리스크 대조</span>
         </div>
       </div>
     </div>
@@ -4091,12 +4091,12 @@ function stitchPersonalizedKeyConfirmationBadge(tier: KeyMetricBadgeTier): {
     case "missing":
       return {
         label: "미확인",
-        className: "bg-slate-50 text-slate-600 border border-slate-200",
+        className: "bg-[#F7F9FC] text-[#3D4B63] border border-[#E3E8F0]",
       };
     case "unconfirmed":
       return {
         label: "추가 확인",
-        className: "bg-blue-50 text-blue-600 border border-blue-200",
+        className: "bg-[#F2F6FE] text-[#2563EB] border border-[#C9D9FB]",
       };
     case "caution":
       return {
@@ -4122,21 +4122,21 @@ function StitchPersonalizedKeyConfirmationCard({
   const badge = stitchPersonalizedKeyConfirmationBadge(badgeTier);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5">
+    <div className="rounded-xl border border-[#E3E8F0] bg-white p-3 sm:p-3.5">
       <div className="mb-1.5 flex items-start justify-between gap-2">
-        <span className="min-w-0 text-[11px] font-medium text-slate-400">{metric.label}</span>
+        <span className="min-w-0 text-[11px] font-medium text-[#6B7A90]">{metric.label}</span>
         <span className={cn("shrink-0 px-2.5 py-1 text-xs font-semibold rounded", badge.className)}>
           {badge.label}
         </span>
       </div>
       <div className="min-w-0 space-y-0.5">
-        <span className={cn("block text-sm font-bold text-slate-800", FIRST_RESULT_READABLE_CLASS)}>
+        <span className={cn("block text-sm font-bold text-[#071A33]", FIRST_RESULT_READABLE_CLASS)}>
           {metric.title}
         </span>
         {metric.footnote?.trim() ? (
           <span
             className={cn(
-              "block text-[11px] font-normal leading-snug text-slate-500",
+              "block text-[11px] font-normal leading-snug text-[#6B7A90]",
               FIRST_RESULT_READABLE_CLASS,
             )}
           >
@@ -4175,29 +4175,29 @@ function VerifyResultActionArrowIcon() {
 function VerifyResultActionCardBadge({ tone }: { tone: VerifyResultActionCardTone }) {
   if (tone === "report") {
     return (
-      <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600">
-        <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden />
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-[#C9D9FB] bg-[#F2F6FE] px-2.5 py-0.5 text-xs font-semibold text-[#2563EB]">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#2563EB]" aria-hidden />
         정밀 리포트
       </div>
     );
   }
   if (tone === "expert") {
     return (
-      <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-        <span className="h-1.5 w-1.5 rounded-full bg-slate-500" aria-hidden />
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E3E8F0] bg-[#F2F5FA] px-2.5 py-0.5 text-xs font-semibold text-[#3D4B63]">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#071A33]" aria-hidden />
         전문가 자문
       </div>
     );
   }
   if (tone === "free") {
     return (
-      <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E3E8F0] bg-[#F7F9FC] px-2.5 py-0.5 text-xs font-semibold text-[#3D4B63]">
         무료
       </div>
     );
   }
   return (
-    <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+    <div className="inline-flex items-center gap-1.5 rounded-full border border-[#C9D9FB] bg-[#F2F6FE] px-2.5 py-0.5 text-xs font-semibold text-[#1D4ED8]">
       유료
     </div>
   );
@@ -4220,24 +4220,24 @@ function VerifyResultDualActionCards({
     <div className={cn("pt-2", className)} data-purpose="action-selection-section">
       <div className="mb-4">
         <div className="flex items-center space-x-2">
-          <span className="text-xs font-bold uppercase tracking-tight text-slate-400">{sectionLabel}</span>
+          <span className="text-xs font-bold uppercase tracking-tight text-[#6B7A90]">{sectionLabel}</span>
         </div>
-        <h3 className="mt-1 text-base font-bold tracking-tight text-slate-900 sm:text-lg">{headline}</h3>
-        <p className="mt-0.5 text-xs font-normal text-slate-500 sm:text-sm">{subcopy}</p>
+        <h3 className="mt-1 text-base font-bold tracking-tight text-[#071A33] sm:text-lg">{headline}</h3>
+        <p className="mt-0.5 text-xs font-normal text-[#6B7A90] sm:text-sm">{subcopy}</p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {cards.map((card) => (
           <div
             key={card.title}
             className={cn(
-              "flex flex-col justify-between rounded-xl border border-slate-300 bg-white p-6",
+              "flex flex-col justify-between rounded-[14px] border border-[#E3E8F0] bg-white p-5",
               STITCH_CARD_SUBTLE_SHADOW,
             )}
           >
             <div className="mb-6 space-y-3">
               <VerifyResultActionCardBadge tone={card.tone} />
-              <h4 className="text-lg font-bold tracking-tight text-slate-900">{card.title}</h4>
-              <p className="text-xs font-normal leading-relaxed text-slate-600 sm:text-sm">{card.description}</p>
+              <h4 className="text-lg font-bold tracking-tight text-[#071A33]">{card.title}</h4>
+              <p className="text-xs font-normal leading-relaxed text-[#3D4B63] sm:text-sm">{card.description}</p>
             </div>
             <div className="space-y-2">
               <button
@@ -4245,10 +4245,10 @@ function VerifyResultDualActionCards({
                 onClick={card.onClick}
                 disabled={card.disabled || card.loading}
                 className={cn(
-                  "inline-flex w-full items-center justify-center rounded-md px-5 py-3 text-sm font-semibold shadow-sm transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70",
+                  "inline-flex w-full items-center justify-center gap-2 rounded-[10px] px-5 py-3 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70",
                   card.buttonVariant === "secondary"
-                    ? "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
-                    : "space-x-2 bg-slate-900 text-white hover:bg-slate-800",
+                    ? "border border-[#2563EB] bg-white text-[#2563EB] hover:bg-[#F2F6FE]"
+                    : "space-x-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8]",
                 )}
               >
                 {card.loading ? (
@@ -4257,7 +4257,14 @@ function VerifyResultDualActionCards({
                   <>
                     <span>{card.buttonLabel}</span>
                     {card.buttonBadge ? (
-                      <span className="rounded border border-blue-200/80 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700">
+                      <span
+                        className={cn(
+                          "rounded px-1.5 py-0.5 text-[10px] font-semibold",
+                          card.buttonVariant === "secondary"
+                            ? "bg-[#F2F6FE] text-[#2563EB]"
+                            : "bg-white/20 text-white",
+                        )}
+                      >
                         {card.buttonBadge}
                       </span>
                     ) : null}
@@ -4370,14 +4377,14 @@ function AdminVerifyPersonalizedNextSteps({
                 : "2차 검토 데이터를 바탕으로 최종 AI 리포트를 요청하거나 전문가 검토로 연계할 수 있습니다.")
         }
         cards={cards}
-        className="border-t border-slate-100 pt-5"
+        className="border-t border-[#E3E8F0] pt-5"
       />
       {onDirect ? (
-        <div className="mt-4 flex justify-center border-t border-slate-100 pt-4">
+        <div className="mt-4 flex justify-center border-t border-[#E3E8F0] pt-4">
           <button
             type="button"
             onClick={() => onDirect()}
-            className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
+            className="text-sm font-medium text-[#3D4B63] underline-offset-2 hover:text-[#071A33] hover:underline"
           >
             자세히 보기
           </button>
@@ -4390,13 +4397,13 @@ function AdminVerifyPersonalizedNextSteps({
 function VerifyFirstResultAiSummaryPanel({ data }: { data: AdminVerifyFirstResultData }) {
   const summary = buildVerifyFirstResultAiSummary(data);
   return (
-    <div className="mt-4 rounded-lg border border-slate-200/80 bg-slate-50/60 p-4 sm:p-5">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AI 정리</p>
-      <p className="mt-2 text-base font-bold leading-snug text-slate-900">{summary.headline}</p>
+    <div className="mt-4 rounded-lg border border-[#E3E8F0] bg-[#F7F9FC] p-4 sm:p-5">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#6B7A90]">AI 정리</p>
+      <p className="mt-2 text-base font-bold leading-snug text-[#071A33]">{summary.headline}</p>
       {summary.paragraphs.map((paragraph) => (
         <p
           key={paragraph.slice(0, 48)}
-          className={cn("mt-2 text-sm leading-relaxed text-slate-700", FIRST_RESULT_READABLE_CLASS)}
+          className={cn("mt-2 text-sm leading-relaxed text-[#3D4B63]", FIRST_RESULT_READABLE_CLASS)}
         >
           {paragraph}
         </p>
@@ -4404,8 +4411,8 @@ function VerifyFirstResultAiSummaryPanel({ data }: { data: AdminVerifyFirstResul
       {summary.bullets.length > 0 ? (
         <ul className="mt-3 space-y-1.5">
           {summary.bullets.map((bullet) => (
-            <li key={bullet.slice(0, 48)} className="flex gap-2 text-sm text-slate-700">
-              <span className="text-slate-400" aria-hidden>
+            <li key={bullet.slice(0, 48)} className="flex gap-2 text-sm text-[#3D4B63]">
+              <span className="text-[#6B7A90]" aria-hidden>
                 ·
               </span>
               <span>{bullet}</span>
@@ -4450,9 +4457,9 @@ function VerifyFirstResultTransitionSection({
   };
 
   const transitionNotice = (
-    <div className="mt-5 flex items-center gap-2 border-t border-slate-100/80 pt-3.5 lg:mt-4 lg:pt-3">
-      <span className="text-[11px] font-medium text-slate-400 lg:text-[10px]">안내:</span>
-      <p className="text-xs text-slate-400 lg:text-[11px] lg:leading-relaxed">
+    <div className="mt-5 flex items-center gap-2 border-t border-[#E3E8F0] pt-3.5 lg:mt-4 lg:pt-3">
+      <span className="shrink-0 whitespace-nowrap text-[11px] font-medium text-[#6B7A90] lg:text-[10px]">안내:</span>
+      <p className="text-xs text-[#6B7A90] lg:text-[11px] lg:leading-relaxed">
         검토 범위·서류 유형에 따라 비용이 발생할 수 있습니다. 가격은 별도 안내 없이 진행 방식만
         선택합니다.
       </p>
@@ -4460,7 +4467,7 @@ function VerifyFirstResultTransitionSection({
   );
 
   return (
-    <section className="border-t border-slate-100 pt-6 lg:pt-5" data-purpose="admin-first-result-transition">
+    <section className="border-t border-[#E3E8F0] pt-6 lg:pt-5" data-purpose="admin-first-result-transition">
       <VerifyResultDualActionCards
         sectionLabel="다음 단계"
         headline={transitionHooks.hookHeadline}
@@ -4476,6 +4483,7 @@ function VerifyFirstResultTransitionSection({
             loading: aiSummaryNavigating,
             loadingLabel: "이동 중...",
             buttonVariant: "secondary",
+            buttonBadge: "무료",
           },
           {
             tone: "paid",
@@ -4535,7 +4543,7 @@ function VerifyResultServiceLinks({
         <Link
           key={`${item.targetServiceEntryPath}:${item.label}`}
           href={item.targetServiceEntryPath.trim()}
-          className="inline-flex w-full items-center justify-center break-keep rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition-all hover:bg-slate-50 sm:w-auto"
+          className="inline-flex w-full items-center justify-center break-keep rounded-lg border border-[#E3E8F0] bg-white px-5 py-3 text-sm font-semibold text-[#071A33] transition-all hover:bg-[#F7F9FC] sm:w-auto"
         >
           {item.label.trim()}
         </Link>
@@ -4631,9 +4639,9 @@ export function AdminVerifyFirstResultPanel({
   const displaySituationSummary = refineParagraph(data.situationSummary);
 
   const ctaPrimaryClasses =
-    "inline-flex items-center justify-center rounded-lg bg-[#0f172a] px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-slate-800 lg:px-6 lg:py-2.5 lg:text-[13px] lg:shadow-none";
+    "inline-flex items-center justify-center rounded-lg bg-[#0f172a] px-7 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#071A33] lg:px-6 lg:py-2.5 lg:text-[13px] lg:shadow-none";
   const ctaSecondaryClasses =
-    "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 lg:px-5 lg:py-2.5 lg:text-[13px] lg:shadow-none";
+    "inline-flex items-center justify-center rounded-lg border border-[#E3E8F0] bg-white px-6 py-3.5 text-sm font-semibold text-[#3D4B63] transition-all hover:bg-[#F7F9FC] disabled:cursor-not-allowed disabled:opacity-70 lg:px-5 lg:py-2.5 lg:text-[13px] lg:shadow-none";
 
   if (isPersonalized && personalized) {
     const phase1RiskText =
@@ -4702,53 +4710,53 @@ export function AdminVerifyFirstResultPanel({
         <div className="mx-auto w-full max-w-[960px] px-4 sm:px-6">
           <VerifyResultUrgentNotice text={contentSlots?.urgentNotice} className="mb-4" />
           <div className="mb-7" data-purpose="page-title-area">
-            <div className="mb-1.5 flex items-center space-x-1.5 text-xs font-medium text-slate-400">
+            <div className="mb-1.5 flex items-center space-x-1.5 text-xs font-medium text-[#6B7A90]">
               <span>{pageMetaLabel}</span>
               <span>·</span>
               <span>{pageMetaSuffix}</span>
               <span>·</span>
-              <span className="font-semibold text-blue-600">{breadcrumbPhase}</span>
+              <span className="font-semibold text-[#2563EB]">{breadcrumbPhase}</span>
             </div>
-            <h1 className="mb-1.5 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{resultTitle}</h1>
+            <h1 className="mb-1.5 text-2xl font-bold tracking-tight text-[#071A33] sm:text-3xl">{resultTitle}</h1>
           </div>
 
           <section
             className={cn(
-              "space-y-6 rounded-2xl border border-slate-200/90 bg-white p-4 sm:space-y-8 sm:p-9",
+              "space-y-6 rounded-2xl border border-[#E3E8F0] bg-white p-4 sm:space-y-8 sm:p-9",
               STITCH_ELEVATED_SHADOW,
             )}
             data-purpose="primary-result-card"
           >
-          <div className="border-b border-slate-100 pb-5">
+          <div className="border-b border-[#E3E8F0] pb-5">
             <div className="mb-3 flex flex-col gap-2 sm:mb-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
-              <div className="flex items-center space-x-1.5 text-xs font-semibold text-slate-500">
+              <div className="flex items-center space-x-1.5 text-xs font-semibold text-[#6B7A90]">
                 <span>{breadcrumbService}</span>
-                <span className="text-slate-300">/</span>
-                <span className="font-bold text-blue-600">{breadcrumbPhase}</span>
+                <span className="text-[#6B7A90]">/</span>
+                <span className="font-bold text-[#2563EB]">{breadcrumbPhase}</span>
               </div>
               <AdminVerifyPersonalizedStitchHeaderSteps />
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-[22px]">{resultIntro}</h2>
-            <p className="mt-1 text-xs font-normal text-slate-500 sm:text-sm">
+            <h2 className="text-xl font-bold tracking-tight text-[#071A33] sm:text-[22px]">{resultIntro}</h2>
+            <p className="mt-1 text-xs font-normal text-[#6B7A90] sm:text-sm">
               {personalizedIntroSubtitle}
             </p>
           </div>
 
           <StitchPersonalizedMetricRibbon data={data} />
 
-          <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-6" data-purpose="ai-analysis-details">
-            <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <div className="rounded-xl border border-[#E3E8F0] bg-white p-3 sm:p-6" data-purpose="ai-analysis-details">
+            <div className="flex flex-col gap-3 border-b border-[#E3E8F0] pb-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2.5">
-                <span className="w-fit shrink-0 rounded bg-slate-900 px-2 py-0.5 text-xs font-bold tracking-wide text-white">
+                <span className="w-fit shrink-0 rounded bg-[#071A33] px-2 py-0.5 text-xs font-bold tracking-wide text-white">
                   2차 검토
                 </span>
-                <h3 className={cn("text-base font-bold text-slate-900", FIRST_RESULT_READABLE_CLASS)}>
+                <h3 className={cn("text-base font-bold text-[#071A33]", FIRST_RESULT_READABLE_CLASS)}>
                   2차 개인화 정밀 소견
                 </h3>
               </div>
               <span
                 className={cn(
-                  "shrink-0 text-xs font-medium text-slate-400 sm:max-w-[14rem] sm:text-right lg:max-w-none lg:text-left",
+                  "shrink-0 text-xs font-medium text-[#6B7A90] sm:max-w-[14rem] sm:text-right lg:max-w-none lg:text-left",
                   FIRST_RESULT_READABLE_CLASS,
                 )}
               >
@@ -4757,14 +4765,14 @@ export function AdminVerifyFirstResultPanel({
             </div>
 
             <div className="pt-4 sm:pt-5">
-              <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 sm:p-5">
+              <div className="rounded-xl border border-[#E3E8F0] bg-[#F7F9FC] p-3 sm:p-5">
                 <div className="mb-2 flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:gap-2">
-                  <span className="w-fit shrink-0 whitespace-nowrap rounded border border-slate-200 bg-white px-2 py-0.5 text-xs font-bold text-slate-800">
+                  <span className="w-fit shrink-0 whitespace-nowrap rounded border border-[#E3E8F0] bg-white px-2 py-0.5 text-xs font-bold text-[#071A33]">
                     {section01Label}
                   </span>
                   <span
                     className={cn(
-                      "text-xs font-medium text-slate-500",
+                      "text-xs font-medium text-[#6B7A90]",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -4773,20 +4781,20 @@ export function AdminVerifyFirstResultPanel({
                 </div>
                 <p
                   className={cn(
-                    "text-sm font-medium leading-relaxed text-slate-800",
+                    "text-sm font-medium leading-relaxed text-[#071A33]",
                     FIRST_RESULT_READABLE_CLASS,
                   )}
                 >
                   {personalized.integratedSituation}
                 </p>
                 {!isRealEstate && data.adminResponseSummaryLines?.length ? (
-                  <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
-                    <p className="text-xs font-semibold text-slate-700">응답 요약</p>
+                  <div className="mt-3 space-y-1 border-t border-[#E3E8F0] pt-3">
+                    <p className="text-xs font-semibold text-[#3D4B63]">응답 요약</p>
                     {data.adminResponseSummaryLines.map((line) => (
                       <p
                         key={line}
                         className={cn(
-                          "text-xs font-normal leading-snug text-slate-600 sm:text-[13px]",
+                          "text-xs font-normal leading-snug text-[#3D4B63] sm:text-[13px]",
                           FIRST_RESULT_READABLE_CLASS,
                         )}
                       >
@@ -4799,14 +4807,14 @@ export function AdminVerifyFirstResultPanel({
             </div>
 
             <div className="pt-5" data-purpose="key-confirmation-section">
-              <span className="mb-2.5 block text-xs font-bold uppercase tracking-tight text-slate-400">
+              <span className="mb-2.5 block text-xs font-bold uppercase tracking-tight text-[#6B7A90]">
                 {section02Label}
               </span>
               {isRealEstate && personalized.coreJudgment ? (
-                <div className="mb-4 rounded-lg border border-slate-200/70 bg-white p-3.5 sm:p-4">
+                <div className="mb-4 rounded-lg border border-[#E3E8F0] bg-white p-3.5 sm:p-4">
                   <p
                     className={cn(
-                      "text-sm font-medium leading-relaxed text-slate-800",
+                      "text-sm font-medium leading-relaxed text-[#071A33]",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -4831,16 +4839,16 @@ export function AdminVerifyFirstResultPanel({
               </div>
             </div>
 
-            <div className="border-t border-slate-100 pt-5">
-              <span className="mb-2.5 block text-xs font-bold uppercase tracking-tight text-slate-400">
+            <div className="border-t border-[#E3E8F0] pt-5">
+              <span className="mb-2.5 block text-xs font-bold uppercase tracking-tight text-[#6B7A90]">
                 03 주요 위험 요인
               </span>
               <div className="space-y-2.5">
-                <div className="flex flex-col gap-1.5 rounded-lg border border-slate-200/70 bg-slate-50/60 p-3 sm:flex-row sm:items-start sm:gap-3">
-                  <span className="shrink-0 text-xs font-bold text-slate-600 sm:min-w-[4.5rem]">1차 확인:</span>
+                <div className="flex flex-col gap-1.5 rounded-lg border border-[#E3E8F0] bg-[#F7F9FC] p-3 sm:flex-row sm:items-start sm:gap-3">
+                  <span className="shrink-0 text-xs font-bold text-[#3D4B63] sm:min-w-[4.5rem]">1차 확인:</span>
                   <span
                     className={cn(
-                      "text-xs text-slate-600 sm:text-sm",
+                      "text-xs text-[#3D4B63] sm:text-sm",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -4852,7 +4860,7 @@ export function AdminVerifyFirstResultPanel({
                   <span className="shrink-0 text-xs font-bold text-amber-700 sm:min-w-[4.5rem]">2차 추가:</span>
                   <span
                     className={cn(
-                      "text-xs font-medium leading-relaxed text-slate-800 sm:text-sm",
+                      "text-xs font-medium leading-relaxed text-[#071A33] sm:text-sm",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -4863,13 +4871,13 @@ export function AdminVerifyFirstResultPanel({
               </div>
             </div>
 
-            <div className="border-t border-slate-100 pt-5">
+            <div className="border-t border-[#E3E8F0] pt-5">
               <div className="mb-2.5 flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-tight text-slate-400">
+                <span className="text-xs font-bold uppercase tracking-tight text-[#6B7A90]">
                   04 확인이 필요한 사항
                 </span>
                 {data.unconfirmed.length > 0 ? (
-                  <span className="text-[11px] font-medium text-blue-600">
+                  <span className="text-[11px] font-medium text-[#2563EB]">
                     실제 문서 원본 확인 시 확정 판정 가능
                   </span>
                 ) : null}
@@ -4879,18 +4887,18 @@ export function AdminVerifyFirstResultPanel({
                   {data.unconfirmed.slice(0, 3).map((item, index) => (
                     <div
                       key={item}
-                      className="rounded-lg border border-slate-200 bg-slate-50/40 p-3.5"
+                      className="rounded-lg border border-[#E3E8F0] bg-[#F7F9FC] p-3.5"
                     >
                       {!showUnconfirmedColumnHeading ? (
-                        <p className={cn("leading-relaxed text-slate-500", FIRST_RESULT_READABLE_CLASS)}>
+                        <p className={cn("leading-relaxed text-[#6B7A90]", FIRST_RESULT_READABLE_CLASS)}>
                           {item}
                         </p>
                       ) : (
                         <>
-                          <span className="mb-1 block text-xs font-bold text-slate-800">
+                          <span className="mb-1 block text-xs font-bold text-[#071A33]">
                             {unconfirmedColumnLabels[index] ?? "추가 확인"}
                           </span>
-                          <p className={cn("leading-relaxed text-slate-500", FIRST_RESULT_READABLE_CLASS)}>
+                          <p className={cn("leading-relaxed text-[#6B7A90]", FIRST_RESULT_READABLE_CLASS)}>
                             {item}
                           </p>
                         </>
@@ -4899,10 +4907,10 @@ export function AdminVerifyFirstResultPanel({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-slate-200 bg-slate-50/40 p-3.5">
+                <div className="rounded-lg border border-[#E3E8F0] bg-[#F7F9FC] p-3.5">
                   <p
                     className={cn(
-                      "text-sm leading-relaxed text-slate-500",
+                      "text-sm leading-relaxed text-[#6B7A90]",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -4919,11 +4927,11 @@ export function AdminVerifyFirstResultPanel({
             <div className="pt-2" data-purpose="real-estate-personalized-actions">
               <div className="mb-4">
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-bold uppercase tracking-tight text-slate-400">
+                  <span className="text-xs font-bold uppercase tracking-tight text-[#6B7A90]">
                     {section05Label}
                   </span>
                 </div>
-                <h3 className="mt-1 text-base font-bold tracking-tight text-slate-900 sm:text-lg">
+                <h3 className="mt-1 text-base font-bold tracking-tight text-[#071A33] sm:text-lg">
                   {section05Title}
                 </h3>
               </div>
@@ -4931,9 +4939,9 @@ export function AdminVerifyFirstResultPanel({
                 {data.actions.map((action) => (
                   <li
                     key={action}
-                    className="flex items-start gap-2.5 rounded-lg border border-slate-200/80 bg-slate-50/60 px-3.5 py-3 text-sm leading-relaxed text-slate-700"
+                    className="flex items-start gap-2.5 rounded-lg border border-[#E3E8F0] bg-[#F7F9FC] px-3.5 py-3 text-sm leading-relaxed text-[#3D4B63]"
                   >
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-900" aria-hidden />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#071A33]" aria-hidden />
                     <span className={FIRST_RESULT_READABLE_CLASS}>{action}</span>
                   </li>
                 ))}
@@ -4971,7 +4979,7 @@ export function AdminVerifyFirstResultPanel({
     >
       <section className="flex flex-col gap-3.5 lg:gap-3">
         <VerifyResultUrgentNotice text={contentSlots?.urgentNotice} />
-        <div className="flex flex-wrap items-center justify-between border-b border-slate-200/80 pb-3 text-xs text-slate-500 lg:pb-2 lg:text-[11px]">
+        <div className="flex flex-wrap items-center justify-between border-b border-[#E3E8F0] pb-3 text-xs text-[#6B7A90] lg:pb-2 lg:text-[11px]">
           <div className="flex items-center gap-1.5">
             {filledIdentityText(identity?.serviceDisplayName) ? (
               <>
@@ -4983,21 +4991,21 @@ export function AdminVerifyFirstResultPanel({
             <span>·</span>
             <span>{data.stageLabel}</span>
             <span>&gt;</span>
-            <span className="text-slate-800 font-medium">{resultTitle}</span>
+            <span className="text-[#071A33] font-medium">{resultTitle}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-slate-400 lg:gap-2 lg:text-[10px]">
+          <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-[#6B7A90] lg:gap-2 lg:text-[10px]">
             <span>사건 유형: {data.caseClassificationLabel}</span>
             <span>|</span>
             <span>기준일: {data.referenceDateLabel}</span>
           </div>
         </div>
         <div className="mt-1 lg:mt-0">
-          <h1 className="text-2xl font-bold leading-snug tracking-tight text-slate-900 sm:text-[28px] lg:text-[22px]">
+          <h1 className="text-2xl font-bold leading-snug tracking-tight text-[#071A33] sm:text-[28px] lg:text-[22px]">
             {resultTitle}
           </h1>
           <p
             className={cn(
-              "mt-2 text-sm text-slate-600 sm:text-[15px] lg:mt-1 lg:text-[13px]",
+              "mt-2 text-sm text-[#3D4B63] sm:text-[15px] lg:mt-1 lg:text-[13px]",
               FIRST_RESULT_READABLE_CLASS,
             )}
           >
@@ -5016,14 +5024,14 @@ export function AdminVerifyFirstResultPanel({
             </span>
           }
           meta={
-            <span className="font-mono text-xs font-medium text-slate-500 lg:text-[10px]">
+            <span className="font-mono text-xs font-medium text-[#6B7A90] lg:text-[10px]">
               {data.neutralFirstResult ? "SITUATION SUMMARY" : "ANALYSIS VERDICT"}
             </span>
           }
         />
         <div
           className={cn(
-            "rounded-xl border p-6 shadow-sm sm:p-7 lg:rounded-lg lg:p-6 lg:shadow-none",
+            "rounded-xl border p-6 sm:p-7 lg:rounded-lg lg:p-6 lg:shadow-none",
             isCaution
               ? "border-amber-200/70 bg-gradient-to-r from-amber-50/90 via-[#fffbeb] to-white lg:border-amber-200/80"
               : "border-emerald-200/70 bg-gradient-to-r from-emerald-50/90 via-white to-white lg:border-emerald-200/80",
@@ -5031,7 +5039,7 @@ export function AdminVerifyFirstResultPanel({
         >
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center lg:gap-5">
             <div className="flex-1">
-              <div className="flex items-center gap-3 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl lg:gap-2.5 lg:text-lg lg:font-medium">
+              <div className="flex items-center gap-3 text-xl font-bold tracking-tight text-[#071A33] sm:text-2xl lg:gap-2.5 lg:text-lg lg:font-medium">
                 <span
                   className={cn(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-lg leading-none lg:h-7 lg:w-7 lg:text-base",
@@ -5046,13 +5054,13 @@ export function AdminVerifyFirstResultPanel({
                 <h3 className={FIRST_RESULT_READABLE_CLASS}>{displayStatusHeadline}</h3>
               </div>
               {data.adminResponseSummaryLines?.length ? (
-                <div className="mt-3 space-y-1 border-t border-slate-200/80 pt-3">
-                  <p className="text-xs font-semibold text-slate-700">응답 요약</p>
+                <div className="mt-3 space-y-1 border-t border-[#E3E8F0] pt-3">
+                  <p className="text-xs font-semibold text-[#3D4B63]">응답 요약</p>
                   {data.adminResponseSummaryLines.map((line) => (
                     <p
                       key={line}
                       className={cn(
-                        "text-[12px] font-normal leading-snug text-slate-500 sm:text-[13px]",
+                        "text-[12px] font-normal leading-snug text-[#6B7A90] sm:text-[13px]",
                         FIRST_RESULT_READABLE_CLASS,
                       )}
                     >
@@ -5063,7 +5071,7 @@ export function AdminVerifyFirstResultPanel({
               ) : null}
               <p
                 className={cn(
-                  "mt-3 text-sm font-normal text-slate-700 sm:mt-3.5 sm:text-[15px] lg:mt-2.5 lg:text-[13px] lg:text-slate-600",
+                  "mt-3 text-sm font-normal text-[#3D4B63] sm:mt-3.5 sm:text-[15px] lg:mt-2.5 lg:text-[13px] lg:text-[#3D4B63]",
                   FIRST_RESULT_READABLE_CLASS,
                 )}
               >
@@ -5073,12 +5081,12 @@ export function AdminVerifyFirstResultPanel({
             {data.neutralFirstResult ? null : (
             <div
               className={cn(
-                "flex min-w-[220px] shrink-0 flex-col justify-center rounded-lg border bg-white p-5 shadow-sm lg:min-w-[190px] lg:p-4 lg:shadow-none",
+                "flex min-w-[220px] shrink-0 flex-col justify-center rounded-lg border bg-white p-5 lg:min-w-[190px] lg:p-4 lg:shadow-none",
                 isCaution ? "border-amber-200/70 lg:border-amber-200/60" : "border-emerald-200/70 lg:border-emerald-200/60",
               )}
             >
               <div className="mb-2.5 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between lg:mb-1.5">
-                <span className="shrink-0 font-medium text-slate-500 lg:text-[11px]">주의 판독 등급</span>
+                <span className="shrink-0 font-medium text-[#6B7A90] lg:text-[11px]">주의 판독 등급</span>
                 <span
                   className={cn(
                     "inline-flex w-fit max-w-full items-center gap-1 whitespace-nowrap rounded border px-2.5 py-1 text-xs font-bold lg:px-2 lg:py-0.5 lg:text-[10px] lg:font-medium",
@@ -5091,9 +5099,9 @@ export function AdminVerifyFirstResultPanel({
                 </span>
               </div>
               <SegmentMeter filled={data.gradeFilled} tone={data.statusTone} />
-              <div className="mt-2.5 flex items-center justify-between border-t border-slate-100/80 pt-2.5 text-[11px] text-slate-400 lg:mt-1.5 lg:pt-1.5 lg:text-[10px]">
+              <div className="mt-2.5 flex items-center justify-between border-t border-[#E3E8F0] pt-2.5 text-[11px] text-[#6B7A90] lg:mt-1.5 lg:pt-1.5 lg:text-[10px]">
                 <span>입력 답변 기반 판독</span>
-                <span className="font-mono font-medium text-slate-600 lg:font-normal">1차 요약</span>
+                <span className="font-mono font-medium text-[#3D4B63] lg:font-normal">1차 요약</span>
               </div>
             </div>
             )}
@@ -5113,7 +5121,7 @@ export function AdminVerifyFirstResultPanel({
               : undefined
           }
           meta={
-            <span className="font-mono text-xs text-slate-500 lg:text-[10px]">입력 답변 기반 판독</span>
+            <span className="font-mono text-xs text-[#6B7A90] lg:text-[10px]">입력 답변 기반 판독</span>
           }
         />
         <div
@@ -5140,7 +5148,7 @@ export function AdminVerifyFirstResultPanel({
           title="03 / 주요 위험 요인"
           subtitle={cautionsSectionSubtitle}
           meta={
-            <span className="shrink-0 whitespace-nowrap rounded border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 lg:border-orange-300/70 lg:bg-orange-100/45 lg:px-1.5 lg:text-[10px] lg:text-orange-800">
+            <span className="shrink-0 whitespace-nowrap rounded border border-[#E3E8F0] bg-[#F2F5FA] px-2 py-0.5 text-xs font-medium text-[#3D4B63] lg:border-[#E3E8F0] lg:bg-[#F7F9FC] lg:px-1.5 lg:text-[10px] lg:text-[#3D4B63]">
               현지 실무 경험
             </span>
           }
@@ -5150,15 +5158,15 @@ export function AdminVerifyFirstResultPanel({
             data.cautions.map((caution) => (
               <div
                 key={caution}
-                className="flex items-start gap-4 rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm transition-colors hover:border-slate-300 sm:p-6 lg:gap-2.5 lg:border-orange-300/70 lg:bg-orange-50/25 lg:p-3 lg:shadow-none lg:ring-1 lg:ring-orange-200/55"
+                className="flex items-start gap-4 rounded-lg border border-[#E3E8F0] bg-white p-5 transition-colors hover:border-[#E3E8F0] sm:p-6 lg:gap-2.5 lg:border-[#E3E8F0] lg:bg-[#F7F9FC] lg:p-3 lg:shadow-none lg:ring-1 lg:ring-orange-200/55"
               >
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200/80 bg-amber-100 text-sm font-bold text-amber-700 lg:h-7 lg:w-7 lg:border-orange-300/80 lg:bg-orange-100 lg:text-orange-700 lg:text-xs lg:font-semibold">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200/80 bg-amber-100 text-sm font-bold text-amber-700 lg:h-7 lg:w-7 lg:border-[#E3E8F0] lg:bg-[#F7F9FC] lg:text-[#3D4B63] lg:text-xs lg:font-semibold">
                   !
                 </div>
                 <div className="flex-1">
                   <h4
                     className={cn(
-                      "text-sm font-semibold text-slate-900 sm:text-base lg:text-[13px] lg:font-medium lg:leading-snug",
+                      "text-sm font-semibold text-[#071A33] sm:text-base lg:text-[13px] lg:font-medium lg:leading-snug",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -5166,7 +5174,7 @@ export function AdminVerifyFirstResultPanel({
                   </h4>
                   <p
                     className={cn(
-                      "mt-2 text-xs text-slate-600 sm:text-sm lg:mt-1 lg:text-[12px] lg:font-normal lg:text-slate-500",
+                      "mt-2 text-xs text-[#3D4B63] sm:text-sm lg:mt-1 lg:text-[12px] lg:font-normal lg:text-[#6B7A90]",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -5178,14 +5186,14 @@ export function AdminVerifyFirstResultPanel({
               </div>
             ))
           ) : (
-            <div className="flex items-start gap-4 rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6 lg:gap-2.5 lg:p-3 lg:shadow-none">
+            <div className="flex items-start gap-4 rounded-lg border border-[#E3E8F0] bg-white p-5 sm:p-6 lg:gap-2.5 lg:p-3 lg:shadow-none">
               <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-200/80 bg-emerald-50 text-sm font-bold text-emerald-700 lg:h-7 lg:w-7 lg:text-xs lg:font-semibold">
                 ✓
               </div>
               <div className="flex-1">
                 <h4
                   className={cn(
-                    "text-sm font-semibold text-slate-900 sm:text-base lg:text-[13px] lg:font-medium lg:leading-snug",
+                    "text-sm font-semibold text-[#071A33] sm:text-base lg:text-[13px] lg:font-medium lg:leading-snug",
                     FIRST_RESULT_READABLE_CLASS,
                   )}
                 >
@@ -5193,7 +5201,7 @@ export function AdminVerifyFirstResultPanel({
                 </h4>
                 <p
                   className={cn(
-                    "mt-2 text-xs text-slate-600 sm:text-sm lg:mt-1 lg:text-[12px] lg:font-normal lg:text-slate-500",
+                    "mt-2 text-xs text-[#3D4B63] sm:text-sm lg:mt-1 lg:text-[12px] lg:font-normal lg:text-[#6B7A90]",
                     FIRST_RESULT_READABLE_CLASS,
                   )}
                 >
@@ -5214,7 +5222,7 @@ export function AdminVerifyFirstResultPanel({
           title="04 / 확인이 필요한 사항"
           subtitle="| 아직 서류상 확정되지 않은 항목"
           meta={
-            <span className="rounded border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 lg:px-1.5 lg:text-[10px]">
+            <span className="rounded border border-[#E3E8F0] bg-[#F2F5FA] px-2 py-0.5 text-xs font-medium text-[#3D4B63] lg:px-1.5 lg:text-[10px]">
               미확인 항목 정리
             </span>
           }
@@ -5224,13 +5232,13 @@ export function AdminVerifyFirstResultPanel({
             data.unconfirmed.map((item) => (
               <div
                 key={item}
-                className="flex min-h-[110px] flex-col justify-between rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm transition-colors hover:border-slate-300 lg:min-h-0 lg:border-slate-200/60 lg:p-3 lg:shadow-none"
+                className="flex min-h-[84px] flex-col justify-between rounded-lg border border-[#E3E8F0] bg-white p-5 transition-colors hover:border-[#E3E8F0] lg:min-h-0 lg:border-[#E3E8F0] lg:p-3 lg:shadow-none"
               >
                 <div>
                   <div className="mb-2 flex items-center justify-between lg:mb-1 lg:items-center lg:gap-1.5">
-                    <div className="flex items-start gap-2 text-sm font-semibold text-slate-900 sm:text-base lg:min-w-0 lg:flex-1 lg:gap-1 lg:text-[12px] lg:font-medium lg:leading-snug">
+                    <div className="flex items-start gap-2 text-sm font-semibold text-[#071A33] sm:text-base lg:min-w-0 lg:flex-1 lg:gap-1 lg:text-[12px] lg:font-medium lg:leading-snug">
                       <span
-                        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-slate-400 text-[10px] font-bold leading-none lg:mt-0 lg:h-3.5 lg:w-3.5 lg:text-[9px]"
+                        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-[#C9D3E3] text-[10px] font-bold leading-none lg:mt-0 lg:h-3.5 lg:w-3.5 lg:text-[9px]"
                         aria-hidden
                       />
                       <span className={FIRST_RESULT_READABLE_CLASS}>{refinePhrase(item)}</span>
@@ -5246,7 +5254,7 @@ export function AdminVerifyFirstResultPanel({
                   </div>
                   <p
                     className={cn(
-                      "mt-2 pl-6 text-xs text-slate-600 sm:text-[13px] lg:mt-1 lg:pl-5 lg:text-[11px] lg:font-normal lg:text-slate-500",
+                      "mt-2 pl-6 text-xs text-[#3D4B63] sm:text-[13px] lg:mt-1 lg:pl-5 lg:text-[11px] lg:font-normal lg:text-[#6B7A90]",
                       FIRST_RESULT_READABLE_CLASS,
                     )}
                   >
@@ -5256,10 +5264,10 @@ export function AdminVerifyFirstResultPanel({
               </div>
             ))
           ) : (
-            <div className="flex min-h-[110px] flex-col justify-between rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm lg:min-h-0 lg:border-slate-200/60 lg:p-3 lg:shadow-none">
+            <div className="flex min-h-[84px] flex-col justify-between rounded-lg border border-[#E3E8F0] bg-white p-5 lg:min-h-0 lg:border-[#E3E8F0] lg:p-3 lg:shadow-none">
               <div>
                 <div className="mb-2 flex items-center justify-between lg:mb-1">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 sm:text-base lg:gap-1.5 lg:text-[13px] lg:font-medium">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-[#071A33] sm:text-base lg:gap-1.5 lg:text-[13px] lg:font-medium">
                     <span
                       className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-emerald-400 bg-emerald-50 text-[10px] font-bold leading-none text-emerald-700 lg:h-3.5 lg:w-3.5 lg:text-[9px]"
                       aria-hidden
@@ -5272,7 +5280,7 @@ export function AdminVerifyFirstResultPanel({
                     ✓ 확인
                   </span>
                 </div>
-                <p className="mt-2 pl-6 text-xs leading-relaxed text-slate-600 sm:text-[13px] lg:mt-1 lg:pl-5 lg:text-[11px] lg:font-normal lg:leading-relaxed lg:text-slate-500">
+                <p className="mt-2 pl-6 text-xs leading-relaxed text-[#3D4B63] sm:text-[13px] lg:mt-1 lg:pl-5 lg:text-[11px] lg:font-normal lg:leading-relaxed lg:text-[#6B7A90]">
                   현재 답변 범위에서는 별도로 확인이 필요한 항목이 보이지 않습니다.
                 </p>
               </div>
@@ -5287,7 +5295,7 @@ export function AdminVerifyFirstResultPanel({
           title="05 / 지금 확인해 보세요"
           subtitle="| 대행 전 자가 확인 권장"
           meta={
-            <span className="rounded border border-slate-200/80 bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-[#0f172a] lg:px-2 lg:text-[10px]">
+            <span className="rounded border border-[#E3E8F0] bg-[#F2F5FA] px-2.5 py-0.5 text-xs font-semibold text-[#0f172a] lg:px-2 lg:text-[10px]">
               먼저 직접 확인
             </span>
           }
@@ -5296,18 +5304,18 @@ export function AdminVerifyFirstResultPanel({
           {data.actions.map((action, index) => (
             <div
               key={action}
-              className="flex min-h-[180px] flex-col justify-between rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-slate-300 sm:p-6 lg:min-h-0 lg:border-slate-200/60 lg:p-3 lg:shadow-none"
+              className="flex min-h-[120px] flex-col justify-between rounded-lg border border-[#E3E8F0] bg-white p-5 transition-all hover:border-[#E3E8F0] sm:p-6 lg:min-h-0 lg:border-[#E3E8F0] lg:p-3 lg:shadow-none"
             >
               <div>
                 <div className="mb-2.5 flex items-center justify-between lg:mb-1">
-                  <span className="rounded border border-slate-200/80 bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-bold text-[#0f172a] lg:px-1.5 lg:text-[10px] lg:font-medium">
+                  <span className="rounded border border-[#E3E8F0] bg-[#F2F5FA] px-2 py-0.5 font-mono text-[11px] font-bold text-[#0f172a] lg:px-1.5 lg:text-[10px] lg:font-medium">
                     STEP {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-mono text-[11px] text-slate-400 lg:text-[10px]">자가 확인</span>
+                  <span className="font-mono text-[11px] text-[#6B7A90] lg:text-[10px]">자가 확인</span>
                 </div>
                 <h4
                   className={cn(
-                    "mt-1 text-sm font-semibold tracking-tight text-slate-900 sm:text-base lg:mt-0 lg:text-[13px] lg:font-medium lg:leading-snug",
+                    "mt-1 text-sm font-semibold tracking-tight text-[#071A33] sm:text-base lg:mt-0 lg:text-[13px] lg:font-medium lg:leading-snug",
                     FIRST_RESULT_READABLE_CLASS,
                   )}
                 >
@@ -5315,7 +5323,7 @@ export function AdminVerifyFirstResultPanel({
                 </h4>
                 <p
                   className={cn(
-                    "mt-2 text-xs text-slate-600 sm:text-sm lg:mt-1 lg:text-[12px] lg:font-normal lg:text-slate-500",
+                    "mt-2 text-xs text-[#3D4B63] sm:text-sm lg:mt-1 lg:text-[12px] lg:font-normal lg:text-[#6B7A90]",
                     FIRST_RESULT_READABLE_CLASS,
                   )}
                 >
@@ -5324,7 +5332,7 @@ export function AdminVerifyFirstResultPanel({
                     : "먼저 직접 확인해 보시는 것을 권장합니다."}
                 </p>
               </div>
-              <div className="mt-4 flex items-center gap-1.5 border-t border-slate-100/80 pt-3.5 text-xs font-medium text-slate-500 lg:mt-2 lg:pt-2 lg:text-[11px] lg:font-normal lg:text-slate-400">
+              <div className="mt-4 flex items-center gap-1.5 border-t border-[#E3E8F0] pt-3.5 text-xs font-medium text-[#6B7A90] lg:mt-2 lg:pt-2 lg:text-[11px] lg:font-normal lg:text-[#6B7A90]">
                 <StepCheckIcon />
                 <span>대행 전 자가 확인</span>
               </div>

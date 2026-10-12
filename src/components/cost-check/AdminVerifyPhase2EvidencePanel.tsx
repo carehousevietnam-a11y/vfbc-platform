@@ -2,16 +2,18 @@
 
 import { Paperclip } from "lucide-react";
 import { PrimaryButton } from "@/components/ui";
-import {
-  VERIFY_STEP4_ATTACHED_CARD_CLASS,
-  VERIFY_STEP4_ATTACHMENT_LABEL_CLASS,
-  VerifyStep4InputStack,
-} from "@/components/ui/verifyStep4Ui";
+import { VerifyStep4InputStack } from "@/components/ui/verifyStep4Ui";
 import { cn } from "@/lib/cn";
 import type {
   VerifyMasterEvidenceContentSlots,
   VerifyServiceDomain,
 } from "@/lib/verifyMasterContentSlots";
+
+/** 메인 페이지 기준 3색(남색 #071A33 · 파랑 #2563EB · 회색 #6B7A90/#E3E8F0) */
+const ATTACH_LABEL_CLASS =
+  "mt-3 flex min-h-[48px] w-full min-w-0 cursor-pointer items-start gap-2 rounded-[12px] border border-dashed border-[#C9D3E3] bg-[#F7F9FC] px-4 py-3 text-[13.5px] text-[#3D4B63] transition-colors hover:border-[#2563EB] hover:bg-[#F2F6FE]";
+const ATTACHED_CARD_CLASS =
+  "mt-3 w-full min-w-0 rounded-[12px] border border-[#E3E8F0] bg-[#F7F9FC] px-4 py-3";
 
 const PHASE1_EXAMPLE_TAGS = [
   "공문/통지서",
@@ -124,35 +126,35 @@ export function AdminVerifyPhase2EvidencePanel({
   return (
     <section
       className={cn(
-        "rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-5 lg:rounded-lg lg:p-5 lg:shadow-none",
+        "rounded-[14px] border border-[#E3E8F0] bg-white p-5 lg:p-6",
         className,
       )}
       aria-labelledby={tierCopy.titleId}
     >
       <div className="mb-1 flex items-center gap-2">
         {serviceDisplayName ? (
-          <span className="text-[11px] font-semibold text-slate-700">{serviceDisplayName}</span>
+          <span className="text-[12px] font-semibold text-[#071A33]">{serviceDisplayName}</span>
         ) : null}
-        <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">
+        <span className="rounded-md bg-[#F2F6FE] px-2 py-0.5 text-[11px] font-semibold tracking-tight text-[#2563EB]">
           {tierCopy.badge}
         </span>
-        <span className="text-[11px] font-medium text-slate-400">선택</span>
+        <span className="text-[12px] font-medium text-[#6B7A90]">선택</span>
       </div>
       <h3
         id={tierCopy.titleId}
-        className="mt-2 break-keep text-pretty text-base font-bold leading-snug text-slate-900 [overflow-wrap:anywhere] [word-break:keep-all] sm:text-[17px] lg:text-[16px]"
+        className="mt-2 break-keep text-pretty text-[18px] font-bold leading-[1.35] tracking-[-0.02em] text-[#071A33] [overflow-wrap:anywhere] [word-break:keep-all] lg:text-[19px]"
       >
         {tierCopy.title}
       </h3>
-      <p className="mt-1.5 break-keep text-[13px] leading-relaxed text-slate-600 lg:text-[12.5px]">
+      <p className="mt-2 break-keep text-[13.5px] leading-[1.6] text-[#3D4B63]">
         {detailNote}
       </p>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="mt-4 flex flex-wrap gap-1.5">
         {tagList.map((example) => (
           <span
             key={example}
-            className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600"
+            className="rounded-full border border-[#E3E8F0] bg-white px-2.5 py-1 text-[11.5px] font-medium text-[#3D4B63]"
           >
             {example}
           </span>
@@ -163,11 +165,10 @@ export function AdminVerifyPhase2EvidencePanel({
         {!file ? (
           <label
             className={cn(
-              VERIFY_STEP4_ATTACHMENT_LABEL_CLASS,
-              "h-auto min-h-10 items-start py-2.5",
+              ATTACH_LABEL_CLASS,
             )}
           >
-            <Paperclip size={16} className="mt-0.5 shrink-0" />
+            <Paperclip size={16} className="mt-0.5 shrink-0 text-[#2563EB]" />
             <span
               className={cn(
                 "min-w-0 flex-1 break-keep text-pretty leading-snug [overflow-wrap:anywhere]",
@@ -186,26 +187,26 @@ export function AdminVerifyPhase2EvidencePanel({
             />
           </label>
         ) : (
-          <div className={VERIFY_STEP4_ATTACHED_CARD_CLASS}>
-            <p className="text-[11px] font-semibold text-gray-500">
+          <div className={ATTACHED_CARD_CLASS}>
+            <p className="text-[12px] font-semibold text-[#6B7A90]">
               {evidenceTier === "phase2" ? "선택한 2차 상세 자료" : "선택한 간단 자료"}
             </p>
             <div className="mt-1.5 flex items-center justify-between gap-3">
-              <span className="flex min-w-0 items-center gap-1.5 truncate text-sm text-gray-800">
-                <Paperclip size={14} className="shrink-0 text-gray-400" />
+              <span className="flex min-w-0 items-center gap-1.5 truncate text-[14px] text-[#071A33]">
+                <Paperclip size={14} className="shrink-0 text-[#6B7A90]" />
                 <span className="truncate">{file.name}</span>
               </span>
               <button
                 type="button"
                 onClick={() => onFileChange(null)}
-                className="shrink-0 text-xs font-medium text-gray-500 hover:text-gray-700"
+                className="shrink-0 text-[12px] font-medium text-[#6B7A90] hover:text-[#2563EB]"
               >
                 제거
               </button>
             </div>
           </div>
         )}
-        <p className="mt-2 break-keep text-[11px] leading-[1.55] text-slate-400">
+        <p className="mt-3 break-keep text-[12px] leading-[1.6] text-[#6B7A90]">
           {footerNote}
         </p>
         {attachStorageError ? (
@@ -226,8 +227,8 @@ export function AdminVerifyPhase2EvidencePanel({
         ) : null}
       </VerifyStep4InputStack>
 
-      <div className="mt-5 flex flex-wrap justify-start gap-2">
-        <PrimaryButton type="button" className="w-full max-w-none" onClick={onContinue}>
+      <div className="mt-6 flex flex-wrap justify-start gap-2">
+        <PrimaryButton type="button" className="w-full max-w-none !h-[52px] !rounded-[12px] !bg-[#2563EB] !shadow-none hover:!bg-[#1D4ED8]" onClick={onContinue}>
           {file
             ? "자료 포함하고 계속하기"
             : evidenceTier === "phase1"

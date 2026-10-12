@@ -4824,7 +4824,7 @@ export function MasterReviewQuotationReport({
               !isRealEstatePhase2Review ? (
               <header
                 className={cn(
-                  "border-b border-[#E5E7EB]",
+                  "border-b border-[#E3E8F0]",
                   "px-3.5 py-2.5 sm:px-4 sm:py-3",
                 )}
               >
@@ -4834,18 +4834,18 @@ export function MasterReviewQuotationReport({
                   )}
                 >
                   <div className="min-w-0">
-                    <p className="text-[12px] font-medium tracking-[0.06em] text-[#64748B] sm:text-[10px] sm:tracking-[0.1em]">
+                    <p className="text-[12px] font-medium tracking-[0.06em] text-[#6B7A90] sm:text-[10px] sm:tracking-[0.1em]">
                       {config.engine === "verify" ? "VFBCAI · VERIFY" : "VFBCAI · CHECK"}
                     </p>
                     <h2
                       className={cn(
-                        "mt-1 font-semibold leading-snug tracking-tight text-[#0B2A6B] sm:mt-0.5",
+                        "mt-1 font-semibold leading-snug tracking-tight text-[#071A33] sm:mt-0.5",
                         "text-[18px] sm:text-[17px]",
                       )}
                     >
                       {reportTitle}
                     </h2>
-                    <p className="mt-0.5 break-words text-[12px] font-normal leading-snug tracking-[0.02em] text-[#64748B] sm:mt-0.5 sm:text-[10px] sm:leading-relaxed sm:tracking-[0.06em]">
+                    <p className="mt-0.5 break-words text-[12px] font-normal leading-snug tracking-[0.02em] text-[#6B7A90] sm:mt-0.5 sm:text-[10px] sm:leading-relaxed sm:tracking-[0.06em]">
                       {config.engine === "verify"
                         ? "QUOTATION REPORT"
                         : `QUOTATION REPORT · ${reportShortLabel}`}
