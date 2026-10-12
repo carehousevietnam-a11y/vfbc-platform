@@ -3408,7 +3408,8 @@ export function MasterReviewQuotationReport({
       question.kind === "choice" &&
       isPackVerifyStitchLayout &&
       ((question.id.startsWith("fraud_") && question.id !== "fraud_entry") ||
-        (question.id.startsWith("unclear_") && question.id !== "unclear_entry"))
+        (question.id.startsWith("unclear_") && question.id !== "unclear_entry") ||
+        question.id.startsWith("trc_q"))
     ) {
       return renderAdminClassifiedChoiceQuestion(
         question as ReviewQuestion & {
