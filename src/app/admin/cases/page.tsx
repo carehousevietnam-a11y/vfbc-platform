@@ -80,6 +80,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_wp: "노동허가 직접 확인",
   verify_tamtru: "임시 거주 신고 직접 확인",
   verify_license: "운전면허 전환 직접 확인",
+  verify_company: "법인설립 직접 인허가 받기",
 };
 
 function getServiceLabel(serviceType: string) {
@@ -127,6 +128,7 @@ function getServiceIcon(serviceType: string) {
   if (key.startsWith("verify_wp")) return "💼";
   if (key.startsWith("verify_tamtru")) return "🏠";
   if (key.startsWith("verify_license")) return "🚗";
+  if (key.startsWith("verify_company")) return "🏢";
   if (key === "consultation") return "💬";
   return "📌";
 }

@@ -21,6 +21,7 @@ export type DocumentServiceKey =
   | "verify_wp"
   | "verify_tamtru"
   | "verify_license"
+  | "verify_company"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -140,6 +141,17 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_company: {
+    serviceKey: "verify_company",
+    serviceLabel: "법인설립 직접 인허가 받기",
+    documents: ["여권 또는 본사 법인 서류", "사무실 임대 계약서"],
+    optionalDocuments: [
+      "자금 증빙(잔고 증명·재무제표)",
+      "서류 인증·번역본",
+      "대표자 서류",
       "기타 참고자료",
     ],
   },

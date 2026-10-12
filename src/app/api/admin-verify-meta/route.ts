@@ -20,6 +20,7 @@ const TRC_VERIFY_SERVICE_TYPE = "verify_trc";
 const WP_VERIFY_SERVICE_TYPE = "verify_wp";
 const TAMTRU_VERIFY_SERVICE_TYPE = "verify_tamtru";
 const LICENSE_VERIFY_SERVICE_TYPE = "verify_license";
+const COMPANY_VERIFY_SERVICE_TYPE = "verify_company";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -114,6 +115,17 @@ const LICENSE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "license_pack_case_id",
   "license_pack_phase2_summary",
   "license_pack_headline",
+]);
+
+const COMPANY_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "company_pack_v1",
+  "company_pack_case_id",
+  "company_pack_phase2_summary",
+  "company_pack_headline",
 ]);
 
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
@@ -220,7 +232,8 @@ export async function POST(req: NextRequest) {
     const isWpLead = lead.service_type === WP_VERIFY_SERVICE_TYPE;
     const isTamtruLead = lead.service_type === TAMTRU_VERIFY_SERVICE_TYPE;
     const isLicenseLead = lead.service_type === LICENSE_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead && !isLicenseLead) {
+    const isCompanyLead = lead.service_type === COMPANY_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead && !isLicenseLead && !isCompanyLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -247,7 +260,9 @@ export async function POST(req: NextRequest) {
                   ? TAMTRU_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
                   : isLicenseLead
                     ? LICENSE_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
-                    : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+                    : isCompanyLead
+                      ? COMPANY_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                      : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {

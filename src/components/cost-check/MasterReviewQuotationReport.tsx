@@ -3412,7 +3412,8 @@ export function MasterReviewQuotationReport({
         question.id.startsWith("trc_q") ||
         question.id.startsWith("wp_q") ||
         question.id.startsWith("tamtru_q") ||
-        question.id.startsWith("license_q"))
+        question.id.startsWith("license_q") ||
+        question.id.startsWith("company_q"))
     ) {
       return renderAdminClassifiedChoiceQuestion(
         question as ReviewQuestion & {

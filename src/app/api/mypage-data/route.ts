@@ -18,6 +18,7 @@ import { buildTrcVerifyMypagePackExtras } from "@/lib/contentPacks/trc/trcPack";
 import { buildWpVerifyMypagePackExtras } from "@/lib/contentPacks/wp/wpPack";
 import { buildTamtruVerifyMypagePackExtras } from "@/lib/contentPacks/tamtru/tamtruPack";
 import { buildLicenseVerifyMypagePackExtras } from "@/lib/contentPacks/license/licensePack";
+import { buildCompanyVerifyMypagePackExtras } from "@/lib/contentPacks/company/companyPack";
 import { ADMIN_VERIFY_PROFILE_PHASE_META_KEY } from "@/lib/adminVerifyProfiling";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
@@ -78,6 +79,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_wp: "노동허가 직접 확인",
   verify_tamtru: "임시 거주 신고 직접 확인",
   verify_license: "운전면허 전환 직접 확인",
+  verify_company: "법인설립 직접 인허가 받기",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",
@@ -558,7 +560,9 @@ export async function POST(req: NextRequest) {
                       ? buildTamtruVerifyMypagePackExtras(leadActivities)
                       : normalizedType === "verify_license"
                         ? buildLicenseVerifyMypagePackExtras(leadActivities)
-                        : null;
+                        : normalizedType === "verify_company"
+                          ? buildCompanyVerifyMypagePackExtras(leadActivities)
+                          : null;
 
       const adminVerifyExtras =
         normalizedType === "verify_admin"
@@ -586,7 +590,8 @@ export async function POST(req: NextRequest) {
           normalizedType === "verify_trc" ||
           normalizedType === "verify_wp" ||
           normalizedType === "verify_tamtru" ||
-          normalizedType === "verify_license") &&
+          normalizedType === "verify_license" ||
+          normalizedType === "verify_company") &&
         "phase2Complete" in adminVerifyExtras &&
         adminVerifyExtras.phase2Complete
       ) {

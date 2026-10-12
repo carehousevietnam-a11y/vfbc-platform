@@ -60,6 +60,7 @@ export const KNOWN_SERVICE_TYPES = [
   "verify_wp",
   "verify_tamtru",
   "verify_license",
+  "verify_company",
   // REGISTER
   "permit_company",
   "register_restaurant",
