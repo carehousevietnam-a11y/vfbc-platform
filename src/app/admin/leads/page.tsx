@@ -95,6 +95,7 @@ const SERVICE_LABELS: Record<string, string> = {
   verify_unclear: "불확실한 서류 검토",
   verify_trc: "거주증 직접 확인",
   verify_wp: "노동허가 직접 확인",
+  verify_tamtru: "임시 거주 신고 직접 확인",
   register_restaurant: "식당허가",
   register_cosmetics: "화장품허가",
   register_environment: "환경허가",

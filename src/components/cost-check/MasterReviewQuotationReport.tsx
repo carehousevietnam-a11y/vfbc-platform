@@ -3410,7 +3410,8 @@ export function MasterReviewQuotationReport({
       ((question.id.startsWith("fraud_") && question.id !== "fraud_entry") ||
         (question.id.startsWith("unclear_") && question.id !== "unclear_entry") ||
         question.id.startsWith("trc_q") ||
-        question.id.startsWith("wp_q"))
+        question.id.startsWith("wp_q") ||
+        question.id.startsWith("tamtru_q"))
     ) {
       return renderAdminClassifiedChoiceQuestion(
         question as ReviewQuestion & {

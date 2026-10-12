@@ -18,7 +18,8 @@ export type VerifyServiceType =
   | "verify_tax"
   | "verify_unclear"
   | "verify_trc"
-  | "verify_wp";
+  | "verify_wp"
+  | "verify_tamtru";
 
 const SERVICE_TYPE_ALIASES: Record<string, string> = {
   register_company: "permit_company",

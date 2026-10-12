@@ -18,6 +18,7 @@ const FRAUD_VERIFY_SERVICE_TYPE = "verify_fraud";
 const UNCLEAR_VERIFY_SERVICE_TYPE = "verify_unclear";
 const TRC_VERIFY_SERVICE_TYPE = "verify_trc";
 const WP_VERIFY_SERVICE_TYPE = "verify_wp";
+const TAMTRU_VERIFY_SERVICE_TYPE = "verify_tamtru";
 const VERIFY_LEAD_ACTION = "verify_lead";
 const MAX_META_VALUE_LENGTH = 200_000;
 
@@ -90,6 +91,17 @@ const WP_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
   "wp_pack_case_id",
   "wp_pack_phase2_summary",
   "wp_pack_headline",
+]);
+
+const TAMTRU_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
+  ADMIN_VERIFY_ANSWERS_META_JSON_KEY,
+  ADMIN_VERIFY_PROFILE_PHASE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_UPLOAD_COMPLETE_META_KEY,
+  ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
+  "tamtru_pack_v1",
+  "tamtru_pack_case_id",
+  "tamtru_pack_phase2_summary",
+  "tamtru_pack_headline",
 ]);
 
 const ADMIN_PHASE2_PERSIST_ALLOWED_META_KEYS = new Set<string>([
@@ -194,7 +206,8 @@ export async function POST(req: NextRequest) {
     const isUnclearLead = lead.service_type === UNCLEAR_VERIFY_SERVICE_TYPE;
     const isTrcLead = lead.service_type === TRC_VERIFY_SERVICE_TYPE;
     const isWpLead = lead.service_type === WP_VERIFY_SERVICE_TYPE;
-    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead) {
+    const isTamtruLead = lead.service_type === TAMTRU_VERIFY_SERVICE_TYPE;
+    if (!isAdminLead && !isRealEstateLead && !isTaxLead && !isFraudLead && !isUnclearLead && !isTrcLead && !isWpLead && !isTamtruLead) {
       return NextResponse.json(
         {
           error: "지원하지 않는 검토 건입니다.",
@@ -217,7 +230,9 @@ export async function POST(req: NextRequest) {
               ? TRC_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
               : isWpLead
                 ? WP_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
-                : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
+                : isTamtruLead
+                  ? TAMTRU_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS
+                  : TAX_PACK_PHASE2_PERSIST_ALLOWED_META_KEYS;
 
     const sanitized = sanitizePartialMeta(body.partialMeta, allowedKeys);
     if (!sanitized.ok) {

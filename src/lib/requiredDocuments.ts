@@ -19,6 +19,7 @@ export type DocumentServiceKey =
   | "verify_unclear"
   | "verify_trc"
   | "verify_wp"
+  | "verify_tamtru"
   | "register_restaurant"
   | "register_cosmetics"
   | "register_environment"
@@ -138,6 +139,17 @@ const CONFIG: Record<DocumentServiceKey, RequiredDocumentConfig> = {
       "카카오톡·Zalo·이메일 대화 캡처",
       "송금증·영수증·사진 등 증거자료",
       "기관 접수증·결정서",
+      "기타 참고자료",
+    ],
+  },
+  verify_tamtru: {
+    serviceKey: "verify_tamtru",
+    serviceLabel: "임시 거주 신고 직접 확인",
+    documents: ["여권 사본(비자 면 포함)", "임대차 계약서"],
+    optionalDocuments: [
+      "집주인 신분증·주택 소유 서류",
+      "이전 신고 확인서",
+      "가족 여권 사본",
       "기타 참고자료",
     ],
   },

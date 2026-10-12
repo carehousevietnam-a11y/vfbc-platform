@@ -59,6 +59,7 @@ import { buildFraudPhase2PersistMeta } from "@/lib/contentPacks/fraud/fraudPack"
 import { buildUnclearPhase2PersistMeta } from "@/lib/contentPacks/unclear/unclearPack";
 import { buildTrcPhase2PersistMeta } from "@/lib/contentPacks/trc/trcPack";
 import { buildWpPhase2PersistMeta } from "@/lib/contentPacks/wp/wpPack";
+import { buildTamtruPhase2PersistMeta } from "@/lib/contentPacks/tamtru/tamtruPack";
 import type { AnswerMap } from "@/lib/contentPacks/realEstate/types";
 const ADMIN_VERIFY_ANSWERS_META_JSON_KEY = "admin_verify_answers_json";
 type SubmitMode = "ai_report" | "expert" | "phase2_upload";
@@ -1421,7 +1422,14 @@ function DocumentUploadContent() {
                       ...buildWpPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
                       ...uploadGateMeta,
                     }
-                  : uploadGateMeta;
+                  : handoffService === "verify_tamtru" &&
+                      snapshotAnswers &&
+                      Object.keys(snapshotAnswers).length > 0
+                    ? {
+                        ...buildTamtruPhase2PersistMeta(snapshotAnswers as Record<string, string>, 2),
+                        ...uploadGateMeta,
+                      }
+                    : uploadGateMeta;
 
     const result = await persistAdminVerifyLeadMeta(leadId, partialMeta);
     if (!result.ok) {

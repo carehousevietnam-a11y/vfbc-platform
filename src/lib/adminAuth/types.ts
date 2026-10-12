@@ -58,6 +58,7 @@ export const KNOWN_SERVICE_TYPES = [
   "verify_unclear",
   "verify_trc",
   "verify_wp",
+  "verify_tamtru",
   // REGISTER
   "permit_company",
   "register_restaurant",
