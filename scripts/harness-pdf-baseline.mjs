@@ -213,6 +213,15 @@ const bad = mismatches(second, expected);
 if (bad.length) {
   if (!hadBaseline) fs.rmSync(baselineDir, { recursive: true, force: true });
   process.stderr.write(`PDF DIFF ${bad.join(",")}\n`);
+  if (process.env.PDF_DIFF_DETAIL) {
+    for (const name of bad.slice(0, 2)) {
+      const a = compact(second.get(name));
+      const b = compact(expected.get(name));
+      let i = 0;
+      while (i < a.length && i < b.length && a[i] === b[i]) i += 1;
+      process.stderr.write(`[${name}] len now=${a.length} base=${b.length} first-diff@${i}\n  now : ${a.slice(Math.max(0, i - 20), i + 40)}\n  base: ${b.slice(Math.max(0, i - 20), i + 40)}\n`);
+    }
+  }
   process.exit(1);
 }
 process.stdout.write(hadBaseline ? "PDF compare ok\n" : "PDF baseline captured\n");
