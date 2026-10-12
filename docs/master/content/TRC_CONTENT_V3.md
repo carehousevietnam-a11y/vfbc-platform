@@ -102,7 +102,7 @@
 | 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
 | ① | `trc_companyStatus=company_fdi`, `trc_passportRemain=pp_over_2y` | 외국인 투자 법인이 초청하고 여권 기간이 넉넉한 상황입니다 |
-| ② | `trc_companyStatus=company_local`, `trc_passportRemain=pp_1_2y` | 현지 법인이 초청하고 여권 기간이 1~2년 남은 상황입니다 |
+| ② | `trc_companyStatus=company_local`, `trc_passportRemain=pp_1_2y` | 현지 법인이 초청하고 여권 기간이 1년에서 2년 남은 상황입니다 |
 | ③ | `trc_companyStatus=company_unregistered`, `trc_passportRemain=pp_under_1y` | 회사 등록 전이고 여권 기간이 1년 미만인 상황입니다 |
 | ④ | `trc_companyStatus=company_family`, `trc_passportRemain=pp_over_2y` | 가족 초청으로 신청하고 여권 기간이 넉넉한 상황입니다 |
 | ⑤ | `trc_companyStatus=company_unsure`, `trc_passportRemain=pp_unknown` | 초청 주체와 여권 기간을 확인해야 하는 상황입니다 |
@@ -216,7 +216,7 @@
 | 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
 | ① | `trc_expiryRemain=exp_under_2w`, `trc_cardPeriod=cp_up_2y` | 만료가 매우 가깝다면 서류를 완성하는 날부터 접수까지 걸리는 시간을 가장 먼저 줄여야 합니다. |
-| ② | `trc_expiryRemain=exp_2w_1m`, `trc_cardPeriod=cp_2_5y` | 2~5년 카드의 공식 수수료는 155달러이며, 만료 전에 접수하도록 일정을 역산하세요. |
+| ② | `trc_expiryRemain=exp_2w_1m`, `trc_cardPeriod=cp_2_5y` | 2년에서 5년 카드의 공식 수수료는 155달러이며, 만료 전에 접수하도록 일정을 역산하세요. |
 | ③ | `trc_expiryRemain=exp_1m_3m`, `trc_cardPeriod=cp_5_10y` | 장기 카드는 수수료가 165달러이고 여권 유효기간이 충분해야 하니 여권 기간부터 확인하세요. |
 | ④ | `trc_expiryRemain=exp_over_3m`, `trc_cardPeriod=cp_unsure` | 시간 여유가 있으니 카드 기간별 수수료(145·155·165달러)를 비교해 기간을 정하세요. |
 | ⑤ | `trc_expiryRemain=exp_expired`, `trc_cardPeriod=cp_up_2y` | 만료 후 체류 상태에 따라 절차가 달라질 수 있으니 체류 상태 확인을 가장 먼저 하세요. |
@@ -318,6 +318,9 @@
 | 5 (rejection) | `trc_rejection` ∈ {rej_docs, rej_sponsor, rej_stay, rej_unknown} | 이전 반려 사유를 확인하면 같은 문제를 피할 수 있으니 반려 통지나 안내를 먼저 찾아보세요 |
 | 6 (quote) | `trc_mainConcern` ∈ {concern_quote} | 받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요 |
 | 7 (lost) | `trc_stage` ∈ {lost_reissue} | 분실 재발급은 분실 사실을 확인하는 서류가 추가로 필요할 수 있습니다 |
+| 8 (expiry) | `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} | 만료가 2주 안이거나 이미 지났다면 접수 가능 여부와 체류 연장부터 바로 확인해야 합니다 |
+| 9 (host) | `trc_hostDocs` ∈ {host_changes, host_inactive, host_unknown} | 회사 서류가 바뀌는 중이거나 상태를 모르면 초청 서류가 반려될 수 있어 회사 서류부터 맞춰야 합니다 |
+| 10 (tamtru) | `trc_tamtruStatus` ∈ {tamtru_expired, tamtru_changed, tamtru_not_yet, tamtru_unsure} | 임시 거주 신고가 지났거나 주소가 다르면 거주증 접수 전에 신고부터 바로잡아야 합니다 |
 
 기본 문장: 입력하신 내용에서는 뚜렷한 확인 사항이 많지 않지만, 접수 전에 서류 목록과 수수료를 한 번 더 확인하세요
 
@@ -363,8 +366,8 @@
 | `docs_little` | 기본 서류 거의 미준비 |
 | `docs_most` | 기본 서류 대부분 준비 |
 | `docs_unknown` | 필요 서류를 모름 |
-| `exp_1m_3m` | 만료까지 1~3개월 |
-| `exp_2w_1m` | 만료까지 2주~1개월 |
+| `exp_1m_3m` | 만료까지 1개월에서 3개월 |
+| `exp_2w_1m` | 만료까지 2주에서 1개월 |
 | `exp_expired` | 이미 만료 |
 | `exp_over_3m` | 만료까지 3개월 넘게 남음 |
 | `exp_under_2w` | 2주 안에 만료 |
@@ -394,7 +397,7 @@
 | `ph_company` | 회사 담당자가 진행 |
 | `ph_none` | 신청 경험 없음 |
 | `ph_self` | 직접 신청 |
-| `pp_1_2y` | 여권 1~2년 남음 |
+| `pp_1_2y` | 여권 1년에서 2년 남음 |
 | `pp_over_2y` | 여권 2년 넘게 남음 |
 | `pp_under_1y` | 여권 1년 미만 남음 |
 | `pp_unknown` | 여권 남은 기간 미확인 |
@@ -453,5 +456,5 @@
 
 | 번호 | 자료 | 발행처 | 성격 | URL | 비고 |
 |---|---|---|---|---|---|
-| 1 | 출입국·체류 수수료 규정 (재무부 통달 28/2026/TT-BTC, 2026.4.1 시행): 거주증 2년 이하 145달러, 2~5년 155달러, 5~10년 165달러 | 베트남 재무부 / 정부 전자신문 | 공식 기관 안내 | https://baochinhphu.vn/quy-dinh-moi-ve-thu-phi-le-phi-xuat-nhap-canh-102260331184313162.htm | 기존 화면이 인용한 자료와 구간 금액 일치 |
+| 1 | 출입국·체류 수수료 규정 (재무부 통달 28/2026/TT-BTC, 2026.4.1 시행): 거주증 2년 이하 145달러, 2년에서 5년 155달러, 5년에서 10년 165달러 | 베트남 재무부 / 정부 전자신문 | 공식 기관 안내 | https://baochinhphu.vn/quy-dinh-moi-ve-thu-phi-le-phi-xuat-nhap-canh-102260331184313162.htm | 기존 화면이 인용한 자료와 구간 금액 일치 |
 | 2 | 외국인의 입국·출국·통과·거주에 관한 법 (제47/2014/QH13호, 제51/2019/QH14호 개정) | 베트남 국회 | 법령(이차 자료로 확인) | 원문 링크 확인 중 | 조문 번호는 공식 원문 대조 필요. 본문에는 조문 번호를 쓰지 않음 |

@@ -5,7 +5,7 @@ export const labels = {
   visa_invest: "투자 비자", visa_work: "노동허가 비자", visa_tourist: "관광·단기 비자", visa_other: "그 밖의 비자", visa_unsure: "비자 종류를 모름",
   role_legal_rep: "법인장·법정대표자", role_manager: "관리직", role_staff: "일반 직원", role_none: "직위 없음·미정",
   company_fdi: "외국인 투자 법인", company_local: "베트남 현지 법인", company_unregistered: "등록 전·준비 중인 회사", company_family: "회사가 아닌 가족 초청", company_unsure: "초청 주체 미정",
-  pp_over_2y: "여권 2년 넘게 남음", pp_1_2y: "여권 1~2년 남음", pp_under_1y: "여권 1년 미만 남음", pp_unknown: "여권 남은 기간 미확인",
+  pp_over_2y: "여권 2년 넘게 남음", pp_1_2y: "여권 1년에서 2년 남음", pp_under_1y: "여권 1년 미만 남음", pp_unknown: "여권 남은 기간 미확인",
   rej_none: "반려된 적 없음", rej_docs: "서류 보완 요구 이력", rej_sponsor: "회사·보증 문제 반려 이력", rej_stay: "체류 자격 문제 반려 이력", rej_unknown: "반려 사유를 모름",
   ph_self: "직접 신청", ph_agency: "대행사에 맡김", ph_company: "회사 담당자가 진행", ph_none: "신청 경험 없음",
   concern_cost: "총비용 걱정", concern_docs: "필요 서류 걱정", concern_time: "일정 지연 걱정", concern_eligibility: "발급 자격 걱정", concern_quote: "받은 견적의 적정성 걱정",
@@ -16,7 +16,7 @@ export const labels = {
   rp_lease: "임대차 계약서 있음", rp_hotel: "숙소 확인서만 있음", rp_family_owned: "가족·지인 소유 주택", rp_none: "거주지 증빙 없음",
   host_current: "회사 서류가 최신", host_changes: "회사 정보 변경 진행 중", host_inactive: "회사 휴업·정리 중", host_personal: "회사가 아닌 가족 신청", host_unknown: "회사 서류 상태를 모름",
   wp_have: "노동허가 보유", wp_in_progress: "노동허가 신청 전·진행 중", wp_exempt: "노동허가 면제 확인", wp_na: "노동허가 불필요", wp_unsure: "노동허가 필요 여부 모름",
-  exp_under_2w: "2주 안에 만료", exp_2w_1m: "만료까지 2주~1개월", exp_1m_3m: "만료까지 1~3개월", exp_over_3m: "만료까지 3개월 넘게 남음", exp_expired: "이미 만료",
+  exp_under_2w: "2주 안에 만료", exp_2w_1m: "만료까지 2주에서 1개월", exp_1m_3m: "만료까지 1개월에서 3개월", exp_over_3m: "만료까지 3개월 넘게 남음", exp_expired: "이미 만료",
   cp_up_2y: "2년 이하 카드", cp_2_5y: "2년 초과 5년 이하 카드", cp_5_10y: "5년 초과 10년 이하 카드", cp_unsure: "카드 기간 미정",
   quote_none: "받은 견적 없음", quote_one: "서면 견적 1건", quote_several: "여러 곳의 견적", quote_verbal: "말로만 들은 금액", quote_ad: "광고 가격만 봄",
   qs_clear: "정부 수수료와 대행료가 구분됨", qs_mixed: "항목이 섞여 비교 어려움", qs_unknown: "포함 범위를 모름", qs_na: "비교할 견적 없음",
@@ -45,7 +45,7 @@ export const questions = [
   ] },
   { code: "Q3", stage: 1, prompt: "초청하는 회사는 어떤 상태이고, 여권은 유효기간이 얼마나 남아 있나요?", f: ["trc_companyStatus", "trc_passportRemain"], choices: [
     C("**외국인 투자 법인**이 초청합니다.", "여권 유효기간이 2년 넘게 남아 있어 카드 기간 선택에 여유가 있습니다.", ["company_fdi", "pp_over_2y"], { card: "외국인 투자 법인이 초청하고 여권 기간이 넉넉한 상황입니다" }),
-    C("**베트남 현지 법인**이 초청합니다.", "여권 유효기간이 1년에서 2년 사이로 남아 있습니다.", ["company_local", "pp_1_2y"], { card: "현지 법인이 초청하고 여권 기간이 1~2년 남은 상황입니다" }),
+    C("**베트남 현지 법인**이 초청합니다.", "여권 유효기간이 1년에서 2년 사이로 남아 있습니다.", ["company_local", "pp_1_2y"], { card: "현지 법인이 초청하고 여권 기간이 1년에서 2년 남은 상황입니다" }),
     C("**아직 등록이 끝나지 않은 회사**입니다.", "여권 유효기간이 1년도 남지 않아 카드 기간이 짧아질까 걱정됩니다.", ["company_unregistered", "pp_under_1y"], { card: "회사 등록 전이고 여권 기간이 1년 미만인 상황입니다" }),
     C("**회사가 아닌 가족**이 초청합니다.", "여권 유효기간이 2년 넘게 남아서 걱정이 없습니다.", ["company_family", "pp_over_2y"], { card: "가족 초청으로 신청하고 여권 기간이 넉넉한 상황입니다" }),
     C("**초청할 주체가 아직 정해지지 않았습니다.**", "여권 남은 기간을 아직 확인해 보지 못했습니다.", ["company_unsure", "pp_unknown"], { card: "초청 주체와 여권 기간을 확인해야 하는 상황입니다" }),
@@ -87,7 +87,7 @@ export const questions = [
   ] },
   { code: "Q9", stage: 2, prompt: "지금 비자나 거주증은 만료까지 얼마나 남았고, 몇 년짜리 카드를 원하시나요?", f: ["trc_expiryRemain", "trc_cardPeriod"], choices: [
     C("**2주 안에 만료**됩니다.", "2년 이하의 짧은 카드면 충분하고 수수료는 가장 낮은 구간을 원합니다.", ["exp_under_2w", "cp_up_2y"], { r: "만료가 매우 가깝다면 서류를 완성하는 날부터 접수까지 걸리는 시간을 가장 먼저 줄여야 합니다." }),
-    C("**2주에서 1개월 사이**로 남았습니다.", "2년을 넘고 5년 이하인 카드를 원하며 그에 맞는 수수료가 궁금합니다.", ["exp_2w_1m", "cp_2_5y"], { r: "2~5년 카드의 공식 수수료는 155달러이며, 만료 전에 접수하도록 일정을 역산하세요." }),
+    C("**2주에서 1개월 사이**로 남았습니다.", "2년을 넘고 5년 이하인 카드를 원하며 그에 맞는 수수료가 궁금합니다.", ["exp_2w_1m", "cp_2_5y"], { r: "2년에서 5년 카드의 공식 수수료는 155달러이며, 만료 전에 접수하도록 일정을 역산하세요." }),
     C("**1개월에서 3개월 사이**로 남았습니다.", "5년을 넘는 장기 카드를 원하고 여권 기간이 충분한지도 알고 싶습니다.", ["exp_1m_3m", "cp_5_10y"], { r: "장기 카드는 수수료가 165달러이고 여권 유효기간이 충분해야 하니 여권 기간부터 확인하세요." }),
     C("**3개월 넘게 남아** 있습니다.", "몇 년짜리 카드가 내 상황에 맞는지 아직 몰라서 비교해 보고 싶습니다.", ["exp_over_3m", "cp_unsure"], { r: "시간 여유가 있으니 카드 기간별 수수료(145·155·165달러)를 비교해 기간을 정하세요." }),
     C("**이미 만료**되었습니다.", "2년 이하의 짧은 카드로 우선 정리하고 나중에 다시 연장하고 싶습니다.", ["exp_expired", "cp_up_2y"], { r: "만료 후 체류 상태에 따라 절차가 달라질 수 있으니 체류 상태 확인을 가장 먼저 하세요." }),
@@ -157,6 +157,9 @@ export const risks = {
     { id: "rejection", clauses: [["trc_rejection", ["rej_docs", "rej_sponsor", "rej_stay", "rej_unknown"]]], sentence: "이전 반려 사유를 확인하면 같은 문제를 피할 수 있으니 반려 통지나 안내를 먼저 찾아보세요" },
     { id: "quote", clauses: [["trc_mainConcern", ["concern_quote"]]], sentence: "받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요" },
     { id: "lost", clauses: [["trc_stage", ["lost_reissue"]]], sentence: "분실 재발급은 분실 사실을 확인하는 서류가 추가로 필요할 수 있습니다" },
+    { id: "expiry", clauses: [["trc_expiryRemain", ["exp_under_2w", "exp_expired"]]], sentence: "만료가 2주 안이거나 이미 지났다면 접수 가능 여부와 체류 연장부터 바로 확인해야 합니다" },
+    { id: "host", clauses: [["trc_hostDocs", ["host_changes", "host_inactive", "host_unknown"]]], sentence: "회사 서류가 바뀌는 중이거나 상태를 모르면 초청 서류가 반려될 수 있어 회사 서류부터 맞춰야 합니다" },
+    { id: "tamtru", clauses: [["trc_tamtruStatus", ["tamtru_expired", "tamtru_changed", "tamtru_not_yet", "tamtru_unsure"]]], sentence: "임시 거주 신고가 지났거나 주소가 다르면 거주증 접수 전에 신고부터 바로잡아야 합니다" },
   ],
 };
 export const phase2Titles = { Q6: "기본 서류", Q7: "임시 거주 신고", Q8: "회사 서류와 노동허가", Q9: "만료 일정과 카드 기간", Q10: "견적과 비용", Q11: "제출 방식", Q12: "동반 가족", Q13: "제출 지역" };
@@ -174,7 +177,7 @@ export const reportGuide = {
   caption: "확인 기준일 2026.10.12 · 법령과 제도는 개정될 수 있으므로 시행 시점의 확인이 필요합니다.",
   disclaimer: "위 내용은 일반 참고 정보이며 개별 사안의 발급 가능 여부를 확정하지 않습니다. 서류 원본 확인과 전문가 검토를 거쳐 판단됩니다.",
   sources: { confirmedOn: "2026.10.12", rows: [
-    { id: "1", name: "출입국·체류 수수료 규정 (재무부 통달 28/2026/TT-BTC, 2026.4.1 시행): 거주증 2년 이하 145달러, 2~5년 155달러, 5~10년 165달러", publisher: "베트남 재무부 / 정부 전자신문", kind: "공식 기관 안내", urls: ["https://baochinhphu.vn/quy-dinh-moi-ve-thu-phi-le-phi-xuat-nhap-canh-102260331184313162.htm"], note: "기존 화면이 인용한 자료와 구간 금액 일치" },
+    { id: "1", name: "출입국·체류 수수료 규정 (재무부 통달 28/2026/TT-BTC, 2026.4.1 시행): 거주증 2년 이하 145달러, 2년에서 5년 155달러, 5년에서 10년 165달러", publisher: "베트남 재무부 / 정부 전자신문", kind: "공식 기관 안내", urls: ["https://baochinhphu.vn/quy-dinh-moi-ve-thu-phi-le-phi-xuat-nhap-canh-102260331184313162.htm"], note: "기존 화면이 인용한 자료와 구간 금액 일치" },
     { id: "2", name: "외국인의 입국·출국·통과·거주에 관한 법 (제47/2014/QH13호, 제51/2019/QH14호 개정)", publisher: "베트남 국회", kind: "법령(이차 자료로 확인)", urls: [], note: "조문 번호는 공식 원문 대조 필요. 본문에는 조문 번호를 쓰지 않음" },
   ] },
 };
