@@ -45,3 +45,6 @@
 - 2026-10-13 2단계 적용 완료: anon read leads / public full access previous_rejections / anon read by token(result_tokens) 제거. 실제 저장 검증(서버 API insert·reason 1회 채움·삭제) 통과. 공개 키(anon) 조회 결과 leads, previous_rejections, result_tokens, notifications, crm_activities, documents 버킷 모두 0건(전부 막힘).
 - 주의: supabase/live_schema_snapshot.json 의 policies 는 위 변경 이전(2026-10-13 조회 시점) 값이다. 정책이 바뀐 만큼 다음 점검 때 카탈로그 조회(supabase/catalog_query.sql)를 다시 실행해 갱신한다.
 - 3단계 남은 일(미착수·승인 필요): storage anon upload 제한, 익명 insert 속도 제한, 노출 기간 접근 로그 확인(Ace, Supabase Logs).
+- 2026-10-13 3단계-1 적용·검증 완료: documents 버킷 파일당 20MB·PDF/JPG/PNG/DOC/DOCX 제한, anon 업로드를 verify-서비스명/UUID.확장자 경로로만 허용(정책 "anon upload verify evidence", 기존 "anon upload documents" 제거). anon 시험: 루트 경로·타 폴더·.exe·21MB 모두 거부, 정상 경로 소형 PNG 성공(테스트 파일 삭제, 잔여 0). SQL: supabase/security_phase3_storage_limits.sql
+- 관찰(기존 동작, 미수정): 로그인(authenticated) 회원이 verify/* 퍼널에서 첨부를 올리면 해당 경로 권한이 없어 실패할 수 있음. 별도 확인 필요.
+- 남은 일: 익명 접수 insert(leads, crm_activities) 서버 경유+속도 제한(승인 필요, 범위 큼), 노출 기간 접근 로그 확인(Ace, Supabase Logs).
