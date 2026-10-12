@@ -703,6 +703,8 @@ function isRegisterMasterQuotation(id?: CostCheckServiceId): boolean {
 }
 
 function isMasterQuotationLanding(config: MasterLandingConfig): boolean {
+  // VERIFY 엔진(직접 확인하기 질문 흐름)은 CHECK 견적서 화면을 쓰지 않는다.
+  if (config.engine === "verify") return false;
   return (
     config.costServiceId === "trc" ||
     config.costServiceId === "wp" ||
