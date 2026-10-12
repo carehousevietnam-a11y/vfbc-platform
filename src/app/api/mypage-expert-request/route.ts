@@ -7,6 +7,7 @@ import {
 } from "@/lib/adminVerifyMypageFields";
 import { buildRealEstatePackExpertHandoffMeta } from "@/lib/contentPacks/realEstate/realEstatePackMypageFields";
 import { parsePackAnswersFromActivities } from "@/lib/contentPacks/realEstate/packPhase2Persist";
+import { getExpertOptions } from "@/lib/expertOptions";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,9 +30,10 @@ function page1MetaFromVerifyLead(meta: Record<string, unknown> | null): Record<s
 
 export async function POST(req: NextRequest) {
   try {
-    const { accessToken, leadId } = (await req.json()) as {
+    const { accessToken, leadId, expertOption } = (await req.json()) as {
       accessToken?: string;
       leadId?: string;
+      expertOption?: string;
     };
     if (!accessToken || !leadId) {
       return NextResponse.json({ error: "요청 정보가 올바르지 않습니다." }, { status: 400 });
@@ -53,8 +55,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "해당 신청 내역을 찾을 수 없습니다." }, { status: 404 });
     }
     const serviceType = lead.service_type?.replace(/-/g, "_") ?? "";
-    if (serviceType !== "verify_admin" && serviceType !== "verify_real_estate") {
+    // 직접 확인하기 4종·직접 인허가 받기 8종은 3옵션 카드로 요청한다(getExpertOptions가 12개 목록).
+    const optionList = getExpertOptions(serviceType);
+    if (serviceType !== "verify_admin" && serviceType !== "verify_real_estate" && !optionList) {
       return NextResponse.json({ error: "이 신청에서는 요청할 수 없습니다." }, { status: 400 });
+    }
+    const pickedOption = optionList ? optionList.find((option) => option.id === expertOption) : null;
+    if (optionList && !pickedOption) {
+      return NextResponse.json({ error: "진행 방식을 선택해주세요." }, { status: 400 });
     }
 
     const { data: existing } = await supabaseAdmin
@@ -81,16 +89,36 @@ export async function POST(req: NextRequest) {
 
     const activities = activitiesRaw ?? [];
     const verifyLead = [...activities].reverse().find((row) => row.action === "verify_lead");
-    const tag = serviceType === "verify_admin" ? "VERIFY_ADMIN" : "VERIFY_REAL_ESTATE";
-    const caseHandoffMeta =
-      serviceType === "verify_admin"
-        ? buildAdminExpertHandoffMeta(
-            parseAdminVerifyAnswersFromActivities(activities),
-            page1MetaFromVerifyLead(asMeta(verifyLead?.meta)),
-          )
-        : buildRealEstatePackExpertHandoffMeta(
-            (parsePackAnswersFromActivities(activities) ?? {}) as Record<string, string>,
-          );
+    // 12개 서비스는 각 화면의 접수(/verify/*)와 같은 태그를 쓴다. 담당 화면은 태그가 아니라 action으로 판단한다.
+    const tag = pickedOption
+      ? "VERIFY_FRAUD"
+      : serviceType === "verify_admin"
+        ? "VERIFY_ADMIN"
+        : "VERIFY_REAL_ESTATE";
+    let caseHandoffMeta: Record<string, unknown>;
+    if (pickedOption) {
+      // 제출 시점의 프로필(verify_lead meta)을 그대로 싣고, 고른 진행 방식을 덧붙인다.
+      const base: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(asMeta(verifyLead?.meta) ?? {})) {
+        if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+          base[key] = value;
+        }
+      }
+      caseHandoffMeta = {
+        ...base,
+        expert_option: pickedOption.id,
+        expert_option_label: pickedOption.title,
+      };
+    } else if (serviceType === "verify_admin") {
+      caseHandoffMeta = buildAdminExpertHandoffMeta(
+        parseAdminVerifyAnswersFromActivities(activities),
+        page1MetaFromVerifyLead(asMeta(verifyLead?.meta)),
+      );
+    } else {
+      caseHandoffMeta = buildRealEstatePackExpertHandoffMeta(
+        (parsePackAnswersFromActivities(activities) ?? {}) as Record<string, string>,
+      );
+    }
 
     const { error: insertError } = await supabaseAdmin.from("crm_activities").insert({
       lead_id: leadId,

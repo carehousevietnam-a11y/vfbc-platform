@@ -85,7 +85,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "만료 시 벌금 위험",
         desc: "TRC 발급 가능 여부를 직접 확인하세요",
         icon: CreditCard,
-        href: "/check/trc",
+        href: "/verify/trc",
       },
       {
         key: "wp",
@@ -93,7 +93,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "무허가 근무 적발 위험",
         desc: "Work Permit 발급 가능 여부를 확인하세요",
         icon: Briefcase,
-        href: "/check/wp",
+        href: "/verify/wp",
       },
       {
         key: "tamtru",
@@ -101,7 +101,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "12시간 이내 신고 필요",
         desc: "임시거주 등록 상태를 지금 확인하세요",
         icon: Home,
-        href: "/check/tamtru",
+        href: "/verify/tamtru",
       },
       {
         key: "license",
@@ -109,7 +109,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "국제면허 미인정 사례 있음",
         desc: "베트남 면허 전환 가능 여부를 확인하세요",
         icon: Car,
-        href: "/check/driving-license",
+        href: "/verify/license",
       },
     ],
   },
@@ -192,7 +192,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "잘못 만들면 못 고침",
         desc: "IRC·ERC 포함 설립 절차",
         icon: Building2,
-        href: "/register/company",
+        href: "/verify/company",
       },
       {
         key: "restaurant",
@@ -200,7 +200,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "무허가 영업 시 즉시 폐쇄",
         desc: "요식업 영업허가",
         icon: UtensilsCrossed,
-        href: "/register/restaurant",
+        href: "/verify/restaurant",
       },
       {
         key: "fire",
@@ -208,7 +208,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "미필증 시 영업정지",
         desc: "소방시설 안전 인증",
         icon: Flame,
-        href: "/register/fire-safety",
+        href: "/verify/fire",
       },
       {
         key: "hygiene",
@@ -216,7 +216,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "단속 1순위 항목",
         desc: "식품·위생 안전 인증",
         icon: Droplets,
-        href: "/register/hygiene",
+        href: "/verify/hygiene",
       },
       {
         key: "environment",
@@ -224,7 +224,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "누락 시 가동중단",
         desc: "환경영향평가·배출허가",
         icon: Leaf,
-        href: "/register/environment",
+        href: "/verify/environment",
       },
       {
         key: "cosmetics",
@@ -232,7 +232,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "무허가 시 전량 회수",
         desc: "화장품 제조·유통 허가",
         icon: FlaskConical,
-        href: "/register/cosmetics",
+        href: "/verify/cosmetics",
       },
       {
         key: "medical-device",
@@ -240,7 +240,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "무허가 유통은 형사처벌",
         desc: "의료기기 수입·유통 허가",
         icon: Stethoscope,
-        href: "/register/medical-device",
+        href: "/verify/medical",
       },
       {
         key: "franchise",
@@ -248,7 +248,7 @@ const ACCORDION_SECTIONS: AccordionSection[] = [
         hook: "미등록 시 계약 무효",
         desc: "가맹사업 등록·계약 허가",
         icon: Store,
-        href: "/register/franchise",
+        href: "/verify/franchise",
       },
     ],
   },

@@ -36,7 +36,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "잘못 만들면 못 고침",
     desc: "IRC·ERC 포함 설립 절차",
     icon: Building2,
-    href: "/register/company",
+    href: "/verify/company",
   },
   {
     key: "restaurant",
@@ -44,7 +44,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "무허가 영업 시 즉시 폐쇄",
     desc: "요식업 영업허가",
     icon: UtensilsCrossed,
-    href: "/register/restaurant",
+    href: "/verify/restaurant",
   },
   {
     key: "fire",
@@ -52,7 +52,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "미필증 시 영업정지",
     desc: "소방시설 안전 인증",
     icon: Flame,
-    href: "/register/fire-safety",
+    href: "/verify/fire",
   },
   {
     key: "hygiene",
@@ -60,7 +60,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "단속 1순위 항목",
     desc: "식품·위생 안전 인증",
     icon: Droplets,
-    href: "/register/hygiene",
+    href: "/verify/hygiene",
   },
   {
     key: "environment",
@@ -68,7 +68,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "누락 시 가동중단",
     desc: "환경영향평가·배출허가",
     icon: Leaf,
-    href: "/register/environment",
+    href: "/verify/environment",
   },
   {
     key: "cosmetics",
@@ -76,7 +76,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "무허가 시 전량 회수",
     desc: "화장품 제조·유통 허가",
     icon: FlaskConical,
-    href: "/register/cosmetics",
+    href: "/verify/cosmetics",
   },
   {
     key: "medical-device",
@@ -84,7 +84,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "무허가 유통은 형사처벌",
     desc: "의료기기 수입·유통 허가",
     icon: Stethoscope,
-    href: "/register/medical-device",
+    href: "/verify/medical",
   },
   {
     key: "franchise",
@@ -92,7 +92,7 @@ const PERMIT_ITEMS: PermitItem[] = [
     hook: "미등록 시 계약 무효",
     desc: "가맹사업 등록·계약 허가",
     icon: Store,
-    href: "/register/franchise",
+    href: "/verify/franchise",
   },
 ];
 

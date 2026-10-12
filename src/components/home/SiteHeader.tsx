@@ -58,7 +58,18 @@ const HEADER_PC_GNB_BTN = "sm:px-2 sm:py-0.5";
 const HEADER_PC_GNB_EN = "sm:text-[12px] sm:font-medium sm:tracking-[0.1em]";
 const HEADER_PC_GNB_KO = "sm:text-[10px] sm:font-medium sm:text-slate-600";
 
+/**
+ * 직접 확인하기 4종·직접 인허가 받기 8종은 /verify/* 경로를 쓰지만 메뉴 불은
+ * 각자의 엔진(CHECK·REGISTER)에 켠다. 목록은 HomeServiceAccordion 한 곳만 따른다.
+ */
+const SERVICE_PATH_ENGINES: ReadonlyArray<{ href: string; engine: EngineKey }> = [
+  ...getCheckServiceItems().map((item) => ({ href: item.href, engine: "check" as const })),
+  ...getRegisterServiceItems().map((item) => ({ href: item.href, engine: "register" as const })),
+];
+
 function resolveActiveEngine(pathname: string): EngineKey | null {
+  const serviceEngine = SERVICE_PATH_ENGINES.find((item) => isServiceActive(pathname, item.href));
+  if (serviceEngine) return serviceEngine.engine;
   if (pathname === "/check" || pathname.startsWith("/check/")) return "check";
   if (pathname === "/verify" || pathname.startsWith("/verify/")) return "verify";
   if (pathname === "/register" || pathname.startsWith("/register/")) return "register";

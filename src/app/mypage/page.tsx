@@ -55,6 +55,8 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { createPortal } from "react-dom";
+import { getExpertOptions, type ExpertOption, type ExpertOptionId } from "@/lib/expertOptions";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import {
   VERIFY_ADMIN_AI_REPORT_RECEIVE_LABEL,
@@ -633,6 +635,7 @@ function VerifyAdminMypageActionRow({
             leadId={item.id}
             alreadyRequested={false}
             onRequested={onExpertRequested}
+            serviceType={item.serviceType}
           />
         )}
       </div>
@@ -910,6 +913,7 @@ function GeneralCustomerResultView({
                 leadId={item.id}
                 alreadyRequested={false}
                 onRequested={onExpertRequested}
+                serviceType={item.serviceType}
               />
             )}
           </div>
@@ -1544,16 +1548,23 @@ function AdminVerifyExpertRequestButton({
   leadId,
   alreadyRequested,
   onRequested,
+  serviceType,
 }: {
   leadId: string;
   alreadyRequested: boolean;
   onRequested?: () => void | Promise<void>;
+  serviceType?: string | null;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [requested, setRequested] = useState(alreadyRequested);
+  const expertOptions = getExpertOptions(serviceType);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [pickedOptionId, setPickedOptionId] = useState<ExpertOptionId | null>(null);
+  const pickedOption: ExpertOption | null =
+    expertOptions?.find((option) => option.id === pickedOptionId) ?? null;
 
-  async function handleRequest() {
+  async function handleRequest(optionId?: ExpertOptionId) {
     if (requested || loading) return;
     setLoading(true);
     setError(null);
@@ -1567,7 +1578,7 @@ function AdminVerifyExpertRequestButton({
       const response = await fetch("/api/mypage-expert-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken, leadId }),
+        body: JSON.stringify({ accessToken, leadId, ...(optionId ? { expertOption: optionId } : {}) }),
       });
       const result = await response.json().catch(() => null);
       if (!response.ok) {
@@ -1586,6 +1597,109 @@ function AdminVerifyExpertRequestButton({
   if (requested) {
     return (
       <p className="text-[13px] font-semibold text-slate-800">{VERIFY_ADMIN_EXPERT_REVIEWING_LABEL}</p>
+    );
+  }
+
+  if (expertOptions) {
+    return (
+      <div className="w-full">
+        <button
+          type="button"
+          onClick={() => setOptionsOpen(true)}
+          aria-haspopup="dialog"
+          className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-[13px] font-semibold text-slate-800 transition hover:bg-slate-50"
+        >
+          전문가 진행하기
+        </button>
+        {error && !optionsOpen ? <p className="mt-1 text-[12px] text-red-600">{error}</p> : null}
+        {optionsOpen
+          ? createPortal(
+              <div
+                className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 p-0 sm:items-center sm:p-6"
+                onClick={() => (loading ? undefined : setOptionsOpen(false))}
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="전문가 진행 방식 선택"
+                  onClick={(event) => event.stopPropagation()}
+                  className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:max-w-3xl sm:rounded-3xl sm:p-7"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[18px] font-extrabold tracking-[-0.02em] text-slate-950">
+                        진행 방식을 선택하세요
+                      </p>
+                      <p className="mt-1 text-[12px] text-slate-500">
+                        카드를 누르면 비용이 보입니다.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setOptionsOpen(false)}
+                      disabled={loading}
+                      aria-label="닫기"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 disabled:opacity-50"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="mt-4 grid items-stretch gap-3 sm:grid-cols-3">
+                    {expertOptions.map((option) => {
+                      const picked = option.id === pickedOptionId;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => setPickedOptionId(picked ? null : option.id)}
+                          aria-pressed={picked}
+                          className={`flex min-h-[236px] w-full cursor-pointer flex-col rounded-2xl border-2 p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2a6b]/40 ${
+                            picked
+                              ? "border-[#0d2a6b] bg-blue-50/60 shadow-md"
+                              : "border-slate-300 bg-white hover:border-[#0d2a6b] hover:bg-slate-50 hover:shadow-md"
+                          }`}
+                        >
+                          <span className="text-[14px] font-bold text-slate-900">{option.title}</span>
+                          <span className="mt-1.5 break-keep text-[12px] leading-5 text-slate-600">
+                            {option.summary}
+                          </span>
+                          <span className="mt-3 block space-y-1 border-t border-slate-100 pt-3">
+                            {option.includes.map((line) => (
+                              <span key={line} className="block break-keep text-[12px] leading-5 text-slate-700">
+                                · {line}
+                              </span>
+                            ))}
+                          </span>
+                          <span className="mt-auto block pt-3 text-[13px] font-bold">
+                            {picked ? (
+                              <span className="text-slate-900">비용 {option.priceLabel}</span>
+                            ) : (
+                              <span className="text-[12px] font-semibold text-[#0d2a6b]">눌러서 비용 보기</span>
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {error ? <p className="mt-3 text-[12px] text-red-600">{error}</p> : null}
+                  <button
+                    type="button"
+                    onClick={() => void handleRequest(pickedOption?.id)}
+                    disabled={loading || !pickedOption}
+                    className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#0d2a6b] px-5 text-[13px] font-semibold text-white transition hover:bg-[#0a2258] disabled:opacity-50"
+                  >
+                    {loading
+                      ? "요청 중..."
+                      : pickedOption
+                        ? "이 방식으로 진행하기"
+                        : "방식을 선택해 주세요"}
+                  </button>
+                </div>
+              </div>,
+              document.body,
+            )
+          : null}
+      </div>
     );
   }
 
@@ -1761,6 +1875,7 @@ function CurrentStatusCard({
               leadId={item.id}
               alreadyRequested={false}
               onRequested={onExpertRequested}
+              serviceType={item.serviceType}
             />
           )}
         </div>

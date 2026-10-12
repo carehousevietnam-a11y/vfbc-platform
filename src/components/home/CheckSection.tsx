@@ -26,7 +26,7 @@ const CHECK_ITEMS: CheckItem[] = [
     hook: "만료 시 벌금 위험",
     desc: "TRC 발급 가능 여부를 직접 확인하세요",
     icon: CreditCard,
-    href: "/check/trc",
+    href: "/verify/trc",
   },
   {
     key: "wp",
@@ -34,7 +34,7 @@ const CHECK_ITEMS: CheckItem[] = [
     hook: "무허가 근무 적발 위험",
     desc: "Work Permit 발급 가능 여부를 확인하세요",
     icon: Briefcase,
-    href: "/check/wp",
+    href: "/verify/wp",
   },
   {
     key: "tamtru",
@@ -42,7 +42,7 @@ const CHECK_ITEMS: CheckItem[] = [
     hook: "12시간 이내 신고 필요",
     desc: "임시거주 등록 상태를 지금 확인하세요",
     icon: Home,
-    href: "/check/tamtru",
+    href: "/verify/tamtru",
   },
   {
     key: "license",
@@ -50,7 +50,7 @@ const CHECK_ITEMS: CheckItem[] = [
     hook: "국제면허 미인정 사례 있음",
     desc: "베트남 면허 전환 가능 여부를 확인하세요",
     icon: Car,
-    href: "/check/driving-license",
+    href: "/verify/license",
   },
 ];
 
