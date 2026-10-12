@@ -38,6 +38,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
+import { insertPreviousRejection, updatePreviousRejection } from "@/lib/previousRejectionClient";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
@@ -1147,15 +1148,12 @@ export default function RegisterCosmeticsPage() {
   // "네, 있습니다" 클릭 즉시 익명으로 저장 — 기존과 동일, 수정 없음.
   function recordRejectionAnonymously() {
     const id = crypto.randomUUID();
-    pendingRejectionInsertRef.current = supabase
-      .from("previous_rejections")
-      .insert({
+    pendingRejectionInsertRef.current = insertPreviousRejection({
         id,
         service_type: "register_cosmetics",
         source_page: "/register/cosmetics",
         reason: null,
-      })
-      .then(({ error }) => {
+      }).then(({ error }) => {
         if (error) {
           console.error("previous_rejections insert failed:", error);
           return;
@@ -1170,10 +1168,7 @@ export default function RegisterCosmeticsPage() {
     }
     const id = rejectionRecordIdRef.current;
     if (id && rejectionReason.trim()) {
-      const { error } = await supabase
-        .from("previous_rejections")
-        .update({ reason: rejectionReason.trim() })
-        .eq("id", id);
+      const { error } = await updatePreviousRejection(id, { reason: rejectionReason.trim() });
       if (error) console.error("previous_rejections reason update failed:", error);
     }
     setRejectionStepDone(true);
@@ -1485,10 +1480,7 @@ export default function RegisterCosmeticsPage() {
     }
     if (rejectionRecordIdRef.current) {
       try {
-        await supabase
-          .from("previous_rejections")
-          .update({ linked_lead_id: newLeadId })
-          .eq("id", rejectionRecordIdRef.current);
+        await updatePreviousRejection(rejectionRecordIdRef.current, { linked_lead_id: newLeadId });
       } catch (linkErr) {
         console.error("previous_rejections link failed:", linkErr);
       }

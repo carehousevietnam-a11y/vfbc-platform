@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { updatePreviousRejection } from "@/lib/previousRejectionClient";
 import { getLeadContact } from "@/lib/leadContact";
 import {
   buildSocialContacts,
@@ -445,10 +446,7 @@ export async function submitMemberCheckLead(
   }
   if (params.rejectionRecordId) {
     try {
-      await supabase
-        .from("previous_rejections")
-        .update({ linked_lead_id: leadId })
-        .eq("id", params.rejectionRecordId);
+      await updatePreviousRejection(params.rejectionRecordId, { linked_lead_id: leadId });
     } catch (linkErr) {
       console.error("previous_rejections link failed:", linkErr);
     }

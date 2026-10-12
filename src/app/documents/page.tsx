@@ -711,23 +711,30 @@ function DocumentUploadContent() {
     let cancelled = false;
 
     (async () => {
-      const { data, error } = await supabase
-        .from("leads")
-        .select("service_type")
-        .eq("id", leadId)
-        .maybeSingle();
+      let serviceType: string | null = null;
+      let lookupError: unknown = null;
+      try {
+        const res = await fetch(`/api/lead-service-type?leadId=${encodeURIComponent(leadId)}`);
+        if (res.ok) {
+          const json = (await res.json()) as { serviceType?: string | null };
+          serviceType = typeof json.serviceType === "string" ? json.serviceType : null;
+        } else {
+          lookupError = `status_${res.status}`;
+        }
+      } catch (err) {
+        lookupError = err;
+      }
 
       if (cancelled) return;
 
-      if (error) {
-        console.error("[document-upload] lead service_type 조회 실패:", error);
+      if (lookupError) {
+        console.error("[document-upload] lead service_type 조회 실패:", lookupError);
         setResolvedService(null);
         return;
       }
 
-      setResolvedService(
-        typeof data?.service_type === "string" ? data.service_type : null
-      );
+      setResolvedService(serviceType);
+
     })();
 
     return () => {

@@ -1,0 +1,2269 @@
+{
+ "_meta": {
+  "extracted_at": "2026-10-13",
+  "method": 4,
+  "method_label": "PostgREST OpenAPI + Storage 버킷 목록 API",
+  "blocked_methods": [
+   "방법1: 프로젝트에 Postgres 접속 문자열(DATABASE_URL 등) 없음",
+   "방법2: Supabase CLI 미설치·미연결"
+  ],
+  "unconfirmed": [
+   "views(미조회)",
+   "pg_cron/확장/권한(GRANT) 미조회"
+  ],
+  "read_only": true,
+  "note": "고객 데이터 행 조회·개수 조회 없음. 카탈로그/스키마 메타만.",
+  "catalog_merged": "2026-10-13 (Supabase SQL Editor, read-only catalog query)"
+ },
+ "columns": [
+  {
+   "table_name": "previous_rejections",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "previous_rejections",
+   "ordinal_position": 2,
+   "column_name": "service_type",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "previous_rejections",
+   "ordinal_position": 3,
+   "column_name": "source_page",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "previous_rejections",
+   "ordinal_position": 4,
+   "column_name": "reason",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "previous_rejections",
+   "ordinal_position": 5,
+   "column_name": "linked_lead_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `leads.id`.<fk table='leads' column='id'/>"
+  },
+  {
+   "table_name": "previous_rejections",
+   "ordinal_position": 6,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 2,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 3,
+   "column_name": "name",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 4,
+   "column_name": "phone",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 5,
+   "column_name": "address",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 6,
+   "column_name": "kakao_id",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 7,
+   "column_name": "zalo_id",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 8,
+   "column_name": "service_type",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 9,
+   "column_name": "result",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 10,
+   "column_name": "source_page",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 11,
+   "column_name": "status",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": "new",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 12,
+   "column_name": "seq_no",
+   "data_type": "integer",
+   "udt_name": "bigint",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 13,
+   "column_name": "display_id",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 14,
+   "column_name": "email",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "leads",
+   "ordinal_position": 15,
+   "column_name": "user_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>"
+  },
+  {
+   "table_name": "result_tokens",
+   "ordinal_position": 1,
+   "column_name": "token",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "result_tokens",
+   "ordinal_position": 2,
+   "column_name": "lead_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `leads.id`.<fk table='leads' column='id'/>"
+  },
+  {
+   "table_name": "result_tokens",
+   "ordinal_position": 3,
+   "column_name": "user_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>"
+  },
+  {
+   "table_name": "result_tokens",
+   "ordinal_position": 4,
+   "column_name": "expires_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "(now() + '30 days'::interval)",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "result_tokens",
+   "ordinal_position": 5,
+   "column_name": "used_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "result_tokens",
+   "ordinal_position": 6,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 2,
+   "column_name": "admin_user_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `admin_users.id`.<fk table='admin_users' column='id'/>"
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 3,
+   "column_name": "category",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 4,
+   "column_name": "service_type",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 5,
+   "column_name": "region",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 6,
+   "column_name": "permission",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": "view",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 7,
+   "column_name": "active",
+   "data_type": "boolean",
+   "udt_name": "boolean",
+   "is_nullable": "NO",
+   "column_default": "true",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_user_scopes",
+   "ordinal_position": 8,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 2,
+   "column_name": "auth_user_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 3,
+   "column_name": "name",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 4,
+   "column_name": "email",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 5,
+   "column_name": "role",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": "staff",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 6,
+   "column_name": "active",
+   "data_type": "boolean",
+   "udt_name": "boolean",
+   "is_nullable": "NO",
+   "column_default": "true",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 7,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "admin_users",
+   "ordinal_position": 8,
+   "column_name": "updated_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "crm_activities",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "crm_activities",
+   "ordinal_position": 2,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "crm_activities",
+   "ordinal_position": 3,
+   "column_name": "lead_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `leads.id`.<fk table='leads' column='id'/>"
+  },
+  {
+   "table_name": "crm_activities",
+   "ordinal_position": 4,
+   "column_name": "action",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "crm_activities",
+   "ordinal_position": 5,
+   "column_name": "tag",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "crm_activities",
+   "ordinal_position": 6,
+   "column_name": "meta",
+   "data_type": "unknown",
+   "udt_name": "jsonb",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 2,
+   "column_name": "lead_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `leads.id`.<fk table='leads' column='id'/>"
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 3,
+   "column_name": "service_type",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 4,
+   "column_name": "category",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 5,
+   "column_name": "country",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": "VN",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 6,
+   "column_name": "province",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 7,
+   "column_name": "industry",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 8,
+   "column_name": "question",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 9,
+   "column_name": "ai_answer",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 10,
+   "column_name": "expert_review",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 11,
+   "column_name": "final_result",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 12,
+   "column_name": "case_status",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": "closed",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 13,
+   "column_name": "result_status",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 14,
+   "column_name": "rejection_reason",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 15,
+   "column_name": "processing_days",
+   "data_type": "integer",
+   "udt_name": "integer",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 16,
+   "column_name": "related_documents",
+   "data_type": "unknown",
+   "udt_name": "jsonb",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 17,
+   "column_name": "related_laws",
+   "data_type": "unknown",
+   "udt_name": "jsonb",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 18,
+   "column_name": "confidence",
+   "data_type": "number",
+   "udt_name": "numeric",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 19,
+   "column_name": "pii_redaction_version",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": "v2",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 20,
+   "column_name": "needs_manual_review",
+   "data_type": "boolean",
+   "udt_name": "boolean",
+   "is_nullable": "NO",
+   "column_default": "true",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 21,
+   "column_name": "is_published",
+   "data_type": "boolean",
+   "udt_name": "boolean",
+   "is_nullable": "NO",
+   "column_default": "false",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 22,
+   "column_name": "reviewed_by",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 23,
+   "column_name": "reviewed_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 24,
+   "column_name": "published_by",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 25,
+   "column_name": "published_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 26,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_knowledge",
+   "ordinal_position": 27,
+   "column_name": "updated_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 2,
+   "column_name": "category",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 3,
+   "column_name": "title",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 4,
+   "column_name": "summary",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 5,
+   "column_name": "body",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 6,
+   "column_name": "published_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 7,
+   "column_name": "is_published",
+   "data_type": "boolean",
+   "udt_name": "boolean",
+   "is_nullable": "YES",
+   "column_default": "false",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "announcements",
+   "ordinal_position": 8,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 2,
+   "column_name": "user_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>"
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 3,
+   "column_name": "reminder_type",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 4,
+   "column_name": "target_date",
+   "data_type": "string",
+   "udt_name": "date",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 5,
+   "column_name": "notify_days_before",
+   "data_type": "array",
+   "udt_name": "integer[]",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 6,
+   "column_name": "channel_preference",
+   "data_type": "array",
+   "udt_name": "text[]",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 7,
+   "column_name": "status",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": "active",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "reminders",
+   "ordinal_position": 8,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_conversations",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "case_conversations",
+   "ordinal_position": 2,
+   "column_name": "lead_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `leads.id`.<fk table='leads' column='id'/>"
+  },
+  {
+   "table_name": "case_conversations",
+   "ordinal_position": 3,
+   "column_name": "role",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_conversations",
+   "ordinal_position": 4,
+   "column_name": "content",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_conversations",
+   "ordinal_position": 5,
+   "column_name": "seq",
+   "data_type": "integer",
+   "udt_name": "bigint",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "case_conversations",
+   "ordinal_position": 6,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 2,
+   "column_name": "phone",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 3,
+   "column_name": "email",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 4,
+   "column_name": "name",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 5,
+   "column_name": "address",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 6,
+   "column_name": "kakao_id",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 7,
+   "column_name": "zalo_id",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 8,
+   "column_name": "member_type",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": "personal",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 9,
+   "column_name": "country_group",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": "korea",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 10,
+   "column_name": "language",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": "ko",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 11,
+   "column_name": "password_set",
+   "data_type": "boolean",
+   "udt_name": "boolean",
+   "is_nullable": "YES",
+   "column_default": "false",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 12,
+   "column_name": "lead_score",
+   "data_type": "integer",
+   "udt_name": "integer",
+   "is_nullable": "YES",
+   "column_default": "0",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 13,
+   "column_name": "lead_grade",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "users",
+   "ordinal_position": 14,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "lead_assignments",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "lead_assignments",
+   "ordinal_position": 2,
+   "column_name": "lead_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `leads.id`.<fk table='leads' column='id'/>"
+  },
+  {
+   "table_name": "lead_assignments",
+   "ordinal_position": 3,
+   "column_name": "admin_user_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `admin_users.id`.<fk table='admin_users' column='id'/>"
+  },
+  {
+   "table_name": "lead_assignments",
+   "ordinal_position": 4,
+   "column_name": "assigned_by",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `admin_users.id`.<fk table='admin_users' column='id'/>"
+  },
+  {
+   "table_name": "lead_assignments",
+   "ordinal_position": 5,
+   "column_name": "assigned_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "lead_assignments",
+   "ordinal_position": 6,
+   "column_name": "status",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "NO",
+   "column_default": "active",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 1,
+   "column_name": "id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "NO",
+   "column_default": "gen_random_uuid()",
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Primary Key.<pk/>"
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 2,
+   "column_name": "created_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": "now()",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 3,
+   "column_name": "lead_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `leads.id`.<fk table='leads' column='id'/>"
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 4,
+   "column_name": "channel",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 5,
+   "column_name": "template",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 6,
+   "column_name": "status",
+   "data_type": "string",
+   "udt_name": "text",
+   "is_nullable": "YES",
+   "column_default": "pending",
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 7,
+   "column_name": "sent_at",
+   "data_type": "string",
+   "udt_name": "timestamp with time zone",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 8,
+   "column_name": "user_id",
+   "data_type": "string",
+   "udt_name": "uuid",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>"
+  },
+  {
+   "table_name": "notifications",
+   "ordinal_position": 9,
+   "column_name": "payload",
+   "data_type": "unknown",
+   "udt_name": "jsonb",
+   "is_nullable": "YES",
+   "column_default": null,
+   "character_maximum_length": null,
+   "description": null
+  }
+ ],
+ "constraints": [
+  {
+   "table": "leads",
+   "name": "leads_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "crm_activities",
+   "name": "crm_activities_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "crm_activities",
+   "name": "crm_activities_lead_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "notifications",
+   "name": "notifications_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "notifications",
+   "name": "notifications_lead_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "users",
+   "name": "users_member_type_check",
+   "type": "c",
+   "def": "CHECK ((member_type = ANY (ARRAY['personal'::text, 'company'::text])))"
+  },
+  {
+   "table": "users",
+   "name": "users_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "users",
+   "name": "users_phone_key",
+   "type": "u",
+   "def": "UNIQUE (phone)"
+  },
+  {
+   "table": "users",
+   "name": "users_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "result_tokens",
+   "name": "result_tokens_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (token)"
+  },
+  {
+   "table": "result_tokens",
+   "name": "result_tokens_lead_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "result_tokens",
+   "name": "result_tokens_user_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "reminders",
+   "name": "reminders_reminder_type_check",
+   "type": "c",
+   "def": "CHECK ((reminder_type = ANY (ARRAY['trc_expiry'::text, 'work_permit_expiry'::text, 'tax_deadline'::text, 'driver_license_expiry'::text, 'other'::text])))"
+  },
+  {
+   "table": "reminders",
+   "name": "reminders_status_check",
+   "type": "c",
+   "def": "CHECK ((status = ANY (ARRAY['active'::text, 'completed'::text, 'cancelled'::text])))"
+  },
+  {
+   "table": "reminders",
+   "name": "reminders_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "reminders",
+   "name": "reminders_user_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "announcements",
+   "name": "announcements_category_check",
+   "type": "c",
+   "def": "CHECK ((category = ANY (ARRAY['legal'::text, 'tax'::text, 'labor'::text, 'immigration'::text, 'general'::text])))"
+  },
+  {
+   "table": "announcements",
+   "name": "announcements_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "leads",
+   "name": "leads_user_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (user_id) REFERENCES users(id)"
+  },
+  {
+   "table": "notifications",
+   "name": "notifications_user_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (user_id) REFERENCES users(id)"
+  },
+  {
+   "table": "previous_rejections",
+   "name": "previous_rejections_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "previous_rejections",
+   "name": "previous_rejections_linked_lead_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (linked_lead_id) REFERENCES leads(id) ON DELETE SET NULL"
+  },
+  {
+   "table": "admin_users",
+   "name": "admin_users_role_check",
+   "type": "c",
+   "def": "CHECK ((role = ANY (ARRAY['super_admin'::text, 'team_manager'::text, 'staff'::text, 'reviewer'::text, 'document_reviewer'::text])))"
+  },
+  {
+   "table": "admin_users",
+   "name": "admin_users_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "admin_users",
+   "name": "admin_users_auth_user_id_key",
+   "type": "u",
+   "def": "UNIQUE (auth_user_id)"
+  },
+  {
+   "table": "admin_users",
+   "name": "admin_users_email_key",
+   "type": "u",
+   "def": "UNIQUE (email)"
+  },
+  {
+   "table": "admin_users",
+   "name": "admin_users_auth_user_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (auth_user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "admin_user_scopes",
+   "name": "admin_user_scopes_category_check",
+   "type": "c",
+   "def": "CHECK ((category = ANY (ARRAY['CHECK'::text, 'VERIFY'::text, 'REGISTER'::text, 'CONSULTATION'::text])))"
+  },
+  {
+   "table": "admin_user_scopes",
+   "name": "admin_user_scopes_permission_check",
+   "type": "c",
+   "def": "CHECK ((permission = ANY (ARRAY['view'::text, 'edit'::text, 'manage'::text])))"
+  },
+  {
+   "table": "admin_user_scopes",
+   "name": "admin_user_scopes_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "admin_user_scopes",
+   "name": "admin_user_scopes_admin_user_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (admin_user_id) REFERENCES admin_users(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "lead_assignments",
+   "name": "lead_assignments_status_check",
+   "type": "c",
+   "def": "CHECK ((status = ANY (ARRAY['active'::text, 'completed'::text, 'reassigned'::text, 'cancelled'::text])))"
+  },
+  {
+   "table": "lead_assignments",
+   "name": "lead_assignments_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "lead_assignments",
+   "name": "lead_assignments_lead_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "lead_assignments",
+   "name": "lead_assignments_admin_user_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (admin_user_id) REFERENCES admin_users(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "lead_assignments",
+   "name": "lead_assignments_assigned_by_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (assigned_by) REFERENCES admin_users(id)"
+  },
+  {
+   "table": "case_conversations",
+   "name": "case_conversations_role_check",
+   "type": "c",
+   "def": "CHECK ((role = ANY (ARRAY['user'::text, 'assistant'::text])))"
+  },
+  {
+   "table": "case_conversations",
+   "name": "case_conversations_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "case_conversations",
+   "name": "case_conversations_lead_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_category_check",
+   "type": "c",
+   "def": "CHECK ((category = ANY (ARRAY['check'::text, 'verify'::text, 'register'::text, 'consultation'::text, 'unclassified'::text])))"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_case_status_check",
+   "type": "c",
+   "def": "CHECK ((case_status = ANY (ARRAY['ongoing'::text, 'closed'::text])))"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_result_status_check",
+   "type": "c",
+   "def": "CHECK ((result_status = ANY (ARRAY['success'::text, 'rejected'::text, 'withdrawn'::text, 'success_after_supplement'::text])))"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_status_consistency",
+   "type": "c",
+   "def": "CHECK ((((case_status = 'ongoing'::text) AND (result_status IS NULL)) OR ((case_status = 'closed'::text) AND (result_status IS NOT NULL))))"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_publish_consistency",
+   "type": "c",
+   "def": "CHECK (((is_published = false) OR ((case_status = 'closed'::text) AND (needs_manual_review = false) AND (reviewed_at IS NOT NULL) AND (reviewed_by IS NOT NULL) AND (published_at IS NOT NULL) AND (published_by IS NOT NULL))))"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_pkey",
+   "type": "p",
+   "def": "PRIMARY KEY (id)"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_lead_id_unique",
+   "type": "u",
+   "def": "UNIQUE (lead_id)"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "case_knowledge_lead_id_fkey",
+   "type": "f",
+   "def": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE SET NULL"
+  }
+ ],
+ "indexes": [
+  {
+   "schemaname": "public",
+   "tablename": "crm_activities",
+   "indexname": "crm_activities_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX crm_activities_pkey ON public.crm_activities USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "leads",
+   "indexname": "leads_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX leads_pkey ON public.leads USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "notifications",
+   "indexname": "notifications_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX notifications_pkey ON public.notifications USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "users",
+   "indexname": "users_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "users",
+   "indexname": "users_phone_key",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX users_phone_key ON public.users USING btree (phone)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "result_tokens",
+   "indexname": "result_tokens_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX result_tokens_pkey ON public.result_tokens USING btree (token)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_conversations",
+   "indexname": "case_conversations_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX case_conversations_pkey ON public.case_conversations USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_conversations",
+   "indexname": "idx_case_conversations_lead_id_seq",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX idx_case_conversations_lead_id_seq ON public.case_conversations USING btree (lead_id, seq)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "reminders",
+   "indexname": "reminders_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX reminders_pkey ON public.reminders USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_knowledge",
+   "indexname": "case_knowledge_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX case_knowledge_pkey ON public.case_knowledge USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_knowledge",
+   "indexname": "case_knowledge_lead_id_unique",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX case_knowledge_lead_id_unique ON public.case_knowledge USING btree (lead_id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_knowledge",
+   "indexname": "idx_case_knowledge_service_type",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX idx_case_knowledge_service_type ON public.case_knowledge USING btree (service_type)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_knowledge",
+   "indexname": "idx_case_knowledge_category",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX idx_case_knowledge_category ON public.case_knowledge USING btree (category)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_knowledge",
+   "indexname": "idx_case_knowledge_result_status",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX idx_case_knowledge_result_status ON public.case_knowledge USING btree (result_status)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_knowledge",
+   "indexname": "idx_case_knowledge_case_status",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX idx_case_knowledge_case_status ON public.case_knowledge USING btree (case_status)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "case_knowledge",
+   "indexname": "idx_case_knowledge_published",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX idx_case_knowledge_published ON public.case_knowledge USING btree (is_published) WHERE (is_published = true)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "announcements",
+   "indexname": "announcements_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX announcements_pkey ON public.announcements USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "previous_rejections",
+   "indexname": "previous_rejections_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX previous_rejections_pkey ON public.previous_rejections USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "admin_users",
+   "indexname": "admin_users_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX admin_users_pkey ON public.admin_users USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "admin_users",
+   "indexname": "admin_users_auth_user_id_key",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX admin_users_auth_user_id_key ON public.admin_users USING btree (auth_user_id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "admin_users",
+   "indexname": "admin_users_email_key",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX admin_users_email_key ON public.admin_users USING btree (email)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "admin_user_scopes",
+   "indexname": "admin_user_scopes_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX admin_user_scopes_pkey ON public.admin_user_scopes USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "admin_user_scopes",
+   "indexname": "admin_user_scopes_admin_user_id_idx",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX admin_user_scopes_admin_user_id_idx ON public.admin_user_scopes USING btree (admin_user_id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "lead_assignments",
+   "indexname": "lead_assignments_pkey",
+   "tablespace": null,
+   "indexdef": "CREATE UNIQUE INDEX lead_assignments_pkey ON public.lead_assignments USING btree (id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "lead_assignments",
+   "indexname": "lead_assignments_lead_id_idx",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX lead_assignments_lead_id_idx ON public.lead_assignments USING btree (lead_id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "lead_assignments",
+   "indexname": "lead_assignments_admin_user_id_idx",
+   "tablespace": null,
+   "indexdef": "CREATE INDEX lead_assignments_admin_user_id_idx ON public.lead_assignments USING btree (admin_user_id)"
+  }
+ ],
+ "rls": [
+  {
+   "table": "crm_activities",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "leads",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "notifications",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "users",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "result_tokens",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "case_conversations",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "reminders",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "case_knowledge",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "announcements",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "previous_rejections",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "admin_users",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "admin_user_scopes",
+   "rls": true,
+   "force": false
+  },
+  {
+   "table": "lead_assignments",
+   "rls": true,
+   "force": false
+  }
+ ],
+ "policies": [
+  {
+   "schemaname": "public",
+   "tablename": "crm_activities",
+   "policyname": "allow anon insert crm",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "true"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "crm_activities",
+   "policyname": "anon insert crm_activities",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "true"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "crm_activities",
+   "policyname": "authenticated_can_insert_crm_activities",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "true"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "crm_activities",
+   "policyname": "crm_activities_owner_delete",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "DELETE",
+   "qual": "is_lead_owner(lead_id)",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "crm_activities",
+   "policyname": "crm_activities_owner_select",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "SELECT",
+   "qual": "is_lead_owner(lead_id)",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "crm_activities",
+   "policyname": "crm_activities_owner_update",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "UPDATE",
+   "qual": "is_lead_owner(lead_id)",
+   "with_check": "is_lead_owner(lead_id)"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "leads",
+   "policyname": "anon read leads",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "SELECT",
+   "qual": "true",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "leads",
+   "policyname": "authenticated_can_insert_leads",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "true"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "leads",
+   "policyname": "leads_anon_insert",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "true"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "notifications",
+   "policyname": "anon insert notifications",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "true"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "notifications",
+   "policyname": "anon select notifications",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "SELECT",
+   "qual": "true",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "users",
+   "policyname": "user select own profile",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "public"
+   ],
+   "cmd": "SELECT",
+   "qual": "(auth.uid() = id)",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "users",
+   "policyname": "user update own profile",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "public"
+   ],
+   "cmd": "UPDATE",
+   "qual": "(auth.uid() = id)",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "result_tokens",
+   "policyname": "anon read by token",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "SELECT",
+   "qual": "true",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "reminders",
+   "policyname": "user manage own reminders",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "public"
+   ],
+   "cmd": "ALL",
+   "qual": "(auth.uid() = user_id)",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "announcements",
+   "policyname": "anon read published",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "SELECT",
+   "qual": "(is_published = true)",
+   "with_check": null
+  },
+  {
+   "schemaname": "public",
+   "tablename": "previous_rejections",
+   "policyname": "public full access previous_rejections",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "public"
+   ],
+   "cmd": "ALL",
+   "qual": "true",
+   "with_check": "true"
+  },
+  {
+   "schemaname": "storage",
+   "tablename": "objects",
+   "policyname": "anon read documents",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "SELECT",
+   "qual": "(bucket_id = 'documents'::text)",
+   "with_check": null
+  },
+  {
+   "schemaname": "storage",
+   "tablename": "objects",
+   "policyname": "anon upload documents",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "anon"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "(bucket_id = 'documents'::text)"
+  },
+  {
+   "schemaname": "storage",
+   "tablename": "objects",
+   "policyname": "document_upload_authenticated_delete",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "DELETE",
+   "qual": "((bucket_id = 'documents'::text) AND ((storage.foldername(name))[1] = 'document-upload'::text) AND is_lead_owner(((storage.foldername(name))[2])::uuid))",
+   "with_check": null
+  },
+  {
+   "schemaname": "storage",
+   "tablename": "objects",
+   "policyname": "document_upload_authenticated_insert",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "INSERT",
+   "qual": null,
+   "with_check": "((bucket_id = 'documents'::text) AND ((storage.foldername(name))[1] = 'document-upload'::text) AND is_lead_owner(((storage.foldername(name))[2])::uuid))"
+  },
+  {
+   "schemaname": "public",
+   "tablename": "admin_users",
+   "policyname": "admin_users_select_self",
+   "permissive": "PERMISSIVE",
+   "roles": [
+    "authenticated"
+   ],
+   "cmd": "SELECT",
+   "qual": "(auth.uid() = auth_user_id)",
+   "with_check": null
+  }
+ ],
+ "triggers": [
+  {
+   "table": "admin_users",
+   "name": "admin_users_set_updated_at",
+   "def": "CREATE TRIGGER admin_users_set_updated_at BEFORE UPDATE ON public.admin_users FOR EACH ROW EXECUTE FUNCTION set_admin_users_updated_at()"
+  },
+  {
+   "table": "case_knowledge",
+   "name": "trg_case_knowledge_updated_at",
+   "def": "CREATE TRIGGER trg_case_knowledge_updated_at BEFORE UPDATE ON public.case_knowledge FOR EACH ROW EXECUTE FUNCTION case_knowledge_set_updated_at()"
+  }
+ ],
+ "views": [],
+ "functions": [
+  {
+   "name": "case_knowledge_set_updated_at",
+   "security_definer": false
+  },
+  {
+   "name": "is_lead_owner",
+   "security_definer": true
+  },
+  {
+   "name": "set_admin_users_updated_at",
+   "security_definer": false
+  }
+ ],
+ "storage_buckets": [
+  {
+   "id": "documents",
+   "name": "documents",
+   "public": false,
+   "file_size_limit": null,
+   "allowed_mime_types": null
+  }
+ ],
+ "_tables_from_openapi": [
+  "admin_user_scopes",
+  "admin_users",
+  "announcements",
+  "case_conversations",
+  "case_knowledge",
+  "crm_activities",
+  "lead_assignments",
+  "leads",
+  "notifications",
+  "previous_rejections",
+  "reminders",
+  "result_tokens",
+  "users"
+ ]
+}

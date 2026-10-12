@@ -32,6 +32,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
+import { insertPreviousRejection, updatePreviousRejection } from "@/lib/previousRejectionClient";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
@@ -1214,15 +1215,12 @@ export default function PermitCompanyCheckPage() {
 
   function recordRejectionAnonymously() {
     const id = crypto.randomUUID();
-    pendingRejectionInsertRef.current = supabase
-      .from("previous_rejections")
-      .insert({
+    pendingRejectionInsertRef.current = insertPreviousRejection({
         id,
         service_type: "permit_company",
         source_page: "/register/company",
         reason: null,
-      })
-      .then(({ error }) => {
+      }).then(({ error }) => {
         if (error) {
           console.error("previous_rejections insert failed:", error);
           return;
@@ -1237,10 +1235,7 @@ export default function PermitCompanyCheckPage() {
     }
     const id = rejectionRecordIdRef.current;
     if (id && rejectionReason.trim()) {
-      const { error } = await supabase
-        .from("previous_rejections")
-        .update({ reason: rejectionReason.trim() })
-        .eq("id", id);
+      const { error } = await updatePreviousRejection(id, { reason: rejectionReason.trim() });
       if (error) console.error("previous_rejections reason update failed:", error);
     }
     setRejectionStepDone(true);
@@ -1551,10 +1546,7 @@ export default function PermitCompanyCheckPage() {
     }
     if (rejectionRecordIdRef.current) {
       try {
-        await supabase
-          .from("previous_rejections")
-          .update({ linked_lead_id: newLeadId })
-          .eq("id", rejectionRecordIdRef.current);
+        await updatePreviousRejection(rejectionRecordIdRef.current, { linked_lead_id: newLeadId });
       } catch (linkErr) {
         console.error("previous_rejections link failed:", linkErr);
       }

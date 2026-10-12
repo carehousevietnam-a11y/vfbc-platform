@@ -38,6 +38,7 @@ import {
 import { recordAgencyUpgradeAndNotify } from "@/lib/agencyUpgradeRequest";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { supabase } from "@/lib/supabase";
+import { insertPreviousRejection, updatePreviousRejection } from "@/lib/previousRejectionClient";
 import { saveLeadContact } from "@/lib/leadContact";
 import {
   establishBrowserSessionFromResultToken,
@@ -1363,15 +1364,12 @@ export default function TamTruCheckPage() {
   // 기다린 뒤 사유를 업데이트한다 (빠르게 연속 클릭해도 순서가 꼬이지 않도록).
   function recordRejectionAnonymously() {
     const id = crypto.randomUUID();
-    pendingRejectionInsertRef.current = supabase
-      .from("previous_rejections")
-      .insert({
+    pendingRejectionInsertRef.current = insertPreviousRejection({
         id,
         service_type: "tamtru",
         source_page: "/check/tamtru",
         reason: null,
-      })
-      .then(({ error }) => {
+      }).then(({ error }) => {
         if (error) {
           console.error("previous_rejections insert failed:", error);
           return;
@@ -1388,10 +1386,7 @@ export default function TamTruCheckPage() {
     }
     const id = rejectionRecordIdRef.current;
     if (id && rejectionReason.trim()) {
-      const { error } = await supabase
-        .from("previous_rejections")
-        .update({ reason: rejectionReason.trim() })
-        .eq("id", id);
+      const { error } = await updatePreviousRejection(id, { reason: rejectionReason.trim() });
       if (error) console.error("previous_rejections reason update failed:", error);
     }
     setRejectionStepDone(true);
@@ -1706,10 +1701,7 @@ export default function TamTruCheckPage() {
     }
     if (rejectionRecordIdRef.current) {
       try {
-        await supabase
-          .from("previous_rejections")
-          .update({ linked_lead_id: leadId })
-          .eq("id", rejectionRecordIdRef.current);
+        await updatePreviousRejection(rejectionRecordIdRef.current, { linked_lead_id: leadId });
       } catch (linkErr) {
         console.error("previous_rejections link failed:", linkErr);
       }
