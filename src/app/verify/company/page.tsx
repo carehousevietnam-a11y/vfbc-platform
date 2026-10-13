@@ -71,7 +71,7 @@ const COMPANY_LANDING: MasterLandingConfig = {
   costServiceId: "company",
   specialtyLine: "베트남 법률전문 AI",
   hookTitle: "베트남 법인설립, 지금 내 상황에서 무엇이 필요한지 먼저 정리해 보세요.",
-  hookBody: "투자 주체와 사업 분야, 자본금과 사무실, 서류 인증을 나누어 준비할 일을 안내합니다.",
+  hookBody: "투자 방식, 자본금과 사무실, 서류 인증을 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",
   reviewTitle: "확인 항목 안내",
   reviewIntro: "투자 주체, 자본금, 사무실, 대표와 서류 인증을 나누어 확인합니다.",
@@ -89,7 +89,7 @@ const COMPANY_LANDING: MasterLandingConfig = {
   guideTitle: "확인 방법",
   guideIntro: "질문에 답한 뒤 1차 결과를 확인하고, 필요하면 추가 질문과 자료 확인으로 이어갑니다.",
   guideItems: [
-    { title: "상황", body: "투자 주체와 사업 분야, 자본금과 사무실을 확인합니다." },
+    { title: "상황", body: "투자 방식, 자본금과 사무실을 확인합니다." },
     { title: "자료", body: "지금 가진 서류와 부족한 서류를 구분합니다." },
   ],
   officialUrl: "https://dichvucong.gov.vn/",

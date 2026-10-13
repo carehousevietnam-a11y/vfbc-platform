@@ -6,57 +6,57 @@ export const COMPANY_CONTENT_FINAL = {
       "id": "company_q1",
       "route": "C",
       "phase": 1,
-      "prompt": "베트남 법인은 누가 투자해서 세우는지, 어떤 분야의 사업을 하실 예정인가요?",
+      "prompt": "베트남 법인은 누가 투자해서 세우는지, 그 투자 방식에서 가장 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
           "label": "한국 본사 법인이 투자해서 세웁니다.",
-          "description": "본사 제품을 들여와 파는 무역·유통 사업을 하려고 합니다.",
+          "description": "본사 서류에 어떤 인증이 필요하고 투자 등록이 어떻게 진행되는지 확인하고 싶습니다.",
           "fields": {
             "pc_investor": "inv_corporate",
-            "pc_businessLine": "bl_trade"
+            "pc_investorFocus": "if_hq_docs"
           }
         },
         {
           "value": "o2",
           "label": "제가 개인으로 투자해서 세웁니다.",
-          "description": "작은 규모로 서비스나 컨설팅 사업을 시작하려고 합니다.",
+          "description": "개인 투자자가 설립할 수 있는 업종과 필요한 자본금 기준을 확인하고 싶습니다.",
           "fields": {
             "pc_investor": "inv_individual",
-            "pc_businessLine": "bl_service"
+            "pc_investorFocus": "if_individual_scope"
           }
         },
         {
           "value": "o3",
           "label": "현지 동업자와 함께 투자합니다.",
-          "description": "식당이나 카페처럼 음식을 파는 사업을 하려고 합니다.",
+          "description": "지분을 어떻게 나누는지, 외국인 지분에 제한이 있는 업종인지 확인하고 싶습니다.",
           "fields": {
             "pc_investor": "inv_partner",
-            "pc_businessLine": "bl_food"
+            "pc_investorFocus": "if_partner_share"
           }
         },
         {
           "value": "o4",
           "label": "대표사무소를 법인으로 바꾸려고 합니다.",
-          "description": "공장을 세워 직접 제품을 만드는 제조 사업을 하려고 합니다.",
+          "description": "기존 대표사무소를 어떻게 정리하고 법인으로 옮기는지 확인하고 싶습니다.",
           "fields": {
             "pc_investor": "inv_rep_office",
-            "pc_businessLine": "bl_manufacturing"
+            "pc_investorFocus": "if_rep_convert"
           }
         },
         {
           "value": "o5",
           "label": "누가 투자할지 아직 정하지 못했습니다.",
-          "description": "어떤 분야의 사업을 할지도 함께 정리하고 싶습니다.",
+          "description": "어떤 투자 형태가 우리 상황에 맞는지 비교해서 알고 싶습니다.",
           "fields": {
             "pc_investor": "inv_unsure",
-            "pc_businessLine": "bl_undecided"
+            "pc_investorFocus": "if_compare"
           }
         }
       ],
       "directFields": {
         "pc_investor": "direct_input",
-        "pc_businessLine": "direct_input_detail"
+        "pc_investorFocus": "direct_input_detail"
       }
     },
     {
@@ -145,7 +145,7 @@ export const COMPANY_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "후보 사무실만 알아본 상태입니다.",
-          "description": "공장이나 창고를 함께 쓸 수 있는 곳을 찾고 있습니다.",
+          "description": "후보 중에 공장이나 창고를 함께 쓰는 건물도 있어 용도 확인이 필요합니다.",
           "fields": {
             "pc_office": "off_candidate",
             "pc_leaseType": "lt_factory"
@@ -203,7 +203,7 @@ export const COMPANY_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "현지인을 대표로 선임하려고 합니다.",
-          "description": "본사나 개인의 해외 서류 인증은 아직 시작하지 않았습니다.",
+          "description": "투자하는 본사나 개인의 해외 서류 인증은 아직 시작하지 않았습니다.",
           "fields": {
             "pc_representative": "rep_local",
             "pc_foreignDocs": "fd_not_started"
@@ -212,10 +212,10 @@ export const COMPANY_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "대표를 누구로 할지 아직 정하지 않았습니다.",
-          "description": "개인 투자라서 인증할 해외 법인 서류는 없습니다.",
+          "description": "대표가 정해져야 서류를 준비할 수 있어 해외 서류 인증도 시작하지 못했습니다.",
           "fields": {
             "pc_representative": "rep_undecided",
-            "pc_foreignDocs": "fd_na"
+            "pc_foreignDocs": "fd_not_started"
           }
         },
         {
@@ -395,7 +395,7 @@ export const COMPANY_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "계좌는 법인 설립 후 열 예정입니다.",
-          "description": "정해진 기한 안에 한 번에 송금할 생각입니다.",
+          "description": "설립 직후 계좌를 열고 정해진 기한 안에 자본금을 한 번에 보낼 계획입니다.",
           "fields": {
             "pc_bankAccount": "ba_not_yet_after",
             "pc_capitalTransfer": "ct_planned"
@@ -412,57 +412,57 @@ export const COMPANY_CONTENT_FINAL = {
       "id": "company_q8",
       "route": "C",
       "phase": 2,
-      "prompt": "법인 설립 외에 업종별로 추가로 받아야 할 허가가 있고, 그 순서를 알고 계신가요?",
+      "prompt": "어떤 분야의 사업을 하실 예정이고, 그 분야에서 법인 설립 외에 추가로 필요한 허가를 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "추가 허가 없이 바로 영업할 수 있는 업종입니다.",
-          "description": "추가 허가의 순서를 따로 정할 필요가 없습니다.",
+          "label": "무역·유통 사업을 하려고 합니다.",
+          "description": "수출입이나 유통 허가가 추가로 필요한지는 아직 확인하지 못했습니다.",
           "fields": {
-            "pc_subLicense": "sl_none",
-            "pc_subOrder": "sc_known"
+            "pc_businessLine": "bl_trade",
+            "pc_subLicense": "sl_trade"
           }
         },
         {
           "value": "o2",
-          "label": "식품 위생이나 소방 허가가 따로 필요합니다.",
-          "description": "법인 설립을 마친 뒤에 진행할 예정입니다.",
+          "label": "서비스나 컨설팅 사업을 하려고 합니다.",
+          "description": "법인 등록 외에 따로 받을 허가는 없다고 알고 있습니다.",
           "fields": {
-            "pc_subLicense": "sl_food",
-            "pc_subOrder": "sc_after"
+            "pc_businessLine": "bl_service",
+            "pc_subLicense": "sl_none"
           }
         },
         {
           "value": "o3",
-          "label": "수출입이나 유통 허가가 필요합니다.",
-          "description": "법인 설립과 어떤 순서로 받아야 하는지 잘 모르겠습니다.",
+          "label": "식당이나 카페를 하려고 합니다.",
+          "description": "법인 설립을 마친 뒤에 식품 위생과 소방 허가를 따로 받아야 한다고 알고 있습니다.",
           "fields": {
-            "pc_subLicense": "sl_trade",
-            "pc_subOrder": "sc_unknown"
+            "pc_businessLine": "bl_food",
+            "pc_subLicense": "sl_food"
           }
         },
         {
           "value": "o4",
-          "label": "환경 관련 허가가 필요할 것 같습니다.",
-          "description": "공장 가동 전에 받아야 하는 것으로 알고 있습니다.",
+          "label": "공장을 세워 제품을 만드는 제조업을 하려고 합니다.",
+          "description": "공장을 가동하기 전에 환경 허가를 받아야 한다고 알고 있습니다.",
           "fields": {
-            "pc_subLicense": "sl_env",
-            "pc_subOrder": "sc_known"
+            "pc_businessLine": "bl_manufacturing",
+            "pc_subLicense": "sl_env"
           }
         },
         {
           "value": "o5",
-          "label": "추가 허가가 필요한지 모르겠습니다.",
-          "description": "필요하다면 어떤 순서로 하는지도 알고 싶습니다.",
+          "label": "사업 분야를 아직 정하지 못했습니다.",
+          "description": "분야가 정해지면 어떤 허가가 더 필요한지도 함께 알아보고 싶습니다.",
           "fields": {
-            "pc_subLicense": "sl_unknown",
-            "pc_subOrder": "sc_unknown"
+            "pc_businessLine": "bl_undecided",
+            "pc_subLicense": "sl_unknown"
           }
         }
       ],
       "directFields": {
-        "pc_subLicense": "direct_input",
-        "pc_subOrder": "direct_input_detail"
+        "pc_businessLine": "direct_input",
+        "pc_subLicense": "direct_input_detail"
       }
     },
     {
@@ -511,10 +511,10 @@ export const COMPANY_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "가능한 빨리 마치고 싶습니다.",
-          "description": "사무실 임대가 시작되는 날에 맞춰 바로 영업하려고 합니다.",
+          "description": "영업 시작을 앞당기고 싶지만 정확한 시작일은 아직 정하지 못했습니다.",
           "fields": {
             "pc_timeline": "tl_asap",
-            "pc_openPlan": "op_lease_start"
+            "pc_openPlan": "op_unsure"
           }
         }
       ],
@@ -586,57 +586,57 @@ export const COMPANY_CONTENT_FINAL = {
       "id": "company_q11",
       "route": "C",
       "phase": 2,
-      "prompt": "투자하시는 분의 국적은 어디이고, 신청서는 누가 제출하게 될 예정인가요?",
+      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "대한민국 국적입니다.",
-          "description": "제가 직접 담당 기관에 서류를 제출하려고 준비하고 있습니다.",
+          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
+          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
           "fields": {
-            "pc_nationality": "nat_korea",
-            "pc_submitter": "sub_self"
+            "pc_submitter": "sub_self",
+            "pc_submitNeed": "sn_account"
           }
         },
         {
           "value": "o2",
-          "label": "중국 국적입니다.",
-          "description": "베트남 직원이 담당 기관에 서류를 대신 제출해 주기로 했습니다.",
+          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
+          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
           "fields": {
-            "pc_nationality": "nat_china",
-            "pc_submitter": "sub_staff"
+            "pc_submitter": "sub_staff",
+            "pc_submitNeed": "sn_proxy"
           }
         },
         {
           "value": "o3",
-          "label": "일본 국적입니다.",
-          "description": "대행사에 서류 제출을 맡기려고 어느 업체가 좋을지 알아보는 중입니다.",
+          "label": "대행사에 서류 제출을 맡기려고 합니다.",
+          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
           "fields": {
-            "pc_nationality": "nat_japan",
-            "pc_submitter": "sub_agency"
+            "pc_submitter": "sub_agency",
+            "pc_submitNeed": "sn_scope"
           }
         },
         {
           "value": "o4",
-          "label": "그 밖의 아시아 국가 국적입니다.",
-          "description": "누가 제출할지 아직 정하지 못해서 방법별로 비교해 보고 싶습니다.",
+          "label": "누가 제출할지 아직 정하지 못했습니다.",
+          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
           "fields": {
-            "pc_nationality": "nat_other_asia",
-            "pc_submitter": "sub_undecided"
+            "pc_submitter": "sub_undecided",
+            "pc_submitNeed": "sn_compare"
           }
         },
         {
           "value": "o5",
-          "label": "그 밖의 지역 국적입니다.",
-          "description": "직접 제출하지만 베트남어를 몰라서 통역이 꼭 필요한 상황입니다.",
+          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
+          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
           "fields": {
-            "pc_nationality": "nat_other",
-            "pc_submitter": "sub_self"
+            "pc_submitter": "sub_self_lang",
+            "pc_submitNeed": "sn_interpreter"
           }
         }
       ],
       "directFields": {
-        "pc_nationality": "direct_input",
-        "pc_submitter": "direct_input_detail"
+        "pc_submitter": "direct_input",
+        "pc_submitNeed": "direct_input_detail"
       }
     },
     {
@@ -702,15 +702,15 @@ export const COMPANY_CONTENT_FINAL = {
       "id": "company_q13",
       "route": "C",
       "phase": 2,
-      "prompt": "법인을 세울 지역은 어디이고, 신청서를 받는 담당 기관을 알고 계신가요?",
+      "prompt": "법인을 세울 지역은 어디이고, 그 지역에서 신청서를 받는 담당 기관은 어떻게 확인하실 예정인가요?",
       "choices": [
         {
           "value": "o1",
           "label": "하노이에 세웁니다.",
-          "description": "신청을 받는 담당 기관의 위치와 온라인 접수 방법을 이미 알고 있습니다.",
+          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
           "fields": {
             "pc_area": "area_hanoi",
-            "pc_agencyKnown": "ag_known"
+            "pc_agencyNeed": "an_online"
           }
         },
         {
@@ -719,40 +719,40 @@ export const COMPANY_CONTENT_FINAL = {
           "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
           "fields": {
             "pc_area": "area_hcm",
-            "pc_agencyKnown": "ag_unknown"
+            "pc_agencyNeed": "an_office"
           }
         },
         {
           "value": "o3",
           "label": "다낭에 세웁니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 모르겠습니다.",
+          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
           "fields": {
             "pc_area": "area_danang",
-            "pc_agencyKnown": "ag_changed"
+            "pc_agencyNeed": "an_changed"
           }
         },
         {
           "value": "o4",
           "label": "그 밖의 도시에 세웁니다.",
-          "description": "담당 기관은 알고 있지만 온라인 접수 방법은 아직 모르는 상태입니다.",
+          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
           "fields": {
             "pc_area": "area_other_city",
-            "pc_agencyKnown": "ag_known"
+            "pc_agencyNeed": "an_visit"
           }
         },
         {
           "value": "o5",
           "label": "산업단지 안에 세웁니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 모르겠습니다.",
+          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
           "fields": {
             "pc_area": "area_ip",
-            "pc_agencyKnown": "ag_unknown"
+            "pc_agencyNeed": "an_zone"
           }
         }
       ],
       "directFields": {
         "pc_area": "direct_input",
-        "pc_agencyKnown": "direct_input_detail"
+        "pc_agencyNeed": "direct_input_detail"
       }
     }
   ],
@@ -760,13 +760,13 @@ export const COMPANY_CONTENT_FINAL = {
     "cards": [
       {
         "questionCode": "Q1",
-        "title": "투자 주체와 사업 분야",
+        "title": "투자 주체와 확인할 점",
         "sentences": {
-          "pc_investor=inv_corporate|pc_businessLine=bl_trade": "본사 법인이 투자해 무역·유통 법인을 세우려는 상황입니다",
-          "pc_investor=inv_individual|pc_businessLine=bl_service": "개인 투자로 서비스 법인을 세우려는 상황입니다",
-          "pc_investor=inv_partner|pc_businessLine=bl_food": "현지 동업자와 함께 음식 사업 법인을 세우려는 상황입니다",
-          "pc_investor=inv_rep_office|pc_businessLine=bl_manufacturing": "대표사무소를 제조 법인으로 바꾸려는 상황입니다",
-          "pc_investor=inv_unsure|pc_businessLine=bl_undecided": "투자 주체와 사업 분야부터 정해야 하는 상황입니다"
+          "pc_investor=inv_corporate|pc_investorFocus=if_hq_docs": "본사 법인이 투자하며 본사 서류와 투자 등록 절차를 확인하려는 상황입니다",
+          "pc_investor=inv_individual|pc_investorFocus=if_individual_scope": "개인 투자로 설립 가능한 업종과 자본금 기준을 확인하려는 상황입니다",
+          "pc_investor=inv_partner|pc_investorFocus=if_partner_share": "현지 동업자와 공동 투자하며 지분 구조를 확인하려는 상황입니다",
+          "pc_investor=inv_rep_office|pc_investorFocus=if_rep_convert": "대표사무소를 법인으로 전환하는 절차를 확인하려는 상황입니다",
+          "pc_investor=inv_unsure|pc_investorFocus=if_compare": "투자 형태부터 비교해 정해야 하는 상황입니다"
         }
       },
       {
@@ -798,7 +798,7 @@ export const COMPANY_CONTENT_FINAL = {
           "pc_representative=rep_resident|pc_foreignDocs=fd_legalized": "대표가 상주하고 해외 서류 인증을 마친 상황입니다",
           "pc_representative=rep_visiting|pc_foreignDocs=fd_in_progress": "대표가 오가며 관리하고 서류 인증이 진행 중인 상황입니다",
           "pc_representative=rep_local|pc_foreignDocs=fd_not_started": "현지인 대표를 두고 서류 인증 전인 상황입니다",
-          "pc_representative=rep_undecided|pc_foreignDocs=fd_na": "대표를 정해야 하고 해외 법인 서류는 없는 상황입니다",
+          "pc_representative=rep_undecided|pc_foreignDocs=fd_not_started": "대표를 정해야 하고 해외 서류 인증도 시작 전인 상황입니다",
           "pc_representative=rep_unknown|pc_foreignDocs=fd_unknown": "대표 상주와 서류 인증 필요 여부를 확인할 상황입니다"
         }
       }
@@ -950,13 +950,13 @@ export const COMPANY_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q8",
-      "title": "업종별 추가 허가",
+      "title": "사업 분야와 추가 허가",
       "sentences": {
-        "pc_subLicense=sl_none|pc_subOrder=sc_known": "추가 허가가 없더라도 업종 코드가 실제 사업과 맞는지 등록 전에 확인하세요.",
-        "pc_subLicense=sl_food|pc_subOrder=sc_after": "식당·카페는 설립 후 위생·소방 허가가 필요하니 매장 공사 일정과 함께 준비하세요.",
-        "pc_subLicense=sl_trade|pc_subOrder=sc_unknown": "외국인 투자 유통은 별도 허가가 필요할 수 있으니 투자 등록 단계에서 함께 확인하세요.",
-        "pc_subLicense=sl_env|pc_subOrder=sc_known": "제조업은 환경 허가가 공장 설계와 함께 가야 하니 설립과 동시에 준비를 시작하세요.",
-        "pc_subLicense=sl_unknown|pc_subOrder=sc_unknown": "사업 분야를 정하면 추가 허가가 정해지니 업종 코드부터 확정하세요."
+        "pc_businessLine=bl_trade|pc_subLicense=sl_trade": "외국인 투자 유통은 별도 허가가 필요할 수 있으니 투자 등록 단계에서 함께 확인하세요.",
+        "pc_businessLine=bl_service|pc_subLicense=sl_none": "추가 허가가 없더라도 업종 코드가 실제 사업과 맞는지 등록 전에 확인하세요.",
+        "pc_businessLine=bl_food|pc_subLicense=sl_food": "식당·카페는 설립 후 위생·소방 허가가 필요하니 매장 공사 일정과 함께 준비하세요.",
+        "pc_businessLine=bl_manufacturing|pc_subLicense=sl_env": "제조업은 환경 허가가 공장 설계와 함께 가야 하니 설립과 동시에 준비를 시작하세요.",
+        "pc_businessLine=bl_undecided|pc_subLicense=sl_unknown": "사업 분야를 정하면 추가 허가가 정해지니 업종 코드부터 확정하세요."
       }
     },
     {
@@ -967,7 +967,7 @@ export const COMPANY_CONTENT_FINAL = {
         "pc_timeline=tl_2_3m|pc_openPlan=op_lease_start": "임대 시작일 전에 설립이 끝나도록 서류 인증 기간을 거꾸로 계산해 보세요.",
         "pc_timeline=tl_flexible|pc_openPlan=op_after_staff": "시간 여유가 있으니 외국인 직원 노동허가 일정까지 함께 계획하세요.",
         "pc_timeline=tl_unsure|pc_openPlan=op_unsure": "설립 시점이 정해져야 사무실 계약과 송금 일정을 맞출 수 있습니다.",
-        "pc_timeline=tl_asap|pc_openPlan=op_lease_start": "빨리 끝내려면 서류 인증과 번역을 동시에 진행하고 보완 요구를 줄이는 것이 가장 중요합니다."
+        "pc_timeline=tl_asap|pc_openPlan=op_unsure": "빨리 끝내려면 서류 인증과 번역을 동시에 진행하고 보완 요구를 줄이는 것이 가장 중요합니다."
       }
     },
     {
@@ -983,13 +983,13 @@ export const COMPANY_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q11",
-      "title": "국적과 제출 방식",
+      "title": "제출 방식",
       "sentences": {
-        "pc_nationality=nat_korea|pc_submitter=sub_self": "직접 제출한다면 온라인 접수 계정과 서명 방법을 미리 준비하세요.",
-        "pc_nationality=nat_china|pc_submitter=sub_staff": "직원이 제출하면 위임장과 제출 후 연락 방법을 정해 두세요.",
-        "pc_nationality=nat_japan|pc_submitter=sub_agency": "대행사에 맡길 때는 맡기는 업무 범위와 서류 원본 보관 방식을 문서로 정하세요.",
-        "pc_nationality=nat_other_asia|pc_submitter=sub_undecided": "제출 방식을 정하려면 직접·직원·대행 세 가지의 비용과 일정을 비교해 보세요.",
-        "pc_nationality=nat_other|pc_submitter=sub_self": "국적에 따라 서류 인증 방법이 다를 수 있으니 본국 서류의 인증 절차를 먼저 확인하세요."
+        "pc_submitter=sub_self|pc_submitNeed=sn_account": "직접 제출한다면 온라인 접수 계정과 서명 방법을 미리 준비하세요.",
+        "pc_submitter=sub_staff|pc_submitNeed=sn_proxy": "직원이 제출하면 위임장과 제출 후 연락 방법을 정해 두세요.",
+        "pc_submitter=sub_agency|pc_submitNeed=sn_scope": "대행사에 맡길 때는 맡기는 업무 범위와 서류 원본 보관 방식을 문서로 정하세요.",
+        "pc_submitter=sub_undecided|pc_submitNeed=sn_compare": "제출 방식을 정하려면 직접·직원·대행 세 가지의 비용과 일정을 비교해 보세요.",
+        "pc_submitter=sub_self_lang|pc_submitNeed=sn_interpreter": "직접 제출하되 베트남어가 어렵다면 제출하는 날 통역이 필요한 범위를 미리 정해 두세요."
       }
     },
     {
@@ -1007,18 +1007,20 @@ export const COMPANY_CONTENT_FINAL = {
       "questionCode": "Q13",
       "title": "지역과 담당 기관",
       "sentences": {
-        "pc_area=area_hanoi|pc_agencyKnown=ag_known": "온라인 접수 후 원본 제출이 필요한지만 한 번 더 확인하세요.",
-        "pc_area=area_hcm|pc_agencyKnown=ag_unknown": "지역 담당 기관을 먼저 확인해야 접수 방법과 처리 기간을 알 수 있습니다.",
-        "pc_area=area_danang|pc_agencyKnown=ag_changed": "기관 통합으로 담당이 바뀌었을 수 있으니 접수 전에 해당 기관에 직접 확인하세요.",
-        "pc_area=area_other_city|pc_agencyKnown=ag_known": "지방은 접수 방식이 다를 수 있으니 방문 전에 접수 방법을 확인하세요.",
-        "pc_area=area_ip|pc_agencyKnown=ag_unknown": "산업단지 안이라면 산업단지 관리 기관이 담당하는 경우가 많으니 그곳에 먼저 문의하세요."
+        "pc_area=area_hanoi|pc_agencyNeed=an_online": "온라인 접수 후 원본 제출이 필요한지만 한 번 더 확인하세요.",
+        "pc_area=area_hcm|pc_agencyNeed=an_office": "지역 담당 기관을 먼저 확인해야 접수 방법과 처리 기간을 알 수 있습니다.",
+        "pc_area=area_danang|pc_agencyNeed=an_changed": "기관 통합으로 담당이 바뀌었을 수 있으니 접수 전에 해당 기관에 직접 확인하세요.",
+        "pc_area=area_other_city|pc_agencyNeed=an_visit": "지방은 접수 방식이 다를 수 있으니 방문 전에 접수 방법을 확인하세요.",
+        "pc_area=area_ip|pc_agencyNeed=an_zone": "산업단지 안이라면 산업단지 관리 기관이 담당하는 경우가 많으니 그곳에 먼저 문의하세요."
       }
     }
   ],
   "labels": {
-    "ag_changed": "기관 통합으로 담당이 불확실함",
-    "ag_known": "담당 기관을 알고 있음",
-    "ag_unknown": "담당 기관을 모름",
+    "an_changed": "기관 통합으로 담당 확인",
+    "an_office": "접수 기관 확인",
+    "an_online": "담당 기관과 온라인 접수 확인",
+    "an_visit": "지방 접수 방식 확인",
+    "an_zone": "산업단지 관리 기관 확인",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
@@ -1059,12 +1061,16 @@ export const COMPANY_CONTENT_FINAL = {
     "docs_unknown": "필요 서류를 모름",
     "fd_in_progress": "서류 인증 진행 중",
     "fd_legalized": "본사·개인 서류 인증 완료",
-    "fd_na": "인증할 해외 서류 없음",
     "fd_not_started": "서류 인증 시작 전",
     "fd_unknown": "인증 필요 여부를 모름",
     "help_accompany": "서류 작성과 제출 동행을 원함",
     "help_full": "전 과정 대행을 원함",
     "help_guide": "서류 작성 안내를 원함",
+    "if_compare": "투자 형태 비교",
+    "if_hq_docs": "본사 서류 인증과 투자 등록 절차 확인",
+    "if_individual_scope": "개인 투자 가능 업종과 자본금 기준 확인",
+    "if_partner_share": "지분 구조와 외국인 지분 제한 확인",
+    "if_rep_convert": "대표사무소 정리와 법인 전환 절차 확인",
     "inv_corporate": "본사 법인이 투자",
     "inv_individual": "개인이 투자",
     "inv_partner": "현지 동업자와 공동 투자",
@@ -1075,11 +1081,6 @@ export const COMPANY_CONTENT_FINAL = {
     "lt_factory": "공장·창고",
     "lt_shared": "공유 오피스",
     "lt_unknown": "건물 용도를 모름",
-    "nat_china": "중국 국적",
-    "nat_japan": "일본 국적",
-    "nat_korea": "대한민국 국적",
-    "nat_other": "그 밖의 지역 국적",
-    "nat_other_asia": "그 밖의 아시아 국적",
     "off_candidate": "후보 사무실만 있음",
     "off_provisional": "사무실 가계약·약정서",
     "off_residential": "주거용 집 주소를 쓰려 함",
@@ -1111,16 +1112,19 @@ export const COMPANY_CONTENT_FINAL = {
     "rep_undecided": "대표 미정",
     "rep_unknown": "대표 상주 필요 여부를 모름",
     "rep_visiting": "대표가 오가며 관리",
-    "sc_after": "설립 후 진행 예정",
-    "sc_known": "추가 허가 순서를 알고 있음",
-    "sc_unknown": "추가 허가 순서를 모름",
     "sl_env": "환경 허가 필요",
     "sl_food": "식품 위생·소방 허가 필요",
     "sl_none": "추가 허가 불필요",
     "sl_trade": "수출입·유통 허가 필요",
     "sl_unknown": "추가 허가 필요 여부를 모름",
+    "sn_account": "온라인 접수 계정·서명 준비",
+    "sn_compare": "제출 방식 비교",
+    "sn_interpreter": "통역 필요 범위 확인",
+    "sn_proxy": "위임장·연락 방법 준비",
+    "sn_scope": "대행 범위·원본 보관 확인",
     "sub_agency": "대행사가 제출",
     "sub_self": "직접 제출",
+    "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
     "sub_undecided": "제출 방식 미정",
     "tl_2_3m": "두세 달 안에 설립",
@@ -1289,10 +1293,11 @@ export const COMPANY_CONTENT_FINAL = {
             ]
           },
           {
-            "field": "pc_agencyKnown",
+            "field": "pc_agencyNeed",
             "values": [
-              "ag_unknown",
-              "ag_changed"
+              "an_office",
+              "an_changed",
+              "an_zone"
             ]
           }
         ]
