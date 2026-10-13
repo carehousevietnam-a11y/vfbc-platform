@@ -6,57 +6,57 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "화장품과 관련해 어떤 절차가 필요하고, 판매하려는 제품은 어떤 종류인가요?",
+      "prompt": "어떤 화장품을 판매하시고, 그 제품의 신고에서 가장 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "수입한 화장품을 판매하려고 합니다.",
-          "description": "피부에 바르는 기초 화장품을 주로 들여오려고 합니다.",
+          "label": "피부에 바르는 기초 화장품을 판매합니다.",
+          "description": "수입해서 팔 때 판매 신고가 필요한지와 어떤 서류를 내야 하는지 확인하고 싶습니다.",
           "fields": {
-            "cs_stage": "st_import",
-            "cs_product": "pr_skincare"
+            "cs_product": "pr_skincare",
+            "cs_productFocus": "pf_import"
           }
         },
         {
           "value": "o2",
-          "label": "베트남에서 만든 화장품을 팔려고 합니다.",
-          "description": "립스틱이나 파운데이션 같은 색조 화장품입니다.",
+          "label": "립스틱이나 파운데이션 같은 색조 화장품을 판매합니다.",
+          "description": "베트남에서 직접 만든 색조 제품도 같은 신고를 하는지 확인하고 싶습니다.",
           "fields": {
-            "cs_stage": "st_local_make",
-            "cs_product": "pr_makeup"
+            "cs_product": "pr_makeup",
+            "cs_productFocus": "pf_local"
           }
         },
         {
           "value": "o3",
-          "label": "신고 번호를 갱신해야 합니다.",
-          "description": "샴푸나 트리트먼트 같은 헤어 제품을 판매하고 있습니다.",
+          "label": "샴푸나 트리트먼트 같은 헤어 제품을 판매합니다.",
+          "description": "이미 받은 신고 번호를 갱신할 때 무엇을 다시 내야 하는지 알고 싶습니다.",
           "fields": {
-            "cs_stage": "st_renew",
-            "cs_product": "pr_hair"
+            "cs_product": "pr_hair",
+            "cs_productFocus": "pf_renew"
           }
         },
         {
           "value": "o4",
-          "label": "신고한 내용을 바꿔야 합니다.",
-          "description": "바디로션이나 세정 제품의 성분이나 포장이 바뀌었습니다.",
+          "label": "바디로션이나 세정 제품을 판매합니다.",
+          "description": "성분이나 포장이 바뀌었을 때 신고한 내용을 바꿔야 하는지 확인하고 싶습니다.",
           "fields": {
-            "cs_stage": "st_change",
-            "cs_product": "pr_body"
+            "cs_product": "pr_body",
+            "cs_productFocus": "pf_change"
           }
         },
         {
           "value": "o5",
-          "label": "어떤 절차가 필요한지 모르겠습니다.",
-          "description": "여러 종류의 화장품을 한꺼번에 들여오려고 합니다.",
+          "label": "여러 종류의 화장품을 함께 판매합니다.",
+          "description": "제품마다 신고가 따로 필요한지와 어떤 절차부터 시작할지 알고 싶습니다.",
           "fields": {
-            "cs_stage": "st_unsure",
-            "cs_product": "pr_mixed"
+            "cs_product": "pr_mixed",
+            "cs_productFocus": "pf_which"
           }
         }
       ],
       "directFields": {
-        "cs_stage": "direct_input",
-        "cs_product": "direct_input_detail"
+        "cs_product": "direct_input",
+        "cs_productFocus": "direct_input_detail"
       }
     },
     {
@@ -354,57 +354,57 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "수입 제품의 자유판매증명서는 받았고, 베트남어 보조 표시는 준비되었나요?",
+      "prompt": "수입 제품의 자유판매증명서는 받았고, 그 증명서에서 가장 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
           "label": "자유판매증명서를 받아 영사 인증까지 마쳤습니다.",
-          "description": "베트남어 보조 표시도 모두 준비해 두었습니다.",
+          "description": "인증받은 증명서의 유효 기간이 신고할 때까지 남아 있는지 확인하고 싶습니다.",
           "fields": {
             "cs_cfs": "cfs_legalized",
-            "cs_label": "lb_ready"
+            "cs_cfsFocus": "cf_validity"
           }
         },
         {
           "value": "o2",
           "label": "자유판매증명서는 받았지만 인증은 아직입니다.",
-          "description": "표시는 초안만 만들어 두고 확정하지 않았습니다.",
+          "description": "영사 인증을 어디서 어떻게 받는지와 걸리는 기간을 알고 싶습니다.",
           "fields": {
             "cs_cfs": "cfs_issued",
-            "cs_label": "lb_draft"
+            "cs_cfsFocus": "cf_legalize_how"
           }
         },
         {
           "value": "o3",
           "label": "자유판매증명서를 요청해 두었습니다.",
-          "description": "베트남어 보조 표시는 아직 준비하지 못했습니다.",
+          "description": "제조사가 발급하는 데 얼마나 걸리는지와 어떤 내용이 들어가야 하는지 알고 싶습니다.",
           "fields": {
             "cs_cfs": "cfs_requested",
-            "cs_label": "lb_none"
+            "cs_cfsFocus": "cf_issue_time"
           }
         },
         {
           "value": "o4",
           "label": "자유판매증명서가 없습니다.",
-          "description": "베트남어 제품 표시에 어떤 내용을 넣어야 하는지 모르겠습니다.",
+          "description": "제조사가 증명서를 발급해 주지 않을 때 대신 쓸 수 있는 서류가 있는지 알고 싶습니다.",
           "fields": {
             "cs_cfs": "cfs_none",
-            "cs_label": "lb_unknown"
+            "cs_cfsFocus": "cf_alternative"
           }
         },
         {
           "value": "o5",
           "label": "증명서가 필요한지 모르겠습니다.",
-          "description": "베트남어 보조 표시는 이미 제품마다 붙여 두었습니다.",
+          "description": "수입 제품과 국내 생산 제품 중 어느 쪽에 증명서가 필요한지 확인하고 싶습니다.",
           "fields": {
             "cs_cfs": "cfs_unknown",
-            "cs_label": "lb_ready"
+            "cs_cfsFocus": "cf_need"
           }
         }
       ],
       "directFields": {
         "cs_cfs": "direct_input",
-        "cs_label": "direct_input_detail"
+        "cs_cfsFocus": "direct_input_detail"
       }
     },
     {
@@ -412,12 +412,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "제품은 어디에서 판매하실 예정이고, 광고는 어떻게 하실 계획인가요?",
+      "prompt": "제품은 어디에서 판매하실 예정이고, 그 판매처에서 광고나 홍보는 어떻게 하실 계획인가요?",
       "choices": [
         {
           "value": "o1",
           "label": "온라인으로 판매하려고 합니다.",
-          "description": "페이스북이나 틱톡 같은 소셜미디어 광고를 꾸준히 할 계획입니다.",
+          "description": "소셜미디어 광고를 꾸준히 할 계획인데 광고 문구에 기준이 있는지 알고 싶습니다.",
           "fields": {
             "cs_channel": "ch_online",
             "cs_ads": "ad_sns"
@@ -426,7 +426,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "직접 운영하는 매장에서 판매합니다.",
-          "description": "따로 광고는 하지 않고 매장에서만 알릴 생각입니다.",
+          "description": "광고 없이 매장에서만 알릴 생각이라 진열 전에 확인할 표시가 있는지 알고 싶습니다.",
           "fields": {
             "cs_channel": "ch_shop",
             "cs_ads": "ad_none"
@@ -435,7 +435,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "유통사에 공급하려고 합니다.",
-          "description": "인플루언서와 함께 영상으로 제품을 홍보하려고 합니다.",
+          "description": "유통사가 인플루언서 영상 홍보를 요구할 수 있어 홍보 문구 기준이 궁금합니다.",
           "fields": {
             "cs_channel": "ch_distributor",
             "cs_ads": "ad_influencer"
@@ -444,7 +444,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "피부관리실에 공급하려고 합니다.",
-          "description": "피부 개선 효과를 강조하는 광고를 하고 싶습니다.",
+          "description": "피부 개선 효과를 설명하며 공급하고 싶은데 어디까지 말해도 되는지 궁금합니다.",
           "fields": {
             "cs_channel": "ch_spa",
             "cs_ads": "ad_claims"
@@ -453,7 +453,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "판매처를 아직 정하지 못했습니다.",
-          "description": "화장품 광고에 어떤 기준이 있는지 모르겠습니다.",
+          "description": "판매처가 정해지지 않아 광고에 어떤 기준이 있는지도 아직 모릅니다.",
           "fields": {
             "cs_channel": "ch_unsure",
             "cs_ads": "ad_unknown"
@@ -760,13 +760,13 @@ export const COSMETICS_CONTENT_FINAL = {
     "cards": [
       {
         "questionCode": "Q1",
-        "title": "절차와 제품 종류",
+        "title": "제품 종류와 확인할 점",
         "sentences": {
-          "cs_stage=st_import|cs_product=pr_skincare": "수입 기초 화장품의 판매 신고가 필요한 상황입니다",
-          "cs_stage=st_local_make|cs_product=pr_makeup": "베트남 생산 색조 화장품을 신고하려는 상황입니다",
-          "cs_stage=st_renew|cs_product=pr_hair": "헤어 제품의 신고 번호를 갱신하려는 상황입니다",
-          "cs_stage=st_change|cs_product=pr_body": "바디 제품의 신고 내용을 바꾸려는 상황입니다",
-          "cs_stage=st_unsure|cs_product=pr_mixed": "여러 제품에 필요한 절차부터 확인할 상황입니다"
+          "cs_product=pr_skincare|cs_productFocus=pf_import": "수입 기초 화장품의 신고 서류를 확인하려는 상황입니다",
+          "cs_product=pr_makeup|cs_productFocus=pf_local": "국내 생산 색조 화장품의 신고를 확인하려는 상황입니다",
+          "cs_product=pr_hair|cs_productFocus=pf_renew": "헤어 제품의 신고 번호 갱신을 확인하려는 상황입니다",
+          "cs_product=pr_body|cs_productFocus=pf_change": "바디 제품의 신고 내용 변경을 확인하려는 상황입니다",
+          "cs_product=pr_mixed|cs_productFocus=pf_which": "여러 제품에 필요한 신고 절차를 확인하려는 상황입니다"
         }
       },
       {
@@ -935,13 +935,13 @@ export const COSMETICS_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q7",
-      "title": "자유판매증명서와 표시",
+      "title": "자유판매증명서 확인",
       "sentences": {
-        "cs_cfs=cfs_legalized|cs_label=lb_ready": "증명서의 유효 기간과 표시 문안이 신고 내용과 같은지만 확인하세요.",
-        "cs_cfs=cfs_issued|cs_label=lb_draft": "영사 인증에 시간이 걸리니 바로 신청하고, 표시 문안도 그 사이 확정하세요.",
-        "cs_cfs=cfs_requested|cs_label=lb_none": "증명서가 나오는 대로 인증을 받을 수 있도록 일정을 잡고 표시 준비도 시작하세요.",
-        "cs_cfs=cfs_none|cs_label=lb_unknown": "수입 제품은 생산국의 판매 증명이 필요한 경우가 많으니 제조사에 먼저 요청하세요.",
-        "cs_cfs=cfs_unknown|cs_label=lb_ready": "수입 여부에 따라 증명서 필요 여부가 정해지니 그 기준부터 확인하세요."
+        "cs_cfs=cfs_legalized|cs_cfsFocus=cf_validity": "증명서의 발급일과 유효 기간을 확인하고, 신고 접수 전에 만료되지 않도록 일정을 잡으세요.",
+        "cs_cfs=cfs_issued|cs_cfsFocus=cf_legalize_how": "영사 인증에 시간이 걸리니 바로 신청하고, 인증 기간을 포함해 신고 일정을 잡으세요.",
+        "cs_cfs=cfs_requested|cs_cfsFocus=cf_issue_time": "증명서가 나오는 대로 인증을 받을 수 있도록 일정을 잡고, 필요한 기재 내용을 제조사에 미리 알려 주세요.",
+        "cs_cfs=cfs_none|cs_cfsFocus=cf_alternative": "수입 제품은 생산국의 판매 증명이 필요한 경우가 많으니 제조사에 먼저 요청하고 대체 서류도 확인하세요.",
+        "cs_cfs=cfs_unknown|cs_cfsFocus=cf_need": "수입 여부에 따라 증명서 필요 여부가 정해지니 그 기준부터 확인하세요."
       }
     },
     {
@@ -1027,6 +1027,11 @@ export const COSMETICS_CONTENT_FINAL = {
     "area_hcm": "호치민",
     "area_ip": "산업단지",
     "area_other_city": "그 밖의 도시",
+    "cf_alternative": "대체 서류 확인",
+    "cf_issue_time": "제조사 발급 기간과 내용 확인",
+    "cf_legalize_how": "영사 인증 방법과 기간 확인",
+    "cf_need": "증명서 필요 대상 확인",
+    "cf_validity": "증명서 유효 기간 확인",
     "cfs_issued": "자유판매증명서 발급, 인증 전",
     "cfs_legalized": "자유판매증명서 인증 완료",
     "cfs_none": "자유판매증명서 없음",
@@ -1060,10 +1065,6 @@ export const COSMETICS_CONTENT_FINAL = {
     "help_accompany": "서류 작성과 제출 동행을 원함",
     "help_full": "전 과정 대행을 원함",
     "help_guide": "서류 작성 안내를 원함",
-    "lb_draft": "표시 초안만 있음",
-    "lb_none": "표시 준비 전",
-    "lb_ready": "베트남어 보조 표시 준비",
-    "lb_unknown": "표시 기준을 모름",
     "ma_loa": "제조사 위임장 보유",
     "ma_none": "위임장 없음",
     "ma_own_brand": "자사 브랜드 제품",
@@ -1079,6 +1080,11 @@ export const COSMETICS_CONTENT_FINAL = {
     "own_local": "베트남 현지 법인",
     "own_partner": "현지인 명의로 운영",
     "own_undecided": "운영 주체 미정",
+    "pf_change": "신고 내용 변경 확인",
+    "pf_import": "수입 제품 신고 서류 확인",
+    "pf_local": "국내 생산 제품 신고 확인",
+    "pf_renew": "신고 번호 갱신 준비 확인",
+    "pf_which": "제품별 신고 절차 확인",
     "pr_body": "바디·세정 제품",
     "pr_hair": "헤어 제품",
     "pr_makeup": "색조 화장품",
@@ -1112,11 +1118,6 @@ export const COSMETICS_CONTENT_FINAL = {
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "st_change": "신고 내용 변경",
-    "st_import": "수입 화장품 판매 신고",
-    "st_local_make": "베트남 생산 화장품 신고",
-    "st_renew": "신고 번호 갱신",
-    "st_unsure": "어떤 절차인지 모름",
     "sub_agency": "대행사가 제출",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",

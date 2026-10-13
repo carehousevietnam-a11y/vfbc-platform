@@ -626,6 +626,7 @@ export default function HygieneVerifyMasterPage() {
           {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
           title={HYGIENE_LANDING.shortServiceLabel ?? HYGIENE_LANDING.serviceLabel}
           description={HYGIENE_LANDING.hookBody}
+          eyebrowText={HYGIENE_LANDING.specialtyLine}
           titleClassName="font-bold lg:text-[25px]"
           verifyEyebrowClassName="font-normal"
           descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"

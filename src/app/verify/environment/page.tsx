@@ -626,6 +626,7 @@ export default function EnvironmentVerifyMasterPage() {
           {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
           title={ENVIRONMENT_LANDING.shortServiceLabel ?? ENVIRONMENT_LANDING.serviceLabel}
           description={ENVIRONMENT_LANDING.hookBody}
+          eyebrowText={ENVIRONMENT_LANDING.specialtyLine}
           titleClassName="font-bold lg:text-[25px]"
           verifyEyebrowClassName="font-normal"
           descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"

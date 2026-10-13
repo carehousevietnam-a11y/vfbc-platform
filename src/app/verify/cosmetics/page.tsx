@@ -626,6 +626,7 @@ export default function CosmeticsVerifyMasterPage() {
           {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
           title={COSMETICS_LANDING.shortServiceLabel ?? COSMETICS_LANDING.serviceLabel}
           description={COSMETICS_LANDING.hookBody}
+          eyebrowText={COSMETICS_LANDING.specialtyLine}
           titleClassName="font-bold lg:text-[25px]"
           verifyEyebrowClassName="font-normal"
           descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"

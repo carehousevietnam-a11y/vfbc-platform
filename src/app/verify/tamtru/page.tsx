@@ -626,6 +626,7 @@ export default function TamtruVerifyMasterPage() {
           {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
           title={TAMTRU_LANDING.shortServiceLabel ?? TAMTRU_LANDING.serviceLabel}
           description={TAMTRU_LANDING.hookBody}
+          eyebrowText={TAMTRU_LANDING.specialtyLine}
           titleClassName="font-bold lg:text-[25px]"
           verifyEyebrowClassName="font-normal"
           descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"

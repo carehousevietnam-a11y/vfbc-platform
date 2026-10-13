@@ -6,57 +6,57 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "환경과 관련해 어떤 절차가 필요하고, 어떤 업종의 사업장인가요?",
+      "prompt": "어떤 업종의 사업장이고, 그 업종에서 환경 절차와 관련해 가장 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "새 공장이나 사업장을 준비하고 있습니다.",
-          "description": "부품이나 제품을 만드는 일반 제조 공장입니다.",
+          "label": "부품이나 제품을 만드는 일반 제조 공장입니다.",
+          "description": "새 공장을 세울 때 환경 허가와 평가 중 무엇이 필요한지 확인하고 싶습니다.",
           "fields": {
-            "ev_stage": "st_new_project",
-            "ev_industry": "in_manufacturing"
+            "ev_industry": "in_manufacturing",
+            "ev_industryFocus": "if_new_factory"
           }
         },
         {
           "value": "o2",
-          "label": "생산 규모를 늘리려고 합니다.",
-          "description": "원료를 가공해 식품을 만드는 공장을 운영하고 있습니다.",
+          "label": "식품을 가공하는 공장입니다.",
+          "description": "생산 규모를 늘릴 때 환경 절차를 다시 밟아야 하는지 확인하고 싶습니다.",
           "fields": {
-            "ev_stage": "st_expand",
-            "ev_industry": "in_food"
+            "ev_industry": "in_food",
+            "ev_industryFocus": "if_expand"
           }
         },
         {
           "value": "o3",
-          "label": "기존 환경 허가를 갱신해야 합니다.",
-          "description": "화학 원료를 쓰거나 도장 작업을 하는 공장입니다.",
+          "label": "화학 원료를 쓰거나 도장 작업을 하는 공장입니다.",
+          "description": "이미 받은 환경 허가를 갱신할 때 무엇을 다시 준비해야 하는지 알고 싶습니다.",
           "fields": {
-            "ev_stage": "st_renew",
-            "ev_industry": "in_chemical"
+            "ev_industry": "in_chemical",
+            "ev_industryFocus": "if_renew"
           }
         },
         {
           "value": "o4",
-          "label": "환경 점검에 대비하려고 합니다.",
-          "description": "섬유를 짜거나 물들이는 염색 작업을 하고 있습니다.",
+          "label": "섬유를 짜거나 염색하는 공장입니다.",
+          "description": "폐수가 많이 나는 작업이라 환경 점검에 어떻게 대비해야 하는지 알고 싶습니다.",
           "fields": {
-            "ev_stage": "st_check",
-            "ev_industry": "in_textile"
+            "ev_industry": "in_textile",
+            "ev_industryFocus": "if_inspection"
           }
         },
         {
           "value": "o5",
-          "label": "어떤 절차가 필요한지 모르겠습니다.",
-          "description": "물건을 보관하고 나누는 물류 창고를 운영하려고 합니다.",
+          "label": "물건을 보관하고 나누는 물류 창고입니다.",
+          "description": "공장이 아닌 창고도 환경 절차가 필요한지 확인하고 싶습니다.",
           "fields": {
-            "ev_stage": "st_unsure",
-            "ev_industry": "in_warehouse"
+            "ev_industry": "in_warehouse",
+            "ev_industryFocus": "if_which"
           }
         }
       ],
       "directFields": {
-        "ev_stage": "direct_input",
-        "ev_industry": "direct_input_detail"
+        "ev_industry": "direct_input",
+        "ev_industryFocus": "direct_input_detail"
       }
     },
     {
@@ -122,12 +122,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "배출·방지시설은 갖추었고, 사업장에서 주로 어떤 오염물이 나오나요?",
+      "prompt": "배출·방지시설은 갖추었고, 그 시설로 주로 어떤 오염물을 다루나요?",
       "choices": [
         {
           "value": "o1",
           "label": "배출·방지시설을 모두 설치했습니다.",
-          "description": "생산 과정에서 폐수가 나와서 폐수 처리 시설을 갖추었습니다.",
+          "description": "설치한 시설로 생산 과정에서 나오는 폐수를 처리하고 있습니다.",
           "fields": {
             "ev_facility": "env_installed",
             "ev_emission": "em_wastewater"
@@ -136,7 +136,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "방지시설 공사를 하고 있습니다.",
-          "description": "기계가 돌아가는 동안 배기가스와 먼지가 많이 나옵니다.",
+          "description": "공사 중인 시설로 기계에서 나오는 배기가스와 먼지를 줄이려고 합니다.",
           "fields": {
             "ev_facility": "env_building",
             "ev_emission": "em_air"
@@ -145,7 +145,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "방지시설을 설계하고 있습니다.",
-          "description": "생산 과정에서 따로 처리해야 하는 산업 폐기물이 나옵니다.",
+          "description": "설계 중인 시설로 따로 처리해야 하는 산업 폐기물을 다루려고 합니다.",
           "fields": {
             "ev_facility": "env_designing",
             "ev_emission": "em_waste"
@@ -154,7 +154,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "방지시설을 따로 갖추지 않았습니다.",
-          "description": "기계 소음과 진동이 주변에 들릴 정도로 납니다.",
+          "description": "시설이 없는 채로 기계 소음과 진동이 주변에 들릴 정도로 납니다.",
           "fields": {
             "ev_facility": "env_none",
             "ev_emission": "em_noise"
@@ -163,7 +163,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "어떤 시설이 필요한지 모르겠습니다.",
-          "description": "어떤 오염물이 얼마나 나오는지도 확인하지 못했습니다.",
+          "description": "어떤 오염물이 얼마나 나오는지 몰라서 필요한 시설도 정하지 못했습니다.",
           "fields": {
             "ev_facility": "env_unknown",
             "ev_emission": "em_unknown"
@@ -180,12 +180,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "환경영향평가나 환경 등록은 진행했고, 사업장 규모는 어느 정도인가요?",
+      "prompt": "환경영향평가나 환경 등록은 진행했고, 그 절차에 맞는 사업장 규모는 어느 정도인가요?",
       "choices": [
         {
           "value": "o1",
           "label": "환경영향평가를 마쳤습니다.",
-          "description": "하루 생산량이 많은 대규모 사업장으로 운영하고 있습니다.",
+          "description": "평가를 받은 사업장이라 하루 생산량이 많은 대규모로 운영하고 있습니다.",
           "fields": {
             "ev_assessment": "as_done",
             "ev_scale": "sc_large"
@@ -194,7 +194,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "환경영향평가를 진행하고 있습니다.",
-          "description": "중간 정도 규모의 생산 시설을 계획하고 있습니다.",
+          "description": "평가를 진행하는 시설은 중간 정도 규모로 계획하고 있습니다.",
           "fields": {
             "ev_assessment": "as_in_progress",
             "ev_scale": "sc_mid"
@@ -203,7 +203,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "환경 등록만 하면 되는 것으로 알고 있습니다.",
-          "description": "작은 규모라서 오염물 배출이 많지 않습니다.",
+          "description": "등록 대상이라고 보는 이유는 규모가 작아서 오염물 배출이 많지 않기 때문입니다.",
           "fields": {
             "ev_assessment": "as_registration",
             "ev_scale": "sc_small"
@@ -212,7 +212,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "평가나 등록을 하지 않았습니다.",
-          "description": "사업장 규모가 어느 기준에 해당하는지 모르겠습니다.",
+          "description": "우리 사업장 규모가 어느 기준에 해당하는지도 모르겠습니다.",
           "fields": {
             "ev_assessment": "as_none",
             "ev_scale": "sc_unknown"
@@ -221,10 +221,10 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "평가 대상인지 모르겠습니다.",
-          "description": "중간 정도 규모라서 어떤 환경 절차가 맞는지 궁금합니다.",
+          "description": "규모가 대규모와 소규모 사이라서 어느 쪽 절차를 따라야 하는지 궁금합니다.",
           "fields": {
             "ev_assessment": "as_unknown",
-            "ev_scale": "sc_mid"
+            "ev_scale": "sc_between"
           }
         }
       ],
@@ -354,57 +354,57 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "오염물 측정은 어떻게 하고 있고, 폐기물은 어떤 업체가 처리하나요?",
+      "prompt": "공장에서 나오는 폐기물은 어떤 방식으로 처리하고, 그 처리에서 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "자동 측정 장비를 설치했습니다.",
-          "description": "정부 허가를 받은 폐기물 처리 업체와 계약을 맺었습니다.",
+          "label": "허가받은 처리 업체와 계약했습니다.",
+          "description": "계약서에 적힌 폐기물 종류가 우리 공장에서 나오는 것과 맞는지 확인하고 싶습니다.",
           "fields": {
-            "ev_monitoring": "mo_auto",
-            "ev_wasteContract": "wc_licensed"
+            "ev_wasteContract": "wc_licensed",
+            "ev_wasteKind": "wk_match"
           }
         },
         {
           "value": "o2",
-          "label": "측정 업체와 정기 측정 계약을 맺었습니다.",
-          "description": "산업단지에서 폐기물을 함께 처리해 주고 있습니다.",
+          "label": "산업단지가 폐기물을 함께 처리해 줍니다.",
+          "description": "단지 처리에 위험한 폐기물까지 포함되는지 확인하고 싶습니다.",
           "fields": {
-            "ev_monitoring": "mo_periodic",
-            "ev_wasteContract": "wc_landlord"
+            "ev_wasteContract": "wc_landlord",
+            "ev_wasteKind": "wk_hazard"
           }
         },
         {
           "value": "o3",
-          "label": "측정 계획을 아직 세우지 않았습니다.",
-          "description": "폐기물 처리 업체와 계약을 맺지 않았습니다.",
+          "label": "처리 업체와 계약을 맺지 않았습니다.",
+          "description": "어떤 업체가 허가를 받은 업체인지 찾는 방법부터 알고 싶습니다.",
           "fields": {
-            "ev_monitoring": "mo_none",
-            "ev_wasteContract": "wc_none"
+            "ev_wasteContract": "wc_none",
+            "ev_wasteKind": "wk_find"
           }
         },
         {
           "value": "o4",
-          "label": "측정 의무가 있는지 모르겠습니다.",
-          "description": "폐기물을 어떻게 처리해야 하는지도 잘 모릅니다.",
+          "label": "폐기물을 직접 처리하거나 버리고 있습니다.",
+          "description": "직접 처리해도 되는지와 기록을 남겨야 하는지 확인하고 싶습니다.",
           "fields": {
-            "ev_monitoring": "mo_unknown",
-            "ev_wasteContract": "wc_unknown"
+            "ev_wasteContract": "wc_self",
+            "ev_wasteKind": "wk_self_rule"
           }
         },
         {
           "value": "o5",
-          "label": "자동 측정 장비 설치를 검토하고 있습니다.",
-          "description": "폐기물 처리 계약은 허가받은 업체와 맺어 두었습니다.",
+          "label": "폐기물을 어떻게 처리해야 하는지 모르겠습니다.",
+          "description": "우리 공장 폐기물이 위험 폐기물인지 일반 폐기물인지부터 알고 싶습니다.",
           "fields": {
-            "ev_monitoring": "mo_reviewing",
-            "ev_wasteContract": "wc_licensed"
+            "ev_wasteContract": "wc_unknown",
+            "ev_wasteKind": "wk_classify"
           }
         }
       ],
       "directFields": {
-        "ev_monitoring": "direct_input",
-        "ev_wasteContract": "direct_input_detail"
+        "ev_wasteContract": "direct_input",
+        "ev_wasteKind": "direct_input_detail"
       }
     },
     {
@@ -453,10 +453,10 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "입지 기준이 있는지 모르겠습니다.",
-          "description": "지금까지 주민 민원이나 걱정은 들어 본 적이 없습니다.",
+          "description": "주변에 주거지가 있는지 확인하지 못해서 주민 민원 가능성도 가늠하지 못했습니다.",
           "fields": {
             "ev_location": "lo_unknown",
-            "ev_neighbors": "nb_none"
+            "ev_neighbors": "nb_unknown"
           }
         }
       ],
@@ -760,13 +760,13 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "cards": [
       {
         "questionCode": "Q1",
-        "title": "절차와 업종",
+        "title": "업종과 확인할 점",
         "sentences": {
-          "ev_stage=st_new_project|ev_industry=in_manufacturing": "새 제조 공장의 환경 절차를 준비하는 상황입니다",
-          "ev_stage=st_expand|ev_industry=in_food": "식품 가공 공장의 규모를 늘리려는 상황입니다",
-          "ev_stage=st_renew|ev_industry=in_chemical": "화학·도장 공장의 환경 허가를 갱신하는 상황입니다",
-          "ev_stage=st_check|ev_industry=in_textile": "섬유·염색 공장의 환경 점검에 대비하는 상황입니다",
-          "ev_stage=st_unsure|ev_industry=in_warehouse": "물류 창고에 필요한 환경 절차부터 확인할 상황입니다"
+          "ev_industry=in_manufacturing|ev_industryFocus=if_new_factory": "새 제조 공장에 필요한 환경 절차를 확인하려는 상황입니다",
+          "ev_industry=in_food|ev_industryFocus=if_expand": "식품 공장의 규모 확대 시 환경 절차를 확인하려는 상황입니다",
+          "ev_industry=in_chemical|ev_industryFocus=if_renew": "화학·도장 공장의 환경 허가 갱신 준비를 확인하려는 상황입니다",
+          "ev_industry=in_textile|ev_industryFocus=if_inspection": "섬유·염색 공장의 환경 점검 대비를 확인하려는 상황입니다",
+          "ev_industry=in_warehouse|ev_industryFocus=if_which": "물류 창고에 환경 절차가 필요한지 확인하려는 상황입니다"
         }
       },
       {
@@ -784,9 +784,9 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         "questionCode": "Q3",
         "title": "방지시설과 배출",
         "sentences": {
-          "ev_facility=env_installed|ev_emission=em_wastewater": "방지시설을 갖추었고 폐수가 나오는 상황입니다",
-          "ev_facility=env_building|ev_emission=em_air": "방지시설 공사 중이고 배기가스가 나오는 상황입니다",
-          "ev_facility=env_designing|ev_emission=em_waste": "방지시설 설계 중이고 폐기물이 나오는 상황입니다",
+          "ev_facility=env_installed|ev_emission=em_wastewater": "방지시설을 갖추고 폐수를 처리하는 상황입니다",
+          "ev_facility=env_building|ev_emission=em_air": "방지시설 공사 중이고 배기가스를 줄이려는 상황입니다",
+          "ev_facility=env_designing|ev_emission=em_waste": "방지시설 설계 중이고 폐기물을 다룰 상황입니다",
           "ev_facility=env_none|ev_emission=em_noise": "방지시설 없이 소음·진동이 나는 상황입니다",
           "ev_facility=env_unknown|ev_emission=em_unknown": "배출 종류와 필요한 시설을 확인해야 하는 상황입니다"
         }
@@ -799,7 +799,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
           "ev_assessment=as_in_progress|ev_scale=sc_mid": "평가가 진행 중인 중간 규모 사업장인 상황입니다",
           "ev_assessment=as_registration|ev_scale=sc_small": "환경 등록 대상인 소규모 사업장으로 아는 상황입니다",
           "ev_assessment=as_none|ev_scale=sc_unknown": "평가·등록을 하지 않았고 규모 기준을 모르는 상황입니다",
-          "ev_assessment=as_unknown|ev_scale=sc_mid": "평가 대상 여부를 확인해야 하는 상황입니다"
+          "ev_assessment=as_unknown|ev_scale=sc_between": "평가 대상 여부와 규모 기준을 확인해야 하는 상황입니다"
         }
       }
     ],
@@ -900,7 +900,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
               "field": "ev_wasteContract",
               "values": [
                 "wc_none",
-                "wc_unknown"
+                "wc_unknown",
+                "wc_self"
               ]
             }
           ]
@@ -936,13 +937,13 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q7",
-      "title": "측정과 폐기물 처리",
+      "title": "폐기물 처리와 종류",
       "sentences": {
-        "ev_monitoring=mo_auto|ev_wasteContract=wc_licensed": "측정 기록과 처리 계약서를 함께 보관해 두면 점검 때 바로 보여 줄 수 있습니다.",
-        "ev_monitoring=mo_periodic|ev_wasteContract=wc_landlord": "산업단지 처리가 우리 폐기물 종류까지 포함하는지 확인하고 측정 결과를 보관하세요.",
-        "ev_monitoring=mo_none|ev_wasteContract=wc_none": "측정과 폐기물 처리 계약이 없으면 허가가 어려울 수 있으니 업체부터 정하세요.",
-        "ev_monitoring=mo_unknown|ev_wasteContract=wc_unknown": "업종과 규모에 따라 측정 의무가 정해지니 그 기준부터 확인하고 처리 방법을 정하세요.",
-        "ev_monitoring=mo_reviewing|ev_wasteContract=wc_licensed": "자동 측정이 의무인지 먼저 확인하고, 의무라면 설치 일정을 허가 일정에 맞추세요."
+        "ev_wasteContract=wc_licensed|ev_wasteKind=wk_match": "계약서의 폐기물 종류와 우리 공장의 실제 폐기물을 대조하고 처리 기록을 함께 보관하세요.",
+        "ev_wasteContract=wc_landlord|ev_wasteKind=wk_hazard": "산업단지 처리가 우리 폐기물 종류까지 포함하는지 단지 운영 기관에 먼저 확인하세요.",
+        "ev_wasteContract=wc_none|ev_wasteKind=wk_find": "계약이 없으면 허가가 어려울 수 있으니 허가받은 처리 업체 목록을 담당 기관에서 확인하세요.",
+        "ev_wasteContract=wc_self|ev_wasteKind=wk_self_rule": "산업 폐기물은 직접 처리가 제한될 수 있으니 허용 범위와 기록 의무를 먼저 확인하세요.",
+        "ev_wasteContract=wc_unknown|ev_wasteKind=wk_classify": "폐기물 종류를 먼저 구분해야 처리 방법이 정해지니 성분 자료를 모아 확인하세요."
       }
     },
     {
@@ -953,7 +954,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         "ev_location=lo_cluster|ev_neighbors=nb_concern": "주민 우려가 있다면 배출 저감 계획을 미리 준비해 두면 절차가 부드러워집니다.",
         "ev_location=lo_residential|ev_neighbors=nb_complaint": "주거지 인근 민원은 허가에 큰 영향을 줄 수 있으니 민원 내용과 조치를 먼저 정리하세요.",
         "ev_location=lo_rural|ev_neighbors=nb_unknown": "농촌 지역은 물과 토양 영향이 중요하게 보일 수 있으니 배출 관리 계획을 준비하세요.",
-        "ev_location=lo_unknown|ev_neighbors=nb_none": "업종에 따라 입지 제한이 있을 수 있으니 사업장 위치가 적합한지 먼저 확인하세요."
+        "ev_location=lo_unknown|ev_neighbors=nb_unknown": "업종에 따라 입지 제한이 있을 수 있으니 사업장 위치가 적합한지 먼저 확인하세요."
       }
     },
     {
@@ -1055,6 +1056,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "help_accompany": "서류 작성과 제출 동행을 원함",
     "help_full": "전 과정 대행을 원함",
     "help_guide": "서류 작성 안내를 원함",
+    "if_expand": "규모 확대 시 절차 확인",
+    "if_inspection": "환경 점검 대비 확인",
+    "if_new_factory": "새 공장 환경 절차 확인",
+    "if_renew": "환경 허가 갱신 준비 확인",
+    "if_which": "창고의 환경 절차 필요 여부 확인",
     "in_chemical": "화학·도장",
     "in_food": "식품 가공",
     "in_manufacturing": "일반 제조",
@@ -1065,11 +1071,6 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "lo_residential": "주거 지역 인근",
     "lo_rural": "농촌 지역",
     "lo_unknown": "입지 기준을 모름",
-    "mo_auto": "자동 측정 장비 설치",
-    "mo_none": "측정 계획 없음",
-    "mo_periodic": "정기 측정 계약",
-    "mo_reviewing": "자동 측정 장비 검토 중",
-    "mo_unknown": "측정 의무를 모름",
     "nb_complaint": "민원 접수됨",
     "nb_concern": "주민 우려 있음",
     "nb_none": "주민 민원 없음",
@@ -1112,11 +1113,6 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "st_check": "현재 시설 점검 대비",
-    "st_expand": "생산 규모 확대",
-    "st_new_project": "새 공장·사업장 준비",
-    "st_renew": "환경 허가 갱신",
-    "st_unsure": "어떤 절차인지 모름",
     "sub_agency": "대행사가 제출",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
@@ -1133,7 +1129,13 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "wc_landlord": "산업단지가 처리",
     "wc_licensed": "허가받은 처리 업체와 계약",
     "wc_none": "처리 계약 없음",
-    "wc_unknown": "처리 방법을 모름"
+    "wc_self": "직접 처리·폐기",
+    "wc_unknown": "처리 방법을 모름",
+    "wk_classify": "폐기물 종류 구분 확인",
+    "wk_find": "허가 업체 찾는 방법 확인",
+    "wk_hazard": "단지의 위험 폐기물 처리 확인",
+    "wk_match": "계약 폐기물 종류 확인",
+    "wk_self_rule": "직접 처리 허용 범위 확인"
   },
   "connections": [
     {
@@ -1154,15 +1156,15 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     },
     {
       "name": "소방 허가 확인",
-      "condition": "`ev_stage` ∈ {st_new_project, st_expand}",
+      "condition": "`ev_industryFocus` ∈ {if_new_factory, if_expand}",
       "sentence": "공장을 새로 짓거나 늘린다면 소방 허가 직접 인허가 받기에서 소방 준비도 함께 점검해 보실 수 있습니다.",
       "mode": "or",
       "clauses": [
         {
-          "field": "ev_stage",
+          "field": "ev_industryFocus",
           "values": [
-            "st_new_project",
-            "st_expand"
+            "if_new_factory",
+            "if_expand"
           ]
         }
       ],

@@ -626,6 +626,7 @@ export default function RestaurantVerifyMasterPage() {
           {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
           title={RESTAURANT_LANDING.shortServiceLabel ?? RESTAURANT_LANDING.serviceLabel}
           description={RESTAURANT_LANDING.hookBody}
+          eyebrowText={RESTAURANT_LANDING.specialtyLine}
           titleClassName="font-bold lg:text-[25px]"
           verifyEyebrowClassName="font-normal"
           descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"

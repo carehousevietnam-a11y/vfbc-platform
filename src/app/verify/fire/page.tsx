@@ -626,6 +626,7 @@ export default function FireVerifyMasterPage() {
           {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
           title={FIRE_LANDING.shortServiceLabel ?? FIRE_LANDING.serviceLabel}
           description={FIRE_LANDING.hookBody}
+          eyebrowText={FIRE_LANDING.specialtyLine}
           titleClassName="font-bold lg:text-[25px]"
           verifyEyebrowClassName="font-normal"
           descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"

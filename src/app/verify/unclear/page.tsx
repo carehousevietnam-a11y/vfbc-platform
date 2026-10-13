@@ -626,6 +626,7 @@ export default function UnclearVerifyMasterPage() {
           {...getVerifyFormFunnelHeaderAlignProps(false, "form", skipSignup)}
           title={UNCLEAR_LANDING.shortServiceLabel ?? UNCLEAR_LANDING.serviceLabel}
           description={UNCLEAR_LANDING.hookBody}
+          eyebrowText={UNCLEAR_LANDING.specialtyLine}
           titleClassName="font-bold lg:text-[25px]"
           verifyEyebrowClassName="font-normal"
           descriptionClassName="mt-1.5 break-keep text-pretty text-[13px] leading-relaxed text-slate-500"

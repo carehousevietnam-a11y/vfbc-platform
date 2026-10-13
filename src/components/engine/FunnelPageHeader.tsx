@@ -33,6 +33,8 @@ type FunnelPageHeaderProps = {
   titleClassName?: string;
   /** VERIFY SCREEN 01 — VERIFY eyebrow + 단일 타이틀 (인라인 부제 없음) */
   verifyTitleMode?: "default" | "stitch";
+  /** VERIFY 제목 옆 전문영역 문구 직접 지정 (미지정 시 engine 기본 문구) */
+  eyebrowText?: string;
 };
 
 /**
@@ -51,6 +53,7 @@ export default function FunnelPageHeader({
   verifyEyebrowClassName,
   titleClassName,
   verifyTitleMode = "default",
+  eyebrowText,
 }: FunnelPageHeaderProps) {
   const copy = FUNNEL_ENGINE_COPY[engine];
   const isRegister = engine === "register";
@@ -143,7 +146,7 @@ export default function FunnelPageHeader({
                     verifyEyebrowClassName,
                   )}
                 >
-                  - {copy.eyebrow}
+                  - {eyebrowText ?? copy.eyebrow}
                 </span>
               </h1>
             )
