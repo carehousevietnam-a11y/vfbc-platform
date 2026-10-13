@@ -10,7 +10,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "부품이나 제품을 만드는 공장을 새로 세우려는데",
+          "label": "부품이나 제품을 만드는 공장을 새로 세우려고 합니다.",
           "description": "환경 허가를 받아야 하는지 환경영향평가를 받아야 하는지 사람마다 말이 다릅니다.",
           "fields": {
             "ev_industry": "in_manufacturing",
@@ -19,7 +19,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "식품을 가공하는 공장인데",
+          "label": "식품을 가공하는 공장입니다.",
           "description": "생산을 늘리려면 환경 절차를 처음부터 다시 해야 하는지 모르겠습니다.",
           "fields": {
             "ev_industry": "in_food",
@@ -28,7 +28,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "화학 원료를 쓰거나 도장 작업을 하는 공장인데",
+          "label": "화학 원료를 쓰거나 도장 작업을 하는 공장입니다.",
           "description": "이미 받은 환경 허가의 갱신 시기가 다가와서 뭘 다시 준비해야 하는지 걱정입니다.",
           "fields": {
             "ev_industry": "in_chemical",
@@ -37,7 +37,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "섬유를 짜거나 염색하는 공장인데",
+          "label": "섬유를 짜거나 염색하는 공장입니다.",
           "description": "폐수가 많이 나오는 작업이라 환경 점검이 나오면 어떻게 대비해야 할지 불안합니다.",
           "fields": {
             "ev_industry": "in_textile",
@@ -46,7 +46,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "물건을 보관하고 나누는 물류 창고인데",
+          "label": "물건을 보관하고 나누는 물류 창고입니다.",
           "description": "공장이 아닌 창고도 환경 절차를 받아야 하는지 아무도 확실히 말해 주지 않습니다.",
           "fields": {
             "ev_industry": "in_warehouse",

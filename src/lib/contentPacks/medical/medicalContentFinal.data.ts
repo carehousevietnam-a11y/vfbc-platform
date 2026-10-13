@@ -10,7 +10,7 @@ export const MEDICAL_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "의료기기를 수입해서 팔려는데",
+          "label": "의료기기를 수입해서 팔려고 합니다.",
           "description": "거즈나 붕대처럼 위험이 가장 낮은 소모품이 중심인데도 등록이 필요한지 모르겠습니다.",
           "fields": {
             "md_stage": "st_import",
@@ -19,7 +19,7 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남에서 만든 의료기기를 팔려는데",
+          "label": "베트남에서 만든 의료기기를 팔려고 합니다.",
           "description": "혈압계처럼 위험이 낮은 일반 기기가 중심인데 어떤 절차를 밟아야 하는지 감이 안 잡힙니다.",
           "fields": {
             "md_stage": "st_local_make",
@@ -28,7 +28,7 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다른 회사 제품을 유통만 하려는데",
+          "label": "다른 회사 제품을 유통만 하려고 합니다.",
           "description": "초음파 진단기처럼 위험이 중간 이상인 장비를 다뤄서 절차가 더 복잡할까 걱정입니다.",
           "fields": {
             "md_stage": "st_trade",
@@ -37,7 +37,7 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "이미 등록한 내용을 바꿔야 하는데",
+          "label": "이미 등록한 내용을 바꿔야 합니다.",
           "description": "임플란트처럼 몸속에 넣는 가장 위험한 등급의 제품이라 어떻게 바꿔야 하는지 모르겠습니다.",
           "fields": {
             "md_stage": "st_change",

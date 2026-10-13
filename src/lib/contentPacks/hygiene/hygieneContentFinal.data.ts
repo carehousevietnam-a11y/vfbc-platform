@@ -10,7 +10,7 @@ export const HYGIENE_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "소스나 반찬 같은 가공식품을 직접 만들려는데",
+          "label": "소스나 반찬 같은 가공식품을 직접 만들려고 합니다.",
           "description": "시설 허가를 받으려면 서류를 뭘 준비해야 하는지 감이 안 잡힙니다.",
           "fields": {
             "hy_product": "pt_processed",
@@ -19,7 +19,7 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "빵이나 과자를 만들어 팔려는데",
+          "label": "빵이나 과자를 만들어 팔려고 합니다.",
           "description": "식당 허가와 같은 건지, 제과·제빵만 따로 보는 조건이 있는지 모르겠습니다.",
           "fields": {
             "hy_product": "pt_bakery",
@@ -28,7 +28,7 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "음료나 술을 병에 담아 팔려는데",
+          "label": "음료나 술을 병에 담아 팔려고 합니다.",
           "description": "음료와 술은 허가 내는 곳이나 받아야 하는 검사가 다르다는 말을 들어서 헷갈립니다.",
           "fields": {
             "hy_product": "pt_beverage",
@@ -37,7 +37,7 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "포장된 식품을 들여와 나눠 팔려는데",
+          "label": "포장된 식품을 들여와 나눠 팔려고 합니다.",
           "description": "직접 만들지 않고 유통만 해도 위생 허가가 필요한지 사람마다 말이 다릅니다.",
           "fields": {
             "hy_product": "pt_packaged",
@@ -46,7 +46,7 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "여러 매장에 음식을 보내는 중앙 주방을 하려는데",
+          "label": "여러 매장에 음식을 보내는 중앙 주방을 하려고 합니다.",
           "description": "식당 허가로 되는지 따로 받아야 하는지 아무도 확실히 말해 주지 않습니다.",
           "fields": {
             "hy_product": "pt_central",

@@ -10,7 +10,7 @@ export const FIRE_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "식당이나 카페를 열려는 건물인데",
+          "label": "식당이나 카페를 열려는 건물입니다.",
           "description": "손님이 오가는 곳이라 소방시설과 절차를 뭘 해야 하는지 감이 안 잡힙니다.",
           "fields": {
             "fs_buildingUse": "bt_restaurant",
@@ -19,7 +19,7 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "사무실로 빌린 공간인데",
+          "label": "사무실로 빌린 공간입니다.",
           "description": "내부 공사를 하면서 건물 소방시설과 어디까지 맞춰야 하는지 모르겠습니다.",
           "fields": {
             "fs_buildingUse": "bt_office",
@@ -28,7 +28,7 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "공장이나 창고인데",
+          "label": "공장이나 창고입니다.",
           "description": "물건을 만들고 보관하는 곳이라 소방 점검이 나오면 뭘 준비해야 하는지 몰라서 불안합니다.",
           "fields": {
             "fs_buildingUse": "bt_factory",
@@ -37,7 +37,7 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "다른 용도의 건물을 숙박 시설로 바꾸려는데",
+          "label": "다른 용도의 건물을 숙박 시설로 바꾸려고 합니다.",
           "description": "용도가 바뀌면 소방 절차도 달라진다는데 어떻게 달라지는지 모르겠습니다.",
           "fields": {
             "fs_buildingUse": "bt_hotel",
@@ -46,7 +46,7 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "제품을 파는 매장이나 쇼룸인데",
+          "label": "제품을 파는 매장이나 쇼룸입니다.",
           "description": "진열해 파는 공간에 어떤 소방 절차가 필요한지부터 모르겠습니다.",
           "fields": {
             "fs_buildingUse": "bt_retail",

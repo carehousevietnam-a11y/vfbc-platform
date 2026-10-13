@@ -10,7 +10,7 @@ export const COSMETICS_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "기초 화장품을 수입해서 팔려는데",
+          "label": "기초 화장품을 수입해서 팔려고 합니다.",
           "description": "판매 신고가 필요한지, 서류를 뭘 내야 하는지 사람마다 말이 다릅니다.",
           "fields": {
             "cs_product": "pr_skincare",
@@ -19,7 +19,7 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "립스틱이나 파운데이션 같은 색조 화장품을 팔려는데",
+          "label": "립스틱이나 파운데이션 같은 색조 화장품을 팔려고 합니다.",
           "description": "베트남에서 직접 만든 색조 제품도 같은 신고를 하는지 모르겠습니다.",
           "fields": {
             "cs_product": "pr_makeup",
@@ -28,7 +28,7 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "샴푸나 트리트먼트 같은 헤어 제품을 팔고 있는데",
+          "label": "샴푸나 트리트먼트 같은 헤어 제품을 팔고 있습니다.",
           "description": "이미 받은 신고 번호를 갱신할 때 뭘 다시 내야 하는지 걱정입니다.",
           "fields": {
             "cs_product": "pr_hair",
@@ -37,7 +37,7 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "바디로션이나 세정 제품을 팔고 있는데",
+          "label": "바디로션이나 세정 제품을 팔고 있습니다.",
           "description": "성분이나 포장이 바뀌면 신고한 내용도 바꿔야 하는지 모르겠습니다.",
           "fields": {
             "cs_product": "pr_body",
@@ -46,7 +46,7 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "여러 종류의 화장품을 함께 팔려는데",
+          "label": "여러 종류의 화장품을 함께 팔려고 합니다.",
           "description": "제품마다 신고가 따로 필요한지, 어디서부터 시작해야 하는지 감이 안 잡힙니다.",
           "fields": {
             "cs_product": "pr_mixed",

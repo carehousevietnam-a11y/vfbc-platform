@@ -10,7 +10,7 @@ export const FRANCHISE_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "해외 브랜드를 베트남에 가맹으로 들여오려는데",
+          "label": "해외 브랜드를 베트남에 가맹으로 들여오려고 합니다.",
           "description": "음식이나 음료를 파는 외식 브랜드라 어떤 등록부터 해야 하는지 모르겠습니다.",
           "fields": {
             "fr_stage": "st_inbound",
@@ -19,7 +19,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 전체 가맹권을 받는 계약을 하려는데",
+          "label": "베트남 전체 가맹권을 받는 계약을 하려고 합니다.",
           "description": "편의점이나 소매점 형태의 브랜드라 어떤 절차가 필요한지 감이 안 잡힙니다.",
           "fields": {
             "fr_stage": "st_master",
@@ -28,7 +28,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "베트남에서 키운 브랜드를 가맹으로 늘리려는데",
+          "label": "베트남에서 키운 브랜드를 가맹으로 늘리려고 합니다.",
           "description": "학원이나 교육 서비스를 하는 브랜드라 등록 대상인지 헷갈립니다.",
           "fields": {
             "fr_stage": "st_local_brand",
@@ -37,7 +37,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "이미 등록한 내용을 바꿔야 하는데",
+          "label": "이미 등록한 내용을 바꿔야 합니다.",
           "description": "등록한 브랜드는 미용실이나 피부 관리실 같은 뷰티 서비스인데 어떻게 바꾸는지 모르겠습니다.",
           "fields": {
             "fr_stage": "st_change",

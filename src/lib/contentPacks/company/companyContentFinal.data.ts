@@ -10,7 +10,7 @@ export const COMPANY_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "한국 본사가 투자해서 법인을 세우려는데",
+          "label": "한국 본사가 투자해서 법인을 세우려고 합니다.",
           "description": "본사 서류에 인증이 어디까지 필요한지, 투자 등록(외국인 투자 허가)이 어떻게 진행되는지 모르겠습니다.",
           "fields": {
             "pc_investor": "inv_corporate",
@@ -19,7 +19,7 @@ export const COMPANY_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "제가 개인으로 투자해서 세우려는데",
+          "label": "제가 개인으로 투자해서 세우려고 합니다.",
           "description": "개인이 세울 수 있는 업종과 필요한 자본금 기준이 어떻게 되는지 모르겠습니다.",
           "fields": {
             "pc_investor": "inv_individual",
@@ -28,7 +28,7 @@ export const COMPANY_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "현지 동업자와 함께 투자하는데",
+          "label": "현지 동업자와 함께 투자합니다.",
           "description": "지분을 어떻게 나누는지, 외국인 지분에 제한이 있는 업종인지 걱정됩니다.",
           "fields": {
             "pc_investor": "inv_partner",
@@ -37,7 +37,7 @@ export const COMPANY_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "대표사무소를 법인으로 바꾸려는데",
+          "label": "대표사무소를 법인으로 바꾸려고 합니다.",
           "description": "기존 대표사무소를 어떻게 정리하고 법인으로 옮기는지 모르겠습니다.",
           "fields": {
             "pc_investor": "inv_rep_office",

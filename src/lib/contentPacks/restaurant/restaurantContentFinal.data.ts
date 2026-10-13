@@ -10,7 +10,7 @@ export const RESTAURANT_CONTENT_FINAL = {
       "choices": [
         {
           "value": "o1",
-          "label": "새로 가게를 열려고 준비 중인데",
+          "label": "새로 가게를 열려고 준비 중입니다.",
           "description": "처음이라 무슨 허가를 어떤 순서로 받아야 하는지 감이 안 잡힙니다.",
           "fields": {
             "rs_stage": "st_new",
@@ -19,7 +19,7 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "운영 중인 가게인데 갱신 시기가 다가와서",
+          "label": "운영 중인 가게인데 갱신 시기가 다가왔습니다.",
           "description": "기한을 놓쳐 문제가 생기지 않을지 걱정됩니다.",
           "fields": {
             "rs_stage": "st_renew",
@@ -28,8 +28,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "가게를 인수했는데 전 주인 허가가",
-          "description": "그대로 이어지는지 새로 받아야 하는지 아무도 확실히 말해 주지 않습니다.",
+          "label": "가게를 인수했습니다.",
+          "description": "전 주인 허가가 그대로 이어지는지 새로 받아야 하는지 아무도 확실히 말해 주지 않습니다.",
           "fields": {
             "rs_stage": "st_takeover",
             "rs_stageFocus": "sf_takeover"
@@ -37,7 +37,7 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "술도 같이 팔고 싶은데",
+          "label": "술도 같이 팔고 싶습니다.",
           "description": "지금 허가에 추가하면 되는지 따로 받아야 하는지 모르겠습니다.",
           "fields": {
             "rs_stage": "st_add_alcohol",
@@ -135,7 +135,7 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "제 건물이라 안심했는데",
+          "label": "제 건물이라 안심했습니다.",
           "description": "건물 용도가 식당으로 써도 되는 용도인지, 면적은 충분한지는 아직 모릅니다.",
           "fields": {
             "rs_premises": "prem_owned",
