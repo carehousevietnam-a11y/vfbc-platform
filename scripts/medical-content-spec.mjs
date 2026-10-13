@@ -95,7 +95,7 @@ export const risks = { max: 4, fallback: "입력하신 내용에서는 뚜렷한
   { id: "auth", clauses: [[`${p}_authorization`, ["ma_none", "ma_unknown"]]], sentence: "제조사 위임장이 없으면 수입 의료기기를 신고할 수 없어 위임장부터 받아야 합니다" },
   { id: "warranty", clauses: [[`${p}_warranty`, ["ws_none", "ws_unknown"]]], sentence: "베트남 안의 보증 거점이 없으면 신청이 어려울 수 있어 보증 업체 계약을 검토하세요" },
 ] };
-export const phase2Titles = { Q6: "신청 서류", Q7: "판매 증명과 보증 거점", Q8: "공급처와 사용자 교육", Q9: "일정과 판매 시작", Q10: "견적과 비용", Q11: "국적과 제출 방식", Q12: "등록 모델과 사고 보고", Q13: "지역과 담당 기관" };
+export const phase2Titles = { Q6: "신청 서류", Q7: "판매 증명과 보증 거점", Q8: "공급처와 사용자 교육", Q9: "일정과 판매 시작", Q10: "견적과 비용", Q11: "제출 방식", Q12: "등록 모델과 사고 보고", Q13: "지역과 담당 기관" };
 export const connections = [
   { name: "법인설립 확인", clauses: [[`${p}_registration`, ["reg_not_started", "reg_unsure"]]], sentence: "사업자 등록이 아직이라면 법인설립 직접 인허가 받기에서 먼저 점검해 보실 수 있습니다.", path: "/verify/company" },
   { name: "전문가 진행", clauses: [[`${p}_timeline`, ["tl_already", "tl_urgent"]], [`${p}_class`, ["cl_d"]], [`${p}_helpWanted`, ["help_full"]]], sentence: "높은 등급 제품이거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },

@@ -118,158 +118,29 @@ export default function OfficialTrustZone({
   sources,
   layout = "default",
 }: OfficialTrustZoneProps) {
+  // 모든 화면(패널/스트립/모바일)에서 동일한 공식 출처 카드 하나로 통일한다(2026-10-13).
   const copy = ENGINE_TRUST_COPY[engine];
   const panelSources = sources ?? copy.sources;
-  const isStitchLayout = layout === "stitch";
-  const isStitchMobileLayout = layout === "stitch-mobile";
-  const stripSources = sources ?? copy.sources.slice(0, 3);
-
-  if (isStitchMobileLayout && variant === "panel") {
-    const stitchMobileLabels = ["Bộ Tư pháp", "Quốc hội", "Tòa án"];
-    const mobileSources = panelSources.map((source, index) => ({
-      ...source,
-      vi: stitchMobileLabels[index] ?? source.vi,
-    }));
-
-    return (
-      <div className={cn("mt-4 border-t border-slate-100 pt-3.5", className)} aria-label="공식 기준 안내">
-        <div className="mb-1.5 flex items-center justify-between gap-2">
-          <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
-            OFFICIAL SOURCES
-          </span>
-          <span className="shrink-0 text-[10px] text-slate-400">최신 공식 법률 기준</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px] text-slate-600">
-          {mobileSources.map((source, index) => (
-            <span key={source.vi} className="inline-flex items-center gap-1">
-              {index > 0 ? <span className="text-slate-300" aria-hidden>·</span> : null}
-              <span
-                className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-slate-700"
-              >
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400" aria-hidden />
-                {source.vi}
-              </span>
-            </span>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (variant === "strip") {
-    if (context === "diagnosis") {
-      return (
-        <div
-          className={cn(
-            "rounded-lg border border-gray-200 bg-white px-3.5 py-3",
-            className,
-          )}
-          aria-label="공식 기준 안내"
-        >
-          <p className="break-keep text-[11.5px] font-semibold text-[#0B2A6B]">
-            {copy.stripDiagnosisTitle}
-          </p>
-          <p className="mt-1 break-keep text-[10.5px] leading-[1.5] text-[#64748B] [overflow-wrap:normal]">
-            {copy.stripDiagnosisBody}
-          </p>
-          <ul className="mt-2 flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:gap-x-3 sm:gap-y-1.5">
-            {stripSources.map((source) => (
-              <li
-                key={source.vi}
-                className="flex min-w-0 items-baseline gap-1 break-keep text-[10.5px] leading-[1.5] text-[#64748B]"
-              >
-                <span className="h-1 w-1 shrink-0 rounded-full bg-[#2563EB]" aria-hidden />
-                <span className="whitespace-nowrap font-medium text-[#0B2A6B]">{source.vi}</span>
-                <span className="text-[#94A3B8]">·</span>
-                <span className="whitespace-nowrap">{source.ko}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 break-keep text-[10px] leading-[1.5] text-[#94A3B8] [overflow-wrap:normal]">
-            {copy.footer}
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <div
-        className={cn(
-          "flex flex-col gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1",
-          className,
-        )}
-        aria-label="공식 기준 안내"
-      >
-        <span className="break-keep text-[11px] font-medium text-[#556070]">{copy.stripTitle}</span>
-        <span className="hidden h-3 w-px shrink-0 bg-[#E2E8F0] sm:block" aria-hidden />
-        <div className="flex flex-wrap gap-x-2.5 gap-y-1">
-          {stripSources.map((source) => (
-            <span
-              key={source.vi}
-              className="inline-flex items-center gap-1 break-keep text-[10.5px] text-[#64748B]"
-            >
-              <span className="h-1 w-1 shrink-0 rounded-full bg-[#2563EB]" aria-hidden />
-              {source.ko}
-            </span>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  const bodyText = context === "step4" ? copy.panelBodyStep4 : copy.panelBodyDefault;
+  void variant;
+  void context;
+  void layout;
 
   return (
     <aside
-      className={cn(
-        isStitchLayout
-          ? "rounded-xl border border-[#eef2f6] bg-[#fbfcfd] p-4 shadow-sm"
-          : "rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-3.5",
-        className,
-      )}
+      className={cn("rounded-xl border border-[#eef2f6] bg-[#fbfcfd] p-4 shadow-sm", className)}
       aria-label="공식 기준 안내"
     >
-      <p
-        className={cn(
-          "font-bold uppercase tracking-widest text-slate-400",
-          isStitchLayout ? "text-[10px]" : "text-[10px] font-semibold text-[#94A3B8]",
-        )}
-      >
-        OFFICIAL SOURCES
+      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">OFFICIAL SOURCES</p>
+      <p className="mt-1 break-keep text-[13px] font-bold leading-snug text-[#0f172a]">{copy.panelTitle}</p>
+      <p className="mt-1 break-keep text-[11.5px] leading-normal text-slate-500 [overflow-wrap:normal]">
+        {copy.panelBodyDefault}
       </p>
-      <p
-        className={cn(
-          "break-keep font-bold leading-snug text-[#0f172a]",
-          isStitchLayout ? "mt-1 text-[13px]" : "mt-1.5 text-[12.5px] font-semibold text-[#0B2A6B]",
-        )}
-      >
-        {copy.panelTitle}
-      </p>
-      <p
-        className={cn(
-          "break-keep leading-normal [overflow-wrap:normal]",
-          isStitchLayout
-            ? "mt-1 text-[11.5px] text-slate-500"
-            : "mt-1 text-[11.5px] leading-[1.55] text-[#556070]",
-        )}
-      >
-        {bodyText}
-      </p>
-
-      <ul className={cn(isStitchLayout ? "mb-3.5 mt-3.5 space-y-2" : "mt-3 space-y-2")}>
+      <ul className="mb-3.5 mt-3.5 space-y-2">
         {panelSources.map((source) => (
-          <SourceItem key={source.vi} source={source} layout={isStitchLayout ? "stitch" : "default"} />
+          <SourceItem key={source.vi} source={source} layout="stitch" />
         ))}
       </ul>
-
-      <p
-        className={cn(
-          "break-keep leading-tight [overflow-wrap:normal]",
-          isStitchLayout
-            ? "border-t border-slate-100/80 pt-2.5 text-[10.5px] text-slate-400"
-            : "mt-3 text-[10.5px] leading-[1.55] text-[#94A3B8]",
-        )}
-      >
+      <p className="break-keep border-t border-slate-100/80 pt-2.5 text-[10.5px] leading-tight text-slate-400 [overflow-wrap:normal]">
         {copy.footer}
       </p>
     </aside>

@@ -49,7 +49,6 @@ import {
   formatCase01AnswerSummary,
   type AdminVerifyPersonalizedContext,
 } from "@/components/cost-check/AdminVerifyFirstResultPanel";
-import { AdminVerifyPhase2EvidencePanel } from "@/components/cost-check/AdminVerifyPhase2EvidencePanel";
 import { WpSummarySidebar } from "@/components/cost-check/WpSummarySidebar";
 import {
   computeDisplayBubblePercent,
@@ -4546,6 +4545,18 @@ export function MasterReviewQuotationReport({
     setRealEstatePhase2EvidenceDone(true);
   }
 
+  // 개인 질문 퍼널: 첨부 단계는 제공하지 않는다(2026-10-13). 첨부 없이 자동으로 다음 단계로 넘어간다.
+  useEffect(() => {
+    if (isAdminAwaitingPhase1Evidence) handleAdminPhase1EvidenceContinue();
+    else if (isRealEstateAwaitingPhase1Evidence) handleRealEstatePhase1EvidenceContinue();
+    else if (isRealEstateAwaitingPhase2Evidence) handleRealEstatePhase2EvidenceContinue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isAdminAwaitingPhase1Evidence,
+    isRealEstateAwaitingPhase1Evidence,
+    isRealEstateAwaitingPhase2Evidence,
+  ]);
+
   function handleContinueClick() {
     if (config.engine === "verify") {
       if (isAdminVerifyFirstResult) {
@@ -4908,55 +4919,11 @@ export function MasterReviewQuotationReport({
                 {isAdminVerifyAwaitingSignup && adminVerifyLeadCaptureSlot ? (
                   <div className="w-full">{adminVerifyLeadCaptureSlot}</div>
                 ) : null}
-                {isAdminAwaitingPhase1Evidence ? (
-                  <AdminVerifyPhase2EvidencePanel
-                    evidenceTier="phase1"
-                    file={adminPhase1EvidenceFile}
-                    onFileChange={setAdminPhase1EvidenceFile}
-                    onContinue={handleAdminPhase1EvidenceContinue}
-                    contentSlots={
-                      packMasterContentSlots?.identity
-                        ? {
-                            ...packMasterContentSlots.evidence,
-                            identity:
-                              packMasterContentSlots.evidence?.identity ??
-                              packMasterContentSlots.identity,
-                          }
-                        : packMasterContentSlots?.evidence
-                    }
-                    domain={
-                      packIdentityServiceId ??
-                      (isPackVerifyStitchLayout ? "real-estate" : "admin")
-                    }
-                    attachStorageError={adminVerifyPhase1AttachStorageError}
-                    onAttachStorageRetry={onAdminVerifyPhase1AttachStorageRetry}
-                  />
-                ) : null}
-                {isRealEstateAwaitingPhase1Evidence ? (
-                  <AdminVerifyPhase2EvidencePanel
-                    evidenceTier="phase1"
-                    domain="real-estate"
-                    file={realEstatePhase1EvidenceFile}
-                    onFileChange={setRealEstatePhase1EvidenceFile}
-                    onContinue={handleRealEstatePhase1EvidenceContinue}
-                    attachStorageError={adminVerifyPhase1AttachStorageError}
-                    onAttachStorageRetry={onAdminVerifyPhase1AttachStorageRetry}
-                  />
-                ) : null}
                 {isRealEstateAwaitingSignup && realEstateVerifyLeadCaptureSlot ? (
                   <div className="w-full">{realEstateVerifyLeadCaptureSlot}</div>
                 ) : null}
                 {isAdminVerifyPhase2Screen ? (
                   <Phase2PersonalizedReviewBanner />
-                ) : null}
-                {isRealEstateAwaitingPhase2Evidence ? (
-                  <AdminVerifyPhase2EvidencePanel
-                    evidenceTier="phase2"
-                    domain="real-estate"
-                    file={realEstatePhase2EvidenceFile}
-                    onFileChange={setRealEstatePhase2EvidenceFile}
-                    onContinue={handleRealEstatePhase2EvidenceContinue}
-                  />
                 ) : null}
                 {/* 부동산(일시 정지)은 기존 위치 유지 — 행정문서는 첨부 카드 위에서 표시 */}
                 {(isRealEstatePhase2Review || isRealEstateAwaitingPhase2Evidence) &&

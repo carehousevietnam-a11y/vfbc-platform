@@ -94,7 +94,7 @@ export const risks = { max: 4, fallback: "입력하신 내용에서는 뚜렷한
   { id: "contract", clauses: [[`${p}_contract`, ["cm_none", "cm_unknown"]]], sentence: "가맹계약서와 운영 매뉴얼이 없으면 등록과 모집이 어려워 먼저 만들어야 합니다" },
   { id: "recruit", clauses: [[`${p}_recruit`, ["rc_started"]]], sentence: "등록 전에 가맹점 모집을 시작했다면 문제가 될 수 있어 등록부터 서둘러야 합니다" },
 ] };
-export const phase2Titles = { Q6: "등록 서류", Q7: "가맹 소개서와 가맹비", Q8: "등록 기관과 모집 시기", Q9: "일정과 사업 시작", Q10: "견적과 비용", Q11: "국적과 제출 방식", Q12: "가맹점 지원과 관리", Q13: "지역과 담당 기관" };
+export const phase2Titles = { Q6: "등록 서류", Q7: "가맹 소개서와 가맹비", Q8: "등록 기관과 모집 시기", Q9: "일정과 사업 시작", Q10: "견적과 비용", Q11: "제출 방식", Q12: "가맹점 지원과 관리", Q13: "지역과 담당 기관" };
 export const connections = [
   { name: "법인설립 확인", clauses: [[`${p}_registration`, ["reg_not_started", "reg_unsure"]]], sentence: "사업자 등록이 아직이라면 법인설립 직접 인허가 받기에서 먼저 점검해 보실 수 있습니다.", path: "/verify/company" },
   { name: "식당 허가 확인", clauses: [[`${p}_business`, ["bz_food"]]], sentence: "외식 브랜드라면 매장마다 식당 허가가 필요하니 식당 허가 직접 인허가 받기에서 함께 점검해 보실 수 있습니다.", path: "/verify/restaurant" },

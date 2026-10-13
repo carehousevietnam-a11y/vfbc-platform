@@ -69,7 +69,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o1",
           "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 법인 이름으로 허가를 받으려고 합니다.",
+          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
           "fields": {
             "ev_registration": "reg_company_done",
             "ev_owner": "own_fdi"
@@ -78,7 +78,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "규모가 작아서 개인사업자로 허가를 받으려고 합니다.",
+          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
           "fields": {
             "ev_registration": "reg_household_done",
             "ev_owner": "own_household"
@@ -87,7 +87,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "베트남 현지 법인 이름으로 허가를 받을 예정입니다.",
+          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
           "fields": {
             "ev_registration": "reg_in_progress",
             "ev_owner": "own_local"
@@ -96,7 +96,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "베트남 사람 이름으로 등록해서 운영하려고 생각하고 있습니다.",
+          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
           "fields": {
             "ev_registration": "reg_not_started",
             "ev_owner": "own_partner"
@@ -586,57 +586,57 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청하시는 분의 국적은 어디이고, 신청서는 누가 제출하게 될 예정인가요?",
+      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "대한민국 국적입니다.",
-          "description": "제가 직접 담당 기관에 서류를 제출하려고 준비하고 있습니다.",
+          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
+          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
           "fields": {
-            "ev_nationality": "nat_korea",
-            "ev_submitter": "sub_self"
+            "ev_submitter": "sub_self",
+            "ev_submitNeed": "sn_account"
           }
         },
         {
           "value": "o2",
-          "label": "중국 국적입니다.",
-          "description": "베트남 직원이 담당 기관에 서류를 대신 제출해 주기로 했습니다.",
+          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
+          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
           "fields": {
-            "ev_nationality": "nat_china",
-            "ev_submitter": "sub_staff"
+            "ev_submitter": "sub_staff",
+            "ev_submitNeed": "sn_proxy"
           }
         },
         {
           "value": "o3",
-          "label": "일본 국적입니다.",
-          "description": "대행사에 서류 제출을 맡기려고 어느 업체가 좋을지 알아보는 중입니다.",
+          "label": "대행사에 서류 제출을 맡기려고 합니다.",
+          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
           "fields": {
-            "ev_nationality": "nat_japan",
-            "ev_submitter": "sub_agency"
+            "ev_submitter": "sub_agency",
+            "ev_submitNeed": "sn_scope"
           }
         },
         {
           "value": "o4",
-          "label": "그 밖의 아시아 국가 국적입니다.",
-          "description": "누가 제출할지 아직 정하지 못해서 방법별로 비교해 보고 싶습니다.",
+          "label": "누가 제출할지 아직 정하지 못했습니다.",
+          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
           "fields": {
-            "ev_nationality": "nat_other_asia",
-            "ev_submitter": "sub_undecided"
+            "ev_submitter": "sub_undecided",
+            "ev_submitNeed": "sn_compare"
           }
         },
         {
           "value": "o5",
-          "label": "그 밖의 지역 국적입니다.",
-          "description": "직접 제출하지만 베트남어를 몰라서 통역이 꼭 필요한 상황입니다.",
+          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
+          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
           "fields": {
-            "ev_nationality": "nat_other",
-            "ev_submitter": "sub_self"
+            "ev_submitter": "sub_self_lang",
+            "ev_submitNeed": "sn_interpreter"
           }
         }
       ],
       "directFields": {
-        "ev_nationality": "direct_input",
-        "ev_submitter": "direct_input_detail"
+        "ev_submitter": "direct_input",
+        "ev_submitNeed": "direct_input_detail"
       }
     },
     {
@@ -702,15 +702,15 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 허가 신청을 받는 담당 기관을 알고 계신가요?",
+      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
       "choices": [
         {
           "value": "o1",
           "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관의 위치와 온라인 접수 방법을 이미 알고 있습니다.",
+          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
           "fields": {
             "ev_area": "area_hanoi",
-            "ev_agencyKnown": "ag_known"
+            "ev_agencyNeed": "an_online"
           }
         },
         {
@@ -719,40 +719,40 @@ export const ENVIRONMENT_CONTENT_FINAL = {
           "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
           "fields": {
             "ev_area": "area_hcm",
-            "ev_agencyKnown": "ag_unknown"
+            "ev_agencyNeed": "an_office"
           }
         },
         {
           "value": "o3",
           "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 모르겠습니다.",
+          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
           "fields": {
             "ev_area": "area_danang",
-            "ev_agencyKnown": "ag_changed"
+            "ev_agencyNeed": "an_changed"
           }
         },
         {
           "value": "o4",
           "label": "그 밖의 도시에 있습니다.",
-          "description": "담당 기관은 알고 있지만 온라인 접수 방법은 아직 모르는 상태입니다.",
+          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
           "fields": {
             "ev_area": "area_other_city",
-            "ev_agencyKnown": "ag_known"
+            "ev_agencyNeed": "an_visit"
           }
         },
         {
           "value": "o5",
           "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 모르겠습니다.",
+          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
           "fields": {
             "ev_area": "area_ip",
-            "ev_agencyKnown": "ag_unknown"
+            "ev_agencyNeed": "an_zone"
           }
         }
       ],
       "directFields": {
         "ev_area": "direct_input",
-        "ev_agencyKnown": "direct_input_detail"
+        "ev_agencyNeed": "direct_input_detail"
       }
     }
   ],
@@ -980,13 +980,13 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q11",
-      "title": "국적과 제출 방식",
+      "title": "제출 방식",
       "sentences": {
-        "ev_nationality=nat_korea|ev_submitter=sub_self": "직접 제출한다면 온라인 접수 계정과 서명 방법을 미리 준비하세요.",
-        "ev_nationality=nat_china|ev_submitter=sub_staff": "직원이 제출하면 위임장과 제출 후 연락 방법을 정해 두세요.",
-        "ev_nationality=nat_japan|ev_submitter=sub_agency": "대행사에 맡길 때는 맡기는 업무 범위와 서류 원본 보관 방식을 문서로 정하세요.",
-        "ev_nationality=nat_other_asia|ev_submitter=sub_undecided": "제출 방식을 정하려면 직접·직원·대행 세 가지의 비용과 일정을 비교해 보세요.",
-        "ev_nationality=nat_other|ev_submitter=sub_self": "국적에 따라 서류 인증 방법이 다를 수 있으니 본국 서류의 인증 절차를 먼저 확인하세요."
+        "ev_submitter=sub_self|ev_submitNeed=sn_account": "직접 제출한다면 온라인 접수 계정과 서명 방법을 미리 준비하세요.",
+        "ev_submitter=sub_staff|ev_submitNeed=sn_proxy": "직원이 제출하면 위임장과 제출 후 연락 방법을 정해 두세요.",
+        "ev_submitter=sub_agency|ev_submitNeed=sn_scope": "대행사에 맡길 때는 맡기는 업무 범위와 서류 원본 보관 방식을 문서로 정하세요.",
+        "ev_submitter=sub_undecided|ev_submitNeed=sn_compare": "제출 방식을 정하려면 직접·직원·대행 세 가지의 비용과 일정을 비교해 보세요.",
+        "ev_submitter=sub_self_lang|ev_submitNeed=sn_interpreter": "직접 제출하되 베트남어가 어렵다면 제출하는 날 통역이 필요한 범위를 미리 정해 두세요."
       }
     },
     {
@@ -1004,18 +1004,20 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "questionCode": "Q13",
       "title": "지역과 담당 기관",
       "sentences": {
-        "ev_area=area_hanoi|ev_agencyKnown=ag_known": "온라인 접수 후 원본 제출이나 현장 확인이 필요한지만 한 번 더 확인하세요.",
-        "ev_area=area_hcm|ev_agencyKnown=ag_unknown": "환경 허가는 규모에 따라 지역 농업환경 담당 기관이나 중앙 부처가 받으니 규모 기준부터 확인하세요.",
-        "ev_area=area_danang|ev_agencyKnown=ag_changed": "기관 통합으로 담당이 바뀌었을 수 있으니 접수 전에 해당 기관에 직접 확인하세요.",
-        "ev_area=area_other_city|ev_agencyKnown=ag_known": "지방은 접수 방식이 다를 수 있으니 방문 전에 접수 방법을 확인하세요.",
-        "ev_area=area_ip|ev_agencyKnown=ag_unknown": "산업단지 안이라면 관리 기관이 일부 허가를 맡는 경우가 있으니 그곳에 먼저 문의하세요."
+        "ev_area=area_hanoi|ev_agencyNeed=an_online": "온라인 접수 후 원본 제출이나 현장 확인이 필요한지만 한 번 더 확인하세요.",
+        "ev_area=area_hcm|ev_agencyNeed=an_office": "환경 허가는 규모에 따라 지역 농업환경 담당 기관이나 중앙 부처가 받으니 규모 기준부터 확인하세요.",
+        "ev_area=area_danang|ev_agencyNeed=an_changed": "기관 통합으로 담당이 바뀌었을 수 있으니 접수 전에 해당 기관에 직접 확인하세요.",
+        "ev_area=area_other_city|ev_agencyNeed=an_visit": "지방은 접수 방식이 다를 수 있으니 방문 전에 접수 방법을 확인하세요.",
+        "ev_area=area_ip|ev_agencyNeed=an_zone": "산업단지 안이라면 관리 기관이 일부 허가를 맡는 경우가 있으니 그곳에 먼저 문의하세요."
       }
     }
   ],
   "labels": {
-    "ag_changed": "기관 통합으로 담당이 불확실함",
-    "ag_known": "담당 기관을 알고 있음",
-    "ag_unknown": "담당 기관을 모름",
+    "an_changed": "기관 통합으로 담당 확인",
+    "an_office": "접수 기관 확인",
+    "an_online": "담당 기관과 온라인 접수 확인",
+    "an_visit": "지방 접수 방식 확인",
+    "an_zone": "산업단지 관리 기관 확인",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
@@ -1068,11 +1070,6 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "mo_periodic": "정기 측정 계약",
     "mo_reviewing": "자동 측정 장비 검토 중",
     "mo_unknown": "측정 의무를 모름",
-    "nat_china": "중국 국적",
-    "nat_japan": "일본 국적",
-    "nat_korea": "대한민국 국적",
-    "nat_other": "그 밖의 지역 국적",
-    "nat_other_asia": "그 밖의 아시아 국적",
     "nb_complaint": "민원 접수됨",
     "nb_concern": "주민 우려 있음",
     "nb_none": "주민 민원 없음",
@@ -1110,6 +1107,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "sc_mid": "중간 규모 사업장",
     "sc_small": "소규모 사업장",
     "sc_unknown": "규모 기준을 모름",
+    "sn_account": "온라인 접수 계정·서명 준비",
+    "sn_compare": "제출 방식 비교",
+    "sn_interpreter": "통역 필요 범위 확인",
+    "sn_proxy": "위임장·연락 방법 준비",
+    "sn_scope": "대행 범위·원본 보관 확인",
     "st_check": "현재 시설 점검 대비",
     "st_expand": "생산 규모 확대",
     "st_new_project": "새 공장·사업장 준비",
@@ -1117,6 +1119,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "st_unsure": "어떤 절차인지 모름",
     "sub_agency": "대행사가 제출",
     "sub_self": "직접 제출",
+    "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
     "sub_undecided": "제출 방식 미정",
     "tl_2_3m": "두세 달 안에 허가",
@@ -1283,10 +1286,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
             ]
           },
           {
-            "field": "ev_agencyKnown",
+            "field": "ev_agencyNeed",
             "values": [
-              "ag_unknown",
-              "ag_changed"
+              "an_office",
+              "an_changed",
+              "an_zone"
             ]
           }
         ]

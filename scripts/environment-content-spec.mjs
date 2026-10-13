@@ -95,7 +95,7 @@ export const risks = { max: 4, fallback: "입력하신 내용에서는 뚜렷한
   { id: "waste", clauses: [[`${p}_wasteContract`, ["wc_none", "wc_unknown"]]], sentence: "폐기물 처리 계약이 없으면 허가가 어려울 수 있어 허가받은 처리 업체부터 정하세요" },
   { id: "complaint", clauses: [[`${p}_neighbors`, ["nb_complaint"]]], sentence: "주민 민원이 있었다면 민원 내용과 조치 기록을 먼저 정리해야 합니다" },
 ] };
-export const phase2Titles = { Q6: "신청 서류", Q7: "측정과 폐기물 처리", Q8: "입지와 주민", Q9: "일정과 가동 시작", Q10: "견적과 비용", Q11: "국적과 제출 방식", Q12: "정기 보고와 담당자", Q13: "지역과 담당 기관" };
+export const phase2Titles = { Q6: "신청 서류", Q7: "측정과 폐기물 처리", Q8: "입지와 주민", Q9: "일정과 가동 시작", Q10: "견적과 비용", Q11: "제출 방식", Q12: "정기 보고와 담당자", Q13: "지역과 담당 기관" };
 export const connections = [
   { name: "법인설립 확인", clauses: [[`${p}_registration`, ["reg_not_started", "reg_unsure"]]], sentence: "사업자 등록이 아직이라면 법인설립 직접 인허가 받기에서 먼저 점검해 보실 수 있습니다.", path: "/verify/company" },
   { name: "소방 허가 확인", clauses: [[`${p}_stage`, ["st_new_project", "st_expand"]]], sentence: "공장을 새로 짓거나 늘린다면 소방 허가 직접 인허가 받기에서 소방 준비도 함께 점검해 보실 수 있습니다.", path: "/verify/fire" },

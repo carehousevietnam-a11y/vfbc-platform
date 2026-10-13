@@ -256,8 +256,8 @@ export default function SelectionCard({
       {isStitch ? (
         <>
           {/* Mobile — Stitch SCREEN 01 numbered card + arrow circle */}
-          <div className="max-[430px]:space-y-2.5 min-[431px]:flex min-[431px]:items-center min-[431px]:justify-between min-[431px]:gap-2 lg:hidden">
-            <div className="min-w-0 min-[431px]:flex-1">
+          <div className="flex items-center justify-between gap-3 lg:hidden">
+            <div className="min-w-0 flex-1">
               <div className="flex items-start gap-2">
                 {badgeNumber ? (
                   <span
@@ -291,7 +291,7 @@ export default function SelectionCard({
             </div>
             <div
               className={cn(
-                "flex h-7 w-7 shrink-0 items-center justify-center transition-colors max-[430px]:ml-auto",
+                "flex h-7 w-7 shrink-0 items-center justify-center transition-colors",
                 selected ? "text-[#2563EB]" : "text-[#9AA7BA]",
               )}
               aria-hidden

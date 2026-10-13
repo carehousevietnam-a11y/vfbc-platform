@@ -96,7 +96,7 @@ export const risks = { max: 4, fallback: "입력하신 내용에서는 뚜렷한
   { id: "plan", clauses: [[`${p}_plan`, ["pl_none", "pl_unknown"]]], sentence: "소방 계획서와 대피 계획이 없으면 점검에서 지적받을 수 있어 먼저 만들어 두세요" },
   { id: "failed", clauses: [[`${p}_inspection`, ["ck_failed"]]], sentence: "이전 점검에서 지적받은 사항은 고친 기록이 있어야 하니 먼저 정리하세요" },
 ] };
-export const phase2Titles = { Q6: "신청 서류", Q7: "소방 교육과 대피 훈련", Q8: "화재 보험과 점검 이력", Q9: "일정과 운영 시작", Q10: "견적과 비용", Q11: "국적과 제출 방식", Q12: "건물주와 책임 구분", Q13: "지역과 담당 기관" };
+export const phase2Titles = { Q6: "신청 서류", Q7: "소방 교육과 대피 훈련", Q8: "화재 보험과 점검 이력", Q9: "일정과 운영 시작", Q10: "견적과 비용", Q11: "제출 방식", Q12: "건물주와 책임 구분", Q13: "지역과 담당 기관" };
 export const connections = [
   { name: "식당 허가 확인", clauses: [[`${p}_buildingUse`, ["bt_restaurant"]]], sentence: "식당·카페라면 식당 허가 직접 인허가 받기에서 위생 준비도 함께 점검해 보실 수 있습니다.", path: "/verify/restaurant" },
   { name: "전문가 진행", clauses: [[`${p}_timeline`, ["tl_already", "tl_urgent"]], [`${p}_inspection`, ["ck_failed"]], [`${p}_helpWanted`, ["help_full"]]], sentence: "점검에서 지적받았거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },

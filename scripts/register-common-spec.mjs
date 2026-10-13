@@ -13,18 +13,18 @@ export const commonLabels = {
   op_date: "영업 시작일 정해짐", op_after_fitout: "공사 후 영업", op_after_permit: "허가 후 영업", op_unsure: "영업 시작일 미정", op_running: "허가 없이 영업 중",
   quote_none: "받은 견적 없음", quote_one: "서면 견적 1건", quote_several: "여러 곳의 견적", quote_verbal: "말로만 들은 금액", quote_ad: "광고 가격만 봄",
   qs_clear: "정부 비용과 대행료가 구분됨", qs_mixed: "항목이 섞여 비교 어려움", qs_unknown: "포함 범위를 모름", qs_na: "비교할 견적 없음",
-  nat_korea: "대한민국 국적", nat_china: "중국 국적", nat_japan: "일본 국적", nat_other_asia: "그 밖의 아시아 국적", nat_other: "그 밖의 지역 국적",
-  sub_self: "직접 제출", sub_staff: "직원이 제출", sub_agency: "대행사가 제출", sub_undecided: "제출 방식 미정",
+  sub_self: "직접 제출", sub_staff: "직원이 제출", sub_agency: "대행사가 제출", sub_undecided: "제출 방식 미정", sub_self_lang: "직접 제출, 베트남어가 걱정됨",
+  sn_account: "온라인 접수 계정·서명 준비", sn_proxy: "위임장·연락 방법 준비", sn_scope: "대행 범위·원본 보관 확인", sn_compare: "제출 방식 비교", sn_interpreter: "통역 필요 범위 확인",
   area_hanoi: "하노이", area_hcm: "호치민", area_danang: "다낭", area_other_city: "그 밖의 도시", area_ip: "산업단지",
-  ag_known: "담당 기관을 알고 있음", ag_unknown: "담당 기관을 모름", ag_changed: "기관 통합으로 담당이 불확실함",
+  an_online: "담당 기관과 온라인 접수 확인", an_office: "접수 기관 확인", an_changed: "기관 통합으로 담당 확인", an_visit: "지방 접수 방식 확인", an_zone: "산업단지 관리 기관 확인",
 };
 
 export function registrationQuestion(p, code, prompt) {
   return { code, stage: 1, prompt, f: [`${p}_registration`, `${p}_owner`], choices: [
-    C("**법인 등록을 이미** 마쳤습니다.", "외국인이 투자한 법인 이름으로 허가를 받으려고 합니다.", ["reg_company_done", "own_fdi"], { card: "외국인 투자 법인 등록을 마친 상황입니다" }),
-    C("**개인사업자 등록을** 마쳤습니다.", "규모가 작아서 개인사업자로 허가를 받으려고 합니다.", ["reg_household_done", "own_household"], { card: "개인사업자 등록을 마친 상황입니다" }),
-    C("**사업자 등록을 진행하고** 있습니다.", "베트남 현지 법인 이름으로 허가를 받을 예정입니다.", ["reg_in_progress", "own_local"], { card: "현지 법인 등록이 진행 중인 상황입니다" }),
-    C("**사업자 등록을 아직** 시작하지 않았습니다.", "베트남 사람 이름으로 등록해서 운영하려고 생각하고 있습니다.", ["reg_not_started", "own_partner"], { card: "사업자 등록 전이고 현지인 명의를 생각하는 상황입니다" }),
+    C("**법인 등록을 이미** 마쳤습니다.", "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.", ["reg_company_done", "own_fdi"], { card: "외국인 투자 법인 등록을 마친 상황입니다" }),
+    C("**개인사업자 등록을** 마쳤습니다.", "개인사업자 본인 이름으로 허가를 신청하려고 합니다.", ["reg_household_done", "own_household"], { card: "개인사업자 등록을 마친 상황입니다" }),
+    C("**사업자 등록을 진행하고** 있습니다.", "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.", ["reg_in_progress", "own_local"], { card: "현지 법인 등록이 진행 중인 상황입니다" }),
+    C("**사업자 등록을 아직** 시작하지 않았습니다.", "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.", ["reg_not_started", "own_partner"], { card: "사업자 등록 전이고 현지인 명의를 생각하는 상황입니다" }),
     C("**등록 상태를 정확히** 모르겠습니다.", "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.", ["reg_unsure", "own_undecided"], { card: "등록 상태와 운영 주체부터 확인해야 하는 상황입니다" }),
   ] };
 }
@@ -70,22 +70,22 @@ export function quoteQuestion(p, code, scopeHint) {
 }
 
 export function submitQuestion(p, code) {
-  return { code, stage: 2, prompt: "신청하시는 분의 국적은 어디이고, 신청서는 누가 제출하게 될 예정인가요?", f: [`${p}_nationality`, `${p}_submitter`], choices: [
-    C("**대한민국** 국적입니다.", "제가 직접 담당 기관에 서류를 제출하려고 준비하고 있습니다.", ["nat_korea", "sub_self"], { r: "직접 제출한다면 온라인 접수 계정과 서명 방법을 미리 준비하세요." }),
-    C("**중국** 국적입니다.", "베트남 직원이 담당 기관에 서류를 대신 제출해 주기로 했습니다.", ["nat_china", "sub_staff"], { r: "직원이 제출하면 위임장과 제출 후 연락 방법을 정해 두세요." }),
-    C("**일본** 국적입니다.", "대행사에 서류 제출을 맡기려고 어느 업체가 좋을지 알아보는 중입니다.", ["nat_japan", "sub_agency"], { r: "대행사에 맡길 때는 맡기는 업무 범위와 서류 원본 보관 방식을 문서로 정하세요." }),
-    C("**그 밖의 아시아 국가** 국적입니다.", "누가 제출할지 아직 정하지 못해서 방법별로 비교해 보고 싶습니다.", ["nat_other_asia", "sub_undecided"], { r: "제출 방식을 정하려면 직접·직원·대행 세 가지의 비용과 일정을 비교해 보세요." }),
-    C("**그 밖의 지역** 국적입니다.", "직접 제출하지만 베트남어를 몰라서 통역이 꼭 필요한 상황입니다.", ["nat_other", "sub_self"], { r: "국적에 따라 서류 인증 방법이 다를 수 있으니 본국 서류의 인증 절차를 먼저 확인하세요." }),
+  return { code, stage: 2, prompt: "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?", f: [`${p}_submitter`, `${p}_submitNeed`], choices: [
+    C("**제가 직접** 담당 기관에 제출하려고 합니다.", "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.", ["sub_self", "sn_account"], { r: "직접 제출한다면 온라인 접수 계정과 서명 방법을 미리 준비하세요." }),
+    C("**베트남 직원이** 대신 제출해 주기로 했습니다.", "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.", ["sub_staff", "sn_proxy"], { r: "직원이 제출하면 위임장과 제출 후 연락 방법을 정해 두세요." }),
+    C("**대행사에** 서류 제출을 맡기려고 합니다.", "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.", ["sub_agency", "sn_scope"], { r: "대행사에 맡길 때는 맡기는 업무 범위와 서류 원본 보관 방식을 문서로 정하세요." }),
+    C("**누가 제출할지** 아직 정하지 못했습니다.", "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.", ["sub_undecided", "sn_compare"], { r: "제출 방식을 정하려면 직접·직원·대행 세 가지의 비용과 일정을 비교해 보세요." }),
+    C("**직접 제출하지만** 베트남어가 어려워 걱정입니다.", "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.", ["sub_self_lang", "sn_interpreter"], { r: "직접 제출하되 베트남어가 어렵다면 제출하는 날 통역이 필요한 범위를 미리 정해 두세요." }),
   ] };
 }
 
 export function areaQuestion(p, code, agencyHint) {
-  return { code, stage: 2, prompt: "사업장이 있는 지역은 어디이고, 허가 신청을 받는 담당 기관을 알고 계신가요?", f: [`${p}_area`, `${p}_agencyKnown`], choices: [
-    C("**하노이**에 있습니다.", "신청을 받는 담당 기관의 위치와 온라인 접수 방법을 이미 알고 있습니다.", ["area_hanoi", "ag_known"], { r: "온라인 접수 후 원본 제출이나 현장 확인이 필요한지만 한 번 더 확인하세요." }),
-    C("**호치민**에 있습니다.", "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.", ["area_hcm", "ag_unknown"], { r: agencyHint }),
-    C("**다낭**에 있습니다.", "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 모르겠습니다.", ["area_danang", "ag_changed"], { r: "기관 통합으로 담당이 바뀌었을 수 있으니 접수 전에 해당 기관에 직접 확인하세요." }),
-    C("**그 밖의 도시**에 있습니다.", "담당 기관은 알고 있지만 온라인 접수 방법은 아직 모르는 상태입니다.", ["area_other_city", "ag_known"], { r: "지방은 접수 방식이 다를 수 있으니 방문 전에 접수 방법을 확인하세요." }),
-    C("**산업단지 안**에 있습니다.", "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 모르겠습니다.", ["area_ip", "ag_unknown"], { r: "산업단지 안이라면 관리 기관이 일부 허가를 맡는 경우가 있으니 그곳에 먼저 문의하세요." }),
+  return { code, stage: 2, prompt: "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?", f: [`${p}_area`, `${p}_agencyNeed`], choices: [
+    C("**하노이**에 있습니다.", "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.", ["area_hanoi", "an_online"], { r: "온라인 접수 후 원본 제출이나 현장 확인이 필요한지만 한 번 더 확인하세요." }),
+    C("**호치민**에 있습니다.", "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.", ["area_hcm", "an_office"], { r: agencyHint }),
+    C("**다낭**에 있습니다.", "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.", ["area_danang", "an_changed"], { r: "기관 통합으로 담당이 바뀌었을 수 있으니 접수 전에 해당 기관에 직접 확인하세요." }),
+    C("**그 밖의 도시**에 있습니다.", "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.", ["area_other_city", "an_visit"], { r: "지방은 접수 방식이 다를 수 있으니 방문 전에 접수 방법을 확인하세요." }),
+    C("**산업단지 안**에 있습니다.", "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.", ["area_ip", "an_zone"], { r: "산업단지 안이라면 관리 기관이 일부 허가를 맡는 경우가 있으니 그곳에 먼저 문의하세요." }),
   ] };
 }
 
@@ -97,7 +97,7 @@ export const commonRiskRules = (p) => [
 
 export const commonTier = (p) => ({
   full: [[`${p}_helpWanted`, ["help_full"]], [`${p}_timeline`, ["tl_urgent", "tl_already"]], [`${p}_registration`, ["reg_not_started"]]],
-  accompany: [[`${p}_helpWanted`, ["help_accompany"]], [`${p}_submitter`, ["sub_undecided"]], [`${p}_agencyKnown`, ["ag_unknown", "ag_changed"]]],
+  accompany: [[`${p}_helpWanted`, ["help_accompany"]], [`${p}_submitter`, ["sub_undecided"]], [`${p}_agencyNeed`, ["an_office", "an_changed", "an_zone"]]],
 });
 
 export const registrationMap = { reg_company_done: "confirmed", reg_household_done: "confirmed", reg_in_progress: "unconfirmed", reg_not_started: "unconfirmed", reg_unsure: null };

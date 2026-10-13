@@ -49,16 +49,16 @@ export default function OfficialBasisPanel({
   return (
     <div
       className={cn(
-        "mt-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-3.5",
+        "mt-3 rounded-xl border border-[#eef2f6] bg-[#fbfcfd] p-4 shadow-sm",
         className,
       )}
       aria-label="공식 기준 확인"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#94A3B8]">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
         OFFICIAL SOURCES
       </p>
-      <p className="mt-1.5 break-keep text-[12.5px] font-semibold text-[#0B2A6B]">{copy.title}</p>
-      <p className="mt-1 break-keep text-[11.5px] leading-[1.55] text-[#556070] [overflow-wrap:normal]">
+      <p className="mt-1 break-keep text-[13px] font-bold leading-snug text-[#0f172a]">{copy.title}</p>
+      <p className="mt-1 break-keep text-[11.5px] leading-normal text-slate-500 [overflow-wrap:normal]">
         {copy.subtitle}
       </p>
 

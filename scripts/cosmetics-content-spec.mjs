@@ -95,7 +95,7 @@ export const risks = { max: 4, fallback: "입력하신 내용에서는 뚜렷한
   { id: "cfs", clauses: [[`${p}_cfs`, ["cfs_none", "cfs_unknown"]]], sentence: "수입 제품은 생산국의 판매 증명이 필요한 경우가 많아 제조사에 먼저 요청해야 합니다" },
   { id: "claims", clauses: [[`${p}_ads`, ["ad_claims"]]], sentence: "치료 효과처럼 보이는 광고는 문제가 될 수 있어 광고 문구를 먼저 점검해야 합니다" },
 ] };
-export const phase2Titles = { Q6: "신고 서류", Q7: "자유판매증명서와 표시", Q8: "판매처와 광고", Q9: "신고 일정과 판매 시작", Q10: "견적과 비용", Q11: "국적과 제출 방식", Q12: "제품 수와 확장 계획", Q13: "지역과 담당 기관" };
+export const phase2Titles = { Q6: "신고 서류", Q7: "자유판매증명서와 표시", Q8: "판매처와 광고", Q9: "신고 일정과 판매 시작", Q10: "견적과 비용", Q11: "제출 방식", Q12: "제품 수와 확장 계획", Q13: "지역과 담당 기관" };
 export const connections = [
   { name: "법인설립 확인", clauses: [[`${p}_registration`, ["reg_not_started", "reg_unsure"]]], sentence: "사업자 등록이 아직이라면 법인설립 직접 인허가 받기에서 먼저 점검해 보실 수 있습니다.", path: "/verify/company" },
   { name: "전문가 진행", clauses: [[`${p}_timeline`, ["tl_already", "tl_urgent"]], [`${p}_helpWanted`, ["help_full"]]], sentence: "이미 판매 중이거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },
