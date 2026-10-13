@@ -69,7 +69,7 @@ const TAMTRU_LANDING: MasterLandingConfig = {
   serviceLabel: "임시 거주 신고 직접 확인",
   shortServiceLabel: "임시 거주 신고 직접 확인",
   costServiceId: "tamtru",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 행정전문 AI",
   hookTitle: "임시 거주 신고, 누가 언제 어떻게 해야 하는지 먼저 정리해 보세요.",
   hookBody: "신고 사유와 도착 시점, 집주인과 계약 상태를 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 신고 방법과 서류가 보입니다.",

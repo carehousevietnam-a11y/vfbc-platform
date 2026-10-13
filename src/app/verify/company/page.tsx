@@ -69,7 +69,7 @@ const COMPANY_LANDING: MasterLandingConfig = {
   serviceLabel: "법인설립 직접 인허가 받기",
   shortServiceLabel: "법인설립 직접 인허가 받기",
   costServiceId: "company",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 인허가 전문 AI",
   hookTitle: "베트남 법인설립, 지금 내 상황에서 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "투자 방식, 자본금과 사무실, 서류 인증을 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

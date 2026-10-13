@@ -69,7 +69,7 @@ const RESTAURANT_LANDING: MasterLandingConfig = {
   serviceLabel: "식당 허가 직접 인허가 받기",
   shortServiceLabel: "식당 허가 직접 인허가 받기",
   costServiceId: "restaurant",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 인허가 전문 AI",
   hookTitle: "식당 허가, 지금 내 매장에 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "매장 형태와 규모, 위생·소방 시설, 직원 검진과 주류 판매를 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

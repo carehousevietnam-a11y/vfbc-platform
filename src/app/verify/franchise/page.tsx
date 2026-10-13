@@ -69,7 +69,7 @@ const FRANCHISE_LANDING: MasterLandingConfig = {
   serviceLabel: "프랜차이즈 등록 직접 인허가 받기",
   shortServiceLabel: "프랜차이즈 등록 직접 인허가 받기",
   costServiceId: "franchise",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 인허가 전문 AI",
   hookTitle: "프랜차이즈 등록, 지금 내 브랜드에 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "브랜드 출처와 운영 이력, 가맹계약서와 상표, 가맹 소개서를 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

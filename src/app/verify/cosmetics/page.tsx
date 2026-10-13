@@ -69,7 +69,7 @@ const COSMETICS_LANDING: MasterLandingConfig = {
   serviceLabel: "화장품 판매 신고 직접 인허가 받기",
   shortServiceLabel: "화장품 판매 신고 직접 인허가 받기",
   costServiceId: "cosmetics",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 인허가 전문 AI",
   hookTitle: "화장품 판매 신고, 지금 내 제품에 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "제품 종류와 보관 창고, 성분 자료와 위임장, 판매 증명서를 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

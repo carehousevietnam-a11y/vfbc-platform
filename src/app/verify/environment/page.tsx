@@ -69,7 +69,7 @@ const ENVIRONMENT_LANDING: MasterLandingConfig = {
   serviceLabel: "환경 허가 직접 인허가 받기",
   shortServiceLabel: "환경 허가 직접 인허가 받기",
   costServiceId: "environment",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 인허가 전문 AI",
   hookTitle: "환경 허가, 지금 내 사업장에 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "업종과 규모, 배출·방지시설, 환경영향평가와 폐기물 처리를 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

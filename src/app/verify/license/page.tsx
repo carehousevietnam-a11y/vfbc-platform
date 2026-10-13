@@ -69,7 +69,7 @@ const LICENSE_LANDING: MasterLandingConfig = {
   serviceLabel: "운전면허 전환 직접 확인",
   shortServiceLabel: "운전면허 전환 직접 확인",
   costServiceId: "driving-license",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 행정전문 AI",
   hookTitle: "운전면허 전환, 지금 내 상황에서 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "체류 서류 기간과 본국 면허 상태, 번역과 검진을 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

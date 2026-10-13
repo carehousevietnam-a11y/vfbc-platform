@@ -69,7 +69,7 @@ const TRC_LANDING: MasterLandingConfig = {
   serviceLabel: "거주증 직접 확인",
   shortServiceLabel: "거주증 직접 확인",
   costServiceId: "trc",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 행정전문 AI",
   hookTitle: "거주증, 지금 내 상황에서 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "신규인지 갱신인지, 체류 자격과 회사 상태가 어떤지 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

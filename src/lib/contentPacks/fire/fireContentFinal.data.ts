@@ -6,57 +6,57 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "소방과 관련해 어떤 절차가 필요하고, 건물은 어떤 용도로 쓰이나요?",
+      "prompt": "소방을 준비하는 건물은 어떤 용도로 쓰이고, 그 용도에서 가장 확인하고 싶은 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "새 건물이나 매장을 짓고 있습니다.",
-          "description": "손님이 오가는 식당이나 카페로 쓰려고 합니다.",
+          "label": "식당이나 카페로 쓰는 건물입니다.",
+          "description": "손님이 오가는 매장이라 어떤 소방시설과 절차가 필요한지 확인하고 싶습니다.",
           "fields": {
-            "fs_stage": "st_new_build",
-            "fs_buildingUse": "bt_restaurant"
+            "fs_buildingUse": "bt_restaurant",
+            "fs_useFocus": "uf_customer"
           }
         },
         {
           "value": "o2",
-          "label": "빌린 공간의 내부 공사를 하고 있습니다.",
-          "description": "직원들이 일하는 사무실로 쓰려고 합니다.",
+          "label": "사무실로 쓰는 건물입니다.",
+          "description": "빌린 공간의 내부 공사를 할 때 건물 소방시설과 어디까지 맞춰야 하는지 알고 싶습니다.",
           "fields": {
-            "fs_stage": "st_fitout",
-            "fs_buildingUse": "bt_office"
+            "fs_buildingUse": "bt_office",
+            "fs_useFocus": "uf_fitout"
           }
         },
         {
           "value": "o3",
-          "label": "운영 중인 시설의 점검에 대비하려고 합니다.",
-          "description": "물건을 만들거나 보관하는 공장이나 창고입니다.",
+          "label": "공장이나 창고로 쓰는 건물입니다.",
+          "description": "물건을 만들고 보관하는 시설이라 소방 점검에 어떻게 대비해야 하는지 알고 싶습니다.",
           "fields": {
-            "fs_stage": "st_operating",
-            "fs_buildingUse": "bt_factory"
+            "fs_buildingUse": "bt_factory",
+            "fs_useFocus": "uf_inspection"
           }
         },
         {
           "value": "o4",
-          "label": "건물의 용도를 바꾸려고 합니다.",
-          "description": "손님이 잠을 자고 머무는 숙박 시설로 바꾸려고 합니다.",
+          "label": "숙박 시설로 쓰는 건물입니다.",
+          "description": "다른 용도의 건물을 숙박 시설로 바꿀 때 소방 절차가 달라지는지 확인하고 싶습니다.",
           "fields": {
-            "fs_stage": "st_change_use",
-            "fs_buildingUse": "bt_hotel"
+            "fs_buildingUse": "bt_hotel",
+            "fs_useFocus": "uf_change_use"
           }
         },
         {
           "value": "o5",
-          "label": "어떤 절차가 필요한지 모르겠습니다.",
-          "description": "제품을 진열해서 파는 매장이나 쇼룸으로 쓰려고 합니다.",
+          "label": "제품을 파는 매장이나 쇼룸으로 쓰는 건물입니다.",
+          "description": "제품을 진열해 파는 공간에 필요한 소방 절차의 종류부터 알고 싶습니다.",
           "fields": {
-            "fs_stage": "st_unsure",
-            "fs_buildingUse": "bt_retail"
+            "fs_buildingUse": "bt_retail",
+            "fs_useFocus": "uf_which"
           }
         }
       ],
       "directFields": {
-        "fs_stage": "direct_input",
-        "fs_buildingUse": "direct_input_detail"
+        "fs_buildingUse": "direct_input",
+        "fs_useFocus": "direct_input_detail"
       }
     },
     {
@@ -180,12 +180,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "소방 안전 담당자는 정했고, 소방 계획서와 대피 계획은 준비되었나요?",
+      "prompt": "소방 안전 담당자는 정했고, 그에 맞춰 소방 계획서와 대피 계획은 준비되었나요?",
       "choices": [
         {
           "value": "o1",
           "label": "소방 안전 담당자를 정했습니다.",
-          "description": "소방 계획서와 대피 계획을 모두 만들어 두었습니다.",
+          "description": "담당자가 소방 계획서와 대피 계획도 함께 만들어 두었습니다.",
           "fields": {
             "fs_manager": "mg_appointed",
             "fs_plan": "pl_ready"
@@ -194,7 +194,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "담당자를 곧 정할 예정입니다.",
-          "description": "소방 계획서는 초안만 만들어 두고 확정하지 않았습니다.",
+          "description": "담당자가 정해지면 초안만 만들어 둔 소방 계획서를 확정할 계획입니다.",
           "fields": {
             "fs_manager": "mg_planned",
             "fs_plan": "pl_draft"
@@ -203,7 +203,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "소방 담당자가 따로 없습니다.",
-          "description": "소방 계획서나 대피 계획을 만들어 본 적이 없습니다.",
+          "description": "담당자가 없어서 소방 계획서나 대피 계획을 만들어 본 적이 없습니다.",
           "fields": {
             "fs_manager": "mg_none",
             "fs_plan": "pl_none"
@@ -212,16 +212,16 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "담당자가 필요한지 모르겠습니다.",
-          "description": "소방 계획서는 건물 관리 회사에서 받은 것을 쓰고 있습니다.",
+          "description": "건물 관리 회사의 소방 계획서가 있는데 우리 공간에도 쓸 수 있는지 궁금합니다.",
           "fields": {
             "fs_manager": "mg_unknown",
-            "fs_plan": "pl_draft"
+            "fs_plan": "pl_building"
           }
         },
         {
           "value": "o5",
           "label": "담당자를 정했지만 교육은 받지 않았습니다.",
-          "description": "소방 계획서가 꼭 있어야 하는지 잘 모르겠습니다.",
+          "description": "담당자 교육 전이라 소방 계획서가 꼭 필요한지도 아직 확인하지 못했습니다.",
           "fields": {
             "fs_manager": "mg_untrained",
             "fs_plan": "pl_unknown"
@@ -412,57 +412,57 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "화재 보험은 가입했고, 최근에 소방 점검을 받은 적이 있나요?",
+      "prompt": "최근 소방 점검은 받아 보셨고, 점검 결과 고쳐야 할 점은 어떻게 되었나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "화재 보험에 가입했습니다.",
-          "description": "최근에 소방 점검을 받았고 고칠 점은 지적받지 않았습니다.",
+          "label": "최근에 소방 점검을 받았습니다.",
+          "description": "점검에서 지적받은 내용이 없어서 고칠 점은 없었습니다.",
           "fields": {
-            "fs_insurance": "in_have",
-            "fs_inspection": "ck_recent"
+            "fs_inspection": "ck_recent",
+            "fs_fixStatus": "fx_none"
           }
         },
         {
           "value": "o2",
-          "label": "화재 보험에 가입할 예정입니다.",
-          "description": "소방 점검을 받아 본 적은 아직 한 번도 없습니다.",
+          "label": "점검에서 지적을 받았습니다.",
+          "description": "지적받은 내용을 아직 고치지 못해서 다시 점검받기 전에 보완해야 합니다.",
           "fields": {
-            "fs_insurance": "in_planned",
-            "fs_inspection": "ck_never"
+            "fs_inspection": "ck_failed",
+            "fs_fixStatus": "fx_open"
           }
         },
         {
           "value": "o3",
-          "label": "화재 보험이 없습니다.",
-          "description": "지난 소방 점검에서 고쳐야 할 점을 지적받은 적이 있습니다.",
+          "label": "건물 전체 점검 때 함께 확인받았습니다.",
+          "description": "우리 공간만 따로 지적받은 내용이 있는지는 확인하지 못했습니다.",
           "fields": {
-            "fs_insurance": "in_none",
-            "fs_inspection": "ck_failed"
+            "fs_inspection": "ck_building",
+            "fs_fixStatus": "fx_unknown"
           }
         },
         {
           "value": "o4",
-          "label": "보험이 의무인지 모르겠습니다.",
-          "description": "예전에 점검을 받았는지 기록이 남아 있지 않습니다.",
+          "label": "소방 점검을 받은 적이 없습니다.",
+          "description": "첫 점검을 받기 전에 어떤 시설과 서류를 맞춰야 하는지 알고 싶습니다.",
           "fields": {
-            "fs_insurance": "in_unknown",
-            "fs_inspection": "ck_unknown"
+            "fs_inspection": "ck_never",
+            "fs_fixStatus": "fx_prepare"
           }
         },
         {
           "value": "o5",
-          "label": "건물 보험에 함께 들어가 있다고 들었습니다.",
-          "description": "올해 건물 전체 점검 때 함께 확인을 받았습니다.",
+          "label": "점검 이력을 모르겠습니다.",
+          "description": "예전 점검 기록이 남아 있는지 건물주에게 확인해 봐야 합니다.",
           "fields": {
-            "fs_insurance": "in_building",
-            "fs_inspection": "ck_recent"
+            "fs_inspection": "ck_unknown",
+            "fs_fixStatus": "fx_ask"
           }
         }
       ],
       "directFields": {
-        "fs_insurance": "direct_input",
-        "fs_inspection": "direct_input_detail"
+        "fs_inspection": "direct_input",
+        "fs_fixStatus": "direct_input_detail"
       }
     },
     {
@@ -760,13 +760,13 @@ export const FIRE_CONTENT_FINAL = {
     "cards": [
       {
         "questionCode": "Q1",
-        "title": "절차와 건물 용도",
+        "title": "건물 용도와 확인할 점",
         "sentences": {
-          "fs_stage=st_new_build|fs_buildingUse=bt_restaurant": "새 식당·카페 공사로 소방 준비가 필요한 상황입니다",
-          "fs_stage=st_fitout|fs_buildingUse=bt_office": "임대 사무실 내부 공사로 소방 준비가 필요한 상황입니다",
-          "fs_stage=st_operating|fs_buildingUse=bt_factory": "운영 중인 공장·창고의 소방 점검에 대비하는 상황입니다",
-          "fs_stage=st_change_use|fs_buildingUse=bt_hotel": "숙박 시설로 용도를 바꾸려는 상황입니다",
-          "fs_stage=st_unsure|fs_buildingUse=bt_retail": "매장·쇼룸에 필요한 소방 절차부터 확인할 상황입니다"
+          "fs_buildingUse=bt_restaurant|fs_useFocus=uf_customer": "식당·카페에 필요한 소방시설과 절차를 확인하려는 상황입니다",
+          "fs_buildingUse=bt_office|fs_useFocus=uf_fitout": "사무실 내부 공사의 소방 기준을 확인하려는 상황입니다",
+          "fs_buildingUse=bt_factory|fs_useFocus=uf_inspection": "공장·창고의 소방 점검 대비를 확인하려는 상황입니다",
+          "fs_buildingUse=bt_hotel|fs_useFocus=uf_change_use": "숙박 시설로 바꿀 때의 소방 절차를 확인하려는 상황입니다",
+          "fs_buildingUse=bt_retail|fs_useFocus=uf_which": "매장·쇼룸에 필요한 소방 절차의 종류를 확인하려는 상황입니다"
         }
       },
       {
@@ -798,7 +798,7 @@ export const FIRE_CONTENT_FINAL = {
           "fs_manager=mg_appointed|fs_plan=pl_ready": "담당자를 정하고 소방 계획서를 갖춘 상황입니다",
           "fs_manager=mg_planned|fs_plan=pl_draft": "담당자 지정 전이고 계획서 초안만 있는 상황입니다",
           "fs_manager=mg_none|fs_plan=pl_none": "담당자와 소방 계획서가 모두 없는 상황입니다",
-          "fs_manager=mg_unknown|fs_plan=pl_draft": "담당자 필요 여부를 확인하고 계획서를 보완할 상황입니다",
+          "fs_manager=mg_unknown|fs_plan=pl_building": "담당자 필요 여부와 건물 계획서의 적용 범위를 확인할 상황입니다",
           "fs_manager=mg_untrained|fs_plan=pl_unknown": "담당자는 있지만 교육과 계획서가 남은 상황입니다"
         }
       }
@@ -947,13 +947,13 @@ export const FIRE_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q8",
-      "title": "화재 보험과 점검 이력",
+      "title": "소방 점검과 지적 사항",
       "sentences": {
-        "fs_insurance=in_have|fs_inspection=ck_recent": "보험 증서와 점검 기록을 함께 보관해 두면 다음 점검 준비가 쉬워집니다.",
-        "fs_insurance=in_planned|fs_inspection=ck_never": "보험 가입 의무 대상인지 확인하고, 첫 점검 전에 시설과 서류를 먼저 맞추세요.",
-        "fs_insurance=in_none|fs_inspection=ck_failed": "지적 사항을 먼저 고치고 고친 기록을 남긴 뒤, 보험 의무 여부도 함께 확인하세요.",
-        "fs_insurance=in_unknown|fs_inspection=ck_unknown": "시설 용도에 따라 화재 보험이 의무일 수 있으니 확인하고, 점검 이력을 건물주에게 물어보세요.",
-        "fs_insurance=in_building|fs_inspection=ck_recent": "건물 보험이 우리 공간까지 보장하는지 확인하고 점검 기록은 그대로 보관하세요."
+        "fs_inspection=ck_recent|fs_fixStatus=fx_none": "점검 결과서와 기록을 보관해 두면 다음 점검과 서류 제출 때 바로 쓸 수 있습니다.",
+        "fs_inspection=ck_failed|fs_fixStatus=fx_open": "지적 사항을 먼저 고치고 고친 기록을 남긴 뒤 다시 점검을 받을 수 있는지 확인하세요.",
+        "fs_inspection=ck_building|fs_fixStatus=fx_unknown": "건물 점검 결과서에 우리 공간 내용이 있는지 건물주에게 받아 확인하세요.",
+        "fs_inspection=ck_never|fs_fixStatus=fx_prepare": "첫 점검 전에 소방시설 작동과 계획서, 교육 기록을 먼저 맞추세요.",
+        "fs_inspection=ck_unknown|fs_fixStatus=fx_ask": "건물주나 관리 회사에 이전 점검 기록이 있는지 먼저 물어보세요."
       }
     },
     {
@@ -1028,6 +1028,7 @@ export const FIRE_CONTENT_FINAL = {
     "bt_office": "사무실",
     "bt_restaurant": "식당·카페",
     "bt_retail": "매장·쇼룸",
+    "ck_building": "건물 전체 점검에 포함",
     "ck_failed": "점검에서 지적받음",
     "ck_never": "점검 받은 적 없음",
     "ck_recent": "최근 소방 점검 받음",
@@ -1060,14 +1061,14 @@ export const FIRE_CONTENT_FINAL = {
     "fire_none": "소방시설 설치 전",
     "fire_partial": "일부 소방시설만 설치",
     "fire_unknown": "필요한 소방시설을 모름",
+    "fx_ask": "이전 점검 기록 확인",
+    "fx_none": "지적 사항 없음",
+    "fx_open": "지적 사항 미조치",
+    "fx_prepare": "첫 점검 준비 확인",
+    "fx_unknown": "우리 공간 지적 여부 미확인",
     "help_accompany": "서류 작성과 제출 동행을 원함",
     "help_full": "전 과정 대행을 원함",
     "help_guide": "서류 작성 안내를 원함",
-    "in_building": "건물 보험에 포함",
-    "in_have": "화재 보험 가입",
-    "in_none": "보험 없음",
-    "in_planned": "보험 가입 예정",
-    "in_unknown": "보험 의무 여부를 모름",
     "mg_appointed": "소방 안전 담당자 지정",
     "mg_none": "담당자 없음",
     "mg_planned": "담당자 지정 예정",
@@ -1088,6 +1089,7 @@ export const FIRE_CONTENT_FINAL = {
     "own_local": "베트남 현지 법인",
     "own_partner": "현지인 명의로 운영",
     "own_undecided": "운영 주체 미정",
+    "pl_building": "건물 관리 회사 계획서 사용",
     "pl_draft": "계획서 초안만 있음",
     "pl_none": "계획서 없음",
     "pl_ready": "소방 계획서·대피 계획 준비",
@@ -1111,11 +1113,6 @@ export const FIRE_CONTENT_FINAL = {
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "st_change_use": "용도 변경",
-    "st_fitout": "임대 공간 내부 공사",
-    "st_new_build": "새 건물·매장 공사",
-    "st_operating": "운영 중 점검 대비",
-    "st_unsure": "어떤 절차인지 모름",
     "sub_agency": "대행사가 제출",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
@@ -1133,7 +1130,12 @@ export const FIRE_CONTENT_FINAL = {
     "tr_none": "소방 교육 안 함",
     "tr_partial": "일부 직원만 교육",
     "tr_planned": "소방 교육 예정",
-    "tr_unknown": "교육 필요 여부를 모름"
+    "tr_unknown": "교육 필요 여부를 모름",
+    "uf_change_use": "용도 변경 소방 절차 확인",
+    "uf_customer": "손님이 오가는 매장의 소방 절차 확인",
+    "uf_fitout": "임대 공간 내부 공사 기준 확인",
+    "uf_inspection": "소방 점검 대비 확인",
+    "uf_which": "필요한 소방 절차 종류 확인"
   },
   "connections": [
     {

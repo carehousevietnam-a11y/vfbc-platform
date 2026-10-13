@@ -69,7 +69,7 @@ const FIRE_LANDING: MasterLandingConfig = {
   serviceLabel: "소방 허가 직접 인허가 받기",
   shortServiceLabel: "소방 허가 직접 인허가 받기",
   costServiceId: "fire-safety",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 인허가 전문 AI",
   hookTitle: "소방 허가, 지금 내 건물에 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "건물 용도와 규모, 소방시설과 설계 검토, 담당자와 소방 계획을 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",

@@ -69,7 +69,7 @@ const MEDICAL_LANDING: MasterLandingConfig = {
   serviceLabel: "의료기기 허가 직접 인허가 받기",
   shortServiceLabel: "의료기기 허가 직접 인허가 받기",
   costServiceId: "medical-device",
-  specialtyLine: "베트남 법률전문 AI",
+  specialtyLine: "베트남 인허가 전문 AI",
   hookTitle: "의료기기 허가, 지금 내 제품에 무엇이 필요한지 먼저 정리해 보세요.",
   hookBody: "위험 등급과 보관 창고, 품질 서류와 위임장, 보증 거점을 나누어 준비할 일을 안내합니다.",
   persuasionHeadline: "상황을 나누어 보면 필요한 서류와 순서가 보입니다.",
