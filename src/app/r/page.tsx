@@ -13,6 +13,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { trackFunnelSubmit } from "@/lib/funnelTrack";
+import { submitLeadIntake } from "@/lib/leadIntakeClient";
 
 type Status = "loading" | "invalid" | "expired" | "preparing" | "ready";
 
@@ -223,36 +225,36 @@ function ResultContent() {
     setHelpError(null);
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData.session?.user?.id ?? null;
-
       const newLeadId = crypto.randomUUID();
-      const { error: insertError } = await supabase.from("leads").insert({
-        id: newLeadId,
-        name: info.name,
-        phone: info.phone,
-        address: info.address,
-        kakao_id: info.kakaoId,
-        zalo_id: info.zaloId,
-        service_type: "consultation",
-        result: info.serviceType,
-        source_page: "/r",
-        user_id: userId,
-      });
+      // 서버 경유 접수(leads + crm_activities). user_id는 서버가 로그인 토큰으로 판단한다.
+      const intake = await submitLeadIntake(
+        {
+          id: newLeadId,
+          name: info.name,
+          phone: info.phone,
+          address: info.address,
+          kakao_id: info.kakaoId,
+          zalo_id: info.zaloId,
+          service_type: "consultation",
+          result: info.serviceType,
+          source_page: "/r",
+        },
+        { action: "consultation_request", tag: "CONSULTATION" },
+      );
 
-      if (insertError) {
-        console.error(insertError);
-        setHelpError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      if (!intake.ok) {
+        console.error("help request intake failed:", intake.error);
+        setHelpError(
+          intake.error === "rate_limited"
+            ? "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+            : "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        );
         setHelpState("idle");
         helpTriggeredRef.current = false;
         return;
       }
 
-      await supabase.from("crm_activities").insert({
-        lead_id: newLeadId,
-        action: "consultation_request",
-        tag: "CONSULTATION",
-      });
+      trackFunnelSubmit("consultation_result", newLeadId);
 
       // 전문가 진행요청 접수 확인 이메일 발송 (원래 진단 결과의 token을 재사용해
       // 이름·이메일 재입력 없이 서버에서 바로 발송한다).

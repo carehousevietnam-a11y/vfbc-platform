@@ -80,6 +80,17 @@ export async function POST(req: NextRequest) {
     if (dup && dup.length > 0) return ok();
   }
 
+  // 같은 lead_id의 submit은 1회만(lead-submit 서버 기록과 겹쳐도 중복 없음)
+  if (event === "submit" && leadId) {
+    const { data: dupSubmit } = await supabaseAdmin
+      .from("funnel_events")
+      .select("id")
+      .eq("lead_id", leadId)
+      .eq("event", "submit")
+      .limit(1);
+    if (dupSubmit && dupSubmit.length > 0) return ok();
+  }
+
   const { error } = await supabaseAdmin.from("funnel_events").insert({
     session_id: sessionId,
     engine,

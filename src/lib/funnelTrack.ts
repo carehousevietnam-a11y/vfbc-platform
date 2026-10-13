@@ -63,3 +63,30 @@ export function trackFunnelView(pathname: string | null, step: number): void {
     // 기록 실패는 무시
   }
 }
+
+// 접수 완료(submit) 익명 기록 — lead-submit 서버를 거치지 않는 접수 경로(/consultation, /r)용.
+// 접수(leads insert)가 성공한 뒤에만 부른다. lead_id만 보내고 개인정보는 보내지 않는다. 실패는 무시.
+export function trackFunnelSubmit(service: string, leadId: string): void {
+  try {
+    const sessionId = getSessionId();
+    if (!sessionId) return;
+    const htmlLang = document.documentElement.lang;
+    void fetch("/api/funnel-event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        session_id: sessionId,
+        engine: "consultation",
+        service,
+        step: 0,
+        event: "submit",
+        lead_id: leadId,
+        device: window.innerWidth < 768 ? "mobile" : "desktop",
+        lang: /^[a-z]{2}(-[A-Za-z]{2})?$/.test(htmlLang) ? htmlLang : null,
+      }),
+    }).catch(() => {});
+  } catch {
+    // 기록 실패는 무시
+  }
+}

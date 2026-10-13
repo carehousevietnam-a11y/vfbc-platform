@@ -38,6 +38,7 @@ import {
   buildSocialContacts,
 } from "@/lib/customerRegistrationValidation";
 import { supabase } from "@/lib/supabase";
+import { submitLeadIntake } from "@/lib/leadIntakeClient";
 import { insertPreviousRejection, updatePreviousRejection } from "@/lib/previousRejectionClient";
 import { recordAiReportRequestAndNotify } from "@/lib/aiReportRequest";
 import { saveLeadContact } from "@/lib/leadContact";
@@ -1371,31 +1372,25 @@ export default function RegisterHygienePage() {
       secondaryKey: messengers.secondary.key,
     });
 
-    const { error } = await supabase.from("leads").insert({
-      id: newLeadId,
-      name,
-      phone,
-      address,
-      email: email || null,
-      kakao_id: kakaoId,
-      zalo_id: zaloId,
-      service_type: "register_hygiene",
-      result,
-      source_page: "/register/hygiene",
-    });
-
-    if (error) {
-      console.error(error);
-      setLeadError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      setSubmitting(false);
-      return;
-    }
-
-    await supabase.from("crm_activities").insert({
-      lead_id: newLeadId,
-      action: "register_hygiene_diagnosis_lead",
-      tag: "REGISTER_HYGIENE",
-      meta: diagnosis
+    const intake = await submitLeadIntake(
+      {
+        id: newLeadId,
+        name,
+        phone,
+        address,
+        email: email || null,
+        kakao_id: kakaoId,
+        zalo_id: zaloId,
+        service_type: "register_hygiene",
+        result: result,
+        source_page: "/register/hygiene",
+      },
+      {
+        action: "register_hygiene_diagnosis_lead",
+        tag: "REGISTER_HYGIENE",
+        meta: {
+          ...(
+            diagnosis
         ? {
             feasibilityScore: diagnosis.feasibilityScore,
             hygieneChoice,
@@ -1409,32 +1404,27 @@ export default function RegisterHygienePage() {
                 ? { rejected: false }
                 : null,
           }
-        : null,
-    });
+        : null
+          ) ?? {},
+          socialContacts,
+          preferredLanguage: lang,
+        },
+      },
+    );
 
-    try {
-      // [STEP22 2차] 기존 crm_activities.meta를 읽어와 socialContacts/preferredLanguage만
-    // 병합한다 — 서비스마다 meta 구조가 다르므로 그 형태를 추측하지 않고, 기존 값을
-    // 그대로 읽은 뒤 spread로 덮어쓰지 않고 새 키만 추가한다. 이 시점에 이 lead_id로
-    // 남아있는 crm_activities 행은 방금 삽입한 진단 행 하나뿐이므로 lead_id로 최신
-    // 행을 찾아 병합하면 다른 서비스의 meta 구조를 알 필요가 없다.
-    const { data: existingActivity } = await supabase
-      .from("crm_activities")
-      .select("id, meta")
-      .eq("lead_id", newLeadId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (existingActivity?.id) {
-      const existingMeta =
-        existingActivity.meta && typeof existingActivity.meta === "object" ? existingActivity.meta : {};
-      await supabase
-        .from("crm_activities")
-        .update({ meta: { ...existingMeta, socialContacts, preferredLanguage: lang } })
-        .eq("id", existingActivity.id);
+    if (!intake.ok) {
+      console.error(intake.error);
+      setLeadError(
+        intake.error === "rate_limited"
+          ? "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+          : "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+      );
+      setSubmitting(false);
+      return;
     }
 
+
+    try {
     const res = await fetch("/api/lead-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

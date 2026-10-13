@@ -36,6 +36,7 @@ import {
 } from "@/lib/restoreVerifyLead";
 import { shouldAllowVerifyMemberRestoreOnMount } from "@/lib/verifyMemberRestorePolicy";
 import { supabase } from "@/lib/supabase";
+import { submitLeadIntake } from "@/lib/leadIntakeClient";
 import { persistAdminVerifyLeadMeta } from "@/lib/persistAdminVerifyLeadMeta";
 import {
   ADMIN_PHASE2_DOCUMENTS_ANY_UPLOADED_META_KEY,
@@ -365,24 +366,6 @@ export default function FranchiseVerifyMasterPage() {
         return;
       }
       setSignupFieldErrors({});
-      const { error: leadErr } = await supabase.from("leads").insert({
-        id: newLeadId,
-        name,
-        phone,
-        address,
-        email: email || null,
-        kakao_id: kakaoId,
-        zalo_id: zaloId,
-        service_type: VERIFY_SERVICE_TYPE,
-        result: null,
-        source_page: "/verify/franchise",
-      });
-      if (leadErr) {
-        console.error(leadErr);
-        setHandoffError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
-        setSubmitting(false);
-        return;
-      }
       let storagePath: string | null = null;
       const evidenceFile = phase1EvidenceFileRef.current;
       if (evidenceFile && evidenceFile.size > 0) {
@@ -398,32 +381,40 @@ export default function FranchiseVerifyMasterPage() {
         answers,
         storagePath && evidenceFile ? { storagePath, file_name: evidenceFile.name } : null,
       );
-      await supabase.from("crm_activities").insert({
-        lead_id: newLeadId,
-        action: "verify_lead",
-        tag: "VERIFY_FRAUD",
-        meta: verifyMeta,
-      });
       const socialContacts = buildSocialContacts({
         kakaoValue: kakaoId,
         zaloValue: zaloId,
         primaryKey: messengers.primary.key,
         secondaryKey: messengers.secondary.key,
       });
-      const { data: existingActivity } = await supabase
-        .from("crm_activities")
-        .select("id, meta")
-        .eq("lead_id", newLeadId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (existingActivity?.id) {
-        const existingMeta =
-          existingActivity.meta && typeof existingActivity.meta === "object" ? existingActivity.meta : {};
-        await supabase
-          .from("crm_activities")
-          .update({ meta: { ...existingMeta, socialContacts, preferredLanguage: lang } })
-          .eq("id", existingActivity.id);
+      const intake = await submitLeadIntake(
+        {
+          id: newLeadId,
+          name,
+          phone,
+          address,
+          email: email || null,
+          kakao_id: kakaoId,
+          zalo_id: zaloId,
+          service_type: VERIFY_SERVICE_TYPE,
+          result: null,
+          source_page: "/verify/franchise",
+        },
+        {
+          action: "verify_lead",
+          tag: "VERIFY_FRAUD",
+          meta: { ...verifyMeta, socialContacts, preferredLanguage: lang },
+        },
+      );
+      if (!intake.ok) {
+        console.error(intake.error);
+        setHandoffError(
+          intake.error === "rate_limited"
+            ? "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+            : "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        );
+        setSubmitting(false);
+        return;
       }
       const sessionRes = await fetch("/api/lead-submit", {
         method: "POST",

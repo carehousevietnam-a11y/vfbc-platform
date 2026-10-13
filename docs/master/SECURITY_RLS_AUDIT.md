@@ -48,3 +48,20 @@
 - 2026-10-13 3단계-1 적용·검증 완료: documents 버킷 파일당 20MB·PDF/JPG/PNG/DOC/DOCX 제한, anon 업로드를 verify-서비스명/UUID.확장자 경로로만 허용(정책 "anon upload verify evidence", 기존 "anon upload documents" 제거). anon 시험: 루트 경로·타 폴더·.exe·21MB 모두 거부, 정상 경로 소형 PNG 성공(테스트 파일 삭제, 잔여 0). SQL: supabase/security_phase3_storage_limits.sql
 - 관찰(기존 동작, 미수정): 로그인(authenticated) 회원이 verify/* 퍼널에서 첨부를 올리면 해당 경로 권한이 없어 실패할 수 있음. 별도 확인 필요.
 - 남은 일: 익명 접수 insert(leads, crm_activities) 서버 경유+속도 제한(승인 필요, 범위 큼), 노출 기간 접근 로그 확인(Ace, Supabase Logs).
+
+## 6. 3단계-2 익명 접수 서버 경유 (진행 중, 2026-10-13)
+목표: 브라우저가 leads·crm_activities에 직접 insert하던 것을 서버(서비스 키)로 옮기고 속도 제한을 건 뒤, 마지막에 익명 insert 정책을 제거한다.
+- 서버 API: POST /api/lead-intake (src/app/api/lead-intake/route.ts). 허용 규칙 src/lib/leadIntakeRules.ts, 클라이언트 src/lib/leadIntakeClient.ts(submitLeadIntake).
+  - 검증: 이름·연락처·주소·이메일·SNS 형식, service_type·source_page 허용 규칙, crm action·tag 형식, 본문 100KB·meta 60KB 상한.
+  - user_id는 클라이언트 값을 쓰지 않고 Authorization Bearer 토큰을 서버가 검증해 얻는다.
+  - 속도 제한(보조, 서버 인스턴스 단위): IP당 10분 20건, 연락처당 1시간 10건. 오류 응답에 내부 정보 없음.
+  - 잘못된 요청 5종(허용 외 서비스, 허용 외 경로, 짧은 번호, 잘못된 crm 값, 빈 본문)은 모두 400으로 거부됨을 확인.
+- 전환 현황(2026-10-13): 브라우저의 leads 직접 insert 39곳을 모두 서버 접수로 전환했다(consultation, /r, check 4, register 8, verify 16(admin·real-estate 포함), restoreCheck/Register/VerifyLead 3). 남은 직접 leads insert 0곳. tsc 통과.
+  - 가입 폼 15개(verify)·check 4·register 8은 같은 틀을 스크립트로 일괄 변환했고, 변환 전후 diff를 확인했다. 업로드(서류)는 접수 전에 먼저 수행하도록 순서를 바꿨다(접수 한 번에 crm meta를 함께 보내기 위함). crm meta에는 기존의 socialContacts·preferredLanguage 병합이 그대로 들어간다.
+  - 확인: /consultation 로그인 접수 정상, 비로그인 서버 접수(테스트 값) 200 정상, 잘못된 요청 5종 400 거부. 가입 폼 제출은 운영 Supabase에 계정을 만들므로 제출하지 않았다(LESSONS 50).
+  - 브라우저 확인(Claude 직접, 2026-10-13): /verify/trc 가입 폼(이름 "TEST 삭제대상"), /verify/real-estate, /verify/admin 모두 새 서버 접수 200 정상(service_type·source_page·crm action/tag 일치, 회원은 Bearer 토큰 전달). 확인 방법: 계정을 만드는 /api/lead-submit만 가짜 응답으로 대체하고 나머지는 실제 화면 그대로 실행(LESSONS 50).
+  - /check/*, /register/* 12개 화면은 next.config.ts 설정으로 /verify/* 로 넘어가 실제로 쓰이지 않는다(옛 화면, 일괄 폐기 대상). 코드는 같이 전환했으나 화면 확인 대상 아님.
+  - 점검으로 생긴 테스트 접수: 상담 접수 3건(대표 계정), 이름 "TEST 삭제대상" 2건(비로그인 서버 접수·가입 폼 점검), VERIFY 접수 2건(real-estate, admin, 대표 계정). 관리자에서 확인·정리.
+- 익명 insert 정책 제거 SQL: supabase/security_phase3_drop_anon_insert.sql (A leads → 확인 → B crm_activities). 남은 crm 브라우저 insert 34곳은 접수 후(로그인) 경로라 B 전에 로그인 상태 동작(전문가 요청·AI 리포트·서류 제출·메시지)을 확인한다.
+- 별도 관찰(범위 밖, 승인 필요): authenticated 역할의 insert 정책 2개(authenticated_can_insert_leads, authenticated_can_insert_crm_activities)가 조건 없이 true라, 로그인한 누구나 남의 lead_id로 crm 기록을 넣을 수 있다. 서버 경유 전환이 끝났으니 소유자 조건(is_lead_owner / user_id = auth.uid())으로 좁히는 것을 다음 단계로 제안한다.
+- 주 속도 제한은 Vercel 방화벽 규칙으로 건다(Ace가 Vercel 설정에서 추가): 대상 경로 /api/lead-intake, /api/lead-submit, /api/funnel-event 에 IP당 분당 건수 제한. 서버 메모리 제한은 인스턴스마다 따로 세므로 보조일 뿐이다.

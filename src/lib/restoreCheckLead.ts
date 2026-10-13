@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { submitLeadIntake } from "@/lib/leadIntakeClient";
 import { updatePreviousRejection } from "@/lib/previousRejectionClient";
 import { getLeadContact } from "@/lib/leadContact";
 import {
@@ -337,30 +338,25 @@ export async function submitMemberCheckLead(
     secondaryKey: params.secondaryMessengerKey,
   });
 
-  const { error } = await supabase.from("leads").insert({
-    id: leadId,
-    name,
-    phone,
-    address,
-    email: email || null,
-    kakao_id,
-    zalo_id,
-    user_id: session.user.id,
-    service_type: params.serviceType,
-    result: params.result,
-    source_page: params.sourcePage,
-  });
-
-  if (error) {
-    console.error("member check lead insert failed:", error);
-    return { ok: false, reason: "create_failed" };
-  }
-
-  await supabase.from("crm_activities").insert({
-    lead_id: leadId,
-    action: params.diagnosisAction,
-    tag: params.tag,
-    meta: params.diagnosis
+  const intake = await submitLeadIntake(
+    {
+      id: leadId,
+      name,
+      phone,
+      address,
+      email: email || null,
+      kakao_id,
+      zalo_id,
+      service_type: params.serviceType,
+      result: params.result,
+      source_page: params.sourcePage,
+    },
+    {
+      action: params.diagnosisAction,
+      tag: params.tag,
+      meta: {
+        ...(
+          params.diagnosis
       ? {
           feasibilityScore: params.diagnosis.customerView.feasibilityScore,
           expertBrief: params.diagnosis.expertBrief,
@@ -371,37 +367,22 @@ export async function submitMemberCheckLead(
               ? { rejected: false }
               : null,
         }
-      : null,
-  });
+      : null
+        ) ?? {},
+        socialContacts,
+        preferredLanguage: params.lang,
+      },
+    },
+  );
+
+  if (!intake.ok) {
+    console.error("member check lead insert failed:", intake.error);
+    return { ok: false, reason: "create_failed" };
+  }
 
   let resultToken: string | null = null;
   let resultUserId: string | null = null;
   try {
-    const { data: existingActivity } = await supabase
-      .from("crm_activities")
-      .select("id, meta")
-      .eq("lead_id", leadId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (existingActivity?.id) {
-      const existingMeta =
-        existingActivity.meta && typeof existingActivity.meta === "object"
-          ? existingActivity.meta
-          : {};
-      await supabase
-        .from("crm_activities")
-        .update({
-          meta: {
-            ...existingMeta,
-            socialContacts,
-            preferredLanguage: params.lang,
-          },
-        })
-        .eq("id", existingActivity.id);
-    }
-
     const res = await fetch("/api/lead-submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

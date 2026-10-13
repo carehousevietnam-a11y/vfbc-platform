@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { ArrowLeft, MessageSquare, CheckCircle2, Pencil, Loader2 } from "lucide-react";
 import { MESSENGERS_KO } from "@/lib/messenger";
 import { supabase } from "@/lib/supabase";
+import { trackFunnelSubmit } from "@/lib/funnelTrack";
+import { submitLeadIntake } from "@/lib/leadIntakeClient";
 import { getLeadContact, saveLeadContact, LeadContact } from "@/lib/leadContact";
 
 const CASE_LABELS: Record<string, string> = {
@@ -96,34 +98,38 @@ function ConsultationForm() {
     setError(null);
     const leadId = crypto.randomUUID();
 
-    const { error: err } = await supabase.from("leads").insert({
-      id: leadId,
-      name: data.name,
-      phone: data.phone,
-      address: data.address,
-      kakao_id: data.kakao_id || null,
-      zalo_id: data.zalo_id || null,
-      service_type: "consultation",
-      result: caseKey || null,
-      source_page: "/consultation",
-      user_id: loggedInUserId,
-    });
+    // 서버 경유 접수(leads + crm_activities). user_id는 서버가 로그인 토큰으로 판단한다.
+    const intake = await submitLeadIntake(
+      {
+        id: leadId,
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+        kakao_id: data.kakao_id || null,
+        zalo_id: data.zalo_id || null,
+        service_type: "consultation",
+        result: caseKey || null,
+        source_page: "/consultation",
+      },
+      { action: "consultation_request", tag: "CONSULTATION" },
+    );
 
-    if (err) {
-      console.error(err);
-      setError("접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    if (!intake.ok) {
+      console.error("consultation intake failed:", intake.error);
+      setError(
+        intake.error === "invalid_name" || intake.error === "invalid_phone"
+          ? "이름과 연락처를 다시 확인해주세요."
+          : intake.error === "rate_limited"
+          ? "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+          : "접수 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      );
       setSubmitting(false);
       setAutoCountdown(false);
       autoTriggeredRef.current = false;
       return;
     }
 
-    await supabase.from("crm_activities").insert({
-      lead_id: leadId,
-      action: "consultation_request",
-      tag: "CONSULTATION",
-    });
-
+    trackFunnelSubmit("consultation_direct", leadId);
     saveLeadContact(data);
     setSubmitting(false);
     setSubmitted(true);
