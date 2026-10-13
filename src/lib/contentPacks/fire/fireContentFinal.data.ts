@@ -6,12 +6,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "소방을 준비하는 건물은 어떤 용도로 쓰이고, 그 용도에서 가장 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "소방을 준비하는 건물은 어떤 용도로 쓰이고, 가장 막막한 부분은 어디인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "식당이나 카페로 쓰는 건물입니다.",
-          "description": "손님이 오가는 매장이라 어떤 소방시설과 절차가 필요한지 확인하고 싶습니다.",
+          "label": "식당이나 카페를 열려는 건물인데",
+          "description": "손님이 오가는 곳이라 소방시설과 절차를 뭘 해야 하는지 감이 안 잡힙니다.",
           "fields": {
             "fs_buildingUse": "bt_restaurant",
             "fs_useFocus": "uf_customer"
@@ -19,8 +19,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "사무실로 쓰는 건물입니다.",
-          "description": "빌린 공간의 내부 공사를 할 때 건물 소방시설과 어디까지 맞춰야 하는지 알고 싶습니다.",
+          "label": "사무실로 빌린 공간인데",
+          "description": "내부 공사를 하면서 건물 소방시설과 어디까지 맞춰야 하는지 모르겠습니다.",
           "fields": {
             "fs_buildingUse": "bt_office",
             "fs_useFocus": "uf_fitout"
@@ -28,8 +28,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "공장이나 창고로 쓰는 건물입니다.",
-          "description": "물건을 만들고 보관하는 시설이라 소방 점검에 어떻게 대비해야 하는지 알고 싶습니다.",
+          "label": "공장이나 창고인데",
+          "description": "물건을 만들고 보관하는 곳이라 소방 점검이 나오면 뭘 준비해야 하는지 몰라서 불안합니다.",
           "fields": {
             "fs_buildingUse": "bt_factory",
             "fs_useFocus": "uf_inspection"
@@ -37,8 +37,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "숙박 시설로 쓰는 건물입니다.",
-          "description": "다른 용도의 건물을 숙박 시설로 바꿀 때 소방 절차가 달라지는지 확인하고 싶습니다.",
+          "label": "다른 용도의 건물을 숙박 시설로 바꾸려는데",
+          "description": "용도가 바뀌면 소방 절차도 달라진다는데 어떻게 달라지는지 모르겠습니다.",
           "fields": {
             "fs_buildingUse": "bt_hotel",
             "fs_useFocus": "uf_change_use"
@@ -46,8 +46,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "제품을 파는 매장이나 쇼룸으로 쓰는 건물입니다.",
-          "description": "제품을 진열해 파는 공간에 필요한 소방 절차의 종류부터 알고 싶습니다.",
+          "label": "제품을 파는 매장이나 쇼룸인데",
+          "description": "진열해 파는 공간에 어떤 소방 절차가 필요한지부터 모르겠습니다.",
           "fields": {
             "fs_buildingUse": "bt_retail",
             "fs_useFocus": "uf_which"
@@ -64,12 +64,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 어디까지 진행되었고, 누구 이름으로 소방 절차를 진행하실 예정인가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 소방 승인를 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
+          "label": "법인 등록은 끝났습니다.",
+          "description": "투자한 우리 법인 이름으로 소방 승인를 받으려고 합니다.",
           "fields": {
             "fs_registration": "reg_company_done",
             "fs_owner": "own_fdi"
@@ -77,8 +77,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
+          "label": "개인사업자로 등록했습니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 소방 승인를 받으려고 합니다.",
           "fields": {
             "fs_registration": "reg_household_done",
             "fs_owner": "own_household"
@@ -86,8 +86,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
+          "label": "등록 절차가 아직 진행 중입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 소방 승인를 받을 예정입니다.",
           "fields": {
             "fs_registration": "reg_in_progress",
             "fs_owner": "own_local"
@@ -95,8 +95,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
+          "label": "등록은 아직 시작도 못 했습니다.",
+          "description": "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.",
           "fields": {
             "fs_registration": "reg_not_started",
             "fs_owner": "own_partner"
@@ -104,8 +104,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "등록 상태를 정확히 모르겠습니다.",
-          "description": "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.",
+          "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
+          "description": "누구 이름으로 소방 승인를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "fs_registration": "reg_unsure",
             "fs_owner": "own_undecided"
@@ -122,12 +122,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "소화기·경보·스프링클러 같은 소방시설은 갖추었고, 소방 설계 검토는 받았나요?",
+      "prompt": "소화기나 경보 같은 소방시설은 어디까지 갖추셨고, 공사 전에 소방 도면 검토는 받으셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "소방시설을 모두 설치했습니다.",
-          "description": "공사 전에 소방 설계 검토를 받아 확인서를 가지고 있습니다.",
+          "label": "소방시설은 다 설치했습니다.",
+          "description": "공사 전에 소방 도면 검토를 받아 확인서를 가지고 있습니다.",
           "fields": {
             "fs_facility": "fire_installed",
             "fs_design": "ds_appraised"
@@ -135,8 +135,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "건물의 공용 소방시설만 있습니다.",
-          "description": "우리 공간만의 소방 설계는 지금 진행하고 있습니다.",
+          "label": "건물 공용 소방시설만 있습니다.",
+          "description": "우리 공간만의 소방 도면은 지금 만드는 중인데 이대로 되는지 불안합니다.",
           "fields": {
             "fs_facility": "fire_building_has",
             "fs_design": "ds_designing"
@@ -144,8 +144,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "일부 소방시설만 설치했습니다.",
-          "description": "규모가 작아서 설계 검토 대상이 아니라고 들었습니다.",
+          "label": "일부만 설치했습니다.",
+          "description": "규모가 작아서 도면 검토는 안 받아도 된다고 들었는데 맞는지 모르겠습니다.",
           "fields": {
             "fs_facility": "fire_partial",
             "fs_design": "ds_not_needed"
@@ -153,8 +153,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "소방시설을 아직 설치하지 않았습니다.",
-          "description": "소방 설계 검토도 받지 않은 채 공사를 시작했습니다.",
+          "label": "아직 설치하지 못했습니다.",
+          "description": "도면 검토도 받지 않은 채 공사를 시작해서 문제가 되지 않을지 걱정됩니다.",
           "fields": {
             "fs_facility": "fire_none",
             "fs_design": "ds_none"
@@ -162,8 +162,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 소방시설이 필요한지 모르겠습니다.",
-          "description": "설계 검토를 받아야 하는 대상인지도 확인하지 못했습니다.",
+          "label": "뭐가 필요한지 모르겠습니다.",
+          "description": "소방 도면 검토를 받아야 하는 건물인지도 아무도 알려 주지 않았습니다.",
           "fields": {
             "fs_facility": "fire_unknown",
             "fs_design": "ds_unknown"
@@ -180,12 +180,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "소방 안전 담당자는 정했고, 그에 맞춰 소방 계획서와 대피 계획은 준비되었나요?",
+      "prompt": "소방을 책임질 담당자는 정하셨고, 불이 났을 때의 대피 계획 같은 건 준비하셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "소방 안전 담당자를 정했습니다.",
-          "description": "담당자가 소방 계획서와 대피 계획도 함께 만들어 두었습니다.",
+          "label": "소방 담당자를 정했습니다.",
+          "description": "그분이 소방 계획서와 대피 계획도 함께 만들어 두었습니다.",
           "fields": {
             "fs_manager": "mg_appointed",
             "fs_plan": "pl_ready"
@@ -194,7 +194,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "담당자를 곧 정할 예정입니다.",
-          "description": "담당자가 정해지면 초안만 만들어 둔 소방 계획서를 확정할 계획입니다.",
+          "description": "소방 계획서는 초안만 만들어 두었고 담당자가 정해지면 확정하려고 합니다.",
           "fields": {
             "fs_manager": "mg_planned",
             "fs_plan": "pl_draft"
@@ -203,7 +203,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "소방 담당자가 따로 없습니다.",
-          "description": "담당자가 없어서 소방 계획서나 대피 계획을 만들어 본 적이 없습니다.",
+          "description": "그래서 소방 계획서나 대피 계획은 만들어 본 적이 없습니다.",
           "fields": {
             "fs_manager": "mg_none",
             "fs_plan": "pl_none"
@@ -211,8 +211,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "담당자가 필요한지 모르겠습니다.",
-          "description": "건물 관리 회사의 소방 계획서가 있는데 우리 공간에도 쓸 수 있는지 궁금합니다.",
+          "label": "담당자가 꼭 필요한지 모르겠습니다.",
+          "description": "건물 관리 회사가 만든 소방 계획서가 있는데 우리 공간에도 써도 되는지 궁금합니다.",
           "fields": {
             "fs_manager": "mg_unknown",
             "fs_plan": "pl_building"
@@ -220,8 +220,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "담당자를 정했지만 교육은 받지 않았습니다.",
-          "description": "담당자 교육 전이라 소방 계획서가 꼭 필요한지도 아직 확인하지 못했습니다.",
+          "label": "담당자는 정했는데 교육은 못 받았습니다.",
+          "description": "교육 전이라 소방 계획서가 꼭 필요한지도 아직 확인하지 못했습니다.",
           "fields": {
             "fs_manager": "mg_untrained",
             "fs_plan": "pl_unknown"
@@ -238,57 +238,57 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q5",
       "route": "R",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색도 해 봤는데 베트남어 자료라 어떤 말이 맞는지 모르겠습니다.",
           "fields": {
-            "fs_mainConcern": "concern_cost",
-            "fs_helpWanted": "help_guide"
+            "fs_feeling": "fl_lost",
+            "fs_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "베트남 지인이나 직원이 알아서 한다는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "fs_mainConcern": "concern_docs",
-            "fs_helpWanted": "help_guide"
+            "fs_feeling": "fl_anxious",
+            "fs_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "허가가 언제 나올지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "건물주, 업체, 지인이 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "fs_mainConcern": "concern_time",
-            "fs_helpWanted": "help_accompany"
+            "fs_feeling": "fl_confused",
+            "fs_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "우리 시설이 소방 절차 대상인지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "담당 기관에서 연락이 올까 겁이 납니다.",
+          "description": "운영을 이미 시작했는데 소방 확인을 아직 받지 못했습니다.",
           "fields": {
-            "fs_mainConcern": "concern_eligibility",
-            "fs_helpWanted": "help_full"
+            "fs_feeling": "fl_afraid",
+            "fs_situation": "sit_operating"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 막혀서 지쳤습니다.",
+          "description": "서류를 냈다가 보완하라고 돌려받은 적이 있습니다.",
           "fields": {
-            "fs_mainConcern": "concern_quote",
-            "fs_helpWanted": "help_accompany"
+            "fs_feeling": "fl_tired",
+            "fs_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "fs_mainConcern": "direct_input",
-        "fs_helpWanted": "direct_input_detail"
+        "fs_feeling": "direct_input",
+        "fs_situation": "direct_input_detail"
       }
     },
     {
@@ -296,57 +296,57 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q6",
       "route": "R",
       "phase": 2,
-      "prompt": "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?",
+      "prompt": "허가 서류는 얼마나 모으셨고, 그 서류에 뭐라고 적혀 있는지는 어떻게 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "사업자 등록증, 건물 서류, 소방시설 도면과 목록을 모두 준비했습니다.",
-          "description": "모든 서류의 베트남어 번역도 이미 끝냈습니다.",
+          "label": "서류는 다 모았습니다.",
+          "description": "베트남어를 직접 읽을 수 있어서 내용도 제가 확인했습니다.",
           "fields": {
             "fs_docs": "docs_all",
-            "fs_translation": "tn_none"
+            "fs_langRoute": "lr_self"
           }
         },
         {
           "value": "o2",
-          "label": "대부분 준비했고 몇 가지만 남았습니다.",
-          "description": "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.",
+          "label": "거의 모았고 몇 개 남았습니다.",
+          "description": "베트남어를 하는 지인이나 통역해 주는 분이 서류 내용을 읽어 줍니다.",
           "fields": {
             "fs_docs": "docs_most",
-            "fs_translation": "tn_needed"
+            "fs_langRoute": "lr_interp"
           }
         },
         {
           "value": "o3",
-          "label": "절반쯤 준비했습니다.",
-          "description": "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.",
+          "label": "절반쯤 모았습니다.",
+          "description": "한국어를 하는 베트남 직원이 설명해 주는데 서류 원문과 맞는지는 확인하지 못했습니다.",
           "fields": {
             "fs_docs": "docs_half",
-            "fs_translation": "tn_unsure"
+            "fs_langRoute": "lr_local"
           }
         },
         {
           "value": "o4",
-          "label": "거의 준비하지 못했습니다.",
-          "description": "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.",
+          "label": "거의 모으지 못했습니다.",
+          "description": "번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 맞는지 모르겠습니다.",
           "fields": {
             "fs_docs": "docs_little",
-            "fs_translation": "tn_needed"
+            "fs_langRoute": "lr_machine"
           }
         },
         {
           "value": "o5",
-          "label": "무엇이 필요한지 아직 모릅니다.",
-          "description": "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.",
+          "label": "뭐가 필요한지도 모릅니다.",
+          "description": "베트남어를 전혀 몰라서 서류에 뭐가 적혀 있는지 알 수 없고 물어볼 사람도 없습니다.",
           "fields": {
             "fs_docs": "docs_unknown",
-            "fs_translation": "tn_none"
+            "fs_langRoute": "lr_none"
           }
         }
       ],
       "directFields": {
         "fs_docs": "direct_input",
-        "fs_translation": "direct_input_detail"
+        "fs_langRoute": "direct_input_detail"
       }
     },
     {
@@ -354,11 +354,11 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "직원들은 소방 교육을 받았고, 대피 훈련은 해 보셨나요?",
+      "prompt": "직원들은 소방 교육을 받았고, 불이 났을 때의 대피 훈련은 해 보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "직원 소방 교육을 마쳤습니다.",
+          "label": "직원 소방 교육은 마쳤습니다.",
           "description": "대피 훈련도 실제로 한 번 해 보고 기록을 남겼습니다.",
           "fields": {
             "fs_training": "tr_done",
@@ -367,8 +367,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "소방 교육을 받을 예정입니다.",
-          "description": "대피 훈련은 소방 교육이 끝난 뒤에 해 볼 계획입니다.",
+          "label": "소방 교육은 받을 예정입니다.",
+          "description": "대피 훈련은 교육이 끝난 뒤에 직원들과 함께 해 볼 계획인데 일정은 못 잡았습니다.",
           "fields": {
             "fs_training": "tr_planned",
             "fs_drill": "dr_planned"
@@ -376,7 +376,7 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "소방 교육을 받은 적이 없습니다.",
+          "label": "소방 교육은 받은 적이 없습니다.",
           "description": "대피 훈련도 아직 한 번도 해 보지 않았습니다.",
           "fields": {
             "fs_training": "tr_none",
@@ -385,7 +385,7 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "교육이 필요한지 모르겠습니다.",
+          "label": "교육이 필요한지 몰랐습니다.",
           "description": "대피 훈련을 해야 하는 시설인지도 확인하지 못했습니다.",
           "fields": {
             "fs_training": "tr_unknown",
@@ -395,7 +395,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "일부 직원만 교육을 받았습니다.",
-          "description": "대피 훈련은 건물 전체 훈련에 참여해 본 적이 있습니다.",
+          "description": "건물 전체 대피 훈련에 참여해 본 적은 있습니다.",
           "fields": {
             "fs_training": "tr_partial",
             "fs_drill": "dr_done"
@@ -412,12 +412,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "최근 소방 점검은 받아 보셨고, 점검 결과 고쳐야 할 점은 어떻게 되었나요?",
+      "prompt": "최근에 소방 점검을 받아 보셨고, 점검에서 고치라고 한 부분은 어떻게 되었나요?",
       "choices": [
         {
           "value": "o1",
           "label": "최근에 소방 점검을 받았습니다.",
-          "description": "점검에서 지적받은 내용이 없어서 고칠 점은 없었습니다.",
+          "description": "지적받은 내용이 없어서 고칠 점은 없었는데 다음 점검 때 서류가 더 필요한지 궁금합니다.",
           "fields": {
             "fs_inspection": "ck_recent",
             "fs_fixStatus": "fx_none"
@@ -426,7 +426,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "점검에서 지적을 받았습니다.",
-          "description": "지적받은 내용을 아직 고치지 못해서 다시 점검받기 전에 보완해야 합니다.",
+          "description": "아직 고치지 못했는데 다시 점검받기 전에 어떻게 해야 할지 막막합니다.",
           "fields": {
             "fs_inspection": "ck_failed",
             "fs_fixStatus": "fx_open"
@@ -434,7 +434,7 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "건물 전체 점검 때 함께 확인받았습니다.",
+          "label": "건물 전체 점검 때 같이 받았습니다.",
           "description": "우리 공간만 따로 지적받은 내용이 있는지는 확인하지 못했습니다.",
           "fields": {
             "fs_inspection": "ck_building",
@@ -443,8 +443,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "소방 점검을 받은 적이 없습니다.",
-          "description": "첫 점검을 받기 전에 어떤 시설과 서류를 맞춰야 하는지 알고 싶습니다.",
+          "label": "점검을 받은 적이 없습니다.",
+          "description": "처음 받기 전에 어떤 시설과 서류를 맞춰야 하는지 알고 싶습니다.",
           "fields": {
             "fs_inspection": "ck_never",
             "fs_fixStatus": "fx_prepare"
@@ -453,7 +453,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "점검 이력을 모르겠습니다.",
-          "description": "예전 점검 기록이 남아 있는지 건물주에게 확인해 봐야 합니다.",
+          "description": "예전 점검 기록이 남아 있는지 건물주에게 물어봐야 하는 상황입니다.",
           "fields": {
             "fs_inspection": "ck_unknown",
             "fs_fixStatus": "fx_ask"
@@ -470,12 +470,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q9",
       "route": "R",
       "phase": 2,
-      "prompt": "허가는 언제까지 필요하고, 실제 영업이나 판매는 언제 시작할 예정인가요?",
+      "prompt": "허가는 언제까지 받아야 마음이 놓이고, 운영은 언제쯤 시작하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 달 안에 허가가 필요합니다.",
-          "description": "영업 시작일이 이미 정해져 있어서 미루기 어렵습니다.",
+          "label": "한 달 안에는 받아야 합니다.",
+          "description": "오픈 날짜를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.",
           "fields": {
             "fs_timeline": "tl_urgent",
             "fs_openPlan": "op_date"
@@ -484,7 +484,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "두세 달 안에 받으면 됩니다.",
-          "description": "시설 공사를 모두 마친 뒤에 영업을 시작할 계획입니다.",
+          "description": "공사가 끝나는 날에 맞춰 운영을 시작하려고 합니다.",
           "fields": {
             "fs_timeline": "tl_2_3m",
             "fs_openPlan": "op_after_fitout"
@@ -492,8 +492,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "급하지는 않습니다.",
-          "description": "허가가 나온 것을 직접 확인한 뒤에 영업을 시작하려고 합니다.",
+          "label": "급하진 않습니다.",
+          "description": "서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 운영을 시작하고 싶습니다.",
           "fields": {
             "fs_timeline": "tl_flexible",
             "fs_openPlan": "op_after_permit"
@@ -501,8 +501,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "필요한 시점을 아직 정하지 못했습니다.",
-          "description": "영업이나 판매를 언제 시작할지도 정해지지 않았습니다.",
+          "label": "언제까지인지 모르겠습니다.",
+          "description": "허가가 언제까지 필요한지, 운영을 언제 시작할지도 아직 정하지 못했습니다.",
           "fields": {
             "fs_timeline": "tl_unsure",
             "fs_openPlan": "op_unsure"
@@ -510,8 +510,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "이미 영업을 하고 있습니다.",
-          "description": "허가를 받지 못한 채 먼저 운영을 시작한 상태입니다.",
+          "label": "이미 운영을 하고 있습니다.",
+          "description": "허가를 못 받은 채 먼저 시작했는데 문제가 되지 않을지 불안합니다.",
           "fields": {
             "fs_timeline": "tl_already",
             "fs_openPlan": "op_running"
@@ -528,57 +528,57 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q10",
       "route": "R",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 비용과 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일로 누구에게 물어봤고, 그 대답은 어땠나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "한국 사람이 하는 대행사에 물어봤습니다.",
+          "description": "설명은 들었는데 어디까지 믿어도 되는지 판단이 안 섭니다.",
           "fields": {
-            "fs_quoteStatus": "quote_none",
-            "fs_quoteScope": "qs_na"
+            "fs_askedWho": "ask_agency_kr",
+            "fs_answerFeel": "ans_unsure_trust"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 비용과 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "베트남 현지 업체에 물어봤습니다.",
+          "description": "말이 잘 통하지 않아서 제대로 이해했는지 모르겠습니다.",
           "fields": {
-            "fs_quoteStatus": "quote_one",
-            "fs_quoteScope": "qs_clear"
+            "fs_askedWho": "ask_local",
+            "fs_answerFeel": "ans_not_understood"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "지인이나 먼저 해 본 분께 물어봤습니다.",
+          "description": "경험담은 들었는데 제 경우에도 맞는지 모르겠습니다.",
           "fields": {
-            "fs_quoteStatus": "quote_several",
-            "fs_quoteScope": "qs_mixed"
+            "fs_askedWho": "ask_acquaint",
+            "fs_answerFeel": "ans_not_fit"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "담당 기관에 직접 문의해 봤습니다.",
+          "description": "안내는 받았지만 베트남어라 확실히 이해하지 못했습니다.",
           "fields": {
-            "fs_quoteStatus": "quote_verbal",
-            "fs_quoteScope": "qs_unknown"
+            "fs_askedWho": "ask_authority",
+            "fs_answerFeel": "ans_not_clear_vn"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "아직 아무에게도 못 물어봤습니다.",
+          "description": "누구에게 물어봐야 하는지, 어디에 물어봐야 하는지부터 모르겠습니다.",
           "fields": {
-            "fs_quoteStatus": "quote_ad",
-            "fs_quoteScope": "qs_unknown"
+            "fs_askedWho": "ask_nobody",
+            "fs_answerFeel": "ans_unknown_who"
           }
         }
       ],
       "directFields": {
-        "fs_quoteStatus": "direct_input",
-        "fs_quoteScope": "direct_input_detail"
+        "fs_askedWho": "direct_input",
+        "fs_answerFeel": "direct_input_detail"
       }
     },
     {
@@ -586,12 +586,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
+      "prompt": "서류를 담당 기관에 내는 일은 누가 하게 될 것 같고, 그때 가장 걱정되는 건 뭔가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
-          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
+          "label": "제가 직접 낼 생각입니다.",
+          "description": "온라인 접수는 어떻게 하고 서명은 어떻게 하는지 모르겠습니다.",
           "fields": {
             "fs_submitter": "sub_self",
             "fs_submitNeed": "sn_account"
@@ -599,8 +599,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
-          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
+          "label": "베트남 직원이 대신 내기로 했습니다.",
+          "description": "위임장은 어떻게 하고, 낸 뒤 연락은 누가 받는지 걱정됩니다.",
           "fields": {
             "fs_submitter": "sub_staff",
             "fs_submitNeed": "sn_proxy"
@@ -608,8 +608,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "대행사에 서류 제출을 맡기려고 합니다.",
-          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
+          "label": "대행사에 맡길지 고민 중입니다.",
+          "description": "어디까지 맡기는 건지, 서류 원본은 누가 보관하는지 불안합니다.",
           "fields": {
             "fs_submitter": "sub_agency",
             "fs_submitNeed": "sn_scope"
@@ -617,8 +617,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "누가 제출할지 아직 정하지 못했습니다.",
-          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
+          "label": "누가 낼지 아직 못 정했습니다.",
+          "description": "직접 하는 것과 직원, 대행사 중 어느 쪽이 나은지 모르겠습니다.",
           "fields": {
             "fs_submitter": "sub_undecided",
             "fs_submitNeed": "sn_compare"
@@ -626,8 +626,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
-          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
+          "label": "직접 접수하러 가야 하는데 베트남어가 걱정입니다.",
+          "description": "담당 기관 직원이 뭐라고 물어볼지, 통역이 필요한지 막막합니다.",
           "fields": {
             "fs_submitter": "sub_self_lang",
             "fs_submitNeed": "sn_interpreter"
@@ -644,12 +644,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "소방 책임은 건물주와 어떻게 나누기로 했고, 임대차 계약서에 적혀 있나요?",
+      "prompt": "소방 책임은 건물주와 어떻게 나누기로 했고, 그 내용이 임대 계약서에 있는지 확인해 보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "건물주가 소방을 모두 맡기로 했습니다.",
-          "description": "임대차 계약서에 소방 책임이 분명하게 적혀 있습니다.",
+          "label": "건물주가 소방을 다 맡기로 했습니다.",
+          "description": "계약서에도 그렇게 적혀 있는 걸 확인했습니다.",
           "fields": {
             "fs_duty": "ow_landlord",
             "fs_leaseTerms": "ct_written"
@@ -657,8 +657,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "우리 회사가 소방을 맡기로 했습니다.",
-          "description": "계약서에는 소방 책임이 따로 적혀 있지 않습니다.",
+          "label": "우리가 소방을 맡기로 했습니다.",
+          "description": "계약서를 보니 소방 책임에 대한 내용이 따로 없어서 불안합니다.",
           "fields": {
             "fs_duty": "ow_tenant",
             "fs_leaseTerms": "ct_missing"
@@ -676,7 +676,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "누가 맡는지 정하지 않았습니다.",
-          "description": "임대차 계약서를 다시 확인해 봐야 할 것 같습니다.",
+          "description": "계약서가 베트남어라 소방 책임이 어떻게 적혀 있는지 제가 확인하지 못했습니다.",
           "fields": {
             "fs_duty": "ow_unknown",
             "fs_leaseTerms": "ct_unknown"
@@ -702,12 +702,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
+      "prompt": "사업장이 있는 곳은 어디이고, 서류를 어느 기관에 내야 하는지는 알아보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
+          "label": "하노이입니다.",
+          "description": "어느 기관에 내야 하는지, 온라인으로도 낼 수 있는지 알아보고 있습니다.",
           "fields": {
             "fs_area": "area_hanoi",
             "fs_agencyNeed": "an_online"
@@ -715,8 +715,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "호치민에 있습니다.",
-          "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
+          "label": "호치민입니다.",
+          "description": "어느 기관에 내야 하는지 몰라서 그것부터 알고 싶고 온라인 접수가 되는지도 궁금합니다.",
           "fields": {
             "fs_area": "area_hcm",
             "fs_agencyNeed": "an_office"
@@ -724,8 +724,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
+          "label": "다낭입니다.",
+          "description": "최근 기관이 합쳐졌다는 말을 들었는데 지금은 어디에 내야 하는지 모르겠습니다.",
           "fields": {
             "fs_area": "area_danang",
             "fs_agencyNeed": "an_changed"
@@ -733,8 +733,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "그 밖의 도시에 있습니다.",
-          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
+          "label": "그 밖의 도시입니다.",
+          "description": "지방은 방식이 다르다고 해서 직접 가서 내야 하는지 궁금합니다.",
           "fields": {
             "fs_area": "area_other_city",
             "fs_agencyNeed": "an_visit"
@@ -742,8 +742,8 @@ export const FIRE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
+          "label": "산업단지 안입니다.",
+          "description": "단지 관리 기관에 내는지 아니면 다른 곳에 내는지 아는 사람이 없어서 모르겠습니다.",
           "fields": {
             "fs_area": "area_ip",
             "fs_agencyNeed": "an_zone"
@@ -805,25 +805,25 @@ export const FIRE_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "fs_mainConcern=concern_cost|fs_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "소방 비용은 설계 검토, 소방시설 설치, 교육과 점검 대응, 대행료로 나뉩니다. 건물 용도와 규모에 따라 필요한 시설이 달라지니 그 기준부터 확인하세요."
-      },
-      "fs_mainConcern=concern_docs|fs_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "fs_feeling=fl_lost|fs_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "소방 서류는 건물 용도와 면적, 층수에 따라 달라지며, 소방시설 목록과 도면, 소방 계획서가 기본입니다. 2026.7.1부터 일부 절차가 바뀌었다는 보도가 있어 시점 기준 확인이 필요합니다."
       },
-      "fs_mainConcern=concern_time|fs_helpWanted=help_accompany": {
-        "headline": "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
+      "fs_feeling=fl_anxious|fs_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
         "body": "설계 검토 대상이라면 공사 전에 검토를 받아야 하고, 공사가 끝난 뒤 시설 점검이 이어집니다. 공사 일정과 소방 일정을 함께 맞추세요."
       },
-      "fs_mainConcern=concern_eligibility|fs_helpWanted=help_full": {
-        "headline": "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
+      "fs_feeling=fl_confused|fs_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
         "body": "소방 절차 대상은 건물 용도와 규모, 손님 수에 따라 정해집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
       },
-      "fs_mainConcern=concern_quote|fs_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 설계 검토, 시설 설치, 점검 대응, 대행료가 각각 포함되는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 보입니다."
+      "fs_feeling=fl_afraid|fs_situation=sit_operating": {
+        "headline": "허가 확인 전에 시작해 불안한 상황입니다",
+        "body": "소방 절차 과정에서는 담당 기관이 베트남어로 질문하고 보완을 요구할 수 있어, 내용을 이해하지 못한 채 답하면 처리가 길어질 수 있습니다. 접수 전에 통역과 전문가가 서류를 함께 점검하면 보완 요구를 줄일 수 있습니다."
+      },
+      "fs_feeling=fl_tired|fs_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "소방 절차 서류는 이름·번호·숫자가 서로 다르거나 빠진 서류가 있으면 접수가 보류되거나 보완 요구를 받을 수 있습니다. 접수 전에 전문가가 서류를 점검하고 제출하는 날 동행하면 되돌아오는 횟수를 줄일 수 있습니다."
       }
     },
     "risks": {
@@ -861,6 +861,33 @@ export const FIRE_CONTENT_FINAL = {
               "field": "fs_timeline",
               "values": [
                 "tl_already"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "language",
+          "sentence": "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다",
+          "clauses": [
+            {
+              "field": "fs_langRoute",
+              "values": [
+                "lr_local",
+                "lr_machine",
+                "lr_none"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "answer",
+          "sentence": "받은 안내를 정확히 이해하지 못한 채 진행하면 필요한 절차를 놓칠 수 있어 안내 내용을 문서로 다시 확인해야 합니다",
+          "clauses": [
+            {
+              "field": "fs_answerFeel",
+              "values": [
+                "ans_not_understood",
+                "ans_not_clear_vn"
               ]
             }
           ]
@@ -927,11 +954,11 @@ export const FIRE_CONTENT_FINAL = {
       "questionCode": "Q6",
       "title": "신청 서류",
       "sentences": {
-        "fs_docs=docs_all|fs_translation=tn_none": "서류가 갖춰졌으니 도면의 소방시설 위치와 실제 설치 위치가 같은지만 확인하세요.",
-        "fs_docs=docs_most|fs_translation=tn_needed": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요.",
-        "fs_docs=docs_half|fs_translation=tn_unsure": "준비한 서류 목록을 만든 뒤 소방시설 목록과 설계 서류가 빠졌는지부터 확인하세요.",
-        "fs_docs=docs_little|fs_translation=tn_needed": "건물 용도와 규모별로 필요한 소방 서류가 다르니 그 기준의 목록부터 받으세요.",
-        "fs_docs=docs_unknown|fs_translation=tn_none": "건물 용도와 면적, 층수를 먼저 정리하면 필요한 소방 서류가 정해집니다."
+        "fs_docs=docs_all|fs_langRoute=lr_self": "서류가 갖춰졌으니 도면의 소방시설 위치와 실제 설치 위치가 같은지만 확인하세요.",
+        "fs_docs=docs_most|fs_langRoute=lr_interp": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요. 통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.",
+        "fs_docs=docs_half|fs_langRoute=lr_local": "준비한 서류 목록을 만든 뒤 소방시설 목록과 설계 서류가 빠졌는지부터 확인하세요. 직원 설명은 서류 원문과 대조해 확인하세요.",
+        "fs_docs=docs_little|fs_langRoute=lr_machine": "건물 용도와 규모별로 필요한 소방 서류가 다르니 그 기준의 목록부터 받으세요. 인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.",
+        "fs_docs=docs_unknown|fs_langRoute=lr_none": "건물 용도와 면적, 층수를 먼저 정리하면 필요한 소방 서류가 정해집니다. 베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."
       }
     },
     {
@@ -969,13 +996,13 @@ export const FIRE_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 받은 안내",
       "sentences": {
-        "fs_quoteStatus=quote_none|fs_quoteScope=qs_na": "견적을 받기 전에 정부 비용, 서류 준비비, 대행료를 나누어 요청하세요.",
-        "fs_quoteStatus=quote_one|fs_quoteScope=qs_clear": "항목이 나뉘어 있으니 설계 검토, 시설 설치, 점검 대응이 각각 포함되는지 확인하세요.",
-        "fs_quoteStatus=quote_several|fs_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "fs_quoteStatus=quote_verbal|fs_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "fs_quoteStatus=quote_ad|fs_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "fs_askedWho=ask_agency_kr|fs_answerFeel=ans_unsure_trust": "여러 곳의 설명이 다르면 같은 질문을 글로 정리해 보내고 답을 나란히 비교하세요.",
+        "fs_askedWho=ask_local|fs_answerFeel=ans_not_understood": "현지 업체의 설명은 문서로 받아 통역이나 전문 번역으로 한 번 더 확인하세요.",
+        "fs_askedWho=ask_acquaint|fs_answerFeel=ans_not_fit": "경험담은 시기와 지역, 사업 형태가 같아야 참고가 되니 조건이 같은지 먼저 대조하세요.",
+        "fs_askedWho=ask_authority|fs_answerFeel=ans_not_clear_vn": "기관 안내는 받은 날짜와 담당 부서, 내용을 적어 두고 통역을 거쳐 다시 확인하세요.",
+        "fs_askedWho=ask_nobody|fs_answerFeel=ans_unknown_who": "먼저 지역의 담당 기관이 어디인지 확인하고 물어볼 내용을 정리해 두세요."
       }
     },
     {
@@ -1018,11 +1045,21 @@ export const FIRE_CONTENT_FINAL = {
     "an_online": "담당 기관과 온라인 접수 확인",
     "an_visit": "지방 접수 방식 확인",
     "an_zone": "산업단지 관리 기관 확인",
+    "ans_not_clear_vn": "기관 안내를 베트남어라 이해 못 함",
+    "ans_not_fit": "경험담이 내 경우에 맞는지 모름",
+    "ans_not_understood": "말이 통하지 않아 이해 못 함",
+    "ans_unknown_who": "누구에게 물어볼지 모름",
+    "ans_unsure_trust": "설명을 어디까지 믿을지 모름",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
     "area_ip": "산업단지",
     "area_other_city": "그 밖의 도시",
+    "ask_acquaint": "지인·경험자에게 문의",
+    "ask_agency_kr": "한국인 대행사에 문의",
+    "ask_authority": "담당 기관에 직접 문의",
+    "ask_local": "베트남 현지 업체에 문의",
+    "ask_nobody": "아직 아무에게도 문의 못 함",
     "bt_factory": "공장·창고",
     "bt_hotel": "숙박 시설",
     "bt_office": "사무실",
@@ -1033,15 +1070,6 @@ export const FIRE_CONTENT_FINAL = {
     "ck_never": "점검 받은 적 없음",
     "ck_recent": "최근 소방 점검 받음",
     "ck_unknown": "점검 이력을 모름",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "허가 대상 여부 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "허가 일정 걱정",
-    "ct_missing": "계약서에 책임 없음",
-    "ct_na": "계약서 불필요",
-    "ct_unknown": "계약 내용을 모름",
-    "ct_written": "계약서에 책임 명시",
     "docs_all": "기본 서류 모두 준비",
     "docs_half": "기본 서류 절반 준비",
     "docs_little": "기본 서류 거의 미준비",
@@ -1061,26 +1089,31 @@ export const FIRE_CONTENT_FINAL = {
     "fire_none": "소방시설 설치 전",
     "fire_partial": "일부 소방시설만 설치",
     "fire_unknown": "필요한 소방시설을 모름",
+    "fl_afraid": "담당 기관 연락이 겁남",
+    "fl_anxious": "진행 상황을 몰라 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란스러움",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "한 번 막혀서 지침",
     "fx_ask": "이전 점검 기록 확인",
     "fx_none": "지적 사항 없음",
     "fx_open": "지적 사항 미조치",
     "fx_prepare": "첫 점검 준비 확인",
     "fx_unknown": "우리 공간 지적 여부 미확인",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
+    "lr_interp": "통역사·베트남어 하는 지인이 통역",
+    "lr_local": "한국어 하는 베트남 직원이 설명",
+    "lr_machine": "인공지능 번역기로 대략 이해",
+    "lr_none": "베트남어를 몰라 내용을 알 수 없음",
+    "lr_self": "베트남어를 직접 읽음",
     "mg_appointed": "소방 안전 담당자 지정",
     "mg_none": "담당자 없음",
     "mg_planned": "담당자 지정 예정",
     "mg_unknown": "담당자 필요 여부를 모름",
-    "mg_untrained": "담당자 지정, 교육 전",
     "op_after_fitout": "공사 후 영업",
     "op_after_permit": "허가 후 영업",
     "op_date": "영업 시작일 정해짐",
     "op_running": "허가 없이 영업 중",
     "op_unsure": "영업 시작일 미정",
     "ow_landlord": "건물주가 소방 담당",
-    "ow_self": "소유 건물이라 직접 담당",
     "ow_shared": "건물주와 나누어 담당",
     "ow_tenant": "임차인이 소방 담당",
     "ow_unknown": "담당 구분을 모름",
@@ -1094,26 +1127,22 @@ export const FIRE_CONTENT_FINAL = {
     "pl_none": "계획서 없음",
     "pl_ready": "소방 계획서·대피 계획 준비",
     "pl_unknown": "계획서 필요 여부를 모름",
-    "qs_clear": "정부 비용과 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "reg_company_done": "법인 등록 완료",
     "reg_household_done": "개인사업자 등록 완료",
     "reg_in_progress": "사업자 등록 진행 중",
     "reg_not_started": "사업자 등록 전",
     "reg_unsure": "등록 상태를 모름",
+    "sit_conflicting": "주변 사람들의 말이 서로 다름",
+    "sit_operating": "허가 확인 전에 영업 시작",
+    "sit_rejected": "서류 보완 요구를 받은 적 있음",
+    "sit_search_vn": "베트남어 자료를 이해하지 못함",
+    "sit_unknown_progress": "맡긴 일의 진행 정도를 모름",
     "sn_account": "온라인 접수 계정·서명 준비",
     "sn_compare": "제출 방식 비교",
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "sub_agency": "대행사가 제출",
+    "sub_agency": "대행사 제출을 고민 중",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
@@ -1123,12 +1152,8 @@ export const FIRE_CONTENT_FINAL = {
     "tl_flexible": "급하지 않음",
     "tl_unsure": "필요 시점 미정",
     "tl_urgent": "한 달 안에 허가 필요",
-    "tn_needed": "번역·인증 필요함",
-    "tn_none": "번역 필요 없음",
-    "tn_unsure": "번역 필요 여부 모름",
     "tr_done": "직원 소방 교육 완료",
     "tr_none": "소방 교육 안 함",
-    "tr_partial": "일부 직원만 교육",
     "tr_planned": "소방 교육 예정",
     "tr_unknown": "교육 필요 여부를 모름",
     "uf_change_use": "용도 변경 소방 절차 확인",
@@ -1155,7 +1180,7 @@ export const FIRE_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`fs_timeline` ∈ {tl_already, tl_urgent} 또는 `fs_inspection` ∈ {ck_failed} 또는 `fs_helpWanted` ∈ {help_full}",
+      "condition": "`fs_timeline` ∈ {tl_already, tl_urgent} 또는 `fs_situation` ∈ {sit_operating}",
       "sentence": "점검에서 지적받았거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1167,15 +1192,9 @@ export const FIRE_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "fs_inspection",
+          "field": "fs_situation",
           "values": [
-            "ck_failed"
-          ]
-        },
-        {
-          "field": "fs_helpWanted",
-          "values": [
-            "help_full"
+            "sit_operating"
           ]
         }
       ]
@@ -1241,12 +1260,6 @@ export const FIRE_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "fs_helpWanted",
-            "values": [
-              "help_full"
-            ]
-          },
-          {
             "field": "fs_timeline",
             "values": [
               "tl_urgent",
@@ -1260,9 +1273,9 @@ export const FIRE_CONTENT_FINAL = {
             ]
           },
           {
-            "field": "fs_inspection",
+            "field": "fs_situation",
             "values": [
-              "ck_failed"
+              "sit_operating"
             ]
           }
         ]
@@ -1271,12 +1284,6 @@ export const FIRE_CONTENT_FINAL = {
         "tier": "accompany",
         "label": "작성과 제출 동행",
         "clauses": [
-          {
-            "field": "fs_helpWanted",
-            "values": [
-              "help_accompany"
-            ]
-          },
           {
             "field": "fs_submitter",
             "values": [
@@ -1289,6 +1296,18 @@ export const FIRE_CONTENT_FINAL = {
               "an_office",
               "an_changed",
               "an_zone"
+            ]
+          },
+          {
+            "field": "fs_situation",
+            "values": [
+              "sit_rejected"
+            ]
+          },
+          {
+            "field": "fs_langRoute",
+            "values": [
+              "lr_none"
             ]
           }
         ]

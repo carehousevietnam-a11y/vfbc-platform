@@ -112,9 +112,9 @@ const dResult = bridge.buildFirstResult(direct);
 if (!dResult) fail("direct input should still produce a result");
 const tierBase = pack.hygieneTierRecommendation(answersAt(1));
 if (!["write", "accompany", "full"].includes(tierBase.tier)) fail("tier unexpected");
-const q5 = data.questions.find((q) => q.code === "Q5");
-const fullAnswers = { ...base, [q5.id]: q5.choices.find((c) => c.fields.hy_helpWanted === "help_full").value };
-if (pack.hygieneTierRecommendation(fullAnswers).tier !== "full") fail("help_full should recommend full service");
+const q9 = data.questions.find((q) => q.code === "Q9");
+const fullAnswers = { ...base, [q9.id]: q9.choices.find((c) => c.fields.hy_timeline === "tl_already").value };
+if (pack.hygieneTierRecommendation(fullAnswers).tier !== "full") fail("already operating should recommend full service");
 
 // 6. 저장·복원
 const meta = pack.buildHygienePhase2PersistMeta(base, 2);

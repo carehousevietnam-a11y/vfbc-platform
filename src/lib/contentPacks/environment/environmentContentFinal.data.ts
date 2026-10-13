@@ -6,12 +6,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "어떤 업종의 사업장이고, 그 업종에서 환경 절차와 관련해 가장 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "어떤 업종의 사업장이고, 환경 절차에서 가장 막막한 부분은 어디인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "부품이나 제품을 만드는 일반 제조 공장입니다.",
-          "description": "새 공장을 세울 때 환경 허가와 평가 중 무엇이 필요한지 확인하고 싶습니다.",
+          "label": "부품이나 제품을 만드는 공장을 새로 세우려는데",
+          "description": "환경 허가를 받아야 하는지 환경영향평가를 받아야 하는지 사람마다 말이 다릅니다.",
           "fields": {
             "ev_industry": "in_manufacturing",
             "ev_industryFocus": "if_new_factory"
@@ -19,8 +19,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "식품을 가공하는 공장입니다.",
-          "description": "생산 규모를 늘릴 때 환경 절차를 다시 밟아야 하는지 확인하고 싶습니다.",
+          "label": "식품을 가공하는 공장인데",
+          "description": "생산을 늘리려면 환경 절차를 처음부터 다시 해야 하는지 모르겠습니다.",
           "fields": {
             "ev_industry": "in_food",
             "ev_industryFocus": "if_expand"
@@ -28,8 +28,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "화학 원료를 쓰거나 도장 작업을 하는 공장입니다.",
-          "description": "이미 받은 환경 허가를 갱신할 때 무엇을 다시 준비해야 하는지 알고 싶습니다.",
+          "label": "화학 원료를 쓰거나 도장 작업을 하는 공장인데",
+          "description": "이미 받은 환경 허가의 갱신 시기가 다가와서 뭘 다시 준비해야 하는지 걱정입니다.",
           "fields": {
             "ev_industry": "in_chemical",
             "ev_industryFocus": "if_renew"
@@ -37,8 +37,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "섬유를 짜거나 염색하는 공장입니다.",
-          "description": "폐수가 많이 나는 작업이라 환경 점검에 어떻게 대비해야 하는지 알고 싶습니다.",
+          "label": "섬유를 짜거나 염색하는 공장인데",
+          "description": "폐수가 많이 나오는 작업이라 환경 점검이 나오면 어떻게 대비해야 할지 불안합니다.",
           "fields": {
             "ev_industry": "in_textile",
             "ev_industryFocus": "if_inspection"
@@ -46,8 +46,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "물건을 보관하고 나누는 물류 창고입니다.",
-          "description": "공장이 아닌 창고도 환경 절차가 필요한지 확인하고 싶습니다.",
+          "label": "물건을 보관하고 나누는 물류 창고인데",
+          "description": "공장이 아닌 창고도 환경 절차를 받아야 하는지 아무도 확실히 말해 주지 않습니다.",
           "fields": {
             "ev_industry": "in_warehouse",
             "ev_industryFocus": "if_which"
@@ -64,12 +64,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 어디까지 진행되었고, 누구 이름으로 환경 절차를 진행하실 예정인가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 환경 허가를 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
+          "label": "법인 등록은 끝났습니다.",
+          "description": "투자한 우리 법인 이름으로 환경 허가를 받으려고 합니다.",
           "fields": {
             "ev_registration": "reg_company_done",
             "ev_owner": "own_fdi"
@@ -77,8 +77,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
+          "label": "개인사업자로 등록했습니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 환경 허가를 받으려고 합니다.",
           "fields": {
             "ev_registration": "reg_household_done",
             "ev_owner": "own_household"
@@ -86,8 +86,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
+          "label": "등록 절차가 아직 진행 중입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 환경 허가를 받을 예정입니다.",
           "fields": {
             "ev_registration": "reg_in_progress",
             "ev_owner": "own_local"
@@ -95,8 +95,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
+          "label": "등록은 아직 시작도 못 했습니다.",
+          "description": "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.",
           "fields": {
             "ev_registration": "reg_not_started",
             "ev_owner": "own_partner"
@@ -104,8 +104,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "등록 상태를 정확히 모르겠습니다.",
-          "description": "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.",
+          "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
+          "description": "누구 이름으로 환경 허가를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "ev_registration": "reg_unsure",
             "ev_owner": "own_undecided"
@@ -122,12 +122,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "배출·방지시설은 갖추었고, 그 시설로 주로 어떤 오염물을 다루나요?",
+      "prompt": "오염을 막는 설비는 어디까지 갖추셨고, 주로 어떤 오염물이 나오나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "배출·방지시설을 모두 설치했습니다.",
-          "description": "설치한 시설로 생산 과정에서 나오는 폐수를 처리하고 있습니다.",
+          "label": "방지 설비는 다 설치했습니다.",
+          "description": "생산 과정에서 나오는 폐수를 그 설비로 처리하고 있습니다.",
           "fields": {
             "ev_facility": "env_installed",
             "ev_emission": "em_wastewater"
@@ -135,8 +135,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "방지시설 공사를 하고 있습니다.",
-          "description": "공사 중인 시설로 기계에서 나오는 배기가스와 먼지를 줄이려고 합니다.",
+          "label": "설비 공사를 하고 있습니다.",
+          "description": "기계에서 나오는 배기가스와 먼지를 줄이려고 하는데 충분할지 모르겠습니다.",
           "fields": {
             "ev_facility": "env_building",
             "ev_emission": "em_air"
@@ -144,8 +144,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "방지시설을 설계하고 있습니다.",
-          "description": "설계 중인 시설로 따로 처리해야 하는 산업 폐기물을 다루려고 합니다.",
+          "label": "설비를 설계하고 있습니다.",
+          "description": "따로 처리해야 하는 산업 폐기물이 나오는데 어떻게 다뤄야 할지 막막합니다.",
           "fields": {
             "ev_facility": "env_designing",
             "ev_emission": "em_waste"
@@ -153,8 +153,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "방지시설을 따로 갖추지 않았습니다.",
-          "description": "시설이 없는 채로 기계 소음과 진동이 주변에 들릴 정도로 납니다.",
+          "label": "방지 설비를 따로 갖추지 못했습니다.",
+          "description": "기계 소음과 진동이 주변에 들릴 정도로 나서 민원이 올까 걱정입니다.",
           "fields": {
             "ev_facility": "env_none",
             "ev_emission": "em_noise"
@@ -162,8 +162,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 시설이 필요한지 모르겠습니다.",
-          "description": "어떤 오염물이 얼마나 나오는지 몰라서 필요한 시설도 정하지 못했습니다.",
+          "label": "뭐가 필요한지 모르겠습니다.",
+          "description": "어떤 오염물이 얼마나 나오는지도 몰라서 어떤 설비가 필요한지 정하지 못했습니다.",
           "fields": {
             "ev_facility": "env_unknown",
             "ev_emission": "em_unknown"
@@ -180,12 +180,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "환경영향평가나 환경 등록은 진행했고, 그 절차에 맞는 사업장 규모는 어느 정도인가요?",
+      "prompt": "환경영향평가나 환경 등록 이야기는 들어 보셨고, 우리 사업장 규모는 어느 정도인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "환경영향평가를 마쳤습니다.",
-          "description": "평가를 받은 사업장이라 하루 생산량이 많은 대규모로 운영하고 있습니다.",
+          "label": "환경영향평가는 마쳤습니다.",
+          "description": "하루 생산량이 많은 대규모로 운영하고 있는데 평가 후에 따로 할 일이 있는지 궁금합니다.",
           "fields": {
             "ev_assessment": "as_done",
             "ev_scale": "sc_large"
@@ -193,8 +193,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "환경영향평가를 진행하고 있습니다.",
-          "description": "평가를 진행하는 시설은 중간 정도 규모로 계획하고 있습니다.",
+          "label": "환경영향평가를 진행 중입니다.",
+          "description": "중간 정도 규모로 계획하고 있는데 이 규모가 평가 대상이 맞는지 궁금합니다.",
           "fields": {
             "ev_assessment": "as_in_progress",
             "ev_scale": "sc_mid"
@@ -202,8 +202,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "환경 등록만 하면 되는 것으로 알고 있습니다.",
-          "description": "등록 대상이라고 보는 이유는 규모가 작아서 오염물 배출이 많지 않기 때문입니다.",
+          "label": "환경 등록만 하면 된다고 들었습니다.",
+          "description": "규모가 작아서 오염물이 많이 나오지 않기 때문이라고 하는데 맞는지 모르겠습니다.",
           "fields": {
             "ev_assessment": "as_registration",
             "ev_scale": "sc_small"
@@ -211,7 +211,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "평가나 등록을 하지 않았습니다.",
+          "label": "평가도 등록도 하지 않았습니다.",
           "description": "우리 사업장 규모가 어느 기준에 해당하는지도 모르겠습니다.",
           "fields": {
             "ev_assessment": "as_none",
@@ -238,57 +238,57 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q5",
       "route": "R",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색도 해 봤는데 베트남어 자료라 어떤 말이 맞는지 모르겠습니다.",
           "fields": {
-            "ev_mainConcern": "concern_cost",
-            "ev_helpWanted": "help_guide"
+            "ev_feeling": "fl_lost",
+            "ev_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "베트남 지인이나 직원이 알아서 한다는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "ev_mainConcern": "concern_docs",
-            "ev_helpWanted": "help_guide"
+            "ev_feeling": "fl_anxious",
+            "ev_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "허가가 언제 나올지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "건물주, 업체, 지인이 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "ev_mainConcern": "concern_time",
-            "ev_helpWanted": "help_accompany"
+            "ev_feeling": "fl_confused",
+            "ev_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "우리 사업장이 환경 허가 대상인지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "담당 기관에서 연락이 올까 겁이 납니다.",
+          "description": "공장 가동을 이미 시작했는데 환경 허가가 아직 확인되지 않았습니다.",
           "fields": {
-            "ev_mainConcern": "concern_eligibility",
-            "ev_helpWanted": "help_full"
+            "ev_feeling": "fl_afraid",
+            "ev_situation": "sit_operating"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 막혀서 지쳤습니다.",
+          "description": "서류를 냈다가 보완하라고 돌려받은 적이 있습니다.",
           "fields": {
-            "ev_mainConcern": "concern_quote",
-            "ev_helpWanted": "help_accompany"
+            "ev_feeling": "fl_tired",
+            "ev_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "ev_mainConcern": "direct_input",
-        "ev_helpWanted": "direct_input_detail"
+        "ev_feeling": "direct_input",
+        "ev_situation": "direct_input_detail"
       }
     },
     {
@@ -296,57 +296,57 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q6",
       "route": "R",
       "phase": 2,
-      "prompt": "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?",
+      "prompt": "허가 서류는 얼마나 모으셨고, 그 서류에 뭐라고 적혀 있는지는 어떻게 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "사업자 등록증, 공장 도면, 배출·방지시설 설명서를 모두 준비했습니다.",
-          "description": "모든 서류의 베트남어 번역도 이미 끝냈습니다.",
+          "label": "서류는 다 모았습니다.",
+          "description": "베트남어를 직접 읽을 수 있어서 내용도 제가 확인했습니다.",
           "fields": {
             "ev_docs": "docs_all",
-            "ev_translation": "tn_none"
+            "ev_langRoute": "lr_self"
           }
         },
         {
           "value": "o2",
-          "label": "대부분 준비했고 몇 가지만 남았습니다.",
-          "description": "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.",
+          "label": "거의 모았고 몇 개 남았습니다.",
+          "description": "베트남어를 하는 지인이나 통역해 주는 분이 서류 내용을 읽어 줍니다.",
           "fields": {
             "ev_docs": "docs_most",
-            "ev_translation": "tn_needed"
+            "ev_langRoute": "lr_interp"
           }
         },
         {
           "value": "o3",
-          "label": "절반쯤 준비했습니다.",
-          "description": "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.",
+          "label": "절반쯤 모았습니다.",
+          "description": "한국어를 하는 베트남 직원이 설명해 주는데 서류 원문과 맞는지는 확인하지 못했습니다.",
           "fields": {
             "ev_docs": "docs_half",
-            "ev_translation": "tn_unsure"
+            "ev_langRoute": "lr_local"
           }
         },
         {
           "value": "o4",
-          "label": "거의 준비하지 못했습니다.",
-          "description": "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.",
+          "label": "거의 모으지 못했습니다.",
+          "description": "번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 맞는지 모르겠습니다.",
           "fields": {
             "ev_docs": "docs_little",
-            "ev_translation": "tn_needed"
+            "ev_langRoute": "lr_machine"
           }
         },
         {
           "value": "o5",
-          "label": "무엇이 필요한지 아직 모릅니다.",
-          "description": "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.",
+          "label": "뭐가 필요한지도 모릅니다.",
+          "description": "베트남어를 전혀 몰라서 서류에 뭐가 적혀 있는지 알 수 없고 물어볼 사람도 없습니다.",
           "fields": {
             "ev_docs": "docs_unknown",
-            "ev_translation": "tn_none"
+            "ev_langRoute": "lr_none"
           }
         }
       ],
       "directFields": {
         "ev_docs": "direct_input",
-        "ev_translation": "direct_input_detail"
+        "ev_langRoute": "direct_input_detail"
       }
     },
     {
@@ -354,12 +354,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "공장에서 나오는 폐기물은 어떤 방식으로 처리하고, 그 처리에서 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "공장에서 나오는 폐기물은 어떻게 처리하고 계시고, 어떤 점이 가장 걱정되나요?",
       "choices": [
         {
           "value": "o1",
           "label": "허가받은 처리 업체와 계약했습니다.",
-          "description": "계약서에 적힌 폐기물 종류가 우리 공장에서 나오는 것과 맞는지 확인하고 싶습니다.",
+          "description": "계약서에 적힌 폐기물 종류가 우리 공장에서 나오는 것과 맞는지 확인하지 못했습니다.",
           "fields": {
             "ev_wasteContract": "wc_licensed",
             "ev_wasteKind": "wk_match"
@@ -368,7 +368,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "산업단지가 폐기물을 함께 처리해 줍니다.",
-          "description": "단지 처리에 위험한 폐기물까지 포함되는지 확인하고 싶습니다.",
+          "description": "단지 처리에 위험한 폐기물까지 포함되는지 모르겠습니다.",
           "fields": {
             "ev_wasteContract": "wc_landlord",
             "ev_wasteKind": "wk_hazard"
@@ -376,8 +376,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "처리 업체와 계약을 맺지 않았습니다.",
-          "description": "어떤 업체가 허가를 받은 업체인지 찾는 방법부터 알고 싶습니다.",
+          "label": "처리 업체와 계약한 곳이 없습니다.",
+          "description": "어떤 업체가 허가를 받은 업체인지 찾는 방법부터 모르겠습니다.",
           "fields": {
             "ev_wasteContract": "wc_none",
             "ev_wasteKind": "wk_find"
@@ -386,7 +386,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "폐기물을 직접 처리하거나 버리고 있습니다.",
-          "description": "직접 처리해도 되는지와 기록을 남겨야 하는지 확인하고 싶습니다.",
+          "description": "그렇게 해도 되는지, 기록을 남겨야 하는지 몰라서 불안합니다.",
           "fields": {
             "ev_wasteContract": "wc_self",
             "ev_wasteKind": "wk_self_rule"
@@ -394,8 +394,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "폐기물을 어떻게 처리해야 하는지 모르겠습니다.",
-          "description": "우리 공장 폐기물이 위험 폐기물인지 일반 폐기물인지부터 알고 싶습니다.",
+          "label": "어떻게 처리해야 하는지 모르겠습니다.",
+          "description": "우리 공장 폐기물이 위험 폐기물인지 일반 폐기물인지부터 모르겠습니다.",
           "fields": {
             "ev_wasteContract": "wc_unknown",
             "ev_wasteKind": "wk_classify"
@@ -412,12 +412,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장은 어떤 지역에 있고, 주변 주민의 민원이나 우려가 있나요?",
+      "prompt": "사업장은 어떤 지역에 있고, 주변 주민들이 불편해한다는 이야기는 들어 보셨나요?",
       "choices": [
         {
           "value": "o1",
           "label": "산업단지 안에 있습니다.",
-          "description": "사업장 주변 주민의 민원이나 걱정은 들은 적이 없습니다.",
+          "description": "주변 주민이 불편해한다는 이야기는 들은 적이 없는데 입지 기준은 따로 있는지 궁금합니다.",
           "fields": {
             "ev_location": "lo_ip",
             "ev_neighbors": "nb_none"
@@ -452,8 +452,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "입지 기준이 있는지 모르겠습니다.",
-          "description": "주변에 주거지가 있는지 확인하지 못해서 주민 민원 가능성도 가늠하지 못했습니다.",
+          "label": "이 지역에서 해도 되는지 모르겠습니다.",
+          "description": "주변에 주거지가 있는지 확인하지 못해서 주민 민원이 생길지도 가늠이 안 됩니다.",
           "fields": {
             "ev_location": "lo_unknown",
             "ev_neighbors": "nb_unknown"
@@ -470,12 +470,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q9",
       "route": "R",
       "phase": 2,
-      "prompt": "허가는 언제까지 필요하고, 실제 영업이나 판매는 언제 시작할 예정인가요?",
+      "prompt": "허가는 언제까지 받아야 마음이 놓이고, 공장 가동은 언제쯤 시작하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 달 안에 허가가 필요합니다.",
-          "description": "영업 시작일이 이미 정해져 있어서 미루기 어렵습니다.",
+          "label": "한 달 안에는 받아야 합니다.",
+          "description": "가동 시작 날짜를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.",
           "fields": {
             "ev_timeline": "tl_urgent",
             "ev_openPlan": "op_date"
@@ -484,7 +484,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "두세 달 안에 받으면 됩니다.",
-          "description": "시설 공사를 모두 마친 뒤에 영업을 시작할 계획입니다.",
+          "description": "시설 공사가 끝나는 날에 맞춰 공장 가동을 시작하려고 합니다.",
           "fields": {
             "ev_timeline": "tl_2_3m",
             "ev_openPlan": "op_after_fitout"
@@ -492,8 +492,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "급하지는 않습니다.",
-          "description": "허가가 나온 것을 직접 확인한 뒤에 영업을 시작하려고 합니다.",
+          "label": "급하진 않습니다.",
+          "description": "서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 공장 가동을 시작하고 싶습니다.",
           "fields": {
             "ev_timeline": "tl_flexible",
             "ev_openPlan": "op_after_permit"
@@ -501,8 +501,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "필요한 시점을 아직 정하지 못했습니다.",
-          "description": "영업이나 판매를 언제 시작할지도 정해지지 않았습니다.",
+          "label": "언제까지인지 모르겠습니다.",
+          "description": "허가가 언제까지 필요한지, 공장 가동을 언제 시작할지도 아직 정하지 못했습니다.",
           "fields": {
             "ev_timeline": "tl_unsure",
             "ev_openPlan": "op_unsure"
@@ -510,8 +510,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "이미 영업을 하고 있습니다.",
-          "description": "허가를 받지 못한 채 먼저 운영을 시작한 상태입니다.",
+          "label": "이미 공장을 가동하고 있습니다.",
+          "description": "허가를 못 받은 채 먼저 시작했는데 문제가 되지 않을지 불안합니다.",
           "fields": {
             "ev_timeline": "tl_already",
             "ev_openPlan": "op_running"
@@ -528,57 +528,57 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q10",
       "route": "R",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 비용과 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일로 누구에게 물어봤고, 그 대답은 어땠나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "한국 사람이 하는 대행사에 물어봤습니다.",
+          "description": "설명은 들었는데 어디까지 믿어도 되는지 판단이 안 섭니다.",
           "fields": {
-            "ev_quoteStatus": "quote_none",
-            "ev_quoteScope": "qs_na"
+            "ev_askedWho": "ask_agency_kr",
+            "ev_answerFeel": "ans_unsure_trust"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 비용과 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "베트남 현지 업체에 물어봤습니다.",
+          "description": "말이 잘 통하지 않아서 제대로 이해했는지 모르겠습니다.",
           "fields": {
-            "ev_quoteStatus": "quote_one",
-            "ev_quoteScope": "qs_clear"
+            "ev_askedWho": "ask_local",
+            "ev_answerFeel": "ans_not_understood"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "지인이나 먼저 해 본 분께 물어봤습니다.",
+          "description": "경험담은 들었는데 제 경우에도 맞는지 모르겠습니다.",
           "fields": {
-            "ev_quoteStatus": "quote_several",
-            "ev_quoteScope": "qs_mixed"
+            "ev_askedWho": "ask_acquaint",
+            "ev_answerFeel": "ans_not_fit"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "담당 기관에 직접 문의해 봤습니다.",
+          "description": "안내는 받았지만 베트남어라 확실히 이해하지 못했습니다.",
           "fields": {
-            "ev_quoteStatus": "quote_verbal",
-            "ev_quoteScope": "qs_unknown"
+            "ev_askedWho": "ask_authority",
+            "ev_answerFeel": "ans_not_clear_vn"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "아직 아무에게도 못 물어봤습니다.",
+          "description": "누구에게 물어봐야 하는지, 어디에 물어봐야 하는지부터 모르겠습니다.",
           "fields": {
-            "ev_quoteStatus": "quote_ad",
-            "ev_quoteScope": "qs_unknown"
+            "ev_askedWho": "ask_nobody",
+            "ev_answerFeel": "ans_unknown_who"
           }
         }
       ],
       "directFields": {
-        "ev_quoteStatus": "direct_input",
-        "ev_quoteScope": "direct_input_detail"
+        "ev_askedWho": "direct_input",
+        "ev_answerFeel": "direct_input_detail"
       }
     },
     {
@@ -586,12 +586,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
+      "prompt": "서류를 담당 기관에 내는 일은 누가 하게 될 것 같고, 그때 가장 걱정되는 건 뭔가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
-          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
+          "label": "제가 직접 낼 생각입니다.",
+          "description": "온라인 접수는 어떻게 하고 서명은 어떻게 하는지 모르겠습니다.",
           "fields": {
             "ev_submitter": "sub_self",
             "ev_submitNeed": "sn_account"
@@ -599,8 +599,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
-          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
+          "label": "베트남 직원이 대신 내기로 했습니다.",
+          "description": "위임장은 어떻게 하고, 낸 뒤 연락은 누가 받는지 걱정됩니다.",
           "fields": {
             "ev_submitter": "sub_staff",
             "ev_submitNeed": "sn_proxy"
@@ -608,8 +608,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "대행사에 서류 제출을 맡기려고 합니다.",
-          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
+          "label": "대행사에 맡길지 고민 중입니다.",
+          "description": "어디까지 맡기는 건지, 서류 원본은 누가 보관하는지 불안합니다.",
           "fields": {
             "ev_submitter": "sub_agency",
             "ev_submitNeed": "sn_scope"
@@ -617,8 +617,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "누가 제출할지 아직 정하지 못했습니다.",
-          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
+          "label": "누가 낼지 아직 못 정했습니다.",
+          "description": "직접 하는 것과 직원, 대행사 중 어느 쪽이 나은지 모르겠습니다.",
           "fields": {
             "ev_submitter": "sub_undecided",
             "ev_submitNeed": "sn_compare"
@@ -626,8 +626,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
-          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
+          "label": "직접 접수하러 가야 하는데 베트남어가 걱정입니다.",
+          "description": "담당 기관 직원이 뭐라고 물어볼지, 통역이 필요한지 막막합니다.",
           "fields": {
             "ev_submitter": "sub_self_lang",
             "ev_submitNeed": "sn_interpreter"
@@ -644,11 +644,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "허가를 받은 뒤 정기 보고는 누가 맡을 예정이고, 담당 직원이 있나요?",
+      "prompt": "허가를 받은 뒤 환경 상태를 정기적으로 보고해야 한다는데, 그 일은 누가 맡을 예정인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "환경 담당 직원이 정기 보고를 맡습니다.",
+          "label": "환경 담당 직원이 맡습니다.",
           "description": "환경 관련 교육을 받은 직원이 이미 일하고 있습니다.",
           "fields": {
             "ev_reporting": "rp_staff",
@@ -667,7 +667,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "공장장이 함께 맡을 예정입니다.",
-          "description": "환경 업무를 맡을 담당 직원을 새로 뽑을 계획입니다.",
+          "description": "환경 업무만 맡을 담당 직원은 아직 없어서 새로 뽑을 계획입니다.",
           "fields": {
             "ev_reporting": "rp_manager",
             "ev_staff": "es_hiring"
@@ -675,7 +675,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "정기 보고가 있는지 몰랐습니다.",
+          "label": "그런 보고가 있는지 몰랐습니다.",
           "description": "환경 업무를 맡을 사람을 아직 정하지 못했습니다.",
           "fields": {
             "ev_reporting": "rp_unknown",
@@ -702,12 +702,12 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
+      "prompt": "사업장이 있는 곳은 어디이고, 서류를 어느 기관에 내야 하는지는 알아보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
+          "label": "하노이입니다.",
+          "description": "어느 기관에 내야 하는지, 온라인으로도 낼 수 있는지 알아보고 있습니다.",
           "fields": {
             "ev_area": "area_hanoi",
             "ev_agencyNeed": "an_online"
@@ -715,8 +715,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "호치민에 있습니다.",
-          "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
+          "label": "호치민입니다.",
+          "description": "어느 기관에 내야 하는지 몰라서 그것부터 알고 싶고 온라인 접수가 되는지도 궁금합니다.",
           "fields": {
             "ev_area": "area_hcm",
             "ev_agencyNeed": "an_office"
@@ -724,8 +724,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
+          "label": "다낭입니다.",
+          "description": "최근 기관이 합쳐졌다는 말을 들었는데 지금은 어디에 내야 하는지 모르겠습니다.",
           "fields": {
             "ev_area": "area_danang",
             "ev_agencyNeed": "an_changed"
@@ -733,8 +733,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "그 밖의 도시에 있습니다.",
-          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
+          "label": "그 밖의 도시입니다.",
+          "description": "지방은 방식이 다르다고 해서 직접 가서 내야 하는지 궁금합니다.",
           "fields": {
             "ev_area": "area_other_city",
             "ev_agencyNeed": "an_visit"
@@ -742,8 +742,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
+          "label": "산업단지 안입니다.",
+          "description": "단지 관리 기관에 내는지 아니면 다른 곳에 내는지 아는 사람이 없어서 모르겠습니다.",
           "fields": {
             "ev_area": "area_ip",
             "ev_agencyNeed": "an_zone"
@@ -805,25 +805,25 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "ev_mainConcern=concern_cost|ev_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "환경 절차 비용은 평가 보고서 작성, 측정, 방지시설, 대행료로 나뉩니다. 업종과 규모에 따라 허가·등록·평가 중 필요한 것이 달라지니 그 기준부터 확인하세요."
-      },
-      "ev_mainConcern=concern_docs|ev_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "ev_feeling=fl_lost|ev_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "환경 절차는 업종과 규모에 따라 환경영향평가, 환경 허가, 환경 등록으로 나뉘며, 공장 도면, 배출량 자료, 방지시설 설명서가 기본입니다."
       },
-      "ev_mainConcern=concern_time|ev_helpWanted=help_accompany": {
-        "headline": "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
+      "ev_feeling=fl_anxious|ev_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
         "body": "환경 절차는 서류 검토와 현장 확인에 시간이 걸리고, 방지시설이 갖춰져야 진행할 수 있습니다. 공사 일정과 환경 일정을 함께 맞추세요."
       },
-      "ev_mainConcern=concern_eligibility|ev_helpWanted=help_full": {
-        "headline": "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
+      "ev_feeling=fl_confused|ev_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
         "body": "환경 허가 대상은 업종, 생산량, 배출 종류와 사업장 위치에 따라 정해집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
       },
-      "ev_mainConcern=concern_quote|ev_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 평가 보고서, 측정, 허가 신청, 대행료가 각각 포함되는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 보입니다."
+      "ev_feeling=fl_afraid|ev_situation=sit_operating": {
+        "headline": "허가 확인 전에 시작해 불안한 상황입니다",
+        "body": "환경 허가 과정에서는 담당 기관이 베트남어로 질문하고 보완을 요구할 수 있어, 내용을 이해하지 못한 채 답하면 처리가 길어질 수 있습니다. 접수 전에 통역과 전문가가 서류를 함께 점검하면 보완 요구를 줄일 수 있습니다."
+      },
+      "ev_feeling=fl_tired|ev_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "환경 허가 서류는 이름·번호·숫자가 서로 다르거나 빠진 서류가 있으면 접수가 보류되거나 보완 요구를 받을 수 있습니다. 접수 전에 전문가가 서류를 점검하고 제출하는 날 동행하면 되돌아오는 횟수를 줄일 수 있습니다."
       }
     },
     "risks": {
@@ -861,6 +861,33 @@ export const ENVIRONMENT_CONTENT_FINAL = {
               "field": "ev_timeline",
               "values": [
                 "tl_already"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "language",
+          "sentence": "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다",
+          "clauses": [
+            {
+              "field": "ev_langRoute",
+              "values": [
+                "lr_local",
+                "lr_machine",
+                "lr_none"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "answer",
+          "sentence": "받은 안내를 정확히 이해하지 못한 채 진행하면 필요한 절차를 놓칠 수 있어 안내 내용을 문서로 다시 확인해야 합니다",
+          "clauses": [
+            {
+              "field": "ev_answerFeel",
+              "values": [
+                "ans_not_understood",
+                "ans_not_clear_vn"
               ]
             }
           ]
@@ -928,11 +955,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "questionCode": "Q6",
       "title": "신청 서류",
       "sentences": {
-        "ev_docs=docs_all|ev_translation=tn_none": "서류가 갖춰졌으니 도면의 시설 위치와 실제 설치 위치가 같은지만 확인하고 접수하세요.",
-        "ev_docs=docs_most|ev_translation=tn_needed": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요.",
-        "ev_docs=docs_half|ev_translation=tn_unsure": "준비한 서류 목록을 만든 뒤 배출량 자료와 방지시설 설명서가 빠졌는지부터 확인하세요.",
-        "ev_docs=docs_little|ev_translation=tn_needed": "업종과 규모별로 환경 허가·등록·평가 중 무엇이 필요한지 먼저 확인하세요.",
-        "ev_docs=docs_unknown|ev_translation=tn_none": "업종과 생산량, 배출 종류를 먼저 정리하면 필요한 서류가 정해집니다."
+        "ev_docs=docs_all|ev_langRoute=lr_self": "서류가 갖춰졌으니 도면의 시설 위치와 실제 설치 위치가 같은지만 확인하고 접수하세요.",
+        "ev_docs=docs_most|ev_langRoute=lr_interp": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요. 통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.",
+        "ev_docs=docs_half|ev_langRoute=lr_local": "준비한 서류 목록을 만든 뒤 배출량 자료와 방지시설 설명서가 빠졌는지부터 확인하세요. 직원 설명은 서류 원문과 대조해 확인하세요.",
+        "ev_docs=docs_little|ev_langRoute=lr_machine": "업종과 규모별로 환경 허가·등록·평가 중 무엇이 필요한지 먼저 확인하세요. 인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.",
+        "ev_docs=docs_unknown|ev_langRoute=lr_none": "업종과 생산량, 배출 종류를 먼저 정리하면 필요한 서류가 정해집니다. 베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."
       }
     },
     {
@@ -970,13 +997,13 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 받은 안내",
       "sentences": {
-        "ev_quoteStatus=quote_none|ev_quoteScope=qs_na": "견적을 받기 전에 정부 비용, 서류 준비비, 대행료를 나누어 요청하세요.",
-        "ev_quoteStatus=quote_one|ev_quoteScope=qs_clear": "항목이 나뉘어 있으니 평가 보고서 작성, 측정, 허가 신청이 각각 포함되는지 확인하세요.",
-        "ev_quoteStatus=quote_several|ev_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "ev_quoteStatus=quote_verbal|ev_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "ev_quoteStatus=quote_ad|ev_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "ev_askedWho=ask_agency_kr|ev_answerFeel=ans_unsure_trust": "여러 곳의 설명이 다르면 같은 질문을 글로 정리해 보내고 답을 나란히 비교하세요.",
+        "ev_askedWho=ask_local|ev_answerFeel=ans_not_understood": "현지 업체의 설명은 문서로 받아 통역이나 전문 번역으로 한 번 더 확인하세요.",
+        "ev_askedWho=ask_acquaint|ev_answerFeel=ans_not_fit": "경험담은 시기와 지역, 사업 형태가 같아야 참고가 되니 조건이 같은지 먼저 대조하세요.",
+        "ev_askedWho=ask_authority|ev_answerFeel=ans_not_clear_vn": "기관 안내는 받은 날짜와 담당 부서, 내용을 적어 두고 통역을 거쳐 다시 확인하세요.",
+        "ev_askedWho=ask_nobody|ev_answerFeel=ans_unknown_who": "먼저 지역의 담당 기관이 어디인지 확인하고 물어볼 내용을 정리해 두세요."
       }
     },
     {
@@ -1019,6 +1046,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "an_online": "담당 기관과 온라인 접수 확인",
     "an_visit": "지방 접수 방식 확인",
     "an_zone": "산업단지 관리 기관 확인",
+    "ans_not_clear_vn": "기관 안내를 베트남어라 이해 못 함",
+    "ans_not_fit": "경험담이 내 경우에 맞는지 모름",
+    "ans_not_understood": "말이 통하지 않아 이해 못 함",
+    "ans_unknown_who": "누구에게 물어볼지 모름",
+    "ans_unsure_trust": "설명을 어디까지 믿을지 모름",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
@@ -1029,11 +1061,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "as_none": "평가·등록 안 함",
     "as_registration": "환경 등록 대상",
     "as_unknown": "평가 대상 여부를 모름",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "허가 대상 여부 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "허가 일정 걱정",
+    "ask_acquaint": "지인·경험자에게 문의",
+    "ask_agency_kr": "한국인 대행사에 문의",
+    "ask_authority": "담당 기관에 직접 문의",
+    "ask_local": "베트남 현지 업체에 문의",
+    "ask_nobody": "아직 아무에게도 문의 못 함",
     "docs_all": "기본 서류 모두 준비",
     "docs_half": "기본 서류 절반 준비",
     "docs_little": "기본 서류 거의 미준비",
@@ -1049,13 +1081,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "env_installed": "배출·방지시설 설치 완료",
     "env_none": "방지시설 없음",
     "env_unknown": "필요한 시설을 모름",
-    "es_hiring": "담당 직원 채용 예정",
-    "es_none": "담당 직원 없음",
-    "es_remote": "현지 담당 직원 없음",
-    "es_trained": "교육받은 담당 직원 있음",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
+    "fl_afraid": "담당 기관 연락이 겁남",
+    "fl_anxious": "진행 상황을 몰라 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란스러움",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "한 번 막혀서 지침",
     "if_expand": "규모 확대 시 절차 확인",
     "if_inspection": "환경 점검 대비 확인",
     "if_new_factory": "새 공장 환경 절차 확인",
@@ -1071,6 +1101,11 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "lo_residential": "주거 지역 인근",
     "lo_rural": "농촌 지역",
     "lo_unknown": "입지 기준을 모름",
+    "lr_interp": "통역사·베트남어 하는 지인이 통역",
+    "lr_local": "한국어 하는 베트남 직원이 설명",
+    "lr_machine": "인공지능 번역기로 대략 이해",
+    "lr_none": "베트남어를 몰라 내용을 알 수 없음",
+    "lr_self": "베트남어를 직접 읽음",
     "nb_complaint": "민원 접수됨",
     "nb_concern": "주민 우려 있음",
     "nb_none": "주민 민원 없음",
@@ -1085,35 +1120,26 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "own_local": "베트남 현지 법인",
     "own_partner": "현지인 명의로 운영",
     "own_undecided": "운영 주체 미정",
-    "qs_clear": "정부 비용과 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "reg_company_done": "법인 등록 완료",
     "reg_household_done": "개인사업자 등록 완료",
     "reg_in_progress": "사업자 등록 진행 중",
     "reg_not_started": "사업자 등록 전",
     "reg_unsure": "등록 상태를 모름",
-    "rp_consultant": "외부 업체가 보고",
-    "rp_hq": "본사에서 원격 관리",
-    "rp_manager": "공장장이 보고",
-    "rp_staff": "환경 담당 직원이 보고",
-    "rp_unknown": "정기 보고를 모름",
     "sc_large": "대규모 사업장",
     "sc_mid": "중간 규모 사업장",
     "sc_small": "소규모 사업장",
     "sc_unknown": "규모 기준을 모름",
+    "sit_conflicting": "주변 사람들의 말이 서로 다름",
+    "sit_operating": "허가 확인 전에 영업 시작",
+    "sit_rejected": "서류 보완 요구를 받은 적 있음",
+    "sit_search_vn": "베트남어 자료를 이해하지 못함",
+    "sit_unknown_progress": "맡긴 일의 진행 정도를 모름",
     "sn_account": "온라인 접수 계정·서명 준비",
     "sn_compare": "제출 방식 비교",
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "sub_agency": "대행사가 제출",
+    "sub_agency": "대행사 제출을 고민 중",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
@@ -1123,9 +1149,6 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     "tl_flexible": "급하지 않음",
     "tl_unsure": "필요 시점 미정",
     "tl_urgent": "한 달 안에 허가 필요",
-    "tn_needed": "번역·인증 필요함",
-    "tn_none": "번역 필요 없음",
-    "tn_unsure": "번역 필요 여부 모름",
     "wc_landlord": "산업단지가 처리",
     "wc_licensed": "허가받은 처리 업체와 계약",
     "wc_none": "처리 계약 없음",
@@ -1172,7 +1195,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`ev_timeline` ∈ {tl_already, tl_urgent} 또는 `ev_neighbors` ∈ {nb_complaint} 또는 `ev_helpWanted` ∈ {help_full}",
+      "condition": "`ev_timeline` ∈ {tl_already, tl_urgent} 또는 `ev_situation` ∈ {sit_operating}",
       "sentence": "이미 가동 중이거나 민원이 있다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1184,15 +1207,9 @@ export const ENVIRONMENT_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "ev_neighbors",
+          "field": "ev_situation",
           "values": [
-            "nb_complaint"
-          ]
-        },
-        {
-          "field": "ev_helpWanted",
-          "values": [
-            "help_full"
+            "sit_operating"
           ]
         }
       ]
@@ -1245,12 +1262,6 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "ev_helpWanted",
-            "values": [
-              "help_full"
-            ]
-          },
-          {
             "field": "ev_timeline",
             "values": [
               "tl_urgent",
@@ -1264,9 +1275,9 @@ export const ENVIRONMENT_CONTENT_FINAL = {
             ]
           },
           {
-            "field": "ev_neighbors",
+            "field": "ev_situation",
             "values": [
-              "nb_complaint"
+              "sit_operating"
             ]
           }
         ]
@@ -1275,12 +1286,6 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         "tier": "accompany",
         "label": "작성과 제출 동행",
         "clauses": [
-          {
-            "field": "ev_helpWanted",
-            "values": [
-              "help_accompany"
-            ]
-          },
           {
             "field": "ev_submitter",
             "values": [
@@ -1293,6 +1298,18 @@ export const ENVIRONMENT_CONTENT_FINAL = {
               "an_office",
               "an_changed",
               "an_zone"
+            ]
+          },
+          {
+            "field": "ev_situation",
+            "values": [
+              "sit_rejected"
+            ]
+          },
+          {
+            "field": "ev_langRoute",
+            "values": [
+              "lr_none"
             ]
           }
         ]

@@ -5,10 +5,10 @@ export const C = (lead, d, v, extra) => ({ lead, d, v, ...extra });
 export const commonLabels = {
   reg_company_done: "법인 등록 완료", reg_household_done: "개인사업자 등록 완료", reg_in_progress: "사업자 등록 진행 중", reg_not_started: "사업자 등록 전", reg_unsure: "등록 상태를 모름",
   own_fdi: "외국인 투자 법인", own_local: "베트남 현지 법인", own_household: "개인사업자", own_partner: "현지인 명의로 운영", own_undecided: "운영 주체 미정",
-  concern_cost: "총비용 걱정", concern_docs: "필요 서류 걱정", concern_time: "허가 일정 걱정", concern_eligibility: "허가 대상 여부 걱정", concern_quote: "받은 견적의 적정성 걱정",
-  help_guide: "서류 작성 안내를 원함", help_accompany: "서류 작성과 제출 동행을 원함", help_full: "전 과정 대행을 원함",
+  concern_docs: "필요 서류 걱정", concern_time: "허가 일정 걱정", concern_eligibility: "허가 대상 여부 걱정", concern_language: "담당 기관과의 베트남어 소통 걱정", concern_rejection: "서류 반려 걱정",
+  help_guide: "서류 작성 위임을 원함", help_accompany: "서류 작성과 제출 동행을 원함", help_full: "전 과정 대행을 원함",
   docs_all: "기본 서류 모두 준비", docs_most: "기본 서류 대부분 준비", docs_half: "기본 서류 절반 준비", docs_little: "기본 서류 거의 미준비", docs_unknown: "필요 서류를 모름",
-  tn_none: "번역 필요 없음", tn_needed: "번역·인증 필요함", tn_unsure: "번역 필요 여부 모름",
+  lr_self: "베트남어를 직접 읽음", lr_interp: "통역사·베트남어 하는 지인이 통역", lr_local: "한국어 하는 베트남 직원이 설명", lr_machine: "인공지능 번역기로 대략 이해", lr_none: "베트남어를 몰라 내용을 알 수 없음",
   tl_urgent: "한 달 안에 허가 필요", tl_2_3m: "두세 달 안에 허가", tl_flexible: "급하지 않음", tl_unsure: "필요 시점 미정", tl_already: "이미 영업 중",
   op_date: "영업 시작일 정해짐", op_after_fitout: "공사 후 영업", op_after_permit: "허가 후 영업", op_unsure: "영업 시작일 미정", op_running: "허가 없이 영업 중",
   quote_none: "받은 견적 없음", quote_one: "서면 견적 1건", quote_several: "여러 곳의 견적", quote_verbal: "말로만 들은 금액", quote_ad: "광고 가격만 봄",
@@ -30,22 +30,24 @@ export function registrationQuestion(p, code, prompt) {
 }
 
 export function concernQuestion(p, code, eligibilityLead) {
-  return { code, stage: 1, prompt: "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?", f: [`${p}_mainConcern`, `${p}_helpWanted`], choices: [
-    C("**총비용이 얼마인지** 걱정됩니다.", "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.", ["concern_cost", "help_guide"], { card: "총비용을 알고 직접 서류를 준비하려는 상황입니다" }),
-    C("**필요한 서류가 무엇인지** 모르겠습니다.", "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.", ["concern_docs", "help_guide"], { card: "필요한 서류부터 알고 싶은 상황입니다" }),
-    C("**허가가 언제 나올지** 걱정됩니다.", "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.", ["concern_time", "help_accompany"], { card: "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다" }),
-    C(eligibilityLead, "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.", ["concern_eligibility", "help_full"], { card: "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다" }),
-    C("**받은 견적이 적정한지** 모르겠습니다.", "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.", ["concern_quote", "help_accompany"], { card: "받은 견적이 적정한지 확인하려는 상황입니다" }),
+  return { code, stage: 1, prompt: "지금 가장 크게 걱정되는 점은 무엇이고, 어디까지 전문가에게 맡기고 싶으신가요?", f: [`${p}_mainConcern`, `${p}_helpWanted`], choices: [
+    C("**필요한 서류가 무엇인지** 모르겠습니다.", "필요한 서류를 전문가가 정리해서 대신 작성해 주면 좋겠습니다.", ["concern_docs", "help_guide"], { card: "필요한 서류부터 정리해 작성을 맡기려는 상황입니다" }),
+    C("**허가가 언제 나올지** 걱정됩니다.", "접수 후 처리가 길어지지 않도록 서류 작성부터 제출하는 날 통역 동행까지 맡기고 싶습니다.", ["concern_time", "help_accompany"], { card: "일정 지연이 걱정되어 제출 동행까지 원하는 상황입니다" }),
+    C(eligibilityLead, "대상인지 판단부터 서류 준비, 제출, 수령까지 모두 맡기고 싶습니다.", ["concern_eligibility", "help_full"], { card: "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다" }),
+    C("**담당 기관과 베트남어로 소통하는 것이** 걱정됩니다.", "담당 기관의 질문과 보완 요구를 대신 받아 처리해 줄 전문가가 있으면 좋겠습니다.", ["concern_language", "help_full"], { card: "담당 기관과의 소통이 걱정되어 전 과정을 맡기려는 상황입니다" }),
+    C("**서류를 냈다가 되돌아올까** 걱정됩니다.", "접수 전에 전문가가 서류를 점검하고 제출하는 날에도 함께 가 주면 좋겠습니다.", ["concern_rejection", "help_accompany"], { card: "서류 반려가 걱정되어 점검과 제출 동행을 원하는 상황입니다" }),
   ] };
 }
 
 export function docsQuestion(p, code, allLead, r) {
-  return { code, stage: 2, prompt: "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?", f: [`${p}_docs`, `${p}_translation`], choices: [
-    C(allLead, "모든 서류의 베트남어 번역도 이미 끝냈습니다.", ["docs_all", "tn_none"], { r: r[0] }),
-    C("**대부분 준비**했고 몇 가지만 남았습니다.", "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.", ["docs_most", "tn_needed"], { r: r[1] }),
-    C("**절반쯤 준비**했습니다.", "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.", ["docs_half", "tn_unsure"], { r: r[2] }),
-    C("**거의 준비하지 못했습니다.**", "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.", ["docs_little", "tn_needed"], { r: r[3] }),
-    C("**무엇이 필요한지 아직 모릅니다.**", "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.", ["docs_unknown", "tn_none"], { r: r[4] }),
+  const tip = ["", "통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.", "직원 설명은 서류 원문과 대조해 확인하세요.", "인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.", "베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."];
+  const rr = (i) => (tip[i] ? `${r[i]} ${tip[i]}` : r[i]);
+  return { code, stage: 2, prompt: "허가 신청 서류는 어디까지 준비되었고, 그 서류의 베트남어 내용은 어떻게 이해하고 계신가요?", f: [`${p}_docs`, `${p}_langRoute`], choices: [
+    C(allLead, "베트남어를 직접 읽고 쓸 수 있어 서류 내용을 스스로 확인했습니다.", ["docs_all", "lr_self"], { r: rr(0) }),
+    C("**대부분 준비**했고 몇 가지만 남았습니다.", "베트남어를 하는 한국인 지인이나 통역사가 서류 내용을 읽어 주고 있습니다.", ["docs_most", "lr_interp"], { r: rr(1) }),
+    C("**절반쯤 준비**했습니다.", "한국어를 하는 베트남 직원이 서류 내용을 설명해 주는데 원문과 맞는지는 확인하지 못했습니다.", ["docs_half", "lr_local"], { r: rr(2) }),
+    C("**거의 준비하지 못했습니다.**", "인공지능 번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 정확한지는 모릅니다.", ["docs_little", "lr_machine"], { r: rr(3) }),
+    C("**무엇이 필요한지 아직 모릅니다.**", "베트남어를 전혀 몰라 서류에 무엇이 적혀 있는지 알 수 없고 도와줄 사람도 없습니다.", ["docs_unknown", "lr_none"], { r: rr(4) }),
   ] };
 }
 
@@ -93,6 +95,7 @@ export const commonRiskRules = (p) => [
   { id: "registration", clauses: [[`${p}_registration`, ["reg_not_started", "reg_unsure"]]], sentence: "사업자 등록이 끝나지 않으면 허가를 신청할 수 없어 등록부터 마쳐야 합니다" },
   { id: "nominee", clauses: [[`${p}_owner`, ["own_partner"]]], sentence: "현지인 명의로 운영하면 나중에 권리 문제가 생길 수 있어 운영 주체를 신중히 정해야 합니다" },
   { id: "running", clauses: [[`${p}_timeline`, ["tl_already"]]], sentence: "허가 없이 먼저 영업하면 제재를 받을 수 있어 허가 신청을 바로 서둘러야 합니다" },
+  { id: "language", clauses: [[`${p}_langRoute`, ["lr_local", "lr_machine", "lr_none"]]], sentence: "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다" },
 ];
 
 export const commonTier = (p) => ({
@@ -103,13 +106,13 @@ export const commonTier = (p) => ({
 export const registrationMap = { reg_company_done: "confirmed", reg_household_done: "confirmed", reg_in_progress: "unconfirmed", reg_not_started: "unconfirmed", reg_unsure: null };
 
 export function summariesFor(p, bodies) {
-  const keys = [["concern_cost", "help_guide"], ["concern_docs", "help_guide"], ["concern_time", "help_accompany"], ["concern_eligibility", "help_full"], ["concern_quote", "help_accompany"]];
+  const keys = [["concern_docs", "help_guide"], ["concern_time", "help_accompany"], ["concern_eligibility", "help_full"], ["concern_language", "help_full"], ["concern_rejection", "help_accompany"]];
   const heads = [
-    "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-    "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
-    "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
+    "필요한 서류부터 정리해 작성을 맡기려는 상황입니다",
+    "일정 지연이 걱정되어 제출 동행까지 원하는 상황입니다",
     "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
-    "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
+    "담당 기관과의 소통이 걱정되어 전 과정을 맡기려는 상황입니다",
+    "서류 반려가 걱정되어 점검과 제출 동행을 원하는 상황입니다",
   ];
   return Object.fromEntries(keys.map(([a, b], i) => [`${p}_mainConcern=${a}|${p}_helpWanted=${b}`, { headline: heads[i], body: bodies[i] }]));
 }

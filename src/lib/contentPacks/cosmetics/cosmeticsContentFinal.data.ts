@@ -6,12 +6,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "어떤 화장품을 판매하시고, 그 제품의 신고에서 가장 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "어떤 화장품을 판매하시려는지, 그리고 신고에서 가장 막막한 부분은 어디인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "피부에 바르는 기초 화장품을 판매합니다.",
-          "description": "수입해서 팔 때 판매 신고가 필요한지와 어떤 서류를 내야 하는지 확인하고 싶습니다.",
+          "label": "기초 화장품을 수입해서 팔려는데",
+          "description": "판매 신고가 필요한지, 서류를 뭘 내야 하는지 사람마다 말이 다릅니다.",
           "fields": {
             "cs_product": "pr_skincare",
             "cs_productFocus": "pf_import"
@@ -19,8 +19,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "립스틱이나 파운데이션 같은 색조 화장품을 판매합니다.",
-          "description": "베트남에서 직접 만든 색조 제품도 같은 신고를 하는지 확인하고 싶습니다.",
+          "label": "립스틱이나 파운데이션 같은 색조 화장품을 팔려는데",
+          "description": "베트남에서 직접 만든 색조 제품도 같은 신고를 하는지 모르겠습니다.",
           "fields": {
             "cs_product": "pr_makeup",
             "cs_productFocus": "pf_local"
@@ -28,8 +28,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "샴푸나 트리트먼트 같은 헤어 제품을 판매합니다.",
-          "description": "이미 받은 신고 번호를 갱신할 때 무엇을 다시 내야 하는지 알고 싶습니다.",
+          "label": "샴푸나 트리트먼트 같은 헤어 제품을 팔고 있는데",
+          "description": "이미 받은 신고 번호를 갱신할 때 뭘 다시 내야 하는지 걱정입니다.",
           "fields": {
             "cs_product": "pr_hair",
             "cs_productFocus": "pf_renew"
@@ -37,8 +37,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "바디로션이나 세정 제품을 판매합니다.",
-          "description": "성분이나 포장이 바뀌었을 때 신고한 내용을 바꿔야 하는지 확인하고 싶습니다.",
+          "label": "바디로션이나 세정 제품을 팔고 있는데",
+          "description": "성분이나 포장이 바뀌면 신고한 내용도 바꿔야 하는지 모르겠습니다.",
           "fields": {
             "cs_product": "pr_body",
             "cs_productFocus": "pf_change"
@@ -46,8 +46,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "여러 종류의 화장품을 함께 판매합니다.",
-          "description": "제품마다 신고가 따로 필요한지와 어떤 절차부터 시작할지 알고 싶습니다.",
+          "label": "여러 종류의 화장품을 함께 팔려는데",
+          "description": "제품마다 신고가 따로 필요한지, 어디서부터 시작해야 하는지 감이 안 잡힙니다.",
           "fields": {
             "cs_product": "pr_mixed",
             "cs_productFocus": "pf_which"
@@ -64,12 +64,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 어디까지 진행되었고, 누구 이름으로 화장품을 신고하실 예정인가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 화장품 신고번호를 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
+          "label": "법인 등록은 끝났습니다.",
+          "description": "투자한 우리 법인 이름으로 화장품 신고번호를 받으려고 합니다.",
           "fields": {
             "cs_registration": "reg_company_done",
             "cs_owner": "own_fdi"
@@ -77,8 +77,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
+          "label": "개인사업자로 등록했습니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 화장품 신고번호를 받으려고 합니다.",
           "fields": {
             "cs_registration": "reg_household_done",
             "cs_owner": "own_household"
@@ -86,8 +86,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
+          "label": "등록 절차가 아직 진행 중입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 화장품 신고번호를 받을 예정입니다.",
           "fields": {
             "cs_registration": "reg_in_progress",
             "cs_owner": "own_local"
@@ -95,8 +95,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
+          "label": "등록은 아직 시작도 못 했습니다.",
+          "description": "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.",
           "fields": {
             "cs_registration": "reg_not_started",
             "cs_owner": "own_partner"
@@ -104,8 +104,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "등록 상태를 정확히 모르겠습니다.",
-          "description": "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.",
+          "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
+          "description": "누구 이름으로 화장품 신고번호를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "cs_registration": "reg_unsure",
             "cs_owner": "own_undecided"
@@ -122,12 +122,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "제품을 보관할 창고는 마련했고, 보관 환경은 어떻게 관리하고 계신가요?",
+      "prompt": "제품을 보관할 창고는 마련하셨고, 보관할 때 온도나 습도는 어떻게 관리하고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "자체 창고를 가지고 있습니다.",
-          "description": "온도와 습도를 매일 기록하며 관리하는 보관 공간입니다.",
+          "label": "자체 창고가 있습니다.",
+          "description": "온도와 습도를 매일 기록하며 관리하고 있는데 이 기록을 신고 때 내야 하는지 궁금합니다.",
           "fields": {
             "cs_warehouse": "wh_own",
             "cs_storage": "sc_controlled"
@@ -136,7 +136,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "물류 회사 창고에 맡기고 있습니다.",
-          "description": "일반 상온 창고에서 다른 화물과 나누어 보관합니다.",
+          "description": "일반 상온 창고에서 다른 화물과 나누어 보관하는데 화장품 기준에 맞는지 모르겠습니다.",
           "fields": {
             "cs_warehouse": "wh_3pl",
             "cs_storage": "sc_basic"
@@ -145,7 +145,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "창고를 곧 계약할 예정입니다.",
-          "description": "다른 물건과 같은 공간에 함께 보관하게 될 것 같습니다.",
+          "description": "다른 물건과 같은 공간에 같이 보관하게 될 것 같은데 괜찮은지 걱정입니다.",
           "fields": {
             "cs_warehouse": "wh_planned",
             "cs_storage": "sc_shared"
@@ -163,7 +163,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "창고가 꼭 필요한지 모르겠습니다.",
-          "description": "보관 환경을 따로 관리하지 않고 일반적으로 두고 있습니다.",
+          "description": "지금은 보관 환경을 따로 관리하지 않고 일반적으로 두고 있습니다.",
           "fields": {
             "cs_warehouse": "wh_unknown",
             "cs_storage": "sc_basic"
@@ -180,11 +180,11 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "제품의 성분표와 안전성 자료는 준비했고, 제조사의 위임장은 받으셨나요?",
+      "prompt": "제품 성분표와 안전성 자료는 받으셨고, 제조사에서 판매를 맡긴다는 서류도 받으셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "성분표와 안전성 자료를 모두 받았습니다.",
+          "label": "성분표와 안전성 자료를 다 받았습니다.",
           "description": "제조사로부터 판매를 맡긴다는 위임장도 받아 두었습니다.",
           "fields": {
             "cs_safetyData": "sd_ready",
@@ -212,7 +212,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "자료를 아직 받지 못했습니다.",
-          "description": "우리 회사 브랜드 제품이라 위임장은 필요 없을 것 같습니다.",
+          "description": "우리 회사 브랜드 제품이라 위임장은 필요 없을 것 같은데 맞는지 모르겠습니다.",
           "fields": {
             "cs_safetyData": "sd_none",
             "cs_authorization": "ma_own_brand"
@@ -238,57 +238,57 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q5",
       "route": "R",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색도 해 봤는데 베트남어 자료라 어떤 말이 맞는지 모르겠습니다.",
           "fields": {
-            "cs_mainConcern": "concern_cost",
-            "cs_helpWanted": "help_guide"
+            "cs_feeling": "fl_lost",
+            "cs_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "베트남 지인이나 직원이 알아서 한다는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "cs_mainConcern": "concern_docs",
-            "cs_helpWanted": "help_guide"
+            "cs_feeling": "fl_anxious",
+            "cs_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "허가가 언제 나올지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "제조사, 업체, 지인이 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "cs_mainConcern": "concern_time",
-            "cs_helpWanted": "help_accompany"
+            "cs_feeling": "fl_confused",
+            "cs_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "우리 제품이 신고 대상인지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "담당 기관에서 연락이 올까 겁이 납니다.",
+          "description": "판매를 이미 시작했는데 신고 번호가 아직 확인되지 않았습니다.",
           "fields": {
-            "cs_mainConcern": "concern_eligibility",
-            "cs_helpWanted": "help_full"
+            "cs_feeling": "fl_afraid",
+            "cs_situation": "sit_operating"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 막혀서 지쳤습니다.",
+          "description": "서류를 냈다가 보완하라고 돌려받은 적이 있습니다.",
           "fields": {
-            "cs_mainConcern": "concern_quote",
-            "cs_helpWanted": "help_accompany"
+            "cs_feeling": "fl_tired",
+            "cs_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "cs_mainConcern": "direct_input",
-        "cs_helpWanted": "direct_input_detail"
+        "cs_feeling": "direct_input",
+        "cs_situation": "direct_input_detail"
       }
     },
     {
@@ -296,57 +296,57 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q6",
       "route": "R",
       "phase": 2,
-      "prompt": "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?",
+      "prompt": "허가 서류는 얼마나 모으셨고, 그 서류에 뭐라고 적혀 있는지는 어떻게 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "신고서, 위임장, 자유판매증명서, 성분표를 모두 준비했습니다.",
-          "description": "모든 서류의 베트남어 번역도 이미 끝냈습니다.",
+          "label": "서류는 다 모았습니다.",
+          "description": "베트남어를 직접 읽을 수 있어서 내용도 제가 확인했습니다.",
           "fields": {
             "cs_docs": "docs_all",
-            "cs_translation": "tn_none"
+            "cs_langRoute": "lr_self"
           }
         },
         {
           "value": "o2",
-          "label": "대부분 준비했고 몇 가지만 남았습니다.",
-          "description": "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.",
+          "label": "거의 모았고 몇 개 남았습니다.",
+          "description": "베트남어를 하는 지인이나 통역해 주는 분이 서류 내용을 읽어 줍니다.",
           "fields": {
             "cs_docs": "docs_most",
-            "cs_translation": "tn_needed"
+            "cs_langRoute": "lr_interp"
           }
         },
         {
           "value": "o3",
-          "label": "절반쯤 준비했습니다.",
-          "description": "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.",
+          "label": "절반쯤 모았습니다.",
+          "description": "한국어를 하는 베트남 직원이 설명해 주는데 서류 원문과 맞는지는 확인하지 못했습니다.",
           "fields": {
             "cs_docs": "docs_half",
-            "cs_translation": "tn_unsure"
+            "cs_langRoute": "lr_local"
           }
         },
         {
           "value": "o4",
-          "label": "거의 준비하지 못했습니다.",
-          "description": "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.",
+          "label": "거의 모으지 못했습니다.",
+          "description": "번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 맞는지 모르겠습니다.",
           "fields": {
             "cs_docs": "docs_little",
-            "cs_translation": "tn_needed"
+            "cs_langRoute": "lr_machine"
           }
         },
         {
           "value": "o5",
-          "label": "무엇이 필요한지 아직 모릅니다.",
-          "description": "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.",
+          "label": "뭐가 필요한지도 모릅니다.",
+          "description": "베트남어를 전혀 몰라서 서류에 뭐가 적혀 있는지 알 수 없고 물어볼 사람도 없습니다.",
           "fields": {
             "cs_docs": "docs_unknown",
-            "cs_translation": "tn_none"
+            "cs_langRoute": "lr_none"
           }
         }
       ],
       "directFields": {
         "cs_docs": "direct_input",
-        "cs_translation": "direct_input_detail"
+        "cs_langRoute": "direct_input_detail"
       }
     },
     {
@@ -354,12 +354,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "수입 제품의 자유판매증명서는 받았고, 그 증명서에서 가장 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "수입 제품이면 제조국에서 받는 자유판매증명서가 필요하다는데, 지금 어떻게 되어 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "자유판매증명서를 받아 영사 인증까지 마쳤습니다.",
-          "description": "인증받은 증명서의 유효 기간이 신고할 때까지 남아 있는지 확인하고 싶습니다.",
+          "label": "증명서를 받아 영사 인증까지 마쳤습니다.",
+          "description": "인증받은 증명서의 유효 기간이 신고할 때까지 남아 있을지 걱정입니다.",
           "fields": {
             "cs_cfs": "cfs_legalized",
             "cs_cfsFocus": "cf_validity"
@@ -367,8 +367,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "자유판매증명서는 받았지만 인증은 아직입니다.",
-          "description": "영사 인증을 어디서 어떻게 받는지와 걸리는 기간을 알고 싶습니다.",
+          "label": "증명서는 받았지만 인증은 아직입니다.",
+          "description": "영사 인증을 어디서 어떻게 받는지, 얼마나 걸리는지 모르겠습니다.",
           "fields": {
             "cs_cfs": "cfs_issued",
             "cs_cfsFocus": "cf_legalize_how"
@@ -376,8 +376,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "자유판매증명서를 요청해 두었습니다.",
-          "description": "제조사가 발급하는 데 얼마나 걸리는지와 어떤 내용이 들어가야 하는지 알고 싶습니다.",
+          "label": "제조사에 증명서를 요청해 두었습니다.",
+          "description": "발급까지 얼마나 걸리는지, 어떤 내용이 들어가야 하는지 모르겠습니다.",
           "fields": {
             "cs_cfs": "cfs_requested",
             "cs_cfsFocus": "cf_issue_time"
@@ -385,8 +385,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "자유판매증명서가 없습니다.",
-          "description": "제조사가 증명서를 발급해 주지 않을 때 대신 쓸 수 있는 서류가 있는지 알고 싶습니다.",
+          "label": "증명서가 없습니다.",
+          "description": "제조사가 발급해 주지 않을 때 대신 쓸 수 있는 서류가 있는지 궁금합니다.",
           "fields": {
             "cs_cfs": "cfs_none",
             "cs_cfsFocus": "cf_alternative"
@@ -395,7 +395,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "증명서가 필요한지 모르겠습니다.",
-          "description": "수입 제품과 국내 생산 제품 중 어느 쪽에 증명서가 필요한지 확인하고 싶습니다.",
+          "description": "수입 제품과 국내 생산 제품 중 어느 쪽에 필요한지도 헷갈립니다.",
           "fields": {
             "cs_cfs": "cfs_unknown",
             "cs_cfsFocus": "cf_need"
@@ -412,12 +412,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "제품은 어디에서 판매하실 예정이고, 그 판매처에서 광고나 홍보는 어떻게 하실 계획인가요?",
+      "prompt": "제품은 어디에서 판매하실 예정이고, 광고나 홍보는 어떻게 하실 계획인가요?",
       "choices": [
         {
           "value": "o1",
           "label": "온라인으로 판매하려고 합니다.",
-          "description": "소셜미디어 광고를 꾸준히 할 계획인데 광고 문구에 기준이 있는지 알고 싶습니다.",
+          "description": "소셜미디어 광고를 꾸준히 할 계획인데 광고 문구에 기준이 있는지 궁금합니다.",
           "fields": {
             "cs_channel": "ch_online",
             "cs_ads": "ad_sns"
@@ -425,8 +425,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "직접 운영하는 매장에서 판매합니다.",
-          "description": "광고 없이 매장에서만 알릴 생각이라 진열 전에 확인할 표시가 있는지 알고 싶습니다.",
+          "label": "직접 운영하는 매장에서 팔려고 합니다.",
+          "description": "광고 없이 매장에서만 알릴 생각인데 진열 전에 확인할 표시가 있는지 궁금합니다.",
           "fields": {
             "cs_channel": "ch_shop",
             "cs_ads": "ad_none"
@@ -435,7 +435,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "유통사에 공급하려고 합니다.",
-          "description": "유통사가 인플루언서 영상 홍보를 요구할 수 있어 홍보 문구 기준이 궁금합니다.",
+          "description": "유통사가 인플루언서 영상 홍보를 요구할 수 있다는데 홍보 문구 기준을 모르겠습니다.",
           "fields": {
             "cs_channel": "ch_distributor",
             "cs_ads": "ad_influencer"
@@ -444,7 +444,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "피부관리실에 공급하려고 합니다.",
-          "description": "피부 개선 효과를 설명하며 공급하고 싶은데 어디까지 말해도 되는지 궁금합니다.",
+          "description": "피부 개선 효과를 설명하며 공급하고 싶은데 어디까지 말해도 되는지 모르겠습니다.",
           "fields": {
             "cs_channel": "ch_spa",
             "cs_ads": "ad_claims"
@@ -470,12 +470,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q9",
       "route": "R",
       "phase": 2,
-      "prompt": "허가는 언제까지 필요하고, 실제 영업이나 판매는 언제 시작할 예정인가요?",
+      "prompt": "허가는 언제까지 받아야 마음이 놓이고, 판매는 언제쯤 시작하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 달 안에 허가가 필요합니다.",
-          "description": "영업 시작일이 이미 정해져 있어서 미루기 어렵습니다.",
+          "label": "한 달 안에는 받아야 합니다.",
+          "description": "판매 시작 날짜를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.",
           "fields": {
             "cs_timeline": "tl_urgent",
             "cs_openPlan": "op_date"
@@ -484,7 +484,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "두세 달 안에 받으면 됩니다.",
-          "description": "시설 공사를 모두 마친 뒤에 영업을 시작할 계획입니다.",
+          "description": "창고와 제품 준비가 끝나는 날에 맞춰 판매를 시작하려고 합니다.",
           "fields": {
             "cs_timeline": "tl_2_3m",
             "cs_openPlan": "op_after_fitout"
@@ -492,8 +492,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "급하지는 않습니다.",
-          "description": "허가가 나온 것을 직접 확인한 뒤에 영업을 시작하려고 합니다.",
+          "label": "급하진 않습니다.",
+          "description": "서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 판매를 시작하고 싶습니다.",
           "fields": {
             "cs_timeline": "tl_flexible",
             "cs_openPlan": "op_after_permit"
@@ -501,8 +501,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "필요한 시점을 아직 정하지 못했습니다.",
-          "description": "영업이나 판매를 언제 시작할지도 정해지지 않았습니다.",
+          "label": "언제까지인지 모르겠습니다.",
+          "description": "허가가 언제까지 필요한지, 판매를 언제 시작할지도 아직 정하지 못했습니다.",
           "fields": {
             "cs_timeline": "tl_unsure",
             "cs_openPlan": "op_unsure"
@@ -510,8 +510,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "이미 영업을 하고 있습니다.",
-          "description": "허가를 받지 못한 채 먼저 운영을 시작한 상태입니다.",
+          "label": "이미 판매를 하고 있습니다.",
+          "description": "허가를 못 받은 채 먼저 시작했는데 문제가 되지 않을지 불안합니다.",
           "fields": {
             "cs_timeline": "tl_already",
             "cs_openPlan": "op_running"
@@ -528,57 +528,57 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q10",
       "route": "R",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 비용과 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일로 누구에게 물어봤고, 그 대답은 어땠나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "한국 사람이 하는 대행사에 물어봤습니다.",
+          "description": "설명은 들었는데 어디까지 믿어도 되는지 판단이 안 섭니다.",
           "fields": {
-            "cs_quoteStatus": "quote_none",
-            "cs_quoteScope": "qs_na"
+            "cs_askedWho": "ask_agency_kr",
+            "cs_answerFeel": "ans_unsure_trust"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 비용과 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "베트남 현지 업체에 물어봤습니다.",
+          "description": "말이 잘 통하지 않아서 제대로 이해했는지 모르겠습니다.",
           "fields": {
-            "cs_quoteStatus": "quote_one",
-            "cs_quoteScope": "qs_clear"
+            "cs_askedWho": "ask_local",
+            "cs_answerFeel": "ans_not_understood"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "지인이나 먼저 해 본 분께 물어봤습니다.",
+          "description": "경험담은 들었는데 제 경우에도 맞는지 모르겠습니다.",
           "fields": {
-            "cs_quoteStatus": "quote_several",
-            "cs_quoteScope": "qs_mixed"
+            "cs_askedWho": "ask_acquaint",
+            "cs_answerFeel": "ans_not_fit"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "담당 기관에 직접 문의해 봤습니다.",
+          "description": "안내는 받았지만 베트남어라 확실히 이해하지 못했습니다.",
           "fields": {
-            "cs_quoteStatus": "quote_verbal",
-            "cs_quoteScope": "qs_unknown"
+            "cs_askedWho": "ask_authority",
+            "cs_answerFeel": "ans_not_clear_vn"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "아직 아무에게도 못 물어봤습니다.",
+          "description": "누구에게 물어봐야 하는지, 어디에 물어봐야 하는지부터 모르겠습니다.",
           "fields": {
-            "cs_quoteStatus": "quote_ad",
-            "cs_quoteScope": "qs_unknown"
+            "cs_askedWho": "ask_nobody",
+            "cs_answerFeel": "ans_unknown_who"
           }
         }
       ],
       "directFields": {
-        "cs_quoteStatus": "direct_input",
-        "cs_quoteScope": "direct_input_detail"
+        "cs_askedWho": "direct_input",
+        "cs_answerFeel": "direct_input_detail"
       }
     },
     {
@@ -586,12 +586,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
+      "prompt": "서류를 담당 기관에 내는 일은 누가 하게 될 것 같고, 그때 가장 걱정되는 건 뭔가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
-          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
+          "label": "제가 직접 낼 생각입니다.",
+          "description": "온라인 접수는 어떻게 하고 서명은 어떻게 하는지 모르겠습니다.",
           "fields": {
             "cs_submitter": "sub_self",
             "cs_submitNeed": "sn_account"
@@ -599,8 +599,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
-          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
+          "label": "베트남 직원이 대신 내기로 했습니다.",
+          "description": "위임장은 어떻게 하고, 낸 뒤 연락은 누가 받는지 걱정됩니다.",
           "fields": {
             "cs_submitter": "sub_staff",
             "cs_submitNeed": "sn_proxy"
@@ -608,8 +608,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "대행사에 서류 제출을 맡기려고 합니다.",
-          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
+          "label": "대행사에 맡길지 고민 중입니다.",
+          "description": "어디까지 맡기는 건지, 서류 원본은 누가 보관하는지 불안합니다.",
           "fields": {
             "cs_submitter": "sub_agency",
             "cs_submitNeed": "sn_scope"
@@ -617,8 +617,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "누가 제출할지 아직 정하지 못했습니다.",
-          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
+          "label": "누가 낼지 아직 못 정했습니다.",
+          "description": "직접 하는 것과 직원, 대행사 중 어느 쪽이 나은지 모르겠습니다.",
           "fields": {
             "cs_submitter": "sub_undecided",
             "cs_submitNeed": "sn_compare"
@@ -626,8 +626,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
-          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
+          "label": "직접 접수하러 가야 하는데 베트남어가 걱정입니다.",
+          "description": "담당 기관 직원이 뭐라고 물어볼지, 통역이 필요한지 막막합니다.",
           "fields": {
             "cs_submitter": "sub_self_lang",
             "cs_submitNeed": "sn_interpreter"
@@ -644,7 +644,7 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "신고할 제품은 몇 개이고, 앞으로 제품을 더 늘릴 계획이 있으신가요?",
+      "prompt": "신고할 제품은 몇 개쯤 되고, 앞으로 제품을 더 늘릴 계획도 있으신가요?",
       "choices": [
         {
           "value": "o1",
@@ -676,7 +676,7 @@ export const COSMETICS_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "세트 제품으로 신고하려고 합니다.",
-          "description": "세트 구성이 계절마다 자주 바뀔 수 있어서 걱정입니다.",
+          "description": "세트 구성이 계절마다 자주 바뀔 수 있어서 그때마다 다시 신고해야 하는지 걱정입니다.",
           "fields": {
             "cs_count": "cnt_set",
             "cs_expand": "ex_changes"
@@ -702,12 +702,12 @@ export const COSMETICS_CONTENT_FINAL = {
       "id": "cosmetics_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
+      "prompt": "사업장이 있는 곳은 어디이고, 서류를 어느 기관에 내야 하는지는 알아보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
+          "label": "하노이입니다.",
+          "description": "어느 기관에 내야 하는지, 온라인으로도 낼 수 있는지 알아보고 있습니다.",
           "fields": {
             "cs_area": "area_hanoi",
             "cs_agencyNeed": "an_online"
@@ -715,8 +715,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "호치민에 있습니다.",
-          "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
+          "label": "호치민입니다.",
+          "description": "어느 기관에 내야 하는지 몰라서 그것부터 알고 싶고 온라인 접수가 되는지도 궁금합니다.",
           "fields": {
             "cs_area": "area_hcm",
             "cs_agencyNeed": "an_office"
@@ -724,8 +724,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
+          "label": "다낭입니다.",
+          "description": "최근 기관이 합쳐졌다는 말을 들었는데 지금은 어디에 내야 하는지 모르겠습니다.",
           "fields": {
             "cs_area": "area_danang",
             "cs_agencyNeed": "an_changed"
@@ -733,8 +733,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "그 밖의 도시에 있습니다.",
-          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
+          "label": "그 밖의 도시입니다.",
+          "description": "지방은 방식이 다르다고 해서 직접 가서 내야 하는지 궁금합니다.",
           "fields": {
             "cs_area": "area_other_city",
             "cs_agencyNeed": "an_visit"
@@ -742,8 +742,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
+          "label": "산업단지 안입니다.",
+          "description": "단지 관리 기관에 내는지 아니면 다른 곳에 내는지 아는 사람이 없어서 모르겠습니다.",
           "fields": {
             "cs_area": "area_ip",
             "cs_agencyNeed": "an_zone"
@@ -805,25 +805,25 @@ export const COSMETICS_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "cs_mainConcern=concern_cost|cs_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "화장품 신고 비용은 정부 비용 외에 해외 서류 인증·번역, 제품 수에 따른 신고 준비, 대행료로 나뉩니다. 판매할 제품 목록을 먼저 정해야 비용을 계산할 수 있습니다."
-      },
-      "cs_mainConcern=concern_docs|cs_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "cs_feeling=fl_lost|cs_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "수입 화장품은 판매 전 제품 신고가 필요하고, 신고서, 제조사 위임장, 자유판매증명서, 성분표가 기본입니다. 신고 번호는 정해진 기간 동안 유효합니다."
       },
-      "cs_mainConcern=concern_time|cs_helpWanted=help_accompany": {
-        "headline": "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
+      "cs_feeling=fl_anxious|cs_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
         "body": "서류가 갖춰지면 신고 처리는 빠른 편이지만, 위임장과 자유판매증명서의 영사 인증에 시간이 가장 많이 듭니다. 인증부터 시작하면 일정을 줄일 수 있습니다."
       },
-      "cs_mainConcern=concern_eligibility|cs_helpWanted=help_full": {
-        "headline": "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
+      "cs_feeling=fl_confused|cs_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
         "body": "화장품 신고 대상은 제품 용도와 성분에 따라 정해지며, 의약품처럼 보이는 제품은 다른 절차가 필요할 수 있습니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
       },
-      "cs_mainConcern=concern_quote|cs_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 제품 수, 서류 인증, 표시 검토, 대행료가 각각 포함되는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 보입니다."
+      "cs_feeling=fl_afraid|cs_situation=sit_operating": {
+        "headline": "허가 확인 전에 시작해 불안한 상황입니다",
+        "body": "화장품 신고 과정에서는 담당 기관이 베트남어로 질문하고 보완을 요구할 수 있어, 내용을 이해하지 못한 채 답하면 처리가 길어질 수 있습니다. 접수 전에 통역과 전문가가 서류를 함께 점검하면 보완 요구를 줄일 수 있습니다."
+      },
+      "cs_feeling=fl_tired|cs_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "화장품 신고 서류는 이름·번호·숫자가 서로 다르거나 빠진 서류가 있으면 접수가 보류되거나 보완 요구를 받을 수 있습니다. 접수 전에 전문가가 서류를 점검하고 제출하는 날 동행하면 되돌아오는 횟수를 줄일 수 있습니다."
       }
     },
     "risks": {
@@ -861,6 +861,33 @@ export const COSMETICS_CONTENT_FINAL = {
               "field": "cs_timeline",
               "values": [
                 "tl_already"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "language",
+          "sentence": "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다",
+          "clauses": [
+            {
+              "field": "cs_langRoute",
+              "values": [
+                "lr_local",
+                "lr_machine",
+                "lr_none"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "answer",
+          "sentence": "받은 안내를 정확히 이해하지 못한 채 진행하면 필요한 절차를 놓칠 수 있어 안내 내용을 문서로 다시 확인해야 합니다",
+          "clauses": [
+            {
+              "field": "cs_answerFeel",
+              "values": [
+                "ans_not_understood",
+                "ans_not_clear_vn"
               ]
             }
           ]
@@ -926,11 +953,11 @@ export const COSMETICS_CONTENT_FINAL = {
       "questionCode": "Q6",
       "title": "신고 서류",
       "sentences": {
-        "cs_docs=docs_all|cs_translation=tn_none": "서류가 갖춰졌으니 제품명과 성분이 서류마다 같은지만 확인하고 접수하세요.",
-        "cs_docs=docs_most|cs_translation=tn_needed": "남은 서류와 번역이 필요한 서류를 나누어 적고 영사 인증 기간을 먼저 확인하세요.",
-        "cs_docs=docs_half|cs_translation=tn_unsure": "준비한 서류 목록을 만든 뒤 위임장과 자유판매증명서가 빠졌는지부터 확인하세요.",
-        "cs_docs=docs_little|cs_translation=tn_needed": "수입 화장품 신고 기본 서류(신고서, 위임장, 자유판매증명서, 성분표)를 먼저 받으세요.",
-        "cs_docs=docs_unknown|cs_translation=tn_none": "수입 제품인지 국내 생산 제품인지에 따라 서류가 달라지니 그 기준부터 확인하세요."
+        "cs_docs=docs_all|cs_langRoute=lr_self": "서류가 갖춰졌으니 제품명과 성분이 서류마다 같은지만 확인하고 접수하세요.",
+        "cs_docs=docs_most|cs_langRoute=lr_interp": "남은 서류와 번역이 필요한 서류를 나누어 적고 영사 인증 기간을 먼저 확인하세요. 통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.",
+        "cs_docs=docs_half|cs_langRoute=lr_local": "준비한 서류 목록을 만든 뒤 위임장과 자유판매증명서가 빠졌는지부터 확인하세요. 직원 설명은 서류 원문과 대조해 확인하세요.",
+        "cs_docs=docs_little|cs_langRoute=lr_machine": "수입 화장품 신고 기본 서류(신고서, 위임장, 자유판매증명서, 성분표)를 먼저 받으세요. 인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.",
+        "cs_docs=docs_unknown|cs_langRoute=lr_none": "수입 제품인지 국내 생산 제품인지에 따라 서류가 달라지니 그 기준부터 확인하세요. 베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."
       }
     },
     {
@@ -968,13 +995,13 @@ export const COSMETICS_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 받은 안내",
       "sentences": {
-        "cs_quoteStatus=quote_none|cs_quoteScope=qs_na": "견적을 받기 전에 정부 비용, 서류 준비비, 대행료를 나누어 요청하세요.",
-        "cs_quoteStatus=quote_one|cs_quoteScope=qs_clear": "항목이 나뉘어 있으니 제품 수, 서류 인증, 표시 검토가 각각 포함되는지 확인하세요.",
-        "cs_quoteStatus=quote_several|cs_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "cs_quoteStatus=quote_verbal|cs_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "cs_quoteStatus=quote_ad|cs_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "cs_askedWho=ask_agency_kr|cs_answerFeel=ans_unsure_trust": "여러 곳의 설명이 다르면 같은 질문을 글로 정리해 보내고 답을 나란히 비교하세요.",
+        "cs_askedWho=ask_local|cs_answerFeel=ans_not_understood": "현지 업체의 설명은 문서로 받아 통역이나 전문 번역으로 한 번 더 확인하세요.",
+        "cs_askedWho=ask_acquaint|cs_answerFeel=ans_not_fit": "경험담은 시기와 지역, 사업 형태가 같아야 참고가 되니 조건이 같은지 먼저 대조하세요.",
+        "cs_askedWho=ask_authority|cs_answerFeel=ans_not_clear_vn": "기관 안내는 받은 날짜와 담당 부서, 내용을 적어 두고 통역을 거쳐 다시 확인하세요.",
+        "cs_askedWho=ask_nobody|cs_answerFeel=ans_unknown_who": "먼저 지역의 담당 기관이 어디인지 확인하고 물어볼 내용을 정리해 두세요."
       }
     },
     {
@@ -1022,11 +1049,21 @@ export const COSMETICS_CONTENT_FINAL = {
     "an_online": "담당 기관과 온라인 접수 확인",
     "an_visit": "지방 접수 방식 확인",
     "an_zone": "산업단지 관리 기관 확인",
+    "ans_not_clear_vn": "기관 안내를 베트남어라 이해 못 함",
+    "ans_not_fit": "경험담이 내 경우에 맞는지 모름",
+    "ans_not_understood": "말이 통하지 않아 이해 못 함",
+    "ans_unknown_who": "누구에게 물어볼지 모름",
+    "ans_unsure_trust": "설명을 어디까지 믿을지 모름",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
     "area_ip": "산업단지",
     "area_other_city": "그 밖의 도시",
+    "ask_acquaint": "지인·경험자에게 문의",
+    "ask_agency_kr": "한국인 대행사에 문의",
+    "ask_authority": "담당 기관에 직접 문의",
+    "ask_local": "베트남 현지 업체에 문의",
+    "ask_nobody": "아직 아무에게도 문의 못 함",
     "cf_alternative": "대체 서류 확인",
     "cf_issue_time": "제조사 발급 기간과 내용 확인",
     "cf_legalize_how": "영사 인증 방법과 기간 확인",
@@ -1042,29 +1079,21 @@ export const COSMETICS_CONTENT_FINAL = {
     "ch_shop": "매장 판매",
     "ch_spa": "피부관리실 공급",
     "ch_unsure": "판매처 미정",
-    "cnt_few": "제품 한두 개",
-    "cnt_many": "제품 수십 개",
-    "cnt_set": "세트 제품",
-    "cnt_ten": "제품 열 개 정도",
-    "cnt_unsure": "신고 제품 수 미정",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "허가 대상 여부 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "허가 일정 걱정",
     "docs_all": "기본 서류 모두 준비",
     "docs_half": "기본 서류 절반 준비",
     "docs_little": "기본 서류 거의 미준비",
     "docs_most": "기본 서류 대부분 준비",
     "docs_unknown": "필요 서류를 모름",
-    "ex_brand": "브랜드 전체 수입",
-    "ex_changes": "구성 자주 변경",
-    "ex_next": "다음 분기 추가 예정",
-    "ex_none": "추가 계획 없음",
-    "ex_unsure": "추가 계획 미정",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
+    "fl_afraid": "담당 기관 연락이 겁남",
+    "fl_anxious": "진행 상황을 몰라 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란스러움",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "한 번 막혀서 지침",
+    "lr_interp": "통역사·베트남어 하는 지인이 통역",
+    "lr_local": "한국어 하는 베트남 직원이 설명",
+    "lr_machine": "인공지능 번역기로 대략 이해",
+    "lr_none": "베트남어를 몰라 내용을 알 수 없음",
+    "lr_self": "베트남어를 직접 읽음",
     "ma_loa": "제조사 위임장 보유",
     "ma_none": "위임장 없음",
     "ma_own_brand": "자사 브랜드 제품",
@@ -1090,15 +1119,6 @@ export const COSMETICS_CONTENT_FINAL = {
     "pr_makeup": "색조 화장품",
     "pr_mixed": "여러 종류 함께",
     "pr_skincare": "기초 화장품",
-    "qs_clear": "정부 비용과 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "reg_company_done": "법인 등록 완료",
     "reg_household_done": "개인사업자 등록 완료",
     "reg_in_progress": "사업자 등록 진행 중",
@@ -1113,12 +1133,17 @@ export const COSMETICS_CONTENT_FINAL = {
     "sd_ready": "성분표·안전성 자료 완비",
     "sd_requested": "제조사에 요청 중",
     "sd_unknown": "필요한 자료를 모름",
+    "sit_conflicting": "주변 사람들의 말이 서로 다름",
+    "sit_operating": "허가 확인 전에 영업 시작",
+    "sit_rejected": "서류 보완 요구를 받은 적 있음",
+    "sit_search_vn": "베트남어 자료를 이해하지 못함",
+    "sit_unknown_progress": "맡긴 일의 진행 정도를 모름",
     "sn_account": "온라인 접수 계정·서명 준비",
     "sn_compare": "제출 방식 비교",
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "sub_agency": "대행사가 제출",
+    "sub_agency": "대행사 제출을 고민 중",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
@@ -1128,9 +1153,6 @@ export const COSMETICS_CONTENT_FINAL = {
     "tl_flexible": "급하지 않음",
     "tl_unsure": "필요 시점 미정",
     "tl_urgent": "한 달 안에 허가 필요",
-    "tn_needed": "번역·인증 필요함",
-    "tn_none": "번역 필요 없음",
-    "tn_unsure": "번역 필요 여부 모름",
     "wh_3pl": "물류 위탁 창고",
     "wh_none": "창고 없음",
     "wh_own": "자체 창고 보유",
@@ -1156,7 +1178,7 @@ export const COSMETICS_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`cs_timeline` ∈ {tl_already, tl_urgent} 또는 `cs_helpWanted` ∈ {help_full}",
+      "condition": "`cs_timeline` ∈ {tl_already, tl_urgent} 또는 `cs_situation` ∈ {sit_operating}",
       "sentence": "이미 판매 중이거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1168,9 +1190,9 @@ export const COSMETICS_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "cs_helpWanted",
+          "field": "cs_situation",
           "values": [
-            "help_full"
+            "sit_operating"
           ]
         }
       ]
@@ -1226,12 +1248,6 @@ export const COSMETICS_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "cs_helpWanted",
-            "values": [
-              "help_full"
-            ]
-          },
-          {
             "field": "cs_timeline",
             "values": [
               "tl_urgent",
@@ -1243,6 +1259,12 @@ export const COSMETICS_CONTENT_FINAL = {
             "values": [
               "reg_not_started"
             ]
+          },
+          {
+            "field": "cs_situation",
+            "values": [
+              "sit_operating"
+            ]
           }
         ]
       },
@@ -1250,12 +1272,6 @@ export const COSMETICS_CONTENT_FINAL = {
         "tier": "accompany",
         "label": "작성과 제출 동행",
         "clauses": [
-          {
-            "field": "cs_helpWanted",
-            "values": [
-              "help_accompany"
-            ]
-          },
           {
             "field": "cs_submitter",
             "values": [
@@ -1268,6 +1284,18 @@ export const COSMETICS_CONTENT_FINAL = {
               "an_office",
               "an_changed",
               "an_zone"
+            ]
+          },
+          {
+            "field": "cs_situation",
+            "values": [
+              "sit_rejected"
+            ]
+          },
+          {
+            "field": "cs_langRoute",
+            "values": [
+              "lr_none"
             ]
           }
         ]

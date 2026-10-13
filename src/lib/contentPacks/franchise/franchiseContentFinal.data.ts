@@ -6,12 +6,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "프랜차이즈와 관련해 어떤 절차가 필요하고, 어떤 업종의 브랜드인가요?",
+      "prompt": "프랜차이즈를 어떤 방식으로 하시려는데 어떤 업종의 브랜드이고, 가장 막막한 부분은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "해외 브랜드를 베트남에 가맹으로 들여오려고 합니다.",
-          "description": "음식이나 음료를 파는 외식 브랜드입니다.",
+          "label": "해외 브랜드를 베트남에 가맹으로 들여오려는데",
+          "description": "음식이나 음료를 파는 외식 브랜드라 어떤 등록부터 해야 하는지 모르겠습니다.",
           "fields": {
             "fr_stage": "st_inbound",
             "fr_business": "bz_food"
@@ -19,8 +19,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 전체 가맹권을 받는 계약을 하려고 합니다.",
-          "description": "편의점이나 소매점 형태의 브랜드입니다.",
+          "label": "베트남 전체 가맹권을 받는 계약을 하려는데",
+          "description": "편의점이나 소매점 형태의 브랜드라 어떤 절차가 필요한지 감이 안 잡힙니다.",
           "fields": {
             "fr_stage": "st_master",
             "fr_business": "bz_retail"
@@ -28,8 +28,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "베트남에서 키운 브랜드를 가맹으로 늘리려고 합니다.",
-          "description": "학원이나 교육 서비스를 하는 브랜드입니다.",
+          "label": "베트남에서 키운 브랜드를 가맹으로 늘리려는데",
+          "description": "학원이나 교육 서비스를 하는 브랜드라 등록 대상인지 헷갈립니다.",
           "fields": {
             "fr_stage": "st_local_brand",
             "fr_business": "bz_education"
@@ -37,8 +37,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "이미 등록한 내용을 바꿔야 합니다.",
-          "description": "등록한 브랜드는 미용실이나 피부 관리실 같은 뷰티 서비스입니다.",
+          "label": "이미 등록한 내용을 바꿔야 하는데",
+          "description": "등록한 브랜드는 미용실이나 피부 관리실 같은 뷰티 서비스인데 어떻게 바꾸는지 모르겠습니다.",
           "fields": {
             "fr_stage": "st_change",
             "fr_business": "bz_beauty"
@@ -46,7 +46,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 절차가 필요한지 모르겠습니다.",
+          "label": "어떤 절차가 필요한지조차 모르겠습니다.",
           "description": "세탁이나 청소 같은 생활 서비스 브랜드라 등록 대상인지부터 모릅니다.",
           "fields": {
             "fr_stage": "st_unsure",
@@ -64,12 +64,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 어디까지 진행되었고, 누구 이름으로 가맹 사업을 하실 예정인가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 가맹 사업 등록를 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
+          "label": "법인 등록은 끝났습니다.",
+          "description": "투자한 우리 법인 이름으로 가맹 사업 등록를 받으려고 합니다.",
           "fields": {
             "fr_registration": "reg_company_done",
             "fr_owner": "own_fdi"
@@ -77,8 +77,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
+          "label": "개인사업자로 등록했습니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 가맹 사업 등록를 받으려고 합니다.",
           "fields": {
             "fr_registration": "reg_household_done",
             "fr_owner": "own_household"
@@ -86,8 +86,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
+          "label": "등록 절차가 아직 진행 중입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 가맹 사업 등록를 받을 예정입니다.",
           "fields": {
             "fr_registration": "reg_in_progress",
             "fr_owner": "own_local"
@@ -95,8 +95,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
+          "label": "등록은 아직 시작도 못 했습니다.",
+          "description": "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.",
           "fields": {
             "fr_registration": "reg_not_started",
             "fr_owner": "own_partner"
@@ -104,8 +104,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "등록 상태를 정확히 모르겠습니다.",
-          "description": "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.",
+          "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
+          "description": "누구 이름으로 가맹 사업 등록를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "fr_registration": "reg_unsure",
             "fr_owner": "own_undecided"
@@ -122,11 +122,11 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "가맹하려는 브랜드는 직영으로 얼마나 운영해 왔고, 매장은 몇 곳인가요?",
+      "prompt": "가맹하려는 브랜드는 본사가 직접 얼마나 운영해 봤고, 직영 매장은 몇 곳인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "베트남에서 1년 넘게 직영으로 운영했습니다.",
+          "label": "베트남에서 1년 넘게 직접 운영했습니다.",
           "description": "베트남에 직영 매장을 여러 곳 운영하고 있습니다.",
           "fields": {
             "fr_history": "oh_over1y",
@@ -144,7 +144,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "운영한 지 1년이 안 되었습니다.",
+          "label": "운영한 지 1년이 안 됐습니다.",
           "description": "행사장이나 쇼핑몰의 임시 매장으로만 운영해 보았습니다.",
           "fields": {
             "fr_history": "oh_under1y",
@@ -154,7 +154,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "아직 운영을 시작하지 않았습니다.",
-          "description": "본사가 직접 운영하는 매장은 아직 한 곳도 없습니다.",
+          "description": "본사가 직접 운영하는 매장은 아직 한 곳도 없는데 가맹을 시작해도 되는지 모르겠습니다.",
           "fields": {
             "fr_history": "oh_new",
             "fr_outlets": "ou_none"
@@ -180,11 +180,11 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "가맹계약서와 운영 매뉴얼은 준비했고, 브랜드 상표는 베트남에 등록했나요?",
+      "prompt": "가맹계약서와 운영 매뉴얼은 준비하셨고, 브랜드 상표는 베트남에 등록하셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "가맹계약서와 운영 매뉴얼을 모두 준비했습니다.",
+          "label": "가맹계약서와 운영 매뉴얼을 다 준비했습니다.",
           "description": "계약서에 쓰는 브랜드 상표도 베트남에 이미 등록해 두었습니다.",
           "fields": {
             "fr_contract": "cm_ready",
@@ -211,7 +211,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "계약서와 매뉴얼을 아직 만들지 않았습니다.",
+          "label": "계약서와 매뉴얼을 아직 못 만들었습니다.",
           "description": "계약서에 쓸 브랜드 상표를 등록해 본 적이 없습니다.",
           "fields": {
             "fr_contract": "cm_none",
@@ -238,57 +238,57 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q5",
       "route": "R",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색도 해 봤는데 베트남어 자료라 어떤 말이 맞는지 모르겠습니다.",
           "fields": {
-            "fr_mainConcern": "concern_cost",
-            "fr_helpWanted": "help_guide"
+            "fr_feeling": "fl_lost",
+            "fr_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "베트남 지인이나 직원이 알아서 한다는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "fr_mainConcern": "concern_docs",
-            "fr_helpWanted": "help_guide"
+            "fr_feeling": "fl_anxious",
+            "fr_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "허가가 언제 나올지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "본사, 업체, 지인이 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "fr_mainConcern": "concern_time",
-            "fr_helpWanted": "help_accompany"
+            "fr_feeling": "fl_confused",
+            "fr_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "우리 사업이 프랜차이즈 등록 대상인지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "담당 기관에서 연락이 올까 겁이 납니다.",
+          "description": "가맹점 모집을 이미 시작했는데 등록이 아직 확인되지 않았습니다.",
           "fields": {
-            "fr_mainConcern": "concern_eligibility",
-            "fr_helpWanted": "help_full"
+            "fr_feeling": "fl_afraid",
+            "fr_situation": "sit_operating"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 막혀서 지쳤습니다.",
+          "description": "서류를 냈다가 보완하라고 돌려받은 적이 있습니다.",
           "fields": {
-            "fr_mainConcern": "concern_quote",
-            "fr_helpWanted": "help_accompany"
+            "fr_feeling": "fl_tired",
+            "fr_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "fr_mainConcern": "direct_input",
-        "fr_helpWanted": "direct_input_detail"
+        "fr_feeling": "direct_input",
+        "fr_situation": "direct_input_detail"
       }
     },
     {
@@ -296,57 +296,57 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q6",
       "route": "R",
       "phase": 2,
-      "prompt": "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?",
+      "prompt": "허가 서류는 얼마나 모으셨고, 그 서류에 뭐라고 적혀 있는지는 어떻게 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "등록 신청서, 가맹 소개서, 본사 사업자 서류를 모두 준비했습니다.",
-          "description": "모든 서류의 베트남어 번역도 이미 끝냈습니다.",
+          "label": "서류는 다 모았습니다.",
+          "description": "베트남어를 직접 읽을 수 있어서 내용도 제가 확인했습니다.",
           "fields": {
             "fr_docs": "docs_all",
-            "fr_translation": "tn_none"
+            "fr_langRoute": "lr_self"
           }
         },
         {
           "value": "o2",
-          "label": "대부분 준비했고 몇 가지만 남았습니다.",
-          "description": "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.",
+          "label": "거의 모았고 몇 개 남았습니다.",
+          "description": "베트남어를 하는 지인이나 통역해 주는 분이 서류 내용을 읽어 줍니다.",
           "fields": {
             "fr_docs": "docs_most",
-            "fr_translation": "tn_needed"
+            "fr_langRoute": "lr_interp"
           }
         },
         {
           "value": "o3",
-          "label": "절반쯤 준비했습니다.",
-          "description": "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.",
+          "label": "절반쯤 모았습니다.",
+          "description": "한국어를 하는 베트남 직원이 설명해 주는데 서류 원문과 맞는지는 확인하지 못했습니다.",
           "fields": {
             "fr_docs": "docs_half",
-            "fr_translation": "tn_unsure"
+            "fr_langRoute": "lr_local"
           }
         },
         {
           "value": "o4",
-          "label": "거의 준비하지 못했습니다.",
-          "description": "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.",
+          "label": "거의 모으지 못했습니다.",
+          "description": "번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 맞는지 모르겠습니다.",
           "fields": {
             "fr_docs": "docs_little",
-            "fr_translation": "tn_needed"
+            "fr_langRoute": "lr_machine"
           }
         },
         {
           "value": "o5",
-          "label": "무엇이 필요한지 아직 모릅니다.",
-          "description": "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.",
+          "label": "뭐가 필요한지도 모릅니다.",
+          "description": "베트남어를 전혀 몰라서 서류에 뭐가 적혀 있는지 알 수 없고 물어볼 사람도 없습니다.",
           "fields": {
             "fr_docs": "docs_unknown",
-            "fr_translation": "tn_none"
+            "fr_langRoute": "lr_none"
           }
         }
       ],
       "directFields": {
         "fr_docs": "direct_input",
-        "fr_translation": "direct_input_detail"
+        "fr_langRoute": "direct_input_detail"
       }
     },
     {
@@ -354,12 +354,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "가맹 희망자에게 줄 가맹 소개서는 준비했고, 가맹비와 로열티는 정했나요?",
+      "prompt": "가맹 희망자에게 줄 가맹 소개서는 준비하셨고, 가맹비와 로열티는 정하셨나요?",
       "choices": [
         {
           "value": "o1",
           "label": "가맹 소개서를 준비했습니다.",
-          "description": "가맹비와 매달 받을 로열티 구조를 이미 정해 두었습니다.",
+          "description": "가맹비와 매달 받을 로열티 구조도 이미 정해 두었습니다.",
           "fields": {
             "fr_disclosure": "ds_ready",
             "fr_fees": "fee_set"
@@ -368,7 +368,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "가맹 소개서 초안만 있습니다.",
-          "description": "가맹비와 로열티는 초안만 있고 아직 확정하지 않았습니다.",
+          "description": "가맹비와 로열티도 초안만 있고 아직 확정하지 않았습니다.",
           "fields": {
             "fr_disclosure": "ds_draft",
             "fr_fees": "fee_draft"
@@ -386,7 +386,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "소개서가 필요한지 모르겠습니다.",
-          "description": "소개서에 들어갈 가맹비와 로열티는 본사가 정한 금액을 그대로 씁니다.",
+          "description": "가맹비와 로열티는 본사가 정한 금액을 그대로 쓰려고 합니다.",
           "fields": {
             "fr_disclosure": "ds_unknown",
             "fr_fees": "fee_set"
@@ -394,7 +394,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "본사 소개서를 번역하고 있습니다.",
+          "label": "본사 소개서를 베트남어로 번역하고 있습니다.",
           "description": "가맹비는 베트남 시장에 맞춰 다시 정하려고 합니다.",
           "fields": {
             "fr_disclosure": "ds_translating",
@@ -412,7 +412,7 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "등록을 받는 기관을 알고 계시고, 가맹점 모집은 언제 시작하실 예정인가요?",
+      "prompt": "가맹 사업을 등록하는 기관은 알아보셨고, 가맹점 모집은 언제 시작하실 예정인가요?",
       "choices": [
         {
           "value": "o1",
@@ -426,7 +426,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "등록 기관을 모릅니다.",
-          "description": "가맹점 모집을 이미 시작해서 희망자 상담을 받고 있습니다.",
+          "description": "그런데 가맹점 모집을 이미 시작해서 희망자 상담을 받고 있습니다.",
           "fields": {
             "fr_registry": "rg_unknown",
             "fr_recruit": "rc_started"
@@ -444,7 +444,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "베트남 브랜드라 등록이 필요 없다고 들었습니다.",
-          "description": "가맹점 모집을 다음 달부터 시작하려고 합니다.",
+          "description": "가맹점 모집을 다음 달부터 시작하려고 하는데 맞는지 모르겠습니다.",
           "fields": {
             "fr_registry": "rg_domestic",
             "fr_recruit": "rc_soon"
@@ -470,12 +470,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q9",
       "route": "R",
       "phase": 2,
-      "prompt": "허가는 언제까지 필요하고, 실제 영업이나 판매는 언제 시작할 예정인가요?",
+      "prompt": "허가는 언제까지 받아야 마음이 놓이고, 가맹점 모집은 언제쯤 시작하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 달 안에 허가가 필요합니다.",
-          "description": "영업 시작일이 이미 정해져 있어서 미루기 어렵습니다.",
+          "label": "한 달 안에는 받아야 합니다.",
+          "description": "모집 시작 날짜를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.",
           "fields": {
             "fr_timeline": "tl_urgent",
             "fr_openPlan": "op_date"
@@ -484,7 +484,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "두세 달 안에 받으면 됩니다.",
-          "description": "시설 공사를 모두 마친 뒤에 영업을 시작할 계획입니다.",
+          "description": "가맹 계약 준비가 끝나는 날에 맞춰 가맹점 모집을 시작하려고 합니다.",
           "fields": {
             "fr_timeline": "tl_2_3m",
             "fr_openPlan": "op_after_fitout"
@@ -492,8 +492,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "급하지는 않습니다.",
-          "description": "허가가 나온 것을 직접 확인한 뒤에 영업을 시작하려고 합니다.",
+          "label": "급하진 않습니다.",
+          "description": "서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 가맹점 모집을 시작하고 싶습니다.",
           "fields": {
             "fr_timeline": "tl_flexible",
             "fr_openPlan": "op_after_permit"
@@ -501,8 +501,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "필요한 시점을 아직 정하지 못했습니다.",
-          "description": "영업이나 판매를 언제 시작할지도 정해지지 않았습니다.",
+          "label": "언제까지인지 모르겠습니다.",
+          "description": "허가가 언제까지 필요한지, 가맹점 모집을 언제 시작할지도 아직 정하지 못했습니다.",
           "fields": {
             "fr_timeline": "tl_unsure",
             "fr_openPlan": "op_unsure"
@@ -510,8 +510,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "이미 영업을 하고 있습니다.",
-          "description": "허가를 받지 못한 채 먼저 운영을 시작한 상태입니다.",
+          "label": "이미 가맹점을 모집하고 있습니다.",
+          "description": "허가를 못 받은 채 먼저 시작했는데 문제가 되지 않을지 불안합니다.",
           "fields": {
             "fr_timeline": "tl_already",
             "fr_openPlan": "op_running"
@@ -528,57 +528,57 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q10",
       "route": "R",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 비용과 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일로 누구에게 물어봤고, 그 대답은 어땠나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "한국 사람이 하는 대행사에 물어봤습니다.",
+          "description": "설명은 들었는데 어디까지 믿어도 되는지 판단이 안 섭니다.",
           "fields": {
-            "fr_quoteStatus": "quote_none",
-            "fr_quoteScope": "qs_na"
+            "fr_askedWho": "ask_agency_kr",
+            "fr_answerFeel": "ans_unsure_trust"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 비용과 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "베트남 현지 업체에 물어봤습니다.",
+          "description": "말이 잘 통하지 않아서 제대로 이해했는지 모르겠습니다.",
           "fields": {
-            "fr_quoteStatus": "quote_one",
-            "fr_quoteScope": "qs_clear"
+            "fr_askedWho": "ask_local",
+            "fr_answerFeel": "ans_not_understood"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "지인이나 먼저 해 본 분께 물어봤습니다.",
+          "description": "경험담은 들었는데 제 경우에도 맞는지 모르겠습니다.",
           "fields": {
-            "fr_quoteStatus": "quote_several",
-            "fr_quoteScope": "qs_mixed"
+            "fr_askedWho": "ask_acquaint",
+            "fr_answerFeel": "ans_not_fit"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "담당 기관에 직접 문의해 봤습니다.",
+          "description": "안내는 받았지만 베트남어라 확실히 이해하지 못했습니다.",
           "fields": {
-            "fr_quoteStatus": "quote_verbal",
-            "fr_quoteScope": "qs_unknown"
+            "fr_askedWho": "ask_authority",
+            "fr_answerFeel": "ans_not_clear_vn"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "아직 아무에게도 못 물어봤습니다.",
+          "description": "누구에게 물어봐야 하는지, 어디에 물어봐야 하는지부터 모르겠습니다.",
           "fields": {
-            "fr_quoteStatus": "quote_ad",
-            "fr_quoteScope": "qs_unknown"
+            "fr_askedWho": "ask_nobody",
+            "fr_answerFeel": "ans_unknown_who"
           }
         }
       ],
       "directFields": {
-        "fr_quoteStatus": "direct_input",
-        "fr_quoteScope": "direct_input_detail"
+        "fr_askedWho": "direct_input",
+        "fr_answerFeel": "direct_input_detail"
       }
     },
     {
@@ -586,12 +586,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
+      "prompt": "서류를 담당 기관에 내는 일은 누가 하게 될 것 같고, 그때 가장 걱정되는 건 뭔가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
-          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
+          "label": "제가 직접 낼 생각입니다.",
+          "description": "온라인 접수는 어떻게 하고 서명은 어떻게 하는지 모르겠습니다.",
           "fields": {
             "fr_submitter": "sub_self",
             "fr_submitNeed": "sn_account"
@@ -599,8 +599,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
-          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
+          "label": "베트남 직원이 대신 내기로 했습니다.",
+          "description": "위임장은 어떻게 하고, 낸 뒤 연락은 누가 받는지 걱정됩니다.",
           "fields": {
             "fr_submitter": "sub_staff",
             "fr_submitNeed": "sn_proxy"
@@ -608,8 +608,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "대행사에 서류 제출을 맡기려고 합니다.",
-          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
+          "label": "대행사에 맡길지 고민 중입니다.",
+          "description": "어디까지 맡기는 건지, 서류 원본은 누가 보관하는지 불안합니다.",
           "fields": {
             "fr_submitter": "sub_agency",
             "fr_submitNeed": "sn_scope"
@@ -617,8 +617,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "누가 제출할지 아직 정하지 못했습니다.",
-          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
+          "label": "누가 낼지 아직 못 정했습니다.",
+          "description": "직접 하는 것과 직원, 대행사 중 어느 쪽이 나은지 모르겠습니다.",
           "fields": {
             "fr_submitter": "sub_undecided",
             "fr_submitNeed": "sn_compare"
@@ -626,8 +626,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
-          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
+          "label": "직접 접수하러 가야 하는데 베트남어가 걱정입니다.",
+          "description": "담당 기관 직원이 뭐라고 물어볼지, 통역이 필요한지 막막합니다.",
           "fields": {
             "fr_submitter": "sub_self_lang",
             "fr_submitNeed": "sn_interpreter"
@@ -644,7 +644,7 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "가맹점에 어떤 지원을 할 계획이고, 가맹점 관리는 누가 맡을 예정인가요?",
+      "prompt": "가맹점에 어떤 지원을 하실 계획이고, 가맹점 관리는 누가 맡을 예정인가요?",
       "choices": [
         {
           "value": "o1",
@@ -702,12 +702,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
+      "prompt": "사업장이 있는 곳은 어디이고, 서류를 어느 기관에 내야 하는지는 알아보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
+          "label": "하노이입니다.",
+          "description": "어느 기관에 내야 하는지, 온라인으로도 낼 수 있는지 알아보고 있습니다.",
           "fields": {
             "fr_area": "area_hanoi",
             "fr_agencyNeed": "an_online"
@@ -715,8 +715,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "호치민에 있습니다.",
-          "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
+          "label": "호치민입니다.",
+          "description": "어느 기관에 내야 하는지 몰라서 그것부터 알고 싶고 온라인 접수가 되는지도 궁금합니다.",
           "fields": {
             "fr_area": "area_hcm",
             "fr_agencyNeed": "an_office"
@@ -724,8 +724,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
+          "label": "다낭입니다.",
+          "description": "최근 기관이 합쳐졌다는 말을 들었는데 지금은 어디에 내야 하는지 모르겠습니다.",
           "fields": {
             "fr_area": "area_danang",
             "fr_agencyNeed": "an_changed"
@@ -733,8 +733,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "그 밖의 도시에 있습니다.",
-          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
+          "label": "그 밖의 도시입니다.",
+          "description": "지방은 방식이 다르다고 해서 직접 가서 내야 하는지 궁금합니다.",
           "fields": {
             "fr_area": "area_other_city",
             "fr_agencyNeed": "an_visit"
@@ -742,8 +742,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
+          "label": "산업단지 안입니다.",
+          "description": "단지 관리 기관에 내는지 아니면 다른 곳에 내는지 아는 사람이 없어서 모르겠습니다.",
           "fields": {
             "fr_area": "area_ip",
             "fr_agencyNeed": "an_zone"
@@ -805,25 +805,25 @@ export const FRANCHISE_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "fr_mainConcern=concern_cost|fr_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "프랜차이즈 비용은 등록 신청, 해외 서류 인증·번역, 상표 등록, 계약서 검토, 대행료로 나뉩니다. 해외 브랜드인지에 따라 등록 여부가 달라지니 그 기준부터 확인하세요."
-      },
-      "fr_mainConcern=concern_docs|fr_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "fr_feeling=fl_lost|fr_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "해외 브랜드를 베트남에 가맹으로 들여오면 등록이 필요하고, 등록 신청서, 가맹 소개서, 본사 사업자 서류, 상표 서류가 기본입니다. 베트남 안의 가맹은 등록이 필요 없을 수 있습니다."
       },
-      "fr_mainConcern=concern_time|fr_helpWanted=help_accompany": {
-        "headline": "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
+      "fr_feeling=fl_anxious|fr_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
         "body": "서류가 갖춰지면 등록 처리는 빠른 편이지만, 본사 서류의 영사 인증과 상표 등록에 시간이 걸립니다. 인증과 상표부터 시작하세요."
       },
-      "fr_mainConcern=concern_eligibility|fr_helpWanted=help_full": {
-        "headline": "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
+      "fr_feeling=fl_confused|fr_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
         "body": "해외 브랜드 가맹은 직영 운영 이력 등 조건이 있어 운영 기간을 먼저 확인해야 합니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
       },
-      "fr_mainConcern=concern_quote|fr_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 등록 신청, 상표 등록, 계약서 검토, 대행료가 각각 포함되는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 보입니다."
+      "fr_feeling=fl_afraid|fr_situation=sit_operating": {
+        "headline": "허가 확인 전에 시작해 불안한 상황입니다",
+        "body": "프랜차이즈 등록 과정에서는 담당 기관이 베트남어로 질문하고 보완을 요구할 수 있어, 내용을 이해하지 못한 채 답하면 처리가 길어질 수 있습니다. 접수 전에 통역과 전문가가 서류를 함께 점검하면 보완 요구를 줄일 수 있습니다."
+      },
+      "fr_feeling=fl_tired|fr_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "프랜차이즈 등록 서류는 이름·번호·숫자가 서로 다르거나 빠진 서류가 있으면 접수가 보류되거나 보완 요구를 받을 수 있습니다. 접수 전에 전문가가 서류를 점검하고 제출하는 날 동행하면 되돌아오는 횟수를 줄일 수 있습니다."
       }
     },
     "risks": {
@@ -861,6 +861,33 @@ export const FRANCHISE_CONTENT_FINAL = {
               "field": "fr_timeline",
               "values": [
                 "tl_already"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "language",
+          "sentence": "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다",
+          "clauses": [
+            {
+              "field": "fr_langRoute",
+              "values": [
+                "lr_local",
+                "lr_machine",
+                "lr_none"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "answer",
+          "sentence": "받은 안내를 정확히 이해하지 못한 채 진행하면 필요한 절차를 놓칠 수 있어 안내 내용을 문서로 다시 확인해야 합니다",
+          "clauses": [
+            {
+              "field": "fr_answerFeel",
+              "values": [
+                "ans_not_understood",
+                "ans_not_clear_vn"
               ]
             }
           ]
@@ -928,11 +955,11 @@ export const FRANCHISE_CONTENT_FINAL = {
       "questionCode": "Q6",
       "title": "등록 서류",
       "sentences": {
-        "fr_docs=docs_all|fr_translation=tn_none": "서류가 갖춰졌으니 브랜드명과 회사명이 서류마다 같은지만 확인하고 접수하세요.",
-        "fr_docs=docs_most|fr_translation=tn_needed": "남은 서류와 번역이 필요한 서류를 나누어 적고 영사 인증 기간을 먼저 확인하세요.",
-        "fr_docs=docs_half|fr_translation=tn_unsure": "준비한 서류 목록을 만든 뒤 가맹 소개서와 상표 서류가 빠졌는지부터 확인하세요.",
-        "fr_docs=docs_little|fr_translation=tn_needed": "해외 브랜드를 들여오는 등록 기본 서류(신청서, 가맹 소개서, 본사 서류, 상표 서류)를 먼저 받으세요.",
-        "fr_docs=docs_unknown|fr_translation=tn_none": "해외 브랜드인지 베트남 브랜드인지에 따라 등록 여부가 달라지니 그 기준부터 확인하세요."
+        "fr_docs=docs_all|fr_langRoute=lr_self": "서류가 갖춰졌으니 브랜드명과 회사명이 서류마다 같은지만 확인하고 접수하세요.",
+        "fr_docs=docs_most|fr_langRoute=lr_interp": "남은 서류와 번역이 필요한 서류를 나누어 적고 영사 인증 기간을 먼저 확인하세요. 통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.",
+        "fr_docs=docs_half|fr_langRoute=lr_local": "준비한 서류 목록을 만든 뒤 가맹 소개서와 상표 서류가 빠졌는지부터 확인하세요. 직원 설명은 서류 원문과 대조해 확인하세요.",
+        "fr_docs=docs_little|fr_langRoute=lr_machine": "해외 브랜드를 들여오는 등록 기본 서류(신청서, 가맹 소개서, 본사 서류, 상표 서류)를 먼저 받으세요. 인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.",
+        "fr_docs=docs_unknown|fr_langRoute=lr_none": "해외 브랜드인지 베트남 브랜드인지에 따라 등록 여부가 달라지니 그 기준부터 확인하세요. 베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."
       }
     },
     {
@@ -970,13 +997,13 @@ export const FRANCHISE_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 받은 안내",
       "sentences": {
-        "fr_quoteStatus=quote_none|fr_quoteScope=qs_na": "견적을 받기 전에 정부 비용, 서류 준비비, 대행료를 나누어 요청하세요.",
-        "fr_quoteStatus=quote_one|fr_quoteScope=qs_clear": "항목이 나뉘어 있으니 등록 신청, 상표 등록, 계약서 검토가 각각 포함되는지 확인하세요.",
-        "fr_quoteStatus=quote_several|fr_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "fr_quoteStatus=quote_verbal|fr_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "fr_quoteStatus=quote_ad|fr_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "fr_askedWho=ask_agency_kr|fr_answerFeel=ans_unsure_trust": "여러 곳의 설명이 다르면 같은 질문을 글로 정리해 보내고 답을 나란히 비교하세요.",
+        "fr_askedWho=ask_local|fr_answerFeel=ans_not_understood": "현지 업체의 설명은 문서로 받아 통역이나 전문 번역으로 한 번 더 확인하세요.",
+        "fr_askedWho=ask_acquaint|fr_answerFeel=ans_not_fit": "경험담은 시기와 지역, 사업 형태가 같아야 참고가 되니 조건이 같은지 먼저 대조하세요.",
+        "fr_askedWho=ask_authority|fr_answerFeel=ans_not_clear_vn": "기관 안내는 받은 날짜와 담당 부서, 내용을 적어 두고 통역을 거쳐 다시 확인하세요.",
+        "fr_askedWho=ask_nobody|fr_answerFeel=ans_unknown_who": "먼저 지역의 담당 기관이 어디인지 확인하고 물어볼 내용을 정리해 두세요."
       }
     },
     {
@@ -1019,11 +1046,21 @@ export const FRANCHISE_CONTENT_FINAL = {
     "an_online": "담당 기관과 온라인 접수 확인",
     "an_visit": "지방 접수 방식 확인",
     "an_zone": "산업단지 관리 기관 확인",
+    "ans_not_clear_vn": "기관 안내를 베트남어라 이해 못 함",
+    "ans_not_fit": "경험담이 내 경우에 맞는지 모름",
+    "ans_not_understood": "말이 통하지 않아 이해 못 함",
+    "ans_unknown_who": "누구에게 물어볼지 모름",
+    "ans_unsure_trust": "설명을 어디까지 믿을지 모름",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
     "area_ip": "산업단지",
     "area_other_city": "그 밖의 도시",
+    "ask_acquaint": "지인·경험자에게 문의",
+    "ask_agency_kr": "한국인 대행사에 문의",
+    "ask_authority": "담당 기관에 직접 문의",
+    "ask_local": "베트남 현지 업체에 문의",
+    "ask_nobody": "아직 아무에게도 문의 못 함",
     "bz_beauty": "미용·뷰티",
     "bz_education": "교육·학원",
     "bz_food": "음식·음료",
@@ -1034,11 +1071,6 @@ export const FRANCHISE_CONTENT_FINAL = {
     "cm_none": "계약서·매뉴얼 없음",
     "cm_ready": "가맹계약서·운영 매뉴얼 준비",
     "cm_unknown": "필요한 서류를 모름",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "허가 대상 여부 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "허가 일정 걱정",
     "docs_all": "기본 서류 모두 준비",
     "docs_half": "기본 서류 절반 준비",
     "docs_little": "기본 서류 거의 미준비",
@@ -1047,19 +1079,20 @@ export const FRANCHISE_CONTENT_FINAL = {
     "ds_draft": "소개서 초안",
     "ds_none": "소개서 없음",
     "ds_ready": "가맹 소개서 준비",
-    "ds_translating": "본사 소개서 번역 중",
     "ds_unknown": "소개서 필요 여부를 모름",
     "fee_draft": "가맹비 초안",
     "fee_set": "가맹비·로열티 확정",
     "fee_unknown": "가맹비 구조를 모름",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
-    "mg_hq_resident": "본사 직원 상주 관리",
-    "mg_master": "마스터 가맹사가 관리",
-    "mg_partner": "협력 회사가 관리",
-    "mg_remote": "본사 원격 관리",
-    "mg_unsure": "관리 담당 미정",
+    "fl_afraid": "담당 기관 연락이 겁남",
+    "fl_anxious": "진행 상황을 몰라 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란스러움",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "한 번 막혀서 지침",
+    "lr_interp": "통역사·베트남어 하는 지인이 통역",
+    "lr_local": "한국어 하는 베트남 직원이 설명",
+    "lr_machine": "인공지능 번역기로 대략 이해",
+    "lr_none": "베트남어를 몰라 내용을 알 수 없음",
+    "lr_self": "베트남어를 직접 읽음",
     "oh_home_over1y": "본국에서 1년 이상 운영",
     "oh_new": "아직 운영 전",
     "oh_over1y": "운영 1년 이상",
@@ -1080,46 +1113,29 @@ export const FRANCHISE_CONTENT_FINAL = {
     "own_local": "베트남 현지 법인",
     "own_partner": "현지인 명의로 운영",
     "own_undecided": "운영 주체 미정",
-    "qs_clear": "정부 비용과 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
-    "rc_after": "등록 후 모집",
-    "rc_soon": "다음 달 모집 시작",
-    "rc_started": "모집 이미 시작",
-    "rc_unknown": "모집 시기를 모름",
-    "rc_unsure": "모집 시기 미정",
     "reg_company_done": "법인 등록 완료",
     "reg_household_done": "개인사업자 등록 완료",
     "reg_in_progress": "사업자 등록 진행 중",
     "reg_not_started": "사업자 등록 전",
     "reg_unsure": "등록 상태를 모름",
-    "rg_domestic": "국내 브랜드라 등록 불필요로 앎",
     "rg_known": "등록 기관을 알고 있음",
-    "rg_ministry": "산업무역부 등록으로 앎",
     "rg_unknown": "등록 기관을 모름",
-    "rg_unsure": "등록 필요 여부를 모름",
+    "sit_conflicting": "주변 사람들의 말이 서로 다름",
+    "sit_operating": "허가 확인 전에 영업 시작",
+    "sit_rejected": "서류 보완 요구를 받은 적 있음",
+    "sit_search_vn": "베트남어 자료를 이해하지 못함",
+    "sit_unknown_progress": "맡긴 일의 진행 정도를 모름",
     "sn_account": "온라인 접수 계정·서명 준비",
     "sn_compare": "제출 방식 비교",
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "sp_brand_only": "브랜드 사용권만",
-    "sp_full": "교육·운영 지원",
-    "sp_supply": "원재료 공급 지원",
-    "sp_training": "초기 교육만 지원",
-    "sp_unsure": "지원 내용 미정",
     "st_change": "등록 내용 변경",
     "st_inbound": "해외 브랜드를 베트남에 가맹",
     "st_local_brand": "베트남 브랜드 가맹 확장",
     "st_master": "베트남 마스터 가맹 계약",
     "st_unsure": "어떤 절차인지 모름",
-    "sub_agency": "대행사가 제출",
+    "sub_agency": "대행사 제출을 고민 중",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
@@ -1133,10 +1149,7 @@ export const FRANCHISE_CONTENT_FINAL = {
     "tm_home_only": "본국 상표만 등록",
     "tm_none": "상표 등록 안 함",
     "tm_registered_vn": "베트남 상표 등록",
-    "tm_unknown": "상표 등록 상태를 모름",
-    "tn_needed": "번역·인증 필요함",
-    "tn_none": "번역 필요 없음",
-    "tn_unsure": "번역 필요 여부 모름"
+    "tm_unknown": "상표 등록 상태를 모름"
   },
   "connections": [
     {
@@ -1172,7 +1185,7 @@ export const FRANCHISE_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`fr_timeline` ∈ {tl_already, tl_urgent} 또는 `fr_recruit` ∈ {rc_started} 또는 `fr_helpWanted` ∈ {help_full}",
+      "condition": "`fr_timeline` ∈ {tl_already, tl_urgent} 또는 `fr_situation` ∈ {sit_operating}",
       "sentence": "이미 모집을 시작했거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1184,15 +1197,9 @@ export const FRANCHISE_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "fr_recruit",
+          "field": "fr_situation",
           "values": [
-            "rc_started"
-          ]
-        },
-        {
-          "field": "fr_helpWanted",
-          "values": [
-            "help_full"
+            "sit_operating"
           ]
         }
       ]
@@ -1246,12 +1253,6 @@ export const FRANCHISE_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "fr_helpWanted",
-            "values": [
-              "help_full"
-            ]
-          },
-          {
             "field": "fr_timeline",
             "values": [
               "tl_urgent",
@@ -1265,9 +1266,9 @@ export const FRANCHISE_CONTENT_FINAL = {
             ]
           },
           {
-            "field": "fr_recruit",
+            "field": "fr_situation",
             "values": [
-              "rc_started"
+              "sit_operating"
             ]
           }
         ]
@@ -1276,12 +1277,6 @@ export const FRANCHISE_CONTENT_FINAL = {
         "tier": "accompany",
         "label": "작성과 제출 동행",
         "clauses": [
-          {
-            "field": "fr_helpWanted",
-            "values": [
-              "help_accompany"
-            ]
-          },
           {
             "field": "fr_submitter",
             "values": [
@@ -1294,6 +1289,18 @@ export const FRANCHISE_CONTENT_FINAL = {
               "an_office",
               "an_changed",
               "an_zone"
+            ]
+          },
+          {
+            "field": "fr_situation",
+            "values": [
+              "sit_rejected"
+            ]
+          },
+          {
+            "field": "fr_langRoute",
+            "values": [
+              "lr_none"
             ]
           }
         ]

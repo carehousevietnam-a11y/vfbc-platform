@@ -6,12 +6,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "의료기기를 어떤 방식으로 다루시고, 그 제품은 어느 위험 등급에 속하나요?",
+      "prompt": "의료기기를 어떤 방식으로 다루시고, 그 제품은 어느 정도 위험한 제품인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "의료기기를 수입해서 팔려고 합니다.",
-          "description": "거즈나 붕대처럼 위험이 가장 낮은 소모품이 중심입니다.",
+          "label": "의료기기를 수입해서 팔려는데",
+          "description": "거즈나 붕대처럼 위험이 가장 낮은 소모품이 중심인데도 등록이 필요한지 모르겠습니다.",
           "fields": {
             "md_stage": "st_import",
             "md_class": "cl_a"
@@ -19,8 +19,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남에서 만든 의료기기를 팔려고 합니다.",
-          "description": "혈압계처럼 위험이 낮은 일반 기기가 중심입니다.",
+          "label": "베트남에서 만든 의료기기를 팔려는데",
+          "description": "혈압계처럼 위험이 낮은 일반 기기가 중심인데 어떤 절차를 밟아야 하는지 감이 안 잡힙니다.",
           "fields": {
             "md_stage": "st_local_make",
             "md_class": "cl_b"
@@ -28,8 +28,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다른 회사 제품을 유통만 하려고 합니다.",
-          "description": "초음파 진단기처럼 위험이 중간 이상인 장비를 다룹니다.",
+          "label": "다른 회사 제품을 유통만 하려는데",
+          "description": "초음파 진단기처럼 위험이 중간 이상인 장비를 다뤄서 절차가 더 복잡할까 걱정입니다.",
           "fields": {
             "md_stage": "st_trade",
             "md_class": "cl_c"
@@ -37,8 +37,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "이미 등록한 내용을 바꿔야 합니다.",
-          "description": "임플란트처럼 몸속에 넣는 위험이 가장 높은 등급의 제품입니다.",
+          "label": "이미 등록한 내용을 바꿔야 하는데",
+          "description": "임플란트처럼 몸속에 넣는 가장 위험한 등급의 제품이라 어떻게 바꿔야 하는지 모르겠습니다.",
           "fields": {
             "md_stage": "st_change",
             "md_class": "cl_d"
@@ -46,7 +46,7 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 절차가 필요한지 모르겠습니다.",
+          "label": "어떤 절차가 필요한지조차 모르겠습니다.",
           "description": "우리 제품이 어느 위험 등급인지도 확인하지 못했습니다.",
           "fields": {
             "md_stage": "st_unsure",
@@ -64,12 +64,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 어디까지 진행되었고, 누구 이름으로 의료기기 절차를 진행하실 예정인가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 의료기기 등록 번호를 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
+          "label": "법인 등록은 끝났습니다.",
+          "description": "투자한 우리 법인 이름으로 의료기기 등록 번호를 받으려고 합니다.",
           "fields": {
             "md_registration": "reg_company_done",
             "md_owner": "own_fdi"
@@ -77,8 +77,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
+          "label": "개인사업자로 등록했습니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 의료기기 등록 번호를 받으려고 합니다.",
           "fields": {
             "md_registration": "reg_household_done",
             "md_owner": "own_household"
@@ -86,8 +86,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
+          "label": "등록 절차가 아직 진행 중입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 의료기기 등록 번호를 받을 예정입니다.",
           "fields": {
             "md_registration": "reg_in_progress",
             "md_owner": "own_local"
@@ -95,8 +95,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
+          "label": "등록은 아직 시작도 못 했습니다.",
+          "description": "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.",
           "fields": {
             "md_registration": "reg_not_started",
             "md_owner": "own_partner"
@@ -104,8 +104,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "등록 상태를 정확히 모르겠습니다.",
-          "description": "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.",
+          "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
+          "description": "누구 이름으로 의료기기 등록 번호를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "md_registration": "reg_unsure",
             "md_owner": "own_undecided"
@@ -122,12 +122,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "제품을 보관할 창고는 마련했고, 보관 조건은 어떻게 관리하고 계신가요?",
+      "prompt": "제품을 보관할 창고는 마련하셨고, 보관할 때 온도 같은 조건은 어떻게 관리하고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "자체 보관 창고를 가지고 있습니다.",
-          "description": "온도와 습도를 매일 기록하며 관리하고 있습니다.",
+          "label": "자체 보관 창고가 있습니다.",
+          "description": "온도와 습도를 매일 기록하며 관리하고 있는데 이 기록을 등록 때 내야 하는지 궁금합니다.",
           "fields": {
             "md_warehouse": "wh_own",
             "md_storage": "wc_controlled"
@@ -136,7 +136,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "물류 회사 창고에 맡기고 있습니다.",
-          "description": "일반 상온 창고에서 다른 화물과 나누어 보관합니다.",
+          "description": "일반 상온 창고에서 다른 화물과 나누어 보관하는데 의료기기 기준에 맞는지 모르겠습니다.",
           "fields": {
             "md_warehouse": "wh_3pl",
             "md_storage": "wc_basic"
@@ -163,7 +163,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "창고가 꼭 필요한지 모르겠습니다.",
-          "description": "보관 조건을 따로 관리하지 않고 일반적으로 두고 있습니다.",
+          "description": "지금은 보관 조건을 따로 관리하지 않고 일반적으로 두고 있습니다.",
           "fields": {
             "md_warehouse": "wh_unknown",
             "md_storage": "wc_basic"
@@ -180,7 +180,7 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "제조사의 품질 서류는 받았고, 판매를 맡긴다는 위임장도 받으셨나요?",
+      "prompt": "제조사의 품질 서류는 받으셨고, 판매를 맡긴다는 위임장도 받으셨나요?",
       "choices": [
         {
           "value": "o1",
@@ -193,7 +193,7 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "일부 품질 서류만 가지고 있습니다.",
+          "label": "품질 서류를 일부만 가지고 있습니다.",
           "description": "제조사에 위임장을 보내 달라고 요청해 둔 상태입니다.",
           "fields": {
             "md_qualityDocs": "qd_partial",
@@ -238,57 +238,57 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q5",
       "route": "R",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색도 해 봤는데 베트남어 자료라 어떤 말이 맞는지 모르겠습니다.",
           "fields": {
-            "md_mainConcern": "concern_cost",
-            "md_helpWanted": "help_guide"
+            "md_feeling": "fl_lost",
+            "md_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "베트남 지인이나 직원이 알아서 한다는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "md_mainConcern": "concern_docs",
-            "md_helpWanted": "help_guide"
+            "md_feeling": "fl_anxious",
+            "md_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "허가가 언제 나올지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "제조사, 업체, 지인이 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "md_mainConcern": "concern_time",
-            "md_helpWanted": "help_accompany"
+            "md_feeling": "fl_confused",
+            "md_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "우리 제품이 의료기기에 해당하는지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "담당 기관에서 연락이 올까 겁이 납니다.",
+          "description": "판매를 이미 시작했는데 등록이 아직 확인되지 않았습니다.",
           "fields": {
-            "md_mainConcern": "concern_eligibility",
-            "md_helpWanted": "help_full"
+            "md_feeling": "fl_afraid",
+            "md_situation": "sit_operating"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 막혀서 지쳤습니다.",
+          "description": "서류를 냈다가 보완하라고 돌려받은 적이 있습니다.",
           "fields": {
-            "md_mainConcern": "concern_quote",
-            "md_helpWanted": "help_accompany"
+            "md_feeling": "fl_tired",
+            "md_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "md_mainConcern": "direct_input",
-        "md_helpWanted": "direct_input_detail"
+        "md_feeling": "direct_input",
+        "md_situation": "direct_input_detail"
       }
     },
     {
@@ -296,57 +296,57 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q6",
       "route": "R",
       "phase": 2,
-      "prompt": "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?",
+      "prompt": "허가 서류는 얼마나 모으셨고, 그 서류에 뭐라고 적혀 있는지는 어떻게 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "등급 분류 결과, 품질 인증서, 위임장, 기술 자료를 모두 준비했습니다.",
-          "description": "모든 서류의 베트남어 번역도 이미 끝냈습니다.",
+          "label": "서류는 다 모았습니다.",
+          "description": "베트남어를 직접 읽을 수 있어서 내용도 제가 확인했습니다.",
           "fields": {
             "md_docs": "docs_all",
-            "md_translation": "tn_none"
+            "md_langRoute": "lr_self"
           }
         },
         {
           "value": "o2",
-          "label": "대부분 준비했고 몇 가지만 남았습니다.",
-          "description": "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.",
+          "label": "거의 모았고 몇 개 남았습니다.",
+          "description": "베트남어를 하는 지인이나 통역해 주는 분이 서류 내용을 읽어 줍니다.",
           "fields": {
             "md_docs": "docs_most",
-            "md_translation": "tn_needed"
+            "md_langRoute": "lr_interp"
           }
         },
         {
           "value": "o3",
-          "label": "절반쯤 준비했습니다.",
-          "description": "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.",
+          "label": "절반쯤 모았습니다.",
+          "description": "한국어를 하는 베트남 직원이 설명해 주는데 서류 원문과 맞는지는 확인하지 못했습니다.",
           "fields": {
             "md_docs": "docs_half",
-            "md_translation": "tn_unsure"
+            "md_langRoute": "lr_local"
           }
         },
         {
           "value": "o4",
-          "label": "거의 준비하지 못했습니다.",
-          "description": "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.",
+          "label": "거의 모으지 못했습니다.",
+          "description": "번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 맞는지 모르겠습니다.",
           "fields": {
             "md_docs": "docs_little",
-            "md_translation": "tn_needed"
+            "md_langRoute": "lr_machine"
           }
         },
         {
           "value": "o5",
-          "label": "무엇이 필요한지 아직 모릅니다.",
-          "description": "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.",
+          "label": "뭐가 필요한지도 모릅니다.",
+          "description": "베트남어를 전혀 몰라서 서류에 뭐가 적혀 있는지 알 수 없고 물어볼 사람도 없습니다.",
           "fields": {
             "md_docs": "docs_unknown",
-            "md_translation": "tn_none"
+            "md_langRoute": "lr_none"
           }
         }
       ],
       "directFields": {
         "md_docs": "direct_input",
-        "md_translation": "direct_input_detail"
+        "md_langRoute": "direct_input_detail"
       }
     },
     {
@@ -354,12 +354,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "수입 제품의 자유판매증명서는 받았고, 베트남 안의 보증·수리 거점은 있나요?",
+      "prompt": "수입 제품이면 자유판매증명서가 필요하다는데, 증명서와 베트남 안의 보증·수리 거점은 어떻게 되어 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "자유판매증명서를 받아 영사 인증까지 마쳤습니다.",
-          "description": "베트남 안에 제품 보증과 수리를 맡을 거점이 있습니다.",
+          "label": "증명서를 받아 영사 인증까지 마쳤습니다.",
+          "description": "베트남 안에 제품 보증과 수리를 맡을 거점도 있습니다.",
           "fields": {
             "md_cfs": "cfs_legalized",
             "md_warranty": "ws_vn"
@@ -376,8 +376,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "자유판매증명서를 요청해 두었습니다.",
-          "description": "베트남 안에 보증이나 수리 거점이 아직 없습니다.",
+          "label": "증명서를 제조사에 요청해 두었습니다.",
+          "description": "베트남 안에 보증이나 수리 거점이 아직 없어서 걱정입니다.",
           "fields": {
             "md_cfs": "cfs_requested",
             "md_warranty": "ws_none"
@@ -385,8 +385,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "자유판매증명서가 없습니다.",
-          "description": "한 번 쓰고 버리는 제품이라 보증이 필요 없다고 들었습니다.",
+          "label": "증명서가 없습니다.",
+          "description": "한 번 쓰고 버리는 제품이라 보증이 필요 없다고 들었는데 맞는지 모르겠습니다.",
           "fields": {
             "md_cfs": "cfs_none",
             "md_warranty": "ws_single_use"
@@ -412,7 +412,7 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "제품은 주로 어디에 공급하실 예정이고, 사용자 교육이 필요한 제품인가요?",
+      "prompt": "제품은 주로 어디에 공급하실 예정이고, 쓰는 사람에게 사용법을 따로 가르쳐야 하는 제품인가요?",
       "choices": [
         {
           "value": "o1",
@@ -426,7 +426,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "의원이나 치과에 공급하려고 합니다.",
-          "description": "사용법이 간단해서 따로 교육은 필요 없습니다.",
+          "description": "사용법이 간단해서 따로 교육은 필요 없다고 생각합니다.",
           "fields": {
             "md_customer": "cu_clinic",
             "md_training": "tn_simple"
@@ -470,12 +470,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q9",
       "route": "R",
       "phase": 2,
-      "prompt": "허가는 언제까지 필요하고, 실제 영업이나 판매는 언제 시작할 예정인가요?",
+      "prompt": "허가는 언제까지 받아야 마음이 놓이고, 판매는 언제쯤 시작하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 달 안에 허가가 필요합니다.",
-          "description": "영업 시작일이 이미 정해져 있어서 미루기 어렵습니다.",
+          "label": "한 달 안에는 받아야 합니다.",
+          "description": "판매 시작 날짜를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.",
           "fields": {
             "md_timeline": "tl_urgent",
             "md_openPlan": "op_date"
@@ -484,7 +484,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "두세 달 안에 받으면 됩니다.",
-          "description": "시설 공사를 모두 마친 뒤에 영업을 시작할 계획입니다.",
+          "description": "창고와 제품 준비가 끝나는 날에 맞춰 판매를 시작하려고 합니다.",
           "fields": {
             "md_timeline": "tl_2_3m",
             "md_openPlan": "op_after_fitout"
@@ -492,8 +492,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "급하지는 않습니다.",
-          "description": "허가가 나온 것을 직접 확인한 뒤에 영업을 시작하려고 합니다.",
+          "label": "급하진 않습니다.",
+          "description": "서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 판매를 시작하고 싶습니다.",
           "fields": {
             "md_timeline": "tl_flexible",
             "md_openPlan": "op_after_permit"
@@ -501,8 +501,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "필요한 시점을 아직 정하지 못했습니다.",
-          "description": "영업이나 판매를 언제 시작할지도 정해지지 않았습니다.",
+          "label": "언제까지인지 모르겠습니다.",
+          "description": "허가가 언제까지 필요한지, 판매를 언제 시작할지도 아직 정하지 못했습니다.",
           "fields": {
             "md_timeline": "tl_unsure",
             "md_openPlan": "op_unsure"
@@ -510,8 +510,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "이미 영업을 하고 있습니다.",
-          "description": "허가를 받지 못한 채 먼저 운영을 시작한 상태입니다.",
+          "label": "이미 판매를 하고 있습니다.",
+          "description": "허가를 못 받은 채 먼저 시작했는데 문제가 되지 않을지 불안합니다.",
           "fields": {
             "md_timeline": "tl_already",
             "md_openPlan": "op_running"
@@ -528,57 +528,57 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q10",
       "route": "R",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 비용과 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일로 누구에게 물어봤고, 그 대답은 어땠나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "한국 사람이 하는 대행사에 물어봤습니다.",
+          "description": "설명은 들었는데 어디까지 믿어도 되는지 판단이 안 섭니다.",
           "fields": {
-            "md_quoteStatus": "quote_none",
-            "md_quoteScope": "qs_na"
+            "md_askedWho": "ask_agency_kr",
+            "md_answerFeel": "ans_unsure_trust"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 비용과 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "베트남 현지 업체에 물어봤습니다.",
+          "description": "말이 잘 통하지 않아서 제대로 이해했는지 모르겠습니다.",
           "fields": {
-            "md_quoteStatus": "quote_one",
-            "md_quoteScope": "qs_clear"
+            "md_askedWho": "ask_local",
+            "md_answerFeel": "ans_not_understood"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "지인이나 먼저 해 본 분께 물어봤습니다.",
+          "description": "경험담은 들었는데 제 경우에도 맞는지 모르겠습니다.",
           "fields": {
-            "md_quoteStatus": "quote_several",
-            "md_quoteScope": "qs_mixed"
+            "md_askedWho": "ask_acquaint",
+            "md_answerFeel": "ans_not_fit"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "담당 기관에 직접 문의해 봤습니다.",
+          "description": "안내는 받았지만 베트남어라 확실히 이해하지 못했습니다.",
           "fields": {
-            "md_quoteStatus": "quote_verbal",
-            "md_quoteScope": "qs_unknown"
+            "md_askedWho": "ask_authority",
+            "md_answerFeel": "ans_not_clear_vn"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "아직 아무에게도 못 물어봤습니다.",
+          "description": "누구에게 물어봐야 하는지, 어디에 물어봐야 하는지부터 모르겠습니다.",
           "fields": {
-            "md_quoteStatus": "quote_ad",
-            "md_quoteScope": "qs_unknown"
+            "md_askedWho": "ask_nobody",
+            "md_answerFeel": "ans_unknown_who"
           }
         }
       ],
       "directFields": {
-        "md_quoteStatus": "direct_input",
-        "md_quoteScope": "direct_input_detail"
+        "md_askedWho": "direct_input",
+        "md_answerFeel": "direct_input_detail"
       }
     },
     {
@@ -586,12 +586,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
+      "prompt": "서류를 담당 기관에 내는 일은 누가 하게 될 것 같고, 그때 가장 걱정되는 건 뭔가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
-          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
+          "label": "제가 직접 낼 생각입니다.",
+          "description": "온라인 접수는 어떻게 하고 서명은 어떻게 하는지 모르겠습니다.",
           "fields": {
             "md_submitter": "sub_self",
             "md_submitNeed": "sn_account"
@@ -599,8 +599,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
-          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
+          "label": "베트남 직원이 대신 내기로 했습니다.",
+          "description": "위임장은 어떻게 하고, 낸 뒤 연락은 누가 받는지 걱정됩니다.",
           "fields": {
             "md_submitter": "sub_staff",
             "md_submitNeed": "sn_proxy"
@@ -608,8 +608,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "대행사에 서류 제출을 맡기려고 합니다.",
-          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
+          "label": "대행사에 맡길지 고민 중입니다.",
+          "description": "어디까지 맡기는 건지, 서류 원본은 누가 보관하는지 불안합니다.",
           "fields": {
             "md_submitter": "sub_agency",
             "md_submitNeed": "sn_scope"
@@ -617,8 +617,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "누가 제출할지 아직 정하지 못했습니다.",
-          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
+          "label": "누가 낼지 아직 못 정했습니다.",
+          "description": "직접 하는 것과 직원, 대행사 중 어느 쪽이 나은지 모르겠습니다.",
           "fields": {
             "md_submitter": "sub_undecided",
             "md_submitNeed": "sn_compare"
@@ -626,8 +626,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
-          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
+          "label": "직접 접수하러 가야 하는데 베트남어가 걱정입니다.",
+          "description": "담당 기관 직원이 뭐라고 물어볼지, 통역이 필요한지 막막합니다.",
           "fields": {
             "md_submitter": "sub_self_lang",
             "md_submitNeed": "sn_interpreter"
@@ -644,7 +644,7 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "등록할 제품 범위는 어디까지이고, 그 제품에서 사고가 나면 누가 어떻게 보고하나요?",
+      "prompt": "등록할 제품은 어디까지이고, 그 제품에서 사고가 나면 누가 어떻게 보고하는지 정해 두셨나요?",
       "choices": [
         {
           "value": "o1",
@@ -676,7 +676,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "부속품까지 함께 등록해야 합니다.",
-          "description": "부속품을 포함한 제품의 사고 보고 담당자를 곧 정할 예정입니다.",
+          "description": "부속품을 포함한 제품의 사고 보고 담당자는 곧 정할 예정입니다.",
           "fields": {
             "md_models": "mo_accessories",
             "md_incident": "ir_planned"
@@ -685,7 +685,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "몇 개를 등록할지 아직 모르겠습니다.",
-          "description": "등록 후 사고 보고가 의무인지도 확인하지 못했습니다.",
+          "description": "등록한 뒤 사고 보고가 의무인지도 확인하지 못했습니다.",
           "fields": {
             "md_models": "mo_unsure",
             "md_incident": "ir_unknown"
@@ -702,12 +702,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
+      "prompt": "사업장이 있는 곳은 어디이고, 서류를 어느 기관에 내야 하는지는 알아보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
+          "label": "하노이입니다.",
+          "description": "어느 기관에 내야 하는지, 온라인으로도 낼 수 있는지 알아보고 있습니다.",
           "fields": {
             "md_area": "area_hanoi",
             "md_agencyNeed": "an_online"
@@ -715,8 +715,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "호치민에 있습니다.",
-          "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
+          "label": "호치민입니다.",
+          "description": "어느 기관에 내야 하는지 몰라서 그것부터 알고 싶고 온라인 접수가 되는지도 궁금합니다.",
           "fields": {
             "md_area": "area_hcm",
             "md_agencyNeed": "an_office"
@@ -724,8 +724,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
+          "label": "다낭입니다.",
+          "description": "최근 기관이 합쳐졌다는 말을 들었는데 지금은 어디에 내야 하는지 모르겠습니다.",
           "fields": {
             "md_area": "area_danang",
             "md_agencyNeed": "an_changed"
@@ -733,8 +733,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "그 밖의 도시에 있습니다.",
-          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
+          "label": "그 밖의 도시입니다.",
+          "description": "지방은 방식이 다르다고 해서 직접 가서 내야 하는지 궁금합니다.",
           "fields": {
             "md_area": "area_other_city",
             "md_agencyNeed": "an_visit"
@@ -742,8 +742,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
+          "label": "산업단지 안입니다.",
+          "description": "단지 관리 기관에 내는지 아니면 다른 곳에 내는지 아는 사람이 없어서 모르겠습니다.",
           "fields": {
             "md_area": "area_ip",
             "md_agencyNeed": "an_zone"
@@ -805,25 +805,25 @@ export const MEDICAL_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "md_mainConcern=concern_cost|md_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "의료기기 비용은 등급 분류, 신고·등록, 해외 서류 인증·번역, 대행료로 나뉩니다. 위험 등급에 따라 절차가 달라지니 등급 분류부터 받으면 비용을 정할 수 있습니다."
-      },
-      "md_mainConcern=concern_docs|md_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "md_feeling=fl_lost|md_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "의료기기는 위험 등급에 따라 낮은 등급은 기준 적용 신고, 높은 등급은 판매 등록이 필요하며, 품질 인증서, 위임장, 기술 자료, 수입 제품의 자유판매증명서가 기본입니다."
       },
-      "md_mainConcern=concern_time|md_helpWanted=help_accompany": {
-        "headline": "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
+      "md_feeling=fl_anxious|md_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
         "body": "낮은 등급 신고는 비교적 빠르지만 높은 등급 등록은 심사에 시간이 걸리고, 해외 서류 인증이 일정에 큰 영향을 줍니다. 등급과 인증부터 시작하세요."
       },
-      "md_mainConcern=concern_eligibility|md_helpWanted=help_full": {
-        "headline": "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
+      "md_feeling=fl_confused|md_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
         "body": "의료기기 해당 여부와 등급은 제품 용도와 위험도에 따라 정해집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
       },
-      "md_mainConcern=concern_quote|md_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 등급 분류, 신고·등록, 서류 인증, 대행료가 각각 포함되는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 보입니다."
+      "md_feeling=fl_afraid|md_situation=sit_operating": {
+        "headline": "허가 확인 전에 시작해 불안한 상황입니다",
+        "body": "의료기기 신고·등록 과정에서는 담당 기관이 베트남어로 질문하고 보완을 요구할 수 있어, 내용을 이해하지 못한 채 답하면 처리가 길어질 수 있습니다. 접수 전에 통역과 전문가가 서류를 함께 점검하면 보완 요구를 줄일 수 있습니다."
+      },
+      "md_feeling=fl_tired|md_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "의료기기 신고·등록 서류는 이름·번호·숫자가 서로 다르거나 빠진 서류가 있으면 접수가 보류되거나 보완 요구를 받을 수 있습니다. 접수 전에 전문가가 서류를 점검하고 제출하는 날 동행하면 되돌아오는 횟수를 줄일 수 있습니다."
       }
     },
     "risks": {
@@ -861,6 +861,33 @@ export const MEDICAL_CONTENT_FINAL = {
               "field": "md_timeline",
               "values": [
                 "tl_already"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "language",
+          "sentence": "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다",
+          "clauses": [
+            {
+              "field": "md_langRoute",
+              "values": [
+                "lr_local",
+                "lr_machine",
+                "lr_none"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "answer",
+          "sentence": "받은 안내를 정확히 이해하지 못한 채 진행하면 필요한 절차를 놓칠 수 있어 안내 내용을 문서로 다시 확인해야 합니다",
+          "clauses": [
+            {
+              "field": "md_answerFeel",
+              "values": [
+                "ans_not_understood",
+                "ans_not_clear_vn"
               ]
             }
           ]
@@ -928,11 +955,11 @@ export const MEDICAL_CONTENT_FINAL = {
       "questionCode": "Q6",
       "title": "신청 서류",
       "sentences": {
-        "md_docs=docs_all|md_translation=tn_none": "서류가 갖춰졌으니 제품명과 모델명이 서류마다 같은지만 확인하고 접수하세요.",
-        "md_docs=docs_most|md_translation=tn_needed": "남은 서류와 번역이 필요한 서류를 나누어 적고 영사 인증 기간을 먼저 확인하세요.",
-        "md_docs=docs_half|md_translation=tn_unsure": "준비한 서류 목록을 만든 뒤 등급 분류 결과와 기술 자료가 빠졌는지부터 확인하세요.",
-        "md_docs=docs_little|md_translation=tn_needed": "위험 등급에 따라 신고와 등록 절차가 다르니 등급 분류부터 받으세요.",
-        "md_docs=docs_unknown|md_translation=tn_none": "제품의 위험 등급을 먼저 정하면 필요한 서류와 절차가 정해집니다."
+        "md_docs=docs_all|md_langRoute=lr_self": "서류가 갖춰졌으니 제품명과 모델명이 서류마다 같은지만 확인하고 접수하세요.",
+        "md_docs=docs_most|md_langRoute=lr_interp": "남은 서류와 번역이 필요한 서류를 나누어 적고 영사 인증 기간을 먼저 확인하세요. 통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.",
+        "md_docs=docs_half|md_langRoute=lr_local": "준비한 서류 목록을 만든 뒤 등급 분류 결과와 기술 자료가 빠졌는지부터 확인하세요. 직원 설명은 서류 원문과 대조해 확인하세요.",
+        "md_docs=docs_little|md_langRoute=lr_machine": "위험 등급에 따라 신고와 등록 절차가 다르니 등급 분류부터 받으세요. 인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.",
+        "md_docs=docs_unknown|md_langRoute=lr_none": "제품의 위험 등급을 먼저 정하면 필요한 서류와 절차가 정해집니다. 베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."
       }
     },
     {
@@ -970,13 +997,13 @@ export const MEDICAL_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 받은 안내",
       "sentences": {
-        "md_quoteStatus=quote_none|md_quoteScope=qs_na": "견적을 받기 전에 정부 비용, 서류 준비비, 대행료를 나누어 요청하세요.",
-        "md_quoteStatus=quote_one|md_quoteScope=qs_clear": "항목이 나뉘어 있으니 등급 분류, 신고·등록, 서류 인증이 각각 포함되는지 확인하세요.",
-        "md_quoteStatus=quote_several|md_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "md_quoteStatus=quote_verbal|md_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "md_quoteStatus=quote_ad|md_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "md_askedWho=ask_agency_kr|md_answerFeel=ans_unsure_trust": "여러 곳의 설명이 다르면 같은 질문을 글로 정리해 보내고 답을 나란히 비교하세요.",
+        "md_askedWho=ask_local|md_answerFeel=ans_not_understood": "현지 업체의 설명은 문서로 받아 통역이나 전문 번역으로 한 번 더 확인하세요.",
+        "md_askedWho=ask_acquaint|md_answerFeel=ans_not_fit": "경험담은 시기와 지역, 사업 형태가 같아야 참고가 되니 조건이 같은지 먼저 대조하세요.",
+        "md_askedWho=ask_authority|md_answerFeel=ans_not_clear_vn": "기관 안내는 받은 날짜와 담당 부서, 내용을 적어 두고 통역을 거쳐 다시 확인하세요.",
+        "md_askedWho=ask_nobody|md_answerFeel=ans_unknown_who": "먼저 지역의 담당 기관이 어디인지 확인하고 물어볼 내용을 정리해 두세요."
       }
     },
     {
@@ -1019,11 +1046,21 @@ export const MEDICAL_CONTENT_FINAL = {
     "an_online": "담당 기관과 온라인 접수 확인",
     "an_visit": "지방 접수 방식 확인",
     "an_zone": "산업단지 관리 기관 확인",
+    "ans_not_clear_vn": "기관 안내를 베트남어라 이해 못 함",
+    "ans_not_fit": "경험담이 내 경우에 맞는지 모름",
+    "ans_not_understood": "말이 통하지 않아 이해 못 함",
+    "ans_unknown_who": "누구에게 물어볼지 모름",
+    "ans_unsure_trust": "설명을 어디까지 믿을지 모름",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
     "area_ip": "산업단지",
     "area_other_city": "그 밖의 도시",
+    "ask_acquaint": "지인·경험자에게 문의",
+    "ask_agency_kr": "한국인 대행사에 문의",
+    "ask_authority": "담당 기관에 직접 문의",
+    "ask_local": "베트남 현지 업체에 문의",
+    "ask_nobody": "아직 아무에게도 문의 못 함",
     "cfs_issued": "증명서 발급, 인증 전",
     "cfs_legalized": "자유판매증명서 인증 완료",
     "cfs_none": "증명서 없음",
@@ -1034,11 +1071,6 @@ export const MEDICAL_CONTENT_FINAL = {
     "cl_c": "중간 이상 위험 등급(다)",
     "cl_d": "가장 높은 위험 등급(라)",
     "cl_unknown": "등급을 모름",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "허가 대상 여부 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "허가 일정 걱정",
     "cu_clinic": "의원·치과 공급",
     "cu_home": "개인 고객 판매",
     "cu_hospital": "병원 공급",
@@ -1049,23 +1081,21 @@ export const MEDICAL_CONTENT_FINAL = {
     "docs_little": "기본 서류 거의 미준비",
     "docs_most": "기본 서류 대부분 준비",
     "docs_unknown": "필요 서류를 모름",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
-    "ir_maker": "제조사 방식으로 보고",
-    "ir_planned": "보고 담당자 지정 예정",
-    "ir_ready": "사고 보고 담당자 지정",
-    "ir_unknown": "사고 보고 방법을 모름",
+    "fl_afraid": "담당 기관 연락이 겁남",
+    "fl_anxious": "진행 상황을 몰라 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란스러움",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "한 번 막혀서 지침",
+    "lr_interp": "통역사·베트남어 하는 지인이 통역",
+    "lr_local": "한국어 하는 베트남 직원이 설명",
+    "lr_machine": "인공지능 번역기로 대략 이해",
+    "lr_none": "베트남어를 몰라 내용을 알 수 없음",
+    "lr_self": "베트남어를 직접 읽음",
     "ma_loa": "제조사 위임장 보유",
     "ma_none": "위임장 없음",
     "ma_own": "자사 제품",
     "ma_pending": "위임장 요청 중",
     "ma_unknown": "위임장 필요 여부를 모름",
-    "mo_accessories": "부속품 포함",
-    "mo_family": "제품군 전체",
-    "mo_few": "모델 한두 개",
-    "mo_several": "모델 여러 개",
-    "mo_unsure": "등록 모델 수 미정",
     "op_after_fitout": "공사 후 영업",
     "op_after_permit": "허가 후 영업",
     "op_date": "영업 시작일 정해짐",
@@ -1081,20 +1111,16 @@ export const MEDICAL_CONTENT_FINAL = {
     "qd_partial": "일부 품질 서류만 있음",
     "qd_requested": "제조사에 요청 중",
     "qd_unknown": "필요한 서류를 모름",
-    "qs_clear": "정부 비용과 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "reg_company_done": "법인 등록 완료",
     "reg_household_done": "개인사업자 등록 완료",
     "reg_in_progress": "사업자 등록 진행 중",
     "reg_not_started": "사업자 등록 전",
     "reg_unsure": "등록 상태를 모름",
+    "sit_conflicting": "주변 사람들의 말이 서로 다름",
+    "sit_operating": "허가 확인 전에 영업 시작",
+    "sit_rejected": "서류 보완 요구를 받은 적 있음",
+    "sit_search_vn": "베트남어 자료를 이해하지 못함",
+    "sit_unknown_progress": "맡긴 일의 진행 정도를 모름",
     "sn_account": "온라인 접수 계정·서명 준비",
     "sn_compare": "제출 방식 비교",
     "sn_interpreter": "통역 필요 범위 확인",
@@ -1105,7 +1131,7 @@ export const MEDICAL_CONTENT_FINAL = {
     "st_local_make": "베트남 생산 의료기기",
     "st_trade": "의료기기 유통만",
     "st_unsure": "어떤 절차인지 모름",
-    "sub_agency": "대행사가 제출",
+    "sub_agency": "대행사 제출을 고민 중",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
@@ -1115,12 +1141,9 @@ export const MEDICAL_CONTENT_FINAL = {
     "tl_flexible": "급하지 않음",
     "tl_unsure": "필요 시점 미정",
     "tl_urgent": "한 달 안에 허가 필요",
-    "tn_needed": "번역·인증 필요함",
     "tn_needed_tech": "기술 교육 필요",
-    "tn_none": "번역 필요 없음",
     "tn_simple": "사용법이 간단함",
     "tn_unknown": "교육 필요 여부를 모름",
-    "tn_unsure": "번역 필요 여부 모름",
     "wc_basic": "일반 보관",
     "wc_cold": "냉장 보관 필요",
     "wc_controlled": "온도·습도 관리",
@@ -1155,7 +1178,7 @@ export const MEDICAL_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`md_timeline` ∈ {tl_already, tl_urgent} 또는 `md_class` ∈ {cl_d} 또는 `md_helpWanted` ∈ {help_full}",
+      "condition": "`md_timeline` ∈ {tl_already, tl_urgent} 또는 `md_situation` ∈ {sit_operating}",
       "sentence": "높은 등급 제품이거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1167,15 +1190,9 @@ export const MEDICAL_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "md_class",
+          "field": "md_situation",
           "values": [
-            "cl_d"
-          ]
-        },
-        {
-          "field": "md_helpWanted",
-          "values": [
-            "help_full"
+            "sit_operating"
           ]
         }
       ]
@@ -1231,12 +1248,6 @@ export const MEDICAL_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "md_helpWanted",
-            "values": [
-              "help_full"
-            ]
-          },
-          {
             "field": "md_timeline",
             "values": [
               "tl_urgent",
@@ -1250,9 +1261,9 @@ export const MEDICAL_CONTENT_FINAL = {
             ]
           },
           {
-            "field": "md_class",
+            "field": "md_situation",
             "values": [
-              "cl_d"
+              "sit_operating"
             ]
           }
         ]
@@ -1261,12 +1272,6 @@ export const MEDICAL_CONTENT_FINAL = {
         "tier": "accompany",
         "label": "작성과 제출 동행",
         "clauses": [
-          {
-            "field": "md_helpWanted",
-            "values": [
-              "help_accompany"
-            ]
-          },
           {
             "field": "md_submitter",
             "values": [
@@ -1279,6 +1284,18 @@ export const MEDICAL_CONTENT_FINAL = {
               "an_office",
               "an_changed",
               "an_zone"
+            ]
+          },
+          {
+            "field": "md_situation",
+            "values": [
+              "sit_rejected"
+            ]
+          },
+          {
+            "field": "md_langRoute",
+            "values": [
+              "lr_none"
             ]
           }
         ]

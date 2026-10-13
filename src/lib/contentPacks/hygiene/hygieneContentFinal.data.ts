@@ -6,12 +6,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "어떤 식품을 만들거나 다루시고, 그 식품의 위생 허가에서 가장 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "어떤 식품을 만드시거나 다루시는지, 그리고 허가에서 가장 막막한 부분은 어디인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "소스나 반찬 같은 가공식품을 직접 만듭니다.",
-          "description": "가공식품 생산 시설로 허가를 받으려면 어떤 서류가 필요한지 확인하고 싶습니다.",
+          "label": "소스나 반찬 같은 가공식품을 직접 만들려는데",
+          "description": "시설 허가를 받으려면 서류를 뭘 준비해야 하는지 감이 안 잡힙니다.",
           "fields": {
             "hy_product": "pt_processed",
             "hy_productFocus": "pf_processed_docs"
@@ -19,8 +19,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "빵이나 과자 같은 제과·제빵 제품을 만듭니다.",
-          "description": "제과·제빵 시설도 가공식품과 같은 허가를 받는지 따로 보는 조건이 있는지 알고 싶습니다.",
+          "label": "빵이나 과자를 만들어 팔려는데",
+          "description": "식당 허가와 같은 건지, 제과·제빵만 따로 보는 조건이 있는지 모르겠습니다.",
           "fields": {
             "hy_product": "pt_bakery",
             "hy_productFocus": "pf_bakery_cond"
@@ -28,8 +28,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "음료나 주류를 병에 담아 생산합니다.",
-          "description": "음료와 주류는 허가를 내는 기관이나 받아야 하는 검사가 다른지 확인하고 싶습니다.",
+          "label": "음료나 술을 병에 담아 팔려는데",
+          "description": "음료와 술은 허가 내는 곳이나 받아야 하는 검사가 다르다는 말을 들어서 헷갈립니다.",
           "fields": {
             "hy_product": "pt_beverage",
             "hy_productFocus": "pf_beverage_agency"
@@ -37,8 +37,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "포장된 식품을 들여와 나누어 유통합니다.",
-          "description": "직접 만들지 않고 유통만 해도 위생 허가가 필요한지 확인하고 싶습니다.",
+          "label": "포장된 식품을 들여와 나눠 팔려는데",
+          "description": "직접 만들지 않고 유통만 해도 위생 허가가 필요한지 사람마다 말이 다릅니다.",
           "fields": {
             "hy_product": "pt_packaged",
             "hy_productFocus": "pf_packaged_need"
@@ -46,8 +46,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "여러 매장에 음식을 보내는 중앙 주방을 운영합니다.",
-          "description": "매장 여러 곳에 공급하는 주방은 어떤 허가를 받아야 하는지 확인하고 싶습니다.",
+          "label": "여러 매장에 음식을 보내는 중앙 주방을 하려는데",
+          "description": "식당 허가로 되는지 따로 받아야 하는지 아무도 확실히 말해 주지 않습니다.",
           "fields": {
             "hy_product": "pt_central",
             "hy_productFocus": "pf_central_permit"
@@ -64,12 +64,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 어디까지 진행되었고, 누구 이름으로 허가를 받으실 예정인가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 식품 생산 시설 허가를 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
+          "label": "법인 등록은 끝났습니다.",
+          "description": "투자한 우리 법인 이름으로 식품 생산 시설 허가를 받으려고 합니다.",
           "fields": {
             "hy_registration": "reg_company_done",
             "hy_owner": "own_fdi"
@@ -77,8 +77,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
+          "label": "개인사업자로 등록했습니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 식품 생산 시설 허가를 받으려고 합니다.",
           "fields": {
             "hy_registration": "reg_household_done",
             "hy_owner": "own_household"
@@ -86,8 +86,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
+          "label": "등록 절차가 아직 진행 중입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 식품 생산 시설 허가를 받을 예정입니다.",
           "fields": {
             "hy_registration": "reg_in_progress",
             "hy_owner": "own_local"
@@ -95,8 +95,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
+          "label": "등록은 아직 시작도 못 했습니다.",
+          "description": "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.",
           "fields": {
             "hy_registration": "reg_not_started",
             "hy_owner": "own_partner"
@@ -104,8 +104,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "등록 상태를 정확히 모르겠습니다.",
-          "description": "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.",
+          "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
+          "description": "누구 이름으로 식품 생산 시설 허가를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "hy_registration": "reg_unsure",
             "hy_owner": "own_undecided"
@@ -122,12 +122,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "조리·저장·세척 같은 위생시설은 갖추었고, 그 시설의 작업 동선은 어떻게 되어 있나요?",
+      "prompt": "작업장은 어디까지 갖추셨고, 재료가 들어와 제품이 나가는 길은 어떻게 되어 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "위생시설을 모두 갖추었습니다.",
-          "description": "갖춘 시설은 원료가 들어와 완제품이 나갈 때까지 한 방향으로 배치되어 있습니다.",
+          "label": "시설은 다 갖췄습니다.",
+          "description": "재료가 들어와서 완제품이 나갈 때까지 한 방향으로 배치되어 있습니다.",
           "fields": {
             "hy_facility": "fac_done",
             "hy_flow": "ln_one_way"
@@ -135,8 +135,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "일부 시설만 갖추었습니다.",
-          "description": "갖춘 시설 중에는 원료와 완제품이 지나는 길이 일부 겹치는 구간이 있습니다.",
+          "label": "일부만 갖췄습니다.",
+          "description": "재료가 지나는 길과 완제품이 지나는 길이 일부 겹치는데 괜찮은지 모르겠습니다.",
           "fields": {
             "hy_facility": "fac_partial",
             "hy_flow": "ln_mixed"
@@ -144,8 +144,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "시설 공사를 하고 있습니다.",
-          "description": "공사 중인 건물은 다른 업체와 공간을 함께 써서 구역을 나눌 수 있을지 걱정됩니다.",
+          "label": "지금 공사 중입니다.",
+          "description": "다른 업체와 건물을 같이 쓰는 곳이라 구역을 나눌 수 있을지 걱정됩니다.",
           "fields": {
             "hy_facility": "fac_building",
             "hy_flow": "ln_shared"
@@ -153,8 +153,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "다른 공장에 생산을 맡기려고 합니다.",
-          "description": "맡길 공장의 작업 구역이 나뉘어 있는지는 아직 직접 확인하지 못했습니다.",
+          "label": "직접 짓기보다 다른 공장에 맡기려고 합니다.",
+          "description": "맡길 공장의 작업 구역이 나뉘어 있는지는 제가 직접 확인하지 못했습니다.",
           "fields": {
             "hy_facility": "fac_outsourced",
             "hy_flow": "ln_none"
@@ -162,8 +162,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 시설이 필요한지 모르겠습니다.",
-          "description": "필요한 시설과 함께 작업 동선을 어떻게 나누어야 하는지도 잘 모릅니다.",
+          "label": "뭐가 필요한지 모르겠습니다.",
+          "description": "작업장을 어떻게 나눠야 하는지도 들어 본 적이 없습니다.",
           "fields": {
             "hy_facility": "fac_unknown",
             "hy_flow": "ln_unknown"
@@ -180,12 +180,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "식품을 다루는 종사자의 건강검진은 마쳤고, 위생 교육은 받았나요?",
+      "prompt": "식품을 만질 직원은 구하셨고, 건강검진이나 위생 교육 이야기는 들어 보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "종사자 모두 건강검진을 마쳤습니다.",
-          "description": "식품 위생 교육도 받아서 수료 확인서를 가지고 있습니다.",
+          "label": "직원 건강검진은 다 끝났습니다.",
+          "description": "위생 교육도 받아서 수료 확인서를 가지고 있습니다.",
           "fields": {
             "hy_staffHealth": "sh_done",
             "hy_training": "ht_done"
@@ -193,8 +193,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "일부 종사자만 검진을 받았습니다.",
-          "description": "식품 위생 교육은 다음 달에 다 함께 받을 예정입니다.",
+          "label": "일부 직원만 검진을 받았습니다.",
+          "description": "위생 교육은 다음 달에 다 같이 받으려고 합니다.",
           "fields": {
             "hy_staffHealth": "sh_some",
             "hy_training": "ht_planned"
@@ -202,8 +202,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "종사자 건강검진을 아직 받지 않았습니다.",
-          "description": "식품 위생 교육도 아직 받지 않은 상태입니다.",
+          "label": "검진은 아직 아무도 못 받았습니다.",
+          "description": "위생 교육도 아직이고, 언제 받아야 하는지도 모릅니다.",
           "fields": {
             "hy_staffHealth": "sh_not_yet",
             "hy_training": "ht_none"
@@ -211,8 +211,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "아직 종사자를 뽑지 않았습니다.",
-          "description": "종사자를 뽑은 뒤에 위생 교육을 받게 할 생각입니다.",
+          "label": "아직 직원을 못 구했습니다.",
+          "description": "사람을 구한 뒤에 검진을 받게 하고 위생 교육도 같이 받게 할 생각입니다.",
           "fields": {
             "hy_staffHealth": "sh_no_staff",
             "hy_training": "ht_planned"
@@ -220,8 +220,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "건강검진이 필요한지 모르겠습니다.",
-          "description": "위생 교육을 받아야 하는지도 확인하지 못했습니다.",
+          "label": "그런 게 필요한지 몰랐습니다.",
+          "description": "음식을 만지는 직원이 검진과 교육을 받아야 하는지 처음 들었습니다.",
           "fields": {
             "hy_staffHealth": "sh_unknown",
             "hy_training": "ht_unknown"
@@ -238,57 +238,57 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q5",
       "route": "R",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색도 해 봤는데 베트남어 자료라 어떤 말이 맞는지 모르겠습니다.",
           "fields": {
-            "hy_mainConcern": "concern_cost",
-            "hy_helpWanted": "help_guide"
+            "hy_feeling": "fl_lost",
+            "hy_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "베트남 지인이나 직원이 알아서 한다는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "hy_mainConcern": "concern_docs",
-            "hy_helpWanted": "help_guide"
+            "hy_feeling": "fl_anxious",
+            "hy_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "허가가 언제 나올지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "건물주, 업체, 지인이 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "hy_mainConcern": "concern_time",
-            "hy_helpWanted": "help_accompany"
+            "hy_feeling": "fl_confused",
+            "hy_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "우리 시설이 허가 대상인지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "담당 기관에서 연락이 올까 겁이 납니다.",
+          "description": "생산·판매를 이미 시작했는데 허가가 아직 확인되지 않았습니다.",
           "fields": {
-            "hy_mainConcern": "concern_eligibility",
-            "hy_helpWanted": "help_full"
+            "hy_feeling": "fl_afraid",
+            "hy_situation": "sit_operating"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 막혀서 지쳤습니다.",
+          "description": "서류를 냈다가 보완하라고 돌려받은 적이 있습니다.",
           "fields": {
-            "hy_mainConcern": "concern_quote",
-            "hy_helpWanted": "help_accompany"
+            "hy_feeling": "fl_tired",
+            "hy_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "hy_mainConcern": "direct_input",
-        "hy_helpWanted": "direct_input_detail"
+        "hy_feeling": "direct_input",
+        "hy_situation": "direct_input_detail"
       }
     },
     {
@@ -296,57 +296,57 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q6",
       "route": "R",
       "phase": 2,
-      "prompt": "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?",
+      "prompt": "허가 서류는 얼마나 모으셨고, 그 서류에 뭐라고 적혀 있는지는 어떻게 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "신청서, 사업자 등록증, 시설 설명서와 도면을 모두 준비했습니다.",
-          "description": "모든 서류의 베트남어 번역도 이미 끝냈습니다.",
+          "label": "서류는 다 모았습니다.",
+          "description": "베트남어를 직접 읽을 수 있어서 내용도 제가 확인했습니다.",
           "fields": {
             "hy_docs": "docs_all",
-            "hy_translation": "tn_none"
+            "hy_langRoute": "lr_self"
           }
         },
         {
           "value": "o2",
-          "label": "대부분 준비했고 몇 가지만 남았습니다.",
-          "description": "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.",
+          "label": "거의 모았고 몇 개 남았습니다.",
+          "description": "베트남어를 하는 지인이나 통역해 주는 분이 서류 내용을 읽어 줍니다.",
           "fields": {
             "hy_docs": "docs_most",
-            "hy_translation": "tn_needed"
+            "hy_langRoute": "lr_interp"
           }
         },
         {
           "value": "o3",
-          "label": "절반쯤 준비했습니다.",
-          "description": "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.",
+          "label": "절반쯤 모았습니다.",
+          "description": "한국어를 하는 베트남 직원이 설명해 주는데 서류 원문과 맞는지는 확인하지 못했습니다.",
           "fields": {
             "hy_docs": "docs_half",
-            "hy_translation": "tn_unsure"
+            "hy_langRoute": "lr_local"
           }
         },
         {
           "value": "o4",
-          "label": "거의 준비하지 못했습니다.",
-          "description": "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.",
+          "label": "거의 모으지 못했습니다.",
+          "description": "번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 맞는지 모르겠습니다.",
           "fields": {
             "hy_docs": "docs_little",
-            "hy_translation": "tn_needed"
+            "hy_langRoute": "lr_machine"
           }
         },
         {
           "value": "o5",
-          "label": "무엇이 필요한지 아직 모릅니다.",
-          "description": "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.",
+          "label": "뭐가 필요한지도 모릅니다.",
+          "description": "베트남어를 전혀 몰라서 서류에 뭐가 적혀 있는지 알 수 없고 물어볼 사람도 없습니다.",
           "fields": {
             "hy_docs": "docs_unknown",
-            "hy_translation": "tn_none"
+            "hy_langRoute": "lr_none"
           }
         }
       ],
       "directFields": {
         "hy_docs": "direct_input",
-        "hy_translation": "direct_input_detail"
+        "hy_langRoute": "direct_input_detail"
       }
     },
     {
@@ -354,11 +354,11 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "제품의 안전 검사나 인증은 받았고, 그 결과에 맞춰 베트남어 제품 표시를 준비하셨나요?",
+      "prompt": "제품 검사나 인증은 어떻게 되어 있고, 포장에 붙일 베트남어 표시는 준비하셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "식품 안전 관리 인증을 받았습니다.",
+          "label": "식품 안전 관리 인증은 받았습니다.",
           "description": "인증서에 적힌 제품 범위에 맞춰 베트남어 표시 문구도 준비해 두었습니다.",
           "fields": {
             "hy_quality": "qc_haccp",
@@ -367,8 +367,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "제품 검사 결과서를 가지고 있습니다.",
-          "description": "검사 결과서의 성분과 수치를 바탕으로 표시 초안은 만들어 두었으나 확정하지 않았습니다.",
+          "label": "제품 검사 결과서는 있습니다.",
+          "description": "그 내용으로 표시 초안은 만들었는데 베트남어가 맞는지 확신이 없어 확정하지 못했습니다.",
           "fields": {
             "hy_quality": "qc_test",
             "hy_label": "lb_draft"
@@ -376,8 +376,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "제품 검사를 받을 예정입니다.",
-          "description": "검사 결과가 나와야 표시에 넣을 내용을 정할 수 있어서 아직 준비하지 못했습니다.",
+          "label": "검사는 받을 예정입니다.",
+          "description": "결과가 나와야 표시에 뭘 넣을지 정할 수 있다고 해서 아직 손을 못 댔습니다.",
           "fields": {
             "hy_quality": "qc_planned",
             "hy_label": "lb_none"
@@ -386,7 +386,7 @@ export const HYGIENE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "검사나 인증을 받은 적이 없습니다.",
-          "description": "어떤 검사를 받아야 하는지 몰라서 표시에 어떤 내용을 넣어야 하는지도 모릅니다.",
+          "description": "어떤 검사를 받아야 하는지 몰라서 포장에 뭘 적어야 하는지도 모릅니다.",
           "fields": {
             "hy_quality": "qc_none",
             "hy_label": "lb_unknown"
@@ -395,7 +395,7 @@ export const HYGIENE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "어떤 검사가 필요한지 모르겠습니다.",
-          "description": "검사 항목이 정해져야 표시 기준도 알 수 있어서 둘을 함께 확인하고 싶습니다.",
+          "description": "검사 항목이 정해져야 표시 기준도 알 수 있다는데 어디에 물어봐야 할지 막막합니다.",
           "fields": {
             "hy_quality": "qc_unknown",
             "hy_label": "lb_unknown"
@@ -412,12 +412,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "생산에 쓰는 물은 어디서 받아 쓰고, 그 물의 수질 검사에서 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "생산에 쓰는 물은 어디서 받아 쓰고, 수질 검사를 받아야 한다는 이야기는 들어 보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "수돗물을 그대로 쓰고 있습니다.",
-          "description": "수돗물도 생산용으로 따로 검사를 받아야 하는지 확인하고 싶습니다.",
+          "label": "수돗물을 그대로 씁니다.",
+          "description": "수돗물도 생산용으로 따로 검사를 받아야 하는지 모르겠습니다.",
           "fields": {
             "hy_water": "wt_city",
             "hy_waterCheck": "wq_city_check"
@@ -425,8 +425,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "지하수를 끌어다 쓰고 있습니다.",
-          "description": "지하수는 수질 검사 결과서가 필요한지와 어디서 검사를 받는지 알고 싶습니다.",
+          "label": "지하수를 끌어다 씁니다.",
+          "description": "수질 검사 결과서가 필요한지, 어디서 검사받는지 알아보고 있습니다.",
           "fields": {
             "hy_water": "wt_well",
             "hy_waterCheck": "wq_well_report"
@@ -434,8 +434,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "정수 설비로 걸러서 쓰고 있습니다.",
-          "description": "정수 설비를 거친 물도 검사 결과서를 내야 하는지 확인하고 싶습니다.",
+          "label": "정수 설비로 걸러서 씁니다.",
+          "description": "정수 설비를 거친 물도 검사 결과서를 내야 하는지 궁금합니다.",
           "fields": {
             "hy_water": "wt_filtered",
             "hy_waterCheck": "wq_filter_report"
@@ -444,7 +444,7 @@ export const HYGIENE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "쓸 물을 아직 정하지 못했습니다.",
-          "description": "어떤 물을 쓰면 수질 검사 준비가 쉬운지 먼저 알고 싶습니다.",
+          "description": "어떤 물을 쓰면 검사 준비가 쉬운지 먼저 알고 싶습니다.",
           "fields": {
             "hy_water": "wt_undecided",
             "hy_waterCheck": "wq_choose"
@@ -452,8 +452,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "물을 어디서 받는지 정확히 모르겠습니다.",
-          "description": "검사를 받아야 하는지, 받는다면 어디서 받는지도 알고 싶습니다.",
+          "label": "물을 어디서 받는지 정확히 모릅니다.",
+          "description": "건물주가 연결해 준 물이라 검사를 받아야 하는지, 어디서 받는지도 모르겠습니다.",
           "fields": {
             "hy_water": "wt_source_unknown",
             "hy_waterCheck": "wq_unknown"
@@ -470,12 +470,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q9",
       "route": "R",
       "phase": 2,
-      "prompt": "허가는 언제까지 필요하고, 실제 영업이나 판매는 언제 시작할 예정인가요?",
+      "prompt": "허가는 언제까지 받아야 마음이 놓이고, 생산·판매는 언제쯤 시작하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 달 안에 허가가 필요합니다.",
-          "description": "영업 시작일이 이미 정해져 있어서 미루기 어렵습니다.",
+          "label": "한 달 안에는 받아야 합니다.",
+          "description": "판매 시작 날짜를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.",
           "fields": {
             "hy_timeline": "tl_urgent",
             "hy_openPlan": "op_date"
@@ -484,7 +484,7 @@ export const HYGIENE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "두세 달 안에 받으면 됩니다.",
-          "description": "시설 공사를 모두 마친 뒤에 영업을 시작할 계획입니다.",
+          "description": "공사가 끝나는 날에 맞춰 생산·판매를 시작하려고 합니다.",
           "fields": {
             "hy_timeline": "tl_2_3m",
             "hy_openPlan": "op_after_fitout"
@@ -492,8 +492,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "급하지는 않습니다.",
-          "description": "허가가 나온 것을 직접 확인한 뒤에 영업을 시작하려고 합니다.",
+          "label": "급하진 않습니다.",
+          "description": "서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 생산·판매를 시작하고 싶습니다.",
           "fields": {
             "hy_timeline": "tl_flexible",
             "hy_openPlan": "op_after_permit"
@@ -501,8 +501,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "필요한 시점을 아직 정하지 못했습니다.",
-          "description": "영업이나 판매를 언제 시작할지도 정해지지 않았습니다.",
+          "label": "언제까지인지 모르겠습니다.",
+          "description": "허가가 언제까지 필요한지, 생산·판매를 언제 시작할지도 아직 정하지 못했습니다.",
           "fields": {
             "hy_timeline": "tl_unsure",
             "hy_openPlan": "op_unsure"
@@ -510,8 +510,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "이미 영업을 하고 있습니다.",
-          "description": "허가를 받지 못한 채 먼저 운영을 시작한 상태입니다.",
+          "label": "이미 생산·판매를 하고 있습니다.",
+          "description": "허가를 못 받은 채 먼저 시작했는데 문제가 되지 않을지 불안합니다.",
           "fields": {
             "hy_timeline": "tl_already",
             "hy_openPlan": "op_running"
@@ -528,57 +528,57 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q10",
       "route": "R",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 비용과 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일로 누구에게 물어봤고, 그 대답은 어땠나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "한국 사람이 하는 대행사에 물어봤습니다.",
+          "description": "설명은 들었는데 어디까지 믿어도 되는지 판단이 안 섭니다.",
           "fields": {
-            "hy_quoteStatus": "quote_none",
-            "hy_quoteScope": "qs_na"
+            "hy_askedWho": "ask_agency_kr",
+            "hy_answerFeel": "ans_unsure_trust"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 비용과 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "베트남 현지 업체에 물어봤습니다.",
+          "description": "말이 잘 통하지 않아서 제대로 이해했는지 모르겠습니다.",
           "fields": {
-            "hy_quoteStatus": "quote_one",
-            "hy_quoteScope": "qs_clear"
+            "hy_askedWho": "ask_local",
+            "hy_answerFeel": "ans_not_understood"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "지인이나 먼저 해 본 분께 물어봤습니다.",
+          "description": "경험담은 들었는데 제 경우에도 맞는지 모르겠습니다.",
           "fields": {
-            "hy_quoteStatus": "quote_several",
-            "hy_quoteScope": "qs_mixed"
+            "hy_askedWho": "ask_acquaint",
+            "hy_answerFeel": "ans_not_fit"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "담당 기관에 직접 문의해 봤습니다.",
+          "description": "안내는 받았지만 베트남어라 확실히 이해하지 못했습니다.",
           "fields": {
-            "hy_quoteStatus": "quote_verbal",
-            "hy_quoteScope": "qs_unknown"
+            "hy_askedWho": "ask_authority",
+            "hy_answerFeel": "ans_not_clear_vn"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "아직 아무에게도 못 물어봤습니다.",
+          "description": "누구에게 물어봐야 하는지, 어디에 물어봐야 하는지부터 모르겠습니다.",
           "fields": {
-            "hy_quoteStatus": "quote_ad",
-            "hy_quoteScope": "qs_unknown"
+            "hy_askedWho": "ask_nobody",
+            "hy_answerFeel": "ans_unknown_who"
           }
         }
       ],
       "directFields": {
-        "hy_quoteStatus": "direct_input",
-        "hy_quoteScope": "direct_input_detail"
+        "hy_askedWho": "direct_input",
+        "hy_answerFeel": "direct_input_detail"
       }
     },
     {
@@ -586,12 +586,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
+      "prompt": "서류를 담당 기관에 내는 일은 누가 하게 될 것 같고, 그때 가장 걱정되는 건 뭔가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
-          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
+          "label": "제가 직접 낼 생각입니다.",
+          "description": "온라인 접수는 어떻게 하고 서명은 어떻게 하는지 모르겠습니다.",
           "fields": {
             "hy_submitter": "sub_self",
             "hy_submitNeed": "sn_account"
@@ -599,8 +599,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
-          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
+          "label": "베트남 직원이 대신 내기로 했습니다.",
+          "description": "위임장은 어떻게 하고, 낸 뒤 연락은 누가 받는지 걱정됩니다.",
           "fields": {
             "hy_submitter": "sub_staff",
             "hy_submitNeed": "sn_proxy"
@@ -608,8 +608,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "대행사에 서류 제출을 맡기려고 합니다.",
-          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
+          "label": "대행사에 맡길지 고민 중입니다.",
+          "description": "어디까지 맡기는 건지, 서류 원본은 누가 보관하는지 불안합니다.",
           "fields": {
             "hy_submitter": "sub_agency",
             "hy_submitNeed": "sn_scope"
@@ -617,8 +617,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "누가 제출할지 아직 정하지 못했습니다.",
-          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
+          "label": "누가 낼지 아직 못 정했습니다.",
+          "description": "직접 하는 것과 직원, 대행사 중 어느 쪽이 나은지 모르겠습니다.",
           "fields": {
             "hy_submitter": "sub_undecided",
             "hy_submitNeed": "sn_compare"
@@ -626,8 +626,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
-          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
+          "label": "직접 접수하러 가야 하는데 베트남어가 걱정입니다.",
+          "description": "담당 기관 직원이 뭐라고 물어볼지, 통역이 필요한지 막막합니다.",
           "fields": {
             "hy_submitter": "sub_self_lang",
             "hy_submitNeed": "sn_interpreter"
@@ -644,12 +644,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "생산한 식품을 어디에 팔 예정이고, 판매 전에 따로 신고가 필요한지 알고 계신가요?",
+      "prompt": "만든 식품은 어디에 팔 생각이고, 팔기 전에 따로 신고해야 한다는 이야기는 들어 보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "베트남 안에서 직접 판매합니다.",
-          "description": "판매 전에 제품 신고를 해야 하는지 이미 확인했습니다.",
+          "label": "베트남 안에서 직접 팔 생각입니다.",
+          "description": "팔기 전에 제품 신고를 해야 한다는 건 이미 알아봤습니다.",
           "fields": {
             "hy_market": "mk_domestic",
             "hy_declare": "dc_known"
@@ -657,8 +657,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "마트나 유통사를 통해 판매합니다.",
-          "description": "유통사가 요구하는 서류가 따로 있는 것 같습니다.",
+          "label": "마트나 유통사에 넣으려고 합니다.",
+          "description": "유통사가 따로 요구하는 서류가 있다는데 그게 뭔지 모릅니다.",
           "fields": {
             "hy_market": "mk_retail",
             "hy_declare": "dc_partner"
@@ -675,8 +675,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "온라인으로 판매하려고 합니다.",
-          "description": "판매를 시작하기 전에 따로 신고가 필요한지 모르겠습니다.",
+          "label": "온라인으로 팔려고 합니다.",
+          "description": "인터넷으로 팔기 시작하기 전에 따로 신고해야 하는지 모르겠습니다.",
           "fields": {
             "hy_market": "mk_online",
             "hy_declare": "dc_unknown"
@@ -684,8 +684,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "판매처를 아직 정하지 못했습니다.",
-          "description": "판매 전 제품 신고가 무엇인지도 이번에 처음 들어 봤습니다.",
+          "label": "어디에 팔지 아직 못 정했습니다.",
+          "description": "판매 전 제품 신고라는 말도 이번에 처음 들었습니다.",
           "fields": {
             "hy_market": "mk_unsure",
             "hy_declare": "dc_unknown"
@@ -702,12 +702,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
+      "prompt": "사업장이 있는 곳은 어디이고, 서류를 어느 기관에 내야 하는지는 알아보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
+          "label": "하노이입니다.",
+          "description": "어느 기관에 내야 하는지, 온라인으로도 낼 수 있는지 알아보고 있습니다.",
           "fields": {
             "hy_area": "area_hanoi",
             "hy_agencyNeed": "an_online"
@@ -715,8 +715,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "호치민에 있습니다.",
-          "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
+          "label": "호치민입니다.",
+          "description": "어느 기관에 내야 하는지 몰라서 그것부터 알고 싶고 온라인 접수가 되는지도 궁금합니다.",
           "fields": {
             "hy_area": "area_hcm",
             "hy_agencyNeed": "an_office"
@@ -724,8 +724,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
+          "label": "다낭입니다.",
+          "description": "최근 기관이 합쳐졌다는 말을 들었는데 지금은 어디에 내야 하는지 모르겠습니다.",
           "fields": {
             "hy_area": "area_danang",
             "hy_agencyNeed": "an_changed"
@@ -733,8 +733,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "그 밖의 도시에 있습니다.",
-          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
+          "label": "그 밖의 도시입니다.",
+          "description": "지방은 방식이 다르다고 해서 직접 가서 내야 하는지 궁금합니다.",
           "fields": {
             "hy_area": "area_other_city",
             "hy_agencyNeed": "an_visit"
@@ -742,8 +742,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
+          "label": "산업단지 안입니다.",
+          "description": "단지 관리 기관에 내는지 아니면 다른 곳에 내는지 아는 사람이 없어서 모르겠습니다.",
           "fields": {
             "hy_area": "area_ip",
             "hy_agencyNeed": "an_zone"
@@ -805,25 +805,25 @@ export const HYGIENE_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "hy_mainConcern=concern_cost|hy_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "위생 허가 비용은 정부 비용 외에 시설 공사, 종사자 검진과 교육, 제품 검사, 대행료로 나뉩니다. 서류 목록을 받아 시간이 걸리는 검진과 검사부터 시작하세요."
-      },
-      "hy_mainConcern=concern_docs|hy_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "hy_feeling=fl_lost|hy_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "식품 생산 시설은 위생 조건을 갖춘 시설임을 확인받는 증명서가 기본이고, 신청서, 등록증, 시설 설명과 도면, 종사자 검진·교육 서류가 필요합니다. 식품 종류에 따라 담당 기관이 다릅니다."
       },
-      "hy_mainConcern=concern_time|hy_helpWanted=help_accompany": {
-        "headline": "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
+      "hy_feeling=fl_anxious|hy_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
         "body": "서류가 갖춰진 뒤 현장 확인을 거쳐 증명서가 나오며, 시설 공사가 끝나야 확인을 받을 수 있습니다. 공사 일정과 허가 일정을 함께 맞추세요."
       },
-      "hy_mainConcern=concern_eligibility|hy_helpWanted=help_full": {
-        "headline": "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
+      "hy_feeling=fl_confused|hy_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
         "body": "위생 허가는 식품 종류와 시설 규모, 이미 받은 인증에 따라 대상과 절차가 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
       },
-      "hy_mainConcern=concern_quote|hy_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 위생 허가, 제품 검사, 표시 검토, 대행료가 각각 포함되는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 보입니다."
+      "hy_feeling=fl_afraid|hy_situation=sit_operating": {
+        "headline": "허가 확인 전에 시작해 불안한 상황입니다",
+        "body": "식품 위생 허가 과정에서는 담당 기관이 베트남어로 질문하고 보완을 요구할 수 있어, 내용을 이해하지 못한 채 답하면 처리가 길어질 수 있습니다. 접수 전에 통역과 전문가가 서류를 함께 점검하면 보완 요구를 줄일 수 있습니다."
+      },
+      "hy_feeling=fl_tired|hy_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "식품 위생 허가 서류는 이름·번호·숫자가 서로 다르거나 빠진 서류가 있으면 접수가 보류되거나 보완 요구를 받을 수 있습니다. 접수 전에 전문가가 서류를 점검하고 제출하는 날 동행하면 되돌아오는 횟수를 줄일 수 있습니다."
       }
     },
     "risks": {
@@ -861,6 +861,33 @@ export const HYGIENE_CONTENT_FINAL = {
               "field": "hy_timeline",
               "values": [
                 "tl_already"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "language",
+          "sentence": "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다",
+          "clauses": [
+            {
+              "field": "hy_langRoute",
+              "values": [
+                "lr_local",
+                "lr_machine",
+                "lr_none"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "answer",
+          "sentence": "받은 안내를 정확히 이해하지 못한 채 진행하면 필요한 절차를 놓칠 수 있어 안내 내용을 문서로 다시 확인해야 합니다",
+          "clauses": [
+            {
+              "field": "hy_answerFeel",
+              "values": [
+                "ans_not_understood",
+                "ans_not_clear_vn"
               ]
             }
           ]
@@ -928,11 +955,11 @@ export const HYGIENE_CONTENT_FINAL = {
       "questionCode": "Q6",
       "title": "신청 서류",
       "sentences": {
-        "hy_docs=docs_all|hy_translation=tn_none": "서류가 갖춰졌으니 도면의 구역 표시와 실제 시설이 같은지만 확인하고 접수하세요.",
-        "hy_docs=docs_most|hy_translation=tn_needed": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요.",
-        "hy_docs=docs_half|hy_translation=tn_unsure": "준비한 서류 목록을 만든 뒤 시설 설명서와 종사자 서류가 빠졌는지부터 확인하세요.",
-        "hy_docs=docs_little|hy_translation=tn_needed": "위생 허가 기본 서류(신청서, 등록증, 시설 설명과 도면, 종사자 검진·교육)를 먼저 받으세요.",
-        "hy_docs=docs_unknown|hy_translation=tn_none": "식품 종류에 따라 담당 기관과 서류가 달라지니 그 기준부터 확인하세요."
+        "hy_docs=docs_all|hy_langRoute=lr_self": "서류가 갖춰졌으니 도면의 구역 표시와 실제 시설이 같은지만 확인하고 접수하세요.",
+        "hy_docs=docs_most|hy_langRoute=lr_interp": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요. 통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.",
+        "hy_docs=docs_half|hy_langRoute=lr_local": "준비한 서류 목록을 만든 뒤 시설 설명서와 종사자 서류가 빠졌는지부터 확인하세요. 직원 설명은 서류 원문과 대조해 확인하세요.",
+        "hy_docs=docs_little|hy_langRoute=lr_machine": "위생 허가 기본 서류(신청서, 등록증, 시설 설명과 도면, 종사자 검진·교육)를 먼저 받으세요. 인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.",
+        "hy_docs=docs_unknown|hy_langRoute=lr_none": "식품 종류에 따라 담당 기관과 서류가 달라지니 그 기준부터 확인하세요. 베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."
       }
     },
     {
@@ -970,13 +997,13 @@ export const HYGIENE_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 받은 안내",
       "sentences": {
-        "hy_quoteStatus=quote_none|hy_quoteScope=qs_na": "견적을 받기 전에 정부 비용, 서류 준비비, 대행료를 나누어 요청하세요.",
-        "hy_quoteStatus=quote_one|hy_quoteScope=qs_clear": "항목이 나뉘어 있으니 위생 허가, 제품 검사, 표시 검토가 각각 포함되는지 확인하세요.",
-        "hy_quoteStatus=quote_several|hy_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "hy_quoteStatus=quote_verbal|hy_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "hy_quoteStatus=quote_ad|hy_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "hy_askedWho=ask_agency_kr|hy_answerFeel=ans_unsure_trust": "여러 곳의 설명이 다르면 같은 질문을 글로 정리해 보내고 답을 나란히 비교하세요.",
+        "hy_askedWho=ask_local|hy_answerFeel=ans_not_understood": "현지 업체의 설명은 문서로 받아 통역이나 전문 번역으로 한 번 더 확인하세요.",
+        "hy_askedWho=ask_acquaint|hy_answerFeel=ans_not_fit": "경험담은 시기와 지역, 사업 형태가 같아야 참고가 되니 조건이 같은지 먼저 대조하세요.",
+        "hy_askedWho=ask_authority|hy_answerFeel=ans_not_clear_vn": "기관 안내는 받은 날짜와 담당 부서, 내용을 적어 두고 통역을 거쳐 다시 확인하세요.",
+        "hy_askedWho=ask_nobody|hy_answerFeel=ans_unknown_who": "먼저 지역의 담당 기관이 어디인지 확인하고 물어볼 내용을 정리해 두세요."
       }
     },
     {
@@ -1019,19 +1046,21 @@ export const HYGIENE_CONTENT_FINAL = {
     "an_online": "담당 기관과 온라인 접수 확인",
     "an_visit": "지방 접수 방식 확인",
     "an_zone": "산업단지 관리 기관 확인",
+    "ans_not_clear_vn": "기관 안내를 베트남어라 이해 못 함",
+    "ans_not_fit": "경험담이 내 경우에 맞는지 모름",
+    "ans_not_understood": "말이 통하지 않아 이해 못 함",
+    "ans_unknown_who": "누구에게 물어볼지 모름",
+    "ans_unsure_trust": "설명을 어디까지 믿을지 모름",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
     "area_ip": "산업단지",
     "area_other_city": "그 밖의 도시",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "허가 대상 여부 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "허가 일정 걱정",
-    "dc_known": "판매 전 신고 여부 확인",
-    "dc_partner": "유통사 요구 서류 있음",
-    "dc_unknown": "신고 필요 여부를 모름",
+    "ask_acquaint": "지인·경험자에게 문의",
+    "ask_agency_kr": "한국인 대행사에 문의",
+    "ask_authority": "담당 기관에 직접 문의",
+    "ask_local": "베트남 현지 업체에 문의",
+    "ask_nobody": "아직 아무에게도 문의 못 함",
     "docs_all": "기본 서류 모두 준비",
     "docs_half": "기본 서류 절반 준비",
     "docs_little": "기본 서류 거의 미준비",
@@ -1042,9 +1071,11 @@ export const HYGIENE_CONTENT_FINAL = {
     "fac_outsourced": "다른 공장에 생산 위탁",
     "fac_partial": "일부 시설만 구비",
     "fac_unknown": "필요한 시설을 모름",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
+    "fl_afraid": "담당 기관 연락이 겁남",
+    "fl_anxious": "진행 상황을 몰라 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란스러움",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "한 번 막혀서 지침",
     "ht_done": "위생 교육 수료",
     "ht_none": "위생 교육 안 함",
     "ht_planned": "위생 교육 예정",
@@ -1058,11 +1089,11 @@ export const HYGIENE_CONTENT_FINAL = {
     "ln_one_way": "원료부터 완제품까지 한 방향 동선",
     "ln_shared": "공사 중 공간을 함께 사용",
     "ln_unknown": "동선 기준을 모름",
-    "mk_domestic": "국내 직접 판매",
-    "mk_export": "해외 수출",
-    "mk_online": "온라인 판매",
-    "mk_retail": "마트·유통사 판매",
-    "mk_unsure": "판매처 미정",
+    "lr_interp": "통역사·베트남어 하는 지인이 통역",
+    "lr_local": "한국어 하는 베트남 직원이 설명",
+    "lr_machine": "인공지능 번역기로 대략 이해",
+    "lr_none": "베트남어를 몰라 내용을 알 수 없음",
+    "lr_self": "베트남어를 직접 읽음",
     "op_after_fitout": "공사 후 영업",
     "op_after_permit": "허가 후 영업",
     "op_date": "영업 시작일 정해짐",
@@ -1088,15 +1119,6 @@ export const HYGIENE_CONTENT_FINAL = {
     "qc_planned": "검사 예정",
     "qc_test": "제품 검사 결과서 보유",
     "qc_unknown": "필요한 검사를 모름",
-    "qs_clear": "정부 비용과 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "reg_company_done": "법인 등록 완료",
     "reg_household_done": "개인사업자 등록 완료",
     "reg_in_progress": "사업자 등록 진행 중",
@@ -1107,12 +1129,17 @@ export const HYGIENE_CONTENT_FINAL = {
     "sh_not_yet": "종사자 검진 전",
     "sh_some": "일부 종사자만 검진",
     "sh_unknown": "검진 필요 여부를 모름",
+    "sit_conflicting": "주변 사람들의 말이 서로 다름",
+    "sit_operating": "허가 확인 전에 영업 시작",
+    "sit_rejected": "서류 보완 요구를 받은 적 있음",
+    "sit_search_vn": "베트남어 자료를 이해하지 못함",
+    "sit_unknown_progress": "맡긴 일의 진행 정도를 모름",
     "sn_account": "온라인 접수 계정·서명 준비",
     "sn_compare": "제출 방식 비교",
     "sn_interpreter": "통역 필요 범위 확인",
     "sn_proxy": "위임장·연락 방법 준비",
     "sn_scope": "대행 범위·원본 보관 확인",
-    "sub_agency": "대행사가 제출",
+    "sub_agency": "대행사 제출을 고민 중",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
@@ -1122,9 +1149,6 @@ export const HYGIENE_CONTENT_FINAL = {
     "tl_flexible": "급하지 않음",
     "tl_unsure": "필요 시점 미정",
     "tl_urgent": "한 달 안에 허가 필요",
-    "tn_needed": "번역·인증 필요함",
-    "tn_none": "번역 필요 없음",
-    "tn_unsure": "번역 필요 여부 모름",
     "wq_choose": "검사에 맞는 물 선택 확인",
     "wq_city_check": "수돗물 검사 필요 여부 확인",
     "wq_filter_report": "정수 설비 검사 확인",
@@ -1155,7 +1179,7 @@ export const HYGIENE_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`hy_timeline` ∈ {tl_already, tl_urgent} 또는 `hy_helpWanted` ∈ {help_full}",
+      "condition": "`hy_timeline` ∈ {tl_already, tl_urgent} 또는 `hy_situation` ∈ {sit_operating}",
       "sentence": "이미 생산 중이거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1167,9 +1191,9 @@ export const HYGIENE_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "hy_helpWanted",
+          "field": "hy_situation",
           "values": [
-            "help_full"
+            "sit_operating"
           ]
         }
       ]
@@ -1222,12 +1246,6 @@ export const HYGIENE_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "hy_helpWanted",
-            "values": [
-              "help_full"
-            ]
-          },
-          {
             "field": "hy_timeline",
             "values": [
               "tl_urgent",
@@ -1239,6 +1257,12 @@ export const HYGIENE_CONTENT_FINAL = {
             "values": [
               "reg_not_started"
             ]
+          },
+          {
+            "field": "hy_situation",
+            "values": [
+              "sit_operating"
+            ]
           }
         ]
       },
@@ -1246,12 +1270,6 @@ export const HYGIENE_CONTENT_FINAL = {
         "tier": "accompany",
         "label": "작성과 제출 동행",
         "clauses": [
-          {
-            "field": "hy_helpWanted",
-            "values": [
-              "help_accompany"
-            ]
-          },
           {
             "field": "hy_submitter",
             "values": [
@@ -1264,6 +1282,18 @@ export const HYGIENE_CONTENT_FINAL = {
               "an_office",
               "an_changed",
               "an_zone"
+            ]
+          },
+          {
+            "field": "hy_situation",
+            "values": [
+              "sit_rejected"
+            ]
+          },
+          {
+            "field": "hy_langRoute",
+            "values": [
+              "lr_none"
             ]
           }
         ]

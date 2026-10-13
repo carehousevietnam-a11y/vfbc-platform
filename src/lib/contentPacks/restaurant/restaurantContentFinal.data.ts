@@ -6,12 +6,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "식당과 관련해 어떤 허가가 필요하고, 그 상황에서 가장 확인하고 싶은 점은 무엇인가요?",
+      "prompt": "식당을 준비하시면서 지금 어떤 상황이고, 가장 막막한 부분은 어디인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "새로 매장을 열려고 준비하고 있습니다.",
-          "description": "처음 받는 허가라서 어떤 순서로 무엇을 준비해야 하는지 확인하고 싶습니다.",
+          "label": "새로 가게를 열려고 준비 중인데",
+          "description": "처음이라 무슨 허가를 어떤 순서로 받아야 하는지 감이 안 잡힙니다.",
           "fields": {
             "rs_stage": "st_new",
             "rs_stageFocus": "sf_order"
@@ -19,8 +19,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "운영 중인 매장의 허가를 다시 받아야 합니다.",
-          "description": "기한 전에 무엇을 다시 제출해야 하는지 확인하고 싶습니다.",
+          "label": "운영 중인 가게인데 갱신 시기가 다가와서",
+          "description": "기한을 놓쳐 문제가 생기지 않을지 걱정됩니다.",
           "fields": {
             "rs_stage": "st_renew",
             "rs_stageFocus": "sf_renew"
@@ -28,8 +28,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다른 사람의 매장을 인수했습니다.",
-          "description": "기존 허가를 이어받을 수 있는지 새로 받아야 하는지 확인하고 싶습니다.",
+          "label": "가게를 인수했는데 전 주인 허가가",
+          "description": "그대로 이어지는지 새로 받아야 하는지 아무도 확실히 말해 주지 않습니다.",
           "fields": {
             "rs_stage": "st_takeover",
             "rs_stageFocus": "sf_takeover"
@@ -37,8 +37,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "주류 판매를 추가하려고 합니다.",
-          "description": "지금 받은 허가에 더할 수 있는지 따로 등록해야 하는지 확인하고 싶습니다.",
+          "label": "술도 같이 팔고 싶은데",
+          "description": "지금 허가에 추가하면 되는지 따로 받아야 하는지 모르겠습니다.",
           "fields": {
             "rs_stage": "st_add_alcohol",
             "rs_stageFocus": "sf_alcohol"
@@ -46,8 +46,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 허가가 필요한지 모르겠습니다.",
-          "description": "우리 매장에 필요한 허가의 종류부터 알고 싶습니다.",
+          "label": "무슨 허가가 필요한지조차 모르겠습니다.",
+          "description": "주변에 물어봐도 말이 다 달라 우리 가게에 뭐가 필요한지 정리가 안 됩니다.",
           "fields": {
             "rs_stage": "st_unsure",
             "rs_stageFocus": "sf_which"
@@ -64,12 +64,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 어디까지 진행되었고, 누구 이름으로 허가를 받으실 예정인가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 가게를 열 생각이신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "법인 등록을 이미 마쳤습니다.",
-          "description": "외국인이 투자한 그 법인 이름으로 허가를 신청하려고 합니다.",
+          "label": "법인 등록은 끝났습니다.",
+          "description": "투자한 우리 법인 이름으로 식당 허가를 받으려고 합니다.",
           "fields": {
             "rs_registration": "reg_company_done",
             "rs_owner": "own_fdi"
@@ -77,8 +77,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "개인사업자 등록을 마쳤습니다.",
-          "description": "개인사업자 본인 이름으로 허가를 신청하려고 합니다.",
+          "label": "개인사업자로 등록했습니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 식당 허가를 받으려고 합니다.",
           "fields": {
             "rs_registration": "reg_household_done",
             "rs_owner": "own_household"
@@ -86,8 +86,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "사업자 등록을 진행하고 있습니다.",
-          "description": "등록이 끝나면 그 베트남 현지 법인 이름으로 허가를 신청할 예정입니다.",
+          "label": "등록 절차가 아직 진행 중입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 허가를 받을 예정입니다.",
           "fields": {
             "rs_registration": "reg_in_progress",
             "rs_owner": "own_local"
@@ -95,8 +95,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "사업자 등록을 아직 시작하지 않았습니다.",
-          "description": "누구 이름으로 등록할지 정해야 해서 현지인 명의로 운영하는 방법도 생각하고 있습니다.",
+          "label": "등록은 아직 시작도 못 했습니다.",
+          "description": "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.",
           "fields": {
             "rs_registration": "reg_not_started",
             "rs_owner": "own_partner"
@@ -104,8 +104,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "등록 상태를 정확히 모르겠습니다.",
-          "description": "누구 이름으로 허가를 받아야 하는지도 아직 정하지 못했습니다.",
+          "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
+          "description": "누구 이름으로 허가를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "rs_registration": "reg_unsure",
             "rs_owner": "own_undecided"
@@ -122,12 +122,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "영업할 매장은 확보되었고, 그 매장이 식당 허가에 맞는지 어떤 점을 확인하고 싶으신가요?",
+      "prompt": "가게 자리는 어떻게 되어 있고, 거기서 식당을 해도 되는지 확인해 보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "매장 임대 계약을 마쳤습니다.",
-          "description": "계약서에 음식점 영업 용도가 적혀 있는지 확인하고 싶습니다.",
+          "label": "임대 계약은 했습니다.",
+          "description": "그런데 음식점으로 써도 되는 건물인지는 확인하지 못했습니다.",
           "fields": {
             "rs_premises": "prem_signed",
             "rs_premisesCheck": "pk_contract_use"
@@ -135,8 +135,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "본인이나 회사 소유의 건물입니다.",
-          "description": "건물 용도와 면적이 식당 영업 조건에 맞는지 확인하고 싶습니다.",
+          "label": "제 건물이라 안심했는데",
+          "description": "건물 용도가 식당으로 써도 되는 용도인지, 면적은 충분한지는 아직 모릅니다.",
           "fields": {
             "rs_premises": "prem_owned",
             "rs_premisesCheck": "pk_owned_use"
@@ -144,8 +144,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "가계약만 해 둔 상태입니다.",
-          "description": "본계약 전에 허가를 받을 수 있는 건물인지 먼저 확인하고 싶습니다.",
+          "label": "가계약금만 낸 상태입니다.",
+          "description": "본계약 전인데, 나중에 허가가 안 나오는 자리로 밝혀지면 어쩌나 불안합니다.",
           "fields": {
             "rs_premises": "prem_provisional",
             "rs_premisesCheck": "pk_provisional_check"
@@ -153,8 +153,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "후보 매장만 알아보고 있습니다.",
-          "description": "후보 중에 허가를 받을 수 있는 곳을 고르는 기준을 알고 싶습니다.",
+          "label": "후보 몇 곳을 보고 있습니다.",
+          "description": "어디가 허가받기 좋은지 고르는 기준을 모르겠습니다.",
           "fields": {
             "rs_premises": "prem_candidate",
             "rs_premisesCheck": "pk_candidate_fit"
@@ -162,8 +162,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "매장을 아직 정하지 못했습니다.",
-          "description": "어떤 조건의 매장을 얻어야 허가에 문제가 없는지 알고 싶습니다.",
+          "label": "자리를 아직 못 정했습니다.",
+          "description": "계약하기 전에 어떤 조건이어야 하는지부터 알고 싶습니다.",
           "fields": {
             "rs_premises": "prem_undecided",
             "rs_premisesCheck": "pk_unknown_need"
@@ -180,12 +180,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "위생·소방 시설은 어디까지 준비되었고, 주방은 구역이 나뉘어 있나요?",
+      "prompt": "위생이나 소방 준비는 어디까지 되어 있고, 주방 구조는 어떻게 되어 있나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "위생·소방 시설 준비를 마쳤습니다.",
-          "description": "조리, 세척, 식재료 보관 구역이 서로 나뉘어 있습니다.",
+          "label": "위생·소방 준비는 끝났습니다.",
+          "description": "조리, 세척, 식재료 보관 자리가 따로 나뉘어 있습니다.",
           "fields": {
             "rs_hygieneFire": "hf_ready",
             "rs_kitchen": "kt_separated"
@@ -193,8 +193,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "시설 공사를 하고 있습니다.",
-          "description": "주방의 일부 구역만 나누어 두었고 나머지는 공사 중입니다.",
+          "label": "지금 공사 중입니다.",
+          "description": "주방 일부만 나눴고 나머지는 공사 중이라 점검받을 때 괜찮을지 모르겠습니다.",
           "fields": {
             "rs_hygieneFire": "hf_building",
             "rs_kitchen": "kt_partial"
@@ -202,8 +202,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "시설 준비를 아직 시작하지 않았습니다.",
-          "description": "주방이 하나로 트여 있어서 구역 구분이 없습니다.",
+          "label": "아직 손도 못 댔습니다.",
+          "description": "주방이 한 공간으로 트여 있어서 어떻게 나눠야 하는지 모르겠습니다.",
           "fields": {
             "rs_hygieneFire": "hf_not_yet",
             "rs_kitchen": "kt_open"
@@ -211,8 +211,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "건물주가 소방을 맡는다고 들었습니다.",
-          "description": "같은 건물의 다른 매장과 주방을 함께 쓰고 있습니다.",
+          "label": "소방은 건물주가 한다고 들었습니다.",
+          "description": "같은 건물 다른 가게와 주방과 소방 설비를 같이 쓰는데 우리 책임이 어디까지인지 모르겠습니다.",
           "fields": {
             "rs_hygieneFire": "hf_landlord",
             "rs_kitchen": "kt_shared"
@@ -220,8 +220,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 시설이 필요한지 모르겠습니다.",
-          "description": "주방을 어떤 기준으로 나누어야 하는지도 잘 모릅니다.",
+          "label": "뭐가 필요한지 모르겠습니다.",
+          "description": "주방을 어떤 기준으로 나눠야 하는지도 들어 본 적이 없습니다.",
           "fields": {
             "rs_hygieneFire": "hf_unknown",
             "rs_kitchen": "kt_unknown"
@@ -238,57 +238,57 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q5",
       "route": "R",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색도 해 봤는데 베트남어 자료라 어떤 말이 맞는지 모르겠습니다.",
           "fields": {
-            "rs_mainConcern": "concern_cost",
-            "rs_helpWanted": "help_guide"
+            "rs_feeling": "fl_lost",
+            "rs_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "베트남 지인이나 직원이 알아서 한다는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "rs_mainConcern": "concern_docs",
-            "rs_helpWanted": "help_guide"
+            "rs_feeling": "fl_anxious",
+            "rs_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "허가가 언제 나올지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "건물주, 업체, 지인이 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "rs_mainConcern": "concern_time",
-            "rs_helpWanted": "help_accompany"
+            "rs_feeling": "fl_confused",
+            "rs_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "우리 매장이 허가 대상인지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "담당 기관에서 연락이 올까 겁이 납니다.",
+          "description": "영업을 이미 시작했는데 허가가 아직 확인되지 않았습니다.",
           "fields": {
-            "rs_mainConcern": "concern_eligibility",
-            "rs_helpWanted": "help_full"
+            "rs_feeling": "fl_afraid",
+            "rs_situation": "sit_operating"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 막혀서 지쳤습니다.",
+          "description": "서류를 냈다가 보완하라고 돌려받은 적이 있습니다.",
           "fields": {
-            "rs_mainConcern": "concern_quote",
-            "rs_helpWanted": "help_accompany"
+            "rs_feeling": "fl_tired",
+            "rs_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "rs_mainConcern": "direct_input",
-        "rs_helpWanted": "direct_input_detail"
+        "rs_feeling": "direct_input",
+        "rs_situation": "direct_input_detail"
       }
     },
     {
@@ -296,57 +296,57 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q6",
       "route": "R",
       "phase": 2,
-      "prompt": "허가 신청 서류는 어디까지 준비되었고, 번역이나 인증이 필요한 서류가 있나요?",
+      "prompt": "허가 서류는 얼마나 모으셨고, 그 서류에 뭐라고 적혀 있는지는 어떻게 알고 계신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "신청서, 사업자 등록증, 임대차 계약서, 시설 도면을 모두 준비했습니다.",
-          "description": "모든 서류의 베트남어 번역도 이미 끝냈습니다.",
+          "label": "서류는 다 모았습니다.",
+          "description": "베트남어를 직접 읽을 수 있어서 내용도 제가 확인했습니다.",
           "fields": {
             "rs_docs": "docs_all",
-            "rs_translation": "tn_none"
+            "rs_langRoute": "lr_self"
           }
         },
         {
           "value": "o2",
-          "label": "대부분 준비했고 몇 가지만 남았습니다.",
-          "description": "해외에서 받은 서류는 번역과 영사 인증이 필요합니다.",
+          "label": "거의 모았고 몇 개 남았습니다.",
+          "description": "베트남어를 하는 지인이나 통역해 주는 분이 서류 내용을 읽어 줍니다.",
           "fields": {
             "rs_docs": "docs_most",
-            "rs_translation": "tn_needed"
+            "rs_langRoute": "lr_interp"
           }
         },
         {
           "value": "o3",
-          "label": "절반쯤 준비했습니다.",
-          "description": "베트남어 번역이 필요한 서류가 있는지 몰라서 확인이 필요합니다.",
+          "label": "절반쯤 모았습니다.",
+          "description": "한국어를 하는 베트남 직원이 설명해 주는데 서류 원문과 맞는지는 확인하지 못했습니다.",
           "fields": {
             "rs_docs": "docs_half",
-            "rs_translation": "tn_unsure"
+            "rs_langRoute": "lr_local"
           }
         },
         {
           "value": "o4",
-          "label": "거의 준비하지 못했습니다.",
-          "description": "번역과 인증을 어디서 어떻게 하는지도 함께 알고 싶습니다.",
+          "label": "거의 모으지 못했습니다.",
+          "description": "번역기로 읽어 보니 필요한 서류가 많아 보이는데 번역이 맞는지 모르겠습니다.",
           "fields": {
             "rs_docs": "docs_little",
-            "rs_translation": "tn_needed"
+            "rs_langRoute": "lr_machine"
           }
         },
         {
           "value": "o5",
-          "label": "무엇이 필요한지 아직 모릅니다.",
-          "description": "준비한 서류가 없어서 번역할 서류도 아직 없는 상태입니다.",
+          "label": "뭐가 필요한지도 모릅니다.",
+          "description": "베트남어를 전혀 몰라서 서류에 뭐가 적혀 있는지 알 수 없고 물어볼 사람도 없습니다.",
           "fields": {
             "rs_docs": "docs_unknown",
-            "rs_translation": "tn_none"
+            "rs_langRoute": "lr_none"
           }
         }
       ],
       "directFields": {
         "rs_docs": "direct_input",
-        "rs_translation": "direct_input_detail"
+        "rs_langRoute": "direct_input_detail"
       }
     },
     {
@@ -354,12 +354,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q7",
       "route": "R",
       "phase": 2,
-      "prompt": "주방 직원의 건강검진은 마쳤고, 식품 위생 교육은 받았나요?",
+      "prompt": "주방에서 일할 직원은 구하셨고, 건강검진이나 위생 교육 이야기는 들어 보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "직원 모두 건강검진을 마쳤습니다.",
-          "description": "식품 위생 교육도 받아서 수료 확인서를 가지고 있습니다.",
+          "label": "직원 건강검진은 다 끝났습니다.",
+          "description": "위생 교육도 받아서 수료 확인서를 가지고 있습니다.",
           "fields": {
             "rs_staffHealth": "sh_done",
             "rs_foodTraining": "ft_done"
@@ -367,8 +367,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "일부 직원만 건강검진을 받았습니다.",
-          "description": "식품 위생 교육은 다음 달에 받을 예정입니다.",
+          "label": "일부 직원만 검진을 받았습니다.",
+          "description": "위생 교육은 다음 달에 다 같이 받으려고 합니다.",
           "fields": {
             "rs_staffHealth": "sh_some",
             "rs_foodTraining": "ft_planned"
@@ -376,8 +376,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "직원 건강검진을 아직 받지 않았습니다.",
-          "description": "식품 위생 교육도 아직 받지 않은 상태입니다.",
+          "label": "검진은 아직 아무도 못 받았습니다.",
+          "description": "위생 교육도 아직이고, 언제 받아야 하는지도 모릅니다.",
           "fields": {
             "rs_staffHealth": "sh_not_yet",
             "rs_foodTraining": "ft_none"
@@ -385,8 +385,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "아직 직원을 뽑지 않았습니다.",
-          "description": "직원을 뽑은 뒤에 위생 교육을 받게 할 생각입니다.",
+          "label": "아직 직원을 못 구했습니다.",
+          "description": "사람을 구한 뒤에 검진을 받게 하고 위생 교육도 같이 받게 할 생각입니다.",
           "fields": {
             "rs_staffHealth": "sh_no_staff",
             "rs_foodTraining": "ft_planned"
@@ -394,8 +394,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "건강검진이 필요한지 모르겠습니다.",
-          "description": "위생 교육을 받아야 하는지도 확인하지 못했습니다.",
+          "label": "그런 게 필요한지 몰랐습니다.",
+          "description": "음식을 만지는 직원이 검진과 교육을 받아야 하는지 처음 들었습니다.",
           "fields": {
             "rs_staffHealth": "sh_unknown",
             "rs_foodTraining": "ft_unknown"
@@ -412,12 +412,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q8",
       "route": "R",
       "phase": 2,
-      "prompt": "매장은 어떤 형태로 운영하실 예정이고, 그 형태에서 술은 어떻게 판매하실 계획인가요?",
+      "prompt": "어떤 가게를 생각하고 계시고, 술은 어떻게 하실 계획인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "일반 식당으로 운영하려고 합니다.",
-          "description": "식사에 곁들여 맥주나 와인을 매장에서 판매하려고 합니다.",
+          "label": "일반 식당을 생각합니다.",
+          "description": "식사하는 손님에게 맥주나 와인을 같이 팔고 싶은데 따로 허가가 필요한지 궁금합니다.",
           "fields": {
             "rs_venue": "vn_restaurant",
             "rs_alcohol": "al_beer"
@@ -425,8 +425,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "카페로 운영하려고 합니다.",
-          "description": "커피 같은 음료와 간단한 디저트만 팔고 술은 판매하지 않을 계획입니다.",
+          "label": "커피와 디저트 중심 카페입니다.",
+          "description": "술은 팔 생각이 없고 음료와 간단한 디저트만 팔 계획입니다.",
           "fields": {
             "rs_venue": "vn_cafe",
             "rs_alcohol": "al_none"
@@ -434,8 +434,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "술집이나 바로 운영하려고 합니다.",
-          "description": "도수가 높은 술까지 판매하고 밤늦게 영업할 계획입니다.",
+          "label": "술집이나 바를 생각합니다.",
+          "description": "도수 높은 술도 팔고 밤늦게까지 영업하고 싶은데 가능한지 모릅니다.",
           "fields": {
             "rs_venue": "vn_bar",
             "rs_alcohol": "al_spirits"
@@ -443,8 +443,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "호텔 안 식당으로 운영하려고 합니다.",
-          "description": "투숙객과 외부 손님에게 술을 판매할지는 아직 정하지 못했습니다.",
+          "label": "호텔 안 식당입니다.",
+          "description": "투숙객과 외부 손님에게 술을 팔지는 아직 정하지 못했습니다.",
           "fields": {
             "rs_venue": "vn_hotel",
             "rs_alcohol": "al_unsure"
@@ -452,8 +452,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "배달 전문 주방으로 운영하려고 합니다.",
-          "description": "술을 포장하거나 배달해서 파는 것도 생각하고 있습니다.",
+          "label": "배달 전문 주방입니다.",
+          "description": "손님이 주문한 음식과 함께 술도 포장이나 배달로 팔 수 있는지 궁금합니다.",
           "fields": {
             "rs_venue": "vn_delivery",
             "rs_alcohol": "al_takeaway"
@@ -470,12 +470,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q9",
       "route": "R",
       "phase": 2,
-      "prompt": "허가는 언제까지 필요하고, 실제 영업이나 판매는 언제 시작할 예정인가요?",
+      "prompt": "허가는 언제까지 받아야 마음이 놓이고, 영업은 언제쯤 시작하고 싶으신가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "한 달 안에 허가가 필요합니다.",
-          "description": "영업 시작일이 이미 정해져 있어서 미루기 어렵습니다.",
+          "label": "한 달 안에는 받아야 합니다.",
+          "description": "오픈 날짜를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.",
           "fields": {
             "rs_timeline": "tl_urgent",
             "rs_openPlan": "op_date"
@@ -484,7 +484,7 @@ export const RESTAURANT_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "두세 달 안에 받으면 됩니다.",
-          "description": "시설 공사를 모두 마친 뒤에 영업을 시작할 계획입니다.",
+          "description": "공사가 끝나는 날에 맞춰 영업을 시작하려고 합니다.",
           "fields": {
             "rs_timeline": "tl_2_3m",
             "rs_openPlan": "op_after_fitout"
@@ -492,8 +492,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "급하지는 않습니다.",
-          "description": "허가가 나온 것을 직접 확인한 뒤에 영업을 시작하려고 합니다.",
+          "label": "급하진 않습니다.",
+          "description": "서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 영업을 시작하고 싶습니다.",
           "fields": {
             "rs_timeline": "tl_flexible",
             "rs_openPlan": "op_after_permit"
@@ -501,8 +501,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "필요한 시점을 아직 정하지 못했습니다.",
-          "description": "영업이나 판매를 언제 시작할지도 정해지지 않았습니다.",
+          "label": "언제까지인지 모르겠습니다.",
+          "description": "허가가 언제까지 필요한지, 영업을 언제 시작할지도 아직 정하지 못했습니다.",
           "fields": {
             "rs_timeline": "tl_unsure",
             "rs_openPlan": "op_unsure"
@@ -511,7 +511,7 @@ export const RESTAURANT_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "이미 영업을 하고 있습니다.",
-          "description": "허가를 받지 못한 채 먼저 운영을 시작한 상태입니다.",
+          "description": "허가를 못 받은 채 먼저 시작했는데 문제가 되지 않을지 불안합니다.",
           "fields": {
             "rs_timeline": "tl_already",
             "rs_openPlan": "op_running"
@@ -528,57 +528,57 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q10",
       "route": "R",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 비용과 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일로 누구에게 물어봤고, 그 대답은 어땠나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "한국 사람이 하는 대행사에 물어봤습니다.",
+          "description": "설명은 들었는데 어디까지 믿어도 되는지 판단이 안 섭니다.",
           "fields": {
-            "rs_quoteStatus": "quote_none",
-            "rs_quoteScope": "qs_na"
+            "rs_askedWho": "ask_agency_kr",
+            "rs_answerFeel": "ans_unsure_trust"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 비용과 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "베트남 현지 업체에 물어봤습니다.",
+          "description": "말이 잘 통하지 않아서 제대로 이해했는지 모르겠습니다.",
           "fields": {
-            "rs_quoteStatus": "quote_one",
-            "rs_quoteScope": "qs_clear"
+            "rs_askedWho": "ask_local",
+            "rs_answerFeel": "ans_not_understood"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "지인이나 먼저 해 본 분께 물어봤습니다.",
+          "description": "경험담은 들었는데 제 경우에도 맞는지 모르겠습니다.",
           "fields": {
-            "rs_quoteStatus": "quote_several",
-            "rs_quoteScope": "qs_mixed"
+            "rs_askedWho": "ask_acquaint",
+            "rs_answerFeel": "ans_not_fit"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "담당 기관에 직접 문의해 봤습니다.",
+          "description": "안내는 받았지만 베트남어라 확실히 이해하지 못했습니다.",
           "fields": {
-            "rs_quoteStatus": "quote_verbal",
-            "rs_quoteScope": "qs_unknown"
+            "rs_askedWho": "ask_authority",
+            "rs_answerFeel": "ans_not_clear_vn"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "아직 아무에게도 못 물어봤습니다.",
+          "description": "누구에게 물어봐야 하는지, 어디에 물어봐야 하는지부터 모르겠습니다.",
           "fields": {
-            "rs_quoteStatus": "quote_ad",
-            "rs_quoteScope": "qs_unknown"
+            "rs_askedWho": "ask_nobody",
+            "rs_answerFeel": "ans_unknown_who"
           }
         }
       ],
       "directFields": {
-        "rs_quoteStatus": "direct_input",
-        "rs_quoteScope": "direct_input_detail"
+        "rs_askedWho": "direct_input",
+        "rs_answerFeel": "direct_input_detail"
       }
     },
     {
@@ -586,12 +586,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q11",
       "route": "R",
       "phase": 2,
-      "prompt": "신청서는 누가 담당 기관에 제출하게 될 예정이고, 그 방식에서 가장 필요한 준비는 무엇인가요?",
+      "prompt": "서류를 담당 기관에 내는 일은 누가 하게 될 것 같고, 그때 가장 걱정되는 건 뭔가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "제가 직접 담당 기관에 제출하려고 합니다.",
-          "description": "온라인 접수 계정과 서명 방법을 어떻게 준비하는지 알고 싶습니다.",
+          "label": "제가 직접 낼 생각입니다.",
+          "description": "온라인 접수는 어떻게 하고 서명은 어떻게 하는지 모르겠습니다.",
           "fields": {
             "rs_submitter": "sub_self",
             "rs_submitNeed": "sn_account"
@@ -599,8 +599,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 직원이 대신 제출해 주기로 했습니다.",
-          "description": "위임장과 제출 후 연락 방법을 어떻게 정하는지 알고 싶습니다.",
+          "label": "베트남 직원이 대신 내기로 했습니다.",
+          "description": "위임장은 어떻게 하고, 낸 뒤 연락은 누가 받는지 걱정됩니다.",
           "fields": {
             "rs_submitter": "sub_staff",
             "rs_submitNeed": "sn_proxy"
@@ -608,8 +608,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "대행사에 서류 제출을 맡기려고 합니다.",
-          "description": "맡기는 업무 범위와 서류 원본 보관 방식을 어떻게 정하는지 알고 싶습니다.",
+          "label": "대행사에 맡길지 고민 중입니다.",
+          "description": "어디까지 맡기는 건지, 서류 원본은 누가 보관하는지 불안합니다.",
           "fields": {
             "rs_submitter": "sub_agency",
             "rs_submitNeed": "sn_scope"
@@ -617,8 +617,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "누가 제출할지 아직 정하지 못했습니다.",
-          "description": "직접, 직원, 대행 세 가지 방식의 비용과 일정을 비교해 보고 싶습니다.",
+          "label": "누가 낼지 아직 못 정했습니다.",
+          "description": "직접 하는 것과 직원, 대행사 중 어느 쪽이 나은지 모르겠습니다.",
           "fields": {
             "rs_submitter": "sub_undecided",
             "rs_submitNeed": "sn_compare"
@@ -626,8 +626,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "직접 제출하지만 베트남어가 어려워 걱정입니다.",
-          "description": "제출하는 날 통역이 어디까지 필요한지 미리 알고 싶습니다.",
+          "label": "직접 접수하러 가야 하는데 베트남어가 걱정입니다.",
+          "description": "담당 기관 직원이 뭐라고 물어볼지, 통역이 필요한지 막막합니다.",
           "fields": {
             "rs_submitter": "sub_self_lang",
             "rs_submitNeed": "sn_interpreter"
@@ -644,12 +644,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "식재료는 어디서 들여오실 예정이고, 그 구입처에 맞는 증빙 서류는 어떻게 준비하실 계획인가요?",
+      "prompt": "식당 재료는 어디서 구하실 거고, 점검 나왔을 때 보여 줄 서류는 어떻게 하실 건가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "식재료 납품 계약을 맺은 곳이 있습니다.",
-          "description": "납품 계약서와 거래 명세서를 점검 때 보여 줄 수 있게 보관하려고 합니다.",
+          "label": "납품 계약한 곳이 있습니다.",
+          "description": "계약서와 거래 내역은 점검 때 보여 줄 수 있게 잘 모아 두려고 합니다.",
           "fields": {
             "rs_ingredients": "ing_contract",
             "rs_proof": "ev_contract"
@@ -657,8 +657,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "시장에서 직접 사 오려고 합니다.",
-          "description": "구입 영수증을 어디까지 모아 두어야 하는지 알고 싶습니다.",
+          "label": "시장에서 직접 사 옵니다.",
+          "description": "영수증을 어디까지 모아 둬야 점검 때 문제가 없는지 모르겠습니다.",
           "fields": {
             "rs_ingredients": "ing_market",
             "rs_proof": "ev_receipt"
@@ -666,8 +666,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "수입 식재료를 많이 쓸 예정입니다.",
-          "description": "수입 통관 서류와 베트남어 표시 서류를 어떻게 받아 두는지 알고 싶습니다.",
+          "label": "수입 재료를 많이 쓸 겁니다.",
+          "description": "통관 서류나 베트남어 표시가 없는 재료는 어떻게 해야 하는지 모릅니다.",
           "fields": {
             "rs_ingredients": "ing_import",
             "rs_proof": "ev_import"
@@ -675,8 +675,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "여러 곳에서 나누어 사 오려고 합니다.",
-          "description": "구매처마다 증빙이 달라서 어떻게 정리해야 하는지 알고 싶습니다.",
+          "label": "여러 곳에서 나눠 삽니다.",
+          "description": "곳마다 증빙이 달라서 어떻게 정리해야 할지 막막합니다.",
           "fields": {
             "rs_ingredients": "ing_mixed",
             "rs_proof": "ev_mixed"
@@ -684,8 +684,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "식재료 증빙이 필요한지 모르겠습니다.",
-          "description": "점검 때 어떤 서류를 요구받는지부터 알고 싶습니다.",
+          "label": "재료 출처까지 서류가 필요한지 몰랐습니다.",
+          "description": "점검 나오면 뭘 보여 달라고 하는지 궁금합니다.",
           "fields": {
             "rs_ingredients": "ing_unknown",
             "rs_proof": "ev_unknown"
@@ -702,12 +702,12 @@ export const RESTAURANT_CONTENT_FINAL = {
       "id": "restaurant_q13",
       "route": "R",
       "phase": 2,
-      "prompt": "사업장이 있는 지역은 어디이고, 그 지역에서 허가 신청을 받는 담당 기관은 어떻게 확인하실 예정인가요?",
+      "prompt": "가게가 있는 곳은 어디이고, 서류를 어느 기관에 내야 하는지는 알아보셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "하노이에 있습니다.",
-          "description": "신청을 받는 담당 기관이 어디인지, 온라인으로도 접수할 수 있는지 확인하고 싶습니다.",
+          "label": "하노이입니다.",
+          "description": "어느 기관에 내야 하는지, 온라인으로도 낼 수 있는지 알아보고 있습니다.",
           "fields": {
             "rs_area": "area_hanoi",
             "rs_agencyNeed": "an_online"
@@ -715,8 +715,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "호치민에 있습니다.",
-          "description": "어느 기관에 신청서를 내야 하는지 몰라서 그것부터 알고 싶습니다.",
+          "label": "호치민입니다.",
+          "description": "어느 기관에 내야 하는지 몰라서 그것부터 알고 싶고 온라인 접수가 되는지도 궁금합니다.",
           "fields": {
             "rs_area": "area_hcm",
             "rs_agencyNeed": "an_office"
@@ -724,8 +724,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다낭에 있습니다.",
-          "description": "최근 기관이 통합되어 신청을 받는 담당 기관이 바뀌었는지 확인하고 싶습니다.",
+          "label": "다낭입니다.",
+          "description": "최근 기관이 합쳐졌다는 말을 들었는데 지금은 어디에 내야 하는지 모르겠습니다.",
           "fields": {
             "rs_area": "area_danang",
             "rs_agencyNeed": "an_changed"
@@ -733,8 +733,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "그 밖의 도시에 있습니다.",
-          "description": "지방은 접수 방식이 다를 수 있어 방문해서 내야 하는지 확인하고 싶습니다.",
+          "label": "그 밖의 도시입니다.",
+          "description": "지방은 방식이 다르다고 해서 직접 가서 내야 하는지 궁금합니다.",
           "fields": {
             "rs_area": "area_other_city",
             "rs_agencyNeed": "an_visit"
@@ -742,8 +742,8 @@ export const RESTAURANT_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "산업단지 안에 있습니다.",
-          "description": "산업단지 관리 기관이 신청을 받는지 다른 곳이 받는지 확인하고 싶습니다.",
+          "label": "산업단지 안입니다.",
+          "description": "단지 관리 기관에 내는지 아니면 다른 곳에 내는지 아는 사람이 없어서 모르겠습니다.",
           "fields": {
             "rs_area": "area_ip",
             "rs_agencyNeed": "an_zone"
@@ -784,7 +784,7 @@ export const RESTAURANT_CONTENT_FINAL = {
         "questionCode": "Q3",
         "title": "매장과 허가 조건",
         "sentences": {
-          "rs_premises=prem_signed|rs_premisesCheck=pk_contract_use": "매장 계약을 마치고 계약서의 영업 용도를 확인하려는 상황입니다",
+          "rs_premises=prem_signed|rs_premisesCheck=pk_contract_use": "매장 계약을 마치고 음식점으로 써도 되는 건물인지 확인하려는 상황입니다",
           "rs_premises=prem_owned|rs_premisesCheck=pk_owned_use": "소유 건물의 용도와 면적을 확인하려는 상황입니다",
           "rs_premises=prem_provisional|rs_premisesCheck=pk_provisional_check": "가계약 상태에서 허가 가능 여부를 확인하려는 상황입니다",
           "rs_premises=prem_candidate|rs_premisesCheck=pk_candidate_fit": "후보 매장 중 허가 가능한 곳을 고르려는 상황입니다",
@@ -805,25 +805,25 @@ export const RESTAURANT_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "rs_mainConcern=concern_cost|rs_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "식당 허가 비용은 정부 비용 외에 시설 공사, 직원 검진과 교육, 대행료로 나뉩니다. 서류 목록을 받아 시간이 걸리는 직원 검진부터 시작하세요."
-      },
-      "rs_mainConcern=concern_docs|rs_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "rs_feeling=fl_lost|rs_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "식당은 식품 위생 조건을 갖춘 시설임을 확인받는 증명서가 기본이고, 신청서, 사업자 등록증, 시설 설명, 직원 검진·교육 서류가 필요합니다. 호텔 안 식당 등 일부는 예외가 있습니다."
       },
-      "rs_mainConcern=concern_time|rs_helpWanted=help_accompany": {
-        "headline": "허가 일정이 걱정되어 제출 동행을 원하는 상황입니다",
-        "body": "서류가 갖춰진 뒤 현장 확인을 거쳐 허가가 나오며, 시설 공사가 끝나야 확인을 받을 수 있습니다. 공사 일정과 허가 일정을 함께 맞추세요."
+      "rs_feeling=fl_anxious|rs_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
+        "body": "서류가 갖춰진 뒤 현장 확인을 거쳐 허가가 나오며, 시설 공사가 끝나야 확인을 받을 수 있습니다. 진행 상황은 접수 번호와 현재 단계를 문서로 받아 확인하세요."
       },
-      "rs_mainConcern=concern_eligibility|rs_helpWanted=help_full": {
-        "headline": "허가 대상인지 걱정되어 전 과정을 맡기려는 상황입니다",
-        "body": "식당은 매장 형태와 규모, 주류 판매 여부에 따라 필요한 허가가 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
+      "rs_feeling=fl_confused|rs_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
+        "body": "식당은 매장 형태와 규모, 주류 판매 여부에 따라 필요한 허가가 달라 사람마다 답이 다를 수 있습니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
       },
-      "rs_mainConcern=concern_quote|rs_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 위생 허가, 소방, 주류 판매 등록, 대행료가 각각 포함되는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 보입니다."
+      "rs_feeling=fl_afraid|rs_situation=sit_operating": {
+        "headline": "허가 확인 전에 영업을 시작해 불안한 상황입니다",
+        "body": "허가 없이 영업하는 중에 점검이 나오면 제재를 받을 수 있습니다. 담당 기관의 연락은 베트남어로 올 수 있어 내용을 정확히 이해한 채 대응하는 것이 중요합니다."
+      },
+      "rs_feeling=fl_tired|rs_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "서류를 보완하라고 돌려받았다면 어느 항목이 문제였는지부터 확인해야 합니다. 이름·번호·숫자가 서로 다른 서류가 있으면 접수가 보류될 수 있어 접수 전 점검이 도움이 됩니다."
       }
     },
     "risks": {
@@ -861,6 +861,33 @@ export const RESTAURANT_CONTENT_FINAL = {
               "field": "rs_timeline",
               "values": [
                 "tl_already"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "language",
+          "sentence": "베트남어 서류를 정확히 이해하지 못한 채 진행하면 불리한 조건을 놓칠 수 있어 전문 통역이나 번역 확인이 필요합니다",
+          "clauses": [
+            {
+              "field": "rs_langRoute",
+              "values": [
+                "lr_local",
+                "lr_machine",
+                "lr_none"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "answer",
+          "sentence": "받은 안내를 정확히 이해하지 못한 채 진행하면 필요한 절차를 놓칠 수 있어 안내 내용을 문서로 다시 확인해야 합니다",
+          "clauses": [
+            {
+              "field": "rs_answerFeel",
+              "values": [
+                "ans_not_understood",
+                "ans_not_clear_vn"
               ]
             }
           ]
@@ -940,11 +967,11 @@ export const RESTAURANT_CONTENT_FINAL = {
       "questionCode": "Q6",
       "title": "신청 서류",
       "sentences": {
-        "rs_docs=docs_all|rs_translation=tn_none": "서류가 갖춰졌으니 도면의 구역 표시와 실제 매장이 같은지만 확인하고 접수하세요.",
-        "rs_docs=docs_most|rs_translation=tn_needed": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요.",
-        "rs_docs=docs_half|rs_translation=tn_unsure": "준비한 서류 목록을 만든 뒤 시설 도면과 직원 서류가 빠졌는지부터 확인하세요.",
-        "rs_docs=docs_little|rs_translation=tn_needed": "식당 위생 허가에 필요한 기본 서류(신청서, 등록증, 시설 설명, 직원 검진·교육)를 먼저 받으세요.",
-        "rs_docs=docs_unknown|rs_translation=tn_none": "매장 규모와 판매 품목에 따라 서류가 달라지니 그 기준부터 확인하세요."
+        "rs_docs=docs_all|rs_langRoute=lr_self": "서류가 갖춰졌으니 도면의 구역 표시와 실제 매장이 같은지만 확인하고 접수하세요.",
+        "rs_docs=docs_most|rs_langRoute=lr_interp": "남은 서류와 번역이 필요한 서류를 나누어 적고 인증에 걸리는 기간을 먼저 확인하세요. 통역한 내용이 서류 원문과 같은지 접수 전에 한 번 더 확인하세요.",
+        "rs_docs=docs_half|rs_langRoute=lr_local": "준비한 서류 목록을 만든 뒤 시설 도면과 직원 서류가 빠졌는지부터 확인하세요. 직원 설명은 서류 원문과 대조해 확인하세요.",
+        "rs_docs=docs_little|rs_langRoute=lr_machine": "식당 위생 허가에 필요한 기본 서류(신청서, 등록증, 시설 설명, 직원 검진·교육)를 먼저 받으세요. 인공지능 번역은 법률 용어와 숫자가 틀릴 수 있으니 중요한 서류는 전문가 확인을 받으세요.",
+        "rs_docs=docs_unknown|rs_langRoute=lr_none": "매장 규모와 판매 품목에 따라 서류가 달라지니 그 기준부터 확인하세요. 베트남어 서류를 읽어 줄 사람이나 전문 번역부터 정하세요."
       }
     },
     {
@@ -982,13 +1009,13 @@ export const RESTAURANT_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 받은 안내",
       "sentences": {
-        "rs_quoteStatus=quote_none|rs_quoteScope=qs_na": "견적을 받기 전에 정부 비용, 서류 준비비, 대행료를 나누어 요청하세요.",
-        "rs_quoteStatus=quote_one|rs_quoteScope=qs_clear": "항목이 나뉘어 있으니 위생 허가, 소방, 주류 판매 등록이 각각 포함되는지 확인하세요.",
-        "rs_quoteStatus=quote_several|rs_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "rs_quoteStatus=quote_verbal|rs_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "rs_quoteStatus=quote_ad|rs_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "rs_askedWho=ask_agency_kr|rs_answerFeel=ans_unsure_trust": "여러 곳의 설명이 다르면 같은 질문을 글로 정리해 보내고 답을 나란히 비교하세요.",
+        "rs_askedWho=ask_local|rs_answerFeel=ans_not_understood": "현지 업체의 설명은 문서로 받아 통역이나 전문 번역으로 한 번 더 확인하세요.",
+        "rs_askedWho=ask_acquaint|rs_answerFeel=ans_not_fit": "경험담은 시기와 지역, 매장 형태가 같아야 참고가 되니 조건이 같은지 먼저 대조하세요.",
+        "rs_askedWho=ask_authority|rs_answerFeel=ans_not_clear_vn": "기관 안내는 받은 날짜와 담당 부서, 내용을 적어 두고 통역을 거쳐 다시 확인하세요.",
+        "rs_askedWho=ask_nobody|rs_answerFeel=ans_unknown_who": "먼저 지역의 보건·식품 안전 담당 기관이 어디인지 확인하고 물어볼 내용을 정리해 두세요."
       }
     },
     {
@@ -1036,16 +1063,21 @@ export const RESTAURANT_CONTENT_FINAL = {
     "an_online": "담당 기관과 온라인 접수 확인",
     "an_visit": "지방 접수 방식 확인",
     "an_zone": "산업단지 관리 기관 확인",
+    "ans_not_clear_vn": "기관 안내를 베트남어라 이해 못 함",
+    "ans_not_fit": "경험담이 내 경우에 맞는지 모름",
+    "ans_not_understood": "말이 통하지 않아 이해 못 함",
+    "ans_unknown_who": "누구에게 물어볼지 모름",
+    "ans_unsure_trust": "설명을 어디까지 믿을지 모름",
     "area_danang": "다낭",
     "area_hanoi": "하노이",
     "area_hcm": "호치민",
     "area_ip": "산업단지",
     "area_other_city": "그 밖의 도시",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "허가 대상 여부 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "허가 일정 걱정",
+    "ask_acquaint": "지인·경험자에게 문의",
+    "ask_agency_kr": "한국인 대행사에 문의",
+    "ask_authority": "담당 기관에 직접 문의",
+    "ask_local": "베트남 현지 업체에 문의",
+    "ask_nobody": "아직 아무에게도 문의 못 함",
     "docs_all": "기본 서류 모두 준비",
     "docs_half": "기본 서류 절반 준비",
     "docs_little": "기본 서류 거의 미준비",
@@ -1056,13 +1088,15 @@ export const RESTAURANT_CONTENT_FINAL = {
     "ev_mixed": "구매처별 증빙 정리 필요",
     "ev_receipt": "구입 영수증 보관 범위 확인",
     "ev_unknown": "요구 서류를 모름",
+    "fl_afraid": "담당 기관 연락이 겁남",
+    "fl_anxious": "진행 상황을 몰라 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란스러움",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "한 번 막혀서 지침",
     "ft_done": "위생 교육 수료",
     "ft_none": "위생 교육 안 함",
     "ft_planned": "위생 교육 예정",
     "ft_unknown": "교육 필요 여부를 모름",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
     "hf_building": "시설 공사 중",
     "hf_landlord": "건물주가 소방 담당",
     "hf_not_yet": "시설 준비 전",
@@ -1078,6 +1112,11 @@ export const RESTAURANT_CONTENT_FINAL = {
     "kt_separated": "조리·세척·보관 구역 분리",
     "kt_shared": "다른 매장과 주방 공유",
     "kt_unknown": "주방 기준을 모름",
+    "lr_interp": "통역사·베트남어 하는 지인이 통역",
+    "lr_local": "한국어 하는 베트남 직원이 설명",
+    "lr_machine": "인공지능 번역기로 대략 이해",
+    "lr_none": "베트남어를 몰라 내용을 알 수 없음",
+    "lr_self": "베트남어를 직접 읽음",
     "op_after_fitout": "공사 후 영업",
     "op_after_permit": "허가 후 영업",
     "op_date": "영업 시작일 정해짐",
@@ -1098,15 +1137,6 @@ export const RESTAURANT_CONTENT_FINAL = {
     "prem_provisional": "매장 가계약",
     "prem_signed": "매장 임대 계약 완료",
     "prem_undecided": "매장 미정",
-    "qs_clear": "정부 비용과 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "reg_company_done": "법인 등록 완료",
     "reg_household_done": "개인사업자 등록 완료",
     "reg_in_progress": "사업자 등록 진행 중",
@@ -1122,6 +1152,11 @@ export const RESTAURANT_CONTENT_FINAL = {
     "sh_not_yet": "직원 검진 전",
     "sh_some": "일부 직원만 검진",
     "sh_unknown": "검진 필요 여부를 모름",
+    "sit_conflicting": "건물주·업체·지인의 말이 서로 다름",
+    "sit_operating": "허가 확인 전에 영업 시작",
+    "sit_rejected": "서류 보완 요구를 받은 적 있음",
+    "sit_search_vn": "베트남어 자료를 이해하지 못함",
+    "sit_unknown_progress": "맡긴 일의 진행 정도를 모름",
     "sn_account": "온라인 접수 계정·서명 준비",
     "sn_compare": "제출 방식 비교",
     "sn_interpreter": "통역 필요 범위 확인",
@@ -1132,7 +1167,7 @@ export const RESTAURANT_CONTENT_FINAL = {
     "st_renew": "운영 중 허가 갱신",
     "st_takeover": "인수한 매장 명의 변경",
     "st_unsure": "어떤 허가인지 모름",
-    "sub_agency": "대행사가 제출",
+    "sub_agency": "대행사 제출을 고민 중",
     "sub_self": "직접 제출",
     "sub_self_lang": "직접 제출, 베트남어가 걱정됨",
     "sub_staff": "직원이 제출",
@@ -1142,9 +1177,6 @@ export const RESTAURANT_CONTENT_FINAL = {
     "tl_flexible": "급하지 않음",
     "tl_unsure": "필요 시점 미정",
     "tl_urgent": "한 달 안에 허가 필요",
-    "tn_needed": "번역·인증 필요함",
-    "tn_none": "번역 필요 없음",
-    "tn_unsure": "번역 필요 여부 모름",
     "vn_bar": "술집·바",
     "vn_cafe": "카페",
     "vn_delivery": "배달 전문 주방",
@@ -1170,7 +1202,7 @@ export const RESTAURANT_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`rs_timeline` ∈ {tl_already, tl_urgent} 또는 `rs_helpWanted` ∈ {help_full}",
+      "condition": "`rs_timeline` ∈ {tl_already, tl_urgent} 또는 `rs_situation` ∈ {sit_operating}",
       "sentence": "이미 영업 중이거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1182,9 +1214,9 @@ export const RESTAURANT_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "rs_helpWanted",
+          "field": "rs_situation",
           "values": [
-            "help_full"
+            "sit_operating"
           ]
         }
       ]
@@ -1239,12 +1271,6 @@ export const RESTAURANT_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "rs_helpWanted",
-            "values": [
-              "help_full"
-            ]
-          },
-          {
             "field": "rs_timeline",
             "values": [
               "tl_urgent",
@@ -1256,6 +1282,12 @@ export const RESTAURANT_CONTENT_FINAL = {
             "values": [
               "reg_not_started"
             ]
+          },
+          {
+            "field": "rs_situation",
+            "values": [
+              "sit_operating"
+            ]
           }
         ]
       },
@@ -1263,12 +1295,6 @@ export const RESTAURANT_CONTENT_FINAL = {
         "tier": "accompany",
         "label": "작성과 제출 동행",
         "clauses": [
-          {
-            "field": "rs_helpWanted",
-            "values": [
-              "help_accompany"
-            ]
-          },
           {
             "field": "rs_submitter",
             "values": [
@@ -1281,6 +1307,18 @@ export const RESTAURANT_CONTENT_FINAL = {
               "an_office",
               "an_changed",
               "an_zone"
+            ]
+          },
+          {
+            "field": "rs_situation",
+            "values": [
+              "sit_rejected"
+            ]
+          },
+          {
+            "field": "rs_langRoute",
+            "values": [
+              "lr_none"
             ]
           }
         ]
