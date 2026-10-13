@@ -64,12 +64,12 @@ export const FIRE_CONTENT_FINAL = {
       "id": "fire_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 소방 승인를 받을 생각이신가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 소방 승인을 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
           "label": "법인 등록은 끝났습니다.",
-          "description": "투자한 우리 법인 이름으로 소방 승인를 받으려고 합니다.",
+          "description": "투자한 우리 법인 이름으로 소방 승인을 받으려고 합니다.",
           "fields": {
             "fs_registration": "reg_company_done",
             "fs_owner": "own_fdi"
@@ -78,7 +78,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "개인사업자로 등록했습니다.",
-          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 소방 승인를 받으려고 합니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 소방 승인을 받으려고 합니다.",
           "fields": {
             "fs_registration": "reg_household_done",
             "fs_owner": "own_household"
@@ -87,7 +87,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "등록 절차가 아직 진행 중입니다.",
-          "description": "끝나는 대로 베트남 현지 법인 이름으로 소방 승인를 받을 예정입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 소방 승인을 받을 예정입니다.",
           "fields": {
             "fs_registration": "reg_in_progress",
             "fs_owner": "own_local"
@@ -105,7 +105,7 @@ export const FIRE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
-          "description": "누구 이름으로 소방 승인를 받아야 하는지도 정하지 못했습니다.",
+          "description": "누구 이름으로 소방 승인을 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "fs_registration": "reg_unsure",
             "fs_owner": "own_undecided"

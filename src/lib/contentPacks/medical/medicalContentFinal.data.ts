@@ -6,12 +6,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "의료기기를 어떤 방식으로 다루시고, 그 제품은 어느 정도 위험한 제품인가요?",
+      "prompt": "어떤 의료기기를 어떻게 다루시려고 하고, 지금 가장 막막한 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "의료기기를 수입해서 팔려고 합니다.",
-          "description": "거즈나 붕대처럼 위험이 가장 낮은 소모품이 중심인데도 등록이 필요한지 모르겠습니다.",
+          "label": "거즈나 붕대 같은 소모품을 수입해서 팔려고 합니다.",
+          "description": "위험이 가장 낮은 제품인데도 등록이 필요한지 모르겠습니다.",
           "fields": {
             "md_stage": "st_import",
             "md_class": "cl_a"
@@ -19,8 +19,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남에서 만든 의료기기를 팔려고 합니다.",
-          "description": "혈압계처럼 위험이 낮은 일반 기기가 중심인데 어떤 절차를 밟아야 하는지 감이 안 잡힙니다.",
+          "label": "혈압계 같은 일반 기기를 베트남에서 만들어 팔려고 합니다.",
+          "description": "위험이 낮은 기기인데 어떤 절차를 밟아야 하는지 감이 안 잡힙니다.",
           "fields": {
             "md_stage": "st_local_make",
             "md_class": "cl_b"
@@ -28,8 +28,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "다른 회사 제품을 유통만 하려고 합니다.",
-          "description": "초음파 진단기처럼 위험이 중간 이상인 장비를 다뤄서 절차가 더 복잡할까 걱정입니다.",
+          "label": "초음파 진단기 같은 장비를 다른 회사에서 받아 유통만 하려고 합니다.",
+          "description": "위험이 중간 이상인 장비라 절차가 더 복잡할까 걱정입니다.",
           "fields": {
             "md_stage": "st_trade",
             "md_class": "cl_c"
@@ -37,8 +37,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "이미 등록한 내용을 바꿔야 합니다.",
-          "description": "임플란트처럼 몸속에 넣는 가장 위험한 등급의 제품이라 어떻게 바꿔야 하는지 모르겠습니다.",
+          "label": "임플란트처럼 몸속에 넣는 제품을 이미 등록했는데 내용을 바꿔야 합니다.",
+          "description": "가장 위험한 등급이라 등록 내용을 어떻게 바꿔야 하는지 모르겠습니다.",
           "fields": {
             "md_stage": "st_change",
             "md_class": "cl_d"

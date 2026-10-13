@@ -6,12 +6,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "프랜차이즈를 어떤 방식으로 하시려는데 어떤 업종의 브랜드이고, 가장 막막한 부분은 무엇인가요?",
+      "prompt": "어떤 브랜드를 어떤 방식으로 가맹 사업하시려고 하고, 지금 가장 막막한 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "해외 브랜드를 베트남에 가맹으로 들여오려고 합니다.",
-          "description": "음식이나 음료를 파는 외식 브랜드라 어떤 등록부터 해야 하는지 모르겠습니다.",
+          "label": "해외 외식 브랜드를 베트남에 가맹으로 들여오려고 합니다.",
+          "description": "음식이나 음료를 파는 브랜드라 어떤 등록부터 해야 하는지 모르겠습니다.",
           "fields": {
             "fr_stage": "st_inbound",
             "fr_business": "bz_food"
@@ -19,8 +19,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "베트남 전체 가맹권을 받는 계약을 하려고 합니다.",
-          "description": "편의점이나 소매점 형태의 브랜드라 어떤 절차가 필요한지 감이 안 잡힙니다.",
+          "label": "편의점이나 소매점 브랜드의 베트남 전체 가맹권을 받는 계약을 하려고 합니다.",
+          "description": "어떤 절차가 필요한지 감이 안 잡힙니다.",
           "fields": {
             "fr_stage": "st_master",
             "fr_business": "bz_retail"
@@ -28,8 +28,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "베트남에서 키운 브랜드를 가맹으로 늘리려고 합니다.",
-          "description": "학원이나 교육 서비스를 하는 브랜드라 등록 대상인지 헷갈립니다.",
+          "label": "베트남에서 키운 교육 브랜드를 가맹으로 늘리려고 합니다.",
+          "description": "학원이나 교육 서비스도 등록 대상인지 헷갈립니다.",
           "fields": {
             "fr_stage": "st_local_brand",
             "fr_business": "bz_education"
@@ -37,8 +37,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "이미 등록한 내용을 바꿔야 합니다.",
-          "description": "등록한 브랜드는 미용실이나 피부 관리실 같은 뷰티 서비스인데 어떻게 바꾸는지 모르겠습니다.",
+          "label": "이미 등록한 뷰티 브랜드의 내용을 바꿔야 합니다.",
+          "description": "미용실이나 피부 관리실 브랜드인데 등록 내용을 어떻게 바꾸는지 모르겠습니다.",
           "fields": {
             "fr_stage": "st_change",
             "fr_business": "bz_beauty"
@@ -46,8 +46,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o5",
-          "label": "어떤 절차가 필요한지조차 모르겠습니다.",
-          "description": "세탁이나 청소 같은 생활 서비스 브랜드라 등록 대상인지부터 모릅니다.",
+          "label": "세탁이나 청소 같은 생활 서비스 브랜드인데 어떤 절차가 필요한지조차 모르겠습니다.",
+          "description": "등록 대상인지부터 모릅니다.",
           "fields": {
             "fr_stage": "st_unsure",
             "fr_business": "bz_service"
@@ -64,12 +64,12 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 가맹 사업 등록를 받을 생각이신가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 가맹 사업 등록을 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
           "label": "법인 등록은 끝났습니다.",
-          "description": "투자한 우리 법인 이름으로 가맹 사업 등록를 받으려고 합니다.",
+          "description": "투자한 우리 법인 이름으로 가맹 사업 등록을 받으려고 합니다.",
           "fields": {
             "fr_registration": "reg_company_done",
             "fr_owner": "own_fdi"
@@ -78,7 +78,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "개인사업자로 등록했습니다.",
-          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 가맹 사업 등록를 받으려고 합니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 가맹 사업 등록을 받으려고 합니다.",
           "fields": {
             "fr_registration": "reg_household_done",
             "fr_owner": "own_household"
@@ -87,7 +87,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "등록 절차가 아직 진행 중입니다.",
-          "description": "끝나는 대로 베트남 현지 법인 이름으로 가맹 사업 등록를 받을 예정입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 가맹 사업 등록을 받을 예정입니다.",
           "fields": {
             "fr_registration": "reg_in_progress",
             "fr_owner": "own_local"
@@ -105,7 +105,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
-          "description": "누구 이름으로 가맹 사업 등록를 받아야 하는지도 정하지 못했습니다.",
+          "description": "누구 이름으로 가맹 사업 등록을 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "fr_registration": "reg_unsure",
             "fr_owner": "own_undecided"

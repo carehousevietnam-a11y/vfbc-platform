@@ -2,6 +2,8 @@
 // cfg: { noun: "식당 허가", openObj: "영업을", openTopic: "영업은", dateWord: "오픈 날짜", operatingD: "…", agencyHint: "…", docsR: [5문장] }
 // 설계 원칙: docs/master/DECISIONS.md 2026-10-14 (고객 목소리, 비용·호객 질문 금지).
 import { C } from "./register-common-spec.mjs";
+// 받침 유무로 을/를을 고른다(예: 소방 승인을, 환경 허가를).
+const eulReul = (w) => { const c = w.trim().slice(-1).charCodeAt(0); return c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 !== 0 ? "을" : "를"; };
 
 export const voiceLabels = {
   sub_agency: "대행사 제출을 고민 중",
@@ -12,12 +14,12 @@ export const voiceLabels = {
 };
 
 export function registration(p, code, cfg) {
-  return { code, stage: 1, prompt: `사업자 등록은 지금 어떤 상황이고, 누구 이름으로 ${cfg.noun}를 받을 생각이신가요?`, f: [`${p}_registration`, `${p}_owner`], choices: [
-    C("**법인 등록은 끝났습니다.**", `투자한 우리 법인 이름으로 ${cfg.noun}를 받으려고 합니다.`, ["reg_company_done", "own_fdi"], { card: "외국인 투자 법인 등록을 마친 상황입니다" }),
-    C("**개인사업자로 등록했습니다.**", `제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 ${cfg.noun}를 받으려고 합니다.`, ["reg_household_done", "own_household"], { card: "개인사업자 등록을 마친 상황입니다" }),
-    C("**등록 절차가 아직 진행 중입니다.**", `끝나는 대로 베트남 현지 법인 이름으로 ${cfg.noun}를 받을 예정입니다.`, ["reg_in_progress", "own_local"], { card: "현지 법인 등록이 진행 중인 상황입니다" }),
+  return { code, stage: 1, prompt: `사업자 등록은 지금 어떤 상황이고, 누구 이름으로 ${cfg.noun}${eulReul(cfg.noun)} 받을 생각이신가요?`, f: [`${p}_registration`, `${p}_owner`], choices: [
+    C("**법인 등록은 끝났습니다.**", `투자한 우리 법인 이름으로 ${cfg.noun}${eulReul(cfg.noun)} 받으려고 합니다.`, ["reg_company_done", "own_fdi"], { card: "외국인 투자 법인 등록을 마친 상황입니다" }),
+    C("**개인사업자로 등록했습니다.**", `제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 ${cfg.noun}${eulReul(cfg.noun)} 받으려고 합니다.`, ["reg_household_done", "own_household"], { card: "개인사업자 등록을 마친 상황입니다" }),
+    C("**등록 절차가 아직 진행 중입니다.**", `끝나는 대로 베트남 현지 법인 이름으로 ${cfg.noun}${eulReul(cfg.noun)} 받을 예정입니다.`, ["reg_in_progress", "own_local"], { card: "현지 법인 등록이 진행 중인 상황입니다" }),
     C("**등록은 아직 시작도 못 했습니다.**", "어떤 이름으로 해야 할지 몰라서, 주변에서 현지인 이름으로 하라는 말도 들었습니다.", ["reg_not_started", "own_partner"], { card: "사업자 등록 전이고 현지인 명의를 생각하는 상황입니다" }),
-    C("**지금 어떤 상태인지** 저도 잘 모르겠습니다.", `누구 이름으로 ${cfg.noun}를 받아야 하는지도 정하지 못했습니다.`, ["reg_unsure", "own_undecided"], { card: "등록 상태와 운영 주체부터 확인해야 하는 상황입니다" }),
+    C("**지금 어떤 상태인지** 저도 잘 모르겠습니다.", `누구 이름으로 ${cfg.noun}${eulReul(cfg.noun)} 받아야 하는지도 정하지 못했습니다.`, ["reg_unsure", "own_undecided"], { card: "등록 상태와 운영 주체부터 확인해야 하는 상황입니다" }),
   ] };
 }
 
@@ -45,7 +47,7 @@ export function docs(p, code, cfg, allLead = "**서류는 다 모았습니다.**
 
 export function timeline(p, code, cfg, r) {
   return { code, stage: 2, prompt: `허가는 언제까지 받아야 마음이 놓이고, ${cfg.openTopic} 언제쯤 시작하고 싶으신가요?`, f: [`${p}_timeline`, `${p}_openPlan`], choices: [
-    C("**한 달 안에는** 받아야 합니다.", `${cfg.dateWord}를 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.`, ["tl_urgent", "op_date"], { r: r[0] }),
+    C("**한 달 안에는** 받아야 합니다.", `${cfg.dateWord}${eulReul(cfg.dateWord)} 이미 정해 놓아서 허가가 늦어지면 미루기 어렵습니다.`, ["tl_urgent", "op_date"], { r: r[0] }),
     C("**두세 달 안에** 받으면 됩니다.", `${cfg.fitout ?? "공사가 끝나는 날에 맞춰"} ${cfg.openObj} 시작하려고 합니다.`, ["tl_2_3m", "op_after_fitout"], { r: r[1] }),
     C("**급하진 않습니다.**", `서두르다 놓치는 게 없도록 허가가 나온 걸 확인한 뒤에 천천히 ${cfg.openObj} 시작하고 싶습니다.`, ["tl_flexible", "op_after_permit"], { r: r[2] }),
     C("**언제까지인지** 모르겠습니다.", `허가가 언제까지 필요한지, ${cfg.openObj} 언제 시작할지도 아직 정하지 못했습니다.`, ["tl_unsure", "op_unsure"], { r: r[3] }),
