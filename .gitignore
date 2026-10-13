@@ -52,3 +52,4 @@ next-env.d.ts
 
 # QA 임시 로그인 저장 파일(토큰 포함)은 올리지 않는다
 /tests/qa/tmp-*auth-storage*.json
+tests/qa/_output/
