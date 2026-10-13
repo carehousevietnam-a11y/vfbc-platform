@@ -6,12 +6,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "의료기기와 관련해 어떤 절차가 필요하고, 제품은 어느 위험 등급에 속하나요?",
+      "prompt": "의료기기를 어떤 방식으로 다루시고, 그 제품은 어느 위험 등급에 속하나요?",
       "choices": [
         {
           "value": "o1",
           "label": "의료기기를 수입해서 팔려고 합니다.",
-          "description": "위험이 가장 낮은 등급의 소모품 위주로 들여오려고 합니다.",
+          "description": "거즈나 붕대처럼 위험이 가장 낮은 소모품이 중심입니다.",
           "fields": {
             "md_stage": "st_import",
             "md_class": "cl_a"
@@ -20,7 +20,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "베트남에서 만든 의료기기를 팔려고 합니다.",
-          "description": "위험이 낮은 등급의 기기로 분류된다고 들었습니다.",
+          "description": "혈압계처럼 위험이 낮은 일반 기기가 중심입니다.",
           "fields": {
             "md_stage": "st_local_make",
             "md_class": "cl_b"
@@ -29,7 +29,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "다른 회사 제품을 유통만 하려고 합니다.",
-          "description": "위험이 중간 이상인 등급의 장비도 함께 다룹니다.",
+          "description": "초음파 진단기처럼 위험이 중간 이상인 장비를 다룹니다.",
           "fields": {
             "md_stage": "st_trade",
             "md_class": "cl_c"
@@ -37,8 +37,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "등록한 내용을 바꿔야 합니다.",
-          "description": "환자에게 쓰는 위험이 가장 높은 등급의 의료 장비입니다.",
+          "label": "이미 등록한 내용을 바꿔야 합니다.",
+          "description": "임플란트처럼 몸속에 넣는 위험이 가장 높은 등급의 제품입니다.",
           "fields": {
             "md_stage": "st_change",
             "md_class": "cl_d"
@@ -145,7 +145,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "창고를 곧 계약할 예정입니다.",
-          "description": "제품 중에 냉장 상태로 보관해야 하는 것이 있습니다.",
+          "description": "냉장 보관이 필요한 제품이 있어 냉장 설비가 있는 창고를 찾고 있습니다.",
           "fields": {
             "md_warehouse": "wh_planned",
             "md_storage": "wc_cold"
@@ -211,8 +211,8 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "품질 서류를 아직 받지 못했습니다.",
-          "description": "우리 회사가 직접 만든 제품이라 위임장은 필요 없습니다.",
+          "label": "우리 회사가 직접 만든 제품입니다.",
+          "description": "그래서 위임장은 필요 없지만 품질 경영 인증서는 아직 없습니다.",
           "fields": {
             "md_qualityDocs": "qd_none",
             "md_authorization": "ma_own"
@@ -644,12 +644,12 @@ export const MEDICAL_CONTENT_FINAL = {
       "id": "medical_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "등록할 제품 모델은 몇 개이고, 제품 사고가 나면 어떻게 보고할 계획인가요?",
+      "prompt": "등록할 제품 범위는 어디까지이고, 그 제품에서 사고가 나면 누가 어떻게 보고하나요?",
       "choices": [
         {
           "value": "o1",
           "label": "모델 한두 개만 등록하려고 합니다.",
-          "description": "제품 사고가 나면 바로 보고할 담당자를 정해 두었습니다.",
+          "description": "이 모델에서 사고가 나면 바로 보고할 담당자를 정해 두었습니다.",
           "fields": {
             "md_models": "mo_few",
             "md_incident": "ir_ready"
@@ -658,7 +658,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "모델 여러 개를 함께 등록하려고 합니다.",
-          "description": "사고 보고 절차는 제조사의 방식을 따르려고 합니다.",
+          "description": "모델별 사고 보고는 제조사의 방식을 따르려고 합니다.",
           "fields": {
             "md_models": "mo_several",
             "md_incident": "ir_maker"
@@ -667,7 +667,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "제품군 전체를 들여오려고 합니다.",
-          "description": "사고가 나면 어떻게 보고해야 하는지 모르겠습니다.",
+          "description": "제품군에서 사고가 나면 어떻게 보고해야 하는지 모르겠습니다.",
           "fields": {
             "md_models": "mo_family",
             "md_incident": "ir_unknown"
@@ -676,7 +676,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "부속품까지 함께 등록해야 합니다.",
-          "description": "제품 사고 보고를 맡을 담당자를 곧 정할 예정입니다.",
+          "description": "부속품을 포함한 제품의 사고 보고 담당자를 곧 정할 예정입니다.",
           "fields": {
             "md_models": "mo_accessories",
             "md_incident": "ir_planned"
@@ -685,7 +685,7 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "몇 개를 등록할지 아직 모르겠습니다.",
-          "description": "사고 보고가 의무인지도 확인하지 못했습니다.",
+          "description": "등록 후 사고 보고가 의무인지도 확인하지 못했습니다.",
           "fields": {
             "md_models": "mo_unsure",
             "md_incident": "ir_unknown"

@@ -37,8 +37,8 @@ export const FRANCHISE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "등록한 내용을 바꿔야 합니다.",
-          "description": "미용실이나 피부 관리실 같은 뷰티 서비스 브랜드입니다.",
+          "label": "이미 등록한 내용을 바꿔야 합니다.",
+          "description": "등록한 브랜드는 미용실이나 피부 관리실 같은 뷰티 서비스입니다.",
           "fields": {
             "fr_stage": "st_change",
             "fr_business": "bz_beauty"
@@ -47,7 +47,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "어떤 절차가 필요한지 모르겠습니다.",
-          "description": "세탁이나 청소처럼 생활 서비스를 하는 브랜드입니다.",
+          "description": "세탁이나 청소 같은 생활 서비스 브랜드라 등록 대상인지부터 모릅니다.",
           "fields": {
             "fr_stage": "st_unsure",
             "fr_business": "bz_service"
@@ -185,7 +185,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o1",
           "label": "가맹계약서와 운영 매뉴얼을 모두 준비했습니다.",
-          "description": "브랜드 상표를 베트남에 이미 등록해 두었습니다.",
+          "description": "계약서에 쓰는 브랜드 상표도 베트남에 이미 등록해 두었습니다.",
           "fields": {
             "fr_contract": "cm_ready",
             "fr_trademark": "tm_registered_vn"
@@ -194,7 +194,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "가맹계약서만 준비했습니다.",
-          "description": "베트남에 상표를 출원해서 지금 심사를 기다리고 있습니다.",
+          "description": "계약서에 쓸 브랜드 상표는 베트남에 출원해 심사를 기다리고 있습니다.",
           "fields": {
             "fr_contract": "cm_contract_only",
             "fr_trademark": "tm_applied_vn"
@@ -203,7 +203,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "계약서와 매뉴얼 초안만 있습니다.",
-          "description": "상표는 본국에만 등록되어 있고 베트남에는 없습니다.",
+          "description": "계약서에 쓸 브랜드 상표는 본국에만 등록되어 있고 베트남에는 없습니다.",
           "fields": {
             "fr_contract": "cm_draft",
             "fr_trademark": "tm_home_only"
@@ -212,7 +212,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "계약서와 매뉴얼을 아직 만들지 않았습니다.",
-          "description": "상표 등록을 따로 해 본 적이 없습니다.",
+          "description": "계약서에 쓸 브랜드 상표를 등록해 본 적이 없습니다.",
           "fields": {
             "fr_contract": "cm_none",
             "fr_trademark": "tm_none"
@@ -221,7 +221,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "어떤 서류가 필요한지 모르겠습니다.",
-          "description": "상표가 어디에 등록되어 있는지도 확인하지 못했습니다.",
+          "description": "계약서에 쓸 브랜드 상표가 어디에 등록되어 있는지도 확인하지 못했습니다.",
           "fields": {
             "fr_contract": "cm_unknown",
             "fr_trademark": "tm_unknown"
@@ -386,7 +386,7 @@ export const FRANCHISE_CONTENT_FINAL = {
         {
           "value": "o4",
           "label": "소개서가 필요한지 모르겠습니다.",
-          "description": "가맹비와 로열티는 본사가 정한 금액을 그대로 씁니다.",
+          "description": "소개서에 들어갈 가맹비와 로열티는 본사가 정한 금액을 그대로 씁니다.",
           "fields": {
             "fr_disclosure": "ds_unknown",
             "fr_fees": "fee_set"
