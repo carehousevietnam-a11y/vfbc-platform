@@ -65,3 +65,9 @@
 - 익명 insert 정책 제거 SQL: supabase/security_phase3_drop_anon_insert.sql (A leads → 확인 → B crm_activities). 남은 crm 브라우저 insert 34곳은 접수 후(로그인) 경로라 B 전에 로그인 상태 동작(전문가 요청·AI 리포트·서류 제출·메시지)을 확인한다.
 - 별도 관찰(범위 밖, 승인 필요): authenticated 역할의 insert 정책 2개(authenticated_can_insert_leads, authenticated_can_insert_crm_activities)가 조건 없이 true라, 로그인한 누구나 남의 lead_id로 crm 기록을 넣을 수 있다. 서버 경유 전환이 끝났으니 소유자 조건(is_lead_owner / user_id = auth.uid())으로 좁히는 것을 다음 단계로 제안한다.
 - 주 속도 제한은 Vercel 방화벽 규칙으로 건다(Ace가 Vercel 설정에서 추가): 대상 경로 /api/lead-intake, /api/lead-submit, /api/funnel-event 에 IP당 분당 건수 제한. 서버 메모리 제한은 인스턴스마다 따로 세므로 보조일 뿐이다.
+
+### 3단계-2 적용 기록 (2026-10-13)
+- 운영 반영: chore/harness-v1 을 main 에 push(5264c3a..e985f68). main 이 운영 배포 브랜치였고, 그 전까지 운영에는 /api/lead-intake, /api/funnel-event 가 없었다(없는 주소와 같은 응답으로 확인).
+- SQL A 실행(Ace): drop policy "leads_anon_insert" on public.leads.
+- 운영 검증(Claude, 브라우저): 공개 키로 leads 직접 insert → 401 / 42501 (RLS 차단). 공개 키로 leads 조회 → 빈 배열. 서버 접수 /api/lead-intake → 200 ok (테스트 행 "TEST 삭제대상" 1건, 관리자 화면에서 삭제 필요).
+- 남은 일: SQL B(crm_activities 익명 insert 제거, 로그인 후 흐름 확인 뒤), 인증 사용자 insert 정책 소유자 한정, Vercel 방화벽 속도 제한, 공개 저장소 Private 전환, tests/qa/tmp-architect-auth-storage.json 제거.
