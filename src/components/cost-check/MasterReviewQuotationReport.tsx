@@ -3076,13 +3076,13 @@ export function MasterReviewQuotationReport({
             setSelectedKey(null);
             setEditingId(question.id);
           }}
-          className="flex w-full items-baseline gap-1.5 rounded-[4px] py-0.5 text-left transition hover:bg-[#F8FAFC] max-sm:flex-wrap max-sm:gap-y-0.5"
+          className="flex w-full items-baseline gap-1.5 rounded-[4px] py-0.5 text-left transition hover:bg-[#F8FAFC]"
         >
           <Check className="mt-px h-3 w-3 shrink-0 text-emerald-600" aria-hidden />
-          <span className="shrink-0 text-[11px] font-normal leading-snug text-[#94A3B8] max-sm:min-w-0 max-sm:shrink max-sm:basis-[calc(100%-1.125rem)] max-sm:break-keep">
+          <span className="shrink-0 text-[11px] font-normal leading-snug text-[#94A3B8] max-sm:hidden">
             {question.label}
           </span>
-          <span className="min-w-0 truncate text-[11px] font-medium leading-snug text-[#475569] max-sm:ml-[1.125rem] max-sm:basis-[calc(100%-1.125rem)] max-sm:overflow-visible max-sm:whitespace-normal max-sm:break-keep">
+          <span className="min-w-0 truncate text-[11px] font-medium leading-snug text-[#475569]">
             {formatCollapsedAnswerLabel(question, value, answers)}
           </span>
         </button>
@@ -3218,7 +3218,7 @@ export function MasterReviewQuotationReport({
                     }}
                     className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                   >
-                    {ADMIN_DIRECT_EXPLAIN_LABEL}
+                    {ADMIN_DIRECT_EXPLAIN_LABEL.replace(" → 직접 입력", " →\u00A0직접\u00A0입력")}
                   </button>
                 </div>
               ) : null}
@@ -3512,7 +3512,7 @@ export function MasterReviewQuotationReport({
                     }}
                     className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                   >
-                    {ADMIN_DIRECT_EXPLAIN_LABEL}
+                    {ADMIN_DIRECT_EXPLAIN_LABEL.replace(" → 직접 입력", " →\u00A0직접\u00A0입력")}
                   </button>
                 </div>
               </>
@@ -3712,7 +3712,7 @@ export function MasterReviewQuotationReport({
                   onClick={() => setRe2DirectExplainOpenId(question.id)}
                   className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                 >
-                  {ADMIN_DIRECT_EXPLAIN_LABEL}
+                  {ADMIN_DIRECT_EXPLAIN_LABEL.replace(" → 직접 입력", " →\u00A0직접\u00A0입력")}
                 </button>
               </div>
             ) : null}
