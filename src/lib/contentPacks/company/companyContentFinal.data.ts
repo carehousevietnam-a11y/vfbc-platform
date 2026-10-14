@@ -180,7 +180,7 @@ export const COMPANY_CONTENT_FINAL = {
       "id": "company_q4",
       "route": "C",
       "phase": 1,
-      "prompt": "법인 대표는 베트남에 상주하실 예정이고, 한국에서 가져올 서류의 인증은 어디까지 하셨나요?",
+      "prompt": "법인 대표는 누가 맡으실 예정이고, 한국에서 가져올 서류의 인증은 어디까지 하셨나요?",
       "choices": [
         {
           "value": "o1",

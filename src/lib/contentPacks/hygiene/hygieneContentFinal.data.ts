@@ -64,12 +64,12 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q2",
       "route": "R",
       "phase": 1,
-      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 식품 생산 시설 허가를 받을 생각이신가요?",
+      "prompt": "사업자 등록은 지금 어떤 상황이고, 누구 이름으로 식품 위생 허가를 받을 생각이신가요?",
       "choices": [
         {
           "value": "o1",
           "label": "법인 등록은 끝났습니다.",
-          "description": "투자한 우리 법인 이름으로 식품 생산 시설 허가를 받으려고 합니다.",
+          "description": "투자한 우리 법인 이름으로 식품 위생 허가를 받으려고 합니다.",
           "fields": {
             "hy_registration": "reg_company_done",
             "hy_owner": "own_fdi"
@@ -78,7 +78,7 @@ export const HYGIENE_CONTENT_FINAL = {
         {
           "value": "o2",
           "label": "개인사업자로 등록했습니다.",
-          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 식품 생산 시설 허가를 받으려고 합니다.",
+          "description": "제 이름으로 낸 사업자 등록증이 있어서, 그 이름으로 식품 위생 허가를 받으려고 합니다.",
           "fields": {
             "hy_registration": "reg_household_done",
             "hy_owner": "own_household"
@@ -87,7 +87,7 @@ export const HYGIENE_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "등록 절차가 아직 진행 중입니다.",
-          "description": "끝나는 대로 베트남 현지 법인 이름으로 식품 생산 시설 허가를 받을 예정입니다.",
+          "description": "끝나는 대로 베트남 현지 법인 이름으로 식품 위생 허가를 받을 예정입니다.",
           "fields": {
             "hy_registration": "reg_in_progress",
             "hy_owner": "own_local"
@@ -105,7 +105,7 @@ export const HYGIENE_CONTENT_FINAL = {
         {
           "value": "o5",
           "label": "지금 어떤 상태인지 저도 잘 모르겠습니다.",
-          "description": "누구 이름으로 식품 생산 시설 허가를 받아야 하는지도 정하지 못했습니다.",
+          "description": "누구 이름으로 식품 위생 허가를 받아야 하는지도 정하지 못했습니다.",
           "fields": {
             "hy_registration": "reg_unsure",
             "hy_owner": "own_undecided"
@@ -122,7 +122,7 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q3",
       "route": "R",
       "phase": 1,
-      "prompt": "작업장은 어디까지 갖추셨고, 재료가 들어와 제품이 나가는 길은 어떻게 되어 있나요?",
+      "prompt": "작업장이나 보관 공간은 어디까지 갖추셨고, 재료가 들어와 제품이 나가는 길은 어떻게 되어 있나요?",
       "choices": [
         {
           "value": "o1",

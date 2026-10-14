@@ -19,7 +19,7 @@ export const labels = {
   wq_city_check: "수돗물 검사 필요 여부 확인", wq_well_report: "지하수 검사 결과서 확인", wq_filter_report: "정수 설비 검사 확인", wq_choose: "검사에 맞는 물 선택 확인", wq_unknown: "검사 필요 여부와 기관 확인",
 };
 const cfg = {
-  noun: "식품 생산 시설 허가", openObj: "생산·판매를", openTopic: "생산·판매는", dateWord: "판매 시작 날짜", openNow: "이미 생산·판매를 하고 있습니다.",
+  noun: "식품 위생 허가", openObj: "생산·판매를", openTopic: "생산·판매는", dateWord: "판매 시작 날짜", openNow: "이미 생산·판매를 하고 있습니다.",
   operatingD: "생산·판매를 이미 시작했는데 허가가 아직 확인되지 않았습니다.",
   docsR: [
     "서류가 갖춰졌으니 도면의 구역 표시와 실제 시설이 같은지만 확인하고 접수하세요.",
@@ -45,7 +45,7 @@ export const questions = [
     C("**여러 매장에 음식을 보내는 중앙 주방**을 하려고 합니다.", "식당 허가로 되는지 따로 받아야 하는지 아무도 확실히 말해 주지 않습니다.", ["pt_central","pf_central_permit"], { card: "중앙 주방에 필요한 허가를 확인하려는 상황입니다" }),
   ] },
   V.registration(p, "Q2", cfg),
-  { code: "Q3", stage: 1, prompt: "작업장은 어디까지 갖추셨고, 재료가 들어와 제품이 나가는 길은 어떻게 되어 있나요?", f: [`${p}_facility`, `${p}_flow`], choices: [
+  { code: "Q3", stage: 1, prompt: "작업장이나 보관 공간은 어디까지 갖추셨고, 재료가 들어와 제품이 나가는 길은 어떻게 되어 있나요?", f: [`${p}_facility`, `${p}_flow`], choices: [
     C("**시설은 다 갖췄습니다.**", "재료가 들어와서 완제품이 나갈 때까지 한 방향으로 배치되어 있습니다.", ["fac_done","ln_one_way"], { card: "위생시설과 한 방향 작업 동선을 갖춘 상황입니다" }),
     C("**일부만 갖췄습니다.**", "재료가 지나는 길과 완제품이 지나는 길이 일부 겹치는데 괜찮은지 모르겠습니다.", ["fac_partial","ln_mixed"], { card: "시설이 일부만 있고 동선이 겹치는 상황입니다" }),
     C("**지금 공사 중입니다.**", "다른 업체와 건물을 같이 쓰는 곳이라 구역을 나눌 수 있을지 걱정됩니다.", ["fac_building","ln_shared"], { card: "시설 공사 중이고 공간을 함께 쓰는 상황입니다" }),
