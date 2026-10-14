@@ -107,8 +107,8 @@ if (!dResult) fail("direct input should still produce a result");
 const tierBase = pack.licenseTierRecommendation(answersAt(1));
 if (!["write", "accompany", "full"].includes(tierBase.tier)) fail("tier unexpected");
 const q5 = data.questions.find((q) => q.code === "Q5");
-const fullAnswers = { ...base, [q5.id]: q5.choices.find((c) => c.fields.lic_helpWanted === "help_full").value };
-if (pack.licenseTierRecommendation(fullAnswers).tier !== "full") fail("help_full should recommend full service");
+const fullAnswers = { ...base, [q5.id]: q5.choices.find((c) => c.fields.lic_situation === "sit_driving").value };
+if (pack.licenseTierRecommendation(fullAnswers).tier !== "full") fail("sit_driving should recommend full service");
 
 // 6. 저장·복원
 const meta = pack.buildLicensePhase2PersistMeta(base, 2);

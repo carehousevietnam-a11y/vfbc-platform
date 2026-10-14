@@ -1,5 +1,9 @@
 // TRC pilot content spec. Q1-Q5 = 1st stage (card), Q6-Q13 = 2nd stage (guide r).
 export const labels = {
+  fl_lost: "어디서 시작할지 막막함", fl_anxious: "진행 상황이 불안함", fl_confused: "사람마다 말이 달라 혼란", fl_afraid: "거주증 만료가 다가와 걱정됨", fl_tired: "서류가 한 번 반려되어 지침",
+  sit_search_vn: "베트남어 자료를 이해하기 어려움", sit_unknown_progress: "진행 상황을 알 수 없음", sit_conflicting: "안내가 서로 다름", sit_expiring: "갱신이 제때 될지 걱정됨", sit_rejected: "서류가 한 번 반려됨",
+  hw_none: "아직 알아본 곳 없음", hw_agency: "대행사·업체에 문의", hw_friend: "베트남 지인·직원에게 문의", hw_office: "접수처에 직접 방문", hw_online: "인터넷·인공지능으로 검색",
+  tw_nothing: "들은 내용 없음", tw_unverified: "공식 기준과 대조하지 못함", tw_old_way: "예전 방식인지 모름", tw_not_understood: "베트남어 설명을 이해하지 못함", tw_conflicting: "글마다 내용이 다름",
   new_issue: "처음 발급", renewal: "기존 거주증 갱신", after_visa_change: "비자 종류를 바꾼 뒤 발급", lost_reissue: "분실·훼손 재발급", stage_unsure: "어떤 절차인지 모름",
   stay_valid: "유효한 비자로 체류 중", stay_expiring: "만료일이 가까움", stay_outside: "현재 해외에 있음", stay_unsure: "체류 기간을 정확히 모름",
   visa_invest: "투자 비자", visa_work: "노동허가 비자", visa_tourist: "관광·단기 비자", visa_other: "그 밖의 비자", visa_unsure: "비자 종류를 모름",
@@ -8,8 +12,6 @@ export const labels = {
   pp_over_2y: "여권 2년 넘게 남음", pp_1_2y: "여권 1년에서 2년 남음", pp_under_1y: "여권 1년 미만 남음", pp_unknown: "여권 남은 기간 미확인",
   rej_none: "반려된 적 없음", rej_docs: "서류 보완 요구 이력", rej_sponsor: "회사·보증 문제 반려 이력", rej_stay: "체류 자격 문제 반려 이력", rej_unknown: "반려 사유를 모름",
   ph_self: "직접 신청", ph_agency: "대행사에 맡김", ph_company: "회사 담당자가 진행", ph_none: "신청 경험 없음",
-  concern_cost: "총비용 걱정", concern_docs: "필요 서류 걱정", concern_time: "일정 지연 걱정", concern_eligibility: "발급 자격 걱정", concern_quote: "받은 견적의 적정성 걱정",
-  help_guide: "서류 작성 안내를 원함", help_accompany: "서류 작성과 제출 동행을 원함", help_full: "전 과정 대행을 원함",
   docs_all: "기본 서류 모두 준비", docs_most: "기본 서류 대부분 준비", docs_half: "기본 서류 절반 준비", docs_little: "기본 서류 거의 미준비", docs_unknown: "필요 서류를 모름",
   tn_none: "번역·공증 필요 없음", tn_needed: "번역·공증 필요함", tn_unsure: "번역·공증 필요 여부 모름",
   tamtru_done: "임시 거주 신고 유효", tamtru_expired: "임시 거주 신고 기간 지남", tamtru_changed: "이사 후 재신고 안 함", tamtru_not_yet: "임시 거주 신고 안 함", tamtru_unsure: "신고 상태를 모름",
@@ -18,8 +20,6 @@ export const labels = {
   wp_have: "노동허가 보유", wp_in_progress: "노동허가 신청 전·진행 중", wp_exempt: "노동허가 면제 확인", wp_na: "노동허가 불필요", wp_unsure: "노동허가 필요 여부 모름",
   exp_under_2w: "2주 안에 만료", exp_2w_1m: "만료까지 2주에서 1개월", exp_1m_3m: "만료까지 1개월에서 3개월", exp_over_3m: "만료까지 3개월 넘게 남음", exp_expired: "이미 만료",
   cp_up_2y: "2년 이하 카드", cp_2_5y: "2년 초과 5년 이하 카드", cp_5_10y: "5년 초과 10년 이하 카드", cp_unsure: "카드 기간 미정",
-  quote_none: "받은 견적 없음", quote_one: "서면 견적 1건", quote_several: "여러 곳의 견적", quote_verbal: "말로만 들은 금액", quote_ad: "광고 가격만 봄",
-  qs_clear: "정부 수수료와 대행료가 구분됨", qs_mixed: "항목이 섞여 비교 어려움", qs_unknown: "포함 범위를 모름", qs_na: "비교할 견적 없음",
   nat_korea: "대한민국 국적", nat_china: "중국 국적", nat_japan: "일본 국적", nat_other_asia: "그 밖의 아시아 국적", nat_other: "그 밖의 지역 국적",
   sub_self: "직접 제출", sub_hr: "회사 담당자가 제출", sub_agency: "대행사가 제출", sub_undecided: "제출 방식 미정",
   ap_self_only: "본인만 신청", ap_spouse: "배우자와 함께 신청", ap_child: "자녀와 함께 신청", ap_spouse_children: "배우자·자녀와 함께 신청", ap_parents: "부모와 함께 신청",
@@ -57,12 +57,12 @@ export const questions = [
     C("**체류 자격 문제**로 반려된 적이 있습니다.", "회사의 인사 담당자가 대신 신청해 주었습니다.", ["rej_stay", "ph_company"], { card: "회사 담당자의 신청이 체류 자격 문제로 반려된 상황입니다" }),
     C("**반려되었지만 이유를 모릅니다.**", "직접 신청했는데 반려 사유에 대한 자세한 안내를 받지 못했습니다.", ["rej_unknown", "ph_self"], { card: "반려 사유를 모르는 채 다시 준비하는 상황입니다" }),
   ] },
-  { code: "Q5", stage: 1, prompt: "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?", f: ["trc_mainConcern", "trc_helpWanted"], choices: [
-    C("**총비용이 얼마인지** 걱정됩니다.", "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.", ["concern_cost", "help_guide"], { card: "총비용을 알고 직접 서류를 준비하려는 상황입니다" }),
-    C("**필요한 서류가 무엇인지** 모르겠습니다.", "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.", ["concern_docs", "help_guide"], { card: "필요한 서류부터 알고 싶은 상황입니다" }),
-    C("**일정이 늦어질까** 걱정됩니다.", "제출하는 날 출입국 사무소에 통역과 함께 가고 싶습니다.", ["concern_time", "help_accompany"], { card: "일정이 걱정되어 제출 동행을 원하는 상황입니다" }),
-    C("**발급 자격이 되는지** 모르겠습니다.", "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.", ["concern_eligibility", "help_full"], { card: "자격이 걱정되어 전 과정을 맡기고 싶은 상황입니다" }),
-    C("**받은 견적이 적정한지** 모르겠습니다.", "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.", ["concern_quote", "help_accompany"], { card: "받은 견적이 적정한지 확인하려는 상황입니다" }),
+  { code: "Q5", stage: 1, prompt: "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?", f: ["trc_feeling", "trc_situation"], choices: [
+    C("**어디서부터 시작해야 할지** 막막합니다.", "검색해 봤지만 베트남어 자료가 많아 어떤 서류가 맞는지 모르겠습니다.", ["fl_lost", "sit_search_vn"], { card: "어디서 시작할지 막막하고 베트남어 자료를 이해하기 어려운 상황입니다" }),
+    C("**일이 제대로 되고 있는지** 불안합니다.", "회사 직원이나 지인이 알아서 한다고 했는데 어디까지 됐는지 알 수 없습니다.", ["fl_anxious", "sit_unknown_progress"], { card: "맡긴 일이 어디까지 됐는지 알 수 없어 불안한 상황입니다" }),
+    C("**사람마다 말이 달라** 혼란스럽습니다.", "대행사, 지인, 접수처가 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.", ["fl_confused", "sit_conflicting"], { card: "사람마다 말이 달라 혼란스러운 상황입니다" }),
+    C("**거주증이 끊길까** 겁이 납니다.", "만료일이 다가오는데 갱신이 제때 될지, 신청이 늦지 않을지 걱정됩니다.", ["fl_afraid", "sit_expiring"], { card: "거주증 만료가 다가와 체류가 걱정되는 상황입니다" }),
+    C("**이미 한 번 서류가 돌아와** 지쳤습니다.", "접수했다가 서류가 부족하다고 돌려받은 적이 있습니다.", ["fl_tired", "sit_rejected"], { card: "서류가 한 번 되돌아와 지친 상황입니다" }),
   ] },
   { code: "Q6", stage: 2, prompt: "기본 서류는 어디까지 준비되어 있고, 번역이나 공증이 필요한 서류가 있나요?", f: ["trc_docsReady", "trc_translationNeed"], choices: [
     C("**여권과 사진, 신청서가 모두** 준비되었습니다.", "베트남어로 번역하거나 공증할 서류는 없습니다.", ["docs_all", "tn_none"], { r: "기본 서류가 갖춰져 있으니 서류 이름과 사본 수를 한 번 더 맞춰 보고 제출 일정부터 잡으세요." }),
@@ -92,12 +92,12 @@ export const questions = [
     C("**3개월 넘게 남아** 있습니다.", "몇 년짜리 카드가 내 상황에 맞는지 아직 몰라서 비교해 보고 싶습니다.", ["exp_over_3m", "cp_unsure"], { r: "시간 여유가 있으니 카드 기간별 수수료(145·155·165달러)를 비교해 기간을 정하세요." }),
     C("**이미 만료**되었습니다.", "2년 이하의 짧은 카드로 우선 정리하고 나중에 다시 연장하고 싶습니다.", ["exp_expired", "cp_up_2y"], { r: "만료 후 체류 상태에 따라 절차가 달라질 수 있으니 체류 상태 확인을 가장 먼저 하세요." }),
   ] },
-  { code: "Q10", stage: 2, prompt: "받아 본 견적은 몇 건이고, 정부 수수료와 대행 범위가 구분되어 있나요?", f: ["trc_quoteStatus", "trc_quoteScope"], choices: [
-    C("**견적을 받은 적이 없습니다.**", "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.", ["quote_none", "qs_na"], { r: "견적을 받기 전에 정부 수수료와 대행료, 번역·공증비를 나누어 요청하세요." }),
-    C("**한 곳에서 서면 견적**을 받았습니다.", "정부 수수료와 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.", ["quote_one", "qs_clear"], { r: "항목이 나뉘어 있으니 정부 수수료가 공식 금액과 같은지만 대조해 보세요." }),
-    C("**여러 곳에서 견적**을 받았습니다.", "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.", ["quote_several", "qs_mixed"], { r: "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다." }),
-    C("**말로만 금액**을 들었습니다.", "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.", ["quote_verbal", "qs_unknown"], { r: "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요." }),
-    C("**광고에 나온 가격**만 보았습니다.", "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.", ["quote_ad", "qs_unknown"], { r: "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요." }),
+  { code: "Q10", stage: 2, prompt: "지금까지 이 일을 알아보셨다면, 누구에게 어떤 이야기를 들으셨나요?", f: ["trc_helperWho", "trc_toldWhat"], choices: [
+    C("**아직 알아본 곳이 없습니다.**", "어디에 물어봐야 하는지, 무엇부터 준비해야 하는지부터 알고 싶습니다.", ["hw_none", "tw_nothing"], { r: "먼저 담당 접수처가 어디인지 확인하고 필요한 서류 목록을 문서로 받으세요." }),
+    C("**대행사나 업체**에 물어봤습니다.", "필요한 서류와 절차를 들었는데 공식 기준과 맞는지 확인하지 못했습니다.", ["hw_agency", "tw_unverified"], { r: "업체에서 들은 서류 목록은 접수처의 공식 안내와 한 번 대조해 보세요." }),
+    C("**베트남 지인이나 직원**에게 물어봤습니다.", "예전에 해 본 경험을 들었는데 지금도 같은 방식인지 모르겠습니다.", ["hw_friend", "tw_old_way"], { r: "제도가 최근 바뀌었을 수 있어 지인의 경험은 접수처의 현재 안내와 대조해 확인하세요." }),
+    C("**접수처에 직접** 가 보았습니다.", "베트남어로 설명을 들었는데 정확히 무슨 뜻인지 이해하지 못했습니다.", ["hw_office", "tw_not_understood"], { r: "접수처에서 들은 내용은 메모나 사진으로 남겨 서류 목록과 다시 확인하세요." }),
+    C("**인터넷이나 인공지능**으로 찾아봤습니다.", "글마다 내용이 달라서 어느 것이 최신인지 알 수 없습니다.", ["hw_online", "tw_conflicting"], { r: "인터넷 글과 인공지능 번역은 날짜와 지역이 다를 수 있으니 공식 기관 안내를 기준으로 확인하세요." }),
   ] },
   { code: "Q11", stage: 2, prompt: "신청하시는 분의 국적은 어디이고, 신청서는 누가 제출하게 될 예정인가요?", f: ["trc_nationality", "trc_submitter"], choices: [
     C("**대한민국** 국적입니다.", "제가 직접 출입국 사무소에 가서 서류를 제출하려고 준비하고 있습니다.", ["nat_korea", "sub_self"], { r: "직접 제출한다면 접수 시간과 원본·사본 구분, 통역 필요 여부를 미리 확인하세요." }),
@@ -125,25 +125,25 @@ export const questions = [
 // ── 1차 결과: 카드(Q1~Q4) 제목, 상황 정리(Q5 선택별 제목+안내). 판정·점수·가격은 넣지 않는다.
 export const cardTitles = { Q1: "신청 단계", Q2: "비자와 직위", Q3: "회사와 여권", Q4: "이전 이력" };
 export const summaries = {
-  "trc_mainConcern=concern_cost|trc_helpWanted=help_guide": {
-    headline: "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-    body: "공식 수수료는 카드 기간에 따라 145·155·165달러로 정해져 있고, 번역·공증과 대행료는 별도로 확인해야 합니다. 서류 목록을 받아 직접 준비하는 순서로 정리하세요.",
-  },
-  "trc_mainConcern=concern_docs|trc_helpWanted=help_guide": {
-    headline: "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+  "trc_feeling=fl_lost|trc_situation=sit_search_vn": {
+    headline: "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
     body: "거주증 신청에는 신청서, 여권과 사진, 비자, 거주지와 초청 회사 서류가 기본으로 필요합니다. 신청 유형에 따라 달라지므로 서류 목록을 단계별로 확인하세요.",
   },
-  "trc_mainConcern=concern_time|trc_helpWanted=help_accompany": {
-    headline: "일정 지연이 걱정되어 제출 동행을 원하는 상황입니다",
-    body: "서류가 갖춰진 뒤에 접수해야 처리 기간이 시작되고, 보완 요구가 생기면 늘어날 수 있습니다. 제출 전에 서류를 한 번 더 점검하면 보완 요구를 줄일 수 있습니다.",
+  "trc_feeling=fl_anxious|trc_situation=sit_unknown_progress": {
+    headline: "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
+    body: "어떤 서류를 언제 접수했는지 문서로 받아 확인하세요. 서류가 갖춰진 뒤에 접수해야 처리 기간이 시작되고 보완 요구가 생기면 늘어날 수 있습니다.",
   },
-  "trc_mainConcern=concern_eligibility|trc_helpWanted=help_full": {
-    headline: "발급 자격이 걱정되어 전 과정을 맡기려는 상황입니다",
-    body: "거주증은 비자 종류와 초청 주체, 체류 상태에 따라 가능 여부가 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다.",
+  "trc_feeling=fl_confused|trc_situation=sit_conflicting": {
+    headline: "사람마다 말이 달라 혼란스러운 상황입니다",
+    body: "설명이 다를 때는 접수처의 공식 안내를 기준으로 비자 종류와 초청 주체에 맞는 서류 목록을 다시 대조하세요.",
   },
-  "trc_mainConcern=concern_quote|trc_helpWanted=help_accompany": {
-    headline: "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-    body: "견적은 정부 수수료, 번역·공증, 대행료가 나뉘어 있는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 어디서 생기는지 알 수 있습니다.",
+  "trc_feeling=fl_afraid|trc_situation=sit_expiring": {
+    headline: "거주증 만료가 다가와 체류가 걱정되는 상황입니다",
+    body: "만료가 가까우면 갱신이나 새 신청이 늦지 않도록 준비해야 합니다. 비자 종류와 초청 회사 서류 상태부터 확인하세요.",
+  },
+  "trc_feeling=fl_tired|trc_situation=sit_rejected": {
+    headline: "서류가 한 번 되돌아와 지친 상황입니다",
+    body: "서류가 돌아온 이유를 접수처에서 문서나 메모로 받아 초청 회사 서류와 거주지 서류부터 다시 확인하세요.",
   },
 };
 export const risks = {
@@ -155,18 +155,17 @@ export const risks = {
     { id: "company", clauses: [["trc_companyStatus", ["company_unregistered", "company_unsure"]]], sentence: "초청 회사가 등록 전이거나 정해지지 않았다면 초청 서류를 만들 수 없어 회사 상태부터 확인해야 합니다" },
     { id: "passport", clauses: [["trc_passportRemain", ["pp_under_1y", "pp_unknown"]]], sentence: "여권 남은 기간이 짧으면 카드 기간이 짧아지거나 여권 갱신이 먼저 필요할 수 있습니다" },
     { id: "rejection", clauses: [["trc_rejection", ["rej_docs", "rej_sponsor", "rej_stay", "rej_unknown"]]], sentence: "이전 반려 사유를 확인하면 같은 문제를 피할 수 있으니 반려 통지나 안내를 먼저 찾아보세요" },
-    { id: "quote", clauses: [["trc_mainConcern", ["concern_quote"]]], sentence: "받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요" },
     { id: "lost", clauses: [["trc_stage", ["lost_reissue"]]], sentence: "분실 재발급은 분실 사실을 확인하는 서류가 추가로 필요할 수 있습니다" },
     { id: "expiry", clauses: [["trc_expiryRemain", ["exp_under_2w", "exp_expired"]]], sentence: "만료가 2주 안이거나 이미 지났다면 접수 가능 여부와 체류 연장부터 바로 확인해야 합니다" },
     { id: "host", clauses: [["trc_hostDocs", ["host_changes", "host_inactive", "host_unknown"]]], sentence: "회사 서류가 바뀌는 중이거나 상태를 모르면 초청 서류가 반려될 수 있어 회사 서류부터 맞춰야 합니다" },
     { id: "tamtru", clauses: [["trc_tamtruStatus", ["tamtru_expired", "tamtru_changed", "tamtru_not_yet", "tamtru_unsure"]]], sentence: "임시 거주 신고가 지났거나 주소가 다르면 거주증 접수 전에 신고부터 바로잡아야 합니다" },
   ],
 };
-export const phase2Titles = { Q6: "기본 서류", Q7: "임시 거주 신고", Q8: "회사 서류와 노동허가", Q9: "만료 일정과 카드 기간", Q10: "견적과 비용", Q11: "제출 방식", Q12: "동반 가족", Q13: "제출 지역" };
+export const phase2Titles = { Q6: "기본 서류", Q7: "임시 거주 신고", Q8: "회사 서류와 노동허가", Q9: "만료 일정과 카드 기간", Q10: "지금까지 알아본 내용", Q11: "제출 방식", Q12: "동반 가족", Q13: "제출 지역" };
 export const connections = [
   { name: "임시 거주 신고 확인", clauses: [["trc_tamtruStatus", ["tamtru_expired", "tamtru_changed", "tamtru_not_yet", "tamtru_unsure"]]], sentence: "거주 신고가 정리되지 않았다면 임시 거주 신고 확인에서 먼저 점검해 보실 수 있습니다.", path: "/check/tamtru" },
   { name: "노동허가 확인", clauses: [["trc_permitLink", ["wp_in_progress", "wp_unsure"]]], sentence: "노동허가가 아직 정리되지 않았다면 노동허가 확인에서 함께 점검해 보실 수 있습니다.", path: "/check/wp" },
-  { name: "전문가 진행", clauses: [["trc_expiryRemain", ["exp_under_2w", "exp_expired"]], ["trc_hostDocs", ["host_changes", "host_inactive"]], ["trc_helpWanted", ["help_full"]]], sentence: "만료가 가깝거나 회사 정보가 바뀌는 중이라면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },
+  { name: "전문가 진행", clauses: [["trc_expiryRemain", ["exp_under_2w", "exp_expired"]], ["trc_hostDocs", ["host_changes", "host_inactive"]], ["trc_situation", ["sit_expiring"]]], sentence: "만료가 가깝거나 회사 정보가 바뀌는 중이라면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },
 ];
 export const afterResultGuide = ["서류 목록 확인", "수수료 구간 확인", "번역·공증 준비", "거주 신고 확인", "접수 일정 확인"];
 export const directNotice = "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다.";
@@ -182,8 +181,8 @@ export const reportGuide = {
   ] },
 };
 export const tierRules = [
-  { tier: "full", label: "전 과정 대행", clauses: [["trc_helpWanted", ["help_full"]], ["trc_expiryRemain", ["exp_under_2w", "exp_expired"]], ["trc_hostDocs", ["host_changes", "host_inactive"]]] },
-  { tier: "accompany", label: "작성과 제출 동행", clauses: [["trc_helpWanted", ["help_accompany"]], ["trc_submitter", ["sub_undecided"]], ["trc_officeKnown", ["of_unknown", "of_changed"]]] },
+  { tier: "full", label: "전 과정 대행", clauses: [["trc_situation", ["sit_expiring"]], ["trc_expiryRemain", ["exp_under_2w", "exp_expired"]], ["trc_hostDocs", ["host_changes", "host_inactive"]]] },
+  { tier: "accompany", label: "작성과 제출 동행", clauses: [["trc_situation", ["sit_rejected"]], ["trc_submitter", ["sub_undecided"]], ["trc_officeKnown", ["of_unknown", "of_changed"]]] },
 ];
 export const tierDefault = { tier: "write", label: "서류 작성" };
 export const visaMap = { visa_invest: "invest", visa_work: "work", visa_tourist: "tourist", visa_other: "other", visa_unsure: "other" };

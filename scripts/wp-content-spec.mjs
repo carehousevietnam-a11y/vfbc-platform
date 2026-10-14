@@ -1,6 +1,10 @@
 // WP(노동허가) content spec. Q1-Q5 = 1st stage (card), Q6-Q13 = 2nd stage (guide r).
 // 근거: 노동허가 시행령 219/2025/NĐ-CP (2025.8.7 시행). 판정 함수(computeWpResultTone)는 바꾸지 않는다.
 export const labels = {
+  fl_lost: "어디서 시작할지 막막함", fl_anxious: "진행 상황이 불안함", fl_confused: "사람마다 말이 달라 혼란", fl_afraid: "허가 없이 일하는 것이 걱정됨", fl_tired: "서류가 한 번 반려되어 지침",
+  sit_search_vn: "베트남어 자료를 이해하기 어려움", sit_unknown_progress: "진행 상황을 알 수 없음", sit_conflicting: "안내가 서로 다름", sit_working: "일을 시작했는데 허가가 아직 없음", sit_rejected: "서류가 한 번 반려됨",
+  hw_none: "아직 알아본 곳 없음", hw_agency: "대행사·업체에 문의", hw_friend: "베트남 지인·직원에게 문의", hw_office: "접수처에 직접 방문", hw_online: "인터넷·인공지능으로 검색",
+  tw_nothing: "들은 내용 없음", tw_unverified: "공식 기준과 대조하지 못함", tw_old_way: "예전 방식인지 모름", tw_not_understood: "베트남어 설명을 이해하지 못함", tw_conflicting: "글마다 내용이 다름",
   new_issue: "처음 발급", extension: "기존 노동허가 연장", job_change: "회사를 옮겨 새로 발급", exemption_check: "면제 대상 여부 확인", stage_unsure: "어떤 절차인지 모름",
   job_expert: "전문가 직무", job_technical: "기술 인력 직무", job_manager: "관리자·임원 직무", job_unskilled: "단순 업무 위주", job_unsure: "맡을 직무 미정",
   edu_postgrad: "대학원 졸업", edu_university: "대학 졸업", edu_college: "전문대·직업학교 졸업", edu_highschool: "고등학교 졸업", edu_unsure: "학력 인정 기준을 모름",
@@ -9,8 +13,6 @@ export const labels = {
   pri_yes: "기술·혁신·디지털 전환 등 우선 분야", pri_no: "일반 업종", pri_unsure: "우선 분야 해당 여부를 모름",
   emp_fdi: "외국인 투자 법인", emp_local: "베트남 현지 법인", emp_rep_office: "외국 회사 대표사무소·지사", emp_unregistered: "등록 전 회사", emp_unsure: "고용 회사 미정",
   hist_none: "노동허가 경험 없음", hist_held: "이전 노동허가 문제없이 보유", hist_docs: "서류 보완 요구 이력", hist_rejected: "반려 이력", hist_unknown: "이전 이력을 모름",
-  concern_cost: "총비용 걱정", concern_docs: "필요 서류 걱정", concern_time: "일정 지연 걱정", concern_eligibility: "발급 자격 걱정", concern_quote: "받은 견적의 적정성 걱정",
-  help_guide: "서류 작성 안내를 원함", help_accompany: "서류 작성과 제출 동행을 원함", help_full: "전 과정 대행을 원함",
   docs_all: "기본 서류 모두 준비", docs_most: "기본 서류 대부분 준비", docs_half: "기본 서류 절반 준비", docs_little: "기본 서류 거의 미준비", docs_unknown: "필요 서류를 모름",
   tn_none: "번역·공증 필요 없음", tn_needed: "번역·공증 필요함", tn_unsure: "번역·공증 필요 여부 모름",
   cr_ready: "범죄경력증명서 준비됨", cr_home_pending: "본국 범죄경력증명서 발급 예정", cr_vn_pending: "베트남 범죄경력증명서 발급 예정", cr_expired: "범죄경력증명서 기간 지남", cr_unknown: "범죄경력증명서 발급처를 모름",
@@ -19,8 +21,6 @@ export const labels = {
   per_2y: "2년 허가 희망", per_1y: "1년 허가 희망", per_contract: "계약 기간에 맞춘 허가 희망", per_short: "3개월 미만 단기 근무", per_unsure: "허가 기간 미정",
   mm_match: "전공과 직무 일치", mm_related: "전공과 직무가 관련됨", mm_unrelated: "전공과 직무 무관", mm_certificate: "자격증으로 직무 증명", mm_unsure: "전공 일치 여부를 모름",
   ep_letter: "경력 확인서 보유", ep_hard: "경력 확인서 받기 어려움", ep_contract: "근로계약서·급여 기록만 있음", ep_unknown: "경력 증명 방법을 모름",
-  quote_none: "받은 견적 없음", quote_one: "서면 견적 1건", quote_several: "여러 곳의 견적", quote_verbal: "말로만 들은 금액", quote_ad: "광고 가격만 봄",
-  qs_clear: "정부 수수료와 대행료가 구분됨", qs_mixed: "항목이 섞여 비교 어려움", qs_unknown: "포함 범위를 모름", qs_na: "비교할 견적 없음",
   nat_korea: "대한민국 국적", nat_china: "중국 국적", nat_japan: "일본 국적", nat_other_asia: "그 밖의 아시아 국적", nat_other: "그 밖의 지역 국적",
   sub_self: "직접 제출", sub_hr: "회사 담당자가 제출", sub_agency: "대행사가 제출", sub_undecided: "제출 방식 미정",
   rn_done: "구인 공고 게시 완료", rn_not_yet: "구인 공고 게시 전", rn_unknown: "구인 공고 필요 여부를 모름", rn_exempt: "면제 대상이라 공고 불필요", rn_hr: "회사 담당자가 공고 진행",
@@ -58,12 +58,12 @@ export const questions = [
     C("**아직 등록이 끝나지 않은 회사**입니다.", "이전에 신청했다가 반려된 적이 있어서 이번에는 조심스럽습니다.", ["emp_unregistered", "hist_rejected"], { card: "회사 등록 전이고 반려 이력이 있는 상황입니다" }),
     C("**고용할 회사가 아직 정해지지 않았습니다.**", "예전에 받은 노동허가 이력이 어떻게 되어 있는지 모릅니다.", ["emp_unsure", "hist_unknown"], { card: "고용 회사와 이전 이력을 확인해야 하는 상황입니다" }),
   ] },
-  { code: "Q5", stage: 1, prompt: "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?", f: ["wp_mainConcern", "wp_helpWanted"], choices: [
-    C("**총비용이 얼마인지** 걱정됩니다.", "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.", ["concern_cost", "help_guide"], { card: "총비용을 알고 직접 서류를 준비하려는 상황입니다" }),
-    C("**필요한 서류가 무엇인지** 모르겠습니다.", "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.", ["concern_docs", "help_guide"], { card: "필요한 서류부터 알고 싶은 상황입니다" }),
-    C("**근무 시작 전에 끝날지** 걱정됩니다.", "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.", ["concern_time", "help_accompany"], { card: "일정이 걱정되어 제출 동행을 원하는 상황입니다" }),
-    C("**발급 자격이 되는지** 모르겠습니다.", "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.", ["concern_eligibility", "help_full"], { card: "자격이 걱정되어 전 과정을 맡기고 싶은 상황입니다" }),
-    C("**받은 견적이 적정한지** 모르겠습니다.", "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.", ["concern_quote", "help_accompany"], { card: "받은 견적이 적정한지 확인하려는 상황입니다" }),
+  { code: "Q5", stage: 1, prompt: "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?", f: ["wp_feeling", "wp_situation"], choices: [
+    C("**어디서부터 시작해야 할지** 막막합니다.", "검색해 봤지만 베트남어 자료가 많아 어떤 서류가 맞는지 모르겠습니다.", ["fl_lost", "sit_search_vn"], { card: "어디서 시작할지 막막하고 베트남어 자료를 이해하기 어려운 상황입니다" }),
+    C("**일이 제대로 되고 있는지** 불안합니다.", "회사 직원이나 지인이 알아서 한다고 했는데 어디까지 됐는지 알 수 없습니다.", ["fl_anxious", "sit_unknown_progress"], { card: "맡긴 일이 어디까지 됐는지 알 수 없어 불안한 상황입니다" }),
+    C("**사람마다 말이 달라** 혼란스럽습니다.", "회사, 대행사, 접수처가 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.", ["fl_confused", "sit_conflicting"], { card: "사람마다 말이 달라 혼란스러운 상황입니다" }),
+    C("**허가 없이 일하는 것** 같아 겁이 납니다.", "일을 이미 시작했는데 노동허가가 아직 나오지 않았습니다.", ["fl_afraid", "sit_working"], { card: "허가 없이 일을 시작해 걱정되는 상황입니다" }),
+    C("**이미 한 번 서류가 돌아와** 지쳤습니다.", "접수했다가 서류가 부족하다고 돌려받은 적이 있습니다.", ["fl_tired", "sit_rejected"], { card: "서류가 한 번 되돌아와 지친 상황입니다" }),
   ] },
   { code: "Q6", stage: 2, prompt: "기본 서류는 어디까지 준비되어 있고, 번역이나 공증이 필요한 서류가 있나요?", f: ["wp_docsReady", "wp_translation"], choices: [
     C("**여권, 사진, 학위·경력 서류가 모두** 준비되었습니다.", "베트남어로 번역하거나 공증할 서류는 남아 있지 않습니다.", ["docs_all", "tn_none"], { r: "기본 서류가 갖춰져 있으니 서류마다 발급일과 유효기간을 맞춰 보고 제출 일정부터 잡으세요." }),
@@ -93,12 +93,12 @@ export const questions = [
     C("**자격증으로 직무를 증명**하려고 합니다.", "경력은 근로계약서와 급여 기록으로만 보여 줄 수 있습니다.", ["mm_certificate", "ep_contract"], { r: "자격증이 직무 증명으로 인정되는지와, 계약서만으로 경력이 인정되는지를 함께 확인하세요." }),
     C("**전공이 맞는지 판단하기 어렵습니다.**", "경력을 어떤 서류로 증명해야 하는지도 모르겠습니다.", ["mm_unsure", "ep_unknown"], { r: "학위증과 경력 서류를 함께 놓고 직무와 맞는 부분을 표시해 보면 부족한 서류가 보입니다." }),
   ] },
-  { code: "Q10", stage: 2, prompt: "받아 본 견적은 몇 건이고, 정부 수수료와 대행 범위가 구분되어 있나요?", f: ["wp_quoteStatus", "wp_quoteScope"], choices: [
-    C("**견적을 받은 적이 없습니다.**", "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.", ["quote_none", "qs_na"], { r: "견적을 받기 전에 정부 수수료와 대행료, 번역·인증비를 나누어 요청하세요." }),
-    C("**한 곳에서 서면 견적**을 받았습니다.", "정부 수수료와 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.", ["quote_one", "qs_clear"], { r: "항목이 나뉘어 있으니 정부 수수료가 지역 공식 금액과 같은지만 대조해 보세요." }),
-    C("**여러 곳에서 견적**을 받았습니다.", "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.", ["quote_several", "qs_mixed"], { r: "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다." }),
-    C("**말로만 금액**을 들었습니다.", "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.", ["quote_verbal", "qs_unknown"], { r: "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요." }),
-    C("**광고에 나온 가격**만 보았습니다.", "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.", ["quote_ad", "qs_unknown"], { r: "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요." }),
+  { code: "Q10", stage: 2, prompt: "지금까지 이 일을 알아보셨다면, 누구에게 어떤 이야기를 들으셨나요?", f: ["wp_helperWho", "wp_toldWhat"], choices: [
+    C("**아직 알아본 곳이 없습니다.**", "어디에 물어봐야 하는지, 무엇부터 준비해야 하는지부터 알고 싶습니다.", ["hw_none", "tw_nothing"], { r: "먼저 담당 접수처가 어디인지 확인하고 필요한 서류 목록을 문서로 받으세요." }),
+    C("**대행사나 업체**에 물어봤습니다.", "필요한 서류와 절차를 들었는데 공식 기준과 맞는지 확인하지 못했습니다.", ["hw_agency", "tw_unverified"], { r: "업체에서 들은 서류 목록은 접수처의 공식 안내와 한 번 대조해 보세요." }),
+    C("**베트남 지인이나 직원**에게 물어봤습니다.", "예전에 해 본 경험을 들었는데 지금도 같은 방식인지 모르겠습니다.", ["hw_friend", "tw_old_way"], { r: "제도가 최근 바뀌었을 수 있어 지인의 경험은 접수처의 현재 안내와 대조해 확인하세요." }),
+    C("**접수처에 직접** 가 보았습니다.", "베트남어로 설명을 들었는데 정확히 무슨 뜻인지 이해하지 못했습니다.", ["hw_office", "tw_not_understood"], { r: "접수처에서 들은 내용은 메모나 사진으로 남겨 서류 목록과 다시 확인하세요." }),
+    C("**인터넷이나 인공지능**으로 찾아봤습니다.", "글마다 내용이 달라서 어느 것이 최신인지 알 수 없습니다.", ["hw_online", "tw_conflicting"], { r: "인터넷 글과 인공지능 번역은 날짜와 지역이 다를 수 있으니 공식 기관 안내를 기준으로 확인하세요." }),
   ] },
   { code: "Q11", stage: 2, prompt: "신청하시는 분의 국적은 어디이고, 신청서는 누가 제출하게 될 예정인가요?", f: ["wp_nationality", "wp_submitter"], choices: [
     C("**대한민국** 국적입니다.", "제가 직접 담당 기관에 서류를 제출하려고 준비하고 있습니다.", ["nat_korea", "sub_self"], { r: "노동허가는 보통 회사 명의로 신청하니, 직접 제출해도 되는지와 위임 서류를 확인하세요." }),
@@ -126,25 +126,25 @@ export const questions = [
 // ── 1차 결과: 카드(Q1~Q4) 제목, 상황 정리(Q5 선택별 제목+안내). 판정·점수·가격은 넣지 않는다.
 export const cardTitles = { Q1: "신청 단계와 직무", Q2: "학력과 인증", Q3: "경력과 분야", Q4: "회사와 이력" };
 export const summaries = {
-  "wp_mainConcern=concern_cost|wp_helpWanted=help_guide": {
-    headline: "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-    body: "노동허가 수수료는 지역마다 정해져 있고, 학위·경력 서류의 인증과 번역 비용이 따로 듭니다. 서류 목록을 받아 본국에서 받을 서류부터 준비하세요.",
-  },
-  "wp_mainConcern=concern_docs|wp_helpWanted=help_guide": {
-    headline: "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+  "wp_feeling=fl_lost|wp_situation=sit_search_vn": {
+    headline: "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
     body: "노동허가에는 신청서, 건강검진서, 범죄경력증명서, 학위·경력 증명, 사진과 여권 사본이 기본으로 필요합니다. 직무 구분에 따라 달라지므로 목록을 먼저 확인하세요.",
   },
-  "wp_mainConcern=concern_time|wp_helpWanted=help_accompany": {
-    headline: "근무 시작 일정이 걱정되어 제출 동행을 원하는 상황입니다",
-    body: "서류가 모두 갖춰진 뒤 처리 기간이 시작되며, 근무 시작 전 정해진 기간 안에 제출해야 합니다. 본국 서류의 인증 기간을 먼저 계산하면 일정을 맞추기 쉽습니다.",
+  "wp_feeling=fl_anxious|wp_situation=sit_unknown_progress": {
+    headline: "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
+    body: "어떤 서류를 언제 접수했는지 문서로 받아 확인하세요. 서류가 모두 갖춰진 뒤에 처리 기간이 시작됩니다.",
   },
-  "wp_mainConcern=concern_eligibility|wp_helpWanted=help_full": {
-    headline: "발급 자격이 걱정되어 전 과정을 맡기려는 상황입니다",
-    body: "노동허가는 학력, 관련 경력, 직무 구분, 우선 분야 여부에 따라 기준이 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다.",
+  "wp_feeling=fl_confused|wp_situation=sit_conflicting": {
+    headline: "사람마다 말이 달라 혼란스러운 상황입니다",
+    body: "설명이 다를 때는 접수처의 공식 안내를 기준으로 직무 구분에 맞는 서류 목록을 다시 대조하세요.",
   },
-  "wp_mainConcern=concern_quote|wp_helpWanted=help_accompany": {
-    headline: "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-    body: "견적은 정부 수수료, 인증·번역, 건강검진, 대행료가 나뉘어 있는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 어디서 생기는지 알 수 있습니다.",
+  "wp_feeling=fl_afraid|wp_situation=sit_working": {
+    headline: "허가 없이 일을 시작해 걱정되는 상황입니다",
+    body: "허가 없이 일하면 제재를 받을 수 있어 신청을 바로 서둘러야 합니다. 본국 서류의 인증 기간을 먼저 계산하면 일정을 맞추기 쉽습니다.",
+  },
+  "wp_feeling=fl_tired|wp_situation=sit_rejected": {
+    headline: "서류가 한 번 되돌아와 지친 상황입니다",
+    body: "서류가 돌아온 이유를 접수처에서 문서나 메모로 받아 학위·경력 증명의 인증과 번역부터 다시 확인하세요.",
   },
 };
 export const risks = {
@@ -156,16 +156,15 @@ export const risks = {
     { id: "experience", clauses: [["wp_experience", ["exp_under1", "exp_unsure"]]], sentence: "관련 경력이 짧거나 증명이 어려우면 경력 기준을 채우는지 먼저 확인해야 합니다" },
     { id: "employer", clauses: [["wp_employer", ["emp_unregistered", "emp_unsure"]]], sentence: "고용 회사가 등록 전이거나 정해지지 않았다면 회사 명의로 신청할 수 없어 회사부터 정리해야 합니다" },
     { id: "history", clauses: [["wp_history", ["hist_docs", "hist_rejected", "hist_unknown"]]], sentence: "이전 보완 요구나 반려 사유를 확인하면 같은 문제를 피할 수 있으니 관련 안내부터 찾아보세요" },
-    { id: "quote", clauses: [["wp_mainConcern", ["concern_quote"]]], sentence: "받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요" },
     { id: "start", clauses: [["wp_startTiming", ["st_under_10d", "st_started"]]], sentence: "근무 시작이 10일도 남지 않았거나 이미 일하고 있다면 제출 기한과 제재 위험부터 바로 확인해야 합니다" },
     { id: "record", clauses: [["wp_criminalRecord", ["cr_expired", "cr_unknown"]]], sentence: "범죄경력증명서가 오래되었거나 발급처를 모르면 새로 받아야 해서 일정이 늘어날 수 있습니다" },
     { id: "legal", clauses: [["wp_degreeLegal", ["legal_not_yet"]]], sentence: "외국 학위증은 인증과 번역이 끝나야 제출할 수 있으니 인증 신청을 먼저 하세요" },
   ],
 };
-export const phase2Titles = { Q6: "기본 서류", Q7: "범죄경력과 건강검진", Q8: "근무 시작과 허가 기간", Q9: "전공과 경력 증명", Q10: "견적과 비용", Q11: "제출 방식", Q12: "구인 공고와 채용 사유", Q13: "거주증 계획과 제출 지역" };
+export const phase2Titles = { Q6: "기본 서류", Q7: "범죄경력과 건강검진", Q8: "근무 시작과 허가 기간", Q9: "전공과 경력 증명", Q10: "지금까지 알아본 내용", Q11: "제출 방식", Q12: "구인 공고와 채용 사유", Q13: "거주증 계획과 제출 지역" };
 export const connections = [
   { name: "거주증 확인", clauses: [["wp_trcPlan", ["trc_planned", "trc_redo"]]], sentence: "노동허가 뒤 거주증을 신청하신다면 거주증 직접 확인에서 이어서 점검해 보실 수 있습니다.", path: "/verify/trc" },
-  { name: "전문가 진행", clauses: [["wp_startTiming", ["st_under_10d", "st_started"]], ["wp_employer", ["emp_unregistered"]], ["wp_helpWanted", ["help_full"]]], sentence: "근무 시작이 가깝거나 회사 등록이 끝나지 않았다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },
+  { name: "전문가 진행", clauses: [["wp_startTiming", ["st_under_10d", "st_started"]], ["wp_employer", ["emp_unregistered"]], ["wp_situation", ["sit_working"]]], sentence: "근무 시작이 가깝거나 회사 등록이 끝나지 않았다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요." },
 ];
 export const afterResultGuide = ["직무 구분 확인", "학위·경력 서류 인증", "범죄경력·건강검진 준비", "구인 공고 확인", "제출 일정 확인"];
 export const directNotice = "직접 적어 주신 내용은 전문가가 함께 확인하여 반영합니다.";
@@ -181,8 +180,8 @@ export const reportGuide = {
   ] },
 };
 export const tierRules = [
-  { tier: "full", label: "전 과정 대행", clauses: [["wp_helpWanted", ["help_full"]], ["wp_startTiming", ["st_under_10d", "st_started"]], ["wp_employer", ["emp_unregistered"]]] },
-  { tier: "accompany", label: "작성과 제출 동행", clauses: [["wp_helpWanted", ["help_accompany"]], ["wp_submitter", ["sub_undecided"]], ["wp_recruitNotice", ["rn_unknown"]]] },
+  { tier: "full", label: "전 과정 대행", clauses: [["wp_situation", ["sit_working"]], ["wp_startTiming", ["st_under_10d", "st_started"]], ["wp_employer", ["emp_unregistered"]]] },
+  { tier: "accompany", label: "작성과 제출 동행", clauses: [["wp_situation", ["sit_rejected"]], ["wp_submitter", ["sub_undecided"]], ["wp_recruitNotice", ["rn_unknown"]]] },
 ];
 export const tierDefault = { tier: "write", label: "서류 작성" };
 // 기존 판정 함수 computeWpResultTone(edu, exp, job, priorityField)에 넣을 값. null 은 "추가 확인 필요".

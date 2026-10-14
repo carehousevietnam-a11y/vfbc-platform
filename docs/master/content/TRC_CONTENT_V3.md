@@ -44,8 +44,8 @@
 
 ## 3. 서비스 단계 추천 규칙 (유료에서만)
 
-1. 전 과정 대행: `trc_helpWanted` ∈ {help_full} 또는 `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} 또는 `trc_hostDocs` ∈ {host_changes, host_inactive}
-2. 작성과 제출 동행: `trc_helpWanted` ∈ {help_accompany} 또는 `trc_submitter` ∈ {sub_undecided} 또는 `trc_officeKnown` ∈ {of_unknown, of_changed}
+1. 전 과정 대행: `trc_situation` ∈ {sit_expiring} 또는 `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} 또는 `trc_hostDocs` ∈ {host_changes, host_inactive}
+2. 작성과 제출 동행: `trc_situation` ∈ {sit_rejected} 또는 `trc_submitter` ∈ {sub_undecided} 또는 `trc_officeKnown` ∈ {of_unknown, of_changed}
 3. 서류 작성: 위에 해당하지 않을 때
 
 ## 4. 질문과 선택지
@@ -128,22 +128,22 @@
 
 ### 1차 5번 — Q5
 
-**지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?**
+**이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?**
 
-① **총비용이 얼마인지** 걱정됩니다. 필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.  
-② **필요한 서류가 무엇인지** 모르겠습니다. 서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.  
-③ **일정이 늦어질까** 걱정됩니다. 제출하는 날 출입국 사무소에 통역과 함께 가고 싶습니다.  
-④ **발급 자격이 되는지** 모르겠습니다. 서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.  
-⑤ **받은 견적이 적정한지** 모르겠습니다. 서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.  
+① **어디서부터 시작해야 할지** 막막합니다. 검색해 봤지만 베트남어 자료가 많아 어떤 서류가 맞는지 모르겠습니다.  
+② **일이 제대로 되고 있는지** 불안합니다. 회사 직원이나 지인이 알아서 한다고 했는데 어디까지 됐는지 알 수 없습니다.  
+③ **사람마다 말이 달라** 혼란스럽습니다. 대행사, 지인, 접수처가 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.  
+④ **거주증이 끊길까** 겁이 납니다. 만료일이 다가오는데 갱신이 제때 될지, 신청이 늦지 않을지 걱정됩니다.  
+⑤ **이미 한 번 서류가 돌아와** 지쳤습니다. 접수했다가 서류가 부족하다고 돌려받은 적이 있습니다.  
 ⑥ **직접 입력**
 
 | 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
-| ① | `trc_mainConcern=concern_cost`, `trc_helpWanted=help_guide` | 총비용을 알고 직접 서류를 준비하려는 상황입니다 |
-| ② | `trc_mainConcern=concern_docs`, `trc_helpWanted=help_guide` | 필요한 서류부터 알고 싶은 상황입니다 |
-| ③ | `trc_mainConcern=concern_time`, `trc_helpWanted=help_accompany` | 일정이 걱정되어 제출 동행을 원하는 상황입니다 |
-| ④ | `trc_mainConcern=concern_eligibility`, `trc_helpWanted=help_full` | 자격이 걱정되어 전 과정을 맡기고 싶은 상황입니다 |
-| ⑤ | `trc_mainConcern=concern_quote`, `trc_helpWanted=help_accompany` | 받은 견적이 적정한지 확인하려는 상황입니다 |
+| ① | `trc_feeling=fl_lost`, `trc_situation=sit_search_vn` | 어디서 시작할지 막막하고 베트남어 자료를 이해하기 어려운 상황입니다 |
+| ② | `trc_feeling=fl_anxious`, `trc_situation=sit_unknown_progress` | 맡긴 일이 어디까지 됐는지 알 수 없어 불안한 상황입니다 |
+| ③ | `trc_feeling=fl_confused`, `trc_situation=sit_conflicting` | 사람마다 말이 달라 혼란스러운 상황입니다 |
+| ④ | `trc_feeling=fl_afraid`, `trc_situation=sit_expiring` | 거주증 만료가 다가와 체류가 걱정되는 상황입니다 |
+| ⑤ | `trc_feeling=fl_tired`, `trc_situation=sit_rejected` | 서류가 한 번 되돌아와 지친 상황입니다 |
 
 ### 2차 6번 — Q6
 
@@ -223,22 +223,22 @@
 
 ### 2차 10번 — Q10
 
-**받아 본 견적은 몇 건이고, 정부 수수료와 대행 범위가 구분되어 있나요?**
+**지금까지 이 일을 알아보셨다면, 누구에게 어떤 이야기를 들으셨나요?**
 
-① **견적을 받은 적이 없습니다.** 비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.  
-② **한 곳에서 서면 견적**을 받았습니다. 정부 수수료와 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.  
-③ **여러 곳에서 견적**을 받았습니다. 항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.  
-④ **말로만 금액**을 들었습니다. 어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.  
-⑤ **광고에 나온 가격**만 보았습니다. 추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.  
+① **아직 알아본 곳이 없습니다.** 어디에 물어봐야 하는지, 무엇부터 준비해야 하는지부터 알고 싶습니다.  
+② **대행사나 업체**에 물어봤습니다. 필요한 서류와 절차를 들었는데 공식 기준과 맞는지 확인하지 못했습니다.  
+③ **베트남 지인이나 직원**에게 물어봤습니다. 예전에 해 본 경험을 들었는데 지금도 같은 방식인지 모르겠습니다.  
+④ **접수처에 직접** 가 보았습니다. 베트남어로 설명을 들었는데 정확히 무슨 뜻인지 이해하지 못했습니다.  
+⑤ **인터넷이나 인공지능**으로 찾아봤습니다. 글마다 내용이 달라서 어느 것이 최신인지 알 수 없습니다.  
 ⑥ **직접 입력**
 
 | 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
-| ① | `trc_quoteStatus=quote_none`, `trc_quoteScope=qs_na` | 견적을 받기 전에 정부 수수료와 대행료, 번역·공증비를 나누어 요청하세요. |
-| ② | `trc_quoteStatus=quote_one`, `trc_quoteScope=qs_clear` | 항목이 나뉘어 있으니 정부 수수료가 공식 금액과 같은지만 대조해 보세요. |
-| ③ | `trc_quoteStatus=quote_several`, `trc_quoteScope=qs_mixed` | 업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다. |
-| ④ | `trc_quoteStatus=quote_verbal`, `trc_quoteScope=qs_unknown` | 말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요. |
-| ⑤ | `trc_quoteStatus=quote_ad`, `trc_quoteScope=qs_unknown` | 광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요. |
+| ① | `trc_helperWho=hw_none`, `trc_toldWhat=tw_nothing` | 먼저 담당 접수처가 어디인지 확인하고 필요한 서류 목록을 문서로 받으세요. |
+| ② | `trc_helperWho=hw_agency`, `trc_toldWhat=tw_unverified` | 업체에서 들은 서류 목록은 접수처의 공식 안내와 한 번 대조해 보세요. |
+| ③ | `trc_helperWho=hw_friend`, `trc_toldWhat=tw_old_way` | 제도가 최근 바뀌었을 수 있어 지인의 경험은 접수처의 현재 안내와 대조해 확인하세요. |
+| ④ | `trc_helperWho=hw_office`, `trc_toldWhat=tw_not_understood` | 접수처에서 들은 내용은 메모나 사진으로 남겨 서류 목록과 다시 확인하세요. |
+| ⑤ | `trc_helperWho=hw_online`, `trc_toldWhat=tw_conflicting` | 인터넷 글과 인공지능 번역은 날짜와 지역이 다를 수 있으니 공식 기관 안내를 기준으로 확인하세요. |
 
 ### 2차 11번 — Q11
 
@@ -301,11 +301,11 @@
 
 | 저장 필드 | 제목 | 안내 |
 |---|---|---|
-| `trc_mainConcern=concern_cost`, `trc_helpWanted=help_guide` | 총비용을 확인하고 서류는 직접 준비하려는 상황입니다 | 공식 수수료는 카드 기간에 따라 145·155·165달러로 정해져 있고, 번역·공증과 대행료는 별도로 확인해야 합니다. 서류 목록을 받아 직접 준비하는 순서로 정리하세요. |
-| `trc_mainConcern=concern_docs`, `trc_helpWanted=help_guide` | 필요한 서류부터 확인해 직접 준비하려는 상황입니다 | 거주증 신청에는 신청서, 여권과 사진, 비자, 거주지와 초청 회사 서류가 기본으로 필요합니다. 신청 유형에 따라 달라지므로 서류 목록을 단계별로 확인하세요. |
-| `trc_mainConcern=concern_time`, `trc_helpWanted=help_accompany` | 일정 지연이 걱정되어 제출 동행을 원하는 상황입니다 | 서류가 갖춰진 뒤에 접수해야 처리 기간이 시작되고, 보완 요구가 생기면 늘어날 수 있습니다. 제출 전에 서류를 한 번 더 점검하면 보완 요구를 줄일 수 있습니다. |
-| `trc_mainConcern=concern_eligibility`, `trc_helpWanted=help_full` | 발급 자격이 걱정되어 전 과정을 맡기려는 상황입니다 | 거주증은 비자 종류와 초청 주체, 체류 상태에 따라 가능 여부가 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다. |
-| `trc_mainConcern=concern_quote`, `trc_helpWanted=help_accompany` | 받은 견적을 확인하고 제출은 함께 하려는 상황입니다 | 견적은 정부 수수료, 번역·공증, 대행료가 나뉘어 있는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 어디서 생기는지 알 수 있습니다. |
+| `trc_feeling=fl_lost`, `trc_situation=sit_search_vn` | 어디서부터 시작해야 할지 몰라 막막한 상황입니다 | 거주증 신청에는 신청서, 여권과 사진, 비자, 거주지와 초청 회사 서류가 기본으로 필요합니다. 신청 유형에 따라 달라지므로 서류 목록을 단계별로 확인하세요. |
+| `trc_feeling=fl_anxious`, `trc_situation=sit_unknown_progress` | 맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다 | 어떤 서류를 언제 접수했는지 문서로 받아 확인하세요. 서류가 갖춰진 뒤에 접수해야 처리 기간이 시작되고 보완 요구가 생기면 늘어날 수 있습니다. |
+| `trc_feeling=fl_confused`, `trc_situation=sit_conflicting` | 사람마다 말이 달라 혼란스러운 상황입니다 | 설명이 다를 때는 접수처의 공식 안내를 기준으로 비자 종류와 초청 주체에 맞는 서류 목록을 다시 대조하세요. |
+| `trc_feeling=fl_afraid`, `trc_situation=sit_expiring` | 거주증 만료가 다가와 체류가 걱정되는 상황입니다 | 만료가 가까우면 갱신이나 새 신청이 늦지 않도록 준비해야 합니다. 비자 종류와 초청 회사 서류 상태부터 확인하세요. |
+| `trc_feeling=fl_tired`, `trc_situation=sit_rejected` | 서류가 한 번 되돌아와 지친 상황입니다 | 서류가 돌아온 이유를 접수처에서 문서나 메모로 받아 초청 회사 서류와 거주지 서류부터 다시 확인하세요. |
 
 ## 6. 확인할 점 규칙 (최대 4개, 없으면 기본 문장)
 
@@ -316,11 +316,10 @@
 | 3 (company) | `trc_companyStatus` ∈ {company_unregistered, company_unsure} | 초청 회사가 등록 전이거나 정해지지 않았다면 초청 서류를 만들 수 없어 회사 상태부터 확인해야 합니다 |
 | 4 (passport) | `trc_passportRemain` ∈ {pp_under_1y, pp_unknown} | 여권 남은 기간이 짧으면 카드 기간이 짧아지거나 여권 갱신이 먼저 필요할 수 있습니다 |
 | 5 (rejection) | `trc_rejection` ∈ {rej_docs, rej_sponsor, rej_stay, rej_unknown} | 이전 반려 사유를 확인하면 같은 문제를 피할 수 있으니 반려 통지나 안내를 먼저 찾아보세요 |
-| 6 (quote) | `trc_mainConcern` ∈ {concern_quote} | 받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요 |
-| 7 (lost) | `trc_stage` ∈ {lost_reissue} | 분실 재발급은 분실 사실을 확인하는 서류가 추가로 필요할 수 있습니다 |
-| 8 (expiry) | `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} | 만료가 2주 안이거나 이미 지났다면 접수 가능 여부와 체류 연장부터 바로 확인해야 합니다 |
-| 9 (host) | `trc_hostDocs` ∈ {host_changes, host_inactive, host_unknown} | 회사 서류가 바뀌는 중이거나 상태를 모르면 초청 서류가 반려될 수 있어 회사 서류부터 맞춰야 합니다 |
-| 10 (tamtru) | `trc_tamtruStatus` ∈ {tamtru_expired, tamtru_changed, tamtru_not_yet, tamtru_unsure} | 임시 거주 신고가 지났거나 주소가 다르면 거주증 접수 전에 신고부터 바로잡아야 합니다 |
+| 6 (lost) | `trc_stage` ∈ {lost_reissue} | 분실 재발급은 분실 사실을 확인하는 서류가 추가로 필요할 수 있습니다 |
+| 7 (expiry) | `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} | 만료가 2주 안이거나 이미 지났다면 접수 가능 여부와 체류 연장부터 바로 확인해야 합니다 |
+| 8 (host) | `trc_hostDocs` ∈ {host_changes, host_inactive, host_unknown} | 회사 서류가 바뀌는 중이거나 상태를 모르면 초청 서류가 반려될 수 있어 회사 서류부터 맞춰야 합니다 |
+| 9 (tamtru) | `trc_tamtruStatus` ∈ {tamtru_expired, tamtru_changed, tamtru_not_yet, tamtru_unsure} | 임시 거주 신고가 지났거나 주소가 다르면 거주증 접수 전에 신고부터 바로잡아야 합니다 |
 
 기본 문장: 입력하신 내용에서는 뚜렷한 확인 사항이 많지 않지만, 접수 전에 서류 목록과 수수료를 한 번 더 확인하세요
 
@@ -330,7 +329,7 @@
 |---|---|---|
 | 임시 거주 신고 확인 | `trc_tamtruStatus` ∈ {tamtru_expired, tamtru_changed, tamtru_not_yet, tamtru_unsure} | 거주 신고가 정리되지 않았다면 임시 거주 신고 확인에서 먼저 점검해 보실 수 있습니다. |
 | 노동허가 확인 | `trc_permitLink` ∈ {wp_in_progress, wp_unsure} | 노동허가가 아직 정리되지 않았다면 노동허가 확인에서 함께 점검해 보실 수 있습니다. |
-| 전문가 진행 | `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} 또는 `trc_hostDocs` ∈ {host_changes, host_inactive} 또는 `trc_helpWanted` ∈ {help_full} | 만료가 가깝거나 회사 정보가 바뀌는 중이라면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요. |
+| 전문가 진행 | `trc_expiryRemain` ∈ {exp_under_2w, exp_expired} 또는 `trc_hostDocs` ∈ {host_changes, host_inactive} 또는 `trc_situation` ∈ {sit_expiring} | 만료가 가깝거나 회사 정보가 바뀌는 중이라면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요. |
 
 ## 8. 값 → 고객 표시 문구
 
@@ -352,11 +351,6 @@
 | `company_local` | 베트남 현지 법인 |
 | `company_unregistered` | 등록 전·준비 중인 회사 |
 | `company_unsure` | 초청 주체 미정 |
-| `concern_cost` | 총비용 걱정 |
-| `concern_docs` | 필요 서류 걱정 |
-| `concern_eligibility` | 발급 자격 걱정 |
-| `concern_quote` | 받은 견적의 적정성 걱정 |
-| `concern_time` | 일정 지연 걱정 |
 | `cp_2_5y` | 2년 초과 5년 이하 카드 |
 | `cp_5_10y` | 5년 초과 10년 이하 카드 |
 | `cp_unsure` | 카드 기간 미정 |
@@ -375,14 +369,21 @@
 | `fd_missing` | 가족 관계 서류 미준비 |
 | `fd_na` | 가족 서류 불필요 |
 | `fd_ready` | 가족 관계 서류 준비·인증 완료 |
-| `help_accompany` | 서류 작성과 제출 동행을 원함 |
-| `help_full` | 전 과정 대행을 원함 |
-| `help_guide` | 서류 작성 안내를 원함 |
+| `fl_afraid` | 거주증 만료가 다가와 걱정됨 |
+| `fl_anxious` | 진행 상황이 불안함 |
+| `fl_confused` | 사람마다 말이 달라 혼란 |
+| `fl_lost` | 어디서 시작할지 막막함 |
+| `fl_tired` | 서류가 한 번 반려되어 지침 |
 | `host_changes` | 회사 정보 변경 진행 중 |
 | `host_current` | 회사 서류가 최신 |
 | `host_inactive` | 회사 휴업·정리 중 |
 | `host_personal` | 회사가 아닌 가족 신청 |
 | `host_unknown` | 회사 서류 상태를 모름 |
+| `hw_agency` | 대행사·업체에 문의 |
+| `hw_friend` | 베트남 지인·직원에게 문의 |
+| `hw_none` | 아직 알아본 곳 없음 |
+| `hw_office` | 접수처에 직접 방문 |
+| `hw_online` | 인터넷·인공지능으로 검색 |
 | `lost_reissue` | 분실·훼손 재발급 |
 | `nat_china` | 중국 국적 |
 | `nat_japan` | 일본 국적 |
@@ -401,15 +402,6 @@
 | `pp_over_2y` | 여권 2년 넘게 남음 |
 | `pp_under_1y` | 여권 1년 미만 남음 |
 | `pp_unknown` | 여권 남은 기간 미확인 |
-| `qs_clear` | 정부 수수료와 대행료가 구분됨 |
-| `qs_mixed` | 항목이 섞여 비교 어려움 |
-| `qs_na` | 비교할 견적 없음 |
-| `qs_unknown` | 포함 범위를 모름 |
-| `quote_ad` | 광고 가격만 봄 |
-| `quote_none` | 받은 견적 없음 |
-| `quote_one` | 서면 견적 1건 |
-| `quote_several` | 여러 곳의 견적 |
-| `quote_verbal` | 말로만 들은 금액 |
 | `rej_docs` | 서류 보완 요구 이력 |
 | `rej_none` | 반려된 적 없음 |
 | `rej_sponsor` | 회사·보증 문제 반려 이력 |
@@ -424,6 +416,11 @@
 | `rp_hotel` | 숙소 확인서만 있음 |
 | `rp_lease` | 임대차 계약서 있음 |
 | `rp_none` | 거주지 증빙 없음 |
+| `sit_conflicting` | 안내가 서로 다름 |
+| `sit_expiring` | 갱신이 제때 될지 걱정됨 |
+| `sit_rejected` | 서류가 한 번 반려됨 |
+| `sit_search_vn` | 베트남어 자료를 이해하기 어려움 |
+| `sit_unknown_progress` | 진행 상황을 알 수 없음 |
 | `stage_unsure` | 어떤 절차인지 모름 |
 | `stay_expiring` | 만료일이 가까움 |
 | `stay_outside` | 현재 해외에 있음 |
@@ -441,6 +438,11 @@
 | `tn_needed` | 번역·공증 필요함 |
 | `tn_none` | 번역·공증 필요 없음 |
 | `tn_unsure` | 번역·공증 필요 여부 모름 |
+| `tw_conflicting` | 글마다 내용이 다름 |
+| `tw_not_understood` | 베트남어 설명을 이해하지 못함 |
+| `tw_nothing` | 들은 내용 없음 |
+| `tw_old_way` | 예전 방식인지 모름 |
+| `tw_unverified` | 공식 기준과 대조하지 못함 |
 | `visa_invest` | 투자 비자 |
 | `visa_other` | 그 밖의 비자 |
 | `visa_tourist` | 관광·단기 비자 |

@@ -112,8 +112,8 @@ if (!dResult) fail("direct input should still produce a result");
 const tierBase = pack.wpTierRecommendation(answersAt(1));
 if (!["write", "accompany", "full"].includes(tierBase.tier)) fail("tier unexpected");
 const q5 = data.questions.find((q) => q.code === "Q5");
-const fullAnswers = { ...base, [q5.id]: q5.choices.find((c) => c.fields.wp_helpWanted === "help_full").value };
-if (pack.wpTierRecommendation(fullAnswers).tier !== "full") fail("help_full should recommend full service");
+const fullAnswers = { ...base, [q5.id]: q5.choices.find((c) => c.fields.wp_situation === "sit_working").value };
+if (pack.wpTierRecommendation(fullAnswers).tier !== "full") fail("sit_working should recommend full service");
 
 // 6. 저장·복원
 const meta = pack.buildWpPhase2PersistMeta(base, 2);

@@ -48,8 +48,8 @@
 
 ## 3. 서비스 단계 추천 규칙 (유료에서만)
 
-1. 전 과정 대행: `wp_helpWanted` ∈ {help_full} 또는 `wp_startTiming` ∈ {st_under_10d, st_started} 또는 `wp_employer` ∈ {emp_unregistered}
-2. 작성과 제출 동행: `wp_helpWanted` ∈ {help_accompany} 또는 `wp_submitter` ∈ {sub_undecided} 또는 `wp_recruitNotice` ∈ {rn_unknown}
+1. 전 과정 대행: `wp_situation` ∈ {sit_working} 또는 `wp_startTiming` ∈ {st_under_10d, st_started} 또는 `wp_employer` ∈ {emp_unregistered}
+2. 작성과 제출 동행: `wp_situation` ∈ {sit_rejected} 또는 `wp_submitter` ∈ {sub_undecided} 또는 `wp_recruitNotice` ∈ {rn_unknown}
 3. 서류 작성: 위에 해당하지 않을 때
 
 ## 4. 질문과 선택지
@@ -132,22 +132,22 @@
 
 ### 1차 5번 — Q5
 
-**지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?**
+**이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?**
 
-① **총비용이 얼마인지** 걱정됩니다. 필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.  
-② **필요한 서류가 무엇인지** 모르겠습니다. 서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.  
-③ **근무 시작 전에 끝날지** 걱정됩니다. 제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.  
-④ **발급 자격이 되는지** 모르겠습니다. 서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.  
-⑤ **받은 견적이 적정한지** 모르겠습니다. 서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.  
+① **어디서부터 시작해야 할지** 막막합니다. 검색해 봤지만 베트남어 자료가 많아 어떤 서류가 맞는지 모르겠습니다.  
+② **일이 제대로 되고 있는지** 불안합니다. 회사 직원이나 지인이 알아서 한다고 했는데 어디까지 됐는지 알 수 없습니다.  
+③ **사람마다 말이 달라** 혼란스럽습니다. 회사, 대행사, 접수처가 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.  
+④ **허가 없이 일하는 것** 같아 겁이 납니다. 일을 이미 시작했는데 노동허가가 아직 나오지 않았습니다.  
+⑤ **이미 한 번 서류가 돌아와** 지쳤습니다. 접수했다가 서류가 부족하다고 돌려받은 적이 있습니다.  
 ⑥ **직접 입력**
 
 | 선택 | 저장 필드 | 카드 문장 |
 |---|---|---|
-| ① | `wp_mainConcern=concern_cost`, `wp_helpWanted=help_guide` | 총비용을 알고 직접 서류를 준비하려는 상황입니다 |
-| ② | `wp_mainConcern=concern_docs`, `wp_helpWanted=help_guide` | 필요한 서류부터 알고 싶은 상황입니다 |
-| ③ | `wp_mainConcern=concern_time`, `wp_helpWanted=help_accompany` | 일정이 걱정되어 제출 동행을 원하는 상황입니다 |
-| ④ | `wp_mainConcern=concern_eligibility`, `wp_helpWanted=help_full` | 자격이 걱정되어 전 과정을 맡기고 싶은 상황입니다 |
-| ⑤ | `wp_mainConcern=concern_quote`, `wp_helpWanted=help_accompany` | 받은 견적이 적정한지 확인하려는 상황입니다 |
+| ① | `wp_feeling=fl_lost`, `wp_situation=sit_search_vn` | 어디서 시작할지 막막하고 베트남어 자료를 이해하기 어려운 상황입니다 |
+| ② | `wp_feeling=fl_anxious`, `wp_situation=sit_unknown_progress` | 맡긴 일이 어디까지 됐는지 알 수 없어 불안한 상황입니다 |
+| ③ | `wp_feeling=fl_confused`, `wp_situation=sit_conflicting` | 사람마다 말이 달라 혼란스러운 상황입니다 |
+| ④ | `wp_feeling=fl_afraid`, `wp_situation=sit_working` | 허가 없이 일을 시작해 걱정되는 상황입니다 |
+| ⑤ | `wp_feeling=fl_tired`, `wp_situation=sit_rejected` | 서류가 한 번 되돌아와 지친 상황입니다 |
 
 ### 2차 6번 — Q6
 
@@ -227,22 +227,22 @@
 
 ### 2차 10번 — Q10
 
-**받아 본 견적은 몇 건이고, 정부 수수료와 대행 범위가 구분되어 있나요?**
+**지금까지 이 일을 알아보셨다면, 누구에게 어떤 이야기를 들으셨나요?**
 
-① **견적을 받은 적이 없습니다.** 비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.  
-② **한 곳에서 서면 견적**을 받았습니다. 정부 수수료와 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.  
-③ **여러 곳에서 견적**을 받았습니다. 항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.  
-④ **말로만 금액**을 들었습니다. 어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.  
-⑤ **광고에 나온 가격**만 보았습니다. 추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.  
+① **아직 알아본 곳이 없습니다.** 어디에 물어봐야 하는지, 무엇부터 준비해야 하는지부터 알고 싶습니다.  
+② **대행사나 업체**에 물어봤습니다. 필요한 서류와 절차를 들었는데 공식 기준과 맞는지 확인하지 못했습니다.  
+③ **베트남 지인이나 직원**에게 물어봤습니다. 예전에 해 본 경험을 들었는데 지금도 같은 방식인지 모르겠습니다.  
+④ **접수처에 직접** 가 보았습니다. 베트남어로 설명을 들었는데 정확히 무슨 뜻인지 이해하지 못했습니다.  
+⑤ **인터넷이나 인공지능**으로 찾아봤습니다. 글마다 내용이 달라서 어느 것이 최신인지 알 수 없습니다.  
 ⑥ **직접 입력**
 
 | 선택 | 저장 필드 | 안내 문장 |
 |---|---|---|
-| ① | `wp_quoteStatus=quote_none`, `wp_quoteScope=qs_na` | 견적을 받기 전에 정부 수수료와 대행료, 번역·인증비를 나누어 요청하세요. |
-| ② | `wp_quoteStatus=quote_one`, `wp_quoteScope=qs_clear` | 항목이 나뉘어 있으니 정부 수수료가 지역 공식 금액과 같은지만 대조해 보세요. |
-| ③ | `wp_quoteStatus=quote_several`, `wp_quoteScope=qs_mixed` | 업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다. |
-| ④ | `wp_quoteStatus=quote_verbal`, `wp_quoteScope=qs_unknown` | 말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요. |
-| ⑤ | `wp_quoteStatus=quote_ad`, `wp_quoteScope=qs_unknown` | 광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요. |
+| ① | `wp_helperWho=hw_none`, `wp_toldWhat=tw_nothing` | 먼저 담당 접수처가 어디인지 확인하고 필요한 서류 목록을 문서로 받으세요. |
+| ② | `wp_helperWho=hw_agency`, `wp_toldWhat=tw_unverified` | 업체에서 들은 서류 목록은 접수처의 공식 안내와 한 번 대조해 보세요. |
+| ③ | `wp_helperWho=hw_friend`, `wp_toldWhat=tw_old_way` | 제도가 최근 바뀌었을 수 있어 지인의 경험은 접수처의 현재 안내와 대조해 확인하세요. |
+| ④ | `wp_helperWho=hw_office`, `wp_toldWhat=tw_not_understood` | 접수처에서 들은 내용은 메모나 사진으로 남겨 서류 목록과 다시 확인하세요. |
+| ⑤ | `wp_helperWho=hw_online`, `wp_toldWhat=tw_conflicting` | 인터넷 글과 인공지능 번역은 날짜와 지역이 다를 수 있으니 공식 기관 안내를 기준으로 확인하세요. |
 
 ### 2차 11번 — Q11
 
@@ -305,11 +305,11 @@
 
 | 저장 필드 | 제목 | 안내 |
 |---|---|---|
-| `wp_mainConcern=concern_cost`, `wp_helpWanted=help_guide` | 총비용을 확인하고 서류는 직접 준비하려는 상황입니다 | 노동허가 수수료는 지역마다 정해져 있고, 학위·경력 서류의 인증과 번역 비용이 따로 듭니다. 서류 목록을 받아 본국에서 받을 서류부터 준비하세요. |
-| `wp_mainConcern=concern_docs`, `wp_helpWanted=help_guide` | 필요한 서류부터 확인해 직접 준비하려는 상황입니다 | 노동허가에는 신청서, 건강검진서, 범죄경력증명서, 학위·경력 증명, 사진과 여권 사본이 기본으로 필요합니다. 직무 구분에 따라 달라지므로 목록을 먼저 확인하세요. |
-| `wp_mainConcern=concern_time`, `wp_helpWanted=help_accompany` | 근무 시작 일정이 걱정되어 제출 동행을 원하는 상황입니다 | 서류가 모두 갖춰진 뒤 처리 기간이 시작되며, 근무 시작 전 정해진 기간 안에 제출해야 합니다. 본국 서류의 인증 기간을 먼저 계산하면 일정을 맞추기 쉽습니다. |
-| `wp_mainConcern=concern_eligibility`, `wp_helpWanted=help_full` | 발급 자격이 걱정되어 전 과정을 맡기려는 상황입니다 | 노동허가는 학력, 관련 경력, 직무 구분, 우선 분야 여부에 따라 기준이 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다. |
-| `wp_mainConcern=concern_quote`, `wp_helpWanted=help_accompany` | 받은 견적을 확인하고 제출은 함께 하려는 상황입니다 | 견적은 정부 수수료, 인증·번역, 건강검진, 대행료가 나뉘어 있는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 어디서 생기는지 알 수 있습니다. |
+| `wp_feeling=fl_lost`, `wp_situation=sit_search_vn` | 어디서부터 시작해야 할지 몰라 막막한 상황입니다 | 노동허가에는 신청서, 건강검진서, 범죄경력증명서, 학위·경력 증명, 사진과 여권 사본이 기본으로 필요합니다. 직무 구분에 따라 달라지므로 목록을 먼저 확인하세요. |
+| `wp_feeling=fl_anxious`, `wp_situation=sit_unknown_progress` | 맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다 | 어떤 서류를 언제 접수했는지 문서로 받아 확인하세요. 서류가 모두 갖춰진 뒤에 처리 기간이 시작됩니다. |
+| `wp_feeling=fl_confused`, `wp_situation=sit_conflicting` | 사람마다 말이 달라 혼란스러운 상황입니다 | 설명이 다를 때는 접수처의 공식 안내를 기준으로 직무 구분에 맞는 서류 목록을 다시 대조하세요. |
+| `wp_feeling=fl_afraid`, `wp_situation=sit_working` | 허가 없이 일을 시작해 걱정되는 상황입니다 | 허가 없이 일하면 제재를 받을 수 있어 신청을 바로 서둘러야 합니다. 본국 서류의 인증 기간을 먼저 계산하면 일정을 맞추기 쉽습니다. |
+| `wp_feeling=fl_tired`, `wp_situation=sit_rejected` | 서류가 한 번 되돌아와 지친 상황입니다 | 서류가 돌아온 이유를 접수처에서 문서나 메모로 받아 학위·경력 증명의 인증과 번역부터 다시 확인하세요. |
 
 ## 6. 확인할 점 규칙 (최대 4개, 없으면 기본 문장)
 
@@ -320,10 +320,9 @@
 | 3 (experience) | `wp_experience` ∈ {exp_under1, exp_unsure} | 관련 경력이 짧거나 증명이 어려우면 경력 기준을 채우는지 먼저 확인해야 합니다 |
 | 4 (employer) | `wp_employer` ∈ {emp_unregistered, emp_unsure} | 고용 회사가 등록 전이거나 정해지지 않았다면 회사 명의로 신청할 수 없어 회사부터 정리해야 합니다 |
 | 5 (history) | `wp_history` ∈ {hist_docs, hist_rejected, hist_unknown} | 이전 보완 요구나 반려 사유를 확인하면 같은 문제를 피할 수 있으니 관련 안내부터 찾아보세요 |
-| 6 (quote) | `wp_mainConcern` ∈ {concern_quote} | 받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요 |
-| 7 (start) | `wp_startTiming` ∈ {st_under_10d, st_started} | 근무 시작이 10일도 남지 않았거나 이미 일하고 있다면 제출 기한과 제재 위험부터 바로 확인해야 합니다 |
-| 8 (record) | `wp_criminalRecord` ∈ {cr_expired, cr_unknown} | 범죄경력증명서가 오래되었거나 발급처를 모르면 새로 받아야 해서 일정이 늘어날 수 있습니다 |
-| 9 (legal) | `wp_degreeLegal` ∈ {legal_not_yet} | 외국 학위증은 인증과 번역이 끝나야 제출할 수 있으니 인증 신청을 먼저 하세요 |
+| 6 (start) | `wp_startTiming` ∈ {st_under_10d, st_started} | 근무 시작이 10일도 남지 않았거나 이미 일하고 있다면 제출 기한과 제재 위험부터 바로 확인해야 합니다 |
+| 7 (record) | `wp_criminalRecord` ∈ {cr_expired, cr_unknown} | 범죄경력증명서가 오래되었거나 발급처를 모르면 새로 받아야 해서 일정이 늘어날 수 있습니다 |
+| 8 (legal) | `wp_degreeLegal` ∈ {legal_not_yet} | 외국 학위증은 인증과 번역이 끝나야 제출할 수 있으니 인증 신청을 먼저 하세요 |
 
 기본 문장: 입력하신 내용에서는 뚜렷한 확인 사항이 많지 않지만, 제출 전에 서류 발급일과 인증 상태를 한 번 더 확인하세요
 
@@ -332,7 +331,7 @@
 | 연결 | 조건 | 문장 |
 |---|---|---|
 | 거주증 확인 | `wp_trcPlan` ∈ {trc_planned, trc_redo} | 노동허가 뒤 거주증을 신청하신다면 거주증 직접 확인에서 이어서 점검해 보실 수 있습니다. |
-| 전문가 진행 | `wp_startTiming` ∈ {st_under_10d, st_started} 또는 `wp_employer` ∈ {emp_unregistered} 또는 `wp_helpWanted` ∈ {help_full} | 근무 시작이 가깝거나 회사 등록이 끝나지 않았다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요. |
+| 전문가 진행 | `wp_startTiming` ∈ {st_under_10d, st_started} 또는 `wp_employer` ∈ {emp_unregistered} 또는 `wp_situation` ∈ {sit_working} | 근무 시작이 가깝거나 회사 등록이 끝나지 않았다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요. |
 
 ## 8. 값 → 고객 표시 문구
 
@@ -343,11 +342,6 @@
 | `area_hcm` | 호치민 제출 |
 | `area_other_city` | 그 밖의 도시 제출 |
 | `area_unsure` | 제출 지역 미정 |
-| `concern_cost` | 총비용 걱정 |
-| `concern_docs` | 필요 서류 걱정 |
-| `concern_eligibility` | 발급 자격 걱정 |
-| `concern_quote` | 받은 견적의 적정성 걱정 |
-| `concern_time` | 일정 지연 걱정 |
 | `cr_expired` | 범죄경력증명서 기간 지남 |
 | `cr_home_pending` | 본국 범죄경력증명서 발급 예정 |
 | `cr_ready` | 범죄경력증명서 준비됨 |
@@ -379,19 +373,26 @@
 | `exp_under1` | 관련 경력 1년 미만 |
 | `exp_unsure` | 경력 기간 증명을 모름 |
 | `extension` | 기존 노동허가 연장 |
+| `fl_afraid` | 허가 없이 일하는 것이 걱정됨 |
+| `fl_anxious` | 진행 상황이 불안함 |
+| `fl_confused` | 사람마다 말이 달라 혼란 |
+| `fl_lost` | 어디서 시작할지 막막함 |
+| `fl_tired` | 서류가 한 번 반려되어 지침 |
 | `hc_booked` | 건강검진 예약 |
 | `hc_done` | 지정 병원 건강검진 완료 |
 | `hc_foreign` | 해외 건강검진서 보유 |
 | `hc_none` | 건강검진 안 함 |
 | `hc_unknown` | 검진 병원을 모름 |
-| `help_accompany` | 서류 작성과 제출 동행을 원함 |
-| `help_full` | 전 과정 대행을 원함 |
-| `help_guide` | 서류 작성 안내를 원함 |
 | `hist_docs` | 서류 보완 요구 이력 |
 | `hist_held` | 이전 노동허가 문제없이 보유 |
 | `hist_none` | 노동허가 경험 없음 |
 | `hist_rejected` | 반려 이력 |
 | `hist_unknown` | 이전 이력을 모름 |
+| `hw_agency` | 대행사·업체에 문의 |
+| `hw_friend` | 베트남 지인·직원에게 문의 |
+| `hw_none` | 아직 알아본 곳 없음 |
+| `hw_office` | 접수처에 직접 방문 |
+| `hw_online` | 인터넷·인공지능으로 검색 |
 | `job_change` | 회사를 옮겨 새로 발급 |
 | `job_expert` | 전문가 직무 |
 | `job_manager` | 관리자·임원 직무 |
@@ -426,20 +427,16 @@
 | `pri_no` | 일반 업종 |
 | `pri_unsure` | 우선 분야 해당 여부를 모름 |
 | `pri_yes` | 기술·혁신·디지털 전환 등 우선 분야 |
-| `qs_clear` | 정부 수수료와 대행료가 구분됨 |
-| `qs_mixed` | 항목이 섞여 비교 어려움 |
-| `qs_na` | 비교할 견적 없음 |
-| `qs_unknown` | 포함 범위를 모름 |
-| `quote_ad` | 광고 가격만 봄 |
-| `quote_none` | 받은 견적 없음 |
-| `quote_one` | 서면 견적 1건 |
-| `quote_several` | 여러 곳의 견적 |
-| `quote_verbal` | 말로만 들은 금액 |
 | `rn_done` | 구인 공고 게시 완료 |
 | `rn_exempt` | 면제 대상이라 공고 불필요 |
 | `rn_hr` | 회사 담당자가 공고 진행 |
 | `rn_not_yet` | 구인 공고 게시 전 |
 | `rn_unknown` | 구인 공고 필요 여부를 모름 |
+| `sit_conflicting` | 안내가 서로 다름 |
+| `sit_rejected` | 서류가 한 번 반려됨 |
+| `sit_search_vn` | 베트남어 자료를 이해하기 어려움 |
+| `sit_unknown_progress` | 진행 상황을 알 수 없음 |
+| `sit_working` | 일을 시작했는데 허가가 아직 없음 |
 | `st_10_60d` | 근무 시작까지 10일에서 60일 |
 | `st_over_60d` | 근무 시작까지 두 달 넘게 남음 |
 | `st_started` | 이미 근무 시작 |
@@ -457,6 +454,11 @@
 | `trc_redo` | 새 허가에 맞춰 거주증 다시 신청 |
 | `trc_undecided` | 거주증 계획 미정 |
 | `trc_unknown` | 거주증 필요 여부를 모름 |
+| `tw_conflicting` | 글마다 내용이 다름 |
+| `tw_not_understood` | 베트남어 설명을 이해하지 못함 |
+| `tw_nothing` | 들은 내용 없음 |
+| `tw_old_way` | 예전 방식인지 모름 |
+| `tw_unverified` | 공식 기준과 대조하지 못함 |
 | `visa_only` | 비자 연장만 계획 |
 
 ## 9. 근거·출처 (확인일 2026.10.12)

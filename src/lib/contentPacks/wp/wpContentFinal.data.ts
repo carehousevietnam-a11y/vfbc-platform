@@ -238,57 +238,57 @@ export const WP_CONTENT_FINAL = {
       "id": "wp_q5",
       "route": "W",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색해 봤지만 베트남어 자료가 많아 어떤 서류가 맞는지 모르겠습니다.",
           "fields": {
-            "wp_mainConcern": "concern_cost",
-            "wp_helpWanted": "help_guide"
+            "wp_feeling": "fl_lost",
+            "wp_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "회사 직원이나 지인이 알아서 한다고 했는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "wp_mainConcern": "concern_docs",
-            "wp_helpWanted": "help_guide"
+            "wp_feeling": "fl_anxious",
+            "wp_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "근무 시작 전에 끝날지 걱정됩니다.",
-          "description": "제출하는 날 담당 기관에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "회사, 대행사, 접수처가 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "wp_mainConcern": "concern_time",
-            "wp_helpWanted": "help_accompany"
+            "wp_feeling": "fl_confused",
+            "wp_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "발급 자격이 되는지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "허가 없이 일하는 것 같아 겁이 납니다.",
+          "description": "일을 이미 시작했는데 노동허가가 아직 나오지 않았습니다.",
           "fields": {
-            "wp_mainConcern": "concern_eligibility",
-            "wp_helpWanted": "help_full"
+            "wp_feeling": "fl_afraid",
+            "wp_situation": "sit_working"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 서류가 돌아와 지쳤습니다.",
+          "description": "접수했다가 서류가 부족하다고 돌려받은 적이 있습니다.",
           "fields": {
-            "wp_mainConcern": "concern_quote",
-            "wp_helpWanted": "help_accompany"
+            "wp_feeling": "fl_tired",
+            "wp_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "wp_mainConcern": "direct_input",
-        "wp_helpWanted": "direct_input_detail"
+        "wp_feeling": "direct_input",
+        "wp_situation": "direct_input_detail"
       }
     },
     {
@@ -528,57 +528,57 @@ export const WP_CONTENT_FINAL = {
       "id": "wp_q10",
       "route": "W",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 수수료와 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일을 알아보셨다면, 누구에게 어떤 이야기를 들으셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "아직 알아본 곳이 없습니다.",
+          "description": "어디에 물어봐야 하는지, 무엇부터 준비해야 하는지부터 알고 싶습니다.",
           "fields": {
-            "wp_quoteStatus": "quote_none",
-            "wp_quoteScope": "qs_na"
+            "wp_helperWho": "hw_none",
+            "wp_toldWhat": "tw_nothing"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 수수료와 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "대행사나 업체에 물어봤습니다.",
+          "description": "필요한 서류와 절차를 들었는데 공식 기준과 맞는지 확인하지 못했습니다.",
           "fields": {
-            "wp_quoteStatus": "quote_one",
-            "wp_quoteScope": "qs_clear"
+            "wp_helperWho": "hw_agency",
+            "wp_toldWhat": "tw_unverified"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "베트남 지인이나 직원에게 물어봤습니다.",
+          "description": "예전에 해 본 경험을 들었는데 지금도 같은 방식인지 모르겠습니다.",
           "fields": {
-            "wp_quoteStatus": "quote_several",
-            "wp_quoteScope": "qs_mixed"
+            "wp_helperWho": "hw_friend",
+            "wp_toldWhat": "tw_old_way"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "접수처에 직접 가 보았습니다.",
+          "description": "베트남어로 설명을 들었는데 정확히 무슨 뜻인지 이해하지 못했습니다.",
           "fields": {
-            "wp_quoteStatus": "quote_verbal",
-            "wp_quoteScope": "qs_unknown"
+            "wp_helperWho": "hw_office",
+            "wp_toldWhat": "tw_not_understood"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "인터넷이나 인공지능으로 찾아봤습니다.",
+          "description": "글마다 내용이 달라서 어느 것이 최신인지 알 수 없습니다.",
           "fields": {
-            "wp_quoteStatus": "quote_ad",
-            "wp_quoteScope": "qs_unknown"
+            "wp_helperWho": "hw_online",
+            "wp_toldWhat": "tw_conflicting"
           }
         }
       ],
       "directFields": {
-        "wp_quoteStatus": "direct_input",
-        "wp_quoteScope": "direct_input_detail"
+        "wp_helperWho": "direct_input",
+        "wp_toldWhat": "direct_input_detail"
       }
     },
     {
@@ -805,25 +805,25 @@ export const WP_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "wp_mainConcern=concern_cost|wp_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "노동허가 수수료는 지역마다 정해져 있고, 학위·경력 서류의 인증과 번역 비용이 따로 듭니다. 서류 목록을 받아 본국에서 받을 서류부터 준비하세요."
-      },
-      "wp_mainConcern=concern_docs|wp_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
+      "wp_feeling=fl_lost|wp_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
         "body": "노동허가에는 신청서, 건강검진서, 범죄경력증명서, 학위·경력 증명, 사진과 여권 사본이 기본으로 필요합니다. 직무 구분에 따라 달라지므로 목록을 먼저 확인하세요."
       },
-      "wp_mainConcern=concern_time|wp_helpWanted=help_accompany": {
-        "headline": "근무 시작 일정이 걱정되어 제출 동행을 원하는 상황입니다",
-        "body": "서류가 모두 갖춰진 뒤 처리 기간이 시작되며, 근무 시작 전 정해진 기간 안에 제출해야 합니다. 본국 서류의 인증 기간을 먼저 계산하면 일정을 맞추기 쉽습니다."
+      "wp_feeling=fl_anxious|wp_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
+        "body": "어떤 서류를 언제 접수했는지 문서로 받아 확인하세요. 서류가 모두 갖춰진 뒤에 처리 기간이 시작됩니다."
       },
-      "wp_mainConcern=concern_eligibility|wp_helpWanted=help_full": {
-        "headline": "발급 자격이 걱정되어 전 과정을 맡기려는 상황입니다",
-        "body": "노동허가는 학력, 관련 경력, 직무 구분, 우선 분야 여부에 따라 기준이 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
+      "wp_feeling=fl_confused|wp_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
+        "body": "설명이 다를 때는 접수처의 공식 안내를 기준으로 직무 구분에 맞는 서류 목록을 다시 대조하세요."
       },
-      "wp_mainConcern=concern_quote|wp_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 정부 수수료, 인증·번역, 건강검진, 대행료가 나뉘어 있는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 어디서 생기는지 알 수 있습니다."
+      "wp_feeling=fl_afraid|wp_situation=sit_working": {
+        "headline": "허가 없이 일을 시작해 걱정되는 상황입니다",
+        "body": "허가 없이 일하면 제재를 받을 수 있어 신청을 바로 서둘러야 합니다. 본국 서류의 인증 기간을 먼저 계산하면 일정을 맞추기 쉽습니다."
+      },
+      "wp_feeling=fl_tired|wp_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "서류가 돌아온 이유를 접수처에서 문서나 메모로 받아 학위·경력 증명의 인증과 번역부터 다시 확인하세요."
       }
     },
     "risks": {
@@ -889,18 +889,6 @@ export const WP_CONTENT_FINAL = {
                 "hist_docs",
                 "hist_rejected",
                 "hist_unknown"
-              ]
-            }
-          ]
-        },
-        {
-          "id": "quote",
-          "sentence": "받은 견적은 정부 수수료와 대행료가 나뉘어 있는지부터 확인하세요",
-          "clauses": [
-            {
-              "field": "wp_mainConcern",
-              "values": [
-                "concern_quote"
               ]
             }
           ]
@@ -995,13 +983,13 @@ export const WP_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 알아본 내용",
       "sentences": {
-        "wp_quoteStatus=quote_none|wp_quoteScope=qs_na": "견적을 받기 전에 정부 수수료와 대행료, 번역·인증비를 나누어 요청하세요.",
-        "wp_quoteStatus=quote_one|wp_quoteScope=qs_clear": "항목이 나뉘어 있으니 정부 수수료가 지역 공식 금액과 같은지만 대조해 보세요.",
-        "wp_quoteStatus=quote_several|wp_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "wp_quoteStatus=quote_verbal|wp_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "wp_quoteStatus=quote_ad|wp_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "wp_helperWho=hw_none|wp_toldWhat=tw_nothing": "먼저 담당 접수처가 어디인지 확인하고 필요한 서류 목록을 문서로 받으세요.",
+        "wp_helperWho=hw_agency|wp_toldWhat=tw_unverified": "업체에서 들은 서류 목록은 접수처의 공식 안내와 한 번 대조해 보세요.",
+        "wp_helperWho=hw_friend|wp_toldWhat=tw_old_way": "제도가 최근 바뀌었을 수 있어 지인의 경험은 접수처의 현재 안내와 대조해 확인하세요.",
+        "wp_helperWho=hw_office|wp_toldWhat=tw_not_understood": "접수처에서 들은 내용은 메모나 사진으로 남겨 서류 목록과 다시 확인하세요.",
+        "wp_helperWho=hw_online|wp_toldWhat=tw_conflicting": "인터넷 글과 인공지능 번역은 날짜와 지역이 다를 수 있으니 공식 기관 안내를 기준으로 확인하세요."
       }
     },
     {
@@ -1044,11 +1032,6 @@ export const WP_CONTENT_FINAL = {
     "area_hcm": "호치민 제출",
     "area_other_city": "그 밖의 도시 제출",
     "area_unsure": "제출 지역 미정",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "발급 자격 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "일정 지연 걱정",
     "cr_expired": "범죄경력증명서 기간 지남",
     "cr_home_pending": "본국 범죄경력증명서 발급 예정",
     "cr_ready": "범죄경력증명서 준비됨",
@@ -1080,19 +1063,26 @@ export const WP_CONTENT_FINAL = {
     "exp_under1": "관련 경력 1년 미만",
     "exp_unsure": "경력 기간 증명을 모름",
     "extension": "기존 노동허가 연장",
+    "fl_afraid": "허가 없이 일하는 것이 걱정됨",
+    "fl_anxious": "진행 상황이 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "서류가 한 번 반려되어 지침",
     "hc_booked": "건강검진 예약",
     "hc_done": "지정 병원 건강검진 완료",
     "hc_foreign": "해외 건강검진서 보유",
     "hc_none": "건강검진 안 함",
     "hc_unknown": "검진 병원을 모름",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
     "hist_docs": "서류 보완 요구 이력",
     "hist_held": "이전 노동허가 문제없이 보유",
     "hist_none": "노동허가 경험 없음",
     "hist_rejected": "반려 이력",
     "hist_unknown": "이전 이력을 모름",
+    "hw_agency": "대행사·업체에 문의",
+    "hw_friend": "베트남 지인·직원에게 문의",
+    "hw_none": "아직 알아본 곳 없음",
+    "hw_office": "접수처에 직접 방문",
+    "hw_online": "인터넷·인공지능으로 검색",
     "job_change": "회사를 옮겨 새로 발급",
     "job_expert": "전문가 직무",
     "job_manager": "관리자·임원 직무",
@@ -1127,20 +1117,16 @@ export const WP_CONTENT_FINAL = {
     "pri_no": "일반 업종",
     "pri_unsure": "우선 분야 해당 여부를 모름",
     "pri_yes": "기술·혁신·디지털 전환 등 우선 분야",
-    "qs_clear": "정부 수수료와 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "rn_done": "구인 공고 게시 완료",
     "rn_exempt": "면제 대상이라 공고 불필요",
     "rn_hr": "회사 담당자가 공고 진행",
     "rn_not_yet": "구인 공고 게시 전",
     "rn_unknown": "구인 공고 필요 여부를 모름",
+    "sit_conflicting": "안내가 서로 다름",
+    "sit_rejected": "서류가 한 번 반려됨",
+    "sit_search_vn": "베트남어 자료를 이해하기 어려움",
+    "sit_unknown_progress": "진행 상황을 알 수 없음",
+    "sit_working": "일을 시작했는데 허가가 아직 없음",
     "st_10_60d": "근무 시작까지 10일에서 60일",
     "st_over_60d": "근무 시작까지 두 달 넘게 남음",
     "st_started": "이미 근무 시작",
@@ -1158,6 +1144,11 @@ export const WP_CONTENT_FINAL = {
     "trc_redo": "새 허가에 맞춰 거주증 다시 신청",
     "trc_undecided": "거주증 계획 미정",
     "trc_unknown": "거주증 필요 여부를 모름",
+    "tw_conflicting": "글마다 내용이 다름",
+    "tw_not_understood": "베트남어 설명을 이해하지 못함",
+    "tw_nothing": "들은 내용 없음",
+    "tw_old_way": "예전 방식인지 모름",
+    "tw_unverified": "공식 기준과 대조하지 못함",
     "visa_only": "비자 연장만 계획"
   },
   "connections": [
@@ -1179,7 +1170,7 @@ export const WP_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`wp_startTiming` ∈ {st_under_10d, st_started} 또는 `wp_employer` ∈ {emp_unregistered} 또는 `wp_helpWanted` ∈ {help_full}",
+      "condition": "`wp_startTiming` ∈ {st_under_10d, st_started} 또는 `wp_employer` ∈ {emp_unregistered} 또는 `wp_situation` ∈ {sit_working}",
       "sentence": "근무 시작이 가깝거나 회사 등록이 끝나지 않았다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1197,9 +1188,9 @@ export const WP_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "wp_helpWanted",
+          "field": "wp_situation",
           "values": [
-            "help_full"
+            "sit_working"
           ]
         }
       ]
@@ -1253,9 +1244,9 @@ export const WP_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "wp_helpWanted",
+            "field": "wp_situation",
             "values": [
-              "help_full"
+              "sit_working"
             ]
           },
           {
@@ -1278,9 +1269,9 @@ export const WP_CONTENT_FINAL = {
         "label": "작성과 제출 동행",
         "clauses": [
           {
-            "field": "wp_helpWanted",
+            "field": "wp_situation",
             "values": [
-              "help_accompany"
+              "sit_rejected"
             ]
           },
           {

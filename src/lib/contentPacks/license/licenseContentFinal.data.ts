@@ -238,57 +238,57 @@ export const LICENSE_CONTENT_FINAL = {
       "id": "license_q5",
       "route": "L",
       "phase": 1,
-      "prompt": "지금 가장 크게 걱정되는 점은 무엇이고, 어떤 방식의 도움을 원하시나요?",
+      "prompt": "이 일을 하시면서 가장 답답하고 불안한 점은 무엇이고, 지금 어떤 상황인가요?",
       "choices": [
         {
           "value": "o1",
-          "label": "총비용이 얼마인지 걱정됩니다.",
-          "description": "필요한 서류는 제가 만들 수 있도록 안내만 받고 싶습니다.",
+          "label": "어디서부터 시작해야 할지 막막합니다.",
+          "description": "검색해 봤지만 베트남어 자료가 많아 어떤 서류가 맞는지 모르겠습니다.",
           "fields": {
-            "lic_mainConcern": "concern_cost",
-            "lic_helpWanted": "help_guide"
+            "lic_feeling": "fl_lost",
+            "lic_situation": "sit_search_vn"
           }
         },
         {
           "value": "o2",
-          "label": "필요한 서류가 무엇인지 모르겠습니다.",
-          "description": "서류 작성 방법을 하나씩 알려 주면 직접 준비하겠습니다.",
+          "label": "일이 제대로 되고 있는지 불안합니다.",
+          "description": "회사 직원이나 지인이 알아서 한다고 했는데 어디까지 됐는지 알 수 없습니다.",
           "fields": {
-            "lic_mainConcern": "concern_docs",
-            "lic_helpWanted": "help_guide"
+            "lic_feeling": "fl_anxious",
+            "lic_situation": "sit_unknown_progress"
           }
         },
         {
           "value": "o3",
-          "label": "처리 기간이 얼마나 걸릴지 걱정됩니다.",
-          "description": "제출하는 날 접수처에 통역과 함께 가고 싶습니다.",
+          "label": "사람마다 말이 달라 혼란스럽습니다.",
+          "description": "대행사, 지인, 접수처가 각자 다르게 말해서 누구 말이 맞는지 모르겠습니다.",
           "fields": {
-            "lic_mainConcern": "concern_time",
-            "lic_helpWanted": "help_accompany"
+            "lic_feeling": "fl_confused",
+            "lic_situation": "sit_conflicting"
           }
         },
         {
           "value": "o4",
-          "label": "전환 자격이 되는지 모르겠습니다.",
-          "description": "서류 준비부터 제출과 수령까지 모두 맡기고 싶습니다.",
+          "label": "본국 면허로 운전해도 되는지 겁이 납니다.",
+          "description": "전환하기 전인데 이미 운전하고 있어서 단속에 걸릴까 걱정됩니다.",
           "fields": {
-            "lic_mainConcern": "concern_eligibility",
-            "lic_helpWanted": "help_full"
+            "lic_feeling": "fl_afraid",
+            "lic_situation": "sit_driving"
           }
         },
         {
           "value": "o5",
-          "label": "받은 견적이 적정한지 모르겠습니다.",
-          "description": "서류는 제가 준비하고 제출할 때만 함께 가고 싶습니다.",
+          "label": "이미 한 번 서류가 돌아와 지쳤습니다.",
+          "description": "접수했다가 번역 공증이나 서류가 부족하다고 돌려받은 적이 있습니다.",
           "fields": {
-            "lic_mainConcern": "concern_quote",
-            "lic_helpWanted": "help_accompany"
+            "lic_feeling": "fl_tired",
+            "lic_situation": "sit_rejected"
           }
         }
       ],
       "directFields": {
-        "lic_mainConcern": "direct_input",
-        "lic_helpWanted": "direct_input_detail"
+        "lic_feeling": "direct_input",
+        "lic_situation": "direct_input_detail"
       }
     },
     {
@@ -528,57 +528,57 @@ export const LICENSE_CONTENT_FINAL = {
       "id": "license_q10",
       "route": "L",
       "phase": 2,
-      "prompt": "받아 본 견적은 몇 건이고, 정부 수수료와 대행 범위가 구분되어 있나요?",
+      "prompt": "지금까지 이 일을 알아보셨다면, 누구에게 어떤 이야기를 들으셨나요?",
       "choices": [
         {
           "value": "o1",
-          "label": "견적을 받은 적이 없습니다.",
-          "description": "비교할 금액이 없어서 무엇을 확인해야 하는지도 아직 모르겠습니다.",
+          "label": "아직 알아본 곳이 없습니다.",
+          "description": "어디에 물어봐야 하는지, 무엇부터 준비해야 하는지부터 알고 싶습니다.",
           "fields": {
-            "lic_quoteStatus": "quote_none",
-            "lic_quoteScope": "qs_na"
+            "lic_helperWho": "hw_none",
+            "lic_toldWhat": "tw_nothing"
           }
         },
         {
           "value": "o2",
-          "label": "한 곳에서 서면 견적을 받았습니다.",
-          "description": "정부 수수료와 대행료가 따로 적혀 있어서 금액을 확인하기 쉽습니다.",
+          "label": "대행사나 업체에 물어봤습니다.",
+          "description": "필요한 서류와 절차를 들었는데 공식 기준과 맞는지 확인하지 못했습니다.",
           "fields": {
-            "lic_quoteStatus": "quote_one",
-            "lic_quoteScope": "qs_clear"
+            "lic_helperWho": "hw_agency",
+            "lic_toldWhat": "tw_unverified"
           }
         },
         {
           "value": "o3",
-          "label": "여러 곳에서 견적을 받았습니다.",
-          "description": "항목이 섞여 있어서 업체마다 무엇이 다른지 비교하기 어렵습니다.",
+          "label": "베트남 지인이나 직원에게 물어봤습니다.",
+          "description": "예전에 전환해 본 경험을 들었는데 지금도 같은 방식인지 모르겠습니다.",
           "fields": {
-            "lic_quoteStatus": "quote_several",
-            "lic_quoteScope": "qs_mixed"
+            "lic_helperWho": "hw_friend",
+            "lic_toldWhat": "tw_old_way"
           }
         },
         {
           "value": "o4",
-          "label": "말로만 금액을 들었습니다.",
-          "description": "어디까지 포함인지 확인하지 못했고 문서로 받은 것도 없습니다.",
+          "label": "접수처에 직접 가 보았습니다.",
+          "description": "베트남어로 설명을 들었는데 정확히 무슨 뜻인지 이해하지 못했습니다.",
           "fields": {
-            "lic_quoteStatus": "quote_verbal",
-            "lic_quoteScope": "qs_unknown"
+            "lic_helperWho": "hw_office",
+            "lic_toldWhat": "tw_not_understood"
           }
         },
         {
           "value": "o5",
-          "label": "광고에 나온 가격만 보았습니다.",
-          "description": "추가 비용이 붙는지 알아보지 못해서 실제 금액이 얼마일지 모르겠습니다.",
+          "label": "인터넷이나 인공지능으로 찾아봤습니다.",
+          "description": "글마다 내용이 달라서 어느 것이 최신인지 알 수 없습니다.",
           "fields": {
-            "lic_quoteStatus": "quote_ad",
-            "lic_quoteScope": "qs_unknown"
+            "lic_helperWho": "hw_online",
+            "lic_toldWhat": "tw_conflicting"
           }
         }
       ],
       "directFields": {
-        "lic_quoteStatus": "direct_input",
-        "lic_quoteScope": "direct_input_detail"
+        "lic_helperWho": "direct_input",
+        "lic_toldWhat": "direct_input_detail"
       }
     },
     {
@@ -805,25 +805,25 @@ export const LICENSE_CONTENT_FINAL = {
     ],
     "verdictQuestionCode": "Q5",
     "verdicts": {
-      "lic_mainConcern=concern_cost|lic_helpWanted=help_guide": {
-        "headline": "총비용을 확인하고 서류는 직접 준비하려는 상황입니다",
-        "body": "면허 전환 수수료는 정해져 있고, 면허 번역 공증과 건강검진 비용이 따로 듭니다. 서류 목록을 받아 번역 공증부터 준비하세요."
+      "lic_feeling=fl_lost|lic_situation=sit_search_vn": {
+        "headline": "어디서부터 시작해야 할지 몰라 막막한 상황입니다",
+        "body": "면허 전환에는 신청서, 면허 번역 공증본, 3개월 넘게 남은 체류 서류 사본, 건강검진서가 기본으로 필요합니다. 체류 서류 기간부터 확인하세요."
       },
-      "lic_mainConcern=concern_docs|lic_helpWanted=help_guide": {
-        "headline": "필요한 서류부터 확인해 직접 준비하려는 상황입니다",
-        "body": "면허 전환에는 신청서, 면허 번역 공증본, 3개월 넘게 남은 체류 서류 사본, 건강검진서가 기본으로 필요합니다. 체류 서류 기간을 먼저 확인하세요."
+      "lic_feeling=fl_anxious|lic_situation=sit_unknown_progress": {
+        "headline": "맡긴 일이 어디까지 됐는지 몰라 불안한 상황입니다",
+        "body": "어떤 서류를 언제 접수했는지 문서로 받아 확인하세요. 서류가 갖춰져 접수되면 5일 안에 결과가 나오는 것으로 안내됩니다."
       },
-      "lic_mainConcern=concern_time|lic_helpWanted=help_accompany": {
-        "headline": "처리 기간이 걱정되어 제출 동행을 원하는 상황입니다",
-        "body": "서류가 갖춰진 뒤 접수하면 며칠 안에 결과가 나오는 편이지만, 번역 공증과 검진에 시간이 걸립니다. 그 준비 기간을 먼저 계산하세요."
+      "lic_feeling=fl_confused|lic_situation=sit_conflicting": {
+        "headline": "사람마다 말이 달라 혼란스러운 상황입니다",
+        "body": "설명이 다를 때는 접수처의 공식 안내와 2025년 3월 시행된 교환 통달을 기준으로 필요한 서류 목록을 다시 대조하세요."
       },
-      "lic_mainConcern=concern_eligibility|lic_helpWanted=help_full": {
-        "headline": "전환 자격이 걱정되어 전 과정을 맡기려는 상황입니다",
-        "body": "면허 전환은 체류 서류의 남은 기간과 본국 면허의 유효 여부에 따라 가능 여부가 달라집니다. 2차 답변으로 상황을 더 정리한 뒤 전문가 확인으로 이어갈 수 있습니다."
+      "lic_feeling=fl_afraid|lic_situation=sit_driving": {
+        "headline": "전환 전에 운전하고 있어 단속이 걱정되는 상황입니다",
+        "body": "본국 면허만으로 운전하면 단속 대상이 될 수 있어 전환 전에는 운전을 삼가는 것이 안전합니다. 국제면허나 만료된 면허는 전환되지 않으니 본국 면허 상태부터 확인하세요."
       },
-      "lic_mainConcern=concern_quote|lic_helpWanted=help_accompany": {
-        "headline": "받은 견적을 확인하고 제출은 함께 하려는 상황입니다",
-        "body": "견적은 정부 수수료, 번역 공증, 건강검진, 대행료가 나뉘어 있는지 먼저 비교해야 합니다. 같은 항목끼리 맞춰 보면 금액 차이가 어디서 생기는지 알 수 있습니다."
+      "lic_feeling=fl_tired|lic_situation=sit_rejected": {
+        "headline": "서류가 한 번 되돌아와 지친 상황입니다",
+        "body": "서류가 돌아온 이유를 접수처에서 문서나 메모로 받아 번역 공증본과 체류 서류 기간부터 다시 확인하세요."
       }
     },
     "risks": {
@@ -973,13 +973,13 @@ export const LICENSE_CONTENT_FINAL = {
     },
     {
       "questionCode": "Q10",
-      "title": "견적과 비용",
+      "title": "지금까지 알아본 내용",
       "sentences": {
-        "lic_quoteStatus=quote_none|lic_quoteScope=qs_na": "견적을 받기 전에 정부 수수료와 대행료, 번역·공증비, 건강검진비를 나누어 요청하세요.",
-        "lic_quoteStatus=quote_one|lic_quoteScope=qs_clear": "항목이 나뉘어 있으니 정부 수수료가 공식 금액과 같은지만 대조해 보세요.",
-        "lic_quoteStatus=quote_several|lic_quoteScope=qs_mixed": "업체마다 포함 항목이 다르므로 같은 기준표로 옮겨 적으면 비교가 쉬워집니다.",
-        "lic_quoteStatus=quote_verbal|lic_quoteScope=qs_unknown": "말로 들은 금액은 문서로 받아 포함 범위와 추가 비용 조건을 확인하세요.",
-        "lic_quoteStatus=quote_ad|lic_quoteScope=qs_unknown": "광고 가격은 기본 구성인 경우가 많으니 내 상황에서 더해지는 비용을 직접 물어보세요."
+        "lic_helperWho=hw_none|lic_toldWhat=tw_nothing": "먼저 접수 예정 지역의 담당 접수처가 어디인지 확인하고 필요한 서류 목록을 문서로 받으세요.",
+        "lic_helperWho=hw_agency|lic_toldWhat=tw_unverified": "업체에서 들은 서류 목록은 접수처의 공식 안내와 한 번 대조해 보세요.",
+        "lic_helperWho=hw_friend|lic_toldWhat=tw_old_way": "제도가 최근 바뀌었을 수 있어 지인의 경험은 접수처의 현재 안내와 대조해 확인하세요.",
+        "lic_helperWho=hw_office|lic_toldWhat=tw_not_understood": "접수처에서 들은 내용은 메모나 사진으로 남겨 서류 목록과 다시 확인하세요.",
+        "lic_helperWho=hw_online|lic_toldWhat=tw_conflicting": "인터넷 글과 인공지능 번역은 날짜와 지역이 다를 수 있으니 공식 기관 안내를 기준으로 확인하세요."
       }
     },
     {
@@ -1033,11 +1033,6 @@ export const LICENSE_CONTENT_FINAL = {
     "cm_ok": "필요한 종류와 맞음",
     "cm_unknown": "대응 여부를 모름",
     "cm_upgrade": "더 큰 차량 면허 필요",
-    "concern_cost": "총비용 걱정",
-    "concern_docs": "필요 서류 걱정",
-    "concern_eligibility": "전환 자격 걱정",
-    "concern_quote": "받은 견적의 적정성 걱정",
-    "concern_time": "처리 기간 걱정",
     "dn_company_driver": "회사 기사가 운전",
     "dn_home_license": "본국 면허로 운전 중",
     "dn_intl": "국제면허로 운전 중",
@@ -1054,19 +1049,26 @@ export const LICENSE_CONTENT_FINAL = {
     "dp_unsure": "용도 미정",
     "dp_work": "업무용",
     "first_convert": "외국 면허를 처음 전환",
+    "fl_afraid": "무면허 운전 단속이 걱정됨",
+    "fl_anxious": "진행 상황이 불안함",
+    "fl_confused": "사람마다 말이 달라 혼란",
+    "fl_lost": "어디서 시작할지 막막함",
+    "fl_tired": "서류가 한 번 반려되어 지침",
     "hc_booked": "건강검진 예약",
     "hc_done": "건강검진 완료",
     "hc_exempt_check": "검진 면제 여부 확인 필요",
     "hc_none": "건강검진 안 함",
     "hc_unknown": "건강검진 필요 여부를 모름",
-    "help_accompany": "서류 작성과 제출 동행을 원함",
-    "help_full": "전 과정 대행을 원함",
-    "help_guide": "서류 작성 안내를 원함",
     "hl_expired": "본국 면허 만료",
     "hl_intl_only": "국제면허만 있음",
     "hl_unsure": "본국 면허 상태를 모름",
     "hl_valid_long": "본국 면허 유효(넉넉함)",
     "hl_valid_short": "본국 면허 곧 만료",
+    "hw_agency": "대행사·업체에 문의",
+    "hw_friend": "베트남 지인·직원에게 문의",
+    "hw_none": "아직 알아본 곳 없음",
+    "hw_office": "접수처에 직접 방문",
+    "hw_online": "인터넷·인공지능으로 검색",
     "intl_only": "국제면허로 운전 중",
     "lang_english": "영어로만 소통 가능",
     "lang_need": "통역이 꼭 필요함",
@@ -1096,21 +1098,17 @@ export const LICENSE_CONTENT_FINAL = {
     "ok_changed": "행정구역 변경으로 접수처가 불확실함",
     "ok_known": "접수처를 알고 있음",
     "ok_unknown": "접수처를 모름",
-    "qs_clear": "수수료와 대행료가 구분됨",
-    "qs_mixed": "항목이 섞여 비교 어려움",
-    "qs_na": "비교할 견적 없음",
-    "qs_unknown": "포함 범위를 모름",
-    "quote_ad": "광고 가격만 봄",
-    "quote_none": "받은 견적 없음",
-    "quote_one": "서면 견적 1건",
-    "quote_several": "여러 곳의 견적",
-    "quote_verbal": "말로만 들은 금액",
     "renew_vn": "베트남 면허 갱신",
     "res_applying": "거주증 신청 중",
     "res_trc_long": "거주증 3개월 이상 남음",
     "res_trc_short": "거주증 3개월 미만 남음",
     "res_unsure": "체류 서류 상태를 모름",
     "res_visa_only": "비자만 있음",
+    "sit_conflicting": "안내가 서로 다름",
+    "sit_driving": "전환 전에 운전하고 있음",
+    "sit_rejected": "서류가 한 번 반려됨",
+    "sit_search_vn": "베트남어 자료를 이해하기 어려움",
+    "sit_unknown_progress": "진행 상황을 알 수 없음",
     "sm_agency": "대행사가 제출",
     "sm_company": "회사 담당자가 제출",
     "sm_self": "직접 제출",
@@ -1131,6 +1129,11 @@ export const LICENSE_CONTENT_FINAL = {
     "tr_none": "번역 공증 안 함",
     "tr_partial": "번역만 함",
     "tr_unknown": "번역 공증 필요 여부를 모름",
+    "tw_conflicting": "글마다 내용이 다름",
+    "tw_not_understood": "베트남어 설명을 이해하지 못함",
+    "tw_nothing": "들은 내용 없음",
+    "tw_old_way": "예전 방식인지 모름",
+    "tw_unverified": "공식 기준과 대조하지 못함",
     "van_truck": "승합·화물차",
     "vehicle_unsure": "운전할 차량 미정",
     "vs_company": "회사 차량",
@@ -1174,7 +1177,7 @@ export const LICENSE_CONTENT_FINAL = {
     },
     {
       "name": "전문가 진행",
-      "condition": "`lic_homeLicense` ∈ {hl_expired} 또는 `lic_timeline` ∈ {tl_urgent} 또는 `lic_helpWanted` ∈ {help_full}",
+      "condition": "`lic_homeLicense` ∈ {hl_expired} 또는 `lic_timeline` ∈ {tl_urgent} 또는 `lic_situation` ∈ {sit_driving}",
       "sentence": "본국 면허가 만료되었거나 일정이 급하다면 전문가와 함께 진행하는 방법도 있습니다. 필요하시면 전문가 진행을 선택해 주세요.",
       "mode": "or",
       "clauses": [
@@ -1191,9 +1194,9 @@ export const LICENSE_CONTENT_FINAL = {
           ]
         },
         {
-          "field": "lic_helpWanted",
+          "field": "lic_situation",
           "values": [
-            "help_full"
+            "sit_driving"
           ]
         }
       ]
@@ -1246,9 +1249,9 @@ export const LICENSE_CONTENT_FINAL = {
         "label": "전 과정 대행",
         "clauses": [
           {
-            "field": "lic_helpWanted",
+            "field": "lic_situation",
             "values": [
-              "help_full"
+              "sit_driving"
             ]
           },
           {
@@ -1270,9 +1273,9 @@ export const LICENSE_CONTENT_FINAL = {
         "label": "작성과 제출 동행",
         "clauses": [
           {
-            "field": "lic_helpWanted",
+            "field": "lic_situation",
             "values": [
-              "help_accompany"
+              "sit_rejected"
             ]
           },
           {

@@ -105,8 +105,8 @@ if (!dResult) fail("direct input should still produce a result");
 const tierBase = pack.tamtruTierRecommendation(answersAt(1));
 if (!["write", "accompany", "full"].includes(tierBase.tier)) fail("tier unexpected");
 const q5 = data.questions.find((q) => q.code === "Q5");
-const fullAnswers = { ...base, [q5.id]: q5.choices.find((c) => c.fields.tt_helpWanted === "help_full").value };
-if (pack.tamtruTierRecommendation(fullAnswers).tier !== "full") fail("help_full should recommend full service");
+const fullAnswers = { ...base, [q5.id]: q5.choices.find((c) => c.fields.tt_situation === "sit_late_report").value };
+if (pack.tamtruTierRecommendation(fullAnswers).tier !== "full") fail("sit_late_report should recommend full service");
 
 // 6. 저장·복원
 const meta = pack.buildTamtruPhase2PersistMeta(base, 2);
