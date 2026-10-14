@@ -480,7 +480,7 @@ export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "식당허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "식당허가 가능성 진단 (REGISTER)",
     ctaHref: "/register/restaurant",
   },
@@ -498,7 +498,7 @@ export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "위생허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "위생허가 가능성 진단 (REGISTER)",
     ctaHref: "/register/hygiene",
   },
@@ -516,7 +516,7 @@ export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "소방허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "소방허가 가능성 진단 (REGISTER)",
     ctaHref: "/register/fire-safety",
   },
@@ -534,7 +534,7 @@ export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "화장품허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "화장품허가 가능성 진단 (REGISTER)",
     ctaHref: "/register/cosmetics",
   },
@@ -552,7 +552,7 @@ export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "환경허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "환경허가 가능성 진단 (REGISTER)",
     ctaHref: "/register/environment",
   },
@@ -570,7 +570,7 @@ export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "의료기기허가 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "의료기기허가 가능성 진단 (REGISTER)",
     ctaHref: "/register/medical-device",
   },
@@ -588,7 +588,7 @@ export const REGISTER_PENDING_COST_SERVICES: CostCheckService[] = [
     govFeeAmount: 0,
     marketUsualFeeAmount: 0,
     lookupGuide:
-      "프랜차이즈 등록 전용 공식 수수료·시장가격 데이터가 아직 연결되지 않았습니다. 확인된 기준이 확보되면 이 화면에 안내됩니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "프랜차이즈 등록 가능성 진단 (REGISTER)",
     ctaHref: "/register/franchise",
   },
