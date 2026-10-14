@@ -3216,7 +3216,7 @@ export function MasterReviewQuotationReport({
                       setAdminDirectExplainOpenId(question.id);
                       setSelectedKey("other");
                     }}
-                    className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
+                    className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-[10px] py-3 leading-snug max-sm:w-full max-sm:text-center border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                   >
                     {ADMIN_DIRECT_EXPLAIN_LABEL.replace(" → 직접 입력", " →\u00A0직접\u00A0입력")}
                   </button>
@@ -3510,7 +3510,7 @@ export function MasterReviewQuotationReport({
                       setCaseEntryDirectExplainOpen(true);
                       setSelectedKey("other");
                     }}
-                    className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
+                    className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-[10px] py-3 leading-snug max-sm:w-full max-sm:text-center border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                   >
                     {ADMIN_DIRECT_EXPLAIN_LABEL.replace(" → 직접 입력", " →\u00A0직접\u00A0입력")}
                   </button>
@@ -3710,7 +3710,7 @@ export function MasterReviewQuotationReport({
                 <button
                   type="button"
                   onClick={() => setRe2DirectExplainOpenId(question.id)}
-                  className="mt-3 inline-flex min-h-[44px] items-center rounded-[10px] border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
+                  className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-[10px] py-3 leading-snug max-sm:w-full max-sm:text-center border border-[#E3E8F0] bg-white px-4 text-[14px] font-medium text-[#071A33] transition-colors hover:border-[#2563EB]/50 hover:bg-[#F7F9FC]"
                 >
                   {ADMIN_DIRECT_EXPLAIN_LABEL.replace(" → 직접 입력", " →\u00A0직접\u00A0입력")}
                 </button>
@@ -5181,7 +5181,7 @@ export function MasterReviewQuotationReport({
                     <>
                       <div
                         className={cn(
-                          "mt-3.5 flex items-center justify-center gap-1.5 text-[11.5px] text-[#6B7A90] sm:hidden",
+                          "mt-6 flex items-center justify-center gap-1.5 text-[11.5px] text-[#6B7A90] sm:hidden",
                           isRealEstateVerifyMasterLayout && "mb-0",
                         )}
                       >

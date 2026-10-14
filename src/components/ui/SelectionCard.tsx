@@ -280,7 +280,7 @@ export default function SelectionCard({
               {description ? (
                 <p
                   className={cn(
-                    "mt-1 break-keep text-pretty text-[12px] font-normal leading-relaxed",
+                    "mt-1 break-keep text-pretty text-[13px] font-normal leading-relaxed",
                     badgeNumber ? "pl-[calc(1.5rem+0.5rem)]" : undefined,
                     "text-[#3D4B63]",
                   )}
