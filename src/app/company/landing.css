@@ -145,6 +145,6 @@ html:has(.lp-root) { scroll-behavior: smooth; }
 /* 좌우 여백: 원본 마크업은 그대로 두고, 화면 폭에 비례해 글이 가장자리에 붙지 않게 한다 (이식 쪽 CSS만 사용) */
 .lp-root .max-w-7xl,
 .lp-root .max-w-5xl {
-  padding-left: clamp(1.5rem, 6.5vw, 6rem);
-  padding-right: clamp(1.5rem, 6.5vw, 6rem);
+  padding-left: clamp(1.5rem, 5vw, 4rem);
+  padding-right: clamp(1.5rem, 5vw, 4rem);
 }
