@@ -3076,13 +3076,13 @@ export function MasterReviewQuotationReport({
             setSelectedKey(null);
             setEditingId(question.id);
           }}
-          className="flex w-full items-baseline gap-1.5 rounded-[4px] py-0.5 text-left transition hover:bg-[#F8FAFC]"
+          className="flex w-full items-baseline gap-1.5 rounded-[4px] py-0.5 text-left transition hover:bg-[#F8FAFC] max-sm:flex-wrap max-sm:gap-y-0.5"
         >
           <Check className="mt-px h-3 w-3 shrink-0 text-emerald-600" aria-hidden />
-          <span className="shrink-0 text-[11px] font-normal leading-snug text-[#94A3B8]">
+          <span className="shrink-0 text-[11px] font-normal leading-snug text-[#94A3B8] max-sm:min-w-0 max-sm:shrink max-sm:basis-[calc(100%-1.125rem)] max-sm:break-keep">
             {question.label}
           </span>
-          <span className="min-w-0 truncate text-[11px] font-medium leading-snug text-[#475569]">
+          <span className="min-w-0 truncate text-[11px] font-medium leading-snug text-[#475569] max-sm:ml-[1.125rem] max-sm:basis-[calc(100%-1.125rem)] max-sm:overflow-visible max-sm:whitespace-normal max-sm:break-keep">
             {formatCollapsedAnswerLabel(question, value, answers)}
           </span>
         </button>
