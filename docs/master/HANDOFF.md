@@ -15,7 +15,7 @@
 - 미리보기: `https://vfbc-platform-git-chore-41a8aa-carehousevietnam-a11ys-projects.vercel.app/verify/<서비스>`
 
 ## 남은 일
-1. **다음 작업: 랜딩페이지 붙이기.** 대표가 만든 파일을 새 대화에 붙여 넣으면 구현한다. 첫 번째는 법인설립 파일이고, 랜딩의 시작 버튼은 법인설립 퍼널(`/verify/company`)로 바로 연결한다. 기존 `/register/company` 화면이 있는지 확인해 대체할지 새 주소로 둘지 먼저 정한다(운영 중 화면은 묻지 않고 바꾸지 않는다). 깨끗한 상태에서 시작한다.
+1. **랜딩페이지 붙이기(법인설립): 코드 반영 완료, 푸시·미리보기 확인 전.** `src/app/company/`(page·CompanyLandingClient·companyLandingHtml·companyLandingScript·landing.css)와 `public/lp/company/`(에셋 경로만 lp 유지)(영상·화면 5장). 주소 `/company`, 시작 버튼 4곳 → `/register/company`(랜딩은 이 퍼널의 앞단, 퍼널 화면 자체는 그대로 둠). 남은 일: 대표 푸시 → 미리보기에서 PC·모바일 화면 확인, 이후 다음 서비스 랜딩 파일을 받으면 같은 방식으로 `src/app/<서비스>`(짧은 주소)에 추가, 충돌 주소 여부 먼저 확인.
 2. 직접 검토하기 5개(세무·사기·불명확 서류 등) 질문 점검은 보류. 범위를 대표가 정한다(행정·부동산은 Admin MASTER 기준이라 D9에 따라 수정하지 않음).
 3. 보안(GitHub Private 전환, Vercel Firewall 요청 제한, SQL B)과 실제 폰 확인은 대표가 직접 한다.
 

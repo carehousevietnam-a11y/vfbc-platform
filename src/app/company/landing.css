@@ -1,0 +1,143 @@
+html:has(.lp-root) { scroll-behavior: smooth; }
+  .lp-root { background-color: #050608; color: #fff; min-height: 100vh; font-feature-settings: "tnum" 1; font-family: Pretendard, "Pretendard Variable", Outfit, -apple-system, system-ui, sans-serif; }
+  .kr { word-break: keep-all; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .lp-root section[id] { scroll-margin-top: 84px; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, 18px)); filter: blur(3px); }
+    to   { opacity: 1; transform: translate(0, 0); filter: blur(0); }
+  }
+  .reveal { opacity: 0; }
+  .reveal.in-view {
+    animation: fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+    animation-delay: calc(var(--d, 0) * 1ms);
+  }
+  input[type="text"]::placeholder { color: rgba(255,255,255,0.22); }
+
+  .check-option { transition: color 0.25s ease; }
+  .check-option.selected .opt-label,
+  .check-option.selected .opt-num { color: #ff8f2e; }
+  .field-underline { transition: border-color 0.25s ease; }
+
+  /* ---------- HERO: cost count-up ---------- */
+  .hero-num {
+    font-size: clamp(3.75rem, 19vw, 6.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+  @media (min-width: 640px)  { .hero-num { font-size: clamp(5rem, 14vw, 7.5rem); } }
+  @media (min-width: 1024px) { .hero-num { font-size: clamp(5.5rem, 9.2vw, 9rem); } }
+  .hero-num .cur { font-size: 0.48em; vertical-align: 0.82em; margin-right: 0.06em; letter-spacing: 0; }
+  /* price bar: track + fill, filled by the result count-up; colour follows the price */
+  .price-bar { height: 9px; border-radius: 4.5px; background: rgba(255,255,255,0.12); overflow: hidden; }
+  .price-bar-fill { height: 100%; width: 0%; background: #6F9F78; border-radius: 4.5px; }
+  /* result status line: small light box with one mark + one sentence */
+  .price-status {
+    display: inline-flex; align-items: center; gap: 6px; padding: 0.35rem 0.7rem; border-radius: 3px;
+    background: rgba(255,255,255,0.92); color: #050608; font-size: 12px; font-weight: 600; line-height: 1.4;
+  }
+  .quote-mark { width: 12px; height: 12px; flex-shrink: 0; }
+  /* ask ↔ result: quiet cross-fade; result details arrive after the count-up */
+  .price-state { transition: opacity 400ms ease, transform 400ms ease; }
+  .price-state.is-leaving { opacity: 0; transform: translateY(6px); }
+  .price-after { opacity: 0; transform: translateY(4px); transition: opacity 600ms ease, transform 600ms ease; }
+  .price-after.is-on { opacity: 1; transform: none; }
+  #heroContent, #heroStage { will-change: opacity, transform; }
+
+  /* hero background video: always behind the overlay and every piece of text */
+  .hero-media { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #050608; }
+  .hero-video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: 62% center;
+    opacity: 0; transition: opacity 1.2s ease;
+  }
+  .hero-video.is-ready { opacity: 0.58; }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(5,6,8,0.92) 0%, rgba(5,6,8,0.72) 42%, rgba(5,6,8,0.42) 100%),
+      linear-gradient(180deg, rgba(5,6,8,0.45) 0%, rgba(5,6,8,0) 22%, rgba(5,6,8,0) 70%, rgba(5,6,8,0.6) 100%);
+  }
+  /* phones: text stacks over the whole frame, so the video goes quieter and the overlay evens out */
+  @media (max-width: 1023px) {
+    .hero-video { object-position: 58% center; }
+    .hero-video.is-ready { opacity: 0.4; }
+    .hero-overlay {
+      background: linear-gradient(180deg, rgba(5,6,8,0.82) 0%, rgba(5,6,8,0.62) 45%, rgba(5,6,8,0.8) 100%);
+    }
+  }
+
+  .scroll-cue { position: relative; width: 1px; height: 32px; background: rgba(255,255,255,0.12); overflow: hidden; }
+  .scroll-cue::after {
+    content: ""; position: absolute; left: 0; top: -40%; width: 1px; height: 40%;
+    background: rgba(255,255,255,0.55);
+    animation: cue 2.2s cubic-bezier(0.65,0,0.35,1) infinite;
+  }
+  @keyframes cue { to { top: 100%; } }
+
+  /* ---------- COST ---------- */
+  .cost-range { font-size: min(11vw, 4.5rem); }
+  .cost-zero  { font-size: min(18vw, 6rem); }
+  @media (min-width: 768px) {
+    .cost-range { font-size: min(5.6vw, 5.25rem); }
+    .cost-zero  { font-size: min(8vw, 6rem); }
+  }
+
+  /* agency-scope items: thin dividers, larger names, staggered fade-up on reveal */
+  .svc-item { padding: 2.25rem 1rem 2.25rem 1.25rem; border-left: 1px solid rgba(255,255,255,0.07); }
+  .svc-item:nth-child(2n+2) { border-left: 0; padding-left: 0; }   /* 2 cols: first in each row (span is child 1) */
+  @media (min-width: 640px) {
+    .svc-item:nth-child(n) { border-left: 1px solid rgba(255,255,255,0.07); padding-left: 1.25rem; }
+    .svc-item:nth-child(3n+2) { border-left: 0; padding-left: 0; }
+  }
+  @media (min-width: 1024px) {
+    .svc-item:nth-child(n) { border-left: 1px solid rgba(255,255,255,0.07); padding-left: 1.25rem; }
+    .svc-item:nth-child(2) { border-left: 0; padding-left: 0; }
+  }
+  .svc-num { display: block; font-family: var(--lp-outfit), Outfit, sans-serif; font-weight: 600; font-size: 13px; color: #ff8f2e; font-variant-numeric: tabular-nums; }
+  @media (min-width: 1024px) { .svc-num { font-size: 14px; } }
+  .svc-name { display: block; margin-top: 0.85rem; font-size: 1.35rem; line-height: 1.35; font-weight: 600; color: rgba(255,255,255,0.92); }
+  @media (min-width: 640px) { .svc-name { font-size: 1.5rem; } }
+  @keyframes svcUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .svc-item { opacity: 0; }
+  .reveal.in-view .svc-item {
+    animation: svcUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+    animation-delay: calc(300ms + var(--i) * 100ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .svc-item, .reveal.in-view .svc-item { opacity: 1; animation: none; }
+  }
+
+  /* ---------- PROCESS ---------- */
+  .proc-num, .proc-title, .proc-desc { transition: color 500ms ease; }
+
+  /* ---------- DIRECT CHECK (product demo) ---------- */
+  #aiReviewImg { transition: opacity 300ms ease, transform 300ms ease; }
+  .flow-row {
+    width: 100%; display: flex; align-items: baseline; gap: 1.25rem; padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; cursor: pointer;
+  }
+  .flow-num { width: 1.25rem; flex-shrink: 0; font-size: 11px; font-variant-numeric: tabular-nums; color: rgba(255,255,255,0.25); transition: color 250ms ease; }
+  .flow-label { font-size: 15px; color: rgba(255,255,255,0.45); transition: color 250ms ease; word-break: keep-all; }
+  .flow-row:hover .flow-label { color: rgba(255,255,255,0.7); }
+  .flow-row.is-active .flow-num { color: #ff8f2e; }
+  .flow-row.is-active .flow-label { color: #fff; }
+  .ai-step-btn {
+    width: 30px; height: 30px; border-radius: 999px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+    border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.35);
+    background: transparent; cursor: pointer; transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+  }
+  .ai-step-btn:hover { border-color: rgba(255,255,255,0.35); color: rgba(255,255,255,0.6); }
+  .ai-step-btn.is-active { background: #ff7a1f; border-color: #ff7a1f; color: #050608; }
+  .ai-step-label { font-size: 10px; color: rgba(255,255,255,0.35); white-space: nowrap; transition: color 200ms ease; }
+  .ai-step-label.is-active { color: rgba(255,255,255,0.75); }
+  .ai-step-line { flex: 1 1 auto; height: 1px; background: rgba(255,255,255,0.12); margin-top: 15px; min-width: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-cue::after { animation: none; top: 30%; }
+  }
+
+.lp-display { font-family: var(--lp-outfit), Outfit, Pretendard, sans-serif; }
