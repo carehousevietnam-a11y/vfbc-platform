@@ -19,8 +19,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o2",
-          "label": "립스틱이나 파운데이션 같은 색조 화장품을 팔려고 합니다.",
-          "description": "베트남에서 직접 만든 색조 제품도 같은 신고를 하는지 모르겠습니다.",
+          "label": "립스틱이나 파운데이션 같은 색조 화장품을 베트남에서 직접 만들어 팔려고 합니다.",
+          "description": "수입품과 같은 판매 신고를 하는지 모르겠습니다.",
           "fields": {
             "cs_product": "pr_makeup",
             "cs_productFocus": "pf_local"
@@ -28,8 +28,8 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "샴푸나 트리트먼트 같은 헤어 제품을 팔고 있습니다.",
-          "description": "이미 받은 신고 번호를 갱신할 때 뭘 다시 내야 하는지 걱정입니다.",
+          "label": "샴푸나 트리트먼트 같은 헤어 제품은 신고 번호를 이미 받고 팔고 있습니다.",
+          "description": "곧 갱신할 때가 되는데 뭘 다시 내야 하는지 걱정입니다.",
           "fields": {
             "cs_product": "pr_hair",
             "cs_productFocus": "pf_renew"
@@ -37,7 +37,7 @@ export const COSMETICS_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "바디로션이나 세정 제품을 팔고 있습니다.",
+          "label": "바디로션이나 세정 제품은 이미 신고하고 팔고 있습니다.",
           "description": "성분이나 포장이 바뀌면 신고한 내용도 바꿔야 하는지 모르겠습니다.",
           "fields": {
             "cs_product": "pr_body",

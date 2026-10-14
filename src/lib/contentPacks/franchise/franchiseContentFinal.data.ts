@@ -6,7 +6,7 @@ export const FRANCHISE_CONTENT_FINAL = {
       "id": "franchise_q1",
       "route": "R",
       "phase": 1,
-      "prompt": "어떤 브랜드를 어떤 방식으로 가맹 사업하시려고 하고, 지금 가장 막막한 점은 무엇인가요?",
+      "prompt": "어떤 브랜드로 어떻게 가맹 사업을 하시려고 하고, 지금 가장 막막한 점은 무엇인가요?",
       "choices": [
         {
           "value": "o1",

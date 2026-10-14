@@ -28,8 +28,8 @@ export const ENVIRONMENT_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "화학 원료를 쓰거나 도장 작업을 하는 공장입니다.",
-          "description": "이미 받은 환경 허가의 갱신 시기가 다가와서 뭘 다시 준비해야 하는지 걱정입니다.",
+          "label": "화학 원료를 쓰거나 도장 작업을 하는 공장이고, 환경 허가는 이미 받았습니다.",
+          "description": "갱신 시기가 다가오는데 뭘 다시 준비해야 하는지 걱정입니다.",
           "fields": {
             "ev_industry": "in_chemical",
             "ev_industryFocus": "if_renew"

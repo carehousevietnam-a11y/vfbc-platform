@@ -28,7 +28,7 @@ export const MEDICAL_CONTENT_FINAL = {
         },
         {
           "value": "o3",
-          "label": "초음파 진단기 같은 장비를 다른 회사에서 받아 유통만 하려고 합니다.",
+          "label": "초음파 진단기 같은 장비를 유통만 하려고 합니다.",
           "description": "위험이 중간 이상인 장비라 절차가 더 복잡할까 걱정입니다.",
           "fields": {
             "md_stage": "st_trade",
