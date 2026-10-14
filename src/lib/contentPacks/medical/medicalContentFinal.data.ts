@@ -145,10 +145,10 @@ export const MEDICAL_CONTENT_FINAL = {
         {
           "value": "o3",
           "label": "창고를 곧 계약할 예정입니다.",
-          "description": "냉장 보관이 필요한 제품이 있어 냉장 설비가 있는 창고를 찾고 있습니다.",
+          "description": "아직 계약 전이라 의료기기 보관 기준에 맞는 창고인지 확인하고 싶습니다.",
           "fields": {
             "md_warehouse": "wh_planned",
-            "md_storage": "wc_cold"
+            "md_storage": "wc_unknown"
           }
         },
         {
@@ -786,7 +786,7 @@ export const MEDICAL_CONTENT_FINAL = {
         "sentences": {
           "md_warehouse=wh_own|md_storage=wc_controlled": "자체 창고에서 온도·습도를 관리하는 상황입니다",
           "md_warehouse=wh_3pl|md_storage=wc_basic": "물류 위탁 창고에 일반 보관하는 상황입니다",
-          "md_warehouse=wh_planned|md_storage=wc_cold": "창고 계약 전이고 냉장 보관이 필요한 상황입니다",
+          "md_warehouse=wh_planned|md_storage=wc_unknown": "창고 계약 전이라 보관 기준에 맞는 창고를 확인해야 하는 상황입니다",
           "md_warehouse=wh_none|md_storage=wc_unknown": "창고 없이 보관 조건을 확인해야 하는 상황입니다",
           "md_warehouse=wh_unknown|md_storage=wc_basic": "보관 시설 필요 여부를 확인할 상황입니다"
         }
@@ -1145,7 +1145,6 @@ export const MEDICAL_CONTENT_FINAL = {
     "tn_simple": "사용법이 간단함",
     "tn_unknown": "교육 필요 여부를 모름",
     "wc_basic": "일반 보관",
-    "wc_cold": "냉장 보관 필요",
     "wc_controlled": "온도·습도 관리",
     "wc_unknown": "보관 조건을 모름",
     "wh_3pl": "물류 위탁 창고",

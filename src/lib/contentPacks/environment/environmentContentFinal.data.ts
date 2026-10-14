@@ -180,7 +180,7 @@ export const ENVIRONMENT_CONTENT_FINAL = {
       "id": "environment_q4",
       "route": "R",
       "phase": 1,
-      "prompt": "환경영향평가나 환경 등록 이야기는 들어 보셨고, 우리 사업장 규모는 어느 정도인가요?",
+      "prompt": "환경영향평가나 환경 등록이 필요하다는 이야기는 들으셨고, 사업장 규모는 어느 정도인가요?",
       "choices": [
         {
           "value": "o1",

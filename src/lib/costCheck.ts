@@ -350,7 +350,7 @@ export const COST_CHECK_SERVICES: CostCheckService[] = [
     govFeeAmount: 5,
     marketUsualFeeAmount: 1745,
     lookupGuide:
-      "법인설립 정부 고시 수수료는 상대적으로 낮지만, 번역·공증·대행·후속 인허가 비용이 견적에 크게 반영되는 경우가 많습니다.",
+      "확정 비용은 표시하지 않으며 공식 자료 기준으로 안내합니다.",
     ctaLabel: "법인설립 가능성 진단 (REGISTER)",
     ctaHref: "/register/company",
   },
