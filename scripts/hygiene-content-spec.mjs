@@ -9,14 +9,14 @@ export const labels = {
   ...V.voiceLabels,
   pf_processed_docs: "가공식품 허가 서류 확인", pf_bakery_cond: "제과·제빵 허가 조건 확인", pf_beverage_agency: "음료·주류 담당 기관 확인", pf_packaged_need: "유통만 해도 허가가 필요한지 확인", pf_central_permit: "중앙 주방 필요 허가 확인",
   pt_processed: "가공식품 제조", pt_bakery: "제과·제빵 생산", pt_beverage: "음료·주류 생산", pt_packaged: "포장 식품 유통", pt_central: "센트럴 키친",
-  fac_done: "위생시설 구비 완료", fac_partial: "일부 시설만 구비", fac_building: "시설 공사 중", fac_outsourced: "다른 공장에 생산 위탁", fac_unknown: "필요한 시설을 모름",
-  ln_one_way: "원료부터 완제품까지 한 방향 동선", ln_mixed: "동선이 일부 겹침", ln_shared: "공사 중 공간을 함께 사용", ln_none: "위탁 공장의 구역 구분 미확인", ln_unknown: "동선 기준을 모름",
+  fac_done: "위생시설 구비 완료", fac_partial: "일부 시설만 구비", fac_building: "시설 공사 중", fac_outsourced: "직접 생산하지 않음(위탁·유통)", fac_unknown: "필요한 시설을 모름",
+  ln_one_way: "원료부터 완제품까지 한 방향 동선", ln_mixed: "동선이 일부 겹침", ln_shared: "공사 중 공간을 함께 사용", ln_none: "위탁 공장·보관 창고의 구역 구분 미확인", ln_unknown: "동선 기준을 모름",
   sh_done: "종사자 건강검진 완료", sh_some: "일부 종사자만 검진", sh_not_yet: "종사자 검진 전", sh_no_staff: "아직 종사자 없음", sh_unknown: "검진 필요 여부를 모름",
   ht_done: "위생 교육 수료", ht_planned: "위생 교육 예정", ht_none: "위생 교육 안 함", ht_unknown: "교육 필요 여부를 모름",
   qc_haccp: "식품 안전 관리 인증 보유", qc_test: "제품 검사 결과서 보유", qc_planned: "검사 예정", qc_none: "검사·인증 없음", qc_unknown: "필요한 검사를 모름",
   lb_ready: "베트남어 표시 준비", lb_draft: "표시 초안만 있음", lb_none: "표시 준비 전", lb_unknown: "표시 기준을 모름",
-  wt_city: "수돗물 사용", wt_well: "지하수 사용", wt_filtered: "정수 설비 사용", wt_undecided: "사용할 물 미정", wt_source_unknown: "생산용 물 출처를 모름",
-  wq_city_check: "수돗물 검사 필요 여부 확인", wq_well_report: "지하수 검사 결과서 확인", wq_filter_report: "정수 설비 검사 확인", wq_choose: "검사에 맞는 물 선택 확인", wq_unknown: "검사 필요 여부와 기관 확인",
+  wt_city: "수돗물 사용", wt_well: "지하수 사용", wt_filtered: "정수 설비 사용", wt_none: "생산용 물 사용 없음", wt_source_unknown: "생산용 물 출처를 모름",
+  wq_city_check: "수돗물 검사 필요 여부 확인", wq_well_report: "지하수 검사 결과서 확인", wq_filter_report: "정수 설비 검사 확인", wq_cleaning: "세척·청소용 물 검사 필요 여부 확인", wq_unknown: "검사 필요 여부와 기관 확인",
 };
 const cfg = {
   noun: "식품 위생 허가", openObj: "생산·판매를", openTopic: "생산·판매는", dateWord: "판매 시작 날짜", openNow: "이미 생산·판매를 하고 있습니다.",
@@ -49,7 +49,7 @@ export const questions = [
     C("**시설은 다 갖췄습니다.**", "재료가 들어와서 완제품이 나갈 때까지 한 방향으로 배치되어 있습니다.", ["fac_done","ln_one_way"], { card: "위생시설과 한 방향 작업 동선을 갖춘 상황입니다" }),
     C("**일부만 갖췄습니다.**", "재료가 지나는 길과 완제품이 지나는 길이 일부 겹치는데 괜찮은지 모르겠습니다.", ["fac_partial","ln_mixed"], { card: "시설이 일부만 있고 동선이 겹치는 상황입니다" }),
     C("**지금 공사 중입니다.**", "다른 업체와 건물을 같이 쓰는 곳이라 구역을 나눌 수 있을지 걱정됩니다.", ["fac_building","ln_shared"], { card: "시설 공사 중이고 공간을 함께 쓰는 상황입니다" }),
-    C("**직접 짓기보다 다른 공장에 맡기려고** 합니다.", "맡길 공장의 작업 구역이 나뉘어 있는지는 제가 직접 확인하지 못했습니다.", ["fac_outsourced","ln_none"], { card: "생산을 위탁하며 공장의 구역 구분을 확인해야 하는 상황입니다" }),
+    C("**직접 만들지 않고**, 다른 공장에 맡기거나 들여와서 팔 계획입니다.", "맡길 공장이나 보관 창고의 구역이 나뉘어 있는지는 제가 직접 확인하지 못했습니다.", ["fac_outsourced","ln_none"], { card: "직접 생산하지 않고 위탁 공장이나 보관 창고의 구역 구분을 확인해야 하는 상황입니다" }),
     C("**뭐가 필요한지** 모르겠습니다.", "작업장을 어떻게 나눠야 하는지도 들어 본 적이 없습니다.", ["fac_unknown","ln_unknown"], { card: "필요한 시설과 동선 기준을 확인해야 하는 상황입니다" }),
   ] },
   { code: "Q4", stage: 1, prompt: "식품을 만질 직원은 구하셨고, 건강검진이나 위생 교육 이야기는 들어 보셨나요?", f: [`${p}_staffHealth`, `${p}_training`], choices: [
@@ -72,13 +72,13 @@ export const questions = [
     C("**수돗물을 그대로** 씁니다.", "수돗물도 생산용으로 따로 검사를 받아야 하는지 모르겠습니다.", ["wt_city","wq_city_check"], { r: "수돗물도 검사를 요구받을 수 있으니 담당 기관에 필요 여부를 먼저 확인하세요." }),
     C("**지하수를 끌어다** 씁니다.", "수질 검사 결과서가 필요한지, 어디서 검사받는지 알아보고 있습니다.", ["wt_well","wq_well_report"], { r: "지하수는 수질 검사가 꼭 필요할 수 있으니 검사 기관부터 확인하고 검사를 받으세요." }),
     C("**정수 설비로 걸러서** 씁니다.", "정수 설비를 거친 물도 검사 결과서를 내야 하는지 궁금합니다.", ["wt_filtered","wq_filter_report"], { r: "정수 설비의 관리 기록과 수질 검사 결과를 함께 보관해 두면 현장 확인 때 도움이 됩니다." }),
-    C("**쓸 물을 아직** 정하지 못했습니다.", "어떤 물을 쓰면 검사 준비가 쉬운지 먼저 알고 싶습니다.", ["wt_undecided","wq_choose"], { r: "물 종류에 따라 검사 항목이 달라질 수 있으니 시설 계획 단계에서 먼저 정하세요." }),
+    C("**생산에 쓰는 물은** 없습니다.", "직접 만들지 않아서 세척이나 청소에 쓰는 물도 검사를 받아야 하는지 궁금합니다.", ["wt_none","wq_cleaning"], { r: "생산용 물이 없어도 세척·청소용 물의 기준이 있을 수 있으니 담당 기관에 필요 여부를 확인하세요." }),
     C("**물을 어디서 받는지** 정확히 모릅니다.", "건물주가 연결해 준 물이라 검사를 받아야 하는지, 어디서 받는지도 모르겠습니다.", ["wt_source_unknown","wq_unknown"], { r: "물의 출처를 먼저 확인한 뒤 그 출처에 맞는 수질 검사를 알아보세요." }),
   ] },
   V.timeline(p, "Q9", cfg, tlR),
   V.asked(p, "Q10"),
   V.submit(p, "Q11"),
-  { code: "Q12", stage: 2, prompt: "만든 식품은 어디에 팔 생각이고, 팔기 전에 따로 신고해야 한다는 이야기는 들어 보셨나요?", f: [`${p}_market`, `${p}_declare`], choices: [
+  { code: "Q12", stage: 2, prompt: "만들거나 들여온 식품은 어디에 팔 생각이고, 팔기 전에 따로 신고해야 한다는 이야기는 들어 보셨나요?", f: [`${p}_market`, `${p}_declare`], choices: [
     C("**베트남 안에서 직접** 팔 생각입니다.", "팔기 전에 제품 신고를 해야 한다는 건 이미 알아봤습니다.", ["mk_domestic","dc_known"], { r: "제품 신고가 필요한 품목이면 위생 허가와 함께 신고 서류도 준비하세요." }),
     C("**마트나 유통사에** 넣으려고 합니다.", "유통사가 따로 요구하는 서류가 있다는데 그게 뭔지 모릅니다.", ["mk_retail","dc_partner"], { r: "유통사는 위생 증명서와 검사 결과서를 요구하는 경우가 많으니 미리 받아 두세요." }),
     C("**해외로 수출**하려고 합니다.", "수출할 나라가 요구하는 위생 기준을 아직 확인하지 못했습니다.", ["mk_export","dc_unknown"], { r: "수출국이 요구하는 위생 증명이 따로 있을 수 있으니 수입국 기준부터 확인하세요." }),

@@ -153,8 +153,8 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "직접 짓기보다 다른 공장에 맡기려고 합니다.",
-          "description": "맡길 공장의 작업 구역이 나뉘어 있는지는 제가 직접 확인하지 못했습니다.",
+          "label": "직접 만들지 않고, 다른 공장에 맡기거나 들여와서 팔 계획입니다.",
+          "description": "맡길 공장이나 보관 창고의 구역이 나뉘어 있는지는 제가 직접 확인하지 못했습니다.",
           "fields": {
             "hy_facility": "fac_outsourced",
             "hy_flow": "ln_none"
@@ -443,11 +443,11 @@ export const HYGIENE_CONTENT_FINAL = {
         },
         {
           "value": "o4",
-          "label": "쓸 물을 아직 정하지 못했습니다.",
-          "description": "어떤 물을 쓰면 검사 준비가 쉬운지 먼저 알고 싶습니다.",
+          "label": "생산에 쓰는 물은 없습니다.",
+          "description": "직접 만들지 않아서 세척이나 청소에 쓰는 물도 검사를 받아야 하는지 궁금합니다.",
           "fields": {
-            "hy_water": "wt_undecided",
-            "hy_waterCheck": "wq_choose"
+            "hy_water": "wt_none",
+            "hy_waterCheck": "wq_cleaning"
           }
         },
         {
@@ -644,7 +644,7 @@ export const HYGIENE_CONTENT_FINAL = {
       "id": "hygiene_q12",
       "route": "R",
       "phase": 2,
-      "prompt": "만든 식품은 어디에 팔 생각이고, 팔기 전에 따로 신고해야 한다는 이야기는 들어 보셨나요?",
+      "prompt": "만들거나 들여온 식품은 어디에 팔 생각이고, 팔기 전에 따로 신고해야 한다는 이야기는 들어 보셨나요?",
       "choices": [
         {
           "value": "o1",
@@ -787,7 +787,7 @@ export const HYGIENE_CONTENT_FINAL = {
           "hy_facility=fac_done|hy_flow=ln_one_way": "위생시설과 한 방향 작업 동선을 갖춘 상황입니다",
           "hy_facility=fac_partial|hy_flow=ln_mixed": "시설이 일부만 있고 동선이 겹치는 상황입니다",
           "hy_facility=fac_building|hy_flow=ln_shared": "시설 공사 중이고 공간을 함께 쓰는 상황입니다",
-          "hy_facility=fac_outsourced|hy_flow=ln_none": "생산을 위탁하며 공장의 구역 구분을 확인해야 하는 상황입니다",
+          "hy_facility=fac_outsourced|hy_flow=ln_none": "직접 생산하지 않고 위탁 공장이나 보관 창고의 구역 구분을 확인해야 하는 상황입니다",
           "hy_facility=fac_unknown|hy_flow=ln_unknown": "필요한 시설과 동선 기준을 확인해야 하는 상황입니다"
         }
       },
@@ -980,7 +980,7 @@ export const HYGIENE_CONTENT_FINAL = {
         "hy_water=wt_city|hy_waterCheck=wq_city_check": "수돗물도 검사를 요구받을 수 있으니 담당 기관에 필요 여부를 먼저 확인하세요.",
         "hy_water=wt_well|hy_waterCheck=wq_well_report": "지하수는 수질 검사가 꼭 필요할 수 있으니 검사 기관부터 확인하고 검사를 받으세요.",
         "hy_water=wt_filtered|hy_waterCheck=wq_filter_report": "정수 설비의 관리 기록과 수질 검사 결과를 함께 보관해 두면 현장 확인 때 도움이 됩니다.",
-        "hy_water=wt_undecided|hy_waterCheck=wq_choose": "물 종류에 따라 검사 항목이 달라질 수 있으니 시설 계획 단계에서 먼저 정하세요.",
+        "hy_water=wt_none|hy_waterCheck=wq_cleaning": "생산용 물이 없어도 세척·청소용 물의 기준이 있을 수 있으니 담당 기관에 필요 여부를 확인하세요.",
         "hy_water=wt_source_unknown|hy_waterCheck=wq_unknown": "물의 출처를 먼저 확인한 뒤 그 출처에 맞는 수질 검사를 알아보세요."
       }
     },
@@ -1068,7 +1068,7 @@ export const HYGIENE_CONTENT_FINAL = {
     "docs_unknown": "필요 서류를 모름",
     "fac_building": "시설 공사 중",
     "fac_done": "위생시설 구비 완료",
-    "fac_outsourced": "다른 공장에 생산 위탁",
+    "fac_outsourced": "직접 생산하지 않음(위탁·유통)",
     "fac_partial": "일부 시설만 구비",
     "fac_unknown": "필요한 시설을 모름",
     "fl_afraid": "담당 기관 연락이 겁남",
@@ -1085,7 +1085,7 @@ export const HYGIENE_CONTENT_FINAL = {
     "lb_ready": "베트남어 표시 준비",
     "lb_unknown": "표시 기준을 모름",
     "ln_mixed": "동선이 일부 겹침",
-    "ln_none": "위탁 공장의 구역 구분 미확인",
+    "ln_none": "위탁 공장·보관 창고의 구역 구분 미확인",
     "ln_one_way": "원료부터 완제품까지 한 방향 동선",
     "ln_shared": "공사 중 공간을 함께 사용",
     "ln_unknown": "동선 기준을 모름",
@@ -1149,15 +1149,15 @@ export const HYGIENE_CONTENT_FINAL = {
     "tl_flexible": "급하지 않음",
     "tl_unsure": "필요 시점 미정",
     "tl_urgent": "한 달 안에 허가 필요",
-    "wq_choose": "검사에 맞는 물 선택 확인",
     "wq_city_check": "수돗물 검사 필요 여부 확인",
+    "wq_cleaning": "세척·청소용 물 검사 필요 여부 확인",
     "wq_filter_report": "정수 설비 검사 확인",
     "wq_unknown": "검사 필요 여부와 기관 확인",
     "wq_well_report": "지하수 검사 결과서 확인",
     "wt_city": "수돗물 사용",
     "wt_filtered": "정수 설비 사용",
+    "wt_none": "생산용 물 사용 없음",
     "wt_source_unknown": "생산용 물 출처를 모름",
-    "wt_undecided": "사용할 물 미정",
     "wt_well": "지하수 사용"
   },
   "connections": [
