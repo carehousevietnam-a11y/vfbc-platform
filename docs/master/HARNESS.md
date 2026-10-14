@@ -1,5 +1,7 @@
 # 하네스
 
+새 대화나 Cursor 작업을 시작할 때는 `docs/master/HANDOFF.md`(현재 상태·남은 일·작업 방식)를 가장 먼저 읽고, 작업을 끝낼 때 그 「현재 상태」를 갱신한다.
+
 작업 시작 전 `docs/master/LESSONS.md`, `docs/master/DECISIONS.md`(대표 결정 장부), `docs/master/SOURCE_LEDGER.md`(출처 장부)를 먼저 읽는다. 대표의 새 지시·확정·수정은 그 자리에서 DECISIONS.md에 한 줄 추가한다.
 
 합격 기준과 `npm run verify`, 커밋 전 검사다. 행정·세금·부동산·사기·불확실한 문서의 기존 코드와 콘텐츠는 이 단계의 수정 대상이 아니다.
