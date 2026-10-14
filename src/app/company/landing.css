@@ -140,4 +140,4 @@ html:has(.lp-root) { scroll-behavior: smooth; }
     .scroll-cue::after { animation: none; top: 30%; }
   }
 
-.lp-display { font-family: var(--lp-outfit), Outfit, Pretendard, sans-serif; }
+.lp-display { font-family: var(--lp-outfit), Outfit, "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif; }
