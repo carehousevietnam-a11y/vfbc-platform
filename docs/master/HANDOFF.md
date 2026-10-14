@@ -15,7 +15,7 @@
 - 미리보기: `https://vfbc-platform-git-chore-41a8aa-carehousevietnam-a11ys-projects.vercel.app/verify/<서비스>`
 
 ## 남은 일
-1. **랜딩페이지 붙이기(법인설립): 코드 반영 완료, 푸시·미리보기 확인 전.** `src/app/company/`(page·CompanyLandingClient·companyLandingHtml·companyLandingScript·landing.css)와 `public/lp/company/`(에셋 경로만 lp 유지)(영상·화면 5장). 주소 `/company`, 시작 버튼 4곳 → `/register/company`(랜딩은 이 퍼널의 앞단, 퍼널 화면 자체는 그대로 둠). 다음: 노동허가 랜딩은 `src/app/wp/`(`/wp` → `/check/wp`)에 반영, 푸시·화면 확인 전. 이후 다음 서비스 랜딩 파일을 받으면 같은 방식으로 `src/app/<서비스>`(짧은 주소)에 추가, 충돌 주소 여부 먼저 확인.
+1. **랜딩페이지 붙이기(법인설립): 코드 반영 완료, 푸시·미리보기 확인 전.** `src/app/company/`(page·CompanyLandingClient·companyLandingHtml·companyLandingScript·landing.css)와 `public/lp/company/`(에셋 경로만 lp 유지)(영상·화면 5장). 주소 `/company`, 시작 버튼 4곳 → `/register/company`(랜딩은 이 퍼널의 앞단, 퍼널 화면 자체는 그대로 둠). 다음: 노동허가 랜딩은 `src/app/wp/`(`/wp` → `/check/wp`)에 반영, 푸시·화면 확인 전. 새 랜딩 체크리스트: ①`src/app/<슬러그>/` 이식 ②`src/lib/landings/registry.ts`에 항목 추가 ③`page.tsx`는 `landingMetadata("<슬러그>")`+`<LandingJsonLd slug>` ④운영 환경변수 `NEXT_PUBLIC_SITE_URL`이 실제 도메인인지 확인(미설정 시 canonical이 vercel.app). 이후 다음 서비스 랜딩 파일을 받으면 같은 방식으로 `src/app/<서비스>`(짧은 주소)에 추가, 충돌 주소 여부 먼저 확인.
 2. 직접 검토하기 5개(세무·사기·불명확 서류 등) 질문 점검은 보류. 범위를 대표가 정한다(행정·부동산은 Admin MASTER 기준이라 D9에 따라 수정하지 않음).
 3. 보안(GitHub Private 전환, Vercel Firewall 요청 제한, SQL B)과 실제 폰 확인은 대표가 직접 한다.
 
