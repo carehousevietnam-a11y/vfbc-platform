@@ -4747,7 +4747,7 @@ export function MasterReviewQuotationReport({
           isAdminVerifyStitchLayout
             ? "mt-0.5 text-left text-[11px] font-normal text-[#6B7A90] lg:mt-1 lg:text-center lg:text-[11.5px]"
             : reportSourceNoteMobile
-              ? "text-center text-[9px] leading-none tracking-tight whitespace-nowrap text-[#6B7A90] sm:text-[10.5px] sm:leading-relaxed sm:tracking-normal sm:whitespace-normal"
+              ? "text-center text-[10px] leading-snug tracking-tight text-[#6B7A90] sm:text-[10.5px] sm:leading-relaxed sm:tracking-normal"
               : "text-center text-[11px] leading-[1.45] text-[#6B7A90] sm:mt-1 sm:text-[10.5px] sm:leading-relaxed",
         )}
       >
