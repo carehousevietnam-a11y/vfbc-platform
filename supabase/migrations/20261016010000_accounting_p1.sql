@@ -41,6 +41,9 @@ create table if not exists public.accounting_organizations (
   vat_period text not null default 'month' check (vat_period in ('month', 'quarter')),
   accounting_regime text check (accounting_regime in ('TT99', 'TT133')),
   currency text not null default 'VND' check (currency = 'VND'),
+  approval_status text not null default 'pending' check (
+    approval_status in ('pending', 'approved', 'rejected')
+  ),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -81,6 +84,42 @@ set search_path = public
 as $$
   select public.accounting_is_business_member()
     and public.accounting_org_role(p_org_id) is not null;
+$$;
+
+create or replace function public.accounting_org_approved(p_org_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.accounting_organizations o
+    where o.id = p_org_id
+      and o.approval_status = 'approved'
+  );
+$$;
+
+create or replace function public.accounting_can_use_org_data(p_org_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.accounting_can_access_org(p_org_id)
+    and public.accounting_org_approved(p_org_id);
+$$;
+
+create or replace function public.accounting_is_vnk_reviewer(p_org_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.accounting_org_role(p_org_id) in ('vnk_expert', 'vnk_admin');
 $$;
 
 create or replace function public.accounting_is_vnk_admin()
@@ -363,6 +402,12 @@ begin
   if tg_op = 'UPDATE' and old.status = 'confirmed' then
     raise exception 'accounting: confirmed transaction cannot be updated';
   end if;
+  if tg_op = 'UPDATE'
+    and old.status is distinct from new.status
+    and new.status = 'confirmed'
+    and public.accounting_org_role(new.org_id) is distinct from 'company_owner' then
+    raise exception 'accounting: only company_owner may confirm transactions';
+  end if;
   return coalesce(new, old);
 end;
 $$;
@@ -450,6 +495,27 @@ create trigger accounting_trg_deny_audit_delete
 
 -- ledger_entries / i18n_texts: no update/delete triggers (RLS only)
 
+create or replace function public.accounting_guard_org_approval_status()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if tg_op = 'UPDATE'
+    and old.approval_status is distinct from new.approval_status
+    and not public.accounting_is_vnk_reviewer(old.id) then
+    raise exception 'accounting: only vnk_expert or vnk_admin may change approval_status';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists accounting_trg_guard_org_approval on public.accounting_organizations;
+create trigger accounting_trg_guard_org_approval
+  before update on public.accounting_organizations
+  for each row execute function public.accounting_guard_org_approval_status();
+
 -- ---------------------------------------------------------------------------
 -- RLS
 -- ---------------------------------------------------------------------------
@@ -503,6 +569,11 @@ create policy accounting_orgs_update_owner
   using (public.accounting_org_role(id) = 'company_owner')
   with check (public.accounting_org_role(id) = 'company_owner');
 
+create policy accounting_orgs_update_approval_vnk
+  on public.accounting_organizations for update to authenticated
+  using (public.accounting_is_vnk_reviewer(id))
+  with check (public.accounting_is_vnk_reviewer(id));
+
 -- org_members
 create policy accounting_org_members_select
   on public.accounting_org_members for select to authenticated
@@ -516,39 +587,43 @@ create policy accounting_org_members_manage_owner
 -- org-scoped tables: read if member
 create policy accounting_counterparties_rw
   on public.accounting_counterparties for all to authenticated
-  using (public.accounting_can_access_org(org_id))
+  using (public.accounting_can_use_org_data(org_id))
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   );
 
 create policy accounting_transactions_select
   on public.accounting_transactions for select to authenticated
-  using (public.accounting_can_access_org(org_id));
+  using (public.accounting_can_use_org_data(org_id));
 
 create policy accounting_transactions_insert
   on public.accounting_transactions for insert to authenticated
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   );
 
 create policy accounting_transactions_update
   on public.accounting_transactions for update to authenticated
   using (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and status <> 'confirmed'
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   )
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and status <> 'confirmed'
+    and (
+      public.accounting_org_role(org_id) = 'company_owner'
+      or status in ('draft', 'submitted', 'cancelled')
+    )
   );
 
 create policy accounting_transactions_delete
   on public.accounting_transactions for delete to authenticated
   using (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and status = 'draft'
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   );
@@ -556,12 +631,12 @@ create policy accounting_transactions_delete
 create policy accounting_transactions_confirm_owner
   on public.accounting_transactions for update to authenticated
   using (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) = 'company_owner'
     and status in ('draft', 'submitted')
   )
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and status in ('submitted', 'confirmed', 'draft', 'cancelled')
   );
 
@@ -570,7 +645,7 @@ create policy accounting_txn_lines_select
   using (
     exists (
       select 1 from public.accounting_transactions t
-      where t.id = txn_id and public.accounting_can_access_org(t.org_id)
+      where t.id = txn_id and public.accounting_can_use_org_data(t.org_id)
     )
   );
 
@@ -580,7 +655,7 @@ create policy accounting_txn_lines_write
     exists (
       select 1 from public.accounting_transactions t
       where t.id = txn_id
-        and public.accounting_can_access_org(t.org_id)
+        and public.accounting_can_use_org_data(t.org_id)
         and t.status <> 'confirmed'
         and public.accounting_org_role(t.org_id) in ('company_owner', 'company_member')
     )
@@ -589,7 +664,7 @@ create policy accounting_txn_lines_write
     exists (
       select 1 from public.accounting_transactions t
       where t.id = txn_id
-        and public.accounting_can_access_org(t.org_id)
+        and public.accounting_can_use_org_data(t.org_id)
         and t.status <> 'confirmed'
         and public.accounting_org_role(t.org_id) in ('company_owner', 'company_member')
     )
@@ -597,76 +672,76 @@ create policy accounting_txn_lines_write
 
 create policy accounting_evidence_select
   on public.accounting_evidence_files for select to authenticated
-  using (public.accounting_can_access_org(org_id));
+  using (public.accounting_can_use_org_data(org_id));
 
 create policy accounting_evidence_write
   on public.accounting_evidence_files for all to authenticated
   using (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   )
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   );
 
 create policy accounting_i18n_select
   on public.accounting_i18n_texts for select to authenticated
-  using (public.accounting_can_access_org(org_id));
+  using (public.accounting_can_use_org_data(org_id));
 
 create policy accounting_i18n_insert
   on public.accounting_i18n_texts for insert to authenticated
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member', 'vnk_expert')
   );
 
 -- ledger: insert-only for members; select for all roles incl. expert
 create policy accounting_ledger_select
   on public.accounting_ledger_entries for select to authenticated
-  using (public.accounting_can_access_org(org_id));
+  using (public.accounting_can_use_org_data(org_id));
 
 create policy accounting_ledger_insert
   on public.accounting_ledger_entries for insert to authenticated
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   );
 
 create policy accounting_declarations_rw
   on public.accounting_declarations for all to authenticated
-  using (public.accounting_can_access_org(org_id))
+  using (public.accounting_can_use_org_data(org_id))
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   );
 
 create policy accounting_review_select
   on public.accounting_review_comments for select to authenticated
-  using (public.accounting_can_access_org(org_id));
+  using (public.accounting_can_use_org_data(org_id));
 
 create policy accounting_review_insert_expert
   on public.accounting_review_comments for insert to authenticated
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('vnk_expert', 'company_owner')
   );
 
 create policy accounting_exports_select
   on public.accounting_exports for select to authenticated
-  using (public.accounting_can_access_org(org_id));
+  using (public.accounting_can_use_org_data(org_id));
 
 create policy accounting_exports_insert
   on public.accounting_exports for insert to authenticated
   with check (
-    public.accounting_can_access_org(org_id)
+    public.accounting_can_use_org_data(org_id)
     and public.accounting_org_role(org_id) in ('company_owner', 'company_member')
   );
 
 create policy accounting_audit_select
   on public.accounting_audit_log for select to authenticated
   using (
-    org_id is not null and public.accounting_can_access_org(org_id)
+    org_id is not null and public.accounting_can_use_org_data(org_id)
   );
 
 -- reference / catalog tables
@@ -760,14 +835,14 @@ create policy accounting_evidence_storage_select
   on storage.objects for select to authenticated
   using (
     bucket_id = 'accounting_evidence'
-    and public.accounting_can_access_org(((storage.foldername(name))[1])::uuid)
+    and public.accounting_can_use_org_data(((storage.foldername(name))[1])::uuid)
   );
 
 create policy accounting_evidence_storage_insert
   on storage.objects for insert to authenticated
   with check (
     bucket_id = 'accounting_evidence'
-    and public.accounting_can_access_org(((storage.foldername(name))[1])::uuid)
+    and public.accounting_can_use_org_data(((storage.foldername(name))[1])::uuid)
     and public.accounting_org_role(((storage.foldername(name))[1])::uuid)
       in ('company_owner', 'company_member')
   );
@@ -776,7 +851,7 @@ create policy accounting_evidence_storage_delete
   on storage.objects for delete to authenticated
   using (
     bucket_id = 'accounting_evidence'
-    and public.accounting_can_access_org(((storage.foldername(name))[1])::uuid)
+    and public.accounting_can_use_org_data(((storage.foldername(name))[1])::uuid)
     and public.accounting_org_role(((storage.foldername(name))[1])::uuid)
       in ('company_owner', 'company_member')
   );
