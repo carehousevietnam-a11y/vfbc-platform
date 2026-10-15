@@ -369,3 +369,8 @@
     원인: G4 미검증인데 confirm 액션만 막지 않았다
     재발 방지: 비VND는 초안·제출만 허용하고 confirm은 서버·UI 모두 FX_CONFIRM_BLOCKED로 막는다
     자동 검사: node tests/accounting/transactions.mjs (fx_confirm_blocked)
+
+72. 문제: 거래 목록에서 증빙 연결됨/누락으로 거르지 못한다
+    원인: 목록 필터는 기간·유형·상태만 있고, 증빙 연결 상태는 배지로만 보인다
+    재발 방지: 설계서 5-5의 증빙 연결 상태 필터가 목록에 있을 때만 그 항목을 통과로 본다
+    자동 검사: 없음
