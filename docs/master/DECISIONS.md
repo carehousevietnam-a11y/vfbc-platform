@@ -38,3 +38,4 @@
 | 2026-10-16 | 회계 P2 ledger 한시 예외 | P2-a~P2 종료 시점까지 confirmed 거래는 ledger 없이 확정되는 한시 예외. P3에서 ledger 없는 confirmed 거래의 ledger를 일괄 생성한 뒤 차변합=대변합 강제 제약을 켠다. 운영 DB 적용은 P3 이후 | 적용됨 | - |
 | 2026-10-16 | 회계 거래 메모 | 거래 메모는 transactions 컬럼이 아니라 설계서 §4 i18n_texts(entity_type=transaction, field=memo)로 저장한다. P2-c에서 i18n_texts로 이전·연결한다 | 대기(P2-c) | - |
 | 2026-10-16 | 회계 P2-b | 증빙은 비공개 버킷 accounting_evidence, 서버 라우트 업로드·60초 서명 URL만. insert-only, 삭제·OCR·전용 메뉴 화면 없음 | 진행 | - |
+| 2026-10-16 | 회계 accountingActor.ts | P2-b 범위에서 `accountingActor.ts` 삭제하지 않는다. P2 전체 종료 후 import 검사를 마친 별도 정리 단계에서만 중복 제거·단일 import를 검토한다 | 적용됨 | - |
