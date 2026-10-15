@@ -7,6 +7,8 @@ import {
   resolveLanguage,
   type SupportedLanguage,
 } from "@/lib/customerRegistrationValidation";
+import { parseCompanySignupProfile, resolveLeadSubmitMemberType } from "@/lib/accounting/companySignup";
+import { provisionCompanyMemberSignup } from "@/lib/accounting/provisionCompanyMemberSignup";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
 const supabaseAdmin = createClient(
@@ -56,7 +58,31 @@ export async function POST(req: NextRequest) {
       lang?: string;
       kakao_id?: string | null;
       zalo_id?: string | null;
+      companySignupChannel?: string | null;
+      member_type?: string | null;
+      companyCategory?: string;
+      companyCategoryOther?: string | null;
+      companyName?: string;
+      jobPosition?: string;
+      jobPositionOther?: string | null;
     };
+
+    const bodyRecord = body as Record<string, unknown>;
+    const memberType = resolveLeadSubmitMemberType(bodyRecord);
+    const companyProfileParsed =
+      memberType === "company" ? parseCompanySignupProfile(bodyRecord) : null;
+    if (memberType === "company" && companyProfileParsed && !companyProfileParsed.ok) {
+      const firstField = Object.keys(companyProfileParsed.errors)[0];
+      return NextResponse.json(
+        {
+          error: "VALIDATION_ERROR",
+          field: firstField,
+          message: companyProfileParsed.errors[firstField as keyof typeof companyProfileParsed.errors],
+          errors: companyProfileParsed.errors,
+        },
+        { status: 400 }
+      );
+    }
 
     if (!leadId || !name || !phone) {
       return NextResponse.json(
@@ -165,6 +191,7 @@ export async function POST(req: NextRequest) {
                 email: email && email.trim() ? email.trim() : null,
                 name,
                 address: address ?? null,
+                member_type: memberType,
                 password_set: true,
               });
             if (profileError) {
@@ -193,12 +220,34 @@ export async function POST(req: NextRequest) {
           email: email && email.trim() ? email.trim() : null,
           name,
           address: address ?? null,
+          member_type: memberType,
           password_set: true,
         });
 
         if (profileError) {
           console.error("users insert error:", profileError);
           return NextResponse.json({ error: profileError.message }, { status: 500 });
+        }
+
+        if (
+          isNewUser &&
+          memberType === "company" &&
+          companyProfileParsed &&
+          companyProfileParsed.ok
+        ) {
+          try {
+            await provisionCompanyMemberSignup(
+              supabaseAdmin,
+              userId,
+              companyProfileParsed.profile
+            );
+          } catch (provisionErr) {
+            console.error("lead-submit company provision error:", provisionErr);
+            return NextResponse.json(
+              { error: "회사 정보 저장에 실패했습니다." },
+              { status: 500 }
+            );
+          }
         }
       }
     }
