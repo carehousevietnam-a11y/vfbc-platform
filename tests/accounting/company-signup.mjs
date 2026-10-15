@@ -1,5 +1,5 @@
 /**
- * Accounting P2 — company member signup security (local Supabase only).
+ * Accounting S1(가입) — company member signup security (local Supabase only).
  */
 import fs from "fs";
 import path from "path";
@@ -207,21 +207,27 @@ async function main() {
   await service
     .from("users")
     .upsert({ id: prUser.user.id, member_type: "company" }, { onConflict: "id" });
+  const prName = `prospective-${tag}`;
   const prProvision = await provisionCompanyMemberSignup(service, prUser.user.id, {
     companyCategory: "prospective",
     companyCategoryOther: null,
-    companyName: "미정",
+    companyName: prName,
     jobPosition: "ceo",
     jobPositionOther: null,
   });
-  const { count: prOrgCount } = await service
+  const { count: prMemberCount } = await service
     .from("accounting_org_members")
     .select("org_id", { count: "exact", head: true })
-    .eq("user_id", prUser.user.id);
+    .eq("user_id", prUser.user.id)
+    .eq("role", "company_owner");
+  const { count: prOrgRowCount } = await service
+    .from("accounting_organizations")
+    .select("id", { count: "exact", head: true })
+    .eq("name_official", prName);
   record(
     "prospective_no_org",
-    prProvision.orgId === null && (prOrgCount ?? 0) === 0,
-    `orgId=${prProvision.orgId} count=${prOrgCount}`
+    prProvision.orgId === null && (prMemberCount ?? 0) === 0 && (prOrgRowCount ?? 0) === 0,
+    `orgId=${prProvision.orgId} members=${prMemberCount} orgs=${prOrgRowCount}`
   );
 
   // (a) 다른 사용자가 타인 signup profile 조회 불가

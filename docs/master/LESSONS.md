@@ -342,5 +342,15 @@
 
 66. 문제: lead-submit이 요청 본문의 companySignupChannel로 member_type=company를 저장할 수 있었음
     원인: 클라이언트가 보낸 채널 문자열을 서버가 신뢰함
-    재발 방지: 기업회원은 `/api/company-member-signup`만 company로 저장한다. lead-submit은 `LEAD_SUBMIT_MEMBER_TYPE`(personal)만 insert한다. signup profile RLS는 본인·동일 org company_owner 조회만, insert/update는 service role만.
+    재발 방지: 기업회원은 `/api/company-member-signup`만 company로 저장한다. lead-submit은 `LEAD_SUBMIT_MEMBER_TYPE`(personal)만 insert한다. signup profile RLS는 본인·동일 org company_owner 조회만, insert/update는 service role만. 이 가입 작업의 표기는 S1(가입)이다. 설계서 P2(거래 입력)와 섞지 않는다.
     자동 검사: node tests/accounting/company-signup.mjs
+
+67. 문제: accounting_can_read_company_signup_profile이 SECURITY DEFINER와 search_path는 맞았지만 PUBLIC·anon EXECUTE가 남아 있었다
+    원인: Postgres는 새 함수에 PUBLIC EXECUTE를 기본으로 준다. 회수 구문이 없었다
+    재발 방지: 회계 SECURITY DEFINER 함수는 search_path를 고정하고 PUBLIC·anon EXECUTE를 회수한다. 화면이 부르는 함수만 authenticated에 실행 권한을 준다
+    자동 검사: node tests/accounting/transactions.mjs (anon_execute_revoked)
+
+68. 문제: 확정 거래를 사용자 토큰으로 UPDATE/DELETE하면 오류 없이 0건이 된다
+    원인: RLS가 confirmed 행을 업데이트 대상에서 빼서, 트리거까지 도달하지 않는다
+    재발 방지: 화면은 확정 거래의 수정 버튼을 그리지 않는다. 트리거 차단 검사는 service role로 하고, 사용자 토큰 검사는 값이 그대로인지 본다
+    자동 검사: node tests/accounting/transactions.mjs (confirmed_update_blocked, confirmed_delete_blocked)
