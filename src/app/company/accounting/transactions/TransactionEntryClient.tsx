@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -29,7 +29,10 @@ type Item = {
   invoiceNo: string | null;
   counterpartyName: string;
   fxUnverified: boolean;
+  hasEvidence?: boolean;
 };
+
+type EvidenceRow = { id: string; displayName: string | null; uploadedAt: string };
 
 type Party = { id: string; name: string };
 
@@ -74,6 +77,7 @@ function noticeKey(error: string): AccountingMessageKey {
   if (error === "CONFIRM_FORBIDDEN") return "accounting.txn.error.confirm_role";
   if (error === "CONFIRMED_LOCKED") return "accounting.txn.error.confirmed_locked";
   if (error === "ORG_NOT_APPROVED" || error === "NO_ORG") return "accounting.txn.access_denied";
+  if (error === "FX_CONFIRM_BLOCKED") return "accounting.txn.fx_confirm_blocked";
   return "accounting.txn.error.generic";
 }
 
@@ -111,6 +115,9 @@ export default function TransactionEntryClient() {
   const [filterStatus, setFilterStatus] = useState("");
   const [notice, setNotice] = useState<AccountingMessageKey | null>(null);
   const [busy, setBusy] = useState(false);
+  const [evidence, setEvidence] = useState<EvidenceRow[]>([]);
+  const [evidenceError, setEvidenceError] = useState<AccountingMessageKey | null>(null);
+  const [evidenceUploading, setEvidenceUploading] = useState(false);
 
   const readOnly = txnStatus === "confirmed";
 
@@ -138,6 +145,7 @@ export default function TransactionEntryClient() {
   const vat = parseAmount(form.vatAmount) ?? 0;
   const fx = parseRate(form.fxRate);
   const currency = form.currency.toUpperCase();
+  const fxConfirmBlocked = currency !== "VND";
   const totalVnd = computeAmountVnd(currency, net, vat, currency === "VND" ? null : fx);
 
   const authHeaders = useCallback(
@@ -209,11 +217,28 @@ export default function TransactionEntryClient() {
     setForm((current) => ({ ...current, ...partial }));
   }
 
+  const loadEvidence = useCallback(
+    async (accessToken: string, id: string) => {
+      const res = await fetch(`/api/accounting/evidence?txnId=${encodeURIComponent(id)}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) {
+        setEvidence([]);
+        return;
+      }
+      const body = (await res.json()) as { items: EvidenceRow[] };
+      setEvidence(body.items ?? []);
+    },
+    []
+  );
+
   function startNew(type: TxnType = form.type) {
     setTxnId(null);
     setTxnStatus("draft");
     setChecks([]);
     setNotice(null);
+    setEvidence([]);
+    setEvidenceError(null);
     setForm({ ...emptyForm, type });
   }
 
@@ -249,6 +274,7 @@ export default function TransactionEntryClient() {
     setTxnId(body.item.id);
     setTxnStatus(body.item.status);
     setChecks(body.checks);
+    await loadEvidence(token, body.item.id);
     setForm({
       type: body.item.type,
       txnDate: body.item.txnDate,
@@ -306,7 +332,45 @@ export default function TransactionEntryClient() {
     if (body.id) setTxnId(body.id);
     if (body.status) setTxnStatus(body.status);
     if (body.role) setRole(body.role);
+    if (body.id) await loadEvidence(token, body.id);
     await loadLists(token, period, filterType, filterStatus);
+  }
+
+  async function onEvidenceFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || !token || !txnId) return;
+    setEvidenceUploading(true);
+    setEvidenceError(null);
+    const payload = new FormData();
+    payload.set("txnId", txnId);
+    payload.set("file", file);
+    payload.set("displayName", file.name);
+    const res = await fetch("/api/accounting/evidence", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: payload,
+    });
+    setEvidenceUploading(false);
+    if (!res.ok) {
+      setEvidenceError("accounting.evidence.error");
+      return;
+    }
+    await loadEvidence(token, txnId);
+    await loadLists(token, period, filterType, filterStatus);
+  }
+
+  async function openEvidence(id: string) {
+    if (!token) return;
+    const res = await fetch(`/api/accounting/evidence?id=${encodeURIComponent(id)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      setEvidenceError("accounting.evidence.error");
+      return;
+    }
+    const body = (await res.json()) as { url?: string };
+    if (body.url) window.open(body.url, "_blank", "noopener,noreferrer");
   }
 
   function focusField(field: string) {
@@ -514,6 +578,50 @@ export default function TransactionEntryClient() {
                 </div>
               </div>
 
+              <div className="mt-5 rounded-lg border border-[#E3E8F0] p-4">
+                <h2 className="text-sm font-extrabold">{t("accounting.evidence.title")}</h2>
+                {txnId ? (
+                  <>
+                    {evidence.length === 0 ? (
+                      <p className="mt-2 text-sm text-[#6B7A90]">{t("accounting.evidence.empty")}</p>
+                    ) : (
+                      <ul className="mt-2 space-y-2">
+                        {evidence.map((row) => (
+                          <li key={row.id} className="flex items-center justify-between gap-2">
+                            <span className="min-w-0 truncate text-sm text-[#071A33]">
+                              {row.displayName ?? t("accounting.evidence.view")}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => void openEvidence(row.id)}
+                              className="shrink-0 text-sm font-semibold text-[#2563EB]"
+                            >
+                              {t("accounting.evidence.view")}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <label className="mt-3 flex min-h-11 cursor-pointer items-center justify-center rounded-lg border border-dashed border-[#E3E8F0] px-3 text-sm font-semibold text-[#2563EB]">
+                      <input
+                        type="file"
+                        accept="application/pdf,image/jpeg,image/png"
+                        capture="environment"
+                        className="sr-only"
+                        disabled={evidenceUploading}
+                        onChange={(event) => void onEvidenceFile(event)}
+                      />
+                      {evidenceUploading ? t("accounting.evidence.uploading") : t("accounting.evidence.capture")}
+                    </label>
+                    {evidenceError ? (
+                      <p className="mt-2 text-sm text-red-700">{t(evidenceError)}</p>
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="mt-2 text-sm text-[#6B7A90]">{t("accounting.evidence.empty")}</p>
+                )}
+              </div>
+
               <div className="mt-5">
                 <h2 className="text-sm font-extrabold">{t("accounting.txn.checks.title")}</h2>
                 <ul className="mt-2 space-y-2">
@@ -533,6 +641,9 @@ export default function TransactionEntryClient() {
               </div>
 
               {notice ? <p className="mt-4 text-sm font-semibold">{t(notice)}</p> : null}
+              {fxConfirmBlocked && role === "company_owner" ? (
+                <p className="mt-3 text-sm font-semibold text-amber-800">{t("accounting.txn.fx_confirm_blocked")}</p>
+              ) : null}
 
               {readOnly ? null : (
                 <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -552,7 +663,7 @@ export default function TransactionEntryClient() {
                   >
                     {t("accounting.txn.action.submit")}
                   </button>
-                  {role === "company_owner" ? (
+                  {role === "company_owner" && !fxConfirmBlocked ? (
                     <button
                       type="button"
                       disabled={busy}
@@ -644,6 +755,17 @@ export default function TransactionEntryClient() {
                           <span className="tabular-nums">
                             {formatAmount(lang, Number(item.amountVnd))} {t("accounting.txn.unit.vnd")}
                           </span>
+                        </span>
+                        <span
+                          className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                            item.hasEvidence
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-amber-50 text-amber-800"
+                          }`}
+                        >
+                          {item.hasEvidence
+                            ? t("accounting.evidence.badge.linked")
+                            : t("accounting.evidence.badge.missing")}
                         </span>
                         {item.fxUnverified ? (
                           <span className="mt-1 block text-xs font-semibold text-amber-700">

@@ -239,6 +239,33 @@ async function main() {
       drafted.id
     );
     record("member_confirm_forbidden", !memberConfirm.ok && memberConfirm.error === "CONFIRM_FORBIDDEN");
+    const usdDraft = await applyTransactionCommand(
+      owner.client,
+      owner.token,
+      saleBody("draft", { currency: "USD", fxRate: 25000 }),
+      null
+    );
+    let usdSubmitOk = false;
+    let usdConfirm = { ok: false, error: "" };
+    if (usdDraft.ok) {
+      const usdSubmit = await applyTransactionCommand(
+        owner.client,
+        owner.token,
+        saleBody("submit", { currency: "USD", fxRate: 25000 }),
+        usdDraft.id
+      );
+      usdSubmitOk = usdSubmit.ok;
+      usdConfirm = await applyTransactionCommand(
+        owner.client,
+        owner.token,
+        saleBody("confirm", { currency: "USD", fxRate: 25000 }),
+        usdDraft.id
+      );
+    }
+    record(
+      "fx_confirm_blocked",
+      usdDraft.ok && usdSubmitOk && !usdConfirm.ok && usdConfirm.error === "FX_CONFIRM_BLOCKED"
+    );
     const submitted = await applyTransactionCommand(owner.client, owner.token, saleBody("submit"), drafted.id);
     const confirmed = await applyTransactionCommand(owner.client, owner.token, saleBody("confirm"), drafted.id);
     record("owner_confirm", submitted.ok && submitted.status === "submitted" && confirmed.ok && confirmed.status === "confirmed");

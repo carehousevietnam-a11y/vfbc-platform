@@ -354,3 +354,18 @@
     원인: RLS가 confirmed 행을 업데이트 대상에서 빼서, 트리거까지 도달하지 않는다
     재발 방지: 화면은 확정 거래의 수정 버튼을 그리지 않는다. 트리거 차단 검사는 service role로 하고, 사용자 토큰 검사는 값이 그대로인지 본다
     자동 검사: node tests/accounting/transactions.mjs (confirmed_update_blocked, confirmed_delete_blocked)
+
+69. 문제: 하네스 g4-golden(pdf-parse·골든 파일 검사)을 설계서 G4(외화 환산 규칙)와 혼동할 수 있다
+    원인: 이름에 g4가 들어가 있어 회계 미검증 게이트 G4와 겹쳐 보인다
+    재발 방지: g4-golden은 QA 하네스 전용이며 회계 G4와 무관하다. 회계 외화는 사용자 입력 환율과 미검증 표시만 쓴다
+    자동 검사: 없음 (문서·LESSONS)
+
+70. 문제: 회계 P2-a 단일 미션이 35분을 넘겼다
+    원인: 거래 입력·RLS·UI·테스트 범위가 한 번에 들어갔다
+    재발 방지: 설계서 P2는 P2-a(거래 입력)·P2-b(증빙)·P2-c(번역)로 나눈다
+    자동 검사: 없음 (범위 분할)
+
+71. 문제: 비VND 거래를 대표가 확정할 수 있었다
+    원인: G4 미검증인데 confirm 액션만 막지 않았다
+    재발 방지: 비VND는 초안·제출만 허용하고 confirm은 서버·UI 모두 FX_CONFIRM_BLOCKED로 막는다
+    자동 검사: node tests/accounting/transactions.mjs (fx_confirm_blocked)

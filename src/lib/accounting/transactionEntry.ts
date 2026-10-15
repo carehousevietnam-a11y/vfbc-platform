@@ -1,6 +1,53 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AccountingMessageKey } from "./uiCatalog";
 
+export type AccountingActor = { userId: string; orgId: string; role: string };
+type Actor = AccountingActor;
+
+async function loadActorCore(
+  client: SupabaseClient,
+  accessToken: string
+): Promise<Actor | { error: string; status: number }> {
+  const { data: userData, error: userError } = await client.auth.getUser(accessToken);
+  if (userError || !userData.user) return { error: "UNAUTHENTICATED", status: 401 };
+  const userId = userData.user.id;
+  const { data: memberships, error: memberError } = await client
+    .from("accounting_org_members")
+    .select("org_id, role")
+    .eq("user_id", userId);
+  if (memberError) return { error: "MEMBERSHIP_LOOKUP", status: 400 };
+  const rows = memberships ?? [];
+  if (rows.length === 0) return { error: "NO_ORG", status: 403 };
+  const { data: orgs, error: orgError } = await client
+    .from("accounting_organizations")
+    .select("id, approval_status")
+    .in(
+      "id",
+      rows.map((row) => row.org_id as string)
+    );
+  if (orgError) return { error: "ORG_LOOKUP", status: 400 };
+  const approved = (orgs ?? []).filter((org) => org.approval_status === "approved");
+  if (approved.length === 0) return { error: "ORG_NOT_APPROVED", status: 403 };
+  if (approved.length > 1) return { error: "ORG_AMBIGUOUS", status: 409 };
+  const orgId = approved[0].id as string;
+  const role = rows.find((row) => row.org_id === orgId)?.role as string | undefined;
+  if (!role) return { error: "NO_ORG", status: 403 };
+  return { userId, orgId, role };
+}
+
+function isActor(value: Actor | { error: string; status: number }): value is Actor {
+  return "userId" in value;
+}
+
+export async function resolveAccountingActor(
+  client: SupabaseClient,
+  accessToken: string
+): Promise<{ ok: true; userId: string; orgId: string; role: string } | { ok: false; status: number; error: string }> {
+  const actor = await loadActorCore(client, accessToken);
+  if (!isActor(actor)) return { ok: false, status: actor.status, error: actor.error };
+  return { ok: true, userId: actor.userId, orgId: actor.orgId, role: actor.role };
+}
+
 export const TXN_TYPES = ["sale", "purchase", "expense", "payroll"] as const;
 export type TxnType = (typeof TXN_TYPES)[number];
 export type TxnStatus = "draft" | "submitted" | "confirmed" | "cancelled";
@@ -12,8 +59,6 @@ export type TxnCheck = {
   level: CheckLevel;
   messageKey: AccountingMessageKey;
 };
-
-type Actor = { userId: string; orgId: string; role: string };
 
 export type CommandResult =
   | {
@@ -233,35 +278,7 @@ async function loadActor(
   client: SupabaseClient,
   accessToken: string
 ): Promise<Actor | { error: string; status: number }> {
-  const { data: userData, error: userError } = await client.auth.getUser(accessToken);
-  if (userError || !userData.user) return { error: "UNAUTHENTICATED", status: 401 };
-  const userId = userData.user.id;
-  const { data: memberships, error: memberError } = await client
-    .from("accounting_org_members")
-    .select("org_id, role")
-    .eq("user_id", userId);
-  if (memberError) return { error: "MEMBERSHIP_LOOKUP", status: 400 };
-  const rows = memberships ?? [];
-  if (rows.length === 0) return { error: "NO_ORG", status: 403 };
-  const { data: orgs, error: orgError } = await client
-    .from("accounting_organizations")
-    .select("id, approval_status")
-    .in(
-      "id",
-      rows.map((row) => row.org_id as string)
-    );
-  if (orgError) return { error: "ORG_LOOKUP", status: 400 };
-  const approved = (orgs ?? []).filter((org) => org.approval_status === "approved");
-  if (approved.length === 0) return { error: "ORG_NOT_APPROVED", status: 403 };
-  if (approved.length > 1) return { error: "ORG_AMBIGUOUS", status: 409 };
-  const orgId = approved[0].id as string;
-  const role = rows.find((row) => row.org_id === orgId)?.role as string | undefined;
-  if (!role) return { error: "NO_ORG", status: 403 };
-  return { userId, orgId, role };
-}
-
-function isActor(value: Actor | { error: string; status: number }): value is Actor {
-  return "userId" in value;
+  return loadActorCore(client, accessToken);
 }
 
 async function resolveCounterparty(
@@ -335,6 +352,9 @@ export async function applyTransactionCommand(
   }
   if (command.action === "confirm" && actor.role !== "company_owner") {
     return { ok: false, status: 403, error: "CONFIRM_FORBIDDEN" };
+  }
+  if (command.action === "confirm" && command.currency !== "VND") {
+    return { ok: false, status: 422, error: "FX_CONFIRM_BLOCKED", checks: buildTxnChecks(command) };
   }
 
   const checks = buildTxnChecks(command);
@@ -484,23 +504,51 @@ export async function listTransactions(
       .in("id", ids);
     for (const party of parties ?? []) names.set(party.id as string, party.name_original as string);
   }
-  const items = (data ?? []).map((row) => ({
-    id: row.id,
-    type: row.type,
-    status: row.status,
-    txnDate: row.txn_date,
-    periodKey: row.period_key,
-    currency: row.currency,
-    fxRate: row.fx_rate,
-    amountVnd: row.amount_vnd,
-    invoiceSeries: row.invoice_series,
-    invoiceNo: row.invoice_no,
-    invoiceDate: row.invoice_date,
-    counterpartyId: row.counterparty_id,
-    counterpartyName: row.counterparty_id ? (names.get(row.counterparty_id as string) ?? "") : "",
-    fxUnverified: row.currency !== "VND",
-  }));
+  const txnIds = (data ?? []).map((row) => row.id as string);
+  const evidenceCounts = await countEvidenceForTxnIds(client, actor.orgId, txnIds);
+  const items = (data ?? []).map((row) => {
+    const id = row.id as string;
+    const evidenceCount = evidenceCounts.get(id) ?? 0;
+    return {
+      id: row.id,
+      type: row.type,
+      status: row.status,
+      txnDate: row.txn_date,
+      periodKey: row.period_key,
+      currency: row.currency,
+      fxRate: row.fx_rate,
+      amountVnd: row.amount_vnd,
+      invoiceSeries: row.invoice_series,
+      invoiceNo: row.invoice_no,
+      invoiceDate: row.invoice_date,
+      counterpartyId: row.counterparty_id,
+      counterpartyName: row.counterparty_id ? (names.get(row.counterparty_id as string) ?? "") : "",
+      fxUnverified: row.currency !== "VND",
+      evidenceCount,
+      hasEvidence: evidenceCount > 0,
+    };
+  });
   return { ok: true, role: actor.role, items };
+}
+
+async function countEvidenceForTxnIds(
+  client: SupabaseClient,
+  orgId: string,
+  txnIds: string[]
+): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  if (txnIds.length === 0) return out;
+  const { data } = await client
+    .from("accounting_evidence_files")
+    .select("txn_id")
+    .eq("org_id", orgId)
+    .in("txn_id", txnIds);
+  for (const id of txnIds) out.set(id, 0);
+  for (const row of data ?? []) {
+    const key = row.txn_id as string;
+    out.set(key, (out.get(key) ?? 0) + 1);
+  }
+  return out;
 }
 
 export async function getTransaction(

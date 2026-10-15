@@ -67,3 +67,13 @@ accounting.txn.error.confirmed_locked
 accounting.txn.error.generic
 accounting.txn.saved
 accounting.txn.loading
+accounting.txn.fx_confirm_blocked
+accounting.evidence.title
+accounting.evidence.upload
+accounting.evidence.capture
+accounting.evidence.empty
+accounting.evidence.view
+accounting.evidence.uploading
+accounting.evidence.error
+accounting.evidence.badge.linked
+accounting.evidence.badge.missing
