@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
-  COMPANY_SIGNUP_CHANNEL,
-  isTrustedCompanySignupChannel,
   parseCompanySignupProfile,
   validateCompanySignupPassword,
 } from "@/lib/accounting/companySignup";
-import { provisionCompanyMemberSignup } from "@/lib/accounting/provisionCompanyMemberSignup";
+import {
+  CompanySignupAlreadyProvisionedError,
+  provisionCompanyMemberSignup,
+} from "@/lib/accounting/provisionCompanyMemberSignup";
 import {
   validateLeadForm,
   resolveLanguage,
@@ -21,10 +22,6 @@ const supabaseAdmin = createClient(
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as Record<string, unknown>;
-
-    if (!isTrustedCompanySignupChannel(body.companySignupChannel)) {
-      return NextResponse.json({ error: "INVALID_SIGNUP_CHANNEL" }, { status: 400 });
-    }
 
     const name = typeof body.name === "string" ? body.name : "";
     const phone = typeof body.phone === "string" ? body.phone : "";
@@ -134,6 +131,9 @@ export async function POST(req: NextRequest) {
       console.error("company-member-signup provision error:", provisionErr);
       await supabaseAdmin.from("users").delete().eq("id", userId);
       await supabaseAdmin.auth.admin.deleteUser(userId);
+      if (provisionErr instanceof CompanySignupAlreadyProvisionedError) {
+        return NextResponse.json({ error: "ALREADY_PROVISIONED" }, { status: 409 });
+      }
       return NextResponse.json(
         { error: "회사 정보 저장에 실패했습니다." },
         { status: 500 }
@@ -143,7 +143,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       userId,
       memberType: "company",
-      companySignupChannel: COMPANY_SIGNUP_CHANNEL,
       orgId: provision.orgId,
       approvalStatus: provision.approvalStatus,
     });

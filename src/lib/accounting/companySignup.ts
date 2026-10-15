@@ -53,35 +53,8 @@ export function shouldCreateAccountingOrg(category: CompanyCategory): boolean {
   return category !== "prospective";
 }
 
-export function isTrustedCompanySignupChannel(channel: unknown): boolean {
-  return typeof channel === "string" && channel === COMPANY_SIGNUP_CHANNEL;
-}
-
-export function hasCompanySignupProfilePayload(
-  body: Record<string, unknown>
-): boolean {
-  const category = body.companyCategory;
-  const name = body.companyName;
-  const position = body.jobPosition;
-  return (
-    typeof category === "string" &&
-    CATEGORY_SET.has(category) &&
-    typeof name === "string" &&
-    name.trim().length > 0 &&
-    typeof position === "string" &&
-    POSITION_SET.has(position)
-  );
-}
-
-export function resolveLeadSubmitMemberType(body: Record<string, unknown>): "personal" | "company" {
-  if (
-    isTrustedCompanySignupChannel(body.companySignupChannel) &&
-    hasCompanySignupProfilePayload(body)
-  ) {
-    return "company";
-  }
-  return "personal";
-}
+/** lead-submit API — client channel/member_type 조작과 무관하게 항상 personal */
+export const LEAD_SUBMIT_MEMBER_TYPE = "personal" as const;
 
 export function parseCompanySignupProfile(
   body: Record<string, unknown>

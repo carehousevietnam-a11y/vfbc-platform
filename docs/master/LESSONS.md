@@ -339,3 +339,8 @@
     원인: accounting_is_business_member()가 public.users를 참조하는데 빈 로컬 DB에는 users 테이블이 없음
     재발 방지: `supabase/migrations/20261016000000_accounting_prereq_public_users.sql`은 users가 없을 때만 최소 users를 만든다. 운영(이미 users 있음)에서는 no-op이다.
     자동 검사: npx supabase db reset --local 후 마이그레이션 적용 확인
+
+66. 문제: lead-submit이 요청 본문의 companySignupChannel로 member_type=company를 저장할 수 있었음
+    원인: 클라이언트가 보낸 채널 문자열을 서버가 신뢰함
+    재발 방지: 기업회원은 `/api/company-member-signup`만 company로 저장한다. lead-submit은 `LEAD_SUBMIT_MEMBER_TYPE`(personal)만 insert한다. signup profile RLS는 본인·동일 org company_owner 조회만, insert/update는 service role만.
+    자동 검사: node tests/accounting/company-signup.mjs

@@ -10,7 +10,6 @@ import {
 import { MESSENGERS_BY_LANGUAGE } from "@/lib/messenger";
 import {
   COMPANY_CATEGORY_OPTIONS,
-  COMPANY_SIGNUP_CHANNEL,
   JOB_POSITION_OPTIONS,
   parseCompanySignupProfile,
   validateCompanySignupPassword,
@@ -78,7 +77,6 @@ export default function CompanyMemberSignupClient() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        companySignupChannel: COMPANY_SIGNUP_CHANNEL,
         companyCategory,
         companyCategoryOther,
         companyName,

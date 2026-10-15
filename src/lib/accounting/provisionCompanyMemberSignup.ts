@@ -12,11 +12,35 @@ export type ProvisionCompanyMemberResult = {
 /**
  * Service-role only: persist company signup profile, optional pending org + owner membership.
  */
+export class CompanySignupAlreadyProvisionedError extends Error {
+  constructor() {
+    super("ALREADY_PROVISIONED");
+    this.name = "CompanySignupAlreadyProvisionedError";
+  }
+}
+
 export async function provisionCompanyMemberSignup(
   admin: SupabaseClient,
   userId: string,
   profile: CompanySignupProfileFields
 ): Promise<ProvisionCompanyMemberResult> {
+  const { data: existingProfile } = await admin
+    .from("accounting_company_signup_profiles")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existingProfile) {
+    throw new CompanySignupAlreadyProvisionedError();
+  }
+
+  const { data: existingOwner } = await admin
+    .from("accounting_org_members")
+    .select("org_id")
+    .eq("user_id", userId)
+    .eq("role", "company_owner")
+    .maybeSingle();
+
   const { error: profileError } = await admin.from("accounting_company_signup_profiles").insert({
     user_id: userId,
     company_category: profile.companyCategory,
@@ -40,6 +64,10 @@ export async function provisionCompanyMemberSignup(
 
   if (!shouldCreateAccountingOrg(profile.companyCategory)) {
     return { orgId: null, approvalStatus: null };
+  }
+
+  if (existingOwner?.org_id) {
+    return { orgId: existingOwner.org_id, approvalStatus: "pending" };
   }
 
   const { data: org, error: orgError } = await admin
