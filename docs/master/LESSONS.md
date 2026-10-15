@@ -324,3 +324,18 @@
     원인: 질문 필드(예: trc_helpWanted)를 스펙과 검사 파일, 서비스 단계 추천·요약 규칙이 함께 참조한다.
     재발 방지: 질문을 교체할 때는 스펙의 요약(summaries)·위험(risks)·단계(tierRules)·연결(connections)·라벨과 tests/qa 의 필드 참조를 함께 바꾸고, 질문 문장은 쉼표가 있는 30자 이상, 선택지 한 줄은 마침표가 있는 45자 이상으로 쓴다. 공유 저장소 폴더에서 git stash 를 쓰면 index.lock 이 남으니 쓰지 않는다.
     자동 검사: tests/qa/*-content-final.mjs
+
+63. 문제: 회계 P1 격리 테스트가 스키마 없음으로 전체 스킵됨
+    원인: 운영 Supabase에 마이그레이션 미적용 + 로컬 Supabase 미기동
+    재발 방지: 회계 DB 테스트는 ACCOUNTING_TEST_LOCAL=1과 `npx supabase start` 로컬 DB에서만 실행한다. 운영 URL에 마이그레이션을 적용하지 않는다.
+    자동 검사: node tests/accounting/isolation.mjs (로컬)
+
+64. 문제: `npx supabase start`가 .env.local UTF-8 BOM 때문에 config 파싱 실패
+    원인: .env.local 첫 키에 BOM(﻿)이 붙음
+    재발 방지: .env.local은 BOM 없는 UTF-8로 저장한다. 회계 테스트 스크립트는 읽을 때 BOM을 제거한다.
+    자동 검사: 없음
+
+65. 문제: 로컬 Supabase 초기화 시 accounting 마이그레이션이 public.users 없음으로 실패
+    원인: accounting_is_business_member()가 public.users를 참조하는데 빈 로컬 DB에는 users 테이블이 없음
+    재발 방지: `supabase/migrations/20261016000000_accounting_prereq_public_users.sql`은 users가 없을 때만 최소 users를 만든다. 운영(이미 users 있음)에서는 no-op이다.
+    자동 검사: npx supabase db reset --local 후 마이그레이션 적용 확인
