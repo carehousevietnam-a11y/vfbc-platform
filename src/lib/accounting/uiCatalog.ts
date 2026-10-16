@@ -174,6 +174,7 @@ export const ACCOUNTING_UI = {
     "accounting.vat.error.direct_method": "직접 계산 방식은 전문가 문의가 필요합니다.",
     "accounting.vat.warning.eligibility_review": "부가가치세 신고 방식·기간 적격 여부는 확인이 필요합니다.",
     "accounting.vat.warning.field26_expert_input": "비과세 매출([26])은 전문가 입력이 필요합니다.",
+    "accounting.vat.warning.field25_expert_review": "공제 매입세액([25])은 전문가 확인이 필요합니다(G6).",
   },
   vi: {
     "accounting.shell.brand": "MY VIET CHECK",
@@ -351,6 +352,7 @@ export const ACCOUNTING_UI = {
     "accounting.vat.error.direct_method": "Phương pháp trực tiếp cần liên hệ chuyên gia.",
     "accounting.vat.warning.eligibility_review": "Cần xác minh phương pháp và kỳ kê khai GTGT.",
     "accounting.vat.warning.field26_expert_input": "Doanh thu không chịu thuế ([26]) cần chuyên gia nhập.",
+    "accounting.vat.warning.field25_expert_review": "Thuế mua vào khấu trừ ([25]) cần chuyên gia xác nhận (G6).",
   },
 } as const;
 

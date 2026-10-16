@@ -462,6 +462,11 @@
     재발 방지: **세금 신고(§5-3) 화면을 만드는 P5**와 **홈 대시보드(§5-2)·더보기(상단 메뉴 나머지)** 라우트를 넣는 미션에서 공통 모바일 네비를 한 번에 넣는다. P3c/P4a 마감 범위에는 빈 탭을 넣지 않는다.
     자동 검사: 없음
 
+93. 문제: P5a-2에서 Pack v2.1 §5와 엔진 [27][28][34][35] 체인이 어긋나 있었다
+    원인: Cursor 초안 Pack·단순 [35]=[31]+[33] 식이 TT89 Phụ lục I와 불일치.
+    재발 방지: field_map·computeGtgt01은 Claude G2 v2.1 §5만 따르고, 마이그레이션은 갱신용 새 파일만 추가한다.
+    자동 검사: node tests/accounting/p5a-vat-gtgt.mjs
+
 92. 문제: P5a 착수 시 `docs/master/forms/G2_VAT_FORM_PACK.md`가 저장소에 없었다
     원인: Form Verification Pack이 커밋되지 않은 상태에서 구현 미션만 내려왔다.
     재발 방지: Pack 파일을 먼저 `docs/master/forms/`에 커밋한 뒤 P5a 엔진·field_map 시드를 넣는다. Pack 없이는 §5 수식을 임의 추가하지 않는다.

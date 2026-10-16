@@ -4,7 +4,8 @@ import {
   gtgtFieldsToJson,
   type GtgtAdjustmentRow,
 } from "./gtgt01Engine";
-import { vatDueDate } from "./vatDeadline";
+import { aggregateConfirmedTxnLines } from "./gtgt01TxnAggregate";
+import { vatDueDateForOrg } from "./vatDeadline";
 
 export type VatDraftResult =
   | { ok: true; declarationId: string; computed: Record<string, unknown> }
@@ -53,6 +54,35 @@ async function loadPrior43(
   return c43 ? BigInt(c43) : BigInt(0);
 }
 
+async function loadConfirmedLines(
+  client: SupabaseClient,
+  orgId: string,
+  periodKey: string
+) {
+  const { data: txns } = await client
+    .from("accounting_transactions")
+    .select("id, type, status")
+    .eq("org_id", orgId)
+    .eq("period_key", periodKey)
+    .eq("status", "confirmed");
+  const ids = (txns ?? []).map((t) => t.id as string);
+  if (ids.length === 0) return [];
+
+  const { data: lines } = await client
+    .from("accounting_transaction_lines")
+    .select("txn_id, amount_net, vat_rate, vat_amount")
+    .in("txn_id", ids);
+
+  const typeById = new Map((txns ?? []).map((t) => [t.id as string, t.type as string]));
+  return (lines ?? []).map((l) => ({
+    txn_id: l.txn_id as string,
+    type: typeById.get(l.txn_id as string) as "sale" | "purchase" | "expense" | "payroll",
+    amount_net: Number(l.amount_net),
+    vat_rate: l.vat_rate === null ? null : Number(l.vat_rate),
+    vat_amount: Number(l.vat_amount),
+  }));
+}
+
 async function loadAdjustments(
   client: SupabaseClient,
   declarationId: string
@@ -98,7 +128,7 @@ export async function runVatGtgt01Draft(
 
   const warnings: string[] = ["accounting.vat.warning.eligibility_review"];
 
-  const due = vatDueDate(periodKey, vatPeriod);
+  const due = await vatDueDateForOrg(client, periodKey, vatPeriod);
   const priorKey = priorPeriodKey(periodKey, vatPeriod);
   const prior43 = await loadPrior43(client, orgId, "01/GTGT", priorKey);
 
@@ -133,13 +163,16 @@ export async function runVatGtgt01Draft(
   }
 
   const adjustments = await loadAdjustments(client, declarationId);
+  const confirmedLines = await loadConfirmedLines(client, orgId, periodKey);
+  const { fromTxns, warnings: aggWarnings } = aggregateConfirmedTxnLines(confirmedLines);
 
   const payload = computeGtgt01({
     prior43,
     inputs: {},
     adjustments,
+    fromTxns,
   });
-  payload.warnings.push(...warnings);
+  payload.warnings.push(...warnings, ...aggWarnings);
 
   const computed = gtgtFieldsToJson(payload);
 

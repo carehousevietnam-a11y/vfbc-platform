@@ -5,8 +5,13 @@ import { execSync } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
-import { computeGtgt01 } from "../../src/lib/accounting/gtgt01Engine.ts";
-import { vatDueDate, nextBusinessDay } from "../../src/lib/accounting/vatDeadline.ts";
+import { computeGtgt01, gtgtFieldsToJson } from "../../src/lib/accounting/gtgt01Engine.ts";
+import { aggregateConfirmedTxnLines } from "../../src/lib/accounting/gtgt01TxnAggregate.ts";
+import {
+  loadVatDeadlineConfig,
+  vatDueDateWithConfig,
+  nextBusinessDay,
+} from "../../src/lib/accounting/vatDeadline.ts";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const results = { pass: 0, fail: 0, cases: [] };
@@ -69,13 +74,47 @@ function unitPackCaseB() {
   record("unit_pack_b_41_zero", f("41") === 0n);
 }
 
-function unitDeadlines() {
-  record("due_q3_2026", vatDueDate("2026-Q3", "quarter") === "2026-11-02");
-  record("due_q2_2026", vatDueDate("2026-Q2", "quarter") === "2026-07-31");
+async function unitDeadlines(service) {
+  const cfg = await loadVatDeadlineConfig(service);
+  record(
+    "due_q3_2026",
+    vatDueDateWithConfig("2026-Q3", "quarter", cfg) === "2026-11-02"
+  );
+  record(
+    "due_q2_2026",
+    vatDueDateWithConfig("2026-Q2", "quarter", cfg) === "2026-07-31"
+  );
   record(
     "due_month_holiday_shift",
-    nextBusinessDay("2026-05-20") > "2026-05-20" || nextBusinessDay("2026-05-20") === "2026-05-20"
+    vatDueDateWithConfig("2026-04", "month", cfg) === "2026-05-21"
   );
+}
+
+function unitAggregateMixed() {
+  const { fromTxns, warnings } = aggregateConfirmedTxnLines([
+    { txn_id: "s1", type: "sale", amount_net: 100, vat_rate: 0, vat_amount: 0 },
+    { txn_id: "s2", type: "sale", amount_net: 200, vat_rate: 5, vat_amount: 10 },
+    { txn_id: "s3", type: "sale", amount_net: 300, vat_rate: 10, vat_amount: 30 },
+    { txn_id: "p1", type: "purchase", amount_net: 50, vat_rate: 10, vat_amount: 5 },
+  ]);
+  record("agg_29", fromTxns["29"]?.value === 100n);
+  record("agg_31", fromTxns["31"]?.value === 10n);
+  record("agg_33", fromTxns["33"]?.value === 30n);
+  record("agg_25_warning", warnings.includes("accounting.vat.warning.field25_expert_review"));
+  const r = computeGtgt01({ prior43: 0n, inputs: {}, adjustments: [], fromTxns });
+  record("agg_35", r.fields["35"].value === 40n);
+  record("agg_txn_ids", (r.fields["33"].txn_ids ?? []).includes("s3"));
+}
+
+function unitIdempotent() {
+  const input = {
+    prior43: 15_000_000n,
+    inputs: { 25: 75_000_000n, 31: 5_000_000n, 33: 74_000_000n },
+    adjustments: [],
+  };
+  const a = gtgtFieldsToJson(computeGtgt01(input));
+  const b = gtgtFieldsToJson(computeGtgt01(input));
+  record("idempotent_compute", JSON.stringify(a) === JSON.stringify(b));
 }
 
 async function createAuthUser(admin, email, password) {
@@ -233,16 +272,111 @@ async function securityRls(url, anonKey, serviceKey) {
   record("audit_log_adjustment", (auditCount ?? 0) >= 1);
 }
 
+async function loadConfirmedLinesForTest(service, orgId, periodKey) {
+  const { data: txns } = await service
+    .from("accounting_transactions")
+    .select("id, type")
+    .eq("org_id", orgId)
+    .eq("period_key", periodKey)
+    .eq("status", "confirmed");
+  const ids = (txns ?? []).map((t) => t.id);
+  if (!ids.length) return [];
+  const { data: lines } = await service
+    .from("accounting_transaction_lines")
+    .select("txn_id, amount_net, vat_rate, vat_amount")
+    .in("txn_id", ids);
+  const typeById = new Map((txns ?? []).map((t) => [t.id, t.type]));
+  return (lines ?? []).map((l) => ({
+    txn_id: l.txn_id,
+    type: typeById.get(l.txn_id),
+    amount_net: Number(l.amount_net),
+    vat_rate: l.vat_rate === null ? null : Number(l.vat_rate),
+    vat_amount: Number(l.vat_amount),
+  }));
+}
+
+function draftComputeFromLines(lines) {
+  const { fromTxns, warnings } = aggregateConfirmedTxnLines(lines);
+  const p1 = computeGtgt01({ prior43: 0n, inputs: {}, adjustments: [], fromTxns });
+  p1.warnings.push(...warnings);
+  const p2 = computeGtgt01({ prior43: 0n, inputs: {}, adjustments: [], fromTxns });
+  p2.warnings.push(...warnings);
+  return { a: gtgtFieldsToJson(p1), b: gtgtFieldsToJson(p2), payload: p1 };
+}
+
+async function integrationDraft(service) {
+  const tag = `p5a-int-${Date.now()}`;
+  const owner = await createAuthUser(service, `own-${tag}@test.local`, `Test-${tag}-Aa1!`);
+  await service.from("users").upsert({ id: owner.id, member_type: "company" });
+  const { data: org } = await service
+    .from("accounting_organizations")
+    .insert({ name_official: `Int ${tag}`, approval_status: "approved" })
+    .select("id")
+    .single();
+  await service.from("accounting_org_members").insert({
+    org_id: org.id,
+    user_id: owner.id,
+    role: "company_owner",
+  });
+
+  const mkTxn = async (periodKey, status, net, rate, vat) => {
+    const { data: t } = await service
+      .from("accounting_transactions")
+      .insert({
+        org_id: org.id,
+        type: "sale",
+        status,
+        txn_date: "2026-02-01",
+        period_key: periodKey,
+        amount_vnd: net + vat,
+      })
+      .select("id")
+      .single();
+    await service.from("accounting_transaction_lines").insert({
+      txn_id: t.id,
+      amount_net: net,
+      vat_rate: rate,
+      vat_amount: vat,
+    });
+    return t.id;
+  };
+
+  await mkTxn("2026-Q1", "confirmed", 100, 10, 10);
+  await mkTxn("2026-Q1", "draft", 999, 10, 99);
+  await mkTxn("2026-Q2", "confirmed", 200, 5, 10);
+
+  const linesQ1 = await loadConfirmedLinesForTest(service, org.id, "2026-Q1");
+  const { a, b, payload } = draftComputeFromLines(linesQ1);
+  record("draft_lines_loaded", linesQ1.length === 1);
+  record("recompute_idempotent", JSON.stringify(a) === JSON.stringify(b));
+  const f = a.fields;
+  record("q1_agg_33_only_confirmed", f["33"]?.value === "10");
+  record("q1_has_txn_ids", Array.isArray(f["33"]?.txn_ids) && f["33"].txn_ids.length === 1);
+  record("agg_payload_35", payload.fields["35"].value === 10n);
+
+  const linesQ2 = await loadConfirmedLinesForTest(service, org.id, "2026-Q2");
+  record(
+    "quarter_boundary_period_keys",
+    linesQ1.length === 1 && linesQ2.length === 1 && linesQ1[0].txn_id !== linesQ2[0].txn_id
+  );
+}
+
 async function main() {
   unitPackCaseA();
   unitPackCaseB();
-  unitDeadlines();
+  unitAggregateMixed();
+  unitIdempotent();
 
   const { url, anonKey, serviceKey } = getLocalSupabaseEnv();
-  const probe = await createClient(url, serviceKey).from("accounting_declaration_adjustments").select("id").limit(1);
+  const service = createClient(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const probe = await service.from("accounting_public_holidays").select("id").limit(1);
   if (probe.error?.code === "42P01" || probe.error?.code === "PGRST205") {
     execSync("npx supabase db reset --local --no-seed", { cwd: repoRoot, stdio: "inherit" });
   }
+  await unitDeadlines(service);
+  await integrationDraft(service);
   await securityRls(url, anonKey, serviceKey);
 
   console.log(JSON.stringify({ pass: results.pass, fail: results.fail, cases: results.cases }));

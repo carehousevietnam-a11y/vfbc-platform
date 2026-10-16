@@ -1,4 +1,4 @@
-/** 01/GTGT (TT89) draft calculation — pure functions. Rules: docs/master/forms/G2_VAT_FORM_PACK.md §5 */
+/** 01/GTGT (TT89) — G2_VAT_FORM_PACK.md §5 */
 
 const ZERO = BigInt(0);
 
@@ -22,20 +22,13 @@ export type GtgtAdjustmentRow = {
 };
 
 export type GtgtComputeInput = {
-  /** Prior-period [43] for [22] */
   prior43: bigint;
-  /** Expert/input overrides (e.g. [26], pack test fixtures) */
   inputs: Partial<Record<string, bigint>>;
   adjustments: GtgtAdjustmentRow[];
-  /** Aggregated from confirmed txns when present */
   fromTxns?: Partial<Record<string, { value: bigint; txn_ids: string[] }>>;
 };
 
-function cell(
-  value: bigint,
-  source: GtgtFieldSource,
-  txn_ids?: string[]
-): GtgtFieldCell {
+function cell(value: bigint, source: GtgtFieldSource, txn_ids?: string[]): GtgtFieldCell {
   return txn_ids?.length ? { value, source, txn_ids } : { value, source };
 }
 
@@ -47,25 +40,25 @@ function sumAdjustments(adjustments: GtgtAdjustmentRow[], fieldCode: string): bi
   return s;
 }
 
-function getBig(
+function getIn(
   code: string,
   inputs: Partial<Record<string, bigint>>,
-  fromTxns: Partial<Record<string, { value: bigint; txn_ids: string[] }>> | undefined,
-  source: GtgtFieldSource
+  fromTxns: Partial<Record<string, { value: bigint; txn_ids: string[] }>> | undefined
 ): GtgtFieldCell {
   if (inputs[code] !== undefined) {
     return cell(inputs[code]!, "input");
   }
   const tx = fromTxns?.[code];
   if (tx) {
-    return cell(tx.value, source, tx.txn_ids);
+    return cell(tx.value, "input", tx.txn_ids);
   }
-  return cell(ZERO, source);
+  return cell(ZERO, "input");
 }
 
 export function computeGtgt01(input: GtgtComputeInput): GtgtComputedPayload {
   const warnings: string[] = [];
   const fields: Record<string, GtgtFieldCell> = {};
+  const txn = input.fromTxns;
 
   const adj32a = sumAdjustments(input.adjustments, "32a");
   const adj32b = sumAdjustments(input.adjustments, "32b");
@@ -74,33 +67,42 @@ export function computeGtgt01(input: GtgtComputeInput): GtgtComputedPayload {
   const adj38 = sumAdjustments(input.adjustments, "38");
   const adj42 = sumAdjustments(input.adjustments, "42");
 
-  fields["22"] = cell(input.prior43, "calc");
+  fields["22"] = cell(input.prior43, "input");
 
-  const txn = input.fromTxns;
-  fields["23"] = getBig("23", input.inputs, txn, "calc");
-  fields["24"] = getBig("24", input.inputs, txn, "calc");
-  fields["25"] = getBig("25", input.inputs, txn, "calc");
-  fields["26"] = getBig("26", input.inputs, txn, "input");
+  fields["23"] = getIn("23", input.inputs, txn);
+  fields["24"] = getIn("24", input.inputs, txn);
+  fields["25"] = getIn("25", input.inputs, txn);
+  fields["26"] = getIn("26", input.inputs, txn);
   if (fields["26"].value === ZERO && !input.inputs["26"] && !txn?.["26"]) {
     warnings.push("accounting.vat.warning.field26_expert_input");
   }
 
-  fields["29"] = getBig("29", input.inputs, txn, "calc");
-  fields["30"] = getBig("30", input.inputs, txn, "calc");
-  fields["31"] = getBig("31", input.inputs, txn, "calc");
-  fields["32"] = getBig("32", input.inputs, txn, "calc");
-  fields["33"] = getBig("33", input.inputs, txn, "calc");
-  fields["32a"] = cell(adj32a, adj32a !== ZERO ? "expert" : "calc");
-  fields["32b"] = cell(adj32b, adj32b !== ZERO ? "expert" : "calc");
-  fields["34a"] = cell(adj34a, adj34a !== ZERO ? "expert" : "calc");
+  fields["29"] = getIn("29", input.inputs, txn);
+  fields["30"] = getIn("30", input.inputs, txn);
+  fields["31"] = getIn("31", input.inputs, txn);
+  fields["32"] = getIn("32", input.inputs, txn);
+  fields["33"] = getIn("33", input.inputs, txn);
 
-  const v31 = fields["31"].value;
-  const v33 = fields["33"].value;
-  const v35 =
-    input.inputs["35"] !== undefined
-      ? input.inputs["35"]!
-      : v31 + v33 + fields["32"].value;
-  fields["35"] = cell(v35, input.inputs["35"] !== undefined ? "input" : "calc");
+  fields["32a"] = cell(adj32a, "expert");
+  fields["32b"] = cell(adj32b, "expert");
+  fields["34a"] = cell(adj34a, "expert");
+
+  const v27 =
+    fields["29"].value +
+    fields["30"].value +
+    fields["32"].value +
+    fields["32a"].value -
+    fields["32b"].value;
+  fields["27"] = cell(v27, "calc");
+
+  const v28 = fields["31"].value + fields["33"].value;
+  fields["28"] = cell(v28, "calc");
+
+  const v34 = fields["26"].value + v27 + fields["34a"].value;
+  fields["34"] = cell(v34, "calc");
+
+  const v35 = v28;
+  fields["35"] = cell(v35, "calc");
 
   const v25 = fields["25"].value;
   const v36 = v35 - v25;
@@ -109,21 +111,17 @@ export function computeGtgt01(input: GtgtComputeInput): GtgtComputedPayload {
   fields["37"] = cell(adj37, "expert");
   fields["38"] = cell(adj38, "expert");
 
-  fields["39a"] = cell(ZERO, "input");
-  fields["40b"] = cell(ZERO, "input");
-
   const v22 = fields["22"].value;
-  const net = v36 - v22 + adj37 - adj38 - ZERO;
+  const net = v36 - v22 + adj37 - adj38;
   const v40a = net > ZERO ? net : ZERO;
   const v41 = net < ZERO ? -net : ZERO;
   fields["40a"] = cell(v40a, "calc");
-  const v40 = v40a - ZERO;
-  fields["40"] = cell(v40, "calc");
+  fields["40"] = cell(v40a, "calc");
   fields["41"] = cell(v41, "calc");
   fields["42"] = cell(adj42, "expert");
   fields["43"] = cell(v41 - adj42, "calc");
 
-  if (v40 > ZERO && v41 > ZERO) {
+  if (v40a > ZERO && v41 > ZERO) {
     throw new Error("GTGT_40_41_BOTH_POSITIVE");
   }
   if (adj42 > v41) {

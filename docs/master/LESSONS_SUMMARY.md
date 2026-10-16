@@ -61,3 +61,4 @@
 89 · 하단 탭 4개는 P5·홈·더보기 미션에서 한 번에; P3c/P4a에 빈 탭 금지.
 90 · LESSONS·STANDARDS는 대표 확인 후에만 ACE-APPROVED 커밋.
 91 · P5a 전에 G2_VAT_FORM_PACK.md를 커밋한다; 없으면 §5 수식을 만들지 않는다.
+92 · G2 Pack은 Claude 작성본(v2.1+)만 field_map·엔진 근거로 쓴다; Cursor 초안 Pack은 사용하지 않는다.
