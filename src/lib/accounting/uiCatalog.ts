@@ -55,6 +55,9 @@ export const ACCOUNTING_UI = {
     "accounting.txn.detail.title": "거래 상세",
     "accounting.txn.access_denied": "승인된 조직의 구성원만 거래를 입력합니다.",
     "accounting.workspace.pending.title": "승인 대기",
+    "accounting.workspace.rejected.title": "승인 반려",
+    "accounting.workspace.rejected.lead":
+      "조직 승인이 반려되었습니다. 반려 사유는 VFBCAI 전문가팀 안내를 확인합니다.",
     "accounting.workspace.pending.lead":
       "회사 정보 검토가 진행 중입니다. VFBCAI 전문가팀 승인 후 거래 입력과 기장 작업공간을 이용할 수 있습니다.",
     "accounting.txn.sign_in": "로그인한 기업회원만 거래를 입력합니다.",
@@ -376,6 +379,9 @@ export const ACCOUNTING_UI = {
     "accounting.txn.detail.title": "Chi tiết giao dịch",
     "accounting.txn.access_denied": "Chỉ thành viên của tổ chức đã được duyệt mới nhập giao dịch.",
     "accounting.workspace.pending.title": "Chờ phê duyệt",
+    "accounting.workspace.rejected.title": "Từ chối phê duyệt",
+    "accounting.workspace.rejected.lead":
+      "Tổ chức bị từ chối phê duyệt. Vui lòng xem hướng dẫn từ đội chuyên gia VFBCAI.",
     "accounting.workspace.pending.lead":
       "Thông tin công ty đang được xem xét. Sau khi VFBCAI phê duyệt, bạn có thể nhập giao dịch và dùng không gian làm việc.",
     "accounting.txn.sign_in": "Chỉ hội viên doanh nghiệp đã đăng nhập mới nhập giao dịch.",

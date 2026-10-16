@@ -43,7 +43,13 @@ async function loadActorCore(
     );
   if (orgError) return { error: "ORG_LOOKUP", status: 400 };
   const approved = (orgs ?? []).filter((org) => org.approval_status === "approved");
-  if (approved.length === 0) return { error: "ORG_NOT_APPROVED", status: 403 };
+  if (approved.length === 0) {
+    const pending = (orgs ?? []).some((org) => org.approval_status === "pending");
+    if (pending) return { error: "ORG_NOT_APPROVED", status: 403 };
+    const rejected = (orgs ?? []).some((org) => org.approval_status === "rejected");
+    if (rejected) return { error: "ORG_REJECTED", status: 403 };
+    return { error: "ORG_NOT_APPROVED", status: 403 };
+  }
   if (approved.length > 1) return { error: "ORG_AMBIGUOUS", status: 409 };
   const orgId = approved[0].id as string;
   const role = rows.find((row) => row.org_id === orgId)?.role as string | undefined;

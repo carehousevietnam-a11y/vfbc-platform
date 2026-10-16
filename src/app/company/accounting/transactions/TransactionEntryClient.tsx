@@ -103,7 +103,9 @@ export default function TransactionEntryClient() {
   const lang = uiLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
 
-  const [phase, setPhase] = useState<"loading" | "signed_out" | "denied" | "ready">("loading");
+  const [phase, setPhase] = useState<
+    "loading" | "signed_out" | "denied" | "pending_approval" | "rejected_approval" | "ready"
+  >("loading");
   const [role, setRole] = useState("");
   const [token, setToken] = useState("");
   const [form, setForm] = useState(emptyForm);
@@ -185,7 +187,14 @@ export default function TransactionEntryClient() {
         return;
       }
       if (listRes.status === 403) {
-        setPhase("denied");
+        const forbidden = (await listRes.json().catch(() => ({}))) as { error?: string };
+        setPhase(
+          forbidden.error === "ORG_NOT_APPROVED"
+            ? "pending_approval"
+            : forbidden.error === "ORG_REJECTED"
+              ? "rejected_approval"
+              : "denied"
+        );
         return;
       }
       if (!listRes.ok) {
@@ -408,6 +417,24 @@ export default function TransactionEntryClient() {
             <Link href="/login" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[#2563EB]">
               {t("accounting.txn.sign_in_link")}
             </Link>
+          </div>
+        ) : null}
+        {phase === "pending_approval" ? (
+          <div
+            className="mt-8 rounded-[14px] border border-amber-200 bg-amber-50 p-5"
+            data-testid="accounting-workspace-pending-approval"
+          >
+            <p className="text-base font-bold text-[#071A33]">{t("accounting.workspace.pending.title")}</p>
+            <p className="mt-2 text-sm leading-6 text-[#3D4B63]">{t("accounting.workspace.pending.lead")}</p>
+          </div>
+        ) : null}
+        {phase === "rejected_approval" ? (
+          <div
+            className="mt-8 rounded-[14px] border border-[#FECACA] bg-[#FEF2F2] p-5"
+            data-testid="accounting-workspace-rejected-approval"
+          >
+            <p className="text-base font-bold text-[#B91C1C]">{t("accounting.workspace.rejected.title")}</p>
+            <p className="mt-2 text-sm leading-6 text-[#3D4B63]">{t("accounting.workspace.rejected.lead")}</p>
           </div>
         ) : null}
         {phase === "denied" ? (
