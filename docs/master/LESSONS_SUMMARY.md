@@ -64,3 +64,4 @@
 92 · G2 Pack은 Claude 작성본(v2.1+)만 field_map·엔진 근거로 쓴다; Cursor 초안 Pack은 사용하지 않는다.
 93 · 로컬 harness용 부트스트랩 SQL은 운영 `supabase/migrations`에 두지 않는다(RLS 없는 테이블 생성 위험).
 105 · vnk_staff org 승인 UPDATE 후 SELECT RLS가 막히면 staff용 org SELECT 정책을 추가한다(p6c-org-approval).
+106 · P7-1 퍼널: RELEASE 플래그 기본 OFF·빈 Pack이면 준비 중; isolation은 npx tsx·로컬 Supabase 필요.

@@ -13,6 +13,7 @@ import {
 } from "@/lib/accounting/accountingHomeData";
 import { ACCOUNTING_ROUTES } from "@/lib/accounting/accountingNav";
 import { resolveAccountingOrgMembershipState } from "@/lib/accounting/orgMembership";
+import { AccountingFunnelEntryLinks } from "@/lib/accounting/funnel/AccountingFunnelEntryLinks";
 
 function interpolate(template: string, vars: Record<string, string | number>): string {
   return Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, String(v)), template);
@@ -99,6 +100,8 @@ export default function AccountingHomeClient() {
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8" data-testid="accounting-home">
       <h1 className="text-[22px] font-extrabold tracking-[-0.03em] sm:text-[28px]">{t("accounting.home.title")}</h1>
       <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#3D4B63]">{t("accounting.home.lead")}</p>
+
+      <AccountingFunnelEntryLinks />
 
       {phase === "loading" ? <p className="mt-8 text-sm text-[#6B7A90]">{t("accounting.home.loading")}</p> : null}
       {phase === "signed_out" ? (

@@ -39,3 +39,16 @@ accounting.decl.status.expert_review
 accounting.decl.status.ready
 accounting.decl.status.filed_manual
 accounting.decl.status.amended
+accounting.funnel.entries.section_title
+accounting.funnel.entries.section_lead
+accounting.funnel.locale.ko
+accounting.funnel.locale.vi
+accounting.funnel.first_result.disclaimer
+accounting.funnel.first_result.check_items
+accounting.funnel.first_result.next_prep
+accounting.funnel.first_result.sources
+accounting.funnel.expert.loading
+accounting.funnel.expert.signed_out_lead
+accounting.funnel.expert.personal_lead
+accounting.funnel.expert.workspace_pending
+accounting.funnel.expert.workspace_pending_note
