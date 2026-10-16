@@ -14,6 +14,7 @@ import {
   computeAmountVnd,
   TXN_TYPES,
   type CheckLevel,
+  type EvidenceLinkFilter,
   type TxnCheck,
   type TxnType,
 } from "@/lib/accounting/transactionEntry";
@@ -113,6 +114,7 @@ export default function TransactionEntryClient() {
   const [period, setPeriod] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterEvidence, setFilterEvidence] = useState<EvidenceLinkFilter>("all");
   const [notice, setNotice] = useState<AccountingMessageKey | null>(null);
   const [busy, setBusy] = useState(false);
   const [evidence, setEvidence] = useState<EvidenceRow[]>([]);
@@ -157,11 +159,18 @@ export default function TransactionEntryClient() {
   );
 
   const loadLists = useCallback(
-    async (accessToken: string, nextPeriod: string, nextType: string, nextStatus: string) => {
+    async (
+      accessToken: string,
+      nextPeriod: string,
+      nextType: string,
+      nextStatus: string,
+      nextEvidence: EvidenceLinkFilter
+    ) => {
       const params = new URLSearchParams();
       if (nextPeriod) params.set("period", nextPeriod);
       if (nextType) params.set("type", nextType);
       if (nextStatus) params.set("status", nextStatus);
+      params.set("evidence", nextEvidence);
       const [listRes, partyRes] = await Promise.all([
         fetch(`/api/accounting/transactions?${params.toString()}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -205,7 +214,7 @@ export default function TransactionEntryClient() {
         return;
       }
       setToken(access);
-      await loadLists(access, "", "", "");
+      await loadLists(access, "", "", "", "all");
     })();
     return () => {
       cancelled = true;
@@ -333,7 +342,7 @@ export default function TransactionEntryClient() {
     if (body.status) setTxnStatus(body.status);
     if (body.role) setRole(body.role);
     if (body.id) await loadEvidence(token, body.id);
-    await loadLists(token, period, filterType, filterStatus);
+    await loadLists(token, period, filterType, filterStatus, filterEvidence);
   }
 
   async function onEvidenceFile(event: ChangeEvent<HTMLInputElement>) {
@@ -357,7 +366,7 @@ export default function TransactionEntryClient() {
       return;
     }
     await loadEvidence(token, txnId);
-    await loadLists(token, period, filterType, filterStatus);
+    await loadLists(token, period, filterType, filterStatus, filterEvidence);
   }
 
   async function openEvidence(id: string) {
@@ -691,7 +700,7 @@ export default function TransactionEntryClient() {
                     value={period}
                     onChange={(event) => {
                       setPeriod(event.target.value);
-                      void loadLists(token, event.target.value, filterType, filterStatus);
+                      void loadLists(token, event.target.value, filterType, filterStatus, filterEvidence);
                     }}
                     className="mt-1 min-h-11 w-full rounded-lg border border-[#E3E8F0] px-3 text-sm"
                   />
@@ -703,7 +712,7 @@ export default function TransactionEntryClient() {
                     value={filterType}
                     onChange={(event) => {
                       setFilterType(event.target.value);
-                      void loadLists(token, period, event.target.value, filterStatus);
+                      void loadLists(token, period, event.target.value, filterStatus, filterEvidence);
                     }}
                     className="mt-1 min-h-11 w-full rounded-lg border border-[#E3E8F0] px-3 text-sm"
                   >
@@ -722,7 +731,7 @@ export default function TransactionEntryClient() {
                     value={filterStatus}
                     onChange={(event) => {
                       setFilterStatus(event.target.value);
-                      void loadLists(token, period, filterType, event.target.value);
+                      void loadLists(token, period, filterType, event.target.value, filterEvidence);
                     }}
                     className="mt-1 min-h-11 w-full rounded-lg border border-[#E3E8F0] px-3 text-sm"
                   >
@@ -732,6 +741,23 @@ export default function TransactionEntryClient() {
                         {statusLabel(status)}
                       </option>
                     ))}
+                  </select>
+                </label>
+                <label className="text-xs font-semibold text-[#6B7A90]" htmlFor="txn-filter-evidence">
+                  {t("accounting.txn.filter.evidence")}
+                  <select
+                    id="txn-filter-evidence"
+                    value={filterEvidence}
+                    onChange={(event) => {
+                      const next = event.target.value as EvidenceLinkFilter;
+                      setFilterEvidence(next);
+                      void loadLists(token, period, filterType, filterStatus, next);
+                    }}
+                    className="mt-1 min-h-11 w-full rounded-lg border border-[#E3E8F0] px-3 text-sm"
+                  >
+                    <option value="all">{t("accounting.txn.filter.evidence.all")}</option>
+                    <option value="linked">{t("accounting.txn.filter.evidence.linked")}</option>
+                    <option value="missing">{t("accounting.txn.filter.evidence.missing")}</option>
                   </select>
                 </label>
               </div>

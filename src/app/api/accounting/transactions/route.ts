@@ -15,9 +15,10 @@ export async function GET(req: NextRequest) {
     period: queryValue(req, "period"),
     type: queryValue(req, "type"),
     status: queryValue(req, "status"),
+    evidence: req.nextUrl.searchParams.has("evidence") ? (req.nextUrl.searchParams.get("evidence") ?? "") : null,
   });
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
-  return NextResponse.json({ role: result.role, items: result.items });
+  return NextResponse.json({ role: result.role, items: result.items, total: result.total });
 }
 
 export async function POST(req: NextRequest) {

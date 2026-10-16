@@ -50,6 +50,25 @@ export async function resolveAccountingActor(
 
 export const TXN_TYPES = ["sale", "purchase", "expense", "payroll"] as const;
 export type TxnType = (typeof TXN_TYPES)[number];
+
+export const EVIDENCE_LINK_FILTERS = ["all", "linked", "missing"] as const;
+export type EvidenceLinkFilter = (typeof EVIDENCE_LINK_FILTERS)[number];
+
+/** Badge and list filter share this: linked when evidence_files for the transaction is at least 1. */
+export function isEvidenceLinked(evidenceCount: number): boolean {
+  return evidenceCount >= 1;
+}
+
+export function parseEvidenceLinkFilter(
+  raw: string | null | undefined
+): { ok: true; value: EvidenceLinkFilter } | { ok: false; status: 400; error: "VALIDATION" } {
+  if (raw == null) return { ok: true, value: "all" };
+  const value = raw.trim();
+  if ((EVIDENCE_LINK_FILTERS as readonly string[]).includes(value)) {
+    return { ok: true, value: value as EvidenceLinkFilter };
+  }
+  return { ok: false, status: 400, error: "VALIDATION" };
+}
 export type TxnStatus = "draft" | "submitted" | "confirmed" | "cancelled";
 export type CheckLevel = "ok" | "mid" | "warn";
 
@@ -473,17 +492,22 @@ export async function applyTransactionCommand(
 export async function listTransactions(
   client: SupabaseClient,
   accessToken: string,
-  query: { period?: string; type?: string; status?: string }
+  query: { period?: string; type?: string; status?: string; evidence?: string | null }
 ): Promise<
-  | { ok: true; role: string; items: Record<string, unknown>[] }
+  | { ok: true; role: string; items: Record<string, unknown>[]; total: number }
   | { ok: false; status: number; error: string }
 > {
+  const evidenceFilter = parseEvidenceLinkFilter(query.evidence);
+  if (!evidenceFilter.ok) return { ok: false, status: evidenceFilter.status, error: evidenceFilter.error };
   const actor = await loadActor(client, accessToken);
   if (!isActor(actor)) return { ok: false, status: actor.status, error: actor.error };
+  const linkedIds = await linkedEvidenceTxnIds(client, actor.orgId);
+  if (!linkedIds.ok) return { ok: false, status: 400, error: "LIST_FAILED" };
   let request = client
     .from("accounting_transactions")
     .select(
-      "id, type, status, txn_date, period_key, currency, fx_rate, amount_vnd, counterparty_id, invoice_series, invoice_no, invoice_date"
+      "id, type, status, txn_date, period_key, currency, fx_rate, amount_vnd, counterparty_id, invoice_series, invoice_no, invoice_date",
+      { count: "exact" }
     )
     .eq("org_id", actor.orgId)
     .order("txn_date", { ascending: false });
@@ -492,7 +516,13 @@ export async function listTransactions(
   if (query.status && ["draft", "submitted", "confirmed", "cancelled"].includes(query.status)) {
     request = request.eq("status", query.status);
   }
-  const { data, error } = await request;
+  if (evidenceFilter.value === "linked") {
+    if (linkedIds.ids.length === 0) return { ok: true, role: actor.role, items: [], total: 0 };
+    request = request.in("id", linkedIds.ids);
+  } else if (evidenceFilter.value === "missing") {
+    if (linkedIds.ids.length > 0) request = request.not("id", "in", `(${linkedIds.ids.join(",")})`);
+  }
+  const { data, error, count } = await request;
   if (error) return { ok: false, status: 400, error: "LIST_FAILED" };
   const ids = [...new Set((data ?? []).map((row) => row.counterparty_id).filter(Boolean))] as string[];
   const names = new Map<string, string>();
@@ -506,9 +536,10 @@ export async function listTransactions(
   }
   const txnIds = (data ?? []).map((row) => row.id as string);
   const evidenceCounts = await countEvidenceForTxnIds(client, actor.orgId, txnIds);
+  if (!evidenceCounts.ok) return { ok: false, status: 400, error: "LIST_FAILED" };
   const items = (data ?? []).map((row) => {
     const id = row.id as string;
-    const evidenceCount = evidenceCounts.get(id) ?? 0;
+    const evidenceCount = evidenceCounts.counts.get(id) ?? 0;
     return {
       id: row.id,
       type: row.type,
@@ -525,30 +556,51 @@ export async function listTransactions(
       counterpartyName: row.counterparty_id ? (names.get(row.counterparty_id as string) ?? "") : "",
       fxUnverified: row.currency !== "VND",
       evidenceCount,
-      hasEvidence: evidenceCount > 0,
+      hasEvidence: isEvidenceLinked(evidenceCount),
     };
   });
-  return { ok: true, role: actor.role, items };
+  const total = count ?? items.length;
+  return { ok: true, role: actor.role, items, total };
+}
+
+async function linkedEvidenceTxnIds(
+  client: SupabaseClient,
+  orgId: string
+): Promise<{ ok: true; ids: string[] } | { ok: false }> {
+  const { data, error } = await client
+    .from("accounting_evidence_files")
+    .select("txn_id")
+    .eq("org_id", orgId)
+    .not("txn_id", "is", null);
+  if (error) return { ok: false };
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    const txnId = row.txn_id as string;
+    counts.set(txnId, (counts.get(txnId) ?? 0) + 1);
+  }
+  const ids = [...counts.entries()].filter(([, evidenceCount]) => isEvidenceLinked(evidenceCount)).map(([txnId]) => txnId);
+  return { ok: true, ids };
 }
 
 async function countEvidenceForTxnIds(
   client: SupabaseClient,
   orgId: string,
   txnIds: string[]
-): Promise<Map<string, number>> {
-  const out = new Map<string, number>();
-  if (txnIds.length === 0) return out;
-  const { data } = await client
+): Promise<{ ok: true; counts: Map<string, number> } | { ok: false }> {
+  const counts = new Map<string, number>();
+  if (txnIds.length === 0) return { ok: true, counts };
+  const { data, error } = await client
     .from("accounting_evidence_files")
     .select("txn_id")
     .eq("org_id", orgId)
     .in("txn_id", txnIds);
-  for (const id of txnIds) out.set(id, 0);
+  if (error) return { ok: false };
+  for (const id of txnIds) counts.set(id, 0);
   for (const row of data ?? []) {
     const key = row.txn_id as string;
-    out.set(key, (out.get(key) ?? 0) + 1);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  return out;
+  return { ok: true, counts };
 }
 
 export async function getTransaction(

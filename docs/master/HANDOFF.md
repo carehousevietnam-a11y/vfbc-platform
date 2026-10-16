@@ -7,7 +7,7 @@
 2. `docs/master/DECISIONS.md`의 2026-10-14 행, `docs/master/LESSONS.md` #56~#61 (전체를 읽지 않고 필요한 행만)
 
 ## 현재 상태 (마지막 갱신: 2026-10-16)
-- 기업회원 가입 작업 표기는 S1(가입)이다. 설계서 P2는 거래 입력이다. P2-a 거래 입력은 `/company/accounting/transactions` (로컬 검증, 푸시 없음).
+- 기업회원 가입 작업 표기는 S1(가입)이다. 설계서 P2는 거래 입력이다. P2-a 거래 입력은 `/company/accounting/transactions` (로컬 검증, 푸시 없음). P2c 거래 목록 증빙 필터(evidence=all|linked|missing)는 로컬에서 확인했고 푸시하지 않았다. 필터 베트남어는 담당자 검수 전 임시값이다.
 - 저장소: `C:\vfbcai-new`, 작업 브랜치 `chore/harness-v1`, 푸시 대상 `chore/harness-v1-clean`. 운영(main) 반영은 `git push origin HEAD:main`으로 한다(빨리감기).
 - main 반영 완료: d1d83d5 (이 문서 작성 시점. 이후 HANDOFF 커밋 하나가 더 있음)
 - 직접 인허가 8개 서비스(식당·위생·소방·환경·화장품·의료기기·프랜차이즈·회사설립) 질문을 고객 목소리 "~합니다" 체로 재작성하고 화면 확인을 마쳤다.
