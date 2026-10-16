@@ -446,3 +446,23 @@
     원인: 기본 next dev는 .env.local의 NEXT_PUBLIC_SUPABASE_URL을 쓴다.
     재발 방지: 회계 브라우저·시드 검증은 `node tests/accounting/p3c-local-next.mjs`로 로컬 Supabase만 바인딩한다. 운영 DB는 읽기 전용 잔여 조회만 한다.
     자동 검사: p3c-local-next.mjs가 non-local URL이면 거부
+
+87. 문제: `node tests/accounting/isolation.mjs`의 owner_can_confirm이 실패한다
+    원인: P3a 이후 `accounting_guard_confirmed_transaction`이 status=confirmed로 바꿀 때 차변합=대변합 ledger_entries를 요구한다. isolation은 P1 시절처럼 UPDATE만 했고 posting_rules·분개가 없어 트리거가 `accounting: cannot confirm without balanced ledger_entries`를 냈다. 대표 권한(RLS) 결함이 아니다.
+    재발 방지: isolation에서 확정 전 `seedTestPostingRule`로 TEST-* 규칙을 넣고 owner는 `accounting_confirm_transaction` RPC로 확정한다. member_cannot_confirm은 UPDATE로 owner-only 트리거를 계속 검사한다. vnk_expert 확정 거부는 이 스크립트에 없고 p3-posting.mjs의 member_confirm_rpc_blocked가 역할을 분담한다.
+    자동 검사: node tests/accounting/isolation.mjs (owner_can_confirm, cross_org_*)
+
+88. 문제: `http://localhost:3020`에서 Internal Server Error가 난다
+    원인: `.next/dev/logs/next-development.log`에 webpack 캐시 `ENOENT … client-development\\14.pack.gz`가 찍혔다. 캐시가 깨졌거나 dev 서버가 오래 돌아가며 pack 파일이 사라진 상태다. 3020은 `next dev --webpack -p 3020`(cwd vfbcai-new)이고, Supabase는 프로세스 환경의 `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`에 따른다. `p3c-local-next.mjs`로 띄우면 위 세 변수만 로컬 `supabase status`로 덮어쓴다.
+    재발 방지: 회계 브라우저 QA는 `node tests/accounting/p3c-local-next.mjs`를 쓴다. 500이 계속되면 `.next` 삭제 후 재기동한다. 운영 URL 바인딩 여부는 호스트가 127.0.0.1/localhost인지로만 판정하고 비밀값은 로그에 남기지 않는다.
+    자동 검사: 없음 (재현 시 next-development.log의 ENOENT pack)
+
+89. 문제: 모바일 하단 탭 4개(§5-1 홈·거래 입력·세금 신고·더보기) 담당 단계가 문서에 없어 P3c에서만 반복 실패로 남는다
+    원인: §8 구현 단계에 “탭” 항목이 없고 P3c는 장부·거래만 있다(LESSONS 80·84).
+    재발 방지: **세금 신고(§5-3) 화면을 만드는 P5**와 **홈 대시보드(§5-2)·더보기(상단 메뉴 나머지)** 라우트를 넣는 미션에서 공통 모바일 네비를 한 번에 넣는다. P3c/P4a 마감 범위에는 빈 탭을 넣지 않는다.
+    자동 검사: 없음
+
+90. 문제: LESSONS 커밋에 ACE-APPROVED가 대표 승인 전에 붙었다
+    원인: `b037823` 등 보호 파일(LESSONS) 커밋 시 hook을 통과하려고 ACE-APPROVED 줄을 먼저 넣었다. 승인·문구 확정이 커밋보다 뒤일 수 있다.
+    재발 방지: LESSONS·STANDARDS 등 보호 파일은 대표가 내용을 확인한 뒤에만 ACE-APPROVED 커밋한다. 이번 P3c 마감 보완(87–89)은 지시에 따라 LESSONS에 기록하고 ACE-APPROVED로 커밋한다.
+    자동 검사: .githooks/commit-msg

@@ -7,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
 import { createClient } from "@supabase/supabase-js";
+import { seedTestPostingRule } from "./testPostingFixture.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const BUSINESS_MEMBER_TYPE = "company";
@@ -377,14 +378,11 @@ async function main() {
     memberConfirm.error?.message ?? afterMemberConfirm.data?.status
   );
 
-  const ownerConfirm = await clientAOwner
-    .from("accounting_transactions")
-    .update({
-      status: "confirmed",
-      confirmed_by: users.aOwner.id,
-      confirmed_at: new Date().toISOString(),
-    })
-    .eq("id", txnA.id);
+  await seedTestPostingRule(service, "expense");
+
+  const ownerConfirm = await clientAOwner.rpc("accounting_confirm_transaction", {
+    p_txn_id: txnA.id,
+  });
   record("owner_can_confirm", !ownerConfirm.error, ownerConfirm.error?.message);
 
   const expertRead = await clientAExpert.from("accounting_transactions").select("id").eq("id", txnConfirmed.id);
