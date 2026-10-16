@@ -1,6 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AccountingMessageKey } from "./uiCatalog";
 
+async function confirmTransactionWithPosting(
+  client: SupabaseClient,
+  txnId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { error } = await client.rpc("accounting_confirm_transaction", { p_txn_id: txnId });
+  if (!error) return { ok: true };
+  const message = error.message ?? "";
+  if (/posting rule missing/i.test(message)) return { ok: false, error: "POSTING_RULE_MISSING" };
+  if (/filed_manual locked/i.test(message)) return { ok: false, error: "PERIOD_FILED_LOCKED" };
+  if (/only company_owner may confirm/i.test(message)) return { ok: false, error: "CONFIRM_FORBIDDEN" };
+  if (/debit\/credit imbalance/i.test(message)) return { ok: false, error: "LEDGER_IMBALANCE" };
+  if (/already confirmed/i.test(message)) return { ok: false, error: "ALREADY_CONFIRMED" };
+  if (/correction_method not supported/i.test(message)) return { ok: false, error: "CORRECTION_METHOD_UNSUPPORTED" };
+  return { ok: false, error: "CONFIRM_FAILED" };
+}
+
 export type AccountingActor = { userId: string; orgId: string; role: string };
 type Actor = AccountingActor;
 
@@ -372,10 +388,6 @@ export async function applyTransactionCommand(
   if (command.action === "confirm" && actor.role !== "company_owner") {
     return { ok: false, status: 403, error: "CONFIRM_FORBIDDEN" };
   }
-  if (command.action === "confirm" && command.currency !== "VND") {
-    return { ok: false, status: 422, error: "FX_CONFIRM_BLOCKED", checks: buildTxnChecks(command) };
-  }
-
   const checks = buildTxnChecks(command);
   if (!isIsoDate(command.txnDate) || command.amountNet === null || command.vatAmount === null) {
     return { ok: false, status: 422, error: "VALIDATION", checks };
@@ -456,17 +468,16 @@ export async function applyTransactionCommand(
   if (!linesOk) return { ok: false, status: 400, error: "LINE_WRITE_FAILED", checks };
 
   if (nextStatus === "confirmed") {
-    // P3에서 추가: 확정 시 ledger_entries 생성과 차변합=대변합 검사. 이번 단계에서는 하지 않는다.
-    const { error: confirmError } = await client
-      .from("accounting_transactions")
-      .update({
-        status: "confirmed",
-        confirmed_by: actor.userId,
-        confirmed_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("org_id", actor.orgId);
-    if (confirmError) return { ok: false, status: 403, error: "CONFIRM_FORBIDDEN", checks };
+    const posted = await confirmTransactionWithPosting(client, id);
+    if (!posted.ok) {
+      const status =
+        posted.error === "CONFIRM_FORBIDDEN"
+          ? 403
+          : posted.error === "POSTING_RULE_MISSING" || posted.error === "PERIOD_FILED_LOCKED"
+            ? 422
+            : 400;
+      return { ok: false, status, error: posted.error, checks };
+    }
   }
 
   const { count, error: auditError } = await client

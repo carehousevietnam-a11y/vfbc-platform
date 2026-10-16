@@ -121,6 +121,7 @@ async function main() {
   record("fx_unverified_mid", fx?.level === "mid" && fx.messageKey.endsWith("fx_unverified"));
   record("fx_user_multiplier", computeAmountVnd("USD", 10, 0, 25000) === 250000);
 
+  const { seedTestPostingRule } = await import("./testPostingFixture.mjs");
   const service = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const tag = `p2a-${Date.now()}`;
   const password = `Test-${tag}-Aa1!`;
@@ -166,6 +167,7 @@ async function main() {
     { org_id: orgP, user_id: pendingId, role: "company_owner" },
   ]);
   if (memberError) throw new Error(memberError.message);
+  await seedTestPostingRule(service);
 
   const owner = await signIn(emails.owner, password);
   const member = await signIn(emails.member, password);
@@ -263,8 +265,8 @@ async function main() {
       );
     }
     record(
-      "fx_confirm_blocked",
-      usdDraft.ok && usdSubmitOk && !usdConfirm.ok && usdConfirm.error === "FX_CONFIRM_BLOCKED"
+      "fx_confirm_with_unverified",
+      usdDraft.ok && usdSubmitOk && usdConfirm.ok && usdConfirm.fxUnverified === true
     );
     const submitted = await applyTransactionCommand(owner.client, owner.token, saleBody("submit"), drafted.id);
     const confirmed = await applyTransactionCommand(owner.client, owner.token, saleBody("confirm"), drafted.id);

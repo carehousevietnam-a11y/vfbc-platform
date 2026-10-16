@@ -385,3 +385,18 @@
     원인: storage list는 권한 없는 객체를 오류로 거절하지 않고 RLS로 빼서 빈 배열을 준다
     재발 방지: 격리 판정은 상태 코드만 보지 않는다. 같은 폴더 목록을 소유자가 하면 1건, 다른 조직이면 0건이어야 한다. 다운로드와 서명 URL은 400이어야 한다
     자동 검사: 없음
+
+75. 문제: 확정과 ledger_entries 생성이 분리되면 롤백 없이 confirmed만 남을 수 있다
+    원인: 클라이언트에서 status만 UPDATE했다
+    재발 방지: `accounting_confirm_transaction` RPC 한 트랜잭션에서 분개 삽입 후 확정한다. 트리거로 confirmed 전 차변합=대변합을 강제한다
+    자동 검사: node tests/accounting/p3-posting.mjs
+
+76. 문제: #71 비VND confirm 전면 차단은 G4 미검증 표시 요구와 맞지 않는다
+    원인: P2에서 FX_CONFIRM_BLOCKED로 막았다
+    재발 방지: P3부터 비VND는 사용자 입력 fx_rate로 amount_vnd를 쓰고 confirm은 허용한다. `accounting_ledger_entries_enriched.fx_conversion_unverified`와 UI 미검증 표시로 G4를 표시한다
+    자동 검사: node tests/accounting/transactions.mjs (fx_confirm_with_unverified)
+
+77. 문제: Node 하네스가 새 TS 모듈 상대 import를 못 찾는다
+    원인: transactionEntry에서 postingRulesEngine 상대 경로를 ESM이 해석하지 못했다
+    재발 방지: confirm RPC 호출은 transactionEntry에 두고, postingRulesEngine.ts는 enriched 조회 전용으로 유지한다
+    자동 검사: node tests/accounting/p3-posting.mjs

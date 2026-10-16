@@ -40,3 +40,4 @@
 | 2026-10-16 | 회계 P2-b | 증빙은 비공개 버킷 accounting_evidence, 서버 라우트 업로드·60초 서명 URL만. insert-only, 삭제·OCR·전용 메뉴 화면 없음 | 진행 | - |
 | 2026-10-16 | 회계 accountingActor.ts | P2-b 범위에서 `accountingActor.ts` 삭제하지 않는다. P2 전체 종료 후 import 검사를 마친 별도 정리 단계에서만 중복 제거·단일 import를 검토한다 | 적용됨 | - |
 | 2026-10-16 | 회계 P2c | 거래 목록 증빙 필터는 쿼리 evidence=all\|linked\|missing만 받고 그 외는 400이다. 연결됨은 해당 거래의 evidence_files가 1건 이상인 경우와 같다. 필터 베트남어는 담당자 검수 전 임시값이다 | 진행 | - |
+| 2026-10-16 | 회계 P3a | 확정은 `accounting_confirm_transaction` RPC로 ledger 생성과 status=confirmed를 한 트랜잭션으로 처리한다. posting_rules·coa 운영 시드 없음(TEST-* 하네스만). correction_method 기본 reverse_entry(unverified). filed_manual 기간 확정·정정 입력 거부 | 로컬 검증·커밋(푸시 없음) | - |

@@ -90,6 +90,7 @@ async function main() {
   const viKeys = Object.keys(ACCOUNTING_UI.vi).sort();
   record("i18n_catalog_key_parity", koKeys.join("|") === viKeys.join("|"), `ko=${koKeys.length} vi=${viKeys.length}`);
 
+  const { seedTestPostingRule } = await import("./testPostingFixture.mjs");
   const { applyTransactionCommand } = await import("../../src/lib/accounting/transactionEntry.ts");
   const { uploadEvidence, createEvidenceSignedUrl, listEvidenceForTxn, detectEvidenceKind, EVIDENCE_MAX_BYTES } =
     await import("../../src/lib/accounting/evidenceEntry.ts");
@@ -130,6 +131,7 @@ async function main() {
     { org_id: orgB, user_id: otherId, role: "company_owner" },
     { org_id: orgP, user_id: pendingId, role: "company_owner" },
   ]);
+  await seedTestPostingRule(service, "expense");
 
   const owner = await signIn(`${tag}-owner@evidence.test.vfbcai.local`, password);
   const other = await signIn(`${tag}-other@evidence.test.vfbcai.local`, password);
