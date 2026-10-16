@@ -516,3 +516,42 @@
     원인: P6a resolve 정책이 작성자·대표에게 모든 comment의 status 변경을 허용했다.
     재발 방지: target_type=transaction인 correction_request는 accounting_approve_correction·accounting_reject_correction 안에서만 resolved가 되도록 update 트리거로 강제했다.
     자동 검사: node tests/accounting/p6b-corrections.mjs (direct_resolve_blocked)
+
+98. 문제: `p6b-browser-check.mjs` 첫 실행이 Playwright TimeoutError로 끊기고 재실행은 28/0 통과한다
+    원인: 3020 dev에서 `/vnk/accounting/review-queue` 등 첫 라우트 webpack 컴파일이 60s waitFor(조직명·코멘트)보다 길어질 수 있다. 제품 격리·RLS 결함이 아니라 cold-compile·부하에 따른 **flaky** 타임아웃이다.
+    재발 방지: 마감 판정 전 한 번 재실행하거나, dev를 미리 해당 URL로 워밍업한 뒤 하네스를 돌린다. 60s 내 500이면 LESSONS 94·88( import trace·.next 삭제)을 먼저 본다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs
+
+99. 문제: 로컬 purge harness용 leads/crm 부트스트랩 SQL을 `supabase/migrations`에 넣으면 운영 push 시 RLS 없는 테이블·GRANT가 생길 수 있다.
+    재발 방지: harness 전용 SQL은 `tests/security/`에만 두고, 운영 마이그레이션에는 `audit_log` 등 실제 제품 스키마만 넣는다.
+    자동 검사: node tests/security/pre-signup-document-purge.mjs
+
+100. 문제: P7a `p7a-funnel-browser-check.mjs`가 Playwright chromium 미설치로 즉시 실패했다(`Executable doesn't exist`).
+    원인: Cursor 샌드박스·신규 환경에서 `@playwright/test`만 있고 브라우저 바이너리는 별도 설치가 필요했다.
+    재발 방지: 회계 퍼널·UI 마감 전 `npx playwright install chromium`을 한 번 실행한다. dev는 `p3c-local-next.mjs`(3020)만 쓴다(LESSONS 86).
+    자동 검사: node tests/accounting/p7a-funnel-browser-check.mjs
+
+101. 문제: P7b에서 purge harness·전체 E2E(가입→승인 대기)를 미실행했다. P7d에서 harness는 통과했으나 `accounting_organizations` INSERT/UPDATE에 `accounting_audit_log` 트리거가 없어 조직 생성·승인 audit 검증이 실패했다.
+    원인: P1 `accounting_audit_log_append` 트리거가 `accounting_transactions` 등에만 붙고 `accounting_organizations`에는 없음. P7b는 시간·범위상 harness/E2E를 보고만 하고 종료했다.
+    재발 방지: 설계 §6 audit 누락 게이트는 org 생성·`approval_status` 전환용 트리거(또는 서버 audit insert) 추가 후 `tests/accounting/p7d`류로 INSERT/UPDATE 행·hash·PII 미기록을 자동 검사한다. purge는 `node tests/security/pre-signup-document-purge.mjs` + `verify-accounting-funnel/...` 경로 시나리오를 harness에 포함한다.
+    자동 검사: node tests/security/pre-signup-document-purge.mjs (P7d: funnel 경로는 `runPreSignupDocumentPurge` 로컬 시나리오로 확인됨 — 미가입 31일 삭제·가입 후 user_id 보존)
+
+102. 문제: P7d 조직 audit 실패·E2E가 `vat_s1_q2` 고정 클릭으로 Pack 분기(show_if·label)를 따라가지 못했다.
+    원인: `accounting_organizations`에 audit 트리거 미부착. E2E는 P7a와 동일한 label needle·stage2 루프가 필요했으나 별도 스크립트가 q2를 순서 클릭만 시도했다.
+    재발 방지: P7e 마이그레이션 `20261017120000_accounting_p7e_org_audit_triggers.sql`로 INSERT·`approval_status` UPDATE만 audit. E2E는 `p7a-funnel-browser-check.mjs`와 동일 Pack 네비게이션을 `p7e-e2e-browser.mjs`에 재사용한다.
+    자동 검사: node tests/accounting/p7e-org-audit.mjs · node tests/accounting/p7e-e2e-browser.mjs
+
+105. 문제: P6c에서 vnk_staff가 승인 대기 org의 `approval_status`를 UPDATE하면 RLS가 `new row violates`로 실패했다.
+    원인: UPDATE 후 행이 `pending`이 아니게 되어 `accounting_orgs_select_pending_staff`만으로는 결과 행 SELECT가 불가했고, 멤버십도 없었다.
+    재발 방지: `accounting_is_vnk_staff()`용 org SELECT 정책을 추가하고, pending 전환은 guard 트리거+staff UPDATE 정책으로 처리한다. `node tests/accounting/p6c-org-approval.mjs`로 승인·audit를 검증한다.
+    자동 검사: node tests/accounting/p6c-org-approval.mjs
+
+104. 문제: 1차 결과 화면이 Content Pack 슬롯 없이 placeholder만 표시됐다.
+    원인: 질문 Pack만 `contentPackData.ts`에 있고 결과 Pack JSON·타입·해석 로직이 없었다.
+    재발 방지: `docs/master/content/RESULT_PACK_FUNNEL.json` 단일 원본 + `loadResultPacks.ts`·`resolveFirstResult.ts`·`validateResultPackAlignment.ts`. E2E는 `p7g-result-pack.mjs`·`p7g-first-result-browser.mjs`.
+    자동 검사: node tests/accounting/p7g-result-pack.mjs · node tests/accounting/p7g-first-result-browser.mjs
+
+103. 문제: P7e E2E가 가입 완료 화면까지 가지 못했다.
+    원인: (b) 로컬 `accounting_prereq`가 만든 `public.users`에 phone·email 등 컬럼이 없어 `/api/company-member-signup`이 500(`column users.phone does not exist`)을 반환. E2E는 주소 placeholder 불일치·`/login`이 비밀번호 폼이 아닌 매직링크 UI라 password 입력 대기가 (d)에 해당했다.
+    재발 방지: `20261017130000_accounting_users_profile_columns.sql`로 프로필 컬럼 IF NOT EXISTS 추가. `p7f-e2e-browser.mjs`는 3020 기동 검사·signup API status(PII 제외)·`company-member-signup-done`·가입 후 `signInWithPassword`+localStorage 세션 주입·`accounting-workspace-pending-approval`로 완주. 모바일은 퍼널 q1 재시도 루프.
+    자동 검사: node tests/accounting/p7f-e2e-browser.mjs
