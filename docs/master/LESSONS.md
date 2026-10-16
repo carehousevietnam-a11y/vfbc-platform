@@ -424,5 +424,10 @@
 
 82. 문제: p2c step0 재실행의 증빙 필터 건수 검사가 UNAUTHENTICATED
     원인: 저장해 둔 조직 A 세션 토큰이 만료됨. 임시 member 삭제와 무관하다. 같은 실행에서 같은 조직 member의 서명 URL·다운로드는 200이고, 이번에 만든 임시 member는 끝에서 삭제됐다(잔여 2명 포함).
-    재발 방지: 저장된 세션으로 다시 검사하기 전에 로컬에서 다시 로그인한다. 만료 토큰을 제품 격리 실패로 보지 않는다.
+    재발 방지: 저장된 세션으로 다시 로그인한다. 만료 토큰을 제품 격리 실패로 보지 않는다.
     자동 검사: 없음
+
+83. 문제: P4a 법령 점검 Playwright가 ko 라벨을 못 찾음
+    원인: networkidle 직후에도 클라이언트가 vnk_admin·서식 목록을 불러오는 중이었다. member UPDATE RLS는 0행이라 오류 없이 통과해 테스트만 실패로 보였다.
+    재발 방지: 회계 브라우저 하네스는 `sb-<supabase-host>-auth-token` 키와 화면 제목 waitFor를 쓴다. form_versions member 쓰기 테스트는 행 변경 여부로 판정한다.
+    자동 검사: node tests/accounting/p4a-browser-check.mjs, node tests/accounting/p4a-form-registry.mjs
