@@ -462,7 +462,17 @@
     재발 방지: **세금 신고(§5-3) 화면을 만드는 P5**와 **홈 대시보드(§5-2)·더보기(상단 메뉴 나머지)** 라우트를 넣는 미션에서 공통 모바일 네비를 한 번에 넣는다. P3c/P4a 마감 범위에는 빈 탭을 넣지 않는다.
     자동 검사: 없음
 
+92. 문제: P5a 착수 시 `docs/master/forms/G2_VAT_FORM_PACK.md`가 저장소에 없었다
+    원인: Form Verification Pack이 커밋되지 않은 상태에서 구현 미션만 내려왔다.
+    재발 방지: Pack 파일을 먼저 `docs/master/forms/`에 커밋한 뒤 P5a 엔진·field_map 시드를 넣는다. Pack 없이는 §5 수식을 임의 추가하지 않는다.
+    자동 검사: test -f docs/master/forms/G2_VAT_FORM_PACK.md
+
 90. 문제: LESSONS 커밋에 ACE-APPROVED가 대표 승인 전에 붙었다
     원인: `b037823` 등 보호 파일(LESSONS) 커밋 시 hook을 통과하려고 ACE-APPROVED 줄을 먼저 넣었다. 승인·문구 확정이 커밋보다 뒤일 수 있다.
     재발 방지: LESSONS·STANDARDS 등 보호 파일은 대표가 내용을 확인한 뒤에만 ACE-APPROVED 커밋한다. 이번 P3c 마감 보완(87–89)은 지시에 따라 LESSONS에 기록하고 ACE-APPROVED로 커밋한다.
     자동 검사: .githooks/commit-msg
+
+91. 문제: accounting_exports에 불변 트리거(accounting_trg_deny_exports_mutate)를 걸면 org cascade 삭제가 막혀 테스트 정리가 실패한다
+    원인: exports는 insert-only라 UPDATE·DELETE가 모두 예외다. organizations 삭제가 exports로 cascade되면서 같은 트리거에 걸린다(evidence_files·ledger_entries와 같은 구조).
+    재발 방지: 로컬 테스트 정리 때 exports 삭제 직전에 이 트리거를 일시정지하고 끝나면 반드시 되살린다(p3c-ledger-seed.mjs guardStatements 참고). 운영에서는 정리 삭제를 하지 않는다.
+    자동 검사: node tests/accounting/p3c-ledger-seed.mjs cleanup
