@@ -69,7 +69,7 @@ export async function listExpertReviewQueue(client: SupabaseClient, accessToken:
   const { data: pendingOrgs, error: pendingErr } = await client
     .from("accounting_organizations")
     .select("id, name_official, name_ko_display, created_at")
-    .eq("approval_status", "pending")
+    .eq("approval_status", "in_review")
     .order("created_at", { ascending: false });
   if (pendingErr) return { ok: false as const, status: 400, error: "PENDING_ORG_LOOKUP" };
   for (const o of pendingOrgs ?? []) {
@@ -139,8 +139,8 @@ export async function resolveOrgApproval(
     .eq("id", payload.orgId)
     .maybeSingle();
   if (orgErr || !org) return { ok: false as const, status: 404, error: "NOT_FOUND" };
-  if (org.approval_status !== "pending") {
-    return { ok: false as const, status: 400, error: "NOT_PENDING" };
+  if (org.approval_status !== "in_review") {
+    return { ok: false as const, status: 400, error: "NOT_IN_REVIEW" };
   }
 
   if (payload.action === "reject") {
@@ -156,7 +156,7 @@ export async function resolveOrgApproval(
       org_id: payload.orgId,
       entity_type: "organization",
       entity_id: payload.orgId,
-      field: "approval_reject_reason",
+      field: "review_note",
       lang,
       text: reason,
       status: "original",

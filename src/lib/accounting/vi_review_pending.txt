@@ -28,6 +28,17 @@ accounting.home.d_day.overdue
 accounting.home.alert.pending_txn
 accounting.home.alert.missing_evidence
 accounting.home.cta.next
+accounting.org_docs.section
+accounting.org_docs.business_registration
+accounting.org_docs.investment_registration
+accounting.org_docs.upload
+accounting.org_docs.uploaded
+accounting.org_docs.request_approval
+accounting.org_docs.requesting
+accounting.org_docs.in_review
+accounting.org_docs.required_both
+accounting.org_docs.review_note_label
+accounting.org_docs.view
 accounting.home.cta.transactions
 accounting.home.cta.continue_filing
 accounting.home.cta.expert_review

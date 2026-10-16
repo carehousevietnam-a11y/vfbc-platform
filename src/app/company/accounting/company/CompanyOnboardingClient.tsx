@@ -87,13 +87,14 @@ export default function CompanyOnboardingClient() {
           <h2 className="text-[15px] font-extrabold text-[#071A33]">{t("accounting.onboard.section.category")}</h2>
           <div className="mt-3 flex flex-col gap-2">
             {COMPANY_CATEGORY_OPTIONS.map((opt) => (
-              <SelectionCard
-                key={opt.value}
-                title={categoryLabel(opt.value)}
-                selected={companyCategory === opt.value}
-                onClick={() => setCompanyCategory(opt.value)}
-                variant="quiet"
-              />
+              <div key={opt.value} data-testid={`accounting-onboard-category-${opt.value}`}>
+                <SelectionCard
+                  title={categoryLabel(opt.value)}
+                  selected={companyCategory === opt.value}
+                  onClick={() => setCompanyCategory(opt.value)}
+                  variant="quiet"
+                />
+              </div>
             ))}
           </div>
           {companyCategory === "other" ? (
@@ -124,13 +125,14 @@ export default function CompanyOnboardingClient() {
           <h2 className="text-[15px] font-extrabold text-[#071A33]">{t("accounting.onboard.section.position")}</h2>
           <div className="mt-3 flex flex-col gap-2">
             {JOB_POSITION_OPTIONS.map((opt) => (
-              <SelectionCard
-                key={opt.value}
-                title={positionLabel(opt.value)}
-                selected={jobPosition === opt.value}
-                onClick={() => setJobPosition(opt.value)}
-                variant="quiet"
-              />
+              <div key={opt.value} data-testid={`accounting-onboard-position-${opt.value}`}>
+                <SelectionCard
+                  title={positionLabel(opt.value)}
+                  selected={jobPosition === opt.value}
+                  onClick={() => setJobPosition(opt.value)}
+                  variant="quiet"
+                />
+              </div>
             ))}
           </div>
           {jobPosition === "other" ? (

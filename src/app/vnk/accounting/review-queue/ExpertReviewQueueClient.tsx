@@ -12,6 +12,53 @@ function uiLocale(locale: string): AccountingLocale {
   return locale === "vi" ? "vi" : "ko";
 }
 
+function OrgDocLinks({
+  orgId,
+  t,
+}: {
+  orgId: string;
+  t: (key: AccountingMessageKey) => string;
+}) {
+  const [docs, setDocs] = useState<{ id: string; doc_kind: string }[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await accountingAuthFetch(`/api/accounting/expert/org-documents?orgId=${encodeURIComponent(orgId)}`);
+      if (!res.ok || cancelled) return;
+      const body = (await res.json()) as { items: { id: string; doc_kind: string }[] };
+      setDocs(body.items ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [orgId]);
+
+  async function openDoc(id: string) {
+    const res = await accountingAuthFetch(`/api/accounting/org-documents?id=${encodeURIComponent(id)}`);
+    if (!res.ok) return;
+    const body = (await res.json()) as { url: string };
+    if (body.url) window.open(body.url, "_blank", "noopener,noreferrer");
+  }
+
+  if (docs.length === 0) return null;
+  return (
+    <ul className="mt-2 flex flex-col gap-1">
+      {docs.map((d) => (
+        <li key={d.id}>
+          <button
+            type="button"
+            className="text-sm font-semibold text-[#2563EB]"
+            data-testid={`expert-org-doc-${d.doc_kind}`}
+            onClick={() => void openDoc(d.id)}
+          >
+            {t("accounting.org_docs.view")} — {d.doc_kind === "business_registration" ? t("accounting.org_docs.business_registration") : t("accounting.org_docs.investment_registration")}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function warnClass(count: number): string {
   if (count === 0) return "bg-[#E8F5EE] text-[#0F6B3E]";
   if (count <= 2) return "bg-[#FEF3C7] text-[#92400E]";
@@ -143,6 +190,7 @@ export default function ExpertReviewQueueClient() {
                   <p className="text-base font-bold text-[#071A33]">{row.orgDisplayName}</p>
                   <p className="mt-1 text-xs font-semibold text-[#92400E]">{t("accounting.expert.queue.org_approval")}</p>
                   <p className="mt-2 text-sm text-[#3D4B63]">{t("accounting.expert.queue.org_manual_check")}</p>
+                  <OrgDocLinks orgId={row.orgId} t={t} />
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"

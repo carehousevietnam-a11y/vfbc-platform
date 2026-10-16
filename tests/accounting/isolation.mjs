@@ -2,6 +2,7 @@
  * Accounting P1 isolation tests — local Supabase by default (never applies migration to prod URL).
  * Set ACCOUNTING_TEST_LOCAL=0 only to use NEXT_PUBLIC_SUPABASE_URL from .env.local (schema must exist).
  */
+import { createHash } from "node:crypto";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -291,6 +292,29 @@ async function main() {
     pendingStorageUp.error?.message ?? "uploaded while pending"
   );
 
+  const shaOrg = createHash("sha256").update(tinyPng).digest("hex");
+  await service.from("accounting_org_documents").insert([
+    {
+      org_id: orgA.id,
+      doc_kind: "business_registration",
+      storage_path: `${orgA.id}/org-docs/business_registration/iso-a1.png`,
+      sha256: shaOrg,
+      mime: "image/png",
+      size: tinyPng.length,
+      uploaded_by: users.aOwner.id,
+    },
+    {
+      org_id: orgA.id,
+      doc_kind: "investment_registration",
+      storage_path: `${orgA.id}/org-docs/investment_registration/iso-a2.png`,
+      sha256: shaOrg,
+      mime: "image/png",
+      size: tinyPng.length,
+      uploaded_by: users.aOwner.id,
+    },
+  ]);
+  const reviewReq = await clientAOwner.rpc("accounting_org_request_review", { p_org_id: orgA.id });
+  record("owner_org_review_request", !reviewReq.error, reviewReq.error?.message);
   const expertApprove = await clientAExpert
     .from("accounting_organizations")
     .update({ approval_status: "approved" })

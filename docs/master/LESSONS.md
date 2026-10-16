@@ -571,6 +571,11 @@
     재발 방지: `/api/accounting/company-profile` + `/company/accounting/company` 온보딩, `/company/accounting/pending` 대기, `AccountingWorkspaceGate`로 작업공간 URL 차단. Expert CTA는 `resolveAccountingWorkspaceDestination` 링크.
     자동 검사: npx tsx tests/accounting/p7-2a-verify.mjs · npx tsx tests/accounting/isolation.mjs
 
+111. 문제: P7-2b 조직 서류·승인 요청·전문가 승인 흐름과 온보딩 폼 Playwright 제출 버튼 비활성 이슈.
+    원인: pending→approved 직행을 막으려 `in_review`와 `accounting_org_request_review` RPC가 필요하고, 온보딩 E2E는 SelectionCard 클릭 후 `profileOk`가 갱신되지 않아 submit이 disabled로 남을 수 있다.
+    재발 방지: `accounting_org_documents`·`/api/accounting/org-documents`·`org-approval-request`·전문가 큐는 `in_review`만 처리. 반려는 `i18n_texts` field `review_note`. 온보딩 E2E는 `accounting-onboard-category-*`·`position-*` testid 사용.
+    자동 검사: npx tsx tests/accounting/p7-2b-org-docs.mjs · npx tsx tests/accounting/isolation.mjs · node tests/accounting/p7-2a-onboard-form-browser.mjs
+
 110. 문제: P7-2a 보완에서 pending 사용자가 작업공간 URL 직접 접근 시 클라이언트 gate만으로는 HTML 노출·3020 EADDRINUSE·퍼널 ko 「준비」 실패가 있었다.
     원인: 데이터 페이지는 RSC에서 승인 상태를 보지 않았고, E2E는 vi locale 쿠키가 라우트 간 유지됐으며, 3020에 구 dev가 남아 500이 났다.
     재발 방지: `AccountingWorkspaceDataServerLayout`로 transactions·ledger·vat·filing·evidence 서버 redirect. 퍼널 브라우저 QA는 라우트마다 `accounting-funnel-locale-ko` 클릭. `uiCatalog` ko/vi 키 parity로 vi 누락은 `tsc` 실패.
