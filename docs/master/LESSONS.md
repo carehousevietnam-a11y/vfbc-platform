@@ -491,3 +491,28 @@
     원인: exports는 insert-only라 UPDATE·DELETE가 모두 예외다. organizations 삭제가 exports로 cascade되면서 같은 트리거에 걸린다(evidence_files·ledger_entries와 같은 구조).
     재발 방지: 로컬 테스트 정리 때 exports 삭제 직전에 이 트리거를 일시정지하고 끝나면 반드시 되살린다(p3c-ledger-seed.mjs guardStatements 참고). 운영에서는 정리 삭제를 하지 않는다.
     자동 검사: node tests/accounting/p3c-ledger-seed.mjs cleanup
+
+93. 문제: P6a 화면이 API를 `credentials: "include"`로만 호출해 401이 났다
+    원인: accounting API 라우트는 Authorization Bearer 토큰만 읽는다(requestUser.ts). 쿠키 세션은 읽지 않는다.
+    재발 방지: 회계 화면의 fetch는 accountingAuthFetch(src/lib/accounting/authFetch.ts)를 쓴다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs
+
+94. 문제: 클라이언트 컴포넌트가 evidenceEntry.ts에서 상수를 import해 `node:crypto` webpack 빌드 오류가 나고 API가 500이 됐다
+    원인: 서버 전용 모듈(node:crypto)을 클라이언트 번들이 끌어왔다.
+    재발 방지: 클라이언트는 서버 모듈에서 상수도 import하지 않고 리터럴을 쓴다. 3020이 500이면 LESSONS 88 순서(프로세스 종료·.next 삭제·p3c-local-next)로 복구한 뒤 서버 로그의 import trace를 먼저 본다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs
+
+95. 문제: vnk_expert가 접수증을 올릴 수 없었다(스토리지 insert 정책이 company_owner·company_member만 허용)
+    원인: P6a가 접수증 경로를 `filing/...`로 잡았고 정책은 첫 폴더가 org_id여야 한다. DB 테스트는 경로 문자열만 넣어 업로드를 검사하지 않았다.
+    재발 방지: 경로는 `{org_id}/filing/...`로 하고 배정된 vnk_expert 전용 insert 정책을 P6b 마이그레이션에 추가했다. 파일 업로드가 있는 기능은 브라우저에서 실제 업로드까지 확인한다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs (A6)
+
+96. 문제: i18n_texts insert 정책이 status를 제한하지 않아 누구나 human_verified를 직접 넣을 수 있었다
+    원인: 베트남어 확정 권한이 RLS가 아니라 화면 규칙에만 있었다.
+    재발 방지: human_verified insert는 트리거로 막고 accounting_confirm_vi_text(company_member+locale=vi 또는 배정된 vnk_expert, 설계서 §3)로만 새 version을 넣는다. company_owner는 locale과 무관하게 확정하지 않는다.
+    자동 검사: node tests/accounting/p6b-corrections.mjs
+
+97. 문제: 정정 요청을 review_comments UPDATE로 바로 resolved 처리하면 승인 절차(새 거래+역분개)를 우회한다
+    원인: P6a resolve 정책이 작성자·대표에게 모든 comment의 status 변경을 허용했다.
+    재발 방지: target_type=transaction인 correction_request는 accounting_approve_correction·accounting_reject_correction 안에서만 resolved가 되도록 update 트리거로 강제했다.
+    자동 검사: node tests/accounting/p6b-corrections.mjs (direct_resolve_blocked)
