@@ -7,6 +7,7 @@
 2. `docs/master/DECISIONS.md`의 2026-10-14 행, `docs/master/LESSONS.md` #56~#61 (전체를 읽지 않고 필요한 행만)
 
 ## 현재 상태 (마지막 갱신: 2026-10-16)
+- **P3c:** 로컬 시드 `tests/accounting/p3c-ledger-seed.mjs`(기본 실행은 생성 후 삭제). Chrome에서 장부 ko/vi(1,000,000·2026.10.16 / 1.000.000·16/10/2026), 한국어 메모+번역 대기, G4 배지, 375px 목록·상세를 확인했다. hydration 경고는 Cursor 브라우저의 data-cursor-ref이고 제품 불일치가 아니다(LESSONS 79). 하단 탭 4개는 없다(LESSONS 80). P4 미착수. 푸시 없음.
 - 기업회원 가입 작업 표기는 S1(가입)이다. 설계서 P2는 거래 입력이다. P2-a 거래 입력은 `/company/accounting/transactions` (로컬 검증, 푸시 없음). P2c 거래 목록 증빙 필터(evidence=all|linked|missing)는 로컬에서 확인했고 푸시하지 않았다. 필터 베트남어는 담당자 검수 전 임시값이다.
 - **P3a:** 마이그레이션 `20261016060000_accounting_p3_posting_engine.sql`, RPC `accounting_confirm_transaction`, 뷰 `accounting_ledger_entries_enriched`. `node tests/accounting/p3-posting.mjs` 23케이스(역할·이중확정·규칙 tie-break) 통과.
 - **P3b:** `/company/accounting/ledger` 장부 조회(읽기 전용)·`/company/accounting/transactions/[id]` 상세, API `/api/accounting/ledger`, 마이그레이션 `20261016120000_accounting_p3b_posting_order_search.sql`(규칙 specificity·unaccent 검색 RPC). 베트남어 장부·배너 문구는 **베트남어 담당자 검수 필요**(임시 초안). 푸시·운영 DB 미적용.

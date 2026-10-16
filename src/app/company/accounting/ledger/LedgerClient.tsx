@@ -339,6 +339,16 @@ export default function LedgerClient() {
                   >
                     <p className="font-bold">{formatDate(loc, row.entryDate)} · {row.accountName}</p>
                     <p className="mt-1 text-xs text-[#6B7A90]">{row.accountCode}</p>
+                    {row.usesUnverifiedBasis ? (
+                      <span className="mt-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-900">
+                        {t("accounting.ledger.badge.unverified_basis")}
+                      </span>
+                    ) : null}
+                    {row.fxConversionUnverified ? (
+                      <span className="mt-1 ml-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-900">
+                        {t("accounting.ledger.badge.fx_unverified")}
+                      </span>
+                    ) : null}
                     <p className="mt-2">
                       {row.memo}
                       {row.memoTranslationPending ? (

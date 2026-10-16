@@ -55,21 +55,58 @@ async function storageCall(method, token, objectPath, body) {
   return res.status;
 }
 
+function jwtSub(token) {
+  try {
+    const part = token.split(".")[1];
+    if (!part) return null;
+    return JSON.parse(Buffer.from(part, "base64url").toString("utf8")).sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function deleteStep0TempMembers(service, keepUserId) {
+  let page = 1;
+  let removed = 0;
+  for (;;) {
+    const { data, error } = await service.auth.admin.listUsers({ page, perPage: 200 });
+    if (error || !data?.users?.length) break;
+    for (const user of data.users) {
+      if (keepUserId && user.id === keepUserId) continue;
+      const email = user.email ?? "";
+      if (email.startsWith("p2c-step0-member-") && email.endsWith("@test.vfbcai.local")) {
+        await service.auth.admin.deleteUser(user.id);
+        removed += 1;
+      }
+    }
+    if (data.users.length < 200) break;
+    page += 1;
+  }
+  return removed;
+}
+
 async function main() {
   const report = JSON.parse(fs.readFileSync(path.join(outDir, "seed-report.json"), "utf8"));
   const sessionA = JSON.parse(fs.readFileSync(path.join(outDir, "session-a.json"), "utf8"));
   const sessionB = JSON.parse(fs.readFileSync(path.join(outDir, "session-b.json"), "utf8"));
+  const service = createClient(st.API_URL, st.SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const memberSessionPath = path.join(outDir, "session-member-a.json");
+  const keptMemberId = fs.existsSync(memberSessionPath)
+    ? jwtSub(JSON.parse(fs.readFileSync(memberSessionPath, "utf8")).access_token ?? "")
+    : null;
   let memberToken = null;
-  if (fs.existsSync(path.join(outDir, "session-member-a.json"))) {
-    memberToken = JSON.parse(fs.readFileSync(path.join(outDir, "session-member-a.json"), "utf8")).access_token;
+  let createdMemberId = null;
+  try {
+  if (keptMemberId && fs.existsSync(memberSessionPath)) {
+    memberToken = JSON.parse(fs.readFileSync(memberSessionPath, "utf8")).access_token;
   } else {
-    const service = createClient(st.API_URL, st.SERVICE_ROLE_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
     const email = `p2c-step0-member-${Date.now()}@test.vfbcai.local`;
     const password = `Test-step0-${Date.now()}-Aa1!`;
     const { data: userData } = await service.auth.admin.createUser({ email, password, email_confirm: true });
     if (userData?.user) {
+      createdMemberId = userData.user.id;
       await service.from("users").upsert({ id: userData.user.id, member_type: "company" }, { onConflict: "id" });
       await service.from("accounting_org_members").insert({
         org_id: report.orgA,
@@ -135,10 +172,21 @@ async function main() {
   });
 
   console.log(JSON.stringify({ rows, allPass: rows.every((r) => r.pass) }, null, 2));
-  if (!rows.every((r) => r.pass)) process.exit(2);
+  return rows.every((r) => r.pass);
+  } finally {
+    if (createdMemberId) {
+      await service.auth.admin.deleteUser(createdMemberId);
+    }
+    const removed = await deleteStep0TempMembers(service, keptMemberId);
+    console.log(JSON.stringify({ step0TempMembersRemoved: removed + (createdMemberId ? 1 : 0) }));
+  }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main()
+  .then((ok) => {
+    if (ok === false) process.exit(2);
+  })
+  .catch((e) => {
+    console.error(e instanceof Error ? e.message : "p2c step0 failed");
+    process.exit(1);
+  });

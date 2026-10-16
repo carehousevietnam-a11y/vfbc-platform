@@ -406,3 +406,18 @@
     원인: ORDER BY effective_from desc 만 있었다
     재발 방지: `accounting_posting_rule_specificity` 후 effective_from desc. 마이그레이션 `20261016120000_accounting_p3b_posting_order_search.sql`
     자동 검사: node tests/accounting/p3-posting.mjs (posting_rule_specificity_wins, posting_rule_txn_date_effective_from)
+
+79. 문제: 장부 화면 hydration 경고가 AccountingModuleHeader부터 찍힘
+    원인: 서버 HTML과 클라이언트 첫 렌더의 문구는 같다(한국어 라벨). 차이는 Cursor 브라우저가 hydration 전에 요소에 붙인 data-cursor-ref 속성이다. 언어 쿠키·날짜 포맷의 서버/클라이언트 불일치가 아니다. 같은 화면을 Chrome으로 열면 hydration 오류가 없다. 로케일은 서버가 읽은 기존 vfbcai_locale을 LocaleProvider 초기값으로만 넘긴다.
+    재발 방지: AccountingModuleHeader에 suppressHydrationWarning을 넣지 않는다. 새 사이트 쿠키를 만들지 않는다. hydration 판정은 data-cursor-ref를 주입하지 않는 브라우저에서 한다.
+    자동 검사: node tests/accounting/p3c-browser-check.mjs (로컬 시드 hold 후)
+
+80. 문제: 375px 장부 목록과 거래 상세에 하단 탭 4개(홈, 거래 입력, 세금 신고, 더보기)가 없다
+    원인: AccountingModuleHeader는 거래 입력·장부 조회만 있다. 홈·세금 신고·더보기 화면은 아직 없다.
+    재발 방지: 대상 화면이 생기기 전에 빈 하단 탭을 넣지 않는다. P3c에서는 실패로 기록만 한다.
+    자동 검사: 없음 (p3c-browser-check의 mobile bottom tabs 4는 found=none)
+
+81. 문제: 375px 장부 카드에 비VND 환산 미검증 배지가 빠졌다
+    원인: 배지를 데스크톱 표에만 그렸다
+    재발 방지: 모바일 카드에도 같은 미검증 배지를 그린다
+    자동 검사: node tests/accounting/p3c-browser-check.mjs (mobile fx badge)
