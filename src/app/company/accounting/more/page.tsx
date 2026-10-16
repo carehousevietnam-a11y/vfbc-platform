@@ -17,6 +17,7 @@ const LABEL: Record<AccountingNavKey, AccountingMessageKey> = {
   filing: "accounting.nav.filing",
   evidence: "accounting.nav.evidence",
   company: "accounting.nav.company",
+  pending: "accounting.workspace.pending.title",
   more: "accounting.nav.more",
 };
 

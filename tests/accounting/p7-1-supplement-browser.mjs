@@ -100,8 +100,8 @@ async function runViewport(page, w, h, label) {
   const companySession = await sessionFor(cfg.accounts.org_a_owner, cfg.password);
   await inject(page, companySession);
   await page.goto(`${base}/company/accounting`, { waitUntil: "domcontentloaded" });
-  await page.getByTestId("accounting-funnel-expert-company-pending").waitFor({ timeout: 30_000 });
-  assert(`${label} company_pending`, (await page.getByTestId("accounting-funnel-expert-signup").count()) === 0);
+  await page.getByTestId("accounting-funnel-expert-company-connected").waitFor({ timeout: 30_000 });
+  assert(`${label} company_workspace_link`, (await page.getByTestId("accounting-funnel-expert-workspace").count()) === 1);
 }
 
 const browser = await chromium.launch();

@@ -1,5 +1,10 @@
 import { AccountingShell } from "@/lib/accounting/AccountingShell";
+import { AccountingWorkspaceGate } from "@/lib/accounting/AccountingWorkspaceGate";
 
 export default function AccountingModuleLayout({ children }: { children: React.ReactNode }) {
-  return <AccountingShell>{children}</AccountingShell>;
+  return (
+    <AccountingShell>
+      <AccountingWorkspaceGate>{children}</AccountingWorkspaceGate>
+    </AccountingShell>
+  );
 }

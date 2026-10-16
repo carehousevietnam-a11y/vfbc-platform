@@ -6,10 +6,12 @@ export type AccountingNavKey =
   | "filing"
   | "evidence"
   | "company"
+  | "pending"
   | "more";
 
 export const ACCOUNTING_ROUTES: Record<AccountingNavKey, string> = {
   home: "/company/accounting",
+  pending: "/company/accounting/pending",
   transactions: "/company/accounting/transactions",
   ledger: "/company/accounting/ledger",
   tax: "/company/accounting/vat",
@@ -27,6 +29,7 @@ export function navKeyFromPath(pathname: string): AccountingNavKey {
   if (pathname.startsWith(ACCOUNTING_ROUTES.filing)) return "filing";
   if (pathname.startsWith(ACCOUNTING_ROUTES.evidence)) return "evidence";
   if (pathname.startsWith(ACCOUNTING_ROUTES.company)) return "company";
+  if (pathname.startsWith(ACCOUNTING_ROUTES.pending)) return "pending";
   if (pathname.startsWith(ACCOUNTING_ROUTES.more)) return "more";
   return "home";
 }

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { accountingFunnelSignupHref } from "../companySignup";
+import { accountingFunnelSignupHref, accountingProspectiveGuidePath } from "../companySignup";
+import { resolveAccountingWorkspaceDestination } from "../accountingWorkspace";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "../uiCatalog";
 
 type MemberPhase = "loading" | "signed_out" | "personal" | "company";
@@ -17,6 +18,7 @@ export function AccountingFunnelExpertCta({ locale, returnPath }: Props) {
   const t = (key: AccountingMessageKey) => accountingMessage(locale, key);
   const [hydrated, setHydrated] = useState(false);
   const [phase, setPhase] = useState<MemberPhase>("loading");
+  const [workspaceHref, setWorkspaceHref] = useState<string | null>(null);
 
   useEffect(() => {
     setHydrated(true);
@@ -39,7 +41,16 @@ export function AccountingFunnelExpertCta({ locale, returnPath }: Props) {
         setPhase("personal");
         return;
       }
-      setPhase(row.member_type === "company" ? "company" : "personal");
+      if (row.member_type !== "company") {
+        setPhase("personal");
+        return;
+      }
+      const dest = await resolveAccountingWorkspaceDestination(supabase, userId, row.member_type);
+      if (dest.kind === "workspace") setWorkspaceHref(dest.href);
+      else if (dest.kind === "onboarding") setWorkspaceHref("/company/accounting/company");
+      else if (dest.kind === "pending") setWorkspaceHref("/company/accounting/pending");
+      else if (dest.kind === "prospective_guide") setWorkspaceHref(accountingProspectiveGuidePath());
+      setPhase("company");
     })();
     return () => {
       cancelled = true;
@@ -83,9 +94,17 @@ export function AccountingFunnelExpertCta({ locale, returnPath }: Props) {
   }
 
   return (
-    <div className="space-y-3" data-testid="accounting-funnel-expert-company-pending">
-      <p className="text-sm text-[#3D4B63]">{t("accounting.funnel.expert.workspace_pending")}</p>
-      <p className="text-xs leading-5 text-[#6B7A90]">{t("accounting.funnel.expert.workspace_pending_note")}</p>
+    <div className="space-y-3" data-testid="accounting-funnel-expert-company-connected">
+      <p className="text-sm text-[#3D4B63]">{t("accounting.funnel.expert.company_lead")}</p>
+      {workspaceHref ? (
+        <Link
+          href={workspaceHref}
+          data-testid="accounting-funnel-expert-workspace"
+          className="inline-flex min-h-11 items-center rounded-lg bg-[#071A33] px-4 text-sm font-semibold text-white"
+        >
+          {t("accounting.funnel.expert.workspace_cta")}
+        </Link>
+      ) : null}
     </div>
   );
 }

@@ -7,6 +7,17 @@ export const COMPANY_SIGNUP_CHANNEL = "vfbc_company_member_v1";
 
 export const COMPANY_SIGNUP_PATH = "/signup/company";
 
+/** 예비 창업자 안내 — env 미설정 시 법인설립 REGISTER 경로(임의 URL 생성 금지). */
+export function accountingProspectiveGuidePath(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_ACCOUNTING_PROSPECTIVE_GUIDE_PATH?.trim();
+  return fromEnv || "/register/company";
+}
+
+export function accountingFunnelSignupHref(returnPath = "/company/accounting/company"): string {
+  const q = new URLSearchParams({ next: returnPath });
+  return `${COMPANY_SIGNUP_PATH}?${q.toString()}`;
+}
+
 export type CompanyCategory = "operating" | "prospective" | "branch" | "other";
 export type JobPosition = "ceo" | "executive" | "finance" | "staff" | "other";
 
@@ -71,7 +82,10 @@ export function parseCompanySignupProfile(
   if (!CATEGORY_SET.has(rawCategory)) {
     errors.companyCategory = "회원 유형을 선택해주세요.";
   }
-  if (!companyName) {
+  const isProspective = rawCategory === "prospective";
+  const resolvedCompanyName =
+    isProspective && (!companyName || companyName === "미정") ? "미정" : companyName;
+  if (!resolvedCompanyName) {
     errors.companyName = "회사명을 입력해주세요.";
   }
   if (!POSITION_SET.has(rawPosition)) {
@@ -93,7 +107,7 @@ export function parseCompanySignupProfile(
     profile: {
       companyCategory: rawCategory as CompanyCategory,
       companyCategoryOther: rawCategory === "other" ? companyCategoryOther : null,
-      companyName,
+      companyName: resolvedCompanyName,
       jobPosition: rawPosition as JobPosition,
       jobPositionOther: rawPosition === "other" ? jobPositionOther : null,
     },

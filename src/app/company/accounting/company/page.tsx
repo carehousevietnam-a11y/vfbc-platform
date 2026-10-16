@@ -1,5 +1,5 @@
-import { AccountingPlaceholderClient } from "@/lib/accounting/AccountingPlaceholderClient";
+import CompanyOnboardingClient from "./CompanyOnboardingClient";
 
 export default function AccountingCompanyProfilePage() {
-  return <AccountingPlaceholderClient titleKey="accounting.nav.company" />;
+  return <CompanyOnboardingClient />;
 }
