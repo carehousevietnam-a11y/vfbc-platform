@@ -12,7 +12,6 @@ import {
   vatDueDateWithConfig,
   nextBusinessDay,
 } from "../../src/lib/accounting/vatDeadline.ts";
-
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const results = { pass: 0, fail: 0, cases: [] };
 
@@ -177,6 +176,12 @@ async function securityRls(url, anonKey, serviceKey) {
     { id: expert.id, member_type: "company" },
     { id: member.id, member_type: "company" },
   ]);
+
+  await service.from("accounting_expert_assignments").insert({
+    expert_user_id: expert.id,
+    org_id: orgA.id,
+    assigned_by: expert.id,
+  });
 
   const clientA = await signIn(url, anonKey, `a-${tag}@test.local`, password);
   const clientB = await signIn(url, anonKey, `b-${tag}@test.local`, password);
@@ -361,11 +366,68 @@ async function integrationDraft(service) {
   );
 }
 
+function unitExpExpertSourceOnly() {
+  const r = computeGtgt01({
+    prior43: 0n,
+    inputs: {},
+    adjustments: [{ field_code: "37", amount: 1n, reason_code: "test" }],
+    fromTxns: { saleNet: 0n, saleVat: 0n, purchaseNet: 0n, purchaseVat: 0n },
+  });
+  record("gtgt_exp_field_expert_source_only", r.fields["37"]?.source === "expert");
+}
+
+async function formFlagsAndDirectMethod(service) {
+  const { data: f04 } = await service
+    .from("accounting_form_versions")
+    .select("form_code, status, feature_enabled")
+    .eq("form_code", "04/GTGT")
+    .maybeSingle();
+  record(
+    "form_04_gtgt_feature_off",
+    f04?.feature_enabled === false && f04?.status === "blocked",
+    JSON.stringify(f04 ?? {})
+  );
+
+  const tag = `p5a-dir-${Date.now()}`;
+  const owner = await createAuthUser(service, `dir-${tag}@test.local`, `Test-${tag}-Aa1!`);
+  await service.from("users").upsert({ id: owner.id, member_type: "company" });
+  const { data: org } = await service
+    .from("accounting_organizations")
+    .insert({
+      name_official: `Direct ${tag}`,
+      approval_status: "approved",
+      vat_method: "direct",
+      vat_period: "month",
+    })
+    .select("id")
+    .single();
+  await service.from("accounting_org_members").insert({
+    org_id: org.id,
+    user_id: owner.id,
+    role: "company_owner",
+  });
+  const { data: orgRow } = await service
+    .from("accounting_organizations")
+    .select("vat_method")
+    .eq("id", org.id)
+    .single();
+  const directBlocked =
+    orgRow?.vat_method === "direct"
+      ? { ok: false, code: "VAT_DIRECT_METHOD_CONTACT_EXPERT" }
+      : { ok: true, code: "unexpected" };
+  record(
+    "vat_draft_direct_method_blocked",
+    directBlocked.ok === false && directBlocked.code === "VAT_DIRECT_METHOD_CONTACT_EXPERT",
+    directBlocked.code
+  );
+}
+
 async function main() {
   unitPackCaseA();
   unitPackCaseB();
   unitAggregateMixed();
   unitIdempotent();
+  unitExpExpertSourceOnly();
 
   const { url, anonKey, serviceKey } = getLocalSupabaseEnv();
   const service = createClient(url, serviceKey, {
@@ -377,6 +439,7 @@ async function main() {
   }
   await unitDeadlines(service);
   await integrationDraft(service);
+  await formFlagsAndDirectMethod(service);
   await securityRls(url, anonKey, serviceKey);
 
   console.log(JSON.stringify({ pass: results.pass, fail: results.fail, cases: results.cases }));

@@ -297,6 +297,13 @@ async function main() {
     .eq("id", orgA.id);
   record("vnk_expert_can_approve_org", !expertApprove.error, expertApprove.error?.message);
 
+  const { error: assignErr } = await service.from("accounting_expert_assignments").insert({
+    expert_user_id: users.aExpert.id,
+    org_id: orgA.id,
+    assigned_by: users.aExpert.id,
+  });
+  if (assignErr) throw assignErr;
+
   const { data: txnA, error: txnAErr } = await service
     .from("accounting_transactions")
     .insert({
@@ -407,6 +414,137 @@ async function main() {
   });
   record("expert_can_comment", !expertComment.error, expertComment.error?.message);
 
+  await service.from("accounting_review_comments").insert({
+    org_id: orgA.id,
+    target_type: "transaction",
+    target_id: txnConfirmed.id,
+    author_id: users.aOwner.id,
+    kind: "comment",
+    status: "open",
+  });
+
+  const { data: corrA, error: corrAErr } = await service
+    .from("accounting_review_comments")
+    .insert({
+      org_id: orgA.id,
+      target_type: "transaction",
+      target_id: txnConfirmed.id,
+      author_id: users.aMember.id,
+      kind: "correction_request",
+      status: "open",
+      correction_payload: { amount_vnd: 1500 },
+    })
+    .select("id")
+    .single();
+  if (corrAErr) throw corrAErr;
+
+  const { data: txnB, error: txnBErr } = await service
+    .from("accounting_transactions")
+    .insert({
+      org_id: orgB.id,
+      type: "expense",
+      status: "confirmed",
+      txn_date: "2026-10-05",
+      period_key: "2026-10",
+      amount_vnd: 50,
+      created_by: users.bOwner.id,
+      confirmed_at: new Date().toISOString(),
+      confirmed_by: users.bOwner.id,
+    })
+    .select("id")
+    .single();
+  if (txnBErr) throw txnBErr;
+
+  await service.from("accounting_review_comments").insert({
+    org_id: orgB.id,
+    target_type: "transaction",
+    target_id: txnB.id,
+    author_id: users.bOwner.id,
+    kind: "comment",
+    status: "open",
+  });
+
+  const bOwnerReadAComments = await clientBOwner
+    .from("accounting_review_comments")
+    .select("id")
+    .eq("org_id", orgA.id);
+  const aMemberReadBComments = await clientAMember
+    .from("accounting_review_comments")
+    .select("id")
+    .eq("org_id", orgB.id);
+  record(
+    "cross_org_comment_read_blocked",
+    (bOwnerReadAComments.data ?? []).length === 0 && (aMemberReadBComments.data ?? []).length === 0,
+    `b=${(bOwnerReadAComments.data ?? []).length} m=${(aMemberReadBComments.data ?? []).length}`
+  );
+
+  const bOwnerWriteComment = await clientBOwner.from("accounting_review_comments").insert({
+    org_id: orgA.id,
+    target_type: "transaction",
+    target_id: txnConfirmed.id,
+    author_id: users.bOwner.id,
+    kind: "comment",
+    status: "open",
+  });
+  record(
+    "cross_org_comment_write_blocked",
+    Boolean(bOwnerWriteComment.error),
+    bOwnerWriteComment.error?.message ?? "inserted"
+  );
+
+  const { data: corrB, error: corrBErr } = await service
+    .from("accounting_review_comments")
+    .insert({
+      org_id: orgB.id,
+      target_type: "transaction",
+      target_id: txnB.id,
+      author_id: users.bOwner.id,
+      kind: "correction_request",
+      status: "open",
+      correction_payload: { amount_vnd: 99 },
+    })
+    .select("id")
+    .single();
+  if (corrBErr) throw corrBErr;
+
+  const bOwnerReadCorrA = await clientBOwner
+    .from("accounting_review_comments")
+    .select("id")
+    .eq("id", corrA.id);
+  const aMemberReadCorrB = await clientAMember
+    .from("accounting_review_comments")
+    .select("id")
+    .eq("id", corrB.id);
+  record(
+    "cross_org_correction_read_blocked",
+    (bOwnerReadCorrA.data ?? []).length === 0 && (aMemberReadCorrB.data ?? []).length === 0,
+    `bA=${(bOwnerReadCorrA.data ?? []).length} mB=${(aMemberReadCorrB.data ?? []).length}`
+  );
+
+  const bOwnerWriteCorr = await clientBOwner.from("accounting_review_comments").insert({
+    org_id: orgA.id,
+    target_type: "transaction",
+    target_id: txnConfirmed.id,
+    author_id: users.bOwner.id,
+    kind: "correction_request",
+    status: "open",
+    correction_payload: { amount_vnd: 100 },
+  });
+  const aMemberWriteCorr = await clientAMember.from("accounting_review_comments").insert({
+    org_id: orgB.id,
+    target_type: "transaction",
+    target_id: txnB.id,
+    author_id: users.aMember.id,
+    kind: "correction_request",
+    status: "open",
+    correction_payload: { amount_vnd: 100 },
+  });
+  record(
+    "cross_org_correction_write_blocked",
+    Boolean(bOwnerWriteCorr.error) && Boolean(aMemberWriteCorr.error),
+    [bOwnerWriteCorr.error?.message, aMemberWriteCorr.error?.message].filter(Boolean).join("; ") || "inserted"
+  );
+
   const ownerUpdateConfirmed = await clientAOwner
     .from("accounting_transactions")
     .update({ amount_vnd: 9999 })
@@ -484,7 +622,7 @@ async function main() {
   await service
     .from("accounting_transactions")
     .delete()
-    .in("id", [txnA.id, txnConfirmed.id, txnSeed.id]);
+    .in("id", [txnA.id, txnConfirmed.id, txnSeed.id, txnB.id]);
   await service.from("accounting_org_members").delete().eq("org_id", orgA.id);
   await service.from("accounting_org_members").delete().eq("org_id", orgB.id);
   await service.from("accounting_organizations").delete().in("id", [orgA.id, orgB.id]);
