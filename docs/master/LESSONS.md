@@ -462,6 +462,11 @@
     재발 방지: **세금 신고(§5-3) 화면을 만드는 P5**와 **홈 대시보드(§5-2)·더보기(상단 메뉴 나머지)** 라우트를 넣는 미션에서 공통 모바일 네비를 한 번에 넣는다. P3c/P4a 마감 범위에는 빈 탭을 넣지 않는다.
     자동 검사: 없음
 
+95. 문제: P5b-2 브라우저 QA에서 `/login` 비밀번호 없이 막히고, `?periodKey=` URL이 ① 기본정보에 반영되지 않아 초안 생성이 비활성화되었다
+    원인: 로그인은 매직링크 전용이고, VAT 클라이언트는 기간을 입력·localStorage만 읽었다. Playwright는 `sb-127-auth-token` 주입(LESSONS 83)이 필요하다.
+    재발 방지: VAT는 `useSearchParams().periodKey`로 초기 기간을 채운다. 로컬 회계 브라우저 하네스는 `p5b-vat-browser-seed.mjs`→`.p5b-session.json`→`p5b-vat-browser-check.mjs` 순서로 돌린다. 시드 거래는 `accounting_confirm_transaction`으로 확정해 장부 메모·번역 배지를 본다. 격리 시드에서 org B owner를 org A 멤버에 넣지 않는다.
+    자동 검사: node tests/accounting/p5b-vat-browser-check.mjs
+
 94. 문제: P5b 부가가치세 화면에서 기간별 거래 점검 시 org_id를 클라이언트 state에 두지 않으면 RLS만 의존한다
     원인: precheck가 period_key만 필터해 다중 org 가입 시 혼동 가능성.
     재발 방지: GET /api/accounting/vat/declaration이 orgId를 반환하고, 클라이언트 점검 쿼리에 org_id를 명시한다.

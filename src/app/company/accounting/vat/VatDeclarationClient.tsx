@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { AccountingModuleHeader } from "@/lib/accounting/AccountingModuleHeader";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -44,7 +45,41 @@ function labelFor(field: VatFieldMapEntry | undefined, locale: AccountingLocale)
   return `[${field.code}] ${name}`;
 }
 
+function bilingualLabel(field: VatFieldMapEntry): string {
+  return `${field.label_ko} · [${field.code}] ${field.label_vi}`;
+}
+
+function sourceLabel(
+  t: (key: AccountingMessageKey) => string,
+  source: string | undefined
+): string {
+  if (source === "calc") return t("accounting.vat.source.calc");
+  if (source === "expert") return t("accounting.vat.source.expert");
+  if (source === "input") return t("accounting.vat.source.input");
+  return t("accounting.vat.preview.empty");
+}
+
+function displayValue(
+  field: VatFieldMapEntry,
+  computed: ComputedFields,
+  ctx: { periodKey: string; orgName: string; taxCode: string; filingKind: string },
+  t: (key: AccountingMessageKey) => string,
+  lang: AccountingLocale
+): string {
+  const cell = computed[field.code];
+  if (cell?.value !== undefined && field.column !== "F") {
+    return formatAmount(lang, cell.value);
+  }
+  if (field.code === "01b") return ctx.periodKey || t("accounting.vat.preview.empty");
+  if (field.code === "04") return ctx.orgName || t("accounting.vat.preview.empty");
+  if (field.code === "05") return ctx.taxCode || t("accounting.vat.preview.empty");
+  if (field.code === "01a") return t("accounting.vat.preview.empty");
+  if (field.column === "F") return t("accounting.vat.preview.empty");
+  return formatAmount(lang, cell?.value);
+}
+
 export default function VatDeclarationClient() {
+  const searchParams = useSearchParams();
   const { locale } = useLocale();
   const lang = uiLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
@@ -72,6 +107,7 @@ export default function VatDeclarationClient() {
   const [precheck, setPrecheck] = useState<
     { level: keyof typeof LEVEL_CLASS; messageKey: AccountingMessageKey; txnIds?: string[] }[]
   >([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const mapByCode = useMemo(() => {
     const m = new Map<string, VatFieldMapEntry>();
@@ -83,6 +119,11 @@ export default function VatDeclarationClient() {
 
   const fontClass =
     fontSize === "sm" ? "text-[13px]" : fontSize === "lg" ? "text-[17px]" : "text-[15px]";
+
+  useEffect(() => {
+    const fromUrl = searchParams.get("periodKey");
+    if (fromUrl) setPeriodKey(fromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     (async () => {
@@ -352,7 +393,60 @@ export default function VatDeclarationClient() {
           )}
 
           <section className="rounded-xl border border-[#E3E8F0] bg-white p-4">
-            {step === 1 && (
+            {showPreview ? (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="text-base font-extrabold text-[#071A33]">{t("accounting.vat.preview.title")}</h2>
+                  <button
+                    type="button"
+                    className="min-h-11 rounded-lg border border-[#E3E8F0] bg-white px-4 text-sm font-semibold"
+                    onClick={() => setShowPreview(false)}
+                  >
+                    {t("accounting.vat.preview.close")}
+                  </button>
+                </div>
+                <ul className="divide-y divide-[#E3E8F0]">
+                  {fieldMap.map((field) => {
+                    const cell = computed[field.code];
+                    const isAmount = field.column === "V" || field.column === "T";
+                    return (
+                      <li key={field.code} className="py-3">
+                        <p className="font-semibold text-[#071A33]">{bilingualLabel(field)}</p>
+                        <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-right font-mono tabular-nums text-[#071A33] sm:text-left">
+                            {isAmount
+                              ? `${displayValue(field, computed, { periodKey, orgName, taxCode, filingKind }, t, lang)} ${t("accounting.txn.unit.vnd")}`
+                              : displayValue(field, computed, { periodKey, orgName, taxCode, filingKind }, t, lang)}
+                          </p>
+                          <p className="text-xs text-[#3D4B63]">
+                            {t("accounting.vat.preview.source")}: {sourceLabel(t, cell?.source)}
+                          </p>
+                        </div>
+                        {cell?.txn_ids?.length ? (
+                          <div className="mt-1 flex flex-wrap gap-2">
+                            {cell.txn_ids.map((id) => (
+                              <Link
+                                key={id}
+                                href={`/company/accounting/transactions/${id}`}
+                                className="text-xs font-semibold text-[#071A33] underline"
+                              >
+                                {t("accounting.vat.link.txn")}
+                              </Link>
+                            ))}
+                          </div>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {formStatus === "pending_verification" && (
+                  <div className={`rounded-lg border px-4 py-3 text-sm ${LEVEL_CLASS.mid}`}>
+                    {t("accounting.vat.banner.pending_form")}
+                  </div>
+                )}
+              </div>
+            ) : null}
+            {!showPreview && step === 1 && (
               <div className="space-y-4">
                 <p className="text-sm text-[#3D4B63]">
                   <span className="text-red-600">*</span> {t("accounting.vat.field.period")}
@@ -386,8 +480,8 @@ export default function VatDeclarationClient() {
                 </fieldset>
               </div>
             )}
-            {step >= 2 && step <= 4 && (STEP_FIELDS[step] ?? []).map(renderFieldRow)}
-            {step === 5 && (
+            {!showPreview && step >= 2 && step <= 4 && (STEP_FIELDS[step] ?? []).map(renderFieldRow)}
+            {!showPreview && step === 5 && (
               <ul className="space-y-2">
                 {precheck.length === 0 && (
                   <li className={`rounded-lg border px-3 py-2 text-sm ${LEVEL_CLASS.ok}`}>
@@ -410,7 +504,7 @@ export default function VatDeclarationClient() {
                 ))}
               </ul>
             )}
-            {step === 6 && (
+            {!showPreview && step === 6 && (
               <div className="space-y-3">
                 <p className="text-sm text-[#3D4B63]">{t("accounting.vat.step6.lead")}</p>
                 <p className="text-sm font-semibold text-[#071A33]">
@@ -453,6 +547,17 @@ export default function VatDeclarationClient() {
               disabled={busy || !periodKey || vatMethod === "direct"}
             >
               {t("accounting.vat.action.draft")}
+            </button>
+            <button
+              type="button"
+              className="min-h-11 rounded-lg border border-[#E3E8F0] bg-white px-4 text-sm font-semibold"
+              onClick={async () => {
+                if (!Object.keys(computed).length && periodKey) await runDraft();
+                setShowPreview(true);
+              }}
+              disabled={!periodKey || fieldMap.length === 0}
+            >
+              {t("accounting.vat.action.preview")}
             </button>
           </div>
         </main>
