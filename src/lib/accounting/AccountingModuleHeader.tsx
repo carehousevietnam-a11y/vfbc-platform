@@ -5,7 +5,7 @@ import { accountingMessage, type AccountingLocale, type AccountingMessageKey } f
 
 type Props = {
   locale: AccountingLocale;
-  active: "transactions" | "ledger";
+  active: "transactions" | "ledger" | "vat";
 };
 
 export function AccountingModuleHeader({ locale, active }: Props) {
@@ -24,6 +24,9 @@ export function AccountingModuleHeader({ locale, active }: Props) {
           </Link>
           <Link href="/company/accounting/ledger" className={linkClass("ledger")}>
             {t("accounting.nav.ledger")}
+          </Link>
+          <Link href="/company/accounting/vat" className={linkClass("vat")}>
+            {t("accounting.nav.vat")}
           </Link>
         </nav>
       </div>
