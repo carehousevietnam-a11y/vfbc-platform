@@ -431,3 +431,18 @@
     원인: networkidle 직후에도 클라이언트가 vnk_admin·서식 목록을 불러오는 중이었다. member UPDATE RLS는 0행이라 오류 없이 통과해 테스트만 실패로 보였다.
     재발 방지: 회계 브라우저 하네스는 `sb-<supabase-host>-auth-token` 키와 화면 제목 waitFor를 쓴다. form_versions member 쓰기 테스트는 행 변경 여부로 판정한다.
     자동 검사: node tests/accounting/p4a-browser-check.mjs, node tests/accounting/p4a-form-registry.mjs
+
+84. 문제: 375px 하단 탭 4개(홈·거래 입력·세금 신고·더보기)가 P3c 범위 화면에 없다
+    원인: 홈·세금 신고·더보기 라우트가 아직 없고 AccountingModuleHeader만 있다(LESSONS 80).
+    재발 방지: 홈·세금 신고 화면을 만들 때 하단 탭 4개를 함께 넣는다. P3c 마감 검증에서는 실패로만 기록하고 빈 탭을 넣지 않는다.
+    자동 검사: 없음
+
+85. 문제: p2c step0 증빙 필터 건수만 재검증할 때 저장 세션 만료로 UNAUTHENTICATED
+    원인: seed-report.json은 남지만 session-a access_token이 만료된다(LESSONS 82).
+    재발 방지: 검증 시작 직전 조직 A owner를 signInWithPassword로 재로그인한 뒤 linked·missing 필터만 호출한다.
+    자동 검사: node tests/qa/_output/p2c-evidence-filter/filter-count-recheck.mjs
+
+86. 문제: 회계 로컬 검증을 운영 Supabase(.env.local)에 붙인 next dev로 돌리면 P2/P3c 시드가 운영 DB에 남는다
+    원인: 기본 next dev는 .env.local의 NEXT_PUBLIC_SUPABASE_URL을 쓴다.
+    재발 방지: 회계 브라우저·시드 검증은 `node tests/accounting/p3c-local-next.mjs`로 로컬 Supabase만 바인딩한다. 운영 DB는 읽기 전용 잔여 조회만 한다.
+    자동 검사: p3c-local-next.mjs가 non-local URL이면 거부
