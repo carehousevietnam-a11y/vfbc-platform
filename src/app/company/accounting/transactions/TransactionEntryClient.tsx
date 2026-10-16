@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { AccountingModuleHeader } from "@/lib/accounting/AccountingModuleHeader";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
   accountingMessage,
@@ -78,7 +79,7 @@ function noticeKey(error: string): AccountingMessageKey {
   if (error === "CONFIRM_FORBIDDEN") return "accounting.txn.error.confirm_role";
   if (error === "CONFIRMED_LOCKED") return "accounting.txn.error.confirmed_locked";
   if (error === "ORG_NOT_APPROVED" || error === "NO_ORG") return "accounting.txn.access_denied";
-  if (error === "FX_CONFIRM_BLOCKED") return "accounting.txn.fx_confirm_blocked";
+  if (error === "POSTING_RULE_MISSING") return "accounting.txn.error.posting_rule_missing";
   return "accounting.txn.error.generic";
 }
 
@@ -147,7 +148,7 @@ export default function TransactionEntryClient() {
   const vat = parseAmount(form.vatAmount) ?? 0;
   const fx = parseRate(form.fxRate);
   const currency = form.currency.toUpperCase();
-  const fxConfirmBlocked = currency !== "VND";
+  const fxConfirmUnverified = currency !== "VND";
   const totalVnd = computeAmountVnd(currency, net, vat, currency === "VND" ? null : fx);
 
   const authHeaders = useCallback(
@@ -395,11 +396,7 @@ export default function TransactionEntryClient() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#F7F9FC] text-[#071A33]">
-      <header className="border-b border-[#E3E8F0] bg-white">
-        <div className="mx-auto flex max-w-6xl items-center px-4 py-4 sm:px-6">
-          <p className="text-[15px] font-extrabold tracking-[-0.02em]">{t("accounting.shell.brand")}</p>
-        </div>
-      </header>
+      <AccountingModuleHeader locale={uiLocale(locale)} active="transactions" />
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         <h1 className="text-[22px] font-extrabold tracking-[-0.03em] sm:text-[28px]">{t("accounting.txn.title")}</h1>
         <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#3D4B63]">{t("accounting.txn.lead")}</p>
@@ -650,8 +647,8 @@ export default function TransactionEntryClient() {
               </div>
 
               {notice ? <p className="mt-4 text-sm font-semibold">{t(notice)}</p> : null}
-              {fxConfirmBlocked && role === "company_owner" ? (
-                <p className="mt-3 text-sm font-semibold text-amber-800">{t("accounting.txn.fx_confirm_blocked")}</p>
+              {fxConfirmUnverified && role === "company_owner" ? (
+                <p className="mt-3 text-sm font-semibold text-amber-800">{t("accounting.txn.fx_confirm_warn")}</p>
               ) : null}
 
               {readOnly ? null : (
@@ -672,7 +669,7 @@ export default function TransactionEntryClient() {
                   >
                     {t("accounting.txn.action.submit")}
                   </button>
-                  {role === "company_owner" && !fxConfirmBlocked ? (
+                  {role === "company_owner" ? (
                     <button
                       type="button"
                       disabled={busy}

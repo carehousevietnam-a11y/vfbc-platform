@@ -108,6 +108,7 @@ async function main() {
 
   const ownerAClient = await signIn(`${tag}-a-owner@test.vfbcai.local`, password);
   const ownerBClient = await signIn(`${tag}-b-owner@test.vfbcai.local`, password);
+  const memberAClient = await signIn(`${tag}-a-member@test.vfbcai.local`, password);
 
   const draft = await applyTransactionCommand(ownerAClient.client, ownerAClient.token, saleBody("draft"), null);
   record("draft_ok", draft.ok);
@@ -123,6 +124,109 @@ async function main() {
 
   const confirm = await applyTransactionCommand(ownerAClient.client, ownerAClient.token, saleBody("confirm"), draft.id);
   record("confirm_with_ledger", confirm.ok);
+
+  const memberDraft = await applyTransactionCommand(
+    memberAClient.client,
+    memberAClient.token,
+    saleBody("draft", { invoiceNo: "0000301" }),
+    null
+  );
+  const memberConfirm = await applyTransactionCommand(
+    memberAClient.client,
+    memberAClient.token,
+    saleBody("confirm", { invoiceNo: "0000301" }),
+    memberDraft.ok ? memberDraft.id : null
+  );
+  record(
+    "member_confirm_rpc_blocked",
+    memberDraft.ok && !memberConfirm.ok && memberConfirm.error === "CONFIRM_FORBIDDEN"
+  );
+  if (memberDraft.ok) {
+    const ownerConfirmMemberDraft = await applyTransactionCommand(
+      ownerAClient.client,
+      ownerAClient.token,
+      saleBody("confirm", { invoiceNo: "0000301" }),
+      memberDraft.id
+    );
+    record("owner_confirm_succeeds", ownerConfirmMemberDraft.ok);
+  } else {
+    record("owner_confirm_succeeds", false, "member draft failed");
+  }
+
+  const { error: doubleConfirmErr } = await ownerAClient.client.rpc("accounting_confirm_transaction", {
+    p_txn_id: draft.id,
+  });
+  const { count: ledgerCountAfterDouble } = await ownerAClient.client
+    .from("accounting_ledger_entries")
+    .select("id", { count: "exact", head: true })
+    .eq("txn_id", draft.id);
+  record(
+    "double_confirm_clear_error",
+    Boolean(doubleConfirmErr) && /already confirmed/i.test(doubleConfirmErr.message ?? "")
+  );
+  record("double_confirm_no_extra_ledger", (ledgerCountAfterDouble ?? 0) === 2);
+
+  await service.from("accounting_posting_rules").insert({
+    txn_type: "sale",
+    condition: { vat_rate: 10 },
+    debit_code: "TEST-CR-SALE",
+    credit_code: "TEST-DB-SALE",
+    effective_from: "2026-01-01",
+    verified_status: "unverified",
+  });
+  const specificDraft = await applyTransactionCommand(
+    ownerAClient.client,
+    ownerAClient.token,
+    saleBody("draft", { invoiceNo: "0000302", vatRate: 10, vatAmount: 100000 }),
+    null
+  );
+  const specificConfirm = await applyTransactionCommand(
+    ownerAClient.client,
+    ownerAClient.token,
+    saleBody("confirm", { invoiceNo: "0000302", vatRate: 10, vatAmount: 100000 }),
+    specificDraft.ok ? specificDraft.id : null
+  );
+  const { data: specificLedger } = await ownerAClient.client
+    .from("accounting_ledger_entries")
+    .select("account_code, debit")
+    .eq("txn_id", specificDraft.id ?? "")
+    .gt("debit", 0);
+  record(
+    "posting_rule_specificity_wins",
+    specificDraft.ok &&
+      specificConfirm.ok &&
+      (specificLedger ?? []).some((r) => r.account_code === "TEST-CR-SALE")
+  );
+
+  await service.from("accounting_posting_rules").insert({
+    txn_type: "sale",
+    condition: {},
+    debit_code: "TEST-THROW-FAIL",
+    credit_code: "TEST-CR-SALE",
+    effective_from: "2026-12-01",
+    verified_status: "unverified",
+  });
+  const effDraft = await applyTransactionCommand(
+    ownerAClient.client,
+    ownerAClient.token,
+    saleBody("draft", { invoiceNo: "0000303", txnDate: "2026-10-10", vatRate: 5, vatAmount: 50000 }),
+    null
+  );
+  const effConfirm = await applyTransactionCommand(
+    ownerAClient.client,
+    ownerAClient.token,
+    saleBody("confirm", { invoiceNo: "0000303", txnDate: "2026-10-10", vatRate: 5, vatAmount: 50000 }),
+    effDraft.ok ? effDraft.id : null
+  );
+  const { data: effLedger } = await ownerAClient.client
+    .from("accounting_ledger_entries")
+    .select("account_code, debit")
+    .eq("txn_id", effDraft.id ?? "")
+    .gt("debit", 0);
+  record(
+    "posting_rule_txn_date_effective_from",
+    effDraft.ok && effConfirm.ok && (effLedger ?? []).some((r) => r.account_code === "TEST-DB-SALE")
+  );
 
   const { data: ledger } = await ownerAClient.client
     .from("accounting_ledger_entries")
@@ -268,6 +372,15 @@ async function main() {
     "rollback_not_confirmed",
     rollbackDraft.ok && !rollbackConfirm.ok && rollbackTxn?.status !== "confirmed"
   );
+
+  await service.from("accounting_posting_rules").delete().like("debit_code", "TEST-%");
+  await service.from("accounting_posting_rules").delete().like("credit_code", "TEST-%");
+  await service.from("accounting_chart_of_accounts").delete().like("code", "TEST-%");
+  const userIds = [ownerA.id, ownerB.id, memberA.id];
+  for (const uid of userIds) {
+    await service.auth.admin.deleteUser(uid);
+  }
+  record("harness_users_deleted", true);
 
   console.log(JSON.stringify(results, null, 2));
   if (results.fail > 0) process.exit(1);

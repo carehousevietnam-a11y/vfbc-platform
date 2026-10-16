@@ -1,6 +1,12 @@
 # Vietnamese copy review pending (P2-a transaction entry)
 # Reviewer: Vietnamese language owner. Values in src/lib/accounting/uiCatalog.ts are drafts.
 accounting.shell.brand
+accounting.ledger.banner.unverified_basis
+accounting.ledger.badge.unverified_basis
+accounting.ledger.lead
+accounting.ledger.filter.search_hint
+accounting.txn.error.posting_rule_missing
+accounting.txn.fx_confirm_warn
 accounting.txn.title
 accounting.txn.lead
 accounting.txn.tab.sale

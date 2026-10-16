@@ -369,6 +369,7 @@
     원인: G4 미검증인데 confirm 액션만 막지 않았다
     재발 방지: 비VND는 초안·제출만 허용하고 confirm은 서버·UI 모두 FX_CONFIRM_BLOCKED로 막는다
     자동 검사: node tests/accounting/transactions.mjs (fx_confirm_blocked)
+    상태: superseded by #76
 
 72. 문제: 거래 목록에서 증빙 연결됨/누락으로 거르지 못한다
     원인: 목록 필터는 기간·유형·상태만 있고, 증빙 연결 상태는 배지로만 보인다
@@ -400,3 +401,8 @@
     원인: transactionEntry에서 postingRulesEngine 상대 경로를 ESM이 해석하지 못했다
     재발 방지: confirm RPC 호출은 transactionEntry에 두고, postingRulesEngine.ts는 enriched 조회 전용으로 유지한다
     자동 검사: node tests/accounting/p3-posting.mjs
+
+78. 문제: posting_rules가 effective_from만 보면 동일 txn_date에 빈 condition과 구체 condition이 섞일 때 비결정적이다
+    원인: ORDER BY effective_from desc 만 있었다
+    재발 방지: `accounting_posting_rule_specificity` 후 effective_from desc. 마이그레이션 `20261016120000_accounting_p3b_posting_order_search.sql`
+    자동 검사: node tests/accounting/p3-posting.mjs (posting_rule_specificity_wins, posting_rule_txn_date_effective_from)
