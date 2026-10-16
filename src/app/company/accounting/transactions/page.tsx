@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import TransactionEntryClient from "./TransactionEntryClient";
 
 export default function AccountingTransactionsPage() {
-  return <TransactionEntryClient />;
+  return (
+    <Suspense fallback={null}>
+      <TransactionEntryClient />
+    </Suspense>
+  );
 }

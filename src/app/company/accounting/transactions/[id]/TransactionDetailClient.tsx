@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
-import { AccountingModuleHeader } from "@/lib/accounting/AccountingModuleHeader";
+import TransactionExtrasPanel from "./TransactionExtrasPanel";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 
 type LedgerRow = {
@@ -126,9 +126,7 @@ export default function TransactionDetailClient({ txnId }: { txnId: string }) {
   const typeLabel = (type: string) => t(`accounting.txn.tab.${type}` as AccountingMessageKey);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F7F9FC] text-[14px] text-[#071A33]">
-      <AccountingModuleHeader locale={loc} active="transactions" />
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 text-[14px] text-[#071A33]">
         <Link href="/company/accounting/ledger" className="text-sm font-semibold text-[#2563EB]">
           ← {t("accounting.ledger.detail.back")}
         </Link>
@@ -181,9 +179,9 @@ export default function TransactionDetailClient({ txnId }: { txnId: string }) {
                 </div>
               </section>
             )}
+            <TransactionExtrasPanel txnId={txnId} loc={loc} />
           </div>
         ) : null}
       </main>
-    </div>
   );
 }

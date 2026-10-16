@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
-import { AccountingModuleHeader } from "@/lib/accounting/AccountingModuleHeader";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 
 type Row = {
@@ -23,6 +22,15 @@ type Row = {
 };
 
 type Party = { id: string; name: string };
+
+type ExportWarning = { txnId: string; field: string; reason: "machine" | "missing_vi"; versionId: string };
+
+function exportFailure(status: number, error: string): AccountingMessageKey {
+  if (status === 403) return "accounting.export.error.role";
+  if (error === "EMPTY") return "accounting.export.error.empty";
+  if (error === "TOO_LARGE") return "accounting.export.error.too_large";
+  return "accounting.export.error.generic";
+}
 
 function uiLocale(locale: string): AccountingLocale {
   return locale === "vi" ? "vi" : "ko";
@@ -68,6 +76,9 @@ export default function LedgerClient() {
   const [sumDebit, setSumDebit] = useState(0);
   const [sumCredit, setSumCredit] = useState(0);
   const [banner, setBanner] = useState(false);
+  const [exportPhase, setExportPhase] = useState<"idle" | "checking" | "warn" | "creating">("idle");
+  const [exportWarnings, setExportWarnings] = useState<ExportWarning[]>([]);
+  const [exportError, setExportError] = useState<AccountingMessageKey | null>(null);
   const pageSize = 25;
 
   const authHeaders = useCallback(
@@ -135,12 +146,71 @@ export default function LedgerClient() {
     void loadLedger();
   }, [token, loadLedger]);
 
+  const exportBody = useCallback(
+    (preview: boolean) =>
+      JSON.stringify({ preview, period, dateFrom, dateTo, accountCode: accountCode.trim(), counterpartyId, q: q.trim() }),
+    [period, dateFrom, dateTo, accountCode, counterpartyId, q]
+  );
+
+  const runExport = useCallback(async () => {
+    setExportError(null);
+    setExportPhase("creating");
+    try {
+      const res = await fetch("/api/accounting/exports/ledger", {
+        method: "POST",
+        headers: authHeaders(),
+        body: exportBody(false),
+      });
+      const body = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (!res.ok || !body.url) {
+        setExportError(exportFailure(res.status, body.error ?? ""));
+        setExportPhase("idle");
+        return;
+      }
+      const link = document.createElement("a");
+      link.href = body.url;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setExportPhase("idle");
+    } catch {
+      setExportError("accounting.export.error.generic");
+      setExportPhase("idle");
+    }
+  }, [authHeaders, exportBody]);
+
+  const startExport = useCallback(async () => {
+    setExportError(null);
+    setExportPhase("checking");
+    try {
+      const res = await fetch("/api/accounting/exports/ledger", {
+        method: "POST",
+        headers: authHeaders(),
+        body: exportBody(true),
+      });
+      const body = (await res.json().catch(() => ({}))) as { warnings?: ExportWarning[]; error?: string };
+      if (!res.ok) {
+        setExportError(exportFailure(res.status, body.error ?? ""));
+        setExportPhase("idle");
+        return;
+      }
+      if ((body.warnings ?? []).length > 0) {
+        setExportWarnings(body.warnings ?? []);
+        setExportPhase("warn");
+        return;
+      }
+      await runExport();
+    } catch {
+      setExportError("accounting.export.error.generic");
+      setExportPhase("idle");
+    }
+  }, [authHeaders, exportBody, runExport]);
+
   const pageCount = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total]);
 
   return (
-    <div className={`min-h-screen overflow-x-hidden bg-[#F7F9FC] text-[#071A33] ${FONT_SCALE_CLASS[fontScale]}`}>
-      <AccountingModuleHeader locale={loc} active="ledger" />
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className={`mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 text-[#071A33] ${FONT_SCALE_CLASS[fontScale]}`}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-[22px] font-extrabold tracking-[-0.03em] sm:text-[28px]">{t("accounting.ledger.title")}</h1>
@@ -263,13 +333,71 @@ export default function LedgerClient() {
                   />
                 </label>
               </div>
-              <button
-                type="button"
-                className="mt-4 min-h-11 rounded-lg bg-[#2563EB] px-4 font-semibold text-white"
-                onClick={() => void loadLedger()}
-              >
-                {t("accounting.ledger.filter.search")}
-              </button>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  className="min-h-11 rounded-lg bg-[#2563EB] px-4 font-semibold text-white"
+                  onClick={() => void loadLedger()}
+                >
+                  {t("accounting.ledger.filter.search")}
+                </button>
+                <button
+                  type="button"
+                  disabled={exportPhase === "checking" || exportPhase === "creating"}
+                  className="min-h-11 rounded-lg border border-[#2563EB] bg-white px-4 font-semibold text-[#2563EB] disabled:opacity-50"
+                  onClick={() => void startExport()}
+                >
+                  {exportPhase === "checking" || exportPhase === "creating"
+                    ? t("accounting.export.preparing")
+                    : t("accounting.export.button")}
+                </button>
+              </div>
+              {exportError ? (
+                <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 font-semibold text-red-800">
+                  {t(exportError)}
+                </p>
+              ) : null}
+              {exportPhase === "warn" ? (
+                <div className="mt-4 rounded-[14px] border border-amber-200 bg-amber-50 p-4 text-amber-900">
+                  <p className="font-bold">{t("accounting.export.warn.title")}</p>
+                  <p className="mt-1 leading-6">{t("accounting.export.warn.lead")}</p>
+                  <ul className="mt-3 space-y-2">
+                    {exportWarnings.map((w) => (
+                      <li
+                        key={`${w.txnId}-${w.field}`}
+                        className="flex flex-wrap items-center gap-x-3 gap-y-1 break-words rounded-lg bg-white/70 px-3 py-2"
+                      >
+                        <span className="font-semibold">{w.txnId.slice(0, 8)}</span>
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold">
+                          {t(`accounting.export.warn.${w.reason}` as AccountingMessageKey)}
+                        </span>
+                        <Link
+                          href={`/company/accounting/transactions/${w.txnId}`}
+                          className="font-semibold text-[#2563EB]"
+                        >
+                          {t("accounting.export.warn.open")}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <button
+                      type="button"
+                      className="min-h-11 rounded-lg bg-[#071A33] px-4 font-semibold text-white"
+                      onClick={() => void runExport()}
+                    >
+                      {t("accounting.export.warn.proceed")}
+                    </button>
+                    <button
+                      type="button"
+                      className="min-h-11 rounded-lg border border-[#E3E8F0] bg-white px-4 font-semibold"
+                      onClick={() => setExportPhase("idle")}
+                    >
+                      {t("accounting.export.warn.cancel")}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </section>
 
             <section className="mt-6 overflow-hidden rounded-[14px] border border-[#E3E8F0] bg-white">
@@ -402,6 +530,5 @@ export default function LedgerClient() {
           </>
         ) : null}
       </main>
-    </div>
   );
 }

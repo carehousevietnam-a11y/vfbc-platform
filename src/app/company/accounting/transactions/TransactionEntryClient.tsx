@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { AccountingModuleHeader } from "@/lib/accounting/AccountingModuleHeader";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
   accountingMessage,
@@ -99,6 +99,7 @@ const emptyForm = {
 };
 
 export default function TransactionEntryClient() {
+  const searchParams = useSearchParams();
   const { locale } = useLocale();
   const lang = uiLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
@@ -116,8 +117,12 @@ export default function TransactionEntryClient() {
   const [parties, setParties] = useState<Party[]>([]);
   const [period, setPeriod] = useState("");
   const [filterType, setFilterType] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterEvidence, setFilterEvidence] = useState<EvidenceLinkFilter>("all");
+  const [filterStatus, setFilterStatus] = useState(() => searchParams.get("status") ?? "");
+  const [filterEvidence, setFilterEvidence] = useState<EvidenceLinkFilter>(() => {
+    const ev = searchParams.get("evidence");
+    if (ev === "missing" || ev === "linked") return ev;
+    return "all";
+  });
   const [notice, setNotice] = useState<AccountingMessageKey | null>(null);
   const [busy, setBusy] = useState(false);
   const [evidence, setEvidence] = useState<EvidenceRow[]>([]);
@@ -404,8 +409,6 @@ export default function TransactionEntryClient() {
     t(level === "ok" ? "accounting.txn.level.ok" : level === "mid" ? "accounting.txn.level.mid" : "accounting.txn.level.warn");
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F7F9FC] text-[#071A33]">
-      <AccountingModuleHeader locale={uiLocale(locale)} active="transactions" />
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         <h1 className="text-[22px] font-extrabold tracking-[-0.03em] sm:text-[28px]">{t("accounting.txn.title")}</h1>
         <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#3D4B63]">{t("accounting.txn.lead")}</p>
@@ -831,6 +834,5 @@ export default function TransactionEntryClient() {
           </div>
         ) : null}
       </main>
-    </div>
   );
 }

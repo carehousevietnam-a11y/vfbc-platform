@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { AccountingModuleHeader } from "@/lib/accounting/AccountingModuleHeader";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
   accountingMessage,
@@ -332,26 +331,15 @@ export default function VatDeclarationClient() {
   };
 
   if (phase === "loading") {
-    return (
-      <div className="min-h-screen bg-[#F7F9FC]">
-        <AccountingModuleHeader locale={lang} active="vat" />
-        <p className="p-6 text-[#3D4B63]">{t("accounting.vat.loading")}</p>
-      </div>
-    );
+    return <p className="p-6 text-[#3D4B63]">{t("accounting.vat.loading")}</p>;
   }
 
   if (phase === "signed_out") {
-    return (
-      <div className="min-h-screen bg-[#F7F9FC]">
-        <AccountingModuleHeader locale={lang} active="vat" />
-        <p className="p-6 text-[#3D4B63]">{t("accounting.vat.sign_in")}</p>
-      </div>
-    );
+    return <p className="p-6 text-[#3D4B63]">{t("accounting.vat.sign_in")}</p>;
   }
 
   return (
-    <div className={`min-h-screen bg-[#F7F9FC] ${fontClass}`}>
-      <AccountingModuleHeader locale={lang} active="vat" />
+    <div className={`${fontClass}`}>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 lg:flex-row lg:px-6">
         <main className="min-w-0 flex-1 space-y-4">
           <header className="rounded-xl border border-[#E3E8F0] bg-white p-4">
