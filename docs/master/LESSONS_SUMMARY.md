@@ -64,4 +64,6 @@
 92 · G2 Pack은 Claude 작성본(v2.1+)만 field_map·엔진 근거로 쓴다; Cursor 초안 Pack은 사용하지 않는다.
 93 · 로컬 harness용 부트스트랩 SQL은 운영 `supabase/migrations`에 두지 않는다(RLS 없는 테이블 생성 위험).
 105 · vnk_staff org 승인 UPDATE 후 SELECT RLS가 막히면 staff용 org SELECT 정책을 추가한다(p6c-org-approval).
-106 · P7-1 퍼널: RELEASE 플래그 기본 OFF·빈 Pack이면 준비 중; isolation은 npx tsx·로컬 Supabase 필요.
+106 · P5c 회계 layout·tsc 전 `.next/dev/types` 삭제; 거래 URL 필터는 Suspense로 감싼다.
+107 · P5c 홈 Playwright는 `home-schedule`·`home-recent` waitFor 후 검사한다.
+108 · P7-1 퍼널: isolation은 `npx tsx tests/accounting/isolation.mjs`; 3020은 `p3c-local-next`·`.next` 삭제; Expert CTA는 hydrate 후 세션 분기.

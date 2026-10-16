@@ -15,9 +15,11 @@ type Props = {
 
 export function AccountingFunnelExpertCta({ locale, returnPath }: Props) {
   const t = (key: AccountingMessageKey) => accountingMessage(locale, key);
+  const [hydrated, setHydrated] = useState(false);
   const [phase, setPhase] = useState<MemberPhase>("loading");
 
   useEffect(() => {
+    setHydrated(true);
     let cancelled = false;
     (async () => {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -46,7 +48,7 @@ export function AccountingFunnelExpertCta({ locale, returnPath }: Props) {
 
   const signupHref = accountingFunnelSignupHref(returnPath);
 
-  if (phase === "loading") {
+  if (!hydrated || phase === "loading") {
     return <p className="text-sm text-[#6B7A90]">{t("accounting.funnel.expert.loading")}</p>;
   }
 

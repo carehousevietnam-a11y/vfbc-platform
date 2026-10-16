@@ -565,3 +565,8 @@
     원인: `company/accounting/layout.tsx` 신설 후 dev 서버가 남긴 validator 타입과 정적 `tsc` include가 어긋남.
     재발 방지: 회계 UI 마감 전 `.next/dev/types` 삭제 후 `npx tsc --noEmit`. 거래 목록 URL 필터(`status`·`evidence`)는 `Suspense`로 감싼다. 홈 데이터는 anon+RLS `supabase`만 쓰고 `company_member`는 declarations 쿼리를 생략한다.
     자동 검사: npx tsc --noEmit · node tests/accounting/evidence.mjs (ko/vi 키 parity)
+
+108. 문제: P7-1 보완에서 isolation 단독 `node` 실행이 실패하고 3020이 500·빈 화면이었다.
+    원인: `isolation.mjs`가 `accountingHomeData.ts`를 tsx 없이 import해 ESM이 `vatDeadline`을 못 풀었고, Next는 `.next` 불일치·로컬 Supabase env 없이 기동됐다. Expert CTA·퍼널 locale은 SSR과 쿠키 locale이 달라 hydration 경고가 났다.
+    재발 방지: `npx tsx tests/accounting/isolation.mjs`·`node tests/accounting/p3c-local-next.mjs`. `AccountingFunnelExpertCta`·`AccountingFunnelClient`는 mount 후 세션·locale UI를 그린다.
+    자동 검사: npx tsx tests/accounting/isolation.mjs · node tests/accounting/p7-1-supplement-browser.mjs

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
 import FunnelPageShell from "@/components/engine/FunnelPageShell";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -45,6 +45,11 @@ export function AccountingFunnelClient({ entryId, enabled, pack, resultPack }: P
   const [leadId] = useState(() => `acct-funnel-${Date.now()}`);
   const [evidenceError, setEvidenceError] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const visibleStage2 = useMemo(
     () => pack.stage2.filter((q) => visibleStage2ForAnswers(pack, stage1Answers).includes(q.id)),
@@ -107,6 +112,16 @@ export function AccountingFunnelClient({ entryId, enabled, pack, resultPack }: P
     },
     [entryId, leadId],
   );
+
+  if (!mounted) {
+    return (
+      <FunnelPageShell engine="verify" width="verify">
+        <div className="py-16 text-center" data-testid="accounting-funnel-boot">
+          <p className="text-sm text-[#6B7A90]">{accountingMessage("ko", "accounting.funnel.expert.loading")}</p>
+        </div>
+      </FunnelPageShell>
+    );
+  }
 
   if (!enabled) {
     return (
