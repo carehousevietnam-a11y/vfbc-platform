@@ -687,6 +687,75 @@ async function main() {
   const anonDl = await clientAnon.storage.from("accounting_evidence").download(pathA);
   record("storage_anon_download_blocked", Boolean(anonDl.error), anonDl.error?.message ?? "downloaded");
 
+  const crossOrgOrgRead = await clientBOwner.from("accounting_organizations").select("id").eq("id", orgA.id);
+  record(
+    "p72a_cross_org_org_read_blocked",
+    (crossOrgOrgRead.data ?? []).length === 0,
+    `rows=${(crossOrgOrgRead.data ?? []).length}`,
+  );
+
+  const crossOrgOrgUpdate = await clientBOwner
+    .from("accounting_organizations")
+    .update({ name_official: "P72A Cross Hack" })
+    .eq("id", orgA.id)
+    .select("id");
+  record(
+    "p72a_cross_org_org_update_blocked",
+    (crossOrgOrgUpdate.data ?? []).length === 0,
+    crossOrgOrgUpdate.error?.message ?? `rows=${(crossOrgOrgUpdate.data ?? []).length}`,
+  );
+
+  const { CompanySignupAlreadyProvisionedError, provisionCompanyMemberSignup } = await import(
+    "../../src/lib/accounting/provisionCompanyMemberSignup.ts"
+  );
+  let p72aDupBlocked = false;
+  try {
+    await provisionCompanyMemberSignup(service, users.aOwner.id, {
+      companyCategory: "operating",
+      companyName: "Dup Org Attempt",
+      jobPosition: "ceo",
+    });
+  } catch (e) {
+    p72aDupBlocked =
+      e instanceof CompanySignupAlreadyProvisionedError || e?.name === "CompanySignupAlreadyProvisionedError";
+  }
+  record("p72a_duplicate_org_blocked", p72aDupBlocked, "");
+
+  const fakeOrgId = "00000000-0000-4000-8000-000000000099";
+  const p72aEmail = `p72a-iso-${Date.now()}@test.vfbcai.local`;
+  const p72aPass = "Test-P72a-Iso-1!Aa";
+  const { data: p72aAuth, error: p72aAuthErr } = await service.auth.admin.createUser({
+    email: p72aEmail,
+    password: p72aPass,
+    email_confirm: true,
+  });
+  if (p72aAuthErr) throw p72aAuthErr;
+  const p72aUserId = p72aAuth.user.id;
+  await service.from("users").insert({
+    id: p72aUserId,
+    email: p72aEmail,
+    member_type: "company",
+    password_set: true,
+  });
+  const p72aProvision = await provisionCompanyMemberSignup(service, p72aUserId, {
+    companyCategory: "operating",
+    companyName: "P72A Ignore OrgId Co",
+    jobPosition: "ceo",
+  });
+  record(
+    "p72a_client_org_id_ignored",
+    Boolean(p72aProvision.orgId) && p72aProvision.orgId !== fakeOrgId,
+    `org=${p72aProvision.orgId ?? "null"}`,
+  );
+
+  await service.from("accounting_org_members").delete().eq("user_id", p72aUserId);
+  await service.from("accounting_company_signup_profiles").delete().eq("user_id", p72aUserId);
+  if (p72aProvision.orgId) {
+    await service.from("accounting_organizations").delete().eq("id", p72aProvision.orgId);
+  }
+  await service.from("users").delete().eq("id", p72aUserId);
+  await service.auth.admin.deleteUser(p72aUserId);
+
   await service.storage.from("accounting_evidence").remove([pathA]);
   await service
     .from("accounting_transactions")

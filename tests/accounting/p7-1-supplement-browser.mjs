@@ -56,6 +56,7 @@ async function runViewport(page, w, h, label) {
 
   for (const seg of ["vat-filing-check", "invoice-processing-check", "corp-tax-closing-check"]) {
     await page.goto(`${base}/verify/accounting/${seg}`, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("accounting-funnel-locale-ko").click();
     await page.getByTestId("accounting-funnel-unavailable").waitFor({ timeout: 60_000 });
     const ko = await page.getByTestId("accounting-funnel-unavailable").innerText();
     assert(`${label} unavailable_ko_${seg}`, ko.includes("준비"));

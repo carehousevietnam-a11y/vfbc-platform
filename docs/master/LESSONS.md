@@ -571,6 +571,11 @@
     재발 방지: `/api/accounting/company-profile` + `/company/accounting/company` 온보딩, `/company/accounting/pending` 대기, `AccountingWorkspaceGate`로 작업공간 URL 차단. Expert CTA는 `resolveAccountingWorkspaceDestination` 링크.
     자동 검사: npx tsx tests/accounting/p7-2a-verify.mjs · npx tsx tests/accounting/isolation.mjs
 
+110. 문제: P7-2a 보완에서 pending 사용자가 작업공간 URL 직접 접근 시 클라이언트 gate만으로는 HTML 노출·3020 EADDRINUSE·퍼널 ko 「준비」 실패가 있었다.
+    원인: 데이터 페이지는 RSC에서 승인 상태를 보지 않았고, E2E는 vi locale 쿠키가 라우트 간 유지됐으며, 3020에 구 dev가 남아 500이 났다.
+    재발 방지: `AccountingWorkspaceDataServerLayout`로 transactions·ledger·vat·filing·evidence 서버 redirect. 퍼널 브라우저 QA는 라우트마다 `accounting-funnel-locale-ko` 클릭. `uiCatalog` ko/vi 키 parity로 vi 누락은 `tsc` 실패.
+    자동 검사: node tests/accounting/p7-2a-e2e-browser.mjs · npx tsx tests/accounting/isolation.mjs · node tests/accounting/p7-1-supplement-browser.mjs
+
 108. 문제: P7-1 보완에서 isolation 단독 `node` 실행이 실패하고 3020이 500·빈 화면이었다.
     원인: `isolation.mjs`가 `accountingHomeData.ts`를 tsx 없이 import해 ESM이 `vatDeadline`을 못 풀었고, Next는 `.next` 불일치·로컬 Supabase env 없이 기동됐다. Expert CTA·퍼널 locale은 SSR과 쿠키 locale이 달라 hydration 경고가 났다.
     재발 방지: `npx tsx tests/accounting/isolation.mjs`·`node tests/accounting/p3c-local-next.mjs`. `AccountingFunnelExpertCta`·`AccountingFunnelClient`는 mount 후 세션·locale UI를 그린다.

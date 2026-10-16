@@ -68,3 +68,4 @@
 107 · P5c 홈 Playwright는 `home-schedule`·`home-recent` waitFor 후 검사한다.
 108 · P7-1 퍼널: isolation은 `npx tsx tests/accounting/isolation.mjs`; 3020은 `p3c-local-next`·`.next` 삭제; Expert CTA는 hydrate 후 세션 분기.
 109 · P7-2a: `member_type`은 company-member-signup API 서버 고정; 조직은 `provisionCompanyMemberSignup`·`/api/accounting/company-profile`만; 게이트는 `AccountingWorkspaceGate`.
+110 · P7-2a 보완: pending 작업공간은 `AccountingWorkspaceDataServerLayout` 서버 redirect; 퍼널 ko는 라우트마다 locale-ko; vi 키 누락은 uiCatalog parity→tsc 실패.

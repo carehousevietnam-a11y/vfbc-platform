@@ -33,8 +33,10 @@ export async function POST(req: NextRequest) {
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return NextResponse.json({ error: "VALIDATION" }, { status: 422 });
+  // org_id 등 클라이언트가 보낸 조직 식별자는 무시한다(서버가 새 pending org 생성).
+  const { org_id: _ignoredOrgId, organization_id: _ignoredOrgId2, ...profileBody } = body;
 
-  const parsed = parseCompanySignupProfile(body);
+  const parsed = parseCompanySignupProfile(profileBody);
   if (!parsed.ok) {
     return NextResponse.json({ error: "VALIDATION", errors: parsed.errors }, { status: 400 });
   }
