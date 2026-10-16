@@ -556,6 +556,11 @@
     재발 방지: `20261017130000_accounting_users_profile_columns.sql`로 프로필 컬럼 IF NOT EXISTS 추가. `p7f-e2e-browser.mjs`는 3020 기동 검사·signup API status(PII 제외)·`company-member-signup-done`·가입 후 `signInWithPassword`+localStorage 세션 주입·`accounting-workspace-pending-approval`로 완주. 모바일은 퍼널 q1 재시도 루프.
     자동 검사: node tests/accounting/p7f-e2e-browser.mjs
 
+107. 문제: P5c 홈 Playwright가 owner 데스크톱에서 `home-schedule`을 찾지 못했다.
+    원인: 홈 데이터는 `useEffect` 후 로드되는데 카드 testid를 즉시 검사했다.
+    재발 방지: `p5c-home-browser-check.mjs`는 `home-recent`·`home-schedule` waitFor 후 DOM을 검사한다. 교차 org 홈 스냅샷은 `isolation.mjs`의 `home_*` 케이스 4건으로 검증한다.
+    자동 검사: node tests/accounting/p5c-home-browser-seed.mjs · node tests/accounting/p5c-home-browser-check.mjs · node tests/accounting/isolation.mjs
+
 106. 문제: P5c 회계 홈·공통 셸에서 거래 입력 `useSearchParams` 초기화와 Next layout 추가 시 tsc가 `.next/dev/types` 불일치로 실패할 수 있다.
     원인: `company/accounting/layout.tsx` 신설 후 dev 서버가 남긴 validator 타입과 정적 `tsc` include가 어긋남.
     재발 방지: 회계 UI 마감 전 `.next/dev/types` 삭제 후 `npx tsc --noEmit`. 거래 목록 URL 필터(`status`·`evidence`)는 `Suspense`로 감싼다. 홈 데이터는 anon+RLS `supabase`만 쓰고 `company_member`는 declarations 쿼리를 생략한다.

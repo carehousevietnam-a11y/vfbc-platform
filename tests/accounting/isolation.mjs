@@ -598,6 +598,75 @@ async function main() {
     record("audit_rows_present", false, "no audit rows after txn ops");
   }
 
+  await service
+    .from("accounting_organizations")
+    .update({ vat_period: "month", vat_method: "deduction" })
+    .in("id", [orgA.id, orgB.id]);
+
+  const { data: txnHomeB, error: txnHomeBErr } = await service
+    .from("accounting_transactions")
+    .insert({
+      org_id: orgB.id,
+      type: "expense",
+      status: "confirmed",
+      txn_date: "2026-10-20",
+      period_key: "2026-10",
+      amount_vnd: 7777000,
+      created_by: users.bOwner.id,
+      confirmed_at: new Date().toISOString(),
+      confirmed_by: users.bOwner.id,
+    })
+    .select("id")
+    .single();
+  if (txnHomeBErr) throw txnHomeBErr;
+
+  await service.from("accounting_declarations").insert({
+    org_id: orgA.id,
+    form_code: "01/GTGT",
+    period_key: "2026-11",
+    status: "drafting",
+    due_date: null,
+  });
+  await service.from("accounting_declarations").insert({
+    org_id: orgB.id,
+    form_code: "01/GTGT",
+    period_key: "2026-12",
+    status: "expert_review",
+  });
+
+  const { loadAccountingHomeSnapshot } = await import("../../src/lib/accounting/accountingHomeData.ts");
+  const snapHomeA = await loadAccountingHomeSnapshot(clientAOwner, orgA.id, "company_owner");
+  const snapHomeB = await loadAccountingHomeSnapshot(clientBOwner, orgB.id, "company_owner");
+  const snapHomeMember = await loadAccountingHomeSnapshot(clientAMember, orgA.id, "company_member");
+
+  record(
+    "home_cross_org_a_no_b_amount",
+    !snapHomeA.recentTxns.some((t) => t.amountVnd === 7777000),
+    `recent=${snapHomeA.recentTxns.length}`
+  );
+  record(
+    "home_cross_org_b_no_a_period",
+    !snapHomeB.schedule.some((s) => s.periodKey === "2026-11") &&
+      !snapHomeB.inProgress.some((p) => p.periodKey === "2026-11"),
+    `sched=${snapHomeB.schedule.length}`
+  );
+  record(
+    "home_member_declarations_skipped",
+    !snapHomeMember.showDeclarations &&
+      snapHomeMember.schedule.length === 0 &&
+      snapHomeMember.inProgress.length === 0,
+    `show=${snapHomeMember.showDeclarations}`
+  );
+  record(
+    "home_owner_unverified_due",
+    snapHomeA.schedule.some((s) => s.periodKey === "2026-11" && s.dueUnverified === true),
+    snapHomeA.schedule.map((s) => s.periodKey).join(",")
+  );
+
+  await service.from("accounting_declarations").delete().eq("org_id", orgA.id).eq("period_key", "2026-11");
+  await service.from("accounting_declarations").delete().eq("org_id", orgB.id).eq("period_key", "2026-12");
+  await service.from("accounting_transactions").delete().eq("id", txnHomeB.id);
+
   const pathA = `${orgA.id}/${txnA.id}/proof.png`;
   const pathB = `${orgB.id}/${txnA.id}/proof.png`;
 
