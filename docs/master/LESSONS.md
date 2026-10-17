@@ -585,3 +585,8 @@
     원인: `isolation.mjs`가 `accountingHomeData.ts`를 tsx 없이 import해 ESM이 `vatDeadline`을 못 풀었고, Next는 `.next` 불일치·로컬 Supabase env 없이 기동됐다. Expert CTA·퍼널 locale은 SSR과 쿠키 locale이 달라 hydration 경고가 났다.
     재발 방지: `npx tsx tests/accounting/isolation.mjs`·`node tests/accounting/p3c-local-next.mjs`. `AccountingFunnelExpertCta`·`AccountingFunnelClient`는 mount 후 세션·locale UI를 그린다.
     자동 검사: npx tsx tests/accounting/isolation.mjs · node tests/accounting/p7-1-supplement-browser.mjs
+
+112. 문제: P7-2b 보완 E2E에서 반려 사유 미표시·비전문가 전문가 큐 빈 목록·pending 서류 업로드 500이 있었다.
+    원인: `accounting_i18n_texts` SELECT는 `accounting_can_use_org_data`(승인 org만)라 rejected owner가 `review_note`를 못 읽었다. `denyNonExpertQueueAccess`는 owner/member만 막고 무소속 사용자는 200 빈 큐를 받았다. org-doc POST 후 audit 로그를 user RLS로 읽어 pending org에서 500이 났다.
+    재발 방지: `listOrgDocuments`는 owner+rejected일 때 service role로 `review_note`만 조회. 전문가 큐 gate는 `vnk_expert`/`vnk_admin` 없으면 403. 업로드는 userClient storage·audit는 트리거에 맡기고 POST 응답에서 audit SELECT 생략.
+    자동 검사: node tests/accounting/p7-2b-e2e-browser.mjs · npx tsx tests/accounting/isolation.mjs

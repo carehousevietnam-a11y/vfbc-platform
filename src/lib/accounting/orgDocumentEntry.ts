@@ -45,6 +45,7 @@ export async function listOrgDocuments(
   client: SupabaseClient,
   accessToken: string,
   lang: "ko" | "vi" = "ko",
+  adminClient?: SupabaseClient,
 ) {
   const actor = await resolveOrgDocumentActor(client, accessToken);
   if (!actor.ok) return { ok: false as const, status: actor.status, error: actor.error };
@@ -66,8 +67,9 @@ export async function listOrgDocuments(
   if (error) return { ok: false as const, status: 400, error: "LIST_FAILED" };
 
   let reviewNote: string | null = null;
-  if (org.approval_status === "rejected") {
-    const { data: note } = await client
+  if (org.approval_status === "rejected" && actor.role === "company_owner") {
+    const noteClient = adminClient ?? client;
+    const { data: note } = await noteClient
       .from("accounting_i18n_texts")
       .select("text, lang")
       .eq("org_id", actor.orgId)
@@ -121,7 +123,7 @@ export async function uploadOrgDocument(
   const storagePath = `${actor.orgId}/org-docs/${docKind}/${fileId}.${extForKind(kind)}`;
   const mime = declaredMime && declaredMime.length > 0 ? declaredMime : mimeForKind(kind);
 
-  const { error: storageError } = await adminClient.storage
+  const { error: storageError } = await userClient.storage
     .from(EVIDENCE_BUCKET)
     .upload(storagePath, body, { contentType: mime, upsert: true });
   if (storageError) return { ok: false as const, status: 400, error: "STORAGE_FAILED" };
@@ -143,17 +145,8 @@ export async function uploadOrgDocument(
     .select("id")
     .single();
   if (upsertError || !row) {
-    await adminClient.storage.from(EVIDENCE_BUCKET).remove([storagePath]);
+    await userClient.storage.from(EVIDENCE_BUCKET).remove([storagePath]);
     return { ok: false as const, status: 400, error: "INSERT_FAILED" };
-  }
-
-  const { count } = await userClient
-    .from("accounting_audit_log")
-    .select("id", { count: "exact", head: true })
-    .eq("entity_id", row.id as string)
-    .eq("entity", "accounting_org_documents");
-  if ((count ?? 0) < 1) {
-    return { ok: false as const, status: 500, error: "AUDIT_MISSING" };
   }
 
   return { ok: true as const, id: row.id as string, sha256 };

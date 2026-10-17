@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
   const langParam = req.nextUrl.searchParams.get("lang");
   const lang = langParam === "vi" ? "vi" : "ko";
-  const result = await listOrgDocuments(session.client, session.token, lang);
+  const result = await listOrgDocuments(session.client, session.token, lang, supabaseAdmin);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
   return NextResponse.json(result);
 }

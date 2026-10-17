@@ -164,7 +164,10 @@ export default function ExpertReviewQueueClient() {
     return (
       <div className="min-h-screen bg-[#F7F9FC]">
         {shell}
-        <p className="mx-auto max-w-6xl px-4 py-8 text-sm font-semibold text-[#B45309] sm:px-6">
+        <p
+          className="mx-auto max-w-6xl px-4 py-8 text-sm font-semibold text-[#B45309] sm:px-6"
+          data-testid="expert-queue-access-denied"
+        >
           {t("accounting.expert.queue.access_denied")}
         </p>
       </div>

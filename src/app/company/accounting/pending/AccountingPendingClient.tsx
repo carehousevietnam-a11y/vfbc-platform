@@ -19,11 +19,16 @@ export default function AccountingPendingClient() {
   const [approvalStatus, setApprovalStatus] = useState<string>("pending");
   const [items, setItems] = useState<DocRow[]>([]);
   const [reviewNote, setReviewNote] = useState<string | null>(null);
+  const [ownerUploadUi, setOwnerUploadUi] = useState(true);
   const [busyKind, setBusyKind] = useState<OrgDocumentKind | null>(null);
   const [requestBusy, setRequestBusy] = useState(false);
 
   const load = useCallback(async () => {
     const res = await accountingAuthFetch(`/api/accounting/org-documents?lang=${lang}`);
+    if (res.status === 403) {
+      setOwnerUploadUi(false);
+      return;
+    }
     if (!res.ok) return;
     const body = (await res.json()) as {
       approvalStatus: string;
@@ -40,7 +45,7 @@ export default function AccountingPendingClient() {
   }, [load]);
 
   const hasKind = (kind: OrgDocumentKind) => items.some((i) => i.docKind === kind);
-  const canUpload = approvalStatus === "pending" || approvalStatus === "rejected";
+  const canUpload = ownerUploadUi && (approvalStatus === "pending" || approvalStatus === "rejected");
   const canRequest =
     canUpload && hasKind("business_registration") && hasKind("investment_registration");
 

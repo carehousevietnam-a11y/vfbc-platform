@@ -70,3 +70,4 @@
 109 · P7-2a: `member_type`은 company-member-signup API 서버 고정; 조직은 `provisionCompanyMemberSignup`·`/api/accounting/company-profile`만; 게이트는 `AccountingWorkspaceGate`.
 110 · P7-2a 보완: pending 작업공간은 `AccountingWorkspaceDataServerLayout` 서버 redirect; 퍼널 ko는 라우트마다 locale-ko; vi 키 누락은 uiCatalog parity→tsc 실패.
 111 · P7-2b: 조직 서류는 `accounting_org_documents`+`org-docs` 경로; 승인 요청 RPC→`in_review`; 전문가만 approve/reject; 반려 `review_note` i18n_texts.
+112 · P7-2b 보완: rejected `review_note`는 owner GET에서 admin 조회; 전문가 큐는 vnk 역할 없으면 403; org-doc 업로드는 audit SELECT 생략·`p7-2b-e2e-browser.mjs`.

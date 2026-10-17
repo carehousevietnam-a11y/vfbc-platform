@@ -113,6 +113,7 @@ export default function CompanyOnboardingClient() {
             className="mt-3 w-full min-h-11 rounded-lg border border-[#E3E8F0] px-3 text-sm"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
+            data-testid="accounting-onboard-company-name"
             placeholder={
               companyCategory === "prospective"
                 ? t("accounting.onboard.company_name_prospective_placeholder")

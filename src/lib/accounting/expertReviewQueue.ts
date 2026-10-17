@@ -418,5 +418,8 @@ export async function denyNonExpertQueueAccess(
   if (roles.has("company_member") || roles.has("company_owner")) {
     return { ok: true, denied: true };
   }
-  return { ok: true, denied: false };
+  if (roles.has("vnk_expert") || roles.has("vnk_admin")) {
+    return { ok: true, denied: false };
+  }
+  return { ok: true, denied: true };
 }

@@ -55,26 +55,25 @@ async function runCase(viewport, locale, label) {
     { key: storageKey, raw: JSON.stringify(session) },
   );
   const page = await context.newPage();
+  await page.goto(`${base}/`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${base}/company/accounting/company`, { waitUntil: "networkidle" });
 
-  const category =
-    locale === "vi" ? "Đang vận hành pháp nhân" : "법인 운영 중";
-  const prospective =
-    locale === "vi" ? "Chuẩn bị thành lập (dự kiến)" : "예비 창업자(설립 준비 중)";
-  const ceo = locale === "vi" ? "Đại diện" : "대표";
-  const companyPh = locale === "vi" ? "Nhập tên công ty." : "회사명을 입력합니다.";
-
-  await page.goto(`${base}/company/accounting/company`, { waitUntil: "domcontentloaded" });
-  const onboard = page.getByTestId("accounting-company-onboarding").first();
+  const onboard = page.getByTestId("accounting-company-onboarding");
   await onboard.waitFor({ timeout: 60_000 });
-  await onboard.getByTestId("accounting-onboard-category-operating").locator("button").click({ force: true });
-  await onboard.getByPlaceholder(companyPh).fill("Form E2E Co");
-  await onboard.getByTestId("accounting-onboard-position-ceo").locator("button").click({ force: true });
-  for (let i = 0; i < 40; i++) {
-    if (await onboard.getByTestId("accounting-onboard-submit").isEnabled()) break;
-    await page.waitForTimeout(250);
-  }
-  if (!(await onboard.getByTestId("accounting-onboard-submit").isEnabled())) {
-    assert(`${label} submit_enabled`, false);
+
+  await onboard.getByTestId("accounting-onboard-category-operating").locator("button").click();
+  await onboard.getByTestId("accounting-onboard-category-operating").locator('button[aria-pressed="true"]').waitFor({
+    timeout: 10_000,
+  });
+  await onboard.getByTestId("accounting-onboard-company-name").fill("Form E2E Co");
+  await onboard.getByTestId("accounting-onboard-position-ceo").locator("button").click();
+  await onboard.getByTestId("accounting-onboard-position-ceo").locator('button[aria-pressed="true"]').waitFor({
+    timeout: 10_000,
+  });
+  await onboard.getByTestId("accounting-onboard-submit").waitFor({ state: "visible", timeout: 10_000 });
+  const enabled = await onboard.getByTestId("accounting-onboard-submit").isEnabled();
+  assert(`${label} submit_enabled`, enabled);
+  if (!enabled) {
     await browser.close();
     return;
   }
@@ -99,11 +98,11 @@ async function runCase(viewport, locale, label) {
     (payload) => localStorage.setItem(payload.key, payload.raw),
     { key: storageKey, raw: JSON.stringify(prosSession) },
   );
-  await page.goto(`${base}/company/accounting/company`, { waitUntil: "domcontentloaded" });
-  const prosForm = page.getByTestId("accounting-company-onboarding").first();
-  await prosForm.getByTestId("accounting-onboard-category-prospective").getByRole("button").click();
-  await prosForm.getByPlaceholder(locale === "vi" ? "Nếu chưa có, nhập chưa xác định." : "미정인 경우 미정이라고 입력합니다.").fill("미정");
-  await prosForm.getByTestId("accounting-onboard-position-ceo").getByRole("button").click();
+  await page.goto(`${base}/`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${base}/company/accounting/company`, { waitUntil: "networkidle" });
+  const prosForm = page.getByTestId("accounting-company-onboarding");
+  await prosForm.getByTestId("accounting-onboard-category-prospective").locator("button").click();
+  await prosForm.getByTestId("accounting-onboard-position-ceo").locator("button").click();
   await prosForm.getByTestId("accounting-onboard-submit").click();
   await page.waitForURL((url) => /\/register\/company|\/verify\/company/.test(url.pathname), { timeout: 60_000 });
   const { count } = await svc.from("accounting_org_members").select("org_id", { count: "exact", head: true }).eq("user_id", puid);
