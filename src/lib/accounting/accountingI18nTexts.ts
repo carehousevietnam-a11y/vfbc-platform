@@ -112,6 +112,7 @@ export async function saveAccountingI18nField(
     text: string;
     createdBy: string;
     txnConfirmed?: boolean;
+    deferTranslation?: boolean;
   }
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const trimmed = params.text.trim();
@@ -144,17 +145,33 @@ export async function saveAccountingI18nField(
   });
   if (!inserted) return { ok: false, error: "I18N_INSERT" };
 
-  await translateOpposite(
-    client,
-    params.orgId,
-    params.entityType,
-    params.entityId,
-    params.field,
-    params.lang,
-    nextVersion,
-    trimmed,
-    params.createdBy
-  );
+  if (params.deferTranslation) {
+    void translateOpposite(
+      client,
+      params.orgId,
+      params.entityType,
+      params.entityId,
+      params.field,
+      params.lang,
+      nextVersion,
+      trimmed,
+      params.createdBy
+    ).catch(() => {
+      /* translation failure → UI shows 번역 대기 */
+    });
+  } else {
+    await translateOpposite(
+      client,
+      params.orgId,
+      params.entityType,
+      params.entityId,
+      params.field,
+      params.lang,
+      nextVersion,
+      trimmed,
+      params.createdBy
+    );
+  }
   return { ok: true };
 }
 

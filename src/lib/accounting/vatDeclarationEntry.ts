@@ -2,6 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveAccountingActor } from "./accountingActor";
 import { isPeriodBeforeGtgt01Tt89, gtgt01Tt89PeriodGuardMessageKey } from "./gtgt01FormPeriod";
 import { runVatGtgt01Draft } from "./vatDeclarationDraft";
+import {
+  loadDeclarationStepMemos,
+  resolveMemberDisplayNames,
+} from "./vatWizardEntry";
+import { parseVatWizard, declarationWizardLocked } from "./vatWizard";
 
 export type VatFieldMapEntry = {
   code: string;
@@ -46,7 +51,7 @@ export async function getVatDeclaration(
 
   const { data: decl } = await client
     .from("accounting_declarations")
-    .select("id, status, computed, due_date, period_key")
+    .select("id, status, computed, due_date, period_key, updated_at")
     .eq("org_id", actor.orgId)
     .eq("form_code", "01/GTGT")
     .eq("period_key", periodKey)
@@ -58,6 +63,19 @@ export async function getVatDeclaration(
   const vatPeriod = ((org?.vat_period as string) === "quarter" ? "quarter" : "month") as "month" | "quarter";
   const periodBeforeTt89 = isPeriodBeforeGtgt01Tt89(periodKey, vatPeriod);
 
+  let wizard = null;
+  let stepMemos: Record<string, { ko?: string; vi?: string }> = {};
+  let displayNames: Record<string, string> = {};
+  const wizardLocked = decl ? declarationWizardLocked(decl.status as string) : false;
+
+  if (decl?.id) {
+    wizard = parseVatWizard(decl.computed);
+    stepMemos = await loadDeclarationStepMemos(client, actor.orgId, decl.id as string);
+    const ids = wizard ? Object.values(wizard.steps).map((s) => s.savedBy) : [];
+    const nameMap = await resolveMemberDisplayNames(client, ids);
+    displayNames = Object.fromEntries(nameMap);
+  }
+
   return {
     ok: true as const,
     orgId: actor.orgId,
@@ -65,6 +83,10 @@ export async function getVatDeclaration(
     org,
     declaration: decl,
     form,
+    wizard,
+    stepMemos,
+    displayNames,
+    wizardLocked,
     periodGuard: periodBeforeTt89
       ? { blocked: true, messageKey: gtgt01Tt89PeriodGuardMessageKey() }
       : { blocked: false },

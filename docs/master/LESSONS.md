@@ -621,6 +621,11 @@
     재발 방지: isolation 37/0 전에 `provisionCompanyMemberSignup.ts`만 stash에서 복원·커밋해 throw 경로를 HEAD에 고정한다. stash pop 없이 1파일 checkout만.
     자동 검사: npx tsx tests/accounting/isolation.mjs
 
+120. 문제: P9-6b VAT wizard 동시 저장을 `updated_at`만으로는 감지되지 않았다(트리거 없음).
+    원인: `accounting_declarations.updated_at`이 computed 갱신 시 항상 바뀌지 않을 수 있다.
+    재발 방지: `computed._wizard.revision`을 올리고 `expectedRevision`으로 409 `CONCURRENT_SAVE`를 반환한다. 번역은 `deferTranslation`로 저장 응답 후 비동기 처리한다.
+    자동 검사: npx tsx tests/accounting/isolation.mjs (p96b_*) · node tests/accounting/p9-6b-browser-check.mjs
+
 119. 문제: P9-6 §11 전 범위를 한 미션에 넣으면 VAT ①~⑥ 서버 공동 편집·검토 코멘트·정정 사유 등 미연결 화면이 남는다.
     원인: VAT wizard는 client step·localStorage만 있고 `declarations.computed`에 단계·작성자 메타가 없었다. 거래 UI는 memo/description 필드가 API에 없었다.
     재발 방지: `accountingI18nTexts`·`form-basis`·보기 전환 바를 먼저 고정한 뒤, VAT `_wizard`·나머지 자유입력 칸을 단계별 미션으로 붙인다. LESSONS 번호는 기존 #95·#110 중복 없이 최대+1(118 P9-5b, 119 P9-6)만 쓴다.

@@ -817,6 +817,65 @@ async function main() {
     bProf.ok ? bProf.orgId : bProf.error
   );
 
+  const wizardPeriod = "2026-11";
+  const { data: declWizardA } = await service
+    .from("accounting_declarations")
+    .insert({
+      org_id: orgA.id,
+      form_code: "01/GTGT",
+      period_key: wizardPeriod,
+      status: "drafting",
+      computed: {
+        _wizard: {
+          revision: 1,
+          step: 2,
+          filingKind: "regular",
+          periodKey: wizardPeriod,
+          steps: {
+            "1": { savedAt: new Date().toISOString(), savedBy: users.aOwner.id, lang: "ko" },
+          },
+        },
+      },
+    })
+    .select("id")
+    .single();
+  const crossWizard = await clientBOwner
+    .from("accounting_declarations")
+    .select("id")
+    .eq("id", declWizardA.id);
+  record("p96b_wizard_cross_org_hidden", (crossWizard.data ?? []).length === 0, "");
+
+  process.env.P96B_WIZARD_PAYLOAD = JSON.stringify({
+    email: `${tag}-a-owner@test.vfbcai.local`,
+    password: passwords.all,
+    orgId: orgA.id,
+    ownerId: users.aOwner.id,
+    periodKey: `${wizardPeriod}-conflict`,
+  });
+  let concurrentOk = false;
+  try {
+    const out = execSync("npx tsx tests/accounting/p96b-wizard-save.mjs", {
+      cwd: repoRoot,
+      encoding: "utf8",
+      env: { ...process.env },
+    });
+    const jsonLine = out
+      .trim()
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.startsWith("{"))
+      .pop();
+    const parsed = JSON.parse(jsonLine ?? "{}");
+    concurrentOk = Boolean(parsed.ok);
+  } catch {
+    concurrentOk = false;
+  }
+  record("p96b_wizard_concurrent_save", concurrentOk, "");
+
+  if (declWizardA?.id) {
+    await service.from("accounting_declarations").delete().eq("id", declWizardA.id);
+  }
+
   await service.storage.from("accounting_evidence").remove([pathA]);
   await service
     .from("accounting_transactions")

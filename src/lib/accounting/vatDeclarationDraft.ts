@@ -187,7 +187,12 @@ export async function runVatGtgt01Draft(
   });
   payload.warnings.push(...warnings, ...aggWarnings);
 
-  const computed = gtgtFieldsToJson(payload);
+  const computed = gtgtFieldsToJson(payload) as Record<string, unknown>;
+  const preservedWizard =
+    existing?.computed && typeof existing.computed === "object"
+      ? (existing.computed as Record<string, unknown>)._wizard
+      : undefined;
+  if (preservedWizard) computed._wizard = preservedWizard;
 
   const { error: updErr } = await client
     .from("accounting_declarations")

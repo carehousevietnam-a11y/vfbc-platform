@@ -329,6 +329,11 @@ export const ACCOUNTING_UI = {
     "accounting.txn.field.memo": "거래 메모",
     "accounting.txn.field.description": "품목 설명",
     "accounting.txn.error.concurrent_save": "다른 사용자가 먼저 저장했습니다. 새로 불러옵니다.",
+    "accounting.vat.wizard.last_saved": "마지막 작성: {name} · {lang} · {time}",
+    "accounting.vat.wizard.memo": "단계 메모",
+    "accounting.vat.error.wizard_locked": "전문가 검토 중이거나 제출 완료된 신고서는 이 단계를 수정할 수 없습니다.",
+    "accounting.vat.error.wizard_conflict": "다른 사용자가 먼저 저장했습니다. 새로 불러옵니다.",
+    "accounting.vat.wizard.conflict_local": "내가 입력 중이던 값(비교용)",
     "accounting.vat.error.direct_method": "직접 계산 방식은 전문가 문의가 필요합니다.",
     "accounting.vat.guard.period_before_tt89":
       "이 기간은 2026-07-01 이전 서식 적용 기간입니다. 이전 서식(Thông tư 80/2021/TT-BTC) 초안은 지원 준비 중입니다.",
@@ -790,6 +795,11 @@ export const ACCOUNTING_UI = {
     "accounting.txn.field.memo": "Ghi chú giao dịch",
     "accounting.txn.field.description": "Mô tả hàng hóa",
     "accounting.txn.error.concurrent_save": "Người khác đã lưu trước. Đang tải lại.",
+    "accounting.vat.wizard.last_saved": "Lần lưu cuối: {name} · {lang} · {time}",
+    "accounting.vat.wizard.memo": "Ghi chú bước",
+    "accounting.vat.error.wizard_locked": "Tờ khai đang được chuyên gia xem xét hoặc đã nộp, không sửa bước này.",
+    "accounting.vat.error.wizard_conflict": "Người khác đã lưu trước. Đang tải lại.",
+    "accounting.vat.wizard.conflict_local": "Giá trị tôi đang nhập (để so sánh)",
     "accounting.vat.error.direct_method": "Phương pháp trực tiếp cần liên hệ chuyên gia.",
     "accounting.vat.guard.period_before_tt89":
       "Kỳ này thuộc mẫu trước 01/07/2026. Nháp theo Thông tư 80/2021/TT-BTC đang được chuẩn bị.",

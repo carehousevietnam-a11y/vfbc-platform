@@ -16,9 +16,14 @@ import { AccountingFormBasisFooter } from "@/lib/accounting/AccountingFormBasisF
 import { AccountingFormViewBar } from "@/lib/accounting/AccountingFormViewBar";
 import {
   loadFormViewMode,
+  saveFieldViewMode,
   type AccountingFormViewMode,
 } from "@/lib/accounting/accountingFormViewMode";
 import { vatFieldLabel } from "@/lib/accounting/accountingFieldLabels";
+import { AccountingI18nField } from "@/lib/accounting/AccountingI18nField";
+import type { I18nLang } from "@/lib/accounting/accountingI18nTexts";
+import { stepMemoField, type VatWizardState } from "@/lib/accounting/vatWizard";
+import type { AccountingFieldViewMode } from "@/lib/accounting/accountingFormViewMode";
 
 const STEPS = [1, 2, 3, 4, 5, 6] as const;
 const LEVEL_CLASS = {
@@ -44,12 +49,6 @@ function formatAmount(locale: AccountingLocale, raw: string | undefined): string
   return new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "ko-KR", {
     maximumFractionDigits: 0,
   }).format(n);
-}
-
-function labelFor(field: VatFieldMapEntry | undefined, locale: AccountingLocale): string {
-  if (!field) return "—";
-  const name = locale === "vi" ? field.label_vi : field.label_ko;
-  return `[${field.code}] ${name}`;
 }
 
 function bilingualLabel(field: VatFieldMapEntry): string {
@@ -121,6 +120,20 @@ export default function VatDeclarationClient() {
   const [showPreview, setShowPreview] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<AccountingFormViewMode>("bilingual");
+  const [declUpdatedAt, setDeclUpdatedAt] = useState<string | null>(null);
+  const [wizardLocked, setWizardLocked] = useState(false);
+  const [displayNames, setDisplayNames] = useState<Record<string, string>>({});
+  const [serverStepMemos, setServerStepMemos] = useState<Record<string, { ko?: string; vi?: string }>>({});
+  const [memoDrafts, setMemoDrafts] = useState<Record<number, string>>({});
+  const [memoLangs, setMemoLangs] = useState<Record<number, I18nLang>>({});
+  const [memoFieldViews, setMemoFieldViews] = useState<Record<number, AccountingFieldViewMode>>({});
+  const [conflictSnapshot, setConflictSnapshot] = useState<{
+    step: number;
+    periodKey: string;
+    filingKind: string;
+    memo: string;
+  } | null>(null);
+  const [wizardMeta, setWizardMeta] = useState<VatWizardState | null>(null);
 
   const periodBlockedUi = useMemo(() => {
     if (!periodKey) return periodGuardBlocked;
@@ -133,7 +146,105 @@ export default function VatDeclarationClient() {
     return m;
   }, [fieldMap]);
 
-  const authHeaders = useCallback(() => ({ Authorization: `Bearer ${token}` }), [token]);
+  const authHeaders = useCallback(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }),
+    [token]
+  );
+
+  const wizardReadOnly = wizardLocked || declStatus === "expert_review" || declStatus === "filed_manual";
+
+  function applyDeclarationPayload(json: {
+    declaration?: {
+      id?: string;
+      status?: string;
+      computed?: { fields?: ComputedFields; warnings?: string[] };
+      updated_at?: string;
+    } | null;
+    wizard?: VatWizardState | null;
+    stepMemos?: Record<string, { ko?: string; vi?: string }>;
+    displayNames?: Record<string, string>;
+    wizardLocked?: boolean;
+  }) {
+    if (json.declaration) {
+      setDeclarationId(json.declaration.id ?? null);
+      setDeclStatus(json.declaration.status ?? "");
+      const comp = json.declaration.computed as { fields?: ComputedFields; warnings?: string[] } | undefined;
+      setComputed(comp?.fields ?? {});
+      setWarnings(comp?.warnings ?? []);
+      setDeclUpdatedAt(json.declaration.updated_at ?? null);
+    }
+    setWizardLocked(Boolean(json.wizardLocked));
+    setDisplayNames(json.displayNames ?? {});
+    setServerStepMemos(json.stepMemos ?? {});
+    if (json.wizard) {
+      setWizardMeta(json.wizard);
+      setStep(json.wizard.step);
+      setFilingKind(json.wizard.filingKind);
+      if (json.wizard.periodKey) setPeriodKeyDraft(json.wizard.periodKey);
+    }
+    const memos = json.stepMemos ?? {};
+    setMemoDrafts((prev) => {
+      const next = { ...prev };
+      for (let s = 1; s <= 6; s += 1) {
+        const pack = memos[stepMemoField(s)];
+        const text = pack?.ko ?? pack?.vi ?? "";
+        if (!next[s] && text) next[s] = text;
+      }
+      return next;
+    });
+  }
+
+  function formatWizardTime(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    if (lang === "vi") {
+      return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    }
+    return `${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  }
+
+  function renderStepMeta(stepNo: number) {
+    const meta = wizardMeta?.steps[String(stepNo)];
+    if (!meta) return null;
+    const name = displayNames[meta.savedBy] ?? meta.savedBy.slice(0, 8);
+    const langLabel =
+      meta.lang === "vi" ? t("accounting.input_lang.vi") : t("accounting.input_lang.ko");
+    const line = t("accounting.vat.wizard.last_saved")
+      .replace("{name}", name)
+      .replace("{lang}", langLabel)
+      .replace("{time}", formatWizardTime(meta.savedAt));
+    return <p className="text-xs text-[#6B7A94]">{line}</p>;
+  }
+
+  function renderStepMemo(stepNo: number) {
+    const fieldId = `vat.step_memo.${stepNo}`;
+    const saved = serverStepMemos[stepMemoField(stepNo)];
+    const inputLang = memoLangs[stepNo] ?? lang;
+    const fieldView = memoFieldViews[stepNo] ?? "follow";
+    return (
+      <AccountingI18nField
+        fieldId={fieldId}
+        labelKey="accounting.vat.wizard.memo"
+        locale={lang}
+        userId={userId}
+        inputLang={inputLang}
+        onInputLangChange={(l) => setMemoLangs((m) => ({ ...m, [stepNo]: l }))}
+        fieldView={fieldView}
+        onFieldViewChange={(mode) => {
+          setMemoFieldViews((m) => ({ ...m, [stepNo]: mode }));
+          if (userId) saveFieldViewMode(userId, fieldId, mode);
+        }}
+        value={memoDrafts[stepNo] ?? ""}
+        onChange={(v) => setMemoDrafts((m) => ({ ...m, [stepNo]: v }))}
+        readOnly={wizardReadOnly}
+        saved={saved}
+        rows={2}
+      />
+    );
+  }
 
   const fontClass =
     fontSize === "sm" ? "text-[13px]" : fontSize === "lg" ? "text-[17px]" : "text-[15px]";
@@ -174,14 +285,77 @@ export default function VatDeclarationClient() {
     setPeriodGuardBlocked(Boolean(json.periodGuard?.blocked));
     setFieldMap(json.form.fields ?? []);
     setFormStatus(json.form.status ?? "");
-    if (json.declaration) {
-      setDeclarationId(json.declaration.id);
-      setDeclStatus(json.declaration.status);
-      const comp = json.declaration.computed as { fields?: ComputedFields; warnings?: string[] };
-      setComputed(comp?.fields ?? {});
-      setWarnings(comp?.warnings ?? []);
-    }
+    applyDeclarationPayload(json);
   }, [authHeaders, periodKey, token]);
+
+  const persistWizard = useCallback(
+    async (stepToSave: number, opts?: { nextStep?: number }) => {
+      if (!token || wizardReadOnly || !periodKey) return true;
+      const res = await fetch("/api/accounting/vat/wizard", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          declarationId: declarationId ?? undefined,
+          periodKey,
+          step: stepToSave,
+          filingKind,
+          stepMemo: memoDrafts[stepToSave] ?? "",
+          stepMemoLang: memoLangs[stepToSave] ?? lang,
+          expectedUpdatedAt: declUpdatedAt,
+          expectedRevision: wizardMeta?.revision ?? 0,
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        server?: { wizard: VatWizardState | null; updatedAt: string | null };
+        declarationId?: string;
+        updatedAt?: string;
+        wizard?: VatWizardState;
+      };
+      if (!res.ok) {
+        if (json.error === "CONCURRENT_SAVE") {
+          setNotice("accounting.vat.error.wizard_conflict");
+          setConflictSnapshot({
+            step: stepToSave,
+            periodKey,
+            filingKind,
+            memo: memoDrafts[stepToSave] ?? "",
+          });
+          if (json.server?.wizard) {
+            setWizardMeta(json.server.wizard);
+            setFilingKind(json.server.wizard.filingKind);
+            if (json.server.wizard.periodKey) setPeriodKeyDraft(json.server.wizard.periodKey);
+          }
+          if (json.server?.updatedAt) setDeclUpdatedAt(json.server.updatedAt);
+          await loadContext();
+          return false;
+        }
+        if (json.error === "WIZARD_LOCKED") setNotice("accounting.vat.error.wizard_locked");
+        return false;
+      }
+      setConflictSnapshot(null);
+      if (json.declarationId) setDeclarationId(json.declarationId);
+      if (json.updatedAt) setDeclUpdatedAt(json.updatedAt);
+      if (json.wizard) setWizardMeta(json.wizard);
+      if (opts?.nextStep) setStep(opts.nextStep);
+      await loadContext();
+      return true;
+    },
+    [
+      authHeaders,
+      declarationId,
+      declUpdatedAt,
+      filingKind,
+      lang,
+      loadContext,
+      memoDrafts,
+      memoLangs,
+      periodKey,
+      token,
+      wizardMeta?.revision,
+      wizardReadOnly,
+    ]
+  );
 
   useEffect(() => {
     if (phase !== "ready" || !periodKey || !token) return;
@@ -205,17 +379,25 @@ export default function VatDeclarationClient() {
       setPeriodGuardBlocked(Boolean(json.periodGuard?.blocked));
       setFieldMap(json.form.fields ?? []);
       setFormStatus(json.form.status ?? "");
-      if (json.declaration) {
-        setDeclarationId(json.declaration.id);
-        setDeclStatus(json.declaration.status);
-        const comp = json.declaration.computed as { fields?: ComputedFields; warnings?: string[] };
-        setComputed(comp?.fields ?? {});
-        setWarnings(comp?.warnings ?? []);
+      applyDeclarationPayload(json);
+      if (!json.wizard) {
+        const raw = localStorage.getItem("accounting.vat.draft");
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw) as { periodKey?: string; filingKind?: string; step?: number };
+            if (parsed.periodKey && !periodKeyDraft) setPeriodKeyDraft(parsed.periodKey);
+            if (parsed.filingKind === "amended" || parsed.filingKind === "regular") setFilingKind(parsed.filingKind);
+            if (parsed.step && parsed.step >= 1 && parsed.step <= 6) setStep(parsed.step);
+          } catch {
+            /* ignore */
+          }
+        }
       }
     })();
     return () => {
       cancelled = true;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- local draft fallback only when server wizard absent
   }, [phase, periodKey, token, authHeaders]);
 
   const runDraft = useCallback(async () => {
@@ -300,8 +482,16 @@ export default function VatDeclarationClient() {
   }, [computed, orgId, periodKey, token, warnings]);
 
   const goToStep = (n: number) => {
-    setStep(n);
-    if (n === 5) void buildPrecheck();
+    if (wizardReadOnly) return;
+    void (async () => {
+      setBusy(true);
+      const ok = await persistWizard(step, { nextStep: n });
+      setBusy(false);
+      if (ok) {
+        setStep(n);
+        if (n === 5) void buildPrecheck();
+      }
+    })();
   };
 
   const saveLocalDraft = () => {
@@ -442,6 +632,18 @@ export default function VatDeclarationClient() {
             </p>
           )}
 
+          {conflictSnapshot ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-[#071A33]">
+              <p className="font-semibold">{t("accounting.vat.wizard.conflict_local")}</p>
+              <p className="mt-1 text-xs text-[#3D4B63]">
+                step {conflictSnapshot.step} · {conflictSnapshot.periodKey} · {conflictSnapshot.filingKind}
+              </p>
+              {conflictSnapshot.memo ? (
+                <p className="mt-1 whitespace-pre-wrap text-xs">{conflictSnapshot.memo}</p>
+              ) : null}
+            </div>
+          ) : null}
+
           <section className="rounded-xl border border-[#E3E8F0] bg-white p-4">
             {showPreview ? (
               <div className="space-y-4">
@@ -498,12 +700,14 @@ export default function VatDeclarationClient() {
             ) : null}
             {!showPreview && step === 1 && (
               <div className="space-y-4">
+                {renderStepMeta(1)}
                 <p className="text-sm text-[#3D4B63]">
                   <span className="text-red-600">*</span> {t("accounting.vat.field.period")}
                 </p>
                 <input
                   className="w-full rounded-lg border border-[#E3E8F0] px-3 py-2"
                   value={periodKey}
+                  disabled={wizardReadOnly}
                   onChange={(e) => setPeriodKeyDraft(e.target.value)}
                   placeholder={t("accounting.vat.period.placeholder")}
                 />
@@ -536,10 +740,19 @@ export default function VatDeclarationClient() {
                     {t("accounting.vat.filing.amended")}
                   </label>
                 </fieldset>
+                {renderStepMemo(1)}
               </div>
             )}
-            {!showPreview && step >= 2 && step <= 4 && (STEP_FIELDS[step] ?? []).map(renderFieldRow)}
+            {!showPreview && step >= 2 && step <= 4 && (
+              <div className="space-y-3">
+                {renderStepMeta(step)}
+                {(STEP_FIELDS[step] ?? []).map(renderFieldRow)}
+                {renderStepMemo(step)}
+              </div>
+            )}
             {!showPreview && step === 5 && (
+              <div className="space-y-3">
+                {renderStepMeta(5)}
               <ul className="space-y-2">
                 {precheck.length === 0 && (
                   <li className={`rounded-lg border px-3 py-2 text-sm ${LEVEL_CLASS.ok}`}>
@@ -561,9 +774,12 @@ export default function VatDeclarationClient() {
                   </li>
                 ))}
               </ul>
+                {renderStepMemo(5)}
+              </div>
             )}
             {!showPreview && step === 6 && (
               <div className="space-y-3">
+                {renderStepMeta(6)}
                 <p className="text-sm text-[#3D4B63]">{t("accounting.vat.step6.lead")}</p>
                 <p className="text-sm font-semibold text-[#071A33]">
                   {t("accounting.vat.status")}: {declStatus || "—"}
@@ -579,6 +795,7 @@ export default function VatDeclarationClient() {
                 {role !== "company_owner" && (
                   <p className="text-xs text-[#3D4B63]">{t("accounting.vat.error.owner_only")}</p>
                 )}
+                {renderStepMemo(6)}
               </div>
             )}
           </section>
