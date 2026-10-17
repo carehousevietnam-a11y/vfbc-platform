@@ -31,32 +31,28 @@ export default function AccountingMorePage() {
   const lang = uiAccountingLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
   const [membershipRole, setMembershipRole] = useState<string | null>(null);
-  const [membershipLoaded, setMembershipLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData.session?.user?.id;
-      if (!userId) {
-        if (!cancelled) setMembershipLoaded(true);
-        return;
-      }
+      if (!userId) return;
       const membership = await resolveAccountingOrgMembershipState(supabase, userId);
       if (cancelled) return;
       if (membership.kind === "approved" || membership.kind === "pending") {
         setMembershipRole(membership.role);
       }
-      setMembershipLoaded(true);
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const moreLinks = membershipLoaded
-    ? accountingMorePageLinksForRole(membershipRole)
-    : ACCOUNTING_MORE_PAGE_LINKS.filter((k) => k !== "company");
+  const moreLinks =
+    membershipRole === "company_member"
+      ? accountingMorePageLinksForRole("company_member")
+      : ACCOUNTING_MORE_PAGE_LINKS;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8" data-testid="accounting-more">
