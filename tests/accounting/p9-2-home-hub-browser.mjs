@@ -86,7 +86,7 @@ await withSession(seed.sessionOwner, "ko", { width: 1440, height: 900 }, async (
 
   await page.goto(homeUrl, { waitUntil: "load", timeout: 90000 });
   await page.getByTestId("accounting-home-hub-shortcuts").getByRole("link", { name: "설정" }).click();
-  await page.waitForURL(/\/company\/accounting\/company/, { timeout: 30000 });
+  await page.waitForURL(/\/company\/accounting\/profile/, { timeout: 30000 });
   record("shortcut_settings_nav", true, page.url());
 });
 

@@ -7,9 +7,11 @@ import { supabase } from "@/lib/supabase";
 import { accountingMessage, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import { uiAccountingLocale } from "@/lib/accounting/localeFormat";
 import {
+  accountingCompanyInfoHref,
   accountingMorePageLinksForRole,
   ACCOUNTING_MORE_PAGE_LINKS,
   ACCOUNTING_ROUTES,
+  type AccountingCompanyInfoMembership,
   type AccountingNavKey,
 } from "@/lib/accounting/accountingNav";
 import { resolveAccountingOrgMembershipState } from "@/lib/accounting/orgMembership";
@@ -31,6 +33,7 @@ export default function AccountingMorePage() {
   const lang = uiAccountingLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
   const [membershipRole, setMembershipRole] = useState<string | null>(null);
+  const [membershipKind, setMembershipKind] = useState<AccountingCompanyInfoMembership["kind"]>("none");
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +45,7 @@ export default function AccountingMorePage() {
       if (cancelled) return;
       if (membership.kind === "approved" || membership.kind === "pending") {
         setMembershipRole(membership.role);
+        setMembershipKind(membership.kind);
       }
     })();
     return () => {
@@ -54,6 +58,16 @@ export default function AccountingMorePage() {
       ? accountingMorePageLinksForRole("company_member")
       : ACCOUNTING_MORE_PAGE_LINKS;
 
+  const companyInfoMembership: AccountingCompanyInfoMembership =
+    membershipKind === "approved" || membershipKind === "pending"
+      ? { kind: membershipKind, role: membershipRole ?? "" }
+      : { kind: "none" };
+
+  const linkHref = (key: AccountingNavKey) => {
+    if (key === "company") return accountingCompanyInfoHref(companyInfoMembership);
+    return ACCOUNTING_ROUTES[key];
+  };
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8" data-testid="accounting-more">
       <h1 className="text-[22px] font-extrabold tracking-[-0.03em]">{t("accounting.nav.more")}</h1>
@@ -62,7 +76,7 @@ export default function AccountingMorePage() {
         {moreLinks.map((key) => (
           <li key={key}>
             <Link
-              href={ACCOUNTING_ROUTES[key]}
+              href={linkHref(key)}
               className="flex min-h-11 items-center rounded-lg border border-[#E3E8F0] bg-white px-4 text-sm font-semibold text-[#2563EB]"
             >
               {t(LABEL[key])}

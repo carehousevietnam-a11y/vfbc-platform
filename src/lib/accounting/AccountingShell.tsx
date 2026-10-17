@@ -10,7 +10,9 @@ import { uiAccountingLocale } from "./localeFormat";
 import {
   ACCOUNTING_ROUTES,
   ACCOUNTING_SHELL_DESKTOP_NAV,
+  accountingCompanyInfoHref,
   accountingShellDesktopNavForRole,
+  type AccountingCompanyInfoMembership,
   type AccountingNavKey,
   navKeyFromPath,
 } from "./accountingNav";
@@ -40,6 +42,7 @@ export function AccountingShell({ children }: Props) {
   const t = (key: AccountingMessageKey) => accountingMessage(lang, key);
   const active = navKeyFromPath(pathname);
   const [membershipRole, setMembershipRole] = useState<string | null>(null);
+  const [membershipKind, setMembershipKind] = useState<AccountingCompanyInfoMembership["kind"]>("none");
   const [membershipLoaded, setMembershipLoaded] = useState(false);
 
   useEffect(() => {
@@ -55,6 +58,7 @@ export function AccountingShell({ children }: Props) {
       if (cancelled) return;
       if (membership.kind === "approved" || membership.kind === "pending") {
         setMembershipRole(membership.role);
+        setMembershipKind(membership.kind);
       }
       setMembershipLoaded(true);
     })();
@@ -62,6 +66,16 @@ export function AccountingShell({ children }: Props) {
       cancelled = true;
     };
   }, []);
+
+  const companyInfoMembership: AccountingCompanyInfoMembership =
+    membershipKind === "approved" || membershipKind === "pending"
+      ? { kind: membershipKind, role: membershipRole ?? "" }
+      : { kind: "none" };
+
+  const navHref = (key: AccountingNavKey) => {
+    if (key === "company") return accountingCompanyInfoHref(companyInfoMembership);
+    return ACCOUNTING_ROUTES[key];
+  };
 
   const desktopNavKeys = membershipLoaded
     ? accountingShellDesktopNavForRole(membershipRole)
@@ -86,7 +100,7 @@ export function AccountingShell({ children }: Props) {
             {desktopNavKeys.map((key) => (
               <Link
                 key={key}
-                href={ACCOUNTING_ROUTES[key]}
+                href={navHref(key)}
                 className={linkClass(key)}
                 data-testid={`accounting-nav-link-${key}`}
               >

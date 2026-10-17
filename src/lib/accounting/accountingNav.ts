@@ -9,6 +9,9 @@ export type AccountingNavKey =
   | "pending"
   | "more";
 
+/** Approved owner read-only company profile (not onboarding /company). */
+export const ACCOUNTING_COMPANY_PROFILE_PATH = "/company/accounting/profile";
+
 export const ACCOUNTING_ROUTES: Record<AccountingNavKey, string> = {
   home: "/company/accounting",
   pending: "/company/accounting/pending",
@@ -21,8 +24,23 @@ export const ACCOUNTING_ROUTES: Record<AccountingNavKey, string> = {
   more: "/company/accounting/more",
 };
 
+export type AccountingCompanyInfoMembership =
+  | { kind: "approved"; role: string }
+  | { kind: "pending"; role: string }
+  | { kind: "none" };
+
+export function accountingCompanyInfoHref(membership: AccountingCompanyInfoMembership): string {
+  if (membership.kind === "approved" && membership.role === "company_owner") {
+    return ACCOUNTING_COMPANY_PROFILE_PATH;
+  }
+  return ACCOUNTING_ROUTES.company;
+}
+
 export function navKeyFromPath(pathname: string): AccountingNavKey {
   if (pathname === ACCOUNTING_ROUTES.home || pathname === `${ACCOUNTING_ROUTES.home}/`) return "home";
+  if (pathname === ACCOUNTING_COMPANY_PROFILE_PATH || pathname.startsWith(`${ACCOUNTING_COMPANY_PROFILE_PATH}/`)) {
+    return "company";
+  }
   if (pathname.startsWith(ACCOUNTING_ROUTES.transactions)) return "transactions";
   if (pathname.startsWith(ACCOUNTING_ROUTES.ledger)) return "ledger";
   if (pathname.startsWith(ACCOUNTING_ROUTES.tax)) return "tax";

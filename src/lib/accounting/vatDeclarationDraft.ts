@@ -6,6 +6,11 @@ import {
 } from "./gtgt01Engine";
 import { aggregateConfirmedTxnLines } from "./gtgt01TxnAggregate";
 import { vatDueDateForOrg } from "./vatDeadline";
+import {
+  gtgt01Tt89PeriodGuardMessageKey,
+  isPeriodBeforeGtgt01Tt89,
+  type VatCalendarPeriod,
+} from "./gtgt01FormPeriod";
 
 export type VatDraftResult =
   | { ok: true; declarationId: string; computed: Record<string, unknown> }
@@ -114,7 +119,15 @@ export async function runVatGtgt01Draft(
     return { ok: false, code: "VAT_DIRECT_METHOD_CONTACT_EXPERT", messageKey: "accounting.vat.error.direct_method" };
   }
 
-  const vatPeriod = (org.vat_period as "month" | "quarter") ?? "month";
+  const vatPeriod = (org.vat_period as VatCalendarPeriod) ?? "month";
+
+  if (isPeriodBeforeGtgt01Tt89(periodKey, vatPeriod)) {
+    return {
+      ok: false,
+      code: "PERIOD_BEFORE_TT89",
+      messageKey: gtgt01Tt89PeriodGuardMessageKey(),
+    };
+  }
 
   const { data: formRow } = await client
     .from("accounting_form_versions")

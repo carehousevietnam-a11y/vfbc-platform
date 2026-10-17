@@ -106,6 +106,26 @@ accounting.home.hub.tile.declare
 accounting.home.hub.short.schedule
 accounting.home.hub.short.settings
 
+P9-5b 회사 정보 조회·TT89 기간 가드 (vi 초안, 검수 필요):
+accounting.profile.title
+accounting.profile.lead
+accounting.profile.loading
+accounting.profile.denied
+accounting.profile.field.name_official
+accounting.profile.field.name_ko_display
+accounting.profile.field.tax_code
+accounting.profile.field.fiscal_year_start
+accounting.profile.field.vat_period
+accounting.profile.field.approval_status
+accounting.profile.vat_period.month
+accounting.profile.vat_period.quarter
+accounting.profile.approval.approved
+accounting.profile.docs.section
+accounting.profile.docs.empty
+accounting.profile.docs.uploaded_at
+accounting.vat.guard.period_before_tt89
+accounting.vat.error.period_before_tt89
+
 P9-3 VIET TAX 브랜드 (vi 초안, 검수 필요):
 accounting.shell.brand_title
 accounting.shell.brand_tagline

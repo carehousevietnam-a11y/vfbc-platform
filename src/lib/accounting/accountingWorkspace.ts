@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ACCOUNTING_ROUTES } from "./accountingNav";
+import { ACCOUNTING_COMPANY_PROFILE_PATH, ACCOUNTING_ROUTES } from "./accountingNav";
 import { resolveAccountingOrgMembershipState } from "./orgMembership";
 
 /** 승인된 조직이 있어야 열 수 있는 작업공간 화면 */
@@ -9,6 +9,7 @@ export const ACCOUNTING_WORKSPACE_DATA_PREFIXES = [
   ACCOUNTING_ROUTES.tax,
   ACCOUNTING_ROUTES.filing,
   ACCOUNTING_ROUTES.evidence,
+  ACCOUNTING_COMPANY_PROFILE_PATH,
 ] as const;
 
 export function isAccountingWorkspaceDataPath(pathname: string): boolean {

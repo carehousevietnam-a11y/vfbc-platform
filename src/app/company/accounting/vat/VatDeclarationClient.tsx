@@ -10,6 +10,7 @@ import {
   type AccountingLocale,
   type AccountingMessageKey,
 } from "@/lib/accounting/uiCatalog";
+import { isPeriodBeforeGtgt01Tt89, type VatCalendarPeriod } from "@/lib/accounting/gtgt01FormPeriod";
 import type { VatFieldMapEntry } from "@/lib/accounting/vatDeclarationEntry";
 
 const STEPS = [1, 2, 3, 4, 5, 6] as const;
@@ -103,12 +104,19 @@ export default function VatDeclarationClient() {
   const [orgName, setOrgName] = useState("");
   const [taxCode, setTaxCode] = useState("");
   const [vatMethod, setVatMethod] = useState<string | null>(null);
+  const [vatPeriod, setVatPeriod] = useState<VatCalendarPeriod>("month");
+  const [periodGuardBlocked, setPeriodGuardBlocked] = useState(false);
   const [notice, setNotice] = useState<AccountingMessageKey | null>(null);
   const [busy, setBusy] = useState(false);
   const [precheck, setPrecheck] = useState<
     { level: keyof typeof LEVEL_CLASS; messageKey: AccountingMessageKey; txnIds?: string[] }[]
   >([]);
   const [showPreview, setShowPreview] = useState(false);
+
+  const periodBlockedUi = useMemo(() => {
+    if (!periodKey) return periodGuardBlocked;
+    return periodGuardBlocked || isPeriodBeforeGtgt01Tt89(periodKey, vatPeriod);
+  }, [periodGuardBlocked, periodKey, vatPeriod]);
 
   const mapByCode = useMemo(() => {
     const m = new Map<string, VatFieldMapEntry>();
@@ -149,6 +157,8 @@ export default function VatDeclarationClient() {
     setOrgName(json.org?.name_official ?? "");
     setTaxCode(json.org?.tax_code ?? "");
     setVatMethod(json.org?.vat_method ?? null);
+    setVatPeriod(json.org?.vat_period === "quarter" ? "quarter" : "month");
+    setPeriodGuardBlocked(Boolean(json.periodGuard?.blocked));
     setFieldMap(json.form.fields ?? []);
     setFormStatus(json.form.status ?? "");
     if (json.declaration) {
@@ -178,6 +188,8 @@ export default function VatDeclarationClient() {
       setOrgName(json.org?.name_official ?? "");
       setTaxCode(json.org?.tax_code ?? "");
       setVatMethod(json.org?.vat_method ?? null);
+      setVatPeriod(json.org?.vat_period === "quarter" ? "quarter" : "month");
+      setPeriodGuardBlocked(Boolean(json.periodGuard?.blocked));
       setFieldMap(json.form.fields ?? []);
       setFormStatus(json.form.status ?? "");
       if (json.declaration) {
@@ -207,6 +219,8 @@ export default function VatDeclarationClient() {
     if (!res.ok) {
       if (json.error === "VAT_DIRECT_METHOD_CONTACT_EXPERT") {
         setNotice("accounting.vat.error.direct_method");
+      } else if (json.error === "PERIOD_BEFORE_TT89") {
+        setNotice("accounting.vat.error.period_before_tt89");
       } else if (json.error === "PERIOD_FILED_LOCKED") {
         setNotice("accounting.vat.error.filed_locked");
       } else {
@@ -302,6 +316,10 @@ export default function VatDeclarationClient() {
   };
 
   const requestReview = async () => {
+    if (periodBlockedUi) {
+      setNotice("accounting.vat.error.period_before_tt89");
+      return;
+    }
     if (!declarationId || role !== "company_owner") {
       setNotice("accounting.vat.error.owner_only");
       return;
@@ -474,6 +492,14 @@ export default function VatDeclarationClient() {
                 />
                 <p className="text-sm font-semibold text-[#071A33]">{orgName}</p>
                 <p className="text-sm text-[#3D4B63]">{taxCode}</p>
+                {periodBlockedUi && (
+                  <div
+                    data-testid="accounting-vat-period-guard"
+                    className={`rounded-lg border px-4 py-3 text-sm ${LEVEL_CLASS.mid}`}
+                  >
+                    {t("accounting.vat.guard.period_before_tt89")}
+                  </div>
+                )}
                 <fieldset className="space-y-2">
                   <legend className="text-sm font-semibold">{t("accounting.vat.filing.kind")}</legend>
                   <label className="flex items-center gap-2">
@@ -527,7 +553,7 @@ export default function VatDeclarationClient() {
                 </p>
                 <button
                   type="button"
-                  disabled={busy || role !== "company_owner" || vatMethod === "direct"}
+                  disabled={busy || role !== "company_owner" || vatMethod === "direct" || periodBlockedUi}
                   onClick={requestReview}
                   className="min-h-11 rounded-lg bg-[#071A33] px-4 text-sm font-semibold text-white disabled:opacity-50"
                 >
@@ -559,7 +585,7 @@ export default function VatDeclarationClient() {
               type="button"
               className="min-h-11 rounded-lg border border-[#E3E8F0] bg-white px-4 text-sm font-semibold"
               onClick={() => runDraft()}
-              disabled={busy || !periodKey || vatMethod === "direct"}
+              disabled={busy || !periodKey || vatMethod === "direct" || periodBlockedUi}
             >
               {t("accounting.vat.action.draft")}
             </button>
@@ -627,7 +653,7 @@ export default function VatDeclarationClient() {
           <button
             type="button"
             className="min-h-11 flex-1 rounded-lg bg-[#071A33] text-sm font-semibold text-white"
-            disabled={step >= 6}
+            disabled={step >= 6 || (step === 1 && periodBlockedUi)}
             onClick={async () => {
               if (step === 3) await runDraft();
               const next = Math.min(6, step + 1);

@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState, type ComponentType, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type ComponentType, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import {
+  ACCOUNTING_COMPANY_PROFILE_PATH,
   ACCOUNTING_ROUTES,
   ACCOUNTING_SHELL_DESKTOP_NAV,
+  accountingCompanyInfoHref,
+  type AccountingCompanyInfoMembership,
   type AccountingNavKey,
 } from "@/lib/accounting/accountingNav";
+import { resolveAccountingOrgMembershipState } from "@/lib/accounting/orgMembership";
 import { AccountingBrandLockup } from "@/lib/accounting/AccountingBrandLockup";
 import { accountingMessage, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import type { AccountingLocale } from "@/lib/accounting/uiCatalog";
@@ -44,15 +49,46 @@ const SHELL_NAV_I18N: Record<AccountingNavKey, AccountingMessageKey> = {
   more: "accounting.nav.more",
 };
 
-function routeForNavKey(key: AccountingNavKey): string {
-  return ACCOUNTING_ROUTES[key];
-}
-
 export function AccountingHomeHub({ lang }: Props) {
   const router = useRouter();
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
   const [query, setQuery] = useState("");
   const [openTile, setOpenTile] = useState<string | null>(null);
+  const [membershipRole, setMembershipRole] = useState<string | null>(null);
+  const [membershipKind, setMembershipKind] = useState<AccountingCompanyInfoMembership["kind"]>("none");
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user?.id;
+      if (!userId) return;
+      const membership = await resolveAccountingOrgMembershipState(supabase, userId);
+      if (cancelled) return;
+      if (membership.kind === "approved" || membership.kind === "pending") {
+        setMembershipRole(membership.role);
+        setMembershipKind(membership.kind);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const companyInfoMembership = useMemo((): AccountingCompanyInfoMembership => {
+    if (membershipKind === "approved" || membershipKind === "pending") {
+      return { kind: membershipKind, role: membershipRole ?? "" };
+    }
+    return { kind: "none" };
+  }, [membershipKind, membershipRole]);
+
+  const routeForNavKey = useCallback(
+    (key: AccountingNavKey): string => {
+      if (key === "company") return accountingCompanyInfoHref(companyInfoMembership);
+      return ACCOUNTING_ROUTES[key];
+    },
+    [companyInfoMembership]
+  );
 
   const tiles: HubTile[] = useMemo(
     () => [
@@ -91,7 +127,7 @@ export function AccountingHomeHub({ lang }: Props) {
       items.push({ labelKey, href: routeForNavKey(key), text: t(labelKey) });
     }
     return items;
-  }, [t, tiles]);
+  }, [t, tiles, routeForNavKey]);
 
   const searchHits = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -107,20 +143,29 @@ export function AccountingHomeHub({ lang }: Props) {
     });
   }, [query, searchCatalog, t]);
 
-  const shortcuts = [
-    {
-      id: "schedule",
-      labelKey: "accounting.home.hub.short.schedule" as AccountingMessageKey,
-      icon: ShortcutIconCalendar,
-      href: "#accounting-home-schedule",
-    },
-    {
-      id: "settings",
-      labelKey: "accounting.home.hub.short.settings" as AccountingMessageKey,
-      icon: ShortcutIconSettings,
-      href: ACCOUNTING_ROUTES.company,
-    },
-  ];
+  const settingsHref = useMemo(() => {
+    if (membershipKind === "none") return ACCOUNTING_COMPANY_PROFILE_PATH;
+    return accountingCompanyInfoHref(companyInfoMembership);
+  }, [companyInfoMembership, membershipKind]);
+
+  const shortcuts = useMemo(
+    () => [
+      {
+        id: "schedule",
+        labelKey: "accounting.home.hub.short.schedule" as AccountingMessageKey,
+        icon: ShortcutIconCalendar,
+        href: "#accounting-home-schedule",
+      },
+      {
+        id: "settings",
+        labelKey: "accounting.home.hub.short.settings" as AccountingMessageKey,
+        icon: ShortcutIconSettings,
+        href: settingsHref,
+        testId: "accounting-home-hub-shortcut-settings",
+      },
+    ],
+    [settingsHref]
+  );
 
   function onTileActivate(tile: HubTile) {
     if (tile.links.length === 1) {
@@ -246,7 +291,11 @@ export function AccountingHomeHub({ lang }: Props) {
                     {inner}
                   </a>
                 ) : (
-                  <Link href={item.href} className={itemClass}>
+                  <Link
+                    href={item.href}
+                    className={itemClass}
+                    data-testid={item.testId}
+                  >
                     {inner}
                   </Link>
                 )}

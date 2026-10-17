@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveAccountingActor } from "./accountingActor";
+import { isPeriodBeforeGtgt01Tt89, gtgt01Tt89PeriodGuardMessageKey } from "./gtgt01FormPeriod";
 import { runVatGtgt01Draft } from "./vatDeclarationDraft";
 
 export type VatFieldMapEntry = {
@@ -54,6 +55,9 @@ export async function getVatDeclaration(
   const form = await loadVatFormMeta(client);
   if (!form.ok) return { ok: false as const, status: 403, error: form.error };
 
+  const vatPeriod = ((org?.vat_period as string) === "quarter" ? "quarter" : "month") as "month" | "quarter";
+  const periodBeforeTt89 = isPeriodBeforeGtgt01Tt89(periodKey, vatPeriod);
+
   return {
     ok: true as const,
     orgId: actor.orgId,
@@ -61,6 +65,9 @@ export async function getVatDeclaration(
     org,
     declaration: decl,
     form,
+    periodGuard: periodBeforeTt89
+      ? { blocked: true, messageKey: gtgt01Tt89PeriodGuardMessageKey() }
+      : { blocked: false },
   };
 }
 
@@ -92,6 +99,24 @@ export async function requestExpertReview(
   if (!actor.ok) return { ok: false as const, status: actor.status, error: actor.error };
   if (actor.role !== "company_owner") {
     return { ok: false as const, status: 403, error: "OWNER_ONLY" };
+  }
+
+  const { data: declRow } = await client
+    .from("accounting_declarations")
+    .select("period_key")
+    .eq("id", declarationId)
+    .eq("org_id", actor.orgId)
+    .maybeSingle();
+  if (!declRow?.period_key) return { ok: false as const, status: 400, error: "NOT_FOUND" };
+
+  const { data: orgRow } = await client
+    .from("accounting_organizations")
+    .select("vat_period")
+    .eq("id", actor.orgId)
+    .single();
+  const vatPeriod = ((orgRow?.vat_period as string) === "quarter" ? "quarter" : "month") as "month" | "quarter";
+  if (isPeriodBeforeGtgt01Tt89(declRow.period_key as string, vatPeriod)) {
+    return { ok: false as const, status: 400, error: "PERIOD_BEFORE_TT89" };
   }
 
   const { data: decl, error } = await client

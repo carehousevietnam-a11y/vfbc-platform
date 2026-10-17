@@ -472,6 +472,11 @@
     재발 방지: GET /api/accounting/vat/declaration이 orgId를 반환하고, 클라이언트 점검 쿼리에 org_id를 명시한다.
     자동 검사: 없음
 
+95. 문제: P9-5b에서 승인된 대표가 상단 「내 회사 정보」·홈 「설정」을 눌러도 `/company` 온보딩 게이트 때문에 거래 입력으로만 이동했다
+    원인: `AccountingWorkspaceGate`는 승인 workspace에서 `/company`를 거래 입력으로 replace한다(온보딩 경로 전용).
+    재발 방지: 승인 대표 조회는 `/company/accounting/profile`로 분리하고, 메뉴·더보기·허브 설정 href만 해당 경로로 연결한다. 게이트는 수정하지 않는다. TT89 이전 과세기간은 `gtgt01FormPeriod` 상수·`PERIOD_BEFORE_TT89`로 초안·검토 요청을 막는다.
+    자동 검사: tests/accounting/isolation.mjs (p95b_*), p9-5b-browser-check.mjs, p9-2-home-hub-browser.mjs
+
 93. 문제: P5a-2에서 Pack v2.1 §5와 엔진 [27][28][34][35] 체인이 어긋나 있었다
     원인: Cursor 초안 Pack·단순 [35]=[31]+[33] 식이 TT89 Phụ lục I와 불일치.
     재발 방지: field_map·computeGtgt01은 Claude G2 v2.1 §5만 따르고, 마이그레이션은 갱신용 새 파일만 추가한다.

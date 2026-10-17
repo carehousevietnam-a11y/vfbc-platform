@@ -780,6 +780,43 @@ async function main() {
   await service.from("users").delete().eq("id", p72aUserId);
   await service.auth.admin.deleteUser(p72aUserId);
 
+  const { getOrgProfileForOwner } = await import("../../src/lib/accounting/orgProfileEntry.ts");
+  const { isPeriodBeforeGtgt01Tt89 } = await import("../../src/lib/accounting/gtgt01FormPeriod.ts");
+  record("p95b_period_guard_2026_06", isPeriodBeforeGtgt01Tt89("2026-06", "month"), "");
+  record("p95b_period_guard_2026_09_ok", !isPeriodBeforeGtgt01Tt89("2026-09", "month"), "");
+
+  const anonIso = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data: sMem } = await anonIso.auth.signInWithPassword({
+    email: `${tag}-a-member@test.vfbcai.local`,
+    password: passwords.all,
+  });
+  const memProf = await getOrgProfileForOwner(clientAMember, sMem.session.access_token);
+  record(
+    "p95b_member_profile_forbidden",
+    !memProf.ok && memProf.status === 403,
+    memProf.ok ? "unexpected ok" : memProf.error
+  );
+  const { data: sOwn } = await anonIso.auth.signInWithPassword({
+    email: `${tag}-a-owner@test.vfbcai.local`,
+    password: passwords.all,
+  });
+  const ownProf = await getOrgProfileForOwner(clientAOwner, sOwn.session.access_token);
+  record(
+    "p95b_owner_profile_ok",
+    ownProf.ok && ownProf.orgId === orgA.id,
+    ownProf.ok ? ownProf.orgId : ownProf.error
+  );
+  const { data: sBOwn } = await anonIso.auth.signInWithPassword({
+    email: `${tag}-b-owner@test.vfbcai.local`,
+    password: passwords.all,
+  });
+  const bProf = await getOrgProfileForOwner(clientBOwner, sBOwn.session.access_token);
+  record(
+    "p95b_cross_org_profile_scope",
+    bProf.ok && bProf.orgId === orgB.id && bProf.orgId !== orgA.id,
+    bProf.ok ? bProf.orgId : bProf.error
+  );
+
   await service.storage.from("accounting_evidence").remove([pathA]);
   await service
     .from("accounting_transactions")
