@@ -19,72 +19,55 @@ function HubSvg({ className, children }: { className?: string; children: ReactNo
   );
 }
 
+/** 조회/발급 — 돋보기 + 문서 */
 export function HubIconInquiry({ className }: IconProps) {
   return (
     <HubSvg className={className}>
-      <rect x="14" y="10" width="26" height="34" rx="3" fill={fillTone} fillOpacity={0.18} {...stroke} />
-      <circle cx="22" cy="22" r="5" fill="none" {...stroke} />
-      <path d="M26 26l6 6" fill="none" {...stroke} />
-      <path d="M20 34h14M20 40h10" fill="none" {...stroke} />
+      <rect x="22" y="12" width="22" height="28" rx="3" fill={fillTone} fillOpacity={0.16} {...stroke} />
+      <path d="M20 34h12M20 40h8" fill="none" {...stroke} />
+      <circle cx="18" cy="22" r="7" fill={fillTone} fillOpacity={0.22} {...stroke} />
+      <path d="M23 27l5 5" fill="none" {...stroke} />
     </HubSvg>
   );
 }
 
-export function HubIconProof({ className }: IconProps) {
-  return (
-    <HubSvg className={className}>
-      <path
-        d="M16 12h22l4 6v26a2 2 0 0 1-2 2H16a2 2 0 0 1-2-2V14a2 2 0 0 1 2-2z"
-        fill={fillTone}
-        fillOpacity={0.15}
-        {...stroke}
-      />
-      <circle cx="36" cy="36" r="7" fill={fillTone} fillOpacity={0.35} {...stroke} />
-      <path d="M33 36h6M36 33v6" stroke="#fff" strokeWidth={1.5} fill="none" />
-    </HubSvg>
-  );
-}
-
+/** 신청/제출 — 편지봉투 + 화살표 */
 export function HubIconApply({ className }: IconProps) {
   return (
     <HubSvg className={className}>
-      <path d="M14 18h28v28H14z" fill={fillTone} fillOpacity={0.12} {...stroke} />
-      <path d="M18 14h20l2 4H16l2-4z" fill={fillTone} fillOpacity={0.28} {...stroke} />
-      <path d="M34 30l6 6-6 6" fill="none" {...stroke} />
-      <path d="M22 36h16" fill="none" {...stroke} />
+      <path d="M14 20h28l-14 10-14-10z" fill={fillTone} fillOpacity={0.28} {...stroke} />
+      <path d="M14 20v18h28V20" fill={fillTone} fillOpacity={0.1} {...stroke} />
+      <path d="M36 32l6 4-6 4" fill="none" {...stroke} />
+      <path d="M30 36h12" fill="none" {...stroke} />
     </HubSvg>
   );
 }
 
+/** 신고/납부 — 계산기 */
 export function HubIconDeclare({ className }: IconProps) {
   return (
     <HubSvg className={className}>
-      <rect x="12" y="14" width="32" height="30" rx="4" fill={fillTone} fillOpacity={0.14} {...stroke} />
-      <rect x="18" y="20" width="8" height="6" rx="1" fill={fillTone} fillOpacity={0.45} />
-      <rect x="28" y="20" width="8" height="6" rx="1" fill={fillTone} fillOpacity={0.45} />
-      <rect x="18" y="30" width="8" height="6" rx="1" fill={fillTone} fillOpacity={0.45} />
-      <rect x="28" y="30" width="8" height="6" rx="1" fill={fillTone} fillOpacity={0.45} />
-      <path d="M18 42h20" fill="none" {...stroke} />
+      <rect x="14" y="10" width="28" height="36" rx="4" fill={fillTone} fillOpacity={0.14} {...stroke} />
+      <rect x="18" y="16" width="20" height="8" rx="1" fill={fillTone} fillOpacity={0.35} />
+      <rect x="18" y="28" width="7" height="7" rx="1" fill={fillTone} fillOpacity={0.45} />
+      <rect x="27" y="28" width="7" height="7" rx="1" fill={fillTone} fillOpacity={0.45} />
+      <rect x="18" y="38" width="7" height="7" rx="1" fill={fillTone} fillOpacity={0.45} />
+      <rect x="27" y="38" width="7" height="7" rx="1" fill={fillTone} fillOpacity={0.45} />
     </HubSvg>
   );
 }
 
+/** 상담/제보 — 말풍선 */
 export function HubIconConsult({ className }: IconProps) {
   return (
     <HubSvg className={className}>
-      <path d="M14 22a14 14 0 0 1 28 0v6a14 14 0 0 1-28 0v-6z" fill={fillTone} fillOpacity={0.2} {...stroke} />
-      <path d="M20 38h16M28 32v6" fill="none" {...stroke} />
-      <circle cx="22" cy="26" r="2" fill={fillTone} />
-      <circle cx="34" cy="26" r="2" fill={fillTone} />
-    </HubSvg>
-  );
-}
-
-export function HubIconAgent({ className }: IconProps) {
-  return (
-    <HubSvg className={className}>
-      <circle cx="28" cy="18" r="8" fill={fillTone} fillOpacity={0.22} {...stroke} />
-      <path d="M14 46c0-9 6.5-16 14-16s14 7 14 16" fill={fillTone} fillOpacity={0.12} {...stroke} />
+      <path
+        d="M12 18a14 14 0 0 1 28 0v8a14 14 0 0 1-14 14h-4l-6 6v-6h-4a14 14 0 0 1-4-10v-12z"
+        fill={fillTone}
+        fillOpacity={0.2}
+        {...stroke}
+      />
+      <path d="M20 24h16M20 30h10" fill="none" {...stroke} />
     </HubSvg>
   );
 }
@@ -104,48 +87,6 @@ export function ShortcutIconCalendar({ className }: IconProps) {
     <ShortSvg className={className}>
       <rect x="5" y="7" width="22" height="20" rx="2" fill={fillTone} fillOpacity={0.12} {...shortStroke} />
       <path d="M5 13h22M10 5v4M22 5v4" fill="none" {...shortStroke} />
-    </ShortSvg>
-  );
-}
-
-export function ShortcutIconTxn({ className }: IconProps) {
-  return (
-    <ShortSvg className={className}>
-      <path d="M8 6h16v20H8z" fill={fillTone} fillOpacity={0.12} {...shortStroke} />
-      <path d="M11 12h10M11 17h10" fill="none" {...shortStroke} />
-    </ShortSvg>
-  );
-}
-
-export function ShortcutIconExcel({ className }: IconProps) {
-  return (
-    <ShortSvg className={className}>
-      <rect x="6" y="4" width="20" height="24" rx="2" fill={fillTone} fillOpacity={0.12} {...shortStroke} />
-      <path d="M12 10l3 6-3 6M17 10l3 6-3 6" fill="none" {...shortStroke} />
-    </ShortSvg>
-  );
-}
-
-export function ShortcutIconEvidence({ className }: IconProps) {
-  return (
-    <ShortSvg className={className}>
-      <path d="M8 22V10l8-4 8 4v12l-8 4-8-4z" fill={fillTone} fillOpacity={0.14} {...shortStroke} />
-      <path d="M16 6v20M16 14l6-3M16 14l-6-3" fill="none" {...shortStroke} />
-      <path d="M20 8v6l4 2" stroke={fillTone} strokeWidth={1.75} fill="none" />
-    </ShortSvg>
-  );
-}
-
-export function ShortcutIconReceipt({ className }: IconProps) {
-  return (
-    <ShortSvg className={className}>
-      <path
-        d="M9 5h14v22l-2.5-1.5-2.5 1.5-2.5-1.5-2.5 1.5-2.5-1.5-2.5 1.5V5z"
-        fill={fillTone}
-        fillOpacity={0.12}
-        {...shortStroke}
-      />
-      <path d="M12 11h8M12 15h8M12 19h5" fill="none" {...shortStroke} />
     </ShortSvg>
   );
 }

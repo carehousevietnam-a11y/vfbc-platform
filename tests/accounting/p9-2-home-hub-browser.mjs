@@ -9,7 +9,7 @@ import { execSync } from "child_process";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sessionPath = path.join(repoRoot, "tests/accounting/.p5c-session.json");
-const outDir = path.join(repoRoot, "tests/qa/_output/p9-3-home");
+const outDir = path.join(repoRoot, "tests/qa/_output/p9-4-home");
 fs.mkdirSync(outDir, { recursive: true });
 
 if (!fs.existsSync(sessionPath)) {
@@ -64,13 +64,18 @@ await withSession(seed.sessionOwner, "ko", { width: 1440, height: 900 }, async (
   const shieldSrc = await page.getByTestId("accounting-home-hub-shield").getAttribute("src");
   record("brand_shield_asset", shieldSrc === "/vfbcai-shield-logo.png", shieldSrc ?? "");
   record("no_my_viet_check", !(await page.locator("body").innerText()).includes("MY VIET CHECK"));
-  record("hub_icons_six", (await page.getByTestId("accounting-home-hub-icons").locator("button").count()) === 6);
-  record("hub_shortcuts", (await page.getByTestId("accounting-home-hub-shortcuts").locator("a").count()) >= 5);
+  record("hub_icons_four", (await page.getByTestId("accounting-home-hub-icons").locator("button").count()) === 4);
+  record("hub_shortcuts_two", (await page.getByTestId("accounting-home-hub-shortcuts").locator("a").count()) === 2);
   record("funnel_hidden_when_logged_in", (await page.getByTestId("accounting-funnel-entry-links").count()) === 0);
   const body = await page.locator("body").innerText();
   record("no_vnk_string_ko", !/\bVNK\b/i.test(body));
   await page.screenshot({ path: path.join(outDir, "ko-desktop.png"), fullPage: true });
 
+  await page.getByTestId("accounting-home-hub-tile-inquiry").click();
+  await page.waitForURL(/\/company\/accounting\/ledger/, { timeout: 30000 });
+  record("tile_inquiry_nav", true, page.url());
+
+  await page.goto(homeUrl, { waitUntil: "load", timeout: 90000 });
   await page.getByTestId("accounting-home-hub-tile-apply").click();
   await page.waitForURL(/\/company\/accounting\/transactions/, { timeout: 30000 });
   record("tile_apply_nav", true, page.url());

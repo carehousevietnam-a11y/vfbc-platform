@@ -8,18 +8,12 @@ import { AccountingBrandLockup } from "@/lib/accounting/AccountingBrandLockup";
 import { accountingMessage, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import type { AccountingLocale } from "@/lib/accounting/uiCatalog";
 import {
-  HubIconAgent,
   HubIconApply,
   HubIconConsult,
   HubIconDeclare,
   HubIconInquiry,
-  HubIconProof,
   ShortcutIconCalendar,
-  ShortcutIconEvidence,
-  ShortcutIconExcel,
-  ShortcutIconReceipt,
   ShortcutIconSettings,
-  ShortcutIconTxn,
 } from "./AccountingHomeHubIcons";
 
 type MenuLink = { labelKey: AccountingMessageKey; href: string };
@@ -42,26 +36,17 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
   const [query, setQuery] = useState("");
   const [openTile, setOpenTile] = useState<string | null>(null);
 
+  const expertReviewHref = expertReviewPeriodKey
+    ? `${ACCOUNTING_ROUTES.tax}?periodKey=${encodeURIComponent(expertReviewPeriodKey)}`
+    : ACCOUNTING_ROUTES.tax;
+
   const tiles: HubTile[] = useMemo(
     () => [
       {
         id: "inquiry",
         labelKey: "accounting.home.hub.tile.inquiry",
         icon: HubIconInquiry,
-        links: [
-          { labelKey: "accounting.nav.ledger", href: ACCOUNTING_ROUTES.ledger },
-          { labelKey: "accounting.nav.evidence", href: ACCOUNTING_ROUTES.evidence },
-          { labelKey: "accounting.nav.filing", href: ACCOUNTING_ROUTES.filing },
-        ],
-      },
-      {
-        id: "proof",
-        labelKey: "accounting.home.hub.tile.proof",
-        icon: HubIconProof,
-        links: [
-          { labelKey: "accounting.nav.ledger", href: ACCOUNTING_ROUTES.ledger },
-          { labelKey: "accounting.nav.filing", href: ACCOUNTING_ROUTES.filing },
-        ],
+        links: [{ labelKey: "accounting.nav.ledger", href: ACCOUNTING_ROUTES.ledger }],
       },
       {
         id: "apply",
@@ -73,33 +58,16 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
         id: "declare",
         labelKey: "accounting.home.hub.tile.declare",
         icon: HubIconDeclare,
-        links: [
-          { labelKey: "accounting.nav.tax", href: ACCOUNTING_ROUTES.tax },
-          { labelKey: "accounting.nav.filing", href: ACCOUNTING_ROUTES.filing },
-        ],
+        links: [{ labelKey: "accounting.nav.tax", href: ACCOUNTING_ROUTES.tax }],
       },
       {
         id: "consult",
         labelKey: "accounting.home.hub.tile.consult",
         icon: HubIconConsult,
-        links: [
-          {
-            labelKey: "accounting.home.hub.link.expert_review",
-            href: expertReviewPeriodKey
-              ? `${ACCOUNTING_ROUTES.tax}?periodKey=${encodeURIComponent(expertReviewPeriodKey)}`
-              : ACCOUNTING_ROUTES.tax,
-          },
-          { labelKey: "accounting.nav.filing", href: ACCOUNTING_ROUTES.filing },
-        ],
-      },
-      {
-        id: "agent",
-        labelKey: "accounting.home.hub.tile.agent",
-        icon: HubIconAgent,
-        links: [{ labelKey: "accounting.home.hub.link.tax_agent", href: ACCOUNTING_ROUTES.tax }],
+        links: [{ labelKey: "accounting.home.hub.link.expert_review", href: expertReviewHref }],
       },
     ],
-    [expertReviewPeriodKey]
+    [expertReviewHref]
   );
 
   const searchCatalog = useMemo(() => {
@@ -114,32 +82,29 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
       "accounting.nav.transactions",
       "accounting.nav.ledger",
       "accounting.nav.tax",
-      "accounting.nav.filing",
-      "accounting.nav.evidence",
       "accounting.nav.company",
       "accounting.nav.more",
+      "accounting.home.hub.link.expert_review",
     ];
     for (const key of navKeys) {
       const href =
-        key === "accounting.nav.home"
-          ? ACCOUNTING_ROUTES.home
-          : key === "accounting.nav.transactions"
-            ? ACCOUNTING_ROUTES.transactions
-            : key === "accounting.nav.ledger"
-              ? ACCOUNTING_ROUTES.ledger
-              : key === "accounting.nav.tax"
-                ? ACCOUNTING_ROUTES.tax
-                : key === "accounting.nav.filing"
-                  ? ACCOUNTING_ROUTES.filing
-                  : key === "accounting.nav.evidence"
-                    ? ACCOUNTING_ROUTES.evidence
-                    : key === "accounting.nav.company"
-                      ? ACCOUNTING_ROUTES.company
-                      : ACCOUNTING_ROUTES.more;
+        key === "accounting.home.hub.link.expert_review"
+          ? expertReviewHref
+          : key === "accounting.nav.home"
+            ? ACCOUNTING_ROUTES.home
+            : key === "accounting.nav.transactions"
+              ? ACCOUNTING_ROUTES.transactions
+              : key === "accounting.nav.ledger"
+                ? ACCOUNTING_ROUTES.ledger
+                : key === "accounting.nav.tax"
+                  ? ACCOUNTING_ROUTES.tax
+                  : key === "accounting.nav.company"
+                    ? ACCOUNTING_ROUTES.company
+                    : ACCOUNTING_ROUTES.more;
       items.push({ labelKey: key, href, text: t(key) });
     }
     return items;
-  }, [t, tiles]);
+  }, [expertReviewHref, t, tiles]);
 
   const searchHits = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -161,30 +126,6 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
       labelKey: "accounting.home.hub.short.schedule" as AccountingMessageKey,
       icon: ShortcutIconCalendar,
       href: "#accounting-home-schedule",
-    },
-    {
-      id: "txn",
-      labelKey: "accounting.home.hub.short.transactions" as AccountingMessageKey,
-      icon: ShortcutIconTxn,
-      href: ACCOUNTING_ROUTES.transactions,
-    },
-    {
-      id: "excel",
-      labelKey: "accounting.home.hub.short.ledger_excel" as AccountingMessageKey,
-      icon: ShortcutIconExcel,
-      href: ACCOUNTING_ROUTES.ledger,
-    },
-    {
-      id: "evidence",
-      labelKey: "accounting.home.hub.short.evidence" as AccountingMessageKey,
-      icon: ShortcutIconEvidence,
-      href: ACCOUNTING_ROUTES.evidence,
-    },
-    {
-      id: "receipt",
-      labelKey: "accounting.home.hub.short.receipt" as AccountingMessageKey,
-      icon: ShortcutIconReceipt,
-      href: ACCOUNTING_ROUTES.filing,
     },
     {
       id: "settings",
@@ -254,7 +195,7 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
       ) : null}
 
       <div
-        className="mt-10 grid grid-cols-3 gap-y-8 gap-x-2 sm:grid-cols-6 sm:gap-x-4"
+        className="mx-auto mt-10 grid max-w-3xl grid-cols-2 justify-items-center gap-x-4 gap-y-8 sm:max-w-4xl sm:grid-cols-4 sm:gap-x-8"
         data-testid="accounting-home-hub-icons"
       >
         {tiles.map((tile) => {
@@ -297,10 +238,10 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
       </div>
 
       <div
-        className="mt-10 w-full overflow-x-auto rounded-full border border-[#E3E8F0] bg-white px-3 py-3 shadow-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mx-auto mt-10 w-full max-w-xl overflow-x-auto rounded-full border border-[#E3E8F0] bg-white px-3 py-3 shadow-sm"
         data-testid="accounting-home-hub-shortcuts"
       >
-        <ul className="flex min-w-min items-stretch justify-between gap-2 px-1 sm:justify-center sm:gap-3">
+        <ul className="flex items-stretch justify-center gap-4 px-1">
           {shortcuts.map((item) => {
             const Icon = item.icon;
             const inner = (
