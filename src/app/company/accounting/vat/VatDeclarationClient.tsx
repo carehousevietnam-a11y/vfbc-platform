@@ -87,7 +87,9 @@ export default function VatDeclarationClient() {
   const [token, setToken] = useState("");
   const [role, setRole] = useState("");
   const [step, setStep] = useState(1);
-  const [periodKey, setPeriodKey] = useState("");
+  const urlPeriodKey = searchParams.get("periodKey") ?? "";
+  const [periodKeyDraft, setPeriodKeyDraft] = useState("");
+  const periodKey = periodKeyDraft || urlPeriodKey;
   const [filingKind, setFilingKind] = useState<"regular" | "amended">("regular");
   const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
   const [helpOpen, setHelpOpen] = useState(false);
@@ -118,11 +120,6 @@ export default function VatDeclarationClient() {
 
   const fontClass =
     fontSize === "sm" ? "text-[13px]" : fontSize === "lg" ? "text-[17px]" : "text-[15px]";
-
-  useEffect(() => {
-    const fromUrl = searchParams.get("periodKey");
-    if (fromUrl) setPeriodKey(fromUrl);
-  }, [searchParams]);
 
   useEffect(() => {
     (async () => {
@@ -164,8 +161,37 @@ export default function VatDeclarationClient() {
   }, [authHeaders, periodKey, token]);
 
   useEffect(() => {
-    if (phase === "ready" && periodKey) loadContext();
-  }, [phase, periodKey, loadContext]);
+    if (phase !== "ready" || !periodKey || !token) return;
+    let cancelled = false;
+    void (async () => {
+      const res = await fetch(`/api/accounting/vat/declaration?periodKey=${encodeURIComponent(periodKey)}`, {
+        headers: authHeaders(),
+      });
+      if (cancelled) return;
+      if (!res.ok) {
+        setPhase("denied");
+        return;
+      }
+      const json = await res.json();
+      setRole(json.role);
+      setOrgId(json.orgId ?? "");
+      setOrgName(json.org?.name_official ?? "");
+      setTaxCode(json.org?.tax_code ?? "");
+      setVatMethod(json.org?.vat_method ?? null);
+      setFieldMap(json.form.fields ?? []);
+      setFormStatus(json.form.status ?? "");
+      if (json.declaration) {
+        setDeclarationId(json.declaration.id);
+        setDeclStatus(json.declaration.status);
+        const comp = json.declaration.computed as { fields?: ComputedFields; warnings?: string[] };
+        setComputed(comp?.fields ?? {});
+        setWarnings(comp?.warnings ?? []);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [phase, periodKey, token, authHeaders]);
 
   const runDraft = useCallback(async () => {
     if (!token || !periodKey) return null;
@@ -246,9 +272,10 @@ export default function VatDeclarationClient() {
     setPrecheck(items);
   }, [computed, orgId, periodKey, token, warnings]);
 
-  useEffect(() => {
-    if (step === 5) buildPrecheck();
-  }, [step, buildPrecheck]);
+  const goToStep = (n: number) => {
+    setStep(n);
+    if (n === 5) void buildPrecheck();
+  };
 
   const saveLocalDraft = () => {
     localStorage.setItem(
@@ -263,11 +290,11 @@ export default function VatDeclarationClient() {
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as { periodKey?: string; filingKind?: string; step?: number };
-      if (parsed.periodKey) setPeriodKey(parsed.periodKey);
+      if (parsed.periodKey) setPeriodKeyDraft(parsed.periodKey);
       if (parsed.filingKind === "amended" || parsed.filingKind === "regular") {
         setFilingKind(parsed.filingKind);
       }
-      if (parsed.step && parsed.step >= 1 && parsed.step <= 6) setStep(parsed.step);
+      if (parsed.step && parsed.step >= 1 && parsed.step <= 6) goToStep(parsed.step);
       setNotice("accounting.vat.loaded_local");
     } catch {
       setNotice("accounting.vat.error.generic");
@@ -364,7 +391,7 @@ export default function VatDeclarationClient() {
               <button
                 key={n}
                 type="button"
-                onClick={() => setStep(n)}
+                onClick={() => goToStep(n)}
                 className={`min-h-11 rounded-lg px-3 text-sm font-semibold ${
                   step === n ? "bg-[#071A33] text-white" : "bg-white text-[#3D4B63] border border-[#E3E8F0]"
                 }`}
@@ -442,7 +469,7 @@ export default function VatDeclarationClient() {
                 <input
                   className="w-full rounded-lg border border-[#E3E8F0] px-3 py-2"
                   value={periodKey}
-                  onChange={(e) => setPeriodKey(e.target.value)}
+                  onChange={(e) => setPeriodKeyDraft(e.target.value)}
                   placeholder={t("accounting.vat.period.placeholder")}
                 />
                 <p className="text-sm font-semibold text-[#071A33]">{orgName}</p>
@@ -603,7 +630,8 @@ export default function VatDeclarationClient() {
             disabled={step >= 6}
             onClick={async () => {
               if (step === 3) await runDraft();
-              setStep((s) => Math.min(6, s + 1));
+              const next = Math.min(6, step + 1);
+              goToStep(next);
             }}
           >
             {t("accounting.vat.action.next")}

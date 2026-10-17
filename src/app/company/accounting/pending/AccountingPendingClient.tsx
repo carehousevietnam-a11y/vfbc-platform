@@ -41,8 +41,28 @@ export default function AccountingPendingClient() {
   }, [lang]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    let cancelled = false;
+    void (async () => {
+      const res = await accountingAuthFetch(`/api/accounting/org-documents?lang=${lang}`);
+      if (cancelled) return;
+      if (res.status === 403) {
+        setOwnerUploadUi(false);
+        return;
+      }
+      if (!res.ok) return;
+      const body = (await res.json()) as {
+        approvalStatus: string;
+        items: DocRow[];
+        reviewNote: string | null;
+      };
+      setApprovalStatus(body.approvalStatus);
+      setItems(body.items ?? []);
+      setReviewNote(body.reviewNote);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [lang]);
 
   const hasKind = (kind: OrgDocumentKind) => items.some((i) => i.docKind === kind);
   const canUpload = ownerUploadUi && (approvalStatus === "pending" || approvalStatus === "rejected");

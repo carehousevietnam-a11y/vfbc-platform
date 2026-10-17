@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useClientMounted } from "../useClientMounted";
 import { accountingFunnelSignupHref, accountingProspectiveGuidePath } from "../companySignup";
 import { resolveAccountingWorkspaceDestination } from "../accountingWorkspace";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "../uiCatalog";
@@ -16,12 +17,11 @@ type Props = {
 
 export function AccountingFunnelExpertCta({ locale, returnPath }: Props) {
   const t = (key: AccountingMessageKey) => accountingMessage(locale, key);
-  const [hydrated, setHydrated] = useState(false);
+  const hydrated = useClientMounted();
   const [phase, setPhase] = useState<MemberPhase>("loading");
   const [workspaceHref, setWorkspaceHref] = useState<string | null>(null);
 
   useEffect(() => {
-    setHydrated(true);
     let cancelled = false;
     (async () => {
       const { data: sessionData } = await supabase.auth.getSession();

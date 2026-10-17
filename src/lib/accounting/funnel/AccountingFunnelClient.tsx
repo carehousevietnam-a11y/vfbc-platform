@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useClientMounted } from "../useClientMounted";
 import FunnelPageHeader from "@/components/engine/FunnelPageHeader";
 import FunnelPageShell from "@/components/engine/FunnelPageShell";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -45,11 +46,7 @@ export function AccountingFunnelClient({ entryId, enabled, pack, resultPack }: P
   const [leadId] = useState(() => `acct-funnel-${Date.now()}`);
   const [evidenceError, setEvidenceError] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useClientMounted();
 
   const visibleStage2 = useMemo(
     () => pack.stage2.filter((q) => visibleStage2ForAnswers(pack, stage1Answers).includes(q.id)),
@@ -235,7 +232,7 @@ export function AccountingFunnelClient({ entryId, enabled, pack, resultPack }: P
             className="space-y-4 rounded-xl border border-[#E3E8F0] bg-[#F7F9FC] p-6"
           >
             <h2 className="text-lg font-bold text-[#071A33]">{t("accounting.funnel.first_result.title")}</h2>
-            <FirstResultBody locale={locale} t={t} variant={firstResultVariant} languageNote={languageNote} />
+            <FirstResultBody t={t} variant={firstResultVariant} languageNote={languageNote} />
             <p className="text-sm text-[#3D4B63]">{t("accounting.funnel.signup.lead")}</p>
             <AccountingFunnelExpertCta locale={locale} returnPath={returnPath} />
           </section>
@@ -247,12 +244,10 @@ export function AccountingFunnelClient({ entryId, enabled, pack, resultPack }: P
 }
 
 function FirstResultBody({
-  locale,
   t,
   variant,
   languageNote,
 }: {
-  locale: AccountingLocale;
   t: (key: AccountingMessageKey) => string;
   variant: AccountingResultVariant | null;
   languageNote: string | null;

@@ -89,16 +89,34 @@ export default function LedgerClient() {
     [token]
   );
 
-  const loadLedger = useCallback(async () => {
+  const applyLedgerBody = (body: {
+    items?: Row[];
+    total?: number;
+    sumDebit?: number;
+    sumCredit?: number;
+    bannerUnverifiedBasis?: boolean;
+  }) => {
+    setRows(body.items ?? []);
+    setTotal(body.total ?? 0);
+    setSumDebit(body.sumDebit ?? 0);
+    setSumCredit(body.sumCredit ?? 0);
+    setBanner(Boolean(body.bannerUnverifiedBasis));
+    setPhase("ready");
+  };
+
+  const loadLedger = async () => {
     if (!token) return;
-    const params = new URLSearchParams({ locale: loc, page: String(page), pageSize: String(pageSize) });
+    const ledgerLocale = uiLocale(appLocale);
+    const params = new URLSearchParams({ locale: ledgerLocale, page: String(page), pageSize: String(pageSize) });
     if (period) params.set("period", period);
     if (dateFrom) params.set("dateFrom", dateFrom);
     if (dateTo) params.set("dateTo", dateTo);
     if (accountCode.trim()) params.set("accountCode", accountCode.trim());
     if (counterpartyId) params.set("counterpartyId", counterpartyId);
     if (q.trim()) params.set("q", q.trim());
-    const res = await fetch(`/api/accounting/ledger?${params.toString()}`, { headers: authHeaders() });
+    const res = await fetch(`/api/accounting/ledger?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    });
     if (res.status === 401) {
       setPhase("signed_out");
       return;
@@ -107,20 +125,14 @@ export default function LedgerClient() {
       setPhase("denied");
       return;
     }
-    const body = (await res.json()) as {
+    applyLedgerBody((await res.json()) as {
       items?: Row[];
       total?: number;
       sumDebit?: number;
       sumCredit?: number;
       bannerUnverifiedBasis?: boolean;
-    };
-    setRows(body.items ?? []);
-    setTotal(body.total ?? 0);
-    setSumDebit(body.sumDebit ?? 0);
-    setSumCredit(body.sumCredit ?? 0);
-    setBanner(Boolean(body.bannerUnverifiedBasis));
-    setPhase("ready");
-  }, [token, loc, period, dateFrom, dateTo, accountCode, counterpartyId, q, page, authHeaders]);
+    });
+  };
 
   useEffect(() => {
     void (async () => {
@@ -143,8 +155,40 @@ export default function LedgerClient() {
 
   useEffect(() => {
     if (!token) return;
-    void loadLedger();
-  }, [token, loadLedger]);
+    let cancelled = false;
+    const ledgerLocale = uiLocale(appLocale);
+    const params = new URLSearchParams({ locale: ledgerLocale, page: String(page), pageSize: String(pageSize) });
+    if (period) params.set("period", period);
+    if (dateFrom) params.set("dateFrom", dateFrom);
+    if (dateTo) params.set("dateTo", dateTo);
+    if (accountCode.trim()) params.set("accountCode", accountCode.trim());
+    if (counterpartyId) params.set("counterpartyId", counterpartyId);
+    if (q.trim()) params.set("q", q.trim());
+    void (async () => {
+      const res = await fetch(`/api/accounting/ledger?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      if (cancelled) return;
+      if (res.status === 401) {
+        setPhase("signed_out");
+        return;
+      }
+      if (res.status === 403) {
+        setPhase("denied");
+        return;
+      }
+      applyLedgerBody((await res.json()) as {
+        items?: Row[];
+        total?: number;
+        sumDebit?: number;
+        sumCredit?: number;
+        bannerUnverifiedBasis?: boolean;
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, appLocale, period, dateFrom, dateTo, accountCode, counterpartyId, q, page]);
 
   const exportBody = useCallback(
     (preview: boolean) =>

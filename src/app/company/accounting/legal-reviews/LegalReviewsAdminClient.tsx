@@ -58,23 +58,17 @@ export default function LegalReviewsAdminClient() {
   const [selectedFormIds, setSelectedFormIds] = useState<string[]>([]);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
-  const statusLabel = useCallback(
-    (status: FormVersionStatus) => {
-      const map: Record<FormVersionStatus, AccountingMessageKey> = {
-        pending_verification: "accounting.legal.status.pending_verification",
-        active: "accounting.legal.status.active",
-        retired: "accounting.legal.status.retired",
-        blocked: "accounting.legal.status.blocked",
-      };
-      return t(map[status]);
-    },
-    [loc]
-  );
+  const statusLabel = (status: FormVersionStatus) => {
+    const map: Record<FormVersionStatus, AccountingMessageKey> = {
+      pending_verification: "accounting.legal.status.pending_verification",
+      active: "accounting.legal.status.active",
+      retired: "accounting.legal.status.retired",
+      blocked: "accounting.legal.status.blocked",
+    };
+    return accountingMessage(loc, map[status]);
+  };
 
-  const formName = useCallback(
-    (row: FormVersionRow) => (loc === "vi" ? row.name_vi : row.name_ko),
-    [loc]
-  );
+  const formName = (row: FormVersionRow) => (loc === "vi" ? row.name_vi : row.name_ko);
 
   const reload = useCallback(async () => {
     const formsRes = await listFormVersions(supabase);
@@ -111,9 +105,13 @@ export default function LegalReviewsAdminClient() {
 
   const formLabelById = useMemo(() => {
     const map = new Map<string, string>();
-    for (const f of forms) map.set(f.id, `${f.form_code} · ${formName(f)}`);
+    const labelLocale = uiLocale(appLocale);
+    for (const f of forms) {
+      const name = labelLocale === "vi" ? f.name_vi : f.name_ko;
+      map.set(f.id, `${f.form_code} · ${name}`);
+    }
     return map;
-  }, [forms, formName]);
+  }, [forms, appLocale]);
 
   const onSave = async () => {
     setSaveState("saving");
