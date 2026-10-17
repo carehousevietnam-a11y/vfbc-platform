@@ -101,8 +101,8 @@ P10 standardized 2층 서식 뼈대(G9 게이트, 제출 OFF): form_class·stand
 | P5 | 완료 | `accounting_p5a*`, LESSONS 91–92·122 |
 | P6 | 완료 | `accounting_p6a`–`p6c`, LESSONS 105–106 |
 | P7 | 완료 | `accounting_p7_*`, LESSONS 108–112 |
-| P8 | 미완료 | LESSONS 113–117(브라우저·Pack 정렬 FAIL 기록) |
-| P9 | 미완료 | LESSONS 121–126(QA 마감·번역 하네스) |
+| P8 | 확인 불가 | 단일 커밋·LESSONS 외 완료 근거 미대조 |
+| P9 | 완료 | P9 이월 정리 완료; 커밋 19d5014·a6a2a39; LESSONS 113–126 |
 | P10 | 완료 | `20261018120000_accounting_p10_standardized.sql`(본 Mission) |
 
 ■ 9. 검증 (구현자가 직접 수행하고 증거를 첨부한다. Ace에게 확인을 넘기지 않는다)

@@ -665,3 +665,8 @@
     원인: RLS가 0행 갱신이면 예외를 내지 않고, 트리거는 호출되지 않는다.
     재발 방지: confirmed 불변 검증은 갱신·삭제 `select` 행 수 0과 service_role로 읽은 값 유지를 함께 단언한다.
     자동 검사: node tests/accounting/p10-standardized.mjs
+
+128. 문제: P10 로컬 보완 검증에서 status 주입·`next dev -p 3022` 후 120초 내 HTTP ready가 되지 않아 브라우저 목록 검증이 SKIP되었다.
+    원인: 콜드 컴파일·Windows spawn 대기가 하네스 상한(60×2s)보다 길었다.
+    재발 방지: 로컬 UI 검증 전 `p3c-local-next.mjs` 등으로 3020을 먼저 기동하거나, 3022 ready 폴링 상한을 늘리고 `.next` 워밍을 분리한다.
+    자동 검사: node tests/accounting/p10-local-supplement.mjs
