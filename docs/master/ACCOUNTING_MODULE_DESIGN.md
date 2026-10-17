@@ -88,6 +88,23 @@ P4 서식 레지스트리, 법령 월간 점검 화면,보내기 프레임워크
 P5 신고서 초안(부가가치세 먼저): Form Verification Pack이 도착하면 진행한다(게이트).
 P6 전문가 검토 대기열, 코멘트, 정정, "베트남어 확정" 동작.
 P7 퍼널 연결: 진입점 3개 + Content Pack 슬롯 + 가입 후 org 생성 연결.
+P8~P9 회계 모듈 마감·QA·내비·이중언어 등(세부는 LESSONS 113–126 및 해당 커밋).
+P10 standardized 2층 서식 뼈대(G9 게이트, 제출 OFF): form_class·standardized_drafts·목록 UI.
+
+| 단계 | 상태 | 근거 |
+| --- | --- | --- |
+| P0 | 완료 | LESSONS·설계서 P0 조사 게이트(확인 불가: 단일 커밋 미대조) |
+| P1 | 완료 | `20261016010000_accounting_p1.sql`, LESSONS 63–67 |
+| P2 | 완료 | `20261016020000`–`p2b` 마이그레이션, LESSONS 72–74 |
+| P3 | 완료 | `accounting_p3_*`, LESSONS 75–77 |
+| P4 | 완료 | `accounting_p4a`·`p4b`, 설계 §8 P4 |
+| P5 | 완료 | `accounting_p5a*`, LESSONS 91–92·122 |
+| P6 | 완료 | `accounting_p6a`–`p6c`, LESSONS 105–106 |
+| P7 | 완료 | `accounting_p7_*`, LESSONS 108–112 |
+| P8 | 미완료 | LESSONS 113–117(브라우저·Pack 정렬 FAIL 기록) |
+| P9 | 미완료 | LESSONS 121–126(QA 마감·번역 하네스) |
+| P10 | 완료 | `20261018120000_accounting_p10_standardized.sql`(본 Mission) |
+
 ■ 9. 검증 (구현자가 직접 수행하고 증거를 첨부한다. Ace에게 확인을 넘기지 않는다)
 - tsc --noEmit 0 오류
 - 두 조직 계정으로 서로의 거래·증빙·장부에 접근 불가 확인

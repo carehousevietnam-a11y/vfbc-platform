@@ -660,3 +660,8 @@
     원인: 번역 완료 이전에 열린 상태를 판정했다. 번역 결과는 새로 로드된 화면에서만 확인하는 것이 안전하다(분류 a, 하네스 타이밍).
     재발 방지: 번역 후 판정은 DB 폴링 완료 → 새로고침 → 항목 재오픈 뒤 DOM 텍스트로 판정한다. 스크린샷 판독에 의존하지 않는다.
     자동 검사: P9_BIDI_MODE=translate node tests/accounting/p9-carryover-bidi.mjs
+
+127. 문제: P10 `confirmed` standardized_drafts UPDATE/DELETE 하네스가 PostgREST `error`만 보고 FAIL했다.
+    원인: RLS가 0행 갱신이면 예외를 내지 않고, 트리거는 호출되지 않는다.
+    재발 방지: confirmed 불변 검증은 갱신·삭제 `select` 행 수 0과 service_role로 읽은 값 유지를 함께 단언한다.
+    자동 검사: node tests/accounting/p10-standardized.mjs

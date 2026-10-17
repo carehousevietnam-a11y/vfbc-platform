@@ -82,3 +82,4 @@
 124 · 번역 대기 하네스는 고정 sleep 대신 요소·DB 행 조건 대기(10초·60초 폴링)로 판정한다.
 125 · 하네스 note·로그에 메모 원문을 출력하지 않는다(길이·상태·언어만).
 126 · 번역 후 UI 판정은 DB 폴링 후 새로고침하고 DOM 텍스트로 본다(스크린샷 판독 금지).
+127 · confirmed standardized_drafts는 RLS 0행+service 값 유지로 불변 검증한다(PostgREST error만 보면 FAIL).

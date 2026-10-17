@@ -24,6 +24,7 @@ import { AccountingI18nField } from "@/lib/accounting/AccountingI18nField";
 import type { I18nLang } from "@/lib/accounting/accountingI18nTexts";
 import { stepMemoField, type VatWizardState } from "@/lib/accounting/vatWizard";
 import type { AccountingFieldViewMode } from "@/lib/accounting/accountingFormViewMode";
+import { AccountingTaxSubnav } from "@/lib/accounting/AccountingTaxSubnav";
 
 const STEPS = [1, 2, 3, 4, 5, 6] as const;
 const LEVEL_CLASS = {
@@ -594,6 +595,8 @@ export default function VatDeclarationClient() {
             <h1 className="text-lg font-extrabold text-[#071A33]">{t("accounting.vat.title")}</h1>
             <p className="mt-1 text-sm text-[#3D4B63]">{t("accounting.vat.lead")}</p>
           </header>
+
+          <AccountingTaxSubnav />
 
           {token ? (
             <AccountingFormViewBar locale={lang} userId={userId} mode={viewMode} onChange={setViewMode} />
