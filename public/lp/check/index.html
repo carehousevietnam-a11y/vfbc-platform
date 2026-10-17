@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MY VIET CHECK | 결정하기 전에, 먼저 직접 확인하세요</title>
+<meta name="description" content="베트남에서 받은 정보와 비용, 결정하기 전에 먼저 직접 확인하세요. MY VIET CHECK by VFBCAI.">
+<meta name="theme-color" content="#030E22">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="styles.css?v=20261016"> <!-- version query: forces browsers holding an older cached copy to load this one -->
+<!-- content is only hidden for the reveal fade when the script is actually running -->
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="site-header" id="siteHeader">
+  <div class="wrap header-inner">
+    <a class="logo" href="#top" aria-label="MY VIET CHECK by VFBCAI">
+      <span class="logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <span class="logo-type">
+        <span class="logo-name">MY VIET CHECK</span>
+        <span class="logo-by">by VFBCAI</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="서비스">
+      <a data-route="/check" href="#"><span class="nav-en">CHECK</span><span class="nav-sub" data-i18n="nav1">확인</span></a>
+      <a data-route="/verify" href="#"><span class="nav-en">VERIFY</span><span class="nav-sub" data-i18n="nav2">검증</span></a>
+      <a data-route="/protect" href="#"><span class="nav-en">PROTECT</span><span class="nav-sub" data-i18n="nav4">관리</span></a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="lang" data-lang-menu>
+        <button type="button" class="lang-btn" aria-haspopup="menu" aria-expanded="false">
+          <span data-lang-current>한국어</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="lang-pop" role="menu" hidden>
+          <button type="button" role="menuitem" data-set-lang="ko">한국어</button>
+          <button type="button" role="menuitem" data-set-lang="en">English</button>
+          <button type="button" role="menuitem" data-set-lang="vi">Tiếng Việt</button>
+          <button type="button" role="menuitem" data-set-lang="zh">中文</button>
+        </div>
+      </div>
+      <a class="login" data-route="/login" href="#" data-i18n="login">로그인</a>
+      <!-- MY VIET BIZ (MY VIET BIZ.html, sibling file — same relative link style as its "일반회원 페이지" button); styled as the hero CTA (.btn--primary) -->
+      <a class="btn btn--primary btn--header biz-link" href="MY%20VIET%20BIZ.html"><span data-i18n="bizPage">기업회원 페이지</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+      <button type="button" class="menu-btn" id="menuBtn" aria-label="메뉴" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- mobile menu -->
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav class="wrap mobile-nav" aria-label="서비스">
+    <a data-route="/check" href="#"><span class="nav-en">CHECK</span><span class="nav-sub" data-i18n="nav1">확인</span></a>
+    <a data-route="/verify" href="#"><span class="nav-en">VERIFY</span><span class="nav-sub" data-i18n="nav2">검증</span></a>
+    <a data-route="/protect" href="#"><span class="nav-en">PROTECT</span><span class="nav-sub" data-i18n="nav4">관리</span></a>
+  </nav>
+  <div class="wrap mobile-meta">
+    <div class="mobile-langs">
+      <button type="button" data-set-lang="ko">한국어</button>
+      <button type="button" data-set-lang="en">English</button>
+      <button type="button" data-set-lang="vi">Tiếng Việt</button>
+      <button type="button" data-set-lang="zh">中文</button>
+    </div>
+    <a class="mobile-login" data-route="/login" href="#" data-i18n="login">로그인</a>
+    <a class="btn btn--primary btn--sm biz-link biz-link--block" href="MY%20VIET%20BIZ.html"><span data-i18n="bizPage">기업회원 페이지</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+  </div>
+</div>
+
+<main>
+
+<!-- ================= 01 HERO ================= -->
+<section class="hero" id="top">
+  <div class="hero-media">
+    <!-- same video twice: a blurred ambient layer fills the hero, the sharp layer stays near native size -->
+    <video class="hero-video-bg" src="assets/my_viet_check_cinematic_hero.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+    <video class="hero-video" src="assets/my_viet_check_cinematic_hero.mp4" autoplay muted loop playsinline preload="auto"
+      aria-label="내가 받은 정보, 공식 기준, 시장 데이터, 검증 결과가 차례로 나타나는 영상"></video>
+    <div class="hero-video-veil" aria-hidden="true"></div>
+    <div class="hero-shade" aria-hidden="true"></div>
+  </div>
+
+  <div class="wrap hero-copy">
+    <p class="eyebrow hero-eyebrow" data-i18n="heroEyebrow">베트남 체류·사업·행정·법률·금융 비용 확인 플랫폼</p>
+    <h1 class="hero-title" data-i18n="heroTitle"><span class="t1">이 금액,</span><br><span class="t2">정말 맞는 걸까?</span></h1>
+    <p class="hero-sub" data-i18n="heroSub">베트남에서 받은 비용과 정보부터<br>계약서와 각종 서류까지.<br>결정하기 전에 <span class="hl">먼저 직접 확인</span>하세요.</p>
+    <a class="btn btn--primary" href="#self-check" data-cta>
+      <span data-i18n="cta">무료로 직접 확인하기</span>
+      <span class="btn-arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  <!-- frequently checked services — same /check routes as the Services section below;
+       서류 검토 → /verify, the vfbcai.com page listing its five document-review services
+       (행정문서 · 부동산 문서 · 사기문서 · 세무문서 · 불확실한 문서) -->
+  <nav class="wrap hero-quick" aria-label="자주 찾는 서비스">
+    <a class="quick-card" data-route="/check/trc" data-tab="lookup" href="#">
+      <span class="quick-icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6.5 15.5c.6-1.2 1.5-1.8 2.5-1.8s1.9.6 2.5 1.8"/><path d="M14 10h4M14 13.5h3"/></svg>
+      </span>
+      <span class="quick-text">
+        <span class="quick-title" data-i18n="ck2">거주증</span>
+        <span class="quick-sub" data-i18n="hq1d">발급·갱신 비용 확인</span>
+      </span>
+      <span class="quick-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    </a>
+    <a class="quick-card" data-route="/check/wp" data-tab="lookup" href="#">
+      <span class="quick-icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/><path d="M3 12.5h18"/><path d="M11 12.5v1.5h2v-1.5"/></svg>
+      </span>
+      <span class="quick-text">
+        <span class="quick-title" data-i18n="ck1">노동허가</span>
+        <span class="quick-sub" data-i18n="hq2d">발급 요건·비용 확인</span>
+      </span>
+      <span class="quick-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    </a>
+    <a class="quick-card" data-route="/check/tamtru" data-tab="lookup" href="#">
+      <span class="quick-icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
+      </span>
+      <span class="quick-text">
+        <span class="quick-title" data-i18n="hq3t">땀주</span>
+        <span class="quick-sub" data-i18n="hq3d">임시거주등록 확인</span>
+      </span>
+      <span class="quick-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    </a>
+    <a class="quick-card" data-route="/check/driving-license" data-tab="lookup" href="#">
+      <span class="quick-icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.6-4.2A2 2 0 0 1 8.5 5.5h7a2 2 0 0 1 1.9 1.3L19 11"/><rect x="3" y="11" width="18" height="6" rx="2"/><path d="M5 17v2M19 17v2"/><circle cx="7.5" cy="14" r="1"/><circle cx="16.5" cy="14" r="1"/></svg>
+      </span>
+      <span class="quick-text">
+        <span class="quick-title" data-i18n="ck3">운전면허</span>
+        <span class="quick-sub" data-i18n="hq4d">교환·취득 비용 확인</span>
+      </span>
+      <span class="quick-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    </a>
+    <a class="quick-card" data-route="/verify" href="#">
+      <span class="quick-icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m9 14 2 2 4-4"/></svg>
+      </span>
+      <span class="quick-text">
+        <span class="quick-title" data-i18n="hq5t">서류 검토</span>
+        <span class="quick-sub" data-i18n="hq5d">각종 서류 검토</span>
+      </span>
+      <span class="quick-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    </a>
+  </nav>
+</section>
+
+<!-- ================= 02 SELF CHECK ================= -->
+<section class="section self-check" id="self-check">
+  <div class="wrap">
+    <div class="self-head reveal">
+      <p class="eyebrow">SELF CHECK</p>
+      <h2 class="h2" data-i18n="selfTitle">궁금한 건,<br><span class="hl">먼저 직접 확인</span>하세요.</h2>
+      <p class="lead" data-i18n="selfLead">비용부터 서류까지,<br>베트남에서 받은 정보를 먼저 확인해보세요.</p>
+    </div>
+
+    <div class="ask reveal">
+      <!-- 1. ask a question -->
+      <form id="askForm" novalidate>
+        <div class="ask-box">
+          <label for="askInput" class="sr-only" data-i18n="askLabel">확인하고 싶은 내용</label>
+          <span class="ask-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/></svg>
+          </span>
+          <textarea id="askInput" rows="1" autocomplete="off"
+            data-i18n-ph="askPh" placeholder="예) 노동허가 비용이 3,000달러라는데 맞나요?"></textarea>
+          <div class="ask-bar">
+            <button type="submit" class="btn btn--primary btn--sm">
+              <span data-i18n="askSubmit">확인하기</span>
+              <span class="btn-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+        <p class="ask-hint" id="askHint" aria-live="polite"></p>
+        <p class="ask-how" data-i18n="askHow">확인하기를 누르면 질문에 맞는 확인 페이지로 이동합니다.</p>
+      </form>
+
+      <!-- popular questions: click fills the input, user can edit, then 확인하기 -->
+      <div class="popular">
+        <p class="popular-label" data-i18n="popLabel">많이 찾는 질문</p>
+        <div class="popular-list">
+          <button type="button" class="pill" data-fill data-i18n="pop1">노동허가 비용이 맞나요?</button>
+          <button type="button" class="pill" data-fill data-i18n="pop2">거주증 비용은 얼마인가요?</button>
+          <button type="button" class="pill" data-fill data-i18n="pop4">비자 연장 비용은 얼마인가요?</button>
+          <span class="pill-tail"><!-- keeps the → with the last pill when the row wraps -->
+            <button type="button" class="pill" data-fill data-i18n="pop5">받은 견적을 확인하고 싶어요.</button>
+            <a class="popular-more" data-route="/check" href="#" aria-label="CHECK 전체 보기">→</a>
+          </span>
+        </div>
+      </div>
+
+      <!-- 2. or check with a document — the second way in -->
+      <div class="doc-block">
+        <a class="doc-entry" id="askDoc" href="#">
+          <span class="doc-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </span>
+          <span class="doc-text">
+            <span class="doc-title" data-i18n="askDoc">서류로 확인하기</span>
+            <span class="doc-desc" data-i18n="askDocDesc">계약서·견적서·행정문서·세무문서 등을 올려 직접 확인하세요.</span>
+          </span>
+          <span class="doc-arrow" aria-hidden="true">→</span>
+        </a>
+        <!-- document types the VERIFY review covers (each opens its own review) -->
+        <p class="doc-types">
+          <a data-route="/verify/admin" data-tab="review" href="#" data-i18n="dt1">행정문서</a>
+          <a data-route="/verify/real-estate" data-tab="review" href="#" data-i18n="dt2">부동산 문서</a>
+          <a data-route="/verify/fraud" data-tab="review" href="#" data-i18n="dt3">사기 의심 문서</a>
+          <a data-route="/verify/tax" data-tab="review" href="#" data-i18n="dt4">세무문서</a>
+          <a data-route="/verify/unclear" data-tab="review" href="#" data-i18n="dt5">기타 불확실한 문서</a>
+        </p>
+        <p class="result-note" data-i18n="resultNote">확인 결과는 공개 자료와 일반적인 시장 범위를 바탕으로 한 참고 정보이며, 법률 자문이나 행정기관의 결정을 대체하지 않습니다. 추가 확인이 필요한 경우 전문가 상담을 안내합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 WHAT YOU CAN CHECK ================= -->
+<section class="section scope" id="scope">
+  <div class="wrap">
+    <div class="scope-top">
+      <div class="scope-head reveal">
+        <p class="eyebrow">WHAT YOU CAN CHECK</p>
+        <h2 class="h2" data-i18n="scopeTitle">비용부터 서류,<br>문제 대응까지.</h2>
+        <p class="lead" data-i18n="scopeLead">베트남에서 받은 정보와 서류부터<br>문제가 생겼을 때까지<br>필요한 것부터 확인하세요.</p>
+      </div>
+      <!-- magnifier + speech bubble; .is-shown is added once when the section first enters view (main.js) -->
+      <aside class="scope-note" id="scopeNote" aria-labelledby="scopeNoteTitle">
+        <span class="scope-note-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        </span>
+        <div class="scope-bubble">
+          <p class="scope-note-title" id="scopeNoteTitle" data-i18n="azTitle">무엇을 근거로 분석할까요?</p>
+          <p class="scope-note-desc" data-i18n="azDesc"><strong>베트남 법률 지식을 학습한 AI</strong>와 <strong>형사사건 프로파일링</strong> 방식에서 착안한 분석 구조로 정황·관계·증거를 살펴봅니다.</p>
+        </div>
+      </aside>
+    </div>
+
+    <ol class="scope-list">
+      <li class="scope-item reveal" style="--d:0">
+        <span class="scope-num">01</span>
+        <h3 class="scope-title" data-i18n="sc1t">비용 · 정보</h3>
+        <p class="scope-desc" data-i18n="sc1d">받은 견적과 비용을 확인합니다.</p>
+      </li>
+      <li class="scope-item reveal" style="--d:80">
+        <span class="scope-num">02</span>
+        <h3 class="scope-title" data-i18n="sc2t">서류 · 계약</h3>
+        <p class="scope-desc" data-i18n="sc2d">계약서와 각종 서류를 검토합니다.</p>
+      </li>
+      <li class="scope-item reveal" style="--d:160">
+        <span class="scope-num">03</span>
+        <h3 class="scope-title" data-i18n="sc4t">문제 대응</h3>
+        <p class="scope-desc" data-i18n="sc4d">미수금·분쟁·사기 상황을 검토합니다.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= 04 SERVICES ================= -->
+<!-- Detail items link to real routes only; generic items are plain text.
+     Problem-related reviews (사기·분쟁) live in VERIFY (/verify/fraud, "문제 발생 후 대응 검토");
+     PROTECT (/protect) is the progress & document My Page, so it is described as such. -->
+<section class="section services" id="services">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">SERVICES</p>
+      <h2 class="h2" data-i18n="svcTitle">필요한 확인과 대응을<br>한 곳에서.</h2>
+      <p class="lead" data-i18n="svcLead">확인부터 검토, 문제 대응까지<br>필요한 서비스로 바로 이동하세요.</p>
+    </div>
+    <ul class="svc-list">
+      <li class="svc reveal">
+        <a class="svc-name" data-route="/check" href="#">
+          <span class="svc-word">CHECK</span>
+          <span class="svc-ko" data-i18n="nav1">확인</span>
+        </a>
+        <div class="svc-body">
+          <p class="svc-title" data-i18n="svc1">비용·행정 정보 확인</p>
+          <p class="svc-desc" data-i18n="svc1d">베트남 생활과 행정에 필요한 비용 및 절차를 확인합니다.</p>
+          <p class="svc-items">
+            <a data-route="/check/trc" data-tab="lookup" href="#" data-i18n="ck2">거주증</a>
+            <a data-route="/check/wp" data-tab="lookup" href="#" data-i18n="ck1">노동허가</a>
+            <a data-route="/check/tamtru" data-tab="lookup" href="#" data-i18n="ck4">땀주 (Tạm trú)</a>
+            <a data-route="/check/driving-license" data-tab="lookup" href="#" data-i18n="ck3">운전면허</a>
+          </p>
+        </div>
+        <a class="svc-cta" data-route="/check" href="#"><span data-i18n="cta1">확인하기</span> <span class="svc-arrow" aria-hidden="true">→</span></a>
+      </li>
+      <li class="svc reveal" style="--d:60">
+        <a class="svc-name" data-route="/verify" href="#">
+          <span class="svc-word">VERIFY</span>
+          <span class="svc-ko" data-i18n="nav2">검증</span>
+        </a>
+        <div class="svc-body">
+          <p class="svc-title" data-i18n="svc2">계약서·견적서·의심 문서 검토</p>
+          <p class="svc-desc" data-i18n="svc2d">받은 서류와 견적, 의심스러운 상황을 검토합니다.</p>
+          <p class="svc-items">
+            <a data-route="/verify/admin" data-tab="review" href="#" data-i18n="dt1">행정문서</a>
+            <a data-route="/verify/real-estate" data-tab="review" href="#" data-i18n="dt2">부동산 문서</a>
+            <a data-route="/verify/fraud" data-tab="review" href="#" data-i18n="dt3">사기 의심 문서</a>
+            <a data-route="/verify/tax" data-tab="review" href="#" data-i18n="dt4">세무문서</a>
+            <a data-route="/verify/unclear" data-tab="review" href="#" data-i18n="dt5">기타 불확실한 문서</a>
+            <a data-route="/verify/fraud" data-tab="review" href="#" data-i18n="vf6">미수금·분쟁 검토</a>
+          </p>
+        </div>
+        <a class="svc-cta" data-route="/verify" href="#"><span data-i18n="cta2">검토하기</span> <span class="svc-arrow" aria-hidden="true">→</span></a>
+      </li>
+      <li class="svc reveal" style="--d:180">
+        <a class="svc-name" data-route="/protect" href="#">
+          <span class="svc-word">PROTECT</span>
+          <span class="svc-ko" data-i18n="nav4">관리</span>
+        </a>
+        <div class="svc-body">
+          <p class="svc-title" data-i18n="svc4">신청 진행·서류·만료일 관리</p>
+          <p class="svc-desc" data-i18n="svc4d">신청 진행 상황과 제출 서류, 주요 만료일을 관리합니다.</p>
+          <p class="svc-items">
+            <a data-route="/mypage#timeline" href="#" data-i18n="pt1">진행 단계</a>
+            <a data-route="/mypage#wallet" href="#" data-i18n="pt2">제출 서류·만료일</a>
+            <a data-route="/mypage#notifications" href="#" data-i18n="pt3">알림</a>
+            <a data-route="/mypage/chat" href="#" data-i18n="pt4">담당자 상담</a>
+          </p>
+        </div>
+        <a class="svc-cta" data-route="/protect" href="#"><span data-i18n="cta4">진행 상황 확인하기</span> <span class="svc-arrow" aria-hidden="true">→</span></a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= 05 TRUST ================= -->
+<section class="trust" id="sources">
+  <div class="wrap trust-inner">
+    <div class="reveal">
+      <p class="eyebrow eyebrow--light">OFFICIAL SOURCES</p>
+      <h2 class="trust-title" data-i18n="trustTitle">공식 자료를 기준으로<br>확인합니다.</h2>
+    </div>
+    <div class="reveal sources-block" style="--d:100">
+      <!-- Current names after the 1 Mar 2025 reorganisation (Resolution 176/2025/QH15).
+           Names only: no state emblems, so the page can't be mistaken for a government service. -->
+      <ul class="sources">
+        <li><span class="src-vi" lang="vi">Bộ Tư pháp</span><span class="src-tr" data-i18n="src1">법무부</span></li>
+        <li><span class="src-vi" lang="vi">Bộ Tài chính</span><span class="src-tr" data-i18n="src2">재정부</span></li>
+        <li><span class="src-vi" lang="vi">Bộ Nội vụ</span><span class="src-tr" data-i18n="src3">내무부</span></li>
+        <li><span class="src-vi" lang="vi">Bộ Công an</span><span class="src-tr" data-i18n="src4">공안부</span></li>
+        <li><span class="src-vi" lang="vi">Cục Thuế</span><span class="src-tr" data-i18n="src5">세무국</span></li>
+        <li><span class="src-vi" lang="vi">Bộ Y tế</span><span class="src-tr" data-i18n="src6">보건부</span></li>
+      </ul>
+      <p class="trust-note" data-i18n="trustNote">베트남의 공식 공개 자료를 참고해 정보를 확인합니다.</p>
+      <p class="trust-fine" data-i18n="trustFine">MY VIET CHECK는 정부기관이 아니며, 각 기관과 제휴 또는 인증 관계가 없습니다.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= 07 FOOTER ================= -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-bottom">
+      <p data-i18n="disclaimer">MY VIET CHECK는 일반 정보 확인을 돕는 서비스이며, 법률 자문을 대체하지 않습니다. 사안에 따라 전문가 상담이 필요할 수 있으며, 상담 비용이 발생할 수 있습니다.</p>
+      <p>© 2026 VFBCAI · <a href="https://www.vfbcai.com">www.vfbcai.com</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

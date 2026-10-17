@@ -1,0 +1,430 @@
+/* =========================================================
+   MY VIET BIS — business homepage (independent of MY VIET CHECK styles)
+   ========================================================= */
+:root {
+  --navy: #0B1730;
+  --steel: #426B98;
+  --steel-dark: #355A82;
+  --white: #FFFFFF;
+  --tint: #E8EEF5;
+  --text: #172338;
+  --text-2: #64748B;
+  --border: #DDE3EB;
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gutter: clamp(20px, 5.5vw, 88px);
+  --header-h: 68px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; font-family: var(--font); color: var(--text); background: var(--white); -webkit-font-smoothing: antialiased; word-break: keep-all; overflow-wrap: break-word; }
+/* keep-all keeps Korean words whole, but would stop Chinese from wrapping at all */
+html[lang="zh"] body { word-break: normal; }
+h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+img, video, svg { display: block; }
+:focus-visible { outline: 2px solid var(--steel); outline-offset: 3px; border-radius: 4px; }
+section[id] { scroll-margin-top: var(--header-h); }
+
+.bis-wrap { width: 100%; max-width: 1320px; margin-inline: auto; padding-inline: var(--gutter); }
+.bis-eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; color: var(--steel); }
+.bis-eyebrow--light { color: rgba(255, 255, 255, 0.7); }
+.bis-h2 { margin-top: 14px; font-size: clamp(28px, 3.2vw, 42px); line-height: 1.28; font-weight: 700; letter-spacing: -0.025em; color: var(--text); }
+.bis-lead { margin-top: 16px; font-size: clamp(16px, 1.3vw, 18px); line-height: 1.65; color: var(--text-2); max-width: 60ch; }
+
+/* Buttons */
+.bis-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 50px; padding: 0 24px;
+  border-radius: 8px;
+  background: var(--steel); color: var(--white);
+  font-size: 15.5px; font-weight: 600; white-space: nowrap;
+  transition: background-color .2s ease;
+}
+.bis-btn:hover { background: var(--steel-dark); }
+.bis-btn--sm { height: 40px; padding: 0 16px; font-size: 14px; }
+.bis-btn--block { width: 100%; height: 52px; }
+.bis-btn--light { background: var(--white); color: var(--navy); }
+.bis-btn--light:hover { background: var(--tint); }
+.bis-btn--ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
+.bis-btn--ghost:hover { background: var(--tint); }
+
+/* ---------- Header: brand | services | language · login · member page ---------- */
+/* transparent over the hero (light text); .is-solid once the hero has scrolled away (bis.js) */
+.bis-header {
+  position: fixed; inset: 0 0 auto 0; z-index: 50;
+  height: var(--header-h);
+  background: transparent;
+  box-shadow: 0 1px 0 transparent;
+  color: var(--white);
+  transition: background-color .25s ease, box-shadow .25s ease, color .25s ease;
+}
+.bis-header.is-solid { background: rgba(255, 255, 255, 0.97); box-shadow: 0 1px 0 var(--border); color: var(--text); }
+.bis-header-inner { height: 100%; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; }
+
+/* brand — same shield mark & proportions as the MY VIET CHECK logo */
+.bis-brand { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.bis-brand-mark {
+  width: 32px; height: 32px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  color: var(--white);
+  transition: background-color .25s ease, box-shadow .25s ease, color .25s ease;
+}
+.is-solid .bis-brand-mark, .bis-menu-open .bis-brand-mark { background: rgba(11, 23, 48, 0.05); box-shadow: inset 0 0 0 1px rgba(11, 23, 48, 0.1); color: var(--navy); }
+.bis-brand-mark svg { width: 16px; height: 16px; }
+.bis-brand-type { display: flex; flex-direction: column; line-height: 1.2; }
+.bis-brand-name { font-size: 14.5px; font-weight: 700; letter-spacing: 0; color: inherit; white-space: nowrap; }
+.bis-brand-by { font-size: 10px; font-weight: 500; color: rgba(255, 255, 255, 0.7); white-space: nowrap; transition: color .25s ease; }
+.is-solid .bis-brand-name, .bis-menu-open .bis-brand-name { color: var(--navy); }
+.is-solid .bis-brand-by, .bis-menu-open .bis-brand-by { color: var(--text-2); }
+
+/* centre menu */
+.bis-nav { justify-self: center; display: flex; align-items: center; gap: clamp(22px, 2.6vw, 40px); }
+.bis-nav-item { padding: 8px 2px; font-size: 15px; font-weight: 500; color: inherit; white-space: nowrap; transition: color .2s ease, opacity .2s ease; }
+a.bis-nav-item:hover, .bis-nav-item[aria-current="page"] { color: #A9C4E4; }
+.is-solid a.bis-nav-item:hover, .is-solid .bis-nav-item[aria-current="page"] { color: var(--steel); }
+.bis-nav-item.is-soon { opacity: 0.5; cursor: default; }
+.is-solid .bis-nav-item.is-soon { opacity: 1; color: #9AA6B8; }
+
+/* right side */
+.bis-header-actions { justify-self: end; display: flex; align-items: center; gap: 22px; }
+.bis-lang { position: relative; margin-right: 6px; }
+.bis-lang-btn { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 4px; font-size: 13.5px; font-weight: 500; white-space: nowrap; opacity: 0.88; transition: opacity .2s ease; }
+.bis-lang-btn:hover, .bis-lang-btn[aria-expanded="true"] { opacity: 1; }
+.bis-lang-caret { transition: transform .2s ease; }
+.bis-lang-btn[aria-expanded="true"] .bis-lang-caret { transform: rotate(180deg); }
+.bis-lang-pop {
+  position: absolute; right: -8px; top: calc(100% + 8px);
+  min-width: 188px; padding: 6px;
+  border-radius: 10px;
+  background: var(--white); color: var(--text);
+  box-shadow: 0 0 0 1px var(--border), 0 14px 30px -16px rgba(11, 23, 48, 0.35);
+}
+.bis-lang-opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 7px; font-size: 14px; outline: none; }
+.bis-lang-opt.is-current { color: var(--steel); font-weight: 600; }
+.bis-lang-opt[data-set-lang] { cursor: pointer; }
+.bis-lang-opt:not(.is-current) svg { visibility: hidden; } /* check mark only on the active language */
+.bis-lang-opt.is-current:focus-visible { background: var(--tint); }
+.bis-lang-opt.is-soon { color: #9AA6B8; cursor: not-allowed; }
+.bis-lang-opt em { font-style: normal; font-size: 11.5px; }
+.bis-login { padding: 8px 2px; font-size: 14px; font-weight: 500; color: inherit; white-space: nowrap; transition: color .2s ease; }
+.bis-login:hover { color: #A9C4E4; }
+.is-solid .bis-login:hover { color: var(--steel); }
+.bis-member { height: 38px; padding: 0 16px; gap: 6px; }
+.bis-member svg { flex-shrink: 0; }
+
+.bis-menu-btn { display: none; width: 44px; height: 44px; position: relative; margin-right: -10px; }
+.bis-menu-btn span { position: absolute; left: 12px; right: 12px; height: 1.5px; background: currentColor; transition: transform .3s var(--ease); }
+.bis-menu-btn span:first-child { top: 18px; }
+.bis-menu-btn span:last-child { top: 25px; }
+.bis-menu-btn[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
+.bis-menu-btn[aria-expanded="true"] span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+
+.bis-mobile-menu { position: fixed; inset: 0; z-index: 45; background: var(--white); padding: calc(var(--header-h) + 12px) 0 28px; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
+.bis-mobile-menu[hidden] { display: none; }
+.bis-mobile-nav { display: flex; flex-direction: column; }
+.bis-mobile-nav > * { display: flex; align-items: center; justify-content: space-between; min-height: 56px; font-size: 19px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.bis-mobile-nav .is-soon { color: #9AA6B8; }
+.bis-mobile-nav .is-soon em { font-style: normal; font-size: 12.5px; font-weight: 500; }
+.bis-mobile-meta { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; }
+.bis-mobile-row { display: flex; align-items: center; justify-content: space-between; }
+.bis-mobile-row .bis-login { padding: 12px 4px; font-size: 15px; }
+body.bis-menu-open { overflow: hidden; }
+body.bis-menu-open .bis-header { background: var(--white); color: var(--text); box-shadow: 0 1px 0 var(--border); }
+.bis-mobile-lang-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--text-2); }
+.bis-mobile-langs .bis-lang-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.bis-mobile-langs .bis-lang-opt { min-height: 44px; border: 1px solid var(--border); }
+.bis-mobile-langs .bis-lang-opt.is-current { border-color: var(--steel); background: var(--tint); }
+
+/* below 1024px the five menus + three actions no longer fit on one line */
+@media (max-width: 1024px) {
+  .bis-header-inner { grid-template-columns: auto 1fr; }
+  .bis-nav, .bis-header-actions .bis-lang, .bis-header-actions .bis-login, .bis-header-actions .bis-member { display: none; }
+  .bis-header-actions { justify-self: end; }
+  .bis-menu-btn { display: block; } /* was only shown below 900px, leaving 901–1024px with no way to reach the menu */
+}
+/* Vietnamese menu labels are longer: the one-line header needs ≈1240px, so use the menu button up to 1260px */
+@media (min-width: 1025px) and (max-width: 1260px) {
+  html[lang="vi"] .bis-header-inner { grid-template-columns: auto 1fr; }
+  html[lang="vi"] .bis-nav, html[lang="vi"] .bis-header-actions .bis-lang, html[lang="vi"] .bis-header-actions .bis-login, html[lang="vi"] .bis-header-actions .bis-member { display: none; }
+  html[lang="vi"] .bis-header-actions { justify-self: end; }
+  html[lang="vi"] .bis-menu-btn { display: block; }
+}
+
+/* ---------- Hero ---------- */
+.bis-hero {
+  position: relative;
+  /* the first screen is the hero alone (header overlays it); copy on top, trust note at the bottom */
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--navy);             /* shown if the video can't load */
+  color: var(--white);
+  overflow: hidden;
+  isolation: isolate;
+}
+.bis-hero-media { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+/* Desktop: the video sits right of centre so the building stays clear of the copy;
+   its left edge fades into the navy background. */
+/* Tuning knobs (independent):
+   --bis-video-scale  visual size of the video (1 = cover fit)
+   --bis-video-shift  horizontal move of the video (negative = left)
+   --bis-video-pos    object-position inside the box (cover leaves only ~47px of horizontal slack) */
+.bis-hero-media {
+  --bis-video-scale: 0.95;
+  --bis-video-shift: -3vw;
+  --bis-video-pos: 50% center;
+}
+/* the frame places the video right of centre; its left edge fades into the navy background */
+.bis-hero-frame {
+  position: absolute; top: 0; bottom: 0; left: 20%; width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 18%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 18%);
+}
+.bis-hero-fill,
+.bis-hero-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: var(--bis-video-pos);
+}
+/* fills the strips above/below the scaled-down video with the same footage, so no flat colour shows */
+.bis-hero-fill { filter: blur(18px) brightness(0.85); transform: scale(1.08); }
+.bis-hero-video {
+  transform: translateX(var(--bis-video-shift)) scale(var(--bis-video-scale));
+  /* soft top/bottom edges blend into the fill layer */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+}
+/* --bis-shade-tint: even navy wash (~16%) over the whole video, shared by desktop and mobile;
+   the left gradient holds the copy area (copy ends ≈45% of the width) and clears before the building */
+.bis-hero-shade {
+  --bis-shade-tint: linear-gradient(rgba(11, 23, 48, 0.16), rgba(11, 23, 48, 0.16));
+  position: absolute; inset: 0;
+  background:
+    var(--bis-shade-tint),
+    linear-gradient(90deg, rgba(11, 23, 48, 0.9) 0%, rgba(11, 23, 48, 0.8) 30%, rgba(11, 23, 48, 0.55) 42%, rgba(11, 23, 48, 0.2) 55%, rgba(11, 23, 48, 0) 68%),
+    linear-gradient(180deg, rgba(11, 23, 48, 0.5) 0%, rgba(11, 23, 48, 0) 18%),
+    linear-gradient(0deg, rgba(11, 23, 48, 0.82) 0%, rgba(11, 23, 48, 0.5) 18%, rgba(11, 23, 48, 0) 40%); /* keeps the trust note readable */
+}
+.bis-hero-copy { flex: 1; padding-bottom: 32px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding-top: calc(var(--header-h) * 0.6); }
+.bis-hero-title { margin-top: 18px; font-size: clamp(36px, 4.2vw, 58px); line-height: 1.22; font-weight: 700; letter-spacing: -0.03em; }
+.bis-hero-sub { margin-top: 20px; max-width: 520px; font-size: clamp(16px, 1.35vw, 19px); line-height: 1.65; color: rgba(255, 255, 255, 0.82); }
+.bis-hero-actions { margin-top: 36px; }
+.bis-hero-tags { margin-top: 22px; font-size: 13.5px; letter-spacing: 0.02em; color: rgba(255, 255, 255, 0.6); }
+
+/* ---------- Hero trust note (inside the hero, no box) ---------- */
+.bis-hero-trust { position: relative; z-index: 1; padding-bottom: clamp(28px, 4.5vh, 48px); }
+.bis-hero-trust-inner { padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.16); }
+.bis-hero-trust-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em;
+  color: #9DB9DB;                 /* light tint of --steel, readable on navy */
+}
+.bis-hero-trust-label svg { flex-shrink: 0; }
+.bis-hero-trust-text { margin-top: 10px; font-size: clamp(15.5px, 1.25vw, 18px); line-height: 1.6; font-weight: 500; color: var(--white); }
+.bis-hero-trust-text em { font-style: normal; font-weight: 700; color: #9DB9DB; }
+.bis-gov-list { margin-top: 20px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.bis-gov { display: flex; align-items: center; gap: 10px; padding: 2px 14px; border-left: 1px solid rgba(255, 255, 255, 0.16); }
+.bis-gov:first-child { padding-left: 0; border-left: 0; }
+.bis-gov-icon { flex-shrink: 0; display: flex; color: #9DB9DB; opacity: 0.85; } /* small and quiet, below the main message */
+.bis-gov-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bis-gov-vi { font-size: 14px; font-weight: 600; color: var(--white); white-space: nowrap; }
+.bis-gov-ko { font-size: 12.5px; color: rgba(255, 255, 255, 0.62); }
+.bis-gov-ko:empty { display: none; } /* Vietnamese: the name above is already in the reader's language */
+
+/* ---------- Sections ---------- */
+.bis-section { padding-block: clamp(80px, 9vw, 128px); }
+.bis-section--tint { background: var(--tint); }
+.bis-head { max-width: 760px; }
+
+/* Section label "01 / CORE SERVICE" */
+.bis-sec-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; color: var(--steel); }
+.bis-sec-label span { color: var(--navy); }
+.bis-sec-label--light, .bis-sec-label--light span { color: rgba(255, 255, 255, 0.72); }
+.bis-sec-label--light span { color: var(--white); }
+
+/* head on the left, content on the right (01, 02) */
+.bis-split { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 40px clamp(40px, 5vw, 80px); align-items: start; }
+.bis-split-head .bis-lead { max-width: 34ch; }
+
+/* 01 — four services, divided by thin rules (no boxes) */
+.bis-svc-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--border); }
+.bis-svc-list > li + li { border-left: 1px solid var(--border); }
+.bis-svc {
+  position: relative; height: 100%;
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 28px 22px 26px;
+  transition: background-color .2s ease;
+}
+.bis-svc-list > li:first-child .bis-svc { padding-left: 0; }
+a.bis-svc:hover { background: linear-gradient(180deg, var(--tint), rgba(232, 238, 245, 0)); }
+.bis-svc-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--tint); color: var(--steel); }
+.bis-svc-title { margin-top: 22px; font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.bis-svc-desc { margin-top: 8px; font-size: 14.5px; line-height: 1.6; color: var(--text-2); flex: 1; }
+.bis-svc-go { margin-top: 18px; font-size: 18px; color: var(--steel); transition: transform .25s var(--ease); }
+a.bis-svc:hover .bis-svc-go { transform: translateX(4px); }
+.bis-svc.is-soon .bis-svc-icon { color: #9AA6B8; }
+.bis-svc.is-soon .bis-svc-title { color: #7C889B; }
+.bis-svc-soon { margin-top: 18px; font-size: 12.5px; font-weight: 600; color: #9AA6B8; }
+
+/* 02 — seven industries + the section CTA, 4 × 2 */
+.bis-ind-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.bis-ind {
+  position: relative; height: 100%; min-height: 168px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 22px 20px 20px;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--white);
+  transition: border-color .2s ease;
+}
+.bis-ind:hover { border-color: var(--steel); }
+.bis-ind-icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--tint); color: var(--steel); }
+.bis-ind-title { margin-top: 16px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.bis-ind-desc { margin-top: 6px; font-size: 13.5px; line-height: 1.55; color: var(--text-2); flex: 1; }
+.bis-ind-go { position: absolute; top: 20px; right: 20px; font-size: 16px; color: var(--steel); transition: transform .25s var(--ease); }
+.bis-ind:hover .bis-ind-go { transform: translateX(3px); }
+
+/* 03 — three steps joined by a thin line and arrows (no boxes) */
+.bis-flow { margin-top: clamp(40px, 5vw, 64px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px clamp(32px, 4vw, 64px); }
+.bis-flow-step { position: relative; }
+/* connector: from 8px after the previous icon to 8px before this one, ending in a small chevron */
+.bis-flow-step + .bis-flow-step::before {
+  content: ""; position: absolute; top: 24px; right: calc(100% + 8px);
+  width: calc(100% + clamp(32px, 4vw, 64px) - 64px); height: 1px; background: #C3CFDD;
+}
+.bis-flow-step + .bis-flow-step::after {
+  content: ""; position: absolute; top: 20.5px; left: -15px; width: 7px; height: 7px;
+  border-top: 1px solid #9AAFC8; border-right: 1px solid #9AAFC8; transform: rotate(45deg);
+}
+.bis-flow-icon { position: relative; z-index: 1; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--white); color: var(--steel); box-shadow: inset 0 0 0 1px #C3CFDD; }
+.bis-flow-num { margin-top: 22px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.1em; color: var(--steel); }
+.bis-flow-title { margin-top: 6px; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+.bis-flow-desc { margin-top: 8px; font-size: 15px; line-height: 1.65; color: var(--text-2); max-width: 32ch; }
+
+/* 04 — head | abstract document visual | criteria, then the source list */
+.bis-ref { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr); gap: 40px clamp(32px, 4vw, 64px); align-items: center; }
+.bis-ref-head .bis-lead { max-width: 40ch; }
+.bis-ref-visual svg { display: block; width: 100%; max-width: 260px; margin-inline: auto; height: auto; }
+.bis-ref-checks { display: flex; flex-direction: column; }
+.bis-ref-checks li { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-top: 1px solid #D3DCE7; font-size: 16px; font-weight: 600; line-height: 1.5; }
+.bis-ref-checks li:last-child { border-bottom: 1px solid #D3DCE7; }
+.bis-check { width: 20px; height: 20px; flex-shrink: 0; border-radius: 50%; background: var(--white); position: relative; }
+.bis-check::after { content: ""; position: absolute; left: 7px; top: 4px; width: 5px; height: 9px; border: solid var(--steel); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.bis-sources { margin-top: clamp(48px, 5vw, 64px); padding-top: 28px; border-top: 1px solid #D3DCE7; }
+.bis-sources-label { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.bis-sources-list { margin-top: 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 32px; }
+.bis-sources-list a { display: flex; flex-direction: column; gap: 3px; font-size: 15px; font-weight: 600; color: var(--text); }
+.bis-sources-list a span::after { content: " ↗"; color: var(--steel); font-weight: 500; }
+.bis-sources-list a:hover span { color: var(--steel); }
+.bis-sources-list em { font-style: normal; font-size: 13px; font-weight: 500; color: var(--text-2); }
+.bis-sources-list em:empty { display: none; }
+.bis-sources-note { margin-top: 20px; font-size: 13px; line-height: 1.65; color: var(--text-2); max-width: 90ch; }
+
+/* 05 — navy closing band, night-building still on the right */
+.bis-final { position: relative; overflow: hidden; isolation: isolate; background: var(--navy); color: var(--white); padding-block: clamp(80px, 9vw, 128px); }
+.bis-final-media { position: absolute; top: 0; right: 0; bottom: 0; width: 62%; height: 100%; object-fit: cover; object-position: 40% 50%; z-index: -2; opacity: 0.55; }
+.bis-final-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--navy) 0%, var(--navy) 40%, rgba(11, 23, 48, 0.75) 62%, rgba(11, 23, 48, 0.35) 100%); }
+.bis-final-inner { display: flex; flex-direction: column; align-items: flex-start; }
+.bis-final-title { margin-top: 14px; font-size: clamp(28px, 3.2vw, 42px); line-height: 1.3; font-weight: 700; letter-spacing: -0.025em; max-width: 20ch; }
+.bis-final-desc { margin-top: 16px; font-size: 17px; line-height: 1.65; color: rgba(255, 255, 255, 0.78); max-width: 46ch; }
+.bis-final-actions { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
+.bis-btn--outline-light { background: transparent; color: var(--white); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45); }
+.bis-btn--outline-light:hover { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8); }
+
+/* Footer */
+/* deep navy, continuing the navy closing section above; a faint hairline marks the boundary */
+.bis-footer { background: var(--navy); padding: 28px 0 32px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.bis-footer-bottom { display: flex; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; font-size: 12.5px; line-height: 1.7; color: rgba(214, 224, 236, 0.66); }
+.bis-footer-bottom p:first-child { max-width: 72ch; }
+
+/* Reveal (only when JS runs) */
+.js .reveal { opacity: 0; transform: translateY(12px); transition: opacity .7s var(--ease), transform .7s var(--ease); transition-delay: calc(var(--d, 0) * 1ms); }
+.js .reveal.in { opacity: 1; transform: none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .bis-split { grid-template-columns: 1fr; }
+  .bis-split-head .bis-lead { max-width: 60ch; }
+  .bis-ref { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .bis-ref-head { grid-column: 1 / -1; }
+  .bis-sources-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  :root { --header-h: 60px; }
+  .bis-menu-btn { display: block; }
+
+  /* Mobile hero: video band on top (building centred), copy below on navy */
+  .bis-hero { height: auto; display: flex; flex-direction: column; }
+  .bis-hero-media { position: relative; z-index: 0; aspect-ratio: 16 / 10; }
+  /* the band is already small on mobile: keep the full cover fit, no fill layer needed */
+  .bis-hero-media { --bis-video-scale: 1; --bis-video-shift: 0px; --bis-video-pos: 45% 55%; }
+  .bis-hero-frame { left: 0; -webkit-mask-image: none; mask-image: none; }
+  .bis-hero-fill { display: none; }
+  .bis-hero-video { transform: none; -webkit-mask-image: none; mask-image: none; }
+  .bis-hero-shade { background: var(--bis-shade-tint), linear-gradient(180deg, rgba(11, 23, 48, 0.55) 0%, rgba(11, 23, 48, 0) 28%), linear-gradient(0deg, var(--navy) 0%, rgba(11, 23, 48, 0) 40%); inset: -1px 0 -2px 0; }
+  .bis-hero-copy { position: relative; z-index: 1; margin-top: -24px; padding-top: 0; padding-bottom: 36px; }
+  .bis-hero-title { font-size: clamp(30px, 8.4vw, 40px); margin-top: 14px; }
+  .bis-br-d { display: none; }
+  .bis-hero-actions { margin-top: 28px; width: 100%; }
+  .bis-hero-actions .bis-btn { width: 100%; height: 52px; }
+  .bis-hero-trust-label { font-size: 11px; letter-spacing: 0.06em; }
+  .bis-hero-trust-text br { display: none; }
+  .bis-gov-list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px; }
+  .bis-gov, .bis-gov:first-child { padding: 0; border-left: 0; }
+
+  /* 01: two columns of services */
+  .bis-svc-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bis-svc-list > li + li { border-left: 0; }
+  .bis-svc-list > li { border-bottom: 1px solid var(--border); }
+  .bis-svc-list > li:nth-child(even) { border-left: 1px solid var(--border); }
+  .bis-svc-list > li:nth-child(odd) .bis-svc { padding-left: 0; }
+  /* 02: two columns */
+  .bis-ind-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 03: vertical timeline */
+  .bis-flow { grid-template-columns: 1fr; gap: 28px; }
+  .bis-flow-step { display: grid; grid-template-columns: 48px 1fr; column-gap: 18px; }
+  .bis-flow-icon { grid-row: 1 / span 3; }
+  .bis-flow-num { margin-top: 2px; }
+  .bis-flow-step + .bis-flow-step::before { top: auto; bottom: calc(100% + 4px); right: auto; left: 24px; width: 1px; height: 20px; }
+  .bis-flow-step + .bis-flow-step::after { display: none; }
+  /* 04: one column, smaller visual */
+  .bis-ref { grid-template-columns: 1fr; }
+  .bis-ref-visual svg { max-width: 200px; margin-inline: 0; }
+  /* 05: the still fills the band behind a stronger shade */
+  .bis-final-media { width: 100%; opacity: 0.35; }
+  .bis-final-shade { background: linear-gradient(90deg, rgba(11, 23, 48, 0.95) 0%, rgba(11, 23, 48, 0.8) 100%); }
+}
+@media (max-width: 560px) {
+  .bis-footer-bottom { flex-direction: column; gap: 10px; }
+  .bis-gov-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 01: a plain list — icon | title + description | arrow */
+  .bis-svc-list { grid-template-columns: 1fr; }
+  .bis-svc-list > li:nth-child(even) { border-left: 0; }
+  .bis-svc, .bis-svc-list > li:nth-child(odd) .bis-svc { padding: 18px 0; display: grid; grid-template-columns: 44px 1fr auto; column-gap: 14px; align-items: center; }
+  .bis-svc-icon { width: 44px; height: 44px; grid-row: 1 / span 2; }
+  .bis-svc-title { margin-top: 0; font-size: 17px; }
+  .bis-svc-desc { margin-top: 2px; font-size: 13.5px; }
+  .bis-svc-go, .bis-svc-soon { margin-top: 0; grid-column: 3; grid-row: 1 / span 2; }
+  /* 02: compact two-column cards */
+  .bis-ind-grid { gap: 10px; }
+  .bis-ind { min-height: 150px; padding: 16px 14px; }
+  .bis-ind-icon { width: 38px; height: 38px; }
+  .bis-ind-title { margin-top: 12px; font-size: 15.5px; }
+  .bis-ind-desc { font-size: 12.5px; }
+  .bis-ind-go { top: 16px; right: 14px; }
+  .bis-ref-visual { display: none; }
+  .bis-sources-list { grid-template-columns: 1fr; }
+  .bis-final-actions { width: 100%; flex-direction: column; }
+  .bis-final-actions .bis-btn { width: 100%; height: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+}

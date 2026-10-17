@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MY VIET BIZ | 베트남 법인설립·사업 인허가 확인</title>
+<meta name="description" content="베트남 법인설립과 업종별 인허가, 사업 운영에 필요한 행정 절차를 확인하고 준비하세요. MY VIET BIZ by VFBCAI.">
+<meta name="theme-color" content="#0B1730">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="bis.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="bis-header" id="bisHeader">
+  <div class="bis-wrap bis-header-inner">
+    <!-- same shield mark as MY VIET CHECK (inline SVG, MY VIET CHECK.html) -->
+    <a class="bis-brand" href="#top" aria-label="MY VIET BIZ by VFBCAI">
+      <span class="bis-brand-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <span class="bis-brand-type">
+        <span class="bis-brand-name">MY VIET BIZ</span>
+        <span class="bis-brand-by">by VFBCAI</span>
+      </span>
+    </a>
+
+    <!-- 법인설립 / 인허가 open existing REGISTER pages; 세무 / 회계 / 노무 have no page yet,
+         so they are shown as "준비 중" (not links). Add data-route + href when those pages exist. -->
+    <nav class="bis-nav" aria-label="서비스 메뉴">
+      <a class="bis-nav-item" data-route="/register/company" data-tab="direct" href="#" data-i18n="navCompany">법인설립</a>
+      <a class="bis-nav-item" data-route="/register" href="#" data-i18n="navPermit">인허가</a>
+      <span class="bis-nav-item is-soon" aria-disabled="true" data-i18n="navTax">세무</span>
+      <span class="bis-nav-item is-soon" aria-disabled="true" data-i18n="navAcct">회계</span>
+      <span class="bis-nav-item is-soon" aria-disabled="true" data-i18n="navLabor">노무</span>
+    </nav>
+
+    <div class="bis-header-actions">
+      <!-- ko / en / vi / zh — same languages and vfbcai_locale cookie as MY VIET CHECK (strings in bis.js) -->
+      <div class="bis-lang" data-lang-menu>
+        <button type="button" class="bis-lang-btn" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span data-lang-current>한국어</span><svg class="bis-lang-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="bis-lang-pop" hidden>
+          <ul class="bis-lang-list" role="menu" aria-label="언어">
+            <li role="none"><span role="menuitemradio" aria-checked="true" tabindex="-1" class="bis-lang-opt is-current" data-set-lang="ko" lang="ko">한국어<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+            <li role="none"><span role="menuitemradio" aria-checked="false" tabindex="-1" class="bis-lang-opt" data-set-lang="en" lang="en">English<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+            <li role="none"><span role="menuitemradio" aria-checked="false" tabindex="-1" class="bis-lang-opt" data-set-lang="vi" lang="vi">Tiếng Việt<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+            <li role="none"><span role="menuitemradio" aria-checked="false" tabindex="-1" class="bis-lang-opt" data-set-lang="zh" lang="zh">中文<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+          </ul>
+        </div>
+      </div>
+      <a class="bis-login" data-route="/login" href="#" data-i18n="login">로그인</a>
+      <a class="bis-btn bis-btn--sm bis-member" href="MY%20VIET%20CHECK.html"><span data-i18n="member">일반회원 페이지</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+      <button type="button" class="bis-menu-btn" id="bisMenuBtn" aria-label="메뉴" aria-expanded="false" aria-controls="bisMobileMenu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="bis-mobile-menu" id="bisMobileMenu" hidden>
+  <nav class="bis-wrap bis-mobile-nav" aria-label="서비스 메뉴">
+    <a data-route="/register/company" data-tab="direct" href="#" data-i18n="navCompany">법인설립</a>
+    <a data-route="/register" href="#" data-i18n="navPermit">인허가</a>
+    <span class="is-soon" aria-disabled="true"><span data-i18n="navTax">세무</span> <em data-i18n="soon">준비 중</em></span>
+    <span class="is-soon" aria-disabled="true"><span data-i18n="navAcct">회계</span> <em data-i18n="soon">준비 중</em></span>
+    <span class="is-soon" aria-disabled="true"><span data-i18n="navLabor">노무</span> <em data-i18n="soon">준비 중</em></span>
+  </nav>
+  <div class="bis-wrap bis-mobile-meta">
+    <div class="bis-mobile-row">
+      <span class="bis-mobile-lang-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span data-i18n="langLabel">언어</span></span>
+      <a class="bis-login" data-route="/login" href="#" data-i18n="login">로그인</a>
+    </div>
+    <div class="bis-mobile-langs">
+      <ul class="bis-lang-list" role="menu" aria-label="언어">
+        <li role="none"><span role="menuitemradio" aria-checked="true" tabindex="0" class="bis-lang-opt is-current" data-set-lang="ko" lang="ko">한국어<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+        <li role="none"><span role="menuitemradio" aria-checked="false" tabindex="0" class="bis-lang-opt" data-set-lang="en" lang="en">English<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+        <li role="none"><span role="menuitemradio" aria-checked="false" tabindex="0" class="bis-lang-opt" data-set-lang="vi" lang="vi">Tiếng Việt<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+        <li role="none"><span role="menuitemradio" aria-checked="false" tabindex="0" class="bis-lang-opt" data-set-lang="zh" lang="zh">中文<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></li>
+      </ul>
+    </div>
+    <a class="bis-btn bis-btn--block" href="MY%20VIET%20CHECK.html"><span data-i18n="member">일반회원 페이지</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+  </div>
+</div>
+
+<main>
+
+<!-- ================= HERO (video background) ================= -->
+<section class="bis-hero" id="top">
+  <div class="bis-hero-media" aria-hidden="true">
+    <div class="bis-hero-frame">
+      <!-- blurred copy of the same file; only shows in the thin strips left when the main video is scaled down -->
+      <video class="bis-hero-fill" id="bisHeroFill" src="assets/bis-hero.mp4" autoplay muted loop playsinline preload="metadata" tabindex="-1"></video>
+      <video class="bis-hero-video" id="bisHeroVideo" src="assets/bis-hero.mp4" autoplay muted loop playsinline preload="metadata"></video>
+    </div>
+    <div class="bis-hero-shade"></div>
+  </div>
+
+  <div class="bis-wrap bis-hero-copy">
+    <p class="bis-eyebrow bis-eyebrow--light">BUSINESS IN VIETNAM</p>
+    <h1 class="bis-hero-title" data-i18n="heroTitle">베트남 사업의 시작부터,<br>필요한 인허가까지.</h1>
+    <p class="bis-hero-sub" data-i18n="heroSub">법인설립과 업종별 인허가, 사업 운영에 필요한 <br class="bis-br-d">행정 절차를 확인하고 준비하세요.</p>
+    <div class="bis-hero-actions">
+      <a class="bis-btn" data-route="/register" href="#"><span data-i18n="ctaCheck">사업 절차 확인하기</span> <span aria-hidden="true">→</span></a>
+    </div>
+    <p class="bis-hero-tags" data-i18n="heroTags">법인설립 · 업종별 인허가 · 사업 행정 절차</p>
+  </div>
+
+  <!-- trust note, part of the hero. Agencies use simple line icons for their field, not official marks or emblems (none verified; no affiliation implied);
+       names follow the 2025 reorganisation (Bộ KH&ĐT → Bộ Tài chính, Bộ LĐTBXH → Bộ Nội vụ, Tổng cục Thuế → Cục Thuế). -->
+  <div class="bis-wrap bis-hero-trust">
+    <div class="bis-hero-trust-inner">
+      <p class="bis-hero-trust-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>OFFICIAL INFORMATION · VERIFIED SOURCES</p>
+      <p class="bis-hero-trust-text" data-i18n="trustText">베트남 정부 관공서의 최신 정보를 수집·검증하여, <br>현재 기준으로 <em>정확하고 신뢰할 수 있는 정보</em>를 제공합니다.</p>
+      <ul class="bis-gov-list" aria-label="관련 베트남 정부 기관">
+        <li class="bis-gov"><span class="bis-gov-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M8 20h8"/><path d="M5 7h14"/><path d="m5 7-2.5 5.5a2.5 2.5 0 0 0 5 0z"/><path d="m19 7-2.5 5.5a2.5 2.5 0 0 0 5 0z"/></svg></span><span class="bis-gov-name"><span class="bis-gov-vi" lang="vi">Bộ Tư pháp</span><span class="bis-gov-ko" data-i18n="gov1">법무부</span></span></li>
+        <li class="bis-gov"><span class="bis-gov-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="bis-gov-name"><span class="bis-gov-vi" lang="vi">Bộ Tài chính</span><span class="bis-gov-ko" data-i18n="gov2">재정부</span></span></li>
+        <li class="bis-gov"><span class="bis-gov-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="2.8"/><path d="M3.8 19c.7-2.8 2.7-4.3 5.2-4.3s4.5 1.5 5.2 4.3"/><circle cx="17" cy="9.5" r="2.2"/><path d="M16.2 14.8c2.1-.2 3.6 1 4.2 3.7"/></svg></span><span class="bis-gov-name"><span class="bis-gov-vi" lang="vi">Bộ Nội vụ</span><span class="bis-gov-ko" data-i18n="gov3">내무부</span></span></li>
+        <li class="bis-gov"><span class="bis-gov-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M9 17h6"/></svg></span><span class="bis-gov-name"><span class="bis-gov-vi" lang="vi">Bộ Công an</span><span class="bis-gov-ko" data-i18n="gov4">공안부</span></span></li>
+        <li class="bis-gov"><span class="bis-gov-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><span class="bis-gov-name"><span class="bis-gov-vi" lang="vi">Cục Thuế</span><span class="bis-gov-ko" data-i18n="gov5">세무국</span></span></li>
+        <li class="bis-gov"><span class="bis-gov-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 9.5a4.5 4.5 0 0 0-8.5-2 4.5 4.5 0 0 0-8.5 2c0 5 8.5 10 8.5 10s8.5-5 8.5-10z"/><path d="M3.5 12h4l1.5-2.5 2.5 5 1.5-2.5h7.5"/></svg></span><span class="bis-gov-name"><span class="bis-gov-vi" lang="vi">Bộ Y tế</span><span class="bis-gov-ko" data-i18n="gov6">보건부</span></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 01 CORE SERVICE =================
+     법인설립 / 인허가 use the existing REGISTER routes (vfbcai.com now redirects /register/company → /verify/company).
+     세무·회계 → /verify/tax (real page: income tax, VAT·e-invoice, corporate tax). 노무 has no page yet → 준비 중, not a link.
+     PROTECT is intentionally not listed here (its routes on vfbcai.com are untouched). -->
+<section class="bis-section" id="services">
+  <div class="bis-wrap bis-split">
+    <div class="bis-split-head reveal">
+      <p class="bis-sec-label"><span>01</span> / CORE SERVICE</p>
+      <h2 class="bis-h2" data-i18n="s1Title">MY VIET BIZ가 제공하는 서비스</h2>
+      <p class="bis-lead" data-i18n="s1Lead">베트남에서 사업을 시작하고 운영하는 데 필요한 주요 행정 절차와 인허가 정보를 확인할 수 있습니다.</p>
+    </div>
+    <ul class="bis-svc-list reveal" style="--d:80">
+      <li>
+        <a class="bis-svc" data-route="/register/company" data-tab="direct" href="#">
+          <span class="bis-svc-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+          <span class="bis-svc-title" data-i18n="navCompany">법인설립</span>
+          <span class="bis-svc-desc" data-i18n="sv1d">회사 설립 절차와 필요 서류, 요건 확인</span>
+          <span class="bis-svc-go" aria-hidden="true">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="bis-svc" data-route="/register" href="#">
+          <span class="bis-svc-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="m8.5 10 1.5 1.5 3-3"/><path d="M14.5 10.5H16"/><path d="m8.5 15.5 1.5 1.5 3-3"/><path d="M14.5 16H16"/></svg></span>
+          <span class="bis-svc-title" data-i18n="navPermit">인허가</span>
+          <span class="bis-svc-desc" data-i18n="sv2d">업종별 영업 인허가 요건과 절차 확인</span>
+          <span class="bis-svc-go" aria-hidden="true">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="bis-svc" data-route="/verify/tax" href="#">
+          <span class="bis-svc-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><rect x="8" y="6" width="8" height="4" rx="1"/><path d="M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01"/></svg></span>
+          <span class="bis-svc-title" data-i18n="sv3t">세무·회계</span>
+          <span class="bis-svc-desc" data-i18n="sv3d">세금, 회계 관련 행정 요건 확인</span>
+          <span class="bis-svc-go" aria-hidden="true">→</span>
+        </a>
+      </li>
+      <li>
+        <span class="bis-svc is-soon" aria-disabled="true">
+          <span class="bis-svc-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="2.8"/><path d="M3.8 19c.7-2.8 2.7-4.3 5.2-4.3s4.5 1.5 5.2 4.3"/><circle cx="17" cy="9.5" r="2.2"/><path d="M16.2 14.8c2.1-.2 3.6 1 4.2 3.7"/></svg></span>
+          <span class="bis-svc-title" data-i18n="navLabor">노무</span>
+          <span class="bis-svc-desc" data-i18n="sv4d">노동·고용 관련 주요 절차와 요건</span>
+          <span class="bis-svc-soon" data-i18n="soon">준비 중</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= 02 INDUSTRY GUIDE — each card opens its existing /verify page ================= -->
+<section class="bis-section bis-section--tint" id="industries">
+  <div class="bis-wrap bis-split">
+    <div class="bis-split-head reveal">
+      <p class="bis-sec-label"><span>02</span> / INDUSTRY GUIDE</p>
+      <h2 class="bis-h2" data-i18n="s2Title">내 사업에는 어떤 인허가가 필요할까?</h2>
+      <p class="bis-lead" data-i18n="s2Lead">업종별로 필요한 인허가와 행정 요건을 확인하고 사업 준비를 더 정확하게 시작하세요.</p>
+    </div>
+    <ul class="bis-ind-grid reveal" style="--d:80">
+      <li><a class="bis-ind" data-route="/verify/restaurant" href="#">
+        <span class="bis-ind-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v8a2 2 0 0 0 2 2v8"/><path d="M10 3v8a2 2 0 0 1-2 2"/><path d="M8 3v6"/><path d="M17 21V3c-2 1-3 3.5-3 7 0 2 1 3 3 3"/></svg></span>
+        <span class="bis-ind-title" data-i18n="in1t">식당허가</span><span class="bis-ind-desc" data-i18n="in1d">요식업 영업에 필요한 허가</span><span class="bis-ind-go" aria-hidden="true">→</span></a></li>
+      <li><a class="bis-ind" data-route="/verify/fire" href="#">
+        <span class="bis-ind-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c3.9 0 6.5-2.6 6.5-6.3 0-3.4-2.3-5.6-3.6-7.2-.4 1.6-1.3 2.7-2.4 3.2C12.6 7.3 11 4.6 8.7 3c.3 2.9-1.4 5-2.7 6.7-.9 1.2-1.5 2.7-1.5 4.9C4.5 18.4 8 21 12 21z"/><path d="M12 21c-1.7 0-3-1.2-3-3 0-1.6 1.2-2.6 2-3.6.4 1 .9 1.5 1.6 1.7.2-1 .7-1.8 1.4-2.4.5 1.1 1 2.1 1 3.3 0 2.2-1.3 4-3 4z"/></svg></span>
+        <span class="bis-ind-title" data-i18n="in2t">소방허가</span><span class="bis-ind-desc" data-i18n="in2d">소방시설 안전 관련 허가·인증</span><span class="bis-ind-go" aria-hidden="true">→</span></a></li>
+      <li><a class="bis-ind" data-route="/verify/hygiene" href="#">
+        <span class="bis-ind-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 7.9 7.5 9.5 4.4-1.6 7.5-4.9 7.5-9.5V6z"/><path d="M12 8.5c-1.4 1.7-2.4 3-2.4 4.3a2.4 2.4 0 0 0 4.8 0c0-1.3-1-2.6-2.4-4.3z"/></svg></span>
+        <span class="bis-ind-title" data-i18n="in3t">위생허가</span><span class="bis-ind-desc" data-i18n="in3d">식품 위생 안전 관련 허가</span><span class="bis-ind-go" aria-hidden="true">→</span></a></li>
+      <li><a class="bis-ind" data-route="/verify/environment" href="#">
+        <span class="bis-ind-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20c0-8 5-13 15-15-.5 9.5-5.5 15-13 15z"/><path d="M5 20c3-4 6-6.5 9.5-8.5"/></svg></span>
+        <span class="bis-ind-title" data-i18n="in4t">환경허가</span><span class="bis-ind-desc" data-i18n="in4d">환경영향평가·배출 관련 허가</span><span class="bis-ind-go" aria-hidden="true">→</span></a></li>
+      <li><a class="bis-ind" data-route="/verify/cosmetics" href="#">
+        <span class="bis-ind-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="10" height="12" rx="2"/><path d="M9.5 9V6.5h5V9"/><path d="M10.5 6.5V3.5h3v3"/><path d="M10 14h4"/></svg></span>
+        <span class="bis-ind-title" data-i18n="in5t">화장품허가</span><span class="bis-ind-desc" data-i18n="in5d">화장품 판매 신고·유통 허가</span><span class="bis-ind-go" aria-hidden="true">→</span></a></li>
+      <li><a class="bis-ind" data-route="/verify/medical" href="#">
+        <span class="bis-ind-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v5a4 4 0 0 0 8 0V3"/><path d="M10 12v2a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="11" r="2"/></svg></span>
+        <span class="bis-ind-title" data-i18n="in6t">의료기기허가</span><span class="bis-ind-desc" data-i18n="in6d">의료기기 수입·유통 허가</span><span class="bis-ind-go" aria-hidden="true">→</span></a></li>
+      <li><a class="bis-ind" data-route="/verify/franchise" href="#">
+        <span class="bis-ind-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8.5h13V12"/><path d="M10 20.5v-5h4v5"/></svg></span>
+        <span class="bis-ind-title" data-i18n="in7t">프랜차이즈 등록</span><span class="bis-ind-desc" data-i18n="in7d">가맹사업 등록 요건</span><span class="bis-ind-go" aria-hidden="true">→</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= 03 HOW IT WORKS ================= -->
+<section class="bis-section" id="how">
+  <div class="bis-wrap">
+    <div class="bis-head reveal">
+      <p class="bis-sec-label"><span>03</span> / HOW IT WORKS</p>
+      <h2 class="bis-h2" data-i18n="s3Title">복잡한 행정 절차를 세 단계로</h2>
+      <p class="bis-lead" data-i18n="s3Lead">사업 유형을 선택하면 관련 인허가와 필요 서류, 준비 절차를 확인할 수 있습니다.</p>
+    </div>
+    <ol class="bis-flow">
+      <li class="bis-flow-step reveal">
+        <span class="bis-flow-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6M9 18h3"/></svg></span>
+        <p class="bis-flow-num">STEP 01</p>
+        <h3 class="bis-flow-title" data-i18n="st1t">사업 유형과 계획 선택</h3>
+        <p class="bis-flow-desc" data-i18n="st1d">업종과 사업 형태를 선택하여 내 사업에 맞는 정보를 확인합니다.</p>
+      </li>
+      <li class="bis-flow-step reveal" style="--d:80">
+        <span class="bis-flow-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4"/></svg></span>
+        <p class="bis-flow-num">STEP 02</p>
+        <h3 class="bis-flow-title" data-i18n="st2t">필요한 절차·서류·요건 확인</h3>
+        <p class="bis-flow-desc" data-i18n="st2d">관련 인허가, 제출 서류, 기관 정보 등 필요한 내용을 확인합니다.</p>
+      </li>
+      <li class="bis-flow-step reveal" style="--d:160">
+        <span class="bis-flow-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="m9 12.5 2 2 4-4"/></svg></span>
+        <p class="bis-flow-num">STEP 03</p>
+        <h3 class="bis-flow-title" data-i18n="st3t">확인한 내용을 바탕으로 준비</h3>
+        <p class="bis-flow-desc" data-i18n="st3d">확인한 정보를 기준으로 사업 준비 절차를 진행합니다.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= 04 TRUST & REFERENCE =================
+     Every source link was opened and its title checked (official .gov.vn / chinhphu.vn / vbpl.vn sites).
+     The document visual is abstract (no seals, emblems, badges or readable text). -->
+<section class="bis-section bis-section--tint" id="trust">
+  <div class="bis-wrap bis-ref">
+    <div class="bis-ref-head reveal">
+      <p class="bis-sec-label"><span>04</span> / TRUST &amp; REFERENCE</p>
+      <h2 class="bis-h2" data-i18n="s4Title">검증된 공식 자료를 기준으로 합니다.</h2>
+      <p class="bis-lead" data-i18n="s4Lead">베트남 정부의 공식 웹사이트와 법령, 공고, 지침 등 신뢰할 수 있는 공개 자료를 바탕으로 정보를 제공합니다.</p>
+    </div>
+    <div class="bis-ref-visual reveal" style="--d:80" aria-hidden="true">
+      <svg viewBox="0 0 240 200" fill="none">
+        <rect x="58" y="22" width="122" height="156" rx="8" fill="#FFFFFF" stroke="#C3CFDD"/>
+        <rect x="44" y="34" width="122" height="156" rx="8" fill="#FFFFFF" stroke="#C3CFDD"/>
+        <rect x="58" y="54" width="62" height="7" rx="3.5" fill="#426B98" opacity=".55"/>
+        <rect x="58" y="74" width="94" height="5" rx="2.5" fill="#DDE3EB"/>
+        <rect x="58" y="88" width="86" height="5" rx="2.5" fill="#DDE3EB"/>
+        <rect x="58" y="102" width="94" height="5" rx="2.5" fill="#DDE3EB"/>
+        <rect x="58" y="116" width="70" height="5" rx="2.5" fill="#DDE3EB"/>
+        <rect x="58" y="138" width="94" height="5" rx="2.5" fill="#DDE3EB"/>
+        <rect x="58" y="152" width="58" height="5" rx="2.5" fill="#DDE3EB"/>
+        <circle cx="168" cy="134" r="26" fill="#E8EEF5" fill-opacity=".85" stroke="#426B98" stroke-width="3"/>
+        <path d="m187 153 20 20" stroke="#426B98" stroke-width="6" stroke-linecap="round"/>
+        <path d="m157 134 7 7 13-13" stroke="#426B98" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <ul class="bis-ref-checks reveal" style="--d:160">
+      <li><span class="bis-check" aria-hidden="true"></span><span data-i18n="ck1">베트남 정부 관공서의 공식 자료 확인</span></li>
+      <li><span class="bis-check" aria-hidden="true"></span><span data-i18n="ck2">관련 법령·공고·지침을 기준으로 정보 확인</span></li>
+      <li><span class="bis-check" aria-hidden="true"></span><span data-i18n="ck3">출처와 기준일을 확인할 수 있도록 안내</span></li>
+      <li><span class="bis-check" aria-hidden="true"></span><span data-i18n="ck4">현재 기준에 맞는 정보를 제공하기 위해 검토</span></li>
+    </ul>
+  </div>
+  <div class="bis-wrap">
+    <div class="bis-sources reveal">
+      <p class="bis-sources-label" data-i18n="srcLabel">참고하는 공식 공개 자료</p>
+      <ul class="bis-sources-list">
+        <li><a href="https://chinhphu.vn/" target="_blank" rel="noopener noreferrer"><span lang="vi">Cổng Thông tin điện tử Chính phủ</span><em data-i18n="src1">정부 공식 포털</em></a></li>
+        <li><a href="https://congbao.chinhphu.vn/" target="_blank" rel="noopener noreferrer"><span lang="vi">Công báo điện tử</span><em data-i18n="src2">관보 (법령 공포)</em></a></li>
+        <li><a href="https://vbpl.vn/" target="_blank" rel="noopener noreferrer"><span lang="vi">CSDL quốc gia về pháp luật</span><em data-i18n="src3">국가 법령 데이터베이스</em></a></li>
+        <li><a href="https://dichvucong.gov.vn/" target="_blank" rel="noopener noreferrer"><span lang="vi">Cổng Dịch vụ công Quốc gia</span><em data-i18n="src4">국가 공공서비스 포털</em></a></li>
+      </ul>
+      <p class="bis-sources-note" data-i18n="srcNote">MY VIET BIZ는 정부기관이 아니며, 위 기관과 제휴 또는 인증 관계가 없습니다. 안내 정보는 참고용이며 법률 자문이나 행정기관의 결정을 대체하지 않습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 GET STARTED =================
+     background: a still of the existing hero clip (its last frame, the lit building at night) — no new asset.
+     기업회원 가입하기 → /register/company as specified (vfbcai.com has no separate sign-up route). -->
+<section class="bis-final" id="start">
+  <video class="bis-final-media" id="bisFinalMedia" src="assets/bis-hero.mp4" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
+  <div class="bis-final-shade" aria-hidden="true"></div>
+  <div class="bis-wrap bis-final-inner reveal">
+    <p class="bis-sec-label bis-sec-label--light"><span>05</span> / GET STARTED</p>
+    <h2 class="bis-final-title" data-i18n="s5Title">지금, 내 사업에 필요한 절차부터 확인하세요.</h2>
+    <p class="bis-final-desc" data-i18n="s5Lead">베트남 사업의 시작부터 운영까지, 필요한 인허가와 행정 절차를 더 정확하게 준비할 수 있습니다.</p>
+    <div class="bis-final-actions">
+      <a class="bis-btn" data-route="/register" href="#"><span data-i18n="ctaCheck">사업 절차 확인하기</span> <span aria-hidden="true">→</span></a>
+      <a class="bis-btn bis-btn--outline-light" data-route="/register/company" data-tab="direct" href="#"><span data-i18n="s5Join">기업회원 가입하기</span> <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="bis-footer">
+  <div class="bis-wrap">
+    <div class="bis-footer-bottom">
+      <p data-i18n="ftNote">MY VIET BIZ는 베트남 사업 관련 절차 정보를 안내하는 서비스이며, 법률 자문이나 행정기관의 결정을 대체하지 않습니다. 사안에 따라 전문가 상담이 필요할 수 있습니다.</p>
+      <p>© 2026 VFBCAI</p>
+    </div>
+  </div>
+</footer>
+
+<script src="bis.js"></script>
+</body>
+</html>
