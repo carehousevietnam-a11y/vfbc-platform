@@ -4,9 +4,11 @@
 ■ 0. 목적
 베트남에 새로 진출한 소규모 한국인 사업자(또는 그가 시킨 베트남 직원)가 영수증·인보이스·급여를 한국어 또는 베트남어로 그때그때 입력하면, 베트남 정식 서식으로 장부가 자동 생성되고, 분기 신고 때 신고서 초안이 만들어져 VNK 전문가가 검토 후 공식 포털에서 제출한다. UX는 한국 홈택스를 따르고, 서식은 베트남 세무국 서식을 따른다.
 명칭 규칙: "홈텍스"는 내부 코드명이다. 고객에게 보이는 이름, 국세청 로고·문구·이미지, 국세청 서비스로 오해될 표현은 쓰지 않는다.
+서식 2층 구조: 1층=정부가 번호·항목을 정한 서식(form_class=government). 지표 번호·순서를 변경하지 않으며 Form Verification Pack이 있는 서식만 활성화한다. 2층=정부가 서식을 정하지 않아 회사마다 다르게 작성해 제출하는 문서를 VIET-TAX가 표준화한 서식(form_class=standardized). 근거 법령이 요구하는 필수 내용을 포함하고 배치·문구만 표준화한다. 정부 서식 번호·명칭을 쓰지 않고 'VIET-TAX 표준 서식 · 정부가 정한 서식 아님'으로 표기한다. 법적 효력은 내용과 서명에 있으므로 vnk_expert 검토와 company_owner 확정을 거치고 베트남어 확정본만 제출 대상으로 한다.
 ■ 1. 범위
 포함: 거래 입력(매출 인보이스, 매입 인보이스, 경비 영수증, 급여) / 증빙 첨부 / 장부 자동 생성 / 신고서 초안 3종(부가가치세, 법인세, 소득세-급여 원천징수) / 전문가 검토·정정 / 베트남어 정식 서식 PDF·Excel보내기 / 감사 로그 / 한국어·베트남어 이중 언어(§11).
 제외(이번 주): 결제, 알림, 정부 포털 자동 전송·자동 신고 연동, 전자세금계산서 연동, OCR 자동 추출, 자산·재고 거래, 세무 조언·진단. 면허세(môn bài)는 2026-01-01 폐지되어 제외.
+거래처별 매출·매입 인보이스 목록은 2015-01-01 이후 신고서 첨부 제출 대상이 아니며(2차 출처), 내부 대사용으로만 만든다. 신고 제출 경로는 HTKK에서 작성 → XML보내기 → 포털 전자서명 후 제출이며(엑셀 제출 불가, 2차 출처) 시스템은 포털에 전송하지 않는다.
 금지: 기존 완료·잠금 자산(Admin MASTER, 행정문서 마스터, 세금 Clean Build, 가입, 마이페이지 확정분) 수정. import·재사용만 한다. 과거·레거시 자산은 가져오지 않는다. 기존 다른 화면은 이중 언어로 바꾸지 않는다.
 ■ 2. 위치와 흐름
 - 기업회원 > 세무/회계 항목. 획득 퍼널은 기존 구조를 그대로 쓴다: 질문 → 서류 첨부 → 1차 결과 → 가입 → 전문가 진행. 진입점은 3개로 한정: 부가가치세 신고 확인 / 인보이스 처리 확인 / 법인세 결산 점검.
@@ -29,7 +31,7 @@ term_glossary(ko, vi, context, verified_status, effective_from)
 chart_of_accounts(code, name_vi, name_ko, regime, effective_from, legal_source, verified_status)
 posting_rules(txn_type, condition, debit_code, credit_code, effective_from, legal_source, verified_status)   // 코드가 아니라 데이터
 ledger_entries(org_id, txn_id, period_key, entry_date, account_code, debit, credit, posting_rule_id, form_version_id)   // insert-only. 적요(description_vi)는 i18n_texts 현재값을 참조
-form_versions(form_code, name_vi, name_ko, legal_basis, effective_from, effective_to, status[pending_verification|active|retired|blocked], field_map jsonb, template_path)
+form_versions(form_code, name_vi, name_ko, form_class[government|standardized], legal_basis, effective_from, effective_to, status[pending_verification|active|retired|blocked], field_map jsonb, template_path)
 declarations(org_id, form_code, form_version_id, period_key, status[not_started|drafting|expert_review|ready|filed_manual|amended], computed jsonb, due_date, filed_at, filed_by, filing_receipt_path)
 review_comments(org_id, target_type, target_id, author_id, status[open|resolved])   // 본문은 i18n_texts
 exports(org_id, kind, form_version_id, period_key, file_path, sha256, i18n_version_list, created_by, created_at)
@@ -41,6 +43,7 @@ deadline_rules(tax_type, period_kind, rule, legal_source, verified_status)
 - 정정 방식(적색 역분개 / 추가 기재 등)은 검증된 규칙에 따라 correction_method 설정값으로 분기한다. 모든 경우를 "취소 후 재입력"으로 고정하지 않는다.
 - declarations.status가 filed_manual이면 해당 기간을 잠근다. 변경은 amended 절차로만 한다.
 - 거래 1건의 ledger_entries는 차변합=대변합이어야 확정된다.
+- form_class=government: Form Verification Pack이 없으면 기능 플래그 OFF. form_class=standardized: legal_basis(요구 내용의 근거 법령)가 검증되기 전에는 verified_status='unverified'로 두고 초안 생성까지만 허용하며 제출 의뢰 기능은 OFF.
 ■ 5. 홈텍스식 UX (구조·용어·동작은 한국 홈택스, 겉모양은 Admin MASTER 유지)
 고객 문구는 "~합니다", "부가가치세"로 표기한다(VAT는 내부 코드·공식 서식명에만).
 5-1 상단 메뉴: 홈 | 거래 입력 | 장부 조회 | 세금 신고 | 신고 결과·접수증 | 증빙·서류 | 내 회사 정보. 모바일은 하단 탭 4개(홈, 거래 입력, 세금 신고, 더보기).
@@ -51,6 +54,14 @@ deadline_rules(tax_type, period_kind, rule, legal_source, verified_status)
 5-6 도움말: 각 화면 우측 패널(모바일은 접힘). 그 단계 설명, 근거 법령(실제 사용한 출처만 [1]부터 번호). 어려운 용어는 한국어+베트남어 병기.
 5-7 접근성: 글자 크기 3단계, 충분한 대비, 입력 오류는 해당 칸 옆 한 줄.
 5-8 겉모양: Admin MASTER와 동일한 글꼴·색·로고·여백. 색은 절제하고 위험도·상태 색은 기존 그대로.
+5-9 쉬움 원칙: 사용자는 한국 홈택스처럼 직관적으로 쓸 수 있어야 하며, 정부 서식과 VIET-TAX 표준 서식의 복잡함은 화면 뒤에서 처리한다.
+(1) 사용자는 서식을 고르지 않는다. 부가가치세 01/GTGT·04/GTGT 등 서식 선택은 규칙(G2)이 정하고 사용자에게는 이유 한 줄만 보여준다. 규칙 검증 전에는 vnk_expert가 정한다.
+(2) 사용자는 신고서 숫자를 입력하지 않는다. 신고서는 거래에서 자동으로 채워지며 읽기 전용이고 수정은 원본 거래에서만 한다.
+(3) 단계바(①→⑥), 하단 고정 이전·다음 버튼, 임시저장을 모든 신고 화면에 동일하게 적용하고 한 화면에는 한 가지 일만 둔다.
+(4) 정부 서식 번호·항목명은 보조 표기로만 두고, 주된 라벨은 쉬운 한국어('~합니다')를 쓴다.
+(5) 2층 표준 서식은 질문에 답하면 초안이 만들어지는 방식으로 하며, 사용자가 양식을 직접 편집하지 않는다.
+(6) 홈에는 '다음 할 일' 버튼 1개를 항상 먼저 보여주고, 어려운 용어는 한국어+베트남어를 병기한다.
+(7) 각 입력 단계에는 '작성 예시 보기' 버튼을 두고 기본은 닫힘으로 한다. 예시는 가상 데이터이며 '예시' 표시, 읽기 전용이고 실제 데이터에 영향을 주지 않는다. 정부 서식 항목 번호는 검증된 Form Verification Pack에서만 가져오며 Pack이 없는 서식은 예시도 제공하지 않는다. 예시 문구(ko/vi)는 Content Pack 슬롯으로 채우고 구현자는 구조와 빈 슬롯만 만든다.
 ■ 6. 보안 (최우선)
 org_id 기반 RLS 필수. 증빙은 비공개 버킷 + 짧은 만료 서명 URL. 서비스 롤 키는 서버 전용. 파일 형식·크기 제한. 역할별 권한 테스트 필수. audit_log 누락 금지. 개인정보·서류는 로그와 콘솔에 남기지 않는다.
 ■ 7. 미검증 게이트 (검증 전에는 값을 만들어 쓰지 말 것. 모두 verified_status='unverified'로 시드하고 UI에서 확정 기능으로 노출하지 않는다)
@@ -64,12 +75,16 @@ G7 VNK의 신고 대행 자격
 G8 회계 장부·증빙의 언어 요건(베트남어 사용 의무, 외국어 병기 규정): 확인 전에는 베트남어 확정을 거친 문구만 공식 출력 대상으로 본다.
 기한 시드(2차 출처, 원문 대조 전까지 unverified): 부가가치세 월 신고=익월 20일 / 분기=다음 분기 첫 달 말일 / 법인세 분기 가납=다음 분기 첫 달 30일 / 법인세 연간 결산·재무제표=회계연도 종료 후 3개월째 말일 / 소득세(원천징수) 분기=다음 분기 첫 달 말일. 기한이 휴일이면 다음 영업일(Nghị định 252/2026 제3조 7항).
 신고서 필드 코드는 임의로 만들지 말고, Claude가 작성하는 Form Verification Pack(docs/master/forms/)을 받아 field_map에 넣는다. Pack이 없는 서식은 기능 플래그 OFF.
+G1 갱신: 법인세 연간 결산 신고서는 03/TNDN(TT89/2026 부록 I, 2차 출처)으로 확인됨. 분기 가납 서식 번호와 부속 서식(03-2, 03-3A, 03-4, 03-5, 03-6, 03-8 등) 적용 범위는 원문 대조 전까지 unverified.
+정부 서식 후보(pending_verification, 2차 출처): 01/VBGT 신고서 해명서, 01/KHBS 수정신고서, 01-1/KHBS 수정신고 해명서(amended 절차와 연결), 03/TNCN 원천징수영수증(Nghị định 70/2025/NĐ-CP).
+G9 정부가 서식을 정하지 않은 제출 문서의 목록과 법령상 필수 내용. 1차 후보: 세무당국 요청에 대한 해명 공문(công văn giải trình). 확인 전에는 standardized 서식의 제출 기능 OFF, verified_status='unverified'.
+참고(2차 출처): TT89/2026의 01-2/GTGT는 수력발전 배분표이며 거래처 목록이 아니다.
 ■ 8. 구현 단계 (각 단계 35분을 넘기지 않게 범위를 쪼갠다)
 P0 조사(읽기 전용): 기존 저장소의 기업회원 관련 코드, 세금 Clean Build, Admin MASTER, Supabase 스키마·RLS·스토리지 패턴, 기존 i18n 방식을 조사하고 KEEP/MERGE/REMOVE/REWIRE/NEW 표로 보고한 뒤 Ace 승인을 받는다. 승인 게이트는 여기 한 번뿐이다.
 P1 마이그레이션: §4 테이블(i18n_texts, term_glossary, profiles 포함), RLS, 감사 트리거, 비공개 버킷, i18n 카탈로그(ko/vi) 뼈대. 두 조직 격리 테스트 통과.
 P2 거래 입력·증빙·초안/확정·검증(5-5), 번역 비동기 처리와 "번역 대기" 표시, 언어 전환.
 P3 posting_rules 엔진과 ledger_entries 생성, 장부 조회. G3 통과 전에는 unverified 표시.
-P4 서식 레지스트리, 법령 월간 점검 화면,보내기 프레임워크(버전 고정 PDF·Excel, 번역 version 기록, 미확정 번역 경고). 한국어 참고본 PDF는 후순위.
+P4 서식 레지스트리, 법령 월간 점검 화면,보내기 프레임워크(버전 고정 PDF·Excel, 번역 version 기록, 미확정 번역 경고). 한국어 참고본 PDF는 후순위. (P4 마이그레이션에서 form_versions.form_class 추가)
 P5 신고서 초안(부가가치세 먼저): Form Verification Pack이 도착하면 진행한다(게이트).
 P6 전문가 검토 대기열, 코멘트, 정정, "베트남어 확정" 동작.
 P7 퍼널 연결: 진입점 3개 + Content Pack 슬롯 + 가입 후 org 생성 연결.
