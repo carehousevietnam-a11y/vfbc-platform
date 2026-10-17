@@ -71,3 +71,6 @@
 110 · P7-2a 보완: pending 작업공간은 `AccountingWorkspaceDataServerLayout` 서버 redirect; 퍼널 ko는 라우트마다 locale-ko; vi 키 누락은 uiCatalog parity→tsc 실패.
 111 · P7-2b: 조직 서류는 `accounting_org_documents`+`org-docs` 경로; 승인 요청 RPC→`in_review`; 전문가만 approve/reject; 반려 `review_note` i18n_texts.
 112 · P7-2b 보완: rejected `review_note`는 owner GET에서 admin 조회; 전문가 큐는 vnk 역할 없으면 403; org-doc 업로드는 audit SELECT 생략·`p7-2b-e2e-browser.mjs`.
+113 · P8-1a: `p3-posting.mjs` 2 fail(`filed_manual_period_blocked`·`rollback_not_confirmed`); 수정 전 §9 posting 매핑 FAIL.
+114 · P8-1a: `p7e-org-audit.mjs`는 in_review 없이 expert resolution 호출 시 중단; RPC 순서 정렬 필요.
+115 · P8-1a: `p7g`/`p7a` Pack question_id·RESULT_PACK 정렬·production stage/flags 불일치; Pack 동기화 후 재검증.

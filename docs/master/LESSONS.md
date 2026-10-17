@@ -590,3 +590,18 @@
     원인: `accounting_i18n_texts` SELECT는 `accounting_can_use_org_data`(승인 org만)라 rejected owner가 `review_note`를 못 읽었다. `denyNonExpertQueueAccess`는 owner/member만 막고 무소속 사용자는 200 빈 큐를 받았다. org-doc POST 후 audit 로그를 user RLS로 읽어 pending org에서 500이 났다.
     재발 방지: `listOrgDocuments`는 owner+rejected일 때 service role로 `review_note`만 조회. 전문가 큐 gate는 `vnk_expert`/`vnk_admin` 없으면 403. 업로드는 userClient storage·audit는 트리거에 맡기고 POST 응답에서 audit SELECT 생략.
     자동 검사: node tests/accounting/p7-2b-e2e-browser.mjs · npx tsx tests/accounting/isolation.mjs
+
+113. 문제: P8-1a에서 `node tests/accounting/p3-posting.mjs`가 21 pass·2 fail로 종료했다.
+    원인: `filed_manual_period_blocked`·`rollback_not_confirmed` 케이스가 기대와 불일치(기간 잠금·롤백 시나리오).
+    재발 방지: filed_manual·정정 롤백 게이트는 p3-posting 실패를 0으로 만든 뒤 §9 차변합·확정 불변을 다시 매핑한다. 수정은 별도 IMPLEMENT 미션.
+    자동 검사: node tests/accounting/p3-posting.mjs
+
+114. 문제: P8-1a에서 `node tests/accounting/p7e-org-audit.mjs`가 `accounting: org must be in_review before expert resolution`로 중단했다.
+    원인: harness가 승인 전 `in_review` 전환(`accounting_org_request_review`) 없이 expert resolution을 호출한 순서.
+    재발 방지: p7e는 P7-2b RPC 순서(pending→in_review→approve/reject)를 따른다. LESSONS 111·102와 동일 계열.
+    자동 검사: node tests/accounting/p7e-org-audit.mjs
+
+115. 문제: P8-1a에서 `p7g-result-pack.mjs`·`p7a-content-pack-validate.mjs`가 Content Pack 정렬·stage 카운트에서 실패했다.
+    원인: RESULT_PACK의 `when.question_id`가 Pack의 `vat_s1_q2` 등과 불일치(unknown_question)·production entry stage1/2=0·flags 검사 FAIL.
+    재발 방지: 공식 Content Pack 수령·`contentPackData` question_id 동기화 후 p7a·p7g 0 fail. 문구 invent 금지.
+    자동 검사: node tests/accounting/p7g-result-pack.mjs · node tests/accounting/p7a-content-pack-validate.mjs
