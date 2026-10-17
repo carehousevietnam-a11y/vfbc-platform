@@ -655,3 +655,8 @@
     원인: 디버깅용 텍스트 덤프를 결과 객체에 그대로 넣었다.
     재발 방지: 하네스 로그·note에는 길이·존재 여부·언어·status·version만 남기고, 메모·코멘트 원문은 출력하지 않는다. 커밋 전 `console.log` 대상을 점검한다.
     자동 검사: Select-String -Path tests/accounting/p9-carryover-bidi.mjs -Pattern 'ko_head|innerText' (0건이어야 함)
+
+126. 문제: 데스크톱 1440에서 번역 완료 후 같은 목록을 연 직후에는 한국어 칸이 갱신되지 않아 FAIL이 났고, 같은 조건의 새로고침 후에는 한국어가 표시됐다(모바일은 PASS).
+    원인: 번역 완료 이전에 열린 상태를 판정했다. 번역 결과는 새로 로드된 화면에서만 확인하는 것이 안전하다(분류 a, 하네스 타이밍).
+    재발 방지: 번역 후 판정은 DB 폴링 완료 → 새로고침 → 항목 재오픈 뒤 DOM 텍스트로 판정한다. 스크린샷 판독에 의존하지 않는다.
+    자동 검사: P9_BIDI_MODE=translate node tests/accounting/p9-carryover-bidi.mjs

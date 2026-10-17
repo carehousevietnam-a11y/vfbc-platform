@@ -157,15 +157,24 @@ async function koRows() {
 }
 
 // UI check on ko owner (ko locale), returns booleans/lengths only
-async function koUiCheck(viewport, expect, koText) {
+async function koUiCheck(viewport, expect, koText, reload = false) {
   const r = {};
   await withSession(koSession, "ko", viewport, async (page) => {
     await page.goto(`${base}/company/accounting/transactions?status=draft`, { waitUntil: "domcontentloaded" });
-    const row = page.locator("ul li button", { hasText: amountLabelKo }).first();
-    await row.waitFor({ timeout: 45000 });
-    await row.click();
-    const field = page.getByTestId("accounting-i18n-field-txn.memo");
-    await field.waitFor({ timeout: 45000 });
+    const openRow = async () => {
+      const row = page.locator("ul li button", { hasText: amountLabelKo }).first();
+      await row.waitFor({ timeout: 45000 });
+      await row.click();
+      const f = page.getByTestId("accounting-i18n-field-txn.memo");
+      await f.waitFor({ timeout: 45000 });
+      return f;
+    };
+    let field = await openRow();
+    if (reload) {
+      // reload after translation exists, then re-open the same draft and read DOM text
+      await page.reload({ waitUntil: "domcontentloaded" });
+      field = await openRow();
+    }
     r.loaded = await waitUntil(async () => (await field.locator("textarea").inputValue()).length > 0, 10000);
     await field.getByRole("button", { name: "한국어로 보기" }).click();
     if (expect === "translated") {
@@ -223,12 +232,13 @@ if (txnId) {
     const koText = ko?.text ?? "";
     put("c-db-ko-machine", found ? "PASS" : "FAIL", `ko=${ko ? `machine/v${ko.version}` : "none"} polled<=60s`);
     if (found) {
+      // judge after reload: the translated state is only shown on a fresh load
       for (const [name, vp] of [
         ["desktop1440", { width: 1440, height: 900 }],
         ["mobile390", { width: 390, height: 844 }],
       ]) {
         try {
-          const r = await koUiCheck(vp, "translated", koText);
+          const r = await koUiCheck(vp, "translated", koText, true);
           put(
             `c-ui-${name}`,
             r.loaded && r.uiSettled && r.koShown && !r.badgePending ? "PASS" : "FAIL",
