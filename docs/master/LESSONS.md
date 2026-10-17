@@ -630,3 +630,18 @@
     원인: VAT wizard는 client step·localStorage만 있고 `declarations.computed`에 단계·작성자 메타가 없었다. 거래 UI는 memo/description 필드가 API에 없었다.
     재발 방지: `accountingI18nTexts`·`form-basis`·보기 전환 바를 먼저 고정한 뒤, VAT `_wizard`·나머지 자유입력 칸을 단계별 미션으로 붙인다. LESSONS 번호는 기존 #95·#110 중복 없이 최대+1(118 P9-5b, 119 P9-6)만 쓴다.
     자동 검사: node tests/accounting/isolation.mjs · (추가) p9-6-browser-check.mjs
+
+121. 문제: P9-6b 마감 QA #1·#3이 UI 저장·비동기 번역 타이밍에 따라 PASS/FAIL이 바뀌었다.
+    원인: `deferTranslation`·기계번역 완료 시점을 하네스가 기다렸고, 반대 언어 `accounting_i18n_texts` 행을 시드하지 않았다.
+    재발 방지: 번역 대기·원문 유지 검증은 ko/vi 중 한쪽만 `status=original`로 service 시드하고 번역 API를 호출하지 않는다.
+    자동 검사: P96B_QA_PARTIAL=1 node tests/accounting/p9-6b-qa-close.mjs
+
+122. 문제: p5b-vat-browser-check가 filed_manual(2026-09) 기간 input에 fill을 시도해 타임아웃했다.
+    원인: `declarations.status=filed_manual`이면 해당 기간 입력 잠금이 정상 동작인데 하네스가 미제출 기간과 동일하게 다루었다.
+    재발 방지: 미제출 기간(시드 period)에서 입력·초안 시나리오를 돌리고, filed_manual URL에서는 period input `disabled`를 단언한다.
+    자동 검사: node tests/accounting/p5b-vat-browser-seed.mjs · node tests/accounting/p5b-vat-browser-check.mjs
+
+123. 문제: P9-6b 마감 보고가 FAIL만 적고 제품 결함 vs 하네스 전제 구분이 없었다.
+    원인: 세션 주입·Playwright 전제 실패와 표시 로직 버그를 같은 bucket에 넣었다.
+    재발 방지: QA 마감 시 항목마다 원인 분류(제품/하네스) 한 줄을 보고에 포함한다.
+    자동 검사: (수동) P9-6b 마감 보고 템플릿

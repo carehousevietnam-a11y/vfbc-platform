@@ -76,3 +76,6 @@
 115 · P8-1a: `p7g`/`p7a` Pack question_id·RESULT_PACK 정렬·production stage/flags 불일치; Pack 동기화 후 재검증.
 116 · P8-1b: 브라우저 하네스 전부 exit≠0; p4b ledger report 선행 누락·퍼널 `accounting-funnel-active`·p5c home-recent·p7-2b pending URL.
 117 · P8-4: isolation `p72a_duplicate_org_blocked`는 stash 가입분의 `provisionCompanyMemberSignup` throw 누락; 해당 1파일만 HEAD 복원.
+121 · P9-6b QA: 번역 대기는 ko/vi 한쪽만 original로 service 시드·번역 API 미호출로 결정적으로 검증한다.
+122 · p5b: filed_manual 기간은 period input disabled가 정상; 미제출 period에서 입력·잠금 기간은 disabled 단언만 한다.
+123 · QA 마감 FAIL은 제품 결함 vs 하네스 전제를 항목마다 한 줄로 분류해 기록한다.

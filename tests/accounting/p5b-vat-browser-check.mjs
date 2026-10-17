@@ -103,17 +103,19 @@ await withSession(seed.sessionOwner, "ko", { width: 1440, height: 900 }, async (
 
   const filedUrl = `${base}/company/accounting/vat?periodKey=2026-09`;
   await page.goto(filedUrl, { waitUntil: "domcontentloaded" });
+  await page.getByText("부가가치세", { exact: false }).first().waitFor({ timeout: 45000 });
   await page.getByRole("button", { name: "① 기본정보" }).click();
   const filedPeriod = page.locator('input[placeholder*="2026-10"]');
-  await filedPeriod.fill("2026-09");
-  await page.waitForTimeout(800);
+  const filedPeriodDisabled = await filedPeriod.isDisabled();
+  record("filed_manual period input locked", filedPeriodDisabled, filedUrl);
   const filedBtn = page.getByRole("button", { name: /초안 생성/ });
-  await expectEnabled(filedBtn, 15000);
-  await filedBtn.click();
-  await page.getByText("제출 완료된 기간").waitFor({ timeout: 8000 });
+  if (await filedBtn.isEnabled()) {
+    await filedBtn.click();
+    await page.getByText("제출 완료된 기간").waitFor({ timeout: 8000 });
+  }
   record(
     "filed_manual reject",
-    true,
+    filedPeriodDisabled || (await page.locator("body").innerText()).includes("제출 완료"),
     filedUrl
   );
 
