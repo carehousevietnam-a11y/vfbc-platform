@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 const ACCOUNTS = [
   { key: "org_a_owner", label: "조직 A 대표 (company_owner)" },
   { key: "org_b_owner", label: "조직 B 대표 (company_owner)" },
-  { key: "vnk_expert", label: "조직 A 배정 vnk_expert" },
+  { key: "vnk_expert", label: "조직 A 배정 VFBCAI 세무전문가" },
 ] as const;
 
 export default function DevAccountingLoginPage() {

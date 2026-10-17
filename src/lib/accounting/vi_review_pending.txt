@@ -88,3 +88,11 @@ accounting.onboard.submitting
 accounting.onboard.back_home
 accounting.onboard.error.generic
 accounting.onboard.error.already
+
+P9-1 VNK→VFBCAI 세무전문가 (vi 초안, 검수 필요):
+accounting.vat.step6.lead
+accounting.vat.help.step6
+accounting.expert.queue.sign_in
+accounting.expert.queue.access_denied
+accounting.legal.lead
+accounting.legal.access_denied
