@@ -14,6 +14,7 @@ import {
 import { ACCOUNTING_ROUTES } from "@/lib/accounting/accountingNav";
 import { resolveAccountingOrgMembershipState } from "@/lib/accounting/orgMembership";
 import { AccountingFunnelEntryLinks } from "@/lib/accounting/funnel/AccountingFunnelEntryLinks";
+import { AccountingHomeHub } from "./AccountingHomeHub";
 
 function interpolate(template: string, vars: Record<string, string | number>): string {
   return Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, String(v)), template);
@@ -96,21 +97,31 @@ export default function AccountingHomeClient() {
   const typeLabel = (type: string) => t(`accounting.txn.tab.${type}` as AccountingMessageKey);
   const statusLabel = (status: string) => t(`accounting.txn.status.${status}` as AccountingMessageKey);
 
-  return (
-    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8" data-testid="accounting-home">
-      <h1 className="text-[22px] font-extrabold tracking-[-0.03em] sm:text-[28px]">{t("accounting.home.title")}</h1>
-      <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#3D4B63]">{t("accounting.home.lead")}</p>
+  const expertReviewPeriodKey =
+    snap?.inProgress.find((r) => r.status === "expert_review")?.periodKey ??
+    snap?.schedule.find((r) => r.status === "expert_review")?.periodKey ??
+    snap?.inProgress[0]?.periodKey ??
+    snap?.schedule[0]?.periodKey ??
+    null;
 
-      <AccountingFunnelEntryLinks />
+  return (
+    <main className="mx-auto max-w-6xl bg-white px-4 py-6 sm:px-6 sm:py-8" data-testid="accounting-home">
+      <div className="text-center sm:text-left">
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] sm:text-[28px]">{t("accounting.home.title")}</h1>
+        <p className="mt-2 mx-auto max-w-2xl text-[14px] leading-6 text-[#3D4B63] sm:mx-0">{t("accounting.home.lead")}</p>
+      </div>
 
       {phase === "loading" ? <p className="mt-8 text-sm text-[#6B7A90]">{t("accounting.home.loading")}</p> : null}
       {phase === "signed_out" ? (
-        <div className="mt-8 rounded-[14px] border border-[#E3E8F0] bg-white p-5">
-          <p className="text-sm leading-6">{t("accounting.home.sign_in")}</p>
-          <Link href="/login" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[#2563EB]">
-            {t("accounting.home.sign_in_link")}
-          </Link>
-        </div>
+        <>
+          <div className="mt-8 rounded-[14px] border border-[#E3E8F0] bg-white p-5">
+            <p className="text-sm leading-6">{t("accounting.home.sign_in")}</p>
+            <Link href="/login" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[#2563EB]">
+              {t("accounting.home.sign_in_link")}
+            </Link>
+          </div>
+          <AccountingFunnelEntryLinks />
+        </>
       ) : null}
       {phase === "denied" || phase === "pending" ? (
         <div className="mt-8 rounded-[14px] border border-[#E3E8F0] bg-white p-5">
@@ -120,9 +131,14 @@ export default function AccountingHomeClient() {
 
       {phase === "ready" && snap ? (
         <div className="mt-8 flex flex-col gap-6">
+          <AccountingHomeHub lang={lang} expertReviewPeriodKey={expertReviewPeriodKey} />
           {snap.showDeclarations ? (
             <>
-              <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5" data-testid="home-schedule">
+              <section
+                id="accounting-home-schedule"
+                className="rounded-[14px] border border-[#E3E8F0] bg-white p-5"
+                data-testid="home-schedule"
+              >
                 <h2 className="text-[15px] font-extrabold">{t("accounting.home.section.schedule")}</h2>
                 {snap.schedule.length === 0 ? (
                   <p className="mt-3 text-sm text-[#6B7A90]">{t("accounting.home.schedule.empty")}</p>

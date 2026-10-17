@@ -43,3 +43,5 @@
 | 2026-10-16 | 회계 P3a | 확정은 `accounting_confirm_transaction` RPC로 ledger 생성과 status=confirmed를 한 트랜잭션으로 처리한다. posting_rules·coa 운영 시드 없음(TEST-* 하네스만). correction_method 기본 reverse_entry(unverified). filed_manual 기간 확정·정정 입력 거부 | 로컬 검증·커밋(푸시 없음) | - |
 | 2026-10-16 | 회계 P3b | 장부 조회는 `accounting_ledger_entries_enriched` 기반 읽기 전용 UI. posting_rules 매칭은 txn_date·조건 specificity·effective_from 순. POSTING_RULE_MISSING는 고객 문구(i18n)만 표시. 비VND 확정은 허용·G4는 경고·배지 | 로컬 검증·커밋(푸시 없음) | - |
 | 2026-10-16 | 회계 P3c | 검증 마감만 한다. 로컬 시드(org 1, confirmed 거래 2건=VND 1·비VND 1, ledger 차변합=대변합, 한국어 memo는 i18n_texts ko=original만), 브라우저에서 장부·vi 형식·번역 대기·G4·375px를 직접 확인하고, hydration은 AccountingModuleHeader만, p2c step0 임시 member는 테스트 후 삭제한다. P4(엑셀·서식 레지스트리)는 착수하지 않는다. 운영 DB 금지. 푸시 금지 | 로컬 검증(하단 탭 4개는 화면 없음으로 FAIL). 커밋·푸시 없음 | - |
+| 2026-10-17 | 첫화면 | 프로젝트 루트 `first-screen-files.zip` 정적 원본(`public/lp/check`, `public/lp/biz`)은 수정하지 않고 `next.config.ts` rewrite·redirect로 `/`·`/biz` 연결 | 적용 중 | - |
+| 2026-10-17 | 회계 P9-2 | 2026-10-17 Ace: 회계 홈을 한국 홈택스 메인 구성(검색창+아이콘 6개+바로가기 줄)으로 변경. 홈택스 로고·이미지·문구는 사용하지 않음. 색은 Admin MASTER. | 적용 | - |

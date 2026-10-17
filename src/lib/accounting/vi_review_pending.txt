@@ -96,3 +96,21 @@ accounting.expert.queue.sign_in
 accounting.expert.queue.access_denied
 accounting.legal.lead
 accounting.legal.access_denied
+
+P9-2 회계 홈 허브 (vi 초안, 검수 필요):
+accounting.home.hub.search.label
+accounting.home.hub.search.placeholder
+accounting.home.hub.tile.inquiry
+accounting.home.hub.tile.proof
+accounting.home.hub.tile.apply
+accounting.home.hub.tile.declare
+accounting.home.hub.tile.consult
+accounting.home.hub.tile.agent
+accounting.home.hub.link.expert_review
+accounting.home.hub.link.tax_agent
+accounting.home.hub.short.schedule
+accounting.home.hub.short.transactions
+accounting.home.hub.short.ledger_excel
+accounting.home.hub.short.evidence
+accounting.home.hub.short.receipt
+accounting.home.hub.short.settings
