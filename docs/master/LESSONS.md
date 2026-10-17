@@ -605,3 +605,8 @@
     원인: RESULT_PACK의 `when.question_id`가 Pack의 `vat_s1_q2` 등과 불일치(unknown_question)·production entry stage1/2=0·flags 검사 FAIL.
     재발 방지: 공식 Content Pack 수령·`contentPackData` question_id 동기화 후 p7a·p7g 0 fail. 문구 invent 금지.
     자동 검사: node tests/accounting/p7g-result-pack.mjs · node tests/accounting/p7a-content-pack-validate.mjs
+
+116. 문제: P8-1b에서 회계 브라우저 하네스 연쇄 실패(p5c `home-recent` 45s, p4b `p3c-ledger/report.json` 없음, p5b `① 기본정보` 30s, p7a·p7g·p7f `accounting-funnel-active` 90s, p7-2b `/company/accounting/pending` 60s).
+    원인: p4b는 p3c-ledger 시드 산출물 미선행; 퍼널 계열은 Pack stage0·`accounting-funnel-active` 미노출(P8-1a p7a·p7g node FAIL과 동일 계열). p5c는 시드 후 홈 카드 미표시(세션·RLS·3020 상태). p7-2b는 온보딩→pending redirect 미도달.
+    재발 방지: P8-1b 재실행 전 p3c-ledger-seed·Pack 정렬(P7a/P7g node 0 fail)·p5c 시드·3020 `p3c-local-next` 재기동 순서를 고정한다. 가입 5파일 미커밋 변경이 있어도 이번 실패는 퍼널 active·ledger report 선행 누락이 주원인으로 보인다.
+    자동 검사: node tests/accounting/p5c-home-browser-check.mjs · node tests/accounting/p4b-browser-check.mjs · node tests/accounting/p5b-vat-browser-check.mjs · node tests/accounting/p7a-funnel-browser-check.mjs · node tests/accounting/p7f-e2e-browser.mjs
