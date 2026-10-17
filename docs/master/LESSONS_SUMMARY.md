@@ -79,3 +79,5 @@
 121 · P9-6b QA: 번역 대기는 ko/vi 한쪽만 original로 service 시드·번역 API 미호출로 결정적으로 검증한다.
 122 · p5b: filed_manual 기간은 period input disabled가 정상; 미제출 period에서 입력·잠금 기간은 disabled 단언만 한다.
 123 · QA 마감 FAIL은 제품 결함 vs 하네스 전제를 항목마다 한 줄로 분류해 기록한다.
+124 · 번역 대기 하네스는 고정 sleep 대신 요소·DB 행 조건 대기(10초·60초 폴링)로 판정한다.
+125 · 하네스 note·로그에 메모 원문을 출력하지 않는다(길이·상태·언어만).

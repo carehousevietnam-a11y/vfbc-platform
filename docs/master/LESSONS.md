@@ -645,3 +645,13 @@
     원인: 세션 주입·Playwright 전제 실패와 표시 로직 버그를 같은 bucket에 넣었다.
     재발 방지: QA 마감 시 항목마다 원인 분류(제품/하네스) 한 줄을 보고에 포함한다.
     자동 검사: (수동) P9-6b 마감 보고 템플릿
+
+124. 문제: 번역 대기 검증 하네스가 항목 클릭 후 고정 1.2초만 기다려, 같은 코드인데 1차 FAIL·2차 PASS가 나왔다.
+    원인: 거래 상세의 비동기 로드·번역 상태 반영 시점을 고정 지연으로 가정했다.
+    재발 방지: 고정 sleep 대신 메모 값 또는 "번역 대기" 요소가 나타날 때까지 최대 10초 조건 대기한다. 번역 완료는 DB 행을 폴링(최대 60초, 5초 간격)해 확인한다.
+    자동 검사: P9_BIDI_MODE=pending|translate|failure node tests/accounting/p9-carryover-bidi.mjs
+
+125. 문제: 번역 하네스의 결과 note에 사용자 입력 메모 원문 일부가 들어가 console.log로 출력됐다.
+    원인: 디버깅용 텍스트 덤프를 결과 객체에 그대로 넣었다.
+    재발 방지: 하네스 로그·note에는 길이·존재 여부·언어·status·version만 남기고, 메모·코멘트 원문은 출력하지 않는다. 커밋 전 `console.log` 대상을 점검한다.
+    자동 검사: Select-String -Path tests/accounting/p9-carryover-bidi.mjs -Pattern 'ko_head|innerText' (0건이어야 함)
