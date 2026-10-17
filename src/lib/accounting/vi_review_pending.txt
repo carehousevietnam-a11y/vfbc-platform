@@ -103,8 +103,6 @@ accounting.home.hub.search.placeholder
 accounting.home.hub.tile.inquiry
 accounting.home.hub.tile.apply
 accounting.home.hub.tile.declare
-accounting.home.hub.tile.consult
-accounting.home.hub.link.expert_review
 accounting.home.hub.short.schedule
 accounting.home.hub.short.settings
 

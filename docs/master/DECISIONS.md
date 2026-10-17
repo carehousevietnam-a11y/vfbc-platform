@@ -45,3 +45,4 @@
 | 2026-10-16 | 회계 P3c | 검증 마감만 한다. 로컬 시드(org 1, confirmed 거래 2건=VND 1·비VND 1, ledger 차변합=대변합, 한국어 memo는 i18n_texts ko=original만), 브라우저에서 장부·vi 형식·번역 대기·G4·375px를 직접 확인하고, hydration은 AccountingModuleHeader만, p2c step0 임시 member는 테스트 후 삭제한다. P4(엑셀·서식 레지스트리)는 착수하지 않는다. 운영 DB 금지. 푸시 금지 | 로컬 검증(하단 탭 4개는 화면 없음으로 FAIL). 커밋·푸시 없음 | - |
 | 2026-10-17 | 첫화면 | 프로젝트 루트 `first-screen-files.zip` 정적 원본(`public/lp/check`, `public/lp/biz`)은 수정하지 않고 `next.config.ts` rewrite·redirect로 `/`·`/biz` 연결 | 적용 중 | - |
 | 2026-10-17 | 회계 P9-2 | 2026-10-17 Ace: 회계 홈을 한국 홈택스 메인 구성(검색창+아이콘 6개+바로가기 줄)으로 변경. 홈택스 로고·이미지·문구는 사용하지 않음. 색은 Admin MASTER. | 적용 | - |
+| 2026-10-17 | 회계 P9-5 | 동작하는 화면만 노출, 증빙·서류와 신고 결과·접수증은 기능 완성 시 재노출(§5-1 메뉴 목록과 일시 불일치). | 적용 | - |

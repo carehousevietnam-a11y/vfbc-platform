@@ -57,21 +57,6 @@ export function HubIconDeclare({ className }: IconProps) {
   );
 }
 
-/** 상담/제보 — 말풍선 */
-export function HubIconConsult({ className }: IconProps) {
-  return (
-    <HubSvg className={className}>
-      <path
-        d="M12 18a14 14 0 0 1 28 0v8a14 14 0 0 1-14 14h-4l-6 6v-6h-4a14 14 0 0 1-4-10v-12z"
-        fill={fillTone}
-        fillOpacity={0.2}
-        {...stroke}
-      />
-      <path d="M20 24h16M20 30h10" fill="none" {...stroke} />
-    </HubSvg>
-  );
-}
-
 function ShortSvg({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <svg className={className} viewBox="0 0 32 32" aria-hidden>

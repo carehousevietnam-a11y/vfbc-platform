@@ -97,13 +97,6 @@ export default function AccountingHomeClient() {
   const typeLabel = (type: string) => t(`accounting.txn.tab.${type}` as AccountingMessageKey);
   const statusLabel = (status: string) => t(`accounting.txn.status.${status}` as AccountingMessageKey);
 
-  const expertReviewPeriodKey =
-    snap?.inProgress.find((r) => r.status === "expert_review")?.periodKey ??
-    snap?.schedule.find((r) => r.status === "expert_review")?.periodKey ??
-    snap?.inProgress[0]?.periodKey ??
-    snap?.schedule[0]?.periodKey ??
-    null;
-
   return (
     <main className="mx-auto max-w-[1100px] px-4 py-6 sm:px-6 sm:py-8" data-testid="accounting-home">
       <h1 className="sr-only">{t("accounting.home.title")}</h1>
@@ -128,7 +121,7 @@ export default function AccountingHomeClient() {
 
       {phase === "ready" && snap ? (
         <div className="flex flex-col gap-6">
-          <AccountingHomeHub lang={lang} expertReviewPeriodKey={expertReviewPeriodKey} />
+          <AccountingHomeHub lang={lang} />
           <p className="mx-auto max-w-2xl text-center text-[13px] leading-6 text-[#6B7A90]">{t("accounting.home.lead")}</p>
           {snap.showDeclarations ? (
             <>

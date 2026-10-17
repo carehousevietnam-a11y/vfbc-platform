@@ -37,3 +37,20 @@ export function navKeyFromPath(pathname: string): AccountingNavKey {
 export function canViewDeclarationHome(role: string): boolean {
   return role === "company_owner" || role === "vnk_expert" || role === "vnk_admin";
 }
+
+/** Placeholder screens — hidden from customer nav until product ships; routes stay for direct URL. */
+export const ACCOUNTING_NAV_HIDDEN_PLACEHOLDER: AccountingNavKey[] = ["filing", "evidence"];
+
+export function isAccountingCustomerNavVisible(key: AccountingNavKey): boolean {
+  return !ACCOUNTING_NAV_HIDDEN_PLACEHOLDER.includes(key);
+}
+
+export const ACCOUNTING_SHELL_DESKTOP_NAV: AccountingNavKey[] = [
+  "home",
+  "transactions",
+  "ledger",
+  "tax",
+  "company",
+];
+
+export const ACCOUNTING_MORE_PAGE_LINKS: AccountingNavKey[] = ["ledger", "company"];

@@ -122,8 +122,8 @@ await withSession(seed.sessionOwner, "ko", { width: 375, height: 812 }, async (p
   record("mobile375_more_page", page.url().includes("/company/accounting/more"), page.url());
   const moreBody = await page.locator("body").innerText();
   record(
-    "mobile375_more_four_links",
-    moreBody.includes("장부 조회") && moreBody.includes("신고 결과") && moreBody.includes("증빙") && moreBody.includes("내 회사"),
+    "mobile375_more_visible_links",
+    moreBody.includes("장부 조회") && moreBody.includes("내 회사") && !moreBody.includes("신고 결과") && !moreBody.includes("증빙·서류"),
     page.url()
   );
 });

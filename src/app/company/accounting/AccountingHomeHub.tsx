@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState, type ComponentType, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ACCOUNTING_ROUTES } from "@/lib/accounting/accountingNav";
+import {
+  ACCOUNTING_ROUTES,
+  ACCOUNTING_SHELL_DESKTOP_NAV,
+  type AccountingNavKey,
+} from "@/lib/accounting/accountingNav";
 import { AccountingBrandLockup } from "@/lib/accounting/AccountingBrandLockup";
 import { accountingMessage, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import type { AccountingLocale } from "@/lib/accounting/uiCatalog";
 import {
   HubIconApply,
-  HubIconConsult,
   HubIconDeclare,
   HubIconInquiry,
   ShortcutIconCalendar,
@@ -27,18 +30,29 @@ type HubTile = {
 
 type Props = {
   lang: AccountingLocale;
-  expertReviewPeriodKey?: string | null;
 };
 
-export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
+const SHELL_NAV_I18N: Record<AccountingNavKey, AccountingMessageKey> = {
+  home: "accounting.nav.home",
+  transactions: "accounting.nav.transactions",
+  ledger: "accounting.nav.ledger",
+  tax: "accounting.nav.tax",
+  filing: "accounting.nav.filing",
+  evidence: "accounting.nav.evidence",
+  company: "accounting.nav.company",
+  pending: "accounting.workspace.pending.title",
+  more: "accounting.nav.more",
+};
+
+function routeForNavKey(key: AccountingNavKey): string {
+  return ACCOUNTING_ROUTES[key];
+}
+
+export function AccountingHomeHub({ lang }: Props) {
   const router = useRouter();
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
   const [query, setQuery] = useState("");
   const [openTile, setOpenTile] = useState<string | null>(null);
-
-  const expertReviewHref = expertReviewPeriodKey
-    ? `${ACCOUNTING_ROUTES.tax}?periodKey=${encodeURIComponent(expertReviewPeriodKey)}`
-    : ACCOUNTING_ROUTES.tax;
 
   const tiles: HubTile[] = useMemo(
     () => [
@@ -60,14 +74,8 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
         icon: HubIconDeclare,
         links: [{ labelKey: "accounting.nav.tax", href: ACCOUNTING_ROUTES.tax }],
       },
-      {
-        id: "consult",
-        labelKey: "accounting.home.hub.tile.consult",
-        icon: HubIconConsult,
-        links: [{ labelKey: "accounting.home.hub.link.expert_review", href: expertReviewHref }],
-      },
     ],
-    [expertReviewHref]
+    []
   );
 
   const searchCatalog = useMemo(() => {
@@ -77,34 +85,13 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
         items.push({ ...link, text: `${t(tile.labelKey)} ${t(link.labelKey)}` });
       }
     }
-    const navKeys: AccountingMessageKey[] = [
-      "accounting.nav.home",
-      "accounting.nav.transactions",
-      "accounting.nav.ledger",
-      "accounting.nav.tax",
-      "accounting.nav.company",
-      "accounting.nav.more",
-      "accounting.home.hub.link.expert_review",
-    ];
+    const navKeys: AccountingNavKey[] = [...ACCOUNTING_SHELL_DESKTOP_NAV, "more"];
     for (const key of navKeys) {
-      const href =
-        key === "accounting.home.hub.link.expert_review"
-          ? expertReviewHref
-          : key === "accounting.nav.home"
-            ? ACCOUNTING_ROUTES.home
-            : key === "accounting.nav.transactions"
-              ? ACCOUNTING_ROUTES.transactions
-              : key === "accounting.nav.ledger"
-                ? ACCOUNTING_ROUTES.ledger
-                : key === "accounting.nav.tax"
-                  ? ACCOUNTING_ROUTES.tax
-                  : key === "accounting.nav.company"
-                    ? ACCOUNTING_ROUTES.company
-                    : ACCOUNTING_ROUTES.more;
-      items.push({ labelKey: key, href, text: t(key) });
+      const labelKey = SHELL_NAV_I18N[key];
+      items.push({ labelKey, href: routeForNavKey(key), text: t(labelKey) });
     }
     return items;
-  }, [expertReviewHref, t, tiles]);
+  }, [t, tiles]);
 
   const searchHits = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -195,7 +182,7 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
       ) : null}
 
       <div
-        className="mx-auto mt-10 grid max-w-3xl grid-cols-2 justify-items-center gap-x-4 gap-y-8 sm:max-w-4xl sm:grid-cols-4 sm:gap-x-8"
+        className="mx-auto mt-10 grid max-w-2xl grid-cols-3 justify-items-center gap-x-6 gap-y-8"
         data-testid="accounting-home-hub-icons"
       >
         {tiles.map((tile) => {
@@ -206,7 +193,7 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
               <button
                 type="button"
                 onClick={() => onTileActivate(tile)}
-                className="flex w-full max-w-[8.5rem] flex-col items-center gap-3 sm:max-w-none"
+                className="flex w-full max-w-[8.5rem] flex-col items-center gap-3"
                 data-testid={`accounting-home-hub-tile-${tile.id}`}
               >
                 <span className="flex h-[6.5rem] w-[6.5rem] items-center justify-center rounded-full bg-[#EEF2F8] sm:h-[6.875rem] sm:w-[6.875rem]">

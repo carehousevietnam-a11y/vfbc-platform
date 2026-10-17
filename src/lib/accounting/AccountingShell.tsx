@@ -7,20 +7,11 @@ import { accountingMessage, type AccountingMessageKey } from "./uiCatalog";
 import { uiAccountingLocale } from "./localeFormat";
 import {
   ACCOUNTING_ROUTES,
+  ACCOUNTING_SHELL_DESKTOP_NAV,
   type AccountingNavKey,
   navKeyFromPath,
 } from "./accountingNav";
 import { AccountingBrandLockup } from "./AccountingBrandLockup";
-
-const DESKTOP_NAV: AccountingNavKey[] = [
-  "home",
-  "transactions",
-  "ledger",
-  "tax",
-  "filing",
-  "evidence",
-  "company",
-];
 
 const MOBILE_TABS: AccountingNavKey[] = ["home", "transactions", "tax", "more"];
 
@@ -61,7 +52,7 @@ export function AccountingShell({ children }: Props) {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:px-6">
           <AccountingBrandLockup locale={lang} variant="header" />
           <nav className="hidden flex-wrap gap-2 md:flex" aria-label={t("accounting.nav.aria")}>
-            {DESKTOP_NAV.map((key) => (
+            {ACCOUNTING_SHELL_DESKTOP_NAV.map((key) => (
               <Link key={key} href={ACCOUNTING_ROUTES[key]} className={linkClass(key)}>
                 {t(NAV_I18N[key])}
               </Link>

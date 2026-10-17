@@ -5,9 +5,7 @@ import { useCallback } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { accountingMessage, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import { uiAccountingLocale } from "@/lib/accounting/localeFormat";
-import { ACCOUNTING_ROUTES, type AccountingNavKey } from "@/lib/accounting/accountingNav";
-
-const MORE_LINKS: AccountingNavKey[] = ["ledger", "filing", "evidence", "company"];
+import { ACCOUNTING_MORE_PAGE_LINKS, ACCOUNTING_ROUTES, type AccountingNavKey } from "@/lib/accounting/accountingNav";
 
 const LABEL: Record<AccountingNavKey, AccountingMessageKey> = {
   home: "accounting.nav.home",
@@ -31,7 +29,7 @@ export default function AccountingMorePage() {
       <h1 className="text-[22px] font-extrabold tracking-[-0.03em]">{t("accounting.nav.more")}</h1>
       <p className="mt-2 text-[14px] leading-6 text-[#3D4B63]">{t("accounting.home.more.lead")}</p>
       <ul className="mt-6 flex flex-col gap-2">
-        {MORE_LINKS.map((key) => (
+        {ACCOUNTING_MORE_PAGE_LINKS.map((key) => (
           <li key={key}>
             <Link
               href={ACCOUNTING_ROUTES[key]}

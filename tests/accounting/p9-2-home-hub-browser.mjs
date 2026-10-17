@@ -9,7 +9,7 @@ import { execSync } from "child_process";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sessionPath = path.join(repoRoot, "tests/accounting/.p5c-session.json");
-const outDir = path.join(repoRoot, "tests/qa/_output/p9-4-home");
+const outDir = path.join(repoRoot, "tests/qa/_output/p9-5-home");
 fs.mkdirSync(outDir, { recursive: true });
 
 if (!fs.existsSync(sessionPath)) {
@@ -64,7 +64,11 @@ await withSession(seed.sessionOwner, "ko", { width: 1440, height: 900 }, async (
   const shieldSrc = await page.getByTestId("accounting-home-hub-shield").getAttribute("src");
   record("brand_shield_asset", shieldSrc === "/vfbcai-shield-logo.png", shieldSrc ?? "");
   record("no_my_viet_check", !(await page.locator("body").innerText()).includes("MY VIET CHECK"));
-  record("hub_icons_four", (await page.getByTestId("accounting-home-hub-icons").locator("button").count()) === 4);
+  record("hub_icons_three", (await page.getByTestId("accounting-home-hub-icons").locator("button").count()) === 3);
+  record("hub_no_consult_tile", (await page.getByTestId("accounting-home-hub-tile-consult").count()) === 0);
+  const desktopNav = page.getByRole("navigation", { name: "세무·회계 메뉴" });
+  const navText = await desktopNav.innerText();
+  record("nav_hides_placeholder", !navText.includes("증빙") && !navText.includes("신고 결과"), navText);
   record("hub_shortcuts_two", (await page.getByTestId("accounting-home-hub-shortcuts").locator("a").count()) === 2);
   record("funnel_hidden_when_logged_in", (await page.getByTestId("accounting-funnel-entry-links").count()) === 0);
   const body = await page.locator("body").innerText();
