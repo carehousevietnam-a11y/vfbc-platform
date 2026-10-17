@@ -10,6 +10,7 @@ import {
   type AccountingNavKey,
   navKeyFromPath,
 } from "./accountingNav";
+import { AccountingBrandLockup } from "./AccountingBrandLockup";
 
 const DESKTOP_NAV: AccountingNavKey[] = [
   "home",
@@ -58,7 +59,7 @@ export function AccountingShell({ children }: Props) {
     <div className="min-h-screen overflow-x-hidden bg-[#F7F9FC] text-[#071A33] pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
       <header className="border-b border-[#E3E8F0] bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:px-6">
-          <p className="text-[15px] font-extrabold tracking-[-0.02em]">{t("accounting.shell.brand")}</p>
+          <AccountingBrandLockup locale={lang} variant="header" />
           <nav className="hidden flex-wrap gap-2 md:flex" aria-label={t("accounting.nav.aria")}>
             {DESKTOP_NAV.map((key) => (
               <Link key={key} href={ACCOUNTING_ROUTES[key]} className={linkClass(key)}>

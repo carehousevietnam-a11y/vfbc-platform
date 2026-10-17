@@ -114,3 +114,8 @@ accounting.home.hub.short.ledger_excel
 accounting.home.hub.short.evidence
 accounting.home.hub.short.receipt
 accounting.home.hub.short.settings
+
+P9-3 VIET TAX 브랜드 (vi 초안, 검수 필요):
+accounting.shell.brand_title
+accounting.shell.brand_tagline
+accounting.home.hub.search.button

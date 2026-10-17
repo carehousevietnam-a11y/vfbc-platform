@@ -1,6 +1,9 @@
 export const ACCOUNTING_UI = {
   ko: {
-    "accounting.shell.brand": "MY VIET CHECK",
+    "accounting.shell.brand": "VIET TAX",
+    "accounting.shell.brand_title": "VIET TAX",
+    "accounting.shell.brand_tagline": "by VFBCAI",
+    "accounting.home.hub.search.button": "검색",
     "accounting.txn.title": "거래 입력",
     "accounting.txn.lead": "거래 내용을 입력하고 초안을 저장한 뒤 제출합니다. 확정은 대표가 합니다.",
     "accounting.txn.tab.sale": "매출",
@@ -429,7 +432,10 @@ export const ACCOUNTING_UI = {
     "accounting.onboard.error.already": "이미 회사 정보가 등록되어 있습니다.",
   },
   vi: {
-    "accounting.shell.brand": "MY VIET CHECK",
+    "accounting.shell.brand": "VIET TAX",
+    "accounting.shell.brand_title": "VIET TAX",
+    "accounting.shell.brand_tagline": "by VFBCAI",
+    "accounting.home.hub.search.button": "Tìm kiếm",
     "accounting.txn.title": "Nhập giao dịch",
     "accounting.txn.lead": "Nhập nội dung giao dịch, lưu nháp rồi gửi. Người đại diện xác nhận.",
     "accounting.txn.tab.sale": "Doanh thu",

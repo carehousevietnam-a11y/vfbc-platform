@@ -9,7 +9,7 @@ import { execSync } from "child_process";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sessionPath = path.join(repoRoot, "tests/accounting/.p5c-session.json");
-const outDir = path.join(repoRoot, "tests/qa/_output/p9-2-home");
+const outDir = path.join(repoRoot, "tests/qa/_output/p9-3-home");
 fs.mkdirSync(outDir, { recursive: true });
 
 if (!fs.existsSync(sessionPath)) {
@@ -59,6 +59,11 @@ await withSession(seed.sessionOwner, "ko", { width: 1440, height: 900 }, async (
   await page.goto(homeUrl, { waitUntil: "domcontentloaded" });
   await page.getByTestId("accounting-home-hub").waitFor({ timeout: 60000 });
   record("hub_visible_ko_desktop", true);
+  record("brand_viet_tax", (await page.getByTestId("accounting-home-hub-brand").innerText()).includes("VIET TAX"));
+  record("brand_by_vfbcai", (await page.getByTestId("accounting-home-hub-brand").innerText()).includes("by VFBCAI"));
+  const shieldSrc = await page.getByTestId("accounting-home-hub-shield").getAttribute("src");
+  record("brand_shield_asset", shieldSrc === "/vfbcai-shield-logo.png", shieldSrc ?? "");
+  record("no_my_viet_check", !(await page.locator("body").innerText()).includes("MY VIET CHECK"));
   record("hub_icons_six", (await page.getByTestId("accounting-home-hub-icons").locator("button").count()) === 6);
   record("hub_shortcuts", (await page.getByTestId("accounting-home-hub-shortcuts").locator("a").count()) >= 5);
   record("funnel_hidden_when_logged_in", (await page.getByTestId("accounting-funnel-entry-links").count()) === 0);

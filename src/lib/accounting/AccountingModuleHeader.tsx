@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "./uiCatalog";
+import { AccountingBrandLockup } from "./AccountingBrandLockup";
 
 type Props = {
   locale: AccountingLocale;
@@ -17,7 +18,7 @@ export function AccountingModuleHeader({ locale, active }: Props) {
   return (
     <header className="border-b border-[#E3E8F0] bg-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="text-[15px] font-extrabold tracking-[-0.02em]">{t("accounting.shell.brand")}</p>
+        <AccountingBrandLockup locale={locale} variant="header" />
         <nav className="flex flex-wrap gap-2">
           <Link href="/company/accounting/transactions" className={linkClass("transactions")}>
             {t("accounting.nav.transactions")}

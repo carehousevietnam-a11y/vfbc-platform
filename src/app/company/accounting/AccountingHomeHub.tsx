@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState, type ComponentType } from "react";
+import { useCallback, useMemo, useState, type ComponentType, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ACCOUNTING_ROUTES } from "@/lib/accounting/accountingNav";
+import { AccountingBrandLockup } from "@/lib/accounting/AccountingBrandLockup";
 import { accountingMessage, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import type { AccountingLocale } from "@/lib/accounting/uiCatalog";
 import {
@@ -201,44 +202,59 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
     setOpenTile((cur) => (cur === tile.id ? null : tile.id));
   }
 
+  function onSearchSubmit(e: FormEvent) {
+    e.preventDefault();
+    const first = searchHits[0];
+    if (first) router.push(first.href);
+  }
+
   return (
-    <section
-      className="mx-auto w-full max-w-3xl rounded-[20px] border border-[#E3E8F0] bg-[#F7F9FC] px-4 py-8 sm:px-8"
-      data-testid="accounting-home-hub"
-    >
-      <div className="mx-auto max-w-xl">
-        <label className="block text-center">
-          <span className="sr-only">{t("accounting.home.hub.search.label")}</span>
+    <section className="mx-auto w-full max-w-[1100px] px-2 py-6 sm:px-4" data-testid="accounting-home-hub">
+      <AccountingBrandLockup locale={lang} variant="hub" />
+
+      <div className="mx-auto mt-8 flex w-full max-w-[600px] justify-center">
+        <form
+          className="flex w-full overflow-hidden rounded-2xl border border-[#E3E8F0] bg-white shadow-sm"
+          onSubmit={onSearchSubmit}
+        >
+          <label className="sr-only">{t("accounting.home.hub.search.label")}</label>
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("accounting.home.hub.search.placeholder")}
-            className="min-h-12 w-full rounded-full border border-[#E3E8F0] bg-white px-5 text-center text-[15px] text-[#071A33] shadow-sm placeholder:text-[#6B7A90] focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="min-h-14 flex-1 border-0 bg-transparent px-5 text-[15px] text-[#071A33] placeholder:text-[#6B7A90] focus:outline-none focus:ring-0"
             data-testid="accounting-home-hub-search"
           />
-        </label>
-        {searchHits.length > 0 ? (
-          <ul
-            className="mt-2 overflow-hidden rounded-xl border border-[#E3E8F0] bg-white text-left shadow-sm"
-            data-testid="accounting-home-hub-search-results"
+          <button
+            type="submit"
+            className="min-h-14 shrink-0 px-6 text-sm font-bold text-white bg-[#2563EB] hover:bg-[#1d4ed8]"
+            data-testid="accounting-home-hub-search-submit"
           >
-            {searchHits.slice(0, 8).map((hit) => (
-              <li key={`${hit.href}-${hit.labelKey}`}>
-                <Link
-                  href={hit.href}
-                  className="block min-h-11 px-4 py-3 text-sm font-semibold text-[#2563EB] hover:bg-[#F7F9FC]"
-                >
-                  {t(hit.labelKey)}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : null}
+            {t("accounting.home.hub.search.button")}
+          </button>
+        </form>
       </div>
+      {searchHits.length > 0 ? (
+        <ul
+          className="mx-auto mt-2 max-w-[600px] overflow-hidden rounded-xl border border-[#E3E8F0] bg-white text-left shadow-sm"
+          data-testid="accounting-home-hub-search-results"
+        >
+          {searchHits.slice(0, 8).map((hit) => (
+            <li key={`${hit.href}-${hit.labelKey}`}>
+              <Link
+                href={hit.href}
+                className="block min-h-11 px-4 py-3 text-sm font-semibold text-[#2563EB] hover:bg-[#F7F9FC]"
+              >
+                {t(hit.labelKey)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       <div
-        className="mt-8 grid grid-cols-3 gap-4 sm:grid-cols-6 sm:gap-6"
+        className="mt-10 grid grid-cols-3 gap-y-8 gap-x-2 sm:grid-cols-6 sm:gap-x-4"
         data-testid="accounting-home-hub-icons"
       >
         {tiles.map((tile) => {
@@ -249,15 +265,13 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
               <button
                 type="button"
                 onClick={() => onTileActivate(tile)}
-                className="flex w-full flex-col items-center gap-2 rounded-xl p-2 transition hover:bg-white/80"
+                className="flex w-full max-w-[8.5rem] flex-col items-center gap-3 sm:max-w-none"
                 data-testid={`accounting-home-hub-tile-${tile.id}`}
               >
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#071A33] shadow-sm sm:h-16 sm:w-16">
-                  <Icon className="h-9 w-9 sm:h-10 sm:w-10" />
+                <span className="flex h-[6.5rem] w-[6.5rem] items-center justify-center rounded-full bg-[#EEF2F8] sm:h-[6.875rem] sm:w-[6.875rem]">
+                  <Icon className="h-14 w-14 text-[#071A33]" />
                 </span>
-                <span className="text-[12px] font-semibold leading-snug text-[#071A33] sm:text-[13px]">
-                  {t(tile.labelKey)}
-                </span>
+                <span className="text-[17px] font-bold leading-snug text-[#071A33]">{t(tile.labelKey)}</span>
               </button>
               {open && tile.links.length > 1 ? (
                 <ul
@@ -283,34 +297,28 @@ export function AccountingHomeHub({ lang, expertReviewPeriodKey }: Props) {
       </div>
 
       <div
-        className="mt-8 overflow-x-auto rounded-full border border-[#E3E8F0] bg-white px-2 py-2 shadow-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-10 w-full overflow-x-auto rounded-full border border-[#E3E8F0] bg-white px-3 py-3 shadow-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         data-testid="accounting-home-hub-shortcuts"
       >
-        <ul className="flex min-w-min items-stretch justify-center gap-1 px-1 sm:gap-2">
+        <ul className="flex min-w-min items-stretch justify-between gap-2 px-1 sm:justify-center sm:gap-3">
           {shortcuts.map((item) => {
             const Icon = item.icon;
             const inner = (
               <>
-                <Icon className="h-6 w-6 shrink-0 text-[#071A33]" />
-                <span className="text-[11px] font-semibold leading-tight text-[#071A33] sm:text-xs">
-                  {t(item.labelKey)}
-                </span>
+                <Icon className="h-8 w-8 shrink-0" />
+                <span className="text-[14px] font-semibold leading-tight text-[#071A33]">{t(item.labelKey)}</span>
               </>
             );
+            const itemClass =
+              "flex min-h-[5.25rem] min-w-[5.5rem] flex-1 flex-col items-center justify-center gap-1.5 rounded-full px-2 text-center hover:bg-[#F7F9FC] sm:min-w-[6rem] sm:flex-none";
             return (
-              <li key={item.id} className="shrink-0">
+              <li key={item.id} className="shrink-0 sm:flex-1 sm:max-w-[7rem]">
                 {item.href.startsWith("#") ? (
-                  <a
-                    href={item.href}
-                    className="flex min-h-[4.5rem] w-[4.75rem] flex-col items-center justify-center gap-1 rounded-full px-2 text-center hover:bg-[#F7F9FC] sm:w-[5.25rem]"
-                  >
+                  <a href={item.href} className={itemClass}>
                     {inner}
                   </a>
                 ) : (
-                  <Link
-                    href={item.href}
-                    className="flex min-h-[4.5rem] w-[4.75rem] flex-col items-center justify-center gap-1 rounded-full px-2 text-center hover:bg-[#F7F9FC] sm:w-[5.25rem]"
-                  >
+                  <Link href={item.href} className={itemClass}>
                     {inner}
                   </Link>
                 )}
