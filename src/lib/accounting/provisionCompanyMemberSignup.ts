@@ -67,7 +67,7 @@ export async function provisionCompanyMemberSignup(
   }
 
   if (existingOwner?.org_id) {
-    return { orgId: existingOwner.org_id, approvalStatus: "pending" };
+    throw new CompanySignupAlreadyProvisionedError();
   }
 
   const { data: org, error: orgError } = await admin

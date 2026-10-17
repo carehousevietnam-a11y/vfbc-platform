@@ -610,3 +610,8 @@
     원인: p4b는 p3c-ledger 시드 산출물 미선행; 퍼널 계열은 Pack stage0·`accounting-funnel-active` 미노출(P8-1a p7a·p7g node FAIL과 동일 계열). p5c는 시드 후 홈 카드 미표시(세션·RLS·3020 상태). p7-2b는 온보딩→pending redirect 미도달.
     재발 방지: P8-1b 재실행 전 p3c-ledger-seed·Pack 정렬(P7a/P7g node 0 fail)·p5c 시드·3020 `p3c-local-next` 재기동 순서를 고정한다. 가입 5파일 미커밋 변경이 있어도 이번 실패는 퍼널 active·ledger report 선행 누락이 주원인으로 보인다.
     자동 검사: node tests/accounting/p5c-home-browser-check.mjs · node tests/accounting/p4b-browser-check.mjs · node tests/accounting/p5b-vat-browser-check.mjs · node tests/accounting/p7a-funnel-browser-check.mjs · node tests/accounting/p7f-e2e-browser.mjs
+
+117. 문제: P8-2·P8-3에서 `npx tsx tests/accounting/isolation.mjs`가 36 pass·1 fail(`p72a_duplicate_org_blocked`)로 종료했다.
+    원인: `provisionCompanyMemberSignup`이 기존 `company_owner` 멤버십이 있을 때 `CompanySignupAlreadyProvisionedError` 대신 `{ orgId, approvalStatus }`를 반환했다. 가입 5파일 stash(`signup-tail-held-2026-10-17`)에만 중복 차단 throw가 있었고 HEAD에는 미반영.
+    재발 방지: isolation 37/0 전에 `provisionCompanyMemberSignup.ts`만 stash에서 복원·커밋해 throw 경로를 HEAD에 고정한다. stash pop 없이 1파일 checkout만.
+    자동 검사: npx tsx tests/accounting/isolation.mjs

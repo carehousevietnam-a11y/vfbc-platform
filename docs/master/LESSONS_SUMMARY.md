@@ -75,3 +75,4 @@
 114 · P8-1a: `p7e-org-audit.mjs`는 in_review 없이 expert resolution 호출 시 중단; RPC 순서 정렬 필요.
 115 · P8-1a: `p7g`/`p7a` Pack question_id·RESULT_PACK 정렬·production stage/flags 불일치; Pack 동기화 후 재검증.
 116 · P8-1b: 브라우저 하네스 전부 exit≠0; p4b ledger report 선행 누락·퍼널 `accounting-funnel-active`·p5c home-recent·p7-2b pending URL.
+117 · P8-4: isolation `p72a_duplicate_org_blocked`는 stash 가입분의 `provisionCompanyMemberSignup` throw 누락; 해당 1파일만 HEAD 복원.
