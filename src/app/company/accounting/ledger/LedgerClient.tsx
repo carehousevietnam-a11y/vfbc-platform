@@ -5,6 +5,12 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
+import { AccountingFormBasisFooter } from "@/lib/accounting/AccountingFormBasisFooter";
+import { AccountingFormViewBar } from "@/lib/accounting/AccountingFormViewBar";
+import {
+  loadFormViewMode,
+  type AccountingFormViewMode,
+} from "@/lib/accounting/accountingFormViewMode";
 
 type Row = {
   id: string;
@@ -79,6 +85,8 @@ export default function LedgerClient() {
   const [exportPhase, setExportPhase] = useState<"idle" | "checking" | "warn" | "creating">("idle");
   const [exportWarnings, setExportWarnings] = useState<ExportWarning[]>([]);
   const [exportError, setExportError] = useState<AccountingMessageKey | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<AccountingFormViewMode>("bilingual");
   const pageSize = 25;
 
   const authHeaders = useCallback(
@@ -143,6 +151,10 @@ export default function LedgerClient() {
         return;
       }
       setToken(access);
+      const { data: userRes } = await supabase.auth.getUser();
+      const uid = userRes.user?.id ?? null;
+      setUserId(uid);
+      setViewMode(loadFormViewMode(uid));
       const cpRes = await fetch("/api/accounting/counterparties", {
         headers: { Authorization: `Bearer ${access}` },
       });
@@ -276,6 +288,12 @@ export default function LedgerClient() {
             ))}
           </div>
         </div>
+
+        {phase === "ready" && token ? (
+          <div className="mt-4">
+            <AccountingFormViewBar locale={loc} userId={userId} mode={viewMode} onChange={setViewMode} />
+          </div>
+        ) : null}
 
         {phase === "signed_out" ? (
           <div className="mt-8 rounded-[14px] border border-[#E3E8F0] bg-white p-5">
@@ -572,6 +590,11 @@ export default function LedgerClient() {
               </div>
             </section>
           </>
+        ) : null}
+        {phase === "ready" && token ? (
+          <div className="mt-8">
+            <AccountingFormBasisFooter kind="ledger_tt99" locale={loc} token={token} />
+          </div>
         ) : null}
       </main>
   );

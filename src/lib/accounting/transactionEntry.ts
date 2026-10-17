@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AccountingMessageKey } from "./uiCatalog";
+import { loadTransactionI18nTexts, saveAccountingI18nField, type I18nLang } from "./accountingI18nTexts";
 
 async function confirmTransactionWithPosting(
   client: SupabaseClient,
@@ -110,6 +111,7 @@ export type CommandResult =
       amountVnd: number;
       fxUnverified: boolean;
       role: string;
+      updatedAt?: string | null;
     }
   | { ok: false; status: number; error: string; checks?: TxnCheck[] };
 
@@ -298,6 +300,13 @@ function readCommand(body: Record<string, unknown>) {
   const vatRate = numOrNull(body.vatRate);
   const vatAmount = numOrNull(body.vatAmount);
   const action = text(body, "action");
+  const memo = text(body, "memo");
+  const description = text(body, "description");
+  const memoLangRaw = text(body, "memoLang");
+  const descriptionLangRaw = text(body, "descriptionLang");
+  const memoLang: I18nLang = memoLangRaw === "vi" ? "vi" : "ko";
+  const descriptionLang: I18nLang = descriptionLangRaw === "ko" ? "ko" : "vi";
+  const expectedUpdatedAt = text(body, "expectedUpdatedAt") || null;
   return {
     type,
     txnDate,
@@ -312,6 +321,11 @@ function readCommand(body: Record<string, unknown>) {
     vatRate,
     vatAmount,
     action,
+    memo,
+    description,
+    memoLang,
+    descriptionLang,
+    expectedUpdatedAt,
   };
 }
 
@@ -454,13 +468,20 @@ export async function applyTransactionCommand(
   } else {
     const { data: existing, error: readError } = await client
       .from("accounting_transactions")
-      .select("id, status, org_id")
+      .select("id, status, org_id, updated_at")
       .eq("id", id)
       .eq("org_id", actor.orgId)
       .maybeSingle();
     if (readError || !existing) return { ok: false, status: 404, error: "NOT_FOUND" };
     if (existing.status === "confirmed") {
       return { ok: false, status: 409, error: "CONFIRMED_LOCKED", checks };
+    }
+    if (command.expectedUpdatedAt && existing.updated_at) {
+      const expected = new Date(command.expectedUpdatedAt).getTime();
+      const current = new Date(String(existing.updated_at)).getTime();
+      if (Number.isFinite(expected) && Number.isFinite(current) && expected !== current) {
+        return { ok: false, status: 409, error: "CONCURRENT_SAVE", checks };
+      }
     }
     const { error: updateError } = await client
       .from("accounting_transactions")
@@ -486,6 +507,44 @@ export async function applyTransactionCommand(
     }
   }
 
+  const txnConfirmed = nextStatus === "confirmed";
+  if (command.memo.trim()) {
+    const memoSave = await saveAccountingI18nField(client, {
+      orgId: actor.orgId,
+      entityType: "transaction",
+      entityId: id,
+      field: "memo",
+      lang: command.memoLang,
+      text: command.memo,
+      createdBy: actor.userId,
+      txnConfirmed,
+    });
+    if (!memoSave.ok) {
+      if (memoSave.error === "CONFIRMED_I18N_LOCKED") {
+        return { ok: false, status: 409, error: "CONFIRMED_LOCKED", checks };
+      }
+      return { ok: false, status: 400, error: "I18N_WRITE_FAILED", checks };
+    }
+  }
+  if (command.description.trim()) {
+    const descSave = await saveAccountingI18nField(client, {
+      orgId: actor.orgId,
+      entityType: "transaction",
+      entityId: id,
+      field: "description",
+      lang: command.descriptionLang,
+      text: command.description,
+      createdBy: actor.userId,
+      txnConfirmed,
+    });
+    if (!descSave.ok) {
+      if (descSave.error === "CONFIRMED_I18N_LOCKED") {
+        return { ok: false, status: 409, error: "CONFIRMED_LOCKED", checks };
+      }
+      return { ok: false, status: 400, error: "I18N_WRITE_FAILED", checks };
+    }
+  }
+
   const { count, error: auditError } = await client
     .from("accounting_audit_log")
     .select("id", { count: "exact", head: true })
@@ -495,6 +554,12 @@ export async function applyTransactionCommand(
     return { ok: false, status: 500, error: "AUDIT_MISSING" };
   }
 
+  const { data: freshRow } = await client
+    .from("accounting_transactions")
+    .select("updated_at")
+    .eq("id", id)
+    .maybeSingle();
+
   return {
     ok: true,
     id,
@@ -503,6 +568,7 @@ export async function applyTransactionCommand(
     amountVnd,
     fxUnverified,
     role: actor.role,
+    updatedAt: freshRow?.updated_at ?? null,
   };
 }
 
@@ -633,7 +699,7 @@ export async function getTransaction(
   const { data, error } = await client
     .from("accounting_transactions")
     .select(
-      "id, type, status, txn_date, period_key, currency, fx_rate, amount_vnd, counterparty_id, invoice_series, invoice_no, invoice_date, org_id"
+      "id, type, status, txn_date, period_key, currency, fx_rate, amount_vnd, counterparty_id, invoice_series, invoice_no, invoice_date, org_id, updated_at"
     )
     .eq("id", txnId)
     .eq("org_id", actor.orgId)
@@ -662,6 +728,10 @@ export async function getTransaction(
     vatRate,
     vatAmount,
   });
+  const i18n = await loadTransactionI18nTexts(client, actor.orgId, txnId);
+  const memoPack = i18n.memo ?? {};
+  const descPack = i18n.description ?? {};
+
   return {
     ok: true,
     role: actor.role,
@@ -683,6 +753,10 @@ export async function getTransaction(
       vatRate,
       vatAmount,
       fxUnverified: data.currency !== "VND",
+      updatedAt: data.updated_at ?? null,
+      memo: memoPack.ko ?? memoPack.vi ?? "",
+      description: descPack.ko ?? descPack.vi ?? "",
+      i18n,
     },
   };
 }

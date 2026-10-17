@@ -472,7 +472,7 @@
     재발 방지: GET /api/accounting/vat/declaration이 orgId를 반환하고, 클라이언트 점검 쿼리에 org_id를 명시한다.
     자동 검사: 없음
 
-95. 문제: P9-5b에서 승인된 대표가 상단 「내 회사 정보」·홈 「설정」을 눌러도 `/company` 온보딩 게이트 때문에 거래 입력으로만 이동했다
+118. 문제: P9-5b에서 승인된 대표가 상단 「내 회사 정보」·홈 「설정」을 눌러도 `/company` 온보딩 게이트 때문에 거래 입력으로만 이동했다
     원인: `AccountingWorkspaceGate`는 승인 workspace에서 `/company`를 거래 입력으로 replace한다(온보딩 경로 전용).
     재발 방지: 승인 대표 조회는 `/company/accounting/profile`로 분리하고, 메뉴·더보기·허브 설정 href만 해당 경로로 연결한다. 게이트는 수정하지 않는다. TT89 이전 과세기간은 `gtgt01FormPeriod` 상수·`PERIOD_BEFORE_TT89`로 초안·검토 요청을 막는다.
     자동 검사: tests/accounting/isolation.mjs (p95b_*), p9-5b-browser-check.mjs, p9-2-home-hub-browser.mjs
@@ -620,3 +620,8 @@
     원인: `provisionCompanyMemberSignup`이 기존 `company_owner` 멤버십이 있을 때 `CompanySignupAlreadyProvisionedError` 대신 `{ orgId, approvalStatus }`를 반환했다. 가입 5파일 stash(`signup-tail-held-2026-10-17`)에만 중복 차단 throw가 있었고 HEAD에는 미반영.
     재발 방지: isolation 37/0 전에 `provisionCompanyMemberSignup.ts`만 stash에서 복원·커밋해 throw 경로를 HEAD에 고정한다. stash pop 없이 1파일 checkout만.
     자동 검사: npx tsx tests/accounting/isolation.mjs
+
+119. 문제: P9-6 §11 전 범위를 한 미션에 넣으면 VAT ①~⑥ 서버 공동 편집·검토 코멘트·정정 사유 등 미연결 화면이 남는다.
+    원인: VAT wizard는 client step·localStorage만 있고 `declarations.computed`에 단계·작성자 메타가 없었다. 거래 UI는 memo/description 필드가 API에 없었다.
+    재발 방지: `accountingI18nTexts`·`form-basis`·보기 전환 바를 먼저 고정한 뒤, VAT `_wizard`·나머지 자유입력 칸을 단계별 미션으로 붙인다. LESSONS 번호는 기존 #95·#110 중복 없이 최대+1(118 P9-5b, 119 P9-6)만 쓴다.
+    자동 검사: node tests/accounting/isolation.mjs · (추가) p9-6-browser-check.mjs

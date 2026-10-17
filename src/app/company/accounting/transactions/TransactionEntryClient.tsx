@@ -19,6 +19,16 @@ import {
   type TxnCheck,
   type TxnType,
 } from "@/lib/accounting/transactionEntry";
+import { AccountingFormBasisFooter } from "@/lib/accounting/AccountingFormBasisFooter";
+import { AccountingFormViewBar } from "@/lib/accounting/AccountingFormViewBar";
+import {
+  loadFieldViewMode,
+  loadFormViewMode,
+  type AccountingFieldViewMode,
+  type AccountingFormViewMode,
+} from "@/lib/accounting/accountingFormViewMode";
+import type { I18nLang } from "@/lib/accounting/accountingI18nTexts";
+import { AccountingI18nField } from "@/lib/accounting/AccountingI18nField";
 
 type Item = {
   id: string;
@@ -80,6 +90,7 @@ function noticeKey(error: string): AccountingMessageKey {
   if (error === "CONFIRMED_LOCKED") return "accounting.txn.error.confirmed_locked";
   if (error === "ORG_NOT_APPROVED" || error === "NO_ORG") return "accounting.txn.access_denied";
   if (error === "POSTING_RULE_MISSING") return "accounting.txn.error.posting_rule_missing";
+  if (error === "CONCURRENT_SAVE") return "accounting.txn.error.concurrent_save";
   return "accounting.txn.error.generic";
 }
 
@@ -96,6 +107,8 @@ const emptyForm = {
   amountNet: "",
   vatRate: "",
   vatAmount: "",
+  memo: "",
+  description: "",
 };
 
 export default function TransactionEntryClient() {
@@ -128,6 +141,17 @@ export default function TransactionEntryClient() {
   const [evidence, setEvidence] = useState<EvidenceRow[]>([]);
   const [evidenceError, setEvidenceError] = useState<AccountingMessageKey | null>(null);
   const [evidenceUploading, setEvidenceUploading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<AccountingFormViewMode>("bilingual");
+  const [memoLang, setMemoLang] = useState<I18nLang>(lang);
+  const [descriptionLang, setDescriptionLang] = useState<I18nLang>(lang);
+  const [memoFieldView, setMemoFieldView] = useState<AccountingFieldViewMode>("follow");
+  const [descriptionFieldView, setDescriptionFieldView] = useState<AccountingFieldViewMode>("follow");
+  const [savedI18n, setSavedI18n] = useState<{
+    memo?: { ko?: string; vi?: string };
+    description?: { ko?: string; vi?: string };
+  }>({});
+  const [txnUpdatedAt, setTxnUpdatedAt] = useState<string | null>(null);
 
   const readOnly = txnStatus === "confirmed";
 
@@ -229,6 +253,12 @@ export default function TransactionEntryClient() {
         return;
       }
       setToken(access);
+      const { data: userRes } = await supabase.auth.getUser();
+      const uid = userRes.user?.id ?? null;
+      setUserId(uid);
+      setViewMode(loadFormViewMode(uid));
+      setMemoFieldView(loadFieldViewMode(uid, "txn.memo"));
+      setDescriptionFieldView(loadFieldViewMode(uid, "txn.description"));
       await loadLists(access, "", "", "", "all");
     })();
     return () => {
@@ -264,6 +294,10 @@ export default function TransactionEntryClient() {
     setEvidence([]);
     setEvidenceError(null);
     setForm({ ...emptyForm, type });
+    setSavedI18n({});
+    setTxnUpdatedAt(null);
+    setMemoLang(lang);
+    setDescriptionLang(lang);
   }
 
   async function openItem(id: string) {
@@ -292,6 +326,13 @@ export default function TransactionEntryClient() {
         amountNet: number;
         vatRate: number | null;
         vatAmount: number;
+        memo?: string;
+        description?: string;
+        updatedAt?: string | null;
+        i18n?: {
+          memo?: { ko?: string; vi?: string };
+          description?: { ko?: string; vi?: string };
+        };
       };
     };
     setRole(body.role);
@@ -312,7 +353,14 @@ export default function TransactionEntryClient() {
       amountNet: String(body.item.amountNet),
       vatRate: body.item.vatRate === null ? "" : String(body.item.vatRate),
       vatAmount: String(body.item.vatAmount),
+      memo: body.item.memo ?? "",
+      description: body.item.description ?? "",
     });
+    setSavedI18n({
+      memo: body.item.i18n?.memo,
+      description: body.item.i18n?.description,
+    });
+    setTxnUpdatedAt(body.item.updatedAt ?? null);
   }
 
   async function save(action: "draft" | "submit" | "confirm") {
@@ -333,6 +381,11 @@ export default function TransactionEntryClient() {
       amountNet: form.amountNet,
       vatRate: form.vatRate,
       vatAmount: form.vatAmount,
+      memo: form.memo,
+      description: form.description,
+      memoLang,
+      descriptionLang,
+      expectedUpdatedAt: txnUpdatedAt,
     };
     const res = await fetch(txnId ? `/api/accounting/transactions/${txnId}` : "/api/accounting/transactions", {
       method: txnId ? "PATCH" : "POST",
@@ -345,10 +398,16 @@ export default function TransactionEntryClient() {
       id?: string;
       status?: string;
       role?: string;
+      updatedAt?: string | null;
     };
     setBusy(false);
     if (body.checks) setChecks(body.checks);
     if (!res.ok) {
+      if (body.error === "CONCURRENT_SAVE" && txnId) {
+        setNotice("accounting.txn.error.concurrent_save");
+        await openItem(txnId);
+        return;
+      }
       setNotice(noticeKey(body.error ?? ""));
       return;
     }
@@ -357,6 +416,8 @@ export default function TransactionEntryClient() {
     if (body.status) setTxnStatus(body.status);
     if (body.role) setRole(body.role);
     if (body.id) await loadEvidence(token, body.id);
+    if (body.updatedAt) setTxnUpdatedAt(body.updatedAt);
+    if (body.id) await openItem(body.id);
     await loadLists(token, period, filterType, filterStatus, filterEvidence);
   }
 
@@ -412,6 +473,11 @@ export default function TransactionEntryClient() {
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         <h1 className="text-[22px] font-extrabold tracking-[-0.03em] sm:text-[28px]">{t("accounting.txn.title")}</h1>
         <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#3D4B63]">{t("accounting.txn.lead")}</p>
+        {phase === "ready" && token ? (
+          <div className="mt-4">
+            <AccountingFormViewBar locale={lang} userId={userId} mode={viewMode} onChange={setViewMode} />
+          </div>
+        ) : null}
 
         {phase === "loading" ? <p className="mt-8 text-sm text-[#6B7A90]">{t("accounting.txn.loading")}</p> : null}
         {phase === "signed_out" ? (
@@ -612,6 +678,37 @@ export default function TransactionEntryClient() {
                     <span className="ml-2 text-xs font-semibold text-[#6B7A90]">{t("accounting.txn.unit.vnd")}</span>
                   </p>
                 </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-1 gap-4">
+                <AccountingI18nField
+                  fieldId="txn.memo"
+                  labelKey="accounting.txn.field.memo"
+                  locale={lang}
+                  userId={userId}
+                  inputLang={memoLang}
+                  onInputLangChange={setMemoLang}
+                  fieldView={memoFieldView}
+                  onFieldViewChange={setMemoFieldView}
+                  value={form.memo}
+                  onChange={(value) => patchForm({ memo: value })}
+                  readOnly={readOnly}
+                  saved={savedI18n.memo}
+                />
+                <AccountingI18nField
+                  fieldId="txn.description"
+                  labelKey="accounting.txn.field.description"
+                  locale={lang}
+                  userId={userId}
+                  inputLang={descriptionLang}
+                  onInputLangChange={setDescriptionLang}
+                  fieldView={descriptionFieldView}
+                  onFieldViewChange={setDescriptionFieldView}
+                  value={form.description}
+                  onChange={(value) => patchForm({ description: value })}
+                  readOnly={readOnly}
+                  saved={savedI18n.description}
+                />
               </div>
 
               <div className="mt-5 rounded-lg border border-[#E3E8F0] p-4">
@@ -831,6 +928,11 @@ export default function TransactionEntryClient() {
                 </ul>
               )}
             </aside>
+          </div>
+        ) : null}
+        {phase === "ready" && token ? (
+          <div className="mt-8">
+            <AccountingFormBasisFooter kind="ledger_tt99" locale={lang} token={token} />
           </div>
         ) : null}
       </main>

@@ -12,6 +12,13 @@ import {
 } from "@/lib/accounting/uiCatalog";
 import { isPeriodBeforeGtgt01Tt89, type VatCalendarPeriod } from "@/lib/accounting/gtgt01FormPeriod";
 import type { VatFieldMapEntry } from "@/lib/accounting/vatDeclarationEntry";
+import { AccountingFormBasisFooter } from "@/lib/accounting/AccountingFormBasisFooter";
+import { AccountingFormViewBar } from "@/lib/accounting/AccountingFormViewBar";
+import {
+  loadFormViewMode,
+  type AccountingFormViewMode,
+} from "@/lib/accounting/accountingFormViewMode";
+import { vatFieldLabel } from "@/lib/accounting/accountingFieldLabels";
 
 const STEPS = [1, 2, 3, 4, 5, 6] as const;
 const LEVEL_CLASS = {
@@ -112,6 +119,8 @@ export default function VatDeclarationClient() {
     { level: keyof typeof LEVEL_CLASS; messageKey: AccountingMessageKey; txnIds?: string[] }[]
   >([]);
   const [showPreview, setShowPreview] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<AccountingFormViewMode>("bilingual");
 
   const periodBlockedUi = useMemo(() => {
     if (!periodKey) return periodGuardBlocked;
@@ -138,6 +147,10 @@ export default function VatDeclarationClient() {
         return;
       }
       setToken(access);
+      const { data: userRes } = await supabase.auth.getUser();
+      const uid = userRes.user?.id ?? null;
+      setUserId(uid);
+      setViewMode(loadFormViewMode(uid));
       setPhase("ready");
     })();
   }, []);
@@ -348,7 +361,7 @@ export default function VatDeclarationClient() {
         key={code}
         className="flex flex-col gap-1 border-b border-[#E3E8F0] py-3 sm:flex-row sm:items-center sm:justify-between"
       >
-        <p className="font-semibold text-[#071A33]">{labelFor(field, lang)}</p>
+        <p className="font-semibold text-[#071A33]">{vatFieldLabel(field, viewMode, lang)}</p>
         <div className="text-right">
           <p className="font-mono font-semibold tabular-nums text-[#071A33]">
             {formatAmount(lang, cell?.value)}{" "}
@@ -391,6 +404,10 @@ export default function VatDeclarationClient() {
             <h1 className="text-lg font-extrabold text-[#071A33]">{t("accounting.vat.title")}</h1>
             <p className="mt-1 text-sm text-[#3D4B63]">{t("accounting.vat.lead")}</p>
           </header>
+
+          {token ? (
+            <AccountingFormViewBar locale={lang} userId={userId} mode={viewMode} onChange={setViewMode} />
+          ) : null}
 
           {formStatus === "pending_verification" && (
             <div className={`rounded-lg border px-4 py-3 text-sm ${LEVEL_CLASS.mid}`}>
@@ -664,6 +681,11 @@ export default function VatDeclarationClient() {
           </button>
         </div>
       </footer>
+      {token ? (
+        <div className="mx-auto max-w-6xl px-4 pb-6 lg:px-6">
+          <AccountingFormBasisFooter kind="vat_gtgt" locale={lang} token={token} />
+        </div>
+      ) : null}
     </div>
   );
 }
