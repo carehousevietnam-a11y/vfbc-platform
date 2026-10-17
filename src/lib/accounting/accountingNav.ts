@@ -54,3 +54,22 @@ export const ACCOUNTING_SHELL_DESKTOP_NAV: AccountingNavKey[] = [
 ];
 
 export const ACCOUNTING_MORE_PAGE_LINKS: AccountingNavKey[] = ["ledger", "company"];
+
+/** Approved workspace: company onboarding is owner-only; members are redirected to transactions. */
+export function isAccountingCompanyNavVisibleForRole(role: string | null | undefined): boolean {
+  return role !== "company_member";
+}
+
+export function accountingShellDesktopNavForRole(role: string | null | undefined): AccountingNavKey[] {
+  if (!isAccountingCompanyNavVisibleForRole(role)) {
+    return ACCOUNTING_SHELL_DESKTOP_NAV.filter((k) => k !== "company");
+  }
+  return ACCOUNTING_SHELL_DESKTOP_NAV;
+}
+
+export function accountingMorePageLinksForRole(role: string | null | undefined): AccountingNavKey[] {
+  if (!isAccountingCompanyNavVisibleForRole(role)) {
+    return ACCOUNTING_MORE_PAGE_LINKS.filter((k) => k !== "company");
+  }
+  return ACCOUNTING_MORE_PAGE_LINKS;
+}

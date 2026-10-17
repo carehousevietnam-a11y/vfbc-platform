@@ -2,16 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { supabase } from "@/lib/supabase";
 import { accountingMessage, type AccountingMessageKey } from "./uiCatalog";
 import { uiAccountingLocale } from "./localeFormat";
 import {
   ACCOUNTING_ROUTES,
   ACCOUNTING_SHELL_DESKTOP_NAV,
+  accountingShellDesktopNavForRole,
   type AccountingNavKey,
   navKeyFromPath,
 } from "./accountingNav";
 import { AccountingBrandLockup } from "./AccountingBrandLockup";
+import { resolveAccountingOrgMembershipState } from "./orgMembership";
 
 const MOBILE_TABS: AccountingNavKey[] = ["home", "transactions", "tax", "more"];
 
@@ -35,6 +39,33 @@ export function AccountingShell({ children }: Props) {
   const lang = uiAccountingLocale(locale);
   const t = (key: AccountingMessageKey) => accountingMessage(lang, key);
   const active = navKeyFromPath(pathname);
+  const [membershipRole, setMembershipRole] = useState<string | null>(null);
+  const [membershipLoaded, setMembershipLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user?.id;
+      if (!userId) {
+        if (!cancelled) setMembershipLoaded(true);
+        return;
+      }
+      const membership = await resolveAccountingOrgMembershipState(supabase, userId);
+      if (cancelled) return;
+      if (membership.kind === "approved" || membership.kind === "pending") {
+        setMembershipRole(membership.role);
+      }
+      setMembershipLoaded(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const desktopNavKeys = membershipLoaded
+    ? accountingShellDesktopNavForRole(membershipRole)
+    : ACCOUNTING_SHELL_DESKTOP_NAV.filter((k) => k !== "company");
 
   const linkClass = (key: AccountingNavKey) =>
     `min-h-11 inline-flex items-center rounded-lg px-3 text-sm font-semibold ${
@@ -52,8 +83,13 @@ export function AccountingShell({ children }: Props) {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:px-6">
           <AccountingBrandLockup locale={lang} variant="header" />
           <nav className="hidden flex-wrap gap-2 md:flex" aria-label={t("accounting.nav.aria")}>
-            {ACCOUNTING_SHELL_DESKTOP_NAV.map((key) => (
-              <Link key={key} href={ACCOUNTING_ROUTES[key]} className={linkClass(key)}>
+            {desktopNavKeys.map((key) => (
+              <Link
+                key={key}
+                href={ACCOUNTING_ROUTES[key]}
+                className={linkClass(key)}
+                data-testid={`accounting-nav-link-${key}`}
+              >
                 {t(NAV_I18N[key])}
               </Link>
             ))}
