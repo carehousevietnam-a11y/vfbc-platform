@@ -86,3 +86,4 @@
 128 · next dev는 프로젝트당 1개; 검증은 3020 종료 후 3022 단독 실행·끝나면 3020 복구한다.
 129 · `Another next dev server`는 동시 dev 중복; 콜드스타트만이 원인이 아니다.
 130 · P10 목록 빈 화면=하네스 SSR 쿠키 미전달; service role 우회·테스트 맞춤 제품/RLS 변경 금지.
+131 · next/server after() 등 서버 전용 API는 클라이언트 번들로 가는 모듈에서 정적 import 금지 → 서버 경로에서 동적 import.

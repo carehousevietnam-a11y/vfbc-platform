@@ -680,3 +680,7 @@
     원인: RSC 목록은 Supabase SSR auth 쿠키가 서버에 전달되어야 한다. Playwright localStorage만 넣으면 `auth.uid()`가 비어 `form_versions` SELECT가 0건으로 보였다. RLS(P4a)·환경 문제가 아니었다. 원인 확인 전 service role 우회·RLS(P10b) 정책 변경·제품 `setAll` 수정은 하지 않는다.
     재발 방지: 하네스는 `@supabase/ssr` `createServerClient`로 로그인 후 `sb-<host>-auth-token` 쿠키를 Playwright `domain: localhost`로 심고, localStorage는 클라이언트 gate용으로만 병행한다. 로컬 UI는 3020 종료 후 3022 단독·`NEXT_PUBLIC_*` 로컬 주입.
     자동 검사: node tests/accounting/p10-list-3022-verify.mjs
+
+131. 번역 대기 행의 전용 재시도 배치 없음(재저장 또는 3회 내부 재시도만) → P6 검토 대기열 범위 후보.
+
+132. P9 pending UI 타임아웃: `accountingI18nTexts`의 `next/server` `after` 정적 import가 `TransactionEntryClient`→`transactionEntry` 경로로 클라이언트 번들에 포함되어 `/company/accounting/transactions`가 500·`ul li button` 0건이었다; `after`는 서버에서만 dynamic import한다.
