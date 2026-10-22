@@ -518,6 +518,7 @@ export async function applyTransactionCommand(
       text: command.memo,
       createdBy: actor.userId,
       txnConfirmed,
+      deferTranslation: true,
     });
     if (!memoSave.ok) {
       if (memoSave.error === "CONFIRMED_I18N_LOCKED") {
@@ -536,6 +537,7 @@ export async function applyTransactionCommand(
       text: command.description,
       createdBy: actor.userId,
       txnConfirmed,
+      deferTranslation: true,
     });
     if (!descSave.ok) {
       if (descSave.error === "CONFIRMED_I18N_LOCKED") {

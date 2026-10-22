@@ -146,19 +146,33 @@ export async function saveAccountingI18nField(
   if (!inserted) return { ok: false, error: "I18N_INSERT" };
 
   if (params.deferTranslation) {
-    void translateOpposite(
-      client,
-      params.orgId,
-      params.entityType,
-      params.entityId,
-      params.field,
-      params.lang,
-      nextVersion,
-      trimmed,
-      params.createdBy
-    ).catch(() => {
-      /* translation failure → UI shows 번역 대기 */
-    });
+    const runDeferredTranslation = () =>
+      translateOpposite(
+        client,
+        params.orgId,
+        params.entityType,
+        params.entityId,
+        params.field,
+        params.lang,
+        nextVersion,
+        trimmed,
+        params.createdBy
+      ).catch(() => {
+        /* translation failure → UI shows 번역 대기 */
+      });
+    if (typeof window === "undefined") {
+      void import("next/server")
+        .then(({ after }) => {
+          after(() => {
+            void runDeferredTranslation();
+          });
+        })
+        .catch(() => {
+          void runDeferredTranslation();
+        });
+    } else {
+      void runDeferredTranslation();
+    }
   } else {
     await translateOpposite(
       client,
