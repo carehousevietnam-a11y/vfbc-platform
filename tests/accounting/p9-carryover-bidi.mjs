@@ -12,6 +12,7 @@ import { fileURLToPath } from "url";
 import { execSync } from "child_process";
 import { chromium } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
 
 const MODE = process.env.P9_BIDI_MODE || "pending";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -60,10 +61,39 @@ async function sessionForEmail(email) {
   if (error || !data.session) throw error ?? new Error("sign_in");
   return data.session;
 }
-async function withSession(session, locale, viewport, fn) {
+async function authCookiesFor(email) {
+  const jar = [];
+  const client = createServerClient(st.API_URL, st.ANON_KEY, {
+    cookies: {
+      getAll() {
+        return jar;
+      },
+      setAll(cookiesToSet) {
+        for (const c of cookiesToSet) {
+          const idx = jar.findIndex((x) => x.name === c.name);
+          if (idx >= 0) jar[idx] = c;
+          else jar.push(c);
+        }
+      },
+    },
+  });
+  const { error } = await client.auth.signInWithPassword({ email, password: config.password });
+  if (error) throw error;
+  return jar
+    .filter((c) => c.name && typeof c.value === "string" && c.value.length > 0)
+    .map((c) => ({
+      name: c.name,
+      value: c.value,
+      domain: "localhost",
+      path: c.options?.path || "/",
+    }));
+}
+async function withSession(session, locale, viewport, email, fn) {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const ctx = await browser.newContext({ viewport });
-  await ctx.addCookies([{ name: "vfbcai_locale", value: locale, url: base }]);
+  const authCookies = await authCookiesFor(email);
+  await ctx.addCookies([{ name: "vfbcai_locale", value: locale, domain: "localhost", path: "/" }]);
+  await ctx.addCookies(authCookies);
   await ctx.addInitScript((p) => localStorage.setItem(p.key, p.raw), {
     key: storageKey,
     raw: JSON.stringify(session),
@@ -110,7 +140,9 @@ await service.from("accounting_company_signup_profiles").upsert({
 
 const amountNet = 7000000 + Math.floor(Math.random() * 900000);
 const vatAmount = Math.round(amountNet * 0.1);
-const amountLabelKo = new Intl.NumberFormat("ko-KR").format(amountNet + vatAmount);
+const amountTotal = amountNet + vatAmount;
+const amountLabelKo = new Intl.NumberFormat("ko-KR").format(amountTotal);
+const amountLabelVi = new Intl.NumberFormat("vi-VN").format(amountTotal);
 const viSession = await sessionForEmail(viEmail);
 const koSession = await sessionForEmail(config.accounts.org_a_owner);
 
@@ -159,21 +191,25 @@ async function koRows() {
 // UI check on ko owner (ko locale), returns booleans/lengths only
 async function koUiCheck(viewport, expect, koText, reload = false) {
   const r = {};
-  await withSession(koSession, "ko", viewport, async (page) => {
-    await page.goto(`${base}/company/accounting/transactions?status=draft`, { waitUntil: "domcontentloaded" });
-    const openRow = async () => {
-      const row = page.locator("ul li button", { hasText: amountLabelKo }).first();
+  await withSession(koSession, "ko", viewport, config.accounts.org_a_owner, async (page) => {
+    const openTxn = async () => {
+      await page.goto(`${base}/company/accounting/transactions?status=draft`, { waitUntil: "domcontentloaded" });
+      await page.getByTestId("accounting-workspace-gate-loading").waitFor({ state: "hidden", timeout: 60000 }).catch(() => {});
+      await page
+        .waitForResponse((r) => r.url().includes("/api/accounting/transactions") && r.ok(), { timeout: 60000 })
+        .catch(() => {});
+      await waitUntil(async () => (await page.locator("ul li button").count()) > 0, 45000);
+      const row = page.locator("ul li button").filter({ hasText: amountLabelKo }).first();
       await row.waitFor({ timeout: 45000 });
       await row.click();
       const f = page.getByTestId("accounting-i18n-field-txn.memo");
       await f.waitFor({ timeout: 45000 });
       return f;
     };
-    let field = await openRow();
+    let field = await openTxn();
     if (reload) {
-      // reload after translation exists, then re-open the same draft and read DOM text
       await page.reload({ waitUntil: "domcontentloaded" });
-      field = await openRow();
+      field = await openTxn();
     }
     r.loaded = await waitUntil(async () => (await field.locator("textarea").inputValue()).length > 0, 10000);
     await field.getByRole("button", { name: "한국어로 보기" }).click();
@@ -198,6 +234,32 @@ async function koUiCheck(viewport, expect, koText, reload = false) {
   return r;
 }
 
+async function viUiCheck(viewport) {
+  const r = {};
+  await withSession(viSession, "vi", viewport, viEmail, async (page) => {
+    await page.goto(`${base}/company/accounting/transactions?status=draft`, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("accounting-workspace-gate-loading").waitFor({ state: "hidden", timeout: 60000 }).catch(() => {});
+    await page
+      .waitForResponse((r) => r.url().includes("/api/accounting/transactions") && r.ok(), { timeout: 60000 })
+      .catch(() => {});
+    await waitUntil(async () => (await page.locator("ul li button").count()) > 0, 45000);
+    const row = page.locator("ul li button").filter({ hasText: amountLabelVi }).first();
+    await row.waitFor({ timeout: 45000 });
+    await row.click();
+    const field = page.getByTestId("accounting-i18n-field-txn.memo");
+    await field.waitFor({ timeout: 45000 });
+    r.loaded = await waitUntil(async () => (await field.locator("textarea").inputValue()).length > 0, 10000);
+    await field.getByRole("button", { name: "Xem tiếng Hàn" }).click();
+    r.uiSettled = await waitUntil(async () => (await field.innerText()).includes("Chờ dịch"), 10000);
+    const txt = await field.innerText();
+    r.viOriginalShown = txt.includes(memoVi);
+    r.badgePending = txt.includes("Chờ dịch");
+    r.textLen = txt.length;
+    await page.screenshot({ path: path.join(outDir, `${MODE}-vi-${viewport.width}.png`), fullPage: true });
+  });
+  return r;
+}
+
 if (txnId) {
   if (MODE === "pending") {
     for (const [name, vp] of [
@@ -206,6 +268,21 @@ if (txnId) {
     ]) {
       try {
         const r = await koUiCheck(vp, "pending", "");
+        put(
+          `${name}-a-b`,
+          r.loaded && r.uiSettled && r.viOriginalShown && r.badgePending ? "PASS" : "FAIL",
+          `loaded=${r.loaded} vi_shown=${r.viOriginalShown} badge=${r.badgePending} len=${r.textLen}`
+        );
+      } catch (e) {
+        put(`${name}-a-b`, "FAIL", String(e.message ?? e).split("\n")[0].slice(0, 120));
+      }
+    }
+    for (const [name, vp] of [
+      ["vi-desktop1440", { width: 1440, height: 900 }],
+      ["vi-mobile390", { width: 390, height: 844 }],
+    ]) {
+      try {
+        const r = await viUiCheck(vp);
         put(
           `${name}-a-b`,
           r.loaded && r.uiSettled && r.viOriginalShown && r.badgePending ? "PASS" : "FAIL",
