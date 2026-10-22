@@ -666,17 +666,12 @@
     재발 방지: confirmed 불변 검증은 갱신·삭제 `select` 행 수 0과 service_role로 읽은 값 유지를 함께 단언한다.
     자동 검사: node tests/accounting/p10-standardized.mjs
 
-128. 문제: P10 로컬 보완 검증에서 status 주입·`next dev -p 3022` 후 120초 내 HTTP ready가 되지 않아 브라우저 목록 검증이 SKIP되었다.
-    원인: 콜드 컴파일·Windows spawn 대기가 하네스 상한(60×2s)보다 길었다.
-    재발 방지: 로컬 UI 검증 전 `p3c-local-next.mjs` 등으로 3020을 먼저 기동하거나, 3022 ready 폴링 상한을 늘리고 `.next` 워밍을 분리한다.
-    자동 검사: node tests/accounting/p10-local-supplement.mjs
-
-129. 문제: P10 목록 3022 검증에서 `next dev` 로그는 Ready인데 6분 폴링 중 `/vat/standardized` HTTP 응답이 없었다.
-    원인: 동시에 다른 `next dev`가 떠 있으면 Turbopack이 `Another next dev server`로 라우트 응답이 막힐 수 있다(`.env.local`은 그대로 로드됨).
-    재발 방지: 3022 기동 전 기존 next dev(3020 등)를 종료하거나 Ace가 지시한 production build·단일 서버 방식을 쓴다.
+128. 문제: P10 로컬 보완 검증에서 status 주입·`next dev -p 3022` 후 브라우저 목록 검증이 SKIP되거나 HTTP 폴링이 실패했다.
+    원인: `next dev`는 프로젝트당 1개만 실행 가능하다. 3020이 떠 있는 동안 3022는 `Another next dev server`로 라우트가 응답하지 않는다(콜드스타트만의 문제가 아님).
+    재발 방지: 검증 시 기존 dev(3020)를 종료한 뒤 3022를 단독 기동하고, 종료 후 3020을 `.env.local` 그대로 복구한다. production build는 `.next` 공유로 별도 검증에 쓰지 않는다.
     자동 검사: node tests/accounting/p10-list-3022-verify.mjs
 
-129. 문제: P10 목록 3022 검증에서 `next dev` 로그는 Ready인데 6분 폴링 중 `/vat/standardized` HTTP 응답이 없었다.
-    원인: 동시에 다른 `next dev`가 떠 있으면 Turbopack이 `Another next dev server`로 라우트 응답이 막힐 수 있다(`.env.local`은 그대로 로드됨).
-    재발 방지: 3022 기동 전 기존 next dev(3020 등)를 종료하거나 Ace가 지시한 production build·단일 서버 방식을 쓴다.
+129. 문제: P10 목록 3022 검증에서 로그는 Ready인데 `/vat/standardized` HTTP 폴링이 실패했다.
+    원인: 다른 `next dev` 인스턴스가 동시에 실행 중이었다(Turbopack 단일 실행 제한).
+    재발 방지: 3020·3022 포트의 기존 프로세스를 종료한 뒤 3022만 기동하고, 검증 후 3020 dev를 재기동한다.
     자동 검사: node tests/accounting/p10-list-3022-verify.mjs

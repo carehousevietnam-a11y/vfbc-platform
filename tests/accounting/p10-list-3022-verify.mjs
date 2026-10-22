@@ -90,15 +90,19 @@ const tag = `p10ui-${Date.now()}`;
 const password = `Test-${tag}-Aa1!`;
 const cleanup = { userIds: [], orgIds: [], formIds: [] };
 let devProc = null;
+let restoreProc = null;
 
 try {
-  const busy0 = await portInUse(port);
-  if (busy0) {
-    killPortWindows(port);
-    await new Promise((r) => setTimeout(r, 1500));
-  }
-  const busy1 = await portInUse(port);
-  set("1_port_clear", !busy1, busy1 ? "still in use" : `port ${port} free`);
+  killPortWindows(3020);
+  killPortWindows(port);
+  await new Promise((r) => setTimeout(r, 2000));
+  const busy3020 = await portInUse(3020);
+  const busy3022 = await portInUse(port);
+  set(
+    "1_ports_clear",
+    !busy3020 && !busy3022,
+    `3020=${busy3020 ? "busy" : "free"} 3022=${busy3022 ? "busy" : "free"}`
+  );
 
   const { url, anonKey, serviceKey } = getLocalEnv();
   fs.writeFileSync(logPath, "");
@@ -211,17 +215,18 @@ try {
   const m = await browse({ width: 390, height: 844 });
   const pass = d.list >= 1 && m.list >= 1 && d.name >= 1 && m.name >= 1;
   set(
-    "4_list_dom",
+    "3_list_dom",
     pass,
     `1440 list=${d.list} name=${d.name} err=${d.errBanner} empty=${d.empty}; 390 list=${m.list} name=${m.name} err=${m.errBanner} empty=${m.empty}`
   );
   set(
-    "4_error_plus_empty",
+    "3_error_plus_empty",
     true,
     d.errBanner > 0 && d.empty > 0 ? "동시 노출됨(1440)" : m.errBanner > 0 && m.empty > 0 ? "동시 노출됨(390)" : "동시 노출 없음(이번 성공 경로)"
   );
 } catch (e) {
-  if (!report["4_list_dom"]) set("4_list_dom", false, e.message);
+  if (!report["3_list_dom"]) set("3_list_dom", false, e.message);
+  if (!report["2_dev_ready"]?.pass) set("6_server", false, `서버 미기동\n${tailLogSanitized(20)}`);
 } finally {
   try {
     const { url, serviceKey } = getLocalEnv();
@@ -229,9 +234,9 @@ try {
     for (const id of cleanup.formIds) await svc.from("accounting_form_versions").delete().eq("id", id);
     for (const id of cleanup.orgIds) await svc.from("accounting_organizations").delete().eq("id", id);
     for (const id of cleanup.userIds) await svc.auth.admin.deleteUser(id);
-    set("5_cleanup_rows", true, `forms=${cleanup.formIds.length} orgs=${cleanup.orgIds.length}`);
+    set("4_cleanup_rows", true, `forms=${cleanup.formIds.length} orgs=${cleanup.orgIds.length}`);
   } catch (e) {
-    set("5_cleanup_rows", false, e.message);
+    set("4_cleanup_rows", false, e.message);
   }
   if (devProc) {
     try {
@@ -244,6 +249,35 @@ try {
   }
   killPortWindows(port);
   const busyEnd = await portInUse(port);
-  set("5_port_clear", !busyEnd, busyEnd ? "still in use" : `port ${port} free`);
+  set("4_port_3022_clear", !busyEnd, busyEnd ? "still in use" : "3022 free");
+
+  try {
+    restoreProc = spawn("npx", ["next", "dev", "-p", "3020"], {
+      cwd: repoRoot,
+      env: process.env,
+      shell: true,
+      detached: true,
+      stdio: "ignore",
+    });
+    restoreProc.unref();
+    const home = "http://localhost:3020";
+    let ok3020 = false;
+    const end = Date.now() + 6 * 60 * 1000;
+    while (Date.now() < end) {
+      try {
+        const res = await fetch(home, { signal: AbortSignal.timeout(120000) });
+        if (res.status === 200) {
+          ok3020 = true;
+          break;
+        }
+      } catch {
+        /* wait */
+      }
+      await new Promise((r) => setTimeout(r, 10000));
+    }
+    set("4_restore_3020", ok3020, ok3020 ? "HTTP 200 localhost:3020" : "timeout");
+  } catch (e) {
+    set("4_restore_3020", false, e.message);
+  }
   console.log(JSON.stringify(report));
 }
