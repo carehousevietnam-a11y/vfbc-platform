@@ -77,6 +77,7 @@ function guardStatements(enabled) {
     `alter table public.accounting_transactions ${verb} trigger accounting_trg_guard_confirmed_txn`,
     `alter table public.accounting_audit_log ${verb} trigger accounting_trg_deny_audit_delete`,
     `alter table public.accounting_audit_log ${verb} trigger accounting_trg_deny_audit_update`,
+    `alter table public.accounting_exports ${verb} trigger accounting_trg_deny_exports_mutate`,
   ];
 }
 
@@ -84,6 +85,7 @@ async function cleanupOrg(st, orgId, userId) {
   assertUuid(orgId);
   assertUuid(userId);
   const deletes = [
+    `delete from public.accounting_exports where org_id = '${orgId}'`,
     `delete from public.accounting_ledger_entries where org_id = '${orgId}'`,
     `delete from public.accounting_i18n_texts where org_id = '${orgId}'`,
     `delete from public.accounting_transaction_lines where txn_id in (select id from public.accounting_transactions where org_id = '${orgId}')`,

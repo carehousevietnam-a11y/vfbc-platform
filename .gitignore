@@ -30,6 +30,9 @@
 # Cursor MCP local credentials (use .cursor/mcp.json.example as template)
 .cursor/mcp.json
 
+# Local dev accounting login (copy dev-local-login.config.example.json)
+src/lib/accounting/dev-local-login.config.json
+
 # misc
 .DS_Store
 *.pem
