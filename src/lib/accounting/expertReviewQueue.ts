@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { saveAccountingI18nField } from "./accountingI18nTexts";
+import { resolveAccountingActor } from "./accountingActor";
 import { EVIDENCE_BUCKET } from "./evidenceEntry";
 import { loadVatFormMeta } from "./vatDeclarationEntry";
 
@@ -21,6 +23,10 @@ export type ExpertQueueItem =
       orgId: string;
       orgDisplayName: string;
       periodKey: string;
+      formCode: string;
+      dueDateIso: string | null;
+      dDay: number | null;
+      formVerificationWaiting: boolean;
       warningCount: number;
       requestedAt: string;
     };
@@ -60,6 +66,26 @@ function orgDisplayName(o: { name_ko_display?: string | null; name_official?: st
   return (o.name_ko_display as string | null) || (o.name_official as string) || "—";
 }
 
+function dDayFromDue(dueIso: string | null | undefined): number | null {
+  if (!dueIso) return null;
+  const due = new Date(dueIso.slice(0, 10));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  return Math.round((due.getTime() - today.getTime()) / 86400000);
+}
+
+async function formVerificationWaiting(client: SupabaseClient, formCode: string): Promise<boolean> {
+  const { data } = await client
+    .from("accounting_form_versions")
+    .select("status")
+    .eq("form_code", formCode)
+    .eq("portal_form_basis", "TT89")
+    .maybeSingle();
+  const st = data?.status as string | undefined;
+  return st === "pending_verification" || st === "blocked";
+}
+
 export async function listExpertReviewQueue(client: SupabaseClient, accessToken: string) {
   const actor = await resolveExpertActor(client, accessToken);
   if (!actor.ok) return { ok: false as const, status: actor.status, error: actor.error };
@@ -88,7 +114,7 @@ export async function listExpertReviewQueue(client: SupabaseClient, accessToken:
 
   let declQuery = client
     .from("accounting_declarations")
-    .select("id, org_id, period_key, computed, updated_at, status")
+    .select("id, org_id, period_key, form_code, due_date, computed, updated_at, status")
     .eq("status", "expert_review");
   if (orgIds !== null) {
     if (orgIds.length === 0) {
@@ -111,12 +137,18 @@ export async function listExpertReviewQueue(client: SupabaseClient, accessToken:
   const orgName = new Map((orgs ?? []).map((o) => [o.id as string, orgDisplayName(o)]));
 
   for (const d of decls ?? []) {
+    const formCode = (d.form_code as string) || "01/GTGT";
+    const dueIso = (d.due_date as string | null) ?? null;
     items.push({
       kind: "declaration",
       declarationId: d.id as string,
       orgId: d.org_id as string,
       orgDisplayName: orgName.get(d.org_id as string) ?? "—",
       periodKey: d.period_key as string,
+      formCode,
+      dueDateIso: dueIso,
+      dDay: dDayFromDue(dueIso),
+      formVerificationWaiting: await formVerificationWaiting(client, formCode),
       warningCount: warningCount(d.computed),
       requestedAt: d.updated_at as string,
     });
@@ -204,12 +236,16 @@ export async function getExpertDeclarationDetail(
     .maybeSingle();
   if (error || !decl) return { ok: false as const, status: 404, error: "NOT_FOUND" };
 
-  const orgIds = await assignedOrgIds(client, actor.userId);
-  if (!orgIds.includes(decl.org_id as string)) {
-    return { ok: false as const, status: 403, error: "FORBIDDEN" };
+  if (actor.role === "vnk_expert") {
+    const orgIds = await assignedOrgIds(client, actor.userId);
+    if (!orgIds.includes(decl.org_id as string)) {
+      return { ok: false as const, status: 403, error: "FORBIDDEN" };
+    }
   }
 
   const form = await loadVatFormMeta(client);
+  const formVerificationWaiting =
+    !form.ok || form.status === "pending_verification" || form.status === "blocked";
   const { data: org } = await client
     .from("accounting_organizations")
     .select("name_official, name_ko_display, tax_code, vat_method, vat_period")
@@ -263,6 +299,7 @@ export async function getExpertDeclarationDetail(
     })),
     receiptUrl,
     warnings: warningCount(decl.computed),
+    formVerificationWaiting,
   };
 }
 
@@ -304,47 +341,98 @@ export async function createExpertReviewComment(
     .single();
   if (cErr || !comment) return { ok: false as const, status: 400, error: "COMMENT_INSERT" };
 
-  const { error: i18nErr } = await client.from("accounting_i18n_texts").insert({
-    org_id: decl.org_id,
-    entity_type: "review_comment",
-    entity_id: comment.id,
+  const i18n = await saveAccountingI18nField(client, {
+    orgId: decl.org_id as string,
+    entityType: "review_comment",
+    entityId: comment.id as string,
     field: "body",
     lang: payload.lang,
     text: payload.body,
-    status: "original",
-    version: 1,
-    created_by: actor.userId,
+    createdBy: actor.userId,
+    deferTranslation: true,
   });
-  if (i18nErr) return { ok: false as const, status: 400, error: "I18N_INSERT" };
+  if (!i18n.ok) return { ok: false as const, status: 400, error: i18n.error };
   return { ok: true as const, commentId: comment.id as string };
 }
 
-export async function resolveExpertReviewComment(
+export async function createCompanyOwnerReviewComment(
+  client: SupabaseClient,
+  accessToken: string,
+  payload: {
+    declarationId: string;
+    kind: "comment" | "correction_request";
+    body: string;
+    lang: "ko" | "vi";
+  }
+) {
+  const actor = await resolveAccountingActor(client, accessToken);
+  if (!actor.ok) return { ok: false as const, status: actor.status, error: actor.error };
+  if (actor.role !== "company_owner") {
+    return { ok: false as const, status: 403, error: "OWNER_ONLY" };
+  }
+
+  const { data: decl } = await client
+    .from("accounting_declarations")
+    .select("org_id, status")
+    .eq("id", payload.declarationId)
+    .eq("org_id", actor.orgId)
+    .maybeSingle();
+  if (!decl) return { ok: false as const, status: 404, error: "NOT_FOUND" };
+
+  const { data: comment, error: cErr } = await client
+    .from("accounting_review_comments")
+    .insert({
+      org_id: actor.orgId,
+      target_type: "declaration",
+      target_id: payload.declarationId,
+      author_id: actor.userId,
+      kind: payload.kind,
+      status: "open",
+    })
+    .select("id")
+    .single();
+  if (cErr || !comment) return { ok: false as const, status: 400, error: "COMMENT_INSERT" };
+
+  const i18n = await saveAccountingI18nField(client, {
+    orgId: actor.orgId,
+    entityType: "review_comment",
+    entityId: comment.id as string,
+    field: "body",
+    lang: payload.lang,
+    text: payload.body,
+    createdBy: actor.userId,
+    deferTranslation: true,
+  });
+  if (!i18n.ok) return { ok: false as const, status: 400, error: i18n.error };
+  return { ok: true as const, commentId: comment.id as string };
+}
+
+export async function resolveOwnerReviewComment(
   client: SupabaseClient,
   accessToken: string,
   commentId: string
 ) {
-  const actor = await resolveExpertActor(client, accessToken);
+  const actor = await resolveAccountingActor(client, accessToken);
   if (!actor.ok) return { ok: false as const, status: actor.status, error: actor.error };
+  if (actor.role !== "company_owner") {
+    return { ok: false as const, status: 403, error: "OWNER_ONLY" };
+  }
 
   const { data: row } = await client
     .from("accounting_review_comments")
-    .select("id, org_id, author_id, status")
+    .select("id, org_id, status")
     .eq("id", commentId)
+    .eq("org_id", actor.orgId)
     .maybeSingle();
   if (!row) return { ok: false as const, status: 404, error: "NOT_FOUND" };
-  const orgIds = await assignedOrgIds(client, actor.userId);
-  if (!orgIds.includes(row.org_id as string)) {
-    return { ok: false as const, status: 403, error: "FORBIDDEN" };
-  }
-  if (row.author_id !== actor.userId) {
-    return { ok: false as const, status: 403, error: "RESOLVE_FORBIDDEN" };
-  }
+  if (row.status !== "open") return { ok: false as const, status: 409, error: "ALREADY_RESOLVED" };
 
   const { error } = await client
     .from("accounting_review_comments")
     .update({ status: "resolved" })
-    .eq("id", commentId);
+    .eq("id", commentId)
+    .eq("org_id", actor.orgId)
+    .eq("status", "open");
   if (error) return { ok: false as const, status: 400, error: "RESOLVE_FAILED" };
   return { ok: true as const };
 }

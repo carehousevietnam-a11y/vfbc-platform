@@ -153,6 +153,52 @@ export async function requestExpertReview(
   return { ok: true as const, status: decl.status as string };
 }
 
+export async function approveExpertReviewReady(
+  client: SupabaseClient,
+  accessToken: string,
+  declarationId: string
+) {
+  const actor = await resolveAccountingActor(client, accessToken);
+  if (!actor.ok) return { ok: false as const, status: actor.status, error: actor.error };
+  if (actor.role !== "company_owner") {
+    return { ok: false as const, status: 403, error: "OWNER_ONLY" };
+  }
+
+  const { data: declRow } = await client
+    .from("accounting_declarations")
+    .select("id, status")
+    .eq("id", declarationId)
+    .eq("org_id", actor.orgId)
+    .maybeSingle();
+  if (!declRow) return { ok: false as const, status: 404, error: "NOT_FOUND" };
+  if (declRow.status !== "expert_review") {
+    return { ok: false as const, status: 400, error: "INVALID_STATUS" };
+  }
+
+  const { count, error: openErr } = await client
+    .from("accounting_review_comments")
+    .select("id", { count: "exact", head: true })
+    .eq("org_id", actor.orgId)
+    .eq("target_type", "declaration")
+    .eq("target_id", declarationId)
+    .eq("status", "open");
+  if (openErr) return { ok: false as const, status: 400, error: "COMMENT_LOOKUP" };
+  if ((count ?? 0) > 0) {
+    return { ok: false as const, status: 409, error: "OPEN_COMMENTS" };
+  }
+
+  const { data: decl, error } = await client
+    .from("accounting_declarations")
+    .update({ status: "ready" })
+    .eq("id", declarationId)
+    .eq("org_id", actor.orgId)
+    .eq("status", "expert_review")
+    .select("id, status")
+    .single();
+  if (error || !decl) return { ok: false as const, status: 400, error: "UPDATE_FAILED" };
+  return { ok: true as const, status: decl.status as string };
+}
+
 export async function insertExpertAdjustment(
   client: SupabaseClient,
   accessToken: string,

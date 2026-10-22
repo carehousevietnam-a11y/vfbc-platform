@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { accountingClientFromRequest } from "@/lib/accounting/requestUser";
-import { insertExpertAdjustment, requestExpertReview } from "@/lib/accounting/vatDeclarationEntry";
+import {
+  approveExpertReviewReady,
+  insertExpertAdjustment,
+  requestExpertReview,
+} from "@/lib/accounting/vatDeclarationEntry";
 
 export async function POST(req: NextRequest) {
   const session = accountingClientFromRequest(req);
   if (!session) return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });
   const body = (await req.json()) as {
-    action?: "expert_review" | "adjustment";
+    action?: "expert_review" | "adjustment" | "approve_ready";
     declarationId?: string;
     fieldCode?: string;
     amount?: string;
@@ -27,6 +31,15 @@ export async function POST(req: NextRequest) {
     });
     if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
     return NextResponse.json({ ok: true });
+  }
+
+  if (body.action === "approve_ready") {
+    if (!body.declarationId) {
+      return NextResponse.json({ error: "DECLARATION_REQUIRED" }, { status: 400 });
+    }
+    const ready = await approveExpertReviewReady(session.client, session.token, body.declarationId);
+    if (!ready.ok) return NextResponse.json({ error: ready.error }, { status: ready.status });
+    return NextResponse.json(ready);
   }
 
   if (!body.declarationId) {

@@ -39,6 +39,7 @@ type DetailPayload = {
   form: { ok: boolean; fields?: VatFieldMapEntry[] };
   comments: { id: string; author_id: string; kind: string; status: string; body: { ko?: string; vi?: string } }[];
   warnings: number;
+  formVerificationWaiting?: boolean;
 };
 
 export default function ExpertReviewDetailClient() {
@@ -60,7 +61,6 @@ export default function ExpertReviewDetailClient() {
   const [receiptPath, setReceiptPath] = useState("");
   const [warnAck, setWarnAck] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [meId, setMeId] = useState<string | null>(null);
 
   const reasonOptions = useMemo(
     () =>
@@ -99,27 +99,10 @@ export default function ExpertReviewDetailClient() {
       setDetail(data);
       setPhase("ready");
     })();
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled) setMeId(data.session?.user.id ?? null);
-    });
     return () => {
       cancelled = true;
     };
   }, [fetchDetail]);
-
-  const resolveComment = async (commentId: string) => {
-    setMessage(null);
-    const res = await accountingAuthFetch("/api/accounting/expert/comments/resolve", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ commentId }),
-    });
-    if (!res.ok) {
-      setMessage(t("accounting.expert.detail.error.generic"));
-      return;
-    }
-    await reload();
-  };
 
   const fields = detail?.form?.ok ? detail.form.fields ?? [] : [];
   const computed = detail?.declaration?.computed?.fields ?? {};
@@ -214,6 +197,7 @@ export default function ExpertReviewDetailClient() {
   }
 
   const locked = detail.declaration.status === "filed_manual";
+  const formGate = detail.formVerificationWaiting === true;
 
   const renderStep = (step: number, codes: string[]) => (
     <section key={step} className="rounded-xl border border-[#E3E8F0] bg-white p-4">
@@ -266,6 +250,13 @@ export default function ExpertReviewDetailClient() {
                   {t("accounting.expert.detail.receipt_view")}
                 </a>
               ) : null}
+            </section>
+          ) : formGate ? (
+            <section
+              className="rounded-xl border border-[#FEF3C7] bg-[#FFFBEB] p-4 text-sm font-semibold text-[#92400E]"
+              data-testid="expert-form-verification-wait"
+            >
+              {t("accounting.expert.queue.form_verification_wait")}
             </section>
           ) : (
           <section className="rounded-xl border border-[#E3E8F0] bg-white p-4">
@@ -323,15 +314,6 @@ export default function ExpertReviewDetailClient() {
                 <li key={c.id} className="rounded-lg bg-[#F7F9FC] p-2">
                   <p className="text-xs text-[#6B7A90]">{c.kind} · {c.status}</p>
                   <p className="text-[#071A33]">{c.body[loc] ?? c.body.ko ?? c.body.vi ?? "—"}</p>
-                  {c.status === "open" && c.author_id === meId ? (
-                    <button
-                      type="button"
-                      className="mt-1 min-h-11 rounded-lg border border-[#E3E8F0] bg-white px-3 text-xs font-semibold"
-                      onClick={() => void resolveComment(c.id)}
-                    >
-                      {t("accounting.expert.detail.resolve")}
-                    </button>
-                  ) : null}
                 </li>
               ))}
             </ul>
@@ -358,7 +340,7 @@ export default function ExpertReviewDetailClient() {
             </button>
           </section>
 
-          {!locked ? (
+          {!locked && !formGate ? (
           <section className="rounded-xl border border-[#E3E8F0] bg-white p-4">
             <h2 className="text-sm font-extrabold text-[#071A33]">{t("accounting.expert.detail.filing")}</h2>
             {(detail.warnings ?? 0) > 0 && (

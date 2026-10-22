@@ -88,3 +88,5 @@
 130 · P10 목록 빈 화면=하네스 SSR 쿠키 미전달; service role 우회·테스트 맞춤 제품/RLS 변경 금지.
 131 · next/server after() 등 서버 전용 API는 클라이언트 번들로 가는 모듈에서 정적 import 금지 → 서버 경로에서 동적 import.
 132 · filed_manual 기간: draft/submitted 허용·confirmed·ledger INSERT만 DB 트리거로 차단(P6a 전면 txn 잠금 금지).
+133 · vnk_expert accounting_confirm_vi_text는 expert_assignments 없으면 NOT_FOUND; P6-1 하네스에 assignment 시드.
+134 · review_comment resolve는 company_owner만(`/api/accounting/review-comments/resolve`); expert resolve 403.

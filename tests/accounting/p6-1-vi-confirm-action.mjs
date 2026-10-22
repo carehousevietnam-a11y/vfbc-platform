@@ -47,14 +47,20 @@ const signIn = async (n) => {
 };
 
 const u = {};
-for (const n of ["owner", "membervi", "bowner"]) u[n] = await mk(n);
+for (const n of ["owner", "membervi", "vnkexp", "bowner"]) u[n] = await mk(n);
 const { data: orgA } = await service.from("accounting_organizations").insert({ name_official: `A ${tag}`, approval_status: "approved" }).select("id").single();
 const { data: orgB } = await service.from("accounting_organizations").insert({ name_official: `B ${tag}`, approval_status: "approved" }).select("id").single();
 await service.from("accounting_org_members").insert([
   { org_id: orgA.id, user_id: u.owner.id, role: "company_owner" },
   { org_id: orgA.id, user_id: u.membervi.id, role: "company_member" },
+  { org_id: orgA.id, user_id: u.vnkexp.id, role: "vnk_expert" },
   { org_id: orgB.id, user_id: u.bowner.id, role: "company_owner" },
 ]);
+await service.from("accounting_expert_assignments").insert({
+  expert_user_id: u.vnkexp.id,
+  org_id: orgA.id,
+  assigned_by: u.owner.id,
+});
 await service.from("accounting_profiles").upsert({ user_id: u.membervi.id, locale: "vi" });
 await seedTestPostingRule(service, "sale");
 
@@ -86,6 +92,22 @@ const ok = await confirmAccountingViI18nText(s.membervi.client, s.membervi.token
   entityType: "transaction", entityId: t.id, field: "memo",
 });
 record("server_allows_vi_member", ok.ok);
+
+const { data: t2 } = await service
+  .from("accounting_transactions")
+  .insert({ org_id: orgA.id, type: "sale", status: "draft", txn_date: "2026-10-11", period_key: "2026-10", amount_vnd: 220000, created_by: u.owner.id })
+  .select("id")
+  .single();
+await service.from("accounting_transaction_lines").insert({ txn_id: t2.id, amount_net: 200000, vat_rate: 10, vat_amount: 20000 });
+await service.from("accounting_i18n_texts").insert({
+  org_id: orgA.id, entity_type: "transaction", entity_id: t2.id, field: "memo", lang: "vi", text: "vi memo expert", status: "machine", version: 1,
+});
+await s.owner.client.rpc("accounting_confirm_transaction", { p_txn_id: t2.id });
+
+const okExpert = await confirmAccountingViI18nText(s.vnkexp.client, s.vnkexp.token, {
+  entityType: "transaction", entityId: t2.id, field: "memo",
+});
+record("server_allows_vnk_expert", okExpert.ok, okExpert.ok ? "" : okExpert.error ?? "fail");
 
 const { count: audit } = await service
   .from("accounting_audit_log")

@@ -543,6 +543,31 @@ export default function VatDeclarationClient() {
     setNotice("accounting.vat.review_requested");
   };
 
+  const approveReady = async () => {
+    if (!declarationId || role !== "company_owner") {
+      setNotice("accounting.vat.error.owner_only");
+      return;
+    }
+    setBusy(true);
+    const res = await fetch("/api/accounting/vat/expert-review", {
+      method: "POST",
+      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "approve_ready", declarationId }),
+    });
+    setBusy(false);
+    const body = (await res.json()) as { error?: string };
+    if (!res.ok) {
+      if (body.error === "OPEN_COMMENTS") {
+        setNotice("accounting.vat.error.open_comments");
+        return;
+      }
+      setNotice("accounting.vat.error.generic");
+      return;
+    }
+    setDeclStatus("ready");
+    setNotice("accounting.vat.approve_ready_ok");
+  };
+
   const renderFieldRow = (code: string) => {
     const field = mapByCode.get(code);
     const cell = computed[code];
@@ -787,14 +812,26 @@ export default function VatDeclarationClient() {
                 <p className="text-sm font-semibold text-[#071A33]">
                   {t("accounting.vat.status")}: {declStatus || "—"}
                 </p>
-                <button
-                  type="button"
-                  disabled={busy || role !== "company_owner" || vatMethod === "direct" || periodBlockedUi}
-                  onClick={requestReview}
-                  className="min-h-11 rounded-lg bg-[#071A33] px-4 text-sm font-semibold text-white disabled:opacity-50"
-                >
-                  {t("accounting.vat.action.request_review")}
-                </button>
+                {declStatus === "expert_review" ? (
+                  <button
+                    type="button"
+                    disabled={busy || role !== "company_owner"}
+                    onClick={approveReady}
+                    className="min-h-11 rounded-lg bg-[#0F6B3E] px-4 text-sm font-semibold text-white disabled:opacity-50"
+                    data-testid="vat-approve-ready"
+                  >
+                    {t("accounting.vat.approve_ready")}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={busy || role !== "company_owner" || vatMethod === "direct" || periodBlockedUi}
+                    onClick={requestReview}
+                    className="min-h-11 rounded-lg bg-[#071A33] px-4 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {t("accounting.vat.action.request_review")}
+                  </button>
+                )}
                 {role !== "company_owner" && (
                   <p className="text-xs text-[#3D4B63]">{t("accounting.vat.error.owner_only")}</p>
                 )}

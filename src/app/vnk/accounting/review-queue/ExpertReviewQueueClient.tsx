@@ -241,10 +241,25 @@ export default function ExpertReviewQueueClient() {
                     <div>
                       <p className="text-base font-bold text-[#071A33]">{row.orgDisplayName}</p>
                       <p className="text-sm text-[#3D4B63]">
-                        {t("accounting.expert.queue.period")}: {row.periodKey}
+                        {t("accounting.expert.queue.form")}: {row.formCode} · {t("accounting.expert.queue.period")}:{" "}
+                        {row.periodKey}
                       </p>
+                      {row.dDay !== null ? (
+                        <p className="mt-1 text-xs font-semibold text-[#3D4B63]">
+                          {t("accounting.expert.queue.d_day")}: D{row.dDay >= 0 ? "-" : "+"}
+                          {Math.abs(row.dDay)}
+                        </p>
+                      ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      {row.formVerificationWaiting ? (
+                        <span
+                          className="rounded-full bg-[#FEF3C7] px-3 py-1 text-xs font-semibold text-[#92400E]"
+                          data-testid="expert-queue-form-wait"
+                        >
+                          {t("accounting.expert.queue.form_verification_wait")}
+                        </span>
+                      ) : null}
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${warnClass(row.warningCount)}`}>
                         {t("accounting.expert.queue.warnings")}: {row.warningCount}
                       </span>
