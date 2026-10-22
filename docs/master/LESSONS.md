@@ -677,6 +677,6 @@
     자동 검사: node tests/accounting/p10-list-3022-verify.mjs
 
 130. 문제: P10 standardized 목록이 로컬 시드 후에도 빈 상태였다.
-    원인: `NEXT_PUBLIC_*`만 자식에 넣어도 Next가 `.env.local` 원격 URL을 쓰며, RSC 목록 조회는 세션 쿠키가 없으면 `form_versions` RLS에서 0건이 된다.
-    재발 방지: 로컬 UI 검증은 `ACCOUNTING_DEV_SUPABASE_URL`+로컬 `SUPABASE_SERVICE_ROLE_KEY`로 목록만 조회(하네스 전용)하거나 Playwright에 Supabase auth 쿠키를 넣는다. Windows spawn은 `ACCOUNTING_DEV_*`로 자식 전달을 검증한다.
+    원인: RSC 목록은 Supabase SSR auth 쿠키가 서버에 전달되어야 한다. Playwright localStorage만 넣으면 `auth.uid()`가 비어 `form_versions` SELECT가 0건으로 보였다. RLS(P4a)·환경 문제가 아니었다. 원인 확인 전 service role 우회·RLS(P10b) 정책 변경·제품 `setAll` 수정은 하지 않는다.
+    재발 방지: 하네스는 `@supabase/ssr` `createServerClient`로 로그인 후 `sb-<host>-auth-token` 쿠키를 Playwright `domain: localhost`로 심고, localStorage는 클라이언트 gate용으로만 병행한다. 로컬 UI는 3020 종료 후 3022 단독·`NEXT_PUBLIC_*` 로컬 주입.
     자동 검사: node tests/accounting/p10-list-3022-verify.mjs

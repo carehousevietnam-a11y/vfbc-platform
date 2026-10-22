@@ -85,4 +85,4 @@
 127 · confirmed standardized_drafts는 RLS 0행+service 값 유지로 불변 검증한다(PostgREST error만 보면 FAIL).
 128 · next dev는 프로젝트당 1개; 검증은 3020 종료 후 3022 단독 실행·끝나면 3020 복구한다.
 129 · `Another next dev server`는 동시 dev 중복; 콜드스타트만이 원인이 아니다.
-130 · 로컬 목록 검증은 `ACCOUNTING_DEV_SUPABASE_URL`+로컬 service role 또는 auth 쿠키; `.env.local` 원격과 시드 DB 불일치 주의.
+130 · P10 목록 빈 화면=하네스 SSR 쿠키 미전달; service role 우회·테스트 맞춤 제품/RLS 변경 금지.

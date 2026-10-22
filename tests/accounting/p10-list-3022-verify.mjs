@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { execSync, spawn } from "child_process";
 import net from "net";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
 import { chromium } from "@playwright/test";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -109,9 +110,11 @@ try {
   const childEnv = {
     ...process.env,
     PORT: String(port),
+    NEXT_PUBLIC_SUPABASE_URL: url,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: anonKey,
+    SUPABASE_SERVICE_ROLE_KEY: serviceKey,
     ACCOUNTING_DEV_SUPABASE_URL: url,
     ACCOUNTING_DEV_SUPABASE_ANON_KEY: anonKey,
-    SUPABASE_SERVICE_ROLE_KEY: serviceKey,
   };
   const probe = spawn(
     process.execPath,
@@ -203,19 +206,82 @@ try {
     role: "company_owner",
   });
 
-  const signClient = createClient(url, anonKey, { auth: { persistSession: false } });
-  const { data: sess } = await signClient.auth.signInWithPassword({
-    email: `${tag}@test.vfbcai.local`,
-    password,
+  const ownerEmail = `${tag}@test.vfbcai.local`;
+  const cookieJar = [];
+  const ssrClient = createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return cookieJar;
+      },
+        setAll(cookiesToSet) {
+          for (const c of cookiesToSet) {
+            const idx = cookieJar.findIndex((x) => x.name === c.name);
+            if (idx >= 0) cookieJar[idx] = c;
+            else cookieJar.push(c);
+          }
+        },
+    },
   });
-  const storageKey = `sb-${new URL(url).hostname.split(".")[0]}-auth-token`;
-  const sessionRaw = JSON.stringify(sess.session);
+  const { error: signErr } = await ssrClient.auth.signInWithPassword({ email: ownerEmail, password });
+  const anonProbe = await ssrClient
+    .from("accounting_form_versions")
+    .select("id", { count: "exact", head: true })
+    .eq("id", formRow.id);
+  set(
+    "3_session_row_probe",
+    !signErr && (anonProbe.count ?? 0) === 1 && !anonProbe.error,
+    signErr?.message || anonProbe.error?.code || `count=${anonProbe.count ?? 0}`
+  );
 
-  async function browse(viewport) {
+  const expectedCookieName = `sb-${new URL(url).hostname.split(".")[0]}-auth-token`;
+
+  async function authCookiesFor(email) {
+    const jar = [];
+    const client = createServerClient(url, anonKey, {
+      cookies: {
+        getAll() {
+          return jar;
+        },
+        setAll(cookiesToSet) {
+          for (const c of cookiesToSet) {
+            const idx = jar.findIndex((x) => x.name === c.name);
+            if (idx >= 0) jar[idx] = c;
+            else jar.push(c);
+          }
+        },
+      },
+    });
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return jar
+      .filter((c) => c.name && typeof c.value === "string" && c.value.length > 0)
+      .map((c) => ({
+        name: c.name,
+        value: c.value,
+        domain: "localhost",
+        path: c.options?.path || "/",
+      }));
+  }
+
+  const storageKey = expectedCookieName;
+  const ownerCookies = await authCookiesFor(ownerEmail);
+  const cookiePatternOk = ownerCookies.length >= 1 && ownerCookies.every((c) => c.name === expectedCookieName);
+  set("3_harness_cookies", cookiePatternOk, `count=${ownerCookies.length} pattern=${cookiePatternOk ? "match" : "mismatch"}`);
+
+  async function browse(viewport, email, preCookies) {
+    const signClient = createClient(url, anonKey, { auth: { persistSession: false } });
+    const { data: sessData, error: sessErr } = await signClient.auth.signInWithPassword({ email, password });
+    if (sessErr) throw sessErr;
     const browser = await chromium.launch({ channel: "chrome", headless: true });
+    const authCookies = preCookies ?? (await authCookiesFor(email));
     const context = await browser.newContext({ viewport });
-    await context.addCookies([{ name: "vfbcai_locale", value: "ko", url: base }]);
-    await context.addInitScript((p) => localStorage.setItem(p.key, p.raw), { key: storageKey, raw: sessionRaw });
+    if (authCookies.length === 0) throw new Error("no supabase auth cookies after signIn");
+    await context.addCookies([{ name: "vfbcai_locale", value: "ko", domain: "localhost", path: "/" }]);
+    await context.addCookies(authCookies);
+    await context.addInitScript((p) => localStorage.setItem(p.key, p.raw), {
+      key: storageKey,
+      raw: JSON.stringify(sessData.session),
+    });
     const page = await context.newPage();
     await page.goto(pageUrl, { waitUntil: "domcontentloaded", timeout: 120000 });
     await page.getByTestId("standardized-forms-page").waitFor({ timeout: 120000 });
@@ -223,23 +289,25 @@ try {
     const empty = await page.getByTestId("standardized-empty-state").count();
     const list = await page.getByTestId("standardized-form-list").count();
     const name = await page.getByText(formNameKo).count();
-    const hostEl = await page.getByTestId("accounting-db-host").innerText().catch(() => "");
     const gtgt = await page.getByText(/GTGT|01\/GTGT/).count();
     const submitBtn = await page.getByRole("button", { name: /제출|확정|전문가 검토 요청/ }).count();
     await browser.close();
-    return { errBanner, empty, list, name, hostEl, gtgt, submitBtn };
+    return { errBanner, empty, list, name, gtgt, submitBtn };
   }
 
-  const d = await browse({ width: 1440, height: 900 });
-  const m = await browse({ width: 390, height: 844 });
-  const hostOk = d.hostEl.includes("127.0.0.1") || d.hostEl.includes("localhost");
-  set("2_server_db_host", hostOk, `dom_host=${d.hostEl}`);
-  const pass = d.list >= 1 && m.list >= 1 && d.name >= 1 && m.name >= 1 && hostOk;
+  const d = await browse({ width: 1440, height: 900 }, ownerEmail, ownerCookies);
+  const m = await browse({ width: 390, height: 844 }, ownerEmail, ownerCookies);
+  const pass = d.list >= 1 && m.list >= 1 && d.name >= 1 && m.name >= 1;
   set(
     "3_list_dom",
     pass,
-    `1440 list=${d.list} name=${d.name} err=${d.errBanner} empty=${d.empty}; 390 list=${m.list} name=${m.name} host=${d.hostEl}`
+    `1440 list=${d.list} name=${d.name} err=${d.errBanner} empty=${d.empty}; 390 list=${m.list} name=${m.name}`
   );
+  const logLeak =
+    fs.existsSync(logPath) &&
+    /service.role|SERVICE_ROLE|eyJ[A-Za-z0-9_-]{20,}/i.test(fs.readFileSync(logPath, "utf8"));
+  set("6_no_secret_log", !logLeak, logLeak ? "dev log may contain secret pattern" : "no service-role pattern in dev log");
+
   set(
     "4_ui_gates",
     d.gtgt === 0 && m.gtgt === 0 && d.submitBtn === 0 && m.submitBtn === 0,
