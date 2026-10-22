@@ -684,3 +684,8 @@
 131. 번역 대기 행의 전용 재시도 배치 없음(재저장 또는 3회 내부 재시도만) → P6 검토 대기열 범위 후보.
 
 132. P9 pending UI 타임아웃: `accountingI18nTexts`의 `next/server` `after` 정적 import가 `TransactionEntryClient`→`transactionEntry` 경로로 클라이언트 번들에 포함되어 `/company/accounting/transactions`가 500·`ul li button` 0건이었다; `after`는 서버에서만 dynamic import한다.
+
+133. 문제: P6-1 `filed_manual_period_blocked`가 FAIL했다(`lockedDraft.ok` false).
+    원인: P6a `accounting_guard_txn_period_lock`이 filed_manual 기간의 draft INSERT까지 막았다(설계는 확정·ledger 차단).
+    재발 방지: 기간 잠금 트리거는 draft/submitted 생성·편집은 허용하고 confirmed 전환·ledger INSERT만 막는다. ledger는 별도 `accounting_guard_ledger_period_lock`으로 강제한다.
+    자동 검사: npx tsx tests/accounting/p3-posting.mjs · npx tsx tests/accounting/p6-1-vi-confirm-action.mjs
