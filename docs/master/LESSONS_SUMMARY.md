@@ -84,3 +84,5 @@
 126 · 번역 후 UI 판정은 DB 폴링 후 새로고침하고 DOM 텍스트로 본다(스크린샷 판독 금지).
 127 · confirmed standardized_drafts는 RLS 0행+service 값 유지로 불변 검증한다(PostgREST error만 보면 FAIL).
 128 · 로컬 3022 next 콜드스타트는 ready 폴링 상한·워밍 분리; 미ready면 UI 검증 FAIL로 분류한다.
+129 · 3022 검증 전 다른 next dev 종료; `Another next dev server`면 HTTP 폴링 FAIL·production build 대안.
+129 · 3022 검증 전 다른 next dev 종료; `Another next dev server`면 HTTP 폴링 FAIL·production build 대안.

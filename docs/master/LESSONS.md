@@ -670,3 +670,13 @@
     원인: 콜드 컴파일·Windows spawn 대기가 하네스 상한(60×2s)보다 길었다.
     재발 방지: 로컬 UI 검증 전 `p3c-local-next.mjs` 등으로 3020을 먼저 기동하거나, 3022 ready 폴링 상한을 늘리고 `.next` 워밍을 분리한다.
     자동 검사: node tests/accounting/p10-local-supplement.mjs
+
+129. 문제: P10 목록 3022 검증에서 `next dev` 로그는 Ready인데 6분 폴링 중 `/vat/standardized` HTTP 응답이 없었다.
+    원인: 동시에 다른 `next dev`가 떠 있으면 Turbopack이 `Another next dev server`로 라우트 응답이 막힐 수 있다(`.env.local`은 그대로 로드됨).
+    재발 방지: 3022 기동 전 기존 next dev(3020 등)를 종료하거나 Ace가 지시한 production build·단일 서버 방식을 쓴다.
+    자동 검사: node tests/accounting/p10-list-3022-verify.mjs
+
+129. 문제: P10 목록 3022 검증에서 `next dev` 로그는 Ready인데 6분 폴링 중 `/vat/standardized` HTTP 응답이 없었다.
+    원인: 동시에 다른 `next dev`가 떠 있으면 Turbopack이 `Another next dev server`로 라우트 응답이 막힐 수 있다(`.env.local`은 그대로 로드됨).
+    재발 방지: 3022 기동 전 기존 next dev(3020 등)를 종료하거나 Ace가 지시한 production build·단일 서버 방식을 쓴다.
+    자동 검사: node tests/accounting/p10-list-3022-verify.mjs
