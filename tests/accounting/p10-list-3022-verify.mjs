@@ -105,17 +105,33 @@ try {
   );
 
   const { url, anonKey, serviceKey } = getLocalEnv();
+  const localHost = new URL(url).host;
+  const childEnv = {
+    ...process.env,
+    PORT: String(port),
+    ACCOUNTING_DEV_SUPABASE_URL: url,
+    ACCOUNTING_DEV_SUPABASE_ANON_KEY: anonKey,
+    SUPABASE_SERVICE_ROLE_KEY: serviceKey,
+  };
+  const probe = spawn(
+    process.execPath,
+    ["-e", "process.stdout.write((process.env.ACCOUNTING_DEV_SUPABASE_URL||'').split('//')[1]||'')"],
+    { env: childEnv, shell: false, stdio: ["ignore", "pipe", "ignore"] }
+  );
+  const childHost = await new Promise((resolve) => {
+    let out = "";
+    probe.stdout.on("data", (d) => {
+      out += d.toString();
+    });
+    probe.on("close", () => resolve(out.trim()));
+  });
+  set("2_child_env_host", childHost === localHost, `child=${childHost} expected=${localHost}`);
+
   fs.writeFileSync(logPath, "");
   const logStream = fs.createWriteStream(logPath, { flags: "a" });
   devProc = spawn("npx", ["next", "dev", "-p", String(port)], {
     cwd: repoRoot,
-    env: {
-      ...process.env,
-      PORT: String(port),
-      NEXT_PUBLIC_SUPABASE_URL: url,
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: anonKey,
-      SUPABASE_SERVICE_ROLE_KEY: serviceKey,
-    },
+    env: childEnv,
     shell: true,
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -207,17 +223,27 @@ try {
     const empty = await page.getByTestId("standardized-empty-state").count();
     const list = await page.getByTestId("standardized-form-list").count();
     const name = await page.getByText(formNameKo).count();
+    const hostEl = await page.getByTestId("accounting-db-host").innerText().catch(() => "");
+    const gtgt = await page.getByText(/GTGT|01\/GTGT/).count();
+    const submitBtn = await page.getByRole("button", { name: /제출|확정|전문가 검토 요청/ }).count();
     await browser.close();
-    return { errBanner, empty, list, name };
+    return { errBanner, empty, list, name, hostEl, gtgt, submitBtn };
   }
 
   const d = await browse({ width: 1440, height: 900 });
   const m = await browse({ width: 390, height: 844 });
-  const pass = d.list >= 1 && m.list >= 1 && d.name >= 1 && m.name >= 1;
+  const hostOk = d.hostEl.includes("127.0.0.1") || d.hostEl.includes("localhost");
+  set("2_server_db_host", hostOk, `dom_host=${d.hostEl}`);
+  const pass = d.list >= 1 && m.list >= 1 && d.name >= 1 && m.name >= 1 && hostOk;
   set(
     "3_list_dom",
     pass,
-    `1440 list=${d.list} name=${d.name} err=${d.errBanner} empty=${d.empty}; 390 list=${m.list} name=${m.name} err=${m.errBanner} empty=${m.empty}`
+    `1440 list=${d.list} name=${d.name} err=${d.errBanner} empty=${d.empty}; 390 list=${m.list} name=${m.name} host=${d.hostEl}`
+  );
+  set(
+    "4_ui_gates",
+    d.gtgt === 0 && m.gtgt === 0 && d.submitBtn === 0 && m.submitBtn === 0,
+    `gov_ref=${d.gtgt}/${m.gtgt} submit_btn=${d.submitBtn}/${m.submitBtn}`
   );
   set(
     "3_error_plus_empty",

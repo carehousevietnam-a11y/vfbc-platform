@@ -18,13 +18,15 @@ export type StandardizedFormListItem = {
 type Props = {
   forms: StandardizedFormListItem[];
   loadError: string | null;
+  /** Set only when ACCOUNTING_DEV_SUPABASE_URL is defined (local harness). Hostname only. */
+  dbHostForHarness?: string | null;
 };
 
 function displayName(locale: AccountingLocale, row: StandardizedFormListItem): string {
   return locale === "vi" ? row.name_vi : row.name_ko;
 }
 
-export default function StandardizedFormsClient({ forms, loadError }: Props) {
+export default function StandardizedFormsClient({ forms, loadError, dbHostForHarness }: Props) {
   const { locale } = useLocale();
   const lang = uiAccountingLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
@@ -36,6 +38,10 @@ export default function StandardizedFormsClient({ forms, loadError }: Props) {
       <p className="mt-2 text-[13px] font-medium text-[#6B7A90]">{t("accounting.standardized.disclaimer")}</p>
 
       <AccountingTaxSubnav />
+
+      {dbHostForHarness ? (
+        <p className="sr-only" data-testid="accounting-db-host">{dbHostForHarness}</p>
+      ) : null}
 
       {loadError ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{t("accounting.standardized.load_error")}</p>

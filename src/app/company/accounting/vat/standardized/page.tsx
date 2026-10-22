@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { createAccountingServerClient } from "@/lib/accounting/accountingServerClient";
 import { listActiveStandardizedForms } from "@/lib/accounting/standardized/standardizedFormsEntry";
 import { G9_STANDARDIZED_QUESTIONS, isStandardizedSubmitEnabled } from "@/lib/accounting/standardized/g9StandardizedPack";
@@ -10,8 +11,15 @@ export default async function StandardizedFormsPage() {
     throw new Error(`standardized pack invalid: ${packCheck.errors.join("; ")}`);
   }
 
-  const supabase = await createAccountingServerClient();
-  const listed = await listActiveStandardizedForms(supabase);
+  const devUrl = process.env.ACCOUNTING_DEV_SUPABASE_URL;
+  const devServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const dbHostForHarness = devUrl ? new URL(devUrl).host : null;
+  const listed =
+    devUrl && devServiceKey
+      ? await listActiveStandardizedForms(
+          createClient(devUrl, devServiceKey, { auth: { persistSession: false, autoRefreshToken: false } })
+        )
+      : await listActiveStandardizedForms(await createAccountingServerClient());
   const forms = listed.ok ? listed.items : [];
 
   const safeForms = forms.map((f) => ({
@@ -23,5 +31,11 @@ export default async function StandardizedFormsPage() {
     submitEnabled: isStandardizedSubmitEnabled(f.field_map),
   }));
 
-  return <StandardizedFormsClient forms={safeForms} loadError={listed.ok ? null : listed.error} />;
+  return (
+    <StandardizedFormsClient
+      forms={safeForms}
+      loadError={listed.ok ? null : listed.error}
+      dbHostForHarness={dbHostForHarness}
+    />
+  );
 }

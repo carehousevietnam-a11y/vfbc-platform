@@ -675,3 +675,8 @@
     원인: 다른 `next dev` 인스턴스가 동시에 실행 중이었다(Turbopack 단일 실행 제한).
     재발 방지: 3020·3022 포트의 기존 프로세스를 종료한 뒤 3022만 기동하고, 검증 후 3020 dev를 재기동한다.
     자동 검사: node tests/accounting/p10-list-3022-verify.mjs
+
+130. 문제: P10 standardized 목록이 로컬 시드 후에도 빈 상태였다.
+    원인: `NEXT_PUBLIC_*`만 자식에 넣어도 Next가 `.env.local` 원격 URL을 쓰며, RSC 목록 조회는 세션 쿠키가 없으면 `form_versions` RLS에서 0건이 된다.
+    재발 방지: 로컬 UI 검증은 `ACCOUNTING_DEV_SUPABASE_URL`+로컬 `SUPABASE_SERVICE_ROLE_KEY`로 목록만 조회(하네스 전용)하거나 Playwright에 Supabase auth 쿠키를 넣는다. Windows spawn은 `ACCOUNTING_DEV_*`로 자식 전달을 검증한다.
+    자동 검사: node tests/accounting/p10-list-3022-verify.mjs
