@@ -295,8 +295,8 @@ export default function VatDeclarationClient() {
     setVatMethod(json.org?.vat_method ?? null);
     setVatPeriod(json.org?.vat_period === "quarter" ? "quarter" : "month");
     setPeriodGuardBlocked(Boolean(json.periodGuard?.blocked));
-    setFieldMap(json.form.fields ?? []);
-    setFormStatus(json.form.status ?? "");
+    setFieldMap(json.form?.fields ?? []);
+    setFormStatus(json.form?.status ?? "");
     applyDeclarationPayload(json);
   }, [authHeaders, periodKey, token]);
 

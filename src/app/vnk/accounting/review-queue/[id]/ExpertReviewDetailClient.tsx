@@ -71,7 +71,7 @@ export default function ExpertReviewDetailClient() {
   const [adjAmount, setAdjAmount] = useState("");
   const [adjReason, setAdjReason] = useState<string>(GTGT_ADJUSTMENT_REASON_CODES[0].id);
   const [portalBasis, setPortalBasis] = useState<"TT89" | "TT80">("TT89");
-  const [filedAt, setFiledAt] = useState(() => new Date().toISOString().slice(0, 16));
+  const [filedAt, setFiledAt] = useState("");
   const [receiptPath, setReceiptPath] = useState("");
   const [warnAck, setWarnAck] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -88,7 +88,9 @@ export default function ExpertReviewDetailClient() {
   const fetchDetail = useCallback(async () => {
     const res = await accountingAuthFetch(`/api/accounting/expert/declarations/${declarationId}`);
     if (!res.ok) return null;
-    return (await res.json()) as DetailPayload;
+    const json = (await res.json()) as DetailPayload & { ok?: boolean; error?: string };
+    if (json.error) return null;
+    return json;
   }, [declarationId]);
 
   const reload = useCallback(async () => {
@@ -100,6 +102,10 @@ export default function ExpertReviewDetailClient() {
     setDetail(data);
     setPhase("ready");
   }, [fetchDetail]);
+
+  useEffect(() => {
+    setFiledAt(new Date().toISOString().slice(0, 16));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -138,7 +144,15 @@ export default function ExpertReviewDetailClient() {
       setMessage(t("accounting.expert.detail.error.generic"));
       return;
     }
+    const json = (await res.json()) as {
+      comment?: DetailPayload["comments"][number];
+    };
     setCommentText("");
+    if (json.comment) {
+      setDetail((prev) =>
+        prev ? { ...prev, comments: [...prev.comments, json.comment!] } : prev
+      );
+    }
     await reload();
   };
 

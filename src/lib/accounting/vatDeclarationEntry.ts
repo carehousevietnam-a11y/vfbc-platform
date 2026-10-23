@@ -57,8 +57,21 @@ export async function getVatDeclaration(
     .eq("period_key", periodKey)
     .maybeSingle();
 
-  const form = await loadVatFormMeta(client);
-  if (!form.ok) return { ok: false as const, status: 403, error: form.error };
+  const formMeta = await loadVatFormMeta(client);
+  const declStatus = decl?.status as string | undefined;
+  const reviewUiAllowed =
+    declStatus === "expert_review" || declStatus === "ready" || declStatus === "drafting";
+  if (!formMeta.ok && !reviewUiAllowed) {
+    return { ok: false as const, status: 403, error: formMeta.error };
+  }
+  const form = formMeta.ok
+    ? formMeta
+    : {
+        ok: false as const,
+        error: formMeta.error,
+        status: "pending_verification" as const,
+        fields: [] as VatFieldMapEntry[],
+      };
 
   const vatPeriod = ((org?.vat_period as string) === "quarter" ? "quarter" : "month") as "month" | "quarter";
   const periodBeforeTt89 = isPeriodBeforeGtgt01Tt89(periodKey, vatPeriod);

@@ -92,3 +92,4 @@
 134 · review_comment resolve는 company_owner만(`/api/accounting/review-comments/resolve`); expert resolve 403.
 135 · p6a filed_manual 기간: draft INSERT 허용·confirm/ledger INSERT만 `filed_manual locked`로 단언(전면 txn INSERT 차단 기대값 금지).
 136 · 로컬 회계 브라우저 QA는 dev-local-login 시드 후 `/dev/accounting-login`; `ACE-APPROVED`는 Ace 명시 승인 시만.
+137 · VAT expert_review는 FORM_DISABLED여도 declaration GET 허용; 코멘트 POST는 응답+재조회; datetime-local은 mount 후 설정.

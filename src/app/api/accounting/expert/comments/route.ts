@@ -15,15 +15,16 @@ export async function POST(req: NextRequest) {
     text?: string;
     lang?: "ko" | "vi";
   };
-  if (!body.declarationId || !body.text || !body.kind) {
+  const text = (body.text ?? "").trim();
+  if (!body.declarationId || !text || !body.kind) {
     return NextResponse.json({ error: "INVALID_PAYLOAD" }, { status: 400 });
   }
   const result = await createExpertReviewComment(session.client, session.token, {
     declarationId: body.declarationId,
     kind: body.kind,
-    body: body.text,
+    body: text,
     lang: body.lang === "vi" ? "vi" : "ko",
   });
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
-  return NextResponse.json({ ok: true, commentId: result.commentId });
+  return NextResponse.json({ ok: true, commentId: result.commentId, comment: result.comment });
 }

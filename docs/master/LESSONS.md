@@ -704,3 +704,8 @@
     원인: Agent가 protected-docs 패턴을 커밋 메시지에 과도 적용했다(pre-commit은 해당 문구를 요구하지 않음).
     재발 방지: `ACE-APPROVED`는 Ace 명시 승인·사유가 있을 때만 사용한다. LESSONS/SUMMARY만 변경 시에도 동일한다.
     자동 검사: (수동) 커밋 메시지 리뷰
+
+137. 문제: P6-2 VAT 6단계 `vat-review-comments` 미노출·expert 코멘트 스레드 빈 화면·dev 로그인 hydration.
+    원인: `getVatDeclaration`이 `FORM_DISABLED` 시 403으로 declaration 컨텍스트를 못 읽음; 코멘트 POST 후 GET 병합 부족; `datetime-local` 초기값이 SSR/CSR 시각 불일치.
+    재발 방지: expert_review/ready는 서식 미검증이어도 declaration·코멘트 API는 반환; 코멘트 POST는 생성 행을 응답·재조회; 시간 기본값은 mount 후 setState; dev-local-login에 `org_a_member` 시드.
+    자동 검사: npx tsx tests/accounting/p6a-expert-queue.mjs · 로컬 `/dev/accounting-login` QA

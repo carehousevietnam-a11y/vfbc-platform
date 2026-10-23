@@ -1,19 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 const ACCOUNTS = [
   { key: "org_a_owner", label: "조직 A 대표 (company_owner)" },
+  { key: "org_a_member", label: "조직 A 구성원 (company_member)" },
   { key: "org_b_owner", label: "조직 B 대표 (company_owner)" },
   { key: "vnk_expert", label: "조직 A 배정 VFBCAI 세무전문가" },
 ] as const;
 
 export default function DevAccountingLoginPage() {
+  const [mounted, setMounted] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (process.env.NODE_ENV !== "development") {
     return (
@@ -56,6 +62,10 @@ export default function DevAccountingLoginPage() {
       return;
     }
     window.location.href = typeof json.redirect === "string" ? json.redirect : "/company/accounting/transactions";
+  }
+
+  if (!mounted) {
+    return <main className="mx-auto min-h-[70vh] max-w-md px-4 py-10" aria-busy="true" />;
   }
 
   return (

@@ -458,7 +458,23 @@ export async function createExpertReviewComment(
     deferTranslation: true,
   });
   if (!i18n.ok) return { ok: false as const, status: 400, error: i18n.error };
-  return { ok: true as const, commentId: comment.id as string };
+
+  const bodies = await loadReviewCommentBodies(client, decl.org_id as string, [comment.id as string]);
+  const bodyView = bodies[comment.id as string] ?? {
+    translationPending: { ko: false, vi: false },
+  };
+  return {
+    ok: true as const,
+    commentId: comment.id as string,
+    comment: {
+      id: comment.id as string,
+      author_id: actor.userId,
+      kind: payload.kind,
+      status: "open" as const,
+      body: { ko: bodyView.ko, vi: bodyView.vi },
+      translationPending: bodyView.translationPending,
+    },
+  };
 }
 
 export async function createCompanyOwnerReviewComment(

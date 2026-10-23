@@ -1,0 +1,14 @@
+{
+  "password": "CHANGE_ME_LOCAL_ONLY",
+  "accounts": {
+    "org_a_owner": "dev-org-a-owner@test.vfbcai.local",
+    "org_a_member": "dev-org-a-member@test.vfbcai.local",
+    "org_b_owner": "dev-org-b-owner@test.vfbcai.local",
+    "vnk_expert": "dev-vnk-expert-assigned@test.vfbcai.local"
+  },
+  "orgs": {
+    "a": { "name_official": "DEV Local Org A", "tax_code": "DEVORG0001" },
+    "b": { "name_official": "DEV Local Org B", "tax_code": "DEVORG0002" }
+  },
+  "mailOtpNote": "로컬 /login OTP 대신 /dev/accounting-login 사용."
+}

@@ -97,6 +97,9 @@ async function ensureMember(orgId, userId, role) {
 const ownerA = await ensureUser(config.accounts.org_a_owner);
 const ownerB = await ensureUser(config.accounts.org_b_owner);
 const expert = await ensureUser(config.accounts.vnk_expert);
+const memberEmail =
+  config.accounts.org_a_member ?? "dev-org-a-member@test.vfbcai.local";
+const memberA = await ensureUser(memberEmail);
 
 const orgA = await ensureOrg("a", config.orgs.a);
 const orgB = await ensureOrg("b", config.orgs.b);
@@ -104,12 +107,14 @@ const orgB = await ensureOrg("b", config.orgs.b);
 await ensureMember(orgA, ownerA.id, "company_owner");
 await ensureMember(orgB, ownerB.id, "company_owner");
 await ensureMember(orgA, expert.id, "vnk_expert");
+await ensureMember(orgA, memberA.id, "company_member");
 
 await service.from("accounting_profiles").upsert(
   [
     { user_id: ownerA.id, locale: "ko" },
     { user_id: ownerB.id, locale: "ko" },
     { user_id: expert.id, locale: "vi" },
+    { user_id: memberA.id, locale: "ko" },
   ],
   { onConflict: "user_id" }
 );
