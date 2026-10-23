@@ -1,0 +1,38 @@
+{
+  "entry_id": "vat_filing_check",
+  "stage1": [
+    {
+      "id": "q1",
+      "text": "T_q1",
+      "choices": [{ "id": "c1", "label": "T_c1" }],
+      "allow_direct_input": true,
+      "sources": []
+    }
+  ],
+  "stage2": [
+    {
+      "id": "s2_1",
+      "text": "T_s2",
+      "choices": [{ "id": "x", "label": "x" }],
+      "allow_direct_input": false,
+      "show_if": { "question_id": "missing_q", "choice_ids": ["c1"] },
+      "sources": []
+    },
+    {
+      "id": "s2_2",
+      "text": "T_s2b",
+      "choices": [{ "id": "x", "label": "x" }],
+      "allow_direct_input": false,
+      "show_if": { "question_id": "q1", "choice_ids": ["c1"] },
+      "sources": []
+    },
+    {
+      "id": "s2_3",
+      "text": "T_s2c",
+      "choices": [{ "id": "x", "label": "x" }],
+      "allow_direct_input": false,
+      "show_if": { "question_id": "q1", "choice_ids": ["c1"] },
+      "sources": []
+    }
+  ]
+}

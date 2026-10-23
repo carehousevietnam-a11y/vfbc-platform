@@ -1,0 +1,179 @@
+{
+  "vat_filing_check": {
+    "entry_id": "vat_filing_check",
+    "stage1": [
+      {
+        "id": "vat_s1_q1",
+        "text": "T_vat_s1_q1",
+        "choices": [
+          { "id": "vat_s1_q1_a", "label": "T_vat_s1_q1_a" },
+          { "id": "vat_s1_q1_b", "label": "T_vat_s1_q1_b" }
+        ],
+        "allow_direct_input": true,
+        "sources": []
+      },
+      {
+        "id": "vat_s1_q2",
+        "text": "T_vat_s1_q2",
+        "choices": [
+          { "id": "vat_s1_q2_a", "label": "T_vat_s1_q2_a" },
+          { "id": "vat_s1_q2_b", "label": "T_vat_s1_q2_b" }
+        ],
+        "allow_direct_input": false,
+        "sources": []
+      }
+    ],
+    "stage2": [
+      {
+        "id": "vat_s2_q1",
+        "text": "T_vat_s2_q1",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "vat_s1_q1": "vat_s1_q1_a" },
+        "sources": []
+      },
+      {
+        "id": "vat_s2_q2",
+        "text": "T_vat_s2_q2",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "vat_s1_q1": "vat_s1_q1_b" },
+        "sources": []
+      },
+      {
+        "id": "vat_s2_q3",
+        "text": "T_vat_s2_q3",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "vat_s1_q2": "vat_s1_q2_a" },
+        "sources": []
+      },
+      {
+        "id": "vat_s2_q4",
+        "text": "T_vat_s2_q4",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "vat_s1_q2": "vat_s1_q2_b" },
+        "sources": []
+      }
+    ]
+  },
+  "invoice_processing_check": {
+    "entry_id": "invoice_processing_check",
+    "stage1": [
+      {
+        "id": "inv_s1_q1",
+        "text": "T_inv_s1_q1",
+        "choices": [
+          { "id": "inv_s1_q1_a", "label": "T_a" },
+          { "id": "inv_s1_q1_b", "label": "T_b" }
+        ],
+        "allow_direct_input": true,
+        "sources": []
+      },
+      {
+        "id": "inv_s1_q2",
+        "text": "T_inv_s1_q2",
+        "choices": [
+          { "id": "inv_s1_q2_a", "label": "T_a" },
+          { "id": "inv_s1_q2_b", "label": "T_b" }
+        ],
+        "allow_direct_input": false,
+        "sources": []
+      }
+    ],
+    "stage2": [
+      {
+        "id": "inv_s2_q1",
+        "text": "T_inv_s2_q1",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "inv_s1_q1": "inv_s1_q1_a" },
+        "sources": []
+      },
+      {
+        "id": "inv_s2_q2",
+        "text": "T_inv_s2_q2",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "inv_s1_q1": "inv_s1_q1_b" },
+        "sources": []
+      },
+      {
+        "id": "inv_s2_q3",
+        "text": "T_inv_s2_q3",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "inv_s1_q2": "inv_s1_q2_a" },
+        "sources": []
+      },
+      {
+        "id": "inv_s2_q4",
+        "text": "T_inv_s2_q4",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "inv_s1_q2": "inv_s1_q2_b" },
+        "sources": []
+      }
+    ]
+  },
+  "corp_tax_closing_check": {
+    "entry_id": "corp_tax_closing_check",
+    "stage1": [
+      {
+        "id": "corp_s1_q1",
+        "text": "T_corp_s1_q1",
+        "choices": [
+          { "id": "corp_s1_q1_a", "label": "T_a" },
+          { "id": "corp_s1_q1_b", "label": "T_b" }
+        ],
+        "allow_direct_input": true,
+        "sources": []
+      },
+      {
+        "id": "corp_s1_q2",
+        "text": "T_corp_s1_q2",
+        "choices": [
+          { "id": "corp_s1_q2_a", "label": "T_a" },
+          { "id": "corp_s1_q2_b", "label": "T_b" }
+        ],
+        "allow_direct_input": false,
+        "sources": []
+      }
+    ],
+    "stage2": [
+      {
+        "id": "corp_s2_q1",
+        "text": "T_corp_s2_q1",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "corp_s1_q1": "corp_s1_q1_a" },
+        "sources": []
+      },
+      {
+        "id": "corp_s2_q2",
+        "text": "T_corp_s2_q2",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "corp_s1_q1": "corp_s1_q1_b" },
+        "sources": []
+      },
+      {
+        "id": "corp_s2_q3",
+        "text": "T_corp_s2_q3",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "corp_s1_q2": "corp_s1_q2_a" },
+        "sources": []
+      },
+      {
+        "id": "corp_s2_q4",
+        "text": "T_corp_s2_q4",
+        "choices": [{ "id": "c1", "label": "T_c1" }],
+        "allow_direct_input": false,
+        "show_if": { "corp_s1_q2": "corp_s1_q2_b" },
+        "sources": []
+      }
+    ]
+  }
+}
