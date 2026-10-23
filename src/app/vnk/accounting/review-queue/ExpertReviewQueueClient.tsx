@@ -66,10 +66,15 @@ function warnClass(count: number): string {
 }
 
 export default function ExpertReviewQueueClient() {
+  const [mounted, setMounted] = useState(false);
   const { locale: appLocale } = useLocale();
   const loc = uiLocale(appLocale);
   const t = (key: AccountingMessageKey) => accountingMessage(loc, key);
   const [phase, setPhase] = useState<"loading" | "signed_out" | "denied" | "ready">("loading");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [items, setItems] = useState<ExpertQueueItem[]>([]);
   const [rejectOrgId, setRejectOrgId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -140,6 +145,10 @@ export default function ExpertReviewQueueClient() {
       </div>
     </header>
   );
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#F7F9FC]" aria-busy="true" />;
+  }
 
   if (phase === "loading") {
     return (

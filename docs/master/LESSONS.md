@@ -709,3 +709,8 @@
     원인: `getVatDeclaration`이 `FORM_DISABLED` 시 403으로 declaration 컨텍스트를 못 읽음; 코멘트 POST 후 GET 병합 부족; `datetime-local` 초기값이 SSR/CSR 시각 불일치.
     재발 방지: expert_review/ready는 서식 미검증이어도 declaration·코멘트 API는 반환; 코멘트 POST는 생성 행을 응답·재조회; 시간 기본값은 mount 후 setState; dev-local-login에 `org_a_member` 시드.
     자동 검사: npx tsx tests/accounting/p6a-expert-queue.mjs · 로컬 `/dev/accounting-login` QA
+
+138. 문제: P6-2 expert/VAT hydration·owner VAT QA `UNAUTHENTICATED`·6단계 탭 무반응.
+    원인: `LocaleProvider`와 `AccountingShell`/`ExpertReview*`가 SSR·CSR에서 `t()` 문자열 불일치; 회계 API는 Bearer만 인정·QA가 `period`·무헤더 fetch 사용; `wizardReadOnly`가 `goToStep` 전체를 막아 expert_review에서 6단계 UI 불가.
+    재발 방지: locale 의존 UI는 mount 후 렌더; VAT URL은 `periodKey`( `period` 별칭); dev-login은 signOut→setSession→getSession 확인; expert_review는 단계 탭은 읽기 전용으로만 전환; 서식 `pending_verification`이면 ready 승인 버튼 숨김.
+    자동 검사: npx tsc --noEmit · p6a · `/dev/accounting-login` owner VAT 6단계

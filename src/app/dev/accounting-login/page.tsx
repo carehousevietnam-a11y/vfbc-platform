@@ -52,12 +52,19 @@ export default function DevAccountingLoginPage() {
       setLoading(null);
       return;
     }
+    await supabase.auth.signOut();
     const { error: sessionError } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
     });
     if (sessionError) {
       setError(sessionError.message);
+      setLoading(null);
+      return;
+    }
+    const { data: verify } = await supabase.auth.getSession();
+    if (!verify.session?.access_token) {
+      setError("세션을 저장하지 못했습니다. 다시 시도해주세요.");
       setLoading(null);
       return;
     }

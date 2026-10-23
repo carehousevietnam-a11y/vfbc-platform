@@ -44,6 +44,11 @@ export function AccountingShell({ children }: Props) {
   const [membershipRole, setMembershipRole] = useState<string | null>(null);
   const [membershipKind, setMembershipKind] = useState<AccountingCompanyInfoMembership["kind"]>("none");
   const [membershipLoaded, setMembershipLoaded] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,6 +95,10 @@ export function AccountingShell({ children }: Props) {
     `flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-semibold leading-tight ${
       active === key ? "text-[#071A33]" : "text-[#6B7A90]"
     }`;
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#F7F9FC]" aria-busy="true" />;
+  }
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#F7F9FC] text-[#071A33] pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">

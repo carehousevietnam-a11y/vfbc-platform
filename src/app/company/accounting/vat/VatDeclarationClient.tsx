@@ -96,7 +96,7 @@ export default function VatDeclarationClient() {
   const [token, setToken] = useState("");
   const [role, setRole] = useState("");
   const [step, setStep] = useState(1);
-  const urlPeriodKey = searchParams.get("periodKey") ?? "";
+  const urlPeriodKey = searchParams.get("periodKey") ?? searchParams.get("period") ?? "";
   const [periodKeyDraft, setPeriodKeyDraft] = useState("");
   const periodKey = periodKeyDraft || urlPeriodKey;
   const [filingKind, setFilingKind] = useState<"regular" | "amended">("regular");
@@ -494,7 +494,11 @@ export default function VatDeclarationClient() {
   }, [computed, orgId, periodKey, token, warnings]);
 
   const goToStep = (n: number) => {
-    if (wizardReadOnly) return;
+    if (wizardReadOnly) {
+      setStep(n);
+      if (n === 5) void buildPrecheck();
+      return;
+    }
     void (async () => {
       setBusy(true);
       const ok = await persistWizard(step, { nextStep: n });
@@ -852,7 +856,7 @@ export default function VatDeclarationClient() {
                 <p className="text-sm font-semibold text-[#071A33]">
                   {t("accounting.vat.status")}: {declStatus || "—"}
                 </p>
-                {declStatus === "expert_review" ? (
+                {declStatus === "expert_review" && formStatus !== "pending_verification" ? (
                   <button
                     type="button"
                     disabled={busy || role !== "company_owner"}
@@ -862,7 +866,7 @@ export default function VatDeclarationClient() {
                   >
                     {t("accounting.vat.approve_ready")}
                   </button>
-                ) : (
+                ) : declStatus === "expert_review" ? null : (
                   <button
                     type="button"
                     disabled={busy || role !== "company_owner" || vatMethod === "direct" || periodBlockedUi}

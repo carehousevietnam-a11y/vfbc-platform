@@ -57,6 +57,7 @@ type DetailPayload = {
 };
 
 export default function ExpertReviewDetailClient() {
+  const [mounted, setMounted] = useState(false);
   const params = useParams();
   const declarationId = params.id as string;
   const { locale: appLocale } = useLocale();
@@ -104,6 +105,7 @@ export default function ExpertReviewDetailClient() {
   }, [fetchDetail]);
 
   useEffect(() => {
+    setMounted(true);
     setFiledAt(new Date().toISOString().slice(0, 16));
   }, []);
 
@@ -215,8 +217,8 @@ export default function ExpertReviewDetailClient() {
     await reload();
   };
 
-  if (phase === "loading") {
-    return <p className="p-6 text-sm text-[#3D4B63]">{t("accounting.expert.queue.loading")}</p>;
+  if (!mounted || phase === "loading") {
+    return <p className="p-6 text-sm text-[#3D4B63]" aria-busy="true" />;
   }
   if (phase === "error" || !detail) {
     return (
