@@ -188,15 +188,42 @@ async function main() {
     .single();
   if (declFiledErr) throw declFiledErr;
 
-  const txnBlocked = await clientMember.from("accounting_transactions").insert({
-    org_id: orgA.id,
-    type: "expense",
-    status: "draft",
-    txn_date: "2026-08-05",
-    period_key: "2026-08",
-    amount_vnd: 1,
+  const { data: filedDraftTxn, error: filedDraftErr } = await clientMember
+    .from("accounting_transactions")
+    .insert({
+      org_id: orgA.id,
+      type: "expense",
+      status: "draft",
+      txn_date: "2026-08-05",
+      period_key: "2026-08",
+      amount_vnd: 1,
+    })
+    .select("id")
+    .single();
+  record("filed_period_draft_insert_allowed", !filedDraftErr && !!filedDraftTxn?.id);
+
+  const clientOwnerA = await signIn(url, anonKey, `a-${tag}@t.local`, password);
+  const { error: filedConfirmErr } = await clientOwnerA.rpc("accounting_confirm_transaction", {
+    p_txn_id: filedDraftTxn?.id,
   });
-  record("filed_period_txn_insert_blocked", !!txnBlocked.error);
+  record(
+    "filed_period_confirm_blocked",
+    !!filedConfirmErr && /filed_manual locked/i.test(filedConfirmErr.message ?? "")
+  );
+
+  const { error: filedLedgerErr } = await clientOwnerA.from("accounting_ledger_entries").insert({
+    org_id: orgA.id,
+    txn_id: filedDraftTxn?.id,
+    period_key: "2026-08",
+    entry_date: "2026-08-05",
+    account_code: "TEST-P6A-LEDGER",
+    debit: 1,
+    credit: 0,
+  });
+  record(
+    "filed_period_ledger_insert_blocked",
+    !!filedLedgerErr && /filed_manual locked/i.test(filedLedgerErr.message ?? "")
+  );
 
   const computedBlocked = await service
     .from("accounting_declarations")

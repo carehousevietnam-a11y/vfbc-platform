@@ -62,6 +62,106 @@ function warningCount(computed: unknown): number {
   return Array.isArray(fields) ? fields.length : 0;
 }
 
+function collectDeclarationTxnIds(computed: unknown): string[] {
+  const fields = (computed as { fields?: Record<string, { txn_ids?: string[] }> })?.fields;
+  if (!fields) return [];
+  const ids = new Set<string>();
+  for (const cell of Object.values(fields)) {
+    for (const id of cell?.txn_ids ?? []) ids.add(id);
+  }
+  return [...ids];
+}
+
+type ReviewCommentBodyView = {
+  ko?: string;
+  vi?: string;
+  translationPending: { ko: boolean; vi: boolean };
+};
+
+async function loadReviewCommentBodies(
+  client: SupabaseClient,
+  orgId: string,
+  commentIds: string[]
+): Promise<Record<string, ReviewCommentBodyView>> {
+  const out: Record<string, ReviewCommentBodyView> = {};
+  if (commentIds.length === 0) return out;
+  const { data: texts } = await client
+    .from("accounting_i18n_texts")
+    .select("entity_id, lang, text, version")
+    .eq("org_id", orgId)
+    .eq("entity_type", "review_comment")
+    .eq("field", "body")
+    .in("entity_id", commentIds);
+  const latest: Record<string, { ko?: { text: string; version: number }; vi?: { text: string; version: number } }> =
+    {};
+  for (const row of texts ?? []) {
+    const id = row.entity_id as string;
+    const lang = row.lang as "ko" | "vi";
+    const version = row.version as number;
+    const bucket = latest[id] ?? {};
+    const prev = bucket[lang];
+    if (!prev || version > prev.version) {
+      bucket[lang] = { text: row.text as string, version };
+      latest[id] = bucket;
+    }
+  }
+  for (const id of commentIds) {
+    const row = latest[id] ?? {};
+    const ko = row.ko?.text;
+    const vi = row.vi?.text;
+    out[id] = {
+      ko,
+      vi,
+      translationPending: { ko: !ko && !!vi, vi: !vi && !!ko },
+    };
+  }
+  return out;
+}
+
+export async function listCompanyDeclarationReviewComments(
+  client: SupabaseClient,
+  accessToken: string,
+  declarationId: string
+) {
+  const actor = await resolveAccountingActor(client, accessToken);
+  if (!actor.ok) return { ok: false as const, status: actor.status, error: actor.error };
+  if (actor.role !== "company_owner" && actor.role !== "company_member") {
+    return { ok: false as const, status: 403, error: "FORBIDDEN" };
+  }
+
+  const { data: decl } = await client
+    .from("accounting_declarations")
+    .select("id")
+    .eq("id", declarationId)
+    .eq("org_id", actor.orgId)
+    .maybeSingle();
+  if (!decl) return { ok: false as const, status: 404, error: "NOT_FOUND" };
+
+  const { data: comments } = await client
+    .from("accounting_review_comments")
+    .select("id, author_id, kind, status, created_at")
+    .eq("org_id", actor.orgId)
+    .eq("target_type", "declaration")
+    .eq("target_id", declarationId)
+    .order("created_at", { ascending: true });
+
+  const commentIds = (comments ?? []).map((c) => c.id as string);
+  const bodies = await loadReviewCommentBodies(client, actor.orgId, commentIds);
+
+  return {
+    ok: true as const,
+    role: actor.role,
+    comments: (comments ?? []).map((c) => {
+      const body = bodies[c.id as string] ?? { translationPending: { ko: false, vi: false } };
+      return {
+        ...c,
+        body: { ko: body.ko, vi: body.vi },
+        translationPending: body.translationPending,
+      };
+    }),
+  };
+}
+
 function orgDisplayName(o: { name_ko_display?: string | null; name_official?: string | null }) {
   return (o.name_ko_display as string | null) || (o.name_official as string) || "—";
 }
@@ -261,23 +361,24 @@ export async function getExpertDeclarationDetail(
     .order("created_at", { ascending: true });
 
   const commentIds = (comments ?? []).map((c) => c.id as string);
-  const bodies: Record<string, { ko?: string; vi?: string }> = {};
-  if (commentIds.length > 0) {
-    const { data: texts } = await client
-      .from("accounting_i18n_texts")
-      .select("entity_id, lang, text, version")
+  const bodies = await loadReviewCommentBodies(client, decl.org_id as string, commentIds);
+
+  const txnIds = collectDeclarationTxnIds(decl.computed);
+  let linkedTransactions: {
+    id: string;
+    txn_date: string;
+    type: string;
+    status: string;
+    amount_vnd: number | null;
+  }[] = [];
+  if (txnIds.length > 0) {
+    const { data: txns } = await client
+      .from("accounting_transactions")
+      .select("id, txn_date, type, status, amount_vnd")
       .eq("org_id", decl.org_id)
-      .eq("entity_type", "review_comment")
-      .eq("field", "body")
-      .in("entity_id", commentIds);
-    for (const row of texts ?? []) {
-      const id = row.entity_id as string;
-      const lang = row.lang as "ko" | "vi";
-      const prev = bodies[id]?.[lang];
-      if (!prev) {
-        bodies[id] = { ...bodies[id], [lang]: row.text as string };
-      }
-    }
+      .in("id", txnIds)
+      .order("txn_date", { ascending: true });
+    linkedTransactions = (txns ?? []) as typeof linkedTransactions;
   }
 
   let receiptUrl: string | null = null;
@@ -293,10 +394,15 @@ export async function getExpertDeclarationDetail(
     declaration: decl,
     org,
     form,
-    comments: (comments ?? []).map((c) => ({
-      ...c,
-      body: bodies[c.id as string] ?? {},
-    })),
+    comments: (comments ?? []).map((c) => {
+      const body = bodies[c.id as string] ?? { translationPending: { ko: false, vi: false } };
+      return {
+        ...c,
+        body: { ko: body.ko, vi: body.vi },
+        translationPending: body.translationPending,
+      };
+    }),
+    linkedTransactions,
     receiptUrl,
     warnings: warningCount(decl.computed),
     formVerificationWaiting,

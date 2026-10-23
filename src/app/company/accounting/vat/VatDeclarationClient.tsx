@@ -22,6 +22,7 @@ import {
 import { vatFieldLabel } from "@/lib/accounting/accountingFieldLabels";
 import { AccountingI18nField } from "@/lib/accounting/AccountingI18nField";
 import type { I18nLang } from "@/lib/accounting/accountingI18nTexts";
+import { accountingAuthFetch } from "@/lib/accounting/authFetch";
 import { stepMemoField, type VatWizardState } from "@/lib/accounting/vatWizard";
 import type { AccountingFieldViewMode } from "@/lib/accounting/accountingFormViewMode";
 import { AccountingTaxSubnav } from "@/lib/accounting/AccountingTaxSubnav";
@@ -128,6 +129,16 @@ export default function VatDeclarationClient() {
   const [memoDrafts, setMemoDrafts] = useState<Record<number, string>>({});
   const [memoLangs, setMemoLangs] = useState<Record<number, I18nLang>>({});
   const [memoFieldViews, setMemoFieldViews] = useState<Record<number, AccountingFieldViewMode>>({});
+  const [reviewComments, setReviewComments] = useState<
+    {
+      id: string;
+      kind: string;
+      status: string;
+      body: { ko?: string; vi?: string };
+      translationPending?: { ko: boolean; vi: boolean };
+    }[]
+  >([]);
+
   const [conflictSnapshot, setConflictSnapshot] = useState<{
     step: number;
     periodKey: string;
@@ -543,6 +554,35 @@ export default function VatDeclarationClient() {
     setNotice("accounting.vat.review_requested");
   };
 
+  const loadReviewComments = useCallback(async () => {
+    if (!declarationId) return;
+    const res = await accountingAuthFetch(
+      `/api/accounting/review-comments?declarationId=${encodeURIComponent(declarationId)}`
+    );
+    if (!res.ok) return;
+    const json = (await res.json()) as { comments?: typeof reviewComments };
+    setReviewComments(json.comments ?? []);
+  }, [declarationId]);
+
+  useEffect(() => {
+    if (!declarationId || (declStatus !== "expert_review" && declStatus !== "ready")) return;
+    void loadReviewComments();
+  }, [declarationId, declStatus, loadReviewComments]);
+
+  const resolveReviewComment = async (commentId: string) => {
+    if (role !== "company_owner") return;
+    const res = await accountingAuthFetch("/api/accounting/review-comments/resolve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ commentId }),
+    });
+    if (!res.ok) {
+      setNotice("accounting.vat.error.generic");
+      return;
+    }
+    await loadReviewComments();
+  };
+
   const approveReady = async () => {
     if (!declarationId || role !== "company_owner") {
       setNotice("accounting.vat.error.owner_only");
@@ -835,6 +875,42 @@ export default function VatDeclarationClient() {
                 {role !== "company_owner" && (
                   <p className="text-xs text-[#3D4B63]">{t("accounting.vat.error.owner_only")}</p>
                 )}
+                {(declStatus === "expert_review" || declStatus === "ready") && declarationId ? (
+                  <section
+                    className="mt-4 rounded-xl border border-[#E3E8F0] bg-[#F7F9FC] p-4"
+                    data-testid="vat-review-comments"
+                  >
+                    <h3 className="text-sm font-extrabold text-[#071A33]">
+                      {t("accounting.vat.review_comments.title")}
+                    </h3>
+                    {reviewComments.length === 0 ? (
+                      <p className="mt-2 text-sm text-[#3D4B63]">{t("accounting.vat.review_comments.empty")}</p>
+                    ) : (
+                      <ul className="mt-3 space-y-2 text-sm">
+                        {reviewComments.map((c) => (
+                          <li key={c.id} className="rounded-lg bg-white p-3">
+                            <p className="text-xs text-[#6B7A90]">{c.kind} · {c.status}</p>
+                            <p className="text-[#071A33]">{c.body[lang] ?? c.body.ko ?? c.body.vi ?? "—"}</p>
+                            {c.translationPending?.[lang] ? (
+                              <span className="mt-1 inline-block rounded bg-[#FEF3C7] px-2 py-0.5 text-[11px] font-semibold text-[#92400E]">
+                                {t("accounting.ledger.badge.translation_pending")}
+                              </span>
+                            ) : null}
+                            {role === "company_owner" && c.status === "open" ? (
+                              <button
+                                type="button"
+                                className="mt-2 min-h-11 rounded-lg border border-[#E3E8F0] bg-white px-3 text-xs font-semibold"
+                                onClick={() => void resolveReviewComment(c.id)}
+                              >
+                                {t("accounting.vat.review_comments.resolve")}
+                              </button>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                ) : null}
                 {renderStepMemo(6)}
               </div>
             )}

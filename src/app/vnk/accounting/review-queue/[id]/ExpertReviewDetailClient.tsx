@@ -37,7 +37,21 @@ type DetailPayload = {
   receiptUrl?: string | null;
   org: { name_ko_display?: string; name_official: string };
   form: { ok: boolean; fields?: VatFieldMapEntry[] };
-  comments: { id: string; author_id: string; kind: string; status: string; body: { ko?: string; vi?: string } }[];
+  comments: {
+    id: string;
+    author_id: string;
+    kind: string;
+    status: string;
+    body: { ko?: string; vi?: string };
+    translationPending?: { ko: boolean; vi: boolean };
+  }[];
+  linkedTransactions?: {
+    id: string;
+    txn_date: string;
+    type: string;
+    status: string;
+    amount_vnd: number | null;
+  }[];
   warnings: number;
   formVerificationWaiting?: boolean;
 };
@@ -235,6 +249,26 @@ export default function ExpertReviewDetailClient() {
 
       <main className="mx-auto grid max-w-6xl gap-4 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-4">
+          {(detail.linkedTransactions?.length ?? 0) > 0 ? (
+            <section className="rounded-xl border border-[#E3E8F0] bg-white p-4" data-testid="expert-linked-txns">
+              <h2 className="text-sm font-extrabold text-[#071A33]">{t("accounting.expert.detail.linked_txns")}</h2>
+              <ul className="mt-3 space-y-2 text-sm">
+                {detail.linkedTransactions?.map((txn) => (
+                  <li key={txn.id} className="flex flex-wrap items-center justify-between gap-2">
+                    <Link
+                      href={`/company/accounting/transactions/${txn.id}`}
+                      className="font-semibold text-[#2563EB]"
+                    >
+                      {txn.txn_date} · {txn.type}
+                    </Link>
+                    <span className="tabular-nums font-semibold text-[#071A33]">
+                      {formatAmount(loc, String(txn.amount_vnd ?? 0))} · {txn.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           {renderStep(2, STEP_FIELDS[2])}
           {renderStep(3, STEP_FIELDS[3])}
           {renderStep(4, STEP_FIELDS[4])}
@@ -314,6 +348,11 @@ export default function ExpertReviewDetailClient() {
                 <li key={c.id} className="rounded-lg bg-[#F7F9FC] p-2">
                   <p className="text-xs text-[#6B7A90]">{c.kind} · {c.status}</p>
                   <p className="text-[#071A33]">{c.body[loc] ?? c.body.ko ?? c.body.vi ?? "—"}</p>
+                  {c.translationPending?.[loc] ? (
+                    <span className="mt-1 inline-block rounded bg-[#FEF3C7] px-2 py-0.5 text-[11px] font-semibold text-[#92400E]">
+                      {t("accounting.ledger.badge.translation_pending")}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>

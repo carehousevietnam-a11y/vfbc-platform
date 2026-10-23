@@ -90,3 +90,4 @@
 132 · filed_manual 기간: draft/submitted 허용·confirmed·ledger INSERT만 DB 트리거로 차단(P6a 전면 txn 잠금 금지).
 133 · vnk_expert accounting_confirm_vi_text는 expert_assignments 없으면 NOT_FOUND; P6-1 하네스에 assignment 시드.
 134 · review_comment resolve는 company_owner만(`/api/accounting/review-comments/resolve`); expert resolve 403.
+135 · p6a filed_manual 기간: draft INSERT 허용·confirm/ledger INSERT만 `filed_manual locked`로 단언(전면 txn INSERT 차단 기대값 금지).

@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { accountingClientFromRequest } from "@/lib/accounting/requestUser";
-import { createCompanyOwnerReviewComment } from "@/lib/accounting/expertReviewQueue";
+import {
+  createCompanyOwnerReviewComment,
+  listCompanyDeclarationReviewComments,
+} from "@/lib/accounting/expertReviewQueue";
+
+export async function GET(req: NextRequest) {
+  const session = accountingClientFromRequest(req);
+  if (!session) return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });
+  const declarationId = req.nextUrl.searchParams.get("declarationId") ?? "";
+  if (!declarationId) return NextResponse.json({ error: "INVALID_PAYLOAD" }, { status: 400 });
+  const result = await listCompanyDeclarationReviewComments(session.client, session.token, declarationId);
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
+  return NextResponse.json(result);
+}
 
 export async function POST(req: NextRequest) {
   const session = accountingClientFromRequest(req);
