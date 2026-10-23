@@ -95,3 +95,4 @@
 137 · VAT expert_review는 FORM_DISABLED여도 declaration GET 허용; 코멘트 POST는 응답+재조회; datetime-local은 mount 후 설정.
 138 · 회계 locale UI는 mount 후; VAT는 periodKey(period 별칭); expert_review는 6단계 탭 읽기 전용; API QA는 Bearer 필수.
 139 · p6-1은 tsx 실행; 회계 헤더 locale은 accounting_profiles; vi 확정 RPC는 review_comment body 포함; p6b는 P6-2 member insert 거부 반영.
+140 · 거래 vi는 AccountingViTextDisplay; 정정 요청 UI는 owner·배정 expert만; G5 미검증은 corr 배너.

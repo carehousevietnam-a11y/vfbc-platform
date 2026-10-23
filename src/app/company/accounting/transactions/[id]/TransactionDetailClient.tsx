@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { useAccountingCatalogLocale } from "@/lib/accounting/AccountingCatalogLocale";
 import TransactionExtrasPanel from "./TransactionExtrasPanel";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 
@@ -18,10 +18,6 @@ type LedgerRow = {
   usesUnverifiedBasis: boolean;
   fxConversionUnverified: boolean;
 };
-
-function uiLocale(locale: string): AccountingLocale {
-  return locale === "vi" ? "vi" : "ko";
-}
 
 function formatAmount(locale: AccountingLocale, value: number): string {
   return new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "ko-KR", { maximumFractionDigits: 0 }).format(
@@ -77,6 +73,14 @@ function LedgerTable({
                     {t("accounting.ledger.badge.translation_pending")}
                   </span>
                 ) : null}
+                {row.usesUnverifiedBasis ? (
+                  <span
+                    className="ml-1 rounded bg-[#FEF3C7] px-1.5 py-0.5 text-[11px] font-semibold text-[#92400E]"
+                    data-testid="ledger-unverified-basis"
+                  >
+                    {t("accounting.ledger.badge.unverified_basis")}
+                  </span>
+                ) : null}
               </td>
             </tr>
           ))}
@@ -87,8 +91,8 @@ function LedgerTable({
 }
 
 export default function TransactionDetailClient({ txnId }: { txnId: string }) {
-  const { locale: appLocale } = useLocale();
-  const loc = uiLocale(appLocale);
+  const { locale: catalogLocale } = useAccountingCatalogLocale();
+  const loc = catalogLocale;
   const t = (key: AccountingMessageKey) => accountingMessage(loc, key);
   const [phase, setPhase] = useState<"loading" | "error" | "ready">("loading");
   const [item, setItem] = useState<Record<string, unknown> | null>(null);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { AccountingViTextDisplay } from "@/lib/accounting/AccountingViTextDisplay";
 import { accountingAuthFetch } from "@/lib/accounting/authFetch";
 import type { TranslationSlot } from "@/lib/accounting/correctionEntry";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
@@ -14,6 +15,8 @@ type Extras = {
   isCorrection: boolean;
   canApprove: boolean;
   canRequest: boolean;
+  correctionTxnId: string | null;
+  ledgerCorrectionMethodVerified: boolean;
   corrections: {
     id: string;
     status: string;
@@ -26,6 +29,12 @@ type Extras = {
 
 function formatAmount(locale: AccountingLocale, value: number): string {
   return new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "ko-KR", { maximumFractionDigits: 0 }).format(value);
+}
+
+function fieldLabel(loc: AccountingLocale, field: string): string {
+  const key =
+    field === "description" ? "accounting.txn.field.description" : "accounting.txn.field.memo";
+  return accountingMessage(loc, key as AccountingMessageKey);
 }
 
 export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; loc: AccountingLocale }) {
@@ -74,6 +83,7 @@ export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; 
 
   if (!extras) return null;
   const confirmed = extras.status === "confirmed";
+  const displayLang = loc === "vi" ? "vi" : "ko";
 
   return (
     <div className="space-y-6">
@@ -81,34 +91,33 @@ export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; 
         <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5" data-testid="translations">
           <h2 className="font-extrabold">{t("accounting.vi.section")}</h2>
           {extras.translations.map((slot) => (
-            <div key={slot.field} className="mt-3 text-sm">
-              <p>
-                <span className="font-semibold">KO</span> {slot.ko?.text ?? "—"}
-              </p>
-              <p>
-                <span className="font-semibold">VI</span> {slot.vi?.text ?? "—"}{" "}
-                {slot.vi ? (
-                  <span
-                    className={`ml-1 rounded px-1.5 py-0.5 text-[11px] font-semibold ${
-                      slot.vi.status === "human_verified" ? "bg-[#E8F5EE] text-[#0F6B3E]" : "bg-[#FEF3C7] text-[#92400E]"
-                    }`}
-                  >
-                    {slot.vi.status === "human_verified" ? t("accounting.vi.verified") : t("accounting.vi.machine")} · v
-                    {slot.vi.version}
-                  </span>
-                ) : null}
-              </p>
+            <div key={slot.field} className="mt-4 border-t border-[#E3E8F0] pt-4 first:mt-3 first:border-0 first:pt-0">
+              <p className="text-xs font-bold text-[#6B7A90]">{fieldLabel(loc, slot.field)}</p>
+              {slot.ko?.text ? (
+                <p className="mt-1 text-xs text-[#6B7A90]">
+                  <span className="font-semibold">KO</span> {slot.ko.text}
+                </p>
+              ) : null}
+              <div className="mt-2">
+                <AccountingViTextDisplay
+                  locale={loc}
+                  displayLang={displayLang}
+                  body={{ ko: slot.ko?.text, vi: slot.vi?.text }}
+                  viSlot={
+                    slot.vi
+                      ? { text: slot.vi.text, status: slot.vi.status, version: slot.vi.version }
+                      : null
+                  }
+                  translationPending={displayLang === "vi" && !slot.vi?.text && !!slot.ko?.text}
+                  entityType="transaction"
+                  entityId={txnId}
+                  field={slot.field}
+                  showConfirm={slot.canConfirm}
+                  onConfirmed={() => void load()}
+                />
+              </div>
               {slot.needsReconfirm ? (
                 <p className="mt-1 text-xs font-semibold text-[#B45309]">{t("accounting.vi.reconfirm")}</p>
-              ) : null}
-              {slot.canConfirm ? (
-                <button
-                  type="button"
-                  className="mt-2 min-h-11 rounded-lg bg-[#071A33] px-4 text-sm font-semibold text-white"
-                  onClick={() => void post({ action: "confirm_vi", txnId, field: slot.field })}
-                >
-                  {t("accounting.vi.confirm")}
-                </button>
               ) : null}
             </div>
           ))}
@@ -119,12 +128,31 @@ export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; 
         <section className="rounded-[14px] border border-[#E3E8F0] bg-white p-5" data-testid="corrections">
           <h2 className="font-extrabold">{t("accounting.corr.title")}</h2>
           <p className="mt-1 text-xs text-[#6B7A90]">{t("accounting.corr.lead")}</p>
+          {!extras.ledgerCorrectionMethodVerified ? (
+            <p
+              className="mt-3 rounded-lg bg-[#FEF3C7] px-3 py-2 text-sm font-semibold text-[#92400E]"
+              data-testid="corr-g5-unverified"
+            >
+              {t("accounting.corr.g5_unverified")}
+            </p>
+          ) : null}
           {extras.periodFiled ? (
             <p className="mt-3 text-sm font-semibold text-[#B45309]" data-testid="amended-required">
               {t("accounting.corr.amended_required")}
             </p>
           ) : null}
-          {extras.alreadyCorrected ? (
+          {extras.alreadyCorrected && extras.correctionTxnId ? (
+            <p className="mt-3 text-sm">
+              {t("accounting.corr.already")}{" "}
+              <Link
+                href={`/company/accounting/transactions/${extras.correctionTxnId}`}
+                className="font-semibold text-[#2563EB]"
+                data-testid="correction-txn-link"
+              >
+                {t("accounting.corr.view_correction")}
+              </Link>
+            </p>
+          ) : extras.alreadyCorrected ? (
             <p className="mt-3 text-sm text-[#3D4B63]">{t("accounting.corr.already")}</p>
           ) : null}
           {extras.corrections.length === 0 ? (
@@ -137,7 +165,7 @@ export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; 
                     {formatAmount(loc, c.amountVnd)} {t("accounting.txn.unit.vnd")} ·{" "}
                     {t(`accounting.corr.status.${c.status === "open" ? "open" : "resolved"}` as AccountingMessageKey)}
                   </p>
-                  <p className="mt-1 text-[#3D4B63]">{c.body}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-[#3D4B63]">{c.body}</p>
                   {c.rejectReason ? <p className="mt-1 text-xs text-[#B91C1C]">{c.rejectReason}</p> : null}
                   {c.status === "open" && !extras.periodFiled ? (
                     extras.canApprove ? (
@@ -145,6 +173,7 @@ export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; 
                         <button
                           type="button"
                           className="min-h-11 rounded-lg bg-[#0F6B3E] px-4 text-sm font-semibold text-white"
+                          data-testid="corr-approve"
                           onClick={() => void post({ action: "approve", commentId: c.id })}
                         >
                           {t("accounting.corr.approve")}
@@ -190,13 +219,13 @@ export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; 
           {newTxnId ? (
             <p className="mt-3 text-sm">
               <Link href={`/company/accounting/transactions/${newTxnId}`} className="font-semibold text-[#2563EB]" data-testid="new-txn-link">
-                {newTxnId.slice(0, 8)} →
+                {t("accounting.corr.view_correction")} ({newTxnId.slice(0, 8)}…)
               </Link>
             </p>
           ) : null}
 
           {extras.canRequest && !extras.periodFiled && !extras.alreadyCorrected ? (
-            <div className="mt-4 space-y-2 border-t border-[#E3E8F0] pt-4">
+            <div className="mt-4 space-y-2 border-t border-[#E3E8F0] pt-4" data-testid="corr-request-form">
               <label className="block text-xs font-semibold text-[#3D4B63]">
                 {t("accounting.corr.amount")}
                 <input
@@ -217,6 +246,7 @@ export default function TransactionExtrasPanel({ txnId, loc }: { txnId: string; 
               <button
                 type="button"
                 className="min-h-11 rounded-lg bg-[#2563EB] px-4 text-sm font-semibold text-white"
+                data-testid="corr-request-submit"
                 onClick={async () => {
                   if (await post({ action: "request", txnId, amountVnd: Number(amount), text: reason })) {
                     setAmount("");

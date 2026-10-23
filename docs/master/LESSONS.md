@@ -719,3 +719,8 @@
     원인: TS 엔트리를 `node`로 직접 import; §11은 `accounting_profiles.locale`·헤더 전환 요구.
     재발 방지: p6-1은 `npx tsx`로 실행; `AccountingCatalogLocaleProvider`+`/api/accounting/profile-locale`; review_comment vi 확정은 `accounting_confirm_vi_i18n_text` RPC; mount 게이트는 SSR locale 불일치 회피용(프로필 locale과 별개); P6-2 RLS로 `company_member`는 review_comments insert 불가 → p6b는 owner/expert 정정 요청·`member_correction_insert_denied`로 검증.
     자동 검사: npx tsx tests/accounting/p6-1-vi-confirm-action.mjs · p6a · p6b-corrections.mjs
+
+140. 문제: 거래 상세 메모·품목이 코멘트와 다른 vi 확정 UX였고, 정정 요청 canRequest가 P6-2 RLS( member insert 금지)와 어긋남.
+    원인: TransactionExtrasPanel이 confirm_vi API POST만 사용; getTransactionExtras가 member에게 canRequest true.
+    재발 방지: 거래 번역은 AccountingViTextDisplay+confirmAccountingViI18nTextAction; canRequest는 owner·배정 expert만; G5는 ledger_correction_method_verified_status≠verified 시 corr 섹션에 미검증 안내.
+    자동 검사: p6b-corrections.mjs · 거래 상세 `/api/accounting/corrections`
