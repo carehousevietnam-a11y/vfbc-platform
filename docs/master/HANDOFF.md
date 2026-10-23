@@ -7,7 +7,8 @@
 2. `docs/master/DECISIONS.md`의 2026-10-14 행, `docs/master/LESSONS.md` #56~#61 (전체를 읽지 않고 필요한 행만)
 
 ## 현재 상태 (마지막 갱신: 2026-10-16)
-- **P3c:** 로컬 시드 `tests/accounting/p3c-ledger-seed.mjs`(기본 실행은 생성 후 삭제). Chrome에서 장부 ko/vi(1,000,000·2026.10.16 / 1.000.000·16/10/2026), 한국어 메모+번역 대기, G4 배지, 375px 목록·상세를 확인했다. hydration 경고는 Cursor 브라우저의 data-cursor-ref이고 제품 불일치가 아니다(LESSONS 79). 하단 탭 4개는 없다(LESSONS 80). P4 미착수. 푸시 없음.
+- **P3c:** 마감 커밋 `1828605`. 로컬 시드 `tests/accounting/p3c-ledger-seed.mjs`(기본 실행은 생성 후 삭제). Chrome에서 장부 ko/vi·G4·375px 확인. hydration은 Cursor `data-cursor-ref` 이슈(LESSONS 79). `node tests/accounting/isolation.mjs` 24/0. 푸시 없음.
+- **P4a:** **로컬 검증 완료.** 구현 `a4728c4`, 마이그레이션 `20261016140000_accounting_p4a_form_registry.sql`, `/company/accounting/legal-reviews`. Node `p4a-form-registry.mjs` 12/0·`isolation.mjs` 24/0·`tsc`·`verify` 28/0·Playwright `p4a-browser-check.mjs` allPass(ko/vi·375px, 스크린샷 `tests/qa/_output/p4a-legal-reviews/`). dev는 `p3c-local-next.mjs`만(LESSONS 86). 푸시·운영 DB 미적용.
 - 기업회원 가입 작업 표기는 S1(가입)이다. 설계서 P2는 거래 입력이다. P2-a 거래 입력은 `/company/accounting/transactions` (로컬 검증, 푸시 없음). P2c 거래 목록 증빙 필터(evidence=all|linked|missing)는 로컬에서 확인했고 푸시하지 않았다. 필터 베트남어는 담당자 검수 전 임시값이다.
 - **P3a:** 마이그레이션 `20261016060000_accounting_p3_posting_engine.sql`, RPC `accounting_confirm_transaction`, 뷰 `accounting_ledger_entries_enriched`. `node tests/accounting/p3-posting.mjs` 23케이스(역할·이중확정·규칙 tie-break) 통과.
 - **P3b:** `/company/accounting/ledger` 장부 조회(읽기 전용)·`/company/accounting/transactions/[id]` 상세, API `/api/accounting/ledger`, 마이그레이션 `20261016120000_accounting_p3b_posting_order_search.sql`(규칙 specificity·unaccent 검색 RPC). 베트남어 장부·배너 문구는 **베트남어 담당자 검수 필요**(임시 초안). 푸시·운영 DB 미적용.
@@ -19,6 +20,7 @@
 - 미리보기: `https://vfbc-platform-git-chore-41a8aa-carehousevietnam-a11ys-projects.vercel.app/verify/<서비스>`
 
 ## 남은 일
+0. **회계:** P4b 보내기(sha256·서식 버전·번역 version)·P5 신고 초안(Form Pack 게이트)·P6 전문가 대기열·모바일 하단 탭 4개(홈·세금 신고·더보기, LESSONS 89)는 별도 미션. P4a 브라우저 마감: 3020 정리 후 `p3c-local-next.mjs` + `p4a-browser-check.mjs`.
 0. **2026-10-15 추가:** `/company` 가격 섹션 아래 「내 상황」 3단계 질문 블록(`src/app/company/companyEntry.ts`, 문구 `src/lib/landings/companyEntry.ts`)과 퍼널 입구 안내(`src/app/verify/company/CompanyEntryNotice.tsx`, 주소 `?q1=&q2=&q3=`) 반영, 푸시·미리보기 확인 전. 다음: 질문 값별 퍼널 연결(A안은 MASTER 수정 승인 필요), Q3 피해→사기 확인 퍼널 적합성 확인, 원본 4단계 질문 처리 결정. 원본 랜딩 파일은 수정하지 않음.
 0. **2026-10-15 상태:** `/company`·`/wp` 랜딩 미리보기 확인 완료, 운영 반영 대기. 랜딩 SEO 셋팅(`src/lib/landings/`, `/llms.txt`, sitemap, robots)은 코드 반영됨, 커밋·푸시 전. 운영 전 `NEXT_PUBLIC_SITE_URL` 확인. 사례집 테스트는 `/company` ↔ `/guide/company-setup-process-and-cost` 1:1로 시작. 사례 공개 동의(가입 화면)는 대표 결정 전이라 건드리지 않음. 기업회원은 세무·회계부터, 'rea ai' 참고 자료(주소·캡처) 수령 후 설계.
 1. **랜딩페이지 붙이기(법인설립): 코드 반영 완료.** `src/app/company/`(page·CompanyLandingClient·companyLandingHtml·companyLandingScript·landing.css)와 `public/lp/company/`(에셋 경로만 lp 유지)(영상·화면 5장). 주소 `/company`, 시작 버튼 4곳 → `/register/company`(랜딩은 이 퍼널의 앞단, 퍼널 화면 자체는 그대로 둠). 다음: 노동허가 랜딩은 `src/app/wp/`(`/wp` → `/check/wp`)에 반영, 푸시·화면 확인 전. 새 랜딩 체크리스트: ①`src/app/<슬러그>/` 이식 ②`src/lib/landings/registry.ts`에 항목 추가 ③`page.tsx`는 `landingMetadata("<슬러그>")`+`<LandingJsonLd slug>` ④운영 환경변수 `NEXT_PUBLIC_SITE_URL`이 실제 도메인인지 확인(미설정 시 canonical이 vercel.app). 이후 다음 서비스 랜딩 파일을 받으면 같은 방식으로 `src/app/<서비스>`(짧은 주소)에 추가, 충돌 주소 여부 먼저 확인.

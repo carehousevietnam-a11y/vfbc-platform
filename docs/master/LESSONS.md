@@ -729,3 +729,8 @@
     원인: MCP SQL 실행 경로에서 DROP 구문 확인 창이 자동 취소되어 스크립트가 중단됐다. p1은 파일 1개를 4조각으로 나눠 적용해 `supabase_migrations.schema_migrations` 이름이 로컬 파일명과 어긋났다.
     재발 방지: 원격 DDL은 Supabase CLI(파일 단위 적용)로만 수행하고, 기록은 `supabase migration repair`로 로컬 파일명과 일치시킨다. MCP로 DROP·대량 DDL 적용하지 않는다.
     자동 검사: (수동) `supabase migration list` 로컬·원격 이름 일치 확인 후 통합 테스트.
+
+142. 문제: 회계 마이그레이션 5개·API·하네스 코드가 장기 미커밋 상태였고 push가 막혔다.
+    원인: `chore/harness-v1` 로컬 브랜치명과 `chore/harness-v1-clean` 원격 기준 불일치; `tests/accounting/.p*-session.json`·`.p*-dev.log`가 미추적 상태로 토큰 패턴을 포함했다.
+    재발 방지: push 전 `git status --porcelain`으로 미커밋·미추적 전수 확인; 세션·로그·임시 SQL은 `.gitignore`에 두고 커밋하지 않는다; 검토용 push는 `feat/accounting-viet-tax` 등 명시 브랜치로만 한다.
+    자동 검사: (수동) push 직전 status clean(D 제외) · `git grep`으로 추적 후보에 eyJ/sb- 없음 확인.
