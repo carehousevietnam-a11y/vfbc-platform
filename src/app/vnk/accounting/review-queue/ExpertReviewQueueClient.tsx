@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { accountingAuthFetch } from "@/lib/accounting/authFetch";
-import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { useAccountingCatalogLocale } from "@/lib/accounting/AccountingCatalogLocale";
+import { AccountingLocaleSwitcher } from "@/lib/accounting/AccountingLocaleSwitcher";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import type { ExpertQueueItem } from "@/lib/accounting/expertReviewQueue";
 
@@ -67,7 +68,7 @@ function warnClass(count: number): string {
 
 export default function ExpertReviewQueueClient() {
   const [mounted, setMounted] = useState(false);
-  const { locale: appLocale } = useLocale();
+  const { locale: appLocale } = useAccountingCatalogLocale();
   const loc = uiLocale(appLocale);
   const t = (key: AccountingMessageKey) => accountingMessage(loc, key);
   const [phase, setPhase] = useState<"loading" | "signed_out" | "denied" | "ready">("loading");
@@ -139,7 +140,10 @@ export default function ExpertReviewQueueClient() {
   const shell = (
     <header className="border-b border-[#E3E8F0] bg-white">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
-        <p className="text-[15px] font-extrabold tracking-[-0.02em]">{t("accounting.shell.brand")}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <p className="text-[15px] font-extrabold tracking-[-0.02em]">{t("accounting.shell.brand")}</p>
+          <AccountingLocaleSwitcher />
+        </div>
         <h1 className="mt-2 text-lg font-extrabold text-[#071A33]">{t("accounting.expert.queue.title")}</h1>
         <p className="mt-1 text-sm text-[#3D4B63]">{t("accounting.expert.queue.lead")}</p>
       </div>

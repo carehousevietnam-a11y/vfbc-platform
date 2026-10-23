@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { useAccountingCatalogLocale } from "@/lib/accounting/AccountingCatalogLocale";
+import { AccountingViTextDisplay } from "@/lib/accounting/AccountingViTextDisplay";
 import {
   accountingMessage,
   type AccountingLocale,
@@ -88,7 +89,7 @@ function displayValue(
 
 export default function VatDeclarationClient() {
   const searchParams = useSearchParams();
-  const { locale } = useLocale();
+  const { locale } = useAccountingCatalogLocale();
   const lang = uiLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
 
@@ -136,6 +137,8 @@ export default function VatDeclarationClient() {
       status: string;
       body: { ko?: string; vi?: string };
       translationPending?: { ko: boolean; vi: boolean };
+      viStatus?: string;
+      viVersion?: number;
     }[]
   >([]);
 
@@ -894,12 +897,22 @@ export default function VatDeclarationClient() {
                         {reviewComments.map((c) => (
                           <li key={c.id} className="rounded-lg bg-white p-3">
                             <p className="text-xs text-[#6B7A90]">{c.kind} · {c.status}</p>
-                            <p className="text-[#071A33]">{c.body[lang] ?? c.body.ko ?? c.body.vi ?? "—"}</p>
-                            {c.translationPending?.[lang] ? (
-                              <span className="mt-1 inline-block rounded bg-[#FEF3C7] px-2 py-0.5 text-[11px] font-semibold text-[#92400E]">
-                                {t("accounting.ledger.badge.translation_pending")}
-                              </span>
-                            ) : null}
+                            <AccountingViTextDisplay
+                              locale={lang}
+                              displayLang={lang}
+                              body={c.body}
+                              viSlot={
+                                c.body.vi
+                                  ? { text: c.body.vi, status: c.viStatus ?? "machine", version: c.viVersion }
+                                  : null
+                              }
+                              translationPending={c.translationPending?.[lang]}
+                              entityType="review_comment"
+                              entityId={c.id}
+                              field="body"
+                              showConfirm={role === "company_member" && lang === "vi"}
+                              onConfirmed={() => void loadReviewComments()}
+                            />
                             {role === "company_owner" && c.status === "open" ? (
                               <button
                                 type="button"

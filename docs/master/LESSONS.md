@@ -714,3 +714,8 @@
     원인: `LocaleProvider`와 `AccountingShell`/`ExpertReview*`가 SSR·CSR에서 `t()` 문자열 불일치; 회계 API는 Bearer만 인정·QA가 `period`·무헤더 fetch 사용; `wizardReadOnly`가 `goToStep` 전체를 막아 expert_review에서 6단계 UI 불가.
     재발 방지: locale 의존 UI는 mount 후 렌더; VAT URL은 `periodKey`( `period` 별칭); dev-login은 signOut→setSession→getSession 확인; expert_review는 단계 탭은 읽기 전용으로만 전환; 서식 `pending_verification`이면 ready 승인 버튼 숨김.
     자동 검사: npx tsc --noEmit · p6a · `/dev/accounting-login` owner VAT 6단계
+
+139. 문제: P6-3a p6-1이 `node`로 돌면 `confirmViI18nTextEntry`→`correctionEntry` 상대 import 미해결; 회계 UI locale이 사이트 쿠키에만 의존.
+    원인: TS 엔트리를 `node`로 직접 import; §11은 `accounting_profiles.locale`·헤더 전환 요구.
+    재발 방지: p6-1은 `npx tsx`로 실행; `AccountingCatalogLocaleProvider`+`/api/accounting/profile-locale`; review_comment vi 확정은 `accounting_confirm_vi_i18n_text` RPC; mount 게이트는 SSR locale 불일치 회피용(프로필 locale과 별개); P6-2 RLS로 `company_member`는 review_comments insert 불가 → p6b는 owner/expert 정정 요청·`member_correction_insert_denied`로 검증.
+    자동 검사: npx tsx tests/accounting/p6-1-vi-confirm-action.mjs · p6a · p6b-corrections.mjs

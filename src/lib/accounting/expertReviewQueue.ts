@@ -75,6 +75,8 @@ function collectDeclarationTxnIds(computed: unknown): string[] {
 type ReviewCommentBodyView = {
   ko?: string;
   vi?: string;
+  viStatus?: string;
+  viVersion?: number;
   translationPending: { ko: boolean; vi: boolean };
 };
 
@@ -87,13 +89,18 @@ async function loadReviewCommentBodies(
   if (commentIds.length === 0) return out;
   const { data: texts } = await client
     .from("accounting_i18n_texts")
-    .select("entity_id, lang, text, version")
+    .select("entity_id, lang, text, status, version")
     .eq("org_id", orgId)
     .eq("entity_type", "review_comment")
     .eq("field", "body")
     .in("entity_id", commentIds);
-  const latest: Record<string, { ko?: { text: string; version: number }; vi?: { text: string; version: number } }> =
-    {};
+  const latest: Record<
+    string,
+    {
+      ko?: { text: string; version: number; status: string };
+      vi?: { text: string; version: number; status: string };
+    }
+  > = {};
   for (const row of texts ?? []) {
     const id = row.entity_id as string;
     const lang = row.lang as "ko" | "vi";
@@ -101,7 +108,7 @@ async function loadReviewCommentBodies(
     const bucket = latest[id] ?? {};
     const prev = bucket[lang];
     if (!prev || version > prev.version) {
-      bucket[lang] = { text: row.text as string, version };
+      bucket[lang] = { text: row.text as string, version, status: row.status as string };
       latest[id] = bucket;
     }
   }
@@ -112,6 +119,8 @@ async function loadReviewCommentBodies(
     out[id] = {
       ko,
       vi,
+      viStatus: row.vi?.status,
+      viVersion: row.vi?.version,
       translationPending: { ko: !ko && !!vi, vi: !vi && !!ko },
     };
   }
@@ -156,6 +165,8 @@ export async function listCompanyDeclarationReviewComments(
       return {
         ...c,
         body: { ko: body.ko, vi: body.vi },
+        viStatus: body.viStatus,
+        viVersion: body.viVersion,
         translationPending: body.translationPending,
       };
     }),
@@ -399,6 +410,8 @@ export async function getExpertDeclarationDetail(
       return {
         ...c,
         body: { ko: body.ko, vi: body.vi },
+        viStatus: body.viStatus,
+        viVersion: body.viVersion,
         translationPending: body.translationPending,
       };
     }),
@@ -472,6 +485,8 @@ export async function createExpertReviewComment(
       kind: payload.kind,
       status: "open" as const,
       body: { ko: bodyView.ko, vi: bodyView.vi },
+      viStatus: bodyView.viStatus,
+      viVersion: bodyView.viVersion,
       translationPending: bodyView.translationPending,
     },
   };

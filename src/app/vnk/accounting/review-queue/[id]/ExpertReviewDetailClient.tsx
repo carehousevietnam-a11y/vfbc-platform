@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { useAccountingCatalogLocale } from "@/lib/accounting/AccountingCatalogLocale";
+import { AccountingLocaleSwitcher } from "@/lib/accounting/AccountingLocaleSwitcher";
+import { AccountingViTextDisplay } from "@/lib/accounting/AccountingViTextDisplay";
 import { GTGT_ADJUSTMENT_REASON_CODES } from "@/lib/accounting/gtgtReasonCodes";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import type { VatFieldMapEntry } from "@/lib/accounting/vatDeclarationEntry";
@@ -44,6 +46,8 @@ type DetailPayload = {
     status: string;
     body: { ko?: string; vi?: string };
     translationPending?: { ko: boolean; vi: boolean };
+    viStatus?: string;
+    viVersion?: number;
   }[];
   linkedTransactions?: {
     id: string;
@@ -60,7 +64,7 @@ export default function ExpertReviewDetailClient() {
   const [mounted, setMounted] = useState(false);
   const params = useParams();
   const declarationId = params.id as string;
-  const { locale: appLocale } = useLocale();
+  const { locale: appLocale } = useAccountingCatalogLocale();
   const loc = uiLocale(appLocale);
   const t = (key: AccountingMessageKey) => accountingMessage(loc, key);
 
@@ -253,9 +257,12 @@ export default function ExpertReviewDetailClient() {
     <div className="min-h-screen bg-[#F7F9FC]">
       <header className="border-b border-[#E3E8F0] bg-white">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
-          <Link href="/vnk/accounting/review-queue" className="text-sm font-semibold text-[#2563EB]">
-            {t("accounting.expert.detail.back")}
-          </Link>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <Link href="/vnk/accounting/review-queue" className="text-sm font-semibold text-[#2563EB]">
+              {t("accounting.expert.detail.back")}
+            </Link>
+            <AccountingLocaleSwitcher />
+          </div>
           <h1 className="mt-2 text-lg font-extrabold text-[#071A33]">{orgName}</h1>
           <p className="text-sm text-[#3D4B63]">
             {t("accounting.expert.queue.period")}: {detail.declaration.period_key}
@@ -363,12 +370,22 @@ export default function ExpertReviewDetailClient() {
               {detail.comments.map((c) => (
                 <li key={c.id} className="rounded-lg bg-[#F7F9FC] p-2">
                   <p className="text-xs text-[#6B7A90]">{c.kind} · {c.status}</p>
-                  <p className="text-[#071A33]">{c.body[loc] ?? c.body.ko ?? c.body.vi ?? "—"}</p>
-                  {c.translationPending?.[loc] ? (
-                    <span className="mt-1 inline-block rounded bg-[#FEF3C7] px-2 py-0.5 text-[11px] font-semibold text-[#92400E]">
-                      {t("accounting.ledger.badge.translation_pending")}
-                    </span>
-                  ) : null}
+                  <AccountingViTextDisplay
+                    locale={loc}
+                    displayLang={loc}
+                    body={c.body}
+                    viSlot={
+                      c.body.vi
+                        ? { text: c.body.vi, status: c.viStatus ?? "machine", version: c.viVersion }
+                        : null
+                    }
+                    translationPending={c.translationPending?.[loc]}
+                    entityType="review_comment"
+                    entityId={c.id}
+                    field="body"
+                    showConfirm={loc === "vi"}
+                    onConfirmed={() => void reload()}
+                  />
                 </li>
               ))}
             </ul>

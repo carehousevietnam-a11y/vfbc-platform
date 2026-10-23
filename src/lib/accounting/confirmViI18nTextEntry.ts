@@ -1,9 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { confirmViText } from "./correctionEntry";
+import { confirmViI18nEntity } from "./correctionEntry";
 import { resolveAccountingActor } from "./accountingActor";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const FIELDS = new Set(["memo", "description"]);
+const TXN_FIELDS = new Set(["memo", "description"]);
+const ENTITY_TYPES = new Set(["transaction", "review_comment"]);
 
 export type ConfirmViI18nInput = {
   entityType: string;
@@ -35,7 +36,11 @@ export async function confirmAccountingViI18nText(
   input: ConfirmViI18nInput
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (!UUID.test(input.entityId)) return { ok: false, error: "VALIDATION" };
-  if (input.entityType !== "transaction" || !FIELDS.has(input.field)) {
+  if (!ENTITY_TYPES.has(input.entityType)) return { ok: false, error: "VALIDATION" };
+  if (input.entityType === "transaction" && !TXN_FIELDS.has(input.field)) {
+    return { ok: false, error: "VALIDATION" };
+  }
+  if (input.entityType === "review_comment" && input.field !== "body") {
     return { ok: false, error: "VALIDATION" };
   }
 
@@ -45,13 +50,23 @@ export async function confirmAccountingViI18nText(
   const gate = await assertMayConfirmVi(client, actor.orgId, actor.role, actor.userId);
   if (!gate.ok) return gate;
 
-  const { data: txn } = await client
-    .from("accounting_transactions")
-    .select("id, org_id")
-    .eq("id", input.entityId)
-    .eq("org_id", actor.orgId)
-    .maybeSingle();
-  if (!txn) return { ok: false, error: "NOT_FOUND" };
+  if (input.entityType === "transaction") {
+    const { data: txn } = await client
+      .from("accounting_transactions")
+      .select("id")
+      .eq("id", input.entityId)
+      .eq("org_id", actor.orgId)
+      .maybeSingle();
+    if (!txn) return { ok: false, error: "NOT_FOUND" };
+  } else {
+    const { data: comment } = await client
+      .from("accounting_review_comments")
+      .select("id")
+      .eq("id", input.entityId)
+      .eq("org_id", actor.orgId)
+      .maybeSingle();
+    if (!comment) return { ok: false, error: "NOT_FOUND" };
+  }
 
   const { data: viRow } = await client
     .from("accounting_i18n_texts")
@@ -66,5 +81,5 @@ export async function confirmAccountingViI18nText(
     .maybeSingle();
   if (!viRow) return { ok: false, error: "NOT_FOUND" };
 
-  return confirmViText(client, input.entityId, input.field);
+  return confirmViI18nEntity(client, input.entityType, input.entityId, input.field);
 }

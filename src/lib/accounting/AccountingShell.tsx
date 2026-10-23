@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { supabase } from "@/lib/supabase";
+import { useAccountingCatalogLocale } from "./AccountingCatalogLocale";
+import { AccountingLocaleSwitcher } from "./AccountingLocaleSwitcher";
 import { accountingMessage, type AccountingMessageKey } from "./uiCatalog";
-import { uiAccountingLocale } from "./localeFormat";
 import {
   ACCOUNTING_ROUTES,
   ACCOUNTING_SHELL_DESKTOP_NAV,
@@ -37,8 +37,7 @@ type Props = { children: React.ReactNode };
 
 export function AccountingShell({ children }: Props) {
   const pathname = usePathname() ?? "";
-  const { locale } = useLocale();
-  const lang = uiAccountingLocale(locale);
+  const { locale: lang } = useAccountingCatalogLocale();
   const t = (key: AccountingMessageKey) => accountingMessage(lang, key);
   const active = navKeyFromPath(pathname);
   const [membershipRole, setMembershipRole] = useState<string | null>(null);
@@ -104,7 +103,10 @@ export function AccountingShell({ children }: Props) {
     <div className="min-h-screen overflow-x-hidden bg-[#F7F9FC] text-[#071A33] pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
       <header className="border-b border-[#E3E8F0] bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:px-6">
-          <AccountingBrandLockup locale={lang} variant="header" />
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <AccountingBrandLockup locale={lang} variant="header" />
+            <AccountingLocaleSwitcher />
+          </div>
           <nav className="hidden flex-wrap gap-2 md:flex" aria-label={t("accounting.nav.aria")}>
             {desktopNavKeys.map((key) => (
               <Link

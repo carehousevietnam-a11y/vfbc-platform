@@ -1,5 +1,6 @@
 /**
  * P6-1: confirmAccountingViI18nText (server action core) — local Supabase.
+ * Run: npx tsx tests/accounting/p6-1-vi-confirm-action.mjs
  */
 import { execSync } from "child_process";
 import path from "path";
