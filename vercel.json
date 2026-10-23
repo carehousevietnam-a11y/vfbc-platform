@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/purge-pre-signup-documents",
+      "schedule": "0 16 * * *"
+    }
+  ]
+}
