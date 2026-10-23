@@ -689,3 +689,18 @@
     원인: P6a `accounting_guard_txn_period_lock`이 filed_manual 기간의 draft INSERT까지 막았다(설계는 확정·ledger 차단).
     재발 방지: 기간 잠금 트리거는 draft/submitted 생성·편집은 허용하고 confirmed 전환·ledger INSERT만 막는다. ledger는 별도 `accounting_guard_ledger_period_lock`으로 강제한다.
     자동 검사: npx tsx tests/accounting/p3-posting.mjs · npx tsx tests/accounting/p6-1-vi-confirm-action.mjs
+
+134. 문제: P6a `filed_period_txn_insert_blocked`가 P6-1/SUMMARY #132와 충돌했다(draft INSERT까지 차단 기대).
+    원인: 하네스가 filed_manual 기간에 txn INSERT 실패를 단일 케이스로 단언했고, P6a 초기 트리거가 draft까지 막는 시기와 겹쳤다.
+    재발 방지: filed_manual 기간 검증은 draft 허용·confirm·ledger INSERT 차단을 분리 단언한다. DB 트리거는 LESSONS #133 기준을 따른다.
+    자동 검사: npx tsx tests/accounting/p6a-expert-queue.mjs
+
+135. 문제: P6-2 브라우저 QA가 `/vnk/accounting/review-queue`에서 비로그인으로 막혔다.
+    원인: 일반 `/login` OTP 경로가 로컬에서 불안정하고, dev-local-login 시드·비밀번호 없이 expert 세션을 열지 않았다.
+    재발 방지: 로컬 회계 UI QA는 `dev-local-login-seed.mjs` 후 `/dev/accounting-login`으로 vnk_expert·company_owner 세션을 먼저 확보한다.
+    자동 검사: node tests/accounting/dev-local-login.mjs
+
+136. 문제: P6-2 커밋 메시지에 Ace 승인 없이 `ACE-APPROVED`가 들어갔다.
+    원인: Agent가 protected-docs 패턴을 커밋 메시지에 과도 적용했다(pre-commit은 해당 문구를 요구하지 않음).
+    재발 방지: `ACE-APPROVED`는 Ace 명시 승인·사유가 있을 때만 사용한다. LESSONS/SUMMARY만 변경 시에도 동일한다.
+    자동 검사: (수동) 커밋 메시지 리뷰

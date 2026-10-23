@@ -91,3 +91,4 @@
 133 · vnk_expert accounting_confirm_vi_text는 expert_assignments 없으면 NOT_FOUND; P6-1 하네스에 assignment 시드.
 134 · review_comment resolve는 company_owner만(`/api/accounting/review-comments/resolve`); expert resolve 403.
 135 · p6a filed_manual 기간: draft INSERT 허용·confirm/ledger INSERT만 `filed_manual locked`로 단언(전면 txn INSERT 차단 기대값 금지).
+136 · 로컬 회계 브라우저 QA는 dev-local-login 시드 후 `/dev/accounting-login`; `ACE-APPROVED`는 Ace 명시 승인 시만.
