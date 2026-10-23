@@ -724,3 +724,8 @@
     원인: TransactionExtrasPanel이 confirm_vi API POST만 사용; getTransactionExtras가 member에게 canRequest true.
     재발 방지: 거래 번역은 AccountingViTextDisplay+confirmAccountingViI18nTextAction; canRequest는 owner·배정 expert만; G5는 ledger_correction_method_verified_status≠verified 시 corr 섹션에 미검증 안내.
     자동 검사: p6b-corrections.mjs · 거래 상세 `/api/accounting/corrections`
+
+141. 문제: 개발용 원격 Supabase(vfbcai)에 회계 마이그레이션을 MCP로 적용할 때 p2b 이후가 막혔다.
+    원인: MCP SQL 실행 경로에서 DROP 구문 확인 창이 자동 취소되어 스크립트가 중단됐다. p1은 파일 1개를 4조각으로 나눠 적용해 `supabase_migrations.schema_migrations` 이름이 로컬 파일명과 어긋났다.
+    재발 방지: 원격 DDL은 Supabase CLI(파일 단위 적용)로만 수행하고, 기록은 `supabase migration repair`로 로컬 파일명과 일치시킨다. MCP로 DROP·대량 DDL 적용하지 않는다.
+    자동 검사: (수동) `supabase migration list` 로컬·원격 이름 일치 확인 후 통합 테스트.
