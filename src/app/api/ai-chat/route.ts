@@ -470,7 +470,7 @@ export async function POST(req: NextRequest) {
           }
 
           const replyBody = enrichReplyWithCostData(
-            buildAnonymousFastGuide(inferred),
+            buildAnonymousFastGuide(inferred, { question: lastMessage!.content }),
             lastMessage!.content
           );
           const suppressNavActions = shouldSuppressNavigatorActions(replyBody);
