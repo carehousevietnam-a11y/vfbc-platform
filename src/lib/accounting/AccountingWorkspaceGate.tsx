@@ -11,6 +11,7 @@ import {
   isAccountingWorkspaceDataPath,
   resolveAccountingWorkspaceDestination,
 } from "./accountingWorkspace";
+import { ensureAccountingClientSession } from "./devClientSessionBootstrap";
 import {
   ACCOUNTING_WORKSPACE_INTAKE_PATH,
   isAccountingWorkspaceIntakePath,
@@ -36,6 +37,7 @@ export function AccountingWorkspaceGate({ children }: Props) {
         return;
       }
 
+      await ensureAccountingClientSession();
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
       const userId = sessionData.session?.user?.id;

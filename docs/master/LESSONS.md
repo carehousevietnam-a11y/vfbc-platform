@@ -749,3 +749,8 @@
     원인: controlled input·`disabled={!password}` 클라이언트 전용 UI + Next 16 dev 에서 `127.0.0.1` HMR/WebSocket 차단 시 hydration 미완료.
     재발 방지: dev 로그인은 Server Action HTML form(비제어 input·submit)으로 JS 없이 동작; `next.config` `allowedDevOrigins`에 `127.0.0.1`·`localhost` 추가( dev 전용 ).
     자동 검사: SSR submit 버튼에 disabled 없음 · 브라우저에서 빈 비밀번호 submit 시 HTML5 required 포커스 · owner API POST 200.
+
+146. 문제: Server Action dev 로그인 후 `/company/accounting/welcome`은 보이지만 `GET/POST /api/accounting/workspace-intake`가 401·법인명·세금코드 상자가 비었다.
+    원인: Server Action은 `createAdminRouteClient` 쿠키 세션만 설정하고, 회계 클라이언트 API는 `accountingClientFromRequest`로 Authorization Bearer만 인정한다(LESSON 501). 브라우저 `supabase.auth` localStorage 세션이 없으면 `accountingAuthFetch`가 Bearer를 붙이지 못한다.
+    재발 방지: dev 전용 `GET /api/dev/accounting-login/session`(쿠키→토큰, prod 404) + `ensureAccountingClientSession()`을 `accountingAuthFetch`·`AccountingWorkspaceGate`에서 선행; workspace-intake 등 API에 쿠키 우회 추가 금지.
+    자동 검사: dev 로그인 후 welcome에서 workspace-intake 200·org 필드 채움 · 저장 후 home·재진입 시 welcome 스킵 · member 동일 · 조직 B 토큰으로 조직 A intake 불가(RLS).
