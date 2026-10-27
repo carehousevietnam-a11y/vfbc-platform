@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import AccountingHomeClient from "./AccountingHomeClient";
 
 export default function AccountingHomePage() {
-  return <AccountingHomeClient />;
+  return (
+    <Suspense fallback={null}>
+      <AccountingHomeClient />
+    </Suspense>
+  );
 }

@@ -734,3 +734,8 @@
     원인: `chore/harness-v1` 로컬 브랜치명과 `chore/harness-v1-clean` 원격 기준 불일치; `tests/accounting/.p*-session.json`·`.p*-dev.log`가 미추적 상태로 토큰 패턴을 포함했다.
     재발 방지: push 전 `git status --porcelain`으로 미커밋·미추적 전수 확인; 세션·로그·임시 SQL은 `.gitignore`에 두고 커밋하지 않는다; 검토용 push는 `feat/accounting-viet-tax` 등 명시 브랜치로만 한다.
     자동 검사: (수동) push 직전 status clean(D 제외) · `git grep`으로 추적 후보에 eyJ/sb- 없음 확인.
+
+143. 문제: `accounting_org_workspace_intake` INSERT 시 audit 트리거가 `new.id`를 읽어 42703으로 실패했다.
+    원인: `accounting_audit_log_append` INSERT 분기가 모든 테이블에 `v_entity_id := new.id`를 먼저 실행했고, intake 행은 `org_id` PK만 있다.
+    재발 방지: audit append는 테이블별로 entity_id·org_id를 분기한 뒤 insert; RLS insert 정책에 `created_by = auth.uid()`; period_key는 granularity별 regex를 DB check·`validateWorkspaceIntakePayload`·클라이언트 제출 전 검증으로 동일화한다.
+    자동 검사: node tests/accounting/workspace-intake.mjs (로컬 `supabase db query` 스키마 동기화 포함; Windows는 psql 없음).

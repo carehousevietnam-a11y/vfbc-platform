@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -52,6 +53,8 @@ function dDayLabel(t: (k: AccountingMessageKey) => string, dueDateIso: string): 
 }
 
 export default function AccountingHomeClient() {
+  const searchParams = useSearchParams();
+  const noticeParam = searchParams.get("notice");
   const { locale } = useLocale();
   const lang = uiAccountingLocale(locale);
   const t = useCallback((key: AccountingMessageKey) => accountingMessage(lang, key), [lang]);
@@ -121,6 +124,14 @@ export default function AccountingHomeClient() {
 
       {phase === "ready" && snap ? (
         <div className="flex flex-col gap-6">
+          {noticeParam === "accounting.welcome.notice.corp_tax_pending" ? (
+            <p
+              className="rounded-[14px] border border-[#E3E8F0] bg-white px-4 py-3 text-sm leading-6 text-[#3D4B63]"
+              data-testid="accounting-home-welcome-notice"
+            >
+              {t("accounting.welcome.notice.corp_tax_pending")}
+            </p>
+          ) : null}
           <AccountingHomeHub lang={lang} />
           <p className="mx-auto max-w-2xl text-center text-[13px] leading-6 text-[#6B7A90]">{t("accounting.home.lead")}</p>
           {snap.showDeclarations ? (

@@ -11,6 +11,11 @@ import {
   isAccountingWorkspaceDataPath,
   resolveAccountingWorkspaceDestination,
 } from "./accountingWorkspace";
+import {
+  ACCOUNTING_WORKSPACE_INTAKE_PATH,
+  isAccountingWorkspaceIntakePath,
+  resolveCompanyWorkspaceIntakeState,
+} from "./workspaceIntake";
 
 type Props = { children: React.ReactNode };
 
@@ -61,6 +66,19 @@ export function AccountingWorkspaceGate({ children }: Props) {
         return;
       }
 
+      if (dest.kind === "workspace") {
+        const intake = await resolveCompanyWorkspaceIntakeState(supabase, userId);
+        if (cancelled) return;
+        if (intake.kind === "needs_intake" && isAccountingWorkspaceDataPath(pathname) && !isAccountingWorkspaceIntakePath(pathname)) {
+          router.replace(ACCOUNTING_WORKSPACE_INTAKE_PATH);
+          return;
+        }
+        if (intake.kind === "complete" && isAccountingWorkspaceIntakePath(pathname)) {
+          router.replace(ACCOUNTING_ROUTES.home);
+          return;
+        }
+      }
+
       setReady(true);
     })();
     return () => {
@@ -68,7 +86,12 @@ export function AccountingWorkspaceGate({ children }: Props) {
     };
   }, [pathname, router]);
 
-  if (!ready && (isAccountingWorkspaceDataPath(pathname) || isAccountingPendingPath(pathname))) {
+  if (
+    !ready &&
+    (isAccountingWorkspaceDataPath(pathname) ||
+      isAccountingPendingPath(pathname) ||
+      isAccountingWorkspaceIntakePath(pathname))
+  ) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-16 text-center text-sm text-[#6B7A90]" data-testid="accounting-workspace-gate-loading">
         …
