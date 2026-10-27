@@ -34,6 +34,8 @@ const FIRST_SCREEN_REWRITES = [
 ];
 
 const nextConfig: NextConfig = {
+  /** Dev-only: allow HMR / _next dev assets when the page is opened at 127.0.0.1 (embedded browsers). */
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   async rewrites() {
     return { beforeFiles: FIRST_SCREEN_REWRITES, afterFiles: [], fallback: [] };
   },

@@ -744,3 +744,8 @@
     원인: 클라이언트 페이지가 `mounted` 전까지 빈 `<main aria-busy>`만 SSR·초기 페인트하고, HMR/클라이언트 JS 실패 시 폼이 영구 미표시.
     재발 방지: dev 전용 로그인은 마운트 게이트 없이 폼을 즉시 렌더; hydration 회피가 필요하면 서버 컴포넌트 래퍼로 환경 분기.
     자동 검사: curl HTML에 `회계 모듈`·password 입력 존재 · 로컬 `:3021/dev/accounting-login` 브라우저 스냅샷.
+
+145. 문제: `127.0.0.1:3021` /dev/accounting-login 에서 SSR은 보이지만 버튼이 disabled·클릭 무반응(React fiber 없음).
+    원인: controlled input·`disabled={!password}` 클라이언트 전용 UI + Next 16 dev 에서 `127.0.0.1` HMR/WebSocket 차단 시 hydration 미완료.
+    재발 방지: dev 로그인은 Server Action HTML form(비제어 input·submit)으로 JS 없이 동작; `next.config` `allowedDevOrigins`에 `127.0.0.1`·`localhost` 추가( dev 전용 ).
+    자동 검사: SSR submit 버튼에 disabled 없음 · 브라우저에서 빈 비밀번호 submit 시 HTML5 required 포커스 · owner API POST 200.

@@ -1,8 +1,5 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { submitDevAccountingLogin } from "./actions";
 
 const ACCOUNTS = [
   { key: "org_a_owner", label: "조직 A 대표 (company_owner)" },
@@ -11,10 +8,12 @@ const ACCOUNTS = [
   { key: "vnk_expert", label: "조직 A 배정 VFBCAI 세무전문가" },
 ] as const;
 
-export default function DevAccountingLoginPage() {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<string | null>(null);
+type PageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function DevAccountingLoginPage({ searchParams }: PageProps) {
+  const { error } = await searchParams;
 
   if (process.env.NODE_ENV !== "development") {
     return (
@@ -22,48 +21,6 @@ export default function DevAccountingLoginPage() {
         이 화면은 로컬 개발 환경에서만 사용할 수 있습니다.
       </main>
     );
-  }
-
-  async function login(account: string) {
-    setLoading(account);
-    setError(null);
-    const res = await fetch("/api/dev/accounting-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account, password }),
-    });
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      setError(typeof json.error === "string" ? json.error : "로그인에 실패했습니다.");
-      setLoading(null);
-      return;
-    }
-    const accessToken =
-      typeof json.session?.access_token === "string" ? json.session.access_token : "";
-    const refreshToken =
-      typeof json.session?.refresh_token === "string" ? json.session.refresh_token : "";
-    if (!accessToken || !refreshToken) {
-      setError("세션을 받지 못했습니다. API 응답을 확인해주세요.");
-      setLoading(null);
-      return;
-    }
-    await supabase.auth.signOut();
-    const { error: sessionError } = await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-    if (sessionError) {
-      setError(sessionError.message);
-      setLoading(null);
-      return;
-    }
-    const { data: verify } = await supabase.auth.getSession();
-    if (!verify.session?.access_token) {
-      setError("세션을 저장하지 못했습니다. 다시 시도해주세요.");
-      setLoading(null);
-      return;
-    }
-    window.location.href = typeof json.redirect === "string" ? json.redirect : "/company/accounting/transactions";
   }
 
   return (
@@ -79,30 +36,38 @@ export default function DevAccountingLoginPage() {
           /login 메일 링크: 로컬은 OTP SMTP·shouldCreateUser 정책 때문에 실패할 수 있음 → 이 화면 사용.
         </p>
       </div>
-      <label className="block text-sm font-semibold text-[#071A33]">
-        비밀번호
-        <input
-          type="password"
-          autoComplete="off"
-          className="mt-1 w-full rounded-lg border border-[#E3E8F0] px-3 py-2 text-sm"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </label>
-      {error ? <p className="text-sm text-[#B91C1C]">{error}</p> : null}
-      <div className="flex flex-col gap-2">
-        {ACCOUNTS.map((a) => (
-          <button
-            key={a.key}
-            type="button"
-            disabled={!password || loading !== null}
-            onClick={() => login(a.key)}
-            className="min-h-11 rounded-lg bg-[#071A33] px-4 text-left text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {loading === a.key ? "로그인 중…" : a.label}
-          </button>
-        ))}
-      </div>
+
+      <form className="flex flex-col gap-6" action={submitDevAccountingLogin}>
+        <label className="block text-sm font-semibold text-[#071A33]">
+          비밀번호
+          <input
+            type="password"
+            name="password"
+            autoComplete="off"
+            required
+            className="mt-1 w-full rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm"
+          />
+        </label>
+
+        {error === "auth" ? (
+          <p className="text-sm text-[#B91C1C]">로그인 정보를 확인해주세요.</p>
+        ) : null}
+
+        <div className="flex flex-col gap-2">
+          {ACCOUNTS.map((a) => (
+            <button
+              key={a.key}
+              type="submit"
+              name="account"
+              value={a.key}
+              className="min-h-11 rounded-lg bg-[#071A33] px-4 text-left text-sm font-semibold text-white"
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+      </form>
+
       <Link href="/" className="text-center text-sm text-[#3D4B63] underline">
         홈으로
       </Link>
