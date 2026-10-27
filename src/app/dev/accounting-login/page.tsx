@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -12,14 +12,9 @@ const ACCOUNTS = [
 ] as const;
 
 export default function DevAccountingLoginPage() {
-  const [mounted, setMounted] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (process.env.NODE_ENV !== "development") {
     return (
@@ -69,10 +64,6 @@ export default function DevAccountingLoginPage() {
       return;
     }
     window.location.href = typeof json.redirect === "string" ? json.redirect : "/company/accounting/transactions";
-  }
-
-  if (!mounted) {
-    return <main className="mx-auto min-h-[70vh] max-w-md px-4 py-10" aria-busy="true" />;
   }
 
   return (

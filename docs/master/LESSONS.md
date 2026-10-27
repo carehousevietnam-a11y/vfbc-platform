@@ -739,3 +739,8 @@
     원인: `accounting_audit_log_append` INSERT 분기가 모든 테이블에 `v_entity_id := new.id`를 먼저 실행했고, intake 행은 `org_id` PK만 있다.
     재발 방지: audit append는 테이블별로 entity_id·org_id를 분기한 뒤 insert; RLS insert 정책에 `created_by = auth.uid()`; period_key는 granularity별 regex를 DB check·`validateWorkspaceIntakePayload`·클라이언트 제출 전 검증으로 동일화한다.
     자동 검사: node tests/accounting/workspace-intake.mjs (로컬 `supabase db query` 스키마 동기화 포함; Windows는 psql 없음).
+
+144. 문제: `/dev/accounting-login`이 외부 브라우저에서 빈 화면(HTTP 200)으로 보였다.
+    원인: 클라이언트 페이지가 `mounted` 전까지 빈 `<main aria-busy>`만 SSR·초기 페인트하고, HMR/클라이언트 JS 실패 시 폼이 영구 미표시.
+    재발 방지: dev 전용 로그인은 마운트 게이트 없이 폼을 즉시 렌더; hydration 회피가 필요하면 서버 컴포넌트 래퍼로 환경 분기.
+    자동 검사: curl HTML에 `회계 모듈`·password 입력 존재 · 로컬 `:3021/dev/accounting-login` 브라우저 스냅샷.
