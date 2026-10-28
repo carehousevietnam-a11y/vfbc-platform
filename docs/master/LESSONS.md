@@ -754,3 +754,8 @@
     원인: Server Action은 `createAdminRouteClient` 쿠키 세션만 설정하고, 회계 클라이언트 API는 `accountingClientFromRequest`로 Authorization Bearer만 인정한다(LESSON 501). 브라우저 `supabase.auth` localStorage 세션이 없으면 `accountingAuthFetch`가 Bearer를 붙이지 못한다.
     재발 방지: dev 전용 `GET /api/dev/accounting-login/session`(쿠키→토큰, prod 404) + `ensureAccountingClientSession()`을 `accountingAuthFetch`·`AccountingWorkspaceGate`에서 선행; workspace-intake 등 API에 쿠키 우회 추가 금지.
     자동 검사: dev 로그인 후 welcome에서 workspace-intake 200·org 필드 채움 · 저장 후 home·재진입 시 welcome 스킵 · member 동일 · 조직 B 토큰으로 조직 A intake 불가(RLS).
+
+147. 문제: 0247c73 브리지 후에도 내장 브라우저에서 localStorage 세션 없음·intake 401; intake POST 200 후 welcome에 머무름.
+    원인: (A) `@supabase/supabase-js` 단독 클라이언트는 SSR 쿠키(`sb-*-auth-token`)를 localStorage에 반영하지 않음·session API의 `getSession()`만으로는 Route Handler에서 refresh 토큰을 못 읽는 경우 있음. (B) `AccountingWorkspaceGate`가 welcome+intake 완료 시 `router.replace(home)`을 intake POST 직후 목적지 `replace`와 경합.
+    재발 방지: (A) 브라우저 `createBrowserClient` + dev `refreshSession`/document cookie→`setSession` + layout `AccountingDevSessionBootstrap`. (B) welcome 저장 성공은 `window.location.replace(redirectPath)`; gate는 welcome→home 강제 리다이렉트 제거(재진입은 welcome GET `completed`가 처리).
+    자동 검사: dev Server Action 로그인만으로 intake GET 200·localStorage 세션 존재 · VAT 저장 후 vat URL · org B 1회 intake E2E · member org A welcome 스킵.

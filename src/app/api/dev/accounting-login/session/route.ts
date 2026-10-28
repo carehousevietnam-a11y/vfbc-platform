@@ -9,13 +9,23 @@ export async function GET() {
   }
 
   const supabase = await createAdminRouteClient();
-  const { data, error } = await supabase.auth.getSession();
-  if (error || !data.session?.access_token || !data.session.refresh_token) {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !userData.user) {
+    return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });
+  }
+
+  let session = (await supabase.auth.getSession()).data.session;
+  if (!session?.access_token || !session.refresh_token) {
+    const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession();
+    if (!refreshErr && refreshed.session) session = refreshed.session;
+  }
+
+  if (!session?.access_token || !session.refresh_token) {
     return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });
   }
 
   return NextResponse.json({
-    access_token: data.session.access_token,
-    refresh_token: data.session.refresh_token,
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
   });
 }

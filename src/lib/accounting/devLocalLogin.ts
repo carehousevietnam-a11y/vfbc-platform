@@ -3,7 +3,7 @@ import path from "path";
 
 export type DevAccountingLoginAccount =
   | "org_a_owner"
-  | "org_b_member"
+  | "org_a_member"
   | "org_b_owner"
   | "vnk_expert";
 

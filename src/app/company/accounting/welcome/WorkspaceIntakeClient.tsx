@@ -195,7 +195,7 @@ export default function WorkspaceIntakeClient() {
     const base = json.redirectPath ?? ACCOUNTING_ROUTES.home;
     const href =
       json.noticeKey ? `${base}${base.includes("?") ? "&" : "?"}notice=${encodeURIComponent(json.noticeKey)}` : base;
-    router.replace(href);
+    window.location.replace(href);
   }
 
   if (loading) {

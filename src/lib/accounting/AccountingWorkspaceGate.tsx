@@ -75,10 +75,6 @@ export function AccountingWorkspaceGate({ children }: Props) {
           router.replace(ACCOUNTING_WORKSPACE_INTAKE_PATH);
           return;
         }
-        if (intake.kind === "complete" && isAccountingWorkspaceIntakePath(pathname)) {
-          router.replace(ACCOUNTING_ROUTES.home);
-          return;
-        }
       }
 
       setReady(true);
