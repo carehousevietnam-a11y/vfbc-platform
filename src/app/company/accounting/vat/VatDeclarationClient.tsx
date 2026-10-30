@@ -24,6 +24,15 @@ import { vatFieldLabel } from "@/lib/accounting/accountingFieldLabels";
 import { AccountingI18nField } from "@/lib/accounting/AccountingI18nField";
 import type { I18nLang } from "@/lib/accounting/accountingI18nTexts";
 import { accountingAuthFetch } from "@/lib/accounting/authFetch";
+import { ACCOUNTING_ROUTES } from "@/lib/accounting/accountingNav";
+import {
+  isRawUserIdAuthorLabel,
+  vatAuthorRoleMessageKey,
+  VAT_AUTHOR_ROLE_CODES,
+  VAT_DECLARATION_STATUS_CODES,
+  vatDeclarationStatusMessageKey,
+  vatPrecheckNeedsNoTxnWarning,
+} from "@/lib/accounting/vatPrecheckUi";
 import { stepMemoField, type VatWizardState } from "@/lib/accounting/vatWizard";
 import type { AccountingFieldViewMode } from "@/lib/accounting/accountingFormViewMode";
 import { AccountingTaxSubnav } from "@/lib/accounting/AccountingTaxSubnav";
@@ -126,6 +135,8 @@ export default function VatDeclarationClient() {
   const [declUpdatedAt, setDeclUpdatedAt] = useState<string | null>(null);
   const [wizardLocked, setWizardLocked] = useState(false);
   const [displayNames, setDisplayNames] = useState<Record<string, string>>({});
+  const [displayRoles, setDisplayRoles] = useState<Record<string, string>>({});
+  const [precheckNoTxnWarning, setPrecheckNoTxnWarning] = useState(false);
   const [serverStepMemos, setServerStepMemos] = useState<Record<string, { ko?: string; vi?: string }>>({});
   const [memoDrafts, setMemoDrafts] = useState<Record<number, string>>({});
   const [memoLangs, setMemoLangs] = useState<Record<number, I18nLang>>({});
@@ -181,6 +192,7 @@ export default function VatDeclarationClient() {
     wizard?: VatWizardState | null;
     stepMemos?: Record<string, { ko?: string; vi?: string }>;
     displayNames?: Record<string, string>;
+    displayRoles?: Record<string, string>;
     wizardLocked?: boolean;
   }) {
     if (json.declaration) {
@@ -193,6 +205,7 @@ export default function VatDeclarationClient() {
     }
     setWizardLocked(Boolean(json.wizardLocked));
     setDisplayNames(json.displayNames ?? {});
+    setDisplayRoles(json.displayRoles ?? {});
     setServerStepMemos(json.stepMemos ?? {});
     if (json.wizard) {
       setWizardMeta(json.wizard);
@@ -221,10 +234,28 @@ export default function VatDeclarationClient() {
     return `${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   }
 
+  function formatDeclStatus(status: string): string {
+    if (!status) return "—";
+    if ((VAT_DECLARATION_STATUS_CODES as readonly string[]).includes(status)) {
+      return t(vatDeclarationStatusMessageKey(status) as AccountingMessageKey);
+    }
+    return status;
+  }
+
+  function resolveAuthorLabel(savedBy: string): string {
+    const profileName = displayNames[savedBy]?.trim();
+    if (profileName && !isRawUserIdAuthorLabel(profileName)) return profileName;
+    const role = displayRoles[savedBy];
+    if (role && (VAT_AUTHOR_ROLE_CODES as readonly string[]).includes(role)) {
+      return t(vatAuthorRoleMessageKey(role) as AccountingMessageKey);
+    }
+    return t("accounting.vat.author.unknown");
+  }
+
   function renderStepMeta(stepNo: number) {
     const meta = wizardMeta?.steps[String(stepNo)];
     if (!meta) return null;
-    const name = displayNames[meta.savedBy] ?? meta.savedBy.slice(0, 8);
+    const name = resolveAuthorLabel(meta.savedBy);
     const langLabel =
       meta.lang === "vi" ? t("accounting.input_lang.vi") : t("accounting.input_lang.ko");
     const line = t("accounting.vat.wizard.last_saved")
@@ -463,6 +494,7 @@ export default function VatDeclarationClient() {
       items.push({ level: "warn", messageKey: "accounting.vat.check.both_40_41" });
     }
     if (!token || !periodKey || !orgId) {
+      setPrecheckNoTxnWarning(vatPrecheckNeedsNoTxnWarning(0, computed));
       setPrecheck(items);
       return;
     }
@@ -493,6 +525,8 @@ export default function VatDeclarationClient() {
         txnIds: bigIds,
       });
     }
+    const confirmedCount = confirmed?.length ?? 0;
+    setPrecheckNoTxnWarning(vatPrecheckNeedsNoTxnWarning(confirmedCount, computed));
     setPrecheck(items);
   }, [computed, orgId, periodKey, token, warnings]);
 
@@ -829,7 +863,18 @@ export default function VatDeclarationClient() {
               <div className="space-y-3">
                 {renderStepMeta(5)}
               <ul className="space-y-2">
-                {precheck.length === 0 && (
+                {precheckNoTxnWarning && precheck.length === 0 && (
+                  <li className={`rounded-lg border px-3 py-2 text-sm ${LEVEL_CLASS.mid}`}>
+                    <p>{t("accounting.vat.check.no_txns")}</p>
+                    <Link
+                      href={ACCOUNTING_ROUTES.transactions}
+                      className="mt-1 inline-block text-xs font-semibold underline"
+                    >
+                      {t("accounting.vat.link.transactions_hub")}
+                    </Link>
+                  </li>
+                )}
+                {!precheckNoTxnWarning && precheck.length === 0 && (
                   <li className={`rounded-lg border px-3 py-2 text-sm ${LEVEL_CLASS.ok}`}>
                     {t("accounting.vat.check.none")}
                   </li>
@@ -857,7 +902,7 @@ export default function VatDeclarationClient() {
                 {renderStepMeta(6)}
                 <p className="text-sm text-[#3D4B63]">{t("accounting.vat.step6.lead")}</p>
                 <p className="text-sm font-semibold text-[#071A33]">
-                  {t("accounting.vat.status")}: {declStatus || "—"}
+                  {t("accounting.vat.status")}: {formatDeclStatus(declStatus)}
                 </p>
                 {declStatus === "expert_review" && formStatus !== "pending_verification" ? (
                   <button

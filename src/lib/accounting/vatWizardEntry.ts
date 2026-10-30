@@ -12,23 +12,32 @@ import { isPeriodBeforeGtgt01Tt89, type VatCalendarPeriod } from "./gtgt01FormPe
 
 export async function resolveMemberDisplayNames(
   client: SupabaseClient,
+  orgId: string,
   userIds: string[]
-): Promise<Map<string, string>> {
-  const out = new Map<string, string>();
+): Promise<{ names: Map<string, string>; roles: Map<string, string> }> {
+  const names = new Map<string, string>();
+  const roles = new Map<string, string>();
   const unique = [...new Set(userIds.filter(Boolean))];
-  if (unique.length === 0) return out;
+  if (unique.length === 0) return { names, roles };
   const { data: profiles } = await client
     .from("accounting_company_signup_profiles")
     .select("user_id, company_name")
     .in("user_id", unique);
   for (const row of profiles ?? []) {
     const name = (row.company_name as string)?.trim();
-    if (name) out.set(row.user_id as string, name);
+    if (name) names.set(row.user_id as string, name);
   }
-  for (const id of unique) {
-    if (!out.has(id)) out.set(id, id.slice(0, 8));
+  const { data: members } = await client
+    .from("accounting_org_members")
+    .select("user_id, role")
+    .eq("org_id", orgId)
+    .in("user_id", unique);
+  for (const row of members ?? []) {
+    const uid = row.user_id as string;
+    const role = (row.role as string)?.trim();
+    if (role) roles.set(uid, role);
   }
-  return out;
+  return { names, roles };
 }
 
 async function loadDeclarationRow(

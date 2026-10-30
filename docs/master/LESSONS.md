@@ -769,3 +769,8 @@
     원인: harness가 `ensureTsxRuntime` 없이 dynamic import만 사용.
     재발 방지: workspace-intake와 동일하게 파일 최상단 `ensureTsxRuntime(import.meta.url)` 후 ts import.
     자동 검사: node tests/accounting/isolation.mjs · node tests/accounting/transactions.mjs (조직 간 cross_org 케이스 포함).
+
+150. 문제: VAT wizard UI에서 마지막 작성 라벨에 user id 8자 접두가 노출되고, 신고 상태가 enum 영문 그대로 표시되며, 거래 0건인데 step5가 초록 "점검 항목 없음"을 보였다.
+    원인: `resolveMemberDisplayNames` id fallback·step6 `declStatus` raw 출력·`buildPrecheck`가 confirmed txn/ computed 신호 없이도 green empty state.
+    재발 방지: org role 기반 author 라벨·`accounting.decl.status.*` i18n·`vatPrecheckNeedsNoTxnWarning`+amber 안내·`tests/accounting/vat-declaration-ui.mjs`.
+    자동 검사: vat-declaration-ui · tsc · accounting harness subset.

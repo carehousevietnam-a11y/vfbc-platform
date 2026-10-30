@@ -79,14 +79,16 @@ export async function getVatDeclaration(
   let wizard = null;
   let stepMemos: Record<string, { ko?: string; vi?: string }> = {};
   let displayNames: Record<string, string> = {};
+  let displayRoles: Record<string, string> = {};
   const wizardLocked = decl ? declarationWizardLocked(decl.status as string) : false;
 
   if (decl?.id) {
     wizard = parseVatWizard(decl.computed);
     stepMemos = await loadDeclarationStepMemos(client, actor.orgId, decl.id as string);
     const ids = wizard ? Object.values(wizard.steps).map((s) => s.savedBy) : [];
-    const nameMap = await resolveMemberDisplayNames(client, ids);
-    displayNames = Object.fromEntries(nameMap);
+    const resolved = await resolveMemberDisplayNames(client, actor.orgId, ids);
+    displayNames = Object.fromEntries(resolved.names);
+    displayRoles = Object.fromEntries(resolved.roles);
   }
 
   return {
@@ -99,6 +101,7 @@ export async function getVatDeclaration(
     wizard,
     stepMemos,
     displayNames,
+    displayRoles,
     wizardLocked,
     periodGuard: periodBeforeTt89
       ? { blocked: true, messageKey: gtgt01Tt89PeriodGuardMessageKey() }
