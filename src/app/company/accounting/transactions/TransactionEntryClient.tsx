@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
   accountingMessage,

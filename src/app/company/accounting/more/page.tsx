@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { accountingMessage, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import { uiAccountingLocale } from "@/lib/accounting/localeFormat";
 import {

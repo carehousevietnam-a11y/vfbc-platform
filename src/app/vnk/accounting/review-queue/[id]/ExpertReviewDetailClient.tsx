@@ -9,7 +9,7 @@ import { AccountingViTextDisplay } from "@/lib/accounting/AccountingViTextDispla
 import { GTGT_ADJUSTMENT_REASON_CODES } from "@/lib/accounting/gtgtReasonCodes";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import type { VatFieldMapEntry } from "@/lib/accounting/vatDeclarationEntry";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { accountingAuthFetch } from "@/lib/accounting/authFetch";
 
 const EVIDENCE_BUCKET = "accounting_evidence";

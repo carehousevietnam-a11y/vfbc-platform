@@ -759,3 +759,8 @@
     원인: (A) `@supabase/supabase-js` 단독 클라이언트는 SSR 쿠키(`sb-*-auth-token`)를 localStorage에 반영하지 않음·session API의 `getSession()`만으로는 Route Handler에서 refresh 토큰을 못 읽는 경우 있음. (B) `AccountingWorkspaceGate`가 welcome+intake 완료 시 `router.replace(home)`을 intake POST 직후 목적지 `replace`와 경합.
     재발 방지: (A) 브라우저 `createBrowserClient` + dev `refreshSession`/document cookie→`setSession` + layout `AccountingDevSessionBootstrap`. (B) welcome 저장 성공은 `window.location.replace(redirectPath)`; gate는 welcome→home 강제 리다이렉트 제거(재진입은 welcome GET `completed`가 처리).
     자동 검사: dev Server Action 로그인만으로 intake GET 200·localStorage 세션 존재 · VAT 저장 후 vat URL · org B 1회 intake E2E · member org A welcome 스킵.
+
+148. 문제: 529d72f가 `@/lib/supabase` 전역을 `createBrowserClient`로 바꿔 CHECK/VERIFY/REGISTER·/login·마이페이지 등 60+ import 경로에 쿠키·localStorage 동기화 정책이 번질 위험이 있었다.
+    원인: dev 회계 세션 브리지를 공용 singleton에 합친 설계.
+    재발 방지: `@/lib/supabase`는 `createClient` 유지; 회계·vnk/accounting만 `accountingSupabaseClient`(`createBrowserClient`) + dev `ensureAccountingClientSession`. `/login` OTP 세션은 동일 storage key로 회계 `accountingAuthFetch`가 Bearer를 붙인다.
+    자동 검사: grep `@/lib/supabase`가 회계 트리 밖에서 createBrowserClient를 타지 않음 · dev 로그인 intake E2E · member/welcome gate.

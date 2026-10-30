@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";
 import { AccountingFormBasisFooter } from "@/lib/accounting/AccountingFormBasisFooter";

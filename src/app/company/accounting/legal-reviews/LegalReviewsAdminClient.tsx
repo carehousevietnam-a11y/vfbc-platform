@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
   type FormVersionRow,

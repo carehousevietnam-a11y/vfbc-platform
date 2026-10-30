@@ -1,5 +1,5 @@
 import { ensureAccountingClientSession } from "./devClientSessionBootstrap";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "./accountingSupabaseClient";
 
 /** fetch with the Supabase session Bearer token (accounting API routes require it). */
 export async function accountingAuthFetch(input: string, init: RequestInit = {}): Promise<Response> {

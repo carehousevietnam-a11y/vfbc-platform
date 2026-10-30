@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { accountingAuthFetch } from "@/lib/accounting/authFetch";
 import { useAccountingCatalogLocale } from "@/lib/accounting/AccountingCatalogLocale";
 import { AccountingLocaleSwitcher } from "@/lib/accounting/AccountingLocaleSwitcher";

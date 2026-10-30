@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { useAccountingCatalogLocale } from "@/lib/accounting/AccountingCatalogLocale";
 import TransactionExtrasPanel from "./TransactionExtrasPanel";
 import { accountingMessage, type AccountingLocale, type AccountingMessageKey } from "@/lib/accounting/uiCatalog";

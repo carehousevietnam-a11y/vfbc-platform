@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "./accountingSupabaseClient";
 
 let syncPromise: Promise<boolean> | null = null;
 

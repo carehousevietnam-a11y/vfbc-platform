@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 
 export async function uploadAccountingFunnelPhase1Evidence(
   entryId: string,
