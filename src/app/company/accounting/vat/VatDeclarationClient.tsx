@@ -32,6 +32,8 @@ import {
   VAT_DECLARATION_STATUS_CODES,
   vatDeclarationStatusMessageKey,
   vatPrecheckNeedsNoTxnWarning,
+  vatPrecheckShowNoTxnBanner,
+  vatPrecheckStep5ViewState,
 } from "@/lib/accounting/vatPrecheckUi";
 import { stepMemoField, type VatWizardState } from "@/lib/accounting/vatWizard";
 import type { AccountingFieldViewMode } from "@/lib/accounting/accountingFormViewMode";
@@ -136,7 +138,8 @@ export default function VatDeclarationClient() {
   const [wizardLocked, setWizardLocked] = useState(false);
   const [displayNames, setDisplayNames] = useState<Record<string, string>>({});
   const [displayRoles, setDisplayRoles] = useState<Record<string, string>>({});
-  const [precheckNoTxnWarning, setPrecheckNoTxnWarning] = useState(false);
+  const [precheckLoading, setPrecheckLoading] = useState(false);
+  const [periodTxnCount, setPeriodTxnCount] = useState<number | null>(null);
   const [serverStepMemos, setServerStepMemos] = useState<Record<string, { ko?: string; vi?: string }>>({});
   const [memoDrafts, setMemoDrafts] = useState<Record<number, string>>({});
   const [memoLangs, setMemoLangs] = useState<Record<number, I18nLang>>({});
@@ -479,6 +482,8 @@ export default function VatDeclarationClient() {
   }, [authHeaders, loadContext, periodKey, token]);
 
   const buildPrecheck = useCallback(async () => {
+    setPrecheckLoading(true);
+    setPeriodTxnCount(null);
     const items: { level: keyof typeof LEVEL_CLASS; messageKey: AccountingMessageKey; txnIds?: string[] }[] =
       [];
     for (const w of warnings) {
@@ -494,16 +499,38 @@ export default function VatDeclarationClient() {
       items.push({ level: "warn", messageKey: "accounting.vat.check.both_40_41" });
     }
     if (!token || !periodKey || !orgId) {
-      setPrecheckNoTxnWarning(true);
+      setPeriodTxnCount(0);
       setPrecheck(items);
+      setPrecheckLoading(false);
       return;
     }
-    const { count: periodTxnCount } = await supabase
-      .from("accounting_transactions")
-      .select("id", { count: "exact", head: true })
-      .eq("org_id", orgId)
-      .eq("period_key", periodKey)
-      .neq("status", "cancelled");
+    let txnCount = 0;
+    if (/^\d{4}-\d{2}$/.test(periodKey)) {
+      const listRes = await accountingAuthFetch(
+        `/api/accounting/transactions?period=${encodeURIComponent(periodKey)}`,
+      );
+      if (listRes.ok) {
+        const listJson = (await listRes.json()) as { items?: { status?: string }[] };
+        txnCount = (listJson.items ?? []).filter((row) => row.status !== "cancelled").length;
+      } else {
+        const { count } = await supabase
+          .from("accounting_transactions")
+          .select("id", { count: "exact", head: true })
+          .eq("org_id", orgId)
+          .eq("period_key", periodKey)
+          .neq("status", "cancelled");
+        txnCount = count ?? 0;
+      }
+    } else {
+      const { count } = await supabase
+        .from("accounting_transactions")
+        .select("id", { count: "exact", head: true })
+        .eq("org_id", orgId)
+        .eq("period_key", periodKey)
+        .neq("status", "cancelled");
+      txnCount = count ?? 0;
+    }
+    setPeriodTxnCount(txnCount);
     const { data: txns } = await supabase
       .from("accounting_transactions")
       .select("id, status, amount_vnd")
@@ -531,9 +558,18 @@ export default function VatDeclarationClient() {
         txnIds: bigIds,
       });
     }
-    setPrecheckNoTxnWarning(vatPrecheckNeedsNoTxnWarning(periodTxnCount ?? 0));
+    setPeriodTxnCount(txnCount);
     setPrecheck(items);
+    setPrecheckLoading(false);
   }, [computed, orgId, periodKey, token, warnings]);
+
+  useEffect(() => {
+    if (step !== 5 || phase !== "ready" || !token || !periodKey || !orgId) return;
+    void buildPrecheck();
+  }, [step, phase, token, periodKey, orgId, buildPrecheck]);
+
+  const precheckStep5View = vatPrecheckStep5ViewState(precheckLoading, periodTxnCount, precheck.length);
+  const showNoTxnBanner = vatPrecheckShowNoTxnBanner(precheckLoading, periodTxnCount);
 
   const goToStep = (n: number) => {
     if (wizardReadOnly) {
@@ -868,7 +904,12 @@ export default function VatDeclarationClient() {
               <div className="space-y-3">
                 {renderStepMeta(5)}
               <ul className="space-y-2">
-                {precheckNoTxnWarning && precheck.length === 0 && (
+                {precheckStep5View === "loading" && (
+                  <li className="rounded-lg border border-[#E3E8F0] bg-[#F8FAFC] px-3 py-2 text-sm text-[#6B7A94]">
+                    {t("accounting.vat.loading")}
+                  </li>
+                )}
+                {showNoTxnBanner && (
                   <li className={`rounded-lg border px-3 py-2 text-sm ${LEVEL_CLASS.mid}`}>
                     <p>{t("accounting.vat.check.no_txns")}</p>
                     <Link
@@ -879,7 +920,7 @@ export default function VatDeclarationClient() {
                     </Link>
                   </li>
                 )}
-                {!precheckNoTxnWarning && precheck.length === 0 && (
+                {precheckStep5View === "green_none" && (
                   <li className={`rounded-lg border px-3 py-2 text-sm ${LEVEL_CLASS.ok}`}>
                     {t("accounting.vat.check.none")}
                   </li>

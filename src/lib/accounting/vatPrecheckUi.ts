@@ -3,6 +3,25 @@ export function vatPrecheckNeedsNoTxnWarning(periodTxnCount: number): boolean {
   return periodTxnCount <= 0;
 }
 
+export type VatPrecheckStep5View = "loading" | "green_none" | "items" | "no_txn_only";
+
+/** Pure view state for step ⑤ list (loading must not flash green). */
+export function vatPrecheckStep5ViewState(
+  loading: boolean,
+  periodTxnCount: number | null,
+  precheckItemCount: number,
+): VatPrecheckStep5View {
+  if (loading || periodTxnCount === null) return "loading";
+  if (precheckItemCount > 0) return "items";
+  if (vatPrecheckNeedsNoTxnWarning(periodTxnCount)) return "no_txn_only";
+  return "green_none";
+}
+
+export function vatPrecheckShowNoTxnBanner(loading: boolean, periodTxnCount: number | null): boolean {
+  if (loading || periodTxnCount === null) return false;
+  return vatPrecheckNeedsNoTxnWarning(periodTxnCount);
+}
+
 /** Declaration status codes stored on accounting_declarations — keep in sync with uiCatalog decl.status keys. */
 export const VAT_DECLARATION_STATUS_CODES = [
   "not_started",

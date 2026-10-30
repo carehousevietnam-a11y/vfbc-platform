@@ -779,3 +779,8 @@
     원인: `vatPrecheckNeedsNoTxnWarning`이 confirmed 건수와 computed 0 값을 함께 보며 경고를 끔.
     재발 방지: 해당 `period_key`의 거래 건수만(count, cancelled 제외)으로 경고; draft/submitted/confirmed 포함 · 월·분기는 txn `period_key`와 선언 URL 동일 키.
     자동 검사: vat-declaration-ui (a)–(d) · org B 2026-10 step5 amber.
+
+152. 문제: acd4f7d 후에도 org B 2026-10 step5가 초록 "점검 항목 없음"만 보였다(API total=0).
+    원인: wizard step5 복원·직접 진입 시 `buildPrecheck` 미호출 → `precheckNoTxnWarning` 초기 false·precheck []로 green 분기만 렌더.
+    재발 방지: step5 `useEffect`로 항상 `buildPrecheck` · `precheckLoading`+`vatPrecheckStep5ViewState`로 로드 중 green 금지 · 월간 period는 `/api/accounting/transactions?period=` 건수 사용.
+    자동 검사: vat-declaration-ui step5 view · Cursor browser org B 2026-10 step5 amber 텍스트.
