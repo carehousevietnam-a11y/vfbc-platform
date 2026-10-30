@@ -1,16 +1,6 @@
-/** Step ⑤ precheck UI — when to show "no transactions" warning vs green "no check items". */
-export function vatPrecheckNeedsNoTxnWarning(
-  confirmedTxnCount: number,
-  computed: Record<string, { value?: string; txn_ids?: string[] }>,
-): boolean {
-  if (confirmedTxnCount <= 0) return true;
-  const hasComputedSignal = Object.values(computed).some((cell) => {
-    const ids = cell.txn_ids?.length ?? 0;
-    if (ids > 0) return true;
-    const v = cell.value?.trim();
-    return v !== undefined && v !== "" && v !== "0";
-  });
-  return !hasComputedSignal;
+/** Step ⑤ precheck UI — warn when the declaration period has no transactions (cancelled excluded). */
+export function vatPrecheckNeedsNoTxnWarning(periodTxnCount: number): boolean {
+  return periodTxnCount <= 0;
 }
 
 /** Declaration status codes stored on accounting_declarations — keep in sync with uiCatalog decl.status keys. */

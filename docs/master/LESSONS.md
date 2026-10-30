@@ -774,3 +774,8 @@
     원인: `resolveMemberDisplayNames` id fallback·step6 `declStatus` raw 출력·`buildPrecheck`가 confirmed txn/ computed 신호 없이도 green empty state.
     재발 방지: org role 기반 author 라벨·`accounting.decl.status.*` i18n·`vatPrecheckNeedsNoTxnWarning`+amber 안내·`tests/accounting/vat-declaration-ui.mjs`.
     자동 검사: vat-declaration-ui · tsc · accounting harness subset.
+
+151. 문제: 16b0a80 후에도 거래 0건·초안 0 계산값만 있는 기간에서 step5가 초록 "점검 항목 없음"을 표시했다.
+    원인: `vatPrecheckNeedsNoTxnWarning`이 confirmed 건수와 computed 0 값을 함께 보며 경고를 끔.
+    재발 방지: 해당 `period_key`의 거래 건수만(count, cancelled 제외)으로 경고; draft/submitted/confirmed 포함 · 월·분기는 txn `period_key`와 선언 URL 동일 키.
+    자동 검사: vat-declaration-ui (a)–(d) · org B 2026-10 step5 amber.

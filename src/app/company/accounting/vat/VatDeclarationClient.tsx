@@ -494,10 +494,16 @@ export default function VatDeclarationClient() {
       items.push({ level: "warn", messageKey: "accounting.vat.check.both_40_41" });
     }
     if (!token || !periodKey || !orgId) {
-      setPrecheckNoTxnWarning(vatPrecheckNeedsNoTxnWarning(0, computed));
+      setPrecheckNoTxnWarning(true);
       setPrecheck(items);
       return;
     }
+    const { count: periodTxnCount } = await supabase
+      .from("accounting_transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .eq("period_key", periodKey)
+      .neq("status", "cancelled");
     const { data: txns } = await supabase
       .from("accounting_transactions")
       .select("id, status, amount_vnd")
@@ -525,8 +531,7 @@ export default function VatDeclarationClient() {
         txnIds: bigIds,
       });
     }
-    const confirmedCount = confirmed?.length ?? 0;
-    setPrecheckNoTxnWarning(vatPrecheckNeedsNoTxnWarning(confirmedCount, computed));
+    setPrecheckNoTxnWarning(vatPrecheckNeedsNoTxnWarning(periodTxnCount ?? 0));
     setPrecheck(items);
   }, [computed, orgId, periodKey, token, warnings]);
 

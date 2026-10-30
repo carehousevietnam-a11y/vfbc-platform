@@ -1,5 +1,5 @@
 /**
- * VAT declaration UI — status i18n, author label, step5 no-txn warning (LESSON 150).
+ * VAT declaration UI — status i18n, author label, step5 no-txn warning (LESSON 150–151).
  */
 import { ensureTsxRuntime } from "../qa/_ensure-tsx-runtime.mjs";
 
@@ -35,18 +35,12 @@ for (const role of VAT_AUTHOR_ROLE_CODES) {
 }
 
 record("author_id_fragment_detected", isRawUserIdAuthorLabel("29166335") && !isRawUserIdAuthorLabel("대표"));
-record(
-  "precheck_no_txn_zero_confirmed",
-  vatPrecheckNeedsNoTxnWarning(0, { "33": { value: "0" } }),
-);
-record(
-  "precheck_clear_with_txns_and_computed",
-  !vatPrecheckNeedsNoTxnWarning(2, { "33": { value: "100", txn_ids: ["a"] } }),
-);
-record(
-  "precheck_no_txn_empty_computed",
-  vatPrecheckNeedsNoTxnWarning(1, {}),
-);
+
+const zeroComputed = { "26": { value: "0" }, "33": { value: "0", txn_ids: [] } };
+record("(a) zero_txn_with_zero_computed", vatPrecheckNeedsNoTxnWarning(0), JSON.stringify(zeroComputed));
+record("(b) zero_txn_no_computed", vatPrecheckNeedsNoTxnWarning(0));
+record("(c) has_txn_green_when_no_items", !vatPrecheckNeedsNoTxnWarning(2));
+record("(d) has_txn_warning_off", !vatPrecheckNeedsNoTxnWarning(1));
 
 console.log(`vat-declaration-ui pass=${results.pass} fail=${results.fail}`);
 if (results.fail > 0) {
