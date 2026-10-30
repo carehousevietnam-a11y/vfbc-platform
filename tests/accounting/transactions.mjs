@@ -1,6 +1,10 @@
 /**
  * Accounting P2-a transaction entry — local Supabase only.
  */
+import { ensureTsxRuntime } from "../qa/_ensure-tsx-runtime.mjs";
+
+ensureTsxRuntime(import.meta.url);
+
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

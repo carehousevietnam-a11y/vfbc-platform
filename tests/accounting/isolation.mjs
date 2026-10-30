@@ -2,6 +2,10 @@
  * Accounting P1 isolation tests — local Supabase by default (never applies migration to prod URL).
  * Set ACCOUNTING_TEST_LOCAL=0 only to use NEXT_PUBLIC_SUPABASE_URL from .env.local (schema must exist).
  */
+import { ensureTsxRuntime } from "../qa/_ensure-tsx-runtime.mjs";
+
+ensureTsxRuntime(import.meta.url);
+
 import { createHash } from "node:crypto";
 import fs from "fs";
 import path from "path";

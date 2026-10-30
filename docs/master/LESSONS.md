@@ -764,3 +764,8 @@
     원인: dev 회계 세션 브리지를 공용 singleton에 합친 설계.
     재발 방지: `@/lib/supabase`는 `createClient` 유지; 회계·vnk/accounting만 `accountingSupabaseClient`(`createBrowserClient`) + dev `ensureAccountingClientSession`. `/login` OTP 세션은 동일 storage key로 회계 `accountingAuthFetch`가 Bearer를 붙인다. Gate·Shell·HomeClient 등 회계 import는 모두 `accountingSupabaseClient`만 참조.
     자동 검사: grep `@/lib/supabase`가 회계 트리 밖에서 createBrowserClient를 타지 않음 · dev 로그인 intake E2E · member/welcome gate.
+
+149. 문제: `tests/accounting/isolation.mjs`·`transactions.mjs`가 `accountingHomeData.ts` 등 src `.ts`를 node가 직접 import해 `vatDeadline`/`accountingI18nTexts` chain에서 ERR_MODULE_NOT_FOUND로 실패했다.
+    원인: harness가 `ensureTsxRuntime` 없이 dynamic import만 사용.
+    재발 방지: workspace-intake와 동일하게 파일 최상단 `ensureTsxRuntime(import.meta.url)` 후 ts import.
+    자동 검사: node tests/accounting/isolation.mjs · node tests/accounting/transactions.mjs (조직 간 cross_org 케이스 포함).
