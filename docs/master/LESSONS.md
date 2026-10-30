@@ -762,5 +762,5 @@
 
 148. 문제: 529d72f가 `@/lib/supabase` 전역을 `createBrowserClient`로 바꿔 CHECK/VERIFY/REGISTER·/login·마이페이지 등 60+ import 경로에 쿠키·localStorage 동기화 정책이 번질 위험이 있었다.
     원인: dev 회계 세션 브리지를 공용 singleton에 합친 설계.
-    재발 방지: `@/lib/supabase`는 `createClient` 유지; 회계·vnk/accounting만 `accountingSupabaseClient`(`createBrowserClient`) + dev `ensureAccountingClientSession`. `/login` OTP 세션은 동일 storage key로 회계 `accountingAuthFetch`가 Bearer를 붙인다.
+    재발 방지: `@/lib/supabase`는 `createClient` 유지; 회계·vnk/accounting만 `accountingSupabaseClient`(`createBrowserClient`) + dev `ensureAccountingClientSession`. `/login` OTP 세션은 동일 storage key로 회계 `accountingAuthFetch`가 Bearer를 붙인다. Gate·Shell·HomeClient 등 회계 import는 모두 `accountingSupabaseClient`만 참조.
     자동 검사: grep `@/lib/supabase`가 회계 트리 밖에서 createBrowserClient를 타지 않음 · dev 로그인 intake E2E · member/welcome gate.

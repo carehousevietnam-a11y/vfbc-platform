@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { useAccountingCatalogLocale } from "./AccountingCatalogLocale";
 import { AccountingLocaleSwitcher } from "./AccountingLocaleSwitcher";
 import { accountingMessage, type AccountingMessageKey } from "./uiCatalog";

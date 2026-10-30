@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "@/lib/accounting/accountingSupabaseClient";
 import { useClientMounted } from "../useClientMounted";
 import { accountingFunnelSignupHref, accountingProspectiveGuidePath } from "../companySignup";
 import { resolveAccountingWorkspaceDestination } from "../accountingWorkspace";

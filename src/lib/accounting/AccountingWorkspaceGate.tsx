@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { accountingSupabase as supabase } from "./accountingSupabaseClient";
 import { ACCOUNTING_ROUTES } from "./accountingNav";
 import { accountingProspectiveGuidePath } from "./companySignup";
 import {
