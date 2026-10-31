@@ -1,0 +1,786 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { AccountingMessageKey } from "./uiCatalog";
+import { loadTransactionI18nTexts, saveAccountingI18nField, type I18nLang } from "./accountingI18nTexts";
+
+async function confirmTransactionWithPosting(
+  client: SupabaseClient,
+  txnId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { error } = await client.rpc("accounting_confirm_transaction", { p_txn_id: txnId });
+  if (!error) return { ok: true };
+  const message = error.message ?? "";
+  if (/posting rule missing/i.test(message)) return { ok: false, error: "POSTING_RULE_MISSING" };
+  if (/filed_manual locked/i.test(message)) return { ok: false, error: "PERIOD_FILED_LOCKED" };
+  if (/only company_owner may confirm/i.test(message)) return { ok: false, error: "CONFIRM_FORBIDDEN" };
+  if (/debit\/credit imbalance/i.test(message)) return { ok: false, error: "LEDGER_IMBALANCE" };
+  if (/already confirmed/i.test(message)) return { ok: false, error: "ALREADY_CONFIRMED" };
+  if (/correction_method not supported/i.test(message)) return { ok: false, error: "CORRECTION_METHOD_UNSUPPORTED" };
+  return { ok: false, error: "CONFIRM_FAILED" };
+}
+
+export type AccountingActor = { userId: string; orgId: string; role: string };
+type Actor = AccountingActor;
+
+async function loadActorCore(
+  client: SupabaseClient,
+  accessToken: string
+): Promise<Actor | { error: string; status: number }> {
+  const { data: userData, error: userError } = await client.auth.getUser(accessToken);
+  if (userError || !userData.user) return { error: "UNAUTHENTICATED", status: 401 };
+  const userId = userData.user.id;
+  const { data: memberships, error: memberError } = await client
+    .from("accounting_org_members")
+    .select("org_id, role")
+    .eq("user_id", userId);
+  if (memberError) return { error: "MEMBERSHIP_LOOKUP", status: 400 };
+  const rows = memberships ?? [];
+  if (rows.length === 0) return { error: "NO_ORG", status: 403 };
+  const { data: orgs, error: orgError } = await client
+    .from("accounting_organizations")
+    .select("id, approval_status")
+    .in(
+      "id",
+      rows.map((row) => row.org_id as string)
+    );
+  if (orgError) return { error: "ORG_LOOKUP", status: 400 };
+  const approved = (orgs ?? []).filter((org) => org.approval_status === "approved");
+  if (approved.length === 0) {
+    const pending = (orgs ?? []).some((org) => org.approval_status === "pending");
+    if (pending) return { error: "ORG_NOT_APPROVED", status: 403 };
+    const rejected = (orgs ?? []).some((org) => org.approval_status === "rejected");
+    if (rejected) return { error: "ORG_REJECTED", status: 403 };
+    return { error: "ORG_NOT_APPROVED", status: 403 };
+  }
+  if (approved.length > 1) return { error: "ORG_AMBIGUOUS", status: 409 };
+  const orgId = approved[0].id as string;
+  const role = rows.find((row) => row.org_id === orgId)?.role as string | undefined;
+  if (!role) return { error: "NO_ORG", status: 403 };
+  return { userId, orgId, role };
+}
+
+function isActor(value: Actor | { error: string; status: number }): value is Actor {
+  return "userId" in value;
+}
+
+export async function resolveAccountingActor(
+  client: SupabaseClient,
+  accessToken: string
+): Promise<{ ok: true; userId: string; orgId: string; role: string } | { ok: false; status: number; error: string }> {
+  const actor = await loadActorCore(client, accessToken);
+  if (!isActor(actor)) return { ok: false, status: actor.status, error: actor.error };
+  return { ok: true, userId: actor.userId, orgId: actor.orgId, role: actor.role };
+}
+
+export const TXN_TYPES = ["sale", "purchase", "expense", "payroll"] as const;
+export type TxnType = (typeof TXN_TYPES)[number];
+
+export const EVIDENCE_LINK_FILTERS = ["all", "linked", "missing"] as const;
+export type EvidenceLinkFilter = (typeof EVIDENCE_LINK_FILTERS)[number];
+
+/** Badge and list filter share this: linked when evidence_files for the transaction is at least 1. */
+export function isEvidenceLinked(evidenceCount: number): boolean {
+  return evidenceCount >= 1;
+}
+
+export function parseEvidenceLinkFilter(
+  raw: string | null | undefined
+): { ok: true; value: EvidenceLinkFilter } | { ok: false; status: 400; error: "VALIDATION" } {
+  if (raw == null) return { ok: true, value: "all" };
+  const value = raw.trim();
+  if ((EVIDENCE_LINK_FILTERS as readonly string[]).includes(value)) {
+    return { ok: true, value: value as EvidenceLinkFilter };
+  }
+  return { ok: false, status: 400, error: "VALIDATION" };
+}
+export type TxnStatus = "draft" | "submitted" | "confirmed" | "cancelled";
+export type CheckLevel = "ok" | "mid" | "warn";
+
+export type TxnCheck = {
+  code: string;
+  field: string;
+  level: CheckLevel;
+  messageKey: AccountingMessageKey;
+};
+
+export type CommandResult =
+  | {
+      ok: true;
+      id: string;
+      status: string;
+      checks: TxnCheck[];
+      amountVnd: number;
+      fxUnverified: boolean;
+      role: string;
+      updatedAt?: string | null;
+    }
+  | { ok: false; status: number; error: string; checks?: TxnCheck[] };
+
+const SPOOF_KEYS = [
+  "orgId",
+  "org_id",
+  "role",
+  "createdBy",
+  "created_by",
+  "confirmedBy",
+  "confirmed_by",
+  "periodKey",
+  "period_key",
+  "amountVnd",
+  "amount_vnd",
+  "status",
+] as const;
+
+function text(body: Record<string, unknown>, key: string): string {
+  const value = body[key];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function numOrNull(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value.replace(/,/g, ""));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+export function isIsoDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+export function periodKeyFromDate(iso: string): string | null {
+  if (!isIsoDate(iso)) return null;
+  return iso.slice(0, 7);
+}
+
+function roundVnd(value: number): number {
+  return Math.round(value);
+}
+
+export function expectedVat(net: number, rate: number): number {
+  return Math.round((net * rate) / 100);
+}
+
+/** User-entered multiplier only. G4 does not supply a conversion rule. */
+export function computeAmountVnd(
+  currency: string,
+  net: number,
+  vat: number,
+  fxRate: number | null
+): number | null {
+  const total = net + vat;
+  if (currency === "VND") return roundVnd(total);
+  if (fxRate === null || !(fxRate > 0)) return null;
+  return roundVnd(total * fxRate);
+}
+
+export function buildTxnChecks(input: {
+  type: string;
+  txnDate: string;
+  counterpartyId: string | null;
+  newCounterpartyName: string | null;
+  invoiceSeries: string;
+  invoiceNo: string;
+  invoiceDate: string;
+  currency: string;
+  fxRate: number | null;
+  amountNet: number | null;
+  vatRate: number | null;
+  vatAmount: number | null;
+}): TxnCheck[] {
+  const checks: TxnCheck[] = [];
+  const dateOk = isIsoDate(input.txnDate);
+  checks.push({
+    code: "date",
+    field: "txnDate",
+    level: dateOk ? "ok" : "warn",
+    messageKey: dateOk ? "accounting.txn.check.date_ok" : "accounting.txn.check.date_bad",
+  });
+  const period = dateOk ? periodKeyFromDate(input.txnDate) : null;
+  checks.push({
+    code: "period",
+    field: "txnDate",
+    level: period ? "ok" : "warn",
+    messageKey: period ? "accounting.txn.check.period_ok" : "accounting.txn.check.period_bad",
+  });
+
+  const hasParty = Boolean(input.counterpartyId || input.newCounterpartyName);
+  const partyRequired = input.type === "sale" || input.type === "purchase";
+  checks.push({
+    code: "counterparty",
+    field: "counterparty",
+    level: hasParty ? "ok" : partyRequired ? "warn" : "mid",
+    messageKey: hasParty
+      ? "accounting.txn.check.counterparty_ok"
+      : partyRequired
+        ? "accounting.txn.check.counterparty_warn"
+        : "accounting.txn.check.counterparty_mid",
+  });
+
+  const invoiceOk = Boolean(input.invoiceSeries && input.invoiceNo && isIsoDate(input.invoiceDate));
+  const invoiceRequired = input.type === "sale" || input.type === "purchase";
+  checks.push({
+    code: "invoice",
+    field: "invoiceSeries",
+    level: invoiceOk ? "ok" : invoiceRequired ? "warn" : "mid",
+    messageKey: invoiceOk
+      ? "accounting.txn.check.invoice_ok"
+      : invoiceRequired
+        ? "accounting.txn.check.invoice_warn"
+        : "accounting.txn.check.invoice_mid",
+  });
+
+  const net = input.amountNet;
+  const vat = input.vatAmount;
+  const rate = input.vatRate;
+  const amountsOk =
+    net !== null && vat !== null && net >= 0 && vat >= 0 && (rate === null || rate >= 0);
+  const sumOk = amountsOk && (rate === null ? vat === 0 : expectedVat(net, rate) === vat);
+  checks.push({
+    code: "sum",
+    field: "vatAmount",
+    level: amountsOk && sumOk ? "ok" : "warn",
+    messageKey: amountsOk && sumOk ? "accounting.txn.check.sum_ok" : amountsOk ? "accounting.txn.check.sum_bad" : "accounting.txn.check.amount_bad",
+  });
+
+  const currency = input.currency.toUpperCase();
+  if (!/^[A-Z]{3}$/.test(currency)) {
+    checks.push({
+      code: "fx",
+      field: "currency",
+      level: "warn",
+      messageKey: "accounting.txn.check.fx_need",
+    });
+  } else if (currency === "VND") {
+    checks.push({
+      code: "fx",
+      field: "currency",
+      level: "ok",
+      messageKey: "accounting.txn.check.fx_ok",
+    });
+  } else if (input.fxRate === null || !(input.fxRate > 0)) {
+    checks.push({
+      code: "fx",
+      field: "fxRate",
+      level: "warn",
+      messageKey: "accounting.txn.check.fx_need",
+    });
+  } else {
+    checks.push({
+      code: "fx",
+      field: "fxRate",
+      level: "mid",
+      messageKey: "accounting.txn.check.fx_unverified",
+    });
+  }
+  return checks;
+}
+
+export function hasWarn(checks: TxnCheck[]): boolean {
+  return checks.some((check) => check.level === "warn");
+}
+
+function readCommand(body: Record<string, unknown>) {
+  for (const key of SPOOF_KEYS) {
+    void body[key];
+  }
+  const type = text(body, "type");
+  const txnDate = text(body, "txnDate");
+  const counterpartyId = text(body, "counterpartyId") || null;
+  const newCounterpartyName = text(body, "newCounterpartyName") || null;
+  const invoiceSeries = text(body, "invoiceSeries");
+  const invoiceNo = text(body, "invoiceNo");
+  const invoiceDate = text(body, "invoiceDate");
+  const currency = (text(body, "currency") || "VND").toUpperCase();
+  const fxRate = numOrNull(body.fxRate);
+  const amountNet = numOrNull(body.amountNet);
+  const vatRate = numOrNull(body.vatRate);
+  const vatAmount = numOrNull(body.vatAmount);
+  const action = text(body, "action");
+  const memo = text(body, "memo");
+  const description = text(body, "description");
+  const memoLangRaw = text(body, "memoLang");
+  const descriptionLangRaw = text(body, "descriptionLang");
+  const memoLang: I18nLang = memoLangRaw === "vi" ? "vi" : "ko";
+  const descriptionLang: I18nLang = descriptionLangRaw === "ko" ? "ko" : "vi";
+  const expectedUpdatedAt = text(body, "expectedUpdatedAt") || null;
+  return {
+    type,
+    txnDate,
+    counterpartyId,
+    newCounterpartyName,
+    invoiceSeries,
+    invoiceNo,
+    invoiceDate,
+    currency,
+    fxRate,
+    amountNet,
+    vatRate,
+    vatAmount,
+    action,
+    memo,
+    description,
+    memoLang,
+    descriptionLang,
+    expectedUpdatedAt,
+  };
+}
+
+async function loadActor(
+  client: SupabaseClient,
+  accessToken: string
+): Promise<Actor | { error: string; status: number }> {
+  return loadActorCore(client, accessToken);
+}
+
+async function resolveCounterparty(
+  client: SupabaseClient,
+  actor: Actor,
+  type: string,
+  counterpartyId: string | null,
+  newName: string | null
+): Promise<{ id: string | null } | { error: string }> {
+  if (counterpartyId) {
+    const { data, error } = await client
+      .from("accounting_counterparties")
+      .select("id")
+      .eq("id", counterpartyId)
+      .eq("org_id", actor.orgId)
+      .maybeSingle();
+    if (error || !data) return { error: "COUNTERPARTY_NOT_FOUND" };
+    return { id: data.id as string };
+  }
+  if (!newName) return { id: null };
+  const kind = type === "sale" ? "customer" : "supplier";
+  const { data, error } = await client
+    .from("accounting_counterparties")
+    .insert({
+      org_id: actor.orgId,
+      name_original: newName,
+      kind,
+    })
+    .select("id")
+    .single();
+  if (error || !data) return { error: "COUNTERPARTY_WRITE_FAILED" };
+  return { id: data.id as string };
+}
+
+async function writeLines(
+  client: SupabaseClient,
+  txnId: string,
+  amountNet: number,
+  vatRate: number | null,
+  vatAmount: number
+): Promise<boolean> {
+  const { error: deleteError } = await client.from("accounting_transaction_lines").delete().eq("txn_id", txnId);
+  if (deleteError) return false;
+  const { error: insertError } = await client.from("accounting_transaction_lines").insert({
+    txn_id: txnId,
+    amount_net: amountNet,
+    vat_rate: vatRate,
+    vat_amount: vatAmount,
+  });
+  return !insertError;
+}
+
+export async function applyTransactionCommand(
+  client: SupabaseClient,
+  accessToken: string,
+  body: Record<string, unknown>,
+  txnId?: string | null
+): Promise<CommandResult> {
+  const actor = await loadActor(client, accessToken);
+  if (!isActor(actor)) return { ok: false, status: actor.status, error: actor.error };
+  if (actor.role !== "company_owner" && actor.role !== "company_member") {
+    return { ok: false, status: 403, error: "ROLE_FORBIDDEN" };
+  }
+
+  const command = readCommand(body);
+  if (!TXN_TYPES.includes(command.type as TxnType)) {
+    return { ok: false, status: 422, error: "TYPE_INVALID" };
+  }
+  if (command.action !== "draft" && command.action !== "submit" && command.action !== "confirm") {
+    return { ok: false, status: 422, error: "ACTION_INVALID" };
+  }
+  if (command.action === "confirm" && actor.role !== "company_owner") {
+    return { ok: false, status: 403, error: "CONFIRM_FORBIDDEN" };
+  }
+  const checks = buildTxnChecks(command);
+  if (!isIsoDate(command.txnDate) || command.amountNet === null || command.vatAmount === null) {
+    return { ok: false, status: 422, error: "VALIDATION", checks };
+  }
+  if (command.action === "confirm" && hasWarn(checks)) {
+    return { ok: false, status: 422, error: "CONFIRM_BLOCKED", checks };
+  }
+
+  const amountVnd = computeAmountVnd(
+    command.currency,
+    command.amountNet,
+    command.vatAmount,
+    command.currency === "VND" ? null : command.fxRate
+  );
+  if (amountVnd === null) {
+    return { ok: false, status: 422, error: "VALIDATION", checks };
+  }
+  const periodKey = periodKeyFromDate(command.txnDate);
+  if (!periodKey) return { ok: false, status: 422, error: "VALIDATION", checks };
+
+  const party = await resolveCounterparty(
+    client,
+    actor,
+    command.type,
+    command.counterpartyId,
+    command.newCounterpartyName
+  );
+  if ("error" in party) return { ok: false, status: 422, error: party.error, checks };
+
+  const nextStatus: TxnStatus =
+    command.action === "confirm" ? "confirmed" : command.action === "submit" ? "submitted" : "draft";
+  const fxUnverified = command.currency !== "VND";
+  // Lines cannot change after confirmed, so persist a non-confirmed status first.
+  const stageStatus: TxnStatus = command.action === "confirm" ? "submitted" : nextStatus;
+  const row = {
+    org_id: actor.orgId,
+    type: command.type,
+    status: stageStatus,
+    txn_date: command.txnDate,
+    period_key: periodKey,
+    counterparty_id: party.id,
+    invoice_series: command.invoiceSeries || null,
+    invoice_no: command.invoiceNo || null,
+    invoice_date: command.invoiceDate && isIsoDate(command.invoiceDate) ? command.invoiceDate : null,
+    currency: command.currency,
+    fx_rate: command.currency === "VND" ? null : command.fxRate,
+    amount_vnd: amountVnd,
+    created_by: actor.userId,
+    confirmed_by: null,
+    confirmed_at: null,
+  };
+
+  let id = txnId ?? null;
+  if (!id) {
+    const { data, error } = await client.from("accounting_transactions").insert(row).select("id").single();
+    if (error || !data) return { ok: false, status: 400, error: "WRITE_FAILED", checks };
+    id = data.id as string;
+  } else {
+    const { data: existing, error: readError } = await client
+      .from("accounting_transactions")
+      .select("id, status, org_id, updated_at")
+      .eq("id", id)
+      .eq("org_id", actor.orgId)
+      .maybeSingle();
+    if (readError || !existing) return { ok: false, status: 404, error: "NOT_FOUND" };
+    if (existing.status === "confirmed") {
+      return { ok: false, status: 409, error: "CONFIRMED_LOCKED", checks };
+    }
+    if (command.expectedUpdatedAt && existing.updated_at) {
+      const expected = new Date(command.expectedUpdatedAt).getTime();
+      const current = new Date(String(existing.updated_at)).getTime();
+      if (Number.isFinite(expected) && Number.isFinite(current) && expected !== current) {
+        return { ok: false, status: 409, error: "CONCURRENT_SAVE", checks };
+      }
+    }
+    const { error: updateError } = await client
+      .from("accounting_transactions")
+      .update(row)
+      .eq("id", id)
+      .eq("org_id", actor.orgId);
+    if (updateError) return { ok: false, status: 400, error: "WRITE_FAILED", checks };
+  }
+
+  const linesOk = await writeLines(client, id, command.amountNet, command.vatRate, command.vatAmount);
+  if (!linesOk) return { ok: false, status: 400, error: "LINE_WRITE_FAILED", checks };
+
+  if (nextStatus === "confirmed") {
+    const posted = await confirmTransactionWithPosting(client, id);
+    if (!posted.ok) {
+      const status =
+        posted.error === "CONFIRM_FORBIDDEN"
+          ? 403
+          : posted.error === "POSTING_RULE_MISSING" || posted.error === "PERIOD_FILED_LOCKED"
+            ? 422
+            : 400;
+      return { ok: false, status, error: posted.error, checks };
+    }
+  }
+
+  const txnConfirmed = nextStatus === "confirmed";
+  if (command.memo.trim()) {
+    const memoSave = await saveAccountingI18nField(client, {
+      orgId: actor.orgId,
+      entityType: "transaction",
+      entityId: id,
+      field: "memo",
+      lang: command.memoLang,
+      text: command.memo,
+      createdBy: actor.userId,
+      txnConfirmed,
+      deferTranslation: true,
+    });
+    if (!memoSave.ok) {
+      if (memoSave.error === "CONFIRMED_I18N_LOCKED") {
+        return { ok: false, status: 409, error: "CONFIRMED_LOCKED", checks };
+      }
+      return { ok: false, status: 400, error: "I18N_WRITE_FAILED", checks };
+    }
+  }
+  if (command.description.trim()) {
+    const descSave = await saveAccountingI18nField(client, {
+      orgId: actor.orgId,
+      entityType: "transaction",
+      entityId: id,
+      field: "description",
+      lang: command.descriptionLang,
+      text: command.description,
+      createdBy: actor.userId,
+      txnConfirmed,
+      deferTranslation: true,
+    });
+    if (!descSave.ok) {
+      if (descSave.error === "CONFIRMED_I18N_LOCKED") {
+        return { ok: false, status: 409, error: "CONFIRMED_LOCKED", checks };
+      }
+      return { ok: false, status: 400, error: "I18N_WRITE_FAILED", checks };
+    }
+  }
+
+  const { count, error: auditError } = await client
+    .from("accounting_audit_log")
+    .select("id", { count: "exact", head: true })
+    .eq("entity_id", id)
+    .eq("entity", "accounting_transactions");
+  if (auditError || (count ?? 0) < 1) {
+    return { ok: false, status: 500, error: "AUDIT_MISSING" };
+  }
+
+  const { data: freshRow } = await client
+    .from("accounting_transactions")
+    .select("updated_at")
+    .eq("id", id)
+    .maybeSingle();
+
+  return {
+    ok: true,
+    id,
+    status: nextStatus,
+    checks,
+    amountVnd,
+    fxUnverified,
+    role: actor.role,
+    updatedAt: freshRow?.updated_at ?? null,
+  };
+}
+
+export async function listTransactions(
+  client: SupabaseClient,
+  accessToken: string,
+  query: { period?: string; type?: string; status?: string; evidence?: string | null }
+): Promise<
+  | { ok: true; role: string; items: Record<string, unknown>[]; total: number }
+  | { ok: false; status: number; error: string }
+> {
+  const evidenceFilter = parseEvidenceLinkFilter(query.evidence);
+  if (!evidenceFilter.ok) return { ok: false, status: evidenceFilter.status, error: evidenceFilter.error };
+  const actor = await loadActor(client, accessToken);
+  if (!isActor(actor)) return { ok: false, status: actor.status, error: actor.error };
+  const linkedIds = await linkedEvidenceTxnIds(client, actor.orgId);
+  if (!linkedIds.ok) return { ok: false, status: 400, error: "LIST_FAILED" };
+  let request = client
+    .from("accounting_transactions")
+    .select(
+      "id, type, status, txn_date, period_key, currency, fx_rate, amount_vnd, counterparty_id, invoice_series, invoice_no, invoice_date",
+      { count: "exact" }
+    )
+    .eq("org_id", actor.orgId)
+    .order("txn_date", { ascending: false });
+  if (query.period && /^\d{4}-\d{2}$/.test(query.period)) request = request.eq("period_key", query.period);
+  if (query.type && TXN_TYPES.includes(query.type as TxnType)) request = request.eq("type", query.type);
+  if (query.status && ["draft", "submitted", "confirmed", "cancelled"].includes(query.status)) {
+    request = request.eq("status", query.status);
+  }
+  if (evidenceFilter.value === "linked") {
+    if (linkedIds.ids.length === 0) return { ok: true, role: actor.role, items: [], total: 0 };
+    request = request.in("id", linkedIds.ids);
+  } else if (evidenceFilter.value === "missing") {
+    if (linkedIds.ids.length > 0) request = request.not("id", "in", `(${linkedIds.ids.join(",")})`);
+  }
+  const { data, error, count } = await request;
+  if (error) return { ok: false, status: 400, error: "LIST_FAILED" };
+  const ids = [...new Set((data ?? []).map((row) => row.counterparty_id).filter(Boolean))] as string[];
+  const names = new Map<string, string>();
+  if (ids.length > 0) {
+    const { data: parties } = await client
+      .from("accounting_counterparties")
+      .select("id, name_original")
+      .eq("org_id", actor.orgId)
+      .in("id", ids);
+    for (const party of parties ?? []) names.set(party.id as string, party.name_original as string);
+  }
+  const txnIds = (data ?? []).map((row) => row.id as string);
+  const evidenceCounts = await countEvidenceForTxnIds(client, actor.orgId, txnIds);
+  if (!evidenceCounts.ok) return { ok: false, status: 400, error: "LIST_FAILED" };
+  const items = (data ?? []).map((row) => {
+    const id = row.id as string;
+    const evidenceCount = evidenceCounts.counts.get(id) ?? 0;
+    return {
+      id: row.id,
+      type: row.type,
+      status: row.status,
+      txnDate: row.txn_date,
+      periodKey: row.period_key,
+      currency: row.currency,
+      fxRate: row.fx_rate,
+      amountVnd: row.amount_vnd,
+      invoiceSeries: row.invoice_series,
+      invoiceNo: row.invoice_no,
+      invoiceDate: row.invoice_date,
+      counterpartyId: row.counterparty_id,
+      counterpartyName: row.counterparty_id ? (names.get(row.counterparty_id as string) ?? "") : "",
+      fxUnverified: row.currency !== "VND",
+      evidenceCount,
+      hasEvidence: isEvidenceLinked(evidenceCount),
+    };
+  });
+  const total = count ?? items.length;
+  return { ok: true, role: actor.role, items, total };
+}
+
+async function linkedEvidenceTxnIds(
+  client: SupabaseClient,
+  orgId: string
+): Promise<{ ok: true; ids: string[] } | { ok: false }> {
+  const { data, error } = await client
+    .from("accounting_evidence_files")
+    .select("txn_id")
+    .eq("org_id", orgId)
+    .not("txn_id", "is", null);
+  if (error) return { ok: false };
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    const txnId = row.txn_id as string;
+    counts.set(txnId, (counts.get(txnId) ?? 0) + 1);
+  }
+  const ids = [...counts.entries()].filter(([, evidenceCount]) => isEvidenceLinked(evidenceCount)).map(([txnId]) => txnId);
+  return { ok: true, ids };
+}
+
+async function countEvidenceForTxnIds(
+  client: SupabaseClient,
+  orgId: string,
+  txnIds: string[]
+): Promise<{ ok: true; counts: Map<string, number> } | { ok: false }> {
+  const counts = new Map<string, number>();
+  if (txnIds.length === 0) return { ok: true, counts };
+  const { data, error } = await client
+    .from("accounting_evidence_files")
+    .select("txn_id")
+    .eq("org_id", orgId)
+    .in("txn_id", txnIds);
+  if (error) return { ok: false };
+  for (const id of txnIds) counts.set(id, 0);
+  for (const row of data ?? []) {
+    const key = row.txn_id as string;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return { ok: true, counts };
+}
+
+export async function getTransaction(
+  client: SupabaseClient,
+  accessToken: string,
+  txnId: string
+): Promise<
+  | { ok: true; role: string; item: Record<string, unknown>; checks: TxnCheck[] }
+  | { ok: false; status: number; error: string }
+> {
+  const actor = await loadActor(client, accessToken);
+  if (!isActor(actor)) return { ok: false, status: actor.status, error: actor.error };
+  const { data, error } = await client
+    .from("accounting_transactions")
+    .select(
+      "id, type, status, txn_date, period_key, currency, fx_rate, amount_vnd, counterparty_id, invoice_series, invoice_no, invoice_date, org_id, updated_at"
+    )
+    .eq("id", txnId)
+    .eq("org_id", actor.orgId)
+    .maybeSingle();
+  if (error || !data) return { ok: false, status: 404, error: "NOT_FOUND" };
+  const { data: lines } = await client
+    .from("accounting_transaction_lines")
+    .select("amount_net, vat_rate, vat_amount")
+    .eq("txn_id", txnId)
+    .limit(1);
+  const line = lines?.[0];
+  const amountNet = line ? Number(line.amount_net) : 0;
+  const vatAmount = line ? Number(line.vat_amount) : 0;
+  const vatRate = line && line.vat_rate !== null ? Number(line.vat_rate) : null;
+  const checks = buildTxnChecks({
+    type: String(data.type),
+    txnDate: String(data.txn_date),
+    counterpartyId: (data.counterparty_id as string | null) ?? null,
+    newCounterpartyName: null,
+    invoiceSeries: String(data.invoice_series ?? ""),
+    invoiceNo: String(data.invoice_no ?? ""),
+    invoiceDate: String(data.invoice_date ?? ""),
+    currency: String(data.currency),
+    fxRate: data.fx_rate === null ? null : Number(data.fx_rate),
+    amountNet,
+    vatRate,
+    vatAmount,
+  });
+  const i18n = await loadTransactionI18nTexts(client, actor.orgId, txnId);
+  const memoPack = i18n.memo ?? {};
+  const descPack = i18n.description ?? {};
+
+  return {
+    ok: true,
+    role: actor.role,
+    checks,
+    item: {
+      id: data.id,
+      type: data.type,
+      status: data.status,
+      txnDate: data.txn_date,
+      periodKey: data.period_key,
+      currency: data.currency,
+      fxRate: data.fx_rate,
+      amountVnd: data.amount_vnd,
+      counterpartyId: data.counterparty_id,
+      invoiceSeries: data.invoice_series ?? "",
+      invoiceNo: data.invoice_no ?? "",
+      invoiceDate: data.invoice_date ?? "",
+      amountNet,
+      vatRate,
+      vatAmount,
+      fxUnverified: data.currency !== "VND",
+      updatedAt: data.updated_at ?? null,
+      memo: memoPack.ko ?? memoPack.vi ?? "",
+      description: descPack.ko ?? descPack.vi ?? "",
+      i18n,
+    },
+  };
+}
+
+export async function listCounterparties(
+  client: SupabaseClient,
+  accessToken: string
+): Promise<{ ok: true; items: { id: string; name: string; kind: string }[] } | { ok: false; status: number; error: string }> {
+  const actor = await loadActor(client, accessToken);
+  if (!isActor(actor)) return { ok: false, status: actor.status, error: actor.error };
+  const { data, error } = await client
+    .from("accounting_counterparties")
+    .select("id, name_original, kind")
+    .eq("org_id", actor.orgId)
+    .order("name_original", { ascending: true });
+  if (error) return { ok: false, status: 400, error: "LIST_FAILED" };
+  return {
+    ok: true,
+    items: (data ?? []).map((row) => ({
+      id: row.id as string,
+      name: row.name_original as string,
+      kind: row.kind as string,
+    })),
+  };
+}

@@ -324,3 +324,465 @@
     원인: 질문 필드(예: trc_helpWanted)를 스펙과 검사 파일, 서비스 단계 추천·요약 규칙이 함께 참조한다.
     재발 방지: 질문을 교체할 때는 스펙의 요약(summaries)·위험(risks)·단계(tierRules)·연결(connections)·라벨과 tests/qa 의 필드 참조를 함께 바꾸고, 질문 문장은 쉼표가 있는 30자 이상, 선택지 한 줄은 마침표가 있는 45자 이상으로 쓴다. 공유 저장소 폴더에서 git stash 를 쓰면 index.lock 이 남으니 쓰지 않는다.
     자동 검사: tests/qa/*-content-final.mjs
+
+63. 문제: 회계 P1 격리 테스트가 스키마 없음으로 전체 스킵됨
+    원인: 운영 Supabase에 마이그레이션 미적용 + 로컬 Supabase 미기동
+    재발 방지: 회계 DB 테스트는 ACCOUNTING_TEST_LOCAL=1과 `npx supabase start` 로컬 DB에서만 실행한다. 운영 URL에 마이그레이션을 적용하지 않는다.
+    자동 검사: node tests/accounting/isolation.mjs (로컬)
+
+64. 문제: `npx supabase start`가 .env.local UTF-8 BOM 때문에 config 파싱 실패
+    원인: .env.local 첫 키에 BOM(﻿)이 붙음
+    재발 방지: .env.local은 BOM 없는 UTF-8로 저장한다. 회계 테스트 스크립트는 읽을 때 BOM을 제거한다.
+    자동 검사: 없음
+
+65. 문제: 로컬 Supabase 초기화 시 accounting 마이그레이션이 public.users 없음으로 실패
+    원인: accounting_is_business_member()가 public.users를 참조하는데 빈 로컬 DB에는 users 테이블이 없음
+    재발 방지: `supabase/migrations/20261016000000_accounting_prereq_public_users.sql`은 users가 없을 때만 최소 users를 만든다. 운영(이미 users 있음)에서는 no-op이다.
+    자동 검사: npx supabase db reset --local 후 마이그레이션 적용 확인
+
+66. 문제: lead-submit이 요청 본문의 companySignupChannel로 member_type=company를 저장할 수 있었음
+    원인: 클라이언트가 보낸 채널 문자열을 서버가 신뢰함
+    재발 방지: 기업회원은 `/api/company-member-signup`만 company로 저장한다. lead-submit은 `LEAD_SUBMIT_MEMBER_TYPE`(personal)만 insert한다. signup profile RLS는 본인·동일 org company_owner 조회만, insert/update는 service role만. 이 가입 작업의 표기는 S1(가입)이다. 설계서 P2(거래 입력)와 섞지 않는다.
+    자동 검사: node tests/accounting/company-signup.mjs
+
+67. 문제: accounting_can_read_company_signup_profile이 SECURITY DEFINER와 search_path는 맞았지만 PUBLIC·anon EXECUTE가 남아 있었다
+    원인: Postgres는 새 함수에 PUBLIC EXECUTE를 기본으로 준다. 회수 구문이 없었다
+    재발 방지: 회계 SECURITY DEFINER 함수는 search_path를 고정하고 PUBLIC·anon EXECUTE를 회수한다. 화면이 부르는 함수만 authenticated에 실행 권한을 준다
+    자동 검사: node tests/accounting/transactions.mjs (anon_execute_revoked)
+
+68. 문제: 확정 거래를 사용자 토큰으로 UPDATE/DELETE하면 오류 없이 0건이 된다
+    원인: RLS가 confirmed 행을 업데이트 대상에서 빼서, 트리거까지 도달하지 않는다
+    재발 방지: 화면은 확정 거래의 수정 버튼을 그리지 않는다. 트리거 차단 검사는 service role로 하고, 사용자 토큰 검사는 값이 그대로인지 본다
+    자동 검사: node tests/accounting/transactions.mjs (confirmed_update_blocked, confirmed_delete_blocked)
+
+69. 문제: 하네스 g4-golden(pdf-parse·골든 파일 검사)을 설계서 G4(외화 환산 규칙)와 혼동할 수 있다
+    원인: 이름에 g4가 들어가 있어 회계 미검증 게이트 G4와 겹쳐 보인다
+    재발 방지: g4-golden은 QA 하네스 전용이며 회계 G4와 무관하다. 회계 외화는 사용자 입력 환율과 미검증 표시만 쓴다
+    자동 검사: 없음 (문서·LESSONS)
+
+70. 문제: 회계 P2-a 단일 미션이 35분을 넘겼다
+    원인: 거래 입력·RLS·UI·테스트 범위가 한 번에 들어갔다
+    재발 방지: 설계서 P2는 P2-a(거래 입력)·P2-b(증빙)·P2-c(번역)로 나눈다
+    자동 검사: 없음 (범위 분할)
+
+71. 문제: 비VND 거래를 대표가 확정할 수 있었다
+    원인: G4 미검증인데 confirm 액션만 막지 않았다
+    재발 방지: 비VND는 초안·제출만 허용하고 confirm은 서버·UI 모두 FX_CONFIRM_BLOCKED로 막는다
+    자동 검사: node tests/accounting/transactions.mjs (fx_confirm_blocked)
+    상태: superseded by #76
+
+72. 문제: 거래 목록에서 증빙 연결됨/누락으로 거르지 못한다
+    원인: 목록 필터는 기간·유형·상태만 있고, 증빙 연결 상태는 배지로만 보인다
+    재발 방지: 설계서 5-5의 증빙 연결 상태 필터가 목록에 있을 때만 그 항목을 통과로 본다
+    자동 검사: 없음
+    상태: 해결 (2026-10-16). 목록 쿼리 evidence=all|linked|missing. 연결됨은 evidence_files 1건 이상이고 배지와 같은 기준이다. 허용값 외는 400.
+
+73. 문제: 거래 목록 증빙 필터의 베트남어는 담당자 검수 전 임시값이다
+    원인: P2c에서 지정한 임시 번역을 카탈로그에 넣었다. 키는 accounting.txn.filter.evidence, evidence.all, evidence.linked, evidence.missing
+    재발 방지: 베트남어는 Chứng từ / Tất cả / Đã đính kèm / Thiếu chứng từ 로 두고, 담당자 검수 전에는 고치지 않는다
+    자동 검사: 없음
+
+74. 문제: 다른 조직 증빙 경로의 스토리지 목록 조회가 HTTP 200이다
+    원인: storage list는 권한 없는 객체를 오류로 거절하지 않고 RLS로 빼서 빈 배열을 준다
+    재발 방지: 격리 판정은 상태 코드만 보지 않는다. 같은 폴더 목록을 소유자가 하면 1건, 다른 조직이면 0건이어야 한다. 다운로드와 서명 URL은 400이어야 한다
+    자동 검사: 없음
+
+75. 문제: 확정과 ledger_entries 생성이 분리되면 롤백 없이 confirmed만 남을 수 있다
+    원인: 클라이언트에서 status만 UPDATE했다
+    재발 방지: `accounting_confirm_transaction` RPC 한 트랜잭션에서 분개 삽입 후 확정한다. 트리거로 confirmed 전 차변합=대변합을 강제한다
+    자동 검사: node tests/accounting/p3-posting.mjs
+
+76. 문제: #71 비VND confirm 전면 차단은 G4 미검증 표시 요구와 맞지 않는다
+    원인: P2에서 FX_CONFIRM_BLOCKED로 막았다
+    재발 방지: P3부터 비VND는 사용자 입력 fx_rate로 amount_vnd를 쓰고 confirm은 허용한다. `accounting_ledger_entries_enriched.fx_conversion_unverified`와 UI 미검증 표시로 G4를 표시한다
+    자동 검사: node tests/accounting/transactions.mjs (fx_confirm_with_unverified)
+
+77. 문제: Node 하네스가 새 TS 모듈 상대 import를 못 찾는다
+    원인: transactionEntry에서 postingRulesEngine 상대 경로를 ESM이 해석하지 못했다
+    재발 방지: confirm RPC 호출은 transactionEntry에 두고, postingRulesEngine.ts는 enriched 조회 전용으로 유지한다
+    자동 검사: node tests/accounting/p3-posting.mjs
+
+78. 문제: posting_rules가 effective_from만 보면 동일 txn_date에 빈 condition과 구체 condition이 섞일 때 비결정적이다
+    원인: ORDER BY effective_from desc 만 있었다
+    재발 방지: `accounting_posting_rule_specificity` 후 effective_from desc. 마이그레이션 `20261016120000_accounting_p3b_posting_order_search.sql`
+    자동 검사: node tests/accounting/p3-posting.mjs (posting_rule_specificity_wins, posting_rule_txn_date_effective_from)
+
+79. 문제: 장부 화면 hydration 경고가 AccountingModuleHeader부터 찍힘
+    원인: 서버 HTML과 클라이언트 첫 렌더의 문구는 같다(한국어 라벨). 차이는 Cursor 브라우저가 hydration 전에 요소에 붙인 data-cursor-ref 속성이다. 언어 쿠키·날짜 포맷의 서버/클라이언트 불일치가 아니다. 같은 화면을 Chrome으로 열면 hydration 오류가 없다. 로케일은 서버가 읽은 기존 vfbcai_locale을 LocaleProvider 초기값으로만 넘긴다.
+    재발 방지: AccountingModuleHeader에 suppressHydrationWarning을 넣지 않는다. 새 사이트 쿠키를 만들지 않는다. hydration 판정은 data-cursor-ref를 주입하지 않는 브라우저에서 한다.
+    자동 검사: node tests/accounting/p3c-browser-check.mjs (로컬 시드 hold 후)
+
+80. 문제: 375px 장부 목록과 거래 상세에 하단 탭 4개(홈, 거래 입력, 세금 신고, 더보기)가 없다
+    원인: AccountingModuleHeader는 거래 입력·장부 조회만 있다. 홈·세금 신고·더보기 화면은 아직 없다.
+    재발 방지: 대상 화면이 생기기 전에 빈 하단 탭을 넣지 않는다. P3c에서는 실패로 기록만 한다.
+    자동 검사: 없음 (p3c-browser-check의 mobile bottom tabs 4는 found=none)
+
+81. 문제: 375px 장부 카드에 비VND 환산 미검증 배지가 빠졌다
+    원인: 배지를 데스크톱 표에만 그렸다
+    재발 방지: 모바일 카드에도 같은 미검증 배지를 그린다
+    자동 검사: node tests/accounting/p3c-browser-check.mjs (mobile fx badge)
+
+82. 문제: p2c step0 재실행의 증빙 필터 건수 검사가 UNAUTHENTICATED
+    원인: 저장해 둔 조직 A 세션 토큰이 만료됨. 임시 member 삭제와 무관하다. 같은 실행에서 같은 조직 member의 서명 URL·다운로드는 200이고, 이번에 만든 임시 member는 끝에서 삭제됐다(잔여 2명 포함).
+    재발 방지: 저장된 세션으로 다시 로그인한다. 만료 토큰을 제품 격리 실패로 보지 않는다.
+    자동 검사: 없음
+
+83. 문제: P4a 법령 점검 Playwright가 ko 라벨을 못 찾음
+    원인: networkidle 직후에도 클라이언트가 vnk_admin·서식 목록을 불러오는 중이었다. member UPDATE RLS는 0행이라 오류 없이 통과해 테스트만 실패로 보였다.
+    재발 방지: 회계 브라우저 하네스는 `sb-<supabase-host>-auth-token` 키와 화면 제목 waitFor를 쓴다. form_versions member 쓰기 테스트는 행 변경 여부로 판정한다.
+    자동 검사: node tests/accounting/p4a-browser-check.mjs, node tests/accounting/p4a-form-registry.mjs
+
+84. 문제: 375px 하단 탭 4개(홈·거래 입력·세금 신고·더보기)가 P3c 범위 화면에 없다
+    원인: 홈·세금 신고·더보기 라우트가 아직 없고 AccountingModuleHeader만 있다(LESSONS 80).
+    재발 방지: 홈·세금 신고 화면을 만들 때 하단 탭 4개를 함께 넣는다. P3c 마감 검증에서는 실패로만 기록하고 빈 탭을 넣지 않는다.
+    자동 검사: 없음
+
+85. 문제: p2c step0 증빙 필터 건수만 재검증할 때 저장 세션 만료로 UNAUTHENTICATED
+    원인: seed-report.json은 남지만 session-a access_token이 만료된다(LESSONS 82).
+    재발 방지: 검증 시작 직전 조직 A owner를 signInWithPassword로 재로그인한 뒤 linked·missing 필터만 호출한다.
+    자동 검사: node tests/qa/_output/p2c-evidence-filter/filter-count-recheck.mjs
+
+86. 문제: 회계 로컬 검증을 운영 Supabase(.env.local)에 붙인 next dev로 돌리면 P2/P3c 시드가 운영 DB에 남는다
+    원인: 기본 next dev는 .env.local의 NEXT_PUBLIC_SUPABASE_URL을 쓴다.
+    재발 방지: 회계 브라우저·시드 검증은 `node tests/accounting/p3c-local-next.mjs`로 로컬 Supabase만 바인딩한다. 운영 DB는 읽기 전용 잔여 조회만 한다.
+    자동 검사: p3c-local-next.mjs가 non-local URL이면 거부
+
+87. 문제: `node tests/accounting/isolation.mjs`의 owner_can_confirm이 실패한다
+    원인: P3a 이후 `accounting_guard_confirmed_transaction`이 status=confirmed로 바꿀 때 차변합=대변합 ledger_entries를 요구한다. isolation은 P1 시절처럼 UPDATE만 했고 posting_rules·분개가 없어 트리거가 `accounting: cannot confirm without balanced ledger_entries`를 냈다. 대표 권한(RLS) 결함이 아니다.
+    재발 방지: isolation에서 확정 전 `seedTestPostingRule`로 TEST-* 규칙을 넣고 owner는 `accounting_confirm_transaction` RPC로 확정한다. member_cannot_confirm은 UPDATE로 owner-only 트리거를 계속 검사한다. vnk_expert 확정 거부는 이 스크립트에 없고 p3-posting.mjs의 member_confirm_rpc_blocked가 역할을 분담한다.
+    자동 검사: node tests/accounting/isolation.mjs (owner_can_confirm, cross_org_*)
+
+88. 문제: `http://localhost:3020`에서 Internal Server Error가 난다
+    원인: `.next/dev/logs/next-development.log`에 webpack 캐시 `ENOENT … client-development\\14.pack.gz`가 찍혔다. 캐시가 깨졌거나 dev 서버가 오래 돌아가며 pack 파일이 사라진 상태다. 3020은 `next dev --webpack -p 3020`(cwd vfbcai-new)이고, Supabase는 프로세스 환경의 `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`에 따른다. `p3c-local-next.mjs`로 띄우면 위 세 변수만 로컬 `supabase status`로 덮어쓴다.
+    재발 방지: 회계 브라우저 QA는 `node tests/accounting/p3c-local-next.mjs`를 쓴다. 500이 계속되면 `.next` 삭제 후 재기동한다. 운영 URL 바인딩 여부는 호스트가 127.0.0.1/localhost인지로만 판정하고 비밀값은 로그에 남기지 않는다.
+    자동 검사: 없음 (재현 시 next-development.log의 ENOENT pack)
+
+89. 문제: 모바일 하단 탭 4개(§5-1 홈·거래 입력·세금 신고·더보기) 담당 단계가 문서에 없어 P3c에서만 반복 실패로 남는다
+    원인: §8 구현 단계에 “탭” 항목이 없고 P3c는 장부·거래만 있다(LESSONS 80·84).
+    재발 방지: **세금 신고(§5-3) 화면을 만드는 P5**와 **홈 대시보드(§5-2)·더보기(상단 메뉴 나머지)** 라우트를 넣는 미션에서 공통 모바일 네비를 한 번에 넣는다. P3c/P4a 마감 범위에는 빈 탭을 넣지 않는다.
+    자동 검사: 없음
+
+95. 문제: P5b-2 브라우저 QA에서 `/login` 비밀번호 없이 막히고, `?periodKey=` URL이 ① 기본정보에 반영되지 않아 초안 생성이 비활성화되었다
+    원인: 로그인은 매직링크 전용이고, VAT 클라이언트는 기간을 입력·localStorage만 읽었다. Playwright는 `sb-127-auth-token` 주입(LESSONS 83)이 필요하다.
+    재발 방지: VAT는 `useSearchParams().periodKey`로 초기 기간을 채운다. 로컬 회계 브라우저 하네스는 `p5b-vat-browser-seed.mjs`→`.p5b-session.json`→`p5b-vat-browser-check.mjs` 순서로 돌린다. 시드 거래는 `accounting_confirm_transaction`으로 확정해 장부 메모·번역 배지를 본다. 격리 시드에서 org B owner를 org A 멤버에 넣지 않는다.
+    자동 검사: node tests/accounting/p5b-vat-browser-check.mjs
+
+94. 문제: P5b 부가가치세 화면에서 기간별 거래 점검 시 org_id를 클라이언트 state에 두지 않으면 RLS만 의존한다
+    원인: precheck가 period_key만 필터해 다중 org 가입 시 혼동 가능성.
+    재발 방지: GET /api/accounting/vat/declaration이 orgId를 반환하고, 클라이언트 점검 쿼리에 org_id를 명시한다.
+    자동 검사: 없음
+
+118. 문제: P9-5b에서 승인된 대표가 상단 「내 회사 정보」·홈 「설정」을 눌러도 `/company` 온보딩 게이트 때문에 거래 입력으로만 이동했다
+    원인: `AccountingWorkspaceGate`는 승인 workspace에서 `/company`를 거래 입력으로 replace한다(온보딩 경로 전용).
+    재발 방지: 승인 대표 조회는 `/company/accounting/profile`로 분리하고, 메뉴·더보기·허브 설정 href만 해당 경로로 연결한다. 게이트는 수정하지 않는다. TT89 이전 과세기간은 `gtgt01FormPeriod` 상수·`PERIOD_BEFORE_TT89`로 초안·검토 요청을 막는다.
+    자동 검사: tests/accounting/isolation.mjs (p95b_*), p9-5b-browser-check.mjs, p9-2-home-hub-browser.mjs
+
+93. 문제: P5a-2에서 Pack v2.1 §5와 엔진 [27][28][34][35] 체인이 어긋나 있었다
+    원인: Cursor 초안 Pack·단순 [35]=[31]+[33] 식이 TT89 Phụ lục I와 불일치.
+    재발 방지: field_map·computeGtgt01은 Claude G2 v2.1 §5만 따르고, 마이그레이션은 갱신용 새 파일만 추가한다.
+    자동 검사: node tests/accounting/p5a-vat-gtgt.mjs
+
+92. 문제: P5a 착수 시 `docs/master/forms/G2_VAT_FORM_PACK.md`가 저장소에 없었다
+    원인: Form Verification Pack이 커밋되지 않은 상태에서 구현 미션만 내려왔다.
+    재발 방지: Pack 파일을 먼저 `docs/master/forms/`에 커밋한 뒤 P5a 엔진·field_map 시드를 넣는다. Pack 없이는 §5 수식을 임의 추가하지 않는다.
+    자동 검사: test -f docs/master/forms/G2_VAT_FORM_PACK.md
+
+90. 문제: LESSONS 커밋에 ACE-APPROVED가 대표 승인 전에 붙었다
+    원인: `b037823` 등 보호 파일(LESSONS) 커밋 시 hook을 통과하려고 ACE-APPROVED 줄을 먼저 넣었다. 승인·문구 확정이 커밋보다 뒤일 수 있다.
+    재발 방지: LESSONS·STANDARDS 등 보호 파일은 대표가 내용을 확인한 뒤에만 ACE-APPROVED 커밋한다. 이번 P3c 마감 보완(87–89)은 지시에 따라 LESSONS에 기록하고 ACE-APPROVED로 커밋한다.
+    자동 검사: .githooks/commit-msg
+
+91. 문제: accounting_exports에 불변 트리거(accounting_trg_deny_exports_mutate)를 걸면 org cascade 삭제가 막혀 테스트 정리가 실패한다
+    원인: exports는 insert-only라 UPDATE·DELETE가 모두 예외다. organizations 삭제가 exports로 cascade되면서 같은 트리거에 걸린다(evidence_files·ledger_entries와 같은 구조).
+    재발 방지: 로컬 테스트 정리 때 exports 삭제 직전에 이 트리거를 일시정지하고 끝나면 반드시 되살린다(p3c-ledger-seed.mjs guardStatements 참고). 운영에서는 정리 삭제를 하지 않는다.
+    자동 검사: node tests/accounting/p3c-ledger-seed.mjs cleanup
+
+93. 문제: P6a 화면이 API를 `credentials: "include"`로만 호출해 401이 났다
+    원인: accounting API 라우트는 Authorization Bearer 토큰만 읽는다(requestUser.ts). 쿠키 세션은 읽지 않는다.
+    재발 방지: 회계 화면의 fetch는 accountingAuthFetch(src/lib/accounting/authFetch.ts)를 쓴다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs
+
+94. 문제: 클라이언트 컴포넌트가 evidenceEntry.ts에서 상수를 import해 `node:crypto` webpack 빌드 오류가 나고 API가 500이 됐다
+    원인: 서버 전용 모듈(node:crypto)을 클라이언트 번들이 끌어왔다.
+    재발 방지: 클라이언트는 서버 모듈에서 상수도 import하지 않고 리터럴을 쓴다. 3020이 500이면 LESSONS 88 순서(프로세스 종료·.next 삭제·p3c-local-next)로 복구한 뒤 서버 로그의 import trace를 먼저 본다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs
+
+95. 문제: vnk_expert가 접수증을 올릴 수 없었다(스토리지 insert 정책이 company_owner·company_member만 허용)
+    원인: P6a가 접수증 경로를 `filing/...`로 잡았고 정책은 첫 폴더가 org_id여야 한다. DB 테스트는 경로 문자열만 넣어 업로드를 검사하지 않았다.
+    재발 방지: 경로는 `{org_id}/filing/...`로 하고 배정된 vnk_expert 전용 insert 정책을 P6b 마이그레이션에 추가했다. 파일 업로드가 있는 기능은 브라우저에서 실제 업로드까지 확인한다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs (A6)
+
+96. 문제: i18n_texts insert 정책이 status를 제한하지 않아 누구나 human_verified를 직접 넣을 수 있었다
+    원인: 베트남어 확정 권한이 RLS가 아니라 화면 규칙에만 있었다.
+    재발 방지: human_verified insert는 트리거로 막고 accounting_confirm_vi_text(company_member+locale=vi 또는 배정된 vnk_expert, 설계서 §3)로만 새 version을 넣는다. company_owner는 locale과 무관하게 확정하지 않는다.
+    자동 검사: node tests/accounting/p6b-corrections.mjs
+
+97. 문제: 정정 요청을 review_comments UPDATE로 바로 resolved 처리하면 승인 절차(새 거래+역분개)를 우회한다
+    원인: P6a resolve 정책이 작성자·대표에게 모든 comment의 status 변경을 허용했다.
+    재발 방지: target_type=transaction인 correction_request는 accounting_approve_correction·accounting_reject_correction 안에서만 resolved가 되도록 update 트리거로 강제했다.
+    자동 검사: node tests/accounting/p6b-corrections.mjs (direct_resolve_blocked)
+
+98. 문제: `p6b-browser-check.mjs` 첫 실행이 Playwright TimeoutError로 끊기고 재실행은 28/0 통과한다
+    원인: 3020 dev에서 `/vnk/accounting/review-queue` 등 첫 라우트 webpack 컴파일이 60s waitFor(조직명·코멘트)보다 길어질 수 있다. 제품 격리·RLS 결함이 아니라 cold-compile·부하에 따른 **flaky** 타임아웃이다.
+    재발 방지: 마감 판정 전 한 번 재실행하거나, dev를 미리 해당 URL로 워밍업한 뒤 하네스를 돌린다. 60s 내 500이면 LESSONS 94·88( import trace·.next 삭제)을 먼저 본다.
+    자동 검사: node tests/accounting/p6b-browser-check.mjs
+
+99. 문제: 로컬 purge harness용 leads/crm 부트스트랩 SQL을 `supabase/migrations`에 넣으면 운영 push 시 RLS 없는 테이블·GRANT가 생길 수 있다.
+    재발 방지: harness 전용 SQL은 `tests/security/`에만 두고, 운영 마이그레이션에는 `audit_log` 등 실제 제품 스키마만 넣는다.
+    자동 검사: node tests/security/pre-signup-document-purge.mjs
+
+100. 문제: P7a `p7a-funnel-browser-check.mjs`가 Playwright chromium 미설치로 즉시 실패했다(`Executable doesn't exist`).
+    원인: Cursor 샌드박스·신규 환경에서 `@playwright/test`만 있고 브라우저 바이너리는 별도 설치가 필요했다.
+    재발 방지: 회계 퍼널·UI 마감 전 `npx playwright install chromium`을 한 번 실행한다. dev는 `p3c-local-next.mjs`(3020)만 쓴다(LESSONS 86).
+    자동 검사: node tests/accounting/p7a-funnel-browser-check.mjs
+
+101. 문제: P7b에서 purge harness·전체 E2E(가입→승인 대기)를 미실행했다. P7d에서 harness는 통과했으나 `accounting_organizations` INSERT/UPDATE에 `accounting_audit_log` 트리거가 없어 조직 생성·승인 audit 검증이 실패했다.
+    원인: P1 `accounting_audit_log_append` 트리거가 `accounting_transactions` 등에만 붙고 `accounting_organizations`에는 없음. P7b는 시간·범위상 harness/E2E를 보고만 하고 종료했다.
+    재발 방지: 설계 §6 audit 누락 게이트는 org 생성·`approval_status` 전환용 트리거(또는 서버 audit insert) 추가 후 `tests/accounting/p7d`류로 INSERT/UPDATE 행·hash·PII 미기록을 자동 검사한다. purge는 `node tests/security/pre-signup-document-purge.mjs` + `verify-accounting-funnel/...` 경로 시나리오를 harness에 포함한다.
+    자동 검사: node tests/security/pre-signup-document-purge.mjs (P7d: funnel 경로는 `runPreSignupDocumentPurge` 로컬 시나리오로 확인됨 — 미가입 31일 삭제·가입 후 user_id 보존)
+
+102. 문제: P7d 조직 audit 실패·E2E가 `vat_s1_q2` 고정 클릭으로 Pack 분기(show_if·label)를 따라가지 못했다.
+    원인: `accounting_organizations`에 audit 트리거 미부착. E2E는 P7a와 동일한 label needle·stage2 루프가 필요했으나 별도 스크립트가 q2를 순서 클릭만 시도했다.
+    재발 방지: P7e 마이그레이션 `20261017120000_accounting_p7e_org_audit_triggers.sql`로 INSERT·`approval_status` UPDATE만 audit. E2E는 `p7a-funnel-browser-check.mjs`와 동일 Pack 네비게이션을 `p7e-e2e-browser.mjs`에 재사용한다.
+    자동 검사: node tests/accounting/p7e-org-audit.mjs · node tests/accounting/p7e-e2e-browser.mjs
+
+105. 문제: P6c에서 vnk_staff가 승인 대기 org의 `approval_status`를 UPDATE하면 RLS가 `new row violates`로 실패했다.
+    원인: UPDATE 후 행이 `pending`이 아니게 되어 `accounting_orgs_select_pending_staff`만으로는 결과 행 SELECT가 불가했고, 멤버십도 없었다.
+    재발 방지: `accounting_is_vnk_staff()`용 org SELECT 정책을 추가하고, pending 전환은 guard 트리거+staff UPDATE 정책으로 처리한다. `node tests/accounting/p6c-org-approval.mjs`로 승인·audit를 검증한다.
+    자동 검사: node tests/accounting/p6c-org-approval.mjs
+
+104. 문제: 1차 결과 화면이 Content Pack 슬롯 없이 placeholder만 표시됐다.
+    원인: 질문 Pack만 `contentPackData.ts`에 있고 결과 Pack JSON·타입·해석 로직이 없었다.
+    재발 방지: `docs/master/content/RESULT_PACK_FUNNEL.json` 단일 원본 + `loadResultPacks.ts`·`resolveFirstResult.ts`·`validateResultPackAlignment.ts`. E2E는 `p7g-result-pack.mjs`·`p7g-first-result-browser.mjs`.
+    자동 검사: node tests/accounting/p7g-result-pack.mjs · node tests/accounting/p7g-first-result-browser.mjs
+
+103. 문제: P7e E2E가 가입 완료 화면까지 가지 못했다.
+    원인: (b) 로컬 `accounting_prereq`가 만든 `public.users`에 phone·email 등 컬럼이 없어 `/api/company-member-signup`이 500(`column users.phone does not exist`)을 반환. E2E는 주소 placeholder 불일치·`/login`이 비밀번호 폼이 아닌 매직링크 UI라 password 입력 대기가 (d)에 해당했다.
+    재발 방지: `20261017130000_accounting_users_profile_columns.sql`로 프로필 컬럼 IF NOT EXISTS 추가. `p7f-e2e-browser.mjs`는 3020 기동 검사·signup API status(PII 제외)·`company-member-signup-done`·가입 후 `signInWithPassword`+localStorage 세션 주입·`accounting-workspace-pending-approval`로 완주. 모바일은 퍼널 q1 재시도 루프.
+    자동 검사: node tests/accounting/p7f-e2e-browser.mjs
+
+107. 문제: P5c 홈 Playwright가 owner 데스크톱에서 `home-schedule`을 찾지 못했다.
+    원인: 홈 데이터는 `useEffect` 후 로드되는데 카드 testid를 즉시 검사했다.
+    재발 방지: `p5c-home-browser-check.mjs`는 `home-recent`·`home-schedule` waitFor 후 DOM을 검사한다. 교차 org 홈 스냅샷은 `isolation.mjs`의 `home_*` 케이스 4건으로 검증한다.
+    자동 검사: node tests/accounting/p5c-home-browser-seed.mjs · node tests/accounting/p5c-home-browser-check.mjs · node tests/accounting/isolation.mjs
+
+106. 문제: P5c 회계 홈·공통 셸에서 거래 입력 `useSearchParams` 초기화와 Next layout 추가 시 tsc가 `.next/dev/types` 불일치로 실패할 수 있다.
+    원인: `company/accounting/layout.tsx` 신설 후 dev 서버가 남긴 validator 타입과 정적 `tsc` include가 어긋남.
+    재발 방지: 회계 UI 마감 전 `.next/dev/types` 삭제 후 `npx tsc --noEmit`. 거래 목록 URL 필터(`status`·`evidence`)는 `Suspense`로 감싼다. 홈 데이터는 anon+RLS `supabase`만 쓰고 `company_member`는 declarations 쿼리를 생략한다.
+    자동 검사: npx tsc --noEmit · node tests/accounting/evidence.mjs (ko/vi 키 parity)
+
+109. 문제: P7-2a에서 기업회원 가입 후 작업공간 연결·승인 대기 게이트가 없었다.
+    원인: 조직 생성은 signup API에만 있고 회계 모듈 첫 진입·퍼널 Expert CTA가 placeholder였다.
+    재발 방지: `/api/accounting/company-profile` + `/company/accounting/company` 온보딩, `/company/accounting/pending` 대기, `AccountingWorkspaceGate`로 작업공간 URL 차단. Expert CTA는 `resolveAccountingWorkspaceDestination` 링크.
+    자동 검사: npx tsx tests/accounting/p7-2a-verify.mjs · npx tsx tests/accounting/isolation.mjs
+
+111. 문제: P7-2b 조직 서류·승인 요청·전문가 승인 흐름과 온보딩 폼 Playwright 제출 버튼 비활성 이슈.
+    원인: pending→approved 직행을 막으려 `in_review`와 `accounting_org_request_review` RPC가 필요하고, 온보딩 E2E는 SelectionCard 클릭 후 `profileOk`가 갱신되지 않아 submit이 disabled로 남을 수 있다.
+    재발 방지: `accounting_org_documents`·`/api/accounting/org-documents`·`org-approval-request`·전문가 큐는 `in_review`만 처리. 반려는 `i18n_texts` field `review_note`. 온보딩 E2E는 `accounting-onboard-category-*`·`position-*` testid 사용.
+    자동 검사: npx tsx tests/accounting/p7-2b-org-docs.mjs · npx tsx tests/accounting/isolation.mjs · node tests/accounting/p7-2a-onboard-form-browser.mjs
+
+110. 문제: P7-2a 보완에서 pending 사용자가 작업공간 URL 직접 접근 시 클라이언트 gate만으로는 HTML 노출·3020 EADDRINUSE·퍼널 ko 「준비」 실패가 있었다.
+    원인: 데이터 페이지는 RSC에서 승인 상태를 보지 않았고, E2E는 vi locale 쿠키가 라우트 간 유지됐으며, 3020에 구 dev가 남아 500이 났다.
+    재발 방지: `AccountingWorkspaceDataServerLayout`로 transactions·ledger·vat·filing·evidence 서버 redirect. 퍼널 브라우저 QA는 라우트마다 `accounting-funnel-locale-ko` 클릭. `uiCatalog` ko/vi 키 parity로 vi 누락은 `tsc` 실패.
+    자동 검사: node tests/accounting/p7-2a-e2e-browser.mjs · npx tsx tests/accounting/isolation.mjs · node tests/accounting/p7-1-supplement-browser.mjs
+
+108. 문제: P7-1 보완에서 isolation 단독 `node` 실행이 실패하고 3020이 500·빈 화면이었다.
+    원인: `isolation.mjs`가 `accountingHomeData.ts`를 tsx 없이 import해 ESM이 `vatDeadline`을 못 풀었고, Next는 `.next` 불일치·로컬 Supabase env 없이 기동됐다. Expert CTA·퍼널 locale은 SSR과 쿠키 locale이 달라 hydration 경고가 났다.
+    재발 방지: `npx tsx tests/accounting/isolation.mjs`·`node tests/accounting/p3c-local-next.mjs`. `AccountingFunnelExpertCta`·`AccountingFunnelClient`는 mount 후 세션·locale UI를 그린다.
+    자동 검사: npx tsx tests/accounting/isolation.mjs · node tests/accounting/p7-1-supplement-browser.mjs
+
+112. 문제: P7-2b 보완 E2E에서 반려 사유 미표시·비전문가 전문가 큐 빈 목록·pending 서류 업로드 500이 있었다.
+    원인: `accounting_i18n_texts` SELECT는 `accounting_can_use_org_data`(승인 org만)라 rejected owner가 `review_note`를 못 읽었다. `denyNonExpertQueueAccess`는 owner/member만 막고 무소속 사용자는 200 빈 큐를 받았다. org-doc POST 후 audit 로그를 user RLS로 읽어 pending org에서 500이 났다.
+    재발 방지: `listOrgDocuments`는 owner+rejected일 때 service role로 `review_note`만 조회. 전문가 큐 gate는 `vnk_expert`/`vnk_admin` 없으면 403. 업로드는 userClient storage·audit는 트리거에 맡기고 POST 응답에서 audit SELECT 생략.
+    자동 검사: node tests/accounting/p7-2b-e2e-browser.mjs · npx tsx tests/accounting/isolation.mjs
+
+113. 문제: P8-1a에서 `node tests/accounting/p3-posting.mjs`가 21 pass·2 fail로 종료했다.
+    원인: `filed_manual_period_blocked`·`rollback_not_confirmed` 케이스가 기대와 불일치(기간 잠금·롤백 시나리오).
+    재발 방지: filed_manual·정정 롤백 게이트는 p3-posting 실패를 0으로 만든 뒤 §9 차변합·확정 불변을 다시 매핑한다. 수정은 별도 IMPLEMENT 미션.
+    자동 검사: node tests/accounting/p3-posting.mjs
+
+114. 문제: P8-1a에서 `node tests/accounting/p7e-org-audit.mjs`가 `accounting: org must be in_review before expert resolution`로 중단했다.
+    원인: harness가 승인 전 `in_review` 전환(`accounting_org_request_review`) 없이 expert resolution을 호출한 순서.
+    재발 방지: p7e는 P7-2b RPC 순서(pending→in_review→approve/reject)를 따른다. LESSONS 111·102와 동일 계열.
+    자동 검사: node tests/accounting/p7e-org-audit.mjs
+
+115. 문제: P8-1a에서 `p7g-result-pack.mjs`·`p7a-content-pack-validate.mjs`가 Content Pack 정렬·stage 카운트에서 실패했다.
+    원인: RESULT_PACK의 `when.question_id`가 Pack의 `vat_s1_q2` 등과 불일치(unknown_question)·production entry stage1/2=0·flags 검사 FAIL.
+    재발 방지: 공식 Content Pack 수령·`contentPackData` question_id 동기화 후 p7a·p7g 0 fail. 문구 invent 금지.
+    자동 검사: node tests/accounting/p7g-result-pack.mjs · node tests/accounting/p7a-content-pack-validate.mjs
+
+116. 문제: P8-1b에서 회계 브라우저 하네스 연쇄 실패(p5c `home-recent` 45s, p4b `p3c-ledger/report.json` 없음, p5b `① 기본정보` 30s, p7a·p7g·p7f `accounting-funnel-active` 90s, p7-2b `/company/accounting/pending` 60s).
+    원인: p4b는 p3c-ledger 시드 산출물 미선행; 퍼널 계열은 Pack stage0·`accounting-funnel-active` 미노출(P8-1a p7a·p7g node FAIL과 동일 계열). p5c는 시드 후 홈 카드 미표시(세션·RLS·3020 상태). p7-2b는 온보딩→pending redirect 미도달.
+    재발 방지: P8-1b 재실행 전 p3c-ledger-seed·Pack 정렬(P7a/P7g node 0 fail)·p5c 시드·3020 `p3c-local-next` 재기동 순서를 고정한다. 가입 5파일 미커밋 변경이 있어도 이번 실패는 퍼널 active·ledger report 선행 누락이 주원인으로 보인다.
+    자동 검사: node tests/accounting/p5c-home-browser-check.mjs · node tests/accounting/p4b-browser-check.mjs · node tests/accounting/p5b-vat-browser-check.mjs · node tests/accounting/p7a-funnel-browser-check.mjs · node tests/accounting/p7f-e2e-browser.mjs
+
+117. 문제: P8-2·P8-3에서 `npx tsx tests/accounting/isolation.mjs`가 36 pass·1 fail(`p72a_duplicate_org_blocked`)로 종료했다.
+    원인: `provisionCompanyMemberSignup`이 기존 `company_owner` 멤버십이 있을 때 `CompanySignupAlreadyProvisionedError` 대신 `{ orgId, approvalStatus }`를 반환했다. 가입 5파일 stash(`signup-tail-held-2026-10-17`)에만 중복 차단 throw가 있었고 HEAD에는 미반영.
+    재발 방지: isolation 37/0 전에 `provisionCompanyMemberSignup.ts`만 stash에서 복원·커밋해 throw 경로를 HEAD에 고정한다. stash pop 없이 1파일 checkout만.
+    자동 검사: npx tsx tests/accounting/isolation.mjs
+
+120. 문제: P9-6b VAT wizard 동시 저장을 `updated_at`만으로는 감지되지 않았다(트리거 없음).
+    원인: `accounting_declarations.updated_at`이 computed 갱신 시 항상 바뀌지 않을 수 있다.
+    재발 방지: `computed._wizard.revision`을 올리고 `expectedRevision`으로 409 `CONCURRENT_SAVE`를 반환한다. 번역은 `deferTranslation`로 저장 응답 후 비동기 처리한다.
+    자동 검사: npx tsx tests/accounting/isolation.mjs (p96b_*) · node tests/accounting/p9-6b-browser-check.mjs
+
+119. 문제: P9-6 §11 전 범위를 한 미션에 넣으면 VAT ①~⑥ 서버 공동 편집·검토 코멘트·정정 사유 등 미연결 화면이 남는다.
+    원인: VAT wizard는 client step·localStorage만 있고 `declarations.computed`에 단계·작성자 메타가 없었다. 거래 UI는 memo/description 필드가 API에 없었다.
+    재발 방지: `accountingI18nTexts`·`form-basis`·보기 전환 바를 먼저 고정한 뒤, VAT `_wizard`·나머지 자유입력 칸을 단계별 미션으로 붙인다. LESSONS 번호는 기존 #95·#110 중복 없이 최대+1(118 P9-5b, 119 P9-6)만 쓴다.
+    자동 검사: node tests/accounting/isolation.mjs · (추가) p9-6-browser-check.mjs
+
+121. 문제: P9-6b 마감 QA #1·#3이 UI 저장·비동기 번역 타이밍에 따라 PASS/FAIL이 바뀌었다.
+    원인: `deferTranslation`·기계번역 완료 시점을 하네스가 기다렸고, 반대 언어 `accounting_i18n_texts` 행을 시드하지 않았다.
+    재발 방지: 번역 대기·원문 유지 검증은 ko/vi 중 한쪽만 `status=original`로 service 시드하고 번역 API를 호출하지 않는다.
+    자동 검사: P96B_QA_PARTIAL=1 node tests/accounting/p9-6b-qa-close.mjs
+
+122. 문제: p5b-vat-browser-check가 filed_manual(2026-09) 기간 input에 fill을 시도해 타임아웃했다.
+    원인: `declarations.status=filed_manual`이면 해당 기간 입력 잠금이 정상 동작인데 하네스가 미제출 기간과 동일하게 다루었다.
+    재발 방지: 미제출 기간(시드 period)에서 입력·초안 시나리오를 돌리고, filed_manual URL에서는 period input `disabled`를 단언한다.
+    자동 검사: node tests/accounting/p5b-vat-browser-seed.mjs · node tests/accounting/p5b-vat-browser-check.mjs
+
+123. 문제: P9-6b 마감 보고가 FAIL만 적고 제품 결함 vs 하네스 전제 구분이 없었다.
+    원인: 세션 주입·Playwright 전제 실패와 표시 로직 버그를 같은 bucket에 넣었다.
+    재발 방지: QA 마감 시 항목마다 원인 분류(제품/하네스) 한 줄을 보고에 포함한다.
+    자동 검사: (수동) P9-6b 마감 보고 템플릿
+
+124. 문제: 번역 대기 검증 하네스가 항목 클릭 후 고정 1.2초만 기다려, 같은 코드인데 1차 FAIL·2차 PASS가 나왔다.
+    원인: 거래 상세의 비동기 로드·번역 상태 반영 시점을 고정 지연으로 가정했다.
+    재발 방지: 고정 sleep 대신 메모 값 또는 "번역 대기" 요소가 나타날 때까지 최대 10초 조건 대기한다. 번역 완료는 DB 행을 폴링(최대 60초, 5초 간격)해 확인한다.
+    자동 검사: P9_BIDI_MODE=pending|translate|failure node tests/accounting/p9-carryover-bidi.mjs
+
+125. 문제: 번역 하네스의 결과 note에 사용자 입력 메모 원문 일부가 들어가 console.log로 출력됐다.
+    원인: 디버깅용 텍스트 덤프를 결과 객체에 그대로 넣었다.
+    재발 방지: 하네스 로그·note에는 길이·존재 여부·언어·status·version만 남기고, 메모·코멘트 원문은 출력하지 않는다. 커밋 전 `console.log` 대상을 점검한다.
+    자동 검사: Select-String -Path tests/accounting/p9-carryover-bidi.mjs -Pattern 'ko_head|innerText' (0건이어야 함)
+
+126. 문제: 데스크톱 1440에서 번역 완료 후 같은 목록을 연 직후에는 한국어 칸이 갱신되지 않아 FAIL이 났고, 같은 조건의 새로고침 후에는 한국어가 표시됐다(모바일은 PASS).
+    원인: 번역 완료 이전에 열린 상태를 판정했다. 번역 결과는 새로 로드된 화면에서만 확인하는 것이 안전하다(분류 a, 하네스 타이밍).
+    재발 방지: 번역 후 판정은 DB 폴링 완료 → 새로고침 → 항목 재오픈 뒤 DOM 텍스트로 판정한다. 스크린샷 판독에 의존하지 않는다.
+    자동 검사: P9_BIDI_MODE=translate node tests/accounting/p9-carryover-bidi.mjs
+
+127. 문제: P10 `confirmed` standardized_drafts UPDATE/DELETE 하네스가 PostgREST `error`만 보고 FAIL했다.
+    원인: RLS가 0행 갱신이면 예외를 내지 않고, 트리거는 호출되지 않는다.
+    재발 방지: confirmed 불변 검증은 갱신·삭제 `select` 행 수 0과 service_role로 읽은 값 유지를 함께 단언한다.
+    자동 검사: node tests/accounting/p10-standardized.mjs
+
+128. 문제: P10 로컬 보완 검증에서 status 주입·`next dev -p 3022` 후 브라우저 목록 검증이 SKIP되거나 HTTP 폴링이 실패했다.
+    원인: `next dev`는 프로젝트당 1개만 실행 가능하다. 3020이 떠 있는 동안 3022는 `Another next dev server`로 라우트가 응답하지 않는다(콜드스타트만의 문제가 아님).
+    재발 방지: 검증 시 기존 dev(3020)를 종료한 뒤 3022를 단독 기동하고, 종료 후 3020을 `.env.local` 그대로 복구한다. production build는 `.next` 공유로 별도 검증에 쓰지 않는다.
+    자동 검사: node tests/accounting/p10-list-3022-verify.mjs
+
+129. 문제: P10 목록 3022 검증에서 로그는 Ready인데 `/vat/standardized` HTTP 폴링이 실패했다.
+    원인: 다른 `next dev` 인스턴스가 동시에 실행 중이었다(Turbopack 단일 실행 제한).
+    재발 방지: 3020·3022 포트의 기존 프로세스를 종료한 뒤 3022만 기동하고, 검증 후 3020 dev를 재기동한다.
+    자동 검사: node tests/accounting/p10-list-3022-verify.mjs
+
+130. 문제: P10 standardized 목록이 로컬 시드 후에도 빈 상태였다.
+    원인: RSC 목록은 Supabase SSR auth 쿠키가 서버에 전달되어야 한다. Playwright localStorage만 넣으면 `auth.uid()`가 비어 `form_versions` SELECT가 0건으로 보였다. RLS(P4a)·환경 문제가 아니었다. 원인 확인 전 service role 우회·RLS(P10b) 정책 변경·제품 `setAll` 수정은 하지 않는다.
+    재발 방지: 하네스는 `@supabase/ssr` `createServerClient`로 로그인 후 `sb-<host>-auth-token` 쿠키를 Playwright `domain: localhost`로 심고, localStorage는 클라이언트 gate용으로만 병행한다. 로컬 UI는 3020 종료 후 3022 단독·`NEXT_PUBLIC_*` 로컬 주입.
+    자동 검사: node tests/accounting/p10-list-3022-verify.mjs
+
+131. 번역 대기 행의 전용 재시도 배치 없음(재저장 또는 3회 내부 재시도만) → P6 검토 대기열 범위 후보.
+
+132. P9 pending UI 타임아웃: `accountingI18nTexts`의 `next/server` `after` 정적 import가 `TransactionEntryClient`→`transactionEntry` 경로로 클라이언트 번들에 포함되어 `/company/accounting/transactions`가 500·`ul li button` 0건이었다; `after`는 서버에서만 dynamic import한다.
+
+133. 문제: P6-1 `filed_manual_period_blocked`가 FAIL했다(`lockedDraft.ok` false).
+    원인: P6a `accounting_guard_txn_period_lock`이 filed_manual 기간의 draft INSERT까지 막았다(설계는 확정·ledger 차단).
+    재발 방지: 기간 잠금 트리거는 draft/submitted 생성·편집은 허용하고 confirmed 전환·ledger INSERT만 막는다. ledger는 별도 `accounting_guard_ledger_period_lock`으로 강제한다.
+    자동 검사: npx tsx tests/accounting/p3-posting.mjs · npx tsx tests/accounting/p6-1-vi-confirm-action.mjs
+
+134. 문제: P6a `filed_period_txn_insert_blocked`가 P6-1/SUMMARY #132와 충돌했다(draft INSERT까지 차단 기대).
+    원인: 하네스가 filed_manual 기간에 txn INSERT 실패를 단일 케이스로 단언했고, P6a 초기 트리거가 draft까지 막는 시기와 겹쳤다.
+    재발 방지: filed_manual 기간 검증은 draft 허용·confirm·ledger INSERT 차단을 분리 단언한다. DB 트리거는 LESSONS #133 기준을 따른다.
+    자동 검사: npx tsx tests/accounting/p6a-expert-queue.mjs
+
+135. 문제: P6-2 브라우저 QA가 `/vnk/accounting/review-queue`에서 비로그인으로 막혔다.
+    원인: 일반 `/login` OTP 경로가 로컬에서 불안정하고, dev-local-login 시드·비밀번호 없이 expert 세션을 열지 않았다.
+    재발 방지: 로컬 회계 UI QA는 `dev-local-login-seed.mjs` 후 `/dev/accounting-login`으로 vnk_expert·company_owner 세션을 먼저 확보한다.
+    자동 검사: node tests/accounting/dev-local-login.mjs
+
+136. 문제: P6-2 커밋 메시지에 Ace 승인 없이 `ACE-APPROVED`가 들어갔다.
+    원인: Agent가 protected-docs 패턴을 커밋 메시지에 과도 적용했다(pre-commit은 해당 문구를 요구하지 않음).
+    재발 방지: `ACE-APPROVED`는 Ace 명시 승인·사유가 있을 때만 사용한다. LESSONS/SUMMARY만 변경 시에도 동일한다.
+    자동 검사: (수동) 커밋 메시지 리뷰
+
+137. 문제: P6-2 VAT 6단계 `vat-review-comments` 미노출·expert 코멘트 스레드 빈 화면·dev 로그인 hydration.
+    원인: `getVatDeclaration`이 `FORM_DISABLED` 시 403으로 declaration 컨텍스트를 못 읽음; 코멘트 POST 후 GET 병합 부족; `datetime-local` 초기값이 SSR/CSR 시각 불일치.
+    재발 방지: expert_review/ready는 서식 미검증이어도 declaration·코멘트 API는 반환; 코멘트 POST는 생성 행을 응답·재조회; 시간 기본값은 mount 후 setState; dev-local-login에 `org_a_member` 시드.
+    자동 검사: npx tsx tests/accounting/p6a-expert-queue.mjs · 로컬 `/dev/accounting-login` QA
+
+138. 문제: P6-2 expert/VAT hydration·owner VAT QA `UNAUTHENTICATED`·6단계 탭 무반응.
+    원인: `LocaleProvider`와 `AccountingShell`/`ExpertReview*`가 SSR·CSR에서 `t()` 문자열 불일치; 회계 API는 Bearer만 인정·QA가 `period`·무헤더 fetch 사용; `wizardReadOnly`가 `goToStep` 전체를 막아 expert_review에서 6단계 UI 불가.
+    재발 방지: locale 의존 UI는 mount 후 렌더; VAT URL은 `periodKey`( `period` 별칭); dev-login은 signOut→setSession→getSession 확인; expert_review는 단계 탭은 읽기 전용으로만 전환; 서식 `pending_verification`이면 ready 승인 버튼 숨김.
+    자동 검사: npx tsc --noEmit · p6a · `/dev/accounting-login` owner VAT 6단계
+
+139. 문제: P6-3a p6-1이 `node`로 돌면 `confirmViI18nTextEntry`→`correctionEntry` 상대 import 미해결; 회계 UI locale이 사이트 쿠키에만 의존.
+    원인: TS 엔트리를 `node`로 직접 import; §11은 `accounting_profiles.locale`·헤더 전환 요구.
+    재발 방지: p6-1은 `npx tsx`로 실행; `AccountingCatalogLocaleProvider`+`/api/accounting/profile-locale`; review_comment vi 확정은 `accounting_confirm_vi_i18n_text` RPC; mount 게이트는 SSR locale 불일치 회피용(프로필 locale과 별개); P6-2 RLS로 `company_member`는 review_comments insert 불가 → p6b는 owner/expert 정정 요청·`member_correction_insert_denied`로 검증.
+    자동 검사: npx tsx tests/accounting/p6-1-vi-confirm-action.mjs · p6a · p6b-corrections.mjs
+
+140. 문제: 거래 상세 메모·품목이 코멘트와 다른 vi 확정 UX였고, 정정 요청 canRequest가 P6-2 RLS( member insert 금지)와 어긋남.
+    원인: TransactionExtrasPanel이 confirm_vi API POST만 사용; getTransactionExtras가 member에게 canRequest true.
+    재발 방지: 거래 번역은 AccountingViTextDisplay+confirmAccountingViI18nTextAction; canRequest는 owner·배정 expert만; G5는 ledger_correction_method_verified_status≠verified 시 corr 섹션에 미검증 안내.
+    자동 검사: p6b-corrections.mjs · 거래 상세 `/api/accounting/corrections`
+
+141. 문제: 개발용 원격 Supabase(vfbcai)에 회계 마이그레이션을 MCP로 적용할 때 p2b 이후가 막혔다.
+    원인: MCP SQL 실행 경로에서 DROP 구문 확인 창이 자동 취소되어 스크립트가 중단됐다. p1은 파일 1개를 4조각으로 나눠 적용해 `supabase_migrations.schema_migrations` 이름이 로컬 파일명과 어긋났다.
+    재발 방지: 원격 DDL은 Supabase CLI(파일 단위 적용)로만 수행하고, 기록은 `supabase migration repair`로 로컬 파일명과 일치시킨다. MCP로 DROP·대량 DDL 적용하지 않는다.
+    자동 검사: (수동) `supabase migration list` 로컬·원격 이름 일치 확인 후 통합 테스트.
+
+142. 문제: 회계 마이그레이션 5개·API·하네스 코드가 장기 미커밋 상태였고 push가 막혔다.
+    원인: `chore/harness-v1` 로컬 브랜치명과 `chore/harness-v1-clean` 원격 기준 불일치; `tests/accounting/.p*-session.json`·`.p*-dev.log`가 미추적 상태로 토큰 패턴을 포함했다.
+    재발 방지: push 전 `git status --porcelain`으로 미커밋·미추적 전수 확인; 세션·로그·임시 SQL은 `.gitignore`에 두고 커밋하지 않는다; 검토용 push는 `feat/accounting-viet-tax` 등 명시 브랜치로만 한다.
+    자동 검사: (수동) push 직전 status clean(D 제외) · `git grep`으로 추적 후보에 eyJ/sb- 없음 확인.
+
+143. 문제: `accounting_org_workspace_intake` INSERT 시 audit 트리거가 `new.id`를 읽어 42703으로 실패했다.
+    원인: `accounting_audit_log_append` INSERT 분기가 모든 테이블에 `v_entity_id := new.id`를 먼저 실행했고, intake 행은 `org_id` PK만 있다.
+    재발 방지: audit append는 테이블별로 entity_id·org_id를 분기한 뒤 insert; RLS insert 정책에 `created_by = auth.uid()`; period_key는 granularity별 regex를 DB check·`validateWorkspaceIntakePayload`·클라이언트 제출 전 검증으로 동일화한다.
+    자동 검사: node tests/accounting/workspace-intake.mjs (로컬 `supabase db query` 스키마 동기화 포함; Windows는 psql 없음).
+
+144. 문제: `/dev/accounting-login`이 외부 브라우저에서 빈 화면(HTTP 200)으로 보였다.
+    원인: 클라이언트 페이지가 `mounted` 전까지 빈 `<main aria-busy>`만 SSR·초기 페인트하고, HMR/클라이언트 JS 실패 시 폼이 영구 미표시.
+    재발 방지: dev 전용 로그인은 마운트 게이트 없이 폼을 즉시 렌더; hydration 회피가 필요하면 서버 컴포넌트 래퍼로 환경 분기.
+    자동 검사: curl HTML에 `회계 모듈`·password 입력 존재 · 로컬 `:3021/dev/accounting-login` 브라우저 스냅샷.
+
+145. 문제: `127.0.0.1:3021` /dev/accounting-login 에서 SSR은 보이지만 버튼이 disabled·클릭 무반응(React fiber 없음).
+    원인: controlled input·`disabled={!password}` 클라이언트 전용 UI + Next 16 dev 에서 `127.0.0.1` HMR/WebSocket 차단 시 hydration 미완료.
+    재발 방지: dev 로그인은 Server Action HTML form(비제어 input·submit)으로 JS 없이 동작; `next.config` `allowedDevOrigins`에 `127.0.0.1`·`localhost` 추가( dev 전용 ).
+    자동 검사: SSR submit 버튼에 disabled 없음 · 브라우저에서 빈 비밀번호 submit 시 HTML5 required 포커스 · owner API POST 200.
+
+146. 문제: Server Action dev 로그인 후 `/company/accounting/welcome`은 보이지만 `GET/POST /api/accounting/workspace-intake`가 401·법인명·세금코드 상자가 비었다.
+    원인: Server Action은 `createAdminRouteClient` 쿠키 세션만 설정하고, 회계 클라이언트 API는 `accountingClientFromRequest`로 Authorization Bearer만 인정한다(LESSON 501). 브라우저 `supabase.auth` localStorage 세션이 없으면 `accountingAuthFetch`가 Bearer를 붙이지 못한다.
+    재발 방지: dev 전용 `GET /api/dev/accounting-login/session`(쿠키→토큰, prod 404) + `ensureAccountingClientSession()`을 `accountingAuthFetch`·`AccountingWorkspaceGate`에서 선행; workspace-intake 등 API에 쿠키 우회 추가 금지.
+    자동 검사: dev 로그인 후 welcome에서 workspace-intake 200·org 필드 채움 · 저장 후 home·재진입 시 welcome 스킵 · member 동일 · 조직 B 토큰으로 조직 A intake 불가(RLS).
+
+147. 문제: 0247c73 브리지 후에도 내장 브라우저에서 localStorage 세션 없음·intake 401; intake POST 200 후 welcome에 머무름.
+    원인: (A) `@supabase/supabase-js` 단독 클라이언트는 SSR 쿠키(`sb-*-auth-token`)를 localStorage에 반영하지 않음·session API의 `getSession()`만으로는 Route Handler에서 refresh 토큰을 못 읽는 경우 있음. (B) `AccountingWorkspaceGate`가 welcome+intake 완료 시 `router.replace(home)`을 intake POST 직후 목적지 `replace`와 경합.
+    재발 방지: (A) 브라우저 `createBrowserClient` + dev `refreshSession`/document cookie→`setSession` + layout `AccountingDevSessionBootstrap`. (B) welcome 저장 성공은 `window.location.replace(redirectPath)`; gate는 welcome→home 강제 리다이렉트 제거(재진입은 welcome GET `completed`가 처리).
+    자동 검사: dev Server Action 로그인만으로 intake GET 200·localStorage 세션 존재 · VAT 저장 후 vat URL · org B 1회 intake E2E · member org A welcome 스킵.
+
+148. 문제: 529d72f가 `@/lib/supabase` 전역을 `createBrowserClient`로 바꿔 CHECK/VERIFY/REGISTER·/login·마이페이지 등 60+ import 경로에 쿠키·localStorage 동기화 정책이 번질 위험이 있었다.
+    원인: dev 회계 세션 브리지를 공용 singleton에 합친 설계.
+    재발 방지: `@/lib/supabase`는 `createClient` 유지; 회계·vnk/accounting만 `accountingSupabaseClient`(`createBrowserClient`) + dev `ensureAccountingClientSession`. `/login` OTP 세션은 동일 storage key로 회계 `accountingAuthFetch`가 Bearer를 붙인다. Gate·Shell·HomeClient 등 회계 import는 모두 `accountingSupabaseClient`만 참조.
+    자동 검사: grep `@/lib/supabase`가 회계 트리 밖에서 createBrowserClient를 타지 않음 · dev 로그인 intake E2E · member/welcome gate.
+
+149. 문제: `tests/accounting/isolation.mjs`·`transactions.mjs`가 `accountingHomeData.ts` 등 src `.ts`를 node가 직접 import해 `vatDeadline`/`accountingI18nTexts` chain에서 ERR_MODULE_NOT_FOUND로 실패했다.
+    원인: harness가 `ensureTsxRuntime` 없이 dynamic import만 사용.
+    재발 방지: workspace-intake와 동일하게 파일 최상단 `ensureTsxRuntime(import.meta.url)` 후 ts import.
+    자동 검사: node tests/accounting/isolation.mjs · node tests/accounting/transactions.mjs (조직 간 cross_org 케이스 포함).
+
+150. 문제: VAT wizard UI에서 마지막 작성 라벨에 user id 8자 접두가 노출되고, 신고 상태가 enum 영문 그대로 표시되며, 거래 0건인데 step5가 초록 "점검 항목 없음"을 보였다.
+    원인: `resolveMemberDisplayNames` id fallback·step6 `declStatus` raw 출력·`buildPrecheck`가 confirmed txn/ computed 신호 없이도 green empty state.
+    재발 방지: org role 기반 author 라벨·`accounting.decl.status.*` i18n·`vatPrecheckNeedsNoTxnWarning`+amber 안내·`tests/accounting/vat-declaration-ui.mjs`.
+    자동 검사: vat-declaration-ui · tsc · accounting harness subset.
+
+151. 문제: 16b0a80 후에도 거래 0건·초안 0 계산값만 있는 기간에서 step5가 초록 "점검 항목 없음"을 표시했다.
+    원인: `vatPrecheckNeedsNoTxnWarning`이 confirmed 건수와 computed 0 값을 함께 보며 경고를 끔.
+    재발 방지: 해당 `period_key`의 거래 건수만(count, cancelled 제외)으로 경고; draft/submitted/confirmed 포함 · 월·분기는 txn `period_key`와 선언 URL 동일 키.
+    자동 검사: vat-declaration-ui (a)–(d) · org B 2026-10 step5 amber.
+
+152. 문제: acd4f7d 후에도 org B 2026-10 step5가 초록 "점검 항목 없음"만 보였다(API total=0).
+    원인: wizard step5 복원·직접 진입 시 `buildPrecheck` 미호출 → `precheckNoTxnWarning` 초기 false·precheck []로 green 분기만 렌더.
+    재발 방지: step5 `useEffect`로 항상 `buildPrecheck` · `precheckLoading`+`vatPrecheckStep5ViewState`로 로드 중 green 금지 · 월간 period는 `/api/accounting/transactions?period=` 건수 사용.
+    자동 검사: vat-declaration-ui step5 view · Cursor browser org B 2026-10 step5 amber 텍스트.
+
+153. [32a] label_vi 가 migration 시드에는 축약형으로 남음. 원격 적용 전 신규 migration 으로 갱신 필요 여부 결정.

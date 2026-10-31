@@ -7,6 +7,7 @@ import {
   resolveLanguage,
   type SupportedLanguage,
 } from "@/lib/customerRegistrationValidation";
+import { LEAD_SUBMIT_MEMBER_TYPE } from "@/lib/accounting/companySignup";
 
 // 이 파일은 서버에서만 실행됩니다. service role key는 절대 브라우저로 노출되지 않습니다.
 const supabaseAdmin = createClient(
@@ -165,6 +166,7 @@ export async function POST(req: NextRequest) {
                 email: email && email.trim() ? email.trim() : null,
                 name,
                 address: address ?? null,
+                member_type: LEAD_SUBMIT_MEMBER_TYPE,
                 password_set: true,
               });
             if (profileError) {
@@ -193,6 +195,7 @@ export async function POST(req: NextRequest) {
           email: email && email.trim() ? email.trim() : null,
           name,
           address: address ?? null,
+          member_type: LEAD_SUBMIT_MEMBER_TYPE,
           password_set: true,
         });
 
