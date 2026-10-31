@@ -88,7 +88,7 @@ export const GTGT01_TT89_FIELD_MAP: { pack_version: string; fields: GtgtFieldMap
     {
       code: "32a",
       label_ko: "신고·납부 불요 매출",
-      label_vi: "Bán ra không kê khai tính nộp thuế",
+      label_vi: "Hàng hóa, dịch vụ bán ra không kê khai, tính nộp thuế",
       column: "V",
       kind: "exp",
     },

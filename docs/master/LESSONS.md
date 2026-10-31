@@ -784,3 +784,5 @@
     원인: wizard step5 복원·직접 진입 시 `buildPrecheck` 미호출 → `precheckNoTxnWarning` 초기 false·precheck []로 green 분기만 렌더.
     재발 방지: step5 `useEffect`로 항상 `buildPrecheck` · `precheckLoading`+`vatPrecheckStep5ViewState`로 로드 중 green 금지 · 월간 period는 `/api/accounting/transactions?period=` 건수 사용.
     자동 검사: vat-declaration-ui step5 view · Cursor browser org B 2026-10 step5 amber 텍스트.
+
+153. [32a] label_vi 가 migration 시드에는 축약형으로 남음. 원격 적용 전 신규 migration 으로 갱신 필요 여부 결정.

@@ -60,7 +60,7 @@
 | [29] | Bán ra thuế suất 0% | 0% 매출 | V | in | |
 | [30][31] | Bán ra thuế suất 5% | 5% 매출·세액 | V,T | in | |
 | [32][33] | Bán ra thuế suất 10% | 10% 매출·세액 | V,T | in | |
-| [32a] | Bán ra không kê khai tính nộp thuế | 신고·납부 불요 매출 | V | exp | 기본 0 |
+| [32a] | Hàng hóa, dịch vụ bán ra không kê khai, tính nộp thuế | 신고·납부 불요 매출 | V | exp | 2차 자료(einvoice.vn) 기준 · TT 89/2026/TT-BTC 부록 I 원문 대조 필요 |
 | [32b] | Bán ra không tính vào giá tính thuế | 과세가액 불산입 | V | exp | 기본 0 |
 | [34a] | Bán ra không thuộc phạm vi điều chỉnh của pháp luật thuế GTGT | 부가가치세법 적용 범위 외 매출 | V | exp | 기본 0 (NĐ181 제40조 2항 관련) |
 | [34] | Tổng doanh thu bán ra | 총 매출 | V | calc | [26]+[27]+[34a] |
